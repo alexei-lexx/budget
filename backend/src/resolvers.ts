@@ -1,5 +1,5 @@
 export const resolvers = {
   Query: {
-    health: () => 'OK',
+    health: () => "OK",
   },
 };
