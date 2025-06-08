@@ -1,6 +1,10 @@
-export const handler = async (event: any): Promise<any> => {
-  return {
-    statusCode: 200,
-    body: "Hello from the Lambda function!",
-  };
-};
+import {
+  startServerAndCreateLambdaHandler,
+  handlers,
+} from "@as-integrations/aws-lambda";
+import { server } from "./server";
+
+export const handler = startServerAndCreateLambdaHandler(
+  server,
+  handlers.createAPIGatewayProxyEventV2RequestHandler(),
+);
