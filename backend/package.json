@@ -3,12 +3,11 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "build": "tsc",
+    "build": "rm -rf dist && esbuild src/lambda.ts --bundle --platform=node --outfile=dist/lambda.js",
     "dev": "nodemon --exec ts-node src/index.ts",
     "format": "prettier --write .",
     "lint:fix": "eslint . --fix",
-    "lint": "eslint .",
-    "start": "npm run build && node ./dist/index.js"
+    "lint": "eslint ."
   },
   "dependencies": {
     "@apollo/server": "^4.12.2",
@@ -18,6 +17,7 @@
     "@eslint/js": "^9.28.0",
     "@tsconfig/node22": "^22.0.2",
     "@types/node": "^22.15.29",
+    "esbuild": "0.25.5",
     "eslint": "^9.28.0",
     "nodemon": "^3.1.10",
     "prettier": "3.5.3",
