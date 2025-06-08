@@ -3,12 +3,12 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "compile": "tsc",
+    "build": "tsc",
     "dev": "nodemon --exec ts-node src/index.ts",
     "format": "prettier --write .",
     "lint:fix": "eslint . --fix",
     "lint": "eslint .",
-    "start": "npm run compile && node ./dist/index.js"
+    "start": "npm run build && node ./dist/index.js"
   },
   "dependencies": {
     "@apollo/server": "^4.12.2",
