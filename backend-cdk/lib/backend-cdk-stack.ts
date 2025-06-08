@@ -6,18 +6,18 @@ export class BackendCdkStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    const myFunction = new lambda.Function(this, "HelloWorldFunction", {
+    const graphqlFunction = new lambda.Function(this, "GraphqlEndpoint", {
       runtime: lambda.Runtime.NODEJS_22_X,
       code: lambda.Code.fromAsset('../backend/dist'),
       handler: "lambda.handler",
     });
 
-    const myFunctionUrl = myFunction.addFunctionUrl({
+    const graphqlFunctionUrl = graphqlFunction.addFunctionUrl({
       authType: lambda.FunctionUrlAuthType.NONE,
     });
 
-    new cdk.CfnOutput(this, "myFunctionUrlOutput", {
-      value: myFunctionUrl.url,
+    new cdk.CfnOutput(this, "graphqlFunctionUrlOutput", {
+      value: graphqlFunctionUrl.url,
     });
   }
 }
