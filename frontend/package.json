@@ -7,9 +7,10 @@
     "build-only": "vite build",
     "build": "run-p type-check \"build-only {@}\" --",
     "dev": "vite",
-    "format": "prettier --write src/",
     "lint:fix": "eslint . --fix",
     "lint": "eslint .",
+    "prettier:fix": "prettier --write .",
+    "prettier": "prettier --check .",
     "preview": "vite preview",
     "type-check": "vue-tsc --build"
   },

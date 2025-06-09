@@ -6,9 +6,10 @@
     "build": "npm run compile && rm -rf dist && esbuild src/lambda.ts --bundle --platform=node --outfile=dist/lambda.js",
     "compile": "tsc",
     "dev": "nodemon --exec ts-node src/index.ts",
-    "format": "prettier --write .",
     "lint:fix": "eslint . --fix",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "prettier:fix": "prettier --write .",
+    "prettier": "prettier --check ."
   },
   "dependencies": {
     "@apollo/server": "^4.12.2",

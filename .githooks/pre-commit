@@ -1,0 +1,24 @@
+#!/bin/sh
+set -e
+
+echo "Running format:fix and lint:fix for backend..."
+cd backend
+npm run prettier:fix
+npm run lint:fix
+
+echo "Running format:fix and lint:fix for backend-cdk..."
+cd ../backend-cdk
+npm run prettier:fix
+npm run lint:fix
+
+echo "Running format:fix and lint:fix for frontend..."
+cd ../frontend
+npm run prettier:fix
+npm run lint:fix
+
+echo "Running format:fix and lint:fix for frontend-cdk..."
+cd ../frontend-cdk
+npm run prettier:fix
+npm run lint:fix
+
+echo "Pre-commit checks passed."

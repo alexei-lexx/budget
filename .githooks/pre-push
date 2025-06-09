@@ -18,7 +18,7 @@ npm run lint
 
 echo "Running format and lint for frontend-cdk..."
 cd ../frontend-cdk
-npm run format
+npm run prettier
 npm run lint
 
 echo "Pre-push checks passed."

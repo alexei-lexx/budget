@@ -8,9 +8,10 @@
     "build": "tsc",
     "cdk": "cdk",
     "deploy": "cdk deploy --outputs-file outputs.json",
-    "format": "prettier --write .",
     "lint:fix": "eslint . --fix",
     "lint": "eslint .",
+    "prettier:fix": "prettier --write .",
+    "prettier": "prettier --check .",
     "test": "jest",
     "watch": "tsc -w"
   },
