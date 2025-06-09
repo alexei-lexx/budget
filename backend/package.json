@@ -4,6 +4,7 @@
   "main": "index.js",
   "scripts": {
     "build": "npm run compile && rm -rf dist && esbuild src/lambda.ts --bundle --platform=node --outfile=dist/lambda.js",
+    "codegen": "graphql-codegen --config codegen.yml",
     "compile": "tsc",
     "dev": "nodemon --exec ts-node src/index.ts",
     "format": "prettier --write .",
@@ -17,6 +18,9 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.28.0",
+    "@graphql-codegen/cli": "5.0.7",
+    "@graphql-codegen/typescript": "4.1.6",
+    "@graphql-codegen/typescript-resolvers": "4.5.1",
     "@tsconfig/node22": "^22.0.2",
     "@types/node": "^22.15.29",
     "esbuild": "0.25.5",
@@ -25,6 +29,7 @@
     "prettier": "3.5.3",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3",
-    "typescript-eslint": "^8.33.1"
+    "typescript-eslint": "^8.33.1",
+    "@graphql-codegen/introspection": "4.0.3"
   }
 }
