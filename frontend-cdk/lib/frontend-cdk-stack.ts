@@ -8,7 +8,6 @@ export class FrontendCdkStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    // S3 bucket for frontend static assets
     const frontendBucket = new s3.Bucket(this, "Assets", {
       websiteIndexDocument: "index.html",
       websiteErrorDocument: "index.html",
@@ -26,6 +25,7 @@ export class FrontendCdkStack extends cdk.Stack {
       this,
       "FrontendDistribution",
       {
+        comment: `${this.stackName} - Frontend assets`,
         defaultBehavior: {
           origin: new origins.S3StaticWebsiteOrigin(frontendBucket),
           viewerProtocolPolicy:
