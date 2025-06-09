@@ -8,7 +8,7 @@ export class BackendCdkStack extends cdk.Stack {
 
     const graphqlFunction = new lambda.Function(this, "GraphqlEndpoint", {
       runtime: lambda.Runtime.NODEJS_22_X,
-      code: lambda.Code.fromAsset('../backend/dist'),
+      code: lambda.Code.fromAsset("../backend/dist"),
       handler: "lambda.handler",
     });
 
