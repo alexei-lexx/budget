@@ -1,22 +1,22 @@
 #!/bin/sh
 set -e
 
-echo "Running format and lint for backend..."
+echo "Running prettier and lint for backend..."
 cd backend
-npm run format
+npm run prettier
 npm run lint
 
-echo "Running format and lint for backend-cdk..."
+echo "Running prettier and lint for backend-cdk..."
 cd ../backend-cdk
-npm run format
+npm run prettier
 npm run lint
 
-echo "Running format and lint for frontend..."
+echo "Running prettier and lint for frontend..."
 cd ../frontend
-npm run format
+npm run prettier
 npm run lint
 
-echo "Running format and lint for frontend-cdk..."
+echo "Running prettier and lint for frontend-cdk..."
 cd ../frontend-cdk
 npm run prettier
 npm run lint
