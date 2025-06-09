@@ -4,6 +4,7 @@
 
 - Use lower case for the entire commit message.
 - Do not add a period at the end of the subject line.
+- End the subject line with "(ai gen)" to indicate AI-generated content.
 - Write in imperative mood (e.g., "add feature", "fix bug", "update docs").
 - Keep the message clear and concise—summarize what and why, not how.
 - Limit the subject line to 50 characters if possible.
