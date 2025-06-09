@@ -11,4 +11,14 @@ cd ../backend-cdk
 npm run format
 npm run lint
 
+echo "Running format and lint for frontend..."
+cd ../frontend
+npm run format
+npm run lint
+
+echo "Running format and lint for frontend-cdk..."
+cd ../frontend-cdk
+npm run format
+npm run lint
+
 echo "Pre-push checks passed."
