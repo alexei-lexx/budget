@@ -15,6 +15,7 @@ export default tseslint.config(
       "**/bin/*.js",
       "**/lib/**/*.js",
       "**/test/**/*.js",
+      "outputs.json",
     ],
   },
 );
