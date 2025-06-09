@@ -1,6 +1,4 @@
-import { Resolvers } from "./__generated__/resolvers-types";
-
-export const resolvers: Resolvers = {
+export const resolvers = {
   Query: {
     health: () => {
       const messages = ["OK", "All systems go", "Healthy"];
