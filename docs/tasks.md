@@ -52,10 +52,10 @@ https://example.cloudfront.net/
 ### Implementation Plan
 
 1. **Phase 1: Backend Infrastructure Updates**
-   1. [ ] Add API Gateway to Backend Stack
-      1. [ ] Replace Lambda function URL with API Gateway REST API
-      2. [ ] Configure API Gateway with `/graphql` endpoint
-      3. [ ] Update Lambda integration to use API Gateway proxy
+   1. [x] Add API Gateway to Backend Stack
+      1. [x] Replace Lambda function URL with API Gateway REST API
+      2. [x] Configure API Gateway with `/graphql` endpoint
+      3. [x] Update Lambda integration to use API Gateway proxy
    2. [ ] Export Backend Outputs
       1. [ ] Export API Gateway domain name
       2. [ ] Export API Gateway stage URL
