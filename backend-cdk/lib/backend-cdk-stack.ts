@@ -28,5 +28,11 @@ export class BackendCdkStack extends cdk.Stack {
       value: httpApi.url!,
       description: "GraphQL HTTP API Gateway URL",
     });
+
+    new cdk.CfnOutput(this, "GraphqlApiDomain", {
+      value: `${httpApi.apiId}.execute-api.${this.region}.amazonaws.com`,
+      description: "GraphQL API Gateway domain name (for CloudFront origin)",
+      exportName: `${this.stackName}-GraphqlApiDomain`,
+    });
   }
 }

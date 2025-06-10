@@ -57,13 +57,13 @@ https://example.cloudfront.net/
     - [x] 1.1.1.1 Replace Lambda function URL with API Gateway REST API
     - [x] 1.1.1.2 Configure API Gateway with `/graphql` endpoint  
     - [x] 1.1.1.3 Update Lambda integration to use API Gateway proxy
-  - [ ] **1.1.2 Export Backend Outputs**
-    - [ ] 1.1.2.1 Export API Gateway domain name
-    - [ ] 1.1.2.2 Export API Gateway stage URL
-    - [ ] 1.1.2.3 Make these available for frontend stack consumption
-  - [ ] **1.1.3 Testing**
-    - [ ] 1.1.3.1 Verify API Gateway endpoints respond correctly
-    - [ ] 1.1.3.2 Validate Lambda integration works through API Gateway
+  - [x] **1.1.2 Export Backend Outputs**
+    - [x] 1.1.2.1 Export API Gateway domain name
+    - [x] 1.1.2.2 Export API Gateway stage URL
+    - [x] 1.1.2.3 Make these available for frontend stack consumption
+  - [x] **1.1.3 Testing**
+    - [x] 1.1.3.1 Verify API Gateway endpoints respond correctly
+    - [x] 1.1.3.2 Validate Lambda integration works through API Gateway
 
 - [ ] **1.2 Frontend Infrastructure Updates**
   - [ ] **1.2.1 Import Backend Outputs**
