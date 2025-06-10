@@ -20,7 +20,7 @@ cd ../frontend-cdk
 echo "Preparing frontend infrastructure..."
 npm install
 npm run deploy
-S3_BUCKET=$(cat outputs.json | jq -r '.FrontendCdkStack.S3BucketName')
+S3_BUCKET=$(cat cdk-outputs.json | jq -r '.FrontendCdkStack.S3BucketName')
 
 echo "Switching to frontend directory..."
 cd ../frontend

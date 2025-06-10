@@ -7,7 +7,7 @@
   "scripts": {
     "build": "tsc",
     "cdk": "cdk",
-    "deploy": "cdk deploy --outputs-file outputs.json",
+    "deploy": "cdk deploy --outputs-file cdk-outputs.json",
     "lint:fix": "eslint . --fix",
     "lint": "eslint .",
     "prettier:fix": "prettier --write .",
