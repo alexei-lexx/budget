@@ -4,16 +4,30 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Personal Finance Tracker - A Vue.js 3 frontend with Apollo GraphQL backend, both deployed to AWS. The app helps users track personal finances with Google OAuth authentication.
+Personal Finance Tracker - Currently in scaffolding phase with working infrastructure but no application features implemented yet.
+
+## Current Implementation Status
+
+**Working:**
+- Basic Vue 3 frontend with default Vite template
+- Apollo GraphQL server with health check endpoint only
+- CDK infrastructure for both frontend (S3/CloudFront) and backend (Lambda/API Gateway)
+- Manual deployment pipeline via `deploy.sh`
+
+**Not Yet Implemented:**
+- Google OAuth authentication
+- DynamoDB database integration
+- Financial data models and GraphQL schema
+- Application-specific UI components
+- User management system
 
 ## Architecture
 
-- **Monorepo Structure**: Independent frontend and backend with separate CDK stacks
-- **Frontend**: Vue 3 + Vite (TypeScript), deployed to S3/CloudFront via CDK
-- **Backend**: Apollo Server GraphQL on AWS Lambda, with API Gateway and DynamoDB
-- **Infrastructure**: Each component has its own CDK stack in `*-cdk/` directories
-- **Authentication**: Direct Google OAuth 2.0 integration (no AWS Cognito)
-- **Database**: DynamoDB with abstraction layer for future portability
+- **Monorepo**: Four independent directories with separate package.json files
+- **Frontend**: Vue 3 + Vite + TypeScript (currently default scaffolding)
+- **Backend**: Apollo Server + TypeScript on AWS Lambda (minimal health check only)
+- **Infrastructure**: Separate CDK stacks in `frontend-cdk/` and `backend-cdk/`
+- **Deployment**: Manual process with working S3/CloudFront and Lambda/API Gateway setup
 
 ## Key Commands
 
@@ -59,16 +73,21 @@ npm run cdk           # Direct CDK commands
 
 ## Development Workflow
 
-1. **Backend First**: Deploy backend stack to get API endpoints
-2. **Frontend Second**: Deploy frontend stack (consumes backend outputs)
-3. **Local Development**: Use `npm run dev` in respective directories
-4. **Testing**: Each component has independent test suites
-5. **Deployment**: Use `deploy.sh` for full deployment or individual CDK commands
+**Current Local Development:**
+1. **Frontend**: `cd frontend && npm run dev` (serves on port 5173)
+2. **Backend**: `cd backend && npm run dev` (serves on port 4000)
+3. **Deployment**: `./deploy.sh` for full AWS deployment
 
-## Important Notes
+**Current Infrastructure Deployment:**
+1. Backend builds and deploys Lambda function
+2. Frontend CDK deploys S3/CloudFront and creates `outputs.json`
+3. Frontend builds and syncs static files to S3
 
-- Backend and frontend are completely independent stacks
-- Frontend CDK creates `outputs.json` with deployment configuration
-- All code uses TypeScript with strict typing
-- Google OAuth requires proper client ID configuration for local/remote environments
-- DynamoDB operations are abstracted through repository pattern for database portability
+## Key Technical Details
+
+- Each directory (`frontend/`, `backend/`, `frontend-cdk/`, `backend-cdk/`) is independent
+- Backend currently only has `Query.health` GraphQL endpoint
+- Frontend shows default Vue welcome page with Vite branding
+- CDK stacks deploy separately without output sharing yet
+- No database, authentication, or core application logic implemented
+- TypeScript used throughout with ESLint and Prettier configured

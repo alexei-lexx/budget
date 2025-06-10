@@ -1,56 +1,82 @@
 # Technical Stack Specification
 
 **Project Name:** Personal Finance Tracker
-**Version:** 1.3
-**Date:** 28 May 2025
+**Version:** 2.0 (Updated to reflect current implementation)
+**Date:** 10 June 2025
 
 ---
 
-## 1. High-Level Architecture
+## 1. Current Implementation Status
 
-- **Monorepo:** Single repository containing frontend and backend, each with its own infrastructure-as-code (IaC).
-- **Frontend:** Simple SPA (Vue 3 + Vite), PWA-ready, responsive.
-- **Backend:** Apollo Server (GraphQL) running on AWS Lambda.
-- **API Gateway:** AWS API Gateway to expose Lambda as HTTP endpoint.
-- **Unified Hosting:** Both frontend and backend are served from a single CloudFront distribution and domain.
-- **Authentication:** Google OAuth 2.0 (direct integration, no Cognito).
-- **Database:** AWS DynamoDB (NoSQL, serverless).
-- **Hosting:** AWS S3 + CloudFront for static frontend assets and API routing.
-- **IaC:** AWS CDK (TypeScript) defined within each component (`frontend/cdk/`, `backend/cdk/`).
-- **CI/CD:** GitHub Actions for automated build, test, and deployment.
+**What's Working:**
+- Basic Vue 3 frontend with Vite scaffolding
+- Apollo GraphQL server with health check endpoint
+- AWS CDK infrastructure for both frontend and backend
+- Working deployment pipeline via `deploy.sh`
+- Frontend deployed to S3/CloudFront
+- Backend deployed to Lambda with API Gateway
+
+**What's Not Yet Implemented:**
+- Google OAuth authentication
+- DynamoDB database integration
+- User management system
+- Financial data models and GraphQL schema
+- Application-specific frontend components
+
+## 2. Current Architecture
+
+- **Monorepo:** Single repository with `frontend/`, `backend/`, `frontend-cdk/`, `backend-cdk/` directories
+- **Frontend:** Vue 3 + Vite + TypeScript (currently default template)
+- **Backend:** Apollo Server GraphQL + TypeScript (minimal health check only)
+- **Infrastructure:** Separate CDK stacks for frontend (S3/CloudFront) and backend (Lambda/API Gateway)
+- **Deployment:** Manual deployment via shell script
+
+## 3. Planned Architecture (To Be Implemented)
+
+- **Authentication:** Google OAuth 2.0 (direct integration, no Cognito)
+- **Database:** AWS DynamoDB (NoSQL, serverless)
+- **Unified Domain:** Both frontend and backend served from single CloudFront distribution
+- **CI/CD:** GitHub Actions for automated build, test, and deployment
 
 ---
 
-## 2. Stack Independence & Deployment
+## 4. Current Deployment Structure
 
 - **Independent Stacks:**
-  The frontend and backend each define and deploy their own AWS resources using CDK code located within their respective folders.
-- **Output Sharing:**
-  The backend stack outputs required values (e.g., API endpoint, auth config) after deployment.
-  The frontend stack consumes these outputs as environment variables or configuration during build/deploy.
-- **No Central Infra Layer:**
-  There is no shared `infra/` folder coupling frontend and backend.
-  Coordination between stacks is handled via output sharing and documentation.
+  - `frontend-cdk/`: Defines S3 bucket and CloudFront distribution
+  - `backend-cdk/`: Defines Lambda function and API Gateway
+- **Deployment Process:**
+  1. Backend builds and deploys Lambda
+  2. Frontend CDK creates S3 bucket and outputs to `outputs.json`
+  3. Frontend builds and syncs to S3 bucket
+- **Current Limitations:**
+  - No output sharing between stacks yet
+  - No unified domain configuration
+  - Manual deployment process only
 
 ---
 
-## 3. Technology Choices
+## 5. Technology Choices
 
-**Frontend:**
+**Frontend (Current):**
+- Vue 3 + Vite + TypeScript
+- Default Vite template with HelloWorld and Welcome components
+- Infrastructure: S3 + CloudFront via CDK in `frontend-cdk/`
 
-- Vue 3 + Vite (TypeScript)
-  - Simple, fast, easy to maintain
-  - PWA support
-  - Integrates directly with Google OAuth 2.0 for authentication
-  - CDK code for S3, CloudFront, etc. in `frontend/cdk/`
+**Frontend (Planned):**
+- PWA support for mobile installation
+- Google OAuth 2.0 client integration
+- Responsive design for mobile browsers
 
-**Backend:**
+**Backend (Current):**
+- Apollo Server + Node.js + TypeScript
+- Single health check GraphQL query
+- Infrastructure: Lambda + API Gateway via CDK in `backend-cdk/`
 
-- Apollo Server (Node.js/TypeScript)
-  - GraphQL API
-  - Deployed as AWS Lambda
-  - Verifies Google ID tokens for authentication
-  - CDK code for Lambda, API Gateway, DynamoDB, etc. in `backend/cdk/`
+**Backend (Planned):**
+- Complete GraphQL schema for finance tracking
+- Google ID token verification
+- DynamoDB integration with repository pattern
 
 **API Gateway:**
 
@@ -96,29 +122,43 @@
 
 ---
 
-## 4. Repository Structure
-
-This project uses a simple monorepo structure. All code for the frontend and backend, including their infrastructure, is organized in separate folders within a single repository. No special monorepo management tool is used—just clear folder organization.
+## 6. Current Repository Structure
 
 ```
-budget-app/
-├── frontend/      # Vite + Vue 3 app
-│   └── cdk/       # CDK code for frontend infra (S3, CloudFront, etc.)
-├── backend/       # Apollo Server (GraphQL) for Lambda
-│   └── cdk/       # CDK code for backend infra (Lambda, API Gateway, DynamoDB, etc.)
-├── .github/       # GitHub Actions workflows
-└── README.md
+budget2/
+├── frontend/           # Vue 3 + Vite app
+│   ├── src/
+│   │   ├── App.vue            # Main app component (default template)
+│   │   ├── main.ts            # Vue app entry point
+│   │   └── components/        # Default Vite components
+│   └── package.json           # Frontend dependencies
+├── frontend-cdk/       # Frontend infrastructure
+│   ├── lib/frontend-cdk-stack.ts  # S3 + CloudFront setup
+│   └── outputs.json           # CDK deployment outputs
+├── backend/            # Apollo GraphQL server
+│   ├── src/
+│   │   ├── index.ts           # Local development server
+│   │   ├── lambda.ts          # Lambda handler
+│   │   ├── server.ts          # Apollo server setup
+│   │   ├── schema.ts          # GraphQL schema (health check only)
+│   │   └── resolvers.ts       # GraphQL resolvers (health check only)
+│   └── dist/                  # Built Lambda code
+├── backend-cdk/        # Backend infrastructure
+│   └── lib/backend-cdk-stack.ts   # Lambda + API Gateway setup
+├── deploy.sh           # Manual deployment script
+├── docs/              # Project documentation
+└── CLAUDE.md          # Claude Code guidance
 ```
 
-- Each folder is self-contained and can be developed, built, and deployed independently.
-- Shared code (if any) can be placed in a common directory or managed with relative imports.
-- Backend and frontend stacks are defined separately in their respective folders.
-- Outputs from the backend stack (e.g., API URL, auth config) are made available for the frontend stack.
-- This approach keeps things simple and avoids extra tooling overhead.
+**Key Points:**
+- Each component is self-contained with its own package.json
+- CDK infrastructure is separate from application code
+- No shared code or common utilities yet
+- No GitHub Actions or automated CI/CD
 
 ---
 
-## 5. Rationale
+## 7. Technical Rationale
 
 - **Independent deployment:** Enables faster iteration and easier rollbacks for frontend and backend.
 - **Single language (TypeScript/JavaScript):** Reduces context switching, easy for solo maintenance.
@@ -132,33 +172,39 @@ budget-app/
 
 ---
 
-## 6. Deployment & Maintenance
+## 8. Current Deployment Process
 
-- **Automated CI:** GitHub Actions will be used initially for automated testing only.
-- **Build and deployment:** Build and deployment steps will be run manually from the development machine at first. GitHub Actions for build and deployment can be added later as the project matures.
-- **Serverless-first:** No server management, pay only for usage.
-- **Easy rollback and updates:** All infrastructure and code changes tracked in the repo.
-- **Stack outputs:** After backend deployment, outputs (API URL, etc.) are documented or exported for frontend configuration.
+**Manual Deployment via `deploy.sh`:**
+1. Build backend and deploy via `backend-cdk`
+2. Deploy frontend infrastructure via `frontend-cdk` 
+3. Build frontend and sync to S3 bucket
+4. All deployments are manual and sequential
+
+**Future Enhancements:**
+- GitHub Actions for automated CI/CD
+- Stack output sharing between backend and frontend
+- Unified domain configuration
+- Environment-specific deployments (dev/staging/prod)
 
 ---
 
-## 7. Local Development
+## 9. Local Development
 
-- The application must be runnable locally for development and testing.
-- **DynamoDB Local:**
-  - Use [DynamoDB Local](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBLocal.html) for local development and testing of backend features.
-  - If DynamoDB Local is not available or suitable, the development environment should support connecting to a remote DynamoDB instance (e.g., via environment variables).
-- **Frontend:**
-  - The Vue 3 app can be run locally using Vite's development server.
-  - Google OAuth client ID must be configured for local development.
-  - API endpoint and other backend outputs must be provided via environment variables or config.
-- **Backend:**
-  - Apollo Server (GraphQL) can be run locally using Node.js.
-  - Google ID token verification must work in local and cloud environments.
-- **Infrastructure:**
-  - All infrastructure code (AWS CDK) and deployment scripts must be runnable from a developer's local machine.
-  - Each stack (frontend, backend) can be deployed independently.
-- **Environment Configuration:**
-  - Use environment variables or configuration files to switch between local and remote resources as needed.
+**Current Local Development:**
+- **Frontend:** `npm run dev` in `frontend/` starts Vite dev server on port 5173
+- **Backend:** `npm run dev` in `backend/` starts Apollo server on port 4000
+- **No database integration yet:** Backend only has health check endpoint
+- **No authentication:** No Google OAuth setup yet
+
+**Future Local Development Setup:**
+- DynamoDB Local for database development
+- Google OAuth client configuration for local testing
+- Environment variables for switching between local/remote resources
+- Backend API endpoint configuration for frontend
+
+**Infrastructure:**
+- CDK deployment can be run locally from respective directories
+- Each stack deploys independently to AWS
+- No local infrastructure emulation currently
 
 ---
