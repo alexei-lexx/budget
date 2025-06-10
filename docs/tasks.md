@@ -52,46 +52,46 @@ https://example.cloudfront.net/
 
 ### Implementation Plan
 
-1.1. [x] **Backend Infrastructure Updates**
-   1.1.1. [x] Add API Gateway to Backend Stack
-      1.1.1.1. [x] Replace Lambda function URL with API Gateway REST API
-      1.1.1.2. [x] Configure API Gateway with `/graphql` endpoint  
-      1.1.1.3. [x] Update Lambda integration to use API Gateway proxy
-   1.1.2. [ ] Export Backend Outputs
-      1.1.2.1. [ ] Export API Gateway domain name
-      1.1.2.2. [ ] Export API Gateway stage URL
-      1.1.2.3. [ ] Make these available for frontend stack consumption
-   1.1.3. [ ] Testing
-      1.1.3.1. [ ] Verify API Gateway endpoints respond correctly
-      1.1.3.2. [ ] Validate Lambda integration works through API Gateway
+- [x] **1.1 Backend Infrastructure Updates**
+  - [x] **1.1.1 Add API Gateway to Backend Stack**
+    - [x] 1.1.1.1 Replace Lambda function URL with API Gateway REST API
+    - [x] 1.1.1.2 Configure API Gateway with `/graphql` endpoint  
+    - [x] 1.1.1.3 Update Lambda integration to use API Gateway proxy
+  - [ ] **1.1.2 Export Backend Outputs**
+    - [ ] 1.1.2.1 Export API Gateway domain name
+    - [ ] 1.1.2.2 Export API Gateway stage URL
+    - [ ] 1.1.2.3 Make these available for frontend stack consumption
+  - [ ] **1.1.3 Testing**
+    - [ ] 1.1.3.1 Verify API Gateway endpoints respond correctly
+    - [ ] 1.1.3.2 Validate Lambda integration works through API Gateway
 
-1.2. [ ] **Frontend Infrastructure Updates**
-   1.2.1. [ ] Import Backend Outputs
-      1.2.1.1. [ ] Import API Gateway domain from backend stack
-      1.2.1.2. [ ] Configure CloudFront to use API Gateway as origin
-   1.2.2. [ ] Configure Unified CloudFront Distribution
-      1.2.2.1. [ ] Add behavior for `/api/*` routes → API Gateway origin
-      1.2.2.2. [ ] Keep default behavior for `/*` routes → S3 origin
-      1.2.2.3. [ ] Configure appropriate caching policies for each origin
-      1.2.2.4. [ ] Set up proper security headers
-   1.2.3. [ ] Testing
-      1.2.3.1. [ ] Confirm CloudFront routing works for both `/` and `/api/*`
-      1.2.3.2. [ ] Test that frontend can make GraphQL requests
-      1.2.3.3. [ ] Verify caching behavior is appropriate
+- [ ] **1.2 Frontend Infrastructure Updates**
+  - [ ] **1.2.1 Import Backend Outputs**
+    - [ ] 1.2.1.1 Import API Gateway domain from backend stack
+    - [ ] 1.2.1.2 Configure CloudFront to use API Gateway as origin
+  - [ ] **1.2.2 Configure Unified CloudFront Distribution**
+    - [ ] 1.2.2.1 Add behavior for `/api/*` routes → API Gateway origin
+    - [ ] 1.2.2.2 Keep default behavior for `/*` routes → S3 origin
+    - [ ] 1.2.2.3 Configure appropriate caching policies for each origin
+    - [ ] 1.2.2.4 Set up proper security headers
+  - [ ] **1.2.3 Testing**
+    - [ ] 1.2.3.1 Confirm CloudFront routing works for both `/` and `/api/*`
+    - [ ] 1.2.3.2 Test that frontend can make GraphQL requests
+    - [ ] 1.2.3.3 Verify caching behavior is appropriate
 
-1.3. [ ] **Deployment Process Updates**
-   1.3.1. [ ] Update Deployment Dependencies
-      1.3.1.1. [ ] Ensure backend deploys first (API Gateway must exist)
-      1.3.1.2. [ ] Frontend deployment imports backend outputs
-      1.3.1.3. [ ] Update deploy.sh to handle new dependency order
-   1.3.2. [ ] Environment Configuration
-      1.3.2.1. [ ] Frontend build should use unified CloudFront URL
-      1.3.2.2. [ ] Remove hardcoded API endpoints
-      1.3.2.3. [ ] Configure environment variables for API paths
-   1.3.3. [ ] Testing
-      1.3.3.1. [ ] End-to-end requests from frontend through CloudFront to API
-      1.3.3.2. [ ] Performance testing to ensure no regression
-      1.3.3.3. [ ] Cross-browser compatibility testing
+- [ ] **1.3 Deployment Process Updates**
+  - [ ] **1.3.1 Update Deployment Dependencies**
+    - [ ] 1.3.1.1 Ensure backend deploys first (API Gateway must exist)
+    - [ ] 1.3.1.2 Frontend deployment imports backend outputs
+    - [ ] 1.3.1.3 Update deploy.sh to handle new dependency order
+  - [ ] **1.3.2 Environment Configuration**
+    - [ ] 1.3.2.1 Frontend build should use unified CloudFront URL
+    - [ ] 1.3.2.2 Remove hardcoded API endpoints
+    - [ ] 1.3.2.3 Configure environment variables for API paths
+  - [ ] **1.3.3 Testing**
+    - [ ] 1.3.3.1 End-to-end requests from frontend through CloudFront to API
+    - [ ] 1.3.3.2 Performance testing to ensure no regression
+    - [ ] 1.3.3.3 Cross-browser compatibility testing
 
 
 ### Success Criteria
