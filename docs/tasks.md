@@ -5,11 +5,10 @@
 When creating new implementation tasks in this file, follow these guidelines:
 
 1. **Structure**: Use GitHub markdown ordered lists with checkboxes `[ ]`
-2. **Numbering**: Use format `1.2.3.4` where:
+2. **Numbering**: Use format `1.2.3` (maximum 3 levels) where:
    - `1` = Task number
-   - `2` = Phase number  
-   - `3` = Subtask number
-   - `4` = Step number
+   - `2` = Subtask number  
+   - `3` = Step number
 3. **Content to include**:
    - Objective and current state analysis
    - Target architecture description
@@ -66,32 +65,26 @@ https://example.cloudfront.net/
     - [x] 1.1.3.2 Validate Lambda integration works through API Gateway
 
 - [ ] **1.2 Frontend Infrastructure Updates**
-  - [ ] **1.2.1 Import Backend Outputs**
-    - [ ] 1.2.1.1 Import API Gateway domain from backend stack
-    - [ ] 1.2.1.2 Configure CloudFront to use API Gateway as origin
-  - [ ] **1.2.2 Configure Unified CloudFront Distribution**
-    - [ ] 1.2.2.1 Add behavior for `/api/*` routes → API Gateway origin
-    - [ ] 1.2.2.2 Keep default behavior for `/*` routes → S3 origin
-    - [ ] 1.2.2.3 Configure appropriate caching policies for each origin
-    - [ ] 1.2.2.4 Set up proper security headers
-  - [ ] **1.2.3 Testing**
-    - [ ] 1.2.3.1 Confirm CloudFront routing works for both `/` and `/api/*`
-    - [ ] 1.2.3.2 Test that frontend can make GraphQL requests
-    - [ ] 1.2.3.3 Verify caching behavior is appropriate
+  - [ ] 1.2.1 Import API Gateway domain from backend stack
+  - [ ] 1.2.2 Configure CloudFront to use API Gateway as origin
+  - [ ] 1.2.3 Add behavior for `/api/*` routes → API Gateway origin
+  - [ ] 1.2.4 Keep default behavior for `/*` routes → S3 origin
+  - [ ] 1.2.5 Configure appropriate caching policies for each origin
+  - [ ] 1.2.6 Set up proper security headers
+  - [ ] 1.2.7 Test CloudFront routing works for both `/` and `/api/*`
+  - [ ] 1.2.8 Test that frontend can make GraphQL requests
+  - [ ] 1.2.9 Verify caching behavior is appropriate
 
 - [ ] **1.3 Deployment Process Updates**
-  - [ ] **1.3.1 Update Deployment Dependencies**
-    - [ ] 1.3.1.1 Ensure backend deploys first (API Gateway must exist)
-    - [ ] 1.3.1.2 Frontend deployment imports backend outputs
-    - [ ] 1.3.1.3 Update deploy.sh to handle new dependency order
-  - [ ] **1.3.2 Environment Configuration**
-    - [ ] 1.3.2.1 Frontend build should use unified CloudFront URL
-    - [ ] 1.3.2.2 Remove hardcoded API endpoints
-    - [ ] 1.3.2.3 Configure environment variables for API paths
-  - [ ] **1.3.3 Testing**
-    - [ ] 1.3.3.1 End-to-end requests from frontend through CloudFront to API
-    - [ ] 1.3.3.2 Performance testing to ensure no regression
-    - [ ] 1.3.3.3 Cross-browser compatibility testing
+  - [ ] 1.3.1 Ensure backend deploys first (API Gateway must exist)
+  - [ ] 1.3.2 Frontend deployment imports backend outputs
+  - [ ] 1.3.3 Update deploy.sh to handle new dependency order
+  - [ ] 1.3.4 Frontend build should use unified CloudFront URL
+  - [ ] 1.3.5 Remove hardcoded API endpoints
+  - [ ] 1.3.6 Configure environment variables for API paths
+  - [ ] 1.3.7 End-to-end requests from frontend through CloudFront to API
+  - [ ] 1.3.8 Performance testing to ensure no regression
+  - [ ] 1.3.9 Cross-browser compatibility testing
 
 
 ### Success Criteria
