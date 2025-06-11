@@ -8,7 +8,9 @@ export class FrontendCdkStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    const apiGatewayDomain = cdk.Fn.importValue("BackendCdkStack-GraphqlApiDomain");
+    const apiGatewayDomain = cdk.Fn.importValue(
+      "BackendCdkStack-GraphqlApiDomain",
+    );
 
     const frontendBucket = new s3.Bucket(this, "Assets", {
       websiteIndexDocument: "index.html",
