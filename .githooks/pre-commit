@@ -1,24 +1,24 @@
 #!/bin/sh
 set -e
 
-echo "Running format:fix and lint:fix for backend..."
+echo "Running prettier and lint for backend..."
 cd backend
-npm run prettier:fix
-npm run lint:fix
+npm run prettier
+npm run lint
 
-echo "Running format:fix and lint:fix for backend-cdk..."
+echo "Running prettier and lint for backend-cdk..."
 cd ../backend-cdk
-npm run prettier:fix
-npm run lint:fix
+npm run prettier
+npm run lint
 
-echo "Running format:fix and lint:fix for frontend..."
+echo "Running prettier and lint for frontend..."
 cd ../frontend
-npm run prettier:fix
-npm run lint:fix
+npm run prettier
+npm run lint
 
-echo "Running format:fix and lint:fix for frontend-cdk..."
+echo "Running prettier and lint for frontend-cdk..."
 cd ../frontend-cdk
-npm run prettier:fix
-npm run lint:fix
+npm run prettier
+npm run lint
 
 echo "Pre-commit checks passed."
