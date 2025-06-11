@@ -8,6 +8,8 @@ export class FrontendCdkStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
+    const apiGatewayDomain = cdk.Fn.importValue("BackendCdkStack-GraphqlApiDomain");
+
     const frontendBucket = new s3.Bucket(this, "Assets", {
       websiteIndexDocument: "index.html",
       websiteErrorDocument: "index.html",
@@ -53,6 +55,11 @@ export class FrontendCdkStack extends cdk.Stack {
       value: `https://${distribution.distributionDomainName}`,
       description: "Full CloudFront distribution URL with HTTPS",
       exportName: `${this.stackName}-CloudFrontFullURL`,
+    });
+
+    new cdk.CfnOutput(this, "ImportedApiGatewayDomain", {
+      value: apiGatewayDomain,
+      description: "Imported API Gateway domain from backend stack",
     });
   }
 }
