@@ -64,6 +64,7 @@ Personal Finance Tracker is a serverless web application for individual financia
 - **Apollo Server** - GraphQL server implementation
 - **Node.js** - JavaScript runtime environment
 - **TypeScript** - Type-safe server-side development
+- **esbuild** - Fast bundling for Lambda deployment
 - **JWT libraries** - Token verification and Auth0 integration
 - **AWS SDK** - DynamoDB client libraries
 
@@ -85,7 +86,7 @@ Personal Finance Tracker is a serverless web application for individual financia
 - **Portable:** Can run on any Node.js hosting platform (Docker, VPS, etc.)
 
 ### Dependencies
-Apollo Server, GraphQL, JWT libraries, AWS SDK, TypeScript
+Apollo Server, GraphQL, esbuild, JWT libraries, AWS SDK, TypeScript
 
 ---
 
