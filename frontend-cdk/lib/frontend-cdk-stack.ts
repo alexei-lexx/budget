@@ -40,6 +40,8 @@ export class FrontendCdkStack extends cdk.Stack {
           viewerProtocolPolicy:
             cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
           cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED,
+          responseHeadersPolicy:
+            cloudfront.ResponseHeadersPolicy.SECURITY_HEADERS,
         },
         additionalBehaviors: {
           "/graphql*": {
@@ -49,6 +51,8 @@ export class FrontendCdkStack extends cdk.Stack {
             originRequestPolicy:
               cloudfront.OriginRequestPolicy.ALL_VIEWER_EXCEPT_HOST_HEADER,
             allowedMethods: cloudfront.AllowedMethods.ALLOW_ALL,
+            responseHeadersPolicy:
+              cloudfront.ResponseHeadersPolicy.SECURITY_HEADERS,
           },
         },
         defaultRootObject: "index.html",

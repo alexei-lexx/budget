@@ -64,16 +64,16 @@ https://example.cloudfront.net/
     - [x] 1.1.3.1 Verify API Gateway endpoints respond correctly
     - [x] 1.1.3.2 Validate Lambda integration works through API Gateway
 
-- [ ] **1.2 Frontend Infrastructure Updates**
+- [x] **1.2 Frontend Infrastructure Updates**
   - [x] 1.2.1 Import API Gateway domain from backend stack
   - [x] 1.2.2 Configure CloudFront to use API Gateway as origin
   - [x] 1.2.3 Add behavior for `/graphql*` routes → API Gateway origin
   - [x] 1.2.4 Keep default behavior for `/*` routes → S3 origin
-  - [ ] 1.2.5 Configure appropriate caching policies for each origin
-  - [ ] 1.2.6 Set up proper security headers
-  - [ ] 1.2.7 Test CloudFront routing works for both `/` and `/graphql/*`
-  - [ ] 1.2.8 Test that frontend can make GraphQL requests
-  - [ ] 1.2.9 Verify caching behavior is appropriate
+  - [x] 1.2.5 Configure appropriate caching policies for each origin
+  - [x] 1.2.6 Set up proper security headers
+  - [x] 1.2.7 Test CloudFront routing works for both `/` and `/graphql*`
+  - [x] 1.2.8 Test that frontend can make GraphQL requests
+  - [x] 1.2.9 Verify caching behavior is appropriate
 
 - [ ] **1.3 Deployment Process Updates**
   - [ ] 1.3.1 Ensure backend deploys first (API Gateway must exist)
