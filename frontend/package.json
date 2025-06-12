@@ -7,6 +7,7 @@
     "build-only": "vite build",
     "build": "run-p type-check \"build-only {@}\" --",
     "dev": "vite",
+    "format": "npm run prettier:fix && npm run lint:fix",
     "lint:fix": "eslint . --fix",
     "lint": "eslint .",
     "prettier:fix": "prettier --write .",
@@ -15,9 +16,11 @@
     "type-check": "vue-tsc --build"
   },
   "dependencies": {
-    "vue": "^3.5.13"
+    "vue": "^3.5.13",
+    "vuetify": "^3.8.9"
   },
   "devDependencies": {
+    "@mdi/font": "^7.4.47",
     "@tsconfig/node22": "^22.0.1",
     "@types/node": "^22.14.0",
     "@vitejs/plugin-vue": "^5.2.3",
