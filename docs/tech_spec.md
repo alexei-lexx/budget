@@ -13,13 +13,13 @@ Personal Finance Tracker is a serverless web application for individual financia
 ### Architecture
 ```
 ┌─────────────┐    ┌──────────────┐    ┌──────────────┐    ┌─────────────┐    ┌─────────────┐
-│   Browser   │───▶│ CloudFront   │───▶│ API Gateway  │───▶│   Lambda    │───▶│  DynamoDB   │
+│   Browser   │───>│ CloudFront   │───>│ API Gateway  │───>│   Lambda    │───>│  DynamoDB   │
 │  (Vue SPA)  │    │   (S3 +      │    │   (HTTP      │    │ (GraphQL    │    │  (User      │
 │             │    │    CDN)      │    │    API)      │    │   API)      │    │   Data)     │
 └─────────────┘    └──────────────┘    └──────────────┘    └─────────────┘    └─────────────┘
        │                                                          │
-       │                       ┌─────────────┐                   │
-       └──────────────────────▶│   Auth0     │◀──────────────────┘
+       │                       ┌─────────────┐                    │
+       └──────────────────────>│   Auth0     │<───────────────────┘
                                │ (Identity   │
                                │  Provider)  │
                                └─────────────┘
