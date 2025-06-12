@@ -1,8 +1,8 @@
 # General Specification Document
 
 - **Project Name:** Personal Finance Tracker (working title)
-- **Version:** 2.0 (Updated to reflect current implementation)
-- **Date:** 10 June 2025
+- **Version:** 1.0
+- **Date:** 12 June 2025
 
 ---
 
