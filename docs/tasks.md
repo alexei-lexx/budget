@@ -75,16 +75,6 @@ https://example.cloudfront.net/
   - [x] 1.2.8 Test that frontend can make GraphQL requests
   - [x] 1.2.9 Verify caching behavior is appropriate
 
-- [ ] **1.3 Deployment Process Updates**
-  - [ ] 1.3.1 Ensure backend deploys first (API Gateway must exist)
-  - [ ] 1.3.2 Frontend deployment imports backend outputs
-  - [ ] 1.3.3 Update deploy.sh to handle new dependency order
-  - [ ] 1.3.4 Frontend build should use unified CloudFront URL
-  - [ ] 1.3.5 Remove hardcoded API endpoints
-  - [ ] 1.3.6 Configure environment variables for API paths
-  - [ ] 1.3.7 End-to-end requests from frontend through CloudFront to API
-  - [ ] 1.3.8 Performance testing to ensure no regression
-  - [ ] 1.3.9 Cross-browser compatibility testing
 
 
 ### Success Criteria
