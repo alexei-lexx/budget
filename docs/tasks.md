@@ -7,7 +7,7 @@ When creating new implementation tasks in this file, follow these guidelines:
 1. **Structure**: Use GitHub markdown ordered lists with checkboxes `[ ]`
 2. **Numbering**: Use format `1.2.3` (maximum 3 levels) where:
    - `1` = Task number
-   - `2` = Subtask number  
+   - `2` = Subtask number
    - `3` = Step number
 3. **Content to include**:
    - Objective and current state analysis
@@ -45,7 +45,7 @@ When creating new implementation tasks in this file, follow these guidelines:
 ```
 https://example.cloudfront.net/
 ├── /                    → Frontend (S3 origin)
-├── /api/graphql        → GraphQL API (API Gateway origin)
+├── /graphql        → GraphQL API (API Gateway origin)
 └── /assets/*           → Frontend assets (S3 origin)
 ```
 
@@ -54,7 +54,7 @@ https://example.cloudfront.net/
 - [x] **1.1 Backend Infrastructure Updates**
   - [x] **1.1.1 Add API Gateway to Backend Stack**
     - [x] 1.1.1.1 Replace Lambda function URL with API Gateway REST API
-    - [x] 1.1.1.2 Configure API Gateway with `/graphql` endpoint  
+    - [x] 1.1.1.2 Configure API Gateway with `/graphql` endpoint
     - [x] 1.1.1.3 Update Lambda integration to use API Gateway proxy
   - [x] **1.1.2 Export Backend Outputs**
     - [x] 1.1.2.1 Export API Gateway domain name
@@ -67,11 +67,11 @@ https://example.cloudfront.net/
 - [ ] **1.2 Frontend Infrastructure Updates**
   - [ ] 1.2.1 Import API Gateway domain from backend stack
   - [ ] 1.2.2 Configure CloudFront to use API Gateway as origin
-  - [ ] 1.2.3 Add behavior for `/api/*` routes → API Gateway origin
+  - [ ] 1.2.3 Add behavior for `/graphql/*` routes → API Gateway origin
   - [ ] 1.2.4 Keep default behavior for `/*` routes → S3 origin
   - [ ] 1.2.5 Configure appropriate caching policies for each origin
   - [ ] 1.2.6 Set up proper security headers
-  - [ ] 1.2.7 Test CloudFront routing works for both `/` and `/api/*`
+  - [ ] 1.2.7 Test CloudFront routing works for both `/` and `/graphql/*`
   - [ ] 1.2.8 Test that frontend can make GraphQL requests
   - [ ] 1.2.9 Verify caching behavior is appropriate
 
@@ -90,7 +90,7 @@ https://example.cloudfront.net/
 ### Success Criteria
 
 ✅ Single CloudFront domain serves both frontend and API
-✅ GraphQL endpoint accessible at `/api/graphql`
+✅ GraphQL endpoint accessible at `/graphql`
 ✅ Frontend can make same-origin API requests
 ✅ Deployment process works reliably with new architecture
 ✅ Performance is maintained or improved
