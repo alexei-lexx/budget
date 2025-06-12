@@ -1,15 +1,14 @@
 <script setup lang="ts">
 import { ref } from "vue";
 
-const headerMsg = ref("Welcome to My Vue App");
-const mainMsg = ref("This is the main content area.");
+const clicks = ref(0);
+
+const onClick = () => {
+  clicks.value++;
+};
 </script>
 <template>
-  <header>
-    {{ headerMsg }}
-  </header>
-
   <main>
-    {{ mainMsg }}
+    <button @click="onClick">Clicked {{ clicks }} time(s)</button>
   </main>
 </template>
