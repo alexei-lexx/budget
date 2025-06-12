@@ -25,6 +25,11 @@ export class FrontendCdkStack extends cdk.Stack {
       removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
 
+    const apiGatewayOrigin = new origins.HttpOrigin(apiGatewayDomain, {
+      protocolPolicy: cloudfront.OriginProtocolPolicy.HTTPS_ONLY,
+      originId: "GraphqlApi",
+    });
+
     const distribution = new cloudfront.Distribution(
       this,
       "FrontendDistribution",
@@ -35,6 +40,16 @@ export class FrontendCdkStack extends cdk.Stack {
           viewerProtocolPolicy:
             cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
           cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED,
+        },
+        additionalBehaviors: {
+          "/graphql*": {
+            origin: apiGatewayOrigin,
+            viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.HTTPS_ONLY,
+            cachePolicy: cloudfront.CachePolicy.CACHING_DISABLED,
+            originRequestPolicy:
+              cloudfront.OriginRequestPolicy.ALL_VIEWER_EXCEPT_HOST_HEADER,
+            allowedMethods: cloudfront.AllowedMethods.ALLOW_ALL,
+          },
         },
         defaultRootObject: "index.html",
         errorResponses: [

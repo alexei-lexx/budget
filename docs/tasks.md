@@ -66,9 +66,9 @@ https://example.cloudfront.net/
 
 - [ ] **1.2 Frontend Infrastructure Updates**
   - [x] 1.2.1 Import API Gateway domain from backend stack
-  - [ ] 1.2.2 Configure CloudFront to use API Gateway as origin
-  - [ ] 1.2.3 Add behavior for `/graphql/*` routes → API Gateway origin
-  - [ ] 1.2.4 Keep default behavior for `/*` routes → S3 origin
+  - [x] 1.2.2 Configure CloudFront to use API Gateway as origin
+  - [x] 1.2.3 Add behavior for `/graphql*` routes → API Gateway origin
+  - [x] 1.2.4 Keep default behavior for `/*` routes → S3 origin
   - [ ] 1.2.5 Configure appropriate caching policies for each origin
   - [ ] 1.2.6 Set up proper security headers
   - [ ] 1.2.7 Test CloudFront routing works for both `/` and `/graphql/*`
