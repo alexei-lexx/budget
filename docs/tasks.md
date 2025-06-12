@@ -65,7 +65,7 @@ https://example.cloudfront.net/
     - [x] 1.1.3.2 Validate Lambda integration works through API Gateway
 
 - [ ] **1.2 Frontend Infrastructure Updates**
-  - [ ] 1.2.1 Import API Gateway domain from backend stack
+  - [x] 1.2.1 Import API Gateway domain from backend stack
   - [ ] 1.2.2 Configure CloudFront to use API Gateway as origin
   - [ ] 1.2.3 Add behavior for `/graphql/*` routes → API Gateway origin
   - [ ] 1.2.4 Keep default behavior for `/*` routes → S3 origin
