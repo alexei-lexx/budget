@@ -1,9 +1,19 @@
 import { ApolloClient, createHttpLink, InMemoryCache } from '@apollo/client/core'
 
+// Environment-specific GraphQL endpoint configuration
+const getGraphQLEndpoint = (): string => {
+  // Development: use environment variable or fallback to default
+  if (import.meta.env.DEV) {
+    return import.meta.env.VITE_GRAPHQL_ENDPOINT || 'http://localhost:4000/graphql'
+  }
+  
+  // Production: use same-origin CloudFront endpoint
+  return '/graphql'
+}
+
 // HTTP connection to the API
 const httpLink = createHttpLink({
-  // You should use an absolute URL here
-  uri: 'http://localhost:4000/graphql',
+  uri: getGraphQLEndpoint(),
 })
 
 // Cache implementation
