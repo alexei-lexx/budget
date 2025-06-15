@@ -75,15 +75,15 @@ https://example.cloudfront.net/
   - [x] 1.2.8 Test that frontend can make GraphQL requests
   - [x] 1.2.9 Verify caching behavior is appropriate
 
-- [ ] **1.3 Frontend-Backend Integration**
+- [x] **1.3 Frontend-Backend Integration**
   - [x] 1.3.1 Configure Apollo Client in Vue.js frontend
-  - [ ] 1.3.2 Set up environment-specific API endpoints:
-    - [ ] 1.3.2.1 Local development: `http://localhost:4000/graphql` (backend dev server)
-    - [ ] 1.3.2.2 Production: `/graphql` (unified CloudFront domain - same origin)
-  - [ ] 1.3.3 Implement GraphQL queries in Vue components
-  - [ ] 1.3.4 Update UI components to display data from GraphQL API
-  - [ ] 1.3.5 Test integration in local development environment
-  - [ ] 1.3.6 Test integration in deployed production environment
+  - [x] 1.3.2 Set up environment-specific API endpoints:
+    - [x] 1.3.2.1 Local development: `http://localhost:4000/graphql` (backend dev server)
+    - [x] 1.3.2.2 Production: `/graphql` (unified CloudFront domain - same origin)
+  - [x] 1.3.3 Implement GraphQL queries in Vue components
+  - [x] 1.3.4 Update UI components to display data from GraphQL API
+  - [x] 1.3.5 Test integration in local development environment
+  - [x] 1.3.6 Test integration in deployed production environment
 
 ### Success Criteria
 
