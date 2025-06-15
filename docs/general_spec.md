@@ -16,13 +16,21 @@ The application will help individuals track their personal finances by recording
 
 ### 2.1 Account Management
 
-- Users can create and manage multiple personal accounts, such as:
-  - _Cash_
-  - _Bank Account_
-  - _Credit Card_
-- Each account shows its own balance based on related transactions.
-- Users can rename or delete accounts as needed.
-- Users can set an initial balance for each account when created.
+- Users can create and manage multiple personal accounts (e.g., _Cash_, _Bank Account_, _Credit Card_).
+
+**Account Creation Requirements:**
+- Name must be specified
+- Currency must be selected (required)
+- Initial balance can be set (optional, defaults to 0)
+
+**Account Updates:**
+- Name can be changed
+- Currency can be changed (with warning that this affects transfer compatibility)
+- Initial balance can be updated at any time
+
+**Balance Calculation:**
+- Account balance = Initial balance + Sum of all transactions
+- Balance is displayed in the account's specified currency
 
 ### 2.2 Transaction Tracking
 
