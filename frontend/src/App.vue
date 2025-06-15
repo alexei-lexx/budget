@@ -1,11 +1,18 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, watch } from "vue";
+import { useQuery } from '@vue/apollo-composable';
+import gql from "graphql-tag";
 
-const clicks = ref(0);
+const { result } = useQuery(gql`
+      query checkHealth {
+        health
+      }
+    `);
 
-const onClick = () => {
-  clicks.value++;
-};
+
+    watch(result, ()=> {
+      console.log("result changed:", result);
+    });
 </script>
 <template>
   <v-layout class="rounded rounded-md border">
@@ -20,7 +27,7 @@ const onClick = () => {
     <v-main class="d-flex align-center justify-center" height="300">
       <v-container>
         <v-sheet border="dashed md" color="surface-light" height="200" rounded="lg" width="100%">
-          <v-btn @click="onClick"> Clicked {{ clicks }} time(s) </v-btn>
+          GraphQL health check: {{ result?.health }}
         </v-sheet>
       </v-container>
     </v-main>

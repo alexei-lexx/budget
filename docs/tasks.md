@@ -76,7 +76,7 @@ https://example.cloudfront.net/
   - [x] 1.2.9 Verify caching behavior is appropriate
 
 - [ ] **1.3 Frontend-Backend Integration**
-  - [ ] 1.3.1 Configure Apollo Client in Vue.js frontend
+  - [x] 1.3.1 Configure Apollo Client in Vue.js frontend
   - [ ] 1.3.2 Set up environment-specific API endpoints:
     - [ ] 1.3.2.1 Local development: `http://localhost:4000/graphql` (backend dev server)
     - [ ] 1.3.2.2 Production: `/graphql` (unified CloudFront domain - same origin)
