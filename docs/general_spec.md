@@ -28,6 +28,12 @@ The application will help individuals track their personal finances by recording
 - Currency can be changed (with warning that this affects transfer compatibility)
 - Initial balance can be updated at any time
 
+**Account Deletion:**
+- Accounts are archived (soft delete) rather than permanently deleted
+- Archived accounts are hidden from the main UI but preserved in historical data
+- Users can restore archived accounts if needed
+- This preserves transaction history and maintains report integrity
+
 **Balance Calculation:**
 - Account balance = Initial balance + Sum of all transactions
 - Balance is displayed in the account's specified currency
