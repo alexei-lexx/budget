@@ -87,9 +87,9 @@ https://example.cloudfront.net/
 
 ### Success Criteria
 
-✅ Single CloudFront domain serves both frontend and API
-✅ GraphQL endpoint accessible at `/graphql`
-✅ Frontend can make same-origin API requests
-✅ Deployment process works reliably with new architecture
-✅ Performance is maintained or improved
-✅ All existing functionality continues to work
+- ✅ Single CloudFront domain serves both frontend and API
+- ✅ GraphQL endpoint accessible at `/graphql`
+- ✅ Frontend can make same-origin API requests
+- ✅ Deployment process works reliably with new architecture
+- ✅ Performance is maintained or improved
+- ✅ All existing functionality continues to work
