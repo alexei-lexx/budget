@@ -9,10 +9,6 @@ const { result } = useQuery(gql`
       }
     `);
 
-
-    watch(result, ()=> {
-      console.log("result changed:", result);
-    });
 </script>
 <template>
   <v-layout class="rounded rounded-md border">
