@@ -9,7 +9,7 @@ const onClick = () => {
 </script>
 <template>
   <v-layout class="rounded rounded-md border">
-    <v-app-bar title="Application bar"></v-app-bar>
+    <v-app-bar title="Personal Budget Tracker"></v-app-bar>
 
     <v-navigation-drawer>
       <v-list nav>

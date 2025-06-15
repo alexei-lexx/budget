@@ -78,6 +78,12 @@ export class FrontendCdkStack extends cdk.Stack {
       exportName: `${this.stackName}-CloudFrontFullURL`,
     });
 
+    new cdk.CfnOutput(this, "CloudFrontDistributionId", {
+      value: distribution.distributionId,
+      description: "CloudFront distribution ID for cache invalidation",
+      exportName: `${this.stackName}-CloudFrontDistributionId`,
+    });
+
     new cdk.CfnOutput(this, "ImportedApiGatewayDomain", {
       value: apiGatewayDomain,
       description: "Imported API Gateway domain from backend stack",
