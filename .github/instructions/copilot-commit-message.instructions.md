@@ -13,6 +13,8 @@
 - Use bullet points or lists in the body for clarity if needed.
 - Use present tense and active voice.
 - Avoid generic messages like "update" or "fix".
+- **Prefix the subject with `[doc]` if the commit only includes updates to files in the `doc` subfolder.**
+- **Prefix the subject with `[copilot]` if the commit only includes updates to Copilot instructions.**
 
 ## Examples
 
@@ -27,3 +29,15 @@ add delete account feature
 - confirms deletion with modal
 - updates graphql mutation
 ```
+
+### Special Prefix Examples
+
+- `[doc]` prefix example:
+  ```
+  [doc] update getting started guide
+  ```
+
+- `[copilot]` prefix example:
+  ```
+  [copilot] clarify commit message guidelines
+  ```
