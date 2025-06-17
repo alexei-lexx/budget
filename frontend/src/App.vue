@@ -1,16 +1,49 @@
 <script setup lang="ts">
 import { useQuery } from "@vue/apollo-composable";
+import { computed } from "vue";
 import gql from "graphql-tag";
+import { useAuth } from "@/composables/useAuth";
+import LoginButton from "@/components/LoginButton.vue";
+import LogoutButton from "@/components/LogoutButton.vue";
+import { anonymizeEmail } from "@/utils/anonymize";
 
 const { result, loading, error, refetch } = useQuery(gql`
   query checkHealth {
     health
   }
 `);
+
+const { user, isAuthenticated, isLoading: authLoading } = useAuth();
+
+const displayName = computed(() => {
+  if (!user.value?.email) return "noname";
+
+  return anonymizeEmail(user.value.email);
+});
 </script>
 <template>
   <v-layout class="rounded rounded-md border">
-    <v-app-bar title="Personal Budget Tracker"></v-app-bar>
+    <v-app-bar title="Personal Budget Tracker">
+      <template v-slot:append>
+        <div class="d-flex align-center ga-3">
+          <!-- User info when authenticated -->
+          <div v-if="isAuthenticated && user" class="d-flex align-center ga-2">
+            <v-avatar size="32">
+              <v-img v-if="user.picture" :src="user.picture" :alt="displayName" />
+              <v-icon v-else>mdi-account</v-icon>
+            </v-avatar>
+            <span class="text-body-2">{{ displayName }}</span>
+          </div>
+
+          <!-- Auth loading state -->
+          <v-progress-circular v-if="authLoading" indeterminate size="24" />
+
+          <!-- Auth buttons -->
+          <LoginButton v-if="!isAuthenticated && !authLoading" />
+          <LogoutButton v-if="isAuthenticated && !authLoading" />
+        </div>
+      </template>
+    </v-app-bar>
 
     <v-navigation-drawer>
       <v-list nav>
