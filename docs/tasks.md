@@ -171,3 +171,100 @@ User → Auth0 Login → JWT Token → Vue App State
 - [x] UI appropriately shows authentication status
 - [?] Error states are handled gracefully
 - [?] JWT tokens are stored and available for future GraphQL integration
+
+---
+
+## Task 3: User Onboarding and Database Integration
+
+**Objective:** Implement automatic user creation in internal database upon successful Auth0 authentication, with complete development and production database setup.
+
+### Current State Analysis
+
+**Authentication Status:**
+- ❌ Auth0 JWT verification NOT implemented in backend
+- ✅ Frontend Auth0 integration complete (can obtain JWT tokens)
+- ❌ User context extraction from JWT tokens missing
+- ❌ JWT tokens not sent from frontend to backend
+
+**Database Status:**
+- ❌ No user management in internal database
+- ❌ No user creation mechanism
+- ❌ No development database setup
+- ❌ All operations assume existing users
+
+**Backend GraphQL:**
+- ❌ Only health check query implemented
+- ❌ No user-related mutations or queries
+- ❌ No database integration
+
+### Target Architecture
+
+**User Creation Flow:**
+```
+Auth0 Login → Frontend → GraphQL Request → ensureUser Mutation → DynamoDB
+     ↓            ↓              ↓              ↓                ↓
+JWT Token → Apollo Client → Auth Header → Check Existence → Create User
+```
+
+**Database Schema:**
+```typescript
+interface User {
+  id: string;           // UUID v4 primary key
+  auth0UserId: string;  // Auth0 sub claim (unique)
+  email: string;        // Normalized lowercase email
+  createdAt: string;    // ISO timestamp
+  updatedAt: string;    // ISO timestamp
+}
+```
+
+### Implementation Plan
+
+- [ ] **3.1 Development Database Setup**
+  - [ ] 3.1.1 Create Docker Compose configuration for DynamoDB Local
+  - [ ] 3.1.2 Add npm scripts for database management
+  - [ ] 3.1.3 Create table creation scripts for development
+  - [ ] 3.1.4 Update development documentation
+
+- [ ] **3.2 Production Database Configuration**
+  - [ ] 3.2.1 Update backend-cdk to create Users table
+  - [ ] 3.2.2 Configure proper partition key (id) and GSI (auth0UserId)
+  - [ ] 3.2.3 Set up point-in-time recovery
+  - [ ] 3.2.4 Configure appropriate billing mode
+  - [ ] 3.2.5 Add IAM permissions for Lambda
+
+- [ ] **3.3 Backend User Management**
+  - [ ] 3.3.1 Use built-in crypto.randomUUID() for internal user ID generation
+  - [ ] 3.3.2 Create User model and types
+  - [ ] 3.3.3 Implement UserRepository with findByAuth0UserId and create operations
+  - [ ] 3.3.4 Add user existence checking by Auth0 user ID only
+  - [ ] 3.3.5 Implement user creation with validation
+
+- [ ] **3.4 JWT Authentication Setup**
+  - [ ] 3.4.1 Install JWT verification libraries (jsonwebtoken, jwks-rsa)
+  - [ ] 3.4.2 Add JWT verification to Apollo Server context
+  - [ ] 3.4.3 Extract user info from verified JWT tokens
+  - [ ] 3.4.4 Handle authentication errors and edge cases
+
+- [ ] **3.5 GraphQL Schema and Resolvers**
+  - [ ] 3.5.1 Define User type in GraphQL schema
+  - [ ] 3.5.2 Add ensureUser mutation
+  - [ ] 3.5.3 Implement ensureUser resolver with existence checking
+  - [ ] 3.5.4 Add input validation and error handling
+
+- [ ] **3.6 Frontend Integration**
+  - [ ] 3.6.1 Configure Apollo Client to send JWT tokens in headers
+  - [ ] 3.6.2 Add ensureUser mutation call to frontend
+  - [ ] 3.6.3 Call ensureUser immediately after successful Auth0 login
+  - [ ] 3.6.4 Add loading states and error handling for user creation
+  - [ ] 3.6.5 Test complete flow from login to user creation
+
+### Success Criteria
+
+- [ ] Development database runs locally with Docker Compose
+- [ ] Production DynamoDB table created automatically via CDK
+- [ ] Users automatically created on first authenticated request
+- [ ] Duplicate user creation handled gracefully
+- [ ] Auth0 user ID used as primary identifier
+- [ ] Email addresses normalized to lowercase
+- [ ] Complete error handling for all failure scenarios
+- [ ] Frontend shows appropriate loading/error states during onboarding
