@@ -9,12 +9,16 @@ When creating new implementation tasks in this file, follow these guidelines:
    - `1` = Task number
    - `2` = Subtask number
    - `3` = Step number
-3. **Content to include**:
+3. **Definitions**:
+   - **Task**: A major user-facing feature or business capability that delivers value. Written from user/product owner perspective describing what functionality will be available. Uses single-digit numbering (e.g., "Task 1"). Exception: purely technical tasks that enable other features.
+   - **Subtask**: A specific subfeature or user capability within the main task. Each subtask should deliver standalone value that users can directly benefit from. Written from user perspective (e.g., "Delete Account", "Export Data"). Uses two-digit numbering format `X.Y` (e.g., "1.1", "1.2").
+   - **Step**: The technical implementation details and specific work items needed to deliver the subtask. Uses three-digit numbering format `X.Y.Z` (e.g., "1.1.1"). This is where technical implementation details belong.
+4. **Content to include**:
    - Objective and current state analysis
    - Target architecture description
    - Implementation plan with numbered phases
    - Success criteria
-4. **Progress tracking**: Mark completed tasks by changing `[ ]` to `[x]`
+5. **Progress tracking**: Mark completed tasks by changing `[ ]` to `[x]`
 
 ---
 
