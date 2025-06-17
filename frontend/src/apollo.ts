@@ -1,18 +1,12 @@
 import { ApolloClient, createHttpLink, InMemoryCache } from "@apollo/client/core";
 
-// Environment-specific GraphQL endpoint configuration
 const getGraphQLEndpoint = (): string => {
   // Always check for explicit environment variable first
   if (import.meta.env.VITE_GRAPHQL_ENDPOINT) {
     return import.meta.env.VITE_GRAPHQL_ENDPOINT;
   }
 
-  // Fallback based on environment
-  if (import.meta.env.DEV) {
-    return "http://localhost:4000/graphql";
-  }
-
-  // Production: use same-origin CloudFront endpoint
+  // Fallback to the default endpoint
   return "/graphql";
 };
 
