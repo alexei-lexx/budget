@@ -23,6 +23,14 @@ npm run lint         # ESLint check
 npm run lint:fix     # ESLint with auto-fix
 npm run prettier     # Prettier format check
 npm run prettier:fix # Prettier format fix
+
+# Database (Development)
+npm run db:start      # Start DynamoDB Local + Admin UI
+npm run db:start-only # Start only DynamoDB Local (without admin UI)
+npm run db:admin      # Start admin UI separately
+npm run db:stop       # Stop all database services
+npm run db:setup      # Start database and create tables
+npm run db:reset      # Reset database (stop, start, create tables)
 ```
 
 ### Frontend Development
@@ -65,6 +73,39 @@ npm run test         # Run Jest tests
 - DynamoDB with user data partitioned by internal user ID
 - Repository pattern abstracts database operations for portability
 - All queries scoped to authenticated user for data isolation
+
+### Development Database
+
+**Setup:**
+- DynamoDB Local runs in Docker container (port 8000)
+- DynamoDB Admin UI available at http://localhost:8001
+- Tables created automatically with `npm run db:setup`
+- Data persisted in `./docker/dynamodb/` directory
+
+**First-time setup:**
+```bash
+cd backend
+npm run db:setup    # Starts DynamoDB Local and creates all tables
+```
+
+**Daily development workflow:**
+```bash
+cd backend
+npm run db:start    # Start DynamoDB Local + Admin UI
+npm run dev         # Start backend development server
+
+# Admin UI automatically available at http://localhost:8001
+```
+
+**Database management:**
+```bash
+npm run db:stop     # Stop DynamoDB Local + Admin UI
+npm run db:reset    # Reset database (recreate all tables)
+```
+
+**Requirements:**
+- Docker and Docker Compose must be installed
+- AWS SDK dependencies installed via `npm install`
 
 ### Development Tools
 - ESLint + Prettier for code quality across all packages
