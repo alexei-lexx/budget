@@ -1,9 +1,49 @@
 import { ApolloServer } from "@apollo/server";
 import { typeDefs } from "./schema";
 import { resolvers } from "./resolvers";
+import { JwtAuthService, AuthContext } from "./auth/jwtAuth";
+import { UserRepository } from "./repositories/UserRepository";
+import { IUserRepository } from "./models/User";
 
-export const server = new ApolloServer({
+export interface GraphQLContext {
+  auth: AuthContext;
+  userRepository: IUserRepository;
+}
+
+let jwtAuthService: JwtAuthService;
+let userRepository: UserRepository;
+
+export const server = new ApolloServer<GraphQLContext>({
   typeDefs,
   resolvers,
-  introspection: true, // Enable introspection for development
+  introspection: process.env.NODE_ENV === "development", // Enable introspection for development
 });
+
+/**
+ * Create GraphQL context with JWT authentication
+ * Extracts and verifies JWT token from Authorization header
+ */
+export async function createContext(req: {
+  headers: Record<string, string | string[] | undefined>;
+}): Promise<GraphQLContext> {
+  // Initialize services on first use (after env vars are loaded)
+  if (!jwtAuthService) {
+    jwtAuthService = new JwtAuthService();
+  }
+
+  if (!userRepository) {
+    userRepository = new UserRepository();
+  }
+
+  const authHeader = req.headers.authorization;
+  // Handle both string and string[] types from different contexts
+  const authHeaderString = Array.isArray(authHeader)
+    ? authHeader[0]
+    : authHeader;
+  const auth = await jwtAuthService.getAuthContext(authHeaderString);
+
+  return {
+    auth,
+    userRepository,
+  };
+}

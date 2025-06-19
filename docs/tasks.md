@@ -239,11 +239,11 @@ interface User {
   - [x] 3.3.4 Add user existence checking by Auth0 user ID only
   - [x] 3.3.5 Implement user creation with validation
 
-- [ ] **3.4 JWT Authentication Setup**
-  - [ ] 3.4.1 Install JWT verification libraries (jsonwebtoken, jwks-rsa)
-  - [ ] 3.4.2 Add JWT verification to Apollo Server context
-  - [ ] 3.4.3 Extract user info from verified JWT tokens
-  - [ ] 3.4.4 Handle authentication errors and edge cases
+- [x] **3.4 JWT Authentication Setup**
+  - [x] 3.4.1 Install JWT verification libraries (jsonwebtoken, jwks-rsa)
+  - [x] 3.4.2 Add JWT verification to Apollo Server context
+  - [x] 3.4.3 Extract user info from verified JWT tokens
+  - [x] 3.4.4 Handle authentication errors and edge cases
 
 - [ ] **3.5 GraphQL Schema and Resolvers**
   - [ ] 3.5.1 Define User type in GraphQL schema
