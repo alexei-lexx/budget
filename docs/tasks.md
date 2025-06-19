@@ -225,12 +225,12 @@ interface User {
   - [x] 3.1.3 Create table creation scripts for development
   - [x] 3.1.4 Update development documentation
 
-- [ ] **3.2 Production Database Configuration**
-  - [ ] 3.2.1 Update backend-cdk to create Users table
-  - [ ] 3.2.2 Configure proper partition key (id) and GSI (auth0UserId)
-  - [ ] 3.2.3 Set up point-in-time recovery
-  - [ ] 3.2.4 Configure appropriate billing mode
-  - [ ] 3.2.5 Add IAM permissions for Lambda
+- [x] **3.2 Production Database Configuration**
+  - [x] 3.2.1 Update backend-cdk to create Users table
+  - [x] 3.2.2 Configure proper partition key (id) and GSI (auth0UserId)
+  - [x] 3.2.3 Set up point-in-time recovery
+  - [x] 3.2.4 Configure appropriate billing mode
+  - [x] 3.2.5 Add IAM permissions for Lambda
 
 - [ ] **3.3 Backend User Management**
   - [ ] 3.3.1 Use built-in crypto.randomUUID() for internal user ID generation

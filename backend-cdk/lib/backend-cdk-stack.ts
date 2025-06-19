@@ -3,16 +3,39 @@ import { Construct } from "constructs";
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as apigatewayv2 from "aws-cdk-lib/aws-apigatewayv2";
 import * as integrations from "aws-cdk-lib/aws-apigatewayv2-integrations";
+import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
 
 export class BackendCdkStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
+    const usersTable = new dynamodb.Table(this, "UsersTable", {
+      tableName: "Users",
+      partitionKey: { name: "id", type: dynamodb.AttributeType.STRING },
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      pointInTimeRecovery: true,
+      removalPolicy: cdk.RemovalPolicy.RETAIN,
+    });
+
+    usersTable.addGlobalSecondaryIndex({
+      indexName: "Auth0UserIdIndex",
+      partitionKey: {
+        name: "auth0UserId",
+        type: dynamodb.AttributeType.STRING,
+      },
+      projectionType: dynamodb.ProjectionType.ALL,
+    });
+
     const graphqlFunction = new lambda.Function(this, "GraphqlEndpoint", {
       runtime: lambda.Runtime.NODEJS_22_X,
       code: lambda.Code.fromAsset("../backend/dist"),
       handler: "lambda.handler",
+      environment: {
+        USERS_TABLE_NAME: usersTable.tableName,
+      },
     });
+
+    usersTable.grantReadWriteData(graphqlFunction);
 
     const lambdaIntegration = new integrations.HttpLambdaIntegration(
       "GraphqlIntegration",
