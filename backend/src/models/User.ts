@@ -11,7 +11,7 @@ export interface CreateUserInput {
   email: string;
 }
 
-export interface UserRepository {
+export interface IUserRepository {
   findByAuth0UserId(auth0UserId: string): Promise<User | null>;
   create(input: CreateUserInput): Promise<User>;
   ensureUser(auth0UserId: string, email: string): Promise<User>;

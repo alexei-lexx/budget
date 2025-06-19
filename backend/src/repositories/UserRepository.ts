@@ -5,11 +5,7 @@ import {
   QueryCommand,
 } from "@aws-sdk/lib-dynamodb";
 import { randomUUID } from "crypto";
-import {
-  User,
-  CreateUserInput,
-  UserRepository as IUserRepository,
-} from "../models/User.js";
+import { User, CreateUserInput, IUserRepository } from "../models/User.js";
 
 export class UserRepository implements IUserRepository {
   private client: DynamoDBDocumentClient;
