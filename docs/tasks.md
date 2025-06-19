@@ -245,11 +245,11 @@ interface User {
   - [x] 3.4.3 Extract user info from verified JWT tokens
   - [x] 3.4.4 Handle authentication errors and edge cases
 
-- [ ] **3.5 GraphQL Schema and Resolvers**
-  - [ ] 3.5.1 Define User type in GraphQL schema
-  - [ ] 3.5.2 Add ensureUser mutation
-  - [ ] 3.5.3 Implement ensureUser resolver with existence checking
-  - [ ] 3.5.4 Add input validation and error handling
+- [x] **3.5 GraphQL Schema and Resolvers**
+  - [x] 3.5.1 Define User type in GraphQL schema
+  - [x] 3.5.2 Add ensureUser mutation
+  - [x] 3.5.3 Implement ensureUser resolver with existence checking
+  - [x] 3.5.4 Add input validation and error handling
 
 - [ ] **3.6 Frontend Integration**
   - [ ] 3.6.1 Configure Apollo Client to send JWT tokens in headers
