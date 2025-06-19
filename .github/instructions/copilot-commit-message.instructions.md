@@ -7,7 +7,9 @@
 - Write in imperative mood (e.g., "add feature", "fix bug", "update docs").
 - Keep the message clear and concise—summarize what and why, not how.
 - Limit the subject line to 50 characters if possible.
+- The subject should focus on the main point of the changes.
 - Separate subject from body with a blank line (if a body is needed).
+- If there is more than one logical change, add a commit body describing them.
 - Use the body to explain "why" if the change is not obvious.
 - Wrap lines in the body at 72 characters.
 - Use bullet points or lists in the body for clarity if needed.
