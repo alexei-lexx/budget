@@ -260,11 +260,11 @@ interface User {
 
 ### Success Criteria
 
-- [ ] Development database runs locally with Docker Compose
-- [ ] Production DynamoDB table created automatically via CDK
-- [ ] Users automatically created on first authenticated request
-- [ ] Duplicate user creation handled gracefully
-- [ ] Auth0 user ID used as primary identifier
-- [ ] Email addresses normalized to lowercase
-- [ ] Complete error handling for all failure scenarios
-- [ ] Frontend shows appropriate loading/error states during onboarding
+- [x] Development database runs locally with Docker Compose
+- [x] Production DynamoDB table created automatically via CDK
+- [x] Users automatically created on first authenticated request
+- [x] Duplicate user creation handled gracefully
+- [x] Auth0 user ID used as primary identifier
+- [x] Email addresses normalized to lowercase
+- [x] Complete error handling for all failure scenarios
+- [x] Frontend shows appropriate loading/error states during onboarding
