@@ -49,7 +49,9 @@ export class JwtAuthService {
       throw new Error("AUTH0_DOMAIN environment variable is required");
     }
 
-    // Note: AUTH0_AUDIENCE is optional - if not provided, audience validation is skipped
+    if (!this.audience) {
+      throw new Error("AUTH0_AUDIENCE environment variable is required");
+    }
 
     // Initialize JWKS client to fetch Auth0 public keys
     this.client = jwksClient({
@@ -88,13 +90,9 @@ export class JwtAuthService {
     return new Promise((resolve, reject) => {
       const options: jwt.VerifyOptions = {
         issuer: `https://${this.domain}/`,
+        audience: this.audience,
         algorithms: ["RS256"],
       };
-
-      // Only validate audience if provided
-      if (this.audience) {
-        options.audience = this.audience;
-      }
 
       jwt.verify(token, this.getKey, options, (err, decoded) => {
         if (err) {
@@ -110,6 +108,25 @@ export class JwtAuthService {
         resolve(decoded as JwtPayload);
       });
     });
+  }
+
+  /**
+   * Get user info from Auth0 userinfo endpoint
+   * @param token - Access token
+   * @returns User info including email
+   */
+  async getUserInfo(token: string): Promise<{ email?: string; sub: string }> {
+    const response = await fetch(`https://${this.domain}/userinfo`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch user info");
+    }
+
+    return await response.json() as { email?: string; sub: string };
   }
 
   /**
@@ -132,12 +149,15 @@ export class JwtAuthService {
 
     try {
       const payload = await this.verifyToken(token);
+      
+      // Get user info from Auth0 userinfo endpoint to get email
+      const userInfo = await this.getUserInfo(token);
 
       return {
         isAuthenticated: true,
         user: {
           auth0UserId: payload.sub,
-          email: payload.email,
+          email: userInfo.email,
         },
       };
     } catch (error) {

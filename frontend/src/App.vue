@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { useQuery } from "@vue/apollo-composable";
-import { computed } from "vue";
+import { computed, watch, onMounted } from "vue";
 import gql from "graphql-tag";
 import { useAuth } from "@/composables/useAuth";
+import { useUser } from "@/composables/useUser";
 import LoginButton from "@/components/LoginButton.vue";
 import LogoutButton from "@/components/LogoutButton.vue";
 import { anonymizeEmail } from "@/utils/anonymize";
+import { setAuthTokenGetter } from "@/apollo";
 
 const { result, loading, error, refetch } = useQuery(gql`
   query checkHealth {
@@ -13,7 +15,43 @@ const { result, loading, error, refetch } = useQuery(gql`
   }
 `);
 
-const { user, isAuthenticated, isLoading: authLoading } = useAuth();
+const { user, isAuthenticated, isLoading: authLoading, getAccessToken } = useAuth();
+const { ensureUser, ensureUserLoading, userError } = useUser();
+
+// Set up token getter for Apollo Client
+onMounted(() => {
+  setAuthTokenGetter(async () => {
+    try {
+      console.log('Is authenticated:', isAuthenticated.value);
+
+      if (isAuthenticated.value) {
+        const token = await getAccessToken();
+        console.log('Got token:', token ? 'yes' : 'no');
+        return token;
+      }
+      return null;
+    } catch (error) {
+      console.error("Failed to get access token:", error);
+      return null;
+    }
+  });
+});
+
+// Watch for authentication state changes and ensure user exists
+watch(
+  [isAuthenticated, authLoading],
+  async ([authenticated, loading]) => {
+    // Only call ensureUser when user is authenticated and auth loading is complete
+    if (authenticated && !loading) {
+      try {
+        await ensureUser();
+      } catch (error) {
+        console.error("Failed to ensure user:", error);
+      }
+    }
+  },
+  { immediate: true }
+);
 
 const displayName = computed(() => {
   if (!user.value?.email) return "noname";
@@ -36,11 +74,18 @@ const displayName = computed(() => {
           </div>
 
           <!-- Auth loading state -->
-          <v-progress-circular v-if="authLoading" indeterminate size="24" />
+          <v-progress-circular v-if="authLoading || ensureUserLoading" indeterminate size="24" />
+
+          <!-- User creation error -->
+          <v-tooltip v-if="userError" text="User creation failed">
+            <template v-slot:activator="{ props }">
+              <v-icon v-bind="props" color="warning">mdi-alert-outline</v-icon>
+            </template>
+          </v-tooltip>
 
           <!-- Auth buttons -->
           <LoginButton v-if="!isAuthenticated && !authLoading" />
-          <LogoutButton v-if="isAuthenticated && !authLoading" />
+          <LogoutButton v-if="isAuthenticated && !authLoading && !ensureUserLoading" />
         </div>
       </template>
     </v-app-bar>

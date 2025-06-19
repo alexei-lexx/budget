@@ -15,10 +15,17 @@ export class UserRepository implements IUserRepository {
     const client =
       dynamoClient ||
       new DynamoDBClient({
-        region: process.env.AWS_REGION || "us-east-1",
+        region: process.env.AWS_REGION || "",
+        ...(process.env.NODE_ENV === "development" && {
+          endpoint: process.env.DYNAMODB_ENDPOINT || "",
+          credentials: {
+            accessKeyId: process.env.AWS_ACCESS_KEY_ID || "",
+            secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || "",
+          },
+        }),
       });
     this.client = DynamoDBDocumentClient.from(client);
-    this.tableName = process.env.USERS_TABLE_NAME || "Users";
+    this.tableName = process.env.USERS_TABLE_NAME || "";
   }
 
   async findByAuth0UserId(auth0UserId: string): Promise<User | null> {

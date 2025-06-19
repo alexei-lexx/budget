@@ -1,4 +1,5 @@
 import { ApolloClient, createHttpLink, InMemoryCache } from "@apollo/client/core";
+import { setContext } from "@apollo/client/link/context";
 
 const getGraphQLEndpoint = (): string => {
   // Always check for explicit environment variable first
@@ -15,11 +16,43 @@ const httpLink = createHttpLink({
   uri: getGraphQLEndpoint(),
 });
 
+// Auth link to add JWT token to headers
+const authLink = setContext(async (_, { headers }) => {
+  try {
+    // Get the authentication token from Auth0
+    // We'll use a global function that can access the Auth0 instance
+    const token = await getAuthToken();
+    
+    console.log('Apollo authLink - token available:', token ? 'yes' : 'no');
+    
+    return {
+      headers: {
+        ...headers,
+        authorization: token ? `Bearer ${token}` : "",
+      }
+    };
+  } catch (error) {
+    console.error("Failed to get auth token:", error);
+    return {
+      headers: {
+        ...headers,
+      }
+    };
+  }
+});
+
 // Cache implementation
 const cache = new InMemoryCache();
 
 // Create the apollo client
 export const apolloClient = new ApolloClient({
-  link: httpLink,
+  link: authLink.concat(httpLink),
   cache,
 });
+
+// Global function to get auth token - will be set by the Auth0 plugin
+let getAuthToken: () => Promise<string | null> = async () => null;
+
+export const setAuthTokenGetter = (tokenGetter: () => Promise<string | null>) => {
+  getAuthToken = tokenGetter;
+};

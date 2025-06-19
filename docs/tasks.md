@@ -251,12 +251,12 @@ interface User {
   - [x] 3.5.3 Implement ensureUser resolver with existence checking
   - [x] 3.5.4 Add input validation and error handling
 
-- [ ] **3.6 Frontend Integration**
-  - [ ] 3.6.1 Configure Apollo Client to send JWT tokens in headers
-  - [ ] 3.6.2 Add ensureUser mutation call to frontend
-  - [ ] 3.6.3 Call ensureUser immediately after successful Auth0 login
-  - [ ] 3.6.4 Add loading states and error handling for user creation
-  - [ ] 3.6.5 Test complete flow from login to user creation
+- [x] **3.6 Frontend Integration**
+  - [x] 3.6.1 Configure Apollo Client to send JWT tokens in headers
+  - [x] 3.6.2 Add ensureUser mutation call to frontend
+  - [x] 3.6.3 Call ensureUser immediately after successful Auth0 login
+  - [x] 3.6.4 Add loading states and error handling for user creation
+  - [x] 3.6.5 Test complete flow from login to user creation
 
 ### Success Criteria
 
