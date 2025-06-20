@@ -43,6 +43,9 @@ export class BackendCdkStack extends cdk.Stack {
           parseInt(process.env.LAMBDA_TIMEOUT_SECONDS, 10),
         ),
       }),
+      ...(process.env.LAMBDA_MEMORY_SIZE && {
+        memorySize: parseInt(process.env.LAMBDA_MEMORY_SIZE, 10),
+      }),
     };
 
     const graphqlFunction = new lambda.Function(
