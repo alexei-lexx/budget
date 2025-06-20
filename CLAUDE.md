@@ -123,3 +123,45 @@ Each account has a specific currency. Transfers only allowed between accounts wi
 
 ### Error Handling
 Backend implements structured error handling with GraphQL-specific error formatting. Frontend uses Apollo Client error handling patterns.
+
+## Architecture Patterns
+
+### GraphQL Context Pattern
+All GraphQL resolvers receive a standardized context containing:
+- `auth`: Authentication state (isAuthenticated, user info from JWT)
+- `userRepository`: Database access layer for user operations
+
+Context creation automatically handles JWT verification and user extraction from Auth0 tokens.
+
+### Repository Pattern
+Database operations are abstracted through repository interfaces:
+- `IUserRepository` with concrete `UserRepository` implementation
+- Repositories handle environment-specific DynamoDB configuration (local vs AWS)
+- All database queries automatically scoped to authenticated user
+- Repository methods use `ensureUser()` pattern for automatic user creation
+
+### Authentication Flow
+1. Frontend obtains JWT tokens from Auth0 (`useAuth` composable)
+2. Apollo Client automatically includes JWT in Authorization headers
+3. Backend verifies JWT signatures against Auth0 public keys
+4. User context extracted and available in all GraphQL resolvers
+5. Database operations automatically scoped to authenticated user
+
+### Environment Configuration
+- **Frontend**: Uses Vite environment variables (`VITE_*` prefix)
+- **Backend**: Uses Node.js process.env for Auth0, AWS, and database config
+- **CDK**: Reads environment variables during deployment for stack configuration
+- Development vs production determined by `NODE_ENV`
+
+### DynamoDB Design Patterns
+- Primary tables use UUID partition keys for even distribution
+- Global Secondary Indexes (GSI) for Auth0 user ID lookups
+- All user data partitioned by internal user ID for data isolation
+- Development uses DynamoDB Local with Docker Compose
+- Production uses pay-per-request billing with point-in-time recovery
+
+### Frontend State Management
+- Auth state managed by Auth0 Vue SDK (`useAuth` composable)
+- GraphQL data managed by Apollo Client cache
+- User data fetched via GraphQL with `useUser` composable
+- Automatic token refresh handled by Auth0 SDK
