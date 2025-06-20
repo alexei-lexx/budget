@@ -30,9 +30,7 @@ const displayName = computed(() => {
           Please sign in to start managing your finances
         </div>
         <div v-else-if="authLoading || ensureUserLoading">Setting up your account...</div>
-        <div v-else>
-          Welcome back, {{ displayName }}! Your account is ready.
-        </div>
+        <div v-else>Welcome back, {{ displayName }}! Your account is ready.</div>
       </div>
     </v-sheet>
   </v-container>

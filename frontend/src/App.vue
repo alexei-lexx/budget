@@ -95,16 +95,12 @@ const displayName = computed(() => {
 
     <v-navigation-drawer>
       <v-list nav>
-        <v-list-item 
+        <v-list-item
           :to="{ name: 'Dashboard' }"
           prepend-icon="mdi-view-dashboard"
           title="Dashboard"
         />
-        <v-list-item 
-          :to="{ name: 'Accounts' }"
-          prepend-icon="mdi-bank"
-          title="Accounts"
-        />
+        <v-list-item :to="{ name: 'Accounts' }" prepend-icon="mdi-bank" title="Accounts" />
       </v-list>
     </v-navigation-drawer>
 
