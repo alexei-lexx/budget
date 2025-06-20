@@ -332,12 +332,12 @@ interface Account {
 
 ### Implementation Plan
 
-- [ ] **4.1 Frontend Navigation and Routing Setup**
-  - [ ] 4.1.1 Install Vue Router 4 and configure basic routing
-  - [ ] 4.1.2 Create router configuration with Dashboard and Accounts routes
-  - [ ] 4.1.3 Update App.vue to use router-view and add navigation menu items
-  - [ ] 4.1.4 Create views directory and move current content to Dashboard.vue
-  - [ ] 4.1.5 Add navigation drawer items for Dashboard and Accounts with proper icons
+- [x] **4.1 Frontend Navigation and Routing Setup**
+  - [x] 4.1.1 Install Vue Router 4 and configure basic routing
+  - [x] 4.1.2 Create router configuration with Dashboard and Accounts routes
+  - [x] 4.1.3 Update App.vue to use router-view and add navigation menu items
+  - [x] 4.1.4 Create views directory and move current content to Dashboard.vue
+  - [x] 4.1.5 Add navigation drawer items for Dashboard and Accounts with proper icons
 
 - [ ] **4.2 Backend Account Schema and Database**
   - [ ] 4.2.1 Create Account model with id, userId, name, currency, initialBalance, isArchived, createdAt, updatedAt
@@ -380,7 +380,7 @@ interface Account {
 
 ### Success Criteria
 
-- [ ] Users can navigate between Dashboard and Accounts pages
+- [x] Users can navigate between Dashboard and Accounts pages
 - [ ] Users can create new accounts with name, currency, and initial balance
 - [ ] Users can view all their accounts in a clean, organized list
 - [ ] Users can edit account details (name, currency, initial balance)

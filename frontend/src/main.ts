@@ -2,6 +2,7 @@ import { createApp, h, provide } from "vue";
 import { DefaultApolloClient } from "@vue/apollo-composable";
 import { auth0 } from "./plugins/auth0";
 import { vuetify } from "./plugins/vuetify";
+import { router } from "./router";
 import App from "./App.vue";
 import "./assets/main.css";
 import { apolloClient } from "./apollo";
@@ -14,4 +15,5 @@ createApp({
 })
   .use(auth0)
   .use(vuetify)
+  .use(router)
   .mount("#app");

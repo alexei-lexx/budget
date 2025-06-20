@@ -2,6 +2,9 @@ import { GraphQLError } from "graphql";
 import { GraphQLContext } from "./server";
 
 export const resolvers = {
+  Query: {
+    _empty: () => null,
+  },
   Mutation: {
     ensureUser: async (
       _parent: unknown,

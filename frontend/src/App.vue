@@ -95,30 +95,21 @@ const displayName = computed(() => {
 
     <v-navigation-drawer>
       <v-list nav>
-        <v-list-item title="Navigation drawer" link></v-list-item>
+        <v-list-item 
+          :to="{ name: 'Dashboard' }"
+          prepend-icon="mdi-view-dashboard"
+          title="Dashboard"
+        />
+        <v-list-item 
+          :to="{ name: 'Accounts' }"
+          prepend-icon="mdi-bank"
+          title="Accounts"
+        />
       </v-list>
     </v-navigation-drawer>
 
-    <v-main class="d-flex align-center justify-center" height="300">
-      <v-container>
-        <v-sheet
-          border="dashed md"
-          color="surface-light"
-          height="200"
-          rounded="lg"
-          width="100%"
-          class="d-flex flex-column align-center justify-center"
-        >
-          <div class="text-h6 mb-4">Welcome to Personal Budget Tracker</div>
-          <div class="text-body-1 text-center">
-            <div v-if="!isAuthenticated && !authLoading">
-              Please sign in to start managing your finances
-            </div>
-            <div v-else-if="authLoading || ensureUserLoading">Setting up your account...</div>
-            <div v-else>Your account is ready! Navigation will be available soon.</div>
-          </div>
-        </v-sheet>
-      </v-container>
+    <v-main>
+      <router-view />
     </v-main>
   </v-layout>
 </template>
