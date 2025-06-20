@@ -37,17 +37,28 @@ onMounted(() => {
   });
 });
 
-// Watch for authentication state changes and ensure user exists
+// Track if user has been ensured for this auth session
+const USER_ENSURED_KEY = "budget_user_ensured";
+
+// Watch for authentication state changes - only ensure user on fresh login
 watch(
   [isAuthenticated, authLoading],
   async ([authenticated, loading]) => {
-    // Only call ensureUser when user is authenticated and auth loading is complete
     if (authenticated && !loading) {
-      try {
-        await ensureUser();
-      } catch (error) {
-        console.error("Failed to ensure user:", error);
+      const userAlreadyEnsured = localStorage.getItem(USER_ENSURED_KEY) === "true";
+
+      if (!userAlreadyEnsured) {
+        try {
+          console.log("Fresh login detected, ensuring user exists");
+          await ensureUser();
+          localStorage.setItem(USER_ENSURED_KEY, "true");
+        } catch (error) {
+          console.error("Failed to ensure user after login:", error);
+        }
       }
+    } else if (!authenticated && !loading) {
+      // Clear the flag when user logs out
+      localStorage.removeItem(USER_ENSURED_KEY);
     }
   },
   { immediate: true },
