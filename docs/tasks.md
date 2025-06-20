@@ -268,3 +268,124 @@ interface User {
 - [x] Email addresses normalized to lowercase
 - [x] Complete error handling for all failure scenarios
 - [x] Frontend shows appropriate loading/error states during onboarding
+
+---
+
+## Task 4: Account Management MVP
+
+**Objective:** Create a complete account management system with dedicated page and navigation, enabling users to create, list, edit, and archive financial accounts with multi-currency support.
+
+### Current State Analysis
+
+**Frontend Status:**
+- ✅ Auth0 authentication working
+- ✅ Apollo Client GraphQL integration
+- ✅ Vuetify UI framework set up
+- ❌ No Vue Router (single page app currently)
+- ❌ Basic navigation drawer with placeholder items
+- ❌ No dedicated pages beyond main App.vue
+
+**Backend Status:**
+- ✅ User authentication and onboarding complete
+- ✅ GraphQL server with health check
+- ✅ DynamoDB integration working
+- ❌ No account-related database tables
+- ❌ No account GraphQL schema or resolvers
+
+### Target Architecture
+
+**Navigation Structure:**
+```
+App Navigation Drawer:
+├── Dashboard (/)           → Overview/health check
+└── Accounts (/accounts)    → Account management page
+```
+
+**Database Schema:**
+```typescript
+interface Account {
+  id: string;           // UUID v4 primary key
+  userId: string;       // Foreign key to User
+  name: string;         // Account name (e.g., "Cash", "Bank Account")
+  currency: string;     // ISO currency code (USD, EUR, etc.)
+  initialBalance: number; // Starting balance
+  isArchived: boolean;  // Soft delete flag
+  createdAt: string;    // ISO timestamp
+  updatedAt: string;    // ISO timestamp
+}
+```
+
+**Page Layout (Accounts.vue):**
+```
+┌─────────────────────────────────────────┐
+│ Accounts Page                           │
+├─────────────────────────────────────────┤
+│ [+ Add New Account]                     │
+├─────────────────────────────────────────┤
+│ ┌─────────────────┐ ┌─────────────────┐ │
+│ │ Cash            │ │ Bank Account    │ │
+│ │ $1,234.56       │ │ €2,500.00      │ │
+│ │ [Edit][Archive] │ │ [Edit][Archive] │ │
+│ └─────────────────┘ └─────────────────┘ │
+└─────────────────────────────────────────┘
+```
+
+### Implementation Plan
+
+- [ ] **4.1 Frontend Navigation and Routing Setup**
+  - [ ] 4.1.1 Install Vue Router 4 and configure basic routing
+  - [ ] 4.1.2 Create router configuration with Dashboard and Accounts routes
+  - [ ] 4.1.3 Update App.vue to use router-view and add navigation menu items
+  - [ ] 4.1.4 Create views directory and move current content to Dashboard.vue
+  - [ ] 4.1.5 Add navigation drawer items for Dashboard and Accounts with proper icons
+
+- [ ] **4.2 Backend Account Schema and Database**
+  - [ ] 4.2.1 Create Account model with id, userId, name, currency, initialBalance, isArchived, createdAt, updatedAt
+  - [ ] 4.2.2 Update backend-cdk to create Accounts DynamoDB table with proper partition key and GSI
+  - [ ] 4.2.3 Create AccountRepository with CRUD operations (create, findByUserId, update, archive)
+  - [ ] 4.2.4 Add GraphQL Account type and input types to schema
+  - [ ] 4.2.5 Implement GraphQL resolvers for accounts query and createAccount, updateAccount, archiveAccount mutations
+
+- [ ] **4.3 Frontend Account Management Components**
+  - [ ] 4.3.1 Create Accounts.vue page with layout for account list and add new account button
+  - [ ] 4.3.2 Create AccountsList.vue component to display user accounts with balance and currency
+  - [ ] 4.3.3 Create AccountForm.vue component for creating/editing accounts with validation
+  - [ ] 4.3.4 Create AccountCard.vue component to display individual account details with edit/archive actions
+  - [ ] 4.3.5 Create useAccounts.ts composable for account GraphQL operations
+  - [ ] 4.3.6 Add GraphQL queries and mutations for accounts to frontend
+
+- [ ] **4.4 Multi-Currency Support Implementation**
+  - [ ] 4.4.1 Create currency constants/enum with supported currencies (USD, EUR, GBP, etc.)
+  - [ ] 4.4.2 Add currency selection dropdown to AccountForm component
+  - [ ] 4.4.3 Display currency symbols/codes in account lists and cards
+  - [ ] 4.4.4 Add currency validation in backend Account model and resolvers
+
+- [ ] **4.5 Account Balance Calculation and Display**
+  - [ ] 4.5.1 Implement balance calculation logic (initialBalance + transactions sum)
+  - [ ] 4.5.2 Add balance field to GraphQL Account type (computed field)
+  - [ ] 4.5.3 Display current balance in account cards and lists with proper currency formatting
+
+- [ ] **4.6 Error Handling and Validation**
+  - [ ] 4.6.1 Add frontend form validation for account name, currency, and initial balance
+  - [ ] 4.6.2 Add backend validation for account data and return appropriate error messages
+  - [ ] 4.6.3 Add loading states and error displays for all account operations
+  - [ ] 4.6.4 Handle duplicate account names gracefully with user-friendly messages
+
+- [ ] **4.7 Testing and Deployment**
+  - [ ] 4.7.1 Test account creation, editing, and archiving in development environment
+  - [ ] 4.7.2 Test navigation between Dashboard and Accounts pages
+  - [ ] 4.7.3 Test multi-currency account creation and display
+  - [ ] 4.7.4 Run frontend and backend linting/formatting checks
+  - [ ] 4.7.5 Deploy and test in production environment
+
+### Success Criteria
+
+- [ ] Users can navigate between Dashboard and Accounts pages
+- [ ] Users can create new accounts with name, currency, and initial balance
+- [ ] Users can view all their accounts in a clean, organized list
+- [ ] Users can edit account details (name, currency, initial balance)
+- [ ] Users can archive accounts (soft delete) to hide them from main view
+- [ ] Multi-currency support with proper currency symbols/formatting
+- [ ] Current balance displayed for each account (initially = initial balance)
+- [ ] Form validation and error handling throughout
+- [ ] Responsive design works on mobile and desktop
