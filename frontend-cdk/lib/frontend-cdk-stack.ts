@@ -63,6 +63,7 @@ export class FrontendCdkStack extends cdk.Stack {
             responsePagePath: "/index.html",
           },
         ],
+        enableLogging: true,
       },
     );
 

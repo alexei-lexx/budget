@@ -4,6 +4,7 @@ import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as apigatewayv2 from "aws-cdk-lib/aws-apigatewayv2";
 import * as integrations from "aws-cdk-lib/aws-apigatewayv2-integrations";
 import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
+import * as logs from "aws-cdk-lib/aws-logs";
 
 export class BackendCdkStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -33,6 +34,7 @@ export class BackendCdkStack extends cdk.Stack {
       environment: {
         USERS_TABLE_NAME: usersTable.tableName,
       },
+      tracing: lambda.Tracing.ACTIVE,
     });
 
     usersTable.grantReadWriteData(graphqlFunction);
@@ -42,9 +44,39 @@ export class BackendCdkStack extends cdk.Stack {
       graphqlFunction,
     );
 
+    const accessLogGroup = new logs.LogGroup(this, "GraphqlApiAccessLogs", {
+      logGroupName: `/aws/apigateway/${this.stackName}-graphql-api`,
+      retention: logs.RetentionDays.ONE_WEEK,
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+    });
+
     const httpApi = new apigatewayv2.HttpApi(this, "GraphqlHttpApi", {
       defaultIntegration: lambdaIntegration,
     });
+
+    const stage = httpApi.defaultStage?.node
+      .defaultChild as apigatewayv2.CfnStage;
+    if (stage) {
+      stage.accessLogSettings = {
+        destinationArn: accessLogGroup.logGroupArn,
+        format: JSON.stringify({
+          requestId: "$context.requestId",
+          ip: "$context.identity.sourceIp",
+          requestTime: "$context.requestTime",
+          httpMethod: "$context.httpMethod",
+          routeKey: "$context.routeKey",
+          status: "$context.status",
+          protocol: "$context.protocol",
+          responseLength: "$context.responseLength",
+          responseLatency: "$context.responseLatency",
+          integrationLatency: "$context.integrationLatency",
+          error: {
+            message: "$context.error.message",
+            messageString: "$context.error.messageString",
+          },
+        }),
+      };
+    }
 
     new cdk.CfnOutput(this, "GraphqlApiUrl", {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion

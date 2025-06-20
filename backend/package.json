@@ -22,6 +22,7 @@
     "@aws-sdk/lib-dynamodb": "^3.0.0",
     "@dotenvx/dotenvx": "^1.44.2",
     "@types/jsonwebtoken": "^9.0.10",
+    "aws-xray-sdk-core": "^3.9.0",
     "graphql": "^16.11.0",
     "jsonwebtoken": "^9.0.2",
     "jwks-rsa": "^3.2.0"
