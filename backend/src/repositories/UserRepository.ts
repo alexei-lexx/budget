@@ -26,6 +26,10 @@ export class UserRepository implements IUserRepository {
       });
     this.client = DynamoDBDocumentClient.from(client);
     this.tableName = process.env.USERS_TABLE_NAME || "";
+
+    if (!this.tableName) {
+      throw new Error("USERS_TABLE_NAME environment variable is required");
+    }
   }
 
   async findByAuth0UserId(auth0UserId: string): Promise<User | null> {

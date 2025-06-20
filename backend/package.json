@@ -25,7 +25,8 @@
     "aws-xray-sdk-core": "^3.9.0",
     "graphql": "^16.11.0",
     "jsonwebtoken": "^9.0.2",
-    "jwks-rsa": "^3.2.0"
+    "jwks-rsa": "^3.2.0",
+    "zod": "^3.25.67"
   },
   "devDependencies": {
     "@eslint/js": "^9.28.0",

@@ -34,6 +34,18 @@ const tables: CreateTableCommandInput[] = [
       },
     ],
   },
+  {
+    TableName: "Accounts",
+    AttributeDefinitions: [
+      { AttributeName: "userId", AttributeType: "S" },
+      { AttributeName: "id", AttributeType: "S" },
+    ],
+    KeySchema: [
+      { AttributeName: "userId", KeyType: "HASH" },
+      { AttributeName: "id", KeyType: "RANGE" },
+    ],
+    BillingMode: "PAY_PER_REQUEST",
+  },
 ];
 
 async function tableExists(tableName: string): Promise<boolean> {

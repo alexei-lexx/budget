@@ -339,12 +339,12 @@ interface Account {
   - [x] 4.1.4 Create views directory and move current content to Dashboard.vue
   - [x] 4.1.5 Add navigation drawer items for Dashboard and Accounts with proper icons
 
-- [ ] **4.2 Backend Account Schema and Database**
-  - [ ] 4.2.1 Create Account model with id, userId, name, currency, initialBalance, isArchived, createdAt, updatedAt
-  - [ ] 4.2.2 Update backend-cdk to create Accounts DynamoDB table with proper partition key and GSI
-  - [ ] 4.2.3 Create AccountRepository with CRUD operations (create, findByUserId, update, archive)
-  - [ ] 4.2.4 Add GraphQL Account type and input types to schema
-  - [ ] 4.2.5 Implement GraphQL resolvers for accounts query and createAccount, updateAccount, archiveAccount mutations
+- [x] **4.2 Backend Account Schema and Database**
+  - [x] 4.2.1 Create Account model with id, userId, name, currency, initialBalance, isArchived, createdAt, updatedAt
+  - [x] 4.2.2 Update backend-cdk to create Accounts DynamoDB table with proper partition key and GSI
+  - [x] 4.2.3 Create AccountRepository with CRUD operations (create, findByUserId, update, archive)
+  - [x] 4.2.4 Add GraphQL Account type and input types to schema
+  - [x] 4.2.5 Implement GraphQL resolvers for accounts query and createAccount, updateAccount, archiveAccount mutations
 
 - [ ] **4.3 Frontend Account Management Components**
   - [ ] 4.3.1 Create Accounts.vue page with layout for account list and add new account button

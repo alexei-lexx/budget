@@ -3,15 +3,19 @@ import { typeDefs } from "./schema";
 import { resolvers } from "./resolvers";
 import { JwtAuthService, AuthContext } from "./auth/jwtAuth";
 import { UserRepository } from "./repositories/UserRepository";
+import { AccountRepository } from "./repositories/AccountRepository";
 import { IUserRepository } from "./models/User";
+import { IAccountRepository } from "./models/Account";
 
 export interface GraphQLContext {
   auth: AuthContext;
   userRepository: IUserRepository;
+  accountRepository: IAccountRepository;
 }
 
 let jwtAuthService: JwtAuthService;
 let userRepository: UserRepository;
+let accountRepository: AccountRepository;
 
 export const server = new ApolloServer<GraphQLContext>({
   typeDefs,
@@ -35,6 +39,10 @@ export async function createContext(req: {
     userRepository = new UserRepository();
   }
 
+  if (!accountRepository) {
+    accountRepository = new AccountRepository();
+  }
+
   const authHeader = req.headers.authorization;
   // Handle both string and string[] types from different contexts
   const authHeaderString = Array.isArray(authHeader)
@@ -45,5 +53,6 @@ export async function createContext(req: {
   return {
     auth,
     userRepository,
+    accountRepository,
   };
 }
