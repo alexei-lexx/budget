@@ -2,13 +2,6 @@ import { GraphQLError } from "graphql";
 import { GraphQLContext } from "./server";
 
 export const resolvers = {
-  Query: {
-    health: () => {
-      const messages = ["OK", "All systems go", "Healthy"];
-      const idx = Math.floor(Math.random() * messages.length);
-      return messages[idx];
-    },
-  },
   Mutation: {
     ensureUser: async (
       _parent: unknown,

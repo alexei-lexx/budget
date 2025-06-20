@@ -1,8 +1,4 @@
 export const typeDefs = `#graphql
-  type Query {
-    health: String!
-  }
-
   type User {
     email: String!
   }
