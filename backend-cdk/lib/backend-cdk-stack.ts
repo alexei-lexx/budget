@@ -11,7 +11,7 @@ export class BackendCdkStack extends cdk.Stack {
     super(scope, id, props);
 
     const usersTable = new dynamodb.Table(this, "UsersTable", {
-      tableName: "Users",
+      tableName: process.env.USERS_TABLE_NAME || "",
       partitionKey: { name: "id", type: dynamodb.AttributeType.STRING },
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
       pointInTimeRecovery: true,
@@ -27,15 +27,29 @@ export class BackendCdkStack extends cdk.Stack {
       projectionType: dynamodb.ProjectionType.ALL,
     });
 
-    const graphqlFunction = new lambda.Function(this, "GraphqlEndpoint", {
+    const functionConfig: lambda.FunctionProps = {
       runtime: lambda.Runtime.NODEJS_22_X,
       code: lambda.Code.fromAsset("../backend/dist"),
       handler: "lambda.handler",
       environment: {
+        AUTH0_AUDIENCE: process.env.AUTH0_AUDIENCE || "",
+        AUTH0_DOMAIN: process.env.AUTH0_DOMAIN || "",
+        NODE_ENV: process.env.NODE_ENV || "",
         USERS_TABLE_NAME: usersTable.tableName,
       },
       tracing: lambda.Tracing.ACTIVE,
-    });
+      ...(process.env.LAMBDA_TIMEOUT_SECONDS && {
+        timeout: cdk.Duration.seconds(
+          parseInt(process.env.LAMBDA_TIMEOUT_SECONDS, 10),
+        ),
+      }),
+    };
+
+    const graphqlFunction = new lambda.Function(
+      this,
+      "GraphqlEndpoint",
+      functionConfig,
+    );
 
     usersTable.grantReadWriteData(graphqlFunction);
 

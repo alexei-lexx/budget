@@ -5,9 +5,11 @@
     "backend-cdk": "bin/backend-cdk.js"
   },
   "scripts": {
-    "build": "tsc",
-    "cdk": "cdk",
-    "deploy": "cdk deploy --outputs-file cdk-outputs.json",
+    "build": "dotenvx run -f .env.production --verbose -- tsc",
+    "cdk": "dotenvx run -f .env.production --verbose -- cdk",
+    "deploy": "dotenvx run -f .env.production --verbose -- cdk deploy --outputs-file cdk-outputs.json",
+    "diff": "dotenvx run -f .env.production --verbose -- cdk diff",
+    "synth": "dotenvx run -f .env.production --verbose -- cdk synth",
     "format": "npm run prettier:fix && npm run lint:fix",
     "lint:fix": "eslint . --fix",
     "lint": "eslint .",
@@ -17,6 +19,7 @@
     "watch": "tsc -w"
   },
   "devDependencies": {
+    "@dotenvx/dotenvx": "^1.44.2",
     "@eslint/js": "^9.28.0",
     "@types/jest": "^29.5.14",
     "@types/node": "22.7.9",
