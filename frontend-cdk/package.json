@@ -8,6 +8,7 @@
     "build": "tsc",
     "cdk": "cdk",
     "deploy": "cdk deploy --outputs-file cdk-outputs.json",
+    "format": "npm run prettier:fix && npm run lint:fix",
     "lint:fix": "eslint . --fix",
     "lint": "eslint .",
     "prettier:fix": "prettier --write .",

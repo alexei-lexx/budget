@@ -9,5 +9,5 @@ export const auth0 = createAuth0({
       audience: import.meta.env.VITE_AUTH0_AUDIENCE,
     }),
   },
-  cacheLocation: 'localstorage',
+  cacheLocation: "localstorage",
 });

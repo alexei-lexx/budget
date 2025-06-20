@@ -22,11 +22,11 @@ const { ensureUser, ensureUserLoading, userError } = useUser();
 onMounted(() => {
   setAuthTokenGetter(async () => {
     try {
-      console.log('Is authenticated:', isAuthenticated.value);
+      console.log("Is authenticated:", isAuthenticated.value);
 
       if (isAuthenticated.value) {
         const token = await getAccessToken();
-        console.log('Got token:', token ? 'yes' : 'no');
+        console.log("Got token:", token ? "yes" : "no");
         return token;
       }
       return null;
@@ -50,7 +50,7 @@ watch(
       }
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 const displayName = computed(() => {

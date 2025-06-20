@@ -15,7 +15,11 @@ export function useUser() {
   const user = ref<User | null>(null);
   const userError = ref<string | null>(null);
 
-  const { mutate: ensureUserMutation, loading: ensureUserLoading, error: mutationError } = useMutation<EnsureUserResponse>(ENSURE_USER);
+  const {
+    mutate: ensureUserMutation,
+    loading: ensureUserLoading,
+    error: mutationError,
+  } = useMutation<EnsureUserResponse>(ENSURE_USER);
 
   // Watch for mutation completion
   watch(mutationError, (error: ApolloError | null) => {

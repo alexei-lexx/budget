@@ -22,21 +22,21 @@ const authLink = setContext(async (_, { headers }) => {
     // Get the authentication token from Auth0
     // We'll use a global function that can access the Auth0 instance
     const token = await getAuthToken();
-    
-    console.log('Apollo authLink - token available:', token ? 'yes' : 'no');
-    
+
+    console.log("Apollo authLink - token available:", token ? "yes" : "no");
+
     return {
       headers: {
         ...headers,
         authorization: token ? `Bearer ${token}` : "",
-      }
+      },
     };
   } catch (error) {
     console.error("Failed to get auth token:", error);
     return {
       headers: {
         ...headers,
-      }
+      },
     };
   }
 });

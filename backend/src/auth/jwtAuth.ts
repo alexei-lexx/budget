@@ -126,7 +126,7 @@ export class JwtAuthService {
       throw new Error("Failed to fetch user info");
     }
 
-    return await response.json() as { email?: string; sub: string };
+    return (await response.json()) as { email?: string; sub: string };
   }
 
   /**
@@ -149,7 +149,7 @@ export class JwtAuthService {
 
     try {
       const payload = await this.verifyToken(token);
-      
+
       // Get user info from Auth0 userinfo endpoint to get email
       const userInfo = await this.getUserInfo(token);
 
