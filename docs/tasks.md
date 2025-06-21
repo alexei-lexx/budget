@@ -347,18 +347,19 @@ interface Account {
   - [x] 4.2.5 Implement GraphQL resolvers for accounts query and createAccount, updateAccount, archiveAccount mutations
 
 - [ ] **4.3 Frontend Account Management Components**
-  - [ ] 4.3.1 Create Accounts.vue page with layout for account list and add new account button
-  - [ ] 4.3.2 Create AccountsList.vue component to display user accounts with balance and currency
-  - [ ] 4.3.3 Create AccountForm.vue component for creating/editing accounts with validation
-  - [ ] 4.3.4 Create AccountCard.vue component to display individual account details with edit/archive actions
-  - [ ] 4.3.5 Create useAccounts.ts composable for account GraphQL operations
-  - [ ] 4.3.6 Add GraphQL queries and mutations for accounts to frontend
+  - [x] 4.3.1 Create Accounts.vue page with layout for account list and add new account button
+  - [x] 4.3.2 Create AccountsList.vue component to display user accounts with balance and currency
+  - [x] 4.3.3 Create AccountForm.vue component for creating/editing accounts with validation
+  - [ ] 4.3.4 Create useAccounts.ts composable for account GraphQL operations
+  - [ ] 4.3.5 Add GraphQL queries and mutations for accounts to frontend
 
 - [ ] **4.4 Multi-Currency Support Implementation**
-  - [ ] 4.4.1 Create currency constants/enum with supported currencies (USD, EUR, GBP, etc.)
-  - [ ] 4.4.2 Add currency selection dropdown to AccountForm component
-  - [ ] 4.4.3 Display currency symbols/codes in account lists and cards
-  - [ ] 4.4.4 Add currency validation in backend Account model and resolvers
+  - [ ] 4.4.1 Add supportedCurrencies query to GraphQL schema to return available currencies
+  - [ ] 4.4.2 Implement supportedCurrencies resolver in backend to return currency list from validation constants
+  - [ ] 4.4.3 Update AccountForm component to fetch and use currencies from backend API
+  - [ ] 4.4.4 Add currency symbols/formatting helper functions for different currencies
+  - [ ] 4.4.5 Display currency symbols/codes in account lists and cards with proper formatting
+  - [ ] 4.4.6 Add error handling for currency fetching and fallback to default currencies
 
 - [ ] **4.5 Account Balance Calculation and Display**
   - [ ] 4.5.1 Implement balance calculation logic (initialBalance + transactions sum)
