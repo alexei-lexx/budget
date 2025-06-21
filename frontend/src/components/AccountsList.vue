@@ -1,14 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
-
-// Define Account interface
-interface Account {
-  id: string;
-  name: string;
-  currency: string;
-  initialBalance: number;
-  currentBalance: number;
-}
+import type { Account } from "@/composables/useAccounts";
 
 // Define component props
 interface Props {
@@ -79,7 +71,6 @@ const handleArchiveAccount = (accountId: string) => {
     <thead>
       <tr>
         <th class="text-left">Account</th>
-        <th class="text-right">Current Balance</th>
         <th class="text-right">Initial Balance</th>
         <th class="text-center">Actions</th>
       </tr>
@@ -94,11 +85,8 @@ const handleArchiveAccount = (accountId: string) => {
         </td>
         <td class="text-right">
           <span class="text-h6">{{
-            formatCurrency(account.currentBalance, account.currency)
+            formatCurrency(account.initialBalance, account.currency)
           }}</span>
-        </td>
-        <td class="text-right text-medium-emphasis">
-          {{ formatCurrency(account.initialBalance, account.currency) }}
         </td>
         <td class="text-center">
           <v-btn

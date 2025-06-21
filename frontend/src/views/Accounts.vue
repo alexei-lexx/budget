@@ -1,17 +1,9 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import AccountsList from "@/components/AccountsList.vue";
 import AccountForm from "@/components/AccountForm.vue";
-
-// Define Account interface
-interface Account {
-  id: string;
-  name: string;
-  currency: string;
-  initialBalance: number;
-  currentBalance: number;
-}
+import { useAccounts, type Account } from "@/composables/useAccounts";
 
 // Define Account form data interface (for creating new accounts)
 interface AccountFormData {
@@ -21,32 +13,33 @@ interface AccountFormData {
   initialBalance: number;
 }
 
+// Use accounts composable
+const {
+  accounts: accountsData,
+  accountsLoading,
+  createAccount,
+  updateAccount,
+  archiveAccount: archiveAccountMutation,
+  createAccountLoading,
+  updateAccountLoading,
+} = useAccounts();
+
 // State for dialogs and loading
 const showAddAccountDialog = ref(false);
 const showEditAccountDialog = ref(false);
 const showDeleteConfirmDialog = ref(false);
-const loading = ref(false);
-const formLoading = ref(false);
 const editingAccount = ref<Account | null>(null);
 const accountToDelete = ref<Account | null>(null);
 
-// Sample data for now - will be replaced with actual GraphQL data
-const accounts = ref<Account[]>([
-  {
-    id: "1",
-    name: "Cash",
-    currency: "USD",
-    initialBalance: 1234.56,
-    currentBalance: 1234.56,
-  },
-  {
-    id: "2",
-    name: "Bank Account",
-    currency: "EUR",
-    initialBalance: 2500.0,
-    currentBalance: 2500.0,
-  },
-]);
+// Use accounts data directly
+const accounts = computed<Account[]>(() => {
+  if (!accountsData.value?.activeAccounts) return [];
+  return accountsData.value.activeAccounts;
+});
+
+// Loading state
+const loading = computed(() => accountsLoading.value);
+const formLoading = computed(() => createAccountLoading.value || updateAccountLoading.value);
 
 // Functions for account operations
 const openAddAccountDialog = () => {
@@ -69,15 +62,15 @@ const archiveAccount = (accountId: string) => {
   }
 };
 
-const confirmDeleteAccount = () => {
+const confirmDeleteAccount = async () => {
   if (accountToDelete.value) {
-    // Remove account from frontend list (backend will handle archiving)
-    const index = accounts.value.findIndex((a) => a.id === accountToDelete.value!.id);
-    if (index !== -1) {
-      accounts.value.splice(index, 1);
+    try {
+      await archiveAccountMutation(accountToDelete.value.id);
+      console.log("Account archived:", accountToDelete.value.name);
+    } catch (error) {
+      console.error("Error archiving account:", error);
+      // TODO: Show error message to user
     }
-    console.log("Account deleted:", accountToDelete.value.name);
-    // TODO: Implement actual GraphQL archiveAccount mutation
   }
   showDeleteConfirmDialog.value = false;
   accountToDelete.value = null;
@@ -90,39 +83,28 @@ const cancelDeleteAccount = () => {
 
 // Form handlers
 const handleAccountSubmit = async (accountData: AccountFormData) => {
-  formLoading.value = true;
-
   try {
     if (accountData.id) {
       // Edit existing account
-      const index = accounts.value.findIndex((a) => a.id === accountData.id);
-      if (index !== -1) {
-        accounts.value[index] = {
-          ...accounts.value[index],
-          name: accountData.name,
-          currency: accountData.currency,
-          initialBalance: accountData.initialBalance,
-          currentBalance: accountData.initialBalance, // For now, reset current balance
-        };
-      }
-      showEditAccountDialog.value = false;
-    } else {
-      // Create new account
-      const newAccount: Account = {
-        id: (accounts.value.length + 1).toString(),
+      await updateAccount(accountData.id, {
         name: accountData.name,
         currency: accountData.currency,
         initialBalance: accountData.initialBalance,
-        currentBalance: accountData.initialBalance,
-      };
-      accounts.value.push(newAccount);
+      });
+      showEditAccountDialog.value = false;
+    } else {
+      // Create new account
+      await createAccount({
+        name: accountData.name,
+        currency: accountData.currency,
+        initialBalance: accountData.initialBalance,
+      });
       showAddAccountDialog.value = false;
     }
   } catch (error) {
     console.error("Error saving account:", error);
-    // TODO: Show error message
+    // TODO: Show error message to user
   } finally {
-    formLoading.value = false;
     editingAccount.value = null;
   }
 };
@@ -131,7 +113,6 @@ const handleAccountCancel = () => {
   showAddAccountDialog.value = false;
   showEditAccountDialog.value = false;
   editingAccount.value = null;
-  formLoading.value = false;
 };
 </script>
 
