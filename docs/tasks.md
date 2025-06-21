@@ -346,7 +346,7 @@ interface Account {
   - [x] 4.2.4 Add GraphQL Account type and input types to schema
   - [x] 4.2.5 Implement GraphQL resolvers for accounts query and createAccount, updateAccount, archiveAccount mutations
 
-- [ ] **4.3 Frontend Account Management Components**
+- [x] **4.3 Frontend Account Management Components**
   - [x] 4.3.1 Create Accounts.vue page with layout for account list and add new account button
   - [x] 4.3.2 Create AccountsList.vue component to display user accounts with balance and currency
   - [x] 4.3.3 Create AccountForm.vue component for creating/editing accounts with validation
