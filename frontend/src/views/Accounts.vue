@@ -2,10 +2,14 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import AccountsList from "@/components/AccountsList.vue";
+import AccountForm from "@/components/AccountForm.vue";
 
-// State for dialog and loading
+// State for dialogs and loading
 const showAddAccountDialog = ref(false);
+const showEditAccountDialog = ref(false);
 const loading = ref(false);
+const formLoading = ref(false);
+const editingAccount = ref(null);
 
 // Sample data for now - will be replaced with actual GraphQL data
 const accounts = ref([
@@ -35,13 +39,62 @@ const closeAddAccountDialog = () => {
 };
 
 const editAccount = (accountId: string) => {
-  console.log("Edit account:", accountId);
-  // TODO: Implement edit functionality
+  const account = accounts.value.find(a => a.id === accountId);
+  if (account) {
+    editingAccount.value = { ...account };
+    showEditAccountDialog.value = true;
+  }
 };
 
 const archiveAccount = (accountId: string) => {
   console.log("Archive account:", accountId);
   // TODO: Implement archive functionality
+};
+
+// Form handlers
+const handleAccountSubmit = async (accountData: any) => {
+  formLoading.value = true;
+  
+  try {
+    if (accountData.id) {
+      // Edit existing account
+      const index = accounts.value.findIndex(a => a.id === accountData.id);
+      if (index !== -1) {
+        accounts.value[index] = {
+          ...accounts.value[index],
+          name: accountData.name,
+          currency: accountData.currency,
+          initialBalance: accountData.initialBalance,
+          currentBalance: accountData.initialBalance // For now, reset current balance
+        };
+      }
+      showEditAccountDialog.value = false;
+    } else {
+      // Create new account
+      const newAccount = {
+        id: (accounts.value.length + 1).toString(),
+        name: accountData.name,
+        currency: accountData.currency,
+        initialBalance: accountData.initialBalance,
+        currentBalance: accountData.initialBalance
+      };
+      accounts.value.push(newAccount);
+      showAddAccountDialog.value = false;
+    }
+  } catch (error) {
+    console.error('Error saving account:', error);
+    // TODO: Show error message
+  } finally {
+    formLoading.value = false;
+    editingAccount.value = null;
+  }
+};
+
+const handleAccountCancel = () => {
+  showAddAccountDialog.value = false;
+  showEditAccountDialog.value = false;
+  editingAccount.value = null;
+  formLoading.value = false;
 };
 </script>
 
@@ -69,24 +122,23 @@ const archiveAccount = (accountId: string) => {
       </template>
     </AccountsList>
 
-    <!-- Add Account Dialog Placeholder -->
-    <v-dialog v-model="showAddAccountDialog" max-width="500">
-      <v-card>
-        <v-card-title>Add New Account</v-card-title>
-        <v-card-text>
-          <div class="text-center py-8">
-            <v-icon size="48" class="mb-4" color="primary">mdi-wrench</v-icon>
-            <div class="text-h6 mb-2">Coming Soon</div>
-            <div class="text-body-1">
-              Account creation form will be implemented in the next task.
-            </div>
-          </div>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn variant="text" @click="closeAddAccountDialog"> Close </v-btn>
-        </v-card-actions>
-      </v-card>
+    <!-- Add Account Dialog -->
+    <v-dialog v-model="showAddAccountDialog" max-width="600" persistent>
+      <AccountForm
+        :loading="formLoading"
+        @submit="handleAccountSubmit"
+        @cancel="handleAccountCancel"
+      />
+    </v-dialog>
+
+    <!-- Edit Account Dialog -->
+    <v-dialog v-model="showEditAccountDialog" max-width="600" persistent>
+      <AccountForm
+        :account="editingAccount"
+        :loading="formLoading"
+        @submit="handleAccountSubmit"
+        @cancel="handleAccountCancel"
+      />
     </v-dialog>
   </v-container>
 </template>
