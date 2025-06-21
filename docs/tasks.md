@@ -167,10 +167,10 @@ User → Auth0 Login → JWT Token → Vue App State
 - [x] Users can sign in using Auth0
 - [x] Users can sign out and clear their session
 - [x] Authentication state persists across page reloads
-- [?] Environment-specific configuration works for dev/prod
+- [x] Environment-specific configuration works for dev/prod
 - [x] UI appropriately shows authentication status
-- [?] Error states are handled gracefully
-- [?] JWT tokens are stored and available for future GraphQL integration
+- [x] Error states are handled gracefully
+- [x] JWT tokens are stored and available for future GraphQL integration
 
 ---
 
@@ -356,7 +356,7 @@ interface Account {
 - [ ] **4.4 Multi-Currency Support Implementation**
   - [ ] 4.4.1 Add supportedCurrencies query to GraphQL schema to return available currencies
   - [ ] 4.4.2 Implement supportedCurrencies resolver in backend to return currency list from validation constants
-  - [ ] 4.4.3 Update AccountForm component to fetch and use currencies from backend API
+  - [ ] 4.4.3 Update AccountForm component to fetch and use currencies from GraphQL API
   - [ ] 4.4.4 Add currency symbols/formatting helper functions for different currencies
   - [ ] 4.4.5 Display currency symbols/codes in account lists and cards with proper formatting
   - [ ] 4.4.6 Add error handling for currency fetching and fallback to default currencies
