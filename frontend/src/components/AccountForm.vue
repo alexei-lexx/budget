@@ -1,113 +1,117 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch } from "vue";
 
 // Define Account interface for editing
 interface Account {
-  id?: string
-  name: string
-  currency: string
-  initialBalance: number
+  id?: string;
+  name: string;
+  currency: string;
+  initialBalance: number;
 }
 
 // Define component props
 interface Props {
-  account?: Account | null
-  loading?: boolean
+  account?: Account | null;
+  loading?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   account: null,
-  loading: false
-})
+  loading: false,
+});
 
 // Define emitted events
 const emit = defineEmits<{
-  submit: [account: Account]
-  cancel: []
-}>()
+  submit: [account: Account];
+  cancel: [];
+}>();
 
 // Supported currencies (matching backend validation)
 const supportedCurrencies = [
-  { value: 'USD', title: 'US Dollar (USD)' },
-  { value: 'EUR', title: 'Euro (EUR)' }
-]
+  { value: "USD", title: "US Dollar (USD)" },
+  { value: "EUR", title: "Euro (EUR)" },
+];
 
 // Form data
 const formData = ref<Account>({
-  name: '',
-  currency: 'USD',
-  initialBalance: 0
-})
+  name: "",
+  currency: "USD",
+  initialBalance: 0,
+});
 
 // Form validation
-const formValid = ref(false)
-const formRef = ref()
+const formValid = ref(false);
+const formRef = ref();
 
 // Validation rules
 const nameRules = [
-  (v: string) => !!v || 'Account name is required',
-  (v: string) => (v && v.trim().length > 0) || 'Account name cannot be empty',
-  (v: string) => (v && v.length <= 100) || 'Account name cannot exceed 100 characters'
-]
+  (v: string) => !!v || "Account name is required",
+  (v: string) => (v && v.trim().length > 0) || "Account name cannot be empty",
+  (v: string) => (v && v.length <= 100) || "Account name cannot exceed 100 characters",
+];
 
 const currencyRules = [
-  (v: string) => !!v || 'Currency is required',
-  (v: string) => supportedCurrencies.some(c => c.value === v) || 'Please select a valid currency'
-]
+  (v: string) => !!v || "Currency is required",
+  (v: string) => supportedCurrencies.some((c) => c.value === v) || "Please select a valid currency",
+];
 
 const balanceRules = [
-  (v: number | string) => v !== '' && v !== null || 'Initial balance is required',
-  (v: number | string) => !isNaN(Number(v)) || 'Initial balance must be a valid number',
-  (v: number | string) => isFinite(Number(v)) || 'Initial balance must be a finite number'
-]
+  (v: number | string) => (v !== "" && v !== null) || "Initial balance is required",
+  (v: number | string) => !isNaN(Number(v)) || "Initial balance must be a valid number",
+  (v: number | string) => isFinite(Number(v)) || "Initial balance must be a finite number",
+];
 
 // Computed properties
-const isEditing = computed(() => !!props.account?.id)
-const formTitle = computed(() => isEditing.value ? 'Edit Account' : 'Create New Account')
-const submitButtonText = computed(() => isEditing.value ? 'Update Account' : 'Create Account')
+const isEditing = computed(() => !!props.account?.id);
+const formTitle = computed(() => (isEditing.value ? "Edit Account" : "Create New Account"));
+const submitButtonText = computed(() => (isEditing.value ? "Update Account" : "Create Account"));
 
 // Watch for account prop changes (for editing)
-watch(() => props.account, (newAccount) => {
-  if (newAccount) {
-    formData.value = {
-      id: newAccount.id,
-      name: newAccount.name,
-      currency: newAccount.currency,
-      initialBalance: newAccount.initialBalance
+watch(
+  () => props.account,
+  (newAccount) => {
+    if (newAccount) {
+      formData.value = {
+        id: newAccount.id,
+        name: newAccount.name,
+        currency: newAccount.currency,
+        initialBalance: newAccount.initialBalance,
+      };
+    } else {
+      // Reset form for new account
+      formData.value = {
+        name: "",
+        currency: "USD",
+        initialBalance: 0,
+      };
     }
-  } else {
-    // Reset form for new account
-    formData.value = {
-      name: '',
-      currency: 'USD',
-      initialBalance: 0
-    }
-  }
-}, { immediate: true })
+  },
+  { immediate: true },
+);
 
 // Form methods
 const handleSubmit = async () => {
-  const { valid } = await formRef.value.validate()
+  const { valid } = await formRef.value.validate();
   if (valid) {
     // Create clean account object
     const accountData: Account = {
       name: formData.value.name.trim(),
       currency: formData.value.currency,
-      initialBalance: Number(formData.value.initialBalance)
-    }
-    
+      initialBalance: Number(formData.value.initialBalance),
+    };
+
     // Include ID if editing
     if (isEditing.value && formData.value.id) {
-      accountData.id = formData.value.id
+      accountData.id = formData.value.id;
     }
-    
-    emit('submit', accountData)
+
+    emit("submit", accountData);
   }
-}
+};
 
 const handleCancel = () => {
-  emit('cancel')
-}
+  emit("cancel");
+};
 
 // Form reset method (can be used later for additional functionality)
 // const resetForm = () => {
@@ -121,28 +125,24 @@ const handleCancel = () => {
 
 // Currency formatting helper for display
 const formatCurrency = (amount: number, currency: string) => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: currency
-  }).format(amount)
-}
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: currency,
+  }).format(amount);
+};
 </script>
 
 <template>
   <v-card>
     <v-card-title class="d-flex align-center">
       <v-icon class="me-2" color="primary">
-        {{ isEditing ? 'mdi-pencil' : 'mdi-plus' }}
+        {{ isEditing ? "mdi-pencil" : "mdi-plus" }}
       </v-icon>
       {{ formTitle }}
     </v-card-title>
-    
+
     <v-card-text>
-      <v-form
-        ref="formRef"
-        v-model="formValid"
-        @submit.prevent="handleSubmit"
-      >
+      <v-form ref="formRef" v-model="formValid" @submit.prevent="handleSubmit">
         <!-- Account Name -->
         <v-text-field
           v-model="formData.name"
@@ -154,7 +154,7 @@ const formatCurrency = (amount: number, currency: string) => {
           class="mb-4"
           required
         ></v-text-field>
-        
+
         <!-- Currency Selection -->
         <v-select
           v-model="formData.currency"
@@ -166,7 +166,7 @@ const formatCurrency = (amount: number, currency: string) => {
           class="mb-4"
           required
         ></v-select>
-        
+
         <!-- Initial Balance -->
         <v-text-field
           v-model.number="formData.initialBalance"
@@ -181,11 +181,11 @@ const formatCurrency = (amount: number, currency: string) => {
         >
           <template #prepend-inner>
             <span class="text-medium-emphasis">
-              {{ formData.currency === 'USD' ? '$' : '€' }}
+              {{ formData.currency === "USD" ? "$" : "€" }}
             </span>
           </template>
         </v-text-field>
-        
+
         <!-- Balance Preview -->
         <v-alert
           v-if="formData.name && formData.currency && formData.initialBalance !== null"
@@ -194,24 +194,18 @@ const formatCurrency = (amount: number, currency: string) => {
           class="mb-4"
         >
           <div class="text-body-2">
-            <strong>Preview:</strong> {{ formData.name }} will start with 
+            <strong>Preview:</strong> {{ formData.name }} will start with
             {{ formatCurrency(Number(formData.initialBalance) || 0, formData.currency) }}
           </div>
         </v-alert>
       </v-form>
     </v-card-text>
-    
+
     <v-card-actions class="px-6 pb-6">
-      <v-btn
-        variant="text"
-        @click="handleCancel"
-        :disabled="loading"
-      >
-        Cancel
-      </v-btn>
-      
+      <v-btn variant="text" @click="handleCancel" :disabled="loading"> Cancel </v-btn>
+
       <v-spacer></v-spacer>
-      
+
       <v-btn
         color="primary"
         variant="flat"

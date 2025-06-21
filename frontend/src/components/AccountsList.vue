@@ -8,9 +8,6 @@ interface Account {
   currency: string;
   initialBalance: number;
   currentBalance: number;
-  isArchived?: boolean;
-  createdAt?: string;
-  updatedAt?: string;
 }
 
 // Define component props
@@ -29,8 +26,8 @@ const emit = defineEmits<{
   archiveAccount: [accountId: string];
 }>();
 
-// Filter out archived accounts
-const activeAccounts = computed(() => props.accounts.filter((account) => !account.isArchived));
+// All accounts (archived accounts filtered by backend)
+const activeAccounts = computed(() => props.accounts);
 
 // Currency formatting helper
 const formatCurrency = (amount: number, currency: string) => {
@@ -109,14 +106,20 @@ const handleArchiveAccount = (accountId: string) => {
             size="small"
             icon="mdi-pencil"
             @click="handleEditAccount(account.id)"
-          ></v-btn>
+          >
+            <v-icon>mdi-pencil</v-icon>
+            <v-tooltip activator="parent" location="top"> Edit Account </v-tooltip>
+          </v-btn>
           <v-btn
             variant="text"
             size="small"
-            icon="mdi-archive"
+            icon="mdi-delete"
             color="error"
             @click="handleArchiveAccount(account.id)"
-          ></v-btn>
+          >
+            <v-icon>mdi-delete</v-icon>
+            <v-tooltip activator="parent" location="top"> Delete Account </v-tooltip>
+          </v-btn>
         </td>
       </tr>
     </tbody>

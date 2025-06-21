@@ -4,15 +4,34 @@ import { ref } from "vue";
 import AccountsList from "@/components/AccountsList.vue";
 import AccountForm from "@/components/AccountForm.vue";
 
+// Define Account interface
+interface Account {
+  id: string;
+  name: string;
+  currency: string;
+  initialBalance: number;
+  currentBalance: number;
+}
+
+// Define Account form data interface (for creating new accounts)
+interface AccountFormData {
+  id?: string;
+  name: string;
+  currency: string;
+  initialBalance: number;
+}
+
 // State for dialogs and loading
 const showAddAccountDialog = ref(false);
 const showEditAccountDialog = ref(false);
+const showDeleteConfirmDialog = ref(false);
 const loading = ref(false);
 const formLoading = ref(false);
-const editingAccount = ref(null);
+const editingAccount = ref<Account | null>(null);
+const accountToDelete = ref<Account | null>(null);
 
 // Sample data for now - will be replaced with actual GraphQL data
-const accounts = ref([
+const accounts = ref<Account[]>([
   {
     id: "1",
     name: "Cash",
@@ -34,12 +53,8 @@ const openAddAccountDialog = () => {
   showAddAccountDialog.value = true;
 };
 
-const closeAddAccountDialog = () => {
-  showAddAccountDialog.value = false;
-};
-
 const editAccount = (accountId: string) => {
-  const account = accounts.value.find(a => a.id === accountId);
+  const account = accounts.value.find((a) => a.id === accountId);
   if (account) {
     editingAccount.value = { ...account };
     showEditAccountDialog.value = true;
@@ -47,42 +62,64 @@ const editAccount = (accountId: string) => {
 };
 
 const archiveAccount = (accountId: string) => {
-  console.log("Archive account:", accountId);
-  // TODO: Implement archive functionality
+  const account = accounts.value.find((a) => a.id === accountId);
+  if (account) {
+    accountToDelete.value = account;
+    showDeleteConfirmDialog.value = true;
+  }
+};
+
+const confirmDeleteAccount = () => {
+  if (accountToDelete.value) {
+    // Remove account from frontend list (backend will handle archiving)
+    const index = accounts.value.findIndex((a) => a.id === accountToDelete.value!.id);
+    if (index !== -1) {
+      accounts.value.splice(index, 1);
+    }
+    console.log("Account deleted:", accountToDelete.value.name);
+    // TODO: Implement actual GraphQL archiveAccount mutation
+  }
+  showDeleteConfirmDialog.value = false;
+  accountToDelete.value = null;
+};
+
+const cancelDeleteAccount = () => {
+  showDeleteConfirmDialog.value = false;
+  accountToDelete.value = null;
 };
 
 // Form handlers
-const handleAccountSubmit = async (accountData: any) => {
+const handleAccountSubmit = async (accountData: AccountFormData) => {
   formLoading.value = true;
-  
+
   try {
     if (accountData.id) {
       // Edit existing account
-      const index = accounts.value.findIndex(a => a.id === accountData.id);
+      const index = accounts.value.findIndex((a) => a.id === accountData.id);
       if (index !== -1) {
         accounts.value[index] = {
           ...accounts.value[index],
           name: accountData.name,
           currency: accountData.currency,
           initialBalance: accountData.initialBalance,
-          currentBalance: accountData.initialBalance // For now, reset current balance
+          currentBalance: accountData.initialBalance, // For now, reset current balance
         };
       }
       showEditAccountDialog.value = false;
     } else {
       // Create new account
-      const newAccount = {
+      const newAccount: Account = {
         id: (accounts.value.length + 1).toString(),
         name: accountData.name,
         currency: accountData.currency,
         initialBalance: accountData.initialBalance,
-        currentBalance: accountData.initialBalance
+        currentBalance: accountData.initialBalance,
       };
       accounts.value.push(newAccount);
       showAddAccountDialog.value = false;
     }
   } catch (error) {
-    console.error('Error saving account:', error);
+    console.error("Error saving account:", error);
     // TODO: Show error message
   } finally {
     formLoading.value = false;
@@ -139,6 +176,33 @@ const handleAccountCancel = () => {
         @submit="handleAccountSubmit"
         @cancel="handleAccountCancel"
       />
+    </v-dialog>
+
+    <!-- Delete Confirmation Dialog -->
+    <v-dialog v-model="showDeleteConfirmDialog" max-width="500" persistent>
+      <v-card>
+        <v-card-title class="text-h5 d-flex align-center">
+          <v-icon color="error" class="me-2">mdi-alert</v-icon>
+          Delete Account
+        </v-card-title>
+
+        <v-card-text>
+          <p class="text-body-1 mb-3">
+            Are you sure you want to delete the account
+            <strong>"{{ accountToDelete?.name }}"</strong>?
+          </p>
+          <p class="text-body-2 text-medium-emphasis">
+            This action cannot be undone. The account will be permanently removed from your records,
+            but historical transaction data will be preserved.
+          </p>
+        </v-card-text>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn variant="text" @click="cancelDeleteAccount"> Cancel </v-btn>
+          <v-btn color="error" variant="flat" @click="confirmDeleteAccount"> Delete </v-btn>
+        </v-card-actions>
+      </v-card>
     </v-dialog>
   </v-container>
 </template>
