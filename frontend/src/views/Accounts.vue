@@ -1,9 +1,11 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script setup lang="ts">
 import { ref } from "vue";
+import AccountsList from "@/components/AccountsList.vue";
 
-// State for dialog
+// State for dialog and loading
 const showAddAccountDialog = ref(false);
+const loading = ref(false);
 
 // Sample data for now - will be replaced with actual GraphQL data
 const accounts = ref([
@@ -41,14 +43,6 @@ const archiveAccount = (accountId: string) => {
   console.log("Archive account:", accountId);
   // TODO: Implement archive functionality
 };
-
-// Currency formatting helper
-const formatCurrency = (amount: number, currency: string) => {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: currency,
-  }).format(amount);
-};
 </script>
 
 <template>
@@ -61,66 +55,19 @@ const formatCurrency = (amount: number, currency: string) => {
       </v-btn>
     </div>
 
-    <!-- Account Grid -->
-    <v-row>
-      <v-col v-for="account in accounts" :key="account.id" cols="12" md="6" lg="4">
-        <v-card>
-          <v-card-title>
-            <v-icon class="me-2">mdi-bank</v-icon>
-            {{ account.name }}
-          </v-card-title>
-
-          <v-card-text>
-            <div class="text-h5 mb-2">
-              {{ formatCurrency(account.currentBalance, account.currency) }}
-            </div>
-            <div class="text-body-2 text-medium-emphasis">
-              Initial Balance: {{ formatCurrency(account.initialBalance, account.currency) }}
-            </div>
-          </v-card-text>
-
-          <v-card-actions>
-            <v-btn
-              variant="text"
-              size="small"
-              prepend-icon="mdi-pencil"
-              @click="editAccount(account.id)"
-            >
-              Edit
-            </v-btn>
-            <v-btn
-              variant="text"
-              size="small"
-              prepend-icon="mdi-archive"
-              color="error"
-              @click="archiveAccount(account.id)"
-            >
-              Archive
-            </v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-col>
-    </v-row>
-
-    <!-- Empty State -->
-    <v-sheet
-      v-if="accounts.length === 0"
-      border="dashed md"
-      color="surface-light"
-      height="300"
-      rounded="lg"
-      width="100%"
-      class="d-flex flex-column align-center justify-center"
+    <!-- Accounts List Component -->
+    <AccountsList
+      :accounts="accounts"
+      :loading="loading"
+      @edit-account="editAccount"
+      @archive-account="archiveAccount"
     >
-      <v-icon size="64" class="mb-4" color="primary">mdi-bank-plus</v-icon>
-      <div class="text-h6 mb-2">No Accounts Yet</div>
-      <div class="text-body-1 text-center mb-4">
-        Get started by creating your first account to track your finances.
-      </div>
-      <v-btn color="primary" prepend-icon="mdi-plus" @click="openAddAccountDialog">
-        Add Your First Account
-      </v-btn>
-    </v-sheet>
+      <template #empty-action>
+        <v-btn color="primary" prepend-icon="mdi-plus" @click="openAddAccountDialog">
+          Add Your First Account
+        </v-btn>
+      </template>
+    </AccountsList>
 
     <!-- Add Account Dialog Placeholder -->
     <v-dialog v-model="showAddAccountDialog" max-width="500">
