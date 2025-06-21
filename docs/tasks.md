@@ -352,6 +352,7 @@ interface Account {
   - [x] 4.3.3 Create AccountForm.vue component for creating/editing accounts with validation
   - [ ] 4.3.4 Create useAccounts.ts composable for account GraphQL operations
   - [ ] 4.3.5 Add GraphQL queries and mutations for accounts to frontend
+  - [ ] 4.3.6 Add account deletion with user confirmation dialog showing account name and "cannot be undone" warning
 
 - [ ] **4.4 Multi-Currency Support Implementation**
   - [ ] 4.4.1 Add supportedCurrencies query to GraphQL schema to return available currencies
