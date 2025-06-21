@@ -157,7 +157,9 @@ export const resolvers = {
     ) => {
       try {
         const user = await getAuthenticatedUser(context);
-        const accounts = await context.accountRepository.findActiveByUserId(user.id);
+        const accounts = await context.accountRepository.findActiveByUserId(
+          user.id,
+        );
         return accounts;
       } catch (error) {
         handleResolverError(error, "Failed to fetch active accounts");

@@ -13,9 +13,6 @@ export const typeDefs = `#graphql
     name: String!
     currency: String!
     initialBalance: Float!
-    isArchived: Boolean!
-    createdAt: String!
-    updatedAt: String!
   }
 
   input CreateAccountInput {
