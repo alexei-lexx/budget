@@ -150,17 +150,17 @@ function handleResolverError(error: unknown, defaultMessage: string): never {
 
 export const resolvers = {
   Query: {
-    accounts: async (
+    activeAccounts: async (
       _parent: unknown,
       _args: unknown,
       context: GraphQLContext,
     ) => {
       try {
         const user = await getAuthenticatedUser(context);
-        const accounts = await context.accountRepository.findByUserId(user.id);
+        const accounts = await context.accountRepository.findActiveByUserId(user.id);
         return accounts;
       } catch (error) {
-        handleResolverError(error, "Failed to fetch accounts");
+        handleResolverError(error, "Failed to fetch active accounts");
       }
     },
   },

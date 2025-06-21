@@ -57,7 +57,7 @@ export class AccountRepository implements IAccountRepository {
   }
 
   /**
-   * Check if an account with the same name exists for the user
+   * Check if an account with the same name exists for the user among active accounts
    */
   private async checkDuplicateName(
     userId: string,
@@ -65,7 +65,7 @@ export class AccountRepository implements IAccountRepository {
     excludeId?: string,
   ): Promise<void> {
     try {
-      const existingAccounts = await this.findByUserId(userId);
+      const existingAccounts = await this.findActiveByUserId(userId);
       const duplicateAccount = existingAccounts.find(
         (account) =>
           account.name.toLowerCase() === name.toLowerCase() &&
@@ -90,7 +90,7 @@ export class AccountRepository implements IAccountRepository {
     }
   }
 
-  async findByUserId(userId: string): Promise<Account[]> {
+  async findActiveByUserId(userId: string): Promise<Account[]> {
     if (!userId) {
       throw new AccountRepositoryError(
         "User ID is required",
@@ -102,19 +102,19 @@ export class AccountRepository implements IAccountRepository {
       const command = new QueryCommand({
         TableName: this.tableName,
         KeyConditionExpression: "userId = :userId",
-        FilterExpression: "isArchived <> :isArchived",
+        FilterExpression: "isArchived = :isArchived",
         ExpressionAttributeValues: {
           ":userId": userId,
-          ":isArchived": true,
+          ":isArchived": false,
         },
       });
 
       const result = await this.client.send(command);
       return (result.Items || []) as Account[];
     } catch (error) {
-      console.error("Error finding accounts by user ID:", error);
+      console.error("Error finding active accounts by user ID:", error);
       throw new AccountRepositoryError(
-        "Failed to find accounts",
+        "Failed to find active accounts",
         "QUERY_FAILED",
         error,
       );
