@@ -165,3 +165,67 @@ Database operations are abstracted through repository interfaces:
 - GraphQL data managed by Apollo Client cache
 - User data fetched via GraphQL with `useUser` composable
 - Automatic token refresh handled by Auth0 SDK
+
+## Advanced Patterns
+
+### GraphQL Error Handling Pattern
+Backend uses structured error handling with specific error types:
+- Repository errors (e.g., `AccountRepositoryError`) with error codes
+- Zod validation errors converted to GraphQL format
+- Helper functions like `requireAuthentication()` and `getAuthenticatedUser()`
+- Consistent error response format across all resolvers
+
+### Environment-Aware Repository Configuration
+Repositories automatically detect and configure for different environments:
+- Development: DynamoDB Local endpoint (`http://localhost:8000`) with dummy credentials
+- Production: AWS DynamoDB endpoint with IAM role authentication
+- Table names and configurations read from environment variables
+- Repository interfaces enable easy testing and implementation swapping
+
+### Cross-Stack Resource Sharing (CDK)
+Backend and frontend CDK stacks communicate via exports/imports:
+- Backend CDK exports API Gateway domain and stage URL
+- Frontend CDK imports backend values using `Fn.importValue`
+- CloudFront distribution configured with dual origins (S3 + API Gateway)
+- Deployment order critical: backend → backend-cdk → frontend-cdk → frontend assets
+
+### JWT Token Flow Pattern
+Sophisticated token management across the application:
+- Auth0 SDK handles token acquisition and refresh in frontend
+- Global token getter function allows Apollo Client to access Auth0 tokens
+- Backend fetches Auth0 public keys via JWKS client for JWT verification
+- Context creation automatically extracts and validates user information
+
+### Database Scoping and Isolation
+All database operations enforce user-level data isolation:
+- Repository methods automatically scope queries to authenticated user
+- `ensureUser()` pattern creates users on first GraphQL operation
+- All data partitioned by internal user ID (UUID) for security
+- GSI indexes on Auth0 user ID for efficient user lookups
+
+### Development Environment Orchestration
+Complete Docker-based development setup:
+- DynamoDB Local with persistent volumes in `./docker/dynamodb/`
+- Admin UI at http://localhost:8001 for database inspection
+- Automatic table creation via TypeScript scripts on `npm run db:setup`
+- Service health checks and graceful startup/shutdown procedures
+
+## Testing and Debugging
+
+### GraphQL Development Tools
+- Apollo Server includes GraphQL Playground for query testing
+- Backend dev server runs at http://localhost:4000/graphql
+- Frontend Apollo Client DevTools integration for cache inspection
+- DynamoDB Admin UI for database state verification during development
+
+### Error Tracing Patterns
+- Repository operations include detailed error context and user scoping
+- GraphQL resolvers use structured error helpers for consistent error formatting
+- Authentication failures include specific error codes for debugging
+- Environment-specific error handling (verbose in dev, sanitized in prod)
+
+### Database Testing Workflow
+- `npm run db:reset` for clean slate testing with fresh tables
+- Docker named volumes preserve data between development sessions
+- Table creation scripts are idempotent and can be run multiple times
+- Admin UI provides real-time view of data changes during development
