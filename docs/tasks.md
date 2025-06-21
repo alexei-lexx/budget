@@ -350,7 +350,7 @@ interface Account {
   - [x] 4.3.1 Create Accounts.vue page with layout for account list and add new account button
   - [x] 4.3.2 Create AccountsList.vue component to display user accounts with balance and currency
   - [x] 4.3.3 Create AccountForm.vue component for creating/editing accounts with validation
-  - [ ] 4.3.4 Add account deletion with user confirmation dialog showing account name and "cannot be undone" warning
+  - [x] 4.3.4 Add account deletion with user confirmation dialog showing account name and "cannot be undone" warning
   - [ ] 4.3.5 Create useAccounts.ts composable for account GraphQL operations
   - [ ] 4.3.6 Add GraphQL queries and mutations for accounts to frontend
 
