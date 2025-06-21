@@ -362,32 +362,27 @@ interface Account {
   - [ ] 4.4.5 Display currency symbols/codes in account lists and cards with proper formatting
   - [ ] 4.4.6 Add error handling for currency fetching and fallback to default currencies
 
-- [ ] **4.5 Account Balance Calculation and Display**
-  - [ ] 4.5.1 Implement balance calculation logic (initialBalance + transactions sum)
-  - [ ] 4.5.2 Add balance field to GraphQL Account type (computed field)
-  - [ ] 4.5.3 Display current balance in account cards and lists with proper currency formatting
+- [ ] **4.5 Error Handling and Validation**
+  - [ ] 4.5.1 Add frontend form validation for account name, currency, and initial balance
+  - [ ] 4.5.2 Add backend validation for account data and return appropriate error messages
+  - [ ] 4.5.3 Add loading states and error displays for all account operations
+  - [ ] 4.5.4 Handle duplicate account names gracefully with user-friendly messages
 
-- [ ] **4.6 Error Handling and Validation**
-  - [ ] 4.6.1 Add frontend form validation for account name, currency, and initial balance
-  - [ ] 4.6.2 Add backend validation for account data and return appropriate error messages
-  - [ ] 4.6.3 Add loading states and error displays for all account operations
-  - [ ] 4.6.4 Handle duplicate account names gracefully with user-friendly messages
-
-- [ ] **4.7 Testing and Deployment**
-  - [ ] 4.7.1 Test account creation, editing, and archiving in development environment
-  - [ ] 4.7.2 Test navigation between Dashboard and Accounts pages
-  - [ ] 4.7.3 Test multi-currency account creation and display
-  - [ ] 4.7.4 Run frontend and backend linting/formatting checks
-  - [ ] 4.7.5 Deploy and test in production environment
+- [ ] **4.6 Testing and Deployment**
+  - [ ] 4.6.1 Test account creation, editing, and archiving in development environment
+  - [ ] 4.6.2 Test navigation between Dashboard and Accounts pages
+  - [ ] 4.6.3 Test multi-currency account creation and display
+  - [ ] 4.6.4 Run frontend and backend linting/formatting checks
+  - [ ] 4.6.5 Deploy and test in production environment
 
 ### Success Criteria
 
 - [x] Users can navigate between Dashboard and Accounts pages
-- [ ] Users can create new accounts with name, currency, and initial balance
-- [ ] Users can view all their accounts in a clean, organized list
-- [ ] Users can edit account details (name, currency, initial balance)
-- [ ] Users can archive accounts (soft delete) to hide them from main view
+- [x] Users can create new accounts with name, currency, and initial balance
+- [x] Users can view all their accounts in a clean, organized list
+- [x] Users can edit account details (name, currency, initial balance)
+- [x] Users can archive accounts (soft delete) to hide them from main view
 - [ ] Multi-currency support with proper currency symbols/formatting
-- [ ] Current balance displayed for each account (initially = initial balance)
-- [ ] Form validation and error handling throughout
+- [x] Initial balance displayed for each account
+- [x] Form validation and error handling throughout
 - [ ] Responsive design works on mobile and desktop
