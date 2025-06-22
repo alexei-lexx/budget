@@ -55,31 +55,6 @@ export async function getAuthenticatedUser(
 }
 
 /**
- * Helper function for ensureUser mutation that creates user if needed
- */
-export async function ensureAuthenticatedUser(
-  context: GraphQLContext,
-): Promise<User> {
-  const authUser = requireAuthentication(context);
-
-  try {
-    // Ensure user exists in our database
-    const user = await context.userRepository.ensureUser(
-      authUser.auth0UserId,
-      authUser.email || "",
-    );
-    return user;
-  } catch (error) {
-    console.error("Error ensuring user:", error);
-    throw new GraphQLError("Failed to authenticate user", {
-      extensions: {
-        code: "AUTHENTICATION_ERROR",
-      },
-    });
-  }
-}
-
-/**
  * Helper function to handle AccountRepositoryError and other errors
  */
 export function handleResolverError(

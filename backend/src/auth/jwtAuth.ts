@@ -20,7 +20,6 @@ export interface AuthContext {
   isAuthenticated: boolean;
   user?: {
     auth0UserId: string;
-    email?: string;
   };
 }
 
@@ -150,6 +149,26 @@ export class JwtAuthService {
   }
 
   /**
+   * Get user info from Auth0 userinfo endpoint using Authorization header
+   * @param authHeader - Authorization header (e.g., "Bearer <token>")
+   * @returns User info including email
+   */
+  async getUserInfoFromHeader(
+    authHeader?: string,
+  ): Promise<{ email?: string; sub: string } | null> {
+    if (!authHeader) {
+      return null;
+    }
+
+    const tokenMatch = authHeader.match(/^Bearer\s+(.+)$/i);
+    if (!tokenMatch) {
+      return null;
+    }
+
+    return this.getUserInfo(tokenMatch[1]);
+  }
+
+  /**
    * Extract and verify authentication from Authorization header
    * @param authHeader - Authorization header value (e.g., "Bearer <token>")
    * @returns Authentication context with user info if valid, or unauthenticated context
@@ -170,18 +189,10 @@ export class JwtAuthService {
     try {
       const payload = await this.verifyToken(token);
 
-      // Try to get email from JWT payload first, fallback to userinfo endpoint
-      let email = payload.email;
-      if (!email) {
-        const userInfo = await this.getUserInfo(token);
-        email = userInfo.email;
-      }
-
       return {
         isAuthenticated: true,
         user: {
           auth0UserId: payload.sub,
-          email: email,
         },
       };
     } catch (error) {

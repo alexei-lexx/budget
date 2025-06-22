@@ -11,6 +11,8 @@ export interface GraphQLContext {
   auth: AuthContext;
   userRepository: IUserRepository;
   accountRepository: IAccountRepository;
+  jwtAuthService: JwtAuthService;
+  authHeader?: string;
 }
 
 let jwtAuthService: JwtAuthService;
@@ -48,11 +50,14 @@ export async function createContext(req: {
   const authHeaderString = Array.isArray(authHeader)
     ? authHeader[0]
     : authHeader;
+
   const auth = await jwtAuthService.getAuthContext(authHeaderString);
 
   return {
     auth,
     userRepository,
     accountRepository,
+    jwtAuthService,
+    authHeader: authHeaderString,
   };
 }
