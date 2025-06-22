@@ -170,14 +170,18 @@ export class JwtAuthService {
     try {
       const payload = await this.verifyToken(token);
 
-      // Get user info from Auth0 userinfo endpoint to get email
-      const userInfo = await this.getUserInfo(token);
+      // Try to get email from JWT payload first, fallback to userinfo endpoint
+      let email = payload.email;
+      if (!email) {
+        const userInfo = await this.getUserInfo(token);
+        email = userInfo.email;
+      }
 
       return {
         isAuthenticated: true,
         user: {
           auth0UserId: payload.sub,
-          email: userInfo.email,
+          email: email,
         },
       };
     } catch (error) {
