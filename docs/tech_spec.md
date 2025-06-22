@@ -92,6 +92,12 @@ Personal Finance Tracker is a serverless web application for individual financia
 - Repository pattern for database abstraction
 - Structured error handling and input validation
 
+### GraphQL Schema Design Principles
+- **Internal Fields Hidden:** Archive status, timestamp fields, and user ID are used internally but never exposed in GraphQL schema
+- **Human-Readable Fields:** Only business-relevant fields with meaningful names are exposed to frontend
+- **User Context Implicit:** User ID is handled automatically through authentication context, not passed as parameters
+- **Clean API Surface:** GraphQL schema reflects user-facing functionality, not database implementation details
+
 ### Runtime Environment
 - **Primary:** AWS Lambda for serverless execution
 - **Portable:** Can run on any Node.js hosting platform (Docker, VPS, etc.)

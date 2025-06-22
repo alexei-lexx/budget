@@ -35,7 +35,6 @@ The application will help individuals track their personal finances by recording
 - This preserves transaction history and maintains report integrity
 
 **Data Privacy & User Experience:**
-- Archive status (`isArchived`) and timestamp fields (`createdAt`, `updatedAt`) are used internally but never displayed to users
 - Users see only essential account information: name, currency, and balance
 - All destructive actions (account deletion) require explicit user confirmation
 - Confirmation dialogs show the specific account name and warn that the action cannot be undone
