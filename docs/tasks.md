@@ -360,7 +360,7 @@ interface Account {
   - [x] 4.4.3 Update AccountForm component to fetch and use currencies from GraphQL API
   - [x] 4.4.4 Add currency symbols/formatting helper functions for different currencies
   - [x] 4.4.5 Display currency symbols/codes in account lists and cards with proper formatting
-  - [x] 4.4.6 Add error handling for currency fetching and fallback to default currencies
+  - [x] 4.4.6 Add error handling for currency fetching with proper retry mechanisms
 
 - [ ] **4.5 Error Handling and Validation**
   - [ ] 4.5.1 Add frontend form validation for account name, currency, and initial balance
@@ -382,7 +382,7 @@ interface Account {
 - [x] Users can view all their accounts in a clean, organized list
 - [x] Users can edit account details (name, currency, initial balance)
 - [x] Users can archive accounts (soft delete) to hide them from main view
-- [ ] Multi-currency support with proper currency symbols/formatting
+- [x] Multi-currency support with proper currency symbols/formatting
 - [x] Initial balance displayed for each account
 - [x] Form validation and error handling throughout
 - [ ] Responsive design works on mobile and desktop
