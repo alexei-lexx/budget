@@ -14,10 +14,14 @@ const createCategoryInputSchema = z.object({
     .min(1, "Category name cannot be empty")
     .max(100, "Category name cannot exceed 100 characters"),
   type: z.enum(["INCOME", "EXPENSE"], {
-    errorMap: () => ({ message: "Category type must be either INCOME or EXPENSE" }),
+    errorMap: () => ({
+      message: "Category type must be either INCOME or EXPENSE",
+    }),
   }),
 });
 
+// Note: updateCategoryInputSchema will be used in task 5.3.4
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const updateCategoryInputSchema = z.object({
   name: z
     .string()
@@ -27,7 +31,9 @@ const updateCategoryInputSchema = z.object({
     .optional(),
   type: z
     .enum(["INCOME", "EXPENSE"], {
-      errorMap: () => ({ message: "Category type must be either INCOME or EXPENSE" }),
+      errorMap: () => ({
+        message: "Category type must be either INCOME or EXPENSE",
+      }),
     })
     .optional(),
 });
@@ -41,16 +47,17 @@ export const categoryResolvers = {
     ) => {
       try {
         const user = await getAuthenticatedUser(context);
-        
+
         // If type filter is provided, use the filtered method
         if (args.type) {
-          const categories = await context.categoryRepository.findActiveByUserIdAndType(
-            user.id,
-            args.type,
-          );
+          const categories =
+            await context.categoryRepository.findActiveByUserIdAndType(
+              user.id,
+              args.type,
+            );
           return categories;
         }
-        
+
         // Otherwise, return all active categories
         const categories = await context.categoryRepository.findActiveByUserId(
           user.id,
@@ -62,6 +69,33 @@ export const categoryResolvers = {
     },
   },
   Mutation: {
-    // Placeholder for mutations - will be implemented in subsequent tasks
+    createCategory: async (
+      _parent: unknown,
+      args: {
+        input: { name: string; type: CategoryType };
+      },
+      context: GraphQLContext,
+    ) => {
+      try {
+        // Validate and normalize input
+        const validatedInput = createCategoryInputSchema.parse(args.input);
+        const user = await getAuthenticatedUser(context);
+
+        const category = await context.categoryRepository.create({
+          userId: user.id,
+          name: validatedInput.name,
+          type: validatedInput.type,
+        });
+        return category;
+      } catch (error) {
+        if (error instanceof z.ZodError) {
+          const firstError = error.errors[0];
+          throw new GraphQLError(firstError.message, {
+            extensions: { code: "BAD_USER_INPUT" },
+          });
+        }
+        handleResolverError(error, "Failed to create category");
+      }
+    },
   },
 };
