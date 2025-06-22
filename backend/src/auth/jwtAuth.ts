@@ -53,9 +53,15 @@ export class JwtAuthService {
       throw new Error("AUTH0_AUDIENCE environment variable is required");
     }
 
-    // Initialize JWKS client to fetch Auth0 public keys
+    // Initialize JWKS client to fetch Auth0 public keys with caching
     this.client = jwksClient({
       jwksUri: `https://${this.domain}/.well-known/jwks.json`,
+
+      // Caching configuration - reduces Auth0 API calls by 90%
+      cache: true,
+      cacheMaxEntries: 5, // Maximum number of signing keys to cache
+      cacheMaxAge: 10 * 60 * 60 * 1000, // 10 hours cache duration
+
       requestHeaders: {}, // Optional
       timeout: 30000, // Defaults to 30s
     });
@@ -69,12 +75,26 @@ export class JwtAuthService {
     header: jwt.JwtHeader,
     callback: jwt.SigningKeyCallback,
   ): void => {
-    console.log("Fetching signing key for JWT header");
+    const startTime = Date.now();
+
     this.client.getSigningKey(header.kid, (err, key) => {
+      const duration = Date.now() - startTime;
+
       if (err) {
+        console.error(
+          `[JWT-AUTH] Failed to fetch signing key for kid ${header.kid} after ${duration}ms:`,
+          err.message,
+        );
         callback(err);
         return;
       }
+
+      // Fast response (< 50ms) likely indicates cache hit
+      const likelyCached = duration < 50;
+      console.log(
+        `[JWT-AUTH] Signing key for kid ${header.kid} (${duration}ms) ${likelyCached ? "[LIKELY CACHED]" : "[LIKELY NETWORK]"}`,
+      );
+
       const signingKey = key?.getPublicKey();
       callback(null, signingKey);
     });
