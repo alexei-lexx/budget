@@ -85,7 +85,7 @@ const displayName = computed(() => {
         <!-- Hamburger menu button for mobile -->
         <v-app-bar-nav-icon v-if="mobile" @click="drawer = !drawer" />
       </template>
-      
+
       <template v-slot:append>
         <div class="d-flex align-center ga-3">
           <!-- User info when authenticated -->
@@ -127,10 +127,10 @@ const displayName = computed(() => {
           title="Dashboard"
           @click="mobile && (drawer = false)"
         />
-        <v-list-item 
-          :to="{ name: 'Accounts' }" 
-          prepend-icon="mdi-bank" 
-          title="Accounts" 
+        <v-list-item
+          :to="{ name: 'Accounts' }"
+          prepend-icon="mdi-bank"
+          title="Accounts"
           @click="mobile && (drawer = false)"
         />
       </v-list>

@@ -63,7 +63,7 @@ const formRef = ref();
 type CheckRule<T = string | number> = (value: T) => boolean | string;
 
 // Helper function to check if validation rules pass
-const checkRules = <T>(value: T, rules: CheckRule<T>[]) => {
+const checkRules = <T,>(value: T, rules: CheckRule<T>[]) => {
   return rules.every((rule) => rule(value) === true);
 };
 
