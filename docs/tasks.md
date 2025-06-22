@@ -469,12 +469,12 @@ App Navigation Drawer:
   - [x] 5.1.2 Add Categories table definition to development database setup scripts
   - [x] 5.1.3 Test database table creation in both development and production environments
 
-- [ ] **5.2 Backend Data Layer**
-  - [ ] 5.2.1 Create Category model interface with userId, id, name, type, isArchived, createdAt, updatedAt
-  - [ ] 5.2.2 Create CategoryRepository with environment-aware DynamoDB configuration
-  - [ ] 5.2.3 Implement CRUD operations: create, findByUserId, findById, update, archive
-  - [ ] 5.2.4 Add business logic validation: name required, type validation, duplicate prevention
-  - [ ] 5.2.5 Add proper error handling with CategoryRepositoryError types
+- [x] **5.2 Backend Data Layer**
+  - [x] 5.2.1 Create Category model interface with userId, id, name, type, isArchived, createdAt, updatedAt
+  - [x] 5.2.2 Create CategoryRepository with environment-aware DynamoDB configuration
+  - [x] 5.2.3 Implement CRUD operations: create, findByUserId, findById, update, archive
+  - [x] 5.2.4 Add business logic validation: name required, type validation, duplicate prevention
+  - [x] 5.2.5 Add proper error handling with CategoryRepositoryError types
 
 - [ ] **5.3 GraphQL API Layer**
   - [ ] 5.3.1 Define Category GraphQL type and CategoryInput/UpdateCategoryInput types
