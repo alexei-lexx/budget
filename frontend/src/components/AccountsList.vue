@@ -67,40 +67,53 @@ const handleArchiveAccount = (accountId: string) => {
   <!-- Accounts Grid - Compact Responsive Cards -->
   <v-row v-else dense>
     <v-col v-for="account in activeAccounts" :key="account.id" cols="12" sm="6" lg="4" xl="3">
-      <v-card variant="outlined" class="pa-3 position-relative" hover>
-        <!-- Action buttons - appear on hover -->
-        <div class="position-absolute" style="top: 8px; right: 8px">
-          <v-btn
-            variant="text"
-            size="x-small"
-            color="primary"
-            icon="mdi-pencil"
-            class="me-1"
-            @click="handleEditAccount(account.id)"
-          >
-            <v-icon size="16">mdi-pencil</v-icon>
-            <v-tooltip activator="parent" location="top">Edit</v-tooltip>
-          </v-btn>
-          <v-btn
-            variant="text"
-            size="x-small"
-            color="error"
-            icon="mdi-delete"
-            @click="handleArchiveAccount(account.id)"
-          >
-            <v-icon size="16">mdi-delete</v-icon>
-            <v-tooltip activator="parent" location="top">Delete</v-tooltip>
-          </v-btn>
-        </div>
-
-        <div class="text-subtitle-1 font-weight-medium text-truncate mb-2 pe-12">
-          {{ account.name }}
-        </div>
-
-        <div class="text-h6 font-weight-bold">
-          {{ formatAccountBalance(account.initialBalance, account.currency) }}
-        </div>
+      <v-card variant="outlined" class="account-card">
+        <v-card-text class="pb-2">
+          <div class="d-flex align-center justify-space-between">
+            <div>
+              <h4 class="text-h6">{{ account.name }}</h4>
+            </div>
+            <v-menu>
+              <template v-slot:activator="{ props }">
+                <v-btn
+                  v-bind="props"
+                  icon="mdi-dots-vertical"
+                  variant="text"
+                  size="small"
+                />
+              </template>
+              <v-list density="compact">
+                <v-list-item
+                  prepend-icon="mdi-pencil"
+                  title="Edit"
+                  @click="handleEditAccount(account.id)"
+                />
+                <v-list-item
+                  prepend-icon="mdi-delete"
+                  title="Delete"
+                  @click="handleArchiveAccount(account.id)"
+                />
+              </v-list>
+            </v-menu>
+          </div>
+          <div class="mt-2">
+            <div class="text-h5 font-weight-bold">
+              {{ formatAccountBalance(account.initialBalance, account.currency) }}
+            </div>
+          </div>
+        </v-card-text>
       </v-card>
     </v-col>
   </v-row>
 </template>
+
+<style scoped>
+.account-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.account-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+</style>

@@ -213,9 +213,6 @@ const handleCategoryCancel = () => {
                   </v-icon>
                   <div>
                     <h4 class="text-h6">{{ category.name }}</h4>
-                    <p class="text-caption text-medium-emphasis">
-                      {{ category.type === 'INCOME' ? 'Income' : 'Expense' }} Category
-                    </p>
                   </div>
                 </div>
                 <v-menu>
