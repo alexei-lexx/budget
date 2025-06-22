@@ -183,6 +183,8 @@ Apollo Server, GraphQL, esbuild, JWT libraries, AWS SDK, TypeScript
 - **Linting** - ESLint with TypeScript
 - **Formatting** - Prettier
 - **Testing** - Jest unit tests
+- **TypeScript Best Practices** 
+  - Avoid unnecessary type checks (typeof, non-null, non-undefined) when the provided type is explicit and doesn't require such checks
 
 ### Environment Configuration
 - Environment-specific configs for Auth0, AWS, and API endpoints
