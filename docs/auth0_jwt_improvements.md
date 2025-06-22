@@ -4,6 +4,16 @@
 
 This document outlines prioritized proposals to improve Auth0 JWT verification reliability in the backend, addressing connection issues, silent failures, and network resilience.
 
+## Risk Assessment
+
+**Risk levels indicate implementation risk - the likelihood of breaking existing functionality:**
+
+- **Very Low/Low Risk**: Simple changes with minimal chance of breaking existing auth flow
+- **Medium Risk**: More complex changes that could potentially affect authentication behavior
+- **High Risk**: Architectural changes that could significantly impact system reliability
+
+All proposals are designed to be backward compatible and fail gracefully.
+
 ## Current Issues Identified
 
 - Every JWT verification fetches Auth0 keys (no caching)
