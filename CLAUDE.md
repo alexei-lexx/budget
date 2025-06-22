@@ -229,3 +229,16 @@ Complete Docker-based development setup:
 - Docker named volumes preserve data between development sessions
 - Table creation scripts are idempotent and can be run multiple times
 - Admin UI provides real-time view of data changes during development
+
+## Important Development Guidelines
+
+### Code Quality Standards
+- **TypeScript Best Practices**: Avoid unnecessary type checks (typeof, non-null, non-undefined) when the provided type is explicit and doesn't require such checks
+- **Script Usage**: Always prefer npm scripts from package.json over direct tool usage to ensure consistent versions and configurations
+- **Documentation**: Only create documentation files when explicitly requested
+
+### Project Specifications
+Before starting any development work, review:
+- `docs/general_spec.md` - Business requirements and feature specifications
+- `docs/tech_spec.md` - Technical architecture and implementation guidelines
+- `docs/tasks.md` - Current development roadmap and task tracking
