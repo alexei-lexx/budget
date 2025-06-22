@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
+import { useQuery } from "@vue/apollo-composable";
+import { GET_SUPPORTED_CURRENCIES } from "@/graphql/queries";
+import { getCurrencyTitle, formatCurrency, getCurrencyInputPrefix } from "@/utils/currency";
 
 // Define Account interface for editing
 interface Account {
@@ -26,11 +29,27 @@ const emit = defineEmits<{
   cancel: [];
 }>();
 
-// Supported currencies (matching backend validation)
-const supportedCurrencies = [
-  { value: "USD", title: "US Dollar (USD)" },
-  { value: "EUR", title: "Euro (EUR)" },
-];
+// Fetch supported currencies from GraphQL API
+const {
+  result: currenciesResult,
+  loading: currenciesLoading,
+  error: currenciesError,
+} = useQuery(GET_SUPPORTED_CURRENCIES);
+
+// Transform currencies for v-select format with fallback
+const supportedCurrencies = computed(() => {
+  if (currenciesResult.value?.supportedCurrencies) {
+    return currenciesResult.value.supportedCurrencies.map((currency: string) => ({
+      value: currency,
+      title: getCurrencyTitle(currency),
+    }));
+  }
+  // Fallback currencies if API fails
+  return [
+    { value: "USD", title: getCurrencyTitle("USD") },
+    { value: "EUR", title: getCurrencyTitle("EUR") },
+  ];
+});
 
 // Form data
 const formData = ref<Account>({
@@ -52,7 +71,9 @@ const nameRules = [
 
 const currencyRules = [
   (v: string) => !!v || "Currency is required",
-  (v: string) => supportedCurrencies.some((c) => c.value === v) || "Please select a valid currency",
+  (v: string) =>
+    supportedCurrencies.value.some((c: { value: string; title: string }) => c.value === v) ||
+    "Please select a valid currency",
 ];
 
 const balanceRules = [
@@ -122,14 +143,6 @@ const handleCancel = () => {
 //     initialBalance: 0
 //   }
 // }
-
-// Currency formatting helper for display
-const formatCurrency = (amount: number, currency: string) => {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: currency,
-  }).format(amount);
-};
 </script>
 
 <template>
@@ -161,11 +174,20 @@ const formatCurrency = (amount: number, currency: string) => {
           label="Currency"
           :items="supportedCurrencies"
           :rules="currencyRules"
-          :disabled="loading"
+          :disabled="loading || currenciesLoading"
+          :loading="currenciesLoading"
           variant="outlined"
           class="mb-4"
           required
-        ></v-select>
+        >
+          <template #no-data>
+            <v-list-item v-if="currenciesError">
+              <v-list-item-title class="text-error">
+                Failed to load currencies. Using defaults.
+              </v-list-item-title>
+            </v-list-item>
+          </template>
+        </v-select>
 
         <!-- Initial Balance -->
         <v-text-field
@@ -181,7 +203,7 @@ const formatCurrency = (amount: number, currency: string) => {
         >
           <template #prepend-inner>
             <span class="text-medium-emphasis">
-              {{ formData.currency === "USD" ? "$" : "€" }}
+              {{ getCurrencyInputPrefix(formData.currency) }}
             </span>
           </template>
         </v-text-field>

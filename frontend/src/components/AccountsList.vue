@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import type { Account } from "@/composables/useAccounts";
+import { formatCurrencyCompact } from "@/utils/currency";
 
 // Define component props
 interface Props {
@@ -21,12 +22,9 @@ const emit = defineEmits<{
 // All accounts (archived accounts filtered by backend)
 const activeAccounts = computed(() => props.accounts);
 
-// Currency formatting helper
-const formatCurrency = (amount: number, currency: string) => {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: currency,
-  }).format(amount);
+// Currency formatting helper using the new utility
+const formatAccountBalance = (amount: number, currency: string) => {
+  return formatCurrencyCompact(amount, currency, { showSymbol: true });
 };
 
 // Event handlers
@@ -71,6 +69,7 @@ const handleArchiveAccount = (accountId: string) => {
     <thead>
       <tr>
         <th class="text-left">Account</th>
+        <th class="text-center">Currency</th>
         <th class="text-right">Initial Balance</th>
         <th class="text-center">Actions</th>
       </tr>
@@ -83,9 +82,14 @@ const handleArchiveAccount = (accountId: string) => {
             <span class="font-weight-medium">{{ account.name }}</span>
           </div>
         </td>
+        <td class="text-center">
+          <v-chip size="small" variant="outlined" color="primary">
+            {{ account.currency }}
+          </v-chip>
+        </td>
         <td class="text-right">
           <span class="text-h6">{{
-            formatCurrency(account.initialBalance, account.currency)
+            formatAccountBalance(account.initialBalance, account.currency)
           }}</span>
         </td>
         <td class="text-center">
