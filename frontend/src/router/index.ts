@@ -7,6 +7,7 @@ import {
 import { watch } from "vue";
 import Dashboard from "@/views/Dashboard.vue";
 import Accounts from "@/views/Accounts.vue";
+import Categories from "@/views/Categories.vue";
 import { useAuth0 } from "@auth0/auth0-vue";
 
 const routes = [
@@ -19,6 +20,40 @@ const routes = [
     path: "/accounts",
     name: "Accounts",
     component: Accounts,
+    beforeEnter: async (
+      _to: RouteLocationNormalized,
+      _from: RouteLocationNormalized,
+      next: NavigationGuardNext,
+    ) => {
+      const { isAuthenticated, isLoading } = useAuth0();
+
+      // Wait for Auth0 to finish loading
+      if (isLoading.value) {
+        await new Promise<void>((resolve) => {
+          const stopWatching = watch(
+            isLoading,
+            (loading) => {
+              if (!loading) {
+                stopWatching();
+                resolve();
+              }
+            },
+            { immediate: true },
+          );
+        });
+      }
+
+      if (isAuthenticated.value) {
+        next();
+      } else {
+        next({ name: "Dashboard" });
+      }
+    },
+  },
+  {
+    path: "/categories",
+    name: "Categories",
+    component: Categories,
     beforeEnter: async (
       _to: RouteLocationNormalized,
       _from: RouteLocationNormalized,

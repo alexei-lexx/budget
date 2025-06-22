@@ -149,6 +149,12 @@ const displayName = computed(() => {
           title="Accounts"
           @click="mobile && (drawer = false)"
         />
+        <v-list-item
+          :to="{ name: 'Categories' }"
+          prepend-icon="mdi-tag-multiple"
+          title="Categories"
+          @click="mobile && (drawer = false)"
+        />
       </v-list>
     </v-navigation-drawer>
 
