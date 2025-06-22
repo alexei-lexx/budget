@@ -478,7 +478,7 @@ App Navigation Drawer:
 
 - [ ] **5.3 GraphQL API Layer**
   - [x] 5.3.1 Define Category GraphQL type and CategoryInput/UpdateCategoryInput types
-  - [ ] 5.3.2 Add activeCategories query to schema and resolver to fetch user's categories (optionally filtered by type)
+  - [x] 5.3.2 Add activeCategories query to schema and resolver to fetch user's categories (optionally filtered by type)
   - [ ] 5.3.3 Add createCategory mutation to schema and resolver with validation
   - [ ] 5.3.4 Add updateCategory mutation to schema and resolver with existence checking
   - [ ] 5.3.5 Add archiveCategory mutation to schema and resolver for soft delete

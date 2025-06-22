@@ -2,7 +2,7 @@ export const typeDefs = `#graphql
   type Query {
     activeAccounts: [Account!]!
     supportedCurrencies: [String!]!
-    categories(type: CategoryType): [Category!]!
+    activeCategories(type: CategoryType): [Category!]!
   }
 
   type User {
@@ -11,7 +11,6 @@ export const typeDefs = `#graphql
 
   type Account {
     id: ID!
-    userId: ID!
     name: String!
     currency: String!
     initialBalance: Float!
@@ -24,12 +23,8 @@ export const typeDefs = `#graphql
 
   type Category {
     id: ID!
-    userId: ID!
     name: String!
     type: CategoryType!
-    isArchived: Boolean!
-    createdAt: String!
-    updatedAt: String!
   }
 
   input CreateAccountInput {
