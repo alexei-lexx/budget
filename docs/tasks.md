@@ -370,12 +370,12 @@ interface Account {
   - [x] 4.5.3 Add loading states and error displays for all account operations
   - [x] 4.5.4 Handle duplicate account names gracefully with user-friendly messages
 
-- [ ] **4.6 Testing and Deployment**
-  - [ ] 4.6.1 Test account creation, editing, and archiving in development environment
-  - [ ] 4.6.2 Test navigation between Dashboard and Accounts pages
-  - [ ] 4.6.3 Test multi-currency account creation and display
-  - [ ] 4.6.4 Run frontend and backend linting/formatting checks
-  - [ ] 4.6.5 Deploy and test in production environment
+- [x] **4.6 Testing and Deployment**
+  - [x] 4.6.1 Test account creation, editing, and archiving in development environment
+  - [x] 4.6.2 Test navigation between Dashboard and Accounts pages
+  - [x] 4.6.3 Test multi-currency account creation and display
+  - [x] 4.6.4 Run frontend and backend linting/formatting checks
+  - [x] 4.6.5 Deploy and test in production environment
 
 ### Success Criteria
 
