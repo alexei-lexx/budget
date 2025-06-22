@@ -355,8 +355,8 @@ interface Account {
   - [x] 4.3.6 Add GraphQL queries and mutations for accounts to frontend
 
 - [ ] **4.4 Multi-Currency Support Implementation**
-  - [ ] 4.4.1 Add supportedCurrencies query to GraphQL schema to return available currencies
-  - [ ] 4.4.2 Implement supportedCurrencies resolver in backend to return currency list from validation constants
+  - [x] 4.4.1 Add supportedCurrencies query to GraphQL schema to return available currencies
+  - [x] 4.4.2 Implement supportedCurrencies resolver in backend to return currency list from validation constants
   - [ ] 4.4.3 Update AccountForm component to fetch and use currencies from GraphQL API
   - [ ] 4.4.4 Add currency symbols/formatting helper functions for different currencies
   - [ ] 4.4.5 Display currency symbols/codes in account lists and cards with proper formatting

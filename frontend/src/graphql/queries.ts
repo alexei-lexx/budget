@@ -9,3 +9,9 @@ export const GET_ACTIVE_ACCOUNTS = gql`
   }
   ${ACCOUNT_FRAGMENT}
 `;
+
+export const GET_SUPPORTED_CURRENCIES = gql`
+  query GetSupportedCurrencies {
+    supportedCurrencies
+  }
+`;
