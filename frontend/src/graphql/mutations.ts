@@ -1,5 +1,5 @@
 import { gql } from "@apollo/client/core";
-import { ACCOUNT_FRAGMENT } from "./fragments";
+import { ACCOUNT_FRAGMENT, CATEGORY_FRAGMENT } from "./fragments";
 
 export const ENSURE_USER = gql`
   mutation EnsureUser {
@@ -34,4 +34,31 @@ export const ARCHIVE_ACCOUNT = gql`
     }
   }
   ${ACCOUNT_FRAGMENT}
+`;
+
+export const CREATE_CATEGORY = gql`
+  mutation CreateCategory($input: CreateCategoryInput!) {
+    createCategory(input: $input) {
+      ...CategoryFields
+    }
+  }
+  ${CATEGORY_FRAGMENT}
+`;
+
+export const UPDATE_CATEGORY = gql`
+  mutation UpdateCategory($id: ID!, $input: UpdateCategoryInput!) {
+    updateCategory(id: $id, input: $input) {
+      ...CategoryFields
+    }
+  }
+  ${CATEGORY_FRAGMENT}
+`;
+
+export const ARCHIVE_CATEGORY = gql`
+  mutation ArchiveCategory($id: ID!) {
+    archiveCategory(id: $id) {
+      ...CategoryFields
+    }
+  }
+  ${CATEGORY_FRAGMENT}
 `;

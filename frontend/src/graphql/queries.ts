@@ -1,5 +1,5 @@
 import { gql } from "@apollo/client/core";
-import { ACCOUNT_FRAGMENT } from "./fragments";
+import { ACCOUNT_FRAGMENT, CATEGORY_FRAGMENT } from "./fragments";
 
 export const GET_ACTIVE_ACCOUNTS = gql`
   query GetActiveAccounts {
@@ -14,4 +14,13 @@ export const GET_SUPPORTED_CURRENCIES = gql`
   query GetSupportedCurrencies {
     supportedCurrencies
   }
+`;
+
+export const GET_ACTIVE_CATEGORIES = gql`
+  query GetActiveCategories($type: CategoryType) {
+    activeCategories(type: $type) {
+      ...CategoryFields
+    }
+  }
+  ${CATEGORY_FRAGMENT}
 `;

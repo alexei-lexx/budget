@@ -8,3 +8,11 @@ export const ACCOUNT_FRAGMENT = gql`
     initialBalance
   }
 `;
+
+export const CATEGORY_FRAGMENT = gql`
+  fragment CategoryFields on Category {
+    id
+    name
+    type
+  }
+`;
