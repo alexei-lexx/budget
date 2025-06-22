@@ -36,6 +36,15 @@ export class BackendCdkStack extends cdk.Stack {
       removalPolicy: cdk.RemovalPolicy.RETAIN,
     });
 
+    const categoriesTable = new dynamodb.Table(this, "CategoriesTable", {
+      tableName: process.env.CATEGORIES_TABLE_NAME || "",
+      partitionKey: { name: "userId", type: dynamodb.AttributeType.STRING },
+      sortKey: { name: "id", type: dynamodb.AttributeType.STRING },
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      pointInTimeRecovery: true,
+      removalPolicy: cdk.RemovalPolicy.RETAIN,
+    });
+
     const functionConfig: lambda.FunctionProps = {
       runtime: lambda.Runtime.NODEJS_22_X,
       code: lambda.Code.fromAsset("../backend/dist"),
@@ -44,8 +53,9 @@ export class BackendCdkStack extends cdk.Stack {
         AUTH0_AUDIENCE: process.env.AUTH0_AUDIENCE || "",
         AUTH0_DOMAIN: process.env.AUTH0_DOMAIN || "",
         NODE_ENV: process.env.NODE_ENV || "",
-        USERS_TABLE_NAME: usersTable.tableName,
         ACCOUNTS_TABLE_NAME: accountsTable.tableName,
+        CATEGORIES_TABLE_NAME: categoriesTable.tableName,
+        USERS_TABLE_NAME: usersTable.tableName,
       },
       tracing: lambda.Tracing.ACTIVE,
       ...(process.env.LAMBDA_TIMEOUT_SECONDS && {
@@ -64,8 +74,9 @@ export class BackendCdkStack extends cdk.Stack {
       functionConfig,
     );
 
-    usersTable.grantReadWriteData(graphqlFunction);
     accountsTable.grantReadWriteData(graphqlFunction);
+    categoriesTable.grantReadWriteData(graphqlFunction);
+    usersTable.grantReadWriteData(graphqlFunction);
 
     const lambdaIntegration = new integrations.HttpLambdaIntegration(
       "GraphqlIntegration",
