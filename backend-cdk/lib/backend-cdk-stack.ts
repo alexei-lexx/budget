@@ -10,12 +10,16 @@ export class BackendCdkStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    const usersTable = new dynamodb.Table(this, "UsersTable", {
-      tableName: process.env.USERS_TABLE_NAME || "",
-      partitionKey: { name: "id", type: dynamodb.AttributeType.STRING },
+    const commonTableOptions: Partial<dynamodb.TableProps> = {
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
       pointInTimeRecovery: true,
       removalPolicy: cdk.RemovalPolicy.RETAIN,
+    };
+
+    const usersTable = new dynamodb.Table(this, "UsersTable", {
+      tableName: process.env.USERS_TABLE_NAME || "",
+      partitionKey: { name: "id", type: dynamodb.AttributeType.STRING },
+      ...commonTableOptions,
     });
 
     usersTable.addGlobalSecondaryIndex({
@@ -31,18 +35,14 @@ export class BackendCdkStack extends cdk.Stack {
       tableName: process.env.ACCOUNTS_TABLE_NAME || "",
       partitionKey: { name: "userId", type: dynamodb.AttributeType.STRING },
       sortKey: { name: "id", type: dynamodb.AttributeType.STRING },
-      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
-      pointInTimeRecovery: true,
-      removalPolicy: cdk.RemovalPolicy.RETAIN,
+      ...commonTableOptions,
     });
 
     const categoriesTable = new dynamodb.Table(this, "CategoriesTable", {
       tableName: process.env.CATEGORIES_TABLE_NAME || "",
       partitionKey: { name: "userId", type: dynamodb.AttributeType.STRING },
       sortKey: { name: "id", type: dynamodb.AttributeType.STRING },
-      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
-      pointInTimeRecovery: true,
-      removalPolicy: cdk.RemovalPolicy.RETAIN,
+      ...commonTableOptions,
     });
 
     const functionConfig: lambda.FunctionProps = {
