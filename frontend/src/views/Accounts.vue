@@ -4,6 +4,7 @@ import { ref, computed } from "vue";
 import AccountsList from "@/components/AccountsList.vue";
 import AccountForm from "@/components/AccountForm.vue";
 import { useAccounts, type Account } from "@/composables/useAccounts";
+import { useSnackbar } from "@/composables/useSnackbar";
 
 // Define Account form data interface (for creating new accounts)
 interface AccountFormData {
@@ -22,6 +23,7 @@ const {
   archiveAccount: archiveAccountMutation,
   createAccountLoading,
   updateAccountLoading,
+  accountsError,
 } = useAccounts();
 
 // State for dialogs and loading
@@ -30,6 +32,9 @@ const showEditAccountDialog = ref(false);
 const showDeleteConfirmDialog = ref(false);
 const editingAccount = ref<Account | null>(null);
 const accountToDelete = ref<Account | null>(null);
+
+// Use global snackbar
+const { showErrorSnackbar, showSuccessSnackbar } = useSnackbar();
 
 // Use accounts data directly
 const accounts = computed<Account[]>(() => {
@@ -64,12 +69,11 @@ const archiveAccount = (accountId: string) => {
 
 const confirmDeleteAccount = async () => {
   if (accountToDelete.value) {
-    try {
-      await archiveAccountMutation(accountToDelete.value.id);
-      console.log("Account archived:", accountToDelete.value.name);
-    } catch (error) {
-      console.error("Error archiving account:", error);
-      // TODO: Show error message to user
+    const result = await archiveAccountMutation(accountToDelete.value.id);
+    if (result) {
+      showSuccessSnackbar(`Account "${accountToDelete.value.name}" has been deleted`);
+    } else if (accountsError.value) {
+      showErrorSnackbar(accountsError.value);
     }
   }
   showDeleteConfirmDialog.value = false;
@@ -83,29 +87,36 @@ const cancelDeleteAccount = () => {
 
 // Form handlers
 const handleAccountSubmit = async (accountData: AccountFormData) => {
-  try {
-    if (accountData.id) {
-      // Edit existing account
-      await updateAccount(accountData.id, {
-        name: accountData.name,
-        currency: accountData.currency,
-        initialBalance: accountData.initialBalance,
-      });
-      showEditAccountDialog.value = false;
-    } else {
-      // Create new account
-      await createAccount({
-        name: accountData.name,
-        currency: accountData.currency,
-        initialBalance: accountData.initialBalance,
-      });
-      showAddAccountDialog.value = false;
-    }
-  } catch (error) {
-    console.error("Error saving account:", error);
-    // TODO: Show error message to user
-  } finally {
+  let success = false;
+  let successMessage = "";
+
+  if (accountData.id) {
+    // Edit existing account
+    const result = await updateAccount(accountData.id, {
+      name: accountData.name,
+      currency: accountData.currency,
+      initialBalance: accountData.initialBalance,
+    });
+    success = !!result;
+    successMessage = `Account "${accountData.name}" has been updated`;
+    if (success) showEditAccountDialog.value = false;
+  } else {
+    // Create new account
+    const result = await createAccount({
+      name: accountData.name,
+      currency: accountData.currency,
+      initialBalance: accountData.initialBalance,
+    });
+    success = !!result;
+    successMessage = `Account "${accountData.name}" has been created`;
+    if (success) showAddAccountDialog.value = false;
+  }
+
+  if (success) {
     editingAccount.value = null;
+    showSuccessSnackbar(successMessage);
+  } else if (accountsError.value) {
+    showErrorSnackbar(accountsError.value);
   }
 };
 

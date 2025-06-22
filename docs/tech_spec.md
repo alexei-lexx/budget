@@ -64,6 +64,9 @@ Personal Finance Tracker is a serverless web application for individual financia
 - Authentication with automatic token refresh
 - Apollo Client cache for server data management
 
+### UI Guidelines
+- **Notifications** - Use snackbars for user feedback (success/error messages)
+
 ---
 
 ## 3. Backend
@@ -183,7 +186,7 @@ Apollo Server, GraphQL, esbuild, JWT libraries, AWS SDK, TypeScript
 - **Linting** - ESLint with TypeScript
 - **Formatting** - Prettier
 - **Testing** - Jest unit tests
-- **TypeScript Best Practices** 
+- **TypeScript Best Practices**
   - Avoid unnecessary type checks (typeof, non-null, non-undefined) when the provided type is explicit and doesn't require such checks
 
 ### Environment Configuration

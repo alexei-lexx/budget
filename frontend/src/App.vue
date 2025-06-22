@@ -2,6 +2,7 @@
 import { computed, watch, onMounted } from "vue";
 import { useAuth } from "@/composables/useAuth";
 import { useUser } from "@/composables/useUser";
+import { useSnackbar } from "@/composables/useSnackbar";
 import LoginButton from "@/components/LoginButton.vue";
 import LogoutButton from "@/components/LogoutButton.vue";
 import { anonymizeEmail } from "@/utils/anonymize";
@@ -9,6 +10,7 @@ import { setAuthTokenGetter } from "@/apollo";
 
 const { user, isAuthenticated, isLoading: authLoading, getAccessToken } = useAuth();
 const { ensureUser, ensureUserLoading, userError } = useUser();
+const { showSnackbar, snackbarMessage, snackbarColor, hideSnackbar } = useSnackbar();
 
 // Set up token getter for Apollo Client
 onMounted(() => {
@@ -108,4 +110,12 @@ const displayName = computed(() => {
       <router-view />
     </v-main>
   </v-layout>
+
+  <!-- Global Snackbar - Outside layout for proper viewport positioning -->
+  <v-snackbar v-model="showSnackbar" :color="snackbarColor" timeout="4000" location="bottom">
+    {{ snackbarMessage }}
+    <template #actions>
+      <v-btn variant="text" @click="hideSnackbar"> Close </v-btn>
+    </template>
+  </v-snackbar>
 </template>
