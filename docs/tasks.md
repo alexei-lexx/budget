@@ -387,4 +387,4 @@ interface Account {
 - [x] Multi-currency support with proper currency symbols/formatting
 - [x] Initial balance displayed for each account
 - [x] Form validation and error handling throughout
-- [ ] Responsive design works on mobile and desktop
+- [x] Responsive design works on mobile and desktop
