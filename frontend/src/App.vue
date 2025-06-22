@@ -87,23 +87,38 @@ const displayName = computed(() => {
       </template>
 
       <template v-slot:append>
-        <div class="d-flex align-center ga-3">
+        <div class="d-flex align-center" :class="$vuetify.display.xs ? 'ga-2' : 'ga-3'">
           <!-- User info when authenticated -->
-          <div v-if="isAuthenticated && user" class="d-flex align-center ga-2">
-            <v-avatar size="32">
+          <div
+            v-if="isAuthenticated && user"
+            class="d-flex align-center"
+            :class="$vuetify.display.xs ? 'ga-1' : 'ga-2'"
+          >
+            <v-avatar :size="$vuetify.display.xs ? '28' : '32'">
               <v-img v-if="user.picture" :src="user.picture" :alt="displayName" />
               <v-icon v-else>mdi-account</v-icon>
             </v-avatar>
-            <span v-if="!mobile" class="text-body-2">{{ displayName }}</span>
+            <span
+              v-if="$vuetify.display.smAndUp"
+              :class="$vuetify.display.sm ? 'text-caption' : 'text-body-2'"
+            >
+              {{ displayName }}
+            </span>
           </div>
 
           <!-- Auth loading state -->
-          <v-progress-circular v-if="authLoading || ensureUserLoading" indeterminate size="24" />
+          <v-progress-circular
+            v-if="authLoading || ensureUserLoading"
+            indeterminate
+            :size="$vuetify.display.xs ? '20' : '24'"
+          />
 
           <!-- User creation error -->
           <v-tooltip v-if="userError" text="User creation failed">
             <template v-slot:activator="{ props }">
-              <v-icon v-bind="props" color="warning">mdi-alert-outline</v-icon>
+              <v-icon v-bind="props" color="warning" :size="$vuetify.display.xs ? '20' : '24'">
+                mdi-alert-outline
+              </v-icon>
             </template>
           </v-tooltip>
 
@@ -119,8 +134,9 @@ const displayName = computed(() => {
       :temporary="mobile"
       :permanent="!mobile"
       :mobile-breakpoint="960"
+      :width="$vuetify.display.xs ? '280' : '300'"
     >
-      <v-list nav>
+      <v-list nav :density="$vuetify.display.xs ? 'compact' : 'default'">
         <v-list-item
           :to="{ name: 'Dashboard' }"
           prepend-icon="mdi-view-dashboard"

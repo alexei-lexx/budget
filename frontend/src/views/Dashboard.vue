@@ -15,17 +15,20 @@ const displayName = computed(() => {
 </script>
 
 <template>
-  <v-container>
+  <v-container :class="{ 'pa-3': $vuetify.display.xs, 'pa-6': $vuetify.display.smAndUp }">
     <v-sheet
       border="dashed md"
       color="surface-light"
-      height="200"
+      :height="$vuetify.display.xs ? '150' : '200'"
       rounded="lg"
       width="100%"
       class="d-flex flex-column align-center justify-center"
+      :class="{ 'pa-4': $vuetify.display.xs, 'pa-6': $vuetify.display.smAndUp }"
     >
-      <div class="text-h6 mb-4">Welcome to Personal Budget Tracker</div>
-      <div class="text-body-1 text-center">
+      <div :class="$vuetify.display.xs ? 'text-h6' : 'text-h5'" class="mb-4 text-center">
+        Welcome to Personal Budget Tracker
+      </div>
+      <div :class="$vuetify.display.xs ? 'text-body-2' : 'text-body-1'" class="text-center">
         <div v-if="!isAuthenticated && !authLoading">
           Please sign in to start managing your finances
         </div>

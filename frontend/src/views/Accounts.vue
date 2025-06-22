@@ -128,12 +128,24 @@ const handleAccountCancel = () => {
 </script>
 
 <template>
-  <v-container>
+  <v-container :class="{ 'pa-3': $vuetify.display.xs, 'pa-6': $vuetify.display.smAndUp }">
     <!-- Page Header -->
-    <div class="d-flex justify-space-between align-center mb-6">
-      <h1 class="text-h4">Accounts</h1>
-      <v-btn color="primary" prepend-icon="mdi-plus" @click="openAddAccountDialog">
-        Add New Account
+    <div
+      class="d-flex align-center mb-6"
+      :class="{
+        'flex-column ga-3': $vuetify.display.xs,
+        'justify-space-between': $vuetify.display.smAndUp,
+      }"
+    >
+      <h1 :class="$vuetify.display.xs ? 'text-h5' : 'text-h4'">Accounts</h1>
+      <v-btn
+        color="primary"
+        :prepend-icon="$vuetify.display.smAndUp ? 'mdi-plus' : undefined"
+        :icon="$vuetify.display.xs ? 'mdi-plus' : undefined"
+        :block="$vuetify.display.xs"
+        @click="openAddAccountDialog"
+      >
+        <span v-if="$vuetify.display.smAndUp">Add New Account</span>
       </v-btn>
     </div>
 
@@ -152,7 +164,12 @@ const handleAccountCancel = () => {
     </AccountsList>
 
     <!-- Add Account Dialog -->
-    <v-dialog v-model="showAddAccountDialog" max-width="600" persistent>
+    <v-dialog
+      v-model="showAddAccountDialog"
+      :max-width="$vuetify.display.xs ? '95vw' : '600'"
+      :fullscreen="$vuetify.display.xs"
+      persistent
+    >
       <AccountForm
         :loading="formLoading"
         @submit="handleAccountSubmit"
@@ -161,7 +178,12 @@ const handleAccountCancel = () => {
     </v-dialog>
 
     <!-- Edit Account Dialog -->
-    <v-dialog v-model="showEditAccountDialog" max-width="600" persistent>
+    <v-dialog
+      v-model="showEditAccountDialog"
+      :max-width="$vuetify.display.xs ? '95vw' : '600'"
+      :fullscreen="$vuetify.display.xs"
+      persistent
+    >
       <AccountForm
         :account="editingAccount"
         :loading="formLoading"
@@ -171,7 +193,11 @@ const handleAccountCancel = () => {
     </v-dialog>
 
     <!-- Delete Confirmation Dialog -->
-    <v-dialog v-model="showDeleteConfirmDialog" max-width="500" persistent>
+    <v-dialog
+      v-model="showDeleteConfirmDialog"
+      :max-width="$vuetify.display.xs ? '95vw' : '500'"
+      persistent
+    >
       <v-card>
         <v-card-title class="text-h5 d-flex align-center">
           <v-icon color="error" class="me-2">mdi-alert</v-icon>
@@ -189,10 +215,19 @@ const handleAccountCancel = () => {
           </p>
         </v-card-text>
 
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn variant="text" @click="cancelDeleteAccount"> Cancel </v-btn>
-          <v-btn color="error" variant="flat" @click="confirmDeleteAccount"> Delete </v-btn>
+        <v-card-actions :class="{ 'flex-column ga-2': $vuetify.display.xs }">
+          <v-spacer v-if="$vuetify.display.smAndUp"></v-spacer>
+          <v-btn variant="text" @click="cancelDeleteAccount" :block="$vuetify.display.xs">
+            Cancel
+          </v-btn>
+          <v-btn
+            color="error"
+            variant="flat"
+            @click="confirmDeleteAccount"
+            :block="$vuetify.display.xs"
+          >
+            Delete
+          </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>

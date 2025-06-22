@@ -253,10 +253,12 @@ const handleCancel = () => {
       </v-form>
     </v-card-text>
 
-    <v-card-actions class="px-6 pb-6">
-      <v-btn variant="text" @click="handleCancel" :disabled="loading"> Cancel </v-btn>
+    <v-card-actions class="px-6 pb-6" :class="{ 'flex-column ga-2': $vuetify.display.xs }">
+      <v-btn variant="text" @click="handleCancel" :disabled="loading" :block="$vuetify.display.xs">
+        Cancel
+      </v-btn>
 
-      <v-spacer></v-spacer>
+      <v-spacer v-if="$vuetify.display.smAndUp"></v-spacer>
 
       <v-btn
         color="primary"
@@ -264,6 +266,7 @@ const handleCancel = () => {
         :loading="loading"
         :disabled="!isFormValid || loading"
         @click="handleSubmit"
+        :block="$vuetify.display.xs"
       >
         {{ submitButtonText }}
       </v-btn>
