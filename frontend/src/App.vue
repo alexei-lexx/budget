@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { computed, watch, onMounted } from "vue";
+import { computed, watch, onMounted, ref } from "vue";
 import { useAuth } from "@/composables/useAuth";
 import { useUser } from "@/composables/useUser";
 import { useSnackbar } from "@/composables/useSnackbar";
+import { useDisplay } from "vuetify";
 import LoginButton from "@/components/LoginButton.vue";
 import LogoutButton from "@/components/LogoutButton.vue";
 import { anonymizeEmail } from "@/utils/anonymize";
@@ -11,6 +12,10 @@ import { setAuthTokenGetter } from "@/apollo";
 const { user, isAuthenticated, isLoading: authLoading, getAccessToken } = useAuth();
 const { ensureUser, ensureUserLoading, userError } = useUser();
 const { showSnackbar, snackbarMessage, snackbarColor, hideSnackbar } = useSnackbar();
+const { mobile } = useDisplay();
+
+// Navigation drawer state
+const drawer = ref(false);
 
 // Set up token getter for Apollo Client
 onMounted(() => {
@@ -67,6 +72,11 @@ const displayName = computed(() => {
 <template>
   <v-layout class="rounded rounded-md border">
     <v-app-bar title="Personal Budget Tracker">
+      <template v-slot:prepend>
+        <!-- Hamburger menu button for mobile -->
+        <v-app-bar-nav-icon v-if="mobile" @click="drawer = !drawer" />
+      </template>
+      
       <template v-slot:append>
         <div class="d-flex align-center ga-3">
           <!-- User info when authenticated -->
@@ -75,7 +85,7 @@ const displayName = computed(() => {
               <v-img v-if="user.picture" :src="user.picture" :alt="displayName" />
               <v-icon v-else>mdi-account</v-icon>
             </v-avatar>
-            <span class="text-body-2">{{ displayName }}</span>
+            <span v-if="!mobile" class="text-body-2">{{ displayName }}</span>
           </div>
 
           <!-- Auth loading state -->
@@ -95,14 +105,25 @@ const displayName = computed(() => {
       </template>
     </v-app-bar>
 
-    <v-navigation-drawer>
+    <v-navigation-drawer
+      v-model="drawer"
+      :temporary="mobile"
+      :permanent="!mobile"
+      :mobile-breakpoint="960"
+    >
       <v-list nav>
         <v-list-item
           :to="{ name: 'Dashboard' }"
           prepend-icon="mdi-view-dashboard"
           title="Dashboard"
+          @click="mobile && (drawer = false)"
         />
-        <v-list-item :to="{ name: 'Accounts' }" prepend-icon="mdi-bank" title="Accounts" />
+        <v-list-item 
+          :to="{ name: 'Accounts' }" 
+          prepend-icon="mdi-bank" 
+          title="Accounts" 
+          @click="mobile && (drawer = false)"
+        />
       </v-list>
     </v-navigation-drawer>
 
