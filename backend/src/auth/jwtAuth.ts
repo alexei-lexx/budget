@@ -63,7 +63,7 @@ export class JwtAuthService {
       cacheMaxAge: 10 * 60 * 60 * 1000, // 10 hours cache duration
 
       requestHeaders: {}, // Optional
-      timeout: 30000, // Defaults to 30s
+      timeout: 5000, // 5 second timeout for JWKS requests
     });
   }
 
