@@ -20,8 +20,6 @@ const createCategoryInputSchema = z.object({
   }),
 });
 
-// Note: updateCategoryInputSchema will be used in task 5.3.4
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const updateCategoryInputSchema = z.object({
   name: z
     .string()
@@ -95,6 +93,44 @@ export const categoryResolvers = {
           });
         }
         handleResolverError(error, "Failed to create category");
+      }
+    },
+    updateCategory: async (
+      _parent: unknown,
+      args: {
+        id: string;
+        input: { name?: string; type?: CategoryType };
+      },
+      context: GraphQLContext,
+    ) => {
+      const { id } = args;
+
+      // Validate input
+      if (!id) {
+        throw new GraphQLError("Category ID is required", {
+          extensions: { code: "BAD_USER_INPUT" },
+        });
+      }
+
+      try {
+        // Validate and normalize input
+        const validatedInput = updateCategoryInputSchema.parse(args.input);
+        const user = await getAuthenticatedUser(context);
+
+        const category = await context.categoryRepository.update(
+          id,
+          user.id,
+          validatedInput,
+        );
+        return category;
+      } catch (error) {
+        if (error instanceof z.ZodError) {
+          const firstError = error.errors[0];
+          throw new GraphQLError(firstError.message, {
+            extensions: { code: "BAD_USER_INPUT" },
+          });
+        }
+        handleResolverError(error, "Failed to update category");
       }
     },
   },

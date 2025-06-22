@@ -480,14 +480,13 @@ App Navigation Drawer:
   - [x] 5.3.1 Define Category GraphQL type and CategoryInput/UpdateCategoryInput types
   - [x] 5.3.2 Add activeCategories query to schema and resolver to fetch user's categories (optionally filtered by type)
   - [x] 5.3.3 Add createCategory mutation to schema and resolver with validation
-  - [ ] 5.3.4 Add updateCategory mutation to schema and resolver with existence checking
+  - [x] 5.3.4 Add updateCategory mutation to schema and resolver with existence checking
   - [ ] 5.3.5 Add archiveCategory mutation to schema and resolver for soft delete
 
 - [ ] **5.4 Frontend Data Integration**
   - [ ] 5.4.1 Create GraphQL queries and mutations for category operations
   - [ ] 5.4.2 Create useCategories composable for state management and API calls
   - [ ] 5.4.3 Add error handling and loading states for category operations
-  - [ ] 5.4.4 Test GraphQL integration with Apollo Client DevTools
 
 - [ ] **5.5 Frontend User Interface**
   - [ ] 5.5.1 Add Categories route and navigation menu item
