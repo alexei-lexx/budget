@@ -165,6 +165,9 @@ export const resolvers = {
         handleResolverError(error, "Failed to fetch active accounts");
       }
     },
+    supportedCurrencies: () => {
+      return Array.from(SUPPORTED_CURRENCIES);
+    },
   },
   Mutation: {
     ensureUser: async (

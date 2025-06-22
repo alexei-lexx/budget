@@ -1,6 +1,7 @@
 export const typeDefs = `#graphql
   type Query {
     activeAccounts: [Account!]!
+    supportedCurrencies: [String!]!
   }
 
   type User {
