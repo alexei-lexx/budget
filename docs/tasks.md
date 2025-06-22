@@ -476,12 +476,12 @@ App Navigation Drawer:
   - [x] 5.2.4 Add business logic validation: name required, type validation, duplicate prevention
   - [x] 5.2.5 Add proper error handling with CategoryRepositoryError types
 
-- [ ] **5.3 GraphQL API Layer**
+- [x] **5.3 GraphQL API Layer**
   - [x] 5.3.1 Define Category GraphQL type and CategoryInput/UpdateCategoryInput types
   - [x] 5.3.2 Add activeCategories query to schema and resolver to fetch user's categories (optionally filtered by type)
   - [x] 5.3.3 Add createCategory mutation to schema and resolver with validation
   - [x] 5.3.4 Add updateCategory mutation to schema and resolver with existence checking
-  - [ ] 5.3.5 Add archiveCategory mutation to schema and resolver for soft delete
+  - [x] 5.3.5 Add archiveCategory mutation to schema and resolver for soft delete
 
 - [ ] **5.4 Frontend Data Integration**
   - [ ] 5.4.1 Create GraphQL queries and mutations for category operations

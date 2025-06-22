@@ -133,5 +133,27 @@ export const categoryResolvers = {
         handleResolverError(error, "Failed to update category");
       }
     },
+    archiveCategory: async (
+      _parent: unknown,
+      args: { id: string },
+      context: GraphQLContext,
+    ) => {
+      const { id } = args;
+
+      // Validate input
+      if (!id) {
+        throw new GraphQLError("Category ID is required", {
+          extensions: { code: "BAD_USER_INPUT" },
+        });
+      }
+
+      try {
+        const user = await getAuthenticatedUser(context);
+        const category = await context.categoryRepository.archive(id, user.id);
+        return category;
+      } catch (error) {
+        handleResolverError(error, "Failed to archive category");
+      }
+    },
   },
 };
