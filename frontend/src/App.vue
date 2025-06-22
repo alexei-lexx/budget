@@ -15,7 +15,16 @@ const { showSnackbar, snackbarMessage, snackbarColor, hideSnackbar } = useSnackb
 const { mobile } = useDisplay();
 
 // Navigation drawer state
-const drawer = ref(false);
+const drawer = ref(true);
+
+// Initialize drawer state and watch for screen size changes
+onMounted(() => {
+  drawer.value = !mobile.value;
+});
+
+watch(mobile, (isMobile) => {
+  drawer.value = !isMobile;
+});
 
 // Set up token getter for Apollo Client
 onMounted(() => {
