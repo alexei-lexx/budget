@@ -60,24 +60,40 @@ watch(
 const formValid = ref(false);
 const formRef = ref();
 
+type CheckRule<T = string | number> = (value: T) => boolean | string;
+
+// Helper function to check if validation rules pass
+const checkRules = <T>(value: T, rules: CheckRule<T>[]) => {
+  return rules.every((rule) => rule(value) === true);
+};
+
+// Force validation check when form data changes
+const isFormValid = computed(() => {
+  const nameValid = checkRules(formData.value.name, nameRules);
+  const currencyValid = checkRules(formData.value.currency, currencyRules);
+  const balanceValid = checkRules(formData.value.initialBalance, balanceRules);
+
+  return nameValid && currencyValid && balanceValid;
+});
+
 // Validation rules
-const nameRules = [
-  (v: string) => !!v || "Account name is required",
-  (v: string) => (v && v.trim().length > 0) || "Account name cannot be empty",
-  (v: string) => (v && v.length <= 100) || "Account name cannot exceed 100 characters",
+const nameRules: CheckRule<string>[] = [
+  (v) => !!v || "Account name is required",
+  (v) => (v && v.trim().length > 0) || "Account name cannot be empty",
+  (v) => (v && v.length <= 100) || "Account name cannot exceed 100 characters",
 ];
 
-const currencyRules = [
-  (v: string) => !!v || "Currency is required",
-  (v: string) =>
+const currencyRules: CheckRule<string>[] = [
+  (v) => !!v || "Currency is required",
+  (v) =>
     supportedCurrencies.value.some((c: { value: string; title: string }) => c.value === v) ||
     "Please select a valid currency",
 ];
 
-const balanceRules = [
-  (v: number | string) => (v !== "" && v !== null) || "Initial balance is required",
-  (v: number | string) => !isNaN(Number(v)) || "Initial balance must be a valid number",
-  (v: number | string) => isFinite(Number(v)) || "Initial balance must be a finite number",
+const balanceRules: CheckRule<number>[] = [
+  (v) => (v !== null && v !== undefined) || "Initial balance is required",
+  (v) => !isNaN(v) || "Initial balance must be a valid number",
+  (v) => isFinite(v) || "Initial balance must be a finite number",
 ];
 
 // Computed properties
@@ -246,7 +262,7 @@ const handleCancel = () => {
         color="primary"
         variant="flat"
         :loading="loading"
-        :disabled="!formValid || loading"
+        :disabled="!isFormValid || loading"
         @click="handleSubmit"
       >
         {{ submitButtonText }}
