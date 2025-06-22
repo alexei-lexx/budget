@@ -422,7 +422,7 @@ interface Account {
 ```typescript
 interface Category {
   userId: string;       // Partition key (same pattern as Accounts)
-  id: string;           // Sort key - UUID v4 
+  id: string;           // Sort key - UUID v4
   name: string;         // Category name (e.g., "Groceries", "Salary")
   type: 'INCOME' | 'EXPENSE'; // Category type (INCOME, EXPENSE)
   isArchived: boolean;  // Soft delete flag
@@ -464,10 +464,10 @@ App Navigation Drawer:
 
 ### Implementation Plan
 
-- [ ] **5.1 Database Infrastructure Setup**
-  - [ ] 5.1.1 Update backend-cdk stack to add Categories DynamoDB table with partition key (userId) and sort key (id)
-  - [ ] 5.1.2 Add Categories table definition to development database setup scripts
-  - [ ] 5.1.3 Test database table creation in both development and production environments
+- [x] **5.1 Database Infrastructure Setup**
+  - [x] 5.1.1 Update backend-cdk stack to add Categories DynamoDB table with partition key (userId) and sort key (id)
+  - [x] 5.1.2 Add Categories table definition to development database setup scripts
+  - [x] 5.1.3 Test database table creation in both development and production environments
 
 - [ ] **5.2 Backend Data Layer**
   - [ ] 5.2.1 Create Category model interface with userId, id, name, type, isArchived, createdAt, updatedAt
