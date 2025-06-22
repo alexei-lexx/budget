@@ -110,7 +110,12 @@ export class AccountRepository implements IAccountRepository {
       });
 
       const result = await this.client.send(command);
-      return (result.Items || []) as Account[];
+      const accounts = (result.Items || []) as Account[];
+
+      // Sort accounts by name (case-insensitive)
+      return accounts.sort((a, b) =>
+        a.name.toLowerCase().localeCompare(b.name.toLowerCase()),
+      );
     } catch (error) {
       console.error("Error finding active accounts by user ID:", error);
       throw new AccountRepositoryError(
