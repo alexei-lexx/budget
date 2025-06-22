@@ -70,6 +70,12 @@ export function formatCurrency(
     showCurrencyCode = false,
   } = options;
 
+  // Input validation
+  if (!isFinite(amount)) {
+    console.warn("Invalid amount provided to formatCurrency:", amount);
+    amount = 0;
+  }
+
   try {
     const formatted = new Intl.NumberFormat(locale, {
       style: "currency",
@@ -88,11 +94,16 @@ export function formatCurrency(
     // Fallback if currency code is not supported by Intl.NumberFormat
     console.warn(`Unsupported currency code: ${currencyCode}`, error);
     const symbol = getCurrencySymbol(currencyCode);
-    const formatted = new Intl.NumberFormat(locale, {
-      minimumFractionDigits,
-      maximumFractionDigits,
-    }).format(amount);
-    return `${symbol}${formatted}`;
+    try {
+      const formatted = new Intl.NumberFormat(locale, {
+        minimumFractionDigits,
+        maximumFractionDigits,
+      }).format(amount);
+      return `${symbol}${formatted}`;
+    } catch (fallbackError) {
+      console.error("Fallback formatting also failed:", fallbackError);
+      return `${symbol}${amount.toFixed(2)}`;
+    }
   }
 }
 

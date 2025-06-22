@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
-import { useQuery } from "@vue/apollo-composable";
-import { GET_SUPPORTED_CURRENCIES } from "@/graphql/queries";
-import { getCurrencyTitle, formatCurrency, getCurrencyInputPrefix } from "@/utils/currency";
+import { formatCurrency, getCurrencyInputPrefix } from "@/utils/currency";
+import { useCurrencies } from "@/composables/useCurrencies";
 
 // Define Account interface for editing
 interface Account {
@@ -29,34 +28,33 @@ const emit = defineEmits<{
   cancel: [];
 }>();
 
-// Fetch supported currencies from GraphQL API
+// Use currencies composable for enhanced error handling
 const {
-  result: currenciesResult,
-  loading: currenciesLoading,
-  error: currenciesError,
-} = useQuery(GET_SUPPORTED_CURRENCIES);
-
-// Transform currencies for v-select format with fallback
-const supportedCurrencies = computed(() => {
-  if (currenciesResult.value?.supportedCurrencies) {
-    return currenciesResult.value.supportedCurrencies.map((currency: string) => ({
-      value: currency,
-      title: getCurrencyTitle(currency),
-    }));
-  }
-  // Fallback currencies if API fails
-  return [
-    { value: "USD", title: getCurrencyTitle("USD") },
-    { value: "EUR", title: getCurrencyTitle("EUR") },
-  ];
-});
+  supportedCurrencies,
+  currenciesLoading,
+  hasError: currencyHasError,
+  errorMessage: currencyErrorMessage,
+  retry: retryCurrencies,
+  defaultCurrency,
+} = useCurrencies();
 
 // Form data
 const formData = ref<Account>({
   name: "",
-  currency: "USD",
+  currency: "",
   initialBalance: 0,
 });
+
+// Update currency when default becomes available
+watch(
+  defaultCurrency,
+  (newDefault) => {
+    if (newDefault && !formData.value.currency) {
+      formData.value.currency = newDefault;
+    }
+  },
+  { immediate: true },
+);
 
 // Form validation
 const formValid = ref(false);
@@ -102,7 +100,7 @@ watch(
       // Reset form for new account
       formData.value = {
         name: "",
-        currency: "USD",
+        currency: defaultCurrency.value || "",
         initialBalance: 0,
       };
     }
@@ -155,6 +153,22 @@ const handleCancel = () => {
     </v-card-title>
 
     <v-card-text>
+      <!-- Currency Error Alert -->
+      <v-alert v-if="currencyErrorMessage" type="warning" variant="tonal" class="mb-4" closable>
+        <div class="d-flex align-center justify-space-between">
+          <span>{{ currencyErrorMessage }}</span>
+          <v-btn
+            size="small"
+            variant="outlined"
+            color="warning"
+            @click="retryCurrencies"
+            :loading="currenciesLoading"
+          >
+            Retry
+          </v-btn>
+        </div>
+      </v-alert>
+
       <v-form ref="formRef" v-model="formValid" @submit.prevent="handleSubmit">
         <!-- Account Name -->
         <v-text-field
@@ -181,7 +195,7 @@ const handleCancel = () => {
           required
         >
           <template #no-data>
-            <v-list-item v-if="currenciesError">
+            <v-list-item v-if="currencyHasError">
               <v-list-item-title class="text-error">
                 Failed to load currencies. Using defaults.
               </v-list-item-title>
