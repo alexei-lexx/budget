@@ -388,3 +388,133 @@ interface Account {
 - [x] Initial balance displayed for each account
 - [x] Form validation and error handling throughout
 - [x] Responsive design works on mobile and desktop
+
+---
+
+## Task 5: Category Management System
+
+**Objective:** Implement a complete category management system for income and expense transactions, providing users with customizable categories that serve as the foundation for transaction tracking and reporting.
+
+### Current State Analysis
+
+**Frontend Status:**
+- ✅ Vue Router with navigation between Dashboard and Accounts
+- ✅ Vuetify UI components and theming
+- ✅ Apollo Client GraphQL integration
+- ❌ No category-related components or pages
+- ❌ No category navigation or management interface
+
+**Backend Status:**
+- ✅ User authentication and database integration working
+- ✅ Account management GraphQL schema and resolvers
+- ✅ DynamoDB tables for Users and Accounts
+- ❌ No category database table or schema
+- ❌ No category GraphQL types or resolvers
+
+**Dependencies:**
+- Categories are required before implementing transactions
+- Transaction forms will need category selection dropdowns
+- Monthly reports will group transactions by category
+
+### Target Architecture
+
+**Database Schema:**
+```typescript
+interface Category {
+  userId: string;       // Partition key (same pattern as Accounts)
+  id: string;           // Sort key - UUID v4 
+  name: string;         // Category name (e.g., "Groceries", "Salary")
+  type: 'INCOME' | 'EXPENSE'; // Category type (INCOME, EXPENSE)
+  isArchived: boolean;  // Soft delete flag
+  createdAt: string;    // ISO timestamp
+  updatedAt: string;    // ISO timestamp
+}
+```
+
+**Navigation Structure:**
+```
+App Navigation Drawer:
+├── Dashboard (/)           → Overview/health check
+├── Accounts (/accounts)    → Account management page
+└── Categories (/categories) → Category management page
+```
+
+**Page Layout (Categories.vue):**
+```
+┌─────────────────────────────────────────┐
+│ Categories Page                         │
+├─────────────────────────────────────────┤
+│ [Income] [Expense] Tabs                 │
+├─────────────────────────────────────────┤
+│ [+ Add New Category]                    │
+├─────────────────────────────────────────┤
+│ Income Categories:                      │
+│ ┌─────────────┐ ┌─────────────┐         │
+│ │ Salary      │ │ Freelance   │         │
+│ │ [Edit][Del] │ │ [Edit][Del] │         │
+│ └─────────────┘ └─────────────┘         │
+│                                         │
+│ Expense Categories:                     │
+│ ┌─────────────┐ ┌─────────────┐         │
+│ │ Groceries   │ │ Rent        │         │
+│ │ [Edit][Del] │ │ [Edit][Del] │         │
+│ └─────────────┘ └─────────────┘         │
+└─────────────────────────────────────────┘
+```
+
+### Implementation Plan
+
+- [ ] **5.1 Database Infrastructure Setup**
+  - [ ] 5.1.1 Update backend-cdk stack to add Categories DynamoDB table with partition key (userId) and sort key (id)
+  - [ ] 5.1.2 Add Categories table definition to development database setup scripts
+  - [ ] 5.1.3 Test database table creation in both development and production environments
+
+- [ ] **5.2 Backend Data Layer**
+  - [ ] 5.2.1 Create Category model interface with userId, id, name, type, isArchived, createdAt, updatedAt
+  - [ ] 5.2.2 Create CategoryRepository with environment-aware DynamoDB configuration
+  - [ ] 5.2.3 Implement CRUD operations: create, findByUserId, findById, update, archive
+  - [ ] 5.2.4 Add business logic validation: name required, type validation, duplicate prevention
+  - [ ] 5.2.5 Add proper error handling with CategoryRepositoryError types
+
+- [ ] **5.3 GraphQL API Layer**
+  - [ ] 5.3.1 Define Category GraphQL type and CategoryInput/UpdateCategoryInput types
+  - [ ] 5.3.2 Add categories query resolver to fetch user's categories filtered by type
+  - [ ] 5.3.3 Add createCategory mutation resolver with validation
+  - [ ] 5.3.4 Add updateCategory mutation resolver with existence checking
+  - [ ] 5.3.5 Add archiveCategory mutation resolver for soft delete
+
+- [ ] **5.4 Frontend Data Integration**
+  - [ ] 5.4.1 Create GraphQL queries and mutations for category operations
+  - [ ] 5.4.2 Create useCategories composable for state management and API calls
+  - [ ] 5.4.3 Add error handling and loading states for category operations
+  - [ ] 5.4.4 Test GraphQL integration with Apollo Client DevTools
+
+- [ ] **5.5 Frontend User Interface**
+  - [ ] 5.5.1 Add Categories route and navigation menu item
+  - [ ] 5.5.2 Create Categories.vue page with tabbed layout for Income/Expense
+  - [ ] 5.5.3 Create CategoryCard component for displaying individual categories
+  - [ ] 5.5.4 Create CategoryForm component for create/edit operations
+  - [ ] 5.5.5 Add confirmation dialogs for category deletion
+
+- [ ] **5.6 User Experience Enhancements**
+  - [ ] 5.6.1 Add empty state handling when no categories exist
+  - [ ] 5.6.2 Add form validation and user-friendly error messages
+  - [ ] 5.6.3 Ensure responsive design for mobile and desktop
+
+- [ ] **5.7 Integration Testing and Deployment**
+  - [ ] 5.7.1 Test complete CRUD flow in development environment
+  - [ ] 5.7.2 Test category type filtering and duplicate name prevention
+  - [ ] 5.7.3 Run linting and type checking (npm run lint, npm run type-check)
+  - [ ] 5.7.4 Deploy to production and validate all functionality works
+
+### Success Criteria
+
+- [ ] Users can navigate to Categories page via main navigation
+- [ ] Users can create new categories with name and type (Income/Expense)
+- [ ] Users can view categories organized by type in separate tabs
+- [ ] Users can edit category names and types
+- [ ] Users can delete categories with proper confirmation
+- [ ] Duplicate category names within same type are prevented
+- [ ] Form validation and error handling throughout
+- [ ] Responsive design works on mobile and desktop
+- [ ] Categories are ready to be used by transaction system
