@@ -74,7 +74,7 @@ const categoryTypeOptions = [
     color: "success",
   },
   {
-    title: "Expense", 
+    title: "Expense",
     value: "EXPENSE" as CategoryType,
     icon: "mdi-cash-minus",
     color: "error",
@@ -88,7 +88,7 @@ const submitButtonText = computed(() => (isEditing.value ? "Update Category" : "
 
 // Get selected type details
 const selectedTypeDetails = computed(() => {
-  return categoryTypeOptions.find(option => option.value === formData.value.type);
+  return categoryTypeOptions.find((option) => option.value === formData.value.type);
 });
 
 // Watch for category prop changes (for editing)
@@ -195,22 +195,14 @@ const exampleNames = computed(() => {
         </v-select>
 
         <!-- Category Preview -->
-        <v-alert
-          v-if="formData.name && formData.type"
-          type="info"
-          variant="tonal"
-          class="mb-4"
-        >
+        <v-alert v-if="formData.name && formData.type" type="info" variant="tonal" class="mb-4">
           <div class="d-flex align-center">
-            <v-icon 
-              :color="selectedTypeDetails?.color" 
-              class="me-2"
-            >
+            <v-icon :color="selectedTypeDetails?.color" class="me-2">
               {{ selectedTypeDetails?.icon }}
             </v-icon>
             <div class="text-body-2">
-              <strong>Preview:</strong> "{{ formData.name }}" will be created as 
-              {{ formData.type === 'INCOME' ? 'an Income' : 'an Expense' }} category
+              <strong>Preview:</strong> "{{ formData.name }}" will be created as
+              {{ formData.type === "INCOME" ? "an Income" : "an Expense" }} category
             </div>
           </div>
         </v-alert>
@@ -223,10 +215,11 @@ const exampleNames = computed(() => {
           class="mb-4"
         >
           <div class="text-body-2">
-            <strong>{{ formData.type === 'INCOME' ? 'Income' : 'Expense' }} Category:</strong>
-            {{ formData.type === 'INCOME' 
-              ? 'Use this for money coming into your accounts (salary, freelance, etc.)'
-              : 'Use this for money going out of your accounts (groceries, rent, etc.)'
+            <strong>{{ formData.type === "INCOME" ? "Income" : "Expense" }} Category:</strong>
+            {{
+              formData.type === "INCOME"
+                ? "Use this for money coming into your accounts (salary, freelance, etc.)"
+                : "Use this for money going out of your accounts (groceries, rent, etc.)"
             }}
           </div>
         </v-alert>

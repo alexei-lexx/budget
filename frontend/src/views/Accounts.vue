@@ -146,13 +146,7 @@ const handleAccountCancel = () => {
       >
         Add New Account
       </v-btn>
-      <v-btn
-        v-else
-        color="primary"
-        icon="mdi-plus"
-        size="large"
-        @click="openAddAccountDialog"
-      >
+      <v-btn v-else color="primary" icon="mdi-plus" size="large" @click="openAddAccountDialog">
         <v-icon>mdi-plus</v-icon>
       </v-btn>
     </div>

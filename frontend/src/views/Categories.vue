@@ -45,7 +45,7 @@ const categories = computed<Category[]>(() => {
 
 // Filter categories by current tab
 const filteredCategories = computed<Category[]>(() => {
-  return categories.value.filter(category => category.type === activeTab.value);
+  return categories.value.filter((category) => category.type === activeTab.value);
 });
 
 // Loading state
@@ -150,13 +150,7 @@ const handleCategoryCancel = () => {
       >
         Add New Category
       </v-btn>
-      <v-btn
-        v-else
-        color="primary"
-        icon="mdi-plus"
-        size="large"
-        @click="openAddCategoryDialog"
-      >
+      <v-btn v-else color="primary" icon="mdi-plus" size="large" @click="openAddCategoryDialog">
         <v-icon>mdi-plus</v-icon>
       </v-btn>
     </div>
@@ -164,11 +158,11 @@ const handleCategoryCancel = () => {
     <!-- Category Type Tabs -->
     <v-tabs v-model="activeTab" class="mb-4">
       <v-tab value="INCOME">
-        <v-icon start>mdi-cash-plus</v-icon>
+        <v-icon start color="success">mdi-cash-plus</v-icon>
         Income
       </v-tab>
       <v-tab value="EXPENSE">
-        <v-icon start>mdi-cash-minus</v-icon>
+        <v-icon start color="error">mdi-cash-minus</v-icon>
         Expense
       </v-tab>
     </v-tabs>
@@ -187,10 +181,11 @@ const handleCategoryCancel = () => {
           <v-icon size="64" color="medium-emphasis" class="mb-4">mdi-tag-multiple-outline</v-icon>
           <h3 class="text-h6 mb-2">No {{ activeTab.toLowerCase() }} categories yet</h3>
           <p class="text-medium-emphasis mb-4">
-            Create your first {{ activeTab.toLowerCase() }} category to start organizing your transactions.
+            Create your first {{ activeTab.toLowerCase() }} category to start organizing your
+            transactions.
           </p>
           <v-btn color="primary" prepend-icon="mdi-plus" @click="openAddCategoryDialog">
-            Add Your First {{ activeTab === 'INCOME' ? 'Income' : 'Expense' }} Category
+            Add Your First {{ activeTab === "INCOME" ? "Income" : "Expense" }} Category
           </v-btn>
         </div>
 
@@ -205,11 +200,8 @@ const handleCategoryCancel = () => {
             <v-card-text class="pb-2">
               <div class="d-flex align-center justify-space-between">
                 <div class="d-flex align-center">
-                  <v-icon
-                    :color="category.type === 'INCOME' ? 'success' : 'error'"
-                    class="me-2"
-                  >
-                    {{ category.type === 'INCOME' ? 'mdi-cash-plus' : 'mdi-cash-minus' }}
+                  <v-icon :color="category.type === 'INCOME' ? 'success' : 'error'" class="me-2">
+                    {{ category.type === "INCOME" ? "mdi-cash-plus" : "mdi-cash-minus" }}
                   </v-icon>
                   <div>
                     <h4 class="text-h6">{{ category.name }}</h4>
@@ -217,12 +209,7 @@ const handleCategoryCancel = () => {
                 </div>
                 <v-menu>
                   <template v-slot:activator="{ props }">
-                    <v-btn
-                      v-bind="props"
-                      icon="mdi-dots-vertical"
-                      variant="text"
-                      size="small"
-                    />
+                    <v-btn v-bind="props" icon="mdi-dots-vertical" variant="text" size="small" />
                   </template>
                   <v-list density="compact">
                     <v-list-item
@@ -292,8 +279,8 @@ const handleCategoryCancel = () => {
             <strong>"{{ categoryToDelete?.name }}"</strong>?
           </p>
           <p class="text-body-2 text-medium-emphasis">
-            This action cannot be undone. The category will be permanently removed from your records,
-            but historical transaction data will be preserved.
+            This action cannot be undone. The category will be permanently removed from your
+            records, but historical transaction data will be preserved.
           </p>
         </v-card-text>
 
@@ -330,7 +317,9 @@ const handleCategoryCancel = () => {
 }
 
 .category-card {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .category-card:hover {

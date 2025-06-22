@@ -48,7 +48,7 @@ export function useCategories(type?: CategoryType | Ref<CategoryType>) {
     error: categoriesQueryError,
     refetch: refetchCategories,
   } = useQuery<GetActiveCategoriesResponse>(GET_ACTIVE_CATEGORIES, () => ({
-    type: (typeof type === "object" && "value" in type) ? type.value : type || null,
+    type: typeof type === "object" && "value" in type ? type.value : type || null,
   }));
 
   // Create category mutation
@@ -63,7 +63,9 @@ export function useCategories(type?: CategoryType | Ref<CategoryType>) {
     mutate: updateCategoryMutation,
     loading: updateCategoryLoading,
     error: updateCategoryError,
-  } = useMutation<UpdateCategoryResponse, { id: string; input: UpdateCategoryInput }>(UPDATE_CATEGORY);
+  } = useMutation<UpdateCategoryResponse, { id: string; input: UpdateCategoryInput }>(
+    UPDATE_CATEGORY,
+  );
 
   // Archive category mutation
   const {
@@ -110,7 +112,10 @@ export function useCategories(type?: CategoryType | Ref<CategoryType>) {
   };
 
   // Update category function
-  const updateCategory = async (id: string, input: UpdateCategoryInput): Promise<Category | null> => {
+  const updateCategory = async (
+    id: string,
+    input: UpdateCategoryInput,
+  ): Promise<Category | null> => {
     try {
       categoriesError.value = null;
       const result = await updateCategoryMutation({ id, input });
