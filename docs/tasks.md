@@ -1,5 +1,7 @@
 # Implementation Tasks
 
+**Before starting any task, analyze requirements and instructions in docs/general_spec.md and docs/tech_spec.md**
+
 ## Instructions for Adding New Tasks
 
 When creating new implementation tasks in this file, follow these guidelines:
