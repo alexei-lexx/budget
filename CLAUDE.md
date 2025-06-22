@@ -31,6 +31,9 @@ npm run db:admin      # Start admin UI separately
 npm run db:stop       # Stop all database services
 npm run db:setup      # Start database and create tables
 npm run db:reset      # Reset database (stop, start, create tables)
+
+# Format code
+npm run format        # Run prettier:fix and lint:fix together
 ```
 
 ### Frontend Development
