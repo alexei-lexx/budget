@@ -15,12 +15,13 @@ When creating new implementation tasks in this file, follow these guidelines:
    - **Task**: A major user-facing feature or business capability that delivers value. Written from user/product owner perspective describing what functionality will be available. Uses single-digit numbering (e.g., "Task 1"). Exception: purely technical tasks that enable other features.
    - **Subtask**: A specific subfeature or user capability within the main task. Each subtask should deliver standalone value that users can directly benefit from. Written from user perspective (e.g., "Delete Account", "Export Data"). Uses two-digit numbering format `X.Y` (e.g., "1.1", "1.2").
    - **Step**: The technical implementation details and specific work items needed to deliver the subtask. Uses three-digit numbering format `X.Y.Z` (e.g., "1.1.1"). This is where technical implementation details belong.
-4. **Content to include**:
+4. **Manual Task Prefix**: Add `[M]` prefix to task items that require manual execution by the developer (e.g., deployment, manual testing, environment setup, external service configuration)
+5. **Content to include**:
    - Objective and current state analysis
    - Target architecture description
    - Implementation plan with numbered phases
    - Success criteria
-5. **Progress tracking**: Mark completed tasks by changing `[ ]` to `[x]`
+6. **Progress tracking**: Mark completed tasks by changing `[ ]` to `[x]`
 
 ---
 
@@ -500,7 +501,7 @@ App Navigation Drawer:
   - [x] 5.6.2 Add form validation and user-friendly error messages
   - [x] 5.6.3 Ensure responsive design for mobile and desktop
 
-- [ ] **5.7 Integration Testing and Deployment**
+- [x] **5.7 Integration Testing and Deployment**
   - [x] 5.7.1 Test complete CRUD flow in development environment
   - [x] 5.7.2 Test category type filtering and duplicate name prevention
   - [x] 5.7.3 Run linting and type checking (npm run lint, npm run type-check)
@@ -517,3 +518,202 @@ App Navigation Drawer:
 - [x] Form validation and error handling throughout
 - [x] Responsive design works on mobile and desktop
 - [x] Categories are ready to be used by transaction system
+
+---
+
+## Task 6: Core Transaction Management
+
+**Objective:** Implement basic transaction tracking for income and expenses, enabling users to record, view, edit, and delete their financial transactions.
+
+### Current State Analysis
+
+**Frontend Status:**
+- ✅ Vue Router with navigation between Dashboard, Accounts, and Categories
+- ✅ Vuetify UI components with consistent design patterns
+- ✅ Apollo Client GraphQL integration working reliably
+- ✅ Account and Category management pages fully functional
+- ❌ No transaction-related components or pages
+- ❌ No transaction navigation or management interface
+- ❌ No transaction data visualization or filtering
+
+**Backend Status:**
+- ✅ User authentication and database integration working
+- ✅ Account management GraphQL schema, resolvers, and repository
+- ✅ Category management GraphQL schema, resolvers, and repository
+- ✅ DynamoDB tables for Users, Accounts, and Categories
+- ❌ No transaction database table or schema
+- ❌ No transaction GraphQL types or resolvers
+
+**Dependencies:**
+- Accounts provide the foundation for transaction tracking
+- Categories enable optional transaction categorization
+- Transaction forms will need account selection and optional category selection
+
+### Target Architecture
+
+**Database Schema:**
+```typescript
+interface Transaction {
+  userId: string;          // Partition key (same pattern as other entities)
+  id: string;              // Sort key - UUID v4
+  accountId: string;       // Foreign key to Account
+  categoryId?: string;     // Optional foreign key to Category
+  type: 'INCOME' | 'EXPENSE'; // Transaction type (matches category type)
+  amount: number;          // Transaction amount (positive value)
+  currency: string;        // ISO currency code (inherited from account)
+  date: string;            // Transaction date (YYYY-MM-DD format)
+  description?: string;    // Optional description
+  isArchived: boolean;     // Soft delete flag
+  createdAt: string;       // ISO timestamp
+  updatedAt: string;       // ISO timestamp
+}
+```
+
+**Navigation Structure:**
+```
+App Navigation Drawer:
+├── Dashboard (/)               → Overview with recent transactions
+├── Accounts (/accounts)        → Account management
+├── Categories (/categories)    → Category management
+└── Transactions (/transactions) → Transaction management and history
+```
+
+**Page Layout (Transactions.vue):**
+```
+┌───────────────────────────────────────────────────────────────────┐
+│ Transactions Page                                                 │
+├───────────────────────────────────────────────────────────────────┤
+│ [+ Add Transaction]                                               │
+├───────────────────────────────────────────────────────────────────┤
+│ Transaction History (Latest First):                               │
+│ ┌───────────────────────────────────────────────────────────────┐ │
+│ │ Dec 15, 2024  │ Groceries    │ Weekly shopping │ -45.67  [:]  │ │
+│ │ Cash, USD     │              │                 │              │ │
+│ ├───────────────┼──────────────┼─────────────────┼──────────────┤ │
+│ │ Dec 14, 2024  │ Salary       │                 │ +3,500.00[:] │ │
+│ │ Bank Acct,USD │              │                 │              │ │
+│ └───────────────┴──────────────┴─────────────────┴──────────────┘ │
+│ [:] Dropdown Menu: Edit, Delete                                   │
+└───────────────────────────────────────────────────────────────────┘
+```
+
+
+### Implementation Plan
+
+- [ ] **6.1 Frontend Mock Data Setup**
+  - [ ] 6.1.1 Create mock transaction data using existing real account and category IDs from GraphQL APIs
+  - [ ] 6.1.2 Create mock transaction service with CRUD operations (add, edit, delete, list transactions)
+  - [ ] 6.1.3 Implement mock data persistence using localStorage for testing continuity
+  - [ ] 6.1.4 Add data validation to mock service (amount > 0, required fields, valid account/category IDs, etc.)
+  - [ ] 6.1.5 Fetch real accounts and categories via existing GraphQL APIs for form dropdowns
+  - [ ] 6.1.6 Create useTransactions composable that works with mock transaction service
+
+- [ ] **6.2 Frontend UI Components**
+  - [ ] 6.2.1 Add Transactions route and navigation menu item with appropriate icon
+  - [ ] 6.2.2 Create TransactionForm.vue component for create/edit operations with account/category dropdowns
+  - [ ] 6.2.3 Create TransactionCard.vue component for displaying individual transactions with always-visible +/- signs and dropdown action menu (⋮)
+  - [ ] 6.2.4 Create Transactions.vue page with transaction list using mock data
+  - [ ] 6.2.5 Implement dropdown action menu with Edit and Delete options following the same pattern as accounts and categories
+
+- [ ] **6.3 Frontend User Experience**
+  - [ ] 6.3.1 Implement amount formatting with consistent +/- prefix display (e.g., "+$3,500.00", "-$45.67")
+  - [ ] 6.3.2 Add confirmation dialogs for transaction deletion with transaction details (amount, description, account)
+  - [ ] 6.3.3 Add empty state handling when no transactions exist
+  - [ ] 6.3.4 Add loading states for transaction operations
+  - [ ] 6.3.5 Ensure responsive design for mobile transaction entry
+  - [ ] 6.3.6 Handle form validation errors with user-friendly messaging
+
+- [ ] **6.4 Frontend Testing and Refinement**
+  - [ ] 6.4.1 [M] Test transaction CRUD flow with mock data in browser
+  - [ ] 6.4.2 [M] Test UI responsiveness on mobile devices
+  - [ ] 6.4.3 [M] Validate user flows and interaction patterns
+  - [ ] 6.4.4 [M] Iterate on UI based on usability testing
+
+- [ ] **6.5 Database Infrastructure Setup**
+  - [ ] 6.5.1 Add Transactions table to development database (backend/scripts/create-tables.ts) with userId/id keys and AccountDateIndex GSI
+  - [ ] 6.5.2 Add Transactions table to production CDK stack with identical structure, IAM permissions, and point-in-time recovery
+  - [ ] 6.5.3 [M] Test table creation in both environments and verify structure
+
+- [ ] **6.6 Backend Data Layer**
+  - [ ] 6.6.1 Create Transaction model interface with userId, id, accountId, categoryId (optional), type ('INCOME' | 'EXPENSE'), amount, currency, date, description (optional), isArchived, createdAt, updatedAt
+  - [ ] 6.6.2 Create TransactionRepository with environment-aware DynamoDB configuration
+  - [ ] 6.6.3 Implement CRUD operations: create, findActiveByUserId, findById, update, archive
+  - [ ] 6.6.4 Implement findActiveByUserId method with default date desc sorting (no filtering parameters)
+  - [ ] 6.6.5 Add business logic validation: amount > 0, type required ('INCOME' | 'EXPENSE'), valid account relationships, optional category validation, date validation
+  - [ ] 6.6.6 Add proper error handling with TransactionRepositoryError types
+
+- [ ] **6.7 Account Integration Logic** 
+  - [ ] 6.7.1 Ensure account existence validation and optional category existence validation in transaction operations
+  - [ ] 6.7.2 Handle multi-currency consistency (transaction currency matches account currency)
+  - [ ] 6.7.3 Add validation to prevent account currency changes when transactions exist (preserve data integrity)
+
+- [ ] **6.8 GraphQL API Layer**
+  - [ ] 6.8.1 Define Transaction GraphQL type and CreateTransactionInput/UpdateTransactionInput types with required type field ('INCOME' | 'EXPENSE') and optional categoryId
+  - [ ] 6.8.2 Add transactions query (basic list without filtering parameters)
+  - [ ] 6.8.3 Add createTransaction mutation with validation and account existence checking (category validation only if provided)
+  - [ ] 6.8.4 Add updateTransaction mutation with business rule validation
+  - [ ] 6.8.5 Add archiveTransaction mutation for soft delete
+
+- [ ] **6.9 GraphQL Client Integration**
+  - [ ] 6.9.1 Create GraphQL queries and mutations for transaction operations
+  - [ ] 6.9.2 Update useTransactions composable to use real GraphQL operations instead of mock service
+  - [ ] 6.9.3 Add error handling and loading states for real API operations
+  - [ ] 6.9.4 Handle account currency change validation errors with user-friendly messaging and guidance
+
+- [ ] **6.10 Final Integration Testing**
+  - [ ] 6.10.1 [M] Test complete transaction CRUD flow with real backend in development environment
+  - [ ] 6.10.2 [M] Test transaction operations with various account and category scenarios
+  - [ ] 6.10.3 [M] Test multi-currency transaction handling
+  - [ ] 6.10.4 [M] Verify UI behavior matches mock data testing
+  - [ ] 6.10.5 [M] Run linting and type checking (npm run lint, npm run type-check)
+  - [ ] 6.10.6 [M] Deploy to production and validate all functionality works
+
+### Success Criteria
+
+- [ ] Users can navigate to Transactions page via main navigation
+- [ ] Users can create new transactions with account, optional category, type (INCOME/EXPENSE), amount, date, and optional description
+- [ ] Users can view all their transactions in a chronological list (latest first)
+- [ ] Users can edit transaction details including account, category, amount, and date
+- [ ] Users can delete transactions with proper confirmation dialogs
+- [ ] Transaction validation prevents invalid data entry
+- [ ] Multi-currency support works correctly for transactions
+- [ ] Responsive design works seamlessly on mobile and desktop
+- [ ] Form validation and error handling throughout transaction workflows
+- [ ] Transaction system provides foundation for future enhancements and reporting features
+
+### Future Enhancements
+
+The following features are planned for future implementation after the core transaction system is complete and tested:
+
+**Advanced Filtering & Sorting:**
+- Filter transactions by account, category, date range, transaction type, and description search
+- Sort transactions by date or amount (ascending/descending)
+- Multiple active filters working together
+- Filter state persistence and "Clear Filters" functionality
+- Real-time search with debounced input
+
+**Enhanced User Experience:**
+- Filter controls UI (account/category dropdowns, date range picker)
+- Sort controls with visual indicators (arrows)
+- Active filter indicators and empty state handling
+- Pagination or infinite scroll for large transaction lists
+- Performance optimizations for filtering large datasets
+
+**Account Balance Integration:**
+- Calculate and display current account balances based on transactions
+- Two main architectural approaches considered:
+  1. **BalanceService Approach**: Dedicated service coordinates AccountRepository (for initialBalance) and TransactionRepository (for transaction sum). Clean separation but requires service layer.
+  2. **Initial Balance as Transaction Approach**: Store initial account balance as special first transaction, then balance = SUM(all transactions). Simpler, single source of truth, complete audit trail.
+- Update Account GraphQL type to include calculated balance field
+- Update account cards to show current balance instead of initial balance
+- Add balance change indicators with +/- formatting
+- Add total balance summary by currency on dashboard
+- Handle multi-currency balance calculations correctly
+- Optional: Balance validation to prevent negative balances
+
+**Advanced Features:**
+- Transaction duplicate detection and warnings
+- Quick-add transaction button with common categories
+- Transaction templates for recurring entries
+- Bulk transaction operations (edit, delete, categorize)
+- Export transactions to CSV/Excel formats
