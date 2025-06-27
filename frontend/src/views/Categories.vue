@@ -78,9 +78,8 @@ const confirmDeleteCategory = async () => {
     const result = await archiveCategoryMutation(categoryToDelete.value.id);
     if (result) {
       showSuccessSnackbar(`Category "${categoryToDelete.value.name}" has been deleted`);
-    } else if (categoriesError.value) {
-      showErrorSnackbar(categoriesError.value);
     }
+    // Note: Error handling is managed globally via Apollo error link
   }
   showDeleteConfirmDialog.value = false;
   categoryToDelete.value = null;
@@ -119,9 +118,9 @@ const handleCategorySubmit = async (categoryData: CategoryFormData) => {
   if (success) {
     editingCategory.value = null;
     showSuccessSnackbar(successMessage);
-  } else if (categoriesError.value) {
-    showErrorSnackbar(categoriesError.value);
   }
+  // Note: Error handling is now managed globally via Apollo error link
+  // Local errors are logged but not displayed to avoid overriding global error messages
 };
 
 const handleCategoryCancel = () => {

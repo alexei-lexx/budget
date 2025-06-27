@@ -206,7 +206,6 @@ const exampleNames = computed(() => {
             </div>
           </div>
         </v-alert>
-
       </v-form>
     </v-card-text>
 

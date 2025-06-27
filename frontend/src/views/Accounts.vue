@@ -72,9 +72,8 @@ const confirmDeleteAccount = async () => {
     const result = await archiveAccountMutation(accountToDelete.value.id);
     if (result) {
       showSuccessSnackbar(`Account "${accountToDelete.value.name}" has been deleted`);
-    } else if (accountsError.value) {
-      showErrorSnackbar(accountsError.value);
     }
+    // Note: Error handling is managed globally via Apollo error link
   }
   showDeleteConfirmDialog.value = false;
   accountToDelete.value = null;
@@ -115,9 +114,9 @@ const handleAccountSubmit = async (accountData: AccountFormData) => {
   if (success) {
     editingAccount.value = null;
     showSuccessSnackbar(successMessage);
-  } else if (accountsError.value) {
-    showErrorSnackbar(accountsError.value);
   }
+  // Note: Error handling is now managed globally via Apollo error link
+  // Local errors are logged but not displayed to avoid overriding global error messages
 };
 
 const handleAccountCancel = () => {
