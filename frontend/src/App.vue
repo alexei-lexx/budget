@@ -7,11 +7,12 @@ import { useDisplay } from "vuetify";
 import LoginButton from "@/components/LoginButton.vue";
 import LogoutButton from "@/components/LogoutButton.vue";
 import { anonymizeEmail } from "@/utils/anonymize";
-import { setAuthTokenGetter } from "@/apollo";
+import { setAuthTokenGetter, globalError, clearGlobalError } from "@/apollo";
 
 const { user, isAuthenticated, isLoading: authLoading, getAccessToken } = useAuth();
 const { ensureUser, ensureUserLoading, userError } = useUser();
-const { showSnackbar, snackbarMessage, snackbarColor, hideSnackbar } = useSnackbar();
+const { showSnackbar, snackbarMessage, snackbarColor, hideSnackbar, showErrorSnackbar } =
+  useSnackbar();
 const { mobile } = useDisplay();
 
 // Navigation drawer state
@@ -76,6 +77,14 @@ const displayName = computed(() => {
   if (!user.value?.email) return "noname";
 
   return anonymizeEmail(user.value.email);
+});
+
+// Watch for global GraphQL errors and display them via snackbar
+watch(globalError, (error) => {
+  if (error) {
+    showErrorSnackbar(error);
+    clearGlobalError();
+  }
 });
 </script>
 <template>

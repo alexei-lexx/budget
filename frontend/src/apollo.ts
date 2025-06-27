@@ -1,5 +1,14 @@
 import { ApolloClient, createHttpLink, InMemoryCache } from "@apollo/client/core";
 import { setContext } from "@apollo/client/link/context";
+import { onError } from "@apollo/client/link/error";
+import { ref } from "vue";
+
+// Global error state
+export const globalError = ref<string | null>(null);
+
+export const clearGlobalError = () => {
+  globalError.value = null;
+};
 
 const getGraphQLEndpoint = (): string => {
   // Always check for explicit environment variable first
@@ -41,12 +50,25 @@ const authLink = setContext(async (_, { headers }) => {
   }
 });
 
+// Error link to handle all GraphQL errors globally
+const errorLink = onError(({ graphQLErrors, networkError }) => {
+  if (graphQLErrors) {
+    console.error("GraphQL errors:", graphQLErrors);
+    globalError.value = "Something went wrong. Please try again later.";
+  }
+
+  if (networkError) {
+    console.error("Network error:", networkError);
+    globalError.value = "Connection problem. Please check your internet and try again.";
+  }
+});
+
 // Cache implementation
 const cache = new InMemoryCache();
 
 // Create the apollo client
 export const apolloClient = new ApolloClient({
-  link: authLink.concat(httpLink),
+  link: errorLink.concat(authLink.concat(httpLink)),
   cache,
 });
 
