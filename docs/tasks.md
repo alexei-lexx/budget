@@ -600,13 +600,12 @@ App Navigation Drawer:
 
 ### Implementation Plan
 
-- [ ] **6.1 Frontend Mock Data Setup**
-  - [ ] 6.1.1 Create mock transaction data using existing real account and category IDs from GraphQL APIs
-  - [ ] 6.1.2 Create mock transaction service with CRUD operations (add, edit, delete, list transactions)
-  - [ ] 6.1.3 Implement mock data persistence using localStorage for testing continuity
-  - [ ] 6.1.4 Add data validation to mock service (amount > 0, required fields, valid account/category IDs, etc.)
-  - [ ] 6.1.5 Fetch real accounts and categories via existing GraphQL APIs for form dropdowns
-  - [ ] 6.1.6 Create useTransactions composable that works with mock transaction service
+- [x] **6.1 Frontend Mock Data Setup**
+  - [x] 6.1.1 Define transaction data types and interfaces
+  - [x] 6.1.2 Create mock transaction service with localStorage persistence
+  - [x] 6.1.3 Implement CRUD operations (create, read, update, archive) with validation and real account/category data integration
+  - [x] 6.1.4 Add sample data generator using real account/category IDs
+  - [x] 6.1.5 Create useTransactions composable with reactive data, loading/error states, and async functions (createTransaction, updateTransaction, archiveTransaction, initializeMockData)
 
 - [ ] **6.2 Frontend UI Components**
   - [ ] 6.2.1 Add Transactions route and navigation menu item with appropriate icon
@@ -642,7 +641,7 @@ App Navigation Drawer:
   - [ ] 6.6.5 Add business logic validation: amount > 0, type required ('INCOME' | 'EXPENSE'), valid account relationships, optional category validation, date validation
   - [ ] 6.6.6 Add proper error handling with TransactionRepositoryError types
 
-- [ ] **6.7 Account Integration Logic** 
+- [ ] **6.7 Account Integration Logic**
   - [ ] 6.7.1 Ensure account existence validation and optional category existence validation in transaction operations
   - [ ] 6.7.2 Handle multi-currency consistency (transaction currency matches account currency)
   - [ ] 6.7.3 Add validation to prevent account currency changes when transactions exist (preserve data integrity)
