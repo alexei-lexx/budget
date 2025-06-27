@@ -164,6 +164,12 @@ watch(globalError, (error) => {
           title="Categories"
           @click="mobile && (drawer = false)"
         />
+        <v-list-item
+          :to="{ name: 'Transactions' }"
+          prepend-icon="mdi-swap-horizontal"
+          title="Transactions"
+          @click="mobile && (drawer = false)"
+        />
       </v-list>
     </v-navigation-drawer>
 
