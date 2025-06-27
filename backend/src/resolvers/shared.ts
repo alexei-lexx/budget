@@ -1,6 +1,7 @@
 import { GraphQLError } from "graphql";
 import { GraphQLContext } from "../server";
 import { AccountRepositoryError } from "../repositories/AccountRepository";
+import { CategoryRepositoryError } from "../repositories/CategoryRepository";
 import { User } from "../models/User";
 
 /**
@@ -55,7 +56,7 @@ export async function getAuthenticatedUser(
 }
 
 /**
- * Helper function to handle AccountRepositoryError and other errors
+ * Helper function to handle repository errors and other errors
  */
 export function handleResolverError(
   error: unknown,
@@ -63,7 +64,10 @@ export function handleResolverError(
 ): never {
   console.error(`Resolver error: ${defaultMessage}`, error);
 
-  if (error instanceof AccountRepositoryError) {
+  if (
+    error instanceof AccountRepositoryError ||
+    error instanceof CategoryRepositoryError
+  ) {
     throw new GraphQLError(error.message, {
       extensions: {
         code: error.code,
