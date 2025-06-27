@@ -207,22 +207,6 @@ const exampleNames = computed(() => {
           </div>
         </v-alert>
 
-        <!-- Category Type Info -->
-        <v-alert
-          v-if="formData.type"
-          :type="formData.type === 'INCOME' ? 'success' : 'warning'"
-          variant="tonal"
-          class="mb-4"
-        >
-          <div class="text-body-2">
-            <strong>{{ formData.type === "INCOME" ? "Income" : "Expense" }} Category:</strong>
-            {{
-              formData.type === "INCOME"
-                ? "Use this for money coming into your accounts (salary, freelance, etc.)"
-                : "Use this for money going out of your accounts (groceries, rent, etc.)"
-            }}
-          </div>
-        </v-alert>
       </v-form>
     </v-card-text>
 
