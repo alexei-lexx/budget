@@ -113,13 +113,13 @@ const handleRegenerateData = async () => {
 
 // Helper functions to resolve names
 const getAccountName = (accountId: string): string => {
-  const account = accounts.value.find(a => a.id === accountId);
+  const account = accounts.value.find((a) => a.id === accountId);
   return account?.name || "Unknown Account";
 };
 
 const getCategoryName = (categoryId?: string): string | undefined => {
   if (!categoryId) return undefined;
-  const category = categories.value.find(c => c.id === categoryId);
+  const category = categories.value.find((c) => c.id === categoryId);
   return category?.name;
 };
 </script>

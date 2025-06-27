@@ -76,7 +76,8 @@ const handleArchiveTransaction = () => {
             {{ transaction.description }}
           </div>
           <div class="text-caption text-medium-emphasis">
-            {{ formattedDate }} • {{ accountName }}<span v-if="categoryName"> • {{ categoryName }}</span>
+            {{ formattedDate }} • {{ accountName
+            }}<span v-if="categoryName"> • {{ categoryName }}</span>
           </div>
         </div>
 
