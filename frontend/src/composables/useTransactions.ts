@@ -231,9 +231,13 @@ class MockTransactionService {
   }
 
   // Helper method to create initial mock data with real account and category IDs
-  async createInitialMockData(accounts: Account[], categories: Category[]): Promise<void> {
+  async createInitialMockData(
+    accounts: Account[],
+    categories: Category[],
+    force = false,
+  ): Promise<void> {
     const existingTransactions = this.loadTransactions();
-    if (existingTransactions.length > 0) {
+    if (existingTransactions.length > 0 && !force) {
       return; // Already has data
     }
 
@@ -249,7 +253,44 @@ class MockTransactionService {
     const incomeCategories = categories.filter((c) => c.type === "INCOME");
     const expenseCategories = categories.filter((c) => c.type === "EXPENSE");
 
-    // Create some income transactions
+    // Recent transactions (last few days - current year)
+    mockTransactions.push({
+      accountId: primaryAccount.id,
+      type: "EXPENSE",
+      amount: 25.0,
+      currency: primaryAccount.currency,
+      date: new Date().toISOString().split("T")[0], // Today
+      isArchived: false,
+    });
+
+    mockTransactions.push({
+      accountId: primaryAccount.id,
+      type: "EXPENSE",
+      amount: 8.5,
+      currency: primaryAccount.currency,
+      date: new Date(now.getTime() - 1 * 24 * 60 * 60 * 1000).toISOString().split("T")[0], // 1 day ago
+      isArchived: false,
+    });
+
+    mockTransactions.push({
+      accountId: primaryAccount.id,
+      type: "EXPENSE",
+      amount: 42.9,
+      currency: primaryAccount.currency,
+      date: new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000).toISOString().split("T")[0], // 2 days ago
+      isArchived: false,
+    });
+
+    mockTransactions.push({
+      accountId: primaryAccount.id,
+      type: "EXPENSE",
+      amount: 15.75,
+      currency: primaryAccount.currency,
+      date: new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000).toISOString().split("T")[0], // 3 days ago
+      isArchived: false,
+    });
+
+    // Income transactions
     if (incomeCategories.length > 0) {
       mockTransactions.push({
         accountId: primaryAccount.id,
@@ -258,7 +299,6 @@ class MockTransactionService {
         amount: 3500.0,
         currency: primaryAccount.currency,
         date: new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000).toISOString().split("T")[0], // 5 days ago
-        description: "Monthly salary",
         isArchived: false,
       });
 
@@ -276,16 +316,15 @@ class MockTransactionService {
       }
     }
 
-    // Create some expense transactions
+    // More recent expenses
     if (expenseCategories.length > 0) {
       mockTransactions.push({
         accountId: primaryAccount.id,
         categoryId: expenseCategories[0].id,
         type: "EXPENSE",
-        amount: 85.5,
+        amount: 127.3,
         currency: primaryAccount.currency,
-        date: new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000).toISOString().split("T")[0], // 2 days ago
-        description: "Grocery shopping",
+        date: new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0], // 1 week ago
         isArchived: false,
       });
 
@@ -293,10 +332,42 @@ class MockTransactionService {
         accountId: primaryAccount.id,
         categoryId: expenseCategories[0].id,
         type: "EXPENSE",
-        amount: 12.75,
+        amount: 89.45,
         currency: primaryAccount.currency,
-        date: new Date(now.getTime() - 1 * 24 * 60 * 60 * 1000).toISOString().split("T")[0], // 1 day ago
-        description: "Coffee shop",
+        date: new Date(now.getTime() - 12 * 24 * 60 * 60 * 1000).toISOString().split("T")[0], // 12 days ago
+        isArchived: false,
+      });
+    }
+
+    // Current year transactions from earlier months
+    if (expenseCategories.length > 0) {
+      mockTransactions.push({
+        accountId: primaryAccount.id,
+        categoryId: expenseCategories[0].id,
+        type: "EXPENSE",
+        amount: 85.5,
+        currency: primaryAccount.currency,
+        date: new Date(2024, 10, 15).toISOString().split("T")[0], // Nov 15, 2024
+        isArchived: false,
+      });
+
+      mockTransactions.push({
+        accountId: primaryAccount.id,
+        categoryId: expenseCategories[0].id,
+        type: "EXPENSE",
+        amount: 45.2,
+        currency: primaryAccount.currency,
+        date: new Date(2024, 9, 8).toISOString().split("T")[0], // Oct 8, 2024
+        isArchived: false,
+      });
+
+      mockTransactions.push({
+        accountId: primaryAccount.id,
+        type: "EXPENSE",
+        amount: 234.67,
+        currency: primaryAccount.currency,
+        date: new Date(2024, 8, 22).toISOString().split("T")[0], // Sep 22, 2024
+        description: "Online shopping",
         isArchived: false,
       });
 
@@ -307,23 +378,100 @@ class MockTransactionService {
           type: "EXPENSE",
           amount: 1200.0,
           currency: primaryAccount.currency,
-          date: new Date(now.getTime() - 15 * 24 * 60 * 60 * 1000).toISOString().split("T")[0], // 15 days ago
-          description: "Monthly rent",
+          date: new Date(2024, 7, 1).toISOString().split("T")[0], // Aug 1, 2024
+          description: "Monthly rent payment",
+          isArchived: false,
+        });
+
+        mockTransactions.push({
+          accountId: primaryAccount.id,
+          categoryId: expenseCategories[1].id,
+          type: "EXPENSE",
+          amount: 78.9,
+          currency: primaryAccount.currency,
+          date: new Date(2024, 6, 12).toISOString().split("T")[0], // Jul 12, 2024
           isArchived: false,
         });
       }
     }
 
-    // Add transactions without categories
+    // More income transactions
+    if (incomeCategories.length > 0) {
+      mockTransactions.push({
+        accountId: primaryAccount.id,
+        categoryId: incomeCategories[0].id,
+        type: "INCOME",
+        amount: 3200.0,
+        currency: primaryAccount.currency,
+        date: new Date(2024, 5, 5).toISOString().split("T")[0], // Jun 5, 2024
+        isArchived: false,
+      });
+
+      mockTransactions.push({
+        accountId: primaryAccount.id,
+        type: "INCOME",
+        amount: 125.5,
+        currency: primaryAccount.currency,
+        date: new Date(2024, 4, 18).toISOString().split("T")[0], // May 18, 2024
+        description: "Tax refund",
+        isArchived: false,
+      });
+    }
+
+    // Previous year transactions (should show year)
     mockTransactions.push({
       accountId: primaryAccount.id,
       type: "EXPENSE",
-      amount: 25.0,
+      amount: 156.78,
       currency: primaryAccount.currency,
-      date: new Date().toISOString().split("T")[0], // Today
-      description: "ATM withdrawal",
+      date: new Date(2023, 11, 25).toISOString().split("T")[0], // Dec 25, 2023
+      description: "Holiday shopping",
       isArchived: false,
     });
+
+    if (incomeCategories.length > 0) {
+      mockTransactions.push({
+        accountId: primaryAccount.id,
+        categoryId: incomeCategories[0].id,
+        type: "INCOME",
+        amount: 2800.0,
+        currency: primaryAccount.currency,
+        date: new Date(2023, 6, 15).toISOString().split("T")[0], // Jul 15, 2023
+        isArchived: false,
+      });
+    }
+
+    if (expenseCategories.length > 0) {
+      mockTransactions.push({
+        accountId: primaryAccount.id,
+        categoryId: expenseCategories[0].id,
+        type: "EXPENSE",
+        amount: 67.3,
+        currency: primaryAccount.currency,
+        date: new Date(2022, 2, 10).toISOString().split("T")[0], // Mar 10, 2022
+        isArchived: false,
+      });
+
+      mockTransactions.push({
+        accountId: primaryAccount.id,
+        type: "EXPENSE",
+        amount: 95.2,
+        currency: primaryAccount.currency,
+        date: new Date(2023, 3, 22).toISOString().split("T")[0], // Apr 22, 2023
+        isArchived: false,
+      });
+
+      mockTransactions.push({
+        accountId: primaryAccount.id,
+        categoryId: expenseCategories[0].id,
+        type: "EXPENSE",
+        amount: 189.5,
+        currency: primaryAccount.currency,
+        date: new Date(2021, 8, 14).toISOString().split("T")[0], // Sep 14, 2021
+        description: "Annual subscription",
+        isArchived: false,
+      });
+    }
 
     // Create transactions with IDs and timestamps
     const timestamp = new Date().toISOString();
@@ -369,6 +517,21 @@ export function useTransactions() {
         );
       } catch (error) {
         console.error("Error initializing mock data:", error);
+      }
+    }
+  };
+
+  // Force regenerate mock data (clear existing and create new)
+  const regenerateMockData = async () => {
+    if (accounts.value?.activeAccounts && categories.value?.activeCategories) {
+      try {
+        await mockTransactionService.createInitialMockData(
+          accounts.value.activeAccounts,
+          categories.value.activeCategories,
+          true, // force regeneration
+        );
+      } catch (error) {
+        console.error("Error regenerating mock data:", error);
       }
     }
   };
@@ -482,5 +645,6 @@ export function useTransactions() {
     updateTransaction,
     archiveTransaction,
     initializeMockData,
+    regenerateMockData,
   };
 }
