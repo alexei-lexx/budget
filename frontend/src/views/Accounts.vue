@@ -23,7 +23,6 @@ const {
   archiveAccount: archiveAccountMutation,
   createAccountLoading,
   updateAccountLoading,
-  accountsError,
 } = useAccounts();
 
 // State for dialogs and loading
@@ -34,7 +33,7 @@ const editingAccount = ref<Account | null>(null);
 const accountToDelete = ref<Account | null>(null);
 
 // Use global snackbar
-const { showErrorSnackbar, showSuccessSnackbar } = useSnackbar();
+const { showSuccessSnackbar } = useSnackbar();
 
 // Use accounts data directly
 const accounts = computed<Account[]>(() => {
