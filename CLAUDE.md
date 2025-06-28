@@ -26,11 +26,8 @@ npm run prettier:fix # Prettier format fix
 
 # Database (Development)
 npm run db:start      # Start DynamoDB Local + Admin UI
-npm run db:start-only # Start only DynamoDB Local (without admin UI)
-npm run db:admin      # Start admin UI separately
 npm run db:stop       # Stop all database services
 npm run db:setup      # Start database and create tables
-npm run db:reset      # Reset database (stop, start, create tables)
 
 # Format code
 npm run format        # Run prettier:fix and lint:fix together
@@ -82,8 +79,8 @@ npm run test         # Run Jest tests
 **Setup:**
 - DynamoDB Local runs in Docker container (port 8000)
 - DynamoDB Admin UI available at http://localhost:8001
-- Tables created automatically with `npm run db:setup`
-- Data persisted in `./docker/dynamodb/` directory
+- Tables created automatically with `npm run db:setup` (Users, Accounts, Categories)
+- Data persisted in Docker named volume `dynamodb-data`
 
 **First-time setup:**
 ```bash
@@ -103,7 +100,13 @@ npm run dev         # Start backend development server
 **Database management:**
 ```bash
 npm run db:stop     # Stop DynamoDB Local + Admin UI
-npm run db:reset    # Reset database (recreate all tables)
+```
+
+**Database reset (manual process):**
+```bash
+npm run db:stop     # Stop database
+docker volume rm backend_dynamodb-data  # Remove data volume
+npm run db:setup    # Recreate database and tables
 ```
 
 **Requirements:**
@@ -228,7 +231,7 @@ Complete Docker-based development setup:
 - Environment-specific error handling (verbose in dev, sanitized in prod)
 
 ### Database Testing Workflow
-- `npm run db:reset` for clean slate testing with fresh tables
+- Use manual database reset process for clean slate testing with fresh tables
 - Docker named volumes preserve data between development sessions
 - Table creation scripts are idempotent and can be run multiple times
 - Admin UI provides real-time view of data changes during development
@@ -245,3 +248,9 @@ Before starting any development work, review:
 - `docs/general_spec.md` - Business requirements and feature specifications
 - `docs/tech_spec.md` - Technical architecture and implementation guidelines
 - `docs/tasks.md` - Current development roadmap and task tracking
+
+# important-instruction-reminders
+Do what has been asked; nothing more, nothing less.
+NEVER create files unless they're absolutely necessary for achieving your goal.
+ALWAYS prefer editing an existing file to creating a new one.
+NEVER proactively create documentation files (*.md) or README files. Only create documentation files if explicitly requested by the User.
