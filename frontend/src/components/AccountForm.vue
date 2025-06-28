@@ -231,19 +231,6 @@ const handleCancel = () => {
             </span>
           </template>
         </v-text-field>
-
-        <!-- Balance Preview -->
-        <v-alert
-          v-if="formData.name && formData.currency && formData.initialBalance !== null"
-          type="info"
-          variant="tonal"
-          class="mb-4"
-        >
-          <div class="text-body-2">
-            <strong>Preview:</strong> {{ formData.name }} will start with
-            {{ formatCurrency(Number(formData.initialBalance) || 0, formData.currency) }}
-          </div>
-        </v-alert>
       </v-form>
     </v-card-text>
 

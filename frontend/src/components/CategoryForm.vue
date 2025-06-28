@@ -187,19 +187,6 @@ const exampleNames = computed(() => {
             </div>
           </template>
         </v-select>
-
-        <!-- Category Preview -->
-        <v-alert v-if="formData.name && formData.type" type="info" variant="tonal" class="mb-4">
-          <div class="d-flex align-center">
-            <v-icon :color="selectedTypeDetails?.color" class="me-2">
-              {{ selectedTypeDetails?.icon }}
-            </v-icon>
-            <div class="text-body-2">
-              <strong>Preview:</strong> "{{ formData.name }}" will be created as
-              {{ formData.type === "INCOME" ? "an Income" : "an Expense" }} category
-            </div>
-          </div>
-        </v-alert>
       </v-form>
     </v-card-text>
 

@@ -101,26 +101,12 @@ const currencyPrefix = computed(() => {
   return "";
 });
 
-// Format amount for display
-const formattedAmount = computed(() => {
-  if (selectedAccount.value && formData.value.amount > 0) {
-    return formatCurrency(formData.value.amount, selectedAccount.value.currency);
-  }
-  return "";
-});
-
 // Computed properties for form titles and button text
 const isEditing = computed(() => !!props.transaction?.id);
 const formTitle = computed(() => (isEditing.value ? "Edit Transaction" : "Create New Transaction"));
 const submitButtonText = computed(() =>
   isEditing.value ? "Update Transaction" : "Create Transaction",
 );
-
-// Helper function to get account name by ID
-const getAccountName = (accountId: string): string => {
-  const account = accounts.value.find((a) => a.id === accountId);
-  return account?.name || "Unknown Account";
-};
 
 // Watch for account changes to clear category if types don't match
 watch(
@@ -338,22 +324,6 @@ const handleCancel = () => {
           auto-grow
           class="mb-4"
         />
-
-        <!-- Transaction Preview -->
-        <v-alert
-          v-if="formData.accountId && formData.amount > 0"
-          type="info"
-          variant="tonal"
-          class="mb-4"
-        >
-          <div class="text-body-2">
-            <strong>Preview:</strong>
-            {{ formData.type === "INCOME" ? "+" : "-" }}{{ formattedAmount }}
-            {{ formData.description ? `for "${formData.description}"` : "" }}
-            will be {{ formData.type === "INCOME" ? "added to" : "deducted from" }}
-            {{ getAccountName(formData.accountId) }}
-          </div>
-        </v-alert>
       </v-form>
     </v-card-text>
 
