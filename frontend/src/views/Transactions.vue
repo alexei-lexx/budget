@@ -95,8 +95,7 @@
               class="text-h6 mt-1"
               :class="transactionToDelete.type === 'INCOME' ? 'text-success' : 'text-error'"
             >
-              {{ transactionToDelete.type === "INCOME" ? "+" : "-"
-              }}{{ transactionToDelete.amount }}
+              {{ formatTransactionAmount(transactionToDelete) }}
             </div>
           </div>
           <div class="text-error mt-3">
@@ -146,6 +145,7 @@ import { useTransactions } from "@/composables/useTransactions";
 import { useAccounts } from "@/composables/useAccounts";
 import { useCategories } from "@/composables/useCategories";
 import { useSnackbar } from "@/composables/useSnackbar";
+import { formatCurrencyCompact } from "@/utils/currency";
 import TransactionCard from "@/components/TransactionCard.vue";
 import TransactionForm from "@/components/TransactionForm.vue";
 import type { Transaction, CreateTransactionInput } from "@/composables/useTransactions";
@@ -276,5 +276,14 @@ const getCategoryName = (categoryId?: string): string | undefined => {
   if (!categoryId) return undefined;
   const category = categories.value.find((c) => c.id === categoryId);
   return category?.name;
+};
+
+// Helper function to format transaction amount with +/- prefix
+const formatTransactionAmount = (transaction: Transaction): string => {
+  const sign = transaction.type === "INCOME" ? "+" : "-";
+  const amount = formatCurrencyCompact(transaction.amount, transaction.currency, {
+    showSymbol: true,
+  });
+  return `${sign}${amount}`;
 };
 </script>
