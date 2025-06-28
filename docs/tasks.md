@@ -607,12 +607,12 @@ App Navigation Drawer:
   - [x] 6.1.4 Add sample data generator using real account/category IDs
   - [x] 6.1.5 Create useTransactions composable with reactive data, loading/error states, and async functions (createTransaction, updateTransaction, archiveTransaction, initializeMockData)
 
-- [ ] **6.2 Frontend UI Components**
-  - [ ] 6.2.1 Add Transactions route and navigation menu item with appropriate icon
-  - [ ] 6.2.2 Create TransactionForm.vue component for create/edit operations with account/category dropdowns
-  - [ ] 6.2.3 Create TransactionCard.vue component for displaying individual transactions with always-visible +/- signs and dropdown action menu (⋮)
-  - [ ] 6.2.4 Create Transactions.vue page with transaction list using mock data
-  - [ ] 6.2.5 Implement dropdown action menu with Edit and Delete options following the same pattern as accounts and categories
+- [x] **6.2 Frontend UI Components**
+  - [x] 6.2.1 Add Transactions route and navigation menu item with appropriate icon
+  - [x] 6.2.2 Create TransactionForm.vue component for create/edit operations with account/category dropdowns
+  - [x] 6.2.3 Create TransactionCard.vue component for displaying individual transactions with always-visible +/- signs and dropdown action menu (⋮)
+  - [x] 6.2.4 Create Transactions.vue page with transaction list using mock data
+  - [x] 6.2.5 Implement dropdown action menu with Edit and Delete options following the same pattern as accounts and categories
 
 - [ ] **6.3 Frontend User Experience**
   - [ ] 6.3.1 Implement amount formatting with consistent +/- prefix display (e.g., "+$3,500.00", "-$45.67")

@@ -9,7 +9,9 @@
             <v-btn color="secondary" size="small" @click="handleRegenerateData">
               Regenerate Data
             </v-btn>
-            <v-btn color="primary" prepend-icon="mdi-plus"> Add Transaction </v-btn>
+            <v-btn color="primary" prepend-icon="mdi-plus" @click="handleAddTransaction">
+              Add Transaction
+            </v-btn>
           </div>
         </div>
 
@@ -44,7 +46,9 @@
           <div class="text-body-1 text-center mb-4">
             Start tracking your income and expenses by adding your first transaction.
           </div>
-          <v-btn color="primary" prepend-icon="mdi-plus"> Add Your First Transaction </v-btn>
+          <v-btn color="primary" prepend-icon="mdi-plus" @click="handleAddTransaction">
+            Add Your First Transaction
+          </v-btn>
         </v-sheet>
 
         <!-- Transactions List -->
@@ -66,15 +70,85 @@
         </div>
       </v-col>
     </v-row>
+
+    <!-- Delete Confirmation Dialog -->
+    <v-dialog
+      v-model="showDeleteConfirmDialog"
+      :max-width="$vuetify.display.xs ? '95vw' : '500'"
+      persistent
+    >
+      <v-card>
+        <v-card-title class="text-h5"> Delete Transaction </v-card-title>
+        <v-card-text v-if="transactionToDelete">
+          Are you sure you want to delete this transaction?
+          <div class="mt-3 pa-3 bg-grey-lighten-4 rounded">
+            <div class="font-weight-medium">
+              {{ transactionToDelete.description || "No description" }}
+            </div>
+            <div class="text-caption">
+              {{ getAccountName(transactionToDelete.accountId) }}
+              <span v-if="transactionToDelete.categoryId">
+                • {{ getCategoryName(transactionToDelete.categoryId) }}
+              </span>
+            </div>
+            <div
+              class="text-h6 mt-1"
+              :class="transactionToDelete.type === 'INCOME' ? 'text-success' : 'text-error'"
+            >
+              {{ transactionToDelete.type === "INCOME" ? "+" : "-"
+              }}{{ transactionToDelete.amount }}
+            </div>
+          </div>
+          <div class="text-error mt-3">
+            <strong>This action cannot be undone.</strong>
+          </div>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn text="Cancel" @click="cancelDeleteTransaction" />
+          <v-btn color="error" text="Delete" @click="confirmDeleteTransaction" />
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- Create Transaction Dialog -->
+    <v-dialog
+      v-model="showCreateTransactionDialog"
+      :max-width="$vuetify.display.xs ? '95vw' : '600'"
+      persistent
+    >
+      <TransactionForm
+        :loading="transactionFormLoading"
+        @submit="handleCreateTransactionSubmit"
+        @cancel="handleTransactionFormCancel"
+      />
+    </v-dialog>
+
+    <!-- Edit Transaction Dialog -->
+    <v-dialog
+      v-model="showEditTransactionDialog"
+      :max-width="$vuetify.display.xs ? '95vw' : '600'"
+      persistent
+    >
+      <TransactionForm
+        :transaction="editingTransaction"
+        :loading="transactionFormLoading"
+        @submit="handleEditTransactionSubmit"
+        @cancel="handleTransactionFormCancel"
+      />
+    </v-dialog>
   </v-container>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { useTransactions } from "@/composables/useTransactions";
 import { useAccounts } from "@/composables/useAccounts";
 import { useCategories } from "@/composables/useCategories";
+import { useSnackbar } from "@/composables/useSnackbar";
 import TransactionCard from "@/components/TransactionCard.vue";
+import TransactionForm from "@/components/TransactionForm.vue";
+import type { Transaction, CreateTransactionInput } from "@/composables/useTransactions";
 
 // Composables
 const {
@@ -83,13 +157,25 @@ const {
   transactionsError,
   initializeMockData,
   regenerateMockData,
+  updateTransaction,
+  archiveTransaction,
+  createTransaction,
 } = useTransactions();
 const { accounts: accountsData } = useAccounts();
 const { categories: categoriesData } = useCategories();
+const { showSuccessSnackbar } = useSnackbar();
 
 // Computed properties for clean data access
 const accounts = computed(() => accountsData.value?.activeAccounts || []);
 const categories = computed(() => categoriesData.value?.activeCategories || []);
+
+// Transaction management state
+const showCreateTransactionDialog = ref(false);
+const showEditTransactionDialog = ref(false);
+const showDeleteConfirmDialog = ref(false);
+const editingTransaction = ref<Transaction | null>(null);
+const transactionToDelete = ref<Transaction | null>(null);
+const transactionFormLoading = ref(false);
 
 // Initialize mock data when component mounts
 onMounted(async () => {
@@ -97,18 +183,87 @@ onMounted(async () => {
 });
 
 // Event handlers
+const handleAddTransaction = () => {
+  showCreateTransactionDialog.value = true;
+};
+
 const handleEditTransaction = (transactionId: string) => {
-  console.log("Edit transaction:", transactionId);
-  // TODO: Implement edit functionality
+  const transaction = transactions.value.find((t) => t.id === transactionId);
+  if (transaction) {
+    editingTransaction.value = { ...transaction };
+    showEditTransactionDialog.value = true;
+  }
 };
 
 const handleArchiveTransaction = (transactionId: string) => {
-  console.log("Archive transaction:", transactionId);
-  // TODO: Implement archive functionality with confirmation dialog
+  const transaction = transactions.value.find((t) => t.id === transactionId);
+  if (transaction) {
+    transactionToDelete.value = transaction;
+    showDeleteConfirmDialog.value = true;
+  }
+};
+
+const confirmDeleteTransaction = async () => {
+  if (transactionToDelete.value) {
+    const success = await archiveTransaction(transactionToDelete.value.id);
+    if (success) {
+      const amount = transactionToDelete.value.amount;
+      const description = transactionToDelete.value.description || "transaction";
+      showSuccessSnackbar(`Transaction "${description}" (${amount}) has been deleted`);
+    }
+    // Note: Error handling is managed by the composable
+  }
+  showDeleteConfirmDialog.value = false;
+  transactionToDelete.value = null;
+};
+
+const cancelDeleteTransaction = () => {
+  showDeleteConfirmDialog.value = false;
+  transactionToDelete.value = null;
 };
 
 const handleRegenerateData = async () => {
   await regenerateMockData();
+};
+
+const handleCreateTransactionSubmit = async (transactionData: CreateTransactionInput) => {
+  transactionFormLoading.value = true;
+  try {
+    const success = await createTransaction(transactionData);
+    if (success) {
+      showCreateTransactionDialog.value = false;
+      showSuccessSnackbar(
+        `Transaction "${transactionData.description || "New transaction"}" has been created`,
+      );
+    }
+  } finally {
+    transactionFormLoading.value = false;
+  }
+};
+
+const handleEditTransactionSubmit = async (transactionData: CreateTransactionInput) => {
+  if (!editingTransaction.value) return;
+
+  transactionFormLoading.value = true;
+  try {
+    const success = await updateTransaction(editingTransaction.value.id, transactionData);
+    if (success) {
+      showEditTransactionDialog.value = false;
+      editingTransaction.value = null;
+      showSuccessSnackbar(
+        `Transaction "${transactionData.description || "transaction"}" has been updated`,
+      );
+    }
+  } finally {
+    transactionFormLoading.value = false;
+  }
+};
+
+const handleTransactionFormCancel = () => {
+  showCreateTransactionDialog.value = false;
+  showEditTransactionDialog.value = false;
+  editingTransaction.value = null;
+  transactionFormLoading.value = false;
 };
 
 // Helper functions to resolve names

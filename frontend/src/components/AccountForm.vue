@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
 import { formatCurrency, getCurrencyInputPrefix } from "@/utils/currency";
+import { checkRules, type CheckRule } from "@/utils/validation";
 import { useCurrencies } from "@/composables/useCurrencies";
 
 // Define Account interface for editing
@@ -59,13 +60,6 @@ watch(
 // Form validation
 const formValid = ref(false);
 const formRef = ref();
-
-type CheckRule<T = string | number> = (value: T) => boolean | string;
-
-// Helper function to check if validation rules pass
-const checkRules = <T,>(value: T, rules: CheckRule<T>[]) => {
-  return rules.every((rule) => rule(value) === true);
-};
 
 // Force validation check when form data changes
 const isFormValid = computed(() => {
