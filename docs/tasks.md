@@ -13,6 +13,8 @@ This is mandatory for:
 - Ensuring accountability and progress transparency
 - Keeping the permanent roadmap synchronized with current work
 
+**When all sub-task items under a parent task are completed and marked, mark the parent task item as completed as well**
+
 **Example workflow:**
 1. Start working on task
 2. Complete implementation

@@ -261,6 +261,7 @@ Before starting any development work, review:
 ### Task Completion Tracking
 **CRITICAL**: Always mark tasks as completed in `docs/tasks.md` immediately after finishing them:
 - Change `[ ]` to `[x]` in the task line
+- When all sub-task items under a parent task are completed and marked, mark the parent task item as completed as well
 - This maintains permanent progress tracking across development sessions
 - Prevents duplicate work and ensures accountability
 
