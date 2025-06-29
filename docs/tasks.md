@@ -31,6 +31,7 @@ When creating new implementation tasks in this file, follow these guidelines:
    - Target architecture description
    - Implementation plan with numbered phases
    - Success criteria
+6. **Future enhancements**: Add enhancement ideas and non-MVP features to `docs/future_enhancements.md` instead of creating new tasks here. Keep this roadmap focused on core functionality delivery.
 
 ---
 
