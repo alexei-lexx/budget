@@ -45,6 +45,26 @@ export class BackendCdkStack extends cdk.Stack {
       ...commonTableOptions,
     });
 
+    const transactionsTable = new dynamodb.Table(this, "TransactionsTable", {
+      tableName: process.env.TRANSACTIONS_TABLE_NAME || "",
+      partitionKey: { name: "userId", type: dynamodb.AttributeType.STRING },
+      sortKey: { name: "id", type: dynamodb.AttributeType.STRING },
+      ...commonTableOptions,
+    });
+
+    transactionsTable.addGlobalSecondaryIndex({
+      indexName: "UserDateIndex",
+      partitionKey: {
+        name: "userId",
+        type: dynamodb.AttributeType.STRING,
+      },
+      sortKey: {
+        name: "date",
+        type: dynamodb.AttributeType.STRING,
+      },
+      projectionType: dynamodb.ProjectionType.ALL,
+    });
+
     const functionConfig: lambda.FunctionProps = {
       runtime: lambda.Runtime.NODEJS_22_X,
       code: lambda.Code.fromAsset("../backend/dist"),
@@ -55,6 +75,7 @@ export class BackendCdkStack extends cdk.Stack {
         NODE_ENV: process.env.NODE_ENV || "",
         ACCOUNTS_TABLE_NAME: accountsTable.tableName,
         CATEGORIES_TABLE_NAME: categoriesTable.tableName,
+        TRANSACTIONS_TABLE_NAME: transactionsTable.tableName,
         USERS_TABLE_NAME: usersTable.tableName,
       },
       tracing: lambda.Tracing.ACTIVE,
@@ -76,6 +97,7 @@ export class BackendCdkStack extends cdk.Stack {
 
     accountsTable.grantReadWriteData(graphqlFunction);
     categoriesTable.grantReadWriteData(graphqlFunction);
+    transactionsTable.grantReadWriteData(graphqlFunction);
     usersTable.grantReadWriteData(graphqlFunction);
 
     const lambdaIntegration = new integrations.HttpLambdaIntegration(

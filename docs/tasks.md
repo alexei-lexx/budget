@@ -638,10 +638,10 @@ App Navigation Drawer:
   - [x] 6.4.3 [M] Validate user flows and interaction patterns
   - [x] 6.4.4 [M] Iterate on UI based on usability testing
 
-- [ ] **6.5 Database Infrastructure Setup**
+- [x] **6.5 Database Infrastructure Setup**
   - [x] 6.5.1 Add Transactions table to development database (backend/scripts/create-tables.ts) with userId/id primary key and UserDateIndex GSI for efficient date-sorted queries
-  - [ ] 6.5.2 Add Transactions table to production CDK stack with identical structure, IAM permissions, and point-in-time recovery
-  - [ ] 6.5.3 [M] Test table creation in both environments and verify structure
+  - [x] 6.5.2 Add Transactions table to production CDK stack with identical structure, IAM permissions, and point-in-time recovery
+  - [x] 6.5.3 [M] Test table creation in both environments and verify structure
 
 - [ ] **6.6 Backend Data Layer**
   - [ ] 6.6.1 Create Transaction model interface with userId, id, accountId, categoryId (optional), type ('INCOME' | 'EXPENSE'), amount, currency, date, description (optional), isArchived, createdAt, updatedAt
