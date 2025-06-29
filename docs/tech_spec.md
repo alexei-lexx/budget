@@ -115,6 +115,13 @@ GraphQL Resolvers → Services → Repositories → Database
 - Transaction orchestration
 - Error transformation and business-specific error messages
 
+**Service Design Pattern:**
+- **Single Service per Domain Entity** (e.g., TransactionService, AccountService)
+- **Cohesive Operations** - Related CRUD operations grouped in one class
+- **Shared Dependencies** - Repository dependencies injected once per service
+- **Private Helper Methods** - Common validation logic shared between operations
+- **Clear Public Interface** - Methods called directly by GraphQL resolvers
+
 **GraphQL Layer:**
 - User input validation using Zod schemas
 - Authentication and authorization
@@ -195,6 +202,26 @@ if (input.currency !== account.currency) {
 - Input validation tested independently from business logic
 - Business logic tested with pre-validated inputs
 - Clear separation of test responsibilities
+
+### Service Layer Design Philosophy
+
+**Domain-Centric Services:**
+Each service class represents a domain entity (Transaction, Account, Category) and contains all business operations for that entity. This approach provides:
+
+- **High Cohesion** - Related operations grouped together
+- **Shared Context** - Common validation and business rules centralized
+- **Simplified Dependencies** - Repository dependencies injected once per service
+- **Code Reuse** - Helper methods shared between operations within the same domain
+
+**Rationale for Single Service per Domain:**
+- **Project Scale** - Personal finance tracker with focused domain (not enterprise-scale complexity)
+- **Operation Similarity** - Most operations are CRUD with shared validation patterns
+- **Team Structure** - Solo development, no need for parallel service development
+- **Maintenance Simplicity** - Easier to understand and modify related operations together
+- **Performance** - Single service instance per domain, minimal object creation overhead
+
+**Alternative Considered:**
+Single-purpose service classes (CreateTransactionService, UpdateTransactionService) were considered but deemed over-engineering for this project's scope and complexity level.
 
 ### GraphQL Schema Design Principles
 - **Internal Fields Hidden:** Archive status, timestamp fields, and user ID are used internally but never exposed in GraphQL schema

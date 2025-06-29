@@ -655,10 +655,16 @@ App Navigation Drawer:
   - [x] 6.6.1 Create Transaction model interface with userId, id, accountId, categoryId (optional), type ('INCOME' | 'EXPENSE'), amount, currency, date, description (optional), isArchived, createdAt, updatedAt
   - [x] 6.6.2 Create TransactionRepository with environment-aware DynamoDB configuration, implement CRUD operations (create, findActiveByUserId with default date desc sorting, findById, update, archive), and add proper error handling with TransactionRepositoryError types
 
-- [ ] **6.7 Account Integration Logic**
-  - [ ] 6.7.1 Ensure account existence validation and optional category existence validation in transaction operations
-  - [ ] 6.7.2 Handle multi-currency consistency (transaction currency matches account currency)
-  - [ ] 6.7.3 Add validation to prevent account currency changes when transactions exist (preserve data integrity)
+- [ ] **6.7 Transaction Service Layer Implementation**
+  - [ ] 6.7.1 Create BusinessError class for service-layer error handling with error codes and user-friendly messages
+  - [ ] 6.7.2 Create TransactionService class with constructor dependency injection (TransactionRepository, AccountRepository, CategoryRepository)
+  - [ ] 6.7.3 Implement private validation helper methods: validateAccount, validateCategory, validateCurrencyMatch
+  - [ ] 6.7.4 Implement createTransaction method with full business validation: account existence, currency matching, optional category type validation
+  - [ ] 6.7.5 Implement getTransactionsByUser method for retrieving user's active transactions
+  - [ ] 6.7.6 Implement updateTransaction method with business validation and partial update support
+  - [ ] 6.7.7 Implement archiveTransaction method with existence checking and business rules
+  - [ ] 6.7.8 Add TransactionService to GraphQL context and update server.ts configuration
+  - [ ] 6.7.9 Add account currency change validation to account resolvers using TransactionRepository.hasTransactionsForAccount method
 
 - [ ] **6.8 GraphQL API Layer**
   - [ ] 6.8.1 Define Transaction GraphQL type and CreateTransactionInput/UpdateTransactionInput types with required type field ('INCOME' | 'EXPENSE') and optional categoryId
