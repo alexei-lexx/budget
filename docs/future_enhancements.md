@@ -11,6 +11,7 @@ This document contains enhancements and improvements that are intentionally skip
 
 ### Enhanced User Experience
 - Pagination or infinite scroll for large transaction lists
+- Auto-focus on first field in forms (accounts, categories, transactions) for better keyboard navigation
 
 ### Account Balance Integration
 - Calculate and display current account balances based on transactions
