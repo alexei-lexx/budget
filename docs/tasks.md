@@ -2,6 +2,16 @@
 
 **Before starting any task, analyze requirements and instructions in docs/general_spec.md and docs/tech_spec.md**
 
+## ⚠️ CRITICAL: Task Completion Tracking
+
+**ALWAYS mark tasks as completed immediately after finishing them by changing `[ ]` to `[x]`**
+
+This is mandatory for:
+- Tracking progress accurately
+- Avoiding duplicate work
+- Maintaining project visibility
+- Ensuring accountability
+
 ## Instructions for Adding New Tasks
 
 When creating new implementation tasks in this file, follow these guidelines:
@@ -21,7 +31,6 @@ When creating new implementation tasks in this file, follow these guidelines:
    - Target architecture description
    - Implementation plan with numbered phases
    - Success criteria
-6. **Progress tracking**: Mark completed tasks by changing `[ ]` to `[x]`
 
 ---
 
