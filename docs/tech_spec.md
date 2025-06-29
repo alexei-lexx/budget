@@ -90,7 +90,111 @@ Personal Finance Tracker is a serverless web application for individual financia
 - Schema-first GraphQL development
 - Authentication middleware for JWT verification
 - Repository pattern for database abstraction
+- Service layer for business logic and cross-repository operations
 - Structured error handling and input validation
+
+### Backend Architecture Pattern
+
+The backend follows a clean three-layer architecture pattern:
+
+```
+GraphQL Resolvers → Services → Repositories → Database
+```
+
+**Repository Layer:**
+- Pure data access operations (CRUD)
+- Database-specific implementations
+- No business logic or cross-repository dependencies
+- Error handling for database operations
+- Environment-aware configuration (local DynamoDB vs AWS)
+
+**Service Layer:**
+- Business logic and domain rules
+- Cross-repository coordination (e.g., transaction validation needs account + category repositories)
+- Complex validation logic (currency matching, category type validation)
+- Transaction orchestration
+- Error transformation and business-specific error messages
+
+**GraphQL Layer:**
+- User input validation using Zod schemas
+- Authentication and authorization
+- API schema definition and documentation
+- Request/response transformation
+- Calling appropriate service methods
+
+### Input Validation Strategy
+
+**Hybrid Two-Tier Validation Approach:**
+
+The application implements validation at two distinct layers, each with specific responsibilities:
+
+#### 1. GraphQL Layer - Input Validation (Zod Schemas)
+
+**Purpose:** Validate API input structure, format, and basic constraints
+
+**Responsibilities:**
+- Schema compliance (required fields, correct data types)
+- Format validation (UUID format, date format, email format)
+- Range constraints (positive numbers, string length limits)
+- Enum validation (predefined values like INCOME/EXPENSE)
+- Type safety (generate TypeScript types from schemas)
+
+**Example:**
+```typescript
+const createTransactionInput = z.object({
+  accountId: z.string().uuid(),
+  amount: z.number().positive(),
+  type: z.enum(['INCOME', 'EXPENSE']),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  categoryId: z.string().uuid().optional(),
+  description: z.string().max(500).optional(),
+});
+```
+
+#### 2. Service Layer - Business Validation
+
+**Purpose:** Enforce domain rules and entity relationships
+
+**Responsibilities:**
+- Entity existence validation (account exists, category exists)
+- Business rule enforcement (currency matching, category type consistency)
+- Cross-entity validation (transaction requires valid account)
+- Domain-specific constraints (prevent account currency changes when transactions exist)
+- Data integrity rules (category type must match transaction type)
+
+**Example:**
+```typescript
+// In TransactionService
+const account = await this.accountRepo.findById(input.accountId, userId);
+if (!account) throw new BusinessError("Account not found");
+
+if (input.currency !== account.currency) {
+  throw new BusinessError("Transaction currency must match account currency");
+}
+```
+
+#### Benefits of Hybrid Approach
+
+**Fail Fast Principle:**
+- Malformed input rejected immediately at API boundary
+- Business rule violations caught in appropriate domain context
+
+**Clear Error Messages:**
+- Input validation: "Amount must be a positive number"
+- Business validation: "Cannot create transaction - account currency (USD) doesn't match transaction currency (EUR)"
+
+**Performance Optimization:**
+- Invalid input never reaches service layer
+- Service layer focuses on business logic, not format checking
+
+**Reusability with Efficiency:**
+- Services remain API-agnostic and reusable
+- Each API layer handles its own input format validation
+
+**Testing Clarity:**
+- Input validation tested independently from business logic
+- Business logic tested with pre-validated inputs
+- Clear separation of test responsibilities
 
 ### GraphQL Schema Design Principles
 - **Internal Fields Hidden:** Archive status, timestamp fields, and user ID are used internally but never exposed in GraphQL schema
