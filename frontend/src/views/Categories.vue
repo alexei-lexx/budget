@@ -167,40 +167,43 @@ const handleCategoryCancel = () => {
       </v-tab>
     </v-tabs>
 
-    <!-- Categories List -->
-    <v-card>
-      <v-card-text>
-        <!-- Loading state -->
-        <div v-if="loading" class="text-center py-8">
-          <v-progress-circular indeterminate size="64" />
-          <p class="text-medium-emphasis mt-4">Loading categories...</p>
-        </div>
+    <!-- Loading State -->
+    <div v-if="loading" class="text-center py-8">
+      <v-progress-circular indeterminate color="primary" size="64" width="4"></v-progress-circular>
+      <div class="text-h6 mt-4">Loading categories...</div>
+    </div>
 
-        <!-- Empty state -->
-        <div v-else-if="filteredCategories.length === 0" class="text-center py-8">
-          <v-icon size="64" color="medium-emphasis" class="mb-4">mdi-tag-multiple-outline</v-icon>
-          <h3 class="text-h6 mb-2">No {{ activeTab.toLowerCase() }} categories yet</h3>
-          <p class="text-medium-emphasis mb-4">
-            Create your first {{ activeTab.toLowerCase() }} category to start organizing your
-            transactions.
-          </p>
-          <v-btn color="primary" prepend-icon="mdi-plus" @click="openAddCategoryDialog">
-            Add Your First {{ activeTab === "INCOME" ? "Income" : "Expense" }} Category
-          </v-btn>
-        </div>
+    <!-- Empty State -->
+    <v-sheet
+      v-else-if="filteredCategories.length === 0"
+      border="dashed md"
+      color="surface-light"
+      height="300"
+      rounded="lg"
+      width="100%"
+      class="d-flex flex-column align-center justify-center"
+    >
+      <v-icon size="64" class="mb-4" color="primary">mdi-tag-multiple-outline</v-icon>
+      <div class="text-h6 mb-2">No {{ activeTab.toLowerCase() }} categories yet</div>
+      <div class="text-body-1 text-center mb-4">
+        Create your first {{ activeTab.toLowerCase() }} category to start organizing your
+        transactions.
+      </div>
+      <v-btn color="primary" prepend-icon="mdi-plus" @click="openAddCategoryDialog">
+        Add Your First {{ activeTab === "INCOME" ? "Income" : "Expense" }} Category
+      </v-btn>
+    </v-sheet>
 
-        <!-- Categories Grid -->
-        <div v-else class="categories-grid">
-          <CategoryCard
-            v-for="category in filteredCategories"
-            :key="category.id"
-            :category="category"
-            @edit-category="editCategory"
-            @archive-category="archiveCategory"
-          />
-        </div>
-      </v-card-text>
-    </v-card>
+    <!-- Categories Grid -->
+    <v-row v-else dense>
+      <v-col v-for="category in filteredCategories" :key="category.id" cols="12" md="6" xl="4">
+        <CategoryCard
+          :category="category"
+          @edit-category="editCategory"
+          @archive-category="archiveCategory"
+        />
+      </v-col>
+    </v-row>
 
     <!-- Add Category Dialog -->
     <v-dialog
@@ -242,16 +245,3 @@ const handleCategoryCancel = () => {
   </v-container>
 </template>
 
-<style scoped>
-.categories-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 16px;
-}
-
-@media (max-width: 600px) {
-  .categories-grid {
-    grid-template-columns: 1fr;
-  }
-}
-</style>

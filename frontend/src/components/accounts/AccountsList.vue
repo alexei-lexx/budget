@@ -59,9 +59,9 @@ const handleArchiveAccount = (accountId: string) => {
     </slot>
   </v-sheet>
 
-  <!-- Accounts Grid - Compact Responsive Cards -->
+  <!-- Accounts Grid - Optimized for Single-Line Cards -->
   <v-row v-else dense>
-    <v-col v-for="account in activeAccounts" :key="account.id" cols="12" sm="6" lg="4" xl="3">
+    <v-col v-for="account in activeAccounts" :key="account.id" cols="12" md="6" xl="4">
       <AccountCard
         :account="account"
         @edit-account="handleEditAccount"
