@@ -651,11 +651,9 @@ App Navigation Drawer:
 
 - [ ] **6.6 Backend Data Layer**
   - [x] 6.6.1 Create Transaction model interface with userId, id, accountId, categoryId (optional), type ('INCOME' | 'EXPENSE'), amount, currency, date, description (optional), isArchived, createdAt, updatedAt
-  - [x] 6.6.2 Create TransactionRepository with environment-aware DynamoDB configuration
-  - [ ] 6.6.3 Implement CRUD operations: create, findActiveByUserId, findById, update, archive
-  - [ ] 6.6.4 Implement findActiveByUserId method with default date desc sorting (no filtering parameters)
-  - [ ] 6.6.5 Add business logic validation: amount > 0, type required ('INCOME' | 'EXPENSE'), valid account relationships, optional category validation, date validation
-  - [ ] 6.6.6 Add proper error handling with TransactionRepositoryError types
+  - [x] 6.6.2 Create TransactionRepository with environment-aware DynamoDB configuration and implement CRUD operations: create, findActiveByUserId (with default date desc sorting), findById, update, archive
+  - [ ] 6.6.3 Add business logic validation: amount > 0, type required ('INCOME' | 'EXPENSE'), valid account relationships, optional category validation, date validation
+  - [ ] 6.6.4 Add proper error handling with TransactionRepositoryError types
 
 - [ ] **6.7 Account Integration Logic**
   - [ ] 6.7.1 Ensure account existence validation and optional category existence validation in transaction operations
