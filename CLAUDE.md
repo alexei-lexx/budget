@@ -79,7 +79,7 @@ npm run test         # Run Jest tests
 **Setup:**
 - DynamoDB Local runs in Docker container (port 8000)
 - DynamoDB Admin UI available at http://localhost:8001
-- Tables created automatically with `npm run db:setup` (Users, Accounts, Categories)
+- Tables created automatically with `npm run db:setup` (Users, Accounts, Categories, Transactions)
 - Data persisted in Docker named volume `dynamodb-data`
 
 **First-time setup:**
@@ -141,10 +141,11 @@ Context creation automatically handles JWT verification and user extraction from
 
 ### Repository Pattern
 Database operations are abstracted through repository interfaces:
-- `IUserRepository` with concrete `UserRepository` implementation
+- `IUserRepository`, `IAccountRepository`, `ICategoryRepository`, `ITransactionRepository` with concrete implementations
 - Repositories handle environment-specific DynamoDB configuration (local vs AWS)
 - All database queries automatically scoped to authenticated user
 - Repository methods use `ensureUser()` pattern for automatic user creation
+- Repository error classes (`UserRepositoryError`, `AccountRepositoryError`, etc.) provide structured error handling
 
 ### Authentication Flow
 1. Frontend obtains JWT tokens from Auth0 (`useAuth` composable)
@@ -161,8 +162,9 @@ Database operations are abstracted through repository interfaces:
 
 ### DynamoDB Design Patterns
 - Primary tables use UUID partition keys for even distribution
-- Global Secondary Indexes (GSI) for Auth0 user ID lookups
+- Global Secondary Indexes (GSI) for Auth0 user ID lookups and date-sorted queries
 - All user data partitioned by internal user ID for data isolation
+- Database-level sorting preferred over application sorting (use GSI with ScanIndexForward)
 - Development uses DynamoDB Local with Docker Compose
 - Production uses pay-per-request billing with point-in-time recovery
 
@@ -176,10 +178,17 @@ Database operations are abstracted through repository interfaces:
 
 ### GraphQL Error Handling Pattern
 Backend uses structured error handling with specific error types:
-- Repository errors (e.g., `AccountRepositoryError`) with error codes
+- Repository errors (e.g., `AccountRepositoryError`, `TransactionRepositoryError`) with error codes
 - Zod validation errors converted to GraphQL format
 - Helper functions like `requireAuthentication()` and `getAuthenticatedUser()`
 - Consistent error response format across all resolvers
+
+### Input Validation Pattern
+GraphQL resolvers use Zod schemas for input validation:
+- Schema definitions at the top of resolver files (e.g., `createAccountInputSchema`)
+- Validation happens in resolvers, not repositories, for separation of concerns
+- Common validation patterns: string trimming, length limits, enum validation, custom refinements
+- Repository layer focuses on data operations, not business rule validation
 
 ### Environment-Aware Repository Configuration
 Repositories automatically detect and configure for different environments:
@@ -248,6 +257,12 @@ Before starting any development work, review:
 - `docs/general_spec.md` - Business requirements and feature specifications
 - `docs/tech_spec.md` - Technical architecture and implementation guidelines
 - `docs/tasks.md` - Current development roadmap and task tracking
+
+### Task Completion Tracking
+**CRITICAL**: Always mark tasks as completed in `docs/tasks.md` immediately after finishing them:
+- Change `[ ]` to `[x]` in the task line
+- This maintains permanent progress tracking across development sessions
+- Prevents duplicate work and ensures accountability
 
 # important-instruction-reminders
 Do what has been asked; nothing more, nothing less.
