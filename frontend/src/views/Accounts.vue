@@ -3,6 +3,7 @@
 import { ref, computed } from "vue";
 import AccountsList from "@/components/AccountsList.vue";
 import AccountForm from "@/components/AccountForm.vue";
+import AccountDeleteDialog from "@/components/AccountDeleteDialog.vue";
 import { useAccounts, type Account } from "@/composables/useAccounts";
 import { useSnackbar } from "@/composables/useSnackbar";
 
@@ -193,43 +194,11 @@ const handleAccountCancel = () => {
     </v-dialog>
 
     <!-- Delete Confirmation Dialog -->
-    <v-dialog
+    <AccountDeleteDialog
       v-model="showDeleteConfirmDialog"
-      :max-width="$vuetify.display.xs ? '95vw' : '500'"
-      persistent
-    >
-      <v-card>
-        <v-card-title class="text-h5 d-flex align-center">
-          <v-icon color="error" class="me-2">mdi-alert</v-icon>
-          Delete Account
-        </v-card-title>
-
-        <v-card-text>
-          <p class="text-body-1 mb-3">
-            Are you sure you want to delete the account
-            <strong>"{{ accountToDelete?.name }}"</strong>?
-          </p>
-          <p class="text-body-2 text-medium-emphasis">
-            This action cannot be undone. The account will be permanently removed from your records,
-            but historical transaction data will be preserved.
-          </p>
-        </v-card-text>
-
-        <v-card-actions :class="{ 'flex-column ga-2': $vuetify.display.xs }">
-          <v-spacer v-if="$vuetify.display.smAndUp"></v-spacer>
-          <v-btn variant="text" @click="cancelDeleteAccount" :block="$vuetify.display.xs">
-            Cancel
-          </v-btn>
-          <v-btn
-            color="error"
-            variant="flat"
-            @click="confirmDeleteAccount"
-            :block="$vuetify.display.xs"
-          >
-            Delete
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+      :account="accountToDelete"
+      @confirm="confirmDeleteAccount"
+      @cancel="cancelDeleteAccount"
+    />
   </v-container>
 </template>

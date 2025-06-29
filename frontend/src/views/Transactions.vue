@@ -72,47 +72,13 @@
     </v-row>
 
     <!-- Delete Confirmation Dialog -->
-    <v-dialog
+    <TransactionDeleteDialog
       v-model="showDeleteConfirmDialog"
-      :max-width="$vuetify.display.xs ? '95vw' : '500'"
-      persistent
-    >
-      <v-card>
-        <v-card-title class="text-h5 d-flex align-center">
-          <v-icon color="error" class="me-2">mdi-alert</v-icon>
-          Delete Transaction
-        </v-card-title>
-
-        <v-card-text v-if="transactionToDelete">
-          <p class="text-body-1 mb-3">
-            Are you sure you want to delete the transaction
-            <strong
-              >"{{ getAccountName(transactionToDelete.accountId) }},
-              {{ formatTransactionAmount(transactionToDelete) }}"</strong
-            >?
-          </p>
-          <p class="text-body-2 text-medium-emphasis">
-            This action cannot be undone. The transaction will be permanently removed from your
-            records.
-          </p>
-        </v-card-text>
-
-        <v-card-actions :class="{ 'flex-column ga-2': $vuetify.display.xs }">
-          <v-spacer v-if="$vuetify.display.smAndUp"></v-spacer>
-          <v-btn variant="text" @click="cancelDeleteTransaction" :block="$vuetify.display.xs">
-            Cancel
-          </v-btn>
-          <v-btn
-            color="error"
-            variant="flat"
-            @click="confirmDeleteTransaction"
-            :block="$vuetify.display.xs"
-          >
-            Delete
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+      :transaction="transactionToDelete"
+      :account-name="transactionToDelete ? getAccountName(transactionToDelete.accountId) : ''"
+      @confirm="confirmDeleteTransaction"
+      @cancel="cancelDeleteTransaction"
+    />
 
     <!-- Create Transaction Dialog -->
     <v-dialog
@@ -149,9 +115,9 @@ import { useTransactions } from "@/composables/useTransactions";
 import { useAccounts } from "@/composables/useAccounts";
 import { useCategories } from "@/composables/useCategories";
 import { useSnackbar } from "@/composables/useSnackbar";
-import { formatCurrencyCompact } from "@/utils/currency";
 import TransactionCard from "@/components/TransactionCard.vue";
 import TransactionForm from "@/components/TransactionForm.vue";
+import TransactionDeleteDialog from "@/components/TransactionDeleteDialog.vue";
 import type { Transaction, CreateTransactionInput } from "@/composables/useTransactions";
 
 // Composables
@@ -280,14 +246,5 @@ const getCategoryName = (categoryId?: string): string | undefined => {
   if (!categoryId) return undefined;
   const category = categories.value.find((c) => c.id === categoryId);
   return category?.name;
-};
-
-// Helper function to format transaction amount with +/- prefix
-const formatTransactionAmount = (transaction: Transaction): string => {
-  const sign = transaction.type === "INCOME" ? "+" : "-";
-  const amount = formatCurrencyCompact(transaction.amount, transaction.currency, {
-    showSymbol: true,
-  });
-  return `${sign}${amount}`;
 };
 </script>

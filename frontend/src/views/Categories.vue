@@ -4,6 +4,7 @@ import { ref, computed } from "vue";
 import { useCategories, type Category, type CategoryType } from "@/composables/useCategories";
 import { useSnackbar } from "@/composables/useSnackbar";
 import CategoryForm from "@/components/CategoryForm.vue";
+import CategoryDeleteDialog from "@/components/CategoryDeleteDialog.vue";
 
 // Define Category form data interface (for creating new categories)
 interface CategoryFormData {
@@ -261,44 +262,12 @@ const handleCategoryCancel = () => {
     </v-dialog>
 
     <!-- Delete Confirmation Dialog -->
-    <v-dialog
+    <CategoryDeleteDialog
       v-model="showDeleteConfirmDialog"
-      :max-width="$vuetify.display.xs ? '95vw' : '500'"
-      persistent
-    >
-      <v-card>
-        <v-card-title class="text-h5 d-flex align-center">
-          <v-icon color="error" class="me-2">mdi-alert</v-icon>
-          Delete Category
-        </v-card-title>
-
-        <v-card-text>
-          <p class="text-body-1 mb-3">
-            Are you sure you want to delete the category
-            <strong>"{{ categoryToDelete?.name }}"</strong>?
-          </p>
-          <p class="text-body-2 text-medium-emphasis">
-            This action cannot be undone. The category will be permanently removed from your
-            records, but historical transaction data will be preserved.
-          </p>
-        </v-card-text>
-
-        <v-card-actions :class="{ 'flex-column ga-2': $vuetify.display.xs }">
-          <v-spacer v-if="$vuetify.display.smAndUp"></v-spacer>
-          <v-btn variant="text" @click="cancelDeleteCategory" :block="$vuetify.display.xs">
-            Cancel
-          </v-btn>
-          <v-btn
-            color="error"
-            variant="flat"
-            @click="confirmDeleteCategory"
-            :block="$vuetify.display.xs"
-          >
-            Delete
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+      :category="categoryToDelete"
+      @confirm="confirmDeleteCategory"
+      @cancel="cancelDeleteCategory"
+    />
   </v-container>
 </template>
 
