@@ -1,0 +1,51 @@
+import { CategoryType } from "./Category";
+
+export type TransactionType = CategoryType;
+
+export interface Transaction {
+  userId: string; // Partition key (same pattern as other entities)
+  id: string; // Sort key - UUID v4
+  accountId: string; // Foreign key to Account
+  categoryId?: string; // Optional foreign key to Category
+  type: TransactionType; // Transaction type (matches category type)
+  amount: number; // Transaction amount (positive value)
+  currency: string; // ISO currency code (inherited from account)
+  date: string; // Transaction date (YYYY-MM-DD format)
+  description?: string; // Optional description
+  isArchived: boolean; // Soft delete flag
+  createdAt: string; // ISO timestamp
+  updatedAt: string; // ISO timestamp
+}
+
+export interface CreateTransactionInput {
+  userId: string;
+  accountId: string;
+  categoryId?: string;
+  type: TransactionType;
+  amount: number;
+  currency: string;
+  date: string;
+  description?: string;
+}
+
+export interface UpdateTransactionInput {
+  accountId?: string;
+  categoryId?: string;
+  type?: TransactionType;
+  amount?: number;
+  currency?: string;
+  date?: string;
+  description?: string;
+}
+
+export interface ITransactionRepository {
+  findActiveByUserId(userId: string): Promise<Transaction[]>;
+  findById(id: string, userId: string): Promise<Transaction | null>;
+  create(input: CreateTransactionInput): Promise<Transaction>;
+  update(
+    id: string,
+    userId: string,
+    input: UpdateTransactionInput,
+  ): Promise<Transaction>;
+  archive(id: string, userId: string): Promise<Transaction>;
+}
