@@ -132,12 +132,27 @@ Backend implements structured error handling with GraphQL-specific error formatt
 
 ## Architecture Patterns
 
-### GraphQL Context Pattern
+### Backend Three-Layer Architecture
+
+The backend follows a clean architecture pattern:
+
+```
+GraphQL Resolvers → Services → Repositories → Database
+```
+
+**GraphQL Context Pattern:**
 All GraphQL resolvers receive a standardized context containing:
 - `auth`: Authentication state (isAuthenticated, user info from JWT)
-- `userRepository`: Database access layer for user operations
+- `userRepository`, `accountRepository`, `categoryRepository`: Database access layers
+- `jwtAuthService`: JWT token verification service
 
 Context creation automatically handles JWT verification and user extraction from Auth0 tokens.
+
+**Service Layer Pattern:**
+- **Domain-centric services** - Single service per entity (TransactionService, AccountService)
+- **Business logic coordination** - Cross-repository operations and validation
+- **Dependency injection** - Repository dependencies injected once per service
+- **Private helper methods** - Shared validation logic within domain
 
 ### Repository Pattern
 Database operations are abstracted through repository interfaces:
@@ -176,19 +191,48 @@ Database operations are abstracted through repository interfaces:
 
 ## Advanced Patterns
 
-### GraphQL Error Handling Pattern
-Backend uses structured error handling with specific error types:
-- Repository errors (e.g., `AccountRepositoryError`, `TransactionRepositoryError`) with error codes
+### Error Handling Patterns
+
+**Repository Errors:**
+- `AccountRepositoryError`, `CategoryRepositoryError`, `TransactionRepositoryError` with error codes
+- Database operation failures with structured error context
+
+**Service Layer Errors:**
+- `BusinessError` class for domain-specific validation failures
+- User-friendly error messages for business rule violations
+
+**GraphQL Layer:**
 - Zod validation errors converted to GraphQL format
 - Helper functions like `requireAuthentication()` and `getAuthenticatedUser()`
-- Consistent error response format across all resolvers
+- Consistent error response format using `handleResolverError()` shared utility
 
-### Input Validation Pattern
-GraphQL resolvers use Zod schemas for input validation:
-- Schema definitions at the top of resolver files (e.g., `createAccountInputSchema`)
-- Validation happens in resolvers, not repositories, for separation of concerns
-- Common validation patterns: string trimming, length limits, enum validation, custom refinements
-- Repository layer focuses on data operations, not business rule validation
+### Hybrid Input Validation Pattern
+
+**Two-tier validation approach:**
+
+1. **GraphQL Layer (Zod)** - Input validation:
+   - Schema compliance (required fields, data types)
+   - Format validation (UUID, date, email formats)
+   - Range constraints (positive numbers, string length limits)
+   - Enum validation (INCOME/EXPENSE)
+   - Schema definitions at top of resolver files
+
+2. **Service Layer** - Business validation:
+   - Entity existence checks (account exists, category exists)
+   - Business rule enforcement (currency matching, category type consistency)
+   - Cross-entity validation (transaction requires valid account)
+   - Domain-specific constraints
+
+**Example Zod Schema:**
+```typescript
+const createTransactionInput = z.object({
+  accountId: z.string().uuid(),
+  amount: z.number().positive(),
+  type: z.enum(['INCOME', 'EXPENSE']),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  categoryId: z.string().uuid().optional(),
+});
+```
 
 ### Environment-Aware Repository Configuration
 Repositories automatically detect and configure for different environments:
@@ -245,12 +289,32 @@ Complete Docker-based development setup:
 - Table creation scripts are idempotent and can be run multiple times
 - Admin UI provides real-time view of data changes during development
 
+## Current Implementation Status
+
+### Implemented Features
+- **User Authentication** - Auth0 integration with JWT verification
+- **Account Management** - Complete CRUD operations with repository pattern
+- **Category Management** - Income/Expense categorization with validation
+- **Transaction Repository** - Database layer with CRUD operations
+- **Development Database** - DynamoDB Local with Docker orchestration
+
+### In Progress
+- **Transaction Service Layer** - Business logic implementation for transactions
+- **Service Architecture** - Transitioning from direct repository calls to service layer
+
+### Repository vs Service Usage
+**Current State:** Account and Category operations use direct repository calls in GraphQL resolvers
+**Target State:** All business operations go through service layer for proper business logic encapsulation
+
+When implementing new features, use the service layer pattern. When modifying existing features, consider refactoring to use services.
+
 ## Important Development Guidelines
 
 ### Code Quality Standards
 - **TypeScript Best Practices**: Avoid unnecessary type checks (typeof, non-null, non-undefined) when the provided type is explicit and doesn't require such checks
 - **Script Usage**: Always prefer npm scripts from package.json over direct tool usage to ensure consistent versions and configurations
 - **Documentation**: Only create documentation files when explicitly requested
+- **Service Layer**: New business logic should be implemented in service classes, not directly in GraphQL resolvers
 
 ### Project Specifications
 Before starting any development work, review:
