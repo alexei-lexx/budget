@@ -651,9 +651,7 @@ App Navigation Drawer:
 
 - [ ] **6.6 Backend Data Layer**
   - [x] 6.6.1 Create Transaction model interface with userId, id, accountId, categoryId (optional), type ('INCOME' | 'EXPENSE'), amount, currency, date, description (optional), isArchived, createdAt, updatedAt
-  - [x] 6.6.2 Create TransactionRepository with environment-aware DynamoDB configuration and implement CRUD operations: create, findActiveByUserId (with default date desc sorting), findById, update, archive
-  - [ ] 6.6.3 Add business logic validation: amount > 0, type required ('INCOME' | 'EXPENSE'), valid account relationships, optional category validation, date validation
-  - [ ] 6.6.4 Add proper error handling with TransactionRepositoryError types
+  - [x] 6.6.2 Create TransactionRepository with environment-aware DynamoDB configuration, implement CRUD operations (create, findActiveByUserId with default date desc sorting, findById, update, archive), and add proper error handling with TransactionRepositoryError types
 
 - [ ] **6.7 Account Integration Logic**
   - [ ] 6.7.1 Ensure account existence validation and optional category existence validation in transaction operations
@@ -662,10 +660,11 @@ App Navigation Drawer:
 
 - [ ] **6.8 GraphQL API Layer**
   - [ ] 6.8.1 Define Transaction GraphQL type and CreateTransactionInput/UpdateTransactionInput types with required type field ('INCOME' | 'EXPENSE') and optional categoryId
-  - [ ] 6.8.2 Add transactions query (basic list without filtering parameters)
-  - [ ] 6.8.3 Add createTransaction mutation with validation and account existence checking (category validation only if provided)
-  - [ ] 6.8.4 Add updateTransaction mutation with business rule validation
-  - [ ] 6.8.5 Add archiveTransaction mutation for soft delete
+  - [ ] 6.8.2 Add Zod validation schemas: amount > 0, type required ('INCOME' | 'EXPENSE'), valid account relationships, optional category validation, date validation
+  - [ ] 6.8.3 Add transactions query (basic list without filtering parameters)
+  - [ ] 6.8.4 Add createTransaction mutation with validation and account existence checking (category validation only if provided)
+  - [ ] 6.8.5 Add updateTransaction mutation with business rule validation
+  - [ ] 6.8.6 Add archiveTransaction mutation for soft delete
 
 - [ ] **6.9 GraphQL Client Integration**
   - [ ] 6.9.1 Create GraphQL queries and mutations for transaction operations
