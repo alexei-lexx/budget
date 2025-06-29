@@ -78,34 +78,38 @@
       persistent
     >
       <v-card>
-        <v-card-title class="text-h5"> Delete Transaction </v-card-title>
+        <v-card-title class="text-h5 d-flex align-center">
+          <v-icon color="error" class="me-2">mdi-alert</v-icon>
+          Delete Transaction
+        </v-card-title>
+
         <v-card-text v-if="transactionToDelete">
-          Are you sure you want to delete this transaction?
-          <div class="mt-3 pa-3 bg-grey-lighten-4 rounded">
-            <div class="font-weight-medium">
-              {{ transactionToDelete.description || "No description" }}
-            </div>
-            <div class="text-caption">
-              {{ getAccountName(transactionToDelete.accountId) }}
-              <span v-if="transactionToDelete.categoryId">
-                • {{ getCategoryName(transactionToDelete.categoryId) }}
-              </span>
-            </div>
-            <div
-              class="text-h6 mt-1"
-              :class="transactionToDelete.type === 'INCOME' ? 'text-success' : 'text-error'"
-            >
-              {{ formatTransactionAmount(transactionToDelete) }}
-            </div>
-          </div>
-          <div class="text-error mt-3">
-            <strong>This action cannot be undone.</strong>
-          </div>
+          <p class="text-body-1 mb-3">
+            Are you sure you want to delete the transaction
+            <strong
+              >"{{ getAccountName(transactionToDelete.accountId) }},
+              {{ formatTransactionAmount(transactionToDelete) }}"</strong
+            >?
+          </p>
+          <p class="text-body-2 text-medium-emphasis">
+            This action cannot be undone. The transaction will be permanently removed from your
+            records.
+          </p>
         </v-card-text>
-        <v-card-actions>
-          <v-spacer />
-          <v-btn text="Cancel" @click="cancelDeleteTransaction" />
-          <v-btn color="error" text="Delete" @click="confirmDeleteTransaction" />
+
+        <v-card-actions :class="{ 'flex-column ga-2': $vuetify.display.xs }">
+          <v-spacer v-if="$vuetify.display.smAndUp"></v-spacer>
+          <v-btn variant="text" @click="cancelDeleteTransaction" :block="$vuetify.display.xs">
+            Cancel
+          </v-btn>
+          <v-btn
+            color="error"
+            variant="flat"
+            @click="confirmDeleteTransaction"
+            :block="$vuetify.display.xs"
+          >
+            Delete
+          </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>

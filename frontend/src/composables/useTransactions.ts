@@ -500,7 +500,7 @@ export function useTransactions() {
   const transactions = computed(() => {
     // Access the trigger to make this computed reactive to manual updates
     transactionsRefreshTrigger.value;
-    
+
     try {
       return mockTransactionService
         .getTransactions()
@@ -566,7 +566,7 @@ export function useTransactions() {
 
       // Trigger reactivity update
       transactionsRefreshTrigger.value++;
-      
+
       return true;
     } catch (error) {
       console.error("Error creating transaction:", error);
@@ -579,10 +579,7 @@ export function useTransactions() {
   };
 
   // Update transaction function
-  const updateTransaction = async (
-    id: string,
-    input: UpdateTransactionInput,
-  ): Promise<boolean> => {
+  const updateTransaction = async (id: string, input: UpdateTransactionInput): Promise<boolean> => {
     if (!accounts.value?.activeAccounts || !categories.value?.activeCategories) {
       transactionsError.value = "Accounts and categories must be loaded first";
       return false;
