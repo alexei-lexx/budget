@@ -2,6 +2,7 @@
 import { computed } from "vue";
 import type { Transaction } from "@/composables/useTransactions";
 import { formatCurrencyCompact } from "@/utils/currency";
+import ActionDropdown from "@/components/ActionDropdown.vue";
 
 // Define component props
 interface Props {
@@ -87,19 +88,7 @@ const handleArchiveTransaction = () => {
         </div>
 
         <!-- Menu -->
-        <v-menu>
-          <template v-slot:activator="{ props }">
-            <v-btn v-bind="props" icon="mdi-dots-vertical" variant="text" size="small" />
-          </template>
-          <v-list density="compact">
-            <v-list-item prepend-icon="mdi-pencil" title="Edit" @click="handleEditTransaction" />
-            <v-list-item
-              prepend-icon="mdi-delete"
-              title="Delete"
-              @click="handleArchiveTransaction"
-            />
-          </v-list>
-        </v-menu>
+        <ActionDropdown @edit="handleEditTransaction" @delete="handleArchiveTransaction" />
       </div>
     </v-card-text>
   </v-card>

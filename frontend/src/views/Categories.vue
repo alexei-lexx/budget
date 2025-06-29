@@ -5,6 +5,7 @@ import { useCategories, type Category, type CategoryType } from "@/composables/u
 import { useSnackbar } from "@/composables/useSnackbar";
 import CategoryForm from "@/components/CategoryForm.vue";
 import CategoryDeleteDialog from "@/components/CategoryDeleteDialog.vue";
+import ActionDropdown from "@/components/ActionDropdown.vue";
 
 // Define Category form data interface (for creating new categories)
 interface CategoryFormData {
@@ -207,23 +208,10 @@ const handleCategoryCancel = () => {
                     <h4 class="text-h6">{{ category.name }}</h4>
                   </div>
                 </div>
-                <v-menu>
-                  <template v-slot:activator="{ props }">
-                    <v-btn v-bind="props" icon="mdi-dots-vertical" variant="text" size="small" />
-                  </template>
-                  <v-list density="compact">
-                    <v-list-item
-                      prepend-icon="mdi-pencil"
-                      title="Edit"
-                      @click="editCategory(category.id)"
-                    />
-                    <v-list-item
-                      prepend-icon="mdi-delete"
-                      title="Delete"
-                      @click="archiveCategory(category.id)"
-                    />
-                  </v-list>
-                </v-menu>
+                <ActionDropdown
+                  @edit="editCategory(category.id)"
+                  @delete="archiveCategory(category.id)"
+                />
               </div>
             </v-card-text>
           </v-card>

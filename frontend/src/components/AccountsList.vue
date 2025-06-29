@@ -2,6 +2,7 @@
 import { computed } from "vue";
 import type { Account } from "@/composables/useAccounts";
 import { formatCurrencyCompact } from "@/utils/currency";
+import ActionDropdown from "@/components/ActionDropdown.vue";
 
 // Define component props
 interface Props {
@@ -73,23 +74,10 @@ const handleArchiveAccount = (accountId: string) => {
             <div>
               <h4 class="text-h6">{{ account.name }}</h4>
             </div>
-            <v-menu>
-              <template v-slot:activator="{ props }">
-                <v-btn v-bind="props" icon="mdi-dots-vertical" variant="text" size="small" />
-              </template>
-              <v-list density="compact">
-                <v-list-item
-                  prepend-icon="mdi-pencil"
-                  title="Edit"
-                  @click="handleEditAccount(account.id)"
-                />
-                <v-list-item
-                  prepend-icon="mdi-delete"
-                  title="Delete"
-                  @click="handleArchiveAccount(account.id)"
-                />
-              </v-list>
-            </v-menu>
+            <ActionDropdown
+              @edit="handleEditAccount(account.id)"
+              @delete="handleArchiveAccount(account.id)"
+            />
           </div>
           <div class="mt-2">
             <div class="text-h5 font-weight-bold">
