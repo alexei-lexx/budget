@@ -80,11 +80,6 @@ const isEditing = computed(() => !!props.category?.id);
 const formTitle = computed(() => (isEditing.value ? "Edit Category" : "Create New Category"));
 const submitButtonText = computed(() => (isEditing.value ? "Update Category" : "Create Category"));
 
-// Get selected type details
-const selectedTypeDetails = computed(() => {
-  return categoryTypeOptions.find((option) => option.value === formData.value.type);
-});
-
 // Watch for category prop changes (for editing)
 watch(
   () => props.category,

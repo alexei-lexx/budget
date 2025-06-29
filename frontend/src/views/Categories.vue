@@ -26,7 +26,6 @@ const {
   archiveCategory: archiveCategoryMutation,
   createCategoryLoading,
   updateCategoryLoading,
-  categoriesError,
 } = useCategories();
 
 // State for dialogs and loading
@@ -37,7 +36,7 @@ const editingCategory = ref<Category | null>(null);
 const categoryToDelete = ref<Category | null>(null);
 
 // Use global snackbar
-const { showErrorSnackbar, showSuccessSnackbar } = useSnackbar();
+const { showSuccessSnackbar } = useSnackbar();
 
 // Use categories data directly
 const categories = computed<Category[]>(() => {

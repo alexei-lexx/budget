@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
-import { formatCurrency, getCurrencyInputPrefix } from "@/utils/currency";
+import { getCurrencyInputPrefix } from "@/utils/currency";
 import { checkRules, type CheckRule } from "@/utils/validation";
 import { useCurrencies } from "@/composables/useCurrencies";
 
