@@ -494,9 +494,13 @@ export function useTransactions() {
 
   const transactionsError = ref<string | null>(null);
   const transactionsLoading = ref(false);
+  const transactionsRefreshTrigger = ref(0);
 
   // Get transactions from mock service
   const transactions = computed(() => {
+    // Access the trigger to make this computed reactive to manual updates
+    transactionsRefreshTrigger.value;
+    
     try {
       return mockTransactionService
         .getTransactions()
@@ -530,6 +534,8 @@ export function useTransactions() {
           categories.value.activeCategories,
           true, // force regeneration
         );
+        // Trigger reactivity update
+        transactionsRefreshTrigger.value++;
       } catch (error) {
         console.error("Error regenerating mock data:", error);
       }
@@ -537,10 +543,10 @@ export function useTransactions() {
   };
 
   // Create transaction function
-  const createTransaction = async (input: CreateTransactionInput): Promise<Transaction | null> => {
+  const createTransaction = async (input: CreateTransactionInput): Promise<boolean> => {
     if (!accounts.value?.activeAccounts || !categories.value?.activeCategories) {
       transactionsError.value = "Accounts and categories must be loaded first";
-      return null;
+      return false;
     }
 
     try {
@@ -555,15 +561,18 @@ export function useTransactions() {
 
       if (result.error) {
         transactionsError.value = result.error;
-        return null;
+        return false;
       }
 
-      return result.transaction;
+      // Trigger reactivity update
+      transactionsRefreshTrigger.value++;
+      
+      return true;
     } catch (error) {
       console.error("Error creating transaction:", error);
       transactionsError.value =
         error instanceof Error ? error.message : "Failed to create transaction";
-      return null;
+      return false;
     } finally {
       transactionsLoading.value = false;
     }
@@ -573,10 +582,10 @@ export function useTransactions() {
   const updateTransaction = async (
     id: string,
     input: UpdateTransactionInput,
-  ): Promise<Transaction | null> => {
+  ): Promise<boolean> => {
     if (!accounts.value?.activeAccounts || !categories.value?.activeCategories) {
       transactionsError.value = "Accounts and categories must be loaded first";
-      return null;
+      return false;
     }
 
     try {
@@ -592,15 +601,18 @@ export function useTransactions() {
 
       if (result.error) {
         transactionsError.value = result.error;
-        return null;
+        return false;
       }
 
-      return result.transaction;
+      // Trigger reactivity update
+      transactionsRefreshTrigger.value++;
+
+      return true;
     } catch (error) {
       console.error("Error updating transaction:", error);
       transactionsError.value =
         error instanceof Error ? error.message : "Failed to update transaction";
-      return null;
+      return false;
     } finally {
       transactionsLoading.value = false;
     }
@@ -618,6 +630,9 @@ export function useTransactions() {
         transactionsError.value = result.error;
         return false;
       }
+
+      // Trigger reactivity update
+      transactionsRefreshTrigger.value++;
 
       return result.success;
     } catch (error) {
