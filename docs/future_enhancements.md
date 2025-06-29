@@ -10,7 +10,7 @@ This document contains enhancements and improvements that are intentionally skip
 - Multiple active filters working together
 
 ### Enhanced User Experience
-- Pagination or infinite scroll for large transaction lists
+- **Transaction Pagination**: Implement efficient pagination for transaction lists to handle large datasets (100+ transactions). Options include cursor-based pagination (recommended), infinite scroll, or virtual scrolling. Should include configurable page sizes (25, 50, 100), URL state preservation, and performance optimizations using the existing UserDateIndex GSI.
 - Auto-focus on first field in forms (accounts, categories, transactions) for better keyboard navigation
 
 ### Account Balance Integration
