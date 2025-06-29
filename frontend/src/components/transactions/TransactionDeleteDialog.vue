@@ -12,7 +12,7 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import DeleteConfirmationDialog from "./DeleteConfirmationDialog.vue";
+import DeleteConfirmationDialog from "@/components/common/DeleteConfirmationDialog.vue";
 import type { Transaction } from "@/composables/useTransactions";
 import { formatCurrencyCompact } from "@/utils/currency";
 

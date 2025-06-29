@@ -4,8 +4,8 @@ import { useAuth } from "@/composables/useAuth";
 import { useUser } from "@/composables/useUser";
 import { useSnackbar } from "@/composables/useSnackbar";
 import { useDisplay } from "vuetify";
-import LoginButton from "@/components/LoginButton.vue";
-import LogoutButton from "@/components/LogoutButton.vue";
+import LoginButton from "@/components/auth/LoginButton.vue";
+import LogoutButton from "@/components/auth/LogoutButton.vue";
 import { anonymizeEmail } from "@/utils/anonymize";
 import { setAuthTokenGetter, globalError, clearGlobalError } from "@/apollo";
 

@@ -2,7 +2,7 @@
 import { computed } from "vue";
 import type { Transaction } from "@/composables/useTransactions";
 import { formatCurrencyCompact } from "@/utils/currency";
-import ActionDropdown from "@/components/ActionDropdown.vue";
+import ActionDropdown from "@/components/common/ActionDropdown.vue";
 
 // Define component props
 interface Props {

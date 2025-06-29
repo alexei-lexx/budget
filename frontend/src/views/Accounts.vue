@@ -1,9 +1,9 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script setup lang="ts">
 import { ref, computed } from "vue";
-import AccountsList from "@/components/AccountsList.vue";
-import AccountForm from "@/components/AccountForm.vue";
-import AccountDeleteDialog from "@/components/AccountDeleteDialog.vue";
+import AccountsList from "@/components/accounts/AccountsList.vue";
+import AccountForm from "@/components/accounts/AccountForm.vue";
+import AccountDeleteDialog from "@/components/accounts/AccountDeleteDialog.vue";
 import { useAccounts, type Account } from "@/composables/useAccounts";
 import { useSnackbar } from "@/composables/useSnackbar";
 

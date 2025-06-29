@@ -115,9 +115,9 @@ import { useTransactions } from "@/composables/useTransactions";
 import { useAccounts } from "@/composables/useAccounts";
 import { useCategories } from "@/composables/useCategories";
 import { useSnackbar } from "@/composables/useSnackbar";
-import TransactionCard from "@/components/TransactionCard.vue";
-import TransactionForm from "@/components/TransactionForm.vue";
-import TransactionDeleteDialog from "@/components/TransactionDeleteDialog.vue";
+import TransactionCard from "@/components/transactions/TransactionCard.vue";
+import TransactionForm from "@/components/transactions/TransactionForm.vue";
+import TransactionDeleteDialog from "@/components/transactions/TransactionDeleteDialog.vue";
 import type { Transaction, CreateTransactionInput } from "@/composables/useTransactions";
 
 // Composables

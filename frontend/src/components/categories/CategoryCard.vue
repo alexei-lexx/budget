@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Category } from "@/composables/useCategories";
-import ActionDropdown from "@/components/ActionDropdown.vue";
+import ActionDropdown from "@/components/common/ActionDropdown.vue";
 
 // Define component props
 interface Props {

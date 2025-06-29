@@ -3,9 +3,9 @@
 import { ref, computed } from "vue";
 import { useCategories, type Category, type CategoryType } from "@/composables/useCategories";
 import { useSnackbar } from "@/composables/useSnackbar";
-import CategoryForm from "@/components/CategoryForm.vue";
-import CategoryDeleteDialog from "@/components/CategoryDeleteDialog.vue";
-import CategoryCard from "@/components/CategoryCard.vue";
+import CategoryForm from "@/components/categories/CategoryForm.vue";
+import CategoryDeleteDialog from "@/components/categories/CategoryDeleteDialog.vue";
+import CategoryCard from "@/components/categories/CategoryCard.vue";
 
 // Define Category form data interface (for creating new categories)
 interface CategoryFormData {

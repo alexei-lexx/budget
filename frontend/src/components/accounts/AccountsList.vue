@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import type { Account } from "@/composables/useAccounts";
-import AccountCard from "@/components/AccountCard.vue";
+import AccountCard from "@/components/accounts/AccountCard.vue";
 
 // Define component props
 interface Props {
