@@ -58,6 +58,29 @@ const tables: CreateTableCommandInput[] = [
     ],
     BillingMode: "PAY_PER_REQUEST",
   },
+  {
+    TableName: "Transactions",
+    AttributeDefinitions: [
+      { AttributeName: "userId", AttributeType: "S" },
+      { AttributeName: "id", AttributeType: "S" },
+      { AttributeName: "date", AttributeType: "S" },
+    ],
+    KeySchema: [
+      { AttributeName: "userId", KeyType: "HASH" },
+      { AttributeName: "id", KeyType: "RANGE" },
+    ],
+    BillingMode: "PAY_PER_REQUEST",
+    GlobalSecondaryIndexes: [
+      {
+        IndexName: "UserDateIndex",
+        KeySchema: [
+          { AttributeName: "userId", KeyType: "HASH" },
+          { AttributeName: "date", KeyType: "RANGE" },
+        ],
+        Projection: { ProjectionType: "ALL" },
+      },
+    ],
+  },
 ];
 
 async function tableExists(tableName: string): Promise<boolean> {
