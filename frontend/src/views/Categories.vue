@@ -5,7 +5,7 @@ import { useCategories, type Category, type CategoryType } from "@/composables/u
 import { useSnackbar } from "@/composables/useSnackbar";
 import CategoryForm from "@/components/CategoryForm.vue";
 import CategoryDeleteDialog from "@/components/CategoryDeleteDialog.vue";
-import ActionDropdown from "@/components/ActionDropdown.vue";
+import CategoryCard from "@/components/CategoryCard.vue";
 
 // Define Category form data interface (for creating new categories)
 interface CategoryFormData {
@@ -192,29 +192,13 @@ const handleCategoryCancel = () => {
 
         <!-- Categories Grid -->
         <div v-else class="categories-grid">
-          <v-card
+          <CategoryCard
             v-for="category in filteredCategories"
             :key="category.id"
-            variant="outlined"
-            class="category-card"
-          >
-            <v-card-text class="pb-2">
-              <div class="d-flex align-center justify-space-between">
-                <div class="d-flex align-center">
-                  <v-icon :color="category.type === 'INCOME' ? 'success' : 'error'" class="me-2">
-                    {{ category.type === "INCOME" ? "mdi-cash-plus" : "mdi-cash-minus" }}
-                  </v-icon>
-                  <div>
-                    <h4 class="text-h6">{{ category.name }}</h4>
-                  </div>
-                </div>
-                <ActionDropdown
-                  @edit="editCategory(category.id)"
-                  @delete="archiveCategory(category.id)"
-                />
-              </div>
-            </v-card-text>
-          </v-card>
+            :category="category"
+            @edit-category="editCategory"
+            @archive-category="archiveCategory"
+          />
         </div>
       </v-card-text>
     </v-card>
@@ -270,16 +254,5 @@ const handleCategoryCancel = () => {
   .categories-grid {
     grid-template-columns: 1fr;
   }
-}
-
-.category-card {
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
-}
-
-.category-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 </style>

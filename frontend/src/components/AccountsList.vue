@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import type { Account } from "@/composables/useAccounts";
-import { formatCurrencyCompact } from "@/utils/currency";
-import ActionDropdown from "@/components/ActionDropdown.vue";
+import AccountCard from "@/components/AccountCard.vue";
 
 // Define component props
 interface Props {
@@ -22,11 +21,6 @@ const emit = defineEmits<{
 
 // All accounts (archived accounts filtered by backend)
 const activeAccounts = computed(() => props.accounts);
-
-// Currency formatting helper using the new utility
-const formatAccountBalance = (amount: number, currency: string) => {
-  return formatCurrencyCompact(amount, currency, { showSymbol: true });
-};
 
 // Event handlers
 const handleEditAccount = (accountId: string) => {
@@ -68,37 +62,11 @@ const handleArchiveAccount = (accountId: string) => {
   <!-- Accounts Grid - Compact Responsive Cards -->
   <v-row v-else dense>
     <v-col v-for="account in activeAccounts" :key="account.id" cols="12" sm="6" lg="4" xl="3">
-      <v-card variant="outlined" class="account-card">
-        <v-card-text class="pb-2">
-          <div class="d-flex align-center justify-space-between">
-            <div>
-              <h4 class="text-h6">{{ account.name }}</h4>
-            </div>
-            <ActionDropdown
-              @edit="handleEditAccount(account.id)"
-              @delete="handleArchiveAccount(account.id)"
-            />
-          </div>
-          <div class="mt-2">
-            <div class="text-h5 font-weight-bold">
-              {{ formatAccountBalance(account.initialBalance, account.currency) }}
-            </div>
-          </div>
-        </v-card-text>
-      </v-card>
+      <AccountCard
+        :account="account"
+        @edit-account="handleEditAccount"
+        @archive-account="handleArchiveAccount"
+      />
     </v-col>
   </v-row>
 </template>
-
-<style scoped>
-.account-card {
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
-}
-
-.account-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-</style>
