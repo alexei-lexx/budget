@@ -4,13 +4,19 @@
 
 ## ⚠️ CRITICAL: Task Completion Tracking
 
-**ALWAYS mark tasks as completed immediately after finishing them by changing `[ ]` to `[x]`**
+**ALWAYS mark tasks as completed immediately after finishing them by changing `[ ]` to `[x]` in tasks.md**
 
 This is mandatory for:
-- Tracking progress accurately
-- Avoiding duplicate work
-- Maintaining project visibility
-- Ensuring accountability
+- Tracking progress accurately in permanent documentation
+- Avoiding duplicate work across different development sessions
+- Maintaining project visibility for all team members
+- Ensuring accountability and progress transparency
+- Keeping the permanent roadmap synchronized with current work
+
+**Example workflow:**
+1. Start working on task
+2. Complete implementation
+3. **IMMEDIATELY** update tasks.md: change `[ ]` to `[x]`
 
 ## Instructions for Adding New Tasks
 
@@ -644,8 +650,8 @@ App Navigation Drawer:
   - [x] 6.5.3 [M] Test table creation in both environments and verify structure
 
 - [ ] **6.6 Backend Data Layer**
-  - [ ] 6.6.1 Create Transaction model interface with userId, id, accountId, categoryId (optional), type ('INCOME' | 'EXPENSE'), amount, currency, date, description (optional), isArchived, createdAt, updatedAt
-  - [ ] 6.6.2 Create TransactionRepository with environment-aware DynamoDB configuration
+  - [x] 6.6.1 Create Transaction model interface with userId, id, accountId, categoryId (optional), type ('INCOME' | 'EXPENSE'), amount, currency, date, description (optional), isArchived, createdAt, updatedAt
+  - [x] 6.6.2 Create TransactionRepository with environment-aware DynamoDB configuration
   - [ ] 6.6.3 Implement CRUD operations: create, findActiveByUserId, findById, update, archive
   - [ ] 6.6.4 Implement findActiveByUserId method with default date desc sorting (no filtering parameters)
   - [ ] 6.6.5 Add business logic validation: amount > 0, type required ('INCOME' | 'EXPENSE'), valid account relationships, optional category validation, date validation
