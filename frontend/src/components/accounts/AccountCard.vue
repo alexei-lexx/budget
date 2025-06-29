@@ -33,16 +33,18 @@ const handleArchiveAccount = () => {
 
 <template>
   <v-card variant="outlined" class="account-card">
-    <v-card-text class="pb-2">
-      <div class="d-flex align-center justify-space-between">
-        <div>
-          <h4 class="text-h6">{{ account.name }}</h4>
+    <v-card-text class="py-3">
+      <div class="d-flex align-center">
+        <div class="flex-grow-1 d-flex align-center ga-4" style="min-width: 0">
+          <div class="text-truncate" style="min-width: 0">
+            <h4 class="text-h6 mb-0 text-truncate">{{ account.name }}</h4>
+          </div>
+          <div class="text-h5 font-weight-bold flex-shrink-0">
+            {{ formatAccountBalance(account.initialBalance, account.currency) }}
+          </div>
         </div>
-        <ActionDropdown @edit="handleEditAccount" @delete="handleArchiveAccount" />
-      </div>
-      <div class="mt-2">
-        <div class="text-h5 font-weight-bold">
-          {{ formatAccountBalance(account.initialBalance, account.currency) }}
+        <div class="flex-shrink-0 ml-2">
+          <ActionDropdown @edit="handleEditAccount" @delete="handleArchiveAccount" />
         </div>
       </div>
     </v-card-text>

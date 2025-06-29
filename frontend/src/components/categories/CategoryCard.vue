@@ -27,17 +27,19 @@ const handleArchiveCategory = () => {
 
 <template>
   <v-card variant="outlined" class="category-card">
-    <v-card-text class="pb-2">
-      <div class="d-flex align-center justify-space-between">
-        <div class="d-flex align-center">
-          <v-icon :color="category.type === 'INCOME' ? 'success' : 'error'" class="me-2">
+    <v-card-text class="py-3">
+      <div class="d-flex align-center">
+        <div class="flex-grow-1 d-flex align-center ga-3" style="min-width: 0">
+          <v-icon :color="category.type === 'INCOME' ? 'success' : 'error'" class="flex-shrink-0">
             {{ category.type === "INCOME" ? "mdi-cash-plus" : "mdi-cash-minus" }}
           </v-icon>
-          <div>
-            <h4 class="text-h6">{{ category.name }}</h4>
+          <div class="text-truncate" style="min-width: 0">
+            <h4 class="text-h6 mb-0 text-truncate">{{ category.name }}</h4>
           </div>
         </div>
-        <ActionDropdown @edit="handleEditCategory" @delete="handleArchiveCategory" />
+        <div class="flex-shrink-0 ml-2">
+          <ActionDropdown @edit="handleEditCategory" @delete="handleArchiveCategory" />
+        </div>
       </div>
     </v-card-text>
   </v-card>
