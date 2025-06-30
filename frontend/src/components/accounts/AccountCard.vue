@@ -35,7 +35,7 @@ const handleArchiveAccount = () => {
   <v-card variant="outlined" class="account-card">
     <v-card-text class="py-3">
       <div class="d-flex align-center justify-space-between">
-        <div class="text-truncate" style="min-width: 0; flex: 1;">
+        <div class="text-truncate" style="min-width: 0; flex: 1">
           <h4 class="text-h6 mb-0 text-truncate">{{ account.name }}</h4>
         </div>
         <div class="d-flex align-center ga-3 flex-shrink-0">
