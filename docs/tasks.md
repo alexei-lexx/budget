@@ -656,10 +656,10 @@ App Navigation Drawer:
   - [x] 6.6.2 Create TransactionRepository with environment-aware DynamoDB configuration, implement CRUD operations (create, findActiveByUserId with default date desc sorting, findById, update, archive), and add proper error handling with TransactionRepositoryError types
 
 - [ ] **6.7 Transaction Service Layer Implementation**
-  - [ ] 6.7.1 Create BusinessError class for service-layer error handling with error codes and user-friendly messages
-  - [ ] 6.7.2 Create TransactionService class with constructor dependency injection (TransactionRepository, AccountRepository, CategoryRepository)
-  - [ ] 6.7.3 Implement private validation helper methods: validateAccount, validateCategory, validateCurrencyMatch
-  - [ ] 6.7.4 Implement createTransaction method with full business validation: account existence, currency matching, optional category type validation
+  - [x] 6.7.1 Create BusinessError class for service-layer error handling with error codes and user-friendly messages
+  - [x] 6.7.2 Create TransactionService class with constructor dependency injection (TransactionRepository, AccountRepository, CategoryRepository)
+  - [x] 6.7.3 Implement private validation helper methods: validateAccount, validateCategory, validateCurrencyMatch
+  - [x] 6.7.4 Implement createTransaction method with full business validation: account existence, currency matching, optional category type validation
   - [ ] 6.7.5 Implement getTransactionsByUser method for retrieving user's active transactions
   - [ ] 6.7.6 Implement updateTransaction method with business validation and partial update support
   - [ ] 6.7.7 Implement archiveTransaction method with existence checking and business rules
