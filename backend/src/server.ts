@@ -5,15 +5,20 @@ import { JwtAuthService, AuthContext } from "./auth/jwtAuth";
 import { UserRepository } from "./repositories/UserRepository";
 import { AccountRepository } from "./repositories/AccountRepository";
 import { CategoryRepository } from "./repositories/CategoryRepository";
+import { TransactionRepository } from "./repositories/TransactionRepository";
+import { TransactionService } from "./services/TransactionService";
 import { IUserRepository } from "./models/User";
 import { IAccountRepository } from "./models/Account";
 import { ICategoryRepository } from "./models/Category";
+import { ITransactionRepository } from "./models/Transaction";
 
 export interface GraphQLContext {
   auth: AuthContext;
   userRepository: IUserRepository;
   accountRepository: IAccountRepository;
   categoryRepository: ICategoryRepository;
+  transactionRepository: ITransactionRepository;
+  transactionService: TransactionService;
   jwtAuthService: JwtAuthService;
   authHeader?: string;
 }
@@ -22,6 +27,8 @@ let jwtAuthService: JwtAuthService;
 let userRepository: UserRepository;
 let accountRepository: AccountRepository;
 let categoryRepository: CategoryRepository;
+let transactionRepository: TransactionRepository;
+let transactionService: TransactionService;
 
 export const server = new ApolloServer<GraphQLContext>({
   typeDefs,
@@ -53,6 +60,18 @@ export async function createContext(req: {
     categoryRepository = new CategoryRepository();
   }
 
+  if (!transactionRepository) {
+    transactionRepository = new TransactionRepository();
+  }
+
+  if (!transactionService) {
+    transactionService = new TransactionService(
+      accountRepository,
+      categoryRepository,
+      transactionRepository,
+    );
+  }
+
   const authHeader = req.headers.authorization;
   // Handle both string and string[] types from different contexts
   const authHeaderString = Array.isArray(authHeader)
@@ -66,6 +85,8 @@ export async function createContext(req: {
     userRepository,
     accountRepository,
     categoryRepository,
+    transactionRepository,
+    transactionService,
     jwtAuthService,
     authHeader: authHeaderString,
   };
