@@ -152,4 +152,13 @@ export class TransactionService {
 
     return await this.transactionRepository.create(createInput);
   }
+
+  /**
+   * Get all active transactions for a user, sorted by date (newest first)
+   * @param userId - The user ID to get transactions for
+   * @returns Promise<Transaction[]> - Array of user's active transactions
+   */
+  async getTransactionsByUser(userId: string): Promise<Transaction[]> {
+    return await this.transactionRepository.findActiveByUserId(userId);
+  }
 }
