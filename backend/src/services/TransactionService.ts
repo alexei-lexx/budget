@@ -3,9 +3,23 @@ import {
   ITransactionRepository,
   Transaction,
   CreateTransactionInput,
+  UpdateTransactionInput,
 } from "../models/Transaction.js";
 import { IAccountRepository, Account } from "../models/Account.js";
 import { ICategoryRepository, Category } from "../models/Category.js";
+
+/**
+ * Service layer input for creating transactions (currency automatically derived from account)
+ */
+type CreateTransactionServiceInput = Omit<
+  CreateTransactionInput,
+  "userId" | "currency"
+>;
+
+/**
+ * Service layer input for updating transactions (currency automatically updated when account changes)
+ */
+type UpdateTransactionServiceInput = Omit<UpdateTransactionInput, "currency">;
 
 /**
  * Transaction service class for handling business logic and validation
@@ -86,68 +100,60 @@ export class TransactionService {
   }
 
   /**
-   * Validate that the transaction currency matches the account currency
-   * @param transactionCurrency - The currency from the transaction
-   * @param account - The account to validate against
-   * @throws BusinessError if currencies don't match
+   * Validate that the transaction amount is valid (non-negative)
+   * @param amount - The amount to validate
+   * @throws BusinessError if amount is negative
    */
-  private validateCurrencyMatch(
-    transactionCurrency: string,
-    account: Account,
-  ): void {
-    if (transactionCurrency !== account.currency) {
+  private validateAmount(amount: number): void {
+    if (amount < 0) {
       throw new BusinessError(
-        `Transaction currency "${transactionCurrency}" doesn't match account currency "${account.currency}"`,
-        BusinessErrorCodes.CURRENCY_MISMATCH,
-        {
-          transactionCurrency,
-          accountCurrency: account.currency,
-          accountId: account.id,
-          accountName: account.name,
-        },
+        "Transaction amount cannot be negative",
+        BusinessErrorCodes.INVALID_AMOUNT,
+        { amount },
+      );
+    }
+  }
+
+  /**
+   * Validate that the transaction date is in the correct format (YYYY-MM-DD)
+   * @param date - The date string to validate
+   * @throws BusinessError if date format is invalid
+   */
+  private validateDate(date: string): void {
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    if (!dateRegex.test(date)) {
+      throw new BusinessError(
+        "Transaction date must be in YYYY-MM-DD format",
+        BusinessErrorCodes.INVALID_DATE,
+        { date },
       );
     }
   }
 
   /**
    * Create a new transaction with full business validation
-   * @param input - Transaction creation input (without userId, which will be added)
+   * @param input - Transaction creation input (currency will be derived from account)
    * @param userId - The user ID creating the transaction
    * @returns Promise<Transaction> - The created transaction
    * @throws BusinessError for any business rule violations
    */
   async createTransaction(
-    input: Omit<CreateTransactionInput, "userId">,
+    input: CreateTransactionServiceInput,
     userId: string,
   ): Promise<Transaction> {
     // Validate business rules
     const account = await this.validateAccount(input.accountId, userId);
     await this.validateCategory(input.categoryId, userId, input.type);
-    this.validateCurrencyMatch(input.currency, account);
 
     // Additional input validation
-    if (input.amount < 0) {
-      throw new BusinessError(
-        "Transaction amount cannot be negative",
-        BusinessErrorCodes.INVALID_AMOUNT,
-        { amount: input.amount },
-      );
-    }
-
-    // Validate date format (YYYY-MM-DD)
-    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-    if (!dateRegex.test(input.date)) {
-      throw new BusinessError(
-        "Transaction date must be in YYYY-MM-DD format",
-        BusinessErrorCodes.INVALID_DATE,
-        { date: input.date },
-      );
-    }
+    this.validateAmount(input.amount);
+    this.validateDate(input.date);
 
     // Create the transaction through repository
     const createInput: CreateTransactionInput = {
       ...input,
       userId,
+      currency: account.currency,
     };
 
     return await this.transactionRepository.create(createInput);
@@ -160,5 +166,67 @@ export class TransactionService {
    */
   async getTransactionsByUser(userId: string): Promise<Transaction[]> {
     return await this.transactionRepository.findActiveByUserId(userId);
+  }
+
+  /**
+   * Update an existing transaction with business validation
+   * @param id - Transaction ID to update
+   * @param userId - User ID owning the transaction
+   * @param input - Partial update input (currency automatically updated when account changes)
+   * @returns Promise<Transaction> - The updated transaction
+   * @throws BusinessError for any business rule violations
+   */
+  async updateTransaction(
+    id: string,
+    userId: string,
+    input: UpdateTransactionServiceInput,
+  ): Promise<Transaction> {
+    // First verify the transaction exists and belongs to the user
+    const existingTransaction = await this.transactionRepository.findById(
+      id,
+      userId,
+    );
+    if (!existingTransaction) {
+      throw new BusinessError(
+        "Transaction not found or doesn't belong to user",
+        BusinessErrorCodes.TRANSACTION_NOT_FOUND,
+        { transactionId: id, userId },
+      );
+    }
+
+    // Validate account if provided
+    let account;
+    if (input.accountId) {
+      account = await this.validateAccount(input.accountId, userId);
+    } else {
+      // Get current account for reference
+      account = await this.validateAccount(
+        existingTransaction.accountId,
+        userId,
+      );
+    }
+
+    // Validate category if provided (only if transaction type is also provided or can be determined)
+    const transactionType = input.type || existingTransaction.type;
+    if (input.categoryId) {
+      await this.validateCategory(input.categoryId, userId, transactionType);
+    }
+
+    // Additional input validation
+    if (input.amount !== undefined) {
+      this.validateAmount(input.amount);
+    }
+
+    if (input.date) {
+      this.validateDate(input.date);
+    }
+
+    // Update the transaction through repository, including currency if account changed
+    const updateInput: UpdateTransactionInput = {
+      ...input,
+      ...(input.accountId && { currency: account.currency }),
+    };
+
+    return await this.transactionRepository.update(id, userId, updateInput);
   }
 }

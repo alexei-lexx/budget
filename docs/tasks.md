@@ -661,7 +661,7 @@ App Navigation Drawer:
   - [x] 6.7.3 Implement private validation helper methods: validateAccount, validateCategory, validateCurrencyMatch
   - [x] 6.7.4 Implement createTransaction method with full business validation: account existence, currency matching, optional category type validation
   - [x] 6.7.5 Implement getTransactionsByUser method for retrieving user's active transactions
-  - [ ] 6.7.6 Implement updateTransaction method with business validation and partial update support
+  - [x] 6.7.6 Implement updateTransaction method with business validation and partial update support
   - [ ] 6.7.7 Implement archiveTransaction method with existence checking and business rules
   - [ ] 6.7.8 Add TransactionService to GraphQL context and update server.ts configuration
   - [ ] 6.7.9 Add account currency change validation to account resolvers using TransactionRepository.hasTransactionsForAccount method
