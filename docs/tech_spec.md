@@ -327,6 +327,8 @@ Apollo Server, GraphQL, esbuild, JWT libraries, AWS SDK, TypeScript
   - Avoid unnecessary type checks (typeof, non-null, non-undefined) when the provided type is explicit and doesn't require such checks
 
 ### Environment Configuration
+- Environment configuration is managed by .env files
+- Each package has .env.example that can be used in production and development as a reference
 - Environment-specific configs for Auth0, AWS, and API endpoints
 - Separate AWS profiles for dev/prod environments
 
