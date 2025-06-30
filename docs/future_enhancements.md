@@ -12,6 +12,7 @@ This document contains enhancements and improvements that are intentionally skip
 ### Enhanced User Experience
 - **Transaction Pagination**: Implement efficient pagination for transaction lists to handle large datasets (100+ transactions). Options include cursor-based pagination (recommended), infinite scroll, or virtual scrolling. Should include configurable page sizes (25, 50, 100), URL state preservation, and performance optimizations using the existing UserDateIndex GSI.
 - Auto-focus on first field in forms (accounts, categories, transactions) for better keyboard navigation
+- Close forms by pressing escape button for improved keyboard navigation
 
 ### Account Balance Integration
 - Calculate and display current account balances based on transactions
