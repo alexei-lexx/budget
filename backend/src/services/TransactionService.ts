@@ -229,4 +229,34 @@ export class TransactionService {
 
     return await this.transactionRepository.update(id, userId, updateInput);
   }
+
+  /**
+   * Archive (soft delete) an existing transaction
+   * @param id - Transaction ID to archive
+   * @param userId - User ID owning the transaction
+   * @returns Promise<Transaction> - The archived transaction
+   * @throws BusinessError if transaction not found or doesn't belong to user
+   */
+  async archiveTransaction(id: string, userId: string): Promise<Transaction> {
+    // First verify the transaction exists and belongs to the user
+    const existingTransaction = await this.transactionRepository.findById(
+      id,
+      userId,
+    );
+    if (!existingTransaction) {
+      throw new BusinessError(
+        "Transaction not found or doesn't belong to user",
+        BusinessErrorCodes.TRANSACTION_NOT_FOUND,
+        { transactionId: id, userId },
+      );
+    }
+
+    // Check if transaction is already archived - if so, return it as-is
+    if (existingTransaction.isArchived) {
+      return existingTransaction;
+    }
+
+    // Archive the transaction through repository
+    return await this.transactionRepository.archive(id, userId);
+  }
 }
