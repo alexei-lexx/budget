@@ -127,6 +127,42 @@ export const accountResolvers = {
         const validatedInput = updateAccountInputSchema.parse(args.input);
         const user = await getAuthenticatedUser(context);
 
+        // Check if currency is being changed and if account has transactions
+        if (validatedInput.currency) {
+          const currentAccount = await context.accountRepository.findById(
+            id,
+            user.id,
+          );
+          if (!currentAccount) {
+            throw new GraphQLError("Account not found", {
+              extensions: { code: "NOT_FOUND" },
+            });
+          }
+
+          // If currency is being changed, check for existing transactions
+          if (currentAccount.currency !== validatedInput.currency) {
+            const hasTransactions =
+              await context.transactionRepository.hasTransactionsForAccount(
+                id,
+                user.id,
+              );
+
+            if (hasTransactions) {
+              throw new GraphQLError(
+                "Cannot change currency for account that has existing transactions. Please create a new account with the desired currency instead.",
+                {
+                  extensions: {
+                    code: "CURRENCY_CHANGE_BLOCKED",
+                    accountId: id,
+                    currentCurrency: currentAccount.currency,
+                    requestedCurrency: validatedInput.currency,
+                  },
+                },
+              );
+            }
+          }
+        }
+
         const account = await context.accountRepository.update(
           id,
           user.id,

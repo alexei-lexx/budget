@@ -315,6 +315,43 @@ export class TransactionRepository implements ITransactionRepository {
       );
     }
   }
+
+  async hasTransactionsForAccount(
+    accountId: string,
+    userId: string,
+  ): Promise<boolean> {
+    if (!accountId || !userId) {
+      throw new TransactionRepositoryError(
+        "Account ID and User ID are required",
+        "INVALID_PARAMETERS",
+      );
+    }
+
+    try {
+      const command = new QueryCommand({
+        TableName: this.tableName,
+        KeyConditionExpression: "userId = :userId",
+        FilterExpression: "accountId = :accountId AND isArchived = :isArchived",
+        ExpressionAttributeValues: {
+          ":userId": userId,
+          ":accountId": accountId,
+          ":isArchived": false,
+        },
+        Limit: 1, // We only need to know if any exist
+        Select: "COUNT",
+      });
+
+      const result = await this.client.send(command);
+      return (result.Count || 0) > 0;
+    } catch (error) {
+      console.error("Error checking transactions for account:", error);
+      throw new TransactionRepositoryError(
+        "Failed to check transactions for account",
+        "QUERY_FAILED",
+        error,
+      );
+    }
+  }
 }
 
 // Export the error class for use in resolvers

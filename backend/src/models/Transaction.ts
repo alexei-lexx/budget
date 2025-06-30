@@ -48,4 +48,8 @@ export interface ITransactionRepository {
     input: UpdateTransactionInput,
   ): Promise<Transaction>;
   archive(id: string, userId: string): Promise<Transaction>;
+  hasTransactionsForAccount(
+    accountId: string,
+    userId: string,
+  ): Promise<boolean>;
 }
