@@ -1,12 +1,12 @@
-import { BusinessError, BusinessErrorCodes } from "./BusinessError.js";
+import { BusinessError, BusinessErrorCodes } from "./BusinessError";
 import {
   ITransactionRepository,
   Transaction,
   CreateTransactionInput,
   UpdateTransactionInput,
-} from "../models/Transaction.js";
-import { IAccountRepository, Account } from "../models/Account.js";
-import { ICategoryRepository, Category } from "../models/Category.js";
+} from "../models/Transaction";
+import { IAccountRepository, Account } from "../models/Account";
+import { ICategoryRepository, Category } from "../models/Category";
 
 /**
  * Service layer input for creating transactions (currency automatically derived from account)

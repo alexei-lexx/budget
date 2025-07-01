@@ -666,13 +666,13 @@ App Navigation Drawer:
   - [x] 6.7.8 Add TransactionService to GraphQL context and update server.ts configuration
   - [x] 6.7.9 Add account currency change validation to account resolvers using TransactionRepository.hasTransactionsForAccount method
 
-- [ ] **6.8 GraphQL API Layer**
-  - [ ] 6.8.1 Define Transaction GraphQL type and CreateTransactionInput/UpdateTransactionInput types with required type field ('INCOME' | 'EXPENSE') and optional categoryId
-  - [ ] 6.8.2 Add Zod validation schemas: amount > 0, type required ('INCOME' | 'EXPENSE'), valid account relationships, optional category validation, date validation
-  - [ ] 6.8.3 Add transactions query (basic list without filtering parameters)
-  - [ ] 6.8.4 Add createTransaction mutation with validation and account existence checking (category validation only if provided)
-  - [ ] 6.8.5 Add updateTransaction mutation with business rule validation
-  - [ ] 6.8.6 Add archiveTransaction mutation for soft delete
+- [x] **6.8 GraphQL API Layer**
+  - [x] 6.8.1 Define Transaction GraphQL type and CreateTransactionInput/UpdateTransactionInput types with required type field ('INCOME' | 'EXPENSE') and optional categoryId
+  - [x] 6.8.2 Add Zod validation schemas: amount > 0, type required ('INCOME' | 'EXPENSE'), valid account relationships, optional category validation, date validation
+  - [x] 6.8.3 Add transactions query (basic list without filtering parameters)
+  - [x] 6.8.4 Add createTransaction mutation with validation and account existence checking (category validation only if provided)
+  - [x] 6.8.5 Add updateTransaction mutation with business rule validation
+  - [x] 6.8.6 Add archiveTransaction mutation for soft delete
 
 - [ ] **6.9 GraphQL Client Integration**
   - [ ] 6.9.1 Create GraphQL queries and mutations for transaction operations

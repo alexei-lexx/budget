@@ -2,6 +2,7 @@ import { GraphQLError } from "graphql";
 import { GraphQLContext } from "../server";
 import { AccountRepositoryError } from "../repositories/AccountRepository";
 import { CategoryRepositoryError } from "../repositories/CategoryRepository";
+import { BusinessError } from "../services/BusinessError";
 import { User } from "../models/User";
 
 /**
@@ -71,6 +72,15 @@ export function handleResolverError(
     throw new GraphQLError(error.message, {
       extensions: {
         code: error.code,
+      },
+    });
+  }
+
+  if (error instanceof BusinessError) {
+    throw new GraphQLError(error.message, {
+      extensions: {
+        code: error.code,
+        details: error.details,
       },
     });
   }

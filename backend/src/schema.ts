@@ -3,6 +3,7 @@ export const typeDefs = `#graphql
     activeAccounts: [Account!]!
     supportedCurrencies: [String!]!
     activeCategories(type: CategoryType): [Category!]!
+    transactions: [Transaction!]!
   }
 
   type User {
@@ -21,10 +22,26 @@ export const typeDefs = `#graphql
     EXPENSE
   }
 
+  enum TransactionType {
+    INCOME
+    EXPENSE
+  }
+
   type Category {
     id: ID!
     name: String!
     type: CategoryType!
+  }
+
+  type Transaction {
+    id: ID!
+    accountId: ID!
+    categoryId: ID
+    type: TransactionType!
+    amount: Float!
+    currency: String!
+    date: String!
+    description: String
   }
 
   input CreateAccountInput {
@@ -49,6 +66,24 @@ export const typeDefs = `#graphql
     type: CategoryType
   }
 
+  input CreateTransactionInput {
+    accountId: ID!
+    categoryId: ID
+    type: TransactionType!
+    amount: Float!
+    date: String!
+    description: String
+  }
+
+  input UpdateTransactionInput {
+    accountId: ID
+    categoryId: ID
+    type: TransactionType
+    amount: Float
+    date: String
+    description: String
+  }
+
   type Mutation {
     ensureUser: User!
     createAccount(input: CreateAccountInput!): Account!
@@ -57,5 +92,8 @@ export const typeDefs = `#graphql
     createCategory(input: CreateCategoryInput!): Category!
     updateCategory(id: ID!, input: UpdateCategoryInput!): Category!
     archiveCategory(id: ID!): Category!
+    createTransaction(input: CreateTransactionInput!): Transaction!
+    updateTransaction(id: ID!, input: UpdateTransactionInput!): Transaction!
+    archiveTransaction(id: ID!): Transaction!
   }
 `;
