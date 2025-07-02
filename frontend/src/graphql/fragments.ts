@@ -16,3 +16,16 @@ export const CATEGORY_FRAGMENT = gql`
     type
   }
 `;
+
+export const TRANSACTION_FRAGMENT = gql`
+  fragment TransactionFields on Transaction {
+    id
+    accountId
+    categoryId
+    type
+    amount
+    currency
+    date
+    description
+  }
+`;

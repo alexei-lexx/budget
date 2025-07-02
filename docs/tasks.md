@@ -674,11 +674,11 @@ App Navigation Drawer:
   - [x] 6.8.5 Add updateTransaction mutation with business rule validation
   - [x] 6.8.6 Add archiveTransaction mutation for soft delete
 
-- [ ] **6.9 GraphQL Client Integration**
-  - [ ] 6.9.1 Create GraphQL queries and mutations for transaction operations
-  - [ ] 6.9.2 Update useTransactions composable to use real GraphQL operations instead of mock service
-  - [ ] 6.9.3 Add error handling and loading states for real API operations
-  - [ ] 6.9.4 Handle account currency change validation errors with user-friendly messaging and guidance
+- [x] **6.9 GraphQL Client Integration**
+  - [x] 6.9.1 Create GraphQL queries and mutations for transaction operations
+  - [x] 6.9.2 Update useTransactions composable to use real GraphQL operations instead of mock service
+  - [x] 6.9.3 Add error handling and loading states for real API operations
+  - [x] 6.9.4 Handle account currency change validation errors with user-friendly messaging and guidance
 
 - [ ] **6.10 Final Integration Testing**
   - [ ] 6.10.1 [M] Test complete transaction CRUD flow with real backend in development environment
