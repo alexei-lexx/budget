@@ -337,7 +337,6 @@ export class TransactionRepository implements ITransactionRepository {
           ":accountId": accountId,
           ":isArchived": false,
         },
-        Limit: 1, // We only need to know if any exist
         Select: "COUNT",
       });
 

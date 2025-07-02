@@ -176,6 +176,10 @@ export const accountResolvers = {
             extensions: { code: "BAD_USER_INPUT" },
           });
         }
+        if (error instanceof GraphQLError) {
+          // Re-throw GraphQL errors with their specific messages
+          throw error;
+        }
         handleResolverError(error, "Failed to update account");
       }
     },
