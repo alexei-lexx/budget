@@ -228,6 +228,70 @@ Single-purpose service classes (CreateTransactionService, UpdateTransactionServi
 - **Human-Readable Fields:** Only business-relevant fields with meaningful names are exposed to frontend
 - **User Context Implicit:** User ID is handled automatically through authentication context, not passed as parameters
 - **Clean API Surface:** GraphQL schema reflects user-facing functionality, not database implementation details
+- **Relay Compatibility:** Pagination follows Relay Connection specification for future tooling compatibility
+
+### Pagination Architecture
+
+**Relay-Compatible Cursor Pagination:**
+The application implements Relay Connection specification using database-native pagination mechanisms while maintaining stable navigation.
+
+**GraphQL Schema Pattern:**
+```typescript
+input PaginationInput {
+  first: Int
+  after: String
+  last: Int
+  before: String
+}
+
+type PageInfo {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+  endCursor: String
+}
+
+type ItemEdge {
+  node: Item!
+  cursor: String!
+}
+
+type ItemConnection {
+  edges: [ItemEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+```
+
+**Implementation Strategy:**
+- **Backend:** Uses DynamoDB's ExclusiveStartKey as cursor foundation
+- **Cursor Design:** Encodes DynamoDB's LastEvaluatedKey (contains partition key, sort key, GSI keys)
+- **Sort Limitation:** Fixed sort order by creation date (most recent first) for efficient GSI usage
+- **Stable Navigation:** Cursors remain valid even when new data is inserted
+
+**Database Integration:**
+- **DynamoDB GSI:** UserDateIndex (userId + createdAt) for efficient chronological queries
+- **Native Pagination:** Leverages DynamoDB's built-in pagination with Limit and ExclusiveStartKey
+- **Cursor Format:** Base64-encoded JSON of DynamoDB's composite keys
+
+**UI Design Pattern:**
+```
+Showing 21-40 of 150+ transactions
+[← Previous] [Next →]
+```
+
+**Trade-offs:**
+- **✅ Stable Pagination:** Results don't shift when new transactions are added
+- **✅ Performance:** Efficient database queries using GSI
+- **✅ Standards Compliance:** Relay-compatible for GraphQL tooling
+- **❌ Fixed Sort Order:** Users cannot change sort criteria (chronological only)
+- **❌ Sequential Navigation:** No numbered pages or jumping to arbitrary pages
+
+**Benefits:**
+- **Consistency:** Same cursor always returns same results
+- **Performance:** Leverages database-native pagination efficiently
+- **Standards Compliance:** Compatible with Relay and GraphQL ecosystem
+- **Simplicity:** Straightforward Previous/Next navigation pattern
 
 ### Runtime Environment
 - **Primary:** AWS Lambda for serverless execution
