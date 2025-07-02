@@ -218,7 +218,7 @@ const handleCancel = () => {
           v-model.number="formData.initialBalance"
           label="Initial Balance"
           type="number"
-          step="0.01"
+          step="1"
           :rules="balanceRules"
           :disabled="loading"
           variant="outlined"

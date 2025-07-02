@@ -262,7 +262,7 @@ const handleCancel = () => {
             <v-text-field
               v-model.number="formData.amount"
               type="number"
-              step="0.01"
+              step="1"
               min="0"
               label="Amount"
               :rules="amountRules"
