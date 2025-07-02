@@ -264,28 +264,33 @@ type ItemConnection {
 ```
 
 **Implementation Strategy:**
-- **Backend:** Uses DynamoDB's ExclusiveStartKey as cursor foundation
-- **Cursor Design:** Encodes DynamoDB's LastEvaluatedKey (contains partition key, sort key, GSI keys)
-- **Sort Limitation:** Fixed sort order by creation date (most recent first) for efficient GSI usage
+- **Backend:** Uses database's native pagination keys as cursor foundation
+- **Cursor Design:** Encodes database's pagination tokens (contains relevant key fields)
+- **Sort Limitation:** Fixed sort order by creation date (most recent first) for efficient queries
 - **Stable Navigation:** Cursors remain valid even when new data is inserted
 
 **Database Integration:**
-- **DynamoDB GSI:** UserDateIndex (userId + createdAt) for efficient chronological queries
-- **Native Pagination:** Leverages DynamoDB's built-in pagination with Limit and ExclusiveStartKey
-- **Cursor Format:** Base64-encoded JSON of DynamoDB's composite keys
+- **Database GSI:** Efficient chronological queries using sort keys
+- **Native Pagination:** Leverages database's built-in pagination mechanisms
+- **Cursor Format:** Base64-encoded JSON containing composite keys (partition key + sort key + index keys) that represent the last item position. Cursors are opaque to clients and enable resuming pagination from any point without offset calculations.
 
 **UI Design Pattern:**
 ```
-Showing 21-40 of 150+ transactions
-[← Previous] [Next →]
+Item List (showing latest first):
+- Item A
+- Item B  
+- Item C
+...
+[Load More]
 ```
 
-**Trade-offs:**
-- **✅ Stable Pagination:** Results don't shift when new transactions are added
-- **✅ Performance:** Efficient database queries using GSI
+**Implementation Benefits:**
+- **✅ Stable Pagination:** Results don't shift when new items are added
+- **✅ Performance:** Efficient database queries using indexed sort keys
 - **✅ Standards Compliance:** Relay-compatible for GraphQL tooling
+- **✅ Simple UX:** Intuitive "Load More" pattern familiar to users
+- **✅ Cumulative View:** Users see all loaded items in one continuous list
 - **❌ Fixed Sort Order:** Users cannot change sort criteria (chronological only)
-- **❌ Sequential Navigation:** No numbered pages or jumping to arbitrary pages
 
 **Benefits:**
 - **Consistency:** Same cursor always returns same results
