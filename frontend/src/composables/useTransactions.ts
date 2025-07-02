@@ -20,20 +20,20 @@ export interface Transaction {
 
 export interface CreateTransactionInput {
   accountId: string;
-  categoryId?: string;
+  categoryId?: string | null;
   type: TransactionType;
   amount: number;
   date: string;
-  description?: string;
+  description?: string | null;
 }
 
 export interface UpdateTransactionInput {
   accountId?: string;
-  categoryId?: string;
+  categoryId?: string | null;
   type?: TransactionType;
   amount?: number;
   date?: string;
-  description?: string;
+  description?: string | null;
 }
 
 interface GetTransactionsResponse {

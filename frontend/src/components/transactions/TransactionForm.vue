@@ -168,10 +168,13 @@ const handleSubmit = async () => {
   if (formRef.value) {
     const { valid } = await formRef.value.validate();
     if (valid && isFormValid.value) {
-      // Clean up categoryId if empty string
+      // Clean up empty fields appropriately
       const submitData = { ...formData.value };
       if (submitData.categoryId === "") {
-        delete submitData.categoryId;
+        submitData.categoryId = isEditing.value ? null : undefined;
+      }
+      if (submitData.description === "") {
+        submitData.description = isEditing.value ? null : undefined;
       }
 
       emit("submit", submitData);
