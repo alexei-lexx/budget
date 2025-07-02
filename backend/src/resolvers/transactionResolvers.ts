@@ -25,11 +25,7 @@ const ERROR_MESSAGES = {
  */
 const createTransactionInputSchema = z.object({
   accountId: z.string().uuid(ERROR_MESSAGES.ACCOUNT_ID_UUID),
-  categoryId: z
-    .string()
-    .uuid(ERROR_MESSAGES.CATEGORY_ID_UUID)
-    .nullish()
-    .transform((val) => val ?? undefined),
+  categoryId: z.string().uuid(ERROR_MESSAGES.CATEGORY_ID_UUID).nullish(),
   type: z.enum(["INCOME", "EXPENSE"], {
     errorMap: () => ({ message: ERROR_MESSAGES.TRANSACTION_TYPE }),
   }),
@@ -38,17 +34,12 @@ const createTransactionInputSchema = z.object({
   description: z
     .string()
     .max(DESCRIPTION_MAX_LENGTH, ERROR_MESSAGES.DESCRIPTION_MAX_LENGTH)
-    .nullish()
-    .transform((val) => val ?? undefined),
+    .nullish(),
 });
 
 const updateTransactionInputSchema = z.object({
   accountId: z.string().uuid(ERROR_MESSAGES.ACCOUNT_ID_UUID).optional(),
-  categoryId: z
-    .string()
-    .uuid(ERROR_MESSAGES.CATEGORY_ID_UUID)
-    .nullish()
-    .transform((val) => val ?? undefined),
+  categoryId: z.string().uuid(ERROR_MESSAGES.CATEGORY_ID_UUID).nullish(),
   type: z
     .enum(["INCOME", "EXPENSE"], {
       errorMap: () => ({ message: ERROR_MESSAGES.TRANSACTION_TYPE }),
@@ -62,8 +53,7 @@ const updateTransactionInputSchema = z.object({
   description: z
     .string()
     .max(DESCRIPTION_MAX_LENGTH, ERROR_MESSAGES.DESCRIPTION_MAX_LENGTH)
-    .nullish()
-    .transform((val) => val ?? undefined),
+    .nullish(),
 });
 
 export const transactionResolvers = {

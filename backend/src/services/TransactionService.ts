@@ -65,7 +65,7 @@ export class TransactionService {
    * @throws BusinessError if category not found, doesn't belong to user, or type mismatch
    */
   private async validateCategory(
-    categoryId: string | undefined,
+    categoryId: string | undefined | null,
     userId: string,
     transactionType: "INCOME" | "EXPENSE",
   ): Promise<Category | null> {

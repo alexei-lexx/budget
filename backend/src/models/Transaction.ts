@@ -20,23 +20,17 @@ export interface Transaction {
 export interface CreateTransactionInput {
   userId: string;
   accountId: string;
-  categoryId?: string;
+  categoryId?: string | null;
   type: TransactionType;
   amount: number;
   currency: string;
   date: string;
-  description?: string;
+  description?: string | null;
 }
 
-export interface UpdateTransactionInput {
-  accountId?: string;
-  categoryId?: string;
-  type?: TransactionType;
-  amount?: number;
-  currency?: string;
-  date?: string;
-  description?: string;
-}
+export type UpdateTransactionInput = Partial<
+  Omit<CreateTransactionInput, "userId">
+>;
 
 export interface ITransactionRepository {
   findActiveByUserId(userId: string): Promise<Transaction[]>;
