@@ -186,9 +186,7 @@ const handleCreateTransactionSubmit = async (transactionData: CreateTransactionI
     const success = await createTransaction(transactionData);
     if (success) {
       showCreateTransactionDialog.value = false;
-      showSuccessSnackbar(
-        `Transaction "${transactionData.description || "New transaction"}" has been created`,
-      );
+      showSuccessSnackbar("New transaction was created");
     }
   } finally {
     transactionFormLoading.value = false;
@@ -204,9 +202,7 @@ const handleEditTransactionSubmit = async (transactionData: CreateTransactionInp
     if (success) {
       showEditTransactionDialog.value = false;
       editingTransaction.value = null;
-      showSuccessSnackbar(
-        `Transaction "${transactionData.description || "transaction"}" has been updated`,
-      );
+      showSuccessSnackbar("Transaction was updated");
     }
   } finally {
     transactionFormLoading.value = false;
