@@ -73,12 +73,10 @@ const handleArchiveTransaction = () => {
 
         <!-- Main content -->
         <div class="flex-grow-1 me-3">
-          <div v-if="transaction.description" class="text-subtitle-2 font-weight-medium mb-1">
-            {{ transaction.description }}
-          </div>
           <div class="text-caption text-medium-emphasis">
             {{ formattedDate }} • {{ accountName
-            }}<span v-if="categoryName"> • {{ categoryName }}</span>
+            }}<span v-if="categoryName"> • {{ categoryName }}</span
+            ><span v-if="transaction.description"> • {{ transaction.description }}</span>
           </div>
         </div>
 
