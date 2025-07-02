@@ -5,14 +5,9 @@
       <v-col cols="12">
         <div class="d-flex align-center justify-space-between mb-4">
           <h1 class="text-h4">Transactions</h1>
-          <div class="d-flex gap-2">
-            <v-btn color="secondary" size="small" @click="handleRegenerateData">
-              Regenerate Data
-            </v-btn>
-            <v-btn color="primary" prepend-icon="mdi-plus" @click="handleAddTransaction">
-              Add Transaction
-            </v-btn>
-          </div>
+          <v-btn color="primary" prepend-icon="mdi-plus" @click="handleAddTransaction">
+            Add Transaction
+          </v-btn>
         </div>
 
         <!-- Loading State -->
@@ -110,7 +105,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
+import { computed, ref } from "vue";
 import { useTransactions } from "@/composables/useTransactions";
 import { useAccounts } from "@/composables/useAccounts";
 import { useCategories } from "@/composables/useCategories";
@@ -125,8 +120,6 @@ const {
   transactions,
   transactionsLoading,
   transactionsError,
-  initializeMockData,
-  regenerateMockData,
   updateTransaction,
   archiveTransaction,
   createTransaction,
@@ -146,11 +139,6 @@ const showDeleteConfirmDialog = ref(false);
 const editingTransaction = ref<Transaction | null>(null);
 const transactionToDelete = ref<Transaction | null>(null);
 const transactionFormLoading = ref(false);
-
-// Initialize mock data when component mounts
-onMounted(async () => {
-  await initializeMockData();
-});
 
 // Event handlers
 const handleAddTransaction = () => {
@@ -190,10 +178,6 @@ const confirmDeleteTransaction = async () => {
 const cancelDeleteTransaction = () => {
   showDeleteConfirmDialog.value = false;
   transactionToDelete.value = null;
-};
-
-const handleRegenerateData = async () => {
-  await regenerateMockData();
 };
 
 const handleCreateTransactionSubmit = async (transactionData: CreateTransactionInput) => {

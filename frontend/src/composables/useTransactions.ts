@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from "@vue/apollo-composable";
-import { ref, watch } from "vue";
+import { ref, watch, computed } from "vue";
 import { GET_TRANSACTIONS } from "@/graphql/queries";
 import { CREATE_TRANSACTION, UPDATE_TRANSACTION, ARCHIVE_TRANSACTION } from "@/graphql/mutations";
 import type { ApolloError } from "@apollo/client/core";
@@ -165,7 +165,7 @@ export function useTransactions() {
 
   return {
     // Data
-    transactions: transactionsResult,
+    transactions: computed(() => transactionsResult.value?.transactions || []),
 
     // Loading states
     transactionsLoading,
