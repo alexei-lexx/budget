@@ -789,11 +789,8 @@ Transaction List (chronological, newest first):
   - [x] 7.2.7 Ensure backward compatibility - existing calls work unchanged
 
 - [ ] **7.3 Service Layer Updates**
-  - [ ] 7.3.1 Enhance TransactionService.getTransactionsByUser with cursor-based pagination logic
-  - [ ] 7.3.2 Apply default pagination parameters when none provided (first: 20)
-  - [ ] 7.3.3 Add pagination validation (first bounds: 1-100, cursor format validation for date + ID)
-  - [ ] 7.3.4 Handle pagination edge cases (invalid cursor, empty results)
-  - [ ] 7.3.5 Maintain transaction date sorting (newest first) with ID tie-breaking for consistent cursor behavior
+  - [ ] 7.3.1 Add getTransactionsByUserPaginated method to TransactionService that delegates to repository's paginated method
+  - [ ] 7.3.2 Keep existing getTransactionsByUser method for backward compatibility
 
 - [ ] **7.4 GraphQL Server Layer**
   - [ ] 7.4.1 Define Relay-compatible PaginationInput type with first and after fields
@@ -825,6 +822,12 @@ Transaction List (chronological, newest first):
   - [ ] 7.7.4 Add loading states for "Load More" operations (spinner, disabled button)
   - [ ] 7.7.5 Handle empty states and pagination errors gracefully
   - [ ] 7.7.6 Ensure existing transaction display and CRUD operations remain unchanged
+
+- [ ] **7.8 Code Cleanup**
+  - [ ] 7.8.1 Remove non-paginated methods once pagination is fully implemented and tested
+  - [ ] 7.8.2 Update all callers to use paginated versions
+  - [ ] 7.8.3 Remove backward compatibility methods: findActiveByUserId, getTransactionsByUser (non-paginated)
+  - [ ] 7.8.4 Update interface definitions to only include paginated methods
 
 ### Success Criteria
 
