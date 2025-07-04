@@ -779,14 +779,14 @@ Transaction List (chronological, newest first):
   - [x] 7.1.2 Confirm GSI structure enables sorting by transaction date (not createdAt timestamp)
   - [x] 7.1.3 Review cursor implementation using date + ID for stable positioning
 
-- [ ] **7.2 Repository Layer Enhancement**
-  - [ ] 7.2.1 Add Relay-compatible pagination parameters to TransactionRepository.findActiveByUserId method (first, after)
-  - [ ] 7.2.2 Implement cursor encoding/decoding using date + ID fields (Base64 JSON format)
-  - [ ] 7.2.3 Add first parameter with default value (20 items per page)
-  - [ ] 7.2.4 Implement date-based queries with ID tie-breaking: WHERE (date < cursor.date) OR (date = cursor.date AND id < cursor.id)
-  - [ ] 7.2.5 Return Relay-compatible pagination metadata (startCursor, endCursor, hasNextPage)
-  - [ ] 7.2.6 Implement getTotalCount method for optional total count display
-  - [ ] 7.2.7 Ensure backward compatibility - existing calls work unchanged
+- [x] **7.2 Repository Layer Enhancement**
+  - [x] 7.2.1 Add Relay-compatible pagination parameters to TransactionRepository.findActiveByUserId method (first, after)
+  - [x] 7.2.2 Implement cursor encoding/decoding using date + ID fields (Base64 JSON format)
+  - [x] 7.2.3 Add first parameter with default value (20 items per page)
+  - [x] 7.2.4 Implement date-based queries with ID tie-breaking: WHERE (date < cursor.date) OR (date = cursor.date AND id < cursor.id)
+  - [x] 7.2.5 Return Relay-compatible pagination metadata (startCursor, endCursor, hasNextPage)
+  - [x] 7.2.6 Implement getTotalCount method for optional total count display
+  - [x] 7.2.7 Ensure backward compatibility - existing calls work unchanged
 
 - [ ] **7.3 Service Layer Updates**
   - [ ] 7.3.1 Enhance TransactionService.getTransactionsByUser with cursor-based pagination logic

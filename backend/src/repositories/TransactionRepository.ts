@@ -12,7 +12,16 @@ import {
   CreateTransactionInput,
   UpdateTransactionInput,
   ITransactionRepository,
+  TransactionConnection,
+  TransactionEdge,
 } from "../models/Transaction.js";
+import {
+  PaginationInput,
+  PageInfo,
+  DEFAULT_PAGE_SIZE,
+  MIN_PAGE_SIZE,
+  MAX_PAGE_SIZE,
+} from "../types/pagination.js";
 
 /**
  * Repository error class for better error handling
@@ -25,6 +34,45 @@ class TransactionRepositoryError extends Error {
   ) {
     super(message);
     this.name = "TransactionRepositoryError";
+  }
+}
+
+/**
+ * Cursor structure for pagination
+ */
+interface CursorData {
+  date: string;
+  id: string;
+}
+
+/**
+ * Cursor utilities for pagination
+ */
+function encodeCursor(transaction: Transaction): string {
+  const cursorData: CursorData = {
+    date: transaction.date,
+    id: transaction.id,
+  };
+  return Buffer.from(JSON.stringify(cursorData)).toString("base64");
+}
+
+function decodeCursor(cursor: string): CursorData {
+  try {
+    const decoded = Buffer.from(cursor, "base64").toString("utf-8");
+    const cursorData = JSON.parse(decoded) as CursorData;
+
+    // Validate cursor structure
+    if (!cursorData.date || !cursorData.id) {
+      throw new Error("Invalid cursor structure");
+    }
+
+    return cursorData;
+  } catch (error) {
+    throw new TransactionRepositoryError(
+      "Invalid cursor format",
+      "INVALID_CURSOR",
+      error,
+    );
   }
 }
 
@@ -83,6 +131,131 @@ export class TransactionRepository implements ITransactionRepository {
       console.error("Error finding active transactions by user ID:", error);
       throw new TransactionRepositoryError(
         "Failed to find active transactions",
+        "QUERY_FAILED",
+        error,
+      );
+    }
+  }
+
+  async findActiveByUserIdPaginated(
+    userId: string,
+    pagination?: PaginationInput,
+  ): Promise<TransactionConnection> {
+    if (!userId) {
+      throw new TransactionRepositoryError(
+        "User ID is required",
+        "INVALID_USER_ID",
+      );
+    }
+
+    // Default pagination values
+    const first = pagination?.first || DEFAULT_PAGE_SIZE;
+    const after = pagination?.after;
+
+    // Validate pagination parameters
+    if (first < MIN_PAGE_SIZE || first > MAX_PAGE_SIZE) {
+      throw new TransactionRepositoryError(
+        `First parameter must be between ${MIN_PAGE_SIZE} and ${MAX_PAGE_SIZE}`,
+        "INVALID_PAGINATION",
+      );
+    }
+
+    try {
+      const keyConditionExpression = "userId = :userId";
+      let filterExpression = "isArchived = :isArchived";
+      const expressionAttributeValues: Record<string, unknown> = {
+        ":userId": userId,
+        ":isArchived": false,
+      };
+
+      // Handle cursor-based pagination
+      if (after) {
+        const cursorData = decodeCursor(after);
+
+        // Add cursor-based filtering: (date < cursor.date) OR (date = cursor.date AND id < cursor.id)
+        filterExpression +=
+          " AND (#date < :cursorDate OR (#date = :cursorDate AND id < :cursorId))";
+        expressionAttributeValues[":cursorDate"] = cursorData.date;
+        expressionAttributeValues[":cursorId"] = cursorData.id;
+      }
+
+      const command = new QueryCommand({
+        TableName: this.tableName,
+        IndexName: "UserDateIndex",
+        KeyConditionExpression: keyConditionExpression,
+        FilterExpression: filterExpression,
+        ExpressionAttributeNames: {
+          "#date": "date",
+        },
+        ExpressionAttributeValues: expressionAttributeValues,
+        ScanIndexForward: false, // Sort by date descending (latest first)
+        Limit: first + 1, // Fetch one extra to determine hasNextPage
+      });
+
+      const result = await this.client.send(command);
+      const items = (result.Items || []) as Transaction[];
+
+      // Determine if there are more items
+      const hasNextPage = items.length > first;
+      const transactions = hasNextPage ? items.slice(0, first) : items;
+
+      // Create edges with cursors
+      const edges: TransactionEdge[] = transactions.map((transaction) => ({
+        node: transaction,
+        cursor: encodeCursor(transaction),
+      }));
+
+      // Build page info
+      const pageInfo: PageInfo = {
+        hasNextPage,
+        hasPreviousPage: !!after, // Has previous page if we have an after cursor
+        startCursor: edges.length > 0 ? edges[0].cursor : undefined,
+        endCursor:
+          edges.length > 0 ? edges[edges.length - 1].cursor : undefined,
+      };
+
+      // Get total count (this is a separate query for accuracy)
+      const totalCount = await this.getActiveTransactionCount(userId);
+
+      return {
+        edges,
+        pageInfo,
+        totalCount,
+      };
+    } catch (error) {
+      if (error instanceof TransactionRepositoryError) {
+        throw error;
+      }
+
+      console.error("Error finding paginated transactions:", error);
+      throw new TransactionRepositoryError(
+        "Failed to find paginated transactions",
+        "QUERY_FAILED",
+        error,
+      );
+    }
+  }
+
+  private async getActiveTransactionCount(userId: string): Promise<number> {
+    try {
+      const command = new QueryCommand({
+        TableName: this.tableName,
+        IndexName: "UserDateIndex",
+        KeyConditionExpression: "userId = :userId",
+        FilterExpression: "isArchived = :isArchived",
+        ExpressionAttributeValues: {
+          ":userId": userId,
+          ":isArchived": false,
+        },
+        Select: "COUNT",
+      });
+
+      const result = await this.client.send(command);
+      return result.Count || 0;
+    } catch (error) {
+      console.error("Error getting active transaction count:", error);
+      throw new TransactionRepositoryError(
+        "Failed to get active transaction count",
         "QUERY_FAILED",
         error,
       );

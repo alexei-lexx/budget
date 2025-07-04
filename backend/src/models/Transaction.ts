@@ -1,4 +1,5 @@
 import { CategoryType } from "./Category";
+import { PaginationInput, Edge, Connection } from "../types/pagination.js";
 
 export type TransactionType = CategoryType;
 
@@ -32,8 +33,16 @@ export type UpdateTransactionInput = Partial<
   Omit<CreateTransactionInput, "userId">
 >;
 
+// Transaction-specific pagination types using generic pagination interfaces
+export type TransactionEdge = Edge<Transaction>;
+export type TransactionConnection = Connection<Transaction>;
+
 export interface ITransactionRepository {
   findActiveByUserId(userId: string): Promise<Transaction[]>;
+  findActiveByUserIdPaginated(
+    userId: string,
+    pagination?: PaginationInput,
+  ): Promise<TransactionConnection>;
   findById(id: string, userId: string): Promise<Transaction | null>;
   create(input: CreateTransactionInput): Promise<Transaction>;
   update(
