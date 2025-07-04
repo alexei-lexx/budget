@@ -318,12 +318,12 @@ When implementing new features, use the service layer pattern. When modifying ex
 
 ### Project Specifications
 Before starting any development work, review:
-- `docs/general_spec.md` - Business requirements and feature specifications
-- `docs/tech_spec.md` - Technical architecture and implementation guidelines
-- `docs/tasks.md` - Current development roadmap and task tracking
+- @docs/general_spec.md - Business requirements and feature specifications
+- @docs/tech_spec.md - Technical architecture and implementation guidelines
+- @docs/tasks.md - Current development roadmap and task tracking
 
 ### Task Completion Tracking
-**CRITICAL**: Always mark tasks as completed in `docs/tasks.md` immediately after finishing them:
+**CRITICAL**: Always mark tasks as completed in @docs/tasks.md immediately after finishing them:
 - Change `[ ]` to `[x]` in the task line
 - When all sub-task items under a parent task are completed and marked, mark the parent task item as completed as well
 - This maintains permanent progress tracking across development sessions
