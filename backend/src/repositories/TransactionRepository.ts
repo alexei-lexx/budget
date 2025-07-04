@@ -14,14 +14,14 @@ import {
   ITransactionRepository,
   TransactionConnection,
   TransactionEdge,
-} from "../models/Transaction.js";
+} from "../models/Transaction";
 import {
   PaginationInput,
   PageInfo,
   DEFAULT_PAGE_SIZE,
   MIN_PAGE_SIZE,
   MAX_PAGE_SIZE,
-} from "../types/pagination.js";
+} from "../types/pagination";
 
 /**
  * Repository error class for better error handling
