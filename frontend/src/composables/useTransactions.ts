@@ -1,9 +1,10 @@
 import { useMutation, useQuery } from "@vue/apollo-composable";
 import { ref, watch, computed } from "vue";
-import { GET_TRANSACTIONS } from "@/graphql/queries";
+import { GET_TRANSACTIONS, GET_TRANSACTIONS_PAGINATED } from "@/graphql/queries";
 import { CREATE_TRANSACTION, UPDATE_TRANSACTION, ARCHIVE_TRANSACTION } from "@/graphql/mutations";
 import type { ApolloError } from "@apollo/client/core";
 import type { CategoryType } from "./useCategories";
+import type { PaginationInput, Edge, Connection } from "@/types/pagination";
 
 export type TransactionType = CategoryType;
 
@@ -36,8 +37,16 @@ export interface UpdateTransactionInput {
   description?: string | null;
 }
 
+// Transaction-specific pagination types using shared generic types
+export type TransactionEdge = Edge<Transaction>;
+export type TransactionConnection = Connection<Transaction>;
+
 interface GetTransactionsResponse {
   transactions: Transaction[];
+}
+
+interface GetTransactionsPaginatedResponse {
+  transactions: TransactionConnection;
 }
 
 interface CreateTransactionResponse {
@@ -55,13 +64,36 @@ interface ArchiveTransactionResponse {
 export function useTransactions() {
   const transactionsError = ref<string | null>(null);
 
-  // Query for transactions
+  // Pagination state
+  const endCursor = ref<string | null>(null);
+  const hasNextPage = ref<boolean>(false);
+  const totalCount = ref<number>(0);
+  const loadMoreLoading = ref<boolean>(false);
+  const loadMoreError = ref<string | null>(null);
+
+  // Query for transactions (existing non-paginated)
   const {
     result: transactionsResult,
     loading: transactionsLoading,
     error: transactionsQueryError,
     refetch: refetchTransactions,
   } = useQuery<GetTransactionsResponse>(GET_TRANSACTIONS);
+
+  // Query for paginated transactions (new)
+  const {
+    result: paginatedResult,
+    loading: paginatedLoading,
+    error: paginatedQueryError,
+    fetchMore,
+  } = useQuery<GetTransactionsPaginatedResponse, { pagination?: PaginationInput }>(
+    GET_TRANSACTIONS_PAGINATED,
+    () => ({
+      pagination: {},
+    }),
+    () => ({
+      fetchPolicy: "cache-and-network",
+    }),
+  );
 
   // Create transaction mutation
   const {
@@ -86,10 +118,34 @@ export function useTransactions() {
     error: archiveTransactionError,
   } = useMutation<ArchiveTransactionResponse, { id: string }>(ARCHIVE_TRANSACTION);
 
+  // Watch for paginated query results to update pagination state
+  watch(
+    paginatedResult,
+    (result) => {
+      if (result?.transactions) {
+        const connection = result.transactions;
+
+        // Update pagination state
+        endCursor.value = connection.pageInfo.endCursor || null;
+        hasNextPage.value = connection.pageInfo.hasNextPage;
+        totalCount.value = connection.totalCount;
+      }
+    },
+    { immediate: true },
+  );
+
   // Watch for query errors
   watch(transactionsQueryError, (error: ApolloError | null) => {
     if (error) {
       console.error("Transactions query failed:", error);
+      transactionsError.value = error.message || "Failed to fetch transactions";
+    }
+  });
+
+  // Watch for paginated query errors
+  watch(paginatedQueryError, (error: ApolloError | null) => {
+    if (error) {
+      console.error("Paginated transactions query failed:", error);
       transactionsError.value = error.message || "Failed to fetch transactions";
     }
   });
@@ -163,19 +219,79 @@ export function useTransactions() {
     }
   };
 
+  // Load more transactions function (for pagination)
+  const loadMoreTransactions = async (): Promise<boolean> => {
+    if (!hasNextPage.value || loadMoreLoading.value) {
+      return false;
+    }
+
+    try {
+      loadMoreLoading.value = true;
+      loadMoreError.value = null;
+
+      const result = await fetchMore({
+        variables: {
+          pagination: {
+            after: endCursor.value,
+          },
+        },
+        updateQuery: (previousResult, { fetchMoreResult }) => {
+          if (!fetchMoreResult?.transactions) {
+            return previousResult;
+          }
+
+          const newConnection = fetchMoreResult.transactions;
+          const previousConnection = previousResult.transactions;
+
+          // Merge the edges
+          const mergedEdges = [...previousConnection.edges, ...newConnection.edges];
+
+          // Return merged result
+          return {
+            transactions: {
+              ...newConnection,
+              edges: mergedEdges,
+            },
+          };
+        },
+      });
+
+      return !!result;
+    } catch (error) {
+      console.error("Error loading more transactions:", error);
+      loadMoreError.value =
+        error instanceof Error ? error.message : "Failed to load more transactions";
+      return false;
+    } finally {
+      loadMoreLoading.value = false;
+    }
+  };
+
   return {
-    // Data
+    // Data (backward compatible)
     transactions: computed(() => transactionsResult.value?.transactions || []),
+
+    // Paginated data (new)
+    paginatedTransactions: computed(
+      () => paginatedResult.value?.transactions?.edges?.map((edge) => edge.node) || [],
+    ),
+    endCursor: computed(() => endCursor.value),
+    hasNextPage: computed(() => hasNextPage.value),
+    totalCount: computed(() => totalCount.value),
 
     // Loading states
     transactionsLoading,
+    paginatedLoading,
+    loadMoreLoading: computed(() => loadMoreLoading.value),
     createTransactionLoading,
     updateTransactionLoading,
     archiveTransactionLoading,
 
     // Error states
     transactionsError,
+    loadMoreError: computed(() => loadMoreError.value),
     transactionsQueryError,
+    paginatedQueryError,
     createTransactionError,
     updateTransactionError,
     archiveTransactionError,
@@ -184,6 +300,7 @@ export function useTransactions() {
     createTransaction,
     updateTransaction,
     archiveTransaction,
+    loadMoreTransactions,
     refetchTransactions,
   };
 }

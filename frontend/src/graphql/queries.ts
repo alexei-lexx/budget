@@ -33,3 +33,24 @@ export const GET_TRANSACTIONS = gql`
   }
   ${TRANSACTION_FRAGMENT}
 `;
+
+export const GET_TRANSACTIONS_PAGINATED = gql`
+  query GetTransactionsPaginated($pagination: PaginationInput) {
+    transactions(pagination: $pagination) {
+      edges {
+        node {
+          ...TransactionFields
+        }
+        cursor
+      }
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
+      }
+      totalCount
+    }
+  }
+  ${TRANSACTION_FRAGMENT}
+`;

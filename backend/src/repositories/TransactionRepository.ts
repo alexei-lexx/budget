@@ -184,9 +184,11 @@ export class TransactionRepository implements ITransactionRepository {
         IndexName: "UserDateIndex",
         KeyConditionExpression: keyConditionExpression,
         FilterExpression: filterExpression,
-        ExpressionAttributeNames: {
-          "#date": "date",
-        },
+        ...(after && {
+          ExpressionAttributeNames: {
+            "#date": "date",
+          },
+        }),
         ExpressionAttributeValues: expressionAttributeValues,
         ScanIndexForward: false, // Sort by date descending (latest first)
         Limit: first + 1, // Fetch one extra to determine hasNextPage
