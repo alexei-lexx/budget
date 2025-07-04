@@ -3,7 +3,7 @@ export const typeDefs = `#graphql
     activeAccounts: [Account!]!
     supportedCurrencies: [String!]!
     activeCategories(type: CategoryType): [Category!]!
-    transactions: [Transaction!]!
+    transactions(pagination: PaginationInput): TransactionConnection!
   }
 
   type User {
@@ -82,6 +82,29 @@ export const typeDefs = `#graphql
     amount: Float
     date: String
     description: String
+  }
+
+  input PaginationInput {
+    first: Int
+    after: String
+  }
+
+  type PageInfo {
+    hasNextPage: Boolean!
+    hasPreviousPage: Boolean!
+    startCursor: String
+    endCursor: String
+  }
+
+  type TransactionEdge {
+    node: Transaction!
+    cursor: String!
+  }
+
+  type TransactionConnection {
+    edges: [TransactionEdge!]!
+    pageInfo: PageInfo!
+    totalCount: Int!
   }
 
   type Mutation {

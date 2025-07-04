@@ -3,6 +3,7 @@ import { z } from "zod";
 import { GraphQLContext } from "../server";
 import { getAuthenticatedUser, handleResolverError } from "./shared";
 import { BusinessError } from "../services/BusinessError";
+import { MIN_PAGE_SIZE, MAX_PAGE_SIZE } from "../types/pagination";
 
 /**
  * Constants for validation
@@ -56,19 +57,45 @@ const updateTransactionInputSchema = z.object({
     .nullish(),
 });
 
+const paginationInputSchema = z
+  .object({
+    first: z
+      .number()
+      .int()
+      .min(MIN_PAGE_SIZE, `First must be at least ${MIN_PAGE_SIZE}`)
+      .max(MAX_PAGE_SIZE, `First cannot exceed ${MAX_PAGE_SIZE}`)
+      .optional(),
+    after: z.string().optional(),
+  })
+  .optional();
+
 export const transactionResolvers = {
   Query: {
     transactions: async (
       _parent: unknown,
-      _args: unknown,
+      args: { pagination?: unknown },
       context: GraphQLContext,
     ) => {
       try {
+        // Validate pagination input (repository handles defaults)
+        const validatedPagination = paginationInputSchema.parse(
+          args.pagination,
+        );
         const user = await getAuthenticatedUser(context);
-        const transactions =
-          await context.transactionService.getTransactionsByUser(user.id);
-        return transactions;
+
+        const transactionConnection =
+          await context.transactionService.getTransactionsByUserPaginated(
+            user.id,
+            validatedPagination,
+          );
+        return transactionConnection;
       } catch (error) {
+        if (error instanceof z.ZodError) {
+          const firstError = error.errors[0];
+          throw new GraphQLError(firstError.message, {
+            extensions: { code: "BAD_USER_INPUT" },
+          });
+        }
         handleResolverError(error, "Failed to fetch transactions");
       }
     },
