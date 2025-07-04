@@ -1,10 +1,10 @@
 # Development Roadmap
 
-**Before starting any task, analyze requirements and instructions in docs/general_spec.md and docs/tech_spec.md**
+**Before starting any task, analyze requirements and instructions in @docs/general_spec.md and @docs/tech_spec.md**
 
 ## ⚠️ CRITICAL: Task Completion Tracking
 
-**ALWAYS mark tasks as completed immediately after finishing them by changing `[ ]` to `[x]` in tasks.md**
+**ALWAYS mark tasks as completed immediately after finishing them by changing `[ ]` to `[x]` in @docs/tasks.md**
 
 This is mandatory for:
 - Tracking progress accurately in permanent documentation
@@ -39,7 +39,7 @@ When creating new implementation tasks in this file, follow these guidelines:
    - Target architecture description
    - Implementation plan with numbered phases
    - Success criteria
-6. **Future enhancements**: Add enhancement ideas and non-MVP features to `docs/future_enhancements.md` instead of creating new tasks here. Keep this roadmap focused on core functionality delivery.
+6. **Future enhancements**: Add enhancement ideas and non-MVP features to @docs/future_enhancements.md instead of creating new tasks here. Keep this roadmap focused on core functionality delivery.
 
 ---
 
