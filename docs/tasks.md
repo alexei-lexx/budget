@@ -801,32 +801,26 @@ Transaction List (chronological, newest first):
   - [x] 7.4.6 Implement Zod validation for pagination parameter types and ranges
   - [x] 7.4.7 Update resolver to return TransactionConnection with Relay-compatible structure
 
-- [ ] **7.5 Frontend GraphQL Client**
-  - [ ] 7.5.1 Update transactions query to optionally include pagination variables (first, after)
-  - [ ] 7.5.2 Handle new TransactionConnection response structure with edges and nodes
-  - [ ] 7.5.3 Add cursor management for "Load More" functionality
-  - [ ] 7.5.4 Add error handling for pagination failures
+- [ ] **7.5 Frontend Data Layer Integration**
+  - [ ] 7.5.1 Update transactions GraphQL query to use pagination variables (first, after) and handle TransactionConnection response
+  - [ ] 7.5.2 Enhance useTransactions composable with cursor-based pagination state (endCursor, hasNextPage, loading)
+  - [ ] 7.5.3 Implement loadMoreTransactions function with Apollo Client cache merging
+  - [ ] 7.5.4 Add comprehensive error handling and loading states for pagination operations
+  - [ ] 7.5.5 Ensure backward compatibility with existing transaction loading functionality
 
-- [ ] **7.6 Frontend Composable Layer**
-  - [ ] 7.6.1 Enhance useTransactions composable with cursor-based pagination state (endCursor, hasNextPage, loading)
-  - [ ] 7.6.2 Implement loadMoreTransactions function using endCursor for next page
-  - [ ] 7.6.3 Handle Apollo Client cache merging to append new transactions to existing list
-  - [ ] 7.6.4 Add loading states for "Load More" operations
-  - [ ] 7.6.5 Ensure existing transaction loading continues to work seamlessly
+- [ ] **7.6 Frontend UI Layer**
+  - [ ] 7.6.1 Update Transactions.vue to display cumulative transaction list
+  - [ ] 7.6.2 Add "Load More Transactions" button at bottom of transaction list
+  - [ ] 7.6.3 Show/hide "Load More" button based on hasNextPage status
+  - [ ] 7.6.4 Add loading states for "Load More" operations (spinner, disabled button)
+  - [ ] 7.6.5 Handle empty states and pagination errors gracefully
+  - [ ] 7.6.6 Ensure existing transaction display and CRUD operations remain unchanged
 
-- [ ] **7.7 Frontend UI Layer**
-  - [ ] 7.7.1 Update Transactions.vue to display cumulative transaction list
-  - [ ] 7.7.2 Add "Load More Transactions" button at bottom of transaction list
-  - [ ] 7.7.3 Show/hide "Load More" button based on hasNextPage status
-  - [ ] 7.7.4 Add loading states for "Load More" operations (spinner, disabled button)
-  - [ ] 7.7.5 Handle empty states and pagination errors gracefully
-  - [ ] 7.7.6 Ensure existing transaction display and CRUD operations remain unchanged
-
-- [ ] **7.8 Code Cleanup**
-  - [ ] 7.8.1 Remove non-paginated methods once pagination is fully implemented and tested
-  - [ ] 7.8.2 Update all callers to use paginated versions
-  - [ ] 7.8.3 Remove backward compatibility methods: findActiveByUserId, getTransactionsByUser (non-paginated)
-  - [ ] 7.8.4 Update interface definitions to only include paginated methods
+- [ ] **7.7 Code Cleanup**
+  - [ ] 7.7.1 Remove non-paginated methods once pagination is fully implemented and tested
+  - [ ] 7.7.2 Update all callers to use paginated versions
+  - [ ] 7.7.3 Remove backward compatibility methods: findActiveByUserId, getTransactionsByUser (non-paginated)
+  - [ ] 7.7.4 Update interface definitions to only include paginated methods
 
 ### Success Criteria
 
