@@ -788,9 +788,9 @@ Transaction List (chronological, newest first):
   - [x] 7.2.6 Implement getTotalCount method for optional total count display
   - [x] 7.2.7 Ensure backward compatibility - existing calls work unchanged
 
-- [ ] **7.3 Service Layer Updates**
-  - [ ] 7.3.1 Add getTransactionsByUserPaginated method to TransactionService that delegates to repository's paginated method
-  - [ ] 7.3.2 Keep existing getTransactionsByUser method for backward compatibility
+- [x] **7.3 Service Layer Updates**
+  - [x] 7.3.1 Add getTransactionsByUserPaginated method to TransactionService that delegates to repository's paginated method
+  - [x] 7.3.2 Keep existing getTransactionsByUser method for backward compatibility
 
 - [ ] **7.4 GraphQL Server Layer**
   - [ ] 7.4.1 Define Relay-compatible PaginationInput type with first and after fields

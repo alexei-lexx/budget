@@ -4,9 +4,11 @@ import {
   Transaction,
   CreateTransactionInput,
   UpdateTransactionInput,
+  TransactionConnection,
 } from "../models/Transaction";
 import { IAccountRepository, Account } from "../models/Account";
 import { ICategoryRepository, Category } from "../models/Category";
+import { PaginationInput } from "../types/pagination";
 
 /**
  * Service layer input for creating transactions (currency automatically derived from account)
@@ -166,6 +168,22 @@ export class TransactionService {
    */
   async getTransactionsByUser(userId: string): Promise<Transaction[]> {
     return await this.transactionRepository.findActiveByUserId(userId);
+  }
+
+  /**
+   * Get active transactions for a user with pagination, sorted by date (newest first)
+   * @param userId - The user ID to get transactions for
+   * @param pagination - Optional pagination parameters (first, after)
+   * @returns Promise<TransactionConnection> - Paginated transaction results with cursor information
+   */
+  async getTransactionsByUserPaginated(
+    userId: string,
+    pagination?: PaginationInput,
+  ): Promise<TransactionConnection> {
+    return await this.transactionRepository.findActiveByUserIdPaginated(
+      userId,
+      pagination,
+    );
   }
 
   /**
