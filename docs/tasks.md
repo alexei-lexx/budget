@@ -774,10 +774,10 @@ Transaction List (chronological, newest first):
 
 ### Implementation Plan
 
-- [ ] **7.1 Database Layer Review**
-  - [ ] 7.1.1 Verify existing UserDateIndex GSI supports date-based sorting for cursor pagination
-  - [ ] 7.1.2 Confirm GSI structure enables sorting by transaction date (not createdAt timestamp)
-  - [ ] 7.1.3 Review cursor implementation using date + ID for stable positioning
+- [x] **7.1 Database Layer Review**
+  - [x] 7.1.1 Verify existing UserDateIndex GSI supports date-based sorting for cursor pagination
+  - [x] 7.1.2 Confirm GSI structure enables sorting by transaction date (not createdAt timestamp)
+  - [x] 7.1.3 Review cursor implementation using date + ID for stable positioning
 
 - [ ] **7.2 Repository Layer Enhancement**
   - [ ] 7.2.1 Add Relay-compatible pagination parameters to TransactionRepository.findActiveByUserId method (first, after)
