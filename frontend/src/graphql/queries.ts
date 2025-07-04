@@ -25,15 +25,6 @@ export const GET_ACTIVE_CATEGORIES = gql`
   ${CATEGORY_FRAGMENT}
 `;
 
-export const GET_TRANSACTIONS = gql`
-  query GetTransactions {
-    transactions {
-      ...TransactionFields
-    }
-  }
-  ${TRANSACTION_FRAGMENT}
-`;
-
 export const GET_TRANSACTIONS_PAGINATED = gql`
   query GetTransactionsPaginated($pagination: PaginationInput) {
     transactions(pagination: $pagination) {

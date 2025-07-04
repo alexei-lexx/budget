@@ -162,37 +162,45 @@ export class TransactionRepository implements ITransactionRepository {
 
     try {
       const keyConditionExpression = "userId = :userId";
-      let filterExpression = "isArchived = :isArchived";
+      const filterExpression = "isArchived = :isArchived";
       const expressionAttributeValues: Record<string, unknown> = {
         ":userId": userId,
         ":isArchived": false,
       };
 
-      // Handle cursor-based pagination
-      if (after) {
-        const cursorData = decodeCursor(after);
-
-        // Add cursor-based filtering: (date < cursor.date) OR (date = cursor.date AND id < cursor.id)
-        filterExpression +=
-          " AND (#date < :cursorDate OR (#date = :cursorDate AND id < :cursorId))";
-        expressionAttributeValues[":cursorDate"] = cursorData.date;
-        expressionAttributeValues[":cursorId"] = cursorData.id;
-      }
-
-      const command = new QueryCommand({
+      // Build query parameters
+      const queryParams: {
+        TableName: string;
+        IndexName: string;
+        KeyConditionExpression: string;
+        FilterExpression: string;
+        ExpressionAttributeValues: Record<string, unknown>;
+        ScanIndexForward: boolean;
+        Limit: number;
+        ExclusiveStartKey?: Record<string, unknown>;
+      } = {
         TableName: this.tableName,
         IndexName: "UserDateIndex",
         KeyConditionExpression: keyConditionExpression,
         FilterExpression: filterExpression,
-        ...(after && {
-          ExpressionAttributeNames: {
-            "#date": "date",
-          },
-        }),
         ExpressionAttributeValues: expressionAttributeValues,
         ScanIndexForward: false, // Sort by date descending (latest first)
         Limit: first + 1, // Fetch one extra to determine hasNextPage
-      });
+      };
+
+      // Handle cursor-based pagination using ExclusiveStartKey
+      if (after) {
+        const cursorData = decodeCursor(after);
+
+        // Set ExclusiveStartKey to start after the cursor item
+        queryParams.ExclusiveStartKey = {
+          userId: userId,
+          id: cursorData.id,
+          date: cursorData.date, // GSI sort key
+        };
+      }
+
+      const command = new QueryCommand(queryParams);
 
       const result = await this.client.send(command);
       const items = (result.Items || []) as Transaction[];

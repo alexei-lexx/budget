@@ -11,7 +11,7 @@
         </div>
 
         <!-- Loading State -->
-        <div v-if="transactionsLoading" class="text-center py-8">
+        <div v-if="paginatedLoading" class="text-center py-8">
           <v-progress-circular
             indeterminate
             color="primary"
@@ -28,7 +28,7 @@
 
         <!-- Empty State -->
         <v-sheet
-          v-else-if="transactions.length === 0"
+          v-else-if="paginatedTransactions.length === 0"
           border="dashed md"
           color="surface-light"
           height="300"
@@ -49,19 +49,39 @@
         <!-- Transactions List -->
         <div v-else>
           <div class="text-body-2 text-medium-emphasis mb-3">
-            {{ transactions.length }} transaction{{ transactions.length !== 1 ? "s" : "" }}
+            {{ paginatedTransactions.length }}{{ totalCount > 0 ? ` of ${totalCount}` : '' }} transaction{{ totalCount !== 1 ? "s" : "" }}
           </div>
-          <v-row dense>
-            <v-col v-for="transaction in transactions" :key="transaction.id" cols="12">
-              <TransactionCard
-                :transaction="transaction"
-                :account-name="getAccountName(transaction.accountId)"
-                :category-name="getCategoryName(transaction.categoryId)"
-                @edit-transaction="handleEditTransaction"
-                @archive-transaction="handleArchiveTransaction"
-              />
-            </v-col>
-          </v-row>
+          <div class="transaction-list">
+            <TransactionCard
+              v-for="transaction in paginatedTransactions"
+              :key="transaction.id"
+              :transaction="transaction"
+              :account-name="getAccountName(transaction.accountId)"
+              :category-name="getCategoryName(transaction.categoryId)"
+              class="mb-3"
+              @edit-transaction="handleEditTransaction"
+              @archive-transaction="handleArchiveTransaction"
+            />
+          </div>
+
+          <!-- Load More Button -->
+          <div v-if="hasNextPage" class="text-center mt-4">
+            <v-btn
+              :loading="loadMoreLoading"
+              :disabled="loadMoreLoading"
+              color="primary"
+              variant="outlined"
+              prepend-icon="mdi-refresh"
+              @click="handleLoadMore"
+            >
+              Load More Transactions
+            </v-btn>
+          </div>
+
+          <!-- Load More Error -->
+          <v-alert v-if="loadMoreError" type="error" class="mt-4">
+            {{ loadMoreError }}
+          </v-alert>
         </div>
       </v-col>
     </v-row>
@@ -117,12 +137,17 @@ import type { Transaction, CreateTransactionInput } from "@/composables/useTrans
 
 // Composables
 const {
-  transactions,
-  transactionsLoading,
+  paginatedTransactions,
+  paginatedLoading,
   transactionsError,
+  loadMoreLoading,
+  loadMoreError,
+  hasNextPage,
+  totalCount,
   updateTransaction,
   archiveTransaction,
   createTransaction,
+  loadMoreTransactions,
 } = useTransactions();
 const { accounts: accountsData } = useAccounts();
 const { categories: categoriesData } = useCategories();
@@ -146,7 +171,7 @@ const handleAddTransaction = () => {
 };
 
 const handleEditTransaction = (transactionId: string) => {
-  const transaction = transactions.value.find((t) => t.id === transactionId);
+  const transaction = paginatedTransactions.value.find((t) => t.id === transactionId);
   if (transaction) {
     editingTransaction.value = { ...transaction };
     showEditTransactionDialog.value = true;
@@ -154,10 +179,19 @@ const handleEditTransaction = (transactionId: string) => {
 };
 
 const handleArchiveTransaction = (transactionId: string) => {
-  const transaction = transactions.value.find((t) => t.id === transactionId);
+  const transaction = paginatedTransactions.value.find((t) => t.id === transactionId);
   if (transaction) {
     transactionToDelete.value = transaction;
     showDeleteConfirmDialog.value = true;
+  }
+};
+
+const handleLoadMore = async () => {
+  const success = await loadMoreTransactions();
+  
+  if (!success && loadMoreError.value) {
+    // Error is already handled by the composable and displayed in the UI
+    console.error("Failed to load more transactions:", loadMoreError.value);
   }
 };
 

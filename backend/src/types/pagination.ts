@@ -5,7 +5,7 @@
 /**
  * Default number of items to return per page
  */
-export const DEFAULT_PAGE_SIZE = 20;
+export const DEFAULT_PAGE_SIZE = 10;
 
 /**
  * Maximum number of items allowed per page
