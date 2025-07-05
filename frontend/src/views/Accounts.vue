@@ -38,8 +38,8 @@ const { showSuccessSnackbar } = useSnackbar();
 
 // Use accounts data directly
 const accounts = computed<Account[]>(() => {
-  if (!accountsData.value?.activeAccounts) return [];
-  return accountsData.value.activeAccounts;
+  if (!accountsData.value?.accounts) return [];
+  return accountsData.value.accounts;
 });
 
 // Loading state

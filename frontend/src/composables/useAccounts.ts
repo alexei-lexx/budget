@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from "@vue/apollo-composable";
 import { ref, watch } from "vue";
-import { GET_ACTIVE_ACCOUNTS } from "@/graphql/queries";
+import { GET_ACCOUNTS } from "@/graphql/queries";
 import { CREATE_ACCOUNT, UPDATE_ACCOUNT, ARCHIVE_ACCOUNT } from "@/graphql/mutations";
 import type { ApolloError } from "@apollo/client/core";
 
@@ -23,8 +23,8 @@ export interface UpdateAccountInput {
   initialBalance?: number;
 }
 
-interface GetActiveAccountsResponse {
-  activeAccounts: Account[];
+interface GetAccountsResponse {
+  accounts: Account[];
 }
 
 interface CreateAccountResponse {
@@ -48,7 +48,7 @@ export function useAccounts() {
     loading: accountsLoading,
     error: accountsQueryError,
     refetch: refetchAccounts,
-  } = useQuery<GetActiveAccountsResponse>(GET_ACTIVE_ACCOUNTS);
+  } = useQuery<GetAccountsResponse>(GET_ACCOUNTS);
 
   // Create account mutation
   const {

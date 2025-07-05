@@ -56,7 +56,7 @@ const updateAccountInputSchema = z.object({
 
 export const accountResolvers = {
   Query: {
-    activeAccounts: async (
+    accounts: async (
       _parent: unknown,
       _args: unknown,
       context: GraphQLContext,
@@ -68,7 +68,7 @@ export const accountResolvers = {
         );
         return accounts;
       } catch (error) {
-        handleResolverError(error, "Failed to fetch active accounts");
+        handleResolverError(error, "Failed to fetch accounts");
       }
     },
     supportedCurrencies: () => {

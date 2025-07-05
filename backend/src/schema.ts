@@ -1,6 +1,6 @@
 export const typeDefs = `#graphql
   type Query {
-    activeAccounts: [Account!]!
+    accounts: [Account!]!
     supportedCurrencies: [String!]!
     activeCategories(type: CategoryType): [Category!]!
     transactions(pagination: PaginationInput): TransactionConnection!

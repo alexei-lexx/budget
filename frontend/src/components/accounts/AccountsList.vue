@@ -19,8 +19,7 @@ const emit = defineEmits<{
   archiveAccount: [accountId: string];
 }>();
 
-// All accounts (archived accounts filtered by backend)
-const activeAccounts = computed(() => props.accounts);
+const accounts = computed(() => props.accounts);
 
 // Event handlers
 const handleEditAccount = (accountId: string) => {
@@ -41,7 +40,7 @@ const handleArchiveAccount = (accountId: string) => {
 
   <!-- Empty State -->
   <v-sheet
-    v-else-if="activeAccounts.length === 0"
+    v-else-if="accounts.length === 0"
     border="dashed md"
     color="surface-light"
     height="300"
@@ -61,7 +60,7 @@ const handleArchiveAccount = (accountId: string) => {
 
   <!-- Accounts Grid - Optimized for Single-Line Cards -->
   <v-row v-else dense>
-    <v-col v-for="account in activeAccounts" :key="account.id" cols="12" md="6" xl="4">
+    <v-col v-for="account in accounts" :key="account.id" cols="12" md="6" xl="4">
       <AccountCard
         :account="account"
         @edit-account="handleEditAccount"

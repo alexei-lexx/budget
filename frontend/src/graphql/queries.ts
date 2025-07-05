@@ -1,9 +1,9 @@
 import { gql } from "@apollo/client/core";
 import { ACCOUNT_FRAGMENT, CATEGORY_FRAGMENT, TRANSACTION_FRAGMENT } from "./fragments";
 
-export const GET_ACTIVE_ACCOUNTS = gql`
-  query GetActiveAccounts {
-    activeAccounts {
+export const GET_ACCOUNTS = gql`
+  query GetAccounts {
+    accounts {
       ...AccountFields
     }
   }
