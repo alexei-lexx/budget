@@ -819,8 +819,8 @@ Transaction List (chronological, newest first):
 - [x] **7.7 Code Cleanup**
   - [x] 7.7.1 Remove non-paginated GET_TRANSACTIONS query and related frontend code
   - [x] 7.7.2 Update useTransactions composable to only use paginated version
-  - [ ] 7.7.3 Remove backward compatibility methods: findActiveByUserId, getTransactionsByUser (non-paginated)
-  - [ ] 7.7.4 Update interface definitions to only include paginated methods
+  - [x] 7.7.3 Remove backward compatibility methods: findActiveByUserId, getTransactionsByUser (non-paginated)
+  - [x] 7.7.4 Update interface definitions to only include paginated methods
 
 ### Success Criteria
 

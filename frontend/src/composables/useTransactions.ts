@@ -116,7 +116,7 @@ export function useTransactions() {
     (result, previousResult) => {
       if (result?.transactions) {
         const connection = result.transactions;
-        const transactions = connection.edges.map(edge => edge.node);
+        const transactions = connection.edges.map((edge) => edge.node);
 
         // Update pagination state
         endCursor.value = connection.pageInfo.endCursor || null;
@@ -124,8 +124,8 @@ export function useTransactions() {
         totalCount.value = connection.totalCount;
 
         // Determine if this is initial load or load more
-        const isInitialLoad = !previousResult?.transactions || 
-          allLoadedTransactions.value.length === 0;
+        const isInitialLoad =
+          !previousResult?.transactions || allLoadedTransactions.value.length === 0;
 
         if (isInitialLoad) {
           // Replace the entire list
@@ -218,7 +218,9 @@ export function useTransactions() {
       const result = await archiveTransactionMutation({ id });
       if (result?.data?.archiveTransaction) {
         // Remove the transaction from the list
-        allLoadedTransactions.value = allLoadedTransactions.value.filter((t: Transaction) => t.id !== id);
+        allLoadedTransactions.value = allLoadedTransactions.value.filter(
+          (t: Transaction) => t.id !== id,
+        );
         // Also refetch to ensure we have the latest data structure
         await refetchPaginatedTransactions();
         return result.data.archiveTransaction;
@@ -251,21 +253,23 @@ export function useTransactions() {
             after: endCursor.value,
           },
         },
-        fetchPolicy: 'network-only', // Always fetch from network
+        fetchPolicy: "network-only", // Always fetch from network
       });
 
       if (result.data?.transactions) {
         const connection = result.data.transactions;
         const newTransactions = connection.edges.map((edge: TransactionEdge) => edge.node);
-        
+
         // Update pagination state
         endCursor.value = connection.pageInfo.endCursor || null;
         hasNextPage.value = connection.pageInfo.hasNextPage;
         totalCount.value = connection.totalCount;
-        
+
         // Manually append new transactions
         const existingIds = new Set(allLoadedTransactions.value.map((t: Transaction) => t.id));
-        const uniqueNewTransactions = newTransactions.filter((t: Transaction) => !existingIds.has(t.id));
+        const uniqueNewTransactions = newTransactions.filter(
+          (t: Transaction) => !existingIds.has(t.id),
+        );
         allLoadedTransactions.value = [...allLoadedTransactions.value, ...uniqueNewTransactions];
       }
 

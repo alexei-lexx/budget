@@ -38,7 +38,6 @@ export type TransactionEdge = Edge<Transaction>;
 export type TransactionConnection = Connection<Transaction>;
 
 export interface ITransactionRepository {
-  findActiveByUserId(userId: string): Promise<Transaction[]>;
   findActiveByUserIdPaginated(
     userId: string,
     pagination?: PaginationInput,

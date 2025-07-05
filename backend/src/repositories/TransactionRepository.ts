@@ -104,39 +104,6 @@ export class TransactionRepository implements ITransactionRepository {
     }
   }
 
-  async findActiveByUserId(userId: string): Promise<Transaction[]> {
-    if (!userId) {
-      throw new TransactionRepositoryError(
-        "User ID is required",
-        "INVALID_USER_ID",
-      );
-    }
-
-    try {
-      const command = new QueryCommand({
-        TableName: this.tableName,
-        IndexName: "UserDateIndex",
-        KeyConditionExpression: "userId = :userId",
-        FilterExpression: "isArchived = :isArchived",
-        ExpressionAttributeValues: {
-          ":userId": userId,
-          ":isArchived": false,
-        },
-        ScanIndexForward: false, // Sort by date descending (latest first)
-      });
-
-      const result = await this.client.send(command);
-      return (result.Items || []) as Transaction[];
-    } catch (error) {
-      console.error("Error finding active transactions by user ID:", error);
-      throw new TransactionRepositoryError(
-        "Failed to find active transactions",
-        "QUERY_FAILED",
-        error,
-      );
-    }
-  }
-
   async findActiveByUserIdPaginated(
     userId: string,
     pagination?: PaginationInput,

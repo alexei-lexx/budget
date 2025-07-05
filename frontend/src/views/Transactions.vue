@@ -49,7 +49,10 @@
         <!-- Transactions List -->
         <div v-else>
           <div class="text-body-2 text-medium-emphasis mb-3">
-            {{ paginatedTransactions.length }}{{ totalCount > 0 ? ` of ${totalCount}` : '' }} transaction{{ totalCount !== 1 ? "s" : "" }}
+            {{ paginatedTransactions.length
+            }}{{ totalCount > 0 ? ` of ${totalCount}` : "" }} transaction{{
+              totalCount !== 1 ? "s" : ""
+            }}
           </div>
           <div class="transaction-list">
             <TransactionCard
@@ -188,7 +191,7 @@ const handleArchiveTransaction = (transactionId: string) => {
 
 const handleLoadMore = async () => {
   const success = await loadMoreTransactions();
-  
+
   if (!success && loadMoreError.value) {
     // Error is already handled by the composable and displayed in the UI
     console.error("Failed to load more transactions:", loadMoreError.value);
