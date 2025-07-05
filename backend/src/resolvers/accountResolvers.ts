@@ -183,7 +183,7 @@ export const accountResolvers = {
         handleResolverError(error, "Failed to update account");
       }
     },
-    archiveAccount: async (
+    deleteAccount: async (
       _parent: unknown,
       args: { id: string },
       context: GraphQLContext,
@@ -202,7 +202,7 @@ export const accountResolvers = {
         const account = await context.accountRepository.archive(id, user.id);
         return account;
       } catch (error) {
-        handleResolverError(error, "Failed to archive account");
+        handleResolverError(error, "Failed to delete account");
       }
     },
   },

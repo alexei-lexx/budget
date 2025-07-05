@@ -21,7 +21,7 @@ const {
   accountsLoading,
   createAccount,
   updateAccount,
-  archiveAccount: archiveAccountMutation,
+  deleteAccount,
   createAccountLoading,
   updateAccountLoading,
 } = useAccounts();
@@ -59,7 +59,7 @@ const editAccount = (accountId: string) => {
   }
 };
 
-const archiveAccount = (accountId: string) => {
+const deleteAccountHandler = (accountId: string) => {
   const account = accounts.value.find((a) => a.id === accountId);
   if (account) {
     accountToDelete.value = account;
@@ -69,7 +69,7 @@ const archiveAccount = (accountId: string) => {
 
 const confirmDeleteAccount = async () => {
   if (accountToDelete.value) {
-    const result = await archiveAccountMutation(accountToDelete.value.id);
+    const result = await deleteAccount(accountToDelete.value.id);
     if (result) {
       showSuccessSnackbar(`Account "${accountToDelete.value.name}" has been deleted`);
     }
@@ -155,7 +155,7 @@ const handleAccountCancel = () => {
       :accounts="accounts"
       :loading="loading"
       @edit-account="editAccount"
-      @archive-account="archiveAccount"
+      @archive-account="deleteAccountHandler"
     >
       <template #empty-action>
         <v-btn color="primary" prepend-icon="mdi-plus" @click="openAddAccountDialog">

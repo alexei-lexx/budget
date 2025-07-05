@@ -27,9 +27,9 @@ export const UPDATE_ACCOUNT = gql`
   ${ACCOUNT_FRAGMENT}
 `;
 
-export const ARCHIVE_ACCOUNT = gql`
-  mutation ArchiveAccount($id: ID!) {
-    archiveAccount(id: $id) {
+export const DELETE_ACCOUNT = gql`
+  mutation DeleteAccount($id: ID!) {
+    deleteAccount(id: $id) {
       ...AccountFields
     }
   }

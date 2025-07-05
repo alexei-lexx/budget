@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from "@vue/apollo-composable";
 import { ref, watch } from "vue";
 import { GET_ACCOUNTS } from "@/graphql/queries";
-import { CREATE_ACCOUNT, UPDATE_ACCOUNT, ARCHIVE_ACCOUNT } from "@/graphql/mutations";
+import { CREATE_ACCOUNT, UPDATE_ACCOUNT, DELETE_ACCOUNT } from "@/graphql/mutations";
 import type { ApolloError } from "@apollo/client/core";
 
 export interface Account {
@@ -35,8 +35,8 @@ interface UpdateAccountResponse {
   updateAccount: Account;
 }
 
-interface ArchiveAccountResponse {
-  archiveAccount: Account;
+interface DeleteAccountResponse {
+  deleteAccount: Account;
 }
 
 export function useAccounts() {
@@ -64,12 +64,12 @@ export function useAccounts() {
     error: updateAccountError,
   } = useMutation<UpdateAccountResponse, { id: string; input: UpdateAccountInput }>(UPDATE_ACCOUNT);
 
-  // Archive account mutation
+  // Delete account mutation
   const {
-    mutate: archiveAccountMutation,
-    loading: archiveAccountLoading,
-    error: archiveAccountError,
-  } = useMutation<ArchiveAccountResponse, { id: string }>(ARCHIVE_ACCOUNT);
+    mutate: deleteAccountMutation,
+    loading: deleteAccountLoading,
+    error: deleteAccountError,
+  } = useMutation<DeleteAccountResponse, { id: string }>(DELETE_ACCOUNT);
 
   // Watch for query errors
   watch(accountsQueryError, (error: ApolloError | null) => {
@@ -81,9 +81,9 @@ export function useAccounts() {
 
   // Watch for mutation errors
   watch(
-    [createAccountError, updateAccountError, archiveAccountError],
-    ([createError, updateError, archiveError]) => {
-      const error = createError || updateError || archiveError;
+    [createAccountError, updateAccountError, deleteAccountError],
+    ([createError, updateError, deleteError]) => {
+      const error = createError || updateError || deleteError;
       if (error) {
         console.error("Account mutation failed:", error);
         accountsError.value = error.message || "Account operation failed";
@@ -125,19 +125,19 @@ export function useAccounts() {
     }
   };
 
-  // Archive account function
-  const archiveAccount = async (id: string): Promise<Account | null> => {
+  // Delete account function
+  const deleteAccount = async (id: string): Promise<Account | null> => {
     try {
       accountsError.value = null;
-      const result = await archiveAccountMutation({ id });
-      if (result?.data?.archiveAccount) {
+      const result = await deleteAccountMutation({ id });
+      if (result?.data?.deleteAccount) {
         await refetchAccounts();
-        return result.data.archiveAccount;
+        return result.data.deleteAccount;
       }
       return null;
     } catch (error) {
-      console.error("Error archiving account:", error);
-      accountsError.value = error instanceof Error ? error.message : "Failed to archive account";
+      console.error("Error deleting account:", error);
+      accountsError.value = error instanceof Error ? error.message : "Failed to delete account";
       return null;
     }
   };
@@ -150,19 +150,19 @@ export function useAccounts() {
     accountsLoading,
     createAccountLoading,
     updateAccountLoading,
-    archiveAccountLoading,
+    deleteAccountLoading,
 
     // Error states
     accountsError,
     accountsQueryError,
     createAccountError,
     updateAccountError,
-    archiveAccountError,
+    deleteAccountError,
 
     // Functions
     createAccount,
     updateAccount,
-    archiveAccount,
+    deleteAccount,
     refetchAccounts,
   };
 }
