@@ -35,7 +35,7 @@ const { categories: categoriesData } = useCategories();
 
 // Computed properties for clean data access
 const accounts = computed(() => accountsData.value?.accounts || []);
-const categories = computed(() => categoriesData.value?.activeCategories || []);
+const categories = computed(() => categoriesData.value?.categories || []);
 
 // Filter categories by transaction type
 const filteredCategories = computed(() => {

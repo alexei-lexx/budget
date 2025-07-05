@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from "@vue/apollo-composable";
 import { ref, watch, type Ref } from "vue";
-import { GET_ACTIVE_CATEGORIES } from "@/graphql/queries";
+import { GET_CATEGORIES } from "@/graphql/queries";
 import { CREATE_CATEGORY, UPDATE_CATEGORY, ARCHIVE_CATEGORY } from "@/graphql/mutations";
 import type { ApolloError } from "@apollo/client/core";
 
@@ -22,8 +22,8 @@ export interface UpdateCategoryInput {
   type?: CategoryType;
 }
 
-interface GetActiveCategoriesResponse {
-  activeCategories: Category[];
+interface GetCategoriesResponse {
+  categories: Category[];
 }
 
 interface CreateCategoryResponse {
@@ -47,7 +47,7 @@ export function useCategories(type?: CategoryType | Ref<CategoryType>) {
     loading: categoriesLoading,
     error: categoriesQueryError,
     refetch: refetchCategories,
-  } = useQuery<GetActiveCategoriesResponse>(GET_ACTIVE_CATEGORIES, () => ({
+  } = useQuery<GetCategoriesResponse>(GET_CATEGORIES, () => ({
     type: typeof type === "object" && "value" in type ? type.value : type || null,
   }));
 

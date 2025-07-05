@@ -40,8 +40,8 @@ const { showSuccessSnackbar } = useSnackbar();
 
 // Use categories data directly
 const categories = computed<Category[]>(() => {
-  if (!categoriesData.value?.activeCategories) return [];
-  return categoriesData.value.activeCategories;
+  if (!categoriesData.value?.categories) return [];
+  return categoriesData.value.categories;
 });
 
 // Filter categories by current tab

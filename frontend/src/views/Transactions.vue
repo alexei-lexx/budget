@@ -158,7 +158,7 @@ const { showSuccessSnackbar } = useSnackbar();
 
 // Computed properties for clean data access
 const accounts = computed(() => accountsData.value?.accounts || []);
-const categories = computed(() => categoriesData.value?.activeCategories || []);
+const categories = computed(() => categoriesData.value?.categories || []);
 
 // Transaction management state
 const showCreateTransactionDialog = ref(false);

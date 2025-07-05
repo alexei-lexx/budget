@@ -38,7 +38,7 @@ const updateCategoryInputSchema = z.object({
 
 export const categoryResolvers = {
   Query: {
-    activeCategories: async (
+    categories: async (
       _parent: unknown,
       args: { type?: CategoryType },
       context: GraphQLContext,
@@ -62,7 +62,7 @@ export const categoryResolvers = {
         );
         return categories;
       } catch (error) {
-        handleResolverError(error, "Failed to fetch active categories");
+        handleResolverError(error, "Failed to fetch categories");
       }
     },
   },

@@ -16,9 +16,9 @@ export const GET_SUPPORTED_CURRENCIES = gql`
   }
 `;
 
-export const GET_ACTIVE_CATEGORIES = gql`
-  query GetActiveCategories($type: CategoryType) {
-    activeCategories(type: $type) {
+export const GET_CATEGORIES = gql`
+  query GetCategories($type: CategoryType) {
+    categories(type: $type) {
       ...CategoryFields
     }
   }
