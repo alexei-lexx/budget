@@ -167,11 +167,11 @@ export class TransactionService {
    * @param pagination - Optional pagination parameters (first, after)
    * @returns Promise<TransactionConnection> - Paginated transaction results with cursor information
    */
-  async getTransactionsByUserPaginated(
+  async getTransactionsByUser(
     userId: string,
     pagination?: PaginationInput,
   ): Promise<TransactionConnection> {
-    return await this.transactionRepository.findActiveByUserIdPaginated(
+    return await this.transactionRepository.findActiveByUserId(
       userId,
       pagination,
     );

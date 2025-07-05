@@ -84,7 +84,7 @@ export const transactionResolvers = {
         const user = await getAuthenticatedUser(context);
 
         const transactionConnection =
-          await context.transactionService.getTransactionsByUserPaginated(
+          await context.transactionService.getTransactionsByUser(
             user.id,
             validatedPagination,
           );

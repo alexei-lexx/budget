@@ -104,7 +104,7 @@ export class TransactionRepository implements ITransactionRepository {
     }
   }
 
-  async findActiveByUserIdPaginated(
+  async findActiveByUserId(
     userId: string,
     pagination?: PaginationInput,
   ): Promise<TransactionConnection> {
