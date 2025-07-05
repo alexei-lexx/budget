@@ -9,6 +9,7 @@
         v-if="showDelete"
         prepend-icon="mdi-delete"
         title="Delete"
+        class="text-error"
         @click="$emit('delete')"
       />
     </v-list>
