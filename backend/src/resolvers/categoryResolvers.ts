@@ -133,7 +133,7 @@ export const categoryResolvers = {
         handleResolverError(error, "Failed to update category");
       }
     },
-    archiveCategory: async (
+    deleteCategory: async (
       _parent: unknown,
       args: { id: string },
       context: GraphQLContext,
@@ -152,7 +152,7 @@ export const categoryResolvers = {
         const category = await context.categoryRepository.archive(id, user.id);
         return category;
       } catch (error) {
-        handleResolverError(error, "Failed to archive category");
+        handleResolverError(error, "Failed to delete category");
       }
     },
   },

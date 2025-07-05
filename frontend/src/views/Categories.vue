@@ -23,7 +23,7 @@ const {
   categoriesLoading,
   createCategory,
   updateCategory,
-  archiveCategory: archiveCategoryMutation,
+  deleteCategory,
   createCategoryLoading,
   updateCategoryLoading,
 } = useCategories();
@@ -66,7 +66,7 @@ const editCategory = (categoryId: string) => {
   }
 };
 
-const archiveCategory = (categoryId: string) => {
+const deleteCategoryHandler = (categoryId: string) => {
   const category = categories.value.find((c) => c.id === categoryId);
   if (category) {
     categoryToDelete.value = category;
@@ -76,7 +76,7 @@ const archiveCategory = (categoryId: string) => {
 
 const confirmDeleteCategory = async () => {
   if (categoryToDelete.value) {
-    const result = await archiveCategoryMutation(categoryToDelete.value.id);
+    const result = await deleteCategory(categoryToDelete.value.id);
     if (result) {
       showSuccessSnackbar(`Category "${categoryToDelete.value.name}" has been deleted`);
     }
@@ -200,7 +200,7 @@ const handleCategoryCancel = () => {
         <CategoryCard
           :category="category"
           @edit-category="editCategory"
-          @archive-category="archiveCategory"
+          @delete-category="deleteCategoryHandler"
         />
       </v-col>
     </v-row>

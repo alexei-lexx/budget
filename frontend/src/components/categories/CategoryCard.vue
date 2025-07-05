@@ -12,7 +12,7 @@ const props = defineProps<Props>();
 // Define emitted events
 const emit = defineEmits<{
   editCategory: [categoryId: string];
-  archiveCategory: [categoryId: string];
+  deleteCategory: [categoryId: string];
 }>();
 
 // Event handlers
@@ -20,8 +20,8 @@ const handleEditCategory = () => {
   emit("editCategory", props.category.id);
 };
 
-const handleArchiveCategory = () => {
-  emit("archiveCategory", props.category.id);
+const handleDeleteCategory = () => {
+  emit("deleteCategory", props.category.id);
 };
 </script>
 
@@ -38,7 +38,7 @@ const handleArchiveCategory = () => {
           </div>
         </div>
         <div class="flex-shrink-0 ml-2">
-          <ActionDropdown @edit="handleEditCategory" @delete="handleArchiveCategory" />
+          <ActionDropdown @edit="handleEditCategory" @delete="handleDeleteCategory" />
         </div>
       </div>
     </v-card-text>

@@ -54,9 +54,9 @@ export const UPDATE_CATEGORY = gql`
   ${CATEGORY_FRAGMENT}
 `;
 
-export const ARCHIVE_CATEGORY = gql`
-  mutation ArchiveCategory($id: ID!) {
-    archiveCategory(id: $id) {
+export const DELETE_CATEGORY = gql`
+  mutation DeleteCategory($id: ID!) {
+    deleteCategory(id: $id) {
       ...CategoryFields
     }
   }

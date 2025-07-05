@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from "@vue/apollo-composable";
 import { ref, watch, type Ref } from "vue";
 import { GET_CATEGORIES } from "@/graphql/queries";
-import { CREATE_CATEGORY, UPDATE_CATEGORY, ARCHIVE_CATEGORY } from "@/graphql/mutations";
+import { CREATE_CATEGORY, UPDATE_CATEGORY, DELETE_CATEGORY } from "@/graphql/mutations";
 import type { ApolloError } from "@apollo/client/core";
 
 export type CategoryType = "INCOME" | "EXPENSE";
@@ -34,8 +34,8 @@ interface UpdateCategoryResponse {
   updateCategory: Category;
 }
 
-interface ArchiveCategoryResponse {
-  archiveCategory: Category;
+interface DeleteCategoryResponse {
+  deleteCategory: Category;
 }
 
 export function useCategories(type?: CategoryType | Ref<CategoryType>) {
@@ -67,12 +67,12 @@ export function useCategories(type?: CategoryType | Ref<CategoryType>) {
     UPDATE_CATEGORY,
   );
 
-  // Archive category mutation
+  // Delete category mutation
   const {
-    mutate: archiveCategoryMutation,
-    loading: archiveCategoryLoading,
-    error: archiveCategoryError,
-  } = useMutation<ArchiveCategoryResponse, { id: string }>(ARCHIVE_CATEGORY);
+    mutate: deleteCategoryMutation,
+    loading: deleteCategoryLoading,
+    error: deleteCategoryError,
+  } = useMutation<DeleteCategoryResponse, { id: string }>(DELETE_CATEGORY);
 
   // Watch for query errors
   watch(categoriesQueryError, (error: ApolloError | null) => {
@@ -84,9 +84,9 @@ export function useCategories(type?: CategoryType | Ref<CategoryType>) {
 
   // Watch for mutation errors
   watch(
-    [createCategoryError, updateCategoryError, archiveCategoryError],
-    ([createError, updateError, archiveError]) => {
-      const error = createError || updateError || archiveError;
+    [createCategoryError, updateCategoryError, deleteCategoryError],
+    ([createError, updateError, deleteError]) => {
+      const error = createError || updateError || deleteError;
       if (error) {
         console.error("Category mutation failed:", error);
         categoriesError.value = error.message || "Category operation failed";
@@ -131,19 +131,19 @@ export function useCategories(type?: CategoryType | Ref<CategoryType>) {
     }
   };
 
-  // Archive category function
-  const archiveCategory = async (id: string): Promise<Category | null> => {
+  // Delete category function
+  const deleteCategory = async (id: string): Promise<Category | null> => {
     try {
       categoriesError.value = null;
-      const result = await archiveCategoryMutation({ id });
-      if (result?.data?.archiveCategory) {
+      const result = await deleteCategoryMutation({ id });
+      if (result?.data?.deleteCategory) {
         await refetchCategories();
-        return result.data.archiveCategory;
+        return result.data.deleteCategory;
       }
       return null;
     } catch (error) {
-      console.error("Error archiving category:", error);
-      categoriesError.value = error instanceof Error ? error.message : "Failed to archive category";
+      console.error("Error deleting category:", error);
+      categoriesError.value = error instanceof Error ? error.message : "Failed to delete category";
       return null;
     }
   };
@@ -156,19 +156,19 @@ export function useCategories(type?: CategoryType | Ref<CategoryType>) {
     categoriesLoading,
     createCategoryLoading,
     updateCategoryLoading,
-    archiveCategoryLoading,
+    deleteCategoryLoading,
 
     // Error states
     categoriesError,
     categoriesQueryError,
     createCategoryError,
     updateCategoryError,
-    archiveCategoryError,
+    deleteCategoryError,
 
     // Functions
     createCategory,
     updateCategory,
-    archiveCategory,
+    deleteCategory,
     refetchCategories,
   };
 }
