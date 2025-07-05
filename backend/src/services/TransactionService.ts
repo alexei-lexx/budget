@@ -246,7 +246,7 @@ export class TransactionService {
    * @returns Promise<Transaction> - The archived transaction
    * @throws BusinessError if transaction not found or doesn't belong to user
    */
-  async archiveTransaction(id: string, userId: string): Promise<Transaction> {
+  async deleteTransaction(id: string, userId: string): Promise<Transaction> {
     // First verify the transaction exists and belongs to the user
     const existingTransaction = await this.transactionRepository.findById(
       id,

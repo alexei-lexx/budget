@@ -187,7 +187,7 @@ export const transactionResolvers = {
 
       try {
         const user = await getAuthenticatedUser(context);
-        const transaction = await context.transactionService.archiveTransaction(
+        const transaction = await context.transactionService.deleteTransaction(
           id,
           user.id,
         );
