@@ -81,9 +81,9 @@ export const UPDATE_TRANSACTION = gql`
   ${TRANSACTION_FRAGMENT}
 `;
 
-export const ARCHIVE_TRANSACTION = gql`
-  mutation ArchiveTransaction($id: ID!) {
-    archiveTransaction(id: $id) {
+export const DELETE_TRANSACTION = gql`
+  mutation DeleteTransaction($id: ID!) {
+    deleteTransaction(id: $id) {
       ...TransactionFields
     }
   }

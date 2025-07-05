@@ -171,7 +171,7 @@ export const transactionResolvers = {
         handleResolverError(error, "Failed to update transaction");
       }
     },
-    archiveTransaction: async (
+    deleteTransaction: async (
       _parent: unknown,
       args: { id: string },
       context: GraphQLContext,
@@ -198,7 +198,7 @@ export const transactionResolvers = {
             extensions: { code: error.code, details: error.details },
           });
         }
-        handleResolverError(error, "Failed to archive transaction");
+        handleResolverError(error, "Failed to delete transaction");
       }
     },
   },

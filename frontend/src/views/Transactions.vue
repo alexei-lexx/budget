@@ -63,7 +63,7 @@
               :category-name="getCategoryName(transaction.categoryId)"
               class="mb-3"
               @edit-transaction="handleEditTransaction"
-              @archive-transaction="handleArchiveTransaction"
+              @delete-transaction="handleDeleteTransaction"
             />
           </div>
 
@@ -148,7 +148,7 @@ const {
   hasNextPage,
   totalCount,
   updateTransaction,
-  archiveTransaction,
+  deleteTransaction,
   createTransaction,
   loadMoreTransactions,
 } = useTransactions();
@@ -181,7 +181,7 @@ const handleEditTransaction = (transactionId: string) => {
   }
 };
 
-const handleArchiveTransaction = (transactionId: string) => {
+const handleDeleteTransaction = (transactionId: string) => {
   const transaction = paginatedTransactions.value.find((t) => t.id === transactionId);
   if (transaction) {
     transactionToDelete.value = transaction;
@@ -200,7 +200,7 @@ const handleLoadMore = async () => {
 
 const confirmDeleteTransaction = async () => {
   if (transactionToDelete.value) {
-    const success = await archiveTransaction(transactionToDelete.value.id);
+    const success = await deleteTransaction(transactionToDelete.value.id);
     if (success) {
       const amount = transactionToDelete.value.amount;
       const description = transactionToDelete.value.description || "transaction";

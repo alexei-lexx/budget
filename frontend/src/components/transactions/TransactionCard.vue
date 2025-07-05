@@ -16,7 +16,7 @@ const props = defineProps<Props>();
 // Define emitted events
 const emit = defineEmits<{
   editTransaction: [transactionId: string];
-  archiveTransaction: [transactionId: string];
+  deleteTransaction: [transactionId: string];
 }>();
 
 // Format amount with +/- prefix
@@ -57,8 +57,8 @@ const handleEditTransaction = () => {
   emit("editTransaction", props.transaction.id);
 };
 
-const handleArchiveTransaction = () => {
-  emit("archiveTransaction", props.transaction.id);
+const handleDeleteTransaction = () => {
+  emit("deleteTransaction", props.transaction.id);
 };
 </script>
 
@@ -86,7 +86,7 @@ const handleArchiveTransaction = () => {
         </div>
 
         <!-- Menu -->
-        <ActionDropdown @edit="handleEditTransaction" @delete="handleArchiveTransaction" />
+        <ActionDropdown @edit="handleEditTransaction" @delete="handleDeleteTransaction" />
       </div>
     </v-card-text>
   </v-card>

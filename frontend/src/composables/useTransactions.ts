@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from "@vue/apollo-composable";
 import { ref, watch, computed } from "vue";
 import { GET_TRANSACTIONS_PAGINATED } from "@/graphql/queries";
-import { CREATE_TRANSACTION, UPDATE_TRANSACTION, ARCHIVE_TRANSACTION } from "@/graphql/mutations";
+import { CREATE_TRANSACTION, UPDATE_TRANSACTION, DELETE_TRANSACTION } from "@/graphql/mutations";
 import type { ApolloError } from "@apollo/client/core";
 import type { CategoryType } from "./useCategories";
 import type { PaginationInput, Edge, Connection } from "@/types/pagination";
@@ -53,8 +53,8 @@ interface UpdateTransactionResponse {
   updateTransaction: Transaction;
 }
 
-interface ArchiveTransactionResponse {
-  archiveTransaction: Transaction;
+interface DeleteTransactionResponse {
+  deleteTransaction: Transaction;
 }
 
 export function useTransactions() {
@@ -103,12 +103,12 @@ export function useTransactions() {
     UPDATE_TRANSACTION,
   );
 
-  // Archive transaction mutation
+  // Delete transaction mutation
   const {
-    mutate: archiveTransactionMutation,
-    loading: archiveTransactionLoading,
-    error: archiveTransactionError,
-  } = useMutation<ArchiveTransactionResponse, { id: string }>(ARCHIVE_TRANSACTION);
+    mutate: deleteTransactionMutation,
+    loading: deleteTransactionLoading,
+    error: deleteTransactionError,
+  } = useMutation<DeleteTransactionResponse, { id: string }>(DELETE_TRANSACTION);
 
   // Watch for paginated query results to update pagination state and transaction list
   watch(
@@ -151,9 +151,9 @@ export function useTransactions() {
 
   // Watch for mutation errors
   watch(
-    [createTransactionError, updateTransactionError, archiveTransactionError],
-    ([createError, updateError, archiveError]) => {
-      const error = createError || updateError || archiveError;
+    [createTransactionError, updateTransactionError, deleteTransactionError],
+    ([createError, updateError, deleteError]) => {
+      const error = createError || updateError || deleteError;
       if (error) {
         console.error("Transaction mutation failed:", error);
         transactionsError.value = error.message || "Transaction operation failed";
@@ -211,25 +211,25 @@ export function useTransactions() {
     }
   };
 
-  // Archive transaction function
-  const archiveTransaction = async (id: string): Promise<Transaction | null> => {
+  // Delete transaction function
+  const deleteTransaction = async (id: string): Promise<Transaction | null> => {
     try {
       transactionsError.value = null;
-      const result = await archiveTransactionMutation({ id });
-      if (result?.data?.archiveTransaction) {
+      const result = await deleteTransactionMutation({ id });
+      if (result?.data?.deleteTransaction) {
         // Remove the transaction from the list
         allLoadedTransactions.value = allLoadedTransactions.value.filter(
           (t: Transaction) => t.id !== id,
         );
         // Also refetch to ensure we have the latest data structure
         await refetchPaginatedTransactions();
-        return result.data.archiveTransaction;
+        return result.data.deleteTransaction;
       }
       return null;
     } catch (error) {
-      console.error("Error archiving transaction:", error);
+      console.error("Error deleting transaction:", error);
       transactionsError.value =
-        error instanceof Error ? error.message : "Failed to archive transaction";
+        error instanceof Error ? error.message : "Failed to delete transaction";
       return null;
     }
   };
@@ -296,7 +296,7 @@ export function useTransactions() {
     loadMoreLoading: computed(() => loadMoreLoading.value),
     createTransactionLoading,
     updateTransactionLoading,
-    archiveTransactionLoading,
+    deleteTransactionLoading,
 
     // Error states
     transactionsError,
@@ -304,12 +304,12 @@ export function useTransactions() {
     paginatedQueryError,
     createTransactionError,
     updateTransactionError,
-    archiveTransactionError,
+    deleteTransactionError,
 
     // Functions
     createTransaction,
     updateTransaction,
-    archiveTransaction,
+    deleteTransaction,
     loadMoreTransactions,
     refetchTransactions: refetchPaginatedTransactions,
   };
