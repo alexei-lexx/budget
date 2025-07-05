@@ -16,7 +16,7 @@ const props = withDefaults(defineProps<Props>(), {
 // Define emitted events
 const emit = defineEmits<{
   editAccount: [accountId: string];
-  archiveAccount: [accountId: string];
+  deleteAccount: [accountId: string];
 }>();
 
 const accounts = computed(() => props.accounts);
@@ -26,8 +26,8 @@ const handleEditAccount = (accountId: string) => {
   emit("editAccount", accountId);
 };
 
-const handleArchiveAccount = (accountId: string) => {
-  emit("archiveAccount", accountId);
+const handleDeleteAccount = (accountId: string) => {
+  emit("deleteAccount", accountId);
 };
 </script>
 
@@ -64,7 +64,7 @@ const handleArchiveAccount = (accountId: string) => {
       <AccountCard
         :account="account"
         @edit-account="handleEditAccount"
-        @archive-account="handleArchiveAccount"
+        @delete-account="handleDeleteAccount"
       />
     </v-col>
   </v-row>

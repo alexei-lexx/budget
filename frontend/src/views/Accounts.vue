@@ -155,7 +155,7 @@ const handleAccountCancel = () => {
       :accounts="accounts"
       :loading="loading"
       @edit-account="editAccount"
-      @archive-account="deleteAccountHandler"
+      @delete-account="deleteAccountHandler"
     >
       <template #empty-action>
         <v-btn color="primary" prepend-icon="mdi-plus" @click="openAddAccountDialog">

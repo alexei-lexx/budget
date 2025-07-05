@@ -13,7 +13,7 @@ const props = defineProps<Props>();
 // Define emitted events
 const emit = defineEmits<{
   editAccount: [accountId: string];
-  archiveAccount: [accountId: string];
+  deleteAccount: [accountId: string];
 }>();
 
 // Currency formatting helper using the new utility
@@ -26,8 +26,8 @@ const handleEditAccount = () => {
   emit("editAccount", props.account.id);
 };
 
-const handleArchiveAccount = () => {
-  emit("archiveAccount", props.account.id);
+const handleDeleteAccount = () => {
+  emit("deleteAccount", props.account.id);
 };
 </script>
 
@@ -42,7 +42,7 @@ const handleArchiveAccount = () => {
           <div class="text-h5 font-weight-bold">
             {{ formatAccountBalance(account.initialBalance, account.currency) }}
           </div>
-          <ActionDropdown @edit="handleEditAccount" @delete="handleArchiveAccount" />
+          <ActionDropdown @edit="handleEditAccount" @delete="handleDeleteAccount" />
         </div>
       </div>
     </v-card-text>
