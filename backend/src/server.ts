@@ -7,6 +7,7 @@ import { AccountRepository } from "./repositories/AccountRepository";
 import { CategoryRepository } from "./repositories/CategoryRepository";
 import { TransactionRepository } from "./repositories/TransactionRepository";
 import { TransactionService } from "./services/TransactionService";
+import { AccountService } from "./services/AccountService";
 import { IUserRepository } from "./models/User";
 import { IAccountRepository } from "./models/Account";
 import { ICategoryRepository } from "./models/Category";
@@ -19,6 +20,7 @@ export interface GraphQLContext {
   categoryRepository: ICategoryRepository;
   transactionRepository: ITransactionRepository;
   transactionService: TransactionService;
+  accountService: AccountService;
   jwtAuthService: JwtAuthService;
   authHeader?: string;
 }
@@ -29,6 +31,7 @@ let accountRepository: AccountRepository;
 let categoryRepository: CategoryRepository;
 let transactionRepository: TransactionRepository;
 let transactionService: TransactionService;
+let accountService: AccountService;
 
 export const server = new ApolloServer<GraphQLContext>({
   typeDefs,
@@ -72,6 +75,13 @@ export async function createContext(req: {
     );
   }
 
+  if (!accountService) {
+    accountService = new AccountService(
+      accountRepository,
+      transactionRepository,
+    );
+  }
+
   const authHeader = req.headers.authorization;
   // Handle both string and string[] types from different contexts
   const authHeaderString = Array.isArray(authHeader)
@@ -87,6 +97,7 @@ export async function createContext(req: {
     categoryRepository,
     transactionRepository,
     transactionService,
+    accountService,
     jwtAuthService,
     authHeader: authHeaderString,
   };

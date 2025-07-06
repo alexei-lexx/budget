@@ -981,11 +981,11 @@ Account cards will prominently display calculated balance only, replacing the cu
   - [x] 8.1.2 Ensure method returns only active (non-archived) transactions with proper user scoping
   - [x] 8.1.3 Add error handling for account transaction queries
 
-- [ ] **8.2 Service Layer Implementation**
-  - [ ] 8.2.1 Create AccountService class with dependency injection for AccountRepository and TransactionRepository
-  - [ ] 8.2.2 Implement calculateBalance method with business logic: initialBalance + INCOME - EXPENSE transactions
-  - [ ] 8.2.3 Add error handling for missing accounts and transaction calculation failures
-  - [ ] 8.2.4 Add AccountService to GraphQL context configuration
+- [x] **8.2 Service Layer Implementation**
+  - [x] 8.2.1 Create AccountService class with dependency injection for AccountRepository and TransactionRepository
+  - [x] 8.2.2 Implement calculateBalance method with business logic: initialBalance + INCOME - EXPENSE transactions
+  - [x] 8.2.3 Add error handling for missing accounts and transaction calculation failures
+  - [x] 8.2.4 Add AccountService to GraphQL context configuration
 
 - [ ] **8.3 GraphQL Layer Updates**
   - [ ] 8.3.1 Add balance field to Account GraphQL type as calculated field
