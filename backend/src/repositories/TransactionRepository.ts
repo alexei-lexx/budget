@@ -222,6 +222,45 @@ export class TransactionRepository implements ITransactionRepository {
     }
   }
 
+  async findByAccountId(
+    accountId: string,
+    userId: string,
+  ): Promise<Transaction[]> {
+    if (!accountId || !userId) {
+      throw new TransactionRepositoryError(
+        "Account ID and User ID are required",
+        "INVALID_PARAMETERS",
+      );
+    }
+
+    try {
+      const { items } = await paginateQuery<Transaction>({
+        client: this.client,
+        params: {
+          TableName: this.tableName,
+          KeyConditionExpression: "userId = :userId",
+          FilterExpression:
+            "accountId = :accountId AND isArchived = :isArchived",
+          ExpressionAttributeValues: {
+            ":userId": userId,
+            ":accountId": accountId,
+            ":isArchived": false,
+          },
+        },
+        options: {}, // No pageSize = get all items
+      });
+
+      return items;
+    } catch (error) {
+      console.error("Error finding transactions by account ID:", error);
+      throw new TransactionRepositoryError(
+        "Failed to find transactions by account",
+        "QUERY_FAILED",
+        error,
+      );
+    }
+  }
+
   async create(input: CreateTransactionInput): Promise<Transaction> {
     const now = new Date().toISOString();
     const transaction: Transaction = {

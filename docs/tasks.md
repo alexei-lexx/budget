@@ -976,10 +976,10 @@ Account cards will prominently display calculated balance only, replacing the cu
 
 ### Implementation Plan
 
-- [ ] **8.1 Repository Layer Enhancement**
-  - [ ] 8.1.1 Add findByAccountId method to TransactionRepository for account-specific transaction queries
-  - [ ] 8.1.2 Ensure method returns only active (non-archived) transactions with proper user scoping
-  - [ ] 8.1.3 Add error handling for account transaction queries
+- [x] **8.1 Repository Layer Enhancement**
+  - [x] 8.1.1 Add findByAccountId method to TransactionRepository for account-specific transaction queries
+  - [x] 8.1.2 Ensure method returns only active (non-archived) transactions with proper user scoping
+  - [x] 8.1.3 Add error handling for account transaction queries
 
 - [ ] **8.2 Service Layer Implementation**
   - [ ] 8.2.1 Create AccountService class with dependency injection for AccountRepository and TransactionRepository
