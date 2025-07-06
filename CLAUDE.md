@@ -354,3 +354,8 @@ Do what has been asked; nothing more, nothing less.
 NEVER create files unless they're absolutely necessary for achieving your goal.
 ALWAYS prefer editing an existing file to creating a new one.
 NEVER proactively create documentation files (*.md) or README files. Only create documentation files if explicitly requested by the User.
+
+## Claude Code Project Guidelines
+Follow the project-specific development guidelines defined in:
+- `.github/copilot-instructions.md` - Script usage standards (prefer npm scripts)
+- `.github/instructions/copilot-commit-message.instructions.md` - Commit message format requirements (lowercase, imperative, prefixes)
