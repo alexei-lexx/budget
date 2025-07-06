@@ -24,6 +24,7 @@
 - Prefix the subject with `[be][fe]` if the commit includes changes to both backend and frontend.
 - Prefix the subject with `[copilot]` if the commit includes only updates to Copilot instructions.
 - Prefix the subject with `[doc]` if the commit includes only updates to files in the `docs` subfolder.
+- Prefix the subject with `[claude]` if the commit only includes updates to Claude Code specific files.
 - Avoid using other prefixes unless specified in the project guidelines.
 
 ## Examples
@@ -51,3 +52,8 @@ add delete account feature
   ```
   [copilot] clarify commit message guidelines
   ```
+
+- `[claude]` prefix example:
+  ```
+  [claude]
+```
