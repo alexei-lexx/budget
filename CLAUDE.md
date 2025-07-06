@@ -356,6 +356,23 @@ ALWAYS prefer editing an existing file to creating a new one.
 NEVER proactively create documentation files (*.md) or README files. Only create documentation files if explicitly requested by the User.
 
 ## Claude Code Project Guidelines
-Follow the project-specific development guidelines defined in:
-- `.github/copilot-instructions.md` - Script usage standards (prefer npm scripts)
-- `.github/instructions/copilot-commit-message.instructions.md` - Commit message format requirements (lowercase, imperative, prefixes)
+
+**Script Usage:**
+- Prefer npm scripts defined in package.json over running tools directly
+- This ensures consistent tool versions and project-specific configurations
+- Example: Use `npm run deploy` instead of `npx cdk deploy`
+
+**Commit Message Format:**
+- Use lower case for the entire commit message
+- Write in imperative mood (e.g., "add feature", "fix bug", "update docs")
+- Keep subject line under 50 characters, no period at end
+- Separate subject from body with blank line if body needed
+- Use bullet points in body for multiple changes
+- Wrap body lines at 72 characters
+
+**Required Commit Prefixes:**
+- `[be]` - Backend changes only
+- `[fe]` - Frontend changes only  
+- `[be][fe]` - Both backend and frontend changes
+- `[doc]` - Documentation changes in docs/ folder only
+- `[copilot]` - GitHub Copilot instruction updates only
