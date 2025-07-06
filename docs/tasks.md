@@ -992,10 +992,10 @@ Account cards will prominently display calculated balance only, replacing the cu
   - [x] 8.3.2 Implement balance resolver to call AccountService.calculateBalance
   - [x] 8.3.3 Add error handling for balance calculation failures
 
-- [ ] **8.4 Frontend Data Layer Integration**
-  - [ ] 8.4.1 Update GET_ACCOUNTS query to include balance field
-  - [ ] 8.4.2 Update Account TypeScript interface to include balance property
-  - [ ] 8.4.3 Add error handling for balance field fetching
+- [x] **8.4 Frontend Data Layer Integration**
+  - [x] 8.4.1 Update GET_ACCOUNTS query to include balance field
+  - [x] 8.4.2 Update Account TypeScript interface to include balance property
+  - [x] 8.4.3 Add error handling for balance field fetching
 
 - [ ] **8.5 Frontend UI/UX Layer Enhancement**
   - [ ] 8.5.1 Update AccountCard component to display calculated balance instead of initial balance

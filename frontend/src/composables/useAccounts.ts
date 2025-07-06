@@ -9,6 +9,7 @@ export interface Account {
   name: string;
   currency: string;
   initialBalance: number;
+  balance: number;
 }
 
 export interface CreateAccountInput {

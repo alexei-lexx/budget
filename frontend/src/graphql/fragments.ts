@@ -6,6 +6,7 @@ export const ACCOUNT_FRAGMENT = gql`
     name
     currency
     initialBalance
+    balance
   }
 `;
 
