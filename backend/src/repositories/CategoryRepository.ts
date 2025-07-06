@@ -2,7 +2,6 @@ import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import {
   DynamoDBDocumentClient,
   PutCommand,
-  QueryCommand,
   UpdateCommand,
   GetCommand,
 } from "@aws-sdk/lib-dynamodb";
@@ -13,6 +12,7 @@ import {
   UpdateCategoryInput,
   ICategoryRepository,
 } from "../models/Category.js";
+import { paginateQuery } from "./utils/pagination";
 
 /**
  * Repository error class for better error handling
@@ -103,18 +103,21 @@ export class CategoryRepository implements ICategoryRepository {
     }
 
     try {
-      const command = new QueryCommand({
-        TableName: this.tableName,
-        KeyConditionExpression: "userId = :userId",
-        FilterExpression: "isArchived = :isArchived",
-        ExpressionAttributeValues: {
-          ":userId": userId,
-          ":isArchived": false,
+      const result = await paginateQuery<Category>({
+        client: this.client,
+        params: {
+          TableName: this.tableName,
+          KeyConditionExpression: "userId = :userId",
+          FilterExpression: "isArchived = :isArchived",
+          ExpressionAttributeValues: {
+            ":userId": userId,
+            ":isArchived": false,
+          },
         },
+        options: {}, // No pageSize = get all items
       });
 
-      const result = await this.client.send(command);
-      const categories = (result.Items || []) as Category[];
+      const categories = result.items;
 
       // Sort categories by type first, then by name (case-insensitive)
       return categories.sort((a, b) => {
@@ -145,22 +148,25 @@ export class CategoryRepository implements ICategoryRepository {
     }
 
     try {
-      const command = new QueryCommand({
-        TableName: this.tableName,
-        KeyConditionExpression: "userId = :userId",
-        FilterExpression: "isArchived = :isArchived AND #type = :type",
-        ExpressionAttributeNames: {
-          "#type": "type",
+      const result = await paginateQuery<Category>({
+        client: this.client,
+        params: {
+          TableName: this.tableName,
+          KeyConditionExpression: "userId = :userId",
+          FilterExpression: "isArchived = :isArchived AND #type = :type",
+          ExpressionAttributeNames: {
+            "#type": "type",
+          },
+          ExpressionAttributeValues: {
+            ":userId": userId,
+            ":isArchived": false,
+            ":type": type,
+          },
         },
-        ExpressionAttributeValues: {
-          ":userId": userId,
-          ":isArchived": false,
-          ":type": type,
-        },
+        options: {}, // No pageSize = get all items
       });
 
-      const result = await this.client.send(command);
-      const categories = (result.Items || []) as Category[];
+      const categories = result.items;
 
       // Sort categories by name (case-insensitive)
       return categories.sort((a, b) =>

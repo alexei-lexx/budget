@@ -2,7 +2,6 @@ import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import {
   DynamoDBDocumentClient,
   PutCommand,
-  QueryCommand,
   UpdateCommand,
   GetCommand,
 } from "@aws-sdk/lib-dynamodb";
@@ -13,6 +12,7 @@ import {
   UpdateAccountInput,
   IAccountRepository,
 } from "../models/Account.js";
+import { paginateQuery } from "./utils/pagination";
 
 /**
  * Repository error class for better error handling
@@ -99,18 +99,21 @@ export class AccountRepository implements IAccountRepository {
     }
 
     try {
-      const command = new QueryCommand({
-        TableName: this.tableName,
-        KeyConditionExpression: "userId = :userId",
-        FilterExpression: "isArchived = :isArchived",
-        ExpressionAttributeValues: {
-          ":userId": userId,
-          ":isArchived": false,
+      const result = await paginateQuery<Account>({
+        client: this.client,
+        params: {
+          TableName: this.tableName,
+          KeyConditionExpression: "userId = :userId",
+          FilterExpression: "isArchived = :isArchived",
+          ExpressionAttributeValues: {
+            ":userId": userId,
+            ":isArchived": false,
+          },
         },
+        options: {}, // No pageSize = get all items
       });
 
-      const result = await this.client.send(command);
-      const accounts = (result.Items || []) as Account[];
+      const accounts = result.items;
 
       // Sort accounts by name (case-insensitive)
       return accounts.sort((a, b) =>

@@ -22,6 +22,7 @@ import {
   MIN_PAGE_SIZE,
   MAX_PAGE_SIZE,
 } from "../types/pagination";
+import { paginateQuery } from "./utils/pagination";
 
 /**
  * Repository error class for better error handling
@@ -136,24 +137,26 @@ export class TransactionRepository implements ITransactionRepository {
       };
 
       // Use pagination utility to handle filtering correctly
-      const { page: transactions, hasNextPage } = await this.paginateQuery({
-        params: {
-          TableName: this.tableName,
-          IndexName: "UserDateIndex",
-          KeyConditionExpression: keyConditionExpression,
-          FilterExpression: filterExpression,
-          ExpressionAttributeValues: expressionAttributeValues,
-          ScanIndexForward: false,
-          ...(after && {
-            ExclusiveStartKey: {
-              userId: userId,
-              id: decodeCursor(after).id,
-              date: decodeCursor(after).date,
-            },
-          }),
-        },
-        pageSize: first,
-      });
+      const { items: transactions, hasNextPage } =
+        await paginateQuery<Transaction>({
+          client: this.client,
+          params: {
+            TableName: this.tableName,
+            IndexName: "UserDateIndex",
+            KeyConditionExpression: keyConditionExpression,
+            FilterExpression: filterExpression,
+            ExpressionAttributeValues: expressionAttributeValues,
+            ScanIndexForward: false,
+            ...(after && {
+              ExclusiveStartKey: {
+                userId: userId,
+                id: decodeCursor(after).id,
+                date: decodeCursor(after).date,
+              },
+            }),
+          },
+          options: { pageSize: first },
+        });
 
       // Create edges with cursors
       const edges: TransactionEdge[] = transactions.map((transaction) => ({
@@ -453,60 +456,6 @@ export class TransactionRepository implements ITransactionRepository {
         error,
       );
     }
-  }
-
-  /**
-   * Pagination utility that handles DynamoDB filtering correctly
-   * Iterates through pages until requested pageSize is satisfied
-   */
-  private async paginateQuery({
-    params,
-    pageSize,
-    acc = [],
-  }: {
-    params: {
-      TableName: string;
-      IndexName: string;
-      KeyConditionExpression: string;
-      FilterExpression: string;
-      ExpressionAttributeValues: Record<string, unknown>;
-      ScanIndexForward: boolean;
-      ExclusiveStartKey?: Record<string, unknown>;
-    };
-    pageSize: number;
-    acc?: Transaction[];
-  }): Promise<{ page: Transaction[]; hasNextPage: boolean }> {
-    const remaining = pageSize - acc.length;
-    const command = new QueryCommand(params);
-    const result = await this.client.send(command);
-    const newItems = (result.Items || []) as Transaction[];
-    const newAcc = [...acc, ...newItems.slice(0, remaining)];
-
-    // Query exhausted - no more items in DynamoDB
-    if (!result.LastEvaluatedKey) {
-      return {
-        page: newAcc,
-        hasNextPage: newItems.length > remaining,
-      };
-    }
-
-    // Got enough items for this page
-    if (newAcc.length >= pageSize) {
-      return {
-        page: newAcc,
-        hasNextPage: true,
-      };
-    }
-
-    // Need more items - recurse with updated ExclusiveStartKey
-    return this.paginateQuery({
-      params: {
-        ...params,
-        ExclusiveStartKey: result.LastEvaluatedKey,
-      },
-      pageSize,
-      acc: newAcc,
-    });
   }
 
   private async countActiveTransactions(userId: string): Promise<number> {
