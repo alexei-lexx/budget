@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Account } from "@/composables/useAccounts";
-import { formatCurrencyCompact } from "@/utils/currency";
+import { formatCurrency } from "@/utils/currency";
 import ActionDropdown from "@/components/common/ActionDropdown.vue";
 
 // Define component props
@@ -15,11 +15,6 @@ const emit = defineEmits<{
   editAccount: [accountId: string];
   deleteAccount: [accountId: string];
 }>();
-
-// Currency formatting helper using the new utility
-const formatAccountBalance = (amount: number, currency: string) => {
-  return formatCurrencyCompact(amount, currency, { showSymbol: true });
-};
 
 // Event handlers
 const handleEditAccount = () => {
@@ -40,7 +35,7 @@ const handleDeleteAccount = () => {
         </div>
         <div class="d-flex align-center ga-3 flex-shrink-0">
           <div class="text-h5 font-weight-bold">
-            {{ formatAccountBalance(account.balance, account.currency) }}
+            {{ formatCurrency(account.balance, account.currency) }}
           </div>
           <ActionDropdown @edit="handleEditAccount" @delete="handleDeleteAccount" />
         </div>

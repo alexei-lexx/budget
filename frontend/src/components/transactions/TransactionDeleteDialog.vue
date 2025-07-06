@@ -14,7 +14,7 @@
 import { computed } from "vue";
 import DeleteConfirmationDialog from "@/components/common/DeleteConfirmationDialog.vue";
 import type { Transaction } from "@/composables/useTransactions";
-import { formatCurrencyCompact } from "@/utils/currency";
+import { formatTransactionAmount } from "@/utils/currency";
 
 interface Props {
   modelValue: boolean;
@@ -34,11 +34,11 @@ defineEmits<Emits>();
 const message = computed(() => {
   if (!props.transaction) return "";
 
-  const sign = props.transaction.type === "INCOME" ? "+" : "-";
-  const amount = formatCurrencyCompact(props.transaction.amount, props.transaction.currency, {
-    showSymbol: true,
-  });
-  const formattedAmount = `${sign}${amount}`;
+  const formattedAmount = formatTransactionAmount(
+    props.transaction.amount,
+    props.transaction.currency,
+    props.transaction.type,
+  );
 
   return `Are you sure you want to delete the transaction "${props.accountName || "Unknown Account"}, ${formattedAmount}"?`;
 });

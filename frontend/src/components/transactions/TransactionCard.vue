@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import type { Transaction } from "@/composables/useTransactions";
-import { formatCurrencyCompact } from "@/utils/currency";
+import { formatTransactionAmount } from "@/utils/currency";
 import ActionDropdown from "@/components/common/ActionDropdown.vue";
 
 // Define component props
@@ -21,11 +21,11 @@ const emit = defineEmits<{
 
 // Format amount with +/- prefix
 const formattedAmount = computed(() => {
-  const sign = props.transaction.type === "INCOME" ? "+" : "-";
-  const amount = formatCurrencyCompact(props.transaction.amount, props.transaction.currency, {
-    showSymbol: true,
-  });
-  return `${sign}${amount}`;
+  return formatTransactionAmount(
+    props.transaction.amount,
+    props.transaction.currency,
+    props.transaction.type,
+  );
 });
 
 // Format date for display

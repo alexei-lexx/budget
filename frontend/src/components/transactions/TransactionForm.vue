@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
-import { getCurrencyInputPrefix } from "@/utils/currency";
+import { getCurrencySymbol } from "@/utils/currency";
 import { checkRules, type CheckRule } from "@/utils/validation";
 import { useAccounts } from "@/composables/useAccounts";
 import { useCategories } from "@/composables/useCategories";
@@ -95,7 +95,7 @@ const selectedAccount = computed(() => {
 // Currency prefix for amount input
 const currencyPrefix = computed(() => {
   if (selectedAccount.value) {
-    return getCurrencyInputPrefix(selectedAccount.value.currency);
+    return getCurrencySymbol(selectedAccount.value.currency);
   }
   // No prefix when no account is selected
   return "";

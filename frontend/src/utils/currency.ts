@@ -2,6 +2,8 @@
  * Currency formatting utilities
  */
 
+import type { TransactionType } from "@/composables/useTransactions";
+
 // Currency symbol mapping
 const CURRENCY_SYMBOLS: Record<string, string> = {
   USD: "$",
@@ -51,54 +53,32 @@ export function getCurrencyTitle(currencyCode: string): string {
 }
 
 /**
- * Format amount with currency using Intl.NumberFormat
+ * Format amount with currency symbol using Intl.NumberFormat
  */
-export function formatCurrency(
-  amount: number,
-  currencyCode: string,
-  options: {
-    locale?: string;
-    minimumFractionDigits?: number;
-    maximumFractionDigits?: number;
-    showCurrencyCode?: boolean;
-  } = {},
-): string {
-  const {
-    locale = "en-US",
-    minimumFractionDigits = 2,
-    maximumFractionDigits = 2,
-    showCurrencyCode = false,
-  } = options;
-
+export function formatCurrency(amount: number, currencyCode: string): string {
   // Input validation
   if (!isFinite(amount)) {
     console.warn("Invalid amount provided to formatCurrency:", amount);
     amount = 0;
   }
 
+  const numberFormatOptions = {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  };
+
   try {
-    const formatted = new Intl.NumberFormat(locale, {
+    return new Intl.NumberFormat(undefined, {
       style: "currency",
       currency: currencyCode.toUpperCase(),
-      minimumFractionDigits,
-      maximumFractionDigits,
+      ...numberFormatOptions,
     }).format(amount);
-
-    // If showCurrencyCode is true, append the currency code
-    if (showCurrencyCode) {
-      return `${formatted} ${currencyCode.toUpperCase()}`;
-    }
-
-    return formatted;
   } catch (error) {
     // Fallback if currency code is not supported by Intl.NumberFormat
     console.warn(`Unsupported currency code: ${currencyCode}`, error);
     const symbol = getCurrencySymbol(currencyCode);
     try {
-      const formatted = new Intl.NumberFormat(locale, {
-        minimumFractionDigits,
-        maximumFractionDigits,
-      }).format(amount);
+      const formatted = new Intl.NumberFormat(undefined, numberFormatOptions).format(amount);
       return `${symbol}${formatted}`;
     } catch (fallbackError) {
       console.error("Fallback formatting also failed:", fallbackError);
@@ -108,65 +88,14 @@ export function formatCurrency(
 }
 
 /**
- * Format amount with symbol only (no currency code)
+ * Format transaction amount with +/- sign
  */
-export function formatCurrencySymbol(amount: number, currencyCode: string): string {
-  const symbol = getCurrencySymbol(currencyCode);
-  const formatted = new Intl.NumberFormat("en-US", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(amount);
-  return `${symbol}${formatted}`;
-}
-
-/**
- * Format amount for display in lists/cards (compact format)
- */
-export function formatCurrencyCompact(
+export function formatTransactionAmount(
   amount: number,
   currencyCode: string,
-  options: {
-    showSymbol?: boolean;
-    showCode?: boolean;
-  } = {},
+  type: TransactionType,
 ): string {
-  const { showSymbol = true, showCode = false } = options;
-
-  if (showSymbol && showCode) {
-    return formatCurrency(amount, currencyCode, { showCurrencyCode: true });
-  } else if (showSymbol) {
-    return formatCurrency(amount, currencyCode);
-  } else if (showCode) {
-    const formatted = new Intl.NumberFormat("en-US", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(amount);
-    return `${formatted} ${currencyCode.toUpperCase()}`;
-  } else {
-    return new Intl.NumberFormat("en-US", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(amount);
-  }
-}
-
-/**
- * Get currency input prefix symbol for forms
- */
-export function getCurrencyInputPrefix(currencyCode: string): string {
-  return getCurrencySymbol(currencyCode);
-}
-
-/**
- * Validate currency code format
- */
-export function isValidCurrencyCode(currencyCode: string): boolean {
-  return /^[A-Z]{3}$/.test(currencyCode.toUpperCase());
-}
-
-/**
- * Normalize currency code to uppercase
- */
-export function normalizeCurrencyCode(currencyCode: string): string {
-  return currencyCode.toUpperCase();
+  const sign = type === "INCOME" ? "+" : "-";
+  const formatted = formatCurrency(amount, currencyCode);
+  return `${sign}${formatted}`;
 }

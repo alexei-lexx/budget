@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
-import { getCurrencyInputPrefix } from "@/utils/currency";
+import { getCurrencySymbol } from "@/utils/currency";
 import { checkRules, type CheckRule } from "@/utils/validation";
 import { useCurrencies } from "@/composables/useCurrencies";
 
@@ -227,7 +227,7 @@ const handleCancel = () => {
         >
           <template #prepend-inner>
             <span class="text-medium-emphasis">
-              {{ getCurrencyInputPrefix(formData.currency) }}
+              {{ getCurrencySymbol(formData.currency) }}
             </span>
           </template>
         </v-text-field>
