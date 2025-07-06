@@ -135,46 +135,25 @@ export class TransactionRepository implements ITransactionRepository {
         ":isArchived": false,
       };
 
-      // Build query parameters
-      const queryParams: {
-        TableName: string;
-        IndexName: string;
-        KeyConditionExpression: string;
-        FilterExpression: string;
-        ExpressionAttributeValues: Record<string, unknown>;
-        ScanIndexForward: boolean;
-        Limit: number;
-        ExclusiveStartKey?: Record<string, unknown>;
-      } = {
-        TableName: this.tableName,
-        IndexName: "UserDateIndex",
-        KeyConditionExpression: keyConditionExpression,
-        FilterExpression: filterExpression,
-        ExpressionAttributeValues: expressionAttributeValues,
-        ScanIndexForward: false, // Sort by date descending (latest first)
-        Limit: first + 1, // Fetch one extra to determine hasNextPage
-      };
-
-      // Handle cursor-based pagination using ExclusiveStartKey
-      if (after) {
-        const cursorData = decodeCursor(after);
-
-        // Set ExclusiveStartKey to start after the cursor item
-        queryParams.ExclusiveStartKey = {
-          userId: userId,
-          id: cursorData.id,
-          date: cursorData.date, // GSI sort key
-        };
-      }
-
-      const command = new QueryCommand(queryParams);
-
-      const result = await this.client.send(command);
-      const items = (result.Items || []) as Transaction[];
-
-      // Determine if there are more items
-      const hasNextPage = items.length > first;
-      const transactions = hasNextPage ? items.slice(0, first) : items;
+      // Use pagination utility to handle filtering correctly
+      const { page: transactions, hasNextPage } = await this.paginateQuery({
+        params: {
+          TableName: this.tableName,
+          IndexName: "UserDateIndex",
+          KeyConditionExpression: keyConditionExpression,
+          FilterExpression: filterExpression,
+          ExpressionAttributeValues: expressionAttributeValues,
+          ScanIndexForward: false,
+          ...(after && {
+            ExclusiveStartKey: {
+              userId: userId,
+              id: decodeCursor(after).id,
+              date: decodeCursor(after).date,
+            },
+          }),
+        },
+        pageSize: first,
+      });
 
       // Create edges with cursors
       const edges: TransactionEdge[] = transactions.map((transaction) => ({
@@ -192,7 +171,7 @@ export class TransactionRepository implements ITransactionRepository {
       };
 
       // Get total count (this is a separate query for accuracy)
-      const totalCount = await this.getActiveTransactionCount(userId);
+      const totalCount = await this.countActiveTransactions(userId);
 
       return {
         edges,
@@ -207,32 +186,6 @@ export class TransactionRepository implements ITransactionRepository {
       console.error("Error finding paginated transactions:", error);
       throw new TransactionRepositoryError(
         "Failed to find paginated transactions",
-        "QUERY_FAILED",
-        error,
-      );
-    }
-  }
-
-  private async getActiveTransactionCount(userId: string): Promise<number> {
-    try {
-      const command = new QueryCommand({
-        TableName: this.tableName,
-        IndexName: "UserDateIndex",
-        KeyConditionExpression: "userId = :userId",
-        FilterExpression: "isArchived = :isArchived",
-        ExpressionAttributeValues: {
-          ":userId": userId,
-          ":isArchived": false,
-        },
-        Select: "COUNT",
-      });
-
-      const result = await this.client.send(command);
-      return result.Count || 0;
-    } catch (error) {
-      console.error("Error getting active transaction count:", error);
-      throw new TransactionRepositoryError(
-        "Failed to get active transaction count",
         "QUERY_FAILED",
         error,
       );
@@ -496,6 +449,86 @@ export class TransactionRepository implements ITransactionRepository {
       console.error("Error checking transactions for account:", error);
       throw new TransactionRepositoryError(
         "Failed to check transactions for account",
+        "QUERY_FAILED",
+        error,
+      );
+    }
+  }
+
+  /**
+   * Pagination utility that handles DynamoDB filtering correctly
+   * Iterates through pages until requested pageSize is satisfied
+   */
+  private async paginateQuery({
+    params,
+    pageSize,
+    acc = [],
+  }: {
+    params: {
+      TableName: string;
+      IndexName: string;
+      KeyConditionExpression: string;
+      FilterExpression: string;
+      ExpressionAttributeValues: Record<string, unknown>;
+      ScanIndexForward: boolean;
+      ExclusiveStartKey?: Record<string, unknown>;
+    };
+    pageSize: number;
+    acc?: Transaction[];
+  }): Promise<{ page: Transaction[]; hasNextPage: boolean }> {
+    const remaining = pageSize - acc.length;
+    const command = new QueryCommand(params);
+    const result = await this.client.send(command);
+    const newItems = (result.Items || []) as Transaction[];
+    const newAcc = [...acc, ...newItems.slice(0, remaining)];
+
+    // Query exhausted - no more items in DynamoDB
+    if (!result.LastEvaluatedKey) {
+      return {
+        page: newAcc,
+        hasNextPage: newItems.length > remaining,
+      };
+    }
+
+    // Got enough items for this page
+    if (newAcc.length >= pageSize) {
+      return {
+        page: newAcc,
+        hasNextPage: true,
+      };
+    }
+
+    // Need more items - recurse with updated ExclusiveStartKey
+    return this.paginateQuery({
+      params: {
+        ...params,
+        ExclusiveStartKey: result.LastEvaluatedKey,
+      },
+      pageSize,
+      acc: newAcc,
+    });
+  }
+
+  private async countActiveTransactions(userId: string): Promise<number> {
+    try {
+      const command = new QueryCommand({
+        TableName: this.tableName,
+        IndexName: "UserDateIndex",
+        KeyConditionExpression: "userId = :userId",
+        FilterExpression: "isArchived = :isArchived",
+        ExpressionAttributeValues: {
+          ":userId": userId,
+          ":isArchived": false,
+        },
+        Select: "COUNT",
+      });
+
+      const result = await this.client.send(command);
+      return result.Count || 0;
+    } catch (error) {
+      console.error("Error getting active transaction count:", error);
+      throw new TransactionRepositoryError(
+        "Failed to get active transaction count",
         "QUERY_FAILED",
         error,
       );

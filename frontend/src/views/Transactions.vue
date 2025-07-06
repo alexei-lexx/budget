@@ -77,7 +77,7 @@
               prepend-icon="mdi-refresh"
               @click="handleLoadMore"
             >
-              Load More Transactions
+              Load More
             </v-btn>
           </div>
 
