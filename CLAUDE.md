@@ -119,6 +119,11 @@ npm run db:setup    # Recreate database and tables
 - Jest for unit testing in CDK packages
 - Git hooks available (run `git config core.hooksPath .githooks` to enable)
 
+### Claude Code Commands
+Claude Code specific commands are available in `.claude/commands/`:
+- `/format` - Runs `npm run format` in all four directories (backend, backend-cdk, frontend, frontend-cdk)
+- `/commit` - Commits staged changes, or stages untracked files first if none are staged
+
 ## Important Patterns
 
 ### Script Usage
@@ -144,7 +149,7 @@ GraphQL Resolvers → Services → Repositories → Database
 All GraphQL resolvers receive a standardized context containing:
 - `auth`: Authentication state (isAuthenticated, user info from JWT)
 - `userRepository`, `accountRepository`, `categoryRepository`, `transactionRepository`: Database access layers
-- `transactionService`: Business logic service for transaction operations
+- `transactionService`, `accountService`: Business logic services for cross-repository operations
 - `jwtAuthService`: JWT token verification service
 
 Context creation automatically handles JWT verification and user extraction from Auth0 tokens.
@@ -310,12 +315,15 @@ Complete Docker-based development setup:
 - **Service Layer Architecture** - TransactionService with business logic and validation
 
 ### Architecture Status
-**Current State:** All major features implemented with proper service layer pattern
-- Transaction operations use TransactionService for business logic
-- Account and Category operations still use direct repository calls in some resolvers
-- Pagination implemented using Relay Connection specification
+**Current State:** Major features implemented with partial service layer adoption
+- Transaction operations use TransactionService for comprehensive business logic
+- Account operations use AccountService for balance calculation
+- Category operations still use direct repository calls in resolvers
+- Pagination implemented using Relay Connection specification with "Load More" UI
 
 **Service Layer Pattern:** New business logic should be implemented in service classes, not directly in GraphQL resolvers
+
+**Balance Calculation:** Account balance = initialBalance + sum of INCOME transactions - sum of EXPENSE transactions
 
 ## Important Development Guidelines
 
@@ -376,3 +384,4 @@ NEVER proactively create documentation files (*.md) or README files. Only create
 - `[be][fe]` - Both backend and frontend changes
 - `[doc]` - Documentation changes in docs/ folder only
 - `[copilot]` - GitHub Copilot instruction updates only
+- `[claude]` - Claude Code specific files and command updates only
