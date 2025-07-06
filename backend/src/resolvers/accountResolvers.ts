@@ -60,7 +60,7 @@ export const accountResolvers = {
       parent: { id: string },
       _args: unknown,
       context: GraphQLContext,
-    ) => {
+    ): Promise<number> => {
       try {
         const user = await getAuthenticatedUser(context);
         const balance = await context.accountService.calculateBalance(

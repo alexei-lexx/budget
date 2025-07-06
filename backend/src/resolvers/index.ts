@@ -15,4 +15,5 @@ export const resolvers = {
     ...categoryResolvers.Mutation,
     ...transactionResolvers.Mutation,
   },
+  Account: accountResolvers.Account,
 };

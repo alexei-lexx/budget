@@ -40,7 +40,7 @@ const handleDeleteAccount = () => {
         </div>
         <div class="d-flex align-center ga-3 flex-shrink-0">
           <div class="text-h5 font-weight-bold">
-            {{ formatAccountBalance(account.initialBalance, account.currency) }}
+            {{ formatAccountBalance(account.balance, account.currency) }}
           </div>
           <ActionDropdown @edit="handleEditAccount" @delete="handleDeleteAccount" />
         </div>

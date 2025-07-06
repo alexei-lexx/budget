@@ -997,9 +997,9 @@ Account cards will prominently display calculated balance only, replacing the cu
   - [x] 8.4.2 Update Account TypeScript interface to include balance property
   - [x] 8.4.3 Add error handling for balance field fetching
 
-- [ ] **8.5 Frontend UI/UX Layer Enhancement**
-  - [ ] 8.5.1 Update AccountCard component to display calculated balance instead of initial balance
-  - [ ] 8.5.2 Add loading states and error handling for balance display
+- [x] **8.5 Frontend UI/UX Layer Enhancement**
+  - [x] 8.5.1 Update AccountCard component to display calculated balance instead of initial balance
+  - [x] 8.5.2 Add loading states and error handling for balance display
 
 ### Testing
 
