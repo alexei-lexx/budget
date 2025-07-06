@@ -55,6 +55,24 @@ const updateAccountInputSchema = z.object({
 });
 
 export const accountResolvers = {
+  Account: {
+    balance: async (
+      parent: { id: string },
+      _args: unknown,
+      context: GraphQLContext,
+    ) => {
+      try {
+        const user = await getAuthenticatedUser(context);
+        const balance = await context.accountService.calculateBalance(
+          parent.id,
+          user.id,
+        );
+        return balance;
+      } catch (error) {
+        handleResolverError(error, "Failed to calculate account balance");
+      }
+    },
+  },
   Query: {
     accounts: async (
       _parent: unknown,

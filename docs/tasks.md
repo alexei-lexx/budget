@@ -987,10 +987,10 @@ Account cards will prominently display calculated balance only, replacing the cu
   - [x] 8.2.3 Add error handling for missing accounts and transaction calculation failures
   - [x] 8.2.4 Add AccountService to GraphQL context configuration
 
-- [ ] **8.3 GraphQL Layer Updates**
-  - [ ] 8.3.1 Add balance field to Account GraphQL type as calculated field
-  - [ ] 8.3.2 Implement balance resolver to call AccountService.calculateBalance
-  - [ ] 8.3.3 Add error handling for balance calculation failures
+- [x] **8.3 GraphQL Layer Updates**
+  - [x] 8.3.1 Add balance field to Account GraphQL type as calculated field
+  - [x] 8.3.2 Implement balance resolver to call AccountService.calculateBalance
+  - [x] 8.3.3 Add error handling for balance calculation failures
 
 - [ ] **8.4 Frontend Data Layer Integration**
   - [ ] 8.4.1 Update GET_ACCOUNTS query to include balance field

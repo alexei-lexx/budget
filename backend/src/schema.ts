@@ -15,6 +15,7 @@ export const typeDefs = `#graphql
     name: String!
     currency: String!
     initialBalance: Float!
+    balance: Float!
   }
 
   enum CategoryType {
