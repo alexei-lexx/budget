@@ -23,6 +23,7 @@ import {
   MAX_PAGE_SIZE,
 } from "../types/pagination";
 import { paginateQuery } from "./utils/pagination";
+import { createDynamoDBDocumentClient } from "./utils/dynamoClient";
 
 /**
  * Repository error class for better error handling
@@ -82,19 +83,7 @@ export class TransactionRepository implements ITransactionRepository {
   private tableName: string;
 
   constructor(dynamoClient?: DynamoDBClient) {
-    const client =
-      dynamoClient ||
-      new DynamoDBClient({
-        region: process.env.AWS_REGION || "",
-        ...(process.env.NODE_ENV === "development" && {
-          endpoint: process.env.DYNAMODB_ENDPOINT || "",
-          credentials: {
-            accessKeyId: process.env.AWS_ACCESS_KEY_ID || "",
-            secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || "",
-          },
-        }),
-      });
-    this.client = DynamoDBDocumentClient.from(client);
+    this.client = createDynamoDBDocumentClient(dynamoClient);
     this.tableName = process.env.TRANSACTIONS_TABLE_NAME || "";
 
     if (!this.tableName) {

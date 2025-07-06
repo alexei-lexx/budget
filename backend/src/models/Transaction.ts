@@ -1,5 +1,5 @@
 import { CategoryType } from "./Category";
-import { PaginationInput, Edge, Connection } from "../types/pagination.js";
+import { PaginationInput, Edge, Connection } from "../types/pagination";
 
 export type TransactionType = CategoryType;
 

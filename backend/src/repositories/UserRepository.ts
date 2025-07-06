@@ -5,26 +5,15 @@ import {
   QueryCommand,
 } from "@aws-sdk/lib-dynamodb";
 import { randomUUID } from "crypto";
-import { User, CreateUserInput, IUserRepository } from "../models/User.js";
+import { User, CreateUserInput, IUserRepository } from "../models/User";
+import { createDynamoDBDocumentClient } from "./utils/dynamoClient";
 
 export class UserRepository implements IUserRepository {
   private client: DynamoDBDocumentClient;
   private tableName: string;
 
   constructor(dynamoClient?: DynamoDBClient) {
-    const client =
-      dynamoClient ||
-      new DynamoDBClient({
-        region: process.env.AWS_REGION || "",
-        ...(process.env.NODE_ENV === "development" && {
-          endpoint: process.env.DYNAMODB_ENDPOINT || "",
-          credentials: {
-            accessKeyId: process.env.AWS_ACCESS_KEY_ID || "",
-            secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || "",
-          },
-        }),
-      });
-    this.client = DynamoDBDocumentClient.from(client);
+    this.client = createDynamoDBDocumentClient(dynamoClient);
     this.tableName = process.env.USERS_TABLE_NAME || "";
 
     if (!this.tableName) {
