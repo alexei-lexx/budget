@@ -143,7 +143,8 @@ GraphQL Resolvers → Services → Repositories → Database
 **GraphQL Context Pattern:**
 All GraphQL resolvers receive a standardized context containing:
 - `auth`: Authentication state (isAuthenticated, user info from JWT)
-- `userRepository`, `accountRepository`, `categoryRepository`: Database access layers
+- `userRepository`, `accountRepository`, `categoryRepository`, `transactionRepository`: Database access layers
+- `transactionService`: Business logic service for transaction operations
 - `jwtAuthService`: JWT token verification service
 
 Context creation automatically handles JWT verification and user extraction from Auth0 tokens.
@@ -161,6 +162,7 @@ Database operations are abstracted through repository interfaces:
 - All database queries automatically scoped to authenticated user
 - Repository methods use `ensureUser()` pattern for automatic user creation
 - Repository error classes (`UserRepositoryError`, `AccountRepositoryError`, etc.) provide structured error handling
+- Transaction repository includes cursor-based pagination for efficient data loading
 
 ### Authentication Flow
 1. Frontend obtains JWT tokens from Auth0 (`useAuth` composable)
@@ -188,6 +190,13 @@ Database operations are abstracted through repository interfaces:
 - GraphQL data managed by Apollo Client cache
 - User data fetched via GraphQL with `useUser` composable
 - Automatic token refresh handled by Auth0 SDK
+
+### Pagination Architecture
+- **Relay-Compatible Cursor Pagination**: Implements Relay Connection specification
+- **Stable Navigation**: Cursors remain valid even when new data is inserted
+- **Database-Native**: Uses DynamoDB's native pagination with GSI for efficient queries
+- **Frontend Pattern**: "Load More" button with cumulative list display
+- **Cursor Design**: Base64-encoded JSON containing date + ID for stable positioning
 
 ## Advanced Patterns
 
@@ -291,22 +300,22 @@ Complete Docker-based development setup:
 
 ## Current Implementation Status
 
-### Implemented Features
+### Completed Features
 - **User Authentication** - Auth0 integration with JWT verification
-- **Account Management** - Complete CRUD operations with repository pattern
+- **Account Management** - Complete CRUD operations with multi-currency support
 - **Category Management** - Income/Expense categorization with validation
-- **Transaction Repository** - Database layer with CRUD operations
+- **Transaction Management** - Complete CRUD operations with pagination
+- **Transaction Pagination** - Relay-compatible cursor-based pagination with "Load More" functionality
 - **Development Database** - DynamoDB Local with Docker orchestration
+- **Service Layer Architecture** - TransactionService with business logic and validation
 
-### In Progress
-- **Transaction Service Layer** - Business logic implementation for transactions
-- **Service Architecture** - Transitioning from direct repository calls to service layer
+### Architecture Status
+**Current State:** All major features implemented with proper service layer pattern
+- Transaction operations use TransactionService for business logic
+- Account and Category operations still use direct repository calls in some resolvers
+- Pagination implemented using Relay Connection specification
 
-### Repository vs Service Usage
-**Current State:** Account and Category operations use direct repository calls in GraphQL resolvers
-**Target State:** All business operations go through service layer for proper business logic encapsulation
-
-When implementing new features, use the service layer pattern. When modifying existing features, consider refactoring to use services.
+**Service Layer Pattern:** New business logic should be implemented in service classes, not directly in GraphQL resolvers
 
 ## Important Development Guidelines
 
@@ -329,6 +338,16 @@ Before starting any development work, review:
 - When all sub-task items under a parent task are completed and marked, mark the parent task item as completed as well
 - This maintains permanent progress tracking across development sessions
 - Prevents duplicate work and ensures accountability
+
+### Task Implementation Approach
+Follow bottom-up, layer-by-layer implementation pattern:
+1. **Database Layer** - Development/production database setup, schema changes, data migrations
+2. **Repository Layer** - Data access operations, error handling, validation
+3. **Service Layer** - Business logic, cross-repository coordination, business rules
+4. **GraphQL Layer** - Schema definitions, resolvers, input validation
+5. **Frontend Data Layer** - GraphQL queries/mutations, composables, error handling
+6. **Frontend UI/UX Layer** - Components, user interface, form validation
+7. **Integration Testing** - Manual testing, end-to-end validation, production verification
 
 # important-instruction-reminders
 Do what has been asked; nothing more, nothing less.
