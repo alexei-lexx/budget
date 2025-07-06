@@ -4,7 +4,7 @@
 
 ## ⚠️ CRITICAL: Task Completion Tracking
 
-**ALWAYS mark tasks as completed immediately after finishing them by changing `[ ]` to `[x]` in @docs/tasks.md**
+**ALWAYS mark tasks as completed immediately after finishing them by changing `[ ]` to `[x]` in the current file**
 
 This is mandatory for:
 - Tracking progress accurately in permanent documentation
@@ -22,24 +22,97 @@ This is mandatory for:
 
 ## Instructions for Adding New Tasks
 
-When creating new implementation tasks in this file, follow these guidelines:
+### General Workflow Rules
 
-1. **Structure**: Use GitHub markdown ordered lists with checkboxes `[ ]`
-2. **Numbering**: Use format `1.2.3` (maximum 3 levels) where:
-   - `1` = Task number
-   - `2` = Subtask number
-   - `3` = Step number
-3. **Definitions**:
-   - **Task**: A major user-facing feature or business capability that delivers value. Written from user/product owner perspective describing what functionality will be available. Uses single-digit numbering (e.g., "Task 1"). Exception: purely technical tasks that enable other features.
-   - **Subtask**: A specific subfeature or user capability within the main task. Each subtask should deliver standalone value that users can directly benefit from. Written from user perspective (e.g., "Delete Account", "Export Data"). Uses two-digit numbering format `X.Y` (e.g., "1.1", "1.2").
-   - **Step**: The technical implementation details and specific work items needed to deliver the subtask. Uses three-digit numbering format `X.Y.Z` (e.g., "1.1.1"). This is where technical implementation details belong.
-4. **Manual Task Prefix**: Add `[M]` prefix to task items that require manual execution by the developer (e.g., deployment, manual testing, environment setup, external service configuration)
-5. **Content to include**:
-   - Objective and current state analysis
-   - Target architecture description
-   - Implementation plan with numbered phases
-   - Success criteria
-6. **Future enhancements**: Add enhancement ideas and non-MVP features to @docs/future_enhancements.md instead of creating new tasks here. Keep this roadmap focused on core functionality delivery.
+- Add enhancement ideas and non-MVP features to @docs/future_enhancements.md instead of creating new tasks here
+- Keep this roadmap focused on core functionality delivery
+
+### Task Structure Definitions
+
+**Task:** A major user-facing feature or business capability that delivers value. Written from user/product owner perspective describing what functionality will be available. Uses single-digit numbering (e.g., "Task 1", "Task 2").
+
+**Phase:** Major implementation phases within a task following the architectural layers (Database Layer, Repository Layer, etc.). Uses two-digit numbering format `X.Y` (e.g., "1.1", "1.2") where X is the task number and Y is the phase number.
+
+**Sub-item:** Specific work items within a concrete phase implementation. Uses three-digit numbering format `X.Y.Z` (e.g., "1.1.1", "1.1.2") where X is task number, Y is phase number, and Z is the sub-item number.
+
+### Required Task Content Sections
+
+#### Objective
+
+Clear, concise description of the main goal and value delivered.
+
+#### Current State Analysis
+
+Multi-domain breakdown of what exists vs. what's missing, using ✅/❌ indicators to clearly scope the work.
+
+#### Target Architecture
+
+High-level architectural direction including:
+- Which application layers/components will be affected (frontend, backend, database)
+- General data flow and component interaction patterns
+- UI layout concepts and user experience flow (avoid detailed TypeScript interfaces or specific API schemas)
+- Navigation structure changes if applicable
+
+#### Implementation Plan
+
+Hierarchical numbered phases following a bottom-up, layer-by-layer approach through the application architecture.
+
+**Formatting:**
+
+- Use GitHub markdown ordered lists with checkboxes `[ ]`
+- Use hierarchical numbering format `1.2.3` (maximum 3 levels)
+- Add `[M]` prefix to task items requiring manual execution by the developer (deployment, manual testing, environment setup, external service configuration)
+
+**Recommended Structure:**
+
+**1. Database Layer**
+
+- Development database setup (table creation, schema changes)
+- Production infrastructure updates (CDK stack modifications for new tables/indexes)
+- Data migrations if existing data needs to be transformed
+
+**2. Repository Layer**
+
+- Data access operations (CRUD methods, query implementations)
+- Error handling and validation at data layer
+
+**3. Service Layer**
+
+- Business logic implementation
+- Cross-repository coordination and validation
+- Service error handling and business rules
+
+**4. GraphQL Layer**
+
+- Schema definitions (types, inputs, queries, mutations)
+- Resolver implementations with input validation
+- Integration with service layer
+
+**5. Frontend Data Layer**
+
+- GraphQL client queries and mutations
+- Data composables and state management
+- Error handling for API operations
+
+**6. Frontend UI/UX Layer**
+
+- Component implementation
+- User interface and user experience
+- Form validation and user feedback
+
+**7. Integration Testing**
+
+- Manual testing workflows
+- End-to-end validation
+- Production deployment and verification
+
+**Guidelines:**
+- Avoid splitting work into items that cannot be implemented independently
+- If two tasks cannot be done separately, combine them into a single work item
+- Each phase should build upon the previous layer's foundation
+
+#### Success Criteria
+Measurable outcomes that define task completion.
 
 ---
 
