@@ -152,7 +152,7 @@ const {
   createTransaction,
   loadMoreTransactions,
 } = useTransactions();
-const { accounts: accountsData } = useAccounts();
+const { accounts: accountsData, refetchAccounts } = useAccounts();
 const { categories: categoriesData } = useCategories();
 const { showSuccessSnackbar } = useSnackbar();
 
@@ -205,6 +205,8 @@ const confirmDeleteTransaction = async () => {
       const amount = transactionToDelete.value.amount;
       const description = transactionToDelete.value.description || "transaction";
       showSuccessSnackbar(`Transaction "${description}" (${amount}) has been deleted`);
+      // Refetch accounts to update balances
+      await refetchAccounts();
     }
     // Note: Error handling is managed by the composable
   }
@@ -224,6 +226,8 @@ const handleCreateTransactionSubmit = async (transactionData: CreateTransactionI
     if (success) {
       showCreateTransactionDialog.value = false;
       showSuccessSnackbar("New transaction was created");
+      // Refetch accounts to update balances
+      await refetchAccounts();
     }
   } finally {
     transactionFormLoading.value = false;
@@ -240,6 +244,8 @@ const handleEditTransactionSubmit = async (transactionData: CreateTransactionInp
       showEditTransactionDialog.value = false;
       editingTransaction.value = null;
       showSuccessSnackbar("Transaction was updated");
+      // Refetch accounts to update balances
+      await refetchAccounts();
     }
   } finally {
     transactionFormLoading.value = false;
