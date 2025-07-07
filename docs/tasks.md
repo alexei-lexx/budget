@@ -1017,6 +1017,6 @@ Account cards will prominently display calculated balance only, replacing the cu
   - [x] 8.7.7 [M] Test account with only income transactions: create account with $0 initial balance, add $300 income, verify shows $300.00
   - [x] 8.7.8 [M] Test account with only expense transactions: create account with $500 initial balance, add $600 expense, verify shows -$100.00 with proper negative formatting
 
-- [ ] **8.8 Production Deployment**
-  - [ ] 8.8.1 [M] Deploy to production environment
-  - [ ] 8.8.2 [M] Repeat core balance calculation tests in production (8.7.1-8.7.3)
+- [x] **8.8 Production Deployment**
+  - [x] 8.8.1 [M] Deploy to production environment
+  - [x] 8.8.2 [M] Repeat core balance calculation tests in production (8.7.1-8.7.3)
