@@ -357,6 +357,9 @@ Follow bottom-up, layer-by-layer implementation pattern:
 6. **Frontend UI/UX Layer** - Components, user interface, form validation
 7. **Integration Testing** - Manual testing, end-to-end validation, production verification
 
+### Task Definition Guidelines
+For comprehensive task definition guidelines, refer to @docs/task-definition.instructions.md
+
 # important-instruction-reminders
 Do what has been asked; nothing more, nothing less.
 NEVER create files unless they're absolutely necessary for achieving your goal.
