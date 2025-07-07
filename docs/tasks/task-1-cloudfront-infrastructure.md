@@ -1,0 +1,75 @@
+# Task 1: Unified CloudFront Infrastructure
+
+**Objective:** Implement a unified CloudFront distribution that serves both the frontend assets and GraphQL API through a single domain, replacing the current separate infrastructure.
+
+## Current State Analysis
+
+**Backend Infrastructure (`backend-cdk/`):**
+- Lambda function with direct function URL (no API Gateway)
+- No cross-stack outputs or imports
+- Function URL bypasses CloudFront integration
+
+**Frontend Infrastructure (`frontend-cdk/`):**
+- S3 bucket with separate CloudFront distribution
+- No API integration or routing
+- Independent deployment pipeline
+
+**Deployment Process:**
+- Sequential independent deployments
+- No communication between stacks
+- Manual S3 sync for frontend assets
+
+## Target Architecture
+
+**Unified Single-Domain Setup:**
+```
+https://example.cloudfront.net/
+├── /                    → Frontend (S3 origin)
+├── /graphql        → GraphQL API (API Gateway origin)
+└── /assets/*           → Frontend assets (S3 origin)
+```
+
+## Implementation Plan
+
+- [x] **1.1 Backend Infrastructure Updates**
+  - [x] **1.1.1 Add API Gateway to Backend Stack**
+    - [x] 1.1.1.1 Replace Lambda function URL with API Gateway REST API
+    - [x] 1.1.1.2 Configure API Gateway with `/graphql` endpoint
+    - [x] 1.1.1.3 Update Lambda integration to use API Gateway proxy
+  - [x] **1.1.2 Export Backend Outputs**
+    - [x] 1.1.2.1 Export API Gateway domain name
+    - [x] 1.1.2.2 Export API Gateway stage URL
+    - [x] 1.1.2.3 Make these available for frontend stack consumption
+  - [x] **1.1.3 Testing**
+    - [x] 1.1.3.1 Verify API Gateway endpoints respond correctly
+    - [x] 1.1.3.2 Validate Lambda integration works through API Gateway
+
+- [x] **1.2 Frontend Infrastructure Updates**
+  - [x] 1.2.1 Import API Gateway domain from backend stack
+  - [x] 1.2.2 Configure CloudFront to use API Gateway as origin
+  - [x] 1.2.3 Add behavior for `/graphql*` routes → API Gateway origin
+  - [x] 1.2.4 Keep default behavior for `/*` routes → S3 origin
+  - [x] 1.2.5 Configure appropriate caching policies for each origin
+  - [x] 1.2.6 Set up proper security headers
+  - [x] 1.2.7 Test CloudFront routing works for both `/` and `/graphql*`
+  - [x] 1.2.8 Test that frontend can make GraphQL requests
+  - [x] 1.2.9 Verify caching behavior is appropriate
+
+- [x] **1.3 Frontend-Backend Integration**
+  - [x] 1.3.1 Configure Apollo Client in Vue.js frontend
+  - [x] 1.3.2 Set up environment-specific API endpoints:
+    - [x] 1.3.2.1 Local development: `http://localhost:4000/graphql` (backend dev server)
+    - [x] 1.3.2.2 Production: `/graphql` (unified CloudFront domain - same origin)
+  - [x] 1.3.3 Implement GraphQL queries in Vue components
+  - [x] 1.3.4 Update UI components to display data from GraphQL API
+  - [x] 1.3.5 Test integration in local development environment
+  - [x] 1.3.6 Test integration in deployed production environment
+
+## Success Criteria
+
+- ✅ Single CloudFront domain serves both frontend and API
+- ✅ GraphQL endpoint accessible at `/graphql`
+- ✅ Frontend can make same-origin API requests
+- ✅ Deployment process works reliably with new architecture
+- ✅ Performance is maintained or improved
+- ✅ All existing functionality continues to work
