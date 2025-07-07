@@ -112,7 +112,7 @@ export const typeDefs = `#graphql
     ensureUser: User!
     createAccount(input: CreateAccountInput!): Account!
     updateAccount(id: ID!, input: UpdateAccountInput!): Account!
-    deleteAccount(id: ID!): Account!
+    deleteAccount(id: ID!): Boolean
     createCategory(input: CreateCategoryInput!): Category!
     updateCategory(id: ID!, input: UpdateCategoryInput!): Category!
     deleteCategory(id: ID!): Category!

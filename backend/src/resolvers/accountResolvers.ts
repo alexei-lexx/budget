@@ -217,8 +217,8 @@ export const accountResolvers = {
 
       try {
         const user = await getAuthenticatedUser(context);
-        const account = await context.accountRepository.archive(id, user.id);
-        return account;
+        await context.accountRepository.archive(id, user.id);
+        return null;
       } catch (error) {
         handleResolverError(error, "Failed to delete account");
       }

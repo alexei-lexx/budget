@@ -37,7 +37,7 @@ interface UpdateAccountResponse {
 }
 
 interface DeleteAccountResponse {
-  deleteAccount: Account;
+  deleteAccount: boolean | null;
 }
 
 export function useAccounts() {
@@ -127,19 +127,20 @@ export function useAccounts() {
   };
 
   // Delete account function
-  const deleteAccount = async (id: string): Promise<Account | null> => {
+  const deleteAccount = async (id: string): Promise<boolean> => {
     try {
       accountsError.value = null;
       const result = await deleteAccountMutation({ id });
-      if (result?.data?.deleteAccount) {
+      // If we get here without an error, the deletion was successful
+      if (result?.data) {
         await refetchAccounts();
-        return result.data.deleteAccount;
+        return true;
       }
-      return null;
+      return false;
     } catch (error) {
       console.error("Error deleting account:", error);
       accountsError.value = error instanceof Error ? error.message : "Failed to delete account";
-      return null;
+      return false;
     }
   };
 

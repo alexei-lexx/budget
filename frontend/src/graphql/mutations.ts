@@ -29,11 +29,8 @@ export const UPDATE_ACCOUNT = gql`
 
 export const DELETE_ACCOUNT = gql`
   mutation DeleteAccount($id: ID!) {
-    deleteAccount(id: $id) {
-      ...AccountFields
-    }
+    deleteAccount(id: $id)
   }
-  ${ACCOUNT_FRAGMENT}
 `;
 
 export const CREATE_CATEGORY = gql`
