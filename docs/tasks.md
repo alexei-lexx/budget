@@ -1003,19 +1003,19 @@ Account cards will prominently display calculated balance only, replacing the cu
 
 ### Testing
 
-- [ ] **8.6 Code Quality Validation**
-  - [ ] 8.6.1 [M] Run npm run lint and npm run type-check in both frontend and backend
-  - [ ] 8.6.2 [M] Fix any linting or type checking errors
+- [x] **8.6 Code Quality Validation**
+  - [x] 8.6.1 [M] Run npm run lint and npm run type-check in both frontend and backend
+  - [x] 8.6.2 [M] Fix any linting or type checking errors
 
-- [ ] **8.7 Integration Testing**
-  - [ ] 8.7.1 [M] Create test account with $1000 USD initial balance, verify account card shows $1000.00
-  - [ ] 8.7.2 [M] Add $500 income transaction, verify account card updates to show $1500.00
-  - [ ] 8.7.3 [M] Add $200 expense transaction, verify account card updates to show $1300.00
-  - [ ] 8.7.4 [M] Edit expense transaction to $300, verify account card updates to show $1200.00
-  - [ ] 8.7.5 [M] Delete expense transaction, verify account card updates to show $1500.00
-  - [ ] 8.7.6 [M] Create EUR account with €500 initial balance, add €100 income, verify shows €600.00 with correct symbol
-  - [ ] 8.7.7 [M] Test account with only income transactions: create account with $0 initial balance, add $300 income, verify shows $300.00
-  - [ ] 8.7.8 [M] Test account with only expense transactions: create account with $500 initial balance, add $600 expense, verify shows -$100.00 with proper negative formatting
+- [x] **8.7 Integration Testing**
+  - [x] 8.7.1 [M] Create test account with $1000 USD initial balance, verify account card shows $1000.00
+  - [x] 8.7.2 [M] Add $500 income transaction, verify account card updates to show $1500.00
+  - [x] 8.7.3 [M] Add $200 expense transaction, verify account card updates to show $1300.00
+  - [x] 8.7.4 [M] Edit expense transaction to $300, verify account card updates to show $1200.00
+  - [x] 8.7.5 [M] Delete expense transaction, verify account card updates to show $1500.00
+  - [x] 8.7.6 [M] Create EUR account with €500 initial balance, add €100 income, verify shows €600.00 with correct symbol
+  - [x] 8.7.7 [M] Test account with only income transactions: create account with $0 initial balance, add $300 income, verify shows $300.00
+  - [x] 8.7.8 [M] Test account with only expense transactions: create account with $500 initial balance, add $600 expense, verify shows -$100.00 with proper negative formatting
 
 - [ ] **8.8 Production Deployment**
   - [ ] 8.8.1 [M] Deploy to production environment
