@@ -1,6 +1,7 @@
 # Development Tasks Instructions
 
-This document combines all task-related instructions and the complete task index for the Personal Finance Tracker project.
+This document combines all task-related instructions and the complete task index for the
+Personal Finance Tracker project.
 
 ## Prerequisites
 
@@ -10,7 +11,8 @@ This document combines all task-related instructions and the complete task index
 
 ## ⚠️ CRITICAL: Task Completion Tracking
 
-**ALWAYS mark tasks as completed immediately after finishing them by changing `[ ]` to `[x]` in the appropriate task file**
+**ALWAYS mark tasks as completed immediately after finishing them by changing `[ ]` to `[x]`
+in the appropriate task file**
 
 This is mandatory for:
 - Tracking progress accurately in permanent documentation
@@ -19,7 +21,8 @@ This is mandatory for:
 - Ensuring accountability and progress transparency
 - Keeping the permanent roadmap synchronized with current work
 
-**When all sub-task items under a parent task are completed and marked, mark the parent task item as completed as well**
+**When all sub-task items under a parent task are completed and marked, mark the parent task
+item as completed as well**
 
 **Example workflow:**
 1. Start working on task
@@ -42,18 +45,45 @@ This organization improves:
 
 ## Task Definition Guidelines
 
+### General Task Definition Rules
+
+1. **Tasks must result in code changes** - Each task should cause tangible changes to the
+   codebase (manual tasks like testing and deployment are exceptions)
+
+2. **Avoid check/verification tasks** - Don't create tasks that only check or verify something
+   unless changes are explicitly planned as part of the task
+
+3. **Provide specific, detailed descriptions** - Avoid vague descriptions like "make it better,"
+   "improve," or "update something" without concrete details about what exactly needs to be changed
+
+4. **Use concrete notation for code changes** - When planning changes to specific types, classes,
+   interfaces, or methods, use concrete notation like `ClassName.methodName`, 
+   `InterfaceName.propertyName`, or `ComponentName.handlerFunction` to clearly identify what 
+   code elements will be modified
+
+5. **Keep logically coupled work together** - If implementing task A automatically implements 
+   task B, or if tasks cannot be done independently, combine them into a single work item rather 
+   than creating artificial splits
+
 ### General Workflow Rules
 
-- Add enhancement ideas and non-MVP features to docs/future_enhancements.md instead of creating new tasks here
+- Add enhancement ideas and non-MVP features to docs/future_enhancements.md instead of
+  creating new tasks here
 - Keep this roadmap focused on core functionality delivery
 
 ### Task Structure Definitions
 
-**Task:** A major user-facing feature or business capability that delivers value. Written from user/product owner perspective describing what functionality will be available. Uses single-digit numbering (e.g., "Task 1", "Task 2").
+**Task:** A major user-facing feature or business capability that delivers value. Written from
+user/product owner perspective describing what functionality will be available. Uses single-digit
+numbering (e.g., "Task 1", "Task 2").
 
-**Phase:** Major implementation phases within a task following the architectural layers (Database Layer, Repository Layer, etc.). Uses two-digit numbering format `X.Y` (e.g., "1.1", "1.2") where X is the task number and Y is the phase number.
+**Phase:** Major implementation phases within a task following the architectural layers
+(Database Layer, Repository Layer, etc.). Uses two-digit numbering format `X.Y` (e.g., "1.1",
+"1.2") where X is the task number and Y is the phase number.
 
-**Sub-item:** Specific work items within a concrete phase implementation. Uses three-digit numbering format `X.Y.Z` (e.g., "1.1.1", "1.1.2") where X is task number, Y is phase number, and Z is the sub-item number.
+**Sub-item:** Specific work items within a concrete phase implementation. Uses three-digit
+numbering format `X.Y.Z` (e.g., "1.1.1", "1.1.2") where X is task number, Y is phase number,
+and Z is the sub-item number.
 
 ### Required Task Content Sections
 
@@ -63,19 +93,22 @@ Clear, concise description of the main goal and value delivered.
 
 #### Current State Analysis
 
-Multi-domain breakdown of what exists vs. what's missing, using ✅/❌ indicators to clearly scope the work.
+Multi-domain breakdown of what exists vs. what's missing, using ✅/❌ indicators to clearly
+scope the work.
 
 #### Target Architecture
 
 High-level architectural direction including:
 - Which application layers/components will be affected (frontend, backend, database)
 - General data flow and component interaction patterns
-- UI layout concepts and user experience flow (avoid detailed TypeScript interfaces or specific API schemas)
+- UI layout concepts and user experience flow (avoid detailed TypeScript interfaces or
+  specific API schemas)
 - Navigation structure changes if applicable
 
 #### Implementation Plan
 
-Hierarchical numbered phases following a bottom-up, layer-by-layer approach through the application architecture.
+Hierarchical numbered phases following a bottom-up, layer-by-layer approach through the
+application architecture.
 
 **Formatting:**
 
@@ -120,13 +153,12 @@ Hierarchical numbered phases following a bottom-up, layer-by-layer approach thro
 - Form validation and user feedback
 
 **Guidelines:**
-- Avoid splitting work into items that cannot be implemented independently
-- If two tasks cannot be done separately, combine them into a single work item
 - Each phase should build upon the previous layer's foundation
 
 #### Testing
 
-Final validation phase separate from implementation, containing concrete testing steps with specific expected outcomes.
+Final validation phase separate from implementation, containing concrete testing steps with
+specific expected outcomes.
 
 **Formatting:**
 
