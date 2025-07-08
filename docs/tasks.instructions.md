@@ -168,11 +168,6 @@ specific expected outcomes.
 
 **Recommended Structure:**
 
-**Code Quality Validation**
-
-- Linting and type checking
-- Fix any code quality issues
-
 **Integration Testing**
 
 - Concrete manual testing steps with specific expected outcomes
