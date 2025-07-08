@@ -1,1 +1,2 @@
-Work on task $ARGUMENTS. Read the tasks.md file for details.
+Read files from docs/ and deeply understand the project requirements, specifications, and tasks.
+Then start implementing task $ARGUMENTS
