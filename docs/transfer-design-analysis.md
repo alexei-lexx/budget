@@ -32,12 +32,54 @@ interface Transaction {
 }
 ```
 
-### Key Architectural Patterns
-- **One transaction = one account** principle
-- **Single-account balance calculation**: `initialBalance + INCOME - EXPENSE`
-- **Service layer coordination** across repositories
-- **DynamoDB constraints**: No cross-partition transactions
-- **Currency validation** at service layer
+### Current System Conceptual Model
+
+**Core Concepts:**
+- **User**: Individual with personal financial data
+- **Account**: Container for money (Bank Account, Cash, Credit Card)
+- **Transaction**: Record of money movement (Income, Expense)
+- **Balance**: Current account value calculated from initial balance + transactions
+
+**Current Transaction Model:**
+- Each transaction affects exactly one account
+- Transaction types: INCOME (+) or EXPENSE (-)
+- Balance = Initial Balance + All Income - All Expenses
+
+**Transfer Challenge:**
+- Need to move money between two accounts
+- Should not affect overall income/expense totals
+- Must maintain accurate balance for both accounts
+
+**How Current Model Affects Transfer Design:**
+
+**What Works Well:**
+- Simple, clear transaction concept
+- Straightforward balance calculation
+- Easy to understand and audit
+
+**What Needs to Change:**
+- Current model: "One transaction affects one account"
+- Transfer requirement: "One operation affects two accounts"
+- Need mechanism to prevent transfers from appearing as income/expense
+
+**Key Question:**
+How do we extend the current model to handle transfers while maintaining simplicity and clarity?
+
+**Critical Database Transaction Requirement:**
+- **Two-Transaction Approach**: Requires atomic database transaction to prevent partial transfers
+- **Single-Transaction Approach**: Natural atomicity - one database operation
+- **Failure Scenarios**: What happens if first transaction succeeds but second fails?
+
+**Database Transaction Support:**
+- **DynamoDB**: ✅ Full ACID transactions via TransactWrite API (up to 100 items, 4MB limit)
+- **Cost**: 2x read/write operations per item (prepare + commit phases)
+- **Atomicity**: Critical for financial operations - no partial transfers allowed
+
+**DynamoDB TransactWrite for Transfers:**
+- ✅ **Atomic Operations**: Both transactions succeed or both fail
+- ✅ **Same User Partition**: Transfer transactions within same userId partition
+- ✅ **Idempotency**: Built-in request deduplication
+- ⚠️ **Cost**: 2x write operations compared to single-transaction approach
 
 ## Design Options Analysis
 
@@ -111,10 +153,11 @@ interface Transaction {
 
 | Aspect | Single Transaction | Two-Transaction |
 |--------|-------------------|-----------------|
+| **Database Operations** | ✅ Single atomic operation | ❌ Requires database transaction or complex rollback |
 | **Balance Calculation** | Complex: Must handle `toAccountId` logic | Simple: Extend existing patterns |
-| **Repository Changes** | Significant modifications needed | Minimal changes |
-| **Service Logic** | Complex two-account update logic | Use existing transaction creation |
-| **Error Handling** | Handle partial updates manually | Standard transaction error handling |
+| **Atomicity** | ✅ Natural atomicity | ❌ Must ensure both records created or neither |
+| **Error Handling** | Standard single-record error handling | Complex: Partial failure scenarios |
+| **DynamoDB Complexity** | ✅ Simple single-item operation | ✅ TransactWrite API available (atomic) |
 
 ### Balance Calculation Logic
 
@@ -155,10 +198,12 @@ const balance = transactions.reduce((sum, t) => {
 
 | Aspect | Single Transaction | Two-Transaction |
 |--------|-------------------|-----------------|
+| **Atomicity** | ✅ Single database operation = atomic | ✅ DynamoDB TransactWrite provides atomicity |
 | **Consistency** | Single record = single point of truth | Must keep two records synchronized |
-| **Partial Failures** | Complex: Half-updated single record | Clear: Either both transactions exist or neither |
-| **Rollback Scenario** | Difficult to identify partial state | Easy to identify and clean up |
-| **Audit Trail** | Single record shows complete transfer | Two records show both sides clearly |
+| **Partial Failures** | ✅ Cannot happen - single atomic operation | ✅ TransactWrite prevents partial failures |
+| **Rollback Scenario** | No rollback needed | ✅ Automatic rollback via TransactWrite |
+| **DynamoDB Transactions** | ✅ Not needed | ✅ TransactWrite handles atomicity |
+| **Cost** | ✅ 1x write operation | ⚠️ 2x write operations (prepare + commit) |
 
 ### Performance
 
@@ -351,33 +396,75 @@ const balance = transactions.reduce((sum, t) => {
 3. **Reporting**: ✅ **RESOLVED** - No anticipated transfer-specific reports. Income/expense reports more likely, which are easier with single-transaction (simple type filtering).
 4. **Development Timeline**: ✅ **RESOLVED** - Not a critical concern for decision-making.
 
-## FINAL DECISION: Single-Transaction Approach
+## REVISED ANALYSIS: Industry Standards and Accounting Principles
 
-Based on the comprehensive analysis and resolved concerns, we choose the **single-transaction approach** for the following reasons:
+### New Arguments Against Single-Transaction Approach
+
+**1. Accounting Standards Violation**
+- Single-transaction approach violates double-entry bookkeeping principles
+- Every financial movement should be represented as both a debit and credit
+- Industry standard requires separate records for each account affected
+
+**2. Account History Accuracy**
+- Each account needs independent, clear debit/credit records
+- Single transaction creates ambiguous transaction direction
+- Difficult to determine which account was debited vs credited in account statements
+
+**3. Industry Best Practices**
+- Banking and finance applications (Tiller, Actual, banking systems) use two-transaction model
+- Standard practice for auditability and regulatory compliance
+- Enables compatibility with external accounting tools and integrations
+
+**4. Reporting and Reconciliation Issues**
+- Transfer exclusion from income/expense reports becomes complex and error-prone
+- Per-account filtering and reconciliation complicated
+- Running balance calculations become ambiguous
+
+**5. Future Extensibility Concerns**
+- Multi-currency transfers, split transfers, external integrations harder to implement
+- Industry-standard patterns enable easier third-party tool integration
+- Non-standard approach limits future platform compatibility
+
+### Quote from Industry Documentation
+
+> "A transfer is usually thought of as moving money from one account to another. When moving money from one account to another, this results in two transactions." - Tiller Documentation
+
+> "If you only created two transactions, Actual would have no way of knowing they are a single transfer and can be ignored in reports." - Actual Budget Documentation
+
+## FINAL DECISION: Two-Transaction Approach
+
+Based on the comprehensive analysis including industry standards and accounting principles, we choose the **two-transaction approach** for the following reasons:
 
 ### Decision Factors
-1. **User Experience Priority**: Clean UI without duplication issues
-2. **Operational Simplicity**: Standard CRUD operations, no complex coordination
-3. **Performance Non-Issue**: Extra conditionals in balance calculation are negligible
-4. **Query Alignment**: Account-specific queries are more important than transfer-specific queries
-5. **Reporting Simplicity**: Income/expense reports easier with simple type filtering
-6. **Maintenance**: Fewer moving parts, less complexity
+1. **Accounting Standards Compliance**: Aligns with double-entry bookkeeping principles
+2. **Industry Best Practices**: Consistent with banking and finance applications
+3. **Account History Clarity**: Each account has clear, independent debit/credit records
+4. **Reporting Accuracy**: Straightforward transfer exclusion from income/expense reports
+5. **Future Extensibility**: Standard patterns enable easier integrations and enhancements
+6. **Audit Trail**: Clear transaction direction and complete audit trail per account
 
 ### Final Implementation Plan
 
 **Database Schema:**
 ```typescript
+enum TransactionType {
+  INCOME = 'INCOME',
+  EXPENSE = 'EXPENSE', 
+  TRANSFER_OUT = 'TRANSFER_OUT',
+  TRANSFER_IN = 'TRANSFER_IN'
+}
+
 interface Transaction {
   userId: string;
   id: string;
-  accountId: string;          // Source account (FROM)
-  toAccountId?: string;       // Destination account (TO) - only for transfers
-  type: 'INCOME' | 'EXPENSE' | 'TRANSFER';
+  accountId: string;          // Always single account
+  type: TransactionType;
   amount: number;             // Always positive
   currency: string;
   date: string;
   description?: string;
   categoryId?: string;        // NULL for transfers (transfers don't have categories)
+  transferId?: string;        // UUID linking paired transactions
   isArchived: boolean;
   createdAt: string;
   updatedAt: string;
@@ -388,19 +475,11 @@ interface Transaction {
 ```typescript
 const calculateBalance = (transactions: Transaction[], accountId: string, initialBalance: number): number => {
   return transactions.reduce((sum, transaction) => {
-    if (transaction.type === 'INCOME') {
+    if (transaction.type === 'INCOME' || transaction.type === 'TRANSFER_IN') {
       return sum + transaction.amount;
     }
-    if (transaction.type === 'EXPENSE') {
+    if (transaction.type === 'EXPENSE' || transaction.type === 'TRANSFER_OUT') {
       return sum - transaction.amount;
-    }
-    if (transaction.type === 'TRANSFER') {
-      if (transaction.accountId === accountId) {
-        return sum - transaction.amount;  // Money leaving this account
-      }
-      if (transaction.toAccountId === accountId) {
-        return sum + transaction.amount;  // Money arriving to this account
-      }
     }
     return sum;
   }, initialBalance);
@@ -408,20 +487,25 @@ const calculateBalance = (transactions: Transaction[], accountId: string, initia
 ```
 
 **Query Patterns:**
-- **Account History**: `WHERE accountId = ? OR toAccountId = ?`
-- **Transfer History**: `WHERE type = 'TRANSFER'`
+- **Account History**: `WHERE accountId = ?` (standard filtering)
+- **Transfer History**: `WHERE transferId IS NOT NULL`
 - **Income/Expense Reports**: `WHERE type IN ('INCOME', 'EXPENSE')`
+- **Transfer Pairs**: `WHERE transferId = ?`
 
 **Transfer Service Logic:**
 1. Validate both accounts exist and belong to user
 2. Validate same currency between accounts
-3. Create single transaction record with both `accountId` and `toAccountId`
-4. Standard error handling (no complex rollback needed)
+3. Generate unique `transferId` using `randomUUID()`
+4. Create `TRANSFER_OUT` transaction on source account
+5. Create `TRANSFER_IN` transaction on destination account
+6. Link both transactions with same `transferId`
+7. Implement rollback logic for partial failures
 
-**Query Integration:**
-- Transfers are fetched via existing transaction queries (no separate getTransfersByUser needed)
-- Filtering by type: `WHERE type = 'TRANSFER'` handled by frontend filtering
-- Unified data flow: transfers are just transactions with special display formatting
+**UI Design for Transfer Duplication:**
+- **Filter Transfer Types**: Add toggle to hide/show transfer transactions in main list
+- **Group Transfer Pairs**: Display as single "Transfer" entry with both accounts
+- **Transfer Section**: Separate tab/section for transfer management
+- **Smart Filtering**: Default to hide transfers in income/expense views
 
 ## Service Layer Design Decision: TransferService vs TransactionService
 
@@ -461,39 +545,66 @@ class TransactionService {
 - TransactionService becomes slightly larger
 - Mixed responsibilities (single vs dual account operations)
 
-### Recommendation: Extend TransactionService
+### Recommendation: Separate TransferService
 
 **Rationale:**
-1. **Conceptual Unity** - Transfers are transactions, not separate entities
-2. **Shared Logic** - Both need similar validation (user, amounts, dates)
-3. **Simpler Architecture** - Fewer services to manage and inject
-4. **Code Reuse** - Leverage existing transaction creation patterns
+1. **Complex Coordination** - Two-transaction approach requires sophisticated coordination logic
+2. **Rollback Handling** - Transfer-specific error handling and compensation patterns
+3. **Business Logic Separation** - Transfer validation differs significantly from single transactions
+4. **Clear Responsibilities** - TransferService handles dual-account operations, TransactionService handles single-account operations
 
 **Implementation:**
 ```typescript
-class TransactionService {
-  // Existing method
-  async createTransaction(input: CreateTransactionInput, userId: string): Promise<Transaction> {
-    // Single account validation and creation
-  }
+class TransferService {
+  constructor(
+    private transactionRepository: ITransactionRepository,
+    private accountRepository: IAccountRepository
+  ) {}
 
-  // New method
-  async createTransfer(input: CreateTransferInput, userId: string): Promise<Transaction> {
-    // Two-account validation + call shared creation logic
+  async createTransfer(input: CreateTransferInput, userId: string): Promise<{ 
+    transferOut: Transaction, 
+    transferIn: Transaction 
+  }> {
+    // Validate both accounts exist and belong to user
     await this.validateTransferAccounts(input.fromAccountId, input.toAccountId, userId);
     
-    return this.transactionRepository.create({
-      userId,
-      accountId: input.fromAccountId,
-      toAccountId: input.toAccountId,
-      type: 'TRANSFER',
-      amount: input.amount,
-      // ... other fields
-    });
+    const transferId = randomUUID();
+    
+    try {
+      // Create TRANSFER_OUT transaction
+      const transferOut = await this.transactionRepository.create({
+        userId,
+        accountId: input.fromAccountId,
+        type: 'TRANSFER_OUT',
+        amount: input.amount,
+        transferId,
+        // ... other fields
+      });
+
+      // Create TRANSFER_IN transaction
+      const transferIn = await this.transactionRepository.create({
+        userId,
+        accountId: input.toAccountId,
+        type: 'TRANSFER_IN',
+        amount: input.amount,
+        transferId,
+        // ... other fields
+      });
+
+      return { transferOut, transferIn };
+    } catch (error) {
+      // Rollback logic for partial failures
+      await this.cleanupPartialTransfer(transferId, userId);
+      throw error;
+    }
   }
 
   private async validateTransferAccounts(fromId: string, toId: string, userId: string) {
     // Transfer-specific validation logic
+  }
+
+  private async cleanupPartialTransfer(transferId: string, userId: string) {
+    // Rollback logic for partial transfer creation
   }
 }
 ```
@@ -566,21 +677,22 @@ class TransactionService {
 - Each has dedicated page and management interface
 - Clean separation of concerns
 
-### Recommendation: HYBRID APPROACH
+### Recommendation: SEPARATE TRANSFERS PAGE
 
-Based on the analysis, I recommend **Option 2 (Unified Transactions Page)** for better UX:
+Based on the two-transaction approach and industry standards, I recommend **Option 1 (Separate Transfers Page)** for better UX:
 
 **Rationale:**
-1. **Complete Financial Timeline** - Users see all money movement in one place
-2. **Simpler Navigation** - Fewer pages to remember
-3. **Better Context** - Transfers shown alongside other financial activity
-4. **Technical Simplicity** - Reuse existing pagination, filtering, and display components
+1. **UI Duplication Resolution** - Avoids confusing duplicate transfer entries in transaction list
+2. **Clear Mental Model** - Transfers are conceptually different from income/expense transactions
+3. **Industry Standard** - Follows banking applications that separate transfers from transactions
+4. **Clean Transaction History** - Income/expense transactions remain uncluttered
+5. **Transfer-Specific Features** - Dedicated space for transfer management and history
 
 **Implementation:**
-- Add transaction type filtering tabs: [All] [Income] [Expense] [Transfers]
-- Update "Add Transaction" button to include transfer option
-- Modify transaction cards to display transfers differently (From → To format)
-- Use existing pagination and infinite scroll
+- Separate `/transfers` page with dedicated transfer management interface
+- Transfer list shows paired transactions as single entries (From → To format)
+- Add "Transfer" button in main navigation
+- Keep transactions page focused on income/expense only
 
 **Navigation Structure (Revised):**
 ```
@@ -588,21 +700,22 @@ App Navigation Drawer:
 ├── Dashboard (/)
 ├── Accounts (/accounts)
 ├── Categories (/categories)  
-└── Transactions (/transactions)  ← Includes transfers with filtering
+├── Transactions (/transactions)  ← Income/Expense only
+└── Transfers (/transfers)        ← Account-to-account transfers
 ```
 
 ## Next Steps - Implementation
 
-1. ✅ **Design Decision Complete** - Single-transaction approach chosen
-2. ✅ **UI Placement Decision** - Unified transactions page with filtering
-3. **Update Task Definition** - Revise Task 9 to use unified transactions approach
-4. **Schema Migration** - Plan database schema changes (add `toAccountId` field)
+1. ✅ **Design Decision Complete** - Two-transaction approach chosen based on industry standards
+2. ✅ **UI Placement Decision** - Separate transfers page to avoid UI duplication
+3. **Update Task Definition** - Revise Task 9 to use two-transaction approach with separate TransferService
+4. **Schema Migration** - Plan database schema changes (add `transferId` field, new transaction types)
 5. **Backend Implementation** - TransferService, GraphQL schema updates, repository changes
-6. **Frontend Implementation** - Transfer UI components, filtering, unified transaction display
-7. **Testing** - Comprehensive testing of transfer functionality and balance calculations
+6. **Frontend Implementation** - Separate transfers page, transfer management interface
+7. **Testing** - Comprehensive testing of transfer functionality, rollback logic, and balance calculations
 
 ---
 
 **Document Status:** Living document - updated during design discussions  
-**Last Updated:** December 2024 - Added critical concerns analysis  
+**Last Updated:** December 2024 - Revised based on industry standards and accounting principles  
 **Contributors:** Claude Code analysis and user feedback
