@@ -62,6 +62,11 @@ npm run test         # Run Jest tests
 ./deploy.sh          # Complete deployment: backend → frontend infrastructure → frontend assets
 ```
 
+**Deployment Requirements:**
+- AWS CLI configured with appropriate credentials
+- `jq` command-line JSON processor installed
+- All dependencies installed in each package directory
+
 ## Key Technical Details
 
 ### Authentication Flow
@@ -117,12 +122,18 @@ npm run db:setup    # Recreate database and tables
 - ESLint + Prettier for code quality across all packages
 - TypeScript for type safety
 - Jest for unit testing in CDK packages
-- Git hooks available (run `git config core.hooksPath .githooks` to enable)
+- Git hooks available for code quality enforcement
 
-### Claude Code Commands
-Claude Code specific commands are available in `.claude/commands/`:
-- `/format` - Runs `npm run format` in all four directories (backend, backend-cdk, frontend, frontend-cdk)
-- `/commit` - Commits staged changes, or stages untracked files first if none are staged
+### Git Hooks Setup
+To enable project git hooks for consistent code quality:
+```bash
+git config core.hooksPath .githooks
+```
+
+To disable project git hooks:
+```bash
+git config --unset core.hooksPath
+```
 
 ## Important Patterns
 
@@ -336,12 +347,12 @@ Complete Docker-based development setup:
 
 ### Project Specifications
 Before starting any development work, review:
-- @docs/general_spec.md - Business requirements and feature specifications
-- @docs/tech_spec.md - Technical architecture and implementation guidelines
-- @docs/tasks.md - Current development roadmap and task tracking
+- docs/general_spec.md - Business requirements and feature specifications
+- docs/tech_spec.md - Technical architecture and implementation guidelines
+- docs/tasks.md - Current development roadmap and task tracking
 
 ### Task Completion Tracking
-**CRITICAL**: Always mark tasks as completed in @docs/tasks.md immediately after finishing them:
+**CRITICAL**: Always mark tasks as completed in docs/tasks.md immediately after finishing them:
 - Change `[ ]` to `[x]` in the task line
 - When all sub-task items under a parent task are completed and marked, mark the parent task item as completed as well
 - This maintains permanent progress tracking across development sessions
@@ -358,7 +369,7 @@ Follow bottom-up, layer-by-layer implementation pattern:
 7. **Integration Testing** - Manual testing, end-to-end validation, production verification
 
 ### Task Definition Guidelines
-For comprehensive task definition guidelines, refer to @docs/task-definition.instructions.md
+For comprehensive task definition guidelines, refer to docs/task-definition.instructions.md
 
 # important-instruction-reminders
 Do what has been asked; nothing more, nothing less.

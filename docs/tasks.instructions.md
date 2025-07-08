@@ -5,8 +5,8 @@ This document combines all task-related instructions and the complete task index
 ## Prerequisites
 
 **Before starting any task, analyze requirements and instructions in:**
-- `@docs/general_spec.md` - Business requirements and feature specifications
-- `@docs/tech_spec.md` - Technical architecture and implementation guidelines
+- `docs/general_spec.md` - Business requirements and feature specifications
+- `docs/tech_spec.md` - Technical architecture and implementation guidelines
 
 ## ⚠️ CRITICAL: Task Completion Tracking
 
@@ -44,7 +44,7 @@ This organization improves:
 
 ### General Workflow Rules
 
-- Add enhancement ideas and non-MVP features to @docs/future_enhancements.md instead of creating new tasks here
+- Add enhancement ideas and non-MVP features to docs/future_enhancements.md instead of creating new tasks here
 - Keep this roadmap focused on core functionality delivery
 
 ### Task Structure Definitions
