@@ -75,26 +75,31 @@ Show transfers as normal transactions with TRANSFER_IN and TRANSFER_OUT types in
   - [ ] 9.3.2 Implement createTransfer method with account validation (same user, same currency)
   - [ ] 9.3.3 Add rollback/compensation logic for partial transfer failures
   - [ ] 9.3.4 Implement deleteTransfer method to handle cascading deletion of paired transactions
+  - [ ] 9.3.5 Implement updateTransfer method with validation (same user, same currency) that updates both linked transactions atomically
 
 - [ ] **9.4 GraphQL Layer**
   - [ ] 9.4.1 Create Transfer type representing a paired transaction set
   - [ ] 9.4.2 Add CreateTransferInput with fromAccountId, toAccountId, amount, date, description
   - [ ] 9.4.3 Implement createTransfer mutation with Zod input validation
-  - [ ] 9.4.5 Implement deleteTransfer mutation for transfer removal
-  - [ ] 9.4.6 Update GraphQL context to include TransferService
+  - [ ] 9.4.4 Add UpdateTransferInput with transferId, fromAccountId, toAccountId, amount, date, description
+  - [ ] 9.4.5 Implement updateTransfer mutation with Zod input validation
+  - [ ] 9.4.6 Implement deleteTransfer mutation for transfer removal
+  - [ ] 9.4.7 Update GraphQL context to include TransferService
 
 - [ ] **9.5 Frontend Data Layer**
-  - [ ] 9.5.1 Create transfer GraphQL operations (CREATE_TRANSFER, DELETE_TRANSFER)
+  - [ ] 9.5.1 Create transfer GraphQL operations (CREATE_TRANSFER, UPDATE_TRANSFER, DELETE_TRANSFER)
   - [ ] 9.5.2 Generate TypeScript types for transfer mutation operations
   - [ ] 9.5.4 Add Apollo Client cache configuration for transfer operations
 
 - [ ] **9.6 Frontend UI/UX Layer**
   - [ ] 9.6.1 Add dedicated "Create Transfer" button/action separate from transaction creation interface
   - [ ] 9.6.2 Create CreateTransferForm component with dual account selection dropdowns that calls createTransfer mutation
-  - [ ] 9.6.3 Update transaction type display to show TRANSFER_IN and TRANSFER_OUT as normal transaction types
-  - [ ] 9.6.4 Implement transfer-specific deletion logic with confirmation dialog for both paired transactions
-  - [ ] 9.6.5 Add transfer amount validation (positive numbers, currency formatting)
-  - [ ] 9.6.6 Add success/error notifications for transfer operations
+  - [ ] 9.6.3 Create EditTransferForm component that loads existing transfer data and calls updateTransfer mutation
+  - [ ] 9.6.4 Update transaction type display to show TRANSFER_IN and TRANSFER_OUT as normal transaction types
+  - [ ] 9.6.5 Add edit button/action for transfer transactions that opens EditTransferForm with linked transfer data
+  - [ ] 9.6.6 Implement transfer-specific deletion logic with confirmation dialog for both paired transactions
+  - [ ] 9.6.7 Add transfer amount validation (positive numbers, currency formatting)
+  - [ ] 9.6.8 Add success/error notifications for transfer operations
 
 ## Testing
 
@@ -108,6 +113,8 @@ Show transfers as normal transactions with TRANSFER_IN and TRANSFER_OUT types in
   - [ ] 9.7.7 [M] Delete transfer transactions from transaction list and verify both paired transactions removed and balances restored
   - [ ] 9.7.8 [M] Create multiple transfers and verify they appear in transaction list with proper pagination
   - [ ] 9.7.9 [M] Test CreateTransferForm validation: positive amounts, required fields, currency formatting
+  - [ ] 9.7.10 [M] Test transfer editing: modify amount from $300 to $250, verify both transactions update and balances recalculate correctly
+  - [ ] 9.7.11 [M] Test transfer editing validation: currency mismatch, account ownership, positive amounts
 
 - [ ] **9.8 Production Deployment**
   - [ ] 9.8.1 [M] Deploy complete transfer system using ./deploy.sh (backend → frontend infrastructure → frontend assets)
