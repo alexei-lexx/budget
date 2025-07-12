@@ -32,7 +32,7 @@ export interface CreateTransactionInput {
 }
 
 export type UpdateTransactionInput = Partial<
-  Omit<CreateTransactionInput, "userId">
+  Omit<CreateTransactionInput, "userId" | "transferId">
 >;
 
 // Transaction-specific pagination types using generic pagination interfaces
