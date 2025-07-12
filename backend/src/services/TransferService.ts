@@ -19,6 +19,19 @@ export interface CreateTransferInput {
 }
 
 /**
+ * Input type for updating transfers between accounts
+ * Note: transferId cannot be changed after creation to maintain audit trail integrity
+ */
+export interface UpdateTransferInput {
+  transferId: string;
+  fromAccountId: string;
+  toAccountId: string;
+  amount: number;
+  date: string;
+  description?: string | null;
+}
+
+/**
  * Transfer service class for handling account-to-account transfers
  * Implements the service layer pattern for transfer operations
  */
@@ -160,12 +173,6 @@ export class TransferService {
         userId,
       );
 
-      // Log successful transfer deletion for audit purposes
-      console.info("Transfer deleted successfully:", {
-        transferId,
-        userId,
-        deletedTransactionIds: transferTransactions.map((t) => t.id),
-      });
     } catch (error) {
       // Log the error for debugging and monitoring
       console.error("Transfer deletion failed:", {
@@ -182,6 +189,155 @@ export class TransferService {
           transferId,
           userId,
           transactionIds: transferTransactions.map((t) => t.id),
+          originalError: error,
+        },
+      );
+    }
+  }
+
+  /**
+   * Update a transfer by modifying both paired transactions atomically
+   * @param input - Transfer update input (transferId cannot be changed)
+   * @param userId - The user ID requesting the update
+   * @returns Promise<[Transaction, Transaction]> - The updated transaction pair [outbound, inbound]
+   * @throws BusinessError for any business rule violations
+   */
+  async updateTransfer(
+    input: UpdateTransferInput,
+    userId: string,
+  ): Promise<[Transaction, Transaction]> {
+    // Validate input parameters
+    this.validateAmount(input.amount);
+    this.validateDate(input.date);
+
+    // Validate not transferring to the same account (fail fast before DB calls)
+    this.validateNotSelfTransfer(input.fromAccountId, input.toAccountId, userId);
+
+    // Find the existing transfer transactions
+    const existingTransactions = await this.transactionRepository.findByTransferId(
+      input.transferId,
+      userId,
+    );
+
+    // Validate transfer exists
+    if (existingTransactions.length === 0) {
+      throw new BusinessError(
+        "Transfer not found or doesn't belong to user",
+        BusinessErrorCodes.TRANSFER_NOT_FOUND,
+        { transferId: input.transferId, userId },
+      );
+    }
+
+    // Validate we have exactly 2 transactions (should always be the case for transfers)
+    if (existingTransactions.length !== 2) {
+      throw new BusinessError(
+        `Invalid transfer state: expected 2 transactions, found ${existingTransactions.length}`,
+        BusinessErrorCodes.INVALID_TRANSFER_STATE,
+        {
+          transferId: input.transferId,
+          userId,
+          transactionCount: existingTransactions.length,
+          transactionIds: existingTransactions.map((t) => t.id),
+        },
+      );
+    }
+
+    // Validate both accounts exist and belong to user
+    const fromAccount = await this.validateAccount(input.fromAccountId, userId);
+    const toAccount = await this.validateAccount(input.toAccountId, userId);
+
+    // Validate accounts have the same currency
+    this.validateCurrencyMatch(fromAccount, toAccount);
+
+    // Identify which transaction is the outbound and which is inbound
+    const outboundTransaction = existingTransactions.find(t => t.type === "TRANSFER_OUT");
+    const inboundTransaction = existingTransactions.find(t => t.type === "TRANSFER_IN");
+
+    if (!outboundTransaction || !inboundTransaction) {
+      throw new BusinessError(
+        "Invalid transfer state: missing TRANSFER_OUT or TRANSFER_IN transaction",
+        BusinessErrorCodes.INVALID_TRANSFER_STATE,
+        {
+          transferId: input.transferId,
+          userId,
+          transactionIds: existingTransactions.map((t) => t.id),
+          transactionTypes: existingTransactions.map((t) => t.type),
+        },
+      );
+    }
+
+    try {
+      // Update both transactions atomically using the new updateMany method
+      const updates = [
+        {
+          id: outboundTransaction.id,
+          input: {
+            accountId: input.fromAccountId,
+            amount: input.amount,
+            currency: fromAccount.currency,
+            date: input.date,
+            description: input.description || undefined,
+            // Note: transferId is intentionally not included as it cannot be changed
+          },
+        },
+        {
+          id: inboundTransaction.id,
+          input: {
+            accountId: input.toAccountId,
+            amount: input.amount,
+            currency: toAccount.currency, // Should be same as fromAccount.currency due to validation
+            date: input.date,
+            description: input.description || undefined,
+            // Note: transferId is intentionally not included as it cannot be changed
+          },
+        },
+      ];
+
+      await this.transactionRepository.updateMany(updates, userId);
+
+      // Fetch the updated transactions with a single query
+      const updatedTransactions = await this.transactionRepository.findByTransferId(
+        input.transferId,
+        userId,
+      );
+
+      // Find the updated outbound and inbound transactions
+      const updatedOutbound = updatedTransactions.find(t => t.type === "TRANSFER_OUT");
+      const updatedInbound = updatedTransactions.find(t => t.type === "TRANSFER_IN");
+
+      if (!updatedOutbound || !updatedInbound || updatedTransactions.length !== 2) {
+        throw new BusinessError(
+          "Failed to retrieve updated transfer transactions",
+          "TRANSFER_UPDATE_INCONSISTENT",
+          {
+            transferId: input.transferId,
+            userId,
+            transactionCount: updatedTransactions.length,
+            transactionIds: updatedTransactions.map((t) => t.id),
+          },
+        );
+      }
+
+      // Return the transactions in the expected order [outbound, inbound]
+      return [updatedOutbound, updatedInbound];
+    } catch (error) {
+      // Log the error for debugging and monitoring
+      console.error("Transfer update failed:", {
+        transferId: input.transferId,
+        fromAccountId: input.fromAccountId,
+        toAccountId: input.toAccountId,
+        amount: input.amount,
+        error,
+      });
+
+      throw new BusinessError(
+        "Failed to update transfer transactions",
+        "TRANSFER_UPDATE_FAILED",
+        {
+          transferId: input.transferId,
+          fromAccountId: input.fromAccountId,
+          toAccountId: input.toAccountId,
+          amount: input.amount,
           originalError: error,
         },
       );

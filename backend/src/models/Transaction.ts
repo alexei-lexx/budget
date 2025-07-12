@@ -54,6 +54,10 @@ export interface ITransactionRepository {
     userId: string,
     input: UpdateTransactionInput,
   ): Promise<Transaction>;
+  updateMany(
+    updates: { id: string; input: UpdateTransactionInput }[],
+    userId: string,
+  ): Promise<void>;
   archive(id: string, userId: string): Promise<Transaction>;
   archiveMany(ids: string[], userId: string): Promise<void>;
   hasTransactionsForAccount(

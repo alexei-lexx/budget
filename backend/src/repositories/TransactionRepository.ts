@@ -477,6 +477,129 @@ export class TransactionRepository implements ITransactionRepository {
     }
   }
 
+  async updateMany(
+    updates: { id: string; input: UpdateTransactionInput }[],
+    userId: string,
+  ): Promise<void> {
+    if (!updates.length) {
+      throw new TransactionRepositoryError(
+        "At least one transaction update is required",
+        "INVALID_PARAMETERS",
+      );
+    }
+
+    if (updates.length > DYNAMODB_TRANSACT_WRITE_MAX_ITEMS) {
+      throw new TransactionRepositoryError(
+        `DynamoDB transactions support a maximum of ${DYNAMODB_TRANSACT_WRITE_MAX_ITEMS} items`,
+        "TOO_MANY_ITEMS",
+      );
+    }
+
+    if (!userId) {
+      throw new TransactionRepositoryError(
+        "User ID is required",
+        "INVALID_PARAMETERS",
+      );
+    }
+
+    const now = new Date().toISOString();
+
+    try {
+      const transactItems = updates.map(({ id, input }) => {
+        // Build update expression dynamically based on provided fields
+        const updateExpressionParts: string[] = ["updatedAt = :updatedAt"];
+        const expressionAttributeValues: Record<string, unknown> = {
+          ":updatedAt": now,
+          ":isArchived": true,
+        };
+        const expressionAttributeNames: Record<string, string> = {};
+
+        if (input.accountId !== undefined) {
+          updateExpressionParts.push("accountId = :accountId_" + id);
+          expressionAttributeValues[":accountId_" + id] = input.accountId;
+        }
+
+        if (input.categoryId !== undefined) {
+          if (input.categoryId === null) {
+            updateExpressionParts.push("categoryId = :categoryId_" + id);
+            expressionAttributeValues[":categoryId_" + id] = null;
+          } else {
+            updateExpressionParts.push("categoryId = :categoryId_" + id);
+            expressionAttributeValues[":categoryId_" + id] = input.categoryId;
+          }
+        }
+
+        if (input.type !== undefined) {
+          updateExpressionParts.push("#type = :type_" + id);
+          expressionAttributeValues[":type_" + id] = input.type;
+          expressionAttributeNames["#type"] = "type";
+        }
+
+        if (input.amount !== undefined) {
+          updateExpressionParts.push("amount = :amount_" + id);
+          expressionAttributeValues[":amount_" + id] = input.amount;
+        }
+
+        if (input.currency !== undefined) {
+          updateExpressionParts.push("currency = :currency_" + id);
+          expressionAttributeValues[":currency_" + id] = input.currency;
+        }
+
+        if (input.date !== undefined) {
+          updateExpressionParts.push("#date = :date_" + id);
+          expressionAttributeValues[":date_" + id] = input.date;
+          expressionAttributeNames["#date"] = "date";
+        }
+
+        if (input.description !== undefined) {
+          if (input.description === null) {
+            updateExpressionParts.push("description = :description_" + id);
+            expressionAttributeValues[":description_" + id] = null;
+          } else {
+            updateExpressionParts.push("description = :description_" + id);
+            expressionAttributeValues[":description_" + id] = input.description;
+          }
+        }
+
+        return {
+          Update: {
+            TableName: this.tableName,
+            Key: { userId, id },
+            UpdateExpression: `SET ${updateExpressionParts.join(", ")}`,
+            ConditionExpression:
+              "attribute_exists(userId) AND attribute_exists(id) AND isArchived <> :isArchived",
+            ExpressionAttributeNames: Object.keys(expressionAttributeNames).length > 0 ? expressionAttributeNames : undefined,
+            ExpressionAttributeValues: expressionAttributeValues,
+          },
+        };
+      });
+
+      const command = new TransactWriteCommand({
+        TransactItems: transactItems,
+      });
+
+      await this.client.send(command);
+    } catch (error) {
+      console.error("Error updating transactions atomically:", error);
+
+      if (
+        error instanceof Error &&
+        error.name === "TransactionCanceledException"
+      ) {
+        throw new TransactionRepositoryError(
+          "One or more transactions not found or already archived",
+          "NOT_FOUND",
+        );
+      }
+
+      throw new TransactionRepositoryError(
+        "Failed to update transactions atomically",
+        "UPDATE_MANY_FAILED",
+        error,
+      );
+    }
+  }
+
   async archive(id: string, userId: string): Promise<Transaction> {
     if (!id || !userId) {
       throw new TransactionRepositoryError(
