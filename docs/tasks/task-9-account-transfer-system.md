@@ -69,14 +69,14 @@ Show transfers as normal transactions with TRANSFER_IN and TRANSFER_OUT types in
 - [ ] **9.2 Repository Layer**
   - [ ] 9.2.1 Update TransactionRepository.create to support transferId field
   - [ ] 9.2.2 Add findByTransferId method to retrieve paired transfer transactions
-  - [ ] 9.2.3 Update balance calculation in AccountService to handle TRANSFER_IN/TRANSFER_OUT types
 
 - [ ] **9.3 Service Layer**
-  - [ ] 9.3.1 Create TransferService class with constructor accepting TransactionRepository and AccountRepository
-  - [ ] 9.3.2 Implement createTransfer method with account validation (same user, same currency)
-  - [ ] 9.3.3 Add rollback/compensation logic for partial transfer failures
-  - [ ] 9.3.4 Implement deleteTransfer method to handle cascading deletion of paired transactions
-  - [ ] 9.3.5 Implement updateTransfer method with validation (same user, same currency) that updates both linked transactions atomically (transferId cannot be changed after creation)
+  - [ ] 9.3.1 Update balance calculation in AccountService to handle TRANSFER_IN/TRANSFER_OUT types
+  - [ ] 9.3.2 Create TransferService class with constructor accepting TransactionRepository and AccountRepository
+  - [ ] 9.3.3 Implement createTransfer method with account validation (same user, same currency)
+  - [ ] 9.3.4 Add rollback/compensation logic for partial transfer failures
+  - [ ] 9.3.5 Implement deleteTransfer method to handle cascading deletion of paired transactions
+  - [ ] 9.3.6 Implement updateTransfer method with validation (same user, same currency) that updates both linked transactions atomically (transferId cannot be changed after creation)
 
 - [ ] **9.4 GraphQL Layer**
   - [ ] 9.4.1 Create Transfer type representing a paired transaction set
