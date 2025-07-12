@@ -55,6 +55,7 @@ Each transfer creates two Transaction records:
 - TRANSFER_OUT transaction on source account (decreases balance)
 - TRANSFER_IN transaction on destination account (increases balance)
 - Both linked by shared transferId UUID
+- **Note: Transfer ID cannot be changed after creation to maintain audit trail integrity**
 
 **UI Design:**
 Show transfers as normal transactions with TRANSFER_IN and TRANSFER_OUT types in the existing transactions list. Each transfer creates two separate transaction entries that display individually. Add transfer creation form to existing transaction creation interface.
@@ -75,7 +76,7 @@ Show transfers as normal transactions with TRANSFER_IN and TRANSFER_OUT types in
   - [ ] 9.3.2 Implement createTransfer method with account validation (same user, same currency)
   - [ ] 9.3.3 Add rollback/compensation logic for partial transfer failures
   - [ ] 9.3.4 Implement deleteTransfer method to handle cascading deletion of paired transactions
-  - [ ] 9.3.5 Implement updateTransfer method with validation (same user, same currency) that updates both linked transactions atomically
+  - [ ] 9.3.5 Implement updateTransfer method with validation (same user, same currency) that updates both linked transactions atomically (transferId cannot be changed after creation)
 
 - [ ] **9.4 GraphQL Layer**
   - [ ] 9.4.1 Create Transfer type representing a paired transaction set
