@@ -27,6 +27,12 @@ import { paginateQuery } from "./utils/pagination";
 import { createDynamoDBDocumentClient } from "./utils/dynamoClient";
 
 /**
+ * Maximum number of items that can be included in a single DynamoDB TransactWrite operation
+ * @see https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Limits.html#limits-api
+ */
+const DYNAMODB_TRANSACT_WRITE_MAX_ITEMS = 25;
+
+/**
  * Repository error class for better error handling
  */
 class TransactionRepositoryError extends Error {
@@ -331,9 +337,9 @@ export class TransactionRepository implements ITransactionRepository {
       );
     }
 
-    if (inputs.length > 25) {
+    if (inputs.length > DYNAMODB_TRANSACT_WRITE_MAX_ITEMS) {
       throw new TransactionRepositoryError(
-        "DynamoDB transactions support a maximum of 25 items",
+        `DynamoDB transactions support a maximum of ${DYNAMODB_TRANSACT_WRITE_MAX_ITEMS} items`,
         "TOO_MANY_ITEMS",
       );
     }
@@ -514,6 +520,72 @@ export class TransactionRepository implements ITransactionRepository {
       throw new TransactionRepositoryError(
         "Failed to archive transaction",
         "ARCHIVE_FAILED",
+        error,
+      );
+    }
+  }
+
+  async archiveMany(ids: string[], userId: string): Promise<void> {
+    if (!ids.length) {
+      throw new TransactionRepositoryError(
+        "At least one transaction ID is required",
+        "INVALID_PARAMETERS",
+      );
+    }
+
+    if (ids.length > DYNAMODB_TRANSACT_WRITE_MAX_ITEMS) {
+      throw new TransactionRepositoryError(
+        `DynamoDB transactions support a maximum of ${DYNAMODB_TRANSACT_WRITE_MAX_ITEMS} items`,
+        "TOO_MANY_ITEMS",
+      );
+    }
+
+    if (!userId) {
+      throw new TransactionRepositoryError(
+        "User ID is required",
+        "INVALID_PARAMETERS",
+      );
+    }
+
+    const now = new Date().toISOString();
+
+    try {
+      const transactItems = ids.map((id) => ({
+        Update: {
+          TableName: this.tableName,
+          Key: { userId, id },
+          UpdateExpression:
+            "SET isArchived = :isArchived, updatedAt = :updatedAt",
+          ConditionExpression:
+            "attribute_exists(userId) AND attribute_exists(id) AND isArchived <> :isArchived",
+          ExpressionAttributeValues: {
+            ":isArchived": true,
+            ":updatedAt": now,
+          },
+        },
+      }));
+
+      const command = new TransactWriteCommand({
+        TransactItems: transactItems,
+      });
+
+      await this.client.send(command);
+    } catch (error) {
+      console.error("Error archiving transactions atomically:", error);
+
+      if (
+        error instanceof Error &&
+        error.name === "TransactionCanceledException"
+      ) {
+        throw new TransactionRepositoryError(
+          "One or more transactions not found or already archived",
+          "NOT_FOUND",
+        );
+      }
+
+      throw new TransactionRepositoryError(
+        "Failed to archive transactions atomically",
+        "ARCHIVE_MANY_FAILED",
         error,
       );
     }

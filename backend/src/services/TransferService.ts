@@ -44,24 +44,15 @@ export class TransferService {
     this.validateAmount(input.amount);
     this.validateDate(input.date);
 
+    // Validate not transferring to the same account (fail fast before DB calls)
+    this.validateNotSelfTransfer(input.fromAccountId, input.toAccountId, userId);
+
     // Validate both accounts exist and belong to user
     const fromAccount = await this.validateAccount(input.fromAccountId, userId);
     const toAccount = await this.validateAccount(input.toAccountId, userId);
 
     // Validate accounts have the same currency
     this.validateCurrencyMatch(fromAccount, toAccount);
-
-    // Additional defensive validation - prevent self-transfers
-    if (input.fromAccountId === input.toAccountId) {
-      throw new BusinessError(
-        "Cannot transfer money to the same account",
-        BusinessErrorCodes.SELF_TRANSFER_NOT_ALLOWED,
-        {
-          accountId: input.fromAccountId,
-          userId,
-        },
-      );
-    }
 
     // Generate a unique transfer ID to link the two transactions
     const transferId = randomUUID();
@@ -118,6 +109,79 @@ export class TransferService {
           fromAccountId: input.fromAccountId,
           toAccountId: input.toAccountId,
           amount: input.amount,
+          originalError: error,
+        },
+      );
+    }
+  }
+
+  /**
+   * Delete a transfer by removing both paired transactions
+   * @param transferId - The transfer ID to delete
+   * @param userId - The user ID requesting the deletion
+   * @returns Promise<void>
+   * @throws BusinessError if transfer not found or doesn't belong to user
+   */
+  async deleteTransfer(transferId: string, userId: string): Promise<void> {
+    // Find the paired transactions for this transfer
+    const transferTransactions = await this.transactionRepository.findByTransferId(
+      transferId,
+      userId,
+    );
+
+    // Validate transfer exists
+    if (transferTransactions.length === 0) {
+      throw new BusinessError(
+        "Transfer not found or doesn't belong to user",
+        BusinessErrorCodes.TRANSFER_NOT_FOUND,
+        { transferId, userId },
+      );
+    }
+
+    // Validate we have exactly 2 transactions (should always be the case for transfers)
+    if (transferTransactions.length !== 2) {
+      throw new BusinessError(
+        `Invalid transfer state: expected 2 transactions, found ${transferTransactions.length}`,
+        BusinessErrorCodes.INVALID_TRANSFER_STATE,
+        {
+          transferId,
+          userId,
+          transactionCount: transferTransactions.length,
+          transactionIds: transferTransactions.map((t) => t.id),
+        },
+      );
+    }
+
+    try {
+      // Archive both transactions atomically using TransactWrite
+      // Ensures either both transactions are archived or none (atomic operation)
+      await this.transactionRepository.archiveMany(
+        transferTransactions.map((transaction) => transaction.id),
+        userId,
+      );
+
+      // Log successful transfer deletion for audit purposes
+      console.info("Transfer deleted successfully:", {
+        transferId,
+        userId,
+        deletedTransactionIds: transferTransactions.map((t) => t.id),
+      });
+    } catch (error) {
+      // Log the error for debugging and monitoring
+      console.error("Transfer deletion failed:", {
+        transferId,
+        userId,
+        transactionIds: transferTransactions.map((t) => t.id),
+        error,
+      });
+
+      throw new BusinessError(
+        "Failed to delete transfer transactions",
+        BusinessErrorCodes.TRANSFER_DELETION_FAILED,
+        {
+          transferId,
+          userId,
+          transactionIds: transferTransactions.map((t) => t.id),
           originalError: error,
         },
       );
@@ -205,5 +269,28 @@ export class TransferService {
     }
   }
 
+  /**
+   * Validate that the transfer is not to the same account (self-transfer)
+   * @param fromAccountId - The source account ID
+   * @param toAccountId - The destination account ID
+   * @param userId - The user ID for error context
+   * @throws BusinessError if attempting to transfer to the same account
+   */
+  private validateNotSelfTransfer(
+    fromAccountId: string,
+    toAccountId: string,
+    userId: string,
+  ): void {
+    if (fromAccountId === toAccountId) {
+      throw new BusinessError(
+        "Cannot transfer money to the same account",
+        BusinessErrorCodes.SELF_TRANSFER_NOT_ALLOWED,
+        {
+          accountId: fromAccountId,
+          userId,
+        },
+      );
+    }
+  }
 
 }
