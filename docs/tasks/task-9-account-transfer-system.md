@@ -66,9 +66,9 @@ Show transfers as normal transactions with TRANSFER_IN and TRANSFER_OUT types in
   - [x] 9.1.1 Add transferId field (optional string UUID) to Transaction model interface
   - [x] 9.1.2 Extend TransactionType enum to include TRANSFER_OUT and TRANSFER_IN
 
-- [ ] **9.2 Repository Layer**
-  - [ ] 9.2.1 Update TransactionRepository.create to support transferId field
-  - [ ] 9.2.2 Add findByTransferId method to retrieve paired transfer transactions
+- [x] **9.2 Repository Layer**
+  - [x] 9.2.1 Update TransactionRepository.create to support transferId field
+  - [x] 9.2.2 Add findByTransferId method to retrieve paired transfer transactions
 
 - [ ] **9.3 Service Layer**
   - [ ] 9.3.1 Update balance calculation in AccountService to handle TRANSFER_IN/TRANSFER_OUT types

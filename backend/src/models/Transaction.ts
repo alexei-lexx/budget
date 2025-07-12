@@ -46,6 +46,7 @@ export interface ITransactionRepository {
   ): Promise<TransactionConnection>;
   findById(id: string, userId: string): Promise<Transaction | null>;
   findByAccountId(accountId: string, userId: string): Promise<Transaction[]>;
+  findByTransferId(transferId: string, userId: string): Promise<Transaction[]>;
   create(input: CreateTransactionInput): Promise<Transaction>;
   update(
     id: string,

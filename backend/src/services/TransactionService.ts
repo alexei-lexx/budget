@@ -5,6 +5,7 @@ import {
   CreateTransactionInput,
   UpdateTransactionInput,
   TransactionConnection,
+  TransactionType,
 } from "../models/Transaction";
 import { IAccountRepository, Account } from "../models/Account";
 import { ICategoryRepository, Category } from "../models/Category";
@@ -32,7 +33,7 @@ export class TransactionService {
     private accountRepository: IAccountRepository,
     private categoryRepository: ICategoryRepository,
     private transactionRepository: ITransactionRepository,
-  ) {}
+  ) { }
 
   /**
    * Validate that an account exists and belongs to the user
@@ -69,7 +70,7 @@ export class TransactionService {
   private async validateCategory(
     categoryId: string | undefined | null,
     userId: string,
-    transactionType: "INCOME" | "EXPENSE",
+    transactionType: TransactionType,
   ): Promise<Category | null> {
     if (!categoryId) {
       return null;
