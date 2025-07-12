@@ -1,7 +1,7 @@
 import { CategoryType } from "./Category";
 import { PaginationInput, Edge, Connection } from "../types/pagination";
 
-export type TransactionType = CategoryType;
+export type TransactionType = CategoryType | "TRANSFER_OUT" | "TRANSFER_IN";
 
 export interface Transaction {
   userId: string; // Partition key (same pattern as other entities)
@@ -13,6 +13,7 @@ export interface Transaction {
   currency: string; // ISO currency code (inherited from account)
   date: string; // Transaction date (YYYY-MM-DD format)
   description?: string; // Optional description
+  transferId?: string; // Optional UUID linking paired transfer transactions
   isArchived: boolean; // Soft delete flag
   createdAt: string; // ISO timestamp
   updatedAt: string; // ISO timestamp
@@ -27,6 +28,7 @@ export interface CreateTransactionInput {
   currency: string;
   date: string;
   description?: string | null;
+  transferId?: string | null;
 }
 
 export type UpdateTransactionInput = Partial<
