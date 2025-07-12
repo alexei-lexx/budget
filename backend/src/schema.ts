@@ -26,6 +26,8 @@ export const typeDefs = `#graphql
   enum TransactionType {
     INCOME
     EXPENSE
+    TRANSFER_IN
+    TRANSFER_OUT
   }
 
   type Category {
