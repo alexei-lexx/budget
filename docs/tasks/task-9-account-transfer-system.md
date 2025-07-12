@@ -74,7 +74,7 @@ Show transfers as normal transactions with TRANSFER_IN and TRANSFER_OUT types in
   - [x] 9.3.1 Update balance calculation in AccountService to handle TRANSFER_IN/TRANSFER_OUT types
   - [x] 9.3.2 Create TransferService class with constructor accepting TransactionRepository and AccountRepository
   - [x] 9.3.3 Implement createTransfer method with account validation (same user, same currency)
-  - [ ] 9.3.4 Add rollback/compensation logic for partial transfer failures
+  - [x] 9.3.4 Add rollback/compensation logic for partial transfer failures
   - [ ] 9.3.5 Implement deleteTransfer method to handle cascading deletion of paired transactions
   - [ ] 9.3.6 Implement updateTransfer method with validation (same user, same currency) that updates both linked transactions atomically (transferId cannot be changed after creation)
 

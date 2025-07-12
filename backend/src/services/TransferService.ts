@@ -51,6 +51,18 @@ export class TransferService {
     // Validate accounts have the same currency
     this.validateCurrencyMatch(fromAccount, toAccount);
 
+    // Additional defensive validation - prevent self-transfers
+    if (input.fromAccountId === input.toAccountId) {
+      throw new BusinessError(
+        "Cannot transfer money to the same account",
+        BusinessErrorCodes.SELF_TRANSFER_NOT_ALLOWED,
+        {
+          accountId: input.fromAccountId,
+          userId,
+        },
+      );
+    }
+
     // Generate a unique transfer ID to link the two transactions
     const transferId = randomUUID();
 
@@ -80,6 +92,7 @@ export class TransferService {
 
     try {
       // Create both transactions atomically using DynamoDB transaction
+      // TransactWriteCommand guarantees either both succeed or both fail
       const transactions = await this.transactionRepository.createMany([
         outboundInput,
         inboundInput,
@@ -88,6 +101,15 @@ export class TransferService {
       // Return the transactions in the expected order [outbound, inbound]
       return [transactions[0], transactions[1]];
     } catch (error) {
+      // Log the error for debugging and monitoring
+      console.error("Transfer creation failed:", {
+        transferId,
+        fromAccountId: input.fromAccountId,
+        toAccountId: input.toAccountId,
+        amount: input.amount,
+        error,
+      });
+
       throw new BusinessError(
         "Failed to create transfer transactions",
         "TRANSFER_CREATION_FAILED",
