@@ -48,6 +48,7 @@ export interface ITransactionRepository {
   findByAccountId(accountId: string, userId: string): Promise<Transaction[]>;
   findByTransferId(transferId: string, userId: string): Promise<Transaction[]>;
   create(input: CreateTransactionInput): Promise<Transaction>;
+  createMany(inputs: CreateTransactionInput[]): Promise<Transaction[]>;
   update(
     id: string,
     userId: string,

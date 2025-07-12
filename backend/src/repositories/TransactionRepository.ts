@@ -5,6 +5,7 @@ import {
   QueryCommand,
   UpdateCommand,
   GetCommand,
+  TransactWriteCommand,
 } from "@aws-sdk/lib-dynamodb";
 import { randomUUID } from "crypto";
 import {
@@ -302,21 +303,7 @@ export class TransactionRepository implements ITransactionRepository {
 
   async create(input: CreateTransactionInput): Promise<Transaction> {
     const now = new Date().toISOString();
-    const transaction: Transaction = {
-      id: randomUUID(),
-      userId: input.userId,
-      accountId: input.accountId,
-      categoryId: input.categoryId || undefined,
-      type: input.type,
-      amount: input.amount,
-      currency: input.currency,
-      date: input.date,
-      description: input.description || undefined,
-      transferId: input.transferId || undefined,
-      isArchived: false,
-      createdAt: now,
-      updatedAt: now,
-    };
+    const transaction = this.buildTransaction(input, now);
 
     try {
       const command = new PutCommand({
@@ -331,6 +318,48 @@ export class TransactionRepository implements ITransactionRepository {
       throw new TransactionRepositoryError(
         "Failed to create transaction",
         "CREATE_FAILED",
+        error,
+      );
+    }
+  }
+
+  async createMany(inputs: CreateTransactionInput[]): Promise<Transaction[]> {
+    if (!inputs.length) {
+      throw new TransactionRepositoryError(
+        "At least one transaction input is required",
+        "INVALID_PARAMETERS",
+      );
+    }
+
+    if (inputs.length > 25) {
+      throw new TransactionRepositoryError(
+        "DynamoDB transactions support a maximum of 25 items",
+        "TOO_MANY_ITEMS",
+      );
+    }
+
+    const now = new Date().toISOString();
+    const transactions = inputs.map(input => this.buildTransaction(input, now));
+
+    try {
+      const transactItems = transactions.map((transaction) => ({
+        Put: {
+          TableName: this.tableName,
+          Item: transaction,
+        },
+      }));
+
+      const command = new TransactWriteCommand({
+        TransactItems: transactItems,
+      });
+
+      await this.client.send(command);
+      return transactions;
+    } catch (error) {
+      console.error("Error creating transactions atomically:", error);
+      throw new TransactionRepositoryError(
+        "Failed to create transactions atomically",
+        "TRANSACT_WRITE_FAILED",
         error,
       );
     }
@@ -524,6 +553,30 @@ export class TransactionRepository implements ITransactionRepository {
         error,
       );
     }
+  }
+
+  /**
+   * Build a Transaction object from CreateTransactionInput with generated metadata
+   * @param input - The transaction input data
+   * @param timestamp - The timestamp to use for createdAt and updatedAt
+   * @returns Transaction object ready for database insertion
+   */
+  private buildTransaction(input: CreateTransactionInput, timestamp: string): Transaction {
+    return {
+      id: randomUUID(),
+      userId: input.userId,
+      accountId: input.accountId,
+      categoryId: input.categoryId || undefined,
+      type: input.type,
+      amount: input.amount,
+      currency: input.currency,
+      date: input.date,
+      description: input.description || undefined,
+      transferId: input.transferId || undefined,
+      isArchived: false,
+      createdAt: timestamp,
+      updatedAt: timestamp,
+    };
   }
 
   private async countActiveTransactions(userId: string): Promise<number> {
