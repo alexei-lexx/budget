@@ -1,5 +1,6 @@
 import { ApolloServer } from "@apollo/server";
-import { typeDefs } from "./schema";
+import { readFileSync } from "fs";
+import { join } from "path";
 import { resolvers } from "./resolvers";
 import { JwtAuthService, AuthContext } from "./auth/jwtAuth";
 import { UserRepository } from "./repositories/UserRepository";
@@ -32,6 +33,10 @@ let categoryRepository: CategoryRepository;
 let transactionRepository: TransactionRepository;
 let transactionService: TransactionService;
 let accountService: AccountService;
+
+const typeDefs = readFileSync(join(__dirname, "schema.graphql"), {
+  encoding: "utf-8",
+});
 
 export const server = new ApolloServer<GraphQLContext>({
   typeDefs,

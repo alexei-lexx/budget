@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "build": "npm run compile && rm -rf dist && esbuild src/lambda.ts --bundle --platform=node --outfile=dist/lambda.js",
+    "build:schema": "cp src/schema.graphql dist/",
+    "build": "esbuild src/lambda.ts --bundle --platform=node --outfile=dist/lambda.js && npm run build:schema",
     "compile": "tsc",
     "db:setup": "npm run db:start && ts-node scripts/create-tables.ts",
     "db:start": "docker compose up -d",
@@ -12,6 +13,7 @@
     "format": "npm run prettier:fix && npm run lint:fix",
     "lint:fix": "eslint . --fix",
     "lint": "eslint .",
+    "prebuild": "npm run compile && rm -rf dist",
     "prettier:fix": "prettier --write .",
     "prettier": "prettier --check ."
   },
