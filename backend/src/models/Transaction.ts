@@ -1,7 +1,8 @@
 import { PaginationInput, Edge, Connection } from "../types/pagination";
 import { TRANSACTION_TYPE } from "../constants/types";
 
-export type TransactionType = typeof TRANSACTION_TYPE[keyof typeof TRANSACTION_TYPE];
+export type TransactionType =
+  (typeof TRANSACTION_TYPE)[keyof typeof TRANSACTION_TYPE];
 
 export interface Transaction {
   userId: string; // Partition key (same pattern as other entities)

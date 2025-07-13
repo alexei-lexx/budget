@@ -345,7 +345,9 @@ export class TransactionRepository implements ITransactionRepository {
     }
 
     const now = new Date().toISOString();
-    const transactions = inputs.map(input => this.buildTransaction(input, now));
+    const transactions = inputs.map((input) =>
+      this.buildTransaction(input, now),
+    );
 
     try {
       const transactItems = transactions.map((transaction) => ({
@@ -568,7 +570,10 @@ export class TransactionRepository implements ITransactionRepository {
             UpdateExpression: `SET ${updateExpressionParts.join(", ")}`,
             ConditionExpression:
               "attribute_exists(userId) AND attribute_exists(id) AND isArchived <> :isArchived",
-            ExpressionAttributeNames: Object.keys(expressionAttributeNames).length > 0 ? expressionAttributeNames : undefined,
+            ExpressionAttributeNames:
+              Object.keys(expressionAttributeNames).length > 0
+                ? expressionAttributeNames
+                : undefined,
             ExpressionAttributeValues: expressionAttributeValues,
           },
         };
@@ -756,7 +761,10 @@ export class TransactionRepository implements ITransactionRepository {
    * @param timestamp - The timestamp to use for createdAt and updatedAt
    * @returns Transaction object ready for database insertion
    */
-  private buildTransaction(input: CreateTransactionInput, timestamp: string): Transaction {
+  private buildTransaction(
+    input: CreateTransactionInput,
+    timestamp: string,
+  ): Transaction {
     return {
       id: randomUUID(),
       userId: input.userId,

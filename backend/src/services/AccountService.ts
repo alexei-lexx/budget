@@ -42,9 +42,15 @@ export class AccountService {
 
       // Calculate balance: initialBalance + INCOME + TRANSFER_IN - EXPENSE - TRANSFER_OUT
       const balance = transactions.reduce((sum, transaction) => {
-        if (transaction.type === TRANSACTION_TYPE.INCOME || transaction.type === TRANSACTION_TYPE.TRANSFER_IN) {
+        if (
+          transaction.type === TRANSACTION_TYPE.INCOME ||
+          transaction.type === TRANSACTION_TYPE.TRANSFER_IN
+        ) {
           return sum + transaction.amount;
-        } else if (transaction.type === TRANSACTION_TYPE.EXPENSE || transaction.type === TRANSACTION_TYPE.TRANSFER_OUT) {
+        } else if (
+          transaction.type === TRANSACTION_TYPE.EXPENSE ||
+          transaction.type === TRANSACTION_TYPE.TRANSFER_OUT
+        ) {
           return sum - transaction.amount;
         }
         return sum;

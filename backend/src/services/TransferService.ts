@@ -40,7 +40,7 @@ export class TransferService {
   constructor(
     private transactionRepository: ITransactionRepository,
     private accountRepository: IAccountRepository,
-  ) { }
+  ) {}
 
   /**
    * Create a transfer between two accounts
@@ -59,7 +59,11 @@ export class TransferService {
     this.validateDate(input.date);
 
     // Validate not transferring to the same account (fail fast before DB calls)
-    this.validateNotSelfTransfer(input.fromAccountId, input.toAccountId, userId);
+    this.validateNotSelfTransfer(
+      input.fromAccountId,
+      input.toAccountId,
+      userId,
+    );
 
     // Validate both accounts exist and belong to user
     const fromAccount = await this.validateAccount(input.fromAccountId, userId);
@@ -138,10 +142,8 @@ export class TransferService {
    */
   async deleteTransfer(transferId: string, userId: string): Promise<void> {
     // Find the paired transactions for this transfer
-    const transferTransactions = await this.transactionRepository.findByTransferId(
-      transferId,
-      userId,
-    );
+    const transferTransactions =
+      await this.transactionRepository.findByTransferId(transferId, userId);
 
     // Validate transfer exists
     if (transferTransactions.length === 0) {
@@ -173,7 +175,6 @@ export class TransferService {
         transferTransactions.map((transaction) => transaction.id),
         userId,
       );
-
     } catch (error) {
       // Log the error for debugging and monitoring
       console.error("Transfer deletion failed:", {
@@ -212,13 +213,18 @@ export class TransferService {
     this.validateDate(input.date);
 
     // Validate not transferring to the same account (fail fast before DB calls)
-    this.validateNotSelfTransfer(input.fromAccountId, input.toAccountId, userId);
-
-    // Find the existing transfer transactions
-    const existingTransactions = await this.transactionRepository.findByTransferId(
-      input.transferId,
+    this.validateNotSelfTransfer(
+      input.fromAccountId,
+      input.toAccountId,
       userId,
     );
+
+    // Find the existing transfer transactions
+    const existingTransactions =
+      await this.transactionRepository.findByTransferId(
+        input.transferId,
+        userId,
+      );
 
     // Validate transfer exists
     if (existingTransactions.length === 0) {
@@ -251,8 +257,12 @@ export class TransferService {
     this.validateCurrencyMatch(fromAccount, toAccount);
 
     // Identify which transaction is the outbound and which is inbound
-    const outboundTransaction = existingTransactions.find(t => t.type === TRANSACTION_TYPE.TRANSFER_OUT);
-    const inboundTransaction = existingTransactions.find(t => t.type === TRANSACTION_TYPE.TRANSFER_IN);
+    const outboundTransaction = existingTransactions.find(
+      (t) => t.type === TRANSACTION_TYPE.TRANSFER_OUT,
+    );
+    const inboundTransaction = existingTransactions.find(
+      (t) => t.type === TRANSACTION_TYPE.TRANSFER_IN,
+    );
 
     if (!outboundTransaction || !inboundTransaction) {
       throw new BusinessError(
@@ -297,16 +307,25 @@ export class TransferService {
       await this.transactionRepository.updateMany(updates, userId);
 
       // Fetch the updated transactions with a single query
-      const updatedTransactions = await this.transactionRepository.findByTransferId(
-        input.transferId,
-        userId,
-      );
+      const updatedTransactions =
+        await this.transactionRepository.findByTransferId(
+          input.transferId,
+          userId,
+        );
 
       // Find the updated outbound and inbound transactions
-      const updatedOutbound = updatedTransactions.find(t => t.type === TRANSACTION_TYPE.TRANSFER_OUT);
-      const updatedInbound = updatedTransactions.find(t => t.type === TRANSACTION_TYPE.TRANSFER_IN);
+      const updatedOutbound = updatedTransactions.find(
+        (t) => t.type === TRANSACTION_TYPE.TRANSFER_OUT,
+      );
+      const updatedInbound = updatedTransactions.find(
+        (t) => t.type === TRANSACTION_TYPE.TRANSFER_IN,
+      );
 
-      if (!updatedOutbound || !updatedInbound || updatedTransactions.length !== 2) {
+      if (
+        !updatedOutbound ||
+        !updatedInbound ||
+        updatedTransactions.length !== 2
+      ) {
         throw new BusinessError(
           "Failed to retrieve updated transfer transactions",
           "TRANSFER_UPDATE_INCONSISTENT",
@@ -449,5 +468,4 @@ export class TransferService {
       );
     }
   }
-
 }
