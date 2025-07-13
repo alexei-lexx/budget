@@ -143,6 +143,14 @@ Always prefer npm scripts from package.json over direct tool usage to ensure con
 ### Multi-Currency Support
 Each account has a specific currency. Transfers only allowed between accounts with same currency. Reports grouped by currency without conversion.
 
+### Transfer System
+Account-to-account transfers implemented with industry-standard patterns:
+- **Two-Transaction Model**: Each transfer creates paired TRANSFER_OUT and TRANSFER_IN transactions
+- **Atomic Operations**: Uses DynamoDB transactions to ensure both sides commit or rollback together
+- **Currency Validation**: Only allows transfers between accounts with matching currencies
+- **Audit Trail**: Each transaction includes transferId to link paired transactions
+- **Rollback Support**: Failed transfers automatically rollback partial changes
+
 ### Error Handling
 Backend implements structured error handling with GraphQL-specific error formatting. Frontend uses Apollo Client error handling patterns.
 
@@ -160,13 +168,13 @@ GraphQL Resolvers → Services → Repositories → Database
 All GraphQL resolvers receive a standardized context containing:
 - `auth`: Authentication state (isAuthenticated, user info from JWT)
 - `userRepository`, `accountRepository`, `categoryRepository`, `transactionRepository`: Database access layers
-- `transactionService`, `accountService`: Business logic services for cross-repository operations
+- `transactionService`, `accountService`, `transferService`: Business logic services for cross-repository operations
 - `jwtAuthService`: JWT token verification service
 
 Context creation automatically handles JWT verification and user extraction from Auth0 tokens.
 
 **Service Layer Pattern:**
-- **Domain-centric services** - Single service per entity (TransactionService, AccountService)
+- **Domain-centric services** - Single service per entity (TransactionService, AccountService, TransferService)
 - **Business logic coordination** - Cross-repository operations and validation
 - **Dependency injection** - Repository dependencies injected once per service
 - **Private helper methods** - Shared validation logic within domain
@@ -323,18 +331,20 @@ Complete Docker-based development setup:
 - **Transaction Management** - Complete CRUD operations with pagination
 - **Transaction Pagination** - Relay-compatible cursor-based pagination with "Load More" functionality
 - **Development Database** - DynamoDB Local with Docker orchestration
-- **Service Layer Architecture** - TransactionService with business logic and validation
+- **Service Layer Architecture** - TransactionService, AccountService, and TransferService with business logic and validation
+- **Transfer System** - Account-to-account transfers with atomic DynamoDB transactions
 
 ### Architecture Status
-**Current State:** Major features implemented with partial service layer adoption
+**Current State:** Major features implemented with service layer adoption
 - Transaction operations use TransactionService for comprehensive business logic
 - Account operations use AccountService for balance calculation
+- Transfer operations use TransferService for atomic dual-account transactions
 - Category operations still use direct repository calls in resolvers
 - Pagination implemented using Relay Connection specification with "Load More" UI
 
 **Service Layer Pattern:** New business logic should be implemented in service classes, not directly in GraphQL resolvers
 
-**Balance Calculation:** Account balance = initialBalance + sum of INCOME transactions - sum of EXPENSE transactions
+**Balance Calculation:** Account balance = initialBalance + sum of INCOME + sum of TRANSFER_IN - sum of EXPENSE - sum of TRANSFER_OUT
 
 ## Important Development Guidelines
 
