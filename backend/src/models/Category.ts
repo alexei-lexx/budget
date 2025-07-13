@@ -1,4 +1,6 @@
-export type CategoryType = "INCOME" | "EXPENSE";
+import { CATEGORY_TYPE } from "../constants/types";
+
+export type CategoryType = typeof CATEGORY_TYPE[keyof typeof CATEGORY_TYPE];
 
 export interface Category {
   userId: string; // Partition key (same pattern as Accounts)

@@ -6,6 +6,7 @@ import {
   CreateTransactionInput,
 } from "../models/Transaction";
 import { IAccountRepository, Account } from "../models/Account";
+import { TRANSACTION_TYPE } from "../constants/types";
 
 /**
  * Input type for creating transfers between accounts
@@ -74,7 +75,7 @@ export class TransferService {
     const outboundInput: CreateTransactionInput = {
       userId,
       accountId: input.fromAccountId,
-      type: "TRANSFER_OUT",
+      type: TRANSACTION_TYPE.TRANSFER_OUT,
       amount: input.amount,
       currency: fromAccount.currency,
       date: input.date,
@@ -86,7 +87,7 @@ export class TransferService {
     const inboundInput: CreateTransactionInput = {
       userId,
       accountId: input.toAccountId,
-      type: "TRANSFER_IN",
+      type: TRANSACTION_TYPE.TRANSFER_IN,
       amount: input.amount,
       currency: toAccount.currency, // Should be same as fromAccount.currency due to validation
       date: input.date,
@@ -250,8 +251,8 @@ export class TransferService {
     this.validateCurrencyMatch(fromAccount, toAccount);
 
     // Identify which transaction is the outbound and which is inbound
-    const outboundTransaction = existingTransactions.find(t => t.type === "TRANSFER_OUT");
-    const inboundTransaction = existingTransactions.find(t => t.type === "TRANSFER_IN");
+    const outboundTransaction = existingTransactions.find(t => t.type === TRANSACTION_TYPE.TRANSFER_OUT);
+    const inboundTransaction = existingTransactions.find(t => t.type === TRANSACTION_TYPE.TRANSFER_IN);
 
     if (!outboundTransaction || !inboundTransaction) {
       throw new BusinessError(
@@ -302,8 +303,8 @@ export class TransferService {
       );
 
       // Find the updated outbound and inbound transactions
-      const updatedOutbound = updatedTransactions.find(t => t.type === "TRANSFER_OUT");
-      const updatedInbound = updatedTransactions.find(t => t.type === "TRANSFER_IN");
+      const updatedOutbound = updatedTransactions.find(t => t.type === TRANSACTION_TYPE.TRANSFER_OUT);
+      const updatedInbound = updatedTransactions.find(t => t.type === TRANSACTION_TYPE.TRANSFER_IN);
 
       if (!updatedOutbound || !updatedInbound || updatedTransactions.length !== 2) {
         throw new BusinessError(

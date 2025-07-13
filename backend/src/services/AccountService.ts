@@ -1,6 +1,7 @@
 import { BusinessError, BusinessErrorCodes } from "./BusinessError";
 import { IAccountRepository } from "../models/Account";
 import { ITransactionRepository } from "../models/Transaction";
+import { TRANSACTION_TYPE } from "../constants/types";
 
 /**
  * Account service class for handling business logic and cross-repository operations
@@ -41,9 +42,9 @@ export class AccountService {
 
       // Calculate balance: initialBalance + INCOME + TRANSFER_IN - EXPENSE - TRANSFER_OUT
       const balance = transactions.reduce((sum, transaction) => {
-        if (transaction.type === "INCOME" || transaction.type === "TRANSFER_IN") {
+        if (transaction.type === TRANSACTION_TYPE.INCOME || transaction.type === TRANSACTION_TYPE.TRANSFER_IN) {
           return sum + transaction.amount;
-        } else if (transaction.type === "EXPENSE" || transaction.type === "TRANSFER_OUT") {
+        } else if (transaction.type === TRANSACTION_TYPE.EXPENSE || transaction.type === TRANSACTION_TYPE.TRANSFER_OUT) {
           return sum - transaction.amount;
         }
         return sum;

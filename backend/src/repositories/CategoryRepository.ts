@@ -11,9 +11,11 @@ import {
   CreateCategoryInput,
   UpdateCategoryInput,
   ICategoryRepository,
+  CategoryType,
 } from "../models/Category";
 import { paginateQuery } from "./utils/pagination";
 import { createDynamoDBDocumentClient } from "./utils/dynamoClient";
+import { CATEGORY_TYPE } from "../constants/types";
 
 /**
  * Repository error class for better error handling
@@ -51,7 +53,7 @@ export class CategoryRepository implements ICategoryRepository {
   private async checkDuplicateName(
     userId: string,
     name: string,
-    type: "INCOME" | "EXPENSE",
+    type: CategoryType,
     excludeId?: string,
   ): Promise<void> {
     try {
@@ -111,7 +113,7 @@ export class CategoryRepository implements ICategoryRepository {
       // Sort categories by type first, then by name (case-insensitive)
       return categories.sort((a, b) => {
         if (a.type !== b.type) {
-          return a.type === "INCOME" ? -1 : 1; // INCOME first, then EXPENSE
+          return a.type === CATEGORY_TYPE.INCOME ? -1 : 1; // INCOME first, then EXPENSE
         }
         return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
       });
@@ -127,7 +129,7 @@ export class CategoryRepository implements ICategoryRepository {
 
   async findActiveByUserIdAndType(
     userId: string,
-    type: "INCOME" | "EXPENSE",
+    type: CategoryType,
   ): Promise<Category[]> {
     if (!userId) {
       throw new CategoryRepositoryError(

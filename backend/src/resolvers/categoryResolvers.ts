@@ -3,6 +3,7 @@ import { z } from "zod";
 import { GraphQLContext } from "../server";
 import { getAuthenticatedUser, handleResolverError } from "./shared";
 import { CategoryType } from "../models/Category";
+import { CATEGORY_TYPE } from "../constants/types";
 
 /**
  * Zod schemas for input validation
@@ -13,7 +14,7 @@ const createCategoryInputSchema = z.object({
     .trim()
     .min(1, "Category name cannot be empty")
     .max(100, "Category name cannot exceed 100 characters"),
-  type: z.enum(["INCOME", "EXPENSE"], {
+  type: z.enum([CATEGORY_TYPE.INCOME, CATEGORY_TYPE.EXPENSE], {
     errorMap: () => ({
       message: "Category type must be either INCOME or EXPENSE",
     }),
@@ -28,7 +29,7 @@ const updateCategoryInputSchema = z.object({
     .max(100, "Category name cannot exceed 100 characters")
     .optional(),
   type: z
-    .enum(["INCOME", "EXPENSE"], {
+    .enum([CATEGORY_TYPE.INCOME, CATEGORY_TYPE.EXPENSE], {
       errorMap: () => ({
         message: "Category type must be either INCOME or EXPENSE",
       }),

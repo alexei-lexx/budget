@@ -4,6 +4,7 @@ import { GraphQLContext } from "../server";
 import { getAuthenticatedUser, handleResolverError } from "./shared";
 import { BusinessError } from "../services/BusinessError";
 import { MIN_PAGE_SIZE, MAX_PAGE_SIZE } from "../types/pagination";
+import { TRANSACTION_TYPE } from "../constants/types";
 
 /**
  * Constants for validation
@@ -27,7 +28,7 @@ const ERROR_MESSAGES = {
 const createTransactionInputSchema = z.object({
   accountId: z.string().uuid(ERROR_MESSAGES.ACCOUNT_ID_UUID),
   categoryId: z.string().uuid(ERROR_MESSAGES.CATEGORY_ID_UUID).nullish(),
-  type: z.enum(["INCOME", "EXPENSE"], {
+  type: z.enum([TRANSACTION_TYPE.INCOME, TRANSACTION_TYPE.EXPENSE], {
     errorMap: () => ({ message: ERROR_MESSAGES.TRANSACTION_TYPE }),
   }),
   amount: z.number().nonnegative(ERROR_MESSAGES.AMOUNT_NON_NEGATIVE),
@@ -42,7 +43,7 @@ const updateTransactionInputSchema = z.object({
   accountId: z.string().uuid(ERROR_MESSAGES.ACCOUNT_ID_UUID).optional(),
   categoryId: z.string().uuid(ERROR_MESSAGES.CATEGORY_ID_UUID).nullish(),
   type: z
-    .enum(["INCOME", "EXPENSE"], {
+    .enum([TRANSACTION_TYPE.INCOME, TRANSACTION_TYPE.EXPENSE], {
       errorMap: () => ({ message: ERROR_MESSAGES.TRANSACTION_TYPE }),
     })
     .optional(),
