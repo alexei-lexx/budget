@@ -4,9 +4,9 @@ import {
   ITransactionRepository,
   Transaction,
   CreateTransactionInput,
+  TransactionType,
 } from "../models/Transaction";
 import { IAccountRepository, Account } from "../models/Account";
-import { TRANSACTION_TYPE } from "../constants/types";
 
 /**
  * Input type for creating transfers between accounts
@@ -79,7 +79,7 @@ export class TransferService {
     const outboundInput: CreateTransactionInput = {
       userId,
       accountId: input.fromAccountId,
-      type: TRANSACTION_TYPE.TRANSFER_OUT,
+      type: TransactionType.TRANSFER_OUT,
       amount: input.amount,
       currency: fromAccount.currency,
       date: input.date,
@@ -91,7 +91,7 @@ export class TransferService {
     const inboundInput: CreateTransactionInput = {
       userId,
       accountId: input.toAccountId,
-      type: TRANSACTION_TYPE.TRANSFER_IN,
+      type: TransactionType.TRANSFER_IN,
       amount: input.amount,
       currency: toAccount.currency, // Should be same as fromAccount.currency due to validation
       date: input.date,
@@ -258,10 +258,10 @@ export class TransferService {
 
     // Identify which transaction is the outbound and which is inbound
     const outboundTransaction = existingTransactions.find(
-      (t) => t.type === TRANSACTION_TYPE.TRANSFER_OUT,
+      (t) => t.type === TransactionType.TRANSFER_OUT,
     );
     const inboundTransaction = existingTransactions.find(
-      (t) => t.type === TRANSACTION_TYPE.TRANSFER_IN,
+      (t) => t.type === TransactionType.TRANSFER_IN,
     );
 
     if (!outboundTransaction || !inboundTransaction) {
@@ -315,10 +315,10 @@ export class TransferService {
 
       // Find the updated outbound and inbound transactions
       const updatedOutbound = updatedTransactions.find(
-        (t) => t.type === TRANSACTION_TYPE.TRANSFER_OUT,
+        (t) => t.type === TransactionType.TRANSFER_OUT,
       );
       const updatedInbound = updatedTransactions.find(
-        (t) => t.type === TRANSACTION_TYPE.TRANSFER_IN,
+        (t) => t.type === TransactionType.TRANSFER_IN,
       );
 
       if (

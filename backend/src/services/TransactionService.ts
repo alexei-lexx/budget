@@ -8,7 +8,11 @@ import {
   TransactionType,
 } from "../models/Transaction";
 import { IAccountRepository, Account } from "../models/Account";
-import { ICategoryRepository, Category } from "../models/Category";
+import {
+  ICategoryRepository,
+  Category,
+  CategoryType,
+} from "../models/Category";
 import { PaginationInput } from "../types/pagination";
 
 /**
@@ -86,7 +90,13 @@ export class TransactionService {
       );
     }
 
-    if (category.type !== transactionType) {
+    const typeMismatch =
+      (category.type === CategoryType.INCOME &&
+        transactionType !== TransactionType.INCOME) ||
+      (category.type === CategoryType.EXPENSE &&
+        transactionType !== TransactionType.EXPENSE);
+
+    if (typeMismatch) {
       throw new BusinessError(
         `Category type "${category.type}" doesn't match transaction type "${transactionType}"`,
         BusinessErrorCodes.INVALID_CATEGORY_TYPE,

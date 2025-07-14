@@ -15,7 +15,6 @@ import {
 } from "../models/Category";
 import { paginateQuery } from "./utils/pagination";
 import { createDynamoDBDocumentClient } from "./utils/dynamoClient";
-import { CATEGORY_TYPE } from "../constants/types";
 
 /**
  * Repository error class for better error handling
@@ -113,7 +112,7 @@ export class CategoryRepository implements ICategoryRepository {
       // Sort categories by type first, then by name (case-insensitive)
       return categories.sort((a, b) => {
         if (a.type !== b.type) {
-          return a.type === CATEGORY_TYPE.INCOME ? -1 : 1; // INCOME first, then EXPENSE
+          return a.type === CategoryType.INCOME ? -1 : 1; // INCOME first, then EXPENSE
         }
         return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
       });
