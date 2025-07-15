@@ -9,6 +9,7 @@ import { CategoryRepository } from "./repositories/CategoryRepository";
 import { TransactionRepository } from "./repositories/TransactionRepository";
 import { TransactionService } from "./services/TransactionService";
 import { AccountService } from "./services/AccountService";
+import { TransferService } from "./services/TransferService";
 import { IUserRepository } from "./models/User";
 import { IAccountRepository } from "./models/Account";
 import { ICategoryRepository } from "./models/Category";
@@ -22,6 +23,7 @@ export interface GraphQLContext {
   transactionRepository: ITransactionRepository;
   transactionService: TransactionService;
   accountService: AccountService;
+  transferService: TransferService;
   jwtAuthService: JwtAuthService;
   authHeader?: string;
 }
@@ -33,6 +35,7 @@ let categoryRepository: CategoryRepository;
 let transactionRepository: TransactionRepository;
 let transactionService: TransactionService;
 let accountService: AccountService;
+let transferService: TransferService;
 
 const typeDefs = readFileSync(join(__dirname, "schema.graphql"), {
   encoding: "utf-8",
@@ -87,6 +90,13 @@ export async function createContext(req: {
     );
   }
 
+  if (!transferService) {
+    transferService = new TransferService(
+      transactionRepository,
+      accountRepository,
+    );
+  }
+
   const authHeader = req.headers.authorization;
   // Handle both string and string[] types from different contexts
   const authHeaderString = Array.isArray(authHeader)
@@ -103,6 +113,7 @@ export async function createContext(req: {
     transactionRepository,
     transactionService,
     accountService,
+    transferService,
     jwtAuthService,
     authHeader: authHeaderString,
   };

@@ -5,12 +5,12 @@ import { getAuthenticatedUser, handleResolverError } from "./shared";
 import { BusinessError } from "../services/BusinessError";
 import { MIN_PAGE_SIZE, MAX_PAGE_SIZE } from "../types/pagination";
 import { TransactionType } from "../models/Transaction";
-
-/**
- * Constants for validation
- */
-const DESCRIPTION_MAX_LENGTH = 500;
-const DATE_FORMAT_REGEX = /^\d{4}-\d{2}-\d{2}$/;
+import {
+  DATE_FORMAT_REGEX,
+  DATE_FORMAT_ERROR_MESSAGE,
+  DESCRIPTION_MAX_LENGTH,
+  DESCRIPTION_LENGTH_ERROR_MESSAGE,
+} from "../types/validation";
 
 /**
  * Reusable schema components for transactions
@@ -28,13 +28,10 @@ const typeSchema = z.enum([TransactionType.INCOME, TransactionType.EXPENSE], {
 const amountSchema = z.number().nonnegative("Amount must be zero or positive");
 const dateSchema = z
   .string()
-  .regex(DATE_FORMAT_REGEX, "Date must be in YYYY-MM-DD format");
+  .regex(DATE_FORMAT_REGEX, DATE_FORMAT_ERROR_MESSAGE);
 const descriptionSchema = z
   .string()
-  .max(
-    DESCRIPTION_MAX_LENGTH,
-    `Description cannot exceed ${DESCRIPTION_MAX_LENGTH} characters`,
-  )
+  .max(DESCRIPTION_MAX_LENGTH, DESCRIPTION_LENGTH_ERROR_MESSAGE)
   .nullish();
 
 /**

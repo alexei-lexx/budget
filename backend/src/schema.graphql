@@ -44,6 +44,13 @@ type Transaction {
   currency: String!
   date: String!
   description: String
+  transferId: String
+}
+
+type Transfer {
+  id: ID!
+  outboundTransaction: Transaction!
+  inboundTransaction: Transaction!
 }
 
 input CreateAccountInput {
@@ -86,6 +93,14 @@ input UpdateTransactionInput {
   description: String
 }
 
+input CreateTransferInput {
+  fromAccountId: ID!
+  toAccountId: ID!
+  amount: Float!
+  date: String!
+  description: String
+}
+
 input PaginationInput {
   first: Int
   after: String
@@ -120,4 +135,5 @@ type Mutation {
   createTransaction(input: CreateTransactionInput!): Transaction!
   updateTransaction(id: ID!, input: UpdateTransactionInput!): Transaction!
   deleteTransaction(id: ID!): Transaction!
+  createTransfer(input: CreateTransferInput!): Transfer!
 }

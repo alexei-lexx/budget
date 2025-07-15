@@ -58,11 +58,20 @@ export type CreateTransactionInput = {
   type: TransactionType;
 };
 
+export type CreateTransferInput = {
+  amount: Scalars['Float']['input'];
+  date: Scalars['String']['input'];
+  description?: InputMaybe<Scalars['String']['input']>;
+  fromAccountId: Scalars['ID']['input'];
+  toAccountId: Scalars['ID']['input'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   createAccount: Account;
   createCategory: Category;
   createTransaction: Transaction;
+  createTransfer: Transfer;
   deleteAccount?: Maybe<Scalars['Boolean']['output']>;
   deleteCategory: Category;
   deleteTransaction: Transaction;
@@ -85,6 +94,11 @@ export type MutationCreateCategoryArgs = {
 
 export type MutationCreateTransactionArgs = {
   input: CreateTransactionInput;
+};
+
+
+export type MutationCreateTransferArgs = {
+  input: CreateTransferInput;
 };
 
 
@@ -160,6 +174,7 @@ export type Transaction = {
   date: Scalars['String']['output'];
   description?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
+  transferId?: Maybe<Scalars['String']['output']>;
   type: TransactionType;
 };
 
@@ -177,6 +192,13 @@ export type TransactionEdge = {
 };
 
 export { TransactionType };
+
+export type Transfer = {
+  __typename?: 'Transfer';
+  id: Scalars['ID']['output'];
+  inboundTransaction: Transaction;
+  outboundTransaction: Transaction;
+};
 
 export type UpdateAccountInput = {
   currency?: InputMaybe<Scalars['String']['input']>;
@@ -281,6 +303,7 @@ export type ResolversTypes = {
   CreateAccountInput: CreateAccountInput;
   CreateCategoryInput: CreateCategoryInput;
   CreateTransactionInput: CreateTransactionInput;
+  CreateTransferInput: CreateTransferInput;
   Float: ResolverTypeWrapper<Scalars['Float']['output']>;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
@@ -293,6 +316,7 @@ export type ResolversTypes = {
   TransactionConnection: ResolverTypeWrapper<TransactionConnection>;
   TransactionEdge: ResolverTypeWrapper<TransactionEdge>;
   TransactionType: TransactionType;
+  Transfer: ResolverTypeWrapper<Transfer>;
   UpdateAccountInput: UpdateAccountInput;
   UpdateCategoryInput: UpdateCategoryInput;
   UpdateTransactionInput: UpdateTransactionInput;
@@ -307,6 +331,7 @@ export type ResolversParentTypes = {
   CreateAccountInput: CreateAccountInput;
   CreateCategoryInput: CreateCategoryInput;
   CreateTransactionInput: CreateTransactionInput;
+  CreateTransferInput: CreateTransferInput;
   Float: Scalars['Float']['output'];
   ID: Scalars['ID']['output'];
   Int: Scalars['Int']['output'];
@@ -318,6 +343,7 @@ export type ResolversParentTypes = {
   Transaction: Transaction;
   TransactionConnection: TransactionConnection;
   TransactionEdge: TransactionEdge;
+  Transfer: Transfer;
   UpdateAccountInput: UpdateAccountInput;
   UpdateCategoryInput: UpdateCategoryInput;
   UpdateTransactionInput: UpdateTransactionInput;
@@ -346,6 +372,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createAccount?: Resolver<ResolversTypes['Account'], ParentType, ContextType, RequireFields<MutationCreateAccountArgs, 'input'>>;
   createCategory?: Resolver<ResolversTypes['Category'], ParentType, ContextType, RequireFields<MutationCreateCategoryArgs, 'input'>>;
   createTransaction?: Resolver<ResolversTypes['Transaction'], ParentType, ContextType, RequireFields<MutationCreateTransactionArgs, 'input'>>;
+  createTransfer?: Resolver<ResolversTypes['Transfer'], ParentType, ContextType, RequireFields<MutationCreateTransferArgs, 'input'>>;
   deleteAccount?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType, RequireFields<MutationDeleteAccountArgs, 'id'>>;
   deleteCategory?: Resolver<ResolversTypes['Category'], ParentType, ContextType, RequireFields<MutationDeleteCategoryArgs, 'id'>>;
   deleteTransaction?: Resolver<ResolversTypes['Transaction'], ParentType, ContextType, RequireFields<MutationDeleteTransactionArgs, 'id'>>;
@@ -378,6 +405,7 @@ export type TransactionResolvers<ContextType = GraphQLContext, ParentType extend
   date?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  transferId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   type?: Resolver<ResolversTypes['TransactionType'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
@@ -397,6 +425,13 @@ export type TransactionEdgeResolvers<ContextType = GraphQLContext, ParentType ex
 
 export type TransactionTypeResolvers = EnumResolverSignature<{ EXPENSE?: any, INCOME?: any, TRANSFER_IN?: any, TRANSFER_OUT?: any }, ResolversTypes['TransactionType']>;
 
+export type TransferResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Transfer'] = ResolversParentTypes['Transfer']> = {
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  inboundTransaction?: Resolver<ResolversTypes['Transaction'], ParentType, ContextType>;
+  outboundTransaction?: Resolver<ResolversTypes['Transaction'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type UserResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = {
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -413,6 +448,7 @@ export type Resolvers<ContextType = GraphQLContext> = {
   TransactionConnection?: TransactionConnectionResolvers<ContextType>;
   TransactionEdge?: TransactionEdgeResolvers<ContextType>;
   TransactionType?: TransactionTypeResolvers;
+  Transfer?: TransferResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
 };
 

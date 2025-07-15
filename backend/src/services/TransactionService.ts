@@ -14,6 +14,7 @@ import {
   CategoryType,
 } from "../models/Category";
 import { PaginationInput } from "../types/pagination";
+import { DATE_FORMAT_REGEX } from "../types/validation";
 
 /**
  * Service layer input for creating transactions (currency automatically derived from account)
@@ -133,8 +134,7 @@ export class TransactionService {
    * @throws BusinessError if date format is invalid
    */
   private validateDate(date: string): void {
-    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-    if (!dateRegex.test(date)) {
+    if (!DATE_FORMAT_REGEX.test(date)) {
       throw new BusinessError(
         "Transaction date must be in YYYY-MM-DD format",
         BusinessErrorCodes.INVALID_DATE,

@@ -7,6 +7,7 @@ import {
   TransactionType,
 } from "../models/Transaction";
 import { IAccountRepository, Account } from "../models/Account";
+import { DATE_FORMAT_REGEX } from "../types/validation";
 
 /**
  * Input type for creating transfers between accounts
@@ -33,6 +34,15 @@ export interface UpdateTransferInput {
 }
 
 /**
+ * Result type for transfer operations
+ */
+export interface TransferResult {
+  transferId: string;
+  outboundTransaction: Transaction;
+  inboundTransaction: Transaction;
+}
+
+/**
  * Transfer service class for handling account-to-account transfers
  * Implements the service layer pattern for transfer operations
  */
@@ -47,13 +57,13 @@ export class TransferService {
    * Creates two linked transactions: TRANSFER_OUT from source, TRANSFER_IN to destination
    * @param input - Transfer creation input
    * @param userId - The user ID creating the transfer
-   * @returns Promise<[Transaction, Transaction]> - The created transaction pair [outbound, inbound]
+   * @returns Promise<TransferResult> - The created transfer with ID and transaction pair
    * @throws BusinessError for any business rule violations
    */
   async createTransfer(
     input: CreateTransferInput,
     userId: string,
-  ): Promise<[Transaction, Transaction]> {
+  ): Promise<TransferResult> {
     // Validate input parameters
     this.validateAmount(input.amount);
     this.validateDate(input.date);
@@ -107,8 +117,12 @@ export class TransferService {
         inboundInput,
       ]);
 
-      // Return the transactions in the expected order [outbound, inbound]
-      return [transactions[0], transactions[1]];
+      // Return the transfer result with ID and transactions
+      return {
+        transferId,
+        outboundTransaction: transactions[0],
+        inboundTransaction: transactions[1],
+      };
     } catch (error) {
       // Log the error for debugging and monitoring
       console.error("Transfer creation failed:", {
@@ -201,13 +215,13 @@ export class TransferService {
    * Update a transfer by modifying both paired transactions atomically
    * @param input - Transfer update input (transferId cannot be changed)
    * @param userId - The user ID requesting the update
-   * @returns Promise<[Transaction, Transaction]> - The updated transaction pair [outbound, inbound]
+   * @returns Promise<TransferResult> - The updated transfer with ID and transaction pair
    * @throws BusinessError for any business rule violations
    */
   async updateTransfer(
     input: UpdateTransferInput,
     userId: string,
-  ): Promise<[Transaction, Transaction]> {
+  ): Promise<TransferResult> {
     // Validate input parameters
     this.validateAmount(input.amount);
     this.validateDate(input.date);
@@ -338,8 +352,12 @@ export class TransferService {
         );
       }
 
-      // Return the transactions in the expected order [outbound, inbound]
-      return [updatedOutbound, updatedInbound];
+      // Return the transfer result with ID and transactions
+      return {
+        transferId: input.transferId,
+        outboundTransaction: updatedOutbound,
+        inboundTransaction: updatedInbound,
+      };
     } catch (error) {
       // Log the error for debugging and monitoring
       console.error("Transfer update failed:", {
@@ -435,8 +453,7 @@ export class TransferService {
    * @throws BusinessError if date format is invalid
    */
   private validateDate(date: string): void {
-    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-    if (!dateRegex.test(date)) {
+    if (!DATE_FORMAT_REGEX.test(date)) {
       throw new BusinessError(
         "Transfer date must be in YYYY-MM-DD format",
         BusinessErrorCodes.INVALID_DATE,
