@@ -12,50 +12,50 @@ import { TransactionType } from "../models/Transaction";
 const DESCRIPTION_MAX_LENGTH = 500;
 const DATE_FORMAT_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 
-// Error messages
-const ERROR_MESSAGES = {
-  ACCOUNT_ID_UUID: "Account ID must be a valid UUID",
-  CATEGORY_ID_UUID: "Category ID must be a valid UUID",
-  TRANSACTION_TYPE: "Transaction type must be either INCOME or EXPENSE",
-  AMOUNT_NON_NEGATIVE: "Amount must be zero or positive",
-  DATE_FORMAT: "Date must be in YYYY-MM-DD format",
-  DESCRIPTION_MAX_LENGTH: `Description cannot exceed ${DESCRIPTION_MAX_LENGTH} characters`,
-};
+/**
+ * Reusable schema components for transactions
+ */
+const accountIdSchema = z.string().uuid("Account ID must be a valid UUID");
+const categoryIdSchema = z
+  .string()
+  .uuid("Category ID must be a valid UUID")
+  .nullish();
+const typeSchema = z.enum([TransactionType.INCOME, TransactionType.EXPENSE], {
+  errorMap: () => ({
+    message: `Transaction type must be either ${TransactionType.INCOME} or ${TransactionType.EXPENSE}`,
+  }),
+});
+const amountSchema = z.number().nonnegative("Amount must be zero or positive");
+const dateSchema = z
+  .string()
+  .regex(DATE_FORMAT_REGEX, "Date must be in YYYY-MM-DD format");
+const descriptionSchema = z
+  .string()
+  .max(
+    DESCRIPTION_MAX_LENGTH,
+    `Description cannot exceed ${DESCRIPTION_MAX_LENGTH} characters`,
+  )
+  .nullish();
 
 /**
  * Zod schemas for input validation
  */
 const createTransactionInputSchema = z.object({
-  accountId: z.string().uuid(ERROR_MESSAGES.ACCOUNT_ID_UUID),
-  categoryId: z.string().uuid(ERROR_MESSAGES.CATEGORY_ID_UUID).nullish(),
-  type: z.enum([TransactionType.INCOME, TransactionType.EXPENSE], {
-    errorMap: () => ({ message: ERROR_MESSAGES.TRANSACTION_TYPE }),
-  }),
-  amount: z.number().nonnegative(ERROR_MESSAGES.AMOUNT_NON_NEGATIVE),
-  date: z.string().regex(DATE_FORMAT_REGEX, ERROR_MESSAGES.DATE_FORMAT),
-  description: z
-    .string()
-    .max(DESCRIPTION_MAX_LENGTH, ERROR_MESSAGES.DESCRIPTION_MAX_LENGTH)
-    .nullish(),
+  accountId: accountIdSchema,
+  categoryId: categoryIdSchema,
+  type: typeSchema,
+  amount: amountSchema,
+  date: dateSchema,
+  description: descriptionSchema,
 });
 
 const updateTransactionInputSchema = z.object({
-  accountId: z.string().uuid(ERROR_MESSAGES.ACCOUNT_ID_UUID).optional(),
-  categoryId: z.string().uuid(ERROR_MESSAGES.CATEGORY_ID_UUID).nullish(),
-  type: z
-    .enum([TransactionType.INCOME, TransactionType.EXPENSE], {
-      errorMap: () => ({ message: ERROR_MESSAGES.TRANSACTION_TYPE }),
-    })
-    .optional(),
-  amount: z.number().nonnegative(ERROR_MESSAGES.AMOUNT_NON_NEGATIVE).optional(),
-  date: z
-    .string()
-    .regex(DATE_FORMAT_REGEX, ERROR_MESSAGES.DATE_FORMAT)
-    .optional(),
-  description: z
-    .string()
-    .max(DESCRIPTION_MAX_LENGTH, ERROR_MESSAGES.DESCRIPTION_MAX_LENGTH)
-    .nullish(),
+  accountId: accountIdSchema.optional(),
+  categoryId: categoryIdSchema,
+  type: typeSchema.optional(),
+  amount: amountSchema.optional(),
+  date: dateSchema.optional(),
+  description: descriptionSchema,
 });
 
 const paginationInputSchema = z

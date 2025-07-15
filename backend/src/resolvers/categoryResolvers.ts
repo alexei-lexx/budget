@@ -5,35 +5,31 @@ import { getAuthenticatedUser, handleResolverError } from "./shared";
 import { CategoryType } from "../models/Category";
 
 /**
- * Zod schemas for input validation
+ * Reusable schema components for categories
  */
-const createCategoryInputSchema = z.object({
-  name: z
-    .string()
-    .trim()
-    .min(1, "Category name cannot be empty")
-    .max(100, "Category name cannot exceed 100 characters"),
-  type: z.enum([CategoryType.INCOME, CategoryType.EXPENSE], {
-    errorMap: () => ({
-      message: "Category type must be either INCOME or EXPENSE",
-    }),
+const nameSchema = z
+  .string()
+  .trim()
+  .min(1, "Category name cannot be empty")
+  .max(100, "Category name cannot exceed 100 characters");
+
+const typeSchema = z.enum([CategoryType.INCOME, CategoryType.EXPENSE], {
+  errorMap: () => ({
+    message: `Category type must be either ${CategoryType.INCOME} or ${CategoryType.EXPENSE}`,
   }),
 });
 
+/**
+ * Zod schemas for input validation
+ */
+const createCategoryInputSchema = z.object({
+  name: nameSchema,
+  type: typeSchema,
+});
+
 const updateCategoryInputSchema = z.object({
-  name: z
-    .string()
-    .trim()
-    .min(1, "Category name cannot be empty")
-    .max(100, "Category name cannot exceed 100 characters")
-    .optional(),
-  type: z
-    .enum([CategoryType.INCOME, CategoryType.EXPENSE], {
-      errorMap: () => ({
-        message: "Category type must be either INCOME or EXPENSE",
-      }),
-    })
-    .optional(),
+  name: nameSchema.optional(),
+  type: typeSchema.optional(),
 });
 
 export const categoryResolvers = {

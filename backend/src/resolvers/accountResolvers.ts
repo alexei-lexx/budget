@@ -9,49 +9,42 @@ import { getAuthenticatedUser, handleResolverError } from "./shared";
 const SUPPORTED_CURRENCIES = new Set(["EUR", "USD"]);
 
 /**
+ * Reusable schema components for accounts
+ */
+const nameSchema = z
+  .string()
+  .trim()
+  .min(1, "Account name cannot be empty")
+  .max(100, "Account name cannot exceed 100 characters");
+
+const currencySchema = z
+  .string()
+  .trim()
+  .toUpperCase()
+  .refine(
+    (val) => SUPPORTED_CURRENCIES.has(val),
+    (val) => ({
+      message: `Unsupported currency: ${val}. Supported currencies: ${Array.from(SUPPORTED_CURRENCIES).join(", ")}`,
+    }),
+  );
+
+const initialBalanceSchema = z
+  .number()
+  .finite("Initial balance must be a valid number");
+
+/**
  * Zod schemas for input validation
  */
 const createAccountInputSchema = z.object({
-  name: z
-    .string()
-    .trim()
-    .min(1, "Account name cannot be empty")
-    .max(100, "Account name cannot exceed 100 characters"),
-  currency: z
-    .string()
-    .trim()
-    .toUpperCase()
-    .refine(
-      (val) => SUPPORTED_CURRENCIES.has(val),
-      (val) => ({
-        message: `Unsupported currency: ${val}. Supported currencies: ${Array.from(SUPPORTED_CURRENCIES).join(", ")}`,
-      }),
-    ),
-  initialBalance: z.number().finite("Initial balance must be a valid number"),
+  name: nameSchema,
+  currency: currencySchema,
+  initialBalance: initialBalanceSchema,
 });
 
 const updateAccountInputSchema = z.object({
-  name: z
-    .string()
-    .trim()
-    .min(1, "Account name cannot be empty")
-    .max(100, "Account name cannot exceed 100 characters")
-    .optional(),
-  currency: z
-    .string()
-    .trim()
-    .toUpperCase()
-    .refine(
-      (val) => SUPPORTED_CURRENCIES.has(val),
-      (val) => ({
-        message: `Unsupported currency: ${val}. Supported currencies: ${Array.from(SUPPORTED_CURRENCIES).join(", ")}`,
-      }),
-    )
-    .optional(),
-  initialBalance: z
-    .number()
-    .finite("Initial balance must be a valid number")
-    .optional(),
+  name: nameSchema.optional(),
+  currency: currencySchema.optional(),
+  initialBalance: initialBalanceSchema.optional(),
 });
 
 export const accountResolvers = {
