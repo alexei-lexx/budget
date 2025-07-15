@@ -1,12 +1,15 @@
+import { CategoryType } from '../models/Category';
+import { TransactionType } from '../models/Transaction';
 import { GraphQLResolveInfo } from 'graphql';
 import { GraphQLContext } from '../server';
-export type Maybe<T> = T | null;
-export type InputMaybe<T> = Maybe<T>;
+export type Maybe<T> = T | undefined;
+export type InputMaybe<T> = T | undefined;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
 export type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> = { [_ in K]?: never };
 export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never };
+export type EnumResolverSignature<T, AllowedValues = any> = { [key in keyof T]?: AllowedValues };
 export type RequireFields<T, K extends keyof T> = Omit<T, K> & { [P in K]-?: NonNullable<T[P]> };
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
@@ -33,10 +36,7 @@ export type Category = {
   type: CategoryType;
 };
 
-export enum CategoryType {
-  Expense = 'EXPENSE',
-  Income = 'INCOME'
-}
+export { CategoryType };
 
 export type CreateAccountInput = {
   currency: Scalars['String']['input'];
@@ -176,12 +176,7 @@ export type TransactionEdge = {
   node: Transaction;
 };
 
-export enum TransactionType {
-  Expense = 'EXPENSE',
-  Income = 'INCOME',
-  TransferIn = 'TRANSFER_IN',
-  TransferOut = 'TRANSFER_OUT'
-}
+export { TransactionType };
 
 export type UpdateAccountInput = {
   currency?: InputMaybe<Scalars['String']['input']>;
@@ -279,7 +274,7 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = {
-  Account: ResolverTypeWrapper<Account>;
+  Account: ResolverTypeWrapper<Omit<Account, 'balance'>>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
   Category: ResolverTypeWrapper<Category>;
   CategoryType: CategoryType;
@@ -306,7 +301,7 @@ export type ResolversTypes = {
 
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = {
-  Account: Account;
+  Account: Omit<Account, 'balance'>;
   Boolean: Scalars['Boolean']['output'];
   Category: Category;
   CreateAccountInput: CreateAccountInput;
@@ -344,6 +339,8 @@ export type CategoryResolvers<ContextType = GraphQLContext, ParentType extends R
   type?: Resolver<ResolversTypes['CategoryType'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
+
+export type CategoryTypeResolvers = EnumResolverSignature<{ EXPENSE?: any, INCOME?: any }, ResolversTypes['CategoryType']>;
 
 export type MutationResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   createAccount?: Resolver<ResolversTypes['Account'], ParentType, ContextType, RequireFields<MutationCreateAccountArgs, 'input'>>;
@@ -398,6 +395,8 @@ export type TransactionEdgeResolvers<ContextType = GraphQLContext, ParentType ex
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type TransactionTypeResolvers = EnumResolverSignature<{ EXPENSE?: any, INCOME?: any, TRANSFER_IN?: any, TRANSFER_OUT?: any }, ResolversTypes['TransactionType']>;
+
 export type UserResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = {
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -406,12 +405,14 @@ export type UserResolvers<ContextType = GraphQLContext, ParentType extends Resol
 export type Resolvers<ContextType = GraphQLContext> = {
   Account?: AccountResolvers<ContextType>;
   Category?: CategoryResolvers<ContextType>;
+  CategoryType?: CategoryTypeResolvers;
   Mutation?: MutationResolvers<ContextType>;
   PageInfo?: PageInfoResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   Transaction?: TransactionResolvers<ContextType>;
   TransactionConnection?: TransactionConnectionResolvers<ContextType>;
   TransactionEdge?: TransactionEdgeResolvers<ContextType>;
+  TransactionType?: TransactionTypeResolvers;
   User?: UserResolvers<ContextType>;
 };
 
