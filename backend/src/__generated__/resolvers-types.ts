@@ -75,6 +75,7 @@ export type Mutation = {
   deleteAccount?: Maybe<Scalars['Boolean']['output']>;
   deleteCategory: Category;
   deleteTransaction: Transaction;
+  deleteTransfer?: Maybe<Scalars['Boolean']['output']>;
   ensureUser: User;
   updateAccount: Account;
   updateCategory: Category;
@@ -114,6 +115,11 @@ export type MutationDeleteCategoryArgs = {
 
 
 export type MutationDeleteTransactionArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteTransferArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -393,6 +399,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteAccount?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType, RequireFields<MutationDeleteAccountArgs, 'id'>>;
   deleteCategory?: Resolver<ResolversTypes['Category'], ParentType, ContextType, RequireFields<MutationDeleteCategoryArgs, 'id'>>;
   deleteTransaction?: Resolver<ResolversTypes['Transaction'], ParentType, ContextType, RequireFields<MutationDeleteTransactionArgs, 'id'>>;
+  deleteTransfer?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType, RequireFields<MutationDeleteTransferArgs, 'id'>>;
   ensureUser?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   updateAccount?: Resolver<ResolversTypes['Account'], ParentType, ContextType, RequireFields<MutationUpdateAccountArgs, 'input'>>;
   updateCategory?: Resolver<ResolversTypes['Category'], ParentType, ContextType, RequireFields<MutationUpdateCategoryArgs, 'input'>>;

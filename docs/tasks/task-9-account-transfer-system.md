@@ -84,7 +84,7 @@ Show transfers as normal transactions with TRANSFER_IN and TRANSFER_OUT types in
   - [x] 9.4.3 Implement createTransfer mutation with Zod input validation
   - [x] 9.4.4 Add UpdateTransferInput with transferId, fromAccountId, toAccountId, amount, date, description
   - [x] 9.4.5 Implement updateTransfer mutation with Zod input validation
-  - [ ] 9.4.6 Implement deleteTransfer mutation for transfer removal
+  - [x] 9.4.6 Implement deleteTransfer mutation for transfer removal
   - [x] 9.4.7 Update GraphQL context to include TransferService
 
 - [ ] **9.5 Frontend Data Layer**

@@ -149,4 +149,5 @@ type Mutation {
   deleteTransaction(id: ID!): Transaction!
   createTransfer(input: CreateTransferInput!): Transfer!
   updateTransfer(input: UpdateTransferInput!): Transfer!
+  deleteTransfer(id: ID!): Boolean
 }

@@ -13,6 +13,7 @@ import {
 /**
  * Reusable schema components for transfers
  */
+const idSchema = z.string().uuid("ID must be a valid UUID");
 const accountIdSchema = z.string().uuid("Account ID must be a valid UUID");
 const amountSchema = z.number().positive("Amount must be positive");
 const dateSchema = z
@@ -38,7 +39,7 @@ const createTransferInputSchema = z.object({
  * Zod schema for update transfer input validation
  */
 const updateTransferInputSchema = z.object({
-  id: z.string().uuid("Transfer ID must be a valid UUID"),
+  id: idSchema,
   fromAccountId: accountIdSchema.optional(),
   toAccountId: accountIdSchema.optional(),
   amount: amountSchema.optional(),
@@ -120,6 +121,34 @@ export const transferResolvers = {
           });
         }
         handleResolverError(error, "Failed to update transfer");
+      }
+    },
+    deleteTransfer: async (
+      _parent: unknown,
+      args: { id: unknown },
+      context: GraphQLContext,
+    ) => {
+      try {
+        // Validate and normalize input
+        const validatedId = idSchema.parse(args.id);
+        const user = await getAuthenticatedUser(context);
+
+        await context.transferService.deleteTransfer(validatedId, user.id);
+
+        return true;
+      } catch (error) {
+        if (error instanceof z.ZodError) {
+          const firstError = error.errors[0];
+          throw new GraphQLError(firstError.message, {
+            extensions: { code: "BAD_USER_INPUT" },
+          });
+        }
+        if (error instanceof BusinessError) {
+          throw new GraphQLError(error.message, {
+            extensions: { code: error.code, details: error.details },
+          });
+        }
+        handleResolverError(error, "Failed to delete transfer");
       }
     },
   },
