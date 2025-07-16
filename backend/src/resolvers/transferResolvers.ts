@@ -34,6 +34,17 @@ const createTransferInputSchema = z.object({
   description: descriptionSchema,
 });
 
+/**
+ * Zod schema for update transfer input validation
+ */
+const updateTransferInputSchema = z.object({
+  fromAccountId: accountIdSchema.optional(),
+  toAccountId: accountIdSchema.optional(),
+  amount: amountSchema.optional(),
+  date: dateSchema.optional(),
+  description: descriptionSchema,
+});
+
 export const transferResolvers = {
   Mutation: {
     createTransfer: async (
@@ -70,6 +81,52 @@ export const transferResolvers = {
           });
         }
         handleResolverError(error, "Failed to create transfer");
+      }
+    },
+    updateTransfer: async (
+      _parent: unknown,
+      args: { id: string; input: unknown },
+      context: GraphQLContext,
+    ) => {
+      const { id } = args;
+
+      // Validate input
+      if (!id) {
+        throw new GraphQLError("Transfer ID is required", {
+          extensions: { code: "BAD_USER_INPUT" },
+        });
+      }
+
+      try {
+        // Validate and normalize input
+        const validatedInput = updateTransferInputSchema.parse(args.input);
+        const user = await getAuthenticatedUser(context);
+
+        const transferResult = await context.transferService.updateTransfer(
+          id,
+          user.id,
+          validatedInput,
+        );
+
+        // Return the transfer object that matches the GraphQL Transfer type
+        return {
+          id: transferResult.transferId,
+          outboundTransaction: transferResult.outboundTransaction,
+          inboundTransaction: transferResult.inboundTransaction,
+        };
+      } catch (error) {
+        if (error instanceof z.ZodError) {
+          const firstError = error.errors[0];
+          throw new GraphQLError(firstError.message, {
+            extensions: { code: "BAD_USER_INPUT" },
+          });
+        }
+        if (error instanceof BusinessError) {
+          throw new GraphQLError(error.message, {
+            extensions: { code: error.code, details: error.details },
+          });
+        }
+        handleResolverError(error, "Failed to update transfer");
       }
     },
   },
