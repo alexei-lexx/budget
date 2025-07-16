@@ -19,8 +19,8 @@ export const CREATE_ACCOUNT = gql`
 `;
 
 export const UPDATE_ACCOUNT = gql`
-  mutation UpdateAccount($id: ID!, $input: UpdateAccountInput!) {
-    updateAccount(id: $id, input: $input) {
+  mutation UpdateAccount($input: UpdateAccountInput!) {
+    updateAccount(input: $input) {
       ...AccountFields
     }
   }
@@ -43,8 +43,8 @@ export const CREATE_CATEGORY = gql`
 `;
 
 export const UPDATE_CATEGORY = gql`
-  mutation UpdateCategory($id: ID!, $input: UpdateCategoryInput!) {
-    updateCategory(id: $id, input: $input) {
+  mutation UpdateCategory($input: UpdateCategoryInput!) {
+    updateCategory(input: $input) {
       ...CategoryFields
     }
   }
@@ -70,8 +70,8 @@ export const CREATE_TRANSACTION = gql`
 `;
 
 export const UPDATE_TRANSACTION = gql`
-  mutation UpdateTransaction($id: ID!, $input: UpdateTransactionInput!) {
-    updateTransaction(id: $id, input: $input) {
+  mutation UpdateTransaction($input: UpdateTransactionInput!) {
+    updateTransaction(input: $input) {
       ...TransactionFields
     }
   }

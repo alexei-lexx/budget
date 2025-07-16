@@ -119,25 +119,21 @@ export type MutationDeleteTransactionArgs = {
 
 
 export type MutationUpdateAccountArgs = {
-  id: Scalars['ID']['input'];
   input: UpdateAccountInput;
 };
 
 
 export type MutationUpdateCategoryArgs = {
-  id: Scalars['ID']['input'];
   input: UpdateCategoryInput;
 };
 
 
 export type MutationUpdateTransactionArgs = {
-  id: Scalars['ID']['input'];
   input: UpdateTransactionInput;
 };
 
 
 export type MutationUpdateTransferArgs = {
-  id: Scalars['ID']['input'];
   input: UpdateTransferInput;
 };
 
@@ -209,11 +205,13 @@ export type Transfer = {
 
 export type UpdateAccountInput = {
   currency?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['ID']['input'];
   initialBalance?: InputMaybe<Scalars['Float']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type UpdateCategoryInput = {
+  id: Scalars['ID']['input'];
   name?: InputMaybe<Scalars['String']['input']>;
   type?: InputMaybe<CategoryType>;
 };
@@ -224,6 +222,7 @@ export type UpdateTransactionInput = {
   categoryId?: InputMaybe<Scalars['ID']['input']>;
   date?: InputMaybe<Scalars['String']['input']>;
   description?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['ID']['input'];
   type?: InputMaybe<TransactionType>;
 };
 
@@ -232,6 +231,7 @@ export type UpdateTransferInput = {
   date?: InputMaybe<Scalars['String']['input']>;
   description?: InputMaybe<Scalars['String']['input']>;
   fromAccountId?: InputMaybe<Scalars['ID']['input']>;
+  id: Scalars['ID']['input'];
   toAccountId?: InputMaybe<Scalars['ID']['input']>;
 };
 
@@ -394,10 +394,10 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteCategory?: Resolver<ResolversTypes['Category'], ParentType, ContextType, RequireFields<MutationDeleteCategoryArgs, 'id'>>;
   deleteTransaction?: Resolver<ResolversTypes['Transaction'], ParentType, ContextType, RequireFields<MutationDeleteTransactionArgs, 'id'>>;
   ensureUser?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
-  updateAccount?: Resolver<ResolversTypes['Account'], ParentType, ContextType, RequireFields<MutationUpdateAccountArgs, 'id' | 'input'>>;
-  updateCategory?: Resolver<ResolversTypes['Category'], ParentType, ContextType, RequireFields<MutationUpdateCategoryArgs, 'id' | 'input'>>;
-  updateTransaction?: Resolver<ResolversTypes['Transaction'], ParentType, ContextType, RequireFields<MutationUpdateTransactionArgs, 'id' | 'input'>>;
-  updateTransfer?: Resolver<ResolversTypes['Transfer'], ParentType, ContextType, RequireFields<MutationUpdateTransferArgs, 'id' | 'input'>>;
+  updateAccount?: Resolver<ResolversTypes['Account'], ParentType, ContextType, RequireFields<MutationUpdateAccountArgs, 'input'>>;
+  updateCategory?: Resolver<ResolversTypes['Category'], ParentType, ContextType, RequireFields<MutationUpdateCategoryArgs, 'input'>>;
+  updateTransaction?: Resolver<ResolversTypes['Transaction'], ParentType, ContextType, RequireFields<MutationUpdateTransactionArgs, 'input'>>;
+  updateTransfer?: Resolver<ResolversTypes['Transfer'], ParentType, ContextType, RequireFields<MutationUpdateTransferArgs, 'input'>>;
 };
 
 export type PageInfoResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['PageInfo'] = ResolversParentTypes['PageInfo']> = {

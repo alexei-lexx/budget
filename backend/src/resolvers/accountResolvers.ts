@@ -42,6 +42,7 @@ const createAccountInputSchema = z.object({
 });
 
 const updateAccountInputSchema = z.object({
+  id: z.string().uuid("Account ID must be a valid UUID"),
   name: nameSchema.optional(),
   currency: currencySchema.optional(),
   initialBalance: initialBalanceSchema.optional(),
@@ -118,25 +119,14 @@ export const accountResolvers = {
     },
     updateAccount: async (
       _parent: unknown,
-      args: {
-        id: string;
-        input: { name?: string; currency?: string; initialBalance?: number };
-      },
+      args: { input: unknown },
       context: GraphQLContext,
     ) => {
-      const { id } = args;
-
-      // Validate input
-      if (!id) {
-        throw new GraphQLError("Account ID is required", {
-          extensions: { code: "BAD_USER_INPUT" },
-        });
-      }
-
       try {
         // Validate and normalize input
         const validatedInput = updateAccountInputSchema.parse(args.input);
         const user = await getAuthenticatedUser(context);
+        const { id } = validatedInput;
 
         // Check if currency is being changed and if account has transactions
         if (validatedInput.currency) {

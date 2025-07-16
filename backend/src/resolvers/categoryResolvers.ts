@@ -28,6 +28,7 @@ const createCategoryInputSchema = z.object({
 });
 
 const updateCategoryInputSchema = z.object({
+  id: z.string().uuid("Category ID must be a valid UUID"),
   name: nameSchema.optional(),
   type: typeSchema.optional(),
 });
@@ -93,25 +94,14 @@ export const categoryResolvers = {
     },
     updateCategory: async (
       _parent: unknown,
-      args: {
-        id: string;
-        input: { name?: string; type?: CategoryType };
-      },
+      args: { input: unknown },
       context: GraphQLContext,
     ) => {
-      const { id } = args;
-
-      // Validate input
-      if (!id) {
-        throw new GraphQLError("Category ID is required", {
-          extensions: { code: "BAD_USER_INPUT" },
-        });
-      }
-
       try {
         // Validate and normalize input
         const validatedInput = updateCategoryInputSchema.parse(args.input);
         const user = await getAuthenticatedUser(context);
+        const { id } = validatedInput;
 
         const category = await context.categoryRepository.update(
           id,

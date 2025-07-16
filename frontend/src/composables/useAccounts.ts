@@ -19,6 +19,7 @@ export interface CreateAccountInput {
 }
 
 export interface UpdateAccountInput {
+  id: string;
   name?: string;
   currency?: string;
   initialBalance?: number;
@@ -63,7 +64,7 @@ export function useAccounts() {
     mutate: updateAccountMutation,
     loading: updateAccountLoading,
     error: updateAccountError,
-  } = useMutation<UpdateAccountResponse, { id: string; input: UpdateAccountInput }>(UPDATE_ACCOUNT);
+  } = useMutation<UpdateAccountResponse, { input: UpdateAccountInput }>(UPDATE_ACCOUNT);
 
   // Delete account mutation
   const {
@@ -110,10 +111,13 @@ export function useAccounts() {
   };
 
   // Update account function
-  const updateAccount = async (id: string, input: UpdateAccountInput): Promise<Account | null> => {
+  const updateAccount = async (
+    id: string,
+    input: Omit<UpdateAccountInput, "id">,
+  ): Promise<Account | null> => {
     try {
       accountsError.value = null;
-      const result = await updateAccountMutation({ id, input });
+      const result = await updateAccountMutation({ input: { id, ...input } });
       if (result?.data?.updateAccount) {
         await refetchAccounts();
         return result.data.updateAccount;

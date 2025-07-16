@@ -18,6 +18,7 @@ export interface CreateCategoryInput {
 }
 
 export interface UpdateCategoryInput {
+  id: string;
   name?: string;
   type?: CategoryType;
 }
@@ -63,9 +64,7 @@ export function useCategories(type?: CategoryType | Ref<CategoryType>) {
     mutate: updateCategoryMutation,
     loading: updateCategoryLoading,
     error: updateCategoryError,
-  } = useMutation<UpdateCategoryResponse, { id: string; input: UpdateCategoryInput }>(
-    UPDATE_CATEGORY,
-  );
+  } = useMutation<UpdateCategoryResponse, { input: UpdateCategoryInput }>(UPDATE_CATEGORY);
 
   // Delete category mutation
   const {
@@ -114,11 +113,11 @@ export function useCategories(type?: CategoryType | Ref<CategoryType>) {
   // Update category function
   const updateCategory = async (
     id: string,
-    input: UpdateCategoryInput,
+    input: Omit<UpdateCategoryInput, "id">,
   ): Promise<Category | null> => {
     try {
       categoriesError.value = null;
-      const result = await updateCategoryMutation({ id, input });
+      const result = await updateCategoryMutation({ input: { id, ...input } });
       if (result?.data?.updateCategory) {
         await refetchCategories();
         return result.data.updateCategory;

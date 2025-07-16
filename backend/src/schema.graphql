@@ -60,6 +60,7 @@ input CreateAccountInput {
 }
 
 input UpdateAccountInput {
+  id: ID!
   name: String
   currency: String
   initialBalance: Float
@@ -71,6 +72,7 @@ input CreateCategoryInput {
 }
 
 input UpdateCategoryInput {
+  id: ID!
   name: String
   type: CategoryType
 }
@@ -85,6 +87,7 @@ input CreateTransactionInput {
 }
 
 input UpdateTransactionInput {
+  id: ID!
   accountId: ID
   categoryId: ID
   type: TransactionType
@@ -102,6 +105,7 @@ input CreateTransferInput {
 }
 
 input UpdateTransferInput {
+  id: ID!
   fromAccountId: ID
   toAccountId: ID
   amount: Float
@@ -135,14 +139,14 @@ type TransactionConnection {
 type Mutation {
   ensureUser: User!
   createAccount(input: CreateAccountInput!): Account!
-  updateAccount(id: ID!, input: UpdateAccountInput!): Account!
+  updateAccount(input: UpdateAccountInput!): Account!
   deleteAccount(id: ID!): Boolean
   createCategory(input: CreateCategoryInput!): Category!
-  updateCategory(id: ID!, input: UpdateCategoryInput!): Category!
+  updateCategory(input: UpdateCategoryInput!): Category!
   deleteCategory(id: ID!): Category!
   createTransaction(input: CreateTransactionInput!): Transaction!
-  updateTransaction(id: ID!, input: UpdateTransactionInput!): Transaction!
+  updateTransaction(input: UpdateTransactionInput!): Transaction!
   deleteTransaction(id: ID!): Transaction!
   createTransfer(input: CreateTransferInput!): Transfer!
-  updateTransfer(id: ID!, input: UpdateTransferInput!): Transfer!
+  updateTransfer(input: UpdateTransferInput!): Transfer!
 }

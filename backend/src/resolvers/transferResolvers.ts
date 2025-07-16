@@ -38,6 +38,7 @@ const createTransferInputSchema = z.object({
  * Zod schema for update transfer input validation
  */
 const updateTransferInputSchema = z.object({
+  id: z.string().uuid("Transfer ID must be a valid UUID"),
   fromAccountId: accountIdSchema.optional(),
   toAccountId: accountIdSchema.optional(),
   amount: amountSchema.optional(),
@@ -85,22 +86,14 @@ export const transferResolvers = {
     },
     updateTransfer: async (
       _parent: unknown,
-      args: { id: string; input: unknown },
+      args: { input: unknown },
       context: GraphQLContext,
     ) => {
-      const { id } = args;
-
-      // Validate input
-      if (!id) {
-        throw new GraphQLError("Transfer ID is required", {
-          extensions: { code: "BAD_USER_INPUT" },
-        });
-      }
-
       try {
         // Validate and normalize input
         const validatedInput = updateTransferInputSchema.parse(args.input);
         const user = await getAuthenticatedUser(context);
+        const { id } = validatedInput;
 
         const transferResult = await context.transferService.updateTransfer(
           id,

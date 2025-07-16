@@ -47,6 +47,7 @@ const createTransactionInputSchema = z.object({
 });
 
 const updateTransactionInputSchema = z.object({
+  id: z.string().uuid("Transaction ID must be a valid UUID"),
   accountId: accountIdSchema.optional(),
   categoryId: categoryIdSchema,
   type: typeSchema.optional(),
@@ -131,22 +132,14 @@ export const transactionResolvers = {
     },
     updateTransaction: async (
       _parent: unknown,
-      args: { id: string; input: unknown },
+      args: { input: unknown },
       context: GraphQLContext,
     ) => {
-      const { id } = args;
-
-      // Validate input
-      if (!id) {
-        throw new GraphQLError("Transaction ID is required", {
-          extensions: { code: "BAD_USER_INPUT" },
-        });
-      }
-
       try {
         // Validate and normalize input
         const validatedInput = updateTransactionInputSchema.parse(args.input);
         const user = await getAuthenticatedUser(context);
+        const { id } = validatedInput;
 
         const transaction = await context.transactionService.updateTransaction(
           id,

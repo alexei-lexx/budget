@@ -29,6 +29,7 @@ export interface CreateTransactionInput {
 }
 
 export interface UpdateTransactionInput {
+  id: string;
   accountId?: string;
   categoryId?: string | null;
   type?: TransactionType;
@@ -99,9 +100,7 @@ export function useTransactions() {
     mutate: updateTransactionMutation,
     loading: updateTransactionLoading,
     error: updateTransactionError,
-  } = useMutation<UpdateTransactionResponse, { id: string; input: UpdateTransactionInput }>(
-    UPDATE_TRANSACTION,
-  );
+  } = useMutation<UpdateTransactionResponse, { input: UpdateTransactionInput }>(UPDATE_TRANSACTION);
 
   // Delete transaction mutation
   const {
@@ -186,11 +185,11 @@ export function useTransactions() {
   // Update transaction function
   const updateTransaction = async (
     id: string,
-    input: UpdateTransactionInput,
+    input: Omit<UpdateTransactionInput, "id">,
   ): Promise<Transaction | null> => {
     try {
       transactionsError.value = null;
-      const result = await updateTransactionMutation({ id, input });
+      const result = await updateTransactionMutation({ input: { id, ...input } });
       if (result?.data?.updateTransaction) {
         // Update the transaction in the list
         const updatedTransaction = result.data.updateTransaction;
