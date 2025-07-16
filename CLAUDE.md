@@ -355,15 +355,27 @@ Complete Docker-based development setup:
 - **Documentation**: Only create documentation files when explicitly requested
 - **Service Layer**: New business logic should be implemented in service classes, not directly in GraphQL resolvers
 
+### Test Commands
+All projects use Jest for testing. Run tests with:
+```bash
+# Backend CDK tests
+cd backend-cdk
+npm test
+
+# Frontend CDK tests
+cd frontend-cdk
+npm test
+```
+
 ### Project Specifications
 Before starting any development work, review:
 - docs/general_spec.md - Business requirements and feature specifications
 - docs/tech_spec.md - Technical architecture and implementation guidelines
-- docs/tasks.md - Current development roadmap and task tracking
+- docs/tasks/ - Individual task files with detailed implementation requirements
 
 ### Task Completion Tracking
-**CRITICAL**: Always mark tasks as completed in docs/tasks.md immediately after finishing them:
-- Change `[ ]` to `[x]` in the task line
+**CRITICAL**: Always mark tasks as completed in the relevant task files in docs/tasks/ immediately after finishing them:
+- Change `[ ]` to `[x]` in the task line within the specific task file
 - When all sub-task items under a parent task are completed and marked, mark the parent task item as completed as well
 - This maintains permanent progress tracking across development sessions
 - Prevents duplicate work and ensures accountability
@@ -379,7 +391,7 @@ Follow bottom-up, layer-by-layer implementation pattern:
 7. **Integration Testing** - Manual testing, end-to-end validation, production verification
 
 ### Task Definition Guidelines
-For comprehensive task definition guidelines, refer to docs/task-definition.instructions.md
+For comprehensive task definition guidelines, refer to docs/tasks.instructions.md
 
 # important-instruction-reminders
 Do what has been asked; nothing more, nothing less.
