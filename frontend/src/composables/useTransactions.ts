@@ -17,6 +17,7 @@ export interface Transaction {
   currency: string;
   date: string; // YYYY-MM-DD format
   description?: string;
+  transferId?: string;
 }
 
 export interface CreateTransactionInput {

@@ -87,10 +87,10 @@ Show transfers as normal transactions with TRANSFER_IN and TRANSFER_OUT types in
   - [x] 9.4.6 Implement deleteTransfer mutation for transfer removal
   - [x] 9.4.7 Update GraphQL context to include TransferService
 
-- [ ] **9.5 Frontend Data Layer**
-  - [ ] 9.5.1 Create transfer GraphQL operations (CREATE_TRANSFER, UPDATE_TRANSFER, DELETE_TRANSFER)
-  - [ ] 9.5.2 Generate TypeScript types for transfer mutation operations
-  - [ ] 9.5.4 Add Apollo Client cache configuration for transfer operations
+- [x] **9.5 Frontend Data Layer**
+  - [x] 9.5.1 Create transfer GraphQL operations (CREATE_TRANSFER, UPDATE_TRANSFER, DELETE_TRANSFER)
+  - [x] 9.5.2 Generate TypeScript types for transfer mutation operations
+  - [x] 9.5.4 Add Apollo Client cache configuration for transfer operations
 
 - [ ] **9.6 Frontend UI/UX Layer**
   - [ ] 9.6.1 Add dedicated "Create Transfer" button/action separate from transaction creation interface

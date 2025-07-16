@@ -1,5 +1,10 @@
 import { gql } from "@apollo/client/core";
-import { ACCOUNT_FRAGMENT, CATEGORY_FRAGMENT, TRANSACTION_FRAGMENT } from "./fragments";
+import {
+  ACCOUNT_FRAGMENT,
+  CATEGORY_FRAGMENT,
+  TRANSACTION_FRAGMENT,
+  TRANSFER_FRAGMENT,
+} from "./fragments";
 
 export const ENSURE_USER = gql`
   mutation EnsureUser {
@@ -85,4 +90,28 @@ export const DELETE_TRANSACTION = gql`
     }
   }
   ${TRANSACTION_FRAGMENT}
+`;
+
+export const CREATE_TRANSFER = gql`
+  mutation CreateTransfer($input: CreateTransferInput!) {
+    createTransfer(input: $input) {
+      ...TransferFields
+    }
+  }
+  ${TRANSFER_FRAGMENT}
+`;
+
+export const UPDATE_TRANSFER = gql`
+  mutation UpdateTransfer($input: UpdateTransferInput!) {
+    updateTransfer(input: $input) {
+      ...TransferFields
+    }
+  }
+  ${TRANSFER_FRAGMENT}
+`;
+
+export const DELETE_TRANSFER = gql`
+  mutation DeleteTransfer($id: ID!) {
+    deleteTransfer(id: $id)
+  }
 `;

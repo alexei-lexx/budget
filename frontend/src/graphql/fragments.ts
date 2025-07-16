@@ -28,5 +28,19 @@ export const TRANSACTION_FRAGMENT = gql`
     currency
     date
     description
+    transferId
   }
+`;
+
+export const TRANSFER_FRAGMENT = gql`
+  fragment TransferFields on Transfer {
+    id
+    outboundTransaction {
+      ...TransactionFields
+    }
+    inboundTransaction {
+      ...TransactionFields
+    }
+  }
+  ${TRANSACTION_FRAGMENT}
 `;
