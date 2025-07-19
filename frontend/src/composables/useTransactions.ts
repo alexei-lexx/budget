@@ -3,10 +3,9 @@ import { ref, watch, computed } from "vue";
 import { GET_TRANSACTIONS_PAGINATED } from "@/graphql/queries";
 import { CREATE_TRANSACTION, UPDATE_TRANSACTION, DELETE_TRANSACTION } from "@/graphql/mutations";
 import type { ApolloError } from "@apollo/client/core";
-import type { CategoryType } from "./useCategories";
 import type { PaginationInput, Edge, Connection } from "@/types/pagination";
 
-export type TransactionType = CategoryType;
+export type TransactionType = "INCOME" | "EXPENSE" | "TRANSFER_IN" | "TRANSFER_OUT";
 
 export interface Transaction {
   id: string;

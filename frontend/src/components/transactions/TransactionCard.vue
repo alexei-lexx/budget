@@ -49,7 +49,27 @@ const formattedDate = computed(() => {
 
 // Amount color based on type
 const amountColor = computed(() => {
-  return props.transaction.type === "INCOME" ? "success" : "error";
+  // INCOME and TRANSFER_IN are positive (green)
+  // EXPENSE and TRANSFER_OUT are negative (red)
+  return props.transaction.type === "INCOME" || props.transaction.type === "TRANSFER_IN"
+    ? "success"
+    : "error";
+});
+
+// Icon based on transaction type
+const transactionIcon = computed(() => {
+  switch (props.transaction.type) {
+    case "INCOME":
+      return "mdi-cash-plus";
+    case "EXPENSE":
+      return "mdi-cash-minus";
+    case "TRANSFER_IN":
+      return "mdi-bank-transfer-in";
+    case "TRANSFER_OUT":
+      return "mdi-bank-transfer-out";
+    default:
+      return "mdi-cash";
+  }
 });
 
 // Event handlers
@@ -68,7 +88,7 @@ const handleDeleteTransaction = () => {
       <div class="d-flex align-center">
         <!-- Icon -->
         <v-icon :color="amountColor" size="20" class="me-3">
-          {{ transaction.type === "INCOME" ? "mdi-cash-plus" : "mdi-cash-minus" }}
+          {{ transactionIcon }}
         </v-icon>
 
         <!-- Main content -->
