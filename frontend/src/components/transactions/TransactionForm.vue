@@ -4,6 +4,7 @@ import { getCurrencySymbol } from "@/utils/currency";
 import { checkRules, type CheckRule } from "@/utils/validation";
 import { useAccounts } from "@/composables/useAccounts";
 import { useCategories } from "@/composables/useCategories";
+import AccountSelect from "@/components/common/AccountSelect.vue";
 import type {
   Transaction,
   CreateTransactionInput,
@@ -229,34 +230,14 @@ const handleCancel = () => {
           <!-- Left Column -->
           <v-col cols="12" md="6">
             <!-- Account Selection -->
-            <v-select
+            <AccountSelect
               v-model="formData.accountId"
-              :items="accounts"
-              item-title="name"
-              item-value="id"
               label="Account"
               :rules="accountRules"
               :disabled="loading"
-              variant="outlined"
               class="mb-4"
               required
-            >
-              <template #item="{ props, item }">
-                <v-list-item v-bind="props">
-                  <template #append>
-                    <div class="text-caption text-medium-emphasis">
-                      {{ item.raw.currency }}
-                    </div>
-                  </template>
-                </v-list-item>
-              </template>
-              <template #selection="{ item }">
-                <span>{{ item.title }}</span>
-                <span v-if="item.raw.currency" class="text-caption text-medium-emphasis ml-2"
-                  >({{ item.raw.currency }})</span
-                >
-              </template>
-            </v-select>
+            />
 
             <!-- Amount -->
             <v-text-field

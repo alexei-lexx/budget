@@ -3,6 +3,7 @@ import { ref, computed } from "vue";
 import { getCurrencySymbol } from "@/utils/currency";
 import { checkRules, type CheckRule } from "@/utils/validation";
 import { useAccounts } from "@/composables/useAccounts";
+import AccountSelect from "@/components/common/AccountSelect.vue";
 import type { CreateTransferInput } from "@/composables/useTransfers";
 
 // Define emitted events
@@ -156,34 +157,14 @@ const handleCancel = () => {
           <!-- Left Column -->
           <v-col cols="12" md="6">
             <!-- From Account Selection -->
-            <v-select
+            <AccountSelect
               v-model="formData.fromAccountId"
-              :items="accounts"
-              item-title="name"
-              item-value="id"
               label="From Account"
               :rules="[...fromAccountRules, ...accountValidationRules]"
               :disabled="loading"
-              variant="outlined"
               class="mb-4"
               required
-            >
-              <template #item="{ props, item }">
-                <v-list-item v-bind="props">
-                  <template #append>
-                    <div class="text-caption text-medium-emphasis">
-                      {{ item.raw.currency }}
-                    </div>
-                  </template>
-                </v-list-item>
-              </template>
-              <template #selection="{ item }">
-                <span>{{ item.title }}</span>
-                <span v-if="item.raw.currency" class="text-caption text-medium-emphasis ml-2"
-                  >({{ item.raw.currency }})</span
-                >
-              </template>
-            </v-select>
+            />
 
             <!-- Amount -->
             <v-text-field
@@ -209,34 +190,14 @@ const handleCancel = () => {
           <!-- Right Column -->
           <v-col cols="12" md="6">
             <!-- To Account Selection -->
-            <v-select
+            <AccountSelect
               v-model="formData.toAccountId"
-              :items="accounts"
-              item-title="name"
-              item-value="id"
               label="To Account"
               :rules="[...toAccountRules, ...accountValidationRules]"
               :disabled="loading"
-              variant="outlined"
               class="mb-4"
               required
-            >
-              <template #item="{ props, item }">
-                <v-list-item v-bind="props">
-                  <template #append>
-                    <div class="text-caption text-medium-emphasis">
-                      {{ item.raw.currency }}
-                    </div>
-                  </template>
-                </v-list-item>
-              </template>
-              <template #selection="{ item }">
-                <span>{{ item.title }}</span>
-                <span v-if="item.raw.currency" class="text-caption text-medium-emphasis ml-2"
-                  >({{ item.raw.currency }})</span
-                >
-              </template>
-            </v-select>
+            />
 
             <!-- Date -->
             <v-text-field
