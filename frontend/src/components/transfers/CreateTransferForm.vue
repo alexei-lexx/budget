@@ -92,13 +92,9 @@ const isFormValid = computed(() => {
   return fromAccountValid && toAccountValid && amountValid && dateValid && accountValid;
 });
 
-// Get selected accounts for currency information
+// Get selected account for currency information
 const fromAccount = computed(() => {
   return accounts.value.find((account) => account.id === formData.value.fromAccountId);
-});
-
-const toAccount = computed(() => {
-  return accounts.value.find((account) => account.id === formData.value.toAccountId);
 });
 
 // Currency prefix for amount input
@@ -107,12 +103,6 @@ const currencyPrefix = computed(() => {
     return getCurrencySymbol(fromAccount.value.currency);
   }
   return "";
-});
-
-// Currency mismatch warning
-const showCurrencyWarning = computed(() => {
-  if (!fromAccount.value || !toAccount.value) return false;
-  return fromAccount.value.currency !== toAccount.value.currency;
 });
 
 // Event handlers
@@ -145,13 +135,6 @@ const handleCancel = () => {
 
     <v-card-text>
       <v-form ref="formRef" v-model="formValid" @submit.prevent="handleSubmit">
-        <!-- Currency mismatch warning -->
-        <v-alert v-if="showCurrencyWarning" type="error" variant="tonal" class="mb-4">
-          <v-icon class="me-2">mdi-alert-circle</v-icon>
-          Transfers can only be made between accounts with the same currency. Selected accounts have
-          different currencies.
-        </v-alert>
-
         <!-- Two-column layout for desktop -->
         <v-row>
           <!-- Left Column -->
@@ -238,7 +221,7 @@ const handleCancel = () => {
         color="primary"
         variant="flat"
         :loading="loading"
-        :disabled="!isFormValid || loading || showCurrencyWarning"
+        :disabled="!isFormValid || loading"
         @click="handleSubmit"
         :block="$vuetify.display.xs"
       >
