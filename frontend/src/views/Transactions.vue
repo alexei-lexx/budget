@@ -141,7 +141,7 @@
       :max-width="$vuetify.display.xs ? '95vw' : '600'"
       persistent
     >
-      <CreateTransferForm
+      <TransferForm
         :loading="transferFormLoading"
         @submit="handleCreateTransferSubmit"
         @cancel="handleTransactionFormCancel"
@@ -160,9 +160,9 @@ import { useTransfers } from "@/composables/useTransfers";
 import TransactionCard from "@/components/transactions/TransactionCard.vue";
 import TransactionForm from "@/components/transactions/TransactionForm.vue";
 import TransactionDeleteDialog from "@/components/transactions/TransactionDeleteDialog.vue";
-import CreateTransferForm from "@/components/transfers/CreateTransferForm.vue";
+import TransferForm from "@/components/transfers/TransferForm.vue";
 import type { Transaction, CreateTransactionInput } from "@/composables/useTransactions";
-import type { CreateTransferInput } from "@/composables/useTransfers";
+import type { CreateTransferInput, UpdateTransferInput } from "@/composables/useTransfers";
 
 // Composables
 const {
@@ -181,7 +181,7 @@ const {
 const { accounts: accountsData, refetchAccounts } = useAccounts();
 const { categories: categoriesData } = useCategories();
 const { showSuccessSnackbar } = useSnackbar();
-const { createTransfer } = useTransfers();
+const { createTransfer, updateTransfer } = useTransfers();
 
 // Computed properties for clean data access
 const accounts = computed(() => accountsData.value?.accounts || []);
@@ -285,13 +285,28 @@ const handleEditTransactionSubmit = async (transactionData: CreateTransactionInp
   }
 };
 
-const handleCreateTransferSubmit = async (transferData: CreateTransferInput) => {
+const handleCreateTransferSubmit = async (data: CreateTransferInput | UpdateTransferInput) => {
   transferFormLoading.value = true;
   try {
-    const result = await createTransfer(transferData);
+    let result;
+    if ("id" in data) {
+      // Edit mode - data is UpdateTransferInput
+      const { id, ...input } = data;
+      result = await updateTransfer(id, input);
+      if (result) {
+        showCreateTransferDialog.value = false;
+        showSuccessSnackbar("Transfer was updated successfully");
+      }
+    } else {
+      // Create mode - data is CreateTransferInput
+      result = await createTransfer(data);
+      if (result) {
+        showCreateTransferDialog.value = false;
+        showSuccessSnackbar("Transfer was created successfully");
+      }
+    }
+
     if (result) {
-      showCreateTransferDialog.value = false;
-      showSuccessSnackbar("Transfer was created successfully");
       // Refetch accounts to update balances
       await refetchAccounts();
     }

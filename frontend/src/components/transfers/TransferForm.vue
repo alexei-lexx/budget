@@ -1,23 +1,29 @@
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, watch } from "vue";
 import { getCurrencySymbol } from "@/utils/currency";
 import { checkRules, type CheckRule } from "@/utils/validation";
 import { useAccounts } from "@/composables/useAccounts";
 import AccountSelect from "@/components/common/AccountSelect.vue";
-import type { CreateTransferInput } from "@/composables/useTransfers";
+import type {
+  Transfer,
+  CreateTransferInput,
+  UpdateTransferInput,
+} from "@/composables/useTransfers";
 
 // Define emitted events
 const emit = defineEmits<{
-  submit: [transfer: CreateTransferInput];
+  submit: [data: CreateTransferInput | UpdateTransferInput];
   cancel: [];
 }>();
 
 // Define component props
 interface Props {
+  transfer?: Transfer | null;
   loading?: boolean;
 }
 
-withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<Props>(), {
+  transfer: null,
   loading: false,
 });
 
@@ -27,6 +33,14 @@ const { accounts: accountsData } = useAccounts();
 // Computed properties for clean data access
 const accounts = computed(() => accountsData.value?.accounts || []);
 
+// Mode detection
+const isEditing = computed(() => !!props.transfer?.id);
+
+// Dynamic UI content
+const formTitle = computed(() => (isEditing.value ? "Edit Transfer" : "Create Transfer"));
+const submitButtonText = computed(() => (isEditing.value ? "Update Transfer" : "Create Transfer"));
+const titleIcon = computed(() => (isEditing.value ? "mdi-pencil" : "mdi-swap-horizontal"));
+
 // Form data
 const formData = ref<CreateTransferInput>({
   fromAccountId: "",
@@ -35,6 +49,32 @@ const formData = ref<CreateTransferInput>({
   date: new Date().toISOString().split("T")[0], // Today's date in YYYY-MM-DD format
   description: "",
 });
+
+// Watch for transfer prop changes to populate form in edit mode
+watch(
+  () => props.transfer,
+  (newTransfer) => {
+    if (newTransfer) {
+      formData.value = {
+        fromAccountId: newTransfer.outboundTransaction.accountId,
+        toAccountId: newTransfer.inboundTransaction.accountId,
+        amount: newTransfer.outboundTransaction.amount,
+        date: newTransfer.outboundTransaction.date,
+        description: newTransfer.outboundTransaction.description || "",
+      };
+    } else {
+      // Reset form for create mode
+      formData.value = {
+        fromAccountId: "",
+        toAccountId: "",
+        amount: 0,
+        date: new Date().toISOString().split("T")[0],
+        description: "",
+      };
+    }
+  },
+  { immediate: true },
+);
 
 // Form validation
 const formValid = ref(false);
@@ -110,13 +150,28 @@ const handleSubmit = async () => {
   if (formRef.value) {
     const { valid } = await formRef.value.validate();
     if (valid && isFormValid.value) {
-      // Clean up empty fields appropriately
-      const submitData = { ...formData.value };
-      if (submitData.description === "") {
-        submitData.description = undefined;
+      if (isEditing.value && props.transfer) {
+        // Edit mode: create UpdateTransferInput object
+        const updateData: UpdateTransferInput = {
+          id: props.transfer.id,
+          fromAccountId: formData.value.fromAccountId,
+          toAccountId: formData.value.toAccountId,
+          amount: formData.value.amount,
+          date: formData.value.date,
+          description: formData.value.description === "" ? null : formData.value.description,
+        };
+        emit("submit", updateData);
+      } else {
+        // Create mode: create CreateTransferInput object
+        const createData: CreateTransferInput = {
+          fromAccountId: formData.value.fromAccountId,
+          toAccountId: formData.value.toAccountId,
+          amount: formData.value.amount,
+          date: formData.value.date,
+          description: formData.value.description === "" ? null : formData.value.description,
+        };
+        emit("submit", createData);
       }
-
-      emit("submit", submitData);
     }
   }
 };
@@ -129,8 +184,8 @@ const handleCancel = () => {
 <template>
   <v-card>
     <v-card-title class="d-flex align-center">
-      <v-icon class="me-2" color="primary">mdi-swap-horizontal</v-icon>
-      Create Transfer
+      <v-icon class="me-2" color="primary">{{ titleIcon }}</v-icon>
+      {{ formTitle }}
     </v-card-title>
 
     <v-card-text>
@@ -225,7 +280,7 @@ const handleCancel = () => {
         @click="handleSubmit"
         :block="$vuetify.display.xs"
       >
-        Create Transfer
+        {{ submitButtonText }}
       </v-btn>
     </v-card-actions>
   </v-card>
