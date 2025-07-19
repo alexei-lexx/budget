@@ -5,9 +5,14 @@
       <v-col cols="12">
         <div class="d-flex align-center justify-space-between mb-4">
           <h1 class="text-h4">Transactions</h1>
-          <v-btn color="primary" prepend-icon="mdi-plus" @click="handleAddTransaction">
-            Add Transaction
-          </v-btn>
+          <div class="d-flex gap-2">
+            <v-btn color="secondary" prepend-icon="mdi-swap-horizontal" @click="handleAddTransfer">
+              Create Transfer
+            </v-btn>
+            <v-btn color="primary" prepend-icon="mdi-plus" @click="handleAddTransaction">
+              Add Transaction
+            </v-btn>
+          </div>
         </div>
 
         <!-- Loading State -->
@@ -41,9 +46,14 @@
           <div class="text-body-1 text-center mb-4">
             Start tracking your income and expenses by adding your first transaction.
           </div>
-          <v-btn color="primary" prepend-icon="mdi-plus" @click="handleAddTransaction">
-            Add Your First Transaction
-          </v-btn>
+          <div class="d-flex gap-2 justify-center">
+            <v-btn color="secondary" prepend-icon="mdi-swap-horizontal" @click="handleAddTransfer">
+              Create Transfer
+            </v-btn>
+            <v-btn color="primary" prepend-icon="mdi-plus" @click="handleAddTransaction">
+              Add Your First Transaction
+            </v-btn>
+          </div>
         </v-sheet>
 
         <!-- Transactions List -->
@@ -124,6 +134,19 @@
         @cancel="handleTransactionFormCancel"
       />
     </v-dialog>
+
+    <!-- Create Transfer Dialog -->
+    <v-dialog
+      v-model="showCreateTransferDialog"
+      :max-width="$vuetify.display.xs ? '95vw' : '600'"
+      persistent
+    >
+      <CreateTransferForm
+        :loading="transferFormLoading"
+        @submit="handleCreateTransferSubmit"
+        @cancel="handleTransactionFormCancel"
+      />
+    </v-dialog>
   </v-container>
 </template>
 
@@ -133,10 +156,13 @@ import { useTransactions } from "@/composables/useTransactions";
 import { useAccounts } from "@/composables/useAccounts";
 import { useCategories } from "@/composables/useCategories";
 import { useSnackbar } from "@/composables/useSnackbar";
+import { useTransfers } from "@/composables/useTransfers";
 import TransactionCard from "@/components/transactions/TransactionCard.vue";
 import TransactionForm from "@/components/transactions/TransactionForm.vue";
 import TransactionDeleteDialog from "@/components/transactions/TransactionDeleteDialog.vue";
+import CreateTransferForm from "@/components/transfers/CreateTransferForm.vue";
 import type { Transaction, CreateTransactionInput } from "@/composables/useTransactions";
+import type { CreateTransferInput } from "@/composables/useTransfers";
 
 // Composables
 const {
@@ -155,6 +181,7 @@ const {
 const { accounts: accountsData, refetchAccounts } = useAccounts();
 const { categories: categoriesData } = useCategories();
 const { showSuccessSnackbar } = useSnackbar();
+const { createTransfer } = useTransfers();
 
 // Computed properties for clean data access
 const accounts = computed(() => accountsData.value?.accounts || []);
@@ -164,13 +191,19 @@ const categories = computed(() => categoriesData.value?.categories || []);
 const showCreateTransactionDialog = ref(false);
 const showEditTransactionDialog = ref(false);
 const showDeleteConfirmDialog = ref(false);
+const showCreateTransferDialog = ref(false);
 const editingTransaction = ref<Transaction | null>(null);
 const transactionToDelete = ref<Transaction | null>(null);
 const transactionFormLoading = ref(false);
+const transferFormLoading = ref(false);
 
 // Event handlers
 const handleAddTransaction = () => {
   showCreateTransactionDialog.value = true;
+};
+
+const handleAddTransfer = () => {
+  showCreateTransferDialog.value = true;
 };
 
 const handleEditTransaction = (transactionId: string) => {
@@ -252,11 +285,28 @@ const handleEditTransactionSubmit = async (transactionData: CreateTransactionInp
   }
 };
 
+const handleCreateTransferSubmit = async (transferData: CreateTransferInput) => {
+  transferFormLoading.value = true;
+  try {
+    const result = await createTransfer(transferData);
+    if (result) {
+      showCreateTransferDialog.value = false;
+      showSuccessSnackbar("Transfer was created successfully");
+      // Refetch accounts to update balances
+      await refetchAccounts();
+    }
+  } finally {
+    transferFormLoading.value = false;
+  }
+};
+
 const handleTransactionFormCancel = () => {
   showCreateTransactionDialog.value = false;
   showEditTransactionDialog.value = false;
+  showCreateTransferDialog.value = false;
   editingTransaction.value = null;
   transactionFormLoading.value = false;
+  transferFormLoading.value = false;
 };
 
 // Helper functions to resolve names

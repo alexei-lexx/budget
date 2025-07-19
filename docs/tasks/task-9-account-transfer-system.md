@@ -93,8 +93,8 @@ Show transfers as normal transactions with TRANSFER_IN and TRANSFER_OUT types in
   - [x] 9.5.4 Add Apollo Client cache configuration for transfer operations
 
 - [ ] **9.6 Frontend UI/UX Layer**
-  - [ ] 9.6.1 Add dedicated "Create Transfer" button/action separate from transaction creation interface
-  - [ ] 9.6.2 Create CreateTransferForm component with dual account selection dropdowns that calls createTransfer mutation
+  - [x] 9.6.1 Add dedicated "Create Transfer" button/action separate from transaction creation interface
+  - [x] 9.6.2 Create CreateTransferForm component with dual account selection dropdowns that calls createTransfer mutation
   - [ ] 9.6.3 Create EditTransferForm component that loads existing transfer data and calls updateTransfer mutation
   - [ ] 9.6.4 Update transaction type display to show TRANSFER_IN and TRANSFER_OUT as normal transaction types
   - [ ] 9.6.5 Add edit button/action for transfer transactions that opens EditTransferForm with linked transfer data

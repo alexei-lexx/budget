@@ -1,0 +1,288 @@
+<script setup lang="ts">
+import { ref, computed } from "vue";
+import { getCurrencySymbol } from "@/utils/currency";
+import { checkRules, type CheckRule } from "@/utils/validation";
+import { useAccounts } from "@/composables/useAccounts";
+import type { CreateTransferInput } from "@/composables/useTransfers";
+
+// Define emitted events
+const emit = defineEmits<{
+  submit: [transfer: CreateTransferInput];
+  cancel: [];
+}>();
+
+// Define component props
+interface Props {
+  loading?: boolean;
+}
+
+withDefaults(defineProps<Props>(), {
+  loading: false,
+});
+
+// Use composables
+const { accounts: accountsData } = useAccounts();
+
+// Computed properties for clean data access
+const accounts = computed(() => accountsData.value?.accounts || []);
+
+// Form data
+const formData = ref<CreateTransferInput>({
+  fromAccountId: "",
+  toAccountId: "",
+  amount: 0,
+  date: new Date().toISOString().split("T")[0], // Today's date in YYYY-MM-DD format
+  description: "",
+});
+
+// Form validation
+const formValid = ref(false);
+const formRef = ref();
+
+// Validation rules
+const fromAccountRules: CheckRule[] = [(value: string) => !!value || "Source account is required"];
+
+const toAccountRules: CheckRule[] = [
+  (value: string) => !!value || "Destination account is required",
+];
+
+const amountRules: CheckRule<number>[] = [
+  (value: number) => value > 0 || "Amount must be greater than 0",
+];
+
+const dateRules: CheckRule[] = [
+  (value: string) => !!value || "Date is required",
+  (value: string) => {
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    return dateRegex.test(value) || "Date must be in YYYY-MM-DD format";
+  },
+];
+
+// Custom validation for account selection and currency matching
+const accountValidationRules: CheckRule[] = [
+  () => {
+    if (!formData.value.fromAccountId || !formData.value.toAccountId) {
+      return true; // Skip validation if accounts aren't selected
+    }
+
+    // Check if same account selected for both
+    if (formData.value.fromAccountId === formData.value.toAccountId) {
+      return "Source and destination accounts must be different";
+    }
+
+    const fromAccount = accounts.value.find((a) => a.id === formData.value.fromAccountId);
+    const toAccount = accounts.value.find((a) => a.id === formData.value.toAccountId);
+
+    if (fromAccount && toAccount && fromAccount.currency !== toAccount.currency) {
+      return "Source and destination accounts must have the same currency";
+    }
+    return true;
+  },
+];
+
+// Force validation check when form data changes
+const isFormValid = computed(() => {
+  const fromAccountValid = checkRules(formData.value.fromAccountId, fromAccountRules);
+  const toAccountValid = checkRules(formData.value.toAccountId, toAccountRules);
+  const amountValid = checkRules(formData.value.amount, amountRules);
+  const dateValid = checkRules(formData.value.date, dateRules);
+  const accountValid = checkRules("", accountValidationRules);
+
+  return fromAccountValid && toAccountValid && amountValid && dateValid && accountValid;
+});
+
+// Get selected accounts for currency information
+const fromAccount = computed(() => {
+  return accounts.value.find((account) => account.id === formData.value.fromAccountId);
+});
+
+const toAccount = computed(() => {
+  return accounts.value.find((account) => account.id === formData.value.toAccountId);
+});
+
+// Currency prefix for amount input
+const currencyPrefix = computed(() => {
+  if (fromAccount.value) {
+    return getCurrencySymbol(fromAccount.value.currency);
+  }
+  return "";
+});
+
+// Currency mismatch warning
+const showCurrencyWarning = computed(() => {
+  if (!fromAccount.value || !toAccount.value) return false;
+  return fromAccount.value.currency !== toAccount.value.currency;
+});
+
+// Event handlers
+const handleSubmit = async () => {
+  if (formRef.value) {
+    const { valid } = await formRef.value.validate();
+    if (valid && isFormValid.value) {
+      // Clean up empty fields appropriately
+      const submitData = { ...formData.value };
+      if (submitData.description === "") {
+        submitData.description = undefined;
+      }
+
+      emit("submit", submitData);
+    }
+  }
+};
+
+const handleCancel = () => {
+  emit("cancel");
+};
+</script>
+
+<template>
+  <v-card>
+    <v-card-title class="d-flex align-center">
+      <v-icon class="me-2" color="primary">mdi-swap-horizontal</v-icon>
+      Create Transfer
+    </v-card-title>
+
+    <v-card-text>
+      <v-form ref="formRef" v-model="formValid" @submit.prevent="handleSubmit">
+        <!-- Currency mismatch warning -->
+        <v-alert v-if="showCurrencyWarning" type="error" variant="tonal" class="mb-4">
+          <v-icon class="me-2">mdi-alert-circle</v-icon>
+          Transfers can only be made between accounts with the same currency. Selected accounts have
+          different currencies.
+        </v-alert>
+
+        <!-- Two-column layout for desktop -->
+        <v-row>
+          <!-- Left Column -->
+          <v-col cols="12" md="6">
+            <!-- From Account Selection -->
+            <v-select
+              v-model="formData.fromAccountId"
+              :items="accounts"
+              item-title="name"
+              item-value="id"
+              label="From Account"
+              :rules="[...fromAccountRules, ...accountValidationRules]"
+              :disabled="loading"
+              variant="outlined"
+              class="mb-4"
+              required
+            >
+              <template #item="{ props, item }">
+                <v-list-item v-bind="props">
+                  <template #append>
+                    <div class="text-caption text-medium-emphasis">
+                      {{ item.raw.currency }}
+                    </div>
+                  </template>
+                </v-list-item>
+              </template>
+              <template #selection="{ item }">
+                <span>{{ item.title }}</span>
+                <span v-if="item.raw.currency" class="text-caption text-medium-emphasis ml-2"
+                  >({{ item.raw.currency }})</span
+                >
+              </template>
+            </v-select>
+
+            <!-- Amount -->
+            <v-text-field
+              v-model.number="formData.amount"
+              type="number"
+              step="1"
+              min="0"
+              label="Amount"
+              :rules="amountRules"
+              :disabled="loading"
+              variant="outlined"
+              class="mb-4"
+              required
+            >
+              <template #prepend-inner>
+                <span class="text-medium-emphasis">
+                  {{ currencyPrefix }}
+                </span>
+              </template>
+            </v-text-field>
+          </v-col>
+
+          <!-- Right Column -->
+          <v-col cols="12" md="6">
+            <!-- To Account Selection -->
+            <v-select
+              v-model="formData.toAccountId"
+              :items="accounts"
+              item-title="name"
+              item-value="id"
+              label="To Account"
+              :rules="[...toAccountRules, ...accountValidationRules]"
+              :disabled="loading"
+              variant="outlined"
+              class="mb-4"
+              required
+            >
+              <template #item="{ props, item }">
+                <v-list-item v-bind="props">
+                  <template #append>
+                    <div class="text-caption text-medium-emphasis">
+                      {{ item.raw.currency }}
+                    </div>
+                  </template>
+                </v-list-item>
+              </template>
+              <template #selection="{ item }">
+                <span>{{ item.title }}</span>
+                <span v-if="item.raw.currency" class="text-caption text-medium-emphasis ml-2"
+                  >({{ item.raw.currency }})</span
+                >
+              </template>
+            </v-select>
+
+            <!-- Date -->
+            <v-text-field
+              v-model="formData.date"
+              type="date"
+              label="Date"
+              :rules="dateRules"
+              :disabled="loading"
+              variant="outlined"
+              class="mb-4"
+              required
+            />
+          </v-col>
+        </v-row>
+
+        <!-- Description (Full Width) -->
+        <v-textarea
+          v-model="formData.description"
+          label="Description (Optional)"
+          placeholder="e.g., Monthly savings transfer, Emergency fund contribution"
+          :disabled="loading"
+          variant="outlined"
+          rows="2"
+          auto-grow
+          class="mb-4"
+        />
+      </v-form>
+    </v-card-text>
+
+    <v-card-actions class="px-6 pb-6" :class="{ 'flex-column ga-2': $vuetify.display.xs }">
+      <v-btn variant="text" @click="handleCancel" :disabled="loading" :block="$vuetify.display.xs">
+        Cancel
+      </v-btn>
+
+      <v-spacer v-if="$vuetify.display.smAndUp"></v-spacer>
+
+      <v-btn
+        color="primary"
+        variant="flat"
+        :loading="loading"
+        :disabled="!isFormValid || loading || showCurrencyWarning"
+        @click="handleSubmit"
+        :block="$vuetify.display.xs"
+      >
+        Create Transfer
+      </v-btn>
+    </v-card-actions>
+  </v-card>
+</template>
