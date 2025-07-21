@@ -1,4 +1,6 @@
 .env.development
 .env.production
 dist
+docker/dynamodb/*
+!docker/dynamodb/.gitkeep
 node_modules

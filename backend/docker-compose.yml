@@ -7,7 +7,7 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - "dynamodb-data:/home/dynamodblocal/data"
+      - "./docker/dynamodb:/home/dynamodblocal/data"
     working_dir: /home/dynamodblocal
 
   # DynamoDB Admin UI (alternative implementation)
@@ -20,5 +20,3 @@ services:
     depends_on:
       - dynamodb-local
 
-volumes:
-  dynamodb-data:

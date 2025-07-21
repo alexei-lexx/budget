@@ -8,6 +8,7 @@
     "build": "npm run codegen && npm run compile && rm -rf dist && npm run build:bundle && npm run build:schema",
     "codegen": "graphql-codegen --config codegen.ts",
     "compile": "tsc",
+    "db:purge": "docker compose down -v",
     "db:setup": "npm run db:start && ts-node scripts/create-tables.ts",
     "db:start": "docker compose up -d",
     "db:stop": "docker compose down",
