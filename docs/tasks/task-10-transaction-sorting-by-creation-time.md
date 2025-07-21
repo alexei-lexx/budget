@@ -108,16 +108,16 @@ Improve transaction list user experience by sorting transactions by creation tim
 
 ## Testing
 
-3. [ ] **10.3 Integration Testing**
-   1. [ ] 10.3.1 **[M]** Create new transaction with past date (e.g., `date = "2024-01-01"`) and verify it appears at top of transaction list
-   2. [ ] 10.3.2 **[M]** Create multiple transactions with different past dates and verify they all appear in creation order (newest created first)
-   3. [ ] 10.3.3 **[M]** Verify pagination "Load More" button works correctly with new GSI
-   4. [ ] 10.3.4 **[M]** Test cursor stability: load page 1, create new transaction, verify page 1 content unchanged when navigating back
-   5. [ ] 10.3.5 **[M]** Verify transaction cards continue displaying user's intended `date` field, not `createdAt`
-   6. [ ] 10.3.6 **[M]** Confirm `createdAt` timestamps are correctly populated for all transactions
-   7. [ ] 10.3.7 **[M]** Test with transactions having same `createdAt` time - verify stable sorting by `id`
+3. [x] **10.3 Integration Testing**
+   1. [x] 10.3.1 **[M]** Create new transaction with past date (e.g., `date = "2024-01-01"`) and verify it appears at top of transaction list
+   2. [x] 10.3.2 **[M]** Create multiple transactions with different past dates and verify they all appear in creation order (newest created first)
+   3. [x] 10.3.3 **[M]** Verify pagination "Load More" button works correctly with new GSI
+   4. [x] 10.3.4 **[M]** Test cursor stability: load page 1, create new transaction, verify page 1 content unchanged when navigating back
+   5. [x] 10.3.5 **[M]** Verify transaction cards continue displaying user's intended `date` field, not `createdAt`
+   6. [x] 10.3.6 **[M]** Confirm `createdAt` timestamps are correctly populated for all transactions
+   7. [x] 10.3.7 **[M]** Test with transactions having same `createdAt` time - verify stable sorting by `id`
 
-4. [ ] **10.4 Production Deployment**
-   1. [ ] 10.4.1 **[M]** Deploy CDK infrastructure changes to update production DynamoDB GSI
-   2. [ ] 10.4.2 **[M]** Validate transaction listing loads correctly in production
-   3. [ ] 10.4.3 **[M]** Create test transaction in production and verify it appears at top of list
+4. [x] **10.4 Production Deployment**
+   1. [x] 10.4.1 **[M]** Deploy CDK infrastructure changes to update production DynamoDB GSI
+   2. [x] 10.4.2 **[M]** Validate transaction listing loads correctly in production
+   3. [x] 10.4.3 **[M]** Create test transaction in production and verify it appears at top of list
