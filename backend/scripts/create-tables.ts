@@ -63,7 +63,7 @@ const tables: CreateTableCommandInput[] = [
     AttributeDefinitions: [
       { AttributeName: "userId", AttributeType: "S" },
       { AttributeName: "id", AttributeType: "S" },
-      { AttributeName: "date", AttributeType: "S" },
+      { AttributeName: "createdAt", AttributeType: "S" },
     ],
     KeySchema: [
       { AttributeName: "userId", KeyType: "HASH" },
@@ -72,10 +72,10 @@ const tables: CreateTableCommandInput[] = [
     BillingMode: "PAY_PER_REQUEST",
     GlobalSecondaryIndexes: [
       {
-        IndexName: "UserDateIndex",
+        IndexName: "UserCreatedAtIndex",
         KeySchema: [
           { AttributeName: "userId", KeyType: "HASH" },
-          { AttributeName: "date", KeyType: "RANGE" },
+          { AttributeName: "createdAt", KeyType: "RANGE" },
         ],
         Projection: { ProjectionType: "ALL" },
       },

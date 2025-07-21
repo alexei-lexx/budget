@@ -68,6 +68,9 @@ export function useTransactions() {
   const loadMoreLoading = ref<boolean>(false);
   const loadMoreError = ref<string | null>(null);
 
+  // Track if we've ever loaded data (to distinguish true initial load from empty table)
+  const hasEverLoaded = ref<boolean>(false);
+
   // Accumulative transaction list - maintain all loaded transactions
   const allLoadedTransactions = ref<Transaction[]>([]);
 
@@ -112,7 +115,7 @@ export function useTransactions() {
   // Watch for paginated query results to update pagination state and transaction list
   watch(
     paginatedResult,
-    (result, previousResult) => {
+    (result) => {
       if (result?.transactions) {
         const connection = result.transactions;
         const transactions = connection.edges.map((edge) => edge.node);
@@ -122,18 +125,28 @@ export function useTransactions() {
         hasNextPage.value = connection.pageInfo.hasNextPage;
         totalCount.value = connection.totalCount;
 
-        // Determine if this is initial load or load more
-        const isInitialLoad =
-          !previousResult?.transactions || allLoadedTransactions.value.length === 0;
+        // Determine if this is initial load, refetch, or load more
+        const isInitialLoad = !hasEverLoaded.value;
+        const isLoadMore =
+          hasEverLoaded.value &&
+          connection.pageInfo.endCursor &&
+          endCursor.value &&
+          connection.pageInfo.endCursor !== endCursor.value;
 
         if (isInitialLoad) {
-          // Replace the entire list
+          // Replace the entire list for true initial load (first time ever loading)
           allLoadedTransactions.value = transactions;
-        } else {
+          hasEverLoaded.value = true;
+        } else if (isLoadMore) {
           // This is a load more operation - append new transactions
           const existingIds = new Set(allLoadedTransactions.value.map((t: Transaction) => t.id));
           const newTransactions = transactions.filter((t: Transaction) => !existingIds.has(t.id));
           allLoadedTransactions.value = [...allLoadedTransactions.value, ...newTransactions];
+        } else {
+          // This is a refetch - merge new transactions at the beginning, keep existing ones
+          const existingIds = new Set(allLoadedTransactions.value.map((t: Transaction) => t.id));
+          const newTransactions = transactions.filter((t: Transaction) => !existingIds.has(t.id));
+          allLoadedTransactions.value = [...newTransactions, ...allLoadedTransactions.value];
         }
       }
     },
@@ -169,8 +182,8 @@ export function useTransactions() {
         // Add the new transaction to the beginning of the list
         const newTransaction = result.data.createTransaction;
         allLoadedTransactions.value = [newTransaction, ...allLoadedTransactions.value];
-        // Also refetch to ensure we have the latest data structure
-        await refetchPaginatedTransactions();
+        // Update total count
+        totalCount.value = totalCount.value + 1;
         return newTransaction;
       }
       return null;

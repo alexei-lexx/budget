@@ -95,16 +95,16 @@ Improve transaction list user experience by sorting transactions by creation tim
 
 ## Implementation Plan
 
-1. [ ] **10.1 Database Layer**
-   1. [ ] 10.1.1 Update development database schema in `backend/scripts/create-tables.ts` - remove `UserDateIndex` GSI definition and add `UserCreatedAtIndex` GSI with `userId` (HASH) + `createdAt` (RANGE) sort key
-   2. [ ] 10.1.2 Update production database schema in `backend-cdk/lib/backend-cdk-stack.ts` - remove `UserDateIndex` GSI definition and add `UserCreatedAtIndex` GSI with `userId` (HASH) + `createdAt` (RANGE) sort key
-   3. [ ] 10.1.3 Reset development database and recreate tables with new GSI using `npm run db:setup`
+1. [x] **10.1 Database Layer**
+   1. [x] 10.1.1 Update development database schema in `backend/scripts/create-tables.ts` - remove `UserDateIndex` GSI definition and add `UserCreatedAtIndex` GSI with `userId` (HASH) + `createdAt` (RANGE) sort key
+   2. [x] 10.1.2 Update production database schema in `backend-cdk/lib/backend-cdk-stack.ts` - remove `UserDateIndex` GSI definition and add `UserCreatedAtIndex` GSI with `userId` (HASH) + `createdAt` (RANGE) sort key
+   3. [x] 10.1.3 Reset development database and recreate tables with new GSI using `npm run db:setup`
 
-2. [ ] **10.2 Repository Layer**
-   1. [ ] 10.2.1 Update `TransactionRepository.findActiveByUserId()` method - change `IndexName` from `"UserDateIndex"` to `"UserCreatedAtIndex"` while maintaining `ScanIndexForward: false` for descending order
-   2. [ ] 10.2.2 Update `CursorData` interface in `backend/src/repositories/TransactionRepository.ts` - change `date: string` to `createdAt: string`
-   3. [ ] 10.2.3 Update `encodeCursor()` function to use `transaction.createdAt` instead of `transaction.date`
-   4. [ ] 10.2.4 Update `decodeCursor()` function to extract `createdAt` field instead of `date` field from cursor data
+2. [x] **10.2 Repository Layer**
+   1. [x] 10.2.1 Update `TransactionRepository.findActiveByUserId()` method - change `IndexName` from `"UserDateIndex"` to `"UserCreatedAtIndex"` while maintaining `ScanIndexForward: false` for descending order
+   2. [x] 10.2.2 Update `CursorData` interface in `backend/src/repositories/TransactionRepository.ts` - change `date: string` to `createdAt: string`
+   3. [x] 10.2.3 Update `encodeCursor()` function to use `transaction.createdAt` instead of `transaction.date`
+   4. [x] 10.2.4 Update `decodeCursor()` function to extract `createdAt` field instead of `date` field from cursor data
 
 ## Testing
 

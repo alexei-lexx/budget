@@ -50,7 +50,7 @@ class TransactionRepositoryError extends Error {
  * Cursor structure for pagination
  */
 interface CursorData {
-  date: string;
+  createdAt: string;
   id: string;
 }
 
@@ -59,7 +59,7 @@ interface CursorData {
  */
 function encodeCursor(transaction: Transaction): string {
   const cursorData: CursorData = {
-    date: transaction.date,
+    createdAt: transaction.createdAt,
     id: transaction.id,
   };
   return Buffer.from(JSON.stringify(cursorData)).toString("base64");
@@ -71,7 +71,7 @@ function decodeCursor(cursor: string): CursorData {
     const cursorData = JSON.parse(decoded) as CursorData;
 
     // Validate cursor structure
-    if (!cursorData.date || !cursorData.id) {
+    if (!cursorData.createdAt || !cursorData.id) {
       throw new Error("Invalid cursor structure");
     }
 
@@ -138,7 +138,7 @@ export class TransactionRepository implements ITransactionRepository {
           client: this.client,
           params: {
             TableName: this.tableName,
-            IndexName: "UserDateIndex",
+            IndexName: "UserCreatedAtIndex",
             KeyConditionExpression: keyConditionExpression,
             FilterExpression: filterExpression,
             ExpressionAttributeValues: expressionAttributeValues,
@@ -147,7 +147,7 @@ export class TransactionRepository implements ITransactionRepository {
               ExclusiveStartKey: {
                 userId: userId,
                 id: decodeCursor(after).id,
-                date: decodeCursor(after).date,
+                createdAt: decodeCursor(after).createdAt,
               },
             }),
           },
@@ -786,7 +786,7 @@ export class TransactionRepository implements ITransactionRepository {
     try {
       const command = new QueryCommand({
         TableName: this.tableName,
-        IndexName: "UserDateIndex",
+        IndexName: "UserCreatedAtIndex",
         KeyConditionExpression: "userId = :userId",
         FilterExpression: "isArchived = :isArchived",
         ExpressionAttributeValues: {
