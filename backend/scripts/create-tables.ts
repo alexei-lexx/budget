@@ -9,17 +9,17 @@ import {
 } from "@aws-sdk/client-dynamodb";
 
 const client = new DynamoDBClient({
-  region: "us-east-1",
-  endpoint: "http://localhost:8000",
+  region: process.env.AWS_REGION ?? "",
+  endpoint: process.env.DYNAMODB_ENDPOINT ?? "",
   credentials: {
-    accessKeyId: "dummy",
-    secretAccessKey: "dummy",
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID ?? "",
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY ?? "",
   },
 });
 
 const tables: CreateTableCommandInput[] = [
   {
-    TableName: "Users",
+    TableName: process.env.USERS_TABLE_NAME,
     AttributeDefinitions: [
       { AttributeName: "id", AttributeType: "S" },
       { AttributeName: "auth0UserId", AttributeType: "S" },
@@ -35,7 +35,7 @@ const tables: CreateTableCommandInput[] = [
     ],
   },
   {
-    TableName: "Accounts",
+    TableName: process.env.ACCOUNTS_TABLE_NAME,
     AttributeDefinitions: [
       { AttributeName: "userId", AttributeType: "S" },
       { AttributeName: "id", AttributeType: "S" },
@@ -47,7 +47,7 @@ const tables: CreateTableCommandInput[] = [
     BillingMode: "PAY_PER_REQUEST",
   },
   {
-    TableName: "Categories",
+    TableName: process.env.CATEGORIES_TABLE_NAME,
     AttributeDefinitions: [
       { AttributeName: "userId", AttributeType: "S" },
       { AttributeName: "id", AttributeType: "S" },
@@ -59,7 +59,7 @@ const tables: CreateTableCommandInput[] = [
     BillingMode: "PAY_PER_REQUEST",
   },
   {
-    TableName: "Transactions",
+    TableName: process.env.TRANSACTIONS_TABLE_NAME,
     AttributeDefinitions: [
       { AttributeName: "userId", AttributeType: "S" },
       { AttributeName: "id", AttributeType: "S" },

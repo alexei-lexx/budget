@@ -9,7 +9,7 @@
     "codegen": "graphql-codegen --config codegen.ts",
     "compile": "tsc",
     "db:purge": "docker compose down -v",
-    "db:setup": "npm run db:start && ts-node scripts/create-tables.ts",
+    "db:setup": "npm run db:start && dotenvx run -f .env.development --verbose -- ts-node scripts/create-tables.ts",
     "db:start": "docker compose up -d",
     "db:stop": "docker compose down",
     "dev": "npm run db:start && npm run codegen && dotenvx run -f .env.development --verbose -- nodemon --exec ts-node src/index.ts",
@@ -17,7 +17,9 @@
     "lint:fix": "eslint . --fix",
     "lint": "eslint .",
     "prettier:fix": "prettier --write .",
-    "prettier": "prettier --check ."
+    "prettier": "prettier --check .",
+    "test:setup": "npm run db:start && dotenvx run -f .env.test --verbose -- ts-node scripts/create-tables.ts",
+    "test": "dotenvx run -f .env.test -- jest"
   },
   "dependencies": {
     "@apollo/server": "^4.12.2",
@@ -38,11 +40,14 @@
     "@graphql-codegen/typescript": "4.1.6",
     "@graphql-codegen/typescript-resolvers": "4.5.1",
     "@tsconfig/node22": "^22.0.2",
+    "@types/jest": "^30.0.0",
     "@types/node": "^22.15.29",
     "esbuild": "0.25.5",
     "eslint": "^9.28.0",
+    "jest": "^30.0.5",
     "nodemon": "^3.1.10",
     "prettier": "3.5.3",
+    "ts-jest": "^29.4.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.33.1"

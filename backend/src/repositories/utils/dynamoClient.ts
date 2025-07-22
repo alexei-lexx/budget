@@ -1,6 +1,9 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 
+const isLocalEnvironment =
+  process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test";
+
 /**
  * Creates a DynamoDBDocumentClient instance with environment-aware configuration
  * @param dynamoClient - Optional DynamoDB client for dependency injection (useful for testing)
@@ -13,7 +16,7 @@ export function createDynamoDBDocumentClient(
     dynamoClient ||
     new DynamoDBClient({
       region: process.env.AWS_REGION || "",
-      ...(process.env.NODE_ENV === "development" && {
+      ...(isLocalEnvironment && {
         endpoint: process.env.DYNAMODB_ENDPOINT || "",
         credentials: {
           accessKeyId: process.env.AWS_ACCESS_KEY_ID || "",
