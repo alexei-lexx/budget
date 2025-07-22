@@ -439,16 +439,23 @@ export class TransactionRepository implements ITransactionRepository {
     }
 
     try {
+      const expressionAttributeNames: Record<string, string> = {};
+      if (input.type !== undefined) {
+        expressionAttributeNames["#type"] = "type";
+      }
+      if (input.date !== undefined) {
+        expressionAttributeNames["#date"] = "date";
+      }
+
       const command = new UpdateCommand({
         TableName: this.tableName,
         Key: { userId, id },
         UpdateExpression: `SET ${updateExpressionParts.join(", ")}`,
         ConditionExpression:
           "attribute_exists(userId) AND attribute_exists(id) AND isArchived <> :isArchived",
-        ExpressionAttributeNames: {
-          ...(input.type !== undefined && { "#type": "type" }),
-          ...(input.date !== undefined && { "#date": "date" }),
-        },
+        ...(Object.keys(expressionAttributeNames).length > 0 && {
+          ExpressionAttributeNames: expressionAttributeNames,
+        }),
         ExpressionAttributeValues: {
           ...expressionAttributeValues,
           ":isArchived": true,
@@ -459,8 +466,6 @@ export class TransactionRepository implements ITransactionRepository {
       const result = await this.client.send(command);
       return result.Attributes as Transaction;
     } catch (error) {
-      console.error("Error updating transaction:", error);
-
       if (
         error instanceof Error &&
         error.name === "ConditionalCheckFailedException"

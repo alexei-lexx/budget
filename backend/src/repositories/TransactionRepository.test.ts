@@ -54,19 +54,9 @@ describe("TransactionRepository", () => {
         /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/,
       );
 
-      // Refetch from database to verify stored data
+      // Refetch from database to verify stored data matches result
       const stored = await repository.findById(result.id, userId);
-      expect(stored).toBeDefined();
-      expect(stored?.id).toBe(result.id);
-      expect(stored?.userId).toBe(userId);
-      expect(stored?.accountId).toBe(accountId);
-      expect(stored?.type).toBe(TransactionType.INCOME);
-      expect(stored?.amount).toBe(100.5);
-      expect(stored?.currency).toBe("USD");
-      expect(stored?.date).toBe("2024-01-15");
-      expect(stored?.description).toBe("Test transaction");
-      expect(stored?.categoryId).toBe("test-category-789");
-      expect(stored?.isArchived).toBe(false);
+      expect(stored).toEqual(result);
     });
 
     it("should create transaction without optional fields", async () => {
@@ -99,15 +89,9 @@ describe("TransactionRepository", () => {
       expect(result.transferId).toBeUndefined();
       expect(result.isArchived).toBe(false);
 
-      // Refetch from database to verify stored data
+      // Refetch from database to verify stored data matches result
       const stored = await repository.findById(result.id, userId);
-      expect(stored).toBeDefined();
-      expect(stored?.id).toBe(result.id);
-      expect(stored?.type).toBe(TransactionType.EXPENSE);
-      expect(stored?.amount).toBe(50.25);
-      expect(stored?.currency).toBe("EUR");
-      expect(stored?.description).toBeUndefined();
-      expect(stored?.categoryId).toBeUndefined();
+      expect(stored).toEqual(result);
     });
 
     it("should create transfer transaction with transferId", async () => {
@@ -136,14 +120,262 @@ describe("TransactionRepository", () => {
       expect(result.amount).toBe(200.0);
       expect(result.currency).toBe("GBP");
 
-      // Refetch from database to verify stored data
+      // Refetch from database to verify stored data matches result
       const stored = await repository.findById(result.id, userId);
-      expect(stored).toBeDefined();
-      expect(stored?.id).toBe(result.id);
-      expect(stored?.transferId).toBe(transferId);
-      expect(stored?.type).toBe(TransactionType.TRANSFER_OUT);
-      expect(stored?.amount).toBe(200.0);
-      expect(stored?.currency).toBe("GBP");
+      expect(stored).toEqual(result);
+    });
+  });
+
+  describe("update", () => {
+    it("should update all attributes successfully", async () => {
+      // Arrange
+      const userId = "test-user-update";
+      const accountId = "test-account-update";
+      const createInput: CreateTransactionInput = {
+        userId,
+        accountId,
+        type: TransactionType.EXPENSE,
+        amount: 75.0,
+        currency: "USD",
+        date: "2024-01-20",
+        description: "Original description",
+        categoryId: "test-category-original",
+      };
+
+      // Create transaction first
+      const created = await repository.create(createInput);
+
+      // Act - Update ALL possible attributes
+      const updateInput = {
+        accountId: "new-account-id",
+        type: TransactionType.INCOME,
+        amount: 100.0,
+        currency: "EUR",
+        date: "2024-02-01",
+        description: "Updated description",
+        categoryId: "test-category-updated",
+      };
+      const result = await repository.update(created.id, userId, updateInput);
+
+      // Assert - All attributes updated
+      expect(result).toBeDefined();
+      expect(result.id).toBe(created.id);
+      expect(result.userId).toBe(userId);
+      expect(result.accountId).toBe("new-account-id");
+      expect(result.type).toBe(TransactionType.INCOME);
+      expect(result.amount).toBe(100.0);
+      expect(result.currency).toBe("EUR");
+      expect(result.date).toBe("2024-02-01");
+      expect(result.description).toBe("Updated description");
+      expect(result.categoryId).toBe("test-category-updated");
+      expect(result.isArchived).toBe(false);
+      expect(result.createdAt).toBe(created.createdAt);
+      expect(result.updatedAt).not.toBe(created.updatedAt);
+
+      // Refetch from database to verify stored data matches result
+      const stored = await repository.findById(result.id, userId);
+      expect(stored).toEqual(result);
+    });
+
+    it("should update no attributes (only updatedAt changes)", async () => {
+      // Arrange
+      const userId = "test-user-no-update";
+      const accountId = "test-account-no-update";
+      const createInput: CreateTransactionInput = {
+        userId,
+        accountId,
+        type: TransactionType.EXPENSE,
+        amount: 50.0,
+        currency: "USD",
+        date: "2024-01-25",
+        description: "No change description",
+        categoryId: "no-change-category",
+      };
+
+      // Create transaction first
+      const created = await repository.create(createInput);
+
+      // Act - Update with empty input (only updatedAt should change)
+      const updateInput = {};
+      const result = await repository.update(created.id, userId, updateInput);
+
+      // Assert - All original values preserved except updatedAt
+      expect(result).toBeDefined();
+      expect(result.id).toBe(created.id);
+      expect(result.userId).toBe(userId);
+      expect(result.accountId).toBe(accountId);
+      expect(result.type).toBe(TransactionType.EXPENSE);
+      expect(result.amount).toBe(50.0);
+      expect(result.currency).toBe("USD");
+      expect(result.date).toBe("2024-01-25");
+      expect(result.description).toBe("No change description");
+      expect(result.categoryId).toBe("no-change-category");
+      expect(result.isArchived).toBe(false);
+      expect(result.createdAt).toBe(created.createdAt);
+      expect(result.updatedAt).not.toBe(created.updatedAt);
+
+      // Refetch from database to verify stored data matches result
+      const stored = await repository.findById(result.id, userId);
+      expect(stored).toEqual(result);
+    });
+
+    it("should overwrite with null values", async () => {
+      // Arrange
+      const userId = "test-user-null-update";
+      const accountId = "test-account-null-update";
+      const createInput: CreateTransactionInput = {
+        userId,
+        accountId,
+        type: TransactionType.INCOME,
+        amount: 200.0,
+        currency: "EUR",
+        date: "2024-01-21",
+        description: "Test description",
+        categoryId: "test-category",
+      };
+
+      // Create transaction first
+      const created = await repository.create(createInput);
+
+      // Act - Update with null values
+      const updateInput = {
+        description: null,
+        categoryId: null,
+      };
+      const result = await repository.update(created.id, userId, updateInput);
+
+      // Assert
+      expect(result).toBeDefined();
+      expect(result.description).toBeNull();
+      expect(result.categoryId).toBeNull();
+
+      // Refetch from database to verify stored data matches result
+      const stored = await repository.findById(result.id, userId);
+      expect(stored).toEqual(result);
+    });
+
+    it("should update single field (partial update)", async () => {
+      // Arrange
+      const userId = "test-user-partial-update";
+      const accountId = "test-account-partial-update";
+      const createInput: CreateTransactionInput = {
+        userId,
+        accountId,
+        type: TransactionType.EXPENSE,
+        amount: 150.0,
+        currency: "GBP",
+        date: "2024-01-22",
+        description: "Original description",
+        categoryId: "original-category",
+      };
+
+      // Create transaction first
+      const created = await repository.create(createInput);
+
+      // Act - Update single field
+      const updateInput = { amount: 175.0 };
+      const result = await repository.update(created.id, userId, updateInput);
+
+      // Assert - Only amount changed, others preserved
+      expect(result).toBeDefined();
+      expect(result.amount).toBe(175.0);
+      expect(result.description).toBe("Original description");
+      expect(result.categoryId).toBe("original-category");
+      expect(result.type).toBe(TransactionType.EXPENSE);
+      expect(result.currency).toBe("GBP");
+      expect(result.date).toBe("2024-01-22");
+
+      // Refetch from database to verify stored data matches result
+      const stored = await repository.findById(result.id, userId);
+      expect(stored).toEqual(result);
+    });
+
+    it("should throw error for non-existent transaction", async () => {
+      // Arrange
+      const userId = "test-user-nonexistent";
+      const nonExistentId = "non-existent-transaction-id";
+      const updateInput = { amount: 50.0 };
+
+      // Act & Assert
+      await expect(
+        repository.update(nonExistentId, userId, updateInput),
+      ).rejects.toThrow("Transaction not found or is archived");
+    });
+
+    it("should throw error when trying to update archived transaction", async () => {
+      // Arrange
+      const userId = "test-user-archived";
+      const accountId = "test-account-archived";
+      const createInput: CreateTransactionInput = {
+        userId,
+        accountId,
+        type: TransactionType.EXPENSE,
+        amount: 75.0,
+        currency: "USD",
+        date: "2024-01-28",
+        description: "Will be archived",
+        categoryId: "test-category-archived",
+      };
+
+      // Create transaction first
+      const created = await repository.create(createInput);
+
+      // Archive the transaction
+      await repository.archive(created.id, userId);
+
+      // Act & Assert - Try to update archived transaction
+      const updateInput = { amount: 100.0, description: "Should not work" };
+      await expect(
+        repository.update(created.id, userId, updateInput),
+      ).rejects.toThrow("Transaction not found or is archived");
+    });
+
+    it("should throw error when trying to update transaction belonging to another user", async () => {
+      // Arrange
+      const ownerUserId = "transaction-owner-user";
+      const otherUserId = "other-user-trying-to-update";
+      const accountId = "test-account-owner";
+      const createInput: CreateTransactionInput = {
+        userId: ownerUserId,
+        accountId,
+        type: TransactionType.INCOME,
+        amount: 250.0,
+        currency: "USD",
+        date: "2024-01-29",
+        description: "Belongs to owner",
+        categoryId: "owner-category",
+      };
+
+      // Create transaction as owner
+      const created = await repository.create(createInput);
+
+      // Act & Assert - Try to update as different user
+      const updateInput = { amount: 500.0, description: "Hacker attempt" };
+      await expect(
+        repository.update(created.id, otherUserId, updateInput),
+      ).rejects.toThrow("Transaction not found or is archived");
+
+      // Verify original transaction is unchanged
+      const original = await repository.findById(created.id, ownerUserId);
+      expect(original).toBeDefined();
+      expect(original?.amount).toBe(250.0);
+      expect(original?.description).toBe("Belongs to owner");
+      expect(original?.userId).toBe(ownerUserId);
+    });
+
+    it("should throw error for invalid parameters", async () => {
+      // Arrange
+      const updateInput = { amount: 50.0 };
+
+      // Act & Assert - Missing transaction ID
+      await expect(
+        repository.update("", "user-id", updateInput),
+      ).rejects.toThrow("Transaction ID and User ID are required");
+
+      // Act & Assert - Missing user ID
+      await expect(
+        repository.update("transaction-id", "", updateInput),
+      ).rejects.toThrow("Transaction ID and User ID are required");
     });
   });
 });
