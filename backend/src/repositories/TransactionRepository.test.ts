@@ -1,5 +1,9 @@
 import { TransactionRepository } from "./TransactionRepository";
-import { TransactionType, CreateTransactionInput } from "../models/Transaction";
+import {
+  TransactionType,
+  CreateTransactionInput,
+  UpdateTransactionInput,
+} from "../models/Transaction";
 
 describe("TransactionRepository", () => {
   let repository: TransactionRepository;
@@ -430,6 +434,103 @@ describe("TransactionRepository", () => {
       await expect(
         repository.update("transaction-id", "", updateInput),
       ).rejects.toThrow("Transaction ID and User ID are required");
+    });
+  });
+
+  describe("updateMany", () => {
+    it("should throw error for empty input array", async () => {
+      const updates: { id: string; input: UpdateTransactionInput }[] = [];
+      const userId = "test-user-update-many";
+
+      await expect(repository.updateMany(updates, userId)).rejects.toThrow(
+        "At least one transaction update is required",
+      );
+    });
+
+    it("should update multiple transactions successfully", async () => {
+      const userId = "test-user-multi-update";
+
+      const createInputs: CreateTransactionInput[] = [
+        {
+          userId,
+          accountId: "test-account-1",
+          categoryId: "test-category-1",
+          type: TransactionType.INCOME,
+          amount: 300.0,
+          currency: "USD",
+          date: "2024-01-01",
+          description: "Test transaction 1",
+        },
+        {
+          userId,
+          accountId: "test-account-2",
+          categoryId: "test-category-2",
+          type: TransactionType.EXPENSE,
+          amount: 150.0,
+          currency: "EUR",
+          date: "2024-01-02",
+          description: "Test transaction 2",
+        },
+      ];
+
+      const createdTransactions = await repository.createMany(createInputs);
+
+      const updates: { id: string; input: UpdateTransactionInput }[] = [
+        {
+          id: createdTransactions[0].id,
+          input: {
+            accountId: "new-account-id-1",
+            categoryId: "new-category-id-1",
+            type: TransactionType.EXPENSE,
+            amount: 350.0,
+            currency: "EUR",
+            date: "2024-02-01",
+            description: "New description 1",
+          },
+        },
+        {
+          id: createdTransactions[1].id,
+          input: {
+            accountId: "new-account-id-2",
+            categoryId: "new-category-id-2",
+            type: TransactionType.INCOME,
+            amount: 200.0,
+            currency: "USD",
+            date: "2024-02-02",
+            description: "New description 2",
+          },
+        },
+      ];
+
+      await repository.updateMany(updates, userId);
+
+      const stored1 = await repository.findById(
+        createdTransactions[0].id,
+        userId,
+      );
+
+      expect(stored1).toBeDefined();
+      expect(stored1?.accountId).toBe("new-account-id-1");
+      expect(stored1?.categoryId).toBe("new-category-id-1");
+      expect(stored1?.type).toBe(TransactionType.EXPENSE);
+      expect(stored1?.amount).toBe(350.0);
+      expect(stored1?.currency).toBe("EUR");
+      expect(stored1?.date).toBe("2024-02-01");
+      expect(stored1?.description).toBe("New description 1");
+
+      const stored2 = await repository.findById(
+        createdTransactions[1].id,
+        userId,
+      );
+
+      expect(stored2).toBeDefined();
+      expect(stored2?.accountId).toBe("new-account-id-2");
+      expect(stored2?.categoryId).toBe("new-category-id-2");
+      expect(stored2?.type).toBe(TransactionType.INCOME);
+      expect(stored2?.amount).toBe(200.0);
+      expect(stored2?.currency).toBe("USD");
+      expect(stored2?.date).toBe("2024-02-02");
+      expect(stored2?.description).toBe("New description 2");
     });
   });
 });

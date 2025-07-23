@@ -306,7 +306,7 @@ export class TransactionRepository implements ITransactionRepository {
     const now = new Date().toISOString();
 
     try {
-      const transactItems = updates.map(({ id, input }) => {
+      const transactItems = updates.map(({ id, input }, index) => {
         // Build update expression dynamically based on provided fields
         const updateExpressionParts: string[] = ["updatedAt = :updatedAt"];
         const expressionAttributeValues: Record<string, unknown> = {
@@ -315,50 +315,55 @@ export class TransactionRepository implements ITransactionRepository {
         };
         const expressionAttributeNames: Record<string, string> = {};
 
+        // Use array index instead of ID to avoid hyphens in attribute value keys
+        const suffix = index.toString();
+
         if (input.accountId !== undefined) {
-          updateExpressionParts.push("accountId = :accountId_" + id);
-          expressionAttributeValues[":accountId_" + id] = input.accountId;
+          updateExpressionParts.push("accountId = :accountId_" + suffix);
+          expressionAttributeValues[":accountId_" + suffix] = input.accountId;
         }
 
         if (input.categoryId !== undefined) {
           if (input.categoryId === null) {
-            updateExpressionParts.push("categoryId = :categoryId_" + id);
-            expressionAttributeValues[":categoryId_" + id] = null;
+            updateExpressionParts.push("categoryId = :categoryId_" + suffix);
+            expressionAttributeValues[":categoryId_" + suffix] = null;
           } else {
-            updateExpressionParts.push("categoryId = :categoryId_" + id);
-            expressionAttributeValues[":categoryId_" + id] = input.categoryId;
+            updateExpressionParts.push("categoryId = :categoryId_" + suffix);
+            expressionAttributeValues[":categoryId_" + suffix] =
+              input.categoryId;
           }
         }
 
         if (input.type !== undefined) {
-          updateExpressionParts.push("#type = :type_" + id);
-          expressionAttributeValues[":type_" + id] = input.type;
+          updateExpressionParts.push("#type = :type_" + suffix);
+          expressionAttributeValues[":type_" + suffix] = input.type;
           expressionAttributeNames["#type"] = "type";
         }
 
         if (input.amount !== undefined) {
-          updateExpressionParts.push("amount = :amount_" + id);
-          expressionAttributeValues[":amount_" + id] = input.amount;
+          updateExpressionParts.push("amount = :amount_" + suffix);
+          expressionAttributeValues[":amount_" + suffix] = input.amount;
         }
 
         if (input.currency !== undefined) {
-          updateExpressionParts.push("currency = :currency_" + id);
-          expressionAttributeValues[":currency_" + id] = input.currency;
+          updateExpressionParts.push("currency = :currency_" + suffix);
+          expressionAttributeValues[":currency_" + suffix] = input.currency;
         }
 
         if (input.date !== undefined) {
-          updateExpressionParts.push("#date = :date_" + id);
-          expressionAttributeValues[":date_" + id] = input.date;
+          updateExpressionParts.push("#date = :date_" + suffix);
+          expressionAttributeValues[":date_" + suffix] = input.date;
           expressionAttributeNames["#date"] = "date";
         }
 
         if (input.description !== undefined) {
           if (input.description === null) {
-            updateExpressionParts.push("description = :description_" + id);
-            expressionAttributeValues[":description_" + id] = null;
+            updateExpressionParts.push("description = :description_" + suffix);
+            expressionAttributeValues[":description_" + suffix] = null;
           } else {
-            updateExpressionParts.push("description = :description_" + id);
-            expressionAttributeValues[":description_" + id] = input.description;
+            updateExpressionParts.push("description = :description_" + suffix);
+            expressionAttributeValues[":description_" + suffix] =
+              input.description;
           }
         }
 
