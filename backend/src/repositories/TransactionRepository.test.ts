@@ -126,6 +126,60 @@ describe("TransactionRepository", () => {
     });
   });
 
+  describe("createMany", () => {
+    it("should throw error for empty input array", async () => {
+      const inputs: CreateTransactionInput[] = [];
+
+      await expect(repository.createMany(inputs)).rejects.toThrow(
+        "At least one transaction input is required",
+      );
+    });
+
+    it("should create multiple transactions successfully", async () => {
+      const inputs: CreateTransactionInput[] = [
+        {
+          userId: "test-user-multi-1",
+          accountId: "test-account-multi-1",
+          type: TransactionType.INCOME,
+          amount: 300.0,
+          currency: "USD",
+          date: "2024-01-18",
+        },
+        {
+          userId: "test-user-multi-2",
+          accountId: "test-account-multi-2",
+          type: TransactionType.EXPENSE,
+          amount: 150.0,
+          currency: "EUR",
+          date: "2024-01-19",
+        },
+      ];
+
+      const result = await repository.createMany(inputs);
+
+      expect(result.length).toBe(2);
+
+      expect(result[0].userId).toBe(inputs[0].userId);
+      expect(result[0].accountId).toBe(inputs[0].accountId);
+      expect(result[0].type).toBe(inputs[0].type);
+      expect(result[0].amount).toBe(inputs[0].amount);
+      expect(result[0].currency).toBe(inputs[0].currency);
+      expect(result[0].date).toBe(inputs[0].date);
+
+      expect(result[1].userId).toBe(inputs[1].userId);
+      expect(result[1].accountId).toBe(inputs[1].accountId);
+      expect(result[1].type).toBe(inputs[1].type);
+      expect(result[1].amount).toBe(inputs[1].amount);
+      expect(result[1].currency).toBe(inputs[1].currency);
+      expect(result[1].date).toBe(inputs[1].date);
+
+      const stored1 = await repository.findById(result[0].id, inputs[0].userId);
+      const stored2 = await repository.findById(result[1].id, inputs[1].userId);
+
+      expect([stored1, stored2]).toEqual(expect.arrayContaining(result));
+    });
+  });
+
   describe("update", () => {
     it("should update all attributes successfully", async () => {
       // Arrange
