@@ -235,10 +235,7 @@ const handleEditTransaction = async (transactionId: string) => {
   if (!transaction) return;
 
   // Check if this is a transfer transaction
-  if (
-    transaction.transferId &&
-    (transaction.type === "TRANSFER_IN" || transaction.type === "TRANSFER_OUT")
-  ) {
+  if (isTransferTransaction(transaction)) {
     // This is a transfer transaction - load the complete transfer data
     transferFormLoading.value = true;
     try {
@@ -269,10 +266,7 @@ const handleDeleteTransaction = (transactionId: string) => {
     transactionToDelete.value = transaction;
 
     // Check if this is a transfer transaction
-    if (
-      transaction.transferId &&
-      (transaction.type === "TRANSFER_IN" || transaction.type === "TRANSFER_OUT")
-    ) {
+    if (isTransferTransaction(transaction)) {
       showDeleteTransferDialog.value = true;
     } else {
       showDeleteConfirmDialog.value = true;
@@ -442,6 +436,15 @@ const handleTransactionFormCancel = () => {
 const getAccountName = (accountId: string): string => {
   const account = accounts.value.find((a) => a.id === accountId);
   return account?.name || "Unknown Account";
+};
+
+const isTransferTransaction = (
+  transaction: Transaction,
+): transaction is Transaction & { transferId: string } => {
+  return !!(
+    transaction.transferId &&
+    (transaction.type === "TRANSFER_IN" || transaction.type === "TRANSFER_OUT")
+  );
 };
 
 const getCategoryName = (categoryId?: string): string | undefined => {
