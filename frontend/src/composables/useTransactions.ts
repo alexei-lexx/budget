@@ -312,6 +312,17 @@ export function useTransactions() {
     totalCount.value = totalCount.value + newTransactions.length;
   };
 
+  // Helper function to remove multiple transactions from the list
+  const removeTransactionsFromList = (transactionIds: string[]) => {
+    const initialCount = allLoadedTransactions.value.length;
+    allLoadedTransactions.value = allLoadedTransactions.value.filter(
+      (t: Transaction) => !transactionIds.includes(t.id),
+    );
+    const removedCount = initialCount - allLoadedTransactions.value.length;
+    // Update total count
+    totalCount.value = Math.max(0, totalCount.value - removedCount);
+  };
+
   return {
     // Paginated data
     paginatedTransactions: computed(() => allLoadedTransactions.value),
@@ -342,5 +353,6 @@ export function useTransactions() {
     refetchTransactions: refetchPaginatedTransactions,
     updateTransactionsInList,
     addTransactionsToList,
+    removeTransactionsFromList,
   };
 }

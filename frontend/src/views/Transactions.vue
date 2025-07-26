@@ -108,6 +108,16 @@
       @cancel="cancelDeleteTransaction"
     />
 
+    <!-- Transfer Delete Confirmation Dialog -->
+    <TransferDeleteDialog
+      v-model="showDeleteTransferDialog"
+      :transaction="transactionToDelete"
+      :from-account-name="getTransferFromAccountName(transactionToDelete)"
+      :to-account-name="getTransferToAccountName(transactionToDelete)"
+      @confirm="confirmDeleteTransfer"
+      @cancel="cancelDeleteTransfer"
+    />
+
     <!-- Create Transaction Dialog -->
     <v-dialog v-model="showCreateTransactionDialog" :max-width="dialogMaxWidth" persistent>
       <TransactionForm
@@ -159,6 +169,7 @@ import { useTransfers } from "@/composables/useTransfers";
 import TransactionCard from "@/components/transactions/TransactionCard.vue";
 import TransactionForm from "@/components/transactions/TransactionForm.vue";
 import TransactionDeleteDialog from "@/components/transactions/TransactionDeleteDialog.vue";
+import TransferDeleteDialog from "@/components/transfers/TransferDeleteDialog.vue";
 import TransferForm from "@/components/transfers/TransferForm.vue";
 import type { Transaction, CreateTransactionInput } from "@/composables/useTransactions";
 import type {
@@ -183,11 +194,12 @@ const {
   loadMoreTransactions,
   updateTransactionsInList,
   addTransactionsToList,
+  removeTransactionsFromList,
 } = useTransactions();
 const { accounts: accountsData, refetchAccounts } = useAccounts();
 const { categories: categoriesData } = useCategories();
 const { showSuccessSnackbar, showErrorSnackbar } = useSnackbar();
-const { createTransfer, updateTransfer, getTransfer } = useTransfers();
+const { createTransfer, updateTransfer, deleteTransfer, getTransfer } = useTransfers();
 
 // Computed properties for clean data access
 const accounts = computed(() => accountsData.value?.accounts || []);
@@ -200,6 +212,7 @@ const dialogMaxWidth = computed(() => (xs.value ? "95vw" : "600"));
 const showCreateTransactionDialog = ref(false);
 const showEditTransactionDialog = ref(false);
 const showDeleteConfirmDialog = ref(false);
+const showDeleteTransferDialog = ref(false);
 const showCreateTransferDialog = ref(false);
 const showEditTransferDialog = ref(false);
 const editingTransaction = ref<Transaction | null>(null);
@@ -254,7 +267,16 @@ const handleDeleteTransaction = (transactionId: string) => {
   const transaction = paginatedTransactions.value.find((t) => t.id === transactionId);
   if (transaction) {
     transactionToDelete.value = transaction;
-    showDeleteConfirmDialog.value = true;
+
+    // Check if this is a transfer transaction
+    if (
+      transaction.transferId &&
+      (transaction.type === "TRANSFER_IN" || transaction.type === "TRANSFER_OUT")
+    ) {
+      showDeleteTransferDialog.value = true;
+    } else {
+      showDeleteConfirmDialog.value = true;
+    }
   }
 };
 
@@ -285,6 +307,38 @@ const confirmDeleteTransaction = async () => {
 
 const cancelDeleteTransaction = () => {
   showDeleteConfirmDialog.value = false;
+  transactionToDelete.value = null;
+};
+
+const confirmDeleteTransfer = async () => {
+  if (transactionToDelete.value?.transferId) {
+    const transferId = transactionToDelete.value.transferId;
+    const success = await deleteTransfer(transferId);
+    if (success) {
+      const amount = transactionToDelete.value.amount;
+      const description = transactionToDelete.value.description || "transfer";
+      showSuccessSnackbar(`Transfer "${description}" (${Math.abs(amount)}) has been deleted`);
+
+      // Remove both paired transactions from the local list
+      // Find all transaction IDs with the same transferId
+      const transactionIdsToRemove = paginatedTransactions.value
+        .filter((t) => t.transferId === transferId)
+        .map((t) => t.id);
+
+      // Remove them using the helper function
+      removeTransactionsFromList(transactionIdsToRemove);
+
+      // Refetch accounts to update balances
+      await refetchAccounts();
+    }
+    // Note: Error handling is managed by the composable
+  }
+  showDeleteTransferDialog.value = false;
+  transactionToDelete.value = null;
+};
+
+const cancelDeleteTransfer = () => {
+  showDeleteTransferDialog.value = false;
   transactionToDelete.value = null;
 };
 
@@ -394,5 +448,40 @@ const getCategoryName = (categoryId?: string): string | undefined => {
   if (!categoryId) return undefined;
   const category = categories.value.find((c) => c.id === categoryId);
   return category?.name;
+};
+
+// Helper functions for transfer account names
+const getTransferFromAccountName = (transaction: Transaction | null): string => {
+  if (!transaction || !transaction.transferId) return "Unknown Account";
+
+  // For TRANSFER_OUT, the current account is the source
+  // For TRANSFER_IN, we need to find the paired TRANSFER_OUT transaction
+  if (transaction.type === "TRANSFER_OUT") {
+    return getAccountName(transaction.accountId);
+  } else if (transaction.type === "TRANSFER_IN") {
+    // Find the paired TRANSFER_OUT transaction
+    const pairedTransaction = paginatedTransactions.value.find(
+      (t) => t.transferId === transaction.transferId && t.type === "TRANSFER_OUT",
+    );
+    return pairedTransaction ? getAccountName(pairedTransaction.accountId) : "Unknown Account";
+  }
+  return "Unknown Account";
+};
+
+const getTransferToAccountName = (transaction: Transaction | null): string => {
+  if (!transaction || !transaction.transferId) return "Unknown Account";
+
+  // For TRANSFER_IN, the current account is the destination
+  // For TRANSFER_OUT, we need to find the paired TRANSFER_IN transaction
+  if (transaction.type === "TRANSFER_IN") {
+    return getAccountName(transaction.accountId);
+  } else if (transaction.type === "TRANSFER_OUT") {
+    // Find the paired TRANSFER_IN transaction
+    const pairedTransaction = paginatedTransactions.value.find(
+      (t) => t.transferId === transaction.transferId && t.type === "TRANSFER_IN",
+    );
+    return pairedTransaction ? getAccountName(pairedTransaction.accountId) : "Unknown Account";
+  }
+  return "Unknown Account";
 };
 </script>
