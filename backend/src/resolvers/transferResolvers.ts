@@ -9,6 +9,10 @@ import {
   DESCRIPTION_MAX_LENGTH,
   DESCRIPTION_LENGTH_ERROR_MESSAGE,
 } from "../types/validation";
+import {
+  TransactionType,
+  type Transfer,
+} from "../__generated__/resolvers-types";
 
 /**
  * Reusable schema components for transfers
@@ -48,6 +52,95 @@ const updateTransferInputSchema = z.object({
 });
 
 export const transferResolvers = {
+  Query: {
+    transfer: async (
+      _parent: unknown,
+      args: { id: unknown },
+      context: GraphQLContext,
+    ): Promise<Transfer | undefined> => {
+      try {
+        // Validate and normalize input
+        const id = idSchema.parse(args.id);
+        const user = await getAuthenticatedUser(context);
+
+        // Get transfer transactions using the existing method
+        const transferTransactions =
+          await context.transactionRepository.findByTransferId(id, user.id);
+
+        // Check if transfer exists
+        if (transferTransactions.length === 0) {
+          return undefined; // Return undefined if transfer not found (GraphQL convention for Maybe types)
+        }
+
+        // Validate we have exactly 2 transactions
+        if (transferTransactions.length !== 2) {
+          throw new BusinessError(
+            `Invalid transfer state: expected 2 transactions, found ${transferTransactions.length}`,
+            "INVALID_TRANSFER_STATE",
+            {
+              transferId: id,
+              userId: user.id,
+              transactionCount: transferTransactions.length,
+            },
+          );
+        }
+
+        // Identify outbound and inbound transactions
+        const outboundTransaction = transferTransactions.find(
+          (t) => t.type === TransactionType.TRANSFER_OUT,
+        );
+        const inboundTransaction = transferTransactions.find(
+          (t) => t.type === TransactionType.TRANSFER_IN,
+        );
+
+        if (!outboundTransaction) {
+          throw new BusinessError(
+            "Invalid transfer state: missing TRANSFER_OUT transaction",
+            "INVALID_TRANSFER_STATE",
+            {
+              transferId: id,
+              userId: user.id,
+              missingTransactionType: TransactionType.TRANSFER_OUT,
+              foundTransactionTypes: transferTransactions.map((t) => t.type),
+            },
+          );
+        }
+
+        if (!inboundTransaction) {
+          throw new BusinessError(
+            "Invalid transfer state: missing TRANSFER_IN transaction",
+            "INVALID_TRANSFER_STATE",
+            {
+              transferId: id,
+              userId: user.id,
+              missingTransactionType: TransactionType.TRANSFER_IN,
+              foundTransactionTypes: transferTransactions.map((t) => t.type),
+            },
+          );
+        }
+
+        // Return the transfer object that matches the GraphQL Transfer type
+        return {
+          id: id,
+          outboundTransaction,
+          inboundTransaction,
+        };
+      } catch (error) {
+        if (error instanceof z.ZodError) {
+          const firstError = error.errors[0];
+          throw new GraphQLError(firstError.message, {
+            extensions: { code: "BAD_USER_INPUT" },
+          });
+        }
+        if (error instanceof BusinessError) {
+          throw new GraphQLError(error.message, {
+            extensions: { code: error.code, details: error.details },
+          });
+        }
+        handleResolverError(error, "Failed to get transfer");
+      }
+    },
+  },
   Mutation: {
     createTransfer: async (
       _parent: unknown,

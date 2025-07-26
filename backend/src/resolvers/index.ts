@@ -10,6 +10,7 @@ export const resolvers: Resolvers = {
     ...accountResolvers.Query,
     ...categoryResolvers.Query,
     ...transactionResolvers.Query,
+    ...transferResolvers.Query,
   },
   Mutation: {
     ...accountResolvers.Mutation,

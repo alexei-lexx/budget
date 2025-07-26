@@ -109,11 +109,7 @@
     />
 
     <!-- Create Transaction Dialog -->
-    <v-dialog
-      v-model="showCreateTransactionDialog"
-      :max-width="$vuetify.display.xs ? '95vw' : '600'"
-      persistent
-    >
+    <v-dialog v-model="showCreateTransactionDialog" :max-width="dialogMaxWidth" persistent>
       <TransactionForm
         :loading="transactionFormLoading"
         @submit="handleCreateTransactionSubmit"
@@ -122,11 +118,7 @@
     </v-dialog>
 
     <!-- Edit Transaction Dialog -->
-    <v-dialog
-      v-model="showEditTransactionDialog"
-      :max-width="$vuetify.display.xs ? '95vw' : '600'"
-      persistent
-    >
+    <v-dialog v-model="showEditTransactionDialog" :max-width="dialogMaxWidth" persistent>
       <TransactionForm
         :transaction="editingTransaction"
         :loading="transactionFormLoading"
@@ -136,14 +128,20 @@
     </v-dialog>
 
     <!-- Create Transfer Dialog -->
-    <v-dialog
-      v-model="showCreateTransferDialog"
-      :max-width="$vuetify.display.xs ? '95vw' : '600'"
-      persistent
-    >
+    <v-dialog v-model="showCreateTransferDialog" :max-width="dialogMaxWidth" persistent>
       <TransferForm
         :loading="transferFormLoading"
         @submit="handleCreateTransferSubmit"
+        @cancel="handleTransactionFormCancel"
+      />
+    </v-dialog>
+
+    <!-- Edit Transfer Dialog -->
+    <v-dialog v-model="showEditTransferDialog" :max-width="dialogMaxWidth" persistent>
+      <TransferForm
+        :transfer="editingTransfer"
+        :loading="transferFormLoading"
+        @submit="handleEditTransferSubmit"
         @cancel="handleTransactionFormCancel"
       />
     </v-dialog>
@@ -152,6 +150,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from "vue";
+import { useDisplay } from "vuetify";
 import { useTransactions } from "@/composables/useTransactions";
 import { useAccounts } from "@/composables/useAccounts";
 import { useCategories } from "@/composables/useCategories";
@@ -162,9 +161,14 @@ import TransactionForm from "@/components/transactions/TransactionForm.vue";
 import TransactionDeleteDialog from "@/components/transactions/TransactionDeleteDialog.vue";
 import TransferForm from "@/components/transfers/TransferForm.vue";
 import type { Transaction, CreateTransactionInput } from "@/composables/useTransactions";
-import type { CreateTransferInput, UpdateTransferInput } from "@/composables/useTransfers";
+import type {
+  Transfer,
+  CreateTransferInput,
+  UpdateTransferInput,
+} from "@/composables/useTransfers";
 
 // Composables
+const { xs } = useDisplay();
 const {
   paginatedTransactions,
   paginatedLoading,
@@ -177,22 +181,28 @@ const {
   deleteTransaction,
   createTransaction,
   loadMoreTransactions,
+  refetchTransactions,
 } = useTransactions();
 const { accounts: accountsData, refetchAccounts } = useAccounts();
 const { categories: categoriesData } = useCategories();
-const { showSuccessSnackbar } = useSnackbar();
-const { createTransfer, updateTransfer } = useTransfers();
+const { showSuccessSnackbar, showErrorSnackbar } = useSnackbar();
+const { createTransfer, updateTransfer, getTransfer } = useTransfers();
 
 // Computed properties for clean data access
 const accounts = computed(() => accountsData.value?.accounts || []);
 const categories = computed(() => categoriesData.value?.categories || []);
+
+// Responsive dialog width
+const dialogMaxWidth = computed(() => (xs.value ? "95vw" : "600"));
 
 // Transaction management state
 const showCreateTransactionDialog = ref(false);
 const showEditTransactionDialog = ref(false);
 const showDeleteConfirmDialog = ref(false);
 const showCreateTransferDialog = ref(false);
+const showEditTransferDialog = ref(false);
 const editingTransaction = ref<Transaction | null>(null);
+const editingTransfer = ref<Transfer | null>(null);
 const transactionToDelete = ref<Transaction | null>(null);
 const transactionFormLoading = ref(false);
 const transferFormLoading = ref(false);
@@ -206,9 +216,34 @@ const handleAddTransfer = () => {
   showCreateTransferDialog.value = true;
 };
 
-const handleEditTransaction = (transactionId: string) => {
+const handleEditTransaction = async (transactionId: string) => {
   const transaction = paginatedTransactions.value.find((t) => t.id === transactionId);
-  if (transaction) {
+  if (!transaction) return;
+
+  // Check if this is a transfer transaction
+  if (
+    transaction.transferId &&
+    (transaction.type === "TRANSFER_IN" || transaction.type === "TRANSFER_OUT")
+  ) {
+    // This is a transfer transaction - load the complete transfer data
+    transferFormLoading.value = true;
+    try {
+      const transferData = await getTransfer(transaction.transferId);
+      if (transferData) {
+        editingTransfer.value = transferData;
+        showEditTransferDialog.value = true;
+      } else {
+        console.error("Transfer not found:", transaction.transferId);
+        showErrorSnackbar("Transfer not found. The transfer data may have been deleted.");
+      }
+    } catch (error) {
+      console.error("Error loading transfer data:", error);
+      showErrorSnackbar("Failed to load transfer data. Please try again.");
+    } finally {
+      transferFormLoading.value = false;
+    }
+  } else {
+    // Regular transaction (income/expense) - use the existing logic
     editingTransaction.value = { ...transaction };
     showEditTransactionDialog.value = true;
   }
@@ -288,27 +323,41 @@ const handleEditTransactionSubmit = async (transactionData: CreateTransactionInp
 const handleCreateTransferSubmit = async (data: CreateTransferInput | UpdateTransferInput) => {
   transferFormLoading.value = true;
   try {
+    // For create dialog, data should always be CreateTransferInput (no id field)
+    const result = await createTransfer(data as CreateTransferInput);
+    if (result) {
+      showCreateTransferDialog.value = false;
+      showSuccessSnackbar("Transfer was created successfully");
+      // Refetch accounts to update balances and transactions to show new transfer
+      await Promise.all([refetchAccounts(), refetchTransactions()]);
+    }
+  } finally {
+    transferFormLoading.value = false;
+  }
+};
+
+const handleEditTransferSubmit = async (data: CreateTransferInput | UpdateTransferInput) => {
+  if (!editingTransfer.value) return;
+
+  transferFormLoading.value = true;
+  try {
     let result;
     if ("id" in data) {
       // Edit mode - data is UpdateTransferInput
       const { id, ...input } = data;
       result = await updateTransfer(id, input);
-      if (result) {
-        showCreateTransferDialog.value = false;
-        showSuccessSnackbar("Transfer was updated successfully");
-      }
     } else {
-      // Create mode - data is CreateTransferInput
-      result = await createTransfer(data);
-      if (result) {
-        showCreateTransferDialog.value = false;
-        showSuccessSnackbar("Transfer was created successfully");
-      }
+      // Create mode (shouldn't happen in edit, but handle it)
+      // Convert CreateTransferInput to UpdateTransferInput format
+      result = await updateTransfer(editingTransfer.value.id, data);
     }
 
     if (result) {
-      // Refetch accounts to update balances
-      await refetchAccounts();
+      showEditTransferDialog.value = false;
+      editingTransfer.value = null;
+      showSuccessSnackbar("Transfer was updated successfully");
+      // Refetch accounts to update balances and transactions to show updated transfer
+      await Promise.all([refetchAccounts(), refetchTransactions()]);
     }
   } finally {
     transferFormLoading.value = false;
@@ -319,7 +368,9 @@ const handleTransactionFormCancel = () => {
   showCreateTransactionDialog.value = false;
   showEditTransactionDialog.value = false;
   showCreateTransferDialog.value = false;
+  showEditTransferDialog.value = false;
   editingTransaction.value = null;
+  editingTransfer.value = null;
   transactionFormLoading.value = false;
   transferFormLoading.value = false;
 };

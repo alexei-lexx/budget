@@ -1,5 +1,10 @@
 import { gql } from "@apollo/client/core";
-import { ACCOUNT_FRAGMENT, CATEGORY_FRAGMENT, TRANSACTION_FRAGMENT } from "./fragments";
+import {
+  ACCOUNT_FRAGMENT,
+  CATEGORY_FRAGMENT,
+  TRANSACTION_FRAGMENT,
+  TRANSFER_FRAGMENT,
+} from "./fragments";
 
 export const GET_ACCOUNTS = gql`
   query GetAccounts {
@@ -44,4 +49,13 @@ export const GET_TRANSACTIONS_PAGINATED = gql`
     }
   }
   ${TRANSACTION_FRAGMENT}
+`;
+
+export const GET_TRANSFER = gql`
+  query GetTransfer($id: ID!) {
+    transfer(id: $id) {
+      ...TransferFields
+    }
+  }
+  ${TRANSFER_FRAGMENT}
 `;

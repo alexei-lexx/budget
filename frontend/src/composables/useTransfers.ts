@@ -1,7 +1,8 @@
 import { useMutation } from "@vue/apollo-composable";
 import { ref, watch } from "vue";
+import { apolloClient } from "@/apollo";
 import { CREATE_TRANSFER, UPDATE_TRANSFER, DELETE_TRANSFER } from "@/graphql/mutations";
-import { GET_TRANSACTIONS_PAGINATED } from "@/graphql/queries";
+import { GET_TRANSFER } from "@/graphql/queries";
 import type { Transaction } from "./useTransactions";
 
 export interface Transfer {
@@ -39,6 +40,10 @@ interface DeleteTransferResponse {
   deleteTransfer: boolean;
 }
 
+interface GetTransferResponse {
+  transfer: Transfer | null;
+}
+
 export function useTransfers() {
   const transfersError = ref<string | null>(null);
 
@@ -47,27 +52,21 @@ export function useTransfers() {
     mutate: createTransferMutation,
     loading: createTransferLoading,
     error: createTransferError,
-  } = useMutation<CreateTransferResponse, { input: CreateTransferInput }>(CREATE_TRANSFER, {
-    refetchQueries: [GET_TRANSACTIONS_PAGINATED],
-  });
+  } = useMutation<CreateTransferResponse, { input: CreateTransferInput }>(CREATE_TRANSFER);
 
   // Update transfer mutation
   const {
     mutate: updateTransferMutation,
     loading: updateTransferLoading,
     error: updateTransferError,
-  } = useMutation<UpdateTransferResponse, { input: UpdateTransferInput }>(UPDATE_TRANSFER, {
-    refetchQueries: [GET_TRANSACTIONS_PAGINATED],
-  });
+  } = useMutation<UpdateTransferResponse, { input: UpdateTransferInput }>(UPDATE_TRANSFER);
 
   // Delete transfer mutation
   const {
     mutate: deleteTransferMutation,
     loading: deleteTransferLoading,
     error: deleteTransferError,
-  } = useMutation<DeleteTransferResponse, { id: string }>(DELETE_TRANSFER, {
-    refetchQueries: [GET_TRANSACTIONS_PAGINATED],
-  });
+  } = useMutation<DeleteTransferResponse, { id: string }>(DELETE_TRANSFER);
 
   // Watch for mutation errors
   watch(
@@ -132,6 +131,27 @@ export function useTransfers() {
     }
   };
 
+  // Get transfer function using Apollo Client directly
+  const getTransfer = async (id: string): Promise<Transfer | null> => {
+    try {
+      transfersError.value = null;
+      const { data } = await apolloClient.query<GetTransferResponse, { id: string }>({
+        query: GET_TRANSFER,
+        variables: { id },
+        fetchPolicy: "cache-first",
+      });
+
+      if (data?.transfer) {
+        return data.transfer;
+      }
+      return null;
+    } catch (error) {
+      console.error("Error getting transfer:", error);
+      transfersError.value = error instanceof Error ? error.message : "Failed to get transfer";
+      return null;
+    }
+  };
+
   return {
     // Loading states
     createTransferLoading,
@@ -148,5 +168,6 @@ export function useTransfers() {
     createTransfer,
     updateTransfer,
     deleteTransfer,
+    getTransfer,
   };
 }

@@ -162,6 +162,7 @@ export type Query = {
   categories: Array<Category>;
   supportedCurrencies: Array<Scalars['String']['output']>;
   transactions: TransactionConnection;
+  transfer?: Maybe<Transfer>;
 };
 
 
@@ -172,6 +173,11 @@ export type QueryCategoriesArgs = {
 
 export type QueryTransactionsArgs = {
   pagination?: InputMaybe<PaginationInput>;
+};
+
+
+export type QueryTransferArgs = {
+  id: Scalars['ID']['input'];
 };
 
 export type Transaction = {
@@ -420,6 +426,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   categories?: Resolver<Array<ResolversTypes['Category']>, ParentType, ContextType, Partial<QueryCategoriesArgs>>;
   supportedCurrencies?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   transactions?: Resolver<ResolversTypes['TransactionConnection'], ParentType, ContextType, Partial<QueryTransactionsArgs>>;
+  transfer?: Resolver<Maybe<ResolversTypes['Transfer']>, ParentType, ContextType, RequireFields<QueryTransferArgs, 'id'>>;
 };
 
 export type TransactionResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Transaction'] = ResolversParentTypes['Transaction']> = {

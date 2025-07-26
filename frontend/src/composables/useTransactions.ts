@@ -143,10 +143,8 @@ export function useTransactions() {
           const newTransactions = transactions.filter((t: Transaction) => !existingIds.has(t.id));
           allLoadedTransactions.value = [...allLoadedTransactions.value, ...newTransactions];
         } else {
-          // This is a refetch - merge new transactions at the beginning, keep existing ones
-          const existingIds = new Set(allLoadedTransactions.value.map((t: Transaction) => t.id));
-          const newTransactions = transactions.filter((t: Transaction) => !existingIds.has(t.id));
-          allLoadedTransactions.value = [...newTransactions, ...allLoadedTransactions.value];
+          // This is a refetch - replace the entire list with fresh data from server
+          allLoadedTransactions.value = transactions;
         }
       }
     },
