@@ -99,7 +99,7 @@ Show transfers as normal transactions with TRANSFER_IN and TRANSFER_OUT types in
   - [x] 9.6.4 Update transaction type display to show TRANSFER_IN and TRANSFER_OUT as normal transaction types
   - [x] 9.6.5 Add edit button/action for transfer transactions that opens EditTransferForm with linked transfer data
   - [x] 9.6.6 Implement transfer-specific deletion logic with confirmation dialog for both paired transactions
-  - [ ] 9.6.7 Add transfer amount validation (positive numbers, currency formatting)
+  - [x] 9.6.7 Add transfer amount validation (positive numbers, currency formatting)
   - [ ] 9.6.8 Add success/error notifications for transfer operations
 
 ## Testing

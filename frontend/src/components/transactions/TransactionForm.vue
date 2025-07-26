@@ -2,6 +2,7 @@
 import { ref, computed, watch } from "vue";
 import { getCurrencySymbol } from "@/utils/currency";
 import { checkRules, type CheckRule } from "@/utils/validation";
+import { currencyAmountRules } from "@/utils/currencyValidation";
 import { useAccounts } from "@/composables/useAccounts";
 import { useCategories } from "@/composables/useCategories";
 import AccountSelect from "@/components/common/AccountSelect.vue";
@@ -66,9 +67,7 @@ const typeRules: CheckRule<TransactionType>[] = [
     ["INCOME", "EXPENSE"].includes(value) || "Transaction type must be either Income or Expense",
 ];
 
-const amountRules: CheckRule<number>[] = [
-  (value: number) => value > 0 || "Amount must be greater than 0",
-];
+const amountRules = currencyAmountRules;
 
 const dateRules: CheckRule[] = [
   (value: string) => !!value || "Date is required",
