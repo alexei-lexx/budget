@@ -181,7 +181,8 @@ const {
   deleteTransaction,
   createTransaction,
   loadMoreTransactions,
-  refetchTransactions,
+  updateTransactionsInList,
+  addTransactionsToList,
 } = useTransactions();
 const { accounts: accountsData, refetchAccounts } = useAccounts();
 const { categories: categoriesData } = useCategories();
@@ -328,8 +329,12 @@ const handleCreateTransferSubmit = async (data: CreateTransferInput | UpdateTran
     if (result) {
       showCreateTransferDialog.value = false;
       showSuccessSnackbar("Transfer was created successfully");
-      // Refetch accounts to update balances and transactions to show new transfer
-      await Promise.all([refetchAccounts(), refetchTransactions()]);
+
+      // Add the new transfer transactions to the top of the list
+      addTransactionsToList([result.outboundTransaction, result.inboundTransaction]);
+
+      // Refetch accounts to update balances
+      await refetchAccounts();
     }
   } finally {
     transferFormLoading.value = false;
@@ -356,8 +361,12 @@ const handleEditTransferSubmit = async (data: CreateTransferInput | UpdateTransf
       showEditTransferDialog.value = false;
       editingTransfer.value = null;
       showSuccessSnackbar("Transfer was updated successfully");
-      // Refetch accounts to update balances and transactions to show updated transfer
-      await Promise.all([refetchAccounts(), refetchTransactions()]);
+
+      // Update the transaction list manually with the updated transactions
+      updateTransactionsInList([result.outboundTransaction, result.inboundTransaction]);
+
+      // Refetch accounts to update balances
+      await refetchAccounts();
     }
   } finally {
     transferFormLoading.value = false;

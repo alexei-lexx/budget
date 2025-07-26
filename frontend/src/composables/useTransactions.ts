@@ -208,8 +208,6 @@ export function useTransactions() {
         if (index !== -1) {
           allLoadedTransactions.value[index] = updatedTransaction;
         }
-        // Also refetch to ensure we have the latest data structure
-        await refetchPaginatedTransactions();
         return updatedTransaction;
       }
       return null;
@@ -231,8 +229,8 @@ export function useTransactions() {
         allLoadedTransactions.value = allLoadedTransactions.value.filter(
           (t: Transaction) => t.id !== id,
         );
-        // Also refetch to ensure we have the latest data structure
-        await refetchPaginatedTransactions();
+        // Update total count
+        totalCount.value = Math.max(0, totalCount.value - 1);
         return result.data.deleteTransaction;
       }
       return null;
@@ -294,6 +292,26 @@ export function useTransactions() {
     }
   };
 
+  // Helper function to update multiple transactions in the list
+  const updateTransactionsInList = (updatedTransactions: Transaction[]) => {
+    updatedTransactions.forEach((updatedTransaction) => {
+      const index = allLoadedTransactions.value.findIndex(
+        (t: Transaction) => t.id === updatedTransaction.id,
+      );
+      if (index !== -1) {
+        allLoadedTransactions.value[index] = updatedTransaction;
+      }
+    });
+  };
+
+  // Helper function to add new transactions to the top of the list
+  const addTransactionsToList = (newTransactions: Transaction[]) => {
+    // Add new transactions to the beginning of the list (newest first)
+    allLoadedTransactions.value = [...newTransactions, ...allLoadedTransactions.value];
+    // Update total count
+    totalCount.value = totalCount.value + newTransactions.length;
+  };
+
   return {
     // Paginated data
     paginatedTransactions: computed(() => allLoadedTransactions.value),
@@ -322,5 +340,7 @@ export function useTransactions() {
     deleteTransaction,
     loadMoreTransactions,
     refetchTransactions: refetchPaginatedTransactions,
+    updateTransactionsInList,
+    addTransactionsToList,
   };
 }
