@@ -12,7 +12,9 @@ export class BackendCdkStack extends cdk.Stack {
 
     const commonTableOptions: Partial<dynamodb.TableProps> = {
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
-      pointInTimeRecovery: true,
+      pointInTimeRecoverySpecification: {
+        pointInTimeRecoveryEnabled: true,
+      },
       removalPolicy: cdk.RemovalPolicy.RETAIN,
     };
 
