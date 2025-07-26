@@ -92,7 +92,7 @@ Show transfers as normal transactions with TRANSFER_IN and TRANSFER_OUT types in
   - [x] 9.5.2 Generate TypeScript types for transfer mutation operations
   - [x] 9.5.4 Add Apollo Client cache configuration for transfer operations
 
-- [ ] **9.6 Frontend UI/UX Layer**
+- [x] **9.6 Frontend UI/UX Layer**
   - [x] 9.6.1 Add dedicated "Create Transfer" button/action separate from transaction creation interface
   - [x] 9.6.2 Create CreateTransferForm component with dual account selection dropdowns that calls createTransfer mutation
   - [x] 9.6.3 Create EditTransferForm component that loads existing transfer data and calls updateTransfer mutation
@@ -100,7 +100,7 @@ Show transfers as normal transactions with TRANSFER_IN and TRANSFER_OUT types in
   - [x] 9.6.5 Add edit button/action for transfer transactions that opens EditTransferForm with linked transfer data
   - [x] 9.6.6 Implement transfer-specific deletion logic with confirmation dialog for both paired transactions
   - [x] 9.6.7 Add transfer amount validation (positive numbers, currency formatting)
-  - [ ] 9.6.8 Add success/error notifications for transfer operations
+  - [x] 9.6.8 Add success/error notifications for transfer operations
 
 ## Testing
 

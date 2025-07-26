@@ -171,6 +171,9 @@ const handleSubmit = async () => {
         };
         emit("submit", createData);
       }
+    } else {
+      // Validation failed - the form will show field-specific errors
+      // but we don't need a global notification as Vuetify handles this well
     }
   }
 };

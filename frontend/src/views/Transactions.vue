@@ -199,7 +199,8 @@ const {
 const { accounts: accountsData, refetchAccounts } = useAccounts();
 const { categories: categoriesData } = useCategories();
 const { showSuccessSnackbar, showErrorSnackbar } = useSnackbar();
-const { createTransfer, updateTransfer, deleteTransfer, getTransfer } = useTransfers();
+const { createTransfer, updateTransfer, deleteTransfer, getTransfer, transfersError } =
+  useTransfers();
 
 // Computed properties for clean data access
 const accounts = computed(() => accountsData.value?.accounts || []);
@@ -324,8 +325,11 @@ const confirmDeleteTransfer = async () => {
 
       // Refetch accounts to update balances
       await refetchAccounts();
+    } else {
+      // Transfer deletion failed
+      const errorMessage = transfersError.value || "Failed to delete transfer. Please try again.";
+      showErrorSnackbar(errorMessage);
     }
-    // Note: Error handling is managed by the composable
   }
   showDeleteTransferDialog.value = false;
   transactionToDelete.value = null;
@@ -383,6 +387,10 @@ const handleCreateTransferSubmit = async (data: CreateTransferInput | UpdateTran
 
       // Refetch accounts to update balances
       await refetchAccounts();
+    } else {
+      // Transfer creation failed
+      const errorMessage = transfersError.value || "Failed to create transfer. Please try again.";
+      showErrorSnackbar(errorMessage);
     }
   } finally {
     transferFormLoading.value = false;
@@ -415,6 +423,10 @@ const handleEditTransferSubmit = async (data: CreateTransferInput | UpdateTransf
 
       // Refetch accounts to update balances
       await refetchAccounts();
+    } else {
+      // Transfer update failed
+      const errorMessage = transfersError.value || "Failed to update transfer. Please try again.";
+      showErrorSnackbar(errorMessage);
     }
   } finally {
     transferFormLoading.value = false;
