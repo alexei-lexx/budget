@@ -191,7 +191,12 @@ const handleCancel = () => {
     </v-card-title>
 
     <v-card-text>
-      <v-form ref="formRef" v-model="formValid" @submit.prevent="handleSubmit">
+      <v-form
+        ref="formRef"
+        v-model="formValid"
+        @submit.prevent="handleSubmit"
+        @keydown.esc="$emit('cancel')"
+      >
         <!-- Two-column layout for desktop -->
         <v-row>
           <!-- Left Column -->
@@ -218,6 +223,7 @@ const handleCancel = () => {
               variant="outlined"
               class="mb-4"
               required
+              autofocus
             >
               <template #prepend-inner>
                 <span class="text-medium-emphasis">

@@ -179,7 +179,12 @@ const handleCancel = () => {
         </div>
       </v-alert>
 
-      <v-form ref="formRef" v-model="formValid" @submit.prevent="handleSubmit">
+      <v-form
+        ref="formRef"
+        v-model="formValid"
+        @submit.prevent="handleSubmit"
+        @keydown.esc="$emit('cancel')"
+      >
         <!-- Account Name -->
         <v-text-field
           v-model="formData.name"
@@ -190,6 +195,7 @@ const handleCancel = () => {
           variant="outlined"
           class="mb-4"
           required
+          autofocus
         ></v-text-field>
 
         <!-- Currency Selection -->

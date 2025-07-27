@@ -197,7 +197,12 @@ const handleCancel = () => {
     </v-card-title>
 
     <v-card-text>
-      <v-form ref="formRef" v-model="formValid" @submit.prevent="handleSubmit">
+      <v-form
+        ref="formRef"
+        v-model="formValid"
+        @submit.prevent="handleSubmit"
+        @keydown.esc="$emit('cancel')"
+      >
         <!-- Transaction Type Toggle -->
         <div class="mb-4">
           <div class="text-body-2 text-medium-emphasis mb-2">Type</div>
@@ -250,6 +255,7 @@ const handleCancel = () => {
               variant="outlined"
               class="mb-4"
               required
+              autofocus
             >
               <template #prepend-inner>
                 <span class="text-medium-emphasis">

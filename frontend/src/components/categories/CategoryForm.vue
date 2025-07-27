@@ -144,7 +144,12 @@ const exampleNames = computed(() => {
     </v-card-title>
 
     <v-card-text>
-      <v-form ref="formRef" v-model="formValid" @submit.prevent="handleSubmit">
+      <v-form
+        ref="formRef"
+        v-model="formValid"
+        @submit.prevent="handleSubmit"
+        @keydown.esc="$emit('cancel')"
+      >
         <!-- Category Name -->
         <v-text-field
           v-model="formData.name"
@@ -155,6 +160,7 @@ const exampleNames = computed(() => {
           variant="outlined"
           class="mb-4"
           required
+          autofocus
         ></v-text-field>
 
         <!-- Category Type Selection -->
