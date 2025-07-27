@@ -18,16 +18,23 @@ Personal Finance Tracker - A serverless web application for individual financial
 ```bash
 cd backend
 npm run dev          # Start development server with nodemon
-npm run build        # Compile and bundle for Lambda deployment
+npm run build        # Compile TypeScript to dist/
+npm run build:bundle # Bundle with esbuild for Lambda deployment
 npm run lint         # ESLint check
 npm run lint:fix     # ESLint with auto-fix
 npm run prettier     # Prettier format check
 npm run prettier:fix # Prettier format fix
+npm run codegen      # Generate GraphQL types from schema
 
 # Database (Development)
 npm run db:start      # Start DynamoDB Local + Admin UI
 npm run db:stop       # Stop all database services
 npm run db:setup      # Start database and create tables
+npm run db:purge      # Reset database (stop, remove data, setup)
+
+# Testing
+npm run test         # Run Jest tests
+npm run test:setup   # Setup test environment
 
 # Format code
 npm run format        # Run prettier:fix and lint:fix together
@@ -37,7 +44,9 @@ npm run format        # Run prettier:fix and lint:fix together
 ```bash
 cd frontend
 npm run dev          # Start Vite development server
-npm run build        # Build for production
+npm run build        # Build for production (includes type-check)
+npm run build-only   # Build without type checking
+npm run preview      # Preview production build locally
 npm run type-check   # Vue TypeScript checking
 npm run lint         # ESLint check
 npm run lint:fix     # ESLint with auto-fix
@@ -49,11 +58,16 @@ npm run format       # Run prettier:fix and lint:fix together
 cd backend-cdk
 npm run build        # Compile TypeScript
 npm run deploy       # Deploy backend to AWS
+npm run diff         # Show deployment differences
+npm run synth        # Synthesize CloudFormation templates
+npm run watch        # Watch for changes and deploy
 npm run test         # Run Jest tests
 
 cd frontend-cdk
 npm run build        # Compile TypeScript
 npm run deploy       # Deploy frontend infrastructure to AWS
+npm run diff         # Show deployment differences
+npm run synth        # Synthesize CloudFormation templates
 npm run test         # Run Jest tests
 ```
 
@@ -66,6 +80,42 @@ npm run test         # Run Jest tests
 - AWS CLI configured with appropriate credentials
 - `jq` command-line JSON processor installed
 - All dependencies installed in each package directory
+
+## Environment Management
+
+The project uses **dotenvx** for sophisticated environment management across all packages:
+
+```bash
+# Environment files (in order of precedence):
+.env.local          # Local overrides (gitignored)
+.env.development    # Development defaults
+.env.production     # Production settings
+.env               # Base configuration
+.env.example       # Template file
+```
+
+**Important Environment Variables:**
+- **AUTH0_DOMAIN**, **AUTH0_AUDIENCE** - Auth0 configuration
+- **AWS_REGION**, **AWS_PROFILE** - AWS configuration
+- **NODE_ENV** - Environment mode (development/production)
+- Table names and AWS settings loaded from environment
+
+**Usage Pattern:**
+Commands prefixed with `dotenvx run` automatically load the correct environment files for the current NODE_ENV.
+
+## Build System Architecture
+
+### Backend Build Process
+- **TypeScript Compilation** (`npm run build`) - Compiles to `dist/` directory
+- **ESBuild Bundling** (`npm run build:bundle`) - Creates optimized Lambda bundle
+- **GraphQL Schema** - Copied from `src/schema.graphql` to `dist/` during build
+- **Code Generation** (`npm run codegen`) - Generates TypeScript types from GraphQL schema
+
+### Frontend Build Process
+- **Vite** - Modern build tool with hot module replacement
+- **Path Aliases** - `@/` maps to `src/` directory
+- **TypeScript** - Full type checking integrated with build process
+- **Production Optimization** - Tree shaking, minification, asset optimization
 
 ## Key Technical Details
 
@@ -392,6 +442,44 @@ Follow bottom-up, layer-by-layer implementation pattern:
 
 ### Task Definition Guidelines
 For comprehensive task definition guidelines, refer to docs/tasks.instructions.md
+
+## Code Quality and Development Workflow
+
+### Git Hooks Setup
+Enable project git hooks for consistent code quality:
+```bash
+git config core.hooksPath .githooks
+```
+
+**Pre-commit Hook:**
+- Runs formatting and linting across all packages
+- Prevents commits with code quality issues
+- Automatically fixes formatting where possible
+
+### Testing Infrastructure
+- **Backend CDK**: Jest tests for infrastructure validation
+- **Frontend CDK**: Jest tests for deployment configuration
+- **Backend**: Test environment setup with `npm run test:setup`
+- Test databases isolated from development data
+
+### Code Generation Workflow
+- **GraphQL Types**: Run `npm run codegen` in backend after schema changes
+- **Apollo Config**: `apollo.config.js` enables IDE integration and tooling
+- **TypeScript**: Strict type checking across all packages
+
+## Troubleshooting
+
+### Common Development Issues
+- **Database Connection**: Ensure Docker is running for DynamoDB Local
+- **Environment Variables**: Check `.env.example` files for required variables
+- **Port Conflicts**: Backend dev server (4000), DynamoDB Local (8000), Admin UI (8001)
+- **Build Failures**: Run `npm run format` before building to fix formatting issues
+
+### Debugging Patterns
+- **Backend**: Use nodemon for automatic restarts during development
+- **Lambda Functions**: Test locally before deployment with `npm run build:bundle`
+- **CDK Deployments**: Use `npm run diff` to preview changes before deploy
+- **GraphQL**: Use Apollo Server playground at http://localhost:4000/graphql
 
 # important-instruction-reminders
 Do what has been asked; nothing more, nothing less.
