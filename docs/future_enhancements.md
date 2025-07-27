@@ -13,11 +13,6 @@ This document contains enhancements and improvements that are intentionally skip
 - Auto-focus on first field in forms (accounts, categories, transactions) for better keyboard navigation
 - Close forms by pressing escape button for improved keyboard navigation
 
-### Account Balance Integration
-- Calculate and display current account balances based on transactions
-- Two main architectural approaches considered:
-  1. **BalanceService Approach**: Dedicated service coordinates AccountRepository (for initialBalance) and TransactionRepository (for transaction sum). Clean separation but requires service layer.
-  2. **Initial Balance as Transaction Approach**: Store initial account balance as special first transaction, then balance = SUM(all transactions). Simpler, single source of truth, complete audit trail.
 
 ### Advanced Features
 - Quick-add transaction button with common categories
