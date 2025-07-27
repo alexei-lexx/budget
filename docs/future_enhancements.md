@@ -9,9 +9,6 @@ This document contains enhancements and improvements that are intentionally skip
 - Sort transactions by date or amount (ascending/descending)
 - Multiple active filters working together
 
-### Enhanced User Experience
-- Auto-focus on first field in forms (accounts, categories, transactions) for better keyboard navigation
-- Close forms by pressing escape button for improved keyboard navigation
 
 
 ### Advanced Features
