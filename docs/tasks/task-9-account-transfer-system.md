@@ -78,7 +78,7 @@ Show transfers as normal transactions with TRANSFER_IN and TRANSFER_OUT types in
   - [x] 9.3.5 Implement deleteTransfer method to handle cascading deletion of paired transactions
   - [x] 9.3.6 Implement updateTransfer method with validation (same user, same currency) that updates both linked transactions atomically (transferId cannot be changed after creation)
 
-- [ ] **9.4 GraphQL Layer**
+- [x] **9.4 GraphQL Layer**
   - [x] 9.4.1 Create Transfer type representing a paired transaction set
   - [x] 9.4.2 Add CreateTransferInput with fromAccountId, toAccountId, amount, date, description
   - [x] 9.4.3 Implement createTransfer mutation with Zod input validation
@@ -104,19 +104,19 @@ Show transfers as normal transactions with TRANSFER_IN and TRANSFER_OUT types in
 
 ## Testing
 
-- [ ] **9.7 Web UI Testing**
-  - [ ] 9.7.1 [M] Create accounts with same currency (USD): "Bank Account" with $1000, "Cash" with $200
-  - [ ] 9.7.2 [M] Use "Create Transfer" button to create transfer: $300 from Bank Account to Cash
-  - [ ] 9.7.3 [M] Verify both TRANSFER_OUT and TRANSFER_IN transactions appear separately in transaction list
-  - [ ] 9.7.4 [M] Test transfer between different currencies is rejected with appropriate error message in CreateTransferForm
-  - [ ] 9.7.5 [M] Test non-existent account validation: open CreateTransferForm in one tab, delete one of the accounts in another tab, then submit transfer using the deleted account and verify validation error
-  - [ ] 9.7.6 [M] Verify account balances update correctly: Bank=$700, Cash=$500 (check account list page)
-  - [ ] 9.7.7 [M] Delete transfer transactions from transaction list and verify both paired transactions removed and balances restored
-  - [ ] 9.7.8 [M] Create multiple transfers and verify they appear in transaction list with proper pagination
-  - [ ] 9.7.9 [M] Test CreateTransferForm validation: positive amounts, required fields, currency formatting
-  - [ ] 9.7.10 [M] Test transfer editing: modify amount from $300 to $250, verify both transactions update and balances recalculate correctly
-  - [ ] 9.7.11 [M] Test transfer editing validation: currency mismatch, account ownership, positive amounts
+- [x] **9.7 Web UI Testing**
+  - [x] 9.7.1 [M] Create accounts with same currency (USD): "Bank Account" with $1000, "Cash" with $200
+  - [x] 9.7.2 [M] Use "Create Transfer" button to create transfer: $300 from Bank Account to Cash
+  - [x] 9.7.3 [M] Verify both TRANSFER_OUT and TRANSFER_IN transactions appear separately in transaction list
+  - [x] 9.7.4 [M] Test transfer between different currencies is rejected with appropriate error message in CreateTransferForm
+  - [x] 9.7.5 [M] Test non-existent account validation: open CreateTransferForm in one tab, delete one of the accounts in another tab, then submit transfer using the deleted account and verify validation error
+  - [x] 9.7.6 [M] Verify account balances update correctly: Bank=$700, Cash=$500 (check account list page)
+  - [x] 9.7.7 [M] Delete transfer transactions from transaction list and verify both paired transactions removed and balances restored
+  - [x] 9.7.8 [M] Create multiple transfers and verify they appear in transaction list with proper pagination
+  - [x] 9.7.9 [M] Test CreateTransferForm validation: positive amounts, required fields, currency formatting
+  - [x] 9.7.10 [M] Test transfer editing: modify amount from $300 to $250, verify both transactions update and balances recalculate correctly
+  - [x] 9.7.11 [M] Test transfer editing validation: currency mismatch, account ownership, positive amounts
 
-- [ ] **9.8 Production Deployment**
-  - [ ] 9.8.1 [M] Deploy complete transfer system using ./deploy.sh (backend → frontend infrastructure → frontend assets)
-  - [ ] 9.8.2 [M] Production validation: Run tests 9.7.1, 9.7.2, and 9.7.3 to verify basic transfer functionality
+- [x] **9.8 Production Deployment**
+  - [x] 9.8.1 [M] Deploy complete transfer system using ./deploy.sh (backend → frontend infrastructure → frontend assets)
+  - [x] 9.8.2 [M] Production validation: Run tests 9.7.1, 9.7.2, and 9.7.3 to verify basic transfer functionality
