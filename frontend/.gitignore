@@ -15,10 +15,6 @@ coverage
 .env.development
 .env.production
 
-# Generated GraphQL types
-src/__generated__/
-src/schema.graphql
-
 /cypress/videos/
 /cypress/screenshots/
 

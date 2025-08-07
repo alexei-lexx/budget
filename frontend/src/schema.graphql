@@ -1,0 +1,154 @@
+type Query {
+  accounts: [Account!]!
+  supportedCurrencies: [String!]!
+  categories(type: CategoryType): [Category!]!
+  transactions(pagination: PaginationInput): TransactionConnection!
+  transfer(id: ID!): Transfer
+}
+
+type User {
+  email: String!
+}
+
+type Account {
+  id: ID!
+  name: String!
+  currency: String!
+  initialBalance: Float!
+  balance: Float!
+}
+
+enum CategoryType {
+  INCOME
+  EXPENSE
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+  TRANSFER_IN
+  TRANSFER_OUT
+}
+
+type Category {
+  id: ID!
+  name: String!
+  type: CategoryType!
+}
+
+type Transaction {
+  id: ID!
+  accountId: ID!
+  categoryId: ID
+  type: TransactionType!
+  amount: Float!
+  currency: String!
+  date: String!
+  description: String
+  transferId: String
+}
+
+type Transfer {
+  id: ID!
+  outboundTransaction: Transaction!
+  inboundTransaction: Transaction!
+}
+
+input CreateAccountInput {
+  name: String!
+  currency: String!
+  initialBalance: Float!
+}
+
+input UpdateAccountInput {
+  id: ID!
+  name: String
+  currency: String
+  initialBalance: Float
+}
+
+input CreateCategoryInput {
+  name: String!
+  type: CategoryType!
+}
+
+input UpdateCategoryInput {
+  id: ID!
+  name: String
+  type: CategoryType
+}
+
+input CreateTransactionInput {
+  accountId: ID!
+  categoryId: ID
+  type: TransactionType!
+  amount: Float!
+  date: String!
+  description: String
+}
+
+input UpdateTransactionInput {
+  id: ID!
+  accountId: ID
+  categoryId: ID
+  type: TransactionType
+  amount: Float
+  date: String
+  description: String
+}
+
+input CreateTransferInput {
+  fromAccountId: ID!
+  toAccountId: ID!
+  amount: Float!
+  date: String!
+  description: String
+}
+
+input UpdateTransferInput {
+  id: ID!
+  fromAccountId: ID
+  toAccountId: ID
+  amount: Float
+  date: String
+  description: String
+}
+
+input PaginationInput {
+  first: Int
+  after: String
+}
+
+type PageInfo {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+  endCursor: String
+}
+
+type TransactionEdge {
+  node: Transaction!
+  cursor: String!
+}
+
+type TransactionConnection {
+  edges: [TransactionEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type Mutation {
+  ensureUser: User!
+  createAccount(input: CreateAccountInput!): Account!
+  updateAccount(input: UpdateAccountInput!): Account!
+  deleteAccount(id: ID!): Boolean
+  createCategory(input: CreateCategoryInput!): Category!
+  updateCategory(input: UpdateCategoryInput!): Category!
+  deleteCategory(id: ID!): Category!
+  createTransaction(input: CreateTransactionInput!): Transaction!
+  updateTransaction(input: UpdateTransactionInput!): Transaction!
+  deleteTransaction(id: ID!): Transaction!
+  createTransfer(input: CreateTransferInput!): Transfer!
+  updateTransfer(input: UpdateTransferInput!): Transfer!
+  deleteTransfer(id: ID!): Boolean
+}
