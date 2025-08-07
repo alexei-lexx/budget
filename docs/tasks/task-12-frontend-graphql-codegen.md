@@ -49,83 +49,83 @@ frontend/src/__generated__/
 
 ## Implementation Plan
 
-### 1. Database Layer
+### 12.1 Database Layer
 *No database changes required*
 
-### 2. Repository Layer
+### 12.2 Repository Layer
 *No repository changes required*
 
-### 3. Service Layer
+### 12.3 Service Layer
 *No service changes required*
 
-### 4. GraphQL Layer
+### 12.4 GraphQL Layer
 *No GraphQL layer changes required*
 
-### 5. Frontend Data Layer
+### 12.5 Frontend Data Layer
 
-#### 5.1 Schema Synchronization Infrastructure
-- [ ] Add `codegen:sync-schema` npm script using simple `cp` command
-- [ ] Test schema sync functionality
+#### 12.5.1 Schema Synchronization Infrastructure
+- [x] 12.5.1.1 Add `codegen:sync-schema` npm script using simple `cp` command
+- [x] 12.5.1.2 Test schema sync functionality
 
-#### 5.2 CodeGen Package Installation
-- [ ] Install GraphQL CodeGen packages: `@graphql-codegen/cli`, `@graphql-codegen/typescript`, `@graphql-codegen/typescript-operations`, `@graphql-codegen/typescript-vue-apollo`
+#### 12.5.2 CodeGen Package Installation
+- [x] 12.5.2.1 Install GraphQL CodeGen packages: `@graphql-codegen/cli`, `@graphql-codegen/typescript`, `@graphql-codegen/typescript-operations`, `@graphql-codegen/typescript-vue-apollo`
 
-#### 5.3 CodeGen Configuration
-- [ ] Create `frontend/codegen.ts` with local schema file source
-- [ ] Configure TypeScript types generation from schema
-- [ ] Configure Vue Apollo composables generation from operations
-- [ ] Add proper TypeScript config for generated types
+#### 12.5.3 CodeGen Configuration
+- [x] 12.5.3.1 Create `frontend/codegen.ts` with local schema file source
+- [x] 12.5.3.2 Configure TypeScript types generation from schema
+- [x] 12.5.3.3 Configure Vue Apollo composables generation from operations
+- [x] 12.5.3.4 Add proper TypeScript config for generated types
 
-#### 5.4 Build Integration
-- [ ] Add `codegen:sync-schema` and `codegen` scripts to `frontend/package.json`
-- [ ] Integrate schema sync and codegen into `dev` and `build` scripts
-- [ ] Create root-level convenience scripts for development workflow
+#### 12.5.4 Build Integration
+- [x] 12.5.4.1 Add `codegen:sync-schema` and `codegen` scripts to `frontend/package.json`
+- [x] 12.5.4.2 Integrate schema sync and codegen into `dev` and `build` scripts
+- [x] 12.5.4.3 Create root-level convenience scripts for development workflow
 
-#### 5.5 Initial Type Generation
-- [ ] Run schema sync to copy to frontend directory
-- [ ] Execute initial codegen to generate types
-- [ ] Verify generated types match existing GraphQL operations
+#### 12.5.5 Initial Type Generation
+- [x] 12.5.5.1 Run schema sync to copy to frontend directory
+- [x] 12.5.5.2 Execute initial codegen to generate types
+- [x] 12.5.5.3 Verify generated types match existing GraphQL operations
 
-### 6. Frontend UI/UX Layer
+### 12.6 Frontend UI/UX Layer
 
-#### 6.1 Operation Migration
-- [ ] Update account-related components to use generated composables
-- [ ] Update transaction-related components to use generated composables  
-- [ ] Update category-related components to use generated composables
-- [ ] Remove manual type annotations replaced by generated types
+#### 12.6.1 Operation Migration
+- [ ] 12.6.1.1 Update account-related components to use generated composables
+- [ ] 12.6.1.2 Update transaction-related components to use generated composables  
+- [ ] 12.6.1.3 Update category-related components to use generated composables
+- [ ] 12.6.1.4 Remove manual type annotations replaced by generated types
 
-#### 6.2 Developer Experience Enhancement
-- [ ] Update import statements to use generated composables
-- [ ] Verify TypeScript autocomplete and validation
-- [ ] Test error handling with typed operations
+#### 12.6.2 Developer Experience Enhancement
+- [ ] 12.6.2.1 Update import statements to use generated composables
+- [ ] 12.6.2.2 Verify TypeScript autocomplete and validation
+- [ ] 12.6.2.3 Test error handling with typed operations
 
-### 7. Documentation and Workflow
-- [ ] Document new development workflow in `CLAUDE.md`
-- [ ] Create team guidelines for schema change process
-- [ ] Update build/deployment documentation
+### 12.7 Documentation and Workflow
+- [ ] 12.7.1 Document new development workflow in `CLAUDE.md`
+- [ ] 12.7.2 Create team guidelines for schema change process
+- [ ] 12.7.3 Update build/deployment documentation
 
 ## Testing
 
-### 8. Integration Testing
+### 12.8 Integration Testing
 
-#### 8.1 Type Generation Validation
-- [ ] **[M]** Verify schema sync creates identical file in `frontend/src/schema.graphql`
-- [ ] **[M]** Run `npm run codegen` in frontend, verify no TypeScript errors
-- [ ] **[M]** Verify generated types in `frontend/src/__generated__/` contain expected interfaces
-- [ ] **[M]** Test autocomplete works in IDE for generated composables
+#### 12.8.1 Type Generation Validation
+- [ ] 12.8.1.1 **[M]** Verify schema sync creates identical file in `frontend/src/schema.graphql`
+- [ ] 12.8.1.2 **[M]** Run `npm run codegen` in frontend, verify no TypeScript errors
+- [ ] 12.8.1.3 **[M]** Verify generated types in `frontend/src/__generated__/` contain expected interfaces
+- [ ] 12.8.1.4 **[M]** Test autocomplete works in IDE for generated composables
 
-#### 8.2 Operation Type Safety
-- [ ] **[M]** Verify account queries return properly typed account objects
-- [ ] **[M]** Verify transaction mutations accept properly typed input variables
-- [ ] **[M]** Test GraphQL operation variables get TypeScript validation
-- [ ] **[M]** Verify compilation fails for operations mismatched to schema
+#### 12.8.2 Operation Type Safety
+- [ ] 12.8.2.1 **[M]** Verify account queries return properly typed account objects
+- [ ] 12.8.2.2 **[M]** Verify transaction mutations accept properly typed input variables
+- [ ] 12.8.2.3 **[M]** Test GraphQL operation variables get TypeScript validation
+- [ ] 12.8.2.4 **[M]** Verify compilation fails for operations mismatched to schema
 
-#### 8.3 Development Workflow
-- [ ] **[M]** Make schema change in backend, verify frontend codegen picks up changes
-- [ ] **[M]** Test full development workflow: backend dev → schema sync → frontend codegen
-- [ ] **[M]** Verify build process works with codegen integration
+#### 12.8.3 Development Workflow
+- [ ] 12.8.3.1 **[M]** Make schema change in backend, verify frontend codegen picks up changes
+- [ ] 12.8.3.2 **[M]** Test full development workflow: backend dev → schema sync → frontend codegen
+- [ ] 12.8.3.3 **[M]** Verify build process works with codegen integration
 
-### 9. Production Deployment
-- [ ] **[M]** Deploy with new build process including schema sync and codegen
-- [ ] **[M]** Verify frontend application functions identically with typed operations
-- [ ] **[M]** Confirm no runtime GraphQL operation errors in production
+### 12.9 Production Deployment
+- [ ] 12.9.1 **[M]** Deploy with new build process including schema sync and codegen
+- [ ] 12.9.2 **[M]** Verify frontend application functions identically with typed operations
+- [ ] 12.9.3 **[M]** Confirm no runtime GraphQL operation errors in production
