@@ -8,7 +8,6 @@
     "build": "npm run codegen && run-p type-check \"build-only {@}\" --",
     "codegen:sync-schema": "cp ../backend/src/schema.graphql src/schema.graphql",
     "codegen": "npm run codegen:sync-schema && graphql-codegen",
-    "codegen:watch": "npm run codegen:sync-schema && graphql-codegen --watch",
     "dev": "npm run codegen && vite",
     "format": "npm run prettier:fix && npm run lint:fix",
     "lint:fix": "eslint . --fix",
