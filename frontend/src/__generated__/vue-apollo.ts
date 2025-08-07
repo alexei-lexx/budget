@@ -1,83 +1,81 @@
-import gql from "graphql-tag";
-import * as VueApolloComposable from "@vue/apollo-composable";
-import * as VueCompositionApi from "vue";
+import gql from 'graphql-tag';
+import * as VueApolloComposable from '@vue/apollo-composable';
+import * as VueCompositionApi from 'vue';
 export type Maybe<T> = T | undefined;
 export type InputMaybe<T> = T | undefined;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
-export type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> = {
-  [_ in K]?: never;
-};
-export type Incremental<T> =
-  | T
-  | { [P in keyof T]?: P extends " $fragmentName" | "__typename" ? T[P] : never };
+export type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> = { [_ in K]?: never };
+export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never };
 export type ReactiveFunction<TParam> = () => TParam;
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
-  ID: { input: string; output: string };
-  String: { input: string; output: string };
-  Boolean: { input: boolean; output: boolean };
-  Int: { input: number; output: number };
-  Float: { input: number; output: number };
+  ID: { input: string; output: string; }
+  String: { input: string; output: string; }
+  Boolean: { input: boolean; output: boolean; }
+  Int: { input: number; output: number; }
+  Float: { input: number; output: number; }
 };
 
 export type Account = {
-  __typename?: "Account";
-  balance: Scalars["Float"]["output"];
-  currency: Scalars["String"]["output"];
-  id: Scalars["ID"]["output"];
-  initialBalance: Scalars["Float"]["output"];
-  name: Scalars["String"]["output"];
+  __typename?: 'Account';
+  balance: Scalars['Float']['output'];
+  currency: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  initialBalance: Scalars['Float']['output'];
+  name: Scalars['String']['output'];
 };
 
 export type Category = {
-  __typename?: "Category";
-  id: Scalars["ID"]["output"];
-  name: Scalars["String"]["output"];
+  __typename?: 'Category';
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
   type: CategoryType;
 };
 
-export type CategoryType = "EXPENSE" | "INCOME";
+export type CategoryType =
+  | 'EXPENSE'
+  | 'INCOME';
 
 export type CreateAccountInput = {
-  currency: Scalars["String"]["input"];
-  initialBalance: Scalars["Float"]["input"];
-  name: Scalars["String"]["input"];
+  currency: Scalars['String']['input'];
+  initialBalance: Scalars['Float']['input'];
+  name: Scalars['String']['input'];
 };
 
 export type CreateCategoryInput = {
-  name: Scalars["String"]["input"];
+  name: Scalars['String']['input'];
   type: CategoryType;
 };
 
 export type CreateTransactionInput = {
-  accountId: Scalars["ID"]["input"];
-  amount: Scalars["Float"]["input"];
-  categoryId?: InputMaybe<Scalars["ID"]["input"]>;
-  date: Scalars["String"]["input"];
-  description?: InputMaybe<Scalars["String"]["input"]>;
+  accountId: Scalars['ID']['input'];
+  amount: Scalars['Float']['input'];
+  categoryId?: InputMaybe<Scalars['ID']['input']>;
+  date: Scalars['String']['input'];
+  description?: InputMaybe<Scalars['String']['input']>;
   type: TransactionType;
 };
 
 export type CreateTransferInput = {
-  amount: Scalars["Float"]["input"];
-  date: Scalars["String"]["input"];
-  description?: InputMaybe<Scalars["String"]["input"]>;
-  fromAccountId: Scalars["ID"]["input"];
-  toAccountId: Scalars["ID"]["input"];
+  amount: Scalars['Float']['input'];
+  date: Scalars['String']['input'];
+  description?: InputMaybe<Scalars['String']['input']>;
+  fromAccountId: Scalars['ID']['input'];
+  toAccountId: Scalars['ID']['input'];
 };
 
 export type Mutation = {
-  __typename?: "Mutation";
+  __typename?: 'Mutation';
   createAccount: Account;
   createCategory: Category;
   createTransaction: Transaction;
   createTransfer: Transfer;
-  deleteAccount?: Maybe<Scalars["Boolean"]["output"]>;
+  deleteAccount?: Maybe<Scalars['Boolean']['output']>;
   deleteCategory: Category;
   deleteTransaction: Transaction;
-  deleteTransfer?: Maybe<Scalars["Boolean"]["output"]>;
+  deleteTransfer?: Maybe<Scalars['Boolean']['output']>;
   ensureUser: User;
   updateAccount: Account;
   updateCategory: Category;
@@ -85,585 +83,354 @@ export type Mutation = {
   updateTransfer: Transfer;
 };
 
+
 export type MutationCreateAccountArgs = {
   input: CreateAccountInput;
 };
+
 
 export type MutationCreateCategoryArgs = {
   input: CreateCategoryInput;
 };
 
+
 export type MutationCreateTransactionArgs = {
   input: CreateTransactionInput;
 };
+
 
 export type MutationCreateTransferArgs = {
   input: CreateTransferInput;
 };
 
+
 export type MutationDeleteAccountArgs = {
-  id: Scalars["ID"]["input"];
+  id: Scalars['ID']['input'];
 };
+
 
 export type MutationDeleteCategoryArgs = {
-  id: Scalars["ID"]["input"];
+  id: Scalars['ID']['input'];
 };
+
 
 export type MutationDeleteTransactionArgs = {
-  id: Scalars["ID"]["input"];
+  id: Scalars['ID']['input'];
 };
 
+
 export type MutationDeleteTransferArgs = {
-  id: Scalars["ID"]["input"];
+  id: Scalars['ID']['input'];
 };
+
 
 export type MutationUpdateAccountArgs = {
   input: UpdateAccountInput;
 };
 
+
 export type MutationUpdateCategoryArgs = {
   input: UpdateCategoryInput;
 };
 
+
 export type MutationUpdateTransactionArgs = {
   input: UpdateTransactionInput;
 };
+
 
 export type MutationUpdateTransferArgs = {
   input: UpdateTransferInput;
 };
 
 export type PageInfo = {
-  __typename?: "PageInfo";
-  endCursor?: Maybe<Scalars["String"]["output"]>;
-  hasNextPage: Scalars["Boolean"]["output"];
-  hasPreviousPage: Scalars["Boolean"]["output"];
-  startCursor?: Maybe<Scalars["String"]["output"]>;
+  __typename?: 'PageInfo';
+  endCursor?: Maybe<Scalars['String']['output']>;
+  hasNextPage: Scalars['Boolean']['output'];
+  hasPreviousPage: Scalars['Boolean']['output'];
+  startCursor?: Maybe<Scalars['String']['output']>;
 };
 
 export type PaginationInput = {
-  after?: InputMaybe<Scalars["String"]["input"]>;
-  first?: InputMaybe<Scalars["Int"]["input"]>;
+  after?: InputMaybe<Scalars['String']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type Query = {
-  __typename?: "Query";
+  __typename?: 'Query';
   accounts: Array<Account>;
   categories: Array<Category>;
-  supportedCurrencies: Array<Scalars["String"]["output"]>;
+  supportedCurrencies: Array<Scalars['String']['output']>;
   transactions: TransactionConnection;
   transfer?: Maybe<Transfer>;
 };
+
 
 export type QueryCategoriesArgs = {
   type?: InputMaybe<CategoryType>;
 };
 
+
 export type QueryTransactionsArgs = {
   pagination?: InputMaybe<PaginationInput>;
 };
 
+
 export type QueryTransferArgs = {
-  id: Scalars["ID"]["input"];
+  id: Scalars['ID']['input'];
 };
 
 export type Transaction = {
-  __typename?: "Transaction";
-  accountId: Scalars["ID"]["output"];
-  amount: Scalars["Float"]["output"];
-  categoryId?: Maybe<Scalars["ID"]["output"]>;
-  currency: Scalars["String"]["output"];
-  date: Scalars["String"]["output"];
-  description?: Maybe<Scalars["String"]["output"]>;
-  id: Scalars["ID"]["output"];
-  transferId?: Maybe<Scalars["String"]["output"]>;
+  __typename?: 'Transaction';
+  accountId: Scalars['ID']['output'];
+  amount: Scalars['Float']['output'];
+  categoryId?: Maybe<Scalars['ID']['output']>;
+  currency: Scalars['String']['output'];
+  date: Scalars['String']['output'];
+  description?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  transferId?: Maybe<Scalars['String']['output']>;
   type: TransactionType;
 };
 
 export type TransactionConnection = {
-  __typename?: "TransactionConnection";
+  __typename?: 'TransactionConnection';
   edges: Array<TransactionEdge>;
   pageInfo: PageInfo;
-  totalCount: Scalars["Int"]["output"];
+  totalCount: Scalars['Int']['output'];
 };
 
 export type TransactionEdge = {
-  __typename?: "TransactionEdge";
-  cursor: Scalars["String"]["output"];
+  __typename?: 'TransactionEdge';
+  cursor: Scalars['String']['output'];
   node: Transaction;
 };
 
-export type TransactionType = "EXPENSE" | "INCOME" | "TRANSFER_IN" | "TRANSFER_OUT";
+export type TransactionType =
+  | 'EXPENSE'
+  | 'INCOME'
+  | 'TRANSFER_IN'
+  | 'TRANSFER_OUT';
 
 export type Transfer = {
-  __typename?: "Transfer";
-  id: Scalars["ID"]["output"];
+  __typename?: 'Transfer';
+  id: Scalars['ID']['output'];
   inboundTransaction: Transaction;
   outboundTransaction: Transaction;
 };
 
 export type UpdateAccountInput = {
-  currency?: InputMaybe<Scalars["String"]["input"]>;
-  id: Scalars["ID"]["input"];
-  initialBalance?: InputMaybe<Scalars["Float"]["input"]>;
-  name?: InputMaybe<Scalars["String"]["input"]>;
+  currency?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['ID']['input'];
+  initialBalance?: InputMaybe<Scalars['Float']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type UpdateCategoryInput = {
-  id: Scalars["ID"]["input"];
-  name?: InputMaybe<Scalars["String"]["input"]>;
+  id: Scalars['ID']['input'];
+  name?: InputMaybe<Scalars['String']['input']>;
   type?: InputMaybe<CategoryType>;
 };
 
 export type UpdateTransactionInput = {
-  accountId?: InputMaybe<Scalars["ID"]["input"]>;
-  amount?: InputMaybe<Scalars["Float"]["input"]>;
-  categoryId?: InputMaybe<Scalars["ID"]["input"]>;
-  date?: InputMaybe<Scalars["String"]["input"]>;
-  description?: InputMaybe<Scalars["String"]["input"]>;
-  id: Scalars["ID"]["input"];
+  accountId?: InputMaybe<Scalars['ID']['input']>;
+  amount?: InputMaybe<Scalars['Float']['input']>;
+  categoryId?: InputMaybe<Scalars['ID']['input']>;
+  date?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  id: Scalars['ID']['input'];
   type?: InputMaybe<TransactionType>;
 };
 
 export type UpdateTransferInput = {
-  amount?: InputMaybe<Scalars["Float"]["input"]>;
-  date?: InputMaybe<Scalars["String"]["input"]>;
-  description?: InputMaybe<Scalars["String"]["input"]>;
-  fromAccountId?: InputMaybe<Scalars["ID"]["input"]>;
-  id: Scalars["ID"]["input"];
-  toAccountId?: InputMaybe<Scalars["ID"]["input"]>;
+  amount?: InputMaybe<Scalars['Float']['input']>;
+  date?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  fromAccountId?: InputMaybe<Scalars['ID']['input']>;
+  id: Scalars['ID']['input'];
+  toAccountId?: InputMaybe<Scalars['ID']['input']>;
 };
 
 export type User = {
-  __typename?: "User";
-  email: Scalars["String"]["output"];
+  __typename?: 'User';
+  email: Scalars['String']['output'];
 };
 
-export type AccountFieldsFragment = {
-  __typename?: "Account";
-  id: string;
-  name: string;
-  currency: string;
-  initialBalance: number;
-  balance: number;
-};
+export type AccountFieldsFragment = { __typename?: 'Account', id: string, name: string, currency: string, initialBalance: number, balance: number };
 
-export type CategoryFieldsFragment = {
-  __typename?: "Category";
-  id: string;
-  name: string;
-  type: CategoryType;
-};
+export type CategoryFieldsFragment = { __typename?: 'Category', id: string, name: string, type: CategoryType };
 
-export type TransactionFieldsFragment = {
-  __typename?: "Transaction";
-  id: string;
-  accountId: string;
-  categoryId?: string | undefined;
-  type: TransactionType;
-  amount: number;
-  currency: string;
-  date: string;
-  description?: string | undefined;
-  transferId?: string | undefined;
-};
+export type TransactionFieldsFragment = { __typename?: 'Transaction', id: string, accountId: string, categoryId?: string | undefined, type: TransactionType, amount: number, currency: string, date: string, description?: string | undefined, transferId?: string | undefined };
 
-export type TransferFieldsFragment = {
-  __typename?: "Transfer";
-  id: string;
-  outboundTransaction: {
-    __typename?: "Transaction";
-    id: string;
-    accountId: string;
-    categoryId?: string | undefined;
-    type: TransactionType;
-    amount: number;
-    currency: string;
-    date: string;
-    description?: string | undefined;
-    transferId?: string | undefined;
-  };
-  inboundTransaction: {
-    __typename?: "Transaction";
-    id: string;
-    accountId: string;
-    categoryId?: string | undefined;
-    type: TransactionType;
-    amount: number;
-    currency: string;
-    date: string;
-    description?: string | undefined;
-    transferId?: string | undefined;
-  };
-};
+export type TransferFieldsFragment = { __typename?: 'Transfer', id: string, outboundTransaction: { __typename?: 'Transaction', id: string, accountId: string, categoryId?: string | undefined, type: TransactionType, amount: number, currency: string, date: string, description?: string | undefined, transferId?: string | undefined }, inboundTransaction: { __typename?: 'Transaction', id: string, accountId: string, categoryId?: string | undefined, type: TransactionType, amount: number, currency: string, date: string, description?: string | undefined, transferId?: string | undefined } };
 
-export type EnsureUserMutationVariables = Exact<{ [key: string]: never }>;
+export type EnsureUserMutationVariables = Exact<{ [key: string]: never; }>;
 
-export type EnsureUserMutation = {
-  __typename?: "Mutation";
-  ensureUser: { __typename?: "User"; email: string };
-};
+
+export type EnsureUserMutation = { __typename?: 'Mutation', ensureUser: { __typename?: 'User', email: string } };
 
 export type CreateAccountMutationVariables = Exact<{
   input: CreateAccountInput;
 }>;
 
-export type CreateAccountMutation = {
-  __typename?: "Mutation";
-  createAccount: {
-    __typename?: "Account";
-    id: string;
-    name: string;
-    currency: string;
-    initialBalance: number;
-    balance: number;
-  };
-};
+
+export type CreateAccountMutation = { __typename?: 'Mutation', createAccount: { __typename?: 'Account', id: string, name: string, currency: string, initialBalance: number, balance: number } };
 
 export type UpdateAccountMutationVariables = Exact<{
   input: UpdateAccountInput;
 }>;
 
-export type UpdateAccountMutation = {
-  __typename?: "Mutation";
-  updateAccount: {
-    __typename?: "Account";
-    id: string;
-    name: string;
-    currency: string;
-    initialBalance: number;
-    balance: number;
-  };
-};
+
+export type UpdateAccountMutation = { __typename?: 'Mutation', updateAccount: { __typename?: 'Account', id: string, name: string, currency: string, initialBalance: number, balance: number } };
 
 export type DeleteAccountMutationVariables = Exact<{
-  id: Scalars["ID"]["input"];
+  id: Scalars['ID']['input'];
 }>;
 
-export type DeleteAccountMutation = {
-  __typename?: "Mutation";
-  deleteAccount?: boolean | undefined;
-};
+
+export type DeleteAccountMutation = { __typename?: 'Mutation', deleteAccount?: boolean | undefined };
 
 export type CreateCategoryMutationVariables = Exact<{
   input: CreateCategoryInput;
 }>;
 
-export type CreateCategoryMutation = {
-  __typename?: "Mutation";
-  createCategory: { __typename?: "Category"; id: string; name: string; type: CategoryType };
-};
+
+export type CreateCategoryMutation = { __typename?: 'Mutation', createCategory: { __typename?: 'Category', id: string, name: string, type: CategoryType } };
 
 export type UpdateCategoryMutationVariables = Exact<{
   input: UpdateCategoryInput;
 }>;
 
-export type UpdateCategoryMutation = {
-  __typename?: "Mutation";
-  updateCategory: { __typename?: "Category"; id: string; name: string; type: CategoryType };
-};
+
+export type UpdateCategoryMutation = { __typename?: 'Mutation', updateCategory: { __typename?: 'Category', id: string, name: string, type: CategoryType } };
 
 export type DeleteCategoryMutationVariables = Exact<{
-  id: Scalars["ID"]["input"];
+  id: Scalars['ID']['input'];
 }>;
 
-export type DeleteCategoryMutation = {
-  __typename?: "Mutation";
-  deleteCategory: { __typename?: "Category"; id: string; name: string; type: CategoryType };
-};
+
+export type DeleteCategoryMutation = { __typename?: 'Mutation', deleteCategory: { __typename?: 'Category', id: string, name: string, type: CategoryType } };
 
 export type CreateTransactionMutationVariables = Exact<{
   input: CreateTransactionInput;
 }>;
 
-export type CreateTransactionMutation = {
-  __typename?: "Mutation";
-  createTransaction: {
-    __typename?: "Transaction";
-    id: string;
-    accountId: string;
-    categoryId?: string | undefined;
-    type: TransactionType;
-    amount: number;
-    currency: string;
-    date: string;
-    description?: string | undefined;
-    transferId?: string | undefined;
-  };
-};
+
+export type CreateTransactionMutation = { __typename?: 'Mutation', createTransaction: { __typename?: 'Transaction', id: string, accountId: string, categoryId?: string | undefined, type: TransactionType, amount: number, currency: string, date: string, description?: string | undefined, transferId?: string | undefined } };
 
 export type UpdateTransactionMutationVariables = Exact<{
   input: UpdateTransactionInput;
 }>;
 
-export type UpdateTransactionMutation = {
-  __typename?: "Mutation";
-  updateTransaction: {
-    __typename?: "Transaction";
-    id: string;
-    accountId: string;
-    categoryId?: string | undefined;
-    type: TransactionType;
-    amount: number;
-    currency: string;
-    date: string;
-    description?: string | undefined;
-    transferId?: string | undefined;
-  };
-};
+
+export type UpdateTransactionMutation = { __typename?: 'Mutation', updateTransaction: { __typename?: 'Transaction', id: string, accountId: string, categoryId?: string | undefined, type: TransactionType, amount: number, currency: string, date: string, description?: string | undefined, transferId?: string | undefined } };
 
 export type DeleteTransactionMutationVariables = Exact<{
-  id: Scalars["ID"]["input"];
+  id: Scalars['ID']['input'];
 }>;
 
-export type DeleteTransactionMutation = {
-  __typename?: "Mutation";
-  deleteTransaction: {
-    __typename?: "Transaction";
-    id: string;
-    accountId: string;
-    categoryId?: string | undefined;
-    type: TransactionType;
-    amount: number;
-    currency: string;
-    date: string;
-    description?: string | undefined;
-    transferId?: string | undefined;
-  };
-};
+
+export type DeleteTransactionMutation = { __typename?: 'Mutation', deleteTransaction: { __typename?: 'Transaction', id: string, accountId: string, categoryId?: string | undefined, type: TransactionType, amount: number, currency: string, date: string, description?: string | undefined, transferId?: string | undefined } };
 
 export type CreateTransferMutationVariables = Exact<{
   input: CreateTransferInput;
 }>;
 
-export type CreateTransferMutation = {
-  __typename?: "Mutation";
-  createTransfer: {
-    __typename?: "Transfer";
-    id: string;
-    outboundTransaction: {
-      __typename?: "Transaction";
-      id: string;
-      accountId: string;
-      categoryId?: string | undefined;
-      type: TransactionType;
-      amount: number;
-      currency: string;
-      date: string;
-      description?: string | undefined;
-      transferId?: string | undefined;
-    };
-    inboundTransaction: {
-      __typename?: "Transaction";
-      id: string;
-      accountId: string;
-      categoryId?: string | undefined;
-      type: TransactionType;
-      amount: number;
-      currency: string;
-      date: string;
-      description?: string | undefined;
-      transferId?: string | undefined;
-    };
-  };
-};
+
+export type CreateTransferMutation = { __typename?: 'Mutation', createTransfer: { __typename?: 'Transfer', id: string, outboundTransaction: { __typename?: 'Transaction', id: string, accountId: string, categoryId?: string | undefined, type: TransactionType, amount: number, currency: string, date: string, description?: string | undefined, transferId?: string | undefined }, inboundTransaction: { __typename?: 'Transaction', id: string, accountId: string, categoryId?: string | undefined, type: TransactionType, amount: number, currency: string, date: string, description?: string | undefined, transferId?: string | undefined } } };
 
 export type UpdateTransferMutationVariables = Exact<{
   input: UpdateTransferInput;
 }>;
 
-export type UpdateTransferMutation = {
-  __typename?: "Mutation";
-  updateTransfer: {
-    __typename?: "Transfer";
-    id: string;
-    outboundTransaction: {
-      __typename?: "Transaction";
-      id: string;
-      accountId: string;
-      categoryId?: string | undefined;
-      type: TransactionType;
-      amount: number;
-      currency: string;
-      date: string;
-      description?: string | undefined;
-      transferId?: string | undefined;
-    };
-    inboundTransaction: {
-      __typename?: "Transaction";
-      id: string;
-      accountId: string;
-      categoryId?: string | undefined;
-      type: TransactionType;
-      amount: number;
-      currency: string;
-      date: string;
-      description?: string | undefined;
-      transferId?: string | undefined;
-    };
-  };
-};
+
+export type UpdateTransferMutation = { __typename?: 'Mutation', updateTransfer: { __typename?: 'Transfer', id: string, outboundTransaction: { __typename?: 'Transaction', id: string, accountId: string, categoryId?: string | undefined, type: TransactionType, amount: number, currency: string, date: string, description?: string | undefined, transferId?: string | undefined }, inboundTransaction: { __typename?: 'Transaction', id: string, accountId: string, categoryId?: string | undefined, type: TransactionType, amount: number, currency: string, date: string, description?: string | undefined, transferId?: string | undefined } } };
 
 export type DeleteTransferMutationVariables = Exact<{
-  id: Scalars["ID"]["input"];
+  id: Scalars['ID']['input'];
 }>;
 
-export type DeleteTransferMutation = {
-  __typename?: "Mutation";
-  deleteTransfer?: boolean | undefined;
-};
 
-export type GetAccountsQueryVariables = Exact<{ [key: string]: never }>;
+export type DeleteTransferMutation = { __typename?: 'Mutation', deleteTransfer?: boolean | undefined };
 
-export type GetAccountsQuery = {
-  __typename?: "Query";
-  accounts: Array<{
-    __typename?: "Account";
-    id: string;
-    name: string;
-    currency: string;
-    initialBalance: number;
-    balance: number;
-  }>;
-};
+export type GetAccountsQueryVariables = Exact<{ [key: string]: never; }>;
 
-export type GetSupportedCurrenciesQueryVariables = Exact<{ [key: string]: never }>;
 
-export type GetSupportedCurrenciesQuery = {
-  __typename?: "Query";
-  supportedCurrencies: Array<string>;
-};
+export type GetAccountsQuery = { __typename?: 'Query', accounts: Array<{ __typename?: 'Account', id: string, name: string, currency: string, initialBalance: number, balance: number }> };
+
+export type GetSupportedCurrenciesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetSupportedCurrenciesQuery = { __typename?: 'Query', supportedCurrencies: Array<string> };
 
 export type GetCategoriesQueryVariables = Exact<{
   type?: InputMaybe<CategoryType>;
 }>;
 
-export type GetCategoriesQuery = {
-  __typename?: "Query";
-  categories: Array<{ __typename?: "Category"; id: string; name: string; type: CategoryType }>;
-};
+
+export type GetCategoriesQuery = { __typename?: 'Query', categories: Array<{ __typename?: 'Category', id: string, name: string, type: CategoryType }> };
 
 export type GetTransactionsPaginatedQueryVariables = Exact<{
   pagination?: InputMaybe<PaginationInput>;
 }>;
 
-export type GetTransactionsPaginatedQuery = {
-  __typename?: "Query";
-  transactions: {
-    __typename?: "TransactionConnection";
-    totalCount: number;
-    edges: Array<{
-      __typename?: "TransactionEdge";
-      cursor: string;
-      node: {
-        __typename?: "Transaction";
-        id: string;
-        accountId: string;
-        categoryId?: string | undefined;
-        type: TransactionType;
-        amount: number;
-        currency: string;
-        date: string;
-        description?: string | undefined;
-        transferId?: string | undefined;
-      };
-    }>;
-    pageInfo: {
-      __typename?: "PageInfo";
-      hasNextPage: boolean;
-      hasPreviousPage: boolean;
-      startCursor?: string | undefined;
-      endCursor?: string | undefined;
-    };
-  };
-};
+
+export type GetTransactionsPaginatedQuery = { __typename?: 'Query', transactions: { __typename?: 'TransactionConnection', totalCount: number, edges: Array<{ __typename?: 'TransactionEdge', cursor: string, node: { __typename?: 'Transaction', id: string, accountId: string, categoryId?: string | undefined, type: TransactionType, amount: number, currency: string, date: string, description?: string | undefined, transferId?: string | undefined } }>, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: string | undefined, endCursor?: string | undefined } } };
 
 export type GetTransferQueryVariables = Exact<{
-  id: Scalars["ID"]["input"];
+  id: Scalars['ID']['input'];
 }>;
 
-export type GetTransferQuery = {
-  __typename?: "Query";
-  transfer?:
-    | {
-        __typename?: "Transfer";
-        id: string;
-        outboundTransaction: {
-          __typename?: "Transaction";
-          id: string;
-          accountId: string;
-          categoryId?: string | undefined;
-          type: TransactionType;
-          amount: number;
-          currency: string;
-          date: string;
-          description?: string | undefined;
-          transferId?: string | undefined;
-        };
-        inboundTransaction: {
-          __typename?: "Transaction";
-          id: string;
-          accountId: string;
-          categoryId?: string | undefined;
-          type: TransactionType;
-          amount: number;
-          currency: string;
-          date: string;
-          description?: string | undefined;
-          transferId?: string | undefined;
-        };
-      }
-    | undefined;
-};
+
+export type GetTransferQuery = { __typename?: 'Query', transfer?: { __typename?: 'Transfer', id: string, outboundTransaction: { __typename?: 'Transaction', id: string, accountId: string, categoryId?: string | undefined, type: TransactionType, amount: number, currency: string, date: string, description?: string | undefined, transferId?: string | undefined }, inboundTransaction: { __typename?: 'Transaction', id: string, accountId: string, categoryId?: string | undefined, type: TransactionType, amount: number, currency: string, date: string, description?: string | undefined, transferId?: string | undefined } } | undefined };
 
 export const AccountFieldsFragmentDoc = gql`
-  fragment AccountFields on Account {
-    id
-    name
-    currency
-    initialBalance
-    balance
-  }
-`;
+    fragment AccountFields on Account {
+  id
+  name
+  currency
+  initialBalance
+  balance
+}
+    `;
 export const CategoryFieldsFragmentDoc = gql`
-  fragment CategoryFields on Category {
-    id
-    name
-    type
-  }
-`;
+    fragment CategoryFields on Category {
+  id
+  name
+  type
+}
+    `;
 export const TransactionFieldsFragmentDoc = gql`
-  fragment TransactionFields on Transaction {
-    id
-    accountId
-    categoryId
-    type
-    amount
-    currency
-    date
-    description
-    transferId
-  }
-`;
+    fragment TransactionFields on Transaction {
+  id
+  accountId
+  categoryId
+  type
+  amount
+  currency
+  date
+  description
+  transferId
+}
+    `;
 export const TransferFieldsFragmentDoc = gql`
-  fragment TransferFields on Transfer {
-    id
-    outboundTransaction {
-      ...TransactionFields
-    }
-    inboundTransaction {
-      ...TransactionFields
-    }
+    fragment TransferFields on Transfer {
+  id
+  outboundTransaction {
+    ...TransactionFields
   }
-  ${TransactionFieldsFragmentDoc}
-`;
+  inboundTransaction {
+    ...TransactionFields
+  }
+}
+    ${TransactionFieldsFragmentDoc}`;
 export const EnsureUserDocument = gql`
-  mutation EnsureUser {
-    ensureUser {
-      email
-    }
+    mutation EnsureUser {
+  ensureUser {
+    email
   }
-`;
+}
+    `;
 
 /**
  * __useEnsureUserMutation__
@@ -678,30 +445,17 @@ export const EnsureUserDocument = gql`
  * @example
  * const { mutate, loading, error, onDone } = useEnsureUserMutation();
  */
-export function useEnsureUserMutation(
-  options:
-    | VueApolloComposable.UseMutationOptions<EnsureUserMutation, EnsureUserMutationVariables>
-    | ReactiveFunction<
-        VueApolloComposable.UseMutationOptions<EnsureUserMutation, EnsureUserMutationVariables>
-      > = {},
-) {
-  return VueApolloComposable.useMutation<EnsureUserMutation, EnsureUserMutationVariables>(
-    EnsureUserDocument,
-    options,
-  );
+export function useEnsureUserMutation(options: VueApolloComposable.UseMutationOptions<EnsureUserMutation, EnsureUserMutationVariables> | ReactiveFunction<VueApolloComposable.UseMutationOptions<EnsureUserMutation, EnsureUserMutationVariables>> = {}) {
+  return VueApolloComposable.useMutation<EnsureUserMutation, EnsureUserMutationVariables>(EnsureUserDocument, options);
 }
-export type EnsureUserMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<
-  EnsureUserMutation,
-  EnsureUserMutationVariables
->;
+export type EnsureUserMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<EnsureUserMutation, EnsureUserMutationVariables>;
 export const CreateAccountDocument = gql`
-  mutation CreateAccount($input: CreateAccountInput!) {
-    createAccount(input: $input) {
-      ...AccountFields
-    }
+    mutation CreateAccount($input: CreateAccountInput!) {
+  createAccount(input: $input) {
+    ...AccountFields
   }
-  ${AccountFieldsFragmentDoc}
-`;
+}
+    ${AccountFieldsFragmentDoc}`;
 
 /**
  * __useCreateAccountMutation__
@@ -720,33 +474,17 @@ export const CreateAccountDocument = gql`
  *   },
  * });
  */
-export function useCreateAccountMutation(
-  options:
-    | VueApolloComposable.UseMutationOptions<CreateAccountMutation, CreateAccountMutationVariables>
-    | ReactiveFunction<
-        VueApolloComposable.UseMutationOptions<
-          CreateAccountMutation,
-          CreateAccountMutationVariables
-        >
-      > = {},
-) {
-  return VueApolloComposable.useMutation<CreateAccountMutation, CreateAccountMutationVariables>(
-    CreateAccountDocument,
-    options,
-  );
+export function useCreateAccountMutation(options: VueApolloComposable.UseMutationOptions<CreateAccountMutation, CreateAccountMutationVariables> | ReactiveFunction<VueApolloComposable.UseMutationOptions<CreateAccountMutation, CreateAccountMutationVariables>> = {}) {
+  return VueApolloComposable.useMutation<CreateAccountMutation, CreateAccountMutationVariables>(CreateAccountDocument, options);
 }
-export type CreateAccountMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<
-  CreateAccountMutation,
-  CreateAccountMutationVariables
->;
+export type CreateAccountMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<CreateAccountMutation, CreateAccountMutationVariables>;
 export const UpdateAccountDocument = gql`
-  mutation UpdateAccount($input: UpdateAccountInput!) {
-    updateAccount(input: $input) {
-      ...AccountFields
-    }
+    mutation UpdateAccount($input: UpdateAccountInput!) {
+  updateAccount(input: $input) {
+    ...AccountFields
   }
-  ${AccountFieldsFragmentDoc}
-`;
+}
+    ${AccountFieldsFragmentDoc}`;
 
 /**
  * __useUpdateAccountMutation__
@@ -765,30 +503,15 @@ export const UpdateAccountDocument = gql`
  *   },
  * });
  */
-export function useUpdateAccountMutation(
-  options:
-    | VueApolloComposable.UseMutationOptions<UpdateAccountMutation, UpdateAccountMutationVariables>
-    | ReactiveFunction<
-        VueApolloComposable.UseMutationOptions<
-          UpdateAccountMutation,
-          UpdateAccountMutationVariables
-        >
-      > = {},
-) {
-  return VueApolloComposable.useMutation<UpdateAccountMutation, UpdateAccountMutationVariables>(
-    UpdateAccountDocument,
-    options,
-  );
+export function useUpdateAccountMutation(options: VueApolloComposable.UseMutationOptions<UpdateAccountMutation, UpdateAccountMutationVariables> | ReactiveFunction<VueApolloComposable.UseMutationOptions<UpdateAccountMutation, UpdateAccountMutationVariables>> = {}) {
+  return VueApolloComposable.useMutation<UpdateAccountMutation, UpdateAccountMutationVariables>(UpdateAccountDocument, options);
 }
-export type UpdateAccountMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<
-  UpdateAccountMutation,
-  UpdateAccountMutationVariables
->;
+export type UpdateAccountMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<UpdateAccountMutation, UpdateAccountMutationVariables>;
 export const DeleteAccountDocument = gql`
-  mutation DeleteAccount($id: ID!) {
-    deleteAccount(id: $id)
-  }
-`;
+    mutation DeleteAccount($id: ID!) {
+  deleteAccount(id: $id)
+}
+    `;
 
 /**
  * __useDeleteAccountMutation__
@@ -807,33 +530,17 @@ export const DeleteAccountDocument = gql`
  *   },
  * });
  */
-export function useDeleteAccountMutation(
-  options:
-    | VueApolloComposable.UseMutationOptions<DeleteAccountMutation, DeleteAccountMutationVariables>
-    | ReactiveFunction<
-        VueApolloComposable.UseMutationOptions<
-          DeleteAccountMutation,
-          DeleteAccountMutationVariables
-        >
-      > = {},
-) {
-  return VueApolloComposable.useMutation<DeleteAccountMutation, DeleteAccountMutationVariables>(
-    DeleteAccountDocument,
-    options,
-  );
+export function useDeleteAccountMutation(options: VueApolloComposable.UseMutationOptions<DeleteAccountMutation, DeleteAccountMutationVariables> | ReactiveFunction<VueApolloComposable.UseMutationOptions<DeleteAccountMutation, DeleteAccountMutationVariables>> = {}) {
+  return VueApolloComposable.useMutation<DeleteAccountMutation, DeleteAccountMutationVariables>(DeleteAccountDocument, options);
 }
-export type DeleteAccountMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<
-  DeleteAccountMutation,
-  DeleteAccountMutationVariables
->;
+export type DeleteAccountMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<DeleteAccountMutation, DeleteAccountMutationVariables>;
 export const CreateCategoryDocument = gql`
-  mutation CreateCategory($input: CreateCategoryInput!) {
-    createCategory(input: $input) {
-      ...CategoryFields
-    }
+    mutation CreateCategory($input: CreateCategoryInput!) {
+  createCategory(input: $input) {
+    ...CategoryFields
   }
-  ${CategoryFieldsFragmentDoc}
-`;
+}
+    ${CategoryFieldsFragmentDoc}`;
 
 /**
  * __useCreateCategoryMutation__
@@ -852,36 +559,17 @@ export const CreateCategoryDocument = gql`
  *   },
  * });
  */
-export function useCreateCategoryMutation(
-  options:
-    | VueApolloComposable.UseMutationOptions<
-        CreateCategoryMutation,
-        CreateCategoryMutationVariables
-      >
-    | ReactiveFunction<
-        VueApolloComposable.UseMutationOptions<
-          CreateCategoryMutation,
-          CreateCategoryMutationVariables
-        >
-      > = {},
-) {
-  return VueApolloComposable.useMutation<CreateCategoryMutation, CreateCategoryMutationVariables>(
-    CreateCategoryDocument,
-    options,
-  );
+export function useCreateCategoryMutation(options: VueApolloComposable.UseMutationOptions<CreateCategoryMutation, CreateCategoryMutationVariables> | ReactiveFunction<VueApolloComposable.UseMutationOptions<CreateCategoryMutation, CreateCategoryMutationVariables>> = {}) {
+  return VueApolloComposable.useMutation<CreateCategoryMutation, CreateCategoryMutationVariables>(CreateCategoryDocument, options);
 }
-export type CreateCategoryMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<
-  CreateCategoryMutation,
-  CreateCategoryMutationVariables
->;
+export type CreateCategoryMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<CreateCategoryMutation, CreateCategoryMutationVariables>;
 export const UpdateCategoryDocument = gql`
-  mutation UpdateCategory($input: UpdateCategoryInput!) {
-    updateCategory(input: $input) {
-      ...CategoryFields
-    }
+    mutation UpdateCategory($input: UpdateCategoryInput!) {
+  updateCategory(input: $input) {
+    ...CategoryFields
   }
-  ${CategoryFieldsFragmentDoc}
-`;
+}
+    ${CategoryFieldsFragmentDoc}`;
 
 /**
  * __useUpdateCategoryMutation__
@@ -900,36 +588,17 @@ export const UpdateCategoryDocument = gql`
  *   },
  * });
  */
-export function useUpdateCategoryMutation(
-  options:
-    | VueApolloComposable.UseMutationOptions<
-        UpdateCategoryMutation,
-        UpdateCategoryMutationVariables
-      >
-    | ReactiveFunction<
-        VueApolloComposable.UseMutationOptions<
-          UpdateCategoryMutation,
-          UpdateCategoryMutationVariables
-        >
-      > = {},
-) {
-  return VueApolloComposable.useMutation<UpdateCategoryMutation, UpdateCategoryMutationVariables>(
-    UpdateCategoryDocument,
-    options,
-  );
+export function useUpdateCategoryMutation(options: VueApolloComposable.UseMutationOptions<UpdateCategoryMutation, UpdateCategoryMutationVariables> | ReactiveFunction<VueApolloComposable.UseMutationOptions<UpdateCategoryMutation, UpdateCategoryMutationVariables>> = {}) {
+  return VueApolloComposable.useMutation<UpdateCategoryMutation, UpdateCategoryMutationVariables>(UpdateCategoryDocument, options);
 }
-export type UpdateCategoryMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<
-  UpdateCategoryMutation,
-  UpdateCategoryMutationVariables
->;
+export type UpdateCategoryMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<UpdateCategoryMutation, UpdateCategoryMutationVariables>;
 export const DeleteCategoryDocument = gql`
-  mutation DeleteCategory($id: ID!) {
-    deleteCategory(id: $id) {
-      ...CategoryFields
-    }
+    mutation DeleteCategory($id: ID!) {
+  deleteCategory(id: $id) {
+    ...CategoryFields
   }
-  ${CategoryFieldsFragmentDoc}
-`;
+}
+    ${CategoryFieldsFragmentDoc}`;
 
 /**
  * __useDeleteCategoryMutation__
@@ -948,36 +617,17 @@ export const DeleteCategoryDocument = gql`
  *   },
  * });
  */
-export function useDeleteCategoryMutation(
-  options:
-    | VueApolloComposable.UseMutationOptions<
-        DeleteCategoryMutation,
-        DeleteCategoryMutationVariables
-      >
-    | ReactiveFunction<
-        VueApolloComposable.UseMutationOptions<
-          DeleteCategoryMutation,
-          DeleteCategoryMutationVariables
-        >
-      > = {},
-) {
-  return VueApolloComposable.useMutation<DeleteCategoryMutation, DeleteCategoryMutationVariables>(
-    DeleteCategoryDocument,
-    options,
-  );
+export function useDeleteCategoryMutation(options: VueApolloComposable.UseMutationOptions<DeleteCategoryMutation, DeleteCategoryMutationVariables> | ReactiveFunction<VueApolloComposable.UseMutationOptions<DeleteCategoryMutation, DeleteCategoryMutationVariables>> = {}) {
+  return VueApolloComposable.useMutation<DeleteCategoryMutation, DeleteCategoryMutationVariables>(DeleteCategoryDocument, options);
 }
-export type DeleteCategoryMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<
-  DeleteCategoryMutation,
-  DeleteCategoryMutationVariables
->;
+export type DeleteCategoryMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<DeleteCategoryMutation, DeleteCategoryMutationVariables>;
 export const CreateTransactionDocument = gql`
-  mutation CreateTransaction($input: CreateTransactionInput!) {
-    createTransaction(input: $input) {
-      ...TransactionFields
-    }
+    mutation CreateTransaction($input: CreateTransactionInput!) {
+  createTransaction(input: $input) {
+    ...TransactionFields
   }
-  ${TransactionFieldsFragmentDoc}
-`;
+}
+    ${TransactionFieldsFragmentDoc}`;
 
 /**
  * __useCreateTransactionMutation__
@@ -996,37 +646,17 @@ export const CreateTransactionDocument = gql`
  *   },
  * });
  */
-export function useCreateTransactionMutation(
-  options:
-    | VueApolloComposable.UseMutationOptions<
-        CreateTransactionMutation,
-        CreateTransactionMutationVariables
-      >
-    | ReactiveFunction<
-        VueApolloComposable.UseMutationOptions<
-          CreateTransactionMutation,
-          CreateTransactionMutationVariables
-        >
-      > = {},
-) {
-  return VueApolloComposable.useMutation<
-    CreateTransactionMutation,
-    CreateTransactionMutationVariables
-  >(CreateTransactionDocument, options);
+export function useCreateTransactionMutation(options: VueApolloComposable.UseMutationOptions<CreateTransactionMutation, CreateTransactionMutationVariables> | ReactiveFunction<VueApolloComposable.UseMutationOptions<CreateTransactionMutation, CreateTransactionMutationVariables>> = {}) {
+  return VueApolloComposable.useMutation<CreateTransactionMutation, CreateTransactionMutationVariables>(CreateTransactionDocument, options);
 }
-export type CreateTransactionMutationCompositionFunctionResult =
-  VueApolloComposable.UseMutationReturn<
-    CreateTransactionMutation,
-    CreateTransactionMutationVariables
-  >;
+export type CreateTransactionMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<CreateTransactionMutation, CreateTransactionMutationVariables>;
 export const UpdateTransactionDocument = gql`
-  mutation UpdateTransaction($input: UpdateTransactionInput!) {
-    updateTransaction(input: $input) {
-      ...TransactionFields
-    }
+    mutation UpdateTransaction($input: UpdateTransactionInput!) {
+  updateTransaction(input: $input) {
+    ...TransactionFields
   }
-  ${TransactionFieldsFragmentDoc}
-`;
+}
+    ${TransactionFieldsFragmentDoc}`;
 
 /**
  * __useUpdateTransactionMutation__
@@ -1045,37 +675,17 @@ export const UpdateTransactionDocument = gql`
  *   },
  * });
  */
-export function useUpdateTransactionMutation(
-  options:
-    | VueApolloComposable.UseMutationOptions<
-        UpdateTransactionMutation,
-        UpdateTransactionMutationVariables
-      >
-    | ReactiveFunction<
-        VueApolloComposable.UseMutationOptions<
-          UpdateTransactionMutation,
-          UpdateTransactionMutationVariables
-        >
-      > = {},
-) {
-  return VueApolloComposable.useMutation<
-    UpdateTransactionMutation,
-    UpdateTransactionMutationVariables
-  >(UpdateTransactionDocument, options);
+export function useUpdateTransactionMutation(options: VueApolloComposable.UseMutationOptions<UpdateTransactionMutation, UpdateTransactionMutationVariables> | ReactiveFunction<VueApolloComposable.UseMutationOptions<UpdateTransactionMutation, UpdateTransactionMutationVariables>> = {}) {
+  return VueApolloComposable.useMutation<UpdateTransactionMutation, UpdateTransactionMutationVariables>(UpdateTransactionDocument, options);
 }
-export type UpdateTransactionMutationCompositionFunctionResult =
-  VueApolloComposable.UseMutationReturn<
-    UpdateTransactionMutation,
-    UpdateTransactionMutationVariables
-  >;
+export type UpdateTransactionMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<UpdateTransactionMutation, UpdateTransactionMutationVariables>;
 export const DeleteTransactionDocument = gql`
-  mutation DeleteTransaction($id: ID!) {
-    deleteTransaction(id: $id) {
-      ...TransactionFields
-    }
+    mutation DeleteTransaction($id: ID!) {
+  deleteTransaction(id: $id) {
+    ...TransactionFields
   }
-  ${TransactionFieldsFragmentDoc}
-`;
+}
+    ${TransactionFieldsFragmentDoc}`;
 
 /**
  * __useDeleteTransactionMutation__
@@ -1094,37 +704,17 @@ export const DeleteTransactionDocument = gql`
  *   },
  * });
  */
-export function useDeleteTransactionMutation(
-  options:
-    | VueApolloComposable.UseMutationOptions<
-        DeleteTransactionMutation,
-        DeleteTransactionMutationVariables
-      >
-    | ReactiveFunction<
-        VueApolloComposable.UseMutationOptions<
-          DeleteTransactionMutation,
-          DeleteTransactionMutationVariables
-        >
-      > = {},
-) {
-  return VueApolloComposable.useMutation<
-    DeleteTransactionMutation,
-    DeleteTransactionMutationVariables
-  >(DeleteTransactionDocument, options);
+export function useDeleteTransactionMutation(options: VueApolloComposable.UseMutationOptions<DeleteTransactionMutation, DeleteTransactionMutationVariables> | ReactiveFunction<VueApolloComposable.UseMutationOptions<DeleteTransactionMutation, DeleteTransactionMutationVariables>> = {}) {
+  return VueApolloComposable.useMutation<DeleteTransactionMutation, DeleteTransactionMutationVariables>(DeleteTransactionDocument, options);
 }
-export type DeleteTransactionMutationCompositionFunctionResult =
-  VueApolloComposable.UseMutationReturn<
-    DeleteTransactionMutation,
-    DeleteTransactionMutationVariables
-  >;
+export type DeleteTransactionMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<DeleteTransactionMutation, DeleteTransactionMutationVariables>;
 export const CreateTransferDocument = gql`
-  mutation CreateTransfer($input: CreateTransferInput!) {
-    createTransfer(input: $input) {
-      ...TransferFields
-    }
+    mutation CreateTransfer($input: CreateTransferInput!) {
+  createTransfer(input: $input) {
+    ...TransferFields
   }
-  ${TransferFieldsFragmentDoc}
-`;
+}
+    ${TransferFieldsFragmentDoc}`;
 
 /**
  * __useCreateTransferMutation__
@@ -1143,36 +733,17 @@ export const CreateTransferDocument = gql`
  *   },
  * });
  */
-export function useCreateTransferMutation(
-  options:
-    | VueApolloComposable.UseMutationOptions<
-        CreateTransferMutation,
-        CreateTransferMutationVariables
-      >
-    | ReactiveFunction<
-        VueApolloComposable.UseMutationOptions<
-          CreateTransferMutation,
-          CreateTransferMutationVariables
-        >
-      > = {},
-) {
-  return VueApolloComposable.useMutation<CreateTransferMutation, CreateTransferMutationVariables>(
-    CreateTransferDocument,
-    options,
-  );
+export function useCreateTransferMutation(options: VueApolloComposable.UseMutationOptions<CreateTransferMutation, CreateTransferMutationVariables> | ReactiveFunction<VueApolloComposable.UseMutationOptions<CreateTransferMutation, CreateTransferMutationVariables>> = {}) {
+  return VueApolloComposable.useMutation<CreateTransferMutation, CreateTransferMutationVariables>(CreateTransferDocument, options);
 }
-export type CreateTransferMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<
-  CreateTransferMutation,
-  CreateTransferMutationVariables
->;
+export type CreateTransferMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<CreateTransferMutation, CreateTransferMutationVariables>;
 export const UpdateTransferDocument = gql`
-  mutation UpdateTransfer($input: UpdateTransferInput!) {
-    updateTransfer(input: $input) {
-      ...TransferFields
-    }
+    mutation UpdateTransfer($input: UpdateTransferInput!) {
+  updateTransfer(input: $input) {
+    ...TransferFields
   }
-  ${TransferFieldsFragmentDoc}
-`;
+}
+    ${TransferFieldsFragmentDoc}`;
 
 /**
  * __useUpdateTransferMutation__
@@ -1191,33 +762,15 @@ export const UpdateTransferDocument = gql`
  *   },
  * });
  */
-export function useUpdateTransferMutation(
-  options:
-    | VueApolloComposable.UseMutationOptions<
-        UpdateTransferMutation,
-        UpdateTransferMutationVariables
-      >
-    | ReactiveFunction<
-        VueApolloComposable.UseMutationOptions<
-          UpdateTransferMutation,
-          UpdateTransferMutationVariables
-        >
-      > = {},
-) {
-  return VueApolloComposable.useMutation<UpdateTransferMutation, UpdateTransferMutationVariables>(
-    UpdateTransferDocument,
-    options,
-  );
+export function useUpdateTransferMutation(options: VueApolloComposable.UseMutationOptions<UpdateTransferMutation, UpdateTransferMutationVariables> | ReactiveFunction<VueApolloComposable.UseMutationOptions<UpdateTransferMutation, UpdateTransferMutationVariables>> = {}) {
+  return VueApolloComposable.useMutation<UpdateTransferMutation, UpdateTransferMutationVariables>(UpdateTransferDocument, options);
 }
-export type UpdateTransferMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<
-  UpdateTransferMutation,
-  UpdateTransferMutationVariables
->;
+export type UpdateTransferMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<UpdateTransferMutation, UpdateTransferMutationVariables>;
 export const DeleteTransferDocument = gql`
-  mutation DeleteTransfer($id: ID!) {
-    deleteTransfer(id: $id)
-  }
-`;
+    mutation DeleteTransfer($id: ID!) {
+  deleteTransfer(id: $id)
+}
+    `;
 
 /**
  * __useDeleteTransferMutation__
@@ -1236,36 +789,17 @@ export const DeleteTransferDocument = gql`
  *   },
  * });
  */
-export function useDeleteTransferMutation(
-  options:
-    | VueApolloComposable.UseMutationOptions<
-        DeleteTransferMutation,
-        DeleteTransferMutationVariables
-      >
-    | ReactiveFunction<
-        VueApolloComposable.UseMutationOptions<
-          DeleteTransferMutation,
-          DeleteTransferMutationVariables
-        >
-      > = {},
-) {
-  return VueApolloComposable.useMutation<DeleteTransferMutation, DeleteTransferMutationVariables>(
-    DeleteTransferDocument,
-    options,
-  );
+export function useDeleteTransferMutation(options: VueApolloComposable.UseMutationOptions<DeleteTransferMutation, DeleteTransferMutationVariables> | ReactiveFunction<VueApolloComposable.UseMutationOptions<DeleteTransferMutation, DeleteTransferMutationVariables>> = {}) {
+  return VueApolloComposable.useMutation<DeleteTransferMutation, DeleteTransferMutationVariables>(DeleteTransferDocument, options);
 }
-export type DeleteTransferMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<
-  DeleteTransferMutation,
-  DeleteTransferMutationVariables
->;
+export type DeleteTransferMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<DeleteTransferMutation, DeleteTransferMutationVariables>;
 export const GetAccountsDocument = gql`
-  query GetAccounts {
-    accounts {
-      ...AccountFields
-    }
+    query GetAccounts {
+  accounts {
+    ...AccountFields
   }
-  ${AccountFieldsFragmentDoc}
-`;
+}
+    ${AccountFieldsFragmentDoc}`;
 
 /**
  * __useGetAccountsQuery__
@@ -1279,47 +813,18 @@ export const GetAccountsDocument = gql`
  * @example
  * const { result, loading, error } = useGetAccountsQuery();
  */
-export function useGetAccountsQuery(
-  options:
-    | VueApolloComposable.UseQueryOptions<GetAccountsQuery, GetAccountsQueryVariables>
-    | VueCompositionApi.Ref<
-        VueApolloComposable.UseQueryOptions<GetAccountsQuery, GetAccountsQueryVariables>
-      >
-    | ReactiveFunction<
-        VueApolloComposable.UseQueryOptions<GetAccountsQuery, GetAccountsQueryVariables>
-      > = {},
-) {
-  return VueApolloComposable.useQuery<GetAccountsQuery, GetAccountsQueryVariables>(
-    GetAccountsDocument,
-    {},
-    options,
-  );
+export function useGetAccountsQuery(options: VueApolloComposable.UseQueryOptions<GetAccountsQuery, GetAccountsQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<GetAccountsQuery, GetAccountsQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<GetAccountsQuery, GetAccountsQueryVariables>> = {}) {
+  return VueApolloComposable.useQuery<GetAccountsQuery, GetAccountsQueryVariables>(GetAccountsDocument, {}, options);
 }
-export function useGetAccountsLazyQuery(
-  options:
-    | VueApolloComposable.UseQueryOptions<GetAccountsQuery, GetAccountsQueryVariables>
-    | VueCompositionApi.Ref<
-        VueApolloComposable.UseQueryOptions<GetAccountsQuery, GetAccountsQueryVariables>
-      >
-    | ReactiveFunction<
-        VueApolloComposable.UseQueryOptions<GetAccountsQuery, GetAccountsQueryVariables>
-      > = {},
-) {
-  return VueApolloComposable.useLazyQuery<GetAccountsQuery, GetAccountsQueryVariables>(
-    GetAccountsDocument,
-    {},
-    options,
-  );
+export function useGetAccountsLazyQuery(options: VueApolloComposable.UseQueryOptions<GetAccountsQuery, GetAccountsQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<GetAccountsQuery, GetAccountsQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<GetAccountsQuery, GetAccountsQueryVariables>> = {}) {
+  return VueApolloComposable.useLazyQuery<GetAccountsQuery, GetAccountsQueryVariables>(GetAccountsDocument, {}, options);
 }
-export type GetAccountsQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<
-  GetAccountsQuery,
-  GetAccountsQueryVariables
->;
+export type GetAccountsQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<GetAccountsQuery, GetAccountsQueryVariables>;
 export const GetSupportedCurrenciesDocument = gql`
-  query GetSupportedCurrencies {
-    supportedCurrencies
-  }
-`;
+    query GetSupportedCurrencies {
+  supportedCurrencies
+}
+    `;
 
 /**
  * __useGetSupportedCurrenciesQuery__
@@ -1333,67 +838,20 @@ export const GetSupportedCurrenciesDocument = gql`
  * @example
  * const { result, loading, error } = useGetSupportedCurrenciesQuery();
  */
-export function useGetSupportedCurrenciesQuery(
-  options:
-    | VueApolloComposable.UseQueryOptions<
-        GetSupportedCurrenciesQuery,
-        GetSupportedCurrenciesQueryVariables
-      >
-    | VueCompositionApi.Ref<
-        VueApolloComposable.UseQueryOptions<
-          GetSupportedCurrenciesQuery,
-          GetSupportedCurrenciesQueryVariables
-        >
-      >
-    | ReactiveFunction<
-        VueApolloComposable.UseQueryOptions<
-          GetSupportedCurrenciesQuery,
-          GetSupportedCurrenciesQueryVariables
-        >
-      > = {},
-) {
-  return VueApolloComposable.useQuery<
-    GetSupportedCurrenciesQuery,
-    GetSupportedCurrenciesQueryVariables
-  >(GetSupportedCurrenciesDocument, {}, options);
+export function useGetSupportedCurrenciesQuery(options: VueApolloComposable.UseQueryOptions<GetSupportedCurrenciesQuery, GetSupportedCurrenciesQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<GetSupportedCurrenciesQuery, GetSupportedCurrenciesQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<GetSupportedCurrenciesQuery, GetSupportedCurrenciesQueryVariables>> = {}) {
+  return VueApolloComposable.useQuery<GetSupportedCurrenciesQuery, GetSupportedCurrenciesQueryVariables>(GetSupportedCurrenciesDocument, {}, options);
 }
-export function useGetSupportedCurrenciesLazyQuery(
-  options:
-    | VueApolloComposable.UseQueryOptions<
-        GetSupportedCurrenciesQuery,
-        GetSupportedCurrenciesQueryVariables
-      >
-    | VueCompositionApi.Ref<
-        VueApolloComposable.UseQueryOptions<
-          GetSupportedCurrenciesQuery,
-          GetSupportedCurrenciesQueryVariables
-        >
-      >
-    | ReactiveFunction<
-        VueApolloComposable.UseQueryOptions<
-          GetSupportedCurrenciesQuery,
-          GetSupportedCurrenciesQueryVariables
-        >
-      > = {},
-) {
-  return VueApolloComposable.useLazyQuery<
-    GetSupportedCurrenciesQuery,
-    GetSupportedCurrenciesQueryVariables
-  >(GetSupportedCurrenciesDocument, {}, options);
+export function useGetSupportedCurrenciesLazyQuery(options: VueApolloComposable.UseQueryOptions<GetSupportedCurrenciesQuery, GetSupportedCurrenciesQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<GetSupportedCurrenciesQuery, GetSupportedCurrenciesQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<GetSupportedCurrenciesQuery, GetSupportedCurrenciesQueryVariables>> = {}) {
+  return VueApolloComposable.useLazyQuery<GetSupportedCurrenciesQuery, GetSupportedCurrenciesQueryVariables>(GetSupportedCurrenciesDocument, {}, options);
 }
-export type GetSupportedCurrenciesQueryCompositionFunctionResult =
-  VueApolloComposable.UseQueryReturn<
-    GetSupportedCurrenciesQuery,
-    GetSupportedCurrenciesQueryVariables
-  >;
+export type GetSupportedCurrenciesQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<GetSupportedCurrenciesQuery, GetSupportedCurrenciesQueryVariables>;
 export const GetCategoriesDocument = gql`
-  query GetCategories($type: CategoryType) {
-    categories(type: $type) {
-      ...CategoryFields
-    }
+    query GetCategories($type: CategoryType) {
+  categories(type: $type) {
+    ...CategoryFields
   }
-  ${CategoryFieldsFragmentDoc}
-`;
+}
+    ${CategoryFieldsFragmentDoc}`;
 
 /**
  * __useGetCategoriesQuery__
@@ -1410,70 +868,32 @@ export const GetCategoriesDocument = gql`
  *   type: // value for 'type'
  * });
  */
-export function useGetCategoriesQuery(
-  variables:
-    | GetCategoriesQueryVariables
-    | VueCompositionApi.Ref<GetCategoriesQueryVariables>
-    | ReactiveFunction<GetCategoriesQueryVariables> = {},
-  options:
-    | VueApolloComposable.UseQueryOptions<GetCategoriesQuery, GetCategoriesQueryVariables>
-    | VueCompositionApi.Ref<
-        VueApolloComposable.UseQueryOptions<GetCategoriesQuery, GetCategoriesQueryVariables>
-      >
-    | ReactiveFunction<
-        VueApolloComposable.UseQueryOptions<GetCategoriesQuery, GetCategoriesQueryVariables>
-      > = {},
-) {
-  return VueApolloComposable.useQuery<GetCategoriesQuery, GetCategoriesQueryVariables>(
-    GetCategoriesDocument,
-    variables,
-    options,
-  );
+export function useGetCategoriesQuery(variables: GetCategoriesQueryVariables | VueCompositionApi.Ref<GetCategoriesQueryVariables> | ReactiveFunction<GetCategoriesQueryVariables> = {}, options: VueApolloComposable.UseQueryOptions<GetCategoriesQuery, GetCategoriesQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<GetCategoriesQuery, GetCategoriesQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<GetCategoriesQuery, GetCategoriesQueryVariables>> = {}) {
+  return VueApolloComposable.useQuery<GetCategoriesQuery, GetCategoriesQueryVariables>(GetCategoriesDocument, variables, options);
 }
-export function useGetCategoriesLazyQuery(
-  variables:
-    | GetCategoriesQueryVariables
-    | VueCompositionApi.Ref<GetCategoriesQueryVariables>
-    | ReactiveFunction<GetCategoriesQueryVariables> = {},
-  options:
-    | VueApolloComposable.UseQueryOptions<GetCategoriesQuery, GetCategoriesQueryVariables>
-    | VueCompositionApi.Ref<
-        VueApolloComposable.UseQueryOptions<GetCategoriesQuery, GetCategoriesQueryVariables>
-      >
-    | ReactiveFunction<
-        VueApolloComposable.UseQueryOptions<GetCategoriesQuery, GetCategoriesQueryVariables>
-      > = {},
-) {
-  return VueApolloComposable.useLazyQuery<GetCategoriesQuery, GetCategoriesQueryVariables>(
-    GetCategoriesDocument,
-    variables,
-    options,
-  );
+export function useGetCategoriesLazyQuery(variables: GetCategoriesQueryVariables | VueCompositionApi.Ref<GetCategoriesQueryVariables> | ReactiveFunction<GetCategoriesQueryVariables> = {}, options: VueApolloComposable.UseQueryOptions<GetCategoriesQuery, GetCategoriesQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<GetCategoriesQuery, GetCategoriesQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<GetCategoriesQuery, GetCategoriesQueryVariables>> = {}) {
+  return VueApolloComposable.useLazyQuery<GetCategoriesQuery, GetCategoriesQueryVariables>(GetCategoriesDocument, variables, options);
 }
-export type GetCategoriesQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<
-  GetCategoriesQuery,
-  GetCategoriesQueryVariables
->;
+export type GetCategoriesQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<GetCategoriesQuery, GetCategoriesQueryVariables>;
 export const GetTransactionsPaginatedDocument = gql`
-  query GetTransactionsPaginated($pagination: PaginationInput) {
-    transactions(pagination: $pagination) {
-      edges {
-        node {
-          ...TransactionFields
-        }
-        cursor
+    query GetTransactionsPaginated($pagination: PaginationInput) {
+  transactions(pagination: $pagination) {
+    edges {
+      node {
+        ...TransactionFields
       }
-      pageInfo {
-        hasNextPage
-        hasPreviousPage
-        startCursor
-        endCursor
-      }
-      totalCount
+      cursor
     }
+    pageInfo {
+      hasNextPage
+      hasPreviousPage
+      startCursor
+      endCursor
+    }
+    totalCount
   }
-  ${TransactionFieldsFragmentDoc}
-`;
+}
+    ${TransactionFieldsFragmentDoc}`;
 
 /**
  * __useGetTransactionsPaginatedQuery__
@@ -1490,75 +910,20 @@ export const GetTransactionsPaginatedDocument = gql`
  *   pagination: // value for 'pagination'
  * });
  */
-export function useGetTransactionsPaginatedQuery(
-  variables:
-    | GetTransactionsPaginatedQueryVariables
-    | VueCompositionApi.Ref<GetTransactionsPaginatedQueryVariables>
-    | ReactiveFunction<GetTransactionsPaginatedQueryVariables> = {},
-  options:
-    | VueApolloComposable.UseQueryOptions<
-        GetTransactionsPaginatedQuery,
-        GetTransactionsPaginatedQueryVariables
-      >
-    | VueCompositionApi.Ref<
-        VueApolloComposable.UseQueryOptions<
-          GetTransactionsPaginatedQuery,
-          GetTransactionsPaginatedQueryVariables
-        >
-      >
-    | ReactiveFunction<
-        VueApolloComposable.UseQueryOptions<
-          GetTransactionsPaginatedQuery,
-          GetTransactionsPaginatedQueryVariables
-        >
-      > = {},
-) {
-  return VueApolloComposable.useQuery<
-    GetTransactionsPaginatedQuery,
-    GetTransactionsPaginatedQueryVariables
-  >(GetTransactionsPaginatedDocument, variables, options);
+export function useGetTransactionsPaginatedQuery(variables: GetTransactionsPaginatedQueryVariables | VueCompositionApi.Ref<GetTransactionsPaginatedQueryVariables> | ReactiveFunction<GetTransactionsPaginatedQueryVariables> = {}, options: VueApolloComposable.UseQueryOptions<GetTransactionsPaginatedQuery, GetTransactionsPaginatedQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<GetTransactionsPaginatedQuery, GetTransactionsPaginatedQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<GetTransactionsPaginatedQuery, GetTransactionsPaginatedQueryVariables>> = {}) {
+  return VueApolloComposable.useQuery<GetTransactionsPaginatedQuery, GetTransactionsPaginatedQueryVariables>(GetTransactionsPaginatedDocument, variables, options);
 }
-export function useGetTransactionsPaginatedLazyQuery(
-  variables:
-    | GetTransactionsPaginatedQueryVariables
-    | VueCompositionApi.Ref<GetTransactionsPaginatedQueryVariables>
-    | ReactiveFunction<GetTransactionsPaginatedQueryVariables> = {},
-  options:
-    | VueApolloComposable.UseQueryOptions<
-        GetTransactionsPaginatedQuery,
-        GetTransactionsPaginatedQueryVariables
-      >
-    | VueCompositionApi.Ref<
-        VueApolloComposable.UseQueryOptions<
-          GetTransactionsPaginatedQuery,
-          GetTransactionsPaginatedQueryVariables
-        >
-      >
-    | ReactiveFunction<
-        VueApolloComposable.UseQueryOptions<
-          GetTransactionsPaginatedQuery,
-          GetTransactionsPaginatedQueryVariables
-        >
-      > = {},
-) {
-  return VueApolloComposable.useLazyQuery<
-    GetTransactionsPaginatedQuery,
-    GetTransactionsPaginatedQueryVariables
-  >(GetTransactionsPaginatedDocument, variables, options);
+export function useGetTransactionsPaginatedLazyQuery(variables: GetTransactionsPaginatedQueryVariables | VueCompositionApi.Ref<GetTransactionsPaginatedQueryVariables> | ReactiveFunction<GetTransactionsPaginatedQueryVariables> = {}, options: VueApolloComposable.UseQueryOptions<GetTransactionsPaginatedQuery, GetTransactionsPaginatedQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<GetTransactionsPaginatedQuery, GetTransactionsPaginatedQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<GetTransactionsPaginatedQuery, GetTransactionsPaginatedQueryVariables>> = {}) {
+  return VueApolloComposable.useLazyQuery<GetTransactionsPaginatedQuery, GetTransactionsPaginatedQueryVariables>(GetTransactionsPaginatedDocument, variables, options);
 }
-export type GetTransactionsPaginatedQueryCompositionFunctionResult =
-  VueApolloComposable.UseQueryReturn<
-    GetTransactionsPaginatedQuery,
-    GetTransactionsPaginatedQueryVariables
-  >;
+export type GetTransactionsPaginatedQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<GetTransactionsPaginatedQuery, GetTransactionsPaginatedQueryVariables>;
 export const GetTransferDocument = gql`
-  query GetTransfer($id: ID!) {
-    transfer(id: $id) {
-      ...TransferFields
-    }
+    query GetTransfer($id: ID!) {
+  transfer(id: $id) {
+    ...TransferFields
   }
-  ${TransferFieldsFragmentDoc}
-`;
+}
+    ${TransferFieldsFragmentDoc}`;
 
 /**
  * __useGetTransferQuery__
@@ -1575,47 +940,10 @@ export const GetTransferDocument = gql`
  *   id: // value for 'id'
  * });
  */
-export function useGetTransferQuery(
-  variables:
-    | GetTransferQueryVariables
-    | VueCompositionApi.Ref<GetTransferQueryVariables>
-    | ReactiveFunction<GetTransferQueryVariables>,
-  options:
-    | VueApolloComposable.UseQueryOptions<GetTransferQuery, GetTransferQueryVariables>
-    | VueCompositionApi.Ref<
-        VueApolloComposable.UseQueryOptions<GetTransferQuery, GetTransferQueryVariables>
-      >
-    | ReactiveFunction<
-        VueApolloComposable.UseQueryOptions<GetTransferQuery, GetTransferQueryVariables>
-      > = {},
-) {
-  return VueApolloComposable.useQuery<GetTransferQuery, GetTransferQueryVariables>(
-    GetTransferDocument,
-    variables,
-    options,
-  );
+export function useGetTransferQuery(variables: GetTransferQueryVariables | VueCompositionApi.Ref<GetTransferQueryVariables> | ReactiveFunction<GetTransferQueryVariables>, options: VueApolloComposable.UseQueryOptions<GetTransferQuery, GetTransferQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<GetTransferQuery, GetTransferQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<GetTransferQuery, GetTransferQueryVariables>> = {}) {
+  return VueApolloComposable.useQuery<GetTransferQuery, GetTransferQueryVariables>(GetTransferDocument, variables, options);
 }
-export function useGetTransferLazyQuery(
-  variables?:
-    | GetTransferQueryVariables
-    | VueCompositionApi.Ref<GetTransferQueryVariables>
-    | ReactiveFunction<GetTransferQueryVariables>,
-  options:
-    | VueApolloComposable.UseQueryOptions<GetTransferQuery, GetTransferQueryVariables>
-    | VueCompositionApi.Ref<
-        VueApolloComposable.UseQueryOptions<GetTransferQuery, GetTransferQueryVariables>
-      >
-    | ReactiveFunction<
-        VueApolloComposable.UseQueryOptions<GetTransferQuery, GetTransferQueryVariables>
-      > = {},
-) {
-  return VueApolloComposable.useLazyQuery<GetTransferQuery, GetTransferQueryVariables>(
-    GetTransferDocument,
-    variables,
-    options,
-  );
+export function useGetTransferLazyQuery(variables?: GetTransferQueryVariables | VueCompositionApi.Ref<GetTransferQueryVariables> | ReactiveFunction<GetTransferQueryVariables>, options: VueApolloComposable.UseQueryOptions<GetTransferQuery, GetTransferQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<GetTransferQuery, GetTransferQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<GetTransferQuery, GetTransferQueryVariables>> = {}) {
+  return VueApolloComposable.useLazyQuery<GetTransferQuery, GetTransferQueryVariables>(GetTransferDocument, variables, options);
 }
-export type GetTransferQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<
-  GetTransferQuery,
-  GetTransferQueryVariables
->;
+export type GetTransferQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<GetTransferQuery, GetTransferQueryVariables>;
