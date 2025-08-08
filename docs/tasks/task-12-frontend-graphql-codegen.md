@@ -100,9 +100,9 @@ frontend/src/__generated__/
 - [x] 12.6.2.3 Test error handling with typed operations
 
 ### 12.7 Documentation and Workflow
-- [ ] 12.7.1 Document new development workflow in `CLAUDE.md`
-- [ ] 12.7.2 Create team guidelines for schema change process
-- [ ] 12.7.3 Update build/deployment documentation
+- [x] 12.7.1 Document new development workflow in `CLAUDE.md`
+- [x] 12.7.2 Create team guidelines for schema change process
+- [x] 12.7.3 Update build/deployment documentation
 
 ## Testing
 

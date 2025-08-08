@@ -43,14 +43,18 @@ npm run format        # Run prettier:fix and lint:fix together
 ### Frontend Development
 ```bash
 cd frontend
-npm run dev          # Start Vite development server
-npm run build        # Build for production (includes type-check)
+npm run dev          # Start Vite development server (includes schema sync + codegen)
+npm run build        # Build for production (includes schema sync + codegen + type-check)
 npm run build-only   # Build without type checking
 npm run preview      # Preview production build locally
 npm run type-check   # Vue TypeScript checking
 npm run lint         # ESLint check
 npm run lint:fix     # ESLint with auto-fix
 npm run format       # Run prettier:fix and lint:fix together
+
+# GraphQL CodeGen (automatic in dev/build)
+npm run codegen:sync-schema  # Sync schema from backend to frontend
+npm run codegen             # Generate TypeScript types and Vue Apollo composables
 ```
 
 ### CDK Infrastructure
@@ -80,6 +84,12 @@ npm run test         # Run Jest tests
 - AWS CLI configured with appropriate credentials
 - `jq` command-line JSON processor installed
 - All dependencies installed in each package directory
+
+**GraphQL CodeGen Integration in Deployment:**
+- Frontend build process automatically syncs schema and generates types
+- Schema sync ensures frontend uses latest backend GraphQL schema during build
+- Generated types are included in production build for type safety
+- No manual intervention required for schema synchronization during deployment
 
 ## Environment Management
 
@@ -115,6 +125,7 @@ Commands prefixed with `dotenvx run` automatically load the correct environment 
 - **Vite** - Modern build tool with hot module replacement
 - **Path Aliases** - `@/` maps to `src/` directory
 - **TypeScript** - Full type checking integrated with build process
+- **GraphQL CodeGen** - Automatic schema sync and type generation from backend GraphQL schema
 - **Production Optimization** - Tree shaking, minification, asset optimization
 
 ## Key Technical Details
@@ -352,6 +363,64 @@ Complete Docker-based development setup:
 - Automatic table creation via TypeScript scripts on `npm run db:setup`
 - Service health checks and graceful startup/shutdown procedures
 
+### GraphQL Type Generation System
+
+**Schema Synchronization:**
+- Backend maintains canonical GraphQL schema at `backend/src/schema.graphql`
+- Frontend automatically syncs schema to `frontend/src/schema.graphql` during dev and build processes
+- Manual sync available via `npm run codegen:sync-schema` in frontend directory
+
+**Type Generation Architecture:**
+```
+backend/src/schema.graphql → [sync] → frontend/src/schema.graphql
+                                              ↓
+frontend/src/graphql/*.ts (operations) → [codegen] → frontend/src/__generated__/
+                                                            ├── graphql-types.ts (base types)
+                                                            └── vue-apollo.ts (typed composables)
+```
+
+**Frontend CodeGen Configuration:**
+- **Schema Source**: Local copy at `frontend/src/schema.graphql`
+- **Operations Source**: GraphQL queries, mutations, fragments in `frontend/src/graphql/`
+- **Generated Output**: TypeScript types and Vue Apollo composables in `frontend/src/__generated__/`
+- **Type Safety**: `InputMaybe<T>` types use `T | undefined` for strict null handling
+- **Composables**: Generated `useCreateTransactionMutation()`, `useGetAccountsQuery()`, etc.
+
+**Development Workflow:**
+1. Backend developer updates `backend/src/schema.graphql`
+2. Frontend `npm run dev` automatically syncs schema and regenerates types
+3. TypeScript compilation catches any breaking changes immediately
+4. IDE provides full autocomplete and type checking for GraphQL operations
+5. Generated composables replace manual `useQuery`/`useMutation` calls
+
+**Generated Type Structure:**
+- **Base Types**: Account, Transaction, Category interfaces from schema
+- **Input Types**: CreateTransactionInput, UpdateAccountInput, etc.
+- **Enum Types**: TransactionType, CategoryType as TypeScript unions
+- **Composable Functions**: Typed Vue Apollo hooks for each GraphQL operation
+- **Document Objects**: GraphQL document objects for direct Apollo Client usage
+
+**Schema Change Process Guidelines:**
+
+*For Backend Developers:*
+1. **Schema Updates**: Modify `backend/src/schema.graphql` for any GraphQL API changes
+2. **Resolver Implementation**: Update resolvers and types in backend before frontend sync
+3. **Testing**: Test backend GraphQL endpoint functionality before schema changes are consumed
+4. **Communication**: Notify frontend team of breaking schema changes via commit messages or PR descriptions
+
+*For Frontend Developers:*
+1. **Schema Sync**: Frontend automatically syncs schema during `npm run dev` or `npm run build`
+2. **Manual Sync**: Use `npm run codegen:sync-schema` to pull latest schema changes manually
+3. **Type Safety**: Let TypeScript compilation catch schema mismatches immediately
+4. **Operation Updates**: Update GraphQL operations in `frontend/src/graphql/` as needed for schema changes
+5. **Testing**: Verify all affected components work with updated types and operations
+
+*For Breaking Changes:*
+1. **Backend**: Update schema, resolvers, and test thoroughly
+2. **Frontend**: Sync schema and fix TypeScript errors from generated types
+3. **Verification**: Ensure UI functionality works with updated GraphQL operations
+4. **Deployment**: Deploy backend changes before frontend deployment to avoid API mismatches
+
 ## Testing and Debugging
 
 ### GraphQL Development Tools
@@ -383,6 +452,7 @@ Complete Docker-based development setup:
 - **Development Database** - DynamoDB Local with Docker orchestration
 - **Service Layer Architecture** - TransactionService, AccountService, and TransferService with business logic and validation
 - **Transfer System** - Account-to-account transfers with atomic DynamoDB transactions
+- **GraphQL Type Generation** - Frontend TypeScript type generation and typed Vue Apollo composables from shared schema
 
 ### Architecture Status
 **Current State:** Major features implemented with service layer adoption
@@ -463,7 +533,9 @@ git config core.hooksPath .githooks
 - Test databases isolated from development data
 
 ### Code Generation Workflow
-- **GraphQL Types**: Run `npm run codegen` in backend after schema changes
+- **Backend GraphQL Types**: Run `npm run codegen` in backend after schema changes
+- **Frontend GraphQL Types**: Automatic schema sync and codegen during `npm run dev` and `npm run build`
+- **Manual Frontend Codegen**: Use `npm run codegen:sync-schema && npm run codegen` in frontend directory
 - **Apollo Config**: `apollo.config.js` enables IDE integration and tooling
 - **TypeScript**: Strict type checking across all packages
 
