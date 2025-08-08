@@ -5,8 +5,10 @@
   "type": "module",
   "scripts": {
     "build-only": "vite build",
-    "build": "run-p type-check \"build-only {@}\" --",
-    "dev": "vite",
+    "build": "npm run codegen && run-p type-check \"build-only {@}\" --",
+    "codegen:sync-schema": "cp ../backend/src/schema.graphql src/schema.graphql",
+    "codegen": "npm run codegen:sync-schema && graphql-codegen",
+    "dev": "npm run codegen && vite",
     "format": "npm run prettier:fix && npm run lint:fix",
     "lint:fix": "eslint . --fix",
     "lint": "eslint .",
@@ -26,6 +28,10 @@
     "vuetify": "^3.8.9"
   },
   "devDependencies": {
+    "@graphql-codegen/cli": "^5.0.7",
+    "@graphql-codegen/typescript": "^4.1.6",
+    "@graphql-codegen/typescript-operations": "^4.6.1",
+    "@graphql-codegen/typescript-vue-apollo": "^4.1.2",
     "@mdi/font": "^7.4.47",
     "@tsconfig/node22": "^22.0.1",
     "@types/node": "^22.14.0",

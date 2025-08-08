@@ -1,43 +1,18 @@
-import { useMutation, useQuery } from "@vue/apollo-composable";
 import { ref, watch, type Ref } from "vue";
-import { GET_CATEGORIES } from "@/graphql/queries";
-import { CREATE_CATEGORY, UPDATE_CATEGORY, DELETE_CATEGORY } from "@/graphql/mutations";
 import type { ApolloError } from "@apollo/client/core";
+import {
+  useGetCategoriesQuery,
+  useCreateCategoryMutation,
+  useUpdateCategoryMutation,
+  useDeleteCategoryMutation,
+  type CategoryType,
+  type Category,
+  type CreateCategoryInput,
+  type UpdateCategoryInput,
+} from "@/__generated__/vue-apollo";
 
-export type CategoryType = "INCOME" | "EXPENSE";
-
-export interface Category {
-  id: string;
-  name: string;
-  type: CategoryType;
-}
-
-export interface CreateCategoryInput {
-  name: string;
-  type: CategoryType;
-}
-
-export interface UpdateCategoryInput {
-  id: string;
-  name?: string;
-  type?: CategoryType;
-}
-
-interface GetCategoriesResponse {
-  categories: Category[];
-}
-
-interface CreateCategoryResponse {
-  createCategory: Category;
-}
-
-interface UpdateCategoryResponse {
-  updateCategory: Category;
-}
-
-interface DeleteCategoryResponse {
-  deleteCategory: Category;
-}
+// Re-export types for backward compatibility
+export type { CategoryType, Category, CreateCategoryInput, UpdateCategoryInput };
 
 export function useCategories(type?: CategoryType | Ref<CategoryType>) {
   const categoriesError = ref<string | null>(null);
@@ -48,8 +23,8 @@ export function useCategories(type?: CategoryType | Ref<CategoryType>) {
     loading: categoriesLoading,
     error: categoriesQueryError,
     refetch: refetchCategories,
-  } = useQuery<GetCategoriesResponse>(GET_CATEGORIES, () => ({
-    type: typeof type === "object" && "value" in type ? type.value : type || null,
+  } = useGetCategoriesQuery(() => ({
+    type: typeof type === "object" && "value" in type ? type.value : type || undefined,
   }));
 
   // Create category mutation
@@ -57,21 +32,21 @@ export function useCategories(type?: CategoryType | Ref<CategoryType>) {
     mutate: createCategoryMutation,
     loading: createCategoryLoading,
     error: createCategoryError,
-  } = useMutation<CreateCategoryResponse, { input: CreateCategoryInput }>(CREATE_CATEGORY);
+  } = useCreateCategoryMutation();
 
   // Update category mutation
   const {
     mutate: updateCategoryMutation,
     loading: updateCategoryLoading,
     error: updateCategoryError,
-  } = useMutation<UpdateCategoryResponse, { input: UpdateCategoryInput }>(UPDATE_CATEGORY);
+  } = useUpdateCategoryMutation();
 
   // Delete category mutation
   const {
     mutate: deleteCategoryMutation,
     loading: deleteCategoryLoading,
     error: deleteCategoryError,
-  } = useMutation<DeleteCategoryResponse, { id: string }>(DELETE_CATEGORY);
+  } = useDeleteCategoryMutation();
 
   // Watch for query errors
   watch(categoriesQueryError, (error: ApolloError | null) => {

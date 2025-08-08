@@ -1,45 +1,17 @@
-import { useMutation, useQuery } from "@vue/apollo-composable";
 import { ref, watch } from "vue";
-import { GET_ACCOUNTS } from "@/graphql/queries";
-import { CREATE_ACCOUNT, UPDATE_ACCOUNT, DELETE_ACCOUNT } from "@/graphql/mutations";
 import type { ApolloError } from "@apollo/client/core";
+import {
+  useGetAccountsQuery,
+  useCreateAccountMutation,
+  useUpdateAccountMutation,
+  useDeleteAccountMutation,
+  type CreateAccountInput,
+  type UpdateAccountInput,
+  type Account,
+} from "@/__generated__/vue-apollo";
 
-export interface Account {
-  id: string;
-  name: string;
-  currency: string;
-  initialBalance: number;
-  balance: number;
-}
-
-export interface CreateAccountInput {
-  name: string;
-  currency: string;
-  initialBalance: number;
-}
-
-export interface UpdateAccountInput {
-  id: string;
-  name?: string;
-  currency?: string;
-  initialBalance?: number;
-}
-
-interface GetAccountsResponse {
-  accounts: Account[];
-}
-
-interface CreateAccountResponse {
-  createAccount: Account;
-}
-
-interface UpdateAccountResponse {
-  updateAccount: Account;
-}
-
-interface DeleteAccountResponse {
-  deleteAccount: boolean | null;
-}
+// Re-export types for backward compatibility
+export type { Account, CreateAccountInput, UpdateAccountInput };
 
 export function useAccounts() {
   const accountsError = ref<string | null>(null);
@@ -50,28 +22,28 @@ export function useAccounts() {
     loading: accountsLoading,
     error: accountsQueryError,
     refetch: refetchAccounts,
-  } = useQuery<GetAccountsResponse>(GET_ACCOUNTS);
+  } = useGetAccountsQuery();
 
   // Create account mutation
   const {
     mutate: createAccountMutation,
     loading: createAccountLoading,
     error: createAccountError,
-  } = useMutation<CreateAccountResponse, { input: CreateAccountInput }>(CREATE_ACCOUNT);
+  } = useCreateAccountMutation();
 
   // Update account mutation
   const {
     mutate: updateAccountMutation,
     loading: updateAccountLoading,
     error: updateAccountError,
-  } = useMutation<UpdateAccountResponse, { input: UpdateAccountInput }>(UPDATE_ACCOUNT);
+  } = useUpdateAccountMutation();
 
   // Delete account mutation
   const {
     mutate: deleteAccountMutation,
     loading: deleteAccountLoading,
     error: deleteAccountError,
-  } = useMutation<DeleteAccountResponse, { id: string }>(DELETE_ACCOUNT);
+  } = useDeleteAccountMutation();
 
   // Watch for query errors
   watch(accountsQueryError, (error: ApolloError | null) => {

@@ -1,25 +1,18 @@
-import { useMutation } from "@vue/apollo-composable";
 import { ref, watch } from "vue";
-import { ENSURE_USER } from "@/graphql/mutations";
 import type { ApolloError } from "@apollo/client/core";
+import { useEnsureUserMutation } from "@/__generated__/vue-apollo";
 
-interface User {
-  email: string;
-}
-
-interface EnsureUserResponse {
-  ensureUser: User;
-}
+// User type is available from generated types
 
 export function useUser() {
-  const user = ref<User | null>(null);
+  const user = ref<{ email: string } | null>(null);
   const userError = ref<string | null>(null);
 
   const {
     mutate: ensureUserMutation,
     loading: ensureUserLoading,
     error: mutationError,
-  } = useMutation<EnsureUserResponse>(ENSURE_USER);
+  } = useEnsureUserMutation();
 
   // Watch for mutation completion
   watch(mutationError, (error: ApolloError | null) => {
