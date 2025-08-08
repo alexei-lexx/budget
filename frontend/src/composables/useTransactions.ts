@@ -1,62 +1,28 @@
-import { useMutation, useQuery } from "@vue/apollo-composable";
 import { ref, watch, computed } from "vue";
-import { GET_TRANSACTIONS_PAGINATED } from "@/graphql/queries";
-import { CREATE_TRANSACTION, UPDATE_TRANSACTION, DELETE_TRANSACTION } from "@/graphql/mutations";
 import type { ApolloError } from "@apollo/client/core";
-import type { PaginationInput, Edge, Connection } from "@/types/pagination";
+import {
+  useGetTransactionsPaginatedQuery,
+  useCreateTransactionMutation,
+  useUpdateTransactionMutation,
+  useDeleteTransactionMutation,
+  GetTransactionsPaginatedDocument,
+  type TransactionType,
+  type Transaction,
+  type CreateTransactionInput,
+  type UpdateTransactionInput,
+  type TransactionEdge,
+  type TransactionConnection,
+} from "@/__generated__/vue-apollo";
 
-export type TransactionType = "INCOME" | "EXPENSE" | "TRANSFER_IN" | "TRANSFER_OUT";
-
-export interface Transaction {
-  id: string;
-  accountId: string;
-  categoryId?: string;
-  type: TransactionType;
-  amount: number;
-  currency: string;
-  date: string; // YYYY-MM-DD format
-  description?: string;
-  transferId?: string;
-}
-
-export interface CreateTransactionInput {
-  accountId: string;
-  categoryId?: string | null;
-  type: TransactionType;
-  amount: number;
-  date: string;
-  description?: string | null;
-}
-
-export interface UpdateTransactionInput {
-  id: string;
-  accountId?: string;
-  categoryId?: string | null;
-  type?: TransactionType;
-  amount?: number;
-  date?: string;
-  description?: string | null;
-}
-
-// Transaction-specific pagination types using shared generic types
-export type TransactionEdge = Edge<Transaction>;
-export type TransactionConnection = Connection<Transaction>;
-
-interface GetTransactionsPaginatedResponse {
-  transactions: TransactionConnection;
-}
-
-interface CreateTransactionResponse {
-  createTransaction: Transaction;
-}
-
-interface UpdateTransactionResponse {
-  updateTransaction: Transaction;
-}
-
-interface DeleteTransactionResponse {
-  deleteTransaction: Transaction;
-}
+// Re-export types for backward compatibility
+export type {
+  TransactionType,
+  Transaction,
+  CreateTransactionInput,
+  UpdateTransactionInput,
+  TransactionEdge,
+  TransactionConnection,
+};
 
 export function useTransactions() {
   const transactionsError = ref<string | null>(null);
@@ -80,8 +46,7 @@ export function useTransactions() {
     loading: paginatedLoading,
     error: paginatedQueryError,
     refetch: refetchPaginatedTransactions,
-  } = useQuery<GetTransactionsPaginatedResponse, { pagination?: PaginationInput }>(
-    GET_TRANSACTIONS_PAGINATED,
+  } = useGetTransactionsPaginatedQuery(
     () => ({
       pagination: {},
     }),
@@ -96,21 +61,21 @@ export function useTransactions() {
     mutate: createTransactionMutation,
     loading: createTransactionLoading,
     error: createTransactionError,
-  } = useMutation<CreateTransactionResponse, { input: CreateTransactionInput }>(CREATE_TRANSACTION);
+  } = useCreateTransactionMutation();
 
   // Update transaction mutation
   const {
     mutate: updateTransactionMutation,
     loading: updateTransactionLoading,
     error: updateTransactionError,
-  } = useMutation<UpdateTransactionResponse, { input: UpdateTransactionInput }>(UPDATE_TRANSACTION);
+  } = useUpdateTransactionMutation();
 
   // Delete transaction mutation
   const {
     mutate: deleteTransactionMutation,
     loading: deleteTransactionLoading,
     error: deleteTransactionError,
-  } = useMutation<DeleteTransactionResponse, { id: string }>(DELETE_TRANSACTION);
+  } = useDeleteTransactionMutation();
 
   // Watch for paginated query results to update pagination state and transaction list
   watch(
@@ -255,7 +220,7 @@ export function useTransactions() {
       // Make a separate query call instead of using fetchMore
       const { apolloClient } = await import("@/apollo");
       const result = await apolloClient.query({
-        query: GET_TRANSACTIONS_PAGINATED,
+        query: GetTransactionsPaginatedDocument,
         variables: {
           pagination: {
             after: endCursor.value,

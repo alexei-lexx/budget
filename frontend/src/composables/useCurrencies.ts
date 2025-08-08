@@ -1,7 +1,6 @@
 import { computed } from "vue";
-import { useQuery } from "@vue/apollo-composable";
-import { GET_SUPPORTED_CURRENCIES } from "@/graphql/queries";
 import { getCurrencyTitle } from "@/utils/currency";
+import { useGetSupportedCurrenciesQuery } from "@/__generated__/vue-apollo";
 
 /**
  * Composable for managing currencies with error handling and fallbacks
@@ -13,7 +12,7 @@ export function useCurrencies() {
     loading: currenciesLoading,
     error: currenciesError,
     refetch: refetchCurrencies,
-  } = useQuery(GET_SUPPORTED_CURRENCIES);
+  } = useGetSupportedCurrenciesQuery();
 
   // Transform currencies for v-select format
   const supportedCurrencies = computed(() => {

@@ -89,15 +89,15 @@ frontend/src/__generated__/
 ### 12.6 Frontend UI/UX Layer
 
 #### 12.6.1 Operation Migration
-- [ ] 12.6.1.1 Update account-related components to use generated composables
-- [ ] 12.6.1.2 Update transaction-related components to use generated composables  
-- [ ] 12.6.1.3 Update category-related components to use generated composables
-- [ ] 12.6.1.4 Remove manual type annotations replaced by generated types
+- [x] 12.6.1.1 Update account-related components to use generated composables
+- [x] 12.6.1.2 Update transaction-related components to use generated composables  
+- [x] 12.6.1.3 Update category-related components to use generated composables
+- [x] 12.6.1.4 Remove manual type annotations replaced by generated types
 
 #### 12.6.2 Developer Experience Enhancement
-- [ ] 12.6.2.1 Update import statements to use generated composables
-- [ ] 12.6.2.2 Verify TypeScript autocomplete and validation
-- [ ] 12.6.2.3 Test error handling with typed operations
+- [x] 12.6.2.1 Update import statements to use generated composables
+- [x] 12.6.2.2 Verify TypeScript autocomplete and validation
+- [x] 12.6.2.3 Test error handling with typed operations
 
 ### 12.7 Documentation and Workflow
 - [ ] 12.7.1 Document new development workflow in `CLAUDE.md`

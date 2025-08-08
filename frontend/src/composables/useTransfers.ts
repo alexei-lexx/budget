@@ -1,48 +1,18 @@
-import { useMutation } from "@vue/apollo-composable";
 import { ref, watch } from "vue";
 import { apolloClient } from "@/apollo";
-import { CREATE_TRANSFER, UPDATE_TRANSFER, DELETE_TRANSFER } from "@/graphql/mutations";
-import { GET_TRANSFER } from "@/graphql/queries";
-import type { Transaction } from "./useTransactions";
+import {
+  useCreateTransferMutation,
+  useUpdateTransferMutation,
+  useDeleteTransferMutation,
+  GetTransferDocument,
+  type Transfer,
+  type CreateTransferInput,
+  type UpdateTransferInput,
+  type Transaction,
+} from "@/__generated__/vue-apollo";
 
-export interface Transfer {
-  id: string;
-  outboundTransaction: Transaction;
-  inboundTransaction: Transaction;
-}
-
-export interface CreateTransferInput {
-  fromAccountId: string;
-  toAccountId: string;
-  amount: number;
-  date: string;
-  description?: string | null;
-}
-
-export interface UpdateTransferInput {
-  id: string;
-  fromAccountId?: string;
-  toAccountId?: string;
-  amount?: number;
-  date?: string;
-  description?: string | null;
-}
-
-interface CreateTransferResponse {
-  createTransfer: Transfer;
-}
-
-interface UpdateTransferResponse {
-  updateTransfer: Transfer;
-}
-
-interface DeleteTransferResponse {
-  deleteTransfer: boolean;
-}
-
-interface GetTransferResponse {
-  transfer: Transfer | null;
-}
+// Re-export types for backward compatibility
+export type { Transfer, CreateTransferInput, UpdateTransferInput, Transaction };
 
 export function useTransfers() {
   const transfersError = ref<string | null>(null);
@@ -52,21 +22,21 @@ export function useTransfers() {
     mutate: createTransferMutation,
     loading: createTransferLoading,
     error: createTransferError,
-  } = useMutation<CreateTransferResponse, { input: CreateTransferInput }>(CREATE_TRANSFER);
+  } = useCreateTransferMutation();
 
   // Update transfer mutation
   const {
     mutate: updateTransferMutation,
     loading: updateTransferLoading,
     error: updateTransferError,
-  } = useMutation<UpdateTransferResponse, { input: UpdateTransferInput }>(UPDATE_TRANSFER);
+  } = useUpdateTransferMutation();
 
   // Delete transfer mutation
   const {
     mutate: deleteTransferMutation,
     loading: deleteTransferLoading,
     error: deleteTransferError,
-  } = useMutation<DeleteTransferResponse, { id: string }>(DELETE_TRANSFER);
+  } = useDeleteTransferMutation();
 
   // Watch for mutation errors
   watch(
@@ -153,8 +123,8 @@ export function useTransfers() {
   const getTransfer = async (id: string): Promise<Transfer | null> => {
     try {
       transfersError.value = null;
-      const { data } = await apolloClient.query<GetTransferResponse, { id: string }>({
-        query: GET_TRANSFER,
+      const { data } = await apolloClient.query({
+        query: GetTransferDocument,
         variables: { id },
         fetchPolicy: "cache-first",
       });
