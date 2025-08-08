@@ -8,14 +8,14 @@ const config: CodegenConfig = {
     "src/__generated__/graphql-types.ts": {
       plugins: ["typescript", "typescript-operations"],
       config: {
-        maybeValue: "T | undefined",
+        maybeValue: "T | null | undefined",
         enumsAsTypes: true,
       },
     },
     "src/__generated__/vue-apollo.ts": {
       plugins: ["typescript", "typescript-operations", "typescript-vue-apollo"],
       config: {
-        maybeValue: "T | undefined",
+        maybeValue: "T | null | undefined",
         vueCompositionApiImportFrom: "vue",
         apolloClientInstanceImport: "@/apollo#apolloClient",
         enumsAsTypes: true,

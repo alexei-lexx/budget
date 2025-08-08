@@ -157,7 +157,7 @@ const handleSubmit = async () => {
           toAccountId: formData.value.toAccountId,
           amount: formData.value.amount,
           date: formData.value.date,
-          description: formData.value.description === "" ? undefined : formData.value.description,
+          description: formData.value.description === "" ? null : formData.value.description,
         };
         emit("submit", updateData);
       } else {
@@ -167,7 +167,7 @@ const handleSubmit = async () => {
           toAccountId: formData.value.toAccountId,
           amount: formData.value.amount,
           date: formData.value.date,
-          description: formData.value.description === "" ? undefined : formData.value.description,
+          description: formData.value.description === "" ? null : formData.value.description,
         };
         emit("submit", createData);
       }

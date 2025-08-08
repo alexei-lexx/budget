@@ -1,8 +1,8 @@
 import gql from 'graphql-tag';
 import * as VueApolloComposable from '@vue/apollo-composable';
 import * as VueCompositionApi from 'vue';
-export type Maybe<T> = T | undefined;
-export type InputMaybe<T> = T | undefined;
+export type Maybe<T> = T | null | undefined;
+export type InputMaybe<T> = T | null | undefined;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
@@ -260,9 +260,9 @@ export type AccountFieldsFragment = { __typename?: 'Account', id: string, name: 
 
 export type CategoryFieldsFragment = { __typename?: 'Category', id: string, name: string, type: CategoryType };
 
-export type TransactionFieldsFragment = { __typename?: 'Transaction', id: string, accountId: string, categoryId?: string | undefined, type: TransactionType, amount: number, currency: string, date: string, description?: string | undefined, transferId?: string | undefined };
+export type TransactionFieldsFragment = { __typename?: 'Transaction', id: string, accountId: string, categoryId?: string | null | undefined, type: TransactionType, amount: number, currency: string, date: string, description?: string | null | undefined, transferId?: string | null | undefined };
 
-export type TransferFieldsFragment = { __typename?: 'Transfer', id: string, outboundTransaction: { __typename?: 'Transaction', id: string, accountId: string, categoryId?: string | undefined, type: TransactionType, amount: number, currency: string, date: string, description?: string | undefined, transferId?: string | undefined }, inboundTransaction: { __typename?: 'Transaction', id: string, accountId: string, categoryId?: string | undefined, type: TransactionType, amount: number, currency: string, date: string, description?: string | undefined, transferId?: string | undefined } };
+export type TransferFieldsFragment = { __typename?: 'Transfer', id: string, outboundTransaction: { __typename?: 'Transaction', id: string, accountId: string, categoryId?: string | null | undefined, type: TransactionType, amount: number, currency: string, date: string, description?: string | null | undefined, transferId?: string | null | undefined }, inboundTransaction: { __typename?: 'Transaction', id: string, accountId: string, categoryId?: string | null | undefined, type: TransactionType, amount: number, currency: string, date: string, description?: string | null | undefined, transferId?: string | null | undefined } };
 
 export type EnsureUserMutationVariables = Exact<{ [key: string]: never; }>;
 
@@ -288,7 +288,7 @@ export type DeleteAccountMutationVariables = Exact<{
 }>;
 
 
-export type DeleteAccountMutation = { __typename?: 'Mutation', deleteAccount?: boolean | undefined };
+export type DeleteAccountMutation = { __typename?: 'Mutation', deleteAccount?: boolean | null | undefined };
 
 export type CreateCategoryMutationVariables = Exact<{
   input: CreateCategoryInput;
@@ -316,42 +316,42 @@ export type CreateTransactionMutationVariables = Exact<{
 }>;
 
 
-export type CreateTransactionMutation = { __typename?: 'Mutation', createTransaction: { __typename?: 'Transaction', id: string, accountId: string, categoryId?: string | undefined, type: TransactionType, amount: number, currency: string, date: string, description?: string | undefined, transferId?: string | undefined } };
+export type CreateTransactionMutation = { __typename?: 'Mutation', createTransaction: { __typename?: 'Transaction', id: string, accountId: string, categoryId?: string | null | undefined, type: TransactionType, amount: number, currency: string, date: string, description?: string | null | undefined, transferId?: string | null | undefined } };
 
 export type UpdateTransactionMutationVariables = Exact<{
   input: UpdateTransactionInput;
 }>;
 
 
-export type UpdateTransactionMutation = { __typename?: 'Mutation', updateTransaction: { __typename?: 'Transaction', id: string, accountId: string, categoryId?: string | undefined, type: TransactionType, amount: number, currency: string, date: string, description?: string | undefined, transferId?: string | undefined } };
+export type UpdateTransactionMutation = { __typename?: 'Mutation', updateTransaction: { __typename?: 'Transaction', id: string, accountId: string, categoryId?: string | null | undefined, type: TransactionType, amount: number, currency: string, date: string, description?: string | null | undefined, transferId?: string | null | undefined } };
 
 export type DeleteTransactionMutationVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type DeleteTransactionMutation = { __typename?: 'Mutation', deleteTransaction: { __typename?: 'Transaction', id: string, accountId: string, categoryId?: string | undefined, type: TransactionType, amount: number, currency: string, date: string, description?: string | undefined, transferId?: string | undefined } };
+export type DeleteTransactionMutation = { __typename?: 'Mutation', deleteTransaction: { __typename?: 'Transaction', id: string, accountId: string, categoryId?: string | null | undefined, type: TransactionType, amount: number, currency: string, date: string, description?: string | null | undefined, transferId?: string | null | undefined } };
 
 export type CreateTransferMutationVariables = Exact<{
   input: CreateTransferInput;
 }>;
 
 
-export type CreateTransferMutation = { __typename?: 'Mutation', createTransfer: { __typename?: 'Transfer', id: string, outboundTransaction: { __typename?: 'Transaction', id: string, accountId: string, categoryId?: string | undefined, type: TransactionType, amount: number, currency: string, date: string, description?: string | undefined, transferId?: string | undefined }, inboundTransaction: { __typename?: 'Transaction', id: string, accountId: string, categoryId?: string | undefined, type: TransactionType, amount: number, currency: string, date: string, description?: string | undefined, transferId?: string | undefined } } };
+export type CreateTransferMutation = { __typename?: 'Mutation', createTransfer: { __typename?: 'Transfer', id: string, outboundTransaction: { __typename?: 'Transaction', id: string, accountId: string, categoryId?: string | null | undefined, type: TransactionType, amount: number, currency: string, date: string, description?: string | null | undefined, transferId?: string | null | undefined }, inboundTransaction: { __typename?: 'Transaction', id: string, accountId: string, categoryId?: string | null | undefined, type: TransactionType, amount: number, currency: string, date: string, description?: string | null | undefined, transferId?: string | null | undefined } } };
 
 export type UpdateTransferMutationVariables = Exact<{
   input: UpdateTransferInput;
 }>;
 
 
-export type UpdateTransferMutation = { __typename?: 'Mutation', updateTransfer: { __typename?: 'Transfer', id: string, outboundTransaction: { __typename?: 'Transaction', id: string, accountId: string, categoryId?: string | undefined, type: TransactionType, amount: number, currency: string, date: string, description?: string | undefined, transferId?: string | undefined }, inboundTransaction: { __typename?: 'Transaction', id: string, accountId: string, categoryId?: string | undefined, type: TransactionType, amount: number, currency: string, date: string, description?: string | undefined, transferId?: string | undefined } } };
+export type UpdateTransferMutation = { __typename?: 'Mutation', updateTransfer: { __typename?: 'Transfer', id: string, outboundTransaction: { __typename?: 'Transaction', id: string, accountId: string, categoryId?: string | null | undefined, type: TransactionType, amount: number, currency: string, date: string, description?: string | null | undefined, transferId?: string | null | undefined }, inboundTransaction: { __typename?: 'Transaction', id: string, accountId: string, categoryId?: string | null | undefined, type: TransactionType, amount: number, currency: string, date: string, description?: string | null | undefined, transferId?: string | null | undefined } } };
 
 export type DeleteTransferMutationVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type DeleteTransferMutation = { __typename?: 'Mutation', deleteTransfer?: boolean | undefined };
+export type DeleteTransferMutation = { __typename?: 'Mutation', deleteTransfer?: boolean | null | undefined };
 
 export type GetAccountsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -375,14 +375,14 @@ export type GetTransactionsPaginatedQueryVariables = Exact<{
 }>;
 
 
-export type GetTransactionsPaginatedQuery = { __typename?: 'Query', transactions: { __typename?: 'TransactionConnection', totalCount: number, edges: Array<{ __typename?: 'TransactionEdge', cursor: string, node: { __typename?: 'Transaction', id: string, accountId: string, categoryId?: string | undefined, type: TransactionType, amount: number, currency: string, date: string, description?: string | undefined, transferId?: string | undefined } }>, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: string | undefined, endCursor?: string | undefined } } };
+export type GetTransactionsPaginatedQuery = { __typename?: 'Query', transactions: { __typename?: 'TransactionConnection', totalCount: number, edges: Array<{ __typename?: 'TransactionEdge', cursor: string, node: { __typename?: 'Transaction', id: string, accountId: string, categoryId?: string | null | undefined, type: TransactionType, amount: number, currency: string, date: string, description?: string | null | undefined, transferId?: string | null | undefined } }>, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: string | null | undefined, endCursor?: string | null | undefined } } };
 
 export type GetTransferQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetTransferQuery = { __typename?: 'Query', transfer?: { __typename?: 'Transfer', id: string, outboundTransaction: { __typename?: 'Transaction', id: string, accountId: string, categoryId?: string | undefined, type: TransactionType, amount: number, currency: string, date: string, description?: string | undefined, transferId?: string | undefined }, inboundTransaction: { __typename?: 'Transaction', id: string, accountId: string, categoryId?: string | undefined, type: TransactionType, amount: number, currency: string, date: string, description?: string | undefined, transferId?: string | undefined } } | undefined };
+export type GetTransferQuery = { __typename?: 'Query', transfer?: { __typename?: 'Transfer', id: string, outboundTransaction: { __typename?: 'Transaction', id: string, accountId: string, categoryId?: string | null | undefined, type: TransactionType, amount: number, currency: string, date: string, description?: string | null | undefined, transferId?: string | null | undefined }, inboundTransaction: { __typename?: 'Transaction', id: string, accountId: string, categoryId?: string | null | undefined, type: TransactionType, amount: number, currency: string, date: string, description?: string | null | undefined, transferId?: string | null | undefined } } | null | undefined };
 
 export const AccountFieldsFragmentDoc = gql`
     fragment AccountFields on Account {

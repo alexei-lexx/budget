@@ -171,10 +171,10 @@ const handleSubmit = async () => {
       // Clean up empty fields appropriately
       const submitData = { ...formData.value };
       if (submitData.categoryId === "") {
-        submitData.categoryId = undefined;
+        submitData.categoryId = isEditing.value ? null : undefined;
       }
       if (submitData.description === "") {
-        submitData.description = undefined;
+        submitData.description = isEditing.value ? null : undefined;
       }
 
       emit("submit", submitData);

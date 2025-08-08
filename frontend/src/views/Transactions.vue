@@ -459,7 +459,7 @@ const isTransferTransaction = (
   );
 };
 
-const getCategoryName = (categoryId?: string): string | undefined => {
+const getCategoryName = (categoryId?: string | null): string | undefined => {
   if (!categoryId) return undefined;
   const category = categories.value.find((c) => c.id === categoryId);
   return category?.name;
