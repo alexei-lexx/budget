@@ -87,6 +87,13 @@ and Z is the sub-item number.
 
 ### Required Task Content Sections
 
+**Section Order:** Follow this logical order for better readability and flow:
+1. Objective
+2. Use Cases  
+3. UI Layout (if applicable)
+4. Acceptance Criteria
+5. Implementation Plan
+
 #### Objective
 
 Clear, concise description of the main goal and value delivered.
@@ -95,18 +102,25 @@ Clear, concise description of the main goal and value delivered.
 
 Detailed behavioral scenarios describing how users will interact with the feature, including edge cases and variations.
 
+#### UI Layout (Optional)
+
+Visual mockups and interface structure for user-facing features:
+- Placement of UI elements and their relationships
+- User interaction flows and navigation patterns  
+- Visual layout examples using ASCII diagrams or mockups
+- Tab structures, button layouts, form arrangements
+
+**Note:** Only include if the task involves user interface changes.
+
 #### Acceptance Criteria
 
 Specific, testable requirements that define when the feature is complete and working correctly.
 
-#### Target Architecture
-
-High-level architectural direction including:
-- Which application layers/components will be affected (frontend, backend, database)
-- General data flow and component interaction patterns
-- UI layout concepts and user experience flow (avoid detailed TypeScript interfaces or
-  specific API schemas)
-- Navigation structure changes if applicable
+**Guidelines:**
+- Group related criteria under logical subsections (Core Functionality, User Experience, Data Integrity)
+- Avoid redundancy - don't repeat the same requirement in multiple ways
+- Keep concise - aim for 8-15 total criteria, not 20+
+- Each criterion should be independently testable
 
 #### Implementation Plan
 
