@@ -1,211 +1,101 @@
 # Development Tasks Instructions
 
-This document combines all task-related instructions and the complete task index for the
-Personal Finance Tracker project.
-
 ## Prerequisites
 
-**Before starting any task, analyze requirements and instructions in:**
-- `docs/general_spec.md` - Business requirements and feature specifications
-- `docs/tech_spec.md` - Technical architecture and implementation guidelines
+Before starting any task:
+- `docs/general_spec.md` - Business requirements
+- `docs/tech_spec.md` - Technical architecture
 
-## ⚠️ CRITICAL: Task Completion Tracking
+## CRITICAL: Task Completion Tracking
 
-**ALWAYS mark tasks as completed immediately after finishing them by changing `[ ]` to `[x]`
-in the appropriate task file**
+**ALWAYS mark tasks completed immediately: `[ ]` → `[x]`**
 
-This is mandatory for:
-- Tracking progress accurately in permanent documentation
-- Avoiding duplicate work across different development sessions
-- Maintaining project visibility for all team members
-- Ensuring accountability and progress transparency
-- Keeping the permanent roadmap synchronized with current work
+This prevents duplicate work and maintains project visibility.
 
-**When all sub-task items under a parent task are completed and marked, mark the parent task
-item as completed as well**
+## Task Structure
 
-**Example workflow:**
-1. Start working on task
-2. Complete implementation
-3. **IMMEDIATELY** update the task file: change `[ ]` to `[x]`
+**Naming:** `task-N-feature-name.md` in `docs/tasks/` folder
 
-## Task File Organization
-
-Each task is stored in a separate file in the `docs/tasks/` folder:
-- `task-1-cloudfront-infrastructure.md`
-- `task-2-auth0-authentication.md`
-- `task-3-user-onboarding.md`
-- etc.
-
-This organization improves:
-- File manageability and load times
-- Focused work on individual features
-- Better git history and change tracking
-- Easier navigation and reference
+**Hierarchy:**
+- **Task** (N): Major user-facing feature - single digit numbering
+- **Phase** (N.N): Implementation phases by architectural layer
+- **Sub-item** (N.N.N): Specific work items within phases
 
 ## Task Definition Guidelines
 
-### General Task Definition Rules
+### Rules
+1. **Result in code changes** (except testing/deployment)
+2. **Be specific** - avoid vague descriptions like "improve" or "update"
+3. **Use concrete notation** - `ClassName.methodName`, `ComponentName.handlerFunction`
+4. **Combine coupled work** - don't artificially split interdependent tasks
+5. **Focus on MVP** - add enhancements to `docs/future_enhancements.md`
 
-1. **Tasks must result in code changes** - Each task should cause tangible changes to the
-   codebase (manual tasks like testing and deployment are exceptions)
+### Required Sections
 
-2. **Avoid check/verification tasks** - Don't create tasks that only check or verify something
-   unless changes are explicitly planned as part of the task
-
-3. **Provide specific, detailed descriptions** - Avoid vague descriptions like "make it better,"
-   "improve," or "update something" without concrete details about what exactly needs to be changed
-
-4. **Use concrete notation for code changes** - When planning changes to specific types, classes,
-   interfaces, or methods, use concrete notation like `ClassName.methodName`,
-   `InterfaceName.propertyName`, or `ComponentName.handlerFunction` to clearly identify what
-   code elements will be modified
-
-5. **Keep logically coupled work together** - If implementing task A automatically implements
-   task B, or if tasks cannot be done independently, combine them into a single work item rather
-   than creating artificial splits
-
-### General Workflow Rules
-
-- Add enhancement ideas and non-MVP features to docs/future_enhancements.md instead of
-  creating new tasks here
-- Keep this roadmap focused on core functionality delivery
-
-### Task Structure Definitions
-
-**Task:** A major user-facing feature or business capability that delivers value. Written from
-user/product owner perspective describing what functionality will be available. Uses single-digit
-numbering (e.g., "Task 1", "Task 2").
-
-**Phase:** Major implementation phases within a task following the architectural layers
-(Database Layer, Repository Layer, etc.). Uses two-digit numbering format `X.Y` (e.g., "1.1",
-"1.2") where X is the task number and Y is the phase number.
-
-**Sub-item:** Specific work items within a concrete phase implementation. Uses three-digit
-numbering format `X.Y.Z` (e.g., "1.1.1", "1.1.2") where X is task number, Y is phase number,
-and Z is the sub-item number.
-
-### Required Task Content Sections
-
-**Section Order:** Follow this logical order for better readability and flow:
-1. Objective
-2. Use Cases  
-3. UI Layout (if applicable)
-4. Acceptance Criteria
-5. Implementation Plan
+**Order:** Objective → Use Cases → UI Layout → Acceptance Criteria → Implementation Plan
 
 #### Objective
-
-Clear, concise description of the main goal and value delivered.
+Clear description of main goal and value delivered.
 
 #### Use Cases
-
-Detailed behavioral scenarios describing how users will interact with the feature, including edge cases and variations.
+Behavioral scenarios describing user interactions, including edge cases.
 
 #### UI Layout (Optional)
-
-Visual mockups and interface structure for user-facing features:
-- Placement of UI elements and their relationships
-- User interaction flows and navigation patterns  
-- Visual layout examples using ASCII diagrams or mockups
-- Tab structures, button layouts, form arrangements
-
-**Note:** Only include if the task involves user interface changes.
+For user-facing features only:
+- UI element placement and relationships
+- User interaction flows
+- Visual mockups using ASCII diagrams
+- Tab/button/form layouts
 
 #### Acceptance Criteria
-
-Specific, testable requirements that define when the feature is complete and working correctly.
+Testable requirements defining completion.
 
 **Guidelines:**
-- Group related criteria under logical subsections (Core Functionality, User Experience, Data Integrity)
-- Avoid redundancy - don't repeat the same requirement in multiple ways
-- Keep concise - aim for 8-15 total criteria, not 20+
-- Each criterion should be independently testable
+- Group under logical subsections (Core Functionality, User Experience, Data Integrity)
+- 8-15 total criteria maximum
+- Each criterion independently testable
+- Avoid redundancy
 
 #### Implementation Plan
+Bottom-up, layer-by-layer phases:
 
-Hierarchical numbered phases following a bottom-up, layer-by-layer approach through the
-application architecture.
+1. **Database Layer** - Tables, schema, migrations
+2. **Repository Layer** - Data access, validation
+3. **Service Layer** - Business logic, cross-repository coordination
+4. **GraphQL Layer** - Schema, resolvers, validation
+5. **Frontend Data Layer** - Queries, mutations, composables
+6. **Frontend UI/UX Layer** - Components, forms, validation
 
-**Formatting:**
+**Format:** Markdown checkboxes `[ ]` with hierarchical numbering (max 3 levels)
 
-- Use GitHub markdown ordered lists with checkboxes `[ ]`
-- Use hierarchical numbering format `1.2.3` (maximum 3 levels)
+#### Testing (Optional)
+Final validation phase with concrete manual testing steps and specific expected outcomes.
 
-**Recommended Structure:**
+**Format:** Markdown checkboxes `[ ]` with hierarchical numbering, `[M]` prefix for manual steps
 
-**1. Database Layer**
+**Integration Testing (Development Environment)**
 
-- Development database setup (table creation, schema changes)
-- Production infrastructure updates (CDK stack modifications for new tables/indexes)
-- Data migrations if existing data needs to be transformed
+*Test 1: Core Functionality*
+- Navigate to main feature entry point
+- Perform primary user action with specific data
+- Click save/submit button
+- Verify success feedback appears
+- Verify data persists correctly
+- Verify related data updates (balances, counts, etc.)
 
-**2. Repository Layer**
+*Test 2: Data Variations*
+- Test with different data types (currencies, categories, etc.)
+- Test with different user scenarios
+- Verify each variation saves and displays correctly
+- Verify calculations update properly across variations
 
-- Data access operations (CRUD methods, query implementations)
-- Error handling and validation at data layer
-
-**3. Service Layer**
-
-- Business logic implementation
-- Cross-repository coordination and validation
-- Service error handling and business rules
-
-**4. GraphQL Layer**
-
-- Schema definitions (types, inputs, queries, mutations)
-- Resolver implementations with input validation
-- Integration with service layer
-
-**5. Frontend Data Layer**
-
-- GraphQL client queries and mutations
-- Data composables and state management
-- Error handling for API operations
-
-**6. Frontend UI/UX Layer**
-
-- Component implementation
-- User interface and user experience
-- Form validation and user feedback
-
-**Guidelines:**
-- Each phase should build upon the previous layer's foundation
-
-#### Testing
-
-Final validation phase separate from implementation, containing concrete testing steps with
-specific expected outcomes.
-
-**Formatting:**
-
-- Use GitHub markdown ordered lists with checkboxes `[ ]`
-- Use hierarchical numbering format continuing from Implementation Plan
-- Add `[M]` prefix to all testing items requiring manual execution
-
-**Recommended Structure:**
-
-**Integration Testing**
-
-- Concrete manual testing steps with specific expected outcomes
-- Test core functionality workflows
-- Test edge cases and error scenarios
-- Test multiple data scenarios (different currencies, balance states, transaction types)
+*Test 3: Edge Cases*
+- Test with boundary values (zero, empty, maximum)
+- Test error scenarios and validation
+- Verify appropriate error messages shown
+- Verify data integrity maintained after errors
 
 **Production Deployment**
-
 - Deploy to production environment
-- Validate core functionality in production
-
-**Guidelines:**
-
-- Provide specific test steps with exact expected results (e.g., "verify shows $1,500.00")
-- Test both happy path and edge cases in development environment
-- Include multiple data scenarios (different currencies, balance states, transaction types)
-- Production testing should only validate core user workflows, not edge cases or complex scenarios
-
-
-## Navigation
-
-- [📚 General Specification](general_spec.md)
-- [⚙️ Technical Specification](tech_spec.md)
+- Validate only core user workflows (not edge cases or complex scenarios)
+- Use real but safe test data
