@@ -74,11 +74,26 @@ Final validation phase with concrete manual testing steps and specific expected 
 **Format:** Markdown checkboxes `[ ]` with hierarchical numbering, `[M]` prefix for manual steps
 
 **Integration Testing (Development Environment)**
-- Concrete step-by-step manual testing with exact expected results
-- Test core functionality workflows with specific data
-- Test edge cases and error scenarios  
-- Test multiple data scenarios (different currencies, balance states, transaction types)
-- Example: "Create expense transaction: Account='Chase Credit', Category='Food', Amount=$25.50, verify balance shows $1,474.50"
+
+*Test 1: Core Functionality*
+- Navigate to main feature entry point
+- Perform primary user action with specific data
+- Click save/submit button
+- Verify success feedback appears
+- Verify data persists correctly
+- Verify related data updates (balances, counts, etc.)
+
+*Test 2: Data Variations*
+- Test with different data types (currencies, categories, etc.)
+- Test with different user scenarios
+- Verify each variation saves and displays correctly
+- Verify calculations update properly across variations
+
+*Test 3: Edge Cases*
+- Test with boundary values (zero, empty, maximum)
+- Test error scenarios and validation
+- Verify appropriate error messages shown
+- Verify data integrity maintained after errors
 
 **Production Deployment**
 - Deploy to production environment
