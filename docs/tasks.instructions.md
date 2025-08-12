@@ -91,6 +91,14 @@ and Z is the sub-item number.
 
 Clear, concise description of the main goal and value delivered.
 
+#### Use Cases
+
+Detailed behavioral scenarios describing how users will interact with the feature, including edge cases and variations.
+
+#### Acceptance Criteria
+
+Specific, testable requirements that define when the feature is complete and working correctly.
+
 #### Target Architecture
 
 High-level architectural direction including:
