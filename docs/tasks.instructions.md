@@ -69,7 +69,18 @@ Bottom-up, layer-by-layer phases:
 **Format:** Markdown checkboxes `[ ]` with hierarchical numbering (max 3 levels)
 
 #### Testing (Optional)
-Manual testing steps with specific expected outcomes.
-- Integration testing in development
-- Production deployment validation
-- Use `[M]` prefix for manual steps
+Final validation phase with concrete manual testing steps and specific expected outcomes.
+
+**Format:** Markdown checkboxes `[ ]` with hierarchical numbering, `[M]` prefix for manual steps
+
+**Integration Testing (Development Environment)**
+- Concrete step-by-step manual testing with exact expected results
+- Test core functionality workflows with specific data
+- Test edge cases and error scenarios  
+- Test multiple data scenarios (different currencies, balance states, transaction types)
+- Example: "Create expense transaction: Account='Chase Credit', Category='Food', Amount=$25.50, verify balance shows $1,474.50"
+
+**Production Deployment**
+- Deploy to production environment
+- Validate only core user workflows (not edge cases or complex scenarios)
+- Use real but safe test data
