@@ -73,7 +73,3 @@ Manual testing steps with specific expected outcomes.
 - Integration testing in development
 - Production deployment validation
 - Use `[M]` prefix for manual steps
-
-## Navigation
-- [General Specification](general_spec.md)
-- [Technical Specification](tech_spec.md)
