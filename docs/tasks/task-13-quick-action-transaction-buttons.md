@@ -77,7 +77,7 @@ Date:       [_________]
 - [ ] Pre-filled values can be manually changed if needed
 
 ### Data Integrity
-- [ ] Pattern analysis considers last 100 transactions and updates in real-time
+- [ ] Pattern analysis considers last 100 transactions of each type (100 Income + 100 Expense) and updates in real-time
 - [ ] Shortcuts with deleted accounts/categories automatically removed
 - [ ] Pattern analysis respects user data privacy (no cross-user data)
 
