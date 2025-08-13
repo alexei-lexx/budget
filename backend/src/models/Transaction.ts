@@ -43,6 +43,17 @@ export type UpdateTransactionInput = Partial<
 export type TransactionEdge = Edge<Transaction>;
 export type TransactionConnection = Connection<Transaction>;
 
+export interface AccountCategoryPattern {
+  accountId: string;
+  categoryId: string;
+  usageCount: number;
+}
+
+// Type for transaction types that support quick action patterns
+export type QuickActionTransactionType =
+  | TransactionType.INCOME
+  | TransactionType.EXPENSE;
+
 export interface ITransactionRepository {
   findActiveByUserId(
     userId: string,
@@ -68,4 +79,10 @@ export interface ITransactionRepository {
     accountId: string,
     userId: string,
   ): Promise<boolean>;
+  getAccountCategoryPatterns(
+    userId: string,
+    type: QuickActionTransactionType,
+    limit: number,
+    sampleSize: number,
+  ): Promise<AccountCategoryPattern[]>;
 }
