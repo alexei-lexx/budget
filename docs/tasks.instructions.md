@@ -60,13 +60,37 @@ Testable requirements defining completion.
 Bottom-up, layer-by-layer phases:
 
 1. **Database Layer** - Tables, schema, migrations
-2. **Repository Layer** - Data access, validation
+2. **Repository Layer** - Data access, validation, **unit tests required**
 3. **Service Layer** - Business logic, cross-repository coordination
 4. **GraphQL Layer** - Schema, resolvers, validation
 5. **Frontend Data Layer** - Queries, mutations, composables
 6. **Frontend UI/UX Layer** - Components, forms, validation
 
 **Format:** Markdown checkboxes `[ ]` with hierarchical numbering (max 3 levels)
+
+**Numbering Format:**
+- **Phase:** `N.X` (where N = task number, X = sequential phase number)
+- **Sub-item:** `N.X.Y` (specific work items within phase)
+- **Sub-sub-item:** `N.X.Y.Z` (detailed implementation steps, max 3 levels)
+
+**Example:**
+```
+### N.1 First Layer
+- [ ] N.1.1 Major work item A
+  - [ ] N.1.1.1 Specific implementation task
+  - [ ] N.1.1.2 Another specific task
+- [ ] N.1.2 Major work item B
+
+### N.2 Second Layer
+- [ ] N.2.1 Major work item C
+  - [ ] N.2.1.1 Specific implementation task
+  - [ ] N.2.1.2 Another specific task
+  - [ ] N.2.1.3 Third specific task
+```
+
+**Important:** 
+- Only include layers that require actual code changes. Skip layers with no changes needed and renumber remaining layers sequentially (e.g., if Database Layer requires no schema changes, start with "N.1 Repository Layer").
+- **Repository Layer Requirements:** Any repository method additions or modifications MUST include corresponding unit tests. Repository layer implementation is not complete without unit test coverage for both success scenarios and error handling.
 
 #### Testing (Optional)
 Final validation phase with concrete manual testing steps and specific expected outcomes.
