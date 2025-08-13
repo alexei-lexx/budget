@@ -69,27 +69,23 @@ Bottom-up, layer-by-layer phases:
 **Format:** Markdown checkboxes `[ ]` with hierarchical numbering (max 3 levels)
 
 **Numbering Format:**
-- **Phase:** `N.X` (where N = task number, X = sequential phase number)
-- **Sub-item:** `N.X.Y` (specific work items within phase)
-- **Sub-sub-item:** `N.X.Y.Z` (detailed implementation steps, max 3 levels)
+- **Phase:** `X.Y` (where X = task number, Y = sequential phase number)
+- **Sub-item:** `X.Y.Z` (specific work items within phase, max 3 levels)
 
 **Example:**
 ```
-### N.1 First Layer
-- [ ] N.1.1 Major work item A
-  - [ ] N.1.1.1 Specific implementation task
-  - [ ] N.1.1.2 Another specific task
-- [ ] N.1.2 Major work item B
+### 5.1 Repository Layer
+- [ ] 5.1.1 Add new repository methods
+- [ ] 5.1.2 Create unit tests for repository
 
-### N.2 Second Layer
-- [ ] N.2.1 Major work item C
-  - [ ] N.2.1.1 Specific implementation task
-  - [ ] N.2.1.2 Another specific task
-  - [ ] N.2.1.3 Third specific task
+### 5.2 Service Layer
+- [ ] 5.2.1 Implement business logic service
+- [ ] 5.2.2 Add validation methods
+- [ ] 5.2.3 Handle error scenarios
 ```
 
 **Important:** 
-- Only include layers that require actual code changes. Skip layers with no changes needed and renumber remaining layers sequentially (e.g., if Database Layer requires no schema changes, start with "N.1 Repository Layer").
+- Only include layers that require actual code changes. Skip layers with no changes needed and renumber remaining layers sequentially (e.g., if Database Layer requires no schema changes, start with "5.1 Repository Layer").
 - **Repository Layer Requirements:** Any repository method additions or modifications MUST include corresponding unit tests. Repository layer implementation is not complete without unit test coverage for both success scenarios and error handling.
 
 #### Testing (Optional)
