@@ -4,7 +4,10 @@ import { GraphQLContext } from "../server";
 import { getAuthenticatedUser, handleResolverError } from "./shared";
 import { BusinessError } from "../services/BusinessError";
 import { MIN_PAGE_SIZE, MAX_PAGE_SIZE } from "../types/pagination";
-import { TransactionType } from "../models/Transaction";
+import {
+  TransactionType,
+  QuickActionTransactionType,
+} from "../models/Transaction";
 import {
   DATE_FORMAT_REGEX,
   DATE_FORMAT_ERROR_MESSAGE,
@@ -68,6 +71,15 @@ const paginationInputSchema = z
   })
   .optional();
 
+const quickActionTransactionTypeSchema = z.enum(
+  [QuickActionTransactionType.INCOME, QuickActionTransactionType.EXPENSE],
+  {
+    errorMap: () => ({
+      message: `Quick action type must be either ${QuickActionTransactionType.INCOME} or ${QuickActionTransactionType.EXPENSE}`,
+    }),
+  },
+);
+
 export const transactionResolvers = {
   Query: {
     transactions: async (
@@ -96,6 +108,35 @@ export const transactionResolvers = {
           });
         }
         handleResolverError(error, "Failed to fetch transactions");
+      }
+    },
+    getQuickActionPatterns: async (
+      _parent: unknown,
+      args: { type: unknown },
+      context: GraphQLContext,
+    ) => {
+      try {
+        // Validate quick action type input
+        const validatedQuickActionTransactionType =
+          quickActionTransactionTypeSchema.parse(args.type);
+        const user = await getAuthenticatedUser(context);
+
+        const patterns =
+          await context.transactionService.getQuickActionPatterns(
+            user.id,
+            validatedQuickActionTransactionType,
+          );
+
+        // Return flat structure (already matches GraphQL schema)
+        return patterns;
+      } catch (error) {
+        if (error instanceof z.ZodError) {
+          const firstError = error.errors[0];
+          throw new GraphQLError(firstError.message, {
+            extensions: { code: "BAD_USER_INPUT" },
+          });
+        }
+        handleResolverError(error, "Failed to fetch quick action patterns");
       }
     },
   },

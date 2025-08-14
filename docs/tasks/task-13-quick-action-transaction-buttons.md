@@ -97,10 +97,10 @@ Date:       [_________]
 - [x] 13.2.4 Handle service-level edge cases: all patterns invalid due to deleted accounts/categories
 
 ### 13.3 GraphQL Layer
-- [ ] 13.3.1 Define `QuickActionPattern` type with account, category, and usageCount fields in GraphQL schema
-- [ ] 13.3.2 Add `getQuickActionPatterns(type: TransactionType!)` query to GraphQL schema  
-- [ ] 13.3.3 Implement GraphQL resolver to call TransactionService and return formatted patterns
-- [ ] 13.3.4 Add input validation using Zod schema for TransactionType parameter
+- [x] 13.3.1 Define `QuickActionPattern` type with account, category, and usageCount fields in GraphQL schema
+- [x] 13.3.2 Add `getQuickActionPatterns(type: TransactionType!)` query to GraphQL schema  
+- [x] 13.3.3 Implement GraphQL resolver to call TransactionService and return formatted patterns
+- [x] 13.3.4 Add input validation using Zod schema for TransactionType parameter
 
 ### 13.4 Frontend Data Layer
 - [ ] 13.4.1 Generate TypeScript types from updated GraphQL schema using codegen

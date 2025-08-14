@@ -337,7 +337,7 @@ export class TransactionService {
 
       // Validate that category type matches transaction type
       const expectedCategoryType =
-        type === TransactionType.INCOME
+        type === QuickActionTransactionType.INCOME
           ? CategoryType.INCOME
           : CategoryType.EXPENSE;
       if (category.type !== expectedCategoryType) {

@@ -160,6 +160,7 @@ export type Query = {
   __typename?: 'Query';
   accounts: Array<Account>;
   categories: Array<Category>;
+  getQuickActionPatterns: Array<QuickActionPattern>;
   supportedCurrencies: Array<Scalars['String']['output']>;
   transactions: TransactionConnection;
   transfer?: Maybe<Transfer>;
@@ -171,6 +172,11 @@ export type QueryCategoriesArgs = {
 };
 
 
+export type QueryGetQuickActionPatternsArgs = {
+  type: QuickActionTransactionType;
+};
+
+
 export type QueryTransactionsArgs = {
   pagination?: InputMaybe<PaginationInput>;
 };
@@ -179,6 +185,20 @@ export type QueryTransactionsArgs = {
 export type QueryTransferArgs = {
   id: Scalars['ID']['input'];
 };
+
+export type QuickActionPattern = {
+  __typename?: 'QuickActionPattern';
+  accountCurrency: Scalars['String']['output'];
+  accountId: Scalars['ID']['output'];
+  accountName: Scalars['String']['output'];
+  categoryId: Scalars['ID']['output'];
+  categoryName: Scalars['String']['output'];
+};
+
+export enum QuickActionTransactionType {
+  Expense = 'EXPENSE',
+  Income = 'INCOME'
+}
 
 export type Transaction = {
   __typename?: 'Transaction';
@@ -338,6 +358,8 @@ export type ResolversTypes = {
   PageInfo: ResolverTypeWrapper<PageInfo>;
   PaginationInput: PaginationInput;
   Query: ResolverTypeWrapper<{}>;
+  QuickActionPattern: ResolverTypeWrapper<QuickActionPattern>;
+  QuickActionTransactionType: QuickActionTransactionType;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
   Transaction: ResolverTypeWrapper<Transaction>;
   TransactionConnection: ResolverTypeWrapper<TransactionConnection>;
@@ -367,6 +389,7 @@ export type ResolversParentTypes = {
   PageInfo: PageInfo;
   PaginationInput: PaginationInput;
   Query: {};
+  QuickActionPattern: QuickActionPattern;
   String: Scalars['String']['output'];
   Transaction: Transaction;
   TransactionConnection: TransactionConnection;
@@ -424,9 +447,19 @@ export type PageInfoResolvers<ContextType = GraphQLContext, ParentType extends R
 export type QueryResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
   accounts?: Resolver<Array<ResolversTypes['Account']>, ParentType, ContextType>;
   categories?: Resolver<Array<ResolversTypes['Category']>, ParentType, ContextType, Partial<QueryCategoriesArgs>>;
+  getQuickActionPatterns?: Resolver<Array<ResolversTypes['QuickActionPattern']>, ParentType, ContextType, RequireFields<QueryGetQuickActionPatternsArgs, 'type'>>;
   supportedCurrencies?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   transactions?: Resolver<ResolversTypes['TransactionConnection'], ParentType, ContextType, Partial<QueryTransactionsArgs>>;
   transfer?: Resolver<Maybe<ResolversTypes['Transfer']>, ParentType, ContextType, RequireFields<QueryTransferArgs, 'id'>>;
+};
+
+export type QuickActionPatternResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['QuickActionPattern'] = ResolversParentTypes['QuickActionPattern']> = {
+  accountCurrency?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  accountId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  accountName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  categoryId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  categoryName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type TransactionResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Transaction'] = ResolversParentTypes['Transaction']> = {
@@ -476,6 +509,7 @@ export type Resolvers<ContextType = GraphQLContext> = {
   Mutation?: MutationResolvers<ContextType>;
   PageInfo?: PageInfoResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
+  QuickActionPattern?: QuickActionPatternResolvers<ContextType>;
   Transaction?: TransactionResolvers<ContextType>;
   TransactionConnection?: TransactionConnectionResolvers<ContextType>;
   TransactionEdge?: TransactionEdgeResolvers<ContextType>;

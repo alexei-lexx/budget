@@ -4,6 +4,9 @@ type Query {
   categories(type: CategoryType): [Category!]!
   transactions(pagination: PaginationInput): TransactionConnection!
   transfer(id: ID!): Transfer
+  getQuickActionPatterns(
+    type: QuickActionTransactionType!
+  ): [QuickActionPattern!]!
 }
 
 type User {
@@ -30,6 +33,11 @@ enum TransactionType {
   TRANSFER_OUT
 }
 
+enum QuickActionTransactionType {
+  INCOME
+  EXPENSE
+}
+
 type Category {
   id: ID!
   name: String!
@@ -46,6 +54,14 @@ type Transaction {
   date: String!
   description: String
   transferId: String
+}
+
+type QuickActionPattern {
+  accountId: ID!
+  accountName: String!
+  accountCurrency: String!
+  categoryId: ID!
+  categoryName: String!
 }
 
 type Transfer {

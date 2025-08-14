@@ -57,9 +57,10 @@ export interface EnrichedAccountCategoryPattern extends AccountCategoryPattern {
 }
 
 // Type for transaction types that support quick action patterns
-export type QuickActionTransactionType =
-  | TransactionType.INCOME
-  | TransactionType.EXPENSE;
+export enum QuickActionTransactionType {
+  INCOME = "INCOME",
+  EXPENSE = "EXPENSE",
+}
 
 export interface ITransactionRepository {
   findActiveByUserId(
