@@ -75,7 +75,6 @@ export const fakeAccountCategoryPattern = (
   return {
     accountId: faker.string.uuid(),
     categoryId: faker.string.uuid(),
-    usageCount: faker.number.int({ min: 1, max: 100 }),
     ...overrides,
   };
 };

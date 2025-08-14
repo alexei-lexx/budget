@@ -671,17 +671,14 @@ describe("TransactionRepository", () => {
       expect(result[0]).toEqual({
         accountId: "account-1",
         categoryId: "category-1",
-        usageCount: 3,
       });
       expect(result[1]).toEqual({
         accountId: "account-2",
         categoryId: "category-2",
-        usageCount: 2,
       });
       expect(result[2]).toEqual({
         accountId: "account-3",
         categoryId: "category-3",
-        usageCount: 1,
       });
     });
 
@@ -713,11 +710,20 @@ describe("TransactionRepository", () => {
         100,
       );
 
-      // Assert - Should return only top 3 patterns
+      // Assert - Should return only top 3 patterns, sorted by frequency (most used first)
       expect(result).toHaveLength(3);
-      expect(result[0].usageCount).toBe(5); // account-5 + category-5
-      expect(result[1].usageCount).toBe(4); // account-4 + category-4
-      expect(result[2].usageCount).toBe(3); // account-3 + category-3
+      expect(result[0]).toEqual({
+        accountId: "account-5",
+        categoryId: "category-5",
+      }); // Most frequent (5 uses)
+      expect(result[1]).toEqual({
+        accountId: "account-4",
+        categoryId: "category-4",
+      }); // Second most frequent (4 uses)
+      expect(result[2]).toEqual({
+        accountId: "account-3",
+        categoryId: "category-3",
+      }); // Third most frequent (3 uses)
     });
 
     it("should sort deterministically when usage counts are equal", async () => {
@@ -796,17 +802,14 @@ describe("TransactionRepository", () => {
       expect(result[0]).toEqual({
         accountId: "account-a",
         categoryId: "category-a",
-        usageCount: 2,
       });
       expect(result[1]).toEqual({
         accountId: "account-a",
         categoryId: "category-c",
-        usageCount: 2,
       });
       expect(result[2]).toEqual({
         accountId: "account-b",
         categoryId: "category-b",
-        usageCount: 2,
       });
     });
 
@@ -883,7 +886,6 @@ describe("TransactionRepository", () => {
       expect(incomeResult[0]).toEqual({
         accountId: "account-1",
         categoryId: "category-income",
-        usageCount: 2,
       });
 
       // Assert - Expense patterns
@@ -891,7 +893,6 @@ describe("TransactionRepository", () => {
       expect(expenseResult[0]).toEqual({
         accountId: "account-1",
         categoryId: "category-expense",
-        usageCount: 2,
       });
     });
 
@@ -935,7 +936,6 @@ describe("TransactionRepository", () => {
       expect(result[0]).toEqual({
         accountId: "account-1",
         categoryId: "category-1",
-        usageCount: 1, // Only 1 transaction counted (non-archived)
       });
     });
 
@@ -971,7 +971,7 @@ describe("TransactionRepository", () => {
       expect(result[0]).toEqual({
         accountId: "account-1",
         categoryId: "category-1",
-        usageCount: 5, // Only 5 transactions analyzed due to sample size limit
+        // Only 5 transactions analyzed due to sample size limit
       });
     });
 
@@ -1118,7 +1118,7 @@ describe("TransactionRepository", () => {
       expect(result[0]).toEqual({
         accountId: "test-account",
         categoryId: "test-category",
-        usageCount: 5, // Only 5 transactions analyzed due to sampleSize
+        // Only 5 transactions analyzed due to sampleSize
       });
     });
 
@@ -1168,14 +1168,12 @@ describe("TransactionRepository", () => {
       expect(user1Result[0]).toEqual({
         accountId: "account-1",
         categoryId: "category-1",
-        usageCount: 1,
       });
 
       expect(user2Result).toHaveLength(1);
       expect(user2Result[0]).toEqual({
         accountId: "account-2",
         categoryId: "category-2",
-        usageCount: 1,
       });
     });
   });

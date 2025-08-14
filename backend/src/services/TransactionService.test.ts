@@ -45,12 +45,10 @@ describe("TransactionService", () => {
         fakeAccountCategoryPattern({
           accountId: "account-1",
           categoryId: "category-1",
-          usageCount: 5,
         }),
         fakeAccountCategoryPattern({
           accountId: "account-2",
           categoryId: "category-2",
-          usageCount: 3,
         }),
       ];
 
@@ -88,7 +86,7 @@ describe("TransactionService", () => {
       mockAccountRepository.findActiveById
         .mockResolvedValueOnce(account1)
         .mockResolvedValueOnce(account2);
-      mockCategoryRepository.findById
+      mockCategoryRepository.findActiveById
         .mockResolvedValueOnce(category1)
         .mockResolvedValueOnce(category2);
 
@@ -103,30 +101,20 @@ describe("TransactionService", () => {
       // Assert
       expect(result).toHaveLength(2);
       expect(result[0]).toEqual({
-        account: {
-          id: "account-1",
-          name: "Checking Account",
-          currency: "USD",
-        },
-        category: {
-          id: "category-1",
-          name: "Salary",
-          type: "INCOME",
-        },
-        usageCount: 5,
+        accountId: "account-1",
+        categoryId: "category-1",
+        accountName: "Checking Account",
+        accountCurrency: "USD",
+        categoryName: "Salary",
+        categoryType: CategoryType.INCOME,
       });
       expect(result[1]).toEqual({
-        account: {
-          id: "account-2",
-          name: "Savings Account",
-          currency: "USD",
-        },
-        category: {
-          id: "category-2",
-          name: "Freelance",
-          type: "INCOME",
-        },
-        usageCount: 3,
+        accountId: "account-2",
+        categoryId: "category-2",
+        accountName: "Savings Account",
+        accountCurrency: "USD",
+        categoryName: "Freelance",
+        categoryType: CategoryType.INCOME,
       });
     });
 
@@ -136,12 +124,10 @@ describe("TransactionService", () => {
         fakeAccountCategoryPattern({
           accountId: "account-1",
           categoryId: "category-1",
-          usageCount: 5,
         }),
         fakeAccountCategoryPattern({
           accountId: "account-deleted",
           categoryId: "category-2",
-          usageCount: 3,
         }),
       ];
 
@@ -164,7 +150,7 @@ describe("TransactionService", () => {
       mockAccountRepository.findActiveById
         .mockResolvedValueOnce(account1)
         .mockResolvedValueOnce(null); // Deleted account
-      mockCategoryRepository.findById.mockResolvedValueOnce(category1);
+      mockCategoryRepository.findActiveById.mockResolvedValueOnce(category1);
 
       // Act
       const result = await service.getQuickActionPatterns(
@@ -176,7 +162,7 @@ describe("TransactionService", () => {
 
       // Assert - Only first pattern should be returned
       expect(result).toHaveLength(1);
-      expect(result[0].account.id).toBe("account-1");
+      expect(result[0].accountId).toBe("account-1");
     });
 
     it("should filter out patterns with deleted categories", async () => {
@@ -185,12 +171,10 @@ describe("TransactionService", () => {
         fakeAccountCategoryPattern({
           accountId: "account-1",
           categoryId: "category-1",
-          usageCount: 5,
         }),
         fakeAccountCategoryPattern({
           accountId: "account-2",
           categoryId: "category-deleted",
-          usageCount: 3,
         }),
       ];
 
@@ -219,7 +203,7 @@ describe("TransactionService", () => {
       mockAccountRepository.findActiveById
         .mockResolvedValueOnce(account1)
         .mockResolvedValueOnce(account2);
-      mockCategoryRepository.findById
+      mockCategoryRepository.findActiveById
         .mockResolvedValueOnce(category1)
         .mockResolvedValueOnce(null); // Deleted category
 
@@ -233,7 +217,7 @@ describe("TransactionService", () => {
 
       // Assert - Only first pattern should be returned
       expect(result).toHaveLength(1);
-      expect(result[0].category.id).toBe("category-1");
+      expect(result[0].categoryId).toBe("category-1");
     });
 
     it("should filter out patterns with mismatched category types", async () => {
@@ -242,12 +226,10 @@ describe("TransactionService", () => {
         fakeAccountCategoryPattern({
           accountId: "account-1",
           categoryId: "category-income",
-          usageCount: 5,
         }),
         fakeAccountCategoryPattern({
           accountId: "account-2",
           categoryId: "category-expense",
-          usageCount: 3,
         }),
       ];
 
@@ -283,7 +265,7 @@ describe("TransactionService", () => {
       mockAccountRepository.findActiveById
         .mockResolvedValueOnce(account1)
         .mockResolvedValueOnce(account2);
-      mockCategoryRepository.findById
+      mockCategoryRepository.findActiveById
         .mockResolvedValueOnce(incomeCategory)
         .mockResolvedValueOnce(expenseCategory);
 
@@ -297,7 +279,7 @@ describe("TransactionService", () => {
 
       // Assert - Only income category pattern should be returned
       expect(result).toHaveLength(1);
-      expect(result[0].category.type).toBe("INCOME");
+      expect(result[0].categoryType).toBe(CategoryType.INCOME);
     });
 
     it("should return empty array when all patterns are invalid", async () => {
@@ -306,12 +288,10 @@ describe("TransactionService", () => {
         fakeAccountCategoryPattern({
           accountId: "account-deleted",
           categoryId: "category-1",
-          usageCount: 5,
         }),
         fakeAccountCategoryPattern({
           accountId: "account-2",
           categoryId: "category-deleted",
-          usageCount: 3,
         }),
       ];
 
@@ -319,7 +299,7 @@ describe("TransactionService", () => {
         patterns,
       );
       mockAccountRepository.findActiveById.mockResolvedValue(null); // All accounts deleted
-      mockCategoryRepository.findById.mockResolvedValue(null); // All categories deleted
+      mockCategoryRepository.findActiveById.mockResolvedValue(null); // All categories deleted
 
       // Act
       const result = await service.getQuickActionPatterns(
@@ -350,7 +330,7 @@ describe("TransactionService", () => {
       // Assert
       expect(result).toEqual([]);
       expect(mockAccountRepository.findActiveById).not.toHaveBeenCalled();
-      expect(mockCategoryRepository.findById).not.toHaveBeenCalled();
+      expect(mockCategoryRepository.findActiveById).not.toHaveBeenCalled();
     });
 
     it("should pass correct parameters to repository", async () => {

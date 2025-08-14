@@ -684,7 +684,10 @@ export class TransactionRepository implements ITransactionRepository {
       );
 
       // Group by account+category combination and count occurrences
-      const patternCounts = new Map<string, AccountCategoryPattern>();
+      const patternCounts = new Map<
+        string,
+        { accountId: string; categoryId: string; usageCount: number }
+      >();
 
       for (const transaction of transactionsWithCategory) {
         const key = `${transaction.accountId}:${transaction.categoryId}`;
@@ -701,7 +704,7 @@ export class TransactionRepository implements ITransactionRepository {
         }
       }
 
-      // Convert to array, sort by usage count (descending), and return top N patterns
+      // Convert to array, sort by usage count (descending), and return top N patterns without exposing count
       const patterns = Array.from(patternCounts.values())
         .sort((a, b) => {
           // Sort by usage count descending
@@ -714,7 +717,11 @@ export class TransactionRepository implements ITransactionRepository {
           }
           return a.categoryId.localeCompare(b.categoryId);
         })
-        .slice(0, limit); // Return top N patterns based on limit parameter
+        .slice(0, limit) // Return top N patterns based on limit parameter
+        .map((pattern) => ({
+          accountId: pattern.accountId,
+          categoryId: pattern.categoryId,
+        })); // Strip out usageCount from returned patterns
 
       return patterns;
     } catch (error) {

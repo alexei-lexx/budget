@@ -326,7 +326,7 @@ export class TransactionService {
       }
 
       // Validate that category still exists and belongs to user
-      const category = await this.categoryRepository.findById(
+      const category = await this.categoryRepository.findActiveById(
         pattern.categoryId,
         userId,
       );
@@ -347,17 +347,12 @@ export class TransactionService {
 
       // Create enriched pattern
       enrichedPatterns.push({
-        account: {
-          id: account.id,
-          name: account.name,
-          currency: account.currency,
-        },
-        category: {
-          id: category.id,
-          name: category.name,
-          type: category.type,
-        },
-        usageCount: pattern.usageCount,
+        accountId: pattern.accountId,
+        categoryId: pattern.categoryId,
+        accountName: account.name,
+        accountCurrency: account.currency,
+        categoryName: category.name,
+        categoryType: category.type,
       });
     }
 
