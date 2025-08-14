@@ -1,5 +1,4 @@
 import { PaginationInput, Edge, Connection } from "../types/pagination";
-import { CategoryType } from "./Category";
 
 export enum TransactionType {
   INCOME = "INCOME",
@@ -53,7 +52,6 @@ export interface EnrichedAccountCategoryPattern extends AccountCategoryPattern {
   accountName: string;
   accountCurrency: string;
   categoryName: string;
-  categoryType: CategoryType;
 }
 
 // Type for transaction types that support quick action patterns

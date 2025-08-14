@@ -352,7 +352,6 @@ export class TransactionService {
         accountName: account.name,
         accountCurrency: account.currency,
         categoryName: category.name,
-        categoryType: category.type,
       });
     }
 

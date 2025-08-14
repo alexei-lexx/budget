@@ -109,7 +109,6 @@ describe("TransactionService", () => {
         accountName: "Checking Account",
         accountCurrency: "USD",
         categoryName: "Salary",
-        categoryType: CategoryType.INCOME,
       });
       expect(result[1]).toEqual({
         accountId: "account-2",
@@ -117,7 +116,6 @@ describe("TransactionService", () => {
         accountName: "Savings Account",
         accountCurrency: "USD",
         categoryName: "Freelance",
-        categoryType: CategoryType.INCOME,
       });
     });
 
@@ -282,7 +280,7 @@ describe("TransactionService", () => {
 
       // Assert - Only income category pattern should be returned
       expect(result).toHaveLength(1);
-      expect(result[0].categoryType).toBe(CategoryType.INCOME);
+      expect(result[0].categoryId).toBe("category-income");
     });
 
     it("should return empty array when all patterns are invalid", async () => {
