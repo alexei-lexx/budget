@@ -8,9 +8,9 @@ import { ICategoryRepository } from "../../models/Category";
 export const createMockTransactionRepository =
   (): jest.Mocked<ITransactionRepository> => ({
     findActiveByUserId: jest.fn(),
-    findById: jest.fn(),
-    findByAccountId: jest.fn(),
-    findByTransferId: jest.fn(),
+    findActiveById: jest.fn(),
+    findActiveByAccountId: jest.fn(),
+    findActiveByTransferId: jest.fn(),
     create: jest.fn(),
     createMany: jest.fn(),
     update: jest.fn(),
@@ -40,7 +40,7 @@ export const createMockCategoryRepository =
   (): jest.Mocked<ICategoryRepository> => ({
     findActiveByUserId: jest.fn(),
     findActiveByUserIdAndType: jest.fn(),
-    findById: jest.fn(),
+    findActiveById: jest.fn(),
     create: jest.fn(),
     update: jest.fn(),
     archive: jest.fn(),
