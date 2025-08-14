@@ -50,7 +50,6 @@ export interface AccountCategoryPattern {
 
 export interface EnrichedAccountCategoryPattern extends AccountCategoryPattern {
   accountName: string;
-  accountCurrency: string;
   categoryName: string;
 }
 

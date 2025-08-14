@@ -188,7 +188,6 @@ export type QueryTransferArgs = {
 
 export type QuickActionPattern = {
   __typename?: 'QuickActionPattern';
-  accountCurrency: Scalars['String']['output'];
   accountId: Scalars['ID']['output'];
   accountName: Scalars['String']['output'];
   categoryId: Scalars['ID']['output'];
@@ -454,7 +453,6 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
 };
 
 export type QuickActionPatternResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['QuickActionPattern'] = ResolversParentTypes['QuickActionPattern']> = {
-  accountCurrency?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   accountId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   accountName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   categoryId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;

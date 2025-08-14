@@ -59,7 +59,6 @@ type Transaction {
 type QuickActionPattern {
   accountId: ID!
   accountName: String!
-  accountCurrency: String!
   categoryId: ID!
   categoryName: String!
 }

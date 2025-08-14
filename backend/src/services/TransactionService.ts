@@ -40,7 +40,7 @@ export class TransactionService {
     private accountRepository: IAccountRepository,
     private categoryRepository: ICategoryRepository,
     private transactionRepository: ITransactionRepository,
-  ) {}
+  ) { }
 
   /**
    * Validate that an account exists and belongs to the user
@@ -350,7 +350,6 @@ export class TransactionService {
         accountId: pattern.accountId,
         categoryId: pattern.categoryId,
         accountName: account.name,
-        accountCurrency: account.currency,
         categoryName: category.name,
       });
     }

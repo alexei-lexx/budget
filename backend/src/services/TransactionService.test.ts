@@ -107,14 +107,12 @@ describe("TransactionService", () => {
         accountId: "account-1",
         categoryId: "category-1",
         accountName: "Checking Account",
-        accountCurrency: "USD",
         categoryName: "Salary",
       });
       expect(result[1]).toEqual({
         accountId: "account-2",
         categoryId: "category-2",
         accountName: "Savings Account",
-        accountCurrency: "USD",
         categoryName: "Freelance",
       });
     });
