@@ -130,7 +130,7 @@ export const accountResolvers = {
 
         // Check if currency is being changed and if account has transactions
         if (validatedInput.currency) {
-          const currentAccount = await context.accountRepository.findById(
+          const currentAccount = await context.accountRepository.findActiveById(
             id,
             user.id,
           );

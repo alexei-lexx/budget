@@ -22,7 +22,10 @@ export class AccountService {
    */
   async calculateBalance(accountId: string, userId: string): Promise<number> {
     // First validate that the account exists and belongs to the user
-    const account = await this.accountRepository.findById(accountId, userId);
+    const account = await this.accountRepository.findActiveById(
+      accountId,
+      userId,
+    );
 
     if (!account) {
       throw new BusinessError(

@@ -51,7 +51,10 @@ export class TransactionService {
     accountId: string,
     userId: string,
   ): Promise<Account> {
-    const account = await this.accountRepository.findById(accountId, userId);
+    const account = await this.accountRepository.findActiveById(
+      accountId,
+      userId,
+    );
 
     if (!account) {
       throw new BusinessError(

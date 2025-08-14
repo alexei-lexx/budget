@@ -118,7 +118,7 @@ export class AccountRepository implements IAccountRepository {
     }
   }
 
-  async findById(id: string, userId: string): Promise<Account | null> {
+  async findActiveById(id: string, userId: string): Promise<Account | null> {
     if (!id || !userId) {
       throw new AccountRepositoryError(
         "Account ID and User ID are required",
