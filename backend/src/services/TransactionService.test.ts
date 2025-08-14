@@ -1,5 +1,8 @@
 import { TransactionService } from "./TransactionService";
-import { QuickActionTransactionType, TransactionType } from "../models/Transaction";
+import {
+  QuickActionTransactionType,
+  TransactionType,
+} from "../models/Transaction";
 import { CategoryType } from "../models/Category";
 import { faker } from "@faker-js/faker";
 import {
