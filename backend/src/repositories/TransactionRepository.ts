@@ -474,7 +474,10 @@ export class TransactionRepository implements ITransactionRepository {
     }
   }
 
-  async findById(id: string, userId: string): Promise<Transaction | null> {
+  async findActiveById(
+    id: string,
+    userId: string,
+  ): Promise<Transaction | null> {
     if (!id || !userId) {
       throw new TransactionRepositoryError(
         "Transaction ID and User ID are required",
@@ -512,7 +515,7 @@ export class TransactionRepository implements ITransactionRepository {
     }
   }
 
-  async findByAccountId(
+  async findActiveByAccountId(
     accountId: string,
     userId: string,
   ): Promise<Transaction[]> {
@@ -551,7 +554,7 @@ export class TransactionRepository implements ITransactionRepository {
     }
   }
 
-  async findByTransferId(
+  async findActiveByTransferId(
     transferId: string,
     userId: string,
   ): Promise<Transaction[]> {

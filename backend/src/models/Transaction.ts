@@ -73,9 +73,15 @@ export interface ITransactionRepository {
     userId: string,
     pagination?: PaginationInput,
   ): Promise<TransactionConnection>;
-  findById(id: string, userId: string): Promise<Transaction | null>;
-  findByAccountId(accountId: string, userId: string): Promise<Transaction[]>;
-  findByTransferId(transferId: string, userId: string): Promise<Transaction[]>;
+  findActiveById(id: string, userId: string): Promise<Transaction | null>;
+  findActiveByAccountId(
+    accountId: string,
+    userId: string,
+  ): Promise<Transaction[]>;
+  findActiveByTransferId(
+    transferId: string,
+    userId: string,
+  ): Promise<Transaction[]>;
   create(input: CreateTransactionInput): Promise<Transaction>;
   createMany(inputs: CreateTransactionInput[]): Promise<Transaction[]>;
   update(

@@ -65,7 +65,10 @@ export const transferResolvers = {
 
         // Get transfer transactions using the existing method
         const transferTransactions =
-          await context.transactionRepository.findByTransferId(id, user.id);
+          await context.transactionRepository.findActiveByTransferId(
+            id,
+            user.id,
+          );
 
         // Check if transfer exists
         if (transferTransactions.length === 0) {

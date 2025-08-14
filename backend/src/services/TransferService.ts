@@ -155,7 +155,10 @@ export class TransferService {
   async deleteTransfer(transferId: string, userId: string): Promise<void> {
     // Find the paired transactions for this transfer
     const transferTransactions =
-      await this.transactionRepository.findByTransferId(transferId, userId);
+      await this.transactionRepository.findActiveByTransferId(
+        transferId,
+        userId,
+      );
 
     // Validate transfer exists
     if (transferTransactions.length === 0) {
@@ -224,7 +227,10 @@ export class TransferService {
   ): Promise<TransferResult> {
     // Find the existing transfer transactions first
     const existingTransactions =
-      await this.transactionRepository.findByTransferId(transferId, userId);
+      await this.transactionRepository.findActiveByTransferId(
+        transferId,
+        userId,
+      );
 
     // Validate transfer exists
     if (existingTransactions.length === 0) {
@@ -343,7 +349,10 @@ export class TransferService {
 
       // Fetch the updated transactions with a single query
       const updatedTransactions =
-        await this.transactionRepository.findByTransferId(transferId, userId);
+        await this.transactionRepository.findActiveByTransferId(
+          transferId,
+          userId,
+        );
 
       // Find the updated outbound and inbound transactions
       const updatedOutbound = updatedTransactions.find(

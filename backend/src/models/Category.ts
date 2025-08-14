@@ -30,7 +30,7 @@ export interface ICategoryRepository {
     userId: string,
     type: CategoryType,
   ): Promise<Category[]>;
-  findById(id: string, userId: string): Promise<Category | null>;
+  findActiveById(id: string, userId: string): Promise<Category | null>;
   create(input: CreateCategoryInput): Promise<Category>;
   update(
     id: string,
