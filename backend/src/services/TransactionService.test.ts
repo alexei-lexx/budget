@@ -1,5 +1,5 @@
 import { TransactionService } from "./TransactionService";
-import { TransactionType } from "../models/Transaction";
+import { QuickActionTransactionType, TransactionType } from "../models/Transaction";
 import { CategoryType } from "../models/Category";
 import { faker } from "@faker-js/faker";
 import {
@@ -93,7 +93,7 @@ describe("TransactionService", () => {
       // Act
       const result = await service.getQuickActionPatterns(
         userId,
-        TransactionType.INCOME,
+        QuickActionTransactionType.INCOME,
         3,
         100,
       );
@@ -155,7 +155,7 @@ describe("TransactionService", () => {
       // Act
       const result = await service.getQuickActionPatterns(
         userId,
-        TransactionType.INCOME,
+        QuickActionTransactionType.INCOME,
         3,
         100,
       );
@@ -210,7 +210,7 @@ describe("TransactionService", () => {
       // Act
       const result = await service.getQuickActionPatterns(
         userId,
-        TransactionType.INCOME,
+        QuickActionTransactionType.INCOME,
         3,
         100,
       );
@@ -272,7 +272,7 @@ describe("TransactionService", () => {
       // Act
       const result = await service.getQuickActionPatterns(
         userId,
-        TransactionType.INCOME,
+        QuickActionTransactionType.INCOME,
         3,
         100,
       );
@@ -304,7 +304,7 @@ describe("TransactionService", () => {
       // Act
       const result = await service.getQuickActionPatterns(
         userId,
-        TransactionType.INCOME,
+        QuickActionTransactionType.INCOME,
         3,
         100,
       );
@@ -322,7 +322,7 @@ describe("TransactionService", () => {
       // Act
       const result = await service.getQuickActionPatterns(
         userId,
-        TransactionType.INCOME,
+        QuickActionTransactionType.INCOME,
         3,
         100,
       );
@@ -342,7 +342,7 @@ describe("TransactionService", () => {
       // Act
       await service.getQuickActionPatterns(
         userId,
-        TransactionType.EXPENSE,
+        QuickActionTransactionType.EXPENSE,
         5,
         200,
       );
