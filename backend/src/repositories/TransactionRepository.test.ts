@@ -59,7 +59,7 @@ describe("TransactionRepository", () => {
       );
 
       // Refetch from database to verify stored data matches result
-      const stored = await repository.findById(result.id, userId);
+      const stored = await repository.findActiveById(result.id, userId);
       expect(stored).toEqual(result);
     });
 
@@ -94,7 +94,7 @@ describe("TransactionRepository", () => {
       expect(result.isArchived).toBe(false);
 
       // Refetch from database to verify stored data matches result
-      const stored = await repository.findById(result.id, userId);
+      const stored = await repository.findActiveById(result.id, userId);
       expect(stored).toEqual(result);
     });
 
@@ -125,7 +125,7 @@ describe("TransactionRepository", () => {
       expect(result.currency).toBe("GBP");
 
       // Refetch from database to verify stored data matches result
-      const stored = await repository.findById(result.id, userId);
+      const stored = await repository.findActiveById(result.id, userId);
       expect(stored).toEqual(result);
     });
   });
@@ -177,8 +177,14 @@ describe("TransactionRepository", () => {
       expect(result[1].currency).toBe(inputs[1].currency);
       expect(result[1].date).toBe(inputs[1].date);
 
-      const stored1 = await repository.findById(result[0].id, inputs[0].userId);
-      const stored2 = await repository.findById(result[1].id, inputs[1].userId);
+      const stored1 = await repository.findActiveById(
+        result[0].id,
+        inputs[0].userId,
+      );
+      const stored2 = await repository.findActiveById(
+        result[1].id,
+        inputs[1].userId,
+      );
 
       expect([stored1, stored2]).toEqual(expect.arrayContaining(result));
     });
@@ -231,7 +237,7 @@ describe("TransactionRepository", () => {
       expect(result.updatedAt).not.toBe(created.updatedAt);
 
       // Refetch from database to verify stored data matches result
-      const stored = await repository.findById(result.id, userId);
+      const stored = await repository.findActiveById(result.id, userId);
       expect(stored).toEqual(result);
     });
 
@@ -273,7 +279,7 @@ describe("TransactionRepository", () => {
       expect(result.updatedAt).not.toBe(created.updatedAt);
 
       // Refetch from database to verify stored data matches result
-      const stored = await repository.findById(result.id, userId);
+      const stored = await repository.findActiveById(result.id, userId);
       expect(stored).toEqual(result);
     });
 
@@ -308,7 +314,7 @@ describe("TransactionRepository", () => {
       expect(result.categoryId).toBeNull();
 
       // Refetch from database to verify stored data matches result
-      const stored = await repository.findById(result.id, userId);
+      const stored = await repository.findActiveById(result.id, userId);
       expect(stored).toEqual(result);
     });
 
@@ -344,7 +350,7 @@ describe("TransactionRepository", () => {
       expect(result.date).toBe("2024-01-22");
 
       // Refetch from database to verify stored data matches result
-      const stored = await repository.findById(result.id, userId);
+      const stored = await repository.findActiveById(result.id, userId);
       expect(stored).toEqual(result);
     });
 
@@ -414,7 +420,7 @@ describe("TransactionRepository", () => {
       ).rejects.toThrow("Transaction not found or is archived");
 
       // Verify original transaction is unchanged
-      const original = await repository.findById(created.id, ownerUserId);
+      const original = await repository.findActiveById(created.id, ownerUserId);
       expect(original).toBeDefined();
       expect(original?.amount).toBe(250.0);
       expect(original?.description).toBe("Belongs to owner");
@@ -504,7 +510,7 @@ describe("TransactionRepository", () => {
 
       await repository.updateMany(updates, userId);
 
-      const stored1 = await repository.findById(
+      const stored1 = await repository.findActiveById(
         createdTransactions[0].id,
         userId,
       );
@@ -518,7 +524,7 @@ describe("TransactionRepository", () => {
       expect(stored1?.date).toBe("2024-02-01");
       expect(stored1?.description).toBe("New description 1");
 
-      const stored2 = await repository.findById(
+      const stored2 = await repository.findActiveById(
         createdTransactions[1].id,
         userId,
       );

@@ -84,7 +84,10 @@ export class TransactionService {
       return null;
     }
 
-    const category = await this.categoryRepository.findById(categoryId, userId);
+    const category = await this.categoryRepository.findActiveById(
+      categoryId,
+      userId,
+    );
 
     if (!category) {
       throw new BusinessError(
@@ -205,7 +208,7 @@ export class TransactionService {
     input: UpdateTransactionServiceInput,
   ): Promise<Transaction> {
     // First verify the transaction exists and belongs to the user
-    const existingTransaction = await this.transactionRepository.findById(
+    const existingTransaction = await this.transactionRepository.findActiveById(
       id,
       userId,
     );
@@ -262,7 +265,7 @@ export class TransactionService {
    */
   async deleteTransaction(id: string, userId: string): Promise<Transaction> {
     // First verify the transaction exists and belongs to the user
-    const existingTransaction = await this.transactionRepository.findById(
+    const existingTransaction = await this.transactionRepository.findActiveById(
       id,
       userId,
     );

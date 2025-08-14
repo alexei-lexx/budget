@@ -175,7 +175,7 @@ export class CategoryRepository implements ICategoryRepository {
     }
   }
 
-  async findById(id: string, userId: string): Promise<Category | null> {
+  async findActiveById(id: string, userId: string): Promise<Category | null> {
     if (!id || !userId) {
       throw new CategoryRepositoryError(
         "Category ID and User ID are required",
@@ -259,7 +259,7 @@ export class CategoryRepository implements ICategoryRepository {
     }
 
     // Get current category to check for duplicate names
-    const currentCategory = await this.findById(id, userId);
+    const currentCategory = await this.findActiveById(id, userId);
     if (!currentCategory) {
       throw new CategoryRepositoryError("Category not found", "NOT_FOUND");
     }

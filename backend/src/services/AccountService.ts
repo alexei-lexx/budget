@@ -37,10 +37,11 @@ export class AccountService {
 
     try {
       // Get all transactions for this account
-      const transactions = await this.transactionRepository.findByAccountId(
-        accountId,
-        userId,
-      );
+      const transactions =
+        await this.transactionRepository.findActiveByAccountId(
+          accountId,
+          userId,
+        );
 
       // Calculate balance: initialBalance + INCOME + TRANSFER_IN - EXPENSE - TRANSFER_OUT
       const balance = transactions.reduce((sum, transaction) => {
