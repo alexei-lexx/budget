@@ -84,11 +84,11 @@ Date:       [_________]
 ## Implementation Plan
 
 ### 13.1 Repository Layer
-- [ ] 13.1.1 Add `TransactionRepository.getAccountCategoryPatterns()` method to query last 100 transactions of specified type, group by account+category combination, and return top 3 most frequent patterns
-- [ ] 13.1.2 Implement pattern analysis logic to filter transactions with both accountId and categoryId, group by combination, sort by usage count descending
-- [ ] 13.1.3 Handle edge cases: new users with no transactions, users with <100 transactions, transactions missing account or category data
-- [ ] 13.1.4 Create comprehensive unit tests covering pattern analysis with various transaction histories, edge cases, and tie-breaking scenarios
-- [ ] 13.1.5 Test repository method with deleted/archived accounts and categories to ensure proper error handling
+- [x] 13.1.1 Add `TransactionRepository.getAccountCategoryPatterns()` method to query last 100 transactions of specified type, group by account+category combination, and return top 3 most frequent patterns
+- [x] 13.1.2 Implement pattern analysis logic to filter transactions with both accountId and categoryId, group by combination, sort by usage count descending
+- [x] 13.1.3 Handle edge cases: new users with no transactions, users with <100 transactions, transactions missing account or category data
+- [x] 13.1.4 Create comprehensive unit tests covering pattern analysis with various transaction histories, edge cases, and tie-breaking scenarios
+- [x] 13.1.5 Test repository method with deleted/archived accounts and categories to ensure proper error handling
 
 ### 13.2 Service Layer  
 - [ ] 13.2.1 Add `TransactionService.getQuickActionPatterns()` method to orchestrate pattern retrieval and validation
