@@ -91,10 +91,10 @@ Date:       [_________]
 - [x] 13.1.5 Test repository method with deleted/archived accounts and categories to ensure proper error handling
 
 ### 13.2 Service Layer  
-- [ ] 13.2.1 Add `TransactionService.getQuickActionPatterns()` method to orchestrate pattern retrieval and validation
-- [ ] 13.2.2 Implement business logic to validate that pattern accounts and categories still exist and aren't archived
-- [ ] 13.2.3 Filter out invalid patterns and enrich results with full Account and Category objects
-- [ ] 13.2.4 Handle service-level edge cases: all patterns invalid due to deleted accounts/categories
+- [x] 13.2.1 Add `TransactionService.getQuickActionPatterns()` method to orchestrate pattern retrieval and validation
+- [x] 13.2.2 Implement business logic to validate that pattern accounts and categories still exist and aren't archived
+- [x] 13.2.3 Filter out invalid patterns and enrich results with full Account and Category objects
+- [x] 13.2.4 Handle service-level edge cases: all patterns invalid due to deleted accounts/categories
 
 ### 13.3 GraphQL Layer
 - [ ] 13.3.1 Define `QuickActionPattern` type with account, category, and usageCount fields in GraphQL schema

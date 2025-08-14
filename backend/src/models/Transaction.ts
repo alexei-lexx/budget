@@ -49,6 +49,20 @@ export interface AccountCategoryPattern {
   usageCount: number;
 }
 
+export interface EnrichedAccountCategoryPattern {
+  account: {
+    id: string;
+    name: string;
+    currency: string;
+  };
+  category: {
+    id: string;
+    name: string;
+    type: string;
+  };
+  usageCount: number;
+}
+
 // Type for transaction types that support quick action patterns
 export type QuickActionTransactionType =
   | TransactionType.INCOME

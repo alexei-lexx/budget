@@ -6,6 +6,8 @@ import {
   UpdateTransactionInput,
   TransactionConnection,
   TransactionType,
+  QuickActionTransactionType,
+  EnrichedAccountCategoryPattern,
 } from "../models/Transaction";
 import { IAccountRepository, Account } from "../models/Account";
 import {
@@ -281,5 +283,81 @@ export class TransactionService {
 
     // Archive the transaction through repository
     return await this.transactionRepository.archive(id, userId);
+  }
+
+  /**
+   * Get quick action patterns for a user by analyzing transaction history
+   * @param userId - The user ID to get patterns for
+   * @param type - Transaction type to analyze (INCOME or EXPENSE)
+   * @param limit - Maximum number of patterns to return (default: 3)
+   * @param sampleSize - Number of transactions to analyze (default: 100)
+   * @returns Promise<EnrichedAccountCategoryPattern[]> - Validated patterns with full account and category objects
+   */
+  async getQuickActionPatterns(
+    userId: string,
+    type: QuickActionTransactionType,
+    limit = 3,
+    sampleSize = 100,
+  ): Promise<EnrichedAccountCategoryPattern[]> {
+    // Get raw patterns from repository
+    const patterns =
+      await this.transactionRepository.getAccountCategoryPatterns(
+        userId,
+        type,
+        limit,
+        sampleSize,
+      );
+
+    // Validate and enrich patterns with full account and category objects
+    const enrichedPatterns: EnrichedAccountCategoryPattern[] = [];
+
+    for (const pattern of patterns) {
+      // Validate that account still exists and belongs to user
+      const account = await this.accountRepository.findActiveById(
+        pattern.accountId,
+        userId,
+      );
+      if (!account) {
+        // Skip pattern if account is deleted/archived
+        continue;
+      }
+
+      // Validate that category still exists and belongs to user
+      const category = await this.categoryRepository.findById(
+        pattern.categoryId,
+        userId,
+      );
+      if (!category) {
+        // Skip pattern if category is deleted/archived
+        continue;
+      }
+
+      // Validate that category type matches transaction type
+      const expectedCategoryType =
+        type === TransactionType.INCOME
+          ? CategoryType.INCOME
+          : CategoryType.EXPENSE;
+      if (category.type !== expectedCategoryType) {
+        // Skip pattern if category type doesn't match
+        continue;
+      }
+
+      // Create enriched pattern
+      enrichedPatterns.push({
+        account: {
+          id: account.id,
+          name: account.name,
+          currency: account.currency,
+        },
+        category: {
+          id: category.id,
+          name: category.name,
+          type: category.type,
+        },
+        usageCount: pattern.usageCount,
+      });
+    }
+
+    return enrichedPatterns;
   }
 }
