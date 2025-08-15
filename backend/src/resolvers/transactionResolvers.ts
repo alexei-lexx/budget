@@ -107,7 +107,7 @@ export const transactionResolvers = {
         handleResolverError(error, "Failed to fetch transactions");
       }
     },
-    getQuickActionPatterns: async (
+    getTransactionPatterns: async (
       _parent: unknown,
       args: { type: unknown },
       context: GraphQLContext,
