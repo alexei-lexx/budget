@@ -303,7 +303,7 @@ export class TransactionService {
     sampleSize = 100,
   ): Promise<EnrichedTransactionPattern[]> {
     // Get raw patterns from repository
-    const patterns = await this.transactionRepository.getPatterns(
+    const patterns = await this.transactionRepository.detectPatterns(
       userId,
       type,
       limit,

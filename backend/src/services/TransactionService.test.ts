@@ -80,7 +80,7 @@ describe("TransactionService", () => {
         type: CategoryType.INCOME,
       });
 
-      mockTransactionRepository.getPatterns.mockResolvedValue(patterns);
+      mockTransactionRepository.detectPatterns.mockResolvedValue(patterns);
       mockAccountRepository.findActiveById
         .mockResolvedValueOnce(account1)
         .mockResolvedValueOnce(account2);
@@ -138,7 +138,7 @@ describe("TransactionService", () => {
         type: CategoryType.INCOME,
       });
 
-      mockTransactionRepository.getPatterns.mockResolvedValue(patterns);
+      mockTransactionRepository.detectPatterns.mockResolvedValue(patterns);
       mockAccountRepository.findActiveById
         .mockResolvedValueOnce(account1)
         .mockResolvedValueOnce(null); // Deleted account
@@ -189,7 +189,7 @@ describe("TransactionService", () => {
         type: CategoryType.INCOME,
       });
 
-      mockTransactionRepository.getPatterns.mockResolvedValue(patterns);
+      mockTransactionRepository.detectPatterns.mockResolvedValue(patterns);
       mockAccountRepository.findActiveById
         .mockResolvedValueOnce(account1)
         .mockResolvedValueOnce(account2);
@@ -249,7 +249,7 @@ describe("TransactionService", () => {
         type: CategoryType.EXPENSE, // Wrong type for INCOME transaction
       });
 
-      mockTransactionRepository.getPatterns.mockResolvedValue(patterns);
+      mockTransactionRepository.detectPatterns.mockResolvedValue(patterns);
       mockAccountRepository.findActiveById
         .mockResolvedValueOnce(account1)
         .mockResolvedValueOnce(account2);
@@ -283,7 +283,7 @@ describe("TransactionService", () => {
         }),
       ];
 
-      mockTransactionRepository.getPatterns.mockResolvedValue(patterns);
+      mockTransactionRepository.detectPatterns.mockResolvedValue(patterns);
       mockAccountRepository.findActiveById.mockResolvedValue(null); // All accounts deleted
       mockCategoryRepository.findActiveById.mockResolvedValue(null); // All categories deleted
 
@@ -301,7 +301,7 @@ describe("TransactionService", () => {
 
     it("should return empty array for new users with no transaction history", async () => {
       // Arrange
-      mockTransactionRepository.getPatterns.mockResolvedValue([]);
+      mockTransactionRepository.detectPatterns.mockResolvedValue([]);
 
       // Act
       const result = await service.getQuickActionPatterns(
@@ -319,7 +319,7 @@ describe("TransactionService", () => {
 
     it("should pass correct parameters to repository", async () => {
       // Arrange
-      mockTransactionRepository.getPatterns.mockResolvedValue([]);
+      mockTransactionRepository.detectPatterns.mockResolvedValue([]);
 
       // Act
       await service.getQuickActionPatterns(
@@ -330,7 +330,7 @@ describe("TransactionService", () => {
       );
 
       // Assert
-      expect(mockTransactionRepository.getPatterns).toHaveBeenCalledWith(
+      expect(mockTransactionRepository.detectPatterns).toHaveBeenCalledWith(
         userId,
         TransactionType.EXPENSE,
         5,

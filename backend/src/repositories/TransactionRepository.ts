@@ -629,7 +629,7 @@ export class TransactionRepository implements ITransactionRepository {
     }
   }
 
-  async getPatterns(
+  async detectPatterns(
     userId: string,
     type: TransactionPatternType,
     limit: number,

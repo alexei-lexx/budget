@@ -90,7 +90,7 @@ export interface ITransactionRepository {
     accountId: string,
     userId: string,
   ): Promise<boolean>;
-  getPatterns(
+  detectPatterns(
     userId: string,
     type: TransactionPatternType,
     limit: number,

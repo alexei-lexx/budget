@@ -3,6 +3,7 @@ import {
   TransactionType,
   CreateTransactionInput,
   UpdateTransactionInput,
+  TransactionPatternType,
 } from "../models/Transaction";
 import { faker } from "@faker-js/faker";
 
@@ -541,15 +542,15 @@ describe("TransactionRepository", () => {
     });
   });
 
-  describe("getTransactionPatterns", () => {
+  describe("detectPatterns", () => {
     it("should return empty array for new user with no transactions", async () => {
       // Arrange
       const userId = faker.string.uuid();
 
       // Act
-      const result = await repository.getPatterns(
+      const result = await repository.detectPatterns(
         userId,
-        TransactionType.INCOME,
+        TransactionPatternType.INCOME,
         3,
         100,
       );
@@ -585,9 +586,9 @@ describe("TransactionRepository", () => {
       await repository.createMany(createInputs);
 
       // Act
-      const result = await repository.getPatterns(
+      const result = await repository.detectPatterns(
         userId,
-        TransactionType.INCOME,
+        TransactionPatternType.INCOME,
         3,
         100,
       );
@@ -660,9 +661,9 @@ describe("TransactionRepository", () => {
 
       await repository.createMany(createInputs);
 
-      const result = await repository.getPatterns(
+      const result = await repository.detectPatterns(
         userId,
-        TransactionType.INCOME,
+        TransactionPatternType.INCOME,
         3,
         100,
       );
@@ -703,9 +704,9 @@ describe("TransactionRepository", () => {
 
       await repository.createMany(createInputs);
 
-      const result = await repository.getPatterns(
+      const result = await repository.detectPatterns(
         userId,
-        TransactionType.EXPENSE,
+        TransactionPatternType.EXPENSE,
         3,
         100,
       );
@@ -790,9 +791,9 @@ describe("TransactionRepository", () => {
 
       await repository.createMany(createInputs);
 
-      const result = await repository.getPatterns(
+      const result = await repository.detectPatterns(
         userId,
-        TransactionType.INCOME,
+        TransactionPatternType.INCOME,
         3,
         100,
       );
@@ -868,16 +869,16 @@ describe("TransactionRepository", () => {
 
       await repository.createMany(createInputs);
 
-      const incomeResult = await repository.getPatterns(
+      const incomeResult = await repository.detectPatterns(
         userId,
-        TransactionType.INCOME,
+        TransactionPatternType.INCOME,
         3,
         100,
       );
 
-      const expenseResult = await repository.getPatterns(
+      const expenseResult = await repository.detectPatterns(
         userId,
-        TransactionType.EXPENSE,
+        TransactionPatternType.EXPENSE,
         3,
         100,
       );
@@ -924,9 +925,9 @@ describe("TransactionRepository", () => {
       // Archive one transaction
       await repository.archive(createdTransactions[0].id, userId);
 
-      const result = await repository.getPatterns(
+      const result = await repository.detectPatterns(
         userId,
-        TransactionType.INCOME,
+        TransactionPatternType.INCOME,
         3,
         100,
       );
@@ -959,9 +960,9 @@ describe("TransactionRepository", () => {
       await repository.createMany(createInputs);
 
       // Act - Request with sampleSize of 5 (should only analyze 5 transactions)
-      const result = await repository.getPatterns(
+      const result = await repository.detectPatterns(
         userId,
-        TransactionType.INCOME,
+        TransactionPatternType.INCOME,
         3,
         5,
       );
@@ -977,7 +978,7 @@ describe("TransactionRepository", () => {
 
     it("should throw error for missing user ID", async () => {
       await expect(
-        repository.getPatterns("", TransactionType.INCOME, 3, 100),
+        repository.detectPatterns("", TransactionPatternType.INCOME, 3, 100),
       ).rejects.toThrow("User ID is required");
     });
 
@@ -986,17 +987,32 @@ describe("TransactionRepository", () => {
 
       // Act & Assert - Zero limit
       await expect(
-        repository.getPatterns(userId, TransactionType.INCOME, 0, 100),
+        repository.detectPatterns(
+          userId,
+          TransactionPatternType.INCOME,
+          0,
+          100,
+        ),
       ).rejects.toThrow("Limit must be a positive integer");
 
       // Act & Assert - Negative limit
       await expect(
-        repository.getPatterns(userId, TransactionType.INCOME, -1, 100),
+        repository.detectPatterns(
+          userId,
+          TransactionPatternType.INCOME,
+          -1,
+          100,
+        ),
       ).rejects.toThrow("Limit must be a positive integer");
 
       // Act & Assert - Non-integer limit
       await expect(
-        repository.getPatterns(userId, TransactionType.INCOME, 3.5, 100),
+        repository.detectPatterns(
+          userId,
+          TransactionPatternType.INCOME,
+          3.5,
+          100,
+        ),
       ).rejects.toThrow("Limit must be a positive integer");
     });
 
@@ -1005,17 +1021,22 @@ describe("TransactionRepository", () => {
 
       // Act & Assert - Zero sample size
       await expect(
-        repository.getPatterns(userId, TransactionType.INCOME, 3, 0),
+        repository.detectPatterns(userId, TransactionPatternType.INCOME, 3, 0),
       ).rejects.toThrow("Sample size must be a positive integer");
 
       // Act & Assert - Negative sample size
       await expect(
-        repository.getPatterns(userId, TransactionType.INCOME, 3, -1),
+        repository.detectPatterns(userId, TransactionPatternType.INCOME, 3, -1),
       ).rejects.toThrow("Sample size must be a positive integer");
 
       // Act & Assert - Non-integer sample size
       await expect(
-        repository.getPatterns(userId, TransactionType.INCOME, 3, 50.5),
+        repository.detectPatterns(
+          userId,
+          TransactionPatternType.INCOME,
+          3,
+          50.5,
+        ),
       ).rejects.toThrow("Sample size must be a positive integer");
     });
 
@@ -1039,9 +1060,9 @@ describe("TransactionRepository", () => {
       await repository.createMany(createInputs);
 
       // Act - Request only 2 patterns
-      const result = await repository.getPatterns(
+      const result = await repository.detectPatterns(
         userId,
-        TransactionType.INCOME,
+        TransactionPatternType.INCOME,
         2,
         100,
       );
@@ -1071,9 +1092,9 @@ describe("TransactionRepository", () => {
       await repository.createMany(createInputs);
 
       // Act - Use small sample size of 5 (should still find the pattern)
-      const result = await repository.getPatterns(
+      const result = await repository.detectPatterns(
         userId,
-        TransactionType.INCOME,
+        TransactionPatternType.INCOME,
         3,
         5, // Only look at 5 most recent transactions
       );
@@ -1115,15 +1136,15 @@ describe("TransactionRepository", () => {
 
       await repository.createMany([...createInputsUser1, ...createInputsUser2]);
 
-      const user1Result = await repository.getPatterns(
+      const user1Result = await repository.detectPatterns(
         user1,
-        TransactionType.INCOME,
+        TransactionPatternType.INCOME,
         3,
         100,
       );
-      const user2Result = await repository.getPatterns(
+      const user2Result = await repository.detectPatterns(
         user2,
-        TransactionType.INCOME,
+        TransactionPatternType.INCOME,
         3,
         100,
       );
