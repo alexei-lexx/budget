@@ -68,11 +68,11 @@ const paginationInputSchema = z
   })
   .optional();
 
-const quickActionTransactionTypeSchema = z.enum(
+const transactionPatternTypeSchema = z.enum(
   [TransactionPatternType.INCOME, TransactionPatternType.EXPENSE],
   {
     errorMap: () => ({
-      message: `Quick action type must be either ${TransactionPatternType.INCOME} or ${TransactionPatternType.EXPENSE}`,
+      message: `Type must be either ${TransactionPatternType.INCOME} or ${TransactionPatternType.EXPENSE}`,
     }),
   },
 );
@@ -115,7 +115,7 @@ export const transactionResolvers = {
       try {
         // Validate quick action type input
         const validatedQuickActionTransactionType =
-          quickActionTransactionTypeSchema.parse(args.type);
+          transactionPatternTypeSchema.parse(args.type);
         const user = await getAuthenticatedUser(context);
 
         const patterns =
