@@ -289,14 +289,14 @@ export class TransactionService {
   }
 
   /**
-   * Get quick action patterns for a user by analyzing transaction history
+   * Get patterns for a user by analyzing transaction history
    * @param userId - The user ID to get patterns for
    * @param type - Transaction type to analyze (INCOME or EXPENSE)
    * @param limit - Maximum number of patterns to return (default: 3)
    * @param sampleSize - Number of transactions to analyze (default: 100)
    * @returns Promise<EnrichedTransactionPattern[]> - Validated patterns with full account and category objects
    */
-  async getQuickActionPatterns(
+  async getTransactionPatterns(
     userId: string,
     type: TransactionPatternType,
     limit = 3,

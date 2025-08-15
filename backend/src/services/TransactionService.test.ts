@@ -89,7 +89,7 @@ describe("TransactionService", () => {
         .mockResolvedValueOnce(category2);
 
       // Act
-      const result = await service.getQuickActionPatterns(
+      const result = await service.getTransactionPatterns(
         userId,
         TransactionPatternType.INCOME,
         3,
@@ -145,7 +145,7 @@ describe("TransactionService", () => {
       mockCategoryRepository.findActiveById.mockResolvedValueOnce(category1);
 
       // Act
-      const result = await service.getQuickActionPatterns(
+      const result = await service.getTransactionPatterns(
         userId,
         TransactionPatternType.INCOME,
         3,
@@ -198,7 +198,7 @@ describe("TransactionService", () => {
         .mockResolvedValueOnce(null); // Deleted category
 
       // Act
-      const result = await service.getQuickActionPatterns(
+      const result = await service.getTransactionPatterns(
         userId,
         TransactionPatternType.INCOME,
         3,
@@ -258,7 +258,7 @@ describe("TransactionService", () => {
         .mockResolvedValueOnce(expenseCategory);
 
       // Act
-      const result = await service.getQuickActionPatterns(
+      const result = await service.getTransactionPatterns(
         userId,
         TransactionPatternType.INCOME,
         3,
@@ -288,7 +288,7 @@ describe("TransactionService", () => {
       mockCategoryRepository.findActiveById.mockResolvedValue(null); // All categories deleted
 
       // Act
-      const result = await service.getQuickActionPatterns(
+      const result = await service.getTransactionPatterns(
         userId,
         TransactionPatternType.INCOME,
         3,
@@ -304,7 +304,7 @@ describe("TransactionService", () => {
       mockTransactionRepository.detectPatterns.mockResolvedValue([]);
 
       // Act
-      const result = await service.getQuickActionPatterns(
+      const result = await service.getTransactionPatterns(
         userId,
         TransactionPatternType.INCOME,
         3,
@@ -322,7 +322,7 @@ describe("TransactionService", () => {
       mockTransactionRepository.detectPatterns.mockResolvedValue([]);
 
       // Act
-      await service.getQuickActionPatterns(
+      await service.getTransactionPatterns(
         userId,
         TransactionPatternType.EXPENSE,
         5,

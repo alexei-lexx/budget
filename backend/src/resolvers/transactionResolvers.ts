@@ -119,7 +119,7 @@ export const transactionResolvers = {
         const user = await getAuthenticatedUser(context);
 
         const patterns =
-          await context.transactionService.getQuickActionPatterns(
+          await context.transactionService.getTransactionPatterns(
             user.id,
             validatedQuickActionTransactionType,
           );
