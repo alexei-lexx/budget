@@ -97,20 +97,20 @@ Date:       [_________]
 - [x] 13.2.4 Handle service-level edge cases: all patterns invalid due to deleted accounts/categories
 
 ### 13.3 GraphQL Layer
-- [x] 13.3.1 Define `QuickActionPattern` type with account, category, and usageCount fields in GraphQL schema
-- [x] 13.3.2 Add `getTransactionPatterns(type: TransactionType!)` query to GraphQL schema
+- [x] 13.3.1 Define `TransactionPattern` type with account, category, and usageCount fields in GraphQL schema
+- [x] 13.3.2 Add `getTransactionPatterns(type)` query to GraphQL schema
 - [x] 13.3.3 Implement GraphQL resolver to call TransactionService and return formatted patterns
 - [x] 13.3.4 Add input validation using Zod schema for TransactionType parameter
 
 ### 13.4 Frontend Data Layer
 - [ ] 13.4.1 Generate TypeScript types from updated GraphQL schema using codegen
 - [ ] 13.4.2 Create GraphQL query for getTransactionPatterns in `frontend/src/graphql/transactions.ts`
-- [ ] 13.4.3 Create `useQuickActionPatterns()` composable that fetches patterns reactively based on transaction type
+- [ ] 13.4.3 Create `useTransactionPatterns()` composable that fetches patterns reactively based on transaction type
 - [ ] 13.4.4 Implement pattern cache invalidation and refetch after successful transaction creation
 
 ### 13.5 Frontend UI/UX Layer
-- [ ] 13.5.1 Create `QuickActionButtons.vue` component to display pattern buttons with "[Account Name] + [Category Name]" format
-- [ ] 13.5.2 Integrate QuickActionButtons component into transaction creation form below type tabs
+- [ ] 13.5.1 Create `QuickTransactionButtons.vue` component to display pattern buttons with "[Account Name] + [Category Name]" format
+- [ ] 13.5.2 Integrate QuickTransactionButtons component into transaction creation form below type tabs
 - [ ] 13.5.3 Implement pattern button click handler to pre-fill account and category dropdowns and focus amount field
 - [ ] 13.5.4 Add responsive design for mobile devices with touch-friendly button sizing
 - [ ] 13.5.5 Show/hide quick actions contextually based on selected transaction type (Income/Expense)
