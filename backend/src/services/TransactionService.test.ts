@@ -1,8 +1,5 @@
 import { TransactionService } from "./TransactionService";
-import {
-  QuickActionTransactionType,
-  TransactionType,
-} from "../models/Transaction";
+import { TransactionPatternType, TransactionType } from "../models/Transaction";
 import { CategoryType } from "../models/Category";
 import { faker } from "@faker-js/faker";
 import {
@@ -13,7 +10,7 @@ import {
 import {
   fakeAccount,
   fakeCategory,
-  fakeAccountCategoryPattern,
+  fakeTransactionPattern,
 } from "../__tests__/utils/factories";
 
 describe("TransactionService", () => {
@@ -45,11 +42,11 @@ describe("TransactionService", () => {
     it("should return enriched patterns for valid account and category combinations", async () => {
       // Arrange
       const patterns = [
-        fakeAccountCategoryPattern({
+        fakeTransactionPattern({
           accountId: "account-1",
           categoryId: "category-1",
         }),
-        fakeAccountCategoryPattern({
+        fakeTransactionPattern({
           accountId: "account-2",
           categoryId: "category-2",
         }),
@@ -83,9 +80,7 @@ describe("TransactionService", () => {
         type: CategoryType.INCOME,
       });
 
-      mockTransactionRepository.getAccountCategoryPatterns.mockResolvedValue(
-        patterns,
-      );
+      mockTransactionRepository.getPatterns.mockResolvedValue(patterns);
       mockAccountRepository.findActiveById
         .mockResolvedValueOnce(account1)
         .mockResolvedValueOnce(account2);
@@ -96,7 +91,7 @@ describe("TransactionService", () => {
       // Act
       const result = await service.getQuickActionPatterns(
         userId,
-        QuickActionTransactionType.INCOME,
+        TransactionPatternType.INCOME,
         3,
         100,
       );
@@ -120,11 +115,11 @@ describe("TransactionService", () => {
     it("should filter out patterns with deleted accounts", async () => {
       // Arrange
       const patterns = [
-        fakeAccountCategoryPattern({
+        fakeTransactionPattern({
           accountId: "account-1",
           categoryId: "category-1",
         }),
-        fakeAccountCategoryPattern({
+        fakeTransactionPattern({
           accountId: "account-deleted",
           categoryId: "category-2",
         }),
@@ -143,9 +138,7 @@ describe("TransactionService", () => {
         type: CategoryType.INCOME,
       });
 
-      mockTransactionRepository.getAccountCategoryPatterns.mockResolvedValue(
-        patterns,
-      );
+      mockTransactionRepository.getPatterns.mockResolvedValue(patterns);
       mockAccountRepository.findActiveById
         .mockResolvedValueOnce(account1)
         .mockResolvedValueOnce(null); // Deleted account
@@ -154,7 +147,7 @@ describe("TransactionService", () => {
       // Act
       const result = await service.getQuickActionPatterns(
         userId,
-        QuickActionTransactionType.INCOME,
+        TransactionPatternType.INCOME,
         3,
         100,
       );
@@ -167,11 +160,11 @@ describe("TransactionService", () => {
     it("should filter out patterns with deleted categories", async () => {
       // Arrange
       const patterns = [
-        fakeAccountCategoryPattern({
+        fakeTransactionPattern({
           accountId: "account-1",
           categoryId: "category-1",
         }),
-        fakeAccountCategoryPattern({
+        fakeTransactionPattern({
           accountId: "account-2",
           categoryId: "category-deleted",
         }),
@@ -196,9 +189,7 @@ describe("TransactionService", () => {
         type: CategoryType.INCOME,
       });
 
-      mockTransactionRepository.getAccountCategoryPatterns.mockResolvedValue(
-        patterns,
-      );
+      mockTransactionRepository.getPatterns.mockResolvedValue(patterns);
       mockAccountRepository.findActiveById
         .mockResolvedValueOnce(account1)
         .mockResolvedValueOnce(account2);
@@ -209,7 +200,7 @@ describe("TransactionService", () => {
       // Act
       const result = await service.getQuickActionPatterns(
         userId,
-        QuickActionTransactionType.INCOME,
+        TransactionPatternType.INCOME,
         3,
         100,
       );
@@ -222,11 +213,11 @@ describe("TransactionService", () => {
     it("should filter out patterns with mismatched category types", async () => {
       // Arrange
       const patterns = [
-        fakeAccountCategoryPattern({
+        fakeTransactionPattern({
           accountId: "account-1",
           categoryId: "category-income",
         }),
-        fakeAccountCategoryPattern({
+        fakeTransactionPattern({
           accountId: "account-2",
           categoryId: "category-expense",
         }),
@@ -258,9 +249,7 @@ describe("TransactionService", () => {
         type: CategoryType.EXPENSE, // Wrong type for INCOME transaction
       });
 
-      mockTransactionRepository.getAccountCategoryPatterns.mockResolvedValue(
-        patterns,
-      );
+      mockTransactionRepository.getPatterns.mockResolvedValue(patterns);
       mockAccountRepository.findActiveById
         .mockResolvedValueOnce(account1)
         .mockResolvedValueOnce(account2);
@@ -271,7 +260,7 @@ describe("TransactionService", () => {
       // Act
       const result = await service.getQuickActionPatterns(
         userId,
-        QuickActionTransactionType.INCOME,
+        TransactionPatternType.INCOME,
         3,
         100,
       );
@@ -284,26 +273,24 @@ describe("TransactionService", () => {
     it("should return empty array when all patterns are invalid", async () => {
       // Arrange
       const patterns = [
-        fakeAccountCategoryPattern({
+        fakeTransactionPattern({
           accountId: "account-deleted",
           categoryId: "category-1",
         }),
-        fakeAccountCategoryPattern({
+        fakeTransactionPattern({
           accountId: "account-2",
           categoryId: "category-deleted",
         }),
       ];
 
-      mockTransactionRepository.getAccountCategoryPatterns.mockResolvedValue(
-        patterns,
-      );
+      mockTransactionRepository.getPatterns.mockResolvedValue(patterns);
       mockAccountRepository.findActiveById.mockResolvedValue(null); // All accounts deleted
       mockCategoryRepository.findActiveById.mockResolvedValue(null); // All categories deleted
 
       // Act
       const result = await service.getQuickActionPatterns(
         userId,
-        QuickActionTransactionType.INCOME,
+        TransactionPatternType.INCOME,
         3,
         100,
       );
@@ -314,14 +301,12 @@ describe("TransactionService", () => {
 
     it("should return empty array for new users with no transaction history", async () => {
       // Arrange
-      mockTransactionRepository.getAccountCategoryPatterns.mockResolvedValue(
-        [],
-      );
+      mockTransactionRepository.getPatterns.mockResolvedValue([]);
 
       // Act
       const result = await service.getQuickActionPatterns(
         userId,
-        QuickActionTransactionType.INCOME,
+        TransactionPatternType.INCOME,
         3,
         100,
       );
@@ -334,22 +319,23 @@ describe("TransactionService", () => {
 
     it("should pass correct parameters to repository", async () => {
       // Arrange
-      mockTransactionRepository.getAccountCategoryPatterns.mockResolvedValue(
-        [],
-      );
+      mockTransactionRepository.getPatterns.mockResolvedValue([]);
 
       // Act
       await service.getQuickActionPatterns(
         userId,
-        QuickActionTransactionType.EXPENSE,
+        TransactionPatternType.EXPENSE,
         5,
         200,
       );
 
       // Assert
-      expect(
-        mockTransactionRepository.getAccountCategoryPatterns,
-      ).toHaveBeenCalledWith(userId, TransactionType.EXPENSE, 5, 200);
+      expect(mockTransactionRepository.getPatterns).toHaveBeenCalledWith(
+        userId,
+        TransactionType.EXPENSE,
+        5,
+        200,
+      );
     });
   });
 });

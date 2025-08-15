@@ -6,8 +6,8 @@ import {
   UpdateTransactionInput,
   TransactionConnection,
   TransactionType,
-  QuickActionTransactionType,
-  EnrichedAccountCategoryPattern,
+  TransactionPatternType,
+  EnrichedTransactionPattern,
 } from "../models/Transaction";
 import { IAccountRepository, Account } from "../models/Account";
 import {
@@ -40,7 +40,7 @@ export class TransactionService {
     private accountRepository: IAccountRepository,
     private categoryRepository: ICategoryRepository,
     private transactionRepository: ITransactionRepository,
-  ) { }
+  ) {}
 
   /**
    * Validate that an account exists and belongs to the user
@@ -294,25 +294,24 @@ export class TransactionService {
    * @param type - Transaction type to analyze (INCOME or EXPENSE)
    * @param limit - Maximum number of patterns to return (default: 3)
    * @param sampleSize - Number of transactions to analyze (default: 100)
-   * @returns Promise<EnrichedAccountCategoryPattern[]> - Validated patterns with full account and category objects
+   * @returns Promise<EnrichedTransactionPattern[]> - Validated patterns with full account and category objects
    */
   async getQuickActionPatterns(
     userId: string,
-    type: QuickActionTransactionType,
+    type: TransactionPatternType,
     limit = 3,
     sampleSize = 100,
-  ): Promise<EnrichedAccountCategoryPattern[]> {
+  ): Promise<EnrichedTransactionPattern[]> {
     // Get raw patterns from repository
-    const patterns =
-      await this.transactionRepository.getAccountCategoryPatterns(
-        userId,
-        type,
-        limit,
-        sampleSize,
-      );
+    const patterns = await this.transactionRepository.getPatterns(
+      userId,
+      type,
+      limit,
+      sampleSize,
+    );
 
     // Validate and enrich patterns with full account and category objects
-    const enrichedPatterns: EnrichedAccountCategoryPattern[] = [];
+    const enrichedPatterns: EnrichedTransactionPattern[] = [];
 
     for (const pattern of patterns) {
       // Validate that account still exists and belongs to user
@@ -337,7 +336,7 @@ export class TransactionService {
 
       // Validate that category type matches transaction type
       const expectedCategoryType =
-        type === QuickActionTransactionType.INCOME
+        type === TransactionPatternType.INCOME
           ? CategoryType.INCOME
           : CategoryType.EXPENSE;
       if (category.type !== expectedCategoryType) {

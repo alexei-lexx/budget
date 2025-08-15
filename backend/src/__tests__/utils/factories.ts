@@ -4,7 +4,7 @@ import { Category, CategoryType } from "../../models/Category";
 import {
   Transaction,
   TransactionType,
-  AccountCategoryPattern,
+  TransactionPattern,
 } from "../../models/Transaction";
 
 /**
@@ -67,11 +67,11 @@ export const fakeTransaction = (
 };
 
 /**
- * Creates a valid fake AccountCategoryPattern with optional field overrides
+ * Creates a valid fake TransactionPattern with optional field overrides
  */
-export const fakeAccountCategoryPattern = (
-  overrides: Partial<AccountCategoryPattern> = {},
-): AccountCategoryPattern => {
+export const fakeTransactionPattern = (
+  overrides: Partial<TransactionPattern> = {},
+): TransactionPattern => {
   return {
     accountId: faker.string.uuid(),
     categoryId: faker.string.uuid(),

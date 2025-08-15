@@ -15,8 +15,8 @@ import {
   ITransactionRepository,
   TransactionConnection,
   TransactionEdge,
-  AccountCategoryPattern,
-  QuickActionTransactionType,
+  TransactionPattern,
+  TransactionPatternType,
 } from "../models/Transaction";
 import {
   PaginationInput,
@@ -629,12 +629,12 @@ export class TransactionRepository implements ITransactionRepository {
     }
   }
 
-  async getAccountCategoryPatterns(
+  async getPatterns(
     userId: string,
-    type: QuickActionTransactionType,
+    type: TransactionPatternType,
     limit: number,
     sampleSize: number,
-  ): Promise<AccountCategoryPattern[]> {
+  ): Promise<TransactionPattern[]> {
     if (!userId) {
       throw new TransactionRepositoryError(
         "User ID is required",

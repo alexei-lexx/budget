@@ -43,18 +43,18 @@ export type UpdateTransactionInput = Partial<
 export type TransactionEdge = Edge<Transaction>;
 export type TransactionConnection = Connection<Transaction>;
 
-export interface AccountCategoryPattern {
+export interface TransactionPattern {
   accountId: string;
   categoryId: string;
 }
 
-export interface EnrichedAccountCategoryPattern extends AccountCategoryPattern {
+export interface EnrichedTransactionPattern extends TransactionPattern {
   accountName: string;
   categoryName: string;
 }
 
-// Type for transaction types that support quick action patterns
-export enum QuickActionTransactionType {
+// Type for transactions that support transaction patterns
+export enum TransactionPatternType {
   INCOME = "INCOME",
   EXPENSE = "EXPENSE",
 }
@@ -90,10 +90,10 @@ export interface ITransactionRepository {
     accountId: string,
     userId: string,
   ): Promise<boolean>;
-  getAccountCategoryPatterns(
+  getPatterns(
     userId: string,
-    type: QuickActionTransactionType,
+    type: TransactionPatternType,
     limit: number,
     sampleSize: number,
-  ): Promise<AccountCategoryPattern[]>;
+  ): Promise<TransactionPattern[]>;
 }

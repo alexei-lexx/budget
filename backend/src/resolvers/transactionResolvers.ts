@@ -4,10 +4,7 @@ import { GraphQLContext } from "../server";
 import { getAuthenticatedUser, handleResolverError } from "./shared";
 import { BusinessError } from "../services/BusinessError";
 import { MIN_PAGE_SIZE, MAX_PAGE_SIZE } from "../types/pagination";
-import {
-  TransactionType,
-  QuickActionTransactionType,
-} from "../models/Transaction";
+import { TransactionType, TransactionPatternType } from "../models/Transaction";
 import {
   DATE_FORMAT_REGEX,
   DATE_FORMAT_ERROR_MESSAGE,
@@ -72,10 +69,10 @@ const paginationInputSchema = z
   .optional();
 
 const quickActionTransactionTypeSchema = z.enum(
-  [QuickActionTransactionType.INCOME, QuickActionTransactionType.EXPENSE],
+  [TransactionPatternType.INCOME, TransactionPatternType.EXPENSE],
   {
     errorMap: () => ({
-      message: `Quick action type must be either ${QuickActionTransactionType.INCOME} or ${QuickActionTransactionType.EXPENSE}`,
+      message: `Quick action type must be either ${TransactionPatternType.INCOME} or ${TransactionPatternType.EXPENSE}`,
     }),
   },
 );
