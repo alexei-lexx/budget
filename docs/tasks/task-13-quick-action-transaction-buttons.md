@@ -15,7 +15,7 @@ Add quick action buttons for the most frequently used account/category combinati
 
 ### Use Case 2: Income Transaction Shortcuts
 **Given:** User regularly receives salary deposits to "Checking + Salary"
-**When:** User selects the Income tab in transaction creation form  
+**When:** User selects the Income tab in transaction creation form
 **Then:** "Checking + Salary" appears as a quick action button below the tab
 **And:** Clicking the button pre-fills account and category fields
 **And:** User only needs to enter amount to save the transaction
@@ -84,13 +84,13 @@ Date:       [_________]
 ## Implementation Plan
 
 ### 13.1 Repository Layer
-- [x] 13.1.1 Add `TransactionRepository.getAccountCategoryPatterns()` method to query last 100 transactions of specified type, group by account+category combination, and return top 3 most frequent patterns
+- [x] 13.1.1 Add `TransactionRepository.detectPatterns()` method to query last 100 transactions of specified type, group by account+category combination, and return top 3 most frequent patterns
 - [x] 13.1.2 Implement pattern analysis logic to filter transactions with both accountId and categoryId, group by combination, sort by usage count descending
 - [x] 13.1.3 Handle edge cases: new users with no transactions, users with <100 transactions, transactions missing account or category data
 - [x] 13.1.4 Create comprehensive unit tests covering pattern analysis with various transaction histories, edge cases, and tie-breaking scenarios
 - [x] 13.1.5 Test repository method with deleted/archived accounts and categories to ensure proper error handling
 
-### 13.2 Service Layer  
+### 13.2 Service Layer
 - [x] 13.2.1 Add `TransactionService.getQuickActionPatterns()` method to orchestrate pattern retrieval and validation
 - [x] 13.2.2 Implement business logic to validate that pattern accounts and categories still exist and aren't archived
 - [x] 13.2.3 Filter out invalid patterns and enrich results with full Account and Category objects
@@ -98,7 +98,7 @@ Date:       [_________]
 
 ### 13.3 GraphQL Layer
 - [x] 13.3.1 Define `QuickActionPattern` type with account, category, and usageCount fields in GraphQL schema
-- [x] 13.3.2 Add `getQuickActionPatterns(type: TransactionType!)` query to GraphQL schema  
+- [x] 13.3.2 Add `getQuickActionPatterns(type: TransactionType!)` query to GraphQL schema
 - [x] 13.3.3 Implement GraphQL resolver to call TransactionService and return formatted patterns
 - [x] 13.3.4 Add input validation using Zod schema for TransactionType parameter
 
@@ -115,4 +115,3 @@ Date:       [_________]
 - [ ] 13.5.4 Add responsive design for mobile devices with touch-friendly button sizing
 - [ ] 13.5.5 Show/hide quick actions contextually based on selected transaction type (Income/Expense)
 - [ ] 13.5.6 Handle new user experience: hide quick actions section when no patterns available
-
