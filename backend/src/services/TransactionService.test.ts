@@ -56,14 +56,12 @@ describe("TransactionService", () => {
         id: "account-1",
         userId,
         name: "Checking Account",
-        currency: "USD",
       });
 
       const account2 = fakeAccount({
         id: "account-2",
         userId,
         name: "Savings Account",
-        currency: "USD",
       });
 
       const category1 = fakeCategory({
