@@ -6,6 +6,7 @@ import {
   TransactionPatternType,
 } from "../models/Transaction";
 import { faker } from "@faker-js/faker";
+import { fakeCreateTransactionInput } from "../__tests__/utils/factories";
 
 describe("TransactionRepository", () => {
   let repository: TransactionRepository;
@@ -563,24 +564,16 @@ describe("TransactionRepository", () => {
       // Arrange
       const userId = faker.string.uuid();
       const createInputs: CreateTransactionInput[] = [
-        {
+        fakeCreateTransactionInput({
           userId,
-          accountId: "account-1",
+          categoryId: undefined,
           type: TransactionType.INCOME,
-          amount: 100.0,
-          currency: "USD",
-          date: "2024-01-01",
-          // No categoryId
-        },
-        {
+        }),
+        fakeCreateTransactionInput({
           userId,
-          accountId: "account-2",
+          categoryId: undefined,
           type: TransactionType.INCOME,
-          amount: 200.0,
-          currency: "USD",
-          date: "2024-01-02",
-          // No categoryId
-        },
+        }),
       ];
 
       await repository.createMany(createInputs);
@@ -601,62 +594,45 @@ describe("TransactionRepository", () => {
       const userId = faker.string.uuid();
       const createInputs: CreateTransactionInput[] = [
         // Pattern 1: account-1 + category-1 (3 occurrences)
-        {
+        fakeCreateTransactionInput({
           userId,
           accountId: "account-1",
           categoryId: "category-1",
           type: TransactionType.INCOME,
-          amount: 100.0,
-          currency: "USD",
-          date: "2024-01-01",
-        },
-        {
+        }),
+
+        fakeCreateTransactionInput({
           userId,
           accountId: "account-1",
           categoryId: "category-1",
           type: TransactionType.INCOME,
-          amount: 150.0,
-          currency: "USD",
-          date: "2024-01-02",
-        },
-        {
+        }),
+        fakeCreateTransactionInput({
           userId,
           accountId: "account-1",
           categoryId: "category-1",
           type: TransactionType.INCOME,
-          amount: 200.0,
-          currency: "USD",
-          date: "2024-01-03",
-        },
+        }),
         // Pattern 2: account-2 + category-2 (2 occurrences)
-        {
+        fakeCreateTransactionInput({
           userId,
           accountId: "account-2",
           categoryId: "category-2",
           type: TransactionType.INCOME,
-          amount: 300.0,
-          currency: "USD",
-          date: "2024-01-04",
-        },
-        {
+        }),
+        fakeCreateTransactionInput({
           userId,
           accountId: "account-2",
           categoryId: "category-2",
           type: TransactionType.INCOME,
-          amount: 400.0,
-          currency: "USD",
-          date: "2024-01-05",
-        },
+        }),
         // Pattern 3: account-3 + category-3 (1 occurrence)
-        {
+        fakeCreateTransactionInput({
           userId,
           accountId: "account-3",
           categoryId: "category-3",
           type: TransactionType.INCOME,
-          amount: 500.0,
-          currency: "USD",
-          date: "2024-01-06",
-        },
+        }),
       ];
 
       await repository.createMany(createInputs);
@@ -690,15 +666,14 @@ describe("TransactionRepository", () => {
       // Create 5 different patterns with different usage counts
       for (let i = 1; i <= 5; i++) {
         for (let j = 0; j < i; j++) {
-          createInputs.push({
-            userId,
-            accountId: `account-${i}`,
-            categoryId: `category-${i}`,
-            type: TransactionType.EXPENSE,
-            amount: 100.0,
-            currency: "USD",
-            date: `2024-01-${String(i * 10 + j).padStart(2, "0")}`,
-          });
+          createInputs.push(
+            fakeCreateTransactionInput({
+              userId,
+              accountId: `account-${i}`,
+              categoryId: `category-${i}`,
+              type: TransactionType.EXPENSE,
+            }),
+          );
         }
       }
 
@@ -731,7 +706,7 @@ describe("TransactionRepository", () => {
       const userId = faker.string.uuid();
       const createInputs: CreateTransactionInput[] = [
         // Pattern 1: account-b + category-b (2 occurrences)
-        {
+        fakeCreateTransactionInput({
           userId,
           accountId: "account-b",
           categoryId: "category-b",
@@ -739,8 +714,8 @@ describe("TransactionRepository", () => {
           amount: 100.0,
           currency: "USD",
           date: "2024-01-01",
-        },
-        {
+        }),
+        fakeCreateTransactionInput({
           userId,
           accountId: "account-b",
           categoryId: "category-b",
@@ -748,45 +723,33 @@ describe("TransactionRepository", () => {
           amount: 150.0,
           currency: "USD",
           date: "2024-01-02",
-        },
+        }),
         // Pattern 2: account-a + category-a (2 occurrences, same count)
-        {
+        fakeCreateTransactionInput({
           userId,
           accountId: "account-a",
           categoryId: "category-a",
           type: TransactionType.INCOME,
-          amount: 200.0,
-          currency: "USD",
-          date: "2024-01-03",
-        },
-        {
+        }),
+        fakeCreateTransactionInput({
           userId,
           accountId: "account-a",
           categoryId: "category-a",
           type: TransactionType.INCOME,
-          amount: 250.0,
-          currency: "USD",
-          date: "2024-01-04",
-        },
+        }),
         // Pattern 3: account-a + category-c (2 occurrences, same account different category)
-        {
+        fakeCreateTransactionInput({
           userId,
           accountId: "account-a",
           categoryId: "category-c",
           type: TransactionType.INCOME,
-          amount: 300.0,
-          currency: "USD",
-          date: "2024-01-05",
-        },
-        {
+        }),
+        fakeCreateTransactionInput({
           userId,
           accountId: "account-a",
           categoryId: "category-c",
           type: TransactionType.INCOME,
-          amount: 350.0,
-          currency: "USD",
-          date: "2024-01-06",
-        },
+        }),
       ];
 
       await repository.createMany(createInputs);
@@ -818,53 +781,38 @@ describe("TransactionRepository", () => {
       const userId = faker.string.uuid();
       const createInputs: CreateTransactionInput[] = [
         // Income transactions
-        {
+        fakeCreateTransactionInput({
           userId,
           accountId: "account-1",
           categoryId: "category-income",
           type: TransactionType.INCOME,
-          amount: 100.0,
-          currency: "USD",
-          date: "2024-01-01",
-        },
-        {
+        }),
+        fakeCreateTransactionInput({
           userId,
           accountId: "account-1",
           categoryId: "category-income",
           type: TransactionType.INCOME,
-          amount: 150.0,
-          currency: "USD",
-          date: "2024-01-02",
-        },
+        }),
         // Expense transactions
-        {
+        fakeCreateTransactionInput({
           userId,
           accountId: "account-1",
           categoryId: "category-expense",
           type: TransactionType.EXPENSE,
-          amount: 50.0,
-          currency: "USD",
-          date: "2024-01-03",
-        },
-        {
+        }),
+        fakeCreateTransactionInput({
           userId,
           accountId: "account-1",
           categoryId: "category-expense",
           type: TransactionType.EXPENSE,
-          amount: 75.0,
-          currency: "USD",
-          date: "2024-01-04",
-        },
+        }),
         // Transfer transactions (should be excluded)
-        {
+        fakeCreateTransactionInput({
           userId,
           accountId: "account-1",
           categoryId: "category-transfer",
           type: TransactionType.TRANSFER_IN,
-          amount: 200.0,
-          currency: "USD",
-          date: "2024-01-05",
-        },
+        }),
       ];
 
       await repository.createMany(createInputs);
@@ -900,24 +848,18 @@ describe("TransactionRepository", () => {
     it("should exclude archived transactions", async () => {
       const userId = faker.string.uuid();
       const createInputs: CreateTransactionInput[] = [
-        {
+        fakeCreateTransactionInput({
           userId,
           accountId: "account-1",
           categoryId: "category-1",
           type: TransactionType.INCOME,
-          amount: 100.0,
-          currency: "USD",
-          date: "2024-01-01",
-        },
-        {
+        }),
+        fakeCreateTransactionInput({
           userId,
-          accountId: "account-1",
-          categoryId: "category-1",
+          accountId: "account-2",
+          categoryId: "category-2",
           type: TransactionType.INCOME,
-          amount: 150.0,
-          currency: "USD",
-          date: "2024-01-02",
-        },
+        }),
       ];
 
       const createdTransactions = await repository.createMany(createInputs);
@@ -935,31 +877,43 @@ describe("TransactionRepository", () => {
       // Assert - Should only count non-archived transaction
       expect(result).toHaveLength(1);
       expect(result[0]).toEqual({
-        accountId: "account-1",
-        categoryId: "category-1",
+        accountId: "account-2",
+        categoryId: "category-2",
       });
     });
 
     it("should respect sample size limit", async () => {
       const userId = faker.string.uuid();
 
-      // Create 10 transactions
-      const createInputs: CreateTransactionInput[] = [];
-      for (let i = 0; i < 10; i++) {
-        createInputs.push({
-          userId,
-          accountId: "account-1",
-          categoryId: "category-1",
-          type: TransactionType.INCOME,
-          amount: 100.0,
-          currency: "USD",
-          date: "2024-01-01",
-        });
+      // Create 5+5 transactions
+
+      const createInputs1: CreateTransactionInput[] = [];
+      for (let i = 0; i < 5; i++) {
+        createInputs1.push(
+          fakeCreateTransactionInput({
+            userId,
+            accountId: "account-1",
+            categoryId: "category-1",
+            type: TransactionType.INCOME,
+          }),
+        );
       }
+      await repository.createMany(createInputs1);
 
-      await repository.createMany(createInputs);
+      const createInputs2: CreateTransactionInput[] = [];
+      for (let i = 0; i < 5; i++) {
+        createInputs2.push(
+          fakeCreateTransactionInput({
+            userId,
+            accountId: "account-2",
+            categoryId: "category-2",
+            type: TransactionType.INCOME,
+          }),
+        );
+      }
+      await repository.createMany(createInputs2);
 
-      // Act - Request with sampleSize of 5 (should only analyze 5 transactions)
+      // Act - Request with sampleSize of 5 (should only analyze last 5 transactions)
       const result = await repository.detectPatterns(
         userId,
         TransactionPatternType.INCOME,
@@ -970,8 +924,8 @@ describe("TransactionRepository", () => {
       // Assert - Should return the pattern but only based on 5 transactions
       expect(result).toHaveLength(1);
       expect(result[0]).toEqual({
-        accountId: "account-1",
-        categoryId: "category-1",
+        accountId: "account-2",
+        categoryId: "category-2",
         // Only 5 transactions analyzed due to sample size limit
       });
     });
@@ -1046,15 +1000,14 @@ describe("TransactionRepository", () => {
 
       // Create 5 different patterns
       for (let i = 1; i <= 5; i++) {
-        createInputs.push({
-          userId,
-          accountId: `account-${i}`,
-          categoryId: `category-${i}`,
-          type: TransactionType.INCOME,
-          amount: 100.0,
-          currency: "USD",
-          date: `2024-01-${String(i).padStart(2, "0")}`,
-        });
+        createInputs.push(
+          fakeCreateTransactionInput({
+            userId,
+            accountId: `account-${i}`,
+            categoryId: `category-${i}`,
+            type: TransactionType.INCOME,
+          }),
+        );
       }
 
       await repository.createMany(createInputs);
@@ -1071,67 +1024,24 @@ describe("TransactionRepository", () => {
       expect(result).toHaveLength(2);
     });
 
-    it("should analyze only sampleSize number of transactions", async () => {
-      const userId = faker.string.uuid();
-      const createInputs: CreateTransactionInput[] = [];
-
-      // Create multiple transactions with same pattern to ensure it shows up
-      // But limit the sample size to test that functionality
-      for (let i = 1; i <= 10; i++) {
-        createInputs.push({
-          userId,
-          accountId: "test-account",
-          categoryId: "test-category",
-          type: TransactionType.INCOME,
-          amount: 100.0,
-          currency: "USD",
-          date: `2024-01-${String(i).padStart(2, "0")}`,
-        });
-      }
-
-      await repository.createMany(createInputs);
-
-      // Act - Use small sample size of 5 (should still find the pattern)
-      const result = await repository.detectPatterns(
-        userId,
-        TransactionPatternType.INCOME,
-        3,
-        5, // Only look at 5 most recent transactions
-      );
-
-      // Assert - Should still find the pattern even with limited sample
-      expect(result).toHaveLength(1);
-      expect(result[0]).toEqual({
-        accountId: "test-account",
-        categoryId: "test-category",
-        // Only 5 transactions analyzed due to sampleSize
-      });
-    });
-
     it("should isolate patterns by user", async () => {
       const user1 = faker.string.uuid();
       const user2 = faker.string.uuid();
       const createInputsUser1: CreateTransactionInput[] = [
-        {
+        fakeCreateTransactionInput({
           userId: user1,
           accountId: "account-1",
           categoryId: "category-1",
           type: TransactionType.INCOME,
-          amount: 100.0,
-          currency: "USD",
-          date: "2024-01-01",
-        },
+        }),
       ];
       const createInputsUser2: CreateTransactionInput[] = [
-        {
+        fakeCreateTransactionInput({
           userId: user2,
           accountId: "account-2",
           categoryId: "category-2",
           type: TransactionType.INCOME,
-          amount: 200.0,
-          currency: "USD",
-          date: "2024-01-02",
-        },
+        }),
       ];
 
       await repository.createMany([...createInputsUser1, ...createInputsUser2]);
