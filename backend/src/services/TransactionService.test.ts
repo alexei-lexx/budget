@@ -38,7 +38,7 @@ describe("TransactionService", () => {
     jest.clearAllMocks();
   });
 
-  describe("getQuickActionPatterns", () => {
+  describe("getTransactionPatterns", () => {
     it("should return enriched patterns for valid account and category combinations", async () => {
       // Arrange
       const patterns = [
