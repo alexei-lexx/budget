@@ -131,7 +131,7 @@ export const transactionResolvers = {
             extensions: { code: "BAD_USER_INPUT" },
           });
         }
-        handleResolverError(error, "Failed to fetch quick action patterns");
+        handleResolverError(error, "Failed to fetch transaction patterns");
       }
     },
   },
