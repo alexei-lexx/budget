@@ -43,6 +43,8 @@ export type UpdateTransactionInput = Partial<
 export type TransactionEdge = Edge<Transaction>;
 export type TransactionConnection = Connection<Transaction>;
 
+// Most popular combinations of account and category
+// calculated based on transaction history.
 export interface TransactionPattern {
   accountId: string;
   categoryId: string;
