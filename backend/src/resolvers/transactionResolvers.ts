@@ -113,18 +113,16 @@ export const transactionResolvers = {
       context: GraphQLContext,
     ) => {
       try {
-        // Validate quick action type input
-        const validatedQuickActionTransactionType =
+        const validatedTransactionPatternType =
           transactionPatternTypeSchema.parse(args.type);
         const user = await getAuthenticatedUser(context);
 
         const patterns =
           await context.transactionService.getTransactionPatterns(
             user.id,
-            validatedQuickActionTransactionType,
+            validatedTransactionPatternType,
           );
 
-        // Return flat structure (already matches GraphQL schema)
         return patterns;
       } catch (error) {
         if (error instanceof z.ZodError) {
