@@ -5,7 +5,7 @@ import {
   type RouteLocationNormalized,
 } from "vue-router";
 import { watch } from "vue";
-import Dashboard from "@/views/Dashboard.vue";
+import SignIn from "@/views/SignIn.vue";
 import Accounts from "@/views/Accounts.vue";
 import Categories from "@/views/Categories.vue";
 import Transactions from "@/views/Transactions.vue";
@@ -38,15 +38,15 @@ const requireAuth = async (
   if (isAuthenticated.value) {
     next();
   } else {
-    next({ name: "Dashboard" });
+    next({ name: "SignIn" });
   }
 };
 
 const routes = [
   {
     path: "/",
-    name: "Dashboard",
-    component: Dashboard,
+    name: "SignIn",
+    component: SignIn,
   },
   {
     path: "/accounts",
