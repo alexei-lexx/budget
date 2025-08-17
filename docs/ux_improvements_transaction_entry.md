@@ -25,8 +25,6 @@ Transaction creation is the most critical feature in a personal finance app, yet
 Current flow: Click "Add Transaction" → Wait for modal → Fill 6+ fields → Submit
 - Violates the "few seconds" rule for financial transactions
 - Too many required fields for basic transaction entry
-- No shortcuts for common transaction patterns
-
 #### 3. Missing Quick Entry Patterns
 - No transaction templates for recurring entries
 - No "Add Similar" functionality for repeat transactions
@@ -97,8 +95,6 @@ Desktop: Enhanced modal or side panel
 ## Technical Implementation Strategy
 
 ### Backend Requirements
-- **User analytics service** to track account/category usage patterns
-- **Transaction pattern analysis** for intelligent suggestions
 - **Template storage** for user-defined quick entries
 - **Enhanced search/autocomplete** APIs
 

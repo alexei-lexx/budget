@@ -12,7 +12,6 @@ This document contains enhancements and improvements that are intentionally skip
 
 
 ### Advanced Features
-- Quick-add transaction button with common categories
 - Export transactions to CSV/Excel formats
 
 ## Repository Layer Improvements
