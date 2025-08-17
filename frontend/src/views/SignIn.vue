@@ -5,8 +5,6 @@ import { useRouter } from "vue-router";
 import { useAuth } from "@/composables/useAuth";
 import { anonymizeEmail } from "@/utils/anonymize";
 
-console.log("SignIn component: script setup running");
-
 const router = useRouter();
 const { user, isAuthenticated, isLoading: authLoading } = useAuth();
 
