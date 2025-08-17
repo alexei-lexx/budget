@@ -84,4 +84,3 @@ const formatPatternText = (pattern: TransactionPattern) => {
     </div>
   </div>
 </template>
-
