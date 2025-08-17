@@ -103,10 +103,10 @@ Date:       [_________]
 - [x] 13.3.4 Add input validation using Zod schema for TransactionType parameter
 
 ### 13.4 Frontend Data Layer
-- [ ] 13.4.1 Generate TypeScript types from updated GraphQL schema using codegen
-- [ ] 13.4.2 Create GraphQL query for getTransactionPatterns in `frontend/src/graphql/transactions.ts`
-- [ ] 13.4.3 Create `useTransactionPatterns()` composable that fetches patterns reactively based on transaction type
-- [ ] 13.4.4 Implement pattern cache invalidation and refetch after successful transaction creation
+- [x] 13.4.1 Generate TypeScript types from updated GraphQL schema using codegen
+- [x] 13.4.2 Create GraphQL query for getTransactionPatterns in `frontend/src/graphql/queries.ts`
+- [x] 13.4.3 Create `useTransactionPatterns()` composable that fetches patterns reactively based on transaction type
+- [x] 13.4.4 Implement pattern cache invalidation and refetch after successful transaction creation
 
 ### 13.5 Frontend UI/UX Layer
 - [ ] 13.5.1 Create `QuickTransactionButtons.vue` component to display pattern buttons with "[Account Name] + [Category Name]" format

@@ -24,7 +24,11 @@ export type {
   TransactionConnection,
 };
 
-export function useTransactions() {
+export function useTransactions(options?: {
+  onTransactionCreated?: () => Promise<void> | void;
+  onTransactionUpdated?: () => Promise<void> | void;
+  onTransactionDeleted?: () => Promise<void> | void;
+}) {
   const transactionsError = ref<string | null>(null);
 
   // Pagination state
@@ -147,6 +151,16 @@ export function useTransactions() {
         allLoadedTransactions.value = [newTransaction, ...allLoadedTransactions.value];
         // Update total count
         totalCount.value = totalCount.value + 1;
+
+        // Trigger cache invalidation callback
+        if (options?.onTransactionCreated) {
+          try {
+            await options.onTransactionCreated();
+          } catch (error) {
+            console.warn("Error in onTransactionCreated callback:", error);
+          }
+        }
+
         return newTransaction;
       }
       return null;
@@ -173,6 +187,16 @@ export function useTransactions() {
         if (index !== -1) {
           allLoadedTransactions.value[index] = updatedTransaction;
         }
+
+        // Trigger cache invalidation callback
+        if (options?.onTransactionUpdated) {
+          try {
+            await options.onTransactionUpdated();
+          } catch (error) {
+            console.warn("Error in onTransactionUpdated callback:", error);
+          }
+        }
+
         return updatedTransaction;
       }
       return null;
@@ -196,6 +220,16 @@ export function useTransactions() {
         );
         // Update total count
         totalCount.value = Math.max(0, totalCount.value - 1);
+
+        // Trigger cache invalidation callback
+        if (options?.onTransactionDeleted) {
+          try {
+            await options.onTransactionDeleted();
+          } catch (error) {
+            console.warn("Error in onTransactionDeleted callback:", error);
+          }
+        }
+
         return result.data.deleteTransaction;
       }
       return null;
