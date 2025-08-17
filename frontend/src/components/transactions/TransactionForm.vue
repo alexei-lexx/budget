@@ -6,11 +6,13 @@ import { currencyAmountRules } from "@/utils/currencyValidation";
 import { useAccounts } from "@/composables/useAccounts";
 import { useCategories } from "@/composables/useCategories";
 import AccountSelect from "@/components/common/AccountSelect.vue";
+import QuickTransactionButtons from "@/components/transactions/QuickTransactionButtons.vue";
 import type {
   Transaction,
   CreateTransactionInput,
   TransactionType,
 } from "@/composables/useTransactions";
+import type { TransactionPatternType } from "@/composables/useTransactionPatterns";
 
 // Define component props
 interface Props {
@@ -57,6 +59,7 @@ const formData = ref<CreateTransactionInput>({
 // Form validation
 const formValid = ref(false);
 const formRef = ref();
+const amountFieldRef = ref();
 
 // Validation rules
 const accountRules: CheckRule[] = [(value: string) => !!value || "Account is required"];
@@ -185,6 +188,17 @@ const handleSubmit = async () => {
 const handleCancel = () => {
   emit("cancel");
 };
+
+// Handle pattern selection
+const handlePatternSelected = (pattern: { accountId: string; categoryId: string }) => {
+  formData.value.accountId = pattern.accountId;
+  formData.value.categoryId = pattern.categoryId;
+
+  // Focus the amount field after pattern selection
+  if (amountFieldRef.value) {
+    amountFieldRef.value.focus();
+  }
+};
 </script>
 
 <template>
@@ -229,6 +243,13 @@ const handleCancel = () => {
           </v-btn-toggle>
         </div>
 
+        <!-- Quick Action Buttons -->
+        <QuickTransactionButtons
+          :transaction-type="formData.type as TransactionPatternType"
+          :loading="loading"
+          @pattern-selected="handlePatternSelected"
+        />
+
         <!-- Two-column layout for desktop -->
         <v-row>
           <!-- Left Column -->
@@ -245,6 +266,7 @@ const handleCancel = () => {
 
             <!-- Amount -->
             <v-text-field
+              ref="amountFieldRef"
               v-model.number="formData.amount"
               type="number"
               step="1"

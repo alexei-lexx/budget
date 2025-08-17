@@ -59,3 +59,14 @@ export const GET_TRANSFER = gql`
   }
   ${TRANSFER_FRAGMENT}
 `;
+
+export const GET_TRANSACTION_PATTERNS = gql`
+  query GetTransactionPatterns($type: TransactionPatternType!) {
+    getTransactionPatterns(type: $type) {
+      accountId
+      accountName
+      categoryId
+      categoryName
+    }
+  }
+`;

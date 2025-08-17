@@ -4,7 +4,7 @@ import { GraphQLContext } from "../server";
 import { getAuthenticatedUser, handleResolverError } from "./shared";
 import { BusinessError } from "../services/BusinessError";
 import { MIN_PAGE_SIZE, MAX_PAGE_SIZE } from "../types/pagination";
-import { TransactionType } from "../models/Transaction";
+import { TransactionType, TransactionPatternType } from "../models/Transaction";
 import {
   DATE_FORMAT_REGEX,
   DATE_FORMAT_ERROR_MESSAGE,
@@ -68,6 +68,15 @@ const paginationInputSchema = z
   })
   .optional();
 
+const transactionPatternTypeSchema = z.enum(
+  [TransactionPatternType.INCOME, TransactionPatternType.EXPENSE],
+  {
+    errorMap: () => ({
+      message: `Type must be either ${TransactionPatternType.INCOME} or ${TransactionPatternType.EXPENSE}`,
+    }),
+  },
+);
+
 export const transactionResolvers = {
   Query: {
     transactions: async (
@@ -96,6 +105,33 @@ export const transactionResolvers = {
           });
         }
         handleResolverError(error, "Failed to fetch transactions");
+      }
+    },
+    getTransactionPatterns: async (
+      _parent: unknown,
+      args: { type: unknown },
+      context: GraphQLContext,
+    ) => {
+      try {
+        const validatedTransactionPatternType =
+          transactionPatternTypeSchema.parse(args.type);
+        const user = await getAuthenticatedUser(context);
+
+        const patterns =
+          await context.transactionService.getTransactionPatterns(
+            user.id,
+            validatedTransactionPatternType,
+          );
+
+        return patterns;
+      } catch (error) {
+        if (error instanceof z.ZodError) {
+          const firstError = error.errors[0];
+          throw new GraphQLError(firstError.message, {
+            extensions: { code: "BAD_USER_INPUT" },
+          });
+        }
+        handleResolverError(error, "Failed to fetch transaction patterns");
       }
     },
   },

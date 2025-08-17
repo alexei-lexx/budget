@@ -15,6 +15,8 @@ import {
   ITransactionRepository,
   TransactionConnection,
   TransactionEdge,
+  TransactionPattern,
+  TransactionPatternType,
 } from "../models/Transaction";
 import {
   PaginationInput,
@@ -621,6 +623,115 @@ export class TransactionRepository implements ITransactionRepository {
       console.error("Error checking transactions for account:", error);
       throw new TransactionRepositoryError(
         "Failed to check transactions for account",
+        "QUERY_FAILED",
+        error,
+      );
+    }
+  }
+
+  async detectPatterns(
+    userId: string,
+    type: TransactionPatternType,
+    limit: number,
+    sampleSize: number,
+  ): Promise<TransactionPattern[]> {
+    if (!userId) {
+      throw new TransactionRepositoryError(
+        "User ID is required",
+        "INVALID_PARAMETERS",
+      );
+    }
+
+    if (!Number.isInteger(limit) || limit <= 0) {
+      throw new TransactionRepositoryError(
+        "Limit must be a positive integer",
+        "INVALID_PARAMETERS",
+      );
+    }
+
+    if (!Number.isInteger(sampleSize) || sampleSize <= 0) {
+      throw new TransactionRepositoryError(
+        "Sample size must be a positive integer",
+        "INVALID_PARAMETERS",
+      );
+    }
+
+    try {
+      // Query up to sampleSize transactions of the specified type, ordered by creation time (newest first)
+      const { items: transactions } = await paginateQuery<Transaction>({
+        client: this.client,
+        params: {
+          TableName: this.tableName,
+          IndexName: "UserCreatedAtIndex",
+          KeyConditionExpression: "userId = :userId",
+          FilterExpression: "#type = :type AND isArchived = :isArchived",
+          ExpressionAttributeNames: {
+            "#type": "type",
+          },
+          ExpressionAttributeValues: {
+            ":userId": userId,
+            ":type": type,
+            ":isArchived": false,
+          },
+          ScanIndexForward: false, // Newest first
+        },
+        options: { pageSize: sampleSize }, // Limit to sampleSize transactions
+      });
+
+      // Filter transactions that have both accountId and categoryId
+      const transactionsWithCategory = transactions.filter(
+        (transaction) => transaction.accountId && transaction.categoryId,
+      );
+
+      // Group by account+category combination and count occurrences
+      const patternCounts = new Map<
+        string,
+        { accountId: string; categoryId: string; usageCount: number }
+      >();
+
+      for (const transaction of transactionsWithCategory) {
+        const key = `${transaction.accountId}:${transaction.categoryId}`;
+        const existing = patternCounts.get(key);
+
+        if (existing) {
+          existing.usageCount++;
+        } else {
+          patternCounts.set(key, {
+            accountId: transaction.accountId,
+            categoryId: transaction.categoryId as string, // Already filtered for non-null categoryId
+            usageCount: 1,
+          });
+        }
+      }
+
+      // Convert to array, sort by usage count (descending), and return top N patterns without exposing count
+      const patterns = Array.from(patternCounts.values())
+        .sort((a, b) => {
+          // Sort by usage count descending
+          if (b.usageCount !== a.usageCount) {
+            return b.usageCount - a.usageCount;
+          }
+          // Tie-breaker: sort by accountId then categoryId for deterministic results
+          if (a.accountId !== b.accountId) {
+            return a.accountId.localeCompare(b.accountId);
+          }
+          return a.categoryId.localeCompare(b.categoryId);
+        })
+        .slice(0, limit) // Return top N patterns based on limit parameter
+        .map((pattern) => ({
+          accountId: pattern.accountId,
+          categoryId: pattern.categoryId,
+        })); // Strip out usageCount from returned patterns
+
+      return patterns;
+    } catch (error) {
+      if (error instanceof TransactionRepositoryError) {
+        throw error;
+      }
+
+      console.error("Error getting account category patterns:", error);
+      throw new TransactionRepositoryError(
+        "Failed to get account category patterns",
         "QUERY_FAILED",
         error,
       );

@@ -160,6 +160,7 @@ export type Query = {
   __typename?: 'Query';
   accounts: Array<Account>;
   categories: Array<Category>;
+  getTransactionPatterns: Array<TransactionPattern>;
   supportedCurrencies: Array<Scalars['String']['output']>;
   transactions: TransactionConnection;
   transfer?: Maybe<Transfer>;
@@ -168,6 +169,11 @@ export type Query = {
 
 export type QueryCategoriesArgs = {
   type?: InputMaybe<CategoryType>;
+};
+
+
+export type QueryGetTransactionPatternsArgs = {
+  type: TransactionPatternType;
 };
 
 
@@ -205,6 +211,18 @@ export type TransactionEdge = {
   cursor: Scalars['String']['output'];
   node: Transaction;
 };
+
+export type TransactionPattern = {
+  __typename?: 'TransactionPattern';
+  accountId: Scalars['ID']['output'];
+  accountName: Scalars['String']['output'];
+  categoryId: Scalars['ID']['output'];
+  categoryName: Scalars['String']['output'];
+};
+
+export type TransactionPatternType =
+  | 'EXPENSE'
+  | 'INCOME';
 
 export type TransactionType =
   | 'EXPENSE'
@@ -383,6 +401,13 @@ export type GetTransferQueryVariables = Exact<{
 
 
 export type GetTransferQuery = { __typename?: 'Query', transfer?: { __typename?: 'Transfer', id: string, outboundTransaction: { __typename?: 'Transaction', id: string, accountId: string, categoryId?: string | null | undefined, type: TransactionType, amount: number, currency: string, date: string, description?: string | null | undefined, transferId?: string | null | undefined }, inboundTransaction: { __typename?: 'Transaction', id: string, accountId: string, categoryId?: string | null | undefined, type: TransactionType, amount: number, currency: string, date: string, description?: string | null | undefined, transferId?: string | null | undefined } } | null | undefined };
+
+export type GetTransactionPatternsQueryVariables = Exact<{
+  type: TransactionPatternType;
+}>;
+
+
+export type GetTransactionPatternsQuery = { __typename?: 'Query', getTransactionPatterns: Array<{ __typename?: 'TransactionPattern', accountId: string, accountName: string, categoryId: string, categoryName: string }> };
 
 export const AccountFieldsFragmentDoc = gql`
     fragment AccountFields on Account {
@@ -947,3 +972,36 @@ export function useGetTransferLazyQuery(variables?: GetTransferQueryVariables | 
   return VueApolloComposable.useLazyQuery<GetTransferQuery, GetTransferQueryVariables>(GetTransferDocument, variables, options);
 }
 export type GetTransferQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<GetTransferQuery, GetTransferQueryVariables>;
+export const GetTransactionPatternsDocument = gql`
+    query GetTransactionPatterns($type: TransactionPatternType!) {
+  getTransactionPatterns(type: $type) {
+    accountId
+    accountName
+    categoryId
+    categoryName
+  }
+}
+    `;
+
+/**
+ * __useGetTransactionPatternsQuery__
+ *
+ * To run a query within a Vue component, call `useGetTransactionPatternsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetTransactionPatternsQuery` returns an object from Apollo Client that contains result, loading and error properties
+ * you can use to render your UI.
+ *
+ * @param variables that will be passed into the query
+ * @param options that will be passed into the query, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/query.html#options;
+ *
+ * @example
+ * const { result, loading, error } = useGetTransactionPatternsQuery({
+ *   type: // value for 'type'
+ * });
+ */
+export function useGetTransactionPatternsQuery(variables: GetTransactionPatternsQueryVariables | VueCompositionApi.Ref<GetTransactionPatternsQueryVariables> | ReactiveFunction<GetTransactionPatternsQueryVariables>, options: VueApolloComposable.UseQueryOptions<GetTransactionPatternsQuery, GetTransactionPatternsQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<GetTransactionPatternsQuery, GetTransactionPatternsQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<GetTransactionPatternsQuery, GetTransactionPatternsQueryVariables>> = {}) {
+  return VueApolloComposable.useQuery<GetTransactionPatternsQuery, GetTransactionPatternsQueryVariables>(GetTransactionPatternsDocument, variables, options);
+}
+export function useGetTransactionPatternsLazyQuery(variables?: GetTransactionPatternsQueryVariables | VueCompositionApi.Ref<GetTransactionPatternsQueryVariables> | ReactiveFunction<GetTransactionPatternsQueryVariables>, options: VueApolloComposable.UseQueryOptions<GetTransactionPatternsQuery, GetTransactionPatternsQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<GetTransactionPatternsQuery, GetTransactionPatternsQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<GetTransactionPatternsQuery, GetTransactionPatternsQueryVariables>> = {}) {
+  return VueApolloComposable.useLazyQuery<GetTransactionPatternsQuery, GetTransactionPatternsQueryVariables>(GetTransactionPatternsDocument, variables, options);
+}
+export type GetTransactionPatternsQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<GetTransactionPatternsQuery, GetTransactionPatternsQueryVariables>;

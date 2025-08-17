@@ -160,6 +160,7 @@ export type Query = {
   __typename?: 'Query';
   accounts: Array<Account>;
   categories: Array<Category>;
+  getTransactionPatterns: Array<TransactionPattern>;
   supportedCurrencies: Array<Scalars['String']['output']>;
   transactions: TransactionConnection;
   transfer?: Maybe<Transfer>;
@@ -168,6 +169,11 @@ export type Query = {
 
 export type QueryCategoriesArgs = {
   type?: InputMaybe<CategoryType>;
+};
+
+
+export type QueryGetTransactionPatternsArgs = {
+  type: TransactionPatternType;
 };
 
 
@@ -205,6 +211,19 @@ export type TransactionEdge = {
   cursor: Scalars['String']['output'];
   node: Transaction;
 };
+
+export type TransactionPattern = {
+  __typename?: 'TransactionPattern';
+  accountId: Scalars['ID']['output'];
+  accountName: Scalars['String']['output'];
+  categoryId: Scalars['ID']['output'];
+  categoryName: Scalars['String']['output'];
+};
+
+export enum TransactionPatternType {
+  Expense = 'EXPENSE',
+  Income = 'INCOME'
+}
 
 export { TransactionType };
 
@@ -342,6 +361,8 @@ export type ResolversTypes = {
   Transaction: ResolverTypeWrapper<Transaction>;
   TransactionConnection: ResolverTypeWrapper<TransactionConnection>;
   TransactionEdge: ResolverTypeWrapper<TransactionEdge>;
+  TransactionPattern: ResolverTypeWrapper<TransactionPattern>;
+  TransactionPatternType: TransactionPatternType;
   TransactionType: TransactionType;
   Transfer: ResolverTypeWrapper<Transfer>;
   UpdateAccountInput: UpdateAccountInput;
@@ -371,6 +392,7 @@ export type ResolversParentTypes = {
   Transaction: Transaction;
   TransactionConnection: TransactionConnection;
   TransactionEdge: TransactionEdge;
+  TransactionPattern: TransactionPattern;
   Transfer: Transfer;
   UpdateAccountInput: UpdateAccountInput;
   UpdateCategoryInput: UpdateCategoryInput;
@@ -424,6 +446,7 @@ export type PageInfoResolvers<ContextType = GraphQLContext, ParentType extends R
 export type QueryResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
   accounts?: Resolver<Array<ResolversTypes['Account']>, ParentType, ContextType>;
   categories?: Resolver<Array<ResolversTypes['Category']>, ParentType, ContextType, Partial<QueryCategoriesArgs>>;
+  getTransactionPatterns?: Resolver<Array<ResolversTypes['TransactionPattern']>, ParentType, ContextType, RequireFields<QueryGetTransactionPatternsArgs, 'type'>>;
   supportedCurrencies?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   transactions?: Resolver<ResolversTypes['TransactionConnection'], ParentType, ContextType, Partial<QueryTransactionsArgs>>;
   transfer?: Resolver<Maybe<ResolversTypes['Transfer']>, ParentType, ContextType, RequireFields<QueryTransferArgs, 'id'>>;
@@ -455,6 +478,14 @@ export type TransactionEdgeResolvers<ContextType = GraphQLContext, ParentType ex
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type TransactionPatternResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TransactionPattern'] = ResolversParentTypes['TransactionPattern']> = {
+  accountId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  accountName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  categoryId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  categoryName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type TransactionTypeResolvers = EnumResolverSignature<{ EXPENSE?: any, INCOME?: any, TRANSFER_IN?: any, TRANSFER_OUT?: any }, ResolversTypes['TransactionType']>;
 
 export type TransferResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Transfer'] = ResolversParentTypes['Transfer']> = {
@@ -479,6 +510,7 @@ export type Resolvers<ContextType = GraphQLContext> = {
   Transaction?: TransactionResolvers<ContextType>;
   TransactionConnection?: TransactionConnectionResolvers<ContextType>;
   TransactionEdge?: TransactionEdgeResolvers<ContextType>;
+  TransactionPattern?: TransactionPatternResolvers<ContextType>;
   TransactionType?: TransactionTypeResolvers;
   Transfer?: TransferResolvers<ContextType>;
   User?: UserResolvers<ContextType>;

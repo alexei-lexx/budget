@@ -3,7 +3,10 @@ import {
   TransactionType,
   CreateTransactionInput,
   UpdateTransactionInput,
+  TransactionPatternType,
 } from "../models/Transaction";
+import { faker } from "@faker-js/faker";
+import { fakeCreateTransactionInput } from "../__tests__/utils/factories";
 
 describe("TransactionRepository", () => {
   let repository: TransactionRepository;
@@ -537,6 +540,537 @@ describe("TransactionRepository", () => {
       expect(stored2?.currency).toBe("USD");
       expect(stored2?.date).toBe("2024-02-02");
       expect(stored2?.description).toBe("New description 2");
+    });
+  });
+
+  describe("detectPatterns", () => {
+    it("should return empty array for new user with no transactions", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+
+      // Act
+      const result = await repository.detectPatterns(
+        userId,
+        TransactionPatternType.INCOME,
+        3,
+        100,
+      );
+
+      // Assert
+      expect(result).toEqual([]);
+    });
+
+    it("should return empty array when no transactions have category", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+      const createInputs: CreateTransactionInput[] = [
+        fakeCreateTransactionInput({
+          userId,
+          categoryId: undefined,
+          type: TransactionType.INCOME,
+        }),
+        fakeCreateTransactionInput({
+          userId,
+          categoryId: undefined,
+          type: TransactionType.INCOME,
+        }),
+      ];
+
+      await repository.createMany(createInputs);
+
+      // Act
+      const result = await repository.detectPatterns(
+        userId,
+        TransactionPatternType.INCOME,
+        3,
+        100,
+      );
+
+      // Assert
+      expect(result).toEqual([]);
+    });
+
+    it("should return patterns sorted by usage count descending", async () => {
+      const userId = faker.string.uuid();
+      const createInputs: CreateTransactionInput[] = [
+        // Pattern 1: account-1 + category-1 (3 occurrences)
+        fakeCreateTransactionInput({
+          userId,
+          accountId: "account-1",
+          categoryId: "category-1",
+          type: TransactionType.INCOME,
+        }),
+
+        fakeCreateTransactionInput({
+          userId,
+          accountId: "account-1",
+          categoryId: "category-1",
+          type: TransactionType.INCOME,
+        }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId: "account-1",
+          categoryId: "category-1",
+          type: TransactionType.INCOME,
+        }),
+        // Pattern 2: account-2 + category-2 (2 occurrences)
+        fakeCreateTransactionInput({
+          userId,
+          accountId: "account-2",
+          categoryId: "category-2",
+          type: TransactionType.INCOME,
+        }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId: "account-2",
+          categoryId: "category-2",
+          type: TransactionType.INCOME,
+        }),
+        // Pattern 3: account-3 + category-3 (1 occurrence)
+        fakeCreateTransactionInput({
+          userId,
+          accountId: "account-3",
+          categoryId: "category-3",
+          type: TransactionType.INCOME,
+        }),
+      ];
+
+      await repository.createMany(createInputs);
+
+      const result = await repository.detectPatterns(
+        userId,
+        TransactionPatternType.INCOME,
+        3,
+        100,
+      );
+
+      expect(result).toHaveLength(3);
+      expect(result[0]).toEqual({
+        accountId: "account-1",
+        categoryId: "category-1",
+      });
+      expect(result[1]).toEqual({
+        accountId: "account-2",
+        categoryId: "category-2",
+      });
+      expect(result[2]).toEqual({
+        accountId: "account-3",
+        categoryId: "category-3",
+      });
+    });
+
+    it("should return only top N patterns based on limit", async () => {
+      const userId = faker.string.uuid();
+      const createInputs: CreateTransactionInput[] = [];
+
+      // Create 5 different patterns with different usage counts
+      for (let i = 1; i <= 5; i++) {
+        for (let j = 0; j < i; j++) {
+          createInputs.push(
+            fakeCreateTransactionInput({
+              userId,
+              accountId: `account-${i}`,
+              categoryId: `category-${i}`,
+              type: TransactionType.EXPENSE,
+            }),
+          );
+        }
+      }
+
+      await repository.createMany(createInputs);
+
+      const result = await repository.detectPatterns(
+        userId,
+        TransactionPatternType.EXPENSE,
+        3,
+        100,
+      );
+
+      // Assert - Should return only top 3 patterns, sorted by frequency (most used first)
+      expect(result).toHaveLength(3);
+      expect(result[0]).toEqual({
+        accountId: "account-5",
+        categoryId: "category-5",
+      }); // Most frequent (5 uses)
+      expect(result[1]).toEqual({
+        accountId: "account-4",
+        categoryId: "category-4",
+      }); // Second most frequent (4 uses)
+      expect(result[2]).toEqual({
+        accountId: "account-3",
+        categoryId: "category-3",
+      }); // Third most frequent (3 uses)
+    });
+
+    it("should sort deterministically when usage counts are equal", async () => {
+      const userId = faker.string.uuid();
+      const createInputs: CreateTransactionInput[] = [
+        // Pattern 1: account-b + category-b (2 occurrences)
+        fakeCreateTransactionInput({
+          userId,
+          accountId: "account-b",
+          categoryId: "category-b",
+          type: TransactionType.INCOME,
+          amount: 100.0,
+          currency: "USD",
+          date: "2024-01-01",
+        }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId: "account-b",
+          categoryId: "category-b",
+          type: TransactionType.INCOME,
+          amount: 150.0,
+          currency: "USD",
+          date: "2024-01-02",
+        }),
+        // Pattern 2: account-a + category-a (2 occurrences, same count)
+        fakeCreateTransactionInput({
+          userId,
+          accountId: "account-a",
+          categoryId: "category-a",
+          type: TransactionType.INCOME,
+        }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId: "account-a",
+          categoryId: "category-a",
+          type: TransactionType.INCOME,
+        }),
+        // Pattern 3: account-a + category-c (2 occurrences, same account different category)
+        fakeCreateTransactionInput({
+          userId,
+          accountId: "account-a",
+          categoryId: "category-c",
+          type: TransactionType.INCOME,
+        }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId: "account-a",
+          categoryId: "category-c",
+          type: TransactionType.INCOME,
+        }),
+      ];
+
+      await repository.createMany(createInputs);
+
+      const result = await repository.detectPatterns(
+        userId,
+        TransactionPatternType.INCOME,
+        3,
+        100,
+      );
+
+      // Assert - Should sort deterministically by accountId, then categoryId
+      expect(result).toHaveLength(3);
+      expect(result[0]).toEqual({
+        accountId: "account-a",
+        categoryId: "category-a",
+      });
+      expect(result[1]).toEqual({
+        accountId: "account-a",
+        categoryId: "category-c",
+      });
+      expect(result[2]).toEqual({
+        accountId: "account-b",
+        categoryId: "category-b",
+      });
+    });
+
+    it("should filter by transaction type correctly", async () => {
+      const userId = faker.string.uuid();
+      const createInputs: CreateTransactionInput[] = [
+        // Income transactions
+        fakeCreateTransactionInput({
+          userId,
+          accountId: "account-1",
+          categoryId: "category-income",
+          type: TransactionType.INCOME,
+        }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId: "account-1",
+          categoryId: "category-income",
+          type: TransactionType.INCOME,
+        }),
+        // Expense transactions
+        fakeCreateTransactionInput({
+          userId,
+          accountId: "account-1",
+          categoryId: "category-expense",
+          type: TransactionType.EXPENSE,
+        }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId: "account-1",
+          categoryId: "category-expense",
+          type: TransactionType.EXPENSE,
+        }),
+        // Transfer transactions (should be excluded)
+        fakeCreateTransactionInput({
+          userId,
+          accountId: "account-1",
+          categoryId: "category-transfer",
+          type: TransactionType.TRANSFER_IN,
+        }),
+      ];
+
+      await repository.createMany(createInputs);
+
+      const incomeResult = await repository.detectPatterns(
+        userId,
+        TransactionPatternType.INCOME,
+        3,
+        100,
+      );
+
+      const expenseResult = await repository.detectPatterns(
+        userId,
+        TransactionPatternType.EXPENSE,
+        3,
+        100,
+      );
+
+      expect(incomeResult).toHaveLength(1);
+      expect(incomeResult[0]).toEqual({
+        accountId: "account-1",
+        categoryId: "category-income",
+      });
+
+      // Assert - Expense patterns
+      expect(expenseResult).toHaveLength(1);
+      expect(expenseResult[0]).toEqual({
+        accountId: "account-1",
+        categoryId: "category-expense",
+      });
+    });
+
+    it("should exclude archived transactions", async () => {
+      const userId = faker.string.uuid();
+      const createInputs: CreateTransactionInput[] = [
+        fakeCreateTransactionInput({
+          userId,
+          accountId: "account-1",
+          categoryId: "category-1",
+          type: TransactionType.INCOME,
+        }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId: "account-2",
+          categoryId: "category-2",
+          type: TransactionType.INCOME,
+        }),
+      ];
+
+      const createdTransactions = await repository.createMany(createInputs);
+
+      // Archive one transaction
+      await repository.archive(createdTransactions[0].id, userId);
+
+      const result = await repository.detectPatterns(
+        userId,
+        TransactionPatternType.INCOME,
+        3,
+        100,
+      );
+
+      // Assert - Should only count non-archived transaction
+      expect(result).toHaveLength(1);
+      expect(result[0]).toEqual({
+        accountId: "account-2",
+        categoryId: "category-2",
+      });
+    });
+
+    it("should respect sample size limit", async () => {
+      const userId = faker.string.uuid();
+
+      // Create 5+5 transactions
+
+      const createInputs1: CreateTransactionInput[] = [];
+      for (let i = 0; i < 5; i++) {
+        createInputs1.push(
+          fakeCreateTransactionInput({
+            userId,
+            accountId: "account-1",
+            categoryId: "category-1",
+            type: TransactionType.INCOME,
+          }),
+        );
+      }
+      await repository.createMany(createInputs1);
+
+      const createInputs2: CreateTransactionInput[] = [];
+      for (let i = 0; i < 5; i++) {
+        createInputs2.push(
+          fakeCreateTransactionInput({
+            userId,
+            accountId: "account-2",
+            categoryId: "category-2",
+            type: TransactionType.INCOME,
+          }),
+        );
+      }
+      await repository.createMany(createInputs2);
+
+      // Act - Request with sampleSize of 5 (should only analyze last 5 transactions)
+      const result = await repository.detectPatterns(
+        userId,
+        TransactionPatternType.INCOME,
+        3,
+        5,
+      );
+
+      // Assert - Should return the pattern but only based on 5 transactions
+      expect(result).toHaveLength(1);
+      expect(result[0]).toEqual({
+        accountId: "account-2",
+        categoryId: "category-2",
+        // Only 5 transactions analyzed due to sample size limit
+      });
+    });
+
+    it("should throw error for missing user ID", async () => {
+      await expect(
+        repository.detectPatterns("", TransactionPatternType.INCOME, 3, 100),
+      ).rejects.toThrow("User ID is required");
+    });
+
+    it("should throw error for invalid limit parameter", async () => {
+      const userId = faker.string.uuid();
+
+      // Act & Assert - Zero limit
+      await expect(
+        repository.detectPatterns(
+          userId,
+          TransactionPatternType.INCOME,
+          0,
+          100,
+        ),
+      ).rejects.toThrow("Limit must be a positive integer");
+
+      // Act & Assert - Negative limit
+      await expect(
+        repository.detectPatterns(
+          userId,
+          TransactionPatternType.INCOME,
+          -1,
+          100,
+        ),
+      ).rejects.toThrow("Limit must be a positive integer");
+
+      // Act & Assert - Non-integer limit
+      await expect(
+        repository.detectPatterns(
+          userId,
+          TransactionPatternType.INCOME,
+          3.5,
+          100,
+        ),
+      ).rejects.toThrow("Limit must be a positive integer");
+    });
+
+    it("should throw error for invalid sampleSize parameter", async () => {
+      const userId = faker.string.uuid();
+
+      // Act & Assert - Zero sample size
+      await expect(
+        repository.detectPatterns(userId, TransactionPatternType.INCOME, 3, 0),
+      ).rejects.toThrow("Sample size must be a positive integer");
+
+      // Act & Assert - Negative sample size
+      await expect(
+        repository.detectPatterns(userId, TransactionPatternType.INCOME, 3, -1),
+      ).rejects.toThrow("Sample size must be a positive integer");
+
+      // Act & Assert - Non-integer sample size
+      await expect(
+        repository.detectPatterns(
+          userId,
+          TransactionPatternType.INCOME,
+          3,
+          50.5,
+        ),
+      ).rejects.toThrow("Sample size must be a positive integer");
+    });
+
+    it("should return only top N patterns based on limit parameter", async () => {
+      const userId = faker.string.uuid();
+      const createInputs: CreateTransactionInput[] = [];
+
+      // Create 5 different patterns
+      for (let i = 1; i <= 5; i++) {
+        createInputs.push(
+          fakeCreateTransactionInput({
+            userId,
+            accountId: `account-${i}`,
+            categoryId: `category-${i}`,
+            type: TransactionType.INCOME,
+          }),
+        );
+      }
+
+      await repository.createMany(createInputs);
+
+      // Act - Request only 2 patterns
+      const result = await repository.detectPatterns(
+        userId,
+        TransactionPatternType.INCOME,
+        2,
+        100,
+      );
+
+      // Assert - Should return only 2 patterns
+      expect(result).toHaveLength(2);
+    });
+
+    it("should isolate patterns by user", async () => {
+      const user1 = faker.string.uuid();
+      const user2 = faker.string.uuid();
+      const createInputsUser1: CreateTransactionInput[] = [
+        fakeCreateTransactionInput({
+          userId: user1,
+          accountId: "account-1",
+          categoryId: "category-1",
+          type: TransactionType.INCOME,
+        }),
+      ];
+      const createInputsUser2: CreateTransactionInput[] = [
+        fakeCreateTransactionInput({
+          userId: user2,
+          accountId: "account-2",
+          categoryId: "category-2",
+          type: TransactionType.INCOME,
+        }),
+      ];
+
+      await repository.createMany([...createInputsUser1, ...createInputsUser2]);
+
+      const user1Result = await repository.detectPatterns(
+        user1,
+        TransactionPatternType.INCOME,
+        3,
+        100,
+      );
+      const user2Result = await repository.detectPatterns(
+        user2,
+        TransactionPatternType.INCOME,
+        3,
+        100,
+      );
+
+      // Assert - Each user sees only their own patterns
+      expect(user1Result).toHaveLength(1);
+      expect(user1Result[0]).toEqual({
+        accountId: "account-1",
+        categoryId: "category-1",
+      });
+
+      expect(user2Result).toHaveLength(1);
+      expect(user2Result[0]).toEqual({
+        accountId: "account-2",
+        categoryId: "category-2",
+      });
     });
   });
 });

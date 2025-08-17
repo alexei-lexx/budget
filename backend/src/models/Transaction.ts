@@ -43,6 +43,24 @@ export type UpdateTransactionInput = Partial<
 export type TransactionEdge = Edge<Transaction>;
 export type TransactionConnection = Connection<Transaction>;
 
+// Most popular combinations of account and category
+// calculated based on transaction history.
+export interface TransactionPattern {
+  accountId: string;
+  categoryId: string;
+}
+
+export interface EnrichedTransactionPattern extends TransactionPattern {
+  accountName: string;
+  categoryName: string;
+}
+
+// Type for transactions that support transaction patterns
+export enum TransactionPatternType {
+  INCOME = "INCOME",
+  EXPENSE = "EXPENSE",
+}
+
 export interface ITransactionRepository {
   findActiveByUserId(
     userId: string,
@@ -74,4 +92,10 @@ export interface ITransactionRepository {
     accountId: string,
     userId: string,
   ): Promise<boolean>;
+  detectPatterns(
+    userId: string,
+    type: TransactionPatternType,
+    limit: number,
+    sampleSize: number,
+  ): Promise<TransactionPattern[]>;
 }

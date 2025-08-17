@@ -156,6 +156,7 @@ export type Query = {
   __typename?: 'Query';
   accounts: Array<Account>;
   categories: Array<Category>;
+  getTransactionPatterns: Array<TransactionPattern>;
   supportedCurrencies: Array<Scalars['String']['output']>;
   transactions: TransactionConnection;
   transfer?: Maybe<Transfer>;
@@ -164,6 +165,11 @@ export type Query = {
 
 export type QueryCategoriesArgs = {
   type?: InputMaybe<CategoryType>;
+};
+
+
+export type QueryGetTransactionPatternsArgs = {
+  type: TransactionPatternType;
 };
 
 
@@ -201,6 +207,18 @@ export type TransactionEdge = {
   cursor: Scalars['String']['output'];
   node: Transaction;
 };
+
+export type TransactionPattern = {
+  __typename?: 'TransactionPattern';
+  accountId: Scalars['ID']['output'];
+  accountName: Scalars['String']['output'];
+  categoryId: Scalars['ID']['output'];
+  categoryName: Scalars['String']['output'];
+};
+
+export type TransactionPatternType =
+  | 'EXPENSE'
+  | 'INCOME';
 
 export type TransactionType =
   | 'EXPENSE'
@@ -379,3 +397,10 @@ export type GetTransferQueryVariables = Exact<{
 
 
 export type GetTransferQuery = { __typename?: 'Query', transfer?: { __typename?: 'Transfer', id: string, outboundTransaction: { __typename?: 'Transaction', id: string, accountId: string, categoryId?: string | null | undefined, type: TransactionType, amount: number, currency: string, date: string, description?: string | null | undefined, transferId?: string | null | undefined }, inboundTransaction: { __typename?: 'Transaction', id: string, accountId: string, categoryId?: string | null | undefined, type: TransactionType, amount: number, currency: string, date: string, description?: string | null | undefined, transferId?: string | null | undefined } } | null | undefined };
+
+export type GetTransactionPatternsQueryVariables = Exact<{
+  type: TransactionPatternType;
+}>;
+
+
+export type GetTransactionPatternsQuery = { __typename?: 'Query', getTransactionPatterns: Array<{ __typename?: 'TransactionPattern', accountId: string, accountName: string, categoryId: string, categoryName: string }> };
