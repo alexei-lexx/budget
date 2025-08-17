@@ -1,17 +1,29 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, watch } from "vue";
+import { useRouter } from "vue-router";
 import { useAuth } from "@/composables/useAuth";
-import { useUser } from "@/composables/useUser";
 import { anonymizeEmail } from "@/utils/anonymize";
 
+const router = useRouter();
 const { user, isAuthenticated, isLoading: authLoading } = useAuth();
-const { ensureUserLoading } = useUser();
 
 const displayName = computed(() => {
   if (!user.value?.email) return "noname";
   return anonymizeEmail(user.value.email);
 });
+
+// Redirect authenticated users to transactions page
+watch(
+  [isAuthenticated, authLoading],
+  ([authenticated, authIsLoading]) => {
+    // Only redirect when auth is done loading and user is authenticated
+    if (!authIsLoading && authenticated) {
+      router.push("/transactions");
+    }
+  },
+  { immediate: true },
+);
 </script>
 
 <template>
@@ -32,8 +44,8 @@ const displayName = computed(() => {
         <div v-if="!isAuthenticated && !authLoading">
           Please sign in to start managing your finances
         </div>
-        <div v-else-if="authLoading || ensureUserLoading">Setting up your account...</div>
-        <div v-else>Welcome back, {{ displayName }}! Your account is ready.</div>
+        <div v-else-if="authLoading">Setting up your account...</div>
+        <div v-else>Welcome back, {{ displayName }}! Redirecting to your transactions...</div>
       </div>
     </v-sheet>
   </v-container>

@@ -146,28 +146,34 @@ watch(globalError, (error) => {
       :width="$vuetify.display.xs ? '280' : '300'"
     >
       <v-list nav :density="$vuetify.display.xs ? 'compact' : 'default'">
+        <!-- Sign In link only for unauthenticated users -->
         <v-list-item
-          :to="{ name: 'Dashboard' }"
-          prepend-icon="mdi-view-dashboard"
-          title="Dashboard"
+          v-if="!isAuthenticated"
+          :to="{ name: 'SignIn' }"
+          prepend-icon="mdi-login"
+          title="Sign In"
+          @click="mobile && (drawer = false)"
+        />
+        <!-- Main app navigation for authenticated users -->
+        <v-list-item
+          v-if="isAuthenticated"
+          :to="{ name: 'Transactions' }"
+          prepend-icon="mdi-swap-horizontal"
+          title="Transactions"
           @click="mobile && (drawer = false)"
         />
         <v-list-item
+          v-if="isAuthenticated"
           :to="{ name: 'Accounts' }"
           prepend-icon="mdi-bank"
           title="Accounts"
           @click="mobile && (drawer = false)"
         />
         <v-list-item
+          v-if="isAuthenticated"
           :to="{ name: 'Categories' }"
           prepend-icon="mdi-tag-multiple"
           title="Categories"
-          @click="mobile && (drawer = false)"
-        />
-        <v-list-item
-          :to="{ name: 'Transactions' }"
-          prepend-icon="mdi-swap-horizontal"
-          title="Transactions"
           @click="mobile && (drawer = false)"
         />
       </v-list>

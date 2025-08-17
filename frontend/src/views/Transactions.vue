@@ -3,14 +3,24 @@
   <v-container>
     <v-row>
       <v-col cols="12">
-        <div class="d-flex align-center justify-space-between mb-4">
+        <div class="d-flex align-center justify-space-between mb-4 flex-wrap ga-2">
           <h1 class="text-h4">Transactions</h1>
-          <div class="d-flex gap-2">
-            <v-btn color="secondary" prepend-icon="mdi-swap-horizontal" @click="handleAddTransfer">
-              Create Transfer
-            </v-btn>
-            <v-btn color="primary" prepend-icon="mdi-plus" @click="handleAddTransaction">
+          <div class="d-flex gap-2 flex-wrap">
+            <v-btn
+              color="primary"
+              prepend-icon="mdi-plus"
+              @click="handleAddTransaction"
+              :class="{ 'flex-grow-1': $vuetify.display.xs }"
+            >
               Add Transaction
+            </v-btn>
+            <v-btn
+              color="secondary"
+              prepend-icon="mdi-swap-horizontal"
+              @click="handleAddTransfer"
+              :class="{ 'flex-grow-1': $vuetify.display.xs }"
+            >
+              Create Transfer
             </v-btn>
           </div>
         </div>
@@ -46,12 +56,22 @@
           <div class="text-body-1 text-center mb-4">
             Start tracking your income and expenses by adding your first transaction.
           </div>
-          <div class="d-flex gap-2 justify-center">
-            <v-btn color="secondary" prepend-icon="mdi-swap-horizontal" @click="handleAddTransfer">
-              Create Transfer
-            </v-btn>
-            <v-btn color="primary" prepend-icon="mdi-plus" @click="handleAddTransaction">
+          <div class="d-flex gap-2 justify-center flex-wrap">
+            <v-btn
+              color="primary"
+              prepend-icon="mdi-plus"
+              @click="handleAddTransaction"
+              :class="{ 'flex-grow-1': $vuetify.display.xs }"
+            >
               Add Your First Transaction
+            </v-btn>
+            <v-btn
+              color="secondary"
+              prepend-icon="mdi-swap-horizontal"
+              @click="handleAddTransfer"
+              :class="{ 'flex-grow-1': $vuetify.display.xs }"
+            >
+              Create Transfer
             </v-btn>
           </div>
         </v-sheet>
