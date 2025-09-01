@@ -6,7 +6,6 @@ import { useSnackbar } from "@/composables/useSnackbar";
 import { useDisplay } from "vuetify";
 import LoginButton from "@/components/auth/LoginButton.vue";
 import LogoutButton from "@/components/auth/LogoutButton.vue";
-import { anonymizeEmail } from "@/utils/anonymize";
 import { setAuthTokenGetter, globalError, clearGlobalError } from "@/apollo";
 
 const { user, isAuthenticated, isLoading: authLoading, getAccessToken } = useAuth();
@@ -76,7 +75,7 @@ watch(
 const displayName = computed(() => {
   if (!user.value?.email) return "noname";
 
-  return anonymizeEmail(user.value.email);
+  return user.value.email;
 });
 
 // Watch for global GraphQL errors and display them via snackbar

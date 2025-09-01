@@ -3,14 +3,13 @@
 import { computed, watch } from "vue";
 import { useRouter } from "vue-router";
 import { useAuth } from "@/composables/useAuth";
-import { anonymizeEmail } from "@/utils/anonymize";
 
 const router = useRouter();
 const { user, isAuthenticated, isLoading: authLoading } = useAuth();
 
 const displayName = computed(() => {
   if (!user.value?.email) return "noname";
-  return anonymizeEmail(user.value.email);
+  return user.value.email;
 });
 
 // Redirect authenticated users to transactions page
