@@ -471,6 +471,7 @@ frontend/src/graphql/*.ts (operations) → [codegen] → frontend/src/__generate
 ### Code Quality Standards
 - **TypeScript Best Practices**: Avoid unnecessary type checks (typeof, non-null, non-undefined) when the provided type is explicit and doesn't require such checks
 - **TypeScript Import Conventions**: When generating TypeScript code, import files without extensions (no .js or .ts). The build system will handle extension resolution automatically
+- **Class Method Organization**: Public methods should come first, followed by private methods. This ensures the public API is visible at the top of the class
 - **Script Usage**: Always prefer npm scripts from package.json over direct tool usage to ensure consistent versions and configurations
 - **Documentation**: Only create documentation files when explicitly requested
 - **Service Layer**: New business logic should be implemented in service classes, not directly in GraphQL resolvers
