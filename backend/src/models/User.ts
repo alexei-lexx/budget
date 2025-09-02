@@ -2,6 +2,7 @@ export interface User {
   id: string; // UUID v4 primary key
   auth0UserId: string; // Auth0 sub claim (unique)
   email: string; // Normalized lowercase email
+  transactionPatternsLimit?: number; // Maximum number of transaction patterns
   createdAt: string; // ISO timestamp
   updatedAt: string; // ISO timestamp
 }

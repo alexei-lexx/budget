@@ -121,6 +121,7 @@ export const transactionResolvers = {
           await context.transactionService.getTransactionPatterns(
             user.id,
             validatedTransactionPatternType,
+            user.transactionPatternsLimit,
           );
 
         return patterns;

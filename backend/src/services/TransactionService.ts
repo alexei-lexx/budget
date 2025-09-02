@@ -18,6 +18,10 @@ import {
 import { PaginationInput } from "../types/pagination";
 import { DATE_FORMAT_REGEX } from "../types/validation";
 
+export const DEFAULT_TRANSACTION_PATTERNS_LIMIT = 3;
+export const MIN_TRANSACTION_PATTERNS_LIMIT = 1;
+export const MAX_TRANSACTION_PATTERNS_LIMIT = 10;
+
 /**
  * Service layer input for creating transactions (currency automatically derived from account)
  */
@@ -289,24 +293,50 @@ export class TransactionService {
   }
 
   /**
+   * Validate transaction patterns limit parameter
+   * @param limit - The limit to validate (can be null, undefined, or number)
+   * @returns number - Valid limit between 1-10, defaults to 3 for invalid values
+   */
+  private validateTransactionPatternsLimit(limit?: number | null): number {
+    // Use default if limit is not provided or is null
+    if (limit == null) {
+      return DEFAULT_TRANSACTION_PATTERNS_LIMIT;
+    }
+
+    // Validate range and return default for invalid values
+    if (
+      limit < MIN_TRANSACTION_PATTERNS_LIMIT ||
+      limit > MAX_TRANSACTION_PATTERNS_LIMIT ||
+      !Number.isInteger(limit)
+    ) {
+      return DEFAULT_TRANSACTION_PATTERNS_LIMIT;
+    }
+
+    return limit;
+  }
+
+  /**
    * Get patterns for a user by analyzing transaction history
    * @param userId - The user ID to get patterns for
    * @param type - Transaction type to analyze (INCOME or EXPENSE)
-   * @param limit - Maximum number of patterns to return (default: 3)
+   * @param limit - Maximum number of patterns to return
    * @param sampleSize - Number of transactions to analyze (default: 100)
    * @returns Promise<EnrichedTransactionPattern[]> - Validated patterns with full account and category objects
    */
   async getTransactionPatterns(
     userId: string,
     type: TransactionPatternType,
-    limit = 3,
+    limit?: number | null,
     sampleSize = 100,
   ): Promise<EnrichedTransactionPattern[]> {
+    // Validate and normalize the limit parameter
+    const validatedLimit = this.validateTransactionPatternsLimit(limit);
+
     // Get raw patterns from repository
     const patterns = await this.transactionRepository.detectPatterns(
       userId,
       type,
-      limit,
+      validatedLimit,
       sampleSize,
     );
 
