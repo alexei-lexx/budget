@@ -4,6 +4,10 @@ This document contains enhancements and improvements that are intentionally skip
 
 ## Transaction Management
 
+### UI
+
+- In portrait mode, show account, then category, and then amount
+
 ### Advanced Filtering & Sorting
 - Filter transactions by account, category, date range, transaction type, and description search
 - Sort transactions by date or amount (ascending/descending)
@@ -11,6 +15,7 @@ This document contains enhancements and improvements that are intentionally skip
 
 ### Advanced Features
 - Export transactions to CSV/Excel formats
+- Support refunds
 
 ### Transaction Entry UX Improvements
 
@@ -36,3 +41,8 @@ This document contains enhancements and improvements that are intentionally skip
 - Smart autocomplete for descriptions
 - ML-powered categorization based on description
 - Spending pattern recognition for intelligent defaults
+
+## Categories
+
+- Show expenses before income
+
