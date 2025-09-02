@@ -55,5 +55,5 @@ add delete account feature
 
 - `[claude]` prefix example:
   ```
-  [claude]
-```
+  [claude] update development commands in claude.md
+  ```
