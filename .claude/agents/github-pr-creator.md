@@ -1,7 +1,7 @@
 ---
 name: github-pr-creator
 description: Use this agent when you need to create a GitHub pull request with a properly formatted description following the project's established guidelines. Examples: <example>Context: User has completed implementing a new feature and wants to create a pull request. user: 'I've finished implementing the transaction filtering feature. Can you create a pull request for this?' assistant: 'I'll use the github-pr-creator agent to create a pull request with a properly formatted description following the project guidelines.' <commentary>Since the user wants to create a pull request, use the github-pr-creator agent to generate the PR with proper formatting and description structure.</commentary></example> <example>Context: User has fixed a bug and is ready to submit their changes. user: 'The account balance calculation bug is fixed. Please create a PR for review.' assistant: 'Let me use the github-pr-creator agent to create a pull request with the appropriate description format.' <commentary>The user needs a pull request created, so use the github-pr-creator agent to handle the PR creation with proper formatting.</commentary></example>
-tools: 
+tools: Bash
 model: sonnet
 color: green
 ---
