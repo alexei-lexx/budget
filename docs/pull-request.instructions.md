@@ -12,21 +12,27 @@
 
 Use lowercase headlines with the following structure:
 
-**## context**
+```
+## context
+```
 
 Brief explanation of the problem or need being addressed.
 
-**## before**
+```
+## before
+```
 
 Current behavior or limitations in bullet points.
 
-**## after**
+```
+## after
+```
 
 New behavior or improvements in bullet points.
 
 ## Example
 
-```markdown
+```
 ## context
 
 Current search functionality is slow for large datasets. Need to optimize query performance.
