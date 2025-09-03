@@ -293,29 +293,6 @@ export class TransactionService {
   }
 
   /**
-   * Validate transaction patterns limit parameter
-   * @param limit - The limit to validate (can be null, undefined, or number)
-   * @returns number - Valid limit between 1-10, defaults to 3 for invalid values
-   */
-  private validateTransactionPatternsLimit(limit?: number | null): number {
-    // Use default if limit is not provided or is null
-    if (limit == null) {
-      return DEFAULT_TRANSACTION_PATTERNS_LIMIT;
-    }
-
-    // Validate range and return default for invalid values
-    if (
-      limit < MIN_TRANSACTION_PATTERNS_LIMIT ||
-      limit > MAX_TRANSACTION_PATTERNS_LIMIT ||
-      !Number.isInteger(limit)
-    ) {
-      return DEFAULT_TRANSACTION_PATTERNS_LIMIT;
-    }
-
-    return limit;
-  }
-
-  /**
    * Get patterns for a user by analyzing transaction history
    * @param userId - The user ID to get patterns for
    * @param type - Transaction type to analyze (INCOME or EXPENSE)
@@ -384,5 +361,28 @@ export class TransactionService {
     }
 
     return enrichedPatterns;
+  }
+
+  /**
+   * Validate transaction patterns limit parameter
+   * @param limit - The limit to validate (can be null, undefined, or number)
+   * @returns number - Valid limit between 1-10, defaults to 3 for invalid values
+   */
+  private validateTransactionPatternsLimit(limit?: number | null): number {
+    // Use default if limit is not provided or is null
+    if (limit == null) {
+      return DEFAULT_TRANSACTION_PATTERNS_LIMIT;
+    }
+
+    // Validate range and return default for invalid values
+    if (
+      limit < MIN_TRANSACTION_PATTERNS_LIMIT ||
+      limit > MAX_TRANSACTION_PATTERNS_LIMIT ||
+      !Number.isInteger(limit)
+    ) {
+      return DEFAULT_TRANSACTION_PATTERNS_LIMIT;
+    }
+
+    return limit;
   }
 }
