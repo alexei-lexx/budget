@@ -41,8 +41,3 @@ This document contains enhancements and improvements that are intentionally skip
 - Smart autocomplete for descriptions
 - ML-powered categorization based on description
 - Spending pattern recognition for intelligent defaults
-
-## Categories
-
-- Show expenses before income
-

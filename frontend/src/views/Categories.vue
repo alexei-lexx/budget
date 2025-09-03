@@ -15,7 +15,7 @@ interface CategoryFormData {
 }
 
 // State for tabs
-const activeTab = ref<CategoryType>("INCOME");
+const activeTab = ref<CategoryType>("EXPENSE");
 
 // Use categories composable for current tab
 const {
@@ -157,13 +157,13 @@ const handleCategoryCancel = () => {
 
     <!-- Category Type Tabs -->
     <v-tabs v-model="activeTab" class="mb-4">
-      <v-tab value="INCOME">
-        <v-icon start color="success">mdi-cash-plus</v-icon>
-        Income
-      </v-tab>
       <v-tab value="EXPENSE">
         <v-icon start color="error">mdi-cash-minus</v-icon>
         Expense
+      </v-tab>
+      <v-tab value="INCOME">
+        <v-icon start color="success">mdi-cash-plus</v-icon>
+        Income
       </v-tab>
     </v-tabs>
 
