@@ -1,4 +1,9 @@
-import { TransactionService } from "./TransactionService";
+import {
+  DEFAULT_TRANSACTION_PATTERNS_LIMIT,
+  MAX_TRANSACTION_PATTERNS_LIMIT,
+  MIN_TRANSACTION_PATTERNS_LIMIT,
+  TransactionService,
+} from "./TransactionService";
 import { TransactionPatternType, TransactionType } from "../models/Transaction";
 import { CategoryType } from "../models/Category";
 import { faker } from "@faker-js/faker";
@@ -334,6 +339,133 @@ describe("TransactionService", () => {
         5,
         200,
       );
+    });
+
+    describe("limit parameter validation", () => {
+      beforeEach(() => {
+        mockTransactionRepository.detectPatterns.mockResolvedValue([]);
+      });
+
+      it("should use default limit when no limit is provided", async () => {
+        // Act
+        await service.getTransactionPatterns(
+          userId,
+          TransactionPatternType.INCOME,
+        );
+
+        // Assert
+        expect(mockTransactionRepository.detectPatterns).toHaveBeenCalledWith(
+          userId,
+          TransactionPatternType.INCOME,
+          DEFAULT_TRANSACTION_PATTERNS_LIMIT,
+          100, // default sampleSize
+        );
+      });
+
+      it("should use default limit when limit is null", async () => {
+        // Act
+        await service.getTransactionPatterns(
+          userId,
+          TransactionPatternType.INCOME,
+          null,
+        );
+
+        // Assert
+        expect(mockTransactionRepository.detectPatterns).toHaveBeenCalledWith(
+          userId,
+          TransactionPatternType.INCOME,
+          DEFAULT_TRANSACTION_PATTERNS_LIMIT,
+          100,
+        );
+      });
+
+      it("should use default limit when limit is undefined", async () => {
+        // Act
+        await service.getTransactionPatterns(
+          userId,
+          TransactionPatternType.INCOME,
+          undefined,
+        );
+
+        // Assert
+        expect(mockTransactionRepository.detectPatterns).toHaveBeenCalledWith(
+          userId,
+          TransactionPatternType.INCOME,
+          DEFAULT_TRANSACTION_PATTERNS_LIMIT,
+          100,
+        );
+      });
+
+      it("should accept valid limit values between min and max", async () => {
+        const validLimits = [
+          MIN_TRANSACTION_PATTERNS_LIMIT,
+          MIN_TRANSACTION_PATTERNS_LIMIT + 1,
+          MAX_TRANSACTION_PATTERNS_LIMIT - 1,
+          MAX_TRANSACTION_PATTERNS_LIMIT,
+        ];
+
+        for (const limit of validLimits) {
+          // Act
+          await service.getTransactionPatterns(
+            userId,
+            TransactionPatternType.INCOME,
+            limit,
+          );
+
+          // Assert
+          expect(mockTransactionRepository.detectPatterns).toHaveBeenCalledWith(
+            userId,
+            TransactionPatternType.INCOME,
+            limit,
+            100,
+          );
+        }
+      });
+
+      it("should fall back to default limit for invalid values", async () => {
+        const invalidLimits = [
+          MIN_TRANSACTION_PATTERNS_LIMIT - 1,
+          MAX_TRANSACTION_PATTERNS_LIMIT + 1,
+        ];
+
+        for (const limit of invalidLimits) {
+          // Act
+          await service.getTransactionPatterns(
+            userId,
+            TransactionPatternType.INCOME,
+            limit,
+          );
+
+          // Assert
+          expect(mockTransactionRepository.detectPatterns).toHaveBeenCalledWith(
+            userId,
+            TransactionPatternType.INCOME,
+            DEFAULT_TRANSACTION_PATTERNS_LIMIT,
+            100,
+          );
+        }
+      });
+
+      it("should fall back to default limit for non-integer values", async () => {
+        const nonIntegerLimits = [1.5, 3.7, 5.9, 2.1];
+
+        for (const limit of nonIntegerLimits) {
+          // Act
+          await service.getTransactionPatterns(
+            userId,
+            TransactionPatternType.INCOME,
+            limit,
+          );
+
+          // Assert
+          expect(mockTransactionRepository.detectPatterns).toHaveBeenCalledWith(
+            userId,
+            TransactionPatternType.INCOME,
+            DEFAULT_TRANSACTION_PATTERNS_LIMIT,
+            100,
+          );
+        }
+      });
     });
   });
 });
