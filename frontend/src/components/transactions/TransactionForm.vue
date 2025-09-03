@@ -250,9 +250,7 @@ const handlePatternSelected = (pattern: { accountId: string; categoryId: string 
           @pattern-selected="handlePatternSelected"
         />
 
-        <!-- Two-column layout for desktop -->
         <v-row>
-          <!-- Left Column -->
           <v-col cols="12" md="6">
             <!-- Account Selection -->
             <AccountSelect
@@ -260,34 +258,10 @@ const handlePatternSelected = (pattern: { accountId: string; categoryId: string 
               label="Account"
               :rules="accountRules"
               :disabled="loading"
-              class="mb-4"
               required
             />
-
-            <!-- Amount -->
-            <v-text-field
-              ref="amountFieldRef"
-              v-model.number="formData.amount"
-              type="number"
-              step="1"
-              min="0"
-              label="Amount"
-              :rules="amountRules"
-              :disabled="loading"
-              variant="outlined"
-              class="mb-4"
-              required
-              autofocus
-            >
-              <template #prepend-inner>
-                <span class="text-medium-emphasis">
-                  {{ currencyPrefix }}
-                </span>
-              </template>
-            </v-text-field>
           </v-col>
 
-          <!-- Right Column -->
           <v-col cols="12" md="6">
             <!-- Category Selection (Optional) -->
             <v-select
@@ -299,7 +273,6 @@ const handlePatternSelected = (pattern: { accountId: string; categoryId: string 
               :disabled="loading || filteredCategories.length === 0"
               variant="outlined"
               clearable
-              class="mb-4"
             >
               <template #no-data>
                 <v-list-item>
@@ -309,7 +282,31 @@ const handlePatternSelected = (pattern: { accountId: string; categoryId: string 
                 </v-list-item>
               </template>
             </v-select>
+          </v-col>
 
+          <v-col cols="12" md="6">
+            <!-- Amount -->
+            <v-text-field
+              ref="amountFieldRef"
+              v-model.number="formData.amount"
+              type="number"
+              step="1"
+              min="0"
+              label="Amount"
+              :rules="amountRules"
+              :disabled="loading"
+              variant="outlined"
+              required
+              autofocus
+            >
+              <template #prepend-inner>
+                <span class="text-medium-emphasis">
+                  {{ currencyPrefix }}
+                </span>
+              </template>
+            </v-text-field>
+          </v-col>
+          <v-col cols="12" md="6">
             <!-- Date -->
             <v-text-field
               v-model="formData.date"
@@ -318,23 +315,22 @@ const handlePatternSelected = (pattern: { accountId: string; categoryId: string 
               :rules="dateRules"
               :disabled="loading"
               variant="outlined"
-              class="mb-4"
               required
             />
           </v-col>
+          <v-col cols="12">
+            <!-- Description (Full Width) -->
+            <v-textarea
+              v-model="formData.description"
+              label="Description (Optional)"
+              placeholder="e.g., Weekly groceries, Salary payment, Coffee with friends"
+              :disabled="loading"
+              variant="outlined"
+              rows="2"
+              auto-grow
+            />
+          </v-col>
         </v-row>
-
-        <!-- Description (Full Width) -->
-        <v-textarea
-          v-model="formData.description"
-          label="Description (Optional)"
-          placeholder="e.g., Weekly groceries, Salary payment, Coffee with friends"
-          :disabled="loading"
-          variant="outlined"
-          rows="2"
-          auto-grow
-          class="mb-4"
-        />
       </v-form>
     </v-card-text>
 

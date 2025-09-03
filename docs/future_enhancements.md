@@ -4,10 +4,6 @@ This document contains enhancements and improvements that are intentionally skip
 
 ## Transaction Management
 
-### UI
-
-- In portrait mode, show account, then category, and then amount
-
 ### Advanced Filtering & Sorting
 - Filter transactions by account, category, date range, transaction type, and description search
 - Sort transactions by date or amount (ascending/descending)
