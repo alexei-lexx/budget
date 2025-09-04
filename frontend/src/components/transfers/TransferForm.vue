@@ -80,6 +80,7 @@ watch(
 // Form validation
 const formValid = ref(false);
 const formRef = ref();
+const amountFieldRef = ref();
 
 // Validation rules
 const fromAccountRules: CheckRule[] = [(value: string) => !!value || "Source account is required"];
@@ -181,6 +182,13 @@ const handleSubmit = async () => {
 const handleCancel = () => {
   emit("cancel");
 };
+
+// Handle account swap
+const handleSwapAccounts = () => {
+  const temp = formData.value.fromAccountId;
+  formData.value.fromAccountId = formData.value.toAccountId;
+  formData.value.toAccountId = temp;
+};
 </script>
 
 <template>
@@ -188,6 +196,16 @@ const handleCancel = () => {
     <v-card-title class="d-flex align-center">
       <v-icon class="me-2" color="primary">{{ titleIcon }}</v-icon>
       {{ formTitle }}
+      <v-spacer></v-spacer>
+      <v-btn
+        icon="mdi-swap-vertical"
+        variant="text"
+        size="small"
+        :disabled="loading || !formData.fromAccountId || !formData.toAccountId"
+        @click="handleSwapAccounts"
+        title="Swap accounts"
+      >
+      </v-btn>
     </v-card-title>
 
     <v-card-text>
@@ -197,9 +215,7 @@ const handleCancel = () => {
         @submit.prevent="handleSubmit"
         @keydown.esc="$emit('cancel')"
       >
-        <!-- Two-column layout for desktop -->
         <v-row>
-          <!-- Left Column -->
           <v-col cols="12" md="6">
             <!-- From Account Selection -->
             <AccountSelect
@@ -207,12 +223,25 @@ const handleCancel = () => {
               label="From Account"
               :rules="[...fromAccountRules, ...accountValidationRules]"
               :disabled="loading"
-              class="mb-4"
               required
             />
+          </v-col>
 
+          <v-col cols="12" md="6">
+            <!-- To Account Selection -->
+            <AccountSelect
+              v-model="formData.toAccountId"
+              label="To Account"
+              :rules="[...toAccountRules, ...accountValidationRules]"
+              :disabled="loading"
+              required
+            />
+          </v-col>
+
+          <v-col cols="12" md="6">
             <!-- Amount -->
             <v-text-field
+              ref="amountFieldRef"
               v-model.number="formData.amount"
               type="number"
               step="1"
@@ -221,7 +250,6 @@ const handleCancel = () => {
               :rules="amountRules"
               :disabled="loading"
               variant="outlined"
-              class="mb-4"
               required
               autofocus
             >
@@ -232,19 +260,7 @@ const handleCancel = () => {
               </template>
             </v-text-field>
           </v-col>
-
-          <!-- Right Column -->
           <v-col cols="12" md="6">
-            <!-- To Account Selection -->
-            <AccountSelect
-              v-model="formData.toAccountId"
-              label="To Account"
-              :rules="[...toAccountRules, ...accountValidationRules]"
-              :disabled="loading"
-              class="mb-4"
-              required
-            />
-
             <!-- Date -->
             <v-text-field
               v-model="formData.date"
@@ -253,23 +269,22 @@ const handleCancel = () => {
               :rules="dateRules"
               :disabled="loading"
               variant="outlined"
-              class="mb-4"
               required
             />
           </v-col>
+          <v-col cols="12">
+            <!-- Description (Full Width) -->
+            <v-textarea
+              v-model="formData.description"
+              label="Description (Optional)"
+              placeholder="e.g., Monthly savings transfer, Emergency fund contribution"
+              :disabled="loading"
+              variant="outlined"
+              rows="2"
+              auto-grow
+            />
+          </v-col>
         </v-row>
-
-        <!-- Description (Full Width) -->
-        <v-textarea
-          v-model="formData.description"
-          label="Description (Optional)"
-          placeholder="e.g., Monthly savings transfer, Emergency fund contribution"
-          :disabled="loading"
-          variant="outlined"
-          rows="2"
-          auto-grow
-          class="mb-4"
-        />
       </v-form>
     </v-card-text>
 
