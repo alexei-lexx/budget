@@ -11,7 +11,6 @@ This document contains enhancements and improvements that are intentionally skip
 
 ### Advanced Features
 - Export transactions to CSV/Excel formats
-- Support refunds
 
 ### Transaction Entry UX Improvements
 
