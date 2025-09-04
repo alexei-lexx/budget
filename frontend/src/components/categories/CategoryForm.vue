@@ -150,44 +150,48 @@ const exampleNames = computed(() => {
         @submit.prevent="handleSubmit"
         @keydown.esc="$emit('cancel')"
       >
-        <!-- Category Name -->
-        <v-text-field
-          v-model="formData.name"
-          label="Category Name"
-          :placeholder="`e.g., ${exampleNames.join(', ')}`"
-          :rules="nameRules"
-          :disabled="loading"
-          variant="outlined"
-          class="mb-4"
-          required
-          autofocus
-        ></v-text-field>
+        <v-row>
+          <v-col cols="12" md="12">
+            <!-- Category Name -->
+            <v-text-field
+              v-model="formData.name"
+              label="Category Name"
+              :placeholder="`e.g., ${exampleNames.join(', ')}`"
+              :rules="nameRules"
+              :disabled="loading"
+              variant="outlined"
+              required
+              autofocus
+            ></v-text-field>
+          </v-col>
 
-        <!-- Category Type Selection -->
-        <v-select
-          v-model="formData.type"
-          label="Category Type"
-          :items="categoryTypeOptions"
-          :rules="typeRules"
-          :disabled="loading"
-          variant="outlined"
-          class="mb-4"
-          required
-        >
-          <template #item="{ props: itemProps, item }">
-            <v-list-item v-bind="itemProps">
-              <template #prepend>
-                <v-icon :color="item.raw.color">{{ item.raw.icon }}</v-icon>
+          <v-col cols="12" md="12">
+            <!-- Category Type Selection -->
+            <v-select
+              v-model="formData.type"
+              label="Category Type"
+              :items="categoryTypeOptions"
+              :rules="typeRules"
+              :disabled="loading"
+              variant="outlined"
+              required
+            >
+              <template #item="{ props: itemProps, item }">
+                <v-list-item v-bind="itemProps">
+                  <template #prepend>
+                    <v-icon :color="item.raw.color">{{ item.raw.icon }}</v-icon>
+                  </template>
+                </v-list-item>
               </template>
-            </v-list-item>
-          </template>
-          <template #selection="{ item }">
-            <div class="d-flex align-center">
-              <v-icon :color="item.raw.color" class="me-2">{{ item.raw.icon }}</v-icon>
-              {{ item.raw.title }}
-            </div>
-          </template>
-        </v-select>
+              <template #selection="{ item }">
+                <div class="d-flex align-center">
+                  <v-icon :color="item.raw.color" class="me-2">{{ item.raw.icon }}</v-icon>
+                  {{ item.raw.title }}
+                </div>
+              </template>
+            </v-select>
+          </v-col>
+        </v-row>
       </v-form>
     </v-card-text>
 

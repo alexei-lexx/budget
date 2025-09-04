@@ -185,58 +185,63 @@ const handleCancel = () => {
         @submit.prevent="handleSubmit"
         @keydown.esc="$emit('cancel')"
       >
-        <!-- Account Name -->
-        <v-text-field
-          v-model="formData.name"
-          label="Account Name"
-          placeholder="e.g., Cash, Bank Account, Credit Card"
-          :rules="nameRules"
-          :disabled="loading"
-          variant="outlined"
-          class="mb-4"
-          required
-          autofocus
-        ></v-text-field>
+        <v-row>
+          <v-col cols="12" md="12">
+            <!-- Account Name -->
+            <v-text-field
+              v-model="formData.name"
+              label="Account Name"
+              placeholder="e.g., Cash, Bank Account, Credit Card"
+              :rules="nameRules"
+              :disabled="loading"
+              variant="outlined"
+              required
+              autofocus
+            ></v-text-field>
+          </v-col>
 
-        <!-- Currency Selection -->
-        <v-select
-          v-model="formData.currency"
-          label="Currency"
-          :items="supportedCurrencies"
-          :rules="currencyRules"
-          :disabled="loading || currenciesLoading"
-          :loading="currenciesLoading"
-          variant="outlined"
-          class="mb-4"
-          required
-        >
-          <template #no-data>
-            <v-list-item v-if="currencyHasError">
-              <v-list-item-title class="text-error">
-                Failed to load currencies. Using defaults.
-              </v-list-item-title>
-            </v-list-item>
-          </template>
-        </v-select>
+          <v-col cols="12" md="6">
+            <!-- Currency Selection -->
+            <v-select
+              v-model="formData.currency"
+              label="Currency"
+              :items="supportedCurrencies"
+              :rules="currencyRules"
+              :disabled="loading || currenciesLoading"
+              :loading="currenciesLoading"
+              variant="outlined"
+              required
+            >
+              <template #no-data>
+                <v-list-item v-if="currencyHasError">
+                  <v-list-item-title class="text-error">
+                    Failed to load currencies. Using defaults.
+                  </v-list-item-title>
+                </v-list-item>
+              </template>
+            </v-select>
+          </v-col>
 
-        <!-- Initial Balance -->
-        <v-text-field
-          v-model.number="formData.initialBalance"
-          label="Initial Balance"
-          type="number"
-          step="1"
-          :rules="balanceRules"
-          :disabled="loading"
-          variant="outlined"
-          class="mb-4"
-          required
-        >
-          <template #prepend-inner>
-            <span class="text-medium-emphasis">
-              {{ getCurrencySymbol(formData.currency) }}
-            </span>
-          </template>
-        </v-text-field>
+          <v-col cols="12" md="6">
+            <!-- Initial Balance -->
+            <v-text-field
+              v-model.number="formData.initialBalance"
+              label="Initial Balance"
+              type="number"
+              step="1"
+              :rules="balanceRules"
+              :disabled="loading"
+              variant="outlined"
+              required
+            >
+              <template #prepend-inner>
+                <span class="text-medium-emphasis">
+                  {{ getCurrencySymbol(formData.currency) }}
+                </span>
+              </template>
+            </v-text-field>
+          </v-col>
+        </v-row>
       </v-form>
     </v-card-text>
 
