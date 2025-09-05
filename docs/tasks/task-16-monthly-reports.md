@@ -130,13 +130,13 @@ This implementation follows a user story by user story approach with top-to-bott
   - Deploy index changes to production environment
 
 **16.3 Repository Layer**
-- [ ] 16.3.1 Add method to query transactions by month and type
+- [x] 16.3.1 Add method to query transactions by month and type
   - Accept user ID, year, month, and transaction type parameters
   - Use date-based index for efficient filtering
   - Filter by transaction type and active status
   - Return all matching transaction records
   - Follow existing repository patterns for consistency
-- [ ] 16.3.2 Create unit tests for monthly transaction queries
+- [x] 16.3.2 Create unit tests for monthly transaction queries
   - Test filtering by month and different transaction types
   - Test date range accuracy and edge cases
   - Test with various currencies, categories, and amounts

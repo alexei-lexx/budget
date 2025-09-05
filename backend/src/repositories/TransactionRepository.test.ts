@@ -7,6 +7,8 @@ import {
 } from "../models/Transaction";
 import { faker } from "@faker-js/faker";
 import { fakeCreateTransactionInput } from "../__tests__/utils/factories";
+import { createDynamoDBDocumentClient } from "./utils/dynamoClient";
+import { truncateTable } from "../__tests__/utils/dynamodbHelpers";
 
 describe("TransactionRepository", () => {
   let repository: TransactionRepository;
@@ -14,6 +16,16 @@ describe("TransactionRepository", () => {
   beforeAll(async () => {
     // Create repository instance
     repository = new TransactionRepository();
+  });
+
+  beforeEach(async () => {
+    // Clean up transactions table before each test
+    const client = createDynamoDBDocumentClient();
+    const tableName = process.env.TRANSACTIONS_TABLE_NAME || "";
+    await truncateTable(client, tableName, {
+      partitionKey: "userId",
+      sortKey: "id",
+    });
   });
 
   describe("create", () => {
@@ -1071,6 +1083,268 @@ describe("TransactionRepository", () => {
         accountId: "account-2",
         categoryId: "category-2",
       });
+    });
+  });
+
+  describe("findActiveByMonthAndType", () => {
+    it("should filter by user", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+      const otherUserId = faker.string.uuid();
+      const accountId = faker.string.uuid();
+
+      await repository.createMany([
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          type: TransactionType.EXPENSE,
+          date: "2000-01-01",
+        }),
+        fakeCreateTransactionInput({
+          userId: otherUserId,
+          accountId,
+          type: TransactionType.EXPENSE,
+          date: "2000-01-02",
+        }),
+      ]);
+
+      // Act
+      const result = await repository.findActiveByMonthAndType(
+        userId,
+        2000,
+        1,
+        TransactionType.EXPENSE,
+      );
+
+      // Assert
+      expect(result).toHaveLength(1);
+      expect(result[0].userId).toBe(userId);
+    });
+
+    it("should filter by month", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+      const accountId = faker.string.uuid();
+
+      await repository.createMany([
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          type: TransactionType.EXPENSE,
+          date: "2000-01-01",
+        }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          type: TransactionType.EXPENSE,
+          date: "2000-02-01",
+        }),
+      ]);
+
+      // Act
+      const result = await repository.findActiveByMonthAndType(
+        userId,
+        2000,
+        1,
+        TransactionType.EXPENSE,
+      );
+
+      // Assert
+      expect(result).toHaveLength(1);
+      expect(result[0].date).toBe("2000-01-01");
+    });
+
+    it("should filter by type", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+      const accountId = faker.string.uuid();
+
+      await repository.createMany([
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          type: TransactionType.EXPENSE,
+          date: "2000-01-01",
+        }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          type: TransactionType.INCOME,
+          date: "2000-01-02",
+        }),
+      ]);
+
+      // Act
+      const result = await repository.findActiveByMonthAndType(
+        userId,
+        2000,
+        1,
+        TransactionType.EXPENSE,
+      );
+
+      // Assert
+      expect(result).toHaveLength(1);
+      expect(result[0].type).toBe(TransactionType.EXPENSE);
+    });
+
+    it("should skip archived transactions", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+      const accountId = faker.string.uuid();
+
+      const created = await repository.create(
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          type: TransactionType.EXPENSE,
+          date: "2000-01-01",
+        }),
+      );
+
+      await repository.archive(created.id, userId);
+
+      // Act
+      const result = await repository.findActiveByMonthAndType(
+        userId,
+        2000,
+        1,
+        TransactionType.EXPENSE,
+      );
+
+      // Assert
+      expect(result).toHaveLength(0);
+    });
+
+    it("should return multiple matching transactions", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+      const accountId = faker.string.uuid();
+
+      await repository.createMany([
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          type: TransactionType.EXPENSE,
+          date: "2000-01-05",
+        }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          type: TransactionType.EXPENSE,
+          date: "2000-01-15",
+        }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          type: TransactionType.EXPENSE,
+          date: "2000-01-25",
+        }),
+      ]);
+
+      // Act
+      const result = await repository.findActiveByMonthAndType(
+        userId,
+        2000,
+        1,
+        TransactionType.EXPENSE,
+      );
+
+      // Assert
+      expect(result).toHaveLength(3);
+      expect(result.every((t) => t.userId === userId)).toBe(true);
+      expect(result.every((t) => t.type === TransactionType.EXPENSE)).toBe(
+        true,
+      );
+      expect(result.every((t) => t.date.startsWith("2000-01"))).toBe(true);
+    });
+
+    it("should return empty array when no matches found", async () => {
+      // Act
+      const result = await repository.findActiveByMonthAndType(
+        faker.string.uuid(),
+        2000,
+        12,
+        TransactionType.EXPENSE,
+      );
+
+      // Assert
+      expect(result).toHaveLength(0);
+    });
+
+    it("should throw error for invalid user ID", async () => {
+      // Act & Assert
+      await expect(
+        repository.findActiveByMonthAndType(
+          "",
+          2000,
+          1,
+          TransactionType.EXPENSE,
+        ),
+      ).rejects.toThrow("User ID is required");
+    });
+
+    it("should throw error for invalid year", async () => {
+      // Act & Assert
+      const userId = faker.string.uuid();
+
+      await expect(
+        repository.findActiveByMonthAndType(
+          userId,
+          1800,
+          1,
+          TransactionType.EXPENSE,
+        ),
+      ).rejects.toThrow("Year must be a valid integer between 1900 and 2100");
+
+      await expect(
+        repository.findActiveByMonthAndType(
+          userId,
+          2200,
+          1,
+          TransactionType.EXPENSE,
+        ),
+      ).rejects.toThrow("Year must be a valid integer between 1900 and 2100");
+
+      await expect(
+        repository.findActiveByMonthAndType(
+          userId,
+          20.5,
+          1,
+          TransactionType.EXPENSE,
+        ),
+      ).rejects.toThrow("Year must be a valid integer between 1900 and 2100");
+    });
+
+    it("should throw error for invalid month", async () => {
+      // Act & Assert
+      const userId = faker.string.uuid();
+
+      await expect(
+        repository.findActiveByMonthAndType(
+          userId,
+          2000,
+          0,
+          TransactionType.EXPENSE,
+        ),
+      ).rejects.toThrow("Month must be a valid integer between 1 and 12");
+
+      await expect(
+        repository.findActiveByMonthAndType(
+          userId,
+          2000,
+          13,
+          TransactionType.EXPENSE,
+        ),
+      ).rejects.toThrow("Month must be a valid integer between 1 and 12");
+
+      await expect(
+        repository.findActiveByMonthAndType(
+          userId,
+          2000,
+          1.5,
+          TransactionType.EXPENSE,
+        ),
+      ).rejects.toThrow("Month must be a valid integer between 1 and 12");
     });
   });
 });

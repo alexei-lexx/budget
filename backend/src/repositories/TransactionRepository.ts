@@ -10,6 +10,7 @@ import {
 import { randomUUID } from "crypto";
 import {
   Transaction,
+  TransactionType,
   CreateTransactionInput,
   UpdateTransactionInput,
   ITransactionRepository,
@@ -33,6 +34,16 @@ import { createDynamoDBDocumentClient } from "./utils/dynamoClient";
  * @see https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Limits.html#limits-api
  */
 const DYNAMODB_TRANSACT_WRITE_MAX_ITEMS = 25;
+
+/**
+ * Format a Date object as YYYY-MM-DD string (local timezone)
+ */
+function formatDateAsYYYYMMDD(date: Date): string {
+  const year = date.getFullYear();
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
+  const day = date.getDate().toString().padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
 
 /**
  * Repository error class for better error handling
@@ -587,6 +598,76 @@ export class TransactionRepository implements ITransactionRepository {
       console.error("Error finding transactions by transfer ID:", error);
       throw new TransactionRepositoryError(
         "Failed to find transactions by transfer",
+        "QUERY_FAILED",
+        error,
+      );
+    }
+  }
+
+  async findActiveByMonthAndType(
+    userId: string,
+    year: number,
+    month: number,
+    type: TransactionType,
+  ): Promise<Transaction[]> {
+    if (!userId) {
+      throw new TransactionRepositoryError(
+        "User ID is required",
+        "INVALID_PARAMETERS",
+      );
+    }
+
+    if (!Number.isInteger(year) || year < 1900 || year > 2100) {
+      throw new TransactionRepositoryError(
+        "Year must be a valid integer between 1900 and 2100",
+        "INVALID_PARAMETERS",
+      );
+    }
+
+    if (!Number.isInteger(month) || month < 1 || month > 12) {
+      throw new TransactionRepositoryError(
+        "Month must be a valid integer between 1 and 12",
+        "INVALID_PARAMETERS",
+      );
+    }
+
+    // Calculate start and end dates for the month using Date class
+    const startOfMonth = new Date(year, month - 1, 1); // month is 0-indexed in Date constructor
+    const endOfMonth = new Date(year, month, 0); // day=0 gives last day of previous month
+
+    const startDate = formatDateAsYYYYMMDD(startOfMonth);
+    const endDate = formatDateAsYYYYMMDD(endOfMonth);
+
+    try {
+      const { items } = await paginateQuery<Transaction>({
+        client: this.client,
+        params: {
+          TableName: this.tableName,
+          IndexName: "UserDateIndex",
+          KeyConditionExpression:
+            "userId = :userId AND #date BETWEEN :startDate AND :endDate",
+          FilterExpression: "#type = :type AND isArchived = :isArchived",
+          ExpressionAttributeNames: {
+            "#date": "date",
+            "#type": "type",
+          },
+          ExpressionAttributeValues: {
+            ":userId": userId,
+            ":startDate": startDate,
+            ":endDate": endDate,
+            ":type": type,
+            ":isArchived": false,
+          },
+          ScanIndexForward: true, // Sort by date ascending
+        },
+        options: {}, // No pageSize = get all items
+      });
+
+      return items;
+    } catch (error) {
+      console.error("Error finding transactions by month and type:", error);
+      throw new TransactionRepositoryError(
+        "Failed to find transactions by month and type",
         "QUERY_FAILED",
         error,
       );
