@@ -64,6 +64,7 @@ const tables: CreateTableCommandInput[] = [
       { AttributeName: "userId", AttributeType: "S" },
       { AttributeName: "id", AttributeType: "S" },
       { AttributeName: "createdAt", AttributeType: "S" },
+      { AttributeName: "date", AttributeType: "S" },
     ],
     KeySchema: [
       { AttributeName: "userId", KeyType: "HASH" },
@@ -76,6 +77,14 @@ const tables: CreateTableCommandInput[] = [
         KeySchema: [
           { AttributeName: "userId", KeyType: "HASH" },
           { AttributeName: "createdAt", KeyType: "RANGE" },
+        ],
+        Projection: { ProjectionType: "ALL" },
+      },
+      {
+        IndexName: "UserDateIndex",
+        KeySchema: [
+          { AttributeName: "userId", KeyType: "HASH" },
+          { AttributeName: "date", KeyType: "RANGE" },
         ],
         Projection: { ProjectionType: "ALL" },
       },

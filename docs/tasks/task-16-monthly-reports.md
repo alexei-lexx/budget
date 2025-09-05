@@ -79,8 +79,8 @@ Implement monthly expense reports functionality that allows users to view their 
 
 ### Story 6: Navigate Between Months
 
-**As a** user  
-**I want to** navigate to different months using previous/next controls  
+**As a** user
+**I want to** navigate to different months using previous/next controls
 **So that** I can view and compare my spending patterns across different time periods
 
 **Acceptance Criteria:**
@@ -117,10 +117,17 @@ This implementation follows a user story by user story approach with top-to-bott
 ### Story 2: View Monthly Expense by Category
 
 **16.2 Database Layer**
-- [ ] 16.2.1 Add database index for efficient date-based transaction queries
-  - Create index partitioned by user and sorted by transaction date
-  - Include all transaction fields in projection
-  - Enable efficient date range filtering for monthly reports
+- [x] 16.2.1 Design date-based transaction index specification
+  - Define Global Secondary Index (GSI) schema for efficient date queries
+  - Specify partition key: userId, sort key: date
+  - Include all transaction fields in projection for complete data access
+- [x] 16.2.2 Implement development database index
+  - Create GSI in DynamoDB Local using backend scripts
+  - Update database setup scripts to include index creation
+- [x] 16.2.3 Implement production database index
+  - Add GSI definition to CDK infrastructure in backend-cdk package
+  - Update DynamoDB table construct with new index configuration
+  - Deploy index changes to production environment
 
 **16.3 Repository Layer**
 - [ ] 16.3.1 Add method to query transactions by month and type
