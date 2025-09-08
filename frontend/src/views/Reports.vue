@@ -20,32 +20,14 @@
           </v-card-text>
         </v-card>
 
-        <!-- Placeholder Content -->
-        <v-sheet
-          border="dashed md"
-          color="surface-light"
-          height="400"
-          rounded="lg"
-          width="100%"
-          class="d-flex flex-column align-center justify-center"
-        >
-          <v-icon size="80" class="mb-4" color="primary">mdi-chart-line</v-icon>
-          <div class="text-h5 mb-2">Monthly Reports Feature</div>
-          <div class="text-body-1 text-center mb-4 px-4">
-            This feature is currently in development. Soon you'll be able to view your monthly
-            spending by category, track expenses across different currencies, and navigate between
-            different months to analyze your financial patterns.
-          </div>
-          <div class="text-body-2 text-medium-emphasis text-center px-4">
-            Features coming soon:
-            <ul class="text-left mt-2">
-              <li>Monthly expense breakdown by category</li>
-              <li>Spending percentages and totals</li>
-              <li>Multi-currency support</li>
-              <li>Month-by-month navigation</li>
-            </ul>
-          </div>
-        </v-sheet>
+        <!-- Monthly Report Content -->
+        <CategoryBreakdownTable
+          :categories="monthlyReport?.categories"
+          :currency-totals="monthlyReport?.currencyTotals"
+          :loading="monthlyReportLoading"
+          :error="monthlyReportError?.message"
+          :month-year="selectedMonthYear"
+        />
       </v-col>
     </v-row>
   </v-container>
@@ -53,10 +35,16 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
+import CategoryBreakdownTable from "@/components/reports/CategoryBreakdownTable.vue";
+import { useMonthlyReports } from "@/composables/useMonthlyReports";
 
 // Get selected month and year (defaults to current)
 const selectedDate = new Date();
 const selectedMonthYear = computed(() => {
-  return selectedDate.toLocaleString("default", { month: "short", year: "numeric" });
+  return selectedDate.toLocaleString("default", { month: "long", year: "numeric" });
 });
+
+// Get current month expense report
+const { useCurrentMonthExpenseReport } = useMonthlyReports();
+const { monthlyReport, monthlyReportLoading, monthlyReportError } = useCurrentMonthExpenseReport();
 </script>

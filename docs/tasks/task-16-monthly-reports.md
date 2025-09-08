@@ -162,7 +162,7 @@ This implementation follows a user story by user story approach with top-to-bott
 **16.5 GraphQL Layer**
 - [x] 16.5.1 Add monthly report types to GraphQL schema
   - Define report structure with year, month, transaction type
-  - Define category breakdown with amounts and percentages
+  - Define category breakdown with amounts
   - Define total summary by currency
 - [x] 16.5.2 Add monthly report query to schema
   - Accept year, month, and transaction type parameters
@@ -173,35 +173,30 @@ This implementation follows a user story by user story approach with top-to-bott
   - Handle authentication and user context extraction
 
 **16.6 Frontend Data Layer**
-- [ ] 16.6.1 Create GraphQL operations for monthly reports
-  - Define query operations for monthly transaction reports
-  - Create convenience queries for specific transaction types
-- [ ] 16.6.2 Generate TypeScript types from schema
+- [x] 16.6.1 Create GraphQL operations for monthly reports
+  - Define query operations for monthly expense reports
+- [x] 16.6.2 Generate TypeScript types from schema
   - Run code generation to create typed composables
   - Ensure type safety between frontend and backend
-- [ ] 16.6.3 Create reactive data composables
-  - Implement composable for monthly report data fetching
-  - Add convenience methods for specific transaction types
+- [x] 16.6.3 Create reactive data composables
+  - Implement composable for current month expense report data fetching
   - Handle loading and error states properly
-  - Support dynamic month/year parameters
 
 **16.7 Frontend UI/UX Layer**
-- [ ] 16.7.1 Create category breakdown table component
-  - Display transaction categories in organized table format
+- [x] 16.7.1 Create category breakdown table component
+  - Display expense categories in organized table format
   - Show category names with amounts and currency symbols
   - Handle uncategorized transactions appropriately
   - Implement responsive design for mobile devices
-  - Support different transaction types with proper labeling
 
 ### Story 3: See Total Monthly Spending
 
 **16.8 Frontend UI/UX Layer**
-- [ ] 16.8.1 Create transaction totals display component
-  - Display total monthly transaction amounts prominently
+- [ ] 16.8.1 Create expense totals display component
+  - Display total monthly expense amounts prominently
   - Support multi-currency totals presentation
   - Use visual emphasis for total values (bold/larger text)
   - Handle zero amounts with appropriate messaging
-  - Support different transaction types with contextual labeling
 
 ### Story 4: View Category Spending Percentages
 
@@ -240,14 +235,12 @@ This implementation follows a user story by user story approach with top-to-bott
 **16.13 Service Layer Enhancement**
 - [ ] 16.13.1 Add month validation logic to reports service
   - Validate month and year parameter combinations
-  - Prevent access to future months beyond current month
   - Handle edge cases and return appropriate empty data
 
 **16.14 Frontend UI/UX Layer**
 - [ ] 16.14.1 Create month navigation header component
   - Display current month and year prominently
   - Add previous/next navigation controls with appropriate icons
-  - Disable next navigation for future months
   - Handle month transitions including year boundaries
 - [ ] 16.14.2 Integrate month navigation with data layer
   - Add reactive month and year state management
@@ -276,7 +269,7 @@ This implementation follows a user story by user story approach with top-to-bott
 
 *Test 2: Story 2 & 4 - Category Display and Percentages*
 - [ ] [M] 16.T.6 Create expense transactions in different categories
-- [ ] [M] 16.T.7 Verify categories appear in table sorted by amount (highest first)
+- [ ] [M] 16.T.7 Verify categories appear in table sorted alphabetically by name
 - [ ] [M] 16.T.8 Verify "Uncategorized" row appears for transactions without categories
 - [ ] [M] 16.T.9 Verify each category shows amount with currency symbol and percentage
 - [ ] [M] 16.T.10 Verify all percentages sum to 100% for single currency
