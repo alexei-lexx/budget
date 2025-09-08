@@ -20,29 +20,26 @@
       </div>
 
       <div v-else>
-        <!-- Desktop Table View -->
-        <v-table class="d-none d-sm-table" density="compact">
+        <!-- Category Breakdown Table -->
+        <v-table density="compact">
           <tbody>
-            <template v-for="category in categories" :key="category.categoryId || 'uncategorized'">
+            <template v-for="(category, categoryIndex) in categories" :key="categoryIndex">
               <tr
-                v-for="(breakdown, index) in category.currencyBreakdowns"
-                :key="`${category.categoryId || 'uncategorized'}-${breakdown.currency}`"
-                :class="{ 'border-bottom': index === category.currencyBreakdowns.length - 1 }"
+                v-for="(breakdown, breakdownIndex) in category.currencyBreakdowns"
+                :key="`${categoryIndex}-${breakdownIndex}`"
               >
-                <td v-if="index === 0" :rowspan="category.currencyBreakdowns.length" class="py-2">
-                  <v-icon v-if="!category.categoryId" size="small" class="me-1">
-                    mdi-help-circle-outline
-                  </v-icon>
-                  {{ category.categoryName }}
+                <td v-if="breakdownIndex === 0" :rowspan="category.currencyBreakdowns.length">
+                  <em v-if="!category.categoryId">{{ category.categoryName }}</em>
+                  <span v-else>{{ category.categoryName }}</span>
                 </td>
-                <td class="text-right py-2">
+                <td class="text-right">
                   {{ formatCurrencyAmount(breakdown.totalAmount, breakdown.currency) }}
                 </td>
               </tr>
             </template>
           </tbody>
           <tfoot v-if="currencyTotals.length > 0">
-            <tr v-for="(total, index) in currencyTotals" :key="total.currency">
+            <tr v-for="(total, index) in currencyTotals" :key="index">
               <th v-if="index === 0" :rowspan="currencyTotals.length">Total</th>
               <th class="text-right">
                 {{ formatCurrencyAmount(total.totalAmount, total.currency) }}
@@ -50,47 +47,6 @@
             </tr>
           </tfoot>
         </v-table>
-
-        <!-- Mobile Card View -->
-        <div class="d-sm-none">
-          <v-card
-            v-for="category in categories"
-            :key="category.categoryId || 'uncategorized'"
-            class="mb-3"
-            variant="outlined"
-          >
-            <v-card-text class="pa-3">
-              <div class="d-flex align-center mb-2">
-                <v-icon v-if="!category.categoryId" size="small" class="me-1">
-                  mdi-help-circle-outline
-                </v-icon>
-                <span>{{ category.categoryName }}</span>
-              </div>
-
-              <div
-                v-for="breakdown in category.currencyBreakdowns"
-                :key="breakdown.currency"
-                class="d-flex align-center justify-end"
-                :class="{ 'mt-2': category.currencyBreakdowns.length > 1 }"
-              >
-                {{ formatCurrencyAmount(breakdown.totalAmount, breakdown.currency) }}
-              </div>
-            </v-card-text>
-          </v-card>
-
-          <!-- Mobile Totals -->
-          <v-card v-if="currencyTotals.length > 0" variant="outlined" class="mt-3">
-            <v-card-text class="pa-3">
-              <v-divider class="mb-3"></v-divider>
-              <div class="d-flex align-center mb-2">
-                <strong>Total</strong>
-              </div>
-              <div v-for="total in currencyTotals" :key="total.currency" class="d-flex justify-end">
-                <strong>{{ formatCurrencyAmount(total.totalAmount, total.currency) }}</strong>
-              </div>
-            </v-card-text>
-          </v-card>
-        </div>
       </div>
     </v-card-text>
   </v-card>
@@ -147,19 +103,3 @@ const currencyTotals = computed(() => {
   return [...props.currencyTotals].sort((a, b) => a.currency.localeCompare(b.currency));
 });
 </script>
-
-<style scoped>
-.category-breakdown-table {
-  .border-bottom {
-    border-bottom: 1px solid rgba(var(--v-theme-on-surface), 0.12);
-  }
-}
-
-/* Ensure proper spacing in mobile view */
-@media (max-width: 600px) {
-  .category-breakdown-table :deep(.v-card-text) {
-    padding-left: 12px;
-    padding-right: 12px;
-  }
-}
-</style>
