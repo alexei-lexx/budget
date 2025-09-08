@@ -29,7 +29,7 @@ Implement monthly expense reports functionality that allows users to view their 
 - **Then** I see a table showing each expense category with its total amount
 - **And** I see an "Uncategorized" row for expenses without categories
 - **And** each amount is displayed with its currency symbol (e.g., "$125.50", "€89.20")
-- **And** categories are sorted by spending amount (highest to lowest)
+- **And** categories are sorted alphabetically by name
 
 ### Story 3: See Total Monthly Spending
 
@@ -143,18 +143,21 @@ This implementation follows a user story by user story approach with top-to-bott
   - Test empty result scenarios
 
 **16.4 Service Layer**
-- [ ] 16.4.1 Create reports service with monthly transaction analysis
-  - Implement method to generate monthly transaction reports by type
-  - Retrieve raw transaction data from repository layer
-  - Group transactions by currency and category for analysis
-  - Calculate totals and percentages per currency
-  - Handle transactions without categories (show as "Uncategorized")
-  - Add convenience methods for specific transaction types
-  - Join with category data to provide meaningful names
-  - Sort results by amount in descending order
-- [ ] 16.4.2 Integrate reports service into application context
-  - Add reports service to dependency injection setup
-  - Provide access to required repository dependencies
+- [x] 16.4.1 Create monthly reports service
+  - Implement method to generate monthly reports by transaction type
+  - Call repository to get transactions for specified user, year, month, and type
+  - Group transactions by category, then by currency within each category
+  - Handle transactions without categories (group as "Uncategorized")
+  - Calculate totals: sum of amounts per currency within each category
+  - Sort categories alphabetically by name
+  - Return structured report with category-grouped currency breakdowns
+  - Example: Food: USD $300, EUR €150; Transport: USD $200; Uncategorized: USD $50
+- [x] 16.4.2 Create comprehensive unit tests for reports service
+  - Test grouping by category and currency
+  - Test "Uncategorized" handling for transactions without categories
+  - Test alphabetical sorting of categories
+  - Test empty results and edge cases
+  - Test with multiple currencies and categories
 
 **16.5 GraphQL Layer**
 - [ ] 16.5.1 Add monthly report types to GraphQL schema
