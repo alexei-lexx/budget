@@ -201,14 +201,14 @@ This implementation follows a user story by user story approach with top-to-bott
 ### Story 4: View Category Spending Percentages
 
 **16.9 Service Layer Enhancement**
-- [ ] 16.9.1 Enhance reports service with percentage calculations
+- [x] 16.9.1 Enhance reports service with percentage calculations
   - Calculate percentages within each currency group
   - Round percentages to whole numbers for readability
   - Ensure percentages sum to 100% per currency
   - Handle edge cases like single category scenarios
 
 **16.10 Frontend UI/UX Layer**
-- [ ] 16.10.1 Update category table to display percentages
+- [x] 16.10.1 Update category table to display percentages
   - Show amounts with calculated percentages in unified format
   - Include percentages for uncategorized transactions
   - Maintain consistent percentage formatting throughout
