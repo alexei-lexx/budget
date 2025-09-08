@@ -160,14 +160,14 @@ This implementation follows a user story by user story approach with top-to-bott
   - Test with multiple currencies and categories
 
 **16.5 GraphQL Layer**
-- [ ] 16.5.1 Add monthly report types to GraphQL schema
+- [x] 16.5.1 Add monthly report types to GraphQL schema
   - Define report structure with year, month, transaction type
   - Define category breakdown with amounts and percentages
   - Define total summary by currency
-- [ ] 16.5.2 Add monthly report query to schema
+- [x] 16.5.2 Add monthly report query to schema
   - Accept year, month, and transaction type parameters
   - Return structured monthly report data
-- [ ] 16.5.3 Implement monthly report resolver
+- [x] 16.5.3 Implement monthly report resolver
   - Validate input parameters (year range, month range, transaction type)
   - Call reports service to generate report data
   - Handle authentication and user context extraction

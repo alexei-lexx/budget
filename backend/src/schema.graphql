@@ -5,6 +5,7 @@ type Query {
   transactions(pagination: PaginationInput): TransactionConnection!
   transfer(id: ID!): Transfer
   getTransactionPatterns(type: TransactionPatternType!): [TransactionPattern!]!
+  monthlyReport(year: Int!, month: Int!, type: TransactionType!): MonthlyReport!
 }
 
 type User {
@@ -148,6 +149,31 @@ type TransactionConnection {
   edges: [TransactionEdge!]!
   pageInfo: PageInfo!
   totalCount: Int!
+}
+
+type MonthlyReportCurrencyBreakdown {
+  currency: String!
+  totalAmount: Float!
+  percentage: Int!
+}
+
+type MonthlyReportCategory {
+  categoryId: ID
+  categoryName: String!
+  currencyBreakdowns: [MonthlyReportCurrencyBreakdown!]!
+}
+
+type MonthlyReportCurrencyTotal {
+  currency: String!
+  totalAmount: Float!
+}
+
+type MonthlyReport {
+  year: Int!
+  month: Int!
+  type: TransactionType!
+  categories: [MonthlyReportCategory!]!
+  currencyTotals: [MonthlyReportCurrencyTotal!]!
 }
 
 type Mutation {

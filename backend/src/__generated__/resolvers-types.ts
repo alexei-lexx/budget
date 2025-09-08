@@ -66,6 +66,35 @@ export type CreateTransferInput = {
   toAccountId: Scalars['ID']['input'];
 };
 
+export type MonthlyReport = {
+  __typename?: 'MonthlyReport';
+  categories: Array<MonthlyReportCategory>;
+  currencyTotals: Array<MonthlyReportCurrencyTotal>;
+  month: Scalars['Int']['output'];
+  type: TransactionType;
+  year: Scalars['Int']['output'];
+};
+
+export type MonthlyReportCategory = {
+  __typename?: 'MonthlyReportCategory';
+  categoryId?: Maybe<Scalars['ID']['output']>;
+  categoryName: Scalars['String']['output'];
+  currencyBreakdowns: Array<MonthlyReportCurrencyBreakdown>;
+};
+
+export type MonthlyReportCurrencyBreakdown = {
+  __typename?: 'MonthlyReportCurrencyBreakdown';
+  currency: Scalars['String']['output'];
+  percentage: Scalars['Int']['output'];
+  totalAmount: Scalars['Float']['output'];
+};
+
+export type MonthlyReportCurrencyTotal = {
+  __typename?: 'MonthlyReportCurrencyTotal';
+  currency: Scalars['String']['output'];
+  totalAmount: Scalars['Float']['output'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   createAccount: Account;
@@ -161,6 +190,7 @@ export type Query = {
   accounts: Array<Account>;
   categories: Array<Category>;
   getTransactionPatterns: Array<TransactionPattern>;
+  monthlyReport: MonthlyReport;
   supportedCurrencies: Array<Scalars['String']['output']>;
   transactions: TransactionConnection;
   transfer?: Maybe<Transfer>;
@@ -174,6 +204,13 @@ export type QueryCategoriesArgs = {
 
 export type QueryGetTransactionPatternsArgs = {
   type: TransactionPatternType;
+};
+
+
+export type QueryMonthlyReportArgs = {
+  month: Scalars['Int']['input'];
+  type: TransactionType;
+  year: Scalars['Int']['input'];
 };
 
 
@@ -353,6 +390,10 @@ export type ResolversTypes = {
   Float: ResolverTypeWrapper<Scalars['Float']['output']>;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
+  MonthlyReport: ResolverTypeWrapper<MonthlyReport>;
+  MonthlyReportCategory: ResolverTypeWrapper<MonthlyReportCategory>;
+  MonthlyReportCurrencyBreakdown: ResolverTypeWrapper<MonthlyReportCurrencyBreakdown>;
+  MonthlyReportCurrencyTotal: ResolverTypeWrapper<MonthlyReportCurrencyTotal>;
   Mutation: ResolverTypeWrapper<{}>;
   PageInfo: ResolverTypeWrapper<PageInfo>;
   PaginationInput: PaginationInput;
@@ -384,6 +425,10 @@ export type ResolversParentTypes = {
   Float: Scalars['Float']['output'];
   ID: Scalars['ID']['output'];
   Int: Scalars['Int']['output'];
+  MonthlyReport: MonthlyReport;
+  MonthlyReportCategory: MonthlyReportCategory;
+  MonthlyReportCurrencyBreakdown: MonthlyReportCurrencyBreakdown;
+  MonthlyReportCurrencyTotal: MonthlyReportCurrencyTotal;
   Mutation: {};
   PageInfo: PageInfo;
   PaginationInput: PaginationInput;
@@ -419,6 +464,35 @@ export type CategoryResolvers<ContextType = GraphQLContext, ParentType extends R
 
 export type CategoryTypeResolvers = EnumResolverSignature<{ EXPENSE?: any, INCOME?: any }, ResolversTypes['CategoryType']>;
 
+export type MonthlyReportResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['MonthlyReport'] = ResolversParentTypes['MonthlyReport']> = {
+  categories?: Resolver<Array<ResolversTypes['MonthlyReportCategory']>, ParentType, ContextType>;
+  currencyTotals?: Resolver<Array<ResolversTypes['MonthlyReportCurrencyTotal']>, ParentType, ContextType>;
+  month?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['TransactionType'], ParentType, ContextType>;
+  year?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type MonthlyReportCategoryResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['MonthlyReportCategory'] = ResolversParentTypes['MonthlyReportCategory']> = {
+  categoryId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
+  categoryName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  currencyBreakdowns?: Resolver<Array<ResolversTypes['MonthlyReportCurrencyBreakdown']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type MonthlyReportCurrencyBreakdownResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['MonthlyReportCurrencyBreakdown'] = ResolversParentTypes['MonthlyReportCurrencyBreakdown']> = {
+  currency?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  percentage?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  totalAmount?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type MonthlyReportCurrencyTotalResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['MonthlyReportCurrencyTotal'] = ResolversParentTypes['MonthlyReportCurrencyTotal']> = {
+  currency?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  totalAmount?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type MutationResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   createAccount?: Resolver<ResolversTypes['Account'], ParentType, ContextType, RequireFields<MutationCreateAccountArgs, 'input'>>;
   createCategory?: Resolver<ResolversTypes['Category'], ParentType, ContextType, RequireFields<MutationCreateCategoryArgs, 'input'>>;
@@ -447,6 +521,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   accounts?: Resolver<Array<ResolversTypes['Account']>, ParentType, ContextType>;
   categories?: Resolver<Array<ResolversTypes['Category']>, ParentType, ContextType, Partial<QueryCategoriesArgs>>;
   getTransactionPatterns?: Resolver<Array<ResolversTypes['TransactionPattern']>, ParentType, ContextType, RequireFields<QueryGetTransactionPatternsArgs, 'type'>>;
+  monthlyReport?: Resolver<ResolversTypes['MonthlyReport'], ParentType, ContextType, RequireFields<QueryMonthlyReportArgs, 'month' | 'type' | 'year'>>;
   supportedCurrencies?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   transactions?: Resolver<ResolversTypes['TransactionConnection'], ParentType, ContextType, Partial<QueryTransactionsArgs>>;
   transfer?: Resolver<Maybe<ResolversTypes['Transfer']>, ParentType, ContextType, RequireFields<QueryTransferArgs, 'id'>>;
@@ -504,6 +579,10 @@ export type Resolvers<ContextType = GraphQLContext> = {
   Account?: AccountResolvers<ContextType>;
   Category?: CategoryResolvers<ContextType>;
   CategoryType?: CategoryTypeResolvers;
+  MonthlyReport?: MonthlyReportResolvers<ContextType>;
+  MonthlyReportCategory?: MonthlyReportCategoryResolvers<ContextType>;
+  MonthlyReportCurrencyBreakdown?: MonthlyReportCurrencyBreakdownResolvers<ContextType>;
+  MonthlyReportCurrencyTotal?: MonthlyReportCurrencyTotalResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   PageInfo?: PageInfoResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;

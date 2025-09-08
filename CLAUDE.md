@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Code Modification Guidelines
+
+**IMPORTANT**: Only make code changes when explicitly requested by the user. When asked informational questions (like "where are X?", "what does Y do?", "how does Z work?"), provide answers without making any modifications to files. Wait for explicit instructions like "fix this", "update that", or "implement X" before making changes.
+
 ## Project Overview
 
 Personal Finance Tracker - A serverless web application for individual financial management with Vue.js frontend, GraphQL backend, and AWS infrastructure.

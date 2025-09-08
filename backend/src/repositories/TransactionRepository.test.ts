@@ -9,6 +9,7 @@ import { faker } from "@faker-js/faker";
 import { fakeCreateTransactionInput } from "../__tests__/utils/factories";
 import { createDynamoDBDocumentClient } from "./utils/dynamoClient";
 import { truncateTable } from "../__tests__/utils/dynamodbHelpers";
+import { YEAR_RANGE_OFFSET } from "../types/validation";
 
 describe("TransactionRepository", () => {
   let repository: TransactionRepository;
@@ -1287,23 +1288,28 @@ describe("TransactionRepository", () => {
       // Act & Assert
       const userId = faker.string.uuid();
 
-      await expect(
-        repository.findActiveByMonthAndType(
-          userId,
-          1800,
-          1,
-          TransactionType.EXPENSE,
-        ),
-      ).rejects.toThrow("Year must be a valid integer between 1900 and 2100");
+      const currentYear = new Date().getFullYear();
+      const minYear = currentYear - YEAR_RANGE_OFFSET;
+      const maxYear = currentYear + YEAR_RANGE_OFFSET;
+      const expectedMessage = `Year must be a valid integer between ${minYear} and ${maxYear}`;
 
       await expect(
         repository.findActiveByMonthAndType(
           userId,
-          2200,
+          minYear - 1,
           1,
           TransactionType.EXPENSE,
         ),
-      ).rejects.toThrow("Year must be a valid integer between 1900 and 2100");
+      ).rejects.toThrow(expectedMessage);
+
+      await expect(
+        repository.findActiveByMonthAndType(
+          userId,
+          maxYear + 1,
+          1,
+          TransactionType.EXPENSE,
+        ),
+      ).rejects.toThrow(expectedMessage);
 
       await expect(
         repository.findActiveByMonthAndType(
@@ -1312,7 +1318,7 @@ describe("TransactionRepository", () => {
           1,
           TransactionType.EXPENSE,
         ),
-      ).rejects.toThrow("Year must be a valid integer between 1900 and 2100");
+      ).rejects.toThrow(expectedMessage);
     });
 
     it("should throw error for invalid month", async () => {

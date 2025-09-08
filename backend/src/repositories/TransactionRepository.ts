@@ -28,6 +28,7 @@ import {
 } from "../types/pagination";
 import { paginateQuery } from "./utils/pagination";
 import { createDynamoDBDocumentClient } from "./utils/dynamoClient";
+import { YEAR_RANGE_OFFSET } from "../types/validation";
 
 /**
  * Maximum number of items that can be included in a single DynamoDB TransactWrite operation
@@ -617,9 +618,13 @@ export class TransactionRepository implements ITransactionRepository {
       );
     }
 
-    if (!Number.isInteger(year) || year < 1900 || year > 2100) {
+    const currentYear = new Date().getFullYear();
+    const minYear = currentYear - YEAR_RANGE_OFFSET;
+    const maxYear = currentYear + YEAR_RANGE_OFFSET;
+
+    if (!Number.isInteger(year) || year < minYear || year > maxYear) {
       throw new TransactionRepositoryError(
-        "Year must be a valid integer between 1900 and 2100",
+        `Year must be a valid integer between ${minYear} and ${maxYear}`,
         "INVALID_PARAMETERS",
       );
     }

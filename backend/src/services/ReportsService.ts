@@ -14,7 +14,7 @@ export interface MonthlyReportCurrencyBreakdown {
 }
 
 export interface MonthlyReportCategory {
-  categoryId: string | null;
+  categoryId?: string;
   categoryName: string;
   currencyBreakdowns: MonthlyReportCurrencyBreakdown[];
 }
@@ -98,10 +98,10 @@ export class ReportsService {
     userId: string,
     currencyTotals: MonthlyReportCurrencyTotal[],
   ): Promise<MonthlyReportCategory[]> {
-    const categoryGroups = new Map<string | null, Transaction[]>();
+    const categoryGroups = new Map<string | undefined, Transaction[]>();
 
     for (const transaction of transactions) {
-      const categoryId = transaction.categoryId || null;
+      const categoryId = transaction.categoryId || undefined;
       const existing = categoryGroups.get(categoryId) || [];
       existing.push(transaction);
       categoryGroups.set(categoryId, existing);
@@ -111,7 +111,7 @@ export class ReportsService {
 
     for (const [categoryId, categoryTransactions] of categoryGroups) {
       let categoryName: string;
-      if (categoryId === null) {
+      if (categoryId === undefined) {
         categoryName = UNCATEGORIZED_LABEL;
       } else {
         const category = await this.categoryRepository.findActiveById(
