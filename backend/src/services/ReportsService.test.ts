@@ -176,7 +176,7 @@ describe("ReportsService", () => {
 
       expect(result.categories).toHaveLength(1);
       expect(result.categories[0].categoryName).toBe("Uncategorized");
-      expect(result.categories[0].categoryId).toBeNull();
+      expect(result.categories[0].categoryId).toBeUndefined();
       expect(result.categories[0].currencyBreakdowns).toHaveLength(2);
     });
 

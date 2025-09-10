@@ -95,6 +95,24 @@ Implement monthly expense reports functionality that allows users to view their 
 
 ---
 
+## UI Example
+
+```
+September 2025 Expense Report
+
+Category          Amount    %
+Food              USD200.00 50%
+                  EUR100.00 33%
+Transport         USD150.00 38%
+                  EUR200.00 67%
+Uncategorized     USD50.00  12%
+
+TOTAL             USD400.00 100%
+                  EUR300.00 100%
+```
+
+---
+
 ## Implementation Plan
 
 This implementation follows a user story by user story approach with top-to-bottom layer implementation for each story.
@@ -216,26 +234,29 @@ This implementation follows a user story by user story approach with top-to-bott
 ### Story 5: Multi-Currency Expense Reporting
 
 **16.11 Service Layer Enhancement**
-- [ ] 16.11.1 Enhance reports service for multi-currency support
-  - Group transactions by currency first, then by category within each currency
-  - Calculate separate percentages per currency to avoid conversion
-  - Structure data to support multi-currency display patterns
+- [x] 16.11.1 Enhance reports service for multi-currency support
+  - Sort categories alphabetically with multi-currency sub-rows per category
+  - Within each category, create separate rows for each currency
+  - Calculate percentages per currency against that currency's total only
+  - Include "Uncategorized" category following same multi-currency pattern
+  - Add "TOTAL" as final category with same multi-currency sub-row structure
 
 **16.12 Frontend UI/UX Layer**
-- [ ] 16.12.1 Update category table for multi-currency display
-  - Display category rows with currency-specific sub-rows
-  - Show category names only on first occurrence per category
-  - Calculate and display percentages separately per currency
-- [ ] 16.12.2 Update totals display for multi-currency support
-  - Display separate total rows for each currency
-  - Group currency totals in structured, readable format
+- [x] 16.12.1 Update category table for multi-currency display
+  - Render single table with categories and totals integrated
+  - Display category name only on first currency row per category
+  - Show blank category name for subsequent currency rows within same category
+  - Apply same pattern to "TOTAL" rows at bottom of table
+  - Calculate and display percentages relative to each currency's total
+  - Maintain consistent spacing and alignment across all rows
 
 ### Story 6: Navigate Between Months
 
 **16.13 Service Layer Enhancement**
-- [ ] 16.13.1 Add month validation logic to reports service
-  - Validate month and year parameter combinations
-  - Handle edge cases and return appropriate empty data
+- [x] 16.13.1 Add month validation logic to reports service
+  - ~~Validate month and year parameter combinations~~ (Already handled by GraphQL and Repository layers)
+  - ~~Handle edge cases and return appropriate empty data~~ (Repository throws proper errors, GraphQL handles validation)
+  - **Final approach**: Removed redundant validation from service layer - validation properly handled at GraphQL input layer and Repository data layer
 
 **16.14 Frontend UI/UX Layer**
 - [ ] 16.14.1 Create month navigation header component
