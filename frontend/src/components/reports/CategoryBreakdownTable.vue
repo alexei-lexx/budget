@@ -12,11 +12,7 @@
       </div>
 
       <div v-else-if="!categories || categories.length === 0" class="text-center pa-8">
-        <v-icon size="64" color="surface-variant" class="mb-4">mdi-chart-pie-outline</v-icon>
-        <div class="text-h6 mb-2">No expenses found</div>
-        <div class="text-body-2 text-medium-emphasis">
-          No expense transactions found for {{ monthYear }}
-        </div>
+        <div class="text-body-1 text-medium-emphasis">No transactions found</div>
       </div>
 
       <div v-else>
@@ -33,7 +29,7 @@
                   <span v-else>{{ category.categoryName }}</span>
                 </td>
                 <td class="text-right">
-                  {{ formatCurrencyAmount(breakdown.totalAmount, breakdown.currency) }}
+                  {{ formatCurrency(breakdown.totalAmount, breakdown.currency) }}
                 </td>
                 <td class="text-right">{{ breakdown.percentage }}%</td>
               </tr>
@@ -43,7 +39,7 @@
             <tr v-for="(total, index) in currencyTotals" :key="index">
               <th v-if="index === 0" :rowspan="currencyTotals.length">Total</th>
               <th class="text-right">
-                {{ formatCurrencyAmount(total.totalAmount, total.currency) }}
+                {{ formatCurrency(total.totalAmount, total.currency) }}
               </th>
               <th class="text-right">—</th>
             </tr>
@@ -60,7 +56,7 @@ import type {
   MonthlyReportCategory,
   MonthlyReportCurrencyTotal,
 } from "@/composables/useMonthlyReports";
-import { useMonthlyReports } from "@/composables/useMonthlyReports";
+import { formatCurrency } from "@/utils/currency";
 
 // Define component props
 interface Props {
@@ -78,9 +74,6 @@ const props = withDefaults(defineProps<Props>(), {
   error: null,
   monthYear: "",
 });
-
-// Get currency formatting utility
-const { formatCurrencyAmount } = useMonthlyReports();
 
 // Computed properties for better organization
 const categories = computed(() => {

@@ -1,4 +1,4 @@
-import { ref, computed } from "vue";
+import { ref, computed, unref, type Ref } from "vue";
 import {
   useGetMonthlyReportQuery,
   type TransactionType,
@@ -21,7 +21,11 @@ export function useMonthlyReports() {
   const monthlyReportError = ref<string | null>(null);
 
   // Create a reactive function to get monthly report for a given year, month, and type
-  const useMonthlyReport = (year: number, month: number, type: TransactionType) => {
+  const getMonthlyReport = (
+    year: Ref<number> | number,
+    month: Ref<number> | number,
+    type: TransactionType,
+  ) => {
     const {
       result: monthlyReportResult,
       loading: monthlyReportLoading,
@@ -29,8 +33,8 @@ export function useMonthlyReports() {
       refetch: refetchMonthlyReport,
     } = useGetMonthlyReportQuery(
       () => ({
-        year,
-        month,
+        year: unref(year),
+        month: unref(month),
         type,
       }),
       () => ({
@@ -59,71 +63,9 @@ export function useMonthlyReports() {
     };
   };
 
-  // Helper function to get current month expense report
-  const useCurrentMonthExpenseReport = () => {
-    const now = new Date();
-    const currentYear = now.getFullYear();
-    const currentMonth = now.getMonth() + 1; // JavaScript months are 0-indexed
-
-    return useMonthlyReport(currentYear, currentMonth, "EXPENSE");
-  };
-
-  // Helper function to format currency amount
-  const formatCurrencyAmount = (amount: number, currency: string): string => {
-    const currencySymbols: Record<string, string> = {
-      USD: "$",
-      EUR: "€",
-      GBP: "£",
-      JPY: "¥",
-      CAD: "C$",
-      AUD: "A$",
-    };
-
-    const symbol = currencySymbols[currency] || currency;
-    const formattedAmount = amount.toFixed(2);
-
-    // For currencies like USD, EUR, show symbol before amount
-    if (["USD", "EUR", "GBP", "CAD", "AUD"].includes(currency)) {
-      return `${symbol}${formattedAmount}`;
-    }
-
-    // For others like JPY, show after
-    return `${formattedAmount} ${symbol}`;
-  };
-
-  // Helper function to get month name
-  const getMonthName = (month: number): string => {
-    const monthNames = [
-      "January",
-      "February",
-      "March",
-      "April",
-      "May",
-      "June",
-      "July",
-      "August",
-      "September",
-      "October",
-      "November",
-      "December",
-    ];
-    return monthNames[month - 1] || "";
-  };
-
-  // Helper function to format month year display
-  const formatMonthYear = (year: number, month: number): string => {
-    return `${getMonthName(month)} ${year}`;
-  };
-
   return {
     // Main functions
-    useMonthlyReport,
-    useCurrentMonthExpenseReport,
-
-    // Helper functions
-    formatCurrencyAmount,
-    getMonthName,
-    formatMonthYear,
+    getMonthlyReport,
 
     // Global error state
     monthlyReportError,
