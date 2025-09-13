@@ -1,5 +1,5 @@
 /**
- * Validation utilities for form components and date/year validation
+ * Validation utilities for form components
  */
 
 export type CheckRule<T = string> = (value: T) => boolean | string;
