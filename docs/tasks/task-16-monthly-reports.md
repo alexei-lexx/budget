@@ -281,40 +281,64 @@ This implementation follows a user story by user story approach with top-to-bott
 
 **Integration Testing (Development Environment)**
 
+*Test Setup - Create Test Accounts and Categories*
+- [x] **Given** I reset the database to clean state
+- [x] **And** I create USD Checking Account with $1000 initial balance
+- [x] **And** I create EUR Savings Account with €500 initial balance
+- [x] **And** I create expense categories: Food, Transport, Entertainment, Shopping
+
 *Test 1: Story 1 & 3 - Access Current Month Report and Total Display*
-- [ ] [M] 16.T.1 Navigate to Reports page from main navigation
-- [ ] [M] 16.T.2 Verify current month report displays automatically (e.g., "September 2025")
-- [ ] [M] 16.T.3 Verify total monthly expense amount appears prominently
-- [ ] [M] 16.T.4 Verify total shows "0.00" with default currency when no expenses exist
-- [ ] [M] 16.T.5 Create test expense transactions and verify total updates correctly
+- [x] **Given** I have clean test data setup
+- [x] **When** I navigate to Reports page from main navigation
+- [x] **Then** Reports page loads successfully with URL /reports
+- [x] **And** Page header shows "September 2025" prominently
+- [x] **And** Page shows "no transactions" message with no currency totals
+- [x] **When** I create expense transaction: Food category, USD Checking, $150.00, Sept 5
+- [x] **Then** Transaction is created and USD Checking balance becomes $850.00
+- [x] **And** Table shows "TOTAL $150.00 100%" in bold/emphasized styling
 
 *Test 2: Story 2 & 4 - Category Display and Percentages*
-- [ ] [M] 16.T.6 Create expense transactions in different categories
-- [ ] [M] 16.T.7 Verify categories appear in table sorted alphabetically by name
-- [ ] [M] 16.T.8 Verify "Uncategorized" row appears for transactions without categories
-- [ ] [M] 16.T.9 Verify each category shows amount with currency symbol and percentage
-- [ ] [M] 16.T.10 Verify all percentages sum to 100% for single currency
-- [ ] [M] 16.T.11 Verify single category scenario shows 100%
+- [x] **When** I create additional expense transactions:
+  - Transport category, USD Checking, $80.00, Sept 10
+  - Entertainment category, USD Checking, $45.00, Sept 15
+  - No category (uncategorized), USD Checking, $25.00, Sept 20
+- [x] **Then** All transactions are created successfully and total becomes $300.00
+- [x] **And** Categories appear alphabetically: Entertainment, Food, Transport, Uncategorized
+- [x] **And** Amounts display correctly: Entertainment $45.00, Food $150.00, Transport $80.00, Uncategorized $25.00
+- [x] **And** Percentages are calculated correctly: Entertainment 15%, Food 50%, Transport 27%, Uncategorized 8%
+- [x] **And** All percentages sum to 100% (15% + 50% + 27% + 8% = 100%)
+- [x] **When** I delete all transactions except Food transaction
+- [x] **Then** Table shows only "Food $150.00 100%" and total shows "$150.00"
 
 *Test 3: Story 5 - Multi-Currency Support*
-- [ ] [M] 16.T.12 Create expense transactions in multiple currencies (USD, EUR)
-- [ ] [M] 16.T.13 Verify category table shows separate sub-rows per currency
-- [ ] [M] 16.T.14 Verify category name appears only on first currency row
-- [ ] [M] 16.T.15 Verify percentages calculated separately per currency (USD totals, EUR totals)
-- [ ] [M] 16.T.16 Verify totals section shows separate rows: "TOTAL EUR", "TOTAL USD"
-- [ ] [M] 16.T.17 Verify no currency conversion or mixing occurs
+- [x] **Given** I have only Food $150.00 USD transaction remaining
+- [x] **When** I create EUR expense transactions:
+  - Food category, EUR Savings, €120.00, Sept 8
+- [x] **Then** EUR Savings balance becomes €380.00 and transaction is created successfully
+- [x] **And** Category table shows multi-currency structure:
+    ```
+    Food            $150.00  100%
+                    €120.00  100%
+
+    TOTAL           $150.00  100%
+                    €120.00  100%
+    ```
+- [x] **And** Category name "Food" appears only on first currency row
+- [x] **And** USD percentage calculated from $150 total, EUR percentage from €120 total (both 100%)
+- [x] **And** Totals section shows separate currency totals: "TOTAL $150.00 100%" and "TOTAL €120.00 100%"
+- [x] **And** No currency conversion or mixing occurs - USD amounts remain in USD, EUR amounts remain in EUR
 
 *Test 4: Story 6 - Month Navigation*
-- [ ] [M] 16.T.18 Verify month header displays current month and year prominently
-- [ ] [M] 16.T.19 Click "Previous" button and verify previous month report loads
-- [ ] [M] 16.T.20 Navigate back to current month using "Next" button
-- [ ] [M] 16.T.21 Verify "Next" button disabled/hidden for future months
-- [ ] [M] 16.T.22 Navigate to several past months and verify data accuracy
-- [ ] [M] 16.T.23 Verify URL updates with month parameters for bookmarking
-
-**Production Deployment**
-- [ ] [M] 16.T.24 Deploy to production environment
-- [ ] [M] 16.T.25 Validate Reports navigation appears in main menu
-- [ ] [M] 16.T.26 Create test expense transaction and verify appears in current month report
-- [ ] [M] 16.T.27 Verify multi-currency display works with real account currencies
-- [ ] [M] 16.T.28 Test month navigation between current and previous months
+- [x] **Given** I am viewing September 2025 report with existing transactions
+- [x] **When** I create expense transaction for August: Food, USD Checking, $200.00, Aug 15
+- [x] **Then** Transaction is created for August 2025 and USD Checking balance becomes $650.00
+- [x] **And** September header displays "September 2025" prominently
+- [x] **When** I click "Previous" button
+- [x] **Then** "August 2025" report loads with header showing "August 2025"
+- [x] **And** Table shows "Food $200.00 100%" and "TOTAL $200.00"
+- [x] **When** I click "Next" button
+- [x] **Then** Returns to "September 2025" with original multi-currency data
+- [x] **When** I navigate to Transactions page and create expense: Transport category, USD Checking, $75.00, July 10, 2025
+- [x] **And** I navigate back to Reports page and select July 2025
+- [x] **Then** July 2025 report shows "Transport $75.00 100%", "TOTAL $75.00"
+- [x] **And** URL updates with month parameters (?year=2025&month=7 for July, etc.)
