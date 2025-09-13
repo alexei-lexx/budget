@@ -53,23 +53,13 @@ const monthYearDisplay = computed(() => {
 // Check if we can navigate to previous month
 const canNavigatePrevious = computed(() => {
   // Disable if loading or explicitly disabled
-  if (props.disabled) return false;
-
-  // Allow navigation to any past month (no lower limit for now)
-  return true;
+  return !props.disabled;
 });
 
-// Check if we can navigate to next month (not beyond current month)
+// Check if we can navigate to next month
 const canNavigateNext = computed(() => {
   // Disable if loading or explicitly disabled
-  if (props.disabled) return false;
-
-  const currentDate = new Date();
-  const currentYear = currentDate.getFullYear();
-  const currentMonth = currentDate.getMonth() + 1;
-
-  // Can navigate next if we're not at the current month
-  return props.year < currentYear || (props.year === currentYear && props.month < currentMonth);
+  return !props.disabled;
 });
 
 // Navigate to previous month
