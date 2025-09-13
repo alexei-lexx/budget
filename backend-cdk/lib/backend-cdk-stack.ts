@@ -67,6 +67,19 @@ export class BackendCdkStack extends cdk.Stack {
       projectionType: dynamodb.ProjectionType.ALL,
     });
 
+    transactionsTable.addGlobalSecondaryIndex({
+      indexName: "UserDateIndex",
+      partitionKey: {
+        name: "userId",
+        type: dynamodb.AttributeType.STRING,
+      },
+      sortKey: {
+        name: "date",
+        type: dynamodb.AttributeType.STRING,
+      },
+      projectionType: dynamodb.ProjectionType.ALL,
+    });
+
     const functionConfig: lambda.FunctionProps = {
       runtime: lambda.Runtime.NODEJS_22_X,
       code: lambda.Code.fromAsset("../backend/dist"),

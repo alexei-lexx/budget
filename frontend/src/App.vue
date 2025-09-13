@@ -175,6 +175,13 @@ watch(globalError, (error) => {
           title="Categories"
           @click="mobile && (drawer = false)"
         />
+        <v-list-item
+          v-if="isAuthenticated"
+          :to="{ name: 'Reports' }"
+          prepend-icon="mdi-chart-line"
+          title="Reports"
+          @click="mobile && (drawer = false)"
+        />
       </v-list>
     </v-navigation-drawer>
 

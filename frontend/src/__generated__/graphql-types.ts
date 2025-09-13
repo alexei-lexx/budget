@@ -62,6 +62,35 @@ export type CreateTransferInput = {
   toAccountId: Scalars['ID']['input'];
 };
 
+export type MonthlyReport = {
+  __typename?: 'MonthlyReport';
+  categories: Array<MonthlyReportCategory>;
+  currencyTotals: Array<MonthlyReportCurrencyTotal>;
+  month: Scalars['Int']['output'];
+  type: TransactionType;
+  year: Scalars['Int']['output'];
+};
+
+export type MonthlyReportCategory = {
+  __typename?: 'MonthlyReportCategory';
+  categoryId?: Maybe<Scalars['ID']['output']>;
+  categoryName: Scalars['String']['output'];
+  currencyBreakdowns: Array<MonthlyReportCurrencyBreakdown>;
+};
+
+export type MonthlyReportCurrencyBreakdown = {
+  __typename?: 'MonthlyReportCurrencyBreakdown';
+  currency: Scalars['String']['output'];
+  percentage: Scalars['Int']['output'];
+  totalAmount: Scalars['Float']['output'];
+};
+
+export type MonthlyReportCurrencyTotal = {
+  __typename?: 'MonthlyReportCurrencyTotal';
+  currency: Scalars['String']['output'];
+  totalAmount: Scalars['Float']['output'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   createAccount: Account;
@@ -157,6 +186,7 @@ export type Query = {
   accounts: Array<Account>;
   categories: Array<Category>;
   getTransactionPatterns: Array<TransactionPattern>;
+  monthlyReport: MonthlyReport;
   supportedCurrencies: Array<Scalars['String']['output']>;
   transactions: TransactionConnection;
   transfer?: Maybe<Transfer>;
@@ -170,6 +200,13 @@ export type QueryCategoriesArgs = {
 
 export type QueryGetTransactionPatternsArgs = {
   type: TransactionPatternType;
+};
+
+
+export type QueryMonthlyReportArgs = {
+  month: Scalars['Int']['input'];
+  type: TransactionType;
+  year: Scalars['Int']['input'];
 };
 
 
@@ -277,6 +314,14 @@ export type CategoryFieldsFragment = { __typename?: 'Category', id: string, name
 export type TransactionFieldsFragment = { __typename?: 'Transaction', id: string, accountId: string, categoryId?: string | null | undefined, type: TransactionType, amount: number, currency: string, date: string, description?: string | null | undefined, transferId?: string | null | undefined };
 
 export type TransferFieldsFragment = { __typename?: 'Transfer', id: string, outboundTransaction: { __typename?: 'Transaction', id: string, accountId: string, categoryId?: string | null | undefined, type: TransactionType, amount: number, currency: string, date: string, description?: string | null | undefined, transferId?: string | null | undefined }, inboundTransaction: { __typename?: 'Transaction', id: string, accountId: string, categoryId?: string | null | undefined, type: TransactionType, amount: number, currency: string, date: string, description?: string | null | undefined, transferId?: string | null | undefined } };
+
+export type MonthlyReportCurrencyBreakdownFieldsFragment = { __typename?: 'MonthlyReportCurrencyBreakdown', currency: string, totalAmount: number, percentage: number };
+
+export type MonthlyReportCategoryFieldsFragment = { __typename?: 'MonthlyReportCategory', categoryId?: string | null | undefined, categoryName: string, currencyBreakdowns: Array<{ __typename?: 'MonthlyReportCurrencyBreakdown', currency: string, totalAmount: number, percentage: number }> };
+
+export type MonthlyReportCurrencyTotalFieldsFragment = { __typename?: 'MonthlyReportCurrencyTotal', currency: string, totalAmount: number };
+
+export type MonthlyReportFieldsFragment = { __typename?: 'MonthlyReport', year: number, month: number, type: TransactionType, categories: Array<{ __typename?: 'MonthlyReportCategory', categoryId?: string | null | undefined, categoryName: string, currencyBreakdowns: Array<{ __typename?: 'MonthlyReportCurrencyBreakdown', currency: string, totalAmount: number, percentage: number }> }>, currencyTotals: Array<{ __typename?: 'MonthlyReportCurrencyTotal', currency: string, totalAmount: number }> };
 
 export type EnsureUserMutationVariables = Exact<{ [key: string]: never; }>;
 
@@ -404,3 +449,12 @@ export type GetTransactionPatternsQueryVariables = Exact<{
 
 
 export type GetTransactionPatternsQuery = { __typename?: 'Query', getTransactionPatterns: Array<{ __typename?: 'TransactionPattern', accountId: string, accountName: string, categoryId: string, categoryName: string }> };
+
+export type GetMonthlyReportQueryVariables = Exact<{
+  year: Scalars['Int']['input'];
+  month: Scalars['Int']['input'];
+  type: TransactionType;
+}>;
+
+
+export type GetMonthlyReportQuery = { __typename?: 'Query', monthlyReport: { __typename?: 'MonthlyReport', year: number, month: number, type: TransactionType, categories: Array<{ __typename?: 'MonthlyReportCategory', categoryId?: string | null | undefined, categoryName: string, currencyBreakdowns: Array<{ __typename?: 'MonthlyReportCurrencyBreakdown', currency: string, totalAmount: number, percentage: number }> }>, currencyTotals: Array<{ __typename?: 'MonthlyReportCurrencyTotal', currency: string, totalAmount: number }> } };

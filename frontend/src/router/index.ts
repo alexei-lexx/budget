@@ -9,6 +9,7 @@ import SignIn from "@/views/SignIn.vue";
 import Accounts from "@/views/Accounts.vue";
 import Categories from "@/views/Categories.vue";
 import Transactions from "@/views/Transactions.vue";
+import Reports from "@/views/Reports.vue";
 import { useAuth0 } from "@auth0/auth0-vue";
 
 // Reusable authentication guard
@@ -64,6 +65,12 @@ const routes = [
     path: "/transactions",
     name: "Transactions",
     component: Transactions,
+    beforeEnter: requireAuth,
+  },
+  {
+    path: "/reports",
+    name: "Reports",
+    component: Reports,
     beforeEnter: requireAuth,
   },
 ];

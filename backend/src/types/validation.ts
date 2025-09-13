@@ -21,3 +21,8 @@ export const DESCRIPTION_MAX_LENGTH = 500;
  * Error message for description length validation
  */
 export const DESCRIPTION_LENGTH_ERROR_MESSAGE = `Description cannot exceed ${DESCRIPTION_MAX_LENGTH} characters`;
+
+/**
+ * Year range offset for validation (current year ± this value)
+ */
+export const YEAR_RANGE_OFFSET = 100;

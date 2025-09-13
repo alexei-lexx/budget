@@ -66,6 +66,35 @@ export type CreateTransferInput = {
   toAccountId: Scalars['ID']['input'];
 };
 
+export type MonthlyReport = {
+  __typename?: 'MonthlyReport';
+  categories: Array<MonthlyReportCategory>;
+  currencyTotals: Array<MonthlyReportCurrencyTotal>;
+  month: Scalars['Int']['output'];
+  type: TransactionType;
+  year: Scalars['Int']['output'];
+};
+
+export type MonthlyReportCategory = {
+  __typename?: 'MonthlyReportCategory';
+  categoryId?: Maybe<Scalars['ID']['output']>;
+  categoryName: Scalars['String']['output'];
+  currencyBreakdowns: Array<MonthlyReportCurrencyBreakdown>;
+};
+
+export type MonthlyReportCurrencyBreakdown = {
+  __typename?: 'MonthlyReportCurrencyBreakdown';
+  currency: Scalars['String']['output'];
+  percentage: Scalars['Int']['output'];
+  totalAmount: Scalars['Float']['output'];
+};
+
+export type MonthlyReportCurrencyTotal = {
+  __typename?: 'MonthlyReportCurrencyTotal';
+  currency: Scalars['String']['output'];
+  totalAmount: Scalars['Float']['output'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   createAccount: Account;
@@ -161,6 +190,7 @@ export type Query = {
   accounts: Array<Account>;
   categories: Array<Category>;
   getTransactionPatterns: Array<TransactionPattern>;
+  monthlyReport: MonthlyReport;
   supportedCurrencies: Array<Scalars['String']['output']>;
   transactions: TransactionConnection;
   transfer?: Maybe<Transfer>;
@@ -174,6 +204,13 @@ export type QueryCategoriesArgs = {
 
 export type QueryGetTransactionPatternsArgs = {
   type: TransactionPatternType;
+};
+
+
+export type QueryMonthlyReportArgs = {
+  month: Scalars['Int']['input'];
+  type: TransactionType;
+  year: Scalars['Int']['input'];
 };
 
 
@@ -281,6 +318,14 @@ export type CategoryFieldsFragment = { __typename?: 'Category', id: string, name
 export type TransactionFieldsFragment = { __typename?: 'Transaction', id: string, accountId: string, categoryId?: string | null | undefined, type: TransactionType, amount: number, currency: string, date: string, description?: string | null | undefined, transferId?: string | null | undefined };
 
 export type TransferFieldsFragment = { __typename?: 'Transfer', id: string, outboundTransaction: { __typename?: 'Transaction', id: string, accountId: string, categoryId?: string | null | undefined, type: TransactionType, amount: number, currency: string, date: string, description?: string | null | undefined, transferId?: string | null | undefined }, inboundTransaction: { __typename?: 'Transaction', id: string, accountId: string, categoryId?: string | null | undefined, type: TransactionType, amount: number, currency: string, date: string, description?: string | null | undefined, transferId?: string | null | undefined } };
+
+export type MonthlyReportCurrencyBreakdownFieldsFragment = { __typename?: 'MonthlyReportCurrencyBreakdown', currency: string, totalAmount: number, percentage: number };
+
+export type MonthlyReportCategoryFieldsFragment = { __typename?: 'MonthlyReportCategory', categoryId?: string | null | undefined, categoryName: string, currencyBreakdowns: Array<{ __typename?: 'MonthlyReportCurrencyBreakdown', currency: string, totalAmount: number, percentage: number }> };
+
+export type MonthlyReportCurrencyTotalFieldsFragment = { __typename?: 'MonthlyReportCurrencyTotal', currency: string, totalAmount: number };
+
+export type MonthlyReportFieldsFragment = { __typename?: 'MonthlyReport', year: number, month: number, type: TransactionType, categories: Array<{ __typename?: 'MonthlyReportCategory', categoryId?: string | null | undefined, categoryName: string, currencyBreakdowns: Array<{ __typename?: 'MonthlyReportCurrencyBreakdown', currency: string, totalAmount: number, percentage: number }> }>, currencyTotals: Array<{ __typename?: 'MonthlyReportCurrencyTotal', currency: string, totalAmount: number }> };
 
 export type EnsureUserMutationVariables = Exact<{ [key: string]: never; }>;
 
@@ -409,6 +454,15 @@ export type GetTransactionPatternsQueryVariables = Exact<{
 
 export type GetTransactionPatternsQuery = { __typename?: 'Query', getTransactionPatterns: Array<{ __typename?: 'TransactionPattern', accountId: string, accountName: string, categoryId: string, categoryName: string }> };
 
+export type GetMonthlyReportQueryVariables = Exact<{
+  year: Scalars['Int']['input'];
+  month: Scalars['Int']['input'];
+  type: TransactionType;
+}>;
+
+
+export type GetMonthlyReportQuery = { __typename?: 'Query', monthlyReport: { __typename?: 'MonthlyReport', year: number, month: number, type: TransactionType, categories: Array<{ __typename?: 'MonthlyReportCategory', categoryId?: string | null | undefined, categoryName: string, currencyBreakdowns: Array<{ __typename?: 'MonthlyReportCurrencyBreakdown', currency: string, totalAmount: number, percentage: number }> }>, currencyTotals: Array<{ __typename?: 'MonthlyReportCurrencyTotal', currency: string, totalAmount: number }> } };
+
 export const AccountFieldsFragmentDoc = gql`
     fragment AccountFields on Account {
   id
@@ -449,6 +503,42 @@ export const TransferFieldsFragmentDoc = gql`
   }
 }
     ${TransactionFieldsFragmentDoc}`;
+export const MonthlyReportCurrencyBreakdownFieldsFragmentDoc = gql`
+    fragment MonthlyReportCurrencyBreakdownFields on MonthlyReportCurrencyBreakdown {
+  currency
+  totalAmount
+  percentage
+}
+    `;
+export const MonthlyReportCategoryFieldsFragmentDoc = gql`
+    fragment MonthlyReportCategoryFields on MonthlyReportCategory {
+  categoryId
+  categoryName
+  currencyBreakdowns {
+    ...MonthlyReportCurrencyBreakdownFields
+  }
+}
+    ${MonthlyReportCurrencyBreakdownFieldsFragmentDoc}`;
+export const MonthlyReportCurrencyTotalFieldsFragmentDoc = gql`
+    fragment MonthlyReportCurrencyTotalFields on MonthlyReportCurrencyTotal {
+  currency
+  totalAmount
+}
+    `;
+export const MonthlyReportFieldsFragmentDoc = gql`
+    fragment MonthlyReportFields on MonthlyReport {
+  year
+  month
+  type
+  categories {
+    ...MonthlyReportCategoryFields
+  }
+  currencyTotals {
+    ...MonthlyReportCurrencyTotalFields
+  }
+}
+    ${MonthlyReportCategoryFieldsFragmentDoc}
+${MonthlyReportCurrencyTotalFieldsFragmentDoc}`;
 export const EnsureUserDocument = gql`
     mutation EnsureUser {
   ensureUser {
@@ -1005,3 +1095,35 @@ export function useGetTransactionPatternsLazyQuery(variables?: GetTransactionPat
   return VueApolloComposable.useLazyQuery<GetTransactionPatternsQuery, GetTransactionPatternsQueryVariables>(GetTransactionPatternsDocument, variables, options);
 }
 export type GetTransactionPatternsQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<GetTransactionPatternsQuery, GetTransactionPatternsQueryVariables>;
+export const GetMonthlyReportDocument = gql`
+    query GetMonthlyReport($year: Int!, $month: Int!, $type: TransactionType!) {
+  monthlyReport(year: $year, month: $month, type: $type) {
+    ...MonthlyReportFields
+  }
+}
+    ${MonthlyReportFieldsFragmentDoc}`;
+
+/**
+ * __useGetMonthlyReportQuery__
+ *
+ * To run a query within a Vue component, call `useGetMonthlyReportQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetMonthlyReportQuery` returns an object from Apollo Client that contains result, loading and error properties
+ * you can use to render your UI.
+ *
+ * @param variables that will be passed into the query
+ * @param options that will be passed into the query, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/query.html#options;
+ *
+ * @example
+ * const { result, loading, error } = useGetMonthlyReportQuery({
+ *   year: // value for 'year'
+ *   month: // value for 'month'
+ *   type: // value for 'type'
+ * });
+ */
+export function useGetMonthlyReportQuery(variables: GetMonthlyReportQueryVariables | VueCompositionApi.Ref<GetMonthlyReportQueryVariables> | ReactiveFunction<GetMonthlyReportQueryVariables>, options: VueApolloComposable.UseQueryOptions<GetMonthlyReportQuery, GetMonthlyReportQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<GetMonthlyReportQuery, GetMonthlyReportQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<GetMonthlyReportQuery, GetMonthlyReportQueryVariables>> = {}) {
+  return VueApolloComposable.useQuery<GetMonthlyReportQuery, GetMonthlyReportQueryVariables>(GetMonthlyReportDocument, variables, options);
+}
+export function useGetMonthlyReportLazyQuery(variables?: GetMonthlyReportQueryVariables | VueCompositionApi.Ref<GetMonthlyReportQueryVariables> | ReactiveFunction<GetMonthlyReportQueryVariables>, options: VueApolloComposable.UseQueryOptions<GetMonthlyReportQuery, GetMonthlyReportQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<GetMonthlyReportQuery, GetMonthlyReportQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<GetMonthlyReportQuery, GetMonthlyReportQueryVariables>> = {}) {
+  return VueApolloComposable.useLazyQuery<GetMonthlyReportQuery, GetMonthlyReportQueryVariables>(GetMonthlyReportDocument, variables, options);
+}
+export type GetMonthlyReportQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<GetMonthlyReportQuery, GetMonthlyReportQueryVariables>;

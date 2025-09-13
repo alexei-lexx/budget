@@ -11,6 +11,7 @@ export const createMockTransactionRepository =
     findActiveById: jest.fn(),
     findActiveByAccountId: jest.fn(),
     findActiveByTransferId: jest.fn(),
+    findActiveByMonthAndType: jest.fn(),
     create: jest.fn(),
     createMany: jest.fn(),
     update: jest.fn(),

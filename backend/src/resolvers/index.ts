@@ -3,6 +3,7 @@ import { accountResolvers } from "./accountResolvers";
 import { categoryResolvers } from "./categoryResolvers";
 import { transactionResolvers } from "./transactionResolvers";
 import { transferResolvers } from "./transferResolvers";
+import { reportResolvers } from "./reportResolvers";
 import { Resolvers } from "../__generated__/resolvers-types";
 
 export const resolvers: Resolvers = {
@@ -11,6 +12,7 @@ export const resolvers: Resolvers = {
     ...categoryResolvers.Query,
     ...transactionResolvers.Query,
     ...transferResolvers.Query,
+    ...reportResolvers.Query,
   },
   Mutation: {
     ...accountResolvers.Mutation,
