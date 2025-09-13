@@ -1,6 +1,20 @@
 <template>
   <v-card class="category-breakdown-table" elevation="2">
     <v-card-text>
+      <!-- Sort Controls -->
+      <div v-if="categories && categories.length > 0" class="d-flex justify-end mb-3">
+        <v-chip-group v-model="sortBy" mandatory>
+          <v-chip value="category" size="small" variant="outlined">
+            category
+            <v-icon end>mdi-sort-alphabetical-ascending</v-icon>
+          </v-chip>
+          <v-chip value="amount" size="small" variant="outlined">
+            amount
+            <v-icon end>mdi-sort-numeric-descending</v-icon>
+          </v-chip>
+        </v-chip-group>
+      </div>
+
       <div v-if="loading" class="d-flex justify-center pa-4">
         <v-progress-circular indeterminate color="primary"></v-progress-circular>
       </div>
@@ -51,7 +65,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import type {
   MonthlyReportCategory,
   MonthlyReportCurrencyTotal,
@@ -75,20 +89,33 @@ const props = withDefaults(defineProps<Props>(), {
   monthYear: "",
 });
 
+// Sort options state
+const sortBy = ref<"category" | "amount">("category");
+
+// Helper function to calculate total amount across all currencies for a category
+const calculateCategoryTotal = (category: MonthlyReportCategory): number => {
+  return category.currencyBreakdowns.reduce((sum, breakdown) => sum + breakdown.totalAmount, 0);
+};
+
 // Computed properties for better organization
 const categories = computed(() => {
   if (!props.categories) return [];
 
-  // Sort categories alphabetically, with "Uncategorized" last
-  return [...props.categories].sort((a, b) => {
-    // If one is uncategorized (no categoryId), put it last
-    if (!a.categoryId && b.categoryId) return 1;
-    if (a.categoryId && !b.categoryId) return -1;
-    if (!a.categoryId && !b.categoryId) return 0;
+  const categoriesCopy = [...props.categories];
 
-    // Otherwise sort alphabetically by name
-    return a.categoryName.localeCompare(b.categoryName);
-  });
+  if (sortBy.value === "amount") {
+    // Sort by total amount (highest first)
+    return categoriesCopy.sort((a, b) => {
+      const aTotalAmount = calculateCategoryTotal(a);
+      const bTotalAmount = calculateCategoryTotal(b);
+
+      // Sort by amount descending (highest first)
+      return bTotalAmount - aTotalAmount;
+    });
+  } else {
+    // Sort alphabetically by category name
+    return categoriesCopy.sort((a, b) => a.categoryName.localeCompare(b.categoryName));
+  }
 });
 
 const currencyTotals = computed(() => {
