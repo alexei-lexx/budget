@@ -30,7 +30,7 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { formatMonthYear } from "@/utils/validation";
+import { formatMonthYear } from "@/utils/date";
 
 interface Props {
   year: number;

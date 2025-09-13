@@ -49,7 +49,8 @@ import { useRoute, useRouter } from "vue-router";
 import CategoryBreakdownTable from "@/components/reports/CategoryBreakdownTable.vue";
 import MonthNavigation from "@/components/reports/MonthNavigation.vue";
 import { useMonthlyReports } from "@/composables/useMonthlyReports";
-import { isValidYearMonth, formatMonthYear } from "@/utils/validation";
+import { isValidYearMonth } from "@/utils/dateValidation";
+import { formatMonthYear } from "@/utils/date";
 // Router for URL parameter management
 const route = useRoute();
 const router = useRouter();
