@@ -1,5 +1,4 @@
 import { computed } from "vue";
-import { getCurrencyTitle } from "@/utils/currency";
 import { useGetSupportedCurrenciesQuery } from "@/__generated__/vue-apollo";
 
 /**
@@ -17,15 +16,10 @@ export function useCurrencies() {
   // Transform currencies for v-select format
   const supportedCurrencies = computed(() => {
     if (currenciesResult.value?.supportedCurrencies) {
-      try {
-        return currenciesResult.value.supportedCurrencies.map((currency: string) => ({
-          value: currency,
-          title: getCurrencyTitle(currency),
-        }));
-      } catch (error) {
-        console.error("Error transforming currencies:", error);
-        return [];
-      }
+      return currenciesResult.value.supportedCurrencies.map((currency: string) => ({
+        value: currency,
+        title: currency,
+      }));
     }
     // Return empty array while loading or on API error
     return [];

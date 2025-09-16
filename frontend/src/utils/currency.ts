@@ -45,14 +45,6 @@ export function getCurrencyName(currencyCode: string): string {
 }
 
 /**
- * Get full currency title (name + code)
- */
-export function getCurrencyTitle(currencyCode: string): string {
-  const name = getCurrencyName(currencyCode);
-  return `${name} (${currencyCode.toUpperCase()})`;
-}
-
-/**
  * Format amount with currency symbol using Intl.NumberFormat
  */
 export function formatCurrency(amount: number, currencyCode: string): string {
