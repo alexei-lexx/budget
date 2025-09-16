@@ -17,6 +17,63 @@ Implement intelligent transaction description autocomplete functionality that su
 - **And** suggestions are case-sensitive substring matches (e.g., "Gr" matches "Grocery store", but "gr" does not)
 - **And** I can select a suggestion with mouse click
 
+**Implementation Plan for Story 1:**
+
+**17.1 Repository Layer**
+- [ ] 17.1.1 Add method to search transaction descriptions by text pattern
+  - Accept userId, searchText, limit parameters
+  - Use existing UserCreatedAtIndex GSI to query recent transactions by user
+  - Filter: `contains(description, searchText)` (case-sensitive)
+  - Query in descending createdAt order to get most recent matches first
+  - Return matching transactions
+- [ ] 17.1.2 Create unit tests for description search method
+  - Test case-sensitive substring matching with various search terms
+  - Test ordering by creation date (most recent first)
+  - Test empty results and edge cases
+
+**17.2 Service Layer**
+- [ ] 17.2.1 Create basic transaction description suggestions service
+  - Implement method to get description suggestions
+  - Accept userId, searchText, limit parameters
+  - Call repository with higher limit (e.g., 100) to get sufficient data for processing
+  - Extract unique descriptions and calculate relevance scores (frequency + recency)
+  - Return top N unique description suggestions (up to requested limit)
+- [ ] 17.2.2 Create unit tests for description suggestions service
+  - Test description suggestion retrieval and ordering
+  - Test suggestion limit functionality
+  - Test edge cases with no matches
+
+**17.3 GraphQL Layer**
+- [ ] 17.3.1 Add transaction description suggestions query to GraphQL schema
+  - Define TransactionDescriptionSuggestion output type with description field
+  - Define TransactionDescriptionSuggestionsInput input type with searchText parameter
+  - Add transactionDescriptionSuggestions query field to Query type returning list of TransactionDescriptionSuggestion
+- [ ] 17.3.2 Implement description suggestions resolver
+  - Validate input parameters (text length minimum 2 characters)
+  - Call description suggestions service with provided parameters
+  - Handle authentication and user context extraction
+
+**17.4 Frontend Data Layer**
+- [ ] 17.4.1 Create GraphQL operations for transaction description suggestions
+  - Define query operation for fetching description suggestions
+- [ ] 17.4.2 Generate TypeScript types from schema
+  - Run code generation for typed description suggestion composables
+- [ ] 17.4.3 Create reactive description suggestions composable
+  - Implement useDescriptionSuggestions composable with debounced input handling
+  - Manage loading and error states
+  - Handle suggestion selection and form integration
+
+**17.5 Frontend UI/UX Layer**
+- [ ] 17.5.1 Create basic autocomplete dropdown component
+  - Implement dropdown with suggestion list rendering
+  - Add mouse click selection functionality
+  - Style dropdown to match application design system
+  - Handle loading states and empty suggestion messaging
+- [ ] 17.5.2 Integrate autocomplete with transaction form description field
+  - Modify description input field to trigger suggestions
+  - Handle suggestion selection to update form field
+  - Coordinate with form validation and submission
+
 ### Story 2: Transaction Type Filtering
 **As a** user entering a transaction
 **I want** to see suggestions filtered by transaction type
