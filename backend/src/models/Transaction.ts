@@ -81,6 +81,11 @@ export interface ITransactionRepository {
     month: number,
     type: TransactionType,
   ): Promise<Transaction[]>;
+  findActiveByDescription(
+    userId: string,
+    searchText: string,
+    limit: number,
+  ): Promise<Transaction[]>;
   create(input: CreateTransactionInput): Promise<Transaction>;
   createMany(inputs: CreateTransactionInput[]): Promise<Transaction[]>;
   update(

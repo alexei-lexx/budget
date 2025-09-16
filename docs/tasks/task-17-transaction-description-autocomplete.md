@@ -20,13 +20,13 @@ Implement intelligent transaction description autocomplete functionality that su
 **Implementation Plan for Story 1:**
 
 **17.1 Repository Layer**
-- [ ] 17.1.1 Add method to search transaction descriptions by text pattern
+- [x] 17.1.1 Add method to search transaction descriptions by text pattern
   - Accept userId, searchText, limit parameters
   - Use existing UserCreatedAtIndex GSI to query recent transactions by user
   - Filter: `contains(description, searchText)` (case-sensitive)
   - Query in descending createdAt order to get most recent matches first
   - Return matching transactions
-- [ ] 17.1.2 Create unit tests for description search method
+- [x] 17.1.2 Create unit tests for description search method
   - Test case-sensitive substring matching with various search terms
   - Test ordering by creation date (most recent first)
   - Test empty results and edge cases

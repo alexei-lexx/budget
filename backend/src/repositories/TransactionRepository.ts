@@ -28,7 +28,7 @@ import {
 } from "../types/pagination";
 import { paginateQuery } from "./utils/pagination";
 import { createDynamoDBDocumentClient } from "./utils/dynamoClient";
-import { YEAR_RANGE_OFFSET } from "../types/validation";
+import { YEAR_RANGE_OFFSET, MIN_SEARCH_TEXT_LENGTH } from "../types/validation";
 
 /**
  * Maximum number of items that can be included in a single DynamoDB TransactWrite operation
@@ -709,6 +709,64 @@ export class TransactionRepository implements ITransactionRepository {
       console.error("Error checking transactions for account:", error);
       throw new TransactionRepositoryError(
         "Failed to check transactions for account",
+        "QUERY_FAILED",
+        error,
+      );
+    }
+  }
+
+  async findActiveByDescription(
+    userId: string,
+    searchText: string,
+    limit: number,
+  ): Promise<Transaction[]> {
+    if (!userId) {
+      throw new TransactionRepositoryError(
+        "User ID is required",
+        "INVALID_PARAMETERS",
+      );
+    }
+
+    if (!searchText || searchText.length < MIN_SEARCH_TEXT_LENGTH) {
+      throw new TransactionRepositoryError(
+        `Search text must be at least ${MIN_SEARCH_TEXT_LENGTH} characters`,
+        "INVALID_PARAMETERS",
+      );
+    }
+
+    if (!Number.isInteger(limit) || limit <= 0) {
+      throw new TransactionRepositoryError(
+        "Limit must be a positive integer",
+        "INVALID_PARAMETERS",
+      );
+    }
+
+    try {
+      // Query recent transactions by user, ordered by creation time (newest first)
+      // Use DynamoDB's native contains() function for efficient server-side filtering
+      const { items: transactions } = await paginateQuery<Transaction>({
+        client: this.client,
+        params: {
+          TableName: this.tableName,
+          IndexName: "UserCreatedAtIndex",
+          KeyConditionExpression: "userId = :userId",
+          FilterExpression:
+            "isArchived = :isArchived AND contains(description, :searchText)",
+          ExpressionAttributeValues: {
+            ":userId": userId,
+            ":isArchived": false,
+            ":searchText": searchText,
+          },
+          ScanIndexForward: false, // Newest first (descending createdAt order)
+        },
+        options: { pageSize: limit },
+      });
+
+      return transactions;
+    } catch (error) {
+      console.error("Error searching transactions by description:", error);
+      throw new TransactionRepositoryError(
+        "Failed to search transactions by description",
         "QUERY_FAILED",
         error,
       );

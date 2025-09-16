@@ -1087,6 +1087,429 @@ describe("TransactionRepository", () => {
     });
   });
 
+  describe("findActiveByDescription", () => {
+    it("should return transactions that contain search text (case-sensitive)", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+      const accountId = faker.string.uuid();
+
+      // Create transactions individually with delays to ensure proper ordering
+      await repository.create(
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          description: "Grocery store",
+        }),
+      );
+
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      await repository.create(
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          description: "Grocery shopping",
+        }),
+      );
+
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      await repository.create(
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          description: "Gas station",
+        }),
+      );
+
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      await repository.create(
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          description: "Restaurant meal",
+        }),
+      );
+
+      // Act
+      const result = await repository.findActiveByDescription(userId, "Gr", 10);
+
+      // Assert
+      expect(result).toHaveLength(2);
+      expect(result[0].description).toBe("Grocery shopping"); // Most recent first
+      expect(result[1].description).toBe("Grocery store");
+    });
+
+    it("should be case-sensitive in matching", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+      const accountId = faker.string.uuid();
+
+      const createInputs: CreateTransactionInput[] = [
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          description: "Grocery store",
+        }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          description: "grocery shopping",
+        }),
+      ];
+
+      await repository.createMany(createInputs);
+
+      // Act - Search with uppercase "G"
+      const resultUppercase = await repository.findActiveByDescription(
+        userId,
+        "Gr",
+        10,
+      );
+
+      // Act - Search with lowercase "g"
+      const resultLowercase = await repository.findActiveByDescription(
+        userId,
+        "gr",
+        10,
+      );
+
+      // Assert
+      expect(resultUppercase).toHaveLength(1);
+      expect(resultUppercase[0].description).toBe("Grocery store");
+
+      expect(resultLowercase).toHaveLength(1);
+      expect(resultLowercase[0].description).toBe("grocery shopping");
+    });
+
+    it("should return results ordered by creation time (most recent first)", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+      const accountId = faker.string.uuid();
+
+      // Create transactions with a delay to ensure different creation times
+      const transaction1 = await repository.create(
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          description: "Store purchase 1",
+        }),
+      );
+
+      // Small delay to ensure different timestamps
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      const transaction2 = await repository.create(
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          description: "Store purchase 2",
+        }),
+      );
+
+      // Act
+      const result = await repository.findActiveByDescription(
+        userId,
+        "Store",
+        10,
+      );
+
+      // Assert - Should be ordered by creation time (newest first)
+      expect(result).toHaveLength(2);
+      expect(result[0].id).toBe(transaction2.id);
+      expect(result[1].id).toBe(transaction1.id);
+    });
+
+    it("should respect the limit parameter", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+      const accountId = faker.string.uuid();
+
+      const createInputs: CreateTransactionInput[] = [];
+      for (let i = 1; i <= 3; i++) {
+        createInputs.push(
+          fakeCreateTransactionInput({
+            userId,
+            accountId,
+            description: `Store transaction ${i}`,
+          }),
+        );
+      }
+
+      await repository.createMany(createInputs);
+
+      // Act
+      const result = await repository.findActiveByDescription(
+        userId,
+        "Store",
+        2,
+      );
+
+      // Assert
+      expect(result).toHaveLength(2);
+    });
+
+    it("should exclude transactions without descriptions", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+      const accountId = faker.string.uuid();
+
+      const createInputs: CreateTransactionInput[] = [
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          description: "Grocery store",
+        }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          description: undefined, // No description
+        }),
+      ];
+
+      await repository.createMany(createInputs);
+
+      // Act
+      const result = await repository.findActiveByDescription(
+        userId,
+        "store",
+        10,
+      );
+
+      // Assert
+      expect(result).toHaveLength(1);
+      expect(result[0].description).toBe("Grocery store");
+    });
+
+    it("should exclude archived transactions", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+      const accountId = faker.string.uuid();
+
+      const createInputs: CreateTransactionInput[] = [
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          description: "Store purchase 1",
+        }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          description: "Store purchase 2",
+        }),
+      ];
+
+      const createdTransactions = await repository.createMany(createInputs);
+
+      // Archive one transaction
+      await repository.archive(createdTransactions[0].id, userId);
+
+      // Act
+      const result = await repository.findActiveByDescription(
+        userId,
+        "Store",
+        10,
+      );
+
+      // Assert - Should only return non-archived transaction
+      expect(result).toHaveLength(1);
+      expect(result[0].description).toBe("Store purchase 2");
+    });
+
+    it("should isolate results by user", async () => {
+      // Arrange
+      const user1 = faker.string.uuid();
+      const user2 = faker.string.uuid();
+      const accountId = faker.string.uuid();
+
+      const createInputs: CreateTransactionInput[] = [
+        fakeCreateTransactionInput({
+          userId: user1,
+          accountId,
+          description: "User 1 store",
+        }),
+        fakeCreateTransactionInput({
+          userId: user2,
+          accountId,
+          description: "User 2 store",
+        }),
+      ];
+
+      await repository.createMany(createInputs);
+
+      // Act
+      const user1Result = await repository.findActiveByDescription(
+        user1,
+        "store",
+        10,
+      );
+      const user2Result = await repository.findActiveByDescription(
+        user2,
+        "store",
+        10,
+      );
+
+      // Assert - Each user sees only their own transactions
+      expect(user1Result).toHaveLength(1);
+      expect(user1Result[0].description).toBe("User 1 store");
+      expect(user1Result[0].userId).toBe(user1);
+
+      expect(user2Result).toHaveLength(1);
+      expect(user2Result[0].description).toBe("User 2 store");
+      expect(user2Result[0].userId).toBe(user2);
+    });
+
+    it("should return empty array when no matches found", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+      const accountId = faker.string.uuid();
+
+      const createInputs: CreateTransactionInput[] = [
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          description: "Grocery store",
+        }),
+      ];
+
+      await repository.createMany(createInputs);
+
+      // Act
+      const result = await repository.findActiveByDescription(
+        userId,
+        "xyz",
+        10,
+      );
+
+      // Assert
+      expect(result).toHaveLength(0);
+    });
+
+    it("should return empty array for user with no transactions", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+
+      // Act
+      const result = await repository.findActiveByDescription(
+        userId,
+        "store",
+        10,
+      );
+
+      // Assert
+      expect(result).toHaveLength(0);
+    });
+
+    it("should throw error for missing user ID", async () => {
+      // Act & Assert
+      await expect(
+        repository.findActiveByDescription("", "store", 10),
+      ).rejects.toThrow("User ID is required");
+    });
+
+    it("should throw error for search text less than 2 characters", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+
+      // Act & Assert - Empty search text
+      await expect(
+        repository.findActiveByDescription(userId, "", 10),
+      ).rejects.toThrow("Search text must be at least 2 characters");
+
+      // Act & Assert - Single character
+      await expect(
+        repository.findActiveByDescription(userId, "a", 10),
+      ).rejects.toThrow("Search text must be at least 2 characters");
+    });
+
+    it("should throw error for invalid limit parameter", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+
+      // Act & Assert - Zero limit
+      await expect(
+        repository.findActiveByDescription(userId, "store", 0),
+      ).rejects.toThrow("Limit must be a positive integer");
+
+      // Act & Assert - Negative limit
+      await expect(
+        repository.findActiveByDescription(userId, "store", -1),
+      ).rejects.toThrow("Limit must be a positive integer");
+
+      // Act & Assert - Non-integer limit
+      await expect(
+        repository.findActiveByDescription(userId, "store", 3.5),
+      ).rejects.toThrow("Limit must be a positive integer");
+    });
+
+    it("should handle exact string matches", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+      const accountId = faker.string.uuid();
+
+      const createInputs: CreateTransactionInput[] = [
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          description: "Exact match",
+        }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          description: "Not a match",
+        }),
+      ];
+
+      await repository.createMany(createInputs);
+
+      // Act
+      const result = await repository.findActiveByDescription(
+        userId,
+        "Exact match",
+        10,
+      );
+
+      // Assert
+      expect(result).toHaveLength(1);
+      expect(result[0].description).toBe("Exact match");
+    });
+
+    it("should handle substring matches", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+      const accountId = faker.string.uuid();
+
+      const createInputs: CreateTransactionInput[] = [
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          description: "This is a long description with multiple words",
+        }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          description: "Short desc",
+        }),
+      ];
+
+      await repository.createMany(createInputs);
+
+      // Act
+      const result = await repository.findActiveByDescription(
+        userId,
+        "long description",
+        10,
+      );
+
+      // Assert
+      expect(result).toHaveLength(1);
+      expect(result[0].description).toBe(
+        "This is a long description with multiple words",
+      );
+    });
+  });
+
   describe("findActiveByMonthAndType", () => {
     it("should filter by user", async () => {
       // Arrange
