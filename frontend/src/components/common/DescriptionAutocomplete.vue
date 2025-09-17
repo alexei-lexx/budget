@@ -15,8 +15,6 @@ interface Props {
     | "solo"
     | "solo-inverted"
     | "solo-filled";
-  rows?: number;
-  autoGrow?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -24,8 +22,6 @@ const props = withDefaults(defineProps<Props>(), {
   placeholder: "",
   disabled: false,
   variant: "outlined",
-  rows: 2,
-  autoGrow: true,
 });
 
 const emit = defineEmits<{
@@ -129,15 +125,13 @@ const handleBlur = () => {
 
 <template>
   <div class="description-autocomplete">
-    <v-textarea
+    <v-text-field
       ref="textFieldRef"
       v-model="inputValue"
       :label="label"
       :placeholder="placeholder"
       :disabled="disabled"
       :variant="variant"
-      :rows="rows"
-      :auto-grow="autoGrow"
       @keydown="handleKeyDown"
       @focus="handleFocus"
       @blur="handleBlur"

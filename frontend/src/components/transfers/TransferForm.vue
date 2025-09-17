@@ -52,6 +52,14 @@ const formData = ref<CreateTransferInput>({
   description: "",
 });
 
+// Create a computed wrapper for description to handle the undefined type
+const descriptionValue = computed({
+  get: () => formData.value.description || "",
+  set: (value: string) => {
+    formData.value.description = value;
+  },
+});
+
 // Watch for transfer prop changes to populate form in edit mode
 watch(
   () => props.transfer,
@@ -276,13 +284,11 @@ const handleSwapAccounts = () => {
           <v-col cols="12">
             <!-- Description (Full Width) -->
             <DescriptionAutocomplete
-              v-model="formData.description"
+              v-model="descriptionValue"
               label="Description (Optional)"
               placeholder="e.g., Monthly savings transfer, Emergency fund contribution"
               :disabled="loading"
               variant="outlined"
-              :rows="2"
-              :auto-grow="true"
             />
           </v-col>
         </v-row>

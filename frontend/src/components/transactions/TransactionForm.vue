@@ -335,8 +335,6 @@ const handlePatternSelected = (pattern: { accountId: string; categoryId: string 
               placeholder="e.g., Weekly groceries, Salary payment, Coffee with friends"
               :disabled="loading"
               variant="outlined"
-              :rows="2"
-              :auto-grow="true"
             />
           </v-col>
         </v-row>
