@@ -197,6 +197,7 @@ const handleCancel = () => {
               variant="outlined"
               required
               autofocus
+              autocapitalize="off"
             ></v-text-field>
           </v-col>
 

@@ -132,6 +132,7 @@ const handleBlur = () => {
       :placeholder="placeholder"
       :disabled="disabled"
       :variant="variant"
+      autocapitalize="off"
       @keydown="handleKeyDown"
       @focus="handleFocus"
       @blur="handleBlur"
