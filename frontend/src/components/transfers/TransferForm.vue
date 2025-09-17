@@ -5,6 +5,7 @@ import { checkRules, type CheckRule } from "@/utils/validation";
 import { currencyAmountRules } from "@/utils/currencyValidation";
 import { useAccounts } from "@/composables/useAccounts";
 import AccountSelect from "@/components/common/AccountSelect.vue";
+import DescriptionAutocomplete from "@/components/common/DescriptionAutocomplete.vue";
 import type {
   Transfer,
   CreateTransferInput,
@@ -274,14 +275,14 @@ const handleSwapAccounts = () => {
           </v-col>
           <v-col cols="12">
             <!-- Description (Full Width) -->
-            <v-textarea
+            <DescriptionAutocomplete
               v-model="formData.description"
               label="Description (Optional)"
               placeholder="e.g., Monthly savings transfer, Emergency fund contribution"
               :disabled="loading"
               variant="outlined"
-              rows="2"
-              auto-grow
+              :rows="2"
+              :auto-grow="true"
             />
           </v-col>
         </v-row>
