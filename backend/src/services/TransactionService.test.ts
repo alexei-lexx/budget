@@ -2,10 +2,13 @@ import {
   DEFAULT_TRANSACTION_PATTERNS_LIMIT,
   MAX_TRANSACTION_PATTERNS_LIMIT,
   MIN_TRANSACTION_PATTERNS_LIMIT,
+  DESCRIPTION_SUGGESTIONS_SAMPLE_SIZE,
   TransactionService,
 } from "./TransactionService";
+import { MIN_SEARCH_TEXT_LENGTH } from "../types/validation";
 import { TransactionPatternType, TransactionType } from "../models/Transaction";
 import { CategoryType } from "../models/Category";
+import { BusinessError, BusinessErrorCodes } from "./BusinessError";
 import { faker } from "@faker-js/faker";
 import {
   createMockTransactionRepository,
@@ -16,6 +19,7 @@ import {
   fakeAccount,
   fakeCategory,
   fakeTransactionPattern,
+  fakeTransaction,
 } from "../__tests__/utils/factories";
 
 describe("TransactionService", () => {
@@ -466,6 +470,146 @@ describe("TransactionService", () => {
           );
         }
       });
+    });
+  });
+
+  describe("getDescriptionSuggestions", () => {
+    it("should return suggestions ordered by frequency", async () => {
+      // Arrange
+      const searchText = "Gr";
+      const transactions = [
+        fakeTransaction({ description: "Grocery store" }),
+        fakeTransaction({ description: "Grocery store" }),
+        fakeTransaction({ description: "Grocery shopping" }),
+        fakeTransaction({ description: "Great restaurant" }),
+      ];
+
+      mockTransactionRepository.findActiveByDescription.mockResolvedValue(
+        transactions,
+      );
+
+      // Act
+      const result = await service.getDescriptionSuggestions(
+        userId,
+        searchText,
+        5,
+      );
+
+      // Assert
+      expect(result).toHaveLength(3); // 3 unique descriptions
+      expect(result[0]).toBe("Grocery store"); // Should be first (highest frequency)
+    });
+
+    it("should respect the limit parameter", async () => {
+      // Arrange
+      const searchText = "te";
+      const transactions = [
+        fakeTransaction({ description: "Test 1" }),
+        fakeTransaction({ description: "Test 2" }),
+        fakeTransaction({ description: "Test 3" }),
+        fakeTransaction({ description: "Test 4" }),
+        fakeTransaction({ description: "Test 5" }),
+      ];
+
+      mockTransactionRepository.findActiveByDescription.mockResolvedValue(
+        transactions,
+      );
+
+      // Act
+      const result = await service.getDescriptionSuggestions(
+        userId,
+        searchText,
+        3,
+      );
+
+      // Assert
+      expect(result).toHaveLength(3); // Limited to 3 results
+    });
+
+    it("should return empty array when no matches found", async () => {
+      // Arrange
+      const searchText = "xyz";
+      mockTransactionRepository.findActiveByDescription.mockResolvedValue([]);
+
+      // Act
+      const result = await service.getDescriptionSuggestions(
+        userId,
+        searchText,
+        5,
+      );
+
+      // Assert
+      expect(result).toEqual([]);
+    });
+
+    it("should call repository with correct parameters", async () => {
+      // Arrange
+      const searchText = "test";
+      mockTransactionRepository.findActiveByDescription.mockResolvedValue([]);
+
+      // Act
+      await service.getDescriptionSuggestions(userId, searchText, 3);
+
+      // Assert
+      expect(
+        mockTransactionRepository.findActiveByDescription,
+      ).toHaveBeenCalledWith(
+        userId,
+        searchText,
+        DESCRIPTION_SUGGESTIONS_SAMPLE_SIZE, // Should use default sample size
+      );
+    });
+
+    it("should call repository with custom sample size when provided", async () => {
+      // Arrange
+      const searchText = "test";
+      const customSampleSize = 50;
+      mockTransactionRepository.findActiveByDescription.mockResolvedValue([]);
+
+      // Act
+      await service.getDescriptionSuggestions(
+        userId,
+        searchText,
+        3,
+        customSampleSize,
+      );
+
+      // Assert
+      expect(
+        mockTransactionRepository.findActiveByDescription,
+      ).toHaveBeenCalledWith(userId, searchText, customSampleSize);
+    });
+
+    it("should throw error for search text shorter than minimum length", async () => {
+      // Arrange
+      const shortSearchText = "a".repeat(MIN_SEARCH_TEXT_LENGTH - 1);
+
+      // Act & Assert
+      await expect(
+        service.getDescriptionSuggestions(userId, shortSearchText, 5),
+      ).rejects.toThrow(BusinessError);
+
+      await expect(
+        service.getDescriptionSuggestions(userId, shortSearchText, 5),
+      ).rejects.toMatchObject({
+        message: `Search text must be at least ${MIN_SEARCH_TEXT_LENGTH} characters long`,
+        code: BusinessErrorCodes.INVALID_PARAMETERS,
+      });
+
+      // Verify repository was not called
+      expect(
+        mockTransactionRepository.findActiveByDescription,
+      ).not.toHaveBeenCalled();
+    });
+
+    it("should throw error for empty search text", async () => {
+      // Arrange
+      const emptySearchText = "";
+
+      // Act & Assert
+      await expect(
+        service.getDescriptionSuggestions(userId, emptySearchText, 5),
+      ).rejects.toThrow(BusinessError);
     });
   });
 });

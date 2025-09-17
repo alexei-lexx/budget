@@ -32,13 +32,13 @@ Implement intelligent transaction description autocomplete functionality that su
   - Test empty results and edge cases
 
 **17.2 Service Layer**
-- [ ] 17.2.1 Create basic transaction description suggestions service
+- [x] 17.2.1 Create basic transaction description suggestions service
   - Implement method to get description suggestions
   - Accept userId, searchText, limit parameters
   - Call repository with higher limit (e.g., 100) to get sufficient data for processing
   - Extract unique descriptions and calculate relevance scores (frequency + recency)
   - Return top N unique description suggestions (up to requested limit)
-- [ ] 17.2.2 Create unit tests for description suggestions service
+- [x] 17.2.2 Create unit tests for description suggestions service
   - Test description suggestion retrieval and ordering
   - Test suggestion limit functionality
   - Test edge cases with no matches

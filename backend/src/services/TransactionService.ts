@@ -16,11 +16,16 @@ import {
   CategoryType,
 } from "../models/Category";
 import { PaginationInput } from "../types/pagination";
-import { DATE_FORMAT_REGEX } from "../types/validation";
+import { DATE_FORMAT_REGEX, MIN_SEARCH_TEXT_LENGTH } from "../types/validation";
 
 export const DEFAULT_TRANSACTION_PATTERNS_LIMIT = 3;
 export const MIN_TRANSACTION_PATTERNS_LIMIT = 1;
 export const MAX_TRANSACTION_PATTERNS_LIMIT = 10;
+
+export const DEFAULT_DESCRIPTION_SUGGESTIONS_LIMIT = 5;
+export const MIN_DESCRIPTION_SUGGESTIONS_LIMIT = 1;
+export const MAX_DESCRIPTION_SUGGESTIONS_LIMIT = 10;
+export const DESCRIPTION_SUGGESTIONS_SAMPLE_SIZE = 100;
 
 /**
  * Service layer input for creating transactions (currency automatically derived from account)
@@ -364,6 +369,67 @@ export class TransactionService {
   }
 
   /**
+   * Get transaction description suggestions based on user's transaction history
+   * @param userId - The user ID to get suggestions for
+   * @param searchText - The search text to match against descriptions
+   * @param limit - Maximum number of suggestions to return
+   * @param sampleSize - Number of transactions to analyze for suggestions
+   * @returns Promise<string[]> - Descriptions ordered by frequency (most frequent first)
+   * @throws BusinessError if searchText is too short
+   */
+  async getDescriptionSuggestions(
+    userId: string,
+    searchText: string,
+    limit?: number | null,
+    sampleSize = DESCRIPTION_SUGGESTIONS_SAMPLE_SIZE,
+  ): Promise<string[]> {
+    // Validate search text length
+    if (searchText.length < MIN_SEARCH_TEXT_LENGTH) {
+      throw new BusinessError(
+        `Search text must be at least ${MIN_SEARCH_TEXT_LENGTH} characters long`,
+        BusinessErrorCodes.INVALID_PARAMETERS,
+        {
+          searchText,
+          searchTextLength: searchText.length,
+          minLength: MIN_SEARCH_TEXT_LENGTH,
+        },
+      );
+    }
+
+    // Validate and normalize the limit parameter
+    const validatedLimit = this.validateDescriptionSuggestionsLimit(limit);
+
+    // Get transactions matching the search text from repository
+    // Use configurable sample size to ensure we have enough data for processing
+    const transactions =
+      await this.transactionRepository.findActiveByDescription(
+        userId,
+        searchText,
+        sampleSize,
+      );
+
+    // Extract and count unique descriptions by frequency
+    const descriptionFrequency = new Map<string, number>();
+
+    for (const transaction of transactions) {
+      // TypeScript check: description is optional in the type but repository guarantees it exists
+      if (!transaction.description) {
+        continue;
+      }
+
+      const description = transaction.description;
+      const currentCount = descriptionFrequency.get(description) || 0;
+      descriptionFrequency.set(description, currentCount + 1);
+    }
+
+    // Sort descriptions by frequency (highest first) and return top N
+    return Array.from(descriptionFrequency.entries())
+      .sort(([, frequencyA], [, frequencyB]) => frequencyB - frequencyA) // Sort by frequency descending
+      .slice(0, validatedLimit) // Take top N
+      .map(([description]) => description); // Extract just the description strings
+  }
+
+  /**
    * Validate transaction patterns limit parameter
    * @param limit - The limit to validate (can be null, undefined, or number)
    * @returns number - Valid limit between 1-10, defaults to 3 for invalid values
@@ -381,6 +447,29 @@ export class TransactionService {
       !Number.isInteger(limit)
     ) {
       return DEFAULT_TRANSACTION_PATTERNS_LIMIT;
+    }
+
+    return limit;
+  }
+
+  /**
+   * Validate description suggestions limit parameter
+   * @param limit - The limit to validate (can be null, undefined, or number)
+   * @returns number
+   */
+  private validateDescriptionSuggestionsLimit(limit?: number | null): number {
+    // Use default if limit is not provided or is null
+    if (limit == null) {
+      return DEFAULT_DESCRIPTION_SUGGESTIONS_LIMIT;
+    }
+
+    // Validate range and return default for invalid values
+    if (
+      limit < MIN_DESCRIPTION_SUGGESTIONS_LIMIT ||
+      limit > MAX_DESCRIPTION_SUGGESTIONS_LIMIT ||
+      !Number.isInteger(limit)
+    ) {
+      return DEFAULT_DESCRIPTION_SUGGESTIONS_LIMIT;
     }
 
     return limit;
