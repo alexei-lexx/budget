@@ -192,6 +192,7 @@ export type Query = {
   getTransactionPatterns: Array<TransactionPattern>;
   monthlyReport: MonthlyReport;
   supportedCurrencies: Array<Scalars['String']['output']>;
+  transactionDescriptionSuggestions: Array<Scalars['String']['output']>;
   transactions: TransactionConnection;
   transfer?: Maybe<Transfer>;
 };
@@ -211,6 +212,11 @@ export type QueryMonthlyReportArgs = {
   month: Scalars['Int']['input'];
   type: TransactionType;
   year: Scalars['Int']['input'];
+};
+
+
+export type QueryTransactionDescriptionSuggestionsArgs = {
+  searchText: Scalars['String']['input'];
 };
 
 
@@ -523,6 +529,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   getTransactionPatterns?: Resolver<Array<ResolversTypes['TransactionPattern']>, ParentType, ContextType, RequireFields<QueryGetTransactionPatternsArgs, 'type'>>;
   monthlyReport?: Resolver<ResolversTypes['MonthlyReport'], ParentType, ContextType, RequireFields<QueryMonthlyReportArgs, 'month' | 'type' | 'year'>>;
   supportedCurrencies?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  transactionDescriptionSuggestions?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType, RequireFields<QueryTransactionDescriptionSuggestionsArgs, 'searchText'>>;
   transactions?: Resolver<ResolversTypes['TransactionConnection'], ParentType, ContextType, Partial<QueryTransactionsArgs>>;
   transfer?: Resolver<Maybe<ResolversTypes['Transfer']>, ParentType, ContextType, RequireFields<QueryTransferArgs, 'id'>>;
 };

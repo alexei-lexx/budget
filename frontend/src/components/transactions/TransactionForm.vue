@@ -6,6 +6,7 @@ import { currencyAmountRules } from "@/utils/currencyValidation";
 import { useAccounts } from "@/composables/useAccounts";
 import { useCategories } from "@/composables/useCategories";
 import AccountSelect from "@/components/common/AccountSelect.vue";
+import DescriptionAutocomplete from "@/components/common/DescriptionAutocomplete.vue";
 import QuickTransactionButtons from "@/components/transactions/QuickTransactionButtons.vue";
 import type {
   Transaction,
@@ -54,6 +55,14 @@ const formData = ref<CreateTransactionInput>({
   amount: 0,
   date: new Date().toISOString().split("T")[0], // Today's date in YYYY-MM-DD format
   description: "",
+});
+
+// Create a computed wrapper for description to handle the undefined type
+const descriptionValue = computed({
+  get: () => formData.value.description || "",
+  set: (value: string) => {
+    formData.value.description = value;
+  },
 });
 
 // Form validation
@@ -320,14 +329,14 @@ const handlePatternSelected = (pattern: { accountId: string; categoryId: string 
           </v-col>
           <v-col cols="12">
             <!-- Description (Full Width) -->
-            <v-textarea
-              v-model="formData.description"
+            <DescriptionAutocomplete
+              v-model="descriptionValue"
               label="Description (Optional)"
               placeholder="e.g., Weekly groceries, Salary payment, Coffee with friends"
               :disabled="loading"
               variant="outlined"
-              rows="2"
-              auto-grow
+              :rows="2"
+              :auto-grow="true"
             />
           </v-col>
         </v-row>

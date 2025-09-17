@@ -80,3 +80,9 @@ export const GET_MONTHLY_REPORT = gql`
   }
   ${MONTHLY_REPORT_FRAGMENT}
 `;
+
+export const GET_TRANSACTION_DESCRIPTION_SUGGESTIONS = gql`
+  query GetTransactionDescriptionSuggestions($searchText: String!) {
+    transactionDescriptionSuggestions(searchText: $searchText)
+  }
+`;

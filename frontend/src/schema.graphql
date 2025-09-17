@@ -6,6 +6,7 @@ type Query {
   transfer(id: ID!): Transfer
   getTransactionPatterns(type: TransactionPatternType!): [TransactionPattern!]!
   monthlyReport(year: Int!, month: Int!, type: TransactionType!): MonthlyReport!
+  transactionDescriptionSuggestions(searchText: String!): [String!]!
 }
 
 type User {

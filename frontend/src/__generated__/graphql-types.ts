@@ -188,6 +188,7 @@ export type Query = {
   getTransactionPatterns: Array<TransactionPattern>;
   monthlyReport: MonthlyReport;
   supportedCurrencies: Array<Scalars['String']['output']>;
+  transactionDescriptionSuggestions: Array<Scalars['String']['output']>;
   transactions: TransactionConnection;
   transfer?: Maybe<Transfer>;
 };
@@ -207,6 +208,11 @@ export type QueryMonthlyReportArgs = {
   month: Scalars['Int']['input'];
   type: TransactionType;
   year: Scalars['Int']['input'];
+};
+
+
+export type QueryTransactionDescriptionSuggestionsArgs = {
+  searchText: Scalars['String']['input'];
 };
 
 
@@ -458,3 +464,10 @@ export type GetMonthlyReportQueryVariables = Exact<{
 
 
 export type GetMonthlyReportQuery = { __typename?: 'Query', monthlyReport: { __typename?: 'MonthlyReport', year: number, month: number, type: TransactionType, categories: Array<{ __typename?: 'MonthlyReportCategory', categoryId?: string | null | undefined, categoryName: string, currencyBreakdowns: Array<{ __typename?: 'MonthlyReportCurrencyBreakdown', currency: string, totalAmount: number, percentage: number }> }>, currencyTotals: Array<{ __typename?: 'MonthlyReportCurrencyTotal', currency: string, totalAmount: number }> } };
+
+export type GetTransactionDescriptionSuggestionsQueryVariables = Exact<{
+  searchText: Scalars['String']['input'];
+}>;
+
+
+export type GetTransactionDescriptionSuggestionsQuery = { __typename?: 'Query', transactionDescriptionSuggestions: Array<string> };

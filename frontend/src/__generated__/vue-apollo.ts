@@ -192,6 +192,7 @@ export type Query = {
   getTransactionPatterns: Array<TransactionPattern>;
   monthlyReport: MonthlyReport;
   supportedCurrencies: Array<Scalars['String']['output']>;
+  transactionDescriptionSuggestions: Array<Scalars['String']['output']>;
   transactions: TransactionConnection;
   transfer?: Maybe<Transfer>;
 };
@@ -211,6 +212,11 @@ export type QueryMonthlyReportArgs = {
   month: Scalars['Int']['input'];
   type: TransactionType;
   year: Scalars['Int']['input'];
+};
+
+
+export type QueryTransactionDescriptionSuggestionsArgs = {
+  searchText: Scalars['String']['input'];
 };
 
 
@@ -462,6 +468,13 @@ export type GetMonthlyReportQueryVariables = Exact<{
 
 
 export type GetMonthlyReportQuery = { __typename?: 'Query', monthlyReport: { __typename?: 'MonthlyReport', year: number, month: number, type: TransactionType, categories: Array<{ __typename?: 'MonthlyReportCategory', categoryId?: string | null | undefined, categoryName: string, currencyBreakdowns: Array<{ __typename?: 'MonthlyReportCurrencyBreakdown', currency: string, totalAmount: number, percentage: number }> }>, currencyTotals: Array<{ __typename?: 'MonthlyReportCurrencyTotal', currency: string, totalAmount: number }> } };
+
+export type GetTransactionDescriptionSuggestionsQueryVariables = Exact<{
+  searchText: Scalars['String']['input'];
+}>;
+
+
+export type GetTransactionDescriptionSuggestionsQuery = { __typename?: 'Query', transactionDescriptionSuggestions: Array<string> };
 
 export const AccountFieldsFragmentDoc = gql`
     fragment AccountFields on Account {
@@ -1127,3 +1140,31 @@ export function useGetMonthlyReportLazyQuery(variables?: GetMonthlyReportQueryVa
   return VueApolloComposable.useLazyQuery<GetMonthlyReportQuery, GetMonthlyReportQueryVariables>(GetMonthlyReportDocument, variables, options);
 }
 export type GetMonthlyReportQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<GetMonthlyReportQuery, GetMonthlyReportQueryVariables>;
+export const GetTransactionDescriptionSuggestionsDocument = gql`
+    query GetTransactionDescriptionSuggestions($searchText: String!) {
+  transactionDescriptionSuggestions(searchText: $searchText)
+}
+    `;
+
+/**
+ * __useGetTransactionDescriptionSuggestionsQuery__
+ *
+ * To run a query within a Vue component, call `useGetTransactionDescriptionSuggestionsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetTransactionDescriptionSuggestionsQuery` returns an object from Apollo Client that contains result, loading and error properties
+ * you can use to render your UI.
+ *
+ * @param variables that will be passed into the query
+ * @param options that will be passed into the query, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/query.html#options;
+ *
+ * @example
+ * const { result, loading, error } = useGetTransactionDescriptionSuggestionsQuery({
+ *   searchText: // value for 'searchText'
+ * });
+ */
+export function useGetTransactionDescriptionSuggestionsQuery(variables: GetTransactionDescriptionSuggestionsQueryVariables | VueCompositionApi.Ref<GetTransactionDescriptionSuggestionsQueryVariables> | ReactiveFunction<GetTransactionDescriptionSuggestionsQueryVariables>, options: VueApolloComposable.UseQueryOptions<GetTransactionDescriptionSuggestionsQuery, GetTransactionDescriptionSuggestionsQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<GetTransactionDescriptionSuggestionsQuery, GetTransactionDescriptionSuggestionsQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<GetTransactionDescriptionSuggestionsQuery, GetTransactionDescriptionSuggestionsQueryVariables>> = {}) {
+  return VueApolloComposable.useQuery<GetTransactionDescriptionSuggestionsQuery, GetTransactionDescriptionSuggestionsQueryVariables>(GetTransactionDescriptionSuggestionsDocument, variables, options);
+}
+export function useGetTransactionDescriptionSuggestionsLazyQuery(variables?: GetTransactionDescriptionSuggestionsQueryVariables | VueCompositionApi.Ref<GetTransactionDescriptionSuggestionsQueryVariables> | ReactiveFunction<GetTransactionDescriptionSuggestionsQueryVariables>, options: VueApolloComposable.UseQueryOptions<GetTransactionDescriptionSuggestionsQuery, GetTransactionDescriptionSuggestionsQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<GetTransactionDescriptionSuggestionsQuery, GetTransactionDescriptionSuggestionsQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<GetTransactionDescriptionSuggestionsQuery, GetTransactionDescriptionSuggestionsQueryVariables>> = {}) {
+  return VueApolloComposable.useLazyQuery<GetTransactionDescriptionSuggestionsQuery, GetTransactionDescriptionSuggestionsQueryVariables>(GetTransactionDescriptionSuggestionsDocument, variables, options);
+}
+export type GetTransactionDescriptionSuggestionsQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<GetTransactionDescriptionSuggestionsQuery, GetTransactionDescriptionSuggestionsQueryVariables>;
