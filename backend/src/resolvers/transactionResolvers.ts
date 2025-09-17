@@ -135,6 +135,39 @@ export const transactionResolvers = {
         handleResolverError(error, "Failed to fetch transaction patterns");
       }
     },
+    transactionDescriptionSuggestions: async (
+      _parent: unknown,
+      args: { searchText: string },
+      context: GraphQLContext,
+    ) => {
+      const { searchText } = args;
+
+      // Basic validation
+      if (!searchText) {
+        throw new GraphQLError("Search text is required", {
+          extensions: { code: "BAD_USER_INPUT" },
+        });
+      }
+
+      try {
+        const user = await getAuthenticatedUser(context);
+
+        const suggestions =
+          await context.transactionService.getDescriptionSuggestions(
+            user.id,
+            searchText,
+          );
+
+        return suggestions;
+      } catch (error) {
+        if (error instanceof BusinessError) {
+          throw new GraphQLError(error.message, {
+            extensions: { code: error.code, details: error.details },
+          });
+        }
+        handleResolverError(error, "Failed to fetch description suggestions");
+      }
+    },
   },
   Mutation: {
     createTransaction: async (

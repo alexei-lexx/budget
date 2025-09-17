@@ -44,12 +44,10 @@ Implement intelligent transaction description autocomplete functionality that su
   - Test edge cases with no matches
 
 **17.3 GraphQL Layer**
-- [ ] 17.3.1 Add transaction description suggestions query to GraphQL schema
-  - Define TransactionDescriptionSuggestion output type with description field
-  - Define TransactionDescriptionSuggestionsInput input type with searchText parameter
-  - Add transactionDescriptionSuggestions query field to Query type returning list of TransactionDescriptionSuggestion
-- [ ] 17.3.2 Implement description suggestions resolver
-  - Validate input parameters (text length minimum 2 characters)
+- [x] 17.3.1 Add transaction description suggestions query to GraphQL schema
+  - Define input type with searchText parameter
+  - Add query field returning array of strings
+- [x] 17.3.2 Implement description suggestions resolver
   - Call description suggestions service with provided parameters
   - Handle authentication and user context extraction
 
