@@ -84,29 +84,31 @@ const handleDeleteTransaction = () => {
 
 <template>
   <v-card variant="outlined" class="transaction-card">
-    <v-card-text class="py-2 px-3">
+    <v-card-text class="py-3">
       <div class="d-flex align-center">
         <!-- Icon -->
-        <v-icon :color="amountColor" size="20" class="me-3">
+        <v-icon :color="amountColor" size="20" class="me-3 flex-shrink-0">
           {{ transactionIcon }}
         </v-icon>
 
         <!-- Main content -->
-        <div class="flex-grow-1 me-3">
-          <div class="text-caption text-medium-emphasis">
+        <div class="flex-grow-1 me-3" style="min-width: 0">
+          <h4 class="text-h6 mb-0 text-truncate">
             {{ formattedDate }} • {{ accountName
             }}<span v-if="categoryName"> • {{ categoryName }}</span
             ><span v-if="transaction.description"> • {{ transaction.description }}</span>
-          </div>
+          </h4>
         </div>
 
         <!-- Amount -->
-        <div class="text-h6 font-weight-bold" :class="`text-${amountColor}`">
+        <div class="text-h5 font-weight-bold flex-shrink-0" :class="`text-${amountColor}`">
           {{ formattedAmount }}
         </div>
 
         <!-- Menu -->
-        <ActionDropdown @edit="handleEditTransaction" @delete="handleDeleteTransaction" />
+        <div class="flex-shrink-0">
+          <ActionDropdown @edit="handleEditTransaction" @delete="handleDeleteTransaction" />
+        </div>
       </div>
     </v-card-text>
   </v-card>
@@ -120,7 +122,7 @@ const handleDeleteTransaction = () => {
 }
 
 .transaction-card:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 </style>
