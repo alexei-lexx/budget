@@ -4,13 +4,13 @@
       <!-- Sort Controls -->
       <div v-if="categories && categories.length > 0" class="d-flex justify-end mb-3">
         <v-chip-group v-model="sortBy" mandatory>
-          <v-chip value="category" size="small" variant="outlined">
-            category
-            <v-icon end>mdi-sort-alphabetical-ascending</v-icon>
-          </v-chip>
           <v-chip value="amount" size="small" variant="outlined">
             amount
             <v-icon end>mdi-sort-numeric-descending</v-icon>
+          </v-chip>
+          <v-chip value="category" size="small" variant="outlined">
+            category
+            <v-icon end>mdi-sort-alphabetical-ascending</v-icon>
           </v-chip>
         </v-chip-group>
       </div>
@@ -90,7 +90,7 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 // Sort options state
-const sortBy = ref<"category" | "amount">("category");
+const sortBy = ref<"category" | "amount">("amount");
 
 // Helper function to calculate total amount across all currencies for a category
 const calculateCategoryTotal = (category: MonthlyReportCategory): number => {
