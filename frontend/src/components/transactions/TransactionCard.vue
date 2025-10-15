@@ -2,13 +2,13 @@
 import { computed } from "vue";
 import type { Transaction } from "@/composables/useTransactions";
 import { formatTransactionAmount } from "@/utils/currency";
-import ActionDropdown from "@/components/common/ActionDropdown.vue";
 
 // Define component props
 interface Props {
   transaction: Transaction;
   accountName: string;
   categoryName?: string;
+  isExpanded: boolean;
 }
 
 const props = defineProps<Props>();
@@ -17,6 +17,7 @@ const props = defineProps<Props>();
 const emit = defineEmits<{
   editTransaction: [transactionId: string];
   deleteTransaction: [transactionId: string];
+  toggleExpand: [transactionId: string];
 }>();
 
 // Format amount with +/- prefix
@@ -80,11 +81,22 @@ const handleEditTransaction = () => {
 const handleDeleteTransaction = () => {
   emit("deleteTransaction", props.transaction.id);
 };
+
+const handleCardClick = () => {
+  emit("toggleExpand", props.transaction.id);
+};
 </script>
 
 <template>
-  <v-card variant="outlined" class="transaction-card">
+  <v-card
+    variant="outlined"
+    class="transaction-card"
+    :class="{ expanded: isExpanded }"
+    @click="handleCardClick"
+    style="cursor: pointer"
+  >
     <v-card-text class="py-3">
+      <!-- Collapsed state: Single row with all info -->
       <div class="d-flex align-center">
         <!-- Icon -->
         <v-icon :color="amountColor" size="20" class="me-3 flex-shrink-0">
@@ -95,8 +107,7 @@ const handleDeleteTransaction = () => {
         <div class="flex-grow-1 me-3" style="min-width: 0">
           <h4 class="text-h6 mb-0 text-truncate">
             {{ formattedDate }} • {{ accountName
-            }}<span v-if="categoryName"> • {{ categoryName }}</span
-            ><span v-if="transaction.description"> • {{ transaction.description }}</span>
+            }}<span v-if="categoryName"> • {{ categoryName }}</span>
           </h4>
         </div>
 
@@ -104,11 +115,65 @@ const handleDeleteTransaction = () => {
         <div class="text-h5 font-weight-bold flex-shrink-0" :class="`text-${amountColor}`">
           {{ formattedAmount }}
         </div>
+      </div>
 
-        <!-- Menu -->
-        <div class="flex-shrink-0">
-          <ActionDropdown @edit="handleEditTransaction" @delete="handleDeleteTransaction" />
+      <!-- Expanded state: Second row with description and buttons -->
+      <div
+        v-if="isExpanded && transaction.description"
+        class="d-flex flex-column flex-sm-row align-sm-center justify-sm-space-between ga-2 mt-3"
+      >
+        <!-- Description on left (top on mobile) -->
+        <div class="text-body-2 flex-grow-1" style="min-width: 0">
+          {{ transaction.description }}
         </div>
+
+        <!-- Buttons on right (bottom on mobile) -->
+        <div class="flex-shrink-0 d-flex ga-2" @click.stop>
+          <v-btn
+            size="small"
+            color="primary"
+            variant="text"
+            prepend-icon="mdi-pencil"
+            @click="handleEditTransaction"
+          >
+            Edit
+          </v-btn>
+          <v-btn
+            size="small"
+            color="error"
+            variant="text"
+            prepend-icon="mdi-delete"
+            @click="handleDeleteTransaction"
+          >
+            Delete
+          </v-btn>
+        </div>
+      </div>
+
+      <!-- Expanded state without description: Only buttons -->
+      <div
+        v-else-if="isExpanded && !transaction.description"
+        class="d-flex justify-end ga-2 mt-3"
+        @click.stop
+      >
+        <v-btn
+          size="small"
+          color="primary"
+          variant="text"
+          prepend-icon="mdi-pencil"
+          @click="handleEditTransaction"
+        >
+          Edit
+        </v-btn>
+        <v-btn
+          size="small"
+          color="error"
+          variant="text"
+          prepend-icon="mdi-delete"
+          @click="handleDeleteTransaction"
+        >
+          Delete
+        </v-btn>
       </div>
     </v-card-text>
   </v-card>
@@ -116,13 +181,24 @@ const handleDeleteTransaction = () => {
 
 <style scoped>
 .transaction-card {
+  cursor: pointer;
   transition:
     transform 0.2s ease,
-    box-shadow 0.2s ease;
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .transaction-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.transaction-card.expanded {
+  border-color: rgb(var(--v-theme-primary));
+  border-width: 2px;
+}
+
+.transaction-card.expanded:hover {
+  transform: none; /* Disable hover transform when expanded */
 }
 </style>

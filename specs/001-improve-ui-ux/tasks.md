@@ -38,7 +38,7 @@
 
 ## Phase 3.1: Parent Component State Management
 
-### T001 Add expansion state to Transactions.vue
+### [X] T001 Add expansion state to Transactions.vue
 **File**: `frontend/src/views/Transactions.vue`
 
 **Objective**: Add reactive state to track which transaction cards are expanded
@@ -85,7 +85,7 @@
 
 ---
 
-### T002 Pass expansion state to TransactionCard components
+### [X] T002 Pass expansion state to TransactionCard components
 **File**: `frontend/src/views/Transactions.vue`
 
 **Objective**: Pass isExpanded prop and toggleExpand event handler to each TransactionCard
@@ -122,7 +122,7 @@
 
 ## Phase 3.2: TransactionCard Component Modifications
 
-### T003 Update TransactionCard props interface
+### [X] T003 Update TransactionCard props interface
 **File**: `frontend/src/components/transactions/TransactionCard.vue`
 
 **Objective**: Add isExpanded prop to component interface
@@ -152,7 +152,7 @@
 
 ---
 
-### T004 Add toggleExpand event to TransactionCard
+### [X] T004 Add toggleExpand event to TransactionCard
 **File**: `frontend/src/components/transactions/TransactionCard.vue`
 
 **Objective**: Add new event emission for card expand/collapse
@@ -186,7 +186,7 @@
 
 ---
 
-### T005 Restructure TransactionCard template for collapsible content
+### [X] T005 Restructure TransactionCard template for collapsible content
 **File**: `frontend/src/components/transactions/TransactionCard.vue`
 
 **Objective**: Add click handler to card and create expandable content section
@@ -307,7 +307,7 @@
 
 ## Phase 3.3: Visual Feedback & Styling
 
-### T006 Add visual feedback for expanded state
+### [X] T006 Add visual feedback for expanded state
 **File**: `frontend/src/components/transactions/TransactionCard.vue`
 
 **Objective**: Add styling to differentiate expanded cards and indicate clickability

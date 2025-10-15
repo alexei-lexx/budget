@@ -91,9 +91,11 @@
               :transaction="transaction"
               :account-name="getAccountName(transaction.accountId)"
               :category-name="getCategoryName(transaction.categoryId)"
+              :is-expanded="isTransactionExpanded(transaction.id)"
               class="mb-3"
               @edit-transaction="handleEditTransaction"
               @delete-transaction="handleDeleteTransaction"
+              @toggle-expand="toggleTransactionExpand"
             />
           </div>
 
@@ -241,6 +243,9 @@ const editingTransfer = ref<Transfer | null>(null);
 const transactionToDelete = ref<Transaction | null>(null);
 const transactionFormLoading = ref(false);
 const transferFormLoading = ref(false);
+
+// Expansion state for collapsible transaction cards
+const expandedTransactionIds = ref<Set<string>>(new Set());
 
 // Event handlers
 const handleAddTransaction = () => {
@@ -462,6 +467,21 @@ const handleTransactionFormCancel = () => {
   editingTransfer.value = null;
   transactionFormLoading.value = false;
   transferFormLoading.value = false;
+};
+
+// Expansion state handlers
+const toggleTransactionExpand = (transactionId: string) => {
+  if (expandedTransactionIds.value.has(transactionId)) {
+    expandedTransactionIds.value.delete(transactionId);
+  } else {
+    expandedTransactionIds.value.add(transactionId);
+  }
+  // Trigger Vue reactivity by creating new Set instance
+  expandedTransactionIds.value = new Set(expandedTransactionIds.value);
+};
+
+const isTransactionExpanded = (transactionId: string): boolean => {
+  return expandedTransactionIds.value.has(transactionId);
 };
 
 // Helper functions to resolve names
