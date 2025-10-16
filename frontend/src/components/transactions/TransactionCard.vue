@@ -154,11 +154,6 @@ const handleCardClick = () => {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-.transaction-card.expanded {
-  border-color: rgb(var(--v-theme-primary));
-  border-width: 2px;
-}
-
 .transaction-card.expanded:hover {
   transform: none; /* Disable hover transform when expanded */
 }
