@@ -2,6 +2,7 @@
 import { computed } from "vue";
 import type { Transaction } from "@/composables/useTransactions";
 import { formatTransactionAmount } from "@/utils/currency";
+import ActionButtons from "@/components/common/ActionButtons.vue";
 
 // Define component props
 interface Props {
@@ -117,63 +118,23 @@ const handleCardClick = () => {
         </div>
       </div>
 
-      <!-- Expanded state: Second row with description and buttons -->
+      <!-- Expanded state: Description and buttons -->
       <div
-        v-if="isExpanded && transaction.description"
-        class="d-flex flex-column flex-sm-row align-sm-center justify-sm-space-between ga-2 mt-3"
+        v-if="isExpanded"
+        class="d-flex ga-2 mt-3"
+        :class="
+          transaction.description
+            ? 'flex-column flex-sm-row align-sm-center justify-sm-space-between'
+            : 'justify-end'
+        "
       >
-        <!-- Description on left (top on mobile) -->
-        <div class="text-body-2 flex-grow-1" style="min-width: 0">
+        <!-- Description on left (top on mobile) - only shown if present -->
+        <div v-if="transaction.description" class="text-body-2 flex-grow-1" style="min-width: 0">
           {{ transaction.description }}
         </div>
 
-        <!-- Buttons on right (bottom on mobile) -->
-        <div class="flex-shrink-0 d-flex ga-2" @click.stop>
-          <v-btn
-            size="small"
-            color="primary"
-            variant="text"
-            prepend-icon="mdi-pencil"
-            @click="handleEditTransaction"
-          >
-            Edit
-          </v-btn>
-          <v-btn
-            size="small"
-            color="error"
-            variant="text"
-            prepend-icon="mdi-delete"
-            @click="handleDeleteTransaction"
-          >
-            Delete
-          </v-btn>
-        </div>
-      </div>
-
-      <!-- Expanded state without description: Only buttons -->
-      <div
-        v-else-if="isExpanded && !transaction.description"
-        class="d-flex justify-end ga-2 mt-3"
-        @click.stop
-      >
-        <v-btn
-          size="small"
-          color="primary"
-          variant="text"
-          prepend-icon="mdi-pencil"
-          @click="handleEditTransaction"
-        >
-          Edit
-        </v-btn>
-        <v-btn
-          size="small"
-          color="error"
-          variant="text"
-          prepend-icon="mdi-delete"
-          @click="handleDeleteTransaction"
-        >
-          Delete
-        </v-btn>
+        <!-- Action buttons on right (bottom on mobile) -->
+        <ActionButtons @edit="handleEditTransaction" @delete="handleDeleteTransaction" />
       </div>
     </v-card-text>
   </v-card>
