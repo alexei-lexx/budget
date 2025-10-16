@@ -186,9 +186,8 @@ Update `codegen.yml` to generate Zod schemas alongside TypeScript types.
 
 ### Phase 3: Build Integration (30 minutes)
 
-1. **Pre-commit Hooks**: Ensure generated types are up-to-date
-2. **CI/CD Integration**: Add codegen validation to deployment pipeline
-3. **Development Workflow**: Set up file watching for automatic regeneration
+1. **CI/CD Integration**: Add codegen validation to deployment pipeline
+2. **Development Workflow**: Set up file watching for automatic regeneration
 
 ## Expected Benefits
 

@@ -187,18 +187,6 @@ npm run db:setup    # Recreate database and tables
 - ESLint + Prettier for code quality across all packages
 - TypeScript for type safety
 - Jest for unit testing in CDK packages
-- Git hooks available for code quality enforcement
-
-### Git Hooks Setup
-To enable project git hooks for consistent code quality:
-```bash
-git config core.hooksPath .githooks
-```
-
-To disable project git hooks:
-```bash
-git config --unset core.hooksPath
-```
 
 ## Important Patterns
 
@@ -519,17 +507,6 @@ Follow bottom-up, layer-by-layer implementation pattern:
 For comprehensive task definition guidelines, refer to docs/tasks.instructions.md
 
 ## Code Quality and Development Workflow
-
-### Git Hooks Setup
-Enable project git hooks for consistent code quality:
-```bash
-git config core.hooksPath .githooks
-```
-
-**Pre-commit Hook:**
-- Runs formatting and linting across all packages
-- Prevents commits with code quality issues
-- Automatically fixes formatting where possible
 
 ### Testing Infrastructure
 - **Backend CDK**: Jest tests for infrastructure validation
