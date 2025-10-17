@@ -17,6 +17,9 @@ interface CategoryFormData {
 // State for tabs
 const activeTab = ref<CategoryType>("EXPENSE");
 
+// Expansion state for collapsible category cards
+const expandedCards = ref<Record<string, boolean>>({});
+
 // Use categories composable for current tab
 const {
   categories: categoriesData,
@@ -52,6 +55,16 @@ const filteredCategories = computed<Category[]>(() => {
 // Loading state
 const loading = computed(() => categoriesLoading.value);
 const formLoading = computed(() => createCategoryLoading.value || updateCategoryLoading.value);
+
+// Toggle expansion for a specific category
+const toggleExpand = (categoryId: string) => {
+  expandedCards.value[categoryId] = !expandedCards.value[categoryId];
+};
+
+// Check if category is expanded
+const isExpanded = (categoryId: string): boolean => {
+  return expandedCards.value[categoryId] ?? false;
+};
 
 // Functions for category operations
 const openAddCategoryDialog = () => {
@@ -199,8 +212,10 @@ const handleCategoryCancel = () => {
       <v-col v-for="category in filteredCategories" :key="category.id" cols="12" md="6" xl="4">
         <CategoryCard
           :category="category"
+          :is-expanded="isExpanded(category.id)"
           @edit-category="editCategory"
           @delete-category="deleteCategoryHandler"
+          @toggle-expand="toggleExpand"
         />
       </v-col>
     </v-row>

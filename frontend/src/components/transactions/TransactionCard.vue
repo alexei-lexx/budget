@@ -94,7 +94,6 @@ const handleCardClick = () => {
     class="transaction-card"
     :class="{ expanded: isExpanded }"
     @click="handleCardClick"
-    style="cursor: pointer"
   >
     <v-card-text class="py-3">
       <!-- Collapsed state: Single row with all info -->
