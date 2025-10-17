@@ -38,7 +38,6 @@ const handleCardClick = () => {
     class="account-card"
     :class="{ expanded: isExpanded }"
     @click="handleCardClick"
-    style="cursor: pointer"
   >
     <v-card-text class="py-3">
       <!-- Collapsed state: Always visible content -->
