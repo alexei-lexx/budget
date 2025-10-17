@@ -22,9 +22,9 @@
 
 **Purpose**: Review reference implementation before starting modifications
 
-- [ ] T001 Review TransactionCard.vue implementation pattern in frontend/src/components/transactions/TransactionCard.vue
-- [ ] T002 Review ActionButtons.vue component API in frontend/src/components/common/ActionButtons.vue
-- [ ] T003 Review Transactions.vue state management pattern in frontend/src/views/Transactions.vue
+- [x] T001 Review TransactionCard.vue implementation pattern in frontend/src/components/transactions/TransactionCard.vue
+- [x] T002 Review ActionButtons.vue component API in frontend/src/components/common/ActionButtons.vue
+- [x] T003 Review Transactions.vue state management pattern in frontend/src/views/Transactions.vue
 
 **Checkpoint**: Pattern understanding complete - ready for implementation
 
@@ -38,22 +38,22 @@
 
 ### Implementation for User Story 1
 
-- [ ] T004 [US1] Add isExpanded prop to AccountCard component in frontend/src/components/accounts/AccountCard.vue
-- [ ] T005 [US1] Replace ActionDropdown import with ActionButtons import in frontend/src/components/accounts/AccountCard.vue
-- [ ] T006 [US1] Add toggleExpand event to AccountCard component in frontend/src/components/accounts/AccountCard.vue
-- [ ] T007 [US1] Add handleCardClick method that emits toggleExpand in frontend/src/components/accounts/AccountCard.vue
-- [ ] T008 [US1] Add @click handler to v-card element in frontend/src/components/accounts/AccountCard.vue
-- [ ] T009 [US1] Add cursor:pointer style to v-card element in frontend/src/components/accounts/AccountCard.vue
-- [ ] T010 [US1] Wrap ActionButtons in v-if="isExpanded" conditional block in frontend/src/components/accounts/AccountCard.vue
-- [ ] T011 [US1] Move ActionButtons to bottom of card content with justify-end class in frontend/src/components/accounts/AccountCard.vue
-- [ ] T012 [US1] Add :class="{ expanded: isExpanded }" binding to v-card in frontend/src/components/accounts/AccountCard.vue
-- [ ] T013 [US1] Add .expanded CSS class with hover:transform:none in frontend/src/components/accounts/AccountCard.vue
-- [ ] T014 [US1] Update existing hover styles to disable transform when expanded in frontend/src/components/accounts/AccountCard.vue
-- [ ] T015 [US1] Add expandedCards ref with Record<string, boolean> type in frontend/src/components/accounts/AccountsList.vue
-- [ ] T016 [US1] Add toggleExpand method to AccountsList component in frontend/src/components/accounts/AccountsList.vue
-- [ ] T017 [US1] Add isExpanded helper method to AccountsList component in frontend/src/components/accounts/AccountsList.vue
-- [ ] T018 [US1] Pass isExpanded prop to AccountCard in template in frontend/src/components/accounts/AccountsList.vue
-- [ ] T019 [US1] Add @toggleExpand event handler to AccountCard in template in frontend/src/components/accounts/AccountsList.vue
+- [x] T004 [US1] Add isExpanded prop to AccountCard component in frontend/src/components/accounts/AccountCard.vue
+- [x] T005 [US1] Replace ActionDropdown import with ActionButtons import in frontend/src/components/accounts/AccountCard.vue
+- [x] T006 [US1] Add toggleExpand event to AccountCard component in frontend/src/components/accounts/AccountCard.vue
+- [x] T007 [US1] Add handleCardClick method that emits toggleExpand in frontend/src/components/accounts/AccountCard.vue
+- [x] T008 [US1] Add @click handler to v-card element in frontend/src/components/accounts/AccountCard.vue
+- [x] T009 [US1] Add cursor:pointer style to v-card element in frontend/src/components/accounts/AccountCard.vue
+- [x] T010 [US1] Wrap ActionButtons in v-if="isExpanded" conditional block in frontend/src/components/accounts/AccountCard.vue
+- [x] T011 [US1] Move ActionButtons to bottom of card content with justify-end class in frontend/src/components/accounts/AccountCard.vue
+- [x] T012 [US1] Add :class="{ expanded: isExpanded }" binding to v-card in frontend/src/components/accounts/AccountCard.vue
+- [x] T013 [US1] Add .expanded CSS class with hover:transform:none in frontend/src/components/accounts/AccountCard.vue
+- [x] T014 [US1] Update existing hover styles to disable transform when expanded in frontend/src/components/accounts/AccountCard.vue
+- [x] T015 [US1] Add expandedCards ref with Record<string, boolean> type in frontend/src/components/accounts/AccountsList.vue
+- [x] T016 [US1] Add toggleExpand method to AccountsList component in frontend/src/components/accounts/AccountsList.vue
+- [x] T017 [US1] Add isExpanded helper method to AccountsList component in frontend/src/components/accounts/AccountsList.vue
+- [x] T018 [US1] Pass isExpanded prop to AccountCard in template in frontend/src/components/accounts/AccountsList.vue
+- [x] T019 [US1] Add @toggleExpand event handler to AccountCard in template in frontend/src/components/accounts/AccountsList.vue
 - [ ] T020 [US1] Manual test: Verify account cards start collapsed
 - [ ] T021 [US1] Manual test: Verify clicking card expands and shows action buttons
 - [ ] T022 [US1] Manual test: Verify clicking expanded card collapses it
@@ -75,22 +75,22 @@
 
 ### Implementation for User Story 2
 
-- [ ] T028 [US2] Add isExpanded prop to CategoryCard component in frontend/src/components/categories/CategoryCard.vue
-- [ ] T029 [US2] Replace ActionDropdown import with ActionButtons import in frontend/src/components/categories/CategoryCard.vue
-- [ ] T030 [US2] Add toggleExpand event to CategoryCard component in frontend/src/components/categories/CategoryCard.vue
-- [ ] T031 [US2] Add handleCardClick method that emits toggleExpand in frontend/src/components/categories/CategoryCard.vue
-- [ ] T032 [US2] Add @click handler to v-card element in frontend/src/components/categories/CategoryCard.vue
-- [ ] T033 [US2] Add cursor:pointer style to v-card element in frontend/src/components/categories/CategoryCard.vue
-- [ ] T034 [US2] Wrap ActionButtons in v-if="isExpanded" conditional block in frontend/src/components/categories/CategoryCard.vue
-- [ ] T035 [US2] Move ActionButtons to bottom of card content with justify-end class in frontend/src/components/categories/CategoryCard.vue
-- [ ] T036 [US2] Add :class="{ expanded: isExpanded }" binding to v-card in frontend/src/components/categories/CategoryCard.vue
-- [ ] T037 [US2] Add .expanded CSS class with hover:transform:none in frontend/src/components/categories/CategoryCard.vue
-- [ ] T038 [US2] Update existing hover styles to disable transform when expanded in frontend/src/components/categories/CategoryCard.vue
-- [ ] T039 [US2] Add expandedCards ref with Record<string, boolean> type in frontend/src/views/Categories.vue
-- [ ] T040 [US2] Add toggleExpand method to Categories view in frontend/src/views/Categories.vue
-- [ ] T041 [US2] Add isExpanded helper method to Categories view in frontend/src/views/Categories.vue
-- [ ] T042 [US2] Pass isExpanded prop to CategoryCard in template in frontend/src/views/Categories.vue
-- [ ] T043 [US2] Add @toggleExpand event handler to CategoryCard in template in frontend/src/views/Categories.vue
+- [x] T028 [US2] Add isExpanded prop to CategoryCard component in frontend/src/components/categories/CategoryCard.vue
+- [x] T029 [US2] Replace ActionDropdown import with ActionButtons import in frontend/src/components/categories/CategoryCard.vue
+- [x] T030 [US2] Add toggleExpand event to CategoryCard component in frontend/src/components/categories/CategoryCard.vue
+- [x] T031 [US2] Add handleCardClick method that emits toggleExpand in frontend/src/components/categories/CategoryCard.vue
+- [x] T032 [US2] Add @click handler to v-card element in frontend/src/components/categories/CategoryCard.vue
+- [x] T033 [US2] Add cursor:pointer style to v-card element in frontend/src/components/categories/CategoryCard.vue
+- [x] T034 [US2] Wrap ActionButtons in v-if="isExpanded" conditional block in frontend/src/components/categories/CategoryCard.vue
+- [x] T035 [US2] Move ActionButtons to bottom of card content with justify-end class in frontend/src/components/categories/CategoryCard.vue
+- [x] T036 [US2] Add :class="{ expanded: isExpanded }" binding to v-card in frontend/src/components/categories/CategoryCard.vue
+- [x] T037 [US2] Add .expanded CSS class with hover:transform:none in frontend/src/components/categories/CategoryCard.vue
+- [x] T038 [US2] Update existing hover styles to disable transform when expanded in frontend/src/components/categories/CategoryCard.vue
+- [x] T039 [US2] Add expandedCards ref with Record<string, boolean> type in frontend/src/views/Categories.vue
+- [x] T040 [US2] Add toggleExpand method to Categories view in frontend/src/views/Categories.vue
+- [x] T041 [US2] Add isExpanded helper method to Categories view in frontend/src/views/Categories.vue
+- [x] T042 [US2] Pass isExpanded prop to CategoryCard in template in frontend/src/views/Categories.vue
+- [x] T043 [US2] Add @toggleExpand event handler to CategoryCard in template in frontend/src/views/Categories.vue
 - [ ] T044 [US2] Manual test: Verify category cards start collapsed
 - [ ] T045 [US2] Manual test: Verify clicking card expands and shows action buttons
 - [ ] T046 [US2] Manual test: Verify clicking expanded card collapses it
@@ -112,10 +112,10 @@
 
 ### Implementation for User Story 3
 
-- [ ] T052 [US3] Search codebase for remaining ActionDropdown imports using grep/ripgrep in frontend/src/
-- [ ] T053 [US3] Verify no active imports found (only AccountCard and CategoryCard should have been using it) across frontend/src/
-- [ ] T054 [US3] Delete ActionDropdown.vue file from frontend/src/components/common/ActionDropdown.vue
-- [ ] T055 [US3] Build frontend to verify no compilation errors with npm run build in frontend/
+- [x] T052 [US3] Search codebase for remaining ActionDropdown imports using grep/ripgrep in frontend/src/
+- [x] T053 [US3] Verify no active imports found (only AccountCard and CategoryCard should have been using it) across frontend/src/
+- [x] T054 [US3] Delete ActionDropdown.vue file from frontend/src/components/common/ActionDropdown.vue
+- [x] T055 [US3] Build frontend to verify no compilation errors with npm run build in frontend/
 - [ ] T056 [US3] Start development server and verify application loads without errors with npm run dev in frontend/
 - [ ] T057 [US3] Manual test: Navigate to accounts page and verify functionality
 - [ ] T058 [US3] Manual test: Navigate to categories page and verify functionality

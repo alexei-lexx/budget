@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import type { Account } from "@/composables/useAccounts";
 import AccountCard from "@/components/accounts/AccountCard.vue";
 
@@ -20,6 +20,19 @@ const emit = defineEmits<{
 }>();
 
 const accounts = computed(() => props.accounts);
+
+// Expansion state for collapsible account cards
+const expandedCards = ref<Record<string, boolean>>({});
+
+// Toggle expansion for a specific account
+const toggleExpand = (accountId: string) => {
+  expandedCards.value[accountId] = !expandedCards.value[accountId];
+};
+
+// Check if account is expanded
+const isExpanded = (accountId: string): boolean => {
+  return expandedCards.value[accountId] ?? false;
+};
 
 // Event handlers
 const handleEditAccount = (accountId: string) => {
@@ -63,8 +76,10 @@ const handleDeleteAccount = (accountId: string) => {
     <v-col v-for="account in accounts" :key="account.id" cols="12" md="6" xl="4">
       <AccountCard
         :account="account"
+        :is-expanded="isExpanded(account.id)"
         @edit-account="handleEditAccount"
         @delete-account="handleDeleteAccount"
+        @toggle-expand="toggleExpand"
       />
     </v-col>
   </v-row>
