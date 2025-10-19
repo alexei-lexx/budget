@@ -1,0 +1,362 @@
+# GraphQL Schema Contract: Transaction Filtering
+#
+# This file defines the GraphQL API contract for the transaction filtering feature.
+# It extends the existing schema with optional filtering capabilities while
+# maintaining full backward compatibility.
+#
+# Date: 2025-10-19
+# Feature: Transaction Filtering
+# Related: ../spec.md, ../plan.md, ../data-model.md
+
+# ============================================================================
+# INPUT TYPES (NEW)
+# ============================================================================
+
+"""
+Filter criteria for querying transactions by multiple dimensions.
+
+All fields are optional. An empty filter object returns all transactions.
+
+**Filter Logic**:
+- Different filter types (account, category, date, type) use AND logic
+- Same filter type with multiple values (accountIds, categoryIds, types) uses OR logic
+
+**Examples**:
+```graphql
+# Filter by date range only
+filters: {
+  dateAfter: "2024-03-01"
+  dateBefore: "2024-03-31"
+}
+
+# Filter by multiple accounts and expense type
+filters: {
+  accountIds: ["account-uuid-1", "account-uuid-2"]
+  types: [EXPENSE]
+}
+
+# Complex filter: Groceries OR Utilities from Checking Account in March
+filters: {
+  accountIds: ["checking-account-uuid"]
+  categoryIds: ["groceries-uuid", "utilities-uuid"]
+  dateAfter: "2024-03-01"
+  dateBefore: "2024-03-31"
+  types: [EXPENSE]
+}
+
+# Include uncategorized transactions
+filters: {
+  includeUncategorized: true
+}
+
+# Specific categories AND uncategorized
+filters: {
+  categoryIds: ["groceries-uuid"]
+  includeUncategorized: true
+}
+```
+"""
+input TransactionFilterInput {
+  """
+  Filter by account IDs (multi-select, OR logic).
+
+  Returns transactions where accountId matches ANY of the provided IDs.
+  Omitting this field or providing empty array = no account filtering.
+
+  Example: `accountIds: ["uuid1", "uuid2"]` returns transactions from either account.
+  """
+  accountIds: [ID!]
+
+  """
+  Filter by category IDs (multi-select, OR logic).
+
+  Returns transactions where categoryId matches ANY of the provided IDs.
+  Combine with includeUncategorized to also include transactions without categories.
+  Omitting this field or providing empty array = no category filtering.
+
+  Example: `categoryIds: ["cat1", "cat2"]` returns transactions in either category.
+  """
+  categoryIds: [ID!]
+
+  """
+  Include transactions without a category (uncategorized transactions).
+
+  **Behavior**:
+  - `true` + categoryIds provided: Returns transactions matching categoryIds OR uncategorized
+  - `true` + no categoryIds: Returns ONLY uncategorized transactions
+  - `false` or omitted + categoryIds: Returns ONLY transactions with specified categories
+  - `false` or omitted + no categoryIds: No category filtering applied
+
+  Example: `includeUncategorized: true, categoryIds: ["cat1"]` returns
+           transactions in "cat1" OR transactions without any category.
+  """
+  includeUncategorized: Boolean
+
+  """
+  Filter by transaction date after (inclusive).
+
+  Format: YYYY-MM-DD (ISO 8601 date, e.g., "2024-01-01")
+  Returns transactions where date >= dateAfter.
+
+  **Note**: Filters by transaction date field (user-entered date), NOT createdAt timestamp.
+
+  Example: `dateAfter: "2024-03-01"` returns transactions from March 1, 2024 onwards.
+  """
+  dateAfter: String
+
+  """
+  Filter by transaction date before (inclusive).
+
+  Format: YYYY-MM-DD (ISO 8601 date, e.g., "2024-12-31")
+  Returns transactions where date <= dateBefore.
+
+  **Note**: Filters by transaction date field (user-entered date), NOT createdAt timestamp.
+
+  Example: `dateBefore: "2024-03-31"` returns transactions up to and including March 31, 2024.
+  """
+  dateBefore: String
+
+  """
+  Filter by transaction types (multi-select, OR logic).
+
+  Returns transactions where type matches ANY of the provided types.
+  Omitting this field or providing empty array = no type filtering.
+
+  **Common Use Cases**:
+  - `types: [INCOME, TRANSFER_IN]` - All money received
+  - `types: [EXPENSE, TRANSFER_OUT]` - All money spent/transferred out
+  - `types: [EXPENSE]` - Only regular expenses (excluding transfers)
+
+  Example: `types: [INCOME, TRANSFER_IN]` returns all income and incoming transfers.
+  """
+  types: [TransactionType!]
+}
+
+# ============================================================================
+# QUERY EXTENSIONS
+# ============================================================================
+
+extend type Query {
+  """
+  Fetch paginated list of transactions with optional filtering.
+
+  **Backward Compatibility**: The `filters` parameter is optional.
+  Existing queries without filters continue to work unchanged.
+
+  **Parameters**:
+  - `pagination`: Cursor-based pagination (first, after) - optional
+  - `filters`: Filter criteria (all fields optional) - optional
+
+  **Filtering Behavior**:
+  - No filters: Returns all active (non-archived) transactions
+  - Date filters present: Uses UserDateIndex for efficient date-range queries
+  - No date filters: Uses UserCreatedAtIndex for recency-ordered results
+  - Additional filters (account, category, type) applied via DynamoDB FilterExpression
+
+  **Performance**:
+  - With date range: Scans 100-500 items (typical month), <100ms response
+  - Without date range: Scans all user transactions (~5000), <200ms response
+  - All filter combinations meet <1s user-facing performance target
+
+  **Pagination**:
+  - Works seamlessly with filters active
+  - "Load More" loads additional transactions matching current filters
+  - Single cursor maintained (no complex multi-cursor merging)
+
+  **Error Handling**:
+  - Invalid date format: GraphQL validation error
+  - Invalid UUID format: GraphQL validation error
+  - Invalid date range (dateAfter > dateBefore): Returns empty result set (no error)
+  - Non-existent account/category IDs: Returns empty result set (no error)
+
+  **Examples**:
+  ```graphql
+  # No filtering (all transactions)
+  query {
+    transactions {
+      edges { node { id, amount, date } }
+      pageInfo { hasNextPage }
+      totalCount
+    }
+  }
+
+  # Filter by date range
+  query {
+    transactions(
+      filters: { dateAfter: "2024-03-01", dateBefore: "2024-03-31" }
+    ) {
+      edges { node { id, amount, date, type } }
+      pageInfo { hasNextPage, endCursor }
+      totalCount
+    }
+  }
+
+  # Complex filter with pagination
+  query {
+    transactions(
+      pagination: { first: 20, after: "cursor-string" }
+      filters: {
+        accountIds: ["account-uuid-1", "account-uuid-2"]
+        categoryIds: ["groceries-uuid"]
+        includeUncategorized: true
+        dateAfter: "2024-01-01"
+        types: [EXPENSE]
+      }
+    ) {
+      edges {
+        node {
+          id
+          amount
+          date
+          type
+          account { name }
+          category { name }
+        }
+        cursor
+      }
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
+      }
+      totalCount
+    }
+  }
+
+  # Load more with same filters
+  query {
+    transactions(
+      pagination: { first: 20, after: "previous-end-cursor" }
+      filters: { types: [EXPENSE] }  # Same filters as previous query
+    ) {
+      edges { node { id } }
+      pageInfo { hasNextPage, endCursor }
+    }
+  }
+  ```
+  """
+  transactions(
+    pagination: PaginationInput
+    filters: TransactionFilterInput
+  ): TransactionConnection!
+}
+
+# ============================================================================
+# EXISTING TYPES (REFERENCE - NO CHANGES)
+# ============================================================================
+
+# These types already exist in backend/src/schema.graphql
+# Included here for reference and contract completeness
+
+"""
+Transaction type enum.
+"""
+enum TransactionType {
+  INCOME
+  EXPENSE
+  TRANSFER_IN
+  TRANSFER_OUT
+}
+
+"""
+Transaction entity.
+"""
+type Transaction {
+  id: ID!
+  userId: ID!
+  accountId: ID!
+  categoryId: ID
+  type: TransactionType!
+  amount: Float!
+  currency: String!
+  date: String!         # YYYY-MM-DD format (user-entered transaction date)
+  description: String
+  transferId: ID
+  isArchived: Boolean!
+  createdAt: String!    # ISO 8601 timestamp (system creation time)
+  updatedAt: String!    # ISO 8601 timestamp (system update time)
+
+  # Relationships (existing)
+  account: Account!
+  category: Category
+}
+
+"""
+Transaction edge for cursor-based pagination.
+"""
+type TransactionEdge {
+  node: Transaction!
+  cursor: String!
+}
+
+"""
+Page info for cursor-based pagination.
+"""
+type PageInfo {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+  endCursor: String
+}
+
+"""
+Transaction connection for paginated results.
+"""
+type TransactionConnection {
+  edges: [TransactionEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+"""
+Pagination input for cursor-based pagination.
+"""
+input PaginationInput {
+  first: Int
+  after: String
+}
+
+# ============================================================================
+# IMPLEMENTATION NOTES
+# ============================================================================
+
+# Backend Implementation:
+# 1. Schema Extension: Add TransactionFilterInput to backend/src/schema.graphql
+# 2. Resolver Update: Extend transactions resolver with filters parameter
+# 3. Validation: Use Zod to validate filter input format
+# 4. Service Layer: Pass filters to TransactionService.getTransactionsByUser()
+# 5. Repository Layer: Extend TransactionRepository.findActiveByUserId() with filtering logic
+# 6. DynamoDB Query: Use UserDateIndex or UserCreatedAtIndex + FilterExpression
+#
+# Frontend Implementation:
+# 1. Schema Sync: Run `npm run codegen:sync-schema` to pull this schema
+# 2. Type Generation: Run `npm run codegen` to generate TypeScript types
+# 3. Query Update: Add filters parameter to GetTransactionsPaginatedDocument
+# 4. Composable: Create useTransactionFilters for filter state management
+# 5. UI Component: Create TransactionFilterBar.vue with multi-select inputs
+# 6. Integration: Wire filters to useTransactions composable
+#
+# Testing:
+# - Backend: Test all 16 filter combinations (account, category, date, type)
+# - Backend: Test pagination with filters active
+# - Backend: Test edge cases (empty filters, invalid date range, non-existent IDs)
+# - Frontend: Test filter UI interactions (select, apply, clear)
+# - Frontend: Test filter state management (selected vs applied)
+# - E2E: Test complete filtering workflow from UI to results
+#
+# DynamoDB Indexes Used:
+# - UserDateIndex (userId + date) - When dateAfter/dateBefore present
+# - UserCreatedAtIndex (userId + createdAt) - When no date filters
+# - No new GSIs required - uses existing indexes with FilterExpression
+#
+# Performance Characteristics:
+# - Date range queries: ~1 RCU, <100ms (scans 100-500 items)
+# - Non-date queries: ~5 RCU, <200ms (scans all user transactions)
+# - FilterExpression cost: Negligible at personal finance app scale (<10k transactions)
+#
+# Backward Compatibility:
+# - ✅ Existing queries work unchanged (filters parameter is optional)
+# - ✅ No breaking changes to existing types
+# - ✅ Safe to deploy backend before frontend
+# - ✅ No database migration required
