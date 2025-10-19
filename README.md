@@ -9,8 +9,8 @@ A serverless web application for individual financial management with Vue.js fro
 
 ## Architecture
 
-- **frontend/** - Vue 3 + Vite + Vuetify SPA
 - **backend/** - Apollo GraphQL server (Node.js/TypeScript)
+- **frontend/** - Vue 3 + Vite + Vuetify SPA
 - **backend-cdk/** - AWS CDK infrastructure for backend (Lambda/API Gateway/DynamoDB)
 - **frontend-cdk/** - AWS CDK infrastructure for frontend (S3/CloudFront)
 
