@@ -1,8 +1,6 @@
 <!-- eslint-disable vue/no-mutating-props -->
 <template>
   <v-card class="transaction-filter-bar pa-4 mb-4">
-    <v-card-title class="text-h6 pa-0 mb-4">Transaction Filters</v-card-title>
-
     <v-row>
       <!-- Account Filter -->
       <v-col cols="12" md="6">
