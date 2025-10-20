@@ -22,9 +22,9 @@
 
 **Purpose**: Ensure development environment is ready
 
-- [ ] T001 Verify DynamoDB Local is running with UserDateIndex and UserCreatedAtIndex GSIs
-- [ ] T002 [P] Verify backend dependencies installed (Apollo Server 4.x, @aws-sdk/lib-dynamodb 3.x, Zod 3.x)
-- [ ] T003 [P] Verify frontend dependencies installed (Vue 3.4+, Vuetify 3.x, @vue/apollo-composable 4.x)
+- [X] T001 Verify DynamoDB Local is running with UserDateIndex and UserCreatedAtIndex GSIs
+- [X] T002 [P] Verify backend dependencies installed (Apollo Server 4.x, @aws-sdk/lib-dynamodb 3.x, Zod 3.x)
+- [X] T003 [P] Verify frontend dependencies installed (Vue 3.4+, Vuetify 3.x, @vue/apollo-composable 4.x)
 
 ---
 
