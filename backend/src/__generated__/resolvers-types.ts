@@ -221,6 +221,7 @@ export type QueryTransactionDescriptionSuggestionsArgs = {
 
 
 export type QueryTransactionsArgs = {
+  filters?: InputMaybe<TransactionFilterInput>;
   pagination?: InputMaybe<PaginationInput>;
 };
 
@@ -253,6 +254,15 @@ export type TransactionEdge = {
   __typename?: 'TransactionEdge';
   cursor: Scalars['String']['output'];
   node: Transaction;
+};
+
+export type TransactionFilterInput = {
+  accountIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  categoryIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  dateAfter?: InputMaybe<Scalars['String']['input']>;
+  dateBefore?: InputMaybe<Scalars['String']['input']>;
+  includeUncategorized?: InputMaybe<Scalars['Boolean']['input']>;
+  types?: InputMaybe<Array<TransactionType>>;
 };
 
 export type TransactionPattern = {
@@ -408,6 +418,7 @@ export type ResolversTypes = {
   Transaction: ResolverTypeWrapper<Transaction>;
   TransactionConnection: ResolverTypeWrapper<TransactionConnection>;
   TransactionEdge: ResolverTypeWrapper<TransactionEdge>;
+  TransactionFilterInput: TransactionFilterInput;
   TransactionPattern: ResolverTypeWrapper<TransactionPattern>;
   TransactionPatternType: TransactionPatternType;
   TransactionType: TransactionType;
@@ -443,6 +454,7 @@ export type ResolversParentTypes = {
   Transaction: Transaction;
   TransactionConnection: TransactionConnection;
   TransactionEdge: TransactionEdge;
+  TransactionFilterInput: TransactionFilterInput;
   TransactionPattern: TransactionPattern;
   Transfer: Transfer;
   UpdateAccountInput: UpdateAccountInput;

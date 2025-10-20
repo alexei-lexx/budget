@@ -1,4 +1,4 @@
-import { ref, watch, computed } from "vue";
+import { ref, watch, computed, unref, type Ref } from "vue";
 import type { ApolloError } from "@apollo/client/core";
 import {
   useGetTransactionsPaginatedQuery,
@@ -12,6 +12,7 @@ import {
   type UpdateTransactionInput,
   type TransactionEdge,
   type TransactionConnection,
+  type TransactionFilterInput,
 } from "@/__generated__/vue-apollo";
 
 // Re-export types for backward compatibility
@@ -22,9 +23,11 @@ export type {
   UpdateTransactionInput,
   TransactionEdge,
   TransactionConnection,
+  TransactionFilterInput,
 };
 
 export function useTransactions(options?: {
+  filters?: Ref<TransactionFilterInput | null>;
   onTransactionCreated?: () => Promise<void> | void;
   onTransactionUpdated?: () => Promise<void> | void;
   onTransactionDeleted?: () => Promise<void> | void;
@@ -53,6 +56,7 @@ export function useTransactions(options?: {
   } = useGetTransactionsPaginatedQuery(
     () => ({
       pagination: {},
+      filters: unref(options?.filters) || undefined,
     }),
     () => ({
       fetchPolicy: "cache-and-network",
@@ -259,6 +263,7 @@ export function useTransactions(options?: {
           pagination: {
             after: endCursor.value,
           },
+          filters: unref(options?.filters) || undefined,
         },
         fetchPolicy: "network-only", // Always fetch from network
       });

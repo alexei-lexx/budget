@@ -25,6 +25,16 @@
           </div>
         </div>
 
+        <!-- Transaction Filter Bar -->
+        <TransactionFilterBar
+          :accounts="accounts"
+          :categories="categories"
+          :filters="transactionFilters"
+          :loading="paginatedLoading"
+          @apply="() => {}"
+          @clear="() => {}"
+        />
+
         <!-- Loading State -->
         <div v-if="paginatedLoading" class="text-center py-8">
           <v-progress-circular
@@ -181,16 +191,18 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import { useDisplay } from "vuetify";
 import { useTransactions } from "@/composables/useTransactions";
 import { useAccounts } from "@/composables/useAccounts";
 import { useCategories } from "@/composables/useCategories";
 import { useSnackbar } from "@/composables/useSnackbar";
 import { useTransfers } from "@/composables/useTransfers";
+import { useTransactionFilters } from "@/composables/useTransactionFilters";
 import TransactionCard from "@/components/transactions/TransactionCard.vue";
 import TransactionForm from "@/components/transactions/TransactionForm.vue";
 import TransactionDeleteDialog from "@/components/transactions/TransactionDeleteDialog.vue";
+import TransactionFilterBar from "@/components/transactions/TransactionFilterBar.vue";
 import TransferDeleteDialog from "@/components/transfers/TransferDeleteDialog.vue";
 import TransferForm from "@/components/transfers/TransferForm.vue";
 import type { Transaction, CreateTransactionInput } from "@/composables/useTransactions";
@@ -202,6 +214,10 @@ import type {
 
 // Composables
 const { xs } = useDisplay();
+
+// Filter state
+const transactionFilters = useTransactionFilters();
+
 const {
   paginatedTransactions,
   paginatedLoading,
@@ -214,15 +230,27 @@ const {
   deleteTransaction,
   createTransaction,
   loadMoreTransactions,
+  refetchTransactions,
   updateTransactionsInList,
   addTransactionsToList,
   removeTransactionsFromList,
-} = useTransactions();
+} = useTransactions({
+  filters: transactionFilters.appliedFilters,
+});
 const { accounts: accountsData, refetchAccounts } = useAccounts();
 const { categories: categoriesData } = useCategories();
 const { showSuccessSnackbar, showErrorSnackbar } = useSnackbar();
 const { createTransfer, updateTransfer, deleteTransfer, getTransfer, transfersError } =
   useTransfers();
+
+// Watch applied filters and refetch when they change
+watch(
+  () => transactionFilters.appliedFilters.value,
+  () => {
+    refetchTransactions();
+  },
+  { deep: true },
+);
 
 // Computed properties for clean data access
 const accounts = computed(() => accountsData.value?.accounts || []);

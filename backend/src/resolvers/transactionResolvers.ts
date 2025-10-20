@@ -16,15 +16,19 @@ import {
  * Reusable schema components for transactions
  */
 const accountIdSchema = z.string().uuid("Account ID must be a valid UUID");
-const categoryIdSchema = z
-  .string()
-  .uuid("Category ID must be a valid UUID")
-  .nullish();
+const categoryIdSchema = z.string().uuid("Category ID must be a valid UUID");
+const nullishCategoryIdSchema = categoryIdSchema.nullish();
 const typeSchema = z.enum([TransactionType.INCOME, TransactionType.EXPENSE], {
   errorMap: () => ({
     message: `Transaction type must be either ${TransactionType.INCOME} or ${TransactionType.EXPENSE}`,
   }),
 });
+const allTransactionTypesSchema = z.enum([
+  TransactionType.INCOME,
+  TransactionType.EXPENSE,
+  TransactionType.TRANSFER_IN,
+  TransactionType.TRANSFER_OUT,
+]);
 const amountSchema = z.number().nonnegative("Amount must be zero or positive");
 const dateSchema = z
   .string()
@@ -39,7 +43,7 @@ const descriptionSchema = z
  */
 const createTransactionInputSchema = z.object({
   accountId: accountIdSchema,
-  categoryId: categoryIdSchema,
+  categoryId: nullishCategoryIdSchema,
   type: typeSchema,
   amount: amountSchema,
   date: dateSchema,
@@ -49,7 +53,7 @@ const createTransactionInputSchema = z.object({
 const updateTransactionInputSchema = z.object({
   id: z.string().uuid("Transaction ID must be a valid UUID"),
   accountId: accountIdSchema.optional(),
-  categoryId: categoryIdSchema,
+  categoryId: nullishCategoryIdSchema,
   type: typeSchema.optional(),
   amount: amountSchema.optional(),
   date: dateSchema.optional(),
@@ -68,6 +72,17 @@ const paginationInputSchema = z
   })
   .optional();
 
+const transactionFilterInputSchema = z
+  .object({
+    accountIds: z.array(accountIdSchema).optional(),
+    categoryIds: z.array(categoryIdSchema).optional(),
+    includeUncategorized: z.boolean().optional(),
+    dateAfter: dateSchema.optional(),
+    dateBefore: dateSchema.optional(),
+    types: z.array(allTransactionTypesSchema).optional(),
+  })
+  .optional();
+
 const transactionPatternTypeSchema = z.enum(
   [TransactionPatternType.INCOME, TransactionPatternType.EXPENSE],
   {
@@ -81,7 +96,7 @@ export const transactionResolvers = {
   Query: {
     transactions: async (
       _parent: unknown,
-      args: { pagination?: unknown },
+      args: { pagination?: unknown; filters?: unknown },
       context: GraphQLContext,
     ) => {
       try {
@@ -89,12 +104,17 @@ export const transactionResolvers = {
         const validatedPagination = paginationInputSchema.parse(
           args.pagination,
         );
+        // Validate filters input
+        const validatedFilters = transactionFilterInputSchema.parse(
+          args.filters,
+        );
         const user = await getAuthenticatedUser(context);
 
         const transactionConnection =
           await context.transactionService.getTransactionsByUser(
             user.id,
             validatedPagination,
+            validatedFilters,
           );
         return transactionConnection;
       } catch (error) {

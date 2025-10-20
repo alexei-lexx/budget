@@ -217,6 +217,7 @@ export type QueryTransactionDescriptionSuggestionsArgs = {
 
 
 export type QueryTransactionsArgs = {
+  filters?: InputMaybe<TransactionFilterInput>;
   pagination?: InputMaybe<PaginationInput>;
 };
 
@@ -249,6 +250,15 @@ export type TransactionEdge = {
   __typename?: 'TransactionEdge';
   cursor: Scalars['String']['output'];
   node: Transaction;
+};
+
+export type TransactionFilterInput = {
+  accountIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  categoryIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  dateAfter?: InputMaybe<Scalars['String']['input']>;
+  dateBefore?: InputMaybe<Scalars['String']['input']>;
+  includeUncategorized?: InputMaybe<Scalars['Boolean']['input']>;
+  types?: InputMaybe<Array<TransactionType>>;
 };
 
 export type TransactionPattern = {
@@ -437,6 +447,7 @@ export type GetCategoriesQuery = { __typename?: 'Query', categories: Array<{ __t
 
 export type GetTransactionsPaginatedQueryVariables = Exact<{
   pagination?: InputMaybe<PaginationInput>;
+  filters?: InputMaybe<TransactionFilterInput>;
 }>;
 
 
