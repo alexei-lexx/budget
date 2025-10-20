@@ -451,6 +451,7 @@ export type GetCategoriesQuery = { __typename?: 'Query', categories: Array<{ __t
 
 export type GetTransactionsPaginatedQueryVariables = Exact<{
   pagination?: InputMaybe<PaginationInput>;
+  filters?: InputMaybe<TransactionFilterInput>;
 }>;
 
 
@@ -1014,8 +1015,8 @@ export function useGetCategoriesLazyQuery(variables: GetCategoriesQueryVariables
 }
 export type GetCategoriesQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<GetCategoriesQuery, GetCategoriesQueryVariables>;
 export const GetTransactionsPaginatedDocument = gql`
-    query GetTransactionsPaginated($pagination: PaginationInput) {
-  transactions(pagination: $pagination) {
+    query GetTransactionsPaginated($pagination: PaginationInput, $filters: TransactionFilterInput) {
+  transactions(pagination: $pagination, filters: $filters) {
     edges {
       node {
         ...TransactionFields
@@ -1046,6 +1047,7 @@ export const GetTransactionsPaginatedDocument = gql`
  * @example
  * const { result, loading, error } = useGetTransactionsPaginatedQuery({
  *   pagination: // value for 'pagination'
+ *   filters: // value for 'filters'
  * });
  */
 export function useGetTransactionsPaginatedQuery(variables: GetTransactionsPaginatedQueryVariables | VueCompositionApi.Ref<GetTransactionsPaginatedQueryVariables> | ReactiveFunction<GetTransactionsPaginatedQueryVariables> = {}, options: VueApolloComposable.UseQueryOptions<GetTransactionsPaginatedQuery, GetTransactionsPaginatedQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<GetTransactionsPaginatedQuery, GetTransactionsPaginatedQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<GetTransactionsPaginatedQuery, GetTransactionsPaginatedQueryVariables>> = {}) {

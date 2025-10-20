@@ -54,30 +54,30 @@
 
 ### Backend Tests for User Story 1
 
-- [ ] T011 [P] [US1] Write unit test for buildFilterExpression with accountIds filter in backend/tests/repositories/TransactionRepository.test.ts
-- [ ] T012 [P] [US1] Write integration test for findActiveByUserId with single account filter in backend/tests/repositories/TransactionRepository.test.ts
-- [ ] T013 [P] [US1] Write integration test for findActiveByUserId with multi-account filter in backend/tests/repositories/TransactionRepository.test.ts
+- [X] T011 [P] [US1] Write unit test for buildFilterExpression with accountIds filter in backend/tests/repositories/TransactionRepository.test.ts
+- [X] T012 [P] [US1] Write integration test for findActiveByUserId with single account filter in backend/tests/repositories/TransactionRepository.test.ts
+- [X] T013 [P] [US1] Write integration test for findActiveByUserId with multi-account filter in backend/tests/repositories/TransactionRepository.test.ts
 
 ### Backend Implementation for User Story 1
 
-- [ ] T014 [US1] Add buildFilterExpression private method with accountIds support in backend/src/repositories/TransactionRepository.ts
-- [ ] T015 [US1] Update findActiveByUserId method signature to accept filters parameter in backend/src/repositories/TransactionRepository.ts
-- [ ] T016 [US1] Implement index selection logic (UserDateIndex vs UserCreatedAtIndex) in backend/src/repositories/TransactionRepository.ts
-- [ ] T017 [US1] Implement KeyConditionExpression building in findActiveByUserId in backend/src/repositories/TransactionRepository.ts
-- [ ] T018 [US1] Integrate buildFilterExpression into findActiveByUserId query in backend/src/repositories/TransactionRepository.ts
-- [ ] T019 [US1] Update countActiveTransactions to accept filters parameter in backend/src/repositories/TransactionRepository.ts
-- [ ] T020 [US1] Update TransactionService.getTransactionsByUser to accept and pass filters in backend/src/services/TransactionService.ts
-- [ ] T021 [US1] Update transactions resolver to validate and pass filters in backend/src/resolvers/transactionResolvers.ts
-- [ ] T022 [US1] Run backend tests with npm test in backend/ and verify all US1 tests pass
+- [X] T014 [US1] Add buildFilterExpression private method with accountIds support in backend/src/repositories/TransactionRepository.ts
+- [X] T015 [US1] Update findActiveByUserId method signature to accept filters parameter in backend/src/repositories/TransactionRepository.ts
+- [X] T016 [US1] Implement index selection logic (UserDateIndex vs UserCreatedAtIndex) in backend/src/repositories/TransactionRepository.ts
+- [X] T017 [US1] Implement KeyConditionExpression building in findActiveByUserId in backend/src/repositories/TransactionRepository.ts
+- [X] T018 [US1] Integrate buildFilterExpression into findActiveByUserId query in backend/src/repositories/TransactionRepository.ts
+- [X] T019 [US1] Update countActiveTransactions to accept filters parameter in backend/src/repositories/TransactionRepository.ts
+- [X] T020 [US1] Update TransactionService.getTransactionsByUser to accept and pass filters in backend/src/services/TransactionService.ts
+- [X] T021 [US1] Update transactions resolver to validate and pass filters in backend/src/resolvers/transactionResolvers.ts
+- [X] T022 [US1] Run backend tests with npm test in backend/ and verify all US1 tests pass
 
 ### Frontend Implementation for User Story 1
 
-- [ ] T023 [P] [US1] Create useTransactionFilters composable with account filter state in frontend/src/composables/useTransactionFilters.ts
-- [ ] T024 [P] [US1] Update GET_TRANSACTIONS_PAGINATED query to include filters parameter in frontend/src/graphql/transactions.ts
-- [ ] T025 [US1] Update useTransactions composable to accept filters parameter in frontend/src/composables/useTransactions.ts
-- [ ] T026 [US1] Create TransactionFilterBar.vue component with account multi-select in frontend/src/components/TransactionFilterBar.vue
-- [ ] T027 [US1] Integrate TransactionFilterBar into transactions page with apply/clear handlers in frontend/src/views/TransactionsPage.vue (or equivalent)
-- [ ] T028 [US1] Add watcher for appliedFilters to trigger refetch in frontend/src/views/TransactionsPage.vue
+- [X] T023 [P] [US1] Create useTransactionFilters composable with account filter state in frontend/src/composables/useTransactionFilters.ts
+- [X] T024 [P] [US1] Update GET_TRANSACTIONS_PAGINATED query to include filters parameter in frontend/src/graphql/transactions.ts
+- [X] T025 [US1] Update useTransactions composable to accept filters parameter in frontend/src/composables/useTransactions.ts
+- [X] T026 [US1] Create TransactionFilterBar.vue component with account multi-select in frontend/src/components/TransactionFilterBar.vue
+- [X] T027 [US1] Integrate TransactionFilterBar into transactions page with apply/clear handlers in frontend/src/views/TransactionsPage.vue (or equivalent)
+- [X] T028 [US1] Add watcher for appliedFilters to trigger refetch in frontend/src/views/TransactionsPage.vue
 
 **Checkpoint**: Account filtering should be fully functional and testable independently
 
@@ -91,23 +91,23 @@
 
 ### Backend Tests for User Story 2
 
-- [ ] T029 [P] [US2] Write unit test for buildFilterExpression with categoryIds filter in backend/tests/repositories/TransactionRepository.test.ts
-- [ ] T030 [P] [US2] Write unit test for buildFilterExpression with includeUncategorized only in backend/tests/repositories/TransactionRepository.test.ts
-- [ ] T031 [P] [US2] Write unit test for buildFilterExpression with categoryIds + includeUncategorized in backend/tests/repositories/TransactionRepository.test.ts
-- [ ] T032 [P] [US2] Write integration test for findActiveByUserId with category filter in backend/tests/repositories/TransactionRepository.test.ts
+- [X] T029 [P] [US2] Write unit test for buildFilterExpression with categoryIds filter in backend/tests/repositories/TransactionRepository.test.ts
+- [X] T030 [P] [US2] Write unit test for buildFilterExpression with includeUncategorized only in backend/tests/repositories/TransactionRepository.test.ts
+- [X] T031 [P] [US2] Write unit test for buildFilterExpression with categoryIds + includeUncategorized in backend/tests/repositories/TransactionRepository.test.ts
+- [X] T032 [P] [US2] Write integration test for findActiveByUserId with category filter in backend/tests/repositories/TransactionRepository.test.ts
 
 ### Backend Implementation for User Story 2
 
-- [ ] T033 [US2] Add categoryIds and includeUncategorized handling to buildFilterExpression in backend/src/repositories/TransactionRepository.ts
-- [ ] T034 [US2] Implement OR logic for categoryIds IN (...) OR attribute_not_exists(categoryId) in backend/src/repositories/TransactionRepository.ts
-- [ ] T035 [US2] Run backend tests with npm test in backend/ and verify all US2 tests pass
+- [X] T033 [US2] Add categoryIds and includeUncategorized handling to buildFilterExpression in backend/src/repositories/TransactionRepository.ts
+- [X] T034 [US2] Implement OR logic for categoryIds IN (...) OR attribute_not_exists(categoryId) in backend/src/repositories/TransactionRepository.ts
+- [X] T035 [US2] Run backend tests with npm test in backend/ and verify all US2 tests pass
 
 ### Frontend Implementation for User Story 2
 
-- [ ] T036 [P] [US2] Add category filter state (selectedCategoryIds, includeUncategorized) to useTransactionFilters in frontend/src/composables/useTransactionFilters.ts
-- [ ] T037 [P] [US2] Add category multi-select dropdown to TransactionFilterBar.vue in frontend/src/components/TransactionFilterBar.vue
-- [ ] T038 [US2] Add uncategorized checkbox to TransactionFilterBar.vue in frontend/src/components/TransactionFilterBar.vue
-- [ ] T039 [US2] Update applyFilters to include category filters in frontend/src/composables/useTransactionFilters.ts
+- [X] T036 [P] [US2] Add category filter state (selectedCategoryIds, includeUncategorized) to useTransactionFilters in frontend/src/composables/useTransactionFilters.ts
+- [X] T037 [P] [US2] Add category multi-select dropdown to TransactionFilterBar.vue in frontend/src/components/TransactionFilterBar.vue
+- [X] T038 [US2] Add uncategorized checkbox to TransactionFilterBar.vue in frontend/src/components/TransactionFilterBar.vue
+- [X] T039 [US2] Update applyFilters to include category filters in frontend/src/composables/useTransactionFilters.ts
 
 **Checkpoint**: Account AND category filtering should both work independently
 

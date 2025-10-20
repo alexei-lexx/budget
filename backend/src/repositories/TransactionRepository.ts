@@ -13,6 +13,7 @@ import {
   TransactionType,
   CreateTransactionInput,
   UpdateTransactionInput,
+  TransactionFilterInput,
   ITransactionRepository,
   TransactionConnection,
   TransactionEdge,
@@ -35,6 +36,12 @@ import { YEAR_RANGE_OFFSET, MIN_SEARCH_TEXT_LENGTH } from "../types/validation";
  * @see https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Limits.html#limits-api
  */
 const DYNAMODB_TRANSACT_WRITE_MAX_ITEMS = 25;
+
+/**
+ * DynamoDB Global Secondary Index names for Transactions table
+ */
+const USER_DATE_INDEX = "UserDateIndex";
+const USER_CREATED_AT_INDEX = "UserCreatedAtIndex";
 
 /**
  * Format a Date object as YYYY-MM-DD string (local timezone)
@@ -66,6 +73,18 @@ class TransactionRepositoryError extends Error {
 interface CursorData {
   createdAt: string;
   id: string;
+}
+
+/**
+ * Query parameters for transaction filtering
+ */
+interface TransactionQueryParams {
+  indexName: string;
+  sortKeyName: string;
+  keyConditionExpression: string;
+  filterExpression: string;
+  expressionAttributeNames: Record<string, string>;
+  expressionAttributeValues: Record<string, unknown>;
 }
 
 /**
@@ -399,6 +418,7 @@ export class TransactionRepository implements ITransactionRepository {
   async findActiveByUserId(
     userId: string,
     pagination?: PaginationInput,
+    filters?: TransactionFilterInput,
   ): Promise<TransactionConnection> {
     if (!userId) {
       throw new TransactionRepositoryError(
@@ -420,29 +440,29 @@ export class TransactionRepository implements ITransactionRepository {
     }
 
     try {
-      const keyConditionExpression = "userId = :userId";
-      const filterExpression = "isArchived = :isArchived";
-      const expressionAttributeValues: Record<string, unknown> = {
-        ":userId": userId,
-        ":isArchived": false,
-      };
+      // Build query parameters (index selection, key condition, filters)
+      const queryParams = this.buildQueryParams(userId, filters);
 
-      // Use pagination utility to handle filtering correctly
+      // Execute query
       const { items: transactions, hasNextPage } =
         await paginateQuery<Transaction>({
           client: this.client,
           params: {
             TableName: this.tableName,
-            IndexName: "UserCreatedAtIndex",
-            KeyConditionExpression: keyConditionExpression,
-            FilterExpression: filterExpression,
-            ExpressionAttributeValues: expressionAttributeValues,
-            ScanIndexForward: false,
+            IndexName: queryParams.indexName,
+            KeyConditionExpression: queryParams.keyConditionExpression,
+            FilterExpression: queryParams.filterExpression,
+            ...(Object.keys(queryParams.expressionAttributeNames).length >
+              0 && {
+              ExpressionAttributeNames: queryParams.expressionAttributeNames,
+            }),
+            ExpressionAttributeValues: queryParams.expressionAttributeValues,
+            ScanIndexForward: false, // Descending order (newest first)
             ...(after && {
               ExclusiveStartKey: {
                 userId: userId,
                 id: decodeCursor(after).id,
-                createdAt: decodeCursor(after).createdAt,
+                [queryParams.sortKeyName]: decodeCursor(after).createdAt,
               },
             }),
           },
@@ -465,7 +485,7 @@ export class TransactionRepository implements ITransactionRepository {
       };
 
       // Get total count (this is a separate query for accuracy)
-      const totalCount = await this.countActiveTransactions(userId);
+      const totalCount = await this.countActiveTransactions(queryParams);
 
       return {
         edges,
@@ -648,7 +668,7 @@ export class TransactionRepository implements ITransactionRepository {
         client: this.client,
         params: {
           TableName: this.tableName,
-          IndexName: "UserDateIndex",
+          IndexName: USER_DATE_INDEX,
           KeyConditionExpression:
             "userId = :userId AND #date BETWEEN :startDate AND :endDate",
           FilterExpression: "#type = :type AND isArchived = :isArchived",
@@ -748,7 +768,7 @@ export class TransactionRepository implements ITransactionRepository {
         client: this.client,
         params: {
           TableName: this.tableName,
-          IndexName: "UserCreatedAtIndex",
+          IndexName: USER_CREATED_AT_INDEX,
           KeyConditionExpression: "userId = :userId",
           FilterExpression:
             "isArchived = :isArchived AND contains(description, :searchText)",
@@ -806,7 +826,7 @@ export class TransactionRepository implements ITransactionRepository {
         client: this.client,
         params: {
           TableName: this.tableName,
-          IndexName: "UserCreatedAtIndex",
+          IndexName: USER_CREATED_AT_INDEX,
           KeyConditionExpression: "userId = :userId",
           FilterExpression: "#type = :type AND isArchived = :isArchived",
           ExpressionAttributeNames: {
@@ -964,6 +984,124 @@ export class TransactionRepository implements ITransactionRepository {
     };
   }
 
+  /**
+   * Build query parameters for transaction filtering
+   * Returns index name, key condition, filter expression, and merged attribute names/values
+   */
+  private buildQueryParams(
+    userId: string,
+    filters?: TransactionFilterInput,
+  ): TransactionQueryParams {
+    // Select index: use UserDateIndex when date filters present, else UserCreatedAtIndex
+    const useUserDateIndex = !!(filters?.dateAfter || filters?.dateBefore);
+    const indexName = useUserDateIndex
+      ? USER_DATE_INDEX
+      : USER_CREATED_AT_INDEX;
+    const sortKeyName = useUserDateIndex ? "date" : "createdAt";
+
+    // Build key condition expression
+    let keyConditionExpression = "userId = :userId";
+    const keyAttributeValues: Record<string, unknown> = { ":userId": userId };
+    const keyAttributeNames: Record<string, string> = {};
+
+    // Add date range to key condition if using UserDateIndex
+    if (useUserDateIndex) {
+      if (filters?.dateAfter && filters.dateBefore) {
+        keyConditionExpression +=
+          " AND #date BETWEEN :dateAfter AND :dateBefore";
+        keyAttributeValues[":dateAfter"] = filters.dateAfter;
+        keyAttributeValues[":dateBefore"] = filters.dateBefore;
+        keyAttributeNames["#date"] = "date";
+      } else if (filters?.dateAfter) {
+        keyConditionExpression += " AND #date >= :dateAfter";
+        keyAttributeValues[":dateAfter"] = filters.dateAfter;
+        keyAttributeNames["#date"] = "date";
+      } else if (filters?.dateBefore) {
+        keyConditionExpression += " AND #date <= :dateBefore";
+        keyAttributeValues[":dateBefore"] = filters.dateBefore;
+        keyAttributeNames["#date"] = "date";
+      }
+    }
+
+    // Build filter expression conditions
+    const filterConditions: string[] = ["isArchived = :isArchived"];
+    const filterAttributeNames: Record<string, string> = {};
+    const filterAttributeValues: Record<string, unknown> = {
+      ":isArchived": false,
+    };
+
+    // Account filter (IN condition for multi-select)
+    if (filters?.accountIds && filters.accountIds.length > 0) {
+      const placeholders = filters.accountIds
+        .map((_: string, index: number) => `:accountId${index}`)
+        .join(", ");
+      filterConditions.push(`accountId IN (${placeholders})`);
+      filters.accountIds.forEach((id: string, index: number) => {
+        filterAttributeValues[`:accountId${index}`] = id;
+      });
+    }
+
+    // Category filter (IN condition + optional uncategorized)
+    if (filters?.categoryIds && filters.categoryIds.length > 0) {
+      const placeholders = filters.categoryIds
+        .map((_: string, index: number) => `:categoryId${index}`)
+        .join(", ");
+      const categoryCondition = `categoryId IN (${placeholders})`;
+
+      if (filters.includeUncategorized) {
+        // Include categories OR uncategorized (handles both undefined and null)
+        filterConditions.push(
+          `(${categoryCondition} OR attribute_not_exists(categoryId) OR categoryId = :nullCategory)`,
+        );
+        filterAttributeValues[":nullCategory"] = null;
+      } else {
+        filterConditions.push(categoryCondition);
+      }
+
+      filters.categoryIds.forEach((id: string, index: number) => {
+        filterAttributeValues[`:categoryId${index}`] = id;
+      });
+    } else if (filters?.includeUncategorized) {
+      // Only uncategorized (no specific categories selected)
+      // Handles both cases: attribute missing (undefined) or explicitly null
+      filterConditions.push(
+        "(attribute_not_exists(categoryId) OR categoryId = :nullCategory)",
+      );
+      filterAttributeValues[":nullCategory"] = null;
+    }
+
+    // Type filter (IN condition for multi-select)
+    if (filters?.types && filters.types.length > 0) {
+      filterAttributeNames["#type"] = "type"; // Reserved word, use attribute name
+      const placeholders = filters.types
+        .map((_: TransactionType, index: number) => `:type${index}`)
+        .join(", ");
+      filterConditions.push(`#type IN (${placeholders})`);
+      filters.types.forEach((type: TransactionType, index: number) => {
+        filterAttributeValues[`:type${index}`] = type;
+      });
+    }
+
+    // Merge attribute names and values from key condition and filter expression
+    const expressionAttributeNames = {
+      ...keyAttributeNames,
+      ...filterAttributeNames,
+    };
+    const expressionAttributeValues = {
+      ...keyAttributeValues,
+      ...filterAttributeValues,
+    };
+
+    return {
+      indexName,
+      sortKeyName,
+      keyConditionExpression,
+      filterExpression: filterConditions.join(" AND "),
+      expressionAttributeNames,
+      expressionAttributeValues,
+    };
+  }
+
   private buildTransaction(
     input: CreateTransactionInput,
     timestamp: string,
@@ -985,17 +1123,19 @@ export class TransactionRepository implements ITransactionRepository {
     };
   }
 
-  private async countActiveTransactions(userId: string): Promise<number> {
+  private async countActiveTransactions(
+    queryParams: TransactionQueryParams,
+  ): Promise<number> {
     try {
       const command = new QueryCommand({
         TableName: this.tableName,
-        IndexName: "UserCreatedAtIndex",
-        KeyConditionExpression: "userId = :userId",
-        FilterExpression: "isArchived = :isArchived",
-        ExpressionAttributeValues: {
-          ":userId": userId,
-          ":isArchived": false,
-        },
+        IndexName: queryParams.indexName,
+        KeyConditionExpression: queryParams.keyConditionExpression,
+        FilterExpression: queryParams.filterExpression,
+        ...(Object.keys(queryParams.expressionAttributeNames).length > 0 && {
+          ExpressionAttributeNames: queryParams.expressionAttributeNames,
+        }),
+        ExpressionAttributeValues: queryParams.expressionAttributeValues,
         Select: "COUNT",
       });
 

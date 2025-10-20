@@ -447,6 +447,7 @@ export type GetCategoriesQuery = { __typename?: 'Query', categories: Array<{ __t
 
 export type GetTransactionsPaginatedQueryVariables = Exact<{
   pagination?: InputMaybe<PaginationInput>;
+  filters?: InputMaybe<TransactionFilterInput>;
 }>;
 
 

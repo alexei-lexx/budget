@@ -32,8 +32,8 @@ export const GET_CATEGORIES = gql`
 `;
 
 export const GET_TRANSACTIONS_PAGINATED = gql`
-  query GetTransactionsPaginated($pagination: PaginationInput) {
-    transactions(pagination: $pagination) {
+  query GetTransactionsPaginated($pagination: PaginationInput, $filters: TransactionFilterInput) {
+    transactions(pagination: $pagination, filters: $filters) {
       edges {
         node {
           ...TransactionFields

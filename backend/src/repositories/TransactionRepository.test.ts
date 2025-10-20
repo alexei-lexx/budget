@@ -1776,4 +1776,591 @@ describe("TransactionRepository", () => {
       ).rejects.toThrow("Month must be a valid integer between 1 and 12");
     });
   });
+
+  describe("findActiveByUserId with account filters", () => {
+    it("should filter transactions by single account ID", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+      const account1 = faker.string.uuid();
+      const account2 = faker.string.uuid();
+
+      // Create transactions for different accounts
+      await repository.createMany([
+        fakeCreateTransactionInput({ userId, accountId: account1 }),
+        fakeCreateTransactionInput({ userId, accountId: account2 }),
+        fakeCreateTransactionInput({ userId, accountId: account1 }),
+      ]);
+
+      // Act
+      const result = await repository.findActiveByUserId(userId, undefined, {
+        accountIds: [account1],
+      });
+
+      // Assert
+      expect(result.edges).toHaveLength(2);
+      expect(result.totalCount).toBe(2);
+      result.edges.forEach((edge) => {
+        expect(edge.node.accountId).toBe(account1);
+      });
+    });
+
+    it("should filter transactions by multiple account IDs", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+      const account1 = faker.string.uuid();
+      const account2 = faker.string.uuid();
+      const account3 = faker.string.uuid();
+
+      // Create transactions for three different accounts
+      await repository.createMany([
+        fakeCreateTransactionInput({ userId, accountId: account1 }),
+        fakeCreateTransactionInput({ userId, accountId: account2 }),
+        fakeCreateTransactionInput({ userId, accountId: account3 }),
+        fakeCreateTransactionInput({ userId, accountId: account1 }),
+      ]);
+
+      // Act - Filter by account1 and account2 (should get 3 transactions)
+      const result = await repository.findActiveByUserId(userId, undefined, {
+        accountIds: [account1, account2],
+      });
+
+      // Assert
+      expect(result.edges).toHaveLength(3);
+      expect(result.totalCount).toBe(3);
+      const accountIds = result.edges.map((edge) => edge.node.accountId);
+      expect(accountIds).toEqual(
+        expect.arrayContaining([account1, account1, account2]),
+      );
+    });
+
+    it("should return empty results when filtering by non-existent account ID", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+      const account1 = faker.string.uuid();
+      const nonExistentAccount = faker.string.uuid();
+
+      await repository.create(
+        fakeCreateTransactionInput({ userId, accountId: account1 }),
+      );
+
+      // Act
+      const result = await repository.findActiveByUserId(userId, undefined, {
+        accountIds: [nonExistentAccount],
+      });
+
+      // Assert
+      expect(result.edges).toHaveLength(0);
+      expect(result.totalCount).toBe(0);
+    });
+  });
+
+  describe("findActiveByUserId with category filters", () => {
+    it("should filter transactions by single category ID", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+      const accountId = faker.string.uuid();
+      const category1 = faker.string.uuid();
+      const category2 = faker.string.uuid();
+
+      // Create transactions for different categories
+      await repository.createMany([
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          categoryId: category1,
+        }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          categoryId: category2,
+        }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          categoryId: category1,
+        }),
+      ]);
+
+      // Act
+      const result = await repository.findActiveByUserId(userId, undefined, {
+        categoryIds: [category1],
+      });
+
+      // Assert
+      expect(result.edges).toHaveLength(2);
+      expect(result.totalCount).toBe(2);
+      result.edges.forEach((edge) => {
+        expect(edge.node.categoryId).toBe(category1);
+      });
+    });
+
+    it("should filter transactions by multiple category IDs", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+      const accountId = faker.string.uuid();
+      const category1 = faker.string.uuid();
+      const category2 = faker.string.uuid();
+      const category3 = faker.string.uuid();
+
+      // Create transactions for three different categories
+      await repository.createMany([
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          categoryId: category1,
+        }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          categoryId: category2,
+        }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          categoryId: category3,
+        }),
+      ]);
+
+      // Act - Filter by category1 and category2
+      const result = await repository.findActiveByUserId(userId, undefined, {
+        categoryIds: [category1, category2],
+      });
+
+      // Assert
+      expect(result.edges).toHaveLength(2);
+      expect(result.totalCount).toBe(2);
+      const categoryIds = result.edges.map((edge) => edge.node.categoryId);
+      expect(categoryIds).toEqual(
+        expect.arrayContaining([category1, category2]),
+      );
+    });
+
+    it("should include only uncategorized transactions when includeUncategorized is true and no categoryIds", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+      const accountId = faker.string.uuid();
+      const category1 = faker.string.uuid();
+
+      // Create transactions: some with categories, some without
+      await repository.createMany([
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          categoryId: category1,
+        }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          categoryId: undefined,
+        }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          categoryId: undefined,
+        }),
+      ]);
+
+      // Act
+      const result = await repository.findActiveByUserId(userId, undefined, {
+        includeUncategorized: true,
+      });
+
+      // Assert
+      expect(result.edges).toHaveLength(2);
+      expect(result.totalCount).toBe(2);
+      result.edges.forEach((edge) => {
+        expect(edge.node.categoryId).toBeUndefined();
+      });
+    });
+
+    it("should include both categorized and uncategorized transactions when both filters are provided", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+      const accountId = faker.string.uuid();
+      const category1 = faker.string.uuid();
+      const category2 = faker.string.uuid();
+
+      // Create transactions: some with category1, some with category2, some uncategorized
+      await repository.createMany([
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          categoryId: category1,
+        }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          categoryId: category2,
+        }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          categoryId: undefined,
+        }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          categoryId: category1,
+        }),
+      ]);
+
+      // Act - Filter by category1 + uncategorized
+      const result = await repository.findActiveByUserId(userId, undefined, {
+        categoryIds: [category1],
+        includeUncategorized: true,
+      });
+
+      // Assert
+      expect(result.edges).toHaveLength(3);
+      expect(result.totalCount).toBe(3);
+      const categoryIds = result.edges.map((edge) => edge.node.categoryId);
+      expect(categoryIds.filter((id) => id === category1)).toHaveLength(2);
+      expect(categoryIds.filter((id) => id === undefined)).toHaveLength(1);
+    });
+
+    it("should return empty results when filtering by non-existent category ID", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+      const accountId = faker.string.uuid();
+      const category1 = faker.string.uuid();
+      const nonExistentCategory = faker.string.uuid();
+
+      await repository.create(
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          categoryId: category1,
+        }),
+      );
+
+      // Act
+      const result = await repository.findActiveByUserId(userId, undefined, {
+        categoryIds: [nonExistentCategory],
+      });
+
+      // Assert
+      expect(result.edges).toHaveLength(0);
+      expect(result.totalCount).toBe(0);
+    });
+  });
+
+  describe("findActiveByUserId with date filters", () => {
+    it("should filter transactions by dateAfter (inclusive)", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+      const accountId = faker.string.uuid();
+
+      await repository.createMany([
+        fakeCreateTransactionInput({ userId, accountId, date: "2024-01-10" }),
+        fakeCreateTransactionInput({ userId, accountId, date: "2024-01-15" }),
+        fakeCreateTransactionInput({ userId, accountId, date: "2024-01-20" }),
+      ]);
+
+      // Act - Get transactions on or after 2024-01-15 (should include 2024-01-15)
+      const result = await repository.findActiveByUserId(userId, undefined, {
+        dateAfter: "2024-01-15",
+      });
+
+      // Assert - Should include the boundary date (2024-01-15)
+      expect(result.edges).toHaveLength(2);
+      expect(result.totalCount).toBe(2);
+      const dates = result.edges.map((edge) => edge.node.date).sort();
+      expect(dates).toEqual(["2024-01-15", "2024-01-20"]);
+    });
+
+    it("should filter transactions by dateBefore (inclusive)", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+      const accountId = faker.string.uuid();
+
+      await repository.createMany([
+        fakeCreateTransactionInput({ userId, accountId, date: "2024-01-10" }),
+        fakeCreateTransactionInput({ userId, accountId, date: "2024-01-20" }),
+        fakeCreateTransactionInput({ userId, accountId, date: "2024-01-25" }),
+      ]);
+
+      // Act - Get transactions on or before 2024-01-20 (should include 2024-01-20)
+      const result = await repository.findActiveByUserId(userId, undefined, {
+        dateBefore: "2024-01-20",
+      });
+
+      // Assert - Should include the boundary date (2024-01-20)
+      expect(result.edges).toHaveLength(2);
+      expect(result.totalCount).toBe(2);
+      const dates = result.edges.map((edge) => edge.node.date).sort();
+      expect(dates).toEqual(["2024-01-10", "2024-01-20"]);
+    });
+
+    it("should filter transactions by date range (both boundaries inclusive)", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+      const accountId = faker.string.uuid();
+
+      await repository.createMany([
+        fakeCreateTransactionInput({ userId, accountId, date: "2024-01-05" }),
+        fakeCreateTransactionInput({ userId, accountId, date: "2024-01-10" }),
+        fakeCreateTransactionInput({ userId, accountId, date: "2024-01-15" }),
+        fakeCreateTransactionInput({ userId, accountId, date: "2024-01-20" }),
+        fakeCreateTransactionInput({ userId, accountId, date: "2024-01-25" }),
+      ]);
+
+      // Act - Get transactions between 2024-01-10 and 2024-01-20 (both inclusive)
+      const result = await repository.findActiveByUserId(userId, undefined, {
+        dateAfter: "2024-01-10",
+        dateBefore: "2024-01-20",
+      });
+
+      // Assert - Should include both boundary dates (2024-01-10 and 2024-01-20)
+      expect(result.edges).toHaveLength(3);
+      expect(result.totalCount).toBe(3);
+      const dates = result.edges.map((edge) => edge.node.date).sort();
+      expect(dates).toEqual(["2024-01-10", "2024-01-15", "2024-01-20"]);
+    });
+  });
+
+  describe("findActiveByUserId with type filters", () => {
+    it("should filter transactions by single type", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+      const accountId = faker.string.uuid();
+
+      await repository.createMany([
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          type: TransactionType.INCOME,
+        }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          type: TransactionType.EXPENSE,
+        }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          type: TransactionType.INCOME,
+        }),
+      ]);
+
+      // Act
+      const result = await repository.findActiveByUserId(userId, undefined, {
+        types: [TransactionType.INCOME],
+      });
+
+      // Assert
+      expect(result.edges).toHaveLength(2);
+      expect(result.totalCount).toBe(2);
+      result.edges.forEach((edge) => {
+        expect(edge.node.type).toBe(TransactionType.INCOME);
+      });
+    });
+
+    it("should filter transactions by multiple types", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+      const accountId = faker.string.uuid();
+
+      await repository.createMany([
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          type: TransactionType.INCOME,
+        }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          type: TransactionType.EXPENSE,
+        }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          type: TransactionType.TRANSFER_IN,
+        }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          type: TransactionType.TRANSFER_OUT,
+        }),
+      ]);
+
+      // Act
+      const result = await repository.findActiveByUserId(userId, undefined, {
+        types: [TransactionType.INCOME, TransactionType.EXPENSE],
+      });
+
+      // Assert
+      expect(result.edges).toHaveLength(2);
+      expect(result.totalCount).toBe(2);
+      const types = result.edges.map((edge) => edge.node.type);
+      expect(types).toEqual(
+        expect.arrayContaining([
+          TransactionType.INCOME,
+          TransactionType.EXPENSE,
+        ]),
+      );
+    });
+  });
+
+  describe("findActiveByUserId with combined filters", () => {
+    it("should filter by account and date range", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+      const account1 = faker.string.uuid();
+      const account2 = faker.string.uuid();
+
+      await repository.createMany([
+        fakeCreateTransactionInput({
+          userId,
+          accountId: account1,
+          date: "2024-01-10",
+        }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId: account1,
+          date: "2024-01-20",
+        }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId: account2,
+          date: "2024-01-15",
+        }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId: account2,
+          date: "2024-01-25",
+        }),
+      ]);
+
+      // Act
+      const result = await repository.findActiveByUserId(userId, undefined, {
+        accountIds: [account1],
+        dateAfter: "2024-01-12",
+        dateBefore: "2024-01-22",
+      });
+
+      // Assert
+      expect(result.edges).toHaveLength(1);
+      expect(result.totalCount).toBe(1);
+      expect(result.edges[0].node.accountId).toBe(account1);
+      expect(result.edges[0].node.date).toBe("2024-01-20");
+    });
+
+    it("should filter by category and type", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+      const accountId = faker.string.uuid();
+      const category1 = faker.string.uuid();
+      const category2 = faker.string.uuid();
+
+      await repository.createMany([
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          categoryId: category1,
+          type: TransactionType.INCOME,
+        }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          categoryId: category1,
+          type: TransactionType.EXPENSE,
+        }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          categoryId: category2,
+          type: TransactionType.INCOME,
+        }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          categoryId: category2,
+          type: TransactionType.EXPENSE,
+        }),
+      ]);
+
+      // Act
+      const result = await repository.findActiveByUserId(userId, undefined, {
+        categoryIds: [category1],
+        types: [TransactionType.EXPENSE],
+      });
+
+      // Assert
+      expect(result.edges).toHaveLength(1);
+      expect(result.totalCount).toBe(1);
+      expect(result.edges[0].node.categoryId).toBe(category1);
+      expect(result.edges[0].node.type).toBe(TransactionType.EXPENSE);
+    });
+
+    it("should filter by account, category, date range, and type", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+      const account1 = faker.string.uuid();
+      const account2 = faker.string.uuid();
+      const category1 = faker.string.uuid();
+      const category2 = faker.string.uuid();
+
+      await repository.createMany([
+        fakeCreateTransactionInput({
+          userId,
+          accountId: account1,
+          categoryId: category1,
+          date: "2024-01-15",
+          type: TransactionType.EXPENSE,
+        }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId: account1,
+          categoryId: category1,
+          date: "2024-01-20",
+          type: TransactionType.EXPENSE,
+        }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId: account1,
+          categoryId: category2,
+          date: "2024-01-20",
+          type: TransactionType.EXPENSE,
+        }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId: account2,
+          categoryId: category1,
+          date: "2024-01-20",
+          type: TransactionType.EXPENSE,
+        }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId: account1,
+          categoryId: category1,
+          date: "2024-01-20",
+          type: TransactionType.INCOME,
+        }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId: account1,
+          categoryId: category1,
+          date: "2024-01-25",
+          type: TransactionType.EXPENSE,
+        }),
+      ]);
+
+      // Act - Complex filter: account1 + category1 + date range + EXPENSE type
+      const result = await repository.findActiveByUserId(userId, undefined, {
+        accountIds: [account1],
+        categoryIds: [category1],
+        dateAfter: "2024-01-18",
+        dateBefore: "2024-01-22",
+        types: [TransactionType.EXPENSE],
+      });
+
+      // Assert - Should only match one transaction
+      expect(result.edges).toHaveLength(1);
+      expect(result.totalCount).toBe(1);
+      expect(result.edges[0].node.accountId).toBe(account1);
+      expect(result.edges[0].node.categoryId).toBe(category1);
+      expect(result.edges[0].node.date).toBe("2024-01-20");
+      expect(result.edges[0].node.type).toBe(TransactionType.EXPENSE);
+    });
+  });
 });
