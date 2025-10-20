@@ -5,7 +5,7 @@
 
     <v-row>
       <!-- Account Filter -->
-      <v-col cols="12" sm="6" md="4">
+      <v-col cols="12" md="6">
         <v-select
           v-model="filters.selectedAccountIds.value"
           :items="accounts"
@@ -17,13 +17,12 @@
           closable-chips
           :disabled="loading"
           clearable
-          hint="Select one or more accounts"
-          persistent-hint
+          variant="outlined"
         />
       </v-col>
 
       <!-- Category Filter -->
-      <v-col cols="12" sm="6" md="4">
+      <v-col cols="12" md="6">
         <v-select
           v-model="filters.selectedCategoryIds.value"
           :items="categoryOptions"
@@ -35,34 +34,46 @@
           closable-chips
           :disabled="loading"
           clearable
-          hint="Select one or more categories"
-          persistent-hint
+          variant="outlined"
         />
       </v-col>
 
       <!-- Date After -->
-      <v-col cols="12" sm="6" md="2">
+      <v-col cols="12" md="6">
         <v-text-field
           v-model="filters.dateAfter.value"
           type="date"
           label="From Date"
           :disabled="loading"
           clearable
-          hint="Inclusive"
-          persistent-hint
+          variant="outlined"
         />
       </v-col>
 
       <!-- Date Before -->
-      <v-col cols="12" sm="6" md="2">
+      <v-col cols="12" md="6">
         <v-text-field
           v-model="filters.dateBefore.value"
           type="date"
           label="To Date"
           :disabled="loading"
           clearable
-          hint="Inclusive"
-          persistent-hint
+          variant="outlined"
+        />
+      </v-col>
+
+      <!-- Transaction Type Filter -->
+      <v-col cols="12" md="6">
+        <v-select
+          v-model="filters.selectedTypes.value"
+          :items="transactionTypeOptions"
+          label="Type"
+          multiple
+          chips
+          closable-chips
+          :disabled="loading"
+          clearable
+          variant="outlined"
         />
       </v-col>
     </v-row>
@@ -73,8 +84,6 @@
           v-model="filters.includeUncategorized.value"
           label="Include uncategorized transactions"
           :disabled="loading"
-          density="compact"
-          hide-details
         />
       </v-col>
     </v-row>
@@ -96,7 +105,7 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import type { Account, Category } from "@/__generated__/graphql-types";
+import type { Account, Category, TransactionType } from "@/__generated__/graphql-types";
 import type { TransactionFiltersState } from "@/composables/useTransactionFilters";
 
 interface Props {
@@ -117,6 +126,14 @@ const emit = defineEmits<{
 const categoryOptions = computed(() => {
   return [...props.categories];
 });
+
+// Transaction type options
+const transactionTypeOptions = computed(() => [
+  { title: "Income", value: "INCOME" as TransactionType },
+  { title: "Expense", value: "EXPENSE" as TransactionType },
+  { title: "Transfer In", value: "TRANSFER_IN" as TransactionType },
+  { title: "Transfer Out", value: "TRANSFER_OUT" as TransactionType },
+]);
 
 function handleApply() {
   props.filters.applyFilters();

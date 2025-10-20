@@ -151,22 +151,22 @@
 
 ### Backend Tests for User Story 4
 
-- [ ] T051 [P] [US4] Write unit test for buildFilterExpression with types filter in backend/tests/repositories/TransactionRepository.test.ts
-- [ ] T052 [P] [US4] Write integration test for findActiveByUserId with single type filter in backend/tests/repositories/TransactionRepository.test.ts
-- [ ] T053 [P] [US4] Write integration test for findActiveByUserId with multi-type filter (INCOME + TRANSFER_IN) in backend/tests/repositories/TransactionRepository.test.ts
+- [x] T051 [P] [US4] Write unit test for buildFilterExpression with types filter in backend/tests/repositories/TransactionRepository.test.ts
+- [x] T052 [P] [US4] Write integration test for findActiveByUserId with single type filter in backend/tests/repositories/TransactionRepository.test.ts
+- [x] T053 [P] [US4] Write integration test for findActiveByUserId with multi-type filter (INCOME + TRANSFER_IN) in backend/tests/repositories/TransactionRepository.test.ts
 
 ### Backend Implementation for User Story 4
 
-- [ ] T054 [US4] Add types handling to buildFilterExpression with IN operator in backend/src/repositories/TransactionRepository.ts
-- [ ] T055 [US4] Add #type attribute name mapping (reserved word) in backend/src/repositories/TransactionRepository.ts
-- [ ] T056 [US4] Run backend tests with npm test in backend/ and verify all US4 tests pass
+- [x] T054 [US4] Add types handling to buildFilterExpression with IN operator in backend/src/repositories/TransactionRepository.ts
+- [x] T055 [US4] Add #type attribute name mapping (reserved word) in backend/src/repositories/TransactionRepository.ts
+- [x] T056 [US4] Run backend tests with npm test in backend/ and verify all US4 tests pass
 
 ### Frontend Implementation for User Story 4
 
-- [ ] T057 [P] [US4] Add transaction type filter state (selectedTypes) to useTransactionFilters in frontend/src/composables/useTransactionFilters.ts
-- [ ] T058 [P] [US4] Add transaction type multi-select dropdown to TransactionFilterBar.vue in frontend/src/components/TransactionFilterBar.vue
-- [ ] T059 [US4] Define transaction type options (INCOME, EXPENSE, TRANSFER_IN, TRANSFER_OUT) in TransactionFilterBar.vue
-- [ ] T060 [US4] Update applyFilters to include type filters in frontend/src/composables/useTransactionFilters.ts
+- [x] T057 [P] [US4] Add transaction type filter state (selectedTypes) to useTransactionFilters in frontend/src/composables/useTransactionFilters.ts
+- [x] T058 [P] [US4] Add transaction type multi-select dropdown to TransactionFilterBar.vue in frontend/src/components/TransactionFilterBar.vue
+- [x] T059 [US4] Define transaction type options (INCOME, EXPENSE, TRANSFER_IN, TRANSFER_OUT) in TransactionFilterBar.vue
+- [x] T060 [US4] Update applyFilters to include type filters in frontend/src/composables/useTransactionFilters.ts
 
 **Checkpoint**: All four individual filter dimensions should work independently
 
