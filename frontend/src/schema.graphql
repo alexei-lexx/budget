@@ -2,7 +2,10 @@ type Query {
   accounts: [Account!]!
   supportedCurrencies: [String!]!
   categories(type: CategoryType): [Category!]!
-  transactions(pagination: PaginationInput): TransactionConnection!
+  transactions(
+    pagination: PaginationInput
+    filters: TransactionFilterInput
+  ): TransactionConnection!
   transfer(id: ID!): Transfer
   getTransactionPatterns(type: TransactionPatternType!): [TransactionPattern!]!
   monthlyReport(year: Int!, month: Int!, type: TransactionType!): MonthlyReport!
@@ -132,6 +135,15 @@ input UpdateTransferInput {
 input PaginationInput {
   first: Int
   after: String
+}
+
+input TransactionFilterInput {
+  accountIds: [ID!]
+  categoryIds: [ID!]
+  includeUncategorized: Boolean
+  dateAfter: String
+  dateBefore: String
+  types: [TransactionType!]
 }
 
 type PageInfo {

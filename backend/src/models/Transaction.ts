@@ -7,6 +7,15 @@ export enum TransactionType {
   TRANSFER_OUT = "TRANSFER_OUT",
 }
 
+export interface TransactionFilterInput {
+  accountIds?: string[];
+  categoryIds?: string[];
+  includeUncategorized?: boolean;
+  dateAfter?: string;
+  dateBefore?: string;
+  types?: TransactionType[];
+}
+
 export interface Transaction {
   userId: string; // Partition key (same pattern as other entities)
   id: string; // Sort key - UUID v4
@@ -65,6 +74,7 @@ export interface ITransactionRepository {
   findActiveByUserId(
     userId: string,
     pagination?: PaginationInput,
+    filters?: TransactionFilterInput,
   ): Promise<TransactionConnection>;
   findActiveById(id: string, userId: string): Promise<Transaction | null>;
   findActiveByAccountId(

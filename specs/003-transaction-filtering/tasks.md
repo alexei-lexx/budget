@@ -34,13 +34,13 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Add TransactionFilterInput to backend GraphQL schema in backend/src/schema.graphql
-- [ ] T005 Extend transactions query with filters parameter in backend/src/schema.graphql
-- [ ] T006 [P] Add TransactionFilterInput TypeScript interface in backend/src/models/Transaction.ts
-- [ ] T007 [P] Add Zod validation schema for TransactionFilterInput in backend/src/resolvers/transactionResolvers.ts
-- [ ] T008 Build and verify backend schema compiles with npm run build in backend/
-- [ ] T009 Sync GraphQL schema to frontend with npm run codegen:sync-schema in frontend/
-- [ ] T010 Generate TypeScript types in frontend with npm run codegen in frontend/
+- [X] T004 Add TransactionFilterInput to backend GraphQL schema in backend/src/schema.graphql
+- [X] T005 Extend transactions query with filters parameter in backend/src/schema.graphql
+- [X] T006 [P] Add TransactionFilterInput TypeScript interface in backend/src/models/Transaction.ts
+- [X] T007 [P] Add Zod validation schema for TransactionFilterInput in backend/src/resolvers/transactionResolvers.ts
+- [X] T008 Build and verify backend schema compiles with npm run build in backend/
+- [X] T009 Sync GraphQL schema to frontend with npm run codegen:sync-schema in frontend/
+- [X] T010 Generate TypeScript types in frontend with npm run codegen in frontend/
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 

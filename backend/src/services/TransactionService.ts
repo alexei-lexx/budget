@@ -8,6 +8,7 @@ import {
   TransactionType,
   TransactionPatternType,
   EnrichedTransactionPattern,
+  TransactionFilterInput,
 } from "../models/Transaction";
 import { IAccountRepository, Account } from "../models/Account";
 import {
@@ -193,15 +194,18 @@ export class TransactionService {
    * Get active transactions for a user with pagination, sorted by date (newest first)
    * @param userId - The user ID to get transactions for
    * @param pagination - Optional pagination parameters (first, after)
+   * @param filters - Optional filter criteria (account, category, date, type)
    * @returns Promise<TransactionConnection> - Paginated transaction results with cursor information
    */
   async getTransactionsByUser(
     userId: string,
     pagination?: PaginationInput,
+    filters?: TransactionFilterInput,
   ): Promise<TransactionConnection> {
     return await this.transactionRepository.findActiveByUserId(
       userId,
       pagination,
+      filters,
     );
   }
 
