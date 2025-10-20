@@ -202,9 +202,9 @@ import { useTransactionFilters } from "@/composables/useTransactionFilters";
 import TransactionCard from "@/components/transactions/TransactionCard.vue";
 import TransactionForm from "@/components/transactions/TransactionForm.vue";
 import TransactionDeleteDialog from "@/components/transactions/TransactionDeleteDialog.vue";
+import TransactionFilterBar from "@/components/transactions/TransactionFilterBar.vue";
 import TransferDeleteDialog from "@/components/transfers/TransferDeleteDialog.vue";
 import TransferForm from "@/components/transfers/TransferForm.vue";
-import TransactionFilterBar from "@/components/TransactionFilterBar.vue";
 import type { Transaction, CreateTransactionInput } from "@/composables/useTransactions";
 import type {
   Transfer,
