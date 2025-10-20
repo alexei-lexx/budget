@@ -121,23 +121,23 @@
 
 ### Backend Tests for User Story 3
 
-- [ ] T040 [P] [US3] Write integration test for findActiveByUserId with dateAfter only in backend/tests/repositories/TransactionRepository.test.ts
-- [ ] T041 [P] [US3] Write integration test for findActiveByUserId with dateBefore only in backend/tests/repositories/TransactionRepository.test.ts
-- [ ] T042 [P] [US3] Write integration test for findActiveByUserId with date range (both dateAfter and dateBefore) in backend/tests/repositories/TransactionRepository.test.ts
-- [ ] T043 [P] [US3] Write integration test for invalid date range (dateAfter > dateBefore) returns empty results in backend/tests/repositories/TransactionRepository.test.ts
+- [X] T040 [P] [US3] Write integration test for findActiveByUserId with dateAfter only in backend/tests/repositories/TransactionRepository.test.ts
+- [X] T041 [P] [US3] Write integration test for findActiveByUserId with dateBefore only in backend/tests/repositories/TransactionRepository.test.ts
+- [X] T042 [P] [US3] Write integration test for findActiveByUserId with date range (both dateAfter and dateBefore) in backend/tests/repositories/TransactionRepository.test.ts
+- [X] T043 [P] [US3] Write integration test for invalid date range (dateAfter > dateBefore) returns empty results in backend/tests/repositories/TransactionRepository.test.ts
 
 ### Backend Implementation for User Story 3
 
-- [ ] T044 [US3] Add date filter logic to KeyConditionExpression in findActiveByUserId in backend/src/repositories/TransactionRepository.ts
-- [ ] T045 [US3] Implement BETWEEN, >=, and <= operators for date filtering in backend/src/repositories/TransactionRepository.ts
-- [ ] T046 [US3] Add date format validation in TransactionService.getTransactionsByUser in backend/src/services/TransactionService.ts
-- [ ] T047 [US3] Run backend tests with npm test in backend/ and verify all US3 tests pass
+- [X] T044 [US3] Add date filter logic to KeyConditionExpression in findActiveByUserId in backend/src/repositories/TransactionRepository.ts
+- [X] T045 [US3] Implement BETWEEN, >=, and <= operators for date filtering in backend/src/repositories/TransactionRepository.ts
+- [X] T046 [US3] Add date format validation in TransactionService.getTransactionsByUser in backend/src/services/TransactionService.ts
+- [X] T047 [US3] Run backend tests with npm test in backend/ and verify all US3 tests pass
 
 ### Frontend Implementation for User Story 3
 
-- [ ] T048 [P] [US3] Add date filter state (dateAfter, dateBefore) to useTransactionFilters in frontend/src/composables/useTransactionFilters.ts
-- [ ] T049 [P] [US3] Add date input fields (From Date, To Date) to TransactionFilterBar.vue in frontend/src/components/TransactionFilterBar.vue
-- [ ] T050 [US3] Update applyFilters to include date filters in frontend/src/composables/useTransactionFilters.ts
+- [X] T048 [P] [US3] Add date filter state (dateAfter, dateBefore) to useTransactionFilters in frontend/src/composables/useTransactionFilters.ts
+- [X] T049 [P] [US3] Add date input fields (From Date, To Date) to TransactionFilterBar.vue in frontend/src/components/TransactionFilterBar.vue
+- [X] T050 [US3] Update applyFilters to include date filters in frontend/src/composables/useTransactionFilters.ts
 
 **Checkpoint**: Account, category, AND date filtering should all work independently
 

@@ -581,35 +581,103 @@ describe("TransactionService", () => {
     });
 
     it("should throw error for search text shorter than minimum length", async () => {
-      // Arrange
       const shortSearchText = "a".repeat(MIN_SEARCH_TEXT_LENGTH - 1);
+      const promise = service.getDescriptionSuggestions(
+        userId,
+        shortSearchText,
+        5,
+      );
 
-      // Act & Assert
-      await expect(
-        service.getDescriptionSuggestions(userId, shortSearchText, 5),
-      ).rejects.toThrow(BusinessError);
+      await expect(promise).rejects.toThrow(BusinessError);
 
-      await expect(
-        service.getDescriptionSuggestions(userId, shortSearchText, 5),
-      ).rejects.toMatchObject({
+      await expect(promise).rejects.toMatchObject({
         message: `Search text must be at least ${MIN_SEARCH_TEXT_LENGTH} characters long`,
         code: BusinessErrorCodes.INVALID_PARAMETERS,
       });
 
-      // Verify repository was not called
       expect(
         mockTransactionRepository.findActiveByDescription,
       ).not.toHaveBeenCalled();
     });
 
     it("should throw error for empty search text", async () => {
-      // Arrange
       const emptySearchText = "";
+      const promise = service.getDescriptionSuggestions(
+        userId,
+        emptySearchText,
+        5,
+      );
 
-      // Act & Assert
-      await expect(
-        service.getDescriptionSuggestions(userId, emptySearchText, 5),
-      ).rejects.toThrow(BusinessError);
+      await expect(promise).rejects.toThrow(BusinessError);
+
+      await expect(promise).rejects.toMatchObject({
+        message: `Search text must be at least ${MIN_SEARCH_TEXT_LENGTH} characters long`,
+        code: BusinessErrorCodes.INVALID_PARAMETERS,
+      });
+    });
+  });
+
+  describe("getTransactionsByUser", () => {
+    it("should pass filters correctly to repository", async () => {
+      // Arrange
+      const expectedResult = {
+        edges: [],
+        pageInfo: {
+          hasNextPage: false,
+          hasPreviousPage: false,
+        },
+        totalCount: 0,
+      };
+      mockTransactionRepository.findActiveByUserId.mockResolvedValue(
+        expectedResult,
+      );
+
+      const pagination = { first: 10 };
+      const filters = {
+        accountIds: ["account-1", "account-2"],
+        categoryIds: ["category-1"],
+        includeUncategorized: true,
+        dateAfter: "2024-01-10",
+        dateBefore: "2024-01-20",
+        types: [TransactionType.INCOME],
+      };
+
+      // Act
+      const result = await service.getTransactionsByUser(
+        userId,
+        pagination,
+        filters,
+      );
+
+      // Assert - Service should pass all parameters through to repository unchanged
+      expect(result).toEqual(expectedResult);
+      expect(mockTransactionRepository.findActiveByUserId).toHaveBeenCalledWith(
+        userId,
+        pagination,
+        filters,
+      );
+      expect(
+        mockTransactionRepository.findActiveByUserId,
+      ).toHaveBeenCalledTimes(1);
+    });
+
+    it("should throw error for invalid date range (dateAfter > dateBefore)", async () => {
+      const promise = service.getTransactionsByUser(userId, undefined, {
+        dateAfter: "2024-12-31",
+        dateBefore: "2024-01-01",
+      });
+
+      await expect(promise).rejects.toThrow(BusinessError);
+
+      await expect(promise).rejects.toMatchObject({
+        message:
+          "Invalid date range: From date must be before or equal to To date",
+        code: BusinessErrorCodes.INVALID_DATE,
+      });
+
+      expect(
+        mockTransactionRepository.findActiveByUserId,
+      ).not.toHaveBeenCalled();
     });
   });
 });

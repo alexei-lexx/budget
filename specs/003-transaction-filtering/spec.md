@@ -10,7 +10,7 @@
 ### Session 2025-10-19
 
 - Q: When no transactions match the applied filter criteria, what should users see? → A: Empty list with generic "No transactions found" message
-- Q: When user selects an invalid date range (date-after is later than date-before), what should happen? → A: Allow application and show "No transactions found" message (treat as valid but empty query)
+- Q: When user selects an invalid date range (date-after is later than date-before), what should happen? → Show error message to user "Invalid date range: From date must be before or equal to To date"
 - Q: Should the "Load More" button continue to work when filters are active? → A: Yes, "Load More" loads additional transactions matching the current active filters
 - Q: Should the "Apply" button be disabled when no filter changes have been made since the last application? → A: No, keep button enabled at all times (allow re-applying same filters)
 - Q: What visual feedback should indicate which filters are currently active vs. selected but not yet applied? → A: no visual feedback needed

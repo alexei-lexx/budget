@@ -202,6 +202,18 @@ export class TransactionService {
     pagination?: PaginationInput,
     filters?: TransactionFilterInput,
   ): Promise<TransactionConnection> {
+    if (
+      filters?.dateAfter &&
+      filters?.dateBefore &&
+      filters.dateAfter > filters.dateBefore
+    ) {
+      throw new BusinessError(
+        "Invalid date range: From date must be before or equal to To date",
+        BusinessErrorCodes.INVALID_DATE,
+        { dateAfter: filters.dateAfter, dateBefore: filters.dateBefore },
+      );
+    }
+
     return await this.transactionRepository.findActiveByUserId(
       userId,
       pagination,

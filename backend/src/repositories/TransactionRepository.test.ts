@@ -2116,6 +2116,56 @@ describe("TransactionRepository", () => {
       const dates = result.edges.map((edge) => edge.node.date).sort();
       expect(dates).toEqual(["2024-01-10", "2024-01-15", "2024-01-20"]);
     });
+
+    it("should correctly handle dateAfter < dateBefore comparison (sanity check)", async () => {
+      // Sanity test: ensure string comparison works correctly for date filtering
+      // This verifies our assumption that YYYY-MM-DD date strings are lexicographically sortable
+      const userId = faker.string.uuid();
+      const accountId = faker.string.uuid();
+
+      await repository.createMany([
+        fakeCreateTransactionInput({ userId, accountId, date: "2024-01-01" }),
+        fakeCreateTransactionInput({ userId, accountId, date: "2024-06-15" }),
+        fakeCreateTransactionInput({ userId, accountId, date: "2024-12-31" }),
+      ]);
+
+      // Act - Query with dateAfter < dateBefore (normal case)
+      const result = await repository.findActiveByUserId(userId, undefined, {
+        dateAfter: "2024-01-01",
+        dateBefore: "2024-12-31",
+      });
+
+      // Assert - All transactions should be included
+      expect(result.edges).toHaveLength(3);
+      expect(result.totalCount).toBe(3);
+
+      // Also verify string comparison works as expected
+      expect("2024-01-01" < "2024-06-15").toBe(true);
+      expect("2024-06-15" < "2024-12-31").toBe(true);
+      expect("2024-01-01" <= "2024-12-31").toBe(true);
+    });
+
+    it("should throw error when dateAfter > dateBefore (DynamoDB constraint)", async () => {
+      // Verify DynamoDB constraint behavior when dateAfter > dateBefore
+      // DynamoDB BETWEEN operator requires lower bound <= upper bound
+      // When this is violated, DynamoDB throws ValidationException
+      const userId = faker.string.uuid();
+      const accountId = faker.string.uuid();
+
+      await repository.createMany([
+        fakeCreateTransactionInput({ userId, accountId, date: "2024-01-01" }),
+        fakeCreateTransactionInput({ userId, accountId, date: "2024-06-15" }),
+        fakeCreateTransactionInput({ userId, accountId, date: "2024-12-31" }),
+      ]);
+
+      // Act & Assert - Should throw error when dateAfter > dateBefore
+      await expect(
+        repository.findActiveByUserId(userId, undefined, {
+          dateAfter: "2024-12-31",
+          dateBefore: "2024-01-01",
+        }),
+      ).rejects.toThrow();
+    });
   });
 
   describe("findActiveByUserId with type filters", () => {
