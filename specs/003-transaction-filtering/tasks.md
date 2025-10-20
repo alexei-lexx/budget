@@ -180,23 +180,23 @@
 
 ### Backend Tests for User Story 5
 
-- [ ] T061 [P] [US5] Write integration test for account + category combination in backend/tests/repositories/TransactionRepository.test.ts
-- [ ] T062 [P] [US5] Write integration test for date + account + type combination in backend/tests/repositories/TransactionRepository.test.ts
-- [ ] T063 [P] [US5] Write integration test for all four filters combined in backend/tests/repositories/TransactionRepository.test.ts
-- [ ] T064 [P] [US5] Write integration test for pagination with filters active (Load More) in backend/tests/repositories/TransactionRepository.test.ts
+- [x] T061 [P] [US5] Write integration test for account + category combination in backend/tests/repositories/TransactionRepository.test.ts
+- [x] T062 [P] [US5] Write integration test for date + account + type combination in backend/tests/repositories/TransactionRepository.test.ts
+- [x] T063 [P] [US5] Write integration test for all four filters combined in backend/tests/repositories/TransactionRepository.test.ts
+- [x] T064 [P] [US5] Write integration test for pagination with filters active (Load More) in backend/tests/repositories/TransactionRepository.test.ts
 
 ### Backend Implementation for User Story 5
 
-- [ ] T065 [US5] Verify AND logic combines all filters correctly in buildFilterExpression in backend/src/repositories/TransactionRepository.ts
-- [ ] T066 [US5] Verify pagination cursor handling with different indexes (UserDateIndex vs UserCreatedAtIndex) in backend/src/repositories/TransactionRepository.ts
-- [ ] T067 [US5] Run all backend tests with npm test in backend/ and verify all 16 filter combinations pass
+- [x] T065 [US5] Verify AND logic combines all filters correctly in buildFilterExpression in backend/src/repositories/TransactionRepository.ts
+- [x] T066 [US5] Verify pagination cursor handling with different indexes (UserDateIndex vs UserCreatedAtIndex) in backend/src/repositories/TransactionRepository.ts
+- [x] T067 [US5] Run all backend tests with npm test in backend/ and verify all 16 filter combinations pass
 
 ### Frontend Implementation for User Story 5
 
-- [ ] T068 [US5] Verify all filter state properly combines in applyFilters method in frontend/src/composables/useTransactionFilters.ts
-- [ ] T069 [US5] Test Apply button behavior with multiple filters selected in frontend
-- [ ] T070 [US5] Test Clear button resets all filters correctly in frontend
-- [ ] T071 [US5] Verify pagination Load More works with active filters in frontend
+- [x] T068 [US5] Verify all filter state properly combines in applyFilters method in frontend/src/composables/useTransactionFilters.ts
+- [x] T069 [US5] Test Apply button behavior with multiple filters selected in frontend
+- [x] T070 [US5] Test Clear button resets all filters correctly in frontend
+- [x] T071 [US5] Verify pagination Load More works with active filters in frontend
 
 **Checkpoint**: All filter combinations should work correctly together
 
