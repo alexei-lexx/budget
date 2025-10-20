@@ -36,6 +36,13 @@
           clearable
           variant="outlined"
         />
+        <v-checkbox
+          v-model="filters.includeUncategorized.value"
+          label="Include uncategorized"
+          :disabled="loading"
+          density="compact"
+          class="mt-1"
+        />
       </v-col>
 
       <!-- Date After -->
@@ -74,16 +81,6 @@
           :disabled="loading"
           clearable
           variant="outlined"
-        />
-      </v-col>
-    </v-row>
-
-    <v-row class="mt-2">
-      <v-col cols="12">
-        <v-checkbox
-          v-model="filters.includeUncategorized.value"
-          label="Include uncategorized transactions"
-          :disabled="loading"
         />
       </v-col>
     </v-row>
