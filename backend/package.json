@@ -32,25 +32,25 @@
     "graphql": "^16.11.0",
     "jsonwebtoken": "^9.0.2",
     "jwks-rsa": "^3.2.0",
-    "zod": "^3.25.76"
+    "zod": "^4.1.12"
   },
   "devDependencies": {
-    "@eslint/js": "^9.28.0",
-    "@faker-js/faker": "^9.9.0",
-    "@graphql-codegen/cli": "5.0.7",
-    "@graphql-codegen/typescript": "4.1.6",
-    "@graphql-codegen/typescript-resolvers": "4.5.1",
+    "@eslint/js": "^9.38.0",
+    "@faker-js/faker": "^10.1.0",
+    "@graphql-codegen/cli": "6.0.1",
+    "@graphql-codegen/typescript": "5.0.2",
+    "@graphql-codegen/typescript-resolvers": "5.1.0",
     "@tsconfig/node22": "^22.0.2",
     "@types/jest": "^30.0.0",
-    "@types/node": "^22.15.29",
-    "esbuild": "0.25.5",
-    "eslint": "^9.28.0",
-    "jest": "^30.0.5",
+    "@types/node": "^24.9.1",
+    "esbuild": "0.25.11",
+    "eslint": "^9.38.0",
+    "jest": "^30.2.0",
     "nodemon": "^3.1.10",
-    "prettier": "3.5.3",
-    "ts-jest": "^29.4.0",
+    "prettier": "3.6.2",
+    "ts-jest": "^29.4.5",
     "ts-node": "^10.9.2",
-    "typescript": "^5.8.3",
-    "typescript-eslint": "^8.33.1"
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.46.2"
   }
 }
