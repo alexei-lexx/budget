@@ -52,39 +52,13 @@
         </v-alert>
 
         <!-- Empty State -->
-        <v-sheet
-          v-else-if="paginatedTransactions.length === 0"
-          border="dashed md"
-          color="surface-light"
-          height="300"
-          rounded="lg"
-          width="100%"
-          class="d-flex flex-column align-center justify-center"
-        >
-          <v-icon size="64" class="mb-4" color="primary">mdi-swap-horizontal</v-icon>
-          <div class="text-h6 mb-2">No Transactions Yet</div>
-          <div class="text-body-1 text-center mb-4">
-            Start tracking your income and expenses by adding your first transaction.
-          </div>
-          <div class="d-flex gap-2 justify-center flex-wrap">
-            <v-btn
-              color="primary"
-              prepend-icon="mdi-plus"
-              @click="handleAddTransaction"
-              :class="{ 'flex-grow-1': $vuetify.display.xs }"
-            >
-              Add Your First Transaction
-            </v-btn>
-            <v-btn
-              color="secondary"
-              prepend-icon="mdi-swap-horizontal"
-              @click="handleAddTransfer"
-              :class="{ 'flex-grow-1': $vuetify.display.xs }"
-            >
-              Create Transfer
-            </v-btn>
-          </div>
-        </v-sheet>
+        <div v-else-if="paginatedTransactions.length === 0" class="mt-4">
+          <v-empty-state
+            icon="mdi-swap-horizontal"
+            title="No Transactions Yet"
+            text="Start tracking your income and expenses by adding your first transaction."
+          />
+        </div>
 
         <!-- Transactions List -->
         <div v-else>
