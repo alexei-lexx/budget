@@ -22,13 +22,13 @@ Brief explanation of the problem or need being addressed.
 ## before
 ```
 
-Current behavior or limitations in bullet points.
+Current behavior or limitations in bullet points (ideally 3, max 5 bullet points).
 
 ```
 ## after
 ```
 
-New behavior or improvements in bullet points.
+New behavior or improvements in bullet points (ideally 3, max 5 bullet points).
 
 ## Example
 
@@ -48,5 +48,4 @@ Current search functionality is slow for large datasets. Need to optimize query 
 - Search completes in under 1 second
 - Redis caching layer added for frequent queries
 - Database indexes optimized for search patterns
-- Pagination implemented for large result sets
 ```
