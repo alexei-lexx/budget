@@ -21,12 +21,12 @@
 
       <div v-else-if="error" class="text-center pa-4">
         <v-icon size="48" color="error" class="mb-2">mdi-alert-circle</v-icon>
-        <div class="text-body-1 text-error mb-2">Failed to load category breakdown</div>
-        <div class="text-body-2 text-medium-emphasis">{{ error }}</div>
+        <div class="text-h6 text-error mb-2">Failed to load category breakdown</div>
+        <div class="text-body-1 text-medium-emphasis">{{ error }}</div>
       </div>
 
       <div v-else-if="!categories || categories.length === 0" class="text-center pa-8">
-        <div class="text-body-1 text-medium-emphasis">No transactions found</div>
+        <div class="text-h6 text-medium-emphasis">No transactions found</div>
       </div>
 
       <div v-else>
