@@ -25,9 +25,12 @@
         <div class="text-body-1 text-medium-emphasis">{{ error }}</div>
       </div>
 
-      <div v-else-if="!categories || categories.length === 0" class="text-center pa-8">
-        <div class="text-h6 text-medium-emphasis">No transactions found</div>
-      </div>
+      <v-empty-state
+        v-else-if="!categories || categories.length === 0"
+        icon="mdi-file-document-outline"
+        title="No transactions found"
+        text="There are no expense transactions for this month."
+      />
 
       <div v-else>
         <!-- Category Breakdown Table -->

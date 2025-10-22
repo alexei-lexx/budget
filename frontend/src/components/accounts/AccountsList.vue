@@ -52,24 +52,12 @@ const handleDeleteAccount = (accountId: string) => {
   </div>
 
   <!-- Empty State -->
-  <v-sheet
+  <v-empty-state
     v-else-if="accounts.length === 0"
-    border="dashed md"
-    color="surface-light"
-    height="300"
-    rounded="lg"
-    width="100%"
-    class="d-flex flex-column align-center justify-center"
-  >
-    <v-icon size="64" class="mb-4" color="primary">mdi-bank-plus</v-icon>
-    <div class="text-h6 mb-2">No Accounts Yet</div>
-    <div class="text-body-1 text-center mb-4">
-      Get started by creating your first account to track your finances.
-    </div>
-    <slot name="empty-action">
-      <!-- Slot for custom empty state action button -->
-    </slot>
-  </v-sheet>
+    icon="mdi-bank-plus"
+    title="No Accounts Yet"
+    text="Get started by creating your first account to track your finances."
+  />
 
   <!-- Accounts Grid - Optimized for Single-Line Cards -->
   <v-row v-else dense>

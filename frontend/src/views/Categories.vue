@@ -187,25 +187,12 @@ const handleCategoryCancel = () => {
     </div>
 
     <!-- Empty State -->
-    <v-sheet
+    <v-empty-state
       v-else-if="filteredCategories.length === 0"
-      border="dashed md"
-      color="surface-light"
-      height="300"
-      rounded="lg"
-      width="100%"
-      class="d-flex flex-column align-center justify-center"
-    >
-      <v-icon size="64" class="mb-4" color="primary">mdi-tag-multiple-outline</v-icon>
-      <div class="text-h6 mb-2">No {{ activeTab.toLowerCase() }} categories yet</div>
-      <div class="text-body-1 text-center mb-4">
-        Create your first {{ activeTab.toLowerCase() }} category to start organizing your
-        transactions.
-      </div>
-      <v-btn color="primary" prepend-icon="mdi-plus" @click="openAddCategoryDialog">
-        Add Your First {{ activeTab === "INCOME" ? "Income" : "Expense" }} Category
-      </v-btn>
-    </v-sheet>
+      icon="mdi-tag-multiple-outline"
+      :title="`No ${activeTab.toLowerCase()} categories yet`"
+      :text="`Create your first ${activeTab.toLowerCase()} category to start organizing your transactions.`"
+    />
 
     <!-- Categories Grid -->
     <v-row v-else dense>
