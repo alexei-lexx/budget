@@ -39,25 +39,25 @@
                 :key="`${categoryIndex}-${breakdownIndex}`"
               >
                 <td v-if="breakdownIndex === 0" :rowspan="category.currencyBreakdowns.length">
-                  <em v-if="!category.categoryId" class="text-h6 font-weight-regular">{{
+                  <em v-if="!category.categoryId" class="text-subtitle-1">{{
                     category.categoryName
                   }}</em>
-                  <span v-else class="text-h6 font-weight-regular">{{ category.categoryName }}</span>
+                  <span v-else class="text-subtitle-1">{{ category.categoryName }}</span>
                 </td>
-                <td class="text-right text-h5 font-weight-black">
+                <td class="text-right text-h5">
                   {{ formatCurrency(breakdown.totalAmount, breakdown.currency) }}
                 </td>
-                <td class="text-right text-h6 font-weight-medium">{{ breakdown.percentage }}%</td>
+                <td class="text-right text-subtitle-2">{{ breakdown.percentage }}%</td>
               </tr>
             </template>
           </tbody>
           <tfoot v-if="currencyTotals.length > 0">
             <tr v-for="(total, index) in currencyTotals" :key="index">
-              <th v-if="index === 0" :rowspan="currencyTotals.length" class="text-h6 font-weight-regular">Total</th>
-              <th class="text-right text-h5 font-weight-black">
+              <th v-if="index === 0" :rowspan="currencyTotals.length" class="text-subtitle-1">Total</th>
+              <th class="text-right text-h5">
                 {{ formatCurrency(total.totalAmount, total.currency) }}
               </th>
-              <th class="text-right text-h6 font-weight-medium">—</th>
+              <th class="text-right text-subtitle-2">—</th>
             </tr>
           </tfoot>
         </v-table>
