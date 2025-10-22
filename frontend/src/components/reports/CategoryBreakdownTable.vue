@@ -21,17 +21,17 @@
 
       <div v-else-if="error" class="text-center pa-4">
         <v-icon size="48" color="error" class="mb-2">mdi-alert-circle</v-icon>
-        <div class="text-body-1 text-error mb-2">Failed to load category breakdown</div>
-        <div class="text-body-2 text-medium-emphasis">{{ error }}</div>
+        <div class="text-h6 text-error mb-2">Failed to load category breakdown</div>
+        <div class="text-body-1 text-medium-emphasis">{{ error }}</div>
       </div>
 
       <div v-else-if="!categories || categories.length === 0" class="text-center pa-8">
-        <div class="text-body-1 text-medium-emphasis">No transactions found</div>
+        <div class="text-h6 text-medium-emphasis">No transactions found</div>
       </div>
 
       <div v-else>
         <!-- Category Breakdown Table -->
-        <v-table density="compact">
+        <v-table>
           <tbody>
             <template v-for="(category, categoryIndex) in categories" :key="categoryIndex">
               <tr
@@ -39,23 +39,23 @@
                 :key="`${categoryIndex}-${breakdownIndex}`"
               >
                 <td v-if="breakdownIndex === 0" :rowspan="category.currencyBreakdowns.length">
-                  <em v-if="!category.categoryId">{{ category.categoryName }}</em>
-                  <span v-else>{{ category.categoryName }}</span>
+                  <em v-if="!category.categoryId" class="text-h6">{{ category.categoryName }}</em>
+                  <span v-else class="text-h6">{{ category.categoryName }}</span>
                 </td>
-                <td class="text-right">
+                <td class="text-right text-h6 text-medium-emphasis">
                   {{ formatCurrency(breakdown.totalAmount, breakdown.currency) }}
                 </td>
-                <td class="text-right">{{ breakdown.percentage }}%</td>
+                <td class="text-right text-h6 text-high-emphasis">{{ breakdown.percentage }}%</td>
               </tr>
             </template>
           </tbody>
           <tfoot v-if="currencyTotals.length > 0">
             <tr v-for="(total, index) in currencyTotals" :key="index">
-              <th v-if="index === 0" :rowspan="currencyTotals.length">Total</th>
-              <th class="text-right">
+              <th v-if="index === 0" :rowspan="currencyTotals.length" class="text-h6">Total</th>
+              <th class="text-right text-h6 text-high-emphasis">
                 {{ formatCurrency(total.totalAmount, total.currency) }}
               </th>
-              <th class="text-right">—</th>
+              <th class="text-right text-h6 text-high-emphasis">—</th>
             </tr>
           </tfoot>
         </v-table>

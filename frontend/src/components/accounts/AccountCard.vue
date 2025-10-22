@@ -45,7 +45,7 @@ const handleCardClick = () => {
         <div class="text-truncate" style="min-width: 0; flex: 1">
           <h4 class="text-h6 mb-0 text-truncate">{{ account.name }}</h4>
         </div>
-        <div class="text-h5 font-weight-bold flex-shrink-0">
+        <div class="text-h5 text-high-emphasis flex-shrink-0">
           {{ formatCurrency(account.balance, account.currency) }}
         </div>
       </div>
