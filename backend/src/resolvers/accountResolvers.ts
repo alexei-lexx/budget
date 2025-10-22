@@ -21,16 +21,13 @@ const currencySchema = z
   .string()
   .trim()
   .toUpperCase()
-  .refine(
-    (val) => SUPPORTED_CURRENCIES.has(val),
-    (val) => ({
-      message: `Unsupported currency: ${val}. Supported currencies: ${Array.from(SUPPORTED_CURRENCIES).join(", ")}`,
-    }),
-  );
+  .refine((val) => SUPPORTED_CURRENCIES.has(val), {
+    message: `Unsupported currency. Supported currencies: ${Array.from(SUPPORTED_CURRENCIES).join(", ")}`,
+  });
 
-const initialBalanceSchema = z
-  .number()
-  .finite("Initial balance must be a valid number");
+const initialBalanceSchema = z.number({
+  message: "Initial balance must be a valid number",
+});
 
 /**
  * Zod schemas for input validation
@@ -42,7 +39,7 @@ const createAccountInputSchema = z.object({
 });
 
 const updateAccountInputSchema = z.object({
-  id: z.string().uuid("Account ID must be a valid UUID"),
+  id: z.uuid({ message: "Account ID must be a valid UUID" }),
   name: nameSchema.optional(),
   currency: currencySchema.optional(),
   initialBalance: initialBalanceSchema.optional(),
@@ -109,7 +106,7 @@ export const accountResolvers = {
         return account;
       } catch (error) {
         if (error instanceof z.ZodError) {
-          const firstError = error.errors[0];
+          const firstError = error.issues[0];
           throw new GraphQLError(firstError.message, {
             extensions: { code: "BAD_USER_INPUT" },
           });
@@ -172,7 +169,7 @@ export const accountResolvers = {
         return account;
       } catch (error) {
         if (error instanceof z.ZodError) {
-          const firstError = error.errors[0];
+          const firstError = error.issues[0];
           throw new GraphQLError(firstError.message, {
             extensions: { code: "BAD_USER_INPUT" },
           });

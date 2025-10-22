@@ -15,13 +15,13 @@ import {
 /**
  * Reusable schema components for transactions
  */
-const accountIdSchema = z.string().uuid("Account ID must be a valid UUID");
-const categoryIdSchema = z.string().uuid("Category ID must be a valid UUID");
+const accountIdSchema = z.uuid({ message: "Account ID must be a valid UUID" });
+const categoryIdSchema = z.uuid({
+  message: "Category ID must be a valid UUID",
+});
 const nullishCategoryIdSchema = categoryIdSchema.nullish();
 const typeSchema = z.enum([TransactionType.INCOME, TransactionType.EXPENSE], {
-  errorMap: () => ({
-    message: `Transaction type must be either ${TransactionType.INCOME} or ${TransactionType.EXPENSE}`,
-  }),
+  message: `Transaction type must be either ${TransactionType.INCOME} or ${TransactionType.EXPENSE}`,
 });
 const allTransactionTypesSchema = z.enum([
   TransactionType.INCOME,
@@ -51,7 +51,7 @@ const createTransactionInputSchema = z.object({
 });
 
 const updateTransactionInputSchema = z.object({
-  id: z.string().uuid("Transaction ID must be a valid UUID"),
+  id: z.uuid({ message: "Transaction ID must be a valid UUID" }),
   accountId: accountIdSchema.optional(),
   categoryId: nullishCategoryIdSchema,
   type: typeSchema.optional(),
@@ -86,9 +86,7 @@ const transactionFilterInputSchema = z
 const transactionPatternTypeSchema = z.enum(
   [TransactionPatternType.INCOME, TransactionPatternType.EXPENSE],
   {
-    errorMap: () => ({
-      message: `Type must be either ${TransactionPatternType.INCOME} or ${TransactionPatternType.EXPENSE}`,
-    }),
+    message: `Type must be either ${TransactionPatternType.INCOME} or ${TransactionPatternType.EXPENSE}`,
   },
 );
 
@@ -119,7 +117,7 @@ export const transactionResolvers = {
         return transactionConnection;
       } catch (error) {
         if (error instanceof z.ZodError) {
-          const firstError = error.errors[0];
+          const firstError = error.issues[0];
           throw new GraphQLError(firstError.message, {
             extensions: { code: "BAD_USER_INPUT" },
           });
@@ -147,7 +145,7 @@ export const transactionResolvers = {
         return patterns;
       } catch (error) {
         if (error instanceof z.ZodError) {
-          const firstError = error.errors[0];
+          const firstError = error.issues[0];
           throw new GraphQLError(firstError.message, {
             extensions: { code: "BAD_USER_INPUT" },
           });
@@ -207,7 +205,7 @@ export const transactionResolvers = {
         return transaction;
       } catch (error) {
         if (error instanceof z.ZodError) {
-          const firstError = error.errors[0];
+          const firstError = error.issues[0];
           throw new GraphQLError(firstError.message, {
             extensions: { code: "BAD_USER_INPUT" },
           });
@@ -239,7 +237,7 @@ export const transactionResolvers = {
         return transaction;
       } catch (error) {
         if (error instanceof z.ZodError) {
-          const firstError = error.errors[0];
+          const firstError = error.issues[0];
           throw new GraphQLError(firstError.message, {
             extensions: { code: "BAD_USER_INPUT" },
           });
