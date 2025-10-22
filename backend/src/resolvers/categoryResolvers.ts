@@ -14,9 +14,7 @@ const nameSchema = z
   .max(100, "Category name cannot exceed 100 characters");
 
 const typeSchema = z.enum([CategoryType.INCOME, CategoryType.EXPENSE], {
-  errorMap: () => ({
-    message: `Category type must be either ${CategoryType.INCOME} or ${CategoryType.EXPENSE}`,
-  }),
+  message: `Category type must be either ${CategoryType.INCOME} or ${CategoryType.EXPENSE}`,
 });
 
 /**
@@ -28,7 +26,7 @@ const createCategoryInputSchema = z.object({
 });
 
 const updateCategoryInputSchema = z.object({
-  id: z.string().uuid("Category ID must be a valid UUID"),
+  id: z.uuid({ message: "Category ID must be a valid UUID" }),
   name: nameSchema.optional(),
   type: typeSchema.optional(),
 });
@@ -84,7 +82,7 @@ export const categoryResolvers = {
         return category;
       } catch (error) {
         if (error instanceof z.ZodError) {
-          const firstError = error.errors[0];
+          const firstError = error.issues[0];
           throw new GraphQLError(firstError.message, {
             extensions: { code: "BAD_USER_INPUT" },
           });
@@ -111,7 +109,7 @@ export const categoryResolvers = {
         return category;
       } catch (error) {
         if (error instanceof z.ZodError) {
-          const firstError = error.errors[0];
+          const firstError = error.issues[0];
           throw new GraphQLError(firstError.message, {
             extensions: { code: "BAD_USER_INPUT" },
           });

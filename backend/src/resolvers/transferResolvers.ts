@@ -17,8 +17,8 @@ import {
 /**
  * Reusable schema components for transfers
  */
-const idSchema = z.string().uuid("ID must be a valid UUID");
-const accountIdSchema = z.string().uuid("Account ID must be a valid UUID");
+const idSchema = z.uuid({ message: "ID must be a valid UUID" });
+const accountIdSchema = z.uuid({ message: "Account ID must be a valid UUID" });
 const amountSchema = z.number().positive("Amount must be positive");
 const dateSchema = z
   .string()
@@ -130,7 +130,7 @@ export const transferResolvers = {
         };
       } catch (error) {
         if (error instanceof z.ZodError) {
-          const firstError = error.errors[0];
+          const firstError = error.issues[0];
           throw new GraphQLError(firstError.message, {
             extensions: { code: "BAD_USER_INPUT" },
           });
@@ -168,7 +168,7 @@ export const transferResolvers = {
         };
       } catch (error) {
         if (error instanceof z.ZodError) {
-          const firstError = error.errors[0];
+          const firstError = error.issues[0];
           throw new GraphQLError(firstError.message, {
             extensions: { code: "BAD_USER_INPUT" },
           });
@@ -206,7 +206,7 @@ export const transferResolvers = {
         };
       } catch (error) {
         if (error instanceof z.ZodError) {
-          const firstError = error.errors[0];
+          const firstError = error.issues[0];
           throw new GraphQLError(firstError.message, {
             extensions: { code: "BAD_USER_INPUT" },
           });
@@ -234,7 +234,7 @@ export const transferResolvers = {
         return true;
       } catch (error) {
         if (error instanceof z.ZodError) {
-          const firstError = error.errors[0];
+          const firstError = error.issues[0];
           throw new GraphQLError(firstError.message, {
             extensions: { code: "BAD_USER_INPUT" },
           });
