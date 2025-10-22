@@ -112,7 +112,7 @@ const handleCardClick = () => {
         </div>
 
         <!-- Amount -->
-        <div class="text-h5 font-weight-bold flex-shrink-0" :class="`text-${amountColor}`">
+        <div class="text-h5 text-high-emphasis flex-shrink-0" :class="`text-${amountColor}`">
           {{ formattedAmount }}
         </div>
       </div>
