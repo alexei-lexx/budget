@@ -47,7 +47,7 @@
                 <td class="text-right text-h5 font-weight-bold">
                   {{ formatCurrency(breakdown.totalAmount, breakdown.currency) }}
                 </td>
-                <td class="text-right text-body-1">{{ breakdown.percentage }}%</td>
+                <td class="text-right text-h6 font-weight-medium">{{ breakdown.percentage }}%</td>
               </tr>
             </template>
           </tbody>
@@ -57,7 +57,7 @@
               <th class="text-right text-h5 font-weight-bold">
                 {{ formatCurrency(total.totalAmount, total.currency) }}
               </th>
-              <th class="text-right text-body-1">—</th>
+              <th class="text-right text-h6 font-weight-medium">—</th>
             </tr>
           </tfoot>
         </v-table>
