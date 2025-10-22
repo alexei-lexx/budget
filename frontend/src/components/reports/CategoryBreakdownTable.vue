@@ -31,7 +31,7 @@
 
       <div v-else>
         <!-- Category Breakdown Table -->
-        <v-table density="compact">
+        <v-table>
           <tbody>
             <template v-for="(category, categoryIndex) in categories" :key="categoryIndex">
               <tr
@@ -39,23 +39,25 @@
                 :key="`${categoryIndex}-${breakdownIndex}`"
               >
                 <td v-if="breakdownIndex === 0" :rowspan="category.currencyBreakdowns.length">
-                  <em v-if="!category.categoryId">{{ category.categoryName }}</em>
-                  <span v-else>{{ category.categoryName }}</span>
+                  <em v-if="!category.categoryId" class="text-subtitle-1">{{
+                    category.categoryName
+                  }}</em>
+                  <span v-else class="text-subtitle-1">{{ category.categoryName }}</span>
                 </td>
-                <td class="text-right">
+                <td class="text-right text-subtitle-1 font-weight-medium">
                   {{ formatCurrency(breakdown.totalAmount, breakdown.currency) }}
                 </td>
-                <td class="text-right">{{ breakdown.percentage }}%</td>
+                <td class="text-right text-body-1">{{ breakdown.percentage }}%</td>
               </tr>
             </template>
           </tbody>
           <tfoot v-if="currencyTotals.length > 0">
             <tr v-for="(total, index) in currencyTotals" :key="index">
-              <th v-if="index === 0" :rowspan="currencyTotals.length">Total</th>
-              <th class="text-right">
+              <th v-if="index === 0" :rowspan="currencyTotals.length" class="text-subtitle-1 font-weight-bold">Total</th>
+              <th class="text-right text-subtitle-1 font-weight-bold">
                 {{ formatCurrency(total.totalAmount, total.currency) }}
               </th>
-              <th class="text-right">—</th>
+              <th class="text-right text-body-1">—</th>
             </tr>
           </tfoot>
         </v-table>
