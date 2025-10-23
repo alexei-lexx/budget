@@ -3,6 +3,7 @@ import {
   DynamoDBDocumentClient,
   PutCommand,
   QueryCommand,
+  ScanCommand,
 } from "@aws-sdk/lib-dynamodb";
 import { randomUUID } from "crypto";
 import { User, CreateUserInput, IUserRepository } from "../models/User";
@@ -48,6 +49,25 @@ export class UserRepository implements IUserRepository {
     } catch (error) {
       console.error("Error finding user by Auth0 ID:", error);
       throw new Error("Failed to find user");
+    }
+  }
+
+  async findAll(): Promise<User[]> {
+    try {
+      const command = new ScanCommand({
+        TableName: this.tableName,
+      });
+
+      const result = await this.client.send(command);
+
+      if (!result.Items) {
+        return [];
+      }
+
+      return result.Items as User[];
+    } catch (error) {
+      console.error("Error finding all users:", error);
+      throw new Error("Failed to find users");
     }
   }
 

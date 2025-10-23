@@ -45,14 +45,6 @@ npm run dev         # Starts server on http://localhost:4000
 
 Uses DynamoDB Local running in Docker with a named volume for data persistence.
 
-### Database commands:
-
-```bash
-npm run db:start    # Start DynamoDB Local + Admin UI
-npm run db:stop     # Stop database services
-npm run db:setup    # Start database and create tables
-```
-
 ### Database access:
 
 - **DynamoDB Local**: http://localhost:8000
@@ -78,6 +70,7 @@ npm run db:setup    # Start database and create tables
 - `npm run db:start` - Start DynamoDB Local + Admin UI
 - `npm run db:stop` - Stop database services
 - `npm run db:setup` - Start database and create tables
+- `npm run db:seed` - Seed database with sample data (development only)
 
 ## Architecture
 
