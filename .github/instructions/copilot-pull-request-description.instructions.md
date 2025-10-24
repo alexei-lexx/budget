@@ -1,5 +1,7 @@
 # Pull Request Description Instructions
 
+Write the pull request description as if it were written by a human developer.
+
 ## Format
 
 ### Title

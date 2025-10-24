@@ -2,6 +2,10 @@
 
 ## Guidelines
 
+- Do not mention Copilot, Claude, or any other AI assistant in the commit message.
+- Do not add AI assistants as commit co-authors.
+- Write the commit message as if it were written by a human developer.
+
 - Use lower case for the entire commit message.
 - Keep the message clear and concise—summarize what and why, not how.
 
