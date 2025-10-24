@@ -1,5 +1,5 @@
 import { ref, watch, type Ref } from "vue";
-import type { ApolloError } from "@apollo/client/core";
+import type { ApolloError } from "@apollo/client";
 import {
   useGetCategoriesQuery,
   useCreateCategoryMutation,

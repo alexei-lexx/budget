@@ -1,5 +1,5 @@
 import { ref, computed, type Ref } from "vue";
-import type { ApolloError } from "@apollo/client/core";
+import type { ApolloError } from "@apollo/client";
 import {
   useGetTransactionPatternsQuery,
   type TransactionPatternType,

@@ -1,5 +1,5 @@
 import { ref, watch } from "vue";
-import type { ApolloError } from "@apollo/client/core";
+import type { ApolloError } from "@apollo/client";
 import { useEnsureUserMutation } from "@/__generated__/vue-apollo";
 
 // User type is available from generated types
