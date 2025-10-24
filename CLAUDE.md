@@ -473,27 +473,7 @@ npm test
 ### Project Specifications
 Before starting any development work, review:
 - docs/general-spec.md - Business requirements and feature specifications
-- docs/tech-spec.md - Technical architecture and implementation guidelines
-- docs/tasks/ - Individual task files with detailed implementation requirements
-
-### Task Completion Tracking
-**CRITICAL**: Always mark tasks as completed in the relevant task files in docs/tasks/ immediately after finishing them:
-- Change `[ ]` to `[x]` in the task line within the specific task file
-- When all sub-task items under a parent task are completed and marked, mark the parent task item as completed as well
-- This maintains permanent progress tracking across development sessions
-- Prevents duplicate work and ensures accountability
-
-### Task Implementation Approach
-Follow bottom-up, layer-by-layer implementation pattern:
-1. **Database Layer** - Development/production database setup, schema changes, data migrations
-2. **Repository Layer** - Data access operations, error handling, validation
-3. **Service Layer** - Business logic, cross-repository coordination, business rules
-4. **GraphQL Layer** - Schema definitions, resolvers, input validation
-5. **Frontend Data Layer** - GraphQL queries/mutations, composables, error handling
-6. **Frontend UI/UX Layer** - Components, user interface, form validation
-7. **Integration Testing** - Manual testing, end-to-end validation, production verification
-
-s## Code Quality and Development Workflow
+- docs/tech-spec.md - Technical architecture and implementation guidelines## Code Quality and Development Workflow
 
 ### Testing Infrastructure
 - **Backend CDK**: Jest tests for infrastructure validation
