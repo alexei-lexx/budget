@@ -89,7 +89,10 @@ const handleKeyDown = (event: KeyboardEvent) => {
     case "Enter":
       event.preventDefault();
       if (selectedIndex.value >= 0 && selectedIndex.value < suggestions.value.length) {
-        selectSuggestion(suggestions.value[selectedIndex.value]);
+        const selected = suggestions.value[selectedIndex.value];
+        if (selected) {
+          selectSuggestion(selected);
+        }
       }
       break;
     case "Escape":

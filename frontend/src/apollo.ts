@@ -55,7 +55,8 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
   if (graphQLErrors) {
     console.error("GraphQL errors:", graphQLErrors);
     // Use the first GraphQL error message, or fall back to generic message
-    globalError.value = graphQLErrors[0].message || "Something went wrong. Please try again later.";
+    globalError.value =
+      graphQLErrors[0]?.message || "Something went wrong. Please try again later.";
   }
 
   if (networkError) {

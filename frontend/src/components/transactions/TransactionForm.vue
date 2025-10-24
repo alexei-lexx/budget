@@ -3,6 +3,7 @@ import { ref, computed, watch } from "vue";
 import { getCurrencySymbol } from "@/utils/currency";
 import { checkRules, type CheckRule } from "@/utils/validation";
 import { currencyAmountRules } from "@/utils/currencyValidation";
+import { getTodayDateString } from "@/utils/date";
 import { useAccounts } from "@/composables/useAccounts";
 import { useCategories } from "@/composables/useCategories";
 import AccountSelect from "@/components/common/AccountSelect.vue";
@@ -53,7 +54,7 @@ const formData = ref<CreateTransactionInput>({
   categoryId: "",
   type: props.initialType,
   amount: 0,
-  date: new Date().toISOString().split("T")[0], // Today's date in YYYY-MM-DD format
+  date: getTodayDateString(),
   description: "",
 });
 
@@ -167,7 +168,7 @@ watch(
         categoryId: "",
         type: props.initialType,
         amount: 0,
-        date: new Date().toISOString().split("T")[0],
+        date: getTodayDateString(),
         description: "",
       };
     }
