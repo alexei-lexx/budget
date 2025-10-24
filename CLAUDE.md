@@ -493,10 +493,7 @@ Follow bottom-up, layer-by-layer implementation pattern:
 6. **Frontend UI/UX Layer** - Components, user interface, form validation
 7. **Integration Testing** - Manual testing, end-to-end validation, production verification
 
-### Task Definition Guidelines
-For comprehensive task definition guidelines, refer to docs/tasks.instructions.md
-
-## Code Quality and Development Workflow
+s## Code Quality and Development Workflow
 
 ### Testing Infrastructure
 - **Backend CDK**: Jest tests for infrastructure validation
