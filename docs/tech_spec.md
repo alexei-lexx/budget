@@ -33,14 +33,6 @@ Personal Finance Tracker is a serverless web application for individual financia
                                               └─────────────┘
 ```
 
-### Repository Structure
-- **frontend/** - Vue 3 + Vite application
-- **backend/** - Apollo GraphQL server
-- **frontend-cdk/** - Frontend infrastructure (S3/CloudFront)
-- **backend-cdk/** - Backend infrastructure (Lambda/API Gateway)
-
----
-
 ## 2. Frontend
 
 ### Technologies
@@ -278,7 +270,7 @@ type ItemConnection {
 ```
 Item List (showing latest first):
 - Item A
-- Item B  
+- Item B
 - Item C
 ...
 [Load More]

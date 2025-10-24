@@ -1,5 +1,24 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!-- SYNC IMPACT REPORT
+Version Change: 0.1.0 (initial) → 0.2.0 (MINOR: added Repository Structure section)
+Modified Sections: None
+Added Sections: Repository Structure
+Removed Sections: None
+Templates Requiring Updates: Pending - to be updated when additional principles are added
+Follow-up TODOs: Core Principles, additional sections, governance rules, ratification/amendment dates
+-->
+
+# Personal Finance Tracker Constitution
+
+## Repository Structure
+
+The project comprises four independent npm packages distributed across the repository:
+
+- **frontend/** – User-facing single-page application (Vue 3 + Vite + Vuetify)
+- **backend/** – Apollo GraphQL server exposing the API for the frontend (Node.js/TypeScript), includes database integration
+- **frontend-cdk/** – Deployable frontend infrastructure (AWS CDK)
+- **backend-cdk/** – Deployable backend infrastructure (AWS CDK)
+
+Each package maintains its own `package.json`, dependencies, and build configuration. They are versioned and deployed independently while remaining architecturally coupled through shared GraphQL schema and deployment order requirements.
 
 ## Core Principles
 
@@ -46,5 +65,4 @@
 [GOVERNANCE_RULES]
 <!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 0.2.0 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-10-24
