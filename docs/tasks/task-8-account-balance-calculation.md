@@ -21,7 +21,7 @@
 - ❌ No GraphQL balance field in Account type
 
 **Business Logic:**
-- According to general_spec.md: "Account balance = Initial balance + Sum of all transactions"
+- According to general-spec.md: "Account balance = Initial balance + Sum of all transactions"
 - Calculated balance should reflect real-time transaction activity
 - Balance calculation requires cross-repository coordination (AccountRepository + TransactionRepository)
 

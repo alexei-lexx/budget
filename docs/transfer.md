@@ -6,7 +6,7 @@ This document captures the design analysis and decision-making process for imple
 
 ## Business Requirements
 
-From `general_spec.md`:
+From `general-spec.md`:
 - Users can transfer money between their own accounts **only if both accounts use the same currency**
 - Example: Transfer from _Bank Account (USD)_ to _Cash (USD)_ is allowed
 - Transfer from _Bank Account (USD)_ to _Credit Card (EUR)_ is **not allowed**
@@ -18,7 +18,7 @@ From `general_spec.md`:
 ```typescript
 interface Transaction {
   userId: string;          // Partition key for user isolation
-  id: string;              // Sort key - UUID v4  
+  id: string;              // Sort key - UUID v4
   accountId: string;       // Foreign key to Account
   categoryId?: string;     // Optional foreign key to Category
   type: 'INCOME' | 'EXPENSE';  // Transaction type
@@ -112,7 +112,7 @@ interface Transaction {
 ```typescript
 enum TransactionType {
   INCOME = 'INCOME',
-  EXPENSE = 'EXPENSE', 
+  EXPENSE = 'EXPENSE',
   TRANSFER_OUT = 'TRANSFER_OUT',
   TRANSFER_IN = 'TRANSFER_IN'
 }
@@ -449,7 +449,7 @@ Based on the comprehensive analysis including industry standards and accounting 
 ```typescript
 enum TransactionType {
   INCOME = 'INCOME',
-  EXPENSE = 'EXPENSE', 
+  EXPENSE = 'EXPENSE',
   TRANSFER_OUT = 'TRANSFER_OUT',
   TRANSFER_IN = 'TRANSFER_IN'
 }
@@ -561,15 +561,15 @@ class TransferService {
     private accountRepository: IAccountRepository
   ) {}
 
-  async createTransfer(input: CreateTransferInput, userId: string): Promise<{ 
-    transferOut: Transaction, 
-    transferIn: Transaction 
+  async createTransfer(input: CreateTransferInput, userId: string): Promise<{
+    transferOut: Transaction,
+    transferIn: Transaction
   }> {
     // Validate both accounts exist and belong to user
     await this.validateTransferAccounts(input.fromAccountId, input.toAccountId, userId);
-    
+
     const transferId = randomUUID();
-    
+
     try {
       // Create TRANSFER_OUT transaction
       const transferOut = await this.transactionRepository.create({
@@ -699,7 +699,7 @@ Based on the two-transaction approach and industry standards, I recommend **Opti
 App Navigation Drawer:
 ├── Dashboard (/)
 ├── Accounts (/accounts)
-├── Categories (/categories)  
+├── Categories (/categories)
 ├── Transactions (/transactions)  ← Income/Expense only
 └── Transfers (/transfers)        ← Account-to-account transfers
 ```
@@ -716,6 +716,6 @@ App Navigation Drawer:
 
 ---
 
-**Document Status:** Living document - updated during design discussions  
-**Last Updated:** December 2024 - Revised based on industry standards and accounting principles  
+**Document Status:** Living document - updated during design discussions
+**Last Updated:** December 2024 - Revised based on industry standards and accounting principles
 **Contributors:** Claude Code analysis and user feedback

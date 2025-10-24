@@ -3,8 +3,8 @@
 ## Prerequisites
 
 Before starting any task:
-- `docs/general_spec.md` - Business requirements
-- `docs/tech_spec.md` - Technical architecture
+- `docs/general-spec.md` - Business requirements
+- `docs/tech-spec.md` - Technical architecture
 
 ## CRITICAL: Task Completion Tracking
 
@@ -84,7 +84,7 @@ Bottom-up, layer-by-layer phases:
 - [ ] 5.2.3 Handle error scenarios
 ```
 
-**Important:** 
+**Important:**
 - Only include layers that require actual code changes. Skip layers with no changes needed and renumber remaining layers sequentially (e.g., if Database Layer requires no schema changes, start with "5.1 Repository Layer").
 - **Repository Layer Requirements:** Any repository method additions or modifications MUST include corresponding unit tests. Repository layer implementation is not complete without unit test coverage for both success scenarios and error handling.
 

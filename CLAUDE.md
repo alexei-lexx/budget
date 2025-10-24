@@ -472,8 +472,8 @@ npm test
 
 ### Project Specifications
 Before starting any development work, review:
-- docs/general_spec.md - Business requirements and feature specifications
-- docs/tech_spec.md - Technical architecture and implementation guidelines
+- docs/general-spec.md - Business requirements and feature specifications
+- docs/tech-spec.md - Technical architecture and implementation guidelines
 - docs/tasks/ - Individual task files with detailed implementation requirements
 
 ### Task Completion Tracking
