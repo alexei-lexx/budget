@@ -1,7 +1,7 @@
 <!-- SYNC IMPACT REPORT
-Version Change: 0.2.0 → 0.2.1 (PATCH: added component sections with Technologies subsections)
-Modified Sections: None
-Added Sections: Backend, Frontend, Backend CDK, Frontend CDK (each with Technologies subsection)
+Version Change: 0.2.1 → 0.2.2 (PATCH: clarified all component sections as npm packages with concise descriptions)
+Modified Sections: Backend, Frontend, Backend CDK, Frontend CDK (added npm package nature + function descriptions)
+Added Sections: None
 Removed Sections: None
 Templates Requiring Updates: None required for this patch
 Follow-up TODOs: Core Principles, additional sections, governance rules, ratification/amendment dates
@@ -22,6 +22,8 @@ Each package maintains its own `package.json`, dependencies, and build configura
 
 ## Backend
 
+An npm package providing Apollo GraphQL server and API implementation.
+
 ### Technologies
 - **Language**: TypeScript
 - **Framework**: Apollo Server, Node.js
@@ -29,6 +31,8 @@ Each package maintains its own `package.json`, dependencies, and build configura
 - **Quality**: ESLint, Prettier, TypeScript strict mode
 
 ## Frontend
+
+An npm package providing the user-facing single-page application.
 
 ### Technologies
 - **Language**: TypeScript
@@ -38,6 +42,8 @@ Each package maintains its own `package.json`, dependencies, and build configura
 
 ## Backend CDK
 
+An npm package providing infrastructure-as-code for backend deployment to AWS.
+
 ### Technologies
 - **Language**: TypeScript
 - **Framework**: AWS CDK
@@ -45,6 +51,8 @@ Each package maintains its own `package.json`, dependencies, and build configura
 - **Quality**: ESLint, Prettier, TypeScript strict mode
 
 ## Frontend CDK
+
+An npm package providing infrastructure-as-code for frontend deployment to AWS.
 
 ### Technologies
 - **Language**: TypeScript
@@ -97,4 +105,4 @@ Each package maintains its own `package.json`, dependencies, and build configura
 [GOVERNANCE_RULES]
 <!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
 
-**Version**: 0.2.1 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-10-26
+**Version**: 0.2.2 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-10-26
