@@ -2,18 +2,22 @@
   <v-card class="category-breakdown-table" elevation="2">
     <v-card-text>
       <!-- Sort Controls -->
-      <div v-if="categories && categories.length > 0" class="d-flex justify-end mb-3">
-        <v-chip-group v-model="sortBy" mandatory>
-          <v-chip value="amount" size="small" variant="outlined">
-            amount
-            <v-icon end>mdi-sort-numeric-descending</v-icon>
-          </v-chip>
-          <v-chip value="category" size="small" variant="outlined">
-            category
-            <v-icon end>mdi-sort-alphabetical-ascending</v-icon>
-          </v-chip>
-        </v-chip-group>
-      </div>
+      <v-chip-group
+        v-if="categories && categories.length > 0"
+        v-model="sortBy"
+        mandatory
+        class="d-flex mb-3"
+      >
+        <v-chip value="category" size="small" variant="outlined">
+          category
+          <v-icon end>mdi-sort-alphabetical-ascending</v-icon>
+        </v-chip>
+        <v-spacer />
+        <v-chip value="amount" size="small" variant="outlined">
+          amount
+          <v-icon end>mdi-sort-numeric-descending</v-icon>
+        </v-chip>
+      </v-chip-group>
 
       <div v-if="loading" class="d-flex justify-center pa-4">
         <v-progress-circular indeterminate color="primary"></v-progress-circular>
