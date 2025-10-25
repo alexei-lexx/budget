@@ -35,14 +35,6 @@ Personal Finance Tracker is a serverless web application for individual financia
 
 ## 2. Frontend
 
-### Technologies
-- **Vue 3** - Progressive JavaScript framework with Composition API and Vue Router
-- **Vite** - Fast build tool and development server
-- **Vuetify** - Material Design component library
-- **Apollo Client** - GraphQL client for data fetching
-- **Auth0 SDK** - Authentication integration
-- **TypeScript** - Type safety and enhanced developer experience
-
 ### Responsibilities
 - User interface and user experience
 - Client-side routing for single-page application
@@ -62,14 +54,6 @@ Personal Finance Tracker is a serverless web application for individual financia
 ---
 
 ## 3. Backend
-
-### Technologies
-- **Apollo Server** - GraphQL server implementation
-- **Node.js** - JavaScript runtime environment
-- **TypeScript** - Type-safe server-side development
-- **esbuild** - Fast bundling for Lambda deployment
-- **JWT libraries** - Token verification and Auth0 integration
-- **AWS SDK** - DynamoDB client libraries
 
 ### Responsibilities
 - GraphQL API implementation

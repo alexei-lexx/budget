@@ -1,9 +1,9 @@
 <!-- SYNC IMPACT REPORT
-Version Change: 0.1.0 (initial) → 0.2.0 (MINOR: added Repository Structure section)
+Version Change: 0.2.0 → 0.2.1 (PATCH: added component sections with Technologies subsections)
 Modified Sections: None
-Added Sections: Repository Structure
+Added Sections: Backend, Frontend, Backend CDK, Frontend CDK (each with Technologies subsection)
 Removed Sections: None
-Templates Requiring Updates: Pending - to be updated when additional principles are added
+Templates Requiring Updates: None required for this patch
 Follow-up TODOs: Core Principles, additional sections, governance rules, ratification/amendment dates
 -->
 
@@ -19,6 +19,38 @@ The project comprises four independent npm packages distributed across the repos
 - **frontend-cdk/** – Deployable frontend infrastructure (AWS CDK)
 
 Each package maintains its own `package.json`, dependencies, and build configuration. They are versioned and deployed independently while remaining architecturally coupled through shared GraphQL schema and deployment order requirements.
+
+## Backend
+
+### Technologies
+- **Language**: TypeScript
+- **Framework**: Apollo Server, Node.js
+- **Testing**: Jest
+- **Quality**: ESLint, Prettier, TypeScript strict mode
+
+## Frontend
+
+### Technologies
+- **Language**: TypeScript
+- **Framework**: Vue 3, Vite, Vuetify, Apollo Client
+- **Testing**: Jest
+- **Quality**: ESLint, Prettier, TypeScript strict mode, Vue type-checking
+
+## Backend CDK
+
+### Technologies
+- **Language**: TypeScript
+- **Framework**: AWS CDK
+- **Testing**: Jest
+- **Quality**: ESLint, Prettier, TypeScript strict mode
+
+## Frontend CDK
+
+### Technologies
+- **Language**: TypeScript
+- **Framework**: AWS CDK
+- **Testing**: Jest
+- **Quality**: ESLint, Prettier, TypeScript strict mode
 
 ## Core Principles
 
@@ -65,4 +97,4 @@ Each package maintains its own `package.json`, dependencies, and build configura
 [GOVERNANCE_RULES]
 <!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
 
-**Version**: 0.2.0 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-10-24
+**Version**: 0.2.1 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-10-26
