@@ -514,7 +514,3 @@ NEVER proactively create documentation files (*.md) or README files. Only create
 - Prefer npm scripts defined in package.json over running tools directly
 - This ensures consistent tool versions and project-specific configurations
 - Example: Use `npm run deploy` instead of `npx cdk deploy`
-
-**Git Commit and PR Guidelines:**
-- NEVER mention "Claude", "Claude AI", "Claude Code", or any AI assistance in commit messages, PR titles, or PR descriptions
-- Write commit messages and PR content as if they were written by a human developer
