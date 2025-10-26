@@ -97,13 +97,13 @@
 
         <v-row class="mt-4">
           <v-col cols="12" class="d-flex gap-2">
-            <v-btn color="primary" @click="handleApply" :disabled="loading"> Apply Filters </v-btn>
+            <v-btn color="primary" @click="handleApply" :disabled="loading"> Apply </v-btn>
             <v-btn
               variant="outlined"
               @click="handleClear"
               :disabled="loading || !filters.hasSelectedFilters.value"
             >
-              Clear Filters
+              Clear
             </v-btn>
           </v-col>
         </v-row>
