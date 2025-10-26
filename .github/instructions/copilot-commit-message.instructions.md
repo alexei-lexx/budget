@@ -23,14 +23,6 @@
 - Use present tense and active voice.
 - Avoid generic messages like "update" or "fix".
 
-- Prefix the subject with `[be]` if the commit includes changes in the backend.
-- Prefix the subject with `[fe]` if the commit includes changes related to the frontend.
-- Prefix the subject with `[be][fe]` if the commit includes changes to both backend and frontend.
-- Prefix the subject with `[copilot]` if the commit includes only updates to Copilot instructions.
-- Prefix the subject with `[doc]` if the commit includes only updates to files in the `docs` subfolder.
-- Prefix the subject with `[claude]` if the commit only includes updates to Claude Code specific files.
-- Avoid using other prefixes unless specified in the project guidelines.
-
 ## Examples
 
 - add account creation modal
@@ -44,20 +36,3 @@ add delete account feature
 - confirms deletion with modal
 - updates graphql mutation
 ```
-
-### Special Prefix Examples
-
-- `[doc]` prefix example:
-  ```
-  [doc] update getting started guide
-  ```
-
-- `[copilot]` prefix example:
-  ```
-  [copilot] clarify commit message guidelines
-  ```
-
-- `[claude]` prefix example:
-  ```
-  [claude] update development commands in claude.md
-  ```
