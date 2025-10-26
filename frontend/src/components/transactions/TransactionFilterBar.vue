@@ -96,8 +96,7 @@
         </v-row>
 
         <v-row class="mt-4">
-          <v-col cols="12" class="d-flex gap-2">
-            <v-btn color="primary" @click="handleApply" :disabled="loading"> Apply </v-btn>
+          <v-col cols="12" class="d-flex">
             <v-btn
               variant="outlined"
               @click="handleClear"
@@ -105,6 +104,8 @@
             >
               Clear
             </v-btn>
+            <v-spacer />
+            <v-btn color="primary" @click="handleApply" :disabled="loading"> Apply </v-btn>
           </v-col>
         </v-row>
       </div>
