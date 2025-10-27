@@ -103,7 +103,7 @@ A user reviewing their transaction history needs to quickly identify which accou
 - **FR-004**: System MUST maintain consistency: the same deleted account/category always displays the same original name across all transaction cards
 - **FR-005**: System MUST handle transactions with optional categories correctly (if no category, category field remains empty regardless of account deletion status)
 - **FR-006**: System MUST resolve deleted account and category names from the backend data store where soft-deleted records are preserved
-- **FR-007**: System MUST visually distinguish deleted accounts/categories from active ones (e.g., through styling, text decoration, icons, color, or other visual indicator)
+- **FR-007**: System MUST visually distinguish deleted accounts/categories from active ones using strikethrough text styling
 
 ### Key Entities *(include if feature involves data)*
 
@@ -122,10 +122,16 @@ A user reviewing their transaction history needs to quickly identify which accou
 
 - **SC-001**: 100% of transactions with deleted accounts display the original account name when viewed
 - **SC-002**: 100% of transactions with deleted categories display the original category name when viewed
-- **SC-003**: Users can differentiate deleted vs. active accounts/categories visually (e.g., visual indicator, styling, formatting)
+- **SC-003**: Users can differentiate deleted vs. active accounts/categories visually through strikethrough text styling
 - **SC-004**: No "Unknown Account" or undefined/blank category names appear on transaction cards for deleted entities
 - **SC-005**: Performance: Displaying transactions with deleted accounts/categories loads in under 1 second (same as with active entities)
 - **SC-006**: All existing tests pass and new tests validate that deleted account/category names are correctly displayed
+
+## Clarifications
+
+### Session 2025-10-27
+
+- Q: What type of visual distinction should indicate a deleted entity? → A: Strikethrough text styling
 
 ## Assumptions
 
@@ -133,5 +139,5 @@ A user reviewing their transaction history needs to quickly identify which accou
 - The backend can efficiently query for archived accounts/categories by ID
 - Transaction references (`accountId`, `categoryId`) remain unchanged when accounts/categories are deleted
 - The backend will provide information about whether an account/category is archived when returning transaction data or related entity data
-- Visual distinction mechanism (styling, icons, text decoration, color, etc.) will be determined during the planning phase
+- Deleted account and category names will be displayed with strikethrough styling to visually distinguish them from active entities
 
