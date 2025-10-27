@@ -13,16 +13,21 @@ import {
 // Re-export types for backward compatibility
 export type { Account, CreateAccountInput, UpdateAccountInput };
 
-export function useAccounts() {
-  const accountsError = ref<string | null>(null);
+export interface UseAccountsOptions {
+  includeArchived?: boolean;
+}
 
-  // Query for active accounts
+export function useAccounts(options?: UseAccountsOptions) {
+  const accountsError = ref<string | null>(null);
+  const includeArchived = options?.includeArchived ?? false;
+
+  // Query for active accounts (or all if includeArchived=true)
   const {
     result: accountsResult,
     loading: accountsLoading,
     error: accountsQueryError,
     refetch: refetchAccounts,
-  } = useGetAccountsQuery();
+  } = useGetAccountsQuery({ includeArchived });
 
   // Create account mutation
   const {

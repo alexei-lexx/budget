@@ -8,8 +8,8 @@ import {
 } from "./fragments";
 
 export const GET_ACCOUNTS = gql`
-  query GetAccounts {
-    accounts {
+  query GetAccounts($includeArchived: Boolean = false) {
+    accounts(includeArchived: $includeArchived) {
       ...AccountFields
     }
   }
@@ -23,8 +23,8 @@ export const GET_SUPPORTED_CURRENCIES = gql`
 `;
 
 export const GET_CATEGORIES = gql`
-  query GetCategories($type: CategoryType) {
-    categories(type: $type) {
+  query GetCategories($type: CategoryType, $includeArchived: Boolean = false) {
+    categories(type: $type, includeArchived: $includeArchived) {
       ...CategoryFields
     }
   }

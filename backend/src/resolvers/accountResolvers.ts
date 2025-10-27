@@ -67,13 +67,15 @@ export const accountResolvers = {
   Query: {
     accounts: async (
       _parent: unknown,
-      _args: unknown,
+      args: { includeArchived?: boolean },
       context: GraphQLContext,
     ) => {
       try {
         const user = await getAuthenticatedUser(context);
-        const accounts = await context.accountRepository.findActiveByUserId(
+        const includeArchived = args.includeArchived ?? false;
+        const accounts = await context.accountRepository.findByUserId(
           user.id,
+          { includeArchived },
         );
         return accounts;
       } catch (error) {

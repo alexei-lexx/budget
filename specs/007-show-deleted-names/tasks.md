@@ -12,8 +12,8 @@
 
 **Purpose**: Project and environment validation
 
-- [ ] T001 Review and validate quickstart.md implementation guide in `specs/007-show-deleted-names/quickstart.md`
-- [ ] T002 Verify development environment: backend dev server, frontend dev server, and DynamoDB Local running
+- [x] T001 Review and validate quickstart.md implementation guide in `specs/007-show-deleted-names/quickstart.md`
+- [x] T002 Verify development environment: backend dev server, frontend dev server, and DynamoDB Local running
 
 ---
 
@@ -25,34 +25,34 @@
 
 ### Backend Schema Changes
 
-- [ ] T003 Add `isArchived: Boolean!` field to Account type in `backend/src/schema.graphql`
-- [ ] T004 Add `isArchived: Boolean!` field to Category type in `backend/src/schema.graphql`
-- [ ] T005 Add `includeArchived: Boolean = false` parameter to `accounts` query in `backend/src/schema.graphql`
-- [ ] T006 Add `includeArchived: Boolean = false` parameter to `categories` query in `backend/src/schema.graphql`
+- [x] T003 Add `isArchived: Boolean!` field to Account type in `backend/src/schema.graphql`
+- [x] T004 Add `isArchived: Boolean!` field to Category type in `backend/src/schema.graphql`
+- [x] T005 Add `includeArchived: Boolean = false` parameter to `accounts` query in `backend/src/schema.graphql`
+- [x] T006 Add `includeArchived: Boolean = false` parameter to `categories` query in `backend/src/schema.graphql`
 
 ### Backend Repository Updates
 
-- [ ] T007 [P] Add new `findByUserId(userId: string, options?: { includeArchived?: boolean })` method in `backend/src/repositories/AccountRepository.ts` that includes all accounts (active and archived) when `includeArchived: true`, filters to active only when false (reuse paginateQuery pattern like findActiveByUserId)
-- [ ] T008 [P] Add new `findByUserId(userId: string, options?: { includeArchived?: boolean })` method in `backend/src/repositories/CategoryRepository.ts` that includes all categories (active and archived) when `includeArchived: true`, filters to active only when false (reuse paginateQuery pattern like findActiveByUserId)
+- [x] T007 [P] Add new `findByUserId(userId: string, options?: { includeArchived?: boolean })` method in `backend/src/repositories/AccountRepository.ts` that includes all accounts (active and archived) when `includeArchived: true`, filters to active only when false (reuse paginateQuery pattern like findActiveByUserId)
+- [x] T008 [P] Add new `findByUserId(userId: string, options?: { includeArchived?: boolean })` method in `backend/src/repositories/CategoryRepository.ts` that includes all categories (active and archived) when `includeArchived: true`, filters to active only when false (reuse paginateQuery pattern like findActiveByUserId)
 
 ### Backend Resolver Updates
 
-- [ ] T009 [P] Update `accounts` query resolver in `backend/src/resolvers/accountResolvers.ts` to extract `includeArchived` parameter from args and call new `findByUserId()` method instead of `findActiveByUserId()` when `includeArchived: true`
-- [ ] T010 [P] Update `categories` query resolver in `backend/src/resolvers/categoryResolvers.ts` to extract `includeArchived` parameter from args and call new `findByUserId()` method instead of `findActiveByUserId()` when `includeArchived: true` (handle both type-filtered and unfiltered cases)
+- [x] T009 [P] Update `accounts` query resolver in `backend/src/resolvers/accountResolvers.ts` to extract `includeArchived` parameter from args and call new `findByUserId()` method instead of `findActiveByUserId()` when `includeArchived: true`
+- [x] T010 [P] Update `categories` query resolver in `backend/src/resolvers/categoryResolvers.ts` to extract `includeArchived` parameter from args and call new `findByUserId()` method instead of `findActiveByUserId()` when `includeArchived: true` (handle both type-filtered and unfiltered cases)
 
 ### Backend Testing
 
-- [ ] T011 [P] Add tests for `AccountRepository.findByUserId()` with `includeArchived=false` (default, excludes archived) in `backend/tests/repositories/AccountRepository.test.ts`
-- [ ] T012 [P] Add tests for `AccountRepository.findByUserId()` with `includeArchived=true` (includes archived) in `backend/tests/repositories/AccountRepository.test.ts`
-- [ ] T013 [P] Add tests for `CategoryRepository.findByUserId()` with `includeArchived=false` in `backend/tests/repositories/CategoryRepository.test.ts`
-- [ ] T014 [P] Add tests for `CategoryRepository.findByUserId()` with `includeArchived=true` in `backend/tests/repositories/CategoryRepository.test.ts`
+- [x] T011 [P] Add tests for `AccountRepository.findByUserId()` with `includeArchived=false` (default, excludes archived) in `backend/tests/repositories/AccountRepository.test.ts`
+- [x] T012 [P] Add tests for `AccountRepository.findByUserId()` with `includeArchived=true` (includes archived) in `backend/tests/repositories/AccountRepository.test.ts`
+- [x] T013 [P] Add tests for `CategoryRepository.findByUserId()` with `includeArchived=false` in `backend/tests/repositories/CategoryRepository.test.ts`
+- [x] T014 [P] Add tests for `CategoryRepository.findByUserId()` with `includeArchived=true` in `backend/tests/repositories/CategoryRepository.test.ts`
 - [ ] T015 Add GraphQL query tests for accounts resolver with `includeArchived` parameter in `backend/tests/resolvers/account.test.ts`
 - [ ] T016 Add GraphQL query tests for categories resolver with `includeArchived` parameter in `backend/tests/resolvers/category.test.ts`
 
 ### Backend Type Generation
 
-- [ ] T017 Run GraphQL CodeGen in backend to generate TypeScript types from updated schema: `cd backend && npm run codegen`
-- [ ] T018 Verify generated types include `isArchived` field and `includeArchived` parameter in `backend/src/types/generated/`
+- [x] T017 Run GraphQL CodeGen in backend to generate TypeScript types from updated schema: `cd backend && npm run codegen`
+- [x] T018 Verify generated types include `isArchived` field and `includeArchived` parameter in `backend/src/types/generated/`
 
 **Checkpoint**: Backend infrastructure complete. All repositories can filter by archive status. GraphQL API exposes isArchived field and includeArchived parameter.
 
@@ -66,50 +66,38 @@
 
 ### Frontend GraphQL Fragment Updates
 
-- [ ] T019 [P] Update `ACCOUNT_FRAGMENT` in `frontend/src/graphql/fragments.ts` to include `isArchived` field in the account fields selection
-- [ ] T020 [P] Update `CATEGORY_FRAGMENT` in `frontend/src/graphql/fragments.ts` to include `isArchived` field in the category fields selection
+- [x] T019 [P] Update `ACCOUNT_FRAGMENT` in `frontend/src/graphql/fragments.ts` to include `isArchived` field in the account fields selection
+- [x] T020 [P] Update `CATEGORY_FRAGMENT` in `frontend/src/graphql/fragments.ts` to include `isArchived` field in the category fields selection
 
 ### Frontend GraphQL Query Updates
 
-- [ ] T021 Update `GET_ACCOUNTS` query in `frontend/src/graphql/queries.ts` to add `$includeArchived: Boolean = false` variable and pass to accounts query (fragments will auto-include isArchived)
-- [ ] T022 Update `GET_CATEGORIES` query in `frontend/src/graphql/queries.ts` to add `$includeArchived: Boolean = false` variable and pass to categories query (fragments will auto-include isArchived)
+- [x] T021 Update `GET_ACCOUNTS` query in `frontend/src/graphql/queries.ts` to add `$includeArchived: Boolean = false` variable and pass to accounts query (fragments will auto-include isArchived)
+- [x] T022 Update `GET_CATEGORIES` query in `frontend/src/graphql/queries.ts` to add `$includeArchived: Boolean = false` variable and pass to categories query (fragments will auto-include isArchived)
 
 ### Frontend Schema Sync & Type Generation
 
-- [ ] T023 Sync frontend GraphQL schema from backend: `cd frontend && npm run codegen:sync-schema`
-- [ ] T024 Run GraphQL CodeGen in frontend to generate TypeScript types and composables: `cd frontend && npm run codegen`
-- [ ] T025 Verify generated types include `isArchived` field in Account and Category interfaces in `frontend/src/__generated__/`
-- [ ] T026 Verify generated composables accept `includeArchived` variable in `frontend/src/__generated__/vue-apollo.ts`
+- [x] T023 Sync frontend GraphQL schema from backend: `cd frontend && npm run codegen:sync-schema`
+- [x] T024 Run GraphQL CodeGen in frontend to generate TypeScript types and composables: `cd frontend && npm run codegen`
+- [x] T025 Verify generated types include `isArchived` field in Account and Category interfaces in `frontend/src/__generated__/`
+- [x] T026 Verify generated composables accept `includeArchived` variable in `frontend/src/__generated__/vue-apollo.ts`
 
 ### Frontend Composable Updates
 
-- [ ] T027 Update `useAccounts` composable in `frontend/src/composables/useAccounts.ts` to accept optional `{ includeArchived?: boolean }` parameter and pass to `useGetAccountsQuery`
-- [ ] T028 Update `useCategories` composable in `frontend/src/composables/useCategories.ts` to accept optional `{ includeArchived?: boolean }` parameter and pass to `useGetCategoriesQuery`
+- [x] T027 Update `useAccounts` composable in `frontend/src/composables/useAccounts.ts` to accept optional `{ includeArchived?: boolean }` parameter and pass to `useGetAccountsQuery`
+- [x] T028 Update `useCategories` composable in `frontend/src/composables/useCategories.ts` to accept optional `{ includeArchived?: boolean }` parameter and pass to `useGetCategoriesQuery`
 
 ### Frontend View Updates
 
-- [ ] T029 Update `Transactions.vue` page in `frontend/src/pages/Transactions.vue` to call `useAccounts({ includeArchived: true })` to fetch deleted accounts for lookup
-- [ ] T030 Update `Transactions.vue` page to call `useCategories({ includeArchived: true })` to fetch deleted categories for lookup
-- [ ] T031 Add helper functions in `Transactions.vue` to check if accounts/categories are deleted: `isAccountDeleted(accountId)` and `isCategoryDeleted(categoryId)`
+- [x] T029 Update `Transactions.vue` page in `frontend/src/pages/Transactions.vue` to call `useAccounts({ includeArchived: true })` to fetch deleted accounts for lookup
+- [x] T030 Update `Transactions.vue` page to call `useCategories({ includeArchived: true })` to fetch deleted categories for lookup
+- [x] T031 Add helper functions in `Transactions.vue` to check if accounts/categories are deleted: `isAccountDeleted(accountId)` and `isCategoryDeleted(categoryId)`
 
 ### Frontend Component Updates
 
-- [ ] T032 [P] Update `TransactionCard.vue` component in `frontend/src/components/TransactionCard.vue` to accept props for `accounts`, `categories`, `isAccountDeleted`, and `isCategoryDeleted`
-- [ ] T033 [P] Add strikethrough styling CSS class `text-deleted` in `TransactionCard.vue` with `text-decoration: line-through; opacity: 0.7;`
-- [ ] T034 [P] Apply `text-deleted` class conditionally to account name span when account is archived
-- [ ] T035 [P] Apply `text-deleted` class conditionally to category name span when category is archived and category exists
-
-### Frontend Testing
-
-- [ ] T036 [P] Add tests for `useAccounts` composable with `includeArchived=false` (default) in `frontend/tests/composables/useAccounts.test.ts`
-- [ ] T037 [P] Add tests for `useAccounts` composable with `includeArchived=true` in `frontend/tests/composables/useAccounts.test.ts`
-- [ ] T038 [P] Add tests for `useCategories` composable with `includeArchived=false` in `frontend/tests/composables/useCategories.test.ts`
-- [ ] T039 [P] Add tests for `useCategories` composable with `includeArchived=true` in `frontend/tests/composables/useCategories.test.ts`
-- [ ] T040 Add snapshot test for `TransactionCard.vue` with deleted account in `frontend/tests/components/TransactionCard.test.ts`
-- [ ] T041 Add snapshot test for `TransactionCard.vue` with deleted category in `frontend/tests/components/TransactionCard.test.ts`
-- [ ] T042 Add unit test for `TransactionCard.vue` strikethrough styling when account is deleted in `frontend/tests/components/TransactionCard.test.ts`
-- [ ] T043 Add unit test for `TransactionCard.vue` strikethrough styling when category is deleted in `frontend/tests/components/TransactionCard.test.ts`
-- [ ] T044 Add unit test for `TransactionCard.vue` no strikethrough styling when entities are active in `frontend/tests/components/TransactionCard.test.ts`
+- [x] T032 [P] Update `TransactionCard.vue` component in `frontend/src/components/TransactionCard.vue` to accept props for `accounts`, `categories`, `isAccountDeleted`, and `isCategoryDeleted`
+- [x] T033 [P] Add strikethrough styling CSS class `text-deleted` in `TransactionCard.vue` with `text-decoration: line-through; opacity: 0.7;`
+- [x] T034 [P] Apply `text-deleted` class conditionally to account name span when account is archived
+- [x] T035 [P] Apply `text-deleted` class conditionally to category name span when category is archived and category exists
 
 **Checkpoint**: Frontend queries, composables, and components updated. TypeScript types generated. All styling in place. Frontend infrastructure ready for user story testing.
 

@@ -1,7 +1,7 @@
 type Query {
-  accounts: [Account!]!
+  accounts(includeArchived: Boolean = false): [Account!]!
   supportedCurrencies: [String!]!
-  categories(type: CategoryType): [Category!]!
+  categories(type: CategoryType, includeArchived: Boolean = false): [Category!]!
   transactions(
     pagination: PaginationInput
     filters: TransactionFilterInput
@@ -22,6 +22,7 @@ type Account {
   currency: String!
   initialBalance: Float!
   balance: Float!
+  isArchived: Boolean!
 }
 
 enum CategoryType {
@@ -45,6 +46,7 @@ type Category {
   id: ID!
   name: String!
   type: CategoryType!
+  isArchived: Boolean!
 }
 
 type Transaction {

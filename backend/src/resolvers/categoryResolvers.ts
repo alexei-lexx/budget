@@ -35,25 +35,28 @@ export const categoryResolvers = {
   Query: {
     categories: async (
       _parent: unknown,
-      args: { type?: CategoryType },
+      args: { type?: CategoryType; includeArchived?: boolean },
       context: GraphQLContext,
     ) => {
       try {
         const user = await getAuthenticatedUser(context);
+        const includeArchived = args.includeArchived ?? false;
 
         // If type filter is provided, use the filtered method
         if (args.type) {
           const categories =
-            await context.categoryRepository.findActiveByUserIdAndType(
+            await context.categoryRepository.findByUserIdAndType(
               user.id,
               args.type,
+              { includeArchived },
             );
           return categories;
         }
 
-        // Otherwise, return all active categories
-        const categories = await context.categoryRepository.findActiveByUserId(
+        // Otherwise, return all categories
+        const categories = await context.categoryRepository.findByUserId(
           user.id,
+          { includeArchived },
         );
         return categories;
       } catch (error) {

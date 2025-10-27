@@ -26,12 +26,14 @@ export type Account = {
   currency: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   initialBalance: Scalars['Float']['output'];
+  isArchived: Scalars['Boolean']['output'];
   name: Scalars['String']['output'];
 };
 
 export type Category = {
   __typename?: 'Category';
   id: Scalars['ID']['output'];
+  isArchived: Scalars['Boolean']['output'];
   name: Scalars['String']['output'];
   type: CategoryType;
 };
@@ -198,7 +200,13 @@ export type Query = {
 };
 
 
+export type QueryAccountsArgs = {
+  includeArchived?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
 export type QueryCategoriesArgs = {
+  includeArchived?: InputMaybe<Scalars['Boolean']['input']>;
   type?: InputMaybe<CategoryType>;
 };
 
@@ -471,11 +479,13 @@ export type AccountResolvers<ContextType = GraphQLContext, ParentType extends Re
   currency?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   initialBalance?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  isArchived?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
 };
 
 export type CategoryResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Category'] = ResolversParentTypes['Category']> = {
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isArchived?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   type?: Resolver<ResolversTypes['CategoryType'], ParentType, ContextType>;
 };
@@ -531,8 +541,8 @@ export type PageInfoResolvers<ContextType = GraphQLContext, ParentType extends R
 };
 
 export type QueryResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
-  accounts?: Resolver<Array<ResolversTypes['Account']>, ParentType, ContextType>;
-  categories?: Resolver<Array<ResolversTypes['Category']>, ParentType, ContextType, Partial<QueryCategoriesArgs>>;
+  accounts?: Resolver<Array<ResolversTypes['Account']>, ParentType, ContextType, RequireFields<QueryAccountsArgs, 'includeArchived'>>;
+  categories?: Resolver<Array<ResolversTypes['Category']>, ParentType, ContextType, RequireFields<QueryCategoriesArgs, 'includeArchived'>>;
   getTransactionPatterns?: Resolver<Array<ResolversTypes['TransactionPattern']>, ParentType, ContextType, RequireFields<QueryGetTransactionPatternsArgs, 'type'>>;
   monthlyReport?: Resolver<ResolversTypes['MonthlyReport'], ParentType, ContextType, RequireFields<QueryMonthlyReportArgs, 'month' | 'type' | 'year'>>;
   supportedCurrencies?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;

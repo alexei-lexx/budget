@@ -79,7 +79,10 @@ export class AccountRepository implements IAccountRepository {
     }
   }
 
-  async findActiveByUserId(userId: string): Promise<Account[]> {
+  async findByUserId(
+    userId: string,
+    options?: { includeArchived?: boolean },
+  ): Promise<Account[]> {
     if (!userId) {
       throw new AccountRepositoryError(
         "User ID is required",
@@ -87,18 +90,26 @@ export class AccountRepository implements IAccountRepository {
       );
     }
 
+    const includeArchived = options?.includeArchived ?? false;
+
     try {
+      const params: any = {
+        TableName: this.tableName,
+        KeyConditionExpression: "userId = :userId",
+        ExpressionAttributeValues: {
+          ":userId": userId,
+        },
+      };
+
+      // Only filter by isArchived if not including archived
+      if (!includeArchived) {
+        params.FilterExpression = "isArchived = :isArchived";
+        params.ExpressionAttributeValues[":isArchived"] = false;
+      }
+
       const result = await paginateQuery<Account>({
         client: this.client,
-        params: {
-          TableName: this.tableName,
-          KeyConditionExpression: "userId = :userId",
-          FilterExpression: "isArchived = :isArchived",
-          ExpressionAttributeValues: {
-            ":userId": userId,
-            ":isArchived": false,
-          },
-        },
+        params,
         options: {}, // No pageSize = get all items
       });
 
@@ -109,13 +120,17 @@ export class AccountRepository implements IAccountRepository {
         a.name.toLowerCase().localeCompare(b.name.toLowerCase()),
       );
     } catch (error) {
-      console.error("Error finding active accounts by user ID:", error);
+      console.error("Error finding accounts by user ID:", error);
       throw new AccountRepositoryError(
-        "Failed to find active accounts",
+        "Failed to find accounts",
         "QUERY_FAILED",
         error,
       );
     }
+  }
+
+  async findActiveByUserId(userId: string): Promise<Account[]> {
+    return this.findByUserId(userId, { includeArchived: false });
   }
 
   async findActiveById(id: string, userId: string): Promise<Account | null> {

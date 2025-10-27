@@ -24,12 +24,14 @@ export type Account = {
   currency: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   initialBalance: Scalars['Float']['output'];
+  isArchived: Scalars['Boolean']['output'];
   name: Scalars['String']['output'];
 };
 
 export type Category = {
   __typename?: 'Category';
   id: Scalars['ID']['output'];
+  isArchived: Scalars['Boolean']['output'];
   name: Scalars['String']['output'];
   type: CategoryType;
 };
@@ -198,7 +200,13 @@ export type Query = {
 };
 
 
+export type QueryAccountsArgs = {
+  includeArchived?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
 export type QueryCategoriesArgs = {
+  includeArchived?: InputMaybe<Scalars['Boolean']['input']>;
   type?: InputMaybe<CategoryType>;
 };
 
@@ -327,9 +335,9 @@ export type User = {
   email: Scalars['String']['output'];
 };
 
-export type AccountFieldsFragment = { __typename?: 'Account', id: string, name: string, currency: string, initialBalance: number, balance: number };
+export type AccountFieldsFragment = { __typename?: 'Account', id: string, name: string, currency: string, initialBalance: number, balance: number, isArchived: boolean };
 
-export type CategoryFieldsFragment = { __typename?: 'Category', id: string, name: string, type: CategoryType };
+export type CategoryFieldsFragment = { __typename?: 'Category', id: string, name: string, type: CategoryType, isArchived: boolean };
 
 export type TransactionFieldsFragment = { __typename?: 'Transaction', id: string, accountId: string, categoryId?: string | null | undefined, type: TransactionType, amount: number, currency: string, date: string, description?: string | null | undefined, transferId?: string | null | undefined };
 
@@ -353,14 +361,14 @@ export type CreateAccountMutationVariables = Exact<{
 }>;
 
 
-export type CreateAccountMutation = { __typename?: 'Mutation', createAccount: { __typename?: 'Account', id: string, name: string, currency: string, initialBalance: number, balance: number } };
+export type CreateAccountMutation = { __typename?: 'Mutation', createAccount: { __typename?: 'Account', id: string, name: string, currency: string, initialBalance: number, balance: number, isArchived: boolean } };
 
 export type UpdateAccountMutationVariables = Exact<{
   input: UpdateAccountInput;
 }>;
 
 
-export type UpdateAccountMutation = { __typename?: 'Mutation', updateAccount: { __typename?: 'Account', id: string, name: string, currency: string, initialBalance: number, balance: number } };
+export type UpdateAccountMutation = { __typename?: 'Mutation', updateAccount: { __typename?: 'Account', id: string, name: string, currency: string, initialBalance: number, balance: number, isArchived: boolean } };
 
 export type DeleteAccountMutationVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -374,21 +382,21 @@ export type CreateCategoryMutationVariables = Exact<{
 }>;
 
 
-export type CreateCategoryMutation = { __typename?: 'Mutation', createCategory: { __typename?: 'Category', id: string, name: string, type: CategoryType } };
+export type CreateCategoryMutation = { __typename?: 'Mutation', createCategory: { __typename?: 'Category', id: string, name: string, type: CategoryType, isArchived: boolean } };
 
 export type UpdateCategoryMutationVariables = Exact<{
   input: UpdateCategoryInput;
 }>;
 
 
-export type UpdateCategoryMutation = { __typename?: 'Mutation', updateCategory: { __typename?: 'Category', id: string, name: string, type: CategoryType } };
+export type UpdateCategoryMutation = { __typename?: 'Mutation', updateCategory: { __typename?: 'Category', id: string, name: string, type: CategoryType, isArchived: boolean } };
 
 export type DeleteCategoryMutationVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type DeleteCategoryMutation = { __typename?: 'Mutation', deleteCategory: { __typename?: 'Category', id: string, name: string, type: CategoryType } };
+export type DeleteCategoryMutation = { __typename?: 'Mutation', deleteCategory: { __typename?: 'Category', id: string, name: string, type: CategoryType, isArchived: boolean } };
 
 export type CreateTransactionMutationVariables = Exact<{
   input: CreateTransactionInput;
@@ -432,10 +440,12 @@ export type DeleteTransferMutationVariables = Exact<{
 
 export type DeleteTransferMutation = { __typename?: 'Mutation', deleteTransfer?: boolean | null | undefined };
 
-export type GetAccountsQueryVariables = Exact<{ [key: string]: never; }>;
+export type GetAccountsQueryVariables = Exact<{
+  includeArchived?: InputMaybe<Scalars['Boolean']['input']>;
+}>;
 
 
-export type GetAccountsQuery = { __typename?: 'Query', accounts: Array<{ __typename?: 'Account', id: string, name: string, currency: string, initialBalance: number, balance: number }> };
+export type GetAccountsQuery = { __typename?: 'Query', accounts: Array<{ __typename?: 'Account', id: string, name: string, currency: string, initialBalance: number, balance: number, isArchived: boolean }> };
 
 export type GetSupportedCurrenciesQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -444,10 +454,11 @@ export type GetSupportedCurrenciesQuery = { __typename?: 'Query', supportedCurre
 
 export type GetCategoriesQueryVariables = Exact<{
   type?: InputMaybe<CategoryType>;
+  includeArchived?: InputMaybe<Scalars['Boolean']['input']>;
 }>;
 
 
-export type GetCategoriesQuery = { __typename?: 'Query', categories: Array<{ __typename?: 'Category', id: string, name: string, type: CategoryType }> };
+export type GetCategoriesQuery = { __typename?: 'Query', categories: Array<{ __typename?: 'Category', id: string, name: string, type: CategoryType, isArchived: boolean }> };
 
 export type GetTransactionsPaginatedQueryVariables = Exact<{
   pagination?: InputMaybe<PaginationInput>;
@@ -494,6 +505,7 @@ export const AccountFieldsFragmentDoc = gql`
   currency
   initialBalance
   balance
+  isArchived
 }
     `;
 export const CategoryFieldsFragmentDoc = gql`
@@ -501,6 +513,7 @@ export const CategoryFieldsFragmentDoc = gql`
   id
   name
   type
+  isArchived
 }
     `;
 export const TransactionFieldsFragmentDoc = gql`
@@ -933,8 +946,8 @@ export function useDeleteTransferMutation(options: VueApolloComposable.UseMutati
 }
 export type DeleteTransferMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<DeleteTransferMutation, DeleteTransferMutationVariables>;
 export const GetAccountsDocument = gql`
-    query GetAccounts {
-  accounts {
+    query GetAccounts($includeArchived: Boolean = false) {
+  accounts(includeArchived: $includeArchived) {
     ...AccountFields
   }
 }
@@ -947,16 +960,19 @@ export const GetAccountsDocument = gql`
  * When your component renders, `useGetAccountsQuery` returns an object from Apollo Client that contains result, loading and error properties
  * you can use to render your UI.
  *
+ * @param variables that will be passed into the query
  * @param options that will be passed into the query, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/query.html#options;
  *
  * @example
- * const { result, loading, error } = useGetAccountsQuery();
+ * const { result, loading, error } = useGetAccountsQuery({
+ *   includeArchived: // value for 'includeArchived'
+ * });
  */
-export function useGetAccountsQuery(options: VueApolloComposable.UseQueryOptions<GetAccountsQuery, GetAccountsQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<GetAccountsQuery, GetAccountsQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<GetAccountsQuery, GetAccountsQueryVariables>> = {}) {
-  return VueApolloComposable.useQuery<GetAccountsQuery, GetAccountsQueryVariables>(GetAccountsDocument, {}, options);
+export function useGetAccountsQuery(variables: GetAccountsQueryVariables | VueCompositionApi.Ref<GetAccountsQueryVariables> | ReactiveFunction<GetAccountsQueryVariables> = {}, options: VueApolloComposable.UseQueryOptions<GetAccountsQuery, GetAccountsQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<GetAccountsQuery, GetAccountsQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<GetAccountsQuery, GetAccountsQueryVariables>> = {}) {
+  return VueApolloComposable.useQuery<GetAccountsQuery, GetAccountsQueryVariables>(GetAccountsDocument, variables, options);
 }
-export function useGetAccountsLazyQuery(options: VueApolloComposable.UseQueryOptions<GetAccountsQuery, GetAccountsQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<GetAccountsQuery, GetAccountsQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<GetAccountsQuery, GetAccountsQueryVariables>> = {}) {
-  return VueApolloComposable.useLazyQuery<GetAccountsQuery, GetAccountsQueryVariables>(GetAccountsDocument, {}, options);
+export function useGetAccountsLazyQuery(variables: GetAccountsQueryVariables | VueCompositionApi.Ref<GetAccountsQueryVariables> | ReactiveFunction<GetAccountsQueryVariables> = {}, options: VueApolloComposable.UseQueryOptions<GetAccountsQuery, GetAccountsQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<GetAccountsQuery, GetAccountsQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<GetAccountsQuery, GetAccountsQueryVariables>> = {}) {
+  return VueApolloComposable.useLazyQuery<GetAccountsQuery, GetAccountsQueryVariables>(GetAccountsDocument, variables, options);
 }
 export type GetAccountsQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<GetAccountsQuery, GetAccountsQueryVariables>;
 export const GetSupportedCurrenciesDocument = gql`
@@ -985,8 +1001,8 @@ export function useGetSupportedCurrenciesLazyQuery(options: VueApolloComposable.
 }
 export type GetSupportedCurrenciesQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<GetSupportedCurrenciesQuery, GetSupportedCurrenciesQueryVariables>;
 export const GetCategoriesDocument = gql`
-    query GetCategories($type: CategoryType) {
-  categories(type: $type) {
+    query GetCategories($type: CategoryType, $includeArchived: Boolean = false) {
+  categories(type: $type, includeArchived: $includeArchived) {
     ...CategoryFields
   }
 }
@@ -1005,6 +1021,7 @@ export const GetCategoriesDocument = gql`
  * @example
  * const { result, loading, error } = useGetCategoriesQuery({
  *   type: // value for 'type'
+ *   includeArchived: // value for 'includeArchived'
  * });
  */
 export function useGetCategoriesQuery(variables: GetCategoriesQueryVariables | VueCompositionApi.Ref<GetCategoriesQueryVariables> | ReactiveFunction<GetCategoriesQueryVariables> = {}, options: VueApolloComposable.UseQueryOptions<GetCategoriesQuery, GetCategoriesQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<GetCategoriesQuery, GetCategoriesQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<GetCategoriesQuery, GetCategoriesQueryVariables>> = {}) {

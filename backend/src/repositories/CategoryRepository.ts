@@ -84,7 +84,10 @@ export class CategoryRepository implements ICategoryRepository {
     }
   }
 
-  async findActiveByUserId(userId: string): Promise<Category[]> {
+  async findByUserId(
+    userId: string,
+    options?: { includeArchived?: boolean },
+  ): Promise<Category[]> {
     if (!userId) {
       throw new CategoryRepositoryError(
         "User ID is required",
@@ -92,18 +95,26 @@ export class CategoryRepository implements ICategoryRepository {
       );
     }
 
+    const includeArchived = options?.includeArchived ?? false;
+
     try {
+      const params: any = {
+        TableName: this.tableName,
+        KeyConditionExpression: "userId = :userId",
+        ExpressionAttributeValues: {
+          ":userId": userId,
+        },
+      };
+
+      // Only filter by isArchived if not including archived
+      if (!includeArchived) {
+        params.FilterExpression = "isArchived = :isArchived";
+        params.ExpressionAttributeValues[":isArchived"] = false;
+      }
+
       const result = await paginateQuery<Category>({
         client: this.client,
-        params: {
-          TableName: this.tableName,
-          KeyConditionExpression: "userId = :userId",
-          FilterExpression: "isArchived = :isArchived",
-          ExpressionAttributeValues: {
-            ":userId": userId,
-            ":isArchived": false,
-          },
-        },
+        params,
         options: {}, // No pageSize = get all items
       });
 
@@ -117,18 +128,23 @@ export class CategoryRepository implements ICategoryRepository {
         return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
       });
     } catch (error) {
-      console.error("Error finding active categories by user ID:", error);
+      console.error("Error finding categories by user ID:", error);
       throw new CategoryRepositoryError(
-        "Failed to find active categories",
+        "Failed to find categories",
         "QUERY_FAILED",
         error,
       );
     }
   }
 
-  async findActiveByUserIdAndType(
+  async findActiveByUserId(userId: string): Promise<Category[]> {
+    return this.findByUserId(userId, { includeArchived: false });
+  }
+
+  async findByUserIdAndType(
     userId: string,
     type: CategoryType,
+    options?: { includeArchived?: boolean },
   ): Promise<Category[]> {
     if (!userId) {
       throw new CategoryRepositoryError(
@@ -137,22 +153,32 @@ export class CategoryRepository implements ICategoryRepository {
       );
     }
 
+    const includeArchived = options?.includeArchived ?? false;
+
     try {
+      const params: any = {
+        TableName: this.tableName,
+        KeyConditionExpression: "userId = :userId",
+        ExpressionAttributeNames: {
+          "#type": "type",
+        },
+        ExpressionAttributeValues: {
+          ":userId": userId,
+          ":type": type,
+        },
+      };
+
+      // Build filter expression based on includeArchived
+      if (!includeArchived) {
+        params.FilterExpression = "isArchived = :isArchived AND #type = :type";
+        params.ExpressionAttributeValues[":isArchived"] = false;
+      } else {
+        params.FilterExpression = "#type = :type";
+      }
+
       const result = await paginateQuery<Category>({
         client: this.client,
-        params: {
-          TableName: this.tableName,
-          KeyConditionExpression: "userId = :userId",
-          FilterExpression: "isArchived = :isArchived AND #type = :type",
-          ExpressionAttributeNames: {
-            "#type": "type",
-          },
-          ExpressionAttributeValues: {
-            ":userId": userId,
-            ":isArchived": false,
-            ":type": type,
-          },
-        },
+        params,
         options: {}, // No pageSize = get all items
       });
 
@@ -164,15 +190,22 @@ export class CategoryRepository implements ICategoryRepository {
       );
     } catch (error) {
       console.error(
-        "Error finding active categories by user ID and type:",
+        "Error finding categories by user ID and type:",
         error,
       );
       throw new CategoryRepositoryError(
-        "Failed to find active categories by type",
+        "Failed to find categories by type",
         "QUERY_FAILED",
         error,
       );
     }
+  }
+
+  async findActiveByUserIdAndType(
+    userId: string,
+    type: CategoryType,
+  ): Promise<Category[]> {
+    return this.findByUserIdAndType(userId, type, { includeArchived: false });
   }
 
   async findActiveById(id: string, userId: string): Promise<Category | null> {

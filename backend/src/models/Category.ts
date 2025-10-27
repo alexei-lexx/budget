@@ -25,6 +25,15 @@ export interface UpdateCategoryInput {
 }
 
 export interface ICategoryRepository {
+  findByUserId(
+    userId: string,
+    options?: { includeArchived?: boolean },
+  ): Promise<Category[]>;
+  findByUserIdAndType(
+    userId: string,
+    type: CategoryType,
+    options?: { includeArchived?: boolean },
+  ): Promise<Category[]>;
   findActiveByUserId(userId: string): Promise<Category[]>;
   findActiveByUserIdAndType(
     userId: string,

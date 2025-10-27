@@ -10,6 +10,8 @@ interface Props {
   accountName: string;
   categoryName?: string;
   isExpanded: boolean;
+  isAccountDeleted?: boolean;
+  isCategoryDeleted?: boolean;
 }
 
 const props = defineProps<Props>();
@@ -106,8 +108,7 @@ const handleCardClick = () => {
         <!-- Main content -->
         <div class="flex-grow-1 me-3" style="min-width: 0">
           <h4 class="text-h6 mb-0 text-truncate">
-            {{ formattedDate }} • {{ accountName
-            }}<span v-if="categoryName"> • {{ categoryName }}</span>
+            {{ formattedDate }} • <span :class="{ 'text-deleted': isAccountDeleted }">{{ accountName }}</span><span v-if="categoryName" :class="{ 'text-deleted': isCategoryDeleted }"> • {{ categoryName }}</span>
           </h4>
         </div>
 
@@ -155,5 +156,11 @@ const handleCardClick = () => {
 
 .transaction-card.expanded:hover {
   transform: none; /* Disable hover transform when expanded */
+}
+
+/* Styling for deleted (archived) entities */
+.text-deleted {
+  text-decoration: line-through;
+  opacity: 0.7;
 }
 </style>

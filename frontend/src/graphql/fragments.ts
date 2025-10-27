@@ -7,6 +7,7 @@ export const ACCOUNT_FRAGMENT = gql`
     currency
     initialBalance
     balance
+    isArchived
   }
 `;
 
@@ -15,6 +16,7 @@ export const CATEGORY_FRAGMENT = gql`
     id
     name
     type
+    isArchived
   }
 `;
 

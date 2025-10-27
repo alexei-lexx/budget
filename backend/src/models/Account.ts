@@ -23,6 +23,10 @@ export interface UpdateAccountInput {
 }
 
 export interface IAccountRepository {
+  findByUserId(
+    userId: string,
+    options?: { includeArchived?: boolean },
+  ): Promise<Account[]>;
   findActiveByUserId(userId: string): Promise<Account[]>;
   findActiveById(id: string, userId: string): Promise<Account | null>;
   create(input: CreateAccountInput): Promise<Account>;

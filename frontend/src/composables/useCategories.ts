@@ -14,8 +14,22 @@ import {
 // Re-export types for backward compatibility
 export type { CategoryType, Category, CreateCategoryInput, UpdateCategoryInput };
 
-export function useCategories(type?: CategoryType | Ref<CategoryType>) {
+export interface UseCategoriesOptions {
+  type?: CategoryType | Ref<CategoryType>;
+  includeArchived?: boolean;
+}
+
+export function useCategories(options?: UseCategoriesOptions | CategoryType | Ref<CategoryType>) {
   const categoriesError = ref<string | null>(null);
+
+  // Handle backward compatibility: accept type directly or as options object
+  const opts: UseCategoriesOptions =
+    typeof options === "string" || (typeof options === "object" && "value" in options)
+      ? { type: options }
+      : options || {};
+
+  const includeArchived = opts.includeArchived ?? false;
+  const type = opts.type;
 
   // Query for active categories (optionally filtered by type)
   const {
@@ -25,6 +39,7 @@ export function useCategories(type?: CategoryType | Ref<CategoryType>) {
     refetch: refetchCategories,
   } = useGetCategoriesQuery(() => ({
     type: typeof type === "object" && "value" in type ? type.value : type || undefined,
+    includeArchived,
   }));
 
   // Create category mutation

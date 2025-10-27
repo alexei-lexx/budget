@@ -76,6 +76,8 @@
               :account-name="getAccountName(transaction.accountId)"
               :category-name="getCategoryName(transaction.categoryId)"
               :is-expanded="isTransactionExpanded(transaction.id)"
+              :is-account-deleted="isAccountDeleted(transaction.accountId)"
+              :is-category-deleted="isCategoryDeleted(transaction.categoryId)"
               class="mb-3"
               @edit-transaction="handleEditTransaction"
               @delete-transaction="handleDeleteTransaction"
@@ -211,8 +213,8 @@ const {
 } = useTransactions({
   filters: transactionFilters.appliedFilters,
 });
-const { accounts: accountsData, refetchAccounts } = useAccounts();
-const { categories: categoriesData } = useCategories();
+const { accounts: accountsData, refetchAccounts } = useAccounts({ includeArchived: true });
+const { categories: categoriesData } = useCategories({ includeArchived: true });
 const { showSuccessSnackbar, showErrorSnackbar } = useSnackbar();
 const { createTransfer, updateTransfer, deleteTransfer, getTransfer, transfersError } =
   useTransfers();
@@ -505,6 +507,18 @@ const getCategoryName = (categoryId?: string | null): string | undefined => {
   if (!categoryId) return undefined;
   const category = categories.value.find((c) => c.id === categoryId);
   return category?.name;
+};
+
+// Helper functions to check if accounts/categories are deleted
+const isAccountDeleted = (accountId: string): boolean => {
+  const account = accounts.value.find((a) => a.id === accountId);
+  return account?.isArchived ?? false;
+};
+
+const isCategoryDeleted = (categoryId?: string | null): boolean => {
+  if (!categoryId) return false;
+  const category = categories.value.find((c) => c.id === categoryId);
+  return category?.isArchived ?? false;
 };
 
 // Helper functions for transfer account names
