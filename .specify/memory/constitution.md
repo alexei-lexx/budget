@@ -66,6 +66,7 @@ An npm package providing infrastructure-as-code for frontend deployment to AWS.
 
 **Backend** (primary focus):
 - Test repositories and services
+- Test utility/batch functions (e.g., DataLoader batch handlers) with core path unit tests (happy path + error cases)
 - Keep test suite small and effective
 
 **Frontend**:

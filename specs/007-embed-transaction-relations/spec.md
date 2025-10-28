@@ -90,7 +90,7 @@ This feature introduces breaking changes to the GraphQL Transaction type by remo
 - **FR-005**: System MUST remove the `accountId` field from the Transaction GraphQL type (breaking change, immediate removal)
 - **FR-006**: System MUST remove the `categoryId` field from the Transaction GraphQL type (breaking change, immediate removal)
 - **FR-007**: System MUST use batch loading (DataLoader) to prevent N+1 queries when resolving embedded account and category fields
-- **FR-008**: System MUST always fetch the current state of account and category data to reflect real-time changes (including archive status)
+- **FR-008**: System MUST always fetch the current state of account and category data to reflect real-time changes (including archive status). DataLoader cache is scoped per-GraphQL-request and clears after request resolution, ensuring fresh data on subsequent requests; within a single request, cached values are reused to prevent duplicate database calls
 - **FR-008a**: System MUST handle missing referenced entities gracefully: if an account/category ID exists but the entity cannot be found, return stub data with `name: "Unknown"` instead of null or error
 - **FR-009**: Frontend MUST update all GraphQL queries requesting transactions to include the `account { id name isArchived }` and `category { id name isArchived }` fields
 - **FR-010**: Frontend MUST remove separate account and category queries, consolidating data fetching into single transaction queries
