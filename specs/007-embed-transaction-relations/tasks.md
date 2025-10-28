@@ -34,19 +34,27 @@ description: "Task list for embedding account and category into transaction Grap
 
 - [ ] T002 Create DataLoader batch function for accounts in `backend/src/dataloaders/accountLoader.ts`
   - Implement `batchLoadAccounts()` function using DynamoDB BatchGetItem
-  - Handle missing accounts (return null with warning log)
+  - Handle missing accounts: if ID exists but entity not found, return stub `{ id, name: "Unknown", isArchived: false }` (data consistency edge case from direct database changes)
+  - Log warning for missing accounts (e.g., "Missing account {accountId} for transaction context")
   - Use environment variables for table names and endpoint
   - Import Account model and DynamoDBClient
 
 - [ ] T003 [P] Create DataLoader batch function for categories in `backend/src/dataloaders/categoryLoader.ts`
   - Implement `batchLoadCategories()` function using DynamoDB BatchGetItem
-  - Handle missing categories (return null with warning log)
-  - Filter null categoryIds before batching
+  - **Filter null categoryIds before batching** (no lookup needed if category ID not set; these return null in final response)
+  - Handle missing categories (if non-null ID exists but entity not found, return stub `{ id, name: "Unknown", isArchived: false }`)
+  - Log warning for missing categories (e.g., "Missing category {categoryId} for transaction context")
   - Use environment variables for table names and endpoint
 
 - [ ] T004 [P] Create DataLoader barrel export in `backend/src/dataloaders/index.ts`
   - Export both accountLoader and categoryLoader batch functions
   - Create factory functions for DataLoader instantiation
+
+- [ ] T004a Create stub data helper in `backend/src/dataloaders/utils.ts` (or within loaders)
+  - Implement `createUnknownAccount(id: string)` → `{ id, name: "Unknown", isArchived: false }`
+  - Implement `createUnknownCategory(id: string)` → `{ id, name: "Unknown", isArchived: false }`
+  - Document when stubs are used (data consistency edge cases from direct database changes)
+  - Use these helpers in T002 and T003 batch functions for missing entities
 
 ### GraphQL Schema Updates
 
@@ -58,9 +66,9 @@ description: "Task list for embedding account and category into transaction Grap
 - [ ] T006 Extend Transaction type in `backend/src/schema.graphql`
   - Add `account: TransactionEmbeddedAccount!` (non-nullable) field
   - Add `category: TransactionEmbeddedCategory` (nullable) field
-  - Mark `accountId` field as @deprecated with reason "Use account.id instead"
-  - Mark `categoryId` field as @deprecated with reason "Use category.id instead"
-  - Add documentation explaining field behavior and data freshness
+  - **Remove `accountId` field entirely** (breaking change, immediate removal)
+  - **Remove `categoryId` field entirely** (breaking change, immediate removal)
+  - Add documentation explaining field behavior, data freshness, and stub data handling for data consistency edge cases
 
 ### Backend Resolvers
 

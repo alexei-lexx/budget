@@ -73,8 +73,8 @@ Frontend GraphQL operations and components can be updated to request and use the
 
 - **Archived Account**: When an account is archived after a transaction is created, the embedded `account.isArchived` reflects the current archived state from the database
 - **Null Category**: Null categories are correctly handled in batch loading alongside valid category references, returning `null` in the response
-- **Missing Referenced Account**: If a transaction references an account ID that no longer exists (data integrity issue), the query succeeds and returns stub account data: `{ id: "<accountId>", name: "Unknown", isArchived: false }`
-- **Missing Referenced Category**: If a transaction references a category ID that no longer exists, the query succeeds and returns stub category data: `{ id: "<categoryId>", name: "Unknown", isArchived: false }`
+- **Missing Referenced Account**: If a transaction references an account ID that no longer exists (data consistency edge case from direct database changes), the query succeeds and returns stub account data: `{ id: "<accountId>", name: "Unknown", isArchived: false }`
+- **Missing Referenced Category**: If a transaction references a category ID that no longer exists (data consistency edge case), the query succeeds and returns stub category data: `{ id: "<categoryId>", name: "Unknown", isArchived: false }`. If category ID is not set (null), category field returns `null`
 - **Pagination with Batch Loading**: Batch loading applies only within the current page's transaction set, not across pages
 
 ## Requirements *(mandatory)*
@@ -87,8 +87,8 @@ This feature introduces breaking changes to the GraphQL Transaction type by remo
 - **FR-002**: System MUST add a `category` field to the Transaction GraphQL type that returns a nullable `TransactionEmbeddedCategory` object
 - **FR-003**: The `TransactionEmbeddedAccount` type MUST include `id`, `name`, and `isArchived` fields
 - **FR-004**: The `TransactionEmbeddedCategory` type MUST include `id`, `name`, and `isArchived` fields
-- **FR-005**: System MUST remove the `accountId` field from the Transaction type (breaking change)
-- **FR-006**: System MUST remove the `categoryId` field from the Transaction type (breaking change)
+- **FR-005**: System MUST remove the `accountId` field from the Transaction GraphQL type (breaking change, immediate removal)
+- **FR-006**: System MUST remove the `categoryId` field from the Transaction GraphQL type (breaking change, immediate removal)
 - **FR-007**: System MUST use batch loading (DataLoader) to prevent N+1 queries when resolving embedded account and category fields
 - **FR-008**: System MUST always fetch the current state of account and category data to reflect real-time changes (including archive status)
 - **FR-008a**: System MUST handle missing referenced entities gracefully: if an account/category ID exists but the entity cannot be found, return stub data with `name: "Unknown"` instead of null or error
@@ -121,15 +121,16 @@ This feature introduces breaking changes to the GraphQL Transaction type by remo
 
 ### Session 2025-10-28
 
-- **Q1**: Breaking Change Migration Strategy → **A**: Coordinated single cutover with simultaneous backend and frontend deployment. Remove `accountId` and `categoryId` only from GraphQL Transaction type schema; database records and internal models remain unchanged.
-- **Q2**: Batch Loading Error Handling → **A**: Partial success with stubs. If a referenced account/category cannot be found but its ID exists, return stub data: `{ id: "<accountId>", name: "Unknown", isArchived: false }`. Prevents null surprises from data integrity issues.
-- **Q3**: Frontend Component Scope → **A**: Update all components within the transactions page that currently display transaction data and use old ID-based lookups.
+- **Q1**: Breaking Change Migration Strategy → **A**: Coordinated single cutover with simultaneous backend and frontend deployment. Remove `accountId` and `categoryId` immediately from GraphQL Transaction type schema; database records and internal models remain unchanged. Short production break acceptable.
+- **Q2**: Missing Entity Handling → **A**: If category ID is set but entity missing → return stub `{ id, name: "Unknown", isArchived: false }`. If category ID is null → return `null` for category field. Accounts must always have valid references; if missing due to direct database inconsistency, return account stub.
+- **Q3**: Null Category Batching → **A**: Filter null categoryIds before batching (no lookup needed for null). Non-null IDs batched normally.
+- **Q4**: Frontend Component Scope → **A**: Update all components within the transactions page that currently display transaction data and use old ID-based lookups.
 
 ## Assumptions
 
 - Accounts and categories use soft-delete (isArchived flag), so they can be archived without removing data
 - Batch loading is the appropriate optimization strategy for preventing N+1 queries
-- The Transaction type's account reference is always valid (transactions cannot reference deleted accounts)
+- Accounts and categories must NOT be deleted; data inconsistencies where an ID exists but entity cannot be found are rare edge cases (only from direct database changes) and must be handled gracefully with stub data
 - GraphQL field-level resolution is appropriate for lazy-loading embedded objects
 - Database DynamoDB schema and transaction record structure remain unchanged
 

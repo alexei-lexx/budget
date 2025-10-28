@@ -12,7 +12,8 @@ Extend GraphQL API's Transaction type to embed related account and category data
 **Key Outcomes**:
 - GraphQL Transaction type gains `account: TransactionEmbeddedAccount!` and `category: TransactionEmbeddedCategory` fields
 - N+1 query reduction: 101 queries (50 transactions) → 3 queries (97% improvement)
-- Breaking change: `accountId` and `categoryId` fields removed (coordinated deployment required)
+- Breaking change: `accountId` and `categoryId` fields removed **immediately** (coordinated single backend+frontend deployment required, short production break acceptable)
+- Data consistency edge case handling: missing entities return stub `{ id, name: "Unknown", isArchived: false }` instead of null
 - Zero database schema changes; all modifications at GraphQL API layer
 - Frontend components simplified: remove client-side lookup functions and maps
 - Backend uses DataLoader pattern with per-request scoping for efficient batch loading
