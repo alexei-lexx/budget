@@ -71,10 +71,11 @@ Frontend GraphQL operations and components can be updated to request and use the
 
 ### Edge Cases
 
-- What happens when an account is deleted (archived) after a transaction is created? → The embedded `account.isArchived` reflects current state
-- How are null categories handled in batch loading? → Batch loader correctly resolves null references alongside valid ones
-- What if a transaction references an account that has been deleted? → The query still succeeds and returns archived account data with `isArchived: true`
-- How does pagination work with batch loading? → Batch loading applies only within the current page, not across pages
+- **Archived Account**: When an account is archived after a transaction is created, the embedded `account.isArchived` reflects the current archived state from the database
+- **Null Category**: Null categories are correctly handled in batch loading alongside valid category references, returning `null` in the response
+- **Missing Referenced Account**: If a transaction references an account ID that no longer exists (data integrity issue), the query succeeds and returns stub account data: `{ id: "<accountId>", name: "Unknown", isArchived: false }`
+- **Missing Referenced Category**: If a transaction references a category ID that no longer exists, the query succeeds and returns stub category data: `{ id: "<categoryId>", name: "Unknown", isArchived: false }`
+- **Pagination with Batch Loading**: Batch loading applies only within the current page's transaction set, not across pages
 
 ## Requirements *(mandatory)*
 
@@ -90,9 +91,10 @@ This feature introduces breaking changes to the GraphQL Transaction type by remo
 - **FR-006**: System MUST remove the `categoryId` field from the Transaction type (breaking change)
 - **FR-007**: System MUST use batch loading (DataLoader) to prevent N+1 queries when resolving embedded account and category fields
 - **FR-008**: System MUST always fetch the current state of account and category data to reflect real-time changes (including archive status)
+- **FR-008a**: System MUST handle missing referenced entities gracefully: if an account/category ID exists but the entity cannot be found, return stub data with `name: "Unknown"` instead of null or error
 - **FR-009**: Frontend MUST update all GraphQL queries requesting transactions to include the `account { id name isArchived }` and `category { id name isArchived }` fields
 - **FR-010**: Frontend MUST remove separate account and category queries, consolidating data fetching into single transaction queries
-- **FR-011**: Frontend components MUST be updated to use `transaction.account.name` and `transaction.category.name` instead of client-side lookup maps
+- **FR-011**: Frontend components on the transactions page MUST be updated to use `transaction.account.name` and `transaction.category.name` instead of client-side lookup maps
 
 ### Key Entities *(include if feature involves data)*
 
@@ -115,16 +117,25 @@ This feature introduces breaking changes to the GraphQL Transaction type by remo
 - **SC-004**: All existing frontend components correctly display transaction account and category information using the new embedded GraphQL fields
 - **SC-005**: GraphQL schema correctly handles edge cases: null categories, archived accounts/categories, and transactions without associated categories
 
+## Clarifications
+
+### Session 2025-10-28
+
+- **Q1**: Breaking Change Migration Strategy → **A**: Coordinated single cutover with simultaneous backend and frontend deployment. Remove `accountId` and `categoryId` only from GraphQL Transaction type schema; database records and internal models remain unchanged.
+- **Q2**: Batch Loading Error Handling → **A**: Partial success with stubs. If a referenced account/category cannot be found but its ID exists, return stub data: `{ id: "<accountId>", name: "Unknown", isArchived: false }`. Prevents null surprises from data integrity issues.
+- **Q3**: Frontend Component Scope → **A**: Update all components within the transactions page that currently display transaction data and use old ID-based lookups.
+
 ## Assumptions
 
 - Accounts and categories use soft-delete (isArchived flag), so they can be archived without removing data
 - Batch loading is the appropriate optimization strategy for preventing N+1 queries
-- Frontend is willing to accept the breaking change of removing `accountId` and `categoryId` fields
 - The Transaction type's account reference is always valid (transactions cannot reference deleted accounts)
 - GraphQL field-level resolution is appropriate for lazy-loading embedded objects
+- Database DynamoDB schema and transaction record structure remain unchanged
 
 ## Constraints
 
-- **Breaking Change**: Removal of `accountId` and `categoryId` fields from Transaction type requires coordinated frontend and backend deployment
-- **No Database Schema Changes**: The implementation must not modify existing DynamoDB tables or transaction records
-- **Backward Compatibility**: This is a breaking change affecting all GraphQL clients consuming transaction fields
+- **Schema-Only Breaking Change**: Removal of `accountId` and `categoryId` fields from GraphQL Transaction type only; no database schema changes
+- **Coordinated Deployment**: Backend and frontend must be deployed together due to breaking change
+- **No Data Migration**: Implementation must not modify existing DynamoDB tables or transaction records
+- **Stubbed Missing Entities**: When batch loading encounters missing referenced accounts/categories, return stub data instead of null

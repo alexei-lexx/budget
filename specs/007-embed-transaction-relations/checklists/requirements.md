@@ -31,4 +31,9 @@
 
 ## Notes
 
-All items completed. Specification is ready for `/speckit.clarify` or `/speckit.plan`.
+✅ **All items completed after clarification session (2025-10-28)**:
+- Breaking change migration strategy clarified (coordinated cutover, GraphQL schema only)
+- Batch loading error handling defined (partial success with stubs)
+- Frontend component scope bounded (transactions page components)
+
+Specification is ready for `/speckit.plan`.
