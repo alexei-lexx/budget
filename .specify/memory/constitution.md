@@ -115,9 +115,4 @@ This constitution supersedes all other development guidelines. Amendments requir
 4. Commit with message: `docs: amend constitution to vX.Y.Z ([change summary])`
 5. Update dependent artifacts (templates, guidance docs) as flagged
 
-**Compliance**:
-- Test Strategy MUST be followed: backend-focused, small test suite, manual frontend testing
-- All features subject to Constitution Check in planning phase
-- Feature complexity justified in plan if Constitution constraints exceeded
-
 **Version**: 0.3.0 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-10-29
