@@ -17,10 +17,10 @@ Follow-up TODOs: Ratification date remains TODO (inherited from previous version
 
 The project comprises four independent npm packages distributed across the repository:
 
-- **backend/** – Apollo GraphQL server exposing the API for the frontend (Node.js/TypeScript), includes database integration
-- **frontend/** – User-facing single-page application (Vue 3 + Vite + Vuetify)
-- **backend-cdk/** – Deployable backend infrastructure (AWS CDK)
-- **frontend-cdk/** – Deployable frontend infrastructure (AWS CDK)
+- **backend/** – GraphQL server exposing the API for the frontend, includes database integration
+- **frontend/** – User-facing single-page application
+- **backend-cdk/** – Deployable backend infrastructure
+- **frontend-cdk/** – Deployable frontend infrastructure
 
 Each package maintains its own `package.json`, dependencies, and build configuration. They are versioned and deployed independently while remaining architecturally coupled through shared GraphQL schema and deployment order requirements.
 
