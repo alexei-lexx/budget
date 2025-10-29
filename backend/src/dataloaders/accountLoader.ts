@@ -13,7 +13,7 @@ const createStubAccount = (id: string): TransactionEmbeddedAccount => ({
 /**
  * Batch load accounts by their IDs
  * Deduplicates IDs and returns results in the same order as input
- * If an account ID exists but entity is not found, returns stub data with name "Unknown"
+ * Always returns account data (either real or stub with name "Unknown")
  *
  * @param accountIds - Array of account IDs to batch load
  * @param accountRepository - Repository instance for account lookups
@@ -24,7 +24,7 @@ export async function batchLoadAccounts(
   accountIds: readonly string[],
   accountRepository: IAccountRepository,
   userId: string,
-): Promise<(TransactionEmbeddedAccount | null)[]> {
+): Promise<TransactionEmbeddedAccount[]> {
   if (accountIds.length === 0) {
     return [];
   }
@@ -76,7 +76,7 @@ export async function batchLoadAccounts(
 export function createAccountLoader(
   accountRepository: IAccountRepository,
   getUserId: () => Promise<string>,
-): DataLoader<string, TransactionEmbeddedAccount | null> {
+): DataLoader<string, TransactionEmbeddedAccount> {
   return new DataLoader(async (accountIds) => {
     const userId = await getUserId();
     return batchLoadAccounts(accountIds, accountRepository, userId);

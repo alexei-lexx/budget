@@ -13,7 +13,7 @@ const createStubCategory = (id: string): TransactionEmbeddedCategory => ({
 /**
  * Batch load categories by their IDs
  * Deduplicates IDs and returns results in the same order as input
- * If a category ID exists but entity is not found, returns stub data with name "Unknown"
+ * Always returns category data (either real or stub with name "Unknown")
  *
  * @param categoryIds - Array of category IDs to batch load
  * @param categoryRepository - Repository instance for category lookups
@@ -24,7 +24,7 @@ export async function batchLoadCategories(
   categoryIds: readonly string[],
   categoryRepository: ICategoryRepository,
   userId: string,
-): Promise<(TransactionEmbeddedCategory | undefined)[]> {
+): Promise<TransactionEmbeddedCategory[]> {
   if (categoryIds.length === 0) {
     return [];
   }
@@ -76,7 +76,7 @@ export async function batchLoadCategories(
 export function createCategoryLoader(
   categoryRepository: ICategoryRepository,
   getUserId: () => Promise<string>,
-): DataLoader<string, TransactionEmbeddedCategory | undefined> {
+): DataLoader<string, TransactionEmbeddedCategory> {
   return new DataLoader(async (categoryIds) => {
     const userId = await getUserId();
     return batchLoadCategories(categoryIds, categoryRepository, userId);

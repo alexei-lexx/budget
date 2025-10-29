@@ -9,10 +9,7 @@ import {
   DESCRIPTION_MAX_LENGTH,
   DESCRIPTION_LENGTH_ERROR_MESSAGE,
 } from "../types/validation";
-import {
-  TransactionType,
-  type Transfer,
-} from "../__generated__/resolvers-types";
+import { TransactionType } from "../__generated__/resolvers-types";
 
 /**
  * Reusable schema components for transfers
@@ -57,7 +54,7 @@ export const transferResolvers = {
       _parent: unknown,
       args: { id: unknown },
       context: GraphQLContext,
-    ): Promise<Transfer | undefined> => {
+    ) => {
       try {
         // Validate and normalize input
         const id = idSchema.parse(args.id);

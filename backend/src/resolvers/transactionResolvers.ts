@@ -4,7 +4,15 @@ import { GraphQLContext } from "../server";
 import { getAuthenticatedUser, handleResolverError } from "./shared";
 import { BusinessError } from "../services/BusinessError";
 import { MIN_PAGE_SIZE, MAX_PAGE_SIZE } from "../types/pagination";
-import { TransactionType, TransactionPatternType } from "../models/Transaction";
+import {
+  TransactionType,
+  TransactionPatternType,
+  Transaction as TransactionModel,
+} from "../models/Transaction";
+import type {
+  TransactionEmbeddedAccount,
+  TransactionEmbeddedCategory,
+} from "../types/graphql";
 import {
   DATE_FORMAT_REGEX,
   DATE_FORMAT_ERROR_MESSAGE,
@@ -279,6 +287,50 @@ export const transactionResolvers = {
         }
         handleResolverError(error, "Failed to delete transaction");
       }
+    },
+  },
+  /**
+   * Field resolvers for Transaction type
+   * Implements embedding of account and category data via DataLoaders
+   */
+  Transaction: {
+    /**
+     * Resolver for account field (non-nullable)
+     * Always returns account data or stub account if missing
+     */
+    account: async (
+      parent: unknown,
+      _args: unknown,
+      context: GraphQLContext,
+    ): Promise<TransactionEmbeddedAccount> => {
+      const transaction = parent as TransactionModel;
+      const account = await context.accountLoader.load(transaction.accountId);
+      return account;
+    },
+
+    /**
+     * Resolver for category field (nullable)
+     * Returns undefined if categoryId is null (uncategorized transaction)
+     * Returns stub category if categoryId is set but entity not found
+     */
+    category: async (
+      parent: unknown,
+      _args: unknown,
+      context: GraphQLContext,
+    ): Promise<TransactionEmbeddedCategory | undefined> => {
+      const transaction = parent as TransactionModel;
+
+      // If no category assigned, return undefined
+      if (!transaction.categoryId) {
+        return undefined;
+      }
+
+      // Load category via DataLoader
+      const category = await context.categoryLoader.load(
+        transaction.categoryId,
+      );
+
+      return category;
     },
   },
 };
