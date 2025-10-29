@@ -1,6 +1,6 @@
 <!-- SYNC IMPACT REPORT
-Version Change: 0.6.0 → 0.6.1 (PATCH: Clarified section title from "Architecture" to "AWS Production Architecture")
-Modified Sections: Section heading clarified (Architecture → AWS Production Architecture)
+Version Change: 0.6.2 → 0.6.3 (PATCH: Clarified Backend Responsibilities by separating Authentication and Authorization)
+Modified Sections: Backend → Responsibilities (split Authorization into Authentication and Authorization)
 Added Sections: None
 Removed Sections: None
 Templates Requiring Updates:
@@ -33,6 +33,13 @@ An npm package providing Apollo GraphQL server and API implementation.
 - **Framework**: Apollo Server, Node.js
 - **Testing**: Jest
 - **Quality**: ESLint, Prettier, TypeScript strict mode
+
+### Responsibilities
+- **Business Logic**: Implement application domain logic and service layer operations
+- **GraphQL API**: Expose data and operations through GraphQL resolvers
+- **Database Access**: Handle all data persistence and retrieval operations
+- **Authentication**: Verify JWT tokens and establish user identity
+- **Authorization**: Enforce user data scoping and prevent cross-user data access
 
 ## Frontend
 
@@ -129,4 +136,4 @@ This constitution supersedes all other development guidelines. Amendments requir
 4. Commit with message: `docs: amend constitution to vX.Y.Z ([change summary])`
 5. Update dependent artifacts (templates, guidance docs) as flagged
 
-**Version**: 0.6.1 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-10-29
+**Version**: 0.6.3 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-10-29

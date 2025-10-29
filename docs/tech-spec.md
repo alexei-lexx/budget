@@ -32,13 +32,6 @@ Personal Finance Tracker is a serverless web application for individual financia
 
 ## 3. Backend
 
-### Responsibilities
-- GraphQL API implementation
-- Auth0 JWT token verification
-- Business logic and data validation
-- Database operations through repository pattern
-- User context management and data isolation
-
 ### Key Features
 - Schema-first GraphQL development
 - Authentication middleware for JWT verification
