@@ -67,8 +67,8 @@ watch(
   (newTransfer) => {
     if (newTransfer) {
       formData.value = {
-        fromAccountId: newTransfer.outboundTransaction.accountId,
-        toAccountId: newTransfer.inboundTransaction.accountId,
+        fromAccountId: newTransfer.outboundTransaction.account.id,
+        toAccountId: newTransfer.inboundTransaction.account.id,
         amount: newTransfer.outboundTransaction.amount,
         date: newTransfer.outboundTransaction.date,
         description: newTransfer.outboundTransaction.description || "",

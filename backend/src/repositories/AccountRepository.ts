@@ -4,6 +4,7 @@ import {
   PutCommand,
   UpdateCommand,
   GetCommand,
+  BatchGetCommand,
 } from "@aws-sdk/lib-dynamodb";
 import { randomUUID } from "crypto";
 import {
@@ -151,6 +152,39 @@ export class AccountRepository implements IAccountRepository {
       throw new AccountRepositoryError(
         "Failed to find account",
         "GET_FAILED",
+        error,
+      );
+    }
+  }
+
+  async findByIds(ids: readonly string[], userId: string): Promise<Account[]> {
+    if (ids.length === 0) {
+      return [];
+    }
+
+    if (!userId) {
+      throw new AccountRepositoryError(
+        "User ID is required",
+        "INVALID_PARAMETERS",
+      );
+    }
+
+    try {
+      const command = new BatchGetCommand({
+        RequestItems: {
+          [this.tableName]: {
+            Keys: ids.map((id) => ({ userId, id })),
+          },
+        },
+      });
+
+      const result = await this.client.send(command);
+      return (result.Responses?.[this.tableName] || []) as Account[];
+    } catch (error) {
+      console.error("Error batch finding accounts by IDs:", error);
+      throw new AccountRepositoryError(
+        "Failed to batch find accounts",
+        "BATCH_GET_FAILED",
         error,
       );
     }

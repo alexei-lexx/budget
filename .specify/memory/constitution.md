@@ -1,10 +1,10 @@
 <!-- SYNC IMPACT REPORT
-Version Change: 0.2.1 → 0.2.2 (PATCH: clarified all component sections as npm packages with concise descriptions)
-Modified Sections: Backend, Frontend, Backend CDK, Frontend CDK (added npm package nature + function descriptions)
+Version Change: 0.3.0 → 0.3.1 (PATCH: clarified frontend UI testing expectation from mandatory to voluntary)
+Modified Sections: Core Principles → Test Strategy (Frontend subsection clarified)
 Added Sections: None
-Removed Sections: None
-Templates Requiring Updates: None required for this patch
-Follow-up TODOs: Core Principles, additional sections, governance rules, ratification/amendment dates
+Removed Sections: None (line modified, not removed)
+Templates Requiring Updates: None required (specification analysis already flagged this as a compliance gap; constitution now aligns with practical implementation patterns)
+Follow-up TODOs: Core Principles placeholders [PRINCIPLE_2_NAME] through [PRINCIPLE_5_NAME] remain for future definition
 -->
 
 # Personal Finance Tracker Constitution
@@ -62,10 +62,16 @@ An npm package providing infrastructure-as-code for frontend deployment to AWS.
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### Test Strategy
+
+**Backend** (primary focus):
+- Test repositories and services
+- Test utility/batch functions (e.g., DataLoader batch handlers) with core path unit tests (happy path + error cases)
+- Keep test suite small and effective
+
+**Frontend**:
+- Test manually (visual verification in dev)
+- Write UI component tests only for complex/critical components; not required
 
 ### [PRINCIPLE_2_NAME]
 <!-- Example: II. CLI Interface -->
@@ -100,9 +106,14 @@ An npm package providing infrastructure-as-code for frontend deployment to AWS.
 <!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+This constitution supersedes all other development guidelines. Amendments require documentation in the sync impact report and ratification by the team.
 
-**Version**: 0.2.2 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-10-26
+**Amendment Process**:
+1. Update `.specify/memory/constitution.md` with changes
+2. Increment version per semantic versioning (MAJOR/MINOR/PATCH)
+3. Document changes in sync impact report (top of file as HTML comment)
+4. Commit with message: `docs: amend constitution to vX.Y.Z ([change summary])`
+5. Update dependent artifacts (templates, guidance docs) as flagged
+
+**Version**: 0.3.1 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-10-29

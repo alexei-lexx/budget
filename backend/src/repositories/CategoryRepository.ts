@@ -4,6 +4,7 @@ import {
   PutCommand,
   UpdateCommand,
   GetCommand,
+  BatchGetCommand,
 } from "@aws-sdk/lib-dynamodb";
 import { randomUUID } from "crypto";
 import {
@@ -208,6 +209,39 @@ export class CategoryRepository implements ICategoryRepository {
       throw new CategoryRepositoryError(
         "Failed to find category",
         "GET_FAILED",
+        error,
+      );
+    }
+  }
+
+  async findByIds(ids: readonly string[], userId: string): Promise<Category[]> {
+    if (ids.length === 0) {
+      return [];
+    }
+
+    if (!userId) {
+      throw new CategoryRepositoryError(
+        "User ID is required",
+        "INVALID_PARAMETERS",
+      );
+    }
+
+    try {
+      const command = new BatchGetCommand({
+        RequestItems: {
+          [this.tableName]: {
+            Keys: ids.map((id) => ({ userId, id })),
+          },
+        },
+      });
+
+      const result = await this.client.send(command);
+      return (result.Responses?.[this.tableName] || []) as Category[];
+    } catch (error) {
+      console.error("Error batch finding categories by IDs:", error);
+      throw new CategoryRepositoryError(
+        "Failed to batch find categories",
+        "BATCH_GET_FAILED",
         error,
       );
     }

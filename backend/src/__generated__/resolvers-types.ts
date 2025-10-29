@@ -9,6 +9,7 @@ export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: 
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
 export type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> = { [_ in K]?: never };
 export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never };
+export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 export type EnumResolverSignature<T, AllowedValues = any> = { [key in keyof T]?: AllowedValues };
 export type RequireFields<T, K extends keyof T> = Omit<T, K> & { [P in K]-?: NonNullable<T[P]> };
 /** All built-in and custom scalars, mapped to their actual values */
@@ -230,11 +231,16 @@ export type QueryTransferArgs = {
   id: Scalars['ID']['input'];
 };
 
+/**
+ * Transaction with embedded account and category data.
+ * Eliminates N+1 queries by fetching account and category data directly without separate lookups.
+ * Breaking change: accountId and categoryId fields removed (use account.id and category.id instead).
+ */
 export type Transaction = {
   __typename?: 'Transaction';
-  accountId: Scalars['ID']['output'];
+  account: TransactionEmbeddedAccount;
   amount: Scalars['Float']['output'];
-  categoryId?: Maybe<Scalars['ID']['output']>;
+  category?: Maybe<TransactionEmbeddedCategory>;
   currency: Scalars['String']['output'];
   date: Scalars['String']['output'];
   description?: Maybe<Scalars['String']['output']>;
@@ -254,6 +260,33 @@ export type TransactionEdge = {
   __typename?: 'TransactionEdge';
   cursor: Scalars['String']['output'];
   node: Transaction;
+};
+
+/**
+ * Lightweight account representation embedded in Transaction responses.
+ * Always reflects the current state of the account at query time.
+ * If an account ID exists but the entity cannot be found (data integrity edge case),
+ * stub data with name "Unknown" is returned instead of null.
+ */
+export type TransactionEmbeddedAccount = {
+  __typename?: 'TransactionEmbeddedAccount';
+  id: Scalars['ID']['output'];
+  isArchived: Scalars['Boolean']['output'];
+  name: Scalars['String']['output'];
+};
+
+/**
+ * Lightweight category representation embedded in Transaction responses.
+ * Always reflects the current state of the category at query time.
+ * If a category ID exists but the entity cannot be found (data integrity edge case),
+ * stub data with name "Unknown" is returned instead of null.
+ * If category ID is null (uncategorized transaction), the category field returns null.
+ */
+export type TransactionEmbeddedCategory = {
+  __typename?: 'TransactionEmbeddedCategory';
+  id: Scalars['ID']['output'];
+  isArchived: Scalars['Boolean']['output'];
+  name: Scalars['String']['output'];
 };
 
 export type TransactionFilterInput = {
@@ -417,14 +450,16 @@ export type ResolversTypes = {
   PaginationInput: PaginationInput;
   Query: ResolverTypeWrapper<Record<PropertyKey, never>>;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
-  Transaction: ResolverTypeWrapper<Transaction>;
-  TransactionConnection: ResolverTypeWrapper<TransactionConnection>;
-  TransactionEdge: ResolverTypeWrapper<TransactionEdge>;
+  Transaction: ResolverTypeWrapper<Omit<Transaction, 'account' | 'category'>>;
+  TransactionConnection: ResolverTypeWrapper<Omit<TransactionConnection, 'edges'> & { edges: Array<ResolversTypes['TransactionEdge']> }>;
+  TransactionEdge: ResolverTypeWrapper<Omit<TransactionEdge, 'node'> & { node: ResolversTypes['Transaction'] }>;
+  TransactionEmbeddedAccount: ResolverTypeWrapper<TransactionEmbeddedAccount>;
+  TransactionEmbeddedCategory: ResolverTypeWrapper<TransactionEmbeddedCategory>;
   TransactionFilterInput: TransactionFilterInput;
   TransactionPattern: ResolverTypeWrapper<TransactionPattern>;
   TransactionPatternType: TransactionPatternType;
   TransactionType: TransactionType;
-  Transfer: ResolverTypeWrapper<Transfer>;
+  Transfer: ResolverTypeWrapper<Omit<Transfer, 'inboundTransaction' | 'outboundTransaction'> & { inboundTransaction: ResolversTypes['Transaction'], outboundTransaction: ResolversTypes['Transaction'] }>;
   UpdateAccountInput: UpdateAccountInput;
   UpdateCategoryInput: UpdateCategoryInput;
   UpdateTransactionInput: UpdateTransactionInput;
@@ -453,12 +488,14 @@ export type ResolversParentTypes = {
   PaginationInput: PaginationInput;
   Query: Record<PropertyKey, never>;
   String: Scalars['String']['output'];
-  Transaction: Transaction;
-  TransactionConnection: TransactionConnection;
-  TransactionEdge: TransactionEdge;
+  Transaction: Omit<Transaction, 'account' | 'category'>;
+  TransactionConnection: Omit<TransactionConnection, 'edges'> & { edges: Array<ResolversParentTypes['TransactionEdge']> };
+  TransactionEdge: Omit<TransactionEdge, 'node'> & { node: ResolversParentTypes['Transaction'] };
+  TransactionEmbeddedAccount: TransactionEmbeddedAccount;
+  TransactionEmbeddedCategory: TransactionEmbeddedCategory;
   TransactionFilterInput: TransactionFilterInput;
   TransactionPattern: TransactionPattern;
-  Transfer: Transfer;
+  Transfer: Omit<Transfer, 'inboundTransaction' | 'outboundTransaction'> & { inboundTransaction: ResolversParentTypes['Transaction'], outboundTransaction: ResolversParentTypes['Transaction'] };
   UpdateAccountInput: UpdateAccountInput;
   UpdateCategoryInput: UpdateCategoryInput;
   UpdateTransactionInput: UpdateTransactionInput;
@@ -542,9 +579,9 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
 };
 
 export type TransactionResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Transaction'] = ResolversParentTypes['Transaction']> = {
-  accountId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  account?: Resolver<ResolversTypes['TransactionEmbeddedAccount'], ParentType, ContextType>;
   amount?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
-  categoryId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
+  category?: Resolver<Maybe<ResolversTypes['TransactionEmbeddedCategory']>, ParentType, ContextType>;
   currency?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   date?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -562,6 +599,18 @@ export type TransactionConnectionResolvers<ContextType = GraphQLContext, ParentT
 export type TransactionEdgeResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TransactionEdge'] = ResolversParentTypes['TransactionEdge']> = {
   cursor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   node?: Resolver<ResolversTypes['Transaction'], ParentType, ContextType>;
+};
+
+export type TransactionEmbeddedAccountResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TransactionEmbeddedAccount'] = ResolversParentTypes['TransactionEmbeddedAccount']> = {
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isArchived?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+};
+
+export type TransactionEmbeddedCategoryResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TransactionEmbeddedCategory'] = ResolversParentTypes['TransactionEmbeddedCategory']> = {
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isArchived?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
 };
 
 export type TransactionPatternResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TransactionPattern'] = ResolversParentTypes['TransactionPattern']> = {
@@ -597,6 +646,8 @@ export type Resolvers<ContextType = GraphQLContext> = {
   Transaction?: TransactionResolvers<ContextType>;
   TransactionConnection?: TransactionConnectionResolvers<ContextType>;
   TransactionEdge?: TransactionEdgeResolvers<ContextType>;
+  TransactionEmbeddedAccount?: TransactionEmbeddedAccountResolvers<ContextType>;
+  TransactionEmbeddedCategory?: TransactionEmbeddedCategoryResolvers<ContextType>;
   TransactionPattern?: TransactionPatternResolvers<ContextType>;
   TransactionType?: TransactionTypeResolvers;
   Transfer?: TransferResolvers<ContextType>;

@@ -31,6 +31,7 @@ export interface ICategoryRepository {
     type: CategoryType,
   ): Promise<Category[]>;
   findActiveById(id: string, userId: string): Promise<Category | null>;
+  findByIds(ids: readonly string[], userId: string): Promise<Category[]>;
   create(input: CreateCategoryInput): Promise<Category>;
   update(
     id: string,

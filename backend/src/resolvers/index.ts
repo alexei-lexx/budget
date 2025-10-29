@@ -22,4 +22,5 @@ export const resolvers: Resolvers = {
     ...transferResolvers.Mutation,
   },
   Account: accountResolvers.Account,
+  Transaction: transactionResolvers.Transaction,
 };

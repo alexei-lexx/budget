@@ -1,6 +1,7 @@
 import { ApolloServer } from "@apollo/server";
 import { readFileSync } from "fs";
 import { join } from "path";
+import DataLoader from "dataloader";
 import { resolvers } from "./resolvers";
 import { JwtAuthService, AuthContext } from "./auth/jwtAuth";
 import { UserRepository } from "./repositories/UserRepository";
@@ -15,6 +16,13 @@ import { IUserRepository } from "./models/User";
 import { IAccountRepository } from "./models/Account";
 import { ICategoryRepository } from "./models/Category";
 import { ITransactionRepository } from "./models/Transaction";
+import { createAccountLoader } from "./dataloaders/accountLoader";
+import { createCategoryLoader } from "./dataloaders/categoryLoader";
+import { getAuthenticatedUser } from "./resolvers/shared";
+import type {
+  TransactionEmbeddedAccount,
+  TransactionEmbeddedCategory,
+} from "./types/graphql";
 
 export interface GraphQLContext {
   auth: AuthContext;
@@ -28,6 +36,8 @@ export interface GraphQLContext {
   reportsService: ReportsService;
   jwtAuthService: JwtAuthService;
   authHeader?: string;
+  accountLoader: DataLoader<string, TransactionEmbeddedAccount>;
+  categoryLoader: DataLoader<string, TransactionEmbeddedCategory>;
 }
 
 let jwtAuthService: JwtAuthService;
@@ -115,7 +125,11 @@ export async function createContext(req: {
 
   const auth = await jwtAuthService.getAuthContext(authHeaderString);
 
-  return {
+  // Build the context first
+  const contextWithoutLoaders: Omit<
+    GraphQLContext,
+    "accountLoader" | "categoryLoader"
+  > = {
     auth,
     userRepository,
     accountRepository,
@@ -127,5 +141,32 @@ export async function createContext(req: {
     reportsService,
     jwtAuthService,
     authHeader: authHeaderString,
+  };
+
+  // Create a function that gets the authenticated internal user ID (lazy evaluation)
+  // This is needed because getAuthenticatedUser needs the full context
+  const getUserId = async (): Promise<string> => {
+    if (!auth.isAuthenticated) {
+      return "";
+    }
+    try {
+      const user = await getAuthenticatedUser(
+        contextWithoutLoaders as GraphQLContext,
+      );
+      return user.id;
+    } catch {
+      return "";
+    }
+  };
+
+  // Create fresh DataLoaders for this request with lazy user ID resolution
+  // Each loader is scoped per-request with proper internal user ID for authorization
+  const accountLoader = createAccountLoader(accountRepository, getUserId);
+  const categoryLoader = createCategoryLoader(categoryRepository, getUserId);
+
+  return {
+    ...contextWithoutLoaders,
+    accountLoader,
+    categoryLoader,
   };
 }
