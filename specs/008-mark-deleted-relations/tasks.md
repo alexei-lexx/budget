@@ -277,6 +277,25 @@ Ensure code quality, accessibility compliance, and cross-browser/device compatib
 
 ---
 
+## Architectural Refactoring (Post-Implementation)
+
+**Optimization**: Removed redundant component props after implementing the feature.
+
+### Props Refactoring
+- **Before**: 6 props (transaction, accountName, categoryName, isExpanded, accountIsArchived, categoryIsArchived)
+- **After**: 2 props (transaction, isExpanded)
+- **Benefit**: Single source of truth, cleaner component interface, easier maintenance
+
+### Changes Made
+- ✅ Simplified TransactionCard.vue Props interface
+- ✅ Updated template to use `transaction.account.*` and `transaction.category.*` directly
+- ✅ Simplified Transactions.vue parent bindings (removed manual prop extractions)
+- ✅ All quality checks pass (ESLint, Prettier, TypeScript)
+
+This refactoring makes the component more maintainable and aligns with Vue best practices for prop usage.
+
+---
+
 ## Implementation Strategy
 
 ### MVP Scope (Recommended for Phase 1)

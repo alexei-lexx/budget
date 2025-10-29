@@ -7,11 +7,7 @@ import ActionButtons from "@/components/common/ActionButtons.vue";
 // Define component props
 interface Props {
   transaction: Transaction;
-  accountName: string;
-  categoryName?: string;
   isExpanded: boolean;
-  accountIsArchived?: boolean;
-  categoryIsArchived?: boolean;
 }
 
 const props = defineProps<Props>();
@@ -110,20 +106,26 @@ const handleCardClick = () => {
           <h4 class="text-h6 mb-0 text-truncate">
             {{ formattedDate }} •
             <span
-              :class="{ 'account-archived': accountIsArchived }"
-              :aria-label="accountIsArchived ? `Deleted: ${accountName}` : undefined"
-              :title="accountIsArchived ? 'Deleted account' : ''"
+              :class="{ 'account-archived': transaction.account.isArchived }"
+              :aria-label="
+                transaction.account.isArchived ? `Deleted: ${transaction.account.name}` : undefined
+              "
+              :title="transaction.account.isArchived ? 'Deleted account' : ''"
             >
-              {{ accountName }}
+              {{ transaction.account.name }}
             </span>
-            <span v-if="categoryName">
+            <span v-if="transaction.category">
               •
               <span
-                :class="{ 'category-archived': categoryIsArchived }"
-                :aria-label="categoryIsArchived ? `Deleted: ${categoryName}` : undefined"
-                :title="categoryIsArchived ? 'Deleted category' : ''"
+                :class="{ 'category-archived': transaction.category.isArchived }"
+                :aria-label="
+                  transaction.category.isArchived
+                    ? `Deleted: ${transaction.category.name}`
+                    : undefined
+                "
+                :title="transaction.category.isArchived ? 'Deleted category' : ''"
               >
-                {{ categoryName }}
+                {{ transaction.category.name }}
               </span>
             </span>
           </h4>
