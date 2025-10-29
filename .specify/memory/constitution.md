@@ -1,6 +1,6 @@
 <!-- SYNC IMPACT REPORT
-Version Change: 0.6.2 → 0.6.3 (PATCH: Clarified Backend Responsibilities by separating Authentication and Authorization)
-Modified Sections: Backend → Responsibilities (split Authorization into Authentication and Authorization)
+Version Change: 0.6.3 → 0.6.4 (PATCH: Converted AWS Production Architecture diagram from ASCII to Mermaid format)
+Modified Sections: AWS Production Architecture (ASCII art replaced with Mermaid graph)
 Added Sections: None
 Removed Sections: None
 Templates Requiring Updates:
@@ -73,26 +73,24 @@ An npm package providing infrastructure-as-code for frontend deployment to AWS.
 
 ## AWS Production Architecture
 
-```
-                                    ┌─────────────┐
-                                    │     S3      │
-                                    │  (Static    │
-                                    │   Assets)   │
-                                    └─────────────┘
-                                           ▲
-┌─────────────┐    ┌──────────────┐        │        ┌──────────────┐    ┌─────────────┐    ┌─────────────┐
-│   Browser   │───>│ CloudFront   │────────┼───────>│ API Gateway  │───>│   Lambda    │───>│  DynamoDB   │
-│  (Vue SPA)  │    │    (CDN)     │        │        │   (HTTP      │    │ (GraphQL    │    │  (User      │
-│             │    │              │        │        │    API)      │    │   API)      │    │   Data)     │
-└─────────────┘    └──────────────┘        │        └──────────────┘    └─────────────┘    └─────────────┘
-       │                   │               │                                    │
-       │                   └───────────────┘                                    │
-       │                                                                        │
-       │                                      ┌─────────────┐                   │
-       └─────────────────────────────────────>│   Auth0     │<──────────────────┘
-                                              │ (Identity   │
-                                              │  Provider)  │
-                                              └─────────────┘
+```mermaid
+graph LR
+    Browser["Browser<br/>(Vue SPA)"]
+    CloudFront["CloudFront<br/>(CDN)"]
+    S3["S3<br/>(Static Assets)"]
+    APIGateway["API Gateway<br/>(HTTP API)"]
+    Lambda["Lambda<br/>(GraphQL API)"]
+    DynamoDB["DynamoDB<br/>(User Data)"]
+    Auth0["Auth0<br/>(Identity Provider)"]
+
+    Browser -->|Static Files| CloudFront
+    CloudFront -->|Serve| S3
+    Browser -->|API Requests| CloudFront
+    CloudFront -->|Forward| APIGateway
+    APIGateway -->|Route| Lambda
+    Lambda -->|Read/Write| DynamoDB
+    Browser -->|Login| Auth0
+    Lambda -->|Verify Token| Auth0
 ```
 
 ## Core Principles
@@ -136,4 +134,4 @@ This constitution supersedes all other development guidelines. Amendments requir
 4. Commit with message: `docs: amend constitution to vX.Y.Z ([change summary])`
 5. Update dependent artifacts (templates, guidance docs) as flagged
 
-**Version**: 0.6.3 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-10-29
+**Version**: 0.6.4 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-10-29
