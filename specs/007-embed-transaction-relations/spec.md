@@ -95,12 +95,13 @@ This feature introduces breaking changes to the GraphQL Transaction type by remo
 - **FR-009**: Frontend MUST update all GraphQL queries requesting transactions to include the `account { id name isArchived }` and `category { id name isArchived }` fields
 - **FR-010**: Frontend MUST remove separate account and category queries, consolidating data fetching into single transaction queries
 - **FR-011**: Frontend components on the transactions page MUST be updated to use `transaction.account.name` and `transaction.category.name` instead of client-side lookup maps
+- **FR-012**: System MUST invalidate DataLoader cache after account, category, and transaction mutations to ensure subsequent GraphQL queries fetch fresh data
 
 ### Key Entities *(include if feature involves data)*
 
-- **Transaction**: Existing entity, extended with non-nullable embedded `account` field and nullable embedded `category` field
-- **TransactionEmbeddedAccount**: New lightweight type representing account context within a transaction (id, name, isArchived)
-- **TransactionEmbeddedCategory**: New lightweight type representing category context within a transaction (id, name, isArchived)
+- **Transaction**: Existing entity, extended with non-nullable embedded `account: TransactionEmbeddedAccount!` field and nullable embedded `category: TransactionEmbeddedCategory` field
+- **TransactionEmbeddedAccount**: New lightweight type with fields: `id: String!`, `name: String!`, `isArchived: Boolean!`
+- **TransactionEmbeddedCategory**: New lightweight type with fields: `id: String!`, `name: String!`, `isArchived: Boolean!`
 
 ## Success Criteria *(mandatory)*
 
@@ -112,7 +113,7 @@ This feature introduces breaking changes to the GraphQL Transaction type by remo
 ### Measurable Outcomes
 
 - **SC-001**: A single GraphQL query for transactions returns complete account and category information embedded in the response, without requiring separate account/category queries
-- **SC-002**: Loading 100 transactions via a single GraphQL query with embedded fields results in no more than 3 database queries (1 for transactions + 1 batch for accounts + 1 batch for categories)
+- **SC-002**: DataLoader batch loading correctly aggregates account and category field resolutions to minimize database queries (code review validates pattern correctness)
 - **SC-003**: Frontend components no longer maintain separate lookup maps; transaction account/category data is accessed directly from the GraphQL response
 - **SC-004**: All existing frontend components correctly display transaction account and category information using the new embedded GraphQL fields
 - **SC-005**: GraphQL schema correctly handles edge cases: null categories, archived accounts/categories, and transactions without associated categories
