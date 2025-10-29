@@ -375,8 +375,6 @@ Apollo Server, GraphQL, esbuild, JWT libraries, AWS SDK, TypeScript
 
 ### Key Principles
 
-**Vendor Independence:** Minimal dependencies, portable across hosting providers, repository pattern for database abstraction
-
 **Simplicity:** Manual deployment, no complex CI/CD, straightforward troubleshooting
 
 **Security:** JWT verification, user data isolation, HTTPS enforcement
