@@ -120,7 +120,7 @@ graph LR
   - **Portable Query Patterns**: Use only database operations and query patterns that
     can be reproduced in popular SQL and NoSQL databases (PostgreSQL, MongoDB, MySQL, etc.).
   - Avoid vendor-specific features and optimizations
-- **Infrastructure Code**: CDK is AWS-specific but front-end and back-end remain portable
+- **Infrastructure Code**: CDK is AWS-specific but frontend and backend remain portable
 
 ## Governance
 
