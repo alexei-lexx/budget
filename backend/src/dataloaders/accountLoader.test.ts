@@ -1,8 +1,7 @@
- 
+import DataLoader from "dataloader";
 import { batchLoadAccounts, createAccountLoader } from "./accountLoader";
 import { createMockAccountRepository } from "../__tests__/utils/mockRepositories";
 import { fakeAccount } from "../__tests__/utils/factories";
-import DataLoader from "dataloader";
 
 describe("Account Batch Loader", () => {
   describe("batchLoadAccounts", () => {
@@ -37,9 +36,13 @@ describe("Account Batch Loader", () => {
       });
 
       // Mock repository to return accounts
-      mockRepository.findByIds.mockImplementation(async () => {
-        return [account3, account4, account1, account2, account5];
-      });
+      mockRepository.findByIds.mockResolvedValue([
+        account3,
+        account4,
+        account1,
+        account2,
+        account5,
+      ]);
 
       const result = await batchLoadAccounts(
         ["acc-1", "acc-2", "acc-3", "acc-4", "acc-5"],
@@ -85,9 +88,7 @@ describe("Account Batch Loader", () => {
 
       const validAccount = fakeAccount({ id: "acc-valid" });
 
-      mockRepository.findByIds.mockImplementation(async () => {
-        return [validAccount]; // Simulate missing account
-      });
+      mockRepository.findByIds.mockResolvedValue([validAccount]);
 
       const result = await batchLoadAccounts(
         ["acc-valid", "acc-missing"],
@@ -116,7 +117,7 @@ describe("Account Batch Loader", () => {
 
       const account = fakeAccount({ id: "acc-1" });
 
-      mockRepository.findByIds.mockImplementation(async () => [account]);
+      mockRepository.findByIds.mockResolvedValue([account]);
 
       const result = await batchLoadAccounts(
         ["acc-1", "acc-1", "acc-1"],
@@ -163,7 +164,7 @@ describe("Account Batch Loader", () => {
 
     it("should batch load through DataLoader", async () => {
       const mockRepository = createMockAccountRepository();
-      const account = fakeAccount({ id: "acc-1", name: "Account" });
+      const account = fakeAccount({ id: "acc-1" });
 
       mockRepository.findByIds.mockResolvedValue([account]);
 
@@ -176,7 +177,7 @@ describe("Account Batch Loader", () => {
 
       expect(result).toEqual({
         id: "acc-1",
-        name: "Account",
+        name: account.name,
         isArchived: account.isArchived,
       });
     });
