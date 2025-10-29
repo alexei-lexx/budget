@@ -1,10 +1,10 @@
 <!-- SYNC IMPACT REPORT
-Version Change: 0.2.2 → 0.3.0 (MINOR: added Test Strategy section as new governance area)
-Modified Sections: Governance (updated dates and rules), Test Strategy (two-layer testing: repositories + services)
-Added Sections: Test Strategy (backend-focused; skip resolver tests - logic tested via services)
-Removed Sections: None
-Templates Requiring Updates: None required (tasks-template already has optional testing; constitution now provides strategy guidance)
-Follow-up TODOs: Core Principles remain (still using placeholder tokens for later definition)
+Version Change: 0.3.0 → 0.3.1 (PATCH: clarified frontend UI testing expectation from mandatory to voluntary)
+Modified Sections: Core Principles → Test Strategy (Frontend subsection clarified)
+Added Sections: None
+Removed Sections: None (line modified, not removed)
+Templates Requiring Updates: None required (specification analysis already flagged this as a compliance gap; constitution now aligns with practical implementation patterns)
+Follow-up TODOs: Core Principles placeholders [PRINCIPLE_2_NAME] through [PRINCIPLE_5_NAME] remain for future definition
 -->
 
 # Personal Finance Tracker Constitution
@@ -71,7 +71,7 @@ An npm package providing infrastructure-as-code for frontend deployment to AWS.
 
 **Frontend**:
 - Test manually (visual verification in dev)
-- Write tests for complex, critical UI components
+- Write UI component tests only for complex/critical components; not required
 
 ### [PRINCIPLE_2_NAME]
 <!-- Example: II. CLI Interface -->
@@ -116,4 +116,4 @@ This constitution supersedes all other development guidelines. Amendments requir
 4. Commit with message: `docs: amend constitution to vX.Y.Z ([change summary])`
 5. Update dependent artifacts (templates, guidance docs) as flagged
 
-**Version**: 0.3.0 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-10-29
+**Version**: 0.3.1 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-10-29
