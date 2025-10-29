@@ -1,10 +1,14 @@
 <!-- SYNC IMPACT REPORT
-Version Change: 0.3.0 → 0.3.1 (PATCH: clarified frontend UI testing expectation from mandatory to voluntary)
-Modified Sections: Core Principles → Test Strategy (Frontend subsection clarified)
+Version Change: 0.5.3 → 0.5.4 (PATCH: Removed Rationale section from Vendor Independence principle for conciseness)
+Modified Sections: Core Principles → Vendor Independence (Rationale section removed)
 Added Sections: None
-Removed Sections: None (line modified, not removed)
-Templates Requiring Updates: None required (specification analysis already flagged this as a compliance gap; constitution now aligns with practical implementation patterns)
-Follow-up TODOs: Core Principles placeholders [PRINCIPLE_2_NAME] through [PRINCIPLE_5_NAME] remain for future definition
+Removed Sections: Vendor Independence → Rationale (explanatory content, not prescriptive)
+Templates Requiring Updates:
+  - plan-template.md: Contains "Constitution Check" section - no changes required (already generic)
+  - spec-template.md: No principle-specific dependencies - no changes required
+  - tasks-template.md: No principle-specific dependencies - no changes required
+  - commands/*.md: No command files found in .specify/templates/commands/ - no updates possible
+Follow-up TODOs: Ratification date remains TODO (inherited from previous versions)
 -->
 
 # Personal Finance Tracker Constitution
@@ -73,6 +77,23 @@ An npm package providing infrastructure-as-code for frontend deployment to AWS.
 - Test manually (visual verification in dev)
 - Write UI component tests only for complex/critical components; not required
 
+### Vendor Independence
+
+**Non-negotiable rule**: Minimize vendor lock-in through technology choices and architectural decisions that preserve deployment flexibility.
+
+**Application**:
+- **Frontend**: Must be deployable to any static hosting provider without code changes
+  (S3, GitHub Pages, nginx, Cloudflare Pages, Vercel, or equivalent)
+- **Backend**: Must be deployable to any Node.js runtime without code changes
+  (AWS Lambda, Docker containers, VPS, bare metal, or equivalent)
+- **Data Layer**: Database access must be abstracted to enable migration to another database
+  - **Repository Pattern**: Use repository pattern for all database access to support
+    database portability and maintainability
+  - **Portable Query Patterns**: Use only database operations and query patterns that
+    can be reproduced in popular SQL and NoSQL databases (PostgreSQL, MongoDB, MySQL, etc.).
+  - Avoid vendor-specific features and optimizations
+- **Infrastructure Code**: CDK is AWS-specific but front-end and back-end remain portable
+
 ## Governance
 
 This constitution supersedes all other development guidelines. Amendments require documentation in the sync impact report and ratification by the team.
@@ -84,4 +105,4 @@ This constitution supersedes all other development guidelines. Amendments requir
 4. Commit with message: `docs: amend constitution to vX.Y.Z ([change summary])`
 5. Update dependent artifacts (templates, guidance docs) as flagged
 
-**Version**: 0.3.1 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-10-29
+**Version**: 0.5.4 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-10-29

@@ -295,12 +295,6 @@ Apollo Server, GraphQL, esbuild, JWT libraries, AWS SDK, TypeScript
 - Linked to Auth0 account via Auth0 user ID
 - Point-in-time recovery enabled for backups
 
-### Vendor Independence
-- **Repository Pattern** - Database operations abstracted behind service layer
-- **Generic Queries** - Avoid DynamoDB-specific features
-- **Migration Ready** - Can switch to PostgreSQL, MongoDB, etc.
-- **Portability** - Database design enables future platform changes
-
 ---
 
 ## 5. Authentication
@@ -348,11 +342,6 @@ Apollo Server, GraphQL, esbuild, JWT libraries, AWS SDK, TypeScript
 ### Security
 - HTTPS enforcement and rate limiting
 - Least-privilege IAM policies
-
-### Vendor Independence
-- Minimal AWS dependencies to avoid vendor lock-in
-- Frontend can be deployed on any static hosting provider (S3, GitHub Pages, nginx)
-- Backend can run on any Node.js platform (Lambda, Docker, VPS)
 
 ---
 
