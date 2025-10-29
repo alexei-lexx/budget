@@ -4,6 +4,8 @@
 
 **Architecture & Governance**: If asked about project structure, organizational principles, or technical constraints, consult `.specify/memory/constitution.md`.
 
+**Script Usage**: Always prefer npm scripts from package.json over direct tool usage to ensure consistent versions and configurations.
+
 **Commits & Changes**: Never commit changes without being explicitly asked or requesting permission first.
 
 **Code Modifications**: Only make code changes when explicitly requested by the user. When asked informational questions (like "where are X?", "what does Y do?", "how does Z work?"), provide answers without making any modifications to files. Wait for explicit instructions like "fix this", "update that", or "implement X" before making changes.
@@ -181,9 +183,6 @@ npm run db:setup    # Recreate database and tables
 - Jest for unit testing in CDK packages
 
 ## Important Patterns
-
-### Script Usage
-Always prefer npm scripts from package.json over direct tool usage to ensure consistent versions and configurations.
 
 ### Multi-Currency Support
 Each account has a specific currency. Transfers only allowed between accounts with same currency. Reports grouped by currency without conversion.
