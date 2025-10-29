@@ -514,3 +514,10 @@ NEVER proactively create documentation files (*.md) or README files. Only create
 - Prefer npm scripts defined in package.json over running tools directly
 - This ensures consistent tool versions and project-specific configurations
 - Example: Use `npm run deploy` instead of `npx cdk deploy`
+
+## Active Technologies
+- TypeScript 5.x (Vue 3 frontend + Node backend) + Vue 3, Vuetify 3, Apollo Client (frontend); Apollo Server (backend) (008-mark-deleted-relations)
+- N/A (display/styling only; data already embedded) (008-mark-deleted-relations)
+
+## Recent Changes
+- 008-mark-deleted-relations: Added TypeScript 5.x (Vue 3 frontend + Node backend) + Vue 3, Vuetify 3, Apollo Client (frontend); Apollo Server (backend)
