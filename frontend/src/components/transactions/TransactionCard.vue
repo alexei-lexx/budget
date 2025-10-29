@@ -7,8 +7,6 @@ import ActionButtons from "@/components/common/ActionButtons.vue";
 // Define component props
 interface Props {
   transaction: Transaction;
-  accountName: string;
-  categoryName?: string;
   isExpanded: boolean;
 }
 
@@ -106,8 +104,30 @@ const handleCardClick = () => {
         <!-- Main content -->
         <div class="flex-grow-1 me-3" style="min-width: 0">
           <h4 class="text-h6 mb-0 text-truncate">
-            {{ formattedDate }} • {{ accountName
-            }}<span v-if="categoryName"> • {{ categoryName }}</span>
+            {{ formattedDate }} •
+            <span
+              :class="{ 'account-archived': transaction.account.isArchived }"
+              :aria-label="
+                transaction.account.isArchived ? `Deleted: ${transaction.account.name}` : undefined
+              "
+              :title="transaction.account.isArchived ? 'Deleted account' : ''"
+            >
+              {{ transaction.account.name }}
+            </span>
+            <span v-if="transaction.category">
+              •
+              <span
+                :class="{ 'category-archived': transaction.category.isArchived }"
+                :aria-label="
+                  transaction.category.isArchived
+                    ? `Deleted: ${transaction.category.name}`
+                    : undefined
+                "
+                :title="transaction.category.isArchived ? 'Deleted category' : ''"
+              >
+                {{ transaction.category.name }}
+              </span>
+            </span>
           </h4>
         </div>
 
@@ -155,5 +175,12 @@ const handleCardClick = () => {
 
 .transaction-card.expanded:hover {
   transform: none; /* Disable hover transform when expanded */
+}
+
+.account-archived,
+.category-archived {
+  text-decoration: line-through;
+  opacity: 0.6;
+  color: var(--v-theme-on-surface-variant);
 }
 </style>

@@ -73,8 +73,6 @@
               v-for="transaction in paginatedTransactions"
               :key="transaction.id"
               :transaction="transaction"
-              :account-name="transaction.account.name"
-              :category-name="transaction.category?.name"
               :is-expanded="isTransactionExpanded(transaction.id)"
               class="mb-3"
               @edit-transaction="handleEditTransaction"
