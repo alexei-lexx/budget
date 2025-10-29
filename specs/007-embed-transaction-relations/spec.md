@@ -125,6 +125,8 @@ This feature introduces breaking changes to the GraphQL Transaction type by remo
 - **Q2**: Missing Entity Handling → **A**: If category ID is set but entity missing → return stub `{ id, name: "Unknown", isArchived: false }`. If category ID is null → return `null` for category field. Accounts must always have valid references; if missing due to direct database inconsistency, return account stub.
 - **Q3**: Null Category Batching → **A**: Filter null categoryIds before batching (no lookup needed for null). Non-null IDs batched normally.
 - **Q4**: Frontend Component Scope → **A**: Update all components within the transactions page that currently display transaction data and use old ID-based lookups.
+- **Q5**: Authorization Model for Embedded Fields → **A**: Embedded fields inherit transaction-level authorization. If a user can access a transaction, they can see its embedded account and category fields without additional authorization checks.
+- **Q6**: Batch Loading Test Validation Strategy → **A**: Validate batch loading efficiency (SC-002) via code review and manual inspection of the batch loader implementation, ensuring DataLoader pattern is correctly applied to prevent N+1 queries. No automated query counting required.
 
 ## Assumptions
 
