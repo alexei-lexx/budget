@@ -39,12 +39,29 @@ description: "Task list for embedding account and category into transaction Grap
   - Use environment variables for table names and endpoint
   - Import Account model and DynamoDBClient
 
+- [ ] T002.1 Unit test for accountLoader batch function
+  - Create `backend/src/dataloaders/accountLoader.test.ts` (colocated with source, not in __tests__)
+  - Test happy path: batch load 5 valid account IDs using mocked AccountRepository, verify all returned correctly
+  - Test missing account: batch load mix of valid and non-existent IDs, verify missing accounts return stub `{ id, name: "Unknown", isArchived: false }`
+  - Test edge case: batch load with duplicate IDs, verify deduplication works
+  - Use Jest and mock repository via `createMockAccountRepository` from `backend/src/__tests__/utils/mockRepositories.ts`
+  - Use `fakeAccount()` factory from `backend/src/__tests__/utils/factories.ts` for test data
+
 - [ ] T003 [P] Create DataLoader batch function for categories in `backend/src/dataloaders/categoryLoader.ts`
   - Implement `batchLoadCategories()` function using DynamoDB BatchGetItem
   - **Filter null categoryIds before batching** (no lookup needed if category ID not set; these return null in final response)
   - Handle missing categories (if non-null ID exists but entity not found, return stub `{ id, name: "Unknown", isArchived: false }`)
   - Log warning for missing categories (e.g., "Missing category {categoryId} for transaction context")
   - Use environment variables for table names and endpoint
+
+- [ ] T003.1 [P] Unit test for categoryLoader batch function
+  - Create `backend/src/dataloaders/categoryLoader.test.ts` (colocated with source, not in __tests__)
+  - Test happy path: batch load 5 valid category IDs using mocked CategoryRepository, verify all returned correctly
+  - Test null filtering: batch load mix of null and valid IDs, verify nulls are filtered before batching, nulls return null in result
+  - Test missing category: batch load mix of valid and non-existent IDs, verify missing categories return stub `{ id, name: "Unknown", isArchived: false }`
+  - Test edge case: batch load with duplicate IDs, verify deduplication works
+  - Use Jest and mock repository via `createMockCategoryRepository` from `backend/src/__tests__/utils/mockRepositories.ts`
+  - Use `fakeCategory()` factory from `backend/src/__tests__/utils/factories.ts` for test data
 
 - [ ] T004 [P] Create DataLoader barrel export in `backend/src/dataloaders/index.ts`
   - Export both accountLoader and categoryLoader batch functions
@@ -55,6 +72,13 @@ description: "Task list for embedding account and category into transaction Grap
   - Implement `createUnknownCategory(id: string)` → `{ id, name: "Unknown", isArchived: false }`
   - Document when stubs are used (data consistency edge cases from direct database changes)
   - Use these helpers in T002 and T003 batch functions for missing entities
+
+- [ ] T004a.1 Unit test for stub data helpers
+  - Create `backend/src/dataloaders/utils.test.ts` (colocated with stub helper module)
+  - Test `createUnknownAccount(id)` returns correct stub structure with given ID
+  - Test `createUnknownCategory(id)` returns correct stub structure with given ID
+  - Verify all stub fields are immutable/correct (id, name: "Unknown", isArchived: false)
+  - Use Jest (no external dependencies or mocking needed for pure functions)
 
 ### GraphQL Schema Updates
 
@@ -177,50 +201,17 @@ description: "Task list for embedding account and category into transaction Grap
   - Update component to pass only transaction object (no lookup parameters)
 
 - [ ] T022 [P] Update other transaction-related components
-  - Find and update all files importing/using transactions: `frontend/src/components/**/*Transaction*.vue`, `frontend/src/views/**/*Transaction*.vue`
-  - Update components to use `transaction.account.name` and `transaction.category?.name` directly
-  - Remove any getAccountName/getCategoryName helper calls
+  - Update `frontend/src/components/TransactionList.vue` to use `transaction.account.name` and `transaction.category?.name` directly
+  - Remove any getAccountName/getCategoryName helper calls from TransactionList
   - Update prop interfaces to remove lookup function parameters
-
-- [ ] T023 Update test files to mock embedded field structure
-  - Find test files using mocked transactions: `frontend/src/**/*.test.ts`, `frontend/src/**/*.spec.ts`
-  - Update mock transaction objects to include nested account and category objects
-  - Mock structure: `{ id: '...', account: { id: '...', name: 'Test Account', isArchived: false }, category: { id: '...', name: 'Test Category', isArchived: false }, ... }`
-  - Test null category case: `category: null`
-  - Test archived account case: `isArchived: true`
+  - Verify all transaction component imports use embedded fields (TransactionCard, Transactions, TransactionList)
 
 - [ ] T024 [P] Verify frontend type safety
   - `cd frontend && npm run type-check`
   - Resolve any remaining TypeScript errors
   - Ensure all transaction.account and transaction.category accesses are properly typed
 
-### Frontend Testing
-
-- [ ] T025 Test component rendering with embedded fields
-  - `cd frontend && npm run dev`
-  - Create new transaction with account and category
-  - Verify transaction card displays account name from embedded field
-  - Verify transaction card displays category name from embedded field
-  - Verify archive status displays for archived accounts
-  - Verify null category renders gracefully (no errors in console)
-
-- [ ] T026 [P] Run frontend unit tests
-  - `cd frontend && npm test`
-  - Ensure all component tests pass with new embedded field mocks
-  - Fix any test failures from component changes
-
-- [ ] T027 [P] Run frontend code quality checks
-  - `cd frontend && npm run lint` (ESLint)
-  - `cd frontend && npm run format` (prettier:fix)
-  - Fix any linting issues found
-
-- [ ] T028 Test Apollo cache reactivity
-  - In dev environment, create transaction with account
-  - Then update the account (change name or archive status)
-  - Verify transaction display updates automatically (Apollo normalized cache)
-  - Verify no manual refresh needed (reactive updates working)
-
-**Checkpoint**: Frontend fully updated with embedded fields. All components working correctly.
+**Checkpoint**: Frontend fully updated with embedded fields. Manual verification in dev environment recommended before Phase 4.
 
 ---
 
@@ -230,7 +221,7 @@ description: "Task list for embedding account and category into transaction Grap
 
 ### Integration Testing
 
-- [ ] T029 End-to-end transaction workflow test
+- [ ] T025 End-to-end transaction workflow test
   - Start backend: `cd backend && npm run db:start && npm run dev`
   - Start frontend: `cd frontend && npm run dev`
   - Create account (e.g., "Checking")
@@ -240,14 +231,14 @@ description: "Task list for embedding account and category into transaction Grap
   - Test pagination if loading 20+ transactions
   - Verify batch loading works (network tab shows 3 requests, not 101)
 
-- [ ] T030 [P] Test data integrity handling
+- [ ] T026 [P] Test data integrity handling
   - Use DynamoDB Admin UI (http://localhost:8001) to manually delete an account or category
   - Query transactions that reference deleted entity
   - Verify transaction returns null for missing account/category (no error)
   - Verify console shows warning logs for missing entities
   - Verify UI displays fallback gracefully
 
-- [ ] T031 [P] Test transaction operations
+- [ ] T027 [P] Test transaction operations
   - Create transaction with account, no category
   - Verify category displays as null (no errors)
   - Update transaction amount
@@ -255,7 +246,7 @@ description: "Task list for embedding account and category into transaction Grap
   - Delete transaction
   - Verify transaction removed from list
 
-- [ ] T032 [P] Test account and category operations
+- [ ] T028 [P] Test account and category operations
   - Archive account and verify isArchived updates in transaction display
   - Unarchive account and verify isArchived updates
   - Archive category and verify isArchived updates in transaction display
@@ -264,31 +255,31 @@ description: "Task list for embedding account and category into transaction Grap
 
 ### Deployment Coordination
 
-- [ ] T033 Prepare coordinated deployment
+- [ ] T029 Prepare coordinated deployment
   - Plan deployment order: backend → frontend (same deployment window)
   - Document breaking change: accountId/categoryId fields removed
   - Prepare rollback plan if issues detected
   - Communicate timeline to team
 
-- [ ] T034 [P] Create deployment checklist
+- [ ] T030 [P] Create deployment checklist
   - Backend pre-deployment: verify all tests pass, build succeeds
   - Frontend pre-deployment: verify all tests pass, build succeeds
   - Deployment steps: backend first, then frontend
   - Post-deployment verification steps
 
-- [ ] T035 Deploy backend changes
+- [ ] T031 Deploy backend changes
   - Merge backend changes to main branch
   - Deploy backend: `cd backend-cdk && npm run deploy`
   - Verify API schema updated: query http://api-endpoint/graphql with introspection
   - Confirm DataLoaders active and batching working
 
-- [ ] T036 Deploy frontend changes
+- [ ] T032 Deploy frontend changes
   - Merge frontend changes to main branch
   - Deploy frontend: `cd frontend-cdk && npm run deploy && npm run build`
   - Verify frontend assets deployed
   - Test application in production environment
 
-- [ ] T037 Post-deployment verification
+- [ ] T033 Post-deployment verification
   - Test transaction list displays with embedded fields
   - Verify query performance (3 queries, not 101)
   - Monitor logs for any null account/category references (data quality)
@@ -303,30 +294,29 @@ description: "Task list for embedding account and category into transaction Grap
 
 **Purpose**: Final improvements and documentation
 
-- [ ] T038 [P] Update project documentation
+- [ ] T034 [P] Update project documentation
   - Update CLAUDE.md if any patterns changed
   - Add note about DataLoader batching pattern in architecture section
   - Document per-request DataLoader lifecycle
   - Document cache invalidation pattern for mutations
 
-- [ ] T039 [P] Remove deprecated code (if applicable)
+- [ ] T035 [P] Remove deprecated code (if applicable)
   - Check if any legacy lookup functions remain that should be deleted
   - Verify old accountId/categoryId access patterns completely removed
   - Clean up any commented-out code
 
-- [ ] T040 Code cleanup and optimization
+- [ ] T036 Code cleanup and optimization
   - Review backend dataloaders for any performance improvements
   - Review component updates for unnecessary re-renders
   - Ensure error logging is consistent and helpful
 
-- [ ] T041 Run full test suite
-  - `cd backend && npm test` (backend tests)
-  - `cd frontend && npm test` (frontend tests)
+- [ ] T037 Run full test suite
+  - `cd backend && npm test` (backend unit tests)
   - `cd backend-cdk && npm test` (CDK tests)
   - `cd frontend-cdk && npm test` (CDK tests)
   - Ensure all tests pass
 
-- [ ] T042 [P] Security & Data Integrity Review
+- [ ] T038 [P] Security & Data Integrity Review
   - Verify DataLoader per-request scoping prevents data leakage
   - Confirm null handling for missing entities logged properly
   - Review error responses don't expose internal details
@@ -364,30 +354,33 @@ Phase 5 (Polish)
 
 **Within Phase 2**:
 - T002 & T003 & T004 can run in parallel (different files)
+- T002.1 & T003.1 & T004a.1 can run in parallel after respective main tasks (unit tests)
 - T010 & T011 & T012 can run in parallel (same file but different sections)
 - T014 & T015 can run in parallel (different commands)
 
 **Within Phase 3**:
-- T019, T021, T022 can run in parallel (different component files)
-- T026 & T027 can run in parallel (tests and linting)
+- T020, T021, T022 can run in parallel (different component files)
 
 **Within Phase 4**:
 - T030, T031, T032 can run in parallel (different test scenarios)
-- T034, T035 can start after T033 in parallel
+- T033, T034 can start in parallel (planning and checklist)
 
 ### Sequential Requirements (Within Phase 2)
 
 - T001 must complete before T002, T003, T004 (dependency install needed)
+- T002 must complete before T002.1 (implement before testing)
+- T003 must complete before T003.1 (implement before testing)
+- T004a must complete before T004a.1 (implement before testing)
 - T005, T006 must complete before T007 (schema must exist before resolvers)
 - T007, T008, T009 must complete before T010, T011 (resolvers needed for mutations)
-- T013 must run last (verifies T002-T012 all work together)
+- T013 must run last (verifies T002-T012 all work together, after all unit tests pass)
 
 ### Sequential Requirements (Within Phase 3)
 
 - T016 must complete before T017 (schema sync before codegen)
 - T017 must complete before T018 (types generated before fragment update)
 - T018 must complete before T020-T022 (fragment needed before components use it)
-- T025 must run after T020-T024 (tests all components before running dev)
+- T024 must complete (type-check all components before Phase 4)
 
 ---
 
@@ -398,14 +391,18 @@ Phase 5 (Polish)
 ```
 Developer A:
   - T002: Create accountLoader.ts
+  - T002.1: Unit test accountLoader
   - T010: Invalidate accounts in mutations
 
 Developer B:
   - T003: Create categoryLoader.ts
+  - T003.1: Unit test categoryLoader
   - T011: Invalidate categories in mutations
 
 Developer C:
   - T004: Create dataloaders/index.ts barrel
+  - T004a: Create stub data helpers
+  - T004a.1: Unit test stub helpers
   - T005 & T006: Update schema.graphql (sequential, same file)
 
 Developer D:
@@ -416,7 +413,7 @@ Developer D:
 
 **Then sequentially**:
   - T012: Verify all mutations have cache invalidation
-  - T013: Integration test in GraphQL Playground
+  - T013: Integration test in GraphQL Playground (after all unit tests pass)
 
 ---
 
@@ -427,20 +424,16 @@ Developer D:
 ```
 Developer A:
   - T020: Update TransactionCard.vue
-  - T026: Run component unit tests
 
 Developer B:
   - T021: Update Transactions.vue
-  - T027: Run linting and formatting
 
 Developer C:
-  - T022: Update other transaction components
-  - T023: Update test mocks
+  - T022: Update other transaction components (TransactionList.vue)
 
 Developer D:
   - T018: Update TRANSACTION_FRAGMENT
   - T024: Verify TypeScript types
-  - T025: Test in dev environment
 ```
 
 ---
@@ -452,10 +445,13 @@ Developer D:
 **Scope**: Complete Phases 1-3 (full feature implementation)
 
 1. ✅ Complete Phase 1: Setup (1 task, 5 min)
-2. ✅ Complete Phase 2: Backend Implementation (12 tasks, 4-5 hours)
-   - Test with GraphQL Playground
-3. ✅ Complete Phase 3: Frontend Implementation (9 tasks, 3-4 hours)
-   - Test in dev environment
+2. ✅ Complete Phase 2: Backend Implementation (15 tasks including 3 unit tests, 5-6 hours)
+   - Unit tests: T002.1, T003.1, T004a.1 (batch loader and stub data testing)
+   - Integration test with GraphQL Playground: T013
+3. ✅ Complete Phase 3: Frontend Implementation (7 tasks, 3-4 hours)
+   - GraphQL schema sync and codegen (T016, T017)
+   - Component updates (T020, T021, T022, T018)
+   - TypeScript type validation (T024)
 4. 🎯 **STOP and VALIDATE Phase 3**: Feature fully working with embedded fields
 5. Then proceed to Phase 4 for deployment
 
@@ -474,16 +470,15 @@ With multiple developers (4+):
 
 1. All complete Phase 1 together (trivial)
 2. Split Phase 2:
-   - Developer A: DataLoaders (T002, T003, T004)
-   - Developer B: Schema (T005, T006)
-   - Developer C: Resolvers (T007, T008, T009)
-   - Developer D: Mutations & Testing (T010-T013)
+   - Developer A: accountLoader implementation & tests (T002, T002.1, T010)
+   - Developer B: categoryLoader implementation & tests (T003, T003.1, T011)
+   - Developer C: Barrel export, stub helpers & tests (T004, T004a, T004a.1, T005, T006)
+   - Developer D: Resolvers, context, mutations & integration test (T007, T008, T009, T012, T013)
 3. Merge/integrate Phase 2 work
 4. Split Phase 3:
    - Developer A: Component updates (T020, T021, T022)
-   - Developer B: Tests & types (T023, T024, T026, T027)
-   - Developer C: Schema sync & fragments (T016, T017, T018)
-   - Developer D: Integration testing (T025, T028)
+   - Developer B: Types & fragments (T024, T018)
+   - Developer C: Schema sync & codegen (T016, T017)
 
 ---
 
@@ -495,25 +490,24 @@ With multiple developers (4+):
 - [ ] dataloader npm package successfully installed
 
 **Phase 2 → Phase 3**:
+- [ ] All unit tests pass: `npm test` (T002.1, T003.1, T004a.1)
 - [ ] GraphQL schema has TransactionEmbeddedAccount and TransactionEmbeddedCategory types
 - [ ] GraphQL query with nested account/category succeeds
-- [ ] Query count reduced to 3 (verified in GraphQL Playground)
+- [ ] Query count reduced to 3 (verified in GraphQL Playground during T013)
 - [ ] Backend build succeeds: `npm run build`
 - [ ] Backend linting passes: `npm run lint`
 
 **Phase 3 → Phase 4**:
 - [ ] Frontend TypeScript compiles: `npm run type-check`
-- [ ] All component tests pass: `npm test`
-- [ ] Frontend linting passes: `npm run lint`
-- [ ] Dev environment loads without console errors: `npm run dev`
-- [ ] Transaction card displays embedded account and category correctly
+- [ ] All component updates complete (T020, T021, T022)
+- [ ] GraphQL operations updated with embedded fields (T018)
 
 **Phase 4 Completion**:
 - [ ] End-to-end test passes (create transaction → view with embedded fields)
 - [ ] Null category handling works gracefully
 - [ ] Archived account status displays correctly
-- [ ] All query performance tests pass
-- [ ] Backend and frontend tests pass
+- [ ] Query performance verified (3 queries for 20+ transactions in T013)
+- [ ] Backend unit tests all pass: `cd backend && npm test`
 - [ ] No console errors in production environment
 
 ---
@@ -535,9 +529,13 @@ With multiple developers (4+):
 ## Notes
 
 - **[P] marker**: Tasks without [P] have dependencies on previous tasks
+- **Unit tests**: T002.1, T003.1, T004a.1 cover batch loader and stub helper functions per constitution mandate
+  - Tests colocated with source files (e.g., `accountLoader.test.ts` next to `accountLoader.ts`)
+  - Use mocked repositories via `createMockAccountRepository()` from `backend/src/__tests__/utils/mockRepositories.ts`
+  - Use factory functions like `fakeAccount()` from `backend/src/__tests__/utils/factories.ts` for test data
+- **Frontend testing**: No unit test tasks (no frontend test suite maintained)
 - **File paths**: All paths are from repository root; adjust for your working directory
-- **Timing estimates**: Based on quickstart.md (12-17 hours total)
+- **Timing estimates**: Based on quickstart.md (12-17 hours total), adjusted for unit tests
 - **Breaking change**: accountId/categoryId removed - requires coordinated deployment
 - **DataLoader pattern**: Per-request lifecycle, auto-clears at end of GraphQL request
-- **Testing**: No explicit test suite tasks included (feature is UI-focused); use manual testing
 - **Deployment**: Atomic - both backend and frontend must deploy together
