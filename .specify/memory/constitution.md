@@ -110,7 +110,6 @@ graph LR
 
 **Non-negotiable rule**: Minimize vendor lock-in through technology choices and architectural decisions that preserve deployment flexibility.
 
-**Application**:
 - **Frontend**: Must be deployable to any static hosting provider without code changes
   (S3, GitHub Pages, nginx, Cloudflare Pages, Vercel, or equivalent)
 - **Backend**: Must be deployable to any Node.js runtime without code changes
