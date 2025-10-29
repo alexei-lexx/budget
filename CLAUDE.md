@@ -1,10 +1,12 @@
 # CLAUDE.md
 
+## Core Operating Rules (IMPORTANT)
+
 **Architecture & Governance**: If asked about project structure, organizational principles, or technical constraints, consult `.specify/memory/constitution.md`.
 
-## Code Modification Guidelines
+**Commits & Changes**: Never commit changes without being explicitly asked or requesting permission first.
 
-**IMPORTANT**: Only make code changes when explicitly requested by the user. When asked informational questions (like "where are X?", "what does Y do?", "how does Z work?"), provide answers without making any modifications to files. Wait for explicit instructions like "fix this", "update that", or "implement X" before making changes.
+**Code Modifications**: Only make code changes when explicitly requested by the user. When asked informational questions (like "where are X?", "what does Y do?", "how does Z work?"), provide answers without making any modifications to files. Wait for explicit instructions like "fix this", "update that", or "implement X" before making changes.
 
 ## Development Commands
 
