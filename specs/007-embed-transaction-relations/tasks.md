@@ -134,7 +134,7 @@ description: "Task list for embedding account and category into transaction Grap
   - Verify no compilation errors
   - Verify schema.graphql is copied to dist/
 
-- [ ] T015 [P] Run backend code quality checks
+- [ ] T014 [P] Run backend code quality checks
   - `cd backend && npm run lint` (ESLint)
   - `cd backend && npm run prettier` (formatting check)
   - Fix any linting issues found
@@ -149,12 +149,12 @@ description: "Task list for embedding account and category into transaction Grap
 
 ### Frontend Schema Synchronization
 
-- [ ] T016 Sync GraphQL schema from backend
+- [ ] T015 Sync GraphQL schema from backend
   - `cd frontend && npm run codegen:sync-schema`
   - Verify `frontend/src/schema.graphql` is updated with new types
   - Confirm TransactionEmbeddedAccount and TransactionEmbeddedCategory types present
 
-- [ ] T017 Generate TypeScript types from updated schema
+- [ ] T016 Generate TypeScript types from updated schema
   - `cd frontend && npm run codegen`
   - Verify types generated in `frontend/src/__generated__/graphql-types.ts`
   - Verify Transaction type includes new account and category fields
@@ -162,20 +162,20 @@ description: "Task list for embedding account and category into transaction Grap
 
 ### Frontend GraphQL Operations
 
-- [ ] T018 Update TRANSACTION_FRAGMENT in `frontend/src/graphql/fragments.ts`
+- [ ] T017 Update TRANSACTION_FRAGMENT in `frontend/src/graphql/fragments.ts`
   - Add nested `account { id name isArchived }` fields
   - Add nested `category { id name isArchived }` fields
   - Keep existing transaction fields (id, type, amount, currency, date, description, transferId)
   - Remove requests for accountId and categoryId fields
 
-- [ ] T019 [P] Verify GraphQL operation compilation
+- [ ] T018 [P] Verify GraphQL operation compilation
   - `cd frontend && npm run type-check`
   - Ensure no TypeScript errors from schema changes
   - Fix any operation type mismatches
 
 ### Frontend Component Updates
 
-- [ ] T020 Update TransactionCard.vue to use embedded fields
+- [ ] T019 Update TransactionCard.vue to use embedded fields
   - Change `accountName` prop parameter usage to `transaction.account?.name`
   - Change `categoryName` prop parameter usage to `transaction.category?.name`
   - Remove accountName and categoryName from component props interface
@@ -183,7 +183,7 @@ description: "Task list for embedding account and category into transaction Grap
   - Update template: use optional chaining for archived account display
   - Keep category display conditional: `v-if="transaction.category"`
 
-- [ ] T021 [P] Update Transactions.vue to remove lookup functions and queries
+- [ ] T020 [P] Update Transactions.vue to remove lookup functions and queries
   - Remove `getAccountName()` helper function
   - Remove `getCategoryName()` helper function
   - Remove `useAccounts()` composable call (no longer needed for lookups)
@@ -191,13 +191,13 @@ description: "Task list for embedding account and category into transaction Grap
   - Keep `useTransactions()` composable call (needed for transaction list)
   - Update component to pass only transaction object (no lookup parameters)
 
-- [ ] T022 [P] Update other transaction-related components
+- [ ] T021 [P] Update other transaction-related components
   - Update `frontend/src/components/TransactionList.vue` to use `transaction.account.name` and `transaction.category?.name` directly
   - Remove any getAccountName/getCategoryName helper calls from TransactionList
   - Update prop interfaces to remove lookup function parameters
   - Verify all transaction component imports use embedded fields (TransactionCard, Transactions, TransactionList)
 
-- [ ] T024 [P] Verify frontend type safety
+- [ ] T022 [P] Verify frontend type safety
   - `cd frontend && npm run type-check`
   - Resolve any remaining TypeScript errors
   - Ensure all transaction.account and transaction.category accesses are properly typed
@@ -230,10 +230,10 @@ Phase 3 (Frontend - depends on backend)
 - T002 & T003 & T004 can run in parallel (different files)
 - T002.1 & T003.1 & T004a.1 can run in parallel after respective main tasks (unit tests)
 - T010 & T011 & T012 can run in parallel (same file but different sections)
-- T014 & T015 can run in parallel (different commands)
+- T013 & T014 can run in parallel (different commands)
 
 **Within Phase 3**:
-- T020, T021, T022 can run in parallel (different component files)
+- T019, T020, T021 can run in parallel (different component files)
 
 ### Sequential Requirements (Within Phase 2)
 
@@ -248,10 +248,12 @@ Phase 3 (Frontend - depends on backend)
 
 ### Sequential Requirements (Within Phase 3)
 
-- T016 must complete before T017 (schema sync before codegen)
-- T017 must complete before T018 (types generated before fragment update)
-- T018 must complete before T020-T022 (fragment needed before components use it)
-- T024 must complete (type-check all components after updates)
+- T015 must complete before T016 (schema sync before codegen)
+- T016 must complete before T017 (types generated before fragment update)
+- T017 must complete before T018 (fragment ready before type-check)
+- T018 must complete before T019-T021 (types verified before component updates)
+- T022 must complete after all components (final type-check after all updates)
+
 
 ---
 
@@ -290,21 +292,22 @@ Developer D:
 
 ## Parallel Example: Phase 3 Frontend Work
 
-**After T017 completes (types generated), launch these in parallel**:
+**Sequential: T015 → T016 → T017 → T018, then launch component updates in parallel**:
 
 ```
-Developer A:
-  - T020: Update TransactionCard.vue
+Developer A (Sequential):
+  - T015: Sync GraphQL schema
+  - T016: Generate TypeScript types
+  - T017: Update TRANSACTION_FRAGMENT
+  - T018: Verify GraphQL operations
 
-Developer B:
-  - T021: Update Transactions.vue
+Then parallel:
+Developer B: T019 - Update TransactionCard.vue
+Developer C: T020 - Update Transactions.vue
+Developer D: T021 - Update other components (TransactionList.vue)
 
-Developer C:
-  - T022: Update other transaction components (TransactionList.vue)
-
-Developer D:
-  - T018: Update TRANSACTION_FRAGMENT
-  - T024: Verify TypeScript types
+Finally (after all components):
+Developer A: T022 - Verify frontend type safety
 ```
 
 ---
@@ -367,9 +370,9 @@ With multiple developers (4+):
 - [ ] DataLoader batch pattern verified via code review (no automated query counting required)
 
 **Phase 3 Completion**:
-- [ ] Frontend TypeScript compiles: `npm run type-check` (T019, T024)
-- [ ] All component updates complete (T020, T021, T022)
-- [ ] GraphQL operations updated with embedded fields (T018)
+- [ ] Frontend TypeScript compiles: `npm run type-check` (T018, T022)
+- [ ] All component updates complete (T019, T020, T021)
+- [ ] GraphQL operations updated with embedded fields (T017)
 - [ ] Feature implementation fully complete
 
 ---
@@ -378,13 +381,13 @@ With multiple developers (4+):
 
 | Issue | Solution | Relevant Tasks |
 |-------|----------|-----------------|
-| "Cannot find field accountId" | Update TRANSACTION_FRAGMENT, remove accountId field | T018 |
-| "account is null" | Data integrity issue - use optional chaining (`transaction.account?.name`) | T020, T022 |
+| "Cannot find field accountId" | Update TRANSACTION_FRAGMENT, remove accountId field | T017 |
+| "account is null" | Data integrity issue - use optional chaining (`transaction.account?.name`) | T019, T021 |
 | Query count still 101 | Verify DataLoaders initialized in context, field resolvers use loaders | T007, T008, T013 |
-| Apollo cache not updating | Ensure fragments used for normalization | T018 |
-| TypeScript errors after codegen | Run `npm run codegen` again, check schema sync | T017 |
+| Apollo cache not updating | Ensure fragments used for normalization | T017 |
+| TypeScript errors after codegen | Run `npm run codegen` again, check schema sync | T016 |
 | Backend build fails | Check import paths, verify schema.graphql syntax | T005, T006 |
-| Frontend build fails | Clear node_modules and reinstall dependencies | T016, T017 |
+| Frontend build fails | Clear node_modules and reinstall dependencies | T015, T016 |
 
 ---
 
@@ -395,6 +398,7 @@ With multiple developers (4+):
   - Tests colocated with source files (e.g., `accountLoader.test.ts` next to `accountLoader.ts`)
   - Use mocked repositories via `createMockAccountRepository()` from `backend/src/__tests__/utils/mockRepositories.ts`
   - Use factory functions like `fakeAccount()` from `backend/src/__tests__/utils/factories.ts` for test data
+- **Frontend tasks**: T015–T022 are sequential with strict phase dependencies (backend must complete first)
 - **File paths**: All paths are from repository root; adjust for your working directory
 - **Timing estimates**: Based on quickstart.md (12-17 hours total), adjusted for unit tests
 - **Breaking change**: accountId/categoryId removed from GraphQL schema
