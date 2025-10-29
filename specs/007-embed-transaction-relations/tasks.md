@@ -12,7 +12,7 @@ description: "Task list for embedding account and category into transaction Grap
 
 **Expected Outcome**: Reduce database queries from 101 → 3 for 50 transactions (97% improvement) via DataLoader batching pattern
 
-**Estimated Duration**: 1-2 sprints (12-17 hours)
+**Estimated Duration**: 1-2 sprints (12-18 hours, includes added T022 linting verification)
 
 ---
 
@@ -97,9 +97,12 @@ description: "Task list for embedding account and category into transaction Grap
 ### Backend Resolvers
 
 - [ ] T007 Create Transaction field resolvers in `backend/src/resolvers/Transaction.ts`
-  - Implement `account` resolver using context.loaders.accountLoader.load()
-  - Implement `category` resolver using context.loaders.categoryLoader.load()
-  - Handle null cases properly (return null when accountId is missing)
+  - Implement `account` resolver using context.loaders.accountLoader.load() (non-nullable; always returns account data or stub)
+  - Implement `category` resolver using context.loaders.categoryLoader.load() (nullable with conditions below)
+  - Handle null cases properly for category field:
+    - **If categoryId is null**: return `null` (user didn't assign a category)
+    - **If categoryId is set but entity missing**: return stub `{ id, name: "Unknown", isArchived: false }` (data consistency edge case)
+  - Handle missing account gracefully: if accountId is set but entity missing, return account stub `{ id, name: "Unknown", isArchived: false }`
   - Return embedded type objects with only id, name, isArchived fields
 
 - [ ] T008 Update GraphQL context in `backend/src/server.ts`
@@ -175,7 +178,15 @@ description: "Task list for embedding account and category into transaction Grap
 
 ### Frontend Component Updates
 
-- [ ] T019 Update TransactionCard.vue to use embedded fields
+- [ ] T020 Update Transactions.vue to remove lookup functions and queries
+  - Remove `getAccountName()` helper function
+  - Remove `getCategoryName()` helper function
+  - Remove `useAccounts()` composable call (no longer needed for lookups)
+  - Remove `useCategories()` composable call (no longer needed for lookups)
+  - Keep `useTransactions()` composable call (needed for transaction list)
+  - Update component to pass only transaction object (no lookup parameters for TransactionCard child component)
+
+- [ ] T019 [P] Update TransactionCard.vue to use embedded fields
   - Change `accountName` prop parameter usage to `transaction.account?.name`
   - Change `categoryName` prop parameter usage to `transaction.category?.name`
   - Remove accountName and categoryName from component props interface
@@ -183,20 +194,18 @@ description: "Task list for embedding account and category into transaction Grap
   - Update template: use optional chaining for archived account display
   - Keep category display conditional: `v-if="transaction.category"`
 
-- [ ] T020 [P] Update Transactions.vue to remove lookup functions and queries
-  - Remove `getAccountName()` helper function
-  - Remove `getCategoryName()` helper function
-  - Remove `useAccounts()` composable call (no longer needed for lookups)
-  - Remove `useCategories()` composable call (no longer needed for lookups)
-  - Keep `useTransactions()` composable call (needed for transaction list)
-  - Update component to pass only transaction object (no lookup parameters)
-
 - [ ] T021 [P] Verify frontend type safety
   - `cd frontend && npm run type-check`
   - Resolve any remaining TypeScript errors
   - Ensure all transaction.account and transaction.category accesses are properly typed
 
-**Checkpoint**: Frontend fully updated with embedded fields. Implementation complete.
+- [ ] T022 [P] Run frontend code quality checks
+  - `cd frontend && npm run lint` (ESLint)
+  - `cd frontend && npm run prettier` (formatting check)
+  - Fix any linting issues found
+  - Verify no violations introduced by component updates
+
+**Checkpoint**: Frontend fully updated with embedded fields and verified for code quality. Implementation complete.
 
 ---
 
@@ -245,7 +254,8 @@ Phase 3 (Frontend - depends on backend)
 - T015 must complete before T016 (schema sync before codegen)
 - T016 must complete before T017 (types generated before fragment update)
 - T017 must complete before T018 (fragment ready before type-check)
-- T018 must complete before T019-T020 (types verified before component updates)
+- T018 must complete before T020 (types verified before parent component updates)
+- **T020 must complete before T019** (parent Transactions.vue must pass transaction object before child TransactionCard.vue can receive/use it)
 - T021 must complete after all components (final type-check after all updates)
 
 
@@ -286,7 +296,7 @@ Developer D:
 
 ## Parallel Example: Phase 3 Frontend Work
 
-**Sequential: T015 → T016 → T017 → T018, then launch component updates in parallel**:
+**Sequential: T015 → T016 → T017 → T018 → T020 → T019, then quality checks**:
 
 ```
 Developer A (Sequential):
@@ -294,13 +304,14 @@ Developer A (Sequential):
   - T016: Generate TypeScript types
   - T017: Update TRANSACTION_FRAGMENT
   - T018: Verify GraphQL operations
+  - T020: Update Transactions.vue (parent component - must go first)
 
-Then parallel:
-Developer B: T019 - Update TransactionCard.vue
-Developer C: T020 - Update Transactions.vue
+Then:
+Developer B: T019 - Update TransactionCard.vue (child component - depends on parent)
 
-Finally (after all components):
+Finally (sequential):
 Developer A: T021 - Verify frontend type safety
+Developer A: T022 - Run frontend code quality checks
 ```
 
 ---
@@ -315,10 +326,10 @@ Developer A: T021 - Verify frontend type safety
 2. ✅ Complete Phase 2: Backend Implementation (14 tasks including 3 unit tests, 5-6 hours)
    - Unit tests: T002.1, T003.1, T004a.1 (batch loader and stub data testing)
    - Build & linting: T013, T014
-3. ✅ Complete Phase 3: Frontend Implementation (7 tasks, 3-4 hours)
-   - GraphQL schema sync and codegen (T016, T017)
-   - Component updates (T019, T020)
-   - TypeScript type validation (T018, T021)
+3. ✅ Complete Phase 3: Frontend Implementation (8 tasks, 3-4 hours)
+   - GraphQL schema sync and codegen (T015, T016, T017)
+   - Component updates (T020 → T019, sequential dependency)
+   - TypeScript type validation & linting (T018, T021, T022)
 
 ### Incremental Delivery (If Needed)
 
@@ -340,10 +351,11 @@ With multiple developers (4+):
    - Developer C: Barrel export, stub helpers & tests (T004, T004a, T004a.1, T005, T006)
    - Developer D: Resolvers, context, mutations, build & linting (T007, T008, T009, T012, T013, T014)
 3. Merge/integrate Phase 2 work
-4. Split Phase 3:
-   - Developer A: Component updates (T019, T020)
-   - Developer B: Types & fragments (T018, T017)
-   - Developer C: Schema sync & codegen (T015, T016)
+4. Split Phase 3 (sequential through T020, then parallel):
+   - Developer A: Schema sync & codegen (T015, T016, T017, T018)
+   - Developer B: Parent component update (T020)
+   - Developer C: Child component update (T019, after T020 completes)
+   - Developer A: Type safety & linting (T021, T022)
 
 ---
 
@@ -364,9 +376,10 @@ With multiple developers (4+):
 
 **Phase 3 Completion**:
 - [ ] Frontend TypeScript compiles: `npm run type-check` (T018, T021)
-- [ ] All component updates complete (T019, T020)
+- [ ] All component updates complete (T020, T019)
 - [ ] GraphQL operations updated with embedded fields (T017)
 - [ ] Frontend type checking passes (T021)
+- [ ] Frontend linting passes: `npm run lint` (T022)
 - [ ] Feature implementation fully complete
 
 ---
@@ -392,9 +405,11 @@ With multiple developers (4+):
   - Tests colocated with source files (e.g., `accountLoader.test.ts` next to `accountLoader.ts`)
   - Use mocked repositories via `createMockAccountRepository()` from `backend/src/__tests__/utils/mockRepositories.ts`
   - Use factory functions like `fakeAccount()` from `backend/src/__tests__/utils/factories.ts` for test data
-- **Frontend tasks**: T015–T021 are sequential with strict phase dependencies (backend must complete first)
+- **Frontend tasks**: T015–T022 are sequential with strict phase dependencies (backend must complete first)
+  - **CRITICAL**: T020 must complete before T019 (parent component before child component)
 - **File paths**: All paths are from repository root; adjust for your working directory
-- **Timing estimates**: Based on quickstart.md (12-17 hours total), adjusted for unit tests
+- **Timing estimates**: Based on quickstart.md (12-18 hours total), adjusted for unit tests and linting
 - **Breaking change**: accountId/categoryId removed from GraphQL schema
 - **DataLoader pattern**: Per-request lifecycle, auto-clears at end of GraphQL request
 - **Performance validation**: DataLoader batch pattern verified via code review (SC-002), not automated query counting
+- **Code quality**: Both backend (T013, T014) and frontend (T021, T022) verification tasks include build, type-check, and linting
