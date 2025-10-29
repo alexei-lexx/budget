@@ -1,8 +1,8 @@
 <!-- SYNC IMPACT REPORT
-Version Change: 0.5.3 → 0.5.4 (PATCH: Removed Rationale section from Vendor Independence principle for conciseness)
-Modified Sections: Core Principles → Vendor Independence (Rationale section removed)
+Version Change: 0.6.0 → 0.6.1 (PATCH: Clarified section title from "Architecture" to "AWS Production Architecture")
+Modified Sections: Section heading clarified (Architecture → AWS Production Architecture)
 Added Sections: None
-Removed Sections: Vendor Independence → Rationale (explanatory content, not prescriptive)
+Removed Sections: None
 Templates Requiring Updates:
   - plan-template.md: Contains "Constitution Check" section - no changes required (already generic)
   - spec-template.md: No principle-specific dependencies - no changes required
@@ -64,6 +64,30 @@ An npm package providing infrastructure-as-code for frontend deployment to AWS.
 - **Testing**: Jest
 - **Quality**: ESLint, Prettier, TypeScript strict mode
 
+## AWS Production Architecture
+
+```
+                                    ┌─────────────┐
+                                    │     S3      │
+                                    │  (Static    │
+                                    │   Assets)   │
+                                    └─────────────┘
+                                           ▲
+┌─────────────┐    ┌──────────────┐        │        ┌──────────────┐    ┌─────────────┐    ┌─────────────┐
+│   Browser   │───>│ CloudFront   │────────┼───────>│ API Gateway  │───>│   Lambda    │───>│  DynamoDB   │
+│  (Vue SPA)  │    │    (CDN)     │        │        │   (HTTP      │    │ (GraphQL    │    │  (User      │
+│             │    │              │        │        │    API)      │    │   API)      │    │   Data)     │
+└─────────────┘    └──────────────┘        │        └──────────────┘    └─────────────┘    └─────────────┘
+       │                   │               │                                    │
+       │                   └───────────────┘                                    │
+       │                                                                        │
+       │                                      ┌─────────────┐                   │
+       └─────────────────────────────────────>│   Auth0     │<──────────────────┘
+                                              │ (Identity   │
+                                              │  Provider)  │
+                                              └─────────────┘
+```
+
 ## Core Principles
 
 ### Test Strategy
@@ -105,4 +129,4 @@ This constitution supersedes all other development guidelines. Amendments requir
 4. Commit with message: `docs: amend constitution to vX.Y.Z ([change summary])`
 5. Update dependent artifacts (templates, guidance docs) as flagged
 
-**Version**: 0.5.4 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-10-29
+**Version**: 0.6.1 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-10-29

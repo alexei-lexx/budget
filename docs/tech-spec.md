@@ -10,29 +10,6 @@
 
 Personal Finance Tracker is a serverless web application for individual financial management. Users authenticate via Auth0, manage their financial data through a Vue.js frontend, and store data in AWS DynamoDB via a GraphQL API.
 
-### Architecture
-```
-                                    ┌─────────────┐
-                                    │     S3      │
-                                    │  (Static    │
-                                    │   Assets)   │
-                                    └─────────────┘
-                                           ▲
-┌─────────────┐    ┌──────────────┐        │        ┌──────────────┐    ┌─────────────┐    ┌─────────────┐
-│   Browser   │───>│ CloudFront   │────────┼───────>│ API Gateway  │───>│   Lambda    │───>│  DynamoDB   │
-│  (Vue SPA)  │    │    (CDN)     │        │        │   (HTTP      │    │ (GraphQL    │    │  (User      │
-│             │    │              │        │        │    API)      │    │   API)      │    │   Data)     │
-└─────────────┘    └──────────────┘        │        └──────────────┘    └─────────────┘    └─────────────┘
-       │                   │               │                                    │
-       │                   └───────────────┘                                    │
-       │                                                                        │
-       │                                      ┌─────────────┐                   │
-       └─────────────────────────────────────>│   Auth0     │<──────────────────┘
-                                              │ (Identity   │
-                                              │  Provider)  │
-                                              └─────────────┘
-```
-
 ## 2. Frontend
 
 ### Responsibilities
