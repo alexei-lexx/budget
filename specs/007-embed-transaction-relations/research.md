@@ -189,8 +189,7 @@ type Category = {
 2. **Run Codegen**: Generate typed operations and composables
 3. **Update Components** (in order):
    - TransactionCard.vue: Access `transaction.account.name`
-   - TransactionListPage.vue: Remove `getAccountName()`, `getCategoryName()`
-   - Transactions.vue: Remove `useAccounts()`, `useCategories()` calls
+   - Transactions.vue: Remove `getAccountName()`, `getCategoryName()`, and `useAccounts()`, `useCategories()` calls
 4. **Update Tests**: Mock structure with embedded fields
 5. **Remove Old Code**: Delete lookup functions and redundant queries
 

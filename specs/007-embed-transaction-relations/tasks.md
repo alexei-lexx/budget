@@ -191,13 +191,7 @@ description: "Task list for embedding account and category into transaction Grap
   - Keep `useTransactions()` composable call (needed for transaction list)
   - Update component to pass only transaction object (no lookup parameters)
 
-- [ ] T021 [P] Update other transaction-related components
-  - Update `frontend/src/components/TransactionList.vue` to use `transaction.account.name` and `transaction.category?.name` directly
-  - Remove any getAccountName/getCategoryName helper calls from TransactionList
-  - Update prop interfaces to remove lookup function parameters
-  - Verify all transaction component imports use embedded fields (TransactionCard, Transactions, TransactionList)
-
-- [ ] T022 [P] Verify frontend type safety
+- [ ] T021 [P] Verify frontend type safety
   - `cd frontend && npm run type-check`
   - Resolve any remaining TypeScript errors
   - Ensure all transaction.account and transaction.category accesses are properly typed
@@ -233,7 +227,7 @@ Phase 3 (Frontend - depends on backend)
 - T013 & T014 can run in parallel (different commands)
 
 **Within Phase 3**:
-- T019, T020, T021 can run in parallel (different component files)
+- T019, T020 can run in parallel (different component files)
 
 ### Sequential Requirements (Within Phase 2)
 
@@ -251,8 +245,8 @@ Phase 3 (Frontend - depends on backend)
 - T015 must complete before T016 (schema sync before codegen)
 - T016 must complete before T017 (types generated before fragment update)
 - T017 must complete before T018 (fragment ready before type-check)
-- T018 must complete before T019-T021 (types verified before component updates)
-- T022 must complete after all components (final type-check after all updates)
+- T018 must complete before T019-T020 (types verified before component updates)
+- T021 must complete after all components (final type-check after all updates)
 
 
 ---
@@ -304,10 +298,9 @@ Developer A (Sequential):
 Then parallel:
 Developer B: T019 - Update TransactionCard.vue
 Developer C: T020 - Update Transactions.vue
-Developer D: T021 - Update other components (TransactionList.vue)
 
 Finally (after all components):
-Developer A: T022 - Verify frontend type safety
+Developer A: T021 - Verify frontend type safety
 ```
 
 ---
@@ -324,8 +317,8 @@ Developer A: T022 - Verify frontend type safety
    - Build & linting: T013, T014
 3. ✅ Complete Phase 3: Frontend Implementation (7 tasks, 3-4 hours)
    - GraphQL schema sync and codegen (T016, T017)
-   - Component updates (T020, T021, T022, T018)
-   - TypeScript type validation (T019, T024)
+   - Component updates (T019, T020)
+   - TypeScript type validation (T018, T021)
 
 ### Incremental Delivery (If Needed)
 
@@ -348,9 +341,9 @@ With multiple developers (4+):
    - Developer D: Resolvers, context, mutations, build & linting (T007, T008, T009, T012, T013, T014)
 3. Merge/integrate Phase 2 work
 4. Split Phase 3:
-   - Developer A: Component updates (T020, T021, T022)
-   - Developer B: Types & fragments (T024, T018, T019)
-   - Developer C: Schema sync & codegen (T016, T017)
+   - Developer A: Component updates (T019, T020)
+   - Developer B: Types & fragments (T018, T017)
+   - Developer C: Schema sync & codegen (T015, T016)
 
 ---
 
@@ -370,9 +363,10 @@ With multiple developers (4+):
 - [ ] DataLoader batch pattern verified via code review (no automated query counting required)
 
 **Phase 3 Completion**:
-- [ ] Frontend TypeScript compiles: `npm run type-check` (T018, T022)
-- [ ] All component updates complete (T019, T020, T021)
+- [ ] Frontend TypeScript compiles: `npm run type-check` (T018, T021)
+- [ ] All component updates complete (T019, T020)
 - [ ] GraphQL operations updated with embedded fields (T017)
+- [ ] Frontend type checking passes (T021)
 - [ ] Feature implementation fully complete
 
 ---
@@ -382,7 +376,7 @@ With multiple developers (4+):
 | Issue | Solution | Relevant Tasks |
 |-------|----------|-----------------|
 | "Cannot find field accountId" | Update TRANSACTION_FRAGMENT, remove accountId field | T017 |
-| "account is null" | Data integrity issue - use optional chaining (`transaction.account?.name`) | T019, T021 |
+| "account is null" | Data integrity issue - use optional chaining (`transaction.account?.name`) | T019, T020 |
 | Query count still 101 | Verify DataLoaders initialized in context, field resolvers use loaders | T007, T008, T013 |
 | Apollo cache not updating | Ensure fragments used for normalization | T017 |
 | TypeScript errors after codegen | Run `npm run codegen` again, check schema sync | T016 |
@@ -398,7 +392,7 @@ With multiple developers (4+):
   - Tests colocated with source files (e.g., `accountLoader.test.ts` next to `accountLoader.ts`)
   - Use mocked repositories via `createMockAccountRepository()` from `backend/src/__tests__/utils/mockRepositories.ts`
   - Use factory functions like `fakeAccount()` from `backend/src/__tests__/utils/factories.ts` for test data
-- **Frontend tasks**: T015–T022 are sequential with strict phase dependencies (backend must complete first)
+- **Frontend tasks**: T015–T021 are sequential with strict phase dependencies (backend must complete first)
 - **File paths**: All paths are from repository root; adjust for your working directory
 - **Timing estimates**: Based on quickstart.md (12-17 hours total), adjusted for unit tests
 - **Breaking change**: accountId/categoryId removed from GraphQL schema

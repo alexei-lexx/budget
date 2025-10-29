@@ -78,9 +78,8 @@ query GetTransactions {
 **Files to Modify**:
 - `frontend/src/graphql/fragments.ts` - Update TRANSACTION_FRAGMENT with embedded fields
 - `frontend/src/views/Transactions.vue` - Remove useAccounts/useCategories, remove lookup functions
-- `frontend/src/components/TransactionCard.vue` - Use embedded fields directly
-- `frontend/src/views/AccountDetails/TransactionList.vue` - Update if used
-- `frontend/src/components/**/*Transaction*.vue` - Update any other components using transactions
+- `frontend/src/components/transactions/TransactionCard.vue` - Use embedded fields directly
+- `frontend/src/components/transactions/**/*.vue` - Update any other transaction components as needed
 - Test files using mocked transactions
 
 **Implementation Checklist**:

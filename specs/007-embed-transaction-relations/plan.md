@@ -86,8 +86,8 @@ frontend/
 │   │   └── Transactions.vue           # MODIFIED: Remove lookups, use embedded fields
 │   ├── components/
 │   │   ├── TransactionCard.vue        # MODIFIED: Direct embedded field access
-│   │   ├── TransactionList.vue        # MODIFIED: Remove lookups, use embedded fields
-│   │   └── [other transaction components]  # MODIFIED: Update as needed
+│   │   └── transactions/               # Transaction-related components in subfolder
+│   │       └── [other transaction components]  # MODIFIED: Update as needed
 │   └── __generated__/                 # AUTO-GENERATED: Updated by npm run codegen
 │       ├── graphql-types.ts           # Updated types with embedded fields
 │       └── vue-apollo.ts              # Updated composables
