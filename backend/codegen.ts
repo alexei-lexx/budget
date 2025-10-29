@@ -22,6 +22,8 @@ const config: CodegenConfig = {
         mappers: {
           // Account balance is computed by field resolver, so exclude from base type
           Account: "Omit<Account, 'balance'>",
+          // Transaction account and category are computed by field resolvers via DataLoaders, exclude from parent type
+          Transaction: "Omit<Transaction, 'account' | 'category'>",
         },
       },
     },

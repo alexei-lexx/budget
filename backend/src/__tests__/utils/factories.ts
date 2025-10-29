@@ -1,6 +1,10 @@
 import { faker } from "@faker-js/faker";
-import { Account } from "../../models/Account";
-import { Category, CategoryType } from "../../models/Category";
+import { Account, CreateAccountInput } from "../../models/Account";
+import {
+  Category,
+  CategoryType,
+  CreateCategoryInput,
+} from "../../models/Category";
 import {
   Transaction,
   TransactionType,
@@ -23,6 +27,18 @@ export const fakeAccount = (overrides: Partial<Account> = {}): Account => {
   };
 };
 
+export const fakeCreateAccountInput = (
+  overrides: Partial<CreateAccountInput> = {},
+): CreateAccountInput => {
+  return {
+    userId: faker.string.uuid(),
+    name: `${faker.finance.accountName()}-${faker.string.uuid()}`, // Ensure uniqueness
+    currency: "USD",
+    initialBalance: faker.number.int({ min: 0, max: 10000 }),
+    ...overrides,
+  };
+};
+
 export const fakeCategory = (overrides: Partial<Category> = {}): Category => {
   const now = new Date().toISOString();
   return {
@@ -33,6 +49,17 @@ export const fakeCategory = (overrides: Partial<Category> = {}): Category => {
     isArchived: false,
     createdAt: now,
     updatedAt: now,
+    ...overrides,
+  };
+};
+
+export const fakeCreateCategoryInput = (
+  overrides: Partial<CreateCategoryInput> = {},
+): CreateCategoryInput => {
+  return {
+    userId: faker.string.uuid(),
+    name: `${faker.commerce.department()}-${faker.string.uuid()}`, // Ensure uniqueness
+    type: CategoryType.EXPENSE,
     ...overrides,
   };
 };

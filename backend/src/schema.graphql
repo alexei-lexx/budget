@@ -47,10 +47,40 @@ type Category {
   type: CategoryType!
 }
 
+"""
+Lightweight account representation embedded in Transaction responses.
+Always reflects the current state of the account at query time.
+If an account ID exists but the entity cannot be found (data integrity edge case),
+stub data with name "Unknown" is returned instead of null.
+"""
+type TransactionEmbeddedAccount {
+  id: ID!
+  name: String!
+  isArchived: Boolean!
+}
+
+"""
+Lightweight category representation embedded in Transaction responses.
+Always reflects the current state of the category at query time.
+If a category ID exists but the entity cannot be found (data integrity edge case),
+stub data with name "Unknown" is returned instead of null.
+If category ID is null (uncategorized transaction), the category field returns null.
+"""
+type TransactionEmbeddedCategory {
+  id: ID!
+  name: String!
+  isArchived: Boolean!
+}
+
+"""
+Transaction with embedded account and category data.
+Eliminates N+1 queries by fetching account and category data directly without separate lookups.
+Breaking change: accountId and categoryId fields removed (use account.id and category.id instead).
+"""
 type Transaction {
   id: ID!
-  accountId: ID!
-  categoryId: ID
+  account: TransactionEmbeddedAccount!
+  category: TransactionEmbeddedCategory
   type: TransactionType!
   amount: Float!
   currency: String!

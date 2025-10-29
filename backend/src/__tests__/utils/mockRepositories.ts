@@ -30,6 +30,7 @@ export const createMockAccountRepository =
   (): jest.Mocked<IAccountRepository> => ({
     findActiveByUserId: jest.fn(),
     findActiveById: jest.fn(),
+    findByIds: jest.fn(),
     create: jest.fn(),
     update: jest.fn(),
     archive: jest.fn(),
@@ -43,6 +44,7 @@ export const createMockCategoryRepository =
     findActiveByUserId: jest.fn(),
     findActiveByUserIdAndType: jest.fn(),
     findActiveById: jest.fn(),
+    findByIds: jest.fn(),
     create: jest.fn(),
     update: jest.fn(),
     archive: jest.fn(),

@@ -30,6 +30,7 @@
     "@dotenvx/dotenvx": "^1.51.0",
     "@types/jsonwebtoken": "^9.0.10",
     "aws-xray-sdk-core": "^3.11.0",
+    "dataloader": "^2.2.3",
     "graphql": "^16.11.0",
     "jsonwebtoken": "^9.0.2",
     "jwks-rsa": "^3.2.0",
