@@ -21,8 +21,16 @@ export const CATEGORY_FRAGMENT = gql`
 export const TRANSACTION_FRAGMENT = gql`
   fragment TransactionFields on Transaction {
     id
-    accountId
-    categoryId
+    account {
+      id
+      name
+      isArchived
+    }
+    category {
+      id
+      name
+      isArchived
+    }
     type
     amount
     currency

@@ -154,8 +154,8 @@ watch(
   (transaction) => {
     if (transaction) {
       formData.value = {
-        accountId: transaction.accountId,
-        categoryId: transaction.categoryId || "",
+        accountId: transaction.account.id,
+        categoryId: transaction.category?.id || "",
         type: transaction.type,
         amount: transaction.amount,
         date: transaction.date,

@@ -73,8 +73,8 @@
               v-for="transaction in paginatedTransactions"
               :key="transaction.id"
               :transaction="transaction"
-              :account-name="getAccountName(transaction.accountId)"
-              :category-name="getCategoryName(transaction.categoryId)"
+              :account-name="transaction.account.name"
+              :category-name="transaction.category?.name"
               :is-expanded="isTransactionExpanded(transaction.id)"
               class="mb-3"
               @edit-transaction="handleEditTransaction"
@@ -109,7 +109,7 @@
     <TransactionDeleteDialog
       v-model="showDeleteConfirmDialog"
       :transaction="transactionToDelete"
-      :account-name="transactionToDelete ? getAccountName(transactionToDelete.accountId) : ''"
+      :account-name="transactionToDelete ? transactionToDelete.account.name : ''"
       @confirm="confirmDeleteTransaction"
       @cancel="cancelDeleteTransaction"
     />
@@ -486,12 +486,6 @@ const isTransactionExpanded = (transactionId: string): boolean => {
   return expandedTransactionIds.value.has(transactionId);
 };
 
-// Helper functions to resolve names
-const getAccountName = (accountId: string): string => {
-  const account = accounts.value.find((a) => a.id === accountId);
-  return account?.name || "Unknown Account";
-};
-
 const isTransferTransaction = (
   transaction: Transaction,
 ): transaction is Transaction & { transferId: string } => {
@@ -501,12 +495,6 @@ const isTransferTransaction = (
   );
 };
 
-const getCategoryName = (categoryId?: string | null): string | undefined => {
-  if (!categoryId) return undefined;
-  const category = categories.value.find((c) => c.id === categoryId);
-  return category?.name;
-};
-
 // Helper functions for transfer account names
 const getTransferFromAccountName = (transaction: Transaction | null): string => {
   if (!transaction || !transaction.transferId) return "Unknown Account";
@@ -514,13 +502,13 @@ const getTransferFromAccountName = (transaction: Transaction | null): string => 
   // For TRANSFER_OUT, the current account is the source
   // For TRANSFER_IN, we need to find the paired TRANSFER_OUT transaction
   if (transaction.type === "TRANSFER_OUT") {
-    return getAccountName(transaction.accountId);
+    return transaction.account.name;
   } else if (transaction.type === "TRANSFER_IN") {
     // Find the paired TRANSFER_OUT transaction
     const pairedTransaction = paginatedTransactions.value.find(
       (t) => t.transferId === transaction.transferId && t.type === "TRANSFER_OUT",
     );
-    return pairedTransaction ? getAccountName(pairedTransaction.accountId) : "Unknown Account";
+    return pairedTransaction ? pairedTransaction.account.name : "Unknown Account";
   }
   return "Unknown Account";
 };
@@ -531,13 +519,13 @@ const getTransferToAccountName = (transaction: Transaction | null): string => {
   // For TRANSFER_IN, the current account is the destination
   // For TRANSFER_OUT, we need to find the paired TRANSFER_IN transaction
   if (transaction.type === "TRANSFER_IN") {
-    return getAccountName(transaction.accountId);
+    return transaction.account.name;
   } else if (transaction.type === "TRANSFER_OUT") {
     // Find the paired TRANSFER_IN transaction
     const pairedTransaction = paginatedTransactions.value.find(
       (t) => t.transferId === transaction.transferId && t.type === "TRANSFER_IN",
     );
-    return pairedTransaction ? getAccountName(pairedTransaction.accountId) : "Unknown Account";
+    return pairedTransaction ? pairedTransaction.account.name : "Unknown Account";
   }
   return "Unknown Account";
 };
