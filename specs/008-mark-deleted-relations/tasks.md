@@ -59,20 +59,20 @@ Verify that GraphQL schema and queries include the `isArchived` field needed for
 
 ---
 
-- [ ] T001 Verify GraphQL schema includes isArchived field on embedded types (`backend/src/schema.graphql`)
-  - [ ] Confirm `TransactionEmbeddedAccount` type has `isArchived: Boolean!` field
-  - [ ] Confirm `TransactionEmbeddedCategory` type has `isArchived: Boolean!` field
-  - [ ] Note: No schema changes needed; field already exists
+- [x] T001 Verify GraphQL schema includes isArchived field on embedded types (`backend/src/schema.graphql`)
+  - [x] Confirm `TransactionEmbeddedAccount` type has `isArchived: Boolean!` field
+  - [x] Confirm `TransactionEmbeddedCategory` type has `isArchived: Boolean!` field
+  - [x] Note: No schema changes needed; field already exists
 
-- [ ] T002 Verify GraphQL queries select isArchived field (`frontend/src/graphql/fragments.ts`)
-  - [ ] Confirm `TRANSACTION_FRAGMENT` includes `isArchived` in account selection
-  - [ ] Confirm `TRANSACTION_FRAGMENT` includes `isArchived` in category selection
-  - [ ] Note: No query changes needed; field already selected
+- [x] T002 Verify GraphQL queries select isArchived field (`frontend/src/graphql/fragments.ts`)
+  - [x] Confirm `TRANSACTION_FRAGMENT` includes `isArchived` in account selection
+  - [x] Confirm `TRANSACTION_FRAGMENT` includes `isArchived` in category selection
+  - [x] Note: No query changes needed; field already selected
 
-- [ ] T003 Add component props interface to TransactionCard.vue (`frontend/src/components/transactions/TransactionCard.vue`)
-  - [ ] Add `accountIsArchived: boolean` prop to interface
-  - [ ] Add `categoryIsArchived?: boolean` prop to interface
-  - [ ] Set defaults: `accountIsArchived = false`, `categoryIsArchived = undefined`
+- [x] T003 Add component props interface to TransactionCard.vue (`frontend/src/components/transactions/TransactionCard.vue`)
+  - [x] Add `accountIsArchived: boolean` prop to interface
+  - [x] Add `categoryIsArchived?: boolean` prop to interface
+  - [x] Set defaults: `accountIsArchived = false`, `categoryIsArchived = undefined`
 
 ---
 
@@ -90,26 +90,26 @@ Implement core component changes needed for displaying archived references: temp
 
 ---
 
-- [ ] T004 Update account name template in TransactionCard.vue (`frontend/src/components/transactions/TransactionCard.vue`)
-  - [ ] Replace plain account name text with conditional span element
-  - [ ] Add `:class="{ 'account-archived': accountIsArchived }"` binding
-  - [ ] Add `:aria-label` with conditional "Deleted: " prefix (when archived)
-  - [ ] Add `:title` with "Archived account" tooltip text (when archived)
-  - [ ] Ensure span wraps only the account name, preserves surrounding punctuation
+- [x] T004 Update account name template in TransactionCard.vue (`frontend/src/components/transactions/TransactionCard.vue`)
+  - [x] Replace plain account name text with conditional span element
+  - [x] Add `:class="{ 'account-archived': accountIsArchived }"` binding
+  - [x] Add `:aria-label` with conditional "Deleted: " prefix (when archived)
+  - [x] Add `:title` with "Archived account" tooltip text (when archived)
+  - [x] Ensure span wraps only the account name, preserves surrounding punctuation
 
-- [ ] T005 Update category name template in TransactionCard.vue (`frontend/src/components/transactions/TransactionCard.vue`)
-  - [ ] Replace plain category name text with conditional span element
-  - [ ] Add `:class="{ 'category-archived': categoryIsArchived }"` binding
-  - [ ] Add `:aria-label` with conditional "Deleted: " prefix (when archived)
-  - [ ] Add `:title` with "Archived category" tooltip text (when archived)
-  - [ ] Ensure span is nested within the v-if category container
+- [x] T005 Update category name template in TransactionCard.vue (`frontend/src/components/transactions/TransactionCard.vue`)
+  - [x] Replace plain category name text with conditional span element
+  - [x] Add `:class="{ 'category-archived': categoryIsArchived }"` binding
+  - [x] Add `:aria-label` with conditional "Deleted: " prefix (when archived)
+  - [x] Add `:title` with "Archived category" tooltip text (when archived)
+  - [x] Ensure span is nested within the v-if category container
 
-- [ ] T006 Add CSS styling rules to TransactionCard.vue (`frontend/src/components/transactions/TransactionCard.vue`)
-  - [ ] Add `.account-archived` and `.category-archived` CSS classes to `<style scoped>` block
-  - [ ] Set `text-decoration: line-through` for both classes
-  - [ ] Set `opacity: 0.6` for both classes
-  - [ ] Set `color: var(--v-theme-on-surface-variant)` to use Vuetify theme color
-  - [ ] Verify styles apply to both collapsed and expanded states
+- [x] T006 Add CSS styling rules to TransactionCard.vue (`frontend/src/components/transactions/TransactionCard.vue`)
+  - [x] Add `.account-archived` and `.category-archived` CSS classes to `<style scoped>` block
+  - [x] Set `text-decoration: line-through` for both classes
+  - [x] Set `opacity: 0.6` for both classes
+  - [x] Set `color: var(--v-theme-on-surface-variant)` to use Vuetify theme color
+  - [x] Verify styles apply to both collapsed and expanded states
 
 ---
 
@@ -128,10 +128,10 @@ A user creates a transaction referencing Account A, then deletes Account A. When
 
 ---
 
-- [ ] T007 [P] [US1] Update Transactions.vue to pass accountIsArchived prop (`frontend/src/views/Transactions.vue`)
-  - [ ] Locate TransactionCard component binding in template
-  - [ ] Add `:account-is-archived="transaction.account.isArchived"` prop
-  - [ ] Verify transaction object has access to account.isArchived from GraphQL
+- [x] T007 [P] [US1] Update Transactions.vue to pass accountIsArchived prop (`frontend/src/views/Transactions.vue`)
+  - [x] Locate TransactionCard component binding in template
+  - [x] Add `:account-is-archived="transaction.account.isArchived"` prop
+  - [x] Verify transaction object has access to account.isArchived from GraphQL
 
 - [ ] T008 [US1] Manual test: Verify deleted account displays with strikethrough styling
   - [ ] Create a new transaction with account "Test Checking" and any amount/date
@@ -160,11 +160,11 @@ A user creates a transaction with a category, then deletes that category. When v
 
 ---
 
-- [ ] T009 [P] [US2] Update Transactions.vue to pass categoryIsArchived prop (`frontend/src/views/Transactions.vue`)
-  - [ ] Locate TransactionCard component binding in template
-  - [ ] Add `:category-is-archived="transaction.category?.isArchived"` prop
-  - [ ] Verify optional chaining (?.) handles undefined category case
-  - [ ] Verify transaction object has access to category.isArchived from GraphQL
+- [x] T009 [P] [US2] Update Transactions.vue to pass categoryIsArchived prop (`frontend/src/views/Transactions.vue`)
+  - [x] Locate TransactionCard component binding in template
+  - [x] Add `:category-is-archived="transaction.category?.isArchived"` prop
+  - [x] Verify optional chaining (?.) handles undefined category case
+  - [x] Verify transaction object has access to category.isArchived from GraphQL
 
 - [ ] T010 [US2] Manual test: Verify deleted category displays with strikethrough styling
   - [ ] Create a new transaction with account and category "Groceries"
@@ -241,13 +241,13 @@ Ensure code quality, accessibility compliance, and cross-browser/device compatib
 
 ---
 
-- [ ] T014 Code quality validation (`frontend/src/components/transactions/TransactionCard.vue` and `frontend/src/views/Transactions.vue`)
-  - [ ] Run `npm run lint` from frontend directory
-  - [ ] Fix any ESLint violations
-  - [ ] Run `npm run prettier` to check formatting
-  - [ ] Run `npm run prettier:fix` if needed
-  - [ ] Verify no TypeScript strict mode errors
-  - [ ] All code changes follow project code style guidelines
+- [x] T014 Code quality validation (`frontend/src/components/transactions/TransactionCard.vue` and `frontend/src/views/Transactions.vue`)
+  - [x] Run `npm run lint` from frontend directory
+  - [x] Fix any ESLint violations
+  - [x] Run `npm run prettier` to check formatting
+  - [x] Run `npm run prettier:fix` if needed
+  - [x] Verify no TypeScript strict mode errors
+  - [x] All code changes follow project code style guidelines
 
 - [ ] T015 Visual testing across screen sizes
   - [ ] Test on desktop browser (1920x1080)

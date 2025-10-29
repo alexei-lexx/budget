@@ -75,6 +75,8 @@
               :transaction="transaction"
               :account-name="transaction.account.name"
               :category-name="transaction.category?.name"
+              :account-is-archived="transaction.account.isArchived"
+              :category-is-archived="transaction.category?.isArchived"
               :is-expanded="isTransactionExpanded(transaction.id)"
               class="mb-3"
               @edit-transaction="handleEditTransaction"

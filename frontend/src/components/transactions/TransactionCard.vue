@@ -10,6 +10,8 @@ interface Props {
   accountName: string;
   categoryName?: string;
   isExpanded: boolean;
+  accountIsArchived?: boolean;
+  categoryIsArchived?: boolean;
 }
 
 const props = defineProps<Props>();
@@ -106,8 +108,24 @@ const handleCardClick = () => {
         <!-- Main content -->
         <div class="flex-grow-1 me-3" style="min-width: 0">
           <h4 class="text-h6 mb-0 text-truncate">
-            {{ formattedDate }} • {{ accountName
-            }}<span v-if="categoryName"> • {{ categoryName }}</span>
+            {{ formattedDate }} •
+            <span
+              :class="{ 'account-archived': accountIsArchived }"
+              :aria-label="accountIsArchived ? `Deleted: ${accountName}` : undefined"
+              :title="accountIsArchived ? 'Deleted account' : ''"
+            >
+              {{ accountName }}
+            </span>
+            <span v-if="categoryName">
+              •
+              <span
+                :class="{ 'category-archived': categoryIsArchived }"
+                :aria-label="categoryIsArchived ? `Deleted: ${categoryName}` : undefined"
+                :title="categoryIsArchived ? 'Deleted category' : ''"
+              >
+                {{ categoryName }}
+              </span>
+            </span>
           </h4>
         </div>
 
@@ -155,5 +173,12 @@ const handleCardClick = () => {
 
 .transaction-card.expanded:hover {
   transform: none; /* Disable hover transform when expanded */
+}
+
+.account-archived,
+.category-archived {
+  text-decoration: line-through;
+  opacity: 0.6;
+  color: var(--v-theme-on-surface-variant);
 }
 </style>
