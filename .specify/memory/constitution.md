@@ -1,13 +1,13 @@
 <!-- SYNC IMPACT REPORT
-Version Change: 0.6.3 → 0.6.4 (PATCH: Converted AWS Production Architecture diagram from ASCII to Mermaid format)
-Modified Sections: AWS Production Architecture (ASCII art replaced with Mermaid graph)
-Added Sections: None
+Version Change: 0.6.4 → 0.7.0 (MINOR: Added Data Lifecycle principle establishing soft-deletion as default pattern)
+Modified Sections: Core Principles section expanded
+Added Sections: Data Lifecycle principle section
 Removed Sections: None
 Templates Requiring Updates:
-  - plan-template.md: Contains "Constitution Check" section - no changes required (already generic)
-  - spec-template.md: No principle-specific dependencies - no changes required
-  - tasks-template.md: No principle-specific dependencies - no changes required
-  - commands/*.md: No command files found in .specify/templates/commands/ - no updates possible
+  - plan-template.md: Contains "Constitution Check" section - no changes required (new principle aligns with existing generic gate)
+  - spec-template.md: No breaking changes - user stories can reference data lifecycle requirements
+  - tasks-template.md: Task categorization already supports data-model artifacts (no updates required)
+  - command files: None found in .specify/templates/commands/
 Follow-up TODOs: Ratification date remains TODO (inherited from previous versions)
 -->
 
@@ -106,6 +106,18 @@ graph LR
 - Test manually (visual verification in dev)
 - Write UI component tests only for complex/critical components; not required
 
+### Soft-Deletion
+
+**Non-negotiable rule**: All entities use soft-deletion by default unless explicitly excepted.
+
+**Implementation**:
+- All entities MUST support soft-deletion via an `isArchived` flag or equivalent
+- Soft-deleted records MUST NOT appear in user-facing queries by default
+- All queries scoped to non-archived records unless intentionally accessing archived data
+- Exceptions: Document the business reason in entity comments
+
+**Rationale**: Provides audit trail, enables accidental deletion recovery, and maintains data integrity for historical analysis.
+
 ### Vendor Independence
 
 **Non-negotiable rule**: Minimize vendor lock-in through technology choices and architectural decisions that preserve deployment flexibility.
@@ -133,4 +145,4 @@ This constitution supersedes all other development guidelines. Amendments requir
 4. Commit with message: `docs: amend constitution to vX.Y.Z ([change summary])`
 5. Update dependent artifacts (templates, guidance docs) as flagged
 
-**Version**: 0.6.4 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-10-29
+**Version**: 0.7.0 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-10-30
