@@ -12,13 +12,6 @@ Personal Finance Tracker is a serverless web application for individual financia
 
 ## 2. Frontend
 
-### Responsibilities
-- User interface and user experience
-- Client-side routing for single-page application
-- Auth0 authentication integration
-- GraphQL API communication
-- Local UI state management using Vue's reactivity
-
 ### Key Features
 - PWA support for mobile installation
 - Responsive design optimized for mobile browsers

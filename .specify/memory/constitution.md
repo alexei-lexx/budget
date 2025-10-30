@@ -1,12 +1,12 @@
 <!-- SYNC IMPACT REPORT
-Version Change: 0.6.4 → 0.7.0 (MINOR: Added Data Lifecycle principle establishing soft-deletion as default pattern)
-Modified Sections: Core Principles section expanded
-Added Sections: Data Lifecycle principle section
+Version Change: 0.7.0 → 0.7.1 (PATCH: Added Frontend Responsibilities section for clarity)
+Modified Sections: Frontend section expanded with Responsibilities subsection
+Added Sections: Frontend Responsibilities
 Removed Sections: None
 Templates Requiring Updates:
-  - plan-template.md: Contains "Constitution Check" section - no changes required (new principle aligns with existing generic gate)
-  - spec-template.md: No breaking changes - user stories can reference data lifecycle requirements
-  - tasks-template.md: Task categorization already supports data-model artifacts (no updates required)
+  - plan-template.md: No changes required (existing generic gate remains valid)
+  - spec-template.md: No changes required
+  - tasks-template.md: No changes required
   - command files: None found in .specify/templates/commands/
 Follow-up TODOs: Ratification date remains TODO (inherited from previous versions)
 -->
@@ -50,6 +50,12 @@ An npm package providing the user-facing single-page application.
 - **Framework**: Vue 3, Vite, Vuetify, Apollo Client
 - **Testing**: Jest
 - **Quality**: ESLint, Prettier, TypeScript strict mode, Vue type-checking
+
+### Responsibilities
+- **User Interface**: User interface and interactions
+- **Client Routing**: Single-page navigation and routing
+- **Authentication**: User sign-in and JWT token management
+- **GraphQL Client**: GraphQL API client communication
 
 ## Backend CDK
 
@@ -145,4 +151,4 @@ This constitution supersedes all other development guidelines. Amendments requir
 4. Commit with message: `docs: amend constitution to vX.Y.Z ([change summary])`
 5. Update dependent artifacts (templates, guidance docs) as flagged
 
-**Version**: 0.7.0 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-10-30
+**Version**: 0.7.1 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-10-30
