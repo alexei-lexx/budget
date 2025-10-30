@@ -4,6 +4,10 @@
 
 **Architecture & Governance**: If asked about project structure, organizational principles, or technical constraints, consult `.specify/memory/constitution.md`.
 
+**Additional Documentation**:
+- `docs/general-spec.md` - Business requirements and feature specifications
+- `docs/tech-spec.md` - Technical architecture and implementation guidelines
+
 **Script Usage**: Always prefer npm scripts from package.json over direct tool usage to ensure consistent versions and configurations.
 
 **Commits & Changes**: Never commit changes without being explicitly asked or requesting permission first.
@@ -471,10 +475,7 @@ cd frontend-cdk
 npm test
 ```
 
-### Project Specifications
-Before starting any development work, review:
-- docs/general-spec.md - Business requirements and feature specifications
-- docs/tech-spec.md - Technical architecture and implementation guidelines## Code Quality and Development Workflow
+## Code Quality and Development Workflow
 
 ### Testing Infrastructure
 - **Backend CDK**: Jest tests for infrastructure validation
