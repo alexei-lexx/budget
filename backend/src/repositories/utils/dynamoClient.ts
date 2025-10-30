@@ -4,6 +4,19 @@ import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 const isLocalEnvironment =
   process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test";
 
+function createDynamoDBClient(): DynamoDBClient {
+  return new DynamoDBClient({
+    region: process.env.AWS_REGION || "",
+    ...(isLocalEnvironment && {
+      endpoint: process.env.DYNAMODB_ENDPOINT || "",
+      credentials: {
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID || "",
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || "",
+      },
+    }),
+  });
+}
+
 /**
  * Creates a DynamoDBDocumentClient instance with environment-aware configuration
  * @param dynamoClient - Optional DynamoDB client for dependency injection (useful for testing)
@@ -12,18 +25,7 @@ const isLocalEnvironment =
 export function createDynamoDBDocumentClient(
   dynamoClient?: DynamoDBClient,
 ): DynamoDBDocumentClient {
-  const client =
-    dynamoClient ||
-    new DynamoDBClient({
-      region: process.env.AWS_REGION || "",
-      ...(isLocalEnvironment && {
-        endpoint: process.env.DYNAMODB_ENDPOINT || "",
-        credentials: {
-          accessKeyId: process.env.AWS_ACCESS_KEY_ID || "",
-          secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || "",
-        },
-      }),
-    });
+  const client = dynamoClient || createDynamoDBClient();
 
   return DynamoDBDocumentClient.from(client);
 }
