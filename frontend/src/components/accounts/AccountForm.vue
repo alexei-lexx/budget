@@ -93,7 +93,7 @@ const balanceRules: CheckRule<number>[] = [
 // Computed properties
 const isEditing = computed(() => !!props.account?.id);
 const formTitle = computed(() => (isEditing.value ? "Edit Account" : "Create New Account"));
-const submitButtonText = computed(() => (isEditing.value ? "Update Account" : "Create Account"));
+const submitButtonText = computed(() => (isEditing.value ? "Update" : "Create"));
 
 // Watch for account prop changes (for editing)
 watch(

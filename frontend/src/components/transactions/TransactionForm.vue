@@ -117,9 +117,7 @@ const currencyPrefix = computed(() => {
 // Computed properties for form titles and button text
 const isEditing = computed(() => !!props.transaction?.id);
 const formTitle = computed(() => (isEditing.value ? "Edit Transaction" : "Create New Transaction"));
-const submitButtonText = computed(() =>
-  isEditing.value ? "Update Transaction" : "Create Transaction",
-);
+const submitButtonText = computed(() => (isEditing.value ? "Update" : "Create"));
 
 // Watch for account changes to clear category if types don't match
 watch(

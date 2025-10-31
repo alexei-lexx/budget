@@ -40,8 +40,8 @@ const accounts = computed(() => accountsData.value?.accounts || []);
 const isEditing = computed(() => !!props.transfer?.id);
 
 // Dynamic UI content
-const formTitle = computed(() => (isEditing.value ? "Edit Transfer" : "Create Transfer"));
-const submitButtonText = computed(() => (isEditing.value ? "Update Transfer" : "Create Transfer"));
+const formTitle = computed(() => (isEditing.value ? "Edit Transfer" : "Create New Transfer"));
+const submitButtonText = computed(() => (isEditing.value ? "Update" : "Create"));
 const titleIcon = computed(() => (isEditing.value ? "mdi-pencil" : "mdi-swap-horizontal"));
 
 // Form data
