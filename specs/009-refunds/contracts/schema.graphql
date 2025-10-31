@@ -1,0 +1,321 @@
+"""
+GraphQL Schema Changes for Refunds Feature
+Reference: specs/009-refunds/research.md and specs/009-refunds/data-model.md
+
+This file documents the schema additions and modifications required for the refunds feature.
+No breaking changes - all additions are new fields and enum values.
+Existing queries and mutations continue to work without modification.
+"""
+
+# ==============================================================================
+# EXISTING ENUM - EXTENDED WITH NEW VALUE
+# ==============================================================================
+
+"""
+Transaction type enumeration.
+REFUND added as new value for refund transactions linked to expenses.
+"""
+enum TransactionType {
+  INCOME
+  EXPENSE
+  TRANSFER_IN
+  TRANSFER_OUT
+  REFUND        # NEW: Refund transaction type
+}
+
+# ==============================================================================
+# NEW TYPE - RefundSummary
+# ==============================================================================
+
+"""
+Summary information for refunds on an expense transaction.
+Calculated from all active (non-archived) refund transactions linked to the original.
+Only populated when querying an EXPENSE transaction that has refunds.
+"""
+type RefundSummary {
+  """Total amount refunded across all active refunds (in original currency)"""
+  totalRefunded: Float!
+
+  """Remaining refundable amount (original amount - total refunded)"""
+  remainingRefundable: Float!
+
+  """Number of active (non-archived) refunds linked to this transaction"""
+  count: Int!
+}
+
+# ==============================================================================
+# EXISTING TYPE - EXTENDED WITH NEW FIELDS
+# ==============================================================================
+
+"""
+Transaction entity extended with refund support.
+
+For EXPENSE transactions:
+  - refunds: List of REFUND-type transactions linked to this expense
+  - refundSummary: Calculated summary of total/remaining refunded amounts
+
+For REFUND transactions:
+  - originalTransactionId: ID of the EXPENSE transaction being refunded
+  - refunds: Empty list (refunds don't have refunds)
+  - refundSummary: Null (not applicable)
+
+For other transaction types (INCOME, TRANSFER_IN, TRANSFER_OUT):
+  - refunds: Empty list
+  - refundSummary: Null
+  - originalTransactionId: Undefined
+"""
+type Transaction {
+  id: ID!
+  account: TransactionEmbeddedAccount!
+  category: TransactionEmbeddedCategory
+  type: TransactionType!
+  amount: Float!
+  currency: String!
+  date: String!
+  description: String
+  transferId: String
+
+  """
+  NEW FIELDS BELOW:
+  Only meaningful for specific transaction types (see type rules in comments)
+  """
+
+  """
+  For REFUND type: ID of the original EXPENSE transaction being refunded
+  For other types: Undefined
+  """
+  originalTransactionId: String
+
+  """
+  For EXPENSE type: List of all active REFUND transactions linked to this expense
+  For REFUND type: Empty list
+  For other types: Empty list
+  Resolved via field resolver - lazily loaded when queried
+  """
+  refunds: [Transaction!]!
+
+  """
+  For EXPENSE type: Calculated summary of refund totals and remaining amount
+  For REFUND type: Null (not applicable)
+  For other types: Null
+  Only included if the transaction has active refunds
+  """
+  refundSummary: RefundSummary
+}
+
+# ==============================================================================
+# INPUT TYPE - Create Refund
+# ==============================================================================
+
+"""
+Input for creating a refund transaction linked to an existing expense.
+
+Business rules:
+  - originalTransactionId must reference an existing EXPENSE transaction owned by the user
+  - accountId must be valid and owned by the user (can differ from original account)
+  - categoryId, if provided, must be an INCOME type category
+  - amount must be positive; can exceed remaining refundable amount (permitted by design)
+  - date defaults to today if not provided
+  - currency is inherited from original transaction and cannot be overridden
+"""
+input CreateRefundInput {
+  """ID of the original EXPENSE transaction being refunded (required)"""
+  originalTransactionId: ID!
+
+  """Destination account for the refund (required, can differ from original)"""
+  accountId: ID!
+
+  """
+  Optional income-type category for the refund.
+  If provided, category type must be INCOME (never EXPENSE).
+  Cannot inherit category from original transaction.
+  """
+  categoryId: ID
+
+  """Refund amount in original transaction's currency (required, positive)"""
+  amount: Float!
+
+  """Refund date in YYYY-MM-DD format (optional, defaults to today)"""
+  date: String
+
+  """Optional description for the refund (max 500 chars)"""
+  description: String
+}
+
+# ==============================================================================
+# MUTATION SIGNATURES - NEW
+# ==============================================================================
+
+extend type Mutation {
+  """
+  Create a refund transaction linked to an existing expense.
+
+  Returns the created REFUND-type transaction.
+
+  Error cases:
+    - REFUND_001: Original transaction not found
+    - REFUND_002: Original transaction is not EXPENSE type
+    - REFUND_003: Not authorized for this original transaction
+    - REFUND_004: Destination account not found
+    - REFUND_005: Not authorized for destination account
+    - REFUND_006: Category not found (if provided)
+    - REFUND_007: Category is not INCOME type (if provided)
+    - REFUND_008-009: Input validation errors (amount format, etc.)
+  """
+  createRefund(input: CreateRefundInput!): Transaction!
+
+  """
+  Delete (archive) a refund transaction.
+
+  Performs soft-delete: sets isArchived = true without removing from database.
+  Deleted refunds don't appear in UI but remain for audit purposes.
+  Deleting a refund doesn't affect the original expense transaction.
+
+  Returns true on success.
+
+  Error cases:
+    - Refund not found
+    - Not authorized for this refund
+  """
+  deleteRefund(refundId: ID!): Boolean!
+
+  """
+  Optional future mutation: Unarchive a deleted refund.
+  Not in MVP but supported by data model for future enhancement.
+  """
+  # unarchiveRefund(refundId: ID!): Transaction!
+}
+
+# ==============================================================================
+# FIELD RESOLVER NOTES
+# ==============================================================================
+
+"""
+Field Resolver Implementation Notes:
+
+Transaction.refunds:
+  - Type: [Transaction!]!
+  - Resolver pattern: Lazy load via findActiveByOriginalTransactionId()
+  - Only populated when type === 'EXPENSE'
+  - Returns empty array for other types
+  - Uses field resolver to avoid N+1 in transaction lists
+
+Transaction.refundSummary:
+  - Type: RefundSummary
+  - Resolver pattern: Lazy load, calculate from refunds array
+  - Only populated when type === 'EXPENSE' and refunds.length > 0
+  - Calculation:
+      totalRefunded = sum(refunds[].amount)
+      remainingRefundable = amount - totalRefunded
+      count = refunds.length
+  - Returns undefined for other transaction types
+
+Transaction.originalTransactionId:
+  - Type: String
+  - Stored in database, directly returned
+  - Only meaningful for type === 'REFUND'
+  - Returns undefined for other types
+"""
+
+# ==============================================================================
+# QUERY CHANGES
+# ==============================================================================
+
+"""
+No breaking changes to existing queries:
+  - transaction(id: ID!): Transaction - Works for all types including REFUND
+  - transactions(...): TransactionConnection - Includes REFUND type
+  - accountTransactions(...): TransactionConnection - Includes REFUND type
+
+GraphQL queries automatically include new refunds and refundSummary fields
+when expanded on any Transaction type. Schema sync during build ensures
+frontend gets latest schema.
+"""
+
+# ==============================================================================
+# FILTER AND SORT UPDATES
+# ==============================================================================
+
+"""
+Existing TransactionFilterInput and sorting must include REFUND type:
+
+input TransactionFilterInput {
+  # Existing fields...
+  types: [TransactionType!]  # Must include REFUND in options
+}
+
+Refund transactions appear alongside INCOME/EXPENSE/TRANSFER in:
+  - Transaction list views
+  - Type filter dropdowns
+  - Monthly report exclude filters (refunds excluded from expense reports)
+  - Sort options (by date, amount, type, etc.)
+
+Implementation detail: Frontend already supports all transaction types
+dynamically. No hardcoded type lists to update.
+"""
+
+# ==============================================================================
+# ACCOUNT BALANCE CALCULATION
+# ==============================================================================
+
+"""
+Account balance formula updated to include REFUND type:
+
+balance = initialBalance
+         + sum(INCOME)
+         + sum(TRANSFER_IN)
+         + sum(REFUND)          # NEW: Refunds add to balance
+         - sum(EXPENSE)
+         - sum(TRANSFER_OUT)
+
+All calculations based on non-archived (isArchived = false) transactions only.
+"""
+
+# ==============================================================================
+# AUTHORIZATION AND DATA SCOPING
+# ==============================================================================
+
+"""
+All refund operations scoped to authenticated user:
+  - Users can only create refunds on their own expense transactions
+  - Users can only see refunds on their own transactions
+  - Users can only delete their own refunds
+  - Database queries filtered by userId (partition key)
+
+No authorization changes needed - existing user scoping applies.
+"""
+
+# ==============================================================================
+# SOFT-DELETION AND ARCHIVAL
+# ==============================================================================
+
+"""
+Refund transactions use same archival mechanism as other transaction types:
+  - isArchived: boolean flag on refund transaction
+  - Deleted refunds don't appear in user-facing queries
+  - Archived records retained in database for audit trail
+  - All repository queries filter: isArchived = false (by default)
+
+When original transaction is deleted:
+  - Cannot delete original if it has active (non-archived) refunds
+  - Refunds can be deleted independently without affecting original
+"""
+
+# ==============================================================================
+# BACKWARD COMPATIBILITY
+# ==============================================================================
+
+"""
+Zero breaking changes:
+  - All new fields are optional (originalTransactionId, refunds, refundSummary)
+  - New enum value (REFUND) doesn't affect existing types
+  - Existing queries continue to work unchanged
+  - Existing mutations unchanged
+  - Field resolver pattern matches existing (account, category loading)
+
+Migration path:
+  - Frontend schema sync is automatic (during npm run dev/build)
+  - Existing GraphQL operations continue to work
+  - New refund operations available immediately after deploy
+  - Can incrementally add UI for refunds without breaking existing code
+"""
