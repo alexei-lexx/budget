@@ -20,7 +20,7 @@
               @click="handleAddTransfer"
               :class="{ 'flex-grow-1': $vuetify.display.xs }"
             >
-              Create Transfer
+              Add Transfer
             </v-btn>
           </div>
         </div>

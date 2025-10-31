@@ -143,7 +143,7 @@ const handleAccountCancel = () => {
         prepend-icon="mdi-plus"
         @click="openAddAccountDialog"
       >
-        Add New Account
+        Add Account
       </v-btn>
       <v-btn v-else color="primary" icon="mdi-plus" size="large" @click="openAddAccountDialog">
         <v-icon>mdi-plus</v-icon>

@@ -161,7 +161,7 @@ const handleCategoryCancel = () => {
         prepend-icon="mdi-plus"
         @click="openAddCategoryDialog"
       >
-        Add New Category
+        Add Category
       </v-btn>
       <v-btn v-else color="primary" icon="mdi-plus" size="large" @click="openAddCategoryDialog">
         <v-icon>mdi-plus</v-icon>
