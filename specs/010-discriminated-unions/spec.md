@@ -56,9 +56,9 @@ As a system maintainer, I need the transaction type system to be extensible so t
 
 ### Edge Cases
 
-- **Old Enum Type References**: How should legacy code or external integrations using the old enum-based `type` field be handled?
-- **Null/Undefined Type-Specific Fields**: What happens if a resolver returns a TransferOutTransaction without the required `transferId` field?
-- **Union Type Ordering**: Does the order of types in the union definition affect query execution or performance?
+- **Removal of `type` Field**: With all-at-once deployment and complete field removal, any code or integrations referencing the old `type` field will fail GraphQL validation immediately—implementation must audit and update all affected queries and operations
+- **Null/Undefined Type-Specific Fields**: If a resolver returns a TransferOutTransaction without the required `transferId` field, GraphQL schema validation will fail and the error will be caught during development/testing
+- **Union Type Ordering**: The order of types in the union definition does not affect query execution or type system behavior—no performance implications
 
 ## Requirements *(mandatory)*
 
@@ -72,8 +72,9 @@ As a system maintainer, I need the transaction type system to be extensible so t
 - **FR-006**: Backend resolvers MUST return the correct `__typename` discriminator for each transaction type to enable proper deserialization
 - **FR-007**: Generated TypeScript types from the schema MUST enforce type-specific field access at compile time
 - **FR-008**: ExpenseTransaction type MUST be structured to allow future addition of refund-related fields (refundId, refundStatus, refundAmount, refundReason) without schema changes to other types
-- **FR-009**: System MUST maintain backward compatibility for existing transaction queries during the migration period
-- **FR-010**: All existing transaction queries must be updated to use fragments where querying type-specific fields
+- **FR-009**: The old `type` enum field MUST be completely removed from the GraphQL schema (not marked as deprecated)
+- **FR-010**: Implementation MUST include an automated scan of all GraphQL query files to identify and update any queries that reference the removed `type` field or need fragments for type-specific field selection
+- **FR-011**: Schema and client updates MUST be coordinated in a single all-at-once release cycle (no dual-support or gradual migration phase)
 
 ### Key Entities *(include if feature involves data)*
 
@@ -93,24 +94,33 @@ As a system maintainer, I need the transaction type system to be extensible so t
 - **SC-003**: All transaction-related resolver implementations correctly return `__typename` discriminators for each transaction type
 - **SC-004**: Zero runtime errors related to accessing undefined transaction fields across all transaction queries and mutations
 - **SC-005**: Frontend codebase compiles successfully with no type errors after migration to new schema types
-- **SC-006**: All existing transaction queries continue to work without modification during backward compatibility period
+- **SC-006**: All GraphQL queries selecting transactions have been updated to use fragments for type-specific fields and do not reference the removed `type` field
 - **SC-007**: Documentation for new schema pattern is complete and accessible to both backend and frontend developers
+
+## Clarifications
+
+### Session 2025-11-02
+
+- Q: How should backward compatibility be handled? → A: All-at-Once deployment (schema and client updates coordinated in single release, no dual-support phase)
+- Q: How should the deprecated `type` enum field be handled? → A: Complete Removal (field deleted entirely from schema, not marked as deprecated)
+- Q: How should query file migrations be handled? → A: Automated Inventory & Update (implementation includes scanning all GraphQL queries, identifying those selecting `type`, and updating them proactively)
 
 ## Assumptions
 
 - All transaction types will continue to share the same common fields defined in the TransactionBase interface
 - The backend already implements the TransferService with atomic two-transaction transfers using transferId
 - Frontend has Apollo Client configured with proper schema syncing and code generation
-- Backward compatibility is required only during a transition period, after which old enum-based code can be removed
 - The primary benefit is internal type safety for developers, not user-facing functionality
+- All-at-once deployment requires coordinated schema and client updates in a single release cycle
 
 ## Dependencies & Constraints
 
+- **Coordinated All-at-Once Deployment**: Schema changes, resolver updates, and client query migrations must be completed and deployed together in a single release cycle
 - **GraphQL Schema Update**: Must be completed in backend before frontend can consume the new types
 - **Resolver Implementation**: All transaction resolvers must be updated to include `__typename` in their return objects
-- **Frontend Query Updates**: All GraphQL queries selecting transactions must be updated to use fragments for type-specific fields
+- **Query File Audit & Migration**: All GraphQL query files must be scanned, audited, and updated to remove `type` field references and add fragments for type-specific field selection
 - **TypeScript Code Generation**: Frontend code generation pipeline must successfully process the new schema and generate proper union types
-- **Testing Coverage**: Existing transaction tests must pass with new schema, and new tests must verify type safety
+- **Testing Coverage**: Existing transaction tests must pass with new schema, and new tests must verify type safety and discriminator correctness
 
 ## Architectural Implications
 
