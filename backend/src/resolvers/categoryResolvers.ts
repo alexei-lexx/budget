@@ -3,7 +3,6 @@ import { z } from "zod";
 import { GraphQLContext } from "../server";
 import { getAuthenticatedUser, handleResolverError } from "./shared";
 import { CategoryType } from "../models/Category";
-import { categoryIdSchema } from "./common_schemas";
 
 /**
  * Reusable schema components for categories
@@ -27,7 +26,7 @@ const createCategoryInputSchema = z.object({
 });
 
 const updateCategoryInputSchema = z.object({
-  id: categoryIdSchema,
+  id: z.uuid({ message: "Category ID must be a valid UUID" }),
   name: nameSchema.optional(),
   type: typeSchema.optional(),
 });

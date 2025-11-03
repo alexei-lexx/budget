@@ -41,11 +41,6 @@ enum TransactionPatternType {
   EXPENSE
 }
 
-enum TransactionInputType {
-  INCOME
-  EXPENSE
-}
-
 type Category {
   id: ID!
   name: String!
@@ -134,7 +129,7 @@ input UpdateCategoryInput {
 input CreateTransactionInput {
   accountId: ID!
   categoryId: ID
-  type: TransactionInputType!
+  type: TransactionType!
   amount: Float!
   date: String!
   description: String
@@ -144,7 +139,7 @@ input UpdateTransactionInput {
   id: ID!
   accountId: ID
   categoryId: ID
-  type: TransactionInputType
+  type: TransactionType
   amount: Float
   date: String
   description: String
