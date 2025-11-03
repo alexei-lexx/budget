@@ -55,7 +55,7 @@ export type CreateTransactionInput = {
   categoryId?: InputMaybe<Scalars['ID']['input']>;
   date: Scalars['String']['input'];
   description?: InputMaybe<Scalars['String']['input']>;
-  type: TransactionType;
+  type: TransactionInputType;
 };
 
 export type CreateTransferInput = {
@@ -297,6 +297,10 @@ export type TransactionFilterInput = {
   types?: InputMaybe<Array<TransactionType>>;
 };
 
+export type TransactionInputType =
+  | 'EXPENSE'
+  | 'INCOME';
+
 export type TransactionPattern = {
   __typename?: 'TransactionPattern';
   accountId: Scalars['ID']['output'];
@@ -342,7 +346,7 @@ export type UpdateTransactionInput = {
   date?: InputMaybe<Scalars['String']['input']>;
   description?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['ID']['input'];
-  type?: InputMaybe<TransactionType>;
+  type?: InputMaybe<TransactionInputType>;
 };
 
 export type UpdateTransferInput = {

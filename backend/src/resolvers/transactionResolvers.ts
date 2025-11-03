@@ -14,37 +14,30 @@ import type {
   TransactionEmbeddedCategory,
 } from "../types/graphql";
 import {
-  DATE_FORMAT_REGEX,
-  DATE_FORMAT_ERROR_MESSAGE,
-  DESCRIPTION_MAX_LENGTH,
-  DESCRIPTION_LENGTH_ERROR_MESSAGE,
-} from "../types/validation";
+  accountIdSchema,
+  categoryIdSchema,
+  dateSchema,
+  descriptionSchema,
+} from "./common_schemas";
 
 /**
  * Reusable schema components for transactions
  */
-const accountIdSchema = z.uuid({ message: "Account ID must be a valid UUID" });
-const categoryIdSchema = z.uuid({
-  message: "Category ID must be a valid UUID",
-});
+
 const nullishCategoryIdSchema = categoryIdSchema.nullish();
-const typeSchema = z.enum([TransactionType.INCOME, TransactionType.EXPENSE], {
-  message: `Transaction type must be either ${TransactionType.INCOME} or ${TransactionType.EXPENSE}`,
-});
-const allTransactionTypesSchema = z.enum([
+const transactionInputTypeSchema = z.enum(
+  [TransactionType.INCOME, TransactionType.EXPENSE],
+  {
+    message: `Transaction type must be either ${TransactionType.INCOME} or ${TransactionType.EXPENSE}`,
+  },
+);
+const transactionTypeSchema = z.enum([
   TransactionType.INCOME,
   TransactionType.EXPENSE,
   TransactionType.TRANSFER_IN,
   TransactionType.TRANSFER_OUT,
 ]);
 const amountSchema = z.number().nonnegative("Amount must be zero or positive");
-const dateSchema = z
-  .string()
-  .regex(DATE_FORMAT_REGEX, DATE_FORMAT_ERROR_MESSAGE);
-const descriptionSchema = z
-  .string()
-  .max(DESCRIPTION_MAX_LENGTH, DESCRIPTION_LENGTH_ERROR_MESSAGE)
-  .nullish();
 
 /**
  * Zod schemas for input validation
@@ -52,7 +45,7 @@ const descriptionSchema = z
 const createTransactionInputSchema = z.object({
   accountId: accountIdSchema,
   categoryId: nullishCategoryIdSchema,
-  type: typeSchema,
+  type: transactionInputTypeSchema,
   amount: amountSchema,
   date: dateSchema,
   description: descriptionSchema,
@@ -62,7 +55,7 @@ const updateTransactionInputSchema = z.object({
   id: z.uuid({ message: "Transaction ID must be a valid UUID" }),
   accountId: accountIdSchema.optional(),
   categoryId: nullishCategoryIdSchema,
-  type: typeSchema.optional(),
+  type: transactionInputTypeSchema.optional(),
   amount: amountSchema.optional(),
   date: dateSchema.optional(),
   description: descriptionSchema,
@@ -87,7 +80,7 @@ const transactionFilterInputSchema = z
     includeUncategorized: z.boolean().optional(),
     dateAfter: dateSchema.optional(),
     dateBefore: dateSchema.optional(),
-    types: z.array(allTransactionTypesSchema).optional(),
+    types: z.array(transactionTypeSchema).optional(),
   })
   .optional();
 

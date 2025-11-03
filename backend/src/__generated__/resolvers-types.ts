@@ -56,7 +56,7 @@ export type CreateTransactionInput = {
   categoryId?: InputMaybe<Scalars['ID']['input']>;
   date: Scalars['String']['input'];
   description?: InputMaybe<Scalars['String']['input']>;
-  type: TransactionType;
+  type: TransactionInputType;
 };
 
 export type CreateTransferInput = {
@@ -298,6 +298,11 @@ export type TransactionFilterInput = {
   types?: InputMaybe<Array<TransactionType>>;
 };
 
+export enum TransactionInputType {
+  Expense = 'EXPENSE',
+  Income = 'INCOME'
+}
+
 export type TransactionPattern = {
   __typename?: 'TransactionPattern';
   accountId: Scalars['ID']['output'];
@@ -340,7 +345,7 @@ export type UpdateTransactionInput = {
   date?: InputMaybe<Scalars['String']['input']>;
   description?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['ID']['input'];
-  type?: InputMaybe<TransactionType>;
+  type?: InputMaybe<TransactionInputType>;
 };
 
 export type UpdateTransferInput = {
@@ -456,6 +461,7 @@ export type ResolversTypes = {
   TransactionEmbeddedAccount: ResolverTypeWrapper<TransactionEmbeddedAccount>;
   TransactionEmbeddedCategory: ResolverTypeWrapper<TransactionEmbeddedCategory>;
   TransactionFilterInput: TransactionFilterInput;
+  TransactionInputType: TransactionInputType;
   TransactionPattern: ResolverTypeWrapper<TransactionPattern>;
   TransactionPatternType: TransactionPatternType;
   TransactionType: TransactionType;
