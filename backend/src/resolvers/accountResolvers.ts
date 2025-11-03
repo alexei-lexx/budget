@@ -2,7 +2,6 @@ import { GraphQLError } from "graphql";
 import { z } from "zod";
 import { GraphQLContext } from "../server";
 import { getAuthenticatedUser, handleResolverError } from "./shared";
-import { accountIdSchema } from "./common_schemas";
 
 /**
  * Supported currency codes
@@ -40,7 +39,7 @@ const createAccountInputSchema = z.object({
 });
 
 const updateAccountInputSchema = z.object({
-  id: accountIdSchema,
+  id: z.uuid({ message: "Account ID must be a valid UUID" }),
   name: nameSchema.optional(),
   currency: currencySchema.optional(),
   initialBalance: initialBalanceSchema.optional(),

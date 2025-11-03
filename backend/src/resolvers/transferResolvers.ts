@@ -3,18 +3,27 @@ import { z } from "zod";
 import { GraphQLContext } from "../server";
 import { getAuthenticatedUser, handleResolverError } from "./shared";
 import { BusinessError } from "../services/BusinessError";
-import { TransactionType } from "../__generated__/resolvers-types";
 import {
-  accountIdSchema,
-  dateSchema,
-  descriptionSchema,
-} from "./common_schemas";
+  DATE_FORMAT_REGEX,
+  DATE_FORMAT_ERROR_MESSAGE,
+  DESCRIPTION_MAX_LENGTH,
+  DESCRIPTION_LENGTH_ERROR_MESSAGE,
+} from "../types/validation";
+import { TransactionType } from "../__generated__/resolvers-types";
 
 /**
  * Reusable schema components for transfers
  */
 const idSchema = z.uuid({ message: "ID must be a valid UUID" });
+const accountIdSchema = z.uuid({ message: "Account ID must be a valid UUID" });
 const amountSchema = z.number().positive("Amount must be positive");
+const dateSchema = z
+  .string()
+  .regex(DATE_FORMAT_REGEX, DATE_FORMAT_ERROR_MESSAGE);
+const descriptionSchema = z
+  .string()
+  .max(DESCRIPTION_MAX_LENGTH, DESCRIPTION_LENGTH_ERROR_MESSAGE)
+  .nullish();
 
 /**
  * Zod schema for transfer input validation
