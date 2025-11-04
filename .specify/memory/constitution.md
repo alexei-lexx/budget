@@ -146,7 +146,8 @@ graph LR
 
 **Development Process**:
 - Backend GraphQL schema defined at `backend/src/schema.graphql` (canonical source)
-- Start all API changes with schema updates in `backend/src/schema.graphql`
+- Before making any change, read the schema
+- Start all API changes with schema updates
 - Backend generates TypeScript types via `npm run codegen` after schema changes
 - Frontend syncs schema from backend using `npm run codegen:sync-schema` in `frontend/src/schema.graphql`
 - Frontend generates typed composables via `npm run codegen` for all GraphQL operations
