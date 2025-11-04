@@ -1,12 +1,12 @@
 <!-- SYNC IMPACT REPORT
-Version Change: 0.7.0 → 0.7.1 (PATCH: Added Frontend Responsibilities section for clarity)
-Modified Sections: Frontend section expanded with Responsibilities subsection
-Added Sections: Frontend Responsibilities
+Version Change: 0.7.1 → 0.8.0 (MINOR: Added Schema-Driven Development principle)
+Modified Sections: None
+Added Sections: Schema-Driven Development principle in Core Principles
 Removed Sections: None
 Templates Requiring Updates:
-  - plan-template.md: No changes required (existing generic gate remains valid)
-  - spec-template.md: No changes required
-  - tasks-template.md: No changes required
+  - plan-template.md: ✅ No changes required (principle aligns with Constitution Check gate)
+  - spec-template.md: ✅ No changes required (feature specs unchanged)
+  - tasks-template.md: ✅ No changes required (task organization unaffected)
   - command files: None found in .specify/templates/commands/
 Follow-up TODOs: Ratification date remains TODO (inherited from previous versions)
 -->
@@ -140,6 +140,21 @@ graph LR
   - Avoid vendor-specific features and optimizations
 - **Infrastructure Code**: CDK is AWS-specific but frontend and backend remain portable
 
+### Schema-Driven Development
+
+**Non-negotiable rule**: GraphQL schema is the single source of truth for API contracts. All API changes begin with schema modification.
+
+**Development Process**:
+- Backend GraphQL schema defined at `backend/src/schema.graphql` (canonical source)
+- Start all API changes with schema updates in `backend/src/schema.graphql`
+- Backend generates TypeScript types via `npm run codegen` after schema changes
+- Frontend syncs schema from backend using `npm run codegen:sync-schema` in `frontend/src/schema.graphql`
+- Frontend generates typed composables via `npm run codegen` for all GraphQL operations
+- Code generation provides full TypeScript type checking across frontend and backend
+- Both frontend and backend consume generated types for compile-time type safety
+
+**Rationale**: Single schema source ensures API contracts are unambiguous, prevents type mismatches, enables safe refactoring, and synchronizes frontend and backend versions automatically.
+
 ## Governance
 
 This constitution supersedes all other development guidelines. Amendments require documentation in the sync impact report and ratification by the team.
@@ -151,4 +166,4 @@ This constitution supersedes all other development guidelines. Amendments requir
 4. Commit with message: `docs: amend constitution to vX.Y.Z ([change summary])`
 5. Update dependent artifacts (templates, guidance docs) as flagged
 
-**Version**: 0.7.1 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-10-30
+**Version**: 0.8.0 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-11-04
