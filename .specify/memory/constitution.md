@@ -1,12 +1,12 @@
 <!-- SYNC IMPACT REPORT
-Version Change: 0.7.1 → 0.8.0 (MINOR: Added Schema-Driven Development principle)
+Version Change: 0.8.0 → 0.9.0 (MINOR: Added Database Record Hydration principle)
 Modified Sections: None
-Added Sections: Schema-Driven Development principle in Core Principles
+Added Sections: Database Record Hydration principle in Core Principles
 Removed Sections: None
 Templates Requiring Updates:
-  - plan-template.md: ✅ No changes required (principle aligns with Constitution Check gate)
+  - plan-template.md: ✅ No changes required (Constitution Check gate naturally includes new principle)
   - spec-template.md: ✅ No changes required (feature specs unchanged)
-  - tasks-template.md: ✅ No changes required (task organization unaffected)
+  - tasks-template.md: ✅ No changes required (task organization unaffected, validation fits existing phases)
   - command files: None found in .specify/templates/commands/
 Follow-up TODOs: Ratification date remains TODO (inherited from previous versions)
 -->
@@ -156,6 +156,17 @@ graph LR
 
 **Rationale**: Single schema source ensures API contracts are unambiguous, prevents type mismatches, enables safe refactoring, and synchronizes frontend and backend versions automatically.
 
+### Database Record Hydration
+
+**Non-negotiable rule**: All data read from the database MUST be validated at the repository boundary before being returned to service or resolver layers.
+
+**Implementation**:
+- Use schema validation (Zod or equivalent) to validate every database record at read time
+- Validate against TypeScript interfaces to ensure compile-time type safety
+- Apply validation consistently across all repositories for uniform error handling
+
+**Rationale**: Validates data at its source (database) for immediate error detection rather than downstream in service logic. Prevents corrupted data from propagating through the application.
+
 ## Governance
 
 This constitution supersedes all other development guidelines. Amendments require documentation in the sync impact report and ratification by the team.
@@ -167,4 +178,4 @@ This constitution supersedes all other development guidelines. Amendments requir
 4. Commit with message: `docs: amend constitution to vX.Y.Z ([change summary])`
 5. Update dependent artifacts (templates, guidance docs) as flagged
 
-**Version**: 0.8.0 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-11-04
+**Version**: 0.9.0 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-11-07
