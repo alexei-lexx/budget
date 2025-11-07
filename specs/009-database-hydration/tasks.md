@@ -71,35 +71,44 @@ These tasks add hydration validation to each repository. Hydration validates raw
 ### 2.3 UserRepository Hydration
 
 - [ ] T007 [US1] Update `backend/src/repositories/UserRepository.ts` to implement hydration
-  - Import userSchema from `./utils/User.schema`
-  - Define private `hydrateUser(data: unknown): User` function that catches ZodError and throws UserRepositoryError
+  - Import userSchema from `./utils/User.schema` and z from 'zod'
+  - Define a private module-level function `function hydrateUser(data: unknown): User` at top of file
+  - Function MUST catch ZodError and throw UserRepositoryError with detailed field-level error message (format: "Invalid User: Field '<fieldName>' failed validation: <reason>")
+  - Include error.issues in UserRepositoryError for complete debugging context
   - Replace all `as User` type assertions with `hydrateUser()` calls
   - Update methods: findById, findByAuth0Id, and any other read operations returning User
   - For array returns: use `.map(hydrateUser)`
-  - Reference: `contracts/SPECIFICATION.md` section "Integration Points"
+  - Reference: `contracts/SPECIFICATION.md` sections "Error Message Format" and "Integration Points"
 
 - [ ] T008 [P] [US1] Update `backend/src/repositories/AccountRepository.ts` to implement hydration
-  - Import accountSchema from `./utils/Account.schema`
-  - Define private `hydrateAccount(data: unknown): Account` function that catches ZodError and throws AccountRepositoryError
+  - Import accountSchema from `./utils/Account.schema` and z from 'zod'
+  - Define a private module-level function `function hydrateAccount(data: unknown): Account` at top of file
+  - Function MUST catch ZodError and throw AccountRepositoryError with detailed field-level error message (format: "Invalid Account: Field '<fieldName>' failed validation: <reason>")
+  - Include error.issues in AccountRepositoryError for complete debugging context
   - Replace all `as Account` type assertions with `hydrateAccount()` calls
   - Update all repository read methods (findById, findActive, find, etc.)
   - For array returns: use `.map(hydrateAccount)`
-  - Reference: `quickstart.md` Repository Method Pattern section
+  - Reference: `contracts/SPECIFICATION.md` sections "Error Message Format" and "Integration Points"
 
 - [ ] T009 [P] [US1] Update `backend/src/repositories/CategoryRepository.ts` to implement hydration
-  - Import categorySchema from `./utils/Category.schema`
-  - Define private `hydrateCategory(data: unknown): Category` function that catches ZodError and throws CategoryRepositoryError
+  - Import categorySchema from `./utils/Category.schema` and z from 'zod'
+  - Define a private module-level function `function hydrateCategory(data: unknown): Category` at top of file
+  - Function MUST catch ZodError and throw CategoryRepositoryError with detailed field-level error message (format: "Invalid Category: Field '<fieldName>' failed validation: <reason>")
+  - Include error.issues in CategoryRepositoryError for complete debugging context
   - Replace all `as Category` type assertions with `hydrateCategory()` calls
   - Update all repository read methods (findById, findActive, find, etc.)
   - For array returns: use `.map(hydrateCategory)`
+  - Reference: `contracts/SPECIFICATION.md` sections "Error Message Format" and "Integration Points"
 
 - [ ] T010 [P] [US1] Update `backend/src/repositories/TransactionRepository.ts` to implement hydration
-  - Import transactionSchema from `./utils/Transaction.schema`
-  - Define private `hydrateTransaction(data: unknown): Transaction` function that catches ZodError and throws TransactionRepositoryError
+  - Import transactionSchema from `./utils/Transaction.schema` and z from 'zod'
+  - Define a private module-level function `function hydrateTransaction(data: unknown): Transaction` at top of file
+  - Function MUST catch ZodError and throw TransactionRepositoryError with detailed field-level error message (format: "Invalid Transaction: Field '<fieldName>' failed validation: <reason>")
+  - Include error.issues in TransactionRepositoryError for complete debugging context
   - Replace all `as Transaction` type assertions with `hydrateTransaction()` calls
   - Update all repository read methods (findById, findByAccountId, find, findCursor, etc.)
   - For array returns: use `.map(hydrateTransaction)`
-  - Reference: Most complex entity with optional fields and enums
+  - Reference: Most complex entity with optional fields and enums (see `contracts/SPECIFICATION.md` Transaction validation rules)
 
 ---
 
@@ -203,8 +212,8 @@ Final validation, testing, and documentation tasks.
 - [ ] T020 [P] Verify feature completion against all user story acceptance criteria
   - **US1 Acceptance**: Verify repository hydration validates data, catches errors, returns typed objects for all 4 repositories
   - **US2 Acceptance**: Verify TypeScript compilation fails if Zod schema is missing fields from interface
-  - **US3 Acceptance**: Verify all 4 repositories use same generic hydration pattern with appropriate error transformation
-  - **US4 Acceptance**: Verify validation errors clearly identify missing/invalid fields with field locations
+  - **US3 Acceptance**: Verify all 4 repositories use consistent module-level hydration function pattern with identical error handling approach
+  - **US4 Acceptance**: Verify validation errors clearly identify missing/invalid fields with detailed field-level information (field name, expected type, reason)
   - Acceptance: All acceptance scenarios from spec.md pass
 
 ---

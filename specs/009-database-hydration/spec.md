@@ -82,10 +82,10 @@ A DynamoDB record is manually edited outside the application and a required fiel
 
 **Resolved:**
 - Extra fields are silently stripped during hydration (database schema evolution supported)
-- Nested objects and arrays are fully validated with matching Zod schemas
-- Zod validation errors are caught and transformed to repository-specific errors
+- Zod validation errors are caught and transformed to repository-specific errors with detailed field-level information
 - Optional fields (`field?`) and nullable fields (`field | null`) follow TypeScript semantics strictly
 - Validation is per-record with fail-fast semantics in batch operations
+- Error messages include field name, expected type, and actual value for debugging clarity
 
 **Remaining Considerations:**
 - If a Zod schema definition has a bug (e.g., wrong field type), TypeScript compilation should catch it via `satisfies z.ZodType<EntityType>`; if not caught at compile-time, validation errors will surface at runtime with clear Zod error messages
@@ -101,18 +101,17 @@ A DynamoDB record is manually edited outside the application and a required fiel
 
 ### Functional Requirements
 
-- **FR-001**: System MUST provide a generic `createHydrator<T>` utility function that accepts a Zod schema and returns a hydration function
+- **FR-001**: System MUST implement hydration using a consistent pattern across all repositories, with each repository defining private hydration functions that validate database records using Zod schemas
 - **FR-002**: System MUST validate all records read from the database using Zod schemas that mirror TypeScript interfaces
 - **FR-003**: Zod schemas MUST be defined with `satisfies z.ZodType<EntityType>` to ensure compile-time type safety
 - **FR-004**: System MUST catch Zod validation errors and transform them to repository-specific errors (e.g., `AccountRepositoryError`) to hide implementation details
 - **FR-005**: System MUST strip extra fields not defined in the TypeScript interface during hydration (allow database schema evolution)
-- **FR-006**: System MUST validate nested structures with matching Zod schemas at all levels for end-to-end type safety
-- **FR-007**: Zod schemas MUST strictly follow TypeScript semantics: optional fields (`field?`) allow `undefined`, nullable fields (`field | null`) allow `null`
-- **FR-008**: System MUST validate records individually with fail-fast semantics (stop on first invalid record in batch operations)
-- **FR-009**: System MUST support hydration for all entity types (Account, Category, Transaction, User) with consistent pattern
-- **FR-010**: Hydration MUST occur at the repository boundary, before data is passed to the service layer
-- **FR-011**: System MUST have no impact on database query performance (validation overhead should be negligible)
-- **FR-012**: All repositories MUST be updated to use hydration instead of type assertions for database record reads
+- **FR-006**: Zod schemas MUST strictly follow TypeScript semantics: optional fields (`field?`) allow `undefined`, nullable fields (`field | null`) allow `null`
+- **FR-007**: System MUST validate records individually with fail-fast semantics (stop on first invalid record in batch operations)
+- **FR-008**: System MUST support hydration for all entity types (Account, Category, Transaction, User) with consistent pattern
+- **FR-009**: Hydration MUST occur at the repository boundary, before data is passed to the service layer
+- **FR-010**: System MUST have no impact on database query performance (validation overhead should be negligible)
+- **FR-011**: All repositories MUST be updated to use hydration instead of type assertions for database record reads
 
 ### Key Entities
 
@@ -136,7 +135,7 @@ A DynamoDB record is manually edited outside the application and a required fiel
 - **SC-002**: Data corruption or missing required fields in database records are caught at the repository boundary with clear error messages
 - **SC-003**: TypeScript compilation fails immediately if a Zod schema becomes out-of-sync with its corresponding TypeScript interface
 - **SC-004**: Zero test failures in existing test suites after implementing hydration across all repositories
-- **SC-005**: Validation performance overhead is less than 1ms per record (negligible compared to database query latency)
+- **SC-005**: Validation performance overhead is negligible compared to database query latency (validation cost is minimal relative to I/O cost)
 - **SC-006**: All developers on the team can correctly implement hydration for new entities using the pattern as documented
 
 ## Assumptions

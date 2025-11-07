@@ -217,6 +217,27 @@ return (result.Items || []).map(hydrateAccount);
 
 ---
 
+## Error Message Format
+
+Validation errors MUST include detailed field-level information for debugging clarity:
+
+**Format**: `Invalid <Entity>: Field '<fieldName>' failed validation: <reason>`
+
+**Examples**:
+- Missing field: `Invalid Account: Field 'initialBalance' is required but was undefined (expected type: number)`
+- Wrong type: `Invalid Category: Field 'type' failed validation: expected 'INCOME' | 'EXPENSE', got 'UNKNOWN'`
+- Invalid format: `Invalid Transaction: Field 'date' failed validation: expected YYYY-MM-DD format, got '2025-13-01'`
+
+**Implementation**:
+```typescript
+// Extract field details from Zod error
+const issue = error.issues[0];
+const fieldPath = issue.path.join('.');
+const errorMessage = `Invalid Account: Field '${fieldPath}' failed validation: ${issue.message}`;
+```
+
+---
+
 ## Design Principles
 
 1. **Schemas mirror interfaces**: Use `satisfies z.ZodType<T>` for compile-time safety
@@ -225,6 +246,7 @@ return (result.Items || []).map(hydrateAccount);
 4. **Per-repository hydration**: Each repository owns its hydration function, catches errors, and throws its own error class
 5. **ZodError preservation**: Original Zod issues passed to repository error for detailed debugging
 6. **Database schema evolution**: Default `.strip()` behavior for forward compatibility
+7. **Detailed error messages**: Include field name, expected type/format, and actual value in error messages for fast debugging
 
 ---
 
