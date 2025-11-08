@@ -1,3 +1,4 @@
+import { UpdateCommand } from "@aws-sdk/lib-dynamodb";
 import { faker } from "@faker-js/faker";
 import { CategoryRepository } from "./CategoryRepository";
 import { createDynamoDBDocumentClient } from "./utils/dynamoClient";
@@ -90,6 +91,34 @@ describe("CategoryRepository", () => {
       // Assert
       expect(result).toHaveLength(1);
       expect(result[0]?.isArchived).toBe(true);
+    });
+  });
+
+  describe("hydration - data corruption detection", () => {
+    it("should throw error when required field type is missing from database record", async () => {
+      // Arrange
+      const category = await repository.create(
+        fakeCreateCategoryInput({ userId }),
+      );
+      const client = createDynamoDBDocumentClient();
+
+      // Manually corrupt the database record by removing type (type is a reserved keyword)
+      const tableName = process.env.CATEGORIES_TABLE_NAME || "";
+      await client.send(
+        new UpdateCommand({
+          TableName: tableName,
+          Key: { userId, id: category.id },
+          UpdateExpression: "REMOVE #t",
+          ExpressionAttributeNames: {
+            "#t": "type",
+          },
+        }),
+      );
+
+      // Act & Assert
+      await expect(
+        repository.findByIds([category.id], userId),
+      ).rejects.toThrow();
     });
   });
 });

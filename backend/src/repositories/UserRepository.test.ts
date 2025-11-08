@@ -1,3 +1,4 @@
+import { UpdateCommand } from "@aws-sdk/lib-dynamodb";
 import { faker } from "@faker-js/faker";
 import { UserRepository } from "./UserRepository";
 import { createDynamoDBDocumentClient } from "./utils/dynamoClient";
@@ -327,6 +328,28 @@ describe("UserRepository", () => {
       await expect(
         repository.ensureUser("", "test@example.com"),
       ).rejects.toThrow();
+    });
+  });
+
+  describe("hydration - data corruption detection", () => {
+    it("should throw error when required field createdAt is missing from database record", async () => {
+      // Arrange
+      const input = fakeCreateUserInput();
+      const created = await repository.create(input);
+      const client = createDynamoDBDocumentClient();
+
+      // Manually corrupt the database record by removing createdAt
+      const tableName = process.env.USERS_TABLE_NAME || "";
+      await client.send(
+        new UpdateCommand({
+          TableName: tableName,
+          Key: { id: created.id },
+          UpdateExpression: "REMOVE createdAt",
+        }),
+      );
+
+      // Act & Assert - findAll scans all records, will trigger hydration
+      await expect(repository.findAll()).rejects.toThrow();
     });
   });
 });

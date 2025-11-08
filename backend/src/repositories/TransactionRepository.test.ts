@@ -1,3 +1,5 @@
+import { UpdateCommand } from "@aws-sdk/lib-dynamodb";
+import { faker } from "@faker-js/faker";
 import { TransactionRepository } from "./TransactionRepository";
 import {
   TransactionType,
@@ -5,7 +7,6 @@ import {
   UpdateTransactionInput,
   TransactionPatternType,
 } from "../models/Transaction";
-import { faker } from "@faker-js/faker";
 import { fakeCreateTransactionInput } from "../__tests__/utils/factories";
 import { createDynamoDBDocumentClient } from "./utils/dynamoClient";
 import { truncateTable } from "../__tests__/utils/dynamodbHelpers";
@@ -2409,6 +2410,31 @@ describe("TransactionRepository", () => {
       expect(result.edges[0].node.categoryId).toBe(category1);
       expect(result.edges[0].node.date).toBe("2024-01-20");
       expect(result.edges[0].node.type).toBe(TransactionType.EXPENSE);
+    });
+  });
+
+  describe("hydration - data corruption detection", () => {
+    it("should throw error when required field amount is missing from database record", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+      const input = fakeCreateTransactionInput({ userId });
+      const transaction = await repository.create(input);
+      const client = createDynamoDBDocumentClient();
+
+      // Manually corrupt the database record by removing amount
+      const tableName = process.env.TRANSACTIONS_TABLE_NAME || "";
+      await client.send(
+        new UpdateCommand({
+          TableName: tableName,
+          Key: { userId, id: transaction.id },
+          UpdateExpression: "REMOVE amount",
+        }),
+      );
+
+      // Act & Assert
+      await expect(
+        repository.findActiveById(transaction.id, userId),
+      ).rejects.toThrow();
     });
   });
 });
