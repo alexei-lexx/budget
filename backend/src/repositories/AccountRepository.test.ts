@@ -1,3 +1,4 @@
+import { faker } from "@faker-js/faker";
 import { AccountRepository } from "./AccountRepository";
 import { createDynamoDBDocumentClient } from "./utils/dynamoClient";
 import { truncateTable } from "../__tests__/utils/dynamodbHelpers";
@@ -5,7 +6,7 @@ import { fakeCreateAccountInput } from "../__tests__/utils/factories";
 
 describe("AccountRepository", () => {
   let repository: AccountRepository;
-  const userId = "test-user-123";
+  const userId = faker.string.uuid();
 
   beforeAll(async () => {
     // Create repository instance

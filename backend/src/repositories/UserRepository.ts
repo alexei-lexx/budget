@@ -7,7 +7,9 @@ import {
 } from "@aws-sdk/lib-dynamodb";
 import { randomUUID } from "crypto";
 import { User, CreateUserInput, IUserRepository } from "../models/User";
+import { userSchema } from "./utils/User.schema";
 import { createDynamoDBDocumentClient } from "./utils/dynamoClient";
+import { hydrate } from "./utils/hydrate";
 
 export class UserRepository implements IUserRepository {
   private client: DynamoDBDocumentClient;
@@ -45,7 +47,7 @@ export class UserRepository implements IUserRepository {
         );
       }
 
-      return result.Items[0] as User;
+      return hydrate(userSchema, result.Items[0]);
     } catch (error) {
       console.error("Error finding user by Auth0 ID:", error);
       throw new Error("Failed to find user");
@@ -64,7 +66,7 @@ export class UserRepository implements IUserRepository {
         return [];
       }
 
-      return result.Items as User[];
+      return result.Items.map((item) => hydrate(userSchema, item));
     } catch (error) {
       console.error("Error finding all users:", error);
       throw new Error("Failed to find users");

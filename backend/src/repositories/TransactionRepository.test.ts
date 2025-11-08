@@ -32,8 +32,9 @@ describe("TransactionRepository", () => {
   describe("create", () => {
     it("should create a transaction successfully", async () => {
       // Arrange
-      const userId = "test-user-123";
-      const accountId = "test-account-456";
+      const userId = faker.string.uuid();
+      const accountId = faker.string.uuid();
+      const categoryId = faker.string.uuid();
       const input: CreateTransactionInput = {
         userId,
         accountId,
@@ -42,7 +43,7 @@ describe("TransactionRepository", () => {
         currency: "USD",
         date: "2024-01-15",
         description: "Test transaction",
-        categoryId: "test-category-789",
+        categoryId,
       };
 
       // Act
@@ -58,7 +59,7 @@ describe("TransactionRepository", () => {
       expect(result.currency).toBe("USD");
       expect(result.date).toBe("2024-01-15");
       expect(result.description).toBe("Test transaction");
-      expect(result.categoryId).toBe("test-category-789");
+      expect(result.categoryId).toBe(categoryId);
       expect(result.isArchived).toBe(false);
       expect(result.createdAt).toBeDefined();
       expect(result.updatedAt).toBeDefined();
@@ -81,8 +82,8 @@ describe("TransactionRepository", () => {
 
     it("should create transaction without optional fields", async () => {
       // Arrange
-      const userId = "test-user-456";
-      const accountId = "test-account-789";
+      const userId = faker.string.uuid();
+      const accountId = faker.string.uuid();
       const input: CreateTransactionInput = {
         userId,
         accountId,
@@ -116,9 +117,9 @@ describe("TransactionRepository", () => {
 
     it("should create transfer transaction with transferId", async () => {
       // Arrange
-      const userId = "test-user-789";
-      const accountId = "test-account-abc";
-      const transferId = "transfer-123";
+      const userId = faker.string.uuid();
+      const accountId = faker.string.uuid();
+      const transferId = faker.string.uuid();
       const input: CreateTransactionInput = {
         userId,
         accountId,
@@ -156,18 +157,22 @@ describe("TransactionRepository", () => {
     });
 
     it("should create multiple transactions successfully", async () => {
+      const userId1 = faker.string.uuid();
+      const accountId1 = faker.string.uuid();
+      const userId2 = faker.string.uuid();
+      const accountId2 = faker.string.uuid();
       const inputs: CreateTransactionInput[] = [
         {
-          userId: "test-user-multi-1",
-          accountId: "test-account-multi-1",
+          userId: userId1,
+          accountId: accountId1,
           type: TransactionType.INCOME,
           amount: 300.0,
           currency: "USD",
           date: "2024-01-18",
         },
         {
-          userId: "test-user-multi-2",
-          accountId: "test-account-multi-2",
+          userId: userId2,
+          accountId: accountId2,
           type: TransactionType.EXPENSE,
           amount: 150.0,
           currency: "EUR",
@@ -209,8 +214,8 @@ describe("TransactionRepository", () => {
   describe("update", () => {
     it("should update all attributes successfully", async () => {
       // Arrange
-      const userId = "test-user-update";
-      const accountId = "test-account-update";
+      const userId = faker.string.uuid();
+      const accountId = faker.string.uuid();
       const createInput: CreateTransactionInput = {
         userId,
         accountId,
@@ -219,21 +224,23 @@ describe("TransactionRepository", () => {
         currency: "USD",
         date: "2024-01-20",
         description: "Original description",
-        categoryId: "test-category-original",
+        categoryId: faker.string.uuid(),
       };
 
       // Create transaction first
       const created = await repository.create(createInput);
 
       // Act - Update ALL possible attributes
+      const newAccountId = faker.string.uuid();
+      const newCategoryId = faker.string.uuid();
       const updateInput = {
-        accountId: "new-account-id",
+        accountId: newAccountId,
         type: TransactionType.INCOME,
         amount: 100.0,
         currency: "EUR",
         date: "2024-02-01",
         description: "Updated description",
-        categoryId: "test-category-updated",
+        categoryId: newCategoryId,
       };
       const result = await repository.update(created.id, userId, updateInput);
 
@@ -241,13 +248,13 @@ describe("TransactionRepository", () => {
       expect(result).toBeDefined();
       expect(result.id).toBe(created.id);
       expect(result.userId).toBe(userId);
-      expect(result.accountId).toBe("new-account-id");
+      expect(result.accountId).toBe(newAccountId);
       expect(result.type).toBe(TransactionType.INCOME);
       expect(result.amount).toBe(100.0);
       expect(result.currency).toBe("EUR");
       expect(result.date).toBe("2024-02-01");
       expect(result.description).toBe("Updated description");
-      expect(result.categoryId).toBe("test-category-updated");
+      expect(result.categoryId).toBe(newCategoryId);
       expect(result.isArchived).toBe(false);
       expect(result.createdAt).toBe(created.createdAt);
       expect(result.updatedAt).not.toBe(created.updatedAt);
@@ -259,8 +266,9 @@ describe("TransactionRepository", () => {
 
     it("should update no attributes (only updatedAt changes)", async () => {
       // Arrange
-      const userId = "test-user-no-update";
-      const accountId = "test-account-no-update";
+      const userId = faker.string.uuid();
+      const accountId = faker.string.uuid();
+      const categoryId = faker.string.uuid();
       const createInput: CreateTransactionInput = {
         userId,
         accountId,
@@ -269,7 +277,7 @@ describe("TransactionRepository", () => {
         currency: "USD",
         date: "2024-01-25",
         description: "No change description",
-        categoryId: "no-change-category",
+        categoryId,
       };
 
       // Create transaction first
@@ -289,7 +297,7 @@ describe("TransactionRepository", () => {
       expect(result.currency).toBe("USD");
       expect(result.date).toBe("2024-01-25");
       expect(result.description).toBe("No change description");
-      expect(result.categoryId).toBe("no-change-category");
+      expect(result.categoryId).toBe(categoryId);
       expect(result.isArchived).toBe(false);
       expect(result.createdAt).toBe(created.createdAt);
       expect(result.updatedAt).not.toBe(created.updatedAt);
@@ -301,8 +309,8 @@ describe("TransactionRepository", () => {
 
     it("should overwrite with null values", async () => {
       // Arrange
-      const userId = "test-user-null-update";
-      const accountId = "test-account-null-update";
+      const userId = faker.string.uuid();
+      const accountId = faker.string.uuid();
       const createInput: CreateTransactionInput = {
         userId,
         accountId,
@@ -311,7 +319,7 @@ describe("TransactionRepository", () => {
         currency: "EUR",
         date: "2024-01-21",
         description: "Test description",
-        categoryId: "test-category",
+        categoryId: faker.string.uuid(),
       };
 
       // Create transaction first
@@ -326,8 +334,8 @@ describe("TransactionRepository", () => {
 
       // Assert
       expect(result).toBeDefined();
-      expect(result.description).toBeNull();
-      expect(result.categoryId).toBeNull();
+      expect(result.description).toBeUndefined();
+      expect(result.categoryId).toBeUndefined();
 
       // Refetch from database to verify stored data matches result
       const stored = await repository.findActiveById(result.id, userId);
@@ -336,8 +344,9 @@ describe("TransactionRepository", () => {
 
     it("should update single field (partial update)", async () => {
       // Arrange
-      const userId = "test-user-partial-update";
-      const accountId = "test-account-partial-update";
+      const userId = faker.string.uuid();
+      const accountId = faker.string.uuid();
+      const originalCategoryId = faker.string.uuid();
       const createInput: CreateTransactionInput = {
         userId,
         accountId,
@@ -346,7 +355,7 @@ describe("TransactionRepository", () => {
         currency: "GBP",
         date: "2024-01-22",
         description: "Original description",
-        categoryId: "original-category",
+        categoryId: originalCategoryId,
       };
 
       // Create transaction first
@@ -360,7 +369,7 @@ describe("TransactionRepository", () => {
       expect(result).toBeDefined();
       expect(result.amount).toBe(175.0);
       expect(result.description).toBe("Original description");
-      expect(result.categoryId).toBe("original-category");
+      expect(result.categoryId).toBe(originalCategoryId);
       expect(result.type).toBe(TransactionType.EXPENSE);
       expect(result.currency).toBe("GBP");
       expect(result.date).toBe("2024-01-22");
@@ -372,7 +381,7 @@ describe("TransactionRepository", () => {
 
     it("should throw error for non-existent transaction", async () => {
       // Arrange
-      const userId = "test-user-nonexistent";
+      const userId = faker.string.uuid();
       const nonExistentId = "non-existent-transaction-id";
       const updateInput = { amount: 50.0 };
 
@@ -384,8 +393,8 @@ describe("TransactionRepository", () => {
 
     it("should throw error when trying to update archived transaction", async () => {
       // Arrange
-      const userId = "test-user-archived";
-      const accountId = "test-account-archived";
+      const userId = faker.string.uuid();
+      const accountId = faker.string.uuid();
       const createInput: CreateTransactionInput = {
         userId,
         accountId,
@@ -394,7 +403,7 @@ describe("TransactionRepository", () => {
         currency: "USD",
         date: "2024-01-28",
         description: "Will be archived",
-        categoryId: "test-category-archived",
+        categoryId: faker.string.uuid(),
       };
 
       // Create transaction first
@@ -412,9 +421,9 @@ describe("TransactionRepository", () => {
 
     it("should throw error when trying to update transaction belonging to another user", async () => {
       // Arrange
-      const ownerUserId = "transaction-owner-user";
-      const otherUserId = "other-user-trying-to-update";
-      const accountId = "test-account-owner";
+      const ownerUserId = faker.string.uuid();
+      const otherUserId = faker.string.uuid();
+      const accountId = faker.string.uuid();
       const createInput: CreateTransactionInput = {
         userId: ownerUserId,
         accountId,
@@ -423,7 +432,7 @@ describe("TransactionRepository", () => {
         currency: "USD",
         date: "2024-01-29",
         description: "Belongs to owner",
-        categoryId: "owner-category",
+        categoryId: faker.string.uuid(),
       };
 
       // Create transaction as owner
@@ -462,7 +471,7 @@ describe("TransactionRepository", () => {
   describe("updateMany", () => {
     it("should throw error for empty input array", async () => {
       const updates: { id: string; input: UpdateTransactionInput }[] = [];
-      const userId = "test-user-update-many";
+      const userId = faker.string.uuid();
 
       await expect(repository.updateMany(updates, userId)).rejects.toThrow(
         "At least one transaction update is required",
@@ -470,13 +479,13 @@ describe("TransactionRepository", () => {
     });
 
     it("should update multiple transactions successfully", async () => {
-      const userId = "test-user-multi-update";
+      const userId = faker.string.uuid();
 
       const createInputs: CreateTransactionInput[] = [
         {
           userId,
-          accountId: "test-account-1",
-          categoryId: "test-category-1",
+          accountId: faker.string.uuid(),
+          categoryId: faker.string.uuid(),
           type: TransactionType.INCOME,
           amount: 300.0,
           currency: "USD",
@@ -485,8 +494,8 @@ describe("TransactionRepository", () => {
         },
         {
           userId,
-          accountId: "test-account-2",
-          categoryId: "test-category-2",
+          accountId: faker.string.uuid(),
+          categoryId: faker.string.uuid(),
           type: TransactionType.EXPENSE,
           amount: 150.0,
           currency: "EUR",
@@ -497,12 +506,17 @@ describe("TransactionRepository", () => {
 
       const createdTransactions = await repository.createMany(createInputs);
 
+      const newAccountId1 = faker.string.uuid();
+      const newCategoryId1 = faker.string.uuid();
+      const newAccountId2 = faker.string.uuid();
+      const newCategoryId2 = faker.string.uuid();
+
       const updates: { id: string; input: UpdateTransactionInput }[] = [
         {
           id: createdTransactions[0].id,
           input: {
-            accountId: "new-account-id-1",
-            categoryId: "new-category-id-1",
+            accountId: newAccountId1,
+            categoryId: newCategoryId1,
             type: TransactionType.EXPENSE,
             amount: 350.0,
             currency: "EUR",
@@ -513,8 +527,8 @@ describe("TransactionRepository", () => {
         {
           id: createdTransactions[1].id,
           input: {
-            accountId: "new-account-id-2",
-            categoryId: "new-category-id-2",
+            accountId: newAccountId2,
+            categoryId: newCategoryId2,
             type: TransactionType.INCOME,
             amount: 200.0,
             currency: "USD",
@@ -532,8 +546,8 @@ describe("TransactionRepository", () => {
       );
 
       expect(stored1).toBeDefined();
-      expect(stored1?.accountId).toBe("new-account-id-1");
-      expect(stored1?.categoryId).toBe("new-category-id-1");
+      expect(stored1?.accountId).toBe(newAccountId1);
+      expect(stored1?.categoryId).toBe(newCategoryId1);
       expect(stored1?.type).toBe(TransactionType.EXPENSE);
       expect(stored1?.amount).toBe(350.0);
       expect(stored1?.currency).toBe("EUR");
@@ -546,8 +560,8 @@ describe("TransactionRepository", () => {
       );
 
       expect(stored2).toBeDefined();
-      expect(stored2?.accountId).toBe("new-account-id-2");
-      expect(stored2?.categoryId).toBe("new-category-id-2");
+      expect(stored2?.accountId).toBe(newAccountId2);
+      expect(stored2?.categoryId).toBe(newCategoryId2);
       expect(stored2?.type).toBe(TransactionType.INCOME);
       expect(stored2?.amount).toBe(200.0);
       expect(stored2?.currency).toBe("USD");
@@ -605,45 +619,52 @@ describe("TransactionRepository", () => {
 
     it("should return patterns sorted by usage count descending", async () => {
       const userId = faker.string.uuid();
+      const account1 = faker.string.uuid();
+      const category1 = faker.string.uuid();
+      const account2 = faker.string.uuid();
+      const category2 = faker.string.uuid();
+      const account3 = faker.string.uuid();
+      const category3 = faker.string.uuid();
+
       const createInputs: CreateTransactionInput[] = [
-        // Pattern 1: account-1 + category-1 (3 occurrences)
+        // Pattern 1: account1 + category1 (3 occurrences)
         fakeCreateTransactionInput({
           userId,
-          accountId: "account-1",
-          categoryId: "category-1",
+          accountId: account1,
+          categoryId: category1,
           type: TransactionType.INCOME,
         }),
 
         fakeCreateTransactionInput({
           userId,
-          accountId: "account-1",
-          categoryId: "category-1",
+          accountId: account1,
+          categoryId: category1,
           type: TransactionType.INCOME,
         }),
         fakeCreateTransactionInput({
           userId,
-          accountId: "account-1",
-          categoryId: "category-1",
+          accountId: account1,
+          categoryId: category1,
           type: TransactionType.INCOME,
         }),
-        // Pattern 2: account-2 + category-2 (2 occurrences)
+        // Pattern 2: account2 + category2 (2 occurrences)
         fakeCreateTransactionInput({
           userId,
-          accountId: "account-2",
-          categoryId: "category-2",
+          accountId: account2,
+          categoryId: category2,
           type: TransactionType.INCOME,
         }),
         fakeCreateTransactionInput({
           userId,
-          accountId: "account-2",
-          categoryId: "category-2",
+          accountId: account2,
+          categoryId: category2,
           type: TransactionType.INCOME,
         }),
-        // Pattern 3: account-3 + category-3 (1 occurrence)
+        // Pattern 3: account3 + category3 (1 occurrence)
         fakeCreateTransactionInput({
           userId,
-          accountId: "account-3",
-          categoryId: "category-3",
+          accountId: account3,
+          categoryId: category3,
           type: TransactionType.INCOME,
         }),
       ];
@@ -659,16 +680,16 @@ describe("TransactionRepository", () => {
 
       expect(result).toHaveLength(3);
       expect(result[0]).toEqual({
-        accountId: "account-1",
-        categoryId: "category-1",
+        accountId: account1,
+        categoryId: category1,
       });
       expect(result[1]).toEqual({
-        accountId: "account-2",
-        categoryId: "category-2",
+        accountId: account2,
+        categoryId: category2,
       });
       expect(result[2]).toEqual({
-        accountId: "account-3",
-        categoryId: "category-3",
+        accountId: account3,
+        categoryId: category3,
       });
     });
 
@@ -860,17 +881,22 @@ describe("TransactionRepository", () => {
 
     it("should exclude archived transactions", async () => {
       const userId = faker.string.uuid();
+      const account1 = faker.string.uuid();
+      const category1 = faker.string.uuid();
+      const account2 = faker.string.uuid();
+      const category2 = faker.string.uuid();
+
       const createInputs: CreateTransactionInput[] = [
         fakeCreateTransactionInput({
           userId,
-          accountId: "account-1",
-          categoryId: "category-1",
+          accountId: account1,
+          categoryId: category1,
           type: TransactionType.INCOME,
         }),
         fakeCreateTransactionInput({
           userId,
-          accountId: "account-2",
-          categoryId: "category-2",
+          accountId: account2,
+          categoryId: category2,
           type: TransactionType.INCOME,
         }),
       ];
@@ -890,8 +916,8 @@ describe("TransactionRepository", () => {
       // Assert - Should only count non-archived transaction
       expect(result).toHaveLength(1);
       expect(result[0]).toEqual({
-        accountId: "account-2",
-        categoryId: "category-2",
+        accountId: account2,
+        categoryId: category2,
       });
     });
 

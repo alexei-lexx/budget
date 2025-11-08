@@ -14,8 +14,10 @@ import {
   ICategoryRepository,
   CategoryType,
 } from "../models/Category";
+import { categorySchema } from "./utils/Category.schema";
 import { paginateQuery } from "./utils/pagination";
 import { createDynamoDBDocumentClient } from "./utils/dynamoClient";
+import { hydrate } from "./utils/hydrate";
 
 /**
  * Repository error class for better error handling
@@ -196,7 +198,7 @@ export class CategoryRepository implements ICategoryRepository {
         return null;
       }
 
-      const category = result.Item as Category;
+      const category = hydrate(categorySchema, result.Item);
 
       // Return null if category is archived (soft deleted)
       if (category.isArchived) {
@@ -236,7 +238,9 @@ export class CategoryRepository implements ICategoryRepository {
       });
 
       const result = await this.client.send(command);
-      return (result.Responses?.[this.tableName] || []) as Category[];
+      return (result.Responses?.[this.tableName] || []).map((item) =>
+        hydrate(categorySchema, item),
+      );
     } catch (error) {
       console.error("Error batch finding categories by IDs:", error);
       throw new CategoryRepositoryError(
@@ -346,7 +350,7 @@ export class CategoryRepository implements ICategoryRepository {
       });
 
       const result = await this.client.send(command);
-      return result.Attributes as Category;
+      return hydrate(categorySchema, result.Attributes);
     } catch (error) {
       console.error("Error updating category:", error);
 
@@ -394,7 +398,7 @@ export class CategoryRepository implements ICategoryRepository {
       });
 
       const result = await this.client.send(command);
-      return result.Attributes as Category;
+      return hydrate(categorySchema, result.Attributes);
     } catch (error) {
       console.error("Error archiving category:", error);
 
