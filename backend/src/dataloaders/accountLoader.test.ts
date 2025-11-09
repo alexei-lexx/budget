@@ -1,7 +1,7 @@
 import DataLoader from "dataloader";
-import { batchLoadAccounts, createAccountLoader } from "./accountLoader";
-import { createMockAccountRepository } from "../__tests__/utils/mockRepositories";
 import { fakeAccount } from "../__tests__/utils/factories";
+import { createMockAccountRepository } from "../__tests__/utils/mockRepositories";
+import { batchLoadAccounts, createAccountLoader } from "./accountLoader";
 
 describe("Account Batch Loader", () => {
   describe("batchLoadAccounts", () => {

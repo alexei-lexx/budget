@@ -1,10 +1,10 @@
-import { userResolvers } from "./userResolvers";
+import { Resolvers } from "../__generated__/resolvers-types";
 import { accountResolvers } from "./accountResolvers";
 import { categoryResolvers } from "./categoryResolvers";
+import { reportResolvers } from "./reportResolvers";
 import { transactionResolvers } from "./transactionResolvers";
 import { transferResolvers } from "./transferResolvers";
-import { reportResolvers } from "./reportResolvers";
-import { Resolvers } from "../__generated__/resolvers-types";
+import { userResolvers } from "./userResolvers";
 
 export const resolvers: Resolvers = {
   Query: {

@@ -1,6 +1,6 @@
-import { ITransactionRepository } from "../../models/Transaction";
 import { IAccountRepository } from "../../models/Account";
 import { ICategoryRepository } from "../../models/Category";
+import { ITransactionRepository } from "../../models/Transaction";
 
 /**
  * Mock transaction repository for testing
