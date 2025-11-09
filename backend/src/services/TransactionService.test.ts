@@ -1,15 +1,7 @@
-import {
-  DEFAULT_TRANSACTION_PATTERNS_LIMIT,
-  MAX_TRANSACTION_PATTERNS_LIMIT,
-  MIN_TRANSACTION_PATTERNS_LIMIT,
-  DESCRIPTION_SUGGESTIONS_SAMPLE_SIZE,
-  TransactionService,
-} from "./TransactionService";
+import { faker } from "@faker-js/faker";
 import { MIN_SEARCH_TEXT_LENGTH } from "../types/validation";
 import { TransactionPatternType, TransactionType } from "../models/Transaction";
 import { CategoryType } from "../models/Category";
-import { BusinessError, BusinessErrorCodes } from "./BusinessError";
-import { faker } from "@faker-js/faker";
 import {
   createMockTransactionRepository,
   createMockAccountRepository,
@@ -21,6 +13,14 @@ import {
   fakeTransactionPattern,
   fakeTransaction,
 } from "../__tests__/utils/factories";
+import { BusinessError, BusinessErrorCodes } from "./BusinessError";
+import {
+  DEFAULT_TRANSACTION_PATTERNS_LIMIT,
+  MAX_TRANSACTION_PATTERNS_LIMIT,
+  MIN_TRANSACTION_PATTERNS_LIMIT,
+  DESCRIPTION_SUGGESTIONS_SAMPLE_SIZE,
+  TransactionService,
+} from "./TransactionService";
 
 describe("TransactionService", () => {
   let service: TransactionService;

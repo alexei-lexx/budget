@@ -1,4 +1,5 @@
-import { ReportsService } from "./ReportsService";
+import { v4 as uuidv4 } from "uuid";
+import { faker } from "@faker-js/faker";
 import { ITransactionRepository, TransactionType } from "../models/Transaction";
 import { ICategoryRepository } from "../models/Category";
 import { fakeTransaction, fakeCategory } from "../__tests__/utils/factories";
@@ -6,8 +7,7 @@ import {
   createMockTransactionRepository,
   createMockCategoryRepository,
 } from "../__tests__/utils/mockRepositories";
-import { v4 as uuidv4 } from "uuid";
-import { faker } from "@faker-js/faker";
+import { ReportsService } from "./ReportsService";
 
 describe("ReportsService", () => {
   let reportsService: ReportsService;

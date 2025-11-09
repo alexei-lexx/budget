@@ -1,8 +1,8 @@
 import { GraphQLError } from "graphql";
 import { z } from "zod";
 import { GraphQLContext } from "../server";
-import { getAuthenticatedUser, handleResolverError } from "./shared";
 import { CategoryType } from "../models/Category";
+import { getAuthenticatedUser, handleResolverError } from "./shared";
 
 /**
  * Reusable schema components for categories

@@ -1,6 +1,6 @@
-import { ApolloServer } from "@apollo/server";
 import { readFileSync } from "fs";
 import { join } from "path";
+import { ApolloServer } from "@apollo/server";
 import DataLoader from "dataloader";
 import { resolvers } from "./resolvers";
 import { JwtAuthService, AuthContext } from "./auth/jwtAuth";

@@ -1,15 +1,15 @@
-import { TransactionRepository } from "./TransactionRepository";
+import { faker } from "@faker-js/faker";
 import {
   TransactionType,
   CreateTransactionInput,
   UpdateTransactionInput,
   TransactionPatternType,
 } from "../models/Transaction";
-import { faker } from "@faker-js/faker";
 import { fakeCreateTransactionInput } from "../__tests__/utils/factories";
-import { createDynamoDBDocumentClient } from "./utils/dynamoClient";
 import { truncateTable } from "../__tests__/utils/dynamodbHelpers";
 import { YEAR_RANGE_OFFSET } from "../types/validation";
+import { createDynamoDBDocumentClient } from "./utils/dynamoClient";
+import { TransactionRepository } from "./TransactionRepository";
 
 describe("TransactionRepository", () => {
   let repository: TransactionRepository;

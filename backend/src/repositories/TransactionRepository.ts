@@ -1,3 +1,4 @@
+import { randomUUID } from "crypto";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import {
   DynamoDBDocumentClient,
@@ -7,7 +8,6 @@ import {
   GetCommand,
   TransactWriteCommand,
 } from "@aws-sdk/lib-dynamodb";
-import { randomUUID } from "crypto";
 import {
   Transaction,
   TransactionType,
@@ -27,9 +27,9 @@ import {
   MIN_PAGE_SIZE,
   MAX_PAGE_SIZE,
 } from "../types/pagination";
+import { YEAR_RANGE_OFFSET, MIN_SEARCH_TEXT_LENGTH } from "../types/validation";
 import { paginateQuery } from "./utils/pagination";
 import { createDynamoDBDocumentClient } from "./utils/dynamoClient";
-import { YEAR_RANGE_OFFSET, MIN_SEARCH_TEXT_LENGTH } from "../types/validation";
 
 /**
  * Maximum number of items that can be included in a single DynamoDB TransactWrite operation

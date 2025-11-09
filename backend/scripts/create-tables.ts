@@ -1,7 +1,7 @@
 #!/usr/bin/env ts-node
 
-import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import {
+  DynamoDBClient,
   CreateTableCommand,
   DescribeTableCommand,
   ListTablesCommand,
