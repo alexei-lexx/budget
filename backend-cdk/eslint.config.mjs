@@ -3,8 +3,8 @@
 // See https://typescript-eslint.io/getting-started/
 
 import eslint from "@eslint/js";
-import tseslint from "typescript-eslint";
 import importPlugin from "eslint-plugin-import";
+import tseslint from "typescript-eslint";
 
 export default tseslint.config(
   eslint.configs.recommended,
