@@ -4,6 +4,7 @@
 
 import eslint from "@eslint/js";
 import tseslint from "typescript-eslint";
+import importPlugin from "eslint-plugin-import";
 
 export default tseslint.config(
   eslint.configs.recommended,
@@ -16,5 +17,23 @@ export default tseslint.config(
       "**/lib/**/*.js",
       "**/test/**/*.js",
     ],
+  },
+  {
+    files: ["**/*.{ts,tsx}"],
+    extends: [
+      importPlugin.flatConfigs.recommended,
+      importPlugin.flatConfigs.typescript,
+    ],
+    rules: {
+      "import/order": [
+        "error",
+        {
+          alphabetize: {
+            order: "asc",
+            caseInsensitive: false,
+          },
+        },
+      ],
+    },
   },
 );
