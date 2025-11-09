@@ -3,11 +3,11 @@
 import { ScanCommand, DeleteCommand } from "@aws-sdk/lib-dynamodb";
 import { CategoryType } from "../src/models/Category";
 import { TransactionType } from "../src/models/Transaction";
-import { createDynamoDBDocumentClient } from "../src/repositories/utils/dynamoClient";
-import { UserRepository } from "../src/repositories/UserRepository";
 import { AccountRepository } from "../src/repositories/AccountRepository";
 import { CategoryRepository } from "../src/repositories/CategoryRepository";
 import { TransactionRepository } from "../src/repositories/TransactionRepository";
+import { UserRepository } from "../src/repositories/UserRepository";
+import { createDynamoDBDocumentClient } from "../src/repositories/utils/dynamoClient";
 import { TransactionService } from "../src/services/TransactionService";
 
 // Initialize DynamoDB client

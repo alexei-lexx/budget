@@ -20,7 +20,15 @@ export default tseslint.config(
       importPlugin.flatConfigs.typescript,
     ],
     rules: {
-      "import/order": ["error"],
+      "import/order": [
+        "error",
+        {
+          alphabetize: {
+            order: "asc",
+            caseInsensitive: false,
+          },
+        },
+      ],
     },
   },
 );

@@ -1,5 +1,6 @@
 import { GraphQLError } from "graphql";
 import { z } from "zod";
+import { TransactionType } from "../__generated__/resolvers-types";
 import { GraphQLContext } from "../server";
 import { BusinessError } from "../services/BusinessError";
 import {
@@ -8,7 +9,6 @@ import {
   DESCRIPTION_MAX_LENGTH,
   DESCRIPTION_LENGTH_ERROR_MESSAGE,
 } from "../types/validation";
-import { TransactionType } from "../__generated__/resolvers-types";
 import { getAuthenticatedUser, handleResolverError } from "./shared";
 
 /**

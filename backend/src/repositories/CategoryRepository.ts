@@ -14,8 +14,8 @@ import {
   ICategoryRepository,
   CategoryType,
 } from "../models/Category";
-import { paginateQuery } from "./utils/pagination";
 import { createDynamoDBDocumentClient } from "./utils/dynamoClient";
+import { paginateQuery } from "./utils/pagination";
 
 /**
  * Repository error class for better error handling

@@ -1,6 +1,6 @@
 import { GraphQLError } from "graphql";
-import { GraphQLContext } from "../server";
 import { User } from "../models/User";
+import { GraphQLContext } from "../server";
 import { requireAuthentication, handleResolverError } from "./shared";
 
 /**

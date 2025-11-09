@@ -1,3 +1,9 @@
+import { IAccountRepository, Account } from "../models/Account";
+import {
+  ICategoryRepository,
+  Category,
+  CategoryType,
+} from "../models/Category";
 import {
   ITransactionRepository,
   Transaction,
@@ -9,12 +15,6 @@ import {
   EnrichedTransactionPattern,
   TransactionFilterInput,
 } from "../models/Transaction";
-import { IAccountRepository, Account } from "../models/Account";
-import {
-  ICategoryRepository,
-  Category,
-  CategoryType,
-} from "../models/Category";
 import { PaginationInput } from "../types/pagination";
 import { DATE_FORMAT_REGEX, MIN_SEARCH_TEXT_LENGTH } from "../types/validation";
 import { BusinessError, BusinessErrorCodes } from "./BusinessError";

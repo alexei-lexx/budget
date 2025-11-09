@@ -1,15 +1,15 @@
 import { faker } from "@faker-js/faker";
+import { truncateTable } from "../__tests__/utils/dynamodbHelpers";
+import { fakeCreateTransactionInput } from "../__tests__/utils/factories";
 import {
   TransactionType,
   CreateTransactionInput,
   UpdateTransactionInput,
   TransactionPatternType,
 } from "../models/Transaction";
-import { fakeCreateTransactionInput } from "../__tests__/utils/factories";
-import { truncateTable } from "../__tests__/utils/dynamodbHelpers";
 import { YEAR_RANGE_OFFSET } from "../types/validation";
-import { createDynamoDBDocumentClient } from "./utils/dynamoClient";
 import { TransactionRepository } from "./TransactionRepository";
+import { createDynamoDBDocumentClient } from "./utils/dynamoClient";
 
 describe("TransactionRepository", () => {
   let repository: TransactionRepository;

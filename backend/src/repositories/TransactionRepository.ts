@@ -28,8 +28,8 @@ import {
   MAX_PAGE_SIZE,
 } from "../types/pagination";
 import { YEAR_RANGE_OFFSET, MIN_SEARCH_TEXT_LENGTH } from "../types/validation";
-import { paginateQuery } from "./utils/pagination";
 import { createDynamoDBDocumentClient } from "./utils/dynamoClient";
+import { paginateQuery } from "./utils/pagination";
 
 /**
  * Maximum number of items that can be included in a single DynamoDB TransactWrite operation

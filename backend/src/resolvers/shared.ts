@@ -1,9 +1,9 @@
 import { GraphQLError } from "graphql";
-import { GraphQLContext } from "../server";
+import { User } from "../models/User";
 import { AccountRepositoryError } from "../repositories/AccountRepository";
 import { CategoryRepositoryError } from "../repositories/CategoryRepository";
+import { GraphQLContext } from "../server";
 import { BusinessError } from "../services/BusinessError";
-import { User } from "../models/User";
 
 /**
  * Helper function to check authentication and return auth user
