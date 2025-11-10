@@ -1,5 +1,6 @@
 import { UpdateCommand } from "@aws-sdk/lib-dynamodb";
 import { faker } from "@faker-js/faker";
+import { truncateTable } from "../__tests__/utils/dynamodbHelpers";
 import { fakeCreateTransactionInput } from "../__tests__/utils/factories";
 import {
   TransactionType,
@@ -10,7 +11,6 @@ import {
 import { YEAR_RANGE_OFFSET } from "../types/validation";
 import { TransactionRepository } from "./TransactionRepository";
 import { createDynamoDBDocumentClient } from "./utils/dynamoClient";
-import { truncateTable } from "../__tests__/utils/dynamodbHelpers";
 
 describe("TransactionRepository", () => {
   let repository: TransactionRepository;
