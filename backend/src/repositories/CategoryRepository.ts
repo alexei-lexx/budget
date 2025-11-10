@@ -1,3 +1,4 @@
+import { randomUUID } from "crypto";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import {
   DynamoDBDocumentClient,
@@ -6,7 +7,6 @@ import {
   GetCommand,
   BatchGetCommand,
 } from "@aws-sdk/lib-dynamodb";
-import { randomUUID } from "crypto";
 import {
   Category,
   CreateCategoryInput,
@@ -15,9 +15,9 @@ import {
   CategoryType,
 } from "../models/Category";
 import { categorySchema } from "./utils/Category.schema";
-import { paginateQuery } from "./utils/pagination";
 import { createDynamoDBDocumentClient } from "./utils/dynamoClient";
 import { hydrate } from "./utils/hydrate";
+import { paginateQuery } from "./utils/pagination";
 
 /**
  * Repository error class for better error handling

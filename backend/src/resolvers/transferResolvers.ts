@@ -1,7 +1,7 @@
 import { GraphQLError } from "graphql";
 import { z } from "zod";
+import { TransactionType } from "../__generated__/resolvers-types";
 import { GraphQLContext } from "../server";
-import { getAuthenticatedUser, handleResolverError } from "./shared";
 import { BusinessError } from "../services/BusinessError";
 import {
   DATE_FORMAT_REGEX,
@@ -9,7 +9,7 @@ import {
   DESCRIPTION_MAX_LENGTH,
   DESCRIPTION_LENGTH_ERROR_MESSAGE,
 } from "../types/validation";
-import { TransactionType } from "../__generated__/resolvers-types";
+import { getAuthenticatedUser, handleResolverError } from "./shared";
 
 /**
  * Reusable schema components for transfers

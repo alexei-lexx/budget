@@ -1,9 +1,9 @@
+import { ICategoryRepository } from "../models/Category";
 import {
   ITransactionRepository,
   Transaction,
   TransactionType,
 } from "../models/Transaction";
-import { ICategoryRepository } from "../models/Category";
 
 const UNCATEGORIZED_LABEL = "Uncategorized";
 

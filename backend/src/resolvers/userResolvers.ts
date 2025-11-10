@@ -1,7 +1,7 @@
 import { GraphQLError } from "graphql";
+import { User } from "../models/User";
 import { GraphQLContext } from "../server";
 import { requireAuthentication, handleResolverError } from "./shared";
-import { User } from "../models/User";
 
 /**
  * Helper function for ensureUser mutation that creates user if needed
