@@ -9,5 +9,3 @@ export const userSchema = z.object({
   createdAt: z.iso.datetime(),
   updatedAt: z.iso.datetime(),
 }) satisfies z.ZodType<User>;
-
-export type { User };

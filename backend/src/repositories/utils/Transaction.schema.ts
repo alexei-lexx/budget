@@ -17,5 +17,3 @@ export const transactionSchema = z.object({
   createdAt: z.iso.datetime(),
   updatedAt: z.iso.datetime(),
 }) satisfies z.ZodType<Transaction>;
-
-export type { Transaction, TransactionType };
