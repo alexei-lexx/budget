@@ -1,3 +1,5 @@
+import { UpdateCommand } from "@aws-sdk/lib-dynamodb";
+import { faker } from "@faker-js/faker";
 import { truncateTable } from "../__tests__/utils/dynamodbHelpers";
 import { fakeCreateAccountInput } from "../__tests__/utils/factories";
 import { AccountRepository } from "./AccountRepository";
@@ -5,7 +7,7 @@ import { createDynamoDBDocumentClient } from "./utils/dynamoClient";
 
 describe("AccountRepository", () => {
   let repository: AccountRepository;
-  const userId = "test-user-123";
+  const userId = faker.string.uuid();
 
   beforeAll(async () => {
     // Create repository instance
@@ -89,6 +91,31 @@ describe("AccountRepository", () => {
       // Assert
       expect(result).toHaveLength(1);
       expect(result[0]?.isArchived).toBe(true);
+    });
+  });
+
+  describe("hydration - data corruption detection", () => {
+    it("should throw error when required field initialBalance is missing from database record", async () => {
+      // Arrange
+      const account = await repository.create(
+        fakeCreateAccountInput({ userId }),
+      );
+      const client = createDynamoDBDocumentClient();
+
+      // Manually corrupt the database record by removing initialBalance
+      const tableName = process.env.ACCOUNTS_TABLE_NAME || "";
+      await client.send(
+        new UpdateCommand({
+          TableName: tableName,
+          Key: { userId, id: account.id },
+          UpdateExpression: "REMOVE initialBalance",
+        }),
+      );
+
+      // Act & Assert
+      await expect(
+        repository.findByIds([account.id], userId),
+      ).rejects.toThrow();
     });
   });
 });

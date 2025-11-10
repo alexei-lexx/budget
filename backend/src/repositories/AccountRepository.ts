@@ -13,7 +13,9 @@ import {
   UpdateAccountInput,
   IAccountRepository,
 } from "../models/Account";
+import { accountSchema } from "./utils/Account.schema";
 import { createDynamoDBDocumentClient } from "./utils/dynamoClient";
+import { hydrate } from "./utils/hydrate";
 import { paginateQuery } from "./utils/pagination";
 
 /**
@@ -139,7 +141,7 @@ export class AccountRepository implements IAccountRepository {
         return null;
       }
 
-      const account = result.Item as Account;
+      const account = hydrate(accountSchema, result.Item);
 
       // Return null if account is archived (soft deleted)
       if (account.isArchived) {
@@ -179,7 +181,9 @@ export class AccountRepository implements IAccountRepository {
       });
 
       const result = await this.client.send(command);
-      return (result.Responses?.[this.tableName] || []) as Account[];
+      return (result.Responses?.[this.tableName] || []).map((item) =>
+        hydrate(accountSchema, item),
+      );
     } catch (error) {
       console.error("Error batch finding accounts by IDs:", error);
       throw new AccountRepositoryError(
@@ -282,7 +286,7 @@ export class AccountRepository implements IAccountRepository {
       });
 
       const result = await this.client.send(command);
-      return result.Attributes as Account;
+      return hydrate(accountSchema, result.Attributes);
     } catch (error) {
       console.error("Error updating account:", error);
 
@@ -330,7 +334,7 @@ export class AccountRepository implements IAccountRepository {
       });
 
       const result = await this.client.send(command);
-      return result.Attributes as Account;
+      return hydrate(accountSchema, result.Attributes);
     } catch (error) {
       console.error("Error archiving account:", error);
 

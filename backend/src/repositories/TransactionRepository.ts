@@ -28,7 +28,9 @@ import {
   MAX_PAGE_SIZE,
 } from "../types/pagination";
 import { YEAR_RANGE_OFFSET, MIN_SEARCH_TEXT_LENGTH } from "../types/validation";
+import { transactionSchema } from "./utils/Transaction.schema";
 import { createDynamoDBDocumentClient } from "./utils/dynamoClient";
+import { hydrate } from "./utils/hydrate";
 import { paginateQuery } from "./utils/pagination";
 
 /**
@@ -219,7 +221,7 @@ export class TransactionRepository implements ITransactionRepository {
       const command = new UpdateCommand(updateParams);
 
       const result = await this.client.send(command);
-      return result.Attributes as Transaction;
+      return hydrate(transactionSchema, result.Attributes);
     } catch (error) {
       if (
         error instanceof Error &&
@@ -327,7 +329,7 @@ export class TransactionRepository implements ITransactionRepository {
       });
 
       const result = await this.client.send(command);
-      return result.Attributes as Transaction;
+      return hydrate(transactionSchema, result.Attributes);
     } catch (error) {
       console.error("Error archiving transaction:", error);
 
@@ -529,7 +531,7 @@ export class TransactionRepository implements ITransactionRepository {
         return null;
       }
 
-      const transaction = result.Item as Transaction;
+      const transaction = hydrate(transactionSchema, result.Item);
 
       // Return null if transaction is archived (soft deleted)
       if (transaction.isArchived) {
@@ -916,7 +918,8 @@ export class TransactionRepository implements ITransactionRepository {
     ExpressionAttributeValues: Record<string, unknown>;
     ReturnValues: "ALL_NEW";
   } {
-    const updateExpressionParts: string[] = ["updatedAt = :updatedAt"];
+    const setExpressionParts: string[] = ["updatedAt = :updatedAt"];
+    const removeExpressionParts: string[] = [];
     const expressionAttributeValues: Record<string, unknown> = {
       ":updatedAt": timestamp,
       ":isArchived": true,
@@ -924,56 +927,63 @@ export class TransactionRepository implements ITransactionRepository {
     const expressionAttributeNames: Record<string, string> = {};
 
     if (input.accountId !== undefined) {
-      updateExpressionParts.push("accountId = :accountId");
+      setExpressionParts.push("accountId = :accountId");
       expressionAttributeValues[":accountId"] = input.accountId;
     }
 
     if (input.categoryId !== undefined) {
       if (input.categoryId === null) {
-        updateExpressionParts.push("categoryId = :categoryId");
-        expressionAttributeValues[":categoryId"] = null;
+        removeExpressionParts.push("categoryId");
       } else {
-        updateExpressionParts.push("categoryId = :categoryId");
+        setExpressionParts.push("categoryId = :categoryId");
         expressionAttributeValues[":categoryId"] = input.categoryId;
       }
     }
 
     if (input.type !== undefined) {
-      updateExpressionParts.push("#type = :type");
+      setExpressionParts.push("#type = :type");
       expressionAttributeValues[":type"] = input.type;
       expressionAttributeNames["#type"] = "type";
     }
 
     if (input.amount !== undefined) {
-      updateExpressionParts.push("amount = :amount");
+      setExpressionParts.push("amount = :amount");
       expressionAttributeValues[":amount"] = input.amount;
     }
 
     if (input.currency !== undefined) {
-      updateExpressionParts.push("currency = :currency");
+      setExpressionParts.push("currency = :currency");
       expressionAttributeValues[":currency"] = input.currency;
     }
 
     if (input.date !== undefined) {
-      updateExpressionParts.push("#date = :date");
+      setExpressionParts.push("#date = :date");
       expressionAttributeValues[":date"] = input.date;
       expressionAttributeNames["#date"] = "date";
     }
 
     if (input.description !== undefined) {
       if (input.description === null) {
-        updateExpressionParts.push("description = :description");
-        expressionAttributeValues[":description"] = null;
+        removeExpressionParts.push("description");
       } else {
-        updateExpressionParts.push("description = :description");
+        setExpressionParts.push("description = :description");
         expressionAttributeValues[":description"] = input.description;
       }
+    }
+
+    // Build UpdateExpression with both SET and REMOVE clauses
+    const updateExpressionParts: string[] = [];
+    if (setExpressionParts.length > 0) {
+      updateExpressionParts.push(`SET ${setExpressionParts.join(", ")}`);
+    }
+    if (removeExpressionParts.length > 0) {
+      updateExpressionParts.push(`REMOVE ${removeExpressionParts.join(", ")}`);
     }
 
     return {
       TableName: this.tableName,
       Key: { userId, id },
-      UpdateExpression: `SET ${updateExpressionParts.join(", ")}`,
+      UpdateExpression: updateExpressionParts.join(" "),
       ConditionExpression:
         "attribute_exists(userId) AND attribute_exists(id) AND isArchived <> :isArchived",
       ...(Object.keys(expressionAttributeNames).length > 0 && {
