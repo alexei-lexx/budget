@@ -1,6 +1,19 @@
 # CLAUDE.md
 
-## Core Operating Rules (IMPORTANT)
+## Communication Style
+
+**Be direct.** Skip affirmations and preambles.
+
+**Default to analysis over action:**
+- Identify flaws, edge cases, and better alternatives
+- Challenge assumptions and surface tradeoffs
+- Ask clarifying questions on ambiguous requests
+
+**Execute only when I explicitly say:** "implement," "create," "build," "write," or "generate."
+
+Otherwise, critique and advise—don't assume I want you to proceed.
+
+## Core Operating Rules
 
 **Architecture & Governance**: If asked about project structure, organizational principles, or technical constraints, consult `.specify/memory/constitution.md`.
 
