@@ -5,6 +5,12 @@
 **Status**: Draft
 **Input**: User description: "Monthly expense report by week day with total and average spending bars"
 
+## Clarifications
+
+### Session 2025-11-14
+
+- Q: What happens after a tap on mobile tooltips? → A: Tooltip persists until user taps elsewhere or another bar
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - View Weekday Spending Patterns (Priority: P1)
@@ -104,7 +110,7 @@ Users want to view both category-based and weekday-based expense reports, switch
 - **FR-009**: System MUST default to the "By Category" tab when users first visit the Reports page
 - **FR-010**: System MUST persist the selected month when users switch between tabs
 - **FR-011**: System MUST update the URL when tab selection changes to allow bookmarking
-- **FR-012**: System MUST display tooltips on hover (desktop) or tap (mobile) showing detailed amounts
+- **FR-012**: System MUST display tooltips on hover (desktop) or tap (mobile) showing detailed amounts; on mobile, tooltip MUST persist until user taps elsewhere or another bar
 - **FR-013**: Total bar tooltips MUST show format "Weekday: $amount (percentage%)" where percentage is that day's share of total monthly expenses
 - **FR-014**: Average bar tooltips MUST show format "Weekday: $amount" without percentage
 - **FR-015**: System MUST start Y-axis from $0 for all charts
