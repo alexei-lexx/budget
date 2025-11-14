@@ -10,6 +10,7 @@
 ### Session 2025-11-14
 
 - Q: What happens after a tap on mobile tooltips? → A: Tooltip persists until user taps elsewhere or another bar
+- Q: What is the left-to-right ordering of bars within each weekday group? → A: Total (dark blue) bar on left, Average (light blue) bar on right
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -103,7 +104,7 @@ Users want to view both category-based and weekday-based expense reports, switch
 - **FR-002**: System MUST calculate total expense amounts for each weekday (Monday through Sunday) for the selected month
 - **FR-003**: System MUST calculate average expense amounts for each weekday by dividing total by the number of times that weekday appears in the month
 - **FR-004**: System MUST display weekday data as a vertical bar chart with 7 weekday groups on the X-axis and currency amounts on the Y-axis
-- **FR-005**: System MUST show two bars per weekday: a dark blue bar for total spending and a light blue bar for average spending
+- **FR-005**: System MUST show two bars per weekday: a dark blue bar for total spending (positioned left) and a light blue bar for average spending (positioned right)
 - **FR-006**: System MUST label weekdays as 3-letter abbreviations (Mon, Tue, Wed, Thu, Fri, Sat, Sun) starting with Monday
 - **FR-007**: System MUST include a legend below the chart identifying "Total" and "Average" bars
 - **FR-008**: System MUST provide month navigation controls (previous/next arrows) shared between report tabs
