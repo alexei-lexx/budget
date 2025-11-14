@@ -126,7 +126,7 @@ Users want to view both category-based and weekday-based expense reports, switch
 - **FR-021**: System MUST display consistent error messages when data fetch fails
 - **FR-022**: System MUST only include expense transactions (exclude income and transfers)
 - **FR-023**: System MUST show zero-height bars for weekdays with no expenses
-- **FR-024**: Chart bars MUST use sufficient color contrast between dark blue (total) and light blue (average) for accessibility
+- **FR-024**: Chart bars MUST use sufficient color contrast between dark blue (total) and light blue (average) for accessibility, meeting WCAG 2.1 Level AA standards (minimum 3:1 contrast ratio for graphical objects)
 - **FR-025**: System MUST display a currency selector dropdown above the chart when user has expenses in multiple currencies
 - **FR-026**: Currency selector MUST include an "All" option that sums amounts from all currencies without conversion
 - **FR-027**: Currency selector MUST include individual options for each currency the user has expenses in

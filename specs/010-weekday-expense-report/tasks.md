@@ -108,13 +108,15 @@ cd frontend && npm run build
 
 - [ ] T013 [P] [US1] Add weekday calculation helper function in backend/src/services/ReportsService.ts (getWeekdayIndex: returns 0-6 for Mon-Sun from ISO date string)
 - [ ] T014 [P] [US1] Add weekday occurrence counter in backend/src/services/ReportsService.ts (countWeekdayOccurrences: counts how many times a weekday appears in a month)
-- [ ] T015 [US1] Implement getWeekdayReport method in backend/src/services/ReportsService.ts (fetch transactions, group by weekday, calculate totals/averages/percentages per currency)
-- [ ] T016 [US1] Add Zod validation schema for weekdayReport input in backend/src/resolvers/reportResolvers.ts (year: int within ±10 years, month: 1-12, type: EXPENSE only)
-- [ ] T017 [US1] Add weekdayReport resolver in backend/src/resolvers/reportResolvers.ts (validate input, call context.reportsService.getWeekdayReport, handle errors)
+- [ ] T015 [US1] Implement getWeekdayReport method following getMonthlyReport pattern in backend/src/services/ReportsService.ts (signature: getWeekdayReport(userId: string, year: number, month: number, type: TransactionType), fetch transactions filtered by type, group by weekday, calculate totals/averages/percentages per currency)
+- [ ] T016 [US1] Add weekdayReportInputSchema following monthlyReportInputSchema pattern in backend/src/resolvers/reportResolvers.ts (same validation: year with YEAR_RANGE_OFFSET, month 1-12, type: z.enum([TransactionType.INCOME, TransactionType.EXPENSE]))
+- [ ] T017 [US1] Add weekdayReport resolver following monthlyReport pattern in backend/src/resolvers/reportResolvers.ts (validate with weekdayReportInputSchema, get authenticated user, call context.reportsService.getWeekdayReport(user.id, validatedInput.year, validatedInput.month, validatedInput.type), handle Zod and resolver errors)
 - [ ] T018 [US1] Write test for single-currency weekday aggregation in backend/src/services/ReportsService.test.ts (verify totals, averages, percentages)
 - [ ] T019 [US1] Write test for multi-currency weekday aggregation in backend/src/services/ReportsService.test.ts (verify separate currency breakdowns)
+- [ ] T019b [US1] Write test for percentage calculation in "All" currencies mode in backend/src/services/ReportsService.test.ts (verify percentages sum to 100% when treating all currency amounts as equal units, regardless of exchange rates)
 - [ ] T020 [US1] Write test for empty month handling in backend/src/services/ReportsService.test.ts (verify empty weekdays and currencyTotals arrays)
 - [ ] T021 [US1] Write test for average calculation correctness in backend/src/services/ReportsService.test.ts (verify division by weekday occurrences, not transaction count)
+- [ ] T022b [US1] Write test for weekdays with zero expenses in backend/src/services/ReportsService.test.ts (verify weekdays with no expenses return empty currencyBreakdowns array per schema contract)
 - [ ] T022 [US1] Verify all backend tests pass (run `cd backend && npm test`)
 
 **Parallel Opportunities (Backend)**:
@@ -131,7 +133,7 @@ cd frontend && npm run build
 - [ ] T024 [P] [US1] Create WeekdayChart component skeleton in frontend/src/components/reports/WeekdayChart.vue (setup script with props for weekdays/currencyTotals/loading/error)
 - [ ] T025 [US1] Register Chart.js components in frontend/src/components/reports/WeekdayChart.vue (import and register Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale)
 - [ ] T026 [US1] Transform weekday data for Chart.js in frontend/src/components/reports/WeekdayChart.vue (convert WeekdayReportDay[] to Chart.js dataset format)
-- [ ] T027 [US1] Configure Chart.js options in frontend/src/components/reports/WeekdayChart.vue (grouped bars, Y-axis from 0, grid lines, accessibility)
+- [ ] T027 [US1] Configure Chart.js options in frontend/src/components/reports/WeekdayChart.vue (grouped bars, Y-axis from 0, grid lines, legend position: 'bottom', accessibility)
 - [ ] T028 [US1] Implement tooltip formatters in frontend/src/components/reports/WeekdayChart.vue (total: "{Abbr}: {amount} (percentage%)", average: "{Abbr}: {amount}")
 - [ ] T029 [US1] Add mobile tooltip persistence in frontend/src/components/reports/WeekdayChart.vue (onClick handler to persist tooltip until next tap)
 - [ ] T030 [US1] Add currency symbol logic in frontend/src/components/reports/WeekdayChart.vue (hide symbol when "All" selected, show when specific currency)
@@ -152,14 +154,14 @@ cd frontend && npm run build
 
 ### User Story 1 Manual Testing
 
-- [ ] T037 [US1] Test chart display on desktop (verify 7 weekdays, total/average bars, correct colors, tooltips on hover)
+- [ ] T037 [US1] Test chart display on desktop (verify 7 weekdays, total/average bars, correct colors, tooltips on hover, highest spending weekday visually obvious within 5 seconds per SC-002)
 - [ ] T038 [US1] Test chart display on mobile (verify responsive at 320px width, tooltips persist on tap)
 - [ ] T039 [US1] Test multi-currency handling (verify currency selector appears, filtering works, symbol display correct)
 - [ ] T040 [US1] Test empty month scenario (verify empty state message displays, chart hidden)
 - [ ] T041 [US1] Test loading state (verify skeleton loader displays during fetch)
 - [ ] T042 [US1] Test error handling (simulate network error, verify error message displays)
 
-**Story 1 Completion Criteria**: ✅ All T013-T042 tasks complete, manual tests pass, weekday chart displays correctly
+**Story 1 Completion Criteria**: ✅ All T013-T042 tasks complete (including T019b and T022b), manual tests pass, weekday chart displays correctly
 
 ---
 
@@ -253,14 +255,14 @@ cd frontend && npm run build
 
 ## Summary
 
-**Total Tasks**: 64 tasks across 6 phases
+**Total Tasks**: 66 tasks across 6 phases
 **Estimated Time**: 4-6 hours
 
 ### Task Distribution by User Story
 
 - **Setup (Phase 1)**: 3 tasks, 15 minutes
 - **Foundational (Phase 2)**: 9 tasks, 30 minutes
-- **User Story 1 (Phase 3)**: 30 tasks, 3-4 hours
+- **User Story 1 (Phase 3)**: 32 tasks, 3-4 hours
 - **User Story 2 (Phase 4)**: 5 tasks, 30 minutes
 - **User Story 3 (Phase 5)**: 9 tasks, 1 hour
 - **Polish (Phase 6)**: 8 tasks, 30 minutes
