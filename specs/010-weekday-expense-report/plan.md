@@ -105,14 +105,12 @@ backend/
 │   │   ├── reportResolvers.ts              # [MODIFY] Add weekdayReport resolver
 │   │   └── index.ts                        # [VERIFY] Resolver export
 │   ├── services/
-│   │   └── ReportsService.ts               # [MODIFY] Add getWeekdayReport() method
+│   │   ├── ReportsService.ts               # [MODIFY] Add getWeekdayReport() method
+│   │   └── ReportsService.test.ts          # [MODIFY] Add tests for getWeekdayReport()
 │   ├── models/
 │   │   └── Transaction.ts                  # [READ-ONLY] Existing transaction model
 │   └── __generated__/
 │       └── resolvers-types.ts              # [AUTO-GENERATED] Run npm run codegen
-└── tests/
-    └── services/
-        └── ReportsService.test.ts          # [CREATE] Tests for getWeekdayReport()
 
 frontend/
 ├── src/

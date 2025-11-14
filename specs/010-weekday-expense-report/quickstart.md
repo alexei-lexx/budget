@@ -56,7 +56,7 @@ Add weekday expense reporting to the Reports page with backend aggregation and C
   ```
   Follow pattern from existing `monthlyReport` resolver.
 
-- [ ] **Write Tests**: Create `backend/tests/services/ReportsService.test.ts`
+- [ ] **Write Tests**: Add tests to `backend/src/services/ReportsService.test.ts`
   - Test single currency aggregation
   - Test multi-currency aggregation
   - Test average calculation

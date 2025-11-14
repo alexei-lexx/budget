@@ -48,8 +48,8 @@ Phase 6 (Polish)
 ### Tasks
 
 - [ ] T001 [P] Install Chart.js dependencies in frontend/package.json (add "chart.js": "^4.4.0" and "vue-chartjs": "^5.3.0")
-- [ ] T002 [P] Verify backend development environment ready (run `cd backend && npm test` to ensure existing tests pass)
-- [ ] T003 [P] Verify frontend development environment ready (run `cd frontend && npm run type-check` to ensure no existing errors)
+- [ ] T002 [P] Verify backend development environment ready (run `cd backend && npm run build && npm test` to ensure existing tests pass)
+- [ ] T003 [P] Verify frontend development environment ready (run `cd frontend && npm run build` to ensure no existing errors)
 
 **Parallel Execution Example**:
 ```bash
@@ -57,10 +57,10 @@ Phase 6 (Polish)
 cd frontend && npm install chart.js vue-chartjs
 
 # Terminal 2
-cd backend && npm test
+cd backend && npm run build && npm test
 
 # Terminal 3
-cd frontend && npm run type-check
+cd frontend && npm run build
 ```
 
 ---
@@ -111,10 +111,10 @@ cd frontend && npm run type-check
 - [ ] T015 [US1] Implement getWeekdayReport method in backend/src/services/ReportsService.ts (fetch transactions, group by weekday, calculate totals/averages/percentages per currency)
 - [ ] T016 [US1] Add Zod validation schema for weekdayReport input in backend/src/resolvers/reportResolvers.ts (year: int within ±10 years, month: 1-12, type: EXPENSE only)
 - [ ] T017 [US1] Add weekdayReport resolver in backend/src/resolvers/reportResolvers.ts (validate input, call context.reportsService.getWeekdayReport, handle errors)
-- [ ] T018 [US1] Write test for single-currency weekday aggregation in backend/tests/services/ReportsService.test.ts (verify totals, averages, percentages)
-- [ ] T019 [US1] Write test for multi-currency weekday aggregation in backend/tests/services/ReportsService.test.ts (verify separate currency breakdowns)
-- [ ] T020 [US1] Write test for empty month handling in backend/tests/services/ReportsService.test.ts (verify empty weekdays and currencyTotals arrays)
-- [ ] T021 [US1] Write test for average calculation correctness in backend/tests/services/ReportsService.test.ts (verify division by weekday occurrences, not transaction count)
+- [ ] T018 [US1] Write test for single-currency weekday aggregation in backend/src/services/ReportsService.test.ts (verify totals, averages, percentages)
+- [ ] T019 [US1] Write test for multi-currency weekday aggregation in backend/src/services/ReportsService.test.ts (verify separate currency breakdowns)
+- [ ] T020 [US1] Write test for empty month handling in backend/src/services/ReportsService.test.ts (verify empty weekdays and currencyTotals arrays)
+- [ ] T021 [US1] Write test for average calculation correctness in backend/src/services/ReportsService.test.ts (verify division by weekday occurrences, not transaction count)
 - [ ] T022 [US1] Verify all backend tests pass (run `cd backend && npm test`)
 
 **Parallel Opportunities (Backend)**:
