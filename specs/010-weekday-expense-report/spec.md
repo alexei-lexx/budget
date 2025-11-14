@@ -11,6 +11,8 @@
 
 - Q: What happens after a tap on mobile tooltips? → A: Tooltip persists until user taps elsewhere or another bar
 - Q: What is the left-to-right ordering of bars within each weekday group? → A: Total (dark blue) bar on left, Average (light blue) bar on right
+- Q: How are percentages calculated when "All" currencies selected? → A: Calculate percentage by treating all currency amounts as equal units
+- Q: How should amounts be displayed when "All" currencies selected? → A: Show amounts as numbers without currency symbols when "All" selected; use proper currency symbol when single currency selected
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -90,7 +92,7 @@ Users want to view both category-based and weekday-based expense reports, switch
 
 - What happens when a weekday has zero expenses?
   - Show zero-height bars for both total and average
-  - Tooltip shows "$0" for that weekday
+  - Tooltip shows "0" (without currency symbol when "All" selected) or with currency symbol (e.g., "$0") when single currency selected
 
 - How are weekdays with only 1 occurrence handled?
   - Average bar shows same amount as total bar (total ÷ 1 = total)
@@ -112,9 +114,9 @@ Users want to view both category-based and weekday-based expense reports, switch
 - **FR-010**: System MUST persist the selected month when users switch between tabs
 - **FR-011**: System MUST update the URL when tab selection changes to allow bookmarking
 - **FR-012**: System MUST display tooltips on hover (desktop) or tap (mobile) showing detailed amounts; on mobile, tooltip MUST persist until user taps elsewhere or another bar
-- **FR-013**: Total bar tooltips MUST show format "Weekday: $amount (percentage%)" where percentage is that day's share of total monthly expenses
-- **FR-014**: Average bar tooltips MUST show format "Weekday: $amount" without percentage
-- **FR-015**: System MUST start Y-axis from $0 for all charts
+- **FR-013**: Total bar tooltips MUST show format "Weekday: {amount} (percentage%)" where percentage is that day's share of total monthly expenses; when "All" currencies selected, percentage MUST be calculated by treating all currency amounts as equal units and amount MUST be displayed without currency symbol; when single currency selected, amount MUST include currency symbol (e.g., "$100")
+- **FR-014**: Average bar tooltips MUST show format "Weekday: {amount}" without percentage; when "All" currencies selected, amount MUST be displayed without currency symbol; when single currency selected, amount MUST include currency symbol
+- **FR-015**: System MUST start Y-axis from 0 for all charts; Y-axis labels MUST display without currency symbol when "All" currencies selected, and with currency symbol when single currency selected
 - **FR-016**: System MUST include grid lines on the chart for readability
 - **FR-017**: System MUST include ARIA labels for chart elements for screen reader accessibility
 - **FR-018**: System MUST support keyboard navigation for tabs
