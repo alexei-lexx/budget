@@ -86,18 +86,16 @@ specs/010-weekday-expense-report/
 
 ```text
 backend/
-├── src/
-│   ├── schema.graphql                          # Add monthlyWeekdayReport query
-│   ├── resolvers/
-│   │   └── reports.ts                          # Add monthlyWeekdayReport resolver
-│   ├── services/
-│   │   ├── MonthlyByCategoryReportService.ts   # Renamed from ReportService
-│   │   └── MonthlyByWeekdayReportService.ts    # NEW: Weekday aggregation logic
-│   └── repositories/
-│       └── TransactionRepository.ts            # Existing, reused
-└── tests/
-    └── services/
-        └── MonthlyByWeekdayReportService.test.ts  # NEW: Unit tests
+└── src/
+    ├── schema.graphql                          # Add monthlyWeekdayReport query
+    ├── resolvers/
+    │   └── reports.ts                          # Add monthlyWeekdayReport resolver
+    ├── services/
+    │   ├── MonthlyByCategoryReportService.ts   # Renamed from ReportService
+    │   ├── MonthlyByWeekdayReportService.ts    # NEW: Weekday aggregation logic
+    │   └── MonthlyByWeekdayReportService.test.ts  # NEW: Co-located unit tests
+    └── repositories/
+        └── TransactionRepository.ts            # Existing, reused
 
 frontend/
 ├── src/
