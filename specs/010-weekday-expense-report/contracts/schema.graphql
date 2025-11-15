@@ -151,7 +151,7 @@ extend type Query {
 # 6. Add monthlyWeekdayReport query to existing Query type
 # 7. Run `npm run codegen` in backend to generate TypeScript types
 # 8. Implement resolver in backend/src/resolvers/reports.ts
-# 9. Implement WeekdayReportService in backend/src/services/WeekdayReportService.ts
+# 9. Implement MonthlyByWeekdayReportService in backend/src/services/MonthlyByWeekdayReportService.ts
 # 10. Frontend syncs schema via `npm run codegen:sync-schema`
 # 11. Frontend generates composables via `npm run codegen`
 

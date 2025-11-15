@@ -86,17 +86,17 @@ const chartOptions = {
 ## 2. Weekday Aggregation Logic
 
 ### Decision
-Implement backend aggregation in **WeekdayReportService** with per-currency calculation.
+Implement backend aggregation in **MonthlyByWeekdayReportService** with per-currency calculation.
 
 ### Rationale
 - **Performance**: Reduces data transfer (7 aggregated records vs hundreds of transactions)
 - **Testability**: Business logic centralized in testable service layer
-- **Consistency**: Matches existing `CategoryReportService` pattern
+- **Consistency**: Matches existing `MonthlyByCategoryReportService` pattern
 - **Reusability**: Aggregation logic can be reused for future reports
 
 ### Algorithm
 ```typescript
-// Pseudo-code for WeekdayReportService.getWeekdayReport()
+// Pseudo-code for MonthlyByWeekdayReportService.getWeekdayReport()
 
 1. Fetch transactions for given month/year/type using TransactionRepository
 2. Filter by type=EXPENSE (spec requires expense-only)
@@ -325,8 +325,8 @@ onMounted(() => {
 | Area | Decision | Rationale |
 |------|----------|-----------|
 | **Charting Library** | Chart.js v4 + vue-chartjs v5 | Lightweight, accessible, well-maintained |
-| **Aggregation Location** | Backend (WeekdayReportService) | Better performance, testability, consistency |
-| **Service Architecture** | New WeekdayReportService + rename existing to CategoryReportService | Follows service layer pattern |
+| **Aggregation Location** | Backend (MonthlyByWeekdayReportService) | Better performance, testability, consistency |
+| **Service Architecture** | New MonthlyByWeekdayReportService + rename existing to MonthlyByCategoryReportService | Follows service layer pattern |
 | **Weekday Enum** | MON, TUE, WED, THU, FRI, SAT, SUN | Type-safe, explicit ordering |
 | **Currency Handling** | Per-currency breakdowns, "All" option | Flexible multi-currency support |
 | **Accessibility** | ARIA labels, keyboard nav, 3:1 contrast | WCAG 2.1 Level AA compliance |

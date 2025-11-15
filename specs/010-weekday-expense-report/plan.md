@@ -36,7 +36,7 @@ Add a new weekday-based expense report page that displays total and average spen
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
 ### Test Strategy ✅ PASS
-- **Backend**: Test new WeekdayReportService with unit tests (happy path + error cases)
+- **Backend**: Test new MonthlyByWeekdayReportService with unit tests (happy path + error cases)
 - **Frontend**: Manual testing for chart visualization and interactions
 - Justification: Follows established pattern - backend logic tested, UI verified manually
 
@@ -63,7 +63,7 @@ Add a new weekday-based expense report page that displays total and average spen
 ### Database Record Hydration ✅ PASS
 - **No new database reads**: Feature uses existing TransactionRepository methods
 - TransactionRepository already validates records at boundary using schemas
-- WeekdayReportService will receive validated transaction data from repository
+- MonthlyByWeekdayReportService will receive validated transaction data from repository
 
 **GATE STATUS**: ✅ ALL CHECKS PASS - Proceed to Phase 0
 
@@ -91,13 +91,13 @@ backend/
 │   ├── resolvers/
 │   │   └── reports.ts                          # Add monthlyWeekdayReport resolver
 │   ├── services/
-│   │   ├── CategoryReportService.ts            # Renamed from ReportService
-│   │   └── WeekdayReportService.ts             # NEW: Weekday aggregation logic
+│   │   ├── MonthlyByCategoryReportService.ts   # Renamed from ReportService
+│   │   └── MonthlyByWeekdayReportService.ts    # NEW: Weekday aggregation logic
 │   └── repositories/
 │       └── TransactionRepository.ts            # Existing, reused
 └── tests/
     └── services/
-        └── WeekdayReportService.test.ts        # NEW: Unit tests
+        └── MonthlyByWeekdayReportService.test.ts  # NEW: Unit tests
 
 frontend/
 ├── src/

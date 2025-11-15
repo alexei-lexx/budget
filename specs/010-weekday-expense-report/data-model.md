@@ -41,7 +41,7 @@ enum TransactionType {
 }
 ```
 
-**Query Pattern**: WeekdayReportService uses TransactionRepository to fetch expense transactions for a given month/year:
+**Query Pattern**: MonthlyByWeekdayReportService uses TransactionRepository to fetch expense transactions for a given month/year:
 ```typescript
 const startDate = `${year}-${month.toString().padStart(2, '0')}-01`
 const endDate = `${year}-${month.toString().padStart(2, '0')}-${lastDay}`
@@ -152,7 +152,7 @@ interface MonthlyWeekdayReportCurrencyTotal {
 
 #### MonthlyWeekdayReport
 **Lifecycle**: Computed per GraphQL query
-**Source**: Root aggregation object returned by WeekdayReportService
+**Source**: Root aggregation object returned by MonthlyByWeekdayReportService
 **Purpose**: Top-level response containing all weekday data and metadata
 
 ```typescript
@@ -179,12 +179,12 @@ interface MonthlyWeekdayReport {
 
 ## Service Layer Logic
 
-### WeekdayReportService
+### MonthlyByWeekdayReportService
 
 **Responsibility**: Aggregate transaction data into weekday-based report
 
 ```typescript
-class WeekdayReportService {
+class MonthlyByWeekdayReportService {
   constructor(private transactionRepository: ITransactionRepository) {}
 
   async getWeekdayReport(
@@ -384,4 +384,4 @@ function transformToChartData(
 
 ## Summary
 
-This data model leverages existing Transaction entities without introducing new database tables. All aggregation happens in the WeekdayReportService, ensuring separation of concerns and testability. The GraphQL schema provides strong typing and consistency with existing report patterns.
+This data model leverages existing Transaction entities without introducing new database tables. All aggregation happens in the MonthlyByWeekdayReportService, ensuring separation of concerns and testability. The GraphQL schema provides strong typing and consistency with existing report patterns.

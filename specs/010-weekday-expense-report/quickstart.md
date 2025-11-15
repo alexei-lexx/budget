@@ -31,7 +31,7 @@ GraphQL Query: monthlyWeekdayReport(year, month, type)
     ↓
 Backend Resolver (reports.ts)
     ↓
-WeekdayReportService.getWeekdayReport()
+MonthlyByWeekdayReportService.getWeekdayReport()
     ↓
 TransactionRepository.getByDateRange()
     ↓
@@ -101,9 +101,9 @@ cd backend
 npm run codegen
 ```
 
-### Step 2: Backend - WeekdayReportService
+### Step 2: Backend - MonthlyByWeekdayReportService
 
-**File**: `backend/src/services/WeekdayReportService.ts`
+**File**: `backend/src/services/MonthlyByWeekdayReportService.ts`
 
 Create new service for weekday aggregation logic:
 
@@ -111,7 +111,7 @@ Create new service for weekday aggregation logic:
 import { ITransactionRepository } from '../repositories/interfaces'
 import { TransactionType } from '../__generated__/graphql-types'
 
-export class WeekdayReportService {
+export class MonthlyByWeekdayReportService {
   constructor(private transactionRepository: ITransactionRepository) {}
 
   async getWeekdayReport(
@@ -145,11 +145,11 @@ See `data-model.md` for complete algorithm.
 ### Step 3: Backend - Rename Existing Service
 
 **Old**: `backend/src/services/ReportService.ts`
-**New**: `backend/src/services/CategoryReportService.ts`
+**New**: `backend/src/services/MonthlyByCategoryReportService.ts`
 
 ```bash
 cd backend/src/services
-git mv ReportService.ts CategoryReportService.ts
+git mv ReportService.ts MonthlyByCategoryReportService.ts
 ```
 
 Update all imports in resolvers and context.
@@ -161,7 +161,7 @@ Update all imports in resolvers and context.
 Add resolver for new query:
 
 ```typescript
-import { WeekdayReportService } from '../services/WeekdayReportService'
+import { MonthlyByWeekdayReportService } from '../services/MonthlyByWeekdayReportService'
 
 export const reportsResolvers = {
   Query: {
@@ -170,13 +170,13 @@ export const reportsResolvers = {
     },
 
     monthlyWeekdayReport: async (_, { year, month, type }, context) => {
-      const { auth, weekdayReportService } = context
+      const { auth, monthlyByWeekdayReportService } = context
 
       if (!auth.isAuthenticated || !auth.user) {
         throw new Error('Authentication required')
       }
 
-      return weekdayReportService.getWeekdayReport(
+      return monthlyByWeekdayReportService.getWeekdayReport(
         auth.user.id,
         year,
         month,
@@ -191,47 +191,47 @@ export const reportsResolvers = {
 
 **File**: `backend/src/context.ts`
 
-Add WeekdayReportService to GraphQL context:
+Add MonthlyByWeekdayReportService to GraphQL context:
 
 ```typescript
-import { WeekdayReportService } from './services/WeekdayReportService'
+import { MonthlyByWeekdayReportService } from './services/MonthlyByWeekdayReportService'
 
 export interface Context {
   // ... existing context fields
-  categoryReportService: CategoryReportService  // Renamed
-  weekdayReportService: WeekdayReportService    // New
+  monthlyByCategoryReportService: MonthlyByCategoryReportService  // Renamed
+  monthlyByWeekdayReportService: MonthlyByWeekdayReportService    // New
 }
 
 export const createContext = ({ req }): Context => {
   // ... existing context setup
-  const weekdayReportService = new WeekdayReportService(transactionRepository)
+  const monthlyByWeekdayReportService = new MonthlyByWeekdayReportService(transactionRepository)
 
   return {
     // ... existing context
-    weekdayReportService
+    monthlyByWeekdayReportService
   }
 }
 ```
 
 ### Step 6: Backend - Testing
 
-**File**: `backend/tests/services/WeekdayReportService.test.ts`
+**File**: `backend/tests/services/MonthlyByWeekdayReportService.test.ts`
 
 Create unit tests:
 
 ```typescript
-import { WeekdayReportService } from '../../src/services/WeekdayReportService'
+import { MonthlyByWeekdayReportService } from '../../src/services/MonthlyByWeekdayReportService'
 import { TransactionType } from '../../src/__generated__/graphql-types'
 
-describe('WeekdayReportService', () => {
-  let service: WeekdayReportService
+describe('MonthlyByWeekdayReportService', () => {
+  let service: MonthlyByWeekdayReportService
   let mockTransactionRepository: jest.Mocked<ITransactionRepository>
 
   beforeEach(() => {
     mockTransactionRepository = {
       getByDateRange: jest.fn()
     } as any
-    service = new WeekdayReportService(mockTransactionRepository)
+    service = new MonthlyByWeekdayReportService(mockTransactionRepository)
   })
 
   it('should aggregate expenses by weekday', async () => {
@@ -527,7 +527,7 @@ const menuItems = [
 
 1. Make schema changes in `backend/src/schema.graphql`
 2. Run `npm run codegen` in backend
-3. Implement resolver and service logic
+3. Implement resolver and MonthlyByWeekdayReportService logic
 4. Test with GraphQL Playground
 5. Run `npm run codegen:sync-schema` in frontend
 6. Run `npm run codegen` in frontend
@@ -539,7 +539,7 @@ const menuItems = [
 After completing implementation:
 1. Run `/speckit.tasks` to generate `tasks.md` with detailed implementation tasks
 2. Follow tasks in order, marking completed as you go
-3. Write unit tests for WeekdayReportService
+3. Write unit tests for MonthlyByWeekdayReportService
 4. Manually test UI interactions
 5. Update documentation if needed
 
