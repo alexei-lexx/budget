@@ -6,7 +6,7 @@ Removed Sections: None
 Templates Requiring Updates:
   - plan-template.md: ✅ No changes required (test strategy detail doesn't affect planning structure)
   - spec-template.md: ✅ No changes required (feature specs unchanged)
-  - tasks-template.md: ⚠️ Consider updating test task examples to show co-located paths (e.g., src/services/WeekdayReportService.test.ts instead of tests/services/WeekdayReportService.test.ts)
+  - tasks-template.md: ⚠️ Consider updating test task examples to show co-located paths (e.g., src/models/User.test.ts instead of tests/models/User.test.ts)
   - command files: None found in .specify/templates/commands/
 Follow-up TODOs:
   - Ratification date remains TODO (inherited from previous versions)
