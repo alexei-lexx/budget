@@ -1,14 +1,16 @@
 <!-- SYNC IMPACT REPORT
-Version Change: 0.8.0 → 0.9.0 (MINOR: Added Database Record Hydration principle)
-Modified Sections: None
-Added Sections: Database Record Hydration principle in Core Principles
+Version Change: 0.9.0 → 0.9.1 (PATCH: Added test file co-location rule to Test Strategy)
+Modified Sections: Test Strategy (added test file location requirement)
+Added Sections: None
 Removed Sections: None
 Templates Requiring Updates:
-  - plan-template.md: ✅ No changes required (Constitution Check gate naturally includes new principle)
+  - plan-template.md: ✅ No changes required (test strategy detail doesn't affect planning structure)
   - spec-template.md: ✅ No changes required (feature specs unchanged)
-  - tasks-template.md: ✅ No changes required (task organization unaffected, validation fits existing phases)
+  - tasks-template.md: ⚠️ Consider updating test task examples to show co-located paths (e.g., src/services/WeekdayReportService.test.ts instead of tests/services/WeekdayReportService.test.ts)
   - command files: None found in .specify/templates/commands/
-Follow-up TODOs: Ratification date remains TODO (inherited from previous versions)
+Follow-up TODOs:
+  - Ratification date remains TODO (inherited from previous versions)
+  - Update existing test file locations to match new co-location standard (migration task)
 -->
 
 # Personal Finance Tracker Constitution
@@ -112,6 +114,10 @@ graph LR
 - Test manually (visual verification in dev)
 - Write UI component tests only for complex/critical components; not required
 
+**Test File Location**:
+- Test files MUST be co-located with source files in the same directory
+- Naming convention: `[source-file].test.ts` or `[source-file].spec.ts`
+
 ### Soft-Deletion
 
 **Non-negotiable rule**: All entities use soft-deletion by default unless explicitly excepted.
@@ -178,4 +184,4 @@ This constitution supersedes all other development guidelines. Amendments requir
 4. Commit with message: `docs: amend constitution to vX.Y.Z ([change summary])`
 5. Update dependent artifacts (templates, guidance docs) as flagged
 
-**Version**: 0.9.0 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-11-07
+**Version**: 0.9.1 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-11-15
