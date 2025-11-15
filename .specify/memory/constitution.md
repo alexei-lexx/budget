@@ -115,8 +115,8 @@ graph LR
 - Write UI component tests only for complex/critical components; not required
 
 **Test File Location**:
-- Test files MUST be co-located with source files in the same directory
-- Naming convention: `[source-file].test.ts` or `[source-file].spec.ts`
+- Co-location strategy: tests live next to the code they test
+- Naming: `[source-file].test.ts` in same directory as source `[source-file].ts`
 
 ### Soft-Deletion
 
