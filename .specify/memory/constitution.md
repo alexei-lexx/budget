@@ -56,21 +56,21 @@ GraphQL Resolvers → Services → Repositories
 ```
 
 **Repository Layer**:
-- Pure data access operations (CRUD)
-- Database-specific implementations
-- No business logic
-- Error handling for database operations
-- Recommended one repository per entity (User, Account, Category, Transaction)
+- Provide database access interface
+- Perform pure data access operations (CRUD)
+- Handle errors for database operations
+- Avoid business logic
+- Organize one repository per entity (recommended)
 
 **Service Layer**:
-- Business logic and domain rules
-- Business-specific error messages
-- Multi-repository operations (orchestrate operations across multiple repositories)
+- Implement business logic and domain rules
+- Provide business-specific error messages
+- Orchestrate multi-repository operations (operations across multiple repositories)
 - Inject repository dependencies in service constructor
-- Complex validation logic (currency matching, category type validation)
-- Transaction orchestration (atomic operations ensuring data consistency)
+- Implement complex validation logic (currency matching, category type validation)
+- Orchestrate transactions (atomic operations ensuring data consistency)
 - Group related CRUD operations for one entity in one service
-- Public methods called directly by GraphQL resolvers
+- Expose public methods for direct calling by GraphQL resolvers
 
 **GraphQL Layer**:
 - Validate user input using Zod schemas
@@ -78,7 +78,7 @@ GraphQL Resolvers → Services → Repositories
 - Define API schema and documentation
 - Transform requests and responses
 - Call appropriate service methods
-- No direct database access
+- Avoid direct database access
 
 ## Frontend
 
