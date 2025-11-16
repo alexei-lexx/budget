@@ -50,9 +50,9 @@ export class MonthlyByWeekdayReportService {
     DayOfWeek.SUNDAY,
   ];
 
-  constructor(private transactionRepository: ITransactionRepository) {}
+  constructor(private transactionRepository: ITransactionRepository) { }
 
-  async getWeekdayReport(
+  async call(
     userId: string,
     year: number,
     month: number,

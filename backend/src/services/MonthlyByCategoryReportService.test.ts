@@ -26,11 +26,11 @@ describe("MonthlyByCategoryReportService", () => {
     );
   });
 
-  describe("getMonthlyReport", () => {
+  describe("call", () => {
     it("should return empty report when no transactions exist", async () => {
       mockTransactionRepository.findActiveByMonthAndType.mockResolvedValue([]);
 
-      const result = await monthlyByCategoryReportService.getMonthlyReport(
+      const result = await monthlyByCategoryReportService.call(
         userId,
         2000,
         1,
@@ -78,7 +78,7 @@ describe("MonthlyByCategoryReportService", () => {
           fakeCategory({ id: categoryId2, name: "Transport" }),
         );
 
-      const result = await monthlyByCategoryReportService.getMonthlyReport(
+      const result = await monthlyByCategoryReportService.call(
         userId,
         2000,
         1,
@@ -104,7 +104,7 @@ describe("MonthlyByCategoryReportService", () => {
         transactions,
       );
 
-      const result = await monthlyByCategoryReportService.getMonthlyReport(
+      const result = await monthlyByCategoryReportService.call(
         userId,
         2000,
         1,
@@ -135,7 +135,7 @@ describe("MonthlyByCategoryReportService", () => {
         fakeCategory({ id: categoryId, name: "Food" }),
       );
 
-      const result = await monthlyByCategoryReportService.getMonthlyReport(
+      const result = await monthlyByCategoryReportService.call(
         userId,
         2000,
         1,
@@ -167,7 +167,7 @@ describe("MonthlyByCategoryReportService", () => {
         transactions,
       );
 
-      const result = await monthlyByCategoryReportService.getMonthlyReport(
+      const result = await monthlyByCategoryReportService.call(
         userId,
         2000,
         1,
@@ -195,7 +195,7 @@ describe("MonthlyByCategoryReportService", () => {
       );
       mockCategoryRepository.findActiveById.mockResolvedValue(null);
 
-      const result = await monthlyByCategoryReportService.getMonthlyReport(
+      const result = await monthlyByCategoryReportService.call(
         userId,
         2000,
         1,
@@ -233,7 +233,7 @@ describe("MonthlyByCategoryReportService", () => {
           fakeCategory({ id: categoryId2, name: "Apple" }),
         );
 
-      const result = await monthlyByCategoryReportService.getMonthlyReport(
+      const result = await monthlyByCategoryReportService.call(
         userId,
         2000,
         1,
@@ -262,7 +262,7 @@ describe("MonthlyByCategoryReportService", () => {
         transactions,
       );
 
-      const result = await monthlyByCategoryReportService.getMonthlyReport(
+      const result = await monthlyByCategoryReportService.call(
         userId,
         2000,
         1,
@@ -297,7 +297,7 @@ describe("MonthlyByCategoryReportService", () => {
         transactions,
       );
 
-      const result = await monthlyByCategoryReportService.getMonthlyReport(
+      const result = await monthlyByCategoryReportService.call(
         userId,
         2000,
         1,

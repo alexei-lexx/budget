@@ -39,7 +39,7 @@ export class MonthlyByCategoryReportService {
     private categoryRepository: ICategoryRepository,
   ) {}
 
-  async getMonthlyReport(
+  async call(
     userId: string,
     year: number,
     month: number,

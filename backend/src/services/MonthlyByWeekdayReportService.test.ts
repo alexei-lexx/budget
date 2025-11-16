@@ -20,11 +20,11 @@ describe("MonthlyByWeekdayReportService", () => {
     );
   });
 
-  describe("getWeekdayReport", () => {
+  describe("call", () => {
     it("should return empty report when no expenses exist", async () => {
       mockTransactionRepository.findActiveByMonthAndType.mockResolvedValue([]);
 
-      const result = await monthlyByWeekdayReportService.getWeekdayReport(
+      const result = await monthlyByWeekdayReportService.call(
         userId,
         2025,
         11,
@@ -64,7 +64,7 @@ describe("MonthlyByWeekdayReportService", () => {
         transactions,
       );
 
-      const result = await monthlyByWeekdayReportService.getWeekdayReport(
+      const result = await monthlyByWeekdayReportService.call(
         userId,
         2025,
         1,
@@ -115,7 +115,7 @@ describe("MonthlyByWeekdayReportService", () => {
         transactions,
       );
 
-      const result = await monthlyByWeekdayReportService.getWeekdayReport(
+      const result = await monthlyByWeekdayReportService.call(
         userId,
         2025,
         11,

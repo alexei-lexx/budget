@@ -80,13 +80,12 @@ export const reportResolvers = {
         const validatedInput = monthlyReportInputSchema.parse(args);
         const user = await getAuthenticatedUser(context);
 
-        const monthlyReport =
-          await context.monthlyByCategoryReportService.getMonthlyReport(
-            user.id,
-            validatedInput.year,
-            validatedInput.month,
-            validatedInput.type,
-          );
+        const monthlyReport = await context.monthlyByCategoryReportService.call(
+          user.id,
+          validatedInput.year,
+          validatedInput.month,
+          validatedInput.type,
+        );
 
         return monthlyReport;
       } catch (error) {
@@ -112,7 +111,7 @@ export const reportResolvers = {
 
         // Get domain report from service
         const domainReport =
-          await context.monthlyByWeekdayReportService.getWeekdayReport(
+          await context.monthlyByWeekdayReportService.call(
             user.id,
             validatedInput.year,
             validatedInput.month,
