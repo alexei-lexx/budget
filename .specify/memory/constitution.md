@@ -1,9 +1,9 @@
 <!-- SYNC IMPACT REPORT
-Version Change: 0.11.1 → 0.11.2 (PATCH: Clarified backend Test Strategy with specific testing approach)
-Modified Sections: Test Strategy (clarified backend testing rules)
+Version Change: 0.11.2 → 0.11.3 (PATCH: Improved AWS Production Architecture diagram clarity)
+Modified Sections: AWS Production Architecture (reorganized mermaid diagram for TD layout)
 Added Sections: None
 Removed Sections: None
-Templates Requiring Updates: None
+Templates Requiring Updates: None (spec-template.md, plan-template.md, tasks-template.md all compatible)
 Follow-up TODOs:
   - Ratification date remains TODO (inherited from previous versions)
 -->
@@ -82,23 +82,26 @@ An npm package providing infrastructure-as-code for frontend deployment to AWS.
 ## AWS Production Architecture
 
 ```mermaid
-graph LR
-    Browser["Browser<br/>(Vue SPA)"]
-    CloudFront["CloudFront<br/>(CDN)"]
-    S3["S3<br/>(Static Assets)"]
-    APIGateway["API Gateway<br/>(HTTP API)"]
-    Lambda["Lambda<br/>(GraphQL API)"]
-    DynamoDB["DynamoDB<br/>(User Data)"]
+graph TD
+    Browser["User Browser"]
+
+    CloudFront["CloudFront<br/>Distribution"]
     Auth0["Auth0<br/>(Identity Provider)"]
 
-    Browser -->|Static Files| CloudFront
+    S3["S3 Bucket<br/>(Frontend Assets)"]
+    APIGateway["API Gateway<br/>(HTTP API)"]
+
+    Lambda["Lambda<br/>(/graphql)"]
+
+    DynamoDB["DynamoDB"]
+
+    Browser -->|Static & API| CloudFront
+    Browser -->|Login| Auth0
     CloudFront -->|Serve| S3
-    Browser -->|API Requests| CloudFront
     CloudFront -->|Forward| APIGateway
     APIGateway -->|Route| Lambda
     Lambda -->|Read/Write| DynamoDB
-    Browser -->|Login| Auth0
-    Lambda -->|Verify Token| Auth0
+    Lambda -->|Verify JWT| Auth0
 ```
 
 ## Core Principles
@@ -195,4 +198,4 @@ This constitution supersedes all other development guidelines. Amendments requir
 4. Commit with message: `docs: amend constitution to vX.Y.Z ([change summary])`
 5. Update dependent artifacts (templates, guidance docs) as flagged
 
-**Version**: 0.11.2 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-11-16
+**Version**: 0.11.3 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-11-16
