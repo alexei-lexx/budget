@@ -1,9 +1,9 @@
 <!-- SYNC IMPACT REPORT
 Version Change: 0.11.3 → 0.12.0 (MINOR: Added Backend Layer Structure subsection clarifying three-layer architecture pattern)
-Modified Sections: Backend (added Backend Layer Structure subsection, clarified Repository scope)
-Added Sections: Backend Layer Structure (describes Repository, Service, and GraphQL layers with responsibilities and constraints)
+Modified Sections: Backend Layer Structure (added simplified request flow diagram)
+Added Sections: Backend Layer Structure (describes Repository, Service, and GraphQL layers with responsibilities and constraints); Request Flow (flowchart showing request path through layers)
 Removed Sections: None
-Refinements: Removed ambiguous "scoped to authenticated user" language from Repository Layer to avoid confusion with authorization (handled at Resolver/Service level); Added "one repository per entity" design guidance; Simplified multi-repository operations description for clarity
+Refinements: Removed ambiguous "scoped to authenticated user" language from Repository Layer to avoid confusion with authorization (handled at Resolver/Service level); Added "one repository per entity" design guidance; Simplified multi-repository operations description for clarity; Converted all layer responsibilities to imperative mood; Added simple flowchart diagram illustrating request flow through architecture
 Templates Requiring Updates:
   ✅ spec-template.md: No changes needed (focused on user stories, not architecture)
   ✅ plan-template.md: No changes needed (Constitution Check gates remain valid)
@@ -79,6 +79,35 @@ GraphQL Resolvers → Services → Repositories
 - Transform requests and responses
 - Call appropriate service methods
 - Avoid direct database access
+
+### Request Flow
+
+```mermaid
+graph LR
+    Client["Client"]
+
+    subgraph GraphQL["GraphQL Layer"]
+        Resolver["Resolver<br/>(Validate & Auth)"]
+    end
+
+    subgraph Service_Layer["Service Layer"]
+        Service["Service<br/>(Business Logic)"]
+    end
+
+    subgraph Repo_Layer["Repository Layer"]
+        Repo1["Repository 1"]
+        Repo2["Repository 2"]
+    end
+
+    DB["Database"]
+
+    Client --> Resolver
+    Resolver --> Service
+    Service --> Repo1
+    Service --> Repo2
+    Repo1 --> DB
+    Repo2 --> DB
+```
 
 ## Frontend
 
