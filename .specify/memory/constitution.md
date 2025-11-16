@@ -1,9 +1,13 @@
 <!-- SYNC IMPACT REPORT
-Version Change: 0.11.2 → 0.11.3 (PATCH: Improved AWS Production Architecture diagram clarity)
-Modified Sections: AWS Production Architecture (reorganized mermaid diagram for TD layout)
-Added Sections: None
+Version Change: 0.11.3 → 0.12.0 (MINOR: Added Backend Layer Structure subsection clarifying three-layer architecture pattern)
+Modified Sections: Backend (added Backend Layer Structure subsection, clarified Repository scope)
+Added Sections: Backend Layer Structure (describes Repository, Service, and GraphQL layers with responsibilities and constraints)
 Removed Sections: None
-Templates Requiring Updates: None (spec-template.md, plan-template.md, tasks-template.md all compatible)
+Refinements: Removed ambiguous "scoped to authenticated user" language from Repository Layer to avoid confusion with authorization (handled at Resolver/Service level); Added "one repository per entity" design guidance; Simplified multi-repository operations description for clarity
+Templates Requiring Updates:
+  ✅ spec-template.md: No changes needed (focused on user stories, not architecture)
+  ✅ plan-template.md: No changes needed (Constitution Check gates remain valid)
+  ✅ tasks-template.md: No changes needed (task structure naturally aligns with three-layer pattern)
 Follow-up TODOs:
   - Ratification date remains TODO (inherited from previous versions)
 -->
@@ -42,6 +46,39 @@ An npm package providing Apollo GraphQL server and API implementation.
 - **Database Access**: Handle all data persistence and retrieval operations
 - **Authentication**: Verify JWT tokens and establish user identity
 - **Authorization**: Enforce user data scoping and prevent cross-user data access
+
+### Backend Layer Structure
+
+The backend implements a clean three-layer architecture that separates concerns and maintains clear dependencies:
+
+```
+GraphQL Resolvers → Services → Repositories
+```
+
+**Repository Layer**:
+- Pure data access operations (CRUD)
+- Database-specific implementations
+- No business logic
+- Error handling for database operations
+- Recommended one repository per entity (User, Account, Category, Transaction)
+
+**Service Layer**:
+- Business logic and domain rules
+- Business-specific error messages
+- Multi-repository operations (orchestrate operations across multiple repositories)
+- Inject repository dependencies in service constructor
+- Complex validation logic (currency matching, category type validation)
+- Transaction orchestration (atomic operations ensuring data consistency)
+- Group related CRUD operations for one entity in one service
+- Public methods called directly by GraphQL resolvers
+
+**GraphQL Layer**:
+- Validate user input using Zod schemas
+- Enforce authentication and authorization
+- Define API schema and documentation
+- Transform requests and responses
+- Call appropriate service methods
+- No direct database access
 
 ## Frontend
 
@@ -198,4 +235,4 @@ This constitution supersedes all other development guidelines. Amendments requir
 4. Commit with message: `docs: amend constitution to vX.Y.Z ([change summary])`
 5. Update dependent artifacts (templates, guidance docs) as flagged
 
-**Version**: 0.11.3 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-11-16
+**Version**: 0.12.0 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-11-16

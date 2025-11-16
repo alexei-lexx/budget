@@ -6,42 +6,6 @@
 - Service layer for business logic and cross-repository operations
 - Structured error handling and input validation
 
-### Backend Architecture Pattern
-
-The backend follows a clean three-layer architecture pattern:
-
-```
-GraphQL Resolvers → Services → Repositories → Database
-```
-
-**Repository Layer:**
-- Pure data access operations (CRUD)
-- Database-specific implementations
-- No business logic or cross-repository dependencies
-- Error handling for database operations
-- Environment-aware configuration (local DynamoDB vs AWS)
-
-**Service Layer:**
-- Business logic and domain rules
-- Cross-repository coordination (e.g., transaction validation needs account + category repositories)
-- Complex validation logic (currency matching, category type validation)
-- Transaction orchestration
-- Error transformation and business-specific error messages
-
-**Service Design Pattern:**
-- **Single Service per Domain Entity** (e.g., TransactionService, AccountService)
-- **Cohesive Operations** - Related CRUD operations grouped in one class
-- **Shared Dependencies** - Repository dependencies injected once per service
-- **Private Helper Methods** - Common validation logic shared between operations
-- **Clear Public Interface** - Methods called directly by GraphQL resolvers
-
-**GraphQL Layer:**
-- User input validation using Zod schemas
-- Authentication and authorization
-- API schema definition and documentation
-- Request/response transformation
-- Calling appropriate service methods
-
 ### Input Validation Strategy
 
 **Hybrid Two-Tier Validation Approach:**
