@@ -1,7 +1,7 @@
 <!-- SYNC IMPACT REPORT
-Version Change: 0.10.0 → 0.11.0 (MINOR: Added General Application Requirements section)
-Modified Sections: None
-Added Sections: General Application Requirements (cost-efficient hosting + mobile installation)
+Version Change: 0.11.0 → 0.11.1 (PATCH: Added mobile-first responsive design rule to UI Guidelines)
+Modified Sections: UI Guidelines (added rule)
+Added Sections: None
 Removed Sections: None
 Templates Requiring Updates: None
 Follow-up TODOs:
@@ -176,6 +176,7 @@ graph LR
 ### UI Guidelines
 
 - Use snackbars for all user feedback notifications (errors and success messages)
+- Optimize design and behavior for mobile devices first, ensure responsive across all screen sizes
 
 ## Governance
 
@@ -188,4 +189,4 @@ This constitution supersedes all other development guidelines. Amendments requir
 4. Commit with message: `docs: amend constitution to vX.Y.Z ([change summary])`
 5. Update dependent artifacts (templates, guidance docs) as flagged
 
-**Version**: 0.11.0 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-11-16
+**Version**: 0.11.1 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-11-16
