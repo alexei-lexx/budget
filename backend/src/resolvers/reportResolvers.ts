@@ -110,13 +110,12 @@ export const reportResolvers = {
         const user = await getAuthenticatedUser(context);
 
         // Get domain report from service
-        const domainReport =
-          await context.monthlyByWeekdayReportService.call(
-            user.id,
-            validatedInput.year,
-            validatedInput.month,
-            validatedInput.type,
-          );
+        const domainReport = await context.monthlyByWeekdayReportService.call(
+          user.id,
+          validatedInput.year,
+          validatedInput.month,
+          validatedInput.type,
+        );
 
         // Map domain types to GraphQL types
         return mapWeekdayReportToGraphQL(domainReport);
