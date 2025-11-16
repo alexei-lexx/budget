@@ -59,10 +59,6 @@ An npm package providing the user-facing single-page application.
 - **Authentication**: User sign-in and JWT token management
 - **GraphQL Client**: GraphQL API client communication
 
-### UI Guidelines
-
-- Use snackbars for all user feedback notifications (errors and success messages)
-
 ## Backend CDK
 
 An npm package providing infrastructure-as-code for backend deployment to AWS.
@@ -176,6 +172,10 @@ graph LR
 - Apply validation consistently across all repositories for uniform error handling
 
 **Rationale**: Validates data at its source (database) for immediate error detection rather than downstream in service logic. Prevents corrupted data from propagating through the application.
+
+### UI Guidelines
+
+- Use snackbars for all user feedback notifications (errors and success messages)
 
 ## Governance
 
