@@ -8,7 +8,7 @@ import {
   getDayOfWeek,
   getWeekdayOccurrencesInMonth,
 } from "../utils/date";
-import { CurrencyTotal, calculateCurrencyTotals } from "./reportCalculations";
+import { calculateCurrencyTotals } from "./reportCalculations";
 
 // Re-export DayOfWeek for consumers
 export { DayOfWeek };
@@ -25,8 +25,10 @@ export interface WeekdayReportDay {
   currencyBreakdowns: WeekdayReportCurrencyBreakdown[];
 }
 
-// Re-export for backward compatibility
-export type WeekdayReportCurrencyTotal = CurrencyTotal;
+export interface WeekdayReportCurrencyTotal {
+  currency: string;
+  totalAmount: number;
+}
 
 export interface WeekdayReport {
   year: number;

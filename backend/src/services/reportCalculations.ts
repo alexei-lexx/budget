@@ -1,14 +1,6 @@
 import { Transaction } from "../models/Transaction";
 
 /**
- * Shared currency total type for all report services
- */
-export interface CurrencyTotal {
-  currency: string;
-  totalAmount: number;
-}
-
-/**
  * Calculate currency totals from a list of transactions
  * Groups transactions by currency and sums their amounts
  *
@@ -17,7 +9,7 @@ export interface CurrencyTotal {
  */
 export function calculateCurrencyTotals(
   transactions: Transaction[],
-): CurrencyTotal[] {
+): { currency: string; totalAmount: number }[] {
   const totals = new Map<string, number>();
 
   for (const transaction of transactions) {

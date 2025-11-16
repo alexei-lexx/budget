@@ -4,7 +4,7 @@ import {
   Transaction,
   TransactionType,
 } from "../models/Transaction";
-import { CurrencyTotal, calculateCurrencyTotals } from "./reportCalculations";
+import { calculateCurrencyTotals } from "./reportCalculations";
 
 const UNCATEGORIZED_LABEL = "Uncategorized";
 
@@ -20,8 +20,10 @@ export interface MonthlyReportCategory {
   currencyBreakdowns: MonthlyReportCurrencyBreakdown[];
 }
 
-// Re-export for backward compatibility
-export type MonthlyReportCurrencyTotal = CurrencyTotal;
+export interface MonthlyReportCurrencyTotal {
+  currency: string;
+  totalAmount: number;
+}
 
 export interface MonthlyReport {
   year: number;
