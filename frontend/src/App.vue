@@ -177,9 +177,16 @@ watch(globalError, (error) => {
         />
         <v-list-item
           v-if="isAuthenticated"
-          :to="{ name: 'Reports' }"
-          prepend-icon="mdi-chart-line"
-          title="Reports"
+          :to="{ name: 'MonthlyCategoryReport' }"
+          prepend-icon="mdi-table-large"
+          title="Monthly Report by Category"
+          @click="mobile && (drawer = false)"
+        />
+        <v-list-item
+          v-if="isAuthenticated"
+          :to="{ name: 'MonthlyWeekdayReport' }"
+          prepend-icon="mdi-chart-bar"
+          title="Monthly Report by Weekday"
           @click="mobile && (drawer = false)"
         />
       </v-list>

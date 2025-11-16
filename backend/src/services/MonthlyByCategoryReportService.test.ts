@@ -7,10 +7,10 @@ import {
 } from "../__tests__/utils/mockRepositories";
 import { ICategoryRepository } from "../models/Category";
 import { ITransactionRepository, TransactionType } from "../models/Transaction";
-import { ReportsService } from "./ReportsService";
+import { MonthlyByCategoryReportService } from "./MonthlyByCategoryReportService";
 
-describe("ReportsService", () => {
-  let reportsService: ReportsService;
+describe("MonthlyByCategoryReportService", () => {
+  let monthlyByCategoryReportService: MonthlyByCategoryReportService;
   let mockTransactionRepository: jest.Mocked<ITransactionRepository>;
   let mockCategoryRepository: jest.Mocked<ICategoryRepository>;
 
@@ -20,7 +20,7 @@ describe("ReportsService", () => {
     mockTransactionRepository = createMockTransactionRepository();
     mockCategoryRepository = createMockCategoryRepository();
 
-    reportsService = new ReportsService(
+    monthlyByCategoryReportService = new MonthlyByCategoryReportService(
       mockTransactionRepository,
       mockCategoryRepository,
     );
@@ -30,7 +30,7 @@ describe("ReportsService", () => {
     it("should return empty report when no transactions exist", async () => {
       mockTransactionRepository.findActiveByMonthAndType.mockResolvedValue([]);
 
-      const result = await reportsService.getMonthlyReport(
+      const result = await monthlyByCategoryReportService.getMonthlyReport(
         userId,
         2000,
         1,
@@ -78,7 +78,7 @@ describe("ReportsService", () => {
           fakeCategory({ id: categoryId2, name: "Transport" }),
         );
 
-      const result = await reportsService.getMonthlyReport(
+      const result = await monthlyByCategoryReportService.getMonthlyReport(
         userId,
         2000,
         1,
@@ -104,7 +104,7 @@ describe("ReportsService", () => {
         transactions,
       );
 
-      const result = await reportsService.getMonthlyReport(
+      const result = await monthlyByCategoryReportService.getMonthlyReport(
         userId,
         2000,
         1,
@@ -135,7 +135,7 @@ describe("ReportsService", () => {
         fakeCategory({ id: categoryId, name: "Food" }),
       );
 
-      const result = await reportsService.getMonthlyReport(
+      const result = await monthlyByCategoryReportService.getMonthlyReport(
         userId,
         2000,
         1,
@@ -167,7 +167,7 @@ describe("ReportsService", () => {
         transactions,
       );
 
-      const result = await reportsService.getMonthlyReport(
+      const result = await monthlyByCategoryReportService.getMonthlyReport(
         userId,
         2000,
         1,
@@ -195,7 +195,7 @@ describe("ReportsService", () => {
       );
       mockCategoryRepository.findActiveById.mockResolvedValue(null);
 
-      const result = await reportsService.getMonthlyReport(
+      const result = await monthlyByCategoryReportService.getMonthlyReport(
         userId,
         2000,
         1,
@@ -233,7 +233,7 @@ describe("ReportsService", () => {
           fakeCategory({ id: categoryId2, name: "Apple" }),
         );
 
-      const result = await reportsService.getMonthlyReport(
+      const result = await monthlyByCategoryReportService.getMonthlyReport(
         userId,
         2000,
         1,
@@ -262,7 +262,7 @@ describe("ReportsService", () => {
         transactions,
       );
 
-      const result = await reportsService.getMonthlyReport(
+      const result = await monthlyByCategoryReportService.getMonthlyReport(
         userId,
         2000,
         1,
@@ -297,7 +297,7 @@ describe("ReportsService", () => {
         transactions,
       );
 
-      const result = await reportsService.getMonthlyReport(
+      const result = await monthlyByCategoryReportService.getMonthlyReport(
         userId,
         2000,
         1,

@@ -5,7 +5,9 @@
       <v-col cols="12">
         <!-- Header Section -->
         <div class="d-flex align-center justify-space-between mb-4 flex-wrap ga-2">
-          <h1 :class="$vuetify.display.xs ? 'text-h5' : 'text-h4'">Monthly Expense Reports</h1>
+          <h1 :class="$vuetify.display.xs ? 'text-h5' : 'text-h4'">
+            Monthly Expense Report by Category
+          </h1>
         </div>
 
         <!-- Global Error Alert -->
@@ -51,6 +53,7 @@ import MonthNavigation from "@/components/reports/MonthNavigation.vue";
 import { useMonthlyReports } from "@/composables/useMonthlyReports";
 import { isValidYearMonth } from "@/utils/dateValidation";
 import { formatMonthYear } from "@/utils/date";
+
 // Router for URL parameter management
 const route = useRoute();
 const router = useRouter();

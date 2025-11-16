@@ -96,6 +96,35 @@ export type MonthlyReportCurrencyTotal = {
   totalAmount: Scalars['Float']['output'];
 };
 
+export type MonthlyWeekdayReport = {
+  __typename?: 'MonthlyWeekdayReport';
+  currencyTotals: Array<MonthlyWeekdayReportCurrencyTotal>;
+  month: Scalars['Int']['output'];
+  type: TransactionType;
+  weekdays: Array<MonthlyWeekdayReportDay>;
+  year: Scalars['Int']['output'];
+};
+
+export type MonthlyWeekdayReportCurrencyBreakdown = {
+  __typename?: 'MonthlyWeekdayReportCurrencyBreakdown';
+  averageAmount: Scalars['Float']['output'];
+  currency: Scalars['String']['output'];
+  percentage: Scalars['Int']['output'];
+  totalAmount: Scalars['Float']['output'];
+};
+
+export type MonthlyWeekdayReportCurrencyTotal = {
+  __typename?: 'MonthlyWeekdayReportCurrencyTotal';
+  currency: Scalars['String']['output'];
+  totalAmount: Scalars['Float']['output'];
+};
+
+export type MonthlyWeekdayReportDay = {
+  __typename?: 'MonthlyWeekdayReportDay';
+  currencyBreakdowns: Array<MonthlyWeekdayReportCurrencyBreakdown>;
+  weekday: Weekday;
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   createAccount: Account;
@@ -192,6 +221,7 @@ export type Query = {
   categories: Array<Category>;
   getTransactionPatterns: Array<TransactionPattern>;
   monthlyReport: MonthlyReport;
+  monthlyWeekdayReport: MonthlyWeekdayReport;
   supportedCurrencies: Array<Scalars['String']['output']>;
   transactionDescriptionSuggestions: Array<Scalars['String']['output']>;
   transactions: TransactionConnection;
@@ -210,6 +240,13 @@ export type QueryGetTransactionPatternsArgs = {
 
 
 export type QueryMonthlyReportArgs = {
+  month: Scalars['Int']['input'];
+  type: TransactionType;
+  year: Scalars['Int']['input'];
+};
+
+
+export type QueryMonthlyWeekdayReportArgs = {
   month: Scalars['Int']['input'];
   type: TransactionType;
   year: Scalars['Int']['input'];
@@ -357,6 +394,16 @@ export type User = {
   email: Scalars['String']['output'];
 };
 
+export enum Weekday {
+  Fri = 'FRI',
+  Mon = 'MON',
+  Sat = 'SAT',
+  Sun = 'SUN',
+  Thu = 'THU',
+  Tue = 'TUE',
+  Wed = 'WED'
+}
+
 
 
 export type ResolverTypeWrapper<T> = Promise<T> | T;
@@ -445,6 +492,10 @@ export type ResolversTypes = {
   MonthlyReportCategory: ResolverTypeWrapper<MonthlyReportCategory>;
   MonthlyReportCurrencyBreakdown: ResolverTypeWrapper<MonthlyReportCurrencyBreakdown>;
   MonthlyReportCurrencyTotal: ResolverTypeWrapper<MonthlyReportCurrencyTotal>;
+  MonthlyWeekdayReport: ResolverTypeWrapper<MonthlyWeekdayReport>;
+  MonthlyWeekdayReportCurrencyBreakdown: ResolverTypeWrapper<MonthlyWeekdayReportCurrencyBreakdown>;
+  MonthlyWeekdayReportCurrencyTotal: ResolverTypeWrapper<MonthlyWeekdayReportCurrencyTotal>;
+  MonthlyWeekdayReportDay: ResolverTypeWrapper<MonthlyWeekdayReportDay>;
   Mutation: ResolverTypeWrapper<Record<PropertyKey, never>>;
   PageInfo: ResolverTypeWrapper<PageInfo>;
   PaginationInput: PaginationInput;
@@ -465,6 +516,7 @@ export type ResolversTypes = {
   UpdateTransactionInput: UpdateTransactionInput;
   UpdateTransferInput: UpdateTransferInput;
   User: ResolverTypeWrapper<User>;
+  Weekday: Weekday;
 };
 
 /** Mapping between all available schema types and the resolvers parents */
@@ -483,6 +535,10 @@ export type ResolversParentTypes = {
   MonthlyReportCategory: MonthlyReportCategory;
   MonthlyReportCurrencyBreakdown: MonthlyReportCurrencyBreakdown;
   MonthlyReportCurrencyTotal: MonthlyReportCurrencyTotal;
+  MonthlyWeekdayReport: MonthlyWeekdayReport;
+  MonthlyWeekdayReportCurrencyBreakdown: MonthlyWeekdayReportCurrencyBreakdown;
+  MonthlyWeekdayReportCurrencyTotal: MonthlyWeekdayReportCurrencyTotal;
+  MonthlyWeekdayReportDay: MonthlyWeekdayReportDay;
   Mutation: Record<PropertyKey, never>;
   PageInfo: PageInfo;
   PaginationInput: PaginationInput;
@@ -544,6 +600,31 @@ export type MonthlyReportCurrencyTotalResolvers<ContextType = GraphQLContext, Pa
   totalAmount?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
 };
 
+export type MonthlyWeekdayReportResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['MonthlyWeekdayReport'] = ResolversParentTypes['MonthlyWeekdayReport']> = {
+  currencyTotals?: Resolver<Array<ResolversTypes['MonthlyWeekdayReportCurrencyTotal']>, ParentType, ContextType>;
+  month?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['TransactionType'], ParentType, ContextType>;
+  weekdays?: Resolver<Array<ResolversTypes['MonthlyWeekdayReportDay']>, ParentType, ContextType>;
+  year?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+};
+
+export type MonthlyWeekdayReportCurrencyBreakdownResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['MonthlyWeekdayReportCurrencyBreakdown'] = ResolversParentTypes['MonthlyWeekdayReportCurrencyBreakdown']> = {
+  averageAmount?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  currency?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  percentage?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  totalAmount?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+};
+
+export type MonthlyWeekdayReportCurrencyTotalResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['MonthlyWeekdayReportCurrencyTotal'] = ResolversParentTypes['MonthlyWeekdayReportCurrencyTotal']> = {
+  currency?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  totalAmount?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+};
+
+export type MonthlyWeekdayReportDayResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['MonthlyWeekdayReportDay'] = ResolversParentTypes['MonthlyWeekdayReportDay']> = {
+  currencyBreakdowns?: Resolver<Array<ResolversTypes['MonthlyWeekdayReportCurrencyBreakdown']>, ParentType, ContextType>;
+  weekday?: Resolver<ResolversTypes['Weekday'], ParentType, ContextType>;
+};
+
 export type MutationResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   createAccount?: Resolver<ResolversTypes['Account'], ParentType, ContextType, RequireFields<MutationCreateAccountArgs, 'input'>>;
   createCategory?: Resolver<ResolversTypes['Category'], ParentType, ContextType, RequireFields<MutationCreateCategoryArgs, 'input'>>;
@@ -572,6 +653,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   categories?: Resolver<Array<ResolversTypes['Category']>, ParentType, ContextType, Partial<QueryCategoriesArgs>>;
   getTransactionPatterns?: Resolver<Array<ResolversTypes['TransactionPattern']>, ParentType, ContextType, RequireFields<QueryGetTransactionPatternsArgs, 'type'>>;
   monthlyReport?: Resolver<ResolversTypes['MonthlyReport'], ParentType, ContextType, RequireFields<QueryMonthlyReportArgs, 'month' | 'type' | 'year'>>;
+  monthlyWeekdayReport?: Resolver<ResolversTypes['MonthlyWeekdayReport'], ParentType, ContextType, RequireFields<QueryMonthlyWeekdayReportArgs, 'month' | 'type' | 'year'>>;
   supportedCurrencies?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   transactionDescriptionSuggestions?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType, RequireFields<QueryTransactionDescriptionSuggestionsArgs, 'searchText'>>;
   transactions?: Resolver<ResolversTypes['TransactionConnection'], ParentType, ContextType, Partial<QueryTransactionsArgs>>;
@@ -640,6 +722,10 @@ export type Resolvers<ContextType = GraphQLContext> = {
   MonthlyReportCategory?: MonthlyReportCategoryResolvers<ContextType>;
   MonthlyReportCurrencyBreakdown?: MonthlyReportCurrencyBreakdownResolvers<ContextType>;
   MonthlyReportCurrencyTotal?: MonthlyReportCurrencyTotalResolvers<ContextType>;
+  MonthlyWeekdayReport?: MonthlyWeekdayReportResolvers<ContextType>;
+  MonthlyWeekdayReportCurrencyBreakdown?: MonthlyWeekdayReportCurrencyBreakdownResolvers<ContextType>;
+  MonthlyWeekdayReportCurrencyTotal?: MonthlyWeekdayReportCurrencyTotalResolvers<ContextType>;
+  MonthlyWeekdayReportDay?: MonthlyWeekdayReportDayResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   PageInfo?: PageInfoResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;

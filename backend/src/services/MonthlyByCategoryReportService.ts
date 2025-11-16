@@ -4,6 +4,7 @@ import {
   Transaction,
   TransactionType,
 } from "../models/Transaction";
+import { CurrencyTotal, calculateCurrencyTotals } from "./reportCalculations";
 
 const UNCATEGORIZED_LABEL = "Uncategorized";
 
@@ -19,10 +20,8 @@ export interface MonthlyReportCategory {
   currencyBreakdowns: MonthlyReportCurrencyBreakdown[];
 }
 
-export interface MonthlyReportCurrencyTotal {
-  currency: string;
-  totalAmount: number;
-}
+// Re-export for backward compatibility
+export type MonthlyReportCurrencyTotal = CurrencyTotal;
 
 export interface MonthlyReport {
   year: number;
@@ -32,7 +31,7 @@ export interface MonthlyReport {
   currencyTotals: MonthlyReportCurrencyTotal[];
 }
 
-export class ReportsService {
+export class MonthlyByCategoryReportService {
   constructor(
     private transactionRepository: ITransactionRepository,
     private categoryRepository: ICategoryRepository,
@@ -62,7 +61,7 @@ export class ReportsService {
       };
     }
 
-    const currencyTotals = this.calculateCurrencyTotals(transactions);
+    const currencyTotals = calculateCurrencyTotals(transactions);
     const categories = await this.groupByCategoryAndCurrency(
       transactions,
       userId,
@@ -76,21 +75,6 @@ export class ReportsService {
       categories,
       currencyTotals,
     };
-  }
-
-  private calculateCurrencyTotals(
-    transactions: Transaction[],
-  ): MonthlyReportCurrencyTotal[] {
-    const totals = new Map<string, number>();
-
-    for (const transaction of transactions) {
-      const current = totals.get(transaction.currency) || 0;
-      totals.set(transaction.currency, current + transaction.amount);
-    }
-
-    return Array.from(totals.entries())
-      .map(([currency, totalAmount]) => ({ currency, totalAmount }))
-      .sort((a, b) => a.currency.localeCompare(b.currency));
   }
 
   private async groupByCategoryAndCurrency(

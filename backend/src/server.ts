@@ -16,7 +16,8 @@ import { UserRepository } from "./repositories/UserRepository";
 import { resolvers } from "./resolvers";
 import { getAuthenticatedUser } from "./resolvers/shared";
 import { AccountService } from "./services/AccountService";
-import { ReportsService } from "./services/ReportsService";
+import { MonthlyByCategoryReportService } from "./services/MonthlyByCategoryReportService";
+import { MonthlyByWeekdayReportService } from "./services/MonthlyByWeekdayReportService";
 import { TransactionService } from "./services/TransactionService";
 import { TransferService } from "./services/TransferService";
 import type {
@@ -33,7 +34,8 @@ export interface GraphQLContext {
   transactionService: TransactionService;
   accountService: AccountService;
   transferService: TransferService;
-  reportsService: ReportsService;
+  monthlyByCategoryReportService: MonthlyByCategoryReportService;
+  monthlyByWeekdayReportService: MonthlyByWeekdayReportService;
   jwtAuthService: JwtAuthService;
   authHeader?: string;
   accountLoader: DataLoader<string, TransactionEmbeddedAccount>;
@@ -48,7 +50,8 @@ let transactionRepository: TransactionRepository;
 let transactionService: TransactionService;
 let accountService: AccountService;
 let transferService: TransferService;
-let reportsService: ReportsService;
+let monthlyByCategoryReportService: MonthlyByCategoryReportService;
+let monthlyByWeekdayReportService: MonthlyByWeekdayReportService;
 
 const typeDefs = readFileSync(join(__dirname, "schema.graphql"), {
   encoding: "utf-8",
@@ -110,10 +113,16 @@ export async function createContext(req: {
     );
   }
 
-  if (!reportsService) {
-    reportsService = new ReportsService(
+  if (!monthlyByCategoryReportService) {
+    monthlyByCategoryReportService = new MonthlyByCategoryReportService(
       transactionRepository,
       categoryRepository,
+    );
+  }
+
+  if (!monthlyByWeekdayReportService) {
+    monthlyByWeekdayReportService = new MonthlyByWeekdayReportService(
+      transactionRepository,
     );
   }
 
@@ -138,7 +147,8 @@ export async function createContext(req: {
     transactionService,
     accountService,
     transferService,
-    reportsService,
+    monthlyByCategoryReportService,
+    monthlyByWeekdayReportService,
     jwtAuthService,
     authHeader: authHeaderString,
   };
