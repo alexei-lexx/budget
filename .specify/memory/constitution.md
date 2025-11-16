@@ -1,6 +1,6 @@
 <!-- SYNC IMPACT REPORT
-Version Change: 0.11.0 → 0.11.1 (PATCH: Added mobile-first responsive design rule to UI Guidelines)
-Modified Sections: UI Guidelines (added rule)
+Version Change: 0.11.1 → 0.11.2 (PATCH: Clarified backend Test Strategy with specific testing approach)
+Modified Sections: Test Strategy (clarified backend testing rules)
 Added Sections: None
 Removed Sections: None
 Templates Requiring Updates: None
@@ -106,8 +106,14 @@ graph LR
 ### Test Strategy
 
 **Backend** (primary focus):
-- Test repositories and services
-- Test utility/batch functions (e.g., DataLoader batch handlers) with core path unit tests (happy path + error cases)
+
+- Test repositories
+  - In repository tests, use real database connection to validate data access layer
+- Test services
+  - In service tests, use mocked repositories to isolate business logic from database dependencies
+- Test resolvers only on request (optional)
+- Test utility functions
+- Prefer unit tests over integration tests
 - Keep test suite small and effective
 
 **Frontend**:
@@ -189,4 +195,4 @@ This constitution supersedes all other development guidelines. Amendments requir
 4. Commit with message: `docs: amend constitution to vX.Y.Z ([change summary])`
 5. Update dependent artifacts (templates, guidance docs) as flagged
 
-**Version**: 0.11.1 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-11-16
+**Version**: 0.11.2 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-11-16
