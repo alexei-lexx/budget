@@ -1,16 +1,11 @@
 <!-- SYNC IMPACT REPORT
-Version Change: 0.9.0 → 0.9.1 (PATCH: Added test file co-location rule to Test Strategy)
-Modified Sections: Test Strategy (added test file location requirement)
-Added Sections: None
+Version Change: 0.9.1 → 0.10.0 (MINOR: Added UI Guidelines section to Frontend)
+Modified Sections: Frontend (added UI Guidelines subsection)
+Added Sections: UI Guidelines (snackbar-based notifications)
 Removed Sections: None
-Templates Requiring Updates:
-  - plan-template.md: ✅ No changes required (test strategy detail doesn't affect planning structure)
-  - spec-template.md: ✅ No changes required (feature specs unchanged)
-  - tasks-template.md: ⚠️ Consider updating test task examples to show co-located paths (e.g., src/models/User.test.ts instead of tests/models/User.test.ts)
-  - command files: None found in .specify/templates/commands/
+Templates Requiring Updates: None
 Follow-up TODOs:
   - Ratification date remains TODO (inherited from previous versions)
-  - Update existing test file locations to match new co-location standard (migration task)
 -->
 
 # Personal Finance Tracker Constitution
@@ -58,6 +53,10 @@ An npm package providing the user-facing single-page application.
 - **Client Routing**: Single-page navigation and routing
 - **Authentication**: User sign-in and JWT token management
 - **GraphQL Client**: GraphQL API client communication
+
+### UI Guidelines
+
+- Use snackbars for all user feedback notifications (errors and success messages)
 
 ## Backend CDK
 
@@ -184,4 +183,4 @@ This constitution supersedes all other development guidelines. Amendments requir
 4. Commit with message: `docs: amend constitution to vX.Y.Z ([change summary])`
 5. Update dependent artifacts (templates, guidance docs) as flagged
 
-**Version**: 0.9.1 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-11-15
+**Version**: 0.10.0 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-11-16
