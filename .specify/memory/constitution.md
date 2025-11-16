@@ -1,7 +1,7 @@
 <!-- SYNC IMPACT REPORT
-Version Change: 0.9.1 → 0.10.0 (MINOR: Added UI Guidelines section to Frontend)
-Modified Sections: Frontend (added UI Guidelines subsection)
-Added Sections: UI Guidelines (snackbar-based notifications)
+Version Change: 0.10.0 → 0.11.0 (MINOR: Added General Application Requirements section)
+Modified Sections: None
+Added Sections: General Application Requirements (cost-efficient hosting + mobile installation)
 Removed Sections: None
 Templates Requiring Updates: None
 Follow-up TODOs:
@@ -20,6 +20,11 @@ The project comprises four independent npm packages distributed across the repos
 - **frontend-cdk/** – Deployable frontend infrastructure
 
 Each package maintains its own `package.json`, dependencies, and build configuration. They are versioned and deployed independently while remaining architecturally coupled through shared GraphQL schema and deployment order requirements.
+
+## General Requirements
+
+- Deploy with free or minimal cost (use free-tier cloud services, no mandatory paid subscriptions)
+- Enable mobile installation via PWA without app store publishing
 
 ## Backend
 
@@ -183,4 +188,4 @@ This constitution supersedes all other development guidelines. Amendments requir
 4. Commit with message: `docs: amend constitution to vX.Y.Z ([change summary])`
 5. Update dependent artifacts (templates, guidance docs) as flagged
 
-**Version**: 0.10.0 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-11-16
+**Version**: 0.11.0 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-11-16
