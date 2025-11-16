@@ -1,0 +1,171 @@
+# GraphQL Schema Additions for Monthly Weekday Report Feature
+# Add these types and query to backend/src/schema.graphql
+
+# ============================================================================
+# ENUMS
+# ============================================================================
+
+"""
+Represents days of the week with Monday as the first day (ISO 8601 standard).
+Used for weekday-based expense aggregation.
+"""
+enum Weekday {
+  MON
+  TUE
+  WED
+  THU
+  FRI
+  SAT
+  SUN
+}
+
+# ============================================================================
+# TYPES
+# ============================================================================
+
+"""
+Currency-specific breakdown of expenses for a single weekday.
+Includes total spending, average per occurrence, and percentage of monthly total.
+"""
+type MonthlyWeekdayReportCurrencyBreakdown {
+  """ISO currency code (e.g., USD, EUR)"""
+  currency: String!
+
+  """Sum of all expense amounts for this weekday in this currency"""
+  totalAmount: Float!
+
+  """Average amount per occurrence (totalAmount / number of times this weekday appeared)"""
+  averageAmount: Float!
+
+  """Percentage of total monthly expenses in this currency (0-100)"""
+  percentage: Int!
+}
+
+"""
+Aggregated expense data for a single weekday across all currencies.
+Only includes weekdays that have at least one expense transaction.
+"""
+type MonthlyWeekdayReportDay {
+  """Day of the week"""
+  weekday: Weekday!
+
+  """Currency-specific breakdowns for this weekday"""
+  currencyBreakdowns: [MonthlyWeekdayReportCurrencyBreakdown!]!
+}
+
+"""
+Total expenses for a currency across the entire month.
+Used for percentage calculations and currency selector.
+"""
+type MonthlyWeekdayReportCurrencyTotal {
+  """ISO currency code"""
+  currency: String!
+
+  """Sum of all expense amounts for this currency in the month"""
+  totalAmount: Float!
+}
+
+"""
+Monthly expense report aggregated by weekday.
+Provides total and average spending for each day of the week (Monday-Sunday)
+with separate breakdowns per currency.
+"""
+type MonthlyWeekdayReport {
+  """Year of the report (4-digit)"""
+  year: Int!
+
+  """Month of the report (1-12)"""
+  month: Int!
+
+  """Transaction type filter (always EXPENSE for this report)"""
+  type: TransactionType!
+
+  """
+  Weekday aggregations (0-7 elements).
+  Only includes weekdays with at least one expense.
+  Ordered Monday to Sunday.
+  """
+  weekdays: [MonthlyWeekdayReportDay!]!
+
+  """
+  Total expenses per currency for the month.
+  Used for percentage calculations and currency selector options.
+  """
+  currencyTotals: [MonthlyWeekdayReportCurrencyTotal!]!
+}
+
+# ============================================================================
+# QUERIES
+# ============================================================================
+
+extend type Query {
+  """
+  Retrieve monthly expense report aggregated by weekday.
+  Returns total and average spending for each day of the week with currency breakdowns.
+
+  Args:
+    year: 4-digit year (e.g., 2025)
+    month: Month number (1-12)
+    type: Transaction type filter (must be EXPENSE per spec)
+
+  Returns:
+    MonthlyWeekdayReport with weekday aggregations and currency totals
+
+  Example:
+    query {
+      monthlyWeekdayReport(year: 2025, month: 11, type: EXPENSE) {
+        year
+        month
+        weekdays {
+          weekday
+          currencyBreakdowns {
+            currency
+            totalAmount
+            averageAmount
+            percentage
+          }
+        }
+        currencyTotals {
+          currency
+          totalAmount
+        }
+      }
+    }
+  """
+  monthlyWeekdayReport(
+    year: Int!
+    month: Int!
+    type: TransactionType!
+  ): MonthlyWeekdayReport!
+}
+
+# ============================================================================
+# IMPLEMENTATION NOTES
+# ============================================================================
+
+# 1. Add Weekday enum to backend/src/schema.graphql
+# 2. Add MonthlyWeekdayReportCurrencyBreakdown type
+# 3. Add MonthlyWeekdayReportDay type
+# 4. Add MonthlyWeekdayReportCurrencyTotal type
+# 5. Add MonthlyWeekdayReport type
+# 6. Add monthlyWeekdayReport query to existing Query type
+# 7. Run `npm run codegen` in backend to generate TypeScript types
+# 8. Implement resolver in backend/src/resolvers/reports.ts
+# 9. Implement MonthlyByWeekdayReportService in backend/src/services/MonthlyByWeekdayReportService.ts
+# 10. Frontend syncs schema via `npm run codegen:sync-schema`
+# 11. Frontend generates composables via `npm run codegen`
+
+# VALIDATION RULES (enforced in resolver/service):
+# - year: Must be valid 4-digit year (1900-2100)
+# - month: Must be 1-12
+# - type: Must be EXPENSE (per spec requirement FR-025)
+# - Percentages must sum to 100% per currency
+# - Weekdays array sorted Monday to Sunday
+# - Only weekdays with expenses are included (0-7 elements)
+
+# QUERY BEHAVIOR:
+# - Fetches all EXPENSE transactions for the given year/month
+# - Groups by weekday (Monday=0, Sunday=6) and currency
+# - Calculates totals, averages, and percentages per currency
+# - Returns empty weekdays array if no expenses exist for the month
+# - Scopes to authenticated user (handled by TransactionRepository)

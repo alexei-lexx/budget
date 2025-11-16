@@ -91,6 +91,35 @@ export type MonthlyReportCurrencyTotal = {
   totalAmount: Scalars['Float']['output'];
 };
 
+export type MonthlyWeekdayReport = {
+  __typename?: 'MonthlyWeekdayReport';
+  currencyTotals: Array<MonthlyWeekdayReportCurrencyTotal>;
+  month: Scalars['Int']['output'];
+  type: TransactionType;
+  weekdays: Array<MonthlyWeekdayReportDay>;
+  year: Scalars['Int']['output'];
+};
+
+export type MonthlyWeekdayReportCurrencyBreakdown = {
+  __typename?: 'MonthlyWeekdayReportCurrencyBreakdown';
+  averageAmount: Scalars['Float']['output'];
+  currency: Scalars['String']['output'];
+  percentage: Scalars['Int']['output'];
+  totalAmount: Scalars['Float']['output'];
+};
+
+export type MonthlyWeekdayReportCurrencyTotal = {
+  __typename?: 'MonthlyWeekdayReportCurrencyTotal';
+  currency: Scalars['String']['output'];
+  totalAmount: Scalars['Float']['output'];
+};
+
+export type MonthlyWeekdayReportDay = {
+  __typename?: 'MonthlyWeekdayReportDay';
+  currencyBreakdowns: Array<MonthlyWeekdayReportCurrencyBreakdown>;
+  weekday: Weekday;
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   createAccount: Account;
@@ -187,6 +216,7 @@ export type Query = {
   categories: Array<Category>;
   getTransactionPatterns: Array<TransactionPattern>;
   monthlyReport: MonthlyReport;
+  monthlyWeekdayReport: MonthlyWeekdayReport;
   supportedCurrencies: Array<Scalars['String']['output']>;
   transactionDescriptionSuggestions: Array<Scalars['String']['output']>;
   transactions: TransactionConnection;
@@ -205,6 +235,13 @@ export type QueryGetTransactionPatternsArgs = {
 
 
 export type QueryMonthlyReportArgs = {
+  month: Scalars['Int']['input'];
+  type: TransactionType;
+  year: Scalars['Int']['input'];
+};
+
+
+export type QueryMonthlyWeekdayReportArgs = {
   month: Scalars['Int']['input'];
   type: TransactionType;
   year: Scalars['Int']['input'];
@@ -354,6 +391,15 @@ export type User = {
   __typename?: 'User';
   email: Scalars['String']['output'];
 };
+
+export type Weekday =
+  | 'FRI'
+  | 'MON'
+  | 'SAT'
+  | 'SUN'
+  | 'THU'
+  | 'TUE'
+  | 'WED';
 
 export type AccountFieldsFragment = { __typename?: 'Account', id: string, name: string, currency: string, initialBalance: number, balance: number };
 
@@ -514,3 +560,12 @@ export type GetTransactionDescriptionSuggestionsQueryVariables = Exact<{
 
 
 export type GetTransactionDescriptionSuggestionsQuery = { __typename?: 'Query', transactionDescriptionSuggestions: Array<string> };
+
+export type GetMonthlyWeekdayReportQueryVariables = Exact<{
+  year: Scalars['Int']['input'];
+  month: Scalars['Int']['input'];
+  type: TransactionType;
+}>;
+
+
+export type GetMonthlyWeekdayReportQuery = { __typename?: 'Query', monthlyWeekdayReport: { __typename?: 'MonthlyWeekdayReport', year: number, month: number, type: TransactionType, weekdays: Array<{ __typename?: 'MonthlyWeekdayReportDay', weekday: Weekday, currencyBreakdowns: Array<{ __typename?: 'MonthlyWeekdayReportCurrencyBreakdown', currency: string, totalAmount: number, averageAmount: number, percentage: number }> }>, currencyTotals: Array<{ __typename?: 'MonthlyWeekdayReportCurrencyTotal', currency: string, totalAmount: number }> } };

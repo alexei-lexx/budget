@@ -95,6 +95,35 @@ export type MonthlyReportCurrencyTotal = {
   totalAmount: Scalars['Float']['output'];
 };
 
+export type MonthlyWeekdayReport = {
+  __typename?: 'MonthlyWeekdayReport';
+  currencyTotals: Array<MonthlyWeekdayReportCurrencyTotal>;
+  month: Scalars['Int']['output'];
+  type: TransactionType;
+  weekdays: Array<MonthlyWeekdayReportDay>;
+  year: Scalars['Int']['output'];
+};
+
+export type MonthlyWeekdayReportCurrencyBreakdown = {
+  __typename?: 'MonthlyWeekdayReportCurrencyBreakdown';
+  averageAmount: Scalars['Float']['output'];
+  currency: Scalars['String']['output'];
+  percentage: Scalars['Int']['output'];
+  totalAmount: Scalars['Float']['output'];
+};
+
+export type MonthlyWeekdayReportCurrencyTotal = {
+  __typename?: 'MonthlyWeekdayReportCurrencyTotal';
+  currency: Scalars['String']['output'];
+  totalAmount: Scalars['Float']['output'];
+};
+
+export type MonthlyWeekdayReportDay = {
+  __typename?: 'MonthlyWeekdayReportDay';
+  currencyBreakdowns: Array<MonthlyWeekdayReportCurrencyBreakdown>;
+  weekday: Weekday;
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   createAccount: Account;
@@ -191,6 +220,7 @@ export type Query = {
   categories: Array<Category>;
   getTransactionPatterns: Array<TransactionPattern>;
   monthlyReport: MonthlyReport;
+  monthlyWeekdayReport: MonthlyWeekdayReport;
   supportedCurrencies: Array<Scalars['String']['output']>;
   transactionDescriptionSuggestions: Array<Scalars['String']['output']>;
   transactions: TransactionConnection;
@@ -209,6 +239,13 @@ export type QueryGetTransactionPatternsArgs = {
 
 
 export type QueryMonthlyReportArgs = {
+  month: Scalars['Int']['input'];
+  type: TransactionType;
+  year: Scalars['Int']['input'];
+};
+
+
+export type QueryMonthlyWeekdayReportArgs = {
   month: Scalars['Int']['input'];
   type: TransactionType;
   year: Scalars['Int']['input'];
@@ -358,6 +395,15 @@ export type User = {
   __typename?: 'User';
   email: Scalars['String']['output'];
 };
+
+export type Weekday =
+  | 'FRI'
+  | 'MON'
+  | 'SAT'
+  | 'SUN'
+  | 'THU'
+  | 'TUE'
+  | 'WED';
 
 export type AccountFieldsFragment = { __typename?: 'Account', id: string, name: string, currency: string, initialBalance: number, balance: number };
 
@@ -518,6 +564,15 @@ export type GetTransactionDescriptionSuggestionsQueryVariables = Exact<{
 
 
 export type GetTransactionDescriptionSuggestionsQuery = { __typename?: 'Query', transactionDescriptionSuggestions: Array<string> };
+
+export type GetMonthlyWeekdayReportQueryVariables = Exact<{
+  year: Scalars['Int']['input'];
+  month: Scalars['Int']['input'];
+  type: TransactionType;
+}>;
+
+
+export type GetMonthlyWeekdayReportQuery = { __typename?: 'Query', monthlyWeekdayReport: { __typename?: 'MonthlyWeekdayReport', year: number, month: number, type: TransactionType, weekdays: Array<{ __typename?: 'MonthlyWeekdayReportDay', weekday: Weekday, currencyBreakdowns: Array<{ __typename?: 'MonthlyWeekdayReportCurrencyBreakdown', currency: string, totalAmount: number, averageAmount: number, percentage: number }> }>, currencyTotals: Array<{ __typename?: 'MonthlyWeekdayReportCurrencyTotal', currency: string, totalAmount: number }> } };
 
 export const AccountFieldsFragmentDoc = gql`
     fragment AccountFields on Account {
@@ -1220,3 +1275,50 @@ export function useGetTransactionDescriptionSuggestionsLazyQuery(variables?: Get
   return VueApolloComposable.useLazyQuery<GetTransactionDescriptionSuggestionsQuery, GetTransactionDescriptionSuggestionsQueryVariables>(GetTransactionDescriptionSuggestionsDocument, variables, options);
 }
 export type GetTransactionDescriptionSuggestionsQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<GetTransactionDescriptionSuggestionsQuery, GetTransactionDescriptionSuggestionsQueryVariables>;
+export const GetMonthlyWeekdayReportDocument = gql`
+    query GetMonthlyWeekdayReport($year: Int!, $month: Int!, $type: TransactionType!) {
+  monthlyWeekdayReport(year: $year, month: $month, type: $type) {
+    year
+    month
+    type
+    weekdays {
+      weekday
+      currencyBreakdowns {
+        currency
+        totalAmount
+        averageAmount
+        percentage
+      }
+    }
+    currencyTotals {
+      currency
+      totalAmount
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetMonthlyWeekdayReportQuery__
+ *
+ * To run a query within a Vue component, call `useGetMonthlyWeekdayReportQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetMonthlyWeekdayReportQuery` returns an object from Apollo Client that contains result, loading and error properties
+ * you can use to render your UI.
+ *
+ * @param variables that will be passed into the query
+ * @param options that will be passed into the query, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/query.html#options;
+ *
+ * @example
+ * const { result, loading, error } = useGetMonthlyWeekdayReportQuery({
+ *   year: // value for 'year'
+ *   month: // value for 'month'
+ *   type: // value for 'type'
+ * });
+ */
+export function useGetMonthlyWeekdayReportQuery(variables: GetMonthlyWeekdayReportQueryVariables | VueCompositionApi.Ref<GetMonthlyWeekdayReportQueryVariables> | ReactiveFunction<GetMonthlyWeekdayReportQueryVariables>, options: VueApolloComposable.UseQueryOptions<GetMonthlyWeekdayReportQuery, GetMonthlyWeekdayReportQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<GetMonthlyWeekdayReportQuery, GetMonthlyWeekdayReportQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<GetMonthlyWeekdayReportQuery, GetMonthlyWeekdayReportQueryVariables>> = {}) {
+  return VueApolloComposable.useQuery<GetMonthlyWeekdayReportQuery, GetMonthlyWeekdayReportQueryVariables>(GetMonthlyWeekdayReportDocument, variables, options);
+}
+export function useGetMonthlyWeekdayReportLazyQuery(variables?: GetMonthlyWeekdayReportQueryVariables | VueCompositionApi.Ref<GetMonthlyWeekdayReportQueryVariables> | ReactiveFunction<GetMonthlyWeekdayReportQueryVariables>, options: VueApolloComposable.UseQueryOptions<GetMonthlyWeekdayReportQuery, GetMonthlyWeekdayReportQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<GetMonthlyWeekdayReportQuery, GetMonthlyWeekdayReportQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<GetMonthlyWeekdayReportQuery, GetMonthlyWeekdayReportQueryVariables>> = {}) {
+  return VueApolloComposable.useLazyQuery<GetMonthlyWeekdayReportQuery, GetMonthlyWeekdayReportQueryVariables>(GetMonthlyWeekdayReportDocument, variables, options);
+}
+export type GetMonthlyWeekdayReportQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<GetMonthlyWeekdayReportQuery, GetMonthlyWeekdayReportQueryVariables>;
