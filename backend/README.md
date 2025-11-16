@@ -50,31 +50,11 @@ Uses DynamoDB Local running in Docker with a named volume for data persistence.
 - **DynamoDB Local**: http://localhost:8000
 - **Admin UI**: http://localhost:8001
 
-## Available Scripts
-
-### Development
+## Most Useful Scripts
 
 - `npm run dev` - Start development server with hot reload
-- `npm run build` - Build for production deployment
-- `npm run compile` - Compile TypeScript
-
-### Code Quality
-
-- `npm run lint` - Run ESLint checks
-- `npm run lint:fix` - Fix ESLint issues automatically
-- `npm run prettier` - Check code formatting
-- `npm run prettier:fix` - Fix code formatting
-
-### Database
-
-- `npm run db:start` - Start DynamoDB Local + Admin UI
-- `npm run db:stop` - Stop database services
-- `npm run db:setup` - Start database and create tables
-- `npm run db:seed` - Seed database with sample data (development only)
-
-## Architecture
-
-- **Apollo Server** - GraphQL server
-- **TypeScript** - Type-safe JavaScript
-- **DynamoDB** - NoSQL database (Local for dev, AWS for prod)
-- **AWS Lambda** - Serverless deployment target
+- `npm run format` - Run Prettier and ESLint to check and fix code style
+- `npm run test` - Run tests with Jest
+- `npm run db:seed` - Seed database with sample data
+  - At least one user is required to exist in the database before seeding
+  - The script erases all existing data
