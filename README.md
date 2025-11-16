@@ -7,15 +7,19 @@ A serverless web application for individual financial management with Vue.js fro
 - **Backend**: [backend/README.md](backend/README.md) - GraphQL API server setup and development
 - **Frontend**: [frontend/README.md](frontend/README.md) - Vue.js SPA setup and development
 
-## Architecture
-
-- **backend/** - Apollo GraphQL server (Node.js/TypeScript)
-- **frontend/** - Vue 3 + Vite + Vuetify SPA
-- **backend-cdk/** - AWS CDK infrastructure for backend (Lambda/API Gateway/DynamoDB)
-- **frontend-cdk/** - AWS CDK infrastructure for frontend (S3/CloudFront)
-
 ## Deployment
 
+**Prerequisites:**
+- AWS CLI configured with appropriate credentials
+- `jq` command-line JSON processor installed
+- All dependencies installed in each package directory
+
+**Deployment order:**
+1. Backend
+2. Backend infrastructure
+3. Frontend infrastructure
+4. Frontend
+
 ```bash
-./deploy.sh    # Complete deployment: backend → frontend infrastructure → frontend assets
+./deploy.sh
 ```
