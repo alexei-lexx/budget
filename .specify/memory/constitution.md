@@ -80,7 +80,7 @@ GraphQL Resolvers → Services → Repositories
 - Call appropriate service methods
 - Avoid direct database access
 
-### Request Flow
+**Request Flow:**
 
 ```mermaid
 graph LR
