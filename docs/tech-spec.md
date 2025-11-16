@@ -3,9 +3,6 @@
 ## 3. Backend
 
 ### Key Features
-- Schema-first GraphQL development
-- Authentication middleware for JWT verification
-- Repository pattern for database abstraction
 - Service layer for business logic and cross-repository operations
 - Structured error handling and input validation
 
