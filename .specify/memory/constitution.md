@@ -1,13 +1,13 @@
 <!-- SYNC IMPACT REPORT
-Version Change: 0.11.3 → 0.12.0 (MINOR: Added Backend Layer Structure subsection clarifying three-layer architecture pattern)
-Modified Sections: Backend Layer Structure (added simplified request flow diagram)
-Added Sections: Backend Layer Structure (describes Repository, Service, and GraphQL layers with responsibilities and constraints); Request Flow (flowchart showing request path through layers)
+Version Change: 0.12.0 → 0.12.1 (PATCH: Added cross-reference link from General Requirements to Vendor Independence)
+Modified Sections: General Requirements (added link to Vendor Independence section)
+Added Sections: None
 Removed Sections: None
-Refinements: Removed ambiguous "scoped to authenticated user" language from Repository Layer to avoid confusion with authorization (handled at Resolver/Service level); Added "one repository per entity" design guidance; Simplified multi-repository operations description for clarity; Converted all layer responsibilities to imperative mood; Added simple flowchart diagram illustrating request flow through architecture
+Refinements: Added "Minimize vendor lock-in" principle to General Requirements with link to detailed Vendor Independence section
 Templates Requiring Updates:
-  ✅ spec-template.md: No changes needed (focused on user stories, not architecture)
-  ✅ plan-template.md: No changes needed (Constitution Check gates remain valid)
-  ✅ tasks-template.md: No changes needed (task structure naturally aligns with three-layer pattern)
+  ✅ spec-template.md: No changes needed
+  ✅ plan-template.md: No changes needed
+  ✅ tasks-template.md: No changes needed
 Follow-up TODOs:
   - Ratification date remains TODO (inherited from previous versions)
 -->
@@ -29,6 +29,7 @@ Each package maintains its own `package.json`, dependencies, and build configura
 
 - Deploy with free or minimal cost (use free-tier cloud services, no mandatory paid subscriptions)
 - Enable mobile installation via PWA without app store publishing
+- Minimize vendor lock-in (see [Vendor Independence](#vendor-independence) for details)
 
 ## Backend
 
@@ -264,4 +265,4 @@ This constitution supersedes all other development guidelines. Amendments requir
 4. Commit with message: `docs: amend constitution to vX.Y.Z ([change summary])`
 5. Update dependent artifacts (templates, guidance docs) as flagged
 
-**Version**: 0.12.0 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-11-16
+**Version**: 0.12.1 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-11-16
