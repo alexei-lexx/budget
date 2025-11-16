@@ -20,25 +20,33 @@ npm install
 
 2. Configure Auth0:
 
-```bash
-# Copy the environment template
-cp .env.example .env.development
+Copy the environment template
 
-# Edit .env.development with your Auth0 values:
-# AUTH0_DOMAIN=your-tenant.auth0.com
-# AUTH0_AUDIENCE=your-api-identifier
+```bash
+cp .env.example .env.development
+```
+
+Edit `.env.development` with your Auth0 values
+
+```env
+AUTH0_DOMAIN=your-tenant.auth0.com
+AUTH0_AUDIENCE=your-api-identifier
 ```
 
 3. Set up development database:
 
+Start DynamoDB Local and create tables
+
 ```bash
-npm run db:setup    # Starts DynamoDB Local and creates tables
+npm run db:setup
 ```
 
 4. Start the development server:
 
+Start server on http://localhost:4000
+
 ```bash
-npm run dev         # Starts server on http://localhost:4000
+npm run dev
 ```
 
 ## Database (Development)
