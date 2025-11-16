@@ -1,19 +1,5 @@
 # Technical Stack Specification
 
-## 1. System Overview
-
-Personal Finance Tracker is a serverless web application for individual financial management. Users authenticate via Auth0, manage their financial data through a Vue.js frontend, and store data in AWS DynamoDB via a GraphQL API.
-
-## 2. Frontend
-
-### Key Features
-- PWA support for mobile installation
-- Responsive design optimized for mobile browsers
-- Authentication with automatic token refresh
-- Apollo Client cache for server data management
-
----
-
 ## 3. Backend
 
 ### Key Features
