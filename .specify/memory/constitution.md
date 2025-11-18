@@ -221,15 +221,6 @@ graph TD
 
 **Rationale**: Single schema source ensures API contracts are unambiguous, prevents type mismatches, enables safe refactoring, and synchronizes frontend and backend versions automatically.
 
-### Frontend Code Discipline
-
-**Non-negotiable rule**: Prefer framework components and styles over custom implementations.
-
-- Use framework design system before creating custom solutions
-- Minimize custom CSS
-
-**Rationale**: Reduces maintenance, ensures consistency.
-
 ### Database Record Hydration
 
 **Non-negotiable rule**: All data read from the database MUST be validated at the repository boundary before being returned to service or resolver layers.
@@ -296,6 +287,15 @@ graph TD
 
 - Use snackbars for all user feedback notifications (errors and success messages)
 - Optimize design and behavior for mobile devices first, ensure responsive across all screen sizes
+
+### Frontend Code Discipline
+
+**Non-negotiable rule**: Prefer framework components and styles over custom implementations.
+
+- Use framework design system before creating custom solutions
+- Minimize custom CSS
+
+**Rationale**: Reduces maintenance, ensures consistency.
 
 ## Governance
 
