@@ -175,39 +175,6 @@ graph TD
 
 ## Core Principles
 
-### Test Strategy
-
-**Backend** (primary focus):
-
-- Test repositories
-  - In repository tests, use real database connection to validate data access layer
-- Test services
-  - In service tests, use mocked repositories to isolate business logic from database dependencies
-- Test resolvers only on request (optional)
-- Test utility functions
-- Prefer unit tests over integration tests
-- Keep test suite small and effective
-
-**Frontend**:
-- Test manually (visual verification in dev)
-- Write UI component tests only for complex/critical components; not required
-
-**Test File Location**:
-- Co-location strategy: tests live next to the code they test
-- Naming: `[source-file].test.ts` in same directory as source `[source-file].ts`
-
-### Soft-Deletion
-
-**Non-negotiable rule**: All entities use soft-deletion by default unless explicitly excepted.
-
-**Implementation**:
-- All entities MUST support soft-deletion via an `isArchived` flag or equivalent
-- Soft-deleted records MUST NOT appear in user-facing queries by default
-- All queries scoped to non-archived records unless intentionally accessing archived data
-- Exceptions: Document the business reason in entity comments
-
-**Rationale**: Provides audit trail, enables accidental deletion recovery, and maintains data integrity for historical analysis.
-
 ### Vendor Independence
 
 **Non-negotiable rule**: Minimize vendor lock-in through technology choices and architectural decisions that preserve deployment flexibility.
@@ -250,6 +217,39 @@ graph TD
 - Apply validation consistently across all repositories for uniform error handling
 
 **Rationale**: Validates data at its source (database) for immediate error detection rather than downstream in service logic. Prevents corrupted data from propagating through the application.
+
+### Soft-Deletion
+
+**Non-negotiable rule**: All entities use soft-deletion by default unless explicitly excepted.
+
+**Implementation**:
+- All entities MUST support soft-deletion via an `isArchived` flag or equivalent
+- Soft-deleted records MUST NOT appear in user-facing queries by default
+- All queries scoped to non-archived records unless intentionally accessing archived data
+- Exceptions: Document the business reason in entity comments
+
+**Rationale**: Provides audit trail, enables accidental deletion recovery, and maintains data integrity for historical analysis.
+
+### Test Strategy
+
+**Backend** (primary focus):
+
+- Test repositories
+  - In repository tests, use real database connection to validate data access layer
+- Test services
+  - In service tests, use mocked repositories to isolate business logic from database dependencies
+- Test resolvers only on request (optional)
+- Test utility functions
+- Prefer unit tests over integration tests
+- Keep test suite small and effective
+
+**Frontend**:
+- Test manually (visual verification in dev)
+- Write UI component tests only for complex/critical components; not required
+
+**Test File Location**:
+- Co-location strategy: tests live next to the code they test
+- Naming: `[source-file].test.ts` in same directory as source `[source-file].ts`
 
 ### Input Validation
 
