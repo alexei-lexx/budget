@@ -1,13 +1,15 @@
 <!-- SYNC IMPACT REPORT
-Version Change: 0.12.0 → 0.12.1 (PATCH: Added cross-reference link from General Requirements to Vendor Independence)
-Modified Sections: General Requirements (added link to Vendor Independence section)
-Added Sections: None
+Version Change: 0.12.1 → 0.13.0 (MINOR: Added new Input Validation principle)
+Modified Sections: Core Principles (added Input Validation section)
+Added Sections: Input Validation principle with two-tier validation approach
 Removed Sections: None
-Refinements: Added "Minimize vendor lock-in" principle to General Requirements with link to detailed Vendor Independence section
+Refinements: Concise imperative language describing hybrid validation at GraphQL and Service layers
 Templates Requiring Updates:
-  ✅ spec-template.md: No changes needed
-  ✅ plan-template.md: No changes needed
-  ✅ tasks-template.md: No changes needed
+  ✅ spec-template.md: No changes needed (validation covered by requirements)
+  ✅ plan-template.md: No changes needed (Constitution Check remains generic)
+  ✅ tasks-template.md: No changes needed (validation tasks implicit in implementation)
+  ✅ agent-file-template.md: No changes needed (project-agnostic template)
+  ✅ checklist-template.md: No changes needed (feature-specific checklists)
 Follow-up TODOs:
   - Ratification date remains TODO (inherited from previous versions)
 -->
@@ -249,6 +251,24 @@ graph TD
 
 **Rationale**: Validates data at its source (database) for immediate error detection rather than downstream in service logic. Prevents corrupted data from propagating through the application.
 
+### Input Validation
+
+**Non-negotiable rule**: Validate input at two distinct layers - GraphQL layer for format/structure, service layer for business rules.
+
+**Implementation**:
+- **GraphQL Layer**: Use Zod schemas to validate input structure, format, and constraints
+  - Validate required fields, data types, formats (UUID, date, email)
+  - Enforce range constraints (positive numbers, string lengths)
+  - Validate enums and predefined values
+  - Reject malformed input immediately at API boundary
+- **Service Layer**: Enforce business validation
+  - Enforce business rules and domain constraints
+  - Enforce data integrity rules
+  - Validate entity existence
+  - Validate entity relationships
+
+**Rationale**: Fail-fast principle ensures malformed input never reaches business logic. Clear separation enables API-agnostic service reuse, performance optimization, and independent testing of each validation layer.
+
 ### UI Guidelines
 
 - Use snackbars for all user feedback notifications (errors and success messages)
@@ -265,4 +285,4 @@ This constitution supersedes all other development guidelines. Amendments requir
 4. Commit with message: `docs: amend constitution to vX.Y.Z ([change summary])`
 5. Update dependent artifacts (templates, guidance docs) as flagged
 
-**Version**: 0.12.1 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-11-16
+**Version**: 0.13.0 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-11-18
