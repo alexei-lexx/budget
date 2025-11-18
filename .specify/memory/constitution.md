@@ -1,9 +1,23 @@
 <!-- SYNC IMPACT REPORT
-Version Change: 0.12.1 → 0.13.0 (MINOR: Added new Input Validation principle)
-Modified Sections: Core Principles (added Input Validation section)
-Added Sections: Input Validation principle with two-tier validation approach
+Version Change: 0.12.1 → 0.13.3
+Changes:
+  - MINOR (0.13.0): Added Input Validation principle with two-tier validation approach
+  - PATCH (0.13.1): Reordered Core Principles, added ordering rationale, removed app-specific examples
+  - PATCH (0.13.2): Expanded UI Guidelines with framework component usage requirements
+  - PATCH (0.13.3): Split UI Guidelines into Frontend Code Discipline and UI Guidelines principles
+Modified Sections:
+  - Core Principles: Added Input Validation and Frontend Code Discipline sections, reordered all principles
+  - UI Guidelines: Separated implementation rules into Frontend Code Discipline, kept UX patterns only
+Added Sections:
+  - Input Validation principle (GraphQL layer + Service layer validation)
+  - Frontend Code Discipline principle (framework components, minimize custom CSS)
+  - Ordering Rationale paragraph
 Removed Sections: None
-Refinements: Concise imperative language describing hybrid validation at GraphQL and Service layers
+Refinements:
+  - Concise imperative language for Input Validation at GraphQL and Service layers
+  - Removed app-specific examples from Service Layer validation
+  - Separated frontend implementation standards from user-facing UI patterns
+  - Final principle order: Vendor Independence → Schema-Driven Development → Frontend Code Discipline → Database Record Hydration → Soft-Deletion → Test Strategy → Input Validation → UI Guidelines
 Templates Requiring Updates:
   ✅ spec-template.md: No changes needed (validation covered by requirements)
   ✅ plan-template.md: No changes needed (Constitution Check remains generic)
@@ -207,6 +221,15 @@ graph TD
 
 **Rationale**: Single schema source ensures API contracts are unambiguous, prevents type mismatches, enables safe refactoring, and synchronizes frontend and backend versions automatically.
 
+### Frontend Code Discipline
+
+**Non-negotiable rule**: Prefer framework components and styles over custom implementations.
+
+- Use framework design system before creating custom solutions
+- Minimize custom CSS
+
+**Rationale**: Reduces maintenance, ensures consistency.
+
 ### Database Record Hydration
 
 **Non-negotiable rule**: All data read from the database MUST be validated at the repository boundary before being returned to service or resolver layers.
@@ -285,4 +308,4 @@ This constitution supersedes all other development guidelines. Amendments requir
 4. Commit with message: `docs: amend constitution to vX.Y.Z ([change summary])`
 5. Update dependent artifacts (templates, guidance docs) as flagged
 
-**Version**: 0.13.0 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-11-18
+**Version**: 0.13.3 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-11-18
