@@ -7,7 +7,7 @@
 
 ## Summary
 
-Add statistical outlier filtering to the existing weekday expense report using the Interquartile Range (IQR) method. Users can toggle a checkbox to exclude unusually high expenses (like rent) from average calculations. Backend implements outlier detection logic and accepts a boolean parameter via GraphQL schema. Frontend displays filtered results in the existing bar chart with outlier information (count and total amount) shown in existing tooltips.
+Add statistical outlier filtering to the existing monthly weekday expense report (referred to as "Monthly Weekday Report" in API contracts, "Weekday Expense Report" in UI) using the Interquartile Range (IQR) method. Users can toggle a checkbox to exclude unusually high expenses (like rent) from average calculations. Backend implements outlier detection logic and accepts a boolean parameter via GraphQL schema. Frontend displays filtered results in the existing bar chart with outlier information (count and total amount) shown in existing tooltips.
 
 ## Technical Context
 

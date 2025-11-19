@@ -141,7 +141,7 @@ type Query {
 <template>
   <v-checkbox
     v-model="excludeOutliers"
-    label="Exclude outliers from averages"
+    label="Exclude unusual expenses"
   />
 
   <v-tooltip>

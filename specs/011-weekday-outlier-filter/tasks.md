@@ -70,7 +70,7 @@ Web application structure:
 - [ ] T015 [US1] Sync GraphQL schema from backend to frontend: `cd frontend && npm run codegen:sync-schema`
 - [ ] T016 [US1] Regenerate frontend typed composables from updated schema: `cd frontend && npm run codegen`
 - [ ] T017 [US1] Update MONTHLY_WEEKDAY_REPORT_QUERY to include excludeOutliers parameter and outlierCount/outlierTotalAmount fields in frontend/src/graphql/monthlyWeekdayReport.ts
-- [ ] T018 [US1] Add v-checkbox component with label "Exclude outliers from averages" and bind to local excludeOutliers ref (default false) in frontend/src/components/reports/MonthlyWeekdayExpenseReport.vue
+- [ ] T018 [US1] Add v-checkbox component with label "Exclude unusual expenses" and bind to local excludeOutliers ref (default false) in frontend/src/components/reports/MonthlyWeekdayExpenseReport.vue
 - [ ] T019 [US1] Update useMonthlyWeekdayReportQuery call to include excludeOutliers reactive parameter in frontend/src/components/reports/MonthlyWeekdayExpenseReport.vue
 - [ ] T020 [US1] Update tooltip rendering to conditionally display outlier information (count and total amount) when breakdown.outlierCount > 0 in frontend/src/components/reports/MonthlyWeekdayExpenseReport.vue
 
@@ -83,12 +83,13 @@ Web application structure:
 **Purpose**: Final verification and validation
 
 - [ ] T021 [P] Manual testing: Verify checkbox defaults to unchecked on page load
-- [ ] T022 [P] Manual testing: Toggle checkbox and verify bar chart updates within 1 second with filtered data
+- [ ] T022 [P] Manual testing: Toggle checkbox and verify bar chart updates within 1 second with filtered data; change date range and verify recalculation occurs automatically
 - [ ] T023 [P] Manual testing: Verify tooltips show outlier info (count and total) only when outlierCount > 0 for each currency breakdown
 - [ ] T024 [P] Manual testing: Verify edge case with <4 transactions per weekday shows no filtering (all transactions included)
 - [ ] T025 [P] Manual testing: Navigate away from report and return to verify checkbox resets to unchecked state (no persistence)
 - [ ] T026 [P] Manual testing: Verify multi-currency handling - outliers detected separately per currency in each weekday breakdown
-- [ ] T027 Run full quickstart.md validation workflow to ensure developer onboarding guide is accurate
+- [ ] T027 [P] Manual testing: Verify transaction list display remains unchanged when outlier filtering is enabled (only totals/averages should update, all transactions remain visible)
+- [ ] T028 Run full quickstart.md validation workflow to ensure developer onboarding guide is accurate
 
 ---
 
@@ -205,6 +206,7 @@ Sequential execution:
 - **Multi-currency**: IQR applied separately per currency group (research.md decision)
 - **Edge cases**: <4 transactions per weekday = no filtering (research.md decision)
 - **Performance target**: <1 second response time for filtering (plan.md requirement)
+- **Reactive Recalculation**: FR-008 date range recalculation is implicit in Apollo Client reactive query behavior (T019); covered by T022 manual testing
 - Commit after each logical task or small group of related tasks
 - Stop at checkpoints to validate independently before proceeding
 
@@ -214,8 +216,8 @@ Sequential execution:
 
 - **Phase 1 (Foundational)**: 3 tasks
 - **Phase 2 (User Story 1)**: 17 tasks (4 tests, 10 implementation, 3 verification)
-- **Phase 3 (Polish)**: 7 tasks
-- **Total**: 27 tasks
+- **Phase 3 (Polish)**: 8 tasks
+- **Total**: 28 tasks
 
 ### Tasks per User Story
 
