@@ -1,29 +1,26 @@
 <!-- SYNC IMPACT REPORT
-Version Change: 0.12.1 → 0.13.3
+Version Change: 0.13.3 → 0.13.4
 Changes:
-  - MINOR (0.13.0): Added Input Validation principle with two-tier validation approach
-  - PATCH (0.13.1): Reordered Core Principles, added ordering rationale, removed app-specific examples
-  - PATCH (0.13.2): Expanded UI Guidelines with framework component usage requirements
-  - PATCH (0.13.3): Split UI Guidelines into Frontend Code Discipline and UI Guidelines principles
+  - PATCH (0.13.4): Moved Backend Layer Structure from Backend section to Core Principles and reformatted to match principle style
 Modified Sections:
-  - Core Principles: Added Input Validation and Frontend Code Discipline sections, reordered all principles
-  - UI Guidelines: Separated implementation rules into Frontend Code Discipline, kept UX patterns only
-Added Sections:
-  - Input Validation principle (GraphQL layer + Service layer validation)
-  - Frontend Code Discipline principle (framework components, minimize custom CSS)
-  - Ordering Rationale paragraph
-Removed Sections: None
-Refinements:
-  - Concise imperative language for Input Validation at GraphQL and Service layers
-  - Removed app-specific examples from Service Layer validation
-  - Separated frontend implementation standards from user-facing UI patterns
-  - Final principle order: Vendor Independence → Schema-Driven Development → Frontend Code Discipline → Database Record Hydration → Soft-Deletion → Test Strategy → Input Validation → UI Guidelines
+  - Backend section: Removed Backend Layer Structure subsection (now contains only Technologies and Responsibilities)
+  - Core Principles: Added Backend Layer Structure principle before Database Record Hydration
+  - Backend Layer Structure: Added "Non-negotiable rule" statement, "Implementation" section header, and "Rationale" section
+Structural Change:
+  - Backend Layer Structure relocated from descriptive Backend section to prescriptive Core Principles section
+  - Formatted to match other principles with clear rule statement and rationale
+  - New principle order: Vendor Independence → Schema-Driven Development → Backend Layer Structure → Database Record Hydration → Soft-Deletion → Test Strategy → Input Validation → UI Guidelines → Frontend Code Discipline
+Rationale:
+  - Backend Layer Structure defines mandatory architectural rules (three-layer pattern)
+  - Belongs with other architectural principles rather than package description
+  - Improves clarity: Backend section describes what backend IS, Core Principles describe rules to FOLLOW
+  - Consistent formatting with other principles for better readability
 Templates Requiring Updates:
-  ✅ spec-template.md: No changes needed (validation covered by requirements)
-  ✅ plan-template.md: No changes needed (Constitution Check remains generic)
-  ✅ tasks-template.md: No changes needed (validation tasks implicit in implementation)
-  ✅ agent-file-template.md: No changes needed (project-agnostic template)
-  ✅ checklist-template.md: No changes needed (feature-specific checklists)
+  ✅ spec-template.md: No changes needed (structural reorganization only)
+  ✅ plan-template.md: No changes needed (structural reorganization only)
+  ✅ tasks-template.md: No changes needed (structural reorganization only)
+  ✅ agent-file-template.md: No changes needed (structural reorganization only)
+  ✅ checklist-template.md: No changes needed (structural reorganization only)
 Follow-up TODOs:
   - Ratification date remains TODO (inherited from previous versions)
 -->
@@ -63,68 +60,6 @@ An npm package providing Apollo GraphQL server and API implementation.
 - **Database Access**: Handle all data persistence and retrieval operations
 - **Authentication**: Verify JWT tokens and establish user identity
 - **Authorization**: Enforce user data scoping and prevent cross-user data access
-
-### Backend Layer Structure
-
-The backend implements a clean three-layer architecture that separates concerns and maintains clear dependencies:
-
-```
-GraphQL Resolvers → Services → Repositories
-```
-
-**Repository Layer**:
-- Provide database access interface
-- Perform pure data access operations (CRUD)
-- Handle errors for database operations
-- Avoid business logic
-- Organize one repository per entity (recommended)
-
-**Service Layer**:
-- Implement business logic and domain rules
-- Provide business-specific error messages
-- Orchestrate multi-repository operations (operations across multiple repositories)
-- Inject repository dependencies in service constructor
-- Implement complex validation logic (currency matching, category type validation)
-- Orchestrate transactions (atomic operations ensuring data consistency)
-- Group related CRUD operations for one entity in one service
-- Expose public methods for direct calling by GraphQL resolvers
-
-**GraphQL Layer**:
-- Validate user input using Zod schemas
-- Enforce authentication and authorization
-- Define API schema and documentation
-- Transform requests and responses
-- Call appropriate service methods
-- Avoid direct database access
-
-**Request Flow:**
-
-```mermaid
-graph LR
-    Client["Client"]
-
-    subgraph GraphQL["GraphQL Layer"]
-        Resolver["Resolver<br/>(Validate & Auth)"]
-    end
-
-    subgraph Service_Layer["Service Layer"]
-        Service["Service<br/>(Business Logic)"]
-    end
-
-    subgraph Repo_Layer["Repository Layer"]
-        Repo1["Repository 1"]
-        Repo2["Repository 2"]
-    end
-
-    DB["Database"]
-
-    Client --> Resolver
-    Resolver --> Service
-    Service --> Repo1
-    Service --> Repo2
-    Repo1 --> DB
-    Repo2 --> DB
-```
 
 ## Frontend
 
@@ -221,6 +156,66 @@ graph TD
 
 **Rationale**: Single schema source ensures API contracts are unambiguous, prevents type mismatches, enables safe refactoring, and synchronizes frontend and backend versions automatically.
 
+### Backend Layer Structure
+
+**Non-negotiable rule**: Backend MUST implement a clean three-layer architecture that separates concerns and maintains clear dependencies: **GraphQL Resolvers → Services → Repositories**.
+
+**Repository Layer**:
+- Provide database access interface
+- Perform pure data access operations (CRUD)
+- Handle errors for database operations
+- Avoid business logic
+- Organize one repository per entity (recommended)
+
+**Service Layer**:
+- Implement business logic and domain rules
+- Provide business-specific error messages
+- Orchestrate multi-repository operations (operations across multiple repositories)
+- Inject repository dependencies in service constructor
+- Implement complex validation logic (currency matching, category type validation)
+- Orchestrate transactions (atomic operations ensuring data consistency)
+- Group related CRUD operations for one entity in one service
+- Expose public methods for direct calling by GraphQL resolvers
+
+**GraphQL Layer**:
+- Validate user input using Zod schemas
+- Enforce authentication and authorization
+- Define API schema and documentation
+- Transform requests and responses
+- Call appropriate service methods
+- Avoid direct database access
+
+**Request Flow:**
+
+```mermaid
+graph LR
+    Client["Client"]
+
+    subgraph GraphQL["GraphQL Layer"]
+        Resolver["Resolver<br/>(Validate & Auth)"]
+    end
+
+    subgraph Service_Layer["Service Layer"]
+        Service["Service<br/>(Business Logic)"]
+    end
+
+    subgraph Repo_Layer["Repository Layer"]
+        Repo1["Repository 1"]
+        Repo2["Repository 2"]
+    end
+
+    DB["Database"]
+
+    Client --> Resolver
+    Resolver --> Service
+    Service --> Repo1
+    Service --> Repo2
+    Repo1 --> DB
+    Repo2 --> DB
+```
+
+**Rationale**: Clear layer separation enables independent testing, maintainable code, and flexible architecture. Service layer isolates business logic from API and database concerns, making the codebase portable and testable.
+
 ### Database Record Hydration
 
 **Non-negotiable rule**: All data read from the database MUST be validated at the repository boundary before being returned to service or resolver layers.
@@ -308,4 +303,4 @@ This constitution supersedes all other development guidelines. Amendments requir
 4. Commit with message: `docs: amend constitution to vX.Y.Z ([change summary])`
 5. Update dependent artifacts (templates, guidance docs) as flagged
 
-**Version**: 0.13.3 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-11-18
+**Version**: 0.13.4 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-11-19
