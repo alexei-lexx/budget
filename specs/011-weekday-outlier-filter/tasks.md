@@ -52,8 +52,8 @@ Web application structure:
 
 - [ ] T004 [P] [US1] Write unit tests for percentile calculation function in backend/src/utils/statistics.test.ts (create new file)
 - [ ] T005 [P] [US1] Write unit tests for IQR outlier detection covering edge cases: <4 transactions, all similar values, all outliers, normal distribution in backend/src/utils/statistics.test.ts
-- [ ] T006 [P] [US1] Write unit tests for MonthlyByWeekdayReportService.getMonthlyWeekdayReport with excludeOutliers=false in backend/tests/services/MonthlyByWeekdayReportService.test.ts
-- [ ] T007 [P] [US1] Write unit tests for MonthlyByWeekdayReportService.getMonthlyWeekdayReport with excludeOutliers=true covering multi-currency and edge cases in backend/tests/services/MonthlyByWeekdayReportService.test.ts
+- [ ] T006 [P] [US1] Write unit tests for MonthlyByWeekdayReportService.getMonthlyWeekdayReport with excludeOutliers=false in backend/src/services/MonthlyByWeekdayReportService.test.ts
+- [ ] T007 [P] [US1] Write unit tests for MonthlyByWeekdayReportService.getMonthlyWeekdayReport with excludeOutliers=true covering multi-currency and edge cases in backend/src/services/MonthlyByWeekdayReportService.test.ts
 
 ### Implementation for User Story 1 (Backend)
 
@@ -63,7 +63,7 @@ Web application structure:
 - [ ] T011 [US1] Update MonthlyByWeekdayReportService to populate outlierCount and outlierTotalAmount fields conditionally (only when count > 0) in backend/src/services/MonthlyByWeekdayReportService.ts
 - [ ] T012 [US1] Update monthlyByWeekdayReportResolver to accept and validate excludeOutliers parameter using Zod (optional boolean, default false) in backend/src/resolvers/monthlyByWeekdayReportResolver.ts
 - [ ] T013 [US1] Update monthlyByWeekdayReportResolver to pass excludeOutliers to service layer in backend/src/resolvers/monthlyByWeekdayReportResolver.ts
-- [ ] T014 [US1] Run backend unit tests to verify all tests pass: `cd backend && npm test -- statistics.test.ts && npm test -- MonthlyByWeekdayReportService.test.ts`
+- [ ] T014 [US1] Run backend unit tests to verify all tests pass: `cd backend && npm test -- src/utils/statistics.test.ts && npm test -- src/services/MonthlyByWeekdayReportService.test.ts`
 
 ### Implementation for User Story 1 (Frontend)
 

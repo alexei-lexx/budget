@@ -4,6 +4,7 @@
 **Created**: 2025-11-19
 **Status**: Draft
 **Input**: User description: "for the existing monthly expense report by weekday I want to improve it becaise some days of a month a have big expenses like rent amount for apartment that significaly inreate total and average amount on these days use so calledconfidence interval that excluded too high expenses from the report for user it looks like a checkbox []- exclude ... (and dont know the right label for that)"
+**Scope**: This feature applies to both EXPENSE and INCOME transaction types in the weekday report, though the primary use case targets expense outlier filtering (e.g., excluding rent payments from typical spending patterns).
 
 ## Clarifications
 
@@ -49,7 +50,7 @@ Users need to see typical spending patterns by day of the week without large one
 
 - **FR-001**: System MUST provide a checkbox control labeled "Exclude outliers from averages" (or similar user-friendly label) on the weekday expense report interface, with default state unchecked
 - **FR-002**: System MUST recalculate total and average amounts for each weekday when outlier filtering is toggled on or off
-- **FR-003**: System MUST use a statistical method to identify outliers (Interquartile Range method recommended: values below Q1 - 1.5×IQR or above Q3 + 1.5×IQR are considered outliers)
+- **FR-003**: System MUST use a statistical method to identify outliers using the Interquartile Range (IQR) method: values above Q3 + 1.5×IQR are considered outliers (only upper bound applies for expense outlier detection, as we care about unusually high expenses)
 - **FR-004**: System MUST apply outlier filtering only to expense calculations (not to the transaction list display)
 - **FR-005**: System MUST display the count of excluded outliers and their total amount in tooltips for each weekday when outlier filtering is active and outliers are detected (count > 0)
 - **FR-006**: System MUST show outlier information (count and total amount) in the same tooltip that displays regular total and average amounts per weekday; if no outliers are detected for a weekday, tooltip shows only regular total and average
@@ -78,6 +79,7 @@ Users need to see typical spending patterns by day of the week without large one
 ## Assumptions
 
 - **Statistical Method**: Using the Interquartile Range (IQR) method for outlier detection as it's robust and widely understood. Values above Q3 + 1.5×IQR are considered outliers.
+- **Transaction Type Scope**: Outlier filtering applies to both EXPENSE and INCOME reports. While the primary use case is filtering unusual expenses (rent, insurance), the same statistical method can identify unusual income transactions if needed.
 - **Minimum Data Threshold**: Outlier filtering requires at least 4 transactions per weekday to calculate meaningful quartiles. Below this threshold, all transactions are included.
 - **Filtering Scope**: Outlier filtering applies only to expense calculations (totals and averages), not to the display of transaction lists. Users can still see all transactions.
 - **No Persistence**: The checkbox state is not persisted. It defaults to unchecked on every visit to the report, requiring users to manually enable filtering each time if desired.
