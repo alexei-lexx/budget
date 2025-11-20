@@ -1,15 +1,20 @@
 <!-- SYNC IMPACT REPORT
-Version Change: 0.13.4 → 0.14.0
+Version Change: 0.14.0 → 0.15.0
 Changes:
-  - MINOR (0.14.0): Added TypeScript Code Generation principle, shortened all rationales
+  - MINOR (0.15.0): Added Backend Service Architecture principle
 Added Sections:
-  - TypeScript Code Generation: Code quality standards for TypeScript
+  - Backend Service Architecture: Define domain entity services vs single-purpose services with selection criteria
 Modified Sections:
-  - Core Principles: Added TypeScript Code Generation principle after Frontend Code Discipline
-  - All rationales shortened for brevity (Schema-Driven Development, Backend Layer Structure, Database Record Hydration, Soft-Deletion, Input Validation, TypeScript Code Generation)
+  - Core Principles: Added Backend Service Architecture principle after Backend Layer Structure and before Database Record Hydration
 Templates Requiring Updates:
-  ✅ All templates: No changes needed (no template-specific updates required)
+  ✅ plan-template.md: Generic template, no updates needed
+  ✅ spec-template.md: Generic template, no updates needed
+  ✅ tasks-template.md: Generic template, no updates needed
+  ✅ checklist-template.md: Generic template, no updates needed
+  ✅ agent-file-template.md: Generic template, no updates needed
+  ⚠ docs/tech-spec.md: Requires alignment with constitutional service architecture patterns
 Follow-up TODOs:
+  - Update docs/tech-spec.md to align with constitutional service architecture patterns
   - Ratification date remains TODO (inherited from previous versions)
 -->
 
@@ -204,6 +209,30 @@ graph LR
 
 **Rationale**: Enables independent testing, maintainable code, and portable architecture.
 
+### Backend Service Architecture
+
+**Non-negotiable rule**: Service classes follow one of two patterns based on complexity and purpose.
+
+**Domain Entity Services (Default)**:
+- Represent a single domain entity
+- Expose multiple public methods such as CRUD operations
+- Centralize validation, business rules, and helper methods within domain
+- Depend primarily on one repository for related entity
+- May depend on other repositories if needed
+
+**Single-Purpose Services**:
+- Expose one public method (typically named `call`)
+- Contain complex, unique business logic
+- Handle non-CRUD operations requiring specialized orchestration
+- May orchestrate multiple repositories
+
+**Selection Criteria**:
+- Default to domain entity services for standard entity operations
+- Use single-purpose services when complexity is high and implementation is unique
+- Prefer single-purpose services when orchestrating multiple repositories
+
+**Rationale**: Balances maintainability with flexibility for complex operations.
+
 ### Database Record Hydration
 
 **Non-negotiable rule**: All data read from the database MUST be validated at the repository boundary before being returned to service or resolver layers.
@@ -304,4 +333,4 @@ This constitution supersedes all other development guidelines. Amendments requir
 4. Commit with message: `docs: amend constitution to vX.Y.Z ([change summary])`
 5. Update dependent artifacts (templates, guidance docs) as flagged
 
-**Version**: 0.14.0 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-11-20
+**Version**: 0.15.0 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-11-20
