@@ -26,6 +26,8 @@ Follow-up TODOs:
 
 ## Repository Structure
 
+### Overview
+
 The project comprises four independent npm packages distributed across the repository:
 
 - **backend/** – GraphQL server exposing the API for the frontend, includes database integration
