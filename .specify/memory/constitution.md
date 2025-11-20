@@ -209,7 +209,7 @@ graph LR
 
 **Rationale**: Enables independent testing, maintainable code, and portable architecture.
 
-### Backend Service Architecture
+### Backend Service Layer
 
 **Non-negotiable rule**: Service classes follow one of two patterns based on complexity and purpose.
 
