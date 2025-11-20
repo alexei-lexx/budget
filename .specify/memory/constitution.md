@@ -1,26 +1,14 @@
 <!-- SYNC IMPACT REPORT
-Version Change: 0.13.3 → 0.13.4
+Version Change: 0.13.4 → 0.14.0
 Changes:
-  - PATCH (0.13.4): Moved Backend Layer Structure from Backend section to Core Principles and reformatted to match principle style
+  - MINOR (0.14.0): Added TypeScript Code Generation principle, shortened all rationales
+Added Sections:
+  - TypeScript Code Generation: Code quality standards for TypeScript
 Modified Sections:
-  - Backend section: Removed Backend Layer Structure subsection (now contains only Technologies and Responsibilities)
-  - Core Principles: Added Backend Layer Structure principle before Database Record Hydration
-  - Backend Layer Structure: Added "Non-negotiable rule" statement, "Implementation" section header, and "Rationale" section
-Structural Change:
-  - Backend Layer Structure relocated from descriptive Backend section to prescriptive Core Principles section
-  - Formatted to match other principles with clear rule statement and rationale
-  - New principle order: Vendor Independence → Schema-Driven Development → Backend Layer Structure → Database Record Hydration → Soft-Deletion → Test Strategy → Input Validation → UI Guidelines → Frontend Code Discipline
-Rationale:
-  - Backend Layer Structure defines mandatory architectural rules (three-layer pattern)
-  - Belongs with other architectural principles rather than package description
-  - Improves clarity: Backend section describes what backend IS, Core Principles describe rules to FOLLOW
-  - Consistent formatting with other principles for better readability
+  - Core Principles: Added TypeScript Code Generation principle after Frontend Code Discipline
+  - All rationales shortened for brevity (Schema-Driven Development, Backend Layer Structure, Database Record Hydration, Soft-Deletion, Input Validation, TypeScript Code Generation)
 Templates Requiring Updates:
-  ✅ spec-template.md: No changes needed (structural reorganization only)
-  ✅ plan-template.md: No changes needed (structural reorganization only)
-  ✅ tasks-template.md: No changes needed (structural reorganization only)
-  ✅ agent-file-template.md: No changes needed (structural reorganization only)
-  ✅ checklist-template.md: No changes needed (structural reorganization only)
+  ✅ All templates: No changes needed (no template-specific updates required)
 Follow-up TODOs:
   - Ratification date remains TODO (inherited from previous versions)
 -->
@@ -154,7 +142,7 @@ graph TD
 - Code generation provides full TypeScript type checking across frontend and backend
 - Both frontend and backend consume generated types for compile-time type safety
 
-**Rationale**: Single schema source ensures API contracts are unambiguous, prevents type mismatches, enables safe refactoring, and synchronizes frontend and backend versions automatically.
+**Rationale**: Ensures unambiguous API contracts, prevents type mismatches, enables safe refactoring.
 
 ### Backend Layer Structure
 
@@ -214,7 +202,7 @@ graph LR
     Repo2 --> DB
 ```
 
-**Rationale**: Clear layer separation enables independent testing, maintainable code, and flexible architecture. Service layer isolates business logic from API and database concerns, making the codebase portable and testable.
+**Rationale**: Enables independent testing, maintainable code, and portable architecture.
 
 ### Database Record Hydration
 
@@ -225,7 +213,7 @@ graph LR
 - Validate against TypeScript interfaces to ensure compile-time type safety
 - Apply validation consistently across all repositories for uniform error handling
 
-**Rationale**: Validates data at its source (database) for immediate error detection rather than downstream in service logic. Prevents corrupted data from propagating through the application.
+**Rationale**: Catches data corruption at source, prevents downstream errors.
 
 ### Soft-Deletion
 
@@ -237,7 +225,7 @@ graph LR
 - All queries scoped to non-archived records unless intentionally accessing archived data
 - Exceptions: Document the business reason in entity comments
 
-**Rationale**: Provides audit trail, enables accidental deletion recovery, and maintains data integrity for historical analysis.
+**Rationale**: Enables recovery, maintains audit trail.
 
 ### Test Strategy
 
@@ -276,7 +264,7 @@ graph LR
   - Validate entity existence
   - Validate entity relationships
 
-**Rationale**: Fail-fast principle ensures malformed input never reaches business logic. Clear separation enables API-agnostic service reuse, performance optimization, and independent testing of each validation layer.
+**Rationale**: Fails fast on malformed input, enables API-agnostic service reuse.
 
 ### UI Guidelines
 
@@ -292,6 +280,19 @@ graph LR
 
 **Rationale**: Reduces maintenance, ensures consistency.
 
+### TypeScript Code Generation
+
+**Non-negotiable rule**: All generated or manually written TypeScript code MUST adhere to strict type safety and code quality standards.
+
+**Implementation**:
+- Avoid non-null assertions (`!`) unless absolutely necessary
+  - Document the reason when used
+- Avoid type assertions (`as any`) unless absolutely necessary
+  - Document the reason when used
+- After generating or changing code, MUST run `npm run format` and fix all ESLint issues
+
+**Rationale**: Maintains type safety, prevents runtime errors, ensures code quality.
+
 ## Governance
 
 This constitution supersedes all other development guidelines. Amendments require documentation in the sync impact report and ratification by the team.
@@ -303,4 +304,4 @@ This constitution supersedes all other development guidelines. Amendments requir
 4. Commit with message: `docs: amend constitution to vX.Y.Z ([change summary])`
 5. Update dependent artifacts (templates, guidance docs) as flagged
 
-**Version**: 0.13.4 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-11-19
+**Version**: 0.14.0 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-11-20
