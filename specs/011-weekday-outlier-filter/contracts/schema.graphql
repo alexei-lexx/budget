@@ -1,0 +1,118 @@
+# GraphQL Schema Changes: Weekday Expense Report Outlier Filtering
+#
+# Feature: 011-weekday-outlier-filter
+# Date: 2025-11-19
+# Phase: 1 (Design & Contracts)
+#
+# This file contains the GraphQL schema changes required to support outlier filtering.
+# These changes should be applied to backend/src/schema.graphql following the
+# Schema-Driven Development principle.
+
+# ===================================
+# Modified Query (EXISTING QUERY)
+# ===================================
+
+type Query {
+  # ... existing queries ...
+
+  """
+  Get aggregated expense/income summary grouped by weekday for a specific month.
+  Optionally excludes statistical outliers from calculations using IQR method.
+
+  Arguments:
+  - year: Year (e.g., 2025)
+  - month: Month (1-12)
+  - type: Transaction type (INCOME or EXPENSE)
+  - excludeOutliers: When true, applies IQR outlier detection to exclude
+    unusually high transactions from totals and averages (default: false)
+
+  Returns: Monthly weekday report with per-weekday, per-currency breakdowns
+  """
+  monthlyWeekdayReport(
+    year: Int!
+    month: Int!
+    type: TransactionType!
+    excludeOutliers: Boolean = false  # NEW PARAMETER
+  ): MonthlyWeekdayReport!
+}
+
+# ===================================
+# Modified Type (EXISTING TYPE)
+# ===================================
+
+"""
+Currency-specific breakdown for a weekday in the monthly report.
+
+When outlier filtering is enabled (excludeOutliers=true):
+- totalAmount and averageAmount exclude outlier transactions
+- outlierCount and outlierTotalAmount fields are populated if outliers detected
+- Outliers are identified using the Interquartile Range (IQR) method:
+  values above Q3 + 1.5×IQR are considered outliers
+
+Edge cases:
+- Weekdays with <4 transactions: no filtering applied (insufficient data)
+- No outliers detected: outlierCount and outlierTotalAmount are null
+- Zero transactions: all values are zero regardless of filter state
+"""
+type MonthlyWeekdayReportCurrencyBreakdown {
+  """ISO 4217 currency code (e.g., USD, EUR, GBP)"""
+  currency: String!
+
+  """
+  Total transaction amount for this weekday in the specified currency.
+  When excludeOutliers=true, excludes outlier transactions.
+  """
+  totalAmount: Float!
+
+  """
+  Average transaction amount per transaction for this weekday.
+  When excludeOutliers=true, calculated from non-outlier transactions only.
+  """
+  averageAmount: Float!
+
+  """Percentage of total monthly amount for this currency (existing field)"""
+  percentage: Int!
+
+  """
+  Number of transactions excluded as outliers (when excludeOutliers=true).
+  Null or absent when:
+  - excludeOutliers=false (filtering disabled)
+  - No outliers detected (all transactions within normal range)
+  - Insufficient data (<4 transactions for statistical calculation)
+  """
+  outlierCount: Int  # NEW FIELD
+
+  """
+  Sum of amounts from excluded outlier transactions (when excludeOutliers=true).
+  Null or absent when outlierCount is null or zero.
+  Used for display in tooltips: "X outliers ($Y total)"
+  """
+  outlierTotalAmount: Float  # NEW FIELD
+}
+
+# ===================================
+# Implementation Notes
+# ===================================
+
+# Backend Implementation:
+# 1. Resolver validates excludeOutliers parameter using Zod (optional boolean)
+# 2. Service layer implements IQR outlier detection algorithm
+# 3. For each (weekday, currency) group:
+#    - If excludeOutliers=false: return all transaction totals
+#    - If excludeOutliers=true and count >= 4: apply IQR filtering
+#    - If excludeOutliers=true and count < 4: skip filtering (insufficient data)
+# 4. Populate outlierCount and outlierTotalAmount only when outliers detected
+
+# Frontend Implementation:
+# 1. Sync this schema to frontend/src/schema.graphql using npm run codegen:sync-schema
+# 2. Regenerate typed composables using npm run codegen
+# 3. Update WeekdayExpenseReport.vue component:
+#    - Add v-checkbox for excludeOutliers parameter
+#    - Pass excludeOutliers to GraphQL query
+#    - Conditionally display outlier info in tooltips when outlierCount > 0
+
+# Testing:
+# - Unit test IQR calculation with various data distributions
+# - Test edge cases: <4 transactions, no outliers, all outliers
+# - Verify multi-currency handling (outlier detection per currency)
+# - Integration test: query with excludeOutliers=true returns expected fields

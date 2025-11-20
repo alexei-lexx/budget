@@ -108,6 +108,8 @@ export type MonthlyWeekdayReportCurrencyBreakdown = {
   __typename?: 'MonthlyWeekdayReportCurrencyBreakdown';
   averageAmount: Scalars['Float']['output'];
   currency: Scalars['String']['output'];
+  outlierCount?: Maybe<Scalars['Int']['output']>;
+  outlierTotalAmount?: Maybe<Scalars['Float']['output']>;
   percentage: Scalars['Int']['output'];
   totalAmount: Scalars['Float']['output'];
 };
@@ -246,6 +248,7 @@ export type QueryMonthlyReportArgs = {
 
 
 export type QueryMonthlyWeekdayReportArgs = {
+  excludeOutliers?: InputMaybe<Scalars['Boolean']['input']>;
   month: Scalars['Int']['input'];
   type: TransactionType;
   year: Scalars['Int']['input'];
@@ -569,10 +572,11 @@ export type GetMonthlyWeekdayReportQueryVariables = Exact<{
   year: Scalars['Int']['input'];
   month: Scalars['Int']['input'];
   type: TransactionType;
+  excludeOutliers?: InputMaybe<Scalars['Boolean']['input']>;
 }>;
 
 
-export type GetMonthlyWeekdayReportQuery = { __typename?: 'Query', monthlyWeekdayReport: { __typename?: 'MonthlyWeekdayReport', year: number, month: number, type: TransactionType, weekdays: Array<{ __typename?: 'MonthlyWeekdayReportDay', weekday: Weekday, currencyBreakdowns: Array<{ __typename?: 'MonthlyWeekdayReportCurrencyBreakdown', currency: string, totalAmount: number, averageAmount: number, percentage: number }> }>, currencyTotals: Array<{ __typename?: 'MonthlyWeekdayReportCurrencyTotal', currency: string, totalAmount: number }> } };
+export type GetMonthlyWeekdayReportQuery = { __typename?: 'Query', monthlyWeekdayReport: { __typename?: 'MonthlyWeekdayReport', year: number, month: number, type: TransactionType, weekdays: Array<{ __typename?: 'MonthlyWeekdayReportDay', weekday: Weekday, currencyBreakdowns: Array<{ __typename?: 'MonthlyWeekdayReportCurrencyBreakdown', currency: string, totalAmount: number, averageAmount: number, percentage: number, outlierCount?: number | null | undefined, outlierTotalAmount?: number | null | undefined }> }>, currencyTotals: Array<{ __typename?: 'MonthlyWeekdayReportCurrencyTotal', currency: string, totalAmount: number }> } };
 
 export const AccountFieldsFragmentDoc = gql`
     fragment AccountFields on Account {
@@ -1276,8 +1280,13 @@ export function useGetTransactionDescriptionSuggestionsLazyQuery(variables?: Get
 }
 export type GetTransactionDescriptionSuggestionsQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<GetTransactionDescriptionSuggestionsQuery, GetTransactionDescriptionSuggestionsQueryVariables>;
 export const GetMonthlyWeekdayReportDocument = gql`
-    query GetMonthlyWeekdayReport($year: Int!, $month: Int!, $type: TransactionType!) {
-  monthlyWeekdayReport(year: $year, month: $month, type: $type) {
+    query GetMonthlyWeekdayReport($year: Int!, $month: Int!, $type: TransactionType!, $excludeOutliers: Boolean) {
+  monthlyWeekdayReport(
+    year: $year
+    month: $month
+    type: $type
+    excludeOutliers: $excludeOutliers
+  ) {
     year
     month
     type
@@ -1288,6 +1297,8 @@ export const GetMonthlyWeekdayReportDocument = gql`
         totalAmount
         averageAmount
         percentage
+        outlierCount
+        outlierTotalAmount
       }
     }
     currencyTotals {
@@ -1313,6 +1324,7 @@ export const GetMonthlyWeekdayReportDocument = gql`
  *   year: // value for 'year'
  *   month: // value for 'month'
  *   type: // value for 'type'
+ *   excludeOutliers: // value for 'excludeOutliers'
  * });
  */
 export function useGetMonthlyWeekdayReportQuery(variables: GetMonthlyWeekdayReportQueryVariables | VueCompositionApi.Ref<GetMonthlyWeekdayReportQueryVariables> | ReactiveFunction<GetMonthlyWeekdayReportQueryVariables>, options: VueApolloComposable.UseQueryOptions<GetMonthlyWeekdayReportQuery, GetMonthlyWeekdayReportQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<GetMonthlyWeekdayReportQuery, GetMonthlyWeekdayReportQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<GetMonthlyWeekdayReportQuery, GetMonthlyWeekdayReportQueryVariables>> = {}) {

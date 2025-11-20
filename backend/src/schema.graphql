@@ -13,6 +13,7 @@ type Query {
     year: Int!
     month: Int!
     type: TransactionType!
+    excludeOutliers: Boolean = false
   ): MonthlyWeekdayReport!
   transactionDescriptionSuggestions(searchText: String!): [String!]!
 }
@@ -239,6 +240,8 @@ type MonthlyWeekdayReportCurrencyBreakdown {
   totalAmount: Float!
   averageAmount: Float!
   percentage: Int!
+  outlierCount: Int
+  outlierTotalAmount: Float
 }
 
 type MonthlyWeekdayReportDay {

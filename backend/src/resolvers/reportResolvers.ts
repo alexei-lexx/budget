@@ -66,6 +66,7 @@ const monthlyWeekdayReportInputSchema = z.object({
   year: yearSchema,
   month: monthSchema,
   type: transactionTypeSchema,
+  excludeOutliers: z.boolean().optional().default(false),
 });
 
 export const reportResolvers = {
@@ -101,7 +102,12 @@ export const reportResolvers = {
 
     monthlyWeekdayReport: async (
       _parent: unknown,
-      args: { year: unknown; month: unknown; type: unknown },
+      args: {
+        year: unknown;
+        month: unknown;
+        type: unknown;
+        excludeOutliers?: unknown;
+      },
       context: GraphQLContext,
     ) => {
       try {
@@ -115,6 +121,7 @@ export const reportResolvers = {
           validatedInput.year,
           validatedInput.month,
           validatedInput.type,
+          validatedInput.excludeOutliers,
         );
 
         // Map domain types to GraphQL types
