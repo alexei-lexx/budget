@@ -131,31 +131,6 @@ graph TD
   - Avoid vendor-specific features and optimizations
 - **Infrastructure Code**: CDK is AWS-specific but frontend and backend remain portable
 
-### Authentication & Authorization
-
-**Non-negotiable rule**: All user authentication flows through Auth0 as the identity provider. User data is strictly isolated at the database level, ensuring zero cross-user data leakage.
-
-**Frontend**:
-- Force user authentication via Auth0 before allowing access to protected routes
-- Include JWT token in Authorization header for every GraphQL request to backend
-
-**Backend GraphQL Layer**:
-- Verify JWT token against Auth0 public keys before any resolver runs
-- Reject requests with missing or invalid JWT tokens
-- Extract Auth0 user ID from JWT token and store in context
-- Look up internal database user ID using Auth0 user ID from context
-- Never trust user IDs from mutation/query input - always use authenticated user from context
-- Propagate internal database user ID to service layer
-
-**Backend Service Layer**:
-- Accept internal database user ID as parameter in all service methods
-- Pass internal database user ID down to repository layer
-
-**Backend Repository Layer**:
-- Design repository methods to require internal database user ID parameter and filter all queries by it
-
-**Rationale**: Reduces security risks, ensures industry-standard token management, prevents unauthorized data access.
-
 ### Schema-Driven Development
 
 **Non-negotiable rule**: GraphQL schema is the single source of truth for API contracts. All API changes begin with schema modification.
@@ -232,6 +207,19 @@ graph LR
 
 **Rationale**: Enables independent testing, maintainable code, and portable architecture.
 
+### Backend GraphQL Layer
+
+**Non-negotiable rule**: GraphQL schema reflects user-facing functionality, not database implementation details. The schema serves as a Backend-For-Frontend (BFF) contract optimized for the frontend client.
+
+**Implementation**:
+- Expose only business-relevant fields with meaningful names
+- Never expose internal fields such as internal statuses or database timestamps
+- Current user ID handled automatically through authentication context, never passed as query/mutation parameters
+- Pagination follows Relay Connection specification for standardized cursor-based navigation
+- Field naming prioritizes clarity and domain language over technical implementation details
+
+**Rationale**: Maintains clean API boundaries, enables backend refactoring without breaking clients, enforces proper authentication patterns.
+
 ### Backend Service Layer
 
 **Non-negotiable rule**: Service classes follow one of two patterns based on complexity and purpose.
@@ -256,19 +244,6 @@ graph LR
 
 **Rationale**: Balances maintainability with flexibility for complex operations.
 
-### Backend GraphQL Layer
-
-**Non-negotiable rule**: GraphQL schema reflects user-facing functionality, not database implementation details. The schema serves as a Backend-For-Frontend (BFF) contract optimized for the frontend client.
-
-**Implementation**:
-- Expose only business-relevant fields with meaningful names
-- Never expose internal fields such as internal statuses or database timestamps
-- Current user ID handled automatically through authentication context, never passed as query/mutation parameters
-- Pagination follows Relay Connection specification for standardized cursor-based navigation
-- Field naming prioritizes clarity and domain language over technical implementation details
-
-**Rationale**: Maintains clean API boundaries, enables backend refactoring without breaking clients, enforces proper authentication patterns.
-
 ### Database Record Hydration
 
 **Non-negotiable rule**: All data read from the database MUST be validated at the repository boundary before being returned to service or resolver layers.
@@ -291,6 +266,31 @@ graph LR
 - Exceptions: Document the business reason in entity comments
 
 **Rationale**: Enables recovery, maintains audit trail.
+
+### Authentication & Authorization
+
+**Non-negotiable rule**: All user authentication flows through Auth0 as the identity provider. User data is strictly isolated at the database level, ensuring zero cross-user data leakage.
+
+**Frontend**:
+- Force user authentication via Auth0 before allowing access to protected routes
+- Include JWT token in Authorization header for every GraphQL request to backend
+
+**Backend GraphQL Layer**:
+- Verify JWT token against Auth0 public keys before any resolver runs
+- Reject requests with missing or invalid JWT tokens
+- Extract Auth0 user ID from JWT token and store in context
+- Look up internal database user ID using Auth0 user ID from context
+- Never trust user IDs from mutation/query input - always use authenticated user from context
+- Propagate internal database user ID to service layer
+
+**Backend Service Layer**:
+- Accept internal database user ID as parameter in all service methods
+- Pass internal database user ID down to repository layer
+
+**Backend Repository Layer**:
+- Design repository methods to require internal database user ID parameter and filter all queries by it
+
+**Rationale**: Reduces security risks, ensures industry-standard token management, prevents unauthorized data access.
 
 ### Test Strategy
 
