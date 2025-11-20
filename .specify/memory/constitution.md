@@ -1,11 +1,11 @@
 <!-- SYNC IMPACT REPORT
-Version Change: 0.15.0 → 0.16.0
+Version Change: 0.16.0 → 0.17.0
 Changes:
-  - MINOR (0.16.0): Added Backend GraphQL Layer principle
+  - MINOR (0.17.0): Added Authentication & Authorization principle
 Added Sections:
-  - Backend GraphQL Layer: Define GraphQL schema as user-facing API contract with business-relevant fields only
+  - Authentication & Authorization: Define Auth0 as identity provider with database-level user data isolation
 Modified Sections:
-  - Core Principles: Added Backend GraphQL Layer principle after Backend Service Layer and before Database Record Hydration
+  - Core Principles: Added Authentication & Authorization principle before Schema-Driven Development
 Templates Requiring Updates:
   ✅ plan-template.md: Generic template, no updates needed
   ✅ spec-template.md: Generic template, no updates needed
@@ -130,6 +130,25 @@ graph TD
     can be reproduced in popular SQL and NoSQL databases (PostgreSQL, MongoDB, MySQL, etc.).
   - Avoid vendor-specific features and optimizations
 - **Infrastructure Code**: CDK is AWS-specific but frontend and backend remain portable
+
+### Authentication & Authorization
+
+**Non-negotiable rule**: All user authentication flows through Auth0 as the identity provider. User data is strictly isolated at the database level, ensuring zero cross-user data leakage.
+
+**Implementation**:
+- **Identity Provider**: Use Auth0 for all authentication and JWT token issuance
+- **User Provisioning**: Create users automatically on first sign-in, link to Auth0 account via Auth0 user ID
+- **Token Flow**:
+  1. Frontend redirects user to Auth0 hosted login page
+  2. User authenticates via Auth0 UI
+  3. Auth0 redirects back with authorization code
+  4. Frontend exchanges authorization code for JWT tokens
+  5. Frontend includes JWT in Authorization header for all GraphQL requests
+  6. Backend verifies JWT signature against Auth0 public keys
+  7. User context extracted and available in all GraphQL resolvers
+  8. Database operations automatically scoped to authenticated user
+
+**Rationale**: Reduces security risks, ensures industry-standard token management, prevents unauthorized data access.
 
 ### Schema-Driven Development
 
@@ -344,4 +363,4 @@ This constitution supersedes all other development guidelines. Amendments requir
 4. Commit with message: `docs: amend constitution to vX.Y.Z ([change summary])`
 5. Update dependent artifacts (templates, guidance docs) as flagged
 
-**Version**: 0.16.0 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-11-20
+**Version**: 0.17.0 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-11-20

@@ -87,31 +87,7 @@ Apollo Server, GraphQL, esbuild, JWT libraries, AWS SDK, TypeScript
 
 ### Data Architecture
 - All user data partitioned by internal user ID
-- Users created automatically on first sign-in
-- Linked to Auth0 account via Auth0 user ID
 - Point-in-time recovery enabled for backups
-
----
-
-## 5. Authentication
-
-### Provider
-- **Auth0** - Identity service and JWT token management
-- **Initial Phase** - Email/password authentication
-- **User Creation** - Manual creation in Auth0 dashboard
-- **Future Expansion** - Social logins (Google, GitHub, etc.)
-
-### Token Flow
-1. User authenticates with Auth0, receives JWT tokens
-2. Frontend includes JWT in GraphQL request headers
-3. Backend verifies JWT signature and extracts user context
-4. Database operations scoped to authenticated user
-
-### Security Features
-- JWT signature validation with Auth0 public keys
-- Automatic token refresh in frontend
-- User data isolation at database level
-- Authentication handled in backend code, not AWS services
 
 ---
 
@@ -169,5 +145,3 @@ Apollo Server, GraphQL, esbuild, JWT libraries, AWS SDK, TypeScript
 ### Key Principles
 
 **Simplicity:** Manual deployment, no complex CI/CD, straightforward troubleshooting
-
-**Security:** JWT verification, user data isolation, HTTPS enforcement
