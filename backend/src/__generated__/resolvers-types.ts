@@ -109,6 +109,8 @@ export type MonthlyWeekdayReportCurrencyBreakdown = {
   __typename?: 'MonthlyWeekdayReportCurrencyBreakdown';
   averageAmount: Scalars['Float']['output'];
   currency: Scalars['String']['output'];
+  outlierCount?: Maybe<Scalars['Int']['output']>;
+  outlierTotalAmount?: Maybe<Scalars['Float']['output']>;
   percentage: Scalars['Int']['output'];
   totalAmount: Scalars['Float']['output'];
 };
@@ -247,6 +249,7 @@ export type QueryMonthlyReportArgs = {
 
 
 export type QueryMonthlyWeekdayReportArgs = {
+  excludeOutliers?: InputMaybe<Scalars['Boolean']['input']>;
   month: Scalars['Int']['input'];
   type: TransactionType;
   year: Scalars['Int']['input'];
@@ -611,6 +614,8 @@ export type MonthlyWeekdayReportResolvers<ContextType = GraphQLContext, ParentTy
 export type MonthlyWeekdayReportCurrencyBreakdownResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['MonthlyWeekdayReportCurrencyBreakdown'] = ResolversParentTypes['MonthlyWeekdayReportCurrencyBreakdown']> = {
   averageAmount?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   currency?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  outlierCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  outlierTotalAmount?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   percentage?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   totalAmount?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
 };
@@ -653,7 +658,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   categories?: Resolver<Array<ResolversTypes['Category']>, ParentType, ContextType, Partial<QueryCategoriesArgs>>;
   getTransactionPatterns?: Resolver<Array<ResolversTypes['TransactionPattern']>, ParentType, ContextType, RequireFields<QueryGetTransactionPatternsArgs, 'type'>>;
   monthlyReport?: Resolver<ResolversTypes['MonthlyReport'], ParentType, ContextType, RequireFields<QueryMonthlyReportArgs, 'month' | 'type' | 'year'>>;
-  monthlyWeekdayReport?: Resolver<ResolversTypes['MonthlyWeekdayReport'], ParentType, ContextType, RequireFields<QueryMonthlyWeekdayReportArgs, 'month' | 'type' | 'year'>>;
+  monthlyWeekdayReport?: Resolver<ResolversTypes['MonthlyWeekdayReport'], ParentType, ContextType, RequireFields<QueryMonthlyWeekdayReportArgs, 'excludeOutliers' | 'month' | 'type' | 'year'>>;
   supportedCurrencies?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   transactionDescriptionSuggestions?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType, RequireFields<QueryTransactionDescriptionSuggestionsArgs, 'searchText'>>;
   transactions?: Resolver<ResolversTypes['TransactionConnection'], ParentType, ContextType, Partial<QueryTransactionsArgs>>;

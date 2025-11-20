@@ -27,9 +27,9 @@ Web application structure:
 
 **⚠️ CRITICAL**: No implementation work can begin until this phase is complete
 
-- [ ] T001 Update GraphQL schema to add excludeOutliers parameter to monthlyWeekdayReport query in backend/src/schema.graphql
-- [ ] T002 Add outlierCount and outlierTotalAmount fields to MonthlyWeekdayReportCurrencyBreakdown type in backend/src/schema.graphql
-- [ ] T003 Run backend codegen to generate TypeScript types from updated schema: `cd backend && npm run codegen`
+- [X] T001 Update GraphQL schema to add excludeOutliers parameter to monthlyWeekdayReport query in backend/src/schema.graphql
+- [X] T002 Add outlierCount and outlierTotalAmount fields to MonthlyWeekdayReportCurrencyBreakdown type in backend/src/schema.graphql
+- [X] T003 Run backend codegen to generate TypeScript types from updated schema: `cd backend && npm run codegen`
 
 **Checkpoint**: Schema updated, types generated - backend and frontend implementation can now proceed
 
@@ -50,29 +50,29 @@ Web application structure:
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T004 [P] [US1] Write unit tests for percentile calculation function in backend/src/utils/statistics.test.ts (create new file)
-- [ ] T005 [P] [US1] Write unit tests for IQR outlier detection covering edge cases: <4 transactions, all similar values, all outliers, normal distribution in backend/src/utils/statistics.test.ts
-- [ ] T006 [P] [US1] Write unit tests for MonthlyByWeekdayReportService.getMonthlyWeekdayReport with excludeOutliers=false in backend/src/services/MonthlyByWeekdayReportService.test.ts
-- [ ] T007 [P] [US1] Write unit tests for MonthlyByWeekdayReportService.getMonthlyWeekdayReport with excludeOutliers=true covering multi-currency and edge cases in backend/src/services/MonthlyByWeekdayReportService.test.ts
+- [X] T004 [P] [US1] Write unit tests for percentile calculation function in backend/src/utils/statistics.test.ts (create new file)
+- [X] T005 [P] [US1] Write unit tests for IQR outlier detection covering edge cases: <4 transactions, all similar values, all outliers, normal distribution in backend/src/utils/statistics.test.ts
+- [X] T006 [P] [US1] Write unit tests for MonthlyByWeekdayReportService.getMonthlyWeekdayReport with excludeOutliers=false in backend/src/services/MonthlyByWeekdayReportService.test.ts
+- [X] T007 [P] [US1] Write unit tests for MonthlyByWeekdayReportService.getMonthlyWeekdayReport with excludeOutliers=true covering multi-currency and edge cases in backend/src/services/MonthlyByWeekdayReportService.test.ts
 
 ### Implementation for User Story 1 (Backend)
 
-- [ ] T008 [P] [US1] Create percentile calculation utility function in backend/src/utils/statistics.ts (create new file)
-- [ ] T009 [P] [US1] Create calculateOutliers function using IQR method (Q3 + 1.5×IQR threshold) in backend/src/utils/statistics.ts
-- [ ] T010 [US1] Update MonthlyByWeekdayReportService to accept excludeOutliers parameter and implement outlier filtering logic per currency group in backend/src/services/MonthlyByWeekdayReportService.ts
-- [ ] T011 [US1] Update MonthlyByWeekdayReportService to populate outlierCount and outlierTotalAmount fields conditionally (only when count > 0) in backend/src/services/MonthlyByWeekdayReportService.ts
-- [ ] T012 [US1] Update monthlyByWeekdayReportResolver to accept and validate excludeOutliers parameter using Zod (optional boolean, default false) in backend/src/resolvers/monthlyByWeekdayReportResolver.ts
-- [ ] T013 [US1] Update monthlyByWeekdayReportResolver to pass excludeOutliers to service layer in backend/src/resolvers/monthlyByWeekdayReportResolver.ts
-- [ ] T014 [US1] Run backend unit tests to verify all tests pass: `cd backend && npm test -- src/utils/statistics.test.ts && npm test -- src/services/MonthlyByWeekdayReportService.test.ts`
+- [X] T008 [P] [US1] Create percentile calculation utility function in backend/src/utils/statistics.ts (create new file)
+- [X] T009 [P] [US1] Create calculateOutliers function using IQR method (Q3 + 1.5×IQR threshold) in backend/src/utils/statistics.ts
+- [X] T010 [US1] Update MonthlyByWeekdayReportService to accept excludeOutliers parameter and implement outlier filtering logic per currency group in backend/src/services/MonthlyByWeekdayReportService.ts
+- [X] T011 [US1] Update MonthlyByWeekdayReportService to populate outlierCount and outlierTotalAmount fields conditionally (only when count > 0) in backend/src/services/MonthlyByWeekdayReportService.ts
+- [X] T012 [US1] Update monthlyByWeekdayReportResolver to accept and validate excludeOutliers parameter using Zod (optional boolean, default false) in backend/src/resolvers/reportResolvers.ts
+- [X] T013 [US1] Update monthlyByWeekdayReportResolver to pass excludeOutliers to service layer in backend/src/resolvers/reportResolvers.ts
+- [X] T014 [US1] Run backend unit tests to verify all tests pass: `cd backend && npm test -- src/utils/statistics.test.ts && npm test -- src/services/MonthlyByWeekdayReportService.test.ts`
 
 ### Implementation for User Story 1 (Frontend)
 
-- [ ] T015 [US1] Sync GraphQL schema from backend to frontend: `cd frontend && npm run codegen:sync-schema`
-- [ ] T016 [US1] Regenerate frontend typed composables from updated schema: `cd frontend && npm run codegen`
-- [ ] T017 [US1] Update MONTHLY_WEEKDAY_REPORT_QUERY to include excludeOutliers parameter and outlierCount/outlierTotalAmount fields in frontend/src/graphql/monthlyWeekdayReport.ts
-- [ ] T018 [US1] Add v-checkbox component with label "Exclude unusual expenses" and bind to local excludeOutliers ref (default false) in frontend/src/components/reports/MonthlyWeekdayExpenseReport.vue
-- [ ] T019 [US1] Update useMonthlyWeekdayReportQuery call to include excludeOutliers reactive parameter in frontend/src/components/reports/MonthlyWeekdayExpenseReport.vue
-- [ ] T020 [US1] Update tooltip rendering to conditionally display outlier information (count and total amount) when breakdown.outlierCount > 0 in frontend/src/components/reports/MonthlyWeekdayExpenseReport.vue
+- [X] T015 [US1] Sync GraphQL schema from backend to frontend: `cd frontend && npm run codegen:sync-schema`
+- [X] T016 [US1] Regenerate frontend typed composables from updated schema: `cd frontend && npm run codegen`
+- [X] T017 [US1] Update MONTHLY_WEEKDAY_REPORT_QUERY to include excludeOutliers parameter and outlierCount/outlierTotalAmount fields in frontend/src/graphql/queries.ts
+- [X] T018 [US1] Add v-checkbox component with label "Exclude unusual expenses" and bind to local excludeOutliers ref (default false) in frontend/src/components/reports/MonthlyWeekdayReport.vue
+- [X] T019 [US1] Update useMonthlyWeekdayReportQuery call to include excludeOutliers reactive parameter in frontend/src/components/reports/MonthlyWeekdayReport.vue
+- [X] T020 [US1] Update tooltip rendering to conditionally display outlier information (count and total amount) when breakdown.outlierCount > 0 in frontend/src/components/reports/MonthlyWeekdayReport.vue
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently. All backend tests should pass, and the frontend should display the checkbox and outlier-filtered results.
 

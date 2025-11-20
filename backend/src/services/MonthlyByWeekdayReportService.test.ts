@@ -155,5 +155,204 @@ describe("MonthlyByWeekdayReportService", () => {
         totalAmount: 300,
       });
     });
+
+    describe("outlier filtering (excludeOutliers=true)", () => {
+      it("should exclude statistical outliers from totals and averages", async () => {
+        // Monday transactions: regular expenses + one outlier (rent)
+        const transactions = [
+          fakeTransaction({
+            date: "2025-01-06", // Monday
+            currency: "USD",
+            amount: 100,
+          }),
+          fakeTransaction({
+            date: "2025-01-13", // Monday
+            currency: "USD",
+            amount: 120,
+          }),
+          fakeTransaction({
+            date: "2025-01-20", // Monday
+            currency: "USD",
+            amount: 110,
+          }),
+          fakeTransaction({
+            date: "2025-01-27", // Monday
+            currency: "USD",
+            amount: 1500, // Outlier (rent)
+          }),
+        ];
+
+        mockTransactionRepository.findActiveByMonthAndType.mockResolvedValue(
+          transactions,
+        );
+
+        const result = await monthlyByWeekdayReportService.call(
+          userId,
+          2025,
+          1,
+          TransactionType.EXPENSE,
+          true, // excludeOutliers = true
+        );
+
+        const mondayReport = result.weekdays[0];
+        const usdBreakdown = mondayReport.currencyBreakdowns[0];
+
+        // With filtering: outlier excluded
+        expect(usdBreakdown.totalAmount).toBe(330); // 100 + 120 + 110
+        expect(usdBreakdown.averageAmount).toBeCloseTo(82.5, 1); // 330 / 4 Mondays
+
+        // Outlier information should be present
+        expect(usdBreakdown.outlierCount).toBe(1);
+        expect(usdBreakdown.outlierTotalAmount).toBe(1500);
+      });
+
+      it("should apply IQR separately per currency", async () => {
+        const transactions = [
+          // USD: regular + outlier
+          fakeTransaction({ date: "2025-01-06", currency: "USD", amount: 100 }),
+          fakeTransaction({ date: "2025-01-06", currency: "USD", amount: 110 }),
+          fakeTransaction({ date: "2025-01-06", currency: "USD", amount: 120 }),
+          fakeTransaction({
+            date: "2025-01-06",
+            currency: "USD",
+            amount: 1500,
+          }), // Outlier
+          // EUR: all regular (no outliers)
+          fakeTransaction({ date: "2025-01-06", currency: "EUR", amount: 50 }),
+          fakeTransaction({ date: "2025-01-06", currency: "EUR", amount: 55 }),
+          fakeTransaction({ date: "2025-01-06", currency: "EUR", amount: 52 }),
+          fakeTransaction({ date: "2025-01-06", currency: "EUR", amount: 58 }),
+        ];
+
+        mockTransactionRepository.findActiveByMonthAndType.mockResolvedValue(
+          transactions,
+        );
+
+        const result = await monthlyByWeekdayReportService.call(
+          userId,
+          2025,
+          1,
+          TransactionType.EXPENSE,
+          true,
+        );
+
+        const mondayReport = result.weekdays[0];
+        const usdBreakdown = mondayReport.currencyBreakdowns.find(
+          (b) => b.currency === "USD",
+        );
+        const eurBreakdown = mondayReport.currencyBreakdowns.find(
+          (b) => b.currency === "EUR",
+        );
+
+        // USD should have outlier detected
+        expect(usdBreakdown?.outlierCount).toBe(1);
+        expect(usdBreakdown?.outlierTotalAmount).toBe(1500);
+
+        // EUR should have no outliers
+        expect(eurBreakdown?.outlierCount).toBeUndefined();
+        expect(eurBreakdown?.outlierTotalAmount).toBeUndefined();
+      });
+
+      it("should not filter when fewer than 4 transactions", async () => {
+        const transactions = [
+          fakeTransaction({ date: "2025-01-06", currency: "USD", amount: 100 }),
+          fakeTransaction({ date: "2025-01-13", currency: "USD", amount: 200 }),
+          fakeTransaction({
+            date: "2025-01-20",
+            currency: "USD",
+            amount: 1500,
+          }), // Would be outlier if enough data
+        ];
+
+        mockTransactionRepository.findActiveByMonthAndType.mockResolvedValue(
+          transactions,
+        );
+
+        const result = await monthlyByWeekdayReportService.call(
+          userId,
+          2025,
+          1,
+          TransactionType.EXPENSE,
+          true,
+        );
+
+        const mondayReport = result.weekdays[0];
+        const usdBreakdown = mondayReport.currencyBreakdowns[0];
+
+        // All transactions included (insufficient data for IQR)
+        expect(usdBreakdown.totalAmount).toBe(1800);
+        expect(usdBreakdown.outlierCount).toBeUndefined();
+      });
+
+      it("should not populate outlier fields when no outliers detected", async () => {
+        const transactions = [
+          fakeTransaction({ date: "2025-01-06", currency: "USD", amount: 100 }),
+          fakeTransaction({ date: "2025-01-13", currency: "USD", amount: 110 }),
+          fakeTransaction({ date: "2025-01-20", currency: "USD", amount: 105 }),
+          fakeTransaction({ date: "2025-01-27", currency: "USD", amount: 115 }),
+        ];
+
+        mockTransactionRepository.findActiveByMonthAndType.mockResolvedValue(
+          transactions,
+        );
+
+        const result = await monthlyByWeekdayReportService.call(
+          userId,
+          2025,
+          1,
+          TransactionType.EXPENSE,
+          true,
+        );
+
+        const mondayReport = result.weekdays[0];
+        const usdBreakdown = mondayReport.currencyBreakdowns[0];
+
+        // All similar values, no outliers
+        expect(usdBreakdown.outlierCount).toBeUndefined();
+        expect(usdBreakdown.outlierTotalAmount).toBeUndefined();
+      });
+
+      it("should handle multiple outliers correctly", async () => {
+        const transactions = [
+          // More regular values to establish proper baseline
+          fakeTransaction({ date: "2025-01-06", currency: "USD", amount: 20 }),
+          fakeTransaction({ date: "2025-01-13", currency: "USD", amount: 25 }),
+          fakeTransaction({ date: "2025-01-20", currency: "USD", amount: 30 }),
+          fakeTransaction({ date: "2025-01-27", currency: "USD", amount: 35 }),
+          fakeTransaction({ date: "2025-01-06", currency: "USD", amount: 40 }),
+          fakeTransaction({ date: "2025-01-13", currency: "USD", amount: 45 }),
+          fakeTransaction({ date: "2025-01-20", currency: "USD", amount: 50 }),
+          fakeTransaction({ date: "2025-01-27", currency: "USD", amount: 55 }),
+          fakeTransaction({
+            date: "2025-01-13",
+            currency: "USD",
+            amount: 1200,
+          }), // Outlier 1
+          fakeTransaction({
+            date: "2025-01-20",
+            currency: "USD",
+            amount: 1500,
+          }), // Outlier 2
+        ];
+
+        mockTransactionRepository.findActiveByMonthAndType.mockResolvedValue(
+          transactions,
+        );
+
+        const result = await monthlyByWeekdayReportService.call(
+          userId,
+          2025,
+          1,
+          TransactionType.EXPENSE,
+          true,
+        );
+
+        const mondayReport = result.weekdays[0];
+        const usdBreakdown = mondayReport.currencyBreakdowns[0];
+
+        expect(usdBreakdown.outlierCount).toBeGreaterThanOrEqual(2);
+        expect(usdBreakdown.outlierTotalAmount).toBeGreaterThan(2000);
+      });
+    });
   });
 });

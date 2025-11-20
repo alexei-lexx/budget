@@ -1,34 +1,45 @@
 <template>
   <v-card class="monthly-weekday-report" elevation="2">
     <v-card-text>
-      <!-- Currency Selector -->
-      <div
-        v-if="availableCurrencies.length > 0"
-        class="d-flex align-center justify-space-between mb-4 flex-wrap ga-2"
+      <!-- Currency Selector + Outlier Filter -->
+      <v-row
+        v-if="
+          availableCurrencies.length > 0 || (displayReport && displayReport.weekdays.length > 0)
+        "
+        class="mb-4"
       >
-        <v-select
-          id="currency-select"
-          v-model="defaultCurrency"
-          :items="currencyOptions"
-          item-title="label"
-          item-value="value"
-          variant="outlined"
-          density="compact"
-        />
-      </div>
+        <v-col v-if="availableCurrencies.length > 0" cols="12" xd="6" md="4">
+          <v-select
+            id="currency-select"
+            v-model="defaultCurrency"
+            :items="currencyOptions"
+            item-title="label"
+            item-value="value"
+            variant="outlined"
+            density="compact"
+          />
+        </v-col>
+        <v-col v-if="displayReport && displayReport.weekdays.length > 0" cols="12" xd="6" md="auto">
+          <v-checkbox
+            v-model="excludeOutliers"
+            label="Exclude unusual expenses"
+            density="compact"
+          />
+        </v-col>
+      </v-row>
 
-      <div v-if="loading" class="d-flex justify-center pa-4">
+      <div v-if="loading && !displayReport" class="d-flex justify-center pa-4">
         <v-progress-circular indeterminate color="primary"></v-progress-circular>
       </div>
 
-      <div v-else-if="error" class="text-center pa-4">
+      <div v-else-if="error && !displayReport" class="text-center pa-4">
         <v-icon size="48" color="error" class="mb-2">mdi-alert-circle</v-icon>
         <div class="text-h6 text-error mb-2">Failed to load weekday report</div>
         <div class="text-body-1 text-medium-emphasis">{{ error }}</div>
       </div>
 
       <v-empty-state
-        v-else-if="!report || report.weekdays.length === 0"
+        v-else-if="!displayReport || displayReport.weekdays.length === 0"
         icon="mdi-file-document-outline"
         title="No transactions found"
         text="There are no expense transactions for this month."
@@ -36,7 +47,7 @@
 
       <div v-else>
         <!-- Chart Canvas -->
-        <div class="chart-container mb-4">
+        <div class="chart-container mb-4" :class="{ loading }">
           <canvas
             ref="chartCanvas"
             id="weekday-chart"
@@ -66,7 +77,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, nextTick } from "vue";
+import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from "vue";
 import {
   Chart as ChartJS,
   BarController,
@@ -100,28 +111,48 @@ const props = withDefaults(defineProps<Props>(), {
   monthYear: "",
 });
 
+// Outlier filtering state
+const excludeOutliers = ref(false);
+
 // Query hook for fetching weekday report
 const {
   result: reportResult,
   loading,
   error: queryError,
-} = useGetMonthlyWeekdayReportQuery(() => ({
-  year: props.year,
-  month: props.month,
-  type: "EXPENSE",
-}));
+} = useGetMonthlyWeekdayReportQuery(
+  () => ({
+    year: props.year,
+    month: props.month,
+    type: "EXPENSE",
+    excludeOutliers: excludeOutliers.value,
+  }),
+  {
+    notifyOnNetworkStatusChange: true,
+    fetchPolicy: "cache-and-network",
+  },
+);
 
 // Reactive state
 const report = computed(() => reportResult.value?.monthlyWeekdayReport || null);
 const error = computed(() => queryError.value?.message || null);
+
+// Keep last valid report visible during refetch
+const displayReport = ref<typeof report.value>(null);
+watch(
+  report,
+  (newReport) => {
+    if (newReport) displayReport.value = newReport;
+  },
+  { immediate: true },
+);
 
 // Currency selector state
 const defaultCurrency = ref<string | null>(null);
 
 // Available currencies from report
 const availableCurrencies = computed(() => {
-  if (!report.value) return [];
-  return report.value.currencyTotals.map((ct) => ct.currency).sort();
+  if (!displayReport.value) return [];
+  return displayReport.value.currencyTotals.map((ct) => ct.currency).sort();
 });
 
 // Currency options for select dropdown
@@ -177,7 +208,7 @@ const getWeekdayLabel = (weekday: string): string => {
 
 // Build chart data from report
 const buildChartData = () => {
-  if (!report.value) {
+  if (!displayReport.value) {
     return {
       labels: weekdayLabels,
       datasets: [],
@@ -193,7 +224,7 @@ const buildChartData = () => {
   });
 
   // Fill in data
-  report.value.weekdays.forEach((weekday: MonthlyWeekdayReportDay) => {
+  displayReport.value.weekdays.forEach((weekday: MonthlyWeekdayReportDay) => {
     const label = getWeekdayLabel(weekday.weekday);
 
     if (selectedCurrency) {
@@ -269,7 +300,7 @@ const updateChart = () => {
             const selectedCurrency = defaultCurrency.value;
 
             // Find the weekday data for this x-axis value
-            const weekday = report.value?.weekdays.find(
+            const weekday = displayReport.value?.weekdays.find(
               (w: MonthlyWeekdayReportDay) => getWeekdayLabel(w.weekday) === context.label,
             );
             const breakdown = weekday?.currencyBreakdowns.find(
@@ -288,10 +319,19 @@ const updateChart = () => {
             const percentage = breakdown?.percentage || 0;
 
             // Return array of strings for multiple lines
-            return [
+            const lines = [
               `Total: ${formatCurrency(totalValue, selectedCurrency || "")} (${percentage}%)`,
               `Average: ${formatCurrency(average, selectedCurrency || "")}`,
             ];
+
+            // Add outlier info if present
+            if (breakdown?.outlierCount && breakdown?.outlierTotalAmount) {
+              lines.push(
+                `Outliers: ${breakdown.outlierCount} (${formatCurrency(breakdown.outlierTotalAmount, selectedCurrency || "")})`,
+              );
+            }
+
+            return lines;
           },
         },
       },
@@ -313,12 +353,20 @@ const updateChart = () => {
     },
   };
 
-  // Destroy old chart if it exists
-  if (chartInstance) {
-    chartInstance.destroy();
+  // Update existing chart in place (avoids page jump)
+  if (chartInstance && data.datasets[0] && data.datasets[1]) {
+    const dataset0 = chartInstance.data.datasets[0];
+    const dataset1 = chartInstance.data.datasets[1];
+    if (dataset0 && dataset1) {
+      chartInstance.data.labels = data.labels;
+      dataset0.data = data.datasets[0].data;
+      dataset1.data = data.datasets[1].data;
+      chartInstance.update("none");
+      return;
+    }
   }
 
-  // Create new chart
+  // Create new chart only on first render
   const ctx = chartCanvas.value.getContext("2d");
   if (ctx) {
     chartInstance = new ChartJS(ctx, {
@@ -330,23 +378,26 @@ const updateChart = () => {
 };
 
 // Watch for data changes and update chart
-watch(
-  [() => report.value, () => defaultCurrency.value],
-  async () => {
-    if (report.value && report.value.weekdays.length > 0) {
-      // Ensure DOM is updated before chart creation
-      await nextTick();
-      updateChart();
-    }
-  },
-  { deep: true },
-);
+watch([() => displayReport.value, () => defaultCurrency.value], async () => {
+  if (displayReport.value && displayReport.value.weekdays.length > 0) {
+    await nextTick();
+    updateChart();
+  }
+});
 
 // Create chart on mount when canvas is available
 onMounted(async () => {
   await nextTick();
-  if (report.value && report.value.weekdays.length > 0) {
+  if (displayReport.value && displayReport.value.weekdays.length > 0) {
     updateChart();
+  }
+});
+
+// Cleanup on unmount
+onBeforeUnmount(() => {
+  if (chartInstance) {
+    chartInstance.destroy();
+    chartInstance = null;
   }
 });
 </script>
@@ -360,6 +411,12 @@ onMounted(async () => {
   position: relative;
   height: 400px;
   width: 100%;
+  transition: opacity 0.2s ease;
+}
+
+.chart-container.loading {
+  opacity: 0.6;
+  pointer-events: none;
 }
 
 canvas {
