@@ -18,6 +18,12 @@ Follow-up TODOs:
 
 # Personal Finance Tracker Constitution
 
+## General Requirements
+
+- Deploy with free or minimal cost (use free-tier cloud services, no mandatory paid subscriptions)
+- Enable mobile installation via PWA without app store publishing
+- Minimize vendor lock-in (see [Vendor Independence](#vendor-independence) for details)
+
 ## Repository Structure
 
 The project comprises four independent npm packages distributed across the repository:
@@ -29,60 +35,54 @@ The project comprises four independent npm packages distributed across the repos
 
 Each package maintains its own `package.json`, dependencies, and build configuration. They are versioned and deployed independently while remaining architecturally coupled through shared GraphQL schema and deployment order requirements.
 
-## General Requirements
-
-- Deploy with free or minimal cost (use free-tier cloud services, no mandatory paid subscriptions)
-- Enable mobile installation via PWA without app store publishing
-- Minimize vendor lock-in (see [Vendor Independence](#vendor-independence) for details)
-
-## Backend
+### Backend
 
 An npm package providing Apollo GraphQL server and API implementation.
 
-### Technologies
+**Technologies**:
 - **Language**: TypeScript
 - **Framework**: Apollo Server, Node.js
 - **Testing**: Jest
 - **Quality**: ESLint, Prettier, TypeScript strict mode
 
-### Responsibilities
+**Responsibilities**:
 - **Business Logic**: Implement application domain logic and service layer operations
 - **GraphQL API**: Expose data and operations through GraphQL resolvers
 - **Database Access**: Handle all data persistence and retrieval operations
 - **Authentication**: Verify JWT tokens and establish user identity
 - **Authorization**: Enforce user data scoping and prevent cross-user data access
 
-## Frontend
+### Frontend
 
 An npm package providing the user-facing single-page application.
 
-### Technologies
+**Technologies**:
 - **Language**: TypeScript
 - **Framework**: Vue 3, Vite, Vuetify, Apollo Client
 - **Testing**: Jest
 - **Quality**: ESLint, Prettier, TypeScript strict mode, Vue type-checking
 
-### Responsibilities
+**Responsibilities**:
 - **User Interface**: User interface and interactions
 - **Client Routing**: Single-page navigation and routing
 - **Authentication**: User sign-in and JWT token management
 - **GraphQL Client**: GraphQL API client communication
 
-## Backend CDK
+### Backend CDK
 
 An npm package providing infrastructure-as-code for backend deployment to AWS.
 
-### Technologies
+**Technologies**:
 - **Language**: TypeScript
 - **Framework**: AWS CDK
 - **Testing**: Jest
 - **Quality**: ESLint, Prettier, TypeScript strict mode
 
-## Frontend CDK
+### Frontend CDK
 
 An npm package providing infrastructure-as-code for frontend deployment to AWS.
 
-### Technologies
+**Technologies**:
 - **Language**: TypeScript
 - **Framework**: AWS CDK
 - **Testing**: Jest
