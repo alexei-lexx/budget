@@ -135,18 +135,24 @@ graph TD
 
 **Non-negotiable rule**: All user authentication flows through Auth0 as the identity provider. User data is strictly isolated at the database level, ensuring zero cross-user data leakage.
 
-**Implementation**:
-- **Identity Provider**: Use Auth0 for all authentication and JWT token issuance
-- **User Provisioning**: Create users automatically on first sign-in, link to Auth0 account via Auth0 user ID
-- **Token Flow**:
-  1. Frontend redirects user to Auth0 hosted login page
-  2. User authenticates via Auth0 UI
-  3. Auth0 redirects back with authorization code
-  4. Frontend exchanges authorization code for JWT tokens
-  5. Frontend includes JWT in Authorization header for all GraphQL requests
-  6. Backend verifies JWT signature against Auth0 public keys
-  7. User context extracted and available in all GraphQL resolvers
-  8. Database operations automatically scoped to authenticated user
+**Frontend**:
+- Force user authentication via Auth0 before allowing access to protected routes
+- Include JWT token in Authorization header for every GraphQL request to backend
+
+**Backend GraphQL Layer**:
+- Verify JWT token against Auth0 public keys before any resolver runs
+- Reject requests with missing or invalid JWT tokens
+- Extract Auth0 user ID from JWT token and store in context
+- Look up internal database user ID using Auth0 user ID from context
+- Never trust user IDs from mutation/query input - always use authenticated user from context
+- Propagate internal database user ID to service layer
+
+**Backend Service Layer**:
+- Accept internal database user ID as parameter in all service methods
+- Pass internal database user ID down to repository layer
+
+**Backend Repository Layer**:
+- Design repository methods to require internal database user ID parameter and filter all queries by it
 
 **Rationale**: Reduces security risks, ensures industry-standard token management, prevents unauthorized data access.
 
