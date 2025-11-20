@@ -1,20 +1,18 @@
 <!-- SYNC IMPACT REPORT
-Version Change: 0.14.0 → 0.15.0
+Version Change: 0.15.0 → 0.16.0
 Changes:
-  - MINOR (0.15.0): Added Backend Service Architecture principle
+  - MINOR (0.16.0): Added Backend GraphQL Layer principle
 Added Sections:
-  - Backend Service Architecture: Define domain entity services vs single-purpose services with selection criteria
+  - Backend GraphQL Layer: Define GraphQL schema as user-facing API contract with business-relevant fields only
 Modified Sections:
-  - Core Principles: Added Backend Service Architecture principle after Backend Layer Structure and before Database Record Hydration
+  - Core Principles: Added Backend GraphQL Layer principle after Backend Service Layer and before Database Record Hydration
 Templates Requiring Updates:
   ✅ plan-template.md: Generic template, no updates needed
   ✅ spec-template.md: Generic template, no updates needed
   ✅ tasks-template.md: Generic template, no updates needed
   ✅ checklist-template.md: Generic template, no updates needed
   ✅ agent-file-template.md: Generic template, no updates needed
-  ⚠ docs/tech-spec.md: Requires alignment with constitutional service architecture patterns
 Follow-up TODOs:
-  - Update docs/tech-spec.md to align with constitutional service architecture patterns
   - Ratification date remains TODO (inherited from previous versions)
 -->
 
@@ -233,6 +231,19 @@ graph LR
 
 **Rationale**: Balances maintainability with flexibility for complex operations.
 
+### Backend GraphQL Layer
+
+**Non-negotiable rule**: GraphQL schema reflects user-facing functionality, not database implementation details. The schema serves as a Backend-For-Frontend (BFF) contract optimized for the frontend client.
+
+**Implementation**:
+- Expose only business-relevant fields with meaningful names
+- Never expose internal fields such as internal statuses or database timestamps
+- Current user ID handled automatically through authentication context, never passed as query/mutation parameters
+- Pagination follows Relay Connection specification for standardized cursor-based navigation
+- Field naming prioritizes clarity and domain language over technical implementation details
+
+**Rationale**: Maintains clean API boundaries, enables backend refactoring without breaking clients, enforces proper authentication patterns.
+
 ### Database Record Hydration
 
 **Non-negotiable rule**: All data read from the database MUST be validated at the repository boundary before being returned to service or resolver layers.
@@ -333,4 +344,4 @@ This constitution supersedes all other development guidelines. Amendments requir
 4. Commit with message: `docs: amend constitution to vX.Y.Z ([change summary])`
 5. Update dependent artifacts (templates, guidance docs) as flagged
 
-**Version**: 0.15.0 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-11-20
+**Version**: 0.16.0 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-11-20

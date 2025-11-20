@@ -2,13 +2,6 @@
 
 ## 3. Backend
 
-### GraphQL Schema Design Principles
-- **Internal Fields Hidden:** Archive status, timestamp fields, and user ID are used internally but never exposed in GraphQL schema
-- **Human-Readable Fields:** Only business-relevant fields with meaningful names are exposed to frontend
-- **User Context Implicit:** User ID is handled automatically through authentication context, not passed as parameters
-- **Clean API Surface:** GraphQL schema reflects user-facing functionality, not database implementation details
-- **Relay Compatibility:** Pagination follows Relay Connection specification for future tooling compatibility
-
 ### Pagination Architecture
 
 **Relay-Compatible Cursor Pagination:**
