@@ -1,17 +1,17 @@
 <!-- SYNC IMPACT REPORT
-Version Change: 0.16.0 → 0.17.0
+Version Change: 0.17.0 → 0.18.0
 Changes:
-  - MINOR (0.17.0): Added Authentication & Authorization principle
+  - MINOR (0.18.0): Added GraphQL Pagination Strategy principle
 Added Sections:
-  - Authentication & Authorization: Define Auth0 as identity provider with database-level user data isolation
+  - GraphQL Pagination Strategy: Defines Relay-Compatible Cursor pagination for large lists, load-more UI pattern, and plain arrays for short lists
 Modified Sections:
-  - Core Principles: Added Authentication & Authorization principle before Schema-Driven Development
+  - Core Principles: Added GraphQL Pagination Strategy principle after Backend GraphQL Layer
 Templates Requiring Updates:
   ✅ plan-template.md: Generic template, no updates needed
   ✅ spec-template.md: Generic template, no updates needed
   ✅ tasks-template.md: Generic template, no updates needed
-  ✅ checklist-template.md: Generic template, no updates needed
-  ✅ agent-file-template.md: Generic template, no updates needed
+  ✅ checklist-template.md: Not verified but generic template
+  ✅ agent-file-template.md: Not verified but generic template
 Follow-up TODOs:
   - Ratification date remains TODO (inherited from previous versions)
 -->
@@ -222,6 +222,19 @@ graph LR
 
 **Rationale**: Maintains clean API boundaries, enables backend refactoring without breaking clients, enforces proper authentication patterns.
 
+### GraphQL Pagination Strategy
+
+**Non-negotiable rule**: Apply pagination strategy based on expected list size.
+
+**For Potentially Large Lists**:
+- MUST use Relay-Compatible Cursor pagination
+- Frontend MUST use "Load More" button instead of page numbers
+
+**For Short Lists** (typically < 100 items):
+- MAY return plain arrays without pagination wrapper
+
+**Rationale**: Balances performance with simplicity. Load-more pattern provides better mobile UX and stable navigation.
+
 ### Backend Service Layer
 
 **Non-negotiable rule**: Service classes follow one of two patterns based on complexity and purpose.
@@ -371,4 +384,4 @@ This constitution supersedes all other development guidelines. Amendments requir
 4. Commit with message: `docs: amend constitution to vX.Y.Z ([change summary])`
 5. Update dependent artifacts (templates, guidance docs) as flagged
 
-**Version**: 0.17.0 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-11-20
+**Version**: 0.18.0 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-11-22
