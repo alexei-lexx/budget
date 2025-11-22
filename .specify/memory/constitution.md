@@ -18,12 +18,6 @@ Follow-up TODOs:
 
 # Personal Finance Tracker Constitution
 
-## General Requirements
-
-- Deploy with free or minimal cost (use free-tier cloud services, no mandatory paid subscriptions)
-- Enable mobile installation via PWA without app store publishing
-- Minimize vendor lock-in (see [Vendor Independence](#vendor-independence) for details)
-
 ## Repository Structure
 
 ### Overview
@@ -89,6 +83,12 @@ An npm package providing infrastructure-as-code for frontend deployment to AWS.
 - **Framework**: AWS CDK
 - **Testing**: Jest
 - **Quality**: ESLint, Prettier, TypeScript strict mode
+
+## General Requirements
+
+- Deploy with free or minimal cost (use free-tier cloud services, no mandatory paid subscriptions)
+- Enable mobile installation via PWA without app store publishing
+- Minimize vendor lock-in (see [Vendor Independence](#vendor-independence) for details)
 
 ## AWS Production Architecture
 
