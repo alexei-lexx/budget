@@ -1,11 +1,12 @@
 <!-- SYNC IMPACT REPORT
-Version Change: 0.18.0 → 0.19.0
+Version Change: 0.19.0 → 0.20.0
 Changes:
-  - MINOR (0.19.0): Added Infrastructure and Environments section
-Added Sections:
-  - Infrastructure and Environments: Comprehensive description of production infrastructure (AWS services, CDK, deployment), database technology (DynamoDB), and development environment (local setup, code quality tools, environment configuration)
+  - MINOR (0.20.0): Enhanced TypeScript Code Generation section with new code quality principles
 Modified Sections:
-  - Structure: New section inserted before AWS Production Architecture diagram
+  - TypeScript Code Generation: Added two new principles:
+    1. Avoid unnecessary type checks when types are explicit
+    2. Place public methods before private methods in classes
+  - Converted all Implementation bullets to imperative mood for consistency
 Templates Requiring Updates:
   ✅ plan-template.md: Generic template, no updates needed
   ✅ spec-template.md: Generic template, no updates needed
@@ -390,9 +391,11 @@ graph LR
   - Document the reason when used
 - Avoid type assertions (`as any`) unless absolutely necessary
   - Document the reason when used
-- After generating or changing code, MUST run `npm run format` and fix all ESLint issues
+- Avoid unnecessary type checks (`typeof`, non-null checks, non-undefined checks) when the provided type is explicit and doesn't require such checks
+- Place public methods before private methods in classes to ensure the public API is visible at the top
+- Run `npm run format` and fix all ESLint issues after generating or changing code
 
-**Rationale**: Maintains type safety, prevents runtime errors, ensures code quality.
+**Rationale**: Maintains type safety, prevents runtime errors, ensures code quality, improves code readability and API discoverability.
 
 ## Governance
 
@@ -405,4 +408,4 @@ This constitution supersedes all other development guidelines. Amendments requir
 4. Commit with message: `docs: amend constitution to vX.Y.Z ([change summary])`
 5. Update dependent artifacts (templates, guidance docs) as flagged
 
-**Version**: 0.19.0 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-11-22
+**Version**: 0.20.0 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-11-22
