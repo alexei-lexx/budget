@@ -15,7 +15,6 @@
 
 **Additional Documentation**:
 - `docs/general-spec.md` - Business requirements and feature specifications
-- `docs/tech-spec.md` - Technical architecture and implementation guidelines
 
 **Execute only when I explicitly say:** "implement," "create," "build," "write," or "generate."
 Otherwise, critique and advise — don't assume I want you to proceed.

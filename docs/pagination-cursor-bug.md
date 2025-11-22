@@ -446,4 +446,3 @@ The fix adds minimal overhead:
 
 - [DynamoDB Pagination Documentation](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Query.Pagination.html)
 - [Relay Cursor Connections Specification](https://relay.dev/graphql/connections.htm)
-- Project Documentation: `docs/general-spec.md`, `docs/tech-spec.md`

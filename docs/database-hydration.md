@@ -150,8 +150,3 @@ Hydration adds minimal CPU overhead (microseconds per record) which is negligibl
 - Zod validation is highly optimized
 
 The safety benefit far outweighs the minimal performance cost.
-
-## Related Patterns
-
-- **Repository Pattern** (docs/tech-spec.md) - Database abstraction layer where hydration occurs
-- **Service Layer** (docs/tech-spec.md) - Business logic layer receives pre-validated data from repositories

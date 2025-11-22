@@ -1,17 +1,15 @@
 <!-- SYNC IMPACT REPORT
-Version Change: 0.17.0 → 0.18.0
+Version Change: 0.18.0 → 0.19.0
 Changes:
-  - MINOR (0.18.0): Added GraphQL Pagination Strategy principle
+  - MINOR (0.19.0): Added Infrastructure and Environments section
 Added Sections:
-  - GraphQL Pagination Strategy: Defines Relay-Compatible Cursor pagination for large lists, load-more UI pattern, and plain arrays for short lists
+  - Infrastructure and Environments: Comprehensive description of production infrastructure (AWS services, CDK, deployment), database technology (DynamoDB), and development environment (local setup, code quality tools, environment configuration)
 Modified Sections:
-  - Core Principles: Added GraphQL Pagination Strategy principle after Backend GraphQL Layer
+  - Structure: New section inserted before AWS Production Architecture diagram
 Templates Requiring Updates:
   ✅ plan-template.md: Generic template, no updates needed
   ✅ spec-template.md: Generic template, no updates needed
   ✅ tasks-template.md: Generic template, no updates needed
-  ✅ checklist-template.md: Not verified but generic template
-  ✅ agent-file-template.md: Not verified but generic template
 Follow-up TODOs:
   - Ratification date remains TODO (inherited from previous versions)
 -->
@@ -90,7 +88,16 @@ An npm package providing infrastructure-as-code for frontend deployment to AWS.
 - Enable mobile installation via PWA without app store publishing
 - Minimize vendor lock-in (see [Vendor Independence](#vendor-independence) for details)
 
-## AWS Production Architecture
+## Infrastructure and Environments
+
+### Production
+
+**AWS Services**:
+- **CloudFront**: Entry point, CDN, HTTPS enforcement
+- **S3**: Vue.js bundle storage
+- **API Gateway**: Routes GraphQL requests from CloudFront to Lambda
+- **Lambda**: Apollo Server runtime
+- **DynamoDB**: User data storage (on-demand scaling)
 
 ```mermaid
 graph TD
@@ -114,6 +121,20 @@ graph TD
     Lambda -->|Read/Write| DynamoDB
     Lambda -->|Verify JWT| Auth0
 ```
+
+**Deployment**:
+- Manual deployment via `deploy.sh` script
+
+### Development
+
+**Local Stack**:
+- **Vite** dev server replaces S3 + CloudFront
+- **Apollo Server** replaces Lambda + API Gateway
+- **DynamoDB Local** (Docker) replaces AWS DynamoDB
+
+### External Dependencies
+
+- **Auth0**: Identity provider for both production and development
 
 ## Core Principles
 
@@ -384,4 +405,4 @@ This constitution supersedes all other development guidelines. Amendments requir
 4. Commit with message: `docs: amend constitution to vX.Y.Z ([change summary])`
 5. Update dependent artifacts (templates, guidance docs) as flagged
 
-**Version**: 0.18.0 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-11-22
+**Version**: 0.19.0 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-11-22
