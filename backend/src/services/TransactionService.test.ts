@@ -4,13 +4,14 @@ import {
   fakeCategory,
   fakeTransactionPattern,
   fakeTransaction,
+  fakeCreateTransactionInput,
 } from "../__tests__/utils/factories";
 import {
   createMockTransactionRepository,
   createMockAccountRepository,
   createMockCategoryRepository,
 } from "../__tests__/utils/mockRepositories";
-import { CategoryType } from "../models/Category";
+import { Category, CategoryType } from "../models/Category";
 import { TransactionPatternType, TransactionType } from "../models/Transaction";
 import { MIN_SEARCH_TEXT_LENGTH } from "../types/validation";
 import { BusinessError, BusinessErrorCodes } from "./BusinessError";
@@ -678,6 +679,98 @@ describe("TransactionService", () => {
       expect(
         mockTransactionRepository.findActiveByUserId,
       ).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("createTransaction with REFUND type", () => {
+    let accountId: string;
+    let expenseCategory: Category;
+    let incomeCategory: Category;
+
+    beforeEach(() => {
+      const account = fakeAccount({ userId });
+      accountId = account.id;
+      expenseCategory = fakeCategory({
+        userId,
+        type: CategoryType.EXPENSE,
+      });
+      incomeCategory = fakeCategory({
+        userId,
+        type: CategoryType.INCOME,
+      });
+
+      mockAccountRepository.findActiveById.mockResolvedValue(account);
+      mockTransactionRepository.create.mockResolvedValue(
+        fakeTransaction({ type: TransactionType.REFUND }),
+      );
+    });
+
+    it("should allow REFUND transaction with EXPENSE category", async () => {
+      // Arrange
+      const input = fakeCreateTransactionInput({
+        userId,
+        accountId,
+        categoryId: expenseCategory.id,
+        type: TransactionType.REFUND,
+      });
+
+      mockCategoryRepository.findActiveById.mockResolvedValue(expenseCategory);
+
+      // Act
+      const result = await service.createTransaction(input, userId);
+
+      // Assert
+      expect(result).toBeDefined();
+      expect(mockAccountRepository.findActiveById).toHaveBeenCalledWith(
+        accountId,
+        userId,
+      );
+      expect(mockCategoryRepository.findActiveById).toHaveBeenCalledWith(
+        expenseCategory.id,
+        userId,
+      );
+      expect(mockTransactionRepository.create).toHaveBeenCalledWith(input);
+    });
+
+    it("should reject REFUND transaction with INCOME category", async () => {
+      // Arrange
+      const input = fakeCreateTransactionInput({
+        userId,
+        accountId,
+        categoryId: incomeCategory.id,
+        type: TransactionType.REFUND,
+      });
+
+      mockCategoryRepository.findActiveById.mockResolvedValue(incomeCategory);
+
+      // Act & Assert
+      const promise = service.createTransaction(input, userId);
+
+      await expect(promise).rejects.toThrow(BusinessError);
+      await expect(promise).rejects.toMatchObject({
+        message: `Category type "${CategoryType.INCOME}" doesn't match transaction type "${TransactionType.REFUND}"`,
+        code: BusinessErrorCodes.INVALID_CATEGORY_TYPE,
+      });
+
+      expect(mockTransactionRepository.create).not.toHaveBeenCalled();
+    });
+
+    it("should allow REFUND transaction without category (uncategorized)", async () => {
+      // Arrange
+      const input = fakeCreateTransactionInput({
+        userId,
+        accountId,
+        categoryId: undefined,
+        type: TransactionType.REFUND,
+      });
+
+      // Act
+      const result = await service.createTransaction(input, userId);
+
+      // Assert
+      expect(result).toBeDefined();
+      expect(mockCategoryRepository.findActiveById).not.toHaveBeenCalled();
+      expect(mockTransactionRepository.create).toHaveBeenCalled();
     });
   });
 });

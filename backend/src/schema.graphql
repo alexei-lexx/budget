@@ -40,6 +40,7 @@ enum TransactionType {
   EXPENSE
   TRANSFER_IN
   TRANSFER_OUT
+  REFUND
 }
 
 enum Weekday {
@@ -55,6 +56,7 @@ enum Weekday {
 enum TransactionPatternType {
   INCOME
   EXPENSE
+  REFUND
 }
 
 type Category {

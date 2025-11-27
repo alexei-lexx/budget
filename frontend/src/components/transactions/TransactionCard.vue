@@ -49,9 +49,11 @@ const formattedDate = computed(() => {
 
 // Amount color based on type
 const amountColor = computed(() => {
-  // INCOME and TRANSFER_IN are positive (green)
+  // INCOME, REFUND, and TRANSFER_IN are positive (green)
   // EXPENSE and TRANSFER_OUT are negative (red)
-  return props.transaction.type === "INCOME" || props.transaction.type === "TRANSFER_IN"
+  return props.transaction.type === "INCOME" ||
+    props.transaction.type === "TRANSFER_IN" ||
+    props.transaction.type === "REFUND"
     ? "success"
     : "error";
 });
@@ -67,6 +69,8 @@ const transactionIcon = computed(() => {
       return "mdi-bank-transfer-in";
     case "TRANSFER_OUT":
       return "mdi-bank-transfer-out";
+    case "REFUND":
+      return "mdi-cash-refund";
     default:
       return "mdi-cash";
   }

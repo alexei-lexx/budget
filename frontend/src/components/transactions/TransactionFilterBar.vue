@@ -146,6 +146,7 @@ const transactionTypeOptions = computed(() => [
   { title: "Expense", value: "EXPENSE" as TransactionType },
   { title: "Transfer In", value: "TRANSFER_IN" as TransactionType },
   { title: "Transfer Out", value: "TRANSFER_OUT" as TransactionType },
+  { title: "Refund", value: "REFUND" as TransactionType },
 ]);
 
 function handleApply() {
