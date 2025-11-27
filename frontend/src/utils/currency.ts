@@ -87,9 +87,9 @@ export function formatTransactionAmount(
   currencyCode: string,
   type: TransactionType,
 ): string {
-  // INCOME and TRANSFER_IN increase account balance (positive)
+  // INCOME, REFUND, and TRANSFER_IN increase account balance (positive)
   // EXPENSE and TRANSFER_OUT decrease account balance (negative)
-  const sign = type === "INCOME" || type === "TRANSFER_IN" ? "+" : "-";
+  const sign = type === "INCOME" || type === "TRANSFER_IN" || type === "REFUND" ? "+" : "-";
   const formatted = formatCurrency(amount, currencyCode);
   return `${sign}${formatted}`;
 }
