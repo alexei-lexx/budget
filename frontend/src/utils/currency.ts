@@ -3,6 +3,7 @@
  */
 
 import type { TransactionType } from "@/composables/useTransactions";
+import { isPositiveTransactionType } from "./transaction";
 
 // Currency symbol mapping
 const CURRENCY_SYMBOLS: Record<string, string> = {
@@ -87,9 +88,7 @@ export function formatTransactionAmount(
   currencyCode: string,
   type: TransactionType,
 ): string {
-  // INCOME, REFUND, and TRANSFER_IN increase account balance (positive)
-  // EXPENSE and TRANSFER_OUT decrease account balance (negative)
-  const sign = type === "INCOME" || type === "TRANSFER_IN" || type === "REFUND" ? "+" : "-";
+  const sign = isPositiveTransactionType(type) ? "+" : "-";
   const formatted = formatCurrency(amount, currencyCode);
   return `${sign}${formatted}`;
 }
