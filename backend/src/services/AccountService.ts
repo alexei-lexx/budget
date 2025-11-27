@@ -45,19 +45,17 @@ export class AccountService {
 
       // Calculate balance: initialBalance + INCOME + REFUND + TRANSFER_IN - EXPENSE - TRANSFER_OUT
       const balance = transactions.reduce((sum, transaction) => {
-        if (
-          transaction.type === TransactionType.INCOME ||
-          transaction.type === TransactionType.TRANSFER_IN ||
-          transaction.type === TransactionType.REFUND
-        ) {
-          return sum + transaction.amount;
-        } else if (
-          transaction.type === TransactionType.EXPENSE ||
-          transaction.type === TransactionType.TRANSFER_OUT
-        ) {
-          return sum - transaction.amount;
+        switch (transaction.type) {
+          case TransactionType.INCOME:
+          case TransactionType.REFUND:
+          case TransactionType.TRANSFER_IN:
+            return sum + transaction.amount;
+          case TransactionType.EXPENSE:
+          case TransactionType.TRANSFER_OUT:
+            return sum - transaction.amount;
+          default:
+            return sum;
         }
-        return sum;
       }, account.initialBalance);
 
       return balance;
