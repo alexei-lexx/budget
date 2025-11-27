@@ -5,6 +5,7 @@ export enum TransactionType {
   EXPENSE = "EXPENSE",
   TRANSFER_IN = "TRANSFER_IN",
   TRANSFER_OUT = "TRANSFER_OUT",
+  REFUND = "REFUND",
 }
 
 export interface TransactionFilterInput {
@@ -68,6 +69,7 @@ export interface EnrichedTransactionPattern extends TransactionPattern {
 export enum TransactionPatternType {
   INCOME = "INCOME",
   EXPENSE = "EXPENSE",
+  REFUND = "REFUND",
 }
 
 export interface ITransactionRepository {

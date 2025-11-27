@@ -45,7 +45,9 @@ const categories = computed(() => categoriesData.value?.categories || []);
 
 // Filter categories by transaction type
 const filteredCategories = computed(() => {
-  return categories.value.filter((category) => category.type === formData.value.type);
+  // REFUND uses expense categories, so map REFUND to EXPENSE for filtering
+  const typeToMatch = formData.value.type === "REFUND" ? "EXPENSE" : formData.value.type;
+  return categories.value.filter((category) => category.type === typeToMatch);
 });
 
 // Form data
@@ -77,7 +79,8 @@ const accountRules: CheckRule[] = [(value: string) => !!value || "Account is req
 const typeRules: CheckRule<TransactionType>[] = [
   (value: TransactionType) => !!value || "Transaction type is required",
   (value: TransactionType) =>
-    ["INCOME", "EXPENSE"].includes(value) || "Transaction type must be either Income or Expense",
+    ["INCOME", "EXPENSE", "REFUND"].includes(value) ||
+    "Transaction type must be Income, Expense, or Refund",
 ];
 
 const amountRules = currencyAmountRules;
@@ -247,6 +250,12 @@ const handlePatternSelected = (pattern: { accountId: string; categoryId: string 
                 <v-icon color="success">mdi-cash-plus</v-icon>
               </template>
               Income
+            </v-btn>
+            <v-btn value="REFUND" class="flex-1-1">
+              <template #prepend>
+                <v-icon color="info">mdi-cash-refund</v-icon>
+              </template>
+              Refund
             </v-btn>
           </v-btn-toggle>
         </div>

@@ -348,7 +348,8 @@ export type TransactionPattern = {
 
 export enum TransactionPatternType {
   Expense = 'EXPENSE',
-  Income = 'INCOME'
+  Income = 'INCOME',
+  Refund = 'REFUND'
 }
 
 export { TransactionType };
@@ -707,7 +708,7 @@ export type TransactionPatternResolvers<ContextType = GraphQLContext, ParentType
   categoryName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
 };
 
-export type TransactionTypeResolvers = EnumResolverSignature<{ EXPENSE?: any, INCOME?: any, TRANSFER_IN?: any, TRANSFER_OUT?: any }, ResolversTypes['TransactionType']>;
+export type TransactionTypeResolvers = EnumResolverSignature<{ EXPENSE?: any, INCOME?: any, REFUND?: any, TRANSFER_IN?: any, TRANSFER_OUT?: any }, ResolversTypes['TransactionType']>;
 
 export type TransferResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Transfer'] = ResolversParentTypes['Transfer']> = {
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;

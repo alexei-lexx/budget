@@ -28,15 +28,13 @@ const categoryIdSchema = z.uuid({
   message: "Category ID must be a valid UUID",
 });
 const nullishCategoryIdSchema = categoryIdSchema.nullish();
-const typeSchema = z.enum([TransactionType.INCOME, TransactionType.EXPENSE], {
-  message: `Transaction type must be either ${TransactionType.INCOME} or ${TransactionType.EXPENSE}`,
-});
-const allTransactionTypesSchema = z.enum([
-  TransactionType.INCOME,
-  TransactionType.EXPENSE,
-  TransactionType.TRANSFER_IN,
-  TransactionType.TRANSFER_OUT,
-]);
+const typeSchema = z.enum(
+  [TransactionType.INCOME, TransactionType.EXPENSE, TransactionType.REFUND],
+  {
+    message: `Transaction type must be either ${TransactionType.INCOME}, ${TransactionType.EXPENSE}, or ${TransactionType.REFUND}`,
+  },
+);
+const allTransactionTypesSchema = z.enum(TransactionType);
 const amountSchema = z.number().nonnegative("Amount must be zero or positive");
 const dateSchema = z
   .string()
@@ -91,12 +89,7 @@ const transactionFilterInputSchema = z
   })
   .optional();
 
-const transactionPatternTypeSchema = z.enum(
-  [TransactionPatternType.INCOME, TransactionPatternType.EXPENSE],
-  {
-    message: `Type must be either ${TransactionPatternType.INCOME} or ${TransactionPatternType.EXPENSE}`,
-  },
-);
+const transactionPatternTypeSchema = z.enum(TransactionPatternType);
 
 export const transactionResolvers = {
   Query: {

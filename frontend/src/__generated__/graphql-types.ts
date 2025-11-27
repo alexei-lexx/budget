@@ -343,11 +343,13 @@ export type TransactionPattern = {
 
 export type TransactionPatternType =
   | 'EXPENSE'
-  | 'INCOME';
+  | 'INCOME'
+  | 'REFUND';
 
 export type TransactionType =
   | 'EXPENSE'
   | 'INCOME'
+  | 'REFUND'
   | 'TRANSFER_IN'
   | 'TRANSFER_OUT';
 

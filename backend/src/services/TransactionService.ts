@@ -113,7 +113,8 @@ export class TransactionService {
       (category.type === CategoryType.INCOME &&
         transactionType !== TransactionType.INCOME) ||
       (category.type === CategoryType.EXPENSE &&
-        transactionType !== TransactionType.EXPENSE);
+        transactionType !== TransactionType.EXPENSE &&
+        transactionType !== TransactionType.REFUND);
 
     if (typeMismatch) {
       throw new BusinessError(
@@ -316,7 +317,7 @@ export class TransactionService {
   /**
    * Get patterns for a user by analyzing transaction history
    * @param userId - The user ID to get patterns for
-   * @param type - Transaction type to analyze (INCOME or EXPENSE)
+   * @param type - Transaction type to analyze (INCOME, EXPENSE, REFUND)
    * @param limit - Maximum number of patterns to return
    * @param sampleSize - Number of transactions to analyze (default: 100)
    * @returns Promise<EnrichedTransactionPattern[]> - Validated patterns with full account and category objects
@@ -363,6 +364,7 @@ export class TransactionService {
       }
 
       // Validate that category type matches transaction type
+      // REFUND and EXPENSE both use expense categories
       const expectedCategoryType =
         type === TransactionPatternType.INCOME
           ? CategoryType.INCOME

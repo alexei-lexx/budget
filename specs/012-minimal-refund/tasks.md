@@ -17,9 +17,9 @@
 
 **Purpose**: Verify project ignore files for detected technologies
 
-- [ ] T001 [P] Verify/create .gitignore with Node.js patterns (node_modules/, dist/, .env*, *.log) in repository root
-- [ ] T002 [P] Verify/create backend/.gitignore if needed for backend-specific patterns
-- [ ] T003 [P] Verify/create frontend/.gitignore if needed for frontend-specific patterns
+- [X] T001 [P] Verify/create .gitignore with Node.js patterns (node_modules/, dist/, .env*, *.log) in repository root
+- [X] T002 [P] Verify/create backend/.gitignore if needed for backend-specific patterns
+- [X] T003 [P] Verify/create frontend/.gitignore if needed for frontend-specific patterns
 
 ---
 
@@ -29,13 +29,13 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Add REFUND to TransactionType enum in backend/src/schema.graphql
-- [ ] T005 Add REFUND to TransactionType enum in backend/src/models/Transaction.ts
-- [ ] T006 Add REFUND to create/update Zod type schema in backend/src/resolvers/transactionResolvers.ts
-- [ ] T007 Add REFUND to filter Zod type schema in backend/src/resolvers/transactionResolvers.ts
-- [ ] T008 Add REFUND to TransactionType Zod enum in backend/src/repositories/utils/Transaction.schema.ts
-- [ ] T009 Sync GraphQL schema from backend to frontend by running npm run codegen:sync-schema in frontend/
-- [ ] T010 Generate TypeScript types and Apollo composables by running npm run codegen in frontend/
+- [X] T004 Add REFUND to TransactionType enum in backend/src/schema.graphql
+- [X] T005 Add REFUND to TransactionType enum in backend/src/models/Transaction.ts
+- [X] T006 Add REFUND to create/update Zod type schema in backend/src/resolvers/transactionResolvers.ts
+- [X] T007 Add REFUND to filter Zod type schema in backend/src/resolvers/transactionResolvers.ts
+- [X] T008 Add REFUND to TransactionType Zod enum in backend/src/repositories/utils/Transaction.schema.ts
+- [X] T009 Sync GraphQL schema from backend to frontend by running npm run codegen:sync-schema in frontend/
+- [X] T010 Generate TypeScript types and Apollo composables by running npm run codegen in frontend/
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -49,10 +49,10 @@
 
 ### Implementation for User Story 1
 
-- [ ] T011 [US1] Update category validation logic to allow REFUND with EXPENSE categories in backend/src/services/TransactionService.ts (category validation section around line 90-132)
-- [ ] T012 [US1] Update balance calculation to add REFUND to positive impact group in backend/src/services/AccountService.ts (balance calculation around line 23-70)
-- [ ] T013 [US1] Add REFUND button to transaction type selector in frontend/src/components/transactions/TransactionForm.vue (v-btn-toggle section)
-- [ ] T014 [US1] Update category filter computed property to show expense categories for REFUND type in frontend/src/components/transactions/TransactionForm.vue
+- [X] T011 [US1] Update category validation logic to allow REFUND with EXPENSE categories in backend/src/services/TransactionService.ts (category validation section around line 90-132)
+- [X] T012 [US1] Update balance calculation to add REFUND to positive impact group in backend/src/services/AccountService.ts (balance calculation around line 23-70)
+- [X] T013 [US1] Add REFUND button to transaction type selector in frontend/src/components/transactions/TransactionForm.vue (v-btn-toggle section)
+- [X] T014 [US1] Update category filter computed property to show expense categories for REFUND type in frontend/src/components/transactions/TransactionForm.vue
 - [ ] T015 [US1] Manual verification: Create REFUND transaction via form, verify it saves, appears in list, and increases account balance
 
 **Checkpoint**: At this point, User Story 1 should be fully functional - users can create REFUND transactions
@@ -67,8 +67,8 @@
 
 ### Implementation for User Story 2
 
-- [ ] T016 [US2] Add REFUND to positive (green) color group in frontend/src/components/transactions/TransactionCard.vue (type-based styling section)
-- [ ] T017 [US2] Ensure REFUND type label displays correctly in frontend/src/components/transactions/TransactionCard.vue
+- [X] T016 [US2] Add REFUND to positive (green) color group in frontend/src/components/transactions/TransactionCard.vue (type-based styling section)
+- [X] T017 [US2] Ensure REFUND type label displays correctly in frontend/src/components/transactions/TransactionCard.vue
 - [ ] T018 [US2] Manual verification: View transaction list with REFUND transactions, verify display matches other types, verify green color, verify type label
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work - users can create and view REFUND transactions
@@ -83,7 +83,7 @@
 
 ### Implementation for User Story 3
 
-- [ ] T019 [US3] Add REFUND option to transactionTypeOptions computed property in frontend/src/components/transactions/TransactionFilterBar.vue (around line 144-149)
+- [X] T019 [US3] Add REFUND option to transactionTypeOptions computed property in frontend/src/components/transactions/TransactionFilterBar.vue (around line 144-149)
 - [ ] T020 [US3] Manual verification: Open filter, select REFUND type, apply filter, verify only REFUND transactions shown. Clear filter, verify all types shown.
 
 **Checkpoint**: All user stories should now be independently functional - complete REFUND feature works end-to-end
