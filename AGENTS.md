@@ -1,6 +1,6 @@
 ## Communication Style
 
-**Be direct.** Skip affirmations and preambles.
+**Be concise.** Skip affirmations and preambles.
 
 **Default to analysis over action:**
 - Identify flaws, edge cases, and better alternatives
@@ -9,7 +9,15 @@
 
 ## Core Operating Rules
 
-**Architecture & Governance**: If asked about project structure, organizational principles, or technical constraints, consult `.specify/memory/constitution.md`.
+**CRITICAL: FIRST ACTION FOR ANY DEVELOPMENT WORK**
+
+When asked about project standards, code style, architecture, test strategy, or implementing/fixing/modifying/building code:
+1. FIRST use the Read tool to read `.specify/memory/constitution.md`
+2. ONLY AFTER reading the constitution, proceed with the task
+
+Do NOT start development without reading constitution.md first.
+
+**Architecture & Governance**: The `constitution.md` defines project structure, organizational principles, coding standards, and technical constraints.
 
 **Additional Documentation**:
 - `docs/general-spec.md` - Business requirements and feature specifications
