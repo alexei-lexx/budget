@@ -8,6 +8,7 @@ import {
   GetCommand,
   TransactWriteCommand,
 } from "@aws-sdk/lib-dynamodb";
+import { z } from "zod";
 import {
   Transaction,
   TransactionType,
@@ -46,6 +47,12 @@ const USER_DATE_INDEX = "UserDateIndex";
 const USER_CREATED_AT_INDEX = "UserCreatedAtIndex";
 
 /**
+ * Sort key names for indexes
+ */
+const SORT_KEY_DATE = "date";
+const SORT_KEY_CREATED_AT = "createdAt";
+
+/**
  * Format a Date object as YYYY-MM-DD string (local timezone)
  */
 function formatDateAsYYYYMMDD(date: Date): string {
@@ -73,9 +80,19 @@ class TransactionRepositoryError extends Error {
  * Cursor structure for pagination
  */
 interface CursorData {
-  createdAt: string;
-  id: string;
+  createdAt: string; // ISO 8601 timestamp for UserCreatedAtIndex
+  date: string; // YYYY-MM-DD format for UserDateIndex
+  id: string; // UUID
 }
+
+/**
+ * Zod schema for cursor validation
+ */
+const cursorDataSchema = z.object({
+  createdAt: z.string(),
+  date: z.string(),
+  id: z.string(),
+});
 
 /**
  * Query parameters for transaction filtering
@@ -95,6 +112,7 @@ interface TransactionQueryParams {
 function encodeCursor(transaction: Transaction): string {
   const cursorData: CursorData = {
     createdAt: transaction.createdAt,
+    date: transaction.date,
     id: transaction.id,
   };
   return Buffer.from(JSON.stringify(cursorData)).toString("base64");
@@ -103,13 +121,8 @@ function encodeCursor(transaction: Transaction): string {
 function decodeCursor(cursor: string): CursorData {
   try {
     const decoded = Buffer.from(cursor, "base64").toString("utf-8");
-    const cursorData = JSON.parse(decoded) as CursorData;
-
-    // Validate cursor structure
-    if (!cursorData.createdAt || !cursorData.id) {
-      throw new Error("Invalid cursor structure");
-    }
-
+    const parsed = JSON.parse(decoded);
+    const cursorData = cursorDataSchema.parse(parsed);
     return cursorData;
   } catch (error) {
     throw new TransactionRepositoryError(
@@ -445,6 +458,9 @@ export class TransactionRepository implements ITransactionRepository {
       // Build query parameters (index selection, key condition, filters)
       const queryParams = this.buildQueryParams(userId, filters);
 
+      // Decode cursor once if provided
+      const decodedAfter = after ? decodeCursor(after) : null;
+
       // Execute query
       const { items: transactions, hasNextPage } =
         await paginateQuery<Transaction>({
@@ -460,11 +476,14 @@ export class TransactionRepository implements ITransactionRepository {
             }),
             ExpressionAttributeValues: queryParams.expressionAttributeValues,
             ScanIndexForward: false, // Descending order (newest first)
-            ...(after && {
+            ...(decodedAfter && {
               ExclusiveStartKey: {
                 userId: userId,
-                id: decodeCursor(after).id,
-                [queryParams.sortKeyName]: decodeCursor(after).createdAt,
+                id: decodedAfter.id,
+                [queryParams.sortKeyName]:
+                  queryParams.sortKeyName === SORT_KEY_DATE
+                    ? decodedAfter.date
+                    : decodedAfter.createdAt,
               },
             }),
           },
@@ -1029,7 +1048,7 @@ export class TransactionRepository implements ITransactionRepository {
     const indexName = useUserDateIndex
       ? USER_DATE_INDEX
       : USER_CREATED_AT_INDEX;
-    const sortKeyName = useUserDateIndex ? "date" : "createdAt";
+    const sortKeyName = useUserDateIndex ? SORT_KEY_DATE : SORT_KEY_CREATED_AT;
 
     // Build key condition expression
     let keyConditionExpression = "userId = :userId";
