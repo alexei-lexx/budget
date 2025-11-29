@@ -63,8 +63,9 @@ export class MonthlyByCategoryReportService {
     type: TransactionType,
   ): Promise<MonthlyReport> {
     const isExpenseReport = type === TransactionType.EXPENSE;
+
     // For EXPENSE reports, fetch both EXPENSE and REFUND transactions
-    // For INCOME reports, fetch only INCOME transactions (unchanged)
+    // For INCOME reports, fetch only INCOME transactions
     const typesToFetch = isExpenseReport
       ? [TransactionType.EXPENSE, TransactionType.REFUND]
       : [type];
@@ -100,6 +101,7 @@ export class MonthlyByCategoryReportService {
       transactions,
       amountGetter,
     );
+
     const categories = await this.groupByCategoryAndCurrency(
       transactions,
       userId,
@@ -118,13 +120,13 @@ export class MonthlyByCategoryReportService {
 
   private calculateCurrencyTotals(
     transactions: Transaction[],
-    getAmount: (t: Transaction) => number,
+    amountGetter: (t: Transaction) => number,
   ): MonthlyReportCurrencyTotal[] {
     const totals = new Map<string, number>();
 
     for (const transaction of transactions) {
       const current = totals.get(transaction.currency) || 0;
-      const amount = getAmount(transaction);
+      const amount = amountGetter(transaction);
       totals.set(transaction.currency, current + amount);
     }
 
@@ -137,7 +139,7 @@ export class MonthlyByCategoryReportService {
     transactions: Transaction[],
     userId: string,
     currencyTotals: MonthlyReportCurrencyTotal[],
-    getAmount: (t: Transaction) => number,
+    amountGetter: (t: Transaction) => number,
   ): Promise<MonthlyReportCategory[]> {
     const categoryGroups = new Map<string | undefined, Transaction[]>();
 
@@ -165,7 +167,7 @@ export class MonthlyByCategoryReportService {
       const currencyBreakdowns = this.calculateCurrencyBreakdowns(
         categoryTransactions,
         currencyTotals,
-        getAmount,
+        amountGetter,
       );
 
       categories.push({
@@ -183,13 +185,13 @@ export class MonthlyByCategoryReportService {
   private calculateCurrencyBreakdowns(
     transactions: Transaction[],
     currencyTotals: MonthlyReportCurrencyTotal[],
-    getAmount: (t: Transaction) => number,
+    amountGetter: (t: Transaction) => number,
   ): MonthlyReportCurrencyBreakdown[] {
     const categoryTotals = new Map<string, number>();
 
     for (const transaction of transactions) {
       const current = categoryTotals.get(transaction.currency) || 0;
-      const amount = getAmount(transaction);
+      const amount = amountGetter(transaction);
       categoryTotals.set(transaction.currency, current + amount);
     }
 
