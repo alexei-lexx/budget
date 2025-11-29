@@ -116,12 +116,12 @@
 
 **Purpose**: Code quality, documentation, and final validation
 
-- [ ] T040 [P] Run code formatting (npm run format in backend/)
-- [ ] T041 [P] Run linting and fix issues (npm run lint:fix in backend/)
-- [ ] T042 [P] Add JSDoc comments to MonthlyByCategoryReportService explaining refund factoring in backend/src/services/MonthlyByCategoryReportService.ts
-- [ ] T043 [P] Add JSDoc comments to repository method explaining multi-type support in backend/src/repositories/TransactionRepository.ts
+- [X] T040 [P] Run code formatting (npm run format in backend/)
+- [X] T041 [P] Run linting and fix issues (npm run lint:fix in backend/)
+- [X] T042 [P] Add JSDoc comments to MonthlyByCategoryReportService explaining refund factoring in backend/src/services/MonthlyByCategoryReportService.ts
+- [X] T043 [P] Add JSDoc comments to repository method explaining multi-type support in backend/src/repositories/TransactionRepository.ts
 - [ ] T044 Run quickstart.md validation checklist (verify all checklist items pass)
-- [ ] T045 Final verification: Run all tests one more time (npm test in backend/)
+- [X] T045 Final verification: Run all tests one more time (npm test in backend/)
 
 ---
 
