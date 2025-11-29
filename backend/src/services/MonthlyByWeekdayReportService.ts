@@ -9,7 +9,6 @@ import {
   getWeekdayOccurrencesInMonth,
 } from "../utils/date";
 import { calculateOutliers } from "../utils/statistics";
-import { calculateCurrencyTotals } from "./reportCalculations";
 
 // Re-export DayOfWeek for consumers
 export { DayOfWeek };
@@ -63,11 +62,11 @@ export class MonthlyByWeekdayReportService {
     excludeOutliers = false,
   ): Promise<WeekdayReport> {
     const transactions =
-      await this.transactionRepository.findActiveByMonthAndType(
+      await this.transactionRepository.findActiveByMonthAndTypes(
         userId,
         year,
         month,
-        type,
+        [type],
       );
 
     if (transactions.length === 0) {
@@ -101,7 +100,7 @@ export class MonthlyByWeekdayReportService {
     }
 
     // Calculate currency totals from filtered transactions
-    const currencyTotals = calculateCurrencyTotals(normalTransactions);
+    const currencyTotals = this.calculateCurrencyTotals(normalTransactions);
 
     // Build weekday breakdowns using filtered data
     const weekdays = this.buildWeekdayBreakdowns(
@@ -156,6 +155,28 @@ export class MonthlyByWeekdayReportService {
     }
 
     return { normal, outliers };
+  }
+
+  /**
+   * Calculate currency totals from a list of transactions
+   * Groups transactions by currency and sums their amounts
+   *
+   * @param transactions - List of transactions to aggregate
+   * @returns Array of currency totals, sorted alphabetically by currency code
+   */
+  private calculateCurrencyTotals(
+    transactions: Transaction[],
+  ): { currency: string; totalAmount: number }[] {
+    const totals = new Map<string, number>();
+
+    for (const transaction of transactions) {
+      const current = totals.get(transaction.currency) || 0;
+      totals.set(transaction.currency, current + transaction.amount);
+    }
+
+    return Array.from(totals.entries())
+      .map(([currency, totalAmount]) => ({ currency, totalAmount }))
+      .sort((a, b) => a.currency.localeCompare(b.currency));
   }
 
   private groupOutliersByWeekdayCurrency(

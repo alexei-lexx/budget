@@ -4,7 +4,6 @@ import {
   Transaction,
   TransactionType,
 } from "../models/Transaction";
-import { calculateCurrencyTotals } from "./reportCalculations";
 
 const UNCATEGORIZED_LABEL = "Uncategorized";
 
@@ -39,18 +38,44 @@ export class MonthlyByCategoryReportService {
     private categoryRepository: ICategoryRepository,
   ) {}
 
+  /**
+   * Generate a monthly report aggregated by category for a given month and transaction type.
+   *
+   * For EXPENSE reports, this method factors in REFUND transactions to calculate net spending:
+   * - Fetches both EXPENSE and REFUND transactions
+   * - Calculates net amounts: sum(EXPENSE) - sum(REFUND) per category + currency
+   * - Supports negative amounts when refunds exceed expenses
+   *
+   * For INCOME reports, behavior is unchanged:
+   * - Fetches only INCOME transactions
+   * - Sums amounts as-is (no refund factoring)
+   *
+   * @param userId - The user ID to generate the report for
+   * @param year - The year (e.g., 2025)
+   * @param month - The month (1-12)
+   * @param type - The transaction type (EXPENSE or INCOME)
+   * @returns Monthly report with categories and currency totals
+   */
   async call(
     userId: string,
     year: number,
     month: number,
     type: TransactionType,
   ): Promise<MonthlyReport> {
+    const isExpenseReport = type === TransactionType.EXPENSE;
+
+    // For EXPENSE reports, fetch both EXPENSE and REFUND transactions
+    // For INCOME reports, fetch only INCOME transactions
+    const typesToFetch = isExpenseReport
+      ? [TransactionType.EXPENSE, TransactionType.REFUND]
+      : [type];
+
     const transactions =
-      await this.transactionRepository.findActiveByMonthAndType(
+      await this.transactionRepository.findActiveByMonthAndTypes(
         userId,
         year,
         month,
-        type,
+        typesToFetch,
       );
 
     if (transactions.length === 0) {
@@ -63,11 +88,25 @@ export class MonthlyByCategoryReportService {
       };
     }
 
-    const currencyTotals = calculateCurrencyTotals(transactions);
+    // For EXPENSE reports: calculate net (expenses - refunds)
+    // For INCOME reports: sum amounts as-is
+    const amountGetter = isExpenseReport
+      ? (transaction: Transaction) =>
+          transaction.type === TransactionType.EXPENSE
+            ? transaction.amount
+            : -transaction.amount // REFUND amounts are subtracted
+      : (transaction: Transaction) => transaction.amount;
+
+    const currencyTotals = this.calculateCurrencyTotals(
+      transactions,
+      amountGetter,
+    );
+
     const categories = await this.groupByCategoryAndCurrency(
       transactions,
       userId,
       currencyTotals,
+      amountGetter,
     );
 
     return {
@@ -79,10 +118,28 @@ export class MonthlyByCategoryReportService {
     };
   }
 
+  private calculateCurrencyTotals(
+    transactions: Transaction[],
+    amountGetter: (t: Transaction) => number,
+  ): MonthlyReportCurrencyTotal[] {
+    const totals = new Map<string, number>();
+
+    for (const transaction of transactions) {
+      const current = totals.get(transaction.currency) || 0;
+      const amount = amountGetter(transaction);
+      totals.set(transaction.currency, current + amount);
+    }
+
+    return Array.from(totals.entries())
+      .map(([currency, totalAmount]) => ({ currency, totalAmount }))
+      .sort((a, b) => a.currency.localeCompare(b.currency));
+  }
+
   private async groupByCategoryAndCurrency(
     transactions: Transaction[],
     userId: string,
     currencyTotals: MonthlyReportCurrencyTotal[],
+    amountGetter: (t: Transaction) => number,
   ): Promise<MonthlyReportCategory[]> {
     const categoryGroups = new Map<string | undefined, Transaction[]>();
 
@@ -110,6 +167,7 @@ export class MonthlyByCategoryReportService {
       const currencyBreakdowns = this.calculateCurrencyBreakdowns(
         categoryTransactions,
         currencyTotals,
+        amountGetter,
       );
 
       categories.push({
@@ -127,12 +185,14 @@ export class MonthlyByCategoryReportService {
   private calculateCurrencyBreakdowns(
     transactions: Transaction[],
     currencyTotals: MonthlyReportCurrencyTotal[],
+    amountGetter: (t: Transaction) => number,
   ): MonthlyReportCurrencyBreakdown[] {
     const categoryTotals = new Map<string, number>();
 
     for (const transaction of transactions) {
       const current = categoryTotals.get(transaction.currency) || 0;
-      categoryTotals.set(transaction.currency, current + transaction.amount);
+      const amount = amountGetter(transaction);
+      categoryTotals.set(transaction.currency, current + amount);
     }
 
     const breakdowns: MonthlyReportCurrencyBreakdown[] = [];
@@ -142,7 +202,7 @@ export class MonthlyByCategoryReportService {
         (ct) => ct.currency === currency,
       );
       const percentage =
-        currencyTotal && currencyTotal.totalAmount > 0
+        currencyTotal && currencyTotal.totalAmount !== 0
           ? Math.round((totalAmount / currencyTotal.totalAmount) * 100)
           : 0;
 

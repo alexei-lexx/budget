@@ -22,7 +22,7 @@ describe("MonthlyByWeekdayReportService", () => {
 
   describe("call", () => {
     it("should return empty report when no expenses exist", async () => {
-      mockTransactionRepository.findActiveByMonthAndType.mockResolvedValue([]);
+      mockTransactionRepository.findActiveByMonthAndTypes.mockResolvedValue([]);
 
       const result = await monthlyByWeekdayReportService.call(
         userId,
@@ -60,7 +60,7 @@ describe("MonthlyByWeekdayReportService", () => {
         }),
       ];
 
-      mockTransactionRepository.findActiveByMonthAndType.mockResolvedValue(
+      mockTransactionRepository.findActiveByMonthAndTypes.mockResolvedValue(
         transactions,
       );
 
@@ -111,7 +111,7 @@ describe("MonthlyByWeekdayReportService", () => {
         }),
       ];
 
-      mockTransactionRepository.findActiveByMonthAndType.mockResolvedValue(
+      mockTransactionRepository.findActiveByMonthAndTypes.mockResolvedValue(
         transactions,
       );
 
@@ -182,7 +182,7 @@ describe("MonthlyByWeekdayReportService", () => {
           }),
         ];
 
-        mockTransactionRepository.findActiveByMonthAndType.mockResolvedValue(
+        mockTransactionRepository.findActiveByMonthAndTypes.mockResolvedValue(
           transactions,
         );
 
@@ -224,7 +224,7 @@ describe("MonthlyByWeekdayReportService", () => {
           fakeTransaction({ date: "2025-01-06", currency: "EUR", amount: 58 }),
         ];
 
-        mockTransactionRepository.findActiveByMonthAndType.mockResolvedValue(
+        mockTransactionRepository.findActiveByMonthAndTypes.mockResolvedValue(
           transactions,
         );
 
@@ -264,7 +264,7 @@ describe("MonthlyByWeekdayReportService", () => {
           }), // Would be outlier if enough data
         ];
 
-        mockTransactionRepository.findActiveByMonthAndType.mockResolvedValue(
+        mockTransactionRepository.findActiveByMonthAndTypes.mockResolvedValue(
           transactions,
         );
 
@@ -292,7 +292,7 @@ describe("MonthlyByWeekdayReportService", () => {
           fakeTransaction({ date: "2025-01-27", currency: "USD", amount: 115 }),
         ];
 
-        mockTransactionRepository.findActiveByMonthAndType.mockResolvedValue(
+        mockTransactionRepository.findActiveByMonthAndTypes.mockResolvedValue(
           transactions,
         );
 
@@ -335,7 +335,7 @@ describe("MonthlyByWeekdayReportService", () => {
           }), // Outlier 2
         ];
 
-        mockTransactionRepository.findActiveByMonthAndType.mockResolvedValue(
+        mockTransactionRepository.findActiveByMonthAndTypes.mockResolvedValue(
           transactions,
         );
 
