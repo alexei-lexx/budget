@@ -29,6 +29,7 @@ import {
   MAX_PAGE_SIZE,
 } from "../types/pagination";
 import { YEAR_RANGE_OFFSET, MIN_SEARCH_TEXT_LENGTH } from "../types/validation";
+import { formatDateAsYYYYMMDD } from "../utils/date";
 import { transactionSchema } from "./utils/Transaction.schema";
 import { createDynamoDBDocumentClient } from "./utils/dynamoClient";
 import { hydrate } from "./utils/hydrate";
@@ -51,16 +52,6 @@ const USER_CREATED_AT_INDEX = "UserCreatedAtIndex";
  */
 const SORT_KEY_DATE = "date";
 const SORT_KEY_CREATED_AT = "createdAt";
-
-/**
- * Format a Date object as YYYY-MM-DD string (local timezone)
- */
-function formatDateAsYYYYMMDD(date: Date): string {
-  const year = date.getFullYear();
-  const month = (date.getMonth() + 1).toString().padStart(2, "0");
-  const day = date.getDate().toString().padStart(2, "0");
-  return `${year}-${month}-${day}`;
-}
 
 /**
  * Repository error class for better error handling

@@ -1,5 +1,10 @@
 import { describe, it, expect } from "@jest/globals";
-import { getDayOfWeek, DayOfWeek, getWeekdayOccurrencesInMonth } from "./date";
+import {
+  DayOfWeek,
+  getDayOfWeek,
+  getWeekdayOccurrencesInMonth,
+  formatDateAsYYYYMMDD,
+} from "./date";
 
 describe("date utilities", () => {
   describe("getDayOfWeek", () => {
@@ -114,6 +119,13 @@ describe("date utilities", () => {
       expect(getWeekdayOccurrencesInMonth(2024, 2, DayOfWeek.WEDNESDAY)).toBe(
         4,
       );
+    });
+  });
+
+  describe("formatDateAsYYYYMMDD", () => {
+    it("should format date correctly", () => {
+      const date = new Date(Date.UTC(2000, 0, 5)); // January 5, 2000
+      expect(formatDateAsYYYYMMDD(date)).toBe("2000-01-05");
     });
   });
 });
