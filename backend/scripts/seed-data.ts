@@ -1,6 +1,6 @@
 #!/usr/bin/env ts-node
 
-import { ScanCommand, DeleteCommand } from "@aws-sdk/lib-dynamodb";
+import { DeleteCommand, ScanCommand } from "@aws-sdk/lib-dynamodb";
 import { CategoryType } from "../src/models/Category";
 import { TransactionType } from "../src/models/Transaction";
 import { AccountRepository } from "../src/repositories/AccountRepository";

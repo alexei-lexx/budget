@@ -3,10 +3,10 @@ import { faker } from "@faker-js/faker";
 import { truncateTable } from "../__tests__/utils/dynamodbHelpers";
 import { fakeCreateTransactionInput } from "../__tests__/utils/factories";
 import {
-  TransactionType,
   CreateTransactionInput,
-  UpdateTransactionInput,
   TransactionPatternType,
+  TransactionType,
+  UpdateTransactionInput,
 } from "../models/Transaction";
 import { YEAR_RANGE_OFFSET } from "../types/validation";
 import { TransactionRepository } from "./TransactionRepository";

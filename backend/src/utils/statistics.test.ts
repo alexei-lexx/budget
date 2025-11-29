@@ -1,4 +1,4 @@
-import { calculatePercentile, calculateOutliers } from "./statistics";
+import { calculateOutliers, calculatePercentile } from "./statistics";
 
 describe("calculatePercentile", () => {
   it("should calculate 25th percentile (Q1) for sorted array", () => {

@@ -1,4 +1,4 @@
-import { PaginationInput, Edge, Connection } from "../types/pagination";
+import { Connection, Edge, PaginationInput } from "../types/pagination";
 
 export enum TransactionType {
   INCOME = "INCOME",

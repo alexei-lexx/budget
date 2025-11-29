@@ -1,9 +1,9 @@
 import { randomUUID } from "crypto";
-import { IAccountRepository, Account } from "../models/Account";
+import { Account, IAccountRepository } from "../models/Account";
 import {
+  CreateTransactionInput,
   ITransactionRepository,
   Transaction,
-  CreateTransactionInput,
   TransactionType,
 } from "../models/Transaction";
 import { DATE_FORMAT_REGEX } from "../types/validation";

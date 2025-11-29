@@ -2,14 +2,14 @@ import { faker } from "@faker-js/faker";
 import {
   fakeAccount,
   fakeCategory,
-  fakeTransactionPattern,
-  fakeTransaction,
   fakeCreateTransactionInput,
+  fakeTransaction,
+  fakeTransactionPattern,
 } from "../__tests__/utils/factories";
 import {
-  createMockTransactionRepository,
   createMockAccountRepository,
   createMockCategoryRepository,
+  createMockTransactionRepository,
 } from "../__tests__/utils/mockRepositories";
 import { Category, CategoryType } from "../models/Category";
 import { TransactionPatternType, TransactionType } from "../models/Transaction";
@@ -17,9 +17,9 @@ import { MIN_SEARCH_TEXT_LENGTH } from "../types/validation";
 import { BusinessError, BusinessErrorCodes } from "./BusinessError";
 import {
   DEFAULT_TRANSACTION_PATTERNS_LIMIT,
+  DESCRIPTION_SUGGESTIONS_SAMPLE_SIZE,
   MAX_TRANSACTION_PATTERNS_LIMIT,
   MIN_TRANSACTION_PATTERNS_LIMIT,
-  DESCRIPTION_SUGGESTIONS_SAMPLE_SIZE,
   TransactionService,
 } from "./TransactionService";
 

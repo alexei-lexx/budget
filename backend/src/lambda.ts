@@ -1,8 +1,8 @@
 import {
-  startServerAndCreateLambdaHandler,
   handlers,
+  startServerAndCreateLambdaHandler,
 } from "@as-integrations/aws-lambda";
-import { server, createContext } from "./server";
+import { createContext, server } from "./server";
 
 export const handler = startServerAndCreateLambdaHandler(
   server,

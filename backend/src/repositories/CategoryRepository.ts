@@ -1,18 +1,18 @@
 import { randomUUID } from "crypto";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import {
+  BatchGetCommand,
   DynamoDBDocumentClient,
+  GetCommand,
   PutCommand,
   UpdateCommand,
-  GetCommand,
-  BatchGetCommand,
 } from "@aws-sdk/lib-dynamodb";
 import {
   Category,
-  CreateCategoryInput,
-  UpdateCategoryInput,
-  ICategoryRepository,
   CategoryType,
+  CreateCategoryInput,
+  ICategoryRepository,
+  UpdateCategoryInput,
 } from "../models/Category";
 import { categorySchema } from "./utils/Category.schema";
 import { createDynamoDBDocumentClient } from "./utils/dynamoClient";

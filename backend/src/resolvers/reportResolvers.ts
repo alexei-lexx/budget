@@ -1,8 +1,8 @@
 import { GraphQLError } from "graphql";
 import { z } from "zod";
 import {
-  Weekday,
   MonthlyWeekdayReport,
+  Weekday,
 } from "../__generated__/resolvers-types";
 import { TransactionType } from "../models/Transaction";
 import { GraphQLContext } from "../server";

@@ -2,7 +2,7 @@ import { readFileSync } from "fs";
 import { join } from "path";
 import { ApolloServer } from "@apollo/server";
 import DataLoader from "dataloader";
-import { JwtAuthService, AuthContext } from "./auth/jwtAuth";
+import { AuthContext, JwtAuthService } from "./auth/jwtAuth";
 import { createAccountLoader } from "./dataloaders/accountLoader";
 import { createCategoryLoader } from "./dataloaders/categoryLoader";
 import { IAccountRepository } from "./models/Account";

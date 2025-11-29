@@ -1,7 +1,7 @@
 import {
+  DynamoDBDocumentClient,
   QueryCommand,
   QueryCommandInput,
-  DynamoDBDocumentClient,
 } from "@aws-sdk/lib-dynamodb";
 
 export type QueryParams = QueryCommandInput;

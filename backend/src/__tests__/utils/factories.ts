@@ -6,12 +6,12 @@ import {
   CreateCategoryInput,
 } from "../../models/Category";
 import {
-  Transaction,
-  TransactionType,
-  TransactionPattern,
   CreateTransactionInput,
+  Transaction,
+  TransactionPattern,
+  TransactionType,
 } from "../../models/Transaction";
-import { User, CreateUserInput } from "../../models/User";
+import { CreateUserInput, User } from "../../models/User";
 
 export const fakeAccount = (overrides: Partial<Account> = {}): Account => {
   const now = new Date().toISOString();

@@ -29,6 +29,13 @@ export default tseslint.config(
           },
         },
       ],
+      "sort-imports": [
+        "error",
+        {
+          ignoreDeclarationSort: true, // Let import/order handle this
+          ignoreMemberSort: false, // Sort members alphabetically
+        },
+      ],
     },
   },
 );

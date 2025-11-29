@@ -3,8 +3,8 @@ import { fakeTransaction } from "../__tests__/utils/factories";
 import { createMockTransactionRepository } from "../__tests__/utils/mockRepositories";
 import { ITransactionRepository, TransactionType } from "../models/Transaction";
 import {
-  MonthlyByWeekdayReportService,
   DayOfWeek,
+  MonthlyByWeekdayReportService,
 } from "./MonthlyByWeekdayReportService";
 
 describe("MonthlyByWeekdayReportService", () => {

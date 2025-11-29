@@ -1,11 +1,11 @@
 #!/usr/bin/env ts-node
 
 import {
-  DynamoDBClient,
   CreateTableCommand,
-  DescribeTableCommand,
-  ListTablesCommand,
   CreateTableCommandInput,
+  DescribeTableCommand,
+  DynamoDBClient,
+  ListTablesCommand,
 } from "@aws-sdk/client-dynamodb";
 
 const client = new DynamoDBClient({

@@ -1,7 +1,7 @@
 import {
+  BatchWriteCommand,
   DynamoDBDocumentClient,
   ScanCommand,
-  BatchWriteCommand,
 } from "@aws-sdk/lib-dynamodb";
 
 /**

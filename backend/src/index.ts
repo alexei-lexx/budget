@@ -1,5 +1,5 @@
 import { startStandaloneServer } from "@apollo/server/standalone";
-import { server, createContext } from "./server";
+import { createContext, server } from "./server";
 
 (async () => {
   const { url } = await startStandaloneServer(server, {
