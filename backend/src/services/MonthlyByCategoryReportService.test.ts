@@ -28,7 +28,7 @@ describe("MonthlyByCategoryReportService", () => {
 
   describe("call", () => {
     it("should return empty report when no transactions exist", async () => {
-      mockTransactionRepository.findActiveByMonthAndType.mockResolvedValue([]);
+      mockTransactionRepository.findActiveByMonthAndTypes.mockResolvedValue([]);
 
       const result = await monthlyByCategoryReportService.call(
         userId,
@@ -69,7 +69,7 @@ describe("MonthlyByCategoryReportService", () => {
         fakeTransaction({ categoryId: undefined, currency: "USD", amount: 75 }),
       ];
 
-      mockTransactionRepository.findActiveByMonthAndType.mockResolvedValue(
+      mockTransactionRepository.findActiveByMonthAndTypes.mockResolvedValue(
         transactions,
       );
       mockCategoryRepository.findActiveById
@@ -100,7 +100,7 @@ describe("MonthlyByCategoryReportService", () => {
         fakeTransaction({ currency: "EUR", amount: 150 }),
       ];
 
-      mockTransactionRepository.findActiveByMonthAndType.mockResolvedValue(
+      mockTransactionRepository.findActiveByMonthAndTypes.mockResolvedValue(
         transactions,
       );
 
@@ -128,7 +128,7 @@ describe("MonthlyByCategoryReportService", () => {
         }),
       ];
 
-      mockTransactionRepository.findActiveByMonthAndType.mockResolvedValue(
+      mockTransactionRepository.findActiveByMonthAndTypes.mockResolvedValue(
         transactions,
       );
       mockCategoryRepository.findActiveById.mockResolvedValue(
@@ -163,7 +163,7 @@ describe("MonthlyByCategoryReportService", () => {
         fakeTransaction({ categoryId: undefined, currency: "EUR", amount: 50 }),
       ];
 
-      mockTransactionRepository.findActiveByMonthAndType.mockResolvedValue(
+      mockTransactionRepository.findActiveByMonthAndTypes.mockResolvedValue(
         transactions,
       );
 
@@ -190,7 +190,7 @@ describe("MonthlyByCategoryReportService", () => {
         }),
       ];
 
-      mockTransactionRepository.findActiveByMonthAndType.mockResolvedValue(
+      mockTransactionRepository.findActiveByMonthAndTypes.mockResolvedValue(
         transactions,
       );
       mockCategoryRepository.findActiveById.mockResolvedValue(null);
@@ -224,7 +224,7 @@ describe("MonthlyByCategoryReportService", () => {
         fakeTransaction({ categoryId: undefined, currency: "USD", amount: 50 }),
       ];
 
-      mockTransactionRepository.findActiveByMonthAndType.mockResolvedValue(
+      mockTransactionRepository.findActiveByMonthAndTypes.mockResolvedValue(
         transactions,
       );
       mockCategoryRepository.findActiveById
@@ -258,7 +258,7 @@ describe("MonthlyByCategoryReportService", () => {
         fakeTransaction({ categoryId: undefined, currency: "GBP", amount: 75 }),
       ];
 
-      mockTransactionRepository.findActiveByMonthAndType.mockResolvedValue(
+      mockTransactionRepository.findActiveByMonthAndTypes.mockResolvedValue(
         transactions,
       );
 
@@ -293,7 +293,7 @@ describe("MonthlyByCategoryReportService", () => {
         }),
       ];
 
-      mockTransactionRepository.findActiveByMonthAndType.mockResolvedValue(
+      mockTransactionRepository.findActiveByMonthAndTypes.mockResolvedValue(
         transactions,
       );
 
@@ -307,6 +307,195 @@ describe("MonthlyByCategoryReportService", () => {
       const percentages = result.categories[0].currencyBreakdowns[0].percentage;
       expect(Number.isInteger(percentages)).toBe(true);
       expect(percentages).toBe(100); // Should round to 100% for single category
+    });
+
+    it("should calculate net amount (expenses - refunds)", async () => {
+      const categoryId = uuidv4();
+      const expenseTransaction = fakeTransaction({
+        categoryId,
+        type: TransactionType.EXPENSE,
+        amount: 1000,
+        currency: "EUR",
+      });
+
+      const refundTransaction = fakeTransaction({
+        categoryId,
+        type: TransactionType.REFUND,
+        amount: 200,
+        currency: "EUR",
+      });
+
+      mockTransactionRepository.findActiveByMonthAndTypes.mockResolvedValue([
+        expenseTransaction,
+        refundTransaction,
+      ]);
+
+      mockCategoryRepository.findActiveById.mockResolvedValue(
+        fakeCategory({ id: categoryId }),
+      );
+
+      const result = await monthlyByCategoryReportService.call(
+        userId,
+        2025,
+        11,
+        TransactionType.EXPENSE,
+      );
+
+      expect(result.categories).toHaveLength(1);
+      expect(result.categories[0].currencyBreakdowns[0].totalAmount).toBe(800); // 1000 - 200
+      expect(result.currencyTotals[0].totalAmount).toBe(800);
+    });
+
+    it("should handle negative net amount (refunds > expenses)", async () => {
+      const categoryId = uuidv4();
+      const refundTransaction = fakeTransaction({
+        categoryId,
+        type: TransactionType.REFUND,
+        amount: 300,
+        currency: "EUR",
+      });
+
+      mockTransactionRepository.findActiveByMonthAndTypes.mockResolvedValue([
+        refundTransaction,
+      ]);
+
+      mockCategoryRepository.findActiveById.mockResolvedValue(
+        fakeCategory({ id: categoryId }),
+      );
+
+      const result = await monthlyByCategoryReportService.call(
+        userId,
+        2025,
+        11,
+        TransactionType.EXPENSE,
+      );
+
+      expect(result.categories).toHaveLength(1);
+      expect(result.categories[0].currencyBreakdowns[0].totalAmount).toBe(-300);
+      expect(result.currencyTotals[0].totalAmount).toBe(-300);
+    });
+
+    it("should not factor refunds for INCOME reports", async () => {
+      const categoryId = uuidv4();
+      const incomeTransaction = fakeTransaction({
+        categoryId,
+        type: TransactionType.INCOME,
+        amount: 500,
+        currency: "EUR",
+      });
+
+      mockTransactionRepository.findActiveByMonthAndTypes.mockResolvedValue([
+        incomeTransaction,
+      ]);
+
+      mockCategoryRepository.findActiveById.mockResolvedValue(
+        fakeCategory({ id: categoryId }),
+      );
+
+      const result = await monthlyByCategoryReportService.call(
+        userId,
+        2025,
+        11,
+        TransactionType.INCOME,
+      );
+
+      expect(
+        mockTransactionRepository.findActiveByMonthAndTypes,
+      ).toHaveBeenCalledWith(
+        userId,
+        2025,
+        11,
+        [TransactionType.INCOME], // Only INCOME, no REFUND
+      );
+      expect(result.categories[0].currencyBreakdowns[0].totalAmount).toBe(500);
+    });
+
+    it("should handle multiple currencies with refunds", async () => {
+      const categoryId = uuidv4();
+      const transactions = [
+        fakeTransaction({
+          categoryId,
+          type: TransactionType.EXPENSE,
+          amount: 1000,
+          currency: "EUR",
+        }),
+        fakeTransaction({
+          categoryId,
+          type: TransactionType.REFUND,
+          amount: 200,
+          currency: "EUR",
+        }),
+        fakeTransaction({
+          categoryId,
+          type: TransactionType.EXPENSE,
+          amount: 500,
+          currency: "USD",
+        }),
+        fakeTransaction({
+          categoryId,
+          type: TransactionType.REFUND,
+          amount: 100,
+          currency: "USD",
+        }),
+      ];
+
+      mockTransactionRepository.findActiveByMonthAndTypes.mockResolvedValue(
+        transactions,
+      );
+
+      mockCategoryRepository.findActiveById.mockResolvedValue(
+        fakeCategory({ id: categoryId }),
+      );
+
+      const result = await monthlyByCategoryReportService.call(
+        userId,
+        2025,
+        11,
+        TransactionType.EXPENSE,
+      );
+
+      expect(result.categories).toHaveLength(1);
+      const eurBreakdown = result.categories[0].currencyBreakdowns.find(
+        (cb) => cb.currency === "EUR",
+      );
+      const usdBreakdown = result.categories[0].currencyBreakdowns.find(
+        (cb) => cb.currency === "USD",
+      );
+
+      expect(eurBreakdown?.totalAmount).toBe(800); // 1000 - 200
+      expect(usdBreakdown?.totalAmount).toBe(400); // 500 - 100
+    });
+
+    it("should handle uncategorized transactions with refunds", async () => {
+      const transactions = [
+        fakeTransaction({
+          categoryId: undefined,
+          type: TransactionType.EXPENSE,
+          amount: 600,
+          currency: "EUR",
+        }),
+        fakeTransaction({
+          categoryId: undefined,
+          type: TransactionType.REFUND,
+          amount: 100,
+          currency: "EUR",
+        }),
+      ];
+
+      mockTransactionRepository.findActiveByMonthAndTypes.mockResolvedValue(
+        transactions,
+      );
+
+      const result = await monthlyByCategoryReportService.call(
+        userId,
+        2025,
+        11,
+        TransactionType.EXPENSE,
+      );
+
+      expect(result.categories).toHaveLength(1);
+      expect(result.categories[0].categoryName).toBe("Uncategorized");
+      expect(result.categories[0].currencyBreakdowns[0].totalAmount).toBe(500); // 600 - 100
     });
   });
 });

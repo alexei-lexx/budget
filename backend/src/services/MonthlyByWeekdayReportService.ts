@@ -63,11 +63,11 @@ export class MonthlyByWeekdayReportService {
     excludeOutliers = false,
   ): Promise<WeekdayReport> {
     const transactions =
-      await this.transactionRepository.findActiveByMonthAndType(
+      await this.transactionRepository.findActiveByMonthAndTypes(
         userId,
         year,
         month,
-        type,
+        [type],
       );
 
     if (transactions.length === 0) {

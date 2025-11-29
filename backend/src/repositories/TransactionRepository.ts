@@ -627,15 +627,22 @@ export class TransactionRepository implements ITransactionRepository {
     }
   }
 
-  async findActiveByMonthAndType(
+  async findActiveByMonthAndTypes(
     userId: string,
     year: number,
     month: number,
-    type: TransactionType,
+    types: TransactionType[],
   ): Promise<Transaction[]> {
     if (!userId) {
       throw new TransactionRepositoryError(
         "User ID is required",
+        "INVALID_PARAMETERS",
+      );
+    }
+
+    if (types.length === 0) {
+      throw new TransactionRepositoryError(
+        "At least one transaction type is required",
         "INVALID_PARAMETERS",
       );
     }
@@ -665,6 +672,21 @@ export class TransactionRepository implements ITransactionRepository {
     const startDate = formatDateAsYYYYMMDD(startOfMonth);
     const endDate = formatDateAsYYYYMMDD(endOfMonth);
 
+    // Build type filter expression with OR conditions
+    // For single type: "#type = :type0"
+    // For multiple types: "(#type = :type0 OR #type = :type1 OR #type = :type2)"
+    const typeConditions = types
+      .map((_, index) => `#type = :type${index}`)
+      .join(" OR ");
+    const typeFilterExpression =
+      types.length > 1 ? `(${typeConditions})` : typeConditions;
+
+    // Build expression attribute values for types
+    const typeAttributeValues: Record<string, TransactionType> = {};
+    types.forEach((type, index) => {
+      typeAttributeValues[`:type${index}`] = type;
+    });
+
     try {
       const { items } = await paginateQuery<Transaction>({
         client: this.client,
@@ -673,7 +695,7 @@ export class TransactionRepository implements ITransactionRepository {
           IndexName: USER_DATE_INDEX,
           KeyConditionExpression:
             "userId = :userId AND #date BETWEEN :startDate AND :endDate",
-          FilterExpression: "#type = :type AND isArchived = :isArchived",
+          FilterExpression: `${typeFilterExpression} AND isArchived = :isArchived`,
           ExpressionAttributeNames: {
             "#date": "date",
             "#type": "type",
@@ -682,8 +704,8 @@ export class TransactionRepository implements ITransactionRepository {
             ":userId": userId,
             ":startDate": startDate,
             ":endDate": endDate,
-            ":type": type,
             ":isArchived": false,
+            ...typeAttributeValues,
           },
           ScanIndexForward: true, // Sort by date ascending
         },
@@ -692,9 +714,9 @@ export class TransactionRepository implements ITransactionRepository {
 
       return items;
     } catch (error) {
-      console.error("Error finding transactions by month and type:", error);
+      console.error("Error finding transactions by month and types:", error);
       throw new TransactionRepositoryError(
-        "Failed to find transactions by month and type",
+        "Failed to find transactions by month and types",
         "QUERY_FAILED",
         error,
       );

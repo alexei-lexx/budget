@@ -22,8 +22,8 @@
 
 **Purpose**: Verify environment and dependencies before implementation
 
-- [ ] T001 Verify backend development environment is running (DynamoDB Local, npm install)
-- [ ] T002 Read constitution to understand project standards in .specify/memory/constitution.md
+- [X] T001 Verify backend development environment is running (DynamoDB Local, npm install)
+- [X] T002 Read constitution to understand project standards in .specify/memory/constitution.md
 
 ---
 
@@ -35,26 +35,26 @@
 
 ### Repository Interface Updates
 
-- [ ] T003 [P] Rename interface method from findActiveByMonthAndType to findActiveByMonthAndTypes in backend/src/models/Transaction.ts
-- [ ] T004 [P] Update interface signature to accept types: TransactionType[] instead of type: TransactionType in backend/src/models/Transaction.ts
+- [X] T003 [P] Rename interface method from findActiveByMonthAndType to findActiveByMonthAndTypes in backend/src/models/Transaction.ts
+- [X] T004 [P] Update interface signature to accept types: TransactionType[] instead of type: TransactionType in backend/src/models/Transaction.ts
 
 ### Repository Implementation Updates
 
-- [ ] T005 Rename implementation method from findActiveByMonthAndType to findActiveByMonthAndTypes in backend/src/repositories/TransactionRepository.ts
-- [ ] T006 Update implementation to filter by multiple types using array includes in backend/src/repositories/TransactionRepository.ts
+- [X] T005 Rename implementation method from findActiveByMonthAndType to findActiveByMonthAndTypes in backend/src/repositories/TransactionRepository.ts
+- [X] T006 Update implementation to filter by multiple types using array includes in backend/src/repositories/TransactionRepository.ts
 
 ### Update Existing Callers
 
-- [ ] T007 [P] Update MonthlyByWeekdayReportService to use findActiveByMonthAndTypes with array parameter in backend/src/services/MonthlyByWeekdayReportService.ts
-- [ ] T008 [P] Update mock repository to use findActiveByMonthAndTypes in backend/src/__tests__/utils/mockRepositories.ts
+- [X] T007 [P] Update MonthlyByWeekdayReportService to use findActiveByMonthAndTypes with array parameter in backend/src/services/MonthlyByWeekdayReportService.ts
+- [X] T008 [P] Update mock repository to use findActiveByMonthAndTypes in backend/src/__tests__/utils/mockRepositories.ts
 
 ### Repository Tests
 
-- [ ] T009 [P] Update existing repository tests to use findActiveByMonthAndTypes with array syntax in backend/src/repositories/TransactionRepository.test.ts
-- [ ] T010 [P] Add repository test for multiple transaction types (EXPENSE + REFUND) in backend/src/repositories/TransactionRepository.test.ts
-- [ ] T011 [P] Add repository test for month boundary filtering in backend/src/repositories/TransactionRepository.test.ts
-- [ ] T012 [P] Add repository test for archived transaction exclusion in backend/src/repositories/TransactionRepository.test.ts
-- [ ] T013 Run repository tests to verify refactoring works correctly (npm test TransactionRepository.test.ts)
+- [X] T009 [P] Update existing repository tests to use findActiveByMonthAndTypes with array syntax in backend/src/repositories/TransactionRepository.test.ts
+- [X] T010 [P] Add repository test for multiple transaction types (EXPENSE + REFUND) in backend/src/repositories/TransactionRepository.test.ts
+- [X] T011 [P] Add repository test for month boundary filtering in backend/src/repositories/TransactionRepository.test.ts
+- [X] T012 [P] Add repository test for archived transaction exclusion in backend/src/repositories/TransactionRepository.test.ts
+- [X] T013 Run repository tests to verify refactoring works correctly (npm test TransactionRepository.test.ts)
 
 **Checkpoint**: Repository layer refactored - all tests passing, ready for service layer changes
 
@@ -68,27 +68,27 @@
 
 ### Service Layer Implementation
 
-- [ ] T014 [US1] Update MonthlyByCategoryReportService.call() to fetch [EXPENSE, REFUND] types for EXPENSE reports in backend/src/services/MonthlyByCategoryReportService.ts
-- [ ] T015 [US1] Add private calculateCurrencyTotals() method with shouldCalculateNet parameter in backend/src/services/MonthlyByCategoryReportService.ts
-- [ ] T016 [US1] Implement single-pass net amount calculation (expense adds, refund subtracts) in calculateCurrencyTotals in backend/src/services/MonthlyByCategoryReportService.ts
-- [ ] T017 [US1] Update groupByCategoryAndCurrency() to accept shouldCalculateNet flag in backend/src/services/MonthlyByCategoryReportService.ts
-- [ ] T018 [US1] Update calculateCurrencyBreakdowns() to accept shouldCalculateNet flag and implement net calculation in backend/src/services/MonthlyByCategoryReportService.ts
-- [ ] T019 [US1] Fix percentage calculation to handle negative totals (change > 0 to !== 0) in backend/src/services/MonthlyByCategoryReportService.ts
+- [X] T014 [US1] Update MonthlyByCategoryReportService.call() to fetch [EXPENSE, REFUND] types for EXPENSE reports in backend/src/services/MonthlyByCategoryReportService.ts
+- [X] T015 [US1] Add private calculateCurrencyTotals() method with shouldCalculateNet parameter in backend/src/services/MonthlyByCategoryReportService.ts
+- [X] T016 [US1] Implement single-pass net amount calculation (expense adds, refund subtracts) in calculateCurrencyTotals in backend/src/services/MonthlyByCategoryReportService.ts
+- [X] T017 [US1] Update groupByCategoryAndCurrency() to accept shouldCalculateNet flag in backend/src/services/MonthlyByCategoryReportService.ts
+- [X] T018 [US1] Update calculateCurrencyBreakdowns() to accept shouldCalculateNet flag and implement net calculation in backend/src/services/MonthlyByCategoryReportService.ts
+- [X] T019 [US1] Fix percentage calculation to handle negative totals (change > 0 to !== 0) in backend/src/services/MonthlyByCategoryReportService.ts
 
 ### Service Tests
 
-- [ ] T020 [P] [US1] Update existing service test mocks to use findActiveByMonthAndTypes in backend/src/services/MonthlyByCategoryReportService.test.ts
-- [ ] T021 [P] [US1] Add service test for net amount calculation (expenses - refunds) in backend/src/services/MonthlyByCategoryReportService.test.ts
-- [ ] T022 [P] [US1] Add service test for negative net amount (refunds > expenses) in backend/src/services/MonthlyByCategoryReportService.test.ts
-- [ ] T023 [P] [US1] Add service test verifying INCOME reports unchanged (no refund factoring) in backend/src/services/MonthlyByCategoryReportService.test.ts
-- [ ] T024 [P] [US1] Add service test for multiple currencies with refunds in backend/src/services/MonthlyByCategoryReportService.test.ts
-- [ ] T025 [P] [US1] Add service test for uncategorized transactions with refunds in backend/src/services/MonthlyByCategoryReportService.test.ts
-- [ ] T026 [US1] Run all service tests to verify net calculation logic (npm test MonthlyByCategoryReportService.test.ts)
+- [X] T020 [P] [US1] Update existing service test mocks to use findActiveByMonthAndTypes in backend/src/services/MonthlyByCategoryReportService.test.ts
+- [X] T021 [P] [US1] Add service test for net amount calculation (expenses - refunds) in backend/src/services/MonthlyByCategoryReportService.test.ts
+- [X] T022 [P] [US1] Add service test for negative net amount (refunds > expenses) in backend/src/services/MonthlyByCategoryReportService.test.ts
+- [X] T023 [P] [US1] Add service test verifying INCOME reports unchanged (no refund factoring) in backend/src/services/MonthlyByCategoryReportService.test.ts
+- [X] T024 [P] [US1] Add service test for multiple currencies with refunds in backend/src/services/MonthlyByCategoryReportService.test.ts
+- [X] T025 [P] [US1] Add service test for uncategorized transactions with refunds in backend/src/services/MonthlyByCategoryReportService.test.ts
+- [X] T026 [US1] Run all service tests to verify net calculation logic (npm test MonthlyByCategoryReportService.test.ts)
 
 ### Integration Verification
 
-- [ ] T027 [US1] Run full backend test suite to ensure no regressions (npm test in backend/)
-- [ ] T028 [US1] Verify TypeScript compilation with no errors (npx tsc --noEmit in backend/)
+- [X] T027 [US1] Run full backend test suite to ensure no regressions (npm test in backend/)
+- [X] T028 [US1] Verify TypeScript compilation with no errors (npx tsc --noEmit in backend/)
 
 **Checkpoint**: User Story 1 complete - all tests passing, net calculation working correctly
 
