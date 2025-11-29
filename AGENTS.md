@@ -12,10 +12,10 @@
 **CRITICAL: FIRST ACTION FOR ANY DEVELOPMENT WORK**
 
 When asked about project standards, code style, architecture, test strategy, or implementing/fixing/modifying/building code:
-1. FIRST use the Read tool to read `.specify/memory/constitution.md`
+1. FIRST read `.specify/memory/constitution.md`
 2. ONLY AFTER reading the constitution, proceed with the task
 
-Do NOT start development without reading constitution.md first.
+Do NOT start development without reading `constitution.md` first.
 
 **Architecture & Governance**: The `constitution.md` defines project structure, organizational principles, coding standards, and technical constraints.
 
