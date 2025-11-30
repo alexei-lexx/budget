@@ -132,18 +132,18 @@ const mapTransactionTypeToCategoryType = (transactionType: TransactionType): str
 watch(
   () => formData.value.type,
   () => {
-    if (!formData.value.categoryId) return;
+    if (formData.value.categoryId) {
+      const selectedCategory = categories.value.find(
+        (category) => category.id === formData.value.categoryId,
+      );
+      if (!selectedCategory) return;
 
-    const selectedCategory = categories.value.find(
-      (category) => category.id === formData.value.categoryId,
-    );
-    if (!selectedCategory) return;
+      const expectedCategoryType = mapTransactionTypeToCategoryType(formData.value.type);
+      const isCategoryTypeIncompatible = selectedCategory.type !== expectedCategoryType;
 
-    const expectedCategoryType = mapTransactionTypeToCategoryType(formData.value.type);
-    const isCategoryTypeIncompatible = selectedCategory.type !== expectedCategoryType;
-
-    if (isCategoryTypeIncompatible) {
-      formData.value.categoryId = "";
+      if (isCategoryTypeIncompatible) {
+        formData.value.categoryId = "";
+      }
     }
   },
 );
