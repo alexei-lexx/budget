@@ -1,12 +1,12 @@
 {
   "github.copilot.chat.commitMessageGeneration.instructions": [
     {
-      "file": ".github/instructions/copilot-commit-message.instructions.md"
+      "file": ".agents/commit-message.instructions.md"
     }
   ],
   "github.copilot.chat.pullRequestDescriptionGeneration.instructions": [
     {
-      "file": ".github/instructions/copilot-pull-request-description.instructions.md"
+      "file": ".agents/pull-request-description.instructions.md"
     }
   ]
 }
