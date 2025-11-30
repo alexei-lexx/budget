@@ -128,28 +128,6 @@ const mapTransactionTypeToCategoryType = (transactionType: TransactionType): str
   return transactionType === "REFUND" ? "EXPENSE" : transactionType;
 };
 
-// Watch for account changes to clear category if types don't match
-watch(
-  () => formData.value.accountId,
-  () => {
-    // Clear category when account changes to avoid type mismatches
-    if (formData.value.categoryId && filteredCategories.value.length > 0) {
-      const selectedCategory = categories.value.find(
-        (category) => category.id === formData.value.categoryId,
-      );
-
-      if (!selectedCategory) return;
-
-      const expectedCategoryType = mapTransactionTypeToCategoryType(formData.value.type);
-      const isCategoryTypeCompatible = selectedCategory.type === expectedCategoryType;
-
-      if (!isCategoryTypeCompatible) {
-        formData.value.categoryId = "";
-      }
-    }
-  },
-);
-
 // Watch for type changes to clear incompatible category
 watch(
   () => formData.value.type,
