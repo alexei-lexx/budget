@@ -35,6 +35,12 @@ const emit = defineEmits<{
   cancel: [];
 }>();
 
+// Helper function to get the category type for a given transaction type
+function getCompatibleCategoryType(transactionType: TransactionType): string {
+  // REFUND transactions use EXPENSE categories
+  return transactionType === "REFUND" ? "EXPENSE" : transactionType;
+}
+
 // Use composables
 const { accounts: accountsData } = useAccounts();
 const { categories: categoriesData } = useCategories();
@@ -46,8 +52,8 @@ const categories = computed(() => categoriesData.value?.categories || []);
 // Filter categories by transaction type
 const filteredCategories = computed(() => {
   // REFUND uses expense categories, so map REFUND to EXPENSE for filtering
-  const typeToMatch = formData.value.type === "REFUND" ? "EXPENSE" : formData.value.type;
-  return categories.value.filter((category) => category.type === typeToMatch);
+  const compatibleCategoryType = getCompatibleCategoryType(formData.value.type);
+  return categories.value.filter((category) => category.type === compatibleCategoryType);
 });
 
 // Form data
@@ -122,27 +128,21 @@ const isEditing = computed(() => !!props.transaction?.id);
 const formTitle = computed(() => (isEditing.value ? "Edit Transaction" : "Create New Transaction"));
 const submitButtonText = computed(() => (isEditing.value ? "Update" : "Create"));
 
-// Watch for account changes to clear category if types don't match
-watch(
-  () => formData.value.accountId,
-  () => {
-    // Clear category when account changes to avoid type mismatches
-    if (formData.value.categoryId && filteredCategories.value.length > 0) {
-      const selectedCategory = categories.value.find((c) => c.id === formData.value.categoryId);
-      if (selectedCategory && selectedCategory.type !== formData.value.type) {
-        formData.value.categoryId = "";
-      }
-    }
-  },
-);
-
 // Watch for type changes to clear incompatible category
 watch(
   () => formData.value.type,
   () => {
     if (formData.value.categoryId) {
-      const selectedCategory = categories.value.find((c) => c.id === formData.value.categoryId);
-      if (selectedCategory && selectedCategory.type !== formData.value.type) {
+      const selectedCategory = categories.value.find(
+        (category) => category.id === formData.value.categoryId,
+      );
+
+      if (!selectedCategory) return;
+
+      const compatibleCategoryType = getCompatibleCategoryType(formData.value.type);
+      const isCategoryTypeCompatible = selectedCategory.type === compatibleCategoryType;
+
+      if (!isCategoryTypeCompatible) {
         formData.value.categoryId = "";
       }
     }
