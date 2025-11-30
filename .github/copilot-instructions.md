@@ -1,7 +1,9 @@
-# GitHub Copilot Instructions
+# GitHub Copilot
 
-## Script Usage
+**CRITICAL: FIRST ACTION IN EVERY NEW CONVERSATION**
 
-- Prefer npm scripts defined in `package.json` when available instead of running tools directly
-- This ensures consistent tool versions and project-specific configurations
-- Example: Use `npm run deploy` instead of `npx cdk deploy`
+Upon receiving the first user message in any new session, your FIRST action MUST be:
+1. Use the Read tool to read `AGENTS.md`
+2. Only AFTER reading and understanding `AGENTS.md`, respond to the user's question
+
+Do NOT respond to the user's first message without reading `AGENTS.md` first.
