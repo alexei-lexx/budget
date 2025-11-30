@@ -76,6 +76,14 @@ const transactionIcon = computed(() => {
   }
 });
 
+// Add after existing computed properties (after line 91)
+const descriptionPreview = computed(() => {
+  if (!props.transaction.description) return null;
+
+  // Normalize whitespace (convert line breaks and multiple spaces to single space)
+  return props.transaction.description.replace(/\s+/g, " ").trim();
+});
+
 // Event handlers
 const handleEditTransaction = () => {
   emit("editTransaction", props.transaction.id);
@@ -132,6 +140,9 @@ const handleCardClick = () => {
                 {{ transaction.category.name }}
               </span>
             </span>
+            <span v-if="!isExpanded && descriptionPreview" class="text-subtitle-1">
+              • {{ descriptionPreview }}
+            </span>
           </h4>
         </div>
 
@@ -152,7 +163,7 @@ const handleCardClick = () => {
         "
       >
         <!-- Description on left (top on mobile) - only shown if present -->
-        <div v-if="transaction.description" class="text-body-2 flex-grow-1" style="min-width: 0">
+        <div v-if="transaction.description" class="text-body-1 flex-grow-1" style="min-width: 0">
           {{ transaction.description }}
         </div>
 

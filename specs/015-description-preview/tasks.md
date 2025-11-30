@@ -28,7 +28,7 @@ description: "Task list for Transaction Description Preview implementation"
 
 **Purpose**: Review design documents and understand requirements
 
-- [ ] T001 Read plan.md, spec.md, research.md, data-model.md, quickstart.md to understand feature requirements and technical approach
+- [X] T001 Read plan.md, spec.md, research.md, data-model.md, quickstart.md to understand feature requirements and technical approach
 
 ---
 
@@ -38,8 +38,8 @@ description: "Task list for Transaction Description Preview implementation"
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T002 Read existing TransactionCard.vue implementation in frontend/src/components/transactions/TransactionCard.vue to understand current structure
-- [ ] T003 [P] Verify Transaction type includes description field in frontend/src/composables/useTransactions.ts
+- [X] T002 Read existing TransactionCard.vue implementation in frontend/src/components/transactions/TransactionCard.vue to understand current structure
+- [X] T003 [P] Verify Transaction type includes description field in frontend/src/composables/useTransactions.ts
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -53,10 +53,10 @@ description: "Task list for Transaction Description Preview implementation"
 
 ### Implementation for User Story 1
 
-- [ ] T004 [US1] Add computed property `descriptionPreview` to normalize whitespace (convert line breaks and multiple spaces to single space) in frontend/src/components/transactions/TransactionCard.vue
-- [ ] T005 [US1] Modify header line template to add description after category using "•" delimiter in frontend/src/components/transactions/TransactionCard.vue
-- [ ] T006 [US1] Add conditional rendering to only show description when `descriptionPreview` is not null/empty in frontend/src/components/transactions/TransactionCard.vue
-- [ ] T007 [US1] Test: Create transaction with description and verify it appears in collapsed header after category
+- [X] T004 [US1] Add computed property `descriptionPreview` to normalize whitespace (convert line breaks and multiple spaces to single space) in frontend/src/components/transactions/TransactionCard.vue
+- [X] T005 [US1] Modify header line template to add description after category using "•" delimiter in frontend/src/components/transactions/TransactionCard.vue
+- [X] T006 [US1] Add conditional rendering to only show description when `descriptionPreview` is not null/empty in frontend/src/components/transactions/TransactionCard.vue
+- [X] T007 [US1] Test: Create transaction with description and verify it appears in collapsed header after category
 
 **Checkpoint**: At this point, User Story 1 should be fully functional - descriptions visible in collapsed cards without truncation or conditional hiding
 
@@ -70,10 +70,10 @@ description: "Task list for Transaction Description Preview implementation"
 
 ### Implementation for User Story 2
 
-- [ ] T008 [US2] Apply `text-truncate` class to header `<h4>` element for automatic ellipsis on overflow in frontend/src/components/transactions/TransactionCard.vue
-- [ ] T009 [US2] Apply `text-opacity-70` class to description span for visual de-emphasis in frontend/src/components/transactions/TransactionCard.vue
-- [ ] T010 [US2] Verify parent container maintains `flex-grow-1` and `min-width: 0` for responsive truncation in frontend/src/components/transactions/TransactionCard.vue
-- [ ] T011 [US2] Test: Create transaction with long description (>100 characters) and verify truncation with ellipsis in collapsed state
+- [X] T008 [US2] Apply `text-truncate` class to header `<h4>` element for automatic ellipsis on overflow in frontend/src/components/transactions/TransactionCard.vue
+- [X] T009 [US2] Apply `text-opacity-70` class to description span for visual de-emphasis in frontend/src/components/transactions/TransactionCard.vue
+- [X] T010 [US2] Verify parent container maintains `flex-grow-1` and `min-width: 0` for responsive truncation in frontend/src/components/transactions/TransactionCard.vue
+- [X] T011 [US2] Test: Create transaction with long description (>100 characters) and verify truncation with ellipsis in collapsed state
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work - descriptions visible and properly truncated with visual hierarchy
 
@@ -87,10 +87,10 @@ description: "Task list for Transaction Description Preview implementation"
 
 ### Implementation for User Story 3
 
-- [ ] T012 [US3] Add `v-if="!isExpanded"` condition to description preview span to hide when card is expanded in frontend/src/components/transactions/TransactionCard.vue
-- [ ] T013 [US3] Verify expanded section continues to display full description in dedicated area (lines 155-157) in frontend/src/components/transactions/TransactionCard.vue
-- [ ] T014 [US3] Test: Expand card and verify description removed from header but visible in expanded section
-- [ ] T015 [US3] Test: Collapse card and verify description reappears in header without layout shift
+- [X] T012 [US3] Add `v-if="!isExpanded"` condition to description preview span to hide when card is expanded in frontend/src/components/transactions/TransactionCard.vue
+- [X] T013 [US3] Verify expanded section continues to display full description in dedicated area (lines 155-157) in frontend/src/components/transactions/TransactionCard.vue
+- [X] T014 [US3] Test: Expand card and verify description removed from header but visible in expanded section
+- [X] T015 [US3] Test: Collapse card and verify description reappears in header without layout shift
 
 **Checkpoint**: All user stories should now be independently functional - description preview with truncation and conditional display
 
@@ -100,12 +100,12 @@ description: "Task list for Transaction Description Preview implementation"
 
 **Purpose**: Final verification and code quality
 
-- [ ] T016 Run manual testing checklist from quickstart.md covering all edge cases (whitespace-only, special characters, line breaks, responsive behavior)
-- [ ] T017 Verify no layout shift during expand/collapse transitions using browser DevTools
-- [ ] T018 Test on mobile viewport (<600px) and desktop viewport (>1200px) for responsive truncation
-- [ ] T019 [P] Run `npm run format` in frontend/ directory to format code
-- [ ] T020 [P] Run `npm run lint` in frontend/ directory and fix any ESLint issues
-- [ ] T021 Verify all functional requirements (FR-001 through FR-014) from spec.md are met
+- [X] T016 Run manual testing checklist from quickstart.md covering all edge cases (whitespace-only, special characters, line breaks, responsive behavior)
+- [X] T017 Verify no layout shift during expand/collapse transitions using browser DevTools
+- [X] T018 Test on mobile viewport (<600px) and desktop viewport (>1200px) for responsive truncation
+- [X] T019 [P] Run `npm run format` in frontend/ directory to format code
+- [X] T020 [P] Run `npm run lint` in frontend/ directory and fix any ESLint issues
+- [X] T021 Verify all functional requirements (FR-001 through FR-014) from spec.md are met
 
 ---
 
