@@ -35,6 +35,12 @@ const emit = defineEmits<{
   cancel: [];
 }>();
 
+// Helper function to get the category type for a given transaction type
+function mapTransactionTypeToCategoryType(transactionType: TransactionType): string {
+  // REFUND transactions use EXPENSE categories
+  return transactionType === "REFUND" ? "EXPENSE" : transactionType;
+}
+
 // Use composables
 const { accounts: accountsData } = useAccounts();
 const { categories: categoriesData } = useCategories();
@@ -46,7 +52,7 @@ const categories = computed(() => categoriesData.value?.categories || []);
 // Filter categories by transaction type
 const filteredCategories = computed(() => {
   // REFUND uses expense categories, so map REFUND to EXPENSE for filtering
-  const typeToMatch = formData.value.type === "REFUND" ? "EXPENSE" : formData.value.type;
+  const typeToMatch = mapTransactionTypeToCategoryType(formData.value.type);
   return categories.value.filter((category) => category.type === typeToMatch);
 });
 
@@ -121,12 +127,6 @@ const currencyPrefix = computed(() => {
 const isEditing = computed(() => !!props.transaction?.id);
 const formTitle = computed(() => (isEditing.value ? "Edit Transaction" : "Create New Transaction"));
 const submitButtonText = computed(() => (isEditing.value ? "Update" : "Create"));
-
-// Helper function to get the category type for a given transaction type
-const mapTransactionTypeToCategoryType = (transactionType: TransactionType): string => {
-  // REFUND transactions use EXPENSE categories
-  return transactionType === "REFUND" ? "EXPENSE" : transactionType;
-};
 
 // Watch for type changes to clear incompatible category
 watch(
