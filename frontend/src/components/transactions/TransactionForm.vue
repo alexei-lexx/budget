@@ -122,14 +122,28 @@ const isEditing = computed(() => !!props.transaction?.id);
 const formTitle = computed(() => (isEditing.value ? "Edit Transaction" : "Create New Transaction"));
 const submitButtonText = computed(() => (isEditing.value ? "Update" : "Create"));
 
+// Helper function to get the category type for a given transaction type
+const mapTransactionTypeToCategoryType = (transactionType: TransactionType): string => {
+  // REFUND transactions use EXPENSE categories
+  return transactionType === "REFUND" ? "EXPENSE" : transactionType;
+};
+
 // Watch for account changes to clear category if types don't match
 watch(
   () => formData.value.accountId,
   () => {
     // Clear category when account changes to avoid type mismatches
     if (formData.value.categoryId && filteredCategories.value.length > 0) {
-      const selectedCategory = categories.value.find((c) => c.id === formData.value.categoryId);
-      if (selectedCategory && selectedCategory.type !== formData.value.type) {
+      const selectedCategory = categories.value.find(
+        (category) => category.id === formData.value.categoryId,
+      );
+
+      if (!selectedCategory) return;
+
+      const expectedCategoryType = mapTransactionTypeToCategoryType(formData.value.type);
+      const isCategoryTypeCompatible = selectedCategory.type === expectedCategoryType;
+
+      if (!isCategoryTypeCompatible) {
         formData.value.categoryId = "";
       }
     }
@@ -140,11 +154,16 @@ watch(
 watch(
   () => formData.value.type,
   () => {
-    if (formData.value.categoryId) {
-      const selectedCategory = categories.value.find((c) => c.id === formData.value.categoryId);
-      if (selectedCategory && selectedCategory.type !== formData.value.type) {
-        formData.value.categoryId = "";
-      }
+    if (!formData.value.categoryId) return;
+
+    const selectedCategory = categories.value.find((c) => c.id === formData.value.categoryId);
+    if (!selectedCategory) return;
+
+    const expectedCategoryType = mapTransactionTypeToCategoryType(formData.value.type);
+    const isCategoryTypeIncompatible = selectedCategory.type !== expectedCategoryType;
+
+    if (isCategoryTypeIncompatible) {
+      formData.value.categoryId = "";
     }
   },
 );

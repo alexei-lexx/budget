@@ -31,11 +31,11 @@ description: "Task list for fixing refund category data loss in edit form"
 
 ### Implementation for User Story 1
 
-- [ ] T001 [US1] Read current TransactionForm.vue to understand bug context in frontend/src/components/transactions/TransactionForm.vue
-- [ ] T002 [US1] Update account change watcher (line 132) to use type mapping: `selectedCategory.type !== (formData.value.type === "REFUND" ? "EXPENSE" : formData.value.type)` in frontend/src/components/transactions/TransactionForm.vue
-- [ ] T003 [US1] Update type change watcher (line 145) to use type mapping: `selectedCategory.type !== (formData.value.type === "REFUND" ? "EXPENSE" : formData.value.type)` in frontend/src/components/transactions/TransactionForm.vue
-- [ ] T004 [US1] Run `npm run format` in frontend package to apply code formatting
-- [ ] T005 [US1] Verify ESLint compliance (no errors) in frontend package
+- [x] T001 [US1] Read current TransactionForm.vue to understand bug context in frontend/src/components/transactions/TransactionForm.vue
+- [x] T002 [US1] Update account change watcher (line 132) to use type mapping: `selectedCategory.type !== (formData.value.type === "REFUND" ? "EXPENSE" : formData.value.type)` in frontend/src/components/transactions/TransactionForm.vue
+- [x] T003 [US1] Update type change watcher (line 145) to use type mapping: `selectedCategory.type !== (formData.value.type === "REFUND" ? "EXPENSE" : formData.value.type)` in frontend/src/components/transactions/TransactionForm.vue
+- [x] T004 [US1] Run `npm run format` in frontend package to apply code formatting
+- [x] T005 [US1] Verify ESLint compliance (no errors) in frontend package
 
 **Checkpoint**: Code fix complete, formatted, and ESLint-compliant
 
