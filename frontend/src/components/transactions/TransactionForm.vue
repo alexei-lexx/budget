@@ -36,7 +36,7 @@ const emit = defineEmits<{
 }>();
 
 // Helper function to get the category type for a given transaction type
-function mapTransactionTypeToCategoryType(transactionType: TransactionType): string {
+function getCompatibleCategoryType(transactionType: TransactionType): string {
   // REFUND transactions use EXPENSE categories
   return transactionType === "REFUND" ? "EXPENSE" : transactionType;
 }
@@ -52,8 +52,8 @@ const categories = computed(() => categoriesData.value?.categories || []);
 // Filter categories by transaction type
 const filteredCategories = computed(() => {
   // REFUND uses expense categories, so map REFUND to EXPENSE for filtering
-  const typeToMatch = mapTransactionTypeToCategoryType(formData.value.type);
-  return categories.value.filter((category) => category.type === typeToMatch);
+  const compatibleCategoryType = getCompatibleCategoryType(formData.value.type);
+  return categories.value.filter((category) => category.type === compatibleCategoryType);
 });
 
 // Form data
@@ -139,10 +139,10 @@ watch(
 
       if (!selectedCategory) return;
 
-      const expectedCategoryType = mapTransactionTypeToCategoryType(formData.value.type);
-      const isCategoryTypeIncompatible = selectedCategory.type !== expectedCategoryType;
+      const compatibleCategoryType = getCompatibleCategoryType(formData.value.type);
+      const isCategoryTypeCompatible = selectedCategory.type === compatibleCategoryType;
 
-      if (isCategoryTypeIncompatible) {
+      if (!isCategoryTypeCompatible) {
         formData.value.categoryId = "";
       }
     }
