@@ -11,7 +11,7 @@
 
 **CRITICAL: FIRST ACTION FOR ANY DEVELOPMENT WORK**
 
-When asked about project standards, code style, architecture, test strategy, or implementing/fixing/modifying/building code:
+When asked about project standards, code style, architecture, tech stack, test strategy, or implementing/fixing/modifying/building code:
 1. FIRST read `.specify/memory/constitution.md`
 2. ONLY AFTER reading the constitution, proceed with the task
 
