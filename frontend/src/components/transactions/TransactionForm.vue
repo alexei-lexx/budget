@@ -156,7 +156,9 @@ watch(
   () => {
     if (!formData.value.categoryId) return;
 
-    const selectedCategory = categories.value.find((c) => c.id === formData.value.categoryId);
+    const selectedCategory = categories.value.find(
+      (category) => category.id === formData.value.categoryId,
+    );
     if (!selectedCategory) return;
 
     const expectedCategoryType = mapTransactionTypeToCategoryType(formData.value.type);
