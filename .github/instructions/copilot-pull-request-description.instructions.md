@@ -1,6 +1,7 @@
 # Pull Request Description Instructions
 
 Write the pull request description as if it were written by a human developer.
+Do not mention that the pull request was created by AI.
 
 ## Format
 
