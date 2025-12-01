@@ -14,6 +14,8 @@
 - Q: Should date field be set to today or keep original date? → A: Auto-update date to today (user can change if needed)
 - Q: What button label should be used ("Clone", "Duplicate", or "Copy")? → A: "Copy"
 - Q: Should duplication events be tracked for analytics? → A: No, don't track any duplication activity
+- Q: When duplicating one side of a transfer (e.g., a 'TRANSFER_OUT' from Account A), what should the transaction type of the new, unlinked transaction be? → A: open "create new transfer" form pre-populated with current transfer
+- Q: How should duplicating refunds work, given they are not linked to parent transactions? → A: Duplicating a refund will create an exact copy, just like any other standalone transaction, with the date set to today.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -53,8 +55,8 @@ Users need to modify the prefilled data before saving the duplicated transaction
 
 ### Edge Cases
 
-- What happens when duplicating a transfer transaction? (Only the selected transaction is duplicated; transfer relationship is not preserved in the duplicate)
-- What happens when duplicating a refund transaction? (Duplicate is created as a regular transaction; refund relationship is not preserved)
+- What happens when duplicating a transfer transaction? (The 'Create New Transfer' form is opened, pre-populated with the original transfer's details.)
+- What happens when duplicating a refund transaction? (The standard transaction create/edit form is opened, pre-filled with the exact details of the original refund.)
 - What happens when duplicating a transaction with a deleted account? (Duplicate form shows the account even if deleted, allowing user to select a new active account)
 - What happens when duplicating a transaction with a deleted category? (Duplicate form shows the category even if deleted, allowing user to select a new active category or leave uncategorized)
 - What happens if the user tries to duplicate while another transaction form is already open? (Current form behavior applies - either close existing or prevent opening new)
@@ -63,32 +65,39 @@ Users need to modify the prefilled data before saving the duplicated transaction
 
 ### Functional Requirements
 
-- **FR-001**: System MUST display a "Copy" button on each expanded transaction card, positioned to the right of the "Edit" button
-- **FR-002**: System MUST open the transaction create form as a modal dialog (consistent with existing create/edit forms) when the user clicks the "Copy" button
-- **FR-003**: System MUST prefill all transaction fields in the create form with values from the original transaction, with the following specifics: date set to today's date, amount copied from original, currency copied from original, account copied from original, category copied from original (if any), description copied from original (if any), and transaction type copied from original
-- **FR-004**: System MUST allow users to modify any prefilled field before saving the duplicated transaction
-- **FR-005**: System MUST create a new transaction with a unique identifier when the user saves the duplicate, leaving the original transaction unmodified
-- **FR-006**: System MUST NOT preserve transfer relationships when duplicating a transfer transaction (duplicate as a standalone transaction)
-- **FR-007**: System MUST NOT preserve refund relationships when duplicating a refund transaction (duplicate as a regular transaction)
-- **FR-008**: System MUST handle duplicating transactions with deleted accounts or categories by allowing users to select replacement values
-- **FR-009**: System MUST provide the same validation on duplicated transactions as new transactions (amount must be non-zero, account must be selected, etc.)
-- **FR-010**: System MUST enforce authorization checks to ensure users can only duplicate their own transactions (follows existing authorization rules)
-- **FR-011**: System MUST NOT track or log duplication events for analytics purposes
+- **FR-001**: System MUST display a "Copy" button on each expanded transaction card, positioned to the right of the "Edit" button.
+- **FR-002**: When the "Copy" button is clicked, the system MUST open the appropriate form based on the original transaction's type:
+    - For `EXPENSE`, `INCOME`, or `REFUND` transactions, it MUST open the standard transaction create/edit modal.
+    - For `TRANSFER_IN` or `TRANSFER_OUT` transactions, it MUST open the dedicated 'Create New Transfer' form.
+- **FR-003**: When opening the standard transaction modal for a duplicated `EXPENSE`, `INCOME`, or `REFUND` transaction, the system MUST prefill fields as follows:
+    - **Date**: Set to today's date.
+    - **Amount, Currency, Account, Category, Description**: Copied from the original transaction.
+    - **Transaction Type**: Copied from the original (`EXPENSE`, `INCOME`, or `REFUND`).
+- **FR-004**: When opening the 'Create New Transfer' form for a duplicated transfer, the system MUST prefill fields as follows:
+    - **Date**: Set to today's date.
+    - **From Account**, **To Account**, **Amount**, **Description**: Copied from the original transfer.
+- **FR-005**: System MUST allow users to modify any prefilled field before saving the new transaction, transfer, or refund.
+- **FR-006**: System MUST create a new, unique transaction (or transaction pair for transfers) when the user saves, leaving the original transaction unmodified.
+- **FR-007**: System MUST handle duplicating transactions with deleted accounts or categories by allowing users to select replacement values.
+- **FR-008**: System MUST provide the same validation on all duplicated transactions as it does on new transactions.
+- **FR-009**: System MUST enforce authorization checks to ensure users can only duplicate their own transactions.
+- **FR-010**: System MUST NOT track or log duplication events for analytics purposes.
 
 ### Key Entities
 
-- **Transaction**: Represents a financial transaction with attributes including date, amount, currency, account, category (optional), description (optional), transaction type (INCOME/EXPENSE/TRANSFER_IN/TRANSFER_OUT), and relationships to other transactions (transfers, refunds)
-- **Transaction Create Form**: UI component that accepts transaction data and creates new transactions, supporting prefilled values, displayed as a modal dialog
+- **Transaction**: Represents a financial transaction with attributes including date, amount, currency, account, category (optional), description (optional), transaction type (INCOME/EXPENSE/TRANSFER_IN/TRANSFER_OUT), and relationships to other transactions (transfers, refunds).
+- **Transaction Create Form**: UI component that accepts transaction data and creates new transactions, supporting prefilled values, displayed as a modal dialog.
+- **Transfer Create Form**: UI component for creating a transfer between two accounts.
 
 ### Assumptions
 
 The following assumptions are made based on clarified requirements:
 
-1. **Date Handling**: When duplicating a transaction, the date field is automatically set to today's date rather than the original transaction's date. Users can modify this to any other date before saving. (Rationale: Most duplication use cases involve creating a new occurrence "now" rather than backdating)
-2. **Transfer Transactions**: When duplicating a transfer transaction, only the selected transaction is duplicated, and the transfer relationship is not preserved. The duplicate is created as a standalone transaction. (Rationale: Users likely want to create a similar transaction without automatically creating the linked transfer)
-3. **Refund Transactions**: When duplicating a refund transaction, the duplicate is created as a regular transaction without the refund relationship. (Rationale: Refunds are typically one-time corrections; duplicating them as regular transactions is more useful)
-4. **Deleted Accounts/Categories**: When duplicating a transaction with a deleted account or category, the form shows the deleted item but allows the user to select a replacement. (Rationale: Users need to see what was originally selected and make an informed choice about the replacement)
-5. **Authorization**: Users can only duplicate transactions they own, following the same authorization rules as viewing and editing transactions. (Rationale: Consistent security posture across all transaction operations)
+1. **Date Handling**: When duplicating any transaction, the date field is automatically set to today's date. Users can modify this before saving.
+2. **Transfer Transactions**: When duplicating a transfer transaction, the system opens the 'Create New Transfer' form, pre-populated with data from the original. (Rationale: This directly supports the user's likely goal of performing a similar transfer.)
+3. **Refund Transactions**: When duplicating a refund transaction, the duplicate is created as an exact copy of the original refund. This is consistent with the system's architecture where refunds are standalone transactions.
+4. **Deleted Accounts/Categories**: When duplicating a transaction with a deleted account or category, the form shows the deleted item but allows the user to select a replacement.
+5. **Authorization**: Users can only duplicate transactions they own, following the same authorization rules as viewing and editing transactions.
 
 ## Success Criteria *(mandatory)*
 
