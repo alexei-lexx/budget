@@ -1,6 +1,6 @@
 # Feature Specification: Transaction Duplication
 
-**Feature Branch**: `015-duplicate-transaction`
+**Feature Branch**: `017-duplicate-transaction`
 **Created**: 2025-12-01
 **Status**: Draft
 **Input**: User description: "duplicate transaction - user opens transactions list, user clicks on transaction to expand a transaction, at the right of the edit button, there is a new button 'clone' or 'duplicate', user click on it, transaction create form is opened with all fields prefilled with data from the original transaction"
