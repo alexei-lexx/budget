@@ -16,6 +16,7 @@ const props = defineProps<Props>();
 const emit = defineEmits<{
   editTransaction: [transactionId: string];
   deleteTransaction: [transactionId: string];
+  duplicateTransaction: [transaction: Transaction];
   toggleExpand: [transactionId: string];
 }>();
 
@@ -93,6 +94,10 @@ const handleDeleteTransaction = () => {
   emit("deleteTransaction", props.transaction.id);
 };
 
+const handleDuplicateTransaction = () => {
+  emit("duplicateTransaction", props.transaction);
+};
+
 const handleCardClick = () => {
   emit("toggleExpand", props.transaction.id);
 };
@@ -168,7 +173,12 @@ const handleCardClick = () => {
         </div>
 
         <!-- Action buttons on right (bottom on mobile) -->
-        <ActionButtons @edit="handleEditTransaction" @delete="handleDeleteTransaction" />
+        <ActionButtons
+          show-duplicate
+          @duplicate="handleDuplicateTransaction"
+          @edit="handleEditTransaction"
+          @delete="handleDeleteTransaction"
+        />
       </div>
     </v-card-text>
   </v-card>

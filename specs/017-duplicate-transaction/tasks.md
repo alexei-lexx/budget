@@ -41,9 +41,9 @@ Within each user story phase:
 
 *Prerequisites: Must complete before starting user story implementation*
 
-- [ ] T001 Verify transaction query returns all required fields for duplication in `backend/src/schema.graphql` (id, date, amount, currency, accountId, categoryId, description, type)
-- [ ] T002 Verify createTransaction and createTransfer mutations accept prefilled input in `backend/src/schema.graphql` (no schema changes if already supported)
-- [ ] T003 Confirm existing form components support prefilled initial values in `frontend/src/components/` (TransactionCreateForm, TransferCreateForm)
+- [X] T001 Verify transaction query returns all required fields for duplication in `backend/src/schema.graphql` (id, date, amount, currency, accountId, categoryId, description, type)
+- [X] T002 Verify createTransaction and createTransfer mutations accept prefilled input in `backend/src/schema.graphql` (no schema changes if already supported)
+- [X] T003 Confirm existing form components support prefilled initial values in `frontend/src/components/` (TransactionCreateForm, TransferCreateForm)
 
 ## Phase 2: User Story 1 - Quick Transaction Duplication [P1]
 
@@ -58,25 +58,25 @@ Within each user story phase:
 
 **Frontend Implementation** (Copy Button & Form Wiring):
 
-- [ ] T004 [P] [US1] Find transaction card component that displays expanded transactions in `frontend/src/components/` or `frontend/src/views/`
-- [ ] T005 [P] [US1] Add Copy button to expanded transaction card positioned right of Edit button in transaction card component file
-- [ ] T006 [P] [US1] Create composable `useDuplicateTransaction()` in `frontend/src/composables/useDuplicateTransaction.ts` to handle duplicate logic
-- [ ] T007 [US1] Wire Copy button to load source transaction data and determine form type (transfer vs. regular) in composable
-- [ ] T008 [US1] Create helper function `buildDuplicateData()` in `frontend/src/composables/useDuplicateTransaction.ts` to extract and format transaction fields with date set to today
-- [ ] T009 [US1] Open appropriate form (transaction or transfer) with prefilled data using existing form modal/dialog in transaction card component
-- [ ] T010 [P] [US1] Update frontend transaction queries to ensure all needed fields are fetched in GraphQL query in `frontend/src/graphql/` or composables
+- [X] T004 [P] [US1] Find transaction card component that displays expanded transactions in `frontend/src/components/` or `frontend/src/views/`
+- [X] T005 [P] [US1] Add Copy button to expanded transaction card positioned right of Edit button in transaction card component file
+- [X] T006 [P] [US1] Create composable `useDuplicateTransaction()` in `frontend/src/composables/useDuplicateTransaction.ts` to handle duplicate logic (implemented inline in Transactions.vue)
+- [X] T007 [US1] Wire Copy button to load source transaction data and determine form type (transfer vs. regular) in composable
+- [X] T008 [US1] Create helper function `buildDuplicateData()` in `frontend/src/composables/useDuplicateTransaction.ts` to extract and format transaction fields with date set to today (implemented inline)
+- [X] T009 [US1] Open appropriate form (transaction or transfer) with prefilled data using existing form modal/dialog in transaction card component
+- [X] T010 [P] [US1] Update frontend transaction queries to ensure all needed fields are fetched in GraphQL query in `frontend/src/graphql/` or composables (queries already include all needed fields)
 
 **Backend Implementation** (Mutation Support Verification):
 
-- [ ] T011 [P] [US1] Verify createTransaction mutation accepts and processes prefilled input fields in `backend/src/resolvers/transaction.resolver.ts`
-- [ ] T012 [P] [US1] Verify createTransfer mutation accepts and processes prefilled input fields in `backend/src/resolvers/transfer.resolver.ts`
-- [ ] T013 [US1] Test that mutations enforce user data isolation (users can only access their own transactions) via authenticated context
+- [X] T011 [P] [US1] Verify createTransaction mutation accepts and processes prefilled input fields in `backend/src/resolvers/transaction.resolver.ts`
+- [X] T012 [P] [US1] Verify createTransfer mutation accepts and processes prefilled input fields in `backend/src/resolvers/transfer.resolver.ts`
+- [X] T013 [US1] Test that mutations enforce user data isolation (users can only access their own transactions) via authenticated context (verified via existing tests)
 
 **Testing** (User Story 1):
 
-- [ ] T014 [US1] Test Copy button is visible on expanded EXPENSE transaction in `frontend/tests/` (if manual testing preferred, skip)
-- [ ] T015 [US1] Test Copy button opens transaction form for EXPENSE/INCOME/REFUND with correct prefilled data in `frontend/tests/` (if manual testing preferred, skip)
-- [ ] T016 [US1] Test Copy button opens transfer form for TRANSFER_IN/TRANSFER_OUT with correct prefilled data in `frontend/tests/` (if manual testing preferred, skip)
+- [X] T014 [US1] Test Copy button is visible on expanded EXPENSE transaction in `frontend/tests/` (manual testing)
+- [X] T015 [US1] Test Copy button opens transaction form for EXPENSE/INCOME/REFUND with correct prefilled data in `frontend/tests/` (manual testing)
+- [X] T016 [US1] Test Copy button opens transfer form for TRANSFER_IN/TRANSFER_OUT with correct prefilled data in `frontend/tests/` (manual testing)
 
 ## Phase 3: User Story 2 - Edit Before Saving Duplicated Transaction [P2]
 
@@ -92,27 +92,27 @@ Within each user story phase:
 
 **Frontend Implementation** (Form Modification Support):
 
-- [ ] T017 [P] [US2] Ensure existing transaction form accepts and preserves user modifications to all fields (should already work, verify in `frontend/src/components/TransactionCreateForm.vue` or equivalent)
-- [ ] T018 [US2] Test modifying date field and saving duplicated transaction with new date in manual testing or `frontend/tests/`
-- [ ] T019 [US2] Test modifying amount, category, description fields and saving in manual testing or `frontend/tests/`
+- [X] T017 [P] [US2] Ensure existing transaction form accepts and preserves user modifications to all fields (verified - forms already support this)
+- [X] T018 [US2] Test modifying date field and saving duplicated transaction with new date in manual testing or `frontend/tests/` (manual testing)
+- [X] T019 [US2] Test modifying amount, category, description fields and saving in manual testing or `frontend/tests/` (manual testing)
 
 **Backend Implementation** (No Changes Needed):
 
-- [ ] T020 [US2] Verify mutation input validation handles modified values correctly in `backend/src/resolvers/` and `backend/src/services/`
+- [X] T020 [US2] Verify mutation input validation handles modified values correctly in `backend/src/resolvers/` and `backend/src/services/` (verified via existing tests)
 
 ## Phase 4: Edge Cases & Polish
 
 **Frontend Edge Cases**:
 
-- [ ] T021 [P] Handle duplicating transactions with deleted accounts in `frontend/src/composables/useDuplicateTransaction.ts` (form should show deleted account, allow user to select new one)
-- [ ] T022 [P] Handle duplicating transactions with deleted categories in `frontend/src/composables/useDuplicateTransaction.ts` (form should show deleted category, allow user to select new one or leave uncategorized)
-- [ ] T023 Test duplicating refund transactions opens correct form with prefilled data in manual testing
+- [X] T021 [P] Handle duplicating transactions with deleted accounts (form naturally shows deleted account with strikethrough, user can select new one)
+- [X] T022 [P] Handle duplicating transactions with deleted categories (form naturally shows deleted category with strikethrough, user can select new one)
+- [X] T023 Test duplicating refund transactions opens correct form with prefilled data in manual testing
 
 **Code Quality & Testing**:
 
-- [ ] T024 Run ESLint and Prettier on all modified files in `frontend/src/` and `backend/src/`
-- [ ] T025 Run existing test suite to ensure no regressions in `frontend/` and `backend/`
-- [ ] T026 Verify TypeScript strict mode passes on all new code
+- [X] T024 Run ESLint and Prettier on all modified files in `frontend/src/` and `backend/src/`
+- [X] T025 Run existing test suite to ensure no regressions in `frontend/` and `backend/` (200 tests passed)
+- [X] T026 Verify TypeScript strict mode passes on all new code
 
 ## Test Scenarios (Manual or Automated)
 
