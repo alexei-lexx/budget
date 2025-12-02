@@ -77,6 +77,7 @@
               class="mb-3"
               @edit-transaction="handleEditTransaction"
               @delete-transaction="handleDeleteTransaction"
+              @duplicate-transaction="handleDuplicateTransaction"
               @toggle-expand="toggleTransactionExpand"
             />
           </div>
@@ -125,6 +126,7 @@
     <!-- Create Transaction Dialog -->
     <v-dialog v-model="showCreateTransactionDialog" :max-width="dialogMaxWidth" persistent>
       <TransactionForm
+        :transaction="duplicatingTransaction"
         :loading="transactionFormLoading"
         @submit="handleCreateTransactionSubmit"
         @cancel="handleTransactionFormCancel"
@@ -144,6 +146,7 @@
     <!-- Create Transfer Dialog -->
     <v-dialog v-model="showCreateTransferDialog" :max-width="dialogMaxWidth" persistent>
       <TransferForm
+        :transfer="duplicatingTransfer"
         :loading="transferFormLoading"
         @submit="handleCreateTransferSubmit"
         @cancel="handleTransactionFormCancel"
@@ -165,6 +168,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
 import { useDisplay } from "vuetify";
+import { getTodayDateString } from "@/utils/date";
 import { useTransactions } from "@/composables/useTransactions";
 import { useAccounts } from "@/composables/useAccounts";
 import { useCategories } from "@/composables/useCategories";
@@ -240,6 +244,8 @@ const showCreateTransferDialog = ref(false);
 const showEditTransferDialog = ref(false);
 const editingTransaction = ref<Transaction | null>(null);
 const editingTransfer = ref<Transfer | null>(null);
+const duplicatingTransaction = ref<Transaction | null>(null);
+const duplicatingTransfer = ref<Transfer | null>(null);
 const transactionToDelete = ref<Transaction | null>(null);
 const transactionFormLoading = ref(false);
 const transferFormLoading = ref(false);
@@ -249,10 +255,12 @@ const expandedTransactionIds = ref<Set<string>>(new Set());
 
 // Event handlers
 const handleAddTransaction = () => {
+  duplicatingTransaction.value = null;
   showCreateTransactionDialog.value = true;
 };
 
 const handleAddTransfer = () => {
+  duplicatingTransfer.value = null;
   showCreateTransferDialog.value = true;
 };
 
@@ -283,6 +291,44 @@ const handleEditTransaction = async (transactionId: string) => {
     // Regular transaction (income/expense) - use the existing logic
     editingTransaction.value = { ...transaction };
     showEditTransactionDialog.value = true;
+  }
+};
+
+const handleDuplicateTransaction = async (transaction: Transaction) => {
+  if (isTransferTransaction(transaction)) {
+    transferFormLoading.value = true;
+    try {
+      const transferData = await getTransfer(transaction.transferId);
+      if (transferData) {
+        duplicatingTransfer.value = {
+          ...transferData,
+          id: "",
+          outboundTransaction: {
+            ...transferData.outboundTransaction,
+            date: getTodayDateString(),
+          },
+          inboundTransaction: {
+            ...transferData.inboundTransaction,
+            date: getTodayDateString(),
+          },
+        };
+        showCreateTransferDialog.value = true;
+      } else {
+        showErrorSnackbar("Transfer not found. The transfer data may have been deleted.");
+      }
+    } catch (error) {
+      console.error("Error loading transfer for duplicate:", error);
+      showErrorSnackbar("Failed to load transfer data. Please try again.");
+    } finally {
+      transferFormLoading.value = false;
+    }
+  } else {
+    duplicatingTransaction.value = {
+      ...transaction,
+      id: "",
+      date: getTodayDateString(),
+    };
+    showCreateTransactionDialog.value = true;
   }
 };
 

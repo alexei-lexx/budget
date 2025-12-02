@@ -3,23 +3,30 @@
 interface Props {
   editLabel?: string;
   deleteLabel?: string;
+  duplicateLabel?: string;
   editIcon?: string;
   deleteIcon?: string;
+  duplicateIcon?: string;
   size?: "x-small" | "small" | "default" | "large" | "x-large";
+  showDuplicate?: boolean;
 }
 
 withDefaults(defineProps<Props>(), {
   editLabel: "Edit",
   deleteLabel: "Delete",
+  duplicateLabel: "Copy",
   editIcon: "mdi-pencil",
   deleteIcon: "mdi-delete",
+  duplicateIcon: "mdi-content-copy",
   size: "small",
+  showDuplicate: false,
 });
 
 // Define emitted events
 const emit = defineEmits<{
   edit: [];
   delete: [];
+  duplicate: [];
 }>();
 
 // Event handlers with click.stop to prevent event propagation
@@ -30,10 +37,24 @@ const handleEdit = () => {
 const handleDelete = () => {
   emit("delete");
 };
+
+const handleDuplicate = () => {
+  emit("duplicate");
+};
 </script>
 
 <template>
   <div class="action-buttons d-flex ga-2">
+    <v-btn
+      v-if="showDuplicate"
+      :size="size"
+      color="secondary"
+      variant="text"
+      :prepend-icon="duplicateIcon"
+      @click.stop="handleDuplicate"
+    >
+      {{ duplicateLabel }}
+    </v-btn>
     <v-btn
       :size="size"
       color="primary"
