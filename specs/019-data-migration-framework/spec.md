@@ -72,8 +72,8 @@ The system maintains a record of which migrations have been executed in each env
 ### Functional Requirements
 
 - **FR-001**: System MUST document the naming convention for migration files (YYYYMMDDHHMMSS-description.ts format); developers create files manually following this convention
-- **FR-002**: System MUST execute migrations locally via `npm run migrate` command
-- **FR-003**: CDK MUST define a Lambda function for migration execution; System MUST execute migrations on production environment via this Lambda function
+- **FR-002**: System MUST execute migrations locally via `npm run migrate` command; local execution MUST reuse the existing local DynamoDB setup (Docker Compose/DynamoDB Local) that the backend uses for development; connection configuration MUST be consistent with backend's local development environment; System MUST extract core migration execution logic into a shared runner module (`backend/src/migrations/runner.ts`) that both the npm script and Lambda handler invoke with a DynamoDB client
+- **FR-003**: CDK MUST define a Lambda function for migration execution; System MUST execute migrations on production environment via this Lambda function; backend's `npm run build` MUST compile the migration Lambda (including all migration files from backend/src/migrations/); backend-cdk MUST deploy the compiled bundle following the same pattern as existing Lambda functions
 - **FR-004**: System MUST track migration execution history in a DynamoDB table
 - **FR-005**: System MUST be idempotent - running migrations multiple times MUST NOT execute the same migration twice
 - **FR-006**: System MUST deploy successfully when no new migrations exist (empty deployment safe)
@@ -82,13 +82,13 @@ The system maintains a record of which migrations have been executed in each env
 - **FR-009**: Migrations MUST only modify data, not database schema (schema changes handled by CDK)
 - **FR-010**: The <root>/deploy.sh script MUST invoke the migration Lambda function synchronously (RequestResponse invocation type) at the very end after all CDK deployments (backend, frontend) complete and wait for completion; deployment MUST halt if Lambda returns an error or fails
 - **FR-011**: System MUST distinguish between executed and pending migrations in each environment using NODE_ENV to identify the current environment
-- **FR-012**: Migration files MUST be stored in `backend/src/migrations/` directory and version-controlled
+- **FR-012**: Migration files MUST be stored in `backend/src/migrations/` directory and version-controlled; System MUST maintain a `backend/src/migrations/index.ts` file that explicitly imports and exports all migration modules; developers MUST manually add new migrations to this index file when creating them
 - **FR-013**: System MUST prevent concurrent execution of migrations by creating a lock record (PK="LOCK") with conditional PutItem (condition: attribute_not_exists) before running migrations; delete lock after completion; abort if lock creation fails
 - **FR-014**: Each migration MUST complete within 15 minutes (Lambda timeout limit); migrations requiring longer execution MUST be split into multiple sequential migrations
 - **FR-015**: System MUST fail immediately when a migration encounters an error, stop execution, and NOT mark the migration as completed
 - **FR-016**: System MUST retry failed migrations on subsequent runs; developers MUST write idempotent migrations to ensure safe retry behavior
 - **FR-017**: Migration execution MUST log progress using console.log statements; Lambda automatically writes logs to CloudWatch Logs for monitoring
-- **FR-018**: Each environment MUST have its own migration history DynamoDB table defined via environment variable (e.g., MIGRATIONS_TABLE_NAME=Migrations)
+- **FR-018**: Each environment MUST have its own migration history DynamoDB table; backend-cdk MUST define the table alongside other DynamoDB tables and deploy it with the standard CDK stack; table name MUST be passed to the migration runner via environment variable (e.g., MIGRATIONS_TABLE_NAME=Migrations)
 - **FR-019**: Migration history table MUST use timestamp as partition key (just the timestamp portion of the migration filename, e.g., "20231203120000"); records contain only the timestamp attribute; existence of a record indicates successful execution
 - **FR-020**: If Lambda crashes or times out before deleting the lock record, the lock becomes stale and blocks all future migrations; operators MUST manually delete the lock record (PK="LOCK") to unblock
 - **FR-021**: System MUST include 1-2 example migration files in `backend/src/migrations/`: one demonstrating read-only operations (scanning and counting records from Categories table), one demonstrating data update operations on Categories table using an always-false condition to safely show write syntax without modifying data
@@ -136,6 +136,11 @@ The system maintains a record of which migrations have been executed in each env
 - Q: Deployment sequence timing - At what point in the deployment sequence should migrations run? → A: At the very end after all deployments complete
 - Q: Migration history table schema - What additional attributes should each migration history record contain beyond timestamp PK? → A: Only timestamp (PK) - minimal schema, existence means success
 - Q: Table name discovery in migrations - How should migration code discover table names to operate on? → A: Read from environment variables (e.g., process.env.CATEGORIES_TABLE_NAME)
+- Q: Migration files delivery to Lambda - How should the Lambda function access the migration files to execute them? → A: backend npm run build compiles migration Lambda; backend-cdk deploys the bundle; follow existing Lambda function pattern
+- Q: Local DynamoDB connection configuration - How should `npm run migrate` connect to DynamoDB in local development? → A: Reuse existing local DynamoDB setup (Docker Compose/DynamoDB Local) that backend already uses for development
+- Q: Migration file discovery mechanism - How should the migration runner discover which migration files exist to execute? → A: Maintain migrations/index.ts that explicitly imports and exports all migrations; developer adds new migrations to index manually
+- Q: Migration history table creation - How should the migration history DynamoDB table be created and deployed? → A: Define via backend-cdk alongside other DynamoDB tables; deploy with standard CDK stack; table name passed via environment variable
+- Q: Migration runner shared logic - How should code be shared between the local npm script and the Lambda function? → A: Extract shared runner module (migrations/runner.ts) with core logic; both npm script and Lambda handler import and invoke this shared runner with DynamoDB client
 
 ## Assumptions
 
@@ -145,6 +150,6 @@ The system maintains a record of which migrations have been executed in each env
 - Migrations will typically complete within a few minutes (not hours)
 - Rollback will be handled manually by creating new "rollback migrations" rather than automatic rollback
 - Each migration will be atomic where possible, using DynamoDB transactions or batch operations
-- The npm script for local migrations will use the same execution logic as the Lambda function
+- The npm script for local migrations will use the same execution logic as the Lambda function via a shared runner module (`backend/src/migrations/runner.ts`) that contains all core migration logic (load from index, check history, execute in order, update history); both the npm script entry point and Lambda handler import and invoke this runner with a DynamoDB client
 - Each environment has its own migration history table (isolation via separate tables, not via partition key)
 - The <root>/deploy.sh script will invoke the migration Lambda function (defined by CDK) during the deployment process, before completing deployment
