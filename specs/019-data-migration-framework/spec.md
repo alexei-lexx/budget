@@ -62,7 +62,8 @@ The system maintains a record of which migrations have been executed in each env
 
 - **Migration exceeds Lambda timeout (15 minutes)**: Migrations must be designed to complete within 15 minutes. Large data modifications must be split into multiple sequential migration files, each processing a subset of data.
 - **Partial failures**: If a migration encounters an error during execution, it fails immediately and stops processing. The migration is NOT marked as completed and will be re-executed on the next migration run. Developers are responsible for writing idempotent migrations to ensure safe retry behavior.
-- **Concurrent deployments**: Prevented by DynamoDB transaction locks on migration history table (see FR-013).
+- **Concurrent deployments**: Prevented by lock record in migration history table (see FR-013).
+- **Stale lock from Lambda crash/timeout**: If Lambda crashes or times out before deleting the lock record (PK="LOCK"), all future migration runs will fail. Developer must manually delete the lock record from the migration history table to unblock migrations.
 - **Migration dependencies**: Handled implicitly by chronological execution order (FR-008). Dependent migrations must have later timestamps than their dependencies.
 - **Rerunning completed migrations**: Developer manually deletes the migration record from the history table in the target environment, then reruns the migration runner. The migration will execute as if it had never run.
 
@@ -79,13 +80,17 @@ The system maintains a record of which migrations have been executed in each env
 - **FR-007**: Each migration file MUST export an async function named `up` that receives DynamoDB client as its only parameter: `export async function up(dynamoDbClient) { ... }`
 - **FR-008**: System MUST execute migrations in chronological order based on migration file timestamps
 - **FR-009**: Migrations MUST only modify data, not database schema (schema changes handled by CDK)
-- **FR-010**: The <root>/deploy.sh script MUST invoke the migration Lambda function during deployment; deployment MUST halt if any migration fails during production execution
+- **FR-010**: The <root>/deploy.sh script MUST invoke the migration Lambda function synchronously (RequestResponse invocation type) during deployment and wait for completion; deployment MUST halt if Lambda returns an error or fails
 - **FR-011**: System MUST distinguish between executed and pending migrations in each environment using NODE_ENV to identify the current environment
 - **FR-012**: Migration files MUST be stored in `backend/src/migrations/` directory and version-controlled
-- **FR-013**: System MUST prevent concurrent execution of migrations in the same environment using DynamoDB transactions to lock the migration history table during the entire migration run
+- **FR-013**: System MUST prevent concurrent execution of migrations by creating a lock record (PK="LOCK") with conditional PutItem (condition: attribute_not_exists) before running migrations; delete lock after completion; abort if lock creation fails
 - **FR-014**: Each migration MUST complete within 15 minutes (Lambda timeout limit); migrations requiring longer execution MUST be split into multiple sequential migrations
 - **FR-015**: System MUST fail immediately when a migration encounters an error, stop execution, and NOT mark the migration as completed
 - **FR-016**: System MUST retry failed migrations on subsequent runs; developers MUST write idempotent migrations to ensure safe retry behavior
+- **FR-017**: Migration execution MUST log progress using console.log statements; Lambda automatically writes logs to CloudWatch Logs for monitoring
+- **FR-018**: Each environment MUST have its own migration history DynamoDB table defined via environment variable (e.g., MIGRATIONS_TABLE_NAME=Migrations)
+- **FR-019**: Migration history table MUST use timestamp as partition key (just the timestamp portion of the migration filename, e.g., "20231203120000")
+- **FR-020**: If Lambda crashes or times out before deleting the lock record, the lock becomes stale and blocks all future migrations; operators MUST manually delete the lock record (PK="LOCK") to unblock
 
 ### Key Entities
 
@@ -118,6 +123,12 @@ The system maintains a record of which migrations have been executed in each env
 - Q: Local migration execution command - What npm script should developers use? → A: npm run migrate
 - Q: Environment identification - How does the system identify which environment it's running in? → A: NODE_ENV that we already have
 - Q: CDK deployment integration - How should CDK trigger migration Lambda during deployment? → A: CDK defines the Lambda function; <root>/deploy.sh invokes the function
+- Q: Logging and observability for migrations - How should migrations log execution details for monitoring? → A: Use console.log; Lambda automatically writes to CloudWatch
+- Q: Migration history table deployment - How is the migration history table deployed per environment? → A: Each environment has its own table via env var (e.g., MIGRATIONS_TABLE_NAME=Migrations)
+- Q: Migration history table primary key structure - What should the primary key structure be? → A: PK = timestamp (just the timestamp portion)
+- Q: Concurrent execution lock mechanism - How should FR-013 lock be implemented? → A: Single lock record with conditional PutItem (PK="LOCK", condition: attribute_not_exists)
+- Q: Stale lock cleanup strategy - What happens if Lambda crashes/times out before deleting lock? → A: No automatic cleanup; manual intervention required to delete stale locks
+- Q: Migration Lambda invocation type - How should deploy.sh invoke the migration Lambda to detect failures? → A: Synchronous invocation (RequestResponse) - deploy.sh waits for Lambda completion
 
 ## Assumptions
 
@@ -128,5 +139,5 @@ The system maintains a record of which migrations have been executed in each env
 - Rollback will be handled manually by creating new "rollback migrations" rather than automatic rollback
 - Each migration will be atomic where possible, using DynamoDB transactions or batch operations
 - The npm script for local migrations will use the same execution logic as the Lambda function
-- Migration history table will use NODE_ENV value as part of the partition key to isolate environments
+- Each environment has its own migration history table (isolation via separate tables, not via partition key)
 - The <root>/deploy.sh script will invoke the migration Lambda function (defined by CDK) during the deployment process, before completing deployment
