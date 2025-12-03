@@ -7,6 +7,221 @@
 
 This document captures technical decisions and best practices for implementing a Rails-inspired data migration framework for DynamoDB. All decisions are informed by the detailed clarifications in [spec.md](spec.md).
 
+## 0. Existing Infrastructure Analysis (Added: 2025-12-03)
+
+**Purpose**: Document reusable patterns from existing codebase to avoid reinventing solutions.
+
+### DynamoDB Client Factory (REUSE)
+
+**Location**: `backend/src/repositories/utils/dynamoClient.ts`
+
+**What Exists**:
+```typescript
+function createDynamoDBClient(): DynamoDBClient {
+  return new DynamoDBClient({
+    region: process.env.AWS_REGION || "",
+    ...(isLocalEnvironment && {
+      endpoint: process.env.DYNAMODB_ENDPOINT || "",
+      credentials: {
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID || "",
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || "",
+      },
+    }),
+  });
+}
+
+export function createDynamoDBDocumentClient(
+  dynamoClient?: DynamoDBClient,
+): DynamoDBDocumentClient {
+  const client = dynamoClient || createDynamoDBClient();
+  return DynamoDBDocumentClient.from(client);
+}
+```
+
+**Reuse Strategy**: Import and use directly in migration runner and scripts. No need to create new client factory.
+
+**Impact**: Eliminates need for separate client creation logic (saved ~20 lines of code).
+
+### Table Definition Pattern (REUSE)
+
+**Location**: `backend-cdk/lib/backend-cdk-stack.ts:13-19`
+
+**What Exists**:
+```typescript
+const commonTableOptions: Partial<dynamodb.TableProps> = {
+  billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+  pointInTimeRecoverySpecification: {
+    pointInTimeRecoveryEnabled: true,
+  },
+  removalPolicy: cdk.RemovalPolicy.RETAIN,
+};
+```
+
+**Reuse Strategy**: Copy this exact pattern for migration history table definition.
+
+**Impact**: Ensures consistency with existing tables, automatic PITR, cost-effective billing.
+
+### Lambda Deployment Pattern (REUSE)
+
+**Location**: `backend-cdk/lib/backend-cdk-stack.ts:83-116`
+
+**What Exists**:
+```typescript
+const functionConfig: lambda.FunctionProps = {
+  runtime: lambda.Runtime.NODEJS_22_X,
+  code: lambda.Code.fromAsset("../backend/dist"),
+  handler: "lambda.handler",
+  environment: {
+    AUTH0_AUDIENCE: process.env.AUTH0_AUDIENCE || "",
+    AUTH0_DOMAIN: process.env.AUTH0_DOMAIN || "",
+    NODE_ENV: process.env.NODE_ENV || "",
+    ACCOUNTS_TABLE_NAME: accountsTable.tableName,
+    CATEGORIES_TABLE_NAME: categoriesTable.tableName,
+    TRANSACTIONS_TABLE_NAME: transactionsTable.tableName,
+    USERS_TABLE_NAME: usersTable.tableName,
+  },
+  tracing: lambda.Tracing.ACTIVE,
+  ...(process.env.LAMBDA_TIMEOUT_SECONDS && {
+    timeout: cdk.Duration.seconds(
+      parseInt(process.env.LAMBDA_TIMEOUT_SECONDS, 10),
+    ),
+  }),
+  ...(process.env.LAMBDA_MEMORY_SIZE && {
+    memorySize: parseInt(process.env.LAMBDA_MEMORY_SIZE, 10),
+  }),
+};
+
+const graphqlFunction = new lambda.Function(
+  this,
+  "GraphqlEndpoint",
+  functionConfig,
+);
+
+accountsTable.grantReadWriteData(graphqlFunction);
+categoriesTable.grantReadWriteData(graphqlFunction);
+transactionsTable.grantReadWriteData(graphqlFunction);
+usersTable.grantReadWriteData(graphqlFunction);
+```
+
+**Reuse Strategy**:
+- Copy functionConfig pattern for migration Lambda
+- Set handler to "migrate.handler"
+- Set timeout to 15 minutes (900 seconds)
+- Add MIGRATIONS_TABLE_NAME to environment
+- Inherit all existing table name env vars
+- Use table.grantReadWriteData() for IAM permissions
+
+**Impact**: Complete Lambda definition in ~30 lines, consistent with existing infrastructure.
+
+### Script Pattern (REUSE)
+
+**Location**: `backend/scripts/create-tables.ts:11-18`
+
+**What Exists**:
+```typescript
+const client = new DynamoDBClient({
+  region: process.env.AWS_REGION ?? "",
+  endpoint: process.env.DYNAMODB_ENDPOINT ?? "",
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID ?? "",
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY ?? "",
+  },
+});
+```
+
+**Reuse Strategy**: Copy this exact pattern for `backend/src/scripts/migrate.ts` local DynamoDB client.
+
+**Impact**: Immediate compatibility with existing local development setup (Docker Compose).
+
+### Error Handling Pattern (REUSE)
+
+**Location**: `backend/src/repositories/CategoryRepository.ts:23-34`
+
+**What Exists**:
+```typescript
+class CategoryRepositoryError extends Error {
+  constructor(
+    message: string,
+    public code: string,
+    public originalError?: unknown,
+  ) {
+    super(message);
+    this.name = "CategoryRepositoryError";
+  }
+}
+```
+
+**Reuse Strategy**: Create similar `MigrationError` class with code, message, and originalError.
+
+**Impact**: Consistent error handling across backend, better error diagnostics.
+
+### Schema Validation Pattern (REUSE)
+
+**Location**: `backend/src/repositories/utils/hydrate.ts`
+
+**What Exists**: Utility function that validates DynamoDB records against Zod schemas.
+
+**Reuse Strategy**: Use same pattern for validating migration history records when reading from DynamoDB.
+
+**Impact**: Catches data corruption early, consistent validation approach.
+
+### Test Structure (FOLLOW)
+
+**Location**: `backend/jest.config.json`
+
+**What Exists**:
+```json
+{
+  "preset": "ts-jest",
+  "testEnvironment": "node",
+  "roots": ["<rootDir>/src"],
+  "testMatch": ["**/?(*.)+(test).ts"],
+  "testTimeout": 10000
+}
+```
+
+**Required Path**: Tests are **co-located** with source files using `.test.ts` suffix (NOT in separate directories)
+
+**Actual Pattern in Codebase**:
+- `src/services/AccountService.test.ts` (next to `AccountService.ts`)
+- `src/repositories/CategoryRepository.test.ts` (next to `CategoryRepository.ts`)
+- `src/utils/date.test.ts` (next to `date.ts`)
+
+**Reuse Strategy for Migrations**:
+- `src/migrations/operations/lock.test.ts` - next to `lock.ts`
+- `src/migrations/operations/history.test.ts` - next to `history.ts`
+- `src/migrations/operations/loader.test.ts` - next to `loader.ts`
+- `src/migrations/runner.test.ts` - next to `runner.ts`
+- `src/scripts/migrate.test.ts` - next to `migrate.ts`
+- `src/lambda/migrate.test.ts` - next to `migrate.ts`
+
+**Note**: The `src/__tests__/` directory contains only **test utilities** (helpers, mocks, factories) - NOT actual test files.
+
+**Impact**: Tests automatically discovered by jest.config.json `testMatch: ["**/?(*.)+(test).ts"]`, follows established co-location pattern.
+
+### Build Process (ADAPT)
+
+**Location**: `backend/package.json:6`
+
+**What Exists**:
+```json
+"build:bundle": "esbuild src/lambda.ts --bundle --platform=node --outfile=dist/lambda.js"
+```
+
+**Adaptation Needed**: Add separate bundle for migration Lambda:
+```json
+"build:bundle:migrate": "esbuild src/lambda/migrate.ts --bundle --platform=node --outfile=dist/migrate.js"
+```
+
+**Impact**: Migration Lambda can be deployed independently, same build process as GraphQL Lambda.
+
+### Summary
+
+**Patterns Identified**: 8 reusable patterns
+**Lines of Code Saved**: ~100-150 lines
+**Consistency Benefits**: All infrastructure follows established project patterns
+**Risk Reduction**: Leveraging battle-tested code reduces implementation risk
+
 ## 1. Migration Runner Architecture
 
 ### Decision: Shared Runner Module Pattern

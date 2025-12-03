@@ -21,6 +21,78 @@ Implement a Rails-inspired data migration framework for DynamoDB that enables sa
 **Constraints**: 15-minute Lambda timeout, idempotent execution (skip completed migrations), concurrent execution prevention via lock record, manual lock cleanup if Lambda crashes
 **Scale/Scope**: Small number of migration files (10-50 expected), operations on existing DynamoDB tables (Categories, Transactions, Accounts, etc.)
 
+## Existing Infrastructure (Reusable Components)
+
+The migration framework can leverage significant existing infrastructure from the current backend and backend-cdk implementations:
+
+### DynamoDB Patterns
+
+**Client Factory** (`backend/src/repositories/utils/dynamoClient.ts`):
+- `createDynamoDBClient()` - Already handles local/production environment detection
+- Auto-configures endpoint and credentials for NODE_ENV=development/test
+- Can be directly imported and reused in migration scripts and Lambda handler
+
+**Table Definition Pattern** (`backend-cdk/lib/backend-cdk-stack.ts:13-19`):
+- `commonTableOptions` - Standard configuration for all tables:
+  - PAY_PER_REQUEST billing
+  - Point-in-time recovery enabled
+  - RETAIN removal policy
+- Migration history table can use identical pattern
+
+**Schema Validation** (`backend/src/repositories/utils/hydrate.ts`):
+- `hydrate()` utility - Validates DynamoDB records against Zod schemas
+- Should be used for migration history record validation
+
+### Lambda & Deployment Patterns
+
+**Lambda Function Pattern** (`backend-cdk/lib/backend-cdk-stack.ts:83-116`):
+- Complete Lambda definition pattern demonstrated by `graphqlFunction`
+- Shows: runtime config, code bundling, environment variables, timeout, memory
+- IAM permissions granted via `table.grantReadWriteData(lambdaFunction)`
+
+**Build Process** (`backend/package.json:6-8`):
+- `build:bundle` - Uses esbuild to bundle Lambda code to `dist/`
+- Current: Single entry point (`src/lambda.ts`)
+- Migration Lambda needs separate bundle: `src/lambda/migrate.ts`
+
+**Environment Variables** (`backend-cdk/lib/backend-cdk-stack.ts:87-95`):
+- Pattern for passing table names to Lambda via `environment` object
+- Migration Lambda can inherit all existing table name env vars (CATEGORIES_TABLE_NAME, TRANSACTIONS_TABLE_NAME, etc.)
+
+### Script Patterns
+
+**Local Script Pattern** (`backend/scripts/create-tables.ts:11-18`):
+- DynamoDB client creation for local development
+- Exact pattern for reading endpoint, region, credentials from env vars
+- Can be copied directly for `npm run migrate` script
+
+**Error Handling Pattern** (`backend/src/repositories/CategoryRepository.ts:23-34`):
+- Custom error class pattern: `CategoryRepositoryError`
+- Includes: error code, original error, descriptive message
+- Should be followed for migration errors
+
+### Testing Infrastructure
+
+**Jest Configuration** (`backend/jest.config.json`):
+- Already configured: ts-jest preset, 10s timeout
+- Test root: `backend/src/`
+- Test pattern: `**/?(*.)+(test).ts` (discovers `.test.ts` files anywhere)
+
+**Existing Structure** (**CRITICAL - Co-located Tests**):
+- Tests co-located with source files using `.test.ts` suffix
+- `src/services/AccountService.test.ts` (next to `AccountService.ts`)
+- `src/repositories/CategoryRepository.test.ts` (next to `CategoryRepository.ts`)
+- `src/utils/date.test.ts` (next to `date.ts`)
+- **Migration tests MUST follow same co-location pattern**
+- **Note**: `src/__tests__/` contains only test utilities, NOT test files
+
+### Deployment Script
+
+**Current deploy.sh**:
+- Builds backend → Deploys backend-cdk → Deploys frontend-cdk → Deploys frontend
+- Migration Lambda invocation must be added after backend-cdk deployment
+- Can use AWS CLI `lambda invoke` with `--invocation-type RequestResponse`
+
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
@@ -70,24 +142,34 @@ backend/
 │   ├── migrations/                    # Migration files and runner
 │   │   ├── index.ts                   # Explicit imports/exports of all migrations
 │   │   ├── runner.ts                  # Shared migration execution logic
-│   │   ├── YYYYMMDDHHMMSS-example-read.ts   # Example: read-only migration
-│   │   ├── YYYYMMDDHHMMSS-example-write.ts  # Example: write migration (safe)
+│   │   ├── runner.test.ts             # Unit test for runner (co-located)
+│   │   ├── operations/                # Core operation modules
+│   │   │   ├── lock.ts                # Lock acquisition/release
+│   │   │   ├── lock.test.ts           # Unit test for lock (co-located)
+│   │   │   ├── history.ts             # Migration history tracking
+│   │   │   ├── history.test.ts        # Unit test for history (co-located)
+│   │   │   ├── loader.ts              # Migration file discovery
+│   │   │   └── loader.test.ts         # Unit test for loader (co-located)
+│   │   ├── types.ts                   # TypeScript interfaces
+│   │   ├── utils/                     # Utilities (reuses existing dynamoClient)
+│   │   ├── schemas/                   # Zod schemas for validation
+│   │   ├── 20250101000000-example-count-categories.ts   # Example: read-only migration
+│   │   ├── 20250101000100-example-update-categories.ts  # Example: write migration (safe)
 │   │   └── [future migrations].ts     # Developer-created migrations
 │   ├── lambda/
-│   │   └── migrate.ts                 # Lambda handler for production
-│   └── scripts/
-│       └── migrate.ts                 # Local npm script entry point
-└── tests/
-    ├── migrations/
-    │   └── runner.test.ts             # Unit tests for runner
-    └── integration/
-        └── migrate.test.ts            # Integration tests with DynamoDB Local
+│   │   ├── migrate.ts                 # Lambda handler for production
+│   │   └── migrate.test.ts            # Integration test for Lambda (co-located)
+│   ├── scripts/
+│   │   ├── migrate.ts                 # Local npm script entry point
+│   │   ├── migrate.test.ts            # Integration test for script (co-located)
+│   │   └── migration-status.ts        # Diagnostic script
+│   └── __tests__/                     # Test utilities ONLY (not test files)
+│       └── utils/                     # Shared test helpers
+│           └── migrationHelpers.ts    # DynamoDB test utilities for migrations
 
 backend-cdk/
 └── lib/
-    ├── backend-stack.ts               # Add migration Lambda + history table
-    └── constructs/
-        └── migration-lambda.ts        # (optional) Lambda construct
+    └── backend-cdk-stack.ts           # Add migration Lambda + history table
 
 deploy.sh                               # Modified: invoke migration Lambda after CDK deploy
 ```
