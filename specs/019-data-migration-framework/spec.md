@@ -60,11 +60,11 @@ The system maintains a record of which migrations have been executed in each env
 
 ### Edge Cases
 
-- What happens when a migration takes longer than the Lambda timeout?
-- How does the system handle partial failures (e.g., migration modifies some records but fails on others)?
-- What happens if two deployments occur simultaneously and attempt to run migrations concurrently?
-- How does the system handle migrations that depend on other migrations?
-- What happens when a developer needs to rerun a previously executed migration (e.g., to fix a bug)?
+- **Migration exceeds Lambda timeout (15 minutes)**: Migrations must be designed to complete within 15 minutes. Large data modifications must be split into multiple sequential migration files, each processing a subset of data.
+- **Partial failures**: If a migration encounters an error during execution, it fails immediately and stops processing. The migration is NOT marked as completed and will be re-executed on the next migration run. Developers are responsible for writing idempotent migrations to ensure safe retry behavior.
+- **Concurrent deployments**: Prevented by DynamoDB transaction locks on migration history table (see FR-013).
+- **Migration dependencies**: Handled implicitly by chronological execution order (FR-008). Dependent migrations must have later timestamps than their dependencies.
+- **Rerunning completed migrations**: Developer manually deletes the migration record from the history table in the target environment, then reruns the migration runner. The migration will execute as if it had never run.
 
 ## Requirements *(mandatory)*
 
@@ -81,13 +81,16 @@ The system maintains a record of which migrations have been executed in each env
 - **FR-009**: Migrations MUST only modify data, not database schema (schema changes handled by CDK)
 - **FR-010**: System MUST halt deployment if any migration fails during production execution
 - **FR-011**: System MUST distinguish between executed and pending migrations in each environment
-- **FR-012**: Migration files MUST be stored in the codebase and version-controlled
-- **FR-013**: System MUST prevent concurrent execution of migrations in the same environment
+- **FR-012**: Migration files MUST be stored in `backend/src/migrations/` directory and version-controlled
+- **FR-013**: System MUST prevent concurrent execution of migrations in the same environment using DynamoDB transactions to lock the migration history table during the entire migration run
+- **FR-014**: Each migration MUST complete within 15 minutes (Lambda timeout limit); migrations requiring longer execution MUST be split into multiple sequential migrations
+- **FR-015**: System MUST fail immediately when a migration encounters an error, stop execution, and NOT mark the migration as completed
+- **FR-016**: System MUST retry failed migrations on subsequent runs; developers MUST write idempotent migrations to ensure safe retry behavior
 
 ### Key Entities
 
 - **Migration**: A function that performs data modifications in DynamoDB. Contains a unique identifier (timestamp), descriptive name, and the transformation logic. Each migration is atomic and idempotent where possible.
-- **Migration History**: A record tracking which migrations have been executed in each environment. Contains migration identifier, execution timestamp, status (success/failure), and error details if applicable.
+- **Migration History**: A record tracking which migrations have been executed in each environment. Contains migration identifier, execution timestamp, status (success/failure), and error details if applicable. Failed migrations are NOT marked as completed and will be retried on subsequent runs.
 
 ## Success Criteria *(mandatory)*
 
@@ -100,6 +103,16 @@ The system maintains a record of which migrations have been executed in each env
 - **SC-005**: Migration execution completes within Lambda timeout limits (15 minutes) for typical data volumes
 - **SC-006**: Failed migrations prevent deployment from completing (100% of failures block deployment)
 - **SC-007**: Developers can query migration history and see execution status for any environment
+
+## Clarifications
+
+### Session 2025-12-03
+
+- Q: Concurrent migration execution prevention - How should the system enforce FR-013 (prevent concurrent migrations)? → A: Use DynamoDB transactions to lock the migration history table during entire migration run
+- Q: Migration file location - Where should migration files be stored in the codebase? → A: backend/src/migrations/ directory as part of backend source code
+- Q: Migration timeout handling - What happens when a migration takes longer than Lambda timeout? → A: Document 15-minute limit as constraint; split large migrations into multiple files
+- Q: Partial failure handling - How does the system handle partial failures? → A: Migration fails immediately on error and breaks execution. Failed migration must be re-executed on next run. Developer responsible for idempotency.
+- Q: Rerunning completed migrations - How to rerun a previously executed migration to fix a bug? → A: Manually remove migration record from history table, then rerun normally
 
 ## Assumptions
 
