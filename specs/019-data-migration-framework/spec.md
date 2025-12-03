@@ -51,10 +51,10 @@ The system maintains a record of which migrations have been executed in each env
 
 **Acceptance Scenarios**:
 
-1. **Given** a migration completes successfully, **When** the system updates the migration history, **Then** a record is created with migration name, execution timestamp, and status
+1. **Given** a migration completes successfully, **When** the system updates the migration history, **Then** a record is created with the migration timestamp as the only attribute
 2. **Given** a migration exists in the history, **When** the migration script runs again, **Then** the system skips that migration
 3. **Given** multiple environments (dev, staging, prod) identified by NODE_ENV, **When** migrations run in each environment, **Then** each environment maintains its own independent migration history
-4. **Given** a developer wants to check migration status, **When** they query the migration history, **Then** they can see which migrations have been executed and when
+4. **Given** a developer wants to check migration status, **When** they query the migration history table, **Then** they can see which migrations have been executed (by presence of timestamp records)
 
 ---
 
@@ -80,7 +80,7 @@ The system maintains a record of which migrations have been executed in each env
 - **FR-007**: Each migration file MUST export an async function named `up` that receives DynamoDB client as its only parameter: `export async function up(dynamoDbClient) { ... }`
 - **FR-008**: System MUST execute migrations in chronological order based on migration file timestamps
 - **FR-009**: Migrations MUST only modify data, not database schema (schema changes handled by CDK)
-- **FR-010**: The <root>/deploy.sh script MUST invoke the migration Lambda function synchronously (RequestResponse invocation type) during deployment and wait for completion; deployment MUST halt if Lambda returns an error or fails
+- **FR-010**: The <root>/deploy.sh script MUST invoke the migration Lambda function synchronously (RequestResponse invocation type) at the very end after all CDK deployments (backend, frontend) complete and wait for completion; deployment MUST halt if Lambda returns an error or fails
 - **FR-011**: System MUST distinguish between executed and pending migrations in each environment using NODE_ENV to identify the current environment
 - **FR-012**: Migration files MUST be stored in `backend/src/migrations/` directory and version-controlled
 - **FR-013**: System MUST prevent concurrent execution of migrations by creating a lock record (PK="LOCK") with conditional PutItem (condition: attribute_not_exists) before running migrations; delete lock after completion; abort if lock creation fails
@@ -89,13 +89,15 @@ The system maintains a record of which migrations have been executed in each env
 - **FR-016**: System MUST retry failed migrations on subsequent runs; developers MUST write idempotent migrations to ensure safe retry behavior
 - **FR-017**: Migration execution MUST log progress using console.log statements; Lambda automatically writes logs to CloudWatch Logs for monitoring
 - **FR-018**: Each environment MUST have its own migration history DynamoDB table defined via environment variable (e.g., MIGRATIONS_TABLE_NAME=Migrations)
-- **FR-019**: Migration history table MUST use timestamp as partition key (just the timestamp portion of the migration filename, e.g., "20231203120000")
+- **FR-019**: Migration history table MUST use timestamp as partition key (just the timestamp portion of the migration filename, e.g., "20231203120000"); records contain only the timestamp attribute; existence of a record indicates successful execution
 - **FR-020**: If Lambda crashes or times out before deleting the lock record, the lock becomes stale and blocks all future migrations; operators MUST manually delete the lock record (PK="LOCK") to unblock
+- **FR-021**: System MUST include 1-2 example migration files in `backend/src/migrations/`: one demonstrating read-only operations (scanning and counting records from Categories table), one demonstrating data update operations on Categories table using an always-false condition to safely show write syntax without modifying data
+- **FR-022**: Migrations MUST discover table names by reading environment variables (e.g., process.env.CATEGORIES_TABLE_NAME, process.env.TRANSACTIONS_TABLE_NAME); migration runner MUST ensure all necessary table name environment variables are available
 
 ### Key Entities
 
 - **Migration**: A TypeScript file that exports an async `up` function performing data modifications in DynamoDB. Contains a unique identifier (timestamp in filename), descriptive name, and the transformation logic. Each migration is atomic and idempotent where possible.
-- **Migration History**: A record tracking which migrations have been executed in each environment. Contains migration identifier, execution timestamp, status (success/failure), and error details if applicable. Failed migrations are NOT marked as completed and will be retried on subsequent runs.
+- **Migration History**: A record tracking which migrations have been executed successfully in each environment. Contains only the migration identifier (timestamp). Existence of a record indicates successful execution. Failed migrations are NOT recorded and will be retried on subsequent runs.
 
 ## Success Criteria *(mandatory)*
 
@@ -129,6 +131,11 @@ The system maintains a record of which migrations have been executed in each env
 - Q: Concurrent execution lock mechanism - How should FR-013 lock be implemented? → A: Single lock record with conditional PutItem (PK="LOCK", condition: attribute_not_exists)
 - Q: Stale lock cleanup strategy - What happens if Lambda crashes/times out before deleting lock? → A: No automatic cleanup; manual intervention required to delete stale locks
 - Q: Migration Lambda invocation type - How should deploy.sh invoke the migration Lambda to detect failures? → A: Synchronous invocation (RequestResponse) - deploy.sh waits for Lambda completion
+- Q: Example migration demonstrations - What should the 1-2 example migrations demonstrate? → A: One migration counting records (read-only), one migration showing data update pattern with always-false condition (demonstrates write syntax safely)
+- Q: Table selection for example migrations - Which existing DynamoDB table(s) should the example migrations query? → A: Categories table (safer for accidental writes)
+- Q: Deployment sequence timing - At what point in the deployment sequence should migrations run? → A: At the very end after all deployments complete
+- Q: Migration history table schema - What additional attributes should each migration history record contain beyond timestamp PK? → A: Only timestamp (PK) - minimal schema, existence means success
+- Q: Table name discovery in migrations - How should migration code discover table names to operate on? → A: Read from environment variables (e.g., process.env.CATEGORIES_TABLE_NAME)
 
 ## Assumptions
 
