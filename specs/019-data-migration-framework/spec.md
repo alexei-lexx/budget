@@ -34,7 +34,7 @@ When code is deployed to production, any new migrations that haven't been execut
 
 **Acceptance Scenarios**:
 
-1. **Given** new migration files exist in the deployment, **When** the deployment process runs, **Then** a Lambda function is invoked that executes all pending migrations
+1. **Given** new migration files exist in the deployment, **When** deploy.sh runs, **Then** the migration Lambda function is invoked that executes all pending migrations
 2. **Given** all migrations have been executed previously, **When** a deployment occurs with no new migrations, **Then** the deployment completes successfully without errors
 3. **Given** a migration fails during deployment, **When** the Lambda function detects the failure, **Then** the deployment process is halted and an error is reported
 4. **Given** migrations are running on production, **When** the Lambda function completes, **Then** the migration history is updated to reflect successful execution
@@ -53,7 +53,7 @@ The system maintains a record of which migrations have been executed in each env
 
 1. **Given** a migration completes successfully, **When** the system updates the migration history, **Then** a record is created with migration name, execution timestamp, and status
 2. **Given** a migration exists in the history, **When** the migration script runs again, **Then** the system skips that migration
-3. **Given** multiple environments (dev, staging, prod), **When** migrations run in each environment, **Then** each environment maintains its own independent migration history
+3. **Given** multiple environments (dev, staging, prod) identified by NODE_ENV, **When** migrations run in each environment, **Then** each environment maintains its own independent migration history
 4. **Given** a developer wants to check migration status, **When** they query the migration history, **Then** they can see which migrations have been executed and when
 
 ---
@@ -70,17 +70,17 @@ The system maintains a record of which migrations have been executed in each env
 
 ### Functional Requirements
 
-- **FR-001**: System MUST provide a way to create new migration files with timestamp-based naming convention
-- **FR-002**: System MUST execute migrations locally via npm script command
-- **FR-003**: System MUST execute migrations on production environment via Lambda function
+- **FR-001**: System MUST document the naming convention for migration files (YYYYMMDDHHMMSS-description.ts format); developers create files manually following this convention
+- **FR-002**: System MUST execute migrations locally via `npm run migrate` command
+- **FR-003**: CDK MUST define a Lambda function for migration execution; System MUST execute migrations on production environment via this Lambda function
 - **FR-004**: System MUST track migration execution history in a DynamoDB table
 - **FR-005**: System MUST be idempotent - running migrations multiple times MUST NOT execute the same migration twice
 - **FR-006**: System MUST deploy successfully when no new migrations exist (empty deployment safe)
-- **FR-007**: Each migration MUST be a standalone function that receives DynamoDB client as its only dependency
+- **FR-007**: Each migration file MUST export an async function named `up` that receives DynamoDB client as its only parameter: `export async function up(dynamoDbClient) { ... }`
 - **FR-008**: System MUST execute migrations in chronological order based on migration file timestamps
 - **FR-009**: Migrations MUST only modify data, not database schema (schema changes handled by CDK)
-- **FR-010**: System MUST halt deployment if any migration fails during production execution
-- **FR-011**: System MUST distinguish between executed and pending migrations in each environment
+- **FR-010**: The <root>/deploy.sh script MUST invoke the migration Lambda function during deployment; deployment MUST halt if any migration fails during production execution
+- **FR-011**: System MUST distinguish between executed and pending migrations in each environment using NODE_ENV to identify the current environment
 - **FR-012**: Migration files MUST be stored in `backend/src/migrations/` directory and version-controlled
 - **FR-013**: System MUST prevent concurrent execution of migrations in the same environment using DynamoDB transactions to lock the migration history table during the entire migration run
 - **FR-014**: Each migration MUST complete within 15 minutes (Lambda timeout limit); migrations requiring longer execution MUST be split into multiple sequential migrations
@@ -89,7 +89,7 @@ The system maintains a record of which migrations have been executed in each env
 
 ### Key Entities
 
-- **Migration**: A function that performs data modifications in DynamoDB. Contains a unique identifier (timestamp), descriptive name, and the transformation logic. Each migration is atomic and idempotent where possible.
+- **Migration**: A TypeScript file that exports an async `up` function performing data modifications in DynamoDB. Contains a unique identifier (timestamp in filename), descriptive name, and the transformation logic. Each migration is atomic and idempotent where possible.
 - **Migration History**: A record tracking which migrations have been executed in each environment. Contains migration identifier, execution timestamp, status (success/failure), and error details if applicable. Failed migrations are NOT marked as completed and will be retried on subsequent runs.
 
 ## Success Criteria *(mandatory)*
@@ -113,6 +113,11 @@ The system maintains a record of which migrations have been executed in each env
 - Q: Migration timeout handling - What happens when a migration takes longer than Lambda timeout? → A: Document 15-minute limit as constraint; split large migrations into multiple files
 - Q: Partial failure handling - How does the system handle partial failures? → A: Migration fails immediately on error and breaks execution. Failed migration must be re-executed on next run. Developer responsible for idempotency.
 - Q: Rerunning completed migrations - How to rerun a previously executed migration to fix a bug? → A: Manually remove migration record from history table, then rerun normally
+- Q: Migration file creation method - How should developers create new migration files? → A: Manual file creation with documented naming convention
+- Q: Migration file structure - What should the migration file export? → A: Named export `up`: export async function up(dynamoDbClient) { ... }
+- Q: Local migration execution command - What npm script should developers use? → A: npm run migrate
+- Q: Environment identification - How does the system identify which environment it's running in? → A: NODE_ENV that we already have
+- Q: CDK deployment integration - How should CDK trigger migration Lambda during deployment? → A: CDK defines the Lambda function; <root>/deploy.sh invokes the function
 
 ## Assumptions
 
@@ -123,5 +128,5 @@ The system maintains a record of which migrations have been executed in each env
 - Rollback will be handled manually by creating new "rollback migrations" rather than automatic rollback
 - Each migration will be atomic where possible, using DynamoDB transactions or batch operations
 - The npm script for local migrations will use the same execution logic as the Lambda function
-- Migration history table will use environment as part of the partition key to isolate environments
-- The deployment process (CDK) will trigger the migration Lambda function before completing deployment
+- Migration history table will use NODE_ENV value as part of the partition key to isolate environments
+- The <root>/deploy.sh script will invoke the migration Lambda function (defined by CDK) during the deployment process, before completing deployment
