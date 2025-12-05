@@ -19,6 +19,12 @@ const client = new DynamoDBClient({
 
 const tables: CreateTableCommandInput[] = [
   {
+    TableName: process.env.MIGRATIONS_TABLE_NAME,
+    AttributeDefinitions: [{ AttributeName: "PK", AttributeType: "S" }],
+    KeySchema: [{ AttributeName: "PK", KeyType: "HASH" }],
+    BillingMode: "PAY_PER_REQUEST",
+  },
+  {
     TableName: process.env.USERS_TABLE_NAME,
     AttributeDefinitions: [
       { AttributeName: "id", AttributeType: "S" },

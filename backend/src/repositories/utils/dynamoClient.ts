@@ -4,7 +4,7 @@ import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 const isLocalEnvironment =
   process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test";
 
-function createDynamoDBClient(): DynamoDBClient {
+export function createDynamoDBClient(): DynamoDBClient {
   return new DynamoDBClient({
     region: process.env.AWS_REGION || "",
     ...(isLocalEnvironment && {
