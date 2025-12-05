@@ -1,5 +1,5 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { createDynamoDBDocumentClient } from "../repositories/utils/dynamoClient";
+import { createDynamoDBDocumentClient } from "../utils/dynamoClient";
 import { loadMigrations } from "./operations/loader";
 import {
   acquireLock,

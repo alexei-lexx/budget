@@ -7,8 +7,8 @@ import { AccountRepository } from "../repositories/AccountRepository";
 import { CategoryRepository } from "../repositories/CategoryRepository";
 import { TransactionRepository } from "../repositories/TransactionRepository";
 import { UserRepository } from "../repositories/UserRepository";
-import { createDynamoDBDocumentClient } from "../repositories/utils/dynamoClient";
 import { TransactionService } from "../services/TransactionService";
+import { createDynamoDBDocumentClient } from "../utils/dynamoClient";
 
 // Initialize DynamoDB client
 const dynamoClient = createDynamoDBDocumentClient();

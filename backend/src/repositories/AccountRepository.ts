@@ -13,8 +13,8 @@ import {
   IAccountRepository,
   UpdateAccountInput,
 } from "../models/Account";
+import { createDynamoDBDocumentClient } from "../utils/dynamoClient";
 import { accountSchema } from "./utils/Account.schema";
-import { createDynamoDBDocumentClient } from "./utils/dynamoClient";
 import { hydrate } from "./utils/hydrate";
 import { paginateQuery } from "./utils/pagination";
 

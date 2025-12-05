@@ -9,8 +9,8 @@ import {
   UpdateTransactionInput,
 } from "../models/Transaction";
 import { YEAR_RANGE_OFFSET } from "../types/validation";
+import { createDynamoDBDocumentClient } from "../utils/dynamoClient";
 import { TransactionRepository } from "./TransactionRepository";
-import { createDynamoDBDocumentClient } from "./utils/dynamoClient";
 
 describe("TransactionRepository", () => {
   let repository: TransactionRepository;

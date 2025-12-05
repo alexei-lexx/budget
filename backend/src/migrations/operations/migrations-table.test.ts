@@ -1,6 +1,6 @@
 import { DynamoDBDocumentClient, PutCommand } from "@aws-sdk/lib-dynamodb";
 import { truncateTable } from "../../__tests__/utils/dynamodbHelpers";
-import { createDynamoDBDocumentClient } from "../../repositories/utils/dynamoClient";
+import { createDynamoDBDocumentClient } from "../../utils/dynamoClient";
 import {
   acquireLock,
   getExecutedMigrations,

@@ -7,8 +7,8 @@ import {
   ScanCommand,
 } from "@aws-sdk/lib-dynamodb";
 import { CreateUserInput, IUserRepository, User } from "../models/User";
+import { createDynamoDBDocumentClient } from "../utils/dynamoClient";
 import { userSchema } from "./utils/User.schema";
-import { createDynamoDBDocumentClient } from "./utils/dynamoClient";
 import { hydrate } from "./utils/hydrate";
 
 export class UserRepository implements IUserRepository {

@@ -30,11 +30,11 @@ import {
 } from "../types/pagination";
 import { MIN_SEARCH_TEXT_LENGTH, YEAR_RANGE_OFFSET } from "../types/validation";
 import { formatDateAsYYYYMMDD } from "../utils/date";
-import { transactionSchema } from "./utils/Transaction.schema";
 import {
   DYNAMODB_TRANSACT_WRITE_MAX_ITEMS,
   createDynamoDBDocumentClient,
-} from "./utils/dynamoClient";
+} from "../utils/dynamoClient";
+import { transactionSchema } from "./utils/Transaction.schema";
 import { hydrate } from "./utils/hydrate";
 import { paginateQuery } from "./utils/pagination";
 

@@ -2,8 +2,8 @@ import { UpdateCommand } from "@aws-sdk/lib-dynamodb";
 import { faker } from "@faker-js/faker";
 import { truncateTable } from "../__tests__/utils/dynamodbHelpers";
 import { fakeCreateAccountInput } from "../__tests__/utils/factories";
+import { createDynamoDBDocumentClient } from "../utils/dynamoClient";
 import { AccountRepository } from "./AccountRepository";
-import { createDynamoDBDocumentClient } from "./utils/dynamoClient";
 
 describe("AccountRepository", () => {
   let repository: AccountRepository;
