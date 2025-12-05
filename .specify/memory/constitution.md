@@ -299,6 +299,18 @@ graph LR
 
 **Rationale**: Catches data corruption at source, prevents downstream errors.
 
+### Soft-Deletion
+
+**Non-negotiable rule**: All entities use soft-deletion by default unless explicitly excepted.
+
+**Implementation**:
+- All entities MUST support soft-deletion via an `isArchived` flag or equivalent
+- Soft-deleted records MUST NOT appear in user-facing queries by default
+- All queries scoped to non-archived records unless intentionally accessing archived data
+- Exceptions: Document the business reason in entity comments
+
+**Rationale**: Enables recovery, maintains audit trail.
+
 ### Data Migrations
 
 **Non-negotiable rule**: All data modifications MUST be performed through versioned migration files that execute automatically during deployments and can be safely run multiple times.
@@ -311,18 +323,6 @@ graph LR
 - Run locally via npm script; run in production via Lambda during deployment
 
 **Rationale**: Ensures data stays synchronized with code across environments, enables safe rollouts, prevents manual production changes.
-
-### Soft-Deletion
-
-**Non-negotiable rule**: All entities use soft-deletion by default unless explicitly excepted.
-
-**Implementation**:
-- All entities MUST support soft-deletion via an `isArchived` flag or equivalent
-- Soft-deleted records MUST NOT appear in user-facing queries by default
-- All queries scoped to non-archived records unless intentionally accessing archived data
-- Exceptions: Document the business reason in entity comments
-
-**Rationale**: Enables recovery, maintains audit trail.
 
 ### Authentication & Authorization
 
