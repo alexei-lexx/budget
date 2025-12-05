@@ -1,16 +1,23 @@
 <!-- SYNC IMPACT REPORT
-Version Change: 0.19.0 → 0.20.0
+Version Change: 0.20.0 → 0.21.0
 Changes:
-  - MINOR (0.20.0): Enhanced TypeScript Code Generation section with new code quality principles
+  - MINOR (0.21.0): Added new principle for data migrations
 Modified Sections:
-  - TypeScript Code Generation: Added two new principles:
-    1. Avoid unnecessary type checks when types are explicit
-    2. Place public methods before private methods in classes
-  - Converted all Implementation bullets to imperative mood for consistency
+  - Core Principles: Added "Data Migrations" principle after "Database Record Hydration"
+Added Sections:
+  - Data Migrations: New principle defining migration framework requirements and practices
+    - Specifies migration directory location: backend/src/migrations/
+    - Defines timestamp-based naming convention
+    - Documents execution model (local npm script, production Lambda)
+    - Establishes idempotency and retry behavior
+Removed Sections:
+  - None
 Templates Requiring Updates:
   ✅ plan-template.md: Generic template, no updates needed
   ✅ spec-template.md: Generic template, no updates needed
   ✅ tasks-template.md: Generic template, no updates needed
+  ✅ checklist-template.md: Generic template, no updates needed
+  ✅ agent-file-template.md: Generic template, no updates needed
 Follow-up TODOs:
   - Ratification date remains TODO (inherited from previous versions)
 -->
@@ -292,6 +299,19 @@ graph LR
 
 **Rationale**: Catches data corruption at source, prevents downstream errors.
 
+### Data Migrations
+
+**Non-negotiable rule**: All data modifications MUST be performed through versioned migration files that execute automatically during deployments and can be safely run multiple times.
+
+**Implementation**:
+- Store migration files in `backend/src/migrations/` directory
+- Modify data only; handle schema changes via CDK infrastructure definitions
+- Export an `up` function from each migration receiving DynamoDB client as sole dependency
+- Name migration files with timestamp prefix (YYYYMMDDHHMMSS-description.ts)
+- Run locally via npm script; run in production via Lambda during deployment
+
+**Rationale**: Ensures data stays synchronized with code across environments, enables safe rollouts, prevents manual production changes.
+
 ### Soft-Deletion
 
 **Non-negotiable rule**: All entities use soft-deletion by default unless explicitly excepted.
@@ -408,4 +428,4 @@ This constitution supersedes all other development guidelines. Amendments requir
 4. Commit with message: `docs: amend constitution to vX.Y.Z ([change summary])`
 5. Update dependent artifacts (templates, guidance docs) as flagged
 
-**Version**: 0.20.0 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-11-22
+**Version**: 0.21.0 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-12-05
