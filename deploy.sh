@@ -14,6 +14,48 @@ echo "Deploying backend..."
 npm install
 npm run deploy
 
+echo "Running migrations..."
+MIGRATION_FUNCTION_NAME=$(cat cdk-outputs.json | jq -r '.BackendCdkStack.MigrationFunctionName // empty')
+
+if [ -z "$MIGRATION_FUNCTION_NAME" ] || [ "$MIGRATION_FUNCTION_NAME" = "null" ]; then
+  echo "ERROR: Migration function name not found in CDK outputs"
+  echo "Backend deployment may have failed or migration function not defined"
+  exit 1
+fi
+
+echo "Invoking migration Lambda function: $MIGRATION_FUNCTION_NAME"
+aws lambda invoke \
+  --function-name "$MIGRATION_FUNCTION_NAME" \
+  --invocation-type RequestResponse \
+  --payload '{}' \
+  --cli-binary-format raw-in-base64-out \
+  migration-response.json
+
+LAMBDA_EXIT_CODE=$?
+
+if [ $LAMBDA_EXIT_CODE -ne 0 ]; then
+  echo "ERROR: Migration Lambda invocation failed (exit code: $LAMBDA_EXIT_CODE)"
+  cat migration-response.json
+  rm -f migration-response.json
+  exit 1
+fi
+
+echo "Migration response:"
+cat migration-response.json
+echo ""
+
+MIGRATION_STATUS=$(cat migration-response.json | jq -r '.statusCode // empty')
+
+if [ "$MIGRATION_STATUS" != "200" ]; then
+  echo "ERROR: Migrations failed with status code: $MIGRATION_STATUS"
+  cat migration-response.json | jq -r '.body // empty'
+  rm -f migration-response.json
+  exit 1
+fi
+
+echo "Migrations completed successfully!"
+rm -f migration-response.json
+
 echo "Switching to frontend-cdk directory..."
 cd ../frontend-cdk
 

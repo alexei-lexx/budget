@@ -80,16 +80,22 @@ export class BackendCdkStack extends cdk.Stack {
       projectionType: dynamodb.ProjectionType.ALL,
     });
 
-    const functionConfig: lambda.FunctionProps = {
+    const migrationsTable = new dynamodb.Table(this, "MigrationsTable", {
+      tableName: process.env.MIGRATIONS_TABLE_NAME || "",
+      partitionKey: { name: "PK", type: dynamodb.AttributeType.STRING },
+      ...commonTableOptions,
+    });
+
+    const functionConfig: Omit<lambda.FunctionProps, "handler"> = {
       runtime: lambda.Runtime.NODEJS_22_X,
       code: lambda.Code.fromAsset("../backend/dist"),
-      handler: "lambda.handler",
       environment: {
         AUTH0_AUDIENCE: process.env.AUTH0_AUDIENCE || "",
         AUTH0_DOMAIN: process.env.AUTH0_DOMAIN || "",
         NODE_ENV: process.env.NODE_ENV || "",
         ACCOUNTS_TABLE_NAME: accountsTable.tableName,
         CATEGORIES_TABLE_NAME: categoriesTable.tableName,
+        MIGRATIONS_TABLE_NAME: migrationsTable.tableName,
         TRANSACTIONS_TABLE_NAME: transactionsTable.tableName,
         USERS_TABLE_NAME: usersTable.tableName,
       },
@@ -107,13 +113,37 @@ export class BackendCdkStack extends cdk.Stack {
     const graphqlFunction = new lambda.Function(
       this,
       "GraphqlEndpoint",
-      functionConfig,
+      {
+        ...functionConfig,
+        handler: "lambda.handler",
+      },
     );
 
     accountsTable.grantReadWriteData(graphqlFunction);
     categoriesTable.grantReadWriteData(graphqlFunction);
     transactionsTable.grantReadWriteData(graphqlFunction);
     usersTable.grantReadWriteData(graphqlFunction);
+
+    const migrationFunction = new lambda.Function(
+      this,
+      "MigrationFunction",
+      {
+        ...functionConfig,
+        handler: "migrate.handler",
+        timeout: cdk.Duration.minutes(15),
+      });
+
+    migrationsTable.grantReadWriteData(migrationFunction);
+    accountsTable.grantReadWriteData(migrationFunction);
+    categoriesTable.grantReadWriteData(migrationFunction);
+    transactionsTable.grantReadWriteData(migrationFunction);
+    usersTable.grantReadWriteData(migrationFunction);
+
+    new cdk.CfnOutput(this, "MigrationFunctionName", {
+      value: migrationFunction.functionName,
+      description: "Migration Lambda function name",
+      exportName: `${this.stackName}-MigrationFunctionName`,
+    });
 
     const lambdaIntegration = new integrations.HttpLambdaIntegration(
       "GraphqlIntegration",
