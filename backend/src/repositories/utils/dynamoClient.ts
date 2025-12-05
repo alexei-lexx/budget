@@ -4,6 +4,12 @@ import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 const isLocalEnvironment =
   process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test";
 
+/**
+ * Maximum number of items that can be included in a single DynamoDB TransactWrite operation
+ * @see https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Limits.html#limits-api
+ */
+export const DYNAMODB_TRANSACT_WRITE_MAX_ITEMS = 25;
+
 export function createDynamoDBClient(): DynamoDBClient {
   return new DynamoDBClient({
     region: process.env.AWS_REGION || "",

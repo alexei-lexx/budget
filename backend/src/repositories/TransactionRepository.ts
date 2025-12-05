@@ -31,15 +31,12 @@ import {
 import { MIN_SEARCH_TEXT_LENGTH, YEAR_RANGE_OFFSET } from "../types/validation";
 import { formatDateAsYYYYMMDD } from "../utils/date";
 import { transactionSchema } from "./utils/Transaction.schema";
-import { createDynamoDBDocumentClient } from "./utils/dynamoClient";
+import {
+  DYNAMODB_TRANSACT_WRITE_MAX_ITEMS,
+  createDynamoDBDocumentClient,
+} from "./utils/dynamoClient";
 import { hydrate } from "./utils/hydrate";
 import { paginateQuery } from "./utils/pagination";
-
-/**
- * Maximum number of items that can be included in a single DynamoDB TransactWrite operation
- * @see https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Limits.html#limits-api
- */
-const DYNAMODB_TRANSACT_WRITE_MAX_ITEMS = 25;
 
 /**
  * DynamoDB Global Secondary Index names for Transactions table
