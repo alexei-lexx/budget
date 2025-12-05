@@ -115,7 +115,7 @@ usersTable.grantReadWriteData(graphqlFunction);
 
 ### Script Pattern (REUSE)
 
-**Location**: `backend/scripts/create-tables.ts:11-18`
+**Location**: `backend/src/scripts/create-tables.ts:11-18`
 
 **What Exists**:
 ```typescript

@@ -61,7 +61,7 @@ The migration framework can leverage significant existing infrastructure from th
 
 ### Script Patterns
 
-**Local Script Pattern** (`backend/scripts/create-tables.ts:11-18`):
+**Local Script Pattern** (`backend/src/scripts/create-tables.ts:11-18`):
 - DynamoDB client creation for local development
 - Exact pattern for reading endpoint, region, credentials from env vars
 - Can be copied directly for `npm run migrate` script

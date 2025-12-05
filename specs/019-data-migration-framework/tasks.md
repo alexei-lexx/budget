@@ -96,7 +96,7 @@ description: "Task list for Data Migration Framework implementation (REVISED wit
 - [X] T016 [P] [US1] Create example read-only migration in backend/src/migrations/20250101000000-example-count-categories.ts (scan and count Categories table)
 - [X] T017 [P] [US1] Create example write migration in backend/src/migrations/20250101000100-example-update-categories.ts (safe update with always-false condition)
 - [X] T018 [US1] Create migrations index file in backend/src/migrations/index.ts that exports both example migrations (depends on T016, T017)
-- [X] T019 [US1] Implement local npm script entry point in backend/src/scripts/migrate.ts following existing pattern from scripts/create-tables.ts:11-18 for DynamoDB client creation (depends on T015)
+- [X] T019 [US1] Implement local npm script entry point in backend/src/scripts/migrate.ts following existing pattern from src/scripts/create-tables.ts:11-18 for DynamoDB client creation (depends on T015)
 - [X] T020 [US1] Add "migrate" npm script to backend/package.json scripts section
 - [X] T021 [US1] Add migration execution logging with console.log statements in backend/src/migrations/runner.ts (progress, stats, errors)
 - [X] T022 [US1] Add error handling for migration failures in backend/src/migrations/runner.ts following CategoryRepositoryError pattern (CategoryRepository.ts:23-34)
@@ -306,7 +306,7 @@ With multiple developers:
 - DynamoDB client factory (repositories/utils/dynamoClient.ts)
 - Table definition pattern (backend-cdk-stack.ts commonTableOptions)
 - Lambda deployment pattern (backend-cdk-stack.ts graphqlFunction)
-- Script pattern (scripts/create-tables.ts)
+- Script pattern (src/scripts/create-tables.ts)
 - Error handling pattern (repositories CategoryRepositoryError)
 - Test infrastructure (jest.config.json)
 - Environment variable pattern (backend-cdk-stack.ts)

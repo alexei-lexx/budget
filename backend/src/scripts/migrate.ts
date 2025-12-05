@@ -5,7 +5,6 @@ import { createDynamoDBClient } from "../repositories/utils/dynamoClient";
  * Local migration script
  *
  * Runs migrations against local DynamoDB instance.
- * Follows the same pattern as scripts/create-tables.ts for client configuration.
  *
  * Usage: npm run migrate
  */
