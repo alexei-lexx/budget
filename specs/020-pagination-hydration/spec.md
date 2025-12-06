@@ -5,6 +5,16 @@
 **Status**: Draft
 **Input**: User description: "I found a violation of the constitution principle check in backend the pagination backend/src/repositories/utils/pagination.ts the following line const newItems = (result.Items || []) as T[]; skips database row hydrate"
 
+## Clarifications
+
+### Session 2025-12-06
+
+- Q: When pagination fetches a batch containing both valid and invalid records, should it fail immediately on the first invalid record, collect all errors, or skip invalid records? → A: Fail immediately on first invalid record (fail-fast approach)
+- Q: Should validation failures be logged, monitored, or tracked for operational visibility? → A: No logging required; errors thrown are sufficient for callers to handle
+- Q: What context details should validation errors include (record position, full record data, validation details)? → A: Only validation error details (missing fields, type mismatches)
+- Q: How should existing repositories be migrated to use validation schemas (atomic migration, gradual, deprecated old function, runtime detection)? → A: All repositories must be updated before deployment (atomic migration)
+- Q: How should the validation schema relate to the generic type parameter T (inferred, runtime compatible, no relationship, exact compile-time match)? → A: Schema must be compatible with type T, but type relationship is checked at runtime
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Repository Developer Gets Validated Data (Priority: P1)
@@ -41,9 +51,9 @@ When corrupted or malformed data exists in the database, the system must detect 
 
 ### Edge Cases
 
-- What happens when pagination fetches a batch containing both valid and invalid records? (Should fail on first invalid record)
-- How does the system handle validation errors during recursive pagination calls? (Should propagate the error up)
-- What happens if a repository doesn't provide a validation schema? (Should be caught via static type checking)
+- When pagination fetches a batch containing both valid and invalid records, the system MUST fail immediately on the first invalid record and stop processing
+- Validation errors during recursive pagination calls MUST propagate up the call stack
+- Repositories that don't provide a validation schema MUST be caught via static type checking
 
 ## Requirements *(mandatory)*
 
@@ -51,10 +61,10 @@ When corrupted or malformed data exists in the database, the system must detect 
 
 - **FR-001**: The pagination utility MUST accept a validation schema parameter from the calling repository
 - **FR-002**: The pagination utility MUST validate every database record against the provided schema before adding it to the results
-- **FR-003**: The pagination utility MUST throw a descriptive validation error when any record fails validation
+- **FR-003**: The pagination utility MUST throw a descriptive validation error immediately when any record fails validation (fail-fast behavior) and stop processing further records
 - **FR-004**: All repositories using the pagination utility MUST provide validation schemas for their entity types
-- **FR-005**: Validation errors MUST include sufficient context to identify the problematic record (e.g., record index, field names, validation failure details)
-- **FR-006**: The validation implementation MUST maintain type safety throughout the pagination utility
+- **FR-005**: Validation errors MUST include validation error details (missing fields, type mismatches, constraint violations) without exposing full record data or positional information
+- **FR-006**: The validation implementation MUST maintain type safety throughout the pagination utility, with schema compatibility to generic type T verified at runtime during validation
 
 ### Key Entities
 
@@ -69,14 +79,16 @@ When corrupted or malformed data exists in the database, the system must detect 
 - **SC-001**: 100% of database records fetched through the pagination utility are validated against their schemas before being returned
 - **SC-002**: Corrupted database records are caught at the repository boundary with validation errors rather than causing runtime failures in service or resolver layers
 - **SC-003**: All repositories using pagination provide validation schemas with no integration errors
-- **SC-004**: Validation errors include clear context (record details, field names, validation failures) enabling quick debugging
+- **SC-004**: Validation errors include clear validation failure details (field names, expected vs actual types, constraint violations) enabling debugging without exposing sensitive record data
 
 ## Assumptions
 
 - Repositories already have or will create validation schemas for their entity types
 - The pagination utility signature can be modified to accept a validation schema parameter
 - Validation overhead (schema validation per record) is acceptable for the improved data integrity
-- Existing code using the pagination utility will need to be updated to provide validation schemas
+- All repositories using the pagination utility will be updated atomically before deployment (no gradual migration)
+- The atomic migration approach is acceptable given this is a constitutional violation fix
+- Runtime validation provides sufficient type safety guarantees without requiring compile-time schema-to-type constraints
 
 ## Out of Scope
 
@@ -84,3 +96,5 @@ When corrupted or malformed data exists in the database, the system must detect 
 - Optimizing validation performance (accept the overhead as necessary for data integrity)
 - Handling partial validation (if one record fails, the entire pagination call fails)
 - Automatic schema inference (repositories must explicitly provide schemas)
+- Logging, monitoring, or tracking validation failures (errors are thrown for callers to handle)
+- Gradual migration strategies or backward compatibility (atomic migration required for constitutional compliance)
