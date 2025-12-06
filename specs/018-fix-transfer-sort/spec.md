@@ -44,7 +44,7 @@ As a user who creates a transfer between accounts, I want the paired transfer tr
 - What happens when viewing the full transactions list with multiple transfers (some between same accounts, some between different accounts)? (Each pair should maintain correct order independently)
 - What if a transfer's inbound and outbound transactions have identical timestamps? (Should still maintain inbound-before-outbound order)
 - How does the ordering work with pagination when a transfer pair spans page boundaries? (Pair may be split across pages, but inbound-before-outbound order is maintained independently within each page)
-- What about transfers created before the fix was deployed? (Legacy transfers are not modified; only new transfers created after deployment receive correct sorting)
+- What about transfers created before the fix was deployed? (Migration populates `createdAtId` for all existing transactions, but legacy transfers use UUID IDs which aren't temporally sortable. Only new transfers with ULID IDs have guaranteed correct ordering.)
 
 ## Clarifications
 
@@ -52,7 +52,7 @@ As a user who creates a transfer between accounts, I want the paired transfer tr
 
 - Q: How should transfer pairs behave across pagination boundaries? → A: Allow pair to be split across pages, but ensure correct order within each page independently
 - Q: Where should the sort order fix be implemented? → A: Database level via DynamoDB query/scan modifications to include secondary sort by transaction type priority
-- Q: How should legacy transfers (created before the fix) be handled? → A: Don't fix them; only new transfers created after deployment receive correct sorting
+- Q: How should legacy transfers (created before the fix) be handled? → A: Migration populates `createdAtId` for all existing transactions to enable the new index. However, legacy transfers use UUID IDs (not temporally sortable), so only new transfers created after deployment (using ULID IDs) will have guaranteed correct sort order.
 
 ## Requirements *(mandatory)*
 
@@ -86,7 +86,7 @@ As a user who creates a transfer between accounts, I want the paired transfer tr
 - **SC-001**: 100% of newly created transfers display inbound transaction before outbound transaction on the full transactions list
 - **SC-002**: When viewing the transactions page with no account filter, paired transfer transactions maintain correct inbound-before-outbound order while respecting reverse chronological (most recent first) sorting
 - **SC-003**: Multiple transfer pairs in the transactions list each maintain correct order independently (no cross-pair ordering issues)
-- **SC-004**: All new transfer transactions created after the fix is deployed display in correct order (legacy transfers retain their original state)
+- **SC-004**: All new transfer transactions created after the fix is deployed display in correct order (using ULID IDs for temporal sorting). Legacy transfers (with UUID IDs) remain queryable but ordering within same timestamp is non-deterministic.
 
 ## Assumptions
 
@@ -94,7 +94,9 @@ As a user who creates a transfer between accounts, I want the paired transfer tr
 - Paired transfer transactions are linked via a `transferId` field that identifies which transactions belong together
 - Transaction timestamps reflect the creation time, with paired transactions having the same or near-identical timestamps
 - The fix is implemented at the DynamoDB query level using secondary sort criteria (transaction type priority)
-- Legacy transfers created before deployment are not modified; only new transfers created after the fix is deployed receive correct sorting
+- Migration populates `createdAtId` for all existing transactions to enable index queries
+- Legacy transfers use UUID IDs (non-temporal), so correct ordering only guaranteed for new transfers with ULID IDs
+- Only transfers created after deployment will have deterministic sort order when timestamps match
 - Transfer pairs may be split across pagination boundaries, but inbound-before-outbound order is maintained independently within each page
 - Reverse chronological sorting (most recent first) is the primary sort, and transfer pair ordering is a secondary constraint within that
 - Transfer operations are already fully implemented; this fix addresses only the display ordering of existing transfers

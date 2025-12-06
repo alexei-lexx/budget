@@ -61,7 +61,7 @@ This is a web application with backend and frontend packages:
 - [ ] T005 [US1] Update index name constant and all query references in backend/src/repositories/TransactionRepository.ts
 - [ ] T006 [P] [US1] Update index definition in backend/src/scripts/create-tables.ts
 - [ ] T007 [P] [US1] Update table schema in backend-cdk/lib/backend-cdk-stack.ts
-- [ ] T008 [US1] Create migration file backend/src/migrations/[timestamp]-populate-createdAtId.ts
+- [ ] T008 [US1] Create migration file backend/src/migrations/YYYYMMDDHHMMSS-populate-createdAtId.ts (use current timestamp, e.g., 20251206143000-populate-createdAtId.ts)
 - [ ] T009 [US1] Update existing repository tests in backend/src/repositories/TransactionRepository.test.ts
 - [ ] T010 [US1] Add transfer ordering test in backend/src/repositories/TransactionRepository.test.ts
 
@@ -138,7 +138,7 @@ This is a web application with backend and frontend packages:
 - Add `UserCreatedAtIdIndex` with `userId` (partition) and `createdAtId` (sort key)
 
 **T008**: Create migration
-- Create file: `backend/src/migrations/[timestamp]-populate-createdAtId.ts`
+- Create file: `backend/src/migrations/YYYYMMDDHHMMSS-populate-createdAtId.ts` (e.g., `20251206143000-populate-createdAtId.ts`)
 - Implement `up` function with DynamoDB client parameter
 - Scan all transactions
 - Filter items missing `createdAtId`
