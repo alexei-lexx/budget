@@ -1,23 +1,21 @@
 <!-- SYNC IMPACT REPORT
-Version Change: 0.20.0 → 0.21.0
+Version Change: 0.21.0 → 0.21.1
 Changes:
-  - MINOR (0.21.0): Added new principle for data migrations
+  - PATCH (0.21.1): Reformatted Test Strategy principle for consistency
 Modified Sections:
-  - Core Principles: Added "Data Migrations" principle after "Database Record Hydration"
+  - Test Strategy: Added "Non-negotiable rule:" and "Rationale:" sections
+    - Emphasized backend-first testing approach
+    - Clarified test file co-location requirements
+    - Explicitly prohibited separate test directories (src/__tests__/, src/tests/)
+    - No semantic changes to testing requirements
 Added Sections:
-  - Data Migrations: New principle defining migration framework requirements and practices
-    - Specifies migration directory location: backend/src/migrations/
-    - Defines timestamp-based naming convention
-    - Documents execution model (local npm script, production Lambda)
-    - Establishes idempotency and retry behavior
+  - None
 Removed Sections:
   - None
 Templates Requiring Updates:
   ✅ plan-template.md: Generic template, no updates needed
   ✅ spec-template.md: Generic template, no updates needed
   ✅ tasks-template.md: Generic template, no updates needed
-  ✅ checklist-template.md: Generic template, no updates needed
-  ✅ agent-file-template.md: Generic template, no updates needed
 Follow-up TODOs:
   - Ratification date remains TODO (inherited from previous versions)
 -->
@@ -351,6 +349,8 @@ graph LR
 
 ### Test Strategy
 
+**Non-negotiable rule**: Backend MUST be tested with repository and service layer tests. Test files MUST be co-located next to source files, never in separate test directories.
+
 **Backend** (primary focus):
 
 - Test repositories
@@ -367,8 +367,12 @@ graph LR
 - Write UI component tests only for complex/critical components; not required
 
 **Test File Location**:
-- Co-location strategy: tests live next to the code they test
+- Co-location strategy: tests MUST live next to the code they test
+- NEVER use separate test directories like `src/__tests__/` or `src/tests/`
 - Naming: `[source-file].test.ts` in same directory as source `[source-file].ts`
+- Example: `backend/src/dir/file.ts` → `backend/src/dir/file.test.ts`
+
+**Rationale**: Backend-focused testing ensures data layer correctness and business logic integrity.
 
 ### Input Validation
 
@@ -428,4 +432,4 @@ This constitution supersedes all other development guidelines. Amendments requir
 4. Commit with message: `docs: amend constitution to vX.Y.Z ([change summary])`
 5. Update dependent artifacts (templates, guidance docs) as flagged
 
-**Version**: 0.21.0 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-12-05
+**Version**: 0.21.1 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-12-06
