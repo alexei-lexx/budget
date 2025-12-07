@@ -108,6 +108,7 @@ export class CategoryRepository implements ICategoryRepository {
           },
         },
         options: {}, // No pageSize = get all items
+        schema: categorySchema,
       });
 
       const categories = result.items;
@@ -157,6 +158,7 @@ export class CategoryRepository implements ICategoryRepository {
           },
         },
         options: {}, // No pageSize = get all items
+        schema: categorySchema,
       });
 
       const categories = result.items;

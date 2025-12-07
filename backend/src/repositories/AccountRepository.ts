@@ -103,6 +103,7 @@ export class AccountRepository implements IAccountRepository {
           },
         },
         options: {}, // No pageSize = get all items
+        schema: accountSchema,
       });
 
       const accounts = result.items;

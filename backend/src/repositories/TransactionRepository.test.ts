@@ -698,14 +698,18 @@ describe("TransactionRepository", () => {
       const userId = faker.string.uuid();
       const createInputs: CreateTransactionInput[] = [];
 
+      // Create account/category IDs as proper UUIDs
+      const accountIds = Array.from({ length: 5 }, () => faker.string.uuid());
+      const categoryIds = Array.from({ length: 5 }, () => faker.string.uuid());
+
       // Create 5 different patterns with different usage counts
-      for (let i = 1; i <= 5; i++) {
-        for (let j = 0; j < i; j++) {
+      for (let i = 0; i < 5; i++) {
+        for (let j = 0; j <= i; j++) {
           createInputs.push(
             fakeCreateTransactionInput({
               userId,
-              accountId: `account-${i}`,
-              categoryId: `category-${i}`,
+              accountId: accountIds[i],
+              categoryId: categoryIds[i],
               type: TransactionType.EXPENSE,
             }),
           );
@@ -724,27 +728,35 @@ describe("TransactionRepository", () => {
       // Assert - Should return only top 3 patterns, sorted by frequency (most used first)
       expect(result).toHaveLength(3);
       expect(result[0]).toEqual({
-        accountId: "account-5",
-        categoryId: "category-5",
+        accountId: accountIds[4],
+        categoryId: categoryIds[4],
       }); // Most frequent (5 uses)
       expect(result[1]).toEqual({
-        accountId: "account-4",
-        categoryId: "category-4",
+        accountId: accountIds[3],
+        categoryId: categoryIds[3],
       }); // Second most frequent (4 uses)
       expect(result[2]).toEqual({
-        accountId: "account-3",
-        categoryId: "category-3",
+        accountId: accountIds[2],
+        categoryId: categoryIds[2],
       }); // Third most frequent (3 uses)
     });
 
     it("should sort deterministically when usage counts are equal", async () => {
       const userId = faker.string.uuid();
+      // Generate UUIDs and sort them so we can predict the deterministic sort order
+      // Using proper UUID v4 format with correct version (4) and variant (8-b) bits
+      const accountA = "11111111-1111-4111-8111-111111111111";
+      const accountB = "22222222-2222-4222-8222-222222222222";
+      const categoryA = "11111111-1111-4111-8111-111111111111";
+      const categoryB = "22222222-2222-4222-8222-222222222222";
+      const categoryC = "33333333-3333-4333-8333-333333333333";
+
       const createInputs: CreateTransactionInput[] = [
-        // Pattern 1: account-b + category-b (2 occurrences)
+        // Pattern 1: accountB + categoryB (2 occurrences)
         fakeCreateTransactionInput({
           userId,
-          accountId: "account-b",
-          categoryId: "category-b",
+          accountId: accountB,
+          categoryId: categoryB,
           type: TransactionType.INCOME,
           amount: 100.0,
           currency: "USD",
@@ -752,37 +764,37 @@ describe("TransactionRepository", () => {
         }),
         fakeCreateTransactionInput({
           userId,
-          accountId: "account-b",
-          categoryId: "category-b",
+          accountId: accountB,
+          categoryId: categoryB,
           type: TransactionType.INCOME,
           amount: 150.0,
           currency: "USD",
           date: "2024-01-02",
         }),
-        // Pattern 2: account-a + category-a (2 occurrences, same count)
+        // Pattern 2: accountA + categoryA (2 occurrences, same count)
         fakeCreateTransactionInput({
           userId,
-          accountId: "account-a",
-          categoryId: "category-a",
+          accountId: accountA,
+          categoryId: categoryA,
           type: TransactionType.INCOME,
         }),
         fakeCreateTransactionInput({
           userId,
-          accountId: "account-a",
-          categoryId: "category-a",
+          accountId: accountA,
+          categoryId: categoryA,
           type: TransactionType.INCOME,
         }),
-        // Pattern 3: account-a + category-c (2 occurrences, same account different category)
+        // Pattern 3: accountA + categoryC (2 occurrences, same account different category)
         fakeCreateTransactionInput({
           userId,
-          accountId: "account-a",
-          categoryId: "category-c",
+          accountId: accountA,
+          categoryId: categoryC,
           type: TransactionType.INCOME,
         }),
         fakeCreateTransactionInput({
           userId,
-          accountId: "account-a",
-          categoryId: "category-c",
+          accountId: accountA,
+          categoryId: categoryC,
           type: TransactionType.INCOME,
         }),
       ];
@@ -799,67 +811,72 @@ describe("TransactionRepository", () => {
       // Assert - Should sort deterministically by accountId, then categoryId
       expect(result).toHaveLength(3);
       expect(result[0]).toEqual({
-        accountId: "account-a",
-        categoryId: "category-a",
+        accountId: accountA,
+        categoryId: categoryA,
       });
       expect(result[1]).toEqual({
-        accountId: "account-a",
-        categoryId: "category-c",
+        accountId: accountA,
+        categoryId: categoryC,
       });
       expect(result[2]).toEqual({
-        accountId: "account-b",
-        categoryId: "category-b",
+        accountId: accountB,
+        categoryId: categoryB,
       });
     });
 
     it("should filter by transaction type correctly", async () => {
       const userId = faker.string.uuid();
       const accountId = faker.string.uuid();
+      const categoryIncome = faker.string.uuid();
+      const categoryExpense = faker.string.uuid();
+      const categoryRefund = faker.string.uuid();
+      const categoryTransfer = faker.string.uuid();
+
       const createInputs: CreateTransactionInput[] = [
         // Income transactions
         fakeCreateTransactionInput({
           userId,
           accountId,
-          categoryId: "category-income",
+          categoryId: categoryIncome,
           type: TransactionType.INCOME,
         }),
         fakeCreateTransactionInput({
           userId,
           accountId,
-          categoryId: "category-income",
+          categoryId: categoryIncome,
           type: TransactionType.INCOME,
         }),
         // Expense transactions
         fakeCreateTransactionInput({
           userId,
           accountId,
-          categoryId: "category-expense",
+          categoryId: categoryExpense,
           type: TransactionType.EXPENSE,
         }),
         fakeCreateTransactionInput({
           userId,
           accountId,
-          categoryId: "category-expense",
+          categoryId: categoryExpense,
           type: TransactionType.EXPENSE,
         }),
         // Refund transactions
         fakeCreateTransactionInput({
           userId,
           accountId,
-          categoryId: "category-refund",
+          categoryId: categoryRefund,
           type: TransactionType.REFUND,
         }),
         fakeCreateTransactionInput({
           userId,
           accountId,
-          categoryId: "category-refund",
+          categoryId: categoryRefund,
           type: TransactionType.REFUND,
         }),
         // Transfer transactions (should be excluded)
         fakeCreateTransactionInput({
           userId,
           accountId,
-          categoryId: "category-transfer",
+          categoryId: categoryTransfer,
           type: TransactionType.TRANSFER_IN,
         }),
       ];
@@ -890,21 +907,21 @@ describe("TransactionRepository", () => {
       expect(incomeResult).toHaveLength(1);
       expect(incomeResult[0]).toEqual({
         accountId,
-        categoryId: "category-income",
+        categoryId: categoryIncome,
       });
 
       // Assert - Expense patterns
       expect(expenseResult).toHaveLength(1);
       expect(expenseResult[0]).toEqual({
         accountId,
-        categoryId: "category-expense",
+        categoryId: categoryExpense,
       });
 
       // Assert - Refund patterns
       expect(refundResult).toHaveLength(1);
       expect(refundResult[0]).toEqual({
         accountId,
-        categoryId: "category-refund",
+        categoryId: categoryRefund,
       });
     });
 
@@ -952,6 +969,10 @@ describe("TransactionRepository", () => {
 
     it("should respect sample size limit", async () => {
       const userId = faker.string.uuid();
+      const account1 = faker.string.uuid();
+      const category1 = faker.string.uuid();
+      const account2 = faker.string.uuid();
+      const category2 = faker.string.uuid();
 
       // Create 5+5 transactions
 
@@ -960,8 +981,8 @@ describe("TransactionRepository", () => {
         createInputs1.push(
           fakeCreateTransactionInput({
             userId,
-            accountId: "account-1",
-            categoryId: "category-1",
+            accountId: account1,
+            categoryId: category1,
             type: TransactionType.INCOME,
           }),
         );
@@ -973,8 +994,8 @@ describe("TransactionRepository", () => {
         createInputs2.push(
           fakeCreateTransactionInput({
             userId,
-            accountId: "account-2",
-            categoryId: "category-2",
+            accountId: account2,
+            categoryId: category2,
             type: TransactionType.INCOME,
           }),
         );
@@ -992,8 +1013,8 @@ describe("TransactionRepository", () => {
       // Assert - Should return the pattern but only based on 5 transactions
       expect(result).toHaveLength(1);
       expect(result[0]).toEqual({
-        accountId: "account-2",
-        categoryId: "category-2",
+        accountId: account2,
+        categoryId: category2,
         // Only 5 transactions analyzed due to sample size limit
       });
     });
@@ -1065,14 +1086,16 @@ describe("TransactionRepository", () => {
     it("should return only top N patterns based on limit parameter", async () => {
       const userId = faker.string.uuid();
       const createInputs: CreateTransactionInput[] = [];
+      const accountIds = Array.from({ length: 5 }, () => faker.string.uuid());
+      const categoryIds = Array.from({ length: 5 }, () => faker.string.uuid());
 
       // Create 5 different patterns
-      for (let i = 1; i <= 5; i++) {
+      for (let i = 0; i < 5; i++) {
         createInputs.push(
           fakeCreateTransactionInput({
             userId,
-            accountId: `account-${i}`,
-            categoryId: `category-${i}`,
+            accountId: accountIds[i],
+            categoryId: categoryIds[i],
             type: TransactionType.INCOME,
           }),
         );
@@ -1095,19 +1118,24 @@ describe("TransactionRepository", () => {
     it("should isolate patterns by user", async () => {
       const user1 = faker.string.uuid();
       const user2 = faker.string.uuid();
+      const account1 = faker.string.uuid();
+      const category1 = faker.string.uuid();
+      const account2 = faker.string.uuid();
+      const category2 = faker.string.uuid();
+
       const createInputsUser1: CreateTransactionInput[] = [
         fakeCreateTransactionInput({
           userId: user1,
-          accountId: "account-1",
-          categoryId: "category-1",
+          accountId: account1,
+          categoryId: category1,
           type: TransactionType.INCOME,
         }),
       ];
       const createInputsUser2: CreateTransactionInput[] = [
         fakeCreateTransactionInput({
           userId: user2,
-          accountId: "account-2",
-          categoryId: "category-2",
+          accountId: account2,
+          categoryId: category2,
           type: TransactionType.INCOME,
         }),
       ];
@@ -1130,14 +1158,14 @@ describe("TransactionRepository", () => {
       // Assert - Each user sees only their own patterns
       expect(user1Result).toHaveLength(1);
       expect(user1Result[0]).toEqual({
-        accountId: "account-1",
-        categoryId: "category-1",
+        accountId: account1,
+        categoryId: category1,
       });
 
       expect(user2Result).toHaveLength(1);
       expect(user2Result[0]).toEqual({
-        accountId: "account-2",
-        categoryId: "category-2",
+        accountId: account2,
+        categoryId: category2,
       });
     });
   });
