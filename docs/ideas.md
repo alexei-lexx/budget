@@ -4,10 +4,6 @@ This document contains enhancements and improvements that are intentionally skip
 
 ## Transaction Management
 
-### Advanced Filtering & Sorting
-- Filter transactions by ~~account, category, date range, transaction type~~, and description search
-- Sort transactions by date or amount (ascending/descending)
-
 ### Advanced Features
 - Export transactions to CSV/Excel formats
 
