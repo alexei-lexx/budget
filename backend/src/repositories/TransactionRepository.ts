@@ -476,6 +476,7 @@ export class TransactionRepository implements ITransactionRepository {
             }),
           },
           options: { pageSize: first },
+          schema: transactionSchema,
         });
 
       // Create edges with cursors
@@ -582,6 +583,7 @@ export class TransactionRepository implements ITransactionRepository {
           },
         },
         options: {}, // No pageSize = get all items
+        schema: transactionSchema,
       });
 
       return items;
@@ -621,6 +623,7 @@ export class TransactionRepository implements ITransactionRepository {
           },
         },
         options: {}, // No pageSize = get all items
+        schema: transactionSchema,
       });
 
       return items;
@@ -717,6 +720,7 @@ export class TransactionRepository implements ITransactionRepository {
           ScanIndexForward: true, // Sort by date ascending
         },
         options: {}, // No pageSize = get all items
+        schema: transactionSchema,
       });
 
       return items;
@@ -811,6 +815,7 @@ export class TransactionRepository implements ITransactionRepository {
           ScanIndexForward: false, // Newest first (descending createdAt order)
         },
         options: { pageSize: limit },
+        schema: transactionSchema,
       });
 
       return transactions;
@@ -871,6 +876,7 @@ export class TransactionRepository implements ITransactionRepository {
           ScanIndexForward: false, // Newest first
         },
         options: { pageSize: sampleSize }, // Limit to sampleSize transactions
+        schema: transactionSchema,
       });
 
       // Filter transactions that have both accountId and categoryId

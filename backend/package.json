@@ -22,7 +22,7 @@
     "migrate": "dotenvx run -f .env.development --verbose -- ts-node src/scripts/migrate.ts",
     "prettier:fix": "prettier --write .",
     "prettier": "prettier --check .",
-    "test:setup": "npm run db:start && dotenvx run -f .env.test --verbose -- ts-node scripts/create-tables.ts",
+    "test:setup": "npm run db:start && dotenvx run -f .env.test --verbose -- ts-node src/scripts/create-tables.ts",
     "test": "dotenvx run -f .env.test -- jest"
   },
   "dependencies": {

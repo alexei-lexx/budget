@@ -3,6 +3,8 @@ import {
   QueryCommand,
   QueryCommandInput,
 } from "@aws-sdk/lib-dynamodb";
+import { z } from "zod";
+import { hydrate } from "./hydrate";
 
 export type QueryParams = QueryCommandInput;
 
@@ -20,17 +22,20 @@ export interface PaginationResult<T> {
  * @param client - DynamoDB Document Client
  * @param params - Query parameters
  * @param options - Pagination options (pageSize undefined = get all items)
- * @param acc - Accumulator for recursive calls
+ * @param schema - Zod schema for item hydration
+ * @param accumulatedItems - Accumulator for recursive calls
  */
 export async function paginateQuery<T>({
   client,
   params,
   options = {},
+  schema,
   accumulatedItems = [],
 }: {
   client: DynamoDBDocumentClient;
   params: QueryParams;
   options?: PaginationOptions;
+  schema: z.ZodType<T>;
   accumulatedItems?: T[];
 }): Promise<PaginationResult<T>> {
   const { pageSize } = options;
@@ -47,7 +52,7 @@ export async function paginateQuery<T>({
 
   const command = new QueryCommand(queryParams);
   const result = await client.send(command);
-  const newItems = (result.Items || []) as T[];
+  const newItems = (result.Items || []).map((item) => hydrate(schema, item));
 
   // Add all returned items to accumulator
   const newAccumulatedItems = [...accumulatedItems, ...newItems];
@@ -69,6 +74,7 @@ export async function paginateQuery<T>({
         ExclusiveStartKey: result.LastEvaluatedKey,
       },
       options,
+      schema,
       accumulatedItems: newAccumulatedItems,
     });
   }
