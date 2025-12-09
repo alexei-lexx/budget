@@ -51,20 +51,12 @@ export function useTransfers() {
   );
 
   // Create transfer function
-  const createTransfer = async (
-    input: CreateTransferInput,
-    onTransactionsCreated?: (transactions: Transaction[]) => void,
-  ): Promise<Transfer | null> => {
+  const createTransfer = async (input: CreateTransferInput): Promise<Transfer | null> => {
     try {
       transfersError.value = null;
       const result = await createTransferMutation({ input });
       if (result?.data?.createTransfer) {
         const transfer = result.data.createTransfer;
-
-        // If callback provided, call it with the new transactions
-        if (onTransactionsCreated) {
-          onTransactionsCreated([transfer.outboundTransaction, transfer.inboundTransaction]);
-        }
 
         return transfer;
       }
@@ -80,18 +72,12 @@ export function useTransfers() {
   const updateTransfer = async (
     id: string,
     input: Omit<UpdateTransferInput, "id">,
-    onTransactionsUpdated?: (transactions: Transaction[]) => void,
   ): Promise<Transfer | null> => {
     try {
       transfersError.value = null;
       const result = await updateTransferMutation({ input: { id, ...input } });
       if (result?.data?.updateTransfer) {
         const transfer = result.data.updateTransfer;
-
-        // If callback provided, call it with the updated transactions
-        if (onTransactionsUpdated) {
-          onTransactionsUpdated([transfer.outboundTransaction, transfer.inboundTransaction]);
-        }
 
         return transfer;
       }
