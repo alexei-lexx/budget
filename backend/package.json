@@ -11,7 +11,7 @@
     "codegen": "graphql-codegen --config codegen.ts",
     "compile": "tsc",
     "db:purge": "docker compose down -v",
-    "db:setup": "npm run db:start && dotenvx run -f .env.development --verbose -- ts-node src/scripts/create-tables.ts",
+    "db:setup": "npm run db:start && sleep 1 && dotenvx run -f .env.development --verbose -- ts-node src/scripts/create-tables.ts",
     "db:seed": "npm run db:start && dotenvx run -f .env.development --verbose -- ts-node src/scripts/seed-data.ts",
     "db:start": "docker compose up -d",
     "db:stop": "docker compose down",
@@ -22,7 +22,7 @@
     "migrate": "dotenvx run -f .env.development --verbose -- ts-node src/scripts/migrate.ts",
     "prettier:fix": "prettier --write .",
     "prettier": "prettier --check .",
-    "test:setup": "npm run db:start && dotenvx run -f .env.test --verbose -- ts-node scripts/create-tables.ts",
+    "test:setup": "npm run db:start && dotenvx run -f .env.test --verbose -- ts-node src/scripts/create-tables.ts",
     "test": "dotenvx run -f .env.test -- jest"
   },
   "dependencies": {
