@@ -77,6 +77,7 @@ Uses DynamoDB Local running in Docker with a named volume for data persistence.
 - `npm run db:seed` - Populate database with sample data
   - ⚠️ **Erases all existing data**
   - Requires at least one user in the database
+  - Creates sample data for that user
 - `npm run migrate` - Run pending data migrations
   - Safe for production use
   - Tracks migration history in migrations table
