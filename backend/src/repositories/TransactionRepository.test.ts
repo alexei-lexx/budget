@@ -1,4 +1,8 @@
-import { UpdateCommand } from "@aws-sdk/lib-dynamodb";
+import {
+  BatchGetCommand,
+  GetCommand,
+  UpdateCommand,
+} from "@aws-sdk/lib-dynamodb";
 import { faker } from "@faker-js/faker";
 import { truncateTable } from "../__tests__/utils/dynamodbHelpers";
 import { fakeCreateTransactionInput } from "../__tests__/utils/factories";
@@ -66,6 +70,9 @@ describe("TransactionRepository", () => {
       expect(result.updatedAt).toBeDefined();
       expect(result.createdAt).toBe(result.updatedAt);
 
+      // Verify that createdAtSortable is not in the returned object
+      expect(result).not.toHaveProperty("createdAtSortable");
+
       // Verify UUID format
       expect(result.id).toMatch(
         /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
@@ -79,6 +86,30 @@ describe("TransactionRepository", () => {
       // Refetch from database to verify stored data matches result
       const stored = await repository.findActiveById(result.id, userId);
       expect(stored).toEqual(result);
+    });
+
+    it("should include createdAtSortable in the raw DynamoDB item", async () => {
+      // Arrange
+      const input = fakeCreateTransactionInput();
+
+      // Act
+      const result = await repository.create(input);
+
+      // Assert
+      const client = createDynamoDBDocumentClient();
+      const tableName = process.env.TRANSACTIONS_TABLE_NAME || "";
+      const { Item: rawItem } = await client.send(
+        new GetCommand({
+          TableName: tableName,
+          Key: { userId: result.userId, id: result.id },
+        }),
+      );
+
+      expect(rawItem).toBeDefined();
+      expect(rawItem).toHaveProperty("createdAtSortable");
+      expect(rawItem?.createdAtSortable).toMatch(
+        /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z#[0-9A-HJKMNP-TV-Z]{26}$/,
+      );
     });
 
     it("should create transaction without optional fields", async () => {
@@ -185,6 +216,7 @@ describe("TransactionRepository", () => {
 
       expect(result.length).toBe(2);
 
+      expect(result[0]).toBeDefined();
       expect(result[0].userId).toBe(inputs[0].userId);
       expect(result[0].accountId).toBe(inputs[0].accountId);
       expect(result[0].type).toBe(inputs[0].type);
@@ -192,12 +224,19 @@ describe("TransactionRepository", () => {
       expect(result[0].currency).toBe(inputs[0].currency);
       expect(result[0].date).toBe(inputs[0].date);
 
+      // Verify that createdAtSortable is not in the returned object
+      expect(result[0]).not.toHaveProperty("createdAtSortable");
+
+      expect(result[1]).toBeDefined();
       expect(result[1].userId).toBe(inputs[1].userId);
       expect(result[1].accountId).toBe(inputs[1].accountId);
       expect(result[1].type).toBe(inputs[1].type);
       expect(result[1].amount).toBe(inputs[1].amount);
       expect(result[1].currency).toBe(inputs[1].currency);
       expect(result[1].date).toBe(inputs[1].date);
+
+      // Verify that createdAtSortable is not in the returned object
+      expect(result[1]).not.toHaveProperty("createdAtSortable");
 
       const stored1 = await repository.findActiveById(
         result[0].id,
@@ -209,6 +248,67 @@ describe("TransactionRepository", () => {
       );
 
       expect([stored1, stored2]).toEqual(expect.arrayContaining(result));
+    });
+
+    it("should include createdAtSortable in the raw DynamoDB items", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+      const inputs = [
+        fakeCreateTransactionInput({ userId }),
+        fakeCreateTransactionInput({ userId }),
+      ];
+
+      // Act
+      const result = await repository.createMany(inputs);
+
+      // Assert
+      const client = createDynamoDBDocumentClient();
+      const tableName = process.env.TRANSACTIONS_TABLE_NAME || "";
+      const ids = result.map((transaction) => transaction.id);
+
+      const { Responses: responses } = await client.send(
+        new BatchGetCommand({
+          RequestItems: {
+            [tableName]: {
+              Keys: ids.map((id) => ({
+                userId,
+                id,
+              })),
+            },
+          },
+        }),
+      );
+
+      const rawItems = responses ? responses[tableName] : [];
+
+      expect(rawItems.length).toBe(2);
+      expect(rawItems[0]).toHaveProperty("createdAtSortable");
+      expect(rawItems[1]).toHaveProperty("createdAtSortable");
+    });
+
+    it("should return transfer transactions in correct order (TRANSFER_IN before TRANSFER_OUT)", async () => {
+      const userId = faker.string.uuid();
+      const transferId = faker.string.uuid();
+      // Create paired transfer transactions
+      await repository.createMany([
+        fakeCreateTransactionInput({
+          userId,
+          type: TransactionType.TRANSFER_OUT,
+          transferId,
+        }),
+        fakeCreateTransactionInput({
+          userId,
+          type: TransactionType.TRANSFER_IN,
+          transferId,
+        }),
+      ]);
+
+      // Query transactions (descending order - newest first)
+      const result = await repository.findActiveByUserId(userId);
+
+      // Verify TRANSFER_IN appears first
+      expect(result.edges[0].node.type).toBe(TransactionType.TRANSFER_IN);
+      expect(result.edges[1].node.type).toBe(TransactionType.TRANSFER_OUT);
     });
   });
 
@@ -2707,10 +2807,10 @@ describe("TransactionRepository", () => {
       ).rejects.toThrow("Invalid cursor format");
     });
 
-    it("should throw error for missing createdAt field in cursor", async () => {
+    it("should throw error for missing createdAtSortable field in cursor", async () => {
       // Arrange
       const userId = faker.string.uuid();
-      const cursorWithoutCreatedAt = Buffer.from(
+      const cursorWithoutCreatedAtSortable = Buffer.from(
         JSON.stringify({ date: "2024-01-20", id: "abc-123" }),
       ).toString("base64");
 
@@ -2718,7 +2818,7 @@ describe("TransactionRepository", () => {
       await expect(
         repository.findActiveByUserId(userId, {
           first: 10,
-          after: cursorWithoutCreatedAt,
+          after: cursorWithoutCreatedAtSortable,
         }),
       ).rejects.toThrow("Invalid cursor format");
     });
@@ -2728,7 +2828,7 @@ describe("TransactionRepository", () => {
       const userId = faker.string.uuid();
       const cursorWithoutDate = Buffer.from(
         JSON.stringify({
-          createdAt: "2024-01-20T10:00:00.000Z",
+          createdAtSortable: "2024-01-20T10:00:00.000Z#some-ulid",
           id: "abc-123",
         }),
       ).toString("base64");
@@ -2747,7 +2847,7 @@ describe("TransactionRepository", () => {
       const userId = faker.string.uuid();
       const cursorWithoutId = Buffer.from(
         JSON.stringify({
-          createdAt: "2024-01-20T10:00:00.000Z",
+          createdAtSortable: "2024-01-20T10:00:00.000Z#some-ulid",
           date: "2024-01-20",
         }),
       ).toString("base64");

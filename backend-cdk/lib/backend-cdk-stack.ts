@@ -55,13 +55,13 @@ export class BackendCdkStack extends cdk.Stack {
     });
 
     transactionsTable.addGlobalSecondaryIndex({
-      indexName: "UserCreatedAtIndex",
+      indexName: "UserCreatedAtSortableIndex",
       partitionKey: {
         name: "userId",
         type: dynamodb.AttributeType.STRING,
       },
       sortKey: {
-        name: "createdAt",
+        name: "createdAtSortable",
         type: dynamodb.AttributeType.STRING,
       },
       projectionType: dynamodb.ProjectionType.ALL,

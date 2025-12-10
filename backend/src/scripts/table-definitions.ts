@@ -56,7 +56,7 @@ export const tables: CreateTableCommandInput[] = [
     AttributeDefinitions: [
       { AttributeName: "userId", AttributeType: "S" },
       { AttributeName: "id", AttributeType: "S" },
-      { AttributeName: "createdAt", AttributeType: "S" },
+      { AttributeName: "createdAtSortable", AttributeType: "S" },
       { AttributeName: "date", AttributeType: "S" },
     ],
     KeySchema: [
@@ -66,10 +66,10 @@ export const tables: CreateTableCommandInput[] = [
     BillingMode: "PAY_PER_REQUEST",
     GlobalSecondaryIndexes: [
       {
-        IndexName: "UserCreatedAtIndex",
+        IndexName: "UserCreatedAtSortableIndex",
         KeySchema: [
           { AttributeName: "userId", KeyType: "HASH" },
-          { AttributeName: "createdAt", KeyType: "RANGE" },
+          { AttributeName: "createdAtSortable", KeyType: "RANGE" },
         ],
         Projection: { ProjectionType: "ALL" },
       },

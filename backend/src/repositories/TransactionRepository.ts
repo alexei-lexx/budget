@@ -8,6 +8,7 @@ import {
   TransactWriteCommand,
   UpdateCommand,
 } from "@aws-sdk/lib-dynamodb";
+import { monotonicFactory } from "ulidx";
 import { z } from "zod";
 import {
   CreateTransactionInput,
@@ -34,21 +35,30 @@ import {
   DYNAMODB_TRANSACT_WRITE_MAX_ITEMS,
   createDynamoDBDocumentClient,
 } from "../utils/dynamoClient";
-import { transactionSchema } from "./utils/Transaction.schema";
+import {
+  TransactionDbItem,
+  transactionDbItemSchema,
+  transactionSchema,
+} from "./utils/Transaction.schema";
 import { hydrate } from "./utils/hydrate";
 import { paginateQuery } from "./utils/pagination";
+
+/**
+ * Monotonic ULID factory for generating sortable identifiers
+ */
+const ulid = monotonicFactory();
 
 /**
  * DynamoDB Global Secondary Index names for Transactions table
  */
 const USER_DATE_INDEX = "UserDateIndex";
-const USER_CREATED_AT_INDEX = "UserCreatedAtIndex";
+const USER_CREATED_AT_SORTABLE_INDEX = "UserCreatedAtSortableIndex";
 
 /**
  * Sort key names for indexes
  */
 const SORT_KEY_DATE = "date";
-const SORT_KEY_CREATED_AT = "createdAt";
+const SORT_KEY_CREATED_AT_SORTABLE = "createdAtSortable";
 
 /**
  * Repository error class for better error handling
@@ -68,7 +78,7 @@ class TransactionRepositoryError extends Error {
  * Cursor structure for pagination
  */
 interface CursorData {
-  createdAt: string; // ISO 8601 timestamp for UserCreatedAtIndex
+  createdAtSortable: string; // ISO8601#ULID format for UserCreatedAtSortableIndex
   date: string; // YYYY-MM-DD format for UserDateIndex
   id: string; // UUID
 }
@@ -77,7 +87,7 @@ interface CursorData {
  * Zod schema for cursor validation
  */
 const cursorDataSchema = z.object({
-  createdAt: z.string(),
+  createdAtSortable: z.string(),
   date: z.string(),
   id: z.string(),
 });
@@ -97,11 +107,11 @@ interface TransactionQueryParams {
 /**
  * Cursor utilities for pagination
  */
-function encodeCursor(transaction: Transaction): string {
+function encodeCursor(dbItem: TransactionDbItem): string {
   const cursorData: CursorData = {
-    createdAt: transaction.createdAt,
-    date: transaction.date,
-    id: transaction.id,
+    createdAtSortable: dbItem.createdAtSortable,
+    date: dbItem.date,
+    id: dbItem.id,
   };
   return Buffer.from(JSON.stringify(cursorData)).toString("base64");
 }
@@ -119,6 +129,19 @@ function decodeCursor(cursor: string): CursorData {
       error,
     );
   }
+}
+
+/**
+ * Transform TransactionDbItem to Transaction by omitting createdAtSortable
+ */
+function toTransaction(dbItem: TransactionDbItem): Transaction {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { createdAtSortable, ...transaction } = dbItem;
+  return transaction;
+}
+
+function buildCreatedAtSortable(transaction: Transaction): string {
+  return `${transaction.createdAt}#${ulid()}`;
 }
 
 export class TransactionRepository implements ITransactionRepository {
@@ -142,9 +165,14 @@ export class TransactionRepository implements ITransactionRepository {
     const transaction = this.buildTransaction(input, now);
 
     try {
+      const dbItem = {
+        ...transaction,
+        createdAtSortable: buildCreatedAtSortable(transaction),
+      };
+
       const command = new PutCommand({
         TableName: this.tableName,
-        Item: transaction,
+        Item: dbItem,
       });
 
       await this.client.send(command);
@@ -183,7 +211,10 @@ export class TransactionRepository implements ITransactionRepository {
       const transactItems = transactions.map((transaction) => ({
         Put: {
           TableName: this.tableName,
-          Item: transaction,
+          Item: {
+            ...transaction,
+            createdAtSortable: buildCreatedAtSortable(transaction),
+          },
         },
       }));
 
@@ -450,8 +481,8 @@ export class TransactionRepository implements ITransactionRepository {
       const decodedAfter = after ? decodeCursor(after) : null;
 
       // Execute query
-      const { items: transactions, hasNextPage } =
-        await paginateQuery<Transaction>({
+      const { items: dbItems, hasNextPage } =
+        await paginateQuery<TransactionDbItem>({
           client: this.client,
           params: {
             TableName: this.tableName,
@@ -471,18 +502,18 @@ export class TransactionRepository implements ITransactionRepository {
                 [queryParams.sortKeyName]:
                   queryParams.sortKeyName === SORT_KEY_DATE
                     ? decodedAfter.date
-                    : decodedAfter.createdAt,
+                    : decodedAfter.createdAtSortable,
               },
             }),
           },
           options: { pageSize: first },
-          schema: transactionSchema,
+          schema: transactionDbItemSchema,
         });
 
       // Create edges with cursors
-      const edges: TransactionEdge[] = transactions.map((transaction) => ({
-        node: transaction,
-        cursor: encodeCursor(transaction),
+      const edges: TransactionEdge[] = dbItems.map((dbItem) => ({
+        node: toTransaction(dbItem),
+        cursor: encodeCursor(dbItem),
       }));
 
       // Build page info
@@ -803,7 +834,7 @@ export class TransactionRepository implements ITransactionRepository {
         client: this.client,
         params: {
           TableName: this.tableName,
-          IndexName: USER_CREATED_AT_INDEX,
+          IndexName: USER_CREATED_AT_SORTABLE_INDEX,
           KeyConditionExpression: "userId = :userId",
           FilterExpression:
             "isArchived = :isArchived AND contains(description, :searchText)",
@@ -812,7 +843,7 @@ export class TransactionRepository implements ITransactionRepository {
             ":isArchived": false,
             ":searchText": searchText,
           },
-          ScanIndexForward: false, // Newest first (descending createdAt order)
+          ScanIndexForward: false, // Newest first (descending createdAtSortable order)
         },
         options: { pageSize: limit },
         schema: transactionSchema,
@@ -862,7 +893,7 @@ export class TransactionRepository implements ITransactionRepository {
         client: this.client,
         params: {
           TableName: this.tableName,
-          IndexName: USER_CREATED_AT_INDEX,
+          IndexName: USER_CREATED_AT_SORTABLE_INDEX,
           KeyConditionExpression: "userId = :userId",
           FilterExpression: "#type = :type AND isArchived = :isArchived",
           ExpressionAttributeNames: {
@@ -1037,12 +1068,14 @@ export class TransactionRepository implements ITransactionRepository {
     userId: string,
     filters?: TransactionFilterInput,
   ): TransactionQueryParams {
-    // Select index: use UserDateIndex when date filters present, else UserCreatedAtIndex
+    // Select index: use UserDateIndex when date filters present, else UserCreatedAtSortableIndex
     const useUserDateIndex = !!(filters?.dateAfter || filters?.dateBefore);
     const indexName = useUserDateIndex
       ? USER_DATE_INDEX
-      : USER_CREATED_AT_INDEX;
-    const sortKeyName = useUserDateIndex ? SORT_KEY_DATE : SORT_KEY_CREATED_AT;
+      : USER_CREATED_AT_SORTABLE_INDEX;
+    const sortKeyName = useUserDateIndex
+      ? SORT_KEY_DATE
+      : SORT_KEY_CREATED_AT_SORTABLE;
 
     // Build key condition expression
     let keyConditionExpression = "userId = :userId";
