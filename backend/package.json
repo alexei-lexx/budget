@@ -10,9 +10,9 @@
     "build": "npm run codegen && npm run compile && rm -rf dist && npm run build:bundle && npm run build:bundle:migrate && npm run build:schema",
     "codegen": "graphql-codegen --config codegen.ts",
     "compile": "tsc",
-    "db:purge": "docker compose down -v",
-    "db:setup": "npm run db:start && sleep 1 && dotenvx run -f .env.development --verbose -- ts-node src/scripts/create-tables.ts",
-    "db:seed": "npm run db:start && dotenvx run -f .env.development --verbose -- ts-node src/scripts/seed-data.ts",
+    "db:create": "dotenvx run -f .env.development --verbose -- ts-node src/scripts/create-tables.ts",
+    "db:seed": "dotenvx run -f .env.development --verbose -- ts-node src/scripts/seed-data.ts",
+    "db:setup": "npm run db:start && sleep 1 && npm run db:create",
     "db:start": "docker compose up -d",
     "db:stop": "docker compose down",
     "dev": "npm run db:start && npm run codegen && dotenvx run -f .env.development --verbose -- nodemon --exec ts-node src/index.ts",
@@ -22,7 +22,8 @@
     "migrate": "dotenvx run -f .env.development --verbose -- ts-node src/scripts/migrate.ts",
     "prettier:fix": "prettier --write .",
     "prettier": "prettier --check .",
-    "test:setup": "npm run db:start && dotenvx run -f .env.test --verbose -- ts-node src/scripts/create-tables.ts",
+    "test:db:create": "dotenvx run -f .env.test --verbose -- ts-node src/scripts/create-tables.ts",
+    "test:db:setup": "npm run db:start && sleep 1 && npm run test:db:create",
     "test": "dotenvx run -f .env.test -- jest"
   },
   "dependencies": {
