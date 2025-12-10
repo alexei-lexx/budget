@@ -12,3 +12,4 @@ export * as migration_20250101000000 from "./20250101000000-example-count-catego
 export * as migration_20250101000100 from "./20250101000100-example-update-categories";
 export * as migration_20251207120000 from "./20251207120000-remove-null-descriptions";
 export * as migration_20251207120100 from "./20251207120100-remove-null-category-ids";
+export * as migration_20251210152507 from "./20251210152507-populate-created-at-sortable";

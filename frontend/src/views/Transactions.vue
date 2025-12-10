@@ -454,7 +454,7 @@ const handleCreateTransferSubmit = async (data: CreateTransferInput | UpdateTran
       showSuccessSnackbar("Transfer was created successfully");
 
       // Add the new transfer transactions to the top of the list
-      addTransactionsToList([result.outboundTransaction, result.inboundTransaction]);
+      addTransactionsToList([result.inboundTransaction, result.outboundTransaction]);
 
       // Refetch accounts to update balances
       await refetchAccounts();

@@ -24,7 +24,7 @@
 
 **Purpose**: Install dependencies and prepare development environment
 
-- [ ] T001 Install ulidx package in backend/package.json via npm install ulidx
+- [X] T001 Install ulidx package in backend/package.json via npm install ulidx
 
 ---
 
@@ -49,52 +49,52 @@
 
 **Validation Schema Changes**:
 
-- [ ] T002 [US1] Add transactionDbItemSchema to backend/src/repositories/utils/Transaction.schema.ts extending transactionSchema with createdAtSortable field (ISO8601#ULID regex pattern)
-- [ ] T003 [US1] Export TransactionDbItem type from transactionDbItemSchema in backend/src/repositories/utils/Transaction.schema.ts
+- [X] T002 [US1] Add transactionDbItemSchema to backend/src/repositories/utils/Transaction.schema.ts extending transactionSchema with createdAtSortable field (ISO8601#ULID regex pattern)
+- [X] T003 [US1] Export TransactionDbItem type from transactionDbItemSchema in backend/src/repositories/utils/Transaction.schema.ts
 
 **Backend Repository Changes**:
 
-- [ ] T004 [P] [US1] Add monotonicFactory import from ulidx at top of backend/src/repositories/TransactionRepository.ts
-- [ ] T005 [P] [US1] Create monotonic ULID factory instance at module level in backend/src/repositories/TransactionRepository.ts (const ulid = monotonicFactory())
-- [ ] T006 [US1] Update backend/src/repositories/TransactionRepository.ts - change index name constant from USER_CREATED_AT_INDEX to USER_CREATED_AT_SORTABLE_INDEX with value "UserCreatedAtSortableIndex"
-- [ ] T007 [US1] Update backend/src/repositories/TransactionRepository.ts - modify create() to add createdAtSortable field (createdAt + "#" + ulid()) to DynamoDB item before storage (keep Transaction object unchanged)
-- [ ] T008 [US1] Update backend/src/repositories/TransactionRepository.ts - modify createMany() to add createdAtSortable field to all DynamoDB items before batch write (using same ulid factory instance)
-- [ ] T009 [US1] Import transactionDbItemSchema and TransactionDbItem type in backend/src/repositories/TransactionRepository.ts
-- [ ] T010 [US1] Add toTransaction() helper function in backend/src/repositories/TransactionRepository.ts to transform TransactionDbItem to Transaction by omitting createdAtSortable
-- [ ] T011 [US1] Update CursorData interface in backend/src/repositories/TransactionRepository.ts to replace createdAt field with createdAtSortable field
-- [ ] T012 [US1] Update encodeCursor() function in backend/src/repositories/TransactionRepository.ts to accept TransactionDbItem parameter and use createdAtSortable from it
-- [ ] T013 [US1] Update decodeCursor() function in backend/src/repositories/TransactionRepository.ts to parse createdAtSortable from cursor data
-- [ ] T014 [US1] Update findActiveByUserId() in backend/src/repositories/TransactionRepository.ts to use USER_CREATED_AT_SORTABLE_INDEX, validate raw items with transactionDbItemSchema, create edges with cursors from dbItems, transform to Transaction nodes
-- [ ] T015 [US1] Update ExclusiveStartKey construction in backend/src/repositories/TransactionRepository.ts to use createdAtSortable instead of createdAt in pagination queries
-- [ ] T016 [P] [US1] Update findActiveByDescription() in backend/src/repositories/TransactionRepository.ts to use USER_CREATED_AT_SORTABLE_INDEX
-- [ ] T017 [P] [US1] Update detectPatterns() in backend/src/repositories/TransactionRepository.ts to use USER_CREATED_AT_SORTABLE_INDEX if it references the old index
+- [X] T004 [P] [US1] Add monotonicFactory import from ulidx at top of backend/src/repositories/TransactionRepository.ts
+- [X] T005 [P] [US1] Create monotonic ULID factory instance at module level in backend/src/repositories/TransactionRepository.ts (const ulid = monotonicFactory())
+- [X] T006 [US1] Update backend/src/repositories/TransactionRepository.ts - change index name constant from USER_CREATED_AT_INDEX to USER_CREATED_AT_SORTABLE_INDEX with value "UserCreatedAtSortableIndex"
+- [X] T007 [US1] Update backend/src/repositories/TransactionRepository.ts - modify create() to add createdAtSortable field (createdAt + "#" + ulid()) to DynamoDB item before storage (keep Transaction object unchanged)
+- [X] T008 [US1] Update backend/src/repositories/TransactionRepository.ts - modify createMany() to add createdAtSortable field to all DynamoDB items before batch write (using same ulid factory instance)
+- [X] T009 [US1] Import transactionDbItemSchema and TransactionDbItem type in backend/src/repositories/TransactionRepository.ts
+- [X] T010 [US1] Add toTransaction() helper function in backend/src/repositories/TransactionRepository.ts to transform TransactionDbItem to Transaction by omitting createdAtSortable
+- [X] T011 [US1] Update CursorData interface in backend/src/repositories/TransactionRepository.ts to replace createdAt field with createdAtSortable field
+- [X] T012 [US1] Update encodeCursor() function in backend/src/repositories/TransactionRepository.ts to accept TransactionDbItem parameter and use createdAtSortable from it
+- [X] T013 [US1] Update decodeCursor() function in backend/src/repositories/TransactionRepository.ts to parse createdAtSortable from cursor data
+- [X] T014 [US1] Update findActiveByUserId() in backend/src/repositories/TransactionRepository.ts to use USER_CREATED_AT_SORTABLE_INDEX, validate raw items with transactionDbItemSchema, create edges with cursors from dbItems, transform to Transaction nodes
+- [X] T015 [US1] Update ExclusiveStartKey construction in backend/src/repositories/TransactionRepository.ts to use createdAtSortable instead of createdAt in pagination queries
+- [X] T016 [P] [US1] Update findActiveByDescription() in backend/src/repositories/TransactionRepository.ts to use USER_CREATED_AT_SORTABLE_INDEX
+- [X] T017 [P] [US1] Update detectPatterns() in backend/src/repositories/TransactionRepository.ts to use USER_CREATED_AT_SORTABLE_INDEX if it references the old index
 
 **Infrastructure Changes**:
 
-- [ ] T018 [P] [US1] Update backend/src/scripts/create-tables.ts - remove createdAt from AttributeDefinitions array
-- [ ] T019 [P] [US1] Update backend/src/scripts/create-tables.ts - add createdAtSortable to AttributeDefinitions array with AttributeType "S"
-- [ ] T020 [US1] Update backend/src/scripts/create-tables.ts - remove UserCreatedAtIndex from GlobalSecondaryIndexes array
-- [ ] T021 [US1] Update backend/src/scripts/create-tables.ts - add UserCreatedAtSortableIndex to GlobalSecondaryIndexes with userId (HASH) and createdAtSortable (RANGE) KeySchema
-- [ ] T022 [P] [US1] Update backend-cdk/lib/backend-cdk-stack.ts - remove createdAt from table attribute definitions
-- [ ] T023 [P] [US1] Update backend-cdk/lib/backend-cdk-stack.ts - add createdAtSortable to table attribute definitions
-- [ ] T024 [US1] Update backend-cdk/lib/backend-cdk-stack.ts - remove UserCreatedAtIndex definition
-- [ ] T025 [US1] Update backend-cdk/lib/backend-cdk-stack.ts - add UserCreatedAtSortableIndex definition with userId and createdAtSortable keys
+- [X] T018 [P] [US1] Update backend/src/scripts/create-tables.ts - remove createdAt from AttributeDefinitions array
+- [X] T019 [P] [US1] Update backend/src/scripts/create-tables.ts - add createdAtSortable to AttributeDefinitions array with AttributeType "S"
+- [X] T020 [US1] Update backend/src/scripts/create-tables.ts - remove UserCreatedAtIndex from GlobalSecondaryIndexes array
+- [X] T021 [US1] Update backend/src/scripts/create-tables.ts - add UserCreatedAtSortableIndex to GlobalSecondaryIndexes with userId (HASH) and createdAtSortable (RANGE) KeySchema
+- [X] T022 [P] [US1] Update backend-cdk/lib/backend-cdk-stack.ts - remove createdAt from table attribute definitions
+- [X] T023 [P] [US1] Update backend-cdk/lib/backend-cdk-stack.ts - add createdAtSortable to table attribute definitions
+- [X] T024 [US1] Update backend-cdk/lib/backend-cdk-stack.ts - remove UserCreatedAtIndex definition
+- [X] T025 [US1] Update backend-cdk/lib/backend-cdk-stack.ts - add UserCreatedAtSortableIndex definition with userId and createdAtSortable keys
 
 **Data Migration**:
 
-- [ ] T026 [US1] Create backend/src/migrations/TIMESTAMP-populate-createdAtSortable.ts with imports (DynamoDBDocumentClient, ScanCommand, TransactWriteCommand, monotonicFactory)
-- [ ] T027 [US1] Implement up() function in migration that scans all transactions and populates createdAtSortable field (createdAt + "#" + ulid())
-- [ ] T028 [US1] Add batch processing logic in migration (25 items per batch using TransactWriteCommand)
-- [ ] T029 [US1] Add idempotency check in migration to skip transactions that already have createdAtSortable
-- [ ] T030 [US1] Add progress logging to migration showing scanned and updated counts
+- [X] T026 [US1] Create backend/src/migrations/TIMESTAMP-populate-createdAtSortable.ts with imports (DynamoDBDocumentClient, ScanCommand, TransactWriteCommand, monotonicFactory)
+- [X] T027 [US1] Implement up() function in migration that scans all transactions and populates createdAtSortable field (createdAt + "#" + ulid())
+- [X] T028 [US1] Add batch processing logic in migration (25 items per batch using TransactWriteCommand)
+- [X] T029 [US1] Add idempotency check in migration to skip transactions that already have createdAtSortable
+- [X] T030 [US1] Add progress logging to migration showing scanned and updated counts
 
 **Testing**:
 
-- [ ] T031 [P] [US1] Update backend/src/repositories/TransactionRepository.test.ts - verify id field remains UUID v4 format (unchanged) in all create tests
-- [ ] T032 [P] [US1] Update backend/src/repositories/TransactionRepository.test.ts - verify returned Transaction objects do NOT contain createdAtSortable field
-- [ ] T033 [P] [US1] Add test in backend/src/repositories/TransactionRepository.test.ts - query raw DynamoDB items directly and verify they DO contain createdAtSortable field with correct format (ISO8601#ULID)
-- [ ] T034 [US1] Add test in backend/src/repositories/TransactionRepository.test.ts - create paired transfer transactions via createMany and verify TRANSFER_IN appears before TRANSFER_OUT in descending query result
-- [ ] T035 [P] [US1] Update pagination cursor tests in backend/src/repositories/TransactionRepository.test.ts to handle new cursor format with createdAtSortable
+- [X] T031 [P] [US1] Update backend/src/repositories/TransactionRepository.test.ts - verify id field remains UUID v4 format (unchanged) in all create tests
+- [X] T032 [P] [US1] Update backend/src/repositories/TransactionRepository.test.ts - verify returned Transaction objects do NOT contain createdAtSortable field
+- [X] T033 [P] [US1] Add test in backend/src/repositories/TransactionRepository.test.ts - query raw DynamoDB items directly and verify they DO contain createdAtSortable field with correct format (ISO8601#ULID)
+- [X] T034 [US1] Add test in backend/src/repositories/TransactionRepository.test.ts - create paired transfer transactions via createMany and verify TRANSFER_IN appears before TRANSFER_OUT in descending query result
+- [X] T035 [P] [US1] Update pagination cursor tests in backend/src/repositories/TransactionRepository.test.ts to handle new cursor format with createdAtSortable
 
 **Checkpoint**: User Story 1 implementation complete - transfer transactions now sort correctly with TRANSFER_IN before TRANSFER_OUT
 
@@ -104,12 +104,12 @@
 
 **Purpose**: Code quality, validation, and documentation
 
-- [ ] T036 [P] Run npm run format in backend/ to format all modified files
-- [ ] T037 [P] Run npm run lint in backend/ and fix any ESLint issues
-- [ ] T038 Test locally by recreating database tables via npm run db:recreate in backend/
-- [ ] T039 Run migration locally via npm run migrate in backend/
-- [ ] T040 Manually test transfer creation and verify correct ordering in transactions list
-- [ ] T041 [P] Review quickstart.md and verify implementation matches all key points
+- [X] T036 [P] Run npm run format in backend/ to format all modified files
+- [X] T037 [P] Run npm run lint in backend/ and fix any ESLint issues
+- [X] T038 Test locally by recreating database tables via npm run db:recreate in backend/
+- [X] T039 Run migration locally via npm run migrate in backend/
+- [X] T040 Manually test transfer creation and verify correct ordering in transactions list
+- [X] T041 [P] Review quickstart.md and verify implementation matches all key points
 
 ---
 

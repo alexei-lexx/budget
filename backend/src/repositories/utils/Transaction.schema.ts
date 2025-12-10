@@ -17,3 +17,10 @@ export const transactionSchema = z.object({
   createdAt: z.iso.datetime(),
   updatedAt: z.iso.datetime(),
 }) satisfies z.ZodType<Transaction>;
+
+// Database item schema extends Transaction schema with createdAtSortable
+export const transactionDbItemSchema = transactionSchema.extend({
+  createdAtSortable: z.string().min(1),
+});
+
+export type TransactionDbItem = z.infer<typeof transactionDbItemSchema>;
