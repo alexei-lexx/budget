@@ -140,6 +140,10 @@ function toTransaction(dbItem: TransactionDbItem): Transaction {
   return transaction;
 }
 
+function buildCreatedAtSortable(transaction: Transaction): string {
+  return `${transaction.createdAt}#${ulid()}`;
+}
+
 export class TransactionRepository implements ITransactionRepository {
   private client: DynamoDBDocumentClient;
   private tableName: string;
@@ -163,7 +167,7 @@ export class TransactionRepository implements ITransactionRepository {
     try {
       const dbItem = {
         ...transaction,
-        createdAtSortable: `${transaction.createdAt}#${ulid()}`,
+        createdAtSortable: buildCreatedAtSortable(transaction),
       };
 
       const command = new PutCommand({
@@ -209,7 +213,7 @@ export class TransactionRepository implements ITransactionRepository {
           TableName: this.tableName,
           Item: {
             ...transaction,
-            createdAtSortable: `${transaction.createdAt}#${ulid()}`,
+            createdAtSortable: buildCreatedAtSortable(transaction),
           },
         },
       }));
