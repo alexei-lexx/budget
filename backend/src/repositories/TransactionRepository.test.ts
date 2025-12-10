@@ -1,4 +1,8 @@
-import { GetCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
+import {
+  BatchGetCommand,
+  GetCommand,
+  UpdateCommand,
+} from "@aws-sdk/lib-dynamodb";
 import { faker } from "@faker-js/faker";
 import { truncateTable } from "../__tests__/utils/dynamodbHelpers";
 import { fakeCreateTransactionInput } from "../__tests__/utils/factories";
@@ -220,6 +224,9 @@ describe("TransactionRepository", () => {
       expect(result[0].currency).toBe(inputs[0].currency);
       expect(result[0].date).toBe(inputs[0].date);
 
+      // Verify that createdAtSortable is not in the returned object
+      expect(result[0]).not.toHaveProperty("createdAtSortable");
+
       expect(result[1]).toBeDefined();
       expect(result[1].userId).toBe(inputs[1].userId);
       expect(result[1].accountId).toBe(inputs[1].accountId);
@@ -227,6 +234,9 @@ describe("TransactionRepository", () => {
       expect(result[1].amount).toBe(inputs[1].amount);
       expect(result[1].currency).toBe(inputs[1].currency);
       expect(result[1].date).toBe(inputs[1].date);
+
+      // Verify that createdAtSortable is not in the returned object
+      expect(result[1]).not.toHaveProperty("createdAtSortable");
 
       const stored1 = await repository.findActiveById(
         result[0].id,
@@ -238,6 +248,42 @@ describe("TransactionRepository", () => {
       );
 
       expect([stored1, stored2]).toEqual(expect.arrayContaining(result));
+    });
+
+    it("should include createdAtSortable in the raw DynamoDB items", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+      const inputs = [
+        fakeCreateTransactionInput({ userId }),
+        fakeCreateTransactionInput({ userId }),
+      ];
+
+      // Act
+      const result = await repository.createMany(inputs);
+
+      // Assert
+      const client = createDynamoDBDocumentClient();
+      const tableName = process.env.TRANSACTIONS_TABLE_NAME || "";
+      const ids = result.map((transaction) => transaction.id);
+
+      const { Responses: responses } = await client.send(
+        new BatchGetCommand({
+          RequestItems: {
+            [tableName]: {
+              Keys: ids.map((id) => ({
+                userId,
+                id,
+              })),
+            },
+          },
+        }),
+      );
+
+      const rawItems = responses ? responses[tableName] : [];
+
+      expect(rawItems.length).toBe(2);
+      expect(rawItems[0]).toHaveProperty("createdAtSortable");
+      expect(rawItems[1]).toHaveProperty("createdAtSortable");
     });
 
     it("should return transfer transactions in correct order (TRANSFER_IN before TRANSFER_OUT)", async () => {
