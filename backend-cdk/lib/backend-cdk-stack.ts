@@ -87,7 +87,7 @@ export class BackendCdkStack extends cdk.Stack {
     });
 
     const functionConfig: Omit<lambda.FunctionProps, "handler"> = {
-      runtime: lambda.Runtime.NODEJS_22_X,
+      runtime: lambda.Runtime.NODEJS_24_X,
       code: lambda.Code.fromAsset("../backend/dist"),
       environment: {
         AUTH0_AUDIENCE: process.env.AUTH0_AUDIENCE || "",

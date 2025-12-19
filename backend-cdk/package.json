@@ -22,7 +22,7 @@
     "@dotenvx/dotenvx": "^1.44.2",
     "@eslint/js": "^9.28.0",
     "@types/jest": "^29.5.14",
-    "@types/node": "22.7.9",
+    "@types/node": "^24.10.4",
     "aws-cdk": "^2.1016.1",
     "eslint": "^9.28.0",
     "eslint-plugin-import": "^2.32.0",
@@ -34,7 +34,7 @@
     "typescript-eslint": "^8.33.1"
   },
   "dependencies": {
-    "aws-cdk-lib": "2.196.0",
+    "aws-cdk-lib": "2.233.0",
     "constructs": "^10.0.0"
   }
 }
