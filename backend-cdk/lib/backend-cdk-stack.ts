@@ -115,7 +115,7 @@ export class BackendCdkStack extends cdk.Stack {
       "GraphqlEndpoint",
       {
         ...functionConfig,
-        handler: "lambda.handler",
+        handler: "graphql.handler",
       },
     );
 
@@ -126,7 +126,7 @@ export class BackendCdkStack extends cdk.Stack {
 
     const migrationFunction = new lambda.Function(
       this,
-      "MigrationFunction",
+      "MigrationRunner",
       {
         ...functionConfig,
         handler: "migrate.handler",
