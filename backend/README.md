@@ -12,42 +12,15 @@ GraphQL API server for the Personal Finance Tracker application.
 
 ### Getting Started
 
-1. Install dependencies:
-
-```bash
-npm install
-```
-
-2. Configure Auth0:
-
-Copy the environment template
-
-```bash
-cp .env.example .env.development
-```
-
-Edit `.env.development` with your Auth0 values
-
-```env
-AUTH0_DOMAIN=your-tenant.auth0.com
-AUTH0_AUDIENCE=your-api-identifier
-```
-
-3. Set up development database:
-
-Start DynamoDB Local and create tables
-
-```bash
-npm run db:setup
-```
-
-4. Start the development server:
-
-Start server on http://localhost:4000
-
-```bash
-npm run dev
-```
+1. `npm install` - Install dependencies
+2. `cp .env.example .env.development` - Copy environment template
+3. Edit `.env.development` with your Auth0 values
+  ```env
+  AUTH0_DOMAIN=your-tenant.auth0.com
+  AUTH0_AUDIENCE=your-api-identifier
+  ```
+4. `npm run db:setup` - Start DynamoDB Local and create tables
+5. `npm run dev` - Start the development server on http://localhost:4000
 
 ## Database (Development & Test)
 
