@@ -31,13 +31,25 @@ const emit = defineEmits<{
 // Local reactive values
 const searchText = ref(props.modelValue);
 const selectedIndex = ref(-1);
-const dropdownOpen = ref(false);
 const textFieldRef = ref();
+const isFocused = ref(false);
 const justSelected = ref(false);
 
 // Use description suggestions composable
 const { suggestions, showSuggestions, suggestionsLoading } = useDescriptionSuggestions({
   searchText,
+});
+
+// Single source of truth for dropdown visibility
+const dropdownOpen = computed(() => {
+  // Must be focused - user is interacting with input
+  if (!isFocused.value) return false;
+
+  // Don't reopen if user just made a selection
+  if (justSelected.value) return false;
+
+  // Show if composable says we have suggestions to display
+  return showSuggestions.value;
 });
 
 // Computed value for v-model
@@ -49,16 +61,10 @@ const inputValue = computed({
   },
 });
 
-// Watch for suggestions to manage dropdown visibility
-watch(showSuggestions, (show) => {
-  // If we just selected a suggestion, don't re-open the dropdown
-  if (justSelected.value && show) {
-    return; // Don't open dropdown (flag will auto-reset after timeout)
-  }
-
-  dropdownOpen.value = show;
-  if (show) {
-    selectedIndex.value = -1; // Reset selection when dropdown opens
+// Reset keyboard selection when dropdown opens
+watch(dropdownOpen, (isOpen) => {
+  if (isOpen) {
+    selectedIndex.value = -1;
   }
 });
 
@@ -70,18 +76,22 @@ watch(
   },
 );
 
+// Handle user input - clear justSelected when user types
+const handleInput = () => {
+  // User is typing new content - clear the just-selected flag
+  // This allows suggestions to appear normally as they type
+  // Note: @input only fires on user keyboard input, not programmatic changes
+  if (justSelected.value) {
+    justSelected.value = false;
+  }
+};
+
 // Handle suggestion selection
 const selectSuggestion = (suggestion: string) => {
-  justSelected.value = true; // Set flag before updating value
+  justSelected.value = true;
   inputValue.value = suggestion;
-  dropdownOpen.value = false;
   selectedIndex.value = -1;
-
-  // Keep flag active through full debounce cycle to prevent reopening
-  // 300ms debounce + 50ms buffer for query execution
-  setTimeout(() => {
-    justSelected.value = false;
-  }, 350);
+  // Dropdown closes automatically via computed property
 };
 
 // Handle keyboard navigation
@@ -110,12 +120,11 @@ const handleKeyDown = (event: KeyboardEvent) => {
       break;
     case "Escape":
       event.preventDefault();
-      dropdownOpen.value = false;
       selectedIndex.value = -1;
+      textFieldRef.value?.blur(); // Remove focus, dropdown closes via computed
       break;
     case "Tab":
-      // Allow default behavior, just close dropdown
-      dropdownOpen.value = false;
+      // Allow default behavior, dropdown will close via blur
       selectedIndex.value = -1;
       break;
   }
@@ -123,23 +132,19 @@ const handleKeyDown = (event: KeyboardEvent) => {
 
 // Handle input focus
 const handleFocus = () => {
-  // Don't reopen if user just selected a suggestion
-  if (justSelected.value) {
-    return;
-  }
-
-  // If there are suggestions, show them when focused
-  if (suggestions.value.length > 0) {
-    dropdownOpen.value = true;
-  }
+  isFocused.value = true;
+  // Don't clear justSelected here - let it persist until user types
+  // This prevents dropdown from opening with stale query results
+  // when refocusing after a selection
 };
 
 // Handle input blur (delayed to allow for clicks)
 const handleBlur = () => {
-  // Delay hiding dropdown to allow for suggestion clicks
+  // Delay to allow suggestion click events to register before closing
   setTimeout(() => {
-    dropdownOpen.value = false;
+    isFocused.value = false;
     selectedIndex.value = -1;
+    // Dropdown closes automatically via computed property
   }, 150);
 };
 </script>
@@ -154,13 +159,14 @@ const handleBlur = () => {
       :disabled="disabled"
       :variant="variant"
       autocapitalize="off"
+      @input="handleInput"
       @keydown="handleKeyDown"
       @focus="handleFocus"
       @blur="handleBlur"
     />
 
     <v-menu
-      v-model="dropdownOpen"
+      :model-value="dropdownOpen"
       :activator="textFieldRef"
       location="bottom start"
       :close-on-content-click="false"
