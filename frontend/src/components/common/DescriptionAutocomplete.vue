@@ -53,8 +53,7 @@ const inputValue = computed({
 watch(showSuggestions, (show) => {
   // If we just selected a suggestion, don't re-open the dropdown
   if (justSelected.value && show) {
-    justSelected.value = false; // Reset flag
-    return; // Don't open dropdown
+    return; // Don't open dropdown (flag will auto-reset after timeout)
   }
 
   dropdownOpen.value = show;
@@ -77,6 +76,12 @@ const selectSuggestion = (suggestion: string) => {
   inputValue.value = suggestion;
   dropdownOpen.value = false;
   selectedIndex.value = -1;
+
+  // Keep flag active through full debounce cycle to prevent reopening
+  // 300ms debounce + 50ms buffer for query execution
+  setTimeout(() => {
+    justSelected.value = false;
+  }, 350);
 };
 
 // Handle keyboard navigation
@@ -118,6 +123,11 @@ const handleKeyDown = (event: KeyboardEvent) => {
 
 // Handle input focus
 const handleFocus = () => {
+  // Don't reopen if user just selected a suggestion
+  if (justSelected.value) {
+    return;
+  }
+
   // If there are suggestions, show them when focused
   if (suggestions.value.length > 0) {
     dropdownOpen.value = true;

@@ -63,8 +63,10 @@ export function useDescriptionSuggestions({
   });
 
   // Determine if suggestions dropdown should be visible
+  // Show during loading OR when suggestions exist (prevents flicker)
   const showSuggestions = computed(() => {
-    return shouldQuery.value && suggestions.value.length > 0 && !suggestionsLoading.value;
+    if (!shouldQuery.value) return false;
+    return suggestionsLoading.value || suggestions.value.length > 0;
   });
 
   return {
