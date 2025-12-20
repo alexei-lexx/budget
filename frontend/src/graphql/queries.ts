@@ -63,7 +63,7 @@ export const GET_TRANSFER = gql`
 
 export const GET_TRANSACTION_PATTERNS = gql`
   query GetTransactionPatterns($type: TransactionPatternType!) {
-    getTransactionPatterns(type: $type) {
+    transactionPatterns(type: $type) {
       accountId
       accountName
       categoryId

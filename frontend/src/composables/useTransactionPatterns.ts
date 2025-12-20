@@ -31,10 +31,10 @@ export function useTransactionPatterns(transactionType: Ref<TransactionPatternTy
 
   // Extract patterns from query result
   const patterns = computed(() => {
-    if (!patternsResult.value?.getTransactionPatterns) {
+    if (!patternsResult.value?.transactionPatterns) {
       return [];
     }
-    return patternsResult.value.getTransactionPatterns;
+    return patternsResult.value.transactionPatterns;
   });
 
   // Watch for query errors

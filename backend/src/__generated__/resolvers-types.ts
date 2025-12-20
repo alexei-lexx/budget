@@ -221,11 +221,11 @@ export type Query = {
   __typename?: 'Query';
   accounts: Array<Account>;
   categories: Array<Category>;
-  getTransactionPatterns: Array<TransactionPattern>;
   monthlyReport: MonthlyReport;
   monthlyWeekdayReport: MonthlyWeekdayReport;
   supportedCurrencies: Array<Scalars['String']['output']>;
   transactionDescriptionSuggestions: Array<Scalars['String']['output']>;
+  transactionPatterns: Array<TransactionPattern>;
   transactions: TransactionConnection;
   transfer?: Maybe<Transfer>;
 };
@@ -233,11 +233,6 @@ export type Query = {
 
 export type QueryCategoriesArgs = {
   type?: InputMaybe<CategoryType>;
-};
-
-
-export type QueryGetTransactionPatternsArgs = {
-  type: TransactionPatternType;
 };
 
 
@@ -258,6 +253,11 @@ export type QueryMonthlyWeekdayReportArgs = {
 
 export type QueryTransactionDescriptionSuggestionsArgs = {
   searchText: Scalars['String']['input'];
+};
+
+
+export type QueryTransactionPatternsArgs = {
+  type: TransactionPatternType;
 };
 
 
@@ -657,11 +657,11 @@ export type PageInfoResolvers<ContextType = GraphQLContext, ParentType extends R
 export type QueryResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
   accounts?: Resolver<Array<ResolversTypes['Account']>, ParentType, ContextType>;
   categories?: Resolver<Array<ResolversTypes['Category']>, ParentType, ContextType, Partial<QueryCategoriesArgs>>;
-  getTransactionPatterns?: Resolver<Array<ResolversTypes['TransactionPattern']>, ParentType, ContextType, RequireFields<QueryGetTransactionPatternsArgs, 'type'>>;
   monthlyReport?: Resolver<ResolversTypes['MonthlyReport'], ParentType, ContextType, RequireFields<QueryMonthlyReportArgs, 'month' | 'type' | 'year'>>;
   monthlyWeekdayReport?: Resolver<ResolversTypes['MonthlyWeekdayReport'], ParentType, ContextType, RequireFields<QueryMonthlyWeekdayReportArgs, 'excludeOutliers' | 'month' | 'type' | 'year'>>;
   supportedCurrencies?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   transactionDescriptionSuggestions?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType, RequireFields<QueryTransactionDescriptionSuggestionsArgs, 'searchText'>>;
+  transactionPatterns?: Resolver<Array<ResolversTypes['TransactionPattern']>, ParentType, ContextType, RequireFields<QueryTransactionPatternsArgs, 'type'>>;
   transactions?: Resolver<ResolversTypes['TransactionConnection'], ParentType, ContextType, Partial<QueryTransactionsArgs>>;
   transfer?: Resolver<Maybe<ResolversTypes['Transfer']>, ParentType, ContextType, RequireFields<QueryTransferArgs, 'id'>>;
 };

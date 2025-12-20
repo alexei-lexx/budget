@@ -7,7 +7,7 @@ type Query {
     filters: TransactionFilterInput
   ): TransactionConnection!
   transfer(id: ID!): Transfer
-  getTransactionPatterns(type: TransactionPatternType!): [TransactionPattern!]!
+  transactionPatterns(type: TransactionPatternType!): [TransactionPattern!]!
   monthlyReport(year: Int!, month: Int!, type: TransactionType!): MonthlyReport!
   monthlyWeekdayReport(
     year: Int!
