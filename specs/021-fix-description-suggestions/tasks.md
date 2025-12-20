@@ -47,13 +47,13 @@ description: "Task list for fixing transaction description suggestion duplicate 
 
 ### Implementation for User Story 1
 
-- [ ] T001 [US1] Analyze current reactive flow and confirm race condition in frontend/src/components/common/DescriptionAutocomplete.vue (lines 52-72)
-- [ ] T002 [US1] Add `justSelected` ref flag to component state in frontend/src/components/common/DescriptionAutocomplete.vue
-- [ ] T003 [US1] Update `selectSuggestion` function to set `justSelected = true` before updating inputValue in frontend/src/components/common/DescriptionAutocomplete.vue
-- [ ] T004 [US1] Modify `watch(showSuggestions)` to check `justSelected` flag and prevent re-opening dropdown in frontend/src/components/common/DescriptionAutocomplete.vue
-- [ ] T005 [US1] Update `handleKeyDown` function to set `justSelected` flag when Enter key triggers selection in frontend/src/components/common/DescriptionAutocomplete.vue
-- [ ] T006 [US1] Run `npm run format` in frontend/ directory to format changes
-- [ ] T007 [US1] Fix any ESLint issues in frontend/src/components/common/DescriptionAutocomplete.vue
+- [x] T001 [US1] Analyze current reactive flow and confirm race condition in frontend/src/components/common/DescriptionAutocomplete.vue (lines 52-72)
+- [x] T002 [US1] Add `justSelected` ref flag to component state in frontend/src/components/common/DescriptionAutocomplete.vue
+- [x] T003 [US1] Update `selectSuggestion` function to set `justSelected = true` before updating inputValue in frontend/src/components/common/DescriptionAutocomplete.vue
+- [x] T004 [US1] Modify `watch(showSuggestions)` to check `justSelected` flag and prevent re-opening dropdown in frontend/src/components/common/DescriptionAutocomplete.vue
+- [x] T005 [US1] Update `handleKeyDown` function to set `justSelected` flag when Enter key triggers selection in frontend/src/components/common/DescriptionAutocomplete.vue
+- [x] T006 [US1] Run `npm run format` in frontend/ directory to format changes
+- [x] T007 [US1] Fix any ESLint issues in frontend/src/components/common/DescriptionAutocomplete.vue
 - [ ] T008 [US1] Manual test: Create transaction - single selection flow per quickstart.md Scenario 1
 - [ ] T009 [US1] Manual test: Keyboard navigation (Arrow keys, Enter) per quickstart.md Scenario 3
 - [ ] T010 [US1] Manual test: Manual edit after selection per quickstart.md Scenario 4
@@ -73,8 +73,8 @@ description: "Task list for fixing transaction description suggestion duplicate 
 
 ### Implementation for User Story 2
 
-- [ ] T014 [US2] Verify DescriptionAutocomplete component is used in TransactionForm for both create and edit modes in frontend/src/components/transactions/TransactionForm.vue
-- [ ] T015 [US2] Verify no mode-specific logic exists that could cause different behavior in frontend/src/components/common/DescriptionAutocomplete.vue
+- [x] T014 [US2] Verify DescriptionAutocomplete component is used in TransactionForm for both create and edit modes in frontend/src/components/transactions/TransactionForm.vue
+- [x] T015 [US2] Verify no mode-specific logic exists that could cause different behavior in frontend/src/components/common/DescriptionAutocomplete.vue
 - [ ] T016 [US2] Manual test: Edit transaction - consistent behavior per quickstart.md Scenario 2
 - [ ] T017 [US2] Manual test: Verify TransferForm also works correctly (uses same DescriptionAutocomplete) per quickstart.md Scenario 6
 - [ ] T018 [US2] Cross-validate: Create new transaction → Edit same transaction → verify identical suggestion behavior

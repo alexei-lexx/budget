@@ -33,6 +33,7 @@ const searchText = ref(props.modelValue);
 const selectedIndex = ref(-1);
 const dropdownOpen = ref(false);
 const textFieldRef = ref();
+const justSelected = ref(false);
 
 // Use description suggestions composable
 const { suggestions, showSuggestions, suggestionsLoading } = useDescriptionSuggestions({
@@ -50,6 +51,12 @@ const inputValue = computed({
 
 // Watch for suggestions to manage dropdown visibility
 watch(showSuggestions, (show) => {
+  // If we just selected a suggestion, don't re-open the dropdown
+  if (justSelected.value && show) {
+    justSelected.value = false; // Reset flag
+    return; // Don't open dropdown
+  }
+
   dropdownOpen.value = show;
   if (show) {
     selectedIndex.value = -1; // Reset selection when dropdown opens
@@ -66,6 +73,7 @@ watch(
 
 // Handle suggestion selection
 const selectSuggestion = (suggestion: string) => {
+  justSelected.value = true; // Set flag before updating value
   inputValue.value = suggestion;
   dropdownOpen.value = false;
   selectedIndex.value = -1;
