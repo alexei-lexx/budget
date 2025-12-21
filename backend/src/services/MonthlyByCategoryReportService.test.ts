@@ -6,11 +6,9 @@ import {
   createMockTransactionRepository,
 } from "../__tests__/utils/mockRepositories";
 import { ICategoryRepository } from "../models/Category";
+import { ReportType } from "../models/Report";
 import { ITransactionRepository, TransactionType } from "../models/Transaction";
-import {
-  MonthlyByCategoryReportService,
-  ReportType,
-} from "./MonthlyByCategoryReportService";
+import { MonthlyByCategoryReportService } from "./MonthlyByCategoryReportService";
 
 describe("MonthlyByCategoryReportService", () => {
   let monthlyByCategoryReportService: MonthlyByCategoryReportService;
