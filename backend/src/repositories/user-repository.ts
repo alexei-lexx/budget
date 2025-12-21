@@ -8,8 +8,8 @@ import {
 } from "@aws-sdk/lib-dynamodb";
 import { CreateUserInput, IUserRepository, User } from "../models/user";
 import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
+import { userSchema } from "./schemas/user";
 import { hydrate } from "./utils/hydrate";
-import { userSchema } from "./utils/user.schema";
 
 export class UserRepository implements IUserRepository {
   private client: DynamoDBDocumentClient;

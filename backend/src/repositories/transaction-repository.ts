@@ -35,13 +35,13 @@ import {
   DYNAMODB_TRANSACT_WRITE_MAX_ITEMS,
   createDynamoDBDocumentClient,
 } from "../utils/dynamo-client";
-import { hydrate } from "./utils/hydrate";
-import { paginateQuery } from "./utils/pagination";
 import {
   TransactionDbItem,
   transactionDbItemSchema,
   transactionSchema,
-} from "./utils/transaction.schema";
+} from "./schemas/transaction";
+import { hydrate } from "./utils/hydrate";
+import { paginateQuery } from "./utils/pagination";
 
 /**
  * Monotonic ULID factory for generating sortable identifiers

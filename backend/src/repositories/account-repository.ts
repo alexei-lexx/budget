@@ -14,7 +14,7 @@ import {
   UpdateAccountInput,
 } from "../models/account";
 import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
-import { accountSchema } from "./utils/account.schema";
+import { accountSchema } from "./schemas/account";
 import { hydrate } from "./utils/hydrate";
 import { paginateQuery } from "./utils/pagination";
 
