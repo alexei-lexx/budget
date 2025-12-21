@@ -86,38 +86,3 @@ export const GET_TRANSACTION_DESCRIPTION_SUGGESTIONS = gql`
     transactionDescriptionSuggestions(searchText: $searchText)
   }
 `;
-
-export const GET_MONTHLY_WEEKDAY_REPORT = gql`
-  query GetMonthlyWeekdayReport(
-    $year: Int!
-    $month: Int!
-    $type: TransactionType!
-    $excludeOutliers: Boolean
-  ) {
-    monthlyWeekdayReport(
-      year: $year
-      month: $month
-      type: $type
-      excludeOutliers: $excludeOutliers
-    ) {
-      year
-      month
-      type
-      weekdays {
-        weekday
-        currencyBreakdowns {
-          currency
-          totalAmount
-          averageAmount
-          percentage
-          outlierCount
-          outlierTotalAmount
-        }
-      }
-      currencyTotals {
-        currency
-        totalAmount
-      }
-    }
-  }
-`;

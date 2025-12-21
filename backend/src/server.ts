@@ -17,7 +17,6 @@ import { resolvers } from "./resolvers";
 import { getAuthenticatedUser } from "./resolvers/shared";
 import { AccountService } from "./services/AccountService";
 import { MonthlyByCategoryReportService } from "./services/MonthlyByCategoryReportService";
-import { MonthlyByWeekdayReportService } from "./services/MonthlyByWeekdayReportService";
 import { TransactionService } from "./services/TransactionService";
 import { TransferService } from "./services/TransferService";
 import type {
@@ -35,7 +34,6 @@ export interface GraphQLContext {
   accountService: AccountService;
   transferService: TransferService;
   monthlyByCategoryReportService: MonthlyByCategoryReportService;
-  monthlyByWeekdayReportService: MonthlyByWeekdayReportService;
   jwtAuthService: JwtAuthService;
   authHeader?: string;
   accountLoader: DataLoader<string, TransactionEmbeddedAccount>;
@@ -51,7 +49,6 @@ let transactionService: TransactionService;
 let accountService: AccountService;
 let transferService: TransferService;
 let monthlyByCategoryReportService: MonthlyByCategoryReportService;
-let monthlyByWeekdayReportService: MonthlyByWeekdayReportService;
 
 const typeDefs = readFileSync(join(__dirname, "schema.graphql"), {
   encoding: "utf-8",
@@ -120,12 +117,6 @@ export async function createContext(req: {
     );
   }
 
-  if (!monthlyByWeekdayReportService) {
-    monthlyByWeekdayReportService = new MonthlyByWeekdayReportService(
-      transactionRepository,
-    );
-  }
-
   const authHeader = req.headers.authorization;
   // Handle both string and string[] types from different contexts
   const authHeaderString = Array.isArray(authHeader)
@@ -148,7 +139,6 @@ export async function createContext(req: {
     accountService,
     transferService,
     monthlyByCategoryReportService,
-    monthlyByWeekdayReportService,
     jwtAuthService,
     authHeader: authHeaderString,
   };
