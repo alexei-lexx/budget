@@ -1,5 +1,5 @@
 import DataLoader from "dataloader";
-import { Category, ICategoryRepository } from "../models/Category";
+import { Category, ICategoryRepository } from "../models/category";
 import { TransactionEmbeddedCategory } from "../types/graphql";
 
 export type { TransactionEmbeddedCategory };

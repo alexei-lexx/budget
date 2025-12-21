@@ -21,7 +21,7 @@ import {
   TransactionPatternType,
   TransactionType,
   UpdateTransactionInput,
-} from "../models/Transaction";
+} from "../models/transaction";
 import {
   DEFAULT_PAGE_SIZE,
   MAX_PAGE_SIZE,
@@ -34,14 +34,14 @@ import { formatDateAsYYYYMMDD } from "../utils/date";
 import {
   DYNAMODB_TRANSACT_WRITE_MAX_ITEMS,
   createDynamoDBDocumentClient,
-} from "../utils/dynamoClient";
+} from "../utils/dynamo-client";
+import { hydrate } from "./utils/hydrate";
+import { paginateQuery } from "./utils/pagination";
 import {
   TransactionDbItem,
   transactionDbItemSchema,
   transactionSchema,
-} from "./utils/Transaction.schema";
-import { hydrate } from "./utils/hydrate";
-import { paginateQuery } from "./utils/pagination";
+} from "./utils/transaction.schema";
 
 /**
  * Monotonic ULID factory for generating sortable identifiers

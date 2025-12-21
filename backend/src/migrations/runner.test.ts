@@ -3,9 +3,9 @@ import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 
 // Mock the operations modules
 jest.mock("./operations/migrations-table");
-jest.mock("../utils/dynamoClient");
+jest.mock("../utils/dynamo-client");
 
-import { createDynamoDBDocumentClient } from "../utils/dynamoClient";
+import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
 import {
   acquireLock,
   isExecuted,

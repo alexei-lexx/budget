@@ -57,6 +57,7 @@
     "@types/node": "^24.10.4",
     "esbuild": "0.25.11",
     "eslint": "^9.38.0",
+    "eslint-plugin-check-file": "^3.3.1",
     "eslint-plugin-import": "^2.32.0",
     "jest": "^30.2.0",
     "nodemon": "^3.1.10",

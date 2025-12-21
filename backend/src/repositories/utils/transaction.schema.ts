@@ -1,6 +1,6 @@
 import { z } from "zod";
-import type { Transaction } from "../../models/Transaction";
-import { TransactionType } from "../../models/Transaction";
+import type { Transaction } from "../../models/transaction";
+import { TransactionType } from "../../models/transaction";
 
 export const transactionSchema = z.object({
   userId: z.uuid(),

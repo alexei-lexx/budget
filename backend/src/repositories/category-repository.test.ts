@@ -1,9 +1,9 @@
 import { UpdateCommand } from "@aws-sdk/lib-dynamodb";
 import { faker } from "@faker-js/faker";
-import { truncateTable } from "../__tests__/utils/dynamodbHelpers";
+import { truncateTable } from "../__tests__/utils/dynamodb-helpers";
 import { fakeCreateCategoryInput } from "../__tests__/utils/factories";
-import { createDynamoDBDocumentClient } from "../utils/dynamoClient";
-import { CategoryRepository } from "./CategoryRepository";
+import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
+import { CategoryRepository } from "./category-repository";
 
 describe("CategoryRepository", () => {
   let repository: CategoryRepository;

@@ -1,13 +1,13 @@
 import { randomUUID } from "crypto";
-import { Account, IAccountRepository } from "../models/Account";
+import { Account, IAccountRepository } from "../models/account";
 import {
   CreateTransactionInput,
   ITransactionRepository,
   Transaction,
   TransactionType,
-} from "../models/Transaction";
+} from "../models/transaction";
 import { DATE_FORMAT_REGEX } from "../types/validation";
-import { BusinessError, BusinessErrorCodes } from "./BusinessError";
+import { BusinessError, BusinessErrorCodes } from "./business-error";
 
 /**
  * Input type for creating transfers between accounts

@@ -13,9 +13,9 @@ import {
   CreateCategoryInput,
   ICategoryRepository,
   UpdateCategoryInput,
-} from "../models/Category";
-import { createDynamoDBDocumentClient } from "../utils/dynamoClient";
-import { categorySchema } from "./utils/Category.schema";
+} from "../models/category";
+import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
+import { categorySchema } from "./utils/category.schema";
 import { hydrate } from "./utils/hydrate";
 import { paginateQuery } from "./utils/pagination";
 

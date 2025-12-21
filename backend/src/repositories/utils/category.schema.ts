@@ -1,6 +1,6 @@
 import { z } from "zod";
-import type { Category } from "../../models/Category";
-import { CategoryType } from "../../models/Category";
+import type { Category } from "../../models/category";
+import { CategoryType } from "../../models/category";
 
 export const categorySchema = z.object({
   userId: z.uuid(),

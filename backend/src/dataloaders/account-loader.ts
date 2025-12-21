@@ -1,5 +1,5 @@
 import DataLoader from "dataloader";
-import { Account, IAccountRepository } from "../models/Account";
+import { Account, IAccountRepository } from "../models/account";
 import { TransactionEmbeddedAccount } from "../types/graphql";
 
 export type { TransactionEmbeddedAccount };
