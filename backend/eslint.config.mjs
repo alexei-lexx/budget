@@ -17,7 +17,6 @@ export default defineConfig(
   },
   {
     files: ["**/*.{ts,tsx}"],
-    ignores: ["**/migrations/**"],
     extends: [
       importPlugin.flatConfigs.recommended,
       importPlugin.flatConfigs.typescript,
@@ -55,27 +54,10 @@ export default defineConfig(
   },
   {
     files: ["**/migrations/**/*.{ts,tsx}"],
-    extends: [
-      importPlugin.flatConfigs.recommended,
-      importPlugin.flatConfigs.typescript,
-    ],
     rules: {
-      "import/order": [
-        "error",
-        {
-          alphabetize: {
-            order: "asc",
-            caseInsensitive: false,
-          },
-        },
-      ],
-      "sort-imports": [
-        "error",
-        {
-          ignoreDeclarationSort: true,
-          ignoreMemberSort: false,
-        },
-      ],
+      // Migration files use timestamp prefix format (YYYYMMDDHHMMSS-description.ts)
+      // which doesn't match kebab-case pattern
+      "check-file/filename-naming-convention": "off",
     },
   },
 );
