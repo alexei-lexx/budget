@@ -1,16 +1,15 @@
 import { ref, computed, unref, type Ref } from "vue";
 import {
   useGetMonthlyReportQuery,
-  type TransactionType,
   type MonthlyReport,
   type MonthlyReportCategory,
   type MonthlyReportCurrencyBreakdown,
   type MonthlyReportCurrencyTotal,
+  type ReportType,
 } from "@/__generated__/vue-apollo";
 
 // Re-export types for backward compatibility
 export type {
-  TransactionType,
   MonthlyReport,
   MonthlyReportCategory,
   MonthlyReportCurrencyBreakdown,
@@ -24,7 +23,7 @@ export function useMonthlyReports() {
   const getMonthlyReport = (
     year: Ref<number> | number,
     month: Ref<number> | number,
-    type: TransactionType,
+    type: ReportType,
   ) => {
     const {
       result: monthlyReportResult,

@@ -7,7 +7,10 @@ import {
 } from "../__tests__/utils/mockRepositories";
 import { ICategoryRepository } from "../models/Category";
 import { ITransactionRepository, TransactionType } from "../models/Transaction";
-import { MonthlyByCategoryReportService } from "./MonthlyByCategoryReportService";
+import {
+  MonthlyByCategoryReportService,
+  ReportType,
+} from "./MonthlyByCategoryReportService";
 
 describe("MonthlyByCategoryReportService", () => {
   let monthlyByCategoryReportService: MonthlyByCategoryReportService;
@@ -34,7 +37,7 @@ describe("MonthlyByCategoryReportService", () => {
         userId,
         2000,
         1,
-        TransactionType.EXPENSE,
+        ReportType.EXPENSE,
       );
 
       expect(result).toEqual({
@@ -82,7 +85,7 @@ describe("MonthlyByCategoryReportService", () => {
         userId,
         2000,
         1,
-        TransactionType.EXPENSE,
+        ReportType.EXPENSE,
       );
 
       expect(result.categories).toHaveLength(3);
@@ -108,7 +111,7 @@ describe("MonthlyByCategoryReportService", () => {
         userId,
         2000,
         1,
-        TransactionType.EXPENSE,
+        ReportType.EXPENSE,
       );
 
       expect(result.currencyTotals).toEqual([
@@ -139,7 +142,7 @@ describe("MonthlyByCategoryReportService", () => {
         userId,
         2000,
         1,
-        TransactionType.EXPENSE,
+        ReportType.EXPENSE,
       );
 
       const foodCategory = result.categories.find(
@@ -171,7 +174,7 @@ describe("MonthlyByCategoryReportService", () => {
         userId,
         2000,
         1,
-        TransactionType.EXPENSE,
+        ReportType.EXPENSE,
       );
 
       expect(result.categories).toHaveLength(1);
@@ -199,7 +202,7 @@ describe("MonthlyByCategoryReportService", () => {
         userId,
         2000,
         1,
-        TransactionType.EXPENSE,
+        ReportType.EXPENSE,
       );
 
       expect(result.categories).toHaveLength(1);
@@ -237,7 +240,7 @@ describe("MonthlyByCategoryReportService", () => {
         userId,
         2000,
         1,
-        TransactionType.EXPENSE,
+        ReportType.EXPENSE,
       );
 
       expect(result.categories.map((c) => c.categoryName)).toEqual([
@@ -266,7 +269,7 @@ describe("MonthlyByCategoryReportService", () => {
         userId,
         2000,
         1,
-        TransactionType.EXPENSE,
+        ReportType.EXPENSE,
       );
 
       expect(result.currencyTotals.map((ct) => ct.currency)).toEqual([
@@ -301,7 +304,7 @@ describe("MonthlyByCategoryReportService", () => {
         userId,
         2000,
         1,
-        TransactionType.EXPENSE,
+        ReportType.EXPENSE,
       );
 
       const percentages = result.categories[0].currencyBreakdowns[0].percentage;
@@ -338,7 +341,7 @@ describe("MonthlyByCategoryReportService", () => {
         userId,
         2025,
         11,
-        TransactionType.EXPENSE,
+        ReportType.EXPENSE,
       );
 
       expect(result.categories).toHaveLength(1);
@@ -367,7 +370,7 @@ describe("MonthlyByCategoryReportService", () => {
         userId,
         2025,
         11,
-        TransactionType.EXPENSE,
+        ReportType.EXPENSE,
       );
 
       expect(result.categories).toHaveLength(1);
@@ -396,7 +399,7 @@ describe("MonthlyByCategoryReportService", () => {
         userId,
         2025,
         11,
-        TransactionType.INCOME,
+        ReportType.INCOME,
       );
 
       expect(
@@ -451,7 +454,7 @@ describe("MonthlyByCategoryReportService", () => {
         userId,
         2025,
         11,
-        TransactionType.EXPENSE,
+        ReportType.EXPENSE,
       );
 
       expect(result.categories).toHaveLength(1);
@@ -490,7 +493,7 @@ describe("MonthlyByCategoryReportService", () => {
         userId,
         2025,
         11,
-        TransactionType.EXPENSE,
+        ReportType.EXPENSE,
       );
 
       expect(result.categories).toHaveLength(1);

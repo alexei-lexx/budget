@@ -1,4 +1,5 @@
 import { CategoryType } from '../models/Category';
+import { ReportType } from '../models/Report';
 import { TransactionType } from '../models/Transaction';
 import { GraphQLResolveInfo } from 'graphql';
 import { GraphQLContext } from '../server';
@@ -72,7 +73,7 @@ export type MonthlyReport = {
   categories: Array<MonthlyReportCategory>;
   currencyTotals: Array<MonthlyReportCurrencyTotal>;
   month: Scalars['Int']['output'];
-  type: TransactionType;
+  type: ReportType;
   year: Scalars['Int']['output'];
 };
 
@@ -206,7 +207,7 @@ export type QueryCategoriesArgs = {
 
 export type QueryMonthlyReportArgs = {
   month: Scalars['Int']['input'];
-  type: TransactionType;
+  type: ReportType;
   year: Scalars['Int']['input'];
 };
 
@@ -230,6 +231,8 @@ export type QueryTransactionsArgs = {
 export type QueryTransferArgs = {
   id: Scalars['ID']['input'];
 };
+
+export { ReportType };
 
 /**
  * Transaction with embedded account and category data.
@@ -450,6 +453,7 @@ export type ResolversTypes = {
   PageInfo: ResolverTypeWrapper<PageInfo>;
   PaginationInput: PaginationInput;
   Query: ResolverTypeWrapper<Record<PropertyKey, never>>;
+  ReportType: ReportType;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
   Transaction: ResolverTypeWrapper<Omit<Transaction, 'account' | 'category'>>;
   TransactionConnection: ResolverTypeWrapper<Omit<TransactionConnection, 'edges'> & { edges: Array<ResolversTypes['TransactionEdge']> }>;
@@ -524,7 +528,7 @@ export type MonthlyReportResolvers<ContextType = GraphQLContext, ParentType exte
   categories?: Resolver<Array<ResolversTypes['MonthlyReportCategory']>, ParentType, ContextType>;
   currencyTotals?: Resolver<Array<ResolversTypes['MonthlyReportCurrencyTotal']>, ParentType, ContextType>;
   month?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  type?: Resolver<ResolversTypes['TransactionType'], ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['ReportType'], ParentType, ContextType>;
   year?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
 };
 
@@ -578,6 +582,8 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   transactions?: Resolver<ResolversTypes['TransactionConnection'], ParentType, ContextType, Partial<QueryTransactionsArgs>>;
   transfer?: Resolver<Maybe<ResolversTypes['Transfer']>, ParentType, ContextType, RequireFields<QueryTransferArgs, 'id'>>;
 };
+
+export type ReportTypeResolvers = EnumResolverSignature<{ EXPENSE?: any, INCOME?: any }, ResolversTypes['ReportType']>;
 
 export type TransactionResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Transaction'] = ResolversParentTypes['Transaction']> = {
   account?: Resolver<ResolversTypes['TransactionEmbeddedAccount'], ParentType, ContextType>;
@@ -644,6 +650,7 @@ export type Resolvers<ContextType = GraphQLContext> = {
   Mutation?: MutationResolvers<ContextType>;
   PageInfo?: PageInfoResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
+  ReportType?: ReportTypeResolvers;
   Transaction?: TransactionResolvers<ContextType>;
   TransactionConnection?: TransactionConnectionResolvers<ContextType>;
   TransactionEdge?: TransactionEdgeResolvers<ContextType>;

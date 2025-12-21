@@ -8,7 +8,7 @@ type Query {
   ): TransactionConnection!
   transfer(id: ID!): Transfer
   transactionPatterns(type: TransactionPatternType!): [TransactionPattern!]!
-  monthlyReport(year: Int!, month: Int!, type: TransactionType!): MonthlyReport!
+  monthlyReport(year: Int!, month: Int!, type: ReportType!): MonthlyReport!
   transactionDescriptionSuggestions(searchText: String!): [String!]!
 }
 
@@ -41,6 +41,11 @@ enum TransactionPatternType {
   INCOME
   EXPENSE
   REFUND
+}
+
+enum ReportType {
+  INCOME
+  EXPENSE
 }
 
 type Category {
@@ -216,7 +221,7 @@ type MonthlyReportCurrencyTotal {
 type MonthlyReport {
   year: Int!
   month: Int!
-  type: TransactionType! # TODO: remove if not needed
+  type: ReportType! # TODO: remove if not needed
   categories: [MonthlyReportCategory!]!
   currencyTotals: [MonthlyReportCurrencyTotal!]!
 }

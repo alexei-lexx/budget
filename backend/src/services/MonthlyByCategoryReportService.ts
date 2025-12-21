@@ -1,4 +1,5 @@
 import { ICategoryRepository } from "../models/Category";
+import { ReportType } from "../models/Report";
 import {
   ITransactionRepository,
   Transaction,
@@ -27,7 +28,7 @@ export interface MonthlyReportCurrencyTotal {
 export interface MonthlyReport {
   year: number;
   month: number;
-  type: TransactionType;
+  type: ReportType;
   categories: MonthlyReportCategory[];
   currencyTotals: MonthlyReportCurrencyTotal[];
 }
@@ -53,29 +54,36 @@ export class MonthlyByCategoryReportService {
    * @param userId - The user ID to generate the report for
    * @param year - The year (e.g., 2025)
    * @param month - The month (1-12)
-   * @param type - The transaction type (EXPENSE or INCOME)
+   * @param type - The report type (EXPENSE or INCOME)
    * @returns Monthly report with categories and currency totals
    */
   async call(
     userId: string,
     year: number,
     month: number,
-    type: TransactionType,
+    type: ReportType,
   ): Promise<MonthlyReport> {
-    const isExpenseReport = type === TransactionType.EXPENSE;
-
     // For EXPENSE reports, fetch both EXPENSE and REFUND transactions
     // For INCOME reports, fetch only INCOME transactions
-    const typesToFetch = isExpenseReport
-      ? [TransactionType.EXPENSE, TransactionType.REFUND]
-      : [type];
+    let transactionTypesToFetch: TransactionType[];
+
+    if (type === ReportType.EXPENSE) {
+      transactionTypesToFetch = [
+        TransactionType.EXPENSE,
+        TransactionType.REFUND,
+      ];
+    } else if (type === ReportType.INCOME) {
+      transactionTypesToFetch = [TransactionType.INCOME];
+    } else {
+      throw new Error("Invalid report type");
+    }
 
     const transactions =
       await this.transactionRepository.findActiveByMonthAndTypes(
         userId,
         year,
         month,
-        typesToFetch,
+        transactionTypesToFetch,
       );
 
     if (transactions.length === 0) {
@@ -90,12 +98,13 @@ export class MonthlyByCategoryReportService {
 
     // For EXPENSE reports: calculate net (expenses - refunds)
     // For INCOME reports: sum amounts as-is
-    const amountGetter = isExpenseReport
-      ? (transaction: Transaction) =>
-          transaction.type === TransactionType.EXPENSE
-            ? transaction.amount
-            : -transaction.amount // REFUND amounts are subtracted
-      : (transaction: Transaction) => transaction.amount;
+    const amountGetter =
+      type === ReportType.EXPENSE
+        ? (transaction: Transaction) =>
+            transaction.type === TransactionType.EXPENSE
+              ? transaction.amount
+              : -transaction.amount // REFUND amounts are subtracted
+        : (transaction: Transaction) => transaction.amount;
 
     const currencyTotals = this.calculateCurrencyTotals(
       transactions,
