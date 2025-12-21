@@ -1,6 +1,6 @@
-import { CategoryType } from '../models/Category';
-import { ReportType } from '../models/Report';
-import { TransactionType } from '../models/Transaction';
+import { CategoryType } from '../models/category';
+import { ReportType } from '../models/report';
+import { TransactionType } from '../models/transaction';
 import { GraphQLResolveInfo } from 'graphql';
 import { GraphQLContext } from '../server';
 export type Maybe<T> = T | undefined;

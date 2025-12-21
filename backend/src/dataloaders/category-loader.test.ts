@@ -1,7 +1,7 @@
 import DataLoader from "dataloader";
 import { fakeCategory } from "../__tests__/utils/factories";
-import { createMockCategoryRepository } from "../__tests__/utils/mockRepositories";
-import { batchLoadCategories, createCategoryLoader } from "./categoryLoader";
+import { createMockCategoryRepository } from "../__tests__/utils/mock-repositories";
+import { batchLoadCategories, createCategoryLoader } from "./category-loader";
 
 describe("Category Batch Loader", () => {
   describe("batchLoadCategories", () => {

@@ -2,23 +2,23 @@ import { readFileSync } from "fs";
 import { join } from "path";
 import { ApolloServer } from "@apollo/server";
 import DataLoader from "dataloader";
-import { AuthContext, JwtAuthService } from "./auth/jwtAuth";
-import { createAccountLoader } from "./dataloaders/accountLoader";
-import { createCategoryLoader } from "./dataloaders/categoryLoader";
-import { IAccountRepository } from "./models/Account";
-import { ICategoryRepository } from "./models/Category";
-import { ITransactionRepository } from "./models/Transaction";
-import { IUserRepository } from "./models/User";
-import { AccountRepository } from "./repositories/AccountRepository";
-import { CategoryRepository } from "./repositories/CategoryRepository";
-import { TransactionRepository } from "./repositories/TransactionRepository";
-import { UserRepository } from "./repositories/UserRepository";
+import { AuthContext, JwtAuthService } from "./auth/jwt-auth";
+import { createAccountLoader } from "./dataloaders/account-loader";
+import { createCategoryLoader } from "./dataloaders/category-loader";
+import { IAccountRepository } from "./models/account";
+import { ICategoryRepository } from "./models/category";
+import { ITransactionRepository } from "./models/transaction";
+import { IUserRepository } from "./models/user";
+import { AccountRepository } from "./repositories/account-repository";
+import { CategoryRepository } from "./repositories/category-repository";
+import { TransactionRepository } from "./repositories/transaction-repository";
+import { UserRepository } from "./repositories/user-repository";
 import { resolvers } from "./resolvers";
 import { getAuthenticatedUser } from "./resolvers/shared";
-import { AccountService } from "./services/AccountService";
-import { MonthlyByCategoryReportService } from "./services/MonthlyByCategoryReportService";
-import { TransactionService } from "./services/TransactionService";
-import { TransferService } from "./services/TransferService";
+import { AccountService } from "./services/account-service";
+import { MonthlyByCategoryReportService } from "./services/monthly-by-category-report-service";
+import { TransactionService } from "./services/transaction-service";
+import { TransferService } from "./services/transfer-service";
 import type {
   TransactionEmbeddedAccount,
   TransactionEmbeddedCategory,

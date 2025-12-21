@@ -1,6 +1,6 @@
 import { GraphQLError } from "graphql";
 import { z } from "zod";
-import { ReportType } from "../models/Report";
+import { ReportType } from "../models/report";
 import { GraphQLContext } from "../server";
 import { YEAR_RANGE_OFFSET } from "../types/validation";
 import { getAuthenticatedUser, handleResolverError } from "./shared";

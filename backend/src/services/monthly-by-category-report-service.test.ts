@@ -4,11 +4,11 @@ import { fakeCategory, fakeTransaction } from "../__tests__/utils/factories";
 import {
   createMockCategoryRepository,
   createMockTransactionRepository,
-} from "../__tests__/utils/mockRepositories";
-import { ICategoryRepository } from "../models/Category";
-import { ReportType } from "../models/Report";
-import { ITransactionRepository, TransactionType } from "../models/Transaction";
-import { MonthlyByCategoryReportService } from "./MonthlyByCategoryReportService";
+} from "../__tests__/utils/mock-repositories";
+import { ICategoryRepository } from "../models/category";
+import { ReportType } from "../models/report";
+import { ITransactionRepository, TransactionType } from "../models/transaction";
+import { MonthlyByCategoryReportService } from "./monthly-by-category-report-service";
 
 describe("MonthlyByCategoryReportService", () => {
   let monthlyByCategoryReportService: MonthlyByCategoryReportService;

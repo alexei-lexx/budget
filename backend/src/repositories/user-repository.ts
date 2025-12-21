@@ -6,10 +6,10 @@ import {
   QueryCommand,
   ScanCommand,
 } from "@aws-sdk/lib-dynamodb";
-import { CreateUserInput, IUserRepository, User } from "../models/User";
-import { createDynamoDBDocumentClient } from "../utils/dynamoClient";
-import { userSchema } from "./utils/User.schema";
+import { CreateUserInput, IUserRepository, User } from "../models/user";
+import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
 import { hydrate } from "./utils/hydrate";
+import { userSchema } from "./utils/user.schema";
 
 export class UserRepository implements IUserRepository {
   private client: DynamoDBDocumentClient;

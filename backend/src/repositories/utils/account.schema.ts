@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { Account } from "../../models/Account";
+import type { Account } from "../../models/account";
 
 export const accountSchema = z.object({
   id: z.uuid(),

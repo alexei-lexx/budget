@@ -15,9 +15,9 @@ const config: CodegenConfig = {
         maybeValue: "T | undefined",
         // Map GraphQL enums to model enums to avoid type mismatches
         enumValues: {
-          CategoryType: "../models/Category#CategoryType",
-          ReportType: "../models/Report#ReportType",
-          TransactionType: "../models/Transaction#TransactionType",
+          CategoryType: "../models/category#CategoryType",
+          ReportType: "../models/report#ReportType",
+          TransactionType: "../models/transaction#TransactionType",
         },
         // Map GraphQL types to model types for field resolvers and computed fields
         mappers: {

@@ -2,7 +2,7 @@ import { GraphQLError } from "graphql";
 import { z } from "zod";
 import { TransactionType } from "../__generated__/resolvers-types";
 import { GraphQLContext } from "../server";
-import { BusinessError } from "../services/BusinessError";
+import { BusinessError } from "../services/business-error";
 import {
   DATE_FORMAT_ERROR_MESSAGE,
   DATE_FORMAT_REGEX,

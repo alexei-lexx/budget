@@ -3,10 +3,10 @@ import { fakeAccount, fakeTransaction } from "../__tests__/utils/factories";
 import {
   createMockAccountRepository,
   createMockTransactionRepository,
-} from "../__tests__/utils/mockRepositories";
-import { TransactionType } from "../models/Transaction";
-import { AccountService } from "./AccountService";
-import { BusinessError, BusinessErrorCodes } from "./BusinessError";
+} from "../__tests__/utils/mock-repositories";
+import { TransactionType } from "../models/transaction";
+import { AccountService } from "./account-service";
+import { BusinessError, BusinessErrorCodes } from "./business-error";
 
 describe("AccountService", () => {
   let service: AccountService;

@@ -12,9 +12,9 @@ import {
   CreateAccountInput,
   IAccountRepository,
   UpdateAccountInput,
-} from "../models/Account";
-import { createDynamoDBDocumentClient } from "../utils/dynamoClient";
-import { accountSchema } from "./utils/Account.schema";
+} from "../models/account";
+import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
+import { accountSchema } from "./utils/account.schema";
 import { hydrate } from "./utils/hydrate";
 import { paginateQuery } from "./utils/pagination";
 

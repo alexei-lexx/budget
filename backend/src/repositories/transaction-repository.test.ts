@@ -4,17 +4,17 @@ import {
   UpdateCommand,
 } from "@aws-sdk/lib-dynamodb";
 import { faker } from "@faker-js/faker";
-import { truncateTable } from "../__tests__/utils/dynamodbHelpers";
+import { truncateTable } from "../__tests__/utils/dynamodb-helpers";
 import { fakeCreateTransactionInput } from "../__tests__/utils/factories";
 import {
   CreateTransactionInput,
   TransactionPatternType,
   TransactionType,
   UpdateTransactionInput,
-} from "../models/Transaction";
+} from "../models/transaction";
 import { YEAR_RANGE_OFFSET } from "../types/validation";
-import { createDynamoDBDocumentClient } from "../utils/dynamoClient";
-import { TransactionRepository } from "./TransactionRepository";
+import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
+import { TransactionRepository } from "./transaction-repository";
 
 describe("TransactionRepository", () => {
   let repository: TransactionRepository;

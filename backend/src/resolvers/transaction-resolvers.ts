@@ -4,9 +4,9 @@ import {
   Transaction as TransactionModel,
   TransactionPatternType,
   TransactionType,
-} from "../models/Transaction";
+} from "../models/transaction";
 import { GraphQLContext } from "../server";
-import { BusinessError } from "../services/BusinessError";
+import { BusinessError } from "../services/business-error";
 import type {
   TransactionEmbeddedAccount,
   TransactionEmbeddedCategory,

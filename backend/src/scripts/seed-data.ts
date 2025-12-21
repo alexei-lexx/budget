@@ -1,14 +1,14 @@
 #!/usr/bin/env ts-node
 
 import { DeleteCommand, ScanCommand } from "@aws-sdk/lib-dynamodb";
-import { CategoryType } from "../models/Category";
-import { TransactionType } from "../models/Transaction";
-import { AccountRepository } from "../repositories/AccountRepository";
-import { CategoryRepository } from "../repositories/CategoryRepository";
-import { TransactionRepository } from "../repositories/TransactionRepository";
-import { UserRepository } from "../repositories/UserRepository";
-import { TransactionService } from "../services/TransactionService";
-import { createDynamoDBDocumentClient } from "../utils/dynamoClient";
+import { CategoryType } from "../models/category";
+import { TransactionType } from "../models/transaction";
+import { AccountRepository } from "../repositories/account-repository";
+import { CategoryRepository } from "../repositories/category-repository";
+import { TransactionRepository } from "../repositories/transaction-repository";
+import { UserRepository } from "../repositories/user-repository";
+import { TransactionService } from "../services/transaction-service";
+import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
 
 // Initialize DynamoDB client
 const dynamoClient = createDynamoDBDocumentClient();

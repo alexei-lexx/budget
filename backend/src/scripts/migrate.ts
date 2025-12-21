@@ -1,5 +1,5 @@
 import { runMigrations } from "../migrations/runner";
-import { createDynamoDBClient } from "../utils/dynamoClient";
+import { createDynamoDBClient } from "../utils/dynamo-client";
 
 /**
  * Local migration script

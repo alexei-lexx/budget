@@ -4,7 +4,7 @@ import {
   DeleteTableCommand,
   ListTablesCommand,
 } from "@aws-sdk/client-dynamodb";
-import { createDynamoDBClient } from "../utils/dynamoClient";
+import { createDynamoDBClient } from "../utils/dynamo-client";
 import { tableExists, tables } from "./table-definitions";
 
 const client = createDynamoDBClient();
