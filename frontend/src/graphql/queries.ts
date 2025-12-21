@@ -73,7 +73,7 @@ export const GET_TRANSACTION_PATTERNS = gql`
 `;
 
 export const GET_MONTHLY_REPORT = gql`
-  query GetMonthlyReport($year: Int!, $month: Int!, $type: TransactionType!) {
+  query GetMonthlyReport($year: Int!, $month: Int!, $type: ReportType!) {
     monthlyReport(year: $year, month: $month, type: $type) {
       ...MonthlyReportFields
     }

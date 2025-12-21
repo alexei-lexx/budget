@@ -1,6 +1,6 @@
 import { GraphQLError } from "graphql";
 import { z } from "zod";
-import { TransactionType } from "../models/Transaction";
+import { ReportType } from "../models/Report";
 import { GraphQLContext } from "../server";
 import { YEAR_RANGE_OFFSET } from "../types/validation";
 import { getAuthenticatedUser, handleResolverError } from "./shared";
@@ -15,15 +15,12 @@ const yearSchema = z
   .min(currentYear - YEAR_RANGE_OFFSET)
   .max(currentYear + YEAR_RANGE_OFFSET);
 const monthSchema = z.number().int().min(1).max(12);
-const transactionTypeSchema = z.enum([
-  TransactionType.INCOME,
-  TransactionType.EXPENSE,
-]);
+const reportTypeSchema = z.enum(ReportType);
 
 const monthlyReportInputSchema = z.object({
   year: yearSchema,
   month: monthSchema,
-  type: transactionTypeSchema,
+  type: reportTypeSchema,
 });
 
 export const reportResolvers = {
