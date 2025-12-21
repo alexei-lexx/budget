@@ -10,7 +10,6 @@ import Accounts from "@/views/Accounts.vue";
 import Categories from "@/views/Categories.vue";
 import Transactions from "@/views/Transactions.vue";
 import MonthlyCategory from "@/views/MonthlyCategory.vue";
-import MonthlyWeekday from "@/views/MonthlyWeekday.vue";
 import { useAuth0 } from "@auth0/auth0-vue";
 
 // Reusable authentication guard
@@ -72,12 +71,6 @@ const routes = [
     path: "/reports/monthly-category",
     name: "MonthlyCategoryReport",
     component: MonthlyCategory,
-    beforeEnter: requireAuth,
-  },
-  {
-    path: "/reports/monthly-weekday",
-    name: "MonthlyWeekdayReport",
-    component: MonthlyWeekday,
     beforeEnter: requireAuth,
   },
 ];

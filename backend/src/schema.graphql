@@ -9,12 +9,6 @@ type Query {
   transfer(id: ID!): Transfer
   transactionPatterns(type: TransactionPatternType!): [TransactionPattern!]!
   monthlyReport(year: Int!, month: Int!, type: TransactionType!): MonthlyReport!
-  monthlyWeekdayReport(
-    year: Int!
-    month: Int!
-    type: TransactionType!
-    excludeOutliers: Boolean = false
-  ): MonthlyWeekdayReport!
   transactionDescriptionSuggestions(searchText: String!): [String!]!
 }
 
@@ -41,16 +35,6 @@ enum TransactionType {
   TRANSFER_IN
   TRANSFER_OUT
   REFUND
-}
-
-enum Weekday {
-  MON
-  TUE
-  WED
-  THU
-  FRI
-  SAT
-  SUN
 }
 
 enum TransactionPatternType {
@@ -235,33 +219,6 @@ type MonthlyReport {
   type: TransactionType! # TODO: remove if not needed
   categories: [MonthlyReportCategory!]!
   currencyTotals: [MonthlyReportCurrencyTotal!]!
-}
-
-type MonthlyWeekdayReportCurrencyBreakdown {
-  currency: String!
-  totalAmount: Float!
-  averageAmount: Float!
-  percentage: Int!
-  outlierCount: Int
-  outlierTotalAmount: Float
-}
-
-type MonthlyWeekdayReportDay {
-  weekday: Weekday!
-  currencyBreakdowns: [MonthlyWeekdayReportCurrencyBreakdown!]!
-}
-
-type MonthlyWeekdayReportCurrencyTotal {
-  currency: String!
-  totalAmount: Float!
-}
-
-type MonthlyWeekdayReport {
-  year: Int!
-  month: Int!
-  type: TransactionType! # TODO: remove if not needed
-  weekdays: [MonthlyWeekdayReportDay!]!
-  currencyTotals: [MonthlyWeekdayReportCurrencyTotal!]!
 }
 
 type Mutation {
