@@ -5,9 +5,7 @@
       <v-col cols="12">
         <!-- Header Section -->
         <div class="d-flex align-center justify-space-between mb-4 flex-wrap ga-2">
-          <h1 :class="$vuetify.display.xs ? 'text-h5' : 'text-h4'">
-            Monthly Expense Report by Category
-          </h1>
+          <h1 :class="$vuetify.display.xs ? 'text-h5' : 'text-h4'">Monthly Expense Report</h1>
         </div>
 
         <!-- Global Error Alert -->
