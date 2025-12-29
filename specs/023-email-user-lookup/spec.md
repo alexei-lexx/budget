@@ -5,6 +5,16 @@
 **Status**: Draft
 **Input**: User description: "migrate user lookup from Auth0 ID to email"
 
+## Clarifications
+
+### Session 2025-12-29
+
+- Q: Do existing users need to take any action (re-login, verify email, update profile) for this migration to work? → A: No, migration is transparent to users
+- Q: How should the migration be rolled out to users in production? → A: Immediate full cutover at deployment
+- Q: What should happen if an existing user in the database has a null or missing email address? → A: Block authentication - users without email cannot be created or sign in
+- Q: If the email-based lookup fails in production, what is the rollback strategy? → A: No rollback support - fix forward only
+- Q: Should there be a pre-deployment validation step to check that all existing users have valid email addresses? → A: No, rely on existing data quality assumption
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Backend User Authentication by Email (Priority: P1)
@@ -60,6 +70,7 @@ As a backend system, I need the email column to have a unique index so that user
 - What happens when a token contains an email claim with whitespace (e.g., `" user@example.com "`)? System should trim whitespace before lookup.
 - How does the system handle tokens missing the email claim entirely? System should reject the request with a clear error message.
 - What happens when a user's email in Auth0 doesn't match any email in the database? System should reject authentication and log the incident for investigation.
+- What happens if an existing user in the database has a null or missing email address? Authentication is blocked. Users without email cannot be created or sign in.
 - How does the system handle very long email addresses (e.g., 254+ characters)? System should validate maximum length according to RFC standards.
 - What happens when concurrent requests try to create users with the same email (case-insensitive)? Database unique constraint should prevent duplicates, and application should handle the constraint violation gracefully.
 
@@ -76,7 +87,7 @@ As a backend system, I need the email column to have a unique index so that user
 - **FR-007**: Backend MUST normalize email addresses (trim whitespace, convert to lowercase) before database operations
 - **FR-008**: All existing API endpoints MUST function correctly with email-based user lookup without changes to their external interfaces
 - **FR-009**: Error handling MUST provide clear messages when email claim is missing or user is not found
-- **FR-010**: System MUST maintain backward compatibility - existing data and functionality must work without requiring user re-registration
+- **FR-010**: System MUST maintain backward compatibility - existing data and functionality must work without requiring user re-registration or any user action
 
 ### Key Entities
 
@@ -99,6 +110,8 @@ As a backend system, I need the email column to have a unique index so that user
 - **Email as Primary Identifier**: Email address is stable and suitable as a permanent user identifier (users don't frequently change emails).
 - **Existing Data Quality**: Current user database records have valid, non-null email addresses for all active users.
 - **Future Cognito Migration**: This change is a preliminary step before migrating to AWS Cognito. The email-based lookup will remain valid after the Cognito migration.
+- **Deployment Strategy**: Migration will be deployed as an immediate full cutover - all users switch to email-based lookup at deployment time with no gradual rollout phase.
+- **Rollback Strategy**: No rollback support planned - any production issues will be resolved by fixing forward with patches or hotfixes.
 
 ## Success Criteria *(mandatory)*
 
