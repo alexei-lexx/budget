@@ -135,17 +135,157 @@
 
 ---
 
-## Phase 6: Polish & Cross-Cutting Concerns
+## Phase 6: Auth0 Configuration (Manual)
+
+**Purpose**: Configure Auth0 to add email claim to access tokens
+
+**⚠️ CRITICAL**: This configuration MUST be completed before the backend can authenticate users successfully. Without this, all authentication requests will fail with "Email claim missing in JWT token" errors.
+
+- [ ] T048 MANUAL: Configure Auth0 Action to add email claim to access tokens
+
+**Detailed Instructions:**
+
+1. **Navigate to Auth0 Dashboard**
+   - Go to https://manage.auth0.com/
+   - Select your tenant
+   - Navigate to Actions → Flows → Login
+
+2. **Create New Action**
+   - Click "+" button to create a new custom action
+   - Name: "Add Email to Access Token"
+   - Runtime: Node 18 (or latest)
+   - Click "Create"
+
+3. **Add Action Code**
+   Replace the default code with:
+   ```javascript
+   exports.onExecutePostLogin = async (event, api) => {
+     // Use your application's domain as namespace (e.g., 'https://yourapp.com')
+     // This prevents claim name collisions
+     // IMPORTANT: This must match JWT_CLAIM_NAMESPACE in your backend .env file
+     const namespace = 'https://personal-budget-tracker';
+
+     // Add email claim to access token if user has email
+     if (event.user.email) {
+       api.accessToken.setCustomClaim(`${namespace}/email`, event.user.email);
+     }
+   };
+   ```
+
+   **IMPORTANT**: The namespace value `'https://personal-budget-tracker'` must exactly match the `JWT_CLAIM_NAMESPACE` value in your backend `.env` file
+
+   - Click "Deploy" to save the action
+
+4. **Add Action to Login Flow**
+   - Return to Actions → Flows → Login
+   - Find your newly created "Add Email to Access Token" action in the right sidebar
+   - Drag and drop it into the flow diagram (between "Start" and "Complete")
+   - Click "Apply" to save the flow
+
+5. **Verify Configuration**
+   - Log out of your application
+   - Log back in to get a new access token
+   - Decode the access token at https://jwt.io
+   - Verify that the token contains a claim like `"https://personal-budget-tracker/email": "user@example.com"`
+   - The claim name should match the `JWT_CLAIM_NAMESPACE` environment variable in your backend
+
+**Troubleshooting:**
+- If authentication fails with "Email claim missing", verify the Action is deployed and added to the Login flow
+- Check Auth0 Real-time Webtask Logs for any errors in your Action code
+- Ensure the namespace in your Auth0 Action exactly matches `JWT_CLAIM_NAMESPACE` in backend `.env` file
+- Verify `JWT_CLAIM_NAMESPACE` environment variable is loaded correctly (check with console.log or debugger)
+
+**Backend Code Changes Required:**
+
+- [ ] T049 Add JWT_CLAIM_NAMESPACE environment variable and update backend to read email from custom namespaced claim
+
+**Implementation Details for T049:**
+
+**Part 1: Add JWT_CLAIM_NAMESPACE environment variable**
+
+Add to `backend/.env.example`:
+```bash
+# JWT Custom Claims Configuration
+# This namespace must match the namespace used in your Auth0 Action
+# Used to extract email from custom JWT claims (e.g., "https://yourapp.com/email")
+JWT_CLAIM_NAMESPACE=https://personal-budget-tracker
+```
+
+Add to `backend/.env.test`:
+```bash
+# JWT Custom Claims Configuration
+JWT_CLAIM_NAMESPACE=https://personal-budget-tracker
+```
+
+**Part 2: Update getAuthContext() to use JWT_CLAIM_NAMESPACE**
+
+Update the `getAuthContext()` method in `backend/src/auth/jwt-auth.ts` to read the email from the custom namespaced claim using the environment variable:
+
+```typescript
+async getAuthContext(authHeader?: string): Promise<AuthContext> {
+  if (!authHeader) {
+    return { isAuthenticated: false };
+  }
+
+  const tokenMatch = authHeader.match(/^Bearer\s+(.+)$/i);
+  if (!tokenMatch) {
+    return { isAuthenticated: false };
+  }
+
+  const token = tokenMatch[1];
+
+  try {
+    const payload = await this.verifyToken(token);
+
+    // Read email from custom namespaced claim
+    // The namespace should match what you configured in the Auth0 Action
+    const namespace = process.env.JWT_CLAIM_NAMESPACE;
+    if (!namespace) {
+      throw new Error('JWT_CLAIM_NAMESPACE environment variable must be configured');
+    }
+
+    const email = payload[`${namespace}/email`] || payload.email;
+
+    // Validate email claim exists
+    if (!email) {
+      throw new Error("Email claim missing in JWT token");
+    }
+
+    // Normalize and validate email
+    const normalizedEmail = normalizeAndValidateEmail(email);
+
+    return {
+      isAuthenticated: true,
+      user: {
+        email: normalizedEmail,
+      },
+    };
+  } catch (error) {
+    console.error("JWT verification error:", error);
+    return { isAuthenticated: false };
+  }
+}
+```
+
+**Important Notes:**
+- The `JWT_CLAIM_NAMESPACE` value must exactly match the namespace used in your Auth0 Action
+- The fallback to `payload.email` allows the code to work with both namespaced and non-namespaced claims (useful for testing)
+- Environment variable validation ensures the app fails fast if misconfigured
+- The `JwtPayload` interface doesn't need to be updated - we access the namespaced claim using bracket notation (`payload[`${namespace}/email`]`) which works with TypeScript's index signature
+
+---
+
+## Phase 7: Polish & Cross-Cutting Concerns
 
 **Purpose**: Final validation, type checking, and documentation
 
-- [ ] T048 [P] Run TypeScript compiler to verify no type errors: `npx tsc --noEmit` in backend/
-- [ ] T049 [P] Run all repository tests: `npm test user-repository.test.ts` in backend/
-- [ ] T050 [P] Run full test suite: `npm test` in backend/
-- [ ] T051 Verify DynamoDB Local setup: `npm run test:db:setup` in backend/
-- [ ] T052 Manual validation: Test authentication flow with valid JWT tokens containing email claims
-- [ ] T053 Manual validation: Verify EmailIndex GSI is being used in DynamoDB metrics/logs
-- [ ] T054 Manual validation: Check CloudWatch logs for any "email claim missing" errors
+- [ ] T050 [P] Run TypeScript compiler to verify no type errors: `npx tsc --noEmit` in backend/
+- [ ] T051 [P] Run all repository tests: `npm test user-repository.test.ts` in backend/
+- [ ] T052 [P] Run full test suite: `npm test` in backend/
+- [ ] T053 Verify DynamoDB Local setup: `npm run test:db:setup` in backend/
+- [ ] T054 Manual validation: Test authentication flow with valid JWT tokens containing email claims
+- [ ] T055 Manual validation: Verify EmailIndex GSI is being used in DynamoDB metrics/logs
+- [ ] T056 Manual validation: Check CloudWatch logs for any "email claim missing" errors
 
 ---
 
@@ -158,7 +298,10 @@
 - **User Stories (Phase 3-5)**: All depend on Foundational phase completion (T004-T007)
   - User stories can then proceed in parallel (if staffed)
   - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Phase 6)**: Depends on all user stories being complete
+- **Auth0 Configuration (Phase 6)**:
+  - T048 (Manual Auth0 Action configuration) can be done in parallel with or after User Stories
+  - T049 (Update backend to read custom claim) depends on T048 completion (you need to know the namespace)
+- **Polish (Phase 7)**: Depends on all user stories being complete AND Auth0 configuration (T048 + T049)
 
 ### User Story Dependencies
 
@@ -187,7 +330,7 @@
 - T016-T029 (US1 tests): All can run in parallel
 - T030-T038 (US2 tests): All can run in parallel
 - T039-T045 (US3 tests): All can run in parallel
-- T046-T048 (Polish checks): Can run in parallel
+- T050-T052 (Polish checks): Can run in parallel
 
 ---
 

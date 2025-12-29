@@ -106,6 +106,9 @@ As a backend system, I need the email column to have a unique index so that user
 
 - **Email Uniqueness**: Each user has exactly one unique email address. No multiple users share the same email.
 - **Auth0 Email Claim**: Auth0 JWT tokens include a valid `email` claim for all authenticated users.
+  - ⚠️ **IMPORTANT**: Auth0 access tokens do NOT include email claims by default. Email must be added via a custom Auth0 Action (see manual task T048 in tasks.md for configuration instructions).
+  - This is a standard OAuth 2.0 best practice - access tokens are customized with custom claims to include application-specific information.
+  - The same approach will be used when migrating to AWS Cognito (via Pre Token Generation Lambda trigger).
 - **No Multi-Provider**: Users authenticate through Auth0 only. No other authentication providers are in use during this migration phase.
 - **Email as Primary Identifier**: Email address is stable and suitable as a permanent user identifier (users don't frequently change emails).
 - **Existing Data Quality**: Current user database records have valid, non-null email addresses for all active users.

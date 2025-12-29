@@ -313,6 +313,79 @@ Implement a defense-in-depth error handling strategy that:
 
 ---
 
+## 5. Auth0 Access Token Configuration
+
+### Decision
+
+Add email claim to Auth0 access tokens via a custom Auth0 Action in the Login flow.
+
+### Rationale
+
+**Why Access Tokens Don't Include Email by Default:**
+- Auth0 access tokens are designed for API authorization, not user profile information
+- By default, they only contain standard OIDC claims (sub, iss, aud, exp, iat)
+- Email and other profile claims are only included in ID tokens by default
+- This is intentional and follows OAuth 2.0 / OIDC best practices
+
+**Why This Approach is Standards-Compliant:**
+- OAuth 2.0 and OIDC explicitly support custom claims (RFC 7519)
+- Custom claims are a first-class feature, not a workaround
+- All major OAuth providers (Auth0, AWS Cognito, Okta, Azure AD) provide official mechanisms for this
+- Using access tokens for API authorization (not ID tokens) is the correct architectural pattern
+
+**Why Not Use ID Tokens:**
+- ID tokens are designed for client authentication, not API authorization
+- Using ID tokens for API requests violates OAuth 2.0 best practices
+- ID tokens cannot be revoked (access tokens can)
+- Security best practice: Use access tokens for API calls
+
+**Why Not Use /userinfo Endpoint:**
+- Adds 50-100ms latency per request
+- Requires additional API call to Auth0 on every request
+- Defeats the purpose of JWT stateless authentication
+
+### Implementation
+
+**Auth0 Action Code:**
+```javascript
+exports.onExecutePostLogin = async (event, api) => {
+  const namespace = 'https://yourapp.com';
+  if (event.user.email) {
+    api.accessToken.setCustomClaim(`${namespace}/email`, event.user.email);
+  }
+};
+```
+
+**Configuration Steps:**
+1. Navigate to Auth0 Dashboard → Actions → Flows → Login
+2. Create new Action: "Add Email to Access Token"
+3. Add the code above (replace namespace with your app domain)
+4. Add Action to Login flow by dragging it to the flow diagram
+5. Deploy the flow
+
+**AWS Cognito Equivalent:**
+When migrating to AWS Cognito, the same approach is used via Pre Token Generation Lambda trigger:
+```javascript
+exports.handler = async (event) => {
+  event.response = {
+    claimsOverrideDetails: {
+      claimsToAddOrOverride: {
+        email: event.request.userAttributes.email
+      }
+    }
+  };
+  return event;
+};
+```
+
+### Alternatives Considered
+
+1. **Use ID tokens for API authorization**: Violates OAuth 2.0 best practices; security anti-pattern
+2. **Call /userinfo on every request**: 50-100ms latency penalty; defeats JWT purpose
+3. **Use sub claim to lookup user by Auth0 ID**: Current implementation; requires Auth0-specific identifier
+
+---
+
 ## Summary & Next Steps
 
 All research questions have been resolved with clear decisions and implementation guidance:
@@ -324,5 +397,7 @@ All research questions have been resolved with clear decisions and implementatio
 ✅ **Testing Strategy**: 32 test scenarios with real DynamoDB Local; follow existing repository test patterns
 
 ✅ **Error Handling**: Generic client messages + detailed server logs; consider auto-create pattern to eliminate "user not found"
+
+✅ **Auth0 Configuration**: Add email to access tokens via Auth0 Action (standard OAuth 2.0 practice); same approach for future Cognito migration
 
 **Ready to proceed to Phase 1: Design & Contracts**
