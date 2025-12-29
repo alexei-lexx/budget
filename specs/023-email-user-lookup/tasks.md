@@ -47,7 +47,7 @@
 ### Implementation for User Story 1
 
 - [ ] T008 [US1] Update IUserRepository interface in backend/src/models/user.ts to add findByEmail(email: string): Promise<User | null> method signature
-- [ ] T009 [US1] Implement findByEmail() method in backend/src/repositories/user-repository.ts using EmailIndex GSI with email normalization
+- [ ] T009 [US1] Implement findByEmail() method in backend/src/repositories/user-repository.ts using EmailIndex GSI with email normalization and hydrate(userSchema, item) validation per constitution Database Record Hydration principle
 - [ ] T010 [US1] Update ensureUser() method in backend/src/repositories/user-repository.ts to use findByEmail() instead of findByAuth0UserId()
 - [ ] T011 [US1] Add @deprecated JSDoc comment to findByAuth0UserId() method in backend/src/repositories/user-repository.ts and backend/src/models/user.ts interface
 - [ ] T012 [US1] Update JwtPayload interface in backend/src/auth/jwt-auth.ts to make email field required (remove ? optional marker)
@@ -94,15 +94,15 @@
 ### Tests for User Story 2
 
 **Case-Insensitivity Tests (TC-004 to TC-008)**:
-- [ ] T039 [P] [US2] Add test for finding user with uppercase email in backend/src/repositories/user-repository.test.ts
-- [ ] T039 [P] [US2] Add test for finding user with mixed-case email in backend/src/repositories/user-repository.test.ts
-- [ ] T039 [P] [US2] Add test for create() normalizing email to lowercase in backend/src/repositories/user-repository.test.ts
-- [ ] T039 [P] [US2] Add test for mixed-case local and domain parts in backend/src/repositories/user-repository.test.ts
+- [ ] T032 [P] [US2] Add test for finding user with uppercase email in backend/src/repositories/user-repository.test.ts
+- [ ] T033 [P] [US2] Add test for finding user with mixed-case email in backend/src/repositories/user-repository.test.ts
+- [ ] T034 [P] [US2] Add test for create() normalizing email to lowercase in backend/src/repositories/user-repository.test.ts
+- [ ] T035 [P] [US2] Add test for mixed-case local and domain parts in backend/src/repositories/user-repository.test.ts
 
 **Normalization & Whitespace Tests (TC-009 to TC-012)**:
-- [ ] T039 [P] [US2] Add test for leading whitespace trimming in backend/src/repositories/user-repository.test.ts
-- [ ] T039 [P] [US2] Add test for trailing whitespace trimming in backend/src/repositories/user-repository.test.ts
-- [ ] T039 [P] [US2] Add test for surrounding whitespace trimming in backend/src/repositories/user-repository.test.ts
+- [ ] T036 [P] [US2] Add test for leading whitespace trimming in backend/src/repositories/user-repository.test.ts
+- [ ] T037 [P] [US2] Add test for trailing whitespace trimming in backend/src/repositories/user-repository.test.ts
+- [ ] T038 [P] [US2] Add test for surrounding whitespace trimming in backend/src/repositories/user-repository.test.ts
 - [ ] T039 [P] [US2] Add test for create() with whitespace normalizing correctly in backend/src/repositories/user-repository.test.ts
 
 **Duplicate Prevention Tests (TC-023)**:
@@ -121,14 +121,14 @@
 ### Tests for User Story 3
 
 **Edge Cases - Email Formats Tests (TC-013 to TC-017)**:
-- [ ] T047 [P] [US3] Add test for plus addressing (user+tag@example.com) in backend/src/repositories/user-repository.test.ts
-- [ ] T047 [P] [US3] Add test for subdomains (user@mail.example.com) in backend/src/repositories/user-repository.test.ts
-- [ ] T047 [P] [US3] Add test for numbers and hyphens in email in backend/src/repositories/user-repository.test.ts
-- [ ] T047 [P] [US3] Add test for maximum email length (254 characters) in backend/src/repositories/user-repository.test.ts
-- [ ] T047 [P] [US3] Add test for dots in local part in backend/src/repositories/user-repository.test.ts
+- [ ] T041 [P] [US3] Add test for plus addressing (user+tag@example.com) in backend/src/repositories/user-repository.test.ts
+- [ ] T042 [P] [US3] Add test for subdomains (user@mail.example.com) in backend/src/repositories/user-repository.test.ts
+- [ ] T043 [P] [US3] Add test for numbers and hyphens in email in backend/src/repositories/user-repository.test.ts
+- [ ] T044 [P] [US3] Add test for maximum email length (254 characters) in backend/src/repositories/user-repository.test.ts
+- [ ] T045 [P] [US3] Add test for dots in local part in backend/src/repositories/user-repository.test.ts
 
 **Performance Tests (TC-031 to TC-032)**:
-- [ ] T047 [P] [US3] Add test for parallel email lookups performance in backend/src/repositories/user-repository.test.ts
+- [ ] T046 [P] [US3] Add test for parallel email lookups performance in backend/src/repositories/user-repository.test.ts
 - [ ] T047 [P] [US3] Add test to validate GSI query performance (<50ms) in backend/src/repositories/user-repository.test.ts
 
 **Checkpoint**: All user stories should now be independently functional - email lookups are optimized and performant
@@ -163,7 +163,7 @@
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Depends on User Story 1 completion (uses normalization from US1)
+- **User Story 2 (P2)**: Depends on User Story 1 completion (tests verify normalization behavior implemented in US1)
 - **User Story 3 (P3)**: Depends on User Story 1 completion (validates performance of US1 implementation)
 
 ### Within Each User Story

@@ -113,6 +113,14 @@ As a backend system, I need the email column to have a unique index so that user
 - **Deployment Strategy**: Migration will be deployed as an immediate full cutover - all users switch to email-based lookup at deployment time with no gradual rollout phase.
 - **Rollback Strategy**: No rollback support planned - any production issues will be resolved by fixing forward with patches or hotfixes.
 
+### Architecture Notes
+
+- **Soft-Deletion Exception**: User entity is exempt from the constitution's soft-deletion requirement because:
+  - Users are the root identity entity - deleting a user requires cascading deletion of all associated data (accounts, transactions, categories)
+  - User deletion is a rare administrative action, not a regular user operation
+  - Recovery from accidental user deletion requires full data restoration from backups, making soft-deletion insufficient
+  - Authentication system (Auth0) manages user lifecycle independently - soft-deleted users in database would create sync issues
+
 ## Success Criteria *(mandatory)*
 
 ### Measurable Outcomes
