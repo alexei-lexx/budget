@@ -13,7 +13,7 @@ export interface CreateUserInput {
 }
 
 export interface IUserRepository {
-  findByAuth0UserId(auth0UserId: string): Promise<User | null>;
+  findByEmail(email: string): Promise<User | null>;
   findAll(): Promise<User[]>;
   create(input: CreateUserInput): Promise<User>;
   ensureUser(auth0UserId: string, email: string): Promise<User>;

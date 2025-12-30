@@ -17,9 +17,9 @@
 
 **Purpose**: Install dependencies and create utility functions needed across all user stories
 
-- [ ] T001 Install validator package: `npm install validator` in backend/
-- [ ] T002 Install validator types: `npm install -D @types/validator` in backend/
-- [ ] T003 [P] Create email normalization utility in backend/src/utils/email.ts with normalizeEmail(), validateEmail(), and normalizeAndValidateEmail() functions
+- [X] T001 Install validator package: `npm install validator` in backend/
+- [X] T002 Install validator types: `npm install -D @types/validator` in backend/
+- [X] T003 [P] Create email normalization utility in backend/src/utils/email.ts with normalizeEmail(), validateEmail(), and normalizeAndValidateEmail() functions
 
 ---
 
@@ -29,9 +29,9 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Add EmailIndex GSI to Users table in backend-cdk/lib/backend-cdk-stack.ts (partition key: email, projection: ALL)
-- [ ] T005 Add email attribute definition to Users table in backend-cdk/lib/backend-cdk-stack.ts
-- [ ] T006 Update table definitions for local development in backend/src/scripts/table-definitions.ts to include EmailIndex GSI, then recreate tables: `npm run test:db:recreate` in backend/
+- [X] T004 Add EmailIndex GSI to Users table in backend-cdk/lib/backend-cdk-stack.ts (partition key: email, projection: ALL)
+- [X] T005 Add email attribute definition to Users table in backend-cdk/lib/backend-cdk-stack.ts
+- [X] T006 Update table definitions for local development in backend/src/scripts/table-definitions.ts to include EmailIndex GSI, then recreate tables: `npm run test:db:recreate` in backend/
 - [ ] T007 MANUAL: Deploy CDK stack to AWS: `cd backend-cdk && npm run build && npx dotenvx run -- npx cdk deploy` (requires AWS credentials and manual confirmation)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -46,40 +46,40 @@
 
 ### Implementation for User Story 1
 
-- [ ] T008 [US1] Update IUserRepository interface in backend/src/models/user.ts to add findByEmail(email: string): Promise<User | null> method signature
-- [ ] T009 [US1] Implement findByEmail() method in backend/src/repositories/user-repository.ts using EmailIndex GSI with email normalization and hydrate(userSchema, item) validation per constitution Database Record Hydration principle
-- [ ] T010 [US1] Update ensureUser() method in backend/src/repositories/user-repository.ts to use findByEmail() instead of findByAuth0UserId()
-- [ ] T011 [US1] Add @deprecated JSDoc comment to findByAuth0UserId() method in backend/src/repositories/user-repository.ts and backend/src/models/user.ts interface
-- [ ] T012 [US1] Update JwtPayload interface in backend/src/auth/jwt-auth.ts to make email field required (remove ? optional marker)
-- [ ] T013 [US1] Update AuthContext interface in backend/src/auth/jwt-auth.ts to use email field instead of auth0UserId field
-- [ ] T014 [US1] Update getAuthContext() method in backend/src/auth/jwt-auth.ts to extract email claim, normalize it, and validate it exists
-- [ ] T015 [US1] Update requireAuthentication() return type in backend/src/resolvers/shared.ts to return { email: string } instead of { auth0UserId: string }
-- [ ] T016 [US1] Update getAuthenticatedUser() implementation in backend/src/resolvers/shared.ts to call findByEmail() instead of findByAuth0UserId()
-- [ ] T017 [US1] Update ensureUser resolver in backend/src/resolvers/user-resolvers.ts to use email from AuthContext and call findByEmail() instead of findByAuth0UserId()
+- [X] T008 [US1] Update IUserRepository interface in backend/src/models/user.ts to add findByEmail(email: string): Promise<User | null> method signature
+- [X] T009 [US1] Implement findByEmail() method in backend/src/repositories/user-repository.ts using EmailIndex GSI with email normalization and hydrate(userSchema, item) validation per constitution Database Record Hydration principle
+- [X] T010 [US1] Update ensureUser() method in backend/src/repositories/user-repository.ts to use findByEmail() instead of findByAuth0UserId()
+- [X] T011 [US1] Add @deprecated JSDoc comment to findByAuth0UserId() method in backend/src/repositories/user-repository.ts and backend/src/models/user.ts interface
+- [X] T012 [US1] Update JwtPayload interface in backend/src/auth/jwt-auth.ts to make email field required (remove ? optional marker)
+- [X] T013 [US1] Update AuthContext interface in backend/src/auth/jwt-auth.ts to use email field instead of auth0UserId field
+- [X] T014 [US1] Update getAuthContext() method in backend/src/auth/jwt-auth.ts to extract email claim, normalize it, and validate it exists
+- [X] T015 [US1] Update requireAuthentication() return type in backend/src/resolvers/shared.ts to return { email: string } instead of { auth0UserId: string }
+- [X] T016 [US1] Update getAuthenticatedUser() implementation in backend/src/resolvers/shared.ts to call findByEmail() instead of findByAuth0UserId()
+- [X] T017 [US1] Update ensureUser resolver in backend/src/resolvers/user-resolvers.ts to use email from AuthContext and call findByEmail() instead of findByAuth0UserId()
 
 ### Tests for User Story 1
 
 **Basic Functionality Tests (TC-001 to TC-003)**:
-- [ ] T018 [P] [US1] Add test for exact email match (lowercase) in backend/src/repositories/user-repository.test.ts
-- [ ] T019 [P] [US1] Add test for returning null when email not found in backend/src/repositories/user-repository.test.ts
-- [ ] T020 [P] [US1] Add test for finding correct user among multiple users in backend/src/repositories/user-repository.test.ts
+- [X] T018 [P] [US1] Add test for exact email match (lowercase) in backend/src/repositories/user-repository.test.ts
+- [X] T019 [P] [US1] Add test for returning null when email not found in backend/src/repositories/user-repository.test.ts
+- [X] T020 [P] [US1] Add test for finding correct user among multiple users in backend/src/repositories/user-repository.test.ts
 
 **Error & Validation Tests (TC-018 to TC-022)**:
-- [ ] T021 [P] [US1] Add test for empty string email rejection in backend/src/repositories/user-repository.test.ts
-- [ ] T022 [P] [US1] Add test for whitespace-only email rejection in backend/src/repositories/user-repository.test.ts
-- [ ] T023 [P] [US1] Add test for invalid email format rejection in backend/src/repositories/user-repository.test.ts
-- [ ] T024 [P] [US1] Add test for null/undefined email handling in backend/src/repositories/user-repository.test.ts
+- [X] T021 [P] [US1] Add test for empty string email rejection in backend/src/repositories/user-repository.test.ts
+- [X] T022 [P] [US1] Add test for whitespace-only email rejection in backend/src/repositories/user-repository.test.ts
+- [X] T023 [P] [US1] Add test for invalid email format rejection in backend/src/repositories/user-repository.test.ts
+- [X] T024 [P] [US1] Add test for null/undefined email handling in backend/src/repositories/user-repository.test.ts
 
 **Data Integrity Tests (TC-023 to TC-026)**:
-- [ ] T025 [P] [US1] Add test to verify user object hydration with Zod schema in backend/src/repositories/user-repository.test.ts
-- [ ] T026 [P] [US1] Add test to detect multiple users with same email (data corruption) in backend/src/repositories/user-repository.test.ts
-- [ ] T027 [P] [US1] Add test to refetch created user by email in backend/src/repositories/user-repository.test.ts
+- [X] T025 [P] [US1] Add test to verify user object hydration with Zod schema in backend/src/repositories/user-repository.test.ts
+- [X] T026 [P] [US1] Add test to detect multiple users with same email (data corruption) in backend/src/repositories/user-repository.test.ts
+- [X] T027 [P] [US1] Add test to refetch created user by email in backend/src/repositories/user-repository.test.ts
 
 **Integration with ensureUser Tests (TC-027 to TC-030)**:
-- [ ] T028 [P] [US1] Add test for ensureUser() finding existing user by email in backend/src/repositories/user-repository.test.ts
-- [ ] T029 [P] [US1] Add test for ensureUser() creating user if not found in backend/src/repositories/user-repository.test.ts
-- [ ] T030 [P] [US1] Add test for ensureUser() with case-insensitive email matching in backend/src/repositories/user-repository.test.ts
-- [ ] T031 [P] [US1] Add test for ensureUser() normalizing email before lookup in backend/src/repositories/user-repository.test.ts
+- [X] T028 [P] [US1] Add test for ensureUser() finding existing user by email in backend/src/repositories/user-repository.test.ts
+- [X] T029 [P] [US1] Add test for ensureUser() creating user if not found in backend/src/repositories/user-repository.test.ts
+- [X] T030 [P] [US1] Add test for ensureUser() with case-insensitive email matching in backend/src/repositories/user-repository.test.ts
+- [X] T031 [P] [US1] Add test for ensureUser() normalizing email before lookup in backend/src/repositories/user-repository.test.ts
 
 **Checkpoint**: At this point, User Story 1 should be fully functional - backend can authenticate users by email instead of Auth0 ID
 
@@ -94,19 +94,19 @@
 ### Tests for User Story 2
 
 **Case-Insensitivity Tests (TC-004 to TC-008)**:
-- [ ] T032 [P] [US2] Add test for finding user with uppercase email in backend/src/repositories/user-repository.test.ts
-- [ ] T033 [P] [US2] Add test for finding user with mixed-case email in backend/src/repositories/user-repository.test.ts
-- [ ] T034 [P] [US2] Add test for create() normalizing email to lowercase in backend/src/repositories/user-repository.test.ts
-- [ ] T035 [P] [US2] Add test for mixed-case local and domain parts in backend/src/repositories/user-repository.test.ts
+- [X] T032 [P] [US2] Add test for finding user with uppercase email in backend/src/repositories/user-repository.test.ts
+- [X] T033 [P] [US2] Add test for finding user with mixed-case email in backend/src/repositories/user-repository.test.ts
+- [X] T034 [P] [US2] Add test for create() normalizing email to lowercase in backend/src/repositories/user-repository.test.ts
+- [X] T035 [P] [US2] Add test for mixed-case local and domain parts in backend/src/repositories/user-repository.test.ts
 
 **Normalization & Whitespace Tests (TC-009 to TC-012)**:
-- [ ] T036 [P] [US2] Add test for leading whitespace trimming in backend/src/repositories/user-repository.test.ts
-- [ ] T037 [P] [US2] Add test for trailing whitespace trimming in backend/src/repositories/user-repository.test.ts
-- [ ] T038 [P] [US2] Add test for surrounding whitespace trimming in backend/src/repositories/user-repository.test.ts
-- [ ] T039 [P] [US2] Add test for create() with whitespace normalizing correctly in backend/src/repositories/user-repository.test.ts
+- [X] T036 [P] [US2] Add test for leading whitespace trimming in backend/src/repositories/user-repository.test.ts
+- [X] T037 [P] [US2] Add test for trailing whitespace trimming in backend/src/repositories/user-repository.test.ts
+- [X] T038 [P] [US2] Add test for surrounding whitespace trimming in backend/src/repositories/user-repository.test.ts
+- [X] T039 [P] [US2] Add test for create() with whitespace normalizing correctly in backend/src/repositories/user-repository.test.ts
 
 **Duplicate Prevention Tests (TC-023)**:
-- [ ] T040 [US2] Add test to verify duplicate email prevention (case-insensitive) in backend/src/repositories/user-repository.test.ts
+- [X] T040 [US2] Add test to verify duplicate email prevention (case-insensitive) in backend/src/repositories/user-repository.test.ts
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently - email matching is case-insensitive
 
@@ -121,15 +121,15 @@
 ### Tests for User Story 3
 
 **Edge Cases - Email Formats Tests (TC-013 to TC-017)**:
-- [ ] T041 [P] [US3] Add test for plus addressing (user+tag@example.com) in backend/src/repositories/user-repository.test.ts
-- [ ] T042 [P] [US3] Add test for subdomains (user@mail.example.com) in backend/src/repositories/user-repository.test.ts
-- [ ] T043 [P] [US3] Add test for numbers and hyphens in email in backend/src/repositories/user-repository.test.ts
-- [ ] T044 [P] [US3] Add test for maximum email length (254 characters) in backend/src/repositories/user-repository.test.ts
-- [ ] T045 [P] [US3] Add test for dots in local part in backend/src/repositories/user-repository.test.ts
+- [X] T041 [P] [US3] Add test for plus addressing (user+tag@example.com) in backend/src/repositories/user-repository.test.ts
+- [X] T042 [P] [US3] Add test for subdomains (user@mail.example.com) in backend/src/repositories/user-repository.test.ts
+- [X] T043 [P] [US3] Add test for numbers and hyphens in email in backend/src/repositories/user-repository.test.ts
+- [X] T044 [P] [US3] Add test for maximum email length (254 characters) in backend/src/repositories/user-repository.test.ts
+- [X] T045 [P] [US3] Add test for dots in local part in backend/src/repositories/user-repository.test.ts
 
 **Performance Tests (TC-031 to TC-032)**:
-- [ ] T046 [P] [US3] Add test for parallel email lookups performance in backend/src/repositories/user-repository.test.ts
-- [ ] T047 [P] [US3] Add test to validate GSI query performance (<50ms) in backend/src/repositories/user-repository.test.ts
+- [X] T046 [P] [US3] Add test for parallel email lookups performance in backend/src/repositories/user-repository.test.ts
+- [X] T047 [P] [US3] Add test to validate GSI query performance (<50ms) in backend/src/repositories/user-repository.test.ts
 
 **Checkpoint**: All user stories should now be independently functional - email lookups are optimized and performant
 
@@ -197,7 +197,7 @@
 
 **Backend Code Changes Required:**
 
-- [ ] T049 Add JWT_CLAIM_NAMESPACE environment variable and update backend to read email from custom namespaced claim
+- [X] T049 Add JWT_CLAIM_NAMESPACE environment variable and update backend to read email from custom namespaced claim
 
 **Implementation Details for T049:**
 
@@ -279,10 +279,10 @@ async getAuthContext(authHeader?: string): Promise<AuthContext> {
 
 **Purpose**: Final validation, type checking, and documentation
 
-- [ ] T050 [P] Run TypeScript compiler to verify no type errors: `npx tsc --noEmit` in backend/
-- [ ] T051 [P] Run all repository tests: `npm test user-repository.test.ts` in backend/
-- [ ] T052 [P] Run full test suite: `npm test` in backend/
-- [ ] T053 Verify DynamoDB Local setup: `npm run test:db:setup` in backend/
+- [X] T050 [P] Run TypeScript compiler to verify no type errors: `npx tsc --noEmit` in backend/
+- [X] T051 [P] Run all repository tests: `npm test user-repository.test.ts` in backend/
+- [X] T052 [P] Run full test suite: `npm test` in backend/
+- [X] T053 Verify DynamoDB Local setup: `npm run test:db:setup` in backend/
 - [ ] T054 Manual validation: Test authentication flow with valid JWT tokens containing email claims
 - [ ] T055 Manual validation: Verify EmailIndex GSI is being used in DynamoDB metrics/logs
 - [ ] T056 Manual validation: Check CloudWatch logs for any "email claim missing" errors

@@ -33,6 +33,15 @@ export class BackendCdkStack extends cdk.Stack {
       projectionType: dynamodb.ProjectionType.ALL,
     });
 
+    usersTable.addGlobalSecondaryIndex({
+      indexName: "EmailIndex",
+      partitionKey: {
+        name: "email",
+        type: dynamodb.AttributeType.STRING,
+      },
+      projectionType: dynamodb.ProjectionType.ALL,
+    });
+
     const accountsTable = new dynamodb.Table(this, "AccountsTable", {
       tableName: process.env.ACCOUNTS_TABLE_NAME || "",
       partitionKey: { name: "userId", type: dynamodb.AttributeType.STRING },
@@ -110,28 +119,21 @@ export class BackendCdkStack extends cdk.Stack {
       }),
     };
 
-    const graphqlFunction = new lambda.Function(
-      this,
-      "GraphqlEndpoint",
-      {
-        ...functionConfig,
-        handler: "graphql.handler",
-      },
-    );
+    const graphqlFunction = new lambda.Function(this, "GraphqlEndpoint", {
+      ...functionConfig,
+      handler: "graphql.handler",
+    });
 
     accountsTable.grantReadWriteData(graphqlFunction);
     categoriesTable.grantReadWriteData(graphqlFunction);
     transactionsTable.grantReadWriteData(graphqlFunction);
     usersTable.grantReadWriteData(graphqlFunction);
 
-    const migrationFunction = new lambda.Function(
-      this,
-      "MigrationRunner",
-      {
-        ...functionConfig,
-        handler: "migrate.handler",
-        timeout: cdk.Duration.minutes(15),
-      });
+    const migrationFunction = new lambda.Function(this, "MigrationRunner", {
+      ...functionConfig,
+      handler: "migrate.handler",
+      timeout: cdk.Duration.minutes(15),
+    });
 
     migrationsTable.grantReadWriteData(migrationFunction);
     accountsTable.grantReadWriteData(migrationFunction);

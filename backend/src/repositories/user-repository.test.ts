@@ -84,7 +84,7 @@ describe("UserRepository", () => {
 
       // Act
       const created = await repository.create(input);
-      const stored = await repository.findByAuth0UserId(created.auth0UserId);
+      const stored = await repository.findByEmail(created.email);
 
       // Assert
       expect(stored).toBeDefined();
@@ -99,92 +99,6 @@ describe("UserRepository", () => {
           email: "test@example.com",
         }),
       ).rejects.toThrow();
-    });
-  });
-
-  describe("findByAuth0UserId", () => {
-    it("should find user by auth0UserId", async () => {
-      // Arrange
-      const input = fakeCreateUserInput();
-      const created = await repository.create(input);
-
-      // Act
-      const result = await repository.findByAuth0UserId(created.auth0UserId);
-
-      // Assert
-      expect(result).toBeDefined();
-      expect(result).toEqual(created);
-      expect(result?.auth0UserId).toBe(created.auth0UserId);
-    });
-
-    it("should return null when auth0UserId does not exist", async () => {
-      // Act
-      const result = await repository.findByAuth0UserId("auth0|nonexistent-id");
-
-      // Assert
-      expect(result).toBeNull();
-    });
-
-    it("should find correct user among multiple users", async () => {
-      // Arrange
-      const user1Input = fakeCreateUserInput();
-      const user2Input = fakeCreateUserInput();
-      const user3Input = fakeCreateUserInput();
-
-      const user1 = await repository.create(user1Input);
-      await repository.create(user2Input);
-      await repository.create(user3Input);
-
-      // Act
-      const result = await repository.findByAuth0UserId(user1.auth0UserId);
-
-      // Assert
-      expect(result).toBeDefined();
-      expect(result?.id).toBe(user1.id);
-      expect(result?.auth0UserId).toBe(user1.auth0UserId);
-      expect(result?.email).toBe(user1.email);
-    });
-
-    it("should be case-sensitive for auth0UserId", async () => {
-      // Arrange
-      const input = fakeCreateUserInput();
-      await repository.create(input);
-
-      // Act
-      const result = await repository.findByAuth0UserId(
-        input.auth0UserId.toUpperCase(),
-      );
-
-      // Assert - Should not find it because of case sensitivity
-      expect(result).toBeNull();
-    });
-
-    it("should throw error when auth0UserId is empty", async () => {
-      // Act & Assert
-      await expect(repository.findByAuth0UserId("")).rejects.toThrow();
-    });
-
-    it("should handle multiple users with different auth0UserIds correctly", async () => {
-      // Arrange
-      const inputs = [
-        fakeCreateUserInput(),
-        fakeCreateUserInput(),
-        fakeCreateUserInput(),
-      ];
-
-      const created = await Promise.all(
-        inputs.map((input) => repository.create(input)),
-      );
-
-      // Act - Find each user individually
-      const results = await Promise.all(
-        created.map((user) => repository.findByAuth0UserId(user.auth0UserId)),
-      );
-
-      // Assert - Each result should match the created user
-      results.forEach((result, index) => {
-        expect(result).toEqual(created[index]);
-      });
     });
   });
 
@@ -264,6 +178,87 @@ describe("UserRepository", () => {
     });
   });
 
+  describe("findByEmail", () => {
+    it("should find user by exact email match (lowercase)", async () => {
+      const input = fakeCreateUserInput({ email: "user@example.com" });
+      await repository.create(input);
+
+      const result = await repository.findByEmail("user@example.com");
+
+      expect(result).toBeDefined();
+      expect(result?.email).toBe("user@example.com");
+    });
+
+    it("should return null when email not found", async () => {
+      const result = await repository.findByEmail("nonexistent@example.com");
+
+      expect(result).toBeNull();
+    });
+
+    it("should find correct user among multiple users", async () => {
+      const user1Input = fakeCreateUserInput({ email: "user1@example.com" });
+      const user2Input = fakeCreateUserInput({ email: "user2@example.com" });
+      const user3Input = fakeCreateUserInput({ email: "user3@example.com" });
+
+      const user1 = await repository.create(user1Input);
+      await repository.create(user2Input);
+      await repository.create(user3Input);
+
+      const result = await repository.findByEmail("user1@example.com");
+
+      expect(result).toBeDefined();
+      expect(result?.id).toBe(user1.id);
+      expect(result?.email).toBe("user1@example.com");
+    });
+
+    it("should find user with uppercase email (case-insensitive)", async () => {
+      const input = fakeCreateUserInput({ email: "user@example.com" });
+      await repository.create(input);
+
+      const result = await repository.findByEmail("USER@EXAMPLE.COM");
+
+      expect(result).toBeDefined();
+      expect(result?.email).toBe("user@example.com");
+    });
+
+    it("should trim whitespace from email", async () => {
+      const input = fakeCreateUserInput({ email: "user@example.com" });
+      await repository.create(input);
+
+      const result = await repository.findByEmail("  user@example.com  ");
+
+      expect(result).toBeDefined();
+      expect(result?.email).toBe("user@example.com");
+    });
+
+    it("should reject whitespace-only email", async () => {
+      await expect(repository.findByEmail("   ")).rejects.toThrow(
+        "Failed to find user by email",
+      );
+    });
+
+    it("should return null for invalid email format", async () => {
+      const result = await repository.findByEmail("not-an-email");
+      expect(result).toBeNull();
+    });
+
+    describe("data integrity", () => {
+      it("should throw error if multiple users with same email found (data corruption)", async () => {
+        const input1 = fakeCreateUserInput({ email: "dupe@example.com" });
+        const input2 = fakeCreateUserInput({ email: "dupe@example.com" });
+
+        // Manually create duplicates (bypassing normal constraints)
+        await repository.create(input1);
+        await repository.create(input2);
+
+        // Should throw error due to data integrity issue
+        await expect(
+          repository.findByEmail("dupe@example.com"),
+        ).rejects.toThrow("Failed to find user by email");
+      });
+    });
+  });
+
   describe("ensureUser", () => {
     it("should create user if not exists", async () => {
       // Arrange
@@ -279,7 +274,7 @@ describe("UserRepository", () => {
       expect(result.id).toBeDefined();
 
       // Verify user was actually created in database
-      const stored = await repository.findByAuth0UserId(auth0UserId);
+      const stored = await repository.findByEmail(email);
       expect(stored).toEqual(result);
     });
 
@@ -304,12 +299,30 @@ describe("UserRepository", () => {
       expect(result1.id).toBe(result2.id);
     });
 
+    it("should handle case-insensitive email matching in ensureUser", async () => {
+      const auth0UserId = `auth0|${faker.string.uuid()}`;
+      const email = "Test@Example.COM";
+
+      // Create user with mixed-case email
+      const created = await repository.ensureUser(auth0UserId, email);
+
+      // Try to ensure user again with different case
+      const result = await repository.ensureUser(
+        auth0UserId,
+        "test@example.com",
+      );
+
+      // Should return the same user
+      expect(result.id).toBe(created.id);
+      expect(result.email).toBe("test@example.com");
+    });
+
     it("should not create duplicates on multiple calls", async () => {
       // Arrange
       const auth0UserId = `auth0|${faker.string.uuid()}`;
       const email = faker.internet.email().toLowerCase();
 
-      // Act - Call ensureUser three times with same auth0UserId
+      // Act - Call ensureUser three times with same email
       const result1 = await repository.ensureUser(auth0UserId, email);
       const result2 = await repository.ensureUser(auth0UserId, email);
       const result3 = await repository.ensureUser(auth0UserId, email);
