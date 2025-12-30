@@ -7,7 +7,7 @@ import { normalizeAndValidateEmail } from "../utils/email";
  */
 export interface JwtPayload {
   sub: string; // Auth0 user ID
-  email: string; // User email (required)
+  email: string; // User email
   iss: string; // Issuer
   aud: string | string[]; // Audience
   exp: number; // Expiration
