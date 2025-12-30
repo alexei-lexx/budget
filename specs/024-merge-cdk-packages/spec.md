@@ -62,9 +62,19 @@ As an infrastructure developer, I want to deploy backend or frontend stacks indi
 
 - **First-time deployment**: What happens if FrontendStack is deployed before BackendStack on initial setup? (CloudFormation import will fail since export doesn't exist yet)
 - **Migration timing**: How does migration Lambda invocation integrate with the new single-package deployment flow? (Must run after both stacks deploy but before frontend S3 upload)
-- **Existing outputs**: What happens to existing backend-cdk/cdk-outputs.json and frontend-cdk/cdk-outputs.json files? (Need migration strategy or documentation)
+- **Existing outputs**: Old backend-cdk/cdk-outputs.json and frontend-cdk/cdk-outputs.json files must be deleted once new infra-cdk/cdk-outputs.json is successfully created to prevent confusion about which outputs are current
 - **Environment variables**: How does dotenvx integration work when only backend needs .env.production? (Backend scripts use dotenvx, frontend scripts don't - still works)
 - **Stack naming**: Do stack names remain BackendCdkStack and FrontendCdkStack? (Yes, to avoid resource recreation)
+- **Rollback on failure**: If package merge or deployment fails mid-process, rollback by restoring from version control (git revert), ensuring all changes are committed so deployment can be re-run from scratch
+- **Old directory cleanup**: Old backend-cdk/ and frontend-cdk/ directories must be deleted in the same commit as the merge to keep repository clean; git history preserves them for rollback via git revert
+
+## Clarifications
+
+### Session 2025-12-30
+
+- Q: If the package merge or first deployment fails mid-process, what is the recovery strategy? → A: Rollback by restoring from version control (git revert) - assumes all changes are committed and deployment can be re-run from scratch
+- Q: What should happen to existing backend-cdk/cdk-outputs.json and frontend-cdk/cdk-outputs.json files after the merge? → A: Delete old output files once new infra-cdk/cdk-outputs.json is successfully created
+- Q: What should happen to the old backend-cdk/ and frontend-cdk/ directories after the merge is complete and verified? → A: Delete old directories in the same commit as the merge (repository stays clean, git history preserves them)
 
 ## Requirements *(mandatory)*
 
@@ -84,6 +94,8 @@ As an infrastructure developer, I want to deploy backend or frontend stacks indi
 - **FR-012**: System MUST place backend stack definition in lib/backend-stack.ts
 - **FR-013**: System MUST place frontend stack definition in lib/frontend-stack.ts
 - **FR-014**: System MUST output cdk-outputs.json to a single location accessible by deploy.sh
+- **FR-015**: System MUST delete old backend-cdk/cdk-outputs.json and frontend-cdk/cdk-outputs.json files after successful creation of infra-cdk/cdk-outputs.json
+- **FR-016**: System MUST delete backend-cdk/ and frontend-cdk/ directories in the same commit as creating infra-cdk/
 
 ### Key Entities
 
