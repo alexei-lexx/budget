@@ -18,6 +18,7 @@ export class BackendCdkStack extends cdk.Stack {
         pointInTimeRecoveryEnabled: true,
       },
       removalPolicy: cdk.RemovalPolicy.RETAIN,
+      deletionProtection: true,
     };
 
     const usersTable = new dynamodb.Table(this, "UsersTable", {
