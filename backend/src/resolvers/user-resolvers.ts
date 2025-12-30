@@ -21,20 +21,7 @@ async function ensureAuthenticatedUser(context: GraphQLContext): Promise<User> {
       return existingUser;
     }
 
-    // User doesn't exist - fetch auth0UserId from JWT and create user
-    console.log(
-      `[RESOLVER] User not found, creating new user with email ${email}`,
-    );
-    const userInfo = await context.jwtAuthService.getUserInfoFromHeader(
-      context.authHeader,
-    );
-
-    if (!userInfo || !userInfo.sub) {
-      throw new Error("Failed to get Auth0 user ID from token");
-    }
-
-    const auth0UserId = userInfo.sub; // TODO: Deprecate use of auth0UserId
-    const user = await context.userRepository.ensureUser(auth0UserId, email);
+    const user = await context.userRepository.ensureUser(email);
     return user;
   } catch (error) {
     console.error("Error ensuring user:", error);

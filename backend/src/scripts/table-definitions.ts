@@ -15,17 +15,11 @@ export const tables: CreateTableCommandInput[] = [
     TableName: process.env.USERS_TABLE_NAME,
     AttributeDefinitions: [
       { AttributeName: "id", AttributeType: "S" },
-      { AttributeName: "auth0UserId", AttributeType: "S" }, // TODO: Deprecate
       { AttributeName: "email", AttributeType: "S" },
     ],
     KeySchema: [{ AttributeName: "id", KeyType: "HASH" }],
     BillingMode: "PAY_PER_REQUEST",
     GlobalSecondaryIndexes: [
-      {
-        IndexName: "Auth0UserIdIndex",
-        KeySchema: [{ AttributeName: "auth0UserId", KeyType: "HASH" }],
-        Projection: { ProjectionType: "ALL" },
-      },
       {
         IndexName: "EmailIndex",
         KeySchema: [{ AttributeName: "email", KeyType: "HASH" }],

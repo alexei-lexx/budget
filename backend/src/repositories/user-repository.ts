@@ -80,7 +80,6 @@ export class UserRepository implements IUserRepository {
     const now = new Date().toISOString();
     const user: User = {
       id: randomUUID(),
-      auth0UserId: input.auth0UserId,
       email: normalizeEmail(input.email),
       createdAt: now,
       updatedAt: now,
@@ -100,7 +99,7 @@ export class UserRepository implements IUserRepository {
     }
   }
 
-  async ensureUser(auth0UserId: string, email: string): Promise<User> {
+  async ensureUser(email: string): Promise<User> {
     // Check if user exists
     const existingUser = await this.findByEmail(email);
 
@@ -110,7 +109,6 @@ export class UserRepository implements IUserRepository {
 
     // Create new user if doesn't exist
     return this.create({
-      auth0UserId,
       email,
     });
   }

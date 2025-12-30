@@ -117,7 +117,6 @@ export const fakeUser = (overrides: Partial<User> = {}): User => {
   const now = new Date().toISOString();
   return {
     id: faker.string.uuid(),
-    auth0UserId: `auth0|${faker.string.uuid()}`,
     email: faker.internet.email().toLowerCase(),
     createdAt: now,
     updatedAt: now,
@@ -129,7 +128,6 @@ export const fakeCreateUserInput = (
   overrides: Partial<CreateUserInput> = {},
 ): CreateUserInput => {
   return {
-    auth0UserId: `auth0|${faker.string.uuid()}`,
     email: faker.internet.email().toLowerCase(),
     ...overrides,
   };

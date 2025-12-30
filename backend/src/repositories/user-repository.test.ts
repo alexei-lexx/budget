@@ -33,7 +33,6 @@ describe("UserRepository", () => {
       // Assert
       expect(result).toBeDefined();
       expect(result.id).toBeDefined();
-      expect(result.auth0UserId).toBe(input.auth0UserId);
       expect(result.email).toBe(input.email.toLowerCase());
       expect(result.createdAt).toBeDefined();
       expect(result.updatedAt).toBeDefined();
@@ -63,7 +62,7 @@ describe("UserRepository", () => {
       expect(result.email).toBe("test.email@example.com");
     });
 
-    it("should create multiple users with different auth0UserIds", async () => {
+    it("should create multiple users", async () => {
       // Arrange
       const input1 = fakeCreateUserInput();
       const input2 = fakeCreateUserInput();
@@ -74,7 +73,6 @@ describe("UserRepository", () => {
 
       // Assert
       expect(result1.id).not.toBe(result2.id);
-      expect(result1.auth0UserId).not.toBe(result2.auth0UserId);
       expect(result1.email).not.toBe(result2.email);
     });
 
@@ -92,11 +90,10 @@ describe("UserRepository", () => {
     });
 
     it("should throw error when required fields are missing during create", async () => {
-      // Act & Assert - Missing auth0UserId
+      // Act & Assert - Missing email
       await expect(
         repository.create({
-          auth0UserId: "",
-          email: "test@example.com",
+          email: "",
         }),
       ).rejects.toThrow();
     });
@@ -148,7 +145,6 @@ describe("UserRepository", () => {
       expect(result).toHaveLength(2);
       result.forEach((user) => {
         expect(user.id).toBeDefined();
-        expect(user.auth0UserId).toBeDefined();
         expect(user.email).toBeDefined();
         expect(user.createdAt).toBeDefined();
         expect(user.updatedAt).toBeDefined();
@@ -260,14 +256,12 @@ describe("UserRepository", () => {
   describe("ensureUser", () => {
     it("should create user if not exists", async () => {
       // Arrange
-      const auth0UserId = `auth0|${faker.string.uuid()}`;
       const email = faker.internet.email().toLowerCase();
 
       // Act
-      const result = await repository.ensureUser(auth0UserId, email);
+      const result = await repository.ensureUser(email);
 
       // Assert
-      expect(result.auth0UserId).toBe(auth0UserId);
       expect(result.email).toBe(email);
       expect(result.id).toBeDefined();
 
@@ -282,14 +276,8 @@ describe("UserRepository", () => {
       const created = await repository.create(input);
 
       // Act
-      const result1 = await repository.ensureUser(
-        created.auth0UserId,
-        created.email,
-      );
-      const result2 = await repository.ensureUser(
-        created.auth0UserId,
-        created.email,
-      );
+      const result1 = await repository.ensureUser(created.email);
+      const result2 = await repository.ensureUser(created.email);
 
       // Assert - Both calls return the same user
       expect(result1).toEqual(created);
@@ -298,17 +286,13 @@ describe("UserRepository", () => {
     });
 
     it("should handle case-insensitive email matching in ensureUser", async () => {
-      const auth0UserId = `auth0|${faker.string.uuid()}`;
       const email = "Test@Example.COM";
 
       // Create user with mixed-case email
-      const created = await repository.ensureUser(auth0UserId, email);
+      const created = await repository.ensureUser(email);
 
       // Try to ensure user again with different case
-      const result = await repository.ensureUser(
-        auth0UserId,
-        "test@example.com",
-      );
+      const result = await repository.ensureUser("test@example.com");
 
       // Should return the same user
       expect(result.id).toBe(created.id);
@@ -317,13 +301,12 @@ describe("UserRepository", () => {
 
     it("should not create duplicates on multiple calls", async () => {
       // Arrange
-      const auth0UserId = `auth0|${faker.string.uuid()}`;
       const email = faker.internet.email().toLowerCase();
 
       // Act - Call ensureUser three times with same email
-      const result1 = await repository.ensureUser(auth0UserId, email);
-      const result2 = await repository.ensureUser(auth0UserId, email);
-      const result3 = await repository.ensureUser(auth0UserId, email);
+      const result1 = await repository.ensureUser(email);
+      const result2 = await repository.ensureUser(email);
+      const result3 = await repository.ensureUser(email);
 
       // Assert - All calls return the same user ID
       expect(result1.id).toBe(result2.id);
@@ -335,10 +318,8 @@ describe("UserRepository", () => {
     });
 
     it("should throw error when receiving invalid input", async () => {
-      // Act & Assert - Empty auth0UserId
-      await expect(
-        repository.ensureUser("", "test@example.com"),
-      ).rejects.toThrow();
+      // Act & Assert - Empty email
+      await expect(repository.ensureUser("")).rejects.toThrow();
     });
   });
 

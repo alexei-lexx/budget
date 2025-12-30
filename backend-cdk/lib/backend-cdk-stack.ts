@@ -25,15 +25,6 @@ export class BackendCdkStack extends cdk.Stack {
     });
 
     usersTable.addGlobalSecondaryIndex({
-      indexName: "Auth0UserIdIndex",
-      partitionKey: {
-        name: "auth0UserId",
-        type: dynamodb.AttributeType.STRING,
-      },
-      projectionType: dynamodb.ProjectionType.ALL,
-    });
-
-    usersTable.addGlobalSecondaryIndex({
       indexName: "EmailIndex",
       partitionKey: {
         name: "email",
