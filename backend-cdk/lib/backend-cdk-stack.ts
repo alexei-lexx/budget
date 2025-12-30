@@ -10,6 +10,8 @@ export class BackendCdkStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
+    const logRetention = logs.RetentionDays.ONE_WEEK;
+
     const commonTableOptions: Partial<dynamodb.TableProps> = {
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
       pointInTimeRecoverySpecification: {
@@ -114,6 +116,7 @@ export class BackendCdkStack extends cdk.Stack {
     const graphqlFunction = new lambda.Function(this, "GraphqlEndpoint", {
       ...functionConfig,
       handler: "graphql.handler",
+      logRetention,
     });
 
     accountsTable.grantReadWriteData(graphqlFunction);
@@ -125,6 +128,7 @@ export class BackendCdkStack extends cdk.Stack {
       ...functionConfig,
       handler: "migrate.handler",
       timeout: cdk.Duration.minutes(15),
+      logRetention,
     });
 
     migrationsTable.grantReadWriteData(migrationFunction);
@@ -146,7 +150,7 @@ export class BackendCdkStack extends cdk.Stack {
 
     const accessLogGroup = new logs.LogGroup(this, "GraphqlApiAccessLogs", {
       logGroupName: `/aws/apigateway/${this.stackName}-graphql-api`,
-      retention: logs.RetentionDays.ONE_WEEK,
+      retention: logRetention,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
 
