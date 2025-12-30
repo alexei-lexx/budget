@@ -242,20 +242,18 @@ describe("UserRepository", () => {
       expect(result).toBeNull();
     });
 
-    describe("data integrity", () => {
-      it("should throw error if multiple users with same email found (data corruption)", async () => {
-        const input1 = fakeCreateUserInput({ email: "dupe@example.com" });
-        const input2 = fakeCreateUserInput({ email: "dupe@example.com" });
+    it("should throw error if multiple users with same email found (data corruption)", async () => {
+      const input1 = fakeCreateUserInput({ email: "dupe@example.com" });
+      const input2 = fakeCreateUserInput({ email: "dupe@example.com" });
 
-        // Manually create duplicates (bypassing normal constraints)
-        await repository.create(input1);
-        await repository.create(input2);
+      // Manually create duplicates (bypassing normal constraints)
+      await repository.create(input1);
+      await repository.create(input2);
 
-        // Should throw error due to data integrity issue
-        await expect(
-          repository.findByEmail("dupe@example.com"),
-        ).rejects.toThrow("Failed to find user by email");
-      });
+      // Should throw error due to data integrity issue
+      await expect(repository.findByEmail("dupe@example.com")).rejects.toThrow(
+        "Failed to find user by email",
+      );
     });
   });
 
