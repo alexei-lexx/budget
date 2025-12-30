@@ -327,22 +327,20 @@ async function main() {
 
     console.log(`Found ${users.length} user(s) in the database:\n`);
     users.forEach((user) => {
-      console.log(`  • ${user.email || user.auth0UserId} (ID: ${user.id})`);
+      console.log(`  • ${user.email} (ID: ${user.id})`);
     });
     console.log();
 
     // Create sample data for each user
     for (const user of users) {
-      console.log(
-        `\n📊 Creating sample data for user: ${user.email || user.auth0UserId}`,
-      );
+      console.log(`\n📊 Creating sample data for user: ${user.email}`);
       console.log("─".repeat(60));
 
       const accountIds = await createAccounts(user.id);
       const categoryIds = await createCategories(user.id);
       await createTransactions(user.id, accountIds, categoryIds);
 
-      console.log(`✓ Completed for user: ${user.email || user.auth0UserId}\n`);
+      console.log(`✓ Completed for user: ${user.email}\n`);
     }
 
     console.log("✓ Database seeding completed successfully!");

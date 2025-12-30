@@ -8,6 +8,7 @@ import {
 } from "@aws-sdk/lib-dynamodb";
 import { CreateUserInput, IUserRepository, User } from "../models/user";
 import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
+import { normalizeEmail } from "../utils/email";
 import { userSchema } from "./schemas/user";
 import { hydrate } from "./utils/hydrate";
 
@@ -24,14 +25,16 @@ export class UserRepository implements IUserRepository {
     }
   }
 
-  async findByAuth0UserId(auth0UserId: string): Promise<User | null> {
+  async findByEmail(email: string): Promise<User | null> {
     try {
+      const normalizedEmail = normalizeEmail(email);
+
       const command = new QueryCommand({
         TableName: this.tableName,
-        IndexName: "Auth0UserIdIndex",
-        KeyConditionExpression: "auth0UserId = :auth0UserId",
+        IndexName: "EmailIndex",
+        KeyConditionExpression: "email = :email",
         ExpressionAttributeValues: {
-          ":auth0UserId": auth0UserId,
+          ":email": normalizedEmail,
         },
       });
 
@@ -43,14 +46,14 @@ export class UserRepository implements IUserRepository {
 
       if (result.Items.length > 1) {
         throw new Error(
-          `Data integrity error: Multiple users found for Auth0 ID ${auth0UserId}`,
+          `Data integrity error: Multiple users found for email ${normalizedEmail}`,
         );
       }
 
       return hydrate(userSchema, result.Items[0]);
     } catch (error) {
-      console.error("Error finding user by Auth0 ID:", error);
-      throw new Error("Failed to find user");
+      console.error("Error finding user by email:", error);
+      throw new Error("Failed to find user by email");
     }
   }
 
@@ -77,8 +80,7 @@ export class UserRepository implements IUserRepository {
     const now = new Date().toISOString();
     const user: User = {
       id: randomUUID(),
-      auth0UserId: input.auth0UserId,
-      email: input.email.toLowerCase(),
+      email: normalizeEmail(input.email),
       createdAt: now,
       updatedAt: now,
     };
@@ -97,9 +99,9 @@ export class UserRepository implements IUserRepository {
     }
   }
 
-  async ensureUser(auth0UserId: string, email: string): Promise<User> {
+  async ensureUser(email: string): Promise<User> {
     // Check if user exists
-    const existingUser = await this.findByAuth0UserId(auth0UserId);
+    const existingUser = await this.findByEmail(email);
 
     if (existingUser) {
       return existingUser;
@@ -107,7 +109,6 @@ export class UserRepository implements IUserRepository {
 
     // Create new user if doesn't exist
     return this.create({
-      auth0UserId,
       email,
     });
   }

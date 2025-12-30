@@ -1,16 +1,18 @@
 import jwt from "jsonwebtoken";
 import jwksClient from "jwks-rsa";
+import { normalizeAndValidateEmail } from "../utils/email";
 
 /**
  * JWT payload structure from Auth0 tokens
  */
 export interface JwtPayload {
   sub: string; // Auth0 user ID
-  email?: string; // User email
+  email: string; // User email
   iss: string; // Issuer
   aud: string | string[]; // Audience
   exp: number; // Expiration
   iat: number; // Issued at
+  [key: string]: unknown; // Allow custom claims (e.g., namespaced email claim)
 }
 
 /**
@@ -19,7 +21,7 @@ export interface JwtPayload {
 export interface AuthContext {
   isAuthenticated: boolean;
   user?: {
-    auth0UserId: string;
+    email: string;
   };
 }
 
@@ -189,10 +191,30 @@ export class JwtAuthService {
     try {
       const payload = await this.verifyToken(token);
 
+      // Read email from custom namespaced claim
+      const namespace = process.env.JWT_CLAIM_NAMESPACE;
+      if (!namespace) {
+        throw new Error(
+          "JWT_CLAIM_NAMESPACE environment variable must be configured",
+        );
+      }
+
+      const namespacedEmail = payload[`${namespace}/email`];
+      const email =
+        typeof namespacedEmail === "string" ? namespacedEmail : payload.email;
+
+      // Validate email claim exists
+      if (!email) {
+        throw new Error("Email claim missing in JWT token");
+      }
+
+      // Normalize and validate email
+      const normalizedEmail = normalizeAndValidateEmail(email);
+
       return {
         isAuthenticated: true,
         user: {
-          auth0UserId: payload.sub,
+          email: normalizedEmail,
         },
       };
     } catch (error) {
