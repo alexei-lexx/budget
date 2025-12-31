@@ -1,20 +1,22 @@
 {
-  "name": "backend-cdk",
+  "name": "infra-cdk",
   "version": "1.0.0",
   "bin": {
-    "backend-cdk": "bin/backend-cdk.js"
+    "infra-cdk": "bin/app.js"
   },
   "scripts": {
     "build": "dotenvx run -f .env.production --verbose -- tsc",
     "cdk": "dotenvx run -f .env.production --verbose -- cdk",
-    "deploy": "dotenvx run -f .env.production --verbose -- cdk deploy --outputs-file cdk-outputs.json",
+    "deploy:backend": "dotenvx run -f .env.production -- cdk deploy BackendCdkStack --outputs-file cdk-outputs.json",
+    "deploy:frontend": "dotenvx run -f .env.production -- cdk deploy FrontendCdkStack --outputs-file cdk-outputs.json",
+    "deploy": "dotenvx run -f .env.production --verbose -- cdk deploy --all --outputs-file cdk-outputs.json",
     "diff": "dotenvx run -f .env.production --verbose -- cdk diff",
-    "synth": "dotenvx run -f .env.production --verbose -- cdk synth",
     "format": "npm run prettier:fix && npm run lint:fix",
     "lint:fix": "eslint . --fix",
     "lint": "eslint .",
     "prettier:fix": "prettier --write .",
     "prettier": "prettier --check .",
+    "synth": "dotenvx run -f .env.production --verbose -- cdk synth",
     "test": "jest",
     "watch": "tsc -w"
   },
