@@ -102,10 +102,10 @@ description: "Task list for merging backend-cdk and frontend-cdk into unified in
 - [X] T035 [US2] Update deploy.sh to read MigrationFunctionName from BackendCdkStack.MigrationFunctionName in unified outputs file
 - [X] T036 [US2] Update deploy.sh to read S3BucketName from FrontendCdkStack.S3BucketName in unified outputs file
 - [X] T037 [US2] Update deploy.sh to read CloudFrontDistributionId from FrontendCdkStack.CloudFrontDistributionId in unified outputs file
-- [ ] T038 [MANUAL] [US2] Run deploy.sh to test full deployment workflow with unified package
-- [ ] T039 [MANUAL] [US2] Verify infra-cdk/cdk-outputs.json exists and contains both BackendCdkStack and FrontendCdkStack sections
-- [ ] T040 [MANUAL] [US2] Verify both stacks deployed successfully via AWS CloudFormation console or aws cloudformation list-stacks
-- [ ] T041 [MANUAL] [US2] Verify migration Lambda invocation executes successfully after deployment
+- [X] T038 [MANUAL] [US2] Run deploy.sh to test full deployment workflow with unified package
+- [X] T039 [MANUAL] [US2] Verify infra-cdk/cdk-outputs.json exists and contains both BackendCdkStack and FrontendCdkStack sections
+- [X] T040 [MANUAL] [US2] Verify both stacks deployed successfully via AWS CloudFormation console or aws cloudformation list-stacks
+- [X] T041 [MANUAL] [US2] Verify migration Lambda invocation executes successfully after deployment
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work - unified dependencies AND simplified deployment operational
 
@@ -121,12 +121,12 @@ description: "Task list for merging backend-cdk and frontend-cdk into unified in
 
 - [X] T042 [P] [US3] Add "deploy:backend" script to infra-cdk/package.json running "dotenvx run -f .env.production -- cdk deploy BackendCdkStack"
 - [X] T043 [P] [US3] Add "deploy:frontend" script to infra-cdk/package.json running "dotenvx run -f .env.production -- cdk deploy FrontendCdkStack"
-- [ ] T044 [MANUAL] [US3] Run npm run deploy:backend from infra-cdk/ and verify only BackendCdkStack deploys
-- [ ] T045 [MANUAL] [US3] Verify BackendCdkStack export "BackendCdkStack-GraphqlApiDomain" exists via aws cloudformation list-exports
-- [ ] T046 [MANUAL] [US3] Run npm run deploy:frontend from infra-cdk/ and verify only FrontendCdkStack deploys
-- [ ] T047 [MANUAL] [US3] Verify FrontendCdkStack successfully imports BackendCdkStack-GraphqlApiDomain export
-- [ ] T048 [MANUAL] [US3] Verify application is accessible via CloudFrontFullURL from FrontendCdkStack outputs
-- [ ] T049 [MANUAL] [US3] Verify GraphQL API responds correctly via API Gateway domain from BackendCdkStack outputs
+- [X] T044 [MANUAL] [US3] Run npm run deploy:backend from infra-cdk/ and verify only BackendCdkStack deploys
+- [X] T045 [MANUAL] [US3] Verify BackendCdkStack export "BackendCdkStack-GraphqlApiDomain" exists via aws cloudformation list-exports
+- [X] T046 [MANUAL] [US3] Run npm run deploy:frontend from infra-cdk/ and verify only FrontendCdkStack deploys
+- [X] T047 [MANUAL] [US3] Verify FrontendCdkStack successfully imports BackendCdkStack-GraphqlApiDomain export
+- [X] T048 [MANUAL] [US3] Verify application is accessible via CloudFrontFullURL from FrontendCdkStack outputs
+- [X] T049 [MANUAL] [US3] Verify GraphQL API responds correctly via API Gateway domain from BackendCdkStack outputs
 
 **Checkpoint**: All user stories (1, 2, 3) should now be independently functional
 
@@ -139,7 +139,7 @@ description: "Task list for merging backend-cdk and frontend-cdk into unified in
 - [X] T050 Delete backend-cdk/ directory completely (git rm -rf backend-cdk/)
 - [X] T051 Delete frontend-cdk/ directory completely (git rm -rf frontend-cdk/)
 - [X] T052 Run cdk diff in infra-cdk/ one final time to verify no unexpected changes
-- [ ] T053 [MANUAL] Verify application end-to-end (frontend accessible, backend GraphQL API responds, auth works)
+- [X] T053 [MANUAL] Verify application end-to-end (frontend accessible, backend GraphQL API responds, auth works)
 - [X] T054 Update .specify/memory/constitution.md to reflect new three-package structure (backend/, frontend/, infra-cdk/)
 - [X] T055 Run quickstart.md validation by following deployment steps from specs/024-merge-cdk-packages/quickstart.md
 - [X] T056 [P] Review and validate all configuration files in infra-cdk/ are correct
