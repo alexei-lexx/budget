@@ -85,7 +85,6 @@ An npm package providing unified infrastructure-as-code for both backend and fro
 - **Backend Infrastructure**: DynamoDB tables, Lambda functions, API Gateway for GraphQL endpoint
 - **Frontend Infrastructure**: S3 bucket for static assets, CloudFront distribution for content delivery
 - **Deployment Orchestration**: Single CDK app managing both BackendCdkStack and FrontendCdkStack
-- **Dependency Management**: Unified package.json eliminating version drift across infrastructure code
 
 ## General Requirements
 
