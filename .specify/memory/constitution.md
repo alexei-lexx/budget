@@ -1,17 +1,21 @@
 <!-- SYNC IMPACT REPORT
-Version Change: 0.21.0 → 0.21.1
+Version Change: 0.21.1 → 0.22.0
 Changes:
-  - PATCH (0.21.1): Reformatted Test Strategy principle for consistency
+  - MINOR (0.22.0): Merged backend-cdk and frontend-cdk into unified infra-cdk package
 Modified Sections:
-  - Test Strategy: Added "Non-negotiable rule:" and "Rationale:" sections
-    - Emphasized backend-first testing approach
-    - Clarified test file co-location requirements
-    - Explicitly prohibited separate test directories (src/__tests__/, src/tests/)
-    - No semantic changes to testing requirements
+  - Repository Structure: Updated from four packages to three packages
+    - Removed backend-cdk/ and frontend-cdk/ package descriptions
+    - Added infra-cdk/ package description with unified infrastructure responsibilities
+    - Updated overview to reflect three-package structure (backend/, frontend/, infra-cdk/)
+    - Clarified that infra-cdk manages both BackendCdkStack and FrontendCdkStack
+    - Documented unified dependency management benefit
 Added Sections:
-  - None
+  - Infra CDK: New section describing unified infrastructure package
+    - Technologies: TypeScript, AWS CDK, Jest, ESLint, Prettier
+    - Responsibilities: Backend infrastructure, frontend infrastructure, deployment orchestration, dependency management
 Removed Sections:
-  - None
+  - Backend CDK: Replaced by Infra CDK section
+  - Frontend CDK: Replaced by Infra CDK section
 Templates Requiring Updates:
   ✅ plan-template.md: Generic template, no updates needed
   ✅ spec-template.md: Generic template, no updates needed
@@ -26,12 +30,11 @@ Follow-up TODOs:
 
 ### Overview
 
-The project comprises four independent npm packages distributed across the repository:
+The project comprises three independent npm packages distributed across the repository:
 
 - **backend/** – GraphQL server exposing the API for the frontend, includes database integration
 - **frontend/** – User-facing single-page application
-- **backend-cdk/** – Deployable backend infrastructure
-- **frontend-cdk/** – Deployable frontend infrastructure
+- **infra-cdk/** – Deployable infrastructure for both backend and frontend
 
 Each package maintains its own `package.json`, dependencies, and build configuration. They are versioned and deployed independently while remaining architecturally coupled through shared GraphQL schema and deployment order requirements.
 
@@ -68,25 +71,21 @@ An npm package providing the user-facing single-page application.
 - **Authentication**: User sign-in and JWT token management
 - **GraphQL Client**: GraphQL API client communication
 
-### Backend CDK
+### Infra CDK
 
-An npm package providing infrastructure-as-code for backend deployment to AWS.
-
-**Technologies**:
-- **Language**: TypeScript
-- **Framework**: AWS CDK
-- **Testing**: Jest
-- **Quality**: ESLint, Prettier, TypeScript strict mode
-
-### Frontend CDK
-
-An npm package providing infrastructure-as-code for frontend deployment to AWS.
+An npm package providing unified infrastructure-as-code for both backend and frontend deployment to AWS.
 
 **Technologies**:
 - **Language**: TypeScript
 - **Framework**: AWS CDK
 - **Testing**: Jest
 - **Quality**: ESLint, Prettier, TypeScript strict mode
+
+**Responsibilities**:
+- **Backend Infrastructure**: DynamoDB tables, Lambda functions, API Gateway for GraphQL endpoint
+- **Frontend Infrastructure**: S3 bucket for static assets, CloudFront distribution for content delivery
+- **Deployment Orchestration**: Single CDK app managing both BackendCdkStack and FrontendCdkStack
+- **Dependency Management**: Unified package.json eliminating version drift across infrastructure code
 
 ## General Requirements
 
@@ -432,4 +431,4 @@ This constitution supersedes all other development guidelines. Amendments requir
 4. Commit with message: `docs: amend constitution to vX.Y.Z ([change summary])`
 5. Update dependent artifacts (templates, guidance docs) as flagged
 
-**Version**: 0.21.1 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-12-06
+**Version**: 0.22.0 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-12-31

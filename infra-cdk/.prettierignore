@@ -1,0 +1,21 @@
+# Build outputs
+bin/*.js
+lib/*.js
+lib/*.d.ts
+test/*.js
+
+# CDK outputs
+cdk.out/
+*.template.json
+*.assets.json
+manifest.json
+tree.json
+
+# Dependencies
+node_modules/
+
+# Lock files
+package-lock.json
+
+# Environment files
+.env.production

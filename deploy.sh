@@ -7,10 +7,10 @@ echo "Building backend..."
 npm install
 npm run build
 
-echo "Switching to backend-cdk directory..."
-cd ../backend-cdk
+echo "Switching to infra-cdk directory..."
+cd ../infra-cdk
 
-echo "Deploying backend..."
+echo "Deploying infrastructure (backend and frontend)..."
 npm install
 npm run deploy
 
@@ -56,12 +56,7 @@ fi
 echo "Migrations completed successfully!"
 rm -f migration-response.json
 
-echo "Switching to frontend-cdk directory..."
-cd ../frontend-cdk
-
-echo "Preparing frontend infrastructure..."
-npm install
-npm run deploy
+echo "Extracting frontend deployment outputs..."
 S3_BUCKET=$(cat cdk-outputs.json | jq -r '.FrontendCdkStack.S3BucketName')
 CLOUDFRONT_DISTRIBUTION_ID=$(cat cdk-outputs.json | jq -r '.FrontendCdkStack.CloudFrontDistributionId // empty')
 

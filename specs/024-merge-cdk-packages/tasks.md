@@ -30,10 +30,10 @@ description: "Task list for merging backend-cdk and frontend-cdk into unified in
 
 **Purpose**: Create initial infra-cdk directory structure and prepare for migration
 
-- [ ] T001 Create infra-cdk/ directory at repository root
-- [ ] T002 Create infra-cdk/bin/ directory for CDK app entry point
-- [ ] T003 Create infra-cdk/lib/ directory for stack definitions
-- [ ] T004 Create infra-cdk/test/ directory for merged tests
+- [X] T001 Create infra-cdk/ directory at repository root
+- [X] T002 Create infra-cdk/bin/ directory for CDK app entry point
+- [X] T003 Create infra-cdk/lib/ directory for stack definitions
+- [X] T004 Create infra-cdk/test/ directory for merged tests
 
 ---
 
@@ -43,23 +43,23 @@ description: "Task list for merging backend-cdk and frontend-cdk into unified in
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T005 Copy backend-cdk/package.json to infra-cdk/package.json, update name to "infra-cdk", and preserve all existing scripts (including any custom scripts)
-- [ ] T006 Update bin field in infra-cdk/package.json to point to "bin/app.js"
-- [ ] T007 [P] Copy backend-cdk/tsconfig.json to infra-cdk/tsconfig.json
-- [ ] T008 [P] Copy backend-cdk/jest.config.json to infra-cdk/jest.config.json
-- [ ] T009 [P] Copy backend-cdk/eslint.config.mjs to infra-cdk/eslint.config.mjs
-- [ ] T010 [P] Copy backend-cdk/.prettierrc.json to infra-cdk/.prettierrc.json
-- [ ] T011 [P] Copy backend-cdk/.env.production to infra-cdk/.env.production
-- [ ] T012 [P] Copy backend-cdk/.env.example to infra-cdk/.env.example
-- [ ] T013 Copy backend-cdk/lib/backend-cdk-stack.ts to infra-cdk/lib/backend-cdk-stack.ts
-- [ ] T014 Copy frontend-cdk/lib/frontend-cdk-stack.ts to infra-cdk/lib/frontend-cdk-stack.ts
-- [ ] T015 Create infra-cdk/bin/app.ts with unified CDK app instantiating BackendCdkStack and FrontendCdkStack
-- [ ] T016 Copy test files from backend-cdk/test/ to infra-cdk/test/ (if any exist)
-- [ ] T017 Copy test files from frontend-cdk/test/ to infra-cdk/test/ (if any exist)
-- [ ] T018 Run npm install in infra-cdk/ directory to install dependencies
-- [ ] T019 Run npm run build in infra-cdk/ to verify TypeScript compilation succeeds
-- [ ] T020 Run cdk synth in infra-cdk/ to verify CloudFormation template synthesis succeeds
-- [ ] T021 Run cdk diff in infra-cdk/ to verify no unexpected infrastructure changes (should show no changes)
+- [X] T005 Copy backend-cdk/package.json to infra-cdk/package.json, update name to "infra-cdk", and preserve all existing scripts (including any custom scripts)
+- [X] T006 Update bin field in infra-cdk/package.json to point to "bin/app.js"
+- [X] T007 [P] Copy backend-cdk/tsconfig.json to infra-cdk/tsconfig.json
+- [X] T008 [P] Copy backend-cdk/jest.config.json to infra-cdk/jest.config.json
+- [X] T009 [P] Copy backend-cdk/eslint.config.mjs to infra-cdk/eslint.config.mjs
+- [X] T010 [P] Copy backend-cdk/.prettierrc.json to infra-cdk/.prettierrc.json
+- [X] T011 [P] Copy backend-cdk/.env.production to infra-cdk/.env.production
+- [X] T012 [P] Copy backend-cdk/.env.example to infra-cdk/.env.example
+- [X] T013 Copy backend-cdk/lib/backend-cdk-stack.ts to infra-cdk/lib/backend-cdk-stack.ts
+- [X] T014 Copy frontend-cdk/lib/frontend-cdk-stack.ts to infra-cdk/lib/frontend-cdk-stack.ts
+- [X] T015 Create infra-cdk/bin/app.ts with unified CDK app instantiating BackendCdkStack and FrontendCdkStack
+- [X] T016 Copy test files from backend-cdk/test/ to infra-cdk/test/ (if any exist)
+- [X] T017 Copy test files from frontend-cdk/test/ to infra-cdk/test/ (if any exist)
+- [X] T018 Run npm install in infra-cdk/ directory to install dependencies
+- [X] T019 Run npm run build in infra-cdk/ to verify TypeScript compilation succeeds
+- [X] T020 Run cdk synth in infra-cdk/ to verify CloudFormation template synthesis succeeds
+- [X] T021 Run cdk diff in infra-cdk/ to verify no unexpected infrastructure changes (should show no changes)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin
 
@@ -73,13 +73,13 @@ description: "Task list for merging backend-cdk and frontend-cdk into unified in
 
 ### Implementation for User Story 1
 
-- [ ] T022 [US1] Verify infra-cdk/package.json shows aws-cdk-lib@2.233.0 for both stacks (no version drift)
-- [ ] T023 [US1] Verify infra-cdk/package.json contains all necessary devDependencies (eslint, prettier, typescript, jest)
-- [ ] T024 [US1] Verify only one node_modules directory exists at infra-cdk/node_modules (not in backend-cdk/ or frontend-cdk/)
-- [ ] T025 [US1] Run npm run build in infra-cdk/ and verify both stack files compile successfully
-- [ ] T026 [US1] Run npm run lint in infra-cdk/ and verify linting applies to all stack code
-- [ ] T027 [US1] Run npm run prettier in infra-cdk/ and verify formatting applies to all stack code
-- [ ] T028 [US1] Run npm test in infra-cdk/ and verify tests from both packages execute (if tests exist)
+- [X] T022 [US1] Verify infra-cdk/package.json shows aws-cdk-lib@2.233.0 for both stacks (no version drift)
+- [X] T023 [US1] Verify infra-cdk/package.json contains all necessary devDependencies (eslint, prettier, typescript, jest)
+- [X] T024 [US1] Verify only one node_modules directory exists at infra-cdk/node_modules (not in backend-cdk/ or frontend-cdk/)
+- [X] T025 [US1] Run npm run build in infra-cdk/ and verify both stack files compile successfully
+- [X] T026 [US1] Run npm run lint in infra-cdk/ and verify linting applies to all stack code
+- [X] T027 [US1] Run npm run prettier in infra-cdk/ and verify formatting applies to all stack code
+- [X] T028 [US1] Run npm test in infra-cdk/ and verify tests from both packages execute (if tests exist)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional - unified dependency management is operational
 
@@ -93,15 +93,15 @@ description: "Task list for merging backend-cdk and frontend-cdk into unified in
 
 ### Implementation for User Story 2
 
-- [ ] T029 [US2] Update "deploy" script in infra-cdk/package.json to use "cdk deploy --all" instead of "cdk deploy"
-- [ ] T030 [US2] Add "deploy:all" script to infra-cdk/package.json as alias for "deploy"
-- [ ] T031 [US2] Update deploy.sh to navigate to infra-cdk/ instead of backend-cdk/ and frontend-cdk/
-- [ ] T032 [US2] Update deploy.sh to run npm install once in infra-cdk/ instead of twice
-- [ ] T033 [US2] Update deploy.sh to run cdk deploy --all instead of separate backend and frontend deployments
-- [ ] T034 [US2] Update deploy.sh to read outputs from infra-cdk/cdk-outputs.json instead of backend-cdk/cdk-outputs.json and frontend-cdk/cdk-outputs.json
-- [ ] T035 [US2] Update deploy.sh to read MigrationFunctionName from BackendCdkStack.MigrationFunctionName in unified outputs file
-- [ ] T036 [US2] Update deploy.sh to read S3BucketName from FrontendCdkStack.S3BucketName in unified outputs file
-- [ ] T037 [US2] Update deploy.sh to read CloudFrontDistributionId from FrontendCdkStack.CloudFrontDistributionId in unified outputs file
+- [X] T029 [US2] Update "deploy" script in infra-cdk/package.json to use "cdk deploy --all" instead of "cdk deploy"
+- [X] T030 [US2] Add "deploy:all" script to infra-cdk/package.json as alias for "deploy"
+- [X] T031 [US2] Update deploy.sh to navigate to infra-cdk/ instead of backend-cdk/ and frontend-cdk/
+- [X] T032 [US2] Update deploy.sh to run npm install once in infra-cdk/ instead of twice
+- [X] T033 [US2] Update deploy.sh to run cdk deploy --all instead of separate backend and frontend deployments
+- [X] T034 [US2] Update deploy.sh to read outputs from infra-cdk/cdk-outputs.json instead of backend-cdk/cdk-outputs.json and frontend-cdk/cdk-outputs.json
+- [X] T035 [US2] Update deploy.sh to read MigrationFunctionName from BackendCdkStack.MigrationFunctionName in unified outputs file
+- [X] T036 [US2] Update deploy.sh to read S3BucketName from FrontendCdkStack.S3BucketName in unified outputs file
+- [X] T037 [US2] Update deploy.sh to read CloudFrontDistributionId from FrontendCdkStack.CloudFrontDistributionId in unified outputs file
 - [ ] T038 [MANUAL] [US2] Run deploy.sh to test full deployment workflow with unified package
 - [ ] T039 [MANUAL] [US2] Verify infra-cdk/cdk-outputs.json exists and contains both BackendCdkStack and FrontendCdkStack sections
 - [ ] T040 [MANUAL] [US2] Verify both stacks deployed successfully via AWS CloudFormation console or aws cloudformation list-stacks
@@ -119,8 +119,8 @@ description: "Task list for merging backend-cdk and frontend-cdk into unified in
 
 ### Implementation for User Story 3
 
-- [ ] T042 [P] [US3] Add "deploy:backend" script to infra-cdk/package.json running "dotenvx run -f .env.production -- cdk deploy BackendCdkStack"
-- [ ] T043 [P] [US3] Add "deploy:frontend" script to infra-cdk/package.json running "dotenvx run -f .env.production -- cdk deploy FrontendCdkStack"
+- [X] T042 [P] [US3] Add "deploy:backend" script to infra-cdk/package.json running "dotenvx run -f .env.production -- cdk deploy BackendCdkStack"
+- [X] T043 [P] [US3] Add "deploy:frontend" script to infra-cdk/package.json running "dotenvx run -f .env.production -- cdk deploy FrontendCdkStack"
 - [ ] T044 [MANUAL] [US3] Run npm run deploy:backend from infra-cdk/ and verify only BackendCdkStack deploys
 - [ ] T045 [MANUAL] [US3] Verify BackendCdkStack export "BackendCdkStack-GraphqlApiDomain" exists via aws cloudformation list-exports
 - [ ] T046 [MANUAL] [US3] Run npm run deploy:frontend from infra-cdk/ and verify only FrontendCdkStack deploys
@@ -136,14 +136,14 @@ description: "Task list for merging backend-cdk and frontend-cdk into unified in
 
 **Purpose**: Cleanup, verification, and documentation updates
 
-- [ ] T050 Delete backend-cdk/ directory completely (git rm -rf backend-cdk/)
-- [ ] T051 Delete frontend-cdk/ directory completely (git rm -rf frontend-cdk/)
-- [ ] T052 Run cdk diff in infra-cdk/ one final time to verify no unexpected changes
+- [X] T050 Delete backend-cdk/ directory completely (git rm -rf backend-cdk/)
+- [X] T051 Delete frontend-cdk/ directory completely (git rm -rf frontend-cdk/)
+- [X] T052 Run cdk diff in infra-cdk/ one final time to verify no unexpected changes
 - [ ] T053 [MANUAL] Verify application end-to-end (frontend accessible, backend GraphQL API responds, auth works)
-- [ ] T054 Update .specify/memory/constitution.md to reflect new three-package structure (backend/, frontend/, infra-cdk/)
-- [ ] T055 Run quickstart.md validation by following deployment steps from specs/024-merge-cdk-packages/quickstart.md
-- [ ] T056 [P] Review and validate all configuration files in infra-cdk/ are correct
-- [ ] T057 [P] Verify .gitignore excludes infra-cdk/node_modules/, infra-cdk/cdk.out/, and infra-cdk/.env.production
+- [X] T054 Update .specify/memory/constitution.md to reflect new three-package structure (backend/, frontend/, infra-cdk/)
+- [X] T055 Run quickstart.md validation by following deployment steps from specs/024-merge-cdk-packages/quickstart.md
+- [X] T056 [P] Review and validate all configuration files in infra-cdk/ are correct
+- [X] T057 [P] Verify .gitignore excludes infra-cdk/node_modules/, infra-cdk/cdk.out/, and infra-cdk/.env.production
 
 ---
 
