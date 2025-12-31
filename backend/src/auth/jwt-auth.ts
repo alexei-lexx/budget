@@ -3,10 +3,10 @@ import jwksClient from "jwks-rsa";
 import { normalizeAndValidateEmail } from "../utils/email";
 
 /**
- * JWT payload structure from Auth0 tokens
+ * JWT payload structure
  */
 export interface JwtPayload {
-  sub: string; // Auth0 user ID
+  sub: string; // User ID
   email: string; // User email
   iss: string; // Issuer
   aud: string | string[]; // Audience
@@ -26,11 +26,11 @@ export interface AuthContext {
 }
 
 /**
- * Service for verifying Auth0 JWT tokens and extracting user context
+ * Service for verifying JWT tokens and extracting user context
  *
  * Requires environment variables:
- * - AUTH0_DOMAIN: Auth0 tenant domain (e.g., "your-tenant.auth0.com")
- * - AUTH0_AUDIENCE: API identifier configured in Auth0
+ * - AUTH_DOMAIN: Identity Provider domain (e.g., "identity-provider.example.com")
+ * - AUTH_AUDIENCE: API identifier configured in Identity Provider
  */
 export class JwtAuthService {
   private client: jwksClient.JwksClient;
@@ -38,27 +38,26 @@ export class JwtAuthService {
   private audience: string;
 
   /**
-   * Initialize JWT authentication service with Auth0 configuration
+   * Initialize JWT authentication service
    * @throws Error if required environment variables are missing
    */
   constructor() {
-    // Get Auth0 configuration from environment
-    this.domain = process.env.AUTH0_DOMAIN || "";
-    this.audience = process.env.AUTH0_AUDIENCE || "";
+    this.domain = process.env.AUTH_DOMAIN || "";
+    this.audience = process.env.AUTH_AUDIENCE || "";
 
     if (!this.domain) {
-      throw new Error("AUTH0_DOMAIN environment variable is required");
+      throw new Error("AUTH_DOMAIN environment variable is required");
     }
 
     if (!this.audience) {
-      throw new Error("AUTH0_AUDIENCE environment variable is required");
+      throw new Error("AUTH_AUDIENCE environment variable is required");
     }
 
-    // Initialize JWKS client to fetch Auth0 public keys with caching
+    // Initialize JWKS client to fetch public keys with caching
     this.client = jwksClient({
       jwksUri: `https://${this.domain}/.well-known/jwks.json`,
 
-      // Caching configuration - reduces Auth0 API calls by 90%
+      // Caching configuration - reduces Identity Provider API calls by 90%
       cache: true,
       cacheMaxEntries: 5, // Maximum number of signing keys to cache
       cacheMaxAge: 10 * 60 * 60 * 1000, // 10 hours cache duration
@@ -70,7 +69,7 @@ export class JwtAuthService {
 
   /**
    * Callback function to get signing key for JWT verification
-   * Fetches the public key from Auth0's JWKS endpoint using the key ID
+   * Fetches the public key from JWKS endpoint using the key ID
    */
   private getKey = (
     header: jwt.JwtHeader,
@@ -102,7 +101,7 @@ export class JwtAuthService {
   };
 
   /**
-   * Verify a JWT token against Auth0's public keys
+   * Verify a JWT token against public keys
    * @param token - JWT token string
    * @returns Decoded JWT payload
    * @throws Error if token is invalid or verification fails
@@ -132,7 +131,7 @@ export class JwtAuthService {
   }
 
   /**
-   * Get user info from Auth0 userinfo endpoint
+   * Get user info from Identity Provider userinfo endpoint
    * @param token - Access token
    * @returns User info including email
    */
@@ -151,7 +150,7 @@ export class JwtAuthService {
   }
 
   /**
-   * Get user info from Auth0 userinfo endpoint using Authorization header
+   * Get user info from Identity Provider userinfo endpoint using Authorization header
    * @param authHeader - Authorization header (e.g., "Bearer <token>")
    * @returns User info including email
    */
@@ -192,10 +191,10 @@ export class JwtAuthService {
       const payload = await this.verifyToken(token);
 
       // Read email from custom namespaced claim
-      const namespace = process.env.JWT_CLAIM_NAMESPACE;
+      const namespace = process.env.AUTH_CLAIM_NAMESPACE;
       if (!namespace) {
         throw new Error(
-          "JWT_CLAIM_NAMESPACE environment variable must be configured",
+          "AUTH_CLAIM_NAMESPACE environment variable must be configured",
         );
       }
 

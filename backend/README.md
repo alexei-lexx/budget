@@ -14,10 +14,10 @@ GraphQL API server for the Personal Finance Tracker application.
 
 1. `npm install` - Install dependencies
 2. `cp .env.example .env.development` - Copy environment template
-3. Edit `.env.development` with your Auth0 values
+3. Edit `.env.development` with your Identity Provider settings:
    ```env
-   AUTH0_DOMAIN=your-tenant.auth0.com
-   AUTH0_AUDIENCE=your-api-identifier
+   AUTH_DOMAIN=identity-provider.example.com
+   AUTH_AUDIENCE=your-api-identifier
    ```
 4. `npm run db:setup` - Start DynamoDB Local and create tables
 5. `npm run dev` - Start the development server on http://localhost:4000
