@@ -28,8 +28,7 @@ const httpLink = createHttpLink({
 // Auth link to add JWT token to headers
 const authLink = setContext(async (_, { headers }) => {
   try {
-    // Get the authentication token from Auth0
-    // We'll use a global function that can access the Auth0 instance
+    // Get the authentication token
     const token = await getAuthToken();
 
     console.log("Apollo authLink - token available:", token ? "yes" : "no");

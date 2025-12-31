@@ -317,10 +317,12 @@ async function main() {
 
     if (users.length === 0) {
       console.warn("⚠️  No users found in the database");
-      console.warn("Please create users through Auth0 login first.\n");
+      console.warn(
+        "Please create users through the frontend application first.\n",
+      );
       console.log("ℹ️  To seed data, please:");
       console.log("  1. Start the backend: npm run dev");
-      console.log("  2. Log in with Auth0 at the frontend");
+      console.log("  2. Sign up a new user via the frontend application");
       console.log("  3. Run: npm run db:seed");
       process.exit(0);
     }

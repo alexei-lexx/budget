@@ -20,12 +20,14 @@ Then edit `.env.production` and configure:
 ```env
 NODE_ENV=production
 
-# Auth0 Configuration
-AUTH0_DOMAIN=your-domain.us.auth0.com
-AUTH0_AUDIENCE=https://personal-budget-tracker
-JWT_CLAIM_NAMESPACE=https://personal-budget-tracker
+# Auth Configuration
+AUTH_AUDIENCE=https://personal-budget-tracker
+AUTH_DOMAIN=identity-provider.example.com
 
-# Database Table Names
+# JWT Custom Claims Configuration
+AUTH_CLAIM_NAMESPACE=https://personal-budget-tracker
+
+# Database Configuration (for production)
 ACCOUNTS_TABLE_NAME=Accounts
 CATEGORIES_TABLE_NAME=Categories
 MIGRATIONS_TABLE_NAME=Migrations

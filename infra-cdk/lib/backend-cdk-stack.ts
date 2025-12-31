@@ -93,9 +93,9 @@ export class BackendCdkStack extends cdk.Stack {
       runtime: lambda.Runtime.NODEJS_24_X,
       code: lambda.Code.fromAsset("../backend/dist"),
       environment: {
-        AUTH0_AUDIENCE: process.env.AUTH0_AUDIENCE || "",
-        AUTH0_DOMAIN: process.env.AUTH0_DOMAIN || "",
-        JWT_CLAIM_NAMESPACE: process.env.JWT_CLAIM_NAMESPACE || "",
+        AUTH_AUDIENCE: process.env.AUTH_AUDIENCE || "",
+        AUTH_DOMAIN: process.env.AUTH_DOMAIN || "",
+        AUTH_CLAIM_NAMESPACE: process.env.AUTH_CLAIM_NAMESPACE || "",
         NODE_ENV: process.env.NODE_ENV || "",
         ACCOUNTS_TABLE_NAME: accountsTable.tableName,
         CATEGORIES_TABLE_NAME: categoriesTable.tableName,
