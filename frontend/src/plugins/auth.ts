@@ -2,7 +2,7 @@ import { UserManager } from "oidc-client-ts";
 import { setUserManager } from "../composables/useAuth";
 import type { App } from "vue";
 
-export function createOidcAuth() {
+export function createAuth() {
   const domain = import.meta.env.VITE_AUTH_DOMAIN;
   const clientId = import.meta.env.VITE_AUTH_CLIENT_ID;
   const audience = import.meta.env.VITE_AUTH_AUDIENCE;
@@ -71,4 +71,4 @@ export function createOidcAuth() {
   };
 }
 
-export const auth = createOidcAuth();
+export const auth = createAuth();
