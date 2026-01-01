@@ -8,8 +8,8 @@ const router = useRouter();
 const { user, isAuthenticated, isLoading: authLoading } = useAuth();
 
 const displayName = computed(() => {
-  if (!user.value?.email) return "noname";
-  return user.value.email;
+  if (!user.value?.profile?.email) return "noname";
+  return user.value?.profile?.email;
 });
 
 // Redirect authenticated users to transactions page

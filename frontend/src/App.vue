@@ -72,9 +72,9 @@ watch(
 );
 
 const displayName = computed(() => {
-  if (!user.value?.email) return "noname";
+  if (!user.value?.profile?.email) return "noname";
 
-  return user.value.email;
+  return user.value?.profile?.email;
 });
 
 // Watch for global GraphQL errors and display them via snackbar
@@ -110,7 +110,7 @@ const handleSignOut = () => {
             :class="$vuetify.display.xs ? 'ga-1' : 'ga-2'"
           >
             <v-avatar :size="$vuetify.display.xs ? '28' : '32'">
-              <v-img v-if="user.picture" :src="user.picture" :alt="displayName" />
+              <v-img v-if="user.profile?.picture" :src="user.profile.picture" :alt="displayName" />
               <v-icon v-else>mdi-account</v-icon>
             </v-avatar>
             <span
