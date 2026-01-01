@@ -39,16 +39,23 @@ export function createOidcAuth() {
   setUserManager(userManager);
 
   // If the OIDC provider redirected back with an authorization code, complete the signin flow
-  if (typeof window !== "undefined" && window.location.search.includes("code=") && window.location.search.includes("state=")) {
+  if (
+    typeof window !== "undefined" &&
+    window.location.search.includes("code=") &&
+    window.location.search.includes("state=")
+  ) {
     userManager
       .signinRedirectCallback()
       .then((user) => {
-        console.log("Completed signin redirect callback, user loaded:", user?.profile?.email || user?.profile);
+        console.log(
+          "Completed signin redirect callback, user loaded:",
+          user?.profile?.email || user?.profile,
+        );
         // Remove query params from URL
         try {
           const cleanUrl = window.location.pathname + window.location.hash;
           window.history.replaceState({}, document.title, cleanUrl);
-        } catch (err) {
+        } catch {
           // ignore
         }
       })

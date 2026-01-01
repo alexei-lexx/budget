@@ -147,12 +147,15 @@ export function useAuth() {
     }
   };
 
+  const displayName = computed(() => user.value?.profile?.email || "noname");
+
   return {
     // Auth state
     user: computed(() => user.value),
     isAuthenticated: computed(() => isAuthenticated.value),
     isLoading: computed(() => isLoading.value),
     error: computed(() => error.value),
+    displayName,
 
     // Auth actions
     login,

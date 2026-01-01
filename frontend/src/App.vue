@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, watch, onMounted, ref } from "vue";
+import { watch, onMounted, ref } from "vue";
 import { useAuth } from "@/composables/useAuth";
 import { useUser } from "@/composables/useUser";
 import { useSnackbar } from "@/composables/useSnackbar";
@@ -7,7 +7,14 @@ import { useDisplay } from "vuetify";
 import LoginButton from "@/components/auth/LoginButton.vue";
 import { setAuthTokenGetter, globalError, clearGlobalError } from "@/apollo";
 
-const { user, isAuthenticated, isLoading: authLoading, getAccessToken, logout } = useAuth();
+const {
+  user,
+  isAuthenticated,
+  isLoading: authLoading,
+  getAccessToken,
+  logout,
+  displayName,
+} = useAuth();
 const { ensureUser, ensureUserLoading, userError } = useUser();
 const { showSnackbar, snackbarMessage, snackbarColor, hideSnackbar, showErrorSnackbar } =
   useSnackbar();
@@ -70,12 +77,6 @@ watch(
   },
   { immediate: true },
 );
-
-const displayName = computed(() => {
-  if (!user.value?.profile?.email) return "noname";
-
-  return user.value?.profile?.email;
-});
 
 // Watch for global GraphQL errors and display them via snackbar
 watch(globalError, (error) => {
