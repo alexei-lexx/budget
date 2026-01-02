@@ -6,6 +6,16 @@
 **Input**: User description: "Fix category sorting in transaction filter dropdown with global alphabetical sorting and visual type indicators"
 **Related Issue**: #64
 
+## Clarifications
+
+### Session 2026-01-02
+
+- Q: How should special characters and numbers sort relative to alphabetic characters (e.g., "401k Contribution")? → A: Use standard Unicode/ASCII collation (numbers before letters: "401k", "AAA", "Travel")
+- Q: What visual indicator approach should be used (text prefix, icon, color, or combination)? → A: Colored icons matching category page tabs design, positioned right of category name text
+- Q: How should the dropdown behave when there are no categories of a particular type (all income or all expense)? → A: Show all categories with their type icons regardless of type distribution (consistent behavior)
+- Q: Should there be a specific performance target for category lists larger than 100 (e.g., 50+ categories)? → A: No additional performance target beyond SC-004
+- Q: Are category names that differ only in case (e.g., "Travel" vs "travel") treated as the same category or distinct categories? → A: Case variations are distinct categories (both can exist and are shown separately in sorted order)
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Quick Category Location (Priority: P1)
@@ -34,7 +44,7 @@ When two categories share the same name but have different types (one income, on
 
 **Acceptance Scenarios**:
 
-1. **Given** both an income category named "Refund" and an expense category named "Refund" exist, **When** the user views the dropdown, **Then** each displays a visual indicator (such as a prefix, icon, or color) that clearly identifies its type
+1. **Given** both an income category named "Refund" and an expense category named "Refund" exist, **When** the user views the dropdown, **Then** each displays a colored icon (positioned right of the name) that clearly identifies its type
 2. **Given** the user needs to filter by expense categories only, **When** they scan the dropdown, **Then** they can immediately identify which "Refund" entry is the expense category
 3. **Given** the user selects a category with a specific type indicator, **When** they apply the filter, **Then** only transactions matching both the name and type are displayed
 
@@ -42,25 +52,26 @@ When two categories share the same name but have different types (one income, on
 
 ### Edge Cases
 
-- What happens when a category name contains special characters or starts with numbers (e.g., "401k Contribution")? Should these sort before or after alphabetic characters?
-- What happens when there are no categories of a particular type (all income or all expense)? The indicator system should still function consistently.
-- What happens when a user has many categories (50+)? The alphabetical sorting should make searching easier, but performance should remain acceptable.
-- What happens when category names differ only in case (e.g., "Travel" vs "travel")? Case-insensitive sorting should be used for predictability.
+- Category names containing special characters or starting with numbers (e.g., "401k Contribution") will sort using standard Unicode/ASCII collation, placing numeric prefixes before alphabetic characters.
+- When there are no categories of a particular type (all income or all expense), type icons will still be displayed for all categories to maintain consistent UI behavior.
+- For users with many categories beyond the SC-004 threshold (>100 categories), alphabetical sorting will aid findability, but no additional performance requirements are defined.
+- Category names that differ only in case (e.g., "Travel" vs "travel") are treated as distinct categories and will be shown separately; they will be sorted together using case-insensitive sorting but displayed with their original casing preserved.
 
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
 
 - **FR-001**: System MUST display all categories in the transaction filter dropdown sorted alphabetically in a single unified list, regardless of category type (income or expense)
-- **FR-002**: System MUST use case-insensitive alphabetical sorting for category names (e.g., "Travel" and "travel" should sort together)
+- **FR-002**: System MUST use case-insensitive alphabetical sorting for category names using standard Unicode/ASCII collation (e.g., "Travel" and "travel" should sort together; numeric prefixes like "401k" sort before alphabetic characters)
 - **FR-003**: System MUST display a visual indicator for each category showing whether it is an income or expense category
 - **FR-004**: System MUST maintain the visual indicator consistently throughout the selection and display process
 - **FR-005**: System MUST preserve existing filter functionality - selecting a category should filter transactions by both name and type
-- **FR-006**: Visual indicators MUST be clearly distinguishable and immediately recognizable (e.g., distinct colors, icons, or text prefixes like "Income:" or "Expense:")
+- **FR-006**: Visual indicators MUST use colored icons positioned to the right of the category name, matching the icon design used on the category page tabs, ensuring clear visual distinction between income and expense categories
+- **FR-007**: System MUST display type icons for all categories consistently, regardless of whether both income and expense categories are present
 
 ### Key Entities
 
-- **Category**: Represents a classification for transactions; has a name (string) and type (income or expense). Multiple categories may share the same name if they have different types.
+- **Category**: Represents a classification for transactions; has a name (string, case-sensitive) and type (income or expense). Multiple categories may share the same name if they have different types. Categories with names that differ only in case (e.g., "Travel" vs "travel") are treated as distinct entities.
 - **Transaction**: References a category; filtering by category should match both the category name and type.
 
 ## Success Criteria *(mandatory)*
@@ -79,7 +90,8 @@ When two categories share the same name but have different types (one income, on
 - Categories are already typed as either "income" or "expense" in the data model
 - The current implementation sorts categories in two groups (income categories together, expense categories together) rather than globally
 - Users may create categories with identical names for different types (this is an allowed use case)
-- Standard web accessibility guidelines should be followed for visual indicators (color alone should not be the only differentiator)
+- The category page tabs already have an established colored icon design that distinguishes income from expense categories, which will be reused in the dropdown
+- Standard web accessibility guidelines should be followed for visual indicators (icons provide visual distinction beyond color alone)
 
 ## Dependencies
 
