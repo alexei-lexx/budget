@@ -1,4 +1,4 @@
-import { UserManager } from "oidc-client-ts";
+import { UserManager, WebStorageStateStore } from "oidc-client-ts";
 import { setUserManager } from "../composables/useAuth";
 import type { App } from "vue";
 
@@ -23,8 +23,8 @@ export function createAuth() {
     response_type: "code",
     scope: "openid profile email offline_access", // offline_access enables refresh tokens
     ...(audience && { extraQueryParams: { audience } }), // Pass audience as extra query param for Auth0
-    automaticSilentRenew: true,
-    silent_redirect_uri: window.location.origin,
+    automaticSilentRenew: true, // Automatically refresh tokens before expiration using refresh tokens
+    userStore: new WebStorageStateStore({ store: window.localStorage }), // Persist auth state across browser sessions
   });
 
   // Register event handlers for token refresh and user state changes
