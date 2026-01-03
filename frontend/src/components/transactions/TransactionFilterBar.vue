@@ -125,13 +125,9 @@
 
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import type {
-  Account,
-  Category,
-  CategoryType,
-  TransactionType,
-} from "@/__generated__/graphql-types";
+import type { Account, Category, TransactionType } from "@/__generated__/graphql-types";
 import type { TransactionFiltersState } from "@/composables/useTransactionFilters";
+import { getCategoryIconColor, getCategoryIcon } from "@/utils/category";
 
 interface Props {
   accounts: Account[];
@@ -149,15 +145,6 @@ const emit = defineEmits<{
 
 // Expandable state
 const isExpanded = ref(false);
-
-// Helper functions for category icons
-const getCategoryIcon = (type: CategoryType) => {
-  return type === "INCOME" ? "mdi-cash-plus" : "mdi-cash-minus";
-};
-
-const getCategoryIconColor = (type: CategoryType) => {
-  return type === "INCOME" ? "success" : "error";
-};
 
 // Add "Uncategorized" option to categories
 const categoryOptions = computed(() => {

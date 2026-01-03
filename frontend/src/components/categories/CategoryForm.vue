@@ -2,6 +2,7 @@
 import { ref, computed, watch } from "vue";
 import { checkRules, type CheckRule } from "@/utils/validation";
 import type { CategoryType } from "@/composables/useCategories";
+import { getCategoryIcon, getCategoryIconColor } from "@/utils/category";
 
 // Define Category interface for editing
 interface Category {
@@ -64,14 +65,14 @@ const categoryTypeOptions = [
   {
     title: "Income",
     value: "INCOME" as CategoryType,
-    icon: "mdi-cash-plus",
-    color: "success",
+    icon: getCategoryIcon("INCOME"),
+    color: getCategoryIconColor("INCOME"),
   },
   {
     title: "Expense",
     value: "EXPENSE" as CategoryType,
-    icon: "mdi-cash-minus",
-    color: "error",
+    icon: getCategoryIcon("EXPENSE"),
+    color: getCategoryIconColor("EXPENSE"),
   },
 ];
 
