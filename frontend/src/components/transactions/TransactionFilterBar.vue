@@ -45,7 +45,17 @@
               :disabled="loading"
               clearable
               variant="outlined"
-            />
+            >
+              <template #item="{ props, item }">
+                <v-list-item v-bind="props">
+                  <template #append>
+                    <v-icon :color="getCategoryIconColor(item.raw.type)">
+                      {{ getCategoryIcon(item.raw.type) }}
+                    </v-icon>
+                  </template>
+                </v-list-item>
+              </template>
+            </v-select>
             <v-checkbox
               v-model="filters.includeUncategorized.value"
               label="Include uncategorized"
@@ -115,7 +125,12 @@
 
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import type { Account, Category, TransactionType } from "@/__generated__/graphql-types";
+import type {
+  Account,
+  Category,
+  CategoryType,
+  TransactionType,
+} from "@/__generated__/graphql-types";
 import type { TransactionFiltersState } from "@/composables/useTransactionFilters";
 
 interface Props {
@@ -134,6 +149,15 @@ const emit = defineEmits<{
 
 // Expandable state
 const isExpanded = ref(false);
+
+// Helper functions for category icons
+const getCategoryIcon = (type: CategoryType) => {
+  return type === "INCOME" ? "mdi-cash-plus" : "mdi-cash-minus";
+};
+
+const getCategoryIconColor = (type: CategoryType) => {
+  return type === "INCOME" ? "success" : "error";
+};
 
 // Add "Uncategorized" option to categories
 const categoryOptions = computed(() => {

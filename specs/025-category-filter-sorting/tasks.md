@@ -29,11 +29,11 @@ description: "Task list for Category Filter Sorting Enhancement"
 
 **Purpose**: Project validation and preparation
 
-- [ ] T001 Read constitution.md at .specify/memory/constitution.md to understand architecture patterns
-- [ ] T002 Verify DynamoDB Local is running for local development
-- [ ] T003 [P] Review existing CategoryRepository implementation at backend/src/repositories/category-repository.ts
-- [ ] T004 [P] Review existing category resolver at backend/src/resolvers/category-resolvers.ts
-- [ ] T005 [P] Review TransactionFilterBar component at frontend/src/components/transactions/TransactionFilterBar.vue
+- [X] T001 Read constitution.md at .specify/memory/constitution.md to understand architecture patterns
+- [X] T002 Verify DynamoDB Local is running for local development
+- [X] T003 [P] Review existing CategoryRepository implementation at backend/src/repositories/category-repository.ts
+- [X] T004 [P] Review existing category resolver at backend/src/resolvers/category-resolvers.ts
+- [X] T005 [P] Review TransactionFilterBar component at frontend/src/components/transactions/TransactionFilterBar.vue
 
 ---
 
@@ -43,9 +43,9 @@ description: "Task list for Category Filter Sorting Enhancement"
 
 **⚠️ CRITICAL**: This phase must be complete before user story implementation can begin
 
-- [ ] T006 Create CategoryService class at backend/src/services/category-service.ts following domain entity service pattern
-- [ ] T007 Add CategoryService to GraphQL context in backend/src/context.ts or equivalent context file
-- [ ] T008 Create CategoryService unit tests at backend/src/services/category-service.test.ts with mocked repository
+- [X] T006 Create CategoryService class at backend/src/services/category-service.ts following domain entity service pattern
+- [X] T007 Add CategoryService to GraphQL context in backend/src/context.ts or equivalent context file
+- [X] T008 Create CategoryService unit tests at backend/src/services/category-service.test.ts with mocked repository
 
 **Checkpoint**: Service layer ready - user story implementation can now begin
 
@@ -59,10 +59,10 @@ description: "Task list for Category Filter Sorting Enhancement"
 
 ### Implementation for User Story 1
 
-- [ ] T009 [US1] Update CategoryRepository.findActiveByUserId() sorting logic in backend/src/repositories/category-repository.ts to remove type grouping and use localeCompare with sensitivity:'base'
-- [ ] T010 [US1] Update CategoryRepository.findActiveByUserIdAndType() sorting logic in backend/src/repositories/category-repository.ts to use localeCompare with sensitivity:'base'
-- [ ] T011 [US1] Update category resolver Query.categories in backend/src/resolvers/category-resolvers.ts to delegate to CategoryService.getCategoriesByUser()
-- [ ] T012 [US1] Update CategoryRepository tests at backend/src/repositories/category-repository.test.ts to verify new alphabetical sorting behavior (no type grouping)
+- [X] T009 [US1] Update CategoryRepository.findActiveByUserId() sorting logic in backend/src/repositories/category-repository.ts to remove type grouping and use localeCompare with sensitivity:'base'
+- [X] T010 [US1] Update CategoryRepository.findActiveByUserIdAndType() sorting logic in backend/src/repositories/category-repository.ts to use localeCompare with sensitivity:'base'
+- [X] T011 [US1] Update category resolver Query.categories in backend/src/resolvers/category-resolvers.ts to delegate to CategoryService.getCategoriesByUser()
+- [X] T012 [US1] Update CategoryRepository tests at backend/src/repositories/category-repository.test.ts to verify new alphabetical sorting behavior (no type grouping)
 
 **Checkpoint**: At this point, categories sort alphabetically without type grouping. User Story 1 is fully functional and testable independently.
 
@@ -76,11 +76,11 @@ description: "Task list for Category Filter Sorting Enhancement"
 
 ### Implementation for User Story 2
 
-- [ ] T013 [P] [US2] Import CategoryType enum in frontend/src/components/transactions/TransactionFilterBar.vue
-- [ ] T014 [P] [US2] Add getCategoryIcon helper function in TransactionFilterBar.vue that returns mdi-cash-plus for INCOME and mdi-cash-minus for EXPENSE
-- [ ] T015 [P] [US2] Add getCategoryIconColor helper function in TransactionFilterBar.vue that returns 'success' for INCOME and 'error' for EXPENSE
-- [ ] T016 [US2] Add item slot template to v-select in TransactionFilterBar.vue with v-list-item and append icon rendering
-- [ ] T017 [US2] Test icon rendering with mixed income and expense categories in the dropdown
+- [X] T013 [P] [US2] Import CategoryType enum in frontend/src/components/transactions/TransactionFilterBar.vue
+- [X] T014 [P] [US2] Add getCategoryIcon helper function in TransactionFilterBar.vue that returns mdi-cash-plus for INCOME and mdi-cash-minus for EXPENSE
+- [X] T015 [P] [US2] Add getCategoryIconColor helper function in TransactionFilterBar.vue that returns 'success' for INCOME and 'error' for EXPENSE
+- [X] T016 [US2] Add item slot template to v-select in TransactionFilterBar.vue with v-list-item and append icon rendering
+- [X] T017 [US2] Test icon rendering with mixed income and expense categories in the dropdown
 
 **Checkpoint**: At this point, User Stories 1 AND 2 are both complete. Categories sort alphabetically with visual type indicators.
 
@@ -90,17 +90,17 @@ description: "Task list for Category Filter Sorting Enhancement"
 
 **Purpose**: Final validation, testing, and quality checks
 
-- [ ] T018 [P] Run npm run format in backend directory
-- [ ] T019 [P] Run npm run format in frontend directory
-- [ ] T020 [P] Run npm run typecheck in backend directory
-- [ ] T021 [P] Run npm run typecheck in frontend directory
-- [ ] T022 [P] Run backend tests with npm test
-- [ ] T023 Manual testing: Verify alphabetical sorting with mixed case names (Travel, APPLE, banana)
-- [ ] T024 Manual testing: Verify numeric prefix sorting (401k Contribution sorts before alphabetic names)
-- [ ] T025 Manual testing: Verify icon colors (green for income, red for expense)
-- [ ] T026 Manual testing: Verify duplicate name disambiguation (Refund INCOME vs Refund EXPENSE)
-- [ ] T027 Manual testing: Verify filter functionality still works correctly (backward compatibility)
-- [ ] T028 Validate implementation against quickstart.md test scenarios at specs/025-category-filter-sorting/quickstart.md
+- [X] T018 [P] Run npm run format in backend directory
+- [X] T019 [P] Run npm run format in frontend directory
+- [X] T020 [P] Run npm run typecheck in backend directory
+- [X] T021 [P] Run npm run typecheck in frontend directory
+- [X] T022 [P] Run backend tests with npm test
+- [X] T023 Manual testing: Verify alphabetical sorting with mixed case names (Travel, APPLE, banana)
+- [X] T024 Manual testing: Verify numeric prefix sorting (401k Contribution sorts before alphabetic names)
+- [X] T025 Manual testing: Verify icon colors (green for income, red for expense)
+- [X] T026 Manual testing: Verify duplicate name disambiguation (Refund INCOME vs Refund EXPENSE)
+- [X] T027 Manual testing: Verify filter functionality still works correctly (backward compatibility)
+- [X] T028 Validate implementation against quickstart.md test scenarios at specs/025-category-filter-sorting/quickstart.md
 
 ---
 

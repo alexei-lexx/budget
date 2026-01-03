@@ -33,6 +33,15 @@ class CategoryRepositoryError extends Error {
   }
 }
 
+/**
+ * Sort categories alphabetically by name
+ */
+function sortCategories(categories: Category[]): Category[] {
+  return categories.sort((a, b) =>
+    a.name.localeCompare(b.name, undefined, { sensitivity: "base" }),
+  );
+}
+
 export class CategoryRepository implements ICategoryRepository {
   private client: DynamoDBDocumentClient;
   private tableName: string;
@@ -113,13 +122,7 @@ export class CategoryRepository implements ICategoryRepository {
 
       const categories = result.items;
 
-      // Sort categories by type first, then by name (case-insensitive)
-      return categories.sort((a, b) => {
-        if (a.type !== b.type) {
-          return a.type === CategoryType.INCOME ? -1 : 1; // INCOME first, then EXPENSE
-        }
-        return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
-      });
+      return sortCategories(categories);
     } catch (error) {
       console.error("Error finding active categories by user ID:", error);
       throw new CategoryRepositoryError(
@@ -163,10 +166,7 @@ export class CategoryRepository implements ICategoryRepository {
 
       const categories = result.items;
 
-      // Sort categories by name (case-insensitive)
-      return categories.sort((a, b) =>
-        a.name.toLowerCase().localeCompare(b.name.toLowerCase()),
-      );
+      return sortCategories(categories);
     } catch (error) {
       console.error(
         "Error finding active categories by user ID and type:",
