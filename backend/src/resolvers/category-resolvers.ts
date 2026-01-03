@@ -40,22 +40,10 @@ export const categoryResolvers = {
     ) => {
       try {
         const user = await getAuthenticatedUser(context);
-
-        // If type filter is provided, use the filtered method
-        if (args.type) {
-          const categories =
-            await context.categoryRepository.findActiveByUserIdAndType(
-              user.id,
-              args.type,
-            );
-          return categories;
-        }
-
-        // Otherwise, return all active categories
-        const categories = await context.categoryRepository.findActiveByUserId(
+        return await context.categoryService.getCategoriesByUser(
           user.id,
+          args.type,
         );
-        return categories;
       } catch (error) {
         handleResolverError(error, "Failed to fetch categories");
       }

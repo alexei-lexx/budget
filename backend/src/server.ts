@@ -16,6 +16,7 @@ import { UserRepository } from "./repositories/user-repository";
 import { resolvers } from "./resolvers";
 import { getAuthenticatedUser } from "./resolvers/shared";
 import { AccountService } from "./services/account-service";
+import { CategoryService } from "./services/category-service";
 import { MonthlyByCategoryReportService } from "./services/monthly-by-category-report-service";
 import { TransactionService } from "./services/transaction-service";
 import { TransferService } from "./services/transfer-service";
@@ -30,6 +31,7 @@ export interface GraphQLContext {
   accountRepository: IAccountRepository;
   categoryRepository: ICategoryRepository;
   transactionRepository: ITransactionRepository;
+  categoryService: CategoryService;
   transactionService: TransactionService;
   accountService: AccountService;
   transferService: TransferService;
@@ -45,6 +47,7 @@ let userRepository: UserRepository;
 let accountRepository: AccountRepository;
 let categoryRepository: CategoryRepository;
 let transactionRepository: TransactionRepository;
+let categoryService: CategoryService;
 let transactionService: TransactionService;
 let accountService: AccountService;
 let transferService: TransferService;
@@ -86,6 +89,10 @@ export async function createContext(req: {
 
   if (!transactionRepository) {
     transactionRepository = new TransactionRepository();
+  }
+
+  if (!categoryService) {
+    categoryService = new CategoryService(categoryRepository);
   }
 
   if (!transactionService) {
@@ -135,6 +142,7 @@ export async function createContext(req: {
     accountRepository,
     categoryRepository,
     transactionRepository,
+    categoryService,
     transactionService,
     accountService,
     transferService,

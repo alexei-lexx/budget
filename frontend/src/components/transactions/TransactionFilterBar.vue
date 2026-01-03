@@ -45,7 +45,17 @@
               :disabled="loading"
               clearable
               variant="outlined"
-            />
+            >
+              <template #item="{ props, item }">
+                <v-list-item v-bind="props">
+                  <template #append>
+                    <v-icon :color="getCategoryIconColor(item.raw.type)">
+                      {{ getCategoryIcon(item.raw.type) }}
+                    </v-icon>
+                  </template>
+                </v-list-item>
+              </template>
+            </v-select>
             <v-checkbox
               v-model="filters.includeUncategorized.value"
               label="Include uncategorized"
@@ -117,6 +127,7 @@
 import { computed, ref } from "vue";
 import type { Account, Category, TransactionType } from "@/__generated__/graphql-types";
 import type { TransactionFiltersState } from "@/composables/useTransactionFilters";
+import { getCategoryIconColor, getCategoryIcon } from "@/utils/category";
 
 interface Props {
   accounts: Account[];

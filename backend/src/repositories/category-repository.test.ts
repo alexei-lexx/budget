@@ -2,6 +2,7 @@ import { UpdateCommand } from "@aws-sdk/lib-dynamodb";
 import { faker } from "@faker-js/faker";
 import { truncateTable } from "../__tests__/utils/dynamodb-helpers";
 import { fakeCreateCategoryInput } from "../__tests__/utils/factories";
+import { CategoryType } from "../models/category";
 import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
 import { CategoryRepository } from "./category-repository";
 
@@ -91,6 +92,269 @@ describe("CategoryRepository", () => {
       // Assert
       expect(result).toHaveLength(1);
       expect(result[0]?.isArchived).toBe(true);
+    });
+  });
+
+  describe("findActiveByUserId", () => {
+    it("should return categories sorted alphabetically", async () => {
+      // Arrange - Create categories in mixed order with different types
+      await repository.create(
+        fakeCreateCategoryInput({
+          userId,
+          name: "Zebra",
+          type: CategoryType.EXPENSE,
+        }),
+      );
+      await repository.create(
+        fakeCreateCategoryInput({
+          userId,
+          name: "Apple",
+          type: CategoryType.INCOME,
+        }),
+      );
+      await repository.create(
+        fakeCreateCategoryInput({
+          userId,
+          name: "Banana",
+          type: CategoryType.EXPENSE,
+        }),
+      );
+      await repository.create(
+        fakeCreateCategoryInput({
+          userId,
+          name: "Salary",
+          type: CategoryType.INCOME,
+        }),
+      );
+
+      // Act
+      const result = await repository.findActiveByUserId(userId);
+
+      // Assert - Should be alphabetically sorted
+      expect(result.map((category) => category.name)).toEqual([
+        "Apple",
+        "Banana",
+        "Salary",
+        "Zebra",
+      ]);
+    });
+
+    it("should handle case-insensitive sorting", async () => {
+      // Arrange - Create categories with mixed case
+      await repository.create(
+        fakeCreateCategoryInput({
+          userId,
+          name: "travel",
+          type: CategoryType.EXPENSE,
+        }),
+      );
+      await repository.create(
+        fakeCreateCategoryInput({
+          userId,
+          name: "apple",
+          type: CategoryType.EXPENSE,
+        }),
+      );
+      await repository.create(
+        fakeCreateCategoryInput({
+          userId,
+          name: "Trip",
+          type: CategoryType.EXPENSE,
+        }),
+      );
+      await repository.create(
+        fakeCreateCategoryInput({
+          userId,
+          name: "ZEBRA",
+          type: CategoryType.EXPENSE,
+        }),
+      );
+
+      // Act
+      const result = await repository.findActiveByUserId(userId);
+
+      // Assert - Case-insensitive grouping
+      expect(result.map((category) => category.name)).toEqual([
+        "apple",
+        "travel",
+        "Trip",
+        "ZEBRA",
+      ]);
+    });
+
+    it("should sort numeric prefixes before letters", async () => {
+      // Arrange
+      await repository.create(
+        fakeCreateCategoryInput({
+          userId,
+          name: "Travel",
+          type: CategoryType.EXPENSE,
+        }),
+      );
+      await repository.create(
+        fakeCreateCategoryInput({
+          userId,
+          name: "401k Contribution",
+          type: CategoryType.EXPENSE,
+        }),
+      );
+      await repository.create(
+        fakeCreateCategoryInput({
+          userId,
+          name: "Savings",
+          type: CategoryType.EXPENSE,
+        }),
+      );
+
+      // Act
+      const result = await repository.findActiveByUserId(userId);
+
+      // Assert - Numbers before letters
+      expect(result.map((category) => category.name)).toEqual([
+        "401k Contribution",
+        "Savings",
+        "Travel",
+      ]);
+    });
+
+    it("should not return archived categories", async () => {
+      // Arrange
+      const active = await repository.create(
+        fakeCreateCategoryInput({ userId, name: "Active" }),
+      );
+      const archived = await repository.create(
+        fakeCreateCategoryInput({ userId, name: "Archived" }),
+      );
+      await repository.archive(archived.id, userId);
+
+      // Act
+      const result = await repository.findActiveByUserId(userId);
+
+      // Assert
+      expect(result).toHaveLength(1);
+      expect(result[0]?.id).toBe(active.id);
+    });
+  });
+
+  describe("findActiveByUserIdAndType", () => {
+    it("should return only categories of specified type, sorted alphabetically", async () => {
+      // Arrange
+      await repository.create(
+        fakeCreateCategoryInput({
+          userId,
+          name: "Groceries",
+          type: CategoryType.EXPENSE,
+        }),
+      );
+      await repository.create(
+        fakeCreateCategoryInput({
+          userId,
+          name: "Salary",
+          type: CategoryType.INCOME,
+        }),
+      );
+      await repository.create(
+        fakeCreateCategoryInput({
+          userId,
+          name: "Utilities",
+          type: CategoryType.EXPENSE,
+        }),
+      );
+      await repository.create(
+        fakeCreateCategoryInput({
+          userId,
+          name: "Bonus",
+          type: CategoryType.INCOME,
+        }),
+      );
+
+      // Act
+      const result = await repository.findActiveByUserIdAndType(
+        userId,
+        CategoryType.EXPENSE,
+      );
+
+      // Assert
+      expect(result).toHaveLength(2);
+      expect(result.map((category) => category.name)).toEqual([
+        "Groceries",
+        "Utilities",
+      ]);
+      expect(
+        result.every((category) => category.type === CategoryType.EXPENSE),
+      ).toBe(true);
+    });
+
+    it("should handle case-insensitive sorting", async () => {
+      // Arrange - Create categories with mixed case
+      await repository.create(
+        fakeCreateCategoryInput({
+          userId,
+          name: "travel",
+          type: CategoryType.EXPENSE,
+        }),
+      );
+      await repository.create(
+        fakeCreateCategoryInput({
+          userId,
+          name: "apple",
+          type: CategoryType.EXPENSE,
+        }),
+      );
+      await repository.create(
+        fakeCreateCategoryInput({
+          userId,
+          name: "Trip",
+          type: CategoryType.EXPENSE,
+        }),
+      );
+      await repository.create(
+        fakeCreateCategoryInput({
+          userId,
+          name: "ZEBRA",
+          type: CategoryType.EXPENSE,
+        }),
+      );
+
+      // Act
+      const result = await repository.findActiveByUserId(userId);
+
+      // Assert - Case-insensitive grouping
+      expect(result.map((category) => category.name)).toEqual([
+        "apple",
+        "travel",
+        "Trip",
+        "ZEBRA",
+      ]);
+    });
+
+    it("should not return archived categories", async () => {
+      // Arrange
+      const active = await repository.create(
+        fakeCreateCategoryInput({
+          userId,
+          name: "Active Income",
+          type: CategoryType.INCOME,
+        }),
+      );
+      const archived = await repository.create(
+        fakeCreateCategoryInput({
+          userId,
+          name: "Archived Income",
+          type: CategoryType.INCOME,
+        }),
+      );
+      await repository.archive(archived.id, userId);
+
+      // Act
+      const result = await repository.findActiveByUserIdAndType(
+        userId,
+        CategoryType.INCOME,
+      );
+
+      // Assert
+      expect(result).toHaveLength(1);
+      expect(result[0]?.id).toBe(active.id);
     });
   });
 
