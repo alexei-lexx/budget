@@ -79,15 +79,33 @@ export function createAuth() {
     // This happens in the background without user interaction
     automaticSilentRenew: true,
 
+    // URL to use for silent token renewal via iframe
+    // This is required as a fallback when refresh token renewal fails
+    // The iframe approach uses prompt=none to get new tokens without user interaction
+    silent_redirect_uri: window.location.origin,
+
     // Store user session in localStorage (instead of sessionStorage)
     // This persists authentication across browser tabs and sessions
     userStore: new WebStorageStateStore({ store: window.localStorage }),
+  });
+
+  // Set up event handler for when access token is about to expire
+  // This fires ~60 seconds before expiration, triggering automatic renewal
+  userManager.events.addAccessTokenExpiring(() => {
+    console.log("Access token expiring, attempting automatic renewal...");
+  });
+
+  // Set up event handler for when access token has expired
+  // This should rarely fire if automatic renewal is working correctly
+  userManager.events.addAccessTokenExpired(() => {
+    console.error("Access token expired! Automatic renewal failed.");
   });
 
   // Set up event handler for when automatic token renewal fails
   // This can happen if refresh token expires or network issues occur
   userManager.events.addSilentRenewError((error) => {
     console.error("Silent token renewal failed:", error);
+    console.error("User will need to log in again manually");
     // When this happens, user will need to log in again manually
   });
 
