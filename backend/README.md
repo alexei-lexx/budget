@@ -76,3 +76,4 @@ Uses DynamoDB Local running in Docker with a named volume for data persistence.
 - `npm run dev` - Start development server with hot reload
 - `npm run format` - Run Prettier and ESLint to check and fix code style
 - `npm run test` - Run tests with Jest
+- `npm run typecheck` - Run TypeScript type checker
