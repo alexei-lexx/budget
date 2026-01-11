@@ -32,6 +32,23 @@ import { UserManager, User } from "oidc-client-ts";
 let userManager: UserManager | null = null;
 
 /**
+ * Module-level promise to prevent parallel token refresh requests.
+ *
+ * PROBLEM: When multiple components call useAuth() simultaneously (e.g., on page load),
+ * each triggers signinSilent() with the same expired token. With Auth0's refresh token
+ * rotation enabled, the first request succeeds and rotates the token, invalidating the
+ * old refresh token. Subsequent parallel requests fail with 403 "invalid refresh token".
+ *
+ * SOLUTION: Use an in-memory mutex (promise) to ensure only one refresh happens at a time.
+ * Other callers wait for the in-flight refresh to complete and receive the same result.
+ *
+ * SCOPE: Single-tab only. For multi-tab coordination, Web Locks API would be needed
+ * (see https://github.com/authts/oidc-client-ts/issues/430 and
+ * https://github.com/authts/oidc-client-ts/issues/1618), but this is sufficient for most use cases.
+ */
+let refreshPromise: Promise<User | null> | null = null;
+
+/**
  * Sets the UserManager instance to be used by all useAuth() calls.
  * This is called by the auth plugin during initialization.
  *
@@ -39,6 +56,50 @@ let userManager: UserManager | null = null;
  */
 export function setUserManager(manager: UserManager) {
   userManager = manager;
+}
+
+/**
+ * Safely refreshes the access token using refresh token with mutex protection.
+ *
+ * Prevents parallel refresh requests that would fail due to refresh token rotation.
+ * If a refresh is already in progress, waits for it to complete instead of starting
+ * a new one.
+ *
+ * @returns Promise resolving to refreshed User or null if refresh fails
+ * @throws Error if UserManager not initialized
+ */
+async function refreshTokenSafely(): Promise<User | null> {
+  if (!userManager) {
+    throw new Error("UserManager not initialized");
+  }
+
+  // If refresh already in progress, wait for it
+  if (refreshPromise) {
+    console.log("Token refresh in progress, waiting...");
+    return refreshPromise;
+  }
+
+  // Start new refresh with timeout protection (30s)
+  console.log("Starting token refresh...");
+
+  // Use Promise.race to implement timeout protection:
+  // - Promise.race returns the result of whichever promise resolves/rejects first
+  // - If signinSilent() completes within 30s, we get the User result
+  // - If signinSilent() takes longer than 30s, the timeout promise rejects first
+  // This prevents hanging indefinitely if Auth0 is down or network is slow
+  refreshPromise = Promise.race([
+    userManager.signinSilent(), // Attempt to refresh token
+    new Promise<null>((_, reject) =>
+      setTimeout(() => reject(new Error("Token refresh timeout after 30s")), 30000),
+    ),
+  ]).finally(() => {
+    // Always clear the mutex lock when done (whether success or failure)
+    // This is critical: if we don't clear it, all future refresh attempts will hang forever
+    // waiting for a promise that already completed
+    refreshPromise = null;
+  });
+
+  return refreshPromise;
 }
 
 /**
@@ -104,11 +165,40 @@ export function useAuth() {
       // - Returns null if no session exists or session is invalid
       const currentUser = await userManager.getUser();
 
-      // Update reactive state with the current user
-      user.value = currentUser ?? null;
+      // WORKAROUND for oidc-client-ts bug: automaticSilentRenew only handles tokens that are
+      // about to expire (60s before), NOT tokens that are already expired when the app loads.
+      // If the user returns after 24 hours with an expired access token but valid refresh token,
+      // the library won't automatically refresh. This is a known limitation.
+      //
+      // GitHub issues:
+      // - https://github.com/authts/oidc-client-ts/issues/2012
+      // - https://github.com/authts/oidc-client-ts/issues/1601
+      //
+      // Solution: Manually refresh if expired but refresh token exists (hybrid strategy with
+      // existing getAccessToken() logic providing fallback).
+      //
+      // TODO: Remove this workaround if/when oidc-client-ts fixes the library bug and handles
+      // expired tokens on page load automatically.
+      let refreshedUser = currentUser;
+      if (currentUser && currentUser.expired && currentUser.refresh_token) {
+        console.log("Token expired on load, refreshing...");
+        try {
+          refreshedUser = await refreshTokenSafely();
+          if (refreshedUser) {
+            console.log("Token refreshed successfully");
+          }
+        } catch (err) {
+          console.error("Token refresh failed:", err);
+          // Continue with expired state - getAccessToken() will retry on first API call
+          refreshedUser = currentUser;
+        }
+      }
+
+      // Update reactive state with the current user (possibly refreshed)
+      user.value = refreshedUser ?? null;
 
       // User is authenticated if they exist AND their token hasn't expired
-      isAuthenticated.value = currentUser !== null && !currentUser.expired;
+      isAuthenticated.value = refreshedUser !== null && !refreshedUser.expired;
 
       // Subscribe to UserManager events to keep reactive state in sync
       // These event handlers update our reactive refs when auth state changes
@@ -233,9 +323,9 @@ export function useAuth() {
 
       // Check if the access token has expired
       if (currentUser.expired) {
-        // Silently refresh the token using the refresh token
-        // This happens in a hidden iframe without user interaction
-        const refreshedUser = await userManager.signinSilent();
+        console.log("Token expired, refreshing...");
+        // Silently refresh the token using the refresh token with mutex protection
+        const refreshedUser = await refreshTokenSafely();
         if (!refreshedUser) {
           throw new Error("Failed to refresh token");
         }
