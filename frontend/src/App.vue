@@ -151,7 +151,11 @@ const handleSignOut = () => {
       :mobile-breakpoint="960"
       :width="$vuetify.display.xs ? '280' : '300'"
     >
-      <v-list nav :density="$vuetify.display.xs ? 'compact' : 'default'">
+      <v-list
+        nav
+        :density="$vuetify.display.xs ? 'compact' : 'default'"
+        class="d-flex flex-column h-100"
+      >
         <!-- Sign In link only for unauthenticated users -->
         <v-list-item
           v-if="!isAuthenticated"
@@ -189,6 +193,8 @@ const handleSignOut = () => {
           title="Monthly Report"
           @click="mobile && (drawer = false)"
         />
+        <!-- Push content to the bottom -->
+        <v-spacer />
         <!-- Visual separator -->
         <v-divider v-if="isAuthenticated" />
         <!-- Sign out item -->
