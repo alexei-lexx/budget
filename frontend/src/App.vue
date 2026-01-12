@@ -102,7 +102,7 @@ const handleSignOut = () => {
       </template>
 
       <template v-slot:append>
-        <div class="d-flex align-center" :class="$vuetify.display.xs ? 'ga-2' : 'ga-3'">
+        <div class="d-flex align-center" :class="$vuetify.display.xs ? 'ga-2 pr-2' : 'ga-3 pr-3'">
           <!-- User info when authenticated -->
           <div
             v-if="isAuthenticated && user"
