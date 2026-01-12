@@ -5,10 +5,9 @@ import { useUser } from "@/composables/useUser";
 import { useSnackbar } from "@/composables/useSnackbar";
 import { useDisplay } from "vuetify";
 import LoginButton from "@/components/auth/LoginButton.vue";
-import LogoutButton from "@/components/auth/LogoutButton.vue";
 import { setAuthTokenGetter, globalError, clearGlobalError } from "@/apollo";
 
-const { user, isAuthenticated, isLoading: authLoading, getAccessToken } = useAuth();
+const { user, isAuthenticated, isLoading: authLoading, getAccessToken, logout } = useAuth();
 const { ensureUser, ensureUserLoading, userError } = useUser();
 const { showSnackbar, snackbarMessage, snackbarColor, hideSnackbar, showErrorSnackbar } =
   useSnackbar();
@@ -85,6 +84,14 @@ watch(globalError, (error) => {
     clearGlobalError();
   }
 });
+
+// Handle sign out from sidebar
+const handleSignOut = () => {
+  if (mobile.value) {
+    drawer.value = false;
+  }
+  logout();
+};
 </script>
 <template>
   <v-layout class="rounded rounded-md border">
@@ -132,7 +139,6 @@ watch(globalError, (error) => {
 
           <!-- Auth buttons -->
           <LoginButton v-if="!isAuthenticated && !authLoading" />
-          <LogoutButton v-if="isAuthenticated && !authLoading && !ensureUserLoading" />
         </div>
       </template>
     </v-app-bar>
@@ -181,6 +187,16 @@ watch(globalError, (error) => {
           prepend-icon="mdi-table-large"
           title="Monthly Report"
           @click="mobile && (drawer = false)"
+        />
+        <!-- Visual separator -->
+        <v-divider v-if="isAuthenticated" />
+        <!-- Sign out item -->
+        <v-list-item
+          v-if="isAuthenticated && !authLoading && !ensureUserLoading"
+          prepend-icon="mdi-logout"
+          title="Sign Out"
+          :disabled="authLoading"
+          @click="handleSignOut"
         />
       </v-list>
     </v-navigation-drawer>
