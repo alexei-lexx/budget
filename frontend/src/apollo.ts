@@ -73,7 +73,7 @@ export const apolloClient = new ApolloClient({
   cache,
 });
 
-// Global function to get auth token - will be set by the Auth0 plugin
+// Global function to get auth token
 let getAuthToken: () => Promise<string | null> = async () => null;
 
 export const setAuthTokenGetter = (tokenGetter: () => Promise<string | null>) => {

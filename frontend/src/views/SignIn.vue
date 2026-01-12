@@ -1,16 +1,11 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script setup lang="ts">
-import { computed, watch } from "vue";
+import { watch } from "vue";
 import { useRouter } from "vue-router";
 import { useAuth } from "@/composables/useAuth";
 
 const router = useRouter();
-const { user, isAuthenticated, isLoading: authLoading } = useAuth();
-
-const displayName = computed(() => {
-  if (!user.value?.email) return "noname";
-  return user.value.email;
-});
+const { isAuthenticated, isLoading: authLoading, displayName } = useAuth();
 
 // Redirect authenticated users to transactions page
 watch(

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, watch, onMounted, ref } from "vue";
+import { watch, onMounted, ref } from "vue";
 import { useAuth } from "@/composables/useAuth";
 import { useUser } from "@/composables/useUser";
 import { useSnackbar } from "@/composables/useSnackbar";
@@ -7,7 +7,14 @@ import { useDisplay } from "vuetify";
 import LoginButton from "@/components/auth/LoginButton.vue";
 import { setAuthTokenGetter, globalError, clearGlobalError } from "@/apollo";
 
-const { user, isAuthenticated, isLoading: authLoading, getAccessToken, logout } = useAuth();
+const {
+  user,
+  isAuthenticated,
+  isLoading: authLoading,
+  getAccessToken,
+  logout,
+  displayName,
+} = useAuth();
 const { ensureUser, ensureUserLoading, userError } = useUser();
 const { showSnackbar, snackbarMessage, snackbarColor, hideSnackbar, showErrorSnackbar } =
   useSnackbar();
@@ -71,12 +78,6 @@ watch(
   { immediate: true },
 );
 
-const displayName = computed(() => {
-  if (!user.value?.email) return "noname";
-
-  return user.value.email;
-});
-
 // Watch for global GraphQL errors and display them via snackbar
 watch(globalError, (error) => {
   if (error) {
@@ -110,7 +111,7 @@ const handleSignOut = () => {
             :class="$vuetify.display.xs ? 'ga-1' : 'ga-2'"
           >
             <v-avatar :size="$vuetify.display.xs ? '28' : '32'">
-              <v-img v-if="user.picture" :src="user.picture" :alt="displayName" />
+              <v-img v-if="user.profile?.picture" :src="user.profile.picture" :alt="displayName" />
               <v-icon v-else>mdi-account</v-icon>
             </v-avatar>
             <span

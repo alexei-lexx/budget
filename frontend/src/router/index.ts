@@ -10,7 +10,7 @@ import Accounts from "@/views/Accounts.vue";
 import Categories from "@/views/Categories.vue";
 import Transactions from "@/views/Transactions.vue";
 import MonthlyCategory from "@/views/MonthlyCategory.vue";
-import { useAuth0 } from "@auth0/auth0-vue";
+import { useAuth } from "@/composables/useAuth";
 
 // Reusable authentication guard
 const requireAuth = async (
@@ -18,9 +18,9 @@ const requireAuth = async (
   _from: RouteLocationNormalized,
   next: NavigationGuardNext,
 ) => {
-  const { isAuthenticated, isLoading } = useAuth0();
+  const { isAuthenticated, isLoading } = useAuth();
 
-  // Wait for Auth0 to finish loading
+  // Wait for auth to finish loading
   if (isLoading.value) {
     await new Promise<void>((resolve) => {
       const stopWatching = watch(
