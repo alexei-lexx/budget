@@ -127,3 +127,20 @@ export interface ITransactionRepository {
     sampleSize: number,
   ): Promise<TransactionPattern[]>;
 }
+
+// Get signed amount based on transaction type
+// Positive for INCOME, REFUND, TRANSFER_IN
+// Negative for EXPENSE, TRANSFER_OUT
+export function getSignedAmount(transaction: Transaction): number {
+  switch (transaction.type) {
+    case TransactionType.INCOME:
+    case TransactionType.REFUND:
+    case TransactionType.TRANSFER_IN:
+      return transaction.amount;
+    case TransactionType.EXPENSE:
+    case TransactionType.TRANSFER_OUT:
+      return -transaction.amount;
+    default:
+      throw new Error(`Unknown transaction type: ${transaction.type}`);
+  }
+}

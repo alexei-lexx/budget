@@ -1,5 +1,5 @@
 import { IAccountRepository } from "../models/account";
-import { ITransactionRepository, TransactionType } from "../models/transaction";
+import { ITransactionRepository, getSignedAmount } from "../models/transaction";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
 
 /**
@@ -44,19 +44,10 @@ export class AccountService {
         );
 
       // Calculate balance: initialBalance + INCOME + REFUND + TRANSFER_IN - EXPENSE - TRANSFER_OUT
-      const balance = transactions.reduce((sum, transaction) => {
-        switch (transaction.type) {
-          case TransactionType.INCOME:
-          case TransactionType.REFUND:
-          case TransactionType.TRANSFER_IN:
-            return sum + transaction.amount;
-          case TransactionType.EXPENSE:
-          case TransactionType.TRANSFER_OUT:
-            return sum - transaction.amount;
-          default:
-            return sum;
-        }
-      }, account.initialBalance);
+      const balance = transactions.reduce(
+        (sum, transaction) => sum + getSignedAmount(transaction),
+        account.initialBalance,
+      );
 
       return balance;
     } catch (error) {

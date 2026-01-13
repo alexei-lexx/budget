@@ -4,6 +4,7 @@ import {
   ITransactionRepository,
   Transaction,
   TransactionType,
+  getSignedAmount,
 } from "../models/transaction";
 
 const UNCATEGORIZED_LABEL = "Uncategorized";
@@ -67,13 +68,25 @@ export class MonthlyByCategoryReportService {
     // For INCOME reports, fetch only INCOME transactions
     let transactionTypesToFetch: TransactionType[];
 
+    // Function to get signed amount based on report type
+    // For EXPENSE: expenses are positive, refunds are negative
+    // For INCOME: amounts are as-is
+    let amountGetter: typeof getSignedAmount;
+
+    // Negate to get expenses as positive, refunds as negative
+    const negatedSignedAmount = (transaction: Transaction) =>
+      -getSignedAmount(transaction);
+
     if (type === ReportType.EXPENSE) {
       transactionTypesToFetch = [
         TransactionType.EXPENSE,
         TransactionType.REFUND,
       ];
+
+      amountGetter = negatedSignedAmount;
     } else if (type === ReportType.INCOME) {
       transactionTypesToFetch = [TransactionType.INCOME];
+      amountGetter = getSignedAmount;
     } else {
       throw new Error("Invalid report type");
     }
@@ -95,16 +108,6 @@ export class MonthlyByCategoryReportService {
         currencyTotals: [],
       };
     }
-
-    // For EXPENSE reports: calculate net (expenses - refunds)
-    // For INCOME reports: sum amounts as-is
-    const amountGetter =
-      type === ReportType.EXPENSE
-        ? (transaction: Transaction) =>
-            transaction.type === TransactionType.EXPENSE
-              ? transaction.amount
-              : -transaction.amount // REFUND amounts are subtracted
-        : (transaction: Transaction) => transaction.amount;
 
     const currencyTotals = this.calculateCurrencyTotals(
       transactions,
