@@ -1,6 +1,10 @@
 import { z } from "zod";
 import { MAX_PAGE_SIZE, MIN_PAGE_SIZE } from "../types/pagination";
-import { DESCRIPTION_MAX_LENGTH } from "../types/validation";
+
+/**
+ * Maximum length for description fields
+ */
+export const DESCRIPTION_MAX_LENGTH = 500;
 
 /**
  * Reusable schema components

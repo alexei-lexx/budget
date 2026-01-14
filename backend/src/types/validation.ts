@@ -3,11 +3,6 @@
  */
 
 /**
- * Maximum length for description fields
- */
-export const DESCRIPTION_MAX_LENGTH = 500;
-
-/**
  * Year range offset for validation (current year ± this value)
  */
 export const YEAR_RANGE_OFFSET = 100;
