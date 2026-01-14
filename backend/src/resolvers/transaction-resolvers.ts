@@ -16,8 +16,8 @@ import {
   amountSchema,
   dateSchema,
   descriptionSchema,
-  idSchema,
   paginationInputSchema,
+  transactionIdSchema,
 } from "./common-schemas";
 import { getAuthenticatedUser, handleResolverError } from "./shared";
 
@@ -49,7 +49,7 @@ const createTransactionInputSchema = z.object({
 });
 
 const updateTransactionInputSchema = z.object({
-  id: idSchema,
+  id: transactionIdSchema,
   accountId: accountIdSchema.optional(),
   categoryId: nullishCategoryIdSchema,
   type: typeSchema.optional(),

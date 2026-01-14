@@ -9,7 +9,12 @@ import { DESCRIPTION_MAX_LENGTH } from "../types/validation";
 export const accountIdSchema = z.uuid({
   message: "Account ID must be a valid UUID",
 });
-export const idSchema = z.uuid({ message: "ID must be a valid UUID" });
+export const transactionIdSchema = z.uuid({
+  message: "Transaction ID must be a valid UUID",
+});
+export const transferIdSchema = z.uuid({
+  message: "Transfer ID must be a valid UUID",
+});
 export const amountSchema = z.number().positive("Amount must be positive");
 export const dateSchema = z.iso.date("Date must be in YYYY-MM-DD format");
 

@@ -8,7 +8,7 @@ import {
   amountSchema,
   dateSchema,
   descriptionSchema,
-  idSchema,
+  transferIdSchema,
 } from "./common-schemas";
 import { getAuthenticatedUser, handleResolverError } from "./shared";
 
@@ -27,7 +27,7 @@ const createTransferInputSchema = z.object({
  * Zod schema for update transfer input validation
  */
 const updateTransferInputSchema = z.object({
-  id: idSchema,
+  id: transferIdSchema,
   fromAccountId: accountIdSchema.optional(),
   toAccountId: accountIdSchema.optional(),
   amount: amountSchema.optional(),
@@ -44,7 +44,7 @@ export const transferResolvers = {
     ) => {
       try {
         // Validate and normalize input
-        const id = idSchema.parse(args.id);
+        const id = transferIdSchema.parse(args.id);
         const user = await getAuthenticatedUser(context);
 
         // Get transfer transactions using the existing method
@@ -210,7 +210,7 @@ export const transferResolvers = {
     ) => {
       try {
         // Validate and normalize input
-        const validatedId = idSchema.parse(args.id);
+        const validatedId = transferIdSchema.parse(args.id);
         const user = await getAuthenticatedUser(context);
 
         await context.transferService.deleteTransfer(validatedId, user.id);
