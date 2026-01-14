@@ -11,19 +11,19 @@ import type {
   TransactionEmbeddedAccount,
   TransactionEmbeddedCategory,
 } from "../types/graphql";
-import { MAX_PAGE_SIZE, MIN_PAGE_SIZE } from "../types/pagination";
 import {
-  DATE_FORMAT_ERROR_MESSAGE,
-  DATE_FORMAT_REGEX,
-  DESCRIPTION_LENGTH_ERROR_MESSAGE,
-  DESCRIPTION_MAX_LENGTH,
-} from "../types/validation";
+  accountIdSchema,
+  amountSchema,
+  dateSchema,
+  descriptionSchema,
+  idSchema,
+  paginationInputSchema,
+} from "./common-schemas";
 import { getAuthenticatedUser, handleResolverError } from "./shared";
 
 /**
  * Reusable schema components for transactions
  */
-const accountIdSchema = z.uuid({ message: "Account ID must be a valid UUID" });
 const categoryIdSchema = z.uuid({
   message: "Category ID must be a valid UUID",
 });
@@ -35,14 +35,6 @@ const typeSchema = z.enum(
   },
 );
 const allTransactionTypesSchema = z.enum(TransactionType);
-const amountSchema = z.number().nonnegative("Amount must be zero or positive");
-const dateSchema = z
-  .string()
-  .regex(DATE_FORMAT_REGEX, DATE_FORMAT_ERROR_MESSAGE);
-const descriptionSchema = z
-  .string()
-  .max(DESCRIPTION_MAX_LENGTH, DESCRIPTION_LENGTH_ERROR_MESSAGE)
-  .nullish();
 
 /**
  * Zod schemas for input validation
@@ -57,7 +49,7 @@ const createTransactionInputSchema = z.object({
 });
 
 const updateTransactionInputSchema = z.object({
-  id: z.uuid({ message: "Transaction ID must be a valid UUID" }),
+  id: idSchema,
   accountId: accountIdSchema.optional(),
   categoryId: nullishCategoryIdSchema,
   type: typeSchema.optional(),
@@ -65,18 +57,6 @@ const updateTransactionInputSchema = z.object({
   date: dateSchema.optional(),
   description: descriptionSchema,
 });
-
-const paginationInputSchema = z
-  .object({
-    first: z
-      .number()
-      .int()
-      .min(MIN_PAGE_SIZE, `First must be at least ${MIN_PAGE_SIZE}`)
-      .max(MAX_PAGE_SIZE, `First cannot exceed ${MAX_PAGE_SIZE}`)
-      .optional(),
-    after: z.string().optional(),
-  })
-  .optional();
 
 const transactionFilterInputSchema = z
   .object({
