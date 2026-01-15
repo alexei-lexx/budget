@@ -1,3 +1,4 @@
+import { z } from "zod";
 import { Account, IAccountRepository } from "../models/account";
 import {
   Category,
@@ -16,7 +17,7 @@ import {
   UpdateTransactionInput,
 } from "../models/transaction";
 import { PaginationInput } from "../types/pagination";
-import { DATE_FORMAT_REGEX, MIN_SEARCH_TEXT_LENGTH } from "../types/validation";
+import { DATE_FORMAT_REGEX } from "../types/validation";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
 
 export const DEFAULT_TRANSACTION_PATTERNS_LIMIT = 3;
@@ -27,6 +28,19 @@ export const DEFAULT_DESCRIPTION_SUGGESTIONS_LIMIT = 5;
 export const MIN_DESCRIPTION_SUGGESTIONS_LIMIT = 1;
 export const MAX_DESCRIPTION_SUGGESTIONS_LIMIT = 10;
 export const DESCRIPTION_SUGGESTIONS_SAMPLE_SIZE = 100;
+
+/**
+ * Minimum length required for search text inputs
+ */
+export const MIN_SEARCH_TEXT_LENGTH = 2;
+
+export const searchTextSchema = z
+  .string()
+  .trim()
+  .min(
+    MIN_SEARCH_TEXT_LENGTH,
+    `Search text must be at least ${MIN_SEARCH_TEXT_LENGTH} characters long`,
+  );
 
 /**
  * Service layer input for creating transactions (currency automatically derived from account)
@@ -50,7 +64,7 @@ export class TransactionService {
     private accountRepository: IAccountRepository,
     private categoryRepository: ICategoryRepository,
     private transactionRepository: ITransactionRepository,
-  ) {}
+  ) { }
 
   /**
    * Validate that an account exists and belongs to the user
@@ -401,16 +415,12 @@ export class TransactionService {
     limit?: number | null,
     sampleSize = DESCRIPTION_SUGGESTIONS_SAMPLE_SIZE,
   ): Promise<string[]> {
-    // Validate search text length
-    if (searchText.length < MIN_SEARCH_TEXT_LENGTH) {
+    // Validate search text
+    const parsedSearchText = searchTextSchema.safeParse(searchText);
+    if (parsedSearchText.success === false) {
       throw new BusinessError(
-        `Search text must be at least ${MIN_SEARCH_TEXT_LENGTH} characters long`,
+        parsedSearchText.error.message,
         BusinessErrorCodes.INVALID_PARAMETERS,
-        {
-          searchText,
-          searchTextLength: searchText.length,
-          minLength: MIN_SEARCH_TEXT_LENGTH,
-        },
       );
     }
 
@@ -422,7 +432,7 @@ export class TransactionService {
     const transactions =
       await this.transactionRepository.findActiveByDescription(
         userId,
-        searchText,
+        parsedSearchText.data,
         sampleSize,
       );
 

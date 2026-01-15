@@ -7,6 +7,7 @@ import {
 } from "../models/transaction";
 import { GraphQLContext } from "../server";
 import { BusinessError } from "../services/business-error";
+import { searchTextSchema } from "../services/transaction-service";
 import type {
   TransactionEmbeddedAccount,
   TransactionEmbeddedCategory,
@@ -82,6 +83,10 @@ const transactionFilterInputSchema = z
 
 const transactionPatternTypeSchema = z.enum(TransactionPatternType);
 
+const transactionDescriptionSuggestionsArgsSchema = z.object({
+  searchText: searchTextSchema,
+});
+
 export const transactionResolvers = {
   Query: {
     transactions: async (
@@ -150,16 +155,11 @@ export const transactionResolvers = {
       args: { searchText: string },
       context: GraphQLContext,
     ) => {
-      const { searchText } = args;
-
-      // Basic validation
-      if (!searchText) {
-        throw new GraphQLError("Search text is required", {
-          extensions: { code: "BAD_USER_INPUT" },
-        });
-      }
-
       try {
+        const validatedArgs =
+          transactionDescriptionSuggestionsArgsSchema.parse(args);
+        const { searchText } = validatedArgs;
+
         const user = await getAuthenticatedUser(context);
 
         const suggestions =
@@ -170,6 +170,13 @@ export const transactionResolvers = {
 
         return suggestions;
       } catch (error) {
+        if (error instanceof z.ZodError) {
+          const message = error.message
+          throw new GraphQLError(message, {
+            extensions: { code: "BAD_USER_INPUT" },
+          });
+        }
+
         if (error instanceof BusinessError) {
           throw new GraphQLError(error.message, {
             extensions: { code: error.code, details: error.details },
