@@ -29,7 +29,6 @@ import {
   PageInfo,
   PaginationInput,
 } from "../types/pagination";
-import { YEAR_RANGE_OFFSET } from "../types/validation";
 import { formatDateAsYYYYMMDD } from "../utils/date";
 import {
   DYNAMODB_TRANSACT_WRITE_MAX_ITEMS,
@@ -688,13 +687,9 @@ export class TransactionRepository implements ITransactionRepository {
       );
     }
 
-    const currentYear = new Date().getFullYear();
-    const minYear = currentYear - YEAR_RANGE_OFFSET;
-    const maxYear = currentYear + YEAR_RANGE_OFFSET;
-
-    if (!Number.isInteger(year) || year < minYear || year > maxYear) {
+    if (!Number.isInteger(year) || year <= 0) {
       throw new TransactionRepositoryError(
-        `Year must be a valid integer between ${minYear} and ${maxYear}`,
+        "Year must be a positive integer",
         "INVALID_PARAMETERS",
       );
     }
