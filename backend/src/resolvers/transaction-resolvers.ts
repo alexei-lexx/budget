@@ -7,7 +7,7 @@ import {
 } from "../models/transaction";
 import { GraphQLContext } from "../server";
 import { BusinessError } from "../services/business-error";
-import { searchTextSchema } from "../services/transaction-service";
+import { searchTextSchema } from "../services/validation-schemas";
 import type {
   TransactionEmbeddedAccount,
   TransactionEmbeddedCategory,

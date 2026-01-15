@@ -18,10 +18,10 @@ import {
   DEFAULT_TRANSACTION_PATTERNS_LIMIT,
   DESCRIPTION_SUGGESTIONS_SAMPLE_SIZE,
   MAX_TRANSACTION_PATTERNS_LIMIT,
-  MIN_SEARCH_TEXT_LENGTH,
   MIN_TRANSACTION_PATTERNS_LIMIT,
   TransactionService,
 } from "./transaction-service";
+import { MIN_SEARCH_TEXT_LENGTH } from "./validation-schemas";
 
 describe("TransactionService", () => {
   let service: TransactionService;

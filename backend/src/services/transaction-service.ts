@@ -1,4 +1,3 @@
-import { z } from "zod";
 import { Account, IAccountRepository } from "../models/account";
 import {
   Category,
@@ -19,6 +18,7 @@ import {
 import { PaginationInput } from "../types/pagination";
 import { DATE_FORMAT_REGEX } from "../types/validation";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
+import { searchTextSchema } from "./validation-schemas";
 
 export const DEFAULT_TRANSACTION_PATTERNS_LIMIT = 3;
 export const MIN_TRANSACTION_PATTERNS_LIMIT = 1;
@@ -28,19 +28,6 @@ export const DEFAULT_DESCRIPTION_SUGGESTIONS_LIMIT = 5;
 export const MIN_DESCRIPTION_SUGGESTIONS_LIMIT = 1;
 export const MAX_DESCRIPTION_SUGGESTIONS_LIMIT = 10;
 export const DESCRIPTION_SUGGESTIONS_SAMPLE_SIZE = 100;
-
-/**
- * Minimum length required for search text inputs
- */
-export const MIN_SEARCH_TEXT_LENGTH = 2;
-
-export const searchTextSchema = z
-  .string()
-  .trim()
-  .min(
-    MIN_SEARCH_TEXT_LENGTH,
-    `Search text must be at least ${MIN_SEARCH_TEXT_LENGTH} characters long`,
-  );
 
 /**
  * Service layer input for creating transactions (currency automatically derived from account)
