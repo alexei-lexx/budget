@@ -53,116 +53,6 @@ export class TransactionService {
   ) {}
 
   /**
-   * Validate that an account exists and belongs to the user
-   * @param accountId - The account ID to validate
-   * @param userId - The user ID to check ownership
-   * @returns Promise<Account> - The validated account
-   * @throws BusinessError if account not found or doesn't belong to user
-   */
-  private async validateAccount(
-    accountId: string,
-    userId: string,
-  ): Promise<Account> {
-    const account = await this.accountRepository.findActiveById(
-      accountId,
-      userId,
-    );
-
-    if (!account) {
-      throw new BusinessError(
-        "Account not found or doesn't belong to user",
-        BusinessErrorCodes.ACCOUNT_NOT_FOUND,
-        { accountId, userId },
-      );
-    }
-
-    return account;
-  }
-
-  /**
-   * Validate that a category exists, belongs to the user, and matches the transaction type
-   * @param categoryId - The category ID to validate (optional)
-   * @param userId - The user ID to check ownership
-   * @param transactionType - The transaction type to match against category type
-   * @returns Promise<Category | null> - The validated category or null if not provided
-   * @throws BusinessError if category not found, doesn't belong to user, or type mismatch
-   */
-  private async validateCategory(
-    categoryId: string | undefined | null,
-    userId: string,
-    transactionType: TransactionType,
-  ): Promise<Category | null> {
-    if (!categoryId) {
-      return null;
-    }
-
-    const category = await this.categoryRepository.findActiveById(
-      categoryId,
-      userId,
-    );
-
-    if (!category) {
-      throw new BusinessError(
-        "Category not found or doesn't belong to user",
-        BusinessErrorCodes.CATEGORY_NOT_FOUND,
-        { categoryId, userId },
-      );
-    }
-
-    const typeMismatch =
-      (category.type === CategoryType.INCOME &&
-        transactionType !== TransactionType.INCOME) ||
-      (category.type === CategoryType.EXPENSE &&
-        transactionType !== TransactionType.EXPENSE &&
-        transactionType !== TransactionType.REFUND);
-
-    if (typeMismatch) {
-      throw new BusinessError(
-        `Category type "${category.type}" doesn't match transaction type "${transactionType}"`,
-        BusinessErrorCodes.INVALID_CATEGORY_TYPE,
-        {
-          categoryType: category.type,
-          transactionType,
-          categoryId,
-          categoryName: category.name,
-        },
-      );
-    }
-
-    return category;
-  }
-
-  /**
-   * Validate that the transaction amount is valid (non-negative)
-   * @param amount - The amount to validate
-   * @throws BusinessError if amount is negative
-   */
-  private validateAmount(amount: number): void {
-    if (amount < 0) {
-      throw new BusinessError(
-        "Transaction amount cannot be negative",
-        BusinessErrorCodes.INVALID_AMOUNT,
-        { amount },
-      );
-    }
-  }
-
-  /**
-   * Validate that the transaction date is in the correct format (YYYY-MM-DD)
-   * @param date - The date string to validate
-   * @throws BusinessError if date format is invalid
-   */
-  private validateDate(date: string): void {
-    if (!DATE_FORMAT_REGEX.test(date)) {
-      throw new BusinessError(
-        "Transaction date must be in YYYY-MM-DD format",
-        BusinessErrorCodes.INVALID_DATE,
-        { date },
-      );
-    }
-  }
-
-  /**
    * Create a new transaction with full business validation
    * @param input - Transaction creation input (currency will be derived from account)
    * @param userId - The user ID creating the transaction
@@ -448,26 +338,113 @@ export class TransactionService {
   }
 
   /**
-   * Validate transaction patterns limit parameter
-   * @param limit - The limit to validate (can be null, undefined, or number)
-   * @returns number - Valid limit between 1-10, defaults to 3 for invalid values
+   * Validate that an account exists and belongs to the user
+   * @param accountId - The account ID to validate
+   * @param userId - The user ID to check ownership
+   * @returns Promise<Account> - The validated account
+   * @throws BusinessError if account not found or doesn't belong to user
    */
-  private validateTransactionPatternsLimit(limit?: number | null): number {
-    // Use default if limit is not provided or is null
-    if (limit == null) {
-      return DEFAULT_TRANSACTION_PATTERNS_LIMIT;
+  private async validateAccount(
+    accountId: string,
+    userId: string,
+  ): Promise<Account> {
+    const account = await this.accountRepository.findActiveById(
+      accountId,
+      userId,
+    );
+
+    if (!account) {
+      throw new BusinessError(
+        "Account not found or doesn't belong to user",
+        BusinessErrorCodes.ACCOUNT_NOT_FOUND,
+        { accountId, userId },
+      );
     }
 
-    // Validate range and return default for invalid values
-    if (
-      limit < MIN_TRANSACTION_PATTERNS_LIMIT ||
-      limit > MAX_TRANSACTION_PATTERNS_LIMIT ||
-      !Number.isInteger(limit)
-    ) {
-      return DEFAULT_TRANSACTION_PATTERNS_LIMIT;
+    return account;
+  }
+
+  /**
+   * Validate that the transaction amount is valid (non-negative)
+   * @param amount - The amount to validate
+   * @throws BusinessError if amount is negative
+   */
+  private validateAmount(amount: number): void {
+    if (amount < 0) {
+      throw new BusinessError(
+        "Transaction amount cannot be negative",
+        BusinessErrorCodes.INVALID_AMOUNT,
+        { amount },
+      );
+    }
+  }
+
+  /**
+   * Validate that a category exists, belongs to the user, and matches the transaction type
+   * @param categoryId - The category ID to validate (optional)
+   * @param userId - The user ID to check ownership
+   * @param transactionType - The transaction type to match against category type
+   * @returns Promise<Category | null> - The validated category or null if not provided
+   * @throws BusinessError if category not found, doesn't belong to user, or type mismatch
+   */
+  private async validateCategory(
+    categoryId: string | undefined | null,
+    userId: string,
+    transactionType: TransactionType,
+  ): Promise<Category | null> {
+    if (!categoryId) {
+      return null;
     }
 
-    return limit;
+    const category = await this.categoryRepository.findActiveById(
+      categoryId,
+      userId,
+    );
+
+    if (!category) {
+      throw new BusinessError(
+        "Category not found or doesn't belong to user",
+        BusinessErrorCodes.CATEGORY_NOT_FOUND,
+        { categoryId, userId },
+      );
+    }
+
+    const typeMismatch =
+      (category.type === CategoryType.INCOME &&
+        transactionType !== TransactionType.INCOME) ||
+      (category.type === CategoryType.EXPENSE &&
+        transactionType !== TransactionType.EXPENSE &&
+        transactionType !== TransactionType.REFUND);
+
+    if (typeMismatch) {
+      throw new BusinessError(
+        `Category type "${category.type}" doesn't match transaction type "${transactionType}"`,
+        BusinessErrorCodes.INVALID_CATEGORY_TYPE,
+        {
+          categoryType: category.type,
+          transactionType,
+          categoryId,
+          categoryName: category.name,
+        },
+      );
+    }
+
+    return category;
+  }
+
+  /**
+   * Validate that the transaction date is in the correct format (YYYY-MM-DD)
+   * @param date - The date string to validate
+   * @throws BusinessError if date format is invalid
+   */
+  private validateDate(date: string): void {
+    if (!DATE_FORMAT_REGEX.test(date)) {
+      throw new BusinessError(
+        "Transaction date must be in YYYY-MM-DD format",
+        BusinessErrorCodes.INVALID_DATE,
+        { date },
+      );
+    }
   }
 
   /**
@@ -488,6 +465,29 @@ export class TransactionService {
       !Number.isInteger(limit)
     ) {
       return DEFAULT_DESCRIPTION_SUGGESTIONS_LIMIT;
+    }
+
+    return limit;
+  }
+
+  /**
+   * Validate transaction patterns limit parameter
+   * @param limit - The limit to validate (can be null, undefined, or number)
+   * @returns number - Valid limit between 1-10, defaults to 3 for invalid values
+   */
+  private validateTransactionPatternsLimit(limit?: number | null): number {
+    // Use default if limit is not provided or is null
+    if (limit == null) {
+      return DEFAULT_TRANSACTION_PATTERNS_LIMIT;
+    }
+
+    // Validate range and return default for invalid values
+    if (
+      limit < MIN_TRANSACTION_PATTERNS_LIMIT ||
+      limit > MAX_TRANSACTION_PATTERNS_LIMIT ||
+      !Number.isInteger(limit)
+    ) {
+      return DEFAULT_TRANSACTION_PATTERNS_LIMIT;
     }
 
     return limit;

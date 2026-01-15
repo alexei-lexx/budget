@@ -437,6 +437,21 @@ export class TransferService {
   }
 
   /**
+   * Validate that the transfer amount is valid (positive)
+   * @param amount - The amount to validate
+   * @throws BusinessError if amount is not positive
+   */
+  private validateAmount(amount: number): void {
+    if (amount <= 0) {
+      throw new BusinessError(
+        "Transfer amount must be positive",
+        BusinessErrorCodes.INVALID_AMOUNT,
+        { amount },
+      );
+    }
+  }
+
+  /**
    * Validate that both accounts have the same currency
    * @param fromAccount - The source account
    * @param toAccount - The destination account
@@ -458,21 +473,6 @@ export class TransferService {
           fromAccountName: fromAccount.name,
           toAccountName: toAccount.name,
         },
-      );
-    }
-  }
-
-  /**
-   * Validate that the transfer amount is valid (positive)
-   * @param amount - The amount to validate
-   * @throws BusinessError if amount is not positive
-   */
-  private validateAmount(amount: number): void {
-    if (amount <= 0) {
-      throw new BusinessError(
-        "Transfer amount must be positive",
-        BusinessErrorCodes.INVALID_AMOUNT,
-        { amount },
       );
     }
   }
