@@ -1543,6 +1543,24 @@ describe("TransactionRepository", () => {
       expect(user2Result[0].userId).toBe(user2);
     });
 
+    it("should return empty array for empty search text", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+
+      const createInput = fakeCreateTransactionInput({
+        userId,
+        description: "Grocery store",
+      });
+
+      await repository.create(createInput);
+
+      // Act
+      const result = await repository.findActiveByDescription(userId, "", 10);
+
+      // Assert
+      expect(result).toHaveLength(0);
+    });
+
     it("should return empty array when no matches found", async () => {
       // Arrange
       const userId = faker.string.uuid();
@@ -1589,21 +1607,6 @@ describe("TransactionRepository", () => {
       await expect(
         repository.findActiveByDescription("", "store", 10),
       ).rejects.toThrow("User ID is required");
-    });
-
-    it("should throw error for search text less than 2 characters", async () => {
-      // Arrange
-      const userId = faker.string.uuid();
-
-      // Act & Assert - Empty search text
-      await expect(
-        repository.findActiveByDescription(userId, "", 10),
-      ).rejects.toThrow("Search text must be at least 2 characters");
-
-      // Act & Assert - Single character
-      await expect(
-        repository.findActiveByDescription(userId, "a", 10),
-      ).rejects.toThrow("Search text must be at least 2 characters");
     });
 
     it("should throw error for invalid limit parameter", async () => {

@@ -616,6 +616,70 @@ describe("TransactionService", () => {
         code: BusinessErrorCodes.INVALID_PARAMETERS,
       });
     });
+
+    it("should throw error for whitespace-only search text", async () => {
+      const whitespaceSearchText = "   ";
+      const promise = service.getDescriptionSuggestions(
+        userId,
+        whitespaceSearchText,
+        5,
+      );
+
+      await expect(promise).rejects.toThrow(BusinessError);
+
+      await expect(promise).rejects.toMatchObject({
+        message: `Search text must be at least ${MIN_SEARCH_TEXT_LENGTH} characters long`,
+        code: BusinessErrorCodes.INVALID_PARAMETERS,
+      });
+
+      expect(
+        mockTransactionRepository.findActiveByDescription,
+      ).not.toHaveBeenCalled();
+    });
+
+    it("should pass trimmed search text to repository", async () => {
+      // Arrange
+      const searchTextWithWhitespace = "  test  ";
+      mockTransactionRepository.findActiveByDescription.mockResolvedValue([]);
+
+      // Act
+      await service.getDescriptionSuggestions(
+        userId,
+        searchTextWithWhitespace,
+        5,
+      );
+
+      // Assert - should pass trimmed text to repository
+      expect(
+        mockTransactionRepository.findActiveByDescription,
+      ).toHaveBeenCalledWith(
+        userId,
+        "test", // Trimmed version
+        DESCRIPTION_SUGGESTIONS_SAMPLE_SIZE,
+      );
+    });
+
+    it("should throw error when text is too short after trimming", async () => {
+      // Arrange - Text that looks long but is too short after trimming
+      const shortTextWithPadding = "   a   "; // 7 chars before trim, 1 char after
+      const promise = service.getDescriptionSuggestions(
+        userId,
+        shortTextWithPadding,
+        5,
+      );
+
+      // Assert
+      await expect(promise).rejects.toThrow(BusinessError);
+
+      await expect(promise).rejects.toMatchObject({
+        message: `Search text must be at least ${MIN_SEARCH_TEXT_LENGTH} characters long`,
+        code: BusinessErrorCodes.INVALID_PARAMETERS,
+      });
+
+      expect(
+        mockTransactionRepository.findActiveByDescription,
+      ).not.toHaveBeenCalled();
+    });
   });
 
   describe("getTransactionsByUser", () => {
