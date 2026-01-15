@@ -18,10 +18,10 @@ import type {
 import { MAX_PAGE_SIZE, MIN_PAGE_SIZE } from "../types/pagination";
 import { getAuthenticatedUser, handleResolverError } from "./shared";
 import {
-  accountIdSchema,
   amountSchema,
   dateSchema,
   descriptionSchema,
+  nonEmptyStringSchema,
 } from "./validation-schemas";
 
 /**
@@ -43,7 +43,7 @@ const allTransactionTypesSchema = z.enum(TransactionType);
  * Zod schemas for input validation
  */
 const createTransactionInputSchema = z.object({
-  accountId: accountIdSchema,
+  accountId: nonEmptyStringSchema,
   categoryId: nullishCategoryIdSchema,
   type: typeSchema,
   amount: amountSchema,
@@ -53,7 +53,7 @@ const createTransactionInputSchema = z.object({
 
 const updateTransactionInputSchema = z.object({
   id: z.uuid({ message: "Transaction ID must be a valid UUID" }),
-  accountId: accountIdSchema.optional(),
+  accountId: nonEmptyStringSchema.optional(),
   categoryId: nullishCategoryIdSchema,
   type: typeSchema.optional(),
   amount: amountSchema.optional(),
@@ -75,7 +75,7 @@ const paginationInputSchema = z
 
 const transactionFilterInputSchema = z
   .object({
-    accountIds: z.array(accountIdSchema).optional(),
+    accountIds: z.array(nonEmptyStringSchema).optional(),
     categoryIds: z.array(categoryIdSchema).optional(),
     includeUncategorized: z.boolean().optional(),
     dateAfter: dateSchema.optional(),

@@ -5,10 +5,10 @@ import { GraphQLContext } from "../server";
 import { BusinessError } from "../services/business-error";
 import { getAuthenticatedUser, handleResolverError } from "./shared";
 import {
-  accountIdSchema,
   amountSchema,
   dateSchema,
   descriptionSchema,
+  nonEmptyStringSchema,
 } from "./validation-schemas";
 
 /**
@@ -22,8 +22,8 @@ const transferIdSchema = z.uuid({
  * Zod schema for transfer input validation
  */
 const createTransferInputSchema = z.object({
-  fromAccountId: accountIdSchema,
-  toAccountId: accountIdSchema,
+  fromAccountId: nonEmptyStringSchema,
+  toAccountId: nonEmptyStringSchema,
   amount: amountSchema,
   date: dateSchema,
   description: descriptionSchema,
@@ -34,8 +34,8 @@ const createTransferInputSchema = z.object({
  */
 const updateTransferInputSchema = z.object({
   id: transferIdSchema,
-  fromAccountId: accountIdSchema.optional(),
-  toAccountId: accountIdSchema.optional(),
+  fromAccountId: nonEmptyStringSchema.optional(),
+  toAccountId: nonEmptyStringSchema.optional(),
   amount: amountSchema.optional(),
   date: dateSchema.optional(),
   description: descriptionSchema,

@@ -5,6 +5,4 @@ export {
   descriptionSchema,
 } from "../services/validation-schemas";
 
-export const accountIdSchema = z.uuid({
-  message: "Account ID must be a valid UUID",
-});
+export const nonEmptyStringSchema = z.string().min(1);
