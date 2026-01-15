@@ -1,12 +1,10 @@
 import { z } from "zod";
 import { DESCRIPTION_MAX_LENGTH } from "../types/validation";
-export { dateSchema } from "../services/validation-schemas";
+export { dateSchema, amountSchema } from "../services/validation-schemas";
 
 export const accountIdSchema = z.uuid({
   message: "Account ID must be a valid UUID",
 });
-
-export const amountSchema = z.number().positive("Amount must be positive");
 
 export const descriptionSchema = z
   .string()

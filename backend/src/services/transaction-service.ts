@@ -18,7 +18,11 @@ import {
 import { PaginationInput } from "../types/pagination";
 import { DATE_FORMAT_REGEX } from "../types/validation";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
-import { formatZodErrors, searchTextSchema } from "./validation-schemas";
+import {
+  amountSchema,
+  formatZodErrors,
+  searchTextSchema,
+} from "./validation-schemas";
 
 export const DEFAULT_TRANSACTION_PATTERNS_LIMIT = 3;
 export const MIN_TRANSACTION_PATTERNS_LIMIT = 1;
@@ -139,11 +143,10 @@ export class TransactionService {
    * @throws BusinessError if amount is negative
    */
   private validateAmount(amount: number): void {
-    if (amount < 0) {
+    if (amountSchema.safeParse(amount).success === false) {
       throw new BusinessError(
         "Transaction amount cannot be negative",
         BusinessErrorCodes.INVALID_AMOUNT,
-        { amount },
       );
     }
   }

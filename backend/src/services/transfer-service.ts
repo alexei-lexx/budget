@@ -8,6 +8,7 @@ import {
 } from "../models/transaction";
 import { DATE_FORMAT_REGEX } from "../types/validation";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
+import { amountSchema } from "./validation-schemas";
 
 /**
  * Input type for creating transfers between accounts
@@ -468,11 +469,10 @@ export class TransferService {
    * @throws BusinessError if amount is not positive
    */
   private validateAmount(amount: number): void {
-    if (amount <= 0) {
+    if (amountSchema.safeParse(amount).success === false) {
       throw new BusinessError(
         "Transfer amount must be positive",
         BusinessErrorCodes.INVALID_AMOUNT,
-        { amount },
       );
     }
   }
