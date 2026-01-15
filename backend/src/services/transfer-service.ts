@@ -6,9 +6,8 @@ import {
   Transaction,
   TransactionType,
 } from "../models/transaction";
-import { DATE_FORMAT_REGEX } from "../types/validation";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
-import { amountSchema } from "./validation-schemas";
+import { amountSchema, dateSchema } from "./validation-schemas";
 
 /**
  * Input type for creating transfers between accounts
@@ -483,7 +482,7 @@ export class TransferService {
    * @throws BusinessError if date format is invalid
    */
   private validateDate(date: string): void {
-    if (!DATE_FORMAT_REGEX.test(date)) {
+    if (!dateSchema.safeParse(date).success) {
       throw new BusinessError(
         "Transfer date must be in YYYY-MM-DD format",
         BusinessErrorCodes.INVALID_DATE,
