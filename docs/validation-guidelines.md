@@ -99,7 +99,7 @@ export const nameSchema = z.string().trim().min(2, "Name must be at least 2 char
 async create(userId: string, name: string) {
   const result = nameSchema.safeParse(name);
   if (!result.success) {
-    throw new BusinessError(result.error.message, BusinessErrorCodes.INVALID_PARAMETERS);
+    throw new BusinessError(z.prettifyError(result.error), BusinessErrorCodes.INVALID_PARAMETERS);
   }
 
   // Use validated/transformed value
@@ -421,7 +421,7 @@ export const textSchema = z.string().trim().min(2);
 async process(userId: string, text: string) {
   const result = textSchema.safeParse(text);
   if (!result.success) {
-    throw new BusinessError(result.error.message, ErrorCodes.INVALID);
+    throw new BusinessError(z.prettifyError(result.error), ErrorCodes.INVALID);
   }
 
   const validated = result.data;
@@ -459,25 +459,16 @@ const validated = schema.parse(args);
 
 ## Error Handling Best Practices
 
-### Use `error.message` for Complete Error Reporting
+### Use `z.prettifyError()` for Human-Readable Error Reporting
 
-When using Zod's `safeParse()`, always use `error.message` to get **all validation issues**, not just the first one.
+When using Zod's `safeParse()`, use `z.prettifyError()` to format **all validation issues** into a readable string.
 
-**Bad:**
+
+**Good (all errors, readable):**
 ```typescript
 const result = schema.safeParse(input);
 if (!result.success) {
-  // Only reports first issue!
-  throw new BusinessError(result.error.issues[0].message, code);
-}
-```
-
-**Good:**
-```typescript
-const result = schema.safeParse(input);
-if (!result.success) {
-  // Reports all validation issues in formatted string
-  throw new BusinessError(result.error.message, code);
+  throw new BusinessError(z.prettifyError(result.error), code); // ✅ Formatted, all issues
 }
 ```
 
@@ -500,7 +491,7 @@ throw new BusinessError(
 **Good:**
 ```typescript
 throw new BusinessError(
-  result.error.message, // Safe - doesn't echo raw input
+  z.prettifyError(result.error), // Safe - doesn't echo raw input
   ErrorCodes.INVALID,
   // No details - message is sufficient
 );

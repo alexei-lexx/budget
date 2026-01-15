@@ -7,7 +7,10 @@ import {
 } from "../models/transaction";
 import { GraphQLContext } from "../server";
 import { BusinessError } from "../services/business-error";
-import { searchTextSchema } from "../services/validation-schemas";
+import {
+  formatZodErrors,
+  searchTextSchema,
+} from "../services/validation-schemas";
 import type {
   TransactionEmbeddedAccount,
   TransactionEmbeddedCategory,
@@ -171,8 +174,7 @@ export const transactionResolvers = {
         return suggestions;
       } catch (error) {
         if (error instanceof z.ZodError) {
-          const message = error.message;
-          throw new GraphQLError(message, {
+          throw new GraphQLError(formatZodErrors(error), {
             extensions: { code: "BAD_USER_INPUT" },
           });
         }

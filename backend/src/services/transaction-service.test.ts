@@ -592,7 +592,7 @@ describe("TransactionService", () => {
       await expect(promise).rejects.toThrow(BusinessError);
 
       await expect(promise).rejects.toMatchObject({
-        message: `Search text must be at least ${MIN_SEARCH_TEXT_LENGTH} characters long`,
+        message: `✖ Search text must be at least ${MIN_SEARCH_TEXT_LENGTH} characters long`,
         code: BusinessErrorCodes.INVALID_PARAMETERS,
       });
 
@@ -612,7 +612,7 @@ describe("TransactionService", () => {
       await expect(promise).rejects.toThrow(BusinessError);
 
       await expect(promise).rejects.toMatchObject({
-        message: `Search text must be at least ${MIN_SEARCH_TEXT_LENGTH} characters long`,
+        message: `✖ Search text must be at least ${MIN_SEARCH_TEXT_LENGTH} characters long`,
         code: BusinessErrorCodes.INVALID_PARAMETERS,
       });
     });

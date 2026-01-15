@@ -18,7 +18,7 @@ import {
 import { PaginationInput } from "../types/pagination";
 import { DATE_FORMAT_REGEX } from "../types/validation";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
-import { searchTextSchema } from "./validation-schemas";
+import { formatZodErrors, searchTextSchema } from "./validation-schemas";
 
 export const DEFAULT_TRANSACTION_PATTERNS_LIMIT = 3;
 export const MIN_TRANSACTION_PATTERNS_LIMIT = 1;
@@ -406,7 +406,7 @@ export class TransactionService {
     const parsedSearchText = searchTextSchema.safeParse(searchText);
     if (parsedSearchText.success === false) {
       throw new BusinessError(
-        parsedSearchText.error.message,
+        formatZodErrors(parsedSearchText.error),
         BusinessErrorCodes.INVALID_PARAMETERS,
       );
     }
