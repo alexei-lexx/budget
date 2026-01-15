@@ -27,10 +27,6 @@ import {
 /**
  * Reusable schema components for transactions
  */
-const categoryIdSchema = z.uuid({
-  message: "Category ID must be a valid UUID",
-});
-const nullishCategoryIdSchema = categoryIdSchema.nullish();
 const typeSchema = z.enum(
   [TransactionType.INCOME, TransactionType.EXPENSE, TransactionType.REFUND],
   {
@@ -44,7 +40,7 @@ const allTransactionTypesSchema = z.enum(TransactionType);
  */
 const createTransactionInputSchema = z.object({
   accountId: nonEmptyStringSchema,
-  categoryId: nullishCategoryIdSchema,
+  categoryId: nonEmptyStringSchema.nullish(),
   type: typeSchema,
   amount: amountSchema,
   date: dateSchema,
@@ -52,10 +48,9 @@ const createTransactionInputSchema = z.object({
 });
 
 const updateTransactionInputSchema = z.object({
-  id: z.uuid({ message: "Transaction ID must be a valid UUID" }),
+  id: nonEmptyStringSchema,
   accountId: nonEmptyStringSchema.optional(),
-  categoryId: nullishCategoryIdSchema,
-  type: typeSchema.optional(),
+  categoryId: nonEmptyStringSchema.nullish(),
   amount: amountSchema.optional(),
   date: dateSchema.optional(),
   description: descriptionSchema,
@@ -76,7 +71,7 @@ const paginationInputSchema = z
 const transactionFilterInputSchema = z
   .object({
     accountIds: z.array(nonEmptyStringSchema).optional(),
-    categoryIds: z.array(categoryIdSchema).optional(),
+    categoryIds: z.array(nonEmptyStringSchema).optional(),
     includeUncategorized: z.boolean().optional(),
     dateAfter: dateSchema.optional(),
     dateBefore: dateSchema.optional(),

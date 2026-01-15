@@ -12,13 +12,6 @@ import {
 } from "./validation-schemas";
 
 /**
- * Reusable schema components for transfers
- */
-const transferIdSchema = z.uuid({
-  message: "Transfer ID must be a valid UUID",
-});
-
-/**
  * Zod schema for transfer input validation
  */
 const createTransferInputSchema = z.object({
@@ -33,7 +26,7 @@ const createTransferInputSchema = z.object({
  * Zod schema for update transfer input validation
  */
 const updateTransferInputSchema = z.object({
-  id: transferIdSchema,
+  id: nonEmptyStringSchema,
   fromAccountId: nonEmptyStringSchema.optional(),
   toAccountId: nonEmptyStringSchema.optional(),
   amount: amountSchema.optional(),
@@ -50,7 +43,7 @@ export const transferResolvers = {
     ) => {
       try {
         // Validate and normalize input
-        const id = transferIdSchema.parse(args.id);
+        const id = nonEmptyStringSchema.parse(args.id);
         const user = await getAuthenticatedUser(context);
 
         // Get transfer transactions using the existing method
@@ -216,7 +209,7 @@ export const transferResolvers = {
     ) => {
       try {
         // Validate and normalize input
-        const validatedId = transferIdSchema.parse(args.id);
+        const validatedId = nonEmptyStringSchema.parse(args.id);
         const user = await getAuthenticatedUser(context);
 
         await context.transferService.deleteTransfer(validatedId, user.id);
