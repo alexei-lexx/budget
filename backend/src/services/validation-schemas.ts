@@ -1,14 +1,12 @@
 import { z } from "zod";
-import { DESCRIPTION_MAX_LENGTH } from "../types/validation";
+import {
+  DESCRIPTION_MAX_LENGTH,
+  MIN_SEARCH_TEXT_LENGTH,
+} from "./validation-constraints";
 
 export function formatZodErrors(error: z.ZodError): string {
   return z.prettifyError(error);
 }
-
-/**
- * Minimum length required for search text inputs
- */
-export const MIN_SEARCH_TEXT_LENGTH = 2;
 
 export const amountSchema = z.number().positive("Amount must be positive");
 
