@@ -3,13 +3,13 @@ import { z } from "zod";
 import { TransactionType } from "../__generated__/resolvers-types";
 import { GraphQLContext } from "../server";
 import { BusinessError } from "../services/business-error";
+import { getAuthenticatedUser, handleResolverError } from "./shared";
 import {
   accountIdSchema,
   amountSchema,
   dateSchema,
   descriptionSchema,
-} from "./schemas";
-import { getAuthenticatedUser, handleResolverError } from "./shared";
+} from "./validation-schemas";
 
 /**
  * Reusable schema components for transfers

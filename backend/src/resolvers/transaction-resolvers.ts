@@ -16,13 +16,13 @@ import type {
   TransactionEmbeddedCategory,
 } from "../types/graphql";
 import { MAX_PAGE_SIZE, MIN_PAGE_SIZE } from "../types/pagination";
+import { getAuthenticatedUser, handleResolverError } from "./shared";
 import {
   accountIdSchema,
   amountSchema,
   dateSchema,
   descriptionSchema,
-} from "./schemas";
-import { getAuthenticatedUser, handleResolverError } from "./shared";
+} from "./validation-schemas";
 
 /**
  * Reusable schema components for transactions
