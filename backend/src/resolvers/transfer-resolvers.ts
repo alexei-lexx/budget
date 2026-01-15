@@ -4,26 +4,19 @@ import { TransactionType } from "../__generated__/resolvers-types";
 import { GraphQLContext } from "../server";
 import { BusinessError } from "../services/business-error";
 import {
-  DATE_FORMAT_ERROR_MESSAGE,
-  DATE_FORMAT_REGEX,
-  DESCRIPTION_LENGTH_ERROR_MESSAGE,
-  DESCRIPTION_MAX_LENGTH,
-} from "../types/validation";
+  accountIdSchema,
+  amountSchema,
+  dateSchema,
+  descriptionSchema,
+} from "./schemas";
 import { getAuthenticatedUser, handleResolverError } from "./shared";
 
 /**
  * Reusable schema components for transfers
  */
-const idSchema = z.uuid({ message: "ID must be a valid UUID" });
-const accountIdSchema = z.uuid({ message: "Account ID must be a valid UUID" });
-const amountSchema = z.number().positive("Amount must be positive");
-const dateSchema = z
-  .string()
-  .regex(DATE_FORMAT_REGEX, DATE_FORMAT_ERROR_MESSAGE);
-const descriptionSchema = z
-  .string()
-  .max(DESCRIPTION_MAX_LENGTH, DESCRIPTION_LENGTH_ERROR_MESSAGE)
-  .nullish();
+const transferIdSchema = z.uuid({
+  message: "Transfer ID must be a valid UUID",
+});
 
 /**
  * Zod schema for transfer input validation
@@ -40,7 +33,7 @@ const createTransferInputSchema = z.object({
  * Zod schema for update transfer input validation
  */
 const updateTransferInputSchema = z.object({
-  id: idSchema,
+  id: transferIdSchema,
   fromAccountId: accountIdSchema.optional(),
   toAccountId: accountIdSchema.optional(),
   amount: amountSchema.optional(),
@@ -57,7 +50,7 @@ export const transferResolvers = {
     ) => {
       try {
         // Validate and normalize input
-        const id = idSchema.parse(args.id);
+        const id = transferIdSchema.parse(args.id);
         const user = await getAuthenticatedUser(context);
 
         // Get transfer transactions using the existing method
@@ -223,7 +216,7 @@ export const transferResolvers = {
     ) => {
       try {
         // Validate and normalize input
-        const validatedId = idSchema.parse(args.id);
+        const validatedId = transferIdSchema.parse(args.id);
         const user = await getAuthenticatedUser(context);
 
         await context.transferService.deleteTransfer(validatedId, user.id);
