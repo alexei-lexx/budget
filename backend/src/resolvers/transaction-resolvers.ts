@@ -13,17 +13,16 @@ import type {
 } from "../types/graphql";
 import { MAX_PAGE_SIZE, MIN_PAGE_SIZE } from "../types/pagination";
 import {
-  DATE_FORMAT_ERROR_MESSAGE,
-  DATE_FORMAT_REGEX,
-  DESCRIPTION_LENGTH_ERROR_MESSAGE,
-  DESCRIPTION_MAX_LENGTH,
-} from "../types/validation";
+  accountIdSchema,
+  amountSchema,
+  dateSchema,
+  descriptionSchema,
+} from "./schemas";
 import { getAuthenticatedUser, handleResolverError } from "./shared";
 
 /**
  * Reusable schema components for transactions
  */
-const accountIdSchema = z.uuid({ message: "Account ID must be a valid UUID" });
 const categoryIdSchema = z.uuid({
   message: "Category ID must be a valid UUID",
 });
@@ -35,14 +34,6 @@ const typeSchema = z.enum(
   },
 );
 const allTransactionTypesSchema = z.enum(TransactionType);
-const amountSchema = z.number().nonnegative("Amount must be zero or positive");
-const dateSchema = z
-  .string()
-  .regex(DATE_FORMAT_REGEX, DATE_FORMAT_ERROR_MESSAGE);
-const descriptionSchema = z
-  .string()
-  .max(DESCRIPTION_MAX_LENGTH, DESCRIPTION_LENGTH_ERROR_MESSAGE)
-  .nullish();
 
 /**
  * Zod schemas for input validation
