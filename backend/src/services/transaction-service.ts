@@ -64,7 +64,7 @@ export class TransactionService {
     private accountRepository: IAccountRepository,
     private categoryRepository: ICategoryRepository,
     private transactionRepository: ITransactionRepository,
-  ) { }
+  ) {}
 
   /**
    * Validate that an account exists and belongs to the user

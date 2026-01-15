@@ -171,7 +171,7 @@ export const transactionResolvers = {
         return suggestions;
       } catch (error) {
         if (error instanceof z.ZodError) {
-          const message = error.message
+          const message = error.message;
           throw new GraphQLError(message, {
             extensions: { code: "BAD_USER_INPUT" },
           });
