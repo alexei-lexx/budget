@@ -29,7 +29,7 @@ import {
   PageInfo,
   PaginationInput,
 } from "../types/pagination";
-import { MIN_SEARCH_TEXT_LENGTH, YEAR_RANGE_OFFSET } from "../types/validation";
+import { YEAR_RANGE_OFFSET } from "../types/validation";
 import { formatDateAsYYYYMMDD } from "../utils/date";
 import {
   DYNAMODB_TRANSACT_WRITE_MAX_ITEMS,
@@ -813,18 +813,16 @@ export class TransactionRepository implements ITransactionRepository {
       );
     }
 
-    if (!searchText || searchText.length < MIN_SEARCH_TEXT_LENGTH) {
-      throw new TransactionRepositoryError(
-        `Search text must be at least ${MIN_SEARCH_TEXT_LENGTH} characters`,
-        "INVALID_PARAMETERS",
-      );
-    }
-
     if (!Number.isInteger(limit) || limit <= 0) {
       throw new TransactionRepositoryError(
         "Limit must be a positive integer",
         "INVALID_PARAMETERS",
       );
+    }
+
+    // No-op optimization for empty search text
+    if (!searchText) {
+      return [];
     }
 
     try {
