@@ -469,7 +469,7 @@ export class TransferService {
    * @throws BusinessError if amount is not positive
    */
   private validateAmount(amount: number): void {
-    if (amountSchema.safeParse(amount).success === false) {
+    if (!amountSchema.safeParse(amount).success) {
       throw new BusinessError(
         "Transfer amount must be positive",
         BusinessErrorCodes.INVALID_AMOUNT,

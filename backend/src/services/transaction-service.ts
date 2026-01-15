@@ -144,7 +144,7 @@ export class TransactionService {
    * @throws BusinessError if amount is negative
    */
   private validateAmount(amount: number): void {
-    if (amountSchema.safeParse(amount).success === false) {
+    if (!amountSchema.safeParse(amount).success) {
       throw new BusinessError(
         "Transaction amount cannot be negative",
         BusinessErrorCodes.INVALID_AMOUNT,
@@ -413,7 +413,7 @@ export class TransactionService {
   ): Promise<string[]> {
     // Validate search text
     const parsedSearchText = searchTextSchema.safeParse(searchText);
-    if (parsedSearchText.success === false) {
+    if (!parsedSearchText.success) {
       throw new BusinessError(
         formatZodErrors(parsedSearchText.error),
         BusinessErrorCodes.INVALID_PARAMETERS,
