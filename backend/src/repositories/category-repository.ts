@@ -58,44 +58,6 @@ export class CategoryRepository implements ICategoryRepository {
     }
   }
 
-  /**
-   * Check if a category with the same name and type exists for the user among active categories
-   */
-  private async checkDuplicateName(
-    userId: string,
-    name: string,
-    type: CategoryType,
-    excludeId?: string,
-  ): Promise<void> {
-    try {
-      const existingCategories = await this.findActiveByUserIdAndType(
-        userId,
-        type,
-      );
-      const duplicateCategory = existingCategories.find(
-        (category) =>
-          category.name.toLowerCase() === name.toLowerCase() &&
-          category.id !== excludeId,
-      );
-
-      if (duplicateCategory) {
-        throw new CategoryRepositoryError(
-          `A ${type.toLowerCase()} category named "${name}" already exists`,
-          "DUPLICATE_NAME",
-        );
-      }
-    } catch (error) {
-      if (error instanceof CategoryRepositoryError) {
-        throw error;
-      }
-      throw new CategoryRepositoryError(
-        "Failed to check for duplicate category names",
-        "DUPLICATE_CHECK_FAILED",
-        error,
-      );
-    }
-  }
-
   async findActiveByUserId(userId: string): Promise<Category[]> {
     if (!userId) {
       throw new CategoryRepositoryError(
@@ -417,6 +379,44 @@ export class CategoryRepository implements ICategoryRepository {
       throw new CategoryRepositoryError(
         "Failed to archive category",
         "ARCHIVE_FAILED",
+        error,
+      );
+    }
+  }
+
+  /**
+   * Check if a category with the same name and type exists for the user among active categories
+   */
+  private async checkDuplicateName(
+    userId: string,
+    name: string,
+    type: CategoryType,
+    excludeId?: string,
+  ): Promise<void> {
+    try {
+      const existingCategories = await this.findActiveByUserIdAndType(
+        userId,
+        type,
+      );
+      const duplicateCategory = existingCategories.find(
+        (category) =>
+          category.name.toLowerCase() === name.toLowerCase() &&
+          category.id !== excludeId,
+      );
+
+      if (duplicateCategory) {
+        throw new CategoryRepositoryError(
+          `A ${type.toLowerCase()} category named "${name}" already exists`,
+          "DUPLICATE_NAME",
+        );
+      }
+    } catch (error) {
+      if (error instanceof CategoryRepositoryError) {
+        throw error;
+      }
+      throw new CategoryRepositoryError(
+        "Failed to check for duplicate category names",
+        "DUPLICATE_CHECK_FAILED",
         error,
       );
     }

@@ -765,42 +765,6 @@ export class TransactionRepository implements ITransactionRepository {
     }
   }
 
-  async hasTransactionsForAccount(
-    accountId: string,
-    userId: string,
-  ): Promise<boolean> {
-    if (!accountId || !userId) {
-      throw new TransactionRepositoryError(
-        "Account ID and User ID are required",
-        "INVALID_PARAMETERS",
-      );
-    }
-
-    try {
-      const command = new QueryCommand({
-        TableName: this.tableName,
-        KeyConditionExpression: "userId = :userId",
-        FilterExpression: "accountId = :accountId AND isArchived = :isArchived",
-        ExpressionAttributeValues: {
-          ":userId": userId,
-          ":accountId": accountId,
-          ":isArchived": false,
-        },
-        Select: "COUNT",
-      });
-
-      const result = await this.client.send(command);
-      return (result.Count || 0) > 0;
-    } catch (error) {
-      console.error("Error checking transactions for account:", error);
-      throw new TransactionRepositoryError(
-        "Failed to check transactions for account",
-        "QUERY_FAILED",
-        error,
-      );
-    }
-  }
-
   async findActiveByDescription(
     userId: string,
     searchText: string,
@@ -854,6 +818,42 @@ export class TransactionRepository implements ITransactionRepository {
       console.error("Error searching transactions by description:", error);
       throw new TransactionRepositoryError(
         "Failed to search transactions by description",
+        "QUERY_FAILED",
+        error,
+      );
+    }
+  }
+
+  async hasTransactionsForAccount(
+    accountId: string,
+    userId: string,
+  ): Promise<boolean> {
+    if (!accountId || !userId) {
+      throw new TransactionRepositoryError(
+        "Account ID and User ID are required",
+        "INVALID_PARAMETERS",
+      );
+    }
+
+    try {
+      const command = new QueryCommand({
+        TableName: this.tableName,
+        KeyConditionExpression: "userId = :userId",
+        FilterExpression: "accountId = :accountId AND isArchived = :isArchived",
+        ExpressionAttributeValues: {
+          ":userId": userId,
+          ":accountId": accountId,
+          ":isArchived": false,
+        },
+        Select: "COUNT",
+      });
+
+      const result = await this.client.send(command);
+      return (result.Count || 0) > 0;
+    } catch (error) {
+      console.error("Error checking transactions for account:", error);
+      throw new TransactionRepositoryError(
+        "Failed to check transactions for account",
         "QUERY_FAILED",
         error,
       );
@@ -968,96 +968,6 @@ export class TransactionRepository implements ITransactionRepository {
         error,
       );
     }
-  }
-
-  private buildUpdateParams(
-    input: UpdateTransactionInput,
-    timestamp: string,
-    userId: string,
-    id: string,
-  ): {
-    TableName: string;
-    Key: { userId: string; id: string };
-    UpdateExpression: string;
-    ConditionExpression: string;
-    ExpressionAttributeNames?: Record<string, string>;
-    ExpressionAttributeValues: Record<string, unknown>;
-    ReturnValues: "ALL_NEW";
-  } {
-    const setExpressionParts: string[] = ["updatedAt = :updatedAt"];
-    const removeExpressionParts: string[] = [];
-    const expressionAttributeValues: Record<string, unknown> = {
-      ":updatedAt": timestamp,
-      ":isArchived": true,
-    };
-    const expressionAttributeNames: Record<string, string> = {};
-
-    if (input.accountId !== undefined) {
-      setExpressionParts.push("accountId = :accountId");
-      expressionAttributeValues[":accountId"] = input.accountId;
-    }
-
-    if (input.categoryId !== undefined) {
-      if (input.categoryId === null) {
-        removeExpressionParts.push("categoryId");
-      } else {
-        setExpressionParts.push("categoryId = :categoryId");
-        expressionAttributeValues[":categoryId"] = input.categoryId;
-      }
-    }
-
-    if (input.type !== undefined) {
-      setExpressionParts.push("#type = :type");
-      expressionAttributeValues[":type"] = input.type;
-      expressionAttributeNames["#type"] = "type";
-    }
-
-    if (input.amount !== undefined) {
-      setExpressionParts.push("amount = :amount");
-      expressionAttributeValues[":amount"] = input.amount;
-    }
-
-    if (input.currency !== undefined) {
-      setExpressionParts.push("currency = :currency");
-      expressionAttributeValues[":currency"] = input.currency;
-    }
-
-    if (input.date !== undefined) {
-      setExpressionParts.push("#date = :date");
-      expressionAttributeValues[":date"] = input.date;
-      expressionAttributeNames["#date"] = "date";
-    }
-
-    if (input.description !== undefined) {
-      if (input.description === null) {
-        removeExpressionParts.push("description");
-      } else {
-        setExpressionParts.push("description = :description");
-        expressionAttributeValues[":description"] = input.description;
-      }
-    }
-
-    // Build UpdateExpression with both SET and REMOVE clauses
-    const updateExpressionParts: string[] = [];
-    if (setExpressionParts.length > 0) {
-      updateExpressionParts.push(`SET ${setExpressionParts.join(", ")}`);
-    }
-    if (removeExpressionParts.length > 0) {
-      updateExpressionParts.push(`REMOVE ${removeExpressionParts.join(", ")}`);
-    }
-
-    return {
-      TableName: this.tableName,
-      Key: { userId, id },
-      UpdateExpression: updateExpressionParts.join(" "),
-      ConditionExpression:
-        "attribute_exists(userId) AND attribute_exists(id) AND isArchived <> :isArchived",
-      ...(Object.keys(expressionAttributeNames).length > 0 && {
-        ExpressionAttributeNames: expressionAttributeNames,
-      }),
-      ExpressionAttributeValues: expressionAttributeValues,
-      ReturnValues: "ALL_NEW",
-    };
   }
 
   /**
@@ -1198,6 +1108,96 @@ export class TransactionRepository implements ITransactionRepository {
       isArchived: false,
       createdAt: timestamp,
       updatedAt: timestamp,
+    };
+  }
+
+  private buildUpdateParams(
+    input: UpdateTransactionInput,
+    timestamp: string,
+    userId: string,
+    id: string,
+  ): {
+    TableName: string;
+    Key: { userId: string; id: string };
+    UpdateExpression: string;
+    ConditionExpression: string;
+    ExpressionAttributeNames?: Record<string, string>;
+    ExpressionAttributeValues: Record<string, unknown>;
+    ReturnValues: "ALL_NEW";
+  } {
+    const setExpressionParts: string[] = ["updatedAt = :updatedAt"];
+    const removeExpressionParts: string[] = [];
+    const expressionAttributeValues: Record<string, unknown> = {
+      ":updatedAt": timestamp,
+      ":isArchived": true,
+    };
+    const expressionAttributeNames: Record<string, string> = {};
+
+    if (input.accountId !== undefined) {
+      setExpressionParts.push("accountId = :accountId");
+      expressionAttributeValues[":accountId"] = input.accountId;
+    }
+
+    if (input.categoryId !== undefined) {
+      if (input.categoryId === null) {
+        removeExpressionParts.push("categoryId");
+      } else {
+        setExpressionParts.push("categoryId = :categoryId");
+        expressionAttributeValues[":categoryId"] = input.categoryId;
+      }
+    }
+
+    if (input.type !== undefined) {
+      setExpressionParts.push("#type = :type");
+      expressionAttributeValues[":type"] = input.type;
+      expressionAttributeNames["#type"] = "type";
+    }
+
+    if (input.amount !== undefined) {
+      setExpressionParts.push("amount = :amount");
+      expressionAttributeValues[":amount"] = input.amount;
+    }
+
+    if (input.currency !== undefined) {
+      setExpressionParts.push("currency = :currency");
+      expressionAttributeValues[":currency"] = input.currency;
+    }
+
+    if (input.date !== undefined) {
+      setExpressionParts.push("#date = :date");
+      expressionAttributeValues[":date"] = input.date;
+      expressionAttributeNames["#date"] = "date";
+    }
+
+    if (input.description !== undefined) {
+      if (input.description === null) {
+        removeExpressionParts.push("description");
+      } else {
+        setExpressionParts.push("description = :description");
+        expressionAttributeValues[":description"] = input.description;
+      }
+    }
+
+    // Build UpdateExpression with both SET and REMOVE clauses
+    const updateExpressionParts: string[] = [];
+    if (setExpressionParts.length > 0) {
+      updateExpressionParts.push(`SET ${setExpressionParts.join(", ")}`);
+    }
+    if (removeExpressionParts.length > 0) {
+      updateExpressionParts.push(`REMOVE ${removeExpressionParts.join(", ")}`);
+    }
+
+    return {
+      TableName: this.tableName,
+      Key: { userId, id },
+      UpdateExpression: updateExpressionParts.join(" "),
+      ConditionExpression:
+        "attribute_exists(userId) AND attribute_exists(id) AND isArchived <> :isArchived",
+      ...(Object.keys(expressionAttributeNames).length > 0 && {
+        ExpressionAttributeNames: expressionAttributeNames,
+      }),
+      ExpressionAttributeValues: expressionAttributeValues,
+      ReturnValues: "ALL_NEW",
     };
   }
 
