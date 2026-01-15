@@ -20,6 +20,7 @@ import { DATE_FORMAT_REGEX } from "../types/validation";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
 import {
   amountSchema,
+  descriptionSchema,
   formatZodErrors,
   searchTextSchema,
 } from "./validation-schemas";
@@ -184,6 +185,7 @@ export class TransactionService {
     // Additional input validation
     this.validateAmount(input.amount);
     this.validateDate(input.date);
+    this.validateDescription(input.description);
 
     // Create the transaction through repository
     const createInput: CreateTransactionInput = {
@@ -277,6 +279,10 @@ export class TransactionService {
 
     if (input.date) {
       this.validateDate(input.date);
+    }
+
+    if (input.description !== undefined) {
+      this.validateDescription(input.description);
     }
 
     // Update the transaction through repository, including currency if account changed
@@ -491,5 +497,16 @@ export class TransactionService {
     }
 
     return limit;
+  }
+
+  private validateDescription(description: string | null | undefined): void {
+    const parsedDescription = descriptionSchema.safeParse(description);
+
+    if (!parsedDescription.success) {
+      throw new BusinessError(
+        formatZodErrors(parsedDescription.error),
+        BusinessErrorCodes.INVALID_DESCRIPTION,
+      );
+    }
   }
 }
