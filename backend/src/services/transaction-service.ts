@@ -292,13 +292,14 @@ export class TransactionService {
     sampleSize = DESCRIPTION_SUGGESTIONS_SAMPLE_SIZE,
   ): Promise<string[]> {
     // Validate search text length
-    if (searchText.length < MIN_SEARCH_TEXT_LENGTH) {
+    const normalizedSearchText = searchText.trim();
+    if (normalizedSearchText.length < MIN_SEARCH_TEXT_LENGTH) {
       throw new BusinessError(
         `Search text must be at least ${MIN_SEARCH_TEXT_LENGTH} characters long`,
         BusinessErrorCodes.INVALID_PARAMETERS,
         {
-          searchText,
-          searchTextLength: searchText.length,
+          searchText: normalizedSearchText,
+          searchTextLength: normalizedSearchText.length,
           minLength: MIN_SEARCH_TEXT_LENGTH,
         },
       );
@@ -312,7 +313,7 @@ export class TransactionService {
     const transactions =
       await this.transactionRepository.findActiveByDescription(
         userId,
-        searchText,
+        normalizedSearchText,
         sampleSize,
       );
 
