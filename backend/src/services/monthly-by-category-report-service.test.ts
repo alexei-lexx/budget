@@ -8,6 +8,8 @@ import {
 import { ICategoryRepository } from "../models/category";
 import { ReportType } from "../models/report";
 import { ITransactionRepository, TransactionType } from "../models/transaction";
+import { YEAR_RANGE_OFFSET } from "../types/validation";
+import { BusinessErrorCodes } from "./business-error";
 import { MonthlyByCategoryReportService } from "./monthly-by-category-report-service";
 
 describe("MonthlyByCategoryReportService", () => {
@@ -497,6 +499,90 @@ describe("MonthlyByCategoryReportService", () => {
       expect(result.categories).toHaveLength(1);
       expect(result.categories[0].categoryName).toBe("Uncategorized");
       expect(result.categories[0].currencyBreakdowns[0].totalAmount).toBe(500); // 600 - 100
+    });
+  });
+
+  describe("validation", () => {
+    describe("year validation", () => {
+      it("should throw error for invalid year", async () => {
+        const currentYear = new Date().getFullYear();
+        const minYear = currentYear - YEAR_RANGE_OFFSET;
+        const maxYear = currentYear + YEAR_RANGE_OFFSET;
+
+        const invalidYears = [minYear - 1, maxYear + 1, 2000.5];
+
+        for (const invalidYear of invalidYears) {
+          await expect(
+            monthlyByCategoryReportService.call(
+              userId,
+              invalidYear,
+              1,
+              ReportType.EXPENSE,
+            ),
+          ).rejects.toMatchObject({
+            message: `Year must be a valid integer between ${minYear} and ${maxYear}`,
+            code: BusinessErrorCodes.INVALID_PARAMETERS,
+          });
+        }
+      });
+
+      it("should accept valid year within range", async () => {
+        const currentYear = new Date().getFullYear();
+        const validYear = currentYear - 50;
+
+        mockTransactionRepository.findActiveByMonthAndTypes.mockResolvedValue(
+          [],
+        );
+
+        await expect(
+          monthlyByCategoryReportService.call(
+            userId,
+            validYear,
+            1,
+            ReportType.EXPENSE,
+          ),
+        ).resolves.toBeDefined();
+      });
+    });
+
+    describe("month validation", () => {
+      it("should throw error for invalid month", async () => {
+        const currentYear = new Date().getFullYear();
+        const invalidMonths = [0, 13, 5.5];
+
+        for (const invalidMonth of invalidMonths) {
+          await expect(
+            monthlyByCategoryReportService.call(
+              userId,
+              currentYear,
+              invalidMonth,
+              ReportType.EXPENSE,
+            ),
+          ).rejects.toMatchObject({
+            message: "Month must be a valid integer between 1 and 12",
+            code: BusinessErrorCodes.INVALID_PARAMETERS,
+          });
+        }
+      });
+
+      it("should accept valid months (1-12)", async () => {
+        const currentYear = new Date().getFullYear();
+
+        mockTransactionRepository.findActiveByMonthAndTypes.mockResolvedValue(
+          [],
+        );
+
+        for (let month = 1; month <= 12; month++) {
+          await expect(
+            monthlyByCategoryReportService.call(
+              userId,
+              currentYear,
+              month,
+              ReportType.EXPENSE,
+            ),
+          ).resolves.toBeDefined();
+        }
+      });
     });
   });
 });

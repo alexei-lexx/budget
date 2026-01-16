@@ -6,6 +6,8 @@ import {
   TransactionType,
   getSignedAmount,
 } from "../models/transaction";
+import { YEAR_RANGE_OFFSET } from "../types/validation";
+import { BusinessError, BusinessErrorCodes } from "./business-error";
 
 const UNCATEGORIZED_LABEL = "Uncategorized";
 
@@ -64,6 +66,9 @@ export class MonthlyByCategoryReportService {
     month: number,
     type: ReportType,
   ): Promise<MonthlyReport> {
+    this.validateYear(year);
+    this.validateMonth(month);
+
     // For EXPENSE reports, fetch both EXPENSE and REFUND transactions
     // For INCOME reports, fetch only INCOME transactions
     let transactionTypesToFetch: TransactionType[];
@@ -226,5 +231,27 @@ export class MonthlyByCategoryReportService {
     }
 
     return breakdowns.sort((a, b) => a.currency.localeCompare(b.currency));
+  }
+
+  private validateYear(year: number): void {
+    const currentYear = new Date().getFullYear();
+    const minYear = currentYear - YEAR_RANGE_OFFSET;
+    const maxYear = currentYear + YEAR_RANGE_OFFSET;
+
+    if (!Number.isInteger(year) || year < minYear || year > maxYear) {
+      throw new BusinessError(
+        `Year must be a valid integer between ${minYear} and ${maxYear}`,
+        BusinessErrorCodes.INVALID_PARAMETERS,
+      );
+    }
+  }
+
+  private validateMonth(month: number): void {
+    if (!Number.isInteger(month) || month < 1 || month > 12) {
+      throw new BusinessError(
+        "Month must be a valid integer between 1 and 12",
+        BusinessErrorCodes.INVALID_PARAMETERS,
+      );
+    }
   }
 }
