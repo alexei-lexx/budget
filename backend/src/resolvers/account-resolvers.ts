@@ -1,49 +1,7 @@
 import { GraphQLError } from "graphql";
-import { z } from "zod";
 import { GraphQLContext } from "../server";
+import { SUPPORTED_CURRENCIES } from "../types/validation";
 import { getAuthenticatedUser, handleResolverError } from "./shared";
-
-/**
- * Supported currency codes
- */
-const SUPPORTED_CURRENCIES = new Set(["EUR", "USD"]);
-
-/**
- * Reusable schema components for accounts
- */
-const nameSchema = z
-  .string()
-  .trim()
-  .min(1, "Account name cannot be empty")
-  .max(100, "Account name cannot exceed 100 characters");
-
-const currencySchema = z
-  .string()
-  .trim()
-  .toUpperCase()
-  .refine((val) => SUPPORTED_CURRENCIES.has(val), {
-    message: `Unsupported currency. Supported currencies: ${Array.from(SUPPORTED_CURRENCIES).join(", ")}`,
-  });
-
-const initialBalanceSchema = z.number({
-  message: "Initial balance must be a valid number",
-});
-
-/**
- * Zod schemas for input validation
- */
-const createAccountInputSchema = z.object({
-  name: nameSchema,
-  currency: currencySchema,
-  initialBalance: initialBalanceSchema,
-});
-
-const updateAccountInputSchema = z.object({
-  id: z.uuid({ message: "Account ID must be a valid UUID" }),
-  name: nameSchema.optional(),
-  currency: currencySchema.optional(),
-  initialBalance: initialBalanceSchema.optional(),
-});
 
 export const accountResolvers = {
   Account: {
@@ -93,51 +51,44 @@ export const accountResolvers = {
       context: GraphQLContext,
     ) => {
       try {
-        // Validate and normalize input
-        const validatedInput = createAccountInputSchema.parse(args.input);
         const user = await getAuthenticatedUser(context);
 
         const account = await context.accountService.createAccount({
           userId: user.id,
-          name: validatedInput.name,
-          currency: validatedInput.currency,
-          initialBalance: validatedInput.initialBalance,
+          name: args.input.name,
+          currency: args.input.currency,
+          initialBalance: args.input.initialBalance,
         });
+
         return account;
       } catch (error) {
-        if (error instanceof z.ZodError) {
-          const firstError = error.issues[0];
-          throw new GraphQLError(firstError.message, {
-            extensions: { code: "BAD_USER_INPUT" },
-          });
-        }
         handleResolverError(error, "Failed to create account");
       }
     },
     updateAccount: async (
       _parent: unknown,
-      args: { input: unknown },
+      args: {
+        input: {
+          id: string;
+          name?: string;
+          currency?: string;
+          initialBalance?: number;
+        };
+      },
       context: GraphQLContext,
     ) => {
       try {
-        // Validate and normalize input
-        const validatedInput = updateAccountInputSchema.parse(args.input);
         const user = await getAuthenticatedUser(context);
-        const { id, ...updateData } = validatedInput;
+        const { id, ...updateData } = args.input;
 
         const account = await context.accountService.updateAccount(
           id,
           user.id,
           updateData,
         );
+
         return account;
       } catch (error) {
-        if (error instanceof z.ZodError) {
-          const firstError = error.issues[0];
-          throw new GraphQLError(firstError.message, {
-            extensions: { code: "BAD_USER_INPUT" },
-          });
-        }
         handleResolverError(error, "Failed to update account");
       }
     },
