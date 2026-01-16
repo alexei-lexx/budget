@@ -5,7 +5,11 @@ import {
   UpdateAccountInput,
 } from "../models/account";
 import { ITransactionRepository, getSignedAmount } from "../models/transaction";
-import { NAME_MAX_LENGTH, NAME_MIN_LENGTH } from "../types/validation";
+import {
+  NAME_MAX_LENGTH,
+  NAME_MIN_LENGTH,
+  SUPPORTED_CURRENCIES,
+} from "../types/validation";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
 
 /**
@@ -36,6 +40,7 @@ export class AccountService {
     const validatedInput = {
       ...input,
       name: this.validateName(input.name),
+      currency: this.validateCurrency(input.currency),
     };
 
     return await this.accountRepository.create(validatedInput);
@@ -69,8 +74,19 @@ export class AccountService {
       );
     }
 
+    const validatedInput = {
+      ...input,
+      ...(input.name !== undefined && { name: this.validateName(input.name) }),
+      ...(input.currency !== undefined && {
+        currency: this.validateCurrency(input.currency),
+      }),
+    };
+
     // If currency is being changed, check for existing transactions
-    if (input.currency && currentAccount.currency !== input.currency) {
+    if (
+      validatedInput.currency &&
+      currentAccount.currency !== validatedInput.currency
+    ) {
       const hasTransactions =
         await this.transactionRepository.hasTransactionsForAccount(id, userId);
 
@@ -81,16 +97,11 @@ export class AccountService {
           {
             accountId: id,
             currentCurrency: currentAccount.currency,
-            requestedCurrency: input.currency,
+            requestedCurrency: validatedInput.currency,
           },
         );
       }
     }
-
-    const validatedInput = {
-      ...input,
-      ...(input.name !== undefined && { name: this.validateName(input.name) }),
-    };
 
     return await this.accountRepository.update(id, userId, validatedInput);
   }
@@ -157,5 +168,18 @@ export class AccountService {
     }
 
     return trimmedName;
+  }
+
+  private validateCurrency(currency: string): string {
+    const normalizedCurrency = currency.trim().toUpperCase();
+
+    if (!SUPPORTED_CURRENCIES.includes(normalizedCurrency)) {
+      throw new BusinessError(
+        `Unsupported currency: ${normalizedCurrency}. Supported currencies: ${SUPPORTED_CURRENCIES.join(", ")}`,
+        BusinessErrorCodes.INVALID_PARAMETERS,
+      );
+    }
+
+    return normalizedCurrency;
   }
 }

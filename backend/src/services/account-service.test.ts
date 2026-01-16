@@ -9,7 +9,11 @@ import {
   createMockTransactionRepository,
 } from "../__tests__/utils/mock-repositories";
 import { TransactionType } from "../models/transaction";
-import { NAME_MAX_LENGTH, NAME_MIN_LENGTH } from "../types/validation";
+import {
+  NAME_MAX_LENGTH,
+  NAME_MIN_LENGTH,
+  SUPPORTED_CURRENCIES,
+} from "../types/validation";
 import { AccountService } from "./account-service";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
 
@@ -133,6 +137,36 @@ describe("AccountService", () => {
       await expect(promise).rejects.toThrow(BusinessError);
       await expect(promise).rejects.toMatchObject({
         message: `Account name must be between ${NAME_MIN_LENGTH} and ${NAME_MAX_LENGTH} characters`,
+        code: BusinessErrorCodes.INVALID_PARAMETERS,
+      });
+      expect(mockAccountRepository.create).not.toHaveBeenCalled();
+    });
+
+    it("should trim and uppercase currency", async () => {
+      // Arrange
+      const input = fakeCreateAccountInput({ currency: "  eur  " });
+
+      // Act
+      await service.createAccount(input);
+
+      // Assert
+      expect(mockAccountRepository.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          currency: "EUR", // Trimmed and uppercased
+        }),
+      );
+    });
+
+    it("should throw error when currency is unsupported", async () => {
+      // Arrange
+      const input = fakeCreateAccountInput({ currency: "XYZ" });
+
+      // Act & Assert
+      const promise = service.createAccount(input);
+
+      await expect(promise).rejects.toThrow(BusinessError);
+      await expect(promise).rejects.toMatchObject({
+        message: `Unsupported currency: XYZ. Supported currencies: ${SUPPORTED_CURRENCIES.join(", ")}`,
         code: BusinessErrorCodes.INVALID_PARAMETERS,
       });
       expect(mockAccountRepository.create).not.toHaveBeenCalled();
@@ -325,6 +359,51 @@ describe("AccountService", () => {
       await expect(promise).rejects.toThrow(BusinessError);
       await expect(promise).rejects.toMatchObject({
         message: `Account name must be between ${NAME_MIN_LENGTH} and ${NAME_MAX_LENGTH} characters`,
+        code: BusinessErrorCodes.INVALID_PARAMETERS,
+      });
+      expect(mockAccountRepository.update).not.toHaveBeenCalled();
+    });
+
+    it("should trim and uppercase currency", async () => {
+      // Arrange
+      const accountId = faker.string.uuid();
+      const input = { currency: "  eur  " };
+      const currentAccount = fakeAccount({
+        id: accountId,
+        userId,
+        currency: "USD",
+      });
+
+      mockAccountRepository.findActiveById.mockResolvedValue(currentAccount);
+      mockTransactionRepository.hasTransactionsForAccount.mockResolvedValue(
+        false,
+      );
+
+      // Act
+      await service.updateAccount(accountId, userId, input);
+
+      // Assert
+      expect(mockAccountRepository.update).toHaveBeenCalledWith(
+        accountId,
+        userId,
+        { currency: "EUR" }, // Trimmed and uppercased
+      );
+    });
+
+    it("should throw error when currency is unsupported", async () => {
+      // Arrange
+      const accountId = faker.string.uuid();
+      const input = { currency: "XYZ" };
+      const currentAccount = fakeAccount({ id: accountId, userId });
+
+      mockAccountRepository.findActiveById.mockResolvedValue(currentAccount);
+
+      // Act & Assert
+      const promise = service.updateAccount(accountId, userId, input);
+
+      await expect(promise).rejects.toThrow(BusinessError);
+      await expect(promise).rejects.toMatchObject({
+        message: `Unsupported currency: XYZ. Supported currencies: ${SUPPORTED_CURRENCIES.join(", ")}`,
         code: BusinessErrorCodes.INVALID_PARAMETERS,
       });
       expect(mockAccountRepository.update).not.toHaveBeenCalled();
