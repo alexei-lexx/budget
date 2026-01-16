@@ -5,6 +5,7 @@ import {
   UpdateAccountInput,
 } from "../models/account";
 import { ITransactionRepository, getSignedAmount } from "../models/transaction";
+import { NAME_MAX_LENGTH, NAME_MIN_LENGTH } from "../types/validation";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
 
 /**
@@ -32,7 +33,12 @@ export class AccountService {
    * @returns Promise<Account> - The created account
    */
   async createAccount(input: CreateAccountInput): Promise<Account> {
-    return await this.accountRepository.create(input);
+    const validatedInput = {
+      ...input,
+      name: this.validateName(input.name),
+    };
+
+    return await this.accountRepository.create(validatedInput);
   }
 
   /**
@@ -81,7 +87,12 @@ export class AccountService {
       }
     }
 
-    return await this.accountRepository.update(id, userId, input);
+    const validatedInput = {
+      ...input,
+      ...(input.name !== undefined && { name: this.validateName(input.name) }),
+    };
+
+    return await this.accountRepository.update(id, userId, validatedInput);
   }
 
   /**
@@ -130,5 +141,21 @@ export class AccountService {
     );
 
     return balance;
+  }
+
+  private validateName(name: string): string {
+    const trimmedName = name.trim();
+
+    if (
+      trimmedName.length < NAME_MIN_LENGTH ||
+      trimmedName.length > NAME_MAX_LENGTH
+    ) {
+      throw new BusinessError(
+        `Account name must be between ${NAME_MIN_LENGTH} and ${NAME_MAX_LENGTH} characters`,
+        BusinessErrorCodes.INVALID_PARAMETERS,
+      );
+    }
+
+    return trimmedName;
   }
 }

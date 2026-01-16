@@ -1,10 +1,15 @@
 import { faker } from "@faker-js/faker";
-import { fakeAccount, fakeTransaction } from "../__tests__/utils/factories";
+import {
+  fakeAccount,
+  fakeCreateAccountInput,
+  fakeTransaction,
+} from "../__tests__/utils/factories";
 import {
   createMockAccountRepository,
   createMockTransactionRepository,
 } from "../__tests__/utils/mock-repositories";
 import { TransactionType } from "../models/transaction";
+import { NAME_MAX_LENGTH, NAME_MIN_LENGTH } from "../types/validation";
 import { AccountService } from "./account-service";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
 
@@ -70,6 +75,68 @@ describe("AccountService", () => {
       expect(result).toEqual(createdAccount);
       expect(mockAccountRepository.create).toHaveBeenCalledWith(input);
     });
+
+    it("should trim name", async () => {
+      // Arrange
+      const input = fakeCreateAccountInput({ name: "  Cash  " });
+
+      // Act
+      await service.createAccount(input);
+
+      // Assert
+      expect(mockAccountRepository.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          name: "Cash", // Trimmed
+        }),
+      );
+    });
+
+    it("should throw error when name is empty string", async () => {
+      // Arrange
+      const input = fakeCreateAccountInput({ name: "" });
+
+      // Act & Assert
+      const promise = service.createAccount(input);
+
+      await expect(promise).rejects.toThrow(BusinessError);
+      await expect(promise).rejects.toMatchObject({
+        message: `Account name must be between ${NAME_MIN_LENGTH} and ${NAME_MAX_LENGTH} characters`,
+        code: BusinessErrorCodes.INVALID_PARAMETERS,
+      });
+      expect(mockAccountRepository.create).not.toHaveBeenCalled();
+    });
+
+    it("should throw error when name is only whitespace", async () => {
+      // Arrange
+      const input = fakeCreateAccountInput({ name: "   " });
+
+      // Act & Assert
+      const promise = service.createAccount(input);
+
+      await expect(promise).rejects.toThrow(BusinessError);
+      await expect(promise).rejects.toMatchObject({
+        message: `Account name must be between ${NAME_MIN_LENGTH} and ${NAME_MAX_LENGTH} characters`,
+        code: BusinessErrorCodes.INVALID_PARAMETERS,
+      });
+      expect(mockAccountRepository.create).not.toHaveBeenCalled();
+    });
+
+    it("should throw error when name exceeds maximum length", async () => {
+      // Arrange
+      const input = fakeCreateAccountInput({
+        name: "a".repeat(NAME_MAX_LENGTH + 1),
+      });
+
+      // Act & Assert
+      const promise = service.createAccount(input);
+
+      await expect(promise).rejects.toThrow(BusinessError);
+      await expect(promise).rejects.toMatchObject({
+        message: `Account name must be between ${NAME_MIN_LENGTH} and ${NAME_MAX_LENGTH} characters`,
+        code: BusinessErrorCodes.INVALID_PARAMETERS,
+      });
+      expect(mockAccountRepository.create).not.toHaveBeenCalled();
+    });
   });
 
   describe("updateAccount", () => {
@@ -104,6 +171,29 @@ describe("AccountService", () => {
       expect(
         mockTransactionRepository.hasTransactionsForAccount,
       ).not.toHaveBeenCalled();
+    });
+
+    it("should trim name", async () => {
+      // Arrange
+      const accountId = faker.string.uuid();
+      const input = { name: "  Cash  " };
+
+      const currentAccount = fakeAccount({
+        id: accountId,
+        userId,
+      });
+
+      mockAccountRepository.findActiveById.mockResolvedValue(currentAccount);
+
+      // Act
+      await service.updateAccount(accountId, userId, input);
+
+      // Assert
+      expect(mockAccountRepository.update).toHaveBeenCalledWith(
+        accountId,
+        userId,
+        { name: "Cash" }, // Trimmed
+      );
     });
 
     it("should update account currency when no transactions exist", async () => {
@@ -179,6 +269,63 @@ describe("AccountService", () => {
       await expect(promise).rejects.toMatchObject({
         message: "Account not found",
         code: BusinessErrorCodes.ACCOUNT_NOT_FOUND,
+      });
+      expect(mockAccountRepository.update).not.toHaveBeenCalled();
+    });
+
+    it("should throw error when name is empty string", async () => {
+      // Arrange
+      const accountId = faker.string.uuid();
+      const input = { name: "" };
+      const currentAccount = fakeAccount({ id: accountId, userId });
+
+      mockAccountRepository.findActiveById.mockResolvedValue(currentAccount);
+
+      // Act & Assert
+      const promise = service.updateAccount(accountId, userId, input);
+
+      await expect(promise).rejects.toThrow(BusinessError);
+      await expect(promise).rejects.toMatchObject({
+        message: `Account name must be between ${NAME_MIN_LENGTH} and ${NAME_MAX_LENGTH} characters`,
+        code: BusinessErrorCodes.INVALID_PARAMETERS,
+      });
+      expect(mockAccountRepository.update).not.toHaveBeenCalled();
+    });
+
+    it("should throw error when name is only whitespace", async () => {
+      // Arrange
+      const accountId = faker.string.uuid();
+      const input = { name: "   " };
+      const currentAccount = fakeAccount({ id: accountId, userId });
+
+      mockAccountRepository.findActiveById.mockResolvedValue(currentAccount);
+
+      // Act & Assert
+      const promise = service.updateAccount(accountId, userId, input);
+
+      await expect(promise).rejects.toThrow(BusinessError);
+      await expect(promise).rejects.toMatchObject({
+        message: `Account name must be between ${NAME_MIN_LENGTH} and ${NAME_MAX_LENGTH} characters`,
+        code: BusinessErrorCodes.INVALID_PARAMETERS,
+      });
+      expect(mockAccountRepository.update).not.toHaveBeenCalled();
+    });
+
+    it("should throw error when name exceeds maximum length", async () => {
+      // Arrange
+      const accountId = faker.string.uuid();
+      const input = { name: "a".repeat(NAME_MAX_LENGTH + 1) };
+      const currentAccount = fakeAccount({ id: accountId, userId });
+
+      mockAccountRepository.findActiveById.mockResolvedValue(currentAccount);
+
+      // Act & Assert
+      const promise = service.updateAccount(accountId, userId, input);
+
+      await expect(promise).rejects.toThrow(BusinessError);
+      await expect(promise).rejects.toMatchObject({
+        message: `Account name must be between ${NAME_MIN_LENGTH} and ${NAME_MAX_LENGTH} characters`,
+        code: BusinessErrorCodes.INVALID_PARAMETERS,
       });
       expect(mockAccountRepository.update).not.toHaveBeenCalled();
     });
