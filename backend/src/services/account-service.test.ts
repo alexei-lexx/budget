@@ -30,6 +30,183 @@ describe("AccountService", () => {
     jest.clearAllMocks();
   });
 
+  describe("getAccountsByUser", () => {
+    it("should return all active accounts for a user", async () => {
+      // Arrange
+      const accounts = [
+        fakeAccount({ userId }),
+        fakeAccount({ userId }),
+        fakeAccount({ userId }),
+      ];
+      mockAccountRepository.findActiveByUserId.mockResolvedValue(accounts);
+
+      // Act
+      const result = await service.getAccountsByUser(userId);
+
+      // Assert
+      expect(result).toEqual(accounts);
+      expect(mockAccountRepository.findActiveByUserId).toHaveBeenCalledWith(
+        userId,
+      );
+    });
+  });
+
+  describe("createAccount", () => {
+    it("should create a new account", async () => {
+      // Arrange
+      const input = {
+        userId,
+        name: "Checking Account",
+        currency: "USD",
+        initialBalance: 1000,
+      };
+      const createdAccount = fakeAccount(input);
+      mockAccountRepository.create.mockResolvedValue(createdAccount);
+
+      // Act
+      const result = await service.createAccount(input);
+
+      // Assert
+      expect(result).toEqual(createdAccount);
+      expect(mockAccountRepository.create).toHaveBeenCalledWith(input);
+    });
+  });
+
+  describe("updateAccount", () => {
+    it("should update an account without currency change", async () => {
+      // Arrange
+      const accountId = faker.string.uuid();
+      const currentAccount = fakeAccount({
+        id: accountId,
+        userId,
+        name: "Account Name",
+      });
+      const input = { name: "Updated Account Name" };
+      const updatedAccount = { ...currentAccount, ...input };
+
+      mockAccountRepository.findActiveById.mockResolvedValue(currentAccount);
+      mockAccountRepository.update.mockResolvedValue(updatedAccount);
+
+      // Act
+      const result = await service.updateAccount(accountId, userId, input);
+
+      // Assert
+      expect(result).toEqual(updatedAccount);
+      expect(mockAccountRepository.findActiveById).toHaveBeenCalledWith(
+        accountId,
+        userId,
+      );
+      expect(mockAccountRepository.update).toHaveBeenCalledWith(
+        accountId,
+        userId,
+        input,
+      );
+      expect(
+        mockTransactionRepository.hasTransactionsForAccount,
+      ).not.toHaveBeenCalled();
+    });
+
+    it("should update account currency when no transactions exist", async () => {
+      // Arrange
+      const accountId = faker.string.uuid();
+      const currentAccount = fakeAccount({
+        id: accountId,
+        userId,
+        currency: "USD",
+      });
+      const input = { currency: "EUR" };
+      const updatedAccount = { ...currentAccount, ...input };
+
+      mockAccountRepository.findActiveById.mockResolvedValue(currentAccount);
+      mockTransactionRepository.hasTransactionsForAccount.mockResolvedValue(
+        false,
+      );
+      mockAccountRepository.update.mockResolvedValue(updatedAccount);
+
+      // Act
+      const result = await service.updateAccount(accountId, userId, input);
+
+      // Assert
+      expect(result).toEqual(updatedAccount);
+      expect(
+        mockTransactionRepository.hasTransactionsForAccount,
+      ).toHaveBeenCalledWith(accountId, userId);
+      expect(mockAccountRepository.update).toHaveBeenCalledWith(
+        accountId,
+        userId,
+        input,
+      );
+    });
+
+    it("should throw error when changing currency and transactions exist", async () => {
+      // Arrange
+      const accountId = faker.string.uuid();
+      const currentAccount = fakeAccount({
+        id: accountId,
+        userId,
+        currency: "USD",
+      });
+      const input = { currency: "EUR" };
+
+      mockAccountRepository.findActiveById.mockResolvedValue(currentAccount);
+      mockTransactionRepository.hasTransactionsForAccount.mockResolvedValue(
+        true,
+      );
+
+      // Act & Assert
+      const promise = service.updateAccount(accountId, userId, input);
+
+      await expect(promise).rejects.toThrow(BusinessError);
+      await expect(promise).rejects.toMatchObject({
+        message:
+          "Cannot change currency for account that has existing transactions. Please create a new account with the desired currency instead.",
+        code: BusinessErrorCodes.ACCOUNT_CURRENCY_CHANGE_BLOCKED,
+      });
+      expect(mockAccountRepository.update).not.toHaveBeenCalled();
+    });
+
+    it("should throw error when account not found", async () => {
+      // Arrange
+      const accountId = faker.string.uuid();
+      mockAccountRepository.findActiveById.mockResolvedValue(null);
+
+      // Act & Assert
+      const promise = service.updateAccount(accountId, userId, {
+        name: "New Name",
+      });
+
+      await expect(promise).rejects.toThrow(BusinessError);
+      await expect(promise).rejects.toMatchObject({
+        message: "Account not found",
+        code: BusinessErrorCodes.ACCOUNT_NOT_FOUND,
+      });
+      expect(mockAccountRepository.update).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("deleteAccount", () => {
+    it("should archive an account", async () => {
+      // Arrange
+      const accountId = faker.string.uuid();
+      const archivedAccount = fakeAccount({
+        id: accountId,
+        userId,
+        isArchived: true,
+      });
+      mockAccountRepository.archive.mockResolvedValue(archivedAccount);
+
+      // Act
+      const result = await service.deleteAccount(accountId, userId);
+
+      // Assert
+      expect(result).toEqual(archivedAccount);
+      expect(mockAccountRepository.archive).toHaveBeenCalledWith(
+        accountId,
+        userId,
+      );
+    });
+  });
+
   describe("calculateBalance", () => {
     it("should calculate balance with all transaction types correctly", async () => {
       // Arrange
