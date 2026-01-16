@@ -12,7 +12,6 @@ import {
   TransactionType,
   UpdateTransactionInput,
 } from "../models/transaction";
-import { YEAR_RANGE_OFFSET } from "../types/validation";
 import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
 import { TransactionRepository } from "./transaction-repository";
 
@@ -1902,20 +1901,16 @@ describe("TransactionRepository", () => {
     it("should throw error for invalid year", async () => {
       // Act & Assert
       const userId = faker.string.uuid();
-
-      const currentYear = new Date().getFullYear();
-      const minYear = currentYear - YEAR_RANGE_OFFSET;
-      const maxYear = currentYear + YEAR_RANGE_OFFSET;
-      const expectedMessage = `Year must be a valid integer between ${minYear} and ${maxYear}`;
+      const expectedMessage = "Year must be a positive integer";
 
       await expect(
-        repository.findActiveByMonthAndTypes(userId, minYear - 1, 1, [
+        repository.findActiveByMonthAndTypes(userId, -1, 1, [
           TransactionType.EXPENSE,
         ]),
       ).rejects.toThrow(expectedMessage);
 
       await expect(
-        repository.findActiveByMonthAndTypes(userId, maxYear + 1, 1, [
+        repository.findActiveByMonthAndTypes(userId, 0, 1, [
           TransactionType.EXPENSE,
         ]),
       ).rejects.toThrow(expectedMessage);
