@@ -1,4 +1,9 @@
-import { IAccountRepository } from "../models/account";
+import {
+  Account,
+  CreateAccountInput,
+  IAccountRepository,
+  UpdateAccountInput,
+} from "../models/account";
 import { ITransactionRepository, getSignedAmount } from "../models/transaction";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
 
@@ -13,12 +18,89 @@ export class AccountService {
   ) {}
 
   /**
+   * Get all active accounts for a user
+   * @param userId - The user ID to get accounts for
+   * @returns Promise<Account[]> - List of active accounts
+   */
+  async getAccountsByUser(userId: string): Promise<Account[]> {
+    return await this.accountRepository.findActiveByUserId(userId);
+  }
+
+  /**
+   * Create a new account for a user
+   * @param input - Account creation input
+   * @returns Promise<Account> - The created account
+   */
+  async createAccount(input: CreateAccountInput): Promise<Account> {
+    return await this.accountRepository.create(input);
+  }
+
+  /**
+   * Update an account
+   * Enforces business rule: cannot change currency if account has existing transactions
+   * @param id - Account ID to update
+   * @param userId - User ID for authorization
+   * @param input - Account update input
+   * @returns Promise<Account> - The updated account
+   * @throws BusinessError if account not found or has transactions with currency change
+   */
+  async updateAccount(
+    id: string,
+    userId: string,
+    input: UpdateAccountInput,
+  ): Promise<Account> {
+    // Fetch current account
+    const currentAccount = await this.accountRepository.findActiveById(
+      id,
+      userId,
+    );
+
+    if (!currentAccount) {
+      throw new BusinessError(
+        "Account not found",
+        BusinessErrorCodes.ACCOUNT_NOT_FOUND,
+        { accountId: id, userId },
+      );
+    }
+
+    // If currency is being changed, check for existing transactions
+    if (input.currency && currentAccount.currency !== input.currency) {
+      const hasTransactions =
+        await this.transactionRepository.hasTransactionsForAccount(id, userId);
+
+      if (hasTransactions) {
+        throw new BusinessError(
+          "Cannot change currency for account that has existing transactions. Please create a new account with the desired currency instead.",
+          BusinessErrorCodes.ACCOUNT_CURRENCY_CHANGE_BLOCKED,
+          {
+            accountId: id,
+            currentCurrency: currentAccount.currency,
+            requestedCurrency: input.currency,
+          },
+        );
+      }
+    }
+
+    return await this.accountRepository.update(id, userId, input);
+  }
+
+  /**
+   * Archive (soft-delete) an account
+   * @param id - Account ID to archive
+   * @param userId - User ID for authorization
+   * @returns Promise<Account> - The archived account
+   */
+  async deleteAccount(id: string, userId: string): Promise<Account> {
+    return await this.accountRepository.archive(id, userId);
+  }
+
+  /**
    * Calculate the current balance for an account based on its initial balance and transaction history
    * Formula: initialBalance + INCOME transactions - EXPENSE transactions
    * @param accountId - The account ID to calculate balance for
    * @param userId - The user ID to verify ownership and scope queries
    * @returns Promise<number> - The calculated current balance
-   * @throws BusinessError if account not found or calculation fails
+   * @throws BusinessError if account not found
    */
   async calculateBalance(accountId: string, userId: string): Promise<number> {
     // First validate that the account exists and belongs to the user
@@ -35,27 +117,18 @@ export class AccountService {
       );
     }
 
-    try {
-      // Get all transactions for this account
-      const transactions =
-        await this.transactionRepository.findActiveByAccountId(
-          accountId,
-          userId,
-        );
+    // Get all transactions for this account
+    const transactions = await this.transactionRepository.findActiveByAccountId(
+      accountId,
+      userId,
+    );
 
-      // Calculate balance: initialBalance + INCOME + REFUND + TRANSFER_IN - EXPENSE - TRANSFER_OUT
-      const balance = transactions.reduce(
-        (sum, transaction) => sum + getSignedAmount(transaction),
-        account.initialBalance,
-      );
+    // Calculate balance: initialBalance + INCOME + REFUND + TRANSFER_IN - EXPENSE - TRANSFER_OUT
+    const balance = transactions.reduce(
+      (sum, transaction) => sum + getSignedAmount(transaction),
+      account.initialBalance,
+    );
 
-      return balance;
-    } catch (error) {
-      throw new BusinessError(
-        "Failed to calculate account balance",
-        "BALANCE_CALCULATION_FAILED",
-        { accountId, userId, originalError: error },
-      );
-    }
+    return balance;
   }
 }

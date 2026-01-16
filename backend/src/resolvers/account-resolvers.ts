@@ -72,7 +72,7 @@ export const accountResolvers = {
     ) => {
       try {
         const user = await getAuthenticatedUser(context);
-        const accounts = await context.accountRepository.findActiveByUserId(
+        const accounts = await context.accountService.getAccountsByUser(
           user.id,
         );
         return accounts;
@@ -97,7 +97,7 @@ export const accountResolvers = {
         const validatedInput = createAccountInputSchema.parse(args.input);
         const user = await getAuthenticatedUser(context);
 
-        const account = await context.accountRepository.create({
+        const account = await context.accountService.createAccount({
           userId: user.id,
           name: validatedInput.name,
           currency: validatedInput.currency,
@@ -123,48 +123,12 @@ export const accountResolvers = {
         // Validate and normalize input
         const validatedInput = updateAccountInputSchema.parse(args.input);
         const user = await getAuthenticatedUser(context);
-        const { id } = validatedInput;
+        const { id, ...updateData } = validatedInput;
 
-        // Check if currency is being changed and if account has transactions
-        if (validatedInput.currency) {
-          const currentAccount = await context.accountRepository.findActiveById(
-            id,
-            user.id,
-          );
-          if (!currentAccount) {
-            throw new GraphQLError("Account not found", {
-              extensions: { code: "NOT_FOUND" },
-            });
-          }
-
-          // If currency is being changed, check for existing transactions
-          if (currentAccount.currency !== validatedInput.currency) {
-            const hasTransactions =
-              await context.transactionRepository.hasTransactionsForAccount(
-                id,
-                user.id,
-              );
-
-            if (hasTransactions) {
-              throw new GraphQLError(
-                "Cannot change currency for account that has existing transactions. Please create a new account with the desired currency instead.",
-                {
-                  extensions: {
-                    code: "CURRENCY_CHANGE_BLOCKED",
-                    accountId: id,
-                    currentCurrency: currentAccount.currency,
-                    requestedCurrency: validatedInput.currency,
-                  },
-                },
-              );
-            }
-          }
-        }
-
-        const account = await context.accountRepository.update(
+        const account = await context.accountService.updateAccount(
           id,
           user.id,
-          validatedInput,
+          updateData,
         );
         return account;
       } catch (error) {
@@ -173,10 +137,6 @@ export const accountResolvers = {
           throw new GraphQLError(firstError.message, {
             extensions: { code: "BAD_USER_INPUT" },
           });
-        }
-        if (error instanceof GraphQLError) {
-          // Re-throw GraphQL errors with their specific messages
-          throw error;
         }
         handleResolverError(error, "Failed to update account");
       }
@@ -197,7 +157,7 @@ export const accountResolvers = {
 
       try {
         const user = await getAuthenticatedUser(context);
-        await context.accountRepository.archive(id, user.id);
+        await context.accountService.deleteAccount(id, user.id);
         return undefined;
       } catch (error) {
         handleResolverError(error, "Failed to delete account");
