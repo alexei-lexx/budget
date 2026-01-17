@@ -1,7 +1,9 @@
 import {
   Category,
   CategoryType,
+  CreateCategoryInput,
   ICategoryRepository,
+  UpdateCategoryInput,
 } from "../models/category";
 
 /**
@@ -29,5 +31,39 @@ export class CategoryService {
       );
     }
     return await this.categoryRepository.findActiveByUserId(userId);
+  }
+
+  /**
+   * Create a new category for a user
+   * @param input - Category creation input
+   * @returns Promise<Category> - The created category
+   */
+  async createCategory(input: CreateCategoryInput): Promise<Category> {
+    return await this.categoryRepository.create(input);
+  }
+
+  /**
+   * Update a category
+   * @param id - Category ID to update
+   * @param userId - User ID for authorization
+   * @param input - Category update input
+   * @returns Promise<Category> - The updated category
+   */
+  async updateCategory(
+    id: string,
+    userId: string,
+    input: UpdateCategoryInput,
+  ): Promise<Category> {
+    return await this.categoryRepository.update(id, userId, input);
+  }
+
+  /**
+   * Archive (soft-delete) a category
+   * @param id - Category ID to archive
+   * @param userId - User ID for authorization
+   * @returns Promise<Category> - The archived category
+   */
+  async deleteCategory(id: string, userId: string): Promise<Category> {
+    return await this.categoryRepository.archive(id, userId);
   }
 }

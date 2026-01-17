@@ -62,7 +62,7 @@ export const categoryResolvers = {
         const validatedInput = createCategoryInputSchema.parse(args.input);
         const user = await getAuthenticatedUser(context);
 
-        const category = await context.categoryRepository.create({
+        const category = await context.categoryService.createCategory({
           userId: user.id,
           name: validatedInput.name,
           type: validatedInput.type,
@@ -89,7 +89,7 @@ export const categoryResolvers = {
         const user = await getAuthenticatedUser(context);
         const { id } = validatedInput;
 
-        const category = await context.categoryRepository.update(
+        const category = await context.categoryService.updateCategory(
           id,
           user.id,
           validatedInput,
@@ -121,7 +121,10 @@ export const categoryResolvers = {
 
       try {
         const user = await getAuthenticatedUser(context);
-        const category = await context.categoryRepository.archive(id, user.id);
+        const category = await context.categoryService.deleteCategory(
+          id,
+          user.id,
+        );
         return category;
       } catch (error) {
         handleResolverError(error, "Failed to delete category");
