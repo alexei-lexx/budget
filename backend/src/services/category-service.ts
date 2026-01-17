@@ -1,8 +1,12 @@
 import {
   Category,
   CategoryType,
+  CreateCategoryInput,
   ICategoryRepository,
+  UpdateCategoryInput,
 } from "../models/category";
+import { NAME_MAX_LENGTH, NAME_MIN_LENGTH } from "../types/validation";
+import { BusinessError, BusinessErrorCodes } from "./business-error";
 
 /**
  * Category service class for handling business logic
@@ -29,5 +33,65 @@ export class CategoryService {
       );
     }
     return await this.categoryRepository.findActiveByUserId(userId);
+  }
+
+  /**
+   * Create a new category for a user
+   * @param input - Category creation input
+   * @returns Promise<Category> - The created category
+   */
+  async createCategory(input: CreateCategoryInput): Promise<Category> {
+    const validatedInput = {
+      ...input,
+      name: this.validateName(input.name),
+    };
+
+    return await this.categoryRepository.create(validatedInput);
+  }
+
+  /**
+   * Update a category
+   * @param id - Category ID to update
+   * @param userId - User ID for authorization
+   * @param input - Category update input
+   * @returns Promise<Category> - The updated category
+   */
+  async updateCategory(
+    id: string,
+    userId: string,
+    input: UpdateCategoryInput,
+  ): Promise<Category> {
+    const validatedInput = {
+      ...input,
+      ...(input.name !== undefined && { name: this.validateName(input.name) }),
+    };
+
+    return await this.categoryRepository.update(id, userId, validatedInput);
+  }
+
+  /**
+   * Archive (soft-delete) a category
+   * @param id - Category ID to archive
+   * @param userId - User ID for authorization
+   * @returns Promise<Category> - The archived category
+   */
+  async deleteCategory(id: string, userId: string): Promise<Category> {
+    return await this.categoryRepository.archive(id, userId);
+  }
+
+  private validateName(name: string): string {
+    const trimmedName = name.trim();
+
+    if (
+      trimmedName.length < NAME_MIN_LENGTH ||
+      trimmedName.length > NAME_MAX_LENGTH
+    ) {
+      throw new BusinessError(
+        `Category name must be between ${NAME_MIN_LENGTH} and ${NAME_MAX_LENGTH} characters`,
+        BusinessErrorCodes.INVALID_PARAMETERS,
+      );
+    }
+
+    return trimmedName;
   }
 }
