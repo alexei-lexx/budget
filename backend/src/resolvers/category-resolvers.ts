@@ -1,35 +1,7 @@
 import { GraphQLError } from "graphql";
-import { z } from "zod";
 import { CategoryType } from "../models/category";
 import { GraphQLContext } from "../server";
 import { getAuthenticatedUser, handleResolverError } from "./shared";
-
-/**
- * Reusable schema components for categories
- */
-const nameSchema = z
-  .string()
-  .trim()
-  .min(1, "Category name cannot be empty")
-  .max(100, "Category name cannot exceed 100 characters");
-
-const typeSchema = z.enum([CategoryType.INCOME, CategoryType.EXPENSE], {
-  message: `Category type must be either ${CategoryType.INCOME} or ${CategoryType.EXPENSE}`,
-});
-
-/**
- * Zod schemas for input validation
- */
-const createCategoryInputSchema = z.object({
-  name: nameSchema,
-  type: typeSchema,
-});
-
-const updateCategoryInputSchema = z.object({
-  id: z.uuid({ message: "Category ID must be a valid UUID" }),
-  name: nameSchema.optional(),
-  type: typeSchema.optional(),
-});
 
 export const categoryResolvers = {
   Query: {
@@ -58,50 +30,34 @@ export const categoryResolvers = {
       context: GraphQLContext,
     ) => {
       try {
-        // Validate and normalize input
-        const validatedInput = createCategoryInputSchema.parse(args.input);
         const user = await getAuthenticatedUser(context);
 
         const category = await context.categoryService.createCategory({
           userId: user.id,
-          name: validatedInput.name,
-          type: validatedInput.type,
+          name: args.input.name,
+          type: args.input.type,
         });
         return category;
       } catch (error) {
-        if (error instanceof z.ZodError) {
-          const firstError = error.issues[0];
-          throw new GraphQLError(firstError.message, {
-            extensions: { code: "BAD_USER_INPUT" },
-          });
-        }
         handleResolverError(error, "Failed to create category");
       }
     },
     updateCategory: async (
       _parent: unknown,
-      args: { input: unknown },
+      args: { input: { id: string; name?: string; type?: CategoryType } },
       context: GraphQLContext,
     ) => {
       try {
-        // Validate and normalize input
-        const validatedInput = updateCategoryInputSchema.parse(args.input);
         const user = await getAuthenticatedUser(context);
-        const { id } = validatedInput;
+        const { id, ...updateData } = args.input;
 
         const category = await context.categoryService.updateCategory(
           id,
           user.id,
-          validatedInput,
+          updateData,
         );
         return category;
       } catch (error) {
-        if (error instanceof z.ZodError) {
-          const firstError = error.issues[0];
-          throw new GraphQLError(firstError.message, {
-            extensions: { code: "BAD_USER_INPUT" },
-          });
-        }
         handleResolverError(error, "Failed to update category");
       }
     },
