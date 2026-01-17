@@ -5,6 +5,8 @@ import {
   ICategoryRepository,
   UpdateCategoryInput,
 } from "../models/category";
+import { NAME_MAX_LENGTH, NAME_MIN_LENGTH } from "../types/validation";
+import { BusinessError, BusinessErrorCodes } from "./business-error";
 
 /**
  * Category service class for handling business logic
@@ -39,7 +41,12 @@ export class CategoryService {
    * @returns Promise<Category> - The created category
    */
   async createCategory(input: CreateCategoryInput): Promise<Category> {
-    return await this.categoryRepository.create(input);
+    const validatedInput = {
+      ...input,
+      name: this.validateName(input.name),
+    };
+
+    return await this.categoryRepository.create(validatedInput);
   }
 
   /**
@@ -54,7 +61,12 @@ export class CategoryService {
     userId: string,
     input: UpdateCategoryInput,
   ): Promise<Category> {
-    return await this.categoryRepository.update(id, userId, input);
+    const validatedInput = {
+      ...input,
+      ...(input.name !== undefined && { name: this.validateName(input.name) }),
+    };
+
+    return await this.categoryRepository.update(id, userId, validatedInput);
   }
 
   /**
@@ -65,5 +77,21 @@ export class CategoryService {
    */
   async deleteCategory(id: string, userId: string): Promise<Category> {
     return await this.categoryRepository.archive(id, userId);
+  }
+
+  private validateName(name: string): string {
+    const trimmedName = name.trim();
+
+    if (
+      trimmedName.length < NAME_MIN_LENGTH ||
+      trimmedName.length > NAME_MAX_LENGTH
+    ) {
+      throw new BusinessError(
+        `Category name must be between ${NAME_MIN_LENGTH} and ${NAME_MAX_LENGTH} characters`,
+        BusinessErrorCodes.INVALID_PARAMETERS,
+      );
+    }
+
+    return trimmedName;
   }
 }
