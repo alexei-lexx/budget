@@ -43,6 +43,9 @@ export class AccountService {
       currency: this.validateCurrency(input.currency),
     };
 
+    // Check for duplicate names
+    await this.checkDuplicateName(validatedInput.userId, validatedInput.name);
+
     return await this.accountRepository.create(validatedInput);
   }
 
@@ -81,6 +84,11 @@ export class AccountService {
         currency: this.validateCurrency(input.currency),
       }),
     };
+
+    // Check for duplicate names if name is being updated
+    if (validatedInput.name !== undefined) {
+      await this.checkDuplicateName(userId, validatedInput.name, id);
+    }
 
     // If currency is being changed, check for existing transactions
     if (
@@ -181,5 +189,26 @@ export class AccountService {
     }
 
     return normalizedCurrency;
+  }
+
+  private async checkDuplicateName(
+    userId: string,
+    name: string,
+    excludeId?: string,
+  ): Promise<void> {
+    const existingAccounts =
+      await this.accountRepository.findActiveByUserId(userId);
+    const duplicateAccount = existingAccounts.find(
+      (account) =>
+        account.name.toLowerCase() === name.toLowerCase() &&
+        account.id !== excludeId,
+    );
+
+    if (duplicateAccount) {
+      throw new BusinessError(
+        `Account "${name}" already exists`,
+        BusinessErrorCodes.DUPLICATE_NAME,
+      );
+    }
   }
 }
