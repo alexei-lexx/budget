@@ -46,6 +46,9 @@ export class CategoryService {
       name: this.validateName(input.name),
     };
 
+    // Check for duplicate names
+    await this.checkDuplicateName(validatedInput.userId, validatedInput.name);
+
     return await this.categoryRepository.create(validatedInput);
   }
 
@@ -65,6 +68,11 @@ export class CategoryService {
       ...input,
       ...(input.name !== undefined && { name: this.validateName(input.name) }),
     };
+
+    // Check for duplicate names if name is being updated
+    if (validatedInput.name !== undefined) {
+      await this.checkDuplicateName(userId, validatedInput.name, id);
+    }
 
     return await this.categoryRepository.update(id, userId, validatedInput);
   }
@@ -93,5 +101,27 @@ export class CategoryService {
     }
 
     return trimmedName;
+  }
+
+  private async checkDuplicateName(
+    userId: string,
+    name: string,
+    excludeId?: string,
+  ): Promise<void> {
+    const existingCategories =
+      await this.categoryRepository.findActiveByUserId(userId);
+
+    const duplicateCategory = existingCategories.find(
+      (category) =>
+        category.name.toLowerCase() === name.toLowerCase() &&
+        category.id !== excludeId,
+    );
+
+    if (duplicateCategory) {
+      throw new BusinessError(
+        `Category "${name}" already exists`,
+        BusinessErrorCodes.DUPLICATE_NAME,
+      );
+    }
   }
 }

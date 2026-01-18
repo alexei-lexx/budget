@@ -19,6 +19,9 @@ describe("CategoryService", () => {
     service = new CategoryService(mockCategoryRepository);
     userId = faker.string.uuid();
 
+    // Default mocks for duplicate name checking (can be overridden in specific tests)
+    mockCategoryRepository.findActiveByUserId.mockResolvedValue([]);
+
     // Reset all mocks
     jest.clearAllMocks();
   });
@@ -146,6 +149,30 @@ describe("CategoryService", () => {
       });
       expect(mockCategoryRepository.create).not.toHaveBeenCalled();
     });
+
+    it("should throw error when category name already exists", async () => {
+      // Arrange
+      mockCategoryRepository.findActiveByUserId.mockResolvedValue([
+        fakeCategory({
+          userId,
+          name: "GROCERIES",
+        }),
+      ]);
+      const input = fakeCreateCategoryInput({
+        userId,
+        name: "groceries", // Different casing
+      });
+
+      // Act & Assert
+      const promise = service.createCategory(input);
+
+      await expect(promise).rejects.toThrow(BusinessError);
+      await expect(promise).rejects.toMatchObject({
+        message: 'Category "groceries" already exists',
+        code: BusinessErrorCodes.DUPLICATE_NAME,
+      });
+      expect(mockCategoryRepository.create).not.toHaveBeenCalled();
+    });
   });
 
   describe("updateCategory", () => {
@@ -154,7 +181,6 @@ describe("CategoryService", () => {
       const categoryId = faker.string.uuid();
       const input = { name: "Updated Category Name" };
       const updatedCategory = fakeCategory();
-
       mockCategoryRepository.update.mockResolvedValue(updatedCategory);
 
       // Act
@@ -172,6 +198,7 @@ describe("CategoryService", () => {
     it("should trim name", async () => {
       // Arrange
       const categoryId = faker.string.uuid();
+
       const input = { name: "  Groceries  " };
 
       // Act
@@ -231,6 +258,61 @@ describe("CategoryService", () => {
         code: BusinessErrorCodes.INVALID_PARAMETERS,
       });
       expect(mockCategoryRepository.update).not.toHaveBeenCalled();
+    });
+
+    it("should throw error when updated name already exists", async () => {
+      // Arrange
+      const categoryId = faker.string.uuid();
+      const currentCategory = fakeCategory({
+        id: categoryId,
+        userId,
+      });
+      const anotherExistingCategory = fakeCategory({
+        userId,
+        name: "Groceries",
+      });
+      const input = { name: "Groceries" };
+
+      mockCategoryRepository.findActiveByUserId.mockResolvedValue([
+        currentCategory,
+        anotherExistingCategory,
+      ]);
+
+      // Act & Assert
+      const promise = service.updateCategory(categoryId, userId, input);
+
+      await expect(promise).rejects.toThrow(BusinessError);
+      await expect(promise).rejects.toMatchObject({
+        message: 'Category "Groceries" already exists',
+        code: BusinessErrorCodes.DUPLICATE_NAME,
+      });
+      expect(mockCategoryRepository.update).not.toHaveBeenCalled();
+    });
+
+    it("should allow keeping same name when updating", async () => {
+      // Arrange
+      const categoryId = faker.string.uuid();
+      const currentCategory = fakeCategory({
+        id: categoryId,
+        userId,
+        name: "Groceries",
+      });
+      const input = { name: "Groceries" }; // Same name
+
+      mockCategoryRepository.findActiveByUserId.mockResolvedValue([
+        currentCategory,
+        fakeCategory({ userId }),
+      ]);
+
+      // Act
+      await service.updateCategory(categoryId, userId, input);
+
+      // Assert
+      expect(mockCategoryRepository.update).toHaveBeenCalledWith(
+        categoryId,
+        userId,
+        input,
+      );
     });
   });
 

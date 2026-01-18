@@ -216,9 +216,6 @@ export class CategoryRepository implements ICategoryRepository {
   }
 
   async create(input: CreateCategoryInput): Promise<Category> {
-    // Check for duplicate category names within the same type
-    await this.checkDuplicateName(input.userId, input.name, input.type);
-
     const now = new Date().toISOString();
     const category: Category = {
       userId: input.userId,
@@ -264,15 +261,6 @@ export class CategoryRepository implements ICategoryRepository {
     const currentCategory = await this.findActiveById(id, userId);
     if (!currentCategory) {
       throw new CategoryRepositoryError("Category not found", "NOT_FOUND");
-    }
-
-    // Check for duplicate names if name or type is being updated
-    if (input.name !== undefined || input.type !== undefined) {
-      const newName =
-        input.name !== undefined ? input.name : currentCategory.name;
-      const newType =
-        input.type !== undefined ? input.type : currentCategory.type;
-      await this.checkDuplicateName(userId, newName, newType, id);
     }
 
     const now = new Date().toISOString();
@@ -379,44 +367,6 @@ export class CategoryRepository implements ICategoryRepository {
       throw new CategoryRepositoryError(
         "Failed to archive category",
         "ARCHIVE_FAILED",
-        error,
-      );
-    }
-  }
-
-  /**
-   * Check if a category with the same name and type exists for the user among active categories
-   */
-  private async checkDuplicateName(
-    userId: string,
-    name: string,
-    type: CategoryType,
-    excludeId?: string,
-  ): Promise<void> {
-    try {
-      const existingCategories = await this.findActiveByUserIdAndType(
-        userId,
-        type,
-      );
-      const duplicateCategory = existingCategories.find(
-        (category) =>
-          category.name.toLowerCase() === name.toLowerCase() &&
-          category.id !== excludeId,
-      );
-
-      if (duplicateCategory) {
-        throw new CategoryRepositoryError(
-          `A ${type.toLowerCase()} category named "${name}" already exists`,
-          "DUPLICATE_NAME",
-        );
-      }
-    } catch (error) {
-      if (error instanceof CategoryRepositoryError) {
-        throw error;
-      }
-      throw new CategoryRepositoryError(
-        "Failed to check for duplicate category names",
-        "DUPLICATE_CHECK_FAILED",
         error,
       );
     }

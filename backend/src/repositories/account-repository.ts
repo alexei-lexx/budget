@@ -162,9 +162,6 @@ export class AccountRepository implements IAccountRepository {
   }
 
   async create(input: CreateAccountInput): Promise<Account> {
-    // Check for duplicate account names
-    await this.checkDuplicateName(input.userId, input.name);
-
     const now = new Date().toISOString();
     const account: Account = {
       id: randomUUID(),
@@ -205,11 +202,6 @@ export class AccountRepository implements IAccountRepository {
         "Account ID and User ID are required",
         "INVALID_PARAMETERS",
       );
-    }
-
-    // Check for duplicate names if name is being updated
-    if (input.name !== undefined) {
-      await this.checkDuplicateName(userId, input.name, id);
     }
 
     const now = new Date().toISOString();
@@ -318,40 +310,6 @@ export class AccountRepository implements IAccountRepository {
       throw new AccountRepositoryError(
         "Failed to archive account",
         "ARCHIVE_FAILED",
-        error,
-      );
-    }
-  }
-
-  /**
-   * Check if an account with the same name exists for the user among active accounts
-   */
-  private async checkDuplicateName(
-    userId: string,
-    name: string,
-    excludeId?: string,
-  ): Promise<void> {
-    try {
-      const existingAccounts = await this.findActiveByUserId(userId);
-      const duplicateAccount = existingAccounts.find(
-        (account) =>
-          account.name.toLowerCase() === name.toLowerCase() &&
-          account.id !== excludeId,
-      );
-
-      if (duplicateAccount) {
-        throw new AccountRepositoryError(
-          `An account named "${name}" already exists`,
-          "DUPLICATE_NAME",
-        );
-      }
-    } catch (error) {
-      if (error instanceof AccountRepositoryError) {
-        throw error;
-      }
-      throw new AccountRepositoryError(
-        "Failed to check for duplicate account names",
-        "DUPLICATE_CHECK_FAILED",
         error,
       );
     }

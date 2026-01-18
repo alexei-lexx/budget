@@ -35,6 +35,9 @@ describe("AccountService", () => {
     );
     userId = faker.string.uuid();
 
+    // Default mock for duplicate name checking (can be overridden in specific tests)
+    mockAccountRepository.findActiveByUserId.mockResolvedValue([]);
+
     // Reset all mocks
     jest.clearAllMocks();
   });
@@ -138,6 +141,28 @@ describe("AccountService", () => {
       await expect(promise).rejects.toMatchObject({
         message: `Account name must be between ${NAME_MIN_LENGTH} and ${NAME_MAX_LENGTH} characters`,
         code: BusinessErrorCodes.INVALID_PARAMETERS,
+      });
+      expect(mockAccountRepository.create).not.toHaveBeenCalled();
+    });
+
+    it("should throw error when name already exists", async () => {
+      // Arrange
+      const input = fakeCreateAccountInput({ name: "Checking" }); // Capital "C"
+      const existingAccount = fakeAccount({
+        userId,
+        name: "checking", // Lowercase "c", to test case insensitivity
+      });
+      mockAccountRepository.findActiveByUserId.mockResolvedValue([
+        existingAccount,
+      ]);
+
+      // Act & Assert
+      const promise = service.createAccount(input);
+
+      await expect(promise).rejects.toThrow(BusinessError);
+      await expect(promise).rejects.toMatchObject({
+        message: 'Account "Checking" already exists',
+        code: BusinessErrorCodes.DUPLICATE_NAME,
       });
       expect(mockAccountRepository.create).not.toHaveBeenCalled();
     });
@@ -362,6 +387,56 @@ describe("AccountService", () => {
         code: BusinessErrorCodes.INVALID_PARAMETERS,
       });
       expect(mockAccountRepository.update).not.toHaveBeenCalled();
+    });
+
+    it("should throw error when updated name already exists", async () => {
+      // Arrange
+      const accountId = faker.string.uuid();
+      const input = { name: "Checking" }; //Capital "C"
+      const currentAccount = fakeAccount({ id: accountId, userId });
+      const existingAccount = fakeAccount({
+        id: faker.string.uuid(),
+        userId,
+        name: "checking", // Lowercase "c", to test case insensitivity
+      });
+
+      mockAccountRepository.findActiveById.mockResolvedValue(currentAccount);
+      mockAccountRepository.findActiveByUserId.mockResolvedValue([
+        currentAccount,
+        existingAccount,
+      ]);
+
+      // Act & Assert
+      const promise = service.updateAccount(accountId, userId, input);
+
+      await expect(promise).rejects.toThrow(BusinessError);
+      await expect(promise).rejects.toMatchObject({
+        message: 'Account "Checking" already exists',
+        code: BusinessErrorCodes.DUPLICATE_NAME,
+      });
+      expect(mockAccountRepository.update).not.toHaveBeenCalled();
+    });
+
+    it("should allow keeping same name when updating", async () => {
+      // Arrange
+      const accountId = faker.string.uuid();
+      const input = { name: "Checking" };
+      const currentAccount = fakeAccount({
+        id: accountId,
+        userId,
+        name: "Checking",
+      });
+
+      mockAccountRepository.findActiveById.mockResolvedValue(currentAccount);
+      mockAccountRepository.findActiveByUserId.mockResolvedValue([
+        currentAccount,
+      ]);
+
+      // Act
+      await service.updateAccount(accountId, userId, input);
+
+      // Assert
+      expect(mockAccountRepository.update).toHaveBeenCalled();
     });
 
     it("should trim and uppercase currency", async () => {
