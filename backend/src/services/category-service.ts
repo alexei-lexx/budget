@@ -46,7 +46,7 @@ export class CategoryService {
       name: this.validateName(input.name),
     };
 
-    // Check for duplicate names within the same type
+    // Check for duplicate names
     await this.checkDuplicateName(validatedInput.userId, validatedInput.name);
 
     return await this.categoryRepository.create(validatedInput);
