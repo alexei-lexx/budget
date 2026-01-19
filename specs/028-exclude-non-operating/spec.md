@@ -89,6 +89,7 @@ A user pays $200 for work supplies out of pocket. They record this under "Work E
 - **FR-008**: System MUST apply exclusions retroactively to all existing transactions in the category
 - **FR-009**: System MUST continue to display excluded transactions in transaction history/lists
 - **FR-010**: System MUST continue to affect account balances with excluded transactions (only report totals are affected)
+- **FR-011**: System MUST present the "Exclude from reports" toggle within the category edit/create dialog
 
 ### Key Entities
 
@@ -104,6 +105,12 @@ A user pays $200 for work supplies out of pocket. They record this under "Work E
 - **SC-003**: Category breakdown percentages sum to 100% of included transactions only
 - **SC-004**: Account balances remain accurate regardless of category exclusion status
 - **SC-005**: Users can distinguish excluded from included categories at a glance in category management
+
+## Clarifications
+
+### Session 2026-01-19
+
+- Q: Where should the "Exclude from reports" toggle appear in the UI? → A: In the existing category edit/create dialog as a toggle switch
 
 ## Assumptions
 
