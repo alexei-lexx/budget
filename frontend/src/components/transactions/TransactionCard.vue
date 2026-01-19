@@ -59,24 +59,6 @@ const amountColor = computed(() => {
     : "error";
 });
 
-// Icon based on transaction type
-const transactionIcon = computed(() => {
-  switch (props.transaction.type) {
-    case "INCOME":
-      return "mdi-cash-plus";
-    case "EXPENSE":
-      return "mdi-cash-minus";
-    case "TRANSFER_IN":
-      return "mdi-bank-transfer-in";
-    case "TRANSFER_OUT":
-      return "mdi-bank-transfer-out";
-    case "REFUND":
-      return "mdi-cash-refund";
-    default:
-      return "mdi-cash";
-  }
-});
-
 // Add after existing computed properties (after line 91)
 const descriptionPreview = computed(() => {
   if (!props.transaction.description) return null;
@@ -113,14 +95,9 @@ const handleCardClick = () => {
     <v-card-text class="py-3">
       <!-- Collapsed state: Single row with all info -->
       <div class="d-flex align-center">
-        <!-- Icon -->
-        <v-icon :color="amountColor" size="20" class="me-3 flex-shrink-0">
-          {{ transactionIcon }}
-        </v-icon>
-
         <!-- Main content -->
         <div class="flex-grow-1 me-3" style="min-width: 0">
-          <h4 class="text-h6 mb-0 text-truncate">
+          <h4 class="text-h6 mb-0" :class="{ 'text-truncate': !isExpanded }">
             {{ formattedDate }} •
             <span
               :class="{ 'account-archived': transaction.account.isArchived }"
