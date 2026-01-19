@@ -44,10 +44,32 @@ const handleCardClick = () => {
         <div class="flex-grow-1" style="min-width: 0">
           <h4 class="text-h6 mb-0 text-truncate">{{ category.name }}</h4>
         </div>
+
+        <!-- Exclude from reports icon -->
+        <v-icon v-if="category.excludeFromReports && !isExpanded" color="grey-darken-2">
+          mdi-eye-off-outline
+        </v-icon>
       </div>
 
-      <!-- Expanded state: Conditional action buttons -->
-      <div v-if="isExpanded" class="d-flex mt-3 justify-end">
+      <!-- Expanded state: Details and action buttons -->
+      <div
+        v-if="isExpanded"
+        class="d-flex ga-2 mt-3"
+        :class="
+          category.excludeFromReports
+            ? 'flex-column flex-sm-row align-sm-center justify-sm-space-between'
+            : 'justify-end'
+        "
+      >
+        <!-- Excluded from reports chip on left (top on mobile) - only shown if present -->
+        <div v-if="category.excludeFromReports">
+          <v-chip size="small" color="grey-darken-2" variant="outlined">
+            <v-icon start size="small">mdi-eye-off-outline</v-icon>
+            Excluded from reports
+          </v-chip>
+        </div>
+
+        <!-- Action buttons on right (bottom on mobile) -->
         <ActionButtons @edit="handleEditCategory" @delete="handleDeleteCategory" />
       </div>
     </v-card-text>
