@@ -8,5 +8,9 @@
     {
       "file": ".agents/pull-request-description.instructions.md"
     }
-  ]
+  ],
+  "chat.tools.terminal.autoApprove": {
+    "git fetch": true,
+    "git ls-remote": true
+  }
 }
