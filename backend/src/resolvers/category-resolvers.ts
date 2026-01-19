@@ -25,7 +25,11 @@ export const categoryResolvers = {
     createCategory: async (
       _parent: unknown,
       args: {
-        input: { name: string; type: CategoryType };
+        input: {
+          name: string;
+          type: CategoryType;
+          excludeFromReports: boolean;
+        };
       },
       context: GraphQLContext,
     ) => {
@@ -36,6 +40,7 @@ export const categoryResolvers = {
           userId: user.id,
           name: args.input.name,
           type: args.input.type,
+          excludeFromReports: args.input.excludeFromReports,
         });
         return category;
       } catch (error) {

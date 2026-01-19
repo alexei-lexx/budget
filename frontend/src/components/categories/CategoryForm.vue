@@ -9,6 +9,7 @@ interface Category {
   id?: string;
   name: string;
   type: CategoryType;
+  excludeFromReports: boolean;
 }
 
 // Define component props
@@ -34,6 +35,7 @@ const emit = defineEmits<{
 const formData = ref<Category>({
   name: "",
   type: props.initialType,
+  excludeFromReports: false,
 });
 
 // Form validation
@@ -90,12 +92,14 @@ watch(
         id: newCategory.id,
         name: newCategory.name,
         type: newCategory.type,
+        excludeFromReports: newCategory.excludeFromReports ?? false,
       };
     } else {
       // Reset form for new category
       formData.value = {
         name: "",
         type: props.initialType,
+        excludeFromReports: false,
       };
     }
   },
@@ -110,6 +114,7 @@ const handleSubmit = async () => {
     const categoryData: Category = {
       name: formData.value.name.trim(),
       type: formData.value.type,
+      excludeFromReports: formData.value.excludeFromReports,
     };
 
     // Include ID if editing
@@ -192,6 +197,20 @@ const exampleNames = computed(() => {
                 </div>
               </template>
             </v-select>
+          </v-col>
+
+          <v-col cols="12" md="12">
+            <!-- Exclude from Reports Toggle -->
+            <v-switch
+              v-model="formData.excludeFromReports"
+              label="Exclude from reports"
+              :disabled="loading"
+              color="primary"
+              hide-details="auto"
+            ></v-switch>
+            <div class="text-caption text-medium-emphasis mt-1 ml-1">
+              When enabled, transactions in this category won't appear in monthly reports
+            </div>
           </v-col>
         </v-row>
       </v-form>

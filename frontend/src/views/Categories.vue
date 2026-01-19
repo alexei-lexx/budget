@@ -12,6 +12,7 @@ interface CategoryFormData {
   id?: string;
   name: string;
   type: CategoryType;
+  excludeFromReports: boolean;
 }
 
 // State for tabs
@@ -114,6 +115,7 @@ const handleCategorySubmit = async (categoryData: CategoryFormData) => {
     const result = await updateCategory(categoryData.id, {
       name: categoryData.name,
       type: categoryData.type,
+      excludeFromReports: categoryData.excludeFromReports,
     });
     success = !!result;
     successMessage = `Category "${categoryData.name}" has been updated`;
@@ -123,6 +125,7 @@ const handleCategorySubmit = async (categoryData: CategoryFormData) => {
     const result = await createCategory({
       name: categoryData.name,
       type: categoryData.type,
+      excludeFromReports: categoryData.excludeFromReports,
     });
     success = !!result;
     successMessage = `Category "${categoryData.name}" has been created`;

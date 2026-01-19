@@ -114,13 +114,29 @@ export class MonthlyByCategoryReportService {
       };
     }
 
+    // Fetch all categories and build set of included category IDs
+    const allCategories =
+      await this.categoryRepository.findActiveByUserId(userId);
+    const excludedCategoryIds = new Set(
+      allCategories
+        .filter((category) => category.excludeFromReports)
+        .map((category) => category.id),
+    );
+
+    // Filter transactions to exclude those linked to excluded categories
+    const includedTransactions = transactions.filter(
+      (transaction) =>
+        !transaction.categoryId ||
+        !excludedCategoryIds.has(transaction.categoryId),
+    );
+
     const currencyTotals = this.calculateCurrencyTotals(
-      transactions,
+      includedTransactions,
       amountGetter,
     );
 
     const categories = await this.groupByCategoryAndCurrency(
-      transactions,
+      includedTransactions,
       userId,
       currencyTotals,
       amountGetter,

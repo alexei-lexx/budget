@@ -222,6 +222,7 @@ export class CategoryRepository implements ICategoryRepository {
       id: randomUUID(),
       name: input.name,
       type: input.type,
+      excludeFromReports: input.excludeFromReports,
       isArchived: false,
       createdAt: now,
       updatedAt: now,
@@ -250,9 +251,16 @@ export class CategoryRepository implements ICategoryRepository {
     userId: string,
     input: UpdateCategoryInput,
   ): Promise<Category> {
-    if (!id || !userId) {
+    if (!id) {
       throw new CategoryRepositoryError(
-        "Category ID and User ID are required",
+        "Category ID is required",
+        "INVALID_PARAMETERS",
+      );
+    }
+
+    if (!userId) {
+      throw new CategoryRepositoryError(
+        "User ID is required",
         "INVALID_PARAMETERS",
       );
     }
@@ -267,7 +275,7 @@ export class CategoryRepository implements ICategoryRepository {
 
     // Build update expression dynamically
     const updateExpressionParts: string[] = ["updatedAt = :updatedAt"];
-    const expressionAttributeValues: Record<string, string> = {
+    const expressionAttributeValues: Record<string, string | boolean> = {
       ":updatedAt": now,
     };
     const expressionAttributeNames: Record<string, string> = {};
@@ -282,6 +290,12 @@ export class CategoryRepository implements ICategoryRepository {
       updateExpressionParts.push("#type = :type");
       expressionAttributeValues[":type"] = input.type;
       expressionAttributeNames["#type"] = "type";
+    }
+
+    if (input.excludeFromReports !== undefined) {
+      updateExpressionParts.push("excludeFromReports = :excludeFromReports");
+      expressionAttributeValues[":excludeFromReports"] =
+        input.excludeFromReports;
     }
 
     try {
@@ -325,9 +339,16 @@ export class CategoryRepository implements ICategoryRepository {
   }
 
   async archive(id: string, userId: string): Promise<Category> {
-    if (!id || !userId) {
+    if (!id) {
       throw new CategoryRepositoryError(
-        "Category ID and User ID are required",
+        "Category ID is required",
+        "INVALID_PARAMETERS",
+      );
+    }
+
+    if (!userId) {
+      throw new CategoryRepositoryError(
+        "User ID is required",
         "INVALID_PARAMETERS",
       );
     }

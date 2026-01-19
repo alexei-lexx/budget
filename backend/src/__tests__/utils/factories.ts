@@ -47,6 +47,7 @@ export const fakeCategory = (overrides: Partial<Category> = {}): Category => {
     userId: faker.string.uuid(),
     name: faker.commerce.department(),
     type: CategoryType.EXPENSE,
+    excludeFromReports: false,
     isArchived: false,
     createdAt: now,
     updatedAt: now,
@@ -61,6 +62,7 @@ export const fakeCreateCategoryInput = (
     userId: faker.string.uuid(),
     name: `${faker.commerce.department()}-${faker.string.uuid()}`, // Ensure uniqueness
     type: CategoryType.EXPENSE,
+    excludeFromReports: false,
     ...overrides,
   };
 };

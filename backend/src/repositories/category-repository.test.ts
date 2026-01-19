@@ -358,6 +358,215 @@ describe("CategoryRepository", () => {
     });
   });
 
+  describe("create", () => {
+    it("should create a category successfully", async () => {
+      // Arrange
+      const input = fakeCreateCategoryInput({ userId });
+
+      // Act
+      const result = await repository.create(input);
+
+      // Assert
+      expect(result).toBeDefined();
+      expect(result.id).toBeDefined();
+      expect(result.userId).toBe(userId);
+      expect(result.name).toBe(input.name);
+      expect(result.type).toBe(input.type);
+      expect(result.excludeFromReports).toBe(input.excludeFromReports);
+      expect(result.isArchived).toBe(false);
+      expect(result.createdAt).toBeDefined();
+      expect(result.updatedAt).toBeDefined();
+      expect(result.createdAt).toBe(result.updatedAt);
+
+      // Verify UUID format
+      expect(result.id).toMatch(
+        /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
+      );
+
+      // Verify ISO timestamp format
+      expect(result.createdAt).toMatch(
+        /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/,
+      );
+    });
+
+    it("should refetch created category from database to verify stored data", async () => {
+      // Arrange
+      const input = fakeCreateCategoryInput({ userId });
+
+      // Act
+      const created = await repository.create(input);
+      const stored = await repository.findActiveById(created.id, userId);
+
+      // Assert
+      expect(stored).toBeDefined();
+      expect(stored).toEqual(created);
+    });
+  });
+
+  describe("update", () => {
+    it("should update category name successfully", async () => {
+      // Arrange
+      const category = await repository.create(
+        fakeCreateCategoryInput({
+          userId,
+        }),
+      );
+      const newName = "New Name";
+
+      // Act
+      const result = await repository.update(category.id, userId, {
+        name: newName,
+      });
+
+      // Assert
+      expect(result.name).toBe(newName);
+      expect(result.updatedAt).not.toBe(category.updatedAt);
+    });
+
+    it("should update category type successfully", async () => {
+      // Arrange
+      const category = await repository.create(
+        fakeCreateCategoryInput({
+          userId,
+          type: CategoryType.EXPENSE,
+        }),
+      );
+
+      // Act
+      const result = await repository.update(category.id, userId, {
+        type: CategoryType.INCOME,
+      });
+
+      // Assert
+      expect(result.type).toBe(CategoryType.INCOME);
+      expect(result.updatedAt).not.toBe(category.updatedAt);
+    });
+
+    it("should update excludeFromReports flag successfully", async () => {
+      // Arrange
+      const category = await repository.create(
+        fakeCreateCategoryInput({ userId, excludeFromReports: false }),
+      );
+
+      // Act
+      const result = await repository.update(category.id, userId, {
+        excludeFromReports: true,
+      });
+
+      // Assert
+      expect(result.excludeFromReports).toBe(true);
+      expect(result.updatedAt).not.toBe(category.updatedAt);
+    });
+
+    it("should update all fields successfully", async () => {
+      // Arrange
+      const category = await repository.create(
+        fakeCreateCategoryInput({
+          userId,
+          name: "Old Name",
+          type: CategoryType.EXPENSE,
+          excludeFromReports: false,
+        }),
+      );
+
+      const newName = "New Name";
+      const newType = CategoryType.INCOME;
+      const newExcludeFromReports = true;
+
+      // Act
+      const result = await repository.update(category.id, userId, {
+        name: newName,
+        type: newType,
+        excludeFromReports: newExcludeFromReports,
+      });
+
+      // Assert
+      expect(result.name).toBe(newName);
+      expect(result.type).toBe(newType);
+      expect(result.excludeFromReports).toBe(newExcludeFromReports);
+      expect(result.updatedAt).not.toBe(category.updatedAt);
+    });
+
+    it("should throw error when category does not exist", async () => {
+      // Act & Assert
+      await expect(
+        repository.update("nonexistent-id", userId, { name: "New Name" }),
+      ).rejects.toThrow("Category not found");
+    });
+
+    it("should throw error when updating archived category", async () => {
+      // Arrange
+      const category = await repository.create(
+        fakeCreateCategoryInput({ userId }),
+      );
+      await repository.archive(category.id, userId);
+
+      // Act & Assert
+      await expect(
+        repository.update(category.id, userId, { name: "New Name" }),
+      ).rejects.toThrow("Category not found");
+    });
+
+    it("should throw error when required parameters are missing", async () => {
+      // Act & Assert
+      await expect(
+        repository.update("", "user-id", { name: "Test" }),
+      ).rejects.toThrow("Category ID is required");
+
+      await expect(
+        repository.update("some-id", "", { name: "Test" }),
+      ).rejects.toThrow("User ID is required");
+    });
+  });
+
+  describe("archive", () => {
+    it("should archive a category successfully", async () => {
+      // Arrange
+      const category = await repository.create(
+        fakeCreateCategoryInput({ userId }),
+      );
+
+      // Act
+      const result = await repository.archive(category.id, userId);
+
+      // Assert
+      expect(result.id).toBe(category.id);
+      expect(result.isArchived).toBe(true);
+      expect(result.updatedAt).not.toBe(category.updatedAt);
+    });
+
+    it("should throw error when archiving non-existent category", async () => {
+      // Act & Assert
+      await expect(
+        repository.archive("nonexistent-id", userId),
+      ).rejects.toThrow("Category not found or already archived");
+    });
+
+    it("should throw error when archiving already archived category", async () => {
+      // Arrange
+      const category = await repository.create(
+        fakeCreateCategoryInput({ userId }),
+      );
+      await repository.archive(category.id, userId);
+
+      // Act & Assert
+      await expect(repository.archive(category.id, userId)).rejects.toThrow(
+        "Category not found or already archived",
+      );
+    });
+
+    it("should throw error when required parameters are missing", async () => {
+      // Act & Assert
+      await expect(repository.archive("", "user-id")).rejects.toThrow(
+        "Category ID is required",
+      );
+
+      await expect(repository.archive("some-id", "")).rejects.toThrow(
+        "User ID is required",
+      );
+    });
+  });
+
   describe("hydration - data corruption detection", () => {
     it("should throw error when required field type is missing from database record", async () => {
       // Arrange

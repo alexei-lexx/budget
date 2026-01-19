@@ -8,6 +8,7 @@ export interface Category {
   id: string; // Sort key - UUID v4
   name: string; // Category name (e.g., "Groceries", "Salary")
   type: CategoryType; // Category type (INCOME, EXPENSE)
+  excludeFromReports: boolean; // Whether to exclude from monthly reports
   isArchived: boolean; // Soft delete flag
   createdAt: string; // ISO timestamp
   updatedAt: string; // ISO timestamp
@@ -17,11 +18,13 @@ export interface CreateCategoryInput {
   userId: string;
   name: string;
   type: CategoryType;
+  excludeFromReports: boolean;
 }
 
 export interface UpdateCategoryInput {
   name?: string;
   type?: CategoryType;
+  excludeFromReports?: boolean;
 }
 
 export interface ICategoryRepository {

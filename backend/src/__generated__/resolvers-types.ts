@@ -33,6 +33,7 @@ export type Account = {
 
 export type Category = {
   __typename?: 'Category';
+  excludeFromReports: Scalars['Boolean']['output'];
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
   type: CategoryType;
@@ -47,6 +48,7 @@ export type CreateAccountInput = {
 };
 
 export type CreateCategoryInput = {
+  excludeFromReports: Scalars['Boolean']['input'];
   name: Scalars['String']['input'];
   type: CategoryType;
 };
@@ -332,6 +334,7 @@ export type UpdateAccountInput = {
 };
 
 export type UpdateCategoryInput = {
+  excludeFromReports?: InputMaybe<Scalars['Boolean']['input']>;
   id: Scalars['ID']['input'];
   name?: InputMaybe<Scalars['String']['input']>;
   type?: InputMaybe<CategoryType>;
@@ -517,6 +520,7 @@ export type AccountResolvers<ContextType = GraphQLContext, ParentType extends Re
 };
 
 export type CategoryResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Category'] = ResolversParentTypes['Category']> = {
+  excludeFromReports?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   type?: Resolver<ResolversTypes['CategoryType'], ParentType, ContextType>;

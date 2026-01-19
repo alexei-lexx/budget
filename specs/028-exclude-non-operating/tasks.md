@@ -16,7 +16,7 @@ Tasks are organized by user story to enable independent implementation and testi
 
 ### Project Initialization
 
-- [ ] T001 Verify local development environment is running (DynamoDB Docker container)
+- [X] T001 Verify local development environment is running (DynamoDB Docker container)
 - [ ] T002 Confirm backend and frontend development servers can start without errors
 
 ---
@@ -25,26 +25,26 @@ Tasks are organized by user story to enable independent implementation and testi
 
 ### Backend Schema & Type System
 
-- [ ] T003 [P] Add `excludeFromReports: Boolean!` field to Category type in `backend/src/schema.graphql`
-- [ ] T004 [P] Add `excludeFromReports: Boolean!` to CreateCategoryInput in `backend/src/schema.graphql`
-- [ ] T005 [P] Add `excludeFromReports: Boolean` (optional) to UpdateCategoryInput in `backend/src/schema.graphql`
-- [ ] T006 Run `npm run codegen` in backend to regenerate TypeScript types from GraphQL schema
-- [ ] T007 [P] Add `excludeFromReports: boolean` field to Category interface in `backend/src/models/category.ts`
-- [ ] T008 [P] Add `excludeFromReports: boolean` field to CreateCategoryInput interface in `backend/src/models/category.ts`
-- [ ] T009 [P] Add `excludeFromReports?: boolean` field to UpdateCategoryInput interface in `backend/src/models/category.ts`
-- [ ] T010 [P] Add `excludeFromReports: z.boolean()` to categorySchema in `backend/src/repositories/schemas/category.ts`
-- [ ] T011 Run `npm run type-check` in backend to verify TypeScript compilation
+- [X] T003 [P] Add `excludeFromReports: Boolean!` field to Category type in `backend/src/schema.graphql`
+- [X] T004 [P] Add `excludeFromReports: Boolean!` to CreateCategoryInput in `backend/src/schema.graphql`
+- [X] T005 [P] Add `excludeFromReports: Boolean` (optional) to UpdateCategoryInput in `backend/src/schema.graphql`
+- [X] T006 Run `npm run codegen` in backend to regenerate TypeScript types from GraphQL schema
+- [X] T007 [P] Add `excludeFromReports: boolean` field to Category interface in `backend/src/models/category.ts`
+- [X] T008 [P] Add `excludeFromReports: boolean` field to CreateCategoryInput interface in `backend/src/models/category.ts`
+- [X] T009 [P] Add `excludeFromReports?: boolean` field to UpdateCategoryInput interface in `backend/src/models/category.ts`
+- [X] T010 [P] Add `excludeFromReports: z.boolean()` to categorySchema in `backend/src/repositories/schemas/category.ts`
+- [X] T011 Run `npm run type-check` in backend to verify TypeScript compilation
 
 ### Database Migration
 
-- [ ] T012 Create migration file `backend/src/migrations/YYYYMMDDHHMMSS-add-exclude-from-reports.ts` with idempotent logic to set `excludeFromReports: false` on existing categories
-- [ ] T013 Test migration locally against DynamoDB Docker container via `npm run migrate`
-- [ ] T014 Verify migration is idempotent by running it twice and confirming no errors
+- [X] T012 Create migration file `backend/src/migrations/YYYYMMDDHHMMSS-add-exclude-from-reports.ts` with idempotent logic to set `excludeFromReports: false` on existing categories
+- [X] T013 Test migration locally against DynamoDB Docker container via `npm run migrate`
+- [X] T014 Verify migration is idempotent by running it twice and confirming no errors
 
 ### Test Data Factories
 
-- [ ] T015 [P] Update `fakeCategory()` in `backend/src/__tests__/utils/factories.ts` to include `excludeFromReports: false`
-- [ ] T016 [P] Update `fakeCreateCategoryInput()` in `backend/src/__tests__/utils/factories.ts` to include `excludeFromReports: false`
+- [X] T015 [P] Update `fakeCategory()` in `backend/src/__tests__/utils/factories.ts` to include `excludeFromReports: false`
+- [X] T016 [P] Update `fakeCreateCategoryInput()` in `backend/src/__tests__/utils/factories.ts` to include `excludeFromReports: false`
 
 ---
 
@@ -59,20 +59,20 @@ Tasks are organized by user story to enable independent implementation and testi
 
 ### Backend Implementation
 
-- [ ] T017 [US1] Run backend tests to verify repository handles new field: `npm test -- category-repository.test.ts`
-- [ ] T018 [US1] Run backend tests to verify service passes field correctly: `npm test -- category-service.test.ts`
+- [X] T017 [US1] Run backend tests to verify repository handles new field: `npm test -- category-repository.test.ts`
+- [X] T018 [US1] Run backend tests to verify service passes field correctly: `npm test -- category-service.test.ts`
 - [ ] T019 [US1] Test GraphQL createCategory mutation with `excludeFromReports: true` via GraphQL Playground
 - [ ] T020 [US1] Test GraphQL updateCategory mutation to toggle `excludeFromReports` via GraphQL Playground
 - [ ] T021 [US1] Test GraphQL categories query returns `excludeFromReports` field via GraphQL Playground
 
 ### Frontend Integration
 
-- [ ] T022 [US1] Run `npm run codegen:sync-schema` in frontend to sync GraphQL schema from backend
-- [ ] T023 [US1] Run `npm run codegen` in frontend to regenerate TypeScript types and composables
-- [ ] T024 [US1] Add `v-switch` for "Exclude from reports" to category create/edit dialog component
-- [ ] T025 [US1] Bind switch to `excludeFromReports` field in category form model
-- [ ] T026 [US1] Add help text explaining feature below toggle switch
-- [ ] T027 [US1] Set default value to `false` for new category form (UI default only)
+- [X] T022 [US1] Run `npm run codegen:sync-schema` in frontend to sync GraphQL schema from backend
+- [X] T023 [US1] Run `npm run codegen` in frontend to regenerate TypeScript types and composables
+- [X] T024 [US1] Add `v-switch` for "Exclude from reports" to category create/edit dialog component
+- [X] T025 [US1] Bind switch to `excludeFromReports` field in category form model
+- [X] T026 [US1] Add help text explaining feature below toggle switch
+- [X] T027 [US1] Set default value to `false` for new category form (UI default only)
 - [ ] T028 [US1] Test create category with exclusion enabled in browser
 - [ ] T029 [US1] Test edit category to toggle exclusion status in browser
 - [ ] T030 [US1] Verify `excludeFromReports` field displays correctly when viewing categories in browser
@@ -90,19 +90,19 @@ Tasks are organized by user story to enable independent implementation and testi
 
 ### Backend Report Service
 
-- [ ] T031 [US2] Modify `call()` method in `backend/src/services/monthly-by-category-report-service.ts` to fetch all categories after fetching transactions
-- [ ] T032 [US2] Add logic to filter categories where `!excludeFromReports` and build `includedCategoryIds` Set in `backend/src/services/monthly-by-category-report-service.ts`
-- [ ] T033 [US2] Add logic to filter transactions to only included categories (preserve uncategorized) in `backend/src/services/monthly-by-category-report-service.ts`
-- [ ] T034 [US2] Pass filtered transactions to `calculateCurrencyTotals()` in `backend/src/services/monthly-by-category-report-service.ts`
-- [ ] T035 [US2] Pass filtered transactions to `groupByCategoryAndCurrency()` in `backend/src/services/monthly-by-category-report-service.ts`
+- [X] T031 [US2] Modify `call()` method in `backend/src/services/monthly-by-category-report-service.ts` to fetch all categories after fetching transactions
+- [X] T032 [US2] Add logic to filter categories where `!excludeFromReports` and build `includedCategoryIds` Set in `backend/src/services/monthly-by-category-report-service.ts`
+- [X] T033 [US2] Add logic to filter transactions to only included categories (preserve uncategorized) in `backend/src/services/monthly-by-category-report-service.ts`
+- [X] T034 [US2] Pass filtered transactions to `calculateCurrencyTotals()` in `backend/src/services/monthly-by-category-report-service.ts`
+- [X] T035 [US2] Pass filtered transactions to `groupByCategoryAndCurrency()` in `backend/src/services/monthly-by-category-report-service.ts`
 
 ### Backend Report Tests
 
-- [ ] T036 [US2] Add test case "should exclude transactions in excluded categories from totals" to `backend/src/services/monthly-by-category-report-service.test.ts`
-- [ ] T037 [US2] Add test case "should exclude excluded categories from category breakdown" to `backend/src/services/monthly-by-category-report-service.test.ts`
-- [ ] T038 [US2] Add test case "should include uncategorized transactions even with excluded categories" to `backend/src/services/monthly-by-category-report-service.test.ts`
-- [ ] T039 [US2] Add test case "should return zero totals when all categories are excluded" to `backend/src/services/monthly-by-category-report-service.test.ts`
-- [ ] T040 [US2] Run all report service tests: `npm test -- monthly-by-category-report-service.test.ts`
+- [X] T036 [US2] Add test case "should exclude transactions in excluded categories from totals" to `backend/src/services/monthly-by-category-report-service.test.ts`
+- [X] T037 [US2] Add test case "should exclude excluded categories from category breakdown" to `backend/src/services/monthly-by-category-report-service.test.ts`
+- [X] T038 [US2] Add test case "should include uncategorized transactions even with excluded categories" to `backend/src/services/monthly-by-category-report-service.test.ts`
+- [X] T039 [US2] Add test case "should return zero totals when all categories are excluded" to `backend/src/services/monthly-by-category-report-service.test.ts`
+- [X] T040 [US2] Run all report service tests: `npm test -- monthly-by-category-report-service.test.ts`
 
 ### Frontend Report Verification
 
@@ -164,12 +164,12 @@ Tasks are organized by user story to enable independent implementation and testi
 
 ### Code Quality
 
-- [ ] T064 [P] Run `npm run format` in backend to format all modified code
-- [ ] T065 [P] Run `npm run lint` in backend and fix any ESLint errors
-- [ ] T066 [P] Run `npm run format` in frontend to format all modified code
-- [ ] T067 [P] Run `npm run lint` in frontend and fix any ESLint errors
-- [ ] T068 Run all backend tests: `npm test` in backend directory
-- [ ] T069 Test frontend build: `npm run build` in frontend directory
+- [X] T064 [P] Run `npm run format` in backend to format all modified code
+- [X] T065 [P] Run `npm run lint` in backend and fix any ESLint errors
+- [X] T066 [P] Run `npm run format` in frontend to format all modified code
+- [X] T067 [P] Run `npm run lint` in frontend and fix any ESLint errors
+- [X] T068 Run all backend tests: `npm test` in backend directory
+- [X] T069 Test frontend build: `npm run build` in frontend directory
 
 ### Edge Case Testing
 

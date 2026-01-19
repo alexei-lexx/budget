@@ -52,6 +52,7 @@ type Category {
   id: ID!
   name: String!
   type: CategoryType!
+  excludeFromReports: Boolean!
 }
 
 """
@@ -125,12 +126,14 @@ input UpdateAccountInput {
 input CreateCategoryInput {
   name: String!
   type: CategoryType!
+  excludeFromReports: Boolean!
 }
 
 input UpdateCategoryInput {
   id: ID!
   name: String
   type: CategoryType
+  excludeFromReports: Boolean
 }
 
 input CreateTransactionInput {
