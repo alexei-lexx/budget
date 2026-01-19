@@ -130,6 +130,7 @@ async function createCategories(userId: string): Promise<{
       userId,
       name,
       type: CategoryType.INCOME,
+      excludeFromReports: false,
     });
     categoryIds.income.push(category.id);
     console.log(`✓ Created income category: ${name}`);
@@ -141,6 +142,7 @@ async function createCategories(userId: string): Promise<{
       userId,
       name,
       type: CategoryType.EXPENSE,
+      excludeFromReports: false,
     });
     categoryIds.expense.push(category.id);
     console.log(`✓ Created expense category: ${name}`);

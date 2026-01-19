@@ -7,6 +7,7 @@ export const categorySchema = z.object({
   id: z.uuid(),
   name: z.string().min(1),
   type: z.enum(CategoryType),
+  excludeFromReports: z.boolean(),
   isArchived: z.boolean(),
   createdAt: z.iso.datetime(),
   updatedAt: z.iso.datetime(),

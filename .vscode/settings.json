@@ -8,5 +8,17 @@
     {
       "file": ".agents/pull-request-description.instructions.md"
     }
-  ]
+  ],
+  "chat.tools.terminal.autoApprove": {
+    "git fetch": true,
+    "git ls-remote": true,
+    ".specify/scripts/bash/check-prerequisites.sh": true,
+    ".specify/scripts/bash/setup-plan.sh": true,
+    ".specify/scripts/bash/update-agent-context.sh": true,
+    "npm run codegen": true,
+    "npm test": true,
+    "npm run format": true,
+    "npm run lint": true,
+    "npm run build": true
+  }
 }

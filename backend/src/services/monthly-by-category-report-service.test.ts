@@ -23,6 +23,9 @@ describe("MonthlyByCategoryReportService", () => {
     mockTransactionRepository = createMockTransactionRepository();
     mockCategoryRepository = createMockCategoryRepository();
 
+    // Default mock: return empty array for findActiveByUserId (all categories included by default)
+    mockCategoryRepository.findActiveByUserId.mockResolvedValue([]);
+
     monthlyByCategoryReportService = new MonthlyByCategoryReportService(
       mockTransactionRepository,
       mockCategoryRepository,
@@ -499,6 +502,63 @@ describe("MonthlyByCategoryReportService", () => {
       expect(result.categories).toHaveLength(1);
       expect(result.categories[0].categoryName).toBe("Uncategorized");
       expect(result.categories[0].currencyBreakdowns[0].totalAmount).toBe(500); // 600 - 100
+    });
+
+    it("should exclude transactions in excluded categories from report", async () => {
+      const includedCategory = fakeCategory({
+        userId,
+        name: "Groceries",
+        excludeFromReports: false,
+      });
+      const excludedCategory = fakeCategory({
+        userId,
+        excludeFromReports: true,
+      });
+
+      const transactions = [
+        fakeTransaction({
+          categoryId: undefined,
+          currency: "USD",
+          amount: 100,
+          type: TransactionType.EXPENSE,
+        }),
+        fakeTransaction({
+          categoryId: includedCategory.id,
+          currency: "USD",
+          amount: 200,
+          type: TransactionType.EXPENSE,
+        }),
+        fakeTransaction({
+          categoryId: excludedCategory.id,
+          currency: "USD",
+          amount: 500,
+          type: TransactionType.EXPENSE,
+        }),
+      ];
+
+      mockTransactionRepository.findActiveByMonthAndTypes.mockResolvedValue(
+        transactions,
+      );
+      mockCategoryRepository.findActiveByUserId.mockResolvedValue([
+        includedCategory,
+        excludedCategory,
+      ]);
+      mockCategoryRepository.findActiveById.mockResolvedValueOnce(
+        includedCategory,
+      );
+
+      const result = await monthlyByCategoryReportService.call(
+        userId,
+        2000,
+        1,
+        ReportType.EXPENSE,
+      );
+
+      expect(result.currencyTotals).toHaveLength(1);
+      expect(result.currencyTotals[0].totalAmount).toBe(300); // 100 + 200, excluding
+      expect(
+        result.categories.map((category) => category.categoryName).sort(),
+      ).toEqual(["Groceries", "Uncategorized"]);
     });
   });
 

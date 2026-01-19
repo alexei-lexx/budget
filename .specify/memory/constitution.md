@@ -1,21 +1,19 @@
 <!-- SYNC IMPACT REPORT
-Version Change: 0.21.1 → 0.22.0
+Version Change: 0.22.0 → 0.22.1
 Changes:
-  - MINOR (0.22.0): Merged backend-cdk and frontend-cdk into unified infra-cdk package
+  - PATCH (0.22.1): Enhanced TypeScript naming standards with descriptive identifier requirement
 Modified Sections:
-  - Repository Structure: Updated from four packages to three packages
-    - Removed backend-cdk/ and frontend-cdk/ package descriptions
-    - Added infra-cdk/ package description with unified infrastructure responsibilities
-    - Updated overview to reflect three-package structure (backend/, frontend/, infra-cdk/)
-    - Clarified that infra-cdk manages both BackendCdkStack and FrontendCdkStack
-    - Documented unified dependency management benefit
+  - TypeScript Code Generation: Added naming convention rule requiring descriptive identifiers
+    - MUST use descriptive names for all variables, methods, parameters, and types
+    - Avoid single-character names (except standard loop indices i, j, k)
+    - Avoid abbreviated forms that obscure meaning
+    - Use full words instead of shortened versions (e.g., 'transaction' not 'tx', 'repository' not 'repo')
+    - Keep names concise while prioritizing clarity
+    - Updated rationale to include improved code comprehension and reduced cognitive load
 Added Sections:
-  - Infra CDK: New section describing unified infrastructure package
-    - Technologies: TypeScript, AWS CDK, Jest, ESLint, Prettier
-    - Responsibilities: Backend infrastructure, frontend infrastructure, deployment orchestration, dependency management
+  - None
 Removed Sections:
-  - Backend CDK: Replaced by Infra CDK section
-  - Frontend CDK: Replaced by Infra CDK section
+  - None
 Templates Requiring Updates:
   ✅ plan-template.md: Generic template, no updates needed
   ✅ spec-template.md: Generic template, no updates needed
@@ -414,6 +412,11 @@ graph LR
 - Avoid type assertions (`as any`) unless absolutely necessary
   - Document the reason when used
 - Avoid unnecessary type checks (`typeof`, non-null checks, non-undefined checks) when the provided type is explicit and doesn't require such checks
+- Use descriptive names for all variables, methods, parameters, and types
+  - Avoid single-character names (except standard loop indices: `i`, `j`, `k`)
+  - Avoid abbreviated forms that obscure meaning
+  - Avoid shortened versions (e.g., use `user` instead of `usr`, `transaction` instead of `tx`)
+  - Keep names concise while prioritizing clarity over brevity
 - Place public methods before private methods in classes to ensure the public API is visible at the top
 - Run `npm run format` and fix all ESLint issues after generating or changing code
 
@@ -430,4 +433,4 @@ This constitution supersedes all other development guidelines. Amendments requir
 4. Commit with message: `docs: amend constitution to vX.Y.Z ([change summary])`
 5. Update dependent artifacts (templates, guidance docs) as flagged
 
-**Version**: 0.22.0 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2025-12-31
+**Version**: 0.22.1 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2026-01-19
