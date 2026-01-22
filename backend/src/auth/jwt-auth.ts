@@ -29,12 +29,12 @@ export interface AuthContext {
  * Service for verifying JWT tokens and extracting user context
  *
  * Requires environment variables:
- * - AUTH_DOMAIN: Identity Provider domain (e.g., "identity-provider.example.com")
+ * - AUTH_ISSUER: Identity Provider URL (e.g., "https://identity-provider.example.com")
  * - AUTH_AUDIENCE: API identifier configured in Identity Provider
  */
 export class JwtAuthService {
   private client: jwksClient.JwksClient;
-  private domain: string;
+  private issuer: string;
   private audience: string;
 
   /**
@@ -42,11 +42,11 @@ export class JwtAuthService {
    * @throws Error if required environment variables are missing
    */
   constructor() {
-    this.domain = process.env.AUTH_DOMAIN || "";
+    this.issuer = process.env.AUTH_ISSUER || "";
     this.audience = process.env.AUTH_AUDIENCE || "";
 
-    if (!this.domain) {
-      throw new Error("AUTH_DOMAIN environment variable is required");
+    if (!this.issuer) {
+      throw new Error("AUTH_ISSUER environment variable is required");
     }
 
     if (!this.audience) {
@@ -55,7 +55,7 @@ export class JwtAuthService {
 
     // Initialize JWKS client to fetch public keys with caching
     this.client = jwksClient({
-      jwksUri: `https://${this.domain}/.well-known/jwks.json`,
+      jwksUri: `${this.issuer}/.well-known/jwks.json`,
 
       // Caching configuration - reduces Identity Provider API calls by 90%
       cache: true,
@@ -109,7 +109,7 @@ export class JwtAuthService {
   async verifyToken(token: string): Promise<JwtPayload> {
     return new Promise((resolve, reject) => {
       const options: jwt.VerifyOptions = {
-        issuer: `https://${this.domain}/`,
+        issuer: `${this.issuer}/`,
         audience: this.audience,
         algorithms: ["RS256"],
       };
@@ -136,7 +136,7 @@ export class JwtAuthService {
    * @returns User info including email
    */
   async getUserInfo(token: string): Promise<{ email?: string; sub: string }> {
-    const response = await fetch(`https://${this.domain}/userinfo`, {
+    const response = await fetch(`${this.issuer}/userinfo`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
