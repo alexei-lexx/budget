@@ -22,7 +22,7 @@ NODE_ENV=production
 
 # Auth Configuration
 AUTH_AUDIENCE=https://personal-budget-tracker
-AUTH_DOMAIN=identity-provider.example.com
+AUTH_ISSUER=identity-provider.example.com
 
 # JWT Custom Claims Configuration
 AUTH_CLAIM_NAMESPACE=https://personal-budget-tracker

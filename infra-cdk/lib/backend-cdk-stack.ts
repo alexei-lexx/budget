@@ -94,7 +94,7 @@ export class BackendCdkStack extends cdk.Stack {
       code: lambda.Code.fromAsset("../backend/dist"),
       environment: {
         AUTH_AUDIENCE: process.env.AUTH_AUDIENCE || "",
-        AUTH_DOMAIN: process.env.AUTH_DOMAIN || "",
+        AUTH_ISSUER: process.env.AUTH_ISSUER || "",
         AUTH_CLAIM_NAMESPACE: process.env.AUTH_CLAIM_NAMESPACE || "",
         NODE_ENV: process.env.NODE_ENV || "",
         ACCOUNTS_TABLE_NAME: accountsTable.tableName,
