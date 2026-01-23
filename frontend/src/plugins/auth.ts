@@ -33,13 +33,13 @@ import type { App } from "vue";
 export function createAuth() {
   // Load authentication configuration from environment variables
   // These are set in .env file and injected at build time by Vite
-  const domain = import.meta.env.VITE_AUTH_DOMAIN;
+  const issuer = import.meta.env.VITE_AUTH_ISSUER;
   const clientId = import.meta.env.VITE_AUTH_CLIENT_ID;
   const audience = import.meta.env.VITE_AUTH_AUDIENCE;
 
   // Validate required environment variables
-  if (!domain) {
-    throw new Error("VITE_AUTH_DOMAIN environment variable is required");
+  if (!issuer) {
+    throw new Error("VITE_AUTH_ISSUER environment variable is required");
   }
 
   if (!clientId) {
@@ -49,7 +49,7 @@ export function createAuth() {
   // Create the UserManager instance which handles all OIDC protocol interactions
   const userManager = new UserManager({
     // The OIDC provider's base URL (e.g., https://your-tenant.auth0.com)
-    authority: `https://${domain}`,
+    authority: issuer,
 
     // Application identifier registered with the OIDC provider
     client_id: clientId,
