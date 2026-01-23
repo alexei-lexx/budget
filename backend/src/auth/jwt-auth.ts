@@ -199,7 +199,7 @@ export class JwtAuthService {
         const namespace = process.env.AUTH_CLAIM_NAMESPACE;
         if (!namespace) {
           throw new Error(
-            "AUTH_CLAIM_NAMESPACE environment variable must be configured",
+            "AUTH_CLAIM_NAMESPACE environment variable must be configured when standard email claim is not present",
           );
         }
 
