@@ -189,18 +189,25 @@ export class JwtAuthService {
 
     try {
       const payload = await this.verifyToken(token);
+      let email: string | undefined;
 
-      // Read email from custom namespaced claim
-      const namespace = process.env.AUTH_CLAIM_NAMESPACE;
-      if (!namespace) {
-        throw new Error(
-          "AUTH_CLAIM_NAMESPACE environment variable must be configured",
-        );
+      // Read email from standard claim
+      if (typeof payload.email === "string" && payload.email.length > 0) {
+        email = payload.email;
+      } else {
+        // Read email from custom namespaced claim
+        const namespace = process.env.AUTH_CLAIM_NAMESPACE;
+        if (!namespace) {
+          throw new Error(
+            "AUTH_CLAIM_NAMESPACE environment variable must be configured",
+          );
+        }
+
+        const namespacedEmail = payload[`${namespace}/email`];
+        if (typeof namespacedEmail === "string" && namespacedEmail.length > 0) {
+          email = namespacedEmail;
+        }
       }
-
-      const namespacedEmail = payload[`${namespace}/email`];
-      const email =
-        typeof namespacedEmail === "string" ? namespacedEmail : payload.email;
 
       // Validate email claim exists
       if (!email) {
