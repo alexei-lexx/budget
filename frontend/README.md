@@ -1,39 +1,31 @@
-# frontend
+# Frontend
 
-This template should help get you started developing with Vue 3 in Vite.
+Vue 3 single-page application for the Personal Finance Tracker.
 
-## Recommended IDE Setup
+## Development Setup
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+### Prerequisites
 
-## Type Support for `.vue` Imports in TS
+- Node.js 22+
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+### Setup Steps
 
-## Customize configuration
+1. `npm install` - Install dependencies
+2. `cp .env.development.example .env.development` - Copy environment template
+3. Edit `.env.development` with your Identity Provider settings
+   - `VITE_AUTH_CLIENT_ID`
+   - `VITE_AUTH_ISSUER`
+4. `npm run dev` - Start development server on http://localhost:5173/
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+## Production Setup
 
-## Project Setup
+1. `cp .env.production.example .env.production` - Copy environment template
+2. Edit `.env.production`
+   - `VITE_AUTH_CLIENT_ID`
+   - `VITE_AUTH_ISSUER`
+3. `npm run build` - Build production assets
 
-```sh
-npm install
-```
+## Quality Checks
 
-### Compile and Hot-Reload for Development
-
-```sh
-npm run dev
-```
-
-### Type-Check, Compile and Minify for Production
-
-```sh
-npm run build
-```
-
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-npm run lint
-```
+- `npm run format` - Run Prettier and ESLint to check and fix code style
+- `npm run typecheck` - Run TypeScript type checker
