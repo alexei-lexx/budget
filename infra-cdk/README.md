@@ -2,53 +2,26 @@
 
 Unified infrastructure-as-code package for deploying both backend and frontend stacks to AWS.
 
+## Production Setup
+
 ## Prerequisites
 
 - AWS CLI configured with valid credentials
 - Node.js installed
 - Backend built (`cd ../backend && npm install && npm run build`)
-- `.env.production` file (see below)
 
-## Environment Variables
+## Setup Steps
 
-```bash
-cp .env.example .env.production
-```
+1. `npm install` - Install dependencies
+2. `cp .env.production.example .env.production` - Copy environment template
+3. Edit `.env.production`
+4. `npm run deploy` - Deploy all stacks to your configured AWS account/region
 
-Then edit `.env.production` and configure:
+## Quality Checks
 
-```env
-NODE_ENV=production
-
-# Auth Configuration
-AUTH_AUDIENCE=https://personal-budget-tracker
-AUTH_ISSUER=identity-provider.example.com
-
-# JWT Custom Claims Configuration
-AUTH_CLAIM_NAMESPACE=https://personal-budget-tracker
-
-# Database Configuration (for production)
-ACCOUNTS_TABLE_NAME=Accounts
-CATEGORIES_TABLE_NAME=Categories
-MIGRATIONS_TABLE_NAME=Migrations
-TRANSACTIONS_TABLE_NAME=Transactions
-USERS_TABLE_NAME=Users
-
-# Lambda Configuration
-LAMBDA_MEMORY_SIZE=512
-LAMBDA_TIMEOUT_SECONDS=30
-```
-
-## Useful Commands
-
-- `npm run build` - Compile typescript to js
-- `npm run deploy:backend` - Deploy backend stack only
-- `npm run deploy:frontend` - Deploy frontend stack only
-- `npm run deploy` - Deploy both stacks to your default AWS account/region
-- `npm run diff` - Compare deployed stack with current state
-- `npm run synth` - Emit the synthesized CloudFormation template
-- `npm run test` - Perform the jest unit tests
-- `npm run watch` - Watch for changes and compile
+- `npm run format` - Run Prettier and ESLint to check and fix code style
+- `npm run test` - Run tests with Jest
+- `npm run typecheck` - Run TypeScript type checker
 
 ## Stacks
 

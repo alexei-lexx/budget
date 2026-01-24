@@ -10,6 +10,13 @@ npm run build
 echo "Switching to infra-cdk directory..."
 cd ../infra-cdk
 
+echo "Checking for .env.production file..."
+if [ ! -f .env.production ]; then
+  echo "ERROR: .env.production file not found"
+  echo "Please create it based on .env.production.example"
+  exit 1
+fi
+
 echo "Deploying infrastructure (backend and frontend)..."
 npm install
 npm run deploy
@@ -62,6 +69,13 @@ CLOUDFRONT_DISTRIBUTION_ID=$(cat cdk-outputs.json | jq -r '.FrontendCdkStack.Clo
 
 echo "Switching to frontend directory..."
 cd ../frontend
+
+echo "Checking for .env.production file..."
+if [ ! -f .env.production ]; then
+  echo "ERROR: .env.production file not found"
+  echo "Please create it based on .env.production.example"
+  exit 1
+fi
 
 echo "Building frontend..."
 npm install
