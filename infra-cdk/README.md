@@ -10,7 +10,7 @@ Unified infrastructure-as-code package for deploying both backend and frontend s
 - Node.js installed
 - Backend built (`cd ../backend && npm install && npm run build`)
 
-## Steps
+## Setup Steps
 
 1. `npm install` - Install dependencies
 2. `cp .env.production.example .env.production` - Copy environment template
