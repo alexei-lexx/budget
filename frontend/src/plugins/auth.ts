@@ -36,6 +36,7 @@ export function createAuth() {
   const issuer = import.meta.env.VITE_AUTH_ISSUER;
   const clientId = import.meta.env.VITE_AUTH_CLIENT_ID;
   const audience = import.meta.env.VITE_AUTH_AUDIENCE;
+  const scope = import.meta.env.VITE_AUTH_SCOPE;
 
   // Validate required environment variables
   if (!issuer) {
@@ -44,6 +45,10 @@ export function createAuth() {
 
   if (!clientId) {
     throw new Error("VITE_AUTH_CLIENT_ID environment variable is required");
+  }
+
+  if (!scope) {
+    throw new Error("VITE_AUTH_SCOPE environment variable is required");
   }
 
   // Create the UserManager instance which handles all OIDC protocol interactions
@@ -69,7 +74,7 @@ export function createAuth() {
     // - profile: Provides user profile information (name, etc.)
     // - email: Provides user's email address
     // - offline_access: Enables refresh tokens for long-lived sessions
-    scope: "openid profile email offline_access",
+    scope,
 
     // Auth0-specific: Pass audience parameter to get access tokens for a specific API
     // Only included if audience is configured in environment variables
