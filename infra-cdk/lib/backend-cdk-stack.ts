@@ -114,10 +114,15 @@ export class BackendCdkStack extends cdk.Stack {
       }),
     };
 
+    const graphqlLogGroup = new logs.LogGroup(this, "GraphqlFunctionLogs", {
+      retention: logRetention,
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+    });
+
     const graphqlFunction = new lambda.Function(this, "GraphqlEndpoint", {
       ...functionConfig,
       handler: "graphql.handler",
-      logRetention,
+      logGroup: graphqlLogGroup,
     });
 
     accountsTable.grantReadWriteData(graphqlFunction);
@@ -125,11 +130,16 @@ export class BackendCdkStack extends cdk.Stack {
     transactionsTable.grantReadWriteData(graphqlFunction);
     usersTable.grantReadWriteData(graphqlFunction);
 
+    const migrationLogGroup = new logs.LogGroup(this, "MigrationFunctionLogs", {
+      retention: logRetention,
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+    });
+
     const migrationFunction = new lambda.Function(this, "MigrationRunner", {
       ...functionConfig,
       handler: "migrate.handler",
       timeout: cdk.Duration.minutes(15),
-      logRetention,
+      logGroup: migrationLogGroup,
     });
 
     migrationsTable.grantReadWriteData(migrationFunction);
@@ -150,7 +160,6 @@ export class BackendCdkStack extends cdk.Stack {
     );
 
     const accessLogGroup = new logs.LogGroup(this, "GraphqlApiAccessLogs", {
-      logGroupName: `/aws/apigateway/${this.stackName}-graphql-api`,
       retention: logRetention,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
