@@ -12,8 +12,6 @@ node_modules
 dist
 dist-ssr
 coverage
-.env.development
-.env.production
 
 /cypress/videos/
 /cypress/screenshots/
@@ -29,3 +27,7 @@ coverage
 *.sw?
 
 *.tsbuildinfo
+
+# Environment files
+.env.development
+.env.production

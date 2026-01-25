@@ -3,9 +3,11 @@
 *.d.ts
 node_modules
 
-.env.production
-
 # CDK asset staging directory
 .cdk.staging
 cdk.out
 cdk-outputs.json
+
+# Environment files
+.env.development
+.env.production
