@@ -39,7 +39,7 @@
     "dataloader": "^2.2.3",
     "graphql": "^16.11.0",
     "jsonwebtoken": "^9.0.2",
-    "jwks-rsa": "^3.2.0",
+    "jwks-rsa": "^3.2.2",
     "ulidx": "^2.4.1",
     "validator": "^13.15.26",
     "zod": "^4.1.12"
