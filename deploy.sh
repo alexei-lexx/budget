@@ -17,8 +17,10 @@ if [ ! -f .env.production ]; then
   exit 1
 fi
 
-echo "Deploying infrastructure (backend and frontend)..."
+echo "Installing infra-cdk dependencies..."
 npm install
+
+echo "Deploying infrastructure (backend and frontend)..."
 npm run deploy
 
 echo "Running migrations..."
