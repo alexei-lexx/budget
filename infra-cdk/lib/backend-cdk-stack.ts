@@ -114,15 +114,16 @@ export class BackendCdkStack extends cdk.Stack {
       }),
     };
 
-    const graphqlLogGroup = new logs.LogGroup(this, "GraphqlFunctionLogs", {
-      retention: logRetention,
-      removalPolicy: cdk.RemovalPolicy.DESTROY,
-    });
-
     const graphqlFunction = new lambda.Function(this, "GraphqlEndpoint", {
       ...functionConfig,
       handler: "graphql.handler",
-      logGroup: graphqlLogGroup,
+    });
+
+    // Apply retention to the default Lambda log group
+    new logs.LogRetention(this, "GraphqlFunctionLogRetention", {
+      logGroupName: `/aws/lambda/${graphqlFunction.functionName}`,
+      retention: logRetention,
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
 
     accountsTable.grantReadWriteData(graphqlFunction);
@@ -130,16 +131,17 @@ export class BackendCdkStack extends cdk.Stack {
     transactionsTable.grantReadWriteData(graphqlFunction);
     usersTable.grantReadWriteData(graphqlFunction);
 
-    const migrationLogGroup = new logs.LogGroup(this, "MigrationFunctionLogs", {
-      retention: logRetention,
-      removalPolicy: cdk.RemovalPolicy.DESTROY,
-    });
-
     const migrationFunction = new lambda.Function(this, "MigrationRunner", {
       ...functionConfig,
       handler: "migrate.handler",
       timeout: cdk.Duration.minutes(15),
-      logGroup: migrationLogGroup,
+    });
+
+    // Apply retention to the default Lambda log group
+    new logs.LogRetention(this, "MigrationFunctionLogRetention", {
+      logGroupName: `/aws/lambda/${migrationFunction.functionName}`,
+      retention: logRetention,
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
 
     migrationsTable.grantReadWriteData(migrationFunction);
