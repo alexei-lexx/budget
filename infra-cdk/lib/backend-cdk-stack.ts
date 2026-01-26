@@ -134,7 +134,7 @@ export class BackendCdkStack extends cdk.Stack {
     });
 
     // Explicitly grant CloudWatch Logs permissions to avoid managed policy warnings
-    graphqlLogGroup.grantWrite(graphqlRole);
+    graphqlLogGroup.grantWrite(graphqlFunction);
 
     accountsTable.grantReadWriteData(graphqlFunction);
     categoriesTable.grantReadWriteData(graphqlFunction);
@@ -161,7 +161,7 @@ export class BackendCdkStack extends cdk.Stack {
     });
 
     // Explicitly grant CloudWatch Logs permissions to avoid managed policy warnings
-    migrationLogGroup.grantWrite(migrationRole);
+    migrationLogGroup.grantWrite(migrationFunction);
 
     migrationsTable.grantReadWriteData(migrationFunction);
     accountsTable.grantReadWriteData(migrationFunction);
