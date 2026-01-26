@@ -2,6 +2,7 @@ import * as cdk from "aws-cdk-lib";
 import * as apigatewayv2 from "aws-cdk-lib/aws-apigatewayv2";
 import * as integrations from "aws-cdk-lib/aws-apigatewayv2-integrations";
 import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
+import * as iam from "aws-cdk-lib/aws-iam";
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as logs from "aws-cdk-lib/aws-logs";
 import { Construct } from "constructs";
@@ -119,11 +120,21 @@ export class BackendCdkStack extends cdk.Stack {
       removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
 
+    // Create custom role with explicit permissions to avoid managed policy warnings
+    const graphqlRole = new iam.Role(this, "GraphqlFunctionRole", {
+      assumedBy: new iam.ServicePrincipal("lambda.amazonaws.com"),
+      description: "Custom role for GraphQL Lambda function",
+    });
+
     const graphqlFunction = new lambda.Function(this, "GraphqlEndpoint", {
       ...functionConfig,
       handler: "graphql.handler",
       logGroup: graphqlLogGroup,
+      role: graphqlRole,
     });
+
+    // Grant permissions explicitly since we're using a custom role
+    graphqlLogGroup.grantWrite(graphqlFunction);
 
     accountsTable.grantReadWriteData(graphqlFunction);
     categoriesTable.grantReadWriteData(graphqlFunction);
@@ -135,12 +146,22 @@ export class BackendCdkStack extends cdk.Stack {
       removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
 
+    // Create custom role with explicit permissions to avoid managed policy warnings
+    const migrationRole = new iam.Role(this, "MigrationFunctionRole", {
+      assumedBy: new iam.ServicePrincipal("lambda.amazonaws.com"),
+      description: "Custom role for Migration Lambda function",
+    });
+
     const migrationFunction = new lambda.Function(this, "MigrationRunner", {
       ...functionConfig,
       handler: "migrate.handler",
       timeout: cdk.Duration.minutes(15),
       logGroup: migrationLogGroup,
+      role: migrationRole,
     });
+
+    // Grant permissions explicitly since we're using a custom role
+    migrationLogGroup.grantWrite(migrationFunction);
 
     migrationsTable.grantReadWriteData(migrationFunction);
     accountsTable.grantReadWriteData(migrationFunction);
