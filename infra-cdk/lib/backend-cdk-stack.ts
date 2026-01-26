@@ -7,8 +7,15 @@ import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as logs from "aws-cdk-lib/aws-logs";
 import { Construct } from "constructs";
 
-const isProduction = process.env.NODE_ENV === "production";
+const nodeEnv = process.env.NODE_ENV;
 
+if (!nodeEnv) {
+  throw new Error(
+    "NODE_ENV environment variable must be set (use 'production' to enable fixed DynamoDB table names)."
+  );
+}
+
+const isProduction = nodeEnv === "production";
 export class BackendCdkStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
