@@ -5,13 +5,13 @@ import { FrontendCdkStack } from "../lib/frontend-cdk-stack";
 
 const app = new cdk.App();
 
-const env = process.env.NODE_ENV;
-if (!env) {
+const nodeEnv = process.env.NODE_ENV;
+if (!nodeEnv) {
   throw new Error("NODE_ENV environment variable must be configured");
 }
 
 const backendStack = new BackendCdkStack(app, "BackendCdkStack", {
-  stackName: `${env}-BudgetBackend`,
+  stackName: `${nodeEnv}-BudgetBackend`,
   /* If you don't specify 'env', this stack will be environment-agnostic.
    * Account/Region-dependent features and context lookups will not work,
    * but a single synthesized template can be deployed anywhere. */
@@ -25,7 +25,7 @@ const backendStack = new BackendCdkStack(app, "BackendCdkStack", {
 });
 
 new FrontendCdkStack(app, "FrontendCdkStack", {
-  stackName: `${env}-BudgetFrontend`,
+  stackName: `${nodeEnv}-BudgetFrontend`,
   httpApi: backendStack.httpApi,
   /* If you don't specify 'env', this stack will be environment-agnostic.
    * Account/Region-dependent features and context lookups will not work,
