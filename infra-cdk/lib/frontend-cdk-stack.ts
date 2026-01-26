@@ -1,16 +1,19 @@
 import * as cdk from "aws-cdk-lib";
+import * as apigatewayv2 from "aws-cdk-lib/aws-apigatewayv2";
 import * as cloudfront from "aws-cdk-lib/aws-cloudfront";
 import * as origins from "aws-cdk-lib/aws-cloudfront-origins";
 import * as s3 from "aws-cdk-lib/aws-s3";
 import { Construct } from "constructs";
 
+export interface FrontendCdkStackProps extends cdk.StackProps {
+  httpApi: apigatewayv2.HttpApi;
+}
+
 export class FrontendCdkStack extends cdk.Stack {
-  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+  constructor(scope: Construct, id: string, props: FrontendCdkStackProps) {
     super(scope, id, props);
 
-    const apiGatewayDomain = cdk.Fn.importValue(
-      "BackendCdkStack-GraphqlApiDomain",
-    );
+    const apiGatewayDomain = `${props.httpApi.apiId}.execute-api.${this.region}.amazonaws.com`;
 
     const frontendBucket = new s3.Bucket(this, "Assets", {
       websiteIndexDocument: "index.html",
@@ -70,19 +73,16 @@ export class FrontendCdkStack extends cdk.Stack {
     new cdk.CfnOutput(this, "S3BucketName", {
       value: frontendBucket.bucketName,
       description: "Name of the S3 bucket for frontend assets",
-      exportName: `${this.stackName}-S3BucketName`,
     });
 
     new cdk.CfnOutput(this, "CloudFrontFullURL", {
       value: `https://${distribution.distributionDomainName}`,
       description: "Full CloudFront distribution URL with HTTPS",
-      exportName: `${this.stackName}-CloudFrontFullURL`,
     });
 
     new cdk.CfnOutput(this, "CloudFrontDistributionId", {
       value: distribution.distributionId,
       description: "CloudFront distribution ID for cache invalidation",
-      exportName: `${this.stackName}-CloudFrontDistributionId`,
     });
 
     new cdk.CfnOutput(this, "ImportedApiGatewayDomain", {
