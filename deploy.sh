@@ -24,7 +24,7 @@ echo "Deploying infrastructure (backend and frontend)..."
 npm run deploy
 
 echo "Running migrations..."
-MIGRATION_FUNCTION_NAME=$(cat cdk-outputs.json | jq -r '.BackendCdkStack.MigrationFunctionName // empty')
+MIGRATION_FUNCTION_NAME=$(cat cdk-outputs.json | jq -r '."production-BudgetBackend".MigrationFunctionName // empty')
 
 if [ -z "$MIGRATION_FUNCTION_NAME" ] || [ "$MIGRATION_FUNCTION_NAME" = "null" ]; then
   echo "ERROR: Migration function name not found in CDK outputs"
@@ -66,8 +66,8 @@ echo "Migrations completed successfully!"
 rm -f migration-response.json
 
 echo "Extracting frontend deployment outputs..."
-S3_BUCKET=$(cat cdk-outputs.json | jq -r '.FrontendCdkStack.S3BucketName')
-CLOUDFRONT_DISTRIBUTION_ID=$(cat cdk-outputs.json | jq -r '.FrontendCdkStack.CloudFrontDistributionId // empty')
+S3_BUCKET=$(cat cdk-outputs.json | jq -r '."production-BudgetFrontend".S3BucketName')
+CLOUDFRONT_DISTRIBUTION_ID=$(cat cdk-outputs.json | jq -r '."production-BudgetFrontend".CloudFrontDistributionId // empty')
 
 echo "Switching to frontend directory..."
 cd ../frontend
