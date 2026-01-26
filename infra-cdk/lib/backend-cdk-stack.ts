@@ -7,6 +7,8 @@ import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as logs from "aws-cdk-lib/aws-logs";
 import { Construct } from "constructs";
 
+const isProduction = process.env.NODE_ENV === "production";
+
 export class BackendCdkStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
@@ -23,7 +25,7 @@ export class BackendCdkStack extends cdk.Stack {
     };
 
     const usersTable = new dynamodb.Table(this, "UsersTable", {
-      tableName: process.env.USERS_TABLE_NAME || "",
+      ...(isProduction ? { tableName: "Users" } : {}),
       partitionKey: { name: "id", type: dynamodb.AttributeType.STRING },
       ...commonTableOptions,
     });
@@ -38,21 +40,21 @@ export class BackendCdkStack extends cdk.Stack {
     });
 
     const accountsTable = new dynamodb.Table(this, "AccountsTable", {
-      tableName: process.env.ACCOUNTS_TABLE_NAME || "",
+      ...(isProduction ? { tableName: "Accounts" } : {}),
       partitionKey: { name: "userId", type: dynamodb.AttributeType.STRING },
       sortKey: { name: "id", type: dynamodb.AttributeType.STRING },
       ...commonTableOptions,
     });
 
     const categoriesTable = new dynamodb.Table(this, "CategoriesTable", {
-      tableName: process.env.CATEGORIES_TABLE_NAME || "",
+      ...(isProduction ? { tableName: "Categories" } : {}),
       partitionKey: { name: "userId", type: dynamodb.AttributeType.STRING },
       sortKey: { name: "id", type: dynamodb.AttributeType.STRING },
       ...commonTableOptions,
     });
 
     const transactionsTable = new dynamodb.Table(this, "TransactionsTable", {
-      tableName: process.env.TRANSACTIONS_TABLE_NAME || "",
+      ...(isProduction ? { tableName: "Transactions" } : {}),
       partitionKey: { name: "userId", type: dynamodb.AttributeType.STRING },
       sortKey: { name: "id", type: dynamodb.AttributeType.STRING },
       ...commonTableOptions,
@@ -85,7 +87,7 @@ export class BackendCdkStack extends cdk.Stack {
     });
 
     const migrationsTable = new dynamodb.Table(this, "MigrationsTable", {
-      tableName: process.env.MIGRATIONS_TABLE_NAME || "",
+      ...(isProduction ? { tableName: "Migrations" } : {}),
       partitionKey: { name: "PK", type: dynamodb.AttributeType.STRING },
       ...commonTableOptions,
     });
