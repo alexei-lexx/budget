@@ -7,6 +7,13 @@ import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as logs from "aws-cdk-lib/aws-logs";
 import { Construct } from "constructs";
 
+if (!process.env.NODE_ENV) {
+  throw new Error("NODE_ENV environment variable must be configured");
+}
+
+const nodeEnv = process.env.NODE_ENV;
+const isProduction = nodeEnv === "production";
+
 export class BackendCdkStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
@@ -23,7 +30,7 @@ export class BackendCdkStack extends cdk.Stack {
     };
 
     const usersTable = new dynamodb.Table(this, "UsersTable", {
-      tableName: process.env.USERS_TABLE_NAME || "",
+      ...(isProduction ? { tableName: "Users" } : {}),
       partitionKey: { name: "id", type: dynamodb.AttributeType.STRING },
       ...commonTableOptions,
     });
@@ -38,21 +45,21 @@ export class BackendCdkStack extends cdk.Stack {
     });
 
     const accountsTable = new dynamodb.Table(this, "AccountsTable", {
-      tableName: process.env.ACCOUNTS_TABLE_NAME || "",
+      ...(isProduction ? { tableName: "Accounts" } : {}),
       partitionKey: { name: "userId", type: dynamodb.AttributeType.STRING },
       sortKey: { name: "id", type: dynamodb.AttributeType.STRING },
       ...commonTableOptions,
     });
 
     const categoriesTable = new dynamodb.Table(this, "CategoriesTable", {
-      tableName: process.env.CATEGORIES_TABLE_NAME || "",
+      ...(isProduction ? { tableName: "Categories" } : {}),
       partitionKey: { name: "userId", type: dynamodb.AttributeType.STRING },
       sortKey: { name: "id", type: dynamodb.AttributeType.STRING },
       ...commonTableOptions,
     });
 
     const transactionsTable = new dynamodb.Table(this, "TransactionsTable", {
-      tableName: process.env.TRANSACTIONS_TABLE_NAME || "",
+      ...(isProduction ? { tableName: "Transactions" } : {}),
       partitionKey: { name: "userId", type: dynamodb.AttributeType.STRING },
       sortKey: { name: "id", type: dynamodb.AttributeType.STRING },
       ...commonTableOptions,
@@ -85,7 +92,7 @@ export class BackendCdkStack extends cdk.Stack {
     });
 
     const migrationsTable = new dynamodb.Table(this, "MigrationsTable", {
-      tableName: process.env.MIGRATIONS_TABLE_NAME || "",
+      ...(isProduction ? { tableName: "Migrations" } : {}),
       partitionKey: { name: "PK", type: dynamodb.AttributeType.STRING },
       ...commonTableOptions,
     });
@@ -97,7 +104,7 @@ export class BackendCdkStack extends cdk.Stack {
         AUTH_AUDIENCE: process.env.AUTH_AUDIENCE || "",
         AUTH_ISSUER: process.env.AUTH_ISSUER || "",
         AUTH_CLAIM_NAMESPACE: process.env.AUTH_CLAIM_NAMESPACE || "",
-        NODE_ENV: process.env.NODE_ENV || "",
+        NODE_ENV: nodeEnv,
         ACCOUNTS_TABLE_NAME: accountsTable.tableName,
         CATEGORIES_TABLE_NAME: categoriesTable.tableName,
         MIGRATIONS_TABLE_NAME: migrationsTable.tableName,
