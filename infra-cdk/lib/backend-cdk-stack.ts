@@ -7,16 +7,12 @@ import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as logs from "aws-cdk-lib/aws-logs";
 import { Construct } from "constructs";
 
-if (!process.env.NODE_ENV) {
-  throw new Error("NODE_ENV environment variable must be configured");
-}
-
-const nodeEnv = process.env.NODE_ENV;
-const isProduction = nodeEnv === "production";
-
 export class BackendCdkStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
+
+    const nodeEnv = process.env.NODE_ENV || "development";
+    const isProduction = nodeEnv === "production";
 
     const logRetention = logs.RetentionDays.ONE_WEEK;
 
