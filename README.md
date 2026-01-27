@@ -1,8 +1,18 @@
 # Personal Finance Tracker
 
-A serverless web application for personal financial management with Vue.js frontend, GraphQL backend, and AWS infrastructure.
+Web application for personal financial management.
 
-## Quick Start
+### Technologies
+
+- [Node.js](https://nodejs.org/) backend with GraphQL API
+- [Vue.js](https://vuejs.org/) frontend SPA
+- Infrastructure as Code with [AWS CDK](https://aws.amazon.com/cdk/)
+- Deployed on [AWS](https://aws.amazon.com/)
+- Serverless, free-tier friendly
+- [Typescript](https://www.typescriptlang.org/) throughout
+- [Spec-driven development](https://github.com/github/spec-kit)
+
+## Repository Structure
 
 - **Backend**: [backend/README.md](backend/README.md) - GraphQL API server setup and development
 - **Frontend**: [frontend/README.md](frontend/README.md) - Vue.js SPA setup and development
@@ -12,15 +22,20 @@ A serverless web application for personal financial management with Vue.js front
 
 Deploy the application to AWS.
 
-**Prerequisites:**
-- AWS CLI configured with appropriate credentials
+### Prerequisites
+
+- AWS CLI installed and configured
+- Node.js installed
 - `jq` command-line JSON processor installed
 
-**Deployment order:**
+### Deployment order
+
 1. Build backend
 2. Deploy backend infrastructure
 3. Deploy frontend infrastructure
 4. Build and upload frontend
+
+### Deployment Script
 
 ```bash
 ./deploy.sh

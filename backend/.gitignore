@@ -4,5 +4,6 @@ docker/dynamodb/*
 node_modules
 
 # Environment files
-.env.development
-.env.production
+.env*
+!.env.example
+!.env.test
