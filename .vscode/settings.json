@@ -16,6 +16,7 @@
     ".specify/scripts/bash/update-agent-context.sh": true,
     "git fetch": true,
     "git ls-remote": true,
+    "git rev-parse": true,
     "npm run build": true,
     "npm run codegen": true,
     "npm run format": true,
