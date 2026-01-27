@@ -34,53 +34,39 @@ Deploy the application to AWS.
 
 ```bash
 # Auth audience
-aws ssm put-parameter \
+aws ssm put-parameter --overwrite --type String \
     --name "/manual/budget/production/auth/audience" \
-    --value "https://personal-budget-tracker" \
-    --type String \
-    --overwrite
+    --value "https://personal-budget-tracker"
 
 # Auth issuer
-aws ssm put-parameter \
+aws ssm put-parameter --overwrite --type String \
     --name "/manual/budget/production/auth/issuer" \
-    --value "https://<TENANT>.<REGION>.auth0.com" \
-    --type String \
-    --overwrite
+    --value "https://<TENANT>.<REGION>.auth0.com"
 
 # Auth client ID (SPA Client ID)
-aws ssm put-parameter \
+aws ssm put-parameter --overwrite --type String \
     --name "/manual/budget/production/auth/client-id" \
-    --value "your-client-id" \
-    --type String \
-    --overwrite
+    --value "your-client-id"
 
 # Auth claim namespace
-aws ssm put-parameter \
+aws ssm put-parameter --overwrite --type String \
     --name "/manual/budget/production/auth/claim-namespace" \
-    --value "https://personal-budget-tracker" \
-    --type String \
-    --overwrite
+    --value "https://personal-budget-tracker"
 
 # Auth scope
-aws ssm put-parameter \
+aws ssm put-parameter --overwrite --type String \
     --name "/manual/budget/production/auth/scope" \
-    --value "openid profile email offline_access" \
-    --type String \
-    --overwrite
+    --value "openid profile email offline_access"
 
 # Lambda memory size (in MB)
-aws ssm put-parameter \
+aws ssm put-parameter --overwrite --type String \
     --name "/manual/budget/production/lambda/memory-size" \
-    --value "512" \
-    --type String \
-    --overwrite
+    --value "512"
 
 # Lambda timeout (in seconds)
-aws ssm put-parameter \
+aws ssm put-parameter --overwrite --type String \
     --name "/manual/budget/production/lambda/timeout-seconds" \
-    --value "30" \
-    --type String \
-    --overwrite
+    --value "30"
 ```
 
 ### Deployment order
