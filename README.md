@@ -37,43 +37,50 @@ Deploy the application to AWS.
 aws ssm put-parameter \
     --name "/manual/budget/production/auth/audience" \
     --value "https://personal-budget-tracker" \
-    --type String
+    --type String \
+    --overwrite
 
 # Auth issuer
 aws ssm put-parameter \
     --name "/manual/budget/production/auth/issuer" \
     --value "https://<TENANT>.<REGION>.auth0.com" \
-    --type String
+    --type String \
+    --overwrite
 
 # Auth client ID (SPA Client ID)
 aws ssm put-parameter \
     --name "/manual/budget/production/auth/client-id" \
     --value "your-client-id" \
-    --type String
+    --type String \
+    --overwrite
 
 # Auth claim namespace
 aws ssm put-parameter \
     --name "/manual/budget/production/auth/claim-namespace" \
     --value "https://personal-budget-tracker" \
-    --type String
+    --type String \
+    --overwrite
 
 # Auth scope
 aws ssm put-parameter \
     --name "/manual/budget/production/auth/scope" \
     --value "openid profile email offline_access" \
-    --type String
+    --type String \
+    --overwrite
 
 # Lambda memory size (in MB)
 aws ssm put-parameter \
     --name "/manual/budget/production/lambda/memory-size" \
     --value "512" \
-    --type String
+    --type String \
+    --overwrite
 
 # Lambda timeout (in seconds)
 aws ssm put-parameter \
     --name "/manual/budget/production/lambda/timeout-seconds" \
     --value "30" \
-    --type String
+    --type String \
+    --overwrite
 ```
 
 ### Deployment order
