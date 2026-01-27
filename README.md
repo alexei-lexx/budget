@@ -2,6 +2,17 @@
 
 Web application for personal financial management.
 
+## Core Features
+
+- **Multiple Accounts** - Track all your finances in one place: bank accounts, cash, credit cards, and more
+- **Income and Expense Tracking** - Record every transaction including income, expense, and refunds with dates, amounts, categories, and notes
+- **Money Transfers** - Move money between your accounts while maintaining accurate balances
+- **Custom Categories** - Organize your finances your way with personalized income and expense categories
+- **Multi-Currency** - Manage accounts in different currencies (USD, EUR, etc.) without forced conversions
+- **Monthly Reports** - See where your money goes each month with detailed category breakdowns
+- **Smart Suggestions** - Save time with intelligent account and category recommendations based on your habits
+- **Transaction Search** - Find any transaction by filtering on account, category, date, etc.
+
 ### Technologies
 
 - [Node.js](https://nodejs.org/) backend with GraphQL API
