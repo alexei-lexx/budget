@@ -2,6 +2,24 @@
 
 Web application for personal financial management.
 
+## Core Features
+
+- **Multi-Account Management** - Create and manage multiple accounts (bank, cash, credit cards) with different currencies
+- **Transaction Tracking** - Record income, expenses, and refunds with dates, amounts, categories, and descriptions
+- **Inter-Account Transfers** - Transfer money between accounts with matching currencies
+- **Custom Categories** - Organize transactions with custom income and expense categories
+- **Multi-Currency Support** - Track accounts in different currencies without automatic conversion
+- **Monthly Reports** - View detailed monthly breakdowns by category with currency-specific totals and percentages
+- **Smart Transaction Patterns** - Get intelligent suggestions for account and category combinations based on your history
+- **Auto-Complete Descriptions** - Quick-fill transaction descriptions from your previous entries
+- **Advanced Filtering** - Filter transactions by account, category, date range, and type with cursor-based pagination
+- **Real-Time Balance Calculation** - Automatic balance updates as you add transactions and transfers
+- **Soft Deletion** - Archive accounts and transactions for data recovery while keeping them hidden from reports
+- **Exclude from Reports** - Mark specific categories to exclude from monthly summaries
+- **Secure Authentication** - Login with Auth0 for enterprise-grade security with JWT tokens
+- **Progressive Web App** - Install on mobile devices directly from your browser without app stores
+- **Cross-Device Sync** - Access your financial data from any device with automatic cloud synchronization
+
 ### Technologies
 
 - [Node.js](https://nodejs.org/) backend with GraphQL API
