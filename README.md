@@ -13,7 +13,7 @@ Web application for personal financial management.
 - **Smart Suggestions** - Save time with intelligent account and category recommendations based on your habits
 - **Transaction Search** - Find any transaction by filtering on account, category, date, etc.
 
-### Technologies
+## Technologies
 
 - [Node.js](https://nodejs.org/) backend with GraphQL API
 - [Vue.js](https://vuejs.org/) frontend SPA
