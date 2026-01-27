@@ -9,7 +9,7 @@ Web application for personal financial management.
 - Infrastructure as Code with [AWS CDK](https://aws.amazon.com/cdk/)
 - Deployed on [AWS](https://aws.amazon.com/)
 - Serverless, free-tier friendly
-- [Typescript](https://www.typescriptlang.org/) throughout
+- [TypeScript](https://www.typescriptlang.org/) throughout
 - [Spec-driven development](https://github.com/github/spec-kit)
 
 ## Repository Structure
