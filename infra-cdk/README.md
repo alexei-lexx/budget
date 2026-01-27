@@ -2,20 +2,13 @@
 
 Unified infrastructure-as-code package for deploying both backend and frontend stacks to AWS.
 
-## Production Setup
+## Development Setup
 
-## Prerequisites
+- `npm install` - Install dependencies
 
-- AWS CLI configured with valid credentials
-- Node.js installed
-- Backend built (`cd ../backend && npm install && npm run build`)
+## Deployment
 
-## Setup Steps
-
-1. `npm install` - Install dependencies
-2. `cp .env.production.example .env.production` - Copy environment template
-3. Edit `.env.production`
-4. `npm run deploy` - Deploy all stacks to your configured AWS account/region
+See the [root README.md](../README.md#deployment) for deployment instructions.
 
 ## Quality Checks
 
