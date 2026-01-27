@@ -4,20 +4,20 @@ Web application for personal financial management.
 
 ## Core Features
 
-- **Multi-Account Management** - Create and manage multiple accounts (bank, cash, credit cards) with different currencies
-- **Transaction Tracking** - Record income, expenses, and refunds with dates, amounts, categories, and descriptions
-- **Inter-Account Transfers** - Transfer money between accounts with matching currencies
-- **Custom Categories** - Organize transactions with custom income and expense categories
-- **Multi-Currency Support** - Track accounts in different currencies without automatic conversion
-- **Monthly Reports** - View detailed monthly breakdowns by category with currency-specific totals and percentages
-- **Smart Transaction Patterns** - Get intelligent suggestions for account and category combinations based on your history
-- **Auto-Complete Descriptions** - Quick-fill transaction descriptions from your previous entries
-- **Advanced Filtering** - Filter transactions by account, category, date range, and type with cursor-based pagination
-- **Real-Time Balance Calculation** - Automatic balance updates as you add transactions and transfers
-- **Soft Deletion** - Archive accounts and transactions for data recovery while keeping them hidden from reports
-- **Exclude from Reports** - Mark specific categories to exclude from monthly summaries
-- **Secure Authentication** - Enterprise-grade OpenID Connect authentication with JWT tokens
-- **Cloud-Based Storage** - Access your data from any device with an internet connection
+- **Multiple Accounts** - Track all your finances in one place: bank accounts, cash, credit cards, and more
+- **Income and Expense Tracking** - Record every transaction with dates, amounts, categories, and notes
+- **Money Transfers** - Move money between your accounts while maintaining accurate balances
+- **Custom Categories** - Organize your finances your way with personalized income and expense categories
+- **Multi-Currency** - Manage accounts in different currencies (USD, EUR, etc.) without forced conversions
+- **Monthly Reports** - See where your money goes each month with detailed category breakdowns
+- **Smart Suggestions** - Save time with intelligent account and category recommendations based on your habits
+- **Quick Entry** - Auto-complete transaction descriptions from your history for faster data entry
+- **Powerful Search** - Find transactions by account, category, date range, or type
+- **Always Up-to-Date** - See your current balance instantly as you add transactions
+- **Safe Deletion** - Archive old accounts and transactions without losing your financial history
+- **Flexible Reporting** - Exclude specific categories (like transfers or savings) from your spending reports
+- **Secure Access** - Log in safely with modern authentication that protects your financial data
+- **Access Anywhere** - Use any device with an internet connection to manage your finances
 
 ### Technologies
 
