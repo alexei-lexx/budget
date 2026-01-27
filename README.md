@@ -16,9 +16,8 @@ Web application for personal financial management.
 - **Real-Time Balance Calculation** - Automatic balance updates as you add transactions and transfers
 - **Soft Deletion** - Archive accounts and transactions for data recovery while keeping them hidden from reports
 - **Exclude from Reports** - Mark specific categories to exclude from monthly summaries
-- **Secure Authentication** - Login with Auth0 for enterprise-grade security with JWT tokens
-- **Progressive Web App** - Install on mobile devices directly from your browser without app stores
-- **Cross-Device Sync** - Access your financial data from any device with automatic cloud synchronization
+- **Secure Authentication** - Enterprise-grade OpenID Connect authentication with JWT tokens
+- **Cloud-Based Storage** - Access your data from any device with an internet connection
 
 ### Technologies
 
