@@ -11,13 +11,7 @@ Web application for personal financial management.
 - **Multi-Currency** - Manage accounts in different currencies (USD, EUR, etc.) without forced conversions
 - **Monthly Reports** - See where your money goes each month with detailed category breakdowns
 - **Smart Suggestions** - Save time with intelligent account and category recommendations based on your habits
-- **Quick Entry** - Auto-complete transaction descriptions from your history for faster data entry
-- **Powerful Search** - Find transactions by account, category, date range, or type
-- **Always Up-to-Date** - See your current balance instantly as you add transactions
-- **Safe Deletion** - Archive old accounts and transactions without losing your financial history
-- **Flexible Reporting** - Exclude specific categories (like transfers or savings) from your spending reports
-- **Secure Access** - Log in safely with modern authentication that protects your financial data
-- **Access Anywhere** - Use any device with an internet connection to manage your finances
+- **Transaction Search** - Find any transaction by filtering on account, category, date, or amount
 
 ### Technologies
 
