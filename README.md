@@ -30,6 +30,8 @@ Deploy the application to AWS.
 
 **Create Parameters in AWS Systems Manager Parameter Store:**
 
+> **Note:** Replace placeholder values (`<TENANT>`, `<REGION>`, `your-client-id`, etc.) with your actual configuration before running the commands.
+
 ```bash
 # Auth audience
 aws ssm put-parameter \
