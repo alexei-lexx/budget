@@ -5,22 +5,21 @@
     "infra-cdk": "bin/app.js"
   },
   "scripts": {
-    "build": "dotenvx run -f .env.production --verbose -- tsc",
-    "cdk": "dotenvx run -f .env.production --verbose -- cdk",
-    "deploy": "dotenvx run -f .env.production --verbose -- cdk deploy --all --outputs-file cdk-outputs.json",
-    "diff": "dotenvx run -f .env.production --verbose -- cdk diff",
+    "build": "tsc",
+    "cdk": "cdk",
+    "deploy": "cdk deploy --all --outputs-file cdk-outputs.json",
+    "diff": "cdk diff",
     "format": "npm run prettier:fix && npm run lint:fix",
     "lint:fix": "eslint . --fix",
     "lint": "eslint .",
     "prettier:fix": "prettier --write .",
     "prettier": "prettier --check .",
-    "synth": "dotenvx run -f .env.production --verbose -- cdk synth",
+    "synth": "cdk synth",
     "test": "jest",
     "typecheck": "tsc --noEmit",
     "watch": "tsc -w"
   },
   "devDependencies": {
-    "@dotenvx/dotenvx": "^1.44.2",
     "@eslint/js": "^9.28.0",
     "@types/jest": "^29.5.14",
     "@types/node": "^24.10.4",
