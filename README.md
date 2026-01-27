@@ -11,7 +11,7 @@ Web application for personal financial management.
 - **Multi-Currency** - Manage accounts in different currencies (USD, EUR, etc.) without forced conversions
 - **Monthly Reports** - See where your money goes each month with detailed category breakdowns
 - **Smart Suggestions** - Save time with intelligent account and category recommendations based on your habits
-- **Transaction Search** - Find any transaction by filtering on account, category, date, or amount
+- **Transaction Search** - Find any transaction by filtering on account, category, date, etc.
 
 ### Technologies
 
