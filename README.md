@@ -31,7 +31,7 @@ Deploy the application to AWS.
 **Parameters in AWS Systems Manager Parameter Store:**
 - `/manual/budget/production/auth/audience` - e.g. `https://personal-budget-tracker`
 - `/manual/budget/production/auth/issuer` - e.g. `https://<TENANT>.<REGION>.auth0.com`
-- `/manual/budget/production/auth/clientId` - SPA Client ID
+- `/manual/budget/production/auth/client-id` - SPA Client ID
 - `/manual/budget/production/auth/claim-namespace` - e.g. `https://personal-budget-tracker`
 - `/manual/budget/production/auth/scope` - e.g. `openid profile email offline_access`
 - `/manual/budget/production/lambda/memory-size` - e.g. `512`
