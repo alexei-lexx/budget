@@ -28,14 +28,51 @@ Deploy the application to AWS.
 - Node.js installed
 - `jq` command-line JSON processor installed
 
-**Parameters in AWS Systems Manager Parameter Store:**
-- `/manual/budget/production/auth/audience` - e.g. `https://personal-budget-tracker`
-- `/manual/budget/production/auth/issuer` - e.g. `https://<TENANT>.<REGION>.auth0.com`
-- `/manual/budget/production/auth/client-id` - SPA Client ID
-- `/manual/budget/production/auth/claim-namespace` - e.g. `https://personal-budget-tracker`
-- `/manual/budget/production/auth/scope` - e.g. `openid profile email offline_access`
-- `/manual/budget/production/lambda/memory-size` - e.g. `512`
-- `/manual/budget/production/lambda/timeout-seconds` - e.g. `30`
+**Create Parameters in AWS Systems Manager Parameter Store:**
+
+```bash
+# Auth audience
+aws ssm put-parameter \
+    --name "/manual/budget/production/auth/audience" \
+    --value "https://personal-budget-tracker" \
+    --type String
+
+# Auth issuer
+aws ssm put-parameter \
+    --name "/manual/budget/production/auth/issuer" \
+    --value "https://<TENANT>.<REGION>.auth0.com" \
+    --type String
+
+# Auth client ID (SPA Client ID)
+aws ssm put-parameter \
+    --name "/manual/budget/production/auth/client-id" \
+    --value "your-client-id" \
+    --type String
+
+# Auth claim namespace
+aws ssm put-parameter \
+    --name "/manual/budget/production/auth/claim-namespace" \
+    --value "https://personal-budget-tracker" \
+    --type String
+
+# Auth scope
+aws ssm put-parameter \
+    --name "/manual/budget/production/auth/scope" \
+    --value "openid profile email offline_access" \
+    --type String
+
+# Lambda memory size (in MB)
+aws ssm put-parameter \
+    --name "/manual/budget/production/lambda/memory-size" \
+    --value "512" \
+    --type String
+
+# Lambda timeout (in seconds)
+aws ssm put-parameter \
+    --name "/manual/budget/production/lambda/timeout-seconds" \
+    --value "30" \
+    --type String
+```
 
 ### Deployment order
 
