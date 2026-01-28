@@ -102,6 +102,3 @@ The deployment script supports multi-environment deployments using the ENV envir
 ```bash
 ENV=staging ./deploy.sh
 ```
-
-- Default: `ENV=production` (if ENV is not set)
-- Example: `ENV=staging ./deploy.sh` will deploy to the `staging` environment.
