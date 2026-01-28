@@ -81,6 +81,7 @@ This feature is an infrastructure consolidation task, not a data modeling task. 
 
 **Outputs**:
 - `S3BucketName`: S3 bucket name for frontend asset uploads
+- `CloudFrontFullURL`: Full HTTPS URL for CloudFront distribution
 - `CloudFrontDistributionId`: Distribution ID for cache invalidation
 
 **Dependencies**:

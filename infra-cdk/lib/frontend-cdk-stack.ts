@@ -75,6 +75,11 @@ export class FrontendCdkStack extends cdk.Stack {
       description: "Name of the S3 bucket for frontend assets",
     });
 
+    new cdk.CfnOutput(this, "CloudFrontFullURL", {
+      value: `https://${distribution.distributionDomainName}`,
+      description: "Full CloudFront distribution URL with HTTPS",
+    });
+
     new cdk.CfnOutput(this, "CloudFrontDistributionId", {
       value: distribution.distributionId,
       description: "CloudFront distribution ID for cache invalidation",

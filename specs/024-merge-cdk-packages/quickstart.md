@@ -217,6 +217,7 @@ After deployment, outputs are available in `cdk-outputs.json`:
   },
   "FrontendCdkStack": {
     "S3BucketName": "frontendcdkstack-assets...",
+    "CloudFrontFullURL": "https://d1234abcd.cloudfront.net",
     "CloudFrontDistributionId": "E1234ABCD"
   }
 }
@@ -226,6 +227,7 @@ After deployment, outputs are available in `cdk-outputs.json`:
 - **Migration**: Invoke migration Lambda using `BackendCdkStack.MigrationFunctionName`
 - **Frontend Upload**: Upload assets to `FrontendCdkStack.S3BucketName`
 - **Cache Invalidation**: Invalidate CloudFront using `FrontendCdkStack.CloudFrontDistributionId`
+- **Application Access**: Access app via `FrontendCdkStack.CloudFrontFullURL`
 
 ---
 
