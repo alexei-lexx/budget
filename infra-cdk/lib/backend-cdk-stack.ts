@@ -166,6 +166,7 @@ export class BackendCdkStack extends cdk.Stack {
     transactionsTable.grantReadWriteData(migrationFunction);
     usersTable.grantReadWriteData(migrationFunction);
 
+    // Used by deploy.sh to invoke the migration Lambda after deploy.
     new cdk.CfnOutput(this, "MigrationFunctionName", {
       value: migrationFunction.functionName,
       description:
