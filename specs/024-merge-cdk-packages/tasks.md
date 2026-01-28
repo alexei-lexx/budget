@@ -125,7 +125,7 @@ description: "Task list for merging backend-cdk and frontend-cdk into unified in
 - [X] T045 [MANUAL] [US3] Verify BackendCdkStack export "BackendCdkStack-GraphqlApiDomain" exists via aws cloudformation list-exports
 - [X] T046 [MANUAL] [US3] Run npm run deploy:frontend from infra-cdk/ and verify only FrontendCdkStack deploys
 - [X] T047 [MANUAL] [US3] Verify FrontendCdkStack successfully imports BackendCdkStack-GraphqlApiDomain export
-- [X] T048 [MANUAL] [US3] Verify application is accessible via CloudFrontFullURL from FrontendCdkStack outputs
+- [X] T048 [MANUAL] [US3] Verify application is accessible via CloudFront distribution domain
 - [X] T049 [MANUAL] [US3] Verify GraphQL API responds correctly via API Gateway domain from BackendCdkStack outputs
 
 **Checkpoint**: All user stories (1, 2, 3) should now be independently functional

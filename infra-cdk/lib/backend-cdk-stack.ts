@@ -210,17 +210,6 @@ export class BackendCdkStack extends cdk.Stack {
       };
     }
 
-    new cdk.CfnOutput(this, "GraphqlApiUrl", {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      value: httpApi.url!,
-      description: "GraphQL HTTP API Gateway URL",
-    });
-
-    new cdk.CfnOutput(this, "GraphqlApiDomain", {
-      value: `${httpApi.apiId}.execute-api.${this.region}.amazonaws.com`,
-      description: "GraphQL API Gateway domain name (for CloudFront origin)",
-    });
-
     this.httpApi = httpApi;
   }
 }

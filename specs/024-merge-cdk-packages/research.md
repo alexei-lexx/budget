@@ -107,7 +107,7 @@ This document consolidates research findings for merging backend-cdk and fronten
 - Output format groups by stack name:
   ```json
   {
-    "BackendCdkStack": { "MigrationFunctionName": "...", "GraphqlApiUrl": "..." },
+    "BackendCdkStack": { "MigrationFunctionName": "..." },
     "FrontendCdkStack": { "S3BucketName": "...", "CloudFrontDistributionId": "..." }
   }
   ```
