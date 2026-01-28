@@ -213,12 +213,15 @@ After deployment, outputs are available in `cdk-outputs.json`:
 ```json
 {
   "BackendCdkStack": {
-    "MigrationFunctionName": "BackendCdkStack-MigrationRunner..."
+    "MigrationFunctionName": "BackendCdkStack-MigrationRunner...",
+    "GraphqlApiUrl": "https://abc123.execute-api.us-east-1.amazonaws.com/",
+    "GraphqlApiDomain": "abc123.execute-api.us-east-1.amazonaws.com"
   },
   "FrontendCdkStack": {
     "S3BucketName": "frontendcdkstack-assets...",
     "CloudFrontFullURL": "https://d1234abcd.cloudfront.net",
-    "CloudFrontDistributionId": "E1234ABCD"
+    "CloudFrontDistributionId": "E1234ABCD",
+    "ImportedApiGatewayDomain": "abc123.execute-api.us-east-1.amazonaws.com"
   }
 }
 ```

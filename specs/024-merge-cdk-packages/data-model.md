@@ -51,6 +51,8 @@ This feature is an infrastructure consolidation task, not a data modeling task. 
 
 **Outputs**:
 - `MigrationFunctionName`: Migration Lambda function name
+- `GraphqlApiUrl`: GraphQL HTTP API Gateway URL
+- `GraphqlApiDomain`: GraphQL API Gateway domain name
 
 **Dependencies**:
 - Environment variables from .env.production (via dotenvx)
@@ -83,6 +85,7 @@ This feature is an infrastructure consolidation task, not a data modeling task. 
 - `S3BucketName`: S3 bucket name for frontend asset uploads
 - `CloudFrontFullURL`: Full HTTPS URL for CloudFront distribution
 - `CloudFrontDistributionId`: Distribution ID for cache invalidation
+- `ImportedApiGatewayDomain`: Echo of imported API Gateway domain (for validation)
 
 **Dependencies**:
 - BackendStack export (deployment order: must deploy after BackendStack)

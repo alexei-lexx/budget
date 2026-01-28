@@ -168,7 +168,8 @@ export class BackendCdkStack extends cdk.Stack {
 
     new cdk.CfnOutput(this, "MigrationFunctionName", {
       value: migrationFunction.functionName,
-      description: "Migration Lambda function name",
+      description:
+        "Migration Lambda function name used by deploy.sh for migration invocation",
       exportName: `${this.stackName}-MigrationFunctionName`,
     });
 
