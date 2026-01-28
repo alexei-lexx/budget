@@ -78,6 +78,8 @@ cd ../infra-cdk
 echo "Installing infra-cdk dependencies..."
 npm install
 
+CDK_OUTPUT_FILE="cdk-outputs.$ENV.json"
+
 echo "Deploying infrastructure (backend and frontend)..."
 env AUTH_AUDIENCE="$AUTH_AUDIENCE" \
     AUTH_CLAIM_NAMESPACE="$AUTH_CLAIM_NAMESPACE" \
@@ -85,10 +87,10 @@ env AUTH_AUDIENCE="$AUTH_AUDIENCE" \
     LAMBDA_MEMORY_SIZE="$LAMBDA_MEMORY_SIZE" \
     LAMBDA_TIMEOUT_SECONDS="$LAMBDA_TIMEOUT_SECONDS" \
     NODE_ENV="$NODE_ENV" \
-  npm run deploy
+  npm run deploy -- --outputs-file "$CDK_OUTPUT_FILE"
 
 echo "Running migrations..."
-MIGRATION_FUNCTION_NAME=$(cat cdk-outputs.json | jq -r '."'"$ENV"'-BudgetBackend".MigrationFunctionName // empty')
+MIGRATION_FUNCTION_NAME=$(cat "$CDK_OUTPUT_FILE" | jq -r '."'"$ENV"'-BudgetBackend".MigrationFunctionName // empty')
 
 if [ -z "$MIGRATION_FUNCTION_NAME" ] || [ "$MIGRATION_FUNCTION_NAME" = "null" ]; then
   echo "ERROR: Migration function name not found in CDK outputs"
@@ -130,8 +132,8 @@ echo "Migrations completed successfully!"
 rm -f migration-response.json
 
 echo "Extracting frontend deployment outputs..."
-S3_BUCKET=$(cat cdk-outputs.json | jq -r '."'"$ENV"'-BudgetFrontend".S3BucketName')
-CLOUDFRONT_DISTRIBUTION_ID=$(cat cdk-outputs.json | jq -r '."'"$ENV"'-BudgetFrontend".CloudFrontDistributionId // empty')
+S3_BUCKET=$(cat "$CDK_OUTPUT_FILE" | jq -r '."'"$ENV"'-BudgetFrontend".S3BucketName')
+CLOUDFRONT_DISTRIBUTION_ID=$(cat "$CDK_OUTPUT_FILE" | jq -r '."'"$ENV"'-BudgetFrontend".CloudFrontDistributionId // empty')
 
 echo "Switching to frontend directory..."
 cd ../frontend
