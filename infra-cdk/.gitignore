@@ -6,7 +6,7 @@ node_modules
 # CDK asset staging directory
 .cdk.staging
 cdk.out
-cdk-outputs.json
+cdk-outputs*.json
 
 # Environment files
 .env.development

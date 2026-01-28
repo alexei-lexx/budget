@@ -92,3 +92,16 @@ aws ssm put-parameter --overwrite --type String \
 ```bash
 ./deploy.sh
 ```
+
+### Multi-Environment Deployment
+
+> **Important:** Before running the deployment script, ensure all required parameters in AWS Systems Manager Parameter Store are created for the desired environment (e.g., `staging`, `production`). Replace `production` in the parameter names with your target environment when setting up for non-production deployments.
+
+The deployment script supports multi-environment deployments using the ENV environment variable. By default, it deploys to the `production` environment. To deploy to a different environment (e.g., `staging`), set the ENV variable when running the script:
+
+```bash
+ENV=staging ./deploy.sh
+```
+
+- Default: `ENV=production` (if ENV is not set)
+- Example: `ENV=staging ./deploy.sh` will deploy to the `staging` environment.
