@@ -166,9 +166,11 @@ export class BackendCdkStack extends cdk.Stack {
     transactionsTable.grantReadWriteData(migrationFunction);
     usersTable.grantReadWriteData(migrationFunction);
 
+    // Used by deploy.sh to invoke the migration Lambda after deploy.
     new cdk.CfnOutput(this, "MigrationFunctionName", {
       value: migrationFunction.functionName,
-      description: "Migration Lambda function name",
+      description:
+        "Migration Lambda function name used by deploy.sh for migration invocation",
       exportName: `${this.stackName}-MigrationFunctionName`,
     });
 
@@ -209,17 +211,6 @@ export class BackendCdkStack extends cdk.Stack {
         }),
       };
     }
-
-    new cdk.CfnOutput(this, "GraphqlApiUrl", {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      value: httpApi.url!,
-      description: "GraphQL HTTP API Gateway URL",
-    });
-
-    new cdk.CfnOutput(this, "GraphqlApiDomain", {
-      value: `${httpApi.apiId}.execute-api.${this.region}.amazonaws.com`,
-      description: "GraphQL API Gateway domain name (for CloudFront origin)",
-    });
 
     this.httpApi = httpApi;
   }
