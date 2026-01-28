@@ -1,59 +1,66 @@
 set -e
 
-NODE_ENV=production
+# Use ENV from environment variable, default to production
+if [ -z "$ENV" ]; then
+  ENV="production"
+fi
 
-echo "Fetching AUTH_AUDIENCE from /manual/budget/production/auth/audience in AWS SSM Parameter Store..."
-AUTH_AUDIENCE=$(aws ssm get-parameter --name /manual/budget/production/auth/audience --query 'Parameter.Value' --output text)
+echo "Deploying to environment: $ENV"
+
+NODE_ENV="$ENV"
+
+echo "Fetching AUTH_AUDIENCE from /manual/budget/$ENV/auth/audience in AWS SSM Parameter Store..."
+AUTH_AUDIENCE=$(aws ssm get-parameter --name "/manual/budget/$ENV/auth/audience" --query 'Parameter.Value' --output text)
 if [ -z "$AUTH_AUDIENCE" ] || [ "$AUTH_AUDIENCE" = "null" ]; then
-  echo "ERROR: Parameter /manual/budget/production/auth/audience must be configured in AWS SSM Parameter Store"
+  echo "ERROR: Parameter /manual/budget/$ENV/auth/audience must be configured in AWS SSM Parameter Store"
   exit 1
 fi
 echo "AUTH_AUDIENCE=$AUTH_AUDIENCE"
 
-echo "Fetching AUTH_CLAIM_NAMESPACE from /manual/budget/production/auth/claim-namespace in AWS SSM Parameter Store..."
-AUTH_CLAIM_NAMESPACE=$(aws ssm get-parameter --name /manual/budget/production/auth/claim-namespace --query 'Parameter.Value' --output text)
+echo "Fetching AUTH_CLAIM_NAMESPACE from /manual/budget/$ENV/auth/claim-namespace in AWS SSM Parameter Store..."
+AUTH_CLAIM_NAMESPACE=$(aws ssm get-parameter --name "/manual/budget/$ENV/auth/claim-namespace" --query 'Parameter.Value' --output text)
 if [ -z "$AUTH_CLAIM_NAMESPACE" ] || [ "$AUTH_CLAIM_NAMESPACE" = "null" ]; then
-  echo "ERROR: Parameter /manual/budget/production/auth/claim-namespace must be configured in AWS SSM Parameter Store"
+  echo "ERROR: Parameter /manual/budget/$ENV/auth/claim-namespace must be configured in AWS SSM Parameter Store"
   exit 1
 fi
 echo "AUTH_CLAIM_NAMESPACE=$AUTH_CLAIM_NAMESPACE"
 
-echo "Fetching AUTH_CLIENT_ID from /manual/budget/production/auth/client-id in AWS SSM Parameter Store..."
-AUTH_CLIENT_ID=$(aws ssm get-parameter --name /manual/budget/production/auth/client-id --query 'Parameter.Value' --output text)
+echo "Fetching AUTH_CLIENT_ID from /manual/budget/$ENV/auth/client-id in AWS SSM Parameter Store..."
+AUTH_CLIENT_ID=$(aws ssm get-parameter --name "/manual/budget/$ENV/auth/client-id" --query 'Parameter.Value' --output text)
 if [ -z "$AUTH_CLIENT_ID" ] || [ "$AUTH_CLIENT_ID" = "null" ]; then
-  echo "ERROR: Parameter /manual/budget/production/auth/client-id must be configured in AWS SSM Parameter Store"
+  echo "ERROR: Parameter /manual/budget/$ENV/auth/client-id must be configured in AWS SSM Parameter Store"
   exit 1
 fi
 echo "AUTH_CLIENT_ID=$AUTH_CLIENT_ID"
 
-echo "Fetching AUTH_ISSUER from /manual/budget/production/auth/issuer in AWS SSM Parameter Store..."
-AUTH_ISSUER=$(aws ssm get-parameter --name /manual/budget/production/auth/issuer --query 'Parameter.Value' --output text)
+echo "Fetching AUTH_ISSUER from /manual/budget/$ENV/auth/issuer in AWS SSM Parameter Store..."
+AUTH_ISSUER=$(aws ssm get-parameter --name "/manual/budget/$ENV/auth/issuer" --query 'Parameter.Value' --output text)
 if [ -z "$AUTH_ISSUER" ] || [ "$AUTH_ISSUER" = "null" ]; then
-  echo "ERROR: Parameter /manual/budget/production/auth/issuer must be configured in AWS SSM Parameter Store"
+  echo "ERROR: Parameter /manual/budget/$ENV/auth/issuer must be configured in AWS SSM Parameter Store"
   exit 1
 fi
 echo "AUTH_ISSUER=$AUTH_ISSUER"
 
-echo "Fetching AUTH_SCOPE from /manual/budget/production/auth/scope in AWS SSM Parameter Store..."
-AUTH_SCOPE=$(aws ssm get-parameter --name /manual/budget/production/auth/scope --query 'Parameter.Value' --output text)
+echo "Fetching AUTH_SCOPE from /manual/budget/$ENV/auth/scope in AWS SSM Parameter Store..."
+AUTH_SCOPE=$(aws ssm get-parameter --name "/manual/budget/$ENV/auth/scope" --query 'Parameter.Value' --output text)
 if [ -z "$AUTH_SCOPE" ] || [ "$AUTH_SCOPE" = "null" ]; then
-  echo "ERROR: Parameter /manual/budget/production/auth/scope must be configured in AWS SSM Parameter Store"
+  echo "ERROR: Parameter /manual/budget/$ENV/auth/scope must be configured in AWS SSM Parameter Store"
   exit 1
 fi
 echo "AUTH_SCOPE=$AUTH_SCOPE"
 
-echo "Fetching LAMBDA_MEMORY_SIZE from /manual/budget/production/lambda/memory-size in AWS SSM Parameter Store..."
-LAMBDA_MEMORY_SIZE=$(aws ssm get-parameter --name /manual/budget/production/lambda/memory-size --query 'Parameter.Value' --output text)
+echo "Fetching LAMBDA_MEMORY_SIZE from /manual/budget/$ENV/lambda/memory-size in AWS SSM Parameter Store..."
+LAMBDA_MEMORY_SIZE=$(aws ssm get-parameter --name "/manual/budget/$ENV/lambda/memory-size" --query 'Parameter.Value' --output text)
 if [ -z "$LAMBDA_MEMORY_SIZE" ] || [ "$LAMBDA_MEMORY_SIZE" = "null" ]; then
-  echo "ERROR: Parameter /manual/budget/production/lambda/memory-size must be configured in AWS SSM Parameter Store"
+  echo "ERROR: Parameter /manual/budget/$ENV/lambda/memory-size must be configured in AWS SSM Parameter Store"
   exit 1
 fi
 echo "LAMBDA_MEMORY_SIZE=$LAMBDA_MEMORY_SIZE"
 
-echo "Fetching LAMBDA_TIMEOUT_SECONDS from /manual/budget/production/lambda/timeout-seconds in AWS SSM Parameter Store..."
-LAMBDA_TIMEOUT_SECONDS=$(aws ssm get-parameter --name /manual/budget/production/lambda/timeout-seconds --query 'Parameter.Value' --output text)
+echo "Fetching LAMBDA_TIMEOUT_SECONDS from /manual/budget/$ENV/lambda/timeout-seconds in AWS SSM Parameter Store..."
+LAMBDA_TIMEOUT_SECONDS=$(aws ssm get-parameter --name "/manual/budget/$ENV/lambda/timeout-seconds" --query 'Parameter.Value' --output text)
 if [ -z "$LAMBDA_TIMEOUT_SECONDS" ] || [ "$LAMBDA_TIMEOUT_SECONDS" = "null" ]; then
-  echo "ERROR: Parameter /manual/budget/production/lambda/timeout-seconds must be configured in AWS SSM Parameter Store"
+  echo "ERROR: Parameter /manual/budget/$ENV/lambda/timeout-seconds must be configured in AWS SSM Parameter Store"
   exit 1
 fi
 echo "LAMBDA_TIMEOUT_SECONDS=$LAMBDA_TIMEOUT_SECONDS"
@@ -81,7 +88,7 @@ env AUTH_AUDIENCE="$AUTH_AUDIENCE" \
   npm run deploy
 
 echo "Running migrations..."
-MIGRATION_FUNCTION_NAME=$(cat cdk-outputs.json | jq -r '."production-BudgetBackend".MigrationFunctionName // empty')
+MIGRATION_FUNCTION_NAME=$(cat cdk-outputs.json | jq -r '."'"$ENV"'-BudgetBackend".MigrationFunctionName // empty')
 
 if [ -z "$MIGRATION_FUNCTION_NAME" ] || [ "$MIGRATION_FUNCTION_NAME" = "null" ]; then
   echo "ERROR: Migration function name not found in CDK outputs"
@@ -123,8 +130,8 @@ echo "Migrations completed successfully!"
 rm -f migration-response.json
 
 echo "Extracting frontend deployment outputs..."
-S3_BUCKET=$(cat cdk-outputs.json | jq -r '."production-BudgetFrontend".S3BucketName')
-CLOUDFRONT_DISTRIBUTION_ID=$(cat cdk-outputs.json | jq -r '."production-BudgetFrontend".CloudFrontDistributionId // empty')
+S3_BUCKET=$(cat cdk-outputs.json | jq -r '."'"$ENV"'-BudgetFrontend".S3BucketName')
+CLOUDFRONT_DISTRIBUTION_ID=$(cat cdk-outputs.json | jq -r '."'"$ENV"'-BudgetFrontend".CloudFrontDistributionId // empty')
 
 echo "Switching to frontend directory..."
 cd ../frontend
