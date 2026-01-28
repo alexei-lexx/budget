@@ -5,6 +5,13 @@ if [ -z "$ENV" ]; then
   ENV="production"
 fi
 
+# Validate ENV to avoid invalid stack names, SSM paths, and filenames
+case "$ENV" in
+  ''|*[!A-Za-z0-9-]*)
+    echo "ERROR: ENV value '$ENV' is invalid. ENV must match: ^[A-Za-z0-9-]+$"
+    exit 1
+    ;;
+esac
 echo "Deploying to environment: $ENV"
 
 NODE_ENV="$ENV"
