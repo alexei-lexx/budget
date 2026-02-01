@@ -84,13 +84,7 @@
                     </div>
 
                     <!-- Transaction list -->
-                    <div
-                      v-if="category.topTransactions.length === 0"
-                      class="text-center pa-4 text-medium-emphasis"
-                    >
-                      No transactions found
-                    </div>
-                    <div v-else class="transaction-list">
+                    <div class="transaction-list">
                       <TransactionCard
                         v-for="transaction in category.topTransactions"
                         :key="transaction.id"
