@@ -89,9 +89,10 @@
                         v-for="transaction in category.topTransactions"
                         :key="transaction.id"
                         :transaction="transaction"
-                        :is-expanded="false"
-                        :readonly="true"
+                        :is-expanded="expandedTransactions.has(transaction.id)"
+                        :hide-actions="true"
                         class="mb-2"
+                        @toggle-expand="handleTransactionToggle"
                       />
                     </div>
                   </div>
@@ -146,6 +147,9 @@ const sortBy = ref<"category" | "amount">("amount");
 // Track expanded categories
 const expandedCategories = ref<Set<string>>(new Set());
 
+// Track expanded transactions within categories
+const expandedTransactions = ref<Set<string>>(new Set());
+
 // Helper function to get a unique key for a category
 const getCategoryKey = (category: MonthlyReportCategory): string => {
   return category.categoryId || "uncategorized";
@@ -161,6 +165,17 @@ const handleCategoryClick = (category: MonthlyReportCategory) => {
   }
   // Trigger Vue reactivity
   expandedCategories.value = new Set(expandedCategories.value);
+};
+
+// Handle transaction expand/collapse
+const handleTransactionToggle = (transactionId: string) => {
+  if (expandedTransactions.value.has(transactionId)) {
+    expandedTransactions.value.delete(transactionId);
+  } else {
+    expandedTransactions.value.add(transactionId);
+  }
+  // Trigger Vue reactivity
+  expandedTransactions.value = new Set(expandedTransactions.value);
 };
 
 // Helper function to calculate total amount across all currencies for a category

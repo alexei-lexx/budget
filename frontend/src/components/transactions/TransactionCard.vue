@@ -8,11 +8,11 @@ import ActionButtons from "@/components/common/ActionButtons.vue";
 interface Props {
   transaction: Transaction;
   isExpanded: boolean;
-  readonly?: boolean;
+  hideActions?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  readonly: false,
+  hideActions: false,
 });
 
 // Define emitted events
@@ -84,9 +84,7 @@ const handleDuplicateTransaction = () => {
 };
 
 const handleCardClick = () => {
-  if (!props.readonly) {
-    emit("toggleExpand", props.transaction.id);
-  }
+  emit("toggleExpand", props.transaction.id);
 };
 </script>
 
@@ -94,7 +92,7 @@ const handleCardClick = () => {
   <v-card
     variant="outlined"
     class="transaction-card"
-    :class="{ expanded: isExpanded, readonly: readonly }"
+    :class="{ expanded: isExpanded }"
     @click="handleCardClick"
   >
     <v-card-text class="py-3">
@@ -141,7 +139,7 @@ const handleCardClick = () => {
 
       <!-- Expanded state: Description and buttons -->
       <div
-        v-if="isExpanded && !readonly"
+        v-if="isExpanded"
         class="d-flex ga-2 mt-3"
         :class="
           transaction.description
@@ -154,18 +152,14 @@ const handleCardClick = () => {
           {{ transaction.description }}
         </div>
 
-        <!-- Action buttons on right (bottom on mobile) -->
+        <!-- Action buttons on right (bottom on mobile) - hidden when hideActions is true -->
         <ActionButtons
+          v-if="!hideActions"
           show-duplicate
           @duplicate="handleDuplicateTransaction"
           @edit="handleEditTransaction"
           @delete="handleDeleteTransaction"
         />
-      </div>
-
-      <!-- Readonly expanded state: Just show description -->
-      <div v-if="isExpanded && readonly && transaction.description" class="mt-3">
-        <div class="text-body-1">{{ transaction.description }}</div>
       </div>
     </v-card-text>
   </v-card>
@@ -173,22 +167,19 @@ const handleCardClick = () => {
 
 <style scoped>
 .transaction-card {
+  cursor: pointer;
   transition:
     transform 0.2s ease,
     box-shadow 0.2s ease,
     border-color 0.2s ease;
 }
 
-.transaction-card:not(.readonly) {
-  cursor: pointer;
-}
-
-.transaction-card:not(.readonly):hover {
+.transaction-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-.transaction-card.expanded:not(.readonly):hover {
+.transaction-card.expanded:hover {
   transform: none; /* Disable hover transform when expanded */
 }
 
