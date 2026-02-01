@@ -97,6 +97,52 @@ describe("MonthlyByCategoryReportService", () => {
         "Transport",
         "Uncategorized",
       ]);
+
+      // Verify topTransactions are included
+      result.categories.forEach((category) => {
+        expect(category.topTransactions).toBeDefined();
+        expect(category.totalTransactionCount).toBeDefined();
+      });
+    });
+
+    it("should include top 5 transactions sorted by amount", async () => {
+      const categoryId = faker.string.uuid();
+
+      // Create 7 transactions with different amounts
+      const transactions = [
+        fakeTransaction({ categoryId, amount: 100 }),
+        fakeTransaction({ categoryId, amount: 500 }),
+        fakeTransaction({ categoryId, amount: 200 }),
+        fakeTransaction({ categoryId, amount: 50 }),
+        fakeTransaction({ categoryId, amount: 300 }),
+        fakeTransaction({ categoryId, amount: 150 }),
+        fakeTransaction({ categoryId, amount: 400 }),
+      ];
+
+      mockTransactionRepository.findActiveByMonthAndTypes.mockResolvedValue(
+        transactions,
+      );
+      mockCategoryRepository.findActiveById.mockResolvedValue(
+        fakeCategory({ id: categoryId, name: "Shopping" }),
+      );
+
+      const result = await monthlyByCategoryReportService.call(
+        userId,
+        2000,
+        1,
+        ReportType.EXPENSE,
+      );
+
+      expect(result.categories).toHaveLength(1);
+      const category = result.categories[0];
+
+      // Should have top 5 transactions
+      expect(category.topTransactions).toHaveLength(5);
+      expect(category.totalTransactionCount).toBe(7);
+
+      // Should be sorted by amount descending
+      const amounts = category.topTransactions.map((t) => t.amount);
+      expect(amounts).toEqual([500, 400, 300, 200, 150]);
     });
 
     it("should calculate currency totals correctly", async () => {

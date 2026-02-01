@@ -44,15 +44,59 @@
               <tr
                 v-for="(breakdown, breakdownIndex) in category.currencyBreakdowns"
                 :key="`${categoryIndex}-${breakdownIndex}`"
+                class="category-row"
+                @click="handleCategoryClick(category)"
               >
                 <td v-if="breakdownIndex === 0" :rowspan="category.currencyBreakdowns.length">
-                  <em v-if="!category.categoryId" class="text-h6">{{ category.categoryName }}</em>
-                  <span v-else class="text-h6">{{ category.categoryName }}</span>
+                  <div class="d-flex align-center">
+                    <v-icon
+                      size="small"
+                      class="mr-2"
+                      :icon="
+                        expandedCategories.has(getCategoryKey(category))
+                          ? 'mdi-chevron-down'
+                          : 'mdi-chevron-right'
+                      "
+                    />
+                    <em v-if="!category.categoryId" class="text-h6">{{ category.categoryName }}</em>
+                    <span v-else class="text-h6">{{ category.categoryName }}</span>
+                  </div>
                 </td>
                 <td class="text-right text-h6 text-medium-emphasis">
                   {{ formatCurrency(breakdown.totalAmount, breakdown.currency) }}
                 </td>
                 <td class="text-right text-h6 text-high-emphasis">{{ breakdown.percentage }}%</td>
+              </tr>
+
+              <!-- Expanded transaction list -->
+              <tr v-if="expandedCategories.has(getCategoryKey(category))">
+                <td :colspan="3" class="pa-0">
+                  <div class="pa-3">
+                    <!-- Show count badge if there are more transactions than displayed -->
+                    <div
+                      v-if="category.totalTransactionCount > category.topTransactions.length"
+                      class="mb-2"
+                    >
+                      <v-chip size="small" color="primary" variant="tonal">
+                        Showing {{ category.topTransactions.length }} of
+                        {{ category.totalTransactionCount }}
+                      </v-chip>
+                    </div>
+
+                    <!-- Transaction list -->
+                    <div class="transaction-list">
+                      <TransactionCard
+                        v-for="transaction in category.topTransactions"
+                        :key="transaction.id"
+                        :transaction="transaction"
+                        :is-expanded="expandedTransactions.has(transaction.id)"
+                        hide-actions
+                        class="mb-2"
+                        @toggle-expand="handleTransactionToggle"
+                      />
+                    </div>
+                  </div>
+                </td>
               </tr>
             </template>
           </tbody>
@@ -78,6 +122,7 @@ import type {
   MonthlyReportCurrencyTotal,
 } from "@/composables/useMonthlyReports";
 import { formatCurrency } from "@/utils/currency";
+import TransactionCard from "@/components/transactions/TransactionCard.vue";
 
 // Define component props
 interface Props {
@@ -98,6 +143,40 @@ const props = withDefaults(defineProps<Props>(), {
 
 // Sort options state
 const sortBy = ref<"category" | "amount">("amount");
+
+// Track expanded categories
+const expandedCategories = ref<Set<string>>(new Set());
+
+// Track expanded transactions within categories
+const expandedTransactions = ref<Set<string>>(new Set());
+
+// Helper function to get a unique key for a category
+const getCategoryKey = (category: MonthlyReportCategory): string => {
+  return category.categoryId || "uncategorized";
+};
+
+// Handle category row click to expand/collapse
+const handleCategoryClick = (category: MonthlyReportCategory) => {
+  const key = getCategoryKey(category);
+  if (expandedCategories.value.has(key)) {
+    expandedCategories.value.delete(key);
+  } else {
+    expandedCategories.value.add(key);
+  }
+  // Trigger Vue reactivity
+  expandedCategories.value = new Set(expandedCategories.value);
+};
+
+// Handle transaction expand/collapse
+const handleTransactionToggle = (transactionId: string) => {
+  if (expandedTransactions.value.has(transactionId)) {
+    expandedTransactions.value.delete(transactionId);
+  } else {
+    expandedTransactions.value.add(transactionId);
+  }
+  // Trigger Vue reactivity
+  expandedTransactions.value = new Set(expandedTransactions.value);
+};
 
 // Helper function to calculate total amount across all currencies for a category
 const calculateCategoryTotal = (category: MonthlyReportCategory): number => {
@@ -132,3 +211,14 @@ const currencyTotals = computed(() => {
   return [...props.currencyTotals].sort((a, b) => a.currency.localeCompare(b.currency));
 });
 </script>
+
+<style scoped>
+.category-row {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.category-row:hover {
+  background-color: rgba(var(--v-theme-on-surface), 0.05);
+}
+</style>

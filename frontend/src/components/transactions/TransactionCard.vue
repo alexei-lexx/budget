@@ -8,9 +8,12 @@ import ActionButtons from "@/components/common/ActionButtons.vue";
 interface Props {
   transaction: Transaction;
   isExpanded: boolean;
+  hideActions?: boolean;
 }
 
-const props = defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), {
+  hideActions: false,
+});
 
 // Define emitted events
 const emit = defineEmits<{
@@ -149,8 +152,9 @@ const handleCardClick = () => {
           {{ transaction.description }}
         </div>
 
-        <!-- Action buttons on right (bottom on mobile) -->
+        <!-- Action buttons on right (bottom on mobile) - hidden when hideActions is true -->
         <ActionButtons
+          v-if="!hideActions"
           show-duplicate
           @duplicate="handleDuplicateTransaction"
           @edit="handleEditTransaction"

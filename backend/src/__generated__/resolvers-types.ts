@@ -84,6 +84,8 @@ export type MonthlyReportCategory = {
   categoryId?: Maybe<Scalars['ID']['output']>;
   categoryName: Scalars['String']['output'];
   currencyBreakdowns: Array<MonthlyReportCurrencyBreakdown>;
+  topTransactions: Array<Transaction>;
+  totalTransactionCount: Scalars['Int']['output'];
 };
 
 export type MonthlyReportCurrencyBreakdown = {
@@ -448,8 +450,8 @@ export type ResolversTypes = {
   Float: ResolverTypeWrapper<Scalars['Float']['output']>;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
-  MonthlyReport: ResolverTypeWrapper<MonthlyReport>;
-  MonthlyReportCategory: ResolverTypeWrapper<MonthlyReportCategory>;
+  MonthlyReport: ResolverTypeWrapper<Omit<MonthlyReport, 'categories'> & { categories: Array<ResolversTypes['MonthlyReportCategory']> }>;
+  MonthlyReportCategory: ResolverTypeWrapper<Omit<MonthlyReportCategory, 'topTransactions'> & { topTransactions: Array<ResolversTypes['Transaction']> }>;
   MonthlyReportCurrencyBreakdown: ResolverTypeWrapper<MonthlyReportCurrencyBreakdown>;
   MonthlyReportCurrencyTotal: ResolverTypeWrapper<MonthlyReportCurrencyTotal>;
   Mutation: ResolverTypeWrapper<Record<PropertyKey, never>>;
@@ -487,8 +489,8 @@ export type ResolversParentTypes = {
   Float: Scalars['Float']['output'];
   ID: Scalars['ID']['output'];
   Int: Scalars['Int']['output'];
-  MonthlyReport: MonthlyReport;
-  MonthlyReportCategory: MonthlyReportCategory;
+  MonthlyReport: Omit<MonthlyReport, 'categories'> & { categories: Array<ResolversParentTypes['MonthlyReportCategory']> };
+  MonthlyReportCategory: Omit<MonthlyReportCategory, 'topTransactions'> & { topTransactions: Array<ResolversParentTypes['Transaction']> };
   MonthlyReportCurrencyBreakdown: MonthlyReportCurrencyBreakdown;
   MonthlyReportCurrencyTotal: MonthlyReportCurrencyTotal;
   Mutation: Record<PropertyKey, never>;
@@ -540,6 +542,8 @@ export type MonthlyReportCategoryResolvers<ContextType = GraphQLContext, ParentT
   categoryId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   categoryName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   currencyBreakdowns?: Resolver<Array<ResolversTypes['MonthlyReportCurrencyBreakdown']>, ParentType, ContextType>;
+  topTransactions?: Resolver<Array<ResolversTypes['Transaction']>, ParentType, ContextType>;
+  totalTransactionCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
 };
 
 export type MonthlyReportCurrencyBreakdownResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['MonthlyReportCurrencyBreakdown'] = ResolversParentTypes['MonthlyReportCurrencyBreakdown']> = {

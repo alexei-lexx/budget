@@ -214,6 +214,8 @@ type MonthlyReportCategory {
   categoryId: ID
   categoryName: String!
   currencyBreakdowns: [MonthlyReportCurrencyBreakdown!]!
+  topTransactions: [Transaction!]!
+  totalTransactionCount: Int!
 }
 
 type MonthlyReportCurrencyTotal {
