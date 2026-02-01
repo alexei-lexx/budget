@@ -90,7 +90,7 @@
                         :key="transaction.id"
                         :transaction="transaction"
                         :is-expanded="expandedTransactions.has(transaction.id)"
-                        :hide-actions="true"
+                        hide-actions
                         class="mb-2"
                         @toggle-expand="handleTransactionToggle"
                       />
