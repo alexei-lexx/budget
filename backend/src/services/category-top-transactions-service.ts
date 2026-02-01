@@ -39,14 +39,17 @@ export class CategoryTopTransactionsService {
     this.validateYear(year);
     this.validateMonth(month);
 
-    const effectiveLimit = limit || DEFAULT_LIMIT;
+    const effectiveLimit = limit !== undefined ? limit : DEFAULT_LIMIT;
     this.validateLimit(effectiveLimit);
 
     // Map report type to transaction types
     let transactionTypesToFetch: TransactionType[];
 
     if (type === ReportType.EXPENSE) {
-      transactionTypesToFetch = [TransactionType.EXPENSE, TransactionType.REFUND];
+      transactionTypesToFetch = [
+        TransactionType.EXPENSE,
+        TransactionType.REFUND,
+      ];
     } else if (type === ReportType.INCOME) {
       transactionTypesToFetch = [TransactionType.INCOME];
     } else {

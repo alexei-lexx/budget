@@ -68,7 +68,7 @@
                 </td>
                 <td class="text-right text-h6 text-high-emphasis">{{ breakdown.percentage }}%</td>
               </tr>
-              
+
               <!-- Expanded transaction list -->
               <tr v-if="expandedCategories.has(getCategoryKey(category))">
                 <td :colspan="3" class="pa-0">

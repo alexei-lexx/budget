@@ -883,7 +883,7 @@ export class TransactionRepository implements ITransactionRepository {
     // Build category filter
     let categoryFilterExpression = "";
     const categoryAttributeValues: Record<string, unknown> = {};
-    
+
     if (categoryId === undefined) {
       // Filter for uncategorized transactions
       categoryFilterExpression = "attribute_not_exists(categoryId)";
@@ -927,7 +927,10 @@ export class TransactionRepository implements ITransactionRepository {
 
       return sortedTransactions;
     } catch (error) {
-      console.error("Error finding top transactions by category and month:", error);
+      console.error(
+        "Error finding top transactions by category and month:",
+        error,
+      );
       throw new TransactionRepositoryError(
         "Failed to find top transactions by category and month",
         "QUERY_FAILED",
