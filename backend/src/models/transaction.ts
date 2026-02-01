@@ -103,14 +103,6 @@ export interface ITransactionRepository {
     searchText: string,
     limit: number,
   ): Promise<Transaction[]>;
-  findTopByCategoryAndMonth(
-    userId: string,
-    year: number,
-    month: number,
-    categoryId: string | undefined,
-    types: TransactionType[],
-    limit: number,
-  ): Promise<{ transactions: Transaction[]; totalCount: number }>;
   create(input: CreateTransactionInput): Promise<Transaction>;
   createMany(inputs: CreateTransactionInput[]): Promise<Transaction[]>;
   update(

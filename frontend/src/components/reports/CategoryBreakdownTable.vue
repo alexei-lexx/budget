@@ -71,12 +71,36 @@
               <!-- Expanded transaction list -->
               <tr v-if="expandedCategories.has(getCategoryKey(category))">
                 <td :colspan="3" class="pa-0">
-                  <CategoryTransactionsList
-                    :year="year"
-                    :month="month"
-                    :category-id="category.categoryId || undefined"
-                    :report-type="reportType"
-                  />
+                  <div class="category-transactions-list pa-3">
+                    <!-- Show count badge if there are more transactions than displayed -->
+                    <div
+                      v-if="category.totalTransactionCount > category.topTransactions.length"
+                      class="mb-2"
+                    >
+                      <v-chip size="small" color="primary" variant="tonal">
+                        Showing {{ category.topTransactions.length }} of
+                        {{ category.totalTransactionCount }}
+                      </v-chip>
+                    </div>
+
+                    <!-- Transaction list -->
+                    <div
+                      v-if="category.topTransactions.length === 0"
+                      class="text-center pa-4 text-medium-emphasis"
+                    >
+                      No transactions found
+                    </div>
+                    <div v-else class="transaction-list">
+                      <TransactionCard
+                        v-for="transaction in category.topTransactions"
+                        :key="transaction.id"
+                        :transaction="transaction"
+                        :is-expanded="false"
+                        class="mb-2"
+                        @toggle-expand="() => {}"
+                      />
+                    </div>
+                  </div>
                 </td>
               </tr>
             </template>
@@ -102,9 +126,8 @@ import type {
   MonthlyReportCategory,
   MonthlyReportCurrencyTotal,
 } from "@/composables/useMonthlyReports";
-import type { ReportType } from "@/__generated__/vue-apollo";
 import { formatCurrency } from "@/utils/currency";
-import CategoryTransactionsList from "@/components/reports/CategoryTransactionsList.vue";
+import TransactionCard from "@/components/transactions/TransactionCard.vue";
 
 // Define component props
 interface Props {
@@ -113,9 +136,6 @@ interface Props {
   loading?: boolean;
   error?: string | null;
   monthYear?: string;
-  year: number;
-  month: number;
-  reportType: ReportType;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -191,5 +211,9 @@ const currencyTotals = computed(() => {
 
 .category-row:hover {
   background-color: rgba(var(--v-theme-on-surface), 0.05);
+}
+
+.category-transactions-list {
+  background-color: rgba(var(--v-theme-surface-variant), 0.3);
 }
 </style>

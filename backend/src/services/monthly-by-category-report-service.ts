@@ -10,6 +10,7 @@ import { YEAR_RANGE_OFFSET } from "../types/validation";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
 
 const UNCATEGORIZED_LABEL = "Uncategorized";
+const TOP_TRANSACTIONS_LIMIT = 5;
 
 export interface MonthlyReportCurrencyBreakdown {
   currency: string;
@@ -21,6 +22,8 @@ export interface MonthlyReportCategory {
   categoryId?: string;
   categoryName: string;
   currencyBreakdowns: MonthlyReportCurrencyBreakdown[];
+  topTransactions: Transaction[];
+  totalTransactionCount: number;
 }
 
 export interface MonthlyReportCurrencyTotal {
@@ -203,10 +206,17 @@ export class MonthlyByCategoryReportService {
         amountGetter,
       );
 
+      // Get top 5 transactions by amount
+      const topTransactions = categoryTransactions
+        .sort((a, b) => b.amount - a.amount)
+        .slice(0, TOP_TRANSACTIONS_LIMIT);
+
       categories.push({
         categoryId,
         categoryName,
         currencyBreakdowns,
+        topTransactions,
+        totalTransactionCount: categoryTransactions.length,
       });
     }
 

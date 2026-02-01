@@ -69,8 +69,13 @@ export const MONTHLY_REPORT_CATEGORY_FRAGMENT = gql`
     currencyBreakdowns {
       ...MonthlyReportCurrencyBreakdownFields
     }
+    topTransactions {
+      ...TransactionFields
+    }
+    totalTransactionCount
   }
   ${MONTHLY_REPORT_CURRENCY_BREAKDOWN_FRAGMENT}
+  ${TRANSACTION_FRAGMENT}
 `;
 
 export const MONTHLY_REPORT_CURRENCY_TOTAL_FRAGMENT = gql`
