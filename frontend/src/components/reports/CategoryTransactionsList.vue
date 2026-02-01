@@ -28,9 +28,6 @@
           :transaction="transaction"
           :is-expanded="false"
           class="mb-2"
-          @edit-transaction="() => {}"
-          @delete-transaction="() => {}"
-          @duplicate-transaction="() => {}"
           @toggle-expand="() => {}"
         />
       </div>

@@ -110,7 +110,7 @@ export interface ITransactionRepository {
     categoryId: string | undefined,
     types: TransactionType[],
     limit: number,
-  ): Promise<Transaction[]>;
+  ): Promise<{ transactions: Transaction[]; totalCount: number }>;
   create(input: CreateTransactionInput): Promise<Transaction>;
   createMany(inputs: CreateTransactionInput[]): Promise<Transaction[]>;
   update(

@@ -23,7 +23,10 @@ describe("CategoryTopTransactionsService", () => {
 
   describe("call", () => {
     it("should return empty result when no transactions exist", async () => {
-      mockTransactionRepository.findTopByCategoryAndMonth.mockResolvedValue([]);
+      mockTransactionRepository.findTopByCategoryAndMonth.mockResolvedValue({
+        transactions: [],
+        totalCount: 0,
+      });
 
       const result = await categoryTopTransactionsService.call(
         userId,
@@ -63,9 +66,10 @@ describe("CategoryTopTransactionsService", () => {
         }),
       ];
 
-      mockTransactionRepository.findTopByCategoryAndMonth.mockResolvedValue(
+      mockTransactionRepository.findTopByCategoryAndMonth.mockResolvedValue({
         transactions,
-      );
+        totalCount: 3,
+      });
 
       const result = await categoryTopTransactionsService.call(
         userId,
@@ -82,7 +86,10 @@ describe("CategoryTopTransactionsService", () => {
 
     it("should use default limit of 5 when not provided", async () => {
       const categoryId = uuidv4();
-      mockTransactionRepository.findTopByCategoryAndMonth.mockResolvedValue([]);
+      mockTransactionRepository.findTopByCategoryAndMonth.mockResolvedValue({
+        transactions: [],
+        totalCount: 0,
+      });
 
       await categoryTopTransactionsService.call(
         userId,
@@ -106,7 +113,10 @@ describe("CategoryTopTransactionsService", () => {
 
     it("should fetch EXPENSE and REFUND transactions for EXPENSE report type", async () => {
       const categoryId = uuidv4();
-      mockTransactionRepository.findTopByCategoryAndMonth.mockResolvedValue([]);
+      mockTransactionRepository.findTopByCategoryAndMonth.mockResolvedValue({
+        transactions: [],
+        totalCount: 0,
+      });
 
       await categoryTopTransactionsService.call(
         userId,
@@ -131,7 +141,10 @@ describe("CategoryTopTransactionsService", () => {
 
     it("should fetch INCOME transactions for INCOME report type", async () => {
       const categoryId = uuidv4();
-      mockTransactionRepository.findTopByCategoryAndMonth.mockResolvedValue([]);
+      mockTransactionRepository.findTopByCategoryAndMonth.mockResolvedValue({
+        transactions: [],
+        totalCount: 0,
+      });
 
       await categoryTopTransactionsService.call(
         userId,
@@ -188,7 +201,10 @@ describe("CategoryTopTransactionsService", () => {
     });
 
     it("should reject invalid limit", async () => {
-      mockTransactionRepository.findTopByCategoryAndMonth.mockResolvedValue([]);
+      mockTransactionRepository.findTopByCategoryAndMonth.mockResolvedValue({
+        transactions: [],
+        totalCount: 0,
+      });
 
       await expect(
         categoryTopTransactionsService.call(

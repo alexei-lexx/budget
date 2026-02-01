@@ -824,7 +824,7 @@ export class TransactionRepository implements ITransactionRepository {
     categoryId: string | undefined,
     types: TransactionType[],
     limit: number,
-  ): Promise<Transaction[]> {
+  ): Promise<{ transactions: Transaction[]; totalCount: number }> {
     if (!userId) {
       throw new TransactionRepositoryError(
         "User ID is required",
@@ -920,12 +920,14 @@ export class TransactionRepository implements ITransactionRepository {
         schema: transactionSchema,
       });
 
+      const totalCount = items.length;
+
       // Sort by amount descending and limit
-      const sortedTransactions = items
+      const topTransactions = items
         .sort((a, b) => b.amount - a.amount)
         .slice(0, limit);
 
-      return sortedTransactions;
+      return { transactions: topTransactions, totalCount };
     } catch (error) {
       console.error(
         "Error finding top transactions by category and month:",

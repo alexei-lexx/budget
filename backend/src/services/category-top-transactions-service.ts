@@ -57,19 +57,18 @@ export class CategoryTopTransactionsService {
     }
 
     // Get all transactions for the category and month
-    const allTransactions =
-      await this.transactionRepository.findTopByCategoryAndMonth(
-        userId,
-        year,
-        month,
-        categoryId,
-        transactionTypesToFetch,
-        effectiveLimit,
-      );
+    const result = await this.transactionRepository.findTopByCategoryAndMonth(
+      userId,
+      year,
+      month,
+      categoryId,
+      transactionTypesToFetch,
+      effectiveLimit,
+    );
 
     return {
-      transactions: allTransactions,
-      totalCount: allTransactions.length,
+      transactions: result.transactions,
+      totalCount: result.totalCount,
     };
   }
 
