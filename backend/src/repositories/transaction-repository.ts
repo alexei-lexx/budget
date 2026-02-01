@@ -817,6 +817,125 @@ export class TransactionRepository implements ITransactionRepository {
     }
   }
 
+  async findTopByCategoryAndMonth(
+    userId: string,
+    year: number,
+    month: number,
+    categoryId: string | undefined,
+    types: TransactionType[],
+    limit: number,
+  ): Promise<Transaction[]> {
+    if (!userId) {
+      throw new TransactionRepositoryError(
+        "User ID is required",
+        "INVALID_PARAMETERS",
+      );
+    }
+
+    if (types.length === 0) {
+      throw new TransactionRepositoryError(
+        "At least one transaction type is required",
+        "INVALID_PARAMETERS",
+      );
+    }
+
+    if (!Number.isInteger(year) || year <= 0) {
+      throw new TransactionRepositoryError(
+        "Year must be a positive integer",
+        "INVALID_PARAMETERS",
+      );
+    }
+
+    if (!Number.isInteger(month) || month < 1 || month > 12) {
+      throw new TransactionRepositoryError(
+        "Month must be a valid integer between 1 and 12",
+        "INVALID_PARAMETERS",
+      );
+    }
+
+    if (!Number.isInteger(limit) || limit <= 0) {
+      throw new TransactionRepositoryError(
+        "Limit must be a positive integer",
+        "INVALID_PARAMETERS",
+      );
+    }
+
+    // Calculate start and end dates for the month
+    const startOfMonth = new Date(year, month - 1, 1);
+    const endOfMonth = new Date(year, month, 0);
+
+    const startDate = formatDateAsYYYYMMDD(startOfMonth);
+    const endDate = formatDateAsYYYYMMDD(endOfMonth);
+
+    // Build type filter expression
+    const typeConditions = types
+      .map((_, index) => `#type = :type${index}`)
+      .join(" OR ");
+    const typeFilterExpression =
+      types.length > 1 ? `(${typeConditions})` : typeConditions;
+
+    // Build expression attribute values for types
+    const typeAttributeValues: Record<string, TransactionType> = {};
+    types.forEach((type, index) => {
+      typeAttributeValues[`:type${index}`] = type;
+    });
+
+    // Build category filter
+    let categoryFilterExpression = "";
+    const categoryAttributeValues: Record<string, unknown> = {};
+    
+    if (categoryId === undefined) {
+      // Filter for uncategorized transactions
+      categoryFilterExpression = "attribute_not_exists(categoryId)";
+    } else {
+      // Filter for specific category
+      categoryFilterExpression = "categoryId = :categoryId";
+      categoryAttributeValues[":categoryId"] = categoryId;
+    }
+
+    try {
+      const { items } = await paginateQuery<Transaction>({
+        client: this.client,
+        params: {
+          TableName: this.tableName,
+          IndexName: USER_DATE_INDEX,
+          KeyConditionExpression:
+            "userId = :userId AND #date BETWEEN :startDate AND :endDate",
+          FilterExpression: `${typeFilterExpression} AND ${categoryFilterExpression} AND isArchived = :isArchived`,
+          ExpressionAttributeNames: {
+            "#date": "date",
+            "#type": "type",
+          },
+          ExpressionAttributeValues: {
+            ":userId": userId,
+            ":startDate": startDate,
+            ":endDate": endDate,
+            ":isArchived": false,
+            ...typeAttributeValues,
+            ...categoryAttributeValues,
+          },
+          ScanIndexForward: true,
+        },
+        options: {}, // Get all items
+        schema: transactionSchema,
+      });
+
+      // Sort by amount descending and limit
+      const sortedTransactions = items
+        .sort((a, b) => b.amount - a.amount)
+        .slice(0, limit);
+
+      return sortedTransactions;
+    } catch (error) {
+      console.error("Error finding top transactions by category and month:", error);
+      throw new TransactionRepositoryError(
+        "Failed to find top transactions by category and month",
+        "QUERY_FAILED",
+        error,
+      );
+    }
+  }
+
   async hasTransactionsForAccount(
     accountId: string,
     userId: string,

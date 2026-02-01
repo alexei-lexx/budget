@@ -37,6 +37,9 @@
           :loading="monthlyReportLoading"
           :error="reportError"
           :month-year="selectedMonthYearDisplay"
+          :year="selectedYear"
+          :month="selectedMonth"
+          report-type="EXPENSE"
         />
       </v-col>
     </v-row>

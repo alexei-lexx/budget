@@ -35,6 +35,12 @@ export type Category = {
   type: CategoryType;
 };
 
+export type CategoryTopTransactionsResult = {
+  __typename?: 'CategoryTopTransactionsResult';
+  totalCount: Scalars['Int']['output'];
+  transactions: Array<Transaction>;
+};
+
 export type CategoryType =
   | 'EXPENSE'
   | 'INCOME';
@@ -191,6 +197,7 @@ export type Query = {
   __typename?: 'Query';
   accounts: Array<Account>;
   categories: Array<Category>;
+  categoryTopTransactions: CategoryTopTransactionsResult;
   monthlyReport: MonthlyReport;
   supportedCurrencies: Array<Scalars['String']['output']>;
   transactionDescriptionSuggestions: Array<Scalars['String']['output']>;
@@ -202,6 +209,15 @@ export type Query = {
 
 export type QueryCategoriesArgs = {
   type?: InputMaybe<CategoryType>;
+};
+
+
+export type QueryCategoryTopTransactionsArgs = {
+  categoryId?: InputMaybe<Scalars['ID']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  month: Scalars['Int']['input'];
+  type: ReportType;
+  year: Scalars['Int']['input'];
 };
 
 
@@ -527,6 +543,17 @@ export type GetTransactionDescriptionSuggestionsQueryVariables = Exact<{
 
 
 export type GetTransactionDescriptionSuggestionsQuery = { __typename?: 'Query', transactionDescriptionSuggestions: Array<string> };
+
+export type GetCategoryTopTransactionsQueryVariables = Exact<{
+  year: Scalars['Int']['input'];
+  month: Scalars['Int']['input'];
+  categoryId?: InputMaybe<Scalars['ID']['input']>;
+  type: ReportType;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type GetCategoryTopTransactionsQuery = { __typename?: 'Query', categoryTopTransactions: { __typename?: 'CategoryTopTransactionsResult', totalCount: number, transactions: Array<{ __typename?: 'Transaction', id: string, type: TransactionType, amount: number, currency: string, date: string, description?: string | null | undefined, transferId?: string | null | undefined, account: { __typename?: 'TransactionEmbeddedAccount', id: string, name: string, isArchived: boolean }, category?: { __typename?: 'TransactionEmbeddedCategory', id: string, name: string, isArchived: boolean } | null | undefined }> } };
 
 export const AccountFieldsFragmentDoc = gql`
     fragment AccountFields on Account {
@@ -1230,3 +1257,46 @@ export function useGetTransactionDescriptionSuggestionsLazyQuery(variables?: Get
   return VueApolloComposable.useLazyQuery<GetTransactionDescriptionSuggestionsQuery, GetTransactionDescriptionSuggestionsQueryVariables>(GetTransactionDescriptionSuggestionsDocument, variables, options);
 }
 export type GetTransactionDescriptionSuggestionsQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<GetTransactionDescriptionSuggestionsQuery, GetTransactionDescriptionSuggestionsQueryVariables>;
+export const GetCategoryTopTransactionsDocument = gql`
+    query GetCategoryTopTransactions($year: Int!, $month: Int!, $categoryId: ID, $type: ReportType!, $limit: Int) {
+  categoryTopTransactions(
+    year: $year
+    month: $month
+    categoryId: $categoryId
+    type: $type
+    limit: $limit
+  ) {
+    transactions {
+      ...TransactionFields
+    }
+    totalCount
+  }
+}
+    ${TransactionFieldsFragmentDoc}`;
+
+/**
+ * __useGetCategoryTopTransactionsQuery__
+ *
+ * To run a query within a Vue component, call `useGetCategoryTopTransactionsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCategoryTopTransactionsQuery` returns an object from Apollo Client that contains result, loading and error properties
+ * you can use to render your UI.
+ *
+ * @param variables that will be passed into the query
+ * @param options that will be passed into the query, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/query.html#options;
+ *
+ * @example
+ * const { result, loading, error } = useGetCategoryTopTransactionsQuery({
+ *   year: // value for 'year'
+ *   month: // value for 'month'
+ *   categoryId: // value for 'categoryId'
+ *   type: // value for 'type'
+ *   limit: // value for 'limit'
+ * });
+ */
+export function useGetCategoryTopTransactionsQuery(variables: GetCategoryTopTransactionsQueryVariables | VueCompositionApi.Ref<GetCategoryTopTransactionsQueryVariables> | ReactiveFunction<GetCategoryTopTransactionsQueryVariables>, options: VueApolloComposable.UseQueryOptions<GetCategoryTopTransactionsQuery, GetCategoryTopTransactionsQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<GetCategoryTopTransactionsQuery, GetCategoryTopTransactionsQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<GetCategoryTopTransactionsQuery, GetCategoryTopTransactionsQueryVariables>> = {}) {
+  return VueApolloComposable.useQuery<GetCategoryTopTransactionsQuery, GetCategoryTopTransactionsQueryVariables>(GetCategoryTopTransactionsDocument, variables, options);
+}
+export function useGetCategoryTopTransactionsLazyQuery(variables?: GetCategoryTopTransactionsQueryVariables | VueCompositionApi.Ref<GetCategoryTopTransactionsQueryVariables> | ReactiveFunction<GetCategoryTopTransactionsQueryVariables>, options: VueApolloComposable.UseQueryOptions<GetCategoryTopTransactionsQuery, GetCategoryTopTransactionsQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<GetCategoryTopTransactionsQuery, GetCategoryTopTransactionsQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<GetCategoryTopTransactionsQuery, GetCategoryTopTransactionsQueryVariables>> = {}) {
+  return VueApolloComposable.useLazyQuery<GetCategoryTopTransactionsQuery, GetCategoryTopTransactionsQueryVariables>(GetCategoryTopTransactionsDocument, variables, options);
+}
+export type GetCategoryTopTransactionsQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<GetCategoryTopTransactionsQuery, GetCategoryTopTransactionsQueryVariables>;

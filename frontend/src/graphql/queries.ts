@@ -86,3 +86,27 @@ export const GET_TRANSACTION_DESCRIPTION_SUGGESTIONS = gql`
     transactionDescriptionSuggestions(searchText: $searchText)
   }
 `;
+
+export const GET_CATEGORY_TOP_TRANSACTIONS = gql`
+  query GetCategoryTopTransactions(
+    $year: Int!
+    $month: Int!
+    $categoryId: ID
+    $type: ReportType!
+    $limit: Int
+  ) {
+    categoryTopTransactions(
+      year: $year
+      month: $month
+      categoryId: $categoryId
+      type: $type
+      limit: $limit
+    ) {
+      transactions {
+        ...TransactionFields
+      }
+      totalCount
+    }
+  }
+  ${TRANSACTION_FRAGMENT}
+`;

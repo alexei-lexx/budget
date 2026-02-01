@@ -39,6 +39,12 @@ export type Category = {
   type: CategoryType;
 };
 
+export type CategoryTopTransactionsResult = {
+  __typename?: 'CategoryTopTransactionsResult';
+  totalCount: Scalars['Int']['output'];
+  transactions: Array<Transaction>;
+};
+
 export { CategoryType };
 
 export type CreateAccountInput = {
@@ -193,6 +199,7 @@ export type Query = {
   __typename?: 'Query';
   accounts: Array<Account>;
   categories: Array<Category>;
+  categoryTopTransactions: CategoryTopTransactionsResult;
   monthlyReport: MonthlyReport;
   supportedCurrencies: Array<Scalars['String']['output']>;
   transactionDescriptionSuggestions: Array<Scalars['String']['output']>;
@@ -204,6 +211,15 @@ export type Query = {
 
 export type QueryCategoriesArgs = {
   type?: InputMaybe<CategoryType>;
+};
+
+
+export type QueryCategoryTopTransactionsArgs = {
+  categoryId?: InputMaybe<Scalars['ID']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  month: Scalars['Int']['input'];
+  type: ReportType;
+  year: Scalars['Int']['input'];
 };
 
 
@@ -440,6 +456,7 @@ export type ResolversTypes = {
   Account: ResolverTypeWrapper<Omit<Account, 'balance'>>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
   Category: ResolverTypeWrapper<Category>;
+  CategoryTopTransactionsResult: ResolverTypeWrapper<Omit<CategoryTopTransactionsResult, 'transactions'> & { transactions: Array<ResolversTypes['Transaction']> }>;
   CategoryType: CategoryType;
   CreateAccountInput: CreateAccountInput;
   CreateCategoryInput: CreateCategoryInput;
@@ -480,6 +497,7 @@ export type ResolversParentTypes = {
   Account: Omit<Account, 'balance'>;
   Boolean: Scalars['Boolean']['output'];
   Category: Category;
+  CategoryTopTransactionsResult: Omit<CategoryTopTransactionsResult, 'transactions'> & { transactions: Array<ResolversParentTypes['Transaction']> };
   CreateAccountInput: CreateAccountInput;
   CreateCategoryInput: CreateCategoryInput;
   CreateTransactionInput: CreateTransactionInput;
@@ -524,6 +542,11 @@ export type CategoryResolvers<ContextType = GraphQLContext, ParentType extends R
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   type?: Resolver<ResolversTypes['CategoryType'], ParentType, ContextType>;
+};
+
+export type CategoryTopTransactionsResultResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CategoryTopTransactionsResult'] = ResolversParentTypes['CategoryTopTransactionsResult']> = {
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  transactions?: Resolver<Array<ResolversTypes['Transaction']>, ParentType, ContextType>;
 };
 
 export type CategoryTypeResolvers = EnumResolverSignature<{ EXPENSE?: any, INCOME?: any }, ResolversTypes['CategoryType']>;
@@ -579,6 +602,7 @@ export type PageInfoResolvers<ContextType = GraphQLContext, ParentType extends R
 export type QueryResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
   accounts?: Resolver<Array<ResolversTypes['Account']>, ParentType, ContextType>;
   categories?: Resolver<Array<ResolversTypes['Category']>, ParentType, ContextType, Partial<QueryCategoriesArgs>>;
+  categoryTopTransactions?: Resolver<ResolversTypes['CategoryTopTransactionsResult'], ParentType, ContextType, RequireFields<QueryCategoryTopTransactionsArgs, 'month' | 'type' | 'year'>>;
   monthlyReport?: Resolver<ResolversTypes['MonthlyReport'], ParentType, ContextType, RequireFields<QueryMonthlyReportArgs, 'month' | 'type' | 'year'>>;
   supportedCurrencies?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   transactionDescriptionSuggestions?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType, RequireFields<QueryTransactionDescriptionSuggestionsArgs, 'searchText'>>;
@@ -646,6 +670,7 @@ export type UserResolvers<ContextType = GraphQLContext, ParentType extends Resol
 export type Resolvers<ContextType = GraphQLContext> = {
   Account?: AccountResolvers<ContextType>;
   Category?: CategoryResolvers<ContextType>;
+  CategoryTopTransactionsResult?: CategoryTopTransactionsResultResolvers<ContextType>;
   CategoryType?: CategoryTypeResolvers;
   MonthlyReport?: MonthlyReportResolvers<ContextType>;
   MonthlyReportCategory?: MonthlyReportCategoryResolvers<ContextType>;

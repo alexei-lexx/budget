@@ -10,6 +10,13 @@ type Query {
   transactionPatterns(type: TransactionPatternType!): [TransactionPattern!]!
   monthlyReport(year: Int!, month: Int!, type: ReportType!): MonthlyReport!
   transactionDescriptionSuggestions(searchText: String!): [String!]!
+  categoryTopTransactions(
+    year: Int!
+    month: Int!
+    categoryId: ID
+    type: ReportType!
+    limit: Int
+  ): CategoryTopTransactionsResult!
 }
 
 type User {
@@ -227,6 +234,11 @@ type MonthlyReport {
   type: ReportType! # TODO: remove if not needed
   categories: [MonthlyReportCategory!]!
   currencyTotals: [MonthlyReportCurrencyTotal!]!
+}
+
+type CategoryTopTransactionsResult {
+  transactions: [Transaction!]!
+  totalCount: Int!
 }
 
 type Mutation {
