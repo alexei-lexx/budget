@@ -53,7 +53,10 @@ export class CategoryTopTransactionsService {
     } else if (type === ReportType.INCOME) {
       transactionTypesToFetch = [TransactionType.INCOME];
     } else {
-      throw new Error("Invalid report type");
+      throw new BusinessError(
+        "Report type must be EXPENSE or INCOME",
+        BusinessErrorCodes.INVALID_PARAMETERS,
+      );
     }
 
     // Get all transactions for the category and month
