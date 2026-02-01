@@ -8,9 +8,12 @@ import ActionButtons from "@/components/common/ActionButtons.vue";
 interface Props {
   transaction: Transaction;
   isExpanded: boolean;
+  readonly?: boolean;
 }
 
-const props = defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), {
+  readonly: false,
+});
 
 // Define emitted events
 const emit = defineEmits<{
@@ -81,7 +84,9 @@ const handleDuplicateTransaction = () => {
 };
 
 const handleCardClick = () => {
-  emit("toggleExpand", props.transaction.id);
+  if (!props.readonly) {
+    emit("toggleExpand", props.transaction.id);
+  }
 };
 </script>
 
@@ -89,7 +94,7 @@ const handleCardClick = () => {
   <v-card
     variant="outlined"
     class="transaction-card"
-    :class="{ expanded: isExpanded }"
+    :class="{ expanded: isExpanded, readonly: readonly }"
     @click="handleCardClick"
   >
     <v-card-text class="py-3">
@@ -136,7 +141,7 @@ const handleCardClick = () => {
 
       <!-- Expanded state: Description and buttons -->
       <div
-        v-if="isExpanded"
+        v-if="isExpanded && !readonly"
         class="d-flex ga-2 mt-3"
         :class="
           transaction.description
@@ -157,25 +162,33 @@ const handleCardClick = () => {
           @delete="handleDeleteTransaction"
         />
       </div>
+
+      <!-- Readonly expanded state: Just show description -->
+      <div v-if="isExpanded && readonly && transaction.description" class="mt-3">
+        <div class="text-body-1">{{ transaction.description }}</div>
+      </div>
     </v-card-text>
   </v-card>
 </template>
 
 <style scoped>
 .transaction-card {
-  cursor: pointer;
   transition:
     transform 0.2s ease,
     box-shadow 0.2s ease,
     border-color 0.2s ease;
 }
 
-.transaction-card:hover {
+.transaction-card:not(.readonly) {
+  cursor: pointer;
+}
+
+.transaction-card:not(.readonly):hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-.transaction-card.expanded:hover {
+.transaction-card.expanded:not(.readonly):hover {
   transform: none; /* Disable hover transform when expanded */
 }
 

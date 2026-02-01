@@ -90,8 +90,8 @@
                         :key="transaction.id"
                         :transaction="transaction"
                         :is-expanded="false"
+                        :readonly="true"
                         class="mb-2"
-                        @toggle-expand="() => {}"
                       />
                     </div>
                   </div>
