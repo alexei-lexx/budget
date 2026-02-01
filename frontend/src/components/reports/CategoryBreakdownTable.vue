@@ -71,7 +71,7 @@
               <!-- Expanded transaction list -->
               <tr v-if="expandedCategories.has(getCategoryKey(category))">
                 <td :colspan="3" class="pa-0">
-                  <div class="category-transactions-list pa-3">
+                  <div class="pa-3">
                     <!-- Show count badge if there are more transactions than displayed -->
                     <div
                       v-if="category.totalTransactionCount > category.topTransactions.length"
@@ -211,9 +211,5 @@ const currencyTotals = computed(() => {
 
 .category-row:hover {
   background-color: rgba(var(--v-theme-on-surface), 0.05);
-}
-
-.category-transactions-list {
-  background-color: rgba(var(--v-theme-surface-variant), 0.3);
 }
 </style>
