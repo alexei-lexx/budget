@@ -44,7 +44,7 @@
               <tr
                 v-for="(breakdown, breakdownIndex) in category.currencyBreakdowns"
                 :key="`${categoryIndex}-${breakdownIndex}`"
-                class="category-row cursor-pointer"
+                class="category-row"
                 @click="handleCategoryClick(category)"
               >
                 <td v-if="breakdownIndex === 0" :rowspan="category.currencyBreakdowns.length">
