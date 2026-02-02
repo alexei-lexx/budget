@@ -139,7 +139,7 @@ const handleCardClick = () => {
 
       <!-- Expanded state: Description and buttons -->
       <div
-        v-if="isExpanded"
+        v-if="isExpanded && (transaction.description || !hideActions)"
         class="d-flex ga-2 mt-3"
         :class="
           transaction.description
