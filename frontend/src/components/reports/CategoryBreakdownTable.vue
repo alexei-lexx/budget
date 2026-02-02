@@ -49,17 +49,17 @@
               >
                 <td v-if="breakdownIndex === 0" :rowspan="category.currencyBreakdowns.length">
                   <div class="d-flex align-center">
+                    <em v-if="!category.categoryId" class="text-h6">{{ category.categoryName }}</em>
+                    <span v-else class="text-h6">{{ category.categoryName }}</span>
                     <v-icon
                       size="small"
-                      class="mr-2"
+                      class="ml-2"
                       :icon="
                         expandedCategories.has(getCategoryKey(category))
                           ? 'mdi-chevron-down'
                           : 'mdi-chevron-right'
                       "
                     />
-                    <em v-if="!category.categoryId" class="text-h6">{{ category.categoryName }}</em>
-                    <span v-else class="text-h6">{{ category.categoryName }}</span>
                   </div>
                 </td>
                 <td class="text-right text-h6 text-medium-emphasis">
