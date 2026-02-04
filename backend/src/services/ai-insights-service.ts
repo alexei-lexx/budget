@@ -4,10 +4,7 @@ import { ITransactionRepository, Transaction } from "../models/transaction";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
 import { YEAR_RANGE_OFFSET } from "../types/validation";
 import { formatDateAsYYYYMMDD } from "../utils/date";
-import type {
-  AiInsightsModelClient,
-  AiInsightsModelMessage,
-} from "./ai-insights-client";
+import type { AiModelClient, AiModelMessage } from "./ai-model-client";
 
 const MAX_PERIOD_DAYS = 366;
 const MAX_CONVERSATION_MESSAGES = 12;
@@ -34,7 +31,7 @@ export class AiInsightsService {
     private transactionRepository: ITransactionRepository,
     private accountRepository: IAccountRepository,
     private categoryRepository: ICategoryRepository,
-    private aiInsightsClient: AiInsightsModelClient,
+    private aiModelClient: AiModelClient,
   ) {}
 
   async call(userId: string, input: AiInsightsInput): Promise<string> {
@@ -91,7 +88,7 @@ export class AiInsightsService {
 
     let answerText: string;
     try {
-      answerText = await this.aiInsightsClient.generateResponse([
+      answerText = await this.aiModelClient.generateResponse([
         { role: "system", content: systemPrompt },
         ...conversationMessages,
       ]);
@@ -256,15 +253,15 @@ export class AiInsightsService {
     conversation: AiInsightsMessageInput[],
     question: string,
     summaryPayload: string,
-  ): AiInsightsModelMessage[] {
-    const conversationMessages: AiInsightsModelMessage[] = conversation.map(
+  ): AiModelMessage[] {
+    const conversationMessages: AiModelMessage[] = conversation.map(
       (message) => ({
         role: message.role === "USER" ? "user" : "assistant",
         content: message.content,
       }),
     );
 
-    const questionMessage: AiInsightsModelMessage = {
+    const questionMessage: AiModelMessage = {
       role: "user",
       content: [
         "Here is the transaction summary for the selected period.",

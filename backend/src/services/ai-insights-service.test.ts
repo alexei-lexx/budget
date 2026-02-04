@@ -1,4 +1,4 @@
-import type { AiInsightsModelClient } from "./ai-insights-client";
+import type { AiModelClient } from "./ai-model-client";
 import { AiInsightsService } from "./ai-insights-service";
 import {
   createMockAccountRepository,
@@ -10,7 +10,7 @@ import type { ICategoryRepository } from "../models/category";
 import type { ITransactionRepository } from "../models/transaction";
 import { BusinessError } from "./business-error";
 
-const createAiInsightsClientMock = (): AiInsightsModelClient => ({
+const createAiInsightsClientMock = (): AiModelClient => ({
   generateResponse: jest.fn(),
 });
 
@@ -27,12 +27,12 @@ describe("AiInsightsService", () => {
   });
 
   it("throws when question is empty", async () => {
-    const aiInsightsClient = createAiInsightsClientMock();
+    const aiModelClient = createAiInsightsClientMock();
     const service = new AiInsightsService(
       transactionRepository,
       accountRepository,
       categoryRepository,
-      aiInsightsClient,
+      aiModelClient,
     );
 
     await expect(
@@ -44,8 +44,8 @@ describe("AiInsightsService", () => {
   });
 
   it("uses model response text", async () => {
-    const aiInsightsClient = createAiInsightsClientMock();
-    (aiInsightsClient.generateResponse as jest.Mock).mockResolvedValue(
+    const aiModelClient = createAiInsightsClientMock();
+    (aiModelClient.generateResponse as jest.Mock).mockResolvedValue(
       "Insight response",
     );
 
@@ -57,7 +57,7 @@ describe("AiInsightsService", () => {
       transactionRepository,
       accountRepository,
       categoryRepository,
-      aiInsightsClient,
+      aiModelClient,
     );
 
     const result = await service.call(userId, {
@@ -66,7 +66,7 @@ describe("AiInsightsService", () => {
     });
 
     expect(result).toBe("Insight response");
-    expect(aiInsightsClient.generateResponse).toHaveBeenCalled();
+    expect(aiModelClient.generateResponse).toHaveBeenCalled();
     expect(transactionRepository.findActiveByDateRange).toHaveBeenCalledWith(
       userId,
       "2025-01-01",

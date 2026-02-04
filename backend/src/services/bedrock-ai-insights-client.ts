@@ -2,14 +2,11 @@ import {
   BedrockRuntimeClient,
   ConverseCommand,
 } from "@aws-sdk/client-bedrock-runtime";
-import type {
-  AiInsightsModelClient,
-  AiInsightsModelMessage,
-} from "./ai-insights-client";
+import type { AiModelClient, AiModelMessage } from "./ai-model-client";
 
 const MODEL_ID = "anthropic.claude-3-haiku-20240307-v1:0";
 
-export class BedrockAiInsightsClient implements AiInsightsModelClient {
+export class BedrockAiInsightsClient implements AiModelClient {
   private bedrockClient: BedrockRuntimeClient;
 
   constructor(bedrockClient?: BedrockRuntimeClient) {
@@ -20,7 +17,7 @@ export class BedrockAiInsightsClient implements AiInsightsModelClient {
       });
   }
 
-  async generateResponse(messages: AiInsightsModelMessage[]): Promise<string> {
+  async generateResponse(messages: AiModelMessage[]): Promise<string> {
     const systemMessage = messages.find((message) => message.role === "system");
     const conversationMessages = messages.filter(
       (message) => message.role !== "system",
