@@ -3,6 +3,7 @@
 import { watch } from "vue";
 import { useRouter } from "vue-router";
 import { useAuth } from "@/composables/useAuth";
+import LoginButton from "@/components/auth/LoginButton.vue";
 
 const router = useRouter();
 const { isAuthenticated, isLoading: authLoading, displayName } = useAuth();
@@ -40,6 +41,9 @@ watch(
         </div>
         <div v-else-if="authLoading">Setting up your account...</div>
         <div v-else>Welcome back, {{ displayName }}! Redirecting to your transactions...</div>
+      </div>
+      <div v-if="!isAuthenticated && !authLoading" class="mt-6">
+        <LoginButton />
       </div>
     </v-sheet>
   </v-container>
