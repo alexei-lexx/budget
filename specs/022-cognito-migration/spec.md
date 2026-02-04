@@ -62,10 +62,10 @@ Users sign in through Cognito hosted UI, receive access and refresh tokens, acce
 
 ### Edge Cases
 
-- What happens when Cognito service experiences temporary outage during token validation?
+- What happens when Cognito service experiences temporary outage during token validation? → Backend continues validating tokens using cached JWKS keys; no Cognito round-trip needed for signature verification.
 - How does system handle JWKS key rotation when Cognito rotates signing keys?
 - What occurs if user attempts to use Auth0-issued token after migration?
-- How does backend respond when Cognito JWKS endpoint is unreachable during startup?
+- How does backend respond when Cognito JWKS endpoint is unreachable during startup? → Backend starts with cached/stale JWKS keys and retries fetching in background; requests are validated against cached keys until fresh keys are obtained.
 - What happens when refresh token expires and user must re-authenticate?
 - How are existing Auth0 user sessions invalidated after Cognito migration?
 
@@ -73,8 +73,8 @@ Users sign in through Cognito hosted UI, receive access and refresh tokens, acce
 
 ### Functional Requirements
 
-- **FR-001**: System MUST create separate Cognito User Pools for development and production environments
-- **FR-002**: System MUST configure Cognito User Pool with hosted UI domain for user authentication
+- **FR-001**: System MUST create separate Cognito User Pools for development and production environments with email as the sole sign-in identifier and self-registration disabled (`allowAdminCreateUserOnly: true`)
+- **FR-002**: System MUST configure Cognito User Pool with Cognito-managed hosted UI domain prefix (not a custom domain) for user authentication
 - **FR-003**: System MUST define Cognito infrastructure using AWS CDK for reproducible deployments
 - **FR-004**: System MUST configure OIDC client in Cognito User Pool with appropriate callback URLs, logout URLs, and allowed OAuth flows
 - **FR-005**: Frontend MUST update OIDC client configuration to use Cognito domain, client ID, and authorization endpoints
@@ -96,15 +96,16 @@ Users sign in through Cognito hosted UI, receive access and refresh tokens, acce
 - **NFR-003**: Backend JWT verification code MUST NOT require changes beyond issuer URL and JWKS endpoint updates
 - **NFR-004**: Frontend authentication flow MUST NOT require changes beyond OIDC provider configuration updates
 - **NFR-005**: Cognito infrastructure MUST be defined in CDK to eliminate manual AWS Console configuration
+- **NFR-006**: Backend MUST cache JWKS keys and continue serving requests using cached keys if Cognito JWKS endpoint becomes temporarily unreachable
 
 ### Key Entities *(include if feature involves data)*
 
-- **Cognito User Pool**: AWS resource providing user directory, authentication, and token issuance. Contains user accounts, configured OAuth scopes, hosted UI settings, and OIDC endpoints.
-- **Cognito User Pool Client**: OAuth 2.0 client configuration within User Pool. Defines allowed callback URLs, logout URLs, OAuth flows (authorization code with PKCE), and token expiration settings.
-- **Cognito Domain**: Hosted UI domain prefix for authentication pages. Provides login, signup, and forgot password interfaces.
+- **Cognito User Pool**: AWS resource providing user directory, authentication, and token issuance. Contains user accounts, configured OAuth scopes, hosted UI settings, and OIDC endpoints. Sign-in alias is email only (`signInAliases: { email: true }`).
+- **Cognito User Pool Client**: OAuth 2.0 client configuration within User Pool. Defines allowed callback URLs, logout URLs, OAuth flows (authorization code with PKCE), and token expiration settings (access: 1h, ID: 1h, refresh: 30d).
+- **Cognito Domain**: Cognito-managed hosted UI domain prefix (e.g., `<prefix>.auth.<region>.amazoncognito.com`) for authentication pages. Provides login and forgot password interfaces (signup disabled; admin-created accounts only).
 - **JWKS (JSON Web Key Set)**: Public keys published by Cognito for JWT signature verification. Backend retrieves from Cognito well-known endpoint.
-- **Access Token**: Short-lived JWT issued by Cognito after successful authentication. Used by frontend to authorize GraphQL API requests. Contains user identity claims and expiration.
-- **Refresh Token**: Long-lived token issued by Cognito with `offline_access` scope. Enables obtaining new access tokens without user re-authentication.
+- **Access Token**: JWT issued by Cognito after successful authentication with 1-hour expiration. Used by frontend to authorize GraphQL API requests. Contains user identity claims and expiration.
+- **Refresh Token**: Token issued by Cognito with `offline_access` scope with 30-day expiration. Enables obtaining new access tokens without user re-authentication.
 
 ## Success Criteria *(mandatory)*
 
@@ -149,6 +150,16 @@ Users sign in through Cognito hosted UI, receive access and refresh tokens, acce
 - Phone number verification or SMS-based authentication
 - Account recovery workflows beyond Cognito defaults
 - Integration with external SAML or LDAP identity providers
+
+## Clarifications
+
+### Session 2026-02-04
+
+- Q: What primary attribute should users use to sign in to Cognito? → A: Email only
+- Q: What token expiration durations should Cognito use? → A: Access token 1 hour, ID token 1 hour, refresh token 30 days
+- Q: Should users be able to self-register or admin-created only? → A: Admin-created only
+- Q: How should backend behave if JWKS endpoint is unreachable at startup? → A: Start with cached keys, retry in background
+- Q: Should Cognito use a managed domain prefix or custom domain? → A: Cognito-managed prefix
 
 ## Dependencies
 
