@@ -9,6 +9,7 @@ type Query {
   transfer(id: ID!): Transfer
   transactionPatterns(type: TransactionPatternType!): [TransactionPattern!]!
   monthlyReport(year: Int!, month: Int!, type: ReportType!): MonthlyReport!
+  aiInsights(input: AiInsightsInput!): AiInsightsResponse!
   transactionDescriptionSuggestions(searchText: String!): [String!]!
 }
 
@@ -46,6 +47,31 @@ enum TransactionPatternType {
 enum ReportType {
   INCOME
   EXPENSE
+}
+
+enum AiInsightsMessageRole {
+  USER
+  ASSISTANT
+}
+
+input AiInsightsMessageInput {
+  role: AiInsightsMessageRole!
+  content: String!
+}
+
+input AiInsightsPeriodInput {
+  startDate: String!
+  endDate: String!
+}
+
+input AiInsightsInput {
+  question: String!
+  period: AiInsightsPeriodInput!
+  conversation: [AiInsightsMessageInput!]
+}
+
+type AiInsightsResponse {
+  answer: String!
 }
 
 type Category {

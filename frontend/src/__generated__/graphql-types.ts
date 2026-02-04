@@ -23,6 +23,31 @@ export type Account = {
   name: Scalars['String']['output'];
 };
 
+export type AiInsightsInput = {
+  conversation?: InputMaybe<Array<AiInsightsMessageInput>>;
+  period: AiInsightsPeriodInput;
+  question: Scalars['String']['input'];
+};
+
+export type AiInsightsMessageInput = {
+  content: Scalars['String']['input'];
+  role: AiInsightsMessageRole;
+};
+
+export type AiInsightsMessageRole =
+  | 'ASSISTANT'
+  | 'USER';
+
+export type AiInsightsPeriodInput = {
+  endDate: Scalars['String']['input'];
+  startDate: Scalars['String']['input'];
+};
+
+export type AiInsightsResponse = {
+  __typename?: 'AiInsightsResponse';
+  answer: Scalars['String']['output'];
+};
+
 export type Category = {
   __typename?: 'Category';
   excludeFromReports: Scalars['Boolean']['output'];
@@ -188,6 +213,7 @@ export type PaginationInput = {
 export type Query = {
   __typename?: 'Query';
   accounts: Array<Account>;
+  aiInsights: AiInsightsResponse;
   categories: Array<Category>;
   monthlyReport: MonthlyReport;
   supportedCurrencies: Array<Scalars['String']['output']>;
@@ -195,6 +221,11 @@ export type Query = {
   transactionPatterns: Array<TransactionPattern>;
   transactions: TransactionConnection;
   transfer?: Maybe<Transfer>;
+};
+
+
+export type QueryAiInsightsArgs = {
+  input: AiInsightsInput;
 };
 
 
@@ -525,3 +556,10 @@ export type GetTransactionDescriptionSuggestionsQueryVariables = Exact<{
 
 
 export type GetTransactionDescriptionSuggestionsQuery = { __typename?: 'Query', transactionDescriptionSuggestions: Array<string> };
+
+export type GetAiInsightsQueryVariables = Exact<{
+  input: AiInsightsInput;
+}>;
+
+
+export type GetAiInsightsQuery = { __typename?: 'Query', aiInsights: { __typename?: 'AiInsightsResponse', answer: string } };

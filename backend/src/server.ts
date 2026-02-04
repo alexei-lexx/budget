@@ -18,6 +18,7 @@ import { getAuthenticatedUser } from "./resolvers/shared";
 import { AccountService } from "./services/account-service";
 import { CategoryService } from "./services/category-service";
 import { MonthlyByCategoryReportService } from "./services/monthly-by-category-report-service";
+import { AiInsightsService } from "./services/ai-insights-service";
 import { TransactionService } from "./services/transaction-service";
 import { TransferService } from "./services/transfer-service";
 import type {
@@ -36,6 +37,7 @@ export interface GraphQLContext {
   accountService: AccountService;
   transferService: TransferService;
   monthlyByCategoryReportService: MonthlyByCategoryReportService;
+  aiInsightsService: AiInsightsService;
   jwtAuthService: JwtAuthService;
   authHeader?: string;
   accountLoader: DataLoader<string, TransactionEmbeddedAccount>;
@@ -52,6 +54,7 @@ let transactionService: TransactionService;
 let accountService: AccountService;
 let transferService: TransferService;
 let monthlyByCategoryReportService: MonthlyByCategoryReportService;
+let aiInsightsService: AiInsightsService;
 
 const typeDefs = readFileSync(join(__dirname, "schema.graphql"), {
   encoding: "utf-8",
@@ -124,6 +127,14 @@ export async function createContext(req: {
     );
   }
 
+  if (!aiInsightsService) {
+    aiInsightsService = new AiInsightsService(
+      transactionRepository,
+      accountRepository,
+      categoryRepository,
+    );
+  }
+
   const authHeader = req.headers.authorization;
   // Handle both string and string[] types from different contexts
   const authHeaderString = Array.isArray(authHeader)
@@ -147,6 +158,7 @@ export async function createContext(req: {
     accountService,
     transferService,
     monthlyByCategoryReportService,
+    aiInsightsService,
     jwtAuthService,
     authHeader: authHeaderString,
   };

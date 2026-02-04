@@ -817,6 +817,67 @@ export class TransactionRepository implements ITransactionRepository {
     }
   }
 
+  async findActiveByDateRange(
+    userId: string,
+    startDate: string,
+    endDate: string,
+  ): Promise<Transaction[]> {
+    if (!userId) {
+      throw new TransactionRepositoryError(
+        "User ID is required",
+        "INVALID_PARAMETERS",
+      );
+    }
+
+    if (!startDate || !endDate) {
+      throw new TransactionRepositoryError(
+        "Start date and end date are required",
+        "INVALID_PARAMETERS",
+      );
+    }
+
+    if (startDate > endDate) {
+      throw new TransactionRepositoryError(
+        "Start date must be before or equal to end date",
+        "INVALID_PARAMETERS",
+      );
+    }
+
+    try {
+      const { items } = await paginateQuery<Transaction>({
+        client: this.client,
+        params: {
+          TableName: this.tableName,
+          IndexName: USER_DATE_INDEX,
+          KeyConditionExpression:
+            "userId = :userId AND #date BETWEEN :startDate AND :endDate",
+          FilterExpression: "isArchived = :isArchived",
+          ExpressionAttributeNames: {
+            "#date": "date",
+          },
+          ExpressionAttributeValues: {
+            ":userId": userId,
+            ":startDate": startDate,
+            ":endDate": endDate,
+            ":isArchived": false,
+          },
+          ScanIndexForward: true,
+        },
+        options: {},
+        schema: transactionSchema,
+      });
+
+      return items;
+    } catch (error) {
+      console.error("Error finding transactions by date range:", error);
+      throw new TransactionRepositoryError(
+        "Failed to find transactions by date range",
+        "QUERY_FAILED",
+        error,
+      );
+    }
+  }
+
   async hasTransactionsForAccount(
     accountId: string,
     userId: string,
