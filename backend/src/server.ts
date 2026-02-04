@@ -19,6 +19,7 @@ import { AccountService } from "./services/account-service";
 import { CategoryService } from "./services/category-service";
 import { MonthlyByCategoryReportService } from "./services/monthly-by-category-report-service";
 import { AiInsightsService } from "./services/ai-insights-service";
+import { BedrockAiInsightsClient } from "./services/bedrock-ai-insights-client";
 import { TransactionService } from "./services/transaction-service";
 import { TransferService } from "./services/transfer-service";
 import type {
@@ -55,6 +56,7 @@ let accountService: AccountService;
 let transferService: TransferService;
 let monthlyByCategoryReportService: MonthlyByCategoryReportService;
 let aiInsightsService: AiInsightsService;
+let aiInsightsClient: BedrockAiInsightsClient;
 
 const typeDefs = readFileSync(join(__dirname, "schema.graphql"), {
   encoding: "utf-8",
@@ -128,10 +130,15 @@ export async function createContext(req: {
   }
 
   if (!aiInsightsService) {
+    if (!aiInsightsClient) {
+      aiInsightsClient = new BedrockAiInsightsClient();
+    }
+
     aiInsightsService = new AiInsightsService(
       transactionRepository,
       accountRepository,
       categoryRepository,
+      aiInsightsClient,
     );
   }
 

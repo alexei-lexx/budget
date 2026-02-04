@@ -1,3 +1,4 @@
+import type { AiInsightsModelClient } from "./ai-insights-client";
 import { AiInsightsService } from "./ai-insights-service";
 import {
   createMockAccountRepository,
@@ -9,8 +10,8 @@ import type { ICategoryRepository } from "../models/category";
 import type { ITransactionRepository } from "../models/transaction";
 import { BusinessError } from "./business-error";
 
-const createBedrockClientMock = () => ({
-  send: jest.fn(),
+const createAiInsightsClientMock = (): AiInsightsModelClient => ({
+  generateResponse: jest.fn(),
 });
 
 describe("AiInsightsService", () => {
@@ -26,12 +27,12 @@ describe("AiInsightsService", () => {
   });
 
   it("throws when question is empty", async () => {
-    const bedrockClient = createBedrockClientMock();
+    const aiInsightsClient = createAiInsightsClientMock();
     const service = new AiInsightsService(
       transactionRepository,
       accountRepository,
       categoryRepository,
-      bedrockClient as never,
+      aiInsightsClient,
     );
 
     await expect(
@@ -42,11 +43,11 @@ describe("AiInsightsService", () => {
     ).rejects.toThrow(BusinessError);
   });
 
-  it("uses bedrock response text", async () => {
-    const bedrockClient = createBedrockClientMock();
-    bedrockClient.send.mockResolvedValue({
-      output: { message: { content: [{ text: "Insight response" }] } },
-    });
+  it("uses model response text", async () => {
+    const aiInsightsClient = createAiInsightsClientMock();
+    (aiInsightsClient.generateResponse as jest.Mock).mockResolvedValue(
+      "Insight response",
+    );
 
     transactionRepository.findActiveByDateRange.mockResolvedValue([]);
     accountRepository.findByIds.mockResolvedValue([]);
@@ -56,7 +57,7 @@ describe("AiInsightsService", () => {
       transactionRepository,
       accountRepository,
       categoryRepository,
-      bedrockClient as never,
+      aiInsightsClient,
     );
 
     const result = await service.call(userId, {
