@@ -1,4 +1,4 @@
-export type AiInsightsModelRole = "user" | "assistant";
+export type AiInsightsModelRole = "system" | "user" | "assistant";
 
 export interface AiInsightsModelMessage {
   role: AiInsightsModelRole;
@@ -6,8 +6,5 @@ export interface AiInsightsModelMessage {
 }
 
 export interface AiInsightsModelClient {
-  generateResponse(
-    messages: AiInsightsModelMessage[],
-    systemPrompt: string,
-  ): Promise<string>;
+  generateResponse(messages: AiInsightsModelMessage[]): Promise<string>;
 }

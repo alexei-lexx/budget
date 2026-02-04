@@ -66,6 +66,7 @@ describe("AiInsightsService", () => {
     });
 
     expect(result).toBe("Insight response");
+    expect(aiInsightsClient.generateResponse).toHaveBeenCalled();
     expect(transactionRepository.findActiveByDateRange).toHaveBeenCalledWith(
       userId,
       "2025-01-01",

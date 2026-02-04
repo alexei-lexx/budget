@@ -20,14 +20,16 @@ export class BedrockAiInsightsClient implements AiInsightsModelClient {
       });
   }
 
-  async generateResponse(
-    messages: AiInsightsModelMessage[],
-    systemPrompt: string,
-  ): Promise<string> {
+  async generateResponse(messages: AiInsightsModelMessage[]): Promise<string> {
+    const systemMessage = messages.find((message) => message.role === "system");
+    const conversationMessages = messages.filter(
+      (message) => message.role !== "system",
+    );
+
     const response = await this.bedrockClient.send(
       new ConverseCommand({
         modelId: MODEL_ID,
-        messages: messages.map((message) => ({
+        messages: conversationMessages.map((message) => ({
           role: message.role,
           content: [{ text: message.content }],
         })),
@@ -35,11 +37,13 @@ export class BedrockAiInsightsClient implements AiInsightsModelClient {
           maxTokens: 450,
           temperature: 0.2,
         },
-        system: [
-          {
-            text: systemPrompt,
-          },
-        ],
+        system: systemMessage
+          ? [
+              {
+                text: systemMessage.content,
+              },
+            ]
+          : undefined,
       }),
     );
 
