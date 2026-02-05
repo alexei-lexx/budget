@@ -1,39 +1,42 @@
-import { ref } from "vue";
-import type { ApolloError } from "@apollo/client";
-import { apolloClient } from "@/apollo";
-import {
-  GetInsightDocument,
-  type GetInsightQuery,
-  type GetInsightQueryVariables,
-  type InsightInput,
-} from "@/__generated__/vue-apollo";
+import { ref, computed } from "vue";
+import { useGetInsightLazyQuery, type InsightInput } from "@/__generated__/vue-apollo";
 
 export function useInsight() {
-  const insightLoading = ref(false);
-  const insightError = ref<string | null>(null);
-  const insightAnswer = ref<string | null>(null);
+  const question = ref("");
+  const dateRange = ref<InsightInput["dateRange"]>({
+    startDate: "",
+    endDate: "",
+  });
 
-  const askQuestion = async (
-    question: string,
-    dateRange: InsightInput["dateRange"],
-  ): Promise<void> => {
-    insightError.value = null;
-    insightAnswer.value = null;
-    insightLoading.value = true;
+  const {
+    result: insightResult,
+    loading: insightLoading,
+    error: insightQueryError,
+    load: loadInsight,
+    refetch: refetchInsight,
+  } = useGetInsightLazyQuery(
+    () => ({
+      input: {
+        question: question.value,
+        dateRange: dateRange.value,
+      },
+    }),
+    () => ({
+      fetchPolicy: "no-cache",
+    }),
+  );
 
-    try {
-      const result = await apolloClient.query<GetInsightQuery, GetInsightQueryVariables>({
-        query: GetInsightDocument,
-        variables: { input: { question, dateRange } },
-        fetchPolicy: "no-cache",
-      });
+  const insightAnswer = computed(() => insightResult.value?.insight?.answer ?? null);
 
-      insightAnswer.value = result.data?.insight?.answer ?? null;
-    } catch (error) {
-      const apolloError = error as ApolloError;
-      insightError.value = apolloError?.message || "Failed to fetch insight. Please try again.";
-    } finally {
-      insightLoading.value = false;
+  const insightError = computed(() => insightQueryError.value?.message ?? null);
+
+  const askQuestion = async (q: string, dr: InsightInput["dateRange"]): Promise<void> => {
+    question.value = q;
+    dateRange.value = dr;
+    // load() returns false if already loaded, use refetch() for subsequent calls
+    const loaded = await loadInsight();
+    if (!loaded) {
+      await refetchInsight();
     }
   };
 
