@@ -28,17 +28,20 @@ export class BedrockAiModelClient implements AiModelClient {
 
   async generateResponse(messages: AiModelMessage[]): Promise<string> {
     const systemMessage = messages.find((message) => message.role === "system");
-    const conversationMessages = messages.filter(
-      (message) => message.role !== "system",
-    );
+    const conversationMessages = messages
+      .filter((message) => message.role !== "system")
+      .map((message) => {
+        const role = message.role === "assistant" ? "assistant" : "user";
+        return {
+          role,
+          content: [{ text: message.content }],
+        };
+      });
 
     const response = await this.bedrockClient.send(
       new ConverseCommand({
         modelId: MODEL_ID,
-        messages: conversationMessages.map((message) => ({
-          role: message.role,
-          content: [{ text: message.content }],
-        })),
+        messages: conversationMessages,
         inferenceConfig: {
           maxTokens: 450,
           temperature: 0.2,
