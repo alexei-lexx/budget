@@ -5,11 +5,25 @@ import {
   loadBedrockModelId,
   loadBedrockTemperature,
 } from "../utils/bedrock-runtime-client";
-import type {
-  AiModelClient,
-  AiModelConversationMessage,
-  AiModelSystemMessage,
-} from "./ai-model-client";
+import type { AiModelClient, AiModelMessage } from "./ai-model-client";
+
+interface NonSystemMessage extends AiModelMessage {
+  role: "user" | "assistant";
+}
+
+interface SystemMessage extends AiModelMessage {
+  role: "system";
+}
+
+function isSystemMessage(message: AiModelMessage): message is SystemMessage {
+  return message.role === "system";
+}
+
+function isNonSystemMessage(
+  message: AiModelMessage,
+): message is NonSystemMessage {
+  return !isSystemMessage(message);
+}
 
 export class BedrockAiModelClient implements AiModelClient {
   private readonly maxTokens: number;
@@ -27,14 +41,18 @@ export class BedrockAiModelClient implements AiModelClient {
     this.temperature = temperature ?? loadBedrockTemperature();
   }
 
-  async generateResponse(
-    conversationMessages: readonly AiModelConversationMessage[],
-    systemMessages: readonly AiModelSystemMessage[],
-  ): Promise<string> {
+  async generateResponse(messages: readonly AiModelMessage[]): Promise<string> {
+    const nonSystemMessages: NonSystemMessage[] = messages.filter((message) =>
+      isNonSystemMessage(message),
+    );
+    const systemMessages: SystemMessage[] = messages.filter((message) =>
+      isSystemMessage(message),
+    );
+
     const response = await this.bedrockClient.send(
       new ConverseCommand({
         modelId: this.modelId,
-        messages: conversationMessages.map((message) => ({
+        messages: nonSystemMessages.map((message) => ({
           role: message.role,
           content: [{ text: message.content }],
         })),

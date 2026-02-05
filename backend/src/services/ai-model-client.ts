@@ -1,16 +1,8 @@
-export interface AiModelConversationMessage {
-  role: "user" | "assistant";
-  content: string;
-}
-
-export interface AiModelSystemMessage {
-  role: "system";
+export interface AiModelMessage {
+  role: "user" | "assistant" | "system";
   content: string;
 }
 
 export interface AiModelClient {
-  generateResponse(
-    conversationMessages: readonly AiModelConversationMessage[],
-    systemMessages: readonly AiModelSystemMessage[],
-  ): Promise<string>;
+  generateResponse(messages: readonly AiModelMessage[]): Promise<string>;
 }

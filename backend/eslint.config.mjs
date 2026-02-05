@@ -21,6 +21,14 @@ export default defineConfig(
       importPlugin.flatConfigs.recommended,
       importPlugin.flatConfigs.typescript,
     ],
+    // Override the default node resolver from flatConfigs.typescript with
+    // eslint-import-resolver-typescript, which supports the package.json
+    // "exports" field (needed by packages like @toon-format/toon).
+    settings: {
+      "import/resolver": {
+        typescript: true,
+      },
+    },
     plugins: {
       "check-file": checkFilePlugin,
     },
