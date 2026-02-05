@@ -87,9 +87,9 @@ export const GET_TRANSACTION_DESCRIPTION_SUGGESTIONS = gql`
   }
 `;
 
-export const GET_AI_INSIGHTS = gql`
-  query GetAiInsights($input: AiInsightsInput!) {
-    aiInsights(input: $input) {
+export const GET_INSIGHT = gql`
+  query GetInsight($input: InsightInput!) {
+    insight(input: $input) {
       answer
     }
   }

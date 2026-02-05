@@ -11,8 +11,8 @@ export const insightResolvers = {
           question: string;
           period: { startDate: string; endDate: string };
           conversation?:
-          | { role: "USER" | "ASSISTANT"; content: string }[]
-          | null;
+            | { role: "USER" | "ASSISTANT"; content: string }[]
+            | null;
         };
       },
       context: GraphQLContext,

@@ -27,31 +27,6 @@ export type Account = {
   name: Scalars['String']['output'];
 };
 
-export type AiInsightsInput = {
-  conversation?: InputMaybe<Array<AiInsightsMessageInput>>;
-  period: AiInsightsPeriodInput;
-  question: Scalars['String']['input'];
-};
-
-export type AiInsightsMessageInput = {
-  content: Scalars['String']['input'];
-  role: AiInsightsMessageRole;
-};
-
-export type AiInsightsMessageRole =
-  | 'ASSISTANT'
-  | 'USER';
-
-export type AiInsightsPeriodInput = {
-  endDate: Scalars['String']['input'];
-  startDate: Scalars['String']['input'];
-};
-
-export type AiInsightsResponse = {
-  __typename?: 'AiInsightsResponse';
-  answer: Scalars['String']['output'];
-};
-
 export type Category = {
   __typename?: 'Category';
   excludeFromReports: Scalars['Boolean']['output'];
@@ -92,6 +67,31 @@ export type CreateTransferInput = {
   fromAccountId: Scalars['ID']['input'];
   toAccountId: Scalars['ID']['input'];
 };
+
+export type DateRangeInput = {
+  endDate: Scalars['String']['input'];
+  startDate: Scalars['String']['input'];
+};
+
+export type InsightInput = {
+  conversation?: InputMaybe<Array<MessageInput>>;
+  period: DateRangeInput;
+  question: Scalars['String']['input'];
+};
+
+export type InsightResponse = {
+  __typename?: 'InsightResponse';
+  answer: Scalars['String']['output'];
+};
+
+export type MessageInput = {
+  content: Scalars['String']['input'];
+  role: MessageRole;
+};
+
+export type MessageRole =
+  | 'ASSISTANT'
+  | 'USER';
 
 export type MonthlyReport = {
   __typename?: 'MonthlyReport';
@@ -217,8 +217,8 @@ export type PaginationInput = {
 export type Query = {
   __typename?: 'Query';
   accounts: Array<Account>;
-  aiInsights: AiInsightsResponse;
   categories: Array<Category>;
+  insight: InsightResponse;
   monthlyReport: MonthlyReport;
   supportedCurrencies: Array<Scalars['String']['output']>;
   transactionDescriptionSuggestions: Array<Scalars['String']['output']>;
@@ -228,13 +228,13 @@ export type Query = {
 };
 
 
-export type QueryAiInsightsArgs = {
-  input: AiInsightsInput;
+export type QueryCategoriesArgs = {
+  type?: InputMaybe<CategoryType>;
 };
 
 
-export type QueryCategoriesArgs = {
-  type?: InputMaybe<CategoryType>;
+export type QueryInsightArgs = {
+  input: InsightInput;
 };
 
 
@@ -561,12 +561,12 @@ export type GetTransactionDescriptionSuggestionsQueryVariables = Exact<{
 
 export type GetTransactionDescriptionSuggestionsQuery = { __typename?: 'Query', transactionDescriptionSuggestions: Array<string> };
 
-export type GetAiInsightsQueryVariables = Exact<{
-  input: AiInsightsInput;
+export type GetInsightQueryVariables = Exact<{
+  input: InsightInput;
 }>;
 
 
-export type GetAiInsightsQuery = { __typename?: 'Query', aiInsights: { __typename?: 'AiInsightsResponse', answer: string } };
+export type GetInsightQuery = { __typename?: 'Query', insight: { __typename?: 'InsightResponse', answer: string } };
 
 export const AccountFieldsFragmentDoc = gql`
     fragment AccountFields on Account {
@@ -1275,33 +1275,33 @@ export function useGetTransactionDescriptionSuggestionsLazyQuery(variables?: Get
   return VueApolloComposable.useLazyQuery<GetTransactionDescriptionSuggestionsQuery, GetTransactionDescriptionSuggestionsQueryVariables>(GetTransactionDescriptionSuggestionsDocument, variables, options);
 }
 export type GetTransactionDescriptionSuggestionsQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<GetTransactionDescriptionSuggestionsQuery, GetTransactionDescriptionSuggestionsQueryVariables>;
-export const GetAiInsightsDocument = gql`
-    query GetAiInsights($input: AiInsightsInput!) {
-  aiInsights(input: $input) {
+export const GetInsightDocument = gql`
+    query GetInsight($input: InsightInput!) {
+  insight(input: $input) {
     answer
   }
 }
     `;
 
 /**
- * __useGetAiInsightsQuery__
+ * __useGetInsightQuery__
  *
- * To run a query within a Vue component, call `useGetAiInsightsQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetAiInsightsQuery` returns an object from Apollo Client that contains result, loading and error properties
+ * To run a query within a Vue component, call `useGetInsightQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetInsightQuery` returns an object from Apollo Client that contains result, loading and error properties
  * you can use to render your UI.
  *
  * @param variables that will be passed into the query
  * @param options that will be passed into the query, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/query.html#options;
  *
  * @example
- * const { result, loading, error } = useGetAiInsightsQuery({
+ * const { result, loading, error } = useGetInsightQuery({
  *   input: // value for 'input'
  * });
  */
-export function useGetAiInsightsQuery(variables: GetAiInsightsQueryVariables | VueCompositionApi.Ref<GetAiInsightsQueryVariables> | ReactiveFunction<GetAiInsightsQueryVariables>, options: VueApolloComposable.UseQueryOptions<GetAiInsightsQuery, GetAiInsightsQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<GetAiInsightsQuery, GetAiInsightsQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<GetAiInsightsQuery, GetAiInsightsQueryVariables>> = {}) {
-  return VueApolloComposable.useQuery<GetAiInsightsQuery, GetAiInsightsQueryVariables>(GetAiInsightsDocument, variables, options);
+export function useGetInsightQuery(variables: GetInsightQueryVariables | VueCompositionApi.Ref<GetInsightQueryVariables> | ReactiveFunction<GetInsightQueryVariables>, options: VueApolloComposable.UseQueryOptions<GetInsightQuery, GetInsightQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<GetInsightQuery, GetInsightQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<GetInsightQuery, GetInsightQueryVariables>> = {}) {
+  return VueApolloComposable.useQuery<GetInsightQuery, GetInsightQueryVariables>(GetInsightDocument, variables, options);
 }
-export function useGetAiInsightsLazyQuery(variables?: GetAiInsightsQueryVariables | VueCompositionApi.Ref<GetAiInsightsQueryVariables> | ReactiveFunction<GetAiInsightsQueryVariables>, options: VueApolloComposable.UseQueryOptions<GetAiInsightsQuery, GetAiInsightsQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<GetAiInsightsQuery, GetAiInsightsQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<GetAiInsightsQuery, GetAiInsightsQueryVariables>> = {}) {
-  return VueApolloComposable.useLazyQuery<GetAiInsightsQuery, GetAiInsightsQueryVariables>(GetAiInsightsDocument, variables, options);
+export function useGetInsightLazyQuery(variables?: GetInsightQueryVariables | VueCompositionApi.Ref<GetInsightQueryVariables> | ReactiveFunction<GetInsightQueryVariables>, options: VueApolloComposable.UseQueryOptions<GetInsightQuery, GetInsightQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<GetInsightQuery, GetInsightQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<GetInsightQuery, GetInsightQueryVariables>> = {}) {
+  return VueApolloComposable.useLazyQuery<GetInsightQuery, GetInsightQueryVariables>(GetInsightDocument, variables, options);
 }
-export type GetAiInsightsQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<GetAiInsightsQuery, GetAiInsightsQueryVariables>;
+export type GetInsightQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<GetInsightQuery, GetInsightQueryVariables>;

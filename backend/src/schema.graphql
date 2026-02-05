@@ -201,7 +201,7 @@ input DateRangeInput {
   endDate: String!
 }
 
-input InsightMessageInput {
+input MessageInput {
   role: MessageRole!
   content: String!
 }
@@ -209,7 +209,7 @@ input InsightMessageInput {
 input InsightInput {
   question: String!
   period: DateRangeInput!
-  conversation: [InsightMessageInput!]
+  conversation: [MessageInput!]
 }
 
 type PageInfo {

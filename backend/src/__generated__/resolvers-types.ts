@@ -76,19 +76,19 @@ export type DateRangeInput = {
 };
 
 export type InsightInput = {
-  conversation?: InputMaybe<Array<InsightMessageInput>>;
+  conversation?: InputMaybe<Array<MessageInput>>;
   period: DateRangeInput;
   question: Scalars['String']['input'];
-};
-
-export type InsightMessageInput = {
-  content: Scalars['String']['input'];
-  role: MessageRole;
 };
 
 export type InsightResponse = {
   __typename?: 'InsightResponse';
   answer: Scalars['String']['output'];
+};
+
+export type MessageInput = {
+  content: Scalars['String']['input'];
+  role: MessageRole;
 };
 
 export enum MessageRole {
@@ -483,9 +483,9 @@ export type ResolversTypes = {
   Float: ResolverTypeWrapper<Scalars['Float']['output']>;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   InsightInput: InsightInput;
-  InsightMessageInput: InsightMessageInput;
   InsightResponse: ResolverTypeWrapper<InsightResponse>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
+  MessageInput: MessageInput;
   MessageRole: MessageRole;
   MonthlyReport: ResolverTypeWrapper<Omit<MonthlyReport, 'categories'> & { categories: Array<ResolversTypes['MonthlyReportCategory']> }>;
   MonthlyReportCategory: ResolverTypeWrapper<Omit<MonthlyReportCategory, 'topTransactions'> & { topTransactions: Array<ResolversTypes['Transaction']> }>;
@@ -527,9 +527,9 @@ export type ResolversParentTypes = {
   Float: Scalars['Float']['output'];
   ID: Scalars['ID']['output'];
   InsightInput: InsightInput;
-  InsightMessageInput: InsightMessageInput;
   InsightResponse: InsightResponse;
   Int: Scalars['Int']['output'];
+  MessageInput: MessageInput;
   MonthlyReport: Omit<MonthlyReport, 'categories'> & { categories: Array<ResolversParentTypes['MonthlyReportCategory']> };
   MonthlyReportCategory: Omit<MonthlyReportCategory, 'topTransactions'> & { topTransactions: Array<ResolversParentTypes['Transaction']> };
   MonthlyReportCurrencyBreakdown: MonthlyReportCurrencyBreakdown;

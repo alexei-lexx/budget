@@ -1,29 +1,22 @@
 import { ref } from "vue";
 import type { ApolloError } from "@apollo/client";
 import { apolloClient } from "@/apollo";
-import {
-  GetAiInsightsDocument,
-  type AiInsightsInput,
-  type AiInsightsMessageInput,
-  type AiInsightsResponse,
-  type GetAiInsightsQuery,
-  type GetAiInsightsQueryVariables,
-} from "@/__generated__/vue-apollo";
+import { GetInsightDocument, type GetInsightQuery, type GetInsightQueryVariables, type InsightInput, type InsightResponse, type MessageInput } from "@/__generated__/vue-apollo";
 
-export interface AiInsightsMessage {
-  role: AiInsightsMessageInput["role"];
+export interface InsightMessage {
+  role: MessageInput["role"];
   content: string;
 }
 
-export interface AiInsightsConversation {
-  messages: AiInsightsMessage[];
+export interface InsightConversation {
+  messages: InsightMessage[];
 }
 
 const STORAGE_KEY = "budget_ai_insights_conversation";
 
-export function useAiInsights() {
-  const insightsError = ref<string | null>(null);
-  const conversation = ref<AiInsightsConversation>({
+export function useInsight() {
+  const insightError = ref<string | null>(null);
+  const conversation = ref<InsightConversation>({
     messages: [],
   });
 
@@ -35,7 +28,7 @@ export function useAiInsights() {
     }
 
     try {
-      const parsed = JSON.parse(raw) as AiInsightsConversation;
+      const parsed = JSON.parse(raw) as InsightConversation;
       conversation.value = {
         messages: Array.isArray(parsed.messages)
           ? parsed.messages.filter((message) => message.content)
@@ -55,7 +48,7 @@ export function useAiInsights() {
     localStorage.removeItem(STORAGE_KEY);
   };
 
-  const buildInput = (question: string, period: AiInsightsInput["period"]): AiInsightsInput => ({
+  const buildInput = (question: string, period: InsightInput["period"]): InsightInput => ({
     question,
     period,
     conversation: conversation.value.messages.map((message) => ({
@@ -64,23 +57,23 @@ export function useAiInsights() {
     })),
   });
 
-  const insightsLoading = ref(false);
+  const insightLoading = ref(false);
 
   const askQuestion = async (
     question: string,
-    period: AiInsightsInput["period"],
-  ): Promise<AiInsightsResponse | null> => {
-    insightsError.value = null;
-    insightsLoading.value = true;
+    period: InsightInput["period"],
+  ): Promise<InsightResponse | null> => {
+    insightError.value = null;
+    insightLoading.value = true;
 
     try {
-      const result = await apolloClient.query<GetAiInsightsQuery, GetAiInsightsQueryVariables>({
-        query: GetAiInsightsDocument,
+      const result = await apolloClient.query<GetInsightQuery, GetInsightQueryVariables>({
+        query: GetInsightDocument,
         variables: { input: buildInput(question, period) },
         fetchPolicy: "no-cache",
       });
 
-      const response = result.data?.aiInsights ?? null;
+      const response = result.data?.insight ?? null;
       if (!response) {
         return null;
       }
@@ -88,18 +81,18 @@ export function useAiInsights() {
       return response;
     } catch (error) {
       const apolloError = error as ApolloError;
-      insightsError.value =
-        apolloError?.message || "Failed to fetch AI insights. Please try again.";
+      insightError.value =
+        apolloError?.message || "Failed to fetch insight. Please try again.";
       return null;
     } finally {
-      insightsLoading.value = false;
+      insightLoading.value = false;
     }
   };
 
   return {
     conversation,
-    insightsLoading,
-    insightsError,
+    insightLoading,
+    insightError,
     loadConversation,
     persistConversation,
     clearConversation,

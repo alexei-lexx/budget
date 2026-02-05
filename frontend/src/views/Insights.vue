@@ -126,7 +126,7 @@
 
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref, watch } from "vue";
-import { useAiInsights } from "@/composables/useAiInsights";
+import { useInsight } from "@/composables/useInsight";
 import { useSnackbar } from "@/composables/useSnackbar";
 
 type InsightsPreset =
@@ -142,13 +142,13 @@ type InsightsPreset =
 const { showErrorSnackbar } = useSnackbar();
 const {
   conversation,
-  insightsLoading,
-  insightsError,
+  insightLoading: insightsLoading,
+  insightError: insightsError,
   loadConversation,
   persistConversation,
   clearConversation,
   askQuestion,
-} = useAiInsights();
+} = useInsight();
 
 const presetOptions: { value: InsightsPreset; label: string }[] = [
   { value: "THIS_MONTH", label: "This month" },

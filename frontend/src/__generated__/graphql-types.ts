@@ -23,31 +23,6 @@ export type Account = {
   name: Scalars['String']['output'];
 };
 
-export type AiInsightsInput = {
-  conversation?: InputMaybe<Array<AiInsightsMessageInput>>;
-  period: AiInsightsPeriodInput;
-  question: Scalars['String']['input'];
-};
-
-export type AiInsightsMessageInput = {
-  content: Scalars['String']['input'];
-  role: AiInsightsMessageRole;
-};
-
-export type AiInsightsMessageRole =
-  | 'ASSISTANT'
-  | 'USER';
-
-export type AiInsightsPeriodInput = {
-  endDate: Scalars['String']['input'];
-  startDate: Scalars['String']['input'];
-};
-
-export type AiInsightsResponse = {
-  __typename?: 'AiInsightsResponse';
-  answer: Scalars['String']['output'];
-};
-
 export type Category = {
   __typename?: 'Category';
   excludeFromReports: Scalars['Boolean']['output'];
@@ -88,6 +63,31 @@ export type CreateTransferInput = {
   fromAccountId: Scalars['ID']['input'];
   toAccountId: Scalars['ID']['input'];
 };
+
+export type DateRangeInput = {
+  endDate: Scalars['String']['input'];
+  startDate: Scalars['String']['input'];
+};
+
+export type InsightInput = {
+  conversation?: InputMaybe<Array<MessageInput>>;
+  period: DateRangeInput;
+  question: Scalars['String']['input'];
+};
+
+export type InsightResponse = {
+  __typename?: 'InsightResponse';
+  answer: Scalars['String']['output'];
+};
+
+export type MessageInput = {
+  content: Scalars['String']['input'];
+  role: MessageRole;
+};
+
+export type MessageRole =
+  | 'ASSISTANT'
+  | 'USER';
 
 export type MonthlyReport = {
   __typename?: 'MonthlyReport';
@@ -213,8 +213,8 @@ export type PaginationInput = {
 export type Query = {
   __typename?: 'Query';
   accounts: Array<Account>;
-  aiInsights: AiInsightsResponse;
   categories: Array<Category>;
+  insight: InsightResponse;
   monthlyReport: MonthlyReport;
   supportedCurrencies: Array<Scalars['String']['output']>;
   transactionDescriptionSuggestions: Array<Scalars['String']['output']>;
@@ -224,13 +224,13 @@ export type Query = {
 };
 
 
-export type QueryAiInsightsArgs = {
-  input: AiInsightsInput;
+export type QueryCategoriesArgs = {
+  type?: InputMaybe<CategoryType>;
 };
 
 
-export type QueryCategoriesArgs = {
-  type?: InputMaybe<CategoryType>;
+export type QueryInsightArgs = {
+  input: InsightInput;
 };
 
 
@@ -557,9 +557,9 @@ export type GetTransactionDescriptionSuggestionsQueryVariables = Exact<{
 
 export type GetTransactionDescriptionSuggestionsQuery = { __typename?: 'Query', transactionDescriptionSuggestions: Array<string> };
 
-export type GetAiInsightsQueryVariables = Exact<{
-  input: AiInsightsInput;
+export type GetInsightQueryVariables = Exact<{
+  input: InsightInput;
 }>;
 
 
-export type GetAiInsightsQuery = { __typename?: 'Query', aiInsights: { __typename?: 'AiInsightsResponse', answer: string } };
+export type GetInsightQuery = { __typename?: 'Query', insight: { __typename?: 'InsightResponse', answer: string } };
