@@ -1,34 +1,15 @@
 import { ConverseCommand } from "@aws-sdk/client-bedrock-runtime";
-import { createBedrockRuntimeClient } from "../utils/bedrock-runtime-client";
+import {
+  createBedrockRuntimeClient,
+  loadBedrockMaxTokens,
+  loadBedrockModelId,
+  loadBedrockTemperature,
+} from "../utils/bedrock-runtime-client";
 import type {
   AiModelClient,
   AiModelConversationMessage,
   AiModelSystemMessage,
 } from "./ai-model-client";
-
-function requireEnv(name: string): string {
-  const value = process.env[name];
-  if (!value) {
-    throw new Error(`${name} environment variable is required`);
-  }
-  return value;
-}
-
-function parseIntEnv(name: string, value: string): number {
-  const parsed = parseInt(value, 10);
-  if (Number.isNaN(parsed)) {
-    throw new Error(`${name} must be a valid integer`);
-  }
-  return parsed;
-}
-
-function parseFloatEnv(name: string, value: string): number {
-  const parsed = parseFloat(value);
-  if (Number.isNaN(parsed)) {
-    throw new Error(`${name} must be a valid number`);
-  }
-  return parsed;
-}
 
 export class BedrockAiModelClient implements AiModelClient {
   private readonly maxTokens: number;
@@ -41,21 +22,9 @@ export class BedrockAiModelClient implements AiModelClient {
     modelId?: string,
     temperature?: number,
   ) {
-    this.maxTokens =
-      maxTokens ??
-      parseIntEnv(
-        "AWS_BEDROCK_MAX_TOKENS",
-        requireEnv("AWS_BEDROCK_MAX_TOKENS"),
-      );
-
-    this.modelId = modelId ?? requireEnv("AWS_BEDROCK_MODEL_ID");
-
-    this.temperature =
-      temperature ??
-      parseFloatEnv(
-        "AWS_BEDROCK_TEMPERATURE",
-        requireEnv("AWS_BEDROCK_TEMPERATURE"),
-      );
+    this.maxTokens = maxTokens ?? loadBedrockMaxTokens();
+    this.modelId = modelId ?? loadBedrockModelId();
+    this.temperature = temperature ?? loadBedrockTemperature();
   }
 
   async generateResponse(
