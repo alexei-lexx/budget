@@ -2,7 +2,10 @@ import {
   BedrockRuntimeClient,
   ConverseCommand,
 } from "@aws-sdk/client-bedrock-runtime";
-import type { AiModelClient, AiModelMessage } from "../services/ai-model-client";
+import type {
+  AiModelClient,
+  AiModelMessage,
+} from "../services/ai-model-client";
 
 const MODEL_ID = "anthropic.claude-3-haiku-20240307-v1:0";
 
