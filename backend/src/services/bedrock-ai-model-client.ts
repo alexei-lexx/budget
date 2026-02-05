@@ -6,11 +6,57 @@ import type {
   AiModelSystemMessage,
 } from "./ai-model-client";
 
-const DEFAULT_MODEL_ID = "anthropic.claude-3-haiku-20240307-v1:0";
-const MODEL_ID = process.env.AWS_BEDROCK_MODEL_ID || DEFAULT_MODEL_ID;
+function requireEnv(name: string): string {
+  const value = process.env[name];
+  if (!value) {
+    throw new Error(`${name} environment variable is required`);
+  }
+  return value;
+}
+
+function parseIntEnv(name: string, value: string): number {
+  const parsed = parseInt(value, 10);
+  if (Number.isNaN(parsed)) {
+    throw new Error(`${name} must be a valid integer`);
+  }
+  return parsed;
+}
+
+function parseFloatEnv(name: string, value: string): number {
+  const parsed = parseFloat(value);
+  if (Number.isNaN(parsed)) {
+    throw new Error(`${name} must be a valid number`);
+  }
+  return parsed;
+}
 
 export class BedrockAiModelClient implements AiModelClient {
-  constructor(private readonly bedrockClient = createBedrockRuntimeClient()) {}
+  private readonly maxTokens: number;
+  private readonly modelId: string;
+  private readonly temperature: number;
+
+  constructor(
+    private readonly bedrockClient = createBedrockRuntimeClient(),
+    maxTokens?: number,
+    modelId?: string,
+    temperature?: number,
+  ) {
+    this.maxTokens =
+      maxTokens ??
+      parseIntEnv(
+        "AWS_BEDROCK_MAX_TOKENS",
+        requireEnv("AWS_BEDROCK_MAX_TOKENS"),
+      );
+
+    this.modelId = modelId ?? requireEnv("AWS_BEDROCK_MODEL_ID");
+
+    this.temperature =
+      temperature ??
+      parseFloatEnv(
+        "AWS_BEDROCK_TEMPERATURE",
+        requireEnv("AWS_BEDROCK_TEMPERATURE"),
+      );
+  }
 
   async generateResponse(
     conversationMessages: readonly AiModelConversationMessage[],
@@ -18,7 +64,7 @@ export class BedrockAiModelClient implements AiModelClient {
   ): Promise<string> {
     const response = await this.bedrockClient.send(
       new ConverseCommand({
-        modelId: MODEL_ID,
+        modelId: this.modelId,
         messages: conversationMessages.map((message) => ({
           role: message.role,
           content: [{ text: message.content }],
@@ -27,8 +73,8 @@ export class BedrockAiModelClient implements AiModelClient {
           text: systemMessage.content,
         })),
         inferenceConfig: {
-          maxTokens: 450,
-          temperature: 0.2,
+          maxTokens: this.maxTokens,
+          temperature: this.temperature,
         },
       }),
     );
