@@ -1,5 +1,5 @@
 import { BedrockRuntimeClient } from "@aws-sdk/client-bedrock-runtime";
-import { parseFloatEnv, parseIntEnv, requireEnv } from "./require-env";
+import { requireEnv, requireFloatEnv, requireIntEnv } from "./require-env";
 
 const isLocalEnvironment =
   process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test";
@@ -11,18 +11,12 @@ export function loadBedrockModelId(): string {
 
 /** Reads the max response tokens from AWS_BEDROCK_MAX_TOKENS. */
 export function loadBedrockMaxTokens(): number {
-  return parseIntEnv(
-    "AWS_BEDROCK_MAX_TOKENS",
-    requireEnv("AWS_BEDROCK_MAX_TOKENS"),
-  );
+  return requireIntEnv("AWS_BEDROCK_MAX_TOKENS");
 }
 
 /** Reads the sampling temperature from AWS_BEDROCK_TEMPERATURE. */
 export function loadBedrockTemperature(): number {
-  return parseFloatEnv(
-    "AWS_BEDROCK_TEMPERATURE",
-    requireEnv("AWS_BEDROCK_TEMPERATURE"),
-  );
+  return requireFloatEnv("AWS_BEDROCK_TEMPERATURE");
 }
 
 /**

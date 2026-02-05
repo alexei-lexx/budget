@@ -6,7 +6,17 @@ export function requireEnv(name: string): string {
   return value;
 }
 
-export function parseIntEnv(name: string, value: string): number {
+export function requireIntEnv(name: string): number {
+  const value = requireEnv(name);
+  return parseIntEnv(name, value);
+}
+
+export function requireFloatEnv(name: string): number {
+  const value = requireEnv(name);
+  return parseFloatEnv(name, value);
+}
+
+function parseIntEnv(name: string, value: string): number {
   const parsed = parseInt(value, 10);
   if (Number.isNaN(parsed)) {
     throw new Error(`${name} must be a valid integer`);
@@ -14,7 +24,7 @@ export function parseIntEnv(name: string, value: string): number {
   return parsed;
 }
 
-export function parseFloatEnv(name: string, value: string): number {
+function parseFloatEnv(name: string, value: string): number {
   const parsed = parseFloat(value);
   if (Number.isNaN(parsed)) {
     throw new Error(`${name} must be a valid number`);
