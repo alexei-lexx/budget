@@ -38,7 +38,7 @@ describe("InsightService", () => {
     await expect(
       service.call(userId, {
         question: "  ",
-        period: { startDate: "2025-01-01", endDate: "2025-01-31" },
+        dateRange: { startDate: "2025-01-01", endDate: "2025-01-31" },
       }),
     ).rejects.toThrow(BusinessError);
   });
@@ -62,7 +62,7 @@ describe("InsightService", () => {
 
     const result = await service.call(userId, {
       question: "How can I cut costs?",
-      period: { startDate: "2025-01-01", endDate: "2025-01-31" },
+      dateRange: { startDate: "2025-01-01", endDate: "2025-01-31" },
     });
 
     expect(result).toBe("Insight response");

@@ -12,20 +12,20 @@ import { BusinessError, BusinessErrorCodes } from "./business-error";
 const MAX_PERIOD_DAYS = 366;
 const MAX_CONVERSATION_MESSAGES = 12;
 
-export interface AiInsightsPeriodInput {
+interface DateRange {
   startDate: string;
   endDate: string;
 }
 
-export interface AiInsightsMessageInput {
+interface Message {
   role: "USER" | "ASSISTANT";
   content: string;
 }
 
-export interface AiInsightsInput {
+export interface InsightInput {
   question: string;
-  period: AiInsightsPeriodInput;
-  conversation?: AiInsightsMessageInput[] | null;
+  dateRange: DateRange;
+  conversation?: Message[] | null;
 }
 
 export class InsightService {
@@ -34,9 +34,9 @@ export class InsightService {
     private accountRepository: IAccountRepository,
     private categoryRepository: ICategoryRepository,
     private aiModelClient: AiModelClient,
-  ) {}
+  ) { }
 
-  async call(userId: string, input: AiInsightsInput): Promise<string> {
+  async call(userId: string, input: InsightInput): Promise<string> {
     if (!userId) {
       throw new BusinessError(
         "User ID is required",
@@ -44,7 +44,7 @@ export class InsightService {
       );
     }
 
-    const { question, period } = input;
+    const { question, dateRange } = input;
     const normalizedQuestion = question.trim();
     if (!normalizedQuestion) {
       throw new BusinessError(
@@ -53,13 +53,13 @@ export class InsightService {
       );
     }
 
-    const validatedPeriod = this.validatePeriod(period);
+    const validatedDateRange = this.validateDateRange(dateRange);
     const conversationHistory = this.normalizeConversation(input.conversation);
 
     const transactions = await this.transactionRepository.findActiveByDateRange(
       userId,
-      validatedPeriod.startDate,
-      validatedPeriod.endDate,
+      validatedDateRange.startDate,
+      validatedDateRange.endDate,
     );
 
     const { accountNamesById, categoryNamesById } = await this.buildLookupMaps(
@@ -69,7 +69,7 @@ export class InsightService {
 
     const summaryPayload = this.buildSummaryPayload(
       transactions,
-      validatedPeriod,
+      validatedDateRange,
       accountNamesById,
       categoryNamesById,
     );
@@ -104,16 +104,16 @@ export class InsightService {
     return answerText;
   }
 
-  private validatePeriod(period: AiInsightsPeriodInput): AiInsightsPeriodInput {
-    if (!period?.startDate || !period?.endDate) {
+  private validateDateRange(dateRange: DateRange): DateRange {
+    if (!dateRange.startDate || !dateRange.endDate) {
       throw new BusinessError(
         "Start date and end date are required",
         BusinessErrorCodes.INVALID_PARAMETERS,
       );
     }
 
-    const startDate = this.parseDate(period.startDate, "startDate");
-    const endDate = this.parseDate(period.endDate, "endDate");
+    const startDate = this.parseDate(dateRange.startDate, "startDate");
+    const endDate = this.parseDate(dateRange.endDate, "endDate");
 
     if (startDate > endDate) {
       throw new BusinessError(
@@ -124,6 +124,7 @@ export class InsightService {
 
     const differenceInDays =
       (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24);
+
     if (differenceInDays > MAX_PERIOD_DAYS) {
       throw new BusinessError(
         `Date range cannot exceed ${MAX_PERIOD_DAYS} days`,
@@ -131,10 +132,7 @@ export class InsightService {
       );
     }
 
-    return {
-      startDate: formatDateAsYYYYMMDD(startDate),
-      endDate: formatDateAsYYYYMMDD(endDate),
-    };
+    return { ...dateRange };
   }
 
   private parseDate(value: string, fieldName: string): Date {
@@ -150,6 +148,7 @@ export class InsightService {
     const minimumYear = currentYear - YEAR_RANGE_OFFSET;
     const maximumYear = currentYear + YEAR_RANGE_OFFSET;
     const yearValue = parsed.getFullYear();
+
     if (yearValue < minimumYear || yearValue > maximumYear) {
       throw new BusinessError(
         `${fieldName} must be between ${minimumYear} and ${maximumYear}`,
@@ -161,8 +160,8 @@ export class InsightService {
   }
 
   private normalizeConversation(
-    conversation?: AiInsightsMessageInput[] | null,
-  ): AiInsightsMessageInput[] {
+    conversation?: Message[] | null,
+  ): Message[] {
     if (!conversation || conversation.length === 0) {
       return [];
     }
@@ -174,7 +173,7 @@ export class InsightService {
 
   private buildSummaryPayload(
     transactions: Transaction[],
-    period: AiInsightsPeriodInput,
+    period: DateRange,
     accountNamesById: Map<string, string>,
     categoryNamesById: Map<string, string>,
   ): string {
@@ -248,7 +247,7 @@ export class InsightService {
   }
 
   private buildConversationMessages(
-    conversation: AiInsightsMessageInput[],
+    conversation: Message[],
     question: string,
     summaryPayload: string,
   ): AiModelConversationMessage[] {

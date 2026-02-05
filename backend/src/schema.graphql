@@ -208,7 +208,7 @@ input MessageInput {
 
 input InsightInput {
   question: String!
-  period: DateRangeInput!
+  dateRange: DateRangeInput!
   conversation: [MessageInput!]
 }
 

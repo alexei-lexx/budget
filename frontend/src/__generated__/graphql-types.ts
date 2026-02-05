@@ -71,7 +71,7 @@ export type DateRangeInput = {
 
 export type InsightInput = {
   conversation?: InputMaybe<Array<MessageInput>>;
-  period: DateRangeInput;
+  dateRange: DateRangeInput;
   question: Scalars['String']['input'];
 };
 

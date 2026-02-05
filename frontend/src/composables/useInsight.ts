@@ -1,7 +1,14 @@
 import { ref } from "vue";
 import type { ApolloError } from "@apollo/client";
 import { apolloClient } from "@/apollo";
-import { GetInsightDocument, type GetInsightQuery, type GetInsightQueryVariables, type InsightInput, type InsightResponse, type MessageInput } from "@/__generated__/vue-apollo";
+import {
+  GetInsightDocument,
+  type GetInsightQuery,
+  type GetInsightQueryVariables,
+  type InsightInput,
+  type InsightResponse,
+  type MessageInput,
+} from "@/__generated__/vue-apollo";
 
 export interface InsightMessage {
   role: MessageInput["role"];
@@ -48,9 +55,9 @@ export function useInsight() {
     localStorage.removeItem(STORAGE_KEY);
   };
 
-  const buildInput = (question: string, period: InsightInput["period"]): InsightInput => ({
+  const buildInput = (question: string, dateRange: InsightInput["dateRange"]): InsightInput => ({
     question,
-    period,
+    dateRange,
     conversation: conversation.value.messages.map((message) => ({
       role: message.role,
       content: message.content,
@@ -61,7 +68,7 @@ export function useInsight() {
 
   const askQuestion = async (
     question: string,
-    period: InsightInput["period"],
+    dateRange: InsightInput["dateRange"],
   ): Promise<InsightResponse | null> => {
     insightError.value = null;
     insightLoading.value = true;
@@ -69,7 +76,7 @@ export function useInsight() {
     try {
       const result = await apolloClient.query<GetInsightQuery, GetInsightQueryVariables>({
         query: GetInsightDocument,
-        variables: { input: buildInput(question, period) },
+        variables: { input: buildInput(question, dateRange) },
         fetchPolicy: "no-cache",
       });
 
@@ -81,8 +88,7 @@ export function useInsight() {
       return response;
     } catch (error) {
       const apolloError = error as ApolloError;
-      insightError.value =
-        apolloError?.message || "Failed to fetch insight. Please try again.";
+      insightError.value = apolloError?.message || "Failed to fetch insight. Please try again.";
       return null;
     } finally {
       insightLoading.value = false;

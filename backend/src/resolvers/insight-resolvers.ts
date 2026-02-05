@@ -8,10 +8,10 @@ export const insightResolvers = {
       args: {
         input: {
           question: string;
-          period: { startDate: string; endDate: string };
+          dateRange: { startDate: string; endDate: string };
           conversation?:
-            | { role: "USER" | "ASSISTANT"; content: string }[]
-            | null;
+          | { role: "USER" | "ASSISTANT"; content: string }[]
+          | null;
         };
       },
       context: GraphQLContext,
