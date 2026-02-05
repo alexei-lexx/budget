@@ -6,15 +6,15 @@ import {
 import type { IAccountRepository } from "../models/account";
 import type { ICategoryRepository } from "../models/category";
 import type { ITransactionRepository } from "../models/transaction";
-import { AiInsightsService } from "./ai-insights-service";
 import type { AiModelClient } from "./ai-model-client";
 import { BusinessError } from "./business-error";
+import { InsightService } from "./insight-service";
 
-const createAiInsightsClientMock = (): AiModelClient => ({
+const createAiModelClientMock = (): AiModelClient => ({
   generateResponse: jest.fn(),
 });
 
-describe("AiInsightsService", () => {
+describe("InsightService", () => {
   const userId = "user-123";
   let transactionRepository: jest.Mocked<ITransactionRepository>;
   let accountRepository: jest.Mocked<IAccountRepository>;
@@ -27,8 +27,8 @@ describe("AiInsightsService", () => {
   });
 
   it("throws when question is empty", async () => {
-    const aiModelClient = createAiInsightsClientMock();
-    const service = new AiInsightsService(
+    const aiModelClient = createAiModelClientMock();
+    const service = new InsightService(
       transactionRepository,
       accountRepository,
       categoryRepository,
@@ -44,7 +44,7 @@ describe("AiInsightsService", () => {
   });
 
   it("uses model response text", async () => {
-    const aiModelClient = createAiInsightsClientMock();
+    const aiModelClient = createAiModelClientMock();
     (aiModelClient.generateResponse as jest.Mock).mockResolvedValue(
       "Insight response",
     );
@@ -53,7 +53,7 @@ describe("AiInsightsService", () => {
     accountRepository.findByIds.mockResolvedValue([]);
     categoryRepository.findByIds.mockResolvedValue([]);
 
-    const service = new AiInsightsService(
+    const service = new InsightService(
       transactionRepository,
       accountRepository,
       categoryRepository,

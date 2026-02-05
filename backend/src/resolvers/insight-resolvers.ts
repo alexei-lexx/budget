@@ -1,4 +1,3 @@
-import { ReportType } from "../models/report";
 import { GraphQLContext } from "../server";
 import { getAuthenticatedUser, handleResolverError } from "./shared";
 
@@ -20,10 +19,7 @@ export const insightResolvers = {
       try {
         const user = await getAuthenticatedUser(context);
 
-        const answer = await context.aiInsightsService.call(
-          user.id,
-          args.input,
-        );
+        const answer = await context.insightService.call(user.id, args.input);
 
         return { answer };
       } catch (error) {

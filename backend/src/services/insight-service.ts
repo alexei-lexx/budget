@@ -28,7 +28,7 @@ export interface AiInsightsInput {
   conversation?: AiInsightsMessageInput[] | null;
 }
 
-export class AiInsightsService {
+export class InsightService {
   constructor(
     private transactionRepository: ITransactionRepository,
     private accountRepository: IAccountRepository,

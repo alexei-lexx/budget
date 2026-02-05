@@ -16,9 +16,9 @@ import { UserRepository } from "./repositories/user-repository";
 import { resolvers } from "./resolvers";
 import { getAuthenticatedUser } from "./resolvers/shared";
 import { AccountService } from "./services/account-service";
-import { AiInsightsService } from "./services/ai-insights-service";
 import { BedrockAiModelClient } from "./services/bedrock-ai-model-client";
 import { CategoryService } from "./services/category-service";
+import { InsightService } from "./services/insight-service";
 import { MonthlyByCategoryReportService } from "./services/monthly-by-category-report-service";
 import { TransactionService } from "./services/transaction-service";
 import { TransferService } from "./services/transfer-service";
@@ -36,9 +36,9 @@ export interface GraphQLContext {
   categoryService: CategoryService;
   transactionService: TransactionService;
   accountService: AccountService;
+  insightService: InsightService;
   transferService: TransferService;
   monthlyByCategoryReportService: MonthlyByCategoryReportService;
-  aiInsightsService: AiInsightsService;
   jwtAuthService: JwtAuthService;
   authHeader?: string;
   accountLoader: DataLoader<string, TransactionEmbeddedAccount>;
@@ -53,9 +53,9 @@ let transactionRepository: TransactionRepository;
 let categoryService: CategoryService;
 let transactionService: TransactionService;
 let accountService: AccountService;
+let insightService: InsightService;
 let transferService: TransferService;
 let monthlyByCategoryReportService: MonthlyByCategoryReportService;
-let aiInsightsService: AiInsightsService;
 let aiModelClient: BedrockAiModelClient;
 
 const typeDefs = readFileSync(join(__dirname, "schema.graphql"), {
@@ -115,6 +115,19 @@ export async function createContext(req: {
     );
   }
 
+  if (!insightService) {
+    if (!aiModelClient) {
+      aiModelClient = new BedrockAiModelClient();
+    }
+
+    insightService = new InsightService(
+      transactionRepository,
+      accountRepository,
+      categoryRepository,
+      aiModelClient,
+    );
+  }
+
   if (!transferService) {
     transferService = new TransferService(
       transactionRepository,
@@ -126,19 +139,6 @@ export async function createContext(req: {
     monthlyByCategoryReportService = new MonthlyByCategoryReportService(
       transactionRepository,
       categoryRepository,
-    );
-  }
-
-  if (!aiInsightsService) {
-    if (!aiModelClient) {
-      aiModelClient = new BedrockAiModelClient();
-    }
-
-    aiInsightsService = new AiInsightsService(
-      transactionRepository,
-      accountRepository,
-      categoryRepository,
-      aiModelClient,
     );
   }
 
@@ -163,9 +163,9 @@ export async function createContext(req: {
     categoryService,
     transactionService,
     accountService,
+    insightService,
     transferService,
     monthlyByCategoryReportService,
-    aiInsightsService,
     jwtAuthService,
     authHeader: authHeaderString,
   };
