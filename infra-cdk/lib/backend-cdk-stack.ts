@@ -141,7 +141,7 @@ export class BackendCdkStack extends cdk.Stack {
     transactionsTable.grantReadWriteData(graphqlFunction);
     usersTable.grantReadWriteData(graphqlFunction);
 
-    // Allow the GraphQL Lambda to invoke Bedrock models for AI insights
+    // Allow the GraphQL Lambda to invoke Bedrock models
     graphqlFunction.addToRolePolicy(
       new iam.PolicyStatement({
         actions: ["bedrock:InvokeModel"],
