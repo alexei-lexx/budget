@@ -87,7 +87,7 @@ aws ssm put-parameter --overwrite --type String \
 # AI max response tokens
 aws ssm put-parameter --overwrite --type String \
     --name "/manual/budget/production/bedrock/max-tokens" \
-    --value "1000"
+    --value "500"
 
 # AI sampling temperature
 aws ssm put-parameter --overwrite --type String \
