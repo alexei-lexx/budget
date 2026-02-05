@@ -35,6 +35,7 @@ export class InsightService {
     }
 
     const { question, dateRange } = input;
+
     const normalizedQuestion = question.trim();
     if (!normalizedQuestion) {
       throw new BusinessError(
