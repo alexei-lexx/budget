@@ -17,6 +17,7 @@ import { resolvers } from "./resolvers";
 import { getAuthenticatedUser } from "./resolvers/shared";
 import { AccountService } from "./services/account-service";
 import { AiInsightsService } from "./services/ai-insights-service";
+import { BedrockAiModelClient } from "./services/bedrock-ai-model-client";
 import { CategoryService } from "./services/category-service";
 import { MonthlyByCategoryReportService } from "./services/monthly-by-category-report-service";
 import { TransactionService } from "./services/transaction-service";
@@ -25,7 +26,6 @@ import type {
   TransactionEmbeddedAccount,
   TransactionEmbeddedCategory,
 } from "./types/graphql";
-import { BedrockAiModelClient } from "./utils/bedrock-ai-model-client";
 
 export interface GraphQLContext {
   auth: AuthContext;
