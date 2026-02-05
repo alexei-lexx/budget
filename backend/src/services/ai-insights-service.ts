@@ -3,7 +3,10 @@ import { ICategoryRepository } from "../models/category";
 import { ITransactionRepository, Transaction } from "../models/transaction";
 import { YEAR_RANGE_OFFSET } from "../types/validation";
 import { formatDateAsYYYYMMDD } from "../utils/date";
-import type { AiModelClient, AiModelConversationMessage } from "./ai-model-client";
+import type {
+  AiModelClient,
+  AiModelConversationMessage,
+} from "./ai-model-client";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
 
 const MAX_PERIOD_DAYS = 366;
@@ -32,7 +35,7 @@ export class AiInsightsService {
     private accountRepository: IAccountRepository,
     private categoryRepository: ICategoryRepository,
     private aiModelClient: AiModelClient,
-  ) { }
+  ) {}
 
   async call(userId: string, input: AiInsightsInput): Promise<string> {
     if (!userId) {
