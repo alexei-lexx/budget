@@ -76,17 +76,10 @@ export class InsightService {
 
     const systemMessage = this.buildSystemMessage();
 
-    try {
-      return await this.aiModelClient.generateResponse([
-        systemMessage,
-        userMessage,
-      ]);
-    } catch (error) {
-      throw new BusinessError(
-        error instanceof Error ? error.message : "AI response was empty",
-        BusinessErrorCodes.INVALID_PARAMETERS,
-      );
-    }
+    return await this.aiModelClient.generateResponse([
+      systemMessage,
+      userMessage,
+    ]);
   }
 
   private validateDateRange(dateRange: DateRange): DateRange {

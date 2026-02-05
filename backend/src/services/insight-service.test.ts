@@ -371,7 +371,7 @@ describe("InsightService", () => {
       expect(mockAiModelClient.generateResponse).toHaveBeenCalled();
     });
 
-    it("should throw error when AI client fails", async () => {
+    it("should propagate error when AI client fails", async () => {
       // Arrange
       mockTransactionRepository.findActiveByDateRange.mockResolvedValue([]);
       mockAiModelClient.generateResponse.mockRejectedValue(
@@ -381,26 +381,7 @@ describe("InsightService", () => {
       // Act & Assert
       const promise = service.call(userId, validInput);
 
-      await expect(promise).rejects.toThrow(BusinessError);
-      await expect(promise).rejects.toMatchObject({
-        message: "AI service unavailable",
-        code: BusinessErrorCodes.INVALID_PARAMETERS,
-      });
-    });
-
-    it("should handle non-Error AI client failures", async () => {
-      // Arrange
-      mockTransactionRepository.findActiveByDateRange.mockResolvedValue([]);
-      mockAiModelClient.generateResponse.mockRejectedValue("unknown error");
-
-      // Act & Assert
-      const promise = service.call(userId, validInput);
-
-      await expect(promise).rejects.toThrow(BusinessError);
-      await expect(promise).rejects.toMatchObject({
-        message: "AI response was empty",
-        code: BusinessErrorCodes.INVALID_PARAMETERS,
-      });
+      await expect(promise).rejects.toThrow("AI service unavailable");
     });
   });
 });
