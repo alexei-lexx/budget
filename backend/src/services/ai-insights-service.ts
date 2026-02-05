@@ -11,7 +11,6 @@ import { BusinessError, BusinessErrorCodes } from "./business-error";
 
 const MAX_PERIOD_DAYS = 366;
 const MAX_CONVERSATION_MESSAGES = 12;
-const MAX_TRANSACTIONS_SAMPLE = 120;
 
 export interface AiInsightsPeriodInput {
   startDate: string;
@@ -183,11 +182,7 @@ export class AiInsightsService {
       return `No transactions were recorded between ${period.startDate} and ${period.endDate}.`;
     }
 
-    const sampleTransactions = [...transactions]
-      .sort((left, right) => right.date.localeCompare(left.date))
-      .slice(0, MAX_TRANSACTIONS_SAMPLE);
-
-    const transactionLines = sampleTransactions.map((transaction) => {
+    const transactionLines = transactions.map((transaction) => {
       const accountName =
         accountNamesById.get(transaction.accountId) ?? "Unknown account";
       const categoryName = transaction.categoryId
