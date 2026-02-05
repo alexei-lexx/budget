@@ -31,32 +31,6 @@ export type Account = {
   name: Scalars['String']['output'];
 };
 
-export type AiInsightsInput = {
-  conversation?: InputMaybe<Array<AiInsightsMessageInput>>;
-  period: AiInsightsPeriodInput;
-  question: Scalars['String']['input'];
-};
-
-export type AiInsightsMessageInput = {
-  content: Scalars['String']['input'];
-  role: AiInsightsMessageRole;
-};
-
-export enum AiInsightsMessageRole {
-  Assistant = 'ASSISTANT',
-  User = 'USER'
-}
-
-export type AiInsightsPeriodInput = {
-  endDate: Scalars['String']['input'];
-  startDate: Scalars['String']['input'];
-};
-
-export type AiInsightsResponse = {
-  __typename?: 'AiInsightsResponse';
-  answer: Scalars['String']['output'];
-};
-
 export type Category = {
   __typename?: 'Category';
   excludeFromReports: Scalars['Boolean']['output'];
@@ -95,6 +69,32 @@ export type CreateTransferInput = {
   fromAccountId: Scalars['ID']['input'];
   toAccountId: Scalars['ID']['input'];
 };
+
+export type DateRangeInput = {
+  endDate: Scalars['String']['input'];
+  startDate: Scalars['String']['input'];
+};
+
+export type InsightInput = {
+  conversation?: InputMaybe<Array<InsightMessageInput>>;
+  period: DateRangeInput;
+  question: Scalars['String']['input'];
+};
+
+export type InsightMessageInput = {
+  content: Scalars['String']['input'];
+  role: MessageRole;
+};
+
+export type InsightResponse = {
+  __typename?: 'InsightResponse';
+  answer: Scalars['String']['output'];
+};
+
+export enum MessageRole {
+  Assistant = 'ASSISTANT',
+  User = 'USER'
+}
 
 export type MonthlyReport = {
   __typename?: 'MonthlyReport';
@@ -220,8 +220,8 @@ export type PaginationInput = {
 export type Query = {
   __typename?: 'Query';
   accounts: Array<Account>;
-  aiInsights: AiInsightsResponse;
   categories: Array<Category>;
+  insight: InsightResponse;
   monthlyReport: MonthlyReport;
   supportedCurrencies: Array<Scalars['String']['output']>;
   transactionDescriptionSuggestions: Array<Scalars['String']['output']>;
@@ -231,13 +231,13 @@ export type Query = {
 };
 
 
-export type QueryAiInsightsArgs = {
-  input: AiInsightsInput;
+export type QueryCategoriesArgs = {
+  type?: InputMaybe<CategoryType>;
 };
 
 
-export type QueryCategoriesArgs = {
-  type?: InputMaybe<CategoryType>;
+export type QueryInsightArgs = {
+  input: InsightInput;
 };
 
 
@@ -472,11 +472,6 @@ export type DirectiveResolverFn<TResult = Record<PropertyKey, never>, TParent = 
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = {
   Account: ResolverTypeWrapper<Omit<Account, 'balance'>>;
-  AiInsightsInput: AiInsightsInput;
-  AiInsightsMessageInput: AiInsightsMessageInput;
-  AiInsightsMessageRole: AiInsightsMessageRole;
-  AiInsightsPeriodInput: AiInsightsPeriodInput;
-  AiInsightsResponse: ResolverTypeWrapper<AiInsightsResponse>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
   Category: ResolverTypeWrapper<Category>;
   CategoryType: CategoryType;
@@ -484,9 +479,14 @@ export type ResolversTypes = {
   CreateCategoryInput: CreateCategoryInput;
   CreateTransactionInput: CreateTransactionInput;
   CreateTransferInput: CreateTransferInput;
+  DateRangeInput: DateRangeInput;
   Float: ResolverTypeWrapper<Scalars['Float']['output']>;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
+  InsightInput: InsightInput;
+  InsightMessageInput: InsightMessageInput;
+  InsightResponse: ResolverTypeWrapper<InsightResponse>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
+  MessageRole: MessageRole;
   MonthlyReport: ResolverTypeWrapper<Omit<MonthlyReport, 'categories'> & { categories: Array<ResolversTypes['MonthlyReportCategory']> }>;
   MonthlyReportCategory: ResolverTypeWrapper<Omit<MonthlyReportCategory, 'topTransactions'> & { topTransactions: Array<ResolversTypes['Transaction']> }>;
   MonthlyReportCurrencyBreakdown: ResolverTypeWrapper<MonthlyReportCurrencyBreakdown>;
@@ -517,18 +517,18 @@ export type ResolversTypes = {
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = {
   Account: Omit<Account, 'balance'>;
-  AiInsightsInput: AiInsightsInput;
-  AiInsightsMessageInput: AiInsightsMessageInput;
-  AiInsightsPeriodInput: AiInsightsPeriodInput;
-  AiInsightsResponse: AiInsightsResponse;
   Boolean: Scalars['Boolean']['output'];
   Category: Category;
   CreateAccountInput: CreateAccountInput;
   CreateCategoryInput: CreateCategoryInput;
   CreateTransactionInput: CreateTransactionInput;
   CreateTransferInput: CreateTransferInput;
+  DateRangeInput: DateRangeInput;
   Float: Scalars['Float']['output'];
   ID: Scalars['ID']['output'];
+  InsightInput: InsightInput;
+  InsightMessageInput: InsightMessageInput;
+  InsightResponse: InsightResponse;
   Int: Scalars['Int']['output'];
   MonthlyReport: Omit<MonthlyReport, 'categories'> & { categories: Array<ResolversParentTypes['MonthlyReportCategory']> };
   MonthlyReportCategory: Omit<MonthlyReportCategory, 'topTransactions'> & { topTransactions: Array<ResolversParentTypes['Transaction']> };
@@ -562,10 +562,6 @@ export type AccountResolvers<ContextType = GraphQLContext, ParentType extends Re
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
 };
 
-export type AiInsightsResponseResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['AiInsightsResponse'] = ResolversParentTypes['AiInsightsResponse']> = {
-  answer?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-};
-
 export type CategoryResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Category'] = ResolversParentTypes['Category']> = {
   excludeFromReports?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -574,6 +570,10 @@ export type CategoryResolvers<ContextType = GraphQLContext, ParentType extends R
 };
 
 export type CategoryTypeResolvers = EnumResolverSignature<{ EXPENSE?: any, INCOME?: any }, ResolversTypes['CategoryType']>;
+
+export type InsightResponseResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['InsightResponse'] = ResolversParentTypes['InsightResponse']> = {
+  answer?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+};
 
 export type MonthlyReportResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['MonthlyReport'] = ResolversParentTypes['MonthlyReport']> = {
   categories?: Resolver<Array<ResolversTypes['MonthlyReportCategory']>, ParentType, ContextType>;
@@ -627,8 +627,8 @@ export type PageInfoResolvers<ContextType = GraphQLContext, ParentType extends R
 
 export type QueryResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
   accounts?: Resolver<Array<ResolversTypes['Account']>, ParentType, ContextType>;
-  aiInsights?: Resolver<ResolversTypes['AiInsightsResponse'], ParentType, ContextType, RequireFields<QueryAiInsightsArgs, 'input'>>;
   categories?: Resolver<Array<ResolversTypes['Category']>, ParentType, ContextType, Partial<QueryCategoriesArgs>>;
+  insight?: Resolver<ResolversTypes['InsightResponse'], ParentType, ContextType, RequireFields<QueryInsightArgs, 'input'>>;
   monthlyReport?: Resolver<ResolversTypes['MonthlyReport'], ParentType, ContextType, RequireFields<QueryMonthlyReportArgs, 'month' | 'type' | 'year'>>;
   supportedCurrencies?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   transactionDescriptionSuggestions?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType, RequireFields<QueryTransactionDescriptionSuggestionsArgs, 'searchText'>>;
@@ -695,9 +695,9 @@ export type UserResolvers<ContextType = GraphQLContext, ParentType extends Resol
 
 export type Resolvers<ContextType = GraphQLContext> = {
   Account?: AccountResolvers<ContextType>;
-  AiInsightsResponse?: AiInsightsResponseResolvers<ContextType>;
   Category?: CategoryResolvers<ContextType>;
   CategoryType?: CategoryTypeResolvers;
+  InsightResponse?: InsightResponseResolvers<ContextType>;
   MonthlyReport?: MonthlyReportResolvers<ContextType>;
   MonthlyReportCategory?: MonthlyReportCategoryResolvers<ContextType>;
   MonthlyReportCurrencyBreakdown?: MonthlyReportCurrencyBreakdownResolvers<ContextType>;
