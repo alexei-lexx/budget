@@ -94,6 +94,9 @@ export class BackendCdkStack extends cdk.Stack {
         AUTH_AUDIENCE: process.env.AUTH_AUDIENCE || "",
         AUTH_ISSUER: process.env.AUTH_ISSUER || "",
         AUTH_CLAIM_NAMESPACE: process.env.AUTH_CLAIM_NAMESPACE || "",
+        AWS_BEDROCK_MAX_TOKENS: process.env.AWS_BEDROCK_MAX_TOKENS || "",
+        AWS_BEDROCK_MODEL_ID: process.env.AWS_BEDROCK_MODEL_ID || "",
+        AWS_BEDROCK_TEMPERATURE: process.env.AWS_BEDROCK_TEMPERATURE || "",
         NODE_ENV: process.env.NODE_ENV || "",
         ACCOUNTS_TABLE_NAME: accountsTable.tableName,
         CATEGORIES_TABLE_NAME: categoriesTable.tableName,
@@ -137,6 +140,14 @@ export class BackendCdkStack extends cdk.Stack {
     categoriesTable.grantReadWriteData(graphqlFunction);
     transactionsTable.grantReadWriteData(graphqlFunction);
     usersTable.grantReadWriteData(graphqlFunction);
+
+    // Allow the GraphQL Lambda to invoke Bedrock models for AI insights
+    graphqlFunction.addToRolePolicy(
+      new iam.PolicyStatement({
+        actions: ["bedrock:InvokeModel"],
+        resources: ["*"],
+      }),
+    );
 
     const migrationLogGroup = new logs.LogGroup(this, "MigrationFunctionLogs", {
       retention: logRetention,
