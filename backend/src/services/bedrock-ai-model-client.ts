@@ -13,13 +13,13 @@ export class BedrockAiModelClient implements AiModelClient {
   constructor(private readonly bedrockClient = createBedrockRuntimeClient()) { }
 
   async generateResponse(
-    messages: readonly AiModelConversationMessage[],
+    conversationMessages: readonly AiModelConversationMessage[],
     systemMessages: readonly AiModelSystemMessage[],
   ): Promise<string> {
     const response = await this.bedrockClient.send(
       new ConverseCommand({
         modelId: MODEL_ID,
-        messages: messages.map((message) => ({
+        messages: conversationMessages.map((message) => ({
           role: message.role,
           content: [{ text: message.content }],
         })),
