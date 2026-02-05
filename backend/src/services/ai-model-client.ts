@@ -6,5 +6,5 @@ export interface AiModelMessage {
 }
 
 export interface AiModelClient {
-  generateResponse(messages: AiModelMessage[]): Promise<string>;
+  generateResponse(messages: readonly AiModelMessage[]): Promise<string>;
 }

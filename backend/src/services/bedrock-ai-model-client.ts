@@ -7,7 +7,7 @@ const MODEL_ID = "anthropic.claude-3-haiku-20240307-v1:0";
 export class BedrockAiModelClient implements AiModelClient {
   constructor(private readonly bedrockClient = createBedrockRuntimeClient()) {}
 
-  async generateResponse(messages: AiModelMessage[]): Promise<string> {
+  async generateResponse(messages: readonly AiModelMessage[]): Promise<string> {
     const systemMessage = messages.find((message) => message.role === "system");
     const conversationMessages = messages.filter(
       (message) => message.role !== "system",
