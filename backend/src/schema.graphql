@@ -30,11 +30,6 @@ enum CategoryType {
   EXPENSE
 }
 
-enum MessageRole {
-  USER
-  ASSISTANT
-}
-
 enum TransactionType {
   INCOME
   EXPENSE
@@ -201,15 +196,9 @@ input DateRangeInput {
   endDate: String!
 }
 
-input MessageInput {
-  role: MessageRole!
-  content: String!
-}
-
 input InsightInput {
   question: String!
   dateRange: DateRangeInput!
-  conversation: [MessageInput!]
 }
 
 type PageInfo {

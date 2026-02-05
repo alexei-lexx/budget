@@ -76,7 +76,6 @@ export type DateRangeInput = {
 };
 
 export type InsightInput = {
-  conversation?: InputMaybe<Array<MessageInput>>;
   dateRange: DateRangeInput;
   question: Scalars['String']['input'];
 };
@@ -85,16 +84,6 @@ export type InsightResponse = {
   __typename?: 'InsightResponse';
   answer: Scalars['String']['output'];
 };
-
-export type MessageInput = {
-  content: Scalars['String']['input'];
-  role: MessageRole;
-};
-
-export enum MessageRole {
-  Assistant = 'ASSISTANT',
-  User = 'USER'
-}
 
 export type MonthlyReport = {
   __typename?: 'MonthlyReport';
@@ -485,8 +474,6 @@ export type ResolversTypes = {
   InsightInput: InsightInput;
   InsightResponse: ResolverTypeWrapper<InsightResponse>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
-  MessageInput: MessageInput;
-  MessageRole: MessageRole;
   MonthlyReport: ResolverTypeWrapper<Omit<MonthlyReport, 'categories'> & { categories: Array<ResolversTypes['MonthlyReportCategory']> }>;
   MonthlyReportCategory: ResolverTypeWrapper<Omit<MonthlyReportCategory, 'topTransactions'> & { topTransactions: Array<ResolversTypes['Transaction']> }>;
   MonthlyReportCurrencyBreakdown: ResolverTypeWrapper<MonthlyReportCurrencyBreakdown>;
@@ -529,7 +516,6 @@ export type ResolversParentTypes = {
   InsightInput: InsightInput;
   InsightResponse: InsightResponse;
   Int: Scalars['Int']['output'];
-  MessageInput: MessageInput;
   MonthlyReport: Omit<MonthlyReport, 'categories'> & { categories: Array<ResolversParentTypes['MonthlyReportCategory']> };
   MonthlyReportCategory: Omit<MonthlyReportCategory, 'topTransactions'> & { topTransactions: Array<ResolversParentTypes['Transaction']> };
   MonthlyReportCurrencyBreakdown: MonthlyReportCurrencyBreakdown;

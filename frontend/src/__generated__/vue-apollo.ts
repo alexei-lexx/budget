@@ -74,7 +74,6 @@ export type DateRangeInput = {
 };
 
 export type InsightInput = {
-  conversation?: InputMaybe<Array<MessageInput>>;
   dateRange: DateRangeInput;
   question: Scalars['String']['input'];
 };
@@ -83,15 +82,6 @@ export type InsightResponse = {
   __typename?: 'InsightResponse';
   answer: Scalars['String']['output'];
 };
-
-export type MessageInput = {
-  content: Scalars['String']['input'];
-  role: MessageRole;
-};
-
-export type MessageRole =
-  | 'ASSISTANT'
-  | 'USER';
 
 export type MonthlyReport = {
   __typename?: 'MonthlyReport';

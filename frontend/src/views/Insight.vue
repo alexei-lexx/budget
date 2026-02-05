@@ -1,11 +1,11 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <template>
-  <v-container class="insights-container pa-0" fluid>
+  <v-container class="insight-container pa-0" fluid>
     <div class="d-flex flex-column fill-height">
-      <!-- Messages area -->
-      <div ref="messagesContainer" class="messages-area flex-grow-1 overflow-y-auto pa-4">
+      <!-- Answer area -->
+      <div class="answer-area flex-grow-1 overflow-y-auto pa-4">
         <div
-          v-if="!hasConversation"
+          v-if="!insightAnswer && !insightLoading"
           class="d-flex flex-column align-center justify-center fill-height"
         >
           <v-icon icon="mdi-lightbulb-on-outline" size="64" color="grey-lighten-1" class="mb-4" />
@@ -15,29 +15,12 @@
           </div>
         </div>
 
-        <div v-else class="messages-list mx-auto">
-          <div
-            v-for="(message, index) in conversation.messages"
-            :key="index"
-            class="mb-4 d-flex"
-            :class="message.role === 'USER' ? 'justify-end' : 'justify-start'"
-          >
-            <div
-              class="message-bubble pa-3 rounded-lg"
-              :class="
-                message.role === 'USER'
-                  ? 'bg-primary text-on-primary user-bubble'
-                  : 'bg-surface-variant assistant-bubble'
-              "
-            >
-              <div class="text-body-1" style="white-space: pre-wrap">{{ message.content }}</div>
-            </div>
+        <div v-else class="answer-content mx-auto">
+          <div v-if="insightLoading" class="d-flex justify-center align-center fill-height">
+            <v-progress-circular indeterminate size="40" width="3" />
           </div>
-
-          <div v-if="insightsLoading" class="mb-4 d-flex justify-start">
-            <div class="message-bubble pa-3 rounded-lg bg-surface-variant assistant-bubble">
-              <v-progress-circular indeterminate size="20" width="2" />
-            </div>
+          <div v-else-if="insightAnswer" class="text-body-1" style="white-space: pre-wrap">
+            {{ insightAnswer }}
           </div>
         </div>
       </div>
@@ -57,19 +40,6 @@
               @click="selectedPreset = preset.value"
             >
               {{ preset.label }}
-            </v-chip>
-
-            <v-spacer />
-
-            <v-chip
-              v-if="hasConversation"
-              size="small"
-              variant="text"
-              prepend-icon="mdi-delete-outline"
-              :disabled="insightsLoading"
-              @click="handleClearConversation"
-            >
-              Clear
             </v-chip>
           </div>
 
@@ -96,7 +66,7 @@
             </v-col>
           </v-row>
 
-          <!-- Message input -->
+          <!-- Question input -->
           <div class="d-flex ga-2 align-end">
             <v-textarea
               v-model="question"
@@ -107,14 +77,24 @@
               rows="1"
               max-rows="4"
               hide-details
-              :disabled="insightsLoading"
+              :disabled="insightLoading"
               @keydown.enter.exact.prevent="handleAskQuestion"
-            />
+            >
+              <template #append-inner>
+                <v-icon
+                  v-if="question.trim()"
+                  icon="mdi-close-circle"
+                  size="small"
+                  class="cursor-pointer"
+                  @click="question = ''"
+                />
+              </template>
+            </v-textarea>
             <v-btn
               icon="mdi-send"
               color="primary"
-              :loading="insightsLoading"
-              :disabled="insightsLoading || !question.trim()"
+              :loading="insightLoading"
+              :disabled="insightLoading || !question.trim()"
               @click="handleAskQuestion"
             />
           </div>
@@ -125,11 +105,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { useInsight } from "@/composables/useInsight";
 import { useSnackbar } from "@/composables/useSnackbar";
 
-type InsightsPreset =
+type InsightPreset =
   | "THIS_MONTH"
   | "PREV_MONTH"
   | "LAST_3_MONTHS"
@@ -140,17 +120,9 @@ type InsightsPreset =
   | "CUSTOM";
 
 const { showErrorSnackbar } = useSnackbar();
-const {
-  conversation,
-  insightLoading: insightsLoading,
-  insightError: insightsError,
-  loadConversation,
-  persistConversation,
-  clearConversation,
-  askQuestion,
-} = useInsight();
+const { insightLoading, insightError, insightAnswer, askQuestion } = useInsight();
 
-const presetOptions: { value: InsightsPreset; label: string }[] = [
+const presetOptions: { value: InsightPreset; label: string }[] = [
   { value: "THIS_MONTH", label: "This month" },
   { value: "PREV_MONTH", label: "Prev month" },
   { value: "LAST_3_MONTHS", label: "3 months" },
@@ -161,21 +133,12 @@ const presetOptions: { value: InsightsPreset; label: string }[] = [
   { value: "CUSTOM", label: "Custom" },
 ];
 
-const selectedPreset = ref<InsightsPreset>("THIS_MONTH");
+const selectedPreset = ref<InsightPreset>("THIS_MONTH");
 const startDate = ref<string>("");
 const endDate = ref<string>("");
 const question = ref<string>("");
-const messagesContainer = ref<HTMLElement | null>(null);
 
 const isCustomPreset = computed(() => selectedPreset.value === "CUSTOM");
-const hasConversation = computed(() => conversation.value.messages.length > 0);
-
-const scrollToBottom = async () => {
-  await nextTick();
-  if (messagesContainer.value) {
-    messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight;
-  }
-};
 
 const formatDateForInput = (date: Date): string => {
   const year = date.getFullYear();
@@ -184,7 +147,7 @@ const formatDateForInput = (date: Date): string => {
   return `${year}-${month}-${day}`;
 };
 
-const applyPresetDates = (preset: InsightsPreset) => {
+const applyPresetDates = (preset: InsightPreset) => {
   const today = new Date();
   let presetStart: Date;
   let presetEnd = today;
@@ -245,30 +208,14 @@ const handleAskQuestion = async () => {
     return;
   }
 
-  conversation.value.messages.push({ role: "USER", content: trimmedQuestion });
-  persistConversation();
-  question.value = "";
-  scrollToBottom();
-
-  const response = await askQuestion(trimmedQuestion, {
+  await askQuestion(trimmedQuestion, {
     startDate: startDate.value,
     endDate: endDate.value,
   });
 
-  if (!response) {
-    showErrorSnackbar(insightsError.value || "Unable to fetch insights right now.");
-    conversation.value.messages.pop();
-    persistConversation();
-    return;
+  if (insightError.value) {
+    showErrorSnackbar(insightError.value);
   }
-
-  conversation.value.messages.push({ role: "ASSISTANT", content: response.answer });
-  persistConversation();
-  scrollToBottom();
-};
-
-const handleClearConversation = () => {
-  clearConversation();
 };
 
 watch(selectedPreset, (preset) => {
@@ -278,37 +225,22 @@ watch(selectedPreset, (preset) => {
 });
 
 onMounted(() => {
-  loadConversation();
   applyPresetDates(selectedPreset.value);
-  scrollToBottom();
 });
 </script>
 
 <style scoped>
-.insights-container {
+.insight-container {
   height: calc(100vh - 64px);
   max-height: calc(100vh - 64px);
 }
 
-.messages-area {
+.answer-area {
   min-height: 0;
 }
 
-.messages-list {
+.answer-content {
   max-width: 720px;
-}
-
-.message-bubble {
-  max-width: 80%;
-  word-break: break-word;
-}
-
-.user-bubble {
-  border-bottom-right-radius: 4px !important;
-}
-
-.assistant-bubble {
-  border-bottom-left-radius: 4px !important;
 }
 
 .input-area {
@@ -317,5 +249,9 @@ onMounted(() => {
 
 .input-content {
   max-width: 720px;
+}
+
+.cursor-pointer {
+  cursor: pointer;
 }
 </style>

@@ -191,9 +191,9 @@ const handleSignOut = () => {
         />
         <v-list-item
           v-if="isAuthenticated"
-          :to="{ name: 'Insights' }"
+          :to="{ name: 'Insight' }"
           prepend-icon="mdi-lightbulb-on-outline"
-          title="Insights"
+          title="Insight"
           @click="mobile && (drawer = false)"
         />
         <!-- Push content to the bottom -->
