@@ -9,9 +9,16 @@ export const handler = startServerAndCreateLambdaHandler(
   handlers.createAPIGatewayProxyEventV2RequestHandler(),
   {
     context: async ({ event }) => {
-      return createContext({
-        headers: event.headers || {},
-      });
+      try {
+        return await createContext({
+          headers: event.headers || {},
+        });
+      } catch (error) {
+        // Apollo swallows context errors into GraphQL responses without logging them.
+        // Log explicitly so they appear in CloudWatch.
+        console.error("Context creation failed:", error);
+        throw error;
+      }
     },
   },
 );
