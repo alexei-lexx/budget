@@ -13,7 +13,6 @@ GraphQL API server for the Personal Finance Tracker application.
 3. Edit `.env` to set environment variables; typically only:
    - `AUTH_ISSUER`
    - `AWS_BEARER_TOKEN_BEDROCK`
-   - `AWS_BEDROCK_MODEL_ID` (optional, defaults to Claude 3 Haiku)
 4. `npm run db:setup` - Start DynamoDB Local and create tables
 5. `npm run dev` - Start the development server on http://localhost:4000
 
