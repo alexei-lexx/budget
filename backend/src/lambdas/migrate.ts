@@ -1,5 +1,4 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-
 import { Handler } from "aws-lambda";
 import { runMigrations } from "../migrations/runner";
 
