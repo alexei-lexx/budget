@@ -27,10 +27,12 @@ function parseFloatEnv(name: string, value: string): number {
   return parsed;
 }
 
+/** Reads the Bedrock model identifier from AWS_BEDROCK_MODEL_ID. */
 export function loadBedrockModelId(): string {
   return requireEnv("AWS_BEDROCK_MODEL_ID");
 }
 
+/** Reads the max response tokens from AWS_BEDROCK_MAX_TOKENS. */
 export function loadBedrockMaxTokens(): number {
   return parseIntEnv(
     "AWS_BEDROCK_MAX_TOKENS",
@@ -38,6 +40,7 @@ export function loadBedrockMaxTokens(): number {
   );
 }
 
+/** Reads the sampling temperature from AWS_BEDROCK_TEMPERATURE. */
 export function loadBedrockTemperature(): number {
   return parseFloatEnv(
     "AWS_BEDROCK_TEMPERATURE",
@@ -45,28 +48,15 @@ export function loadBedrockTemperature(): number {
   );
 }
 
+/**
+ * Creates a Bedrock runtime client.
+ * - Local: authenticates via a long-term Bedrock API key (AWS_BEARER_TOKEN_BEDROCK).
+ * - Production: authenticates via the Lambda execution role (IAM/SigV4).
+ */
 export function createBedrockRuntimeClient(): BedrockRuntimeClient {
-  const bearerToken = process.env.AWS_BEARER_TOKEN_BEDROCK;
-  const accessKeyId = process.env.AWS_ACCESS_KEY_ID;
-  const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
+  const config = isLocalEnvironment
+    ? { token: { token: requireEnv("AWS_BEARER_TOKEN_BEDROCK") } }
+    : {};
 
-  const localCredentials = bearerToken
-    ? {
-        accessKeyId: accessKeyId || "bedrock",
-        secretAccessKey: secretAccessKey || "bedrock",
-        sessionToken: bearerToken,
-      }
-    : accessKeyId && secretAccessKey
-      ? {
-          accessKeyId,
-          secretAccessKey,
-        }
-      : undefined;
-
-  return new BedrockRuntimeClient({
-    region: process.env.AWS_REGION || "",
-    ...(isLocalEnvironment && localCredentials
-      ? { credentials: localCredentials }
-      : {}),
-  });
+  return new BedrockRuntimeClient(config);
 }
