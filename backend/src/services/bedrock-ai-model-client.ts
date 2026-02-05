@@ -49,32 +49,37 @@ export class BedrockAiModelClient implements AiModelClient {
       isSystemMessage(message),
     );
 
-    const response = await this.bedrockClient.send(
-      new ConverseCommand({
-        modelId: this.modelId,
-        messages: nonSystemMessages.map((message) => ({
-          role: message.role,
-          content: [{ text: message.content }],
-        })),
-        system: systemMessages.map((systemMessage) => ({
-          text: systemMessage.content,
-        })),
-        inferenceConfig: {
-          maxTokens: this.maxTokens,
-          temperature: this.temperature,
-        },
-      }),
-    );
+    try {
+      const response = await this.bedrockClient.send(
+        new ConverseCommand({
+          modelId: this.modelId,
+          messages: nonSystemMessages.map((message) => ({
+            role: message.role,
+            content: [{ text: message.content }],
+          })),
+          system: systemMessages.map((systemMessage) => ({
+            text: systemMessage.content,
+          })),
+          inferenceConfig: {
+            maxTokens: this.maxTokens,
+            temperature: this.temperature,
+          },
+        }),
+      );
 
-    const answerText = response.output?.message?.content
-      ?.map((content) => ("text" in content ? (content.text ?? "") : ""))
-      .join("")
-      .trim();
+      const answerText = response.output?.message?.content
+        ?.map((content) => ("text" in content ? (content.text ?? "") : ""))
+        .join("")
+        .trim();
 
-    if (!answerText) {
-      throw new Error("AI response was empty");
+      if (!answerText) {
+        throw new Error("AI response was empty");
+      }
+
+      return answerText;
+    } catch (error) {
+      console.error("Error generating AI response:", error);
+      throw error;
     }
-
-    return answerText;
   }
 }
