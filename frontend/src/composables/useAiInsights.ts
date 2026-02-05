@@ -1,10 +1,13 @@
-import { computed, ref } from "vue";
+import { ref } from "vue";
 import type { ApolloError } from "@apollo/client";
+import { apolloClient } from "@/apollo";
 import {
-  useGetAiInsightsLazyQuery,
+  GetAiInsightsDocument,
   type AiInsightsInput,
   type AiInsightsMessageInput,
   type AiInsightsResponse,
+  type GetAiInsightsQuery,
+  type GetAiInsightsQueryVariables,
 } from "@/__generated__/vue-apollo";
 
 export interface AiInsightsMessage {
@@ -64,34 +67,27 @@ export function useAiInsights() {
     })),
   });
 
-  const {
-    result: insightsResult,
-    loading: insightsLoading,
-    error: insightsQueryError,
-    load: loadInsights,
-  } = useGetAiInsightsLazyQuery();
+  const insightsLoading = ref(false);
 
   const askQuestion = async (
     question: string,
     period: AiInsightsInput["period"],
   ): Promise<AiInsightsResponse | null> => {
     insightsError.value = null;
+    insightsLoading.value = true;
 
     try {
-      const result = await loadInsights(
-        { input: buildInput(question, period) },
-        {
-          fetchPolicy: "no-cache",
-        },
-      );
+      const result = await apolloClient.query<
+        GetAiInsightsQuery,
+        GetAiInsightsQueryVariables
+      >({
+        query: GetAiInsightsDocument,
+        variables: { input: buildInput(question, period) },
+        fetchPolicy: "no-cache",
+      });
 
-      const response = result?.data?.aiInsights ?? null;
+      const response = result.data?.aiInsights ?? null;
       if (!response) {
-        if (insightsQueryError.value) {
-          insightsError.value =
-            insightsQueryError.value.message ||
-            "Failed to fetch AI insights. Please try again.";
-        }
         return null;
       }
 
@@ -101,16 +97,15 @@ export function useAiInsights() {
       insightsError.value =
         apolloError?.message || "Failed to fetch AI insights. Please try again.";
       return null;
+    } finally {
+      insightsLoading.value = false;
     }
   };
-
-  const answer = computed(() => insightsResult.value?.aiInsights?.answer ?? null);
 
   return {
     conversation,
     insightsLoading,
     insightsError,
-    answer,
     loadConversation,
     persistConversation,
     clearConversation,
