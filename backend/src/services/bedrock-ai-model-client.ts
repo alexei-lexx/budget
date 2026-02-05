@@ -1,6 +1,10 @@
 import { ConverseCommand } from "@aws-sdk/client-bedrock-runtime";
 import { createBedrockRuntimeClient } from "../utils/bedrock-runtime-client";
-import type { AiModelClient, AiModelMessage } from "./ai-model-client";
+import type {
+  AiModelClient,
+  AiModelMessage,
+  AiModelSystemMessage,
+} from "./ai-model-client";
 
 export class BedrockAiModelClient implements AiModelClient {
   constructor(
@@ -12,30 +16,24 @@ export class BedrockAiModelClient implements AiModelClient {
     }
   }
 
-  async generateResponse(messages: readonly AiModelMessage[]): Promise<string> {
-    const systemMessage = messages.find((message) => message.role === "system");
-    const conversationMessages = messages.filter(
-      (message) => message.role !== "system",
-    );
-
+  async generateResponse(
+    messages: readonly AiModelMessage[],
+    systemMessages: readonly AiModelSystemMessage[],
+  ): Promise<string> {
     const response = await this.bedrockClient.send(
       new ConverseCommand({
         modelId: this.modelId,
-        messages: conversationMessages.map((message) => ({
+        messages: messages.map((message) => ({
           role: message.role,
           content: [{ text: message.content }],
+        })),
+        system: systemMessages.map((systemMessage) => ({
+          text: systemMessage.content,
         })),
         inferenceConfig: {
           maxTokens: 450,
           temperature: 0.2,
         },
-        system: systemMessage
-          ? [
-              {
-                text: systemMessage.content,
-              },
-            ]
-          : undefined,
       }),
     );
 

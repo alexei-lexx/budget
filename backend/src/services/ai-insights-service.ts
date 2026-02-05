@@ -88,10 +88,10 @@ export class AiInsightsService {
 
     let answerText: string;
     try {
-      answerText = await this.aiModelClient.generateResponse([
-        { role: "system", content: systemPrompt },
-        ...conversationMessages,
-      ]);
+      answerText = await this.aiModelClient.generateResponse(
+        conversationMessages,
+        [{ role: "system", content: systemPrompt }],
+      );
     } catch (error) {
       throw new BusinessError(
         error instanceof Error ? error.message : "AI response was empty",
