@@ -1,10 +1,10 @@
 import { IAccountRepository } from "../models/account";
 import { ICategoryRepository } from "../models/category";
 import { ITransactionRepository, Transaction } from "../models/transaction";
-import { BusinessError, BusinessErrorCodes } from "./business-error";
 import { YEAR_RANGE_OFFSET } from "../types/validation";
 import { formatDateAsYYYYMMDD } from "../utils/date";
 import type { AiModelClient, AiModelMessage } from "./ai-model-client";
+import { BusinessError, BusinessErrorCodes } from "./business-error";
 
 const MAX_PERIOD_DAYS = 366;
 const MAX_CONVERSATION_MESSAGES = 12;
@@ -188,7 +188,7 @@ export class AiInsightsService {
       const accountName =
         accountNamesById.get(transaction.accountId) ?? "Unknown account";
       const categoryName = transaction.categoryId
-        ? categoryNamesById.get(transaction.categoryId) ?? "Unknown category"
+        ? (categoryNamesById.get(transaction.categoryId) ?? "Unknown category")
         : "Uncategorized";
       const description = transaction.description
         ? ` - ${transaction.description}`

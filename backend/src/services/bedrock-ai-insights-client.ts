@@ -51,7 +51,7 @@ export class BedrockAiInsightsClient implements AiModelClient {
     );
 
     const answerText = response.output?.message?.content
-      ?.map((content) => ("text" in content ? content.text ?? "" : ""))
+      ?.map((content) => ("text" in content ? (content.text ?? "") : ""))
       .join("")
       .trim();
 

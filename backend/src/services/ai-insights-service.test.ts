@@ -1,5 +1,3 @@
-import type { AiModelClient } from "./ai-model-client";
-import { AiInsightsService } from "./ai-insights-service";
 import {
   createMockAccountRepository,
   createMockCategoryRepository,
@@ -8,6 +6,8 @@ import {
 import type { IAccountRepository } from "../models/account";
 import type { ICategoryRepository } from "../models/category";
 import type { ITransactionRepository } from "../models/transaction";
+import { AiInsightsService } from "./ai-insights-service";
+import type { AiModelClient } from "./ai-model-client";
 import { BusinessError } from "./business-error";
 
 const createAiInsightsClientMock = (): AiModelClient => ({

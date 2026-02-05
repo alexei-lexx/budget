@@ -36,12 +36,7 @@
                 />
               </v-col>
               <v-col cols="12" md="6">
-                <v-text-field
-                  v-model="endDate"
-                  type="date"
-                  label="End date"
-                  variant="outlined"
-                />
+                <v-text-field v-model="endDate" type="date" label="End date" variant="outlined" />
               </v-col>
             </v-row>
           </v-card-text>

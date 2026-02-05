@@ -55,10 +55,7 @@ export function useAiInsights() {
     localStorage.removeItem(STORAGE_KEY);
   };
 
-  const buildInput = (
-    question: string,
-    period: AiInsightsInput["period"],
-  ): AiInsightsInput => ({
+  const buildInput = (question: string, period: AiInsightsInput["period"]): AiInsightsInput => ({
     question,
     period,
     conversation: conversation.value.messages.map((message) => ({
@@ -77,10 +74,7 @@ export function useAiInsights() {
     insightsLoading.value = true;
 
     try {
-      const result = await apolloClient.query<
-        GetAiInsightsQuery,
-        GetAiInsightsQueryVariables
-      >({
+      const result = await apolloClient.query<GetAiInsightsQuery, GetAiInsightsQueryVariables>({
         query: GetAiInsightsDocument,
         variables: { input: buildInput(question, period) },
         fetchPolicy: "no-cache",

@@ -716,3 +716,4 @@ export type Resolvers<ContextType = GraphQLContext> = {
   Transfer?: TransferResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
 };
+

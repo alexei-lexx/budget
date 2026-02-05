@@ -16,10 +16,10 @@ import { UserRepository } from "./repositories/user-repository";
 import { resolvers } from "./resolvers";
 import { getAuthenticatedUser } from "./resolvers/shared";
 import { AccountService } from "./services/account-service";
-import { CategoryService } from "./services/category-service";
-import { MonthlyByCategoryReportService } from "./services/monthly-by-category-report-service";
 import { AiInsightsService } from "./services/ai-insights-service";
 import { BedrockAiInsightsClient } from "./services/bedrock-ai-insights-client";
+import { CategoryService } from "./services/category-service";
+import { MonthlyByCategoryReportService } from "./services/monthly-by-category-report-service";
 import { TransactionService } from "./services/transaction-service";
 import { TransferService } from "./services/transfer-service";
 import type {

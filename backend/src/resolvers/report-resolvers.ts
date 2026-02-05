@@ -10,7 +10,9 @@ export const reportResolvers = {
         input: {
           question: string;
           period: { startDate: string; endDate: string };
-          conversation?: { role: "USER" | "ASSISTANT"; content: string }[] | null;
+          conversation?:
+            | { role: "USER" | "ASSISTANT"; content: string }[]
+            | null;
         };
       },
       context: GraphQLContext,
@@ -18,7 +20,10 @@ export const reportResolvers = {
       try {
         const user = await getAuthenticatedUser(context);
 
-        const answer = await context.aiInsightsService.call(user.id, args.input);
+        const answer = await context.aiInsightsService.call(
+          user.id,
+          args.input,
+        );
 
         return { answer };
       } catch (error) {
