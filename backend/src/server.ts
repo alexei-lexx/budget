@@ -17,7 +17,7 @@ import { resolvers } from "./resolvers";
 import { getAuthenticatedUser } from "./resolvers/shared";
 import { AccountService } from "./services/account-service";
 import { AiInsightsService } from "./services/ai-insights-service";
-import { BedrockAiInsightsClient } from "./services/bedrock-ai-insights-client";
+import { BedrockAiModelClient } from "./utils/ai-model-client";
 import { CategoryService } from "./services/category-service";
 import { MonthlyByCategoryReportService } from "./services/monthly-by-category-report-service";
 import { TransactionService } from "./services/transaction-service";
@@ -56,7 +56,7 @@ let accountService: AccountService;
 let transferService: TransferService;
 let monthlyByCategoryReportService: MonthlyByCategoryReportService;
 let aiInsightsService: AiInsightsService;
-let aiModelClient: BedrockAiInsightsClient;
+let aiModelClient: BedrockAiModelClient;
 
 const typeDefs = readFileSync(join(__dirname, "schema.graphql"), {
   encoding: "utf-8",
@@ -131,7 +131,7 @@ export async function createContext(req: {
 
   if (!aiInsightsService) {
     if (!aiModelClient) {
-      aiModelClient = new BedrockAiInsightsClient();
+      aiModelClient = new BedrockAiModelClient();
     }
 
     aiInsightsService = new AiInsightsService(
