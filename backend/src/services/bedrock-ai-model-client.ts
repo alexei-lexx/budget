@@ -2,10 +2,15 @@ import { ConverseCommand } from "@aws-sdk/client-bedrock-runtime";
 import { createBedrockRuntimeClient } from "../utils/bedrock-runtime-client";
 import type { AiModelClient, AiModelMessage } from "./ai-model-client";
 
-const MODEL_ID = "anthropic.claude-3-haiku-20240307-v1:0";
-
 export class BedrockAiModelClient implements AiModelClient {
-  constructor(private readonly bedrockClient = createBedrockRuntimeClient()) {}
+  constructor(
+    private readonly bedrockClient = createBedrockRuntimeClient(),
+    private readonly modelId = process.env.AWS_BEDROCK_MODEL_ID,
+  ) {
+    if (!this.modelId) {
+      throw new Error("AWS_BEDROCK_MODEL_ID environment variable is required");
+    }
+  }
 
   async generateResponse(messages: readonly AiModelMessage[]): Promise<string> {
     const systemMessage = messages.find((message) => message.role === "system");
@@ -15,7 +20,7 @@ export class BedrockAiModelClient implements AiModelClient {
 
     const response = await this.bedrockClient.send(
       new ConverseCommand({
-        modelId: MODEL_ID,
+        modelId: this.modelId,
         messages: conversationMessages.map((message) => ({
           role: message.role,
           content: [{ text: message.content }],
