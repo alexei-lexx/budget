@@ -1,9 +1,9 @@
 import { ref, computed } from "vue";
-import { useGetInsightLazyQuery, type InsightInput } from "@/__generated__/vue-apollo";
+import { useGetInsightLazyQuery, type DateRangeInput } from "@/__generated__/vue-apollo";
 
 export function useInsight() {
   const question = ref("");
-  const dateRange = ref<InsightInput["dateRange"]>({
+  const dateRange = ref<DateRangeInput>({
     startDate: "",
     endDate: "",
   });
@@ -30,9 +30,13 @@ export function useInsight() {
 
   const insightError = computed(() => insightQueryError.value?.message ?? null);
 
-  const askQuestion = async (q: string, dr: InsightInput["dateRange"]): Promise<void> => {
-    question.value = q;
-    dateRange.value = dr;
+  const askQuestion = async (
+    questionInput: string,
+    dateRangeInput: DateRangeInput,
+  ): Promise<void> => {
+    question.value = questionInput;
+    dateRange.value = dateRangeInput;
+
     // load() returns false if already loaded, use refetch() for subsequent calls
     const loaded = await loadInsight();
     if (!loaded) {
