@@ -3,7 +3,7 @@ import { ICategoryRepository } from "../models/category";
 import { ITransactionRepository, Transaction } from "../models/transaction";
 import { YEAR_RANGE_OFFSET } from "../types/validation";
 import { formatDateAsYYYYMMDD } from "../utils/date";
-import type { AiModelClient, AiModelMessage } from "./ai-model-client";
+import type { AiModelClient, AiModelConversationMessage } from "./ai-model-client";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
 
 const MAX_PERIOD_DAYS = 366;
@@ -32,7 +32,7 @@ export class AiInsightsService {
     private accountRepository: IAccountRepository,
     private categoryRepository: ICategoryRepository,
     private aiModelClient: AiModelClient,
-  ) {}
+  ) { }
 
   async call(userId: string, input: AiInsightsInput): Promise<string> {
     if (!userId) {
@@ -253,15 +253,15 @@ export class AiInsightsService {
     conversation: AiInsightsMessageInput[],
     question: string,
     summaryPayload: string,
-  ): AiModelMessage[] {
-    const conversationMessages: AiModelMessage[] = conversation.map(
+  ): AiModelConversationMessage[] {
+    const conversationMessages: AiModelConversationMessage[] = conversation.map(
       (message) => ({
         role: message.role === "USER" ? "user" : "assistant",
         content: message.content,
       }),
     );
 
-    const questionMessage: AiModelMessage = {
+    const questionMessage: AiModelConversationMessage = {
       role: "user",
       content: [
         "Here is the transaction summary for the selected period.",

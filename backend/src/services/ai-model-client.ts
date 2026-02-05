@@ -1,7 +1,5 @@
-export type AiModelRole = "user" | "assistant";
-
 export interface AiModelMessage {
-  role: AiModelRole;
+  role: "user" | "assistant";
   content: string;
 }
 
