@@ -1,31 +1,8 @@
 import { BedrockRuntimeClient } from "@aws-sdk/client-bedrock-runtime";
+import { parseFloatEnv, parseIntEnv, requireEnv } from "./require-env";
 
 const isLocalEnvironment =
   process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test";
-
-function requireEnv(name: string): string {
-  const value = process.env[name];
-  if (!value) {
-    throw new Error(`${name} environment variable is required`);
-  }
-  return value;
-}
-
-function parseIntEnv(name: string, value: string): number {
-  const parsed = parseInt(value, 10);
-  if (Number.isNaN(parsed)) {
-    throw new Error(`${name} must be a valid integer`);
-  }
-  return parsed;
-}
-
-function parseFloatEnv(name: string, value: string): number {
-  const parsed = parseFloat(value);
-  if (Number.isNaN(parsed)) {
-    throw new Error(`${name} must be a valid number`);
-  }
-  return parsed;
-}
 
 /** Reads the Bedrock model identifier from AWS_BEDROCK_MODEL_ID. */
 export function loadBedrockModelId(): string {
