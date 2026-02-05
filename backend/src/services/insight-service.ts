@@ -90,15 +90,22 @@ export class InsightService {
   }
 
   private validateDateRange(dateRange: DateRange): DateRange {
-    if (!dateRange.startDate || !dateRange.endDate) {
+    if (!dateRange.startDate) {
       throw new BusinessError(
-        "Start date and end date are required",
+        "Start date is required",
         BusinessErrorCodes.INVALID_PARAMETERS,
       );
     }
 
-    const startDate = this.parseDate(dateRange.startDate, "startDate");
-    const endDate = this.parseDate(dateRange.endDate, "endDate");
+    if (!dateRange.endDate) {
+      throw new BusinessError(
+        "End date is required",
+        BusinessErrorCodes.INVALID_PARAMETERS,
+      );
+    }
+
+    const startDate = this.parseDate(dateRange.startDate, "Start date");
+    const endDate = this.parseDate(dateRange.endDate, "End date");
 
     if (startDate > endDate) {
       throw new BusinessError(
