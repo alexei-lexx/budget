@@ -116,8 +116,36 @@ type InsightPreset =
   | "PREV_YEAR"
   | "CUSTOM";
 
+const STORAGE_KEY = "insight-input";
+
 const { showErrorSnackbar } = useSnackbar();
 const { insightLoading, insightError, insightAnswer, askQuestion } = useInsight();
+
+interface StoredInput {
+  question: string;
+  preset: InsightPreset;
+  startDate: string;
+  endDate: string;
+}
+
+const loadStoredInput = (): Partial<StoredInput> => {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    return stored ? JSON.parse(stored) : {};
+  } catch {
+    return {};
+  }
+};
+
+const saveInput = () => {
+  const data: StoredInput = {
+    question: question.value,
+    preset: selectedPreset.value,
+    startDate: startDate.value,
+    endDate: endDate.value,
+  };
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+};
 
 const presetOptions: { value: InsightPreset; label: string }[] = [
   { value: "THIS_MONTH", label: "This month" },
@@ -130,10 +158,11 @@ const presetOptions: { value: InsightPreset; label: string }[] = [
   { value: "CUSTOM", label: "Custom" },
 ];
 
-const selectedPreset = ref<InsightPreset>("THIS_MONTH");
-const startDate = ref<string>("");
-const endDate = ref<string>("");
-const question = ref<string>("");
+const storedInput = loadStoredInput();
+const selectedPreset = ref<InsightPreset>(storedInput.preset ?? "THIS_MONTH");
+const startDate = ref<string>(storedInput.startDate ?? "");
+const endDate = ref<string>(storedInput.endDate ?? "");
+const question = ref<string>(storedInput.question ?? "");
 
 const isCustomPreset = computed(() => selectedPreset.value === "CUSTOM");
 
@@ -219,10 +248,18 @@ watch(selectedPreset, (preset) => {
   if (preset !== "CUSTOM") {
     applyPresetDates(preset);
   }
+  saveInput();
+});
+
+watch([question, startDate, endDate], () => {
+  saveInput();
 });
 
 onMounted(() => {
-  applyPresetDates(selectedPreset.value);
+  // Only apply preset dates if no stored custom dates or not custom preset
+  if (selectedPreset.value !== "CUSTOM" || !storedInput.startDate) {
+    applyPresetDates(selectedPreset.value);
+  }
 });
 </script>
 
