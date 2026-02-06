@@ -38,6 +38,16 @@ Use present tense and active voice.
 New behavior or improvements in bullet points (ideally 3, max 5 bullet points).
 Use present tense and active voice.
 
+### Issue References
+
+If the PR addresses an existing GitHub issue, include a closing keyword reference in the description body to automatically close the issue on merge:
+
+```
+Close #123
+```
+
+Valid closing keywords: `Close`, `Fix`, `Resolve`
+
 ## Example
 
 ```
