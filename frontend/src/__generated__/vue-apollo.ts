@@ -68,6 +68,21 @@ export type CreateTransferInput = {
   toAccountId: Scalars['ID']['input'];
 };
 
+export type DateRangeInput = {
+  endDate: Scalars['String']['input'];
+  startDate: Scalars['String']['input'];
+};
+
+export type InsightInput = {
+  dateRange: DateRangeInput;
+  question: Scalars['String']['input'];
+};
+
+export type InsightResponse = {
+  __typename?: 'InsightResponse';
+  answer: Scalars['String']['output'];
+};
+
 export type MonthlyReport = {
   __typename?: 'MonthlyReport';
   categories: Array<MonthlyReportCategory>;
@@ -193,6 +208,7 @@ export type Query = {
   __typename?: 'Query';
   accounts: Array<Account>;
   categories: Array<Category>;
+  insight: InsightResponse;
   monthlyReport: MonthlyReport;
   supportedCurrencies: Array<Scalars['String']['output']>;
   transactionDescriptionSuggestions: Array<Scalars['String']['output']>;
@@ -204,6 +220,11 @@ export type Query = {
 
 export type QueryCategoriesArgs = {
   type?: InputMaybe<CategoryType>;
+};
+
+
+export type QueryInsightArgs = {
+  input: InsightInput;
 };
 
 
@@ -529,6 +550,13 @@ export type GetTransactionDescriptionSuggestionsQueryVariables = Exact<{
 
 
 export type GetTransactionDescriptionSuggestionsQuery = { __typename?: 'Query', transactionDescriptionSuggestions: Array<string> };
+
+export type GetInsightQueryVariables = Exact<{
+  input: InsightInput;
+}>;
+
+
+export type GetInsightQuery = { __typename?: 'Query', insight: { __typename?: 'InsightResponse', answer: string } };
 
 export const AccountFieldsFragmentDoc = gql`
     fragment AccountFields on Account {
@@ -1237,3 +1265,33 @@ export function useGetTransactionDescriptionSuggestionsLazyQuery(variables?: Get
   return VueApolloComposable.useLazyQuery<GetTransactionDescriptionSuggestionsQuery, GetTransactionDescriptionSuggestionsQueryVariables>(GetTransactionDescriptionSuggestionsDocument, variables, options);
 }
 export type GetTransactionDescriptionSuggestionsQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<GetTransactionDescriptionSuggestionsQuery, GetTransactionDescriptionSuggestionsQueryVariables>;
+export const GetInsightDocument = gql`
+    query GetInsight($input: InsightInput!) {
+  insight(input: $input) {
+    answer
+  }
+}
+    `;
+
+/**
+ * __useGetInsightQuery__
+ *
+ * To run a query within a Vue component, call `useGetInsightQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetInsightQuery` returns an object from Apollo Client that contains result, loading and error properties
+ * you can use to render your UI.
+ *
+ * @param variables that will be passed into the query
+ * @param options that will be passed into the query, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/query.html#options;
+ *
+ * @example
+ * const { result, loading, error } = useGetInsightQuery({
+ *   input: // value for 'input'
+ * });
+ */
+export function useGetInsightQuery(variables: GetInsightQueryVariables | VueCompositionApi.Ref<GetInsightQueryVariables> | ReactiveFunction<GetInsightQueryVariables>, options: VueApolloComposable.UseQueryOptions<GetInsightQuery, GetInsightQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<GetInsightQuery, GetInsightQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<GetInsightQuery, GetInsightQueryVariables>> = {}) {
+  return VueApolloComposable.useQuery<GetInsightQuery, GetInsightQueryVariables>(GetInsightDocument, variables, options);
+}
+export function useGetInsightLazyQuery(variables?: GetInsightQueryVariables | VueCompositionApi.Ref<GetInsightQueryVariables> | ReactiveFunction<GetInsightQueryVariables>, options: VueApolloComposable.UseQueryOptions<GetInsightQuery, GetInsightQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<GetInsightQuery, GetInsightQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<GetInsightQuery, GetInsightQueryVariables>> = {}) {
+  return VueApolloComposable.useLazyQuery<GetInsightQuery, GetInsightQueryVariables>(GetInsightDocument, variables, options);
+}
+export type GetInsightQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<GetInsightQuery, GetInsightQueryVariables>;

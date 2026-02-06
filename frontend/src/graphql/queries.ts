@@ -86,3 +86,11 @@ export const GET_TRANSACTION_DESCRIPTION_SUGGESTIONS = gql`
     transactionDescriptionSuggestions(searchText: $searchText)
   }
 `;
+
+export const GET_INSIGHT = gql`
+  query GetInsight($input: InsightInput!) {
+    insight(input: $input) {
+      answer
+    }
+  }
+`;

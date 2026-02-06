@@ -78,6 +78,21 @@ aws ssm put-parameter --overwrite --type String \
 aws ssm put-parameter --overwrite --type String \
     --name "/manual/budget/production/lambda/timeout-seconds" \
     --value "30"
+
+# AI model ID (e.g., eu.amazon.nova-2-lite-v1:0)
+aws ssm put-parameter --overwrite --type String \
+    --name "/manual/budget/production/bedrock/model-id" \
+    --value "eu.amazon.nova-2-lite-v1:0"
+
+# AI max response tokens
+aws ssm put-parameter --overwrite --type String \
+    --name "/manual/budget/production/bedrock/max-tokens" \
+    --value "500"
+
+# AI sampling temperature
+aws ssm put-parameter --overwrite --type String \
+    --name "/manual/budget/production/bedrock/temperature" \
+    --value "0.2"
 ```
 
 ### Deployment order

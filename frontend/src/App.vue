@@ -4,7 +4,6 @@ import { useAuth } from "@/composables/useAuth";
 import { useUser } from "@/composables/useUser";
 import { useSnackbar } from "@/composables/useSnackbar";
 import { useDisplay } from "vuetify";
-import LoginButton from "@/components/auth/LoginButton.vue";
 import { setAuthTokenGetter, globalError, clearGlobalError } from "@/apollo";
 
 const {
@@ -137,9 +136,6 @@ const handleSignOut = () => {
               </v-icon>
             </template>
           </v-tooltip>
-
-          <!-- Auth buttons -->
-          <LoginButton v-if="!isAuthenticated && !authLoading" />
         </div>
       </template>
     </v-app-bar>
@@ -191,6 +187,13 @@ const handleSignOut = () => {
           :to="{ name: 'MonthlyCategoryReport' }"
           prepend-icon="mdi-table-large"
           title="Monthly Report"
+          @click="mobile && (drawer = false)"
+        />
+        <v-list-item
+          v-if="isAuthenticated"
+          :to="{ name: 'Insight' }"
+          prepend-icon="mdi-lightbulb-on-outline"
+          title="Insight"
           @click="mobile && (drawer = false)"
         />
         <!-- Push content to the bottom -->

@@ -16,7 +16,9 @@ import { UserRepository } from "./repositories/user-repository";
 import { resolvers } from "./resolvers";
 import { getAuthenticatedUser } from "./resolvers/shared";
 import { AccountService } from "./services/account-service";
+import { BedrockAiModelClient } from "./services/bedrock-ai-model-client";
 import { CategoryService } from "./services/category-service";
+import { InsightService } from "./services/insight-service";
 import { MonthlyByCategoryReportService } from "./services/monthly-by-category-report-service";
 import { TransactionService } from "./services/transaction-service";
 import { TransferService } from "./services/transfer-service";
@@ -34,6 +36,7 @@ export interface GraphQLContext {
   categoryService: CategoryService;
   transactionService: TransactionService;
   accountService: AccountService;
+  insightService: InsightService;
   transferService: TransferService;
   monthlyByCategoryReportService: MonthlyByCategoryReportService;
   jwtAuthService: JwtAuthService;
@@ -50,8 +53,10 @@ let transactionRepository: TransactionRepository;
 let categoryService: CategoryService;
 let transactionService: TransactionService;
 let accountService: AccountService;
+let insightService: InsightService;
 let transferService: TransferService;
 let monthlyByCategoryReportService: MonthlyByCategoryReportService;
+let aiModelClient: BedrockAiModelClient;
 
 const typeDefs = readFileSync(join(__dirname, "schema.graphql"), {
   encoding: "utf-8",
@@ -110,6 +115,19 @@ export async function createContext(req: {
     );
   }
 
+  if (!insightService) {
+    if (!aiModelClient) {
+      aiModelClient = new BedrockAiModelClient();
+    }
+
+    insightService = new InsightService(
+      transactionRepository,
+      accountRepository,
+      categoryRepository,
+      aiModelClient,
+    );
+  }
+
   if (!transferService) {
     transferService = new TransferService(
       transactionRepository,
@@ -145,6 +163,7 @@ export async function createContext(req: {
     categoryService,
     transactionService,
     accountService,
+    insightService,
     transferService,
     monthlyByCategoryReportService,
     jwtAuthService,

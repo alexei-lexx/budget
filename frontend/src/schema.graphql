@@ -9,6 +9,7 @@ type Query {
   transfer(id: ID!): Transfer
   transactionPatterns(type: TransactionPatternType!): [TransactionPattern!]!
   monthlyReport(year: Int!, month: Int!, type: ReportType!): MonthlyReport!
+  insight(input: InsightInput!): InsightResponse!
   transactionDescriptionSuggestions(searchText: String!): [String!]!
 }
 
@@ -46,6 +47,10 @@ enum TransactionPatternType {
 enum ReportType {
   INCOME
   EXPENSE
+}
+
+type InsightResponse {
+  answer: String!
 }
 
 type Category {
@@ -184,6 +189,16 @@ input TransactionFilterInput {
   dateAfter: String
   dateBefore: String
   types: [TransactionType!]
+}
+
+input DateRangeInput {
+  startDate: String!
+  endDate: String!
+}
+
+input InsightInput {
+  question: String!
+  dateRange: DateRangeInput!
 }
 
 type PageInfo {
