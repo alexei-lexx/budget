@@ -221,6 +221,7 @@ const isValidDateRange = (): boolean => {
     return false;
   }
 
+  // YYYY-MM-DD format allows lexicographic comparison
   if (startDate.value > endDate.value) {
     showErrorSnackbar("Start date must be before or equal to end date.");
     return false;
