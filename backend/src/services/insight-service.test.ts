@@ -316,7 +316,9 @@ describe("InsightService", () => {
         expect.arrayContaining([
           expect.objectContaining({
             role: "user",
-            content: expect.stringContaining("Question: What is my spending?"),
+            content: expect.stringContaining(
+              "My question: What is my spending?",
+            ),
           }),
         ]),
       );
@@ -335,7 +337,7 @@ describe("InsightService", () => {
       expect(messages).toHaveLength(2);
       expect(messages[0].role).toBe("system");
       expect(messages[0].content).toContain(
-        "You are a helpful personal finance assistant",
+        "You are a personal finance assistant",
       );
       expect(messages[1].role).toBe("user");
       expect(messages[1].content).toContain("2000-01-01");
