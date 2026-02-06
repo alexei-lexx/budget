@@ -166,7 +166,7 @@ export class InsightService {
       return {
         date: transaction.date,
         type: transaction.type,
-        amount: transaction.amount.toFixed(2),
+        amount: transaction.amount,
         currency: transaction.currency,
         account: accountName,
         category: categoryName,
@@ -233,11 +233,14 @@ export class InsightService {
     return {
       role: "user" as const,
       content: [
-        `Here is the list of transactions between ${dateRange.startDate} and ${dateRange.endDate}:`,
+        `I have a list of transactions between ${dateRange.startDate} and ${dateRange.endDate}.`,
+        "The data is in TOON format. Each transaction has: date, type, amount, currency, account, category, description.",
+        "",
+        "Here are the transactions:",
+        "",
+        `My question: ${question}`,
         dataPayload,
-        "Answer the question based on this data.",
-        `Question: ${question}`,
-      ].join("\n\n"),
+      ].join("\n"),
     };
   }
 
@@ -247,28 +250,16 @@ export class InsightService {
     return {
       role: "system",
       content: [
-        // Role
-        "You are a personal finance analyst embedded in a budgeting app.",
+        "You are a personal finance assistant.",
+        "Answer user's questions based on the provided transaction data.",
         "",
-        // Task
-        "Analyze the user's transaction data to answer questions about spending, income, and financial habits.",
+        "Transaction types: INCOME, EXPENSE, REFUND, TRANSFER_IN, TRANSFER_OUT.",
+        "Refunds are money returned from previous expenses.",
+        "Transfers are internal movements between accounts.",
         "",
-        // Constraints
-        "Rules:",
-        "- Use ONLY the provided transaction data. Never invent or assume data.",
-        "- If data is insufficient, state what's missing rather than guessing.",
-        "- When calculating totals, group by currency if multiple currencies exist.",
-        "- Treat TRANSFER_IN/TRANSFER_OUT as internal movements, not income/expense.",
+        "Keep responses concise. Use plain text only, no markdown.",
         "",
-        // Output format
-        "Response format:",
-        "- Be concise: 2-4 sentences for simple questions, use line breaks for breakdowns.",
-        "- Use plain text only. Do NOT use markdown formatting (no **, #, -, or ```).",
-        "- Use currency symbols and round amounts to 2 decimal places.",
-        "- When listing categories or accounts, sort by amount descending.",
-        "",
-        // Context
-        `Current date: ${currentDate}.`,
+        `Today is ${currentDate}.`,
       ].join("\n"),
     };
   }
