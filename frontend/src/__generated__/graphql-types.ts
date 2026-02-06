@@ -64,6 +64,21 @@ export type CreateTransferInput = {
   toAccountId: Scalars['ID']['input'];
 };
 
+export type DateRangeInput = {
+  endDate: Scalars['String']['input'];
+  startDate: Scalars['String']['input'];
+};
+
+export type InsightInput = {
+  dateRange: DateRangeInput;
+  question: Scalars['String']['input'];
+};
+
+export type InsightResponse = {
+  __typename?: 'InsightResponse';
+  answer: Scalars['String']['output'];
+};
+
 export type MonthlyReport = {
   __typename?: 'MonthlyReport';
   categories: Array<MonthlyReportCategory>;
@@ -189,6 +204,7 @@ export type Query = {
   __typename?: 'Query';
   accounts: Array<Account>;
   categories: Array<Category>;
+  insight: InsightResponse;
   monthlyReport: MonthlyReport;
   supportedCurrencies: Array<Scalars['String']['output']>;
   transactionDescriptionSuggestions: Array<Scalars['String']['output']>;
@@ -200,6 +216,11 @@ export type Query = {
 
 export type QueryCategoriesArgs = {
   type?: InputMaybe<CategoryType>;
+};
+
+
+export type QueryInsightArgs = {
+  input: InsightInput;
 };
 
 
@@ -525,3 +546,10 @@ export type GetTransactionDescriptionSuggestionsQueryVariables = Exact<{
 
 
 export type GetTransactionDescriptionSuggestionsQuery = { __typename?: 'Query', transactionDescriptionSuggestions: Array<string> };
+
+export type GetInsightQueryVariables = Exact<{
+  input: InsightInput;
+}>;
+
+
+export type GetInsightQuery = { __typename?: 'Query', insight: { __typename?: 'InsightResponse', answer: string } };

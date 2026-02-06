@@ -10,6 +10,7 @@ import Accounts from "@/views/Accounts.vue";
 import Categories from "@/views/Categories.vue";
 import Transactions from "@/views/Transactions.vue";
 import MonthlyCategory from "@/views/MonthlyCategory.vue";
+import Insight from "@/views/Insight.vue";
 import { useAuth } from "@/composables/useAuth";
 
 // Reusable authentication guard
@@ -71,6 +72,12 @@ const routes = [
     path: "/reports/monthly-category",
     name: "MonthlyCategoryReport",
     component: MonthlyCategory,
+    beforeEnter: requireAuth,
+  },
+  {
+    path: "/insight",
+    name: "Insight",
+    component: Insight,
     beforeEnter: requireAuth,
   },
 ];

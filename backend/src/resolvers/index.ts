@@ -1,6 +1,7 @@
 import { Resolvers } from "../__generated__/resolvers-types";
 import { accountResolvers } from "./account-resolvers";
 import { categoryResolvers } from "./category-resolvers";
+import { insightResolvers } from "./insight-resolvers";
 import { reportResolvers } from "./report-resolvers";
 import { transactionResolvers } from "./transaction-resolvers";
 import { transferResolvers } from "./transfer-resolvers";
@@ -10,9 +11,10 @@ export const resolvers: Resolvers = {
   Query: {
     ...accountResolvers.Query,
     ...categoryResolvers.Query,
+    ...insightResolvers.Query,
+    ...reportResolvers.Query,
     ...transactionResolvers.Query,
     ...transferResolvers.Query,
-    ...reportResolvers.Query,
   },
   Mutation: {
     ...accountResolvers.Mutation,

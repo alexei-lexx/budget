@@ -16,3 +16,14 @@ export function formatMonthYear(year: number, month: number): string {
 export function getTodayDateString(): string {
   return new Date().toISOString().slice(0, 10);
 }
+
+/**
+ *
+ * Format a Date object as YYYY-MM-DD string (local timezone)
+ */
+export function formatDateAsYYYYMMDD(date: Date): string {
+  const year = date.getFullYear();
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
+  const day = date.getDate().toString().padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}

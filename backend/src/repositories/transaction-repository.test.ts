@@ -2001,6 +2001,225 @@ describe("TransactionRepository", () => {
     });
   });
 
+  describe("findActiveByDateRange", () => {
+    it("should return transactions within date range", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+      const accountId = faker.string.uuid();
+
+      await repository.createMany([
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          date: "2024-01-15",
+        }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          date: "2024-01-20",
+        }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          date: "2024-02-01",
+        }),
+      ]);
+
+      // Act
+      const result = await repository.findActiveByDateRange(
+        userId,
+        "2024-01-01",
+        "2024-01-31",
+      );
+
+      // Assert
+      expect(result).toHaveLength(2);
+      expect(result.map((transaction) => transaction.date)).toEqual(
+        expect.arrayContaining(["2024-01-15", "2024-01-20"]),
+      );
+    });
+
+    it("should filter by user", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+      const otherUserId = faker.string.uuid();
+      const accountId = faker.string.uuid();
+
+      await repository.createMany([
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          date: "2024-01-15",
+        }),
+        fakeCreateTransactionInput({
+          userId: otherUserId,
+          accountId,
+          date: "2024-01-15",
+        }),
+      ]);
+
+      // Act
+      const result = await repository.findActiveByDateRange(
+        userId,
+        "2024-01-01",
+        "2024-01-31",
+      );
+
+      // Assert
+      expect(result).toHaveLength(1);
+      expect(result[0].userId).toBe(userId);
+    });
+
+    it("should skip archived transactions", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+      const accountId = faker.string.uuid();
+
+      const created = await repository.create(
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          date: "2024-01-15",
+        }),
+      );
+
+      await repository.archive(created.id, userId);
+
+      // Act
+      const result = await repository.findActiveByDateRange(
+        userId,
+        "2024-01-01",
+        "2024-01-31",
+      );
+
+      // Assert
+      expect(result).toHaveLength(0);
+    });
+
+    it("should include transactions on boundary dates", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+      const accountId = faker.string.uuid();
+
+      await repository.createMany([
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          date: "2024-01-01",
+        }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          date: "2024-01-31",
+        }),
+      ]);
+
+      // Act
+      const result = await repository.findActiveByDateRange(
+        userId,
+        "2024-01-01",
+        "2024-01-31",
+      );
+
+      // Assert
+      expect(result).toHaveLength(2);
+      expect(result.map((transaction) => transaction.date)).toEqual(
+        expect.arrayContaining(["2024-01-01", "2024-01-31"]),
+      );
+    });
+
+    it("should return empty array when no transactions in range", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+      const accountId = faker.string.uuid();
+
+      await repository.create(
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          date: "2024-02-15",
+        }),
+      );
+
+      // Act
+      const result = await repository.findActiveByDateRange(
+        userId,
+        "2024-01-01",
+        "2024-01-31",
+      );
+
+      // Assert
+      expect(result).toHaveLength(0);
+    });
+
+    it("should throw error when userId is empty", async () => {
+      // Act & Assert
+      await expect(
+        repository.findActiveByDateRange("", "2024-01-01", "2024-01-31"),
+      ).rejects.toThrow("User ID is required");
+    });
+
+    it("should throw error when startDate is empty", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+
+      // Act & Assert
+      await expect(
+        repository.findActiveByDateRange(userId, "", "2024-01-31"),
+      ).rejects.toThrow("Start date and end date are required");
+    });
+
+    it("should throw error when endDate is empty", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+
+      // Act & Assert
+      await expect(
+        repository.findActiveByDateRange(userId, "2024-01-01", ""),
+      ).rejects.toThrow("Start date and end date are required");
+    });
+
+    it("should throw error when startDate is after endDate", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+
+      // Act & Assert
+      await expect(
+        repository.findActiveByDateRange(userId, "2024-01-31", "2024-01-01"),
+      ).rejects.toThrow("Start date must be before or equal to end date");
+    });
+
+    it("should handle single day range", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+      const accountId = faker.string.uuid();
+
+      await repository.createMany([
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          date: "2024-01-15",
+        }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          date: "2024-01-16",
+        }),
+      ]);
+
+      // Act
+      const result = await repository.findActiveByDateRange(
+        userId,
+        "2024-01-15",
+        "2024-01-15",
+      );
+
+      // Assert
+      expect(result).toHaveLength(1);
+      expect(result[0].date).toBe("2024-01-15");
+    });
+  });
+
   describe("findActiveByUserId with account filters", () => {
     it("should filter transactions by single account ID", async () => {
       // Arrange

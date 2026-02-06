@@ -189,6 +189,13 @@ const handleSignOut = () => {
           title="Monthly Report"
           @click="mobile && (drawer = false)"
         />
+        <v-list-item
+          v-if="isAuthenticated"
+          :to="{ name: 'Insight' }"
+          prepend-icon="mdi-lightbulb-on-outline"
+          title="Insight"
+          @click="mobile && (drawer = false)"
+        />
         <!-- Push content to the bottom -->
         <v-spacer />
         <!-- Visual separator -->

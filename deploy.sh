@@ -72,6 +72,30 @@ if [ -z "$LAMBDA_TIMEOUT_SECONDS" ] || [ "$LAMBDA_TIMEOUT_SECONDS" = "null" ]; t
 fi
 echo "LAMBDA_TIMEOUT_SECONDS=$LAMBDA_TIMEOUT_SECONDS"
 
+echo "Fetching AWS_BEDROCK_MODEL_ID from /manual/budget/$ENV/bedrock/model-id in AWS SSM Parameter Store..."
+AWS_BEDROCK_MODEL_ID=$(aws ssm get-parameter --name "/manual/budget/$ENV/bedrock/model-id" --query 'Parameter.Value' --output text)
+if [ -z "$AWS_BEDROCK_MODEL_ID" ] || [ "$AWS_BEDROCK_MODEL_ID" = "null" ]; then
+  echo "ERROR: Parameter /manual/budget/$ENV/bedrock/model-id must be configured in AWS SSM Parameter Store"
+  exit 1
+fi
+echo "AWS_BEDROCK_MODEL_ID=$AWS_BEDROCK_MODEL_ID"
+
+echo "Fetching AWS_BEDROCK_MAX_TOKENS from /manual/budget/$ENV/bedrock/max-tokens in AWS SSM Parameter Store..."
+AWS_BEDROCK_MAX_TOKENS=$(aws ssm get-parameter --name "/manual/budget/$ENV/bedrock/max-tokens" --query 'Parameter.Value' --output text)
+if [ -z "$AWS_BEDROCK_MAX_TOKENS" ] || [ "$AWS_BEDROCK_MAX_TOKENS" = "null" ]; then
+  echo "ERROR: Parameter /manual/budget/$ENV/bedrock/max-tokens must be configured in AWS SSM Parameter Store"
+  exit 1
+fi
+echo "AWS_BEDROCK_MAX_TOKENS=$AWS_BEDROCK_MAX_TOKENS"
+
+echo "Fetching AWS_BEDROCK_TEMPERATURE from /manual/budget/$ENV/bedrock/temperature in AWS SSM Parameter Store..."
+AWS_BEDROCK_TEMPERATURE=$(aws ssm get-parameter --name "/manual/budget/$ENV/bedrock/temperature" --query 'Parameter.Value' --output text)
+if [ -z "$AWS_BEDROCK_TEMPERATURE" ] || [ "$AWS_BEDROCK_TEMPERATURE" = "null" ]; then
+  echo "ERROR: Parameter /manual/budget/$ENV/bedrock/temperature must be configured in AWS SSM Parameter Store"
+  exit 1
+fi
+echo "AWS_BEDROCK_TEMPERATURE=$AWS_BEDROCK_TEMPERATURE"
+
 echo "Switching to backend directory..."
 cd backend
 
@@ -91,6 +115,9 @@ echo "Deploying infrastructure (backend and frontend)..."
 env AUTH_AUDIENCE="$AUTH_AUDIENCE" \
     AUTH_CLAIM_NAMESPACE="$AUTH_CLAIM_NAMESPACE" \
     AUTH_ISSUER="$AUTH_ISSUER" \
+    AWS_BEDROCK_MAX_TOKENS="$AWS_BEDROCK_MAX_TOKENS" \
+    AWS_BEDROCK_MODEL_ID="$AWS_BEDROCK_MODEL_ID" \
+    AWS_BEDROCK_TEMPERATURE="$AWS_BEDROCK_TEMPERATURE" \
     LAMBDA_MEMORY_SIZE="$LAMBDA_MEMORY_SIZE" \
     LAMBDA_TIMEOUT_SECONDS="$LAMBDA_TIMEOUT_SECONDS" \
     NODE_ENV="$NODE_ENV" \
