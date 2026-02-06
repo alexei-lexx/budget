@@ -28,19 +28,19 @@
           <!-- Period selector -->
           <div class="d-flex align-center ga-1 mb-3 flex-wrap">
             <v-chip
-              v-for="preset in presetOptions"
-              :key="preset.value"
-              :color="selectedPreset === preset.value ? 'primary' : undefined"
-              :variant="selectedPreset === preset.value ? 'flat' : 'tonal'"
+              v-for="dateRangePreset in dateRangePresetOptions"
+              :key="dateRangePreset.value"
+              :color="selectedDateRangePreset === dateRangePreset.value ? 'primary' : undefined"
+              :variant="selectedDateRangePreset === dateRangePreset.value ? 'flat' : 'tonal'"
               size="small"
               label
-              @click="selectedPreset = preset.value"
+              @click="selectedDateRangePreset = dateRangePreset.value"
             >
-              {{ preset.label }}
+              {{ dateRangePreset.label }}
             </v-chip>
           </div>
 
-          <v-row v-if="isCustomPreset" class="mb-3" dense>
+          <v-row v-if="isCustomDateRangePreset" class="mb-3" dense>
             <v-col cols="6">
               <v-text-field
                 v-model="startDate"
@@ -105,8 +105,9 @@
 import { computed, onMounted, ref, watch } from "vue";
 import { useInsight } from "@/composables/useInsight";
 import { useSnackbar } from "@/composables/useSnackbar";
+import { formatDateAsYYYYMMDD } from "@/utils/date";
 
-type InsightPreset =
+type InsightDateRangePreset =
   | "THIS_MONTH"
   | "PREV_MONTH"
   | "LAST_3_MONTHS"
@@ -123,7 +124,7 @@ const { insightLoading, insightError, insightAnswer, askQuestion } = useInsight(
 
 interface StoredInput {
   question: string;
-  preset: InsightPreset;
+  dateRangePreset: InsightDateRangePreset;
   startDate: string;
   endDate: string;
 }
@@ -140,14 +141,14 @@ const loadStoredInput = (): Partial<StoredInput> => {
 const saveInput = () => {
   const data: StoredInput = {
     question: question.value,
-    preset: selectedPreset.value,
+    dateRangePreset: selectedDateRangePreset.value,
     startDate: startDate.value,
     endDate: endDate.value,
   };
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 };
 
-const presetOptions: { value: InsightPreset; label: string }[] = [
+const dateRangePresetOptions: { value: InsightDateRangePreset; label: string }[] = [
   { value: "THIS_MONTH", label: "This month" },
   { value: "PREV_MONTH", label: "Prev month" },
   { value: "LAST_3_MONTHS", label: "3 months" },
@@ -159,55 +160,59 @@ const presetOptions: { value: InsightPreset; label: string }[] = [
 ];
 
 const storedInput = loadStoredInput();
-const selectedPreset = ref<InsightPreset>(storedInput.preset ?? "THIS_MONTH");
+const selectedDateRangePreset = ref<InsightDateRangePreset>(
+  storedInput.dateRangePreset ?? "THIS_MONTH",
+);
 const startDate = ref<string>(storedInput.startDate ?? "");
 const endDate = ref<string>(storedInput.endDate ?? "");
 const question = ref<string>(storedInput.question ?? "");
 
-const isCustomPreset = computed(() => selectedPreset.value === "CUSTOM");
+const isCustomDateRangePreset = computed(() => selectedDateRangePreset.value === "CUSTOM");
 
 const formatDateForInput = (date: Date): string => {
-  const year = date.getFullYear();
-  const month = `${date.getMonth() + 1}`.padStart(2, "0");
-  const day = `${date.getDate()}`.padStart(2, "0");
-  return `${year}-${month}-${day}`;
+  return formatDateAsYYYYMMDD(date);
 };
 
-const applyPresetDates = (preset: InsightPreset) => {
+const applyDateRangePreset = (dateRangePreset: InsightDateRangePreset) => {
   const today = new Date();
-  let presetStart: Date;
-  let presetEnd = today;
+  let dateRangeStart: Date;
+  let dateRangeEnd: Date;
 
-  switch (preset) {
+  switch (dateRangePreset) {
     case "THIS_MONTH":
-      presetStart = new Date(today.getFullYear(), today.getMonth(), 1);
+      dateRangeStart = new Date(today.getFullYear(), today.getMonth(), 1);
+      dateRangeEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0);
       break;
     case "PREV_MONTH":
-      presetStart = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-      presetEnd = new Date(today.getFullYear(), today.getMonth(), 0);
+      dateRangeStart = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+      dateRangeEnd = new Date(today.getFullYear(), today.getMonth(), 0);
       break;
     case "LAST_3_MONTHS":
-      presetStart = new Date(today.getFullYear(), today.getMonth() - 2, 1);
+      dateRangeStart = new Date(today.getFullYear(), today.getMonth() - 3, today.getDate());
+      dateRangeEnd = today;
       break;
     case "LAST_6_MONTHS":
-      presetStart = new Date(today.getFullYear(), today.getMonth() - 5, 1);
+      dateRangeStart = new Date(today.getFullYear(), today.getMonth() - 6, today.getDate());
+      dateRangeEnd = today;
       break;
     case "LAST_12_MONTHS":
-      presetStart = new Date(today.getFullYear(), today.getMonth() - 11, 1);
+      dateRangeStart = new Date(today.getFullYear(), today.getMonth() - 12, today.getDate());
+      dateRangeEnd = today;
       break;
     case "THIS_YEAR":
-      presetStart = new Date(today.getFullYear(), 0, 1);
+      dateRangeStart = new Date(today.getFullYear(), 0, 1);
+      dateRangeEnd = new Date(today.getFullYear(), 11, 31);
       break;
     case "PREV_YEAR":
-      presetStart = new Date(today.getFullYear() - 1, 0, 1);
-      presetEnd = new Date(today.getFullYear() - 1, 11, 31);
+      dateRangeStart = new Date(today.getFullYear() - 1, 0, 1);
+      dateRangeEnd = new Date(today.getFullYear() - 1, 11, 31);
       break;
     default:
       return;
   }
 
-  startDate.value = formatDateForInput(presetStart);
-  endDate.value = formatDateForInput(presetEnd);
+  startDate.value = formatDateForInput(dateRangeStart);
+  endDate.value = formatDateForInput(dateRangeEnd);
 };
 
 const isValidDateRange = (): boolean => {
@@ -244,9 +249,9 @@ const handleAskQuestion = async () => {
   }
 };
 
-watch(selectedPreset, (preset) => {
-  if (preset !== "CUSTOM") {
-    applyPresetDates(preset);
+watch(selectedDateRangePreset, (dateRangePreset) => {
+  if (dateRangePreset !== "CUSTOM") {
+    applyDateRangePreset(dateRangePreset);
   }
   saveInput();
 });
@@ -256,9 +261,9 @@ watch([question, startDate, endDate], () => {
 });
 
 onMounted(() => {
-  // Only apply preset dates if no stored custom dates or not custom preset
-  if (selectedPreset.value !== "CUSTOM" || !storedInput.startDate) {
-    applyPresetDates(selectedPreset.value);
+  // Only apply dates if no stored custom dates or not custom date range preset
+  if (selectedDateRangePreset.value !== "CUSTOM" || !storedInput.startDate) {
+    applyDateRangePreset(selectedDateRangePreset.value);
   }
 });
 </script>
