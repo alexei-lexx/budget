@@ -28,15 +28,15 @@
           <!-- Period selector -->
           <div class="d-flex align-center ga-1 mb-3 flex-wrap">
             <v-chip
-              v-for="dateRangePreset in dateRangePresetOptions"
-              :key="dateRangePreset.value"
-              :color="selectedDateRangePreset === dateRangePreset.value ? 'primary' : undefined"
-              :variant="selectedDateRangePreset === dateRangePreset.value ? 'flat' : 'tonal'"
+              v-for="option in dateRangePresetOptions"
+              :key="option.value"
+              :color="selectedDateRangePreset === option.value ? 'primary' : undefined"
+              :variant="selectedDateRangePreset === option.value ? 'flat' : 'tonal'"
               size="small"
               label
-              @click="selectedDateRangePreset = dateRangePreset.value"
+              @click="selectedDateRangePreset = option.value"
             >
-              {{ dateRangePreset.label }}
+              {{ option.label }}
             </v-chip>
           </div>
 
