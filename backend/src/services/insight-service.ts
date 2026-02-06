@@ -3,6 +3,7 @@ import { IAccountRepository } from "../models/account";
 import { ICategoryRepository } from "../models/category";
 import { ITransactionRepository, Transaction } from "../models/transaction";
 import { YEAR_RANGE_OFFSET } from "../types/validation";
+import { formatDateAsYYYYMMDD } from "../utils/date";
 import type { AiModelClient, AiModelMessage } from "./ai-model-client";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
 
@@ -241,7 +242,7 @@ export class InsightService {
   }
 
   private buildSystemMessage(): AiModelMessage {
-    const currentDate = new Date().toISOString().split("T")[0];
+    const currentDate = formatDateAsYYYYMMDD(new Date());
 
     return {
       role: "system",
