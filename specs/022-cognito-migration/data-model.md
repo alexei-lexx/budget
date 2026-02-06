@@ -112,7 +112,9 @@ UserPoolDomain:
 
 ## Token Claims
 
-### Access Token
+### Access Token (Cognito)
+
+**Important**: Cognito access tokens do NOT contain an `aud` claim. Use `client_id` for validation.
 
 ```json
 {
@@ -128,6 +130,13 @@ UserPoolDomain:
   "username": "user-email@example.com"
 }
 ```
+
+**Comparison with Auth0 Access Token**:
+| Claim | Auth0 | Cognito |
+|-------|-------|---------|
+| `aud` | Present (API identifier) | **NOT present** |
+| `client_id` | Not used (`azp` instead) | Present |
+| `azp` | Present (client ID) | Not used |
 
 ### ID Token
 
@@ -145,6 +154,8 @@ UserPoolDomain:
   "cognito:username": "user-email@example.com"
 }
 ```
+
+Note: ID tokens DO have an `aud` claim, but the backend validates access tokens, not ID tokens.
 
 ## OIDC Discovery Endpoints
 
@@ -170,24 +181,40 @@ VITE_AUTH_ISSUER=https://cognito-idp.{region}.amazonaws.com/{poolId}
 # Cognito User Pool Client ID
 VITE_AUTH_CLIENT_ID={clientId}
 
-# Audience for token validation (same as client ID for Cognito)
-VITE_AUTH_AUDIENCE={clientId}
-
 # OAuth scopes to request
 VITE_AUTH_SCOPE=openid profile email offline_access
+
+# Audience (optional - not used by Cognito, keep for Auth0 backward compatibility)
+# VITE_AUTH_AUDIENCE={apiIdentifier}
 ```
 
 ### Backend (.env)
 
 ```bash
-# Cognito User Pool issuer URL (include trailing slash for JWT verification)
+# Cognito User Pool issuer URL
 AUTH_ISSUER=https://cognito-idp.{region}.amazonaws.com/{poolId}
 
-# Audience for token validation (Cognito client ID)
-AUTH_AUDIENCE={clientId}
+# Client ID for token validation (validates client_id claim in Cognito tokens)
+AUTH_CLIENT_ID={clientId}
+
+# Audience validation (optional for Cognito, required for Auth0)
+# Leave empty or remove for Cognito - Cognito access tokens don't have aud claim
+# AUTH_AUDIENCE=
 
 # Remove AUTH_CLAIM_NAMESPACE - Cognito uses standard email claim
 ```
+
+### Backward Compatibility Notes
+
+The backend JWT validation supports both Auth0 and Cognito:
+
+| Provider | Required Variables | Validation |
+|----------|-------------------|------------|
+| Auth0 | `AUTH_ISSUER`, `AUTH_AUDIENCE` | Validates `aud` claim against `AUTH_AUDIENCE` |
+| Cognito | `AUTH_ISSUER`, `AUTH_CLIENT_ID` | Validates `client_id` claim against `AUTH_CLIENT_ID` |
+| Transition | All three | Validates both claims (either must match) |
+
+This allows switching back to Auth0 by restoring `AUTH_AUDIENCE` and removing `AUTH_CLIENT_ID`.
 
 ## Existing Data Model (Unchanged)
 

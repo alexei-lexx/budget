@@ -38,7 +38,10 @@ Create or update `backend/.env`:
 ```bash
 # Cognito configuration
 AUTH_ISSUER=https://cognito-idp.{region}.amazonaws.com/{UserPoolId}
-AUTH_AUDIENCE={UserPoolClientId}
+AUTH_CLIENT_ID={UserPoolClientId}
+
+# Note: AUTH_AUDIENCE is NOT used for Cognito (no aud claim in access tokens)
+# Keep AUTH_AUDIENCE only if you need backward compatibility with Auth0
 
 # DynamoDB Local for development
 DYNAMODB_ENDPOINT=http://localhost:8000
@@ -61,8 +64,10 @@ VITE_GRAPHQL_ENDPOINT=http://localhost:4000/graphql
 # Cognito configuration
 VITE_AUTH_ISSUER=https://cognito-idp.{region}.amazonaws.com/{UserPoolId}
 VITE_AUTH_CLIENT_ID={UserPoolClientId}
-VITE_AUTH_AUDIENCE={UserPoolClientId}
 VITE_AUTH_SCOPE=openid profile email offline_access
+
+# Audience (optional - not used by Cognito, keep for Auth0 backward compatibility)
+# VITE_AUTH_AUDIENCE={apiIdentifier}
 ```
 
 ### 4. Create a Test User
@@ -138,8 +143,9 @@ Ensure callback URLs in Cognito User Pool Client match exactly:
 
 Check that:
 1. `AUTH_ISSUER` matches the User Pool issuer (include region and pool ID)
-2. `AUTH_AUDIENCE` matches the User Pool Client ID
+2. `AUTH_CLIENT_ID` matches the User Pool Client ID (for Cognito)
 3. Backend can reach Cognito JWKS endpoint
+4. Note: Do NOT set `AUTH_AUDIENCE` for Cognito (Cognito access tokens don't have `aud` claim)
 
 ### "User does not exist" Error
 

@@ -24,10 +24,12 @@
 
 ### 2. Cognito JWT Token Structure
 
-**Decision**: Cognito JWT claims are compatible with existing backend verification logic.
+**Decision**: Cognito JWT claims require minor backend verification changes for `client_id` validation.
 
 **Rationale**:
-- Cognito access tokens include standard claims: `sub`, `iss`, `aud`, `exp`, `iat`
+- Cognito access tokens include claims: `sub`, `iss`, `client_id`, `exp`, `iat` (but NOT `aud`)
+- Auth0 access tokens include `aud` claim; Cognito uses `client_id` instead
+- Backend must be updated to validate `client_id` claim for Cognito tokens
 - Email claim available in ID token and can be configured in access token via custom scopes
 - `sub` claim is UUID format (same as Auth0)
 - Current backend extracts email via configurable namespace; Cognito uses `email` claim directly
@@ -37,11 +39,13 @@
 |-------|-------|---------|
 | Issuer format | `https://tenant.auth0.com/` | `https://cognito-idp.{region}.amazonaws.com/{poolId}` |
 | Email location | Custom namespace or standard | Standard `email` claim in ID token |
-| Audience | Custom API identifier | User Pool Client ID |
+| Audience (`aud`) | Present in access token (API identifier) | NOT present in access token |
+| Client ID | `azp` claim | `client_id` claim |
 
 **Migration Impact**:
 - Update `AUTH_ISSUER` environment variable
-- Update `AUTH_AUDIENCE` to match Cognito Client ID
+- Add `AUTH_CLIENT_ID` for Cognito `client_id` claim validation
+- Make `AUTH_AUDIENCE` optional (not used by Cognito, kept for Auth0 backward compatibility)
 - Simplify email extraction (no namespace needed with Cognito)
 
 ### 3. JWKS Caching with Cognito
@@ -125,26 +129,41 @@ refreshTokenValidity: Duration.days(30)
 
 ### 7. Environment Variable Migration
 
-**Decision**: Update existing environment variables; no new variables required.
+**Decision**: Update environment variables with backward-compatible validation strategy.
 
 **Rationale**:
-- Current setup already uses provider-agnostic variable names
-- Only values change, not variable names
-- `AUTH_CLAIM_NAMESPACE` can be removed (Cognito uses standard email claim)
+- Auth0 uses `aud` claim for audience validation (API identifier)
+- Cognito does NOT use audience in access tokens; uses `client_id` claim instead
+- Backend must support both providers for backward compatibility
+- Frontend only needs client ID (audience not used by OIDC client for Cognito)
+
+**Validation Strategy** (backward compatible):
+- If `AUTH_AUDIENCE` is set → validate `aud` claim (Auth0 mode)
+- If `AUTH_CLIENT_ID` is set → validate `client_id` claim (Cognito mode)
+- Both can be set during migration transition period
+- At least one must be set for token validation
 
 **Frontend Variables**:
 | Variable | Auth0 Value | Cognito Value |
 |----------|-------------|---------------|
 | `VITE_AUTH_ISSUER` | `https://tenant.auth0.com` | `https://cognito-idp.{region}.amazonaws.com/{poolId}` |
 | `VITE_AUTH_CLIENT_ID` | Auth0 client ID | Cognito User Pool Client ID |
-| `VITE_AUTH_AUDIENCE` | API identifier | Cognito User Pool Client ID |
+| `VITE_AUTH_AUDIENCE` | API identifier | Optional (not used by Cognito, keep for Auth0 compatibility) |
 
 **Backend Variables**:
 | Variable | Auth0 Value | Cognito Value |
 |----------|-------------|---------------|
 | `AUTH_ISSUER` | `https://tenant.auth0.com` | `https://cognito-idp.{region}.amazonaws.com/{poolId}` |
-| `AUTH_AUDIENCE` | API identifier | Cognito User Pool Client ID |
+| `AUTH_AUDIENCE` | API identifier (required) | Remove or leave empty (optional) |
+| `AUTH_CLIENT_ID` | Not used | Cognito User Pool Client ID (required) |
 | `AUTH_CLAIM_NAMESPACE` | Custom namespace | Remove (standard email claim) |
+
+**Key Difference: Auth0 vs Cognito Token Validation**:
+| Aspect | Auth0 | Cognito |
+|--------|-------|---------|
+| Audience claim (`aud`) | Present in access token | NOT present in access token |
+| Client ID claim | `azp` claim | `client_id` claim |
+| Backend validation | Validate `aud` against API identifier | Validate `client_id` against client ID |
 
 ### 8. Edge Cases Resolution
 
@@ -174,10 +193,13 @@ refreshTokenValidity: Duration.days(30)
    **A**: Standard `email` claim in ID token; configure `email` scope for access token
 
 2. **Q**: Cognito audience format?
-   **A**: User Pool Client ID (same value for both audience validation and client configuration)
+   **A**: Cognito access tokens do NOT have an `aud` claim. Validate `client_id` claim instead (contains User Pool Client ID)
 
 3. **Q**: Callback URL configuration for local dev?
    **A**: `http://localhost:5173` for frontend dev server
+
+4. **Q**: How to maintain backward compatibility with Auth0?
+   **A**: Backend supports both: validate `aud` claim if `AUTH_AUDIENCE` is set (Auth0), validate `client_id` claim if `AUTH_CLIENT_ID` is set (Cognito)
 
 ## Dependencies Confirmed
 

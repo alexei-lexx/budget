@@ -5,7 +5,12 @@
 
 ## Summary
 
-Replace Auth0 authentication infrastructure with AWS Cognito while maintaining the existing OIDC-based authentication flow. The migration is primarily a configuration change: update identity provider URLs and client credentials in frontend and backend, plus add Cognito User Pool infrastructure to CDK. The application code remains unchanged beyond environment variable updates.
+Replace Auth0 authentication infrastructure with AWS Cognito while maintaining the existing OIDC-based authentication flow. The migration involves:
+1. Add Cognito User Pool infrastructure to CDK
+2. Update identity provider URLs and client credentials in frontend and backend
+3. Modify backend JWT validation to support Cognito's `client_id` claim (Auth0 uses `aud` claim)
+
+The backend validation change is backward-compatible: supports both Auth0 (`aud` claim) and Cognito (`client_id` claim) based on environment configuration.
 
 ## Technical Context
 
@@ -20,7 +25,7 @@ Replace Auth0 authentication infrastructure with AWS Cognito while maintaining t
 **Target Platform**: AWS (Lambda, S3, CloudFront, API Gateway, DynamoDB, Cognito)
 **Project Type**: Web application (frontend + backend + infra-cdk)
 **Performance Goals**: JWT validation <50ms (cached JWKS), token refresh <1s
-**Constraints**: Zero application code changes; configuration-only migration
+**Constraints**: Minimal code changes; backend JWT validation updated to support `client_id` claim (backward-compatible with Auth0 `aud` claim)
 **Scale/Scope**: Single-tenant personal finance application; 2 environments (dev, prod)
 
 ## Constitution Check
@@ -59,17 +64,17 @@ specs/022-cognito-migration/
 backend/
 ├── src/
 │   ├── auth/
-│   │   └── jwt-auth.ts      # JWT verification (config change only)
+│   │   └── jwt-auth.ts      # JWT verification (add client_id validation, backward-compatible)
 │   ├── server.ts            # Context creation (no changes)
 │   └── resolvers/           # Authentication enforcement (no changes)
-└── .env.example             # Environment variable template update
+└── .env.example             # Environment variable template update (add AUTH_CLIENT_ID)
 
 frontend/
 ├── src/
-│   ├── plugins/auth.ts      # OIDC configuration (config change only)
+│   ├── plugins/auth.ts      # OIDC configuration (update issuer/clientId)
 │   ├── composables/useAuth.ts # Auth state management (no changes)
 │   └── router/index.ts      # Protected routes (no changes)
-└── .env.example             # Environment variable template update
+└── .env.example             # Environment variable template update (VITE_AUTH_AUDIENCE now optional)
 
 infra-cdk/
 ├── lib/
@@ -82,7 +87,7 @@ infra-cdk/
     └── auth-cdk.test.js     # Already exists: Cognito stack tests
 ```
 
-**Structure Decision**: Existing web application structure (backend/ + frontend/ + infra-cdk/) remains unchanged. New infrastructure added to infra-cdk/lib/auth-cdk-stack.ts for Cognito User Pool.
+**Structure Decision**: Existing web application structure (backend/ + frontend/ + infra-cdk/) remains unchanged. New infrastructure added to infra-cdk/lib/auth-cdk-stack.ts for Cognito User Pool. Backend JWT validation updated to support both Auth0 (`aud` claim) and Cognito (`client_id` claim) for backward compatibility.
 
 ## Post-Design Constitution Check
 

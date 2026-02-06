@@ -80,6 +80,8 @@ Users sign in through Cognito hosted UI, receive access and refresh tokens, acce
 - **FR-005**: Frontend MUST update OIDC client configuration to use Cognito domain, client ID, and authorization endpoints
 - **FR-006**: Backend MUST update JWT verification configuration to use Cognito issuer URL and JWKS endpoint
 - **FR-007**: Backend MUST validate JWT access tokens issued by Cognito using public keys from Cognito JWKS endpoint
+- **FR-007a**: Backend MUST validate `client_id` claim in Cognito tokens (Cognito does not use `aud` claim in access tokens)
+- **FR-007b**: Backend MUST support optional `aud` claim validation for backward compatibility with Auth0
 - **FR-008**: Frontend MUST request `openid`, `profile`, and `email` scopes during authorization
 - **FR-009**: Frontend MUST request `offline_access` scope to obtain refresh tokens
 - **FR-010**: System MUST support refresh token rotation to obtain new access tokens without user interaction
@@ -93,7 +95,7 @@ Users sign in through Cognito hosted UI, receive access and refresh tokens, acce
 
 - **NFR-001**: Migration MUST NOT modify authentication flow logic beyond configuration changes
 - **NFR-002**: JWT token structure and claims MUST remain compatible with existing authorization logic
-- **NFR-003**: Backend JWT verification code MUST NOT require changes beyond issuer URL and JWKS endpoint updates
+- **NFR-003**: Backend JWT verification code MUST support both Auth0 (`aud` claim) and Cognito (`client_id` claim) validation for backward compatibility
 - **NFR-004**: Frontend authentication flow MUST NOT require changes beyond OIDC provider configuration updates
 - **NFR-005**: Cognito infrastructure MUST be defined in CDK to eliminate manual AWS Console configuration
 - **NFR-006**: Backend MUST cache JWKS keys and continue serving requests using cached keys if Cognito JWKS endpoint becomes temporarily unreachable
@@ -160,6 +162,12 @@ Users sign in through Cognito hosted UI, receive access and refresh tokens, acce
 - Q: Should users be able to self-register or admin-created only? → A: Admin-created only
 - Q: How should backend behave if JWKS endpoint is unreachable at startup? → A: Start with cached keys, retry in background
 - Q: Should Cognito use a managed domain prefix or custom domain? → A: Cognito-managed prefix
+
+### Session 2026-02-06
+
+- Q: How does Cognito token validation differ from Auth0? → A: Cognito access tokens do NOT have an `aud` claim; use `client_id` claim instead. Auth0 uses `aud` claim for validation.
+- Q: Should frontend use VITE_AUTH_AUDIENCE for Cognito? → A: Optional. Not used by Cognito, but keep for Auth0 backward compatibility.
+- Q: How to maintain backward compatibility with Auth0? → A: Backend supports both validation modes based on environment variables: `AUTH_AUDIENCE` for Auth0 (`aud` claim), `AUTH_CLIENT_ID` for Cognito (`client_id` claim)
 
 ## Dependencies
 
