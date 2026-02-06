@@ -11,11 +11,12 @@
           text="Select a time period and ask a question to get started."
         />
 
-        <div v-else class="answer-content mx-auto">
-          <div v-if="insightLoading" class="d-flex justify-center align-center fill-height">
-            <v-progress-circular indeterminate size="40" width="3" />
-          </div>
-          <div v-else-if="insightAnswer" class="text-body-1" style="white-space: pre-wrap">
+        <div v-else-if="insightLoading" class="d-flex justify-center align-center fill-height">
+          <v-progress-circular indeterminate size="40" width="3" />
+        </div>
+
+        <div v-else-if="insightAnswer" class="answer-content mx-auto">
+          <div class="text-body-1" style="white-space: pre-wrap">
             {{ insightAnswer }}
           </div>
         </div>
