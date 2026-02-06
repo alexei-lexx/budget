@@ -169,7 +169,7 @@ export class InsightService {
         currency: transaction.currency,
         account: accountName,
         category: categoryName,
-        description: transaction.description,
+        description: transaction.description || "",
       };
     });
 
