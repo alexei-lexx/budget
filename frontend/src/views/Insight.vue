@@ -4,16 +4,12 @@
     <div class="d-flex flex-column fill-height">
       <!-- Answer area -->
       <div class="answer-area flex-grow-1 overflow-y-auto pa-4">
-        <div
+        <v-empty-state
           v-if="!insightAnswer && !insightLoading"
-          class="d-flex flex-column align-center justify-center fill-height"
-        >
-          <v-icon icon="mdi-lightbulb-on-outline" size="64" color="grey-lighten-1" class="mb-4" />
-          <div class="text-h6 text-grey-darken-1">Ask about your finances</div>
-          <div class="text-body-2 text-grey">
-            Select a time period and ask a question to get started.
-          </div>
-        </div>
+          icon="mdi-lightbulb-on-outline"
+          title="Ask about your finances"
+          text="Select a time period and ask a question to get started."
+        />
 
         <div v-else class="answer-content mx-auto">
           <div v-if="insightLoading" class="d-flex justify-center align-center fill-height">
