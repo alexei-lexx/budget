@@ -87,21 +87,6 @@ aws ssm put-parameter --overwrite --type String \
 
 ### Deployment order
 
-The deployment script uses a **two-phase deployment** to solve the chicken-and-egg problem:
-- Cognito callback/logout URLs must point to the CloudFront URL
-- CloudFront URL doesn't exist until after frontend deployment
-
-**Solution:**
-
-**Phase 1:** Deploy all infrastructure without callback/logout URLs
-- Cognito allows creation without URLs (they're optional)
-- All stacks deploy successfully
-- CloudFront URL is now known from CDK outputs
-
-**Phase 2:** Set Cognito callback/logout URLs via AWS CLI
-- URLs set outside of CloudFormation
-- CloudFormation won't overwrite these URLs on subsequent deployments
-
 The deployment script handles the following steps automatically:
 
 1. Build backend
