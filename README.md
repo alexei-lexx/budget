@@ -41,33 +41,48 @@ Deploy the application to AWS.
 
 **Create Parameters in AWS Systems Manager Parameter Store:**
 
-> **Note:** Replace placeholder values (`<TENANT>`, `<REGION>`, `your-client-id`, etc.) with your actual configuration before running the commands.
+> **Note:** Replace placeholder values with your actual configuration before running the commands.
 
 ```bash
-# Auth audience
+# Auth callback URLs (comma-separated list of allowed redirect URLs after login)
 aws ssm put-parameter --overwrite --type String \
-    --name "/manual/budget/production/auth/audience" \
-    --value "https://personal-budget-tracker"
+    --name "/manual/budget/production/auth/callback-urls" \
+    --value "https://your-app.com,http://localhost:5173"
 
-# Auth issuer
-aws ssm put-parameter --overwrite --type String \
-    --name "/manual/budget/production/auth/issuer" \
-    --value "https://<TENANT>.<REGION>.auth0.com"
-
-# Auth client ID (SPA Client ID)
-aws ssm put-parameter --overwrite --type String \
-    --name "/manual/budget/production/auth/client-id" \
-    --value "your-client-id"
-
-# Auth claim namespace
+# Auth claim namespace (custom namespace for JWT claims)
 aws ssm put-parameter --overwrite --type String \
     --name "/manual/budget/production/auth/claim-namespace" \
     --value "https://personal-budget-tracker"
 
-# Auth scope
+# Auth domain prefix (must be globally unique across all AWS accounts)
+aws ssm put-parameter --overwrite --type String \
+    --name "/manual/budget/production/auth/domain-prefix" \
+    --value "production-budget-auth"
+
+# Auth logout URLs (comma-separated list of allowed redirect URLs after logout)
+aws ssm put-parameter --overwrite --type String \
+    --name "/manual/budget/production/auth/logout-urls" \
+    --value "https://your-app.com,http://localhost:5173"
+
+# Auth scope (OAuth scopes for Cognito)
 aws ssm put-parameter --overwrite --type String \
     --name "/manual/budget/production/auth/scope" \
-    --value "openid profile email offline_access"
+    --value "openid profile email"
+
+# AI max response tokens
+aws ssm put-parameter --overwrite --type String \
+    --name "/manual/budget/production/bedrock/max-tokens" \
+    --value "500"
+
+# AI model ID (e.g., eu.amazon.nova-2-lite-v1:0)
+aws ssm put-parameter --overwrite --type String \
+    --name "/manual/budget/production/bedrock/model-id" \
+    --value "eu.amazon.nova-2-lite-v1:0"
+
+# AI sampling temperature
+aws ssm put-parameter --overwrite --type String \
+    --name "/manual/budget/production/bedrock/temperature" \
+    --value "0.2"
 
 # Lambda memory size (in MB)
 aws ssm put-parameter --overwrite --type String \
@@ -78,29 +93,20 @@ aws ssm put-parameter --overwrite --type String \
 aws ssm put-parameter --overwrite --type String \
     --name "/manual/budget/production/lambda/timeout-seconds" \
     --value "30"
-
-# AI model ID (e.g., eu.amazon.nova-2-lite-v1:0)
-aws ssm put-parameter --overwrite --type String \
-    --name "/manual/budget/production/bedrock/model-id" \
-    --value "eu.amazon.nova-2-lite-v1:0"
-
-# AI max response tokens
-aws ssm put-parameter --overwrite --type String \
-    --name "/manual/budget/production/bedrock/max-tokens" \
-    --value "500"
-
-# AI sampling temperature
-aws ssm put-parameter --overwrite --type String \
-    --name "/manual/budget/production/bedrock/temperature" \
-    --value "0.2"
 ```
 
 ### Deployment order
 
+The deployment script handles the following steps automatically:
+
 1. Build backend
-2. Deploy backend infrastructure
-3. Deploy frontend infrastructure
-4. Build and upload frontend
+2. Deploy infrastructure stacks (auth → backend → frontend)
+   - Auth stack creates Cognito User Pool and Client
+   - Backend stack imports auth values via CloudFormation cross-stack references
+   - Frontend stack creates S3 bucket and CloudFront distribution
+3. Run database migrations
+4. Extract auth configuration from CDK outputs
+5. Build and upload frontend with extracted auth values
 
 ### Deployment Script
 

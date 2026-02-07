@@ -24,6 +24,30 @@ if [ -z "$AUTH_CLAIM_NAMESPACE" ] || [ "$AUTH_CLAIM_NAMESPACE" = "null" ]; then
 fi
 echo "AUTH_CLAIM_NAMESPACE=$AUTH_CLAIM_NAMESPACE"
 
+echo "Fetching AUTH_CALLBACK_URLS from /manual/budget/$ENV/auth/callback-urls in AWS SSM Parameter Store..."
+AUTH_CALLBACK_URLS=$(aws ssm get-parameter --name "/manual/budget/$ENV/auth/callback-urls" --query 'Parameter.Value' --output text)
+if [ -z "$AUTH_CALLBACK_URLS" ] || [ "$AUTH_CALLBACK_URLS" = "null" ]; then
+  echo "ERROR: Parameter /manual/budget/$ENV/auth/callback-urls must be configured in AWS SSM Parameter Store"
+  exit 1
+fi
+echo "AUTH_CALLBACK_URLS=$AUTH_CALLBACK_URLS"
+
+echo "Fetching AUTH_DOMAIN_PREFIX from /manual/budget/$ENV/auth/domain-prefix in AWS SSM Parameter Store..."
+AUTH_DOMAIN_PREFIX=$(aws ssm get-parameter --name "/manual/budget/$ENV/auth/domain-prefix" --query 'Parameter.Value' --output text)
+if [ -z "$AUTH_DOMAIN_PREFIX" ] || [ "$AUTH_DOMAIN_PREFIX" = "null" ]; then
+  echo "ERROR: Parameter /manual/budget/$ENV/auth/domain-prefix must be configured in AWS SSM Parameter Store"
+  exit 1
+fi
+echo "AUTH_DOMAIN_PREFIX=$AUTH_DOMAIN_PREFIX"
+
+echo "Fetching AUTH_LOGOUT_URLS from /manual/budget/$ENV/auth/logout-urls in AWS SSM Parameter Store..."
+AUTH_LOGOUT_URLS=$(aws ssm get-parameter --name "/manual/budget/$ENV/auth/logout-urls" --query 'Parameter.Value' --output text)
+if [ -z "$AUTH_LOGOUT_URLS" ] || [ "$AUTH_LOGOUT_URLS" = "null" ]; then
+  echo "ERROR: Parameter /manual/budget/$ENV/auth/logout-urls must be configured in AWS SSM Parameter Store"
+  exit 1
+fi
+echo "AUTH_LOGOUT_URLS=$AUTH_LOGOUT_URLS"
+
 echo "Fetching AUTH_SCOPE from /manual/budget/$ENV/auth/scope in AWS SSM Parameter Store..."
 AUTH_SCOPE=$(aws ssm get-parameter --name "/manual/budget/$ENV/auth/scope" --query 'Parameter.Value' --output text)
 if [ -z "$AUTH_SCOPE" ] || [ "$AUTH_SCOPE" = "null" ]; then
@@ -88,7 +112,10 @@ npm install
 CDK_OUTPUT_FILE="cdk-outputs.$ENV.json"
 
 echo "Deploying infrastructure (backend and frontend)..."
-env AUTH_CLAIM_NAMESPACE="$AUTH_CLAIM_NAMESPACE" \
+env AUTH_CALLBACK_URLS="$AUTH_CALLBACK_URLS" \
+    AUTH_CLAIM_NAMESPACE="$AUTH_CLAIM_NAMESPACE" \
+    AUTH_DOMAIN_PREFIX="$AUTH_DOMAIN_PREFIX" \
+    AUTH_LOGOUT_URLS="$AUTH_LOGOUT_URLS" \
     AWS_BEDROCK_MAX_TOKENS="$AWS_BEDROCK_MAX_TOKENS" \
     AWS_BEDROCK_MODEL_ID="$AWS_BEDROCK_MODEL_ID" \
     AWS_BEDROCK_TEMPERATURE="$AWS_BEDROCK_TEMPERATURE" \
