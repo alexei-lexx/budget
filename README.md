@@ -41,8 +41,6 @@ Deploy the application to AWS.
 
 **Create Parameters in AWS Systems Manager Parameter Store:**
 
-> **Note:** Replace placeholder values with your actual configuration before running the commands.
-
 ```bash
 # Auth claim namespace (custom namespace for JWT claims)
 aws ssm put-parameter --overwrite --type String \
