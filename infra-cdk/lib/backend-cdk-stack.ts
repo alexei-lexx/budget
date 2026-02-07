@@ -91,9 +91,10 @@ export class BackendCdkStack extends cdk.Stack {
       runtime: lambda.Runtime.NODEJS_24_X,
       code: lambda.Code.fromAsset("../backend/dist"),
       environment: {
-        AUTH_AUDIENCE: process.env.AUTH_AUDIENCE || "",
-        AUTH_ISSUER: process.env.AUTH_ISSUER || "",
+        AUTH_AUDIENCE: process.env.AUTH_AUDIENCE || "", // Required for Auth0, optional for Cognito
         AUTH_CLAIM_NAMESPACE: process.env.AUTH_CLAIM_NAMESPACE || "",
+        AUTH_CLIENT_ID: process.env.AUTH_CLIENT_ID || "", // Required for Cognito, optional for Auth0
+        AUTH_ISSUER: process.env.AUTH_ISSUER || "",
         AWS_BEDROCK_MAX_TOKENS: process.env.AWS_BEDROCK_MAX_TOKENS || "",
         AWS_BEDROCK_MODEL_ID: process.env.AWS_BEDROCK_MODEL_ID || "",
         AWS_BEDROCK_TEMPERATURE: process.env.AWS_BEDROCK_TEMPERATURE || "",

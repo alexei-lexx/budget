@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import * as cdk from "aws-cdk-lib";
+import { AuthCdkStack } from "../lib/auth-cdk-stack";
 import { BackendCdkStack } from "../lib/backend-cdk-stack";
 import { FrontendCdkStack } from "../lib/frontend-cdk-stack";
 
@@ -9,6 +10,11 @@ const nodeEnv = process.env.NODE_ENV;
 if (!nodeEnv) {
   throw new Error("NODE_ENV environment variable must be configured");
 }
+
+// Auth stack for Cognito User Pool
+new AuthCdkStack(app, "AuthCdkStack", {
+  stackName: `${nodeEnv}-BudgetAuth`,
+});
 
 const backendStack = new BackendCdkStack(app, "BackendCdkStack", {
   stackName: `${nodeEnv}-BudgetBackend`,

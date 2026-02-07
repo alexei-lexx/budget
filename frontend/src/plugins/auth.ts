@@ -24,7 +24,7 @@ import type { App } from "vue";
  * This plugin sets up OpenID Connect (OIDC) authentication using the oidc-client-ts library.
  *
  * The authentication flow works as follows:
- * 1. User clicks login -> redirects to OIDC provider (e.g., Auth0)
+ * 1. User clicks login -> redirects to OIDC provider
  * 2. User authenticates at provider -> provider redirects back with authorization code
  * 3. This plugin detects the redirect and exchanges code for tokens
  * 4. Tokens are stored in localStorage for persistence across sessions
@@ -53,7 +53,7 @@ export function createAuth() {
 
   // Create the UserManager instance which handles all OIDC protocol interactions
   const userManager = new UserManager({
-    // The OIDC provider's base URL (e.g., https://your-tenant.auth0.com)
+    // The OIDC provider's base URL
     authority: issuer,
 
     // Application identifier registered with the OIDC provider
@@ -76,7 +76,9 @@ export function createAuth() {
     // - offline_access: Enables refresh tokens for long-lived sessions
     scope,
 
-    // Auth0-specific: Pass audience parameter to get access tokens for a specific API
+    // OIDC provider-specific: Pass audience parameter to get access tokens for a specific API
+    // - For Auth0: Required to get properly scoped access tokens
+    // - For Cognito: Not used (leave VITE_AUTH_AUDIENCE empty)
     // Only included if audience is configured in environment variables
     ...(audience && { extraQueryParams: { audience } }),
 

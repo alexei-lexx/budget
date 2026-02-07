@@ -43,9 +43,9 @@
 
 ### Implementation for User Story 1
 
-- [ ] T001 [US1] Create Cognito User Pool stack in `infra-cdk/lib/auth-cdk-stack.ts` with User Pool, User Pool Client, and User Pool Domain per data-model.md specifications
-- [ ] T002 [US1] Update CDK app entry point to instantiate AuthCdkStack in `infra-cdk/bin/app.ts`
-- [ ] T003 [US1] Run existing CDK tests to verify stack configuration in `infra-cdk/test/auth-cdk.test.js`
+- [x] T001 [US1] Create Cognito User Pool stack in `infra-cdk/lib/auth-cdk-stack.ts` with User Pool, User Pool Client, and User Pool Domain per data-model.md specifications
+- [x] T002 [US1] Update CDK app entry point to instantiate AuthCdkStack in `infra-cdk/bin/app.ts`
+- [x] T003 [US1] Run existing CDK tests to verify stack configuration in `infra-cdk/test/auth-cdk.test.ts`
 - [ ] T004 [US1] Deploy AuthCdkStack to dev environment and verify User Pool creation in AWS Console
 
 **Checkpoint**: Cognito User Pool deployed with hosted UI accessible at `{prefix}.auth.{region}.amazoncognito.com`
@@ -60,13 +60,13 @@
 
 ### Implementation for User Story 2
 
-- [ ] T005 [P] [US2] Update JWT verification to support `client_id` claim validation (Cognito) alongside `aud` claim (Auth0) in `backend/src/auth/jwt-auth.ts`
-- [ ] T006 [P] [US2] Make `AUTH_AUDIENCE` optional and add `AUTH_CLIENT_ID` support in `backend/src/auth/jwt-auth.ts`
-- [ ] T007 [P] [US2] Make `AUTH_CLAIM_NAMESPACE` optional for Cognito (uses standard `email` claim) in `backend/src/auth/jwt-auth.ts`
-- [ ] T008 [P] [US2] Update backend environment template with `AUTH_CLIENT_ID` and document optional `AUTH_AUDIENCE` in `backend/.env.example`
-- [ ] T009 [P] [US2] Update frontend environment template to document `VITE_AUTH_AUDIENCE` as optional in `frontend/.env.example`
-- [ ] T010 [US2] Update backend CDK stack to pass Cognito environment variables (`AUTH_ISSUER`, `AUTH_CLIENT_ID`) in `infra-cdk/lib/backend-cdk-stack.ts`
-- [ ] T011 [US2] Verify backend starts successfully with Cognito configuration and fetches JWKS
+- [x] T005 [P] [US2] Update JWT verification to support `client_id` claim validation (Cognito) alongside `aud` claim (Auth0) in `backend/src/auth/jwt-auth.ts`
+- [x] T006 [P] [US2] Make `AUTH_AUDIENCE` optional and add `AUTH_CLIENT_ID` support in `backend/src/auth/jwt-auth.ts`
+- [x] T007 [P] [US2] Make `AUTH_CLAIM_NAMESPACE` optional for Cognito (uses standard `email` claim) in `backend/src/auth/jwt-auth.ts`
+- [x] T008 [P] [US2] Update backend environment template with `AUTH_CLIENT_ID` and document optional `AUTH_AUDIENCE` in `backend/.env.example`
+- [x] T009 [P] [US2] Update frontend environment template to document `VITE_AUTH_AUDIENCE` as optional in `frontend/.env.example`
+- [x] T010 [US2] Update backend CDK stack to pass Cognito environment variables (`AUTH_ISSUER`, `AUTH_CLIENT_ID`) in `infra-cdk/lib/backend-cdk-stack.ts`
+- [x] T011 [US2] Verify backend starts successfully with Cognito configuration and fetches JWKS
 
 **Checkpoint**: Backend validates both Auth0 and Cognito tokens based on environment configuration. Frontend works with optional audience.
 
@@ -95,8 +95,8 @@
 
 **Purpose**: Cleanup and documentation
 
-- [ ] T018 [P] Update auth.ts comment from "Auth0-specific" to "OIDC provider-specific" in `frontend/src/plugins/auth.ts`
-- [ ] T019 [P] Remove Auth0 references from any remaining configuration or documentation
+- [x] T018 [P] Update auth.ts comment from "Auth0-specific" to "OIDC provider-specific" in `frontend/src/plugins/auth.ts`
+- [x] T019 [P] Remove Auth0 references from any remaining configuration or documentation
 - [ ] T020 Validate quickstart.md instructions work for new developer setup
 - [ ] T021 Update MEMORY.md with lessons learned from migration
 

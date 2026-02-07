@@ -9,5 +9,6 @@ cdk.out
 cdk-outputs*.json
 
 # Environment files
-.env.development
-.env.production
+.env*
+!.env.example
+!.env.test
