@@ -33,14 +33,11 @@ export interface AuthContext {
  *
  * Required environment variables:
  * - AUTH_ISSUER: Identity Provider URL (e.g., "https://cognito-idp.region.amazonaws.com/poolId")
+ * - AUTH_CLAIM_NAMESPACE: Custom namespace for email claim
  *
  * Provider-specific configuration:
  * - AUTH_AUDIENCE: API identifier for Auth0 (validates `aud` claim) - required for Auth0
  * - AUTH_CLIENT_ID: Client ID for Cognito (validates `client_id` claim) - required for Cognito
- *
- * Optional:
- * - AUTH_CLAIM_NAMESPACE: Custom namespace for email claim (Auth0 only, e.g., "https://myapp.com")
- *   If not set, uses standard `email` claim (Cognito default behavior)
  *
  * At least one of AUTH_AUDIENCE or AUTH_CLIENT_ID must be configured.
  */
