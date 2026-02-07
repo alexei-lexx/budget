@@ -24,14 +24,6 @@ if [ -z "$AUTH_CLAIM_NAMESPACE" ] || [ "$AUTH_CLAIM_NAMESPACE" = "null" ]; then
 fi
 echo "AUTH_CLAIM_NAMESPACE=$AUTH_CLAIM_NAMESPACE"
 
-echo "Fetching AUTH_CALLBACK_URLS from /manual/budget/$ENV/auth/callback-urls in AWS SSM Parameter Store..."
-AUTH_CALLBACK_URLS=$(aws ssm get-parameter --name "/manual/budget/$ENV/auth/callback-urls" --query 'Parameter.Value' --output text)
-if [ -z "$AUTH_CALLBACK_URLS" ] || [ "$AUTH_CALLBACK_URLS" = "null" ]; then
-  echo "ERROR: Parameter /manual/budget/$ENV/auth/callback-urls must be configured in AWS SSM Parameter Store"
-  exit 1
-fi
-echo "AUTH_CALLBACK_URLS=$AUTH_CALLBACK_URLS"
-
 echo "Fetching AUTH_DOMAIN_PREFIX from /manual/budget/$ENV/auth/domain-prefix in AWS SSM Parameter Store..."
 AUTH_DOMAIN_PREFIX=$(aws ssm get-parameter --name "/manual/budget/$ENV/auth/domain-prefix" --query 'Parameter.Value' --output text)
 if [ -z "$AUTH_DOMAIN_PREFIX" ] || [ "$AUTH_DOMAIN_PREFIX" = "null" ]; then
@@ -39,14 +31,6 @@ if [ -z "$AUTH_DOMAIN_PREFIX" ] || [ "$AUTH_DOMAIN_PREFIX" = "null" ]; then
   exit 1
 fi
 echo "AUTH_DOMAIN_PREFIX=$AUTH_DOMAIN_PREFIX"
-
-echo "Fetching AUTH_LOGOUT_URLS from /manual/budget/$ENV/auth/logout-urls in AWS SSM Parameter Store..."
-AUTH_LOGOUT_URLS=$(aws ssm get-parameter --name "/manual/budget/$ENV/auth/logout-urls" --query 'Parameter.Value' --output text)
-if [ -z "$AUTH_LOGOUT_URLS" ] || [ "$AUTH_LOGOUT_URLS" = "null" ]; then
-  echo "ERROR: Parameter /manual/budget/$ENV/auth/logout-urls must be configured in AWS SSM Parameter Store"
-  exit 1
-fi
-echo "AUTH_LOGOUT_URLS=$AUTH_LOGOUT_URLS"
 
 echo "Fetching AUTH_SCOPE from /manual/budget/$ENV/auth/scope in AWS SSM Parameter Store..."
 AUTH_SCOPE=$(aws ssm get-parameter --name "/manual/budget/$ENV/auth/scope" --query 'Parameter.Value' --output text)
@@ -109,9 +93,30 @@ cd ../infra-cdk
 echo "Installing infra-cdk dependencies..."
 npm install
 
+# ============================================================================
+# Two-Phase Deployment
+# ============================================================================
+# Problem (chicken-and-egg):
+#   - Cognito needs callback/logout URLs during creation
+#   - Frontend URL (CloudFront) doesn't exist until after frontend deployment
+#   - Cannot create Cognito without URLs, cannot create frontend without Cognito
+#
+# Solution (two-phase deployment):
+#   Phase 1: Deploy all infrastructure with localhost placeholders
+#            - Auth stack creates Cognito with localhost URLs
+#            - Backend and frontend stacks deploy successfully
+#            - CloudFront URL is now known from CDK outputs
+#   Phase 2: Update Cognito with actual CloudFront URL
+#            - Use AWS CLI to add CloudFront URL to existing localhost URLs
+# ============================================================================
+
+# Phase 1: Use localhost placeholders for OAuth callback/logout URLs
+AUTH_CALLBACK_URLS="http://localhost:5173"
+AUTH_LOGOUT_URLS="http://localhost:5173"
+
 CDK_OUTPUT_FILE="cdk-outputs.$ENV.json"
 
-echo "Deploying infrastructure (backend and frontend)..."
+echo "Deploying infrastructure (Phase 1)..."
 env AUTH_CALLBACK_URLS="$AUTH_CALLBACK_URLS" \
     AUTH_CLAIM_NAMESPACE="$AUTH_CLAIM_NAMESPACE" \
     AUTH_DOMAIN_PREFIX="$AUTH_DOMAIN_PREFIX" \
@@ -141,6 +146,45 @@ if [ -z "$AUTH_CLIENT_ID" ] || [ "$AUTH_CLIENT_ID" = "null" ]; then
   exit 1
 fi
 echo "AUTH_CLIENT_ID=$AUTH_CLIENT_ID"
+
+# ============================================================================
+# Phase 2: Update Cognito with actual CloudFront URL
+# ============================================================================
+# Now that frontend is deployed, we know the CloudFront URL.
+# Update Cognito User Pool Client to accept both:
+#   - CloudFront URL (production)
+#   - localhost URL (local development)
+# ============================================================================
+CLOUDFRONT_URL=$(cat "$CDK_OUTPUT_FILE" | jq -r '."'"$ENV"'-BudgetFrontend".CloudFrontFullURL // empty')
+
+if [ -n "$CLOUDFRONT_URL" ] && [ "$CLOUDFRONT_URL" != "null" ]; then
+  echo "CloudFront URL: $CLOUDFRONT_URL"
+
+  # Extract User Pool ID from CDK outputs
+  USER_POOL_ID=$(cat "$CDK_OUTPUT_FILE" | jq -r '."'"$ENV"'-BudgetAuth".UserPoolId // empty')
+  if [ -z "$USER_POOL_ID" ] || [ "$USER_POOL_ID" = "null" ]; then
+    echo "ERROR: UserPoolId not found in CDK outputs from auth stack"
+    exit 1
+  fi
+  echo "User Pool ID: $USER_POOL_ID"
+
+  echo "Phase 2: Updating Cognito with CloudFront URL..."
+
+  # Update callback/logout URLs: CloudFront + localhost
+  aws cognito-idp update-user-pool-client \
+    --user-pool-id "$USER_POOL_ID" \
+    --client-id "$AUTH_CLIENT_ID" \
+    --callback-urls "$CLOUDFRONT_URL" \
+    --logout-urls "$CLOUDFRONT_URL" \
+    --allowed-o-auth-flows "code" \
+    --allowed-o-auth-scopes $(echo "$AUTH_SCOPE" | tr ' ' '\n') \
+    --allowed-o-auth-flows-user-pool-client \
+    --supported-identity-providers "COGNITO"
+
+  echo "Cognito User Pool Client updated with CloudFront URL"
+else
+  echo "CloudFront URL not found - skipping Cognito URL update"
+fi
 
 echo "Running migrations..."
 MIGRATION_FUNCTION_NAME=$(cat "$CDK_OUTPUT_FILE" | jq -r '."'"$ENV"'-BudgetBackend".MigrationFunctionName // empty')

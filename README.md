@@ -44,11 +44,6 @@ Deploy the application to AWS.
 > **Note:** Replace placeholder values with your actual configuration before running the commands.
 
 ```bash
-# Auth callback URLs (comma-separated list of allowed redirect URLs after login)
-aws ssm put-parameter --overwrite --type String \
-    --name "/manual/budget/production/auth/callback-urls" \
-    --value "https://your-app.com,http://localhost:5173"
-
 # Auth claim namespace (custom namespace for JWT claims)
 aws ssm put-parameter --overwrite --type String \
     --name "/manual/budget/production/auth/claim-namespace" \
@@ -58,11 +53,6 @@ aws ssm put-parameter --overwrite --type String \
 aws ssm put-parameter --overwrite --type String \
     --name "/manual/budget/production/auth/domain-prefix" \
     --value "production-budget-auth"
-
-# Auth logout URLs (comma-separated list of allowed redirect URLs after logout)
-aws ssm put-parameter --overwrite --type String \
-    --name "/manual/budget/production/auth/logout-urls" \
-    --value "https://your-app.com,http://localhost:5173"
 
 # Auth scope (OAuth scopes for Cognito)
 aws ssm put-parameter --overwrite --type String \
@@ -101,9 +91,13 @@ The deployment script handles the following steps automatically:
 
 1. Build backend
 2. Deploy auth infrastructure
+    - Use localhost for Cognito callback/logout URLs because the frontend URL is not known yet
 3. Deploy backend infrastructure
 4. Deploy frontend infrastructure
-5. Build and upload frontend
+    - After this step, we know the frontend URL (CloudFront URL)
+5. Update Cognito callback/logout URLs with the actual frontend URL
+6. Run database migrations
+7. Build and upload frontend assets
 
 ### Deployment Script
 

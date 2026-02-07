@@ -178,6 +178,11 @@ export class AuthCdkStack extends cdk.Stack {
     });
 
     // Stack outputs for configuration
+    new cdk.CfnOutput(this, "UserPoolId", {
+      value: this.userPool.userPoolId,
+      description: "Cognito User Pool ID",
+    });
+
     new cdk.CfnOutput(this, "UserPoolClientId", {
       value: this.userPoolClient.userPoolClientId,
       description: "Cognito User Pool Client ID",
