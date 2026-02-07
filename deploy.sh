@@ -168,7 +168,7 @@ if [ -n "$CLOUDFRONT_URL" ] && [ "$CLOUDFRONT_URL" != "null" ]; then
   fi
   echo "User Pool ID: $USER_POOL_ID"
 
-  echo "Phase 2: Updating Cognito with CloudFront URL..."
+  echo "Updating Cognito with CloudFront URL (Phase 2)..."
 
   # Update callback/logout URLs: CloudFront + localhost
   aws cognito-idp update-user-pool-client \
