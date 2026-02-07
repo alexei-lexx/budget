@@ -17,14 +17,20 @@ import { requireEnv } from "./require-env";
  *
  * Environment variables:
  * - NODE_ENV: Environment name (default: "test")
- * - AUTH_DOMAIN_PREFIX: Cognito domain prefix (default: "{NODE_ENV}-budget-auth")
+ * - AUTH_CALLBACK_URLS: Comma-separated callback URLs (optional)
  * - AUTH_CLAIM_NAMESPACE: Namespace for custom claims (required)
- * - AUTH_CALLBACK_URLS: Comma-separated callback URLs (required)
- * - AUTH_LOGOUT_URLS: Comma-separated logout URLs (required)
+ * - AUTH_DOMAIN_PREFIX: Cognito domain prefix
+ * - AUTH_LOGOUT_URLS: Comma-separated logout URLs (optional)
  *
  * Outputs:
+ * - UserPoolId: The Cognito User Pool ID
  * - UserPoolClientId: The ID of the User Pool Client
  * - AuthIssuer: The OIDC issuer URL for JWT verification
+ *
+ * Note on Callback/Logout URLs:
+ * - Optional for production deployment (set later via AWS CLI after CloudFront URL is known)
+ * - Required for development setup when deploying only auth stack with localhost URLs
+ * - CloudFormation will not overwrite URLs set externally on subsequent deployments
  */
 export class AuthCdkStack extends cdk.Stack {
   public readonly userPool: cognito.UserPool;
@@ -42,8 +48,13 @@ export class AuthCdkStack extends cdk.Stack {
     const domainPrefix = requireEnv("AUTH_DOMAIN_PREFIX");
     const claimNamespace = requireEnv("AUTH_CLAIM_NAMESPACE");
 
-    const callbackUrls = requireEnv("AUTH_CALLBACK_URLS").split(",");
-    const logoutUrls = requireEnv("AUTH_LOGOUT_URLS").split(",");
+    // Callback/logout URLs are optional to support two use cases:
+    // 1. Production: Deploy without URLs, set CloudFront URL later via AWS CLI
+    // 2. Development: Deploy only auth stack with localhost URLs for local development
+    const callbackUrls = (process.env.AUTH_CALLBACK_URLS || undefined)?.split(
+      ",",
+    );
+    const logoutUrls = (process.env.AUTH_LOGOUT_URLS || undefined)?.split(",");
 
     this.userPool = new cognito.UserPool(this, "UserPool", {
       // Users sign in with their email address (not username or phone)
@@ -147,8 +158,10 @@ export class AuthCdkStack extends cdk.Stack {
           cognito.OAuthScope.PROFILE,
           cognito.OAuthScope.EMAIL,
         ],
-        callbackUrls, // Where Cognito redirects after login
-        logoutUrls, // Where Cognito redirects after logout
+        // Where Cognito redirects after login
+        ...(callbackUrls && { callbackUrls }),
+        // Where Cognito redirects after logout
+        ...(logoutUrls && { logoutUrls }),
       },
 
       // Return generic error messages to prevent user enumeration attacks
