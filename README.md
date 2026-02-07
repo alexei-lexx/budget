@@ -100,13 +100,10 @@ aws ssm put-parameter --overwrite --type String \
 The deployment script handles the following steps automatically:
 
 1. Build backend
-2. Deploy infrastructure stacks (auth → backend → frontend)
-   - Auth stack creates Cognito User Pool and Client
-   - Backend stack imports auth values via CloudFormation cross-stack references
-   - Frontend stack creates S3 bucket and CloudFront distribution
-3. Run database migrations
-4. Extract auth configuration from CDK outputs
-5. Build and upload frontend with extracted auth values
+2. Deploy auth infrastructure
+3. Deploy backend infrastructure
+4. Deploy frontend infrastructure
+5. Build and upload frontend
 
 ### Deployment Script
 
