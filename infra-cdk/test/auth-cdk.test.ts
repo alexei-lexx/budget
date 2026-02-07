@@ -8,9 +8,11 @@ describe("AuthCdkStack", () => {
   let template: Template;
 
   beforeEach(() => {
-    // process.env.AUTH_CLAIM_NAMESPACE = "https://personal-budget-tracker";
-    // process.env.AUTH_CALLBACK_URLS = "http://localhost:5173";
-    // process.env.AUTH_LOGOUT_URLS = "http://localhost:5173";
+    process.env.AUTH_CALLBACK_URLS = "http://localhost:5173";
+    process.env.AUTH_CLAIM_NAMESPACE = "https://personal-budget-tracker";
+    process.env.AUTH_DOMAIN_PREFIX = "test-budget-auth";
+    process.env.AUTH_LOGOUT_URLS = "http://localhost:5173";
+    process.env.NODE_ENV = "test";
 
     app = new cdk.App();
     stack = new AuthCdkStack(app, "TestAuthCdkStack");
@@ -18,9 +20,11 @@ describe("AuthCdkStack", () => {
   });
 
   afterEach(() => {
-    // delete process.env.AUTH_CLAIM_NAMESPACE;
-    // delete process.env.AUTH_CALLBACK_URLS;
-    // delete process.env.AUTH_LOGOUT_URLS;
+    delete process.env.AUTH_CALLBACK_URLS;
+    delete process.env.AUTH_CLAIM_NAMESPACE;
+    delete process.env.AUTH_DOMAIN_PREFIX;
+    delete process.env.AUTH_LOGOUT_URLS;
+    delete process.env.NODE_ENV;
   });
 
   it("should create the stack", () => {

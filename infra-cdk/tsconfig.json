@@ -5,6 +5,8 @@
     "moduleResolution": "NodeNext",
     "lib": ["es2022"],
     "declaration": true,
+    "rootDir": "./",
+    "outDir": "./dist",
     "strict": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
@@ -20,5 +22,5 @@
     "strictPropertyInitialization": false,
     "typeRoots": ["./node_modules/@types"]
   },
-  "exclude": ["node_modules", "cdk.out"]
+  "exclude": ["node_modules", "cdk.out", "dist"]
 }
