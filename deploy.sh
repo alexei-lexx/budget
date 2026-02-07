@@ -111,8 +111,8 @@ npm install
 # ============================================================================
 
 # Phase 1: Use localhost placeholders for OAuth callback/logout URLs
-AUTH_CALLBACK_URLS="http://localhost:5173"
-AUTH_LOGOUT_URLS="http://localhost:5173"
+AUTH_CALLBACK_URLS="http://localhost"
+AUTH_LOGOUT_URLS="http://localhost"
 
 CDK_OUTPUT_FILE="cdk-outputs.$ENV.json"
 
