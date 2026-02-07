@@ -12,12 +12,14 @@ if (!nodeEnv) {
 }
 
 // Auth stack for Cognito User Pool
-new AuthCdkStack(app, "AuthCdkStack", {
+const authStack = new AuthCdkStack(app, "AuthCdkStack", {
   stackName: `${nodeEnv}-BudgetAuth`,
 });
 
 const backendStack = new BackendCdkStack(app, "BackendCdkStack", {
   stackName: `${nodeEnv}-BudgetBackend`,
+  authIssuer: authStack.userPool.userPoolProviderUrl,
+  authClientId: authStack.userPoolClient.userPoolClientId,
   /* If you don't specify 'env', this stack will be environment-agnostic.
    * Account/Region-dependent features and context lookups will not work,
    * but a single synthesized template can be deployed anywhere. */

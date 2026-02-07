@@ -23,16 +23,12 @@ import { requireEnv } from "./require-env";
  * - AUTH_LOGOUT_URLS: Comma-separated logout URLs (required)
  *
  * Outputs:
- * - UserPoolId: The ID of the created User Pool
  * - UserPoolClientId: The ID of the User Pool Client
- * - CognitoDomain: The Cognito Hosted UI domain URL
  * - AuthIssuer: The OIDC issuer URL for JWT verification
- * - AuthClaimNamespace: The namespace for custom JWT claims
  */
 export class AuthCdkStack extends cdk.Stack {
   public readonly userPool: cognito.UserPool;
   public readonly userPoolClient: cognito.UserPoolClient;
-  public readonly userPoolDomain: cognito.UserPoolDomain;
 
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
@@ -171,7 +167,7 @@ export class AuthCdkStack extends cdk.Stack {
 
     // Cognito Hosted UI domain - provides login/logout/signup pages
     // Uses Amazon-owned domain: {domainPrefix}.auth.{region}.amazoncognito.com
-    this.userPoolDomain = new cognito.UserPoolDomain(this, "UserPoolDomain", {
+    new cognito.UserPoolDomain(this, "UserPoolDomain", {
       userPool: this.userPool,
       cognitoDomain: {
         domainPrefix, // Must be globally unique across all AWS accounts
@@ -179,19 +175,9 @@ export class AuthCdkStack extends cdk.Stack {
     });
 
     // Stack outputs for configuration
-    new cdk.CfnOutput(this, "UserPoolId", {
-      value: this.userPool.userPoolId,
-      description: "Cognito User Pool ID",
-    });
-
     new cdk.CfnOutput(this, "UserPoolClientId", {
       value: this.userPoolClient.userPoolClientId,
       description: "Cognito User Pool Client ID",
-    });
-
-    new cdk.CfnOutput(this, "CognitoDomain", {
-      value: this.userPoolDomain.baseUrl(),
-      description: "Cognito Hosted UI Domain URL",
     });
 
     new cdk.CfnOutput(this, "AuthIssuer", {

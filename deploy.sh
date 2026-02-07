@@ -16,14 +16,6 @@ echo "Deploying to environment: $ENV"
 
 NODE_ENV="$ENV"
 
-echo "Fetching AUTH_AUDIENCE from /manual/budget/$ENV/auth/audience in AWS SSM Parameter Store..."
-AUTH_AUDIENCE=$(aws ssm get-parameter --name "/manual/budget/$ENV/auth/audience" --query 'Parameter.Value' --output text)
-if [ -z "$AUTH_AUDIENCE" ] || [ "$AUTH_AUDIENCE" = "null" ]; then
-  echo "ERROR: Parameter /manual/budget/$ENV/auth/audience must be configured in AWS SSM Parameter Store"
-  exit 1
-fi
-echo "AUTH_AUDIENCE=$AUTH_AUDIENCE"
-
 echo "Fetching AUTH_CLAIM_NAMESPACE from /manual/budget/$ENV/auth/claim-namespace in AWS SSM Parameter Store..."
 AUTH_CLAIM_NAMESPACE=$(aws ssm get-parameter --name "/manual/budget/$ENV/auth/claim-namespace" --query 'Parameter.Value' --output text)
 if [ -z "$AUTH_CLAIM_NAMESPACE" ] || [ "$AUTH_CLAIM_NAMESPACE" = "null" ]; then
@@ -31,22 +23,6 @@ if [ -z "$AUTH_CLAIM_NAMESPACE" ] || [ "$AUTH_CLAIM_NAMESPACE" = "null" ]; then
   exit 1
 fi
 echo "AUTH_CLAIM_NAMESPACE=$AUTH_CLAIM_NAMESPACE"
-
-echo "Fetching AUTH_CLIENT_ID from /manual/budget/$ENV/auth/client-id in AWS SSM Parameter Store..."
-AUTH_CLIENT_ID=$(aws ssm get-parameter --name "/manual/budget/$ENV/auth/client-id" --query 'Parameter.Value' --output text)
-if [ -z "$AUTH_CLIENT_ID" ] || [ "$AUTH_CLIENT_ID" = "null" ]; then
-  echo "ERROR: Parameter /manual/budget/$ENV/auth/client-id must be configured in AWS SSM Parameter Store"
-  exit 1
-fi
-echo "AUTH_CLIENT_ID=$AUTH_CLIENT_ID"
-
-echo "Fetching AUTH_ISSUER from /manual/budget/$ENV/auth/issuer in AWS SSM Parameter Store..."
-AUTH_ISSUER=$(aws ssm get-parameter --name "/manual/budget/$ENV/auth/issuer" --query 'Parameter.Value' --output text)
-if [ -z "$AUTH_ISSUER" ] || [ "$AUTH_ISSUER" = "null" ]; then
-  echo "ERROR: Parameter /manual/budget/$ENV/auth/issuer must be configured in AWS SSM Parameter Store"
-  exit 1
-fi
-echo "AUTH_ISSUER=$AUTH_ISSUER"
 
 echo "Fetching AUTH_SCOPE from /manual/budget/$ENV/auth/scope in AWS SSM Parameter Store..."
 AUTH_SCOPE=$(aws ssm get-parameter --name "/manual/budget/$ENV/auth/scope" --query 'Parameter.Value' --output text)
@@ -112,9 +88,7 @@ npm install
 CDK_OUTPUT_FILE="cdk-outputs.$ENV.json"
 
 echo "Deploying infrastructure (backend and frontend)..."
-env AUTH_AUDIENCE="$AUTH_AUDIENCE" \
-    AUTH_CLAIM_NAMESPACE="$AUTH_CLAIM_NAMESPACE" \
-    AUTH_ISSUER="$AUTH_ISSUER" \
+env AUTH_CLAIM_NAMESPACE="$AUTH_CLAIM_NAMESPACE" \
     AWS_BEDROCK_MAX_TOKENS="$AWS_BEDROCK_MAX_TOKENS" \
     AWS_BEDROCK_MODEL_ID="$AWS_BEDROCK_MODEL_ID" \
     AWS_BEDROCK_TEMPERATURE="$AWS_BEDROCK_TEMPERATURE" \
@@ -122,6 +96,24 @@ env AUTH_AUDIENCE="$AUTH_AUDIENCE" \
     LAMBDA_TIMEOUT_SECONDS="$LAMBDA_TIMEOUT_SECONDS" \
     NODE_ENV="$NODE_ENV" \
   npm run deploy -- --outputs-file "$CDK_OUTPUT_FILE"
+
+echo "Extracting auth configuration from CDK outputs..."
+AUTH_ISSUER=$(cat "$CDK_OUTPUT_FILE" | jq -r '."'"$ENV"'-BudgetAuth".AuthIssuer // empty')
+AUTH_CLIENT_ID=$(cat "$CDK_OUTPUT_FILE" | jq -r '."'"$ENV"'-BudgetAuth".UserPoolClientId // empty')
+
+if [ -z "$AUTH_ISSUER" ] || [ "$AUTH_ISSUER" = "null" ]; then
+  echo "ERROR: AuthIssuer not found in CDK outputs from auth stack"
+  echo "Auth stack deployment may have failed or outputs are misconfigured"
+  exit 1
+fi
+echo "AUTH_ISSUER=$AUTH_ISSUER"
+
+if [ -z "$AUTH_CLIENT_ID" ] || [ "$AUTH_CLIENT_ID" = "null" ]; then
+  echo "ERROR: UserPoolClientId not found in CDK outputs from auth stack"
+  echo "Auth stack deployment may have failed or outputs are misconfigured"
+  exit 1
+fi
+echo "AUTH_CLIENT_ID=$AUTH_CLIENT_ID"
 
 echo "Running migrations..."
 MIGRATION_FUNCTION_NAME=$(cat "$CDK_OUTPUT_FILE" | jq -r '."'"$ENV"'-BudgetBackend".MigrationFunctionName // empty')
@@ -174,8 +166,7 @@ cd ../frontend
 
 echo "Building frontend..."
 npm install
-env VITE_AUTH_AUDIENCE="$AUTH_AUDIENCE" \
-    VITE_AUTH_CLIENT_ID="$AUTH_CLIENT_ID" \
+env VITE_AUTH_CLIENT_ID="$AUTH_CLIENT_ID" \
     VITE_AUTH_ISSUER="$AUTH_ISSUER" \
     VITE_AUTH_SCOPE="$AUTH_SCOPE" \
     VITE_GRAPHQL_ENDPOINT="/graphql" \
