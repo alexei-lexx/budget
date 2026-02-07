@@ -179,7 +179,8 @@ if [ -n "$CLOUDFRONT_URL" ] && [ "$CLOUDFRONT_URL" != "null" ]; then
     --allowed-o-auth-flows "code" \
     --allowed-o-auth-scopes $(echo "$AUTH_SCOPE" | tr ' ' '\n') \
     --allowed-o-auth-flows-user-pool-client \
-    --supported-identity-providers "COGNITO"
+    --supported-identity-providers "COGNITO" \
+    --no-cli-pager
 
   echo "Cognito User Pool Client updated with CloudFront URL"
 else
