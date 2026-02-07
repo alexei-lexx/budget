@@ -4,7 +4,12 @@ Unified infrastructure-as-code package for deploying both backend and frontend s
 
 ## Development Setup
 
-- `npm install` - Install dependencies
+1. `npm install` - Install dependencies
+2. `cp .env.example .env` - Copy environment template
+3. Edit `.env` to set environment variables if needed
+4. `npm run deploy:auth:dev` - Deploy only the auth stack for local development (requires `.env` file with auth configuration)
+
+- This outputs `AuthIssuer` and `UserPoolClientId` that you'll need for backend and frontend configuration
 
 ## Deployment
 

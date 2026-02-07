@@ -2,6 +2,10 @@
 
 Vue 3 single-page application for the Personal Finance Tracker.
 
+## Prerequisites
+
+- Auth stack deployed (see [infra-cdk/README.md](../infra-cdk/README.md#development-setup))
+
 ## Development Setup
 
 1. `npm install` - Install dependencies
