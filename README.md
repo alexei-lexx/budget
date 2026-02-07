@@ -41,33 +41,38 @@ Deploy the application to AWS.
 
 **Create Parameters in AWS Systems Manager Parameter Store:**
 
-> **Note:** Replace placeholder values (`<TENANT>`, `<REGION>`, `your-client-id`, etc.) with your actual configuration before running the commands.
+> **Note:** Replace placeholder values with your actual configuration before running the commands.
 
 ```bash
-# Auth audience
-aws ssm put-parameter --overwrite --type String \
-    --name "/manual/budget/production/auth/audience" \
-    --value "https://personal-budget-tracker"
-
-# Auth issuer
-aws ssm put-parameter --overwrite --type String \
-    --name "/manual/budget/production/auth/issuer" \
-    --value "https://<TENANT>.<REGION>.auth0.com"
-
-# Auth client ID (SPA Client ID)
-aws ssm put-parameter --overwrite --type String \
-    --name "/manual/budget/production/auth/client-id" \
-    --value "your-client-id"
-
-# Auth claim namespace
+# Auth claim namespace (custom namespace for JWT claims)
 aws ssm put-parameter --overwrite --type String \
     --name "/manual/budget/production/auth/claim-namespace" \
     --value "https://personal-budget-tracker"
 
-# Auth scope
+# Auth domain prefix (must be globally unique across all AWS accounts)
+aws ssm put-parameter --overwrite --type String \
+    --name "/manual/budget/production/auth/domain-prefix" \
+    --value "production-budget-auth"
+
+# Auth scopes
 aws ssm put-parameter --overwrite --type String \
     --name "/manual/budget/production/auth/scope" \
-    --value "openid profile email offline_access"
+    --value "openid profile email"
+
+# AI max response tokens
+aws ssm put-parameter --overwrite --type String \
+    --name "/manual/budget/production/bedrock/max-tokens" \
+    --value "500"
+
+# AI model ID (e.g., eu.amazon.nova-2-lite-v1:0)
+aws ssm put-parameter --overwrite --type String \
+    --name "/manual/budget/production/bedrock/model-id" \
+    --value "eu.amazon.nova-2-lite-v1:0"
+
+# AI sampling temperature
+aws ssm put-parameter --overwrite --type String \
+    --name "/manual/budget/production/bedrock/temperature" \
+    --value "0.2"
 
 # Lambda memory size (in MB)
 aws ssm put-parameter --overwrite --type String \
@@ -78,29 +83,19 @@ aws ssm put-parameter --overwrite --type String \
 aws ssm put-parameter --overwrite --type String \
     --name "/manual/budget/production/lambda/timeout-seconds" \
     --value "30"
-
-# AI model ID (e.g., eu.amazon.nova-2-lite-v1:0)
-aws ssm put-parameter --overwrite --type String \
-    --name "/manual/budget/production/bedrock/model-id" \
-    --value "eu.amazon.nova-2-lite-v1:0"
-
-# AI max response tokens
-aws ssm put-parameter --overwrite --type String \
-    --name "/manual/budget/production/bedrock/max-tokens" \
-    --value "500"
-
-# AI sampling temperature
-aws ssm put-parameter --overwrite --type String \
-    --name "/manual/budget/production/bedrock/temperature" \
-    --value "0.2"
 ```
 
 ### Deployment order
 
+The deployment script handles the following steps automatically:
+
 1. Build backend
-2. Deploy backend infrastructure
-3. Deploy frontend infrastructure
-4. Build and upload frontend
+2. Deploy auth infrastructure
+3. Deploy backend infrastructure
+4. Deploy frontend infrastructure
+5. Set auth callback/logout URLs with the actual frontend URL
+6. Run database migrations
+7. Build and upload frontend assets
 
 ### Deployment Script
 

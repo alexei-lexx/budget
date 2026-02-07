@@ -16,14 +16,6 @@ echo "Deploying to environment: $ENV"
 
 NODE_ENV="$ENV"
 
-echo "Fetching AUTH_AUDIENCE from /manual/budget/$ENV/auth/audience in AWS SSM Parameter Store..."
-AUTH_AUDIENCE=$(aws ssm get-parameter --name "/manual/budget/$ENV/auth/audience" --query 'Parameter.Value' --output text)
-if [ -z "$AUTH_AUDIENCE" ] || [ "$AUTH_AUDIENCE" = "null" ]; then
-  echo "ERROR: Parameter /manual/budget/$ENV/auth/audience must be configured in AWS SSM Parameter Store"
-  exit 1
-fi
-echo "AUTH_AUDIENCE=$AUTH_AUDIENCE"
-
 echo "Fetching AUTH_CLAIM_NAMESPACE from /manual/budget/$ENV/auth/claim-namespace in AWS SSM Parameter Store..."
 AUTH_CLAIM_NAMESPACE=$(aws ssm get-parameter --name "/manual/budget/$ENV/auth/claim-namespace" --query 'Parameter.Value' --output text)
 if [ -z "$AUTH_CLAIM_NAMESPACE" ] || [ "$AUTH_CLAIM_NAMESPACE" = "null" ]; then
@@ -32,21 +24,13 @@ if [ -z "$AUTH_CLAIM_NAMESPACE" ] || [ "$AUTH_CLAIM_NAMESPACE" = "null" ]; then
 fi
 echo "AUTH_CLAIM_NAMESPACE=$AUTH_CLAIM_NAMESPACE"
 
-echo "Fetching AUTH_CLIENT_ID from /manual/budget/$ENV/auth/client-id in AWS SSM Parameter Store..."
-AUTH_CLIENT_ID=$(aws ssm get-parameter --name "/manual/budget/$ENV/auth/client-id" --query 'Parameter.Value' --output text)
-if [ -z "$AUTH_CLIENT_ID" ] || [ "$AUTH_CLIENT_ID" = "null" ]; then
-  echo "ERROR: Parameter /manual/budget/$ENV/auth/client-id must be configured in AWS SSM Parameter Store"
+echo "Fetching AUTH_DOMAIN_PREFIX from /manual/budget/$ENV/auth/domain-prefix in AWS SSM Parameter Store..."
+AUTH_DOMAIN_PREFIX=$(aws ssm get-parameter --name "/manual/budget/$ENV/auth/domain-prefix" --query 'Parameter.Value' --output text)
+if [ -z "$AUTH_DOMAIN_PREFIX" ] || [ "$AUTH_DOMAIN_PREFIX" = "null" ]; then
+  echo "ERROR: Parameter /manual/budget/$ENV/auth/domain-prefix must be configured in AWS SSM Parameter Store"
   exit 1
 fi
-echo "AUTH_CLIENT_ID=$AUTH_CLIENT_ID"
-
-echo "Fetching AUTH_ISSUER from /manual/budget/$ENV/auth/issuer in AWS SSM Parameter Store..."
-AUTH_ISSUER=$(aws ssm get-parameter --name "/manual/budget/$ENV/auth/issuer" --query 'Parameter.Value' --output text)
-if [ -z "$AUTH_ISSUER" ] || [ "$AUTH_ISSUER" = "null" ]; then
-  echo "ERROR: Parameter /manual/budget/$ENV/auth/issuer must be configured in AWS SSM Parameter Store"
-  exit 1
-fi
-echo "AUTH_ISSUER=$AUTH_ISSUER"
+echo "AUTH_DOMAIN_PREFIX=$AUTH_DOMAIN_PREFIX"
 
 echo "Fetching AUTH_SCOPE from /manual/budget/$ENV/auth/scope in AWS SSM Parameter Store..."
 AUTH_SCOPE=$(aws ssm get-parameter --name "/manual/budget/$ENV/auth/scope" --query 'Parameter.Value' --output text)
@@ -109,12 +93,29 @@ cd ../infra-cdk
 echo "Installing infra-cdk dependencies..."
 npm install
 
+# ============================================================================
+# Two-Phase Deployment
+# ============================================================================
+# Problem (chicken-and-egg):
+#   - Cognito callback/logout URLs must point to CloudFront URL (frontend)
+#   - CloudFront URL doesn't exist until after frontend deployment
+#
+# Solution (two-phase deployment):
+#   Phase 1: Deploy all infrastructure without callback/logout URLs
+#            - Cognito allows creation without URLs (they're optional)
+#            - All stacks deploy successfully
+#            - CloudFront URL is now known from CDK outputs
+#   Phase 2: Set Cognito callback/logout URLs with CloudFront URL via AWS CLI
+#            - CloudFormation won't overwrite URLs set externally
+#            - URLs persist across subsequent CDK deployments
+# ============================================================================
+
+# Phase 1: Deploy infrastructure without callback/logout URLs
 CDK_OUTPUT_FILE="cdk-outputs.$ENV.json"
 
-echo "Deploying infrastructure (backend and frontend)..."
-env AUTH_AUDIENCE="$AUTH_AUDIENCE" \
-    AUTH_CLAIM_NAMESPACE="$AUTH_CLAIM_NAMESPACE" \
-    AUTH_ISSUER="$AUTH_ISSUER" \
+echo "Deploying infrastructure (Phase 1)..."
+env AUTH_CLAIM_NAMESPACE="$AUTH_CLAIM_NAMESPACE" \
+    AUTH_DOMAIN_PREFIX="$AUTH_DOMAIN_PREFIX" \
     AWS_BEDROCK_MAX_TOKENS="$AWS_BEDROCK_MAX_TOKENS" \
     AWS_BEDROCK_MODEL_ID="$AWS_BEDROCK_MODEL_ID" \
     AWS_BEDROCK_TEMPERATURE="$AWS_BEDROCK_TEMPERATURE" \
@@ -122,6 +123,64 @@ env AUTH_AUDIENCE="$AUTH_AUDIENCE" \
     LAMBDA_TIMEOUT_SECONDS="$LAMBDA_TIMEOUT_SECONDS" \
     NODE_ENV="$NODE_ENV" \
   npm run deploy -- --outputs-file "$CDK_OUTPUT_FILE"
+
+echo "Extracting auth configuration from CDK outputs..."
+AUTH_ISSUER=$(cat "$CDK_OUTPUT_FILE" | jq -r '."'"$ENV"'-BudgetAuth".AuthIssuer // empty')
+AUTH_CLIENT_ID=$(cat "$CDK_OUTPUT_FILE" | jq -r '."'"$ENV"'-BudgetAuth".UserPoolClientId // empty')
+
+if [ -z "$AUTH_ISSUER" ] || [ "$AUTH_ISSUER" = "null" ]; then
+  echo "ERROR: AuthIssuer not found in CDK outputs from auth stack"
+  echo "Auth stack deployment may have failed or outputs are misconfigured"
+  exit 1
+fi
+echo "AUTH_ISSUER=$AUTH_ISSUER"
+
+if [ -z "$AUTH_CLIENT_ID" ] || [ "$AUTH_CLIENT_ID" = "null" ]; then
+  echo "ERROR: UserPoolClientId not found in CDK outputs from auth stack"
+  echo "Auth stack deployment may have failed or outputs are misconfigured"
+  exit 1
+fi
+echo "AUTH_CLIENT_ID=$AUTH_CLIENT_ID"
+
+# ============================================================================
+# Phase 2: Set Cognito callback/logout URLs
+# ============================================================================
+# Now that frontend is deployed, we know the CloudFront URL.
+# Set Cognito callback/logout URLs via AWS CLI.
+# Note: CloudFormation won't overwrite these URLs on subsequent deployments.
+# ============================================================================
+CLOUDFRONT_URL=$(cat "$CDK_OUTPUT_FILE" | jq -r '."'"$ENV"'-BudgetFrontend".CloudFrontFullURL // empty')
+
+if [ -n "$CLOUDFRONT_URL" ] && [ "$CLOUDFRONT_URL" != "null" ]; then
+  echo "CloudFront URL: $CLOUDFRONT_URL"
+
+  # Extract User Pool ID from CDK outputs
+  USER_POOL_ID=$(cat "$CDK_OUTPUT_FILE" | jq -r '."'"$ENV"'-BudgetAuth".UserPoolId // empty')
+  if [ -z "$USER_POOL_ID" ] || [ "$USER_POOL_ID" = "null" ]; then
+    echo "ERROR: UserPoolId not found in CDK outputs from auth stack"
+    exit 1
+  fi
+  echo "User Pool ID: $USER_POOL_ID"
+
+  echo "Phase 2: Setting Cognito callback/logout URLs..."
+
+  # Set callback/logout URLs with CloudFront URL
+  # Note: This update happens outside of CloudFormation, so URLs persist across CDK deployments
+  aws cognito-idp update-user-pool-client \
+    --user-pool-id "$USER_POOL_ID" \
+    --client-id "$AUTH_CLIENT_ID" \
+    --callback-urls "$CLOUDFRONT_URL" \
+    --logout-urls "$CLOUDFRONT_URL" \
+    --allowed-o-auth-flows "code" \
+    --allowed-o-auth-scopes $(echo "$AUTH_SCOPE" | tr ' ' '\n') \
+    --allowed-o-auth-flows-user-pool-client \
+    --supported-identity-providers "COGNITO" \
+    --no-cli-pager
+
+  echo "Cognito callback/logout URLs configured successfully"
+else
+  echo "CloudFront URL not found - skipping Cognito URL update"
+fi
 
 echo "Running migrations..."
 MIGRATION_FUNCTION_NAME=$(cat "$CDK_OUTPUT_FILE" | jq -r '."'"$ENV"'-BudgetBackend".MigrationFunctionName // empty')
@@ -174,8 +233,7 @@ cd ../frontend
 
 echo "Building frontend..."
 npm install
-env VITE_AUTH_AUDIENCE="$AUTH_AUDIENCE" \
-    VITE_AUTH_CLIENT_ID="$AUTH_CLIENT_ID" \
+env VITE_AUTH_CLIENT_ID="$AUTH_CLIENT_ID" \
     VITE_AUTH_ISSUER="$AUTH_ISSUER" \
     VITE_AUTH_SCOPE="$AUTH_SCOPE" \
     VITE_GRAPHQL_ENDPOINT="/graphql" \

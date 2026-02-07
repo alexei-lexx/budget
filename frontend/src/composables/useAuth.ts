@@ -277,6 +277,11 @@ export function useAuth() {
    * 1. Clears local token storage
    * 2. Redirects to provider to clear provider session
    * 3. Provider redirects back to post_logout_redirect_uri
+   *
+   * NOTE: For Cognito, we pass extraQueryParams to ensure required parameters
+   * are included in the logout URL. Cognito uses non-standard parameter names:
+   * - client_id (required)
+   * - logout_uri (required, instead of OIDC's post_logout_redirect_uri)
    */
   const logout = () => {
     if (!userManager) {
@@ -286,7 +291,13 @@ export function useAuth() {
     try {
       // Redirect to OIDC provider for logout
       // This clears both local and provider sessions
-      userManager.signoutRedirect();
+      // For Cognito: extraQueryParams ensures required parameters are in the logout URL
+      userManager.signoutRedirect({
+        extraQueryParams: {
+          client_id: userManager.settings.client_id,
+          logout_uri: userManager.settings.post_logout_redirect_uri || window.location.origin,
+        },
+      });
     } catch (err) {
       console.error("Logout failed:", err);
       throw err;

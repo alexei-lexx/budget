@@ -1,6 +1,4 @@
-*.js
-!jest.config.js
-*.d.ts
+dist
 node_modules
 
 # CDK asset staging directory
@@ -9,5 +7,6 @@ cdk.out
 cdk-outputs*.json
 
 # Environment files
-.env.development
-.env.production
+.env*
+!.env.example
+!.env.test

@@ -5,12 +5,14 @@ GraphQL API server for the Personal Finance Tracker application.
 ## Additional Prerequisites
 
 - Docker and Docker Compose installed (for DynamoDB Local in development)
+- Auth stack deployed (see [infra-cdk/README.md](../infra-cdk/README.md#development-setup))
 
 ## Development Setup
 
 1. `npm install` - Install dependencies
 2. `cp .env.example .env` - Copy environment template
 3. Edit `.env` to set environment variables; typically only:
+   - `AUTH_CLIENT_ID`
    - `AUTH_ISSUER`
    - `AWS_BEARER_TOKEN_BEDROCK`
 4. `npm run db:setup` - Start DynamoDB Local and create tables

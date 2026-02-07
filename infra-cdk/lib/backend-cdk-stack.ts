@@ -7,10 +7,15 @@ import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as logs from "aws-cdk-lib/aws-logs";
 import { Construct } from "constructs";
 
+export interface BackendCdkStackProps extends cdk.StackProps {
+  authIssuer: string;
+  authClientId: string;
+}
+
 export class BackendCdkStack extends cdk.Stack {
   public readonly httpApi: apigatewayv2.HttpApi;
 
-  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+  constructor(scope: Construct, id: string, props: BackendCdkStackProps) {
     super(scope, id, props);
 
     const logRetention = logs.RetentionDays.ONE_WEEK;
@@ -91,9 +96,9 @@ export class BackendCdkStack extends cdk.Stack {
       runtime: lambda.Runtime.NODEJS_24_X,
       code: lambda.Code.fromAsset("../backend/dist"),
       environment: {
-        AUTH_AUDIENCE: process.env.AUTH_AUDIENCE || "",
-        AUTH_ISSUER: process.env.AUTH_ISSUER || "",
         AUTH_CLAIM_NAMESPACE: process.env.AUTH_CLAIM_NAMESPACE || "",
+        AUTH_CLIENT_ID: props.authClientId,
+        AUTH_ISSUER: props.authIssuer,
         AWS_BEDROCK_MAX_TOKENS: process.env.AWS_BEDROCK_MAX_TOKENS || "",
         AWS_BEDROCK_MODEL_ID: process.env.AWS_BEDROCK_MODEL_ID || "",
         AWS_BEDROCK_TEMPERATURE: process.env.AWS_BEDROCK_TEMPERATURE || "",

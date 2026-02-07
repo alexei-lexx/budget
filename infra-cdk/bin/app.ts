@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import * as cdk from "aws-cdk-lib";
+import { AuthCdkStack } from "../lib/auth-cdk-stack";
 import { BackendCdkStack } from "../lib/backend-cdk-stack";
 import { FrontendCdkStack } from "../lib/frontend-cdk-stack";
 
@@ -10,8 +11,15 @@ if (!nodeEnv) {
   throw new Error("NODE_ENV environment variable must be configured");
 }
 
+// Auth stack for Cognito User Pool
+const authStack = new AuthCdkStack(app, "AuthCdkStack", {
+  stackName: `${nodeEnv}-BudgetAuth`,
+});
+
 const backendStack = new BackendCdkStack(app, "BackendCdkStack", {
   stackName: `${nodeEnv}-BudgetBackend`,
+  authIssuer: authStack.userPool.userPoolProviderUrl,
+  authClientId: authStack.userPoolClient.userPoolClientId,
   /* If you don't specify 'env', this stack will be environment-agnostic.
    * Account/Region-dependent features and context lookups will not work,
    * but a single synthesized template can be deployed anywhere. */

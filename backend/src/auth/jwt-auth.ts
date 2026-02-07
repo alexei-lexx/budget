@@ -7,9 +7,10 @@ import { normalizeAndValidateEmail } from "../utils/email";
  */
 export interface JwtPayload {
   sub: string; // User ID
-  email: string; // User email
+  email?: string; // User email (standard claim)
   iss: string; // Issuer
-  aud: string | string[]; // Audience
+  aud?: string | string[]; // Audience (Auth0 access tokens have this, Cognito does not)
+  client_id?: string; // Client ID (Cognito access tokens have this)
   exp: number; // Expiration
   iat: number; // Issued at
   [key: string]: unknown; // Allow custom claims (e.g., namespaced email claim)
@@ -28,14 +29,23 @@ export interface AuthContext {
 /**
  * Service for verifying JWT tokens and extracting user context
  *
- * Requires environment variables:
- * - AUTH_ISSUER: Identity Provider URL (e.g., "https://identity-provider.example.com")
- * - AUTH_AUDIENCE: API identifier configured in Identity Provider
+ * Supports both Auth0 and Cognito identity providers with backward compatibility:
+ *
+ * Required environment variables:
+ * - AUTH_ISSUER: Identity Provider URL (e.g., "https://cognito-idp.region.amazonaws.com/poolId")
+ * - AUTH_CLAIM_NAMESPACE: Custom namespace for email claim
+ *
+ * Provider-specific configuration:
+ * - AUTH_AUDIENCE: API identifier for Auth0 (validates `aud` claim) - required for Auth0
+ * - AUTH_CLIENT_ID: Client ID for Cognito (validates `client_id` claim) - required for Cognito
+ *
+ * At least one of AUTH_AUDIENCE or AUTH_CLIENT_ID must be configured.
  */
 export class JwtAuthService {
   private client: jwksClient.JwksClient;
   private issuer: string;
-  private audience: string;
+  private audience?: string;
+  private clientId?: string;
 
   /**
    * Initialize JWT authentication service
@@ -43,14 +53,18 @@ export class JwtAuthService {
    */
   constructor() {
     this.issuer = process.env.AUTH_ISSUER || "";
-    this.audience = process.env.AUTH_AUDIENCE || "";
+    this.audience = process.env.AUTH_AUDIENCE;
+    this.clientId = process.env.AUTH_CLIENT_ID;
 
     if (!this.issuer) {
       throw new Error("AUTH_ISSUER environment variable is required");
     }
 
-    if (!this.audience) {
-      throw new Error("AUTH_AUDIENCE environment variable is required");
+    // At least one of audience (Auth0) or clientId (Cognito) must be configured
+    if (!this.audience && !this.clientId) {
+      throw new Error(
+        "At least one of AUTH_AUDIENCE (Auth0) or AUTH_CLIENT_ID (Cognito) must be configured",
+      );
     }
 
     // Initialize JWKS client to fetch public keys with caching
@@ -102,6 +116,11 @@ export class JwtAuthService {
 
   /**
    * Verify a JWT token against public keys
+   *
+   * Validation strategy for backward compatibility:
+   * - If AUTH_AUDIENCE is set: validates `aud` claim (Auth0 mode)
+   * - If AUTH_CLIENT_ID is set: validates `client_id` claim after JWT verification (Cognito mode)
+   *
    * @param token - JWT token string
    * @returns Decoded JWT payload
    * @throws Error if token is invalid or verification fails
@@ -109,9 +128,10 @@ export class JwtAuthService {
   async verifyToken(token: string): Promise<JwtPayload> {
     return new Promise((resolve, reject) => {
       const options: jwt.VerifyOptions = {
-        issuer: `${this.issuer}/`,
-        audience: this.audience,
+        issuer: this.issuer,
         algorithms: ["RS256"],
+        // Only validate audience if configured (Auth0 mode)
+        ...(this.audience && { audience: this.audience }),
       };
 
       jwt.verify(token, this.getKey, options, (err, decoded) => {
@@ -125,7 +145,19 @@ export class JwtAuthService {
           return;
         }
 
-        resolve(decoded as JwtPayload);
+        const payload = decoded as JwtPayload;
+
+        // If clientId is configured (Cognito mode), validate the client_id claim
+        if (this.clientId && this.clientId !== payload.client_id) {
+          reject(
+            new Error(
+              `JWT client_id validation failed: expected ${this.clientId}, got ${payload.client_id}`,
+            ),
+          );
+          return;
+        }
+
+        resolve(payload);
       });
     });
   }
