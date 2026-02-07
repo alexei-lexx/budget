@@ -54,7 +54,7 @@ aws ssm put-parameter --overwrite --type String \
     --name "/manual/budget/production/auth/domain-prefix" \
     --value "production-budget-auth"
 
-# Auth scope (OAuth scopes for Cognito)
+# Auth scopes
 aws ssm put-parameter --overwrite --type String \
     --name "/manual/budget/production/auth/scope" \
     --value "openid profile email"
