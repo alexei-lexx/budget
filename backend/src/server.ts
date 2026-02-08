@@ -19,7 +19,7 @@ import { AccountService } from "./services/account-service";
 import { CategoryService } from "./services/category-service";
 import { InsightService } from "./services/insight-service";
 import { createInsightTools } from "./services/insight-tools";
-import { LangChainBedrockAgent } from "./services/langchain-bedrock-agent";
+import { LangchainBedrockAgent } from "./services/langchain-bedrock-agent";
 import { MonthlyByCategoryReportService } from "./services/monthly-by-category-report-service";
 import { TransactionService } from "./services/transaction-service";
 import { TransferService } from "./services/transfer-service";
@@ -116,7 +116,7 @@ export async function createContext(req: {
   }
 
   if (!insightService) {
-    const aiAgent = new LangChainBedrockAgent(createInsightTools());
+    const aiAgent = new LangchainBedrockAgent(createInsightTools());
 
     insightService = new InsightService(
       transactionRepository,

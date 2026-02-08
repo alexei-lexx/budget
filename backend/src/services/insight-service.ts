@@ -76,41 +76,34 @@ export class InsightService {
       dataPayload,
     );
 
-    try {
-      const response = await this.aiAgent.call(
-        [{ role: "user", content: userPrompt }],
-        systemPrompt,
+    const response = await this.aiAgent.call(
+      [{ role: "user", content: userPrompt }],
+      systemPrompt,
+    );
+
+    if (!response.answer) {
+      throw new BusinessError(
+        "Empty response",
+        BusinessErrorCodes.EMPTY_RESPONSE,
+      );
+    }
+
+    let finalAnswer = response.answer.trim();
+
+    // Append tool executions to the response for observability
+    if (response.toolExecutions && response.toolExecutions.length > 0) {
+      const calculations = response.toolExecutions.map(
+        (toolExecution, index) => {
+          const formattedInput = this.formatToolArguments(toolExecution.input);
+          return `${index + 1}. ${toolExecution.tool}(${formattedInput}) = ${toolExecution.output}`;
+        },
       );
 
-      if (!response.answer) {
-        throw new BusinessError(
-          "Empty response",
-          BusinessErrorCodes.EMPTY_RESPONSE,
-        );
-      }
-
-      let finalAnswer = response.answer.trim();
-
-      // Append tool executions to the response for observability
-      if (response.toolExecutions && response.toolExecutions.length > 0) {
-        const calculations = response.toolExecutions.map(
-          (toolExecution, index) => {
-            const formattedInput = this.formatToolArguments(
-              toolExecution.input,
-            );
-            return `${index + 1}. ${toolExecution.tool}(${formattedInput}) = ${toolExecution.output}`;
-          },
-        );
-
-        finalAnswer += "\n\n---\n**Tools performed:**\n";
-        finalAnswer += calculations.join("\n") + "\n";
-      }
-
-      return finalAnswer;
-    } catch (error) {
-      console.error("Failed to generate AI insight:", error);
-      throw error;
+      finalAnswer += "\n\n---\n**Tools performed:**\n";
+      finalAnswer += calculations.join("\n") + "\n";
     }
+
+    return finalAnswer;
   }
 
   private validateDateRange(dateRange: DateRange): DateRange {

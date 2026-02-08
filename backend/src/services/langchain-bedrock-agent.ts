@@ -10,7 +10,7 @@ import {
 } from "../utils/bedrock-runtime-client";
 import { AIAgent, AiMessage, ToolExecution } from "./ai-agent";
 
-export class LangChainBedrockAgent implements AIAgent {
+export class LangchainBedrockAgent implements AIAgent {
   private model: ChatBedrockConverse;
 
   constructor(
