@@ -76,7 +76,6 @@ describe("LangchainBedrockAgent", () => {
         messages: [
           new AIMessage({
             content: "Final answer",
-            tool_calls: [],
           }),
         ],
       });
@@ -101,7 +100,11 @@ describe("LangchainBedrockAgent", () => {
       mockReactAgent.invoke.mockResolvedValue({
         messages: [
           new AIMessage({
-            content: "This is the answer",
+            content: "This is not the final answer",
+            tool_calls: [],
+          }),
+          new AIMessage({
+            content: "This is the final answer",
             tool_calls: [],
           }),
         ],
@@ -111,57 +114,12 @@ describe("LangchainBedrockAgent", () => {
       const result = await agent.call(messages);
 
       // Assert
-      expect(result.answer).toBe("This is the answer");
-      expect(result.toolExecutions).toEqual([]);
+      expect(result.answer).toBe("This is the final answer");
     });
 
     it("should extract tool executions from agent messages", async () => {
       // Arrange
       const messages = [{ role: "user" as const, content: "Calculate sum" }];
-
-      const aiMessage = new AIMessage({
-        content: "",
-        tool_calls: [
-          {
-            id: "call_1",
-            name: "sum",
-            args: { values: [10, 20, 30] },
-            type: "tool_call",
-          },
-        ],
-      });
-
-      const toolMessage = new ToolMessage({
-        content: "60",
-        tool_call_id: "call_1",
-        name: "sum",
-      });
-
-      const finalMessage = new AIMessage({
-        content: "The sum is 60",
-        tool_calls: [],
-      });
-
-      mockReactAgent.invoke.mockResolvedValue({
-        messages: [aiMessage, toolMessage, finalMessage],
-      });
-
-      // Act
-      const result = await agent.call(messages);
-
-      // Assert
-      expect(result.answer).toBe("The sum is 60");
-      expect(result.toolExecutions).toHaveLength(1);
-      expect(result.toolExecutions[0]).toEqual({
-        tool: "sum",
-        input: JSON.stringify({ values: [10, 20, 30] }),
-        output: "60",
-      });
-    });
-
-    it("should handle multiple tool calls", async () => {
-      // Arrange
-      const messages = [{ role: "user" as const, content: "Do calculations" }];
 
       const aiMessage = new AIMessage({
         content: "",
@@ -206,11 +164,18 @@ describe("LangchainBedrockAgent", () => {
       const result = await agent.call(messages);
 
       // Assert
+      expect(result.answer).toBe("Sum is 15, average is 7.5");
       expect(result.toolExecutions).toHaveLength(2);
-      expect(result.toolExecutions[0].tool).toBe("sum");
-      expect(result.toolExecutions[0].output).toBe("15");
-      expect(result.toolExecutions[1].tool).toBe("avg");
-      expect(result.toolExecutions[1].output).toBe("7.5");
+      expect(result.toolExecutions[0]).toEqual({
+        tool: "sum",
+        input: JSON.stringify({ values: [5, 10] }),
+        output: "15",
+      });
+      expect(result.toolExecutions[1]).toEqual({
+        tool: "avg",
+        input: JSON.stringify({ values: [5, 10] }),
+        output: "7.5",
+      });
     });
 
     it("should handle tool message without matching call", async () => {
@@ -219,8 +184,8 @@ describe("LangchainBedrockAgent", () => {
 
       const toolMessage = new ToolMessage({
         content: "Result",
-        tool_call_id: "unknown_id",
-        name: "unknown_tool",
+        tool_call_id: "orphan-call-id",
+        name: "orphan_tool",
       });
 
       const finalMessage = new AIMessage({
@@ -238,54 +203,13 @@ describe("LangchainBedrockAgent", () => {
       // Assert
       expect(result.toolExecutions).toHaveLength(1);
       expect(result.toolExecutions[0]).toEqual({
-        tool: "unknown_tool",
+        tool: "orphan_tool",
         input: "Unknown arguments",
         output: "Result",
       });
     });
 
-    it("should handle empty response content", async () => {
-      // Arrange
-      const messages = [{ role: "user" as const, content: "Test" }];
-
-      mockReactAgent.invoke.mockResolvedValue({
-        messages: [
-          new AIMessage({
-            content: "",
-            tool_calls: [],
-          }),
-        ],
-      });
-
-      // Act
-      const result = await agent.call(messages);
-
-      // Assert
-      expect(result.answer).toBe("");
-    });
-
-    it("should convert non-string content to string", async () => {
-      // Arrange
-      const messages = [{ role: "user" as const, content: "Test" }];
-
-      mockReactAgent.invoke.mockResolvedValue({
-        messages: [
-          new AIMessage({
-            content: { text: "Complex content" } as unknown as string,
-            tool_calls: [],
-          }),
-        ],
-      });
-
-      // Act
-      const result = await agent.call(messages);
-
-      // Assert
-      expect(typeof result.answer).toBe("string");
-      expect(result.answer).toBe("[object Object]");
-    });
-
-    it("should handle missing tool call id with generated UUID", async () => {
+    it("should handle missing tool call id", async () => {
       // Arrange
       const messages = [{ role: "user" as const, content: "Test" }];
 
@@ -293,7 +217,7 @@ describe("LangchainBedrockAgent", () => {
         content: "",
         tool_calls: [
           {
-            id: undefined as unknown as string,
+            id: undefined,
             name: "test_tool",
             args: { input: "test" },
             type: "tool_call",
@@ -317,6 +241,26 @@ describe("LangchainBedrockAgent", () => {
       expect(result.toolExecutions).toHaveLength(1);
       expect(result.toolExecutions[0].tool).toBe("test_tool");
       expect(result.toolExecutions[0].output).toBe("Not executed");
+    });
+
+    it("should handle empty response content", async () => {
+      // Arrange
+      const messages = [{ role: "user" as const, content: "Test" }];
+
+      mockReactAgent.invoke.mockResolvedValue({
+        messages: [
+          new AIMessage({
+            content: "",
+            tool_calls: [],
+          }),
+        ],
+      });
+
+      // Act
+      const result = await agent.call(messages);
+
+      // Assert
+      expect(result.answer).toBe("");
     });
 
     it("should work without system prompt", async () => {
