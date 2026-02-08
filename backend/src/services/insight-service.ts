@@ -15,7 +15,7 @@ import {
 } from "../utils/bedrock-runtime-client";
 import { formatDateAsYYYYMMDD } from "../utils/date";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
-import { createInsightTools } from "./insight/tools";
+import { createInsightTools } from "./insight-tools";
 
 const MAX_PERIOD_DAYS = 366;
 
