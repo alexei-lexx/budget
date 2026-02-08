@@ -19,6 +19,11 @@ export function loadBedrockTemperature(): number {
   return requireFloatEnv("AWS_BEDROCK_TEMPERATURE");
 }
 
+/** Reads the AWS region from AWS_REGION. */
+export function loadBedrockRegion(): string {
+  return requireEnv("AWS_REGION");
+}
+
 /**
  * Creates a Bedrock runtime client.
  * - Local: authenticates via a long-term Bedrock API key (AWS_BEARER_TOKEN_BEDROCK).

@@ -19,12 +19,12 @@ import { IAccountRepository } from "../models/account";
 import { ICategoryRepository } from "../models/category";
 import { ITransactionRepository, TransactionType } from "../models/transaction";
 import { YEAR_RANGE_OFFSET } from "../types/validation";
-import type { AiModelClient } from "./ai-model-client";
+import { type AIAgent } from "./ai-agent";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
 import { type InsightInput, InsightService } from "./insight-service";
 
-const createMockAiModelClient = (): jest.Mocked<AiModelClient> => ({
-  generateResponse: jest.fn(),
+const createMockAiAgent = (): jest.Mocked<AIAgent> => ({
+  call: jest.fn(),
 });
 
 describe("InsightService", () => {
@@ -33,19 +33,19 @@ describe("InsightService", () => {
   let mockTransactionRepository: jest.Mocked<ITransactionRepository>;
   let mockAccountRepository: jest.Mocked<IAccountRepository>;
   let mockCategoryRepository: jest.Mocked<ICategoryRepository>;
-  let mockAiModelClient: jest.Mocked<AiModelClient>;
+  let mockAiAgent: jest.Mocked<AIAgent>;
 
   beforeEach(() => {
     mockTransactionRepository = createMockTransactionRepository();
     mockAccountRepository = createMockAccountRepository();
     mockCategoryRepository = createMockCategoryRepository();
-    mockAiModelClient = createMockAiModelClient();
+    mockAiAgent = createMockAiAgent();
 
     service = new InsightService(
       mockTransactionRepository,
       mockAccountRepository,
       mockCategoryRepository,
-      mockAiModelClient,
+      mockAiAgent,
     );
 
     userId = faker.string.uuid();
@@ -261,9 +261,10 @@ describe("InsightService", () => {
       );
       mockAccountRepository.findByIds.mockResolvedValue(accounts);
       mockCategoryRepository.findByIds.mockResolvedValue(categories);
-      mockAiModelClient.generateResponse.mockResolvedValue(
-        "Your food spending was $50.",
-      );
+      mockAiAgent.call.mockResolvedValue({
+        answer: "Your food spending was $50.",
+        toolExecutions: [],
+      });
 
       // Act
       const result = await service.call(userId, validInput);
@@ -286,9 +287,10 @@ describe("InsightService", () => {
     it("should return AI response when no transactions found", async () => {
       // Arrange
       mockTransactionRepository.findActiveByDateRange.mockResolvedValue([]);
-      mockAiModelClient.generateResponse.mockResolvedValue(
-        "No transactions found for this period.",
-      );
+      mockAiAgent.call.mockResolvedValue({
+        answer: "No transactions found for this period.",
+        toolExecutions: [],
+      });
 
       // Act
       const result = await service.call(userId, validInput);
@@ -306,43 +308,38 @@ describe("InsightService", () => {
         question: "  What is my spending?  ",
       };
       mockTransactionRepository.findActiveByDateRange.mockResolvedValue([]);
-      mockAiModelClient.generateResponse.mockResolvedValue("Answer");
+      mockAiAgent.call.mockResolvedValue({ answer: "Answer" });
 
       // Act
       await service.call(userId, input);
 
       // Assert
-      expect(mockAiModelClient.generateResponse).toHaveBeenCalledWith(
-        expect.arrayContaining([
-          expect.objectContaining({
-            role: "user",
-            content: expect.stringContaining(
-              "My question: What is my spending?",
-            ),
-          }),
-        ]),
+      const callArgs = mockAiAgent.call.mock.calls[0];
+      expect(callArgs[0][0].content).toContain(
+        "My question: What is my spending?",
       );
     });
 
-    it("should pass system message and user message to AI client", async () => {
+    it("should pass system prompt and user message to AI agent", async () => {
       // Arrange
       mockTransactionRepository.findActiveByDateRange.mockResolvedValue([]);
-      mockAiModelClient.generateResponse.mockResolvedValue("Answer");
+      mockAiAgent.call.mockResolvedValue({ answer: "Answer" });
 
       // Act
       await service.call(userId, validInput);
 
       // Assert
-      const messages = mockAiModelClient.generateResponse.mock.calls[0][0];
-      expect(messages).toHaveLength(2);
-      expect(messages[0].role).toBe("system");
-      expect(messages[0].content).toContain(
-        "You are a personal finance assistant",
-      );
-      expect(messages[1].role).toBe("user");
-      expect(messages[1].content).toContain("2000-01-01");
-      expect(messages[1].content).toContain("2000-01-31");
-      expect(messages[1].content).toContain(validInput.question);
+      const callArgs = mockAiAgent.call.mock.calls[0];
+      const messages = callArgs[0];
+      const systemPrompt = callArgs[1];
+
+      expect(messages).toHaveLength(1);
+      expect(messages[0].role).toBe("user");
+      expect(messages[0].content).toContain("2000-01-01");
+      expect(messages[0].content).toContain("2000-01-31");
+      expect(messages[0].content).toContain(validInput.question);
+
+      expect(systemPrompt).toContain("You are a personal finance assistant");
     });
 
     it("should handle uncategorized transactions", async () => {
@@ -363,27 +360,48 @@ describe("InsightService", () => {
       );
       mockAccountRepository.findByIds.mockResolvedValue(accounts);
       mockCategoryRepository.findByIds.mockResolvedValue([]);
-      mockAiModelClient.generateResponse.mockResolvedValue("Answer");
+      mockAiAgent.call.mockResolvedValue({ answer: "Answer" });
 
       // Act
       await service.call(userId, validInput);
 
       // Assert
       expect(mockCategoryRepository.findByIds).not.toHaveBeenCalled();
-      expect(mockAiModelClient.generateResponse).toHaveBeenCalled();
+      expect(mockAiAgent.call).toHaveBeenCalled();
     });
 
-    it("should propagate error when AI client fails", async () => {
+    it("should propagate error when AI agent fails", async () => {
       // Arrange
       mockTransactionRepository.findActiveByDateRange.mockResolvedValue([]);
-      mockAiModelClient.generateResponse.mockRejectedValue(
-        new Error("AI service unavailable"),
-      );
+      mockAiAgent.call.mockRejectedValue(new Error("AI service unavailable"));
 
       // Act & Assert
       const promise = service.call(userId, validInput);
 
       await expect(promise).rejects.toThrow("AI service unavailable");
+    });
+
+    it("should append tool executions to response when present", async () => {
+      // Arrange
+      mockTransactionRepository.findActiveByDateRange.mockResolvedValue([]);
+      mockAiAgent.call.mockResolvedValue({
+        answer: "The total is $150.",
+        toolExecutions: [
+          {
+            tool: "sum",
+            input: JSON.stringify({ values: [50, 100] }),
+            output: "150",
+          },
+        ],
+      });
+
+      // Act
+      const result = await service.call(userId, validInput);
+
+      // Assert
+      expect(result).toContain("The total is $150.");
+      expect(result).toContain("**Tools performed:**");
+      expect(result).toContain("1. sum(values: [50, 100]) = 150");
     });
   });
 });

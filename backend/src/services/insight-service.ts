@@ -4,7 +4,7 @@ import { ICategoryRepository } from "../models/category";
 import { ITransactionRepository, Transaction } from "../models/transaction";
 import { YEAR_RANGE_OFFSET } from "../types/validation";
 import { formatDateAsYYYYMMDD } from "../utils/date";
-import type { AiModelClient, AiModelMessage } from "./ai-model-client";
+import { AIAgent } from "./ai-agent";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
 
 const MAX_PERIOD_DAYS = 366;
@@ -24,7 +24,7 @@ export class InsightService {
     private transactionRepository: ITransactionRepository,
     private accountRepository: IAccountRepository,
     private categoryRepository: ICategoryRepository,
-    private aiModelClient: AiModelClient,
+    private aiAgent: AIAgent,
   ) {}
 
   async call(userId: string, input: InsightInput): Promise<string> {
@@ -69,18 +69,41 @@ export class InsightService {
       categoryNamesById,
     );
 
-    const userMessage = this.buildUserMessage(
+    const systemPrompt = this.buildSystemPrompt();
+    const userPrompt = this.buildUserPrompt(
       normalizedQuestion,
       validatedDateRange,
       dataPayload,
     );
 
-    const systemMessage = this.buildSystemMessage();
+    const response = await this.aiAgent.call(
+      [{ role: "user", content: userPrompt }],
+      systemPrompt,
+    );
 
-    return await this.aiModelClient.generateResponse([
-      systemMessage,
-      userMessage,
-    ]);
+    if (!response.answer) {
+      throw new BusinessError(
+        "Empty response",
+        BusinessErrorCodes.EMPTY_RESPONSE,
+      );
+    }
+
+    let finalAnswer = response.answer.trim();
+
+    // Append tool executions to the response for observability
+    if (response.toolExecutions && response.toolExecutions.length > 0) {
+      const calculations = response.toolExecutions.map(
+        (toolExecution, index) => {
+          const formattedInput = this.formatToolArguments(toolExecution.input);
+          return `${index + 1}. ${toolExecution.tool}(${formattedInput}) = ${toolExecution.output}`;
+        },
+      );
+
+      finalAnswer += "\n\nTools performed:\n";
+      finalAnswer += calculations.join("\n") + "\n";
+    }
+
+    return finalAnswer;
   }
 
   private validateDateRange(dateRange: DateRange): DateRange {
@@ -225,42 +248,83 @@ export class InsightService {
     return categoryNamesById;
   }
 
-  private buildUserMessage(
+  private buildUserPrompt(
     question: string,
     dateRange: DateRange,
     dataPayload: string,
-  ): AiModelMessage {
-    return {
-      role: "user" as const,
-      content: [
-        `I have a list of transactions between ${dateRange.startDate} and ${dateRange.endDate}.`,
-        "The data is in TOON format. Each transaction has: date, type, amount, currency, account, category, description.",
-        "",
-        "Here are the transactions:",
-        "",
-        `My question: ${question}`,
-        dataPayload,
-      ].join("\n"),
-    };
+  ): string {
+    return [
+      `I have a list of transactions between ${dateRange.startDate} and ${dateRange.endDate}.`,
+      "The data is in TOON format. Each transaction has: date, type, amount, currency, account, category, description.",
+      "",
+      "Here are the transactions:",
+      "",
+      dataPayload,
+      "",
+      `My question: ${question}`,
+    ].join("\n");
   }
 
-  private buildSystemMessage(): AiModelMessage {
+  private buildSystemPrompt(): string {
     const currentDate = formatDateAsYYYYMMDD(new Date());
 
-    return {
-      role: "system",
-      content: [
-        "You are a personal finance assistant.",
-        "Answer user's questions based on the provided transaction data.",
-        "",
-        "Transaction types: INCOME, EXPENSE, REFUND, TRANSFER_IN, TRANSFER_OUT.",
-        "Refunds are money returned from previous expenses.",
-        "Transfers are internal movements between accounts.",
-        "",
-        "Keep responses concise. Use plain text only, no markdown.",
-        "",
-        `Today is ${currentDate}.`,
-      ].join("\n"),
-    };
+    return [
+      "You are a personal finance assistant.",
+      "Answer user's questions based on the provided transaction data.",
+      "",
+      "Transaction types: INCOME, EXPENSE, REFUND, TRANSFER_IN, TRANSFER_OUT.",
+      "Refunds are money returned from previous expenses.",
+      "Transfers are internal movements between accounts.",
+      "",
+      "Keep responses concise. Use plain text only, no markdown.",
+      "",
+      `Today is ${currentDate}.`,
+    ].join("\n");
+  }
+
+  private formatToolArguments(jsonInput: string): string {
+    try {
+      const parsed = JSON.parse(jsonInput);
+
+      // If there's a single 'input' key with a string value, try parsing that
+      if (
+        Object.keys(parsed).length === 1 &&
+        "input" in parsed &&
+        typeof parsed.input === "string"
+      ) {
+        try {
+          const nestedParsed = JSON.parse(parsed.input);
+          return this.formatParsedArguments(nestedParsed);
+        } catch {
+          // If nested parsing fails, continue with outer parsed object
+        }
+      }
+
+      return this.formatParsedArguments(parsed);
+    } catch {
+      // Fallback to simple string cleaning if parsing fails
+      return jsonInput
+        .replace(/^{|}$/g, "")
+        .replace(/"/g, "")
+        .replace(/,/g, ", ");
+    }
+  }
+
+  private formatParsedArguments(parsed: Record<string, unknown>): string {
+    const entries = Object.entries(parsed);
+
+    if (entries.length === 0) {
+      return "";
+    }
+
+    // Format as "key: value" pairs
+    return entries
+      .map(([key, value]) => {
+        const formattedValue = Array.isArray(value)
+          ? `[${value.join(", ")}]`
+          : JSON.stringify(value);
+        return `${key}: ${formattedValue}`;
+      })
+      .join(", ");
   }
 }
