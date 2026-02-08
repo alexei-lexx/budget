@@ -8,7 +8,7 @@ jest.mock("langchain", () => ({
   createAgent: jest.fn(),
 }));
 
-describe("LangChainBedrockAgent", () => {
+describe("LangchainBedrockAgent", () => {
   let agent: LangchainBedrockAgent;
   let mockModel: jest.Mocked<ChatBedrockConverse>;
   let mockTools: StructuredTool[];
