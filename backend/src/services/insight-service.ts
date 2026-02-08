@@ -1,11 +1,21 @@
+import { randomUUID } from "crypto";
+import { ChatBedrockConverse } from "@langchain/aws";
 import { encode } from "@toon-format/toon";
+import { AIMessage, ToolMessage, createAgent } from "langchain";
 import { IAccountRepository } from "../models/account";
 import { ICategoryRepository } from "../models/category";
 import { ITransactionRepository, Transaction } from "../models/transaction";
 import { YEAR_RANGE_OFFSET } from "../types/validation";
+import {
+  createBedrockRuntimeClient,
+  loadBedrockMaxTokens,
+  loadBedrockModelId,
+  loadBedrockRegion,
+  loadBedrockTemperature,
+} from "../utils/bedrock-runtime-client";
 import { formatDateAsYYYYMMDD } from "../utils/date";
-import type { AiModelClient, AiModelMessage } from "./ai-model-client";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
+import { createInsightTools } from "./insight/tools";
 
 const MAX_PERIOD_DAYS = 366;
 
@@ -24,7 +34,6 @@ export class InsightService {
     private transactionRepository: ITransactionRepository,
     private accountRepository: IAccountRepository,
     private categoryRepository: ICategoryRepository,
-    private aiModelClient: AiModelClient,
   ) {}
 
   async call(userId: string, input: InsightInput): Promise<string> {
@@ -69,18 +78,113 @@ export class InsightService {
       categoryNamesById,
     );
 
-    const userMessage = this.buildUserMessage(
+    const systemPrompt = this.buildSystemPrompt();
+    const userInput = this.buildUserInput(
       normalizedQuestion,
       validatedDateRange,
       dataPayload,
     );
 
-    const systemMessage = this.buildSystemMessage();
+    // Create calculation tools
+    const tools = createInsightTools();
 
-    return await this.aiModelClient.generateResponse([
-      systemMessage,
-      userMessage,
-    ]);
+    // Create Bedrock model via LangChain
+    const model = new ChatBedrockConverse({
+      model: loadBedrockModelId(),
+      region: loadBedrockRegion(),
+      maxTokens: loadBedrockMaxTokens(),
+      temperature: loadBedrockTemperature(),
+      client: createBedrockRuntimeClient(),
+    });
+
+    // Create ReAct agent with tools
+    const agent = createAgent({
+      model,
+      tools,
+      systemPrompt,
+    });
+
+    try {
+      const result = await agent.invoke({
+        messages: [{ role: "user", content: userInput }],
+      });
+
+      // Extract tool calls for user-facing summary
+      const toolCallsSummary = new Map<
+        string,
+        {
+          tool: string;
+          args: string;
+          result: string;
+        }
+      >();
+
+      // Collect tool calls and results from agent conversation
+      result.messages.forEach((message) => {
+        if (message instanceof AIMessage) {
+          for (const toolCall of message.tool_calls || []) {
+            const toolCallId = toolCall.id || randomUUID();
+            toolCallsSummary.set(toolCallId, {
+              tool: toolCall.name,
+              args: JSON.stringify(toolCall.args),
+              result: "Not executed",
+            });
+          }
+        } else if (message instanceof ToolMessage) {
+          const toolCallId = message.tool_call_id || randomUUID();
+          const existing = toolCallsSummary.get(toolCallId);
+
+          if (existing) {
+            toolCallsSummary.set(toolCallId, {
+              ...existing,
+              result: message.content
+                ? String(message.content)
+                : "Unknown result",
+            });
+          } else {
+            toolCallsSummary.set(toolCallId, {
+              tool: message.name || "Unknown tool",
+              args: "Unknown arguments",
+              result: message.content
+                ? String(message.content)
+                : "Unknown result",
+            });
+          }
+        }
+      });
+
+      // Extract final answer from agent messages
+      const lastMessage = result.messages[result.messages.length - 1];
+
+      if (!lastMessage || !lastMessage.content) {
+        throw new BusinessError(
+          "Empty response",
+          BusinessErrorCodes.EMPTY_RESPONSE,
+        );
+      }
+
+      let finalAnswer =
+        typeof lastMessage.content === "string"
+          ? lastMessage.content
+          : String(lastMessage.content);
+
+      // Append tool calls summary to the response for observability
+      const toolCallsSummaryArray = Array.from(toolCallsSummary.values());
+      if (toolCallsSummaryArray.length > 0) {
+        const calculations = toolCallsSummaryArray.map((call, index) => {
+          const formattedArgs = this.formatToolArguments(call.args);
+          return `${index + 1}. ${call.tool}(${formattedArgs}) = ${call.result}`;
+        });
+
+        finalAnswer += "\n\n---\n**Tools performed:**\n";
+        finalAnswer += calculations.join("\n") + "\n";
+      }
+
+      return finalAnswer;
+    } catch (error) {
+      console.error("Failed to generate AI insight:", error);
+      throw error;
+    }
   }
 
   private validateDateRange(dateRange: DateRange): DateRange {
@@ -225,42 +329,83 @@ export class InsightService {
     return categoryNamesById;
   }
 
-  private buildUserMessage(
+  private buildUserInput(
     question: string,
     dateRange: DateRange,
     dataPayload: string,
-  ): AiModelMessage {
-    return {
-      role: "user" as const,
-      content: [
-        `I have a list of transactions between ${dateRange.startDate} and ${dateRange.endDate}.`,
-        "The data is in TOON format. Each transaction has: date, type, amount, currency, account, category, description.",
-        "",
-        "Here are the transactions:",
-        "",
-        `My question: ${question}`,
-        dataPayload,
-      ].join("\n"),
-    };
+  ): string {
+    return [
+      `I have a list of transactions between ${dateRange.startDate} and ${dateRange.endDate}.`,
+      "The data is in TOON format. Each transaction has: date, type, amount, currency, account, category, description.",
+      "",
+      "Here are the transactions:",
+      "",
+      dataPayload,
+      "",
+      `My question: ${question}`,
+    ].join("\n");
   }
 
-  private buildSystemMessage(): AiModelMessage {
+  private buildSystemPrompt(): string {
     const currentDate = formatDateAsYYYYMMDD(new Date());
 
-    return {
-      role: "system",
-      content: [
-        "You are a personal finance assistant.",
-        "Answer user's questions based on the provided transaction data.",
-        "",
-        "Transaction types: INCOME, EXPENSE, REFUND, TRANSFER_IN, TRANSFER_OUT.",
-        "Refunds are money returned from previous expenses.",
-        "Transfers are internal movements between accounts.",
-        "",
-        "Keep responses concise. Use plain text only, no markdown.",
-        "",
-        `Today is ${currentDate}.`,
-      ].join("\n"),
-    };
+    return [
+      "You are a personal finance assistant.",
+      "Answer user's questions based on the provided transaction data.",
+      "",
+      "Transaction types: INCOME, EXPENSE, REFUND, TRANSFER_IN, TRANSFER_OUT.",
+      "Refunds are money returned from previous expenses.",
+      "Transfers are internal movements between accounts.",
+      "",
+      "Keep responses concise. Use plain text only, no markdown.",
+      "",
+      `Today is ${currentDate}.`,
+    ].join("\n");
+  }
+
+  private formatToolArguments(jsonInput: string): string {
+    try {
+      const parsed = JSON.parse(jsonInput);
+
+      // If there's a single 'input' key with a string value, try parsing that
+      if (
+        Object.keys(parsed).length === 1 &&
+        "input" in parsed &&
+        typeof parsed.input === "string"
+      ) {
+        try {
+          const nestedParsed = JSON.parse(parsed.input);
+          return this.formatParsedArguments(nestedParsed);
+        } catch {
+          // If nested parsing fails, continue with outer parsed object
+        }
+      }
+
+      return this.formatParsedArguments(parsed);
+    } catch {
+      // Fallback to simple string cleaning if parsing fails
+      return jsonInput
+        .replace(/^{|}$/g, "")
+        .replace(/"/g, "")
+        .replace(/,/g, ", ");
+    }
+  }
+
+  private formatParsedArguments(parsed: Record<string, unknown>): string {
+    const entries = Object.entries(parsed);
+
+    if (entries.length === 0) {
+      return "";
+    }
+
+    // Format as "key: value" pairs
+    return entries
+      .map(([key, value]) => {
+        const formattedValue = Array.isArray(value)
+          ? `[${value.join(", ")}]`
+          : JSON.stringify(value);
+        return `${key}: ${formattedValue}`;
+      })
+      .join(", ");
   }
 }
