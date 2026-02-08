@@ -99,7 +99,7 @@ export class InsightService {
         },
       );
 
-      finalAnswer += "\n\n---\n**Tools performed:**\n";
+      finalAnswer += "\n\nTools performed:\n";
       finalAnswer += calculations.join("\n") + "\n";
     }
 
