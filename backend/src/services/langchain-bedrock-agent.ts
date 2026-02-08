@@ -48,7 +48,7 @@ export class LangchainBedrockAgent implements AIAgent {
     const toolExecutionsMap = new Map<string, ToolExecution>();
 
     // Collect tool calls and results from agent conversation
-    response.messages.forEach((message) => {
+    for (const message of response.messages) {
       if (message instanceof AIMessage) {
         for (const toolCall of message.tool_calls || []) {
           const toolCallId = toolCall.id || randomUUID();
@@ -79,7 +79,7 @@ export class LangchainBedrockAgent implements AIAgent {
           });
         }
       }
-    });
+    }
 
     // Extract final answer from agent messages
     const lastMessage = response.messages[response.messages.length - 1];
