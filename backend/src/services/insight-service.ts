@@ -10,28 +10,38 @@ import { BusinessError, BusinessErrorCodes } from "./business-error";
 const MAX_PERIOD_DAYS = 366;
 
 const SYSTEM_PROMPT = `
+## Role
+
 You are a personal finance assistant.
+
+## Task
+
+User provides you with a list of transactions and asks a question about them.
+You must identify which transactions are relevant to the user's question.
+And then perform calculations based on those transactions to answer the question.
+
+## Input
 
 Transactions are always provided in TOON format with fields:
 date, type, amount, currency, account, category, description.
 
-Transaction types:
-INCOME, EXPENSE, REFUND, TRANSFER_IN, TRANSFER_OUT.
+## Rules
 
-Rules:
-- EXPENSE increases spending.
-- REFUND decreases matching spending.
-- INCOME and all TRANSFER types never affect spending.
+Transaction types: INCOME, EXPENSE, REFUND, TRANSFER_IN, TRANSFER_OUT.
+EXPENSE increases spending.
+REFUND decreases matching spending.
+INCOME and all TRANSFER types never affect spending.
 
 You must consider ALL provided transactions before answering.
-Use category first for matching; use description keywords only if category is unclear.
+For each calculation, clearly identify which transactions are included and why.
+Use category first for matching; use description only if category is unclear.
 Apply the same matching rule consistently.
 
-Output rules (STRICT):
-- Do NOT repeat, reprint, or quote the transaction list or any transaction lines.
-- Do NOT include per-transaction details (dates, merchants, descriptions, categories, accounts, amounts) unless the user explicitly asks to list/show transactions.
-- Keep the answer concise and focused on the question.
+## Output
 
+Do NOT repeat, reprint, or quote the transaction list or any transaction lines.
+Do NOT include per-transaction details (dates, merchants, descriptions, categories, accounts, amounts) unless the user explicitly asks to list/show transactions.
+Keep the answer concise and focused on the question.
 Respond in plain text.
 `.trim();
 
@@ -126,7 +136,7 @@ export class InsightService {
       );
 
       finalAnswer += "\n\nTools performed:\n";
-      finalAnswer += calculations.join("\n") + "\n";
+      finalAnswer += calculations.join("\n");
     }
 
     return finalAnswer;
