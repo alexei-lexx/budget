@@ -9,6 +9,32 @@ import { BusinessError, BusinessErrorCodes } from "./business-error";
 
 const MAX_PERIOD_DAYS = 366;
 
+const SYSTEM_PROMPT = `
+You are a personal finance assistant.
+
+Transactions are always provided in TOON format with fields:
+date, type, amount, currency, account, category, description.
+
+Transaction types:
+INCOME, EXPENSE, REFUND, TRANSFER_IN, TRANSFER_OUT.
+
+Rules:
+- EXPENSE increases spending.
+- REFUND decreases matching spending.
+- INCOME and all TRANSFER types never affect spending.
+
+You must consider ALL provided transactions before answering.
+Use category first for matching; use description keywords only if category is unclear.
+Apply the same matching rule consistently.
+
+Output rules (STRICT):
+- Do NOT repeat, reprint, or quote the transaction list or any transaction lines.
+- Do NOT include per-transaction details (dates, merchants, descriptions, categories, accounts, amounts) unless the user explicitly asks to list/show transactions.
+- Keep the answer concise and focused on the question.
+
+Respond in plain text.
+`.trim();
+
 interface DateRange {
   startDate: string;
   endDate: string;
@@ -255,10 +281,7 @@ export class InsightService {
   ): string {
     return [
       `I have a list of transactions between ${dateRange.startDate} and ${dateRange.endDate}.`,
-      "The data is in TOON format. Each transaction has: date, type, amount, currency, account, category, description.",
-      "",
       "Here are the transactions:",
-      "",
       dataPayload,
       "",
       `My question: ${question}`,
@@ -268,18 +291,7 @@ export class InsightService {
   private buildSystemPrompt(): string {
     const currentDate = formatDateAsYYYYMMDD(new Date());
 
-    return [
-      "You are a personal finance assistant.",
-      "Answer user's questions based on the provided transaction data.",
-      "",
-      "Transaction types: INCOME, EXPENSE, REFUND, TRANSFER_IN, TRANSFER_OUT.",
-      "Refunds are money returned from previous expenses.",
-      "Transfers are internal movements between accounts.",
-      "",
-      "Keep responses concise. Use plain text only, no markdown.",
-      "",
-      `Today is ${currentDate}.`,
-    ].join("\n");
+    return SYSTEM_PROMPT + `\n\nToday's date is ${currentDate}.`;
   }
 
   private formatToolArguments(jsonInput: string): string {
