@@ -239,8 +239,8 @@ async function createTransactions(
       );
     }
 
-    // Create 18 expense transactions
-    for (let i = 0; i < 18; i++) {
+    // Create 30 expense transactions
+    for (let i = 0; i < 30; i++) {
       const categoryIndex = Math.floor(
         Math.random() * categoryIds.expense.length,
       );
@@ -286,7 +286,7 @@ async function createTransactions(
     }
 
     console.log(
-      `✓ Created 20 transactions for ${monthData.label} month (2 income, 18 expense)`,
+      `✓ Created 32 transactions for ${monthData.label} month (2 income, 30 expense)`,
     );
   }
 }
