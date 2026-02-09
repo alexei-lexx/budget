@@ -16,10 +16,10 @@ import {
   createMockTransactionRepository,
 } from "../__tests__/utils/mock-repositories";
 import { IAccountRepository } from "../models/account";
+import { type AIAgent } from "../models/ai-agent";
 import { ICategoryRepository } from "../models/category";
 import { ITransactionRepository, TransactionType } from "../models/transaction";
 import { YEAR_RANGE_OFFSET } from "../types/validation";
-import { type AIAgent } from "./ai-agent";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
 import { type InsightInput, InsightService } from "./insight-service";
 
@@ -400,7 +400,7 @@ describe("InsightService", () => {
 
       // Assert
       expect(result).toContain("The total is $150.");
-      expect(result).toContain("**Tools performed:**");
+      expect(result).toContain("Tools performed:");
       expect(result).toContain("1. sum(values: [50, 100]) = 150");
     });
   });

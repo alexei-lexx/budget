@@ -2,7 +2,7 @@ import { tool } from "langchain";
 import { evaluate, mean, sum } from "mathjs";
 import { z } from "zod";
 
-const sumTool = tool(
+export const sumTool = tool(
   (input: { numbers: number[] }) => sum(input.numbers).toString(),
   {
     name: "sum",
@@ -14,7 +14,7 @@ const sumTool = tool(
   },
 );
 
-const avgTool = tool(
+export const avgTool = tool(
   (input: { numbers: number[] }) => {
     if (input.numbers.length === 0) {
       return "Error: cannot calculate average of an empty array";
@@ -32,7 +32,7 @@ const avgTool = tool(
   },
 );
 
-const calculateTool = tool(
+export const calculateTool = tool(
   (input: { expression: string }) => {
     const result = evaluate(input.expression);
     const resultString =
@@ -49,11 +49,3 @@ const calculateTool = tool(
     }),
   },
 );
-
-/**
- * Creates calculation tools for the insight agent.
- * These tools provide precise arithmetic operations where LLMs are weak.
- */
-export function createInsightTools() {
-  return [sumTool, avgTool, calculateTool];
-}

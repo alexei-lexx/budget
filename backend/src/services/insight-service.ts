@@ -1,10 +1,10 @@
 import { encode } from "@toon-format/toon";
 import { IAccountRepository } from "../models/account";
+import { AIAgent } from "../models/ai-agent";
 import { ICategoryRepository } from "../models/category";
 import { ITransactionRepository, Transaction } from "../models/transaction";
 import { YEAR_RANGE_OFFSET } from "../types/validation";
 import { formatDateAsYYYYMMDD } from "../utils/date";
-import { AIAgent } from "./ai-agent";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
 
 const MAX_PERIOD_DAYS = 366;

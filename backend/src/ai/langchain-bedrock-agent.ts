@@ -1,6 +1,7 @@
 import { randomUUID } from "crypto";
 import { ChatBedrockConverse } from "@langchain/aws";
 import { AIMessage, StructuredTool, ToolMessage, createAgent } from "langchain";
+import { AIAgent, AiMessage, ToolExecution } from "../models/ai-agent";
 import {
   createBedrockRuntimeClient,
   loadBedrockMaxTokens,
@@ -8,7 +9,6 @@ import {
   loadBedrockRegion,
   loadBedrockTemperature,
 } from "../utils/bedrock-runtime-client";
-import { AIAgent, AiMessage, ToolExecution } from "./ai-agent";
 
 export class LangchainBedrockAgent implements AIAgent {
   private model: ChatBedrockConverse;
