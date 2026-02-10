@@ -1,4 +1,3 @@
-import { encode } from "@toon-format/toon";
 import { IAccountRepository } from "../models/account";
 import { AIAgent } from "../models/ai-agent";
 import { ICategoryRepository } from "../models/category";
@@ -22,7 +21,7 @@ And then perform calculations based on those transactions to answer the question
 
 ## Input
 
-Transactions are always provided in TOON format with fields:
+Transactions are always provided in JSON format with fields:
 date, type, amount, currency, account, category, description.
 
 ## Rules
@@ -34,6 +33,7 @@ INCOME and all TRANSFER types never affect spending.
 
 You must consider ALL provided transactions before answering.
 For each calculation, clearly identify which transactions are included and why.
+For each calculation, always state the number of transactions included.
 Use category first for matching; use description only if category is unclear.
 Apply the same matching rule consistently.
 
@@ -98,7 +98,7 @@ export class InsightService {
       userId,
     );
 
-    const dataPayload = this.buildDataPayload(
+    const dataPayload = await this.buildDataPayload(
       transactions,
       validatedDateRange,
       accountNamesById,
@@ -204,14 +204,14 @@ export class InsightService {
     return parsed;
   }
 
-  private buildDataPayload(
+  private async buildDataPayload(
     transactions: Transaction[],
     dateRange: DateRange,
     accountNamesById: Map<string, string>,
     categoryNamesById: Map<string, string>,
-  ): string {
+  ): Promise<string> {
     if (transactions.length === 0) {
-      return `No transactions were recorded between ${dateRange.startDate} and ${dateRange.endDate}.`;
+      return "No transactions found for this period.";
     }
 
     const transactionRows = transactions.map((transaction) => {
@@ -233,11 +233,7 @@ export class InsightService {
       };
     });
 
-    const data = {
-      transactions: transactionRows,
-    };
-
-    return encode(data);
+    return JSON.stringify(transactionRows, null, 2);
   }
 
   private async buildAccountLookupMap(

@@ -23,7 +23,7 @@ export default defineConfig(
     ],
     // Override the default node resolver from flatConfigs.typescript with
     // eslint-import-resolver-typescript, which supports the package.json
-    // "exports" field (needed by packages like @toon-format/toon).
+    // "exports" field (needed by packages like aws-lambda).
     settings: {
       "import/resolver": {
         typescript: true,

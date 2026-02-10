@@ -1,9 +1,3 @@
-// @toon-format/toon ships ESM-only (.mjs) which Jest cannot parse in CJS mode.
-// Mock with JSON.stringify as a stand-in since encoding format is not under test.
-jest.mock("@toon-format/toon", () => ({
-  encode: jest.fn((data: unknown) => JSON.stringify(data)),
-}));
-
 import { faker } from "@faker-js/faker";
 import {
   fakeAccount,
