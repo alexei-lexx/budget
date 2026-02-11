@@ -86,10 +86,26 @@ export class LangchainBedrockAgent implements AIAgent {
     let answer = "";
 
     if (lastMessage && lastMessage.content) {
-      answer =
-        typeof lastMessage.content === "string"
-          ? lastMessage.content
-          : String(lastMessage.content);
+      if (typeof lastMessage.content === "string") {
+        answer = lastMessage.content;
+      } else if (Array.isArray(lastMessage.content)) {
+        answer = lastMessage.content
+          .map((item) => {
+            if ("text" in item) {
+              return item.text;
+            } else if (
+              "reasoningText" in item &&
+              typeof item["reasoningText"] === "object" &&
+              item["reasoningText"] !== null &&
+              "text" in item["reasoningText"]
+            ) {
+              return item["reasoningText"].text;
+            } else {
+              return JSON.stringify(item);
+            }
+          })
+          .join("\n");
+      }
     }
 
     return { answer, toolExecutions: Array.from(toolExecutionsMap.values()) };
