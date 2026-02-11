@@ -1,6 +1,7 @@
 import { tool } from "langchain";
 import { evaluate, mean, sum } from "mathjs";
 import { z } from "zod";
+import { AiDataService, DateRange } from "../services/ai-data-service";
 
 export const sumTool = tool(
   (input: { numbers: number[] }) => sum(input.numbers).toString(),
@@ -49,3 +50,41 @@ export const calculateTool = tool(
     }),
   },
 );
+
+export function createGetTransactionsTool(
+  aiDataService: AiDataService,
+  userId: string,
+  dateRange: DateRange,
+) {
+  return tool(
+    async (input: { categoryIds?: string[]; accountIds?: string[] }) => {
+      const transactions = await aiDataService.getFilteredTransactions(
+        userId,
+        dateRange,
+        input.categoryIds,
+        input.accountIds,
+      );
+
+      return JSON.stringify(transactions);
+    },
+    {
+      name: "getTransactions",
+      description:
+        "Retrieve transactions filtered by category IDs and/or account IDs. If both categoryIds and accountIds are omitted, returns all transactions in the date range. Returns an array of transaction objects with fields: id, userId, accountId, categoryId, type, amount, currency, date, description, transferId, isArchived, createdAt, updatedAt. You should use this tool FIRST before performing any calculations to get the relevant transactions.",
+      schema: z.object({
+        categoryIds: z
+          .array(z.string())
+          .optional()
+          .describe(
+            "Optional array of category IDs to filter transactions. If provided, only transactions with these category IDs will be returned.",
+          ),
+        accountIds: z
+          .array(z.string())
+          .optional()
+          .describe(
+            "Optional array of account IDs to filter transactions. If provided, only transactions from these accounts will be returned.",
+          ),
+      }),
+    },
+  );
+}

@@ -1,9 +1,14 @@
-import { IAccountRepository } from "../models/account";
-import { AIAgent } from "../models/ai-agent";
-import { ICategoryRepository } from "../models/category";
-import { ITransactionRepository, Transaction } from "../models/transaction";
+import { LangchainBedrockAgent } from "../ai/langchain-bedrock-agent";
+import {
+  avgTool,
+  calculateTool,
+  createGetTransactionsTool,
+  sumTool,
+} from "../ai/langchain-tools";
+import { ToolExecution } from "../models/ai-agent";
 import { YEAR_RANGE_OFFSET } from "../types/validation";
 import { formatDateAsYYYYMMDD } from "../utils/date";
+import { AiDataService } from "./ai-data-service";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
 
 const MAX_PERIOD_DAYS = 366;
@@ -15,34 +20,51 @@ You are a personal finance assistant.
 
 ## Task
 
-User provides you with a list of transactions and asks a question about them.
-You must identify which transactions are relevant to the user's question.
-And then perform calculations based on those transactions to answer the question.
+User asks questions about their financial transactions within a specific date range.
+You must use the getTransactions tool to retrieve relevant transactions, then perform calculations to answer the question.
 
-## Input
+## Workflow
 
-Transactions are always provided in JSON format with fields:
-date, type, amount, currency, account, category, description.
+1. First, review the available accounts and categories provided in the context
+2. Use the getTransactions tool to retrieve transactions filtered by category IDs and/or account IDs
+3. Use sum, avg, or calculate tools to perform mathematical operations on the retrieved transactions
+4. Answer the user's question based on the calculations
+
+## Available Data
+
+You have access to:
+- Accounts: Each has id, name, currency, and isArchived status
+- Categories: Each has id, name, type (INCOME/EXPENSE), and isArchived status
+- Active entities have precedence over archived entities when names match
+
+## Transaction Filtering
+
+The getTransactions tool accepts:
+- categoryIds (optional): Array of category IDs to filter by
+- accountIds (optional): Array of account IDs to filter by
+- If both are omitted, returns ALL transactions in the date range
+
+## Transaction Types
+
+Transaction types: INCOME, EXPENSE, REFUND, TRANSFER_IN, TRANSFER_OUT.
+- EXPENSE increases spending
+- REFUND decreases matching spending
+- INCOME and all TRANSFER types never affect spending
 
 ## Rules
 
-Transaction types: INCOME, EXPENSE, REFUND, TRANSFER_IN, TRANSFER_OUT.
-EXPENSE increases spending.
-REFUND decreases matching spending.
-INCOME and all TRANSFER types never affect spending.
-
-You must consider ALL provided transactions before answering.
-For each calculation, clearly identify which transactions are included and why.
-For each calculation, always state the number of transactions included.
-Use category first for matching; use description only if category is unclear.
-Apply the same matching rule consistently.
+- ALWAYS use getTransactions tool FIRST before performing calculations
+- Filter by category ID (not category name) when possible
+- For each calculation, clearly identify which transactions are included and why
+- For each calculation, always state the number of transactions included
+- Apply filtering consistently
 
 ## Output
 
-Do NOT repeat, reprint, or quote the transaction list or any transaction lines.
-Do NOT include per-transaction details (dates, merchants, descriptions, categories, accounts, amounts) unless the user explicitly asks to list/show transactions.
-Keep the answer concise and focused on the question.
-Respond in plain text.
+- Do NOT repeat, reprint, or quote the transaction list or any transaction lines
+- Do NOT include per-transaction details (dates, merchants, descriptions, categories, accounts, amounts) unless the user explicitly asks to list/show transactions
+- Keep the answer concise and focused on the question
+- Respond in plain text
 `.trim();
 
 interface DateRange {
@@ -56,12 +78,7 @@ export interface InsightInput {
 }
 
 export class InsightService {
-  constructor(
-    private transactionRepository: ITransactionRepository,
-    private accountRepository: IAccountRepository,
-    private categoryRepository: ICategoryRepository,
-    private aiAgent: AIAgent,
-  ) {}
+  constructor(private aiDataService: AiDataService) {}
 
   async call(userId: string, input: InsightInput): Promise<string> {
     if (!userId) {
@@ -83,36 +100,39 @@ export class InsightService {
 
     const validatedDateRange = this.validateDateRange(dateRange);
 
-    const transactions = await this.transactionRepository.findActiveByDateRange(
-      userId,
-      validatedDateRange.startDate,
-      validatedDateRange.endDate,
-    );
+    // Get metadata for accounts and categories
+    const accounts = await this.aiDataService.getAvailableAccounts(userId);
+    const categories = await this.aiDataService.getAvailableCategories(userId);
 
-    const accountNamesById = await this.buildAccountLookupMap(
-      transactions,
-      userId,
-    );
-    const categoryNamesById = await this.buildCategoryLookupMaps(
-      transactions,
-      userId,
-    );
-
-    const dataPayload = await this.buildDataPayload(
-      transactions,
+    // Build metadata payload
+    const metadataPayload = this.buildMetadataPayload(
+      accounts,
+      categories,
       validatedDateRange,
-      accountNamesById,
-      categoryNamesById,
     );
 
-    const systemPrompt = this.buildSystemPrompt();
+    // Create the getTransactions tool with closure over userId and dateRange
+    const getTransactionsTool = createGetTransactionsTool(
+      this.aiDataService,
+      userId,
+      validatedDateRange,
+    );
+
+    // Create AI agent with all tools including the dynamic getTransactions tool
+    const aiAgent = new LangchainBedrockAgent([
+      getTransactionsTool,
+      sumTool,
+      avgTool,
+      calculateTool,
+    ]);
+
+    const systemPrompt = this.buildSystemPrompt(metadataPayload);
     const userPrompt = this.buildUserPrompt(
       normalizedQuestion,
       validatedDateRange,
-      dataPayload,
     );
 
-    const response = await this.aiAgent.call(
+    const response = await aiAgent.call(
       [{ role: "user", content: userPrompt }],
       systemPrompt,
     );
@@ -128,18 +148,21 @@ export class InsightService {
 
     // Append tool executions to the response for observability
     if (response.toolExecutions && response.toolExecutions.length > 0) {
-      const calculations = response.toolExecutions.map(
-        (toolExecution, index) => {
-          const formattedInput = this.formatToolArguments(toolExecution.input);
-          return `${index + 1}. ${toolExecution.tool}(${formattedInput}) = ${toolExecution.output}`;
+      const usedToolDetails = response.toolExecutions.map(
+        (toolExecution: ToolExecution, index: number) => {
+          const formattedInput = this.formatJsonIfValid(toolExecution.input);
+          const formattedOutput = this.formatJsonIfValid(toolExecution.output);
+          return [
+            `${index + 1}. ${toolExecution.tool}`,
+            `Input:\n${formattedInput}`,
+            `Output:\n${formattedOutput}`,
+          ].join("\n");
         },
       );
 
       finalAnswer += "\n\n[DEBUG] Tools performed:\n";
-      finalAnswer += calculations.join("\n");
+      finalAnswer += usedToolDetails.join("\n\n");
     }
-
-    finalAnswer += `\n\n[DEBUG] Transactions:\n${dataPayload}`;
 
     return finalAnswer;
   }
@@ -206,145 +229,68 @@ export class InsightService {
     return parsed;
   }
 
-  private async buildDataPayload(
-    transactions: Transaction[],
+  private buildMetadataPayload(
+    accounts: {
+      id: string;
+      name: string;
+      currency: string;
+      isArchived: boolean;
+    }[],
+    categories: {
+      id: string;
+      name: string;
+      type: string;
+      isArchived: boolean;
+    }[],
     dateRange: DateRange,
-    accountNamesById: Map<string, string>,
-    categoryNamesById: Map<string, string>,
-  ): Promise<string> {
-    if (transactions.length === 0) {
-      return "No transactions found for this period.";
-    }
-
-    const transactionRows = transactions.map((transaction) => {
-      const accountName =
-        accountNamesById.get(transaction.accountId) ?? "Unknown account";
-
-      const categoryName = transaction.categoryId
-        ? (categoryNamesById.get(transaction.categoryId) ?? "Unknown category")
-        : "Uncategorized";
-
-      return {
-        date: transaction.date,
-        type: transaction.type,
-        amount: transaction.amount,
-        currency: transaction.currency,
-        account: accountName,
-        category: categoryName,
-        description: transaction.description || "",
-      };
-    });
-
-    return JSON.stringify(transactionRows, null, 2);
-  }
-
-  private async buildAccountLookupMap(
-    transactions: Transaction[],
-    userId: string,
-  ): Promise<Map<string, string>> {
-    const accountIds = Array.from(
-      new Set(transactions.map((transaction) => transaction.accountId)),
-    );
-
-    const accounts =
-      accountIds.length > 0
-        ? await this.accountRepository.findByIds(accountIds, userId)
-        : [];
-
-    const accountNamesById = new Map(
-      accounts.map((account) => [account.id, account.name]),
-    );
-
-    return accountNamesById;
-  }
-
-  private async buildCategoryLookupMaps(
-    transactions: Transaction[],
-    userId: string,
-  ): Promise<Map<string, string>> {
-    const categoryIds = Array.from(
-      new Set(
-        transactions
-          .map((transaction) => transaction.categoryId)
-          .filter((categoryId) => categoryId !== undefined),
-      ),
-    );
-
-    const categories =
-      categoryIds.length > 0
-        ? await this.categoryRepository.findByIds(categoryIds, userId)
-        : [];
-
-    const categoryNamesById = new Map(
-      categories.map((category) => [category.id, category.name]),
-    );
-
-    return categoryNamesById;
-  }
-
-  private buildUserPrompt(
-    question: string,
-    dateRange: DateRange,
-    dataPayload: string,
   ): string {
+    const accountsData = accounts.map((account) => ({
+      id: account.id,
+      name: account.name,
+      currency: account.currency,
+      isArchived: account.isArchived,
+    }));
+
+    const categoriesData = categories.map((category) => ({
+      id: category.id,
+      name: category.name,
+      type: category.type,
+      isArchived: category.isArchived,
+    }));
+
     return [
-      `I have a list of transactions between ${dateRange.startDate} and ${dateRange.endDate}.`,
-      "Here are the transactions:",
-      dataPayload,
+      `Date Range: ${dateRange.startDate} to ${dateRange.endDate}`,
+      "",
+      "Available Accounts:",
+      JSON.stringify(accountsData, null, 2),
+      "",
+      "Available Categories:",
+      JSON.stringify(categoriesData, null, 2),
+    ].join("\n");
+  }
+
+  private buildUserPrompt(question: string, dateRange: DateRange): string {
+    return [
+      `I have transactions between ${dateRange.startDate} and ${dateRange.endDate}.`,
       "",
       `My question: ${question}`,
     ].join("\n");
   }
 
-  private buildSystemPrompt(): string {
+  private buildSystemPrompt(metadataPayload: string): string {
     const currentDate = formatDateAsYYYYMMDD(new Date());
 
-    return SYSTEM_PROMPT + `\n\nToday's date is ${currentDate}.`;
+    return (
+      SYSTEM_PROMPT +
+      `\n\nToday's date is ${currentDate}.\n\n${metadataPayload}`
+    );
   }
 
-  private formatToolArguments(jsonInput: string): string {
+  private formatJsonIfValid(input: string): string {
     try {
-      const parsed = JSON.parse(jsonInput);
-
-      // If there's a single 'input' key with a string value, try parsing that
-      if (
-        Object.keys(parsed).length === 1 &&
-        "input" in parsed &&
-        typeof parsed.input === "string"
-      ) {
-        try {
-          const nestedParsed = JSON.parse(parsed.input);
-          return this.formatParsedArguments(nestedParsed);
-        } catch {
-          // If nested parsing fails, continue with outer parsed object
-        }
-      }
-
-      return this.formatParsedArguments(parsed);
+      return JSON.stringify(JSON.parse(input), null, 2);
     } catch {
-      // Fallback to simple string cleaning if parsing fails
-      return jsonInput
-        .replace(/^{|}$/g, "")
-        .replace(/"/g, "")
-        .replace(/,/g, ", ");
+      return input;
     }
-  }
-
-  private formatParsedArguments(parsed: Record<string, unknown>): string {
-    const entries = Object.entries(parsed);
-
-    if (entries.length === 0) {
-      return "";
-    }
-
-    // Format as "key: value" pairs
-    return entries
-      .map(([key, value]) => {
-        const formattedValue = Array.isArray(value)
-          ? `[${value.join(", ")}]`
-          : JSON.stringify(value);
-        return `${key}: ${formattedValue}`;
-      })
-      .join(", ");
   }
 }

@@ -1,50 +1,45 @@
 import { faker } from "@faker-js/faker";
-import {
-  fakeAccount,
-  fakeCategory,
-  fakeTransaction,
-} from "../__tests__/utils/factories";
-import {
-  createMockAccountRepository,
-  createMockCategoryRepository,
-  createMockTransactionRepository,
-} from "../__tests__/utils/mock-repositories";
-import { IAccountRepository } from "../models/account";
-import { type AIAgent } from "../models/ai-agent";
-import { ICategoryRepository } from "../models/category";
-import { ITransactionRepository, TransactionType } from "../models/transaction";
+import { fakeAccount, fakeCategory } from "../__tests__/utils/factories";
+import { CategoryType } from "../models/category";
 import { YEAR_RANGE_OFFSET } from "../types/validation";
+import { AiDataService } from "./ai-data-service";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
 import { type InsightInput, InsightService } from "./insight-service";
 
-const createMockAiAgent = (): jest.Mocked<AIAgent> => ({
-  call: jest.fn(),
-});
+// Mock the LangchainBedrockAgent
+jest.mock("../ai/langchain-bedrock-agent");
+
+const createMockAiDataService = (): jest.Mocked<AiDataService> =>
+  ({
+    getAvailableAccounts: jest.fn(),
+    getAvailableCategories: jest.fn(),
+    getFilteredTransactions: jest.fn(),
+  }) as unknown as jest.Mocked<AiDataService>;
 
 describe("InsightService", () => {
   let service: InsightService;
   let userId: string;
-  let mockTransactionRepository: jest.Mocked<ITransactionRepository>;
-  let mockAccountRepository: jest.Mocked<IAccountRepository>;
-  let mockCategoryRepository: jest.Mocked<ICategoryRepository>;
-  let mockAiAgent: jest.Mocked<AIAgent>;
+  let mockAiDataService: jest.Mocked<AiDataService>;
 
   beforeEach(() => {
-    mockTransactionRepository = createMockTransactionRepository();
-    mockAccountRepository = createMockAccountRepository();
-    mockCategoryRepository = createMockCategoryRepository();
-    mockAiAgent = createMockAiAgent();
+    mockAiDataService = createMockAiDataService();
 
-    service = new InsightService(
-      mockTransactionRepository,
-      mockAccountRepository,
-      mockCategoryRepository,
-      mockAiAgent,
-    );
+    service = new InsightService(mockAiDataService);
 
     userId = faker.string.uuid();
 
     jest.clearAllMocks();
+
+    // Mock the LangchainBedrockAgent to return a simple response
+    const { LangchainBedrockAgent } = jest.requireMock(
+      "../ai/langchain-bedrock-agent",
+    );
+    LangchainBedrockAgent.mockImplementation(() => ({
+      call: jest.fn().mockResolvedValue({
+        answer: "Mocked AI response",
+        toolExecutions: [],
+      }),
+    }));
   });
 
   describe("validation", () => {
@@ -62,9 +57,7 @@ describe("InsightService", () => {
         message: "User ID is required",
         code: BusinessErrorCodes.INVALID_PARAMETERS,
       });
-      expect(
-        mockTransactionRepository.findActiveByDateRange,
-      ).not.toHaveBeenCalled();
+      expect(mockAiDataService.getAvailableAccounts).not.toHaveBeenCalled();
     });
 
     it("should throw error when question is empty", async () => {
@@ -79,9 +72,7 @@ describe("InsightService", () => {
         message: "Question is required",
         code: BusinessErrorCodes.INVALID_PARAMETERS,
       });
-      expect(
-        mockTransactionRepository.findActiveByDateRange,
-      ).not.toHaveBeenCalled();
+      expect(mockAiDataService.getAvailableAccounts).not.toHaveBeenCalled();
     });
 
     it("should throw error when question is only whitespace", async () => {
@@ -231,68 +222,45 @@ describe("InsightService", () => {
       dateRange: { startDate: "2000-01-01", endDate: "2000-01-31" },
     };
 
-    it("should return AI response for valid input with transactions", async () => {
+    it("should return AI response for valid input", async () => {
       // Arrange
-      const accountId = faker.string.uuid();
-      const categoryId = faker.string.uuid();
-      const transactions = [
-        fakeTransaction({
-          userId,
-          accountId,
-          categoryId,
-          type: TransactionType.EXPENSE,
-          amount: 50,
-          date: "2000-01-15",
-        }),
-      ];
-      const accounts = [fakeAccount({ id: accountId, userId, name: "Cash" })];
+      const accounts = [fakeAccount({ userId, name: "Cash" })];
       const categories = [
-        fakeCategory({ id: categoryId, userId, name: "Food" }),
+        fakeCategory({ userId, name: "Food", type: CategoryType.EXPENSE }),
       ];
 
-      mockTransactionRepository.findActiveByDateRange.mockResolvedValue(
-        transactions,
-      );
-      mockAccountRepository.findByIds.mockResolvedValue(accounts);
-      mockCategoryRepository.findByIds.mockResolvedValue(categories);
-      mockAiAgent.call.mockResolvedValue({
-        answer: "Your food spending was $50.",
-        toolExecutions: [],
-      });
+      mockAiDataService.getAvailableAccounts.mockResolvedValue(accounts);
+      mockAiDataService.getAvailableCategories.mockResolvedValue(categories);
 
       // Act
       const result = await service.call(userId, validInput);
 
       // Assert
-      expect(result).toContain("Your food spending was $50.");
-      expect(
-        mockTransactionRepository.findActiveByDateRange,
-      ).toHaveBeenCalledWith(userId, "2000-01-01", "2000-01-31");
-      expect(mockAccountRepository.findByIds).toHaveBeenCalledWith(
-        [accountId],
+      expect(result).toContain("Mocked AI response");
+      expect(mockAiDataService.getAvailableAccounts).toHaveBeenCalledWith(
         userId,
       );
-      expect(mockCategoryRepository.findByIds).toHaveBeenCalledWith(
-        [categoryId],
+      expect(mockAiDataService.getAvailableCategories).toHaveBeenCalledWith(
         userId,
       );
     });
 
-    it("should return AI response when no transactions found", async () => {
+    it("should return AI response when no accounts or categories exist", async () => {
       // Arrange
-      mockTransactionRepository.findActiveByDateRange.mockResolvedValue([]);
-      mockAiAgent.call.mockResolvedValue({
-        answer: "No transactions found for this period.",
-        toolExecutions: [],
-      });
+      mockAiDataService.getAvailableAccounts.mockResolvedValue([]);
+      mockAiDataService.getAvailableCategories.mockResolvedValue([]);
 
       // Act
       const result = await service.call(userId, validInput);
 
       // Assert
-      expect(result).toContain("No transactions found for this period.");
-      expect(mockAccountRepository.findByIds).not.toHaveBeenCalled();
-      expect(mockCategoryRepository.findByIds).not.toHaveBeenCalled();
+      expect(result).toContain("Mocked AI response");
+      expect(mockAiDataService.getAvailableAccounts).toHaveBeenCalledWith(
+        userId,
+      );
+      expect(mockAiDataService.getAvailableCategories).toHaveBeenCalledWith(
+        userId,
+      );
     });
 
     it("should trim question whitespace", async () => {
@@ -301,93 +269,103 @@ describe("InsightService", () => {
         ...validInput,
         question: "  What is my spending?  ",
       };
-      mockTransactionRepository.findActiveByDateRange.mockResolvedValue([]);
-      mockAiAgent.call.mockResolvedValue({ answer: "Answer" });
+      mockAiDataService.getAvailableAccounts.mockResolvedValue([]);
+      mockAiDataService.getAvailableCategories.mockResolvedValue([]);
 
       // Act
       await service.call(userId, input);
 
       // Assert
-      const callArgs = mockAiAgent.call.mock.calls[0];
+      const { LangchainBedrockAgent } = jest.requireMock(
+        "../ai/langchain-bedrock-agent",
+      );
+      const mockInstance = LangchainBedrockAgent.mock.results[0].value;
+      const callArgs = mockInstance.call.mock.calls[0];
+
       expect(callArgs[0][0].content).toContain(
         "My question: What is my spending?",
       );
     });
 
-    it("should pass system prompt and user message to AI agent", async () => {
-      // Arrange
-      mockTransactionRepository.findActiveByDateRange.mockResolvedValue([]);
-      mockAiAgent.call.mockResolvedValue({ answer: "Answer" });
-
-      // Act
-      await service.call(userId, validInput);
-
-      // Assert
-      const callArgs = mockAiAgent.call.mock.calls[0];
-      const messages = callArgs[0];
-      const systemPrompt = callArgs[1];
-
-      expect(messages).toHaveLength(1);
-      expect(messages[0].role).toBe("user");
-      expect(messages[0].content).toContain("2000-01-01");
-      expect(messages[0].content).toContain("2000-01-31");
-      expect(messages[0].content).toContain(validInput.question);
-
-      expect(systemPrompt).toContain("You are a personal finance assistant");
-    });
-
-    it("should handle uncategorized transactions", async () => {
+    it("should include accounts and categories metadata in system prompt", async () => {
       // Arrange
       const accountId = faker.string.uuid();
-      const transactions = [
-        fakeTransaction({
+      const categoryId = faker.string.uuid();
+
+      const accounts = [
+        fakeAccount({ id: accountId, userId, name: "Cash", currency: "USD" }),
+      ];
+      const categories = [
+        fakeCategory({
+          id: categoryId,
           userId,
-          accountId,
-          categoryId: undefined,
-          type: TransactionType.EXPENSE,
+          name: "Food",
+          type: CategoryType.EXPENSE,
         }),
       ];
-      const accounts = [fakeAccount({ id: accountId, userId, name: "Wallet" })];
 
-      mockTransactionRepository.findActiveByDateRange.mockResolvedValue(
-        transactions,
-      );
-      mockAccountRepository.findByIds.mockResolvedValue(accounts);
-      mockCategoryRepository.findByIds.mockResolvedValue([]);
-      mockAiAgent.call.mockResolvedValue({ answer: "Answer" });
+      mockAiDataService.getAvailableAccounts.mockResolvedValue(accounts);
+      mockAiDataService.getAvailableCategories.mockResolvedValue(categories);
 
       // Act
       await service.call(userId, validInput);
 
       // Assert
-      expect(mockCategoryRepository.findByIds).not.toHaveBeenCalled();
-      expect(mockAiAgent.call).toHaveBeenCalled();
+      const { LangchainBedrockAgent } = jest.requireMock(
+        "../ai/langchain-bedrock-agent",
+      );
+      const mockInstance = LangchainBedrockAgent.mock.results[0].value;
+      const callArgs = mockInstance.call.mock.calls[0];
+      const systemPrompt = callArgs[1];
+
+      expect(systemPrompt).toContain("Available Accounts:");
+      expect(systemPrompt).toContain(accountId);
+      expect(systemPrompt).toContain("Cash");
+      expect(systemPrompt).toContain("USD");
+
+      expect(systemPrompt).toContain("Available Categories:");
+      expect(systemPrompt).toContain(categoryId);
+      expect(systemPrompt).toContain("Food");
+      expect(systemPrompt).toContain("EXPENSE");
     });
 
-    it("should propagate error when AI agent fails", async () => {
+    it("should propagate error when AiDataService fails", async () => {
       // Arrange
-      mockTransactionRepository.findActiveByDateRange.mockResolvedValue([]);
-      mockAiAgent.call.mockRejectedValue(new Error("AI service unavailable"));
+      mockAiDataService.getAvailableAccounts.mockRejectedValue(
+        new Error("Service unavailable"),
+      );
 
       // Act & Assert
       const promise = service.call(userId, validInput);
 
-      await expect(promise).rejects.toThrow("AI service unavailable");
+      await expect(promise).rejects.toThrow("Service unavailable");
     });
 
     it("should append tool executions to response when present", async () => {
       // Arrange
-      mockTransactionRepository.findActiveByDateRange.mockResolvedValue([]);
-      mockAiAgent.call.mockResolvedValue({
-        answer: "The total is $150.",
-        toolExecutions: [
-          {
-            tool: "sum",
-            input: JSON.stringify({ values: [50, 100] }),
-            output: "150",
-          },
-        ],
-      });
+      mockAiDataService.getAvailableAccounts.mockResolvedValue([]);
+      mockAiDataService.getAvailableCategories.mockResolvedValue([]);
+
+      const { LangchainBedrockAgent } = jest.requireMock(
+        "../ai/langchain-bedrock-agent",
+      );
+      LangchainBedrockAgent.mockImplementation(() => ({
+        call: jest.fn().mockResolvedValue({
+          answer: "The total is $150.",
+          toolExecutions: [
+            {
+              tool: "getTransactions",
+              input: JSON.stringify({ categoryIds: ["cat-1"] }),
+              output: "[]",
+            },
+            {
+              tool: "sum",
+              input: JSON.stringify({ numbers: [50, 100] }),
+              output: "150",
+            },
+          ],
+        }),
+      }));
 
       // Act
       const result = await service.call(userId, validInput);
@@ -395,7 +373,36 @@ describe("InsightService", () => {
       // Assert
       expect(result).toContain("The total is $150.");
       expect(result).toContain("Tools performed:");
-      expect(result).toContain("1. sum(values: [50, 100]) = 150");
+      expect(result).toContain("1. getTransactions");
+      expect(result).toContain('"categoryIds"');
+      expect(result).toContain("2. sum");
+      expect(result).toContain('"numbers"');
+      expect(result).toContain("Output: 150");
+    });
+
+    it("should throw error when AI returns empty response", async () => {
+      // Arrange
+      mockAiDataService.getAvailableAccounts.mockResolvedValue([]);
+      mockAiDataService.getAvailableCategories.mockResolvedValue([]);
+
+      const { LangchainBedrockAgent } = jest.requireMock(
+        "../ai/langchain-bedrock-agent",
+      );
+      LangchainBedrockAgent.mockImplementation(() => ({
+        call: jest.fn().mockResolvedValue({
+          answer: "",
+          toolExecutions: [],
+        }),
+      }));
+
+      // Act & Assert
+      const promise = service.call(userId, validInput);
+
+      await expect(promise).rejects.toThrow(BusinessError);
+      await expect(promise).rejects.toMatchObject({
+        message: "Empty response",
+        code: BusinessErrorCodes.EMPTY_RESPONSE,
+      });
     });
   });
 });
