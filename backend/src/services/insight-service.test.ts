@@ -1,11 +1,13 @@
 import { faker } from "@faker-js/faker";
 import { fakeAccount, fakeCategory } from "../__tests__/utils/factories";
-import { AIAgentFactory } from "../models/ai-agent";
-import { CategoryType } from "../models/category";
+import { AIAgent } from "../models/ai-agent";
 import { YEAR_RANGE_OFFSET } from "../types/validation";
 import { AiDataService } from "./ai-data-service";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
 import { type InsightInput, InsightService } from "./insight-service";
+
+// Mock the LangchainBedrockAgent
+jest.mock("../ai/langchain-bedrock-agent");
 
 const createMockAiDataService = (): jest.Mocked<AiDataService> =>
   ({
@@ -14,30 +16,21 @@ const createMockAiDataService = (): jest.Mocked<AiDataService> =>
     getFilteredTransactions: jest.fn(),
   }) as unknown as jest.Mocked<AiDataService>;
 
-const createMockAIAgentFactory = (): jest.Mocked<AIAgentFactory> => {
-  const mockAgent = {
-    call: jest.fn().mockResolvedValue({
-      answer: "Mocked AI response",
-      toolExecutions: [],
-    }),
-  };
-
-  return {
-    createAgent: jest.fn().mockReturnValue(mockAgent),
-  } as jest.Mocked<AIAgentFactory>;
-};
+const createMockAiAgent = (): jest.Mocked<AIAgent> => ({
+  call: jest.fn(),
+});
 
 describe("InsightService", () => {
   let service: InsightService;
   let userId: string;
   let mockAiDataService: jest.Mocked<AiDataService>;
-  let mockAiAgentFactory: jest.Mocked<AIAgentFactory>;
+  let mockAiAgent: jest.Mocked<AIAgent>;
 
   beforeEach(() => {
     mockAiDataService = createMockAiDataService();
-    mockAiAgentFactory = createMockAIAgentFactory();
+    mockAiAgent = createMockAiAgent();
 
-    service = new InsightService(mockAiDataService, mockAiAgentFactory);
+    service = new InsightService(mockAiDataService, mockAiAgent);
 
     userId = faker.string.uuid();
 
@@ -226,42 +219,40 @@ describe("InsightService", () => {
 
     it("should return AI response for valid input", async () => {
       // Arrange
-      const accounts = [fakeAccount({ userId, name: "Cash" })];
-      const categories = [
-        fakeCategory({ userId, name: "Food", type: CategoryType.EXPENSE }),
-      ];
-
-      mockAiDataService.getAvailableAccounts.mockResolvedValue(accounts);
-      mockAiDataService.getAvailableCategories.mockResolvedValue(categories);
-
-      // Act
-      const result = await service.call(userId, validInput);
-
-      // Assert
-      expect(result).toContain("Mocked AI response");
-      expect(mockAiDataService.getAvailableAccounts).toHaveBeenCalledWith(
-        userId,
-      );
-      expect(mockAiDataService.getAvailableCategories).toHaveBeenCalledWith(
-        userId,
-      );
-    });
-
-    it("should return AI response when no accounts or categories exist", async () => {
-      // Arrange
       mockAiDataService.getAvailableAccounts.mockResolvedValue([]);
       mockAiDataService.getAvailableCategories.mockResolvedValue([]);
 
+      mockAiAgent.call.mockResolvedValue({
+        answer: "Your food spending was $50.",
+        toolExecutions: [],
+      });
+
       // Act
       const result = await service.call(userId, validInput);
 
       // Assert
-      expect(result).toContain("Mocked AI response");
+      expect(result).toContain("Your food spending was $50.");
       expect(mockAiDataService.getAvailableAccounts).toHaveBeenCalledWith(
         userId,
       );
       expect(mockAiDataService.getAvailableCategories).toHaveBeenCalledWith(
         userId,
+      );
+      expect(mockAiAgent.call).toHaveBeenCalledWith(
+        expect.arrayContaining([
+          expect.objectContaining({
+            role: "user",
+            content: expect.stringContaining(
+              "Why did my food spending increase?",
+            ),
+          }),
+        ]),
+        expect.stringContaining("You are a personal finance assistant."),
+        {
+          userId,
+          dateRange: validInput.dateRange,
+          aiDataService: mockAiDataService,
+        },
       );
     });
 
@@ -273,16 +264,26 @@ describe("InsightService", () => {
       };
       mockAiDataService.getAvailableAccounts.mockResolvedValue([]);
       mockAiDataService.getAvailableCategories.mockResolvedValue([]);
+      mockAiAgent.call.mockResolvedValue({
+        answer: "Answer",
+        toolExecutions: [],
+      });
 
       // Act
       await service.call(userId, input);
 
       // Assert
-      const mockAgent = mockAiAgentFactory.createAgent.mock.results[0].value;
-      const callArgs = mockAgent.call.mock.calls[0];
-
-      expect(callArgs[0][0].content).toContain(
-        "My question: What is my spending?",
+      expect(mockAiAgent.call).toHaveBeenCalledWith(
+        expect.arrayContaining([
+          expect.objectContaining({
+            role: "user",
+            content: expect.stringContaining(
+              "My question: What is my spending?",
+            ),
+          }),
+        ]),
+        expect.any(String),
+        expect.any(Object),
       );
     });
 
@@ -292,37 +293,33 @@ describe("InsightService", () => {
       const categoryId = faker.string.uuid();
 
       const accounts = [
-        fakeAccount({ id: accountId, userId, name: "Cash", currency: "USD" }),
+        fakeAccount({ id: accountId, userId, name: "Cash Account" }),
       ];
       const categories = [
         fakeCategory({
           id: categoryId,
           userId,
-          name: "Food",
-          type: CategoryType.EXPENSE,
+          name: "Food Category",
         }),
       ];
 
       mockAiDataService.getAvailableAccounts.mockResolvedValue(accounts);
       mockAiDataService.getAvailableCategories.mockResolvedValue(categories);
 
+      mockAiAgent.call.mockResolvedValue({
+        answer: "Answer",
+        toolExecutions: [],
+      });
+
       // Act
       await service.call(userId, validInput);
 
       // Assert
-      const mockAgent = mockAiAgentFactory.createAgent.mock.results[0].value;
-      const callArgs = mockAgent.call.mock.calls[0];
-      const systemPrompt = callArgs[1];
+      expect(mockAiAgent.call.mock.calls[0][1]).toContain(accountId);
+      expect(mockAiAgent.call.mock.calls[0][1]).toContain("Cash Account");
 
-      expect(systemPrompt).toContain("Available Accounts:");
-      expect(systemPrompt).toContain(accountId);
-      expect(systemPrompt).toContain("Cash");
-      expect(systemPrompt).toContain("USD");
-
-      expect(systemPrompt).toContain("Available Categories:");
-      expect(systemPrompt).toContain(categoryId);
-      expect(systemPrompt).toContain("Food");
-      expect(systemPrompt).toContain("EXPENSE");
+      expect(mockAiAgent.call.mock.calls[0][1]).toContain(categoryId);
+      expect(mockAiAgent.call.mock.calls[0][1]).toContain("Food Category");
     });
 
     it("should propagate error when AiDataService fails", async () => {
@@ -337,32 +334,41 @@ describe("InsightService", () => {
       await expect(promise).rejects.toThrow("Service unavailable");
     });
 
+    it("should propagate error when AiAgent fails", async () => {
+      // Arrange
+      mockAiDataService.getAvailableAccounts.mockResolvedValue([]);
+      mockAiDataService.getAvailableCategories.mockResolvedValue([]);
+      mockAiAgent.call.mockRejectedValue(new Error("Service unavailable"));
+
+      // Act & Assert
+      const promise = service.call(userId, validInput);
+
+      await expect(promise).rejects.toThrow("Service unavailable");
+    });
+
     it("should append tool executions to response when present", async () => {
       // Arrange
       mockAiDataService.getAvailableAccounts.mockResolvedValue([]);
       mockAiDataService.getAvailableCategories.mockResolvedValue([]);
 
-      const mockAgentWithToolExecutions = {
-        call: jest.fn().mockResolvedValue({
-          answer: "The total is $150.",
-          toolExecutions: [
-            {
-              tool: "getTransactions",
-              input: JSON.stringify({ categoryIds: ["cat-1"] }),
-              output: "[]",
-            },
-            {
-              tool: "sum",
-              input: JSON.stringify({ numbers: [50, 100] }),
-              output: "150",
-            },
-          ],
-        }),
-      };
-
-      mockAiAgentFactory.createAgent.mockReturnValue(
-        mockAgentWithToolExecutions,
-      );
+      mockAiAgent.call.mockResolvedValue({
+        answer: "The total is $150.",
+        toolExecutions: [
+          {
+            tool: "getTransactions",
+            input: JSON.stringify({ categoryIds: ["food"] }),
+            output: JSON.stringify([
+              { amount: 100, categoryId: "food" },
+              { amount: 50, categoryId: "food" },
+            ]),
+          },
+          {
+            tool: "sum",
+            input: JSON.stringify({ numbers: [100, 50] }),
+            output: "150",
+          },
+        ],
+      });
 
       // Act
       const result = await service.call(userId, validInput);
@@ -378,21 +384,15 @@ describe("InsightService", () => {
       expect(result).toContain("150");
     });
 
-    it("should throw error when AI returns empty response", async () => {
+    it("should throw error when AIAgent returns empty response", async () => {
       // Arrange
       mockAiDataService.getAvailableAccounts.mockResolvedValue([]);
       mockAiDataService.getAvailableCategories.mockResolvedValue([]);
 
-      const mockAgentWithEmptyResponse = {
-        call: jest.fn().mockResolvedValue({
-          answer: "",
-          toolExecutions: [],
-        }),
-      };
-
-      mockAiAgentFactory.createAgent.mockReturnValue(
-        mockAgentWithEmptyResponse,
-      );
+      mockAiAgent.call.mockResolvedValue({
+        answer: "",
+        toolExecutions: [],
+      });
 
       // Act & Assert
       const promise = service.call(userId, validInput);

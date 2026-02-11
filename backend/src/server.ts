@@ -2,7 +2,9 @@ import { readFileSync } from "fs";
 import { join } from "path";
 import { ApolloServer } from "@apollo/server";
 import DataLoader from "dataloader";
-import { LangchainBedrockAgentFactory } from "./ai/langchain-bedrock-agent-factory";
+import { LangchainBedrockAgent } from "./ai/langchain-bedrock-agent";
+import { getTransactionsTool } from "./ai/langchain-data-tools";
+import { avgTool, calculateTool, sumTool } from "./ai/langchain-math-tools";
 import { AuthContext, JwtAuthService } from "./auth/jwt-auth";
 import { createAccountLoader } from "./dataloaders/account-loader";
 import { createCategoryLoader } from "./dataloaders/category-loader";
@@ -122,9 +124,14 @@ export async function createContext(req: {
       transactionRepository,
     );
 
-    const aiAgentFactory = new LangchainBedrockAgentFactory();
+    const aiAgent = new LangchainBedrockAgent([
+      avgTool,
+      calculateTool,
+      sumTool,
+      getTransactionsTool, // This will be defined in the InsightService file and imported here
+    ]);
 
-    insightService = new InsightService(aiDataService, aiAgentFactory);
+    insightService = new InsightService(aiDataService, aiAgent);
   }
 
   if (!transferService) {

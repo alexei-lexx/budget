@@ -1,10 +1,4 @@
-import {
-  avgTool,
-  calculateTool,
-  createGetTransactionsTool,
-  sumTool,
-} from "../ai/langchain-tools";
-import { AIAgentFactory, ToolExecution } from "../models/ai-agent";
+import { AIAgent } from "../models/ai-agent";
 import { YEAR_RANGE_OFFSET } from "../types/validation";
 import { formatDateAsYYYYMMDD } from "../utils/date";
 import { AiDataService } from "./ai-data-service";
@@ -70,7 +64,7 @@ export interface InsightInput {
 export class InsightService {
   constructor(
     private aiDataService: AiDataService,
-    private aiAgentFactory: AIAgentFactory,
+    private aiAgent: AIAgent,
   ) {}
 
   async call(userId: string, input: InsightInput): Promise<string> {
@@ -104,30 +98,20 @@ export class InsightService {
       validatedDateRange,
     );
 
-    // Create the getTransactions tool with closure over userId and dateRange
-    const getTransactionsTool = createGetTransactionsTool(
-      this.aiDataService,
-      userId,
-      validatedDateRange,
-    );
-
-    // Create AI agent with all tools including the dynamic getTransactions tool
-    const aiAgent = this.aiAgentFactory.createAgent([
-      getTransactionsTool,
-      sumTool,
-      avgTool,
-      calculateTool,
-    ]);
-
     const systemPrompt = this.buildSystemPrompt(metadataPayload);
     const userPrompt = this.buildUserPrompt(
       normalizedQuestion,
       validatedDateRange,
     );
 
-    const response = await aiAgent.call(
+    const response = await this.aiAgent.call(
       [{ role: "user", content: userPrompt }],
       systemPrompt,
+      {
+        userId,
+        dateRange: validatedDateRange,
+        aiDataService: this.aiDataService,
+      },
     );
 
     if (!response.answer) {
@@ -142,7 +126,7 @@ export class InsightService {
     // Append tool executions to the response for observability
     if (response.toolExecutions && response.toolExecutions.length > 0) {
       const usedToolDetails = response.toolExecutions.map(
-        (toolExecution: ToolExecution, index: number) => {
+        (toolExecution, index) => {
           const formattedInput = this.formatJsonIfValid(toolExecution.input);
           const formattedOutput = this.formatJsonIfValid(toolExecution.output);
           return [

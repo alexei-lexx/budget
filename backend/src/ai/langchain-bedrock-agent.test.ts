@@ -84,13 +84,42 @@ describe("LangchainBedrockAgent", () => {
       await agent.call(messages);
 
       // Assert
-      expect(mockReactAgent.invoke).toHaveBeenCalledWith({
+      expect(mockReactAgent.invoke).toHaveBeenCalledWith(
+        {
+          messages: [
+            { role: "user", content: "Question 1" },
+            { role: "assistant", content: "Answer 1" },
+            { role: "user", content: "Question 2" },
+          ],
+        },
+        { configurable: undefined },
+      );
+    });
+
+    it("should invoke agent with tool context", async () => {
+      // Arrange
+      const messages = [{ role: "user" as const, content: "Test question" }];
+      const toolContext = { userId: "user-123" };
+
+      mockReactAgent.invoke.mockResolvedValue({
         messages: [
-          { role: "user", content: "Question 1" },
-          { role: "assistant", content: "Answer 1" },
-          { role: "user", content: "Question 2" },
+          new AIMessage({
+            content: "Test answer",
+            tool_calls: [],
+          }),
         ],
       });
+
+      // Act
+      await agent.call(messages, undefined, toolContext);
+
+      // Assert
+      expect(mockReactAgent.invoke).toHaveBeenCalledWith(
+        {
+          messages: [{ role: "user", content: "Test question" }],
+        },
+        { configurable: { userId: "user-123" } },
+      );
     });
 
     it("should return answer from last message", async () => {

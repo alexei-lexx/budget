@@ -1,8 +1,6 @@
 import { tool } from "langchain";
 import { evaluate, mean, sum } from "mathjs";
 import { z } from "zod";
-import { AiDataService } from "../services/ai-data-service";
-import { DateRange } from "../types/date-range";
 
 export const sumTool = tool(
   (input: { numbers: number[] }) => sum(input.numbers).toString(),
@@ -51,41 +49,3 @@ export const calculateTool = tool(
     }),
   },
 );
-
-export function createGetTransactionsTool(
-  aiDataService: AiDataService,
-  userId: string,
-  dateRange: DateRange,
-) {
-  return tool(
-    async (input: { categoryIds?: string[]; accountIds?: string[] }) => {
-      const transactions = await aiDataService.getFilteredTransactions(
-        userId,
-        dateRange,
-        input.categoryIds,
-        input.accountIds,
-      );
-
-      return JSON.stringify(transactions);
-    },
-    {
-      name: "getTransactions",
-      description:
-        "Retrieve transactions filtered by category IDs and/or account IDs. If both categoryIds and accountIds are omitted, returns all transactions.",
-      schema: z.object({
-        categoryIds: z
-          .array(z.string())
-          .optional()
-          .describe(
-            "Optional array of category IDs to filter transactions. If provided, only transactions with these category IDs will be returned.",
-          ),
-        accountIds: z
-          .array(z.string())
-          .optional()
-          .describe(
-            "Optional array of account IDs to filter transactions. If provided, only transactions from these accounts will be returned.",
-          ),
-      }),
-    },
-  );
-}

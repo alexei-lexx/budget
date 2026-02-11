@@ -29,7 +29,11 @@ export class LangchainBedrockAgent implements AIAgent {
       });
   }
 
-  async call(messages: readonly AiMessage[], systemPrompt?: string) {
+  async call(
+    messages: readonly AiMessage[],
+    systemPrompt?: string,
+    toolContext?: Record<string, unknown>,
+  ) {
     // Create ReAct agent with tools
     const react = createAgent({
       model: this.model,
@@ -37,12 +41,15 @@ export class LangchainBedrockAgent implements AIAgent {
       systemPrompt,
     });
 
-    const response = await react.invoke({
-      messages: messages.map((msg) => ({
-        role: msg.role,
-        content: msg.content,
-      })),
-    });
+    const response = await react.invoke(
+      {
+        messages: messages.map((msg) => ({
+          role: msg.role,
+          content: msg.content,
+        })),
+      },
+      { configurable: toolContext },
+    );
 
     // Extract tool executions for user-facing summary
     const toolExecutionsMap = new Map<string, ToolExecution>();
