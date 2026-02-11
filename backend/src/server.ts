@@ -127,8 +127,8 @@ export async function createContext(req: {
     const aiAgent = new LangchainBedrockAgent([
       avgTool,
       calculateTool,
+      getTransactionsTool,
       sumTool,
-      getTransactionsTool, // This will be defined in the InsightService file and imported here
     ]);
 
     insightService = new InsightService(aiDataService, aiAgent);
