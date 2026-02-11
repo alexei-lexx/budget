@@ -2,7 +2,7 @@ import { AIAgent } from "../models/ai-agent";
 import { DateRange } from "../types/date-range";
 import { YEAR_RANGE_OFFSET } from "../types/validation";
 import { formatDateAsYYYYMMDD } from "../utils/date";
-import { AiDataService } from "./ai-data-service";
+import { AiAccount, AiCategory, AiDataService } from "./ai-data-service";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
 
 const MAX_PERIOD_DAYS = 366;
@@ -204,18 +204,8 @@ export class InsightService {
   }
 
   private buildMetadataPayload(
-    accounts: {
-      id: string;
-      name: string;
-      currency: string;
-      isArchived: boolean;
-    }[],
-    categories: {
-      id: string;
-      name: string;
-      type: string;
-      isArchived: boolean;
-    }[],
+    accounts: AiAccount[],
+    categories: AiCategory[],
     dateRange: DateRange,
   ): string {
     return [
