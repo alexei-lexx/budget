@@ -1,13 +1,11 @@
 import { faker } from "@faker-js/faker";
 import { fakeAccount, fakeCategory } from "../__tests__/utils/factories";
+import { AIAgentFactory } from "../models/ai-agent";
 import { CategoryType } from "../models/category";
 import { YEAR_RANGE_OFFSET } from "../types/validation";
 import { AiDataService } from "./ai-data-service";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
 import { type InsightInput, InsightService } from "./insight-service";
-
-// Mock the LangchainBedrockAgent
-jest.mock("../ai/langchain-bedrock-agent");
 
 const createMockAiDataService = (): jest.Mocked<AiDataService> =>
   ({
@@ -16,30 +14,34 @@ const createMockAiDataService = (): jest.Mocked<AiDataService> =>
     getFilteredTransactions: jest.fn(),
   }) as unknown as jest.Mocked<AiDataService>;
 
+const createMockAIAgentFactory = (): jest.Mocked<AIAgentFactory> => {
+  const mockAgent = {
+    call: jest.fn().mockResolvedValue({
+      answer: "Mocked AI response",
+      toolExecutions: [],
+    }),
+  };
+
+  return {
+    createAgent: jest.fn().mockReturnValue(mockAgent),
+  } as jest.Mocked<AIAgentFactory>;
+};
+
 describe("InsightService", () => {
   let service: InsightService;
   let userId: string;
   let mockAiDataService: jest.Mocked<AiDataService>;
+  let mockAiAgentFactory: jest.Mocked<AIAgentFactory>;
 
   beforeEach(() => {
     mockAiDataService = createMockAiDataService();
+    mockAiAgentFactory = createMockAIAgentFactory();
 
-    service = new InsightService(mockAiDataService);
+    service = new InsightService(mockAiDataService, mockAiAgentFactory);
 
     userId = faker.string.uuid();
 
     jest.clearAllMocks();
-
-    // Mock the LangchainBedrockAgent to return a simple response
-    const { LangchainBedrockAgent } = jest.requireMock(
-      "../ai/langchain-bedrock-agent",
-    );
-    LangchainBedrockAgent.mockImplementation(() => ({
-      call: jest.fn().mockResolvedValue({
-        answer: "Mocked AI response",
-        toolExecutions: [],
-      }),
-    }));
   });
 
   describe("validation", () => {
@@ -276,11 +278,8 @@ describe("InsightService", () => {
       await service.call(userId, input);
 
       // Assert
-      const { LangchainBedrockAgent } = jest.requireMock(
-        "../ai/langchain-bedrock-agent",
-      );
-      const mockInstance = LangchainBedrockAgent.mock.results[0].value;
-      const callArgs = mockInstance.call.mock.calls[0];
+      const mockAgent = mockAiAgentFactory.createAgent.mock.results[0].value;
+      const callArgs = mockAgent.call.mock.calls[0];
 
       expect(callArgs[0][0].content).toContain(
         "My question: What is my spending?",
@@ -311,11 +310,8 @@ describe("InsightService", () => {
       await service.call(userId, validInput);
 
       // Assert
-      const { LangchainBedrockAgent } = jest.requireMock(
-        "../ai/langchain-bedrock-agent",
-      );
-      const mockInstance = LangchainBedrockAgent.mock.results[0].value;
-      const callArgs = mockInstance.call.mock.calls[0];
+      const mockAgent = mockAiAgentFactory.createAgent.mock.results[0].value;
+      const callArgs = mockAgent.call.mock.calls[0];
       const systemPrompt = callArgs[1];
 
       expect(systemPrompt).toContain("Available Accounts:");
@@ -346,10 +342,7 @@ describe("InsightService", () => {
       mockAiDataService.getAvailableAccounts.mockResolvedValue([]);
       mockAiDataService.getAvailableCategories.mockResolvedValue([]);
 
-      const { LangchainBedrockAgent } = jest.requireMock(
-        "../ai/langchain-bedrock-agent",
-      );
-      LangchainBedrockAgent.mockImplementation(() => ({
+      const mockAgentWithToolExecutions = {
         call: jest.fn().mockResolvedValue({
           answer: "The total is $150.",
           toolExecutions: [
@@ -365,7 +358,11 @@ describe("InsightService", () => {
             },
           ],
         }),
-      }));
+      };
+
+      mockAiAgentFactory.createAgent.mockReturnValue(
+        mockAgentWithToolExecutions,
+      );
 
       // Act
       const result = await service.call(userId, validInput);
@@ -386,15 +383,16 @@ describe("InsightService", () => {
       mockAiDataService.getAvailableAccounts.mockResolvedValue([]);
       mockAiDataService.getAvailableCategories.mockResolvedValue([]);
 
-      const { LangchainBedrockAgent } = jest.requireMock(
-        "../ai/langchain-bedrock-agent",
-      );
-      LangchainBedrockAgent.mockImplementation(() => ({
+      const mockAgentWithEmptyResponse = {
         call: jest.fn().mockResolvedValue({
           answer: "",
           toolExecutions: [],
         }),
-      }));
+      };
+
+      mockAiAgentFactory.createAgent.mockReturnValue(
+        mockAgentWithEmptyResponse,
+      );
 
       // Act & Assert
       const promise = service.call(userId, validInput);

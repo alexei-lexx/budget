@@ -1,3 +1,5 @@
+import { StructuredTool } from "langchain";
+
 export interface AiMessage {
   role: "system" | "user" | "assistant";
   content: string;
@@ -14,4 +16,8 @@ export interface AIAgent {
     messages: readonly AiMessage[],
     systemPrompt?: string,
   ): Promise<{ answer: string; toolExecutions?: ToolExecution[] }>;
+}
+
+export interface AIAgentFactory {
+  createAgent(tools: readonly StructuredTool[]): AIAgent;
 }

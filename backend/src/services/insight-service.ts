@@ -1,11 +1,10 @@
-import { LangchainBedrockAgent } from "../ai/langchain-bedrock-agent";
 import {
   avgTool,
   calculateTool,
   createGetTransactionsTool,
   sumTool,
 } from "../ai/langchain-tools";
-import { ToolExecution } from "../models/ai-agent";
+import { AIAgentFactory, ToolExecution } from "../models/ai-agent";
 import { YEAR_RANGE_OFFSET } from "../types/validation";
 import { formatDateAsYYYYMMDD } from "../utils/date";
 import { AiDataService } from "./ai-data-service";
@@ -69,7 +68,10 @@ export interface InsightInput {
 }
 
 export class InsightService {
-  constructor(private aiDataService: AiDataService) {}
+  constructor(
+    private aiDataService: AiDataService,
+    private aiAgentFactory: AIAgentFactory,
+  ) {}
 
   async call(userId: string, input: InsightInput): Promise<string> {
     if (!userId) {
@@ -110,7 +112,7 @@ export class InsightService {
     );
 
     // Create AI agent with all tools including the dynamic getTransactions tool
-    const aiAgent = new LangchainBedrockAgent([
+    const aiAgent = this.aiAgentFactory.createAgent([
       getTransactionsTool,
       sumTool,
       avgTool,
