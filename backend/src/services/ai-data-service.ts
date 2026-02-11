@@ -1,11 +1,38 @@
-import { Account, IAccountRepository } from "../models/account";
-import { Category, ICategoryRepository } from "../models/category";
-import { ITransactionRepository, Transaction } from "../models/transaction";
+import { IAccountRepository } from "../models/account";
+import { ICategoryRepository } from "../models/category";
+import { ITransactionRepository } from "../models/transaction";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
 
 export interface DateRange {
   startDate: string;
   endDate: string;
+}
+
+// JSON-ready objects for AI consumption (excludes internal fields)
+export interface AiAccount {
+  id: string;
+  name: string;
+  currency: string;
+  isArchived: boolean;
+}
+
+export interface AiCategory {
+  id: string;
+  name: string;
+  type: string;
+  isArchived: boolean;
+}
+
+export interface AiTransaction {
+  id: string;
+  accountId: string;
+  categoryId: string | null;
+  type: string;
+  amount: number;
+  currency: string;
+  date: string;
+  description: string;
+  transferId: string | null;
 }
 
 export class AiDataService {
@@ -15,7 +42,7 @@ export class AiDataService {
     private transactionRepository: ITransactionRepository,
   ) {}
 
-  async getAvailableAccounts(userId: string): Promise<Account[]> {
+  async getAvailableAccounts(userId: string): Promise<AiAccount[]> {
     if (!userId) {
       throw new BusinessError(
         "User ID is required",
@@ -23,10 +50,17 @@ export class AiDataService {
       );
     }
 
-    return this.accountRepository.findActiveByUserId(userId);
+    const accounts = await this.accountRepository.findActiveByUserId(userId);
+
+    return accounts.map((account) => ({
+      id: account.id,
+      name: account.name,
+      currency: account.currency,
+      isArchived: account.isArchived,
+    }));
   }
 
-  async getAvailableCategories(userId: string): Promise<Category[]> {
+  async getAvailableCategories(userId: string): Promise<AiCategory[]> {
     if (!userId) {
       throw new BusinessError(
         "User ID is required",
@@ -34,7 +68,14 @@ export class AiDataService {
       );
     }
 
-    return this.categoryRepository.findActiveByUserId(userId);
+    const categories = await this.categoryRepository.findActiveByUserId(userId);
+
+    return categories.map((category) => ({
+      id: category.id,
+      name: category.name,
+      type: category.type,
+      isArchived: category.isArchived,
+    }));
   }
 
   async getFilteredTransactions(
@@ -42,7 +83,7 @@ export class AiDataService {
     dateRange: DateRange,
     categoryIds?: string[],
     accountIds?: string[],
-  ): Promise<Transaction[]> {
+  ): Promise<AiTransaction[]> {
     if (!userId) {
       throw new BusinessError(
         "User ID is required",
@@ -82,6 +123,16 @@ export class AiDataService {
       );
     }
 
-    return filteredTransactions;
+    return filteredTransactions.map((transaction) => ({
+      id: transaction.id,
+      accountId: transaction.accountId,
+      categoryId: transaction.categoryId ?? null,
+      type: transaction.type,
+      amount: transaction.amount,
+      currency: transaction.currency,
+      date: transaction.date,
+      description: transaction.description ?? "",
+      transferId: transaction.transferId ?? null,
+    }));
   }
 }

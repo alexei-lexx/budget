@@ -70,7 +70,7 @@ export function createGetTransactionsTool(
     {
       name: "getTransactions",
       description:
-        "Retrieve transactions filtered by category IDs and/or account IDs. If both categoryIds and accountIds are omitted, returns all transactions in the date range. Returns an array of transaction objects with fields: id, userId, accountId, categoryId, type, amount, currency, date, description, transferId, isArchived, createdAt, updatedAt. You should use this tool FIRST before performing any calculations to get the relevant transactions.",
+        "Retrieve transactions filtered by category IDs and/or account IDs. If both categoryIds and accountIds are omitted, returns all transactions in the date range. Returns an array of transaction objects with fields: id, accountId, categoryId, type, amount, currency, date, description, transferId. You should use this tool FIRST before performing any calculations to get the relevant transactions.",
       schema: z.object({
         categoryIds: z
           .array(z.string())

@@ -42,8 +42,8 @@ describe("AiDataService", () => {
     it("should return accounts for valid userId", async () => {
       // Arrange
       const accounts = [
-        fakeAccount({ userId, name: "Cash" }),
-        fakeAccount({ userId, name: "Bank" }),
+        fakeAccount({ userId, name: "Cash", currency: "USD" }),
+        fakeAccount({ userId, name: "Bank", currency: "EUR" }),
       ];
       mockAccountRepository.findActiveByUserId.mockResolvedValue(accounts);
 
@@ -51,7 +51,20 @@ describe("AiDataService", () => {
       const result = await service.getAvailableAccounts(userId);
 
       // Assert
-      expect(result).toEqual(accounts);
+      expect(result).toEqual([
+        {
+          id: accounts[0].id,
+          name: "Cash",
+          currency: "USD",
+          isArchived: false,
+        },
+        {
+          id: accounts[1].id,
+          name: "Bank",
+          currency: "EUR",
+          isArchived: false,
+        },
+      ]);
       expect(mockAccountRepository.findActiveByUserId).toHaveBeenCalledWith(
         userId,
       );
@@ -94,7 +107,20 @@ describe("AiDataService", () => {
       const result = await service.getAvailableCategories(userId);
 
       // Assert
-      expect(result).toEqual(categories);
+      expect(result).toEqual([
+        {
+          id: categories[0].id,
+          name: "Food",
+          type: CategoryType.EXPENSE,
+          isArchived: false,
+        },
+        {
+          id: categories[1].id,
+          name: "Salary",
+          type: CategoryType.INCOME,
+          isArchived: false,
+        },
+      ]);
       expect(mockCategoryRepository.findActiveByUserId).toHaveBeenCalledWith(
         userId,
       );
@@ -146,7 +172,18 @@ describe("AiDataService", () => {
       );
 
       // Assert
-      expect(result).toEqual(transactions);
+      expect(result).toHaveLength(2);
+      expect(result[0]).toEqual({
+        id: transactions[0].id,
+        accountId: transactions[0].accountId,
+        categoryId: transactions[0].categoryId ?? null,
+        type: transactions[0].type,
+        amount: transactions[0].amount,
+        currency: transactions[0].currency,
+        date: transactions[0].date,
+        description: transactions[0].description ?? "",
+        transferId: transactions[0].transferId ?? null,
+      });
       expect(
         mockTransactionRepository.findActiveByDateRange,
       ).toHaveBeenCalledWith(userId, "2000-01-01", "2000-01-31");
@@ -369,7 +406,9 @@ describe("AiDataService", () => {
       );
 
       // Assert
-      expect(result).toEqual(transactions);
+      expect(result).toHaveLength(2);
+      expect(result[0].id).toBe(transactions[0].id);
+      expect(result[1].id).toBe(transactions[1].id);
     });
 
     it("should handle empty categoryIds array as no filter", async () => {
@@ -391,7 +430,9 @@ describe("AiDataService", () => {
       );
 
       // Assert
-      expect(result).toEqual(transactions);
+      expect(result).toHaveLength(2);
+      expect(result[0].id).toBe(transactions[0].id);
+      expect(result[1].id).toBe(transactions[1].id);
     });
   });
 });

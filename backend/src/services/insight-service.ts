@@ -26,7 +26,7 @@ You must use the getTransactions tool to retrieve relevant transactions, then pe
 ## Workflow
 
 1. First, review the available accounts and categories provided in the context
-2. Use the getTransactions tool to retrieve transactions filtered by category IDs and/or account IDs
+2. Use the getTransactions tool to retrieve relevant transactions
 3. Use sum, avg, or calculate tools to perform mathematical operations on the retrieved transactions
 4. Answer the user's question based on the calculations
 
@@ -37,13 +37,6 @@ You have access to:
 - Categories: Each has id, name, type (INCOME/EXPENSE), and isArchived status
 - Active entities have precedence over archived entities when names match
 
-## Transaction Filtering
-
-The getTransactions tool accepts:
-- categoryIds (optional): Array of category IDs to filter by
-- accountIds (optional): Array of account IDs to filter by
-- If both are omitted, returns ALL transactions in the date range
-
 ## Transaction Types
 
 Transaction types: INCOME, EXPENSE, REFUND, TRANSFER_IN, TRANSFER_OUT.
@@ -53,8 +46,6 @@ Transaction types: INCOME, EXPENSE, REFUND, TRANSFER_IN, TRANSFER_OUT.
 
 ## Rules
 
-- ALWAYS use getTransactions tool FIRST before performing calculations
-- Filter by category ID (not category name) when possible
 - For each calculation, clearly identify which transactions are included and why
 - For each calculation, always state the number of transactions included
 - Apply filtering consistently
@@ -244,28 +235,14 @@ export class InsightService {
     }[],
     dateRange: DateRange,
   ): string {
-    const accountsData = accounts.map((account) => ({
-      id: account.id,
-      name: account.name,
-      currency: account.currency,
-      isArchived: account.isArchived,
-    }));
-
-    const categoriesData = categories.map((category) => ({
-      id: category.id,
-      name: category.name,
-      type: category.type,
-      isArchived: category.isArchived,
-    }));
-
     return [
       `Date Range: ${dateRange.startDate} to ${dateRange.endDate}`,
       "",
       "Available Accounts:",
-      JSON.stringify(accountsData, null, 2),
+      JSON.stringify(accounts, null, 2),
       "",
       "Available Categories:",
-      JSON.stringify(categoriesData, null, 2),
+      JSON.stringify(categories, null, 2),
     ].join("\n");
   }
 

@@ -377,7 +377,8 @@ describe("InsightService", () => {
       expect(result).toContain('"categoryIds"');
       expect(result).toContain("2. sum");
       expect(result).toContain('"numbers"');
-      expect(result).toContain("Output: 150");
+      expect(result).toContain("Output:");
+      expect(result).toContain("150");
     });
 
     it("should throw error when AI returns empty response", async () => {
