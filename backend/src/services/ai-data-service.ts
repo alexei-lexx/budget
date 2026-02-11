@@ -1,12 +1,8 @@
 import { IAccountRepository } from "../models/account";
 import { ICategoryRepository } from "../models/category";
 import { ITransactionRepository } from "../models/transaction";
+import { DateRange } from "../types/date-range";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
-
-export interface DateRange {
-  startDate: string;
-  endDate: string;
-}
 
 // JSON-ready objects for AI consumption (excludes internal fields)
 export interface AiAccount {

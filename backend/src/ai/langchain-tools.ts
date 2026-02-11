@@ -1,7 +1,8 @@
 import { tool } from "langchain";
 import { evaluate, mean, sum } from "mathjs";
 import { z } from "zod";
-import { AiDataService, DateRange } from "../services/ai-data-service";
+import { AiDataService } from "../services/ai-data-service";
+import { DateRange } from "../types/date-range";
 
 export const sumTool = tool(
   (input: { numbers: number[] }) => sum(input.numbers).toString(),
