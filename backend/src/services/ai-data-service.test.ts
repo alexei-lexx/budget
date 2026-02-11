@@ -189,16 +189,15 @@ describe("AiDataService", () => {
       ).toHaveBeenCalledWith(userId, "2000-01-01", "2000-01-31");
     });
 
-    it("should filter transactions by accountIds", async () => {
+    it("should filter transactions by accountId", async () => {
       // Arrange
       const accountId1 = faker.string.uuid();
       const accountId2 = faker.string.uuid();
-      const accountId3 = faker.string.uuid();
 
       const transactions = [
         fakeTransaction({ userId, accountId: accountId1 }),
         fakeTransaction({ userId, accountId: accountId2 }),
-        fakeTransaction({ userId, accountId: accountId3 }),
+        fakeTransaction({ userId, accountId: accountId1 }),
       ];
       mockTransactionRepository.findActiveByDateRange.mockResolvedValue(
         transactions,
@@ -208,26 +207,25 @@ describe("AiDataService", () => {
       const result = await service.getFilteredTransactions(
         userId,
         dateRange,
+        accountId1,
         undefined,
-        [accountId1, accountId3],
       );
 
       // Assert
       expect(result).toHaveLength(2);
       expect(result[0].accountId).toBe(accountId1);
-      expect(result[1].accountId).toBe(accountId3);
+      expect(result[1].accountId).toBe(accountId1);
     });
 
-    it("should filter transactions by categoryIds", async () => {
+    it("should filter transactions by categoryId", async () => {
       // Arrange
       const categoryId1 = faker.string.uuid();
       const categoryId2 = faker.string.uuid();
-      const categoryId3 = faker.string.uuid();
 
       const transactions = [
         fakeTransaction({ userId, categoryId: categoryId1 }),
         fakeTransaction({ userId, categoryId: categoryId2 }),
-        fakeTransaction({ userId, categoryId: categoryId3 }),
+        fakeTransaction({ userId, categoryId: categoryId1 }),
       ];
       mockTransactionRepository.findActiveByDateRange.mockResolvedValue(
         transactions,
@@ -237,17 +235,17 @@ describe("AiDataService", () => {
       const result = await service.getFilteredTransactions(
         userId,
         dateRange,
-        [categoryId1, categoryId3],
         undefined,
+        categoryId1,
       );
 
       // Assert
       expect(result).toHaveLength(2);
       expect(result[0].categoryId).toBe(categoryId1);
-      expect(result[1].categoryId).toBe(categoryId3);
+      expect(result[1].categoryId).toBe(categoryId1);
     });
 
-    it("should filter transactions by both accountIds and categoryIds", async () => {
+    it("should filter transactions by both accountId and categoryId", async () => {
       // Arrange
       const accountId1 = faker.string.uuid();
       const accountId2 = faker.string.uuid();
@@ -284,19 +282,17 @@ describe("AiDataService", () => {
       const result = await service.getFilteredTransactions(
         userId,
         dateRange,
-        [categoryId1],
-        [accountId1, accountId2],
+        accountId1,
+        categoryId1,
       );
 
       // Assert
-      expect(result).toHaveLength(2);
+      expect(result).toHaveLength(1);
       expect(result[0].accountId).toBe(accountId1);
       expect(result[0].categoryId).toBe(categoryId1);
-      expect(result[1].accountId).toBe(accountId2);
-      expect(result[1].categoryId).toBe(categoryId1);
     });
 
-    it("should exclude transactions without categoryId when filtering by categoryIds", async () => {
+    it("should exclude transactions without categoryId when filtering by categoryId", async () => {
       // Arrange
       const categoryId1 = faker.string.uuid();
 
@@ -312,8 +308,8 @@ describe("AiDataService", () => {
       const result = await service.getFilteredTransactions(
         userId,
         dateRange,
-        [categoryId1],
         undefined,
+        categoryId1,
       );
 
       // Assert
@@ -337,8 +333,8 @@ describe("AiDataService", () => {
       const result = await service.getFilteredTransactions(
         userId,
         dateRange,
+        accountId,
         undefined,
-        [accountId],
       );
 
       // Assert
@@ -385,54 +381,6 @@ describe("AiDataService", () => {
         message: "Start date and end date are required",
         code: BusinessErrorCodes.INVALID_PARAMETERS,
       });
-    });
-
-    it("should handle empty accountIds array as no filter", async () => {
-      // Arrange
-      const transactions = [
-        fakeTransaction({ userId }),
-        fakeTransaction({ userId }),
-      ];
-      mockTransactionRepository.findActiveByDateRange.mockResolvedValue(
-        transactions,
-      );
-
-      // Act
-      const result = await service.getFilteredTransactions(
-        userId,
-        dateRange,
-        undefined,
-        [],
-      );
-
-      // Assert
-      expect(result).toHaveLength(2);
-      expect(result[0].id).toBe(transactions[0].id);
-      expect(result[1].id).toBe(transactions[1].id);
-    });
-
-    it("should handle empty categoryIds array as no filter", async () => {
-      // Arrange
-      const transactions = [
-        fakeTransaction({ userId }),
-        fakeTransaction({ userId }),
-      ];
-      mockTransactionRepository.findActiveByDateRange.mockResolvedValue(
-        transactions,
-      );
-
-      // Act
-      const result = await service.getFilteredTransactions(
-        userId,
-        dateRange,
-        [],
-        undefined,
-      );
-
-      // Assert
-      expect(result).toHaveLength(2);
-      expect(result[0].id).toBe(transactions[0].id);
-      expect(result[1].id).toBe(transactions[1].id);
     });
   });
 });

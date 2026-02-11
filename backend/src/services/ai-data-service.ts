@@ -77,8 +77,8 @@ export class AiDataService {
   async getFilteredTransactions(
     userId: string,
     dateRange: DateRange,
-    categoryIds?: string[],
-    accountIds?: string[],
+    accountId?: string,
+    categoryId?: string,
   ): Promise<AiTransaction[]> {
     if (!userId) {
       throw new BusinessError(
@@ -104,18 +104,15 @@ export class AiDataService {
     // Apply filters if provided
     let filteredTransactions = transactions;
 
-    if (accountIds && accountIds.length > 0) {
-      const accountIdSet = new Set(accountIds);
-      filteredTransactions = filteredTransactions.filter((transaction) =>
-        accountIdSet.has(transaction.accountId),
+    if (accountId) {
+      filteredTransactions = filteredTransactions.filter(
+        (transaction) => transaction.accountId === accountId,
       );
     }
 
-    if (categoryIds && categoryIds.length > 0) {
-      const categoryIdSet = new Set(categoryIds);
+    if (categoryId) {
       filteredTransactions = filteredTransactions.filter(
-        (transaction) =>
-          transaction.categoryId && categoryIdSet.has(transaction.categoryId),
+        (transaction) => transaction.categoryId === categoryId,
       );
     }
 

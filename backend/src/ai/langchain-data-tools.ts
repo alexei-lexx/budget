@@ -5,7 +5,7 @@ import { AiDataService } from "../services/ai-data-service";
 
 export const getTransactionsTool = tool(
   async (
-    input: { categoryIds?: string[]; accountIds?: string[] },
+    input: { categoryId?: string; accountId?: string },
     runnableConfig: RunnableConfig<Record<string, unknown>>,
   ) => {
     const toolContext = runnableConfig.configurable;
@@ -57,8 +57,8 @@ export const getTransactionsTool = tool(
           startDate: toolContext.dateRange.startDate,
           endDate: toolContext.dateRange.endDate,
         },
-        input.categoryIds,
-        input.accountIds,
+        input.accountId,
+        input.categoryId,
       );
 
     return JSON.stringify(transactions);
@@ -66,19 +66,19 @@ export const getTransactionsTool = tool(
   {
     name: "getTransactions",
     description:
-      "Retrieve transactions filtered by category IDs and/or account IDs. If both categoryIds and accountIds are omitted, returns all transactions.",
+      "Retrieve transactions filtered by category ID and/or account ID. If both categoryId and accountId are omitted, returns all transactions.",
     schema: z.object({
-      categoryIds: z
-        .array(z.string())
+      accountId: z
+        .string()
         .optional()
         .describe(
-          "Optional array of category IDs to filter transactions. If provided, only transactions with these category IDs will be returned.",
+          "Optional account ID to filter transactions. If provided, only transactions from this account will be returned.",
         ),
-      accountIds: z
-        .array(z.string())
+      categoryId: z
+        .string()
         .optional()
         .describe(
-          "Optional array of account IDs to filter transactions. If provided, only transactions from these accounts will be returned.",
+          "Optional category ID to filter transactions. If provided, only transactions with this category will be returned.",
         ),
     }),
   },
