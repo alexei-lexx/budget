@@ -1,6 +1,6 @@
 import { IAccountRepository } from "../models/account";
-import { ICategoryRepository } from "../models/category";
-import { ITransactionRepository } from "../models/transaction";
+import { CategoryType, ICategoryRepository } from "../models/category";
+import { ITransactionRepository, TransactionType } from "../models/transaction";
 import { DateRange } from "../types/date-range";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
 
@@ -15,7 +15,7 @@ export interface AiAccount {
 export interface AiCategory {
   id: string;
   name: string;
-  type: string;
+  type: CategoryType;
   isArchived: boolean;
 }
 
@@ -23,7 +23,7 @@ export interface AiTransaction {
   id: string;
   accountId: string;
   categoryId: string | null;
-  type: string;
+  type: TransactionType;
   amount: number;
   currency: string;
   date: string;
