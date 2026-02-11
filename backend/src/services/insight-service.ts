@@ -1,4 +1,5 @@
 import { AIAgent } from "../models/ai-agent";
+import { DateRange } from "../types/date-range";
 import { YEAR_RANGE_OFFSET } from "../types/validation";
 import { formatDateAsYYYYMMDD } from "../utils/date";
 import { AiDataService } from "./ai-data-service";
@@ -51,11 +52,6 @@ Transaction types: INCOME, EXPENSE, REFUND, TRANSFER_IN, TRANSFER_OUT.
 - Respond in plain text
 - Do not respond in markdown or any other formatting
 `.trim();
-
-interface DateRange {
-  startDate: string;
-  endDate: string;
-}
 
 export interface InsightInput {
   question: string;
