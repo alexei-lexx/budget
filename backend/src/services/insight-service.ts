@@ -22,7 +22,7 @@ And then perform calculations based on those transactions to answer the question
 First, review the available accounts and categories provided in the context.
 Retrieve relevant transactions.
 Do calculations based on the retrieved transactions.
-Retrieve and calculate as many times as needed to answer the question.
+Retrieve and calculate for each sub-question if needed.
 Answer the user's question based on the calculations.
 
 ## Available Data
