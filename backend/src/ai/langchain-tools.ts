@@ -71,7 +71,7 @@ export function createGetTransactionsTool(
     {
       name: "getTransactions",
       description:
-        "Retrieve transactions filtered by category IDs and/or account IDs. If both categoryIds and accountIds are omitted, returns all transactions. Returns an array of transaction objects with fields: id, accountId, categoryId, type, amount, currency, date, description, transferId.",
+        "Retrieve transactions filtered by category IDs and/or account IDs. If both categoryIds and accountIds are omitted, returns all transactions.",
       schema: z.object({
         categoryIds: z
           .array(z.string())
