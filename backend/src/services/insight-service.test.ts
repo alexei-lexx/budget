@@ -52,7 +52,7 @@ describe("InsightService", () => {
         message: "User ID is required",
         code: BusinessErrorCodes.INVALID_PARAMETERS,
       });
-      expect(mockAiDataService.getAvailableAccounts).not.toHaveBeenCalled();
+      expect(mockAiDataService.getAllAccounts).not.toHaveBeenCalled();
     });
 
     it("should throw error when question is empty", async () => {
@@ -67,7 +67,7 @@ describe("InsightService", () => {
         message: "Question is required",
         code: BusinessErrorCodes.INVALID_PARAMETERS,
       });
-      expect(mockAiDataService.getAvailableAccounts).not.toHaveBeenCalled();
+      expect(mockAiDataService.getAllAccounts).not.toHaveBeenCalled();
     });
 
     it("should throw error when question is only whitespace", async () => {
@@ -219,8 +219,8 @@ describe("InsightService", () => {
 
     it("should return AI response for valid input", async () => {
       // Arrange
-      mockAiDataService.getAvailableAccounts.mockResolvedValue([]);
-      mockAiDataService.getAvailableCategories.mockResolvedValue([]);
+      mockAiDataService.getAllAccounts.mockResolvedValue([]);
+      mockAiDataService.getAllCategories.mockResolvedValue([]);
 
       mockAiAgent.call.mockResolvedValue({
         answer: "Your food spending was $50.",
@@ -232,12 +232,8 @@ describe("InsightService", () => {
 
       // Assert
       expect(result).toContain("Your food spending was $50.");
-      expect(mockAiDataService.getAvailableAccounts).toHaveBeenCalledWith(
-        userId,
-      );
-      expect(mockAiDataService.getAvailableCategories).toHaveBeenCalledWith(
-        userId,
-      );
+      expect(mockAiDataService.getAllAccounts).toHaveBeenCalledWith(userId);
+      expect(mockAiDataService.getAllCategories).toHaveBeenCalledWith(userId);
       expect(mockAiAgent.call).toHaveBeenCalledWith(
         expect.arrayContaining([
           expect.objectContaining({
@@ -262,8 +258,8 @@ describe("InsightService", () => {
         ...validInput,
         question: "  What is my spending?  ",
       };
-      mockAiDataService.getAvailableAccounts.mockResolvedValue([]);
-      mockAiDataService.getAvailableCategories.mockResolvedValue([]);
+      mockAiDataService.getAllAccounts.mockResolvedValue([]);
+      mockAiDataService.getAllCategories.mockResolvedValue([]);
       mockAiAgent.call.mockResolvedValue({
         answer: "Answer",
         toolExecutions: [],
@@ -303,8 +299,8 @@ describe("InsightService", () => {
         }),
       ];
 
-      mockAiDataService.getAvailableAccounts.mockResolvedValue(accounts);
-      mockAiDataService.getAvailableCategories.mockResolvedValue(categories);
+      mockAiDataService.getAllAccounts.mockResolvedValue(accounts);
+      mockAiDataService.getAllCategories.mockResolvedValue(categories);
 
       mockAiAgent.call.mockResolvedValue({
         answer: "Answer",
@@ -324,7 +320,7 @@ describe("InsightService", () => {
 
     it("should propagate error when AiDataService fails", async () => {
       // Arrange
-      mockAiDataService.getAvailableAccounts.mockRejectedValue(
+      mockAiDataService.getAllAccounts.mockRejectedValue(
         new Error("Service unavailable"),
       );
 
@@ -336,8 +332,8 @@ describe("InsightService", () => {
 
     it("should propagate error when AiAgent fails", async () => {
       // Arrange
-      mockAiDataService.getAvailableAccounts.mockResolvedValue([]);
-      mockAiDataService.getAvailableCategories.mockResolvedValue([]);
+      mockAiDataService.getAllAccounts.mockResolvedValue([]);
+      mockAiDataService.getAllCategories.mockResolvedValue([]);
       mockAiAgent.call.mockRejectedValue(new Error("Service unavailable"));
 
       // Act & Assert
@@ -348,8 +344,8 @@ describe("InsightService", () => {
 
     it("should append tool executions to response when present", async () => {
       // Arrange
-      mockAiDataService.getAvailableAccounts.mockResolvedValue([]);
-      mockAiDataService.getAvailableCategories.mockResolvedValue([]);
+      mockAiDataService.getAllAccounts.mockResolvedValue([]);
+      mockAiDataService.getAllCategories.mockResolvedValue([]);
 
       mockAiAgent.call.mockResolvedValue({
         answer: "The total is $150.",
@@ -386,8 +382,8 @@ describe("InsightService", () => {
 
     it("should throw error when AIAgent returns empty response", async () => {
       // Arrange
-      mockAiDataService.getAvailableAccounts.mockResolvedValue([]);
-      mockAiDataService.getAvailableCategories.mockResolvedValue([]);
+      mockAiDataService.getAllAccounts.mockResolvedValue([]);
+      mockAiDataService.getAllCategories.mockResolvedValue([]);
 
       mockAiAgent.call.mockResolvedValue({
         answer: "",

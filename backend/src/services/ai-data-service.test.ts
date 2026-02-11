@@ -38,7 +38,7 @@ describe("AiDataService", () => {
     jest.clearAllMocks();
   });
 
-  describe("getAvailableAccounts", () => {
+  describe("getAllAccounts", () => {
     it("should return accounts for valid userId", async () => {
       // Arrange
       const accounts = [
@@ -48,7 +48,7 @@ describe("AiDataService", () => {
       mockAccountRepository.findActiveByUserId.mockResolvedValue(accounts);
 
       // Act
-      const result = await service.getAvailableAccounts(userId);
+      const result = await service.getAllAccounts(userId);
 
       // Assert
       expect(result).toEqual([
@@ -72,7 +72,7 @@ describe("AiDataService", () => {
 
     it("should throw error when userId is empty", async () => {
       // Act & Assert
-      const promise = service.getAvailableAccounts("");
+      const promise = service.getAllAccounts("");
 
       await expect(promise).rejects.toThrow(BusinessError);
       await expect(promise).rejects.toMatchObject({
@@ -87,14 +87,14 @@ describe("AiDataService", () => {
       mockAccountRepository.findActiveByUserId.mockResolvedValue([]);
 
       // Act
-      const result = await service.getAvailableAccounts(userId);
+      const result = await service.getAllAccounts(userId);
 
       // Assert
       expect(result).toEqual([]);
     });
   });
 
-  describe("getAvailableCategories", () => {
+  describe("getAllCategories", () => {
     it("should return categories for valid userId", async () => {
       // Arrange
       const categories = [
@@ -104,7 +104,7 @@ describe("AiDataService", () => {
       mockCategoryRepository.findActiveByUserId.mockResolvedValue(categories);
 
       // Act
-      const result = await service.getAvailableCategories(userId);
+      const result = await service.getAllCategories(userId);
 
       // Assert
       expect(result).toEqual([
@@ -128,7 +128,7 @@ describe("AiDataService", () => {
 
     it("should throw error when userId is empty", async () => {
       // Act & Assert
-      const promise = service.getAvailableCategories("");
+      const promise = service.getAllCategories("");
 
       await expect(promise).rejects.toThrow(BusinessError);
       await expect(promise).rejects.toMatchObject({
@@ -143,7 +143,7 @@ describe("AiDataService", () => {
       mockCategoryRepository.findActiveByUserId.mockResolvedValue([]);
 
       // Act
-      const result = await service.getAvailableCategories(userId);
+      const result = await service.getAllCategories(userId);
 
       // Assert
       expect(result).toEqual([]);

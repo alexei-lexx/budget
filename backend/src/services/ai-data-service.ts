@@ -38,7 +38,7 @@ export class AiDataService {
     private transactionRepository: ITransactionRepository,
   ) {}
 
-  async getAvailableAccounts(userId: string): Promise<AiAccount[]> {
+  async getAllAccounts(userId: string): Promise<AiAccount[]> {
     if (!userId) {
       throw new BusinessError(
         "User ID is required",
@@ -56,7 +56,7 @@ export class AiDataService {
     }));
   }
 
-  async getAvailableCategories(userId: string): Promise<AiCategory[]> {
+  async getAllCategories(userId: string): Promise<AiCategory[]> {
     if (!userId) {
       throw new BusinessError(
         "User ID is required",

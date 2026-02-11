@@ -88,8 +88,8 @@ export class InsightService {
     const validatedDateRange = this.validateDateRange(dateRange);
 
     // Get metadata for accounts and categories
-    const accounts = await this.aiDataService.getAvailableAccounts(userId);
-    const categories = await this.aiDataService.getAvailableCategories(userId);
+    const accounts = await this.aiDataService.getAllAccounts(userId);
+    const categories = await this.aiDataService.getAllCategories(userId);
 
     // Build metadata payload
     const metadataPayload = this.buildMetadataPayload(
