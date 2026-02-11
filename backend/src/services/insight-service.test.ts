@@ -6,13 +6,10 @@ import { AiDataService } from "./ai-data-service";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
 import { type InsightInput, InsightService } from "./insight-service";
 
-// Mock the LangchainBedrockAgent
-jest.mock("../ai/langchain-bedrock-agent");
-
 const createMockAiDataService = (): jest.Mocked<AiDataService> =>
   ({
-    getAvailableAccounts: jest.fn(),
-    getAvailableCategories: jest.fn(),
+    getAllAccounts: jest.fn(),
+    getAllCategories: jest.fn(),
     getFilteredTransactions: jest.fn(),
   }) as unknown as jest.Mocked<AiDataService>;
 
