@@ -264,7 +264,7 @@ describe("InsightService", () => {
       const result = await service.call(userId, validInput);
 
       // Assert
-      expect(result).toBe("Your food spending was $50.");
+      expect(result).toContain("Your food spending was $50.");
       expect(
         mockTransactionRepository.findActiveByDateRange,
       ).toHaveBeenCalledWith(userId, "2000-01-01", "2000-01-31");
@@ -290,7 +290,7 @@ describe("InsightService", () => {
       const result = await service.call(userId, validInput);
 
       // Assert
-      expect(result).toBe("No transactions found for this period.");
+      expect(result).toContain("No transactions found for this period.");
       expect(mockAccountRepository.findByIds).not.toHaveBeenCalled();
       expect(mockCategoryRepository.findByIds).not.toHaveBeenCalled();
     });

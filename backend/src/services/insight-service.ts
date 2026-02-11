@@ -135,9 +135,11 @@ export class InsightService {
         },
       );
 
-      finalAnswer += "\n\nTools performed:\n";
+      finalAnswer += "\n\n[DEBUG] Tools performed:\n";
       finalAnswer += calculations.join("\n");
     }
+
+    finalAnswer += `\n\n[DEBUG] Transactions:\n${dataPayload}`;
 
     return finalAnswer;
   }
