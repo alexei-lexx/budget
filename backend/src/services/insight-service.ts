@@ -66,7 +66,7 @@ export class InsightService {
   constructor(
     private aiDataService: AiDataService,
     private aiAgent: AIAgent,
-  ) { }
+  ) {}
 
   async call(userId: string, input: InsightInput): Promise<string> {
     if (!userId) {
