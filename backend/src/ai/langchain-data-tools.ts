@@ -47,6 +47,10 @@ export const getTransactionsTool = tool(
     input: { categoryId?: string; accountId?: string },
     runtime: ToolRuntime,
   ) => {
+    if (!runtime.config) {
+      throw new Error("Runtime config is required for getTransactionsTool");
+    }
+
     const context = runtime.config.configurable;
 
     if (!isToolContext(context)) {
