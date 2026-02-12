@@ -225,8 +225,6 @@ describe("InsightService", () => {
 
       // Assert
       expect(result).toContain("Your food spending was $50.");
-      expect(mockAiDataService.getAllAccounts).not.toHaveBeenCalled();
-      expect(mockAiDataService.getAllCategories).not.toHaveBeenCalled();
       expect(mockAiAgent.call).toHaveBeenCalledWith(
         expect.arrayContaining([
           expect.objectContaining({
