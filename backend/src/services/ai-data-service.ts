@@ -46,7 +46,7 @@ export class AiDataService {
       );
     }
 
-    const accounts = await this.accountRepository.findActiveByUserId(userId);
+    const accounts = await this.accountRepository.findAllByUserId(userId);
 
     return accounts.map((account) => ({
       id: account.id,
@@ -64,7 +64,7 @@ export class AiDataService {
       );
     }
 
-    const categories = await this.categoryRepository.findActiveByUserId(userId);
+    const categories = await this.categoryRepository.findAllByUserId(userId);
 
     return categories.map((category) => ({
       id: category.id,

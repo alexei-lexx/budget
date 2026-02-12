@@ -88,6 +88,44 @@ export class AccountRepository implements IAccountRepository {
     }
   }
 
+  async findAllByUserId(userId: string): Promise<Account[]> {
+    if (!userId) {
+      throw new AccountRepositoryError(
+        "User ID is required",
+        "INVALID_USER_ID",
+      );
+    }
+
+    try {
+      const result = await paginateQuery<Account>({
+        client: this.client,
+        params: {
+          TableName: this.tableName,
+          KeyConditionExpression: "userId = :userId",
+          ExpressionAttributeValues: {
+            ":userId": userId,
+          },
+        },
+        options: {}, // No pageSize = get all items
+        schema: accountSchema,
+      });
+
+      const accounts = result.items;
+
+      // Sort accounts by name (case-insensitive)
+      return accounts.sort((a, b) =>
+        a.name.toLowerCase().localeCompare(b.name.toLowerCase()),
+      );
+    } catch (error) {
+      console.error("Error finding all accounts by user ID:", error);
+      throw new AccountRepositoryError(
+        "Failed to find all accounts",
+        "QUERY_FAILED",
+        error,
+      );
+    }
+  }
+
   async findActiveById(id: string, userId: string): Promise<Account | null> {
     if (!id || !userId) {
       throw new AccountRepositoryError(

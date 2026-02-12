@@ -45,7 +45,7 @@ describe("AiDataService", () => {
         fakeAccount({ userId, name: "Cash", currency: "USD" }),
         fakeAccount({ userId, name: "Bank", currency: "EUR" }),
       ];
-      mockAccountRepository.findActiveByUserId.mockResolvedValue(accounts);
+      mockAccountRepository.findAllByUserId.mockResolvedValue(accounts);
 
       // Act
       const result = await service.getAllAccounts(userId);
@@ -65,7 +65,7 @@ describe("AiDataService", () => {
           isArchived: false,
         },
       ]);
-      expect(mockAccountRepository.findActiveByUserId).toHaveBeenCalledWith(
+      expect(mockAccountRepository.findAllByUserId).toHaveBeenCalledWith(
         userId,
       );
     });
@@ -79,18 +79,57 @@ describe("AiDataService", () => {
         message: "User ID is required",
         code: BusinessErrorCodes.INVALID_PARAMETERS,
       });
-      expect(mockAccountRepository.findActiveByUserId).not.toHaveBeenCalled();
+      expect(mockAccountRepository.findAllByUserId).not.toHaveBeenCalled();
     });
 
     it("should return empty array when no accounts exist", async () => {
       // Arrange
-      mockAccountRepository.findActiveByUserId.mockResolvedValue([]);
+      mockAccountRepository.findAllByUserId.mockResolvedValue([]);
 
       // Act
       const result = await service.getAllAccounts(userId);
 
       // Assert
       expect(result).toEqual([]);
+    });
+
+    it("should include archived accounts", async () => {
+      // Arrange
+      const accounts = [
+        fakeAccount({
+          userId,
+          name: "Cash",
+          currency: "USD",
+          isArchived: false,
+        }),
+        fakeAccount({
+          userId,
+          name: "Old Account",
+          currency: "EUR",
+          isArchived: true,
+        }),
+      ];
+      mockAccountRepository.findAllByUserId.mockResolvedValue(accounts);
+
+      // Act
+      const result = await service.getAllAccounts(userId);
+
+      // Assert
+      expect(result).toEqual([
+        {
+          id: accounts[0].id,
+          name: "Cash",
+          currency: "USD",
+          isArchived: false,
+        },
+        {
+          id: accounts[1].id,
+          name: "Old Account",
+          currency: "EUR",
+          isArchived: true,
+        },
+      ]);
+      expect(result[1].isArchived).toBe(true);
     });
   });
 
@@ -101,7 +140,7 @@ describe("AiDataService", () => {
         fakeCategory({ userId, name: "Food", type: CategoryType.EXPENSE }),
         fakeCategory({ userId, name: "Salary", type: CategoryType.INCOME }),
       ];
-      mockCategoryRepository.findActiveByUserId.mockResolvedValue(categories);
+      mockCategoryRepository.findAllByUserId.mockResolvedValue(categories);
 
       // Act
       const result = await service.getAllCategories(userId);
@@ -121,7 +160,7 @@ describe("AiDataService", () => {
           isArchived: false,
         },
       ]);
-      expect(mockCategoryRepository.findActiveByUserId).toHaveBeenCalledWith(
+      expect(mockCategoryRepository.findAllByUserId).toHaveBeenCalledWith(
         userId,
       );
     });
@@ -135,18 +174,57 @@ describe("AiDataService", () => {
         message: "User ID is required",
         code: BusinessErrorCodes.INVALID_PARAMETERS,
       });
-      expect(mockCategoryRepository.findActiveByUserId).not.toHaveBeenCalled();
+      expect(mockCategoryRepository.findAllByUserId).not.toHaveBeenCalled();
     });
 
     it("should return empty array when no categories exist", async () => {
       // Arrange
-      mockCategoryRepository.findActiveByUserId.mockResolvedValue([]);
+      mockCategoryRepository.findAllByUserId.mockResolvedValue([]);
 
       // Act
       const result = await service.getAllCategories(userId);
 
       // Assert
       expect(result).toEqual([]);
+    });
+
+    it("should include archived categories", async () => {
+      // Arrange
+      const categories = [
+        fakeCategory({
+          userId,
+          name: "Food",
+          type: CategoryType.EXPENSE,
+          isArchived: false,
+        }),
+        fakeCategory({
+          userId,
+          name: "Old Category",
+          type: CategoryType.INCOME,
+          isArchived: true,
+        }),
+      ];
+      mockCategoryRepository.findAllByUserId.mockResolvedValue(categories);
+
+      // Act
+      const result = await service.getAllCategories(userId);
+
+      // Assert
+      expect(result).toEqual([
+        {
+          id: categories[0].id,
+          name: "Food",
+          type: CategoryType.EXPENSE,
+          isArchived: false,
+        },
+        {
+          id: categories[1].id,
+          name: "Old Category",
+          type: CategoryType.INCOME,
+          isArchived: true,
+        },
+      ]);
+      expect(result[1].isArchived).toBe(true);
     });
   });
 
