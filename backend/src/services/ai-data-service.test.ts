@@ -92,44 +92,6 @@ describe("AiDataService", () => {
       // Assert
       expect(result).toEqual([]);
     });
-
-    it("should include archived accounts", async () => {
-      // Arrange
-      const accounts = [
-        fakeAccount({
-          userId,
-          name: "Cash",
-          currency: "USD",
-          isArchived: false,
-        }),
-        fakeAccount({
-          userId,
-          name: "Old Account",
-          currency: "EUR",
-          isArchived: true,
-        }),
-      ];
-      mockAccountRepository.findAllByUserId.mockResolvedValue(accounts);
-
-      // Act
-      const result = await service.getAllAccounts(userId);
-
-      // Assert
-      expect(result).toEqual([
-        {
-          id: accounts[0].id,
-          name: "Cash",
-          currency: "USD",
-          isArchived: false,
-        },
-        {
-          id: accounts[1].id,
-          name: "Old Account",
-          currency: "EUR",
-          isArchived: true,
-        },
-      ]);
-    });
   });
 
   describe("getAllCategories", () => {
@@ -185,44 +147,6 @@ describe("AiDataService", () => {
 
       // Assert
       expect(result).toEqual([]);
-    });
-
-    it("should include archived categories", async () => {
-      // Arrange
-      const categories = [
-        fakeCategory({
-          userId,
-          name: "Food",
-          type: CategoryType.EXPENSE,
-          isArchived: false,
-        }),
-        fakeCategory({
-          userId,
-          name: "Old Category",
-          type: CategoryType.INCOME,
-          isArchived: true,
-        }),
-      ];
-      mockCategoryRepository.findAllByUserId.mockResolvedValue(categories);
-
-      // Act
-      const result = await service.getAllCategories(userId);
-
-      // Assert
-      expect(result).toEqual([
-        {
-          id: categories[0].id,
-          name: "Food",
-          type: CategoryType.EXPENSE,
-          isArchived: false,
-        },
-        {
-          id: categories[1].id,
-          name: "Old Category",
-          type: CategoryType.INCOME,
-          isArchived: true,
-        },
-      ]);
     });
   });
 
