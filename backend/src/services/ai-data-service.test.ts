@@ -129,7 +129,6 @@ describe("AiDataService", () => {
           isArchived: true,
         },
       ]);
-      expect(result[1].isArchived).toBe(true);
     });
   });
 
@@ -224,7 +223,6 @@ describe("AiDataService", () => {
           isArchived: true,
         },
       ]);
-      expect(result[1].isArchived).toBe(true);
     });
   });
 
