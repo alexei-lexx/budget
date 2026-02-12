@@ -117,9 +117,7 @@ export class CategoryRepository implements ICategoryRepository {
         schema: categorySchema,
       });
 
-      const categories = result.items;
-
-      return sortCategories(categories);
+      return result.items;
     } catch (error) {
       console.error("Error finding all categories by user ID:", error);
       throw new CategoryRepositoryError(

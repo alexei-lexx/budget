@@ -110,12 +110,7 @@ export class AccountRepository implements IAccountRepository {
         schema: accountSchema,
       });
 
-      const accounts = result.items;
-
-      // Sort accounts by name (case-insensitive)
-      return accounts.sort((a, b) =>
-        a.name.toLowerCase().localeCompare(b.name.toLowerCase()),
-      );
+      return result.items;
     } catch (error) {
       console.error("Error finding all accounts by user ID:", error);
       throw new AccountRepositoryError(
