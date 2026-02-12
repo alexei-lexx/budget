@@ -77,7 +77,7 @@ export class InsightService {
 
     const validatedDateRange = this.validateDateRange(dateRange);
 
-    const systemPrompt = this.buildSystemPrompt(validatedDateRange);
+    const systemPrompt = this.buildSystemPrompt();
     const userPrompt = this.buildUserPrompt(
       normalizedQuestion,
       validatedDateRange,
@@ -193,13 +193,10 @@ export class InsightService {
     ].join("\n");
   }
 
-  private buildSystemPrompt(dateRange: DateRange): string {
+  private buildSystemPrompt(): string {
     const currentDate = formatDateAsYYYYMMDD(new Date());
 
-    return (
-      SYSTEM_PROMPT +
-      `\n\nToday's date is ${currentDate}.\n\nDate Range: ${dateRange.startDate} to ${dateRange.endDate}`
-    );
+    return SYSTEM_PROMPT + `\n\nToday's date is ${currentDate}.`;
   }
 
   private formatJsonIfValid(input: string): string {
