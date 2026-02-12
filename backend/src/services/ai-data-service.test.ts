@@ -45,7 +45,7 @@ describe("AiDataService", () => {
         fakeAccount({ userId, name: "Cash", currency: "USD" }),
         fakeAccount({ userId, name: "Bank", currency: "EUR" }),
       ];
-      mockAccountRepository.findActiveByUserId.mockResolvedValue(accounts);
+      mockAccountRepository.findAllByUserId.mockResolvedValue(accounts);
 
       // Act
       const result = await service.getAllAccounts(userId);
@@ -65,7 +65,7 @@ describe("AiDataService", () => {
           isArchived: false,
         },
       ]);
-      expect(mockAccountRepository.findActiveByUserId).toHaveBeenCalledWith(
+      expect(mockAccountRepository.findAllByUserId).toHaveBeenCalledWith(
         userId,
       );
     });
@@ -79,12 +79,12 @@ describe("AiDataService", () => {
         message: "User ID is required",
         code: BusinessErrorCodes.INVALID_PARAMETERS,
       });
-      expect(mockAccountRepository.findActiveByUserId).not.toHaveBeenCalled();
+      expect(mockAccountRepository.findAllByUserId).not.toHaveBeenCalled();
     });
 
     it("should return empty array when no accounts exist", async () => {
       // Arrange
-      mockAccountRepository.findActiveByUserId.mockResolvedValue([]);
+      mockAccountRepository.findAllByUserId.mockResolvedValue([]);
 
       // Act
       const result = await service.getAllAccounts(userId);
@@ -101,7 +101,7 @@ describe("AiDataService", () => {
         fakeCategory({ userId, name: "Food", type: CategoryType.EXPENSE }),
         fakeCategory({ userId, name: "Salary", type: CategoryType.INCOME }),
       ];
-      mockCategoryRepository.findActiveByUserId.mockResolvedValue(categories);
+      mockCategoryRepository.findAllByUserId.mockResolvedValue(categories);
 
       // Act
       const result = await service.getAllCategories(userId);
@@ -121,7 +121,7 @@ describe("AiDataService", () => {
           isArchived: false,
         },
       ]);
-      expect(mockCategoryRepository.findActiveByUserId).toHaveBeenCalledWith(
+      expect(mockCategoryRepository.findAllByUserId).toHaveBeenCalledWith(
         userId,
       );
     });
@@ -135,12 +135,12 @@ describe("AiDataService", () => {
         message: "User ID is required",
         code: BusinessErrorCodes.INVALID_PARAMETERS,
       });
-      expect(mockCategoryRepository.findActiveByUserId).not.toHaveBeenCalled();
+      expect(mockCategoryRepository.findAllByUserId).not.toHaveBeenCalled();
     });
 
     it("should return empty array when no categories exist", async () => {
       // Arrange
-      mockCategoryRepository.findActiveByUserId.mockResolvedValue([]);
+      mockCategoryRepository.findAllByUserId.mockResolvedValue([]);
 
       // Act
       const result = await service.getAllCategories(userId);
