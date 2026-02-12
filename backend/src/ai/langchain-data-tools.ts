@@ -5,10 +5,6 @@ import { AiDataService } from "../services/ai-data-service";
 
 interface ToolContext {
   userId: string;
-  dateRange?: {
-    startDate: string;
-    endDate: string;
-  };
   aiDataService: AiDataService;
 }
 
@@ -19,18 +15,9 @@ interface ToolContextWithDateRange extends ToolContext {
   };
 }
 
-function validateToolContext(
+function validateBaseToolContext(
   runnableConfig: RunnableConfig<Record<string, unknown>>,
-  options: { requireDateRange: true },
-): ToolContextWithDateRange;
-function validateToolContext(
-  runnableConfig: RunnableConfig<Record<string, unknown>>,
-  options?: { requireDateRange?: false },
-): ToolContext;
-function validateToolContext(
-  runnableConfig: RunnableConfig<Record<string, unknown>>,
-  options: { requireDateRange?: boolean } = {},
-): ToolContext | ToolContextWithDateRange {
+): ToolContext {
   const toolContext = runnableConfig.configurable;
 
   if (!toolContext) {
@@ -39,33 +26,6 @@ function validateToolContext(
 
   if (!toolContext.userId || typeof toolContext.userId !== "string") {
     throw new Error("Tool context must have a valid userId");
-  }
-
-  if (options.requireDateRange) {
-    if (
-      typeof toolContext.dateRange !== "object" ||
-      toolContext.dateRange === null
-    ) {
-      throw new Error("Tool context must have a valid dateRange");
-    }
-
-    if (
-      !(
-        "startDate" in toolContext.dateRange &&
-        typeof toolContext.dateRange.startDate === "string"
-      )
-    ) {
-      throw new Error("Tool context dateRange must have a valid startDate");
-    }
-
-    if (
-      !(
-        "endDate" in toolContext.dateRange &&
-        typeof toolContext.dateRange.endDate === "string"
-      )
-    ) {
-      throw new Error("Tool context dateRange must have a valid endDate");
-    }
   }
 
   if (
@@ -78,14 +38,56 @@ function validateToolContext(
   return toolContext as ToolContext;
 }
 
+function validateToolContextWithDateRange(
+  runnableConfig: RunnableConfig<Record<string, unknown>>,
+): ToolContextWithDateRange {
+  const toolContext = validateBaseToolContext(runnableConfig);
+  const contextWithDateRange = toolContext as ToolContext & {
+    dateRange?: unknown;
+  };
+
+  if (
+    typeof contextWithDateRange.dateRange !== "object" ||
+    contextWithDateRange.dateRange === null
+  ) {
+    throw new Error("Tool context must have a valid dateRange");
+  }
+
+  const dateRange = contextWithDateRange.dateRange as Record<string, unknown>;
+
+  if (
+    !(
+      "startDate" in dateRange &&
+      typeof dateRange.startDate === "string"
+    )
+  ) {
+    throw new Error("Tool context dateRange must have a valid startDate");
+  }
+
+  if (
+    !(
+      "endDate" in dateRange &&
+      typeof dateRange.endDate === "string"
+    )
+  ) {
+    throw new Error("Tool context dateRange must have a valid endDate");
+  }
+
+  return {
+    ...toolContext,
+    dateRange: {
+      startDate: dateRange.startDate,
+      endDate: dateRange.endDate,
+    },
+  };
+}
+
 export const getTransactionsTool = tool(
   async (
     input: { categoryId?: string; accountId?: string },
     runnableConfig: RunnableConfig<Record<string, unknown>>,
   ) => {
-    const toolContext = validateToolContext(runnableConfig, {
-      requireDateRange: true,
-    });
+    const toolContext = validateToolContextWithDateRange(runnableConfig);
 
     const transactions =
       await toolContext.aiDataService.getFilteredTransactions(
@@ -123,7 +125,7 @@ export const getTransactionsTool = tool(
 
 export const getAccountsTool = tool(
   async (_input, runnableConfig: RunnableConfig<Record<string, unknown>>) => {
-    const toolContext = validateToolContext(runnableConfig);
+    const toolContext = validateBaseToolContext(runnableConfig);
 
     const accounts = await toolContext.aiDataService.getAllAccounts(
       toolContext.userId,
@@ -141,7 +143,7 @@ export const getAccountsTool = tool(
 
 export const getCategoriesTool = tool(
   async (_input, runnableConfig: RunnableConfig<Record<string, unknown>>) => {
-    const toolContext = validateToolContext(runnableConfig);
+    const toolContext = validateBaseToolContext(runnableConfig);
 
     const categories = await toolContext.aiDataService.getAllCategories(
       toolContext.userId,

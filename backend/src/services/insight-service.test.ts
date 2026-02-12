@@ -274,7 +274,7 @@ describe("InsightService", () => {
       );
     });
 
-    it("should include tool references in system prompt", async () => {
+    it("should not include hardcoded tool names in system prompt", async () => {
       // Arrange
       mockAiAgent.call.mockResolvedValue({
         answer: "Answer",
@@ -286,9 +286,10 @@ describe("InsightService", () => {
 
       // Assert
       const systemPrompt = mockAiAgent.call.mock.calls[0][1];
-      expect(systemPrompt).toContain("getAccounts");
-      expect(systemPrompt).toContain("getCategories");
-      expect(systemPrompt).toContain("getTransactions");
+      expect(systemPrompt).toContain("available tools");
+      expect(systemPrompt).not.toContain("getAccounts");
+      expect(systemPrompt).not.toContain("getCategories");
+      expect(systemPrompt).not.toContain("getTransactions");
       expect(systemPrompt).not.toContain("Available Accounts:");
       expect(systemPrompt).not.toContain("Available Categories:");
     });

@@ -20,18 +20,10 @@ And then perform calculations based on those transactions to answer the question
 
 ## Workflow
 
-When needed, use the getAccounts and getCategories tools to review the available accounts and categories.
-Retrieve relevant transactions using the getTransactions tool.
+When needed, use the available tools to review accounts, categories, and retrieve transactions.
 Do calculations based on the retrieved transactions.
 Retrieve and calculate for each sub-question if needed.
 Answer the user's question based on the calculations.
-
-## Available Tools
-
-- getAccounts: Retrieve all user accounts with id, name, currency, and isArchived status
-- getCategories: Retrieve all user categories with id, name, type (INCOME/EXPENSE), and isArchived status
-- getTransactions: Retrieve transactions filtered by category ID and/or account ID
-- Active entities (isArchived=false) have precedence over archived entities when names match
 
 ## Transaction Types
 
