@@ -85,10 +85,7 @@ export const getTransactionsTool = tool(
 );
 
 export const getAccountsTool = tool(
-  async (
-    _input: object,
-    runnableConfig: RunnableConfig<Record<string, unknown>>,
-  ) => {
+  async (_input, runnableConfig: RunnableConfig<Record<string, unknown>>) => {
     const toolContext = runnableConfig.configurable;
 
     if (!toolContext) {
@@ -115,16 +112,13 @@ export const getAccountsTool = tool(
   {
     name: "getAccounts",
     description:
-      "Retrieve all user accounts. Each account has id, name, currency, and isArchived status. Active accounts (isArchived=false) have precedence over archived accounts when names match.",
+      "Retrieve all user accounts. Each account has id, name, currency, and isArchived status.",
     schema: z.object({}),
   },
 );
 
 export const getCategoriesTool = tool(
-  async (
-    _input: object,
-    runnableConfig: RunnableConfig<Record<string, unknown>>,
-  ) => {
+  async (_input, runnableConfig: RunnableConfig<Record<string, unknown>>) => {
     const toolContext = runnableConfig.configurable;
 
     if (!toolContext) {
@@ -151,7 +145,7 @@ export const getCategoriesTool = tool(
   {
     name: "getCategories",
     description:
-      "Retrieve all user categories. Each category has id, name, type (INCOME or EXPENSE), and isArchived status. Active categories (isArchived=false) have precedence over archived categories when names match.",
+      "Retrieve all user categories. Each category has id, name, type (INCOME or EXPENSE), and isArchived status.",
     schema: z.object({}),
   },
 );
