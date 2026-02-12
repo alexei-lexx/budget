@@ -62,8 +62,6 @@ function validateToolContextWithDateRange(
 
   if (
     !(
-      typeof dateRange === "object" &&
-      dateRange !== null &&
       "startDate" in dateRange &&
       typeof dateRange.startDate === "string"
     )
@@ -73,8 +71,6 @@ function validateToolContextWithDateRange(
 
   if (
     !(
-      typeof dateRange === "object" &&
-      dateRange !== null &&
       "endDate" in dateRange &&
       typeof dateRange.endDate === "string"
     )
