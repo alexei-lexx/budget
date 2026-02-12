@@ -38,6 +38,24 @@ export class LangchainBedrockAgent implements AIAgent {
     // Extract context properties that match the schema
     const { userId, dateRange, ...rest } = toolContext || {};
 
+    // Validate required context properties
+    if (!userId || typeof userId !== "string") {
+      throw new Error("userId is required in tool context");
+    }
+
+    if (
+      !dateRange ||
+      typeof dateRange !== "object" ||
+      !("startDate" in dateRange) ||
+      !("endDate" in dateRange) ||
+      typeof dateRange.startDate !== "string" ||
+      typeof dateRange.endDate !== "string"
+    ) {
+      throw new Error(
+        "dateRange with startDate and endDate is required in tool context",
+      );
+    }
+
     // Create ReAct agent with tools and contextSchema for validation
     const react = createAgent({
       model: this.model,
@@ -55,8 +73,11 @@ export class LangchainBedrockAgent implements AIAgent {
       },
       {
         context: {
-          userId: userId as string,
-          dateRange: dateRange as { startDate: string; endDate: string },
+          userId,
+          dateRange: {
+            startDate: dateRange.startDate,
+            endDate: dateRange.endDate,
+          },
         },
         configurable: rest, // Pass remaining properties (like aiDataService) via configurable
       },

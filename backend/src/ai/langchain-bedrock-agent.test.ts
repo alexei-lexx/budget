@@ -14,6 +14,7 @@ describe("LangchainBedrockAgent", () => {
   let mockModel: jest.Mocked<ChatBedrockConverse>;
   let mockTools: StructuredTool[];
   let mockReactAgent: { invoke: jest.Mock };
+  let testContext: Record<string, unknown>;
 
   beforeEach(() => {
     // Create mock model
@@ -30,6 +31,12 @@ describe("LangchainBedrockAgent", () => {
     // Create mock ReAct agent
     mockReactAgent = {
       invoke: jest.fn(),
+    };
+
+    // Default test context
+    testContext = {
+      userId: "test-user",
+      dateRange: { startDate: "2024-01-01", endDate: "2024-12-31" },
     };
 
     (createAgent as jest.Mock).mockReturnValue(mockReactAgent);
@@ -55,7 +62,7 @@ describe("LangchainBedrockAgent", () => {
       });
 
       // Act
-      await agent.call(messages, systemPrompt);
+      await agent.call(messages, systemPrompt, testContext);
 
       // Assert
       expect(createAgent).toHaveBeenCalledWith({
@@ -73,6 +80,10 @@ describe("LangchainBedrockAgent", () => {
         { role: "assistant" as const, content: "Answer 1" },
         { role: "user" as const, content: "Question 2" },
       ];
+      const minimalContext = {
+        userId: "test-user",
+        dateRange: { startDate: "2024-01-01", endDate: "2024-12-31" },
+      };
 
       mockReactAgent.invoke.mockResolvedValue({
         messages: [
@@ -83,7 +94,7 @@ describe("LangchainBedrockAgent", () => {
       });
 
       // Act
-      await agent.call(messages);
+      await agent.call(messages, undefined, minimalContext);
 
       // Assert
       expect(mockReactAgent.invoke).toHaveBeenCalledWith(
@@ -95,7 +106,10 @@ describe("LangchainBedrockAgent", () => {
           ],
         },
         {
-          context: { userId: undefined, dateRange: undefined },
+          context: {
+            userId: "test-user",
+            dateRange: { startDate: "2024-01-01", endDate: "2024-12-31" },
+          },
           configurable: {},
         },
       );
@@ -155,7 +169,7 @@ describe("LangchainBedrockAgent", () => {
       });
 
       // Act
-      const result = await agent.call(messages);
+      const result = await agent.call(messages, undefined, testContext);
 
       // Assert
       expect(result.answer).toBe("This is the final answer");
@@ -205,7 +219,7 @@ describe("LangchainBedrockAgent", () => {
       });
 
       // Act
-      const result = await agent.call(messages);
+      const result = await agent.call(messages, undefined, testContext);
 
       // Assert
       expect(result.answer).toBe("Sum is 15, average is 7.5");
@@ -242,7 +256,7 @@ describe("LangchainBedrockAgent", () => {
       });
 
       // Act
-      const result = await agent.call(messages);
+      const result = await agent.call(messages, undefined, testContext);
 
       // Assert
       expect(result.toolExecutions).toHaveLength(1);
@@ -279,7 +293,7 @@ describe("LangchainBedrockAgent", () => {
       });
 
       // Act
-      const result = await agent.call(messages);
+      const result = await agent.call(messages, undefined, testContext);
 
       // Assert
       expect(result.toolExecutions).toHaveLength(1);
@@ -301,7 +315,7 @@ describe("LangchainBedrockAgent", () => {
       });
 
       // Act
-      const result = await agent.call(messages);
+      const result = await agent.call(messages, undefined, testContext);
 
       // Assert
       expect(result.answer).toBe("");
@@ -321,7 +335,7 @@ describe("LangchainBedrockAgent", () => {
       });
 
       // Act
-      await agent.call(messages);
+      await agent.call(messages, undefined, testContext);
 
       // Assert
       expect(createAgent).toHaveBeenCalledWith({
