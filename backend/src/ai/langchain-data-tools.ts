@@ -35,28 +35,35 @@ function validateBaseToolContext(
     throw new Error("Tool context must have a valid aiDataService");
   }
 
-  return toolContext as ToolContext;
+  return {
+    userId: toolContext.userId,
+    aiDataService: toolContext.aiDataService,
+  };
 }
 
 function validateToolContextWithDateRange(
   runnableConfig: RunnableConfig<Record<string, unknown>>,
 ): ToolContextWithDateRange {
-  const toolContext = validateBaseToolContext(runnableConfig);
-  const contextWithDateRange = toolContext as ToolContext & {
-    dateRange?: unknown;
-  };
+  const baseContext = validateBaseToolContext(runnableConfig);
+  const toolContext = runnableConfig.configurable;
+
+  if (!toolContext) {
+    throw new Error("Tool context is required");
+  }
 
   if (
-    typeof contextWithDateRange.dateRange !== "object" ||
-    contextWithDateRange.dateRange === null
+    typeof toolContext.dateRange !== "object" ||
+    toolContext.dateRange === null
   ) {
     throw new Error("Tool context must have a valid dateRange");
   }
 
-  const dateRange = contextWithDateRange.dateRange as Record<string, unknown>;
+  const dateRange = toolContext.dateRange;
 
   if (
     !(
+      typeof dateRange === "object" &&
+      dateRange !== null &&
       "startDate" in dateRange &&
       typeof dateRange.startDate === "string"
     )
@@ -66,6 +73,8 @@ function validateToolContextWithDateRange(
 
   if (
     !(
+      typeof dateRange === "object" &&
+      dateRange !== null &&
       "endDate" in dateRange &&
       typeof dateRange.endDate === "string"
     )
@@ -74,7 +83,7 @@ function validateToolContextWithDateRange(
   }
 
   return {
-    ...toolContext,
+    ...baseContext,
     dateRange: {
       startDate: dateRange.startDate,
       endDate: dateRange.endDate,
