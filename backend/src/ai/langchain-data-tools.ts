@@ -1,65 +1,36 @@
-import { RunnableConfig } from "@langchain/core/runnables";
-import { tool } from "langchain";
+import { ToolRuntime, tool } from "langchain";
 import { z } from "zod";
 import { AiDataService } from "../services/ai-data-service";
+
+interface ToolContext {
+  userId: string;
+  dateRange: {
+    startDate: string;
+    endDate: string;
+  };
+  aiDataService: AiDataService;
+}
 
 export const getTransactionsTool = tool(
   async (
     input: { categoryId?: string; accountId?: string },
-    runnableConfig: RunnableConfig<Record<string, unknown>>,
+    runtime: ToolRuntime,
   ) => {
-    const toolContext = runnableConfig.configurable;
+    const context = runtime.config.configurable as ToolContext | undefined;
 
-    if (!toolContext) {
+    if (!context) {
       throw new Error("Tool context is required for getTransactionsTool");
     }
 
-    if (!toolContext.userId || typeof toolContext.userId !== "string") {
-      throw new Error("Tool context must have a valid userId");
-    }
-
-    if (
-      typeof toolContext.dateRange !== "object" ||
-      toolContext.dateRange === null
-    ) {
-      throw new Error("Tool context must have a valid dateRange");
-    }
-
-    if (
-      !(
-        "startDate" in toolContext.dateRange &&
-        typeof toolContext.dateRange.startDate === "string"
-      )
-    ) {
-      throw new Error("Tool context dateRange must have a valid startDate");
-    }
-
-    if (
-      !(
-        "endDate" in toolContext.dateRange &&
-        typeof toolContext.dateRange.endDate === "string"
-      )
-    ) {
-      throw new Error("Tool context dateRange must have a valid endDate");
-    }
-
-    if (
-      !("aiDataService" in toolContext) ||
-      !(toolContext.aiDataService instanceof AiDataService)
-    ) {
-      throw new Error("Tool context must have a valid aiDataService");
-    }
-
-    const transactions =
-      await toolContext.aiDataService.getFilteredTransactions(
-        toolContext.userId,
-        {
-          startDate: toolContext.dateRange.startDate,
-          endDate: toolContext.dateRange.endDate,
-        },
-        input.accountId,
-        input.categoryId,
-      );
+    const transactions = await context.aiDataService.getFilteredTransactions(
+      context.userId,
+      {
+        startDate: context.dateRange.startDate,
+        endDate: context.dateRange.endDate,
+      },
+      input.accountId,
+      input.categoryId,
+    );
 
     return JSON.stringify(transactions);
   },
