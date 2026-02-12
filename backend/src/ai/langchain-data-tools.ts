@@ -15,7 +15,7 @@ interface ToolContextWithDateRange extends ToolContext {
   };
 }
 
-function validateBaseToolContext(
+export function validateBaseToolContext(
   runnableConfig: RunnableConfig<Record<string, unknown>>,
 ): ToolContext {
   const toolContext = runnableConfig.configurable;
@@ -41,7 +41,7 @@ function validateBaseToolContext(
   };
 }
 
-function validateToolContextWithDateRange(
+export function validateToolContextWithDateRange(
   runnableConfig: RunnableConfig<Record<string, unknown>>,
 ): ToolContextWithDateRange {
   const baseContext = validateBaseToolContext(runnableConfig);
