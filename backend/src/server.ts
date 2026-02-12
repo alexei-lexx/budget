@@ -3,7 +3,11 @@ import { join } from "path";
 import { ApolloServer } from "@apollo/server";
 import DataLoader from "dataloader";
 import { LangchainBedrockAgent } from "./ai/langchain-bedrock-agent";
-import { getTransactionsTool } from "./ai/langchain-data-tools";
+import {
+  getAccountsTool,
+  getCategoriesTool,
+  getTransactionsTool,
+} from "./ai/langchain-data-tools";
 import { avgTool, calculateTool, sumTool } from "./ai/langchain-math-tools";
 import { AuthContext, JwtAuthService } from "./auth/jwt-auth";
 import { createAccountLoader } from "./dataloaders/account-loader";
@@ -127,6 +131,8 @@ export async function createContext(req: {
     const aiAgent = new LangchainBedrockAgent([
       avgTool,
       calculateTool,
+      getAccountsTool,
+      getCategoriesTool,
       getTransactionsTool,
       sumTool,
     ]);

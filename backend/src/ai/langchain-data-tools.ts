@@ -83,3 +83,75 @@ export const getTransactionsTool = tool(
     }),
   },
 );
+
+export const getAccountsTool = tool(
+  async (
+    input: Record<string, never>,
+    runnableConfig: RunnableConfig<Record<string, unknown>>,
+  ) => {
+    const toolContext = runnableConfig.configurable;
+
+    if (!toolContext) {
+      throw new Error("Tool context is required for getAccountsTool");
+    }
+
+    if (!toolContext.userId || typeof toolContext.userId !== "string") {
+      throw new Error("Tool context must have a valid userId");
+    }
+
+    if (
+      !("aiDataService" in toolContext) ||
+      !(toolContext.aiDataService instanceof AiDataService)
+    ) {
+      throw new Error("Tool context must have a valid aiDataService");
+    }
+
+    const accounts = await toolContext.aiDataService.getAllAccounts(
+      toolContext.userId,
+    );
+
+    return JSON.stringify(accounts);
+  },
+  {
+    name: "getAccounts",
+    description:
+      "Retrieve all user accounts. Each account has id, name, currency, and isArchived status. Active accounts (isArchived=false) have precedence over archived accounts when names match.",
+    schema: z.object({}),
+  },
+);
+
+export const getCategoriesTool = tool(
+  async (
+    input: Record<string, never>,
+    runnableConfig: RunnableConfig<Record<string, unknown>>,
+  ) => {
+    const toolContext = runnableConfig.configurable;
+
+    if (!toolContext) {
+      throw new Error("Tool context is required for getCategoriesTool");
+    }
+
+    if (!toolContext.userId || typeof toolContext.userId !== "string") {
+      throw new Error("Tool context must have a valid userId");
+    }
+
+    if (
+      !("aiDataService" in toolContext) ||
+      !(toolContext.aiDataService instanceof AiDataService)
+    ) {
+      throw new Error("Tool context must have a valid aiDataService");
+    }
+
+    const categories = await toolContext.aiDataService.getAllCategories(
+      toolContext.userId,
+    );
+
+    return JSON.stringify(categories);
+  },
+  {
+    name: "getCategories",
+    description:
+      "Retrieve all user categories. Each category has id, name, type (INCOME or EXPENSE), and isArchived status. Active categories (isArchived=false) have precedence over archived categories when names match.",
+    schema: z.object({}),
+  },
+);

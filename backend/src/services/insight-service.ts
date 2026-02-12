@@ -2,7 +2,7 @@ import { AIAgent } from "../models/ai-agent";
 import { DateRange } from "../types/date-range";
 import { YEAR_RANGE_OFFSET } from "../types/validation";
 import { formatDateAsYYYYMMDD } from "../utils/date";
-import { AiAccount, AiCategory, AiDataService } from "./ai-data-service";
+import { AiDataService } from "./ai-data-service";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
 
 const MAX_PERIOD_DAYS = 366;
@@ -20,18 +20,18 @@ And then perform calculations based on those transactions to answer the question
 
 ## Workflow
 
-First, review the available accounts and categories provided in the context.
-Retrieve relevant transactions.
+First, use the getAccounts and getCategories tools to review the available accounts and categories.
+Retrieve relevant transactions using the getTransactions tool.
 Do calculations based on the retrieved transactions.
 Retrieve and calculate for each sub-question if needed.
 Answer the user's question based on the calculations.
 
-## Available Data
+## Available Tools
 
-You have access to:
-- Accounts: Each has id, name, currency, and isArchived status
-- Categories: Each has id, name, type (INCOME/EXPENSE), and isArchived status
-- Active entities have precedence over archived entities when names match
+- getAccounts: Retrieve all user accounts with id, name, currency, and isArchived status
+- getCategories: Retrieve all user categories with id, name, type (INCOME/EXPENSE), and isArchived status
+- getTransactions: Retrieve transactions filtered by category ID and/or account ID
+- Active entities (isArchived=false) have precedence over archived entities when names match
 
 ## Transaction Types
 
@@ -84,18 +84,7 @@ export class InsightService {
 
     const validatedDateRange = this.validateDateRange(dateRange);
 
-    // Get metadata for accounts and categories
-    const accounts = await this.aiDataService.getAllAccounts(userId);
-    const categories = await this.aiDataService.getAllCategories(userId);
-
-    // Build metadata payload
-    const metadataPayload = this.buildMetadataPayload(
-      accounts,
-      categories,
-      validatedDateRange,
-    );
-
-    const systemPrompt = this.buildSystemPrompt(metadataPayload);
+    const systemPrompt = this.buildSystemPrompt(validatedDateRange);
     const userPrompt = this.buildUserPrompt(
       normalizedQuestion,
       validatedDateRange,
@@ -203,22 +192,6 @@ export class InsightService {
     return parsed;
   }
 
-  private buildMetadataPayload(
-    accounts: AiAccount[],
-    categories: AiCategory[],
-    dateRange: DateRange,
-  ): string {
-    return [
-      `Date Range: ${dateRange.startDate} to ${dateRange.endDate}`,
-      "",
-      "Available Accounts:",
-      JSON.stringify(accounts, null, 2),
-      "",
-      "Available Categories:",
-      JSON.stringify(categories, null, 2),
-    ].join("\n");
-  }
-
   private buildUserPrompt(question: string, dateRange: DateRange): string {
     return [
       `I have transactions between ${dateRange.startDate} and ${dateRange.endDate}.`,
@@ -227,12 +200,12 @@ export class InsightService {
     ].join("\n");
   }
 
-  private buildSystemPrompt(metadataPayload: string): string {
+  private buildSystemPrompt(dateRange: DateRange): string {
     const currentDate = formatDateAsYYYYMMDD(new Date());
 
     return (
       SYSTEM_PROMPT +
-      `\n\nToday's date is ${currentDate}.\n\n${metadataPayload}`
+      `\n\nToday's date is ${currentDate}.\n\nDate Range: ${dateRange.startDate} to ${dateRange.endDate}`
     );
   }
 

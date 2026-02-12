@@ -1,5 +1,4 @@
 import { faker } from "@faker-js/faker";
-import { fakeAccount, fakeCategory } from "../__tests__/utils/factories";
 import { AIAgent } from "../models/ai-agent";
 import { YEAR_RANGE_OFFSET } from "../types/validation";
 import { AiDataService } from "./ai-data-service";
@@ -216,9 +215,6 @@ describe("InsightService", () => {
 
     it("should return AI response for valid input", async () => {
       // Arrange
-      mockAiDataService.getAllAccounts.mockResolvedValue([]);
-      mockAiDataService.getAllCategories.mockResolvedValue([]);
-
       mockAiAgent.call.mockResolvedValue({
         answer: "Your food spending was $50.",
         toolExecutions: [],
@@ -229,8 +225,8 @@ describe("InsightService", () => {
 
       // Assert
       expect(result).toContain("Your food spending was $50.");
-      expect(mockAiDataService.getAllAccounts).toHaveBeenCalledWith(userId);
-      expect(mockAiDataService.getAllCategories).toHaveBeenCalledWith(userId);
+      expect(mockAiDataService.getAllAccounts).not.toHaveBeenCalled();
+      expect(mockAiDataService.getAllCategories).not.toHaveBeenCalled();
       expect(mockAiAgent.call).toHaveBeenCalledWith(
         expect.arrayContaining([
           expect.objectContaining({
@@ -255,8 +251,6 @@ describe("InsightService", () => {
         ...validInput,
         question: "  What is my spending?  ",
       };
-      mockAiDataService.getAllAccounts.mockResolvedValue([]);
-      mockAiDataService.getAllCategories.mockResolvedValue([]);
       mockAiAgent.call.mockResolvedValue({
         answer: "Answer",
         toolExecutions: [],
@@ -280,25 +274,8 @@ describe("InsightService", () => {
       );
     });
 
-    it("should include accounts and categories metadata in system prompt", async () => {
+    it("should include tool references in system prompt", async () => {
       // Arrange
-      const accountId = faker.string.uuid();
-      const categoryId = faker.string.uuid();
-
-      const accounts = [
-        fakeAccount({ id: accountId, userId, name: "Cash Account" }),
-      ];
-      const categories = [
-        fakeCategory({
-          id: categoryId,
-          userId,
-          name: "Food Category",
-        }),
-      ];
-
-      mockAiDataService.getAllAccounts.mockResolvedValue(accounts);
-      mockAiDataService.getAllCategories.mockResolvedValue(categories);
-
       mockAiAgent.call.mockResolvedValue({
         answer: "Answer",
         toolExecutions: [],
@@ -308,29 +285,16 @@ describe("InsightService", () => {
       await service.call(userId, validInput);
 
       // Assert
-      expect(mockAiAgent.call.mock.calls[0][1]).toContain(accountId);
-      expect(mockAiAgent.call.mock.calls[0][1]).toContain("Cash Account");
-
-      expect(mockAiAgent.call.mock.calls[0][1]).toContain(categoryId);
-      expect(mockAiAgent.call.mock.calls[0][1]).toContain("Food Category");
-    });
-
-    it("should propagate error when AiDataService fails", async () => {
-      // Arrange
-      mockAiDataService.getAllAccounts.mockRejectedValue(
-        new Error("Service unavailable"),
-      );
-
-      // Act & Assert
-      const promise = service.call(userId, validInput);
-
-      await expect(promise).rejects.toThrow("Service unavailable");
+      const systemPrompt = mockAiAgent.call.mock.calls[0][1];
+      expect(systemPrompt).toContain("getAccounts");
+      expect(systemPrompt).toContain("getCategories");
+      expect(systemPrompt).toContain("getTransactions");
+      expect(systemPrompt).not.toContain("Available Accounts:");
+      expect(systemPrompt).not.toContain("Available Categories:");
     });
 
     it("should propagate error when AiAgent fails", async () => {
       // Arrange
-      mockAiDataService.getAllAccounts.mockResolvedValue([]);
-      mockAiDataService.getAllCategories.mockResolvedValue([]);
       mockAiAgent.call.mockRejectedValue(new Error("Service unavailable"));
 
       // Act & Assert
@@ -341,9 +305,6 @@ describe("InsightService", () => {
 
     it("should append tool executions to response when present", async () => {
       // Arrange
-      mockAiDataService.getAllAccounts.mockResolvedValue([]);
-      mockAiDataService.getAllCategories.mockResolvedValue([]);
-
       mockAiAgent.call.mockResolvedValue({
         answer: "The total is $150.",
         toolExecutions: [
@@ -379,9 +340,6 @@ describe("InsightService", () => {
 
     it("should throw error when AIAgent returns empty response", async () => {
       // Arrange
-      mockAiDataService.getAllAccounts.mockResolvedValue([]);
-      mockAiDataService.getAllCategories.mockResolvedValue([]);
-
       mockAiAgent.call.mockResolvedValue({
         answer: "",
         toolExecutions: [],
