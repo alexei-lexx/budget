@@ -11,14 +11,32 @@ interface ToolContext {
   aiDataService: AiDataService;
 }
 
+function isToolContext(value: unknown): value is ToolContext {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "userId" in value &&
+    typeof value.userId === "string" &&
+    "dateRange" in value &&
+    typeof value.dateRange === "object" &&
+    value.dateRange !== null &&
+    "startDate" in value.dateRange &&
+    typeof value.dateRange.startDate === "string" &&
+    "endDate" in value.dateRange &&
+    typeof value.dateRange.endDate === "string" &&
+    "aiDataService" in value &&
+    value.aiDataService instanceof AiDataService
+  );
+}
+
 export const getTransactionsTool = tool(
   async (
     input: { categoryId?: string; accountId?: string },
     runtime: ToolRuntime,
   ) => {
-    const context = runtime.config.configurable as ToolContext | undefined;
+    const context = runtime.config.configurable;
 
-    if (!context) {
+    if (!isToolContext(context)) {
       throw new Error("Tool context is required for getTransactionsTool");
     }
 
