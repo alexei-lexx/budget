@@ -12,10 +12,25 @@ interface ToolContext {
   aiDataService: AiDataService;
 }
 
+interface ToolContextWithDateRange extends ToolContext {
+  dateRange: {
+    startDate: string;
+    endDate: string;
+  };
+}
+
+function validateToolContext(
+  runnableConfig: RunnableConfig<Record<string, unknown>>,
+  options: { requireDateRange: true },
+): ToolContextWithDateRange;
+function validateToolContext(
+  runnableConfig: RunnableConfig<Record<string, unknown>>,
+  options?: { requireDateRange?: false },
+): ToolContext;
 function validateToolContext(
   runnableConfig: RunnableConfig<Record<string, unknown>>,
   options: { requireDateRange?: boolean } = {},
-): ToolContext {
+): ToolContext | ToolContextWithDateRange {
   const toolContext = runnableConfig.configurable;
 
   if (!toolContext) {
@@ -71,10 +86,6 @@ export const getTransactionsTool = tool(
     const toolContext = validateToolContext(runnableConfig, {
       requireDateRange: true,
     });
-
-    if (!toolContext.dateRange) {
-      throw new Error("Date range is required but was not validated properly");
-    }
 
     const transactions =
       await toolContext.aiDataService.getFilteredTransactions(
