@@ -12,21 +12,34 @@ interface ToolContext {
 }
 
 function isToolContext(value: unknown): value is ToolContext {
-  return (
-    typeof value === "object" &&
-    value !== null &&
-    "userId" in value &&
-    typeof value.userId === "string" &&
-    "dateRange" in value &&
-    typeof value.dateRange === "object" &&
-    value.dateRange !== null &&
-    "startDate" in value.dateRange &&
-    typeof value.dateRange.startDate === "string" &&
-    "endDate" in value.dateRange &&
-    typeof value.dateRange.endDate === "string" &&
-    "aiDataService" in value &&
-    value.aiDataService instanceof AiDataService
-  );
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+
+  const candidate = value as Record<string, unknown>;
+
+  if (typeof candidate.userId !== "string") {
+    return false;
+  }
+
+  if (typeof candidate.dateRange !== "object" || candidate.dateRange === null) {
+    return false;
+  }
+
+  const dateRange = candidate.dateRange as Record<string, unknown>;
+
+  if (
+    typeof dateRange.startDate !== "string" ||
+    typeof dateRange.endDate !== "string"
+  ) {
+    return false;
+  }
+
+  if (!(candidate.aiDataService instanceof AiDataService)) {
+    return false;
+  }
+
+  return true;
 }
 
 export const getTransactionsTool = tool(
