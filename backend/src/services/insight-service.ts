@@ -20,7 +20,7 @@ And then perform calculations based on those transactions to answer the question
 
 ## Workflow
 
-First, use the getAccounts and getCategories tools to review the available accounts and categories.
+When needed, use the getAccounts and getCategories tools to review the available accounts and categories.
 Retrieve relevant transactions using the getTransactions tool.
 Do calculations based on the retrieved transactions.
 Retrieve and calculate for each sub-question if needed.

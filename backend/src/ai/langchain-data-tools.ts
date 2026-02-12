@@ -86,7 +86,7 @@ export const getTransactionsTool = tool(
 
 export const getAccountsTool = tool(
   async (
-    input: object,
+    _input: object,
     runnableConfig: RunnableConfig<Record<string, unknown>>,
   ) => {
     const toolContext = runnableConfig.configurable;
@@ -122,7 +122,7 @@ export const getAccountsTool = tool(
 
 export const getCategoriesTool = tool(
   async (
-    input: object,
+    _input: object,
     runnableConfig: RunnableConfig<Record<string, unknown>>,
   ) => {
     const toolContext = runnableConfig.configurable;
