@@ -1,6 +1,7 @@
 import { ChatBedrockConverse } from "@langchain/aws";
 import { AIMessage, StructuredTool, ToolMessage, createAgent } from "langchain";
 import { LangchainBedrockAgent } from "./langchain-bedrock-agent";
+import { toolContextSchema } from "./langchain-data-tools";
 
 // Mock LangChain's createAgent
 jest.mock("langchain", () => ({
@@ -61,6 +62,7 @@ describe("LangchainBedrockAgent", () => {
         model: mockModel,
         tools: mockTools,
         systemPrompt,
+        contextSchema: toolContextSchema,
       });
     });
 
@@ -92,14 +94,21 @@ describe("LangchainBedrockAgent", () => {
             { role: "user", content: "Question 2" },
           ],
         },
-        { configurable: undefined },
+        {
+          context: { userId: undefined, dateRange: undefined },
+          configurable: {},
+        },
       );
     });
 
     it("should invoke agent with tool context", async () => {
       // Arrange
       const messages = [{ role: "user" as const, content: "Test question" }];
-      const toolContext = { userId: "user-123" };
+      const toolContext = {
+        userId: "user-123",
+        dateRange: { startDate: "2024-01-01", endDate: "2024-12-31" },
+        aiDataService: { mock: "service" },
+      };
 
       mockReactAgent.invoke.mockResolvedValue({
         messages: [
@@ -118,7 +127,13 @@ describe("LangchainBedrockAgent", () => {
         {
           messages: [{ role: "user", content: "Test question" }],
         },
-        { configurable: { userId: "user-123" } },
+        {
+          context: {
+            userId: "user-123",
+            dateRange: { startDate: "2024-01-01", endDate: "2024-12-31" },
+          },
+          configurable: { aiDataService: { mock: "service" } },
+        },
       );
     });
 
@@ -313,6 +328,7 @@ describe("LangchainBedrockAgent", () => {
         model: mockModel,
         tools: mockTools,
         systemPrompt: undefined,
+        contextSchema: toolContextSchema,
       });
     });
   });

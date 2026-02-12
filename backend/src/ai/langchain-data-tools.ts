@@ -2,70 +2,54 @@ import { ToolRuntime, tool } from "langchain";
 import { z } from "zod";
 import { AiDataService } from "../services/ai-data-service";
 
-interface ToolContext {
-  userId: string;
-  dateRange: {
-    startDate: string;
-    endDate: string;
-  };
+// Zod schema for validatable context properties
+export const toolContextSchema = z.object({
+  userId: z.string(),
+  dateRange: z.object({
+    startDate: z.string(),
+    endDate: z.string(),
+  }),
+  // Note: aiDataService is a class instance and must be passed via configurable
+  // as Zod cannot validate class instances
+});
+
+// Type for validated context
+export type ToolContext = z.infer<typeof toolContextSchema>;
+
+// Extended context type including the service instance
+export interface ToolContextWithService extends ToolContext {
   aiDataService: AiDataService;
-}
-
-function isToolContext(value: unknown): value is ToolContext {
-  if (typeof value !== "object" || value === null) {
-    return false;
-  }
-
-  const candidate = value as Record<string, unknown>;
-
-  if (typeof candidate.userId !== "string") {
-    return false;
-  }
-
-  if (typeof candidate.dateRange !== "object" || candidate.dateRange === null) {
-    return false;
-  }
-
-  const dateRange = candidate.dateRange as Record<string, unknown>;
-
-  if (
-    typeof dateRange.startDate !== "string" ||
-    typeof dateRange.endDate !== "string"
-  ) {
-    return false;
-  }
-
-  if (!candidate.aiDataService) {
-    return false;
-  }
-
-  if (
-    !(candidate.aiDataService instanceof AiDataService) &&
-    typeof (candidate.aiDataService as { getFilteredTransactions?: unknown })
-      .getFilteredTransactions !== "function"
-  ) {
-    return false;
-  }
-
-  return true;
 }
 
 export const getTransactionsTool = tool(
   async (
     input: { categoryId?: string; accountId?: string },
-    runtime: ToolRuntime,
+    runtime: ToolRuntime<unknown, ToolContext>,
   ) => {
-    if (!runtime.config) {
-      throw new Error("Runtime config is required for getTransactionsTool");
-    }
+    // Access validated context from runtime.context (validated by contextSchema in agent)
+    const context = runtime.context;
 
-    const context = runtime.config.configurable;
-
-    if (!isToolContext(context)) {
+    if (!context) {
       throw new Error("Tool context is required for getTransactionsTool");
     }
 
-    const transactions = await context.aiDataService.getFilteredTransactions(
+    // Get aiDataService from configurable since it can't be validated by Zod
+    const aiDataService = runtime.config?.configurable?.aiDataService;
+
+    if (
+      !aiDataService ||
+      (!(aiDataService instanceof AiDataService) &&
+        typeof (aiDataService as { getFilteredTransactions?: unknown })
+          .getFilteredTransactions !== "function")
+    ) {
+      throw new Error(
+        "aiDataService is required in configurable context for getTransactionsTool",
+      );
+    }
+
+    const transactions = await (
+      aiDataService as AiDataService
+    ).getFilteredTransactions(
       context.userId,
       {
         startDate: context.dateRange.startDate,

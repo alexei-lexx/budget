@@ -9,6 +9,7 @@ import {
   loadBedrockRegion,
   loadBedrockTemperature,
 } from "../utils/bedrock-runtime-client";
+import { toolContextSchema } from "./langchain-data-tools";
 
 export class LangchainBedrockAgent implements AIAgent {
   private model: ChatBedrockConverse;
@@ -34,11 +35,15 @@ export class LangchainBedrockAgent implements AIAgent {
     systemPrompt?: string,
     toolContext?: Record<string, unknown>,
   ) {
-    // Create ReAct agent with tools
+    // Extract context properties that match the schema
+    const { userId, dateRange, ...rest } = toolContext || {};
+
+    // Create ReAct agent with tools and contextSchema for validation
     const react = createAgent({
       model: this.model,
       tools: this.tools,
       systemPrompt,
+      contextSchema: toolContextSchema,
     });
 
     const response = await react.invoke(
@@ -48,7 +53,13 @@ export class LangchainBedrockAgent implements AIAgent {
           content: msg.content,
         })),
       },
-      { configurable: toolContext },
+      {
+        context: {
+          userId: userId as string,
+          dateRange: dateRange as { startDate: string; endDate: string },
+        },
+        configurable: rest, // Pass remaining properties (like aiDataService) via configurable
+      },
     );
 
     // Extract tool executions for user-facing summary
