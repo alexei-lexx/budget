@@ -38,23 +38,8 @@ export class LangchainBedrockAgent implements AIAgent {
     // Extract context properties that match the schema
     const { userId, dateRange, ...rest } = toolContext || {};
 
-    // Validate required context properties
-    if (!userId || typeof userId !== "string") {
-      throw new Error("userId is required in tool context");
-    }
-
-    if (
-      !dateRange ||
-      typeof dateRange !== "object" ||
-      !("startDate" in dateRange) ||
-      !("endDate" in dateRange) ||
-      typeof dateRange.startDate !== "string" ||
-      typeof dateRange.endDate !== "string"
-    ) {
-      throw new Error(
-        "dateRange with startDate and endDate is required in tool context",
-      );
-    }
+    // Validate context using the Zod schema before passing to LangChain
+    const validatedContext = toolContextSchema.parse({ userId, dateRange });
 
     // Create ReAct agent with tools and contextSchema for validation
     const react = createAgent({
@@ -72,13 +57,7 @@ export class LangchainBedrockAgent implements AIAgent {
         })),
       },
       {
-        context: {
-          userId,
-          dateRange: {
-            startDate: dateRange.startDate,
-            endDate: dateRange.endDate,
-          },
-        },
+        context: validatedContext,
         configurable: rest, // Pass remaining properties (like aiDataService) via configurable
       },
     );

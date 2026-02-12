@@ -47,9 +47,10 @@ export const getTransactionsTool = tool(
       );
     }
 
-    const transactions = await (
-      aiDataService as AiDataService
-    ).getFilteredTransactions(
+    // Type-safe reference to the validated service
+    const dataService = aiDataService as AiDataService;
+
+    const transactions = await dataService.getFilteredTransactions(
       context.userId,
       {
         startDate: context.dateRange.startDate,
