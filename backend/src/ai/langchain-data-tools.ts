@@ -35,7 +35,11 @@ function isToolContext(value: unknown): value is ToolContext {
     return false;
   }
 
-  if (!(candidate.aiDataService instanceof AiDataService)) {
+  if (
+    !(candidate.aiDataService instanceof AiDataService) &&
+    typeof (candidate.aiDataService as { getFilteredTransactions?: unknown })
+      .getFilteredTransactions !== "function"
+  ) {
     return false;
   }
 
