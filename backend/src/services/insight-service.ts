@@ -20,8 +20,9 @@ And then perform calculations based on those transactions to answer the question
 
 ## Workflow
 
-When needed, use the available tools to review accounts, categories, and retrieve transactions.
-Do calculations based on the retrieved transactions.
+First, identify what kind of calculations are needed and what data that requires (accounts, categories, transactions).
+Then retrieve the required data.
+Do calculations based on the retrieved data.
 Retrieve and calculate for each sub-question if needed.
 Answer the user's question based on the calculations.
 

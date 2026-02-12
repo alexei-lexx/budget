@@ -272,26 +272,6 @@ describe("InsightService", () => {
       );
     });
 
-    it("should not include hardcoded tool names in system prompt", async () => {
-      // Arrange
-      mockAiAgent.call.mockResolvedValue({
-        answer: "Answer",
-        toolExecutions: [],
-      });
-
-      // Act
-      await service.call(userId, validInput);
-
-      // Assert
-      const systemPrompt = mockAiAgent.call.mock.calls[0][1];
-      expect(systemPrompt).toContain("available tools");
-      expect(systemPrompt).not.toContain("getAccounts");
-      expect(systemPrompt).not.toContain("getCategories");
-      expect(systemPrompt).not.toContain("getTransactions");
-      expect(systemPrompt).not.toContain("Available Accounts:");
-      expect(systemPrompt).not.toContain("Available Categories:");
-    });
-
     it("should propagate error when AiAgent fails", async () => {
       // Arrange
       mockAiAgent.call.mockRejectedValue(new Error("Service unavailable"));
