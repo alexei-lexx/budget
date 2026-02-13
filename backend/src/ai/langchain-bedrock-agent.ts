@@ -1,7 +1,12 @@
 import { randomUUID } from "crypto";
 import { ChatBedrockConverse } from "@langchain/aws";
-import { AIMessage, StructuredTool, ToolMessage, createAgent } from "langchain";
-import { AIAgent, AiMessage, ToolExecution } from "../models/ai-agent";
+import { AIMessage, ToolMessage, createAgent, tool } from "langchain";
+import {
+  AIAgent,
+  AiMessage,
+  AnyToolSignature,
+  ToolExecution,
+} from "../models/ai-agent";
 import {
   createBedrockRuntimeClient,
   loadBedrockMaxTokens,
@@ -13,10 +18,7 @@ import {
 export class LangchainBedrockAgent implements AIAgent {
   private model: ChatBedrockConverse;
 
-  constructor(
-    private readonly tools: StructuredTool[],
-    model?: ChatBedrockConverse,
-  ) {
+  constructor(model?: ChatBedrockConverse) {
     // Create Bedrock model via LangChain
     this.model =
       model ??
@@ -29,11 +31,23 @@ export class LangchainBedrockAgent implements AIAgent {
       });
   }
 
-  async call(messages: readonly AiMessage[], systemPrompt?: string) {
+  async call(
+    messages: readonly AiMessage[],
+    systemPrompt?: string,
+    tools?: readonly AnyToolSignature[],
+  ) {
+    const langchainTools = tools?.map((toolSignature) => {
+      return tool(toolSignature.func, {
+        name: toolSignature.name,
+        description: toolSignature.description,
+        schema: toolSignature.inputSchema,
+      });
+    });
+
     // Create ReAct agent with tools
     const react = createAgent({
       model: this.model,
-      tools: this.tools,
+      tools: langchainTools,
       systemPrompt,
     });
 

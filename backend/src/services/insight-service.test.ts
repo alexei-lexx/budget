@@ -1,4 +1,5 @@
 import { faker } from "@faker-js/faker";
+import { z } from "zod";
 import {
   fakeAccount,
   fakeCategory,
@@ -10,7 +11,7 @@ import {
   createMockTransactionRepository,
 } from "../__tests__/utils/mock-repositories";
 import { IAccountRepository } from "../models/account";
-import { type AIAgent } from "../models/ai-agent";
+import { type AIAgent, AnyToolSignature } from "../models/ai-agent";
 import { ICategoryRepository } from "../models/category";
 import { ITransactionRepository, TransactionType } from "../models/transaction";
 import { YEAR_RANGE_OFFSET } from "../types/validation";
@@ -28,18 +29,32 @@ describe("InsightService", () => {
   let mockAccountRepository: jest.Mocked<IAccountRepository>;
   let mockCategoryRepository: jest.Mocked<ICategoryRepository>;
   let mockAiAgent: jest.Mocked<AIAgent>;
+  let toolSignatures: AnyToolSignature[];
 
   beforeEach(() => {
     mockTransactionRepository = createMockTransactionRepository();
     mockAccountRepository = createMockAccountRepository();
     mockCategoryRepository = createMockCategoryRepository();
     mockAiAgent = createMockAiAgent();
+    toolSignatures = [
+      {
+        name: "sum",
+        description: "Calculate the sum of a list of numbers",
+        func: (input: { a: number; b: number }) =>
+          (input.a + input.b).toString(),
+        inputSchema: z.object({
+          a: z.number(),
+          b: z.number(),
+        }),
+      },
+    ];
 
     service = new InsightService(
       mockTransactionRepository,
       mockAccountRepository,
       mockCategoryRepository,
       mockAiAgent,
+      toolSignatures,
     );
 
     userId = faker.string.uuid();
@@ -276,6 +291,11 @@ describe("InsightService", () => {
         [categoryId],
         userId,
       );
+      expect(mockAiAgent.call).toHaveBeenCalledWith(
+        expect.any(Array),
+        expect.any(String),
+        expect.any(Array),
+      );
     });
 
     it("should return AI response when no transactions found", async () => {
@@ -314,7 +334,7 @@ describe("InsightService", () => {
       );
     });
 
-    it("should pass system prompt and user message to AI agent", async () => {
+    it("should pass system prompt, tools, user message to AI agent", async () => {
       // Arrange
       mockTransactionRepository.findActiveByDateRange.mockResolvedValue([]);
       mockAiAgent.call.mockResolvedValue({ answer: "Answer" });
@@ -326,6 +346,7 @@ describe("InsightService", () => {
       const callArgs = mockAiAgent.call.mock.calls[0];
       const messages = callArgs[0];
       const systemPrompt = callArgs[1];
+      const tools = callArgs[2];
 
       expect(messages).toHaveLength(1);
       expect(messages[0].role).toBe("user");
@@ -334,6 +355,8 @@ describe("InsightService", () => {
       expect(messages[0].content).toContain(validInput.question);
 
       expect(systemPrompt).toContain("You are a personal finance assistant");
+
+      expect(tools).toEqual(toolSignatures);
     });
 
     it("should handle uncategorized transactions", async () => {

@@ -1,5 +1,5 @@
 import { IAccountRepository } from "../models/account";
-import { AIAgent } from "../models/ai-agent";
+import { AIAgent, AnyToolSignature } from "../models/ai-agent";
 import { ICategoryRepository } from "../models/category";
 import { ITransactionRepository, Transaction } from "../models/transaction";
 import { YEAR_RANGE_OFFSET } from "../types/validation";
@@ -61,6 +61,7 @@ export class InsightService {
     private accountRepository: IAccountRepository,
     private categoryRepository: ICategoryRepository,
     private aiAgent: AIAgent,
+    private tools: readonly AnyToolSignature[],
   ) {}
 
   async call(userId: string, input: InsightInput): Promise<string> {
@@ -115,6 +116,7 @@ export class InsightService {
     const response = await this.aiAgent.call(
       [{ role: "user", content: userPrompt }],
       systemPrompt,
+      this.tools,
     );
 
     if (!response.answer) {
