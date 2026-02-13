@@ -93,7 +93,11 @@ export class InsightService {
     const dataTools = [
       createGetAccountsTool(this.aiDataService, userId),
       createGetCategoriesTool(this.aiDataService, userId),
-      createGetTransactionsTool(this.aiDataService, userId),
+      createGetTransactionsTool({
+        aiDataService: this.aiDataService,
+        userId,
+        dateRange: validatedDateRange,
+      }),
     ];
 
     const mathTools = [avgTool, calculateTool, sumTool];

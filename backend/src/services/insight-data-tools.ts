@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { ToolSignature } from "../models/ai-agent";
+import { DateRange } from "../types/date-range";
 import { AiDataService } from "./ai-data-service";
 
 export const createGetAccountsTool = (
@@ -37,17 +38,34 @@ const getTransactionsInputSchema = z.object({
 
 type GetTransactionsInput = z.infer<typeof getTransactionsInputSchema>;
 
-export const createGetTransactionsTool = (
-  aiDataService: AiDataService,
-  userId: string,
-): ToolSignature<GetTransactionsInput> => ({
+export const createGetTransactionsTool = (params: {
+  aiDataService: AiDataService;
+  userId: string;
+  dateRange: DateRange;
+}): ToolSignature<GetTransactionsInput> => ({
   name: "getTransactions",
-  description:
-    "Get filtered transactions by date range and optionally by single categoryId or accountId. Only returns active (non-archived) transactions. Date format: YYYY-MM-DD.",
+  description: `Get filtered transactions by date range and optionally by single categoryId or accountId. Only returns active (non-archived) transactions. Date format: YYYY-MM-DD. The date range must be within ${params.dateRange.startDate} to ${params.dateRange.endDate}.`,
   inputSchema: getTransactionsInputSchema,
   func: async (input: GetTransactionsInput) => {
-    const transactions = await aiDataService.getFilteredTransactions(
-      userId,
+    // Validate that input dates are within the allowed date range
+    if (
+      input.startDate < params.dateRange.startDate ||
+      input.endDate > params.dateRange.endDate
+    ) {
+      return JSON.stringify({
+        error: `Date range must be within ${params.dateRange.startDate} to ${params.dateRange.endDate}`,
+      });
+    }
+
+    // Validate that startDate is not after endDate
+    if (input.startDate > input.endDate) {
+      return JSON.stringify({
+        error: "startDate must not be after endDate",
+      });
+    }
+
+    const transactions = await params.aiDataService.getFilteredTransactions(
+      params.userId,
       { startDate: input.startDate, endDate: input.endDate },
       input.categoryId,
       input.accountId,
