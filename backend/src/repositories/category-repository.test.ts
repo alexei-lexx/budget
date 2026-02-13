@@ -236,6 +236,76 @@ describe("CategoryRepository", () => {
     });
   });
 
+  describe("findAllByUserId", () => {
+    it("should return all categories including archived", async () => {
+      // Arrange
+      const activeCategory = await repository.create(
+        fakeCreateCategoryInput({ userId, type: CategoryType.EXPENSE }),
+      );
+      let archivedCategory = await repository.create(
+        fakeCreateCategoryInput({ userId, type: CategoryType.INCOME }),
+      );
+      archivedCategory = await repository.archive(archivedCategory.id, userId);
+
+      // Act
+      const result = await repository.findAllByUserId(userId);
+
+      // Assert
+      expect(result).toHaveLength(2);
+      expect(result).toContainEqual(activeCategory);
+      expect(result).toContainEqual(archivedCategory);
+      expect(activeCategory.isArchived).toBe(false);
+      expect(archivedCategory.isArchived).toBe(true);
+    });
+
+    it("should return empty array when user has no categories", async () => {
+      // Act
+      const result = await repository.findAllByUserId(userId);
+
+      // Assert
+      expect(result).toEqual([]);
+    });
+
+    it("should return categories of all types", async () => {
+      // Arrange
+      const expenseCategory = await repository.create(
+        fakeCreateCategoryInput({ userId, type: CategoryType.EXPENSE }),
+      );
+      const incomeCategory = await repository.create(
+        fakeCreateCategoryInput({ userId, type: CategoryType.INCOME }),
+      );
+
+      // Act
+      const result = await repository.findAllByUserId(userId);
+
+      // Assert
+      expect(result).toHaveLength(2);
+      expect(result).toContainEqual(expenseCategory);
+      expect(result).toContainEqual(incomeCategory);
+    });
+
+    it("should not return categories from other users", async () => {
+      // Arrange
+      const otherUserId = faker.string.uuid();
+      await repository.create(fakeCreateCategoryInput({ userId }));
+      await repository.create(fakeCreateCategoryInput({ userId: otherUserId }));
+
+      // Act
+      const result = await repository.findAllByUserId(userId);
+
+      // Assert
+      expect(result).toHaveLength(1);
+      expect(result[0]?.userId).toBe(userId);
+    });
+
+    it("should throw error when userId is missing", async () => {
+      // Act & Assert
+      await expect(repository.findAllByUserId("")).rejects.toThrow(
+        "User ID is required",
+      );
+    });
+  });
+
   describe("findActiveByUserIdAndType", () => {
     it("should return only categories of specified type, sorted alphabetically", async () => {
       // Arrange

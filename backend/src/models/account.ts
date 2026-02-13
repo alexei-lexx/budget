@@ -24,6 +24,7 @@ export interface UpdateAccountInput {
 
 export interface IAccountRepository {
   findActiveByUserId(userId: string): Promise<Account[]>;
+  findAllByUserId(userId: string): Promise<Account[]>;
   findActiveById(id: string, userId: string): Promise<Account | null>;
   findByIds(ids: readonly string[], userId: string): Promise<Account[]>;
   create(input: CreateAccountInput): Promise<Account>;

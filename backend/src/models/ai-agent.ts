@@ -8,7 +8,7 @@ export interface AiMessage {
 export interface ToolSignature<TInput> {
   name: string;
   description: string;
-  func: (input: TInput) => string;
+  func: (input: TInput) => Promise<string>;
   inputSchema: z.ZodType<TInput>;
 }
 

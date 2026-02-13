@@ -94,6 +94,58 @@ describe("AccountRepository", () => {
     });
   });
 
+  describe("findAllByUserId", () => {
+    it("should return all accounts including archived", async () => {
+      // Arrange
+      const activeAccount = await repository.create(
+        fakeCreateAccountInput({ userId }),
+      );
+      let archivedAccount = await repository.create(
+        fakeCreateAccountInput({ userId }),
+      );
+      archivedAccount = await repository.archive(archivedAccount.id, userId);
+
+      // Act
+      const result = await repository.findAllByUserId(userId);
+
+      // Assert
+      expect(result).toHaveLength(2);
+      expect(result).toContainEqual(activeAccount);
+      expect(result).toContainEqual(archivedAccount);
+      expect(activeAccount.isArchived).toBe(false);
+      expect(archivedAccount.isArchived).toBe(true);
+    });
+
+    it("should return empty array when user has no accounts", async () => {
+      // Act
+      const result = await repository.findAllByUserId(userId);
+
+      // Assert
+      expect(result).toEqual([]);
+    });
+
+    it("should not return accounts from other users", async () => {
+      // Arrange
+      const otherUserId = faker.string.uuid();
+      await repository.create(fakeCreateAccountInput({ userId }));
+      await repository.create(fakeCreateAccountInput({ userId: otherUserId }));
+
+      // Act
+      const result = await repository.findAllByUserId(userId);
+
+      // Assert
+      expect(result).toHaveLength(1);
+      expect(result[0]?.userId).toBe(userId);
+    });
+
+    it("should throw error when userId is missing", async () => {
+      // Act & Assert
+      await expect(repository.findAllByUserId("")).rejects.toThrow(
+        "User ID is required",
+      );
+    });
+  });
+
   describe("hydration - data corruption detection", () => {
     it("should throw error when required field initialBalance is missing from database record", async () => {
       // Arrange

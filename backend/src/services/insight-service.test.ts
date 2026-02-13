@@ -1,20 +1,15 @@
 import { faker } from "@faker-js/faker";
-import { z } from "zod";
-import {
-  fakeAccount,
-  fakeCategory,
-  fakeTransaction,
-} from "../__tests__/utils/factories";
 import {
   createMockAccountRepository,
   createMockCategoryRepository,
   createMockTransactionRepository,
 } from "../__tests__/utils/mock-repositories";
 import { IAccountRepository } from "../models/account";
-import { type AIAgent, AnyToolSignature } from "../models/ai-agent";
+import { type AIAgent } from "../models/ai-agent";
 import { ICategoryRepository } from "../models/category";
-import { ITransactionRepository, TransactionType } from "../models/transaction";
+import { ITransactionRepository } from "../models/transaction";
 import { YEAR_RANGE_OFFSET } from "../types/validation";
+import { AiDataService } from "./ai-data-service";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
 import { type InsightInput, InsightService } from "./insight-service";
 
@@ -29,33 +24,21 @@ describe("InsightService", () => {
   let mockAccountRepository: jest.Mocked<IAccountRepository>;
   let mockCategoryRepository: jest.Mocked<ICategoryRepository>;
   let mockAiAgent: jest.Mocked<AIAgent>;
-  let toolSignatures: AnyToolSignature[];
+  let aiDataService: AiDataService;
 
   beforeEach(() => {
     mockTransactionRepository = createMockTransactionRepository();
     mockAccountRepository = createMockAccountRepository();
     mockCategoryRepository = createMockCategoryRepository();
     mockAiAgent = createMockAiAgent();
-    toolSignatures = [
-      {
-        name: "sum",
-        description: "Calculate the sum of a list of numbers",
-        func: (input: { a: number; b: number }) =>
-          (input.a + input.b).toString(),
-        inputSchema: z.object({
-          a: z.number(),
-          b: z.number(),
-        }),
-      },
-    ];
 
-    service = new InsightService(
-      mockTransactionRepository,
+    aiDataService = new AiDataService(
       mockAccountRepository,
       mockCategoryRepository,
-      mockAiAgent,
-      toolSignatures,
+      mockTransactionRepository,
     );
+
+    service = new InsightService(aiDataService, mockAiAgent);
 
     userId = faker.string.uuid();
 
@@ -246,30 +229,8 @@ describe("InsightService", () => {
       dateRange: { startDate: "2000-01-01", endDate: "2000-01-31" },
     };
 
-    it("should return AI response for valid input with transactions", async () => {
+    it("should return AI response for valid input", async () => {
       // Arrange
-      const accountId = faker.string.uuid();
-      const categoryId = faker.string.uuid();
-      const transactions = [
-        fakeTransaction({
-          userId,
-          accountId,
-          categoryId,
-          type: TransactionType.EXPENSE,
-          amount: 50,
-          date: "2000-01-15",
-        }),
-      ];
-      const accounts = [fakeAccount({ id: accountId, userId, name: "Cash" })];
-      const categories = [
-        fakeCategory({ id: categoryId, userId, name: "Food" }),
-      ];
-
-      mockTransactionRepository.findActiveByDateRange.mockResolvedValue(
-        transactions,
-      );
-      mockAccountRepository.findByIds.mockResolvedValue(accounts);
-      mockCategoryRepository.findByIds.mockResolvedValue(categories);
       mockAiAgent.call.mockResolvedValue({
         answer: "Your food spending was $50.",
         toolExecutions: [],
@@ -280,41 +241,23 @@ describe("InsightService", () => {
 
       // Assert
       expect(result).toContain("Your food spending was $50.");
-      expect(
-        mockTransactionRepository.findActiveByDateRange,
-      ).toHaveBeenCalledWith(userId, "2000-01-01", "2000-01-31");
-      expect(mockAccountRepository.findByIds).toHaveBeenCalledWith(
-        [accountId],
-        userId,
-      );
-      expect(mockCategoryRepository.findByIds).toHaveBeenCalledWith(
-        [categoryId],
-        userId,
-      );
       expect(mockAiAgent.call).toHaveBeenCalledWith(
         expect.objectContaining({
-          messages: expect.any(Array),
+          messages: expect.arrayOf(
+            expect.objectContaining({
+              role: "user",
+              content: expect.any(String),
+            }),
+          ),
           systemPrompt: expect.any(String),
-          tools: toolSignatures,
+          tools: expect.arrayOf(
+            expect.objectContaining({
+              name: expect.any(String),
+              description: expect.any(String),
+            }),
+          ),
         }),
       );
-    });
-
-    it("should return AI response when no transactions found", async () => {
-      // Arrange
-      mockTransactionRepository.findActiveByDateRange.mockResolvedValue([]);
-      mockAiAgent.call.mockResolvedValue({
-        answer: "No transactions found for this period.",
-        toolExecutions: [],
-      });
-
-      // Act
-      const result = await service.call(userId, validInput);
-
-      // Assert
-      expect(result).toContain("No transactions found for this period.");
-      expect(mockAccountRepository.findByIds).not.toHaveBeenCalled();
-      expect(mockCategoryRepository.findByIds).not.toHaveBeenCalled();
     });
 
     it("should trim question whitespace", async () => {
@@ -356,40 +299,21 @@ describe("InsightService", () => {
 
       expect(systemPrompt).toContain("You are a personal finance assistant");
 
-      expect(tools).toEqual(toolSignatures);
-    });
-
-    it("should handle uncategorized transactions", async () => {
-      // Arrange
-      const accountId = faker.string.uuid();
-      const transactions = [
-        fakeTransaction({
-          userId,
-          accountId,
-          categoryId: undefined,
-          type: TransactionType.EXPENSE,
-        }),
-      ];
-      const accounts = [fakeAccount({ id: accountId, userId, name: "Wallet" })];
-
-      mockTransactionRepository.findActiveByDateRange.mockResolvedValue(
-        transactions,
+      expect(tools).toBeDefined();
+      expect(tools?.map((tool) => tool.name)).toEqual(
+        expect.arrayContaining([
+          "avg",
+          "calculate",
+          "getAccounts",
+          "getCategories",
+          "getTransactions",
+          "sum",
+        ]),
       );
-      mockAccountRepository.findByIds.mockResolvedValue(accounts);
-      mockCategoryRepository.findByIds.mockResolvedValue([]);
-      mockAiAgent.call.mockResolvedValue({ answer: "Answer" });
-
-      // Act
-      await service.call(userId, validInput);
-
-      // Assert
-      expect(mockCategoryRepository.findByIds).not.toHaveBeenCalled();
-      expect(mockAiAgent.call).toHaveBeenCalled();
     });
 
     it("should propagate error when AI agent fails", async () => {
       // Arrange
-      mockTransactionRepository.findActiveByDateRange.mockResolvedValue([]);
       mockAiAgent.call.mockRejectedValue(new Error("AI service unavailable"));
 
       // Act & Assert
@@ -406,8 +330,13 @@ describe("InsightService", () => {
         toolExecutions: [
           {
             tool: "sum",
-            input: JSON.stringify({ values: [50, 100] }),
+            input: "[50, 100]",
             output: "150",
+          },
+          {
+            tool: "avg",
+            input: "[50, 100]",
+            output: "75",
           },
         ],
       });
@@ -418,7 +347,8 @@ describe("InsightService", () => {
       // Assert
       expect(result).toContain("The total is $150.");
       expect(result).toContain("Tools performed:");
-      expect(result).toContain("1. sum(values: [50, 100]) = 150");
+      expect(result).toContain("1. sum");
+      expect(result).toContain("2. avg");
     });
   });
 });

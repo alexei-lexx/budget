@@ -1,10 +1,15 @@
-import { IAccountRepository } from "../models/account";
-import { AIAgent, AnyToolSignature } from "../models/ai-agent";
-import { ICategoryRepository } from "../models/category";
-import { ITransactionRepository, Transaction } from "../models/transaction";
+import { AIAgent } from "../models/ai-agent";
+import { DateRange } from "../types/date-range";
 import { YEAR_RANGE_OFFSET } from "../types/validation";
 import { formatDateAsYYYYMMDD } from "../utils/date";
+import { AiDataService } from "./ai-data-service";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
+import {
+  createGetAccountsTool,
+  createGetCategoriesTool,
+  createGetTransactionsTool,
+} from "./insight-data-tools";
+import { avgTool, calculateTool, sumTool } from "./insight-math-tools";
 
 const MAX_PERIOD_DAYS = 366;
 
@@ -15,40 +20,38 @@ You are a personal finance assistant.
 
 ## Task
 
-User provides you with a list of transactions and asks a question about them.
+User asks questions about their financial transactions within a specific date range.
 You must identify which transactions are relevant to the user's question.
 And then perform calculations based on those transactions to answer the question.
 
-## Input
+## Process
 
-Transactions are always provided in JSON format with fields:
-date, type, amount, currency, account, category, description.
+First, break down the question into sub-questions if necessary.
+For each sub-question, identify what calculations are needed.
+For each calculation, identify what data is needed: accounts, categories, transactions.
+Retrieve the necessary data in small, focused chunks.
+Do calculations based on the retrieved data.
+Answer the user's question based on the calculations and data.
+
+## Transaction types
+
+- INCOME, EXPENSE, REFUND, TRANSFER_IN, TRANSFER_OUT
+- EXPENSE increases spending
+- REFUND decreases matching spending
+- INCOME and all TRANSFER types never affect spending
 
 ## Rules
 
-Transaction types: INCOME, EXPENSE, REFUND, TRANSFER_IN, TRANSFER_OUT.
-EXPENSE increases spending.
-REFUND decreases matching spending.
-INCOME and all TRANSFER types never affect spending.
-
-You must consider ALL provided transactions before answering.
-For each calculation, clearly identify which transactions are included and why.
-For each calculation, always state the number of transactions included.
-Use category first for matching; use description only if category is unclear.
-Apply the same matching rule consistently.
+- For each calculation, clearly identify which transactions are included and why
+- For each calculation, always state the number of transactions included
+- Apply filtering consistently
 
 ## Output
 
-Do NOT repeat, reprint, or quote the transaction list or any transaction lines.
-Do NOT include per-transaction details (dates, merchants, descriptions, categories, accounts, amounts) unless the user explicitly asks to list/show transactions.
-Keep the answer concise and focused on the question.
-Respond in plain text.
+- Keep the answer concise and focused on the question
+- Respond in plain text
+- Do NOT respond in markdown
 `.trim();
-
-interface DateRange {
-  startDate: string;
-  endDate: string;
-}
 
 export interface InsightInput {
   question: string;
@@ -57,11 +60,8 @@ export interface InsightInput {
 
 export class InsightService {
   constructor(
-    private transactionRepository: ITransactionRepository,
-    private accountRepository: IAccountRepository,
-    private categoryRepository: ICategoryRepository,
+    private aiDataService: AiDataService,
     private aiAgent: AIAgent,
-    private tools: readonly AnyToolSignature[],
   ) {}
 
   async call(userId: string, input: InsightInput): Promise<string> {
@@ -84,39 +84,25 @@ export class InsightService {
 
     const validatedDateRange = this.validateDateRange(dateRange);
 
-    const transactions = await this.transactionRepository.findActiveByDateRange(
-      userId,
-      validatedDateRange.startDate,
-      validatedDateRange.endDate,
-    );
-
-    const accountNamesById = await this.buildAccountLookupMap(
-      transactions,
-      userId,
-    );
-    const categoryNamesById = await this.buildCategoryLookupMaps(
-      transactions,
-      userId,
-    );
-
-    const dataPayload = await this.buildDataPayload(
-      transactions,
-      validatedDateRange,
-      accountNamesById,
-      categoryNamesById,
-    );
-
     const systemPrompt = this.buildSystemPrompt();
     const userPrompt = this.buildUserPrompt(
       normalizedQuestion,
       validatedDateRange,
-      dataPayload,
     );
+
+    const dataTools = [
+      createGetAccountsTool(this.aiDataService, userId),
+      createGetCategoriesTool(this.aiDataService, userId),
+      createGetTransactionsTool(this.aiDataService, userId),
+    ];
+
+    const mathTools = [avgTool, calculateTool, sumTool];
+    const tools = [...dataTools, ...mathTools];
 
     const response = await this.aiAgent.call({
       messages: [{ role: "user", content: userPrompt }],
       systemPrompt,
-      tools: this.tools,
+      tools,
     });
 
     if (!response.answer) {
@@ -130,18 +116,17 @@ export class InsightService {
 
     // Append tool executions to the response for observability
     if (response.toolExecutions && response.toolExecutions.length > 0) {
-      const calculations = response.toolExecutions.map(
+      const toolsSummary = response.toolExecutions.map(
         (toolExecution, index) => {
-          const formattedInput = this.formatToolArguments(toolExecution.input);
-          return `${index + 1}. ${toolExecution.tool}(${formattedInput}) = ${toolExecution.output}`;
+          const formattedInput = this.formatJsonString(toolExecution.input);
+          const formattedOutput = this.formatJsonString(toolExecution.output);
+          return `${index + 1}. ${toolExecution.tool}\nInput:\n${formattedInput}\nOutput:\n${formattedOutput}`;
         },
       );
 
       finalAnswer += "\n\n[DEBUG] Tools performed:\n";
-      finalAnswer += calculations.join("\n");
+      finalAnswer += toolsSummary.join("\n");
     }
-
-    finalAnswer += `\n\n[DEBUG] Transactions:\n${dataPayload}`;
 
     return finalAnswer;
   }
@@ -208,91 +193,9 @@ export class InsightService {
     return parsed;
   }
 
-  private async buildDataPayload(
-    transactions: Transaction[],
-    dateRange: DateRange,
-    accountNamesById: Map<string, string>,
-    categoryNamesById: Map<string, string>,
-  ): Promise<string> {
-    if (transactions.length === 0) {
-      return "No transactions found for this period.";
-    }
-
-    const transactionRows = transactions.map((transaction) => {
-      const accountName =
-        accountNamesById.get(transaction.accountId) ?? "Unknown account";
-
-      const categoryName = transaction.categoryId
-        ? (categoryNamesById.get(transaction.categoryId) ?? "Unknown category")
-        : "Uncategorized";
-
-      return {
-        date: transaction.date,
-        type: transaction.type,
-        amount: transaction.amount,
-        currency: transaction.currency,
-        account: accountName,
-        category: categoryName,
-        description: transaction.description || "",
-      };
-    });
-
-    return JSON.stringify(transactionRows, null, 2);
-  }
-
-  private async buildAccountLookupMap(
-    transactions: Transaction[],
-    userId: string,
-  ): Promise<Map<string, string>> {
-    const accountIds = Array.from(
-      new Set(transactions.map((transaction) => transaction.accountId)),
-    );
-
-    const accounts =
-      accountIds.length > 0
-        ? await this.accountRepository.findByIds(accountIds, userId)
-        : [];
-
-    const accountNamesById = new Map(
-      accounts.map((account) => [account.id, account.name]),
-    );
-
-    return accountNamesById;
-  }
-
-  private async buildCategoryLookupMaps(
-    transactions: Transaction[],
-    userId: string,
-  ): Promise<Map<string, string>> {
-    const categoryIds = Array.from(
-      new Set(
-        transactions
-          .map((transaction) => transaction.categoryId)
-          .filter((categoryId) => categoryId !== undefined),
-      ),
-    );
-
-    const categories =
-      categoryIds.length > 0
-        ? await this.categoryRepository.findByIds(categoryIds, userId)
-        : [];
-
-    const categoryNamesById = new Map(
-      categories.map((category) => [category.id, category.name]),
-    );
-
-    return categoryNamesById;
-  }
-
-  private buildUserPrompt(
-    question: string,
-    dateRange: DateRange,
-    dataPayload: string,
-  ): string {
+  private buildUserPrompt(question: string, dateRange: DateRange): string {
     return [
-      `I have a list of transactions between ${dateRange.startDate} and ${dateRange.endDate}.`,
-      "Here are the transactions:",
-      dataPayload,
+      `I have transactions between ${dateRange.startDate} and ${dateRange.endDate}.`,
       "",
       `My question: ${question}`,
     ].join("\n");
@@ -304,49 +207,13 @@ export class InsightService {
     return SYSTEM_PROMPT + `\n\nToday's date is ${currentDate}.`;
   }
 
-  private formatToolArguments(jsonInput: string): string {
+  private formatJsonString(jsonInput: string): string {
     try {
       const parsed = JSON.parse(jsonInput);
 
-      // If there's a single 'input' key with a string value, try parsing that
-      if (
-        Object.keys(parsed).length === 1 &&
-        "input" in parsed &&
-        typeof parsed.input === "string"
-      ) {
-        try {
-          const nestedParsed = JSON.parse(parsed.input);
-          return this.formatParsedArguments(nestedParsed);
-        } catch {
-          // If nested parsing fails, continue with outer parsed object
-        }
-      }
-
-      return this.formatParsedArguments(parsed);
+      return JSON.stringify(parsed, null, 2);
     } catch {
-      // Fallback to simple string cleaning if parsing fails
-      return jsonInput
-        .replace(/^{|}$/g, "")
-        .replace(/"/g, "")
-        .replace(/,/g, ", ");
+      return jsonInput;
     }
-  }
-
-  private formatParsedArguments(parsed: Record<string, unknown>): string {
-    const entries = Object.entries(parsed);
-
-    if (entries.length === 0) {
-      return "";
-    }
-
-    // Format as "key: value" pairs
-    return entries
-      .map(([key, value]) => {
-        const formattedValue = Array.isArray(value)
-          ? `[${value.join(", ")}]`
-          : JSON.stringify(value);
-        return `${key}: ${formattedValue}`;
-      })
-      .join(", ");
   }
 }
