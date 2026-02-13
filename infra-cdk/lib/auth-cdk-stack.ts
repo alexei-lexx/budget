@@ -10,7 +10,7 @@ import { requireEnv } from "./require-env";
  * CDK Stack for Cognito User Pool infrastructure.
  *
  * Creates:
- * - User Pool with email sign-in, admin-only user creation
+ * - User Pool with email sign-in, admin-only user creation, and passkey support
  * - User Pool Client for SPA with authorization code flow
  * - User Pool Domain for Cognito Hosted UI
  * - Pre Token Generation Lambda for adding email to access tokens
@@ -21,6 +21,7 @@ import { requireEnv } from "./require-env";
  * - AUTH_CLAIM_NAMESPACE: Namespace for custom claims (required)
  * - AUTH_DOMAIN_PREFIX: Cognito domain prefix
  * - AUTH_LOGOUT_URLS: Comma-separated logout URLs (optional)
+ * - AUTH_PASSKEY_RP_ID: Relying Party ID for passkeys (optional, e.g., your domain)
  *
  * Outputs:
  * - UserPoolId: The Cognito User Pool ID
@@ -31,6 +32,12 @@ import { requireEnv } from "./require-env";
  * - Optional for production deployment (set later via AWS CLI after CloudFront URL is known)
  * - Required for development setup when deploying only auth stack with localhost URLs
  * - CloudFormation will not overwrite URLs set externally on subsequent deployments
+ *
+ * Note on Passkey Support:
+ * - Requires Essentials feature plan (has perpetual free tier)
+ * - AUTH_PASSKEY_RP_ID should be set to your application domain for production
+ * - Users can register and authenticate with WebAuthn/FIDO2 credentials
+ * - Password authentication remains available as fallback
  */
 export class AuthCdkStack extends cdk.Stack {
   public readonly userPool: cognito.UserPool;
@@ -55,6 +62,10 @@ export class AuthCdkStack extends cdk.Stack {
       ",",
     );
     const logoutUrls = (process.env.AUTH_LOGOUT_URLS || undefined)?.split(",");
+
+    // Passkey configuration (optional - enables WebAuthn/FIDO2 authentication)
+    // AUTH_PASSKEY_RP_ID: Relying Party ID for passkeys (typically the domain name)
+    const passkeyRelyingPartyId = process.env.AUTH_PASSKEY_RP_ID;
 
     this.userPool = new cognito.UserPool(this, "UserPool", {
       // Users sign in with their email address (not username or phone)
@@ -95,6 +106,29 @@ export class AuthCdkStack extends cdk.Stack {
       removalPolicy: isProduction
         ? cdk.RemovalPolicy.RETAIN
         : cdk.RemovalPolicy.DESTROY,
+
+      // Feature Plan: Use Essentials tier to enable passkey authentication
+      // Essentials tier provides passkey support with a perpetual free tier
+      // sufficient for personal use cases
+      featurePlan: cognito.FeaturePlan.ESSENTIALS,
+
+      // Passkey authentication configuration (WebAuthn/FIDO2)
+      // Relying Party ID: Domain name for passkey authentication
+      // This should match your application domain (e.g., CloudFront distribution domain)
+      ...(passkeyRelyingPartyId && { passkeyRelyingPartyId }),
+
+      // Passkey user verification: Encourage users to register passkeys
+      // PREFERRED: Users are encouraged to use passkeys but can still use passwords
+      // REQUIRED: Users must use passkeys (not recommended for initial rollout)
+      passkeyUserVerification: cognito.PasskeyUserVerification.PREFERRED,
+
+      // Sign-in policy: Enable passkey as an authentication option
+      signInPolicy: {
+        allowedFirstAuthFactors: {
+          password: true, // Keep password authentication enabled
+          passkey: true, // Enable passkey authentication
+        },
+      },
     });
 
     // Pre Token Generation Lambda - customizes JWT claims before token issuance

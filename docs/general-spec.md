@@ -120,9 +120,10 @@ The application will help individuals track their personal finances by recording
 
 ### 4.1 Flexible Authentication
 
-- Powered by Auth0 for secure, scalable authentication.
+- Powered by AWS Cognito for secure, scalable authentication.
 - Initial phase: Email/password login for manually created users.
-- Users are created manually in Auth0 dashboard (no self-registration).
+- Users are created manually in AWS Cognito dashboard (no self-registration).
+- Passkey support: Users can optionally register and authenticate using WebAuthn/FIDO2 passkeys (biometrics, security keys).
 - Future expansion: Social logins (Google, GitHub, etc.) and other identity providers.
 
 ### 4.2 Clean, Minimal Interface

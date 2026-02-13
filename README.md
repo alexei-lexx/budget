@@ -57,6 +57,13 @@ aws ssm put-parameter --overwrite --type String \
     --name "/manual/budget/production/auth/scope" \
     --value "openid profile email"
 
+# Auth passkey Relying Party ID (optional - enables passkey authentication)
+# Set to your application domain (e.g., CloudFront distribution domain)
+# Leave unset to disable passkey authentication
+aws ssm put-parameter --overwrite --type String \
+    --name "/manual/budget/production/auth/passkey-rp-id" \
+    --value "your-domain.cloudfront.net"
+
 # AI max response tokens
 aws ssm put-parameter --overwrite --type String \
     --name "/manual/budget/production/bedrock/max-tokens" \
