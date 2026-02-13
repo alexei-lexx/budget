@@ -1,15 +1,12 @@
 <!-- SYNC IMPACT REPORT
-Version Change: 0.22.1 → 0.22.2
+Version Change: 0.22.2 → 0.22.3
 Changes:
-  - PATCH (0.22.2): Corrected authentication provider references from Auth0 to AWS Cognito
+  - PATCH (0.22.3): Corrected user identification flow in Authentication & Authorization principle
 Modified Sections:
-  - Infrastructure and Environments: Updated Mermaid diagram to replace Auth0 with AWS Cognito
-  - External Dependencies: Changed from "Auth0: Identity provider" to "AWS Cognito: Authentication service"
-  - Authentication & Authorization: Replaced all Auth0 references with AWS Cognito throughout the principle
-    - Frontend authenticates via AWS Cognito (not Auth0)
-    - Backend verifies JWT tokens against AWS Cognito (not Auth0 public keys)
-    - Extracts Cognito user ID from JWT token (not Auth0 user ID)
-    - Looks up internal database user ID using Cognito user ID (not Auth0 user ID)
+  - Authentication & Authorization: Updated Backend GraphQL Layer to reflect email-based user lookup
+    - Changed: "Extract Cognito user ID from JWT token" → "Extract email from JWT token"
+    - Changed: "Look up internal database user ID using Cognito user ID" → "Look up internal database user ID using email"
+    - Rationale: App uses email as the user identifier, not Cognito's external user ID
 Added Sections:
   - None
 Removed Sections:
@@ -19,9 +16,13 @@ Templates Requiring Updates:
   ✅ spec-template.md: Generic template, no updates needed
   ✅ tasks-template.md: Generic template, no updates needed
 Dependent Documentation Updates:
-  ⚠ docs/general-spec.md: Section 4.1 references Auth0, needs updating to AWS Cognito
+  - None identified
 Follow-up TODOs:
   - Ratification date remains TODO (inherited from previous versions)
+
+Previous Version History:
+  - 0.22.1 → 0.22.2: Corrected authentication provider from Auth0 to AWS Cognito
+  - 0.22.0 → 0.22.1: Enhanced TypeScript naming standards
 -->
 
 # Personal Finance Tracker Constitution
@@ -332,8 +333,8 @@ graph LR
 **Backend GraphQL Layer**:
 - Verify JWT token against AWS Cognito public keys before any resolver runs
 - Reject requests with missing or invalid JWT tokens
-- Extract Cognito user ID from JWT token and store in context
-- Look up internal database user ID using Cognito user ID from context
+- Extract email from JWT token and store in context
+- Look up internal database user ID using email from context
 - Never trust user IDs from mutation/query input - always use authenticated user from context
 - Propagate internal database user ID to service layer
 
@@ -436,4 +437,4 @@ This constitution supersedes all other development guidelines. Amendments requir
 4. Commit with message: `docs: amend constitution to vX.Y.Z ([change summary])`
 5. Update dependent artifacts (templates, guidance docs) as flagged
 
-**Version**: 0.22.2 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2026-02-14
+**Version**: 0.22.3 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2026-02-14
