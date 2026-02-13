@@ -95,6 +95,39 @@ export class CategoryRepository implements ICategoryRepository {
     }
   }
 
+  async findAllByUserId(userId: string): Promise<Category[]> {
+    if (!userId) {
+      throw new CategoryRepositoryError(
+        "User ID is required",
+        "INVALID_USER_ID",
+      );
+    }
+
+    try {
+      const result = await paginateQuery<Category>({
+        client: this.client,
+        params: {
+          TableName: this.tableName,
+          KeyConditionExpression: "userId = :userId",
+          ExpressionAttributeValues: {
+            ":userId": userId,
+          },
+        },
+        options: {}, // No pageSize = get all items
+        schema: categorySchema,
+      });
+
+      return result.items;
+    } catch (error) {
+      console.error("Error finding all categories by user ID:", error);
+      throw new CategoryRepositoryError(
+        "Failed to find all categories",
+        "QUERY_FAILED",
+        error,
+      );
+    }
+  }
+
   async findActiveByUserIdAndType(
     userId: string,
     type: CategoryType,

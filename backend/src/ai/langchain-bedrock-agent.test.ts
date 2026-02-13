@@ -46,7 +46,7 @@ describe("LangchainBedrockAgent", () => {
       const testTool: AnyToolSignature = {
         name: "test_tool",
         description: "A test tool",
-        func: (input: { text: string }) => `Echo: ${input.text}`,
+        func: async (input: { text: string }) => `Echo: ${input.text}`,
         inputSchema: z.object({ text: z.string() }),
       };
       mockReactAgent.invoke.mockResolvedValue({
