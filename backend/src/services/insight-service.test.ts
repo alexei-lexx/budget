@@ -292,9 +292,11 @@ describe("InsightService", () => {
         userId,
       );
       expect(mockAiAgent.call).toHaveBeenCalledWith(
-        expect.any(Array),
-        expect.any(String),
-        expect.any(Array),
+        expect.objectContaining({
+          messages: expect.any(Array),
+          systemPrompt: expect.any(String),
+          tools: toolSignatures,
+        }),
       );
     });
 
@@ -329,7 +331,7 @@ describe("InsightService", () => {
 
       // Assert
       const callArgs = mockAiAgent.call.mock.calls[0];
-      expect(callArgs[0][0].content).toContain(
+      expect(callArgs[0].messages[0].content).toContain(
         "My question: What is my spending?",
       );
     });
@@ -344,9 +346,7 @@ describe("InsightService", () => {
 
       // Assert
       const callArgs = mockAiAgent.call.mock.calls[0];
-      const messages = callArgs[0];
-      const systemPrompt = callArgs[1];
-      const tools = callArgs[2];
+      const { messages, systemPrompt, tools } = callArgs[0];
 
       expect(messages).toHaveLength(1);
       expect(messages[0].role).toBe("user");
