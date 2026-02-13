@@ -1,30 +1,54 @@
 import { ChatBedrockConverse } from "@langchain/aws";
-import { AIMessage, StructuredTool, ToolMessage, createAgent } from "langchain";
+import {
+  AIMessage,
+  StructuredTool,
+  ToolMessage,
+  createAgent,
+  tool,
+} from "langchain";
+import { z } from "zod";
+import { AnyToolSignature } from "../models/ai-agent";
 import { LangchainBedrockAgent } from "./langchain-bedrock-agent";
 
-// Mock LangChain's createAgent
+// Mock LangChain's createAgent and tool
 jest.mock("langchain", () => ({
   ...jest.requireActual("langchain"),
   createAgent: jest.fn(),
+  tool: jest.fn(),
 }));
 
 describe("LangchainBedrockAgent", () => {
   let agent: LangchainBedrockAgent;
   let mockModel: jest.Mocked<ChatBedrockConverse>;
-  let mockTools: StructuredTool[];
+  let mockToolSignatures: AnyToolSignature[];
+  let mockLangchainTools: StructuredTool[];
   let mockReactAgent: { invoke: jest.Mock };
 
   beforeEach(() => {
     // Create mock model
     mockModel = {} as jest.Mocked<ChatBedrockConverse>;
 
-    // Create mock tools
-    mockTools = [
+    // Create mock ToolSignature objects
+    mockToolSignatures = [
+      {
+        name: "sum",
+        description: "Add numbers",
+        func: (input: { values: number[] }) =>
+          String(input.values.reduce((a, b) => a + b, 0)),
+        inputSchema: z.object({ values: z.array(z.number()) }),
+      },
+    ];
+
+    // Create mock LangChain tools (what tool() returns)
+    mockLangchainTools = [
       {
         name: "sum",
         description: "Add numbers",
       } as StructuredTool,
     ];
+
+    // Mock the tool() function to return LangChain tools
+    (tool as jest.Mock).mockReturnValue(mockLangchainTools[0]);
 
     // Create mock ReAct agent
     mockReactAgent = {
@@ -33,7 +57,7 @@ describe("LangchainBedrockAgent", () => {
 
     (createAgent as jest.Mock).mockReturnValue(mockReactAgent);
 
-    agent = new LangchainBedrockAgent(mockTools, mockModel);
+    agent = new LangchainBedrockAgent(mockModel);
 
     jest.clearAllMocks();
   });
@@ -54,12 +78,17 @@ describe("LangchainBedrockAgent", () => {
       });
 
       // Act
-      await agent.call(messages, systemPrompt);
+      await agent.call(messages, systemPrompt, mockToolSignatures);
 
       // Assert
+      expect(tool).toHaveBeenCalledWith(mockToolSignatures[0].func, {
+        name: mockToolSignatures[0].name,
+        description: mockToolSignatures[0].description,
+        schema: mockToolSignatures[0].inputSchema,
+      });
       expect(createAgent).toHaveBeenCalledWith({
         model: mockModel,
-        tools: mockTools,
+        tools: [mockLangchainTools[0]],
         systemPrompt,
       });
     });
@@ -81,7 +110,7 @@ describe("LangchainBedrockAgent", () => {
       });
 
       // Act
-      await agent.call(messages);
+      await agent.call(messages, undefined, mockToolSignatures);
 
       // Assert
       expect(mockReactAgent.invoke).toHaveBeenCalledWith({
@@ -111,7 +140,7 @@ describe("LangchainBedrockAgent", () => {
       });
 
       // Act
-      const result = await agent.call(messages);
+      const result = await agent.call(messages, undefined, mockToolSignatures);
 
       // Assert
       expect(result.answer).toBe("This is the final answer");
@@ -161,7 +190,7 @@ describe("LangchainBedrockAgent", () => {
       });
 
       // Act
-      const result = await agent.call(messages);
+      const result = await agent.call(messages, undefined, mockToolSignatures);
 
       // Assert
       expect(result.answer).toBe("Sum is 15, average is 7.5");
@@ -198,7 +227,7 @@ describe("LangchainBedrockAgent", () => {
       });
 
       // Act
-      const result = await agent.call(messages);
+      const result = await agent.call(messages, undefined, mockToolSignatures);
 
       // Assert
       expect(result.toolExecutions).toHaveLength(1);
@@ -235,7 +264,7 @@ describe("LangchainBedrockAgent", () => {
       });
 
       // Act
-      const result = await agent.call(messages);
+      const result = await agent.call(messages, undefined, mockToolSignatures);
 
       // Assert
       expect(result.toolExecutions).toHaveLength(1);
@@ -257,7 +286,7 @@ describe("LangchainBedrockAgent", () => {
       });
 
       // Act
-      const result = await agent.call(messages);
+      const result = await agent.call(messages, undefined, mockToolSignatures);
 
       // Assert
       expect(result.answer).toBe("");
@@ -277,12 +306,36 @@ describe("LangchainBedrockAgent", () => {
       });
 
       // Act
+      await agent.call(messages, undefined, mockToolSignatures);
+
+      // Assert
+      expect(createAgent).toHaveBeenCalledWith({
+        model: mockModel,
+        tools: [mockLangchainTools[0]],
+        systemPrompt: undefined,
+      });
+    });
+
+    it("should work without tools", async () => {
+      // Arrange
+      const messages = [{ role: "user" as const, content: "Test" }];
+
+      mockReactAgent.invoke.mockResolvedValue({
+        messages: [
+          new AIMessage({
+            content: "Answer",
+            tool_calls: [],
+          }),
+        ],
+      });
+
+      // Act
       await agent.call(messages);
 
       // Assert
       expect(createAgent).toHaveBeenCalledWith({
         model: mockModel,
-        tools: mockTools,
+        tools: undefined,
         systemPrompt: undefined,
       });
     });
