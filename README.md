@@ -131,9 +131,9 @@ Passkeys provide a more secure and convenient way to sign in using:
 
 **How it works:**
 1. Users log in through the AWS Cognito Managed Login UI
-2. After initial password login, users are prompted to register a passkey
+2. When `PREFERRED` mode is enabled, Cognito encourages users to register a passkey during sign-up or sign-in
 3. Once registered, users can sign in with just their biometric or security key
-4. No password needed for subsequent logins
+4. No password needed for subsequent logins with passkeys
 
 **Setup Requirements:**
 - Set the `AUTH_PASSKEY_RP_ID` SSM parameter to your application domain (see deployment section above)
