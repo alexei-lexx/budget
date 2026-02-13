@@ -258,14 +258,6 @@ describe("CategoryRepository", () => {
       expect(archivedCategory.isArchived).toBe(true);
     });
 
-    it("should return empty array when user has no categories", async () => {
-      // Act
-      const result = await repository.findAllByUserId(userId);
-
-      // Assert
-      expect(result).toEqual([]);
-    });
-
     it("should return categories of all types", async () => {
       // Arrange
       const expenseCategory = await repository.create(

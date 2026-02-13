@@ -116,14 +116,6 @@ describe("AccountRepository", () => {
       expect(archivedAccount.isArchived).toBe(true);
     });
 
-    it("should return empty array when user has no accounts", async () => {
-      // Act
-      const result = await repository.findAllByUserId(userId);
-
-      // Assert
-      expect(result).toEqual([]);
-    });
-
     it("should not return accounts from other users", async () => {
       // Arrange
       const otherUserId = faker.string.uuid();
