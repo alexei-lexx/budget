@@ -43,15 +43,12 @@ describe("LangchainBedrockAgent", () => {
       // Arrange
       const messages = [{ role: "user" as const, content: "Test question" }];
       const systemPrompt = "You are a test assistant";
-      const tools: AnyToolSignature[] = [
-        {
-          name: "test_tool",
-          description: "A test tool",
-          func: (input: { text: string }) => `Echo: ${input.text}`,
-          inputSchema: z.object({ text: z.string() }),
-        },
-      ];
-
+      const testTool: AnyToolSignature = {
+        name: "test_tool",
+        description: "A test tool",
+        func: (input: { text: string }) => `Echo: ${input.text}`,
+        inputSchema: z.object({ text: z.string() }),
+      };
       mockReactAgent.invoke.mockResolvedValue({
         messages: [
           new AIMessage({
@@ -70,13 +67,13 @@ describe("LangchainBedrockAgent", () => {
       (tool as jest.Mock).mockReturnValue(mockLangchainTool);
 
       // Act
-      await agent.call({ messages, systemPrompt, tools });
+      await agent.call({ messages, systemPrompt, tools: [testTool] });
 
       // Assert
-      expect(tool).toHaveBeenCalledWith(tools[0].func, {
-        name: tools[0].name,
-        description: tools[0].description,
-        schema: tools[0].inputSchema,
+      expect(tool).toHaveBeenCalledWith(testTool.func, {
+        name: testTool.name,
+        description: testTool.description,
+        schema: testTool.inputSchema,
       });
       expect(createAgent).toHaveBeenCalledWith({
         model: mockModel,
