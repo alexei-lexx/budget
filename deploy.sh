@@ -178,8 +178,26 @@ if [ -n "$CLOUDFRONT_URL" ] && [ "$CLOUDFRONT_URL" != "null" ]; then
     --no-cli-pager
 
   echo "Cognito callback/logout URLs configured successfully"
+
+  # ============================================================================
+  # Phase 3: Update Auth Stack with CloudFront domain for passkey RP ID
+  # ============================================================================
+  # Extract just the domain from the CloudFront URL (remove https://)
+  CLOUDFRONT_DOMAIN=$(echo "$CLOUDFRONT_URL" | sed 's|https://||')
+  echo "CloudFront Domain: $CLOUDFRONT_DOMAIN"
+
+  echo "Phase 3: Updating auth stack with passkey relying party ID..."
+  # Redeploy auth stack with AUTH_PASSKEY_RP_ID set to CloudFront domain
+  # This enables passkey authentication with the correct relying party domain
+  env AUTH_CLAIM_NAMESPACE="$AUTH_CLAIM_NAMESPACE" \
+      AUTH_DOMAIN_PREFIX="$AUTH_DOMAIN_PREFIX" \
+      AUTH_PASSKEY_RP_ID="$CLOUDFRONT_DOMAIN" \
+      NODE_ENV="$NODE_ENV" \
+    npm run cdk -- deploy AuthCdkStack --outputs-file "$CDK_OUTPUT_FILE" --require-approval never
+
+  echo "Auth stack updated with passkey relying party ID: $CLOUDFRONT_DOMAIN"
 else
-  echo "CloudFront URL not found - skipping Cognito URL update"
+  echo "CloudFront URL not found - skipping Cognito URL update and passkey RP ID configuration"
 fi
 
 echo "Running migrations..."

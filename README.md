@@ -58,12 +58,9 @@ aws ssm put-parameter --overwrite --type String \
     --name "/manual/budget/production/auth/scope" \
     --value "openid profile email"
 
-# Auth passkey Relying Party ID (optional - enables passkey authentication)
-# Set to your application domain (e.g., CloudFront distribution domain)
-# Leave unset to disable passkey authentication
-aws ssm put-parameter --overwrite --type String \
-    --name "/manual/budget/production/auth/passkey-rp-id" \
-    --value "your-domain.cloudfront.net"
+# Note: AUTH_PASSKEY_RP_ID is automatically configured during deployment
+# The deploy.sh script will set it to your CloudFront distribution domain
+# No manual SSM parameter needed for passkey support
 
 # AI max response tokens
 aws ssm put-parameter --overwrite --type String \
@@ -136,8 +133,8 @@ Passkeys provide a more secure and convenient way to sign in using:
 4. No password needed for subsequent logins with passkeys
 
 **Setup Requirements:**
-- Set the `AUTH_PASSKEY_RP_ID` SSM parameter to your application domain (see deployment section above)
-- The domain should match where your frontend is hosted (e.g., CloudFront distribution domain)
+- **Automatic Configuration**: The deployment script automatically configures passkeys using your CloudFront distribution domain
+- No manual SSM parameter setup needed - passkey support is enabled by default after deployment
 - Passkeys are optional - users can continue using password authentication
 
 **Browser Support:**

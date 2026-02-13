@@ -35,7 +35,7 @@ import { requireEnv } from "./require-env";
  *
  * Note on Passkey Support:
  * - Requires Essentials feature plan (has perpetual free tier)
- * - AUTH_PASSKEY_RP_ID should be set to your application domain for production
+ * - AUTH_PASSKEY_RP_ID is automatically set to CloudFront domain during deployment (Phase 3 of deploy.sh)
  * - Users can register and authenticate with WebAuthn/FIDO2 credentials
  * - Password authentication remains available as fallback
  */
@@ -114,7 +114,8 @@ export class AuthCdkStack extends cdk.Stack {
 
       // Passkey authentication configuration (WebAuthn/FIDO2)
       // Relying Party ID: Domain name for passkey authentication
-      // This should match your application domain (e.g., CloudFront distribution domain)
+      // During deployment, this will be set to the CloudFront distribution domain
+      // automatically in Phase 3 of deploy.sh
       ...(passkeyRelyingPartyId && { passkeyRelyingPartyId }),
 
       // Passkey user verification: Encourage users to register passkeys
