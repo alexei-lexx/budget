@@ -1,15 +1,15 @@
 <!-- SYNC IMPACT REPORT
-Version Change: 0.22.0 → 0.22.1
+Version Change: 0.22.1 → 0.22.2
 Changes:
-  - PATCH (0.22.1): Enhanced TypeScript naming standards with descriptive identifier requirement
+  - PATCH (0.22.2): Corrected authentication provider references from Auth0 to AWS Cognito
 Modified Sections:
-  - TypeScript Code Generation: Added naming convention rule requiring descriptive identifiers
-    - MUST use descriptive names for all variables, methods, parameters, and types
-    - Avoid single-character names (except standard loop indices i, j, k)
-    - Avoid abbreviated forms that obscure meaning
-    - Use full words instead of shortened versions (e.g., 'transaction' not 'tx', 'repository' not 'repo')
-    - Keep names concise while prioritizing clarity
-    - Updated rationale to include improved code comprehension and reduced cognitive load
+  - Infrastructure and Environments: Updated Mermaid diagram to replace Auth0 with AWS Cognito
+  - External Dependencies: Changed from "Auth0: Identity provider" to "AWS Cognito: Authentication service"
+  - Authentication & Authorization: Replaced all Auth0 references with AWS Cognito throughout the principle
+    - Frontend authenticates via AWS Cognito (not Auth0)
+    - Backend verifies JWT tokens against AWS Cognito (not Auth0 public keys)
+    - Extracts Cognito user ID from JWT token (not Auth0 user ID)
+    - Looks up internal database user ID using Cognito user ID (not Auth0 user ID)
 Added Sections:
   - None
 Removed Sections:
@@ -18,6 +18,8 @@ Templates Requiring Updates:
   ✅ plan-template.md: Generic template, no updates needed
   ✅ spec-template.md: Generic template, no updates needed
   ✅ tasks-template.md: Generic template, no updates needed
+Dependent Documentation Updates:
+  ⚠ docs/general-spec.md: Section 4.1 references Auth0, needs updating to AWS Cognito
 Follow-up TODOs:
   - Ratification date remains TODO (inherited from previous versions)
 -->
@@ -100,13 +102,14 @@ An npm package providing unified infrastructure-as-code for both backend and fro
 - **API Gateway**: Routes GraphQL requests from CloudFront to Lambda
 - **Lambda**: Apollo Server runtime
 - **DynamoDB**: User data storage (on-demand scaling)
+- **Cognito**: User authentication and JWT token generation
 
 ```mermaid
 graph TD
     Browser["User Browser"]
 
     CloudFront["CloudFront<br/>Distribution"]
-    Auth0["Auth0<br/>(Identity Provider)"]
+    Cognito["AWS Cognito<br/>(Authentication)"]
 
     S3["S3 Bucket<br/>(Frontend Assets)"]
     APIGateway["API Gateway<br/>(HTTP API)"]
@@ -116,12 +119,12 @@ graph TD
     DynamoDB["DynamoDB"]
 
     Browser -->|Static & API| CloudFront
-    Browser -->|Login| Auth0
+    Browser -->|Login| Cognito
     CloudFront -->|Serve| S3
     CloudFront -->|Forward| APIGateway
     APIGateway -->|Route| Lambda
     Lambda -->|Read/Write| DynamoDB
-    Lambda -->|Verify JWT| Auth0
+    Lambda -->|Verify JWT| Cognito
 ```
 
 **Deployment**:
@@ -136,7 +139,7 @@ graph TD
 
 ### External Dependencies
 
-- **Auth0**: Identity provider for both production and development
+- **AWS Cognito**: Authentication service for both production and development
 
 ## Core Principles
 
@@ -320,17 +323,17 @@ graph LR
 
 ### Authentication & Authorization
 
-**Non-negotiable rule**: All user authentication flows through Auth0 as the identity provider. User data is strictly isolated at the database level, ensuring zero cross-user data leakage.
+**Non-negotiable rule**: All user authentication flows through AWS Cognito as the authentication service. User data is strictly isolated at the database level, ensuring zero cross-user data leakage.
 
 **Frontend**:
-- Force user authentication via Auth0 before allowing access to protected routes
+- Force user authentication via AWS Cognito before allowing access to protected routes
 - Include JWT token in Authorization header for every GraphQL request to backend
 
 **Backend GraphQL Layer**:
-- Verify JWT token against Auth0 public keys before any resolver runs
+- Verify JWT token against AWS Cognito public keys before any resolver runs
 - Reject requests with missing or invalid JWT tokens
-- Extract Auth0 user ID from JWT token and store in context
-- Look up internal database user ID using Auth0 user ID from context
+- Extract Cognito user ID from JWT token and store in context
+- Look up internal database user ID using Cognito user ID from context
 - Never trust user IDs from mutation/query input - always use authenticated user from context
 - Propagate internal database user ID to service layer
 
@@ -433,4 +436,4 @@ This constitution supersedes all other development guidelines. Amendments requir
 4. Commit with message: `docs: amend constitution to vX.Y.Z ([change summary])`
 5. Update dependent artifacts (templates, guidance docs) as flagged
 
-**Version**: 0.22.1 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2026-01-19
+**Version**: 0.22.2 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2026-02-14
