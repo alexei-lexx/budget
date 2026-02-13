@@ -7,8 +7,7 @@ export const createGetAccountsTool = (
   userId: string,
 ): ToolSignature<object> => ({
   name: "getAccounts",
-  description:
-    "Get all user accounts (both active and archived). Returns array of accounts with id, name, currency, and isArchived status. Use this to see what accounts are available before filtering transactions.",
+  description: "Get all user accounts (both active and archived).",
   inputSchema: z.object(),
   func: async () => {
     const accounts = await aiDataService.getAllAccounts(userId);
@@ -21,8 +20,7 @@ export const createGetCategoriesTool = (
   userId: string,
 ): ToolSignature<object> => ({
   name: "getCategories",
-  description:
-    "Get all user categories (both active and archived). Returns array of categories with id, name, type (INCOME/EXPENSE), and isArchived status. Use this to see what categories are available before filtering transactions.",
+  description: "Get all user categories (both active and archived).",
   inputSchema: z.object(),
   func: async () => {
     const categories = await aiDataService.getAllCategories(userId);
@@ -45,7 +43,7 @@ export const createGetTransactionsTool = (
 ): ToolSignature<GetTransactionsInput> => ({
   name: "getTransactions",
   description:
-    "Get filtered transactions by date range and optionally by single categoryId or accountId. Only returns active (non-archived) transactions. Date format: YYYY-MM-DD. Use categoryId from getCategories and accountId from getAccounts for precise filtering.",
+    "Get filtered transactions by date range and optionally by single categoryId or accountId. Only returns active (non-archived) transactions. Date format: YYYY-MM-DD.",
   inputSchema: getTransactionsInputSchema,
   func: async (input: GetTransactionsInput) => {
     const transactions = await aiDataService.getFilteredTransactions(
