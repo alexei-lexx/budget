@@ -31,12 +31,12 @@ export class LangchainBedrockAgent implements AIAgent {
       });
   }
 
-  async call(
-    messages: readonly AiMessage[],
-    systemPrompt?: string,
-    tools?: readonly AnyToolSignature[],
-  ) {
-    const langchainTools = tools?.map((toolSignature) => {
+  async call(input: {
+    messages: readonly AiMessage[];
+    systemPrompt?: string;
+    tools?: readonly AnyToolSignature[];
+  }) {
+    const langchainTools = input.tools?.map((toolSignature) => {
       return tool(toolSignature.func, {
         name: toolSignature.name,
         description: toolSignature.description,
@@ -48,11 +48,11 @@ export class LangchainBedrockAgent implements AIAgent {
     const react = createAgent({
       model: this.model,
       tools: langchainTools,
-      systemPrompt,
+      systemPrompt: input.systemPrompt,
     });
 
     const response = await react.invoke({
-      messages: messages.map((msg) => ({
+      messages: input.messages.map((msg) => ({
         role: msg.role,
         content: msg.content,
       })),

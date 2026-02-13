@@ -113,11 +113,11 @@ export class InsightService {
       dataPayload,
     );
 
-    const response = await this.aiAgent.call(
-      [{ role: "user", content: userPrompt }],
+    const response = await this.aiAgent.call({
+      messages: [{ role: "user", content: userPrompt }],
       systemPrompt,
-      this.tools,
-    );
+      tools: this.tools,
+    });
 
     if (!response.answer) {
       throw new BusinessError(

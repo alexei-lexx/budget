@@ -24,9 +24,9 @@ export interface ToolExecution {
 }
 
 export interface AIAgent {
-  call(
-    messages: readonly AiMessage[],
-    systemPrompt?: string,
-    tools?: readonly AnyToolSignature[],
-  ): Promise<{ answer: string; toolExecutions?: ToolExecution[] }>;
+  call(input: {
+    messages: readonly AiMessage[];
+    systemPrompt?: string;
+    tools?: readonly AnyToolSignature[];
+  }): Promise<{ answer: string; toolExecutions?: ToolExecution[] }>;
 }
