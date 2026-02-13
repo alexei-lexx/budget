@@ -12,6 +12,7 @@ Web application for personal financial management.
 - **Monthly Reports** - See where your money goes each month with detailed category breakdowns
 - **Smart Suggestions** - Save time with intelligent account and category recommendations based on your habits
 - **Transaction Search** - Find any transaction by filtering on account, category, date, etc.
+- **Passkey Authentication** - Secure, passwordless login using biometrics (Touch ID, Face ID, Windows Hello) or security keys (YubiKey)
 
 ## Technologies
 
@@ -117,3 +118,29 @@ The deployment script supports multi-environment deployments using the ENV envir
 ```bash
 ENV=staging ./deploy.sh
 ```
+
+## Authentication
+
+This application uses AWS Cognito for authentication with support for both traditional password login and modern passkey (WebAuthn/FIDO2) authentication.
+
+### Passkey Authentication
+
+Passkeys provide a more secure and convenient way to sign in using:
+- **Biometrics**: Touch ID, Face ID, Windows Hello
+- **Security Keys**: YubiKey, Google Titan, and other FIDO2-compliant devices
+
+**How it works:**
+1. Users log in through the AWS Cognito Managed Login UI
+2. After initial password login, users are prompted to register a passkey
+3. Once registered, users can sign in with just their biometric or security key
+4. No password needed for subsequent logins
+
+**Setup Requirements:**
+- Set the `AUTH_PASSKEY_RP_ID` SSM parameter to your application domain (see deployment section above)
+- The domain should match where your frontend is hosted (e.g., CloudFront distribution domain)
+- Passkeys are optional - users can continue using password authentication
+
+**Browser Support:**
+- Chrome, Edge, Safari, and Firefox on desktop
+- iOS Safari and Android Chrome on mobile
+- Requires HTTPS (works automatically with CloudFront)
