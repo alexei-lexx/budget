@@ -12,7 +12,7 @@ export const createGetAccountsTool = (
   inputSchema: z.object(),
   func: async () => {
     const accounts = await aiDataService.getAllAccounts(userId);
-    return JSON.stringify(accounts, null, 2);
+    return JSON.stringify(accounts);
   },
 });
 
@@ -70,6 +70,6 @@ export const createGetTransactionsTool = (params: {
       input.categoryId,
       input.accountId,
     );
-    return JSON.stringify(transactions, null, 2);
+    return JSON.stringify(transactions);
   },
 });
