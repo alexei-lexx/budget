@@ -4,6 +4,7 @@
   "compilerOptions": {
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.test.tsbuildinfo",
     "types": ["jest", "vite/client"],
+    "verbatimModuleSyntax": false,
     "paths": {
       "@/*": ["./src/*"]
     }
