@@ -47,6 +47,10 @@ jobs:
         working-directory: backend
         run: npm run lint
 
+      - name: Create test database tables
+        working-directory: backend
+        run: npm run test:db:create
+
       - name: Run tests
         working-directory: backend
         run: npm run test
