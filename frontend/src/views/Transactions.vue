@@ -3,9 +3,11 @@
   <v-container>
     <v-row>
       <v-col cols="12">
-        <div class="d-flex align-center mb-6 flex-column flex-sm-row ga-3 ga-sm-0 justify-sm-space-between">
+        <div
+          class="d-flex align-center mb-6 flex-column flex-sm-row ga-3 ga-sm-0 justify-sm-space-between"
+        >
           <h1 :class="$vuetify.display.xs ? 'text-h5' : 'text-h4'">Transactions</h1>
-          <div class="d-flex gap-3">
+          <div class="d-flex">
             <v-btn
               class="d-none d-sm-flex"
               color="primary"
@@ -22,7 +24,7 @@
               @click="handleAddTransaction"
             />
             <v-btn
-              class="d-none d-sm-flex"
+              class="d-none d-sm-flex ml-3"
               color="secondary"
               prepend-icon="mdi-swap-horizontal"
               @click="handleAddTransfer"
@@ -30,7 +32,7 @@
               Add Transfer
             </v-btn>
             <v-btn
-              class="d-flex d-sm-none"
+              class="d-flex d-sm-none ml-3"
               color="secondary"
               icon="mdi-swap-horizontal"
               size="large"
