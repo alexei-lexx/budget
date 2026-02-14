@@ -20,7 +20,7 @@ Do NOT start development without reading `constitution.md` first.
 **Architecture & Governance**: The `constitution.md` defines project structure, organizational principles, coding standards, and technical constraints.
 
 **Additional Documentation**:
-- `docs/general-spec.md` - Business requirements and feature specifications
+- `docs/requirements.md` - Business requirements and feature specifications
 
 **Execute only when I explicitly say:** "implement," "create," "build," "write," or "generate."
 Otherwise, critique and advise — don't assume I want you to proceed.

@@ -1,10 +1,12 @@
-# General Specification Document
+# Requirements Document
 
 - **Project Name:** Personal Finance Tracker (working title)
 - **Version:** 1.0
 - **Date:** 12 June 2025
 
 ---
+
+> **Note**: For architecture, code standards, and technical constraints, see `.specify/memory/constitution.md`
 
 ## 1. Purpose
 
@@ -118,31 +120,14 @@ The application will help individuals track their personal finances by recording
 
 ## 4. User Experience
 
-### 4.1 Flexible Authentication
-
-- Powered by AWS Cognito for secure, scalable authentication.
-- Initial phase: Email/password login for manually created users.
-- Users are created manually in AWS Cognito user pool (no self-registration).
-- Future expansion: Social logins (Google, GitHub, etc.) and other identity providers.
-
-### 4.2 Clean, Minimal Interface
+### 4.1 Clean, Minimal Interface
 
 - Focus on usability, with fast access to:
   - Add a transaction
   - View account balances
   - See monthly report
 
-### 4.3 Personal Use Only
+### 4.2 Personal Use Only
 
-- Each user’s data is private and accessible only to them.
+- Each user's data is private and accessible only to them.
 - No shared accounts, collaboration, or multi-user data features.
-
----
-
-## 5. Cost & Maintenance
-
-- Infrastructure should be low-cost and scalable.
-- Ideal backend services:
-  - Serverless (pay-per-use model)
-  - Minimal or free-tier database hosting
-- The application is intended to be lightweight and require minimal maintenance.
