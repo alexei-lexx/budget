@@ -7,38 +7,22 @@
           <h1 class="text-h4">Transactions</h1>
           <div class="d-flex gap-2 flex-wrap">
             <v-btn
-              v-if="$vuetify.display.smAndUp"
+              :icon="$vuetify.display.xs ? 'mdi-plus' : undefined"
+              :prepend-icon="$vuetify.display.smAndUp ? 'mdi-plus' : undefined"
+              :size="$vuetify.display.xs ? 'large' : undefined"
               color="primary"
-              prepend-icon="mdi-plus"
               @click="handleAddTransaction"
             >
-              Add Transaction
+              <template v-if="$vuetify.display.smAndUp">Add Transaction</template>
             </v-btn>
             <v-btn
-              v-else
-              color="primary"
-              icon="mdi-plus"
-              size="large"
-              @click="handleAddTransaction"
-            >
-              <v-icon>mdi-plus</v-icon>
-            </v-btn>
-            <v-btn
-              v-if="$vuetify.display.smAndUp"
+              :icon="$vuetify.display.xs ? 'mdi-swap-horizontal' : undefined"
+              :prepend-icon="$vuetify.display.smAndUp ? 'mdi-swap-horizontal' : undefined"
+              :size="$vuetify.display.xs ? 'large' : undefined"
               color="secondary"
-              prepend-icon="mdi-swap-horizontal"
               @click="handleAddTransfer"
             >
-              Add Transfer
-            </v-btn>
-            <v-btn
-              v-else
-              color="secondary"
-              icon="mdi-swap-horizontal"
-              size="large"
-              @click="handleAddTransfer"
-            >
-              <v-icon>mdi-swap-horizontal</v-icon>
+              <template v-if="$vuetify.display.smAndUp">Add Transfer</template>
             </v-btn>
           </div>
         </div>

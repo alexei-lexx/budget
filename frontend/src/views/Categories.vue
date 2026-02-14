@@ -159,15 +159,13 @@ const handleCategoryCancel = () => {
     >
       <h1 :class="$vuetify.display.xs ? 'text-h5' : 'text-h4'">Categories</h1>
       <v-btn
-        v-if="$vuetify.display.smAndUp"
+        :icon="$vuetify.display.xs ? 'mdi-plus' : undefined"
+        :prepend-icon="$vuetify.display.smAndUp ? 'mdi-plus' : undefined"
+        :size="$vuetify.display.xs ? 'large' : undefined"
         color="primary"
-        prepend-icon="mdi-plus"
         @click="openAddCategoryDialog"
       >
-        Add Category
-      </v-btn>
-      <v-btn v-else color="primary" icon="mdi-plus" size="large" @click="openAddCategoryDialog">
-        <v-icon>mdi-plus</v-icon>
+        <template v-if="$vuetify.display.smAndUp">Add Category</template>
       </v-btn>
     </div>
 
