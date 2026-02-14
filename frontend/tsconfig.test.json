@@ -3,7 +3,7 @@
   "include": ["src/**/*.test.ts"],
   "compilerOptions": {
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.test.tsbuildinfo",
-    "types": ["jest"],
+    "types": ["jest", "vite/client"],
     "paths": {
       "@/*": ["./src/*"]
     }
