@@ -15,6 +15,7 @@
     "prettier:fix": "prettier --write .",
     "prettier": "prettier --check .",
     "preview": "vite preview",
+    "test": "jest",
     "typecheck": "vue-tsc --build"
   },
   "dependencies": {
@@ -34,6 +35,7 @@
     "@graphql-codegen/typescript-vue-apollo": "^4.1.2",
     "@mdi/font": "^7.4.47",
     "@tsconfig/node22": "^22.0.2",
+    "@types/jest": "^30.0.0",
     "@types/node": "^24.10.4",
     "@vitejs/plugin-vue": "^6.0.1",
     "@vue/eslint-config-prettier": "^10.2.0",
@@ -41,9 +43,12 @@
     "@vue/tsconfig": "^0.8.1",
     "eslint": "^9.38.0",
     "eslint-plugin-vue": "~10.5.1",
+    "jest": "^30.2.0",
+    "jest-environment-jsdom": "^30.2.0",
     "jiti": "^2.6.1",
     "npm-run-all2": "^8.0.4",
     "prettier": "3.6.2",
+    "ts-jest": "^29.4.6",
     "typescript": "~5.9.3",
     "vite": "^7.1.12",
     "vite-plugin-vue-devtools": "^8.0.3",

@@ -18,4 +18,5 @@ Vue 3 single-page application for the Personal Finance Tracker.
 ## Quality Checks
 
 - `npm run format` - Run Prettier and ESLint to check and fix code style
+- `npm run test` - Run tests with Jest
 - `npm run typecheck` - Run TypeScript type checker
