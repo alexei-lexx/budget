@@ -14,6 +14,12 @@ jobs:
     name: Backend
     runs-on: ubuntu-latest
 
+    services:
+      dynamodb:
+        image: amazon/dynamodb-local:latest
+        ports:
+          - 8000:8000
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
