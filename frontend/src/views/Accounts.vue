@@ -148,6 +148,7 @@ const handleAccountCancel = () => {
         color="primary"
         icon="mdi-plus"
         size="large"
+        aria-label="Add Account"
         @click="openAddAccountDialog"
       />
     </div>

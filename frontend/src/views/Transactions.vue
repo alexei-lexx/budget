@@ -22,6 +22,7 @@
           color="primary"
           icon="mdi-plus"
           size="large"
+          aria-label="Add Transaction"
           @click="handleAddTransaction"
         />
         <v-btn
@@ -37,6 +38,7 @@
           color="secondary"
           icon="mdi-swap-horizontal"
           size="large"
+          aria-label="Add Transfer"
           @click="handleAddTransfer"
         />
       </div>

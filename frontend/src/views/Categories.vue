@@ -169,6 +169,7 @@ const handleCategoryCancel = () => {
         color="primary"
         icon="mdi-plus"
         size="large"
+        aria-label="Add Category"
         @click="openAddCategoryDialog"
       />
     </div>

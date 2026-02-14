@@ -18,6 +18,7 @@
         color="primary"
         variant="outlined"
         icon="mdi-chevron-left"
+        aria-label="Previous"
         :disabled="!canNavigatePrevious"
         @click="navigatePrevious"
       />
@@ -43,6 +44,7 @@
         color="primary"
         variant="outlined"
         icon="mdi-chevron-right"
+        aria-label="Next"
         :disabled="!canNavigateNext"
         @click="navigateNext"
       />
