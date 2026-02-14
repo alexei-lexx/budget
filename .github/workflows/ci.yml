@@ -1,0 +1,113 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+
+jobs:
+  backend:
+    name: Backend
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: backend/package-lock.json
+      
+      - name: Install dependencies
+        working-directory: backend
+        run: npm ci
+      
+      - name: Run typecheck
+        working-directory: backend
+        run: npm run typecheck
+      
+      - name: Check formatting with Prettier
+        working-directory: backend
+        run: npm run prettier
+      
+      - name: Run linter
+        working-directory: backend
+        run: npm run lint
+      
+      - name: Run tests
+        working-directory: backend
+        run: npm run test
+
+  frontend:
+    name: Frontend
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+      
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+      
+      - name: Run typecheck
+        working-directory: frontend
+        run: npm run typecheck
+      
+      - name: Check formatting with Prettier
+        working-directory: frontend
+        run: npm run prettier
+      
+      - name: Run linter
+        working-directory: frontend
+        run: npm run lint
+      
+      - name: Run tests
+        working-directory: frontend
+        run: npm run test
+
+  infra-cdk:
+    name: Infrastructure CDK
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: infra-cdk/package-lock.json
+      
+      - name: Install dependencies
+        working-directory: infra-cdk
+        run: npm ci
+      
+      - name: Run typecheck
+        working-directory: infra-cdk
+        run: npm run typecheck
+      
+      - name: Check formatting with Prettier
+        working-directory: infra-cdk
+        run: npm run prettier
+      
+      - name: Run linter
+        working-directory: infra-cdk
+        run: npm run lint
+      
+      - name: Run tests
+        working-directory: infra-cdk
+        run: npm run test
