@@ -2,6 +2,7 @@
   <v-card class="month-navigation" elevation="2">
     <v-card-text class="d-flex align-center justify-space-between pa-4">
       <v-btn
+        v-if="$vuetify.display.smAndUp"
         color="primary"
         variant="outlined"
         prepend-icon="mdi-chevron-left"
@@ -10,12 +11,23 @@
       >
         Previous
       </v-btn>
+      <v-btn
+        v-else
+        color="primary"
+        variant="outlined"
+        icon="mdi-chevron-left"
+        :disabled="!canNavigatePrevious"
+        @click="navigatePrevious"
+      >
+        <v-icon>mdi-chevron-left</v-icon>
+      </v-btn>
 
       <div class="text-h5 text-primary">
         {{ monthYearDisplay }}
       </div>
 
       <v-btn
+        v-if="$vuetify.display.smAndUp"
         color="primary"
         variant="outlined"
         append-icon="mdi-chevron-right"
@@ -23,6 +35,16 @@
         @click="navigateNext"
       >
         Next
+      </v-btn>
+      <v-btn
+        v-else
+        color="primary"
+        variant="outlined"
+        icon="mdi-chevron-right"
+        :disabled="!canNavigateNext"
+        @click="navigateNext"
+      >
+        <v-icon>mdi-chevron-right</v-icon>
       </v-btn>
     </v-card-text>
   </v-card>
