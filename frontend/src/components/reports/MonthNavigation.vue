@@ -2,30 +2,46 @@
   <v-card class="month-navigation" elevation="2">
     <v-card-text class="d-flex align-center justify-space-between pa-4">
       <v-btn
-        :icon="$vuetify.display.xs ? 'mdi-chevron-left' : undefined"
-        :prepend-icon="$vuetify.display.smAndUp ? 'mdi-chevron-left' : undefined"
+        v-if="$vuetify.display.smAndUp"
         color="primary"
         variant="outlined"
+        prepend-icon="mdi-chevron-left"
         :disabled="!canNavigatePrevious"
         @click="navigatePrevious"
       >
-        <template v-if="$vuetify.display.smAndUp">Previous</template>
+        Previous
       </v-btn>
+      <v-btn
+        v-else
+        color="primary"
+        variant="outlined"
+        icon="mdi-chevron-left"
+        :disabled="!canNavigatePrevious"
+        @click="navigatePrevious"
+      />
 
       <div class="text-h5 text-primary">
         {{ monthYearDisplay }}
       </div>
 
       <v-btn
-        :icon="$vuetify.display.xs ? 'mdi-chevron-right' : undefined"
-        :append-icon="$vuetify.display.smAndUp ? 'mdi-chevron-right' : undefined"
+        v-if="$vuetify.display.smAndUp"
         color="primary"
         variant="outlined"
+        append-icon="mdi-chevron-right"
         :disabled="!canNavigateNext"
         @click="navigateNext"
       >
-        <template v-if="$vuetify.display.smAndUp">Next</template>
+        Next
       </v-btn>
+      <v-btn
+        v-else
+        color="primary"
+        variant="outlined"
+        icon="mdi-chevron-right"
+        :disabled="!canNavigateNext"
+        @click="navigateNext"
+      />
     </v-card-text>
   </v-card>
 </template>

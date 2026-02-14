@@ -138,14 +138,14 @@ const handleAccountCancel = () => {
     >
       <h1 :class="$vuetify.display.xs ? 'text-h5' : 'text-h4'">Accounts</h1>
       <v-btn
-        :icon="$vuetify.display.xs ? 'mdi-plus' : undefined"
-        :prepend-icon="$vuetify.display.smAndUp ? 'mdi-plus' : undefined"
-        :size="$vuetify.display.xs ? 'large' : undefined"
+        v-if="$vuetify.display.smAndUp"
         color="primary"
+        prepend-icon="mdi-plus"
         @click="openAddAccountDialog"
       >
-        <template v-if="$vuetify.display.smAndUp">Add Account</template>
+        Add Account
       </v-btn>
+      <v-btn v-else color="primary" icon="mdi-plus" size="large" @click="openAddAccountDialog" />
     </div>
 
     <!-- Accounts List Component -->
