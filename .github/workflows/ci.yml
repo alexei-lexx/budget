@@ -19,11 +19,6 @@ jobs:
         image: amazon/dynamodb-local:3.3.0
         ports:
           - 8000:8000
-        options: >-
-          --health-cmd "wget --spider -q http://localhost:8000/ || exit 1"
-          --health-interval 5s
-          --health-timeout 3s
-          --health-retries 5
 
     steps:
       - name: Checkout code
@@ -51,6 +46,9 @@ jobs:
       - name: Run linter
         working-directory: backend
         run: npm run lint
+
+      - name: Wait for DynamoDB
+        run: timeout 30 bash -c 'until curl -s http://localhost:8000/ > /dev/null 2>&1; do sleep 1; done'
 
       - name: Create test database tables
         working-directory: backend
