@@ -1,12 +1,13 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <template>
-  <v-container :class="{ 'pa-3': $vuetify.display.xs, 'pa-6': $vuetify.display.smAndUp }">
+  <v-container class="pa-3 pa-sm-6">
     <!-- Page Header -->
     <div
       class="d-flex align-center mb-6 flex-column flex-sm-row ga-3 ga-sm-0 justify-sm-space-between"
     >
       <h1 class="text-h5 text-sm-h4">Transactions</h1>
       <div class="d-flex">
+        <!-- Desktop buttons: d-none (hidden <600px) + d-sm-flex (shows ≥600px) -->
         <v-btn
           class="d-none d-sm-flex"
           color="primary"
@@ -15,6 +16,7 @@
         >
           Add Transaction
         </v-btn>
+        <!-- Mobile buttons: d-flex (shows <600px) + d-sm-none (hidden ≥600px) -->
         <v-btn
           class="d-flex d-sm-none"
           color="primary"
