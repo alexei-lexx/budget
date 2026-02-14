@@ -7,20 +7,38 @@
           <h1 class="text-h4">Transactions</h1>
           <div class="d-flex gap-2 flex-wrap">
             <v-btn
+              v-if="$vuetify.display.smAndUp"
               color="primary"
               prepend-icon="mdi-plus"
               @click="handleAddTransaction"
-              :class="{ 'flex-grow-1': $vuetify.display.xs }"
             >
               Add Transaction
             </v-btn>
             <v-btn
+              v-else
+              color="primary"
+              icon="mdi-plus"
+              size="large"
+              @click="handleAddTransaction"
+            >
+              <v-icon>mdi-plus</v-icon>
+            </v-btn>
+            <v-btn
+              v-if="$vuetify.display.smAndUp"
               color="secondary"
               prepend-icon="mdi-swap-horizontal"
               @click="handleAddTransfer"
-              :class="{ 'flex-grow-1': $vuetify.display.xs }"
             >
               Add Transfer
+            </v-btn>
+            <v-btn
+              v-else
+              color="secondary"
+              icon="mdi-swap-horizontal"
+              size="large"
+              @click="handleAddTransfer"
+            >
+              <v-icon>mdi-swap-horizontal</v-icon>
             </v-btn>
           </div>
         </div>
