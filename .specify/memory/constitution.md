@@ -413,7 +413,8 @@ graph LR
   - Example: email format validation matters IF email notifications are business-critical
   - Example: date format validation matters IF date queries are business operations
   - Not all format validation is mandatory - only what impacts business operations
-- Throw only business errors, propagate lower-level errors without wrapping
+- Throw business errors for expected domain failures (validation errors, business rule violations)
+- Propagate infrastructure errors without wrapping (database failures, network errors)
 
 **Repository Layer**:
 - Validate only what is necessary to execute database operations correctly
