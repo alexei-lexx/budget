@@ -1,25 +1,38 @@
 <!-- SYNC IMPACT REPORT
-Version Change: 0.22.3 → 0.23.0
+Version Change: 0.23.0 → 0.24.0
 Changes:
-  - MINOR (0.23.0): Added new rule to TypeScript Code Generation principle requiring typecheck execution after code generation
+  - MINOR (0.24.0): Revised Input Validation principle to clarify service-heavy validation approach
 Modified Sections:
-  - TypeScript Code Generation: Added mandatory rule to run `npm run typecheck` after code generation and fix compilation issues
-    - New rule: "Always run `npm run typecheck` to catch compilation issues after code generation and fix them"
-    - Rationale: Ensures type safety across the codebase and catches compilation errors early in the development process
+  - Backend Layer Structure - GraphQL Layer: Clarified thin validation role
+    - Removed: "Validate user input using Zod schemas"
+    - Added: "Rely on GraphQL schema validation (structure, field types, required fields, enums)"
+    - Added: "Can add minimal validation/parsing if needed to properly call service methods"
+  - Backend Layer Structure - Mermaid Diagram: Updated labels to reflect validation distribution
+    - GraphQL: "Validate & Auth" → "Auth & Delegate"
+    - Service: "Business Logic" → "Business Logic & Validation"
+  - Input Validation: Completely rewritten to clarify service-heavy validation approach
+    - Old approach: Two-layer validation (GraphQL for format/structure via Zod, Service for business rules)
+    - New approach: Service-heavy validation with clear responsibility distribution
+    - GraphQL Layer: Thin validation - relies on schema (structure, types, required, enums), minimal additions
+    - Service Layer: Self-validating entry point - MUST validate, CAN repeat GraphQL validations defensively, validates business rules + format/range IF business-important
+    - Repository Layer: Operational validation only (parameter presence, operand validity)
+    - Clarified: Not all format validation is mandatory - only what has business importance
+    - Rationale expanded: Multiple entry points (GraphQL, REST, CLI, batch), defensive programming, validation with business consequences belongs in services
 Added Sections:
   - None
 Removed Sections:
   - None
 Templates Requiring Updates:
-  ✅ plan-template.md: Generic template, no updates needed
-  ✅ spec-template.md: Generic template, no updates needed
-  ✅ tasks-template.md: Generic template, no updates needed
+  ✅ plan-template.md: Generic template, no specific validation guidance to update
+  ✅ spec-template.md: Generic template, no specific validation guidance to update
+  ✅ tasks-template.md: Generic template, no specific validation guidance to update
 Dependent Documentation Updates:
-  - None identified (rule affects development practice, not documentation structure)
+  - No template changes required (principle clarifies existing practice)
 Follow-up TODOs:
   - Ratification date remains TODO (inherited from previous versions)
 
 Previous Version History:
+  - 0.22.3 → 0.23.0: Added new rule to TypeScript Code Generation principle requiring typecheck execution
   - 0.22.2 → 0.22.3: Corrected user identification flow in Authentication & Authorization principle
   - 0.22.1 → 0.22.2: Corrected authentication provider from Auth0 to AWS Cognito
   - 0.22.0 → 0.22.1: Enhanced TypeScript naming standards
@@ -198,12 +211,13 @@ graph TD
 - Expose public methods for direct calling by GraphQL resolvers
 
 **GraphQL Layer**:
-- Validate user input using Zod schemas
 - Enforce authentication and authorization
 - Define API schema and documentation
-- Transform requests and responses
+- Transform requests and responses between GraphQL schema and service layer
 - Call appropriate service methods
 - Avoid direct database access
+- Rely on GraphQL schema validation
+- Can add minimal validation/parsing if needed to properly call service methods
 
 **Request Flow:**
 
@@ -212,7 +226,7 @@ graph LR
     Client["Client"]
 
     subgraph GraphQL["GraphQL Layer"]
-        Resolver["Resolver<br/>(Validate & Auth)"]
+        Resolver["Resolver<br/>(Auth)"]
     end
 
     subgraph Service_Layer["Service Layer"]
@@ -376,21 +390,39 @@ graph LR
 
 ### Input Validation
 
-**Non-negotiable rule**: Validate input at two distinct layers - GraphQL layer for format/structure, service layer for business rules.
+**Non-negotiable rule**: Services are the entry point to business logic and MUST self-validate all input. GraphQL provides thin validation through its schema. Repositories validate only operational requirements.
 
-**Implementation**:
-- **GraphQL Layer**: Use Zod schemas to validate input structure, format, and constraints
-  - Validate required fields, data types, formats (UUID, date, email)
-  - Enforce range constraints (positive numbers, string lengths)
-  - Validate enums and predefined values
-  - Reject malformed input immediately at API boundary
-- **Service Layer**: Enforce business validation
-  - Enforce business rules and domain constraints
-  - Enforce data integrity rules
-  - Validate entity existence
-  - Validate entity relationships
+**GraphQL Layer**:
+- Generally minimal - delegate to service layer
+- Authenticate users
+- Rely on GraphQL schema for automatic validation:
+  - Validate structure (object shapes)
+  - Validate field types (string, int, etc.)
+  - Validate field requiredness
+  - Validate enums
+- Can add minimal validation/parsing if needed to properly call service methods
 
-**Rationale**: Fails fast on malformed input, enables API-agnostic service reuse.
+**Service Layer**:
+- Services MUST self-validate because they are entry points to business logic
+- Can repeat GraphQL validations for defensive programming
+- MUST validate:
+  - Business rules (duplicates, domain constraints)
+  - Entity existence
+  - Entity relationships (valid combinations, referential integrity)
+- Can validate format/range constraints IF they have business importance:
+  - Example: email format validation matters IF email notifications are business-critical
+  - Example: date format validation matters IF date queries are business operations
+  - Not all format validation is mandatory - only what impacts business operations
+- Throw business errors for expected domain failures (validation errors, business rule violations)
+- Propagate infrastructure errors without wrapping (database failures, network errors)
+
+**Repository Layer**:
+- Validate only what is necessary to execute database operations correctly
+- Parameter presence checks
+- Operand validity checks
+- Throw repository-specific errors for database operation failures
+
+**Rationale**: Services can be called from multiple entry points (GraphQL, REST API, CLI, batch jobs). Defensive programming requires services to self-validate regardless of caller. Validation with business consequences belongs with business logic in the service layer.
 
 ### UI Guidelines
 
@@ -438,4 +470,4 @@ This constitution supersedes all other development guidelines. Amendments requir
 4. Commit with message: `docs: amend constitution to vX.Y.Z ([change summary])`
 5. Update dependent artifacts (templates, guidance docs) as flagged
 
-**Version**: 0.23.0 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2026-02-14
+**Version**: 0.24.0 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2026-02-14
