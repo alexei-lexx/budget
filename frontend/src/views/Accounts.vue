@@ -127,27 +127,30 @@ const handleAccountCancel = () => {
 </script>
 
 <template>
-  <v-container :class="{ 'pa-3': $vuetify.display.xs, 'pa-6': $vuetify.display.smAndUp }">
+  <v-container class="pa-3 pa-sm-6">
     <!-- Page Header -->
     <div
-      class="d-flex align-center mb-6"
-      :class="{
-        'flex-column ga-3': $vuetify.display.xs,
-        'justify-space-between': $vuetify.display.smAndUp,
-      }"
+      class="d-flex align-center mb-6 flex-column flex-sm-row ga-3 ga-sm-0 justify-sm-space-between"
     >
-      <h1 :class="$vuetify.display.xs ? 'text-h5' : 'text-h4'">Accounts</h1>
+      <h1 class="text-h5 text-sm-h4">Accounts</h1>
+      <!-- Desktop button: d-none (hidden <600px) + d-sm-flex (shows ≥600px) -->
       <v-btn
-        v-if="$vuetify.display.smAndUp"
+        class="d-none d-sm-flex"
         color="primary"
         prepend-icon="mdi-plus"
         @click="openAddAccountDialog"
       >
         Add Account
       </v-btn>
-      <v-btn v-else color="primary" icon="mdi-plus" size="large" @click="openAddAccountDialog">
-        <v-icon>mdi-plus</v-icon>
-      </v-btn>
+      <!-- Mobile button: d-flex (shows <600px) + d-sm-none (hidden ≥600px) -->
+      <v-btn
+        class="d-flex d-sm-none"
+        color="primary"
+        icon="mdi-plus"
+        size="large"
+        aria-label="Add Account"
+        @click="openAddAccountDialog"
+      />
     </div>
 
     <!-- Accounts List Component -->
