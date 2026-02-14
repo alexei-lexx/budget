@@ -1,124 +1,116 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <template>
-  <v-container>
-    <v-row>
-      <v-col cols="12">
-        <div
-          class="d-flex align-center mb-6 flex-column flex-sm-row ga-3 ga-sm-0 justify-sm-space-between"
+  <v-container :class="{ 'pa-3': $vuetify.display.xs, 'pa-6': $vuetify.display.smAndUp }">
+    <!-- Page Header -->
+    <div
+      class="d-flex align-center mb-6 flex-column flex-sm-row ga-3 ga-sm-0 justify-sm-space-between"
+    >
+      <h1 class="text-h5 text-sm-h4">Transactions</h1>
+      <div class="d-flex">
+        <v-btn
+          class="d-none d-sm-flex"
+          color="primary"
+          prepend-icon="mdi-plus"
+          @click="handleAddTransaction"
         >
-          <h1 :class="$vuetify.display.xs ? 'text-h5' : 'text-h4'">Transactions</h1>
-          <div class="d-flex">
-            <v-btn
-              class="d-none d-sm-flex"
-              color="primary"
-              prepend-icon="mdi-plus"
-              @click="handleAddTransaction"
-            >
-              Add Transaction
-            </v-btn>
-            <v-btn
-              class="d-flex d-sm-none"
-              color="primary"
-              icon="mdi-plus"
-              size="large"
-              @click="handleAddTransaction"
-            />
-            <v-btn
-              class="d-none d-sm-flex ml-3"
-              color="secondary"
-              prepend-icon="mdi-swap-horizontal"
-              @click="handleAddTransfer"
-            >
-              Add Transfer
-            </v-btn>
-            <v-btn
-              class="d-flex d-sm-none ml-3"
-              color="secondary"
-              icon="mdi-swap-horizontal"
-              size="large"
-              @click="handleAddTransfer"
-            />
-          </div>
-        </div>
-
-        <!-- Transaction Filter Bar -->
-        <TransactionFilterBar
-          :accounts="accounts"
-          :categories="categories"
-          :filters="transactionFilters"
-          :loading="paginatedLoading"
-          @apply="() => {}"
-          @clear="() => {}"
+          Add Transaction
+        </v-btn>
+        <v-btn
+          class="d-flex d-sm-none"
+          color="primary"
+          icon="mdi-plus"
+          size="large"
+          @click="handleAddTransaction"
         />
+        <v-btn
+          class="d-none d-sm-flex ml-3"
+          color="secondary"
+          prepend-icon="mdi-swap-horizontal"
+          @click="handleAddTransfer"
+        >
+          Add Transfer
+        </v-btn>
+        <v-btn
+          class="d-flex d-sm-none ml-3"
+          color="secondary"
+          icon="mdi-swap-horizontal"
+          size="large"
+          @click="handleAddTransfer"
+        />
+      </div>
+    </div>
 
-        <!-- Loading State -->
-        <div v-if="paginatedLoading" class="text-center py-8">
-          <v-progress-circular
-            indeterminate
-            color="primary"
-            size="64"
-            width="4"
-          ></v-progress-circular>
-          <div class="text-h6 mt-4">Loading transactions...</div>
-        </div>
+    <!-- Transaction Filter Bar -->
+    <TransactionFilterBar
+      :accounts="accounts"
+      :categories="categories"
+      :filters="transactionFilters"
+      :loading="paginatedLoading"
+      @apply="() => {}"
+      @clear="() => {}"
+    />
 
-        <!-- Error State -->
-        <v-alert v-else-if="transactionsError" type="error" class="mb-4">
-          {{ transactionsError }}
-        </v-alert>
+    <!-- Loading State -->
+    <div v-if="paginatedLoading" class="text-center py-8">
+      <v-progress-circular indeterminate color="primary" size="64" width="4"></v-progress-circular>
+      <div class="text-h6 mt-4">Loading transactions...</div>
+    </div>
 
-        <!-- Empty State -->
-        <div v-else-if="paginatedTransactions.length === 0" class="mt-4">
-          <v-empty-state
-            icon="mdi-swap-horizontal"
-            title="No Transactions Yet"
-            text="Start tracking your income and expenses by adding your first transaction."
-          />
-        </div>
+    <!-- Error State -->
+    <v-alert v-else-if="transactionsError" type="error" class="mb-4">
+      {{ transactionsError }}
+    </v-alert>
 
-        <!-- Transactions List -->
-        <div v-else>
-          <div class="text-body-2 text-medium-emphasis mb-3">
-            {{ paginatedTransactions.length
-            }}{{ totalCount > 0 ? ` of ${totalCount}` : "" }} transaction{{
-              totalCount !== 1 ? "s" : ""
-            }}
-          </div>
-          <div class="transaction-list">
-            <TransactionCard
-              v-for="transaction in paginatedTransactions"
-              :key="transaction.id"
-              :transaction="transaction"
-              :is-expanded="isTransactionExpanded(transaction.id)"
-              class="mb-3"
-              @edit-transaction="handleEditTransaction"
-              @delete-transaction="handleDeleteTransaction"
-              @duplicate-transaction="handleDuplicateTransaction"
-              @toggle-expand="toggleTransactionExpand"
-            />
-          </div>
+    <!-- Empty State -->
+    <div v-else-if="paginatedTransactions.length === 0" class="mt-4">
+      <v-empty-state
+        icon="mdi-swap-horizontal"
+        title="No Transactions Yet"
+        text="Start tracking your income and expenses by adding your first transaction."
+      />
+    </div>
 
-          <!-- Load More Button -->
-          <div v-if="hasNextPage" class="text-center mt-4">
-            <v-btn
-              :loading="loadMoreLoading"
-              :disabled="loadMoreLoading"
-              color="primary"
-              variant="outlined"
-              prepend-icon="mdi-refresh"
-              @click="handleLoadMore"
-            >
-              Load More
-            </v-btn>
-          </div>
+    <!-- Transactions List -->
+    <div v-else>
+      <div class="text-body-2 text-medium-emphasis mb-3">
+        {{ paginatedTransactions.length
+        }}{{ totalCount > 0 ? ` of ${totalCount}` : "" }} transaction{{
+          totalCount !== 1 ? "s" : ""
+        }}
+      </div>
+      <div class="transaction-list">
+        <TransactionCard
+          v-for="transaction in paginatedTransactions"
+          :key="transaction.id"
+          :transaction="transaction"
+          :is-expanded="isTransactionExpanded(transaction.id)"
+          class="mb-3"
+          @edit-transaction="handleEditTransaction"
+          @delete-transaction="handleDeleteTransaction"
+          @duplicate-transaction="handleDuplicateTransaction"
+          @toggle-expand="toggleTransactionExpand"
+        />
+      </div>
 
-          <!-- Load More Error -->
-          <v-alert v-if="loadMoreError" type="error" class="mt-4">
-            {{ loadMoreError }}
-          </v-alert>
-        </div>
-      </v-col>
-    </v-row>
+      <!-- Load More Button -->
+      <div v-if="hasNextPage" class="text-center mt-4">
+        <v-btn
+          :loading="loadMoreLoading"
+          :disabled="loadMoreLoading"
+          color="primary"
+          variant="outlined"
+          prepend-icon="mdi-refresh"
+          @click="handleLoadMore"
+        >
+          Load More
+        </v-btn>
+      </div>
+
+      <!-- Load More Error -->
+      <v-alert v-if="loadMoreError" type="error" class="mt-4">
+        {{ loadMoreError }}
+      </v-alert>
+    </div>
 
     <!-- Delete Confirmation Dialog -->
     <TransactionDeleteDialog

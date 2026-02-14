@@ -1,45 +1,43 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <template>
-  <v-container>
-    <v-row>
-      <v-col cols="12">
-        <!-- Header Section -->
-        <div class="d-flex align-center justify-space-between mb-4 flex-wrap ga-2">
-          <h1 :class="$vuetify.display.xs ? 'text-h5' : 'text-h4'">Monthly Expense Report</h1>
-        </div>
+  <v-container :class="{ 'pa-3': $vuetify.display.xs, 'pa-6': $vuetify.display.smAndUp }">
+    <!-- Page Header -->
+    <div
+      class="d-flex align-center mb-6 flex-column flex-sm-row ga-3 ga-sm-0 justify-sm-space-between"
+    >
+      <h1 class="text-h5 text-sm-h4">Monthly Expense Report</h1>
+    </div>
 
-        <!-- Global Error Alert -->
-        <v-alert
-          v-if="globalError"
-          type="error"
-          variant="tonal"
-          class="mb-6"
-          closable
-          @click:close="clearGlobalError"
-        >
-          <v-alert-title>Report Error</v-alert-title>
-          <div>{{ globalError }}</div>
-        </v-alert>
+    <!-- Global Error Alert -->
+    <v-alert
+      v-if="globalError"
+      type="error"
+      variant="tonal"
+      class="mb-6"
+      closable
+      @click:close="clearGlobalError"
+    >
+      <v-alert-title>Report Error</v-alert-title>
+      <div>{{ globalError }}</div>
+    </v-alert>
 
-        <!-- Month Navigation -->
-        <MonthNavigation
-          :year="selectedYear"
-          :month="selectedMonth"
-          :disabled="monthlyReportLoading"
-          @navigate="handleMonthNavigation"
-          class="mb-6"
-        />
+    <!-- Month Navigation -->
+    <MonthNavigation
+      :year="selectedYear"
+      :month="selectedMonth"
+      :disabled="monthlyReportLoading"
+      @navigate="handleMonthNavigation"
+      class="mb-6"
+    />
 
-        <!-- Monthly Report Content -->
-        <CategoryBreakdownTable
-          :categories="monthlyReport?.categories"
-          :currency-totals="monthlyReport?.currencyTotals"
-          :loading="monthlyReportLoading"
-          :error="reportError"
-          :month-year="selectedMonthYearDisplay"
-        />
-      </v-col>
-    </v-row>
+    <!-- Monthly Report Content -->
+    <CategoryBreakdownTable
+      :categories="monthlyReport?.categories"
+      :currency-totals="monthlyReport?.currencyTotals"
+      :loading="monthlyReportLoading"
+      :error="reportError"
+      :month-year="selectedMonthYearDisplay"
+    />
   </v-container>
 </template>
 

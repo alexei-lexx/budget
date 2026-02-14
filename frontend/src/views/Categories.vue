@@ -151,22 +151,24 @@ const handleCategoryCancel = () => {
   <v-container :class="{ 'pa-3': $vuetify.display.xs, 'pa-6': $vuetify.display.smAndUp }">
     <!-- Page Header -->
     <div
-      class="d-flex align-center mb-6"
-      :class="{
-        'flex-column ga-3': $vuetify.display.xs,
-        'justify-space-between': $vuetify.display.smAndUp,
-      }"
+      class="d-flex align-center mb-6 flex-column flex-sm-row ga-3 ga-sm-0 justify-sm-space-between"
     >
-      <h1 :class="$vuetify.display.xs ? 'text-h5' : 'text-h4'">Categories</h1>
+      <h1 class="text-h5 text-sm-h4">Categories</h1>
       <v-btn
-        v-if="$vuetify.display.smAndUp"
+        class="d-none d-sm-flex"
         color="primary"
         prepend-icon="mdi-plus"
         @click="openAddCategoryDialog"
       >
         Add Category
       </v-btn>
-      <v-btn v-else color="primary" icon="mdi-plus" size="large" @click="openAddCategoryDialog" />
+      <v-btn
+        class="d-flex d-sm-none"
+        color="primary"
+        icon="mdi-plus"
+        size="large"
+        @click="openAddCategoryDialog"
+      />
     </div>
 
     <!-- Category Type Tabs -->
