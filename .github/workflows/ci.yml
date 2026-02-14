@@ -20,7 +20,7 @@ jobs:
         ports:
           - 8000:8000
         options: >-
-          --health-cmd "curl -f http://localhost:8000/ || exit 1"
+          --health-cmd "wget --spider -q http://localhost:8000/ || exit 1"
           --health-interval 5s
           --health-timeout 3s
           --health-retries 5
