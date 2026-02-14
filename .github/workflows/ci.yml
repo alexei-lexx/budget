@@ -16,9 +16,14 @@ jobs:
 
     services:
       dynamodb:
-        image: amazon/dynamodb-local:latest
+        image: amazon/dynamodb-local:3.3.0
         ports:
           - 8000:8000
+        options: >-
+          --health-cmd "curl -f http://localhost:8000/ || exit 1"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 5
 
     steps:
       - name: Checkout code
