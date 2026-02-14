@@ -29,6 +29,22 @@ Web application for personal financial management.
 - **Frontend**: [frontend/README.md](frontend/README.md) - Vue.js SPA setup and development
 - **Infrastructure**: [infra-cdk/README.md](infra-cdk/README.md) - AWS CDK infrastructure
 
+## Development
+
+### Continuous Integration
+
+This repository uses GitHub Actions for automated testing and quality checks. See [docs/ci.md](docs/ci.md) for details on:
+
+- Running checks locally before pushing
+- CI workflow configuration
+- Making checks required for pull requests
+
+All packages (backend, frontend, infra-cdk) are automatically tested on every push and pull request with:
+- Type checking
+- Code formatting validation
+- Linting
+- Test suite execution
+
 ## Deployment
 
 Deploy the application to AWS.
