@@ -394,7 +394,7 @@ graph LR
 
 **GraphQL Layer**:
 - Generally minimal - delegate to service layer
-- Authenticate and authorize users
+- Authenticate users
 - Rely on GraphQL schema for automatic validation:
   - Validate structure (object shapes)
   - Validate field types (string, int, etc.)
