@@ -1,12 +1,11 @@
 <!-- SYNC IMPACT REPORT
-Version Change: 0.22.2 → 0.22.3
+Version Change: 0.22.3 → 0.23.0
 Changes:
-  - PATCH (0.22.3): Corrected user identification flow in Authentication & Authorization principle
+  - MINOR (0.23.0): Added new rule to TypeScript Code Generation principle requiring typecheck execution after code generation
 Modified Sections:
-  - Authentication & Authorization: Updated Backend GraphQL Layer to reflect email-based user lookup
-    - Changed: "Extract Cognito user ID from JWT token" → "Extract email from JWT token"
-    - Changed: "Look up internal database user ID using Cognito user ID" → "Look up internal database user ID using email"
-    - Rationale: App uses email as the user identifier, not Cognito's external user ID
+  - TypeScript Code Generation: Added mandatory rule to run `npm run typecheck` after code generation and fix compilation issues
+    - New rule: "Always run `npm run typecheck` to catch compilation issues after code generation and fix them"
+    - Rationale: Ensures type safety across the codebase and catches compilation errors early in the development process
 Added Sections:
   - None
 Removed Sections:
@@ -16,11 +15,12 @@ Templates Requiring Updates:
   ✅ spec-template.md: Generic template, no updates needed
   ✅ tasks-template.md: Generic template, no updates needed
 Dependent Documentation Updates:
-  - None identified
+  - None identified (rule affects development practice, not documentation structure)
 Follow-up TODOs:
   - Ratification date remains TODO (inherited from previous versions)
 
 Previous Version History:
+  - 0.22.2 → 0.22.3: Corrected user identification flow in Authentication & Authorization principle
   - 0.22.1 → 0.22.2: Corrected authentication provider from Auth0 to AWS Cognito
   - 0.22.0 → 0.22.1: Enhanced TypeScript naming standards
 -->
@@ -423,6 +423,7 @@ graph LR
   - Keep names concise while prioritizing clarity over brevity
 - Place public methods before private methods in classes to ensure the public API is visible at the top
 - Run `npm run format` and fix all ESLint issues after generating or changing code
+- Run `npm run typecheck` to catch and fix compilation issues after generating or changing code
 
 **Rationale**: Maintains type safety, prevents runtime errors, ensures code quality, improves code readability and API discoverability.
 
@@ -437,4 +438,4 @@ This constitution supersedes all other development guidelines. Amendments requir
 4. Commit with message: `docs: amend constitution to vX.Y.Z ([change summary])`
 5. Update dependent artifacts (templates, guidance docs) as flagged
 
-**Version**: 0.22.3 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2026-02-14
+**Version**: 0.23.0 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2026-02-14
