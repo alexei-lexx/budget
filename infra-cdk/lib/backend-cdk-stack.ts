@@ -6,6 +6,7 @@ import * as iam from "aws-cdk-lib/aws-iam";
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as logs from "aws-cdk-lib/aws-logs";
 import { Construct } from "constructs";
+import { requireEnv } from "./require-env";
 
 export interface BackendCdkStackProps extends cdk.StackProps {
   authIssuer: string;
@@ -17,6 +18,11 @@ export class BackendCdkStack extends cdk.Stack {
 
   constructor(scope: Construct, id: string, props: BackendCdkStackProps) {
     super(scope, id, props);
+
+    const nodeEnv = requireEnv("NODE_ENV");
+
+    // Add tags to all resources in this stack
+    cdk.Tags.of(this).add("environment", nodeEnv);
 
     const logRetention = logs.RetentionDays.ONE_WEEK;
 
