@@ -47,6 +47,7 @@ describe("AuthCdkStack", () => {
     const resources = template.findResources("AWS::Cognito::UserPoolClient");
     const clientResource = Object.values(resources)[0];
     const authFlows = clientResource.Properties.ExplicitAuthFlows as string[];
+    expect(authFlows).toContain("ALLOW_USER_AUTH");
     expect(authFlows).toContain("ALLOW_USER_PASSWORD_AUTH");
     expect(authFlows).toContain("ALLOW_REFRESH_TOKEN_AUTH");
 

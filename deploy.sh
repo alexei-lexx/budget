@@ -127,6 +127,7 @@ env AUTH_CLAIM_NAMESPACE="$AUTH_CLAIM_NAMESPACE" \
 echo "Extracting auth configuration from CDK outputs..."
 AUTH_ISSUER=$(cat "$CDK_OUTPUT_FILE" | jq -r '."'"$ENV"'-BudgetAuth".AuthIssuer // empty')
 AUTH_CLIENT_ID=$(cat "$CDK_OUTPUT_FILE" | jq -r '."'"$ENV"'-BudgetAuth".UserPoolClientId // empty')
+AUTH_UI_URL=$(cat "$CDK_OUTPUT_FILE" | jq -r '."'"$ENV"'-BudgetAuth".UserPoolDomainUrl // empty')
 
 if [ -z "$AUTH_ISSUER" ] || [ "$AUTH_ISSUER" = "null" ]; then
   echo "ERROR: AuthIssuer not found in CDK outputs from auth stack"
@@ -141,6 +142,13 @@ if [ -z "$AUTH_CLIENT_ID" ] || [ "$AUTH_CLIENT_ID" = "null" ]; then
   exit 1
 fi
 echo "AUTH_CLIENT_ID=$AUTH_CLIENT_ID"
+
+if [ -z "$AUTH_UI_URL" ] || [ "$AUTH_UI_URL" = "null" ]; then
+  echo "ERROR: UserPoolDomainUrl not found in CDK outputs from auth stack"
+  echo "Auth stack deployment may have failed or outputs are misconfigured"
+  exit 1
+fi
+echo "AUTH_UI_URL=$AUTH_UI_URL"
 
 # ============================================================================
 # Phase 2: Set Cognito callback/logout URLs
@@ -175,6 +183,11 @@ if [ -n "$CLOUDFRONT_URL" ] && [ "$CLOUDFRONT_URL" != "null" ]; then
     --allowed-o-auth-scopes $(echo "$AUTH_SCOPE" | tr ' ' '\n') \
     --allowed-o-auth-flows-user-pool-client \
     --supported-identity-providers "COGNITO" \
+    --explicit-auth-flows \
+      ALLOW_USER_AUTH \
+      ALLOW_USER_SRP_AUTH \
+      ALLOW_USER_PASSWORD_AUTH \
+      ALLOW_REFRESH_TOKEN_AUTH \
     --no-cli-pager
 
   echo "Cognito callback/logout URLs configured successfully"
@@ -236,6 +249,7 @@ npm install
 env VITE_AUTH_CLIENT_ID="$AUTH_CLIENT_ID" \
     VITE_AUTH_ISSUER="$AUTH_ISSUER" \
     VITE_AUTH_SCOPE="$AUTH_SCOPE" \
+    VITE_AUTH_UI_URL="$AUTH_UI_URL" \
     VITE_GRAPHQL_ENDPOINT="/graphql" \
   npm run build
 

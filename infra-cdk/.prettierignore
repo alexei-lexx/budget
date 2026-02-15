@@ -1,0 +1,14 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+cdk.out/
+
+# Generated files
+*.js
+*.d.ts
+*.js.map
+
+# Coverage
+coverage/
