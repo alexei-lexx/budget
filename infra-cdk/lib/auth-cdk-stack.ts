@@ -43,7 +43,7 @@ export class AuthCdkStack extends cdk.Stack {
     const isProduction = nodeEnv === "production";
 
     // Add tags to all resources in this stack
-    cdk.Tags.of(this).add("Environment", nodeEnv);
+    cdk.Tags.of(this).add("environment", nodeEnv);
 
     const domainPrefix = requireEnv("AUTH_DOMAIN_PREFIX");
     const claimNamespace = requireEnv("AUTH_CLAIM_NAMESPACE");

@@ -4,6 +4,7 @@ import * as cloudfront from "aws-cdk-lib/aws-cloudfront";
 import * as origins from "aws-cdk-lib/aws-cloudfront-origins";
 import * as s3 from "aws-cdk-lib/aws-s3";
 import { Construct } from "constructs";
+import { requireEnv } from "./require-env";
 
 export interface FrontendCdkStackProps extends cdk.StackProps {
   httpApi: apigatewayv2.HttpApi;
@@ -12,6 +13,11 @@ export interface FrontendCdkStackProps extends cdk.StackProps {
 export class FrontendCdkStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: FrontendCdkStackProps) {
     super(scope, id, props);
+
+    const nodeEnv = requireEnv("NODE_ENV");
+
+    // Add tags to all resources in this stack
+    cdk.Tags.of(this).add("environment", nodeEnv);
 
     const apiGatewayDomain = `${props.httpApi.apiId}.execute-api.${this.region}.amazonaws.com`;
 
