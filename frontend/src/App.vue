@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { watch, onMounted, ref } from "vue";
+import { watch, onMounted, ref, computed } from "vue";
 import { useAuth } from "@/composables/useAuth";
 import { useUser } from "@/composables/useUser";
 import { useSnackbar } from "@/composables/useSnackbar";
@@ -21,6 +21,19 @@ const { mobile } = useDisplay();
 
 // Navigation drawer state
 const drawer = ref(true);
+
+// Passkey registration URL
+const passkeyRegistrationUrl = computed(() => {
+  const authUiUrl = import.meta.env.VITE_AUTH_UI_URL;
+  const clientId = import.meta.env.VITE_AUTH_CLIENT_ID;
+  const redirectUri = window.location.origin;
+
+  if (!authUiUrl || !clientId) {
+    return null;
+  }
+
+  return `${authUiUrl}/passkeys/add?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}`;
+});
 
 // Initialize drawer state and watch for screen size changes
 onMounted(() => {
@@ -194,6 +207,14 @@ const handleSignOut = () => {
           :to="{ name: 'Insight' }"
           prepend-icon="mdi-lightbulb-on-outline"
           title="Insight"
+          @click="mobile && (drawer = false)"
+        />
+        <!-- Passkey registration -->
+        <v-list-item
+          v-if="isAuthenticated && passkeyRegistrationUrl"
+          :href="passkeyRegistrationUrl"
+          prepend-icon="mdi-key"
+          title="Register Passkey"
           @click="mobile && (drawer = false)"
         />
         <!-- Push content to the bottom -->

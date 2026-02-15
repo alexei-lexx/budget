@@ -10,10 +10,14 @@ import { requireEnv } from "./require-env";
  * CDK Stack for Cognito User Pool infrastructure.
  *
  * Creates:
- * - User Pool with email sign-in, admin-only user creation
+ * - User Pool with email sign-in, admin-only user creation, and passkey support
  * - User Pool Client for SPA with authorization code flow
  * - User Pool Domain for Cognito Hosted UI
  * - Pre Token Generation Lambda for adding email to access tokens
+ *
+ * Authentication Methods:
+ * - Password: Traditional email + password authentication
+ * - Passkey: WebAuthn/FIDO2 passwordless authentication
  *
  * Environment variables:
  * - NODE_ENV: Environment name (default: "test")
@@ -25,6 +29,7 @@ import { requireEnv } from "./require-env";
  * Outputs:
  * - UserPoolId: The Cognito User Pool ID
  * - UserPoolClientId: The ID of the User Pool Client
+ * - UserPoolDomainUrl: The full Cognito Hosted UI domain URL
  * - AuthIssuer: The OIDC issuer URL for JWT verification
  *
  * Note on Callback/Logout URLs:
@@ -63,6 +68,15 @@ export class AuthCdkStack extends cdk.Stack {
       // Admin-only user creation: users cannot self-register
       // All accounts must be created by an administrator via AWS Console or API
       selfSignUpEnabled: false,
+
+      // SignInPolicy: Configure which authentication methods users can choose from
+      // Required for Managed Login choice-based authentication
+      signInPolicy: {
+        allowedFirstAuthFactors: {
+          password: true, // Enable password authentication
+          passkey: true, // Enable passkey authentication
+        },
+      },
 
       // Email is required and immutable because it's the user identifier in the app
       // Changing email in Cognito would orphan the user's data in DynamoDB
@@ -138,11 +152,13 @@ export class AuthCdkStack extends cdk.Stack {
       generateSecret: false,
 
       // Direct authentication flows (non-OAuth)
+      // These determine which authentication methods the client can use
       authFlows: {
+        user: true, // Required for passkey authentication and choice-based sign-in (ALLOW_USER_AUTH)
         userPassword: true, // Allow username/password auth (ALLOW_USER_PASSWORD_AUTH)
-        userSrp: true, // Secure Remote Password protocol - more secure than plain password
-        custom: false, // No custom auth challenge/response flow
-        adminUserPassword: false, // Server-side admin auth not needed
+        userSrp: true, // Secure Remote Password protocol - more secure than plain password (ALLOW_USER_SRP_AUTH)
+        custom: false, // No custom auth challenge/response flow (ALLOW_CUSTOM_AUTH)
+        adminUserPassword: false, // Server-side admin auth not needed (ALLOW_ADMIN_USER_PASSWORD_AUTH)
       },
 
       // OAuth 2.0 / OIDC configuration for SPA
@@ -183,11 +199,22 @@ export class AuthCdkStack extends cdk.Stack {
 
     // Cognito Hosted UI domain - provides login/logout/signup pages
     // Uses Amazon-owned domain: {domainPrefix}.auth.{region}.amazoncognito.com
-    new cognito.UserPoolDomain(this, "UserPoolDomain", {
+    const userPoolDomain = new cognito.UserPoolDomain(this, "UserPoolDomain", {
       userPool: this.userPool,
       cognitoDomain: {
         domainPrefix, // Must be globally unique across all AWS accounts
       },
+      // Managed Login Version: Controls which Hosted UI is used
+      // NEWER_MANAGED_LOGIN (v2): Required for passkey support and modern features
+      managedLoginVersion: cognito.ManagedLoginVersion.NEWER_MANAGED_LOGIN,
+    });
+
+    // Managed Login Branding: Customize the appearance of the Hosted UI
+    // Must be configured when using NEWER_MANAGED_LOGIN
+    new cognito.CfnManagedLoginBranding(this, "DefaultManagedLoginBranding", {
+      userPoolId: this.userPool.userPoolId,
+      clientId: this.userPoolClient.userPoolClientId,
+      useCognitoProvidedValues: true, // Use default AWS Cognito styling
     });
 
     // Stack outputs for configuration
@@ -199,6 +226,11 @@ export class AuthCdkStack extends cdk.Stack {
     new cdk.CfnOutput(this, "UserPoolClientId", {
       value: this.userPoolClient.userPoolClientId,
       description: "Cognito User Pool Client ID",
+    });
+
+    new cdk.CfnOutput(this, "UserPoolDomainUrl", {
+      value: userPoolDomain.baseUrl(),
+      description: "Cognito User Pool Domain for Hosted UI",
     });
 
     new cdk.CfnOutput(this, "AuthIssuer", {

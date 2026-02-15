@@ -39,9 +39,9 @@ Cognito's native passkey support and Hosted UI provide all these capabilities ou
 
 ### Infrastructure Configuration
 
-- [ ] T001 [US1][US2][US3] Add passkey configuration to User Pool in infra-cdk/lib/auth-cdk-stack.ts (signInPolicy, passkeyRelyingPartyId, passkeyUserVerification)
-- [ ] T002 [US1][US2][US3] Add USER_AUTH flow to User Pool Client in infra-cdk/lib/auth-cdk-stack.ts (authFlows.user: true)
-- [ ] T003 [P] [US1][US2][US3] Add infrastructure test for passkey configuration in infra-cdk/test/auth-cdk.test.ts
+- [X] T001 [US1][US2][US3] Add passkey configuration to User Pool in infra-cdk/lib/auth-cdk-stack.ts (signInPolicy, passkeyRelyingPartyId, passkeyUserVerification)
+- [X] T002 [US1][US2][US3] Add USER_AUTH flow to User Pool Client in infra-cdk/lib/auth-cdk-stack.ts (authFlows.user: true)
+- [X] T003 [P] [US1][US2][US3] Add infrastructure test for passkey configuration in infra-cdk/test/auth-cdk.test.ts
 
 **Checkpoint**: Passkey support configured - all user stories now enabled
 
@@ -53,27 +53,27 @@ Cognito's native passkey support and Hosted UI provide all these capabilities ou
 
 ### Development Environment
 
-- [ ] T004 Deploy auth stack to development environment (npm run deploy:auth from infra-cdk/)
-- [ ] T005 Verify Cognito User Pool shows "Passkey" in authentication factors via AWS Console
+- [X] T004 Deploy auth stack to development environment (npm run deploy:auth from infra-cdk/)
+- [X] T005 Verify Cognito User Pool shows "Passkey" in authentication factors via AWS Console
 - [ ] T006 Create test user account via AWS CLI for validation
-- [ ] T007 [US1] Test User Story 1: Register first passkey via Cognito Hosted UI and authenticate with it
+- [X] T007 [US1] Test User Story 1: Register first passkey via Cognito Hosted UI and authenticate with it
 - [ ] T008 [US2] Test User Story 2: Register additional passkey from different device/browser
 - [ ] T009 [US2] Test User Story 2: Verify multiple passkeys visible in Hosted UI account management
 - [ ] T010 [US2] Test User Story 2: Authenticate using either passkey
 - [ ] T011 [US3] Test User Story 3: Remove one passkey via Hosted UI account management
 - [ ] T012 [US3] Test User Story 3: Verify removed passkey no longer works for authentication
-- [ ] T013 Verify existing password authentication still works (backward compatibility)
-- [ ] T014 Verify JWT token format unchanged (backend receives valid tokens)
+- [X] T013 Verify existing password authentication still works (backward compatibility)
+- [X] T014 Verify JWT token format unchanged (backend receives valid tokens)
 
 **Checkpoint**: All user stories validated in development environment
 
 ### Production Environment
 
-- [ ] T015 Deploy auth stack to production environment (./deploy.sh from repository root)
-- [ ] T016 Verify production Cognito User Pool has passkey support enabled
-- [ ] T017 [US1] Smoke test: Register passkey in production
-- [ ] T018 [US1] Smoke test: Authenticate with passkey in production
-- [ ] T019 Verify existing production users can still authenticate with passwords
+- [X] T015 Deploy auth stack to production environment (./deploy.sh from repository root)
+- [X] T016 Verify production Cognito User Pool has passkey support enabled
+- [X] T017 [US1] Smoke test: Register passkey in production
+- [X] T018 [US1] Smoke test: Authenticate with passkey in production
+- [X] T019 Verify existing production users can still authenticate with passwords
 
 **Checkpoint**: All user stories validated in production environment
 
