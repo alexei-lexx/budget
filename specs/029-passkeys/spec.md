@@ -35,7 +35,7 @@ A user wants to register multiple passkeys across different devices (e.g., lapto
 
 1. **Given** a user has already registered a passkey on one device, **When** they access the account management interface from a different device, **Then** they can add an additional passkey without removing the existing one
 2. **Given** a user with passkeys registered on multiple devices, **When** they log in from any device, **Then** they can authenticate using that device's passkey
-3. **Given** a user with multiple passkeys, **When** they view their passkey list in the account management interface, **Then** they can see all registered passkeys with identifiable information (device name, creation date)
+3. **Given** a user with multiple passkeys, **When** they view their passkey list in the account management interface, **Then** they can see all registered passkeys with whatever identifiable information AWS Cognito's hosted UI provides by default
 
 ---
 
@@ -75,7 +75,11 @@ A user wants to remove a passkey from a lost or retired device to maintain secur
 - **FR-006**: Users MUST be able to remove individual passkeys from their account
 - **FR-007**: System MUST maintain password-based authentication as a fallback option even when passkeys are registered
 - **FR-008**: System MUST provide an interface for users to manage their passkeys (add, view, remove)
-- **FR-009**: System MUST support industry-standard passkey protocols for cross-platform compatibility
+- **FR-009**: System MUST support industry-standard passkey protocols (WebAuthn/FIDO2) as implemented by AWS Cognito for cross-platform compatibility
+
+### Out of Scope
+
+- Modifications to existing account recovery mechanisms (users continue to use existing password reset/recovery flows)
 
 ### Implementation Constraints
 
@@ -87,7 +91,7 @@ A user wants to remove a passkey from a lost or retired device to maintain secur
 
 ### Key Entities
 
-- **User Account**: Represents an authenticated user who can register and manage passkeys. May have multiple authentication methods (password, one or more passkeys).
+- **User Account**: Represents an authenticated user who can register and manage passkeys. May have multiple authentication methods (password, one or more passkeys). Number of passkeys per user is limited by AWS Cognito's native constraints.
 - **Passkey Credential**: A cryptographic credential tied to a specific device/authenticator. Contains public key information and metadata (creation date, device identifier).
 
 ### Assumptions
@@ -97,6 +101,16 @@ A user wants to remove a passkey from a lost or retired device to maintain secur
 - **A-003**: Users are familiar with or can learn to use biometric authentication on their devices
 - **A-004**: The identity provider's hosted UI provides sufficient passkey management functionality without requiring custom UI development
 - **A-005**: Passkey adoption will be gradual; existing password-based authentication will remain the primary method for most users initially
+
+## Clarifications
+
+### Session 2026-02-15
+
+- Q: What is the maximum number of passkeys allowed per user? → A: as many as AWS Cognito allows
+- Q: How should passkeys be identified and named in the management interface? → A: determined by AWS Cognito's hosted UI default implementation
+- Q: What happens if a user loses all passkeys and forgets their password? → A: not in scope - existing account recovery mechanisms unchanged
+- Q: Which specific WebAuthn/FIDO2 protocol version should be targeted? → A: AWS Cognito default implementation
+- Q: How should registration failures be handled? → A: determined by AWS Cognito's hosted UI default implementation
 
 ## Success Criteria *(mandatory)*
 
