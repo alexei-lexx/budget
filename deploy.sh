@@ -106,6 +106,8 @@ env AUTH_CLAIM_NAMESPACE="$AUTH_CLAIM_NAMESPACE" \
     NODE_ENV="$NODE_ENV" \
   npm run deploy -- --outputs-file "$CDK_OUTPUT_FILE"
 
+exit 0
+
 echo "Extracting auth configuration from CDK outputs..."
 AUTH_ISSUER=$(cat "$CDK_OUTPUT_FILE" | jq -r '."'"$ENV"'-BudgetAuth".AuthIssuer // empty')
 AUTH_CLIENT_ID=$(cat "$CDK_OUTPUT_FILE" | jq -r '."'"$ENV"'-BudgetAuth".UserPoolClientId // empty')

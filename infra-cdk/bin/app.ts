@@ -19,8 +19,8 @@ const authStack = new AuthCdkStack(app, "AuthCdkStack", {
 
 const backendStack = new BackendCdkStack(app, "BackendCdkStack", {
   stackName: `${nodeEnv}-BudgetBackend`,
-  authIssuer: authStack.userPool.userPoolProviderUrl,
-  authClientId: authStack.userPoolClient.userPoolClientId,
+  userPool: authStack.userPool,
+  userPoolClient: authStack.userPoolClient,
 });
 
 const frontendStack = new FrontendCdkStack(app, "FrontendCdkStack", {
@@ -32,7 +32,7 @@ const frontendStack = new FrontendCdkStack(app, "FrontendCdkStack", {
 // This solves the circular dependency: Auth creates User Pool before CloudFront URL exists
 new AuthCallbackConfigStack(app, "AuthCallbackConfigStack", {
   stackName: `${nodeEnv}-BudgetAuthCallbackConfig`,
-  userPoolId: authStack.userPool.userPoolId,
-  userPoolClientId: authStack.userPoolClient.userPoolClientId,
-  distributionUrl: frontendStack.distributionUrl,
+  userPool: authStack.userPool,
+  userPoolClient: authStack.userPoolClient,
+  distribution: frontendStack.distribution,
 });

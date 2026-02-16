@@ -5,6 +5,7 @@ import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import * as logs from "aws-cdk-lib/aws-logs";
 import { Construct } from "constructs";
 import { requireEnv } from "./require-env";
+import { defaultLambdaOptions } from "./utils";
 
 /**
  * CDK Stack for Cognito User Pool infrastructure.
@@ -133,6 +134,7 @@ export class AuthCdkStack extends cdk.Stack {
         environment: {
           AUTH_CLAIM_NAMESPACE: claimNamespace,
         },
+        ...defaultLambdaOptions(),
       },
     );
 
