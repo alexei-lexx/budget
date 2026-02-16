@@ -111,7 +111,7 @@ export class AuthCallbackConfigStack extends Stack {
         ClientId: props.userPoolClient.userPoolClientId,
         CallbackURLs: [distributionUrl],
         LogoutURLs: [distributionUrl],
-        Version: "2", // Increment to force re-run
+        Version: "1", // Increment to force re-run
       } satisfies CustomResourceProperties,
     });
 
