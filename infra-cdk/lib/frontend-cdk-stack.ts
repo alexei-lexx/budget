@@ -7,10 +7,12 @@ import { Construct } from "constructs";
 import { requireEnv } from "./require-env";
 
 export interface FrontendCdkStackProps extends cdk.StackProps {
-  httpApi: apigatewayv2.HttpApi;
+  httpApi: apigatewayv2.IHttpApi;
 }
 
 export class FrontendCdkStack extends cdk.Stack {
+  public readonly distribution: cloudfront.IDistribution;
+
   constructor(scope: Construct, id: string, props: FrontendCdkStackProps) {
     super(scope, id, props);
 
@@ -39,7 +41,7 @@ export class FrontendCdkStack extends cdk.Stack {
       originId: "GraphqlApi",
     });
 
-    const distribution = new cloudfront.Distribution(
+    this.distribution = new cloudfront.Distribution(
       this,
       "FrontendDistribution",
       {
@@ -84,13 +86,13 @@ export class FrontendCdkStack extends cdk.Stack {
 
     // Used manually to open the deployed application.
     new cdk.CfnOutput(this, "CloudFrontFullURL", {
-      value: `https://${distribution.distributionDomainName}`,
+      value: `https://${this.distribution.distributionDomainName}`,
       description: "Full CloudFront distribution URL for opening the app",
     });
 
     // Used by deploy.sh to invalidate cache after asset upload.
     new cdk.CfnOutput(this, "CloudFrontDistributionId", {
-      value: distribution.distributionId,
+      value: this.distribution.distributionId,
       description:
         "CloudFront distribution ID used by deploy.sh for cache invalidation",
     });

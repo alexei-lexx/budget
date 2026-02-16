@@ -1,20 +1,22 @@
 import * as cdk from "aws-cdk-lib";
 import * as apigatewayv2 from "aws-cdk-lib/aws-apigatewayv2";
 import * as integrations from "aws-cdk-lib/aws-apigatewayv2-integrations";
+import { IUserPoolClient, UserPool } from "aws-cdk-lib/aws-cognito";
 import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
 import * as iam from "aws-cdk-lib/aws-iam";
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as logs from "aws-cdk-lib/aws-logs";
 import { Construct } from "constructs";
 import { requireEnv } from "./require-env";
+import { defaultLambdaOptions } from "./utils";
 
 export interface BackendCdkStackProps extends cdk.StackProps {
-  authIssuer: string;
-  authClientId: string;
+  userPool: UserPool; // IUserPool doesn't have the userPoolProviderUrl property
+  userPoolClient: IUserPoolClient;
 }
 
 export class BackendCdkStack extends cdk.Stack {
-  public readonly httpApi: apigatewayv2.HttpApi;
+  public readonly httpApi: apigatewayv2.IHttpApi;
 
   constructor(scope: Construct, id: string, props: BackendCdkStackProps) {
     super(scope, id, props);
@@ -103,8 +105,8 @@ export class BackendCdkStack extends cdk.Stack {
       code: lambda.Code.fromAsset("../backend/dist"),
       environment: {
         AUTH_CLAIM_NAMESPACE: process.env.AUTH_CLAIM_NAMESPACE || "",
-        AUTH_CLIENT_ID: props.authClientId,
-        AUTH_ISSUER: props.authIssuer,
+        AUTH_CLIENT_ID: props.userPoolClient.userPoolClientId,
+        AUTH_ISSUER: props.userPool.userPoolProviderUrl,
         AWS_BEDROCK_MAX_TOKENS: process.env.AWS_BEDROCK_MAX_TOKENS || "",
         AWS_BEDROCK_MODEL_ID: process.env.AWS_BEDROCK_MODEL_ID || "",
         AWS_BEDROCK_TEMPERATURE: process.env.AWS_BEDROCK_TEMPERATURE || "",
@@ -115,15 +117,7 @@ export class BackendCdkStack extends cdk.Stack {
         TRANSACTIONS_TABLE_NAME: transactionsTable.tableName,
         USERS_TABLE_NAME: usersTable.tableName,
       },
-      tracing: lambda.Tracing.ACTIVE,
-      ...(process.env.LAMBDA_TIMEOUT_SECONDS && {
-        timeout: cdk.Duration.seconds(
-          parseInt(process.env.LAMBDA_TIMEOUT_SECONDS, 10),
-        ),
-      }),
-      ...(process.env.LAMBDA_MEMORY_SIZE && {
-        memorySize: parseInt(process.env.LAMBDA_MEMORY_SIZE, 10),
-      }),
+      ...defaultLambdaOptions(),
     };
 
     const graphqlLogGroup = new logs.LogGroup(this, "GraphqlFunctionLogs", {

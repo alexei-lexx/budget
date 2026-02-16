@@ -93,27 +93,9 @@ cd ../infra-cdk
 echo "Installing infra-cdk dependencies..."
 npm install
 
-# ============================================================================
-# Two-Phase Deployment
-# ============================================================================
-# Problem (chicken-and-egg):
-#   - Cognito callback/logout URLs must point to CloudFront URL (frontend)
-#   - CloudFront URL doesn't exist until after frontend deployment
-#
-# Solution (two-phase deployment):
-#   Phase 1: Deploy all infrastructure without callback/logout URLs
-#            - Cognito allows creation without URLs (they're optional)
-#            - All stacks deploy successfully
-#            - CloudFront URL is now known from CDK outputs
-#   Phase 2: Set Cognito callback/logout URLs with CloudFront URL via AWS CLI
-#            - CloudFormation won't overwrite URLs set externally
-#            - URLs persist across subsequent CDK deployments
-# ============================================================================
-
-# Phase 1: Deploy infrastructure without callback/logout URLs
 CDK_OUTPUT_FILE="cdk-outputs.$ENV.json"
 
-echo "Deploying infrastructure (Phase 1)..."
+echo "Deploying infrastructure..."
 env AUTH_CLAIM_NAMESPACE="$AUTH_CLAIM_NAMESPACE" \
     AUTH_DOMAIN_PREFIX="$AUTH_DOMAIN_PREFIX" \
     AWS_BEDROCK_MAX_TOKENS="$AWS_BEDROCK_MAX_TOKENS" \
@@ -149,51 +131,6 @@ if [ -z "$AUTH_UI_URL" ] || [ "$AUTH_UI_URL" = "null" ]; then
   exit 1
 fi
 echo "AUTH_UI_URL=$AUTH_UI_URL"
-
-# ============================================================================
-# Phase 2: Set Cognito callback/logout URLs
-# ============================================================================
-# Now that frontend is deployed, we know the CloudFront URL.
-# Set Cognito callback/logout URLs via AWS CLI.
-# Note: CloudFormation won't overwrite these URLs on subsequent deployments.
-# ============================================================================
-CLOUDFRONT_URL=$(cat "$CDK_OUTPUT_FILE" | jq -r '."'"$ENV"'-BudgetFrontend".CloudFrontFullURL // empty')
-
-if [ -n "$CLOUDFRONT_URL" ] && [ "$CLOUDFRONT_URL" != "null" ]; then
-  echo "CloudFront URL: $CLOUDFRONT_URL"
-
-  # Extract User Pool ID from CDK outputs
-  USER_POOL_ID=$(cat "$CDK_OUTPUT_FILE" | jq -r '."'"$ENV"'-BudgetAuth".UserPoolId // empty')
-  if [ -z "$USER_POOL_ID" ] || [ "$USER_POOL_ID" = "null" ]; then
-    echo "ERROR: UserPoolId not found in CDK outputs from auth stack"
-    exit 1
-  fi
-  echo "User Pool ID: $USER_POOL_ID"
-
-  echo "Phase 2: Setting Cognito callback/logout URLs..."
-
-  # Set callback/logout URLs with CloudFront URL
-  # Note: This update happens outside of CloudFormation, so URLs persist across CDK deployments
-  aws cognito-idp update-user-pool-client \
-    --user-pool-id "$USER_POOL_ID" \
-    --client-id "$AUTH_CLIENT_ID" \
-    --callback-urls "$CLOUDFRONT_URL" \
-    --logout-urls "$CLOUDFRONT_URL" \
-    --allowed-o-auth-flows "code" \
-    --allowed-o-auth-scopes $(echo "$AUTH_SCOPE" | tr ' ' '\n') \
-    --allowed-o-auth-flows-user-pool-client \
-    --supported-identity-providers "COGNITO" \
-    --explicit-auth-flows \
-      ALLOW_USER_AUTH \
-      ALLOW_USER_SRP_AUTH \
-      ALLOW_USER_PASSWORD_AUTH \
-      ALLOW_REFRESH_TOKEN_AUTH \
-    --no-cli-pager
-
-  echo "Cognito callback/logout URLs configured successfully"
-else
-  echo "CloudFront URL not found - skipping Cognito URL update"
-fi
 
 echo "Running migrations..."
 MIGRATION_FUNCTION_NAME=$(cat "$CDK_OUTPUT_FILE" | jq -r '."'"$ENV"'-BudgetBackend".MigrationFunctionName // empty')
