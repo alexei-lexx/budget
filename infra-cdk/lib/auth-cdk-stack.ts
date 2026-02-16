@@ -21,10 +21,10 @@ import { requireEnv } from "./require-env";
  *
  * Environment variables:
  * - NODE_ENV: Environment name (default: "test")
- * - AUTH_CALLBACK_URLS: Comma-separated callback URLs (optional)
+ * - AUTH_CALLBACK_URLS: Comma-separated callback URLs (optional, for local development)
  * - AUTH_CLAIM_NAMESPACE: Namespace for custom claims (required)
  * - AUTH_DOMAIN_PREFIX: Cognito domain prefix
- * - AUTH_LOGOUT_URLS: Comma-separated logout URLs (optional)
+ * - AUTH_LOGOUT_URLS: Comma-separated logout URLs (optional, for local development)
  *
  * Outputs:
  * - UserPoolId: The Cognito User Pool ID
@@ -33,9 +33,8 @@ import { requireEnv } from "./require-env";
  * - AuthIssuer: The OIDC issuer URL for JWT verification
  *
  * Note on Callback/Logout URLs:
- * - Optional for production deployment (set later via AWS CLI after CloudFront URL is known)
- * - Required for development setup when deploying only auth stack with localhost URLs
- * - CloudFormation will not overwrite URLs set externally on subsequent deployments
+ * - Production: Set by AuthCallbackConfigStack after CloudFront deployment
+ * - Development: Can be set via AUTH_CALLBACK_URLS/AUTH_LOGOUT_URLS for localhost testing
  */
 export class AuthCdkStack extends cdk.Stack {
   public readonly userPool: cognito.UserPool;
@@ -53,9 +52,8 @@ export class AuthCdkStack extends cdk.Stack {
     const domainPrefix = requireEnv("AUTH_DOMAIN_PREFIX");
     const claimNamespace = requireEnv("AUTH_CLAIM_NAMESPACE");
 
-    // Callback/logout URLs are optional to support two use cases:
-    // 1. Production: Deploy without URLs, set CloudFront URL later via AWS CLI
-    // 2. Development: Deploy only auth stack with localhost URLs for local development
+    // Callback/logout URLs are optional - supports local development with localhost URLs
+    // Production URLs are set by AuthCallbackConfigStack after CloudFront deployment
     const callbackUrls = (process.env.AUTH_CALLBACK_URLS || undefined)?.split(
       ",",
     );

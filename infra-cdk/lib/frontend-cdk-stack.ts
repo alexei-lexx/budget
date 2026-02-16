@@ -11,6 +11,8 @@ export interface FrontendCdkStackProps extends cdk.StackProps {
 }
 
 export class FrontendCdkStack extends cdk.Stack {
+  public readonly distributionUrl: string;
+
   constructor(scope: Construct, id: string, props: FrontendCdkStackProps) {
     super(scope, id, props);
 
@@ -76,6 +78,9 @@ export class FrontendCdkStack extends cdk.Stack {
       },
     );
 
+    // Expose full CloudFront URL for cross-stack reference
+    this.distributionUrl = `https://${distribution.distributionDomainName}`;
+
     // Used by deploy.sh to upload frontend assets after build.
     new cdk.CfnOutput(this, "S3BucketName", {
       value: frontendBucket.bucketName,
@@ -84,7 +89,7 @@ export class FrontendCdkStack extends cdk.Stack {
 
     // Used manually to open the deployed application.
     new cdk.CfnOutput(this, "CloudFrontFullURL", {
-      value: `https://${distribution.distributionDomainName}`,
+      value: this.distributionUrl,
       description: "Full CloudFront distribution URL for opening the app",
     });
 
