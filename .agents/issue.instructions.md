@@ -22,6 +22,13 @@ Guidelines for creating and editing GitHub issues in this repository.
 
 ## Issue Types
 
+| Type | Description | Required Sections | Optional Sections |
+|------|-------------|-------------------|-------------------|
+| **Feature** | New functionality or enhancements | `problem`, `solution`, `acceptance criteria` | `user flow`, `UI behavior`, `notes` |
+| **Bug** | Defects and unexpected behavior | `steps to reproduce`, `current behavior`, `expected behavior` | `screenshots`, `additional context` |
+| **Technical/Refactoring** | Infrastructure, architecture, or code quality improvements | `context`, `current state`, `required changes`, `benefits` | — |
+| **Simple Task** | Trivial changes where title is self-explanatory | — | — |
+
 ### 1. Feature
 
 Use for new functionality or enhancements.
