@@ -39,11 +39,7 @@ Deploy the application to AWS.
 - Node.js installed
 - `jq` command-line JSON processor installed
 
-### Deployment Script
-
-```bash
-./deploy.sh
-```
+### Deployment order
 
 The deployment script handles the following steps automatically:
 
@@ -54,6 +50,12 @@ The deployment script handles the following steps automatically:
 5. Set auth callback/logout URLs with the actual frontend URL
 6. Run database migrations
 7. Build and upload frontend assets
+
+### Deployment Script
+
+```bash
+./deploy.sh
+```
 
 ### Multi-Environment Deployment
 
