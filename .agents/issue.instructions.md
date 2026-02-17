@@ -27,32 +27,32 @@ Guidelines for creating and editing GitHub issues in this repository.
 Use for new functionality or enhancements.
 
 **Include these sections:**
-- `## Problem` - explain why this feature is needed
-- `## Solution` - describe high-level approach
-- `## Acceptance Criteria` - add checkboxes (mandatory)
+- `## problem` - explain why this feature is needed
+- `## solution` - describe high-level approach
+- `## acceptance criteria` - add checkboxes (mandatory)
 
 **Optionally include:**
-- `## User Flow` - describe step-by-step interaction
-- `## UI Behavior` - specify interface details
-- `## Notes` - add constraints, edge cases
+- `## user flow` - describe step-by-step interaction
+- `## UI behavior` - specify interface details
+- `## notes` - add constraints, edge cases
 
 **Example:**
 ```markdown
-## Problem
+## problem
 
 Users cannot track spending patterns by day of week.
 
-## Solution
+## solution
 
 Add a weekday breakdown chart to the monthly reports page.
 
-## Acceptance Criteria
+## acceptance criteria
 
 - [ ] Chart displays expenses grouped by weekday (Mon-Sun)
 - [ ] Shows both total and average per weekday
 - [ ] Integrates with existing month navigation
 
-## UI Behavior
+## UI behavior
 
 - Bar chart with 7 columns
 - Tooltip shows amount on hover
@@ -66,27 +66,27 @@ Use for defects and unexpected behavior.
 
 **Do:**
 - Add `bug` label (mandatory)
-- Include `## Steps to Reproduce` (if reproducible)
-- Include `## Current Behavior`
-- Include `## Expected Behavior`
+- Include `## steps to reproduce` (if reproducible)
+- Include `## current behavior`
+- Include `## expected behavior`
 
 **Optionally include:**
-- `## Screenshots`
-- `## Additional Context`
+- `## screenshots`
+- `## additional context`
 
 **Example:**
 ```markdown
-## Steps to Reproduce
+## steps to reproduce
 
 1. Navigate to transactions page
 2. Apply date filter for last month
 3. Click "Next page"
 
-## Current Behavior
+## current behavior
 
 Page 2 fails to load with validation error.
 
-## Expected Behavior
+## expected behavior
 
 Page 2 displays remaining transactions.
 ```
@@ -98,27 +98,27 @@ Page 2 displays remaining transactions.
 Use for infrastructure, architecture, or code quality improvements.
 
 **Include these sections:**
-- `## Context` - provide background and motivation
-- `## Current State` - describe what exists now
-- `## Required Changes` - specify what needs to change
-- `## Benefits` - explain why this matters
+- `## context` - provide background and motivation
+- `## current state` - describe what exists now
+- `## required changes` - specify what needs to change
+- `## benefits` - explain why this matters
 
 **Example:**
 ```markdown
-## Context
+## context
 
 Lambda logs have no retention policy, causing unnecessary storage costs.
 
-## Current State
+## current state
 
 - API Gateway logs: 1 week retention
 - Lambda logs: infinite (no policy)
 
-## Required Changes
+## required changes
 
 Set `logRetention: logs.RetentionDays.ONE_WEEK` for all Lambda functions.
 
-## Benefits
+## benefits
 
 - Reduced CloudWatch costs
 - Consistent retention across all logs
@@ -157,7 +157,7 @@ Append an update note when modifying an existing issue:
 
 **Example:**
 ```markdown
-## Acceptance Criteria
+## acceptance criteria
 
 - [x] User can select time period
 - [x] AI returns insight based on transactions
