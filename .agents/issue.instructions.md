@@ -20,36 +20,22 @@ Guidelines for creating and editing GitHub issues in this repository.
 
 ---
 
-## Standard Sections
-
-All issues use the same core structure (body can be empty for trivial tasks with self-explanatory titles):
-
-**When body is present, use this order:**
-1. `## context` - Background, motivation, or reproduction steps (required)
-2. `## current` - What exists now or what's broken (optional, skip for new features)
-3. `## expected` - What should happen or be built (required)
-4. `## acceptance criteria` - Checkboxes to verify completion (required for Features, optional otherwise)
-5. `## notes` - Additional details: UI specifics, screenshots, constraints, benefits, etc. (optional)
-
-**Special requirements:**
-- **Bug issues:** Add `bug` label
-
----
-
 ## Issue Types
 
-| Type | Description | When to Use |
-|------|-------------|-------------|
-| **Feature** | New functionality or enhancements | Building something new or extending existing features |
-| **Bug** | Defects and unexpected behavior | Something is broken or not working as intended |
-| **Technical** | Infrastructure, architecture, or code quality | Internal improvements with no direct user-facing changes |
+### 1. Feature
 
----
+Use for new functionality or enhancements.
 
-## Examples
+**Include these sections:**
+- `## context` - explain why this feature is needed
+- `## expected` - describe what should be built
+- `## acceptance criteria` - add checkboxes (mandatory)
 
-### Feature
+**Optionally include:**
+- `## current` - describe what exists now (if relevant)
+- `## notes` - add UI specifics, user flows, constraints, edge cases
 
+**Example:**
 ```markdown
 ## context
 
@@ -72,8 +58,22 @@ Add a weekday breakdown chart to the monthly reports page showing:
 Bar chart with 7 columns, tooltip shows amount on hover
 ```
 
-### Bug
+---
 
+### 2. Bug
+
+Use for defects and unexpected behavior.
+
+**Do:**
+- Add `bug` label (mandatory)
+- Include `## context` - provide background or reproduction steps
+- Include `## current` - describe what's broken
+- Include `## expected` - describe what should happen instead
+
+**Optionally include:**
+- `## notes` - add screenshots, additional context
+
+**Example:**
 ```markdown
 ## context
 
@@ -91,8 +91,21 @@ Page 2 fails to load with "Invalid cursor" validation error.
 Page 2 should load successfully and display the remaining filtered transactions.
 ```
 
-### Technical
+---
 
+### 3. Technical/Refactoring
+
+Use for infrastructure, architecture, or code quality improvements.
+
+**Include these sections:**
+- `## context` - provide background and motivation
+- `## current` - describe what exists now
+- `## expected` - describe the desired improved state
+
+**Optionally include:**
+- `## notes` - add benefits, technical constraints
+
+**Example:**
 ```markdown
 ## context
 
@@ -112,14 +125,19 @@ All Lambda function logs should have consistent 1-week retention policy matching
 Benefits: Reduced CloudWatch costs, consistent retention across all logs
 ```
 
-### Simple/Minimal
+---
 
-For trivial changes, the body can be brief or even empty if the title is clear:
+### 4. Simple Task
 
+Use for trivial changes where the title is self-explanatory.
+
+Keep body brief or empty.
+
+**Examples:**
 ```
 remove unused cdk.CfnOutput entries
 ```
-(empty body - title is self-explanatory)
+(empty body - title is clear)
 
 ```
 rename transaction filter buttons
@@ -153,14 +171,29 @@ Append an update note when modifying an existing issue:
 
 ---
 
+## Labels
+
+| Label | When to use |
+|-------|-------------|
+| `bug` | Add to all bug issues |
+
+Other labels are optional.
+
+---
+
 ## Writing Style
 
 - Keep content concise and factual
 - Use minimal prose
 - Prefer bullet points over paragraphs
-- Use product-oriented language for Features and Bugs
+
+**For Feature and Bug issues:**
+- Use product-oriented language
 - Focus on user impact and behavior
-- Use technical language as appropriate for Technical issues
+- Avoid implementation details unless necessary
+
+**For Technical issues:**
+- Use technical language as appropriate
 - Include code snippets when helpful
 
 ---
@@ -168,7 +201,7 @@ Append an update note when modifying an existing issue:
 ## Avoid
 
 - Vague titles (`improvements`, `fix bug`)
-- Missing acceptance criteria
+- Missing acceptance criteria on features
 - Bug reports without reproduction steps (when reproducible)
 - Empty body with unclear title
 - Single issue covering multiple unrelated changes
