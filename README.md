@@ -39,7 +39,35 @@ Deploy the application to AWS.
 - Node.js installed
 - `jq` command-line JSON processor installed
 
-**Create Parameters in AWS Systems Manager Parameter Store:**
+### Deployment order
+
+The deployment script handles the following steps automatically:
+
+1. Build backend
+2. Deploy auth infrastructure
+3. Deploy backend infrastructure
+4. Deploy frontend infrastructure
+5. Set auth callback/logout URLs with the actual frontend URL
+6. Run database migrations
+7. Build and upload frontend assets
+
+### Deployment Script
+
+```bash
+./deploy.sh
+```
+
+### Multi-Environment Deployment
+
+The deployment script supports multi-environment deployments using the ENV environment variable. By default, it deploys to the `production` environment. To deploy to a different environment (e.g., `staging`), set the ENV variable when running the script:
+
+```bash
+ENV=staging ./deploy.sh
+```
+
+### Override Configuration (Optional)
+
+All parameters have sensible defaults. To override any default, create parameters in AWS Systems Manager Parameter Store:
 
 ```bash
 # Auth claim namespace (custom namespace for JWT claims)
@@ -83,30 +111,4 @@ aws ssm put-parameter --overwrite --type String \
     --value "30"
 ```
 
-### Deployment order
-
-The deployment script handles the following steps automatically:
-
-1. Build backend
-2. Deploy auth infrastructure
-3. Deploy backend infrastructure
-4. Deploy frontend infrastructure
-5. Set auth callback/logout URLs with the actual frontend URL
-6. Run database migrations
-7. Build and upload frontend assets
-
-### Deployment Script
-
-```bash
-./deploy.sh
-```
-
-### Multi-Environment Deployment
-
-> **Important:** Before running the deployment script, ensure all required parameters in AWS Systems Manager Parameter Store are created for the desired environment (e.g., `staging`, `production`). Replace `production` in the parameter names with your target environment when setting up for non-production deployments.
-
-The deployment script supports multi-environment deployments using the ENV environment variable. By default, it deploys to the `production` environment. To deploy to a different environment (e.g., `staging`), set the ENV variable when running the script:
-
-```bash
-ENV=staging ./deploy.sh
-```
+To override configuration for a specific environment, replace `production` in the parameter names with your target environment (e.g., `/manual/budget/staging/auth/domain-prefix`).

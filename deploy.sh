@@ -1,4 +1,4 @@
-set -e
+set -euo pipefail
 
 # Use ENV from environment variable, default to production
 if [ -z "$ENV" ]; then
@@ -16,69 +16,137 @@ echo "Deploying to environment: $ENV"
 
 NODE_ENV="$ENV"
 
-echo "Fetching AUTH_CLAIM_NAMESPACE from /manual/budget/$ENV/auth/claim-namespace in AWS SSM Parameter Store..."
-AUTH_CLAIM_NAMESPACE=$(aws ssm get-parameter --name "/manual/budget/$ENV/auth/claim-namespace" --query 'Parameter.Value' --output text)
-if [ -z "$AUTH_CLAIM_NAMESPACE" ] || [ "$AUTH_CLAIM_NAMESPACE" = "null" ]; then
-  echo "ERROR: Parameter /manual/budget/$ENV/auth/claim-namespace must be configured in AWS SSM Parameter Store"
-  exit 1
-fi
+# Fetch an AWS SSM Parameter Store value safely with strict error handling and tracing.
+#
+# Behavior:
+#   - Returns the parameter value if it exists and is non-empty
+#   - Returns the provided default if:
+#       • the parameter does not exist (ParameterNotFound)
+#       • the parameter exists but is empty (or AWS returns "None")
+#   - Fails hard on real AWS problems:
+#       • AWS CLI not configured
+#       • permission denied
+#       • network/API errors
+#
+# Designed for: set -euo pipefail
+#
+# Usage:
+#   VALUE=$(ssm_get_or_default "/path/to/param" "fallback") || exit $?
+
+ssm_get_or_default() {
+  # First argument: full SSM parameter name
+  local name="$1"
+
+  # Second argument: default value (optional)
+  local def="${2-}"
+
+  # Will capture either:
+  #   - the parameter value (stdout)
+  #   - or AWS error message (stderr redirected to stdout)
+  local out
+
+  # Will store the exit status of the aws command
+  # (0 = success, non-zero = failure)
+  local rc
+
+  # Log what we are about to fetch (stderr keeps stdout clean for command substitution)
+  echo "[ssm] fetching: $name" >&2
+
+  # Call AWS SSM.
+  #
+  # --query 'Parameter.Value' extracts only the value
+  # --output text avoids JSON formatting
+  # 2>&1 merges stderr into stdout so we can inspect error messages
+  out=$(aws ssm get-parameter \
+          --name "$name" \
+          --query 'Parameter.Value' \
+          --output text 2>&1)
+
+  # Immediately save the exit code of the aws command.
+  # $? always refers to the most recently executed command.
+  rc=$?
+
+  # Show raw AWS result for debugging
+  echo "[ssm] aws exit code: $rc" >&2
+  echo "[ssm] raw output: $out" >&2
+
+  # ------------------------------------------------------------------
+  # SUCCESS PATH — AWS returned without error
+  # ------------------------------------------------------------------
+  if [[ $rc -eq 0 ]]; then
+    # out now contains the parameter value (may be empty)
+
+    # Use the value only if:
+    #   - it is non-empty
+    #   - and not the AWS placeholder string "None"
+    if [[ -n "$out" && "$out" != "None" ]]; then
+      echo "[ssm] value found → returning value" >&2
+      printf '%s' "$out"
+    else
+      # Parameter exists but is empty → fall back to default
+      echo "[ssm] value empty → using default" >&2
+      printf '%s' "$def"
+    fi
+    return 0
+  fi
+
+  # ------------------------------------------------------------------
+  # MISSING PARAMETER PATH — not a real failure
+  # ------------------------------------------------------------------
+
+  # If AWS explicitly reports ParameterNotFound,
+  # treat this as expected and return the default.
+  if grep -q 'ParameterNotFound' <<<"$out"; then
+    echo "[ssm] parameter not found → using default" >&2
+    printf '%s' "$def"
+    return 0
+  fi
+
+  # ------------------------------------------------------------------
+  # REAL ERROR PATH — must stop the script
+  # ------------------------------------------------------------------
+
+  # Any other error means something is genuinely wrong:
+  # credentials missing, IAM denied, network issues, etc.
+  echo "[ssm] fatal AWS error:" >&2
+  echo "$out" >&2
+
+  # Propagate the original AWS exit code
+  return "$rc"
+}
+
+DEFAULT_AUTH_CLAIM_NAMESPACE="https://personal-budget-tracker"
+DEFAULT_AUTH_DOMAIN_PREFIX="$ENV-budget-auth"
+DEFAULT_AUTH_SCOPE="openid profile email"
+DEFAULT_AWS_BEDROCK_MAX_TOKENS="2000"
+DEFAULT_AWS_BEDROCK_MODEL_ID="eu.amazon.nova-2-lite-v1:0"
+DEFAULT_AWS_BEDROCK_TEMPERATURE="0.2"
+DEFAULT_AWS_LAMBDA_MEMORY_SIZE="512"
+DEFAULT_AWS_LAMBDA_TIMEOUT_SECONDS="30"
+
+AUTH_CLAIM_NAMESPACE=$(ssm_get_or_default "/manual/budget/$ENV/auth/claim-namespace" "$DEFAULT_AUTH_CLAIM_NAMESPACE") || exit $?
 echo "AUTH_CLAIM_NAMESPACE=$AUTH_CLAIM_NAMESPACE"
 
-echo "Fetching AUTH_DOMAIN_PREFIX from /manual/budget/$ENV/auth/domain-prefix in AWS SSM Parameter Store..."
-AUTH_DOMAIN_PREFIX=$(aws ssm get-parameter --name "/manual/budget/$ENV/auth/domain-prefix" --query 'Parameter.Value' --output text)
-if [ -z "$AUTH_DOMAIN_PREFIX" ] || [ "$AUTH_DOMAIN_PREFIX" = "null" ]; then
-  echo "ERROR: Parameter /manual/budget/$ENV/auth/domain-prefix must be configured in AWS SSM Parameter Store"
-  exit 1
-fi
+AUTH_DOMAIN_PREFIX=$(ssm_get_or_default "/manual/budget/$ENV/auth/domain-prefix" "$DEFAULT_AUTH_DOMAIN_PREFIX") || exit $?
 echo "AUTH_DOMAIN_PREFIX=$AUTH_DOMAIN_PREFIX"
 
-echo "Fetching AUTH_SCOPE from /manual/budget/$ENV/auth/scope in AWS SSM Parameter Store..."
-AUTH_SCOPE=$(aws ssm get-parameter --name "/manual/budget/$ENV/auth/scope" --query 'Parameter.Value' --output text)
-if [ -z "$AUTH_SCOPE" ] || [ "$AUTH_SCOPE" = "null" ]; then
-  echo "ERROR: Parameter /manual/budget/$ENV/auth/scope must be configured in AWS SSM Parameter Store"
-  exit 1
-fi
+AUTH_SCOPE=$(ssm_get_or_default "/manual/budget/$ENV/auth/scope" "$DEFAULT_AUTH_SCOPE") || exit $?
 echo "AUTH_SCOPE=$AUTH_SCOPE"
 
-echo "Fetching LAMBDA_MEMORY_SIZE from /manual/budget/$ENV/lambda/memory-size in AWS SSM Parameter Store..."
-LAMBDA_MEMORY_SIZE=$(aws ssm get-parameter --name "/manual/budget/$ENV/lambda/memory-size" --query 'Parameter.Value' --output text)
-if [ -z "$LAMBDA_MEMORY_SIZE" ] || [ "$LAMBDA_MEMORY_SIZE" = "null" ]; then
-  echo "ERROR: Parameter /manual/budget/$ENV/lambda/memory-size must be configured in AWS SSM Parameter Store"
-  exit 1
-fi
-echo "LAMBDA_MEMORY_SIZE=$LAMBDA_MEMORY_SIZE"
-
-echo "Fetching LAMBDA_TIMEOUT_SECONDS from /manual/budget/$ENV/lambda/timeout-seconds in AWS SSM Parameter Store..."
-LAMBDA_TIMEOUT_SECONDS=$(aws ssm get-parameter --name "/manual/budget/$ENV/lambda/timeout-seconds" --query 'Parameter.Value' --output text)
-if [ -z "$LAMBDA_TIMEOUT_SECONDS" ] || [ "$LAMBDA_TIMEOUT_SECONDS" = "null" ]; then
-  echo "ERROR: Parameter /manual/budget/$ENV/lambda/timeout-seconds must be configured in AWS SSM Parameter Store"
-  exit 1
-fi
-echo "LAMBDA_TIMEOUT_SECONDS=$LAMBDA_TIMEOUT_SECONDS"
-
-echo "Fetching AWS_BEDROCK_MODEL_ID from /manual/budget/$ENV/bedrock/model-id in AWS SSM Parameter Store..."
-AWS_BEDROCK_MODEL_ID=$(aws ssm get-parameter --name "/manual/budget/$ENV/bedrock/model-id" --query 'Parameter.Value' --output text)
-if [ -z "$AWS_BEDROCK_MODEL_ID" ] || [ "$AWS_BEDROCK_MODEL_ID" = "null" ]; then
-  echo "ERROR: Parameter /manual/budget/$ENV/bedrock/model-id must be configured in AWS SSM Parameter Store"
-  exit 1
-fi
-echo "AWS_BEDROCK_MODEL_ID=$AWS_BEDROCK_MODEL_ID"
-
-echo "Fetching AWS_BEDROCK_MAX_TOKENS from /manual/budget/$ENV/bedrock/max-tokens in AWS SSM Parameter Store..."
-AWS_BEDROCK_MAX_TOKENS=$(aws ssm get-parameter --name "/manual/budget/$ENV/bedrock/max-tokens" --query 'Parameter.Value' --output text)
-if [ -z "$AWS_BEDROCK_MAX_TOKENS" ] || [ "$AWS_BEDROCK_MAX_TOKENS" = "null" ]; then
-  echo "ERROR: Parameter /manual/budget/$ENV/bedrock/max-tokens must be configured in AWS SSM Parameter Store"
-  exit 1
-fi
+AWS_BEDROCK_MAX_TOKENS=$(ssm_get_or_default "/manual/budget/$ENV/bedrock/max-tokens" "$DEFAULT_AWS_BEDROCK_MAX_TOKENS") || exit $?
 echo "AWS_BEDROCK_MAX_TOKENS=$AWS_BEDROCK_MAX_TOKENS"
 
-echo "Fetching AWS_BEDROCK_TEMPERATURE from /manual/budget/$ENV/bedrock/temperature in AWS SSM Parameter Store..."
-AWS_BEDROCK_TEMPERATURE=$(aws ssm get-parameter --name "/manual/budget/$ENV/bedrock/temperature" --query 'Parameter.Value' --output text)
-if [ -z "$AWS_BEDROCK_TEMPERATURE" ] || [ "$AWS_BEDROCK_TEMPERATURE" = "null" ]; then
-  echo "ERROR: Parameter /manual/budget/$ENV/bedrock/temperature must be configured in AWS SSM Parameter Store"
-  exit 1
-fi
+AWS_BEDROCK_MODEL_ID=$(ssm_get_or_default "/manual/budget/$ENV/bedrock/model-id" "$DEFAULT_AWS_BEDROCK_MODEL_ID") || exit $?
+echo "AWS_BEDROCK_MODEL_ID=$AWS_BEDROCK_MODEL_ID"
+
+AWS_BEDROCK_TEMPERATURE=$(ssm_get_or_default "/manual/budget/$ENV/bedrock/temperature" "$DEFAULT_AWS_BEDROCK_TEMPERATURE") || exit $?
 echo "AWS_BEDROCK_TEMPERATURE=$AWS_BEDROCK_TEMPERATURE"
+
+AWS_LAMBDA_MEMORY_SIZE=$(ssm_get_or_default "/manual/budget/$ENV/lambda/memory-size" "$DEFAULT_AWS_LAMBDA_MEMORY_SIZE") || exit $?
+echo "AWS_LAMBDA_MEMORY_SIZE=$AWS_LAMBDA_MEMORY_SIZE"
+
+AWS_LAMBDA_TIMEOUT_SECONDS=$(ssm_get_or_default "/manual/budget/$ENV/lambda/timeout-seconds" "$DEFAULT_AWS_LAMBDA_TIMEOUT_SECONDS") || exit $?
+echo "AWS_LAMBDA_TIMEOUT_SECONDS=$AWS_LAMBDA_TIMEOUT_SECONDS"
 
 echo "Switching to backend directory..."
 cd backend
@@ -101,8 +169,8 @@ env AUTH_CLAIM_NAMESPACE="$AUTH_CLAIM_NAMESPACE" \
     AWS_BEDROCK_MAX_TOKENS="$AWS_BEDROCK_MAX_TOKENS" \
     AWS_BEDROCK_MODEL_ID="$AWS_BEDROCK_MODEL_ID" \
     AWS_BEDROCK_TEMPERATURE="$AWS_BEDROCK_TEMPERATURE" \
-    LAMBDA_MEMORY_SIZE="$LAMBDA_MEMORY_SIZE" \
-    LAMBDA_TIMEOUT_SECONDS="$LAMBDA_TIMEOUT_SECONDS" \
+    AWS_LAMBDA_MEMORY_SIZE="$AWS_LAMBDA_MEMORY_SIZE" \
+    AWS_LAMBDA_TIMEOUT_SECONDS="$AWS_LAMBDA_TIMEOUT_SECONDS" \
     NODE_ENV="$NODE_ENV" \
   npm run deploy -- --outputs-file "$CDK_OUTPUT_FILE"
 
