@@ -20,130 +20,106 @@ Guidelines for creating and editing GitHub issues in this repository.
 
 ---
 
-## Issue Types
+## Standard Sections
 
-| Type | Description | Required Sections | Optional Sections |
-|------|-------------|-------------------|-------------------|
-| **Feature** | New functionality or enhancements | `problem`, `solution`, `acceptance criteria` | `user flow`, `UI behavior`, `notes` |
-| **Bug** | Defects and unexpected behavior | `steps to reproduce`, `current behavior`, `expected behavior` | `screenshots`, `additional context` |
-| **Technical/Refactoring** | Infrastructure, architecture, or code quality improvements | `context`, `current state`, `required changes`, `benefits` | — |
-| **Simple Task** | Trivial changes where title is self-explanatory | — | — |
+All issues use the same core structure (body can be empty for trivial tasks with self-explanatory titles):
 
-### 1. Feature
+**When body is present, use this order:**
+1. `## context` - Background, motivation, or reproduction steps (required)
+2. `## current` - What exists now or what's broken (optional, skip for new features)
+3. `## expected` - What should happen or be built (required)
+4. `## acceptance criteria` - Checkboxes to verify completion (required for Features, optional otherwise)
+5. `## notes` - Additional details: UI specifics, screenshots, constraints, benefits, etc. (optional)
 
-Use for new functionality or enhancements.
-
-**Include these sections:**
-- `## problem` - explain why this feature is needed
-- `## solution` - describe high-level approach
-- `## acceptance criteria` - add checkboxes (mandatory)
-
-**Optionally include:**
-- `## user flow` - describe step-by-step interaction
-- `## UI behavior` - specify interface details
-- `## notes` - add constraints, edge cases
-
-**Example:**
-```markdown
-## problem
-
-Users cannot track spending patterns by day of week.
-
-## solution
-
-Add a weekday breakdown chart to the monthly reports page.
-
-## acceptance criteria
-
-- [ ] Chart displays expenses grouped by weekday (Mon-Sun)
-- [ ] Shows both total and average per weekday
-- [ ] Integrates with existing month navigation
-
-## UI behavior
-
-- Bar chart with 7 columns
-- Tooltip shows amount on hover
-```
+**Special requirements:**
+- **Bug issues:** Add `bug` label
 
 ---
 
-### 2. Bug
+## Issue Types
 
-Use for defects and unexpected behavior.
+| Type | Description | When to Use |
+|------|-------------|-------------|
+| **Feature** | New functionality or enhancements | Building something new or extending existing features |
+| **Bug** | Defects and unexpected behavior | Something is broken or not working as intended |
+| **Technical** | Infrastructure, architecture, or code quality | Internal improvements with no direct user-facing changes |
 
-**Do:**
-- Add `bug` label (mandatory)
-- Include `## steps to reproduce` (if reproducible)
-- Include `## current behavior`
-- Include `## expected behavior`
+---
 
-**Optionally include:**
-- `## screenshots`
-- `## additional context`
+## Examples
 
-**Example:**
+### Feature
+
 ```markdown
-## steps to reproduce
+## context
 
+Users cannot track spending patterns by day of week.
+
+## expected
+
+Add a weekday breakdown chart to the monthly reports page showing:
+- Expenses grouped by weekday (Mon-Sun)
+- Both total and average per weekday
+
+## acceptance criteria
+
+- [ ] Chart displays expenses grouped by weekday
+- [ ] Shows both total and average per weekday
+- [ ] Integrates with existing month navigation
+
+## notes
+
+Bar chart with 7 columns, tooltip shows amount on hover
+```
+
+### Bug
+
+```markdown
+## context
+
+To reproduce:
 1. Navigate to transactions page
 2. Apply date filter for last month
 3. Click "Next page"
 
-## current behavior
+## current
 
-Page 2 fails to load with validation error.
+Page 2 fails to load with "Invalid cursor" validation error.
 
-## expected behavior
+## expected
 
-Page 2 displays remaining transactions.
+Page 2 should load successfully and display the remaining filtered transactions.
 ```
 
----
+### Technical
 
-### 3. Technical/Refactoring
-
-Use for infrastructure, architecture, or code quality improvements.
-
-**Include these sections:**
-- `## context` - provide background and motivation
-- `## current state` - describe what exists now
-- `## required changes` - specify what needs to change
-- `## benefits` - explain why this matters
-
-**Example:**
 ```markdown
 ## context
 
 Lambda logs have no retention policy, causing unnecessary storage costs.
 
-## current state
+## current
 
 - API Gateway logs: 1 week retention
 - Lambda logs: infinite (no policy)
 
-## required changes
+## expected
 
-Set `logRetention: logs.RetentionDays.ONE_WEEK` for all Lambda functions.
+All Lambda function logs should have consistent 1-week retention policy matching API Gateway logs.
 
-## benefits
+## notes
 
-- Reduced CloudWatch costs
-- Consistent retention across all logs
+Benefits: Reduced CloudWatch costs, consistent retention across all logs
 ```
 
----
+### Simple/Minimal
 
-### 4. Simple Task
+For trivial changes, the body can be brief or even empty if the title is clear:
 
-Use for trivial changes where the title is self-explanatory.
-
-Keep body brief or empty.
-
-**Examples:**
 ```
 remove unused cdk.CfnOutput entries
 ```
-(empty body - title is clear)
+(empty body - title is self-explanatory)
 
 ```
 rename transaction filter buttons
@@ -177,29 +153,14 @@ Append an update note when modifying an existing issue:
 
 ---
 
-## Labels
-
-| Label | When to use |
-|-------|-------------|
-| `bug` | Add to all bug issues |
-
-Other labels are optional.
-
----
-
 ## Writing Style
 
 - Keep content concise and factual
 - Use minimal prose
 - Prefer bullet points over paragraphs
-
-**For Feature and Bug issues:**
-- Use product-oriented language
+- Use product-oriented language for Features and Bugs
 - Focus on user impact and behavior
-- Avoid implementation details unless necessary
-
-**For Technical issues:**
-- Use technical language as appropriate
+- Use technical language as appropriate for Technical issues
 - Include code snippets when helpful
 
 ---
@@ -207,7 +168,7 @@ Other labels are optional.
 ## Avoid
 
 - Vague titles (`improvements`, `fix bug`)
-- Missing acceptance criteria on features
+- Missing acceptance criteria
 - Bug reports without reproduction steps (when reproducible)
 - Empty body with unclear title
 - Single issue covering multiple unrelated changes
