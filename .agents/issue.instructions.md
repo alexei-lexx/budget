@@ -10,7 +10,7 @@ Guidelines for creating and editing GitHub issues in this repository.
 - Start with an action verb: `add`, `fix`, `show`, `move`, `rename`, `update`, `remove`, `enable`, `migrate`, `replace`, `merge`, `support`
 - Keep titles concise (5-10 words)
 - Be specific - describe the exact change, not vague goals
-- Optionally use `[bug]` prefix for defects
+- Optionally use `[bug]` prefix for bugs
 
 **Examples:**
 - show top 5 transactions per category in monthly report
@@ -70,16 +70,16 @@ Add a weekday breakdown chart to the monthly reports page.
 ### 2. Bug
 
 Use for defects and unexpected behavior.
+Mark all bug issues with the `bug` label.
 
-**Do:**
-- Add `bug` label (mandatory)
-- Include `## steps to reproduce` (if reproducible)
-- Include `## current behavior`
-- Include `## expected behavior`
+**Include these sections:**
+- `## steps to reproduce` - provide clear, reproducible steps (if reproducible)
+- `## current behavior` - describe what happens currently
+- `## expected behavior` - describe the expected outcome
 
 **Optionally include:**
-- `## screenshots`
-- `## additional context`
+- `## screenshots` - add images to illustrate the issue
+- `## additional context` - provide any other relevant information
 
 **Example:**
 ```markdown
@@ -123,7 +123,7 @@ Lambda logs have no retention policy, causing unnecessary storage costs.
 
 ## required changes
 
-Set `logRetention: logs.RetentionDays.ONE_WEEK` for all Lambda functions.
+Set one-week retention for all Lambda functions.
 
 ## benefits
 
