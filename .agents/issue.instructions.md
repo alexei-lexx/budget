@@ -20,14 +20,7 @@ Guidelines for creating and editing GitHub issues in this repository.
 
 ---
 
-## Issue Types
-
-| Type | Description | Required Sections | Optional Sections |
-|------|-------------|-------------------|-------------------|
-| **Feature** | New functionality or enhancements | `problem`, `solution`, `acceptance criteria` | `user flow`, `UI behavior`, `notes` |
-| **Bug** | Defects and unexpected behavior | `steps to reproduce`, `current behavior`, `expected behavior` | `screenshots`, `additional context` |
-| **Technical/Refactoring** | Infrastructure, architecture, or code quality improvements | `context`, `current state`, `required changes`, `benefits` | — |
-| **Simple Task** | Trivial changes where title is self-explanatory | — | — |
+## Body Structure
 
 ### 1. Feature
 
@@ -152,6 +145,40 @@ Body: `Rename "Apply filters" to "Apply" and "Clear filters" to "Clear"`
 
 ---
 
+## Labels
+
+| Label | When to use |
+|-------|-------------|
+| `bug` | Add to all bug issues |
+
+Other labels are optional.
+
+---
+
+## Writing Guidelines
+
+- Keep content concise and factual
+- Use minimal prose
+- Prefer bullet points over paragraphs
+
+**For Feature and Bug issues:**
+- Use product-oriented language
+- Focus on user impact and behavior
+- Avoid implementation details unless necessary
+
+**For Technical issues:**
+- Use technical language as appropriate
+- Include code snippets when helpful
+
+**Avoid:**
+- Vague titles (`improvements`, `fix bug`)
+- Missing acceptance criteria on features
+- Bug reports without reproduction steps (when reproducible)
+- Empty body with unclear title
+- Single issue covering multiple unrelated changes
+
+---
+
 ## Editing Issues
 
 Append an update note when modifying an existing issue:
@@ -174,40 +201,3 @@ Append an update note when modifying an existing issue:
 
 **Updated 2025-01-15:** Removed conversation history requirement per discussion in #95
 ```
-
----
-
-## Labels
-
-| Label | When to use |
-|-------|-------------|
-| `bug` | Add to all bug issues |
-
-Other labels are optional.
-
----
-
-## Writing Style
-
-- Keep content concise and factual
-- Use minimal prose
-- Prefer bullet points over paragraphs
-
-**For Feature and Bug issues:**
-- Use product-oriented language
-- Focus on user impact and behavior
-- Avoid implementation details unless necessary
-
-**For Technical issues:**
-- Use technical language as appropriate
-- Include code snippets when helpful
-
----
-
-## Avoid
-
-- Vague titles (`improvements`, `fix bug`)
-- Missing acceptance criteria on features
-- Bug reports without reproduction steps (when reproducible)
-- Empty body with unclear title
-- Single issue covering multiple unrelated changes
