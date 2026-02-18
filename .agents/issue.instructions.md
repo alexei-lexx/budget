@@ -27,7 +27,7 @@ Guidelines for creating and editing GitHub issues in this repository.
 Use for new functionality or enhancements.
 
 **Include these sections:**
-- `## problem` - explain why this feature is needed
+- `## context` - explain why this feature is needed
 - `## solution` - describe high-level approach
 - `## acceptance criteria` - add checkboxes (mandatory)
 
@@ -38,7 +38,7 @@ Use for new functionality or enhancements.
 
 **Example:**
 ```markdown
-## problem
+## context
 
 Users cannot track spending patterns by day of week.
 
