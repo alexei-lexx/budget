@@ -105,6 +105,37 @@ const handleSignOut = () => {
   }
   logout();
 };
+
+const PASSKEY_PENDING_KEY = "passkey_registration_pending";
+
+// Detect Cognito session errors on redirect back
+onMounted(() => {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("result") === "invalid_session") {
+    const wasPasskeyPending = sessionStorage.getItem(PASSKEY_PENDING_KEY) === "true";
+
+    if (wasPasskeyPending) {
+      showErrorSnackbar(
+        "Passkey registration requires a fresh sign-in. Please sign out and sign in again.",
+      );
+    } else {
+      showErrorSnackbar("This action requires a fresh sign-in. Please sign out and sign in again.");
+    }
+
+    sessionStorage.removeItem(PASSKEY_PENDING_KEY);
+
+    const cleanUrl = window.location.pathname + window.location.hash;
+    window.history.replaceState({}, document.title, cleanUrl);
+  }
+});
+
+const handlePasskeyRegistration = () => {
+  if (mobile.value) {
+    drawer.value = false;
+  }
+  sessionStorage.setItem(PASSKEY_PENDING_KEY, "true");
+  window.location.href = passkeyRegistrationUrl.value!;
+};
 </script>
 <template>
   <v-layout class="rounded rounded-md border">
@@ -212,10 +243,9 @@ const handleSignOut = () => {
         <!-- Passkey registration -->
         <v-list-item
           v-if="isAuthenticated && passkeyRegistrationUrl"
-          :href="passkeyRegistrationUrl"
           prepend-icon="mdi-key"
           title="Register Passkey"
-          @click="mobile && (drawer = false)"
+          @click="handlePasskeyRegistration"
         />
         <!-- Push content to the bottom -->
         <v-spacer />
