@@ -133,6 +133,7 @@ const handlePasskeyRegistration = () => {
   if (mobile.value) {
     drawer.value = false;
   }
+
   sessionStorage.setItem(PASSKEY_PENDING_KEY, "true");
   window.location.href = passkeyRegistrationUrl.value!;
 };
