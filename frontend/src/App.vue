@@ -138,6 +138,18 @@ const handlePasskeyRegistration = () => {
   window.location.href = passkeyRegistrationUrl.value!;
 };
 
+// Removes a single query parameter from the current URL in-place (no page reload),
+// so that a refresh doesn't re-trigger logic that checks for that parameter.
+const removeQueryParam = (key: string) => {
+  const params = new URLSearchParams(window.location.search);
+  params.delete(key);
+
+  const cleanSearch = params.size > 0 ? `?${params.toString()}` : "";
+  const cleanUrl = window.location.pathname + cleanSearch + window.location.hash;
+
+  window.history.replaceState({}, document.title, cleanUrl);
+};
+
 // Page load 1: handle Cognito redirecting back with ?result=invalid_session.
 onMounted(async () => {
   const params = new URLSearchParams(window.location.search);
@@ -152,17 +164,14 @@ onMounted(async () => {
         await login();
       } catch {
         sessionStorage.removeItem(PENDING_REDIRECT_KEY);
+        removeQueryParam("result");
 
         showErrorSnackbar(
           "Passkey registration requires a fresh sign-in. Please sign out and sign in again.",
         );
       }
     } else {
-      // Remove ?result=invalid_session from the URL without reloading the page,
-      // so a refresh doesn't re-trigger this handler.
-      const cleanUrl = window.location.pathname + window.location.hash;
-      window.history.replaceState({}, document.title, cleanUrl);
-
+      removeQueryParam("result");
       showErrorSnackbar("This action requires a fresh sign-in. Please sign out and sign in again.");
     }
   }
@@ -179,11 +188,20 @@ onMounted(() => {
   const pendingUrl = sessionStorage.getItem(PENDING_REDIRECT_KEY);
 
   if (pendingUrl) {
-    const unwatch = watch(
+    // Must be `let`, not `const`: { immediate: true } can fire the callback
+    // synchronously inside watch(), before the assignment to `unwatch` completes.
+    // `const` would be in TDZ at that point — accessing it throws ReferenceError.
+    // `let` is initialized to `undefined`, so the `if (unwatch)` guard below is safe.
+    let unwatch: (() => void) | undefined;
+
+    // eslint-disable-next-line prefer-const
+    unwatch = watch(
       isAuthenticated,
       (authenticated) => {
         if (authenticated) {
-          unwatch();
+          // unwatch may be undefined if isAuthenticated was already true on mount —
+          // { immediate: true } fires the callback before the assignment completes.
+          unwatch?.();
           sessionStorage.removeItem(PENDING_REDIRECT_KEY);
           window.location.href = pendingUrl;
         }
