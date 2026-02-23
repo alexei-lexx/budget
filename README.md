@@ -28,6 +28,7 @@ Web application for personal financial management.
 - **Backend**: [backend/README.md](backend/README.md) - GraphQL API server setup and development
 - **Frontend**: [frontend/README.md](frontend/README.md) - Vue.js SPA setup and development
 - **Infrastructure**: [infra-cdk/README.md](infra-cdk/README.md) - AWS CDK infrastructure
+- **Specs**: [specs/](specs/) - Feature specifications, implementation plans, and design artifacts
 
 ## Deployment
 
