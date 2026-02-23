@@ -4,6 +4,7 @@
 - Omit implementation details unless critical for understanding the change
 - Write the pull request description as if it were written by a human developer
 - Do not mention that the pull request was created by AI
+- Create pull requests as drafts by default, unless asked otherwise
 
 ## Format
 
