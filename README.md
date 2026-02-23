@@ -25,10 +25,10 @@ Web application for personal financial management.
 
 ## Repository Structure
 
-- [backend](backend/README.md) - GraphQL API server setup and development
-- [frontend](frontend/README.md) - Vue.js SPA setup and development
-- [infrastructure](infra-cdk/README.md) - AWS CDK infrastructure
-- [specs](specs/) - Feature specifications, implementation plans, and design artifacts
+- [Backend](backend/README.md) - GraphQL API server setup and development
+- [Frontend](frontend/README.md) - Vue.js SPA setup and development
+- [Infrastructure](infra-cdk/README.md) - AWS CDK infrastructure
+- [Specs](specs/) - Feature specifications, implementation plans, and design artifacts
 
 ## Deployment
 
