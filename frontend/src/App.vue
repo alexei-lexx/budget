@@ -11,6 +11,7 @@ const {
   isAuthenticated,
   isLoading: authLoading,
   getAccessToken,
+  login,
   logout,
   displayName,
 } = useAuth();
@@ -106,37 +107,91 @@ const handleSignOut = () => {
   logout();
 };
 
-const PASSKEY_PENDING_KEY = "passkey_registration_pending";
-
-// Detect Cognito session errors on redirect back
-onMounted(() => {
-  const params = new URLSearchParams(window.location.search);
-  if (params.get("result") === "invalid_session") {
-    const wasPasskeyPending = sessionStorage.getItem(PASSKEY_PENDING_KEY) === "true";
-
-    if (wasPasskeyPending) {
-      showErrorSnackbar(
-        "Passkey registration requires a fresh sign-in. Please sign out and sign in again.",
-      );
-    } else {
-      showErrorSnackbar("This action requires a fresh sign-in. Please sign out and sign in again.");
-    }
-
-    sessionStorage.removeItem(PASSKEY_PENDING_KEY);
-
-    const cleanUrl = window.location.pathname + window.location.hash;
-    window.history.replaceState({}, document.title, cleanUrl);
-  }
-});
+// Passkey registration requires an active Cognito hosted UI session cookie.
+// It is separate from JWT tokens (managed by oidc-client-ts) and expires after ~24h.
+// When it expires, opening the passkey page makes Cognito redirect back to the app
+// with ?result=invalid_session instead of showing the page.
+//
+// To recover automatically, we use a two-step flow:
+//   Page load 1 — ?result=invalid_session detected:
+//     Save the passkey URL and trigger re-login to refresh the Cognito session.
+//   Page load 2 — returning from Cognito login:
+//     Read the saved URL, wait for auth to complete, navigate to the passkey page.
+//
+// PENDING_PASSKEY_KEY: set before leaving for the passkey page,
+//   so on return we can tell whether invalid_session came from a passkey attempt.
+// PENDING_REDIRECT_KEY: stores the destination URL between the two page loads.
+//   Uses sessionStorage — persists within the same tab, clears on tab close.
+const PENDING_PASSKEY_KEY = "pending_passkey";
+const PENDING_REDIRECT_KEY = "pending_redirect";
 
 const handlePasskeyRegistration = () => {
   if (mobile.value) {
     drawer.value = false;
   }
 
-  sessionStorage.setItem(PASSKEY_PENDING_KEY, "true");
+  // Mark that we initiated a passkey registration before navigating away.
+  // If Cognito's session has expired, it redirects back with ?result=invalid_session.
+  // On that return, this flag tells Page load 1 that the invalid_session came from
+  // a passkey attempt (not some other flow), so it can trigger re-login automatically.
+  sessionStorage.setItem(PENDING_PASSKEY_KEY, "true");
   window.location.href = passkeyRegistrationUrl.value!;
 };
+
+// Page load 1: handle Cognito redirecting back with ?result=invalid_session.
+onMounted(async () => {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("result") === "invalid_session") {
+    const wasPendingPasskey = sessionStorage.getItem(PENDING_PASSKEY_KEY) === "true";
+    sessionStorage.removeItem(PENDING_PASSKEY_KEY);
+
+    if (wasPendingPasskey && passkeyRegistrationUrl.value) {
+      sessionStorage.setItem(PENDING_REDIRECT_KEY, passkeyRegistrationUrl.value);
+
+      try {
+        await login();
+      } catch {
+        sessionStorage.removeItem(PENDING_REDIRECT_KEY);
+
+        showErrorSnackbar(
+          "Passkey registration requires a fresh sign-in. Please sign out and sign in again.",
+        );
+      }
+    } else {
+      // Remove ?result=invalid_session from the URL without reloading the page,
+      // so a refresh doesn't re-trigger this handler.
+      const cleanUrl = window.location.pathname + window.location.hash;
+      window.history.replaceState({}, document.title, cleanUrl);
+
+      showErrorSnackbar("This action requires a fresh sign-in. Please sign out and sign in again.");
+    }
+  }
+});
+
+// Page load 2: after re-login, navigate to the saved destination.
+// { immediate: true } is needed because signinRedirectCallback runs asynchronously —
+// auth may already be resolved by the time this watcher is set up.
+onMounted(() => {
+  const params = new URLSearchParams(window.location.search);
+  // Page load 1 owns invalid_session loads — skip to avoid conflicting navigation.
+  if (params.get("result") === "invalid_session") return;
+
+  const pendingUrl = sessionStorage.getItem(PENDING_REDIRECT_KEY);
+
+  if (pendingUrl) {
+    const unwatch = watch(
+      isAuthenticated,
+      (authenticated) => {
+        if (authenticated) {
+          unwatch();
+          sessionStorage.removeItem(PENDING_REDIRECT_KEY);
+          window.location.href = pendingUrl;
+        }
+      },
+      { immediate: true },
+    );
+  }
+});
 </script>
 <template>
   <v-layout class="rounded rounded-md border">
