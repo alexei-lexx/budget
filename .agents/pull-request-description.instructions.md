@@ -16,7 +16,11 @@
 
 ### Description Sections
 
-Use lowercase headlines with the following structure:
+- Avoid long paragraphs — break prose into short sentences
+- Start each sentence on a new line
+- Use lowercase section headlines
+
+Include the following sections in the description:
 
 ```
 ## context

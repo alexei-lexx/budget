@@ -160,6 +160,8 @@ Other labels are optional.
 - Keep content concise and factual
 - Use minimal prose
 - Prefer bullet points over paragraphs
+- Avoid long paragraphs — break prose into short sentences
+- Start each sentence on a new line
 
 **For Feature and Bug issues:**
 - Use product-oriented language
