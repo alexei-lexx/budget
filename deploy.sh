@@ -1,7 +1,7 @@
 set -euo pipefail
 
 # Use ENV from environment variable, default to production
-if [ -z "$ENV" ]; then
+if [ -z "${ENV:-}" ]; then
   ENV="production"
 fi
 
