@@ -20,6 +20,7 @@
 
 ## Commit Body
 
+- Skip the body if the change is small and the subject line tells the full story.
 - If there is more than one logical change, add a commit body describing them.
 - Use normal text casing for the body (capitalize sentences, proper nouns, etc.).
 - Use the body to explain "why" if the change is not obvious.
