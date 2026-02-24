@@ -27,10 +27,5 @@ playwright-cli fill <password-field-ref> "$PASSWORD"
 
 ## Troubleshooting
 
-If `pass show` hangs or asks for a GPG passphrase interactively, the
-gpg-agent may have timed out. Run this to restart it and retry:
-
-```bash
-gpg-agent --daemon
-pass show budget/dev/user/email
-```
+If `pass show` fails with `Screen or window too small`, enlarge the terminal
+window and retry.
