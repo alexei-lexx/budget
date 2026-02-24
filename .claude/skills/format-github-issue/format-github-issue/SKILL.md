@@ -87,7 +87,7 @@ Optional sections:
 - `## screenshots` — images to illustrate
 - `## additional context` — any other relevant info
 
-Include `--label bug` in the output.
+Indicate the bug label in the output (see Output section).
 
 ```markdown
 ## steps to reproduce
