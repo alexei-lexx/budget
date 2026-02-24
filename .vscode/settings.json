@@ -1,7 +1,7 @@
 {
     "github.copilot.chat.commitMessageGeneration.instructions": [
         {
-            "file": ".agents/commit-message.instructions.md"
+            "file": ".claude/skills/draft-git-commit/SKILL.md"
         }
     ],
     "github.copilot.chat.pullRequestDescriptionGeneration.instructions": [
