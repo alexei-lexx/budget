@@ -1,11 +1,11 @@
 ---
-name: draft-git-commit
-description: "Prepares a git commit message based on current changes. Use this skill whenever the user asks to commit, draft a commit, or suggest what to write in a commit."
+name: format-git-commit
+description: "Formats a git commit message based on current changes. Use this skill whenever the user is about to commit or asks to draft or suggest a commit message. Produces a well-formatted commit message ready to use; does not run git commit itself."
 ---
 
-# draft-git-commit
+# format-git-commit
 
-Prepare a git commit message for the current working tree.
+Format a git commit message for the current working tree.
 
 ## Workflow
 
@@ -71,16 +71,4 @@ fix account balance calculation
 
 ### Step 5: Present the result
 
-Output the proposed commit message in a code block.
-
-If the user asked to commit (not just draft), run the commit using a heredoc to preserve multi-line formatting:
-
-```bash
-git commit -m "$(cat <<'EOF'
-subject line here
-
-- Bullet one
-- Bullet two
-EOF
-)"
-```
+Output the formatted commit message in a code block, then proceed to commit using available tools.

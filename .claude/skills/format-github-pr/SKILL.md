@@ -1,28 +1,23 @@
 ---
-name: github-pr
-description: "Creates or updates a GitHub pull request with a properly formatted title and description. Use this skill whenever the user wants to open a PR, create a pull request, submit changes for review, update a PR's title or description, fix PR formatting, or rewrite PR content — even if they just say 'make a PR', 'open a PR', 'update the PR desc', or provide a PR number/URL to fix."
+name: format-github-pr
+description: "Formats a GitHub pull request title and description. Use this skill whenever the user is about to create a PR, open a pull request, submit changes for review, or when asked to improve, format, clean up, rewrite, or polish a PR title or description — even if they just say 'make a PR', 'open a PR', 'update the PR desc', or provide a PR number/URL to fix. Produces well-formatted content ready for gh pr create / gh pr edit; does not create or update the PR itself."
 ---
 
-# github-pr
+# format-github-pr
 
-Create or update a GitHub pull request with a well-crafted title and description that communicates *what* changed and *why*.
+Format a GitHub pull request title and description that communicates *what* changed and *why*.
 
-## Step 1: Detect the PR context
+## Step 1: Gather context
 
-Figure out whether a PR already exists or needs to be created.
-
-If the user provided a PR number or GitHub URL, look it up directly:
+If the user provided a PR number or GitHub URL, look up the existing PR:
 ```bash
-gh pr view <number> --json number,title,body,baseRefName,isDraft,url
+gh pr view <number> --json number,title,body,baseRefName,url
 ```
 
 Otherwise, check if the current branch already has a PR:
 ```bash
-gh pr view --json number,title,body,baseRefName,isDraft,url 2>/dev/null
+gh pr view --json number,title,body,baseRefName,url 2>/dev/null
 ```
-
-- PR found → **update** it
-- No PR found → **create** a new one
 
 ## Step 2: Determine the base branch
 
@@ -84,7 +79,7 @@ Brief explanation of the problem or need being addressed.
 - New behavior or improvements in bullet points (ideally 3, max 5 bullet points)
 - Use present tense and active voice
 
-### Examples
+### Example
 
 ```
 ## context
@@ -105,26 +100,16 @@ leading to stale data and confusion.
 - Users don't need to manually refresh
 ```
 
-## Step 6: Execute
+## Step 6: Present the result
 
-**Creating a new PR** — draft by default:
-```bash
-gh pr create --draft --base <base> --title "<title>" --body "$(cat <<'EOF'
-<description>
-EOF
-)"
+Return formatted title and body separately and clearly labeled:
+
+```
+**Title:**
+<formatted title>
+
+**Body:**
+<formatted body>
 ```
 
-Skip `--draft` only if the user explicitly asked for a non-draft PR.
-
-**Updating an existing PR:**
-```bash
-gh pr edit <number> --title "<title>" --body "$(cat <<'EOF'
-<description>
-EOF
-)"
-```
-
-- Overwrite title and description entirely
-- Do not change the draft/ready status unless the user explicitly asked
-- Output the PR URL after executing
+Return the formatted content, then proceed to create or update the PR using available tools.
