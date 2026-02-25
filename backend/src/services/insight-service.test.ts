@@ -3,7 +3,7 @@ import {
   createMockAccountRepository,
   createMockCategoryRepository,
   createMockTransactionRepository,
-} from "../__tests__/utils/mock-repositories";
+} from "../utils/test-utils/mock-repositories";
 import { IAccountRepository } from "../models/account";
 import { type AIAgent } from "../models/ai-agent";
 import { ICategoryRepository } from "../models/category";

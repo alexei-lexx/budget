@@ -2,8 +2,8 @@ import { faker } from "@faker-js/faker";
 import {
   fakeCategory,
   fakeCreateCategoryInput,
-} from "../__tests__/utils/factories";
-import { createMockCategoryRepository } from "../__tests__/utils/mock-repositories";
+} from "../utils/test-utils/factories";
+import { createMockCategoryRepository } from "../utils/test-utils/mock-repositories";
 import { CategoryType } from "../models/category";
 import { NAME_MAX_LENGTH, NAME_MIN_LENGTH } from "../types/validation";
 import { BusinessError, BusinessErrorCodes } from "./business-error";

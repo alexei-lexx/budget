@@ -3,12 +3,12 @@ import {
   fakeAccount,
   fakeCategory,
   fakeTransaction,
-} from "../__tests__/utils/factories";
+} from "../utils/test-utils/factories";
 import {
   createMockAccountRepository,
   createMockCategoryRepository,
   createMockTransactionRepository,
-} from "../__tests__/utils/mock-repositories";
+} from "../utils/test-utils/mock-repositories";
 import { IAccountRepository } from "../models/account";
 import { CategoryType, ICategoryRepository } from "../models/category";
 import { ITransactionRepository, TransactionType } from "../models/transaction";

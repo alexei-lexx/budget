@@ -3,7 +3,7 @@ import {
   fakeAccount,
   fakeCategory,
   fakeTransaction,
-} from "../__tests__/utils/factories";
+} from "../utils/test-utils/factories";
 import { AiDataService } from "./ai-data-service";
 import {
   createGetAccountsTool,

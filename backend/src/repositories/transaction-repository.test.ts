@@ -4,8 +4,8 @@ import {
   UpdateCommand,
 } from "@aws-sdk/lib-dynamodb";
 import { faker } from "@faker-js/faker";
-import { truncateTable } from "../__tests__/utils/dynamodb-helpers";
-import { fakeCreateTransactionInput } from "../__tests__/utils/factories";
+import { truncateTable } from "../utils/test-utils/dynamodb-helpers";
+import { fakeCreateTransactionInput } from "../utils/test-utils/factories";
 import {
   CreateTransactionInput,
   TransactionPatternType,

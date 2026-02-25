@@ -1,10 +1,10 @@
 import { faker } from "@faker-js/faker";
 import { v4 as uuidv4 } from "uuid";
-import { fakeCategory, fakeTransaction } from "../__tests__/utils/factories";
+import { fakeCategory, fakeTransaction } from "../utils/test-utils/factories";
 import {
   createMockCategoryRepository,
   createMockTransactionRepository,
-} from "../__tests__/utils/mock-repositories";
+} from "../utils/test-utils/mock-repositories";
 import { ICategoryRepository } from "../models/category";
 import { ReportType } from "../models/report";
 import { ITransactionRepository, TransactionType } from "../models/transaction";

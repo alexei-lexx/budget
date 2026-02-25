@@ -1,4 +1,4 @@
-import { fakeTransaction } from "../__tests__/utils/factories";
+import { fakeTransaction } from "../utils/test-utils/factories";
 import { TransactionType, getSignedAmount } from "./transaction";
 
 describe("transaction model", () => {

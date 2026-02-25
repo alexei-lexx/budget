@@ -5,12 +5,12 @@ import {
   fakeCreateTransactionInput,
   fakeTransaction,
   fakeTransactionPattern,
-} from "../__tests__/utils/factories";
+} from "../utils/test-utils/factories";
 import {
   createMockAccountRepository,
   createMockCategoryRepository,
   createMockTransactionRepository,
-} from "../__tests__/utils/mock-repositories";
+} from "../utils/test-utils/mock-repositories";
 import { Category, CategoryType } from "../models/category";
 import { TransactionPatternType, TransactionType } from "../models/transaction";
 import { MIN_SEARCH_TEXT_LENGTH } from "../types/validation";

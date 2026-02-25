@@ -3,11 +3,11 @@ import {
   fakeAccount,
   fakeCreateAccountInput,
   fakeTransaction,
-} from "../__tests__/utils/factories";
+} from "../utils/test-utils/factories";
 import {
   createMockAccountRepository,
   createMockTransactionRepository,
-} from "../__tests__/utils/mock-repositories";
+} from "../utils/test-utils/mock-repositories";
 import { TransactionType } from "../models/transaction";
 import {
   NAME_MAX_LENGTH,
