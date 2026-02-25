@@ -1,4 +1,7 @@
 import { faker } from "@faker-js/faker";
+import { IAccountRepository } from "../models/account";
+import { CategoryType, ICategoryRepository } from "../models/category";
+import { ITransactionRepository, TransactionType } from "../models/transaction";
 import {
   fakeAccount,
   fakeCategory,
@@ -9,9 +12,6 @@ import {
   createMockCategoryRepository,
   createMockTransactionRepository,
 } from "../utils/test-utils/mock-repositories";
-import { IAccountRepository } from "../models/account";
-import { CategoryType, ICategoryRepository } from "../models/category";
-import { ITransactionRepository, TransactionType } from "../models/transaction";
 import { AiDataService } from "./ai-data-service";
 
 describe("AiDataService", () => {

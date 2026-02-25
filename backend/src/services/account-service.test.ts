@@ -1,4 +1,10 @@
 import { faker } from "@faker-js/faker";
+import { TransactionType } from "../models/transaction";
+import {
+  NAME_MAX_LENGTH,
+  NAME_MIN_LENGTH,
+  SUPPORTED_CURRENCIES,
+} from "../types/validation";
 import {
   fakeAccount,
   fakeCreateAccountInput,
@@ -8,12 +14,6 @@ import {
   createMockAccountRepository,
   createMockTransactionRepository,
 } from "../utils/test-utils/mock-repositories";
-import { TransactionType } from "../models/transaction";
-import {
-  NAME_MAX_LENGTH,
-  NAME_MIN_LENGTH,
-  SUPPORTED_CURRENCIES,
-} from "../types/validation";
 import { AccountService } from "./account-service";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
 

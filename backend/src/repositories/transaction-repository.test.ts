@@ -4,8 +4,6 @@ import {
   UpdateCommand,
 } from "@aws-sdk/lib-dynamodb";
 import { faker } from "@faker-js/faker";
-import { truncateTable } from "../utils/test-utils/dynamodb-helpers";
-import { fakeCreateTransactionInput } from "../utils/test-utils/factories";
 import {
   CreateTransactionInput,
   TransactionPatternType,
@@ -13,6 +11,8 @@ import {
   UpdateTransactionInput,
 } from "../models/transaction";
 import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
+import { truncateTable } from "../utils/test-utils/dynamodb-helpers";
+import { fakeCreateTransactionInput } from "../utils/test-utils/factories";
 import { TransactionRepository } from "./transaction-repository";
 
 describe("TransactionRepository", () => {

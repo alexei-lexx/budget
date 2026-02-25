@@ -1,14 +1,14 @@
 import { faker } from "@faker-js/faker";
-import {
-  createMockAccountRepository,
-  createMockCategoryRepository,
-  createMockTransactionRepository,
-} from "../utils/test-utils/mock-repositories";
 import { IAccountRepository } from "../models/account";
 import { type AIAgent } from "../models/ai-agent";
 import { ICategoryRepository } from "../models/category";
 import { ITransactionRepository } from "../models/transaction";
 import { YEAR_RANGE_OFFSET } from "../types/validation";
+import {
+  createMockAccountRepository,
+  createMockCategoryRepository,
+  createMockTransactionRepository,
+} from "../utils/test-utils/mock-repositories";
 import { AiDataService } from "./ai-data-service";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
 import { type InsightInput, InsightService } from "./insight-service";

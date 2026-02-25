@@ -1,11 +1,11 @@
 import { faker } from "@faker-js/faker";
+import { CategoryType } from "../models/category";
+import { NAME_MAX_LENGTH, NAME_MIN_LENGTH } from "../types/validation";
 import {
   fakeCategory,
   fakeCreateCategoryInput,
 } from "../utils/test-utils/factories";
 import { createMockCategoryRepository } from "../utils/test-utils/mock-repositories";
-import { CategoryType } from "../models/category";
-import { NAME_MAX_LENGTH, NAME_MIN_LENGTH } from "../types/validation";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
 import { CategoryService } from "./category-service";
 
