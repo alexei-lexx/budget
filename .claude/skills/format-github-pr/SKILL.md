@@ -57,6 +57,8 @@ Also factor in any context the user provided — they often know things the diff
 
 ### Sections
 
+Include the following sections in the description:
+
 ```
 ## context
 ```
