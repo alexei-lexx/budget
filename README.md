@@ -13,6 +13,14 @@ Web application for personal financial management.
 - **Smart Suggestions** - Save time with intelligent account and category recommendations based on your habits
 - **Transaction Search** - Find any transaction by filtering on account, category, date, etc.
 
+## Example Workflow
+
+1. **Create accounts** – Add a _Bank Account (USD)_ and a _Cash (USD)_ account with an initial balance.
+2. **Add categories** – Create expense categories like _Food_ and _Transport_, and income categories like _Salary_.
+3. **Log transactions** – Record a salary income to _Bank Account_, then an expense for groceries under _Food_.
+4. **Transfer funds** – Move money from _Bank Account_ to _Cash_ when needed.
+5. **View monthly report** – Open the monthly report to see total income, total expenses, and a breakdown by category.
+
 ## Technologies
 
 - [Node.js](https://nodejs.org/) backend with GraphQL API
