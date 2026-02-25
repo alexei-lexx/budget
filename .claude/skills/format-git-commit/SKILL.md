@@ -71,4 +71,4 @@ fix account balance calculation
 
 ### Step 5: Present the result
 
-Output the formatted commit message in a code block. Do not commit — only return the formatted message.
+Output the formatted commit message in a code block, then proceed to commit using available tools.

@@ -112,4 +112,4 @@ Return formatted title and body separately and clearly labeled:
 <formatted body>
 ```
 
-Do not create or update the PR — only return the formatted content.
+Return the formatted content, then proceed to create or update the PR using available tools.

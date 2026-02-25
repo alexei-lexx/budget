@@ -192,4 +192,4 @@ For bug issues, also include:
 **Label:** bug
 ```
 
-Do not create or update the issue — only return the formatted content.
+Return the formatted content, then proceed to create or update the issue using available tools.
