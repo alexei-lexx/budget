@@ -6,7 +6,7 @@
     ],
     "github.copilot.chat.pullRequestDescriptionGeneration.instructions": [
         {
-            "file": ".agents/pull-request-description.instructions.md"
+            "file": ".claude/skills/github-pr/SKILL.md"
         }
     ],
     "chat.tools.terminal.autoApprove": {
