@@ -60,7 +60,7 @@ export interface InsightInput {
 
 export class InsightService {
   constructor(
-    private aiDataService: AgentDataService,
+    private agentDataService: AgentDataService,
     private aiAgent: Agent,
   ) {}
 
@@ -91,10 +91,10 @@ export class InsightService {
     );
 
     const dataTools = [
-      createGetAccountsTool(this.aiDataService, userId),
-      createGetCategoriesTool(this.aiDataService, userId),
+      createGetAccountsTool(this.agentDataService, userId),
+      createGetCategoriesTool(this.agentDataService, userId),
       createGetTransactionsTool({
-        aiDataService: this.aiDataService,
+        agentDataService: this.agentDataService,
         userId,
         dateRange: validatedDateRange,
       }),

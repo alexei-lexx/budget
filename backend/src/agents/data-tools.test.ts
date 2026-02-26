@@ -99,7 +99,7 @@ describe("data-tools", () => {
 
     it("should return tool with correct name", () => {
       const tool = createGetTransactionsTool({
-        aiDataService: mockAgentDataService as unknown as AgentDataService,
+        agentDataService: mockAgentDataService as unknown as AgentDataService,
         userId,
         dateRange: allowedDateRange,
       });
@@ -125,7 +125,7 @@ describe("data-tools", () => {
       );
 
       const tool = createGetTransactionsTool({
-        aiDataService: mockAgentDataService as unknown as AgentDataService,
+        agentDataService: mockAgentDataService as unknown as AgentDataService,
         userId,
         dateRange: allowedDateRange,
       });
@@ -146,7 +146,7 @@ describe("data-tools", () => {
 
     it("should reject startDate before allowed range", async () => {
       const tool = createGetTransactionsTool({
-        aiDataService: mockAgentDataService as unknown as AgentDataService,
+        agentDataService: mockAgentDataService as unknown as AgentDataService,
         userId,
         dateRange: allowedDateRange,
       });
@@ -168,7 +168,7 @@ describe("data-tools", () => {
 
     it("should reject endDate after allowed range", async () => {
       const tool = createGetTransactionsTool({
-        aiDataService: mockAgentDataService as unknown as AgentDataService,
+        agentDataService: mockAgentDataService as unknown as AgentDataService,
         userId,
         dateRange: allowedDateRange,
       });
@@ -190,7 +190,7 @@ describe("data-tools", () => {
 
     it("should reject when startDate is after endDate", async () => {
       const tool = createGetTransactionsTool({
-        aiDataService: mockAgentDataService as unknown as AgentDataService,
+        agentDataService: mockAgentDataService as unknown as AgentDataService,
         userId,
         dateRange: allowedDateRange,
       });
@@ -214,7 +214,7 @@ describe("data-tools", () => {
       mockAgentDataService.getFilteredTransactions.mockResolvedValue([]);
 
       const tool = createGetTransactionsTool({
-        aiDataService: mockAgentDataService as unknown as AgentDataService,
+        agentDataService: mockAgentDataService as unknown as AgentDataService,
         userId,
         dateRange: allowedDateRange,
       });
@@ -238,7 +238,7 @@ describe("data-tools", () => {
       mockAgentDataService.getFilteredTransactions.mockResolvedValue([]);
 
       const tool = createGetTransactionsTool({
-        aiDataService: mockAgentDataService as unknown as AgentDataService,
+        agentDataService: mockAgentDataService as unknown as AgentDataService,
         userId,
         dateRange: allowedDateRange,
       });
@@ -262,7 +262,7 @@ describe("data-tools", () => {
       mockAgentDataService.getFilteredTransactions.mockResolvedValue([]);
 
       const tool = createGetTransactionsTool({
-        aiDataService: mockAgentDataService as unknown as AgentDataService,
+        agentDataService: mockAgentDataService as unknown as AgentDataService,
         userId,
         dateRange: allowedDateRange,
       });
@@ -287,7 +287,7 @@ describe("data-tools", () => {
       mockAgentDataService.getFilteredTransactions.mockResolvedValue([]);
 
       const tool = createGetTransactionsTool({
-        aiDataService: mockAgentDataService as unknown as AgentDataService,
+        agentDataService: mockAgentDataService as unknown as AgentDataService,
         userId,
         dateRange: allowedDateRange,
       });
