@@ -1,10 +1,10 @@
 import { z } from "zod";
-import { ToolSignature } from "../models/agent";
 import { DateRange } from "../types/date-range";
-import { AiDataService } from "./ai-data-service";
+import { AgentDataService } from "./agent-data-service";
+import { ToolSignature } from "./core";
 
 export const createGetAccountsTool = (
-  aiDataService: AiDataService,
+  aiDataService: AgentDataService,
   userId: string,
 ): ToolSignature<object> => ({
   name: "getAccounts",
@@ -17,7 +17,7 @@ export const createGetAccountsTool = (
 });
 
 export const createGetCategoriesTool = (
-  aiDataService: AiDataService,
+  aiDataService: AgentDataService,
   userId: string,
 ): ToolSignature<object> => ({
   name: "getCategories",
@@ -39,7 +39,7 @@ const getTransactionsInputSchema = z.object({
 type GetTransactionsInput = z.infer<typeof getTransactionsInputSchema>;
 
 export const createGetTransactionsTool = (params: {
-  aiDataService: AiDataService;
+  aiDataService: AgentDataService;
   userId: string;
   dateRange: DateRange;
 }): ToolSignature<GetTransactionsInput> => ({

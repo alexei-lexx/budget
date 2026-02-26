@@ -1,12 +1,7 @@
 import { randomUUID } from "crypto";
 import { BaseChatModel } from "@langchain/core/language_models/chat_models";
 import { AIMessage, ToolMessage, createAgent, tool } from "langchain";
-import {
-  Agent,
-  AgentMessage,
-  ToolExecution,
-  ToolSignature,
-} from "../models/agent";
+import { Agent, AgentMessage, ToolExecution, ToolSignature } from "./core";
 
 export class ReActAgent implements Agent {
   constructor(private model: BaseChatModel) {}

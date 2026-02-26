@@ -7,7 +7,7 @@ import {
   tool,
 } from "langchain";
 import { z } from "zod";
-import { ToolSignature } from "../models/agent";
+import { ToolSignature } from "./core";
 import { ReActAgent } from "./react-agent";
 
 // Mock LangChain's createAgent and tool

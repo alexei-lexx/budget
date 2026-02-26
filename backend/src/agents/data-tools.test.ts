@@ -4,14 +4,14 @@ import {
   fakeCategory,
   fakeTransaction,
 } from "../utils/test-utils/factories";
-import { AiDataService } from "./ai-data-service";
+import { AgentDataService } from "./agent-data-service";
 import {
   createGetAccountsTool,
   createGetCategoriesTool,
   createGetTransactionsTool,
-} from "./insight-data-tools";
+} from "./data-tools";
 
-describe("insight-data-tools", () => {
+describe("data-tools", () => {
   let mockAiDataService: {
     getAllAccounts: jest.Mock;
     getAllCategories: jest.Mock;
@@ -30,7 +30,7 @@ describe("insight-data-tools", () => {
   describe("createGetAccountsTool", () => {
     it("should return tool with correct name", () => {
       const tool = createGetAccountsTool(
-        mockAiDataService as unknown as AiDataService,
+        mockAiDataService as unknown as AgentDataService,
         userId,
       );
 
@@ -48,7 +48,7 @@ describe("insight-data-tools", () => {
       mockAiDataService.getAllAccounts.mockResolvedValue(accountsData);
 
       const tool = createGetAccountsTool(
-        mockAiDataService as unknown as AiDataService,
+        mockAiDataService as unknown as AgentDataService,
         userId,
       );
       const result = await tool.func({});
@@ -61,7 +61,7 @@ describe("insight-data-tools", () => {
   describe("createGetCategoriesTool", () => {
     it("should return tool with correct name", () => {
       const tool = createGetCategoriesTool(
-        mockAiDataService as unknown as AiDataService,
+        mockAiDataService as unknown as AgentDataService,
         userId,
       );
 
@@ -79,7 +79,7 @@ describe("insight-data-tools", () => {
       mockAiDataService.getAllCategories.mockResolvedValue(categoriesData);
 
       const tool = createGetCategoriesTool(
-        mockAiDataService as unknown as AiDataService,
+        mockAiDataService as unknown as AgentDataService,
         userId,
       );
       const result = await tool.func({});
@@ -97,7 +97,7 @@ describe("insight-data-tools", () => {
 
     it("should return tool with correct name", () => {
       const tool = createGetTransactionsTool({
-        aiDataService: mockAiDataService as unknown as AiDataService,
+        aiDataService: mockAiDataService as unknown as AgentDataService,
         userId,
         dateRange: allowedDateRange,
       });
@@ -123,7 +123,7 @@ describe("insight-data-tools", () => {
       );
 
       const tool = createGetTransactionsTool({
-        aiDataService: mockAiDataService as unknown as AiDataService,
+        aiDataService: mockAiDataService as unknown as AgentDataService,
         userId,
         dateRange: allowedDateRange,
       });
@@ -144,7 +144,7 @@ describe("insight-data-tools", () => {
 
     it("should reject startDate before allowed range", async () => {
       const tool = createGetTransactionsTool({
-        aiDataService: mockAiDataService as unknown as AiDataService,
+        aiDataService: mockAiDataService as unknown as AgentDataService,
         userId,
         dateRange: allowedDateRange,
       });
@@ -164,7 +164,7 @@ describe("insight-data-tools", () => {
 
     it("should reject endDate after allowed range", async () => {
       const tool = createGetTransactionsTool({
-        aiDataService: mockAiDataService as unknown as AiDataService,
+        aiDataService: mockAiDataService as unknown as AgentDataService,
         userId,
         dateRange: allowedDateRange,
       });
@@ -184,7 +184,7 @@ describe("insight-data-tools", () => {
 
     it("should reject when startDate is after endDate", async () => {
       const tool = createGetTransactionsTool({
-        aiDataService: mockAiDataService as unknown as AiDataService,
+        aiDataService: mockAiDataService as unknown as AgentDataService,
         userId,
         dateRange: allowedDateRange,
       });
@@ -206,7 +206,7 @@ describe("insight-data-tools", () => {
       mockAiDataService.getFilteredTransactions.mockResolvedValue([]);
 
       const tool = createGetTransactionsTool({
-        aiDataService: mockAiDataService as unknown as AiDataService,
+        aiDataService: mockAiDataService as unknown as AgentDataService,
         userId,
         dateRange: allowedDateRange,
       });
@@ -230,7 +230,7 @@ describe("insight-data-tools", () => {
       mockAiDataService.getFilteredTransactions.mockResolvedValue([]);
 
       const tool = createGetTransactionsTool({
-        aiDataService: mockAiDataService as unknown as AiDataService,
+        aiDataService: mockAiDataService as unknown as AgentDataService,
         userId,
         dateRange: allowedDateRange,
       });
@@ -254,7 +254,7 @@ describe("insight-data-tools", () => {
       mockAiDataService.getFilteredTransactions.mockResolvedValue([]);
 
       const tool = createGetTransactionsTool({
-        aiDataService: mockAiDataService as unknown as AiDataService,
+        aiDataService: mockAiDataService as unknown as AgentDataService,
         userId,
         dateRange: allowedDateRange,
       });
@@ -279,7 +279,7 @@ describe("insight-data-tools", () => {
       mockAiDataService.getFilteredTransactions.mockResolvedValue([]);
 
       const tool = createGetTransactionsTool({
-        aiDataService: mockAiDataService as unknown as AiDataService,
+        aiDataService: mockAiDataService as unknown as AgentDataService,
         userId,
         dateRange: allowedDateRange,
       });

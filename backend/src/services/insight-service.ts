@@ -1,15 +1,15 @@
-import { Agent } from "../models/agent";
-import { DateRange } from "../types/date-range";
-import { YEAR_RANGE_OFFSET } from "../types/validation";
-import { formatDateAsYYYYMMDD } from "../utils/date";
-import { AiDataService } from "./ai-data-service";
-import { BusinessError, BusinessErrorCodes } from "./business-error";
+import { AgentDataService } from "../agents/agent-data-service";
+import { Agent } from "../agents/core";
 import {
   createGetAccountsTool,
   createGetCategoriesTool,
   createGetTransactionsTool,
-} from "./insight-data-tools";
-import { avgTool, calculateTool, sumTool } from "./insight-math-tools";
+} from "../agents/data-tools";
+import { avgTool, calculateTool, sumTool } from "../agents/math-tools";
+import { DateRange } from "../types/date-range";
+import { YEAR_RANGE_OFFSET } from "../types/validation";
+import { formatDateAsYYYYMMDD } from "../utils/date";
+import { BusinessError, BusinessErrorCodes } from "./business-error";
 
 const MAX_PERIOD_DAYS = 366;
 
@@ -60,7 +60,7 @@ export interface InsightInput {
 
 export class InsightService {
   constructor(
-    private aiDataService: AiDataService,
+    private aiDataService: AgentDataService,
     private aiAgent: Agent,
   ) {}
 
