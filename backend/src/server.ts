@@ -117,14 +117,14 @@ export async function createContext(req: {
   }
 
   if (!insightService) {
-    const aiAgent = new ReActAgent(createBedrockChatModel());
-    const aiDataService = new AgentDataService(
+    const agent = new ReActAgent(createBedrockChatModel());
+    const agentDataService = new AgentDataService(
       accountRepository,
       categoryRepository,
       transactionRepository,
     );
 
-    insightService = new InsightService(aiDataService, aiAgent);
+    insightService = new InsightService(agentDataService, agent);
   }
 
   if (!transferService) {
