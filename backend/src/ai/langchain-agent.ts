@@ -1,5 +1,5 @@
 import { randomUUID } from "crypto";
-import { ChatBedrockConverse } from "@langchain/aws";
+import { BaseChatModel } from "@langchain/core/language_models/chat_models";
 import { AIMessage, ToolMessage, createAgent, tool } from "langchain";
 import {
   AIAgent,
@@ -7,29 +7,9 @@ import {
   AnyToolSignature,
   ToolExecution,
 } from "../models/ai-agent";
-import {
-  createBedrockRuntimeClient,
-  loadBedrockMaxTokens,
-  loadBedrockModelId,
-  loadBedrockRegion,
-  loadBedrockTemperature,
-} from "../utils/bedrock-runtime-client";
 
-export class LangchainBedrockAgent implements AIAgent {
-  private model: ChatBedrockConverse;
-
-  constructor(model?: ChatBedrockConverse) {
-    // Create Bedrock model via LangChain
-    this.model =
-      model ??
-      new ChatBedrockConverse({
-        model: loadBedrockModelId(),
-        region: loadBedrockRegion(),
-        maxTokens: loadBedrockMaxTokens(),
-        temperature: loadBedrockTemperature(),
-        client: createBedrockRuntimeClient(),
-      });
-  }
+export class LangchainAgent implements AIAgent {
+  constructor(private model: BaseChatModel) {}
 
   async call(input: {
     messages: readonly AiMessage[];

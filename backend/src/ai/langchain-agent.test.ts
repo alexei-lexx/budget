@@ -1,4 +1,4 @@
-import { ChatBedrockConverse } from "@langchain/aws";
+import { BaseChatModel } from "@langchain/core/language_models/chat_models";
 import {
   AIMessage,
   StructuredTool,
@@ -8,7 +8,7 @@ import {
 } from "langchain";
 import { z } from "zod";
 import { AnyToolSignature } from "../models/ai-agent";
-import { LangchainBedrockAgent } from "./langchain-bedrock-agent";
+import { LangchainAgent } from "./langchain-agent";
 
 // Mock LangChain's createAgent and tool
 jest.mock("langchain", () => ({
@@ -17,14 +17,14 @@ jest.mock("langchain", () => ({
   tool: jest.fn(),
 }));
 
-describe("LangchainBedrockAgent", () => {
-  let agent: LangchainBedrockAgent;
-  let mockModel: jest.Mocked<ChatBedrockConverse>;
+describe("LangchainAgent", () => {
+  let agent: LangchainAgent;
+  let mockModel: BaseChatModel;
   let mockReactAgent: { invoke: jest.Mock };
 
   beforeEach(() => {
     // Create mock model
-    mockModel = {} as jest.Mocked<ChatBedrockConverse>;
+    mockModel = {} as BaseChatModel;
 
     // Create mock ReAct agent
     mockReactAgent = {
@@ -33,7 +33,7 @@ describe("LangchainBedrockAgent", () => {
 
     (createAgent as jest.Mock).mockReturnValue(mockReactAgent);
 
-    agent = new LangchainBedrockAgent(mockModel);
+    agent = new LangchainAgent(mockModel);
 
     jest.clearAllMocks();
   });

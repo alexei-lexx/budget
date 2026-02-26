@@ -1,28 +1,9 @@
 import { BedrockRuntimeClient } from "@aws-sdk/client-bedrock-runtime";
+import { ChatBedrockConverse } from "@langchain/aws";
 import { requireEnv, requireFloatEnv, requireIntEnv } from "./require-env";
 
 const isLocalEnvironment =
   process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test";
-
-/** Reads the Bedrock model identifier from AWS_BEDROCK_MODEL_ID. */
-export function loadBedrockModelId(): string {
-  return requireEnv("AWS_BEDROCK_MODEL_ID");
-}
-
-/** Reads the max response tokens from AWS_BEDROCK_MAX_TOKENS. */
-export function loadBedrockMaxTokens(): number {
-  return requireIntEnv("AWS_BEDROCK_MAX_TOKENS");
-}
-
-/** Reads the sampling temperature from AWS_BEDROCK_TEMPERATURE. */
-export function loadBedrockTemperature(): number {
-  return requireFloatEnv("AWS_BEDROCK_TEMPERATURE");
-}
-
-/** Reads the AWS region from AWS_REGION. */
-export function loadBedrockRegion(): string {
-  return requireEnv("AWS_REGION");
-}
 
 /**
  * Creates a Bedrock runtime client.
@@ -35,4 +16,15 @@ export function createBedrockRuntimeClient(): BedrockRuntimeClient {
     : {};
 
   return new BedrockRuntimeClient(config);
+}
+
+/** Creates a LangChain Bedrock chat model configured from environment variables. */
+export function createBedrockChatModel(): ChatBedrockConverse {
+  return new ChatBedrockConverse({
+    model: requireEnv("AWS_BEDROCK_MODEL_ID"),
+    region: requireEnv("AWS_REGION"),
+    maxTokens: requireIntEnv("AWS_BEDROCK_MAX_TOKENS"),
+    temperature: requireFloatEnv("AWS_BEDROCK_TEMPERATURE"),
+    client: createBedrockRuntimeClient(),
+  });
 }
