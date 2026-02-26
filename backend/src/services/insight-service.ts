@@ -61,7 +61,7 @@ export interface InsightInput {
 export class InsightService {
   constructor(
     private agentDataService: AgentDataService,
-    private aiAgent: Agent,
+    private agent: Agent,
   ) {}
 
   async call(userId: string, input: InsightInput): Promise<string> {
@@ -103,7 +103,7 @@ export class InsightService {
     const mathTools = [avgTool, calculateTool, sumTool];
     const tools = [...dataTools, ...mathTools];
 
-    const response = await this.aiAgent.call({
+    const response = await this.agent.call({
       messages: [{ role: "user", content: userPrompt }],
       systemPrompt,
       tools,

@@ -13,7 +13,7 @@ import {
 import { BusinessError, BusinessErrorCodes } from "./business-error";
 import { type InsightInput, InsightService } from "./insight-service";
 
-const createMockAiAgent = (): jest.Mocked<Agent> => ({
+const createMockAgent = (): jest.Mocked<Agent> => ({
   call: jest.fn(),
 });
 
@@ -23,22 +23,22 @@ describe("InsightService", () => {
   let mockTransactionRepository: jest.Mocked<ITransactionRepository>;
   let mockAccountRepository: jest.Mocked<IAccountRepository>;
   let mockCategoryRepository: jest.Mocked<ICategoryRepository>;
-  let mockAiAgent: jest.Mocked<Agent>;
-  let aiDataService: AgentDataService;
+  let mockAgent: jest.Mocked<Agent>;
+  let agentDataService: AgentDataService;
 
   beforeEach(() => {
     mockTransactionRepository = createMockTransactionRepository();
     mockAccountRepository = createMockAccountRepository();
     mockCategoryRepository = createMockCategoryRepository();
-    mockAiAgent = createMockAiAgent();
+    mockAgent = createMockAgent();
 
-    aiDataService = new AgentDataService(
+    agentDataService = new AgentDataService(
       mockAccountRepository,
       mockCategoryRepository,
       mockTransactionRepository,
     );
 
-    service = new InsightService(aiDataService, mockAiAgent);
+    service = new InsightService(agentDataService, mockAgent);
 
     userId = faker.string.uuid();
 
@@ -231,7 +231,7 @@ describe("InsightService", () => {
 
     it("should return AI response for valid input", async () => {
       // Arrange
-      mockAiAgent.call.mockResolvedValue({
+      mockAgent.call.mockResolvedValue({
         answer: "Your food spending was $50.",
         toolExecutions: [],
       });
@@ -241,7 +241,7 @@ describe("InsightService", () => {
 
       // Assert
       expect(result).toContain("Your food spending was $50.");
-      expect(mockAiAgent.call).toHaveBeenCalledWith(
+      expect(mockAgent.call).toHaveBeenCalledWith(
         expect.objectContaining({
           messages: expect.arrayOf(
             expect.objectContaining({
@@ -267,13 +267,13 @@ describe("InsightService", () => {
         question: "  What is my spending?  ",
       };
       mockTransactionRepository.findActiveByDateRange.mockResolvedValue([]);
-      mockAiAgent.call.mockResolvedValue({ answer: "Answer" });
+      mockAgent.call.mockResolvedValue({ answer: "Answer" });
 
       // Act
       await service.call(userId, input);
 
       // Assert
-      const callArgs = mockAiAgent.call.mock.calls[0];
+      const callArgs = mockAgent.call.mock.calls[0];
       expect(callArgs[0].messages[0].content).toContain(
         "My question: What is my spending?",
       );
@@ -282,13 +282,13 @@ describe("InsightService", () => {
     it("should pass system prompt, tools, user message to AI agent", async () => {
       // Arrange
       mockTransactionRepository.findActiveByDateRange.mockResolvedValue([]);
-      mockAiAgent.call.mockResolvedValue({ answer: "Answer" });
+      mockAgent.call.mockResolvedValue({ answer: "Answer" });
 
       // Act
       await service.call(userId, validInput);
 
       // Assert
-      const callArgs = mockAiAgent.call.mock.calls[0];
+      const callArgs = mockAgent.call.mock.calls[0];
       const { messages, systemPrompt, tools } = callArgs[0];
 
       expect(messages).toHaveLength(1);
@@ -314,7 +314,7 @@ describe("InsightService", () => {
 
     it("should propagate error when AI agent fails", async () => {
       // Arrange
-      mockAiAgent.call.mockRejectedValue(new Error("AI service unavailable"));
+      mockAgent.call.mockRejectedValue(new Error("AI service unavailable"));
 
       // Act & Assert
       const promise = service.call(userId, validInput);
@@ -325,7 +325,7 @@ describe("InsightService", () => {
     it("should append tool executions to response when present", async () => {
       // Arrange
       mockTransactionRepository.findActiveByDateRange.mockResolvedValue([]);
-      mockAiAgent.call.mockResolvedValue({
+      mockAgent.call.mockResolvedValue({
         answer: "The total is $150.",
         toolExecutions: [
           {
