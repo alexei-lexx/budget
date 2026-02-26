@@ -2,7 +2,7 @@ import { readFileSync } from "fs";
 import { join } from "path";
 import { ApolloServer } from "@apollo/server";
 import DataLoader from "dataloader";
-import { LangchainBedrockAgent } from "./ai/langchain-bedrock-agent";
+import { LangchainAgent } from "./ai/langchain-agent";
 import { AuthContext, JwtAuthService } from "./auth/jwt-auth";
 import { createAccountLoader } from "./dataloaders/account-loader";
 import { createCategoryLoader } from "./dataloaders/category-loader";
@@ -27,6 +27,7 @@ import type {
   TransactionEmbeddedAccount,
   TransactionEmbeddedCategory,
 } from "./types/graphql";
+import { createBedrockChatModel } from "./utils/bedrock";
 
 export interface GraphQLContext {
   auth: AuthContext;
@@ -116,7 +117,7 @@ export async function createContext(req: {
   }
 
   if (!insightService) {
-    const aiAgent = new LangchainBedrockAgent();
+    const aiAgent = new LangchainAgent(createBedrockChatModel());
     const aiDataService = new AiDataService(
       accountRepository,
       categoryRepository,
