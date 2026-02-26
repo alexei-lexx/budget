@@ -1,4 +1,4 @@
-import { AIAgent } from "../models/ai-agent";
+import { Agent } from "../models/agent";
 import { DateRange } from "../types/date-range";
 import { YEAR_RANGE_OFFSET } from "../types/validation";
 import { formatDateAsYYYYMMDD } from "../utils/date";
@@ -61,7 +61,7 @@ export interface InsightInput {
 export class InsightService {
   constructor(
     private aiDataService: AiDataService,
-    private aiAgent: AIAgent,
+    private aiAgent: Agent,
   ) {}
 
   async call(userId: string, input: InsightInput): Promise<string> {

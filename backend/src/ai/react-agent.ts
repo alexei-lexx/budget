@@ -2,19 +2,19 @@ import { randomUUID } from "crypto";
 import { BaseChatModel } from "@langchain/core/language_models/chat_models";
 import { AIMessage, ToolMessage, createAgent, tool } from "langchain";
 import {
-  AIAgent,
-  AiMessage,
-  AnyToolSignature,
+  Agent,
+  AgentMessage,
   ToolExecution,
-} from "../models/ai-agent";
+  ToolSignature,
+} from "../models/agent";
 
-export class LangchainAgent implements AIAgent {
+export class ReActAgent implements Agent {
   constructor(private model: BaseChatModel) {}
 
   async call(input: {
-    messages: readonly AiMessage[];
+    messages: readonly AgentMessage[];
     systemPrompt?: string;
-    tools?: readonly AnyToolSignature[];
+    tools?: readonly ToolSignature<any>[]; // eslint-disable-line @typescript-eslint/no-explicit-any
   }) {
     const langchainTools = input.tools?.map((toolSignature) => {
       return tool(toolSignature.func, {
