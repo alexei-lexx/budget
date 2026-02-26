@@ -29,7 +29,7 @@ interface TransactionData {
   transferId?: string;
 }
 
-export class AiDataService {
+export class AgentDataService {
   constructor(
     private accountRepository: IAccountRepository,
     private categoryRepository: ICategoryRepository,

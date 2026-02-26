@@ -12,10 +12,10 @@ import {
   createMockCategoryRepository,
   createMockTransactionRepository,
 } from "../utils/test-utils/mock-repositories";
-import { AiDataService } from "./ai-data-service";
+import { AgentDataService } from "./agent-data-service";
 
-describe("AiDataService", () => {
-  let service: AiDataService;
+describe("AgentDataService", () => {
+  let service: AgentDataService;
   let mockTransactionRepository: jest.Mocked<ITransactionRepository>;
   let mockAccountRepository: jest.Mocked<IAccountRepository>;
   let mockCategoryRepository: jest.Mocked<ICategoryRepository>;
@@ -28,7 +28,7 @@ describe("AiDataService", () => {
     mockTransactionRepository = createMockTransactionRepository();
 
     // Create service instance with mocked repositories
-    service = new AiDataService(
+    service = new AgentDataService(
       mockAccountRepository,
       mockCategoryRepository,
       mockTransactionRepository,

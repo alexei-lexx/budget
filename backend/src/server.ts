@@ -2,7 +2,7 @@ import { readFileSync } from "fs";
 import { join } from "path";
 import { ApolloServer } from "@apollo/server";
 import DataLoader from "dataloader";
-import { ReActAgent } from "./ai/react-agent";
+import { ReActAgent } from "./agents/react-agent";
 import { AuthContext, JwtAuthService } from "./auth/jwt-auth";
 import { createAccountLoader } from "./dataloaders/account-loader";
 import { createCategoryLoader } from "./dataloaders/category-loader";
@@ -17,7 +17,7 @@ import { UserRepository } from "./repositories/user-repository";
 import { resolvers } from "./resolvers";
 import { getAuthenticatedUser } from "./resolvers/shared";
 import { AccountService } from "./services/account-service";
-import { AiDataService } from "./services/ai-data-service";
+import { AgentDataService } from "./services/agent-data-service";
 import { CategoryService } from "./services/category-service";
 import { InsightService } from "./services/insight-service";
 import { MonthlyByCategoryReportService } from "./services/monthly-by-category-report-service";
@@ -117,14 +117,14 @@ export async function createContext(req: {
   }
 
   if (!insightService) {
-    const aiAgent = new ReActAgent(createBedrockChatModel());
-    const aiDataService = new AiDataService(
+    const agent = new ReActAgent(createBedrockChatModel());
+    const agentDataService = new AgentDataService(
       accountRepository,
       categoryRepository,
       transactionRepository,
     );
 
-    insightService = new InsightService(aiDataService, aiAgent);
+    insightService = new InsightService(agentDataService, agent);
   }
 
   if (!transferService) {
