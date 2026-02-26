@@ -1,6 +1,6 @@
 import { faker } from "@faker-js/faker";
 import { IAccountRepository } from "../models/account";
-import { type AIAgent } from "../models/ai-agent";
+import { type Agent } from "../models/agent";
 import { ICategoryRepository } from "../models/category";
 import { ITransactionRepository } from "../models/transaction";
 import { YEAR_RANGE_OFFSET } from "../types/validation";
@@ -13,7 +13,7 @@ import { AiDataService } from "./ai-data-service";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
 import { type InsightInput, InsightService } from "./insight-service";
 
-const createMockAiAgent = (): jest.Mocked<AIAgent> => ({
+const createMockAiAgent = (): jest.Mocked<Agent> => ({
   call: jest.fn(),
 });
 
@@ -23,7 +23,7 @@ describe("InsightService", () => {
   let mockTransactionRepository: jest.Mocked<ITransactionRepository>;
   let mockAccountRepository: jest.Mocked<IAccountRepository>;
   let mockCategoryRepository: jest.Mocked<ICategoryRepository>;
-  let mockAiAgent: jest.Mocked<AIAgent>;
+  let mockAiAgent: jest.Mocked<Agent>;
   let aiDataService: AiDataService;
 
   beforeEach(() => {

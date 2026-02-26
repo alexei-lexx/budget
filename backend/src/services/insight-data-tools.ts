@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ToolSignature } from "../models/ai-agent";
+import { ToolSignature } from "../models/agent";
 import { DateRange } from "../types/date-range";
 import { AiDataService } from "./ai-data-service";
 

@@ -2,7 +2,7 @@ import { readFileSync } from "fs";
 import { join } from "path";
 import { ApolloServer } from "@apollo/server";
 import DataLoader from "dataloader";
-import { LangchainAgent } from "./ai/langchain-agent";
+import { ReActAgent } from "./ai/react-agent";
 import { AuthContext, JwtAuthService } from "./auth/jwt-auth";
 import { createAccountLoader } from "./dataloaders/account-loader";
 import { createCategoryLoader } from "./dataloaders/category-loader";
@@ -117,7 +117,7 @@ export async function createContext(req: {
   }
 
   if (!insightService) {
-    const aiAgent = new LangchainAgent(createBedrockChatModel());
+    const aiAgent = new ReActAgent(createBedrockChatModel());
     const aiDataService = new AiDataService(
       accountRepository,
       categoryRepository,

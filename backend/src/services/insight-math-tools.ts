@@ -1,6 +1,6 @@
 import { evaluate, mean, sum } from "mathjs";
 import { z } from "zod";
-import { ToolSignature } from "../models/ai-agent";
+import { ToolSignature } from "../models/agent";
 
 const sumInputSchema = z.object({
   numbers: z.array(z.number()),

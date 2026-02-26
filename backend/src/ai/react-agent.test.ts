@@ -7,8 +7,8 @@ import {
   tool,
 } from "langchain";
 import { z } from "zod";
-import { AnyToolSignature } from "../models/ai-agent";
-import { LangchainAgent } from "./langchain-agent";
+import { ToolSignature } from "../models/agent";
+import { ReActAgent } from "./react-agent";
 
 // Mock LangChain's createAgent and tool
 jest.mock("langchain", () => ({
@@ -17,8 +17,8 @@ jest.mock("langchain", () => ({
   tool: jest.fn(),
 }));
 
-describe("LangchainAgent", () => {
-  let agent: LangchainAgent;
+describe("ReActAgent", () => {
+  let agent: ReActAgent;
   let mockModel: BaseChatModel;
   let mockReactAgent: { invoke: jest.Mock };
 
@@ -33,7 +33,7 @@ describe("LangchainAgent", () => {
 
     (createAgent as jest.Mock).mockReturnValue(mockReactAgent);
 
-    agent = new LangchainAgent(mockModel);
+    agent = new ReActAgent(mockModel);
 
     jest.clearAllMocks();
   });
@@ -43,7 +43,7 @@ describe("LangchainAgent", () => {
       // Arrange
       const messages = [{ role: "user" as const, content: "Test question" }];
       const systemPrompt = "You are a test assistant";
-      const testTool: AnyToolSignature = {
+      const testTool: ToolSignature<{ text: string }> = {
         name: "test_tool",
         description: "A test tool",
         func: async (input: { text: string }) => `Echo: ${input.text}`,

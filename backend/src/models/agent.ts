@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export interface AiMessage {
+export interface AgentMessage {
   role: "system" | "user" | "assistant";
   content: string;
 }
@@ -12,21 +12,16 @@ export interface ToolSignature<TInput> {
   inputSchema: z.ZodType<TInput>;
 }
 
-// Type alias for arrays of heterogeneous tools
-// Using `any` here is safe because runtime validation is done via Zod schemas
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type AnyToolSignature = ToolSignature<any>;
-
 export interface ToolExecution {
   tool: string;
   input: string;
   output: string;
 }
 
-export interface AIAgent {
+export interface Agent {
   call(input: {
-    messages: readonly AiMessage[];
+    messages: readonly AgentMessage[];
     systemPrompt?: string;
-    tools?: readonly AnyToolSignature[];
+    tools?: readonly ToolSignature<any>[]; // eslint-disable-line @typescript-eslint/no-explicit-any
   }): Promise<{ answer: string; toolExecutions?: ToolExecution[] }>;
 }
