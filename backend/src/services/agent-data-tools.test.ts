@@ -4,15 +4,15 @@ import {
   fakeCategory,
   fakeTransaction,
 } from "../utils/test-utils/factories";
-import { AiDataService } from "./ai-data-service";
+import { AgentDataService } from "./agent-data-service";
 import {
   createGetAccountsTool,
   createGetCategoriesTool,
   createGetTransactionsTool,
-} from "./insight-data-tools";
+} from "./agent-data-tools";
 
-describe("insight-data-tools", () => {
-  let mockAiDataService: {
+describe("agent-data-tools", () => {
+  let mockAgentDataService: {
     getAllAccounts: jest.Mock;
     getAllCategories: jest.Mock;
     getFilteredTransactions: jest.Mock;
@@ -20,7 +20,7 @@ describe("insight-data-tools", () => {
   const userId = faker.string.uuid();
 
   beforeEach(() => {
-    mockAiDataService = {
+    mockAgentDataService = {
       getAllAccounts: jest.fn(),
       getAllCategories: jest.fn(),
       getFilteredTransactions: jest.fn(),
@@ -30,7 +30,7 @@ describe("insight-data-tools", () => {
   describe("createGetAccountsTool", () => {
     it("should return tool with correct name", () => {
       const tool = createGetAccountsTool(
-        mockAiDataService as unknown as AiDataService,
+        mockAgentDataService as unknown as AgentDataService,
         userId,
       );
 
@@ -45,15 +45,15 @@ describe("insight-data-tools", () => {
         currency: account.currency,
         isArchived: account.isArchived,
       }));
-      mockAiDataService.getAllAccounts.mockResolvedValue(accountsData);
+      mockAgentDataService.getAllAccounts.mockResolvedValue(accountsData);
 
       const tool = createGetAccountsTool(
-        mockAiDataService as unknown as AiDataService,
+        mockAgentDataService as unknown as AgentDataService,
         userId,
       );
       const result = await tool.func({});
 
-      expect(mockAiDataService.getAllAccounts).toHaveBeenCalledWith(userId);
+      expect(mockAgentDataService.getAllAccounts).toHaveBeenCalledWith(userId);
       expect(result).toBe(JSON.stringify(accountsData));
     });
   });
@@ -61,7 +61,7 @@ describe("insight-data-tools", () => {
   describe("createGetCategoriesTool", () => {
     it("should return tool with correct name", () => {
       const tool = createGetCategoriesTool(
-        mockAiDataService as unknown as AiDataService,
+        mockAgentDataService as unknown as AgentDataService,
         userId,
       );
 
@@ -76,15 +76,17 @@ describe("insight-data-tools", () => {
         type: cat.type,
         isArchived: cat.isArchived,
       }));
-      mockAiDataService.getAllCategories.mockResolvedValue(categoriesData);
+      mockAgentDataService.getAllCategories.mockResolvedValue(categoriesData);
 
       const tool = createGetCategoriesTool(
-        mockAiDataService as unknown as AiDataService,
+        mockAgentDataService as unknown as AgentDataService,
         userId,
       );
       const result = await tool.func({});
 
-      expect(mockAiDataService.getAllCategories).toHaveBeenCalledWith(userId);
+      expect(mockAgentDataService.getAllCategories).toHaveBeenCalledWith(
+        userId,
+      );
       expect(result).toBe(JSON.stringify(categoriesData));
     });
   });
@@ -97,7 +99,7 @@ describe("insight-data-tools", () => {
 
     it("should return tool with correct name", () => {
       const tool = createGetTransactionsTool({
-        aiDataService: mockAiDataService as unknown as AiDataService,
+        agentDataService: mockAgentDataService as unknown as AgentDataService,
         userId,
         dateRange: allowedDateRange,
       });
@@ -118,12 +120,12 @@ describe("insight-data-tools", () => {
         description: transaction.description,
         transferId: transaction.transferId,
       }));
-      mockAiDataService.getFilteredTransactions.mockResolvedValue(
+      mockAgentDataService.getFilteredTransactions.mockResolvedValue(
         transactionsData,
       );
 
       const tool = createGetTransactionsTool({
-        aiDataService: mockAiDataService as unknown as AiDataService,
+        agentDataService: mockAgentDataService as unknown as AgentDataService,
         userId,
         dateRange: allowedDateRange,
       });
@@ -133,7 +135,7 @@ describe("insight-data-tools", () => {
         endDate: "2000-01-20",
       });
 
-      expect(mockAiDataService.getFilteredTransactions).toHaveBeenCalledWith(
+      expect(mockAgentDataService.getFilteredTransactions).toHaveBeenCalledWith(
         userId,
         { startDate: "2000-01-10", endDate: "2000-01-20" },
         undefined,
@@ -144,7 +146,7 @@ describe("insight-data-tools", () => {
 
     it("should reject startDate before allowed range", async () => {
       const tool = createGetTransactionsTool({
-        aiDataService: mockAiDataService as unknown as AiDataService,
+        agentDataService: mockAgentDataService as unknown as AgentDataService,
         userId,
         dateRange: allowedDateRange,
       });
@@ -154,7 +156,9 @@ describe("insight-data-tools", () => {
         endDate: "2000-01-15",
       });
 
-      expect(mockAiDataService.getFilteredTransactions).not.toHaveBeenCalled();
+      expect(
+        mockAgentDataService.getFilteredTransactions,
+      ).not.toHaveBeenCalled();
       expect(result).toBe(
         JSON.stringify({
           error: "Date range must be within 2000-01-01 to 2000-01-31",
@@ -164,7 +168,7 @@ describe("insight-data-tools", () => {
 
     it("should reject endDate after allowed range", async () => {
       const tool = createGetTransactionsTool({
-        aiDataService: mockAiDataService as unknown as AiDataService,
+        agentDataService: mockAgentDataService as unknown as AgentDataService,
         userId,
         dateRange: allowedDateRange,
       });
@@ -174,7 +178,9 @@ describe("insight-data-tools", () => {
         endDate: "2000-02-01",
       });
 
-      expect(mockAiDataService.getFilteredTransactions).not.toHaveBeenCalled();
+      expect(
+        mockAgentDataService.getFilteredTransactions,
+      ).not.toHaveBeenCalled();
       expect(result).toBe(
         JSON.stringify({
           error: "Date range must be within 2000-01-01 to 2000-01-31",
@@ -184,7 +190,7 @@ describe("insight-data-tools", () => {
 
     it("should reject when startDate is after endDate", async () => {
       const tool = createGetTransactionsTool({
-        aiDataService: mockAiDataService as unknown as AiDataService,
+        agentDataService: mockAgentDataService as unknown as AgentDataService,
         userId,
         dateRange: allowedDateRange,
       });
@@ -194,7 +200,9 @@ describe("insight-data-tools", () => {
         endDate: "2000-01-10",
       });
 
-      expect(mockAiDataService.getFilteredTransactions).not.toHaveBeenCalled();
+      expect(
+        mockAgentDataService.getFilteredTransactions,
+      ).not.toHaveBeenCalled();
       expect(result).toBe(
         JSON.stringify({
           error: "startDate must not be after endDate",
@@ -203,10 +211,10 @@ describe("insight-data-tools", () => {
     });
 
     it("should accept dates at boundary of allowed range (inclusive)", async () => {
-      mockAiDataService.getFilteredTransactions.mockResolvedValue([]);
+      mockAgentDataService.getFilteredTransactions.mockResolvedValue([]);
 
       const tool = createGetTransactionsTool({
-        aiDataService: mockAiDataService as unknown as AiDataService,
+        agentDataService: mockAgentDataService as unknown as AgentDataService,
         userId,
         dateRange: allowedDateRange,
       });
@@ -216,7 +224,7 @@ describe("insight-data-tools", () => {
         endDate: "2000-01-31",
       });
 
-      expect(mockAiDataService.getFilteredTransactions).toHaveBeenCalledWith(
+      expect(mockAgentDataService.getFilteredTransactions).toHaveBeenCalledWith(
         userId,
         { startDate: "2000-01-01", endDate: "2000-01-31" },
         undefined,
@@ -227,10 +235,10 @@ describe("insight-data-tools", () => {
 
     it("should filter by accountId", async () => {
       const accountId = faker.string.uuid();
-      mockAiDataService.getFilteredTransactions.mockResolvedValue([]);
+      mockAgentDataService.getFilteredTransactions.mockResolvedValue([]);
 
       const tool = createGetTransactionsTool({
-        aiDataService: mockAiDataService as unknown as AiDataService,
+        agentDataService: mockAgentDataService as unknown as AgentDataService,
         userId,
         dateRange: allowedDateRange,
       });
@@ -241,7 +249,7 @@ describe("insight-data-tools", () => {
         accountId,
       });
 
-      expect(mockAiDataService.getFilteredTransactions).toHaveBeenCalledWith(
+      expect(mockAgentDataService.getFilteredTransactions).toHaveBeenCalledWith(
         userId,
         { startDate: "2000-01-10", endDate: "2000-01-20" },
         undefined,
@@ -251,10 +259,10 @@ describe("insight-data-tools", () => {
 
     it("should filter by categoryId", async () => {
       const categoryId = faker.string.uuid();
-      mockAiDataService.getFilteredTransactions.mockResolvedValue([]);
+      mockAgentDataService.getFilteredTransactions.mockResolvedValue([]);
 
       const tool = createGetTransactionsTool({
-        aiDataService: mockAiDataService as unknown as AiDataService,
+        agentDataService: mockAgentDataService as unknown as AgentDataService,
         userId,
         dateRange: allowedDateRange,
       });
@@ -265,7 +273,7 @@ describe("insight-data-tools", () => {
         categoryId,
       });
 
-      expect(mockAiDataService.getFilteredTransactions).toHaveBeenCalledWith(
+      expect(mockAgentDataService.getFilteredTransactions).toHaveBeenCalledWith(
         userId,
         { startDate: "2000-01-10", endDate: "2000-01-20" },
         categoryId,
@@ -276,10 +284,10 @@ describe("insight-data-tools", () => {
     it("should filter by both accountId and categoryId", async () => {
       const accountId = faker.string.uuid();
       const categoryId = faker.string.uuid();
-      mockAiDataService.getFilteredTransactions.mockResolvedValue([]);
+      mockAgentDataService.getFilteredTransactions.mockResolvedValue([]);
 
       const tool = createGetTransactionsTool({
-        aiDataService: mockAiDataService as unknown as AiDataService,
+        agentDataService: mockAgentDataService as unknown as AgentDataService,
         userId,
         dateRange: allowedDateRange,
       });
@@ -291,7 +299,7 @@ describe("insight-data-tools", () => {
         categoryId,
       });
 
-      expect(mockAiDataService.getFilteredTransactions).toHaveBeenCalledWith(
+      expect(mockAgentDataService.getFilteredTransactions).toHaveBeenCalledWith(
         userId,
         { startDate: "2000-01-10", endDate: "2000-01-20" },
         categoryId,

@@ -1,30 +1,30 @@
 import { z } from "zod";
 import { ToolSignature } from "../models/agent";
 import { DateRange } from "../types/date-range";
-import { AiDataService } from "./ai-data-service";
+import { AgentDataService } from "./agent-data-service";
 
 export const createGetAccountsTool = (
-  aiDataService: AiDataService,
+  agentDataService: AgentDataService,
   userId: string,
 ): ToolSignature<object> => ({
   name: "getAccounts",
   description: "Get all user accounts (both active and archived).",
   inputSchema: z.object(),
   func: async () => {
-    const accounts = await aiDataService.getAllAccounts(userId);
+    const accounts = await agentDataService.getAllAccounts(userId);
     return JSON.stringify(accounts);
   },
 });
 
 export const createGetCategoriesTool = (
-  aiDataService: AiDataService,
+  agentDataService: AgentDataService,
   userId: string,
 ): ToolSignature<object> => ({
   name: "getCategories",
   description: "Get all user categories (both active and archived).",
   inputSchema: z.object(),
   func: async () => {
-    const categories = await aiDataService.getAllCategories(userId);
+    const categories = await agentDataService.getAllCategories(userId);
     return JSON.stringify(categories);
   },
 });
@@ -39,7 +39,7 @@ const getTransactionsInputSchema = z.object({
 type GetTransactionsInput = z.infer<typeof getTransactionsInputSchema>;
 
 export const createGetTransactionsTool = (params: {
-  aiDataService: AiDataService;
+  agentDataService: AgentDataService;
   userId: string;
   dateRange: DateRange;
 }): ToolSignature<GetTransactionsInput> => ({
@@ -64,7 +64,7 @@ export const createGetTransactionsTool = (params: {
       });
     }
 
-    const transactions = await params.aiDataService.getFilteredTransactions(
+    const transactions = await params.agentDataService.getFilteredTransactions(
       params.userId,
       { startDate: input.startDate, endDate: input.endDate },
       input.categoryId,

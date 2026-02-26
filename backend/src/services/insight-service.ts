@@ -2,14 +2,14 @@ import { Agent } from "../models/agent";
 import { DateRange } from "../types/date-range";
 import { YEAR_RANGE_OFFSET } from "../types/validation";
 import { formatDateAsYYYYMMDD } from "../utils/date";
-import { AiDataService } from "./ai-data-service";
-import { BusinessError, BusinessErrorCodes } from "./business-error";
+import { AgentDataService } from "./agent-data-service";
 import {
   createGetAccountsTool,
   createGetCategoriesTool,
   createGetTransactionsTool,
-} from "./insight-data-tools";
-import { avgTool, calculateTool, sumTool } from "./insight-math-tools";
+} from "./agent-data-tools";
+import { avgTool, calculateTool, sumTool } from "./agent-math-tools";
+import { BusinessError, BusinessErrorCodes } from "./business-error";
 
 const MAX_PERIOD_DAYS = 366;
 
@@ -60,8 +60,8 @@ export interface InsightInput {
 
 export class InsightService {
   constructor(
-    private aiDataService: AiDataService,
-    private aiAgent: Agent,
+    private agentDataService: AgentDataService,
+    private agent: Agent,
   ) {}
 
   async call(userId: string, input: InsightInput): Promise<string> {
@@ -91,10 +91,10 @@ export class InsightService {
     );
 
     const dataTools = [
-      createGetAccountsTool(this.aiDataService, userId),
-      createGetCategoriesTool(this.aiDataService, userId),
+      createGetAccountsTool(this.agentDataService, userId),
+      createGetCategoriesTool(this.agentDataService, userId),
       createGetTransactionsTool({
-        aiDataService: this.aiDataService,
+        agentDataService: this.agentDataService,
         userId,
         dateRange: validatedDateRange,
       }),
@@ -103,7 +103,7 @@ export class InsightService {
     const mathTools = [avgTool, calculateTool, sumTool];
     const tools = [...dataTools, ...mathTools];
 
-    const response = await this.aiAgent.call({
+    const response = await this.agent.call({
       messages: [{ role: "user", content: userPrompt }],
       systemPrompt,
       tools,
