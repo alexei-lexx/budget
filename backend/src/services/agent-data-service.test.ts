@@ -215,7 +215,10 @@ describe("AgentDataService", () => {
       // Act
       const result = await service.getFilteredTransactions(
         userId,
-        { startDate: toDateString("2024-01-01"), endDate: toDateString("2024-01-31") },
+        {
+          startDate: toDateString("2024-01-01"),
+          endDate: toDateString("2024-01-31"),
+        },
         categoryId1,
       );
 
@@ -234,7 +237,10 @@ describe("AgentDataService", () => {
       // Act
       const result = await service.getFilteredTransactions(
         userId,
-        { startDate: toDateString("2024-01-01"), endDate: toDateString("2024-01-31") },
+        {
+          startDate: toDateString("2024-01-01"),
+          endDate: toDateString("2024-01-31"),
+        },
         undefined,
         accountId1,
       );
@@ -254,7 +260,10 @@ describe("AgentDataService", () => {
       // Act
       const result = await service.getFilteredTransactions(
         userId,
-        { startDate: toDateString("2024-01-01"), endDate: toDateString("2024-01-31") },
+        {
+          startDate: toDateString("2024-01-01"),
+          endDate: toDateString("2024-01-31"),
+        },
         categoryId1,
         accountId1,
       );
@@ -276,7 +285,10 @@ describe("AgentDataService", () => {
       // Act
       const result = await service.getFilteredTransactions(
         userId,
-        { startDate: toDateString("2024-01-01"), endDate: toDateString("2024-01-31") },
+        {
+          startDate: toDateString("2024-01-01"),
+          endDate: toDateString("2024-01-31"),
+        },
         "nonexistent-category-id",
       );
 

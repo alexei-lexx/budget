@@ -1,6 +1,6 @@
+import { GraphQLContext } from "../server";
 import { toDateString } from "../types/date";
 import { toDateRange } from "../types/date-range";
-import { GraphQLContext } from "../server";
 import { getAuthenticatedUser, handleResolverError } from "./shared";
 
 export const insightResolvers = {

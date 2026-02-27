@@ -50,7 +50,10 @@ describe("InsightService", () => {
   describe("validation", () => {
     const validInput: InsightInput = {
       question: "Why did my food spending increase?",
-      dateRange: toDateRange(toDateString("2000-01-01"), toDateString("2000-01-31")),
+      dateRange: toDateRange(
+        toDateString("2000-01-01"),
+        toDateString("2000-01-31"),
+      ),
     };
 
     it("should throw error when userId is empty", async () => {
@@ -102,7 +105,10 @@ describe("InsightService", () => {
       // Arrange
       const input: InsightInput = {
         ...validInput,
-        dateRange: toDateRange(toDateString("2000-01-01"), toDateString("2001-01-02")),
+        dateRange: toDateRange(
+          toDateString("2000-01-01"),
+          toDateString("2001-01-02"),
+        ),
       };
 
       // Act & Assert
@@ -143,7 +149,10 @@ describe("InsightService", () => {
   describe("call", () => {
     const validInput: InsightInput = {
       question: "Why did my food spending increase?",
-      dateRange: toDateRange(toDateString("2000-01-01"), toDateString("2000-01-31")),
+      dateRange: toDateRange(
+        toDateString("2000-01-01"),
+        toDateString("2000-01-31"),
+      ),
     };
 
     it("should return AI response for valid input", async () => {
