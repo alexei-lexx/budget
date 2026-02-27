@@ -1,6 +1,12 @@
 import { GraphQLError } from "graphql";
 import { z } from "zod";
-import { TransactionType } from "../__generated__/resolvers-types";
+import {
+  MutationCreateTransferArgs,
+  MutationDeleteTransferArgs,
+  MutationUpdateTransferArgs,
+  QueryTransferArgs,
+  TransactionType,
+} from "../__generated__/resolvers-types";
 import { GraphQLContext } from "../server";
 import { BusinessError } from "../services/business-error";
 import { toDateString } from "../types/date";
@@ -48,7 +54,7 @@ export const transferResolvers = {
   Query: {
     transfer: async (
       _parent: unknown,
-      args: { id: unknown },
+      args: QueryTransferArgs,
       context: GraphQLContext,
     ) => {
       try {
@@ -140,7 +146,7 @@ export const transferResolvers = {
   Mutation: {
     createTransfer: async (
       _parent: unknown,
-      args: { input: unknown },
+      args: MutationCreateTransferArgs,
       context: GraphQLContext,
     ) => {
       try {
@@ -176,7 +182,7 @@ export const transferResolvers = {
     },
     updateTransfer: async (
       _parent: unknown,
-      args: { input: unknown },
+      args: MutationUpdateTransferArgs,
       context: GraphQLContext,
     ) => {
       try {
@@ -214,7 +220,7 @@ export const transferResolvers = {
     },
     deleteTransfer: async (
       _parent: unknown,
-      args: { id: unknown },
+      args: MutationDeleteTransferArgs,
       context: GraphQLContext,
     ) => {
       try {
