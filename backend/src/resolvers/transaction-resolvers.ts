@@ -1,6 +1,14 @@
 import { GraphQLError } from "graphql";
 import { z } from "zod";
 import {
+  MutationCreateTransactionArgs,
+  MutationDeleteTransactionArgs,
+  MutationUpdateTransactionArgs,
+  QueryTransactionDescriptionSuggestionsArgs,
+  QueryTransactionPatternsArgs,
+  QueryTransactionsArgs,
+} from "../__generated__/resolvers-types";
+import {
   Transaction as TransactionModel,
   TransactionPatternType,
   TransactionType,
@@ -93,7 +101,7 @@ export const transactionResolvers = {
   Query: {
     transactions: async (
       _parent: unknown,
-      args: { pagination?: unknown; filters?: unknown },
+      args: QueryTransactionsArgs,
       context: GraphQLContext,
     ) => {
       try {
@@ -126,7 +134,7 @@ export const transactionResolvers = {
     },
     transactionPatterns: async (
       _parent: unknown,
-      args: { type: unknown },
+      args: QueryTransactionPatternsArgs,
       context: GraphQLContext,
     ) => {
       try {
@@ -154,7 +162,7 @@ export const transactionResolvers = {
     },
     transactionDescriptionSuggestions: async (
       _parent: unknown,
-      args: { searchText: string },
+      args: QueryTransactionDescriptionSuggestionsArgs,
       context: GraphQLContext,
     ) => {
       const { searchText } = args;
@@ -189,7 +197,7 @@ export const transactionResolvers = {
   Mutation: {
     createTransaction: async (
       _parent: unknown,
-      args: { input: unknown },
+      args: MutationCreateTransactionArgs,
       context: GraphQLContext,
     ) => {
       try {
@@ -219,7 +227,7 @@ export const transactionResolvers = {
     },
     updateTransaction: async (
       _parent: unknown,
-      args: { input: unknown },
+      args: MutationUpdateTransactionArgs,
       context: GraphQLContext,
     ) => {
       try {
@@ -251,7 +259,7 @@ export const transactionResolvers = {
     },
     deleteTransaction: async (
       _parent: unknown,
-      args: { id: string },
+      args: MutationDeleteTransactionArgs,
       context: GraphQLContext,
     ) => {
       const { id } = args;

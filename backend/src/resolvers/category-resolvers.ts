@@ -1,5 +1,10 @@
 import { GraphQLError } from "graphql";
-import { CategoryType } from "../models/category";
+import {
+  MutationCreateCategoryArgs,
+  MutationDeleteCategoryArgs,
+  MutationUpdateCategoryArgs,
+  QueryCategoriesArgs,
+} from "../__generated__/resolvers-types";
 import { GraphQLContext } from "../server";
 import { getAuthenticatedUser, handleResolverError } from "./shared";
 
@@ -7,7 +12,7 @@ export const categoryResolvers = {
   Query: {
     categories: async (
       _parent: unknown,
-      args: { type?: CategoryType },
+      args: QueryCategoriesArgs,
       context: GraphQLContext,
     ) => {
       try {
@@ -24,13 +29,7 @@ export const categoryResolvers = {
   Mutation: {
     createCategory: async (
       _parent: unknown,
-      args: {
-        input: {
-          name: string;
-          type: CategoryType;
-          excludeFromReports: boolean;
-        };
-      },
+      args: MutationCreateCategoryArgs,
       context: GraphQLContext,
     ) => {
       try {
@@ -49,7 +48,7 @@ export const categoryResolvers = {
     },
     updateCategory: async (
       _parent: unknown,
-      args: { input: { id: string; name?: string; type?: CategoryType } },
+      args: MutationUpdateCategoryArgs,
       context: GraphQLContext,
     ) => {
       try {
@@ -68,7 +67,7 @@ export const categoryResolvers = {
     },
     deleteCategory: async (
       _parent: unknown,
-      args: { id: string },
+      args: MutationDeleteCategoryArgs,
       context: GraphQLContext,
     ) => {
       const { id } = args;
