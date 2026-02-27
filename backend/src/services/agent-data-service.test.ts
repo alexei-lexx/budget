@@ -194,10 +194,11 @@ describe("AgentDataService", () => {
       );
 
       // Act
-      const result = await service.getFilteredTransactions(userId, {
-        startDate: "2024-01-01",
-        endDate: "2024-01-31",
-      });
+      const result = await service.getFilteredTransactions(
+        userId,
+        toDateString("2024-01-01"),
+        toDateString("2024-01-31"),
+      );
 
       // Assert
       expect(
@@ -215,7 +216,8 @@ describe("AgentDataService", () => {
       // Act
       const result = await service.getFilteredTransactions(
         userId,
-        { startDate: "2024-01-01", endDate: "2024-01-31" },
+        toDateString("2024-01-01"),
+        toDateString("2024-01-31"),
         categoryId1,
       );
 
@@ -234,7 +236,8 @@ describe("AgentDataService", () => {
       // Act
       const result = await service.getFilteredTransactions(
         userId,
-        { startDate: "2024-01-01", endDate: "2024-01-31" },
+        toDateString("2024-01-01"),
+        toDateString("2024-01-31"),
         undefined,
         accountId1,
       );
@@ -254,7 +257,8 @@ describe("AgentDataService", () => {
       // Act
       const result = await service.getFilteredTransactions(
         userId,
-        { startDate: "2024-01-01", endDate: "2024-01-31" },
+        toDateString("2024-01-01"),
+        toDateString("2024-01-31"),
         categoryId1,
         accountId1,
       );
@@ -276,7 +280,8 @@ describe("AgentDataService", () => {
       // Act
       const result = await service.getFilteredTransactions(
         userId,
-        { startDate: "2024-01-01", endDate: "2024-01-31" },
+        toDateString("2024-01-01"),
+        toDateString("2024-01-31"),
         "nonexistent-category-id",
       );
 
@@ -291,10 +296,11 @@ describe("AgentDataService", () => {
       ]);
 
       // Act
-      const result = await service.getFilteredTransactions(userId, {
-        startDate: "2024-01-01",
-        endDate: "2024-01-31",
-      });
+      const result = await service.getFilteredTransactions(
+        userId,
+        toDateString("2024-01-01"),
+        toDateString("2024-01-31"),
+      );
 
       // Assert
       expect(result[0]).toEqual({

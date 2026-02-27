@@ -1,4 +1,5 @@
 import { faker } from "@faker-js/faker";
+import { toDateString } from "../types/date";
 import {
   fakeAccount,
   fakeCategory,
@@ -92,16 +93,15 @@ describe("agent-data-tools", () => {
   });
 
   describe("createGetTransactionsTool", () => {
-    const allowedDateRange = {
-      startDate: "2000-01-01",
-      endDate: "2000-01-31",
-    };
+    const allowedStartDate = toDateString("2000-01-01");
+    const allowedEndDate = toDateString("2000-01-31");
 
     it("should return tool with correct name", () => {
       const tool = createGetTransactionsTool({
         agentDataService: mockAgentDataService as unknown as AgentDataService,
         userId,
-        dateRange: allowedDateRange,
+        allowedStartDate,
+        allowedEndDate,
       });
 
       expect(tool.name).toBe("getTransactions");
@@ -127,7 +127,8 @@ describe("agent-data-tools", () => {
       const tool = createGetTransactionsTool({
         agentDataService: mockAgentDataService as unknown as AgentDataService,
         userId,
-        dateRange: allowedDateRange,
+        allowedStartDate,
+        allowedEndDate,
       });
 
       const result = await tool.func({
@@ -137,7 +138,8 @@ describe("agent-data-tools", () => {
 
       expect(mockAgentDataService.getFilteredTransactions).toHaveBeenCalledWith(
         userId,
-        { startDate: "2000-01-10", endDate: "2000-01-20" },
+        "2000-01-10",
+        "2000-01-20",
         undefined,
         undefined,
       );
@@ -148,7 +150,8 @@ describe("agent-data-tools", () => {
       const tool = createGetTransactionsTool({
         agentDataService: mockAgentDataService as unknown as AgentDataService,
         userId,
-        dateRange: allowedDateRange,
+        allowedStartDate,
+        allowedEndDate,
       });
 
       const result = await tool.func({
@@ -170,7 +173,8 @@ describe("agent-data-tools", () => {
       const tool = createGetTransactionsTool({
         agentDataService: mockAgentDataService as unknown as AgentDataService,
         userId,
-        dateRange: allowedDateRange,
+        allowedStartDate,
+        allowedEndDate,
       });
 
       const result = await tool.func({
@@ -192,7 +196,8 @@ describe("agent-data-tools", () => {
       const tool = createGetTransactionsTool({
         agentDataService: mockAgentDataService as unknown as AgentDataService,
         userId,
-        dateRange: allowedDateRange,
+        allowedStartDate,
+        allowedEndDate,
       });
 
       const result = await tool.func({
@@ -216,7 +221,8 @@ describe("agent-data-tools", () => {
       const tool = createGetTransactionsTool({
         agentDataService: mockAgentDataService as unknown as AgentDataService,
         userId,
-        dateRange: allowedDateRange,
+        allowedStartDate,
+        allowedEndDate,
       });
 
       const result = await tool.func({
@@ -226,7 +232,8 @@ describe("agent-data-tools", () => {
 
       expect(mockAgentDataService.getFilteredTransactions).toHaveBeenCalledWith(
         userId,
-        { startDate: "2000-01-01", endDate: "2000-01-31" },
+        "2000-01-01",
+        "2000-01-31",
         undefined,
         undefined,
       );
@@ -240,7 +247,8 @@ describe("agent-data-tools", () => {
       const tool = createGetTransactionsTool({
         agentDataService: mockAgentDataService as unknown as AgentDataService,
         userId,
-        dateRange: allowedDateRange,
+        allowedStartDate,
+        allowedEndDate,
       });
 
       await tool.func({
@@ -251,7 +259,8 @@ describe("agent-data-tools", () => {
 
       expect(mockAgentDataService.getFilteredTransactions).toHaveBeenCalledWith(
         userId,
-        { startDate: "2000-01-10", endDate: "2000-01-20" },
+        "2000-01-10",
+        "2000-01-20",
         undefined,
         accountId,
       );
@@ -264,7 +273,8 @@ describe("agent-data-tools", () => {
       const tool = createGetTransactionsTool({
         agentDataService: mockAgentDataService as unknown as AgentDataService,
         userId,
-        dateRange: allowedDateRange,
+        allowedStartDate,
+        allowedEndDate,
       });
 
       await tool.func({
@@ -275,7 +285,8 @@ describe("agent-data-tools", () => {
 
       expect(mockAgentDataService.getFilteredTransactions).toHaveBeenCalledWith(
         userId,
-        { startDate: "2000-01-10", endDate: "2000-01-20" },
+        "2000-01-10",
+        "2000-01-20",
         categoryId,
         undefined,
       );
@@ -289,7 +300,8 @@ describe("agent-data-tools", () => {
       const tool = createGetTransactionsTool({
         agentDataService: mockAgentDataService as unknown as AgentDataService,
         userId,
-        dateRange: allowedDateRange,
+        allowedStartDate,
+        allowedEndDate,
       });
 
       await tool.func({
@@ -301,7 +313,8 @@ describe("agent-data-tools", () => {
 
       expect(mockAgentDataService.getFilteredTransactions).toHaveBeenCalledWith(
         userId,
-        { startDate: "2000-01-10", endDate: "2000-01-20" },
+        "2000-01-10",
+        "2000-01-20",
         categoryId,
         accountId,
       );
