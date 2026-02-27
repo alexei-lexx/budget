@@ -134,7 +134,7 @@ describe("InsightService", () => {
       });
     });
 
-    it("should throw error when date year is out of range", async () => {
+    it("should throw error when startDate year is out of range", async () => {
       // Arrange
       const currentYear = new Date().getFullYear();
       const minYear = currentYear - YEAR_RANGE_OFFSET;
@@ -143,7 +143,6 @@ describe("InsightService", () => {
       const input: InsightInput = {
         ...validInput,
         startDate: toDateString(`${outOfRangeYear}-01-01`),
-        endDate: toDateString(`${outOfRangeYear}-01-31`),
       };
 
       // Act & Assert
@@ -152,6 +151,27 @@ describe("InsightService", () => {
       await expect(promise).rejects.toThrow(BusinessError);
       await expect(promise).rejects.toMatchObject({
         message: `Start date must be between ${minYear} and ${maxYear}`,
+        code: BusinessErrorCodes.INVALID_DATE,
+      });
+    });
+
+    it("should throw error when endDate year is out of range", async () => {
+      // Arrange
+      const currentYear = new Date().getFullYear();
+      const minYear = currentYear - YEAR_RANGE_OFFSET;
+      const maxYear = currentYear + YEAR_RANGE_OFFSET;
+      const outOfRangeYear = maxYear + 1;
+      const input: InsightInput = {
+        ...validInput,
+        endDate: toDateString(`${outOfRangeYear}-01-31`),
+      };
+
+      // Act & Assert
+      const promise = service.call(userId, input);
+
+      await expect(promise).rejects.toThrow(BusinessError);
+      await expect(promise).rejects.toMatchObject({
+        message: `End date must be between ${minYear} and ${maxYear}`,
         code: BusinessErrorCodes.INVALID_DATE,
       });
     });
