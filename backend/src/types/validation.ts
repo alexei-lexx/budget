@@ -3,11 +3,6 @@
  */
 
 /**
- * Regular expression for validating date strings in YYYY-MM-DD format
- */
-export const DATE_FORMAT_REGEX = /^\d{4}-\d{2}-\d{2}$/;
-
-/**
  * Maximum length for description fields
  */
 export const DESCRIPTION_MAX_LENGTH = 500;
