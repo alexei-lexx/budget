@@ -146,16 +146,16 @@ export class InsightService {
       );
     }
 
-    const startDateDate = new Date(startDate);
-    const endDateDate = new Date(endDate);
+    const startDateObj = new Date(startDate);
+    const endDateObj = new Date(endDate);
 
     const currentYear = new Date().getFullYear();
     const minimumYear = currentYear - YEAR_RANGE_OFFSET;
     const maximumYear = currentYear + YEAR_RANGE_OFFSET;
 
     if (
-      startDateDate.getFullYear() < minimumYear ||
-      startDateDate.getFullYear() > maximumYear
+      startDateObj.getFullYear() < minimumYear ||
+      startDateObj.getFullYear() > maximumYear
     ) {
       throw new BusinessError(
         `Start date must be between ${minimumYear} and ${maximumYear}`,
@@ -164,8 +164,8 @@ export class InsightService {
     }
 
     if (
-      endDateDate.getFullYear() < minimumYear ||
-      endDateDate.getFullYear() > maximumYear
+      endDateObj.getFullYear() < minimumYear ||
+      endDateObj.getFullYear() > maximumYear
     ) {
       throw new BusinessError(
         `End date must be between ${minimumYear} and ${maximumYear}`,
@@ -174,7 +174,7 @@ export class InsightService {
     }
 
     const differenceInDays =
-      (endDateDate.getTime() - startDateDate.getTime()) / (1000 * 60 * 60 * 24);
+      (endDateObj.getTime() - startDateObj.getTime()) / (1000 * 60 * 60 * 24);
 
     if (differenceInDays > MAX_PERIOD_DAYS) {
       throw new BusinessError(
