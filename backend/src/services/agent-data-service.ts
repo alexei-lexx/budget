@@ -1,6 +1,7 @@
 import { IAccountRepository } from "../models/account";
 import { CategoryType, ICategoryRepository } from "../models/category";
 import { ITransactionRepository, TransactionType } from "../models/transaction";
+import { toDateString } from "../types/date";
 import { DateRange } from "../types/date-range";
 
 interface AccountData {
@@ -66,8 +67,8 @@ export class AgentDataService {
   ): Promise<TransactionData[]> {
     const transactions = await this.transactionRepository.findActiveByDateRange(
       userId,
-      dateRange.startDate,
-      dateRange.endDate,
+      toDateString(dateRange.startDate),
+      toDateString(dateRange.endDate),
     );
 
     let filteredTransactions = transactions;

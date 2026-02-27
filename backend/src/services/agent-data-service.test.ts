@@ -2,6 +2,7 @@ import { faker } from "@faker-js/faker";
 import { IAccountRepository } from "../models/account";
 import { CategoryType, ICategoryRepository } from "../models/category";
 import { ITransactionRepository, TransactionType } from "../models/transaction";
+import { toDateString } from "../types/date";
 import {
   fakeAccount,
   fakeCategory,
@@ -156,7 +157,7 @@ describe("AgentDataService", () => {
         type: TransactionType.EXPENSE,
         amount: 50,
         currency: "USD",
-        date: "2024-01-15",
+        date: toDateString("2024-01-15"),
         description: "Groceries",
         isArchived: false,
       }),
@@ -168,7 +169,7 @@ describe("AgentDataService", () => {
         type: TransactionType.INCOME,
         amount: 1000,
         currency: "USD",
-        date: "2024-01-20",
+        date: toDateString("2024-01-20"),
         description: "Salary",
         isArchived: false,
       }),
@@ -180,7 +181,7 @@ describe("AgentDataService", () => {
         type: TransactionType.EXPENSE,
         amount: 30,
         currency: "USD",
-        date: "2024-01-25",
+        date: toDateString("2024-01-25"),
         description: "Transport",
         isArchived: false,
       }),

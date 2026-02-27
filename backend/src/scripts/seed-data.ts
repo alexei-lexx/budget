@@ -8,8 +8,8 @@ import { CategoryRepository } from "../repositories/category-repository";
 import { TransactionRepository } from "../repositories/transaction-repository";
 import { UserRepository } from "../repositories/user-repository";
 import { TransactionService } from "../services/transaction-service";
-import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
 import { toDateString } from "../types/date";
+import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
 
 // Initialize DynamoDB client
 const dynamoClient = createDynamoDBDocumentClient();

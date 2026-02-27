@@ -38,7 +38,9 @@ const updateTransferInputSchema = z.object({
   fromAccountId: accountIdSchema.optional(),
   toAccountId: accountIdSchema.optional(),
   amount: amountSchema.optional(),
-  date: dateSchema.optional().transform((value) => (value ? toDateString(value) : undefined)),
+  date: dateSchema
+    .optional()
+    .transform((value) => (value ? toDateString(value) : undefined)),
   description: descriptionSchema,
 });
 
