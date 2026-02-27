@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { ToolSignature } from "../models/agent";
+import { toDateString } from "../types/date";
 import { DateRange } from "../types/date-range";
 import { AgentDataService } from "./agent-data-service";
 
@@ -30,8 +31,8 @@ export const createGetCategoriesTool = (
 });
 
 const getTransactionsInputSchema = z.object({
-  startDate: z.iso.date(),
-  endDate: z.iso.date(),
+  startDate: z.iso.date().transform(toDateString),
+  endDate: z.iso.date().transform(toDateString),
   categoryId: z.string().optional(),
   accountId: z.string().optional(),
 });
@@ -64,9 +65,13 @@ export const createGetTransactionsTool = (params: {
       });
     }
 
+    const dateRange: DateRange = {
+      startDate: input.startDate,
+      endDate: input.endDate,
+    };
     const transactions = await params.agentDataService.getFilteredTransactions(
       params.userId,
-      { startDate: input.startDate, endDate: input.endDate },
+      dateRange,
       input.categoryId,
       input.accountId,
     );

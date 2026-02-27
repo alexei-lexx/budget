@@ -1,4 +1,6 @@
 import { faker } from "@faker-js/faker";
+import { toDateString } from "../types/date";
+import { toDateRange } from "../types/date-range";
 import {
   fakeAccount,
   fakeCategory,
@@ -92,10 +94,10 @@ describe("agent-data-tools", () => {
   });
 
   describe("createGetTransactionsTool", () => {
-    const allowedDateRange = {
-      startDate: "2000-01-01",
-      endDate: "2000-01-31",
-    };
+    const allowedDateRange = toDateRange(
+      toDateString("2000-01-01"),
+      toDateString("2000-01-31"),
+    );
 
     it("should return tool with correct name", () => {
       const tool = createGetTransactionsTool({
@@ -131,8 +133,8 @@ describe("agent-data-tools", () => {
       });
 
       const result = await tool.func({
-        startDate: "2000-01-10",
-        endDate: "2000-01-20",
+        startDate: toDateString("2000-01-10"),
+        endDate: toDateString("2000-01-20"),
       });
 
       expect(mockAgentDataService.getFilteredTransactions).toHaveBeenCalledWith(
@@ -152,8 +154,8 @@ describe("agent-data-tools", () => {
       });
 
       const result = await tool.func({
-        startDate: "1999-12-31",
-        endDate: "2000-01-15",
+        startDate: toDateString("1999-12-31"),
+        endDate: toDateString("2000-01-15"),
       });
 
       expect(
@@ -174,8 +176,8 @@ describe("agent-data-tools", () => {
       });
 
       const result = await tool.func({
-        startDate: "2000-01-15",
-        endDate: "2000-02-01",
+        startDate: toDateString("2000-01-15"),
+        endDate: toDateString("2000-02-01"),
       });
 
       expect(
@@ -196,8 +198,8 @@ describe("agent-data-tools", () => {
       });
 
       const result = await tool.func({
-        startDate: "2000-01-20",
-        endDate: "2000-01-10",
+        startDate: toDateString("2000-01-20"),
+        endDate: toDateString("2000-01-10"),
       });
 
       expect(
@@ -220,8 +222,8 @@ describe("agent-data-tools", () => {
       });
 
       const result = await tool.func({
-        startDate: "2000-01-01",
-        endDate: "2000-01-31",
+        startDate: toDateString("2000-01-01"),
+        endDate: toDateString("2000-01-31"),
       });
 
       expect(mockAgentDataService.getFilteredTransactions).toHaveBeenCalledWith(
@@ -244,8 +246,8 @@ describe("agent-data-tools", () => {
       });
 
       await tool.func({
-        startDate: "2000-01-10",
-        endDate: "2000-01-20",
+        startDate: toDateString("2000-01-10"),
+        endDate: toDateString("2000-01-20"),
         accountId,
       });
 
@@ -268,8 +270,8 @@ describe("agent-data-tools", () => {
       });
 
       await tool.func({
-        startDate: "2000-01-10",
-        endDate: "2000-01-20",
+        startDate: toDateString("2000-01-10"),
+        endDate: toDateString("2000-01-20"),
         categoryId,
       });
 
@@ -293,8 +295,8 @@ describe("agent-data-tools", () => {
       });
 
       await tool.func({
-        startDate: "2000-01-10",
-        endDate: "2000-01-20",
+        startDate: toDateString("2000-01-10"),
+        endDate: toDateString("2000-01-20"),
         accountId,
         categoryId,
       });

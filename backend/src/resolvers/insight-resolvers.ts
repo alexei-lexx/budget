@@ -1,3 +1,5 @@
+import { toDateString } from "../types/date";
+import { toDateRange } from "../types/date-range";
 import { GraphQLContext } from "../server";
 import { getAuthenticatedUser, handleResolverError } from "./shared";
 
@@ -16,7 +18,16 @@ export const insightResolvers = {
       try {
         const user = await getAuthenticatedUser(context);
 
-        const answer = await context.insightService.call(user.id, args.input);
+        const { startDate, endDate } = args.input.dateRange;
+        const dateRange = toDateRange(
+          toDateString(startDate),
+          toDateString(endDate),
+        );
+
+        const answer = await context.insightService.call(user.id, {
+          question: args.input.question,
+          dateRange,
+        });
 
         return { answer };
       } catch (error) {
