@@ -137,25 +137,29 @@ export class InsightService {
     const minimumYear = currentYear - YEAR_RANGE_OFFSET;
     const maximumYear = currentYear + YEAR_RANGE_OFFSET;
 
-    const startYear = new Date(dateRange.startDate).getFullYear();
-    const endYear = new Date(dateRange.endDate).getFullYear();
+    const startDate = new Date(dateRange.startDate);
+    const endDate = new Date(dateRange.endDate);
 
-    if (startYear < minimumYear || startYear > maximumYear) {
+    if (
+      startDate.getFullYear() < minimumYear ||
+      startDate.getFullYear() > maximumYear
+    ) {
       throw new BusinessError(
         `Start date must be between ${minimumYear} and ${maximumYear}`,
         BusinessErrorCodes.INVALID_DATE,
       );
     }
 
-    if (endYear < minimumYear || endYear > maximumYear) {
+    if (
+      endDate.getFullYear() < minimumYear ||
+      endDate.getFullYear() > maximumYear
+    ) {
       throw new BusinessError(
         `End date must be between ${minimumYear} and ${maximumYear}`,
         BusinessErrorCodes.INVALID_DATE,
       );
     }
 
-    const startDate = new Date(dateRange.startDate);
-    const endDate = new Date(dateRange.endDate);
     const differenceInDays =
       (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24);
 
