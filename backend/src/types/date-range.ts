@@ -1,4 +1,4 @@
-import { DateString } from "./date";
+import { DateString, toDateString } from "./date";
 
 export interface DateRange {
   startDate: DateString;
@@ -6,16 +6,20 @@ export interface DateRange {
 }
 
 /**
- * Constructs a DateRange, throwing if startDate is after endDate.
+ * Constructs a DateRange, throwing if dates are invalid or startDate is after endDate.
  */
 export function toDateRange(
-  startDate: DateString,
-  endDate: DateString,
+  startDate: DateString | string,
+  endDate: DateString | string,
 ): DateRange {
-  if (startDate > endDate) {
+  const validStart = toDateString(startDate);
+  const validEnd = toDateString(endDate);
+
+  if (validStart > validEnd) {
     throw new Error(
-      `Invalid date range: start ${startDate} is after end ${endDate}`,
+      `Invalid date range: start ${validStart} is after end ${validEnd}`,
     );
   }
-  return { startDate, endDate };
+
+  return { startDate: validStart, endDate: validEnd };
 }

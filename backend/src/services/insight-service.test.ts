@@ -3,7 +3,6 @@ import { IAccountRepository } from "../models/account";
 import { type Agent } from "../models/agent";
 import { ICategoryRepository } from "../models/category";
 import { ITransactionRepository } from "../models/transaction";
-import { toDateString } from "../types/date";
 import { toDateRange } from "../types/date-range";
 import { YEAR_RANGE_OFFSET } from "../types/validation";
 import {
@@ -50,10 +49,7 @@ describe("InsightService", () => {
   describe("validation", () => {
     const validInput: InsightInput = {
       question: "Why did my food spending increase?",
-      dateRange: toDateRange(
-        toDateString("2000-01-01"),
-        toDateString("2000-01-31"),
-      ),
+      dateRange: toDateRange("2000-01-01", "2000-01-31"),
     };
 
     it("should throw error when userId is empty", async () => {
@@ -105,10 +101,7 @@ describe("InsightService", () => {
       // Arrange
       const input: InsightInput = {
         ...validInput,
-        dateRange: toDateRange(
-          toDateString("2000-01-01"),
-          toDateString("2001-01-02"),
-        ),
+        dateRange: toDateRange("2000-01-01", "2001-01-02"),
       };
 
       // Act & Assert
@@ -130,8 +123,8 @@ describe("InsightService", () => {
       const input: InsightInput = {
         ...validInput,
         dateRange: toDateRange(
-          toDateString(`${outOfRangeYear}-01-01`),
-          toDateString(`${outOfRangeYear}-01-31`),
+          `${outOfRangeYear}-01-01`,
+          `${outOfRangeYear}-01-31`,
         ),
       };
 
@@ -149,10 +142,7 @@ describe("InsightService", () => {
   describe("call", () => {
     const validInput: InsightInput = {
       question: "Why did my food spending increase?",
-      dateRange: toDateRange(
-        toDateString("2000-01-01"),
-        toDateString("2000-01-31"),
-      ),
+      dateRange: toDateRange("2000-01-01", "2000-01-31"),
     };
 
     it("should return AI response for valid input", async () => {
