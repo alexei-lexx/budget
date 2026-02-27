@@ -830,13 +830,6 @@ export class TransactionRepository implements ITransactionRepository {
       );
     }
 
-    if (!startDate || !endDate) {
-      throw new TransactionRepositoryError(
-        "Start date and end date are required",
-        "INVALID_PARAMETERS",
-      );
-    }
-
     if (startDate > endDate) {
       throw new TransactionRepositoryError(
         "Start date must be before or equal to end date",
