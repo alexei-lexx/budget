@@ -2129,13 +2129,13 @@ describe("TransactionRepository", () => {
     it("should throw error when userId is empty", async () => {
       // Act & Assert
       await expect(
-        repository.findActiveByDateRange("", toDateString("2024-01-01"), toDateString("2024-01-31")),
+        repository.findActiveByDateRange(
+          "",
+          toDateString("2024-01-01"),
+          toDateString("2024-01-31"),
+        ),
       ).rejects.toThrow("User ID is required");
     });
-
-
-
-
 
     it("should throw error when startDate is after endDate", async () => {
       // Arrange
@@ -2143,7 +2143,11 @@ describe("TransactionRepository", () => {
 
       // Act & Assert
       await expect(
-        repository.findActiveByDateRange(userId, toDateString("2024-01-31"), toDateString("2024-01-01")),
+        repository.findActiveByDateRange(
+          userId,
+          toDateString("2024-01-31"),
+          toDateString("2024-01-01"),
+        ),
       ).rejects.toThrow("Start date must be before or equal to end date");
     });
 
@@ -2452,9 +2456,21 @@ describe("TransactionRepository", () => {
       const accountId = faker.string.uuid();
 
       await repository.createMany([
-        fakeCreateTransactionInput({ userId, accountId, date: toDateString("2024-01-10") }),
-        fakeCreateTransactionInput({ userId, accountId, date: toDateString("2024-01-15") }),
-        fakeCreateTransactionInput({ userId, accountId, date: toDateString("2024-01-20") }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          date: toDateString("2024-01-10"),
+        }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          date: toDateString("2024-01-15"),
+        }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          date: toDateString("2024-01-20"),
+        }),
       ]);
 
       // Act - Get transactions on or after 2024-01-15 (should include 2024-01-15)
@@ -2475,9 +2491,21 @@ describe("TransactionRepository", () => {
       const accountId = faker.string.uuid();
 
       await repository.createMany([
-        fakeCreateTransactionInput({ userId, accountId, date: toDateString("2024-01-10") }),
-        fakeCreateTransactionInput({ userId, accountId, date: toDateString("2024-01-20") }),
-        fakeCreateTransactionInput({ userId, accountId, date: toDateString("2024-01-25") }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          date: toDateString("2024-01-10"),
+        }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          date: toDateString("2024-01-20"),
+        }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          date: toDateString("2024-01-25"),
+        }),
       ]);
 
       // Act - Get transactions on or before 2024-01-20 (should include 2024-01-20)
@@ -2498,11 +2526,31 @@ describe("TransactionRepository", () => {
       const accountId = faker.string.uuid();
 
       await repository.createMany([
-        fakeCreateTransactionInput({ userId, accountId, date: toDateString("2024-01-05") }),
-        fakeCreateTransactionInput({ userId, accountId, date: toDateString("2024-01-10") }),
-        fakeCreateTransactionInput({ userId, accountId, date: toDateString("2024-01-15") }),
-        fakeCreateTransactionInput({ userId, accountId, date: toDateString("2024-01-20") }),
-        fakeCreateTransactionInput({ userId, accountId, date: toDateString("2024-01-25") }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          date: toDateString("2024-01-05"),
+        }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          date: toDateString("2024-01-10"),
+        }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          date: toDateString("2024-01-15"),
+        }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          date: toDateString("2024-01-20"),
+        }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          date: toDateString("2024-01-25"),
+        }),
       ]);
 
       // Act - Get transactions between 2024-01-10 and 2024-01-20 (both inclusive)
@@ -2526,9 +2574,21 @@ describe("TransactionRepository", () => {
       const accountId = faker.string.uuid();
 
       await repository.createMany([
-        fakeCreateTransactionInput({ userId, accountId, date: toDateString("2024-01-01") }),
-        fakeCreateTransactionInput({ userId, accountId, date: toDateString("2024-06-15") }),
-        fakeCreateTransactionInput({ userId, accountId, date: toDateString("2024-12-31") }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          date: toDateString("2024-01-01"),
+        }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          date: toDateString("2024-06-15"),
+        }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          date: toDateString("2024-12-31"),
+        }),
       ]);
 
       // Act & Assert - Should throw error when dateAfter > dateBefore
@@ -2833,7 +2893,10 @@ describe("TransactionRepository", () => {
       const page1 = await repository.findActiveByUserId(
         userId,
         { first: 3 }, // Get 3 items per page
-        { dateAfter: toDateString("2024-01-01"), dateBefore: toDateString("2024-01-31") },
+        {
+          dateAfter: toDateString("2024-01-01"),
+          dateBefore: toDateString("2024-01-31"),
+        },
       );
 
       // Assert - Page 1 should have 3 items and indicate more pages
@@ -2846,7 +2909,10 @@ describe("TransactionRepository", () => {
       const page2 = await repository.findActiveByUserId(
         userId,
         { first: 3, after: page1.pageInfo.endCursor },
-        { dateAfter: toDateString("2024-01-01"), dateBefore: toDateString("2024-01-31") },
+        {
+          dateAfter: toDateString("2024-01-01"),
+          dateBefore: toDateString("2024-01-31"),
+        },
       );
 
       // Assert - Page 2 should have remaining 3 items

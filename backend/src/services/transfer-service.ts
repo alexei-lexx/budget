@@ -6,6 +6,7 @@ import {
   Transaction,
   TransactionType,
 } from "../models/transaction";
+import { DateString } from "../types/date";
 import { DATE_FORMAT_REGEX } from "../types/validation";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
 
@@ -16,7 +17,7 @@ export interface CreateTransferInput {
   fromAccountId: string;
   toAccountId: string;
   amount: number;
-  date: string;
+  date: DateString;
   description?: string | null;
 }
 
@@ -27,7 +28,7 @@ export interface UpdateTransferInput {
   fromAccountId?: string;
   toAccountId?: string;
   amount?: number;
-  date?: string;
+  date?: DateString;
   description?: string | null;
 }
 

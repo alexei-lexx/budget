@@ -1,6 +1,7 @@
 import { faker } from "@faker-js/faker";
 import { Category, CategoryType } from "../models/category";
 import { TransactionPatternType, TransactionType } from "../models/transaction";
+import { toDateString } from "../types/date";
 import { MIN_SEARCH_TEXT_LENGTH } from "../types/validation";
 import {
   fakeAccount,
@@ -702,8 +703,8 @@ describe("TransactionService", () => {
         accountIds: ["account-1", "account-2"],
         categoryIds: ["category-1"],
         includeUncategorized: true,
-        dateAfter: "2024-01-10",
-        dateBefore: "2024-01-20",
+        dateAfter: toDateString("2024-01-10"),
+        dateBefore: toDateString("2024-01-20"),
         types: [TransactionType.INCOME],
       };
 
@@ -728,8 +729,8 @@ describe("TransactionService", () => {
 
     it("should throw error for invalid date range (dateAfter > dateBefore)", async () => {
       const promise = service.getTransactionsByUser(userId, undefined, {
-        dateAfter: "2024-12-31",
-        dateBefore: "2024-01-01",
+        dateAfter: toDateString("2024-12-31"),
+        dateBefore: toDateString("2024-01-01"),
       });
 
       await expect(promise).rejects.toThrow(BusinessError);
