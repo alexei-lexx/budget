@@ -3,6 +3,7 @@ import { IAccountRepository } from "../models/account";
 import { CategoryType, ICategoryRepository } from "../models/category";
 import { ITransactionRepository, TransactionType } from "../models/transaction";
 import { toDateString } from "../types/date";
+import { toDateRange } from "../types/date-range";
 import {
   fakeAccount,
   fakeCategory,
@@ -194,10 +195,10 @@ describe("AgentDataService", () => {
       );
 
       // Act
-      const result = await service.getFilteredTransactions(userId, {
-        startDate: toDateString("2024-01-01"),
-        endDate: toDateString("2024-01-31"),
-      });
+      const result = await service.getFilteredTransactions(
+        userId,
+        toDateRange("2024-01-01", "2024-01-31"),
+      );
 
       // Assert
       expect(
@@ -215,10 +216,7 @@ describe("AgentDataService", () => {
       // Act
       const result = await service.getFilteredTransactions(
         userId,
-        {
-          startDate: toDateString("2024-01-01"),
-          endDate: toDateString("2024-01-31"),
-        },
+        toDateRange("2024-01-01", "2024-01-31"),
         categoryId1,
       );
 
@@ -237,10 +235,7 @@ describe("AgentDataService", () => {
       // Act
       const result = await service.getFilteredTransactions(
         userId,
-        {
-          startDate: toDateString("2024-01-01"),
-          endDate: toDateString("2024-01-31"),
-        },
+        toDateRange("2024-01-01", "2024-01-31"),
         undefined,
         accountId1,
       );
@@ -260,10 +255,7 @@ describe("AgentDataService", () => {
       // Act
       const result = await service.getFilteredTransactions(
         userId,
-        {
-          startDate: toDateString("2024-01-01"),
-          endDate: toDateString("2024-01-31"),
-        },
+        toDateRange("2024-01-01", "2024-01-31"),
         categoryId1,
         accountId1,
       );
@@ -285,10 +277,7 @@ describe("AgentDataService", () => {
       // Act
       const result = await service.getFilteredTransactions(
         userId,
-        {
-          startDate: toDateString("2024-01-01"),
-          endDate: toDateString("2024-01-31"),
-        },
+        toDateRange("2024-01-01", "2024-01-31"),
         "nonexistent-category-id",
       );
 
@@ -303,10 +292,10 @@ describe("AgentDataService", () => {
       ]);
 
       // Act
-      const result = await service.getFilteredTransactions(userId, {
-        startDate: toDateString("2024-01-01"),
-        endDate: toDateString("2024-01-31"),
-      });
+      const result = await service.getFilteredTransactions(
+        userId,
+        toDateRange("2024-01-01", "2024-01-31"),
+      );
 
       // Assert
       expect(result[0]).toEqual({

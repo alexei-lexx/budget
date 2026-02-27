@@ -1,8 +1,19 @@
-import { DateString, toDateString } from "./date";
+import { DateString, isDateString } from "./date";
 
-export interface DateRange {
-  startDate: DateString;
-  endDate: DateString;
+export type DateRange = {
+  readonly startDate: DateString;
+  readonly endDate: DateString;
+} & { readonly __brand: unique symbol };
+
+export function isDateRange(value: {
+  startDate: string;
+  endDate: string;
+}): value is DateRange {
+  return (
+    isDateString(value.startDate) &&
+    isDateString(value.endDate) &&
+    value.startDate <= value.endDate
+  );
 }
 
 /**
@@ -12,14 +23,19 @@ export function toDateRange(
   startDate: DateString | string,
   endDate: DateString | string,
 ): DateRange {
-  const validStart = toDateString(startDate);
-  const validEnd = toDateString(endDate);
-
-  if (validStart > validEnd) {
+  const range = { startDate, endDate };
+  if (!isDateRange(range)) {
+    if (!isDateString(startDate)) {
+      throw new Error(
+        `Invalid startDate: "${startDate}". Expected YYYY-MM-DD.`,
+      );
+    }
+    if (!isDateString(endDate)) {
+      throw new Error(`Invalid endDate: "${endDate}". Expected YYYY-MM-DD.`);
+    }
     throw new Error(
-      `Invalid date range: start ${validStart} is after end ${validEnd}`,
+      `Invalid date range: start ${startDate} is after end ${endDate}`,
     );
   }
-
-  return { startDate: validStart, endDate: validEnd };
+  return range;
 }
