@@ -57,7 +57,6 @@ export const createGetTransactionsTool = (params: {
       });
     }
 
-    // Validate that startDate is not after endDate
     if (input.startDate > input.endDate) {
       return JSON.stringify({
         error: "startDate must not be after endDate",
@@ -65,6 +64,7 @@ export const createGetTransactionsTool = (params: {
     }
 
     const dateRange = toDateRange(input.startDate, input.endDate);
+
     const transactions = await params.agentDataService.getFilteredTransactions(
       params.userId,
       dateRange,
