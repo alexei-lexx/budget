@@ -152,7 +152,7 @@ describe("TransactionRepository", () => {
       const userId = faker.string.uuid();
       const accountId = faker.string.uuid();
       const transferId = faker.string.uuid();
-      const input: CreateTransactionInput = fakeCreateTransactionInput({
+      const input = fakeCreateTransactionInput({
         userId,
         accountId,
         type: TransactionType.TRANSFER_OUT,
