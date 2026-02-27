@@ -7,6 +7,7 @@ import {
 } from "../models/transaction";
 import { GraphQLContext } from "../server";
 import { BusinessError } from "../services/business-error";
+import { toDateString } from "../types/date";
 import type {
   TransactionEmbeddedAccount,
   TransactionEmbeddedCategory,
@@ -43,7 +44,7 @@ const createTransactionInputSchema = z.object({
   categoryId: nullishCategoryIdSchema,
   type: typeSchema,
   amount: amountSchema,
-  date: dateSchema,
+  date: dateSchema.transform(toDateString),
   description: descriptionSchema,
 });
 
@@ -53,7 +54,9 @@ const updateTransactionInputSchema = z.object({
   categoryId: nullishCategoryIdSchema,
   type: typeSchema.optional(),
   amount: amountSchema.optional(),
-  date: dateSchema.optional(),
+  date: dateSchema
+    .optional()
+    .transform((value) => (value ? toDateString(value) : undefined)),
   description: descriptionSchema,
 });
 
@@ -74,8 +77,12 @@ const transactionFilterInputSchema = z
     accountIds: z.array(accountIdSchema).optional(),
     categoryIds: z.array(categoryIdSchema).optional(),
     includeUncategorized: z.boolean().optional(),
-    dateAfter: dateSchema.optional(),
-    dateBefore: dateSchema.optional(),
+    dateAfter: dateSchema
+      .optional()
+      .transform((value) => (value ? toDateString(value) : undefined)),
+    dateBefore: dateSchema
+      .optional()
+      .transform((value) => (value ? toDateString(value) : undefined)),
     types: z.array(allTransactionTypesSchema).optional(),
   })
   .optional();

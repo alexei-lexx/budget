@@ -1,3 +1,4 @@
+import { DateString } from "../types/date";
 import { Connection, Edge, PaginationInput } from "../types/pagination";
 
 export enum TransactionType {
@@ -12,8 +13,8 @@ export interface TransactionFilterInput {
   accountIds?: string[];
   categoryIds?: string[];
   includeUncategorized?: boolean;
-  dateAfter?: string;
-  dateBefore?: string;
+  dateAfter?: DateString;
+  dateBefore?: DateString;
   types?: TransactionType[];
 }
 
@@ -25,7 +26,7 @@ export interface Transaction {
   type: TransactionType; // Transaction type (matches category type)
   amount: number; // Transaction amount (positive value)
   currency: string; // ISO currency code (inherited from account)
-  date: string; // Transaction date (YYYY-MM-DD format)
+  date: DateString; // Transaction date (YYYY-MM-DD format)
   description?: string; // Optional description
   transferId?: string; // Optional UUID linking paired transfer transactions
   isArchived: boolean; // Soft delete flag
@@ -40,7 +41,7 @@ export interface CreateTransactionInput {
   type: TransactionType;
   amount: number;
   currency: string;
-  date: string;
+  date: DateString;
   description?: string | null;
   transferId?: string | null;
 }
@@ -105,8 +106,8 @@ export interface ITransactionRepository {
   ): Promise<Transaction[]>;
   findActiveByDateRange(
     userId: string,
-    startDate: string,
-    endDate: string,
+    startDate: DateString,
+    endDate: DateString,
   ): Promise<Transaction[]>;
   create(input: CreateTransactionInput): Promise<Transaction>;
   createMany(inputs: CreateTransactionInput[]): Promise<Transaction[]>;

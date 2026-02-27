@@ -16,7 +16,7 @@ import {
   UpdateTransactionInput,
 } from "../models/transaction";
 import { PaginationInput } from "../types/pagination";
-import { DATE_FORMAT_REGEX, MIN_SEARCH_TEXT_LENGTH } from "../types/validation";
+import { MIN_SEARCH_TEXT_LENGTH } from "../types/validation";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
 
 export const DEFAULT_TRANSACTION_PATTERNS_LIMIT = 3;
@@ -69,7 +69,6 @@ export class TransactionService {
 
     // Additional input validation
     this.validateAmount(input.amount);
-    this.validateDate(input.date);
 
     // Create the transaction through repository
     const createInput: CreateTransactionInput = {
@@ -159,10 +158,6 @@ export class TransactionService {
     // Additional input validation
     if (input.amount !== undefined) {
       this.validateAmount(input.amount);
-    }
-
-    if (input.date) {
-      this.validateDate(input.date);
     }
 
     // Update the transaction through repository, including currency if account changed
@@ -431,21 +426,6 @@ export class TransactionService {
     }
 
     return category;
-  }
-
-  /**
-   * Validate that the transaction date is in the correct format (YYYY-MM-DD)
-   * @param date - The date string to validate
-   * @throws BusinessError if date format is invalid
-   */
-  private validateDate(date: string): void {
-    if (!DATE_FORMAT_REGEX.test(date)) {
-      throw new BusinessError(
-        "Transaction date must be in YYYY-MM-DD format",
-        BusinessErrorCodes.INVALID_DATE,
-        { date },
-      );
-    }
   }
 
   /**

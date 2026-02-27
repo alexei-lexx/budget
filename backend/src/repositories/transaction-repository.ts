@@ -22,6 +22,7 @@ import {
   TransactionType,
   UpdateTransactionInput,
 } from "../models/transaction";
+import { DateString } from "../types/date";
 import {
   DEFAULT_PAGE_SIZE,
   MAX_PAGE_SIZE,
@@ -819,19 +820,12 @@ export class TransactionRepository implements ITransactionRepository {
 
   async findActiveByDateRange(
     userId: string,
-    startDate: string,
-    endDate: string,
+    startDate: DateString,
+    endDate: DateString,
   ): Promise<Transaction[]> {
     if (!userId) {
       throw new TransactionRepositoryError(
         "User ID is required",
-        "INVALID_PARAMETERS",
-      );
-    }
-
-    if (!startDate || !endDate) {
-      throw new TransactionRepositoryError(
-        "Start date and end date are required",
         "INVALID_PARAMETERS",
       );
     }

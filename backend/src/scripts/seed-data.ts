@@ -8,6 +8,7 @@ import { CategoryRepository } from "../repositories/category-repository";
 import { TransactionRepository } from "../repositories/transaction-repository";
 import { UserRepository } from "../repositories/user-repository";
 import { TransactionService } from "../services/transaction-service";
+import { toDateString } from "../types/date";
 import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
 
 // Initialize DynamoDB client
@@ -222,7 +223,7 @@ async function createTransactions(
       ).getDate();
       const day = Math.floor(Math.random() * daysInMonth) + 1;
       const date = new Date(monthData.year, monthData.month, day);
-      const dateString = date.toISOString().split("T")[0];
+      const dateString = toDateString(date.toISOString().split("T")[0]);
 
       // Generate random income amount
       const amount = Math.round((Math.random() * 4000 + 500) * 100) / 100; // €500-€4500
@@ -256,7 +257,7 @@ async function createTransactions(
       ).getDate();
       const day = Math.floor(Math.random() * daysInMonth) + 1;
       const date = new Date(monthData.year, monthData.month, day);
-      const dateString = date.toISOString().split("T")[0];
+      const dateString = toDateString(date.toISOString().split("T")[0]);
 
       // Generate random expense amount
       const amount = Math.round((Math.random() * 300 + 10) * 100) / 100; // €10-€310

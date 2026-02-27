@@ -1,6 +1,7 @@
 import { z } from "zod";
 import type { Transaction } from "../../models/transaction";
 import { TransactionType } from "../../models/transaction";
+import { toDateString } from "../../types/date";
 
 export const transactionSchema = z.object({
   userId: z.uuid(),
@@ -10,7 +11,7 @@ export const transactionSchema = z.object({
   type: z.enum(TransactionType),
   amount: z.number().positive(),
   currency: z.string().length(3).uppercase(),
-  date: z.iso.date(),
+  date: z.iso.date().transform(toDateString),
   description: z.string().optional(),
   transferId: z.uuid().optional(),
   isArchived: z.boolean(),

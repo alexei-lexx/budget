@@ -10,6 +10,7 @@ import {
   TransactionType,
   UpdateTransactionInput,
 } from "../models/transaction";
+import { toDateString } from "../types/date";
 import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
 import { truncateTable } from "../utils/test-utils/dynamodb-helpers";
 import { fakeCreateTransactionInput } from "../utils/test-utils/factories";
@@ -45,7 +46,7 @@ describe("TransactionRepository", () => {
         type: TransactionType.INCOME,
         amount: 100.5,
         currency: "USD",
-        date: "2024-01-15",
+        date: toDateString("2024-01-15"),
         description: "Test transaction",
         categoryId,
       };
@@ -121,7 +122,7 @@ describe("TransactionRepository", () => {
         type: TransactionType.EXPENSE,
         amount: 50.25,
         currency: "EUR",
-        date: "2024-01-16",
+        date: toDateString("2024-01-16"),
       };
 
       // Act
@@ -151,16 +152,12 @@ describe("TransactionRepository", () => {
       const userId = faker.string.uuid();
       const accountId = faker.string.uuid();
       const transferId = faker.string.uuid();
-      const input: CreateTransactionInput = {
+      const input = fakeCreateTransactionInput({
         userId,
         accountId,
         type: TransactionType.TRANSFER_OUT,
-        amount: 200.0,
-        currency: "GBP",
-        date: "2024-01-17",
         transferId,
-        description: "Transfer to savings",
-      };
+      });
 
       // Act
       const result = await repository.create(input);
@@ -169,8 +166,6 @@ describe("TransactionRepository", () => {
       expect(result).toBeDefined();
       expect(result.transferId).toBe(transferId);
       expect(result.type).toBe(TransactionType.TRANSFER_OUT);
-      expect(result.amount).toBe(200.0);
-      expect(result.currency).toBe("GBP");
 
       // Refetch from database to verify stored data matches result
       const stored = await repository.findActiveById(result.id, userId);
@@ -199,7 +194,7 @@ describe("TransactionRepository", () => {
           type: TransactionType.INCOME,
           amount: 300.0,
           currency: "USD",
-          date: "2024-01-18",
+          date: toDateString("2024-01-18"),
         },
         {
           userId: userId2,
@@ -207,7 +202,7 @@ describe("TransactionRepository", () => {
           type: TransactionType.EXPENSE,
           amount: 150.0,
           currency: "EUR",
-          date: "2024-01-19",
+          date: toDateString("2024-01-19"),
         },
       ];
 
@@ -322,7 +317,7 @@ describe("TransactionRepository", () => {
         type: TransactionType.EXPENSE,
         amount: 75.0,
         currency: "USD",
-        date: "2024-01-20",
+        date: toDateString("2024-01-20"),
         description: "Original description",
         categoryId: faker.string.uuid(),
       };
@@ -338,7 +333,7 @@ describe("TransactionRepository", () => {
         type: TransactionType.INCOME,
         amount: 100.0,
         currency: "EUR",
-        date: "2024-02-01",
+        date: toDateString("2024-02-01"),
         description: "Updated description",
         categoryId: newCategoryId,
       };
@@ -375,7 +370,7 @@ describe("TransactionRepository", () => {
         type: TransactionType.EXPENSE,
         amount: 50.0,
         currency: "USD",
-        date: "2024-01-25",
+        date: toDateString("2024-01-25"),
         description: "No change description",
         categoryId,
       };
@@ -410,17 +405,11 @@ describe("TransactionRepository", () => {
     it("should overwrite with null values", async () => {
       // Arrange
       const userId = faker.string.uuid();
-      const accountId = faker.string.uuid();
-      const createInput: CreateTransactionInput = {
+      const createInput = fakeCreateTransactionInput({
         userId,
-        accountId,
-        type: TransactionType.INCOME,
-        amount: 200.0,
-        currency: "EUR",
-        date: "2024-01-21",
         description: "Test description",
         categoryId: faker.string.uuid(),
-      };
+      });
 
       // Create transaction first
       const created = await repository.create(createInput);
@@ -453,7 +442,7 @@ describe("TransactionRepository", () => {
         type: TransactionType.EXPENSE,
         amount: 150.0,
         currency: "GBP",
-        date: "2024-01-22",
+        date: toDateString("2024-01-22"),
         description: "Original description",
         categoryId: originalCategoryId,
       };
@@ -494,17 +483,11 @@ describe("TransactionRepository", () => {
     it("should throw error when trying to update archived transaction", async () => {
       // Arrange
       const userId = faker.string.uuid();
-      const accountId = faker.string.uuid();
-      const createInput: CreateTransactionInput = {
+      const createInput = fakeCreateTransactionInput({
         userId,
-        accountId,
-        type: TransactionType.EXPENSE,
-        amount: 75.0,
         currency: "USD",
-        date: "2024-01-28",
         description: "Will be archived",
-        categoryId: faker.string.uuid(),
-      };
+      });
 
       // Create transaction first
       const created = await repository.create(createInput);
@@ -513,7 +496,7 @@ describe("TransactionRepository", () => {
       await repository.archive(created.id, userId);
 
       // Act & Assert - Try to update archived transaction
-      const updateInput = { amount: 100.0, description: "Should not work" };
+      const updateInput = { description: "Should not work" };
       await expect(
         repository.update(created.id, userId, updateInput),
       ).rejects.toThrow("Transaction not found or is archived");
@@ -523,23 +506,17 @@ describe("TransactionRepository", () => {
       // Arrange
       const ownerUserId = faker.string.uuid();
       const otherUserId = faker.string.uuid();
-      const accountId = faker.string.uuid();
-      const createInput: CreateTransactionInput = {
+      const createInput = fakeCreateTransactionInput({
         userId: ownerUserId,
-        accountId,
-        type: TransactionType.INCOME,
-        amount: 250.0,
-        currency: "USD",
-        date: "2024-01-29",
         description: "Belongs to owner",
         categoryId: faker.string.uuid(),
-      };
+      });
 
       // Create transaction as owner
       const created = await repository.create(createInput);
 
       // Act & Assert - Try to update as different user
-      const updateInput = { amount: 500.0, description: "Hacker attempt" };
+      const updateInput = { description: "Hacker attempt" };
       await expect(
         repository.update(created.id, otherUserId, updateInput),
       ).rejects.toThrow("Transaction not found or is archived");
@@ -547,7 +524,6 @@ describe("TransactionRepository", () => {
       // Verify original transaction is unchanged
       const original = await repository.findActiveById(created.id, ownerUserId);
       expect(original).toBeDefined();
-      expect(original?.amount).toBe(250.0);
       expect(original?.description).toBe("Belongs to owner");
       expect(original?.userId).toBe(ownerUserId);
     });
@@ -589,7 +565,7 @@ describe("TransactionRepository", () => {
           type: TransactionType.INCOME,
           amount: 300.0,
           currency: "USD",
-          date: "2024-01-01",
+          date: toDateString("2024-01-01"),
           description: "Test transaction 1",
         },
         {
@@ -599,7 +575,7 @@ describe("TransactionRepository", () => {
           type: TransactionType.EXPENSE,
           amount: 150.0,
           currency: "EUR",
-          date: "2024-01-02",
+          date: toDateString("2024-01-02"),
           description: "Test transaction 2",
         },
       ];
@@ -620,7 +596,7 @@ describe("TransactionRepository", () => {
             type: TransactionType.EXPENSE,
             amount: 350.0,
             currency: "EUR",
-            date: "2024-02-01",
+            date: toDateString("2024-02-01"),
             description: "New description 1",
           },
         },
@@ -632,7 +608,7 @@ describe("TransactionRepository", () => {
             type: TransactionType.INCOME,
             amount: 200.0,
             currency: "USD",
-            date: "2024-02-02",
+            date: toDateString("2024-02-02"),
             description: "New description 2",
           },
         },
@@ -859,7 +835,6 @@ describe("TransactionRepository", () => {
           type: TransactionType.INCOME,
           amount: 100.0,
           currency: "USD",
-          date: "2024-01-01",
         }),
         fakeCreateTransactionInput({
           userId,
@@ -868,7 +843,6 @@ describe("TransactionRepository", () => {
           type: TransactionType.INCOME,
           amount: 150.0,
           currency: "USD",
-          date: "2024-01-02",
         }),
         // Pattern 2: accountA + categoryA (2 occurrences, same count)
         fakeCreateTransactionInput({
@@ -1707,13 +1681,13 @@ describe("TransactionRepository", () => {
           userId,
           accountId,
           type: TransactionType.EXPENSE,
-          date: "2000-01-01",
+          date: toDateString("2000-01-01"),
         }),
         fakeCreateTransactionInput({
           userId: otherUserId,
           accountId,
           type: TransactionType.EXPENSE,
-          date: "2000-01-02",
+          date: toDateString("2000-01-02"),
         }),
       ]);
 
@@ -1740,13 +1714,13 @@ describe("TransactionRepository", () => {
           userId,
           accountId,
           type: TransactionType.EXPENSE,
-          date: "2000-01-01",
+          date: toDateString("2000-01-01"),
         }),
         fakeCreateTransactionInput({
           userId,
           accountId,
           type: TransactionType.EXPENSE,
-          date: "2000-02-01",
+          date: toDateString("2000-02-01"),
         }),
       ]);
 
@@ -1773,13 +1747,13 @@ describe("TransactionRepository", () => {
           userId,
           accountId,
           type: TransactionType.EXPENSE,
-          date: "2000-01-01",
+          date: toDateString("2000-01-01"),
         }),
         fakeCreateTransactionInput({
           userId,
           accountId,
           type: TransactionType.INCOME,
-          date: "2000-01-02",
+          date: toDateString("2000-01-02"),
         }),
       ]);
 
@@ -1806,7 +1780,7 @@ describe("TransactionRepository", () => {
           userId,
           accountId,
           type: TransactionType.EXPENSE,
-          date: "2000-01-01",
+          date: toDateString("2000-01-01"),
         }),
       );
 
@@ -1834,19 +1808,19 @@ describe("TransactionRepository", () => {
           userId,
           accountId,
           type: TransactionType.EXPENSE,
-          date: "2000-01-05",
+          date: toDateString("2000-01-05"),
         }),
         fakeCreateTransactionInput({
           userId,
           accountId,
           type: TransactionType.EXPENSE,
-          date: "2000-01-15",
+          date: toDateString("2000-01-15"),
         }),
         fakeCreateTransactionInput({
           userId,
           accountId,
           type: TransactionType.EXPENSE,
-          date: "2000-01-25",
+          date: toDateString("2000-01-25"),
         }),
       ]);
 
@@ -1954,21 +1928,21 @@ describe("TransactionRepository", () => {
         userId,
         accountId,
         type: TransactionType.EXPENSE,
-        date: "2025-11-15",
+        date: toDateString("2025-11-15"),
       });
 
       const refundTransaction = fakeCreateTransactionInput({
         userId,
         accountId,
         type: TransactionType.REFUND,
-        date: "2025-11-20",
+        date: toDateString("2025-11-20"),
       });
 
       const incomeTransaction = fakeCreateTransactionInput({
         userId,
         accountId,
         type: TransactionType.INCOME,
-        date: "2025-11-10",
+        date: toDateString("2025-11-10"),
       });
 
       await repository.createMany([
@@ -2011,25 +1985,25 @@ describe("TransactionRepository", () => {
         fakeCreateTransactionInput({
           userId,
           accountId,
-          date: "2024-01-15",
+          date: toDateString("2024-01-15"),
         }),
         fakeCreateTransactionInput({
           userId,
           accountId,
-          date: "2024-01-20",
+          date: toDateString("2024-01-20"),
         }),
         fakeCreateTransactionInput({
           userId,
           accountId,
-          date: "2024-02-01",
+          date: toDateString("2024-02-01"),
         }),
       ]);
 
       // Act
       const result = await repository.findActiveByDateRange(
         userId,
-        "2024-01-01",
-        "2024-01-31",
+        toDateString("2024-01-01"),
+        toDateString("2024-01-31"),
       );
 
       // Assert
@@ -2049,20 +2023,20 @@ describe("TransactionRepository", () => {
         fakeCreateTransactionInput({
           userId,
           accountId,
-          date: "2024-01-15",
+          date: toDateString("2024-01-15"),
         }),
         fakeCreateTransactionInput({
           userId: otherUserId,
           accountId,
-          date: "2024-01-15",
+          date: toDateString("2024-01-15"),
         }),
       ]);
 
       // Act
       const result = await repository.findActiveByDateRange(
         userId,
-        "2024-01-01",
-        "2024-01-31",
+        toDateString("2024-01-01"),
+        toDateString("2024-01-31"),
       );
 
       // Assert
@@ -2079,7 +2053,7 @@ describe("TransactionRepository", () => {
         fakeCreateTransactionInput({
           userId,
           accountId,
-          date: "2024-01-15",
+          date: toDateString("2024-01-15"),
         }),
       );
 
@@ -2088,8 +2062,8 @@ describe("TransactionRepository", () => {
       // Act
       const result = await repository.findActiveByDateRange(
         userId,
-        "2024-01-01",
-        "2024-01-31",
+        toDateString("2024-01-01"),
+        toDateString("2024-01-31"),
       );
 
       // Assert
@@ -2105,20 +2079,20 @@ describe("TransactionRepository", () => {
         fakeCreateTransactionInput({
           userId,
           accountId,
-          date: "2024-01-01",
+          date: toDateString("2024-01-01"),
         }),
         fakeCreateTransactionInput({
           userId,
           accountId,
-          date: "2024-01-31",
+          date: toDateString("2024-01-31"),
         }),
       ]);
 
       // Act
       const result = await repository.findActiveByDateRange(
         userId,
-        "2024-01-01",
-        "2024-01-31",
+        toDateString("2024-01-01"),
+        toDateString("2024-01-31"),
       );
 
       // Assert
@@ -2137,15 +2111,15 @@ describe("TransactionRepository", () => {
         fakeCreateTransactionInput({
           userId,
           accountId,
-          date: "2024-02-15",
+          date: toDateString("2024-02-15"),
         }),
       );
 
       // Act
       const result = await repository.findActiveByDateRange(
         userId,
-        "2024-01-01",
-        "2024-01-31",
+        toDateString("2024-01-01"),
+        toDateString("2024-01-31"),
       );
 
       // Assert
@@ -2155,28 +2129,12 @@ describe("TransactionRepository", () => {
     it("should throw error when userId is empty", async () => {
       // Act & Assert
       await expect(
-        repository.findActiveByDateRange("", "2024-01-01", "2024-01-31"),
+        repository.findActiveByDateRange(
+          "",
+          toDateString("2024-01-01"),
+          toDateString("2024-01-31"),
+        ),
       ).rejects.toThrow("User ID is required");
-    });
-
-    it("should throw error when startDate is empty", async () => {
-      // Arrange
-      const userId = faker.string.uuid();
-
-      // Act & Assert
-      await expect(
-        repository.findActiveByDateRange(userId, "", "2024-01-31"),
-      ).rejects.toThrow("Start date and end date are required");
-    });
-
-    it("should throw error when endDate is empty", async () => {
-      // Arrange
-      const userId = faker.string.uuid();
-
-      // Act & Assert
-      await expect(
-        repository.findActiveByDateRange(userId, "2024-01-01", ""),
-      ).rejects.toThrow("Start date and end date are required");
     });
 
     it("should throw error when startDate is after endDate", async () => {
@@ -2185,7 +2143,11 @@ describe("TransactionRepository", () => {
 
       // Act & Assert
       await expect(
-        repository.findActiveByDateRange(userId, "2024-01-31", "2024-01-01"),
+        repository.findActiveByDateRange(
+          userId,
+          toDateString("2024-01-31"),
+          toDateString("2024-01-01"),
+        ),
       ).rejects.toThrow("Start date must be before or equal to end date");
     });
 
@@ -2198,20 +2160,20 @@ describe("TransactionRepository", () => {
         fakeCreateTransactionInput({
           userId,
           accountId,
-          date: "2024-01-15",
+          date: toDateString("2024-01-15"),
         }),
         fakeCreateTransactionInput({
           userId,
           accountId,
-          date: "2024-01-16",
+          date: toDateString("2024-01-16"),
         }),
       ]);
 
       // Act
       const result = await repository.findActiveByDateRange(
         userId,
-        "2024-01-15",
-        "2024-01-15",
+        toDateString("2024-01-15"),
+        toDateString("2024-01-15"),
       );
 
       // Assert
@@ -2494,14 +2456,26 @@ describe("TransactionRepository", () => {
       const accountId = faker.string.uuid();
 
       await repository.createMany([
-        fakeCreateTransactionInput({ userId, accountId, date: "2024-01-10" }),
-        fakeCreateTransactionInput({ userId, accountId, date: "2024-01-15" }),
-        fakeCreateTransactionInput({ userId, accountId, date: "2024-01-20" }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          date: toDateString("2024-01-10"),
+        }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          date: toDateString("2024-01-15"),
+        }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          date: toDateString("2024-01-20"),
+        }),
       ]);
 
       // Act - Get transactions on or after 2024-01-15 (should include 2024-01-15)
       const result = await repository.findActiveByUserId(userId, undefined, {
-        dateAfter: "2024-01-15",
+        dateAfter: toDateString("2024-01-15"),
       });
 
       // Assert - Should include the boundary date (2024-01-15)
@@ -2517,14 +2491,26 @@ describe("TransactionRepository", () => {
       const accountId = faker.string.uuid();
 
       await repository.createMany([
-        fakeCreateTransactionInput({ userId, accountId, date: "2024-01-10" }),
-        fakeCreateTransactionInput({ userId, accountId, date: "2024-01-20" }),
-        fakeCreateTransactionInput({ userId, accountId, date: "2024-01-25" }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          date: toDateString("2024-01-10"),
+        }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          date: toDateString("2024-01-20"),
+        }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          date: toDateString("2024-01-25"),
+        }),
       ]);
 
       // Act - Get transactions on or before 2024-01-20 (should include 2024-01-20)
       const result = await repository.findActiveByUserId(userId, undefined, {
-        dateBefore: "2024-01-20",
+        dateBefore: toDateString("2024-01-20"),
       });
 
       // Assert - Should include the boundary date (2024-01-20)
@@ -2540,17 +2526,37 @@ describe("TransactionRepository", () => {
       const accountId = faker.string.uuid();
 
       await repository.createMany([
-        fakeCreateTransactionInput({ userId, accountId, date: "2024-01-05" }),
-        fakeCreateTransactionInput({ userId, accountId, date: "2024-01-10" }),
-        fakeCreateTransactionInput({ userId, accountId, date: "2024-01-15" }),
-        fakeCreateTransactionInput({ userId, accountId, date: "2024-01-20" }),
-        fakeCreateTransactionInput({ userId, accountId, date: "2024-01-25" }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          date: toDateString("2024-01-05"),
+        }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          date: toDateString("2024-01-10"),
+        }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          date: toDateString("2024-01-15"),
+        }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          date: toDateString("2024-01-20"),
+        }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          date: toDateString("2024-01-25"),
+        }),
       ]);
 
       // Act - Get transactions between 2024-01-10 and 2024-01-20 (both inclusive)
       const result = await repository.findActiveByUserId(userId, undefined, {
-        dateAfter: "2024-01-10",
-        dateBefore: "2024-01-20",
+        dateAfter: toDateString("2024-01-10"),
+        dateBefore: toDateString("2024-01-20"),
       });
 
       // Assert - Should include both boundary dates (2024-01-10 and 2024-01-20)
@@ -2568,16 +2574,28 @@ describe("TransactionRepository", () => {
       const accountId = faker.string.uuid();
 
       await repository.createMany([
-        fakeCreateTransactionInput({ userId, accountId, date: "2024-01-01" }),
-        fakeCreateTransactionInput({ userId, accountId, date: "2024-06-15" }),
-        fakeCreateTransactionInput({ userId, accountId, date: "2024-12-31" }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          date: toDateString("2024-01-01"),
+        }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          date: toDateString("2024-06-15"),
+        }),
+        fakeCreateTransactionInput({
+          userId,
+          accountId,
+          date: toDateString("2024-12-31"),
+        }),
       ]);
 
       // Act & Assert - Should throw error when dateAfter > dateBefore
       await expect(
         repository.findActiveByUserId(userId, undefined, {
-          dateAfter: "2024-12-31",
-          dateBefore: "2024-01-01",
+          dateAfter: toDateString("2024-12-31"),
+          dateBefore: toDateString("2024-01-01"),
         }),
       ).rejects.toThrow();
     });
@@ -2677,30 +2695,30 @@ describe("TransactionRepository", () => {
         fakeCreateTransactionInput({
           userId,
           accountId: account1,
-          date: "2024-01-10",
+          date: toDateString("2024-01-10"),
         }),
         fakeCreateTransactionInput({
           userId,
           accountId: account1,
-          date: "2024-01-20",
+          date: toDateString("2024-01-20"),
         }),
         fakeCreateTransactionInput({
           userId,
           accountId: account2,
-          date: "2024-01-15",
+          date: toDateString("2024-01-15"),
         }),
         fakeCreateTransactionInput({
           userId,
           accountId: account2,
-          date: "2024-01-25",
+          date: toDateString("2024-01-25"),
         }),
       ]);
 
       // Act
       const result = await repository.findActiveByUserId(userId, undefined, {
         accountIds: [account1],
-        dateAfter: "2024-01-12",
-        dateBefore: "2024-01-22",
+        dateAfter: toDateString("2024-01-12"),
+        dateBefore: toDateString("2024-01-22"),
       });
 
       // Assert
@@ -2770,42 +2788,42 @@ describe("TransactionRepository", () => {
           userId,
           accountId: account1,
           categoryId: category1,
-          date: "2024-01-15",
+          date: toDateString("2024-01-15"),
           type: TransactionType.EXPENSE,
         }),
         fakeCreateTransactionInput({
           userId,
           accountId: account1,
           categoryId: category1,
-          date: "2024-01-20",
+          date: toDateString("2024-01-20"),
           type: TransactionType.EXPENSE,
         }),
         fakeCreateTransactionInput({
           userId,
           accountId: account1,
           categoryId: category2,
-          date: "2024-01-20",
+          date: toDateString("2024-01-20"),
           type: TransactionType.EXPENSE,
         }),
         fakeCreateTransactionInput({
           userId,
           accountId: account2,
           categoryId: category1,
-          date: "2024-01-20",
+          date: toDateString("2024-01-20"),
           type: TransactionType.EXPENSE,
         }),
         fakeCreateTransactionInput({
           userId,
           accountId: account1,
           categoryId: category1,
-          date: "2024-01-20",
+          date: toDateString("2024-01-20"),
           type: TransactionType.INCOME,
         }),
         fakeCreateTransactionInput({
           userId,
           accountId: account1,
           categoryId: category1,
-          date: "2024-01-25",
+          date: toDateString("2024-01-25"),
           type: TransactionType.EXPENSE,
         }),
       ]);
@@ -2814,8 +2832,8 @@ describe("TransactionRepository", () => {
       const result = await repository.findActiveByUserId(userId, undefined, {
         accountIds: [account1],
         categoryIds: [category1],
-        dateAfter: "2024-01-18",
-        dateBefore: "2024-01-22",
+        dateAfter: toDateString("2024-01-18"),
+        dateBefore: toDateString("2024-01-22"),
         types: [TransactionType.EXPENSE],
       });
 
@@ -2842,32 +2860,32 @@ describe("TransactionRepository", () => {
         fakeCreateTransactionInput({
           userId,
           accountId,
-          date: "2024-01-20",
+          date: toDateString("2024-01-20"),
         }),
         fakeCreateTransactionInput({
           userId,
           accountId,
-          date: "2024-01-19",
+          date: toDateString("2024-01-19"),
         }),
         fakeCreateTransactionInput({
           userId,
           accountId,
-          date: "2024-01-18",
+          date: toDateString("2024-01-18"),
         }),
         fakeCreateTransactionInput({
           userId,
           accountId,
-          date: "2024-01-17",
+          date: toDateString("2024-01-17"),
         }),
         fakeCreateTransactionInput({
           userId,
           accountId,
-          date: "2024-01-16",
+          date: toDateString("2024-01-16"),
         }),
         fakeCreateTransactionInput({
           userId,
           accountId,
-          date: "2024-01-15",
+          date: toDateString("2024-01-15"),
         }),
       ]);
 
@@ -2875,7 +2893,10 @@ describe("TransactionRepository", () => {
       const page1 = await repository.findActiveByUserId(
         userId,
         { first: 3 }, // Get 3 items per page
-        { dateAfter: "2024-01-01", dateBefore: "2024-01-31" },
+        {
+          dateAfter: toDateString("2024-01-01"),
+          dateBefore: toDateString("2024-01-31"),
+        },
       );
 
       // Assert - Page 1 should have 3 items and indicate more pages
@@ -2888,7 +2909,10 @@ describe("TransactionRepository", () => {
       const page2 = await repository.findActiveByUserId(
         userId,
         { first: 3, after: page1.pageInfo.endCursor },
-        { dateAfter: "2024-01-01", dateBefore: "2024-01-31" },
+        {
+          dateAfter: toDateString("2024-01-01"),
+          dateBefore: toDateString("2024-01-31"),
+        },
       );
 
       // Assert - Page 2 should have remaining 3 items
@@ -2928,32 +2952,32 @@ describe("TransactionRepository", () => {
         fakeCreateTransactionInput({
           userId,
           accountId,
-          date: "2024-01-20",
+          date: toDateString("2024-01-20"),
         }),
         fakeCreateTransactionInput({
           userId,
           accountId,
-          date: "2024-01-19",
+          date: toDateString("2024-01-19"),
         }),
         fakeCreateTransactionInput({
           userId,
           accountId,
-          date: "2024-01-18",
+          date: toDateString("2024-01-18"),
         }),
         fakeCreateTransactionInput({
           userId,
           accountId,
-          date: "2024-01-17",
+          date: toDateString("2024-01-17"),
         }),
         fakeCreateTransactionInput({
           userId,
           accountId,
-          date: "2024-01-16",
+          date: toDateString("2024-01-16"),
         }),
         fakeCreateTransactionInput({
           userId,
           accountId,
-          date: "2024-01-15",
+          date: toDateString("2024-01-15"),
         }),
       ]);
 
