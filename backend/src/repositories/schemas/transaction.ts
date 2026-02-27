@@ -11,7 +11,7 @@ export const transactionSchema = z.object({
   type: z.enum(TransactionType),
   amount: z.number().positive(),
   currency: z.string().length(3).uppercase(),
-  date: z.iso.date().transform(toDateString), // Store as YYYY-MM-DD string
+  date: z.iso.date().transform(toDateString),
   description: z.string().optional(),
   transferId: z.uuid().optional(),
   isArchived: z.boolean(),
