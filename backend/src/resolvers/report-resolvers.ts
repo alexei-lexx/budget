@@ -1,4 +1,4 @@
-import { ReportType } from "../models/report";
+import { QueryMonthlyReportArgs } from "../__generated__/resolvers-types";
 import { GraphQLContext } from "../server";
 import { getAuthenticatedUser, handleResolverError } from "./shared";
 
@@ -6,7 +6,7 @@ export const reportResolvers = {
   Query: {
     monthlyReport: async (
       _parent: unknown,
-      args: { year: number; month: number; type: ReportType },
+      args: QueryMonthlyReportArgs,
       context: GraphQLContext,
     ) => {
       try {

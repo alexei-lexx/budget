@@ -1,4 +1,9 @@
 import { GraphQLError } from "graphql";
+import {
+  MutationCreateAccountArgs,
+  MutationDeleteAccountArgs,
+  MutationUpdateAccountArgs,
+} from "../__generated__/resolvers-types";
 import { GraphQLContext } from "../server";
 import { SUPPORTED_CURRENCIES } from "../types/validation";
 import { getAuthenticatedUser, handleResolverError } from "./shared";
@@ -45,9 +50,7 @@ export const accountResolvers = {
   Mutation: {
     createAccount: async (
       _parent: unknown,
-      args: {
-        input: { name: string; currency: string; initialBalance: number };
-      },
+      args: MutationCreateAccountArgs,
       context: GraphQLContext,
     ) => {
       try {
@@ -67,14 +70,7 @@ export const accountResolvers = {
     },
     updateAccount: async (
       _parent: unknown,
-      args: {
-        input: {
-          id: string;
-          name?: string;
-          currency?: string;
-          initialBalance?: number;
-        };
-      },
+      args: MutationUpdateAccountArgs,
       context: GraphQLContext,
     ) => {
       try {
@@ -94,7 +90,7 @@ export const accountResolvers = {
     },
     deleteAccount: async (
       _parent: unknown,
-      args: { id: string },
+      args: MutationDeleteAccountArgs,
       context: GraphQLContext,
     ) => {
       const { id } = args;

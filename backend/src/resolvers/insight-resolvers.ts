@@ -1,3 +1,4 @@
+import { QueryInsightArgs } from "../__generated__/resolvers-types";
 import { GraphQLContext } from "../server";
 import { toDateString } from "../types/date";
 import { getAuthenticatedUser, handleResolverError } from "./shared";
@@ -6,12 +7,7 @@ export const insightResolvers = {
   Query: {
     insight: async (
       _parent: unknown,
-      args: {
-        input: {
-          question: string;
-          dateRange: { startDate: string; endDate: string };
-        };
-      },
+      args: QueryInsightArgs,
       context: GraphQLContext,
     ) => {
       try {
