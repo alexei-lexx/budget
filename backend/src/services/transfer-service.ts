@@ -7,7 +7,6 @@ import {
   TransactionType,
 } from "../models/transaction";
 import { DateString } from "../types/date";
-import { DATE_FORMAT_REGEX } from "../types/validation";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
 
 /**
@@ -65,7 +64,6 @@ export class TransferService {
   ): Promise<TransferResult> {
     // Validate input parameters
     this.validateAmount(input.amount);
-    this.validateDate(input.date);
 
     // Validate not transferring to the same account (fail fast before DB calls)
     this.validateNotSelfTransfer(
@@ -307,7 +305,6 @@ export class TransferService {
 
     // Validate the effective values
     this.validateAmount(amount);
-    this.validateDate(date);
 
     // Validate not transferring to the same account (fail fast before DB calls)
     this.validateNotSelfTransfer(fromAccountId, toAccountId, userId);
@@ -474,21 +471,6 @@ export class TransferService {
           fromAccountName: fromAccount.name,
           toAccountName: toAccount.name,
         },
-      );
-    }
-  }
-
-  /**
-   * Validate that the transfer date is in the correct format (YYYY-MM-DD)
-   * @param date - The date string to validate
-   * @throws BusinessError if date format is invalid
-   */
-  private validateDate(date: string): void {
-    if (!DATE_FORMAT_REGEX.test(date)) {
-      throw new BusinessError(
-        "Transfer date must be in YYYY-MM-DD format",
-        BusinessErrorCodes.INVALID_DATE,
-        { date },
       );
     }
   }
