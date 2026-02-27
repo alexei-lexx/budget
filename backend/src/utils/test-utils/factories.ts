@@ -12,6 +12,7 @@ import {
   TransactionType,
 } from "../../models/transaction";
 import { CreateUserInput, User } from "../../models/user";
+import { toDateString } from "../../types/date";
 
 export const fakeAccount = (overrides: Partial<Account> = {}): Account => {
   const now = new Date().toISOString();
@@ -79,7 +80,7 @@ export const fakeTransaction = (
     type: TransactionType.EXPENSE,
     currency: "USD",
     description: faker.finance.transactionDescription(),
-    date: faker.date.recent().toISOString().split("T")[0], // YYYY-MM-DD format
+    date: toDateString(faker.date.recent().toISOString().split("T")[0]),
     categoryId: faker.string.uuid(),
     isArchived: false,
     createdAt: now,
@@ -108,7 +109,7 @@ export const fakeCreateTransactionInput = (
     type: TransactionType.EXPENSE,
     amount: faker.number.float({ min: 1, max: 1000, fractionDigits: 2 }),
     currency: "USD",
-    date: faker.date.recent().toISOString().split("T")[0], // YYYY-MM-DD format
+    date: toDateString(faker.date.recent().toISOString().split("T")[0]),
     description: faker.finance.transactionDescription(),
     transferId: undefined,
     ...overrides,
