@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { ToolSignature } from "../models/agent";
-import { DateRange } from "../types/date-range";
+import { DateString, toDateString } from "../types/date";
 import { AgentDataService } from "./agent-data-service";
 
 export const createGetAccountsTool = (
@@ -41,19 +41,20 @@ type GetTransactionsInput = z.infer<typeof getTransactionsInputSchema>;
 export const createGetTransactionsTool = (params: {
   agentDataService: AgentDataService;
   userId: string;
-  dateRange: DateRange;
+  allowedStartDate: DateString;
+  allowedEndDate: DateString;
 }): ToolSignature<GetTransactionsInput> => ({
   name: "getTransactions",
-  description: `Get filtered transactions by date range and optionally by single categoryId or accountId. Only returns active (non-archived) transactions. Date format: YYYY-MM-DD. The date range must be within ${params.dateRange.startDate} to ${params.dateRange.endDate}.`,
+  description: `Get filtered transactions by date range and optionally by single categoryId or accountId. Only returns active (non-archived) transactions. Date format: YYYY-MM-DD. The date range must be within ${params.allowedStartDate} to ${params.allowedEndDate}.`,
   inputSchema: getTransactionsInputSchema,
   func: async (input: GetTransactionsInput) => {
     // Validate that input dates are within the allowed date range
     if (
-      input.startDate < params.dateRange.startDate ||
-      input.endDate > params.dateRange.endDate
+      input.startDate < params.allowedStartDate ||
+      input.endDate > params.allowedEndDate
     ) {
       return JSON.stringify({
-        error: `Date range must be within ${params.dateRange.startDate} to ${params.dateRange.endDate}`,
+        error: `Date range must be within ${params.allowedStartDate} to ${params.allowedEndDate}`,
       });
     }
 
@@ -66,7 +67,8 @@ export const createGetTransactionsTool = (params: {
 
     const transactions = await params.agentDataService.getFilteredTransactions(
       params.userId,
-      { startDate: input.startDate, endDate: input.endDate },
+      toDateString(input.startDate),
+      toDateString(input.endDate),
       input.categoryId,
       input.accountId,
     );

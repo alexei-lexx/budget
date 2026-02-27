@@ -1,5 +1,5 @@
 import { Agent } from "../models/agent";
-import { DateRange } from "../types/date-range";
+import { DateString } from "../types/date";
 import { YEAR_RANGE_OFFSET } from "../types/validation";
 import { formatDateAsYYYYMMDD } from "../utils/date";
 import { AgentDataService } from "./agent-data-service";
@@ -55,7 +55,8 @@ Answer the user's question based on the calculations and data.
 
 export interface InsightInput {
   question: string;
-  dateRange: DateRange;
+  startDate: DateString;
+  endDate: DateString;
 }
 
 export class InsightService {
@@ -72,7 +73,7 @@ export class InsightService {
       );
     }
 
-    const { question, dateRange } = input;
+    const { question, startDate, endDate } = input;
 
     const normalizedQuestion = question.trim();
     if (!normalizedQuestion) {
@@ -82,12 +83,13 @@ export class InsightService {
       );
     }
 
-    const validatedDateRange = this.validateDateRange(dateRange);
+    this.validateDateRange(startDate, endDate);
 
     const systemPrompt = this.buildSystemPrompt();
     const userPrompt = this.buildUserPrompt(
       normalizedQuestion,
-      validatedDateRange,
+      startDate,
+      endDate,
     );
 
     const dataTools = [
@@ -96,7 +98,8 @@ export class InsightService {
       createGetTransactionsTool({
         agentDataService: this.agentDataService,
         userId,
-        dateRange: validatedDateRange,
+        allowedStartDate: startDate,
+        allowedEndDate: endDate,
       }),
     ];
 
@@ -135,24 +138,7 @@ export class InsightService {
     return finalAnswer;
   }
 
-  private validateDateRange(dateRange: DateRange): DateRange {
-    if (!dateRange.startDate) {
-      throw new BusinessError(
-        "Start date is required",
-        BusinessErrorCodes.INVALID_PARAMETERS,
-      );
-    }
-
-    if (!dateRange.endDate) {
-      throw new BusinessError(
-        "End date is required",
-        BusinessErrorCodes.INVALID_PARAMETERS,
-      );
-    }
-
-    const startDate = this.parseDate(dateRange.startDate, "Start date");
-    const endDate = this.parseDate(dateRange.endDate, "End date");
-
+  private validateDateRange(startDate: DateString, endDate: DateString) {
     if (startDate > endDate) {
       throw new BusinessError(
         "Start date must be before or equal to end date",
@@ -160,8 +146,35 @@ export class InsightService {
       );
     }
 
+    const startDateDate = new Date(startDate);
+    const endDateDate = new Date(endDate);
+
+    const currentYear = new Date().getFullYear();
+    const minimumYear = currentYear - YEAR_RANGE_OFFSET;
+    const maximumYear = currentYear + YEAR_RANGE_OFFSET;
+
+    if (
+      startDateDate.getFullYear() < minimumYear ||
+      startDateDate.getFullYear() > maximumYear
+    ) {
+      throw new BusinessError(
+        `Start date must be between ${minimumYear} and ${maximumYear}`,
+        BusinessErrorCodes.INVALID_DATE,
+      );
+    }
+
+    if (
+      endDateDate.getFullYear() < minimumYear ||
+      endDateDate.getFullYear() > maximumYear
+    ) {
+      throw new BusinessError(
+        `End date must be between ${minimumYear} and ${maximumYear}`,
+        BusinessErrorCodes.INVALID_DATE,
+      );
+    }
+
     const differenceInDays =
-      (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24);
+      (endDateDate.getTime() - startDateDate.getTime()) / (1000 * 60 * 60 * 24);
 
     if (differenceInDays > MAX_PERIOD_DAYS) {
       throw new BusinessError(
@@ -169,37 +182,15 @@ export class InsightService {
         BusinessErrorCodes.INVALID_DATE,
       );
     }
-
-    return { ...dateRange };
   }
 
-  private parseDate(value: string, fieldName: string): Date {
-    const parsed = new Date(value);
-    if (Number.isNaN(parsed.getTime())) {
-      throw new BusinessError(
-        `${fieldName} must be a valid date in YYYY-MM-DD format`,
-        BusinessErrorCodes.INVALID_DATE,
-      );
-    }
-
-    const currentYear = new Date().getFullYear();
-    const minimumYear = currentYear - YEAR_RANGE_OFFSET;
-    const maximumYear = currentYear + YEAR_RANGE_OFFSET;
-    const yearValue = parsed.getFullYear();
-
-    if (yearValue < minimumYear || yearValue > maximumYear) {
-      throw new BusinessError(
-        `${fieldName} must be between ${minimumYear} and ${maximumYear}`,
-        BusinessErrorCodes.INVALID_DATE,
-      );
-    }
-
-    return parsed;
-  }
-
-  private buildUserPrompt(question: string, dateRange: DateRange): string {
+  private buildUserPrompt(
+    question: string,
+    startDate: DateString,
+    endDate: DateString,
+  ): string {
     return [
-      `I have transactions between ${dateRange.startDate} and ${dateRange.endDate}.`,
+      `I have transactions between ${startDate} and ${endDate}.`,
       "",
       `My question: ${question}`,
     ].join("\n");

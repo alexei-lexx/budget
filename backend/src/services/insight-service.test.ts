@@ -3,6 +3,7 @@ import { IAccountRepository } from "../models/account";
 import { type Agent } from "../models/agent";
 import { ICategoryRepository } from "../models/category";
 import { ITransactionRepository } from "../models/transaction";
+import { toDateString } from "../types/date";
 import { YEAR_RANGE_OFFSET } from "../types/validation";
 import {
   createMockAccountRepository,
@@ -48,7 +49,8 @@ describe("InsightService", () => {
   describe("validation", () => {
     const validInput: InsightInput = {
       question: "Why did my food spending increase?",
-      dateRange: { startDate: "2000-01-01", endDate: "2000-01-31" },
+      startDate: toDateString("2000-01-01"),
+      endDate: toDateString("2000-01-31"),
     };
 
     it("should throw error when userId is empty", async () => {
@@ -96,79 +98,12 @@ describe("InsightService", () => {
       });
     });
 
-    it("should throw error when startDate is empty", async () => {
-      // Arrange
-      const input: InsightInput = {
-        ...validInput,
-        dateRange: { ...validInput.dateRange, startDate: "" },
-      };
-
-      // Act & Assert
-      const promise = service.call(userId, input);
-
-      await expect(promise).rejects.toThrow(BusinessError);
-      await expect(promise).rejects.toMatchObject({
-        message: "Start date is required",
-        code: BusinessErrorCodes.INVALID_PARAMETERS,
-      });
-    });
-
-    it("should throw error when endDate is empty", async () => {
-      // Arrange
-      const input: InsightInput = {
-        ...validInput,
-        dateRange: { ...validInput.dateRange, endDate: "" },
-      };
-
-      // Act & Assert
-      const promise = service.call(userId, input);
-
-      await expect(promise).rejects.toThrow(BusinessError);
-      await expect(promise).rejects.toMatchObject({
-        message: "End date is required",
-        code: BusinessErrorCodes.INVALID_PARAMETERS,
-      });
-    });
-
-    it("should throw error when startDate is invalid", async () => {
-      // Arrange
-      const input: InsightInput = {
-        ...validInput,
-        dateRange: { ...validInput.dateRange, startDate: "not-a-date" },
-      };
-
-      // Act & Assert
-      const promise = service.call(userId, input);
-
-      await expect(promise).rejects.toThrow(BusinessError);
-      await expect(promise).rejects.toMatchObject({
-        message: "Start date must be a valid date in YYYY-MM-DD format",
-        code: BusinessErrorCodes.INVALID_DATE,
-      });
-    });
-
-    it("should throw error when endDate is invalid", async () => {
-      // Arrange
-      const input: InsightInput = {
-        ...validInput,
-        dateRange: { ...validInput.dateRange, endDate: "not-a-date" },
-      };
-
-      // Act & Assert
-      const promise = service.call(userId, input);
-
-      await expect(promise).rejects.toThrow(BusinessError);
-      await expect(promise).rejects.toMatchObject({
-        message: "End date must be a valid date in YYYY-MM-DD format",
-        code: BusinessErrorCodes.INVALID_DATE,
-      });
-    });
-
     it("should throw error when startDate is after endDate", async () => {
       // Arrange
       const input: InsightInput = {
         ...validInput,
-        dateRange: { startDate: "2026-02-01", endDate: "2026-01-01" },
+        startDate: toDateString("2026-02-01"),
+        endDate: toDateString("2026-01-01"),
       };
 
       // Act & Assert
@@ -185,7 +120,8 @@ describe("InsightService", () => {
       // Arrange
       const input: InsightInput = {
         ...validInput,
-        dateRange: { startDate: "2000-01-01", endDate: "2001-01-02" },
+        startDate: toDateString("2000-01-01"),
+        endDate: toDateString("2001-01-02"),
       };
 
       // Act & Assert
@@ -206,10 +142,8 @@ describe("InsightService", () => {
       const outOfRangeYear = minYear - 1;
       const input: InsightInput = {
         ...validInput,
-        dateRange: {
-          startDate: `${outOfRangeYear}-01-01`,
-          endDate: `${outOfRangeYear}-01-31`,
-        },
+        startDate: toDateString(`${outOfRangeYear}-01-01`),
+        endDate: toDateString(`${outOfRangeYear}-01-31`),
       };
 
       // Act & Assert
@@ -226,7 +160,8 @@ describe("InsightService", () => {
   describe("call", () => {
     const validInput: InsightInput = {
       question: "Why did my food spending increase?",
-      dateRange: { startDate: "2000-01-01", endDate: "2000-01-31" },
+      startDate: toDateString("2000-01-01"),
+      endDate: toDateString("2000-01-31"),
     };
 
     it("should return AI response for valid input", async () => {
