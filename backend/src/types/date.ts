@@ -15,9 +15,18 @@ export function isDateString(value: string): value is DateString {
     return false;
   }
 
-  // Date parse guards against structurally valid but non-existent dates (e.g. 2024-02-31)
+  // Re-parse and compare components to reject dates that JavaScript rolls over
+  // (e.g. "2023-02-29" parses as 2023-03-01 rather than NaN)
   const parsed = new Date(value);
-  return !Number.isNaN(parsed.getTime());
+  const [expectedYear, expectedMonth, expectedDay] = value
+    .split("-")
+    .map(Number);
+
+  return (
+    parsed.getUTCFullYear() === expectedYear &&
+    parsed.getUTCMonth() + 1 === expectedMonth &&
+    parsed.getUTCDate() === expectedDay
+  );
 }
 
 /**
