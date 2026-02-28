@@ -62,62 +62,7 @@ export class TransferService {
     transferId: string,
     userId: string,
   ): Promise<TransferResult | undefined> {
-    const transferTransactions =
-      await this.transactionRepository.findActiveByTransferId(
-        transferId,
-        userId,
-      );
-
-    if (transferTransactions.length === 0) {
-      return undefined;
-    }
-
-    if (transferTransactions.length !== 2) {
-      throw new BusinessError(
-        `Invalid transfer state: expected 2 transactions, found ${transferTransactions.length}`,
-        BusinessErrorCodes.INVALID_TRANSFER_STATE,
-        {
-          transferId,
-          userId,
-          transactionCount: transferTransactions.length,
-        },
-      );
-    }
-
-    const outboundTransaction = transferTransactions.find(
-      (t) => t.type === TransactionType.TRANSFER_OUT,
-    );
-    const inboundTransaction = transferTransactions.find(
-      (t) => t.type === TransactionType.TRANSFER_IN,
-    );
-
-    if (!outboundTransaction) {
-      throw new BusinessError(
-        "Invalid transfer state: missing TRANSFER_OUT transaction",
-        BusinessErrorCodes.INVALID_TRANSFER_STATE,
-        {
-          transferId,
-          userId,
-          missingTransactionType: TransactionType.TRANSFER_OUT,
-          foundTransactionTypes: transferTransactions.map((t) => t.type),
-        },
-      );
-    }
-
-    if (!inboundTransaction) {
-      throw new BusinessError(
-        "Invalid transfer state: missing TRANSFER_IN transaction",
-        BusinessErrorCodes.INVALID_TRANSFER_STATE,
-        {
-          transferId,
-          userId,
-          missingTransactionType: TransactionType.TRANSFER_IN,
-          foundTransactionTypes: transferTransactions.map((t) => t.type),
-        },
-      );
-    }
-
-    return { transferId, outboundTransaction, inboundTransaction };
+    return this.fetchValidatedTransfer(transferId, userId);
   }
 
   /**
@@ -239,23 +184,8 @@ export class TransferService {
       );
     }
 
-    // Validate we have exactly 2 transactions (should always be the case for transfers)
-    if (transferTransactions.length !== 2) {
-      throw new BusinessError(
-        `Invalid transfer state: expected 2 transactions, found ${transferTransactions.length}`,
-        BusinessErrorCodes.INVALID_TRANSFER_STATE,
-        {
-          transferId,
-          userId,
-          transactionCount: transferTransactions.length,
-          transactionIds: transferTransactions.map((t) => t.id),
-        },
-      );
-    }
-
     try {
-      // Archive both transactions atomically using TransactWrite
-      // Ensures either both transactions are archived or none (atomic operation)
+      // Archive all transactions for this transfer atomically using TransactWrite
       await this.transactionRepository.archiveMany(
         transferTransactions.map((transaction) => transaction.id),
         userId,
@@ -301,15 +231,13 @@ export class TransferService {
     }
     this.validateDescription(input.description);
 
-    // Find the existing transfer transactions first
-    const existingTransactions =
-      await this.transactionRepository.findActiveByTransferId(
-        transferId,
-        userId,
-      );
+    // Find and validate the existing transfer
+    const existingTransfer = await this.fetchValidatedTransfer(
+      transferId,
+      userId,
+    );
 
-    // Validate transfer exists
-    if (existingTransactions.length === 0) {
+    if (!existingTransfer) {
       throw new BusinessError(
         "Transfer not found or doesn't belong to user",
         BusinessErrorCodes.TRANSFER_NOT_FOUND,
@@ -317,55 +245,7 @@ export class TransferService {
       );
     }
 
-    // Validate we have exactly 2 transactions (should always be the case for transfers)
-    if (existingTransactions.length !== 2) {
-      throw new BusinessError(
-        `Invalid transfer state: expected 2 transactions, found ${existingTransactions.length}`,
-        BusinessErrorCodes.INVALID_TRANSFER_STATE,
-        {
-          transferId,
-          userId,
-          transactionCount: existingTransactions.length,
-          transactionIds: existingTransactions.map((t) => t.id),
-        },
-      );
-    }
-
-    // Identify which transaction is the outbound and which is inbound
-    const outboundTransaction = existingTransactions.find(
-      (t) => t.type === TransactionType.TRANSFER_OUT,
-    );
-    const inboundTransaction = existingTransactions.find(
-      (t) => t.type === TransactionType.TRANSFER_IN,
-    );
-
-    if (!outboundTransaction) {
-      throw new BusinessError(
-        "Invalid transfer state: missing TRANSFER_OUT transaction",
-        BusinessErrorCodes.INVALID_TRANSFER_STATE,
-        {
-          transferId,
-          userId,
-          transactionIds: existingTransactions.map((t) => t.id),
-          transactionTypes: existingTransactions.map((t) => t.type),
-          missingTransactionType: TransactionType.TRANSFER_OUT,
-        },
-      );
-    }
-
-    if (!inboundTransaction) {
-      throw new BusinessError(
-        "Invalid transfer state: missing TRANSFER_IN transaction",
-        BusinessErrorCodes.INVALID_TRANSFER_STATE,
-        {
-          transferId,
-          userId,
-          transactionIds: existingTransactions.map((t) => t.id),
-          transactionTypes: existingTransactions.map((t) => t.type),
-          missingTransactionType: TransactionType.TRANSFER_IN,
-        },
-      );
-    }
+    const { outboundTransaction, inboundTransaction } = existingTransfer;
 
     // Merge input with existing values for partial updates
     const fromAccountId = input.fromAccountId ?? outboundTransaction.accountId;
@@ -419,44 +299,21 @@ export class TransferService {
 
       await this.transactionRepository.updateMany(updates, userId);
 
-      // Fetch the updated transactions with a single query
-      const updatedTransactions =
-        await this.transactionRepository.findActiveByTransferId(
-          transferId,
-          userId,
-        );
-
-      // Find the updated outbound and inbound transactions
-      const updatedOutbound = updatedTransactions.find(
-        (t) => t.type === TransactionType.TRANSFER_OUT,
-      );
-      const updatedInbound = updatedTransactions.find(
-        (t) => t.type === TransactionType.TRANSFER_IN,
+      // Fetch and return the updated transfer
+      const updatedTransfer = await this.fetchValidatedTransfer(
+        transferId,
+        userId,
       );
 
-      if (
-        !updatedOutbound ||
-        !updatedInbound ||
-        updatedTransactions.length !== 2
-      ) {
+      if (!updatedTransfer) {
         throw new BusinessError(
           "Failed to retrieve updated transfer transactions",
           "TRANSFER_UPDATE_INCONSISTENT",
-          {
-            transferId,
-            userId,
-            transactionCount: updatedTransactions.length,
-            transactionIds: updatedTransactions.map((t) => t.id),
-          },
+          { transferId, userId },
         );
       }
 
-      // Return the transfer result with ID and transactions
-      return {
-        transferId,
-        outboundTransaction: updatedOutbound,
-        inboundTransaction: updatedInbound,
-      };
+      return updatedTransfer;
     } catch (error) {
       // Log the error for debugging and monitoring
       console.error("Transfer update failed:", {
@@ -479,6 +336,68 @@ export class TransferService {
         },
       );
     }
+  }
+
+  private async fetchValidatedTransfer(
+    transferId: string,
+    userId: string,
+  ): Promise<TransferResult | undefined> {
+    const transferTransactions =
+      await this.transactionRepository.findActiveByTransferId(
+        transferId,
+        userId,
+      );
+
+    if (transferTransactions.length === 0) {
+      return undefined;
+    }
+
+    if (transferTransactions.length !== 2) {
+      throw new BusinessError(
+        `Invalid transfer state: expected 2 transactions, found ${transferTransactions.length}`,
+        BusinessErrorCodes.INVALID_TRANSFER_STATE,
+        {
+          transferId,
+          userId,
+          transactionCount: transferTransactions.length,
+        },
+      );
+    }
+
+    const outboundTransaction = transferTransactions.find(
+      (transaction) => transaction.type === TransactionType.TRANSFER_OUT,
+    );
+    const inboundTransaction = transferTransactions.find(
+      (transaction) => transaction.type === TransactionType.TRANSFER_IN,
+    );
+
+    if (!outboundTransaction) {
+      throw new BusinessError(
+        "Invalid transfer state: missing TRANSFER_OUT transaction",
+        BusinessErrorCodes.INVALID_TRANSFER_STATE,
+        {
+          transferId,
+          userId,
+          missingTransactionType: TransactionType.TRANSFER_OUT,
+          foundTransactionTypes: transferTransactions.map((t) => t.type),
+        },
+      );
+    }
+
+    if (!inboundTransaction) {
+      throw new BusinessError(
+        "Invalid transfer state: missing TRANSFER_IN transaction",
+        BusinessErrorCodes.INVALID_TRANSFER_STATE,
+        {
+          transferId,
+          userId,
+          missingTransactionType: TransactionType.TRANSFER_IN,
+          foundTransactionTypes: transferTransactions.map((t) => t.type),
+        },
+      );
+    }
+
+    return { transferId, outboundTransaction, inboundTransaction };
   }
 
   /**
