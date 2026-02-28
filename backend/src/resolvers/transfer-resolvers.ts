@@ -1,54 +1,12 @@
-import { GraphQLError } from "graphql";
-import { z } from "zod";
 import {
   MutationCreateTransferArgs,
   MutationDeleteTransferArgs,
   MutationUpdateTransferArgs,
   QueryTransferArgs,
-  TransactionType,
 } from "../__generated__/resolvers-types";
 import { GraphQLContext } from "../server";
-import { BusinessError } from "../services/business-error";
 import { toDateString } from "../types/date";
-import {
-  accountIdSchema,
-  amountSchema,
-  dateSchema,
-  descriptionSchema,
-} from "./schemas";
 import { getAuthenticatedUser, handleResolverError } from "./shared";
-
-/**
- * Reusable schema components for transfers
- */
-const transferIdSchema = z.uuid({
-  message: "Transfer ID must be a valid UUID",
-});
-
-/**
- * Zod schema for transfer input validation
- */
-const createTransferInputSchema = z.object({
-  fromAccountId: accountIdSchema,
-  toAccountId: accountIdSchema,
-  amount: amountSchema,
-  date: dateSchema.transform(toDateString),
-  description: descriptionSchema,
-});
-
-/**
- * Zod schema for update transfer input validation
- */
-const updateTransferInputSchema = z.object({
-  id: transferIdSchema,
-  fromAccountId: accountIdSchema.optional(),
-  toAccountId: accountIdSchema.optional(),
-  amount: amountSchema.optional(),
-  date: dateSchema
-    .optional()
-    .transform((value) => (value ? toDateString(value) : undefined)),
-  description: descriptionSchema,
-});
 
 export const transferResolvers = {
   Query: {
@@ -58,87 +16,22 @@ export const transferResolvers = {
       context: GraphQLContext,
     ) => {
       try {
-        // Validate and normalize input
-        const id = transferIdSchema.parse(args.id);
         const user = await getAuthenticatedUser(context);
-
-        // Get transfer transactions using the existing method
-        const transferTransactions =
-          await context.transactionRepository.findActiveByTransferId(
-            id,
-            user.id,
-          );
-
-        // Check if transfer exists
-        if (transferTransactions.length === 0) {
-          return undefined; // Return undefined if transfer not found (GraphQL convention for Maybe types)
-        }
-
-        // Validate we have exactly 2 transactions
-        if (transferTransactions.length !== 2) {
-          throw new BusinessError(
-            `Invalid transfer state: expected 2 transactions, found ${transferTransactions.length}`,
-            "INVALID_TRANSFER_STATE",
-            {
-              transferId: id,
-              userId: user.id,
-              transactionCount: transferTransactions.length,
-            },
-          );
-        }
-
-        // Identify outbound and inbound transactions
-        const outboundTransaction = transferTransactions.find(
-          (t) => t.type === TransactionType.TRANSFER_OUT,
-        );
-        const inboundTransaction = transferTransactions.find(
-          (t) => t.type === TransactionType.TRANSFER_IN,
+        const transferResult = await context.transferService.getTransfer(
+          args.id,
+          user.id,
         );
 
-        if (!outboundTransaction) {
-          throw new BusinessError(
-            "Invalid transfer state: missing TRANSFER_OUT transaction",
-            "INVALID_TRANSFER_STATE",
-            {
-              transferId: id,
-              userId: user.id,
-              missingTransactionType: TransactionType.TRANSFER_OUT,
-              foundTransactionTypes: transferTransactions.map((t) => t.type),
-            },
-          );
+        if (!transferResult) {
+          return undefined;
         }
 
-        if (!inboundTransaction) {
-          throw new BusinessError(
-            "Invalid transfer state: missing TRANSFER_IN transaction",
-            "INVALID_TRANSFER_STATE",
-            {
-              transferId: id,
-              userId: user.id,
-              missingTransactionType: TransactionType.TRANSFER_IN,
-              foundTransactionTypes: transferTransactions.map((t) => t.type),
-            },
-          );
-        }
-
-        // Return the transfer object that matches the GraphQL Transfer type
         return {
-          id: id,
-          outboundTransaction,
-          inboundTransaction,
+          id: transferResult.transferId,
+          outboundTransaction: transferResult.outboundTransaction,
+          inboundTransaction: transferResult.inboundTransaction,
         };
       } catch (error) {
-        if (error instanceof z.ZodError) {
-          const firstError = error.issues[0];
-          throw new GraphQLError(firstError.message, {
-            extensions: { code: "BAD_USER_INPUT" },
-          });
-        }
-        if (error instanceof BusinessError) {
-          throw new GraphQLError(error.message, {
-            extensions: { code: error.code, details: error.details },
-          });
-        }
         handleResolverError(error, "Failed to get transfer");
       }
     },
@@ -150,33 +43,22 @@ export const transferResolvers = {
       context: GraphQLContext,
     ) => {
       try {
-        // Validate and normalize input
-        const validatedInput = createTransferInputSchema.parse(args.input);
         const user = await getAuthenticatedUser(context);
 
         const transferResult = await context.transferService.createTransfer(
-          validatedInput,
+          {
+            ...args.input,
+            date: toDateString(args.input.date),
+          },
           user.id,
         );
 
-        // Return the transfer object that matches the GraphQL Transfer type
         return {
           id: transferResult.transferId,
           outboundTransaction: transferResult.outboundTransaction,
           inboundTransaction: transferResult.inboundTransaction,
         };
       } catch (error) {
-        if (error instanceof z.ZodError) {
-          const firstError = error.issues[0];
-          throw new GraphQLError(firstError.message, {
-            extensions: { code: "BAD_USER_INPUT" },
-          });
-        }
-        if (error instanceof BusinessError) {
-          throw new GraphQLError(error.message, {
-            extensions: { code: error.code, details: error.details },
-          });
-        }
         handleResolverError(error, "Failed to create transfer");
       }
     },
@@ -186,35 +68,24 @@ export const transferResolvers = {
       context: GraphQLContext,
     ) => {
       try {
-        // Validate and normalize input
-        const validatedInput = updateTransferInputSchema.parse(args.input);
         const user = await getAuthenticatedUser(context);
-        const { id } = validatedInput;
+        const { id, ...updateData } = args.input;
 
         const transferResult = await context.transferService.updateTransfer(
           id,
           user.id,
-          validatedInput,
+          {
+            ...updateData,
+            date: updateData.date ? toDateString(updateData.date) : undefined,
+          },
         );
 
-        // Return the transfer object that matches the GraphQL Transfer type
         return {
           id: transferResult.transferId,
           outboundTransaction: transferResult.outboundTransaction,
           inboundTransaction: transferResult.inboundTransaction,
         };
       } catch (error) {
-        if (error instanceof z.ZodError) {
-          const firstError = error.issues[0];
-          throw new GraphQLError(firstError.message, {
-            extensions: { code: "BAD_USER_INPUT" },
-          });
-        }
-        if (error instanceof BusinessError) {
-          throw new GraphQLError(error.message, {
-            extensions: { code: error.code, details: error.details },
-          });
-        }
         handleResolverError(error, "Failed to update transfer");
       }
     },
@@ -224,25 +95,10 @@ export const transferResolvers = {
       context: GraphQLContext,
     ) => {
       try {
-        // Validate and normalize input
-        const validatedId = transferIdSchema.parse(args.id);
         const user = await getAuthenticatedUser(context);
-
-        await context.transferService.deleteTransfer(validatedId, user.id);
-
+        await context.transferService.deleteTransfer(args.id, user.id);
         return true;
       } catch (error) {
-        if (error instanceof z.ZodError) {
-          const firstError = error.issues[0];
-          throw new GraphQLError(firstError.message, {
-            extensions: { code: "BAD_USER_INPUT" },
-          });
-        }
-        if (error instanceof BusinessError) {
-          throw new GraphQLError(error.message, {
-            extensions: { code: error.code, details: error.details },
-          });
-        }
         handleResolverError(error, "Failed to delete transfer");
       }
     },

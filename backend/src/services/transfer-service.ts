@@ -7,12 +7,13 @@ import {
   TransactionType,
 } from "../models/transaction";
 import { DateString } from "../types/date";
+import { DESCRIPTION_MAX_LENGTH } from "../types/validation";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
 
 /**
  * Input type for creating transfers between accounts
  */
-export interface CreateTransferInput {
+export interface CreateTransferServiceInput {
   fromAccountId: string;
   toAccountId: string;
   amount: number;
@@ -23,7 +24,7 @@ export interface CreateTransferInput {
 /**
  * Input type for updating transfers between accounts
  */
-export interface UpdateTransferInput {
+export interface UpdateTransferServiceInput {
   fromAccountId?: string;
   toAccountId?: string;
   amount?: number;
@@ -51,6 +52,75 @@ export class TransferService {
   ) {}
 
   /**
+   * Get a transfer by ID with its paired transactions
+   * @param transferId - The transfer ID to retrieve
+   * @param userId - The user ID owning the transfer
+   * @returns Promise<TransferResult | undefined> - The transfer result or undefined if not found
+   * @throws BusinessError if the transfer is in an invalid state
+   */
+  async getTransfer(
+    transferId: string,
+    userId: string,
+  ): Promise<TransferResult | undefined> {
+    const transferTransactions =
+      await this.transactionRepository.findActiveByTransferId(
+        transferId,
+        userId,
+      );
+
+    if (transferTransactions.length === 0) {
+      return undefined;
+    }
+
+    if (transferTransactions.length !== 2) {
+      throw new BusinessError(
+        `Invalid transfer state: expected 2 transactions, found ${transferTransactions.length}`,
+        BusinessErrorCodes.INVALID_TRANSFER_STATE,
+        {
+          transferId,
+          userId,
+          transactionCount: transferTransactions.length,
+        },
+      );
+    }
+
+    const outboundTransaction = transferTransactions.find(
+      (t) => t.type === TransactionType.TRANSFER_OUT,
+    );
+    const inboundTransaction = transferTransactions.find(
+      (t) => t.type === TransactionType.TRANSFER_IN,
+    );
+
+    if (!outboundTransaction) {
+      throw new BusinessError(
+        "Invalid transfer state: missing TRANSFER_OUT transaction",
+        BusinessErrorCodes.INVALID_TRANSFER_STATE,
+        {
+          transferId,
+          userId,
+          missingTransactionType: TransactionType.TRANSFER_OUT,
+          foundTransactionTypes: transferTransactions.map((t) => t.type),
+        },
+      );
+    }
+
+    if (!inboundTransaction) {
+      throw new BusinessError(
+        "Invalid transfer state: missing TRANSFER_IN transaction",
+        BusinessErrorCodes.INVALID_TRANSFER_STATE,
+        {
+          transferId,
+          userId,
+          missingTransactionType: TransactionType.TRANSFER_IN,
+          foundTransactionTypes: transferTransactions.map((t) => t.type),
+        },
+      );
+    }
+
+    return { transferId, outboundTransaction, inboundTransaction };
+  }
+
+  /**
    * Create a transfer between two accounts
    * Creates two linked transactions: TRANSFER_OUT from source, TRANSFER_IN to destination
    * @param input - Transfer creation input
@@ -59,11 +129,12 @@ export class TransferService {
    * @throws BusinessError for any business rule violations
    */
   async createTransfer(
-    input: CreateTransferInput,
+    input: CreateTransferServiceInput,
     userId: string,
   ): Promise<TransferResult> {
     // Validate input parameters
     this.validateAmount(input.amount);
+    this.validateDescription(input.description);
 
     // Validate not transferring to the same account (fail fast before DB calls)
     this.validateNotSelfTransfer(
@@ -222,8 +293,14 @@ export class TransferService {
   async updateTransfer(
     transferId: string,
     userId: string,
-    input: UpdateTransferInput,
+    input: UpdateTransferServiceInput,
   ): Promise<TransferResult> {
+    // Validate input parameters before any DB calls
+    if (input.amount !== undefined) {
+      this.validateAmount(input.amount);
+    }
+    this.validateDescription(input.description);
+
     // Find the existing transfer transactions first
     const existingTransactions =
       await this.transactionRepository.findActiveByTransferId(
@@ -302,9 +379,6 @@ export class TransferService {
       input.description !== undefined
         ? input.description
         : outboundTransaction.description;
-
-    // Validate the effective values
-    this.validateAmount(amount);
 
     // Validate not transferring to the same account (fail fast before DB calls)
     this.validateNotSelfTransfer(fromAccountId, toAccountId, userId);
@@ -402,6 +476,24 @@ export class TransferService {
           toAccountId: toAccountId,
           amount: amount,
           originalError: error,
+        },
+      );
+    }
+  }
+
+  /**
+   * Validate that the description does not exceed the maximum allowed length
+   * @param description - The description to validate (null/undefined are allowed)
+   * @throws BusinessError if description exceeds maximum length
+   */
+  private validateDescription(description?: string | null): void {
+    if (description && description.length > DESCRIPTION_MAX_LENGTH) {
+      throw new BusinessError(
+        `Description cannot exceed ${DESCRIPTION_MAX_LENGTH} characters`,
+        BusinessErrorCodes.INVALID_PARAMETERS,
+        {
+          descriptionLength: description.length,
+          maxLength: DESCRIPTION_MAX_LENGTH,
         },
       );
     }
