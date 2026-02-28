@@ -418,7 +418,10 @@ export class TransactionService {
       throw new BusinessError(
         `Description cannot exceed ${DESCRIPTION_MAX_LENGTH} characters`,
         BusinessErrorCodes.INVALID_PARAMETERS,
-        { descriptionLength: description.length, maxLength: DESCRIPTION_MAX_LENGTH },
+        {
+          descriptionLength: description.length,
+          maxLength: DESCRIPTION_MAX_LENGTH,
+        },
       );
     }
   }

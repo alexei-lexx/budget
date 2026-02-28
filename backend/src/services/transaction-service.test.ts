@@ -2,6 +2,7 @@ import { faker } from "@faker-js/faker";
 import { Category, CategoryType } from "../models/category";
 import { TransactionPatternType, TransactionType } from "../models/transaction";
 import { toDateString } from "../types/date";
+import { MAX_PAGE_SIZE } from "../types/pagination";
 import {
   DESCRIPTION_MAX_LENGTH,
   MIN_SEARCH_TEXT_LENGTH,
@@ -19,7 +20,6 @@ import {
 } from "../utils/test-utils/mock-repositories";
 import { fakeCreateTransactionServiceInput } from "../utils/test-utils/service-factories";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
-import { MAX_PAGE_SIZE } from "../types/pagination";
 import {
   DEFAULT_TRANSACTION_PATTERNS_LIMIT,
   DESCRIPTION_SUGGESTIONS_SAMPLE_SIZE,
