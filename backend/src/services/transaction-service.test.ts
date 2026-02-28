@@ -19,6 +19,7 @@ import {
 } from "../utils/test-utils/mock-repositories";
 import { fakeCreateTransactionServiceInput } from "../utils/test-utils/service-factories";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
+import { MAX_PAGE_SIZE } from "../types/pagination";
 import {
   DEFAULT_TRANSACTION_PATTERNS_LIMIT,
   DESCRIPTION_SUGGESTIONS_SAMPLE_SIZE,
@@ -747,6 +748,26 @@ describe("TransactionService", () => {
       expect(
         mockTransactionRepository.findActiveByUserId,
       ).not.toHaveBeenCalled();
+    });
+
+    it("should throw for pagination first below minimum", async () => {
+      const promise = service.getTransactionsByUser(userId, { first: 0 });
+
+      await expect(promise).rejects.toThrow(BusinessError);
+      await expect(promise).rejects.toMatchObject({
+        code: BusinessErrorCodes.INVALID_PARAMETERS,
+      });
+    });
+
+    it("should throw for pagination first above maximum", async () => {
+      const promise = service.getTransactionsByUser(userId, {
+        first: MAX_PAGE_SIZE + 1,
+      });
+
+      await expect(promise).rejects.toThrow(BusinessError);
+      await expect(promise).rejects.toMatchObject({
+        code: BusinessErrorCodes.INVALID_PARAMETERS,
+      });
     });
   });
 

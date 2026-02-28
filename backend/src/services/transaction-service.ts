@@ -17,7 +17,11 @@ import {
   UpdateTransactionInput,
 } from "../models/transaction";
 import { DateString } from "../types/date";
-import { PaginationInput } from "../types/pagination";
+import {
+  MAX_PAGE_SIZE,
+  MIN_PAGE_SIZE,
+  PaginationInput,
+} from "../types/pagination";
 import {
   DESCRIPTION_MAX_LENGTH,
   MIN_SEARCH_TEXT_LENGTH,
@@ -109,6 +113,17 @@ export class TransactionService {
     pagination?: PaginationInput,
     filters?: TransactionFilterInput,
   ): Promise<TransactionConnection> {
+    if (
+      pagination?.first !== undefined &&
+      (pagination.first < MIN_PAGE_SIZE || pagination.first > MAX_PAGE_SIZE)
+    ) {
+      throw new BusinessError(
+        `First must be between ${MIN_PAGE_SIZE} and ${MAX_PAGE_SIZE}`,
+        BusinessErrorCodes.INVALID_PARAMETERS,
+        { first: pagination.first, min: MIN_PAGE_SIZE, max: MAX_PAGE_SIZE },
+      );
+    }
+
     if (
       filters?.dateAfter &&
       filters?.dateBefore &&

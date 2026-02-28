@@ -17,7 +17,6 @@ import type {
   TransactionEmbeddedAccount,
   TransactionEmbeddedCategory,
 } from "../types/graphql";
-import { MAX_PAGE_SIZE, MIN_PAGE_SIZE } from "../types/pagination";
 import { getAuthenticatedUser, handleResolverError } from "./shared";
 
 
@@ -30,20 +29,6 @@ export const transactionResolvers = {
     ) => {
       try {
         const { filters, pagination } = args;
-        // Validate pagination input (repository handles defaults)
-        if (
-          pagination?.first !== undefined &&
-          (pagination?.first < MIN_PAGE_SIZE ||
-            pagination?.first > MAX_PAGE_SIZE)
-        ) {
-          throw new GraphQLError(
-            `First must be between ${MIN_PAGE_SIZE} and ${MAX_PAGE_SIZE}`,
-            {
-              extensions: { code: "BAD_USER_INPUT" },
-            },
-          );
-        }
-
         const user = await getAuthenticatedUser(context);
 
         const transactionConnection =
