@@ -9,6 +9,11 @@ export enum TransactionType {
   REFUND = "REFUND",
 }
 
+export type NonTransferTransactionType = Exclude<
+  TransactionType,
+  TransactionType.TRANSFER_IN | TransactionType.TRANSFER_OUT
+>;
+
 export interface TransactionFilterInput {
   accountIds?: string[];
   categoryIds?: string[];
