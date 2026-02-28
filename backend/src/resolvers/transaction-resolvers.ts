@@ -8,8 +8,8 @@ import {
   QueryTransactionsArgs,
 } from "../__generated__/resolvers-types";
 import {
-  NonTransferTransactionType,
   Transaction as TransactionModel,
+  TransactionType,
 } from "../models/transaction";
 import { GraphQLContext } from "../server";
 import { toDateString, toDateStringUndefined } from "../types/date";
@@ -102,13 +102,25 @@ export const transactionResolvers = {
       context: GraphQLContext,
     ) => {
       try {
+        const { type, ...rest } = args.input;
+        if (
+          type !== TransactionType.INCOME &&
+          type !== TransactionType.EXPENSE &&
+          type !== TransactionType.REFUND
+        ) {
+          throw new GraphQLError(
+            `Transaction type must be ${TransactionType.INCOME}, ${TransactionType.EXPENSE}, or ${TransactionType.REFUND}`,
+            { extensions: { code: "BAD_USER_INPUT" } },
+          );
+        }
+
         const user = await getAuthenticatedUser(context);
 
         const transaction = await context.transactionService.createTransaction(
           {
-            ...args.input,
-            date: toDateString(args.input.date),
-            type: args.input.type as NonTransferTransactionType,
+            ...rest,
+            date: toDateString(rest.date),
+            type,
           },
           user.id,
         );
@@ -123,16 +135,28 @@ export const transactionResolvers = {
       context: GraphQLContext,
     ) => {
       try {
+        const { id, type, ...rest } = args.input;
+        if (
+          type !== undefined &&
+          type !== TransactionType.INCOME &&
+          type !== TransactionType.EXPENSE &&
+          type !== TransactionType.REFUND
+        ) {
+          throw new GraphQLError(
+            `Transaction type must be ${TransactionType.INCOME}, ${TransactionType.EXPENSE}, or ${TransactionType.REFUND}`,
+            { extensions: { code: "BAD_USER_INPUT" } },
+          );
+        }
+
         const user = await getAuthenticatedUser(context);
-        const { id } = args.input;
 
         const transaction = await context.transactionService.updateTransaction(
           id,
           user.id,
           {
-            ...args.input,
-            date: toDateStringUndefined(args.input.date ?? undefined),
-            type: args.input.type as NonTransferTransactionType | undefined,
+            ...rest,
+            date: toDateStringUndefined(rest.date ?? undefined),
+            type,
           },
         );
         return transaction;
