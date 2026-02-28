@@ -18,7 +18,10 @@ import {
 } from "../models/transaction";
 import { DateString } from "../types/date";
 import { PaginationInput } from "../types/pagination";
-import { MIN_SEARCH_TEXT_LENGTH } from "../types/validation";
+import {
+  DESCRIPTION_MAX_LENGTH,
+  MIN_SEARCH_TEXT_LENGTH,
+} from "../types/validation";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
 
 export const DEFAULT_TRANSACTION_PATTERNS_LIMIT = 3;
@@ -80,6 +83,7 @@ export class TransactionService {
 
     // Additional input validation
     this.validateAmount(input.amount);
+    this.validateDescription(input.description);
 
     // Create the transaction through repository
     const createInput: CreateTransactionInput = {
@@ -172,6 +176,7 @@ export class TransactionService {
     if (input.amount !== undefined) {
       this.validateAmount(input.amount);
     }
+    this.validateDescription(input.description);
 
     // Update the transaction through repository, including currency if account changed
     const updateInput: UpdateTransactionInput = {
@@ -374,16 +379,31 @@ export class TransactionService {
   }
 
   /**
-   * Validate that the transaction amount is valid (non-negative)
+   * Validate that the transaction amount is positive
    * @param amount - The amount to validate
-   * @throws BusinessError if amount is negative
+   * @throws BusinessError if amount is zero or negative
    */
   private validateAmount(amount: number): void {
-    if (amount < 0) {
+    if (amount <= 0) {
       throw new BusinessError(
-        "Transaction amount cannot be negative",
+        "Transaction amount must be positive",
         BusinessErrorCodes.INVALID_AMOUNT,
         { amount },
+      );
+    }
+  }
+
+  /**
+   * Validate that the transaction description does not exceed the maximum length
+   * @param description - The description to validate
+   * @throws BusinessError if description exceeds DESCRIPTION_MAX_LENGTH
+   */
+  private validateDescription(description: string | null | undefined): void {
+    if (description && description.length > DESCRIPTION_MAX_LENGTH) {
+      throw new BusinessError(
+        `Description cannot exceed ${DESCRIPTION_MAX_LENGTH} characters`,
+        BusinessErrorCodes.INVALID_PARAMETERS,
+        { descriptionLength: description.length, maxLength: DESCRIPTION_MAX_LENGTH },
       );
     }
   }

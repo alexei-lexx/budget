@@ -8,8 +8,8 @@ import {
   QueryTransactionsArgs,
 } from "../__generated__/resolvers-types";
 import {
+  NonTransferTransactionType,
   Transaction as TransactionModel,
-  TransactionType,
 } from "../models/transaction";
 import { GraphQLContext } from "../server";
 import { toDateString, toDateStringUndefined } from "../types/date";
@@ -18,7 +18,6 @@ import type {
   TransactionEmbeddedCategory,
 } from "../types/graphql";
 import { MAX_PAGE_SIZE, MIN_PAGE_SIZE } from "../types/pagination";
-import { DESCRIPTION_MAX_LENGTH } from "../types/validation";
 import { getAuthenticatedUser, handleResolverError } from "./shared";
 
 
@@ -118,47 +117,13 @@ export const transactionResolvers = {
       context: GraphQLContext,
     ) => {
       try {
-        // Validate amount
-        if (args.input.amount <= 0) {
-          throw new GraphQLError("Amount must be positive", {
-            extensions: { code: "BAD_USER_INPUT" },
-          });
-        }
-
-        // Validate description
-        if (
-          args.input.description &&
-          args.input.description.length > DESCRIPTION_MAX_LENGTH
-        ) {
-          throw new GraphQLError(
-            `Description cannot exceed ${DESCRIPTION_MAX_LENGTH} characters`,
-            {
-              extensions: { code: "BAD_USER_INPUT" },
-            },
-          );
-        }
-
-        // Validate type
-        if (
-          args.input.type !== TransactionType.INCOME &&
-          args.input.type !== TransactionType.EXPENSE &&
-          args.input.type !== TransactionType.REFUND
-        ) {
-          throw new GraphQLError(
-            `Transaction type must be either ${TransactionType.INCOME}, ${TransactionType.EXPENSE}, or ${TransactionType.REFUND}`,
-            {
-              extensions: { code: "BAD_USER_INPUT" },
-            },
-          );
-        }
-
         const user = await getAuthenticatedUser(context);
 
         const transaction = await context.transactionService.createTransaction(
           {
             ...args.input,
             date: toDateString(args.input.date),
-            type: args.input.type,
+            type: args.input.type as NonTransferTransactionType,
           },
           user.id,
         );
@@ -173,41 +138,6 @@ export const transactionResolvers = {
       context: GraphQLContext,
     ) => {
       try {
-        // Validate amount
-        if (args.input.amount !== undefined && args.input.amount <= 0) {
-          throw new GraphQLError("Amount must be positive", {
-            extensions: { code: "BAD_USER_INPUT" },
-          });
-        }
-
-        // Validate description
-        if (
-          args.input.description !== undefined &&
-          args.input.description.length > DESCRIPTION_MAX_LENGTH
-        ) {
-          throw new GraphQLError(
-            `Description cannot exceed ${DESCRIPTION_MAX_LENGTH} characters`,
-            {
-              extensions: { code: "BAD_USER_INPUT" },
-            },
-          );
-        }
-
-        // Validate type
-        if (
-          args.input.type !== undefined &&
-          args.input.type !== TransactionType.INCOME &&
-          args.input.type !== TransactionType.EXPENSE &&
-          args.input.type !== TransactionType.REFUND
-        ) {
-          throw new GraphQLError(
-            `Transaction type must be either ${TransactionType.INCOME}, ${TransactionType.EXPENSE}, or ${TransactionType.REFUND}`,
-            {
-              extensions: { code: "BAD_USER_INPUT" },
-            },
-          );
-        }
-
         const user = await getAuthenticatedUser(context);
         const { id } = args.input;
 
@@ -216,11 +146,8 @@ export const transactionResolvers = {
           user.id,
           {
             ...args.input,
-            date:
-              args.input.date !== undefined
-                ? toDateString(args.input.date)
-                : undefined,
-            type: args.input.type,
+            date: toDateStringUndefined(args.input.date ?? undefined),
+            type: args.input.type as NonTransferTransactionType | undefined,
           },
         );
         return transaction;
