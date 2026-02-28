@@ -1,5 +1,6 @@
 import { CategoryType } from '../models/category';
 import { ReportType } from '../models/report';
+import { TransactionPatternType } from '../models/transaction';
 import { TransactionType } from '../models/transaction';
 import { GraphQLResolveInfo } from 'graphql';
 import { GraphQLContext } from '../server';
@@ -334,11 +335,7 @@ export type TransactionPattern = {
   categoryName: Scalars['String']['output'];
 };
 
-export enum TransactionPatternType {
-  Expense = 'EXPENSE',
-  Income = 'INCOME',
-  Refund = 'REFUND'
-}
+export { TransactionPatternType };
 
 export { TransactionType };
 
@@ -667,6 +664,8 @@ export type TransactionPatternResolvers<ContextType = GraphQLContext, ParentType
   categoryName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
 };
 
+export type TransactionPatternTypeResolvers = EnumResolverSignature<{ EXPENSE?: any, INCOME?: any, REFUND?: any }, ResolversTypes['TransactionPatternType']>;
+
 export type TransactionTypeResolvers = EnumResolverSignature<{ EXPENSE?: any, INCOME?: any, REFUND?: any, TRANSFER_IN?: any, TRANSFER_OUT?: any }, ResolversTypes['TransactionType']>;
 
 export type TransferResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Transfer'] = ResolversParentTypes['Transfer']> = {
@@ -698,6 +697,7 @@ export type Resolvers<ContextType = GraphQLContext> = {
   TransactionEmbeddedAccount?: TransactionEmbeddedAccountResolvers<ContextType>;
   TransactionEmbeddedCategory?: TransactionEmbeddedCategoryResolvers<ContextType>;
   TransactionPattern?: TransactionPatternResolvers<ContextType>;
+  TransactionPatternType?: TransactionPatternTypeResolvers;
   TransactionType?: TransactionTypeResolvers;
   Transfer?: TransferResolvers<ContextType>;
   User?: UserResolvers<ContextType>;

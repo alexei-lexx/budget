@@ -17,6 +17,8 @@ const config: CodegenConfig = {
         enumValues: {
           CategoryType: "../models/category#CategoryType",
           ReportType: "../models/report#ReportType",
+          TransactionPatternType:
+            "../models/transaction#TransactionPatternType",
           TransactionType: "../models/transaction#TransactionType",
         },
         // Map GraphQL types to model types for field resolvers and computed fields

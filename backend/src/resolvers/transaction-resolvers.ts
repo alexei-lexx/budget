@@ -1,5 +1,4 @@
 import { GraphQLError } from "graphql";
-import { z } from "zod";
 import {
   MutationCreateTransactionArgs,
   MutationDeleteTransactionArgs,
@@ -10,92 +9,18 @@ import {
 } from "../__generated__/resolvers-types";
 import {
   Transaction as TransactionModel,
-  TransactionPatternType,
   TransactionType,
 } from "../models/transaction";
 import { GraphQLContext } from "../server";
-import { BusinessError } from "../services/business-error";
-import { toDateString } from "../types/date";
+import { toDateString, toDateStringUndefined } from "../types/date";
 import type {
   TransactionEmbeddedAccount,
   TransactionEmbeddedCategory,
 } from "../types/graphql";
 import { MAX_PAGE_SIZE, MIN_PAGE_SIZE } from "../types/pagination";
-import {
-  accountIdSchema,
-  amountSchema,
-  dateSchema,
-  descriptionSchema,
-} from "./schemas";
+import { DESCRIPTION_MAX_LENGTH } from "../types/validation";
 import { getAuthenticatedUser, handleResolverError } from "./shared";
 
-/**
- * Reusable schema components for transactions
- */
-const categoryIdSchema = z.uuid({
-  message: "Category ID must be a valid UUID",
-});
-const nullishCategoryIdSchema = categoryIdSchema.nullish();
-const typeSchema = z.enum(
-  [TransactionType.INCOME, TransactionType.EXPENSE, TransactionType.REFUND],
-  {
-    message: `Transaction type must be either ${TransactionType.INCOME}, ${TransactionType.EXPENSE}, or ${TransactionType.REFUND}`,
-  },
-);
-const allTransactionTypesSchema = z.enum(TransactionType);
-
-/**
- * Zod schemas for input validation
- */
-const createTransactionInputSchema = z.object({
-  accountId: accountIdSchema,
-  categoryId: nullishCategoryIdSchema.transform((value) => value ?? undefined),
-  type: typeSchema,
-  amount: amountSchema,
-  date: dateSchema.transform(toDateString),
-  description: descriptionSchema.transform((value) => value ?? undefined),
-});
-
-const updateTransactionInputSchema = z.object({
-  id: z.uuid({ message: "Transaction ID must be a valid UUID" }),
-  accountId: accountIdSchema.optional(),
-  categoryId: nullishCategoryIdSchema,
-  type: typeSchema.optional(),
-  amount: amountSchema.optional(),
-  date: dateSchema
-    .optional()
-    .transform((value) => (value ? toDateString(value) : undefined)),
-  description: descriptionSchema,
-});
-
-const paginationInputSchema = z
-  .object({
-    first: z
-      .number()
-      .int()
-      .min(MIN_PAGE_SIZE, `First must be at least ${MIN_PAGE_SIZE}`)
-      .max(MAX_PAGE_SIZE, `First cannot exceed ${MAX_PAGE_SIZE}`)
-      .optional(),
-    after: z.string().optional(),
-  })
-  .optional();
-
-const transactionFilterInputSchema = z
-  .object({
-    accountIds: z.array(accountIdSchema).optional(),
-    categoryIds: z.array(categoryIdSchema).optional(),
-    includeUncategorized: z.boolean().optional(),
-    dateAfter: dateSchema
-      .optional()
-      .transform((value) => (value ? toDateString(value) : undefined)),
-    dateBefore: dateSchema
-      .optional()
-      .transform((value) => (value ? toDateString(value) : undefined)),
-    types: z.array(allTransactionTypesSchema).optional(),
-  })
-  .optional();
-
-const transactionPatternTypeSchema = z.enum(TransactionPatternType);
 
 export const transactionResolvers = {
   Query: {
@@ -105,30 +30,35 @@ export const transactionResolvers = {
       context: GraphQLContext,
     ) => {
       try {
+        const { filters, pagination } = args;
         // Validate pagination input (repository handles defaults)
-        const validatedPagination = paginationInputSchema.parse(
-          args.pagination,
-        );
-        // Validate filters input
-        const validatedFilters = transactionFilterInputSchema.parse(
-          args.filters,
-        );
+        if (
+          pagination?.first !== undefined &&
+          (pagination?.first < MIN_PAGE_SIZE ||
+            pagination?.first > MAX_PAGE_SIZE)
+        ) {
+          throw new GraphQLError(
+            `First must be between ${MIN_PAGE_SIZE} and ${MAX_PAGE_SIZE}`,
+            {
+              extensions: { code: "BAD_USER_INPUT" },
+            },
+          );
+        }
+
         const user = await getAuthenticatedUser(context);
 
         const transactionConnection =
           await context.transactionService.getTransactionsByUser(
             user.id,
-            validatedPagination,
-            validatedFilters,
+            pagination,
+            filters && {
+              ...filters,
+              dateAfter: toDateStringUndefined(filters.dateAfter),
+              dateBefore: toDateStringUndefined(filters.dateBefore),
+            },
           );
         return transactionConnection;
       } catch (error) {
-        if (error instanceof z.ZodError) {
-          const firstError = error.issues[0];
-          throw new GraphQLError(firstError.message, {
-            extensions: { code: "BAD_USER_INPUT" },
-          });
-        }
         handleResolverError(error, "Failed to fetch transactions");
       }
     },
@@ -138,25 +68,17 @@ export const transactionResolvers = {
       context: GraphQLContext,
     ) => {
       try {
-        const validatedTransactionPatternType =
-          transactionPatternTypeSchema.parse(args.type);
         const user = await getAuthenticatedUser(context);
 
         const patterns =
           await context.transactionService.getTransactionPatterns(
             user.id,
-            validatedTransactionPatternType,
+            args.type,
             user.transactionPatternsLimit,
           );
 
         return patterns;
       } catch (error) {
-        if (error instanceof z.ZodError) {
-          const firstError = error.issues[0];
-          throw new GraphQLError(firstError.message, {
-            extensions: { code: "BAD_USER_INPUT" },
-          });
-        }
         handleResolverError(error, "Failed to fetch transaction patterns");
       }
     },
@@ -185,11 +107,6 @@ export const transactionResolvers = {
 
         return suggestions;
       } catch (error) {
-        if (error instanceof BusinessError) {
-          throw new GraphQLError(error.message, {
-            extensions: { code: error.code, details: error.details },
-          });
-        }
         handleResolverError(error, "Failed to fetch description suggestions");
       }
     },
@@ -201,27 +118,52 @@ export const transactionResolvers = {
       context: GraphQLContext,
     ) => {
       try {
-        // Validate and normalize input
-        const validatedInput = createTransactionInputSchema.parse(args.input);
+        // Validate amount
+        if (args.input.amount <= 0) {
+          throw new GraphQLError("Amount must be positive", {
+            extensions: { code: "BAD_USER_INPUT" },
+          });
+        }
+
+        // Validate description
+        if (
+          args.input.description &&
+          args.input.description.length > DESCRIPTION_MAX_LENGTH
+        ) {
+          throw new GraphQLError(
+            `Description cannot exceed ${DESCRIPTION_MAX_LENGTH} characters`,
+            {
+              extensions: { code: "BAD_USER_INPUT" },
+            },
+          );
+        }
+
+        // Validate type
+        if (
+          args.input.type !== TransactionType.INCOME &&
+          args.input.type !== TransactionType.EXPENSE &&
+          args.input.type !== TransactionType.REFUND
+        ) {
+          throw new GraphQLError(
+            `Transaction type must be either ${TransactionType.INCOME}, ${TransactionType.EXPENSE}, or ${TransactionType.REFUND}`,
+            {
+              extensions: { code: "BAD_USER_INPUT" },
+            },
+          );
+        }
+
         const user = await getAuthenticatedUser(context);
 
         const transaction = await context.transactionService.createTransaction(
-          validatedInput,
+          {
+            ...args.input,
+            date: toDateString(args.input.date),
+            type: args.input.type,
+          },
           user.id,
         );
         return transaction;
       } catch (error) {
-        if (error instanceof z.ZodError) {
-          const firstError = error.issues[0];
-          throw new GraphQLError(firstError.message, {
-            extensions: { code: "BAD_USER_INPUT" },
-          });
-        }
-        if (error instanceof BusinessError) {
-          throw new GraphQLError(error.message, {
-            extensions: { code: error.code, details: error.details },
-          });
-        }
         handleResolverError(error, "Failed to create transaction");
       }
     },
@@ -231,29 +173,58 @@ export const transactionResolvers = {
       context: GraphQLContext,
     ) => {
       try {
-        // Validate and normalize input
-        const validatedInput = updateTransactionInputSchema.parse(args.input);
+        // Validate amount
+        if (args.input.amount !== undefined && args.input.amount <= 0) {
+          throw new GraphQLError("Amount must be positive", {
+            extensions: { code: "BAD_USER_INPUT" },
+          });
+        }
+
+        // Validate description
+        if (
+          args.input.description !== undefined &&
+          args.input.description.length > DESCRIPTION_MAX_LENGTH
+        ) {
+          throw new GraphQLError(
+            `Description cannot exceed ${DESCRIPTION_MAX_LENGTH} characters`,
+            {
+              extensions: { code: "BAD_USER_INPUT" },
+            },
+          );
+        }
+
+        // Validate type
+        if (
+          args.input.type !== undefined &&
+          args.input.type !== TransactionType.INCOME &&
+          args.input.type !== TransactionType.EXPENSE &&
+          args.input.type !== TransactionType.REFUND
+        ) {
+          throw new GraphQLError(
+            `Transaction type must be either ${TransactionType.INCOME}, ${TransactionType.EXPENSE}, or ${TransactionType.REFUND}`,
+            {
+              extensions: { code: "BAD_USER_INPUT" },
+            },
+          );
+        }
+
         const user = await getAuthenticatedUser(context);
-        const { id } = validatedInput;
+        const { id } = args.input;
 
         const transaction = await context.transactionService.updateTransaction(
           id,
           user.id,
-          validatedInput,
+          {
+            ...args.input,
+            date:
+              args.input.date !== undefined
+                ? toDateString(args.input.date)
+                : undefined,
+            type: args.input.type,
+          },
         );
         return transaction;
       } catch (error) {
-        if (error instanceof z.ZodError) {
-          const firstError = error.issues[0];
-          throw new GraphQLError(firstError.message, {
-            extensions: { code: "BAD_USER_INPUT" },
-          });
-        }
-        if (error instanceof BusinessError) {
-          throw new GraphQLError(error.message, {
-            extensions: { code: error.code, details: error.details },
-          });
-        }
         handleResolverError(error, "Failed to update transaction");
       }
     },
@@ -279,11 +250,6 @@ export const transactionResolvers = {
         );
         return transaction;
       } catch (error) {
-        if (error instanceof BusinessError) {
-          throw new GraphQLError(error.message, {
-            extensions: { code: error.code, details: error.details },
-          });
-        }
         handleResolverError(error, "Failed to delete transaction");
       }
     },
