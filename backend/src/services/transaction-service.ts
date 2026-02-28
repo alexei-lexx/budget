@@ -8,6 +8,7 @@ import {
   CreateTransactionInput,
   EnrichedTransactionPattern,
   ITransactionRepository,
+  NonTransferTransactionType,
   Transaction,
   TransactionConnection,
   TransactionFilterInput,
@@ -15,8 +16,15 @@ import {
   TransactionType,
   UpdateTransactionInput,
 } from "../models/transaction";
-import { PaginationInput } from "../types/pagination";
-import { MIN_SEARCH_TEXT_LENGTH } from "../types/validation";
+import {
+  MAX_PAGE_SIZE,
+  MIN_PAGE_SIZE,
+  PaginationInput,
+} from "../types/pagination";
+import {
+  DESCRIPTION_MAX_LENGTH,
+  MIN_SEARCH_TEXT_LENGTH,
+} from "../types/validation";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
 
 export const DEFAULT_TRANSACTION_PATTERNS_LIMIT = 3;
@@ -31,15 +39,18 @@ export const DESCRIPTION_SUGGESTIONS_SAMPLE_SIZE = 100;
 /**
  * Service layer input for creating transactions (currency automatically derived from account)
  */
-type CreateTransactionServiceInput = Omit<
+export type CreateTransactionServiceInput = Omit<
   CreateTransactionInput,
-  "userId" | "currency"
->;
+  "userId" | "currency" | "type"
+> & { type: NonTransferTransactionType };
 
 /**
  * Service layer input for updating transactions (currency automatically updated when account changes)
  */
-type UpdateTransactionServiceInput = Omit<UpdateTransactionInput, "currency">;
+export type UpdateTransactionServiceInput = Omit<
+  UpdateTransactionInput,
+  "currency" | "type"
+> & { type?: NonTransferTransactionType };
 
 /**
  * Transaction service class for handling business logic and validation
@@ -63,6 +74,9 @@ export class TransactionService {
     input: CreateTransactionServiceInput,
     userId: string,
   ): Promise<Transaction> {
+    // Validate description length
+    this.validateDescription(input.description);
+
     // Validate business rules
     const account = await this.validateAccount(input.accountId, userId);
     await this.validateCategory(input.categoryId, userId, input.type);
@@ -92,6 +106,23 @@ export class TransactionService {
     pagination?: PaginationInput,
     filters?: TransactionFilterInput,
   ): Promise<TransactionConnection> {
+    if (
+      pagination?.first !== undefined &&
+      (!Number.isInteger(pagination.first) ||
+        pagination.first < MIN_PAGE_SIZE ||
+        pagination.first > MAX_PAGE_SIZE)
+    ) {
+      throw new BusinessError(
+        `Pagination first must be an integer between ${MIN_PAGE_SIZE} and ${MAX_PAGE_SIZE}`,
+        BusinessErrorCodes.INVALID_PARAMETERS,
+        {
+          first: pagination.first,
+          minPageSize: MIN_PAGE_SIZE,
+          maxPageSize: MAX_PAGE_SIZE,
+        },
+      );
+    }
+
     if (
       filters?.dateAfter &&
       filters?.dateBefore &&
@@ -136,6 +167,9 @@ export class TransactionService {
         { transactionId: id, userId },
       );
     }
+
+    // Validate description length if being updated
+    this.validateDescription(input.description);
 
     // Validate account if provided
     let account;
@@ -331,6 +365,24 @@ export class TransactionService {
       .sort(([, frequencyA], [, frequencyB]) => frequencyB - frequencyA) // Sort by frequency descending
       .slice(0, validatedLimit) // Take top N
       .map(([description]) => description); // Extract just the description strings
+  }
+
+  /**
+   * Validate that the description does not exceed the maximum allowed length
+   * @param description - The description to validate (null/undefined are allowed)
+   * @throws BusinessError if description exceeds maximum length
+   */
+  private validateDescription(description?: string | null): void {
+    if (description && description.length > DESCRIPTION_MAX_LENGTH) {
+      throw new BusinessError(
+        `Description cannot exceed ${DESCRIPTION_MAX_LENGTH} characters`,
+        BusinessErrorCodes.INVALID_PARAMETERS,
+        {
+          descriptionLength: description.length,
+          maxLength: DESCRIPTION_MAX_LENGTH,
+        },
+      );
+    }
   }
 
   /**

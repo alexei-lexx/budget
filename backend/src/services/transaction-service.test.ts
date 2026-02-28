@@ -2,7 +2,11 @@ import { faker } from "@faker-js/faker";
 import { Category, CategoryType } from "../models/category";
 import { TransactionPatternType, TransactionType } from "../models/transaction";
 import { toDateString } from "../types/date";
-import { MIN_SEARCH_TEXT_LENGTH } from "../types/validation";
+import { MAX_PAGE_SIZE, MIN_PAGE_SIZE } from "../types/pagination";
+import {
+  DESCRIPTION_MAX_LENGTH,
+  MIN_SEARCH_TEXT_LENGTH,
+} from "../types/validation";
 import {
   fakeAccount,
   fakeCategory,
@@ -17,6 +21,7 @@ import {
 } from "../utils/test-utils/mock-repositories";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
 import {
+  CreateTransactionServiceInput,
   DEFAULT_TRANSACTION_PATTERNS_LIMIT,
   DESCRIPTION_SUGGESTIONS_SAMPLE_SIZE,
   MAX_TRANSACTION_PATTERNS_LIMIT,
@@ -747,6 +752,150 @@ describe("TransactionService", () => {
     });
   });
 
+  describe("createTransaction description validation", () => {
+    it("should reject description exceeding maximum length", async () => {
+      const account = fakeAccount({ userId });
+      mockAccountRepository.findActiveById.mockResolvedValue(account);
+
+      const input = fakeCreateTransactionInput({
+        accountId: account.id,
+        description: "a".repeat(DESCRIPTION_MAX_LENGTH + 1),
+      });
+      const promise = service.createTransaction(
+        input as CreateTransactionServiceInput,
+        userId,
+      );
+
+      await expect(promise).rejects.toThrow(BusinessError);
+      await expect(promise).rejects.toMatchObject({
+        message: `Description cannot exceed ${DESCRIPTION_MAX_LENGTH} characters`,
+        code: BusinessErrorCodes.INVALID_PARAMETERS,
+      });
+
+      expect(mockTransactionRepository.create).not.toHaveBeenCalled();
+    });
+
+    it("should accept description at exactly the maximum length", async () => {
+      const account = fakeAccount({ userId });
+      mockAccountRepository.findActiveById.mockResolvedValue(account);
+      mockTransactionRepository.create.mockResolvedValue(fakeTransaction());
+
+      const input = fakeCreateTransactionInput({
+        accountId: account.id,
+        type: TransactionType.EXPENSE,
+        categoryId: undefined,
+        description: "a".repeat(DESCRIPTION_MAX_LENGTH),
+      });
+
+      await expect(
+        service.createTransaction(
+          input as CreateTransactionServiceInput,
+          userId,
+        ),
+      ).resolves.toBeDefined();
+    });
+  });
+
+  describe("updateTransaction description validation", () => {
+    it("should reject description exceeding maximum length", async () => {
+      const existingTransaction = fakeTransaction({ userId });
+      mockTransactionRepository.findActiveById.mockResolvedValue(
+        existingTransaction,
+      );
+      mockAccountRepository.findActiveById.mockResolvedValue(
+        fakeAccount({ id: existingTransaction.accountId, userId }),
+      );
+
+      const promise = service.updateTransaction(
+        existingTransaction.id,
+        userId,
+        {
+          description: "a".repeat(DESCRIPTION_MAX_LENGTH + 1),
+        },
+      );
+
+      await expect(promise).rejects.toThrow(BusinessError);
+      await expect(promise).rejects.toMatchObject({
+        message: `Description cannot exceed ${DESCRIPTION_MAX_LENGTH} characters`,
+        code: BusinessErrorCodes.INVALID_PARAMETERS,
+      });
+
+      expect(mockTransactionRepository.update).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("getTransactionsByUser pagination validation", () => {
+    it("should reject first below minimum page size", async () => {
+      const promise = service.getTransactionsByUser(userId, {
+        first: MIN_PAGE_SIZE - 1,
+      });
+
+      await expect(promise).rejects.toThrow(BusinessError);
+      await expect(promise).rejects.toMatchObject({
+        message: `Pagination first must be an integer between ${MIN_PAGE_SIZE} and ${MAX_PAGE_SIZE}`,
+        code: BusinessErrorCodes.INVALID_PARAMETERS,
+      });
+
+      expect(
+        mockTransactionRepository.findActiveByUserId,
+      ).not.toHaveBeenCalled();
+    });
+
+    it("should reject first above maximum page size", async () => {
+      const promise = service.getTransactionsByUser(userId, {
+        first: MAX_PAGE_SIZE + 1,
+      });
+
+      await expect(promise).rejects.toThrow(BusinessError);
+      await expect(promise).rejects.toMatchObject({
+        message: `Pagination first must be an integer between ${MIN_PAGE_SIZE} and ${MAX_PAGE_SIZE}`,
+        code: BusinessErrorCodes.INVALID_PARAMETERS,
+      });
+
+      expect(
+        mockTransactionRepository.findActiveByUserId,
+      ).not.toHaveBeenCalled();
+    });
+
+    it("should reject non-integer first", async () => {
+      const promise = service.getTransactionsByUser(userId, { first: 5.5 });
+
+      await expect(promise).rejects.toThrow(BusinessError);
+      await expect(promise).rejects.toMatchObject({
+        message: `Pagination first must be an integer between ${MIN_PAGE_SIZE} and ${MAX_PAGE_SIZE}`,
+        code: BusinessErrorCodes.INVALID_PARAMETERS,
+      });
+
+      expect(
+        mockTransactionRepository.findActiveByUserId,
+      ).not.toHaveBeenCalled();
+    });
+
+    it("should accept first at minimum page size", async () => {
+      mockTransactionRepository.findActiveByUserId.mockResolvedValue({
+        edges: [],
+        pageInfo: { hasNextPage: false, hasPreviousPage: false },
+        totalCount: 0,
+      });
+
+      await expect(
+        service.getTransactionsByUser(userId, { first: MIN_PAGE_SIZE }),
+      ).resolves.toBeDefined();
+    });
+
+    it("should accept first at maximum page size", async () => {
+      mockTransactionRepository.findActiveByUserId.mockResolvedValue({
+        edges: [],
+        pageInfo: { hasNextPage: false, hasPreviousPage: false },
+        totalCount: 0,
+      });
+
+      await expect(
+        service.getTransactionsByUser(userId, { first: MAX_PAGE_SIZE }),
+      ).resolves.toBeDefined();
+    });
+  });
+
   describe("createTransaction with REFUND type", () => {
     let accountId: string;
     let expenseCategory: Category;
@@ -782,7 +931,10 @@ describe("TransactionService", () => {
       mockCategoryRepository.findActiveById.mockResolvedValue(expenseCategory);
 
       // Act
-      const result = await service.createTransaction(input, userId);
+      const result = await service.createTransaction(
+        input as CreateTransactionServiceInput,
+        userId,
+      );
 
       // Assert
       expect(result).toBeDefined();
@@ -809,7 +961,10 @@ describe("TransactionService", () => {
       mockCategoryRepository.findActiveById.mockResolvedValue(incomeCategory);
 
       // Act & Assert
-      const promise = service.createTransaction(input, userId);
+      const promise = service.createTransaction(
+        input as CreateTransactionServiceInput,
+        userId,
+      );
 
       await expect(promise).rejects.toThrow(BusinessError);
       await expect(promise).rejects.toMatchObject({
@@ -830,7 +985,10 @@ describe("TransactionService", () => {
       });
 
       // Act
-      const result = await service.createTransaction(input, userId);
+      const result = await service.createTransaction(
+        input as CreateTransactionServiceInput,
+        userId,
+      );
 
       // Assert
       expect(result).toBeDefined();
