@@ -239,23 +239,8 @@ export class TransferService {
       );
     }
 
-    // Validate we have exactly 2 transactions (should always be the case for transfers)
-    if (transferTransactions.length !== 2) {
-      throw new BusinessError(
-        `Invalid transfer state: expected 2 transactions, found ${transferTransactions.length}`,
-        BusinessErrorCodes.INVALID_TRANSFER_STATE,
-        {
-          transferId,
-          userId,
-          transactionCount: transferTransactions.length,
-          transactionIds: transferTransactions.map((t) => t.id),
-        },
-      );
-    }
-
     try {
-      // Archive both transactions atomically using TransactWrite
-      // Ensures either both transactions are archived or none (atomic operation)
+      // Archive all transactions for this transfer atomically using TransactWrite
       await this.transactionRepository.archiveMany(
         transferTransactions.map((transaction) => transaction.id),
         userId,
