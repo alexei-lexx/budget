@@ -8,6 +8,7 @@ import {
   QueryTransactionsArgs,
 } from "../__generated__/resolvers-types";
 import {
+  NonTransferTransactionType,
   Transaction as TransactionModel,
   TransactionType,
 } from "../models/transaction";
@@ -19,6 +20,21 @@ import type {
 } from "../types/graphql";
 import { getAuthenticatedUser, handleResolverError } from "./shared";
 
+function parseNonTransferType(
+  type: TransactionType,
+): NonTransferTransactionType {
+  if (
+    type !== TransactionType.INCOME &&
+    type !== TransactionType.EXPENSE &&
+    type !== TransactionType.REFUND
+  ) {
+    throw new GraphQLError(
+      `Transaction type must be ${TransactionType.INCOME}, ${TransactionType.EXPENSE}, or ${TransactionType.REFUND}`,
+      { extensions: { code: "BAD_USER_INPUT" } },
+    );
+  }
+  return type;
+}
 
 export const transactionResolvers = {
   Query: {
@@ -103,24 +119,13 @@ export const transactionResolvers = {
     ) => {
       try {
         const { type, ...rest } = args.input;
-        if (
-          type !== TransactionType.INCOME &&
-          type !== TransactionType.EXPENSE &&
-          type !== TransactionType.REFUND
-        ) {
-          throw new GraphQLError(
-            `Transaction type must be ${TransactionType.INCOME}, ${TransactionType.EXPENSE}, or ${TransactionType.REFUND}`,
-            { extensions: { code: "BAD_USER_INPUT" } },
-          );
-        }
-
         const user = await getAuthenticatedUser(context);
 
         const transaction = await context.transactionService.createTransaction(
           {
             ...rest,
             date: toDateString(rest.date),
-            type,
+            type: parseNonTransferType(type),
           },
           user.id,
         );
@@ -136,18 +141,6 @@ export const transactionResolvers = {
     ) => {
       try {
         const { id, type, ...rest } = args.input;
-        if (
-          type !== undefined &&
-          type !== TransactionType.INCOME &&
-          type !== TransactionType.EXPENSE &&
-          type !== TransactionType.REFUND
-        ) {
-          throw new GraphQLError(
-            `Transaction type must be ${TransactionType.INCOME}, ${TransactionType.EXPENSE}, or ${TransactionType.REFUND}`,
-            { extensions: { code: "BAD_USER_INPUT" } },
-          );
-        }
-
         const user = await getAuthenticatedUser(context);
 
         const transaction = await context.transactionService.updateTransaction(
@@ -156,7 +149,7 @@ export const transactionResolvers = {
           {
             ...rest,
             date: toDateStringUndefined(rest.date ?? undefined),
-            type,
+            type: type !== undefined ? parseNonTransferType(type) : undefined,
           },
         );
         return transaction;
