@@ -1,7 +1,9 @@
-export enum CategoryType {
-  INCOME = "INCOME",
-  EXPENSE = "EXPENSE",
-}
+export const CategoryType = {
+  INCOME: "INCOME",
+  EXPENSE: "EXPENSE",
+} as const;
+
+export type CategoryType = (typeof CategoryType)[keyof typeof CategoryType];
 
 export interface Category {
   userId: string; // Partition key (same pattern as Accounts)
