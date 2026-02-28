@@ -8,6 +8,7 @@ import {
   CreateTransactionInput,
   EnrichedTransactionPattern,
   ITransactionRepository,
+  NonTransferTransactionType,
   Transaction,
   TransactionConnection,
   TransactionFilterInput,
@@ -15,6 +16,7 @@ import {
   TransactionType,
   UpdateTransactionInput,
 } from "../models/transaction";
+import { DateString } from "../types/date";
 import { PaginationInput } from "../types/pagination";
 import { MIN_SEARCH_TEXT_LENGTH } from "../types/validation";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
@@ -29,17 +31,22 @@ export const MAX_DESCRIPTION_SUGGESTIONS_LIMIT = 10;
 export const DESCRIPTION_SUGGESTIONS_SAMPLE_SIZE = 100;
 
 /**
- * Service layer input for creating transactions (currency automatically derived from account)
+ * Service layer input for creating transactions
  */
-type CreateTransactionServiceInput = Omit<
-  CreateTransactionInput,
-  "userId" | "currency"
->;
+export interface CreateTransactionServiceInput {
+  accountId: string;
+  amount: number;
+  categoryId?: string | null;
+  date: DateString;
+  description?: string | null;
+  type: NonTransferTransactionType; // INCOME, EXPENSE, or REFUND
+}
 
 /**
- * Service layer input for updating transactions (currency automatically updated when account changes)
+ * Service layer input for updating transactions
  */
-type UpdateTransactionServiceInput = Omit<UpdateTransactionInput, "currency">;
+export type UpdateTransactionServiceInput =
+  Partial<CreateTransactionServiceInput>;
 
 /**
  * Transaction service class for handling business logic and validation

@@ -6,7 +6,6 @@ import { MIN_SEARCH_TEXT_LENGTH } from "../types/validation";
 import {
   fakeAccount,
   fakeCategory,
-  fakeCreateTransactionInput,
   fakeTransaction,
   fakeTransactionPattern,
 } from "../utils/test-utils/factories";
@@ -15,6 +14,7 @@ import {
   createMockCategoryRepository,
   createMockTransactionRepository,
 } from "../utils/test-utils/mock-repositories";
+import { fakeCreateTransactionServiceInput } from "../utils/test-utils/service-factories";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
 import {
   DEFAULT_TRANSACTION_PATTERNS_LIMIT,
@@ -748,12 +748,13 @@ describe("TransactionService", () => {
   });
 
   describe("createTransaction with REFUND type", () => {
+    const currency = "EUR";
     let accountId: string;
     let expenseCategory: Category;
     let incomeCategory: Category;
 
     beforeEach(() => {
-      const account = fakeAccount({ userId });
+      const account = fakeAccount({ currency, userId });
       accountId = account.id;
       expenseCategory = fakeCategory({
         userId,
@@ -772,8 +773,7 @@ describe("TransactionService", () => {
 
     it("should allow REFUND transaction with EXPENSE category", async () => {
       // Arrange
-      const input = fakeCreateTransactionInput({
-        userId,
+      const input = fakeCreateTransactionServiceInput({
         accountId,
         categoryId: expenseCategory.id,
         type: TransactionType.REFUND,
@@ -794,13 +794,16 @@ describe("TransactionService", () => {
         expenseCategory.id,
         userId,
       );
-      expect(mockTransactionRepository.create).toHaveBeenCalledWith(input);
+      expect(mockTransactionRepository.create).toHaveBeenCalledWith({
+        ...input,
+        currency,
+        userId,
+      });
     });
 
     it("should reject REFUND transaction with INCOME category", async () => {
       // Arrange
-      const input = fakeCreateTransactionInput({
-        userId,
+      const input = fakeCreateTransactionServiceInput({
         accountId,
         categoryId: incomeCategory.id,
         type: TransactionType.REFUND,
@@ -822,8 +825,7 @@ describe("TransactionService", () => {
 
     it("should allow REFUND transaction without category (uncategorized)", async () => {
       // Arrange
-      const input = fakeCreateTransactionInput({
-        userId,
+      const input = fakeCreateTransactionServiceInput({
         accountId,
         categoryId: undefined,
         type: TransactionType.REFUND,
