@@ -922,12 +922,10 @@ describe("TransactionService", () => {
       let transactionId: string;
 
       beforeEach(() => {
-        const account = fakeAccount({ userId });
-        const transaction = fakeTransaction({ userId, accountId: account.id });
+        const transaction = fakeTransaction({ userId });
         transactionId = transaction.id;
 
         mockTransactionRepository.findActiveById.mockResolvedValue(transaction);
-        mockAccountRepository.findActiveById.mockResolvedValue(account);
       });
 
       it("should throw for amount of zero", async () => {
