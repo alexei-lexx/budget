@@ -772,6 +772,41 @@ describe("TransactionService", () => {
   });
 
   describe("createTransaction", () => {
+    describe("validation", () => {
+      beforeEach(() => {
+        const account = fakeAccount({ userId });
+        mockAccountRepository.findActiveById.mockResolvedValue(account);
+      });
+
+      it("should throw for amount of zero", async () => {
+        const input = fakeCreateTransactionServiceInput({
+          categoryId: undefined,
+          amount: 0,
+        });
+
+        const promise = service.createTransaction(input, userId);
+
+        await expect(promise).rejects.toThrow(BusinessError);
+        await expect(promise).rejects.toMatchObject({
+          code: BusinessErrorCodes.INVALID_AMOUNT,
+        });
+      });
+
+      it("should throw for description exceeding maximum length", async () => {
+        const input = fakeCreateTransactionServiceInput({
+          categoryId: undefined,
+          description: "x".repeat(DESCRIPTION_MAX_LENGTH + 1),
+        });
+
+        const promise = service.createTransaction(input, userId);
+
+        await expect(promise).rejects.toThrow(BusinessError);
+        await expect(promise).rejects.toMatchObject({
+          code: BusinessErrorCodes.INVALID_PARAMETERS,
+        });
+      });
+    });
+
     describe("with REFUND type", () => {
       const currency = "EUR";
       let accountId: string;
@@ -867,45 +902,10 @@ describe("TransactionService", () => {
         expect(mockTransactionRepository.create).toHaveBeenCalled();
       });
     });
-
-    describe("input validation", () => {
-      beforeEach(() => {
-        const account = fakeAccount({ userId });
-        mockAccountRepository.findActiveById.mockResolvedValue(account);
-      });
-
-      it("should throw for amount of zero", async () => {
-        const input = fakeCreateTransactionServiceInput({
-          categoryId: undefined,
-          amount: 0,
-        });
-
-        const promise = service.createTransaction(input, userId);
-
-        await expect(promise).rejects.toThrow(BusinessError);
-        await expect(promise).rejects.toMatchObject({
-          code: BusinessErrorCodes.INVALID_AMOUNT,
-        });
-      });
-
-      it("should throw for description exceeding maximum length", async () => {
-        const input = fakeCreateTransactionServiceInput({
-          categoryId: undefined,
-          description: "x".repeat(DESCRIPTION_MAX_LENGTH + 1),
-        });
-
-        const promise = service.createTransaction(input, userId);
-
-        await expect(promise).rejects.toThrow(BusinessError);
-        await expect(promise).rejects.toMatchObject({
-          code: BusinessErrorCodes.INVALID_PARAMETERS,
-        });
-      });
-    });
   });
 
   describe("updateTransaction", () => {
-    describe("input validation", () => {
+    describe("validation", () => {
       let transactionId: string;
 
       beforeEach(() => {
