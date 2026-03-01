@@ -86,8 +86,8 @@ export class TransactionService {
       ...input,
       userId,
       currency: account.currency,
-      categoryId: input.categoryId || undefined,
-      description: input.description || undefined,
+      categoryId: input.categoryId ?? undefined,
+      description: input.description ?? undefined,
     };
 
     return await this.transactionRepository.create(createInput);
