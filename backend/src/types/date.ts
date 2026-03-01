@@ -41,3 +41,13 @@ export function toDateString(value: string): DateString {
   }
   return value;
 }
+
+export function toDateStringOrUndefined(
+  value: string | null | undefined,
+): DateString | undefined {
+  if (value == null) {
+    return undefined;
+  }
+
+  return toDateString(value);
+}

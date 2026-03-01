@@ -5,7 +5,7 @@ import {
   QueryTransferArgs,
 } from "../__generated__/resolvers-types";
 import { GraphQLContext } from "../server";
-import { toDateString } from "../types/date";
+import { toDateString, toDateStringOrUndefined } from "../types/date";
 import { getAuthenticatedUser, handleResolverError } from "./shared";
 
 export const transferResolvers = {
@@ -76,7 +76,7 @@ export const transferResolvers = {
           user.id,
           {
             ...updateData,
-            date: updateData.date ? toDateString(updateData.date) : undefined,
+            date: toDateStringOrUndefined(updateData.date),
           },
         );
 

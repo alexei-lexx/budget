@@ -17,8 +17,15 @@ import {
   UpdateTransactionInput,
 } from "../models/transaction";
 import { DateString } from "../types/date";
-import { PaginationInput } from "../types/pagination";
-import { MIN_SEARCH_TEXT_LENGTH } from "../types/validation";
+import {
+  MAX_PAGE_SIZE,
+  MIN_PAGE_SIZE,
+  PaginationInput,
+} from "../types/pagination";
+import {
+  DESCRIPTION_MAX_LENGTH,
+  MIN_SEARCH_TEXT_LENGTH,
+} from "../types/validation";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
 
 export const DEFAULT_TRANSACTION_PATTERNS_LIMIT = 3;
@@ -74,18 +81,21 @@ export class TransactionService {
     input: CreateTransactionServiceInput,
     userId: string,
   ): Promise<Transaction> {
+    // Validate cheap inputs before any async I/O
+    this.validateAmount(input.amount);
+    this.validateDescription(input.description);
+
     // Validate business rules
     const account = await this.validateAccount(input.accountId, userId);
     await this.validateCategory(input.categoryId, userId, input.type);
-
-    // Additional input validation
-    this.validateAmount(input.amount);
 
     // Create the transaction through repository
     const createInput: CreateTransactionInput = {
       ...input,
       userId,
       currency: account.currency,
+      categoryId: input.categoryId ?? undefined,
+      description: input.description ?? undefined,
     };
 
     return await this.transactionRepository.create(createInput);
@@ -103,17 +113,8 @@ export class TransactionService {
     pagination?: PaginationInput,
     filters?: TransactionFilterInput,
   ): Promise<TransactionConnection> {
-    if (
-      filters?.dateAfter &&
-      filters?.dateBefore &&
-      filters.dateAfter > filters.dateBefore
-    ) {
-      throw new BusinessError(
-        "Invalid date range: From date must be before or equal to To date",
-        BusinessErrorCodes.INVALID_DATE,
-        { dateAfter: filters.dateAfter, dateBefore: filters.dateBefore },
-      );
-    }
+    this.validatePagination(pagination);
+    this.validateFilters(filters);
 
     return await this.transactionRepository.findActiveByUserId(
       userId,
@@ -148,6 +149,12 @@ export class TransactionService {
       );
     }
 
+    // Validate cheap inputs before further async I/O
+    if (input.amount !== undefined) {
+      this.validateAmount(input.amount);
+    }
+    this.validateDescription(input.description);
+
     // Validate account if provided
     let account;
     if (input.accountId) {
@@ -164,11 +171,6 @@ export class TransactionService {
     const transactionType = input.type || existingTransaction.type;
     if (input.categoryId) {
       await this.validateCategory(input.categoryId, userId, transactionType);
-    }
-
-    // Additional input validation
-    if (input.amount !== undefined) {
-      this.validateAmount(input.amount);
     }
 
     // Update the transaction through repository, including currency if account changed
@@ -371,17 +373,62 @@ export class TransactionService {
     return account;
   }
 
+  private validatePagination(pagination?: PaginationInput): void {
+    if (
+      pagination?.first !== undefined &&
+      (pagination.first < MIN_PAGE_SIZE || pagination.first > MAX_PAGE_SIZE)
+    ) {
+      throw new BusinessError(
+        `Pagination first must be between ${MIN_PAGE_SIZE} and ${MAX_PAGE_SIZE}`,
+        BusinessErrorCodes.INVALID_PARAMETERS,
+        { first: pagination.first, min: MIN_PAGE_SIZE, max: MAX_PAGE_SIZE },
+      );
+    }
+  }
+
+  private validateFilters(filters?: TransactionFilterInput): void {
+    if (
+      filters?.dateAfter &&
+      filters?.dateBefore &&
+      filters.dateAfter > filters.dateBefore
+    ) {
+      throw new BusinessError(
+        "Filter dateAfter cannot be later than dateBefore",
+        BusinessErrorCodes.INVALID_DATE,
+        { dateAfter: filters.dateAfter, dateBefore: filters.dateBefore },
+      );
+    }
+  }
+
   /**
-   * Validate that the transaction amount is valid (non-negative)
+   * Validate that the transaction amount is positive
    * @param amount - The amount to validate
-   * @throws BusinessError if amount is negative
+   * @throws BusinessError if amount is zero or negative
    */
   private validateAmount(amount: number): void {
-    if (amount < 0) {
+    if (amount <= 0) {
       throw new BusinessError(
-        "Transaction amount cannot be negative",
+        "Transaction amount must be positive",
         BusinessErrorCodes.INVALID_AMOUNT,
         { amount },
+      );
+    }
+  }
+
+  /**
+   * Validate that the transaction description does not exceed the maximum length
+   * @param description - The description to validate
+   * @throws BusinessError if description exceeds DESCRIPTION_MAX_LENGTH
+   */
+  private validateDescription(description: string | null | undefined): void {
+    if (description && description.length > DESCRIPTION_MAX_LENGTH) {
+      throw new BusinessError(
+        `Description cannot exceed ${DESCRIPTION_MAX_LENGTH} characters`,
+        BusinessErrorCodes.INVALID_PARAMETERS,
+        {
+          descriptionLength: description.length,
+          maxLength: DESCRIPTION_MAX_LENGTH,
+        },
       );
     }
   }

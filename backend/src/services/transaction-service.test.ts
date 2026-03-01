@@ -2,7 +2,11 @@ import { faker } from "@faker-js/faker";
 import { Category, CategoryType } from "../models/category";
 import { TransactionPatternType, TransactionType } from "../models/transaction";
 import { toDateString } from "../types/date";
-import { MIN_SEARCH_TEXT_LENGTH } from "../types/validation";
+import { MAX_PAGE_SIZE, MIN_PAGE_SIZE } from "../types/pagination";
+import {
+  DESCRIPTION_MAX_LENGTH,
+  MIN_SEARCH_TEXT_LENGTH,
+} from "../types/validation";
 import {
   fakeAccount,
   fakeCategory,
@@ -736,8 +740,7 @@ describe("TransactionService", () => {
       await expect(promise).rejects.toThrow(BusinessError);
 
       await expect(promise).rejects.toMatchObject({
-        message:
-          "Invalid date range: From date must be before or equal to To date",
+        message: "Filter dateAfter cannot be later than dateBefore",
         code: BusinessErrorCodes.INVALID_DATE,
       });
 
@@ -745,99 +748,220 @@ describe("TransactionService", () => {
         mockTransactionRepository.findActiveByUserId,
       ).not.toHaveBeenCalled();
     });
-  });
 
-  describe("createTransaction with REFUND type", () => {
-    const currency = "EUR";
-    let accountId: string;
-    let expenseCategory: Category;
-    let incomeCategory: Category;
-
-    beforeEach(() => {
-      const account = fakeAccount({ currency, userId });
-      accountId = account.id;
-      expenseCategory = fakeCategory({
-        userId,
-        type: CategoryType.EXPENSE,
-      });
-      incomeCategory = fakeCategory({
-        userId,
-        type: CategoryType.INCOME,
-      });
-
-      mockAccountRepository.findActiveById.mockResolvedValue(account);
-      mockTransactionRepository.create.mockResolvedValue(
-        fakeTransaction({ type: TransactionType.REFUND }),
-      );
-    });
-
-    it("should allow REFUND transaction with EXPENSE category", async () => {
-      // Arrange
-      const input = fakeCreateTransactionServiceInput({
-        accountId,
-        categoryId: expenseCategory.id,
-        type: TransactionType.REFUND,
-      });
-
-      mockCategoryRepository.findActiveById.mockResolvedValue(expenseCategory);
-
-      // Act
-      const result = await service.createTransaction(input, userId);
-
-      // Assert
-      expect(result).toBeDefined();
-      expect(mockAccountRepository.findActiveById).toHaveBeenCalledWith(
-        accountId,
-        userId,
-      );
-      expect(mockCategoryRepository.findActiveById).toHaveBeenCalledWith(
-        expenseCategory.id,
-        userId,
-      );
-      expect(mockTransactionRepository.create).toHaveBeenCalledWith({
-        ...input,
-        currency,
-        userId,
-      });
-    });
-
-    it("should reject REFUND transaction with INCOME category", async () => {
-      // Arrange
-      const input = fakeCreateTransactionServiceInput({
-        accountId,
-        categoryId: incomeCategory.id,
-        type: TransactionType.REFUND,
-      });
-
-      mockCategoryRepository.findActiveById.mockResolvedValue(incomeCategory);
-
-      // Act & Assert
-      const promise = service.createTransaction(input, userId);
+    it("should throw for pagination first below minimum", async () => {
+      const promise = service.getTransactionsByUser(userId, { first: 0 });
 
       await expect(promise).rejects.toThrow(BusinessError);
       await expect(promise).rejects.toMatchObject({
-        message: `Category type "${CategoryType.INCOME}" doesn't match transaction type "${TransactionType.REFUND}"`,
-        code: BusinessErrorCodes.INVALID_CATEGORY_TYPE,
+        message: `Pagination first must be between ${MIN_PAGE_SIZE} and ${MAX_PAGE_SIZE}`,
+        code: BusinessErrorCodes.INVALID_PARAMETERS,
       });
-
-      expect(mockTransactionRepository.create).not.toHaveBeenCalled();
     });
 
-    it("should allow REFUND transaction without category (uncategorized)", async () => {
-      // Arrange
-      const input = fakeCreateTransactionServiceInput({
-        accountId,
-        categoryId: undefined,
-        type: TransactionType.REFUND,
+    it("should throw for pagination first above maximum", async () => {
+      const promise = service.getTransactionsByUser(userId, {
+        first: MAX_PAGE_SIZE + 1,
       });
 
-      // Act
-      const result = await service.createTransaction(input, userId);
+      await expect(promise).rejects.toThrow(BusinessError);
+      await expect(promise).rejects.toMatchObject({
+        code: BusinessErrorCodes.INVALID_PARAMETERS,
+      });
+    });
+  });
 
-      // Assert
-      expect(result).toBeDefined();
-      expect(mockCategoryRepository.findActiveById).not.toHaveBeenCalled();
-      expect(mockTransactionRepository.create).toHaveBeenCalled();
+  describe("createTransaction", () => {
+    describe("validation", () => {
+      beforeEach(() => {
+        const account = fakeAccount({ userId });
+        mockAccountRepository.findActiveById.mockResolvedValue(account);
+      });
+
+      it("should throw for amount of zero", async () => {
+        const input = fakeCreateTransactionServiceInput({
+          amount: 0,
+        });
+
+        const promise = service.createTransaction(input, userId);
+
+        await expect(promise).rejects.toThrow(BusinessError);
+        await expect(promise).rejects.toMatchObject({
+          code: BusinessErrorCodes.INVALID_AMOUNT,
+          message: "Transaction amount must be positive",
+        });
+      });
+
+      it("should throw for negative amount", async () => {
+        const input = fakeCreateTransactionServiceInput({
+          amount: -100,
+        });
+
+        const promise = service.createTransaction(input, userId);
+
+        await expect(promise).rejects.toThrow(BusinessError);
+        await expect(promise).rejects.toMatchObject({
+          code: BusinessErrorCodes.INVALID_AMOUNT,
+          message: "Transaction amount must be positive",
+        });
+      });
+
+      it("should throw for description exceeding maximum length", async () => {
+        const input = fakeCreateTransactionServiceInput({
+          description: "x".repeat(DESCRIPTION_MAX_LENGTH + 1),
+        });
+
+        const promise = service.createTransaction(input, userId);
+
+        await expect(promise).rejects.toThrow(BusinessError);
+        await expect(promise).rejects.toMatchObject({
+          code: BusinessErrorCodes.INVALID_PARAMETERS,
+        });
+      });
+    });
+
+    describe("with REFUND type", () => {
+      const currency = "EUR";
+      let accountId: string;
+      let expenseCategory: Category;
+      let incomeCategory: Category;
+
+      beforeEach(() => {
+        const account = fakeAccount({ currency, userId });
+        accountId = account.id;
+        expenseCategory = fakeCategory({
+          userId,
+          type: CategoryType.EXPENSE,
+        });
+        incomeCategory = fakeCategory({
+          userId,
+          type: CategoryType.INCOME,
+        });
+
+        mockAccountRepository.findActiveById.mockResolvedValue(account);
+        mockTransactionRepository.create.mockResolvedValue(
+          fakeTransaction({ type: TransactionType.REFUND }),
+        );
+      });
+
+      it("should allow REFUND transaction with EXPENSE category", async () => {
+        // Arrange
+        const input = fakeCreateTransactionServiceInput({
+          accountId,
+          categoryId: expenseCategory.id,
+          type: TransactionType.REFUND,
+        });
+
+        mockCategoryRepository.findActiveById.mockResolvedValue(
+          expenseCategory,
+        );
+
+        // Act
+        const result = await service.createTransaction(input, userId);
+
+        // Assert
+        expect(result).toBeDefined();
+        expect(mockAccountRepository.findActiveById).toHaveBeenCalledWith(
+          accountId,
+          userId,
+        );
+        expect(mockCategoryRepository.findActiveById).toHaveBeenCalledWith(
+          expenseCategory.id,
+          userId,
+        );
+        expect(mockTransactionRepository.create).toHaveBeenCalledWith({
+          ...input,
+          currency,
+          userId,
+        });
+      });
+
+      it("should reject REFUND transaction with INCOME category", async () => {
+        // Arrange
+        const input = fakeCreateTransactionServiceInput({
+          accountId,
+          categoryId: incomeCategory.id,
+          type: TransactionType.REFUND,
+        });
+
+        mockCategoryRepository.findActiveById.mockResolvedValue(incomeCategory);
+
+        // Act & Assert
+        const promise = service.createTransaction(input, userId);
+
+        await expect(promise).rejects.toThrow(BusinessError);
+        await expect(promise).rejects.toMatchObject({
+          message: `Category type "${CategoryType.INCOME}" doesn't match transaction type "${TransactionType.REFUND}"`,
+          code: BusinessErrorCodes.INVALID_CATEGORY_TYPE,
+        });
+
+        expect(mockTransactionRepository.create).not.toHaveBeenCalled();
+      });
+
+      it("should allow REFUND transaction without category (uncategorized)", async () => {
+        // Arrange
+        const input = fakeCreateTransactionServiceInput({
+          accountId,
+          categoryId: undefined,
+          type: TransactionType.REFUND,
+        });
+
+        // Act
+        const result = await service.createTransaction(input, userId);
+
+        // Assert
+        expect(result).toBeDefined();
+        expect(mockCategoryRepository.findActiveById).not.toHaveBeenCalled();
+        expect(mockTransactionRepository.create).toHaveBeenCalled();
+      });
+    });
+  });
+
+  describe("updateTransaction", () => {
+    describe("validation", () => {
+      let transactionId: string;
+
+      beforeEach(() => {
+        const transaction = fakeTransaction({ userId });
+        transactionId = transaction.id;
+
+        mockTransactionRepository.findActiveById.mockResolvedValue(transaction);
+      });
+
+      it("should throw for amount of zero", async () => {
+        const promise = service.updateTransaction(transactionId, userId, {
+          amount: 0,
+        });
+
+        await expect(promise).rejects.toThrow(BusinessError);
+        await expect(promise).rejects.toMatchObject({
+          code: BusinessErrorCodes.INVALID_AMOUNT,
+          message: "Transaction amount must be positive",
+        });
+      });
+
+      it("should throw for negative amount", async () => {
+        const promise = service.updateTransaction(transactionId, userId, {
+          amount: -50,
+        });
+
+        await expect(promise).rejects.toThrow(BusinessError);
+        await expect(promise).rejects.toMatchObject({
+          code: BusinessErrorCodes.INVALID_AMOUNT,
+          message: "Transaction amount must be positive",
+        });
+      });
+
+      it("should throw for description exceeding maximum length", async () => {
+        const promise = service.updateTransaction(transactionId, userId, {
+          description: "x".repeat(DESCRIPTION_MAX_LENGTH + 1),
+        });
+
+        await expect(promise).rejects.toThrow(BusinessError);
+        await expect(promise).rejects.toMatchObject({
+          code: BusinessErrorCodes.INVALID_PARAMETERS,
+        });
+      });
     });
   });
 });
