@@ -45,8 +45,12 @@ export interface CreateTransactionServiceInput {
 /**
  * Service layer input for updating transactions
  */
-export type UpdateTransactionServiceInput =
-  Partial<CreateTransactionServiceInput>;
+export type UpdateTransactionServiceInput = Partial<
+  Omit<CreateTransactionServiceInput, "categoryId" | "description">
+> & {
+  categoryId?: string | null; // Allow null to remove category association
+  description?: string | null; // Allow null to clear description
+};
 
 /**
  * Transaction service class for handling business logic and validation
@@ -82,6 +86,8 @@ export class TransactionService {
       ...input,
       userId,
       currency: account.currency,
+      categoryId: input.categoryId || undefined,
+      description: input.description || undefined,
     };
 
     return await this.transactionRepository.create(createInput);
