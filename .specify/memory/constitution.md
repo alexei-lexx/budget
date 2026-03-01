@@ -1,4 +1,24 @@
 <!-- SYNC IMPACT REPORT
+Version Change: 0.25.0 → 0.26.0
+Changes:
+  - MINOR (0.26.0): Added Validation Ordering rule to Input Validation principle
+Modified Sections:
+  - Input Validation: Added explicit ordering rule — auth/ownership first, then cheap
+    (sync, no I/O) checks, then database-dependent validation
+Added Sections:
+  - None
+Removed Sections:
+  - None
+Templates Requiring Updates:
+  ✅ plan-template.md: Generic template, no validation ordering guidance to update
+  ✅ spec-template.md: Generic template, no validation ordering guidance to update
+  ✅ tasks-template.md: Generic template, no validation ordering guidance to update
+Dependent Documentation Updates:
+  - No template changes required (principle adds ordering constraint to existing section)
+Follow-up TODOs:
+  - Ratification date remains TODO (inherited from previous versions)
+
+Previous Sync Impact Report:
 Version Change: 0.24.0 → 0.25.0
 Changes:
   - MINOR (0.25.0): Added Method Ordering as a standalone principle
@@ -444,6 +464,18 @@ graph LR
 - Operand validity checks
 - Throw repository-specific errors for database operation failures
 
+**Validation Ordering**:
+Checks MUST follow this order:
+- **Auth / ownership first**:
+  - Verify the caller has access to the resource before revealing anything about it
+  - Never expose resource existence or error details to callers who have not yet proven they own the resource
+- **Cheap checks second**:
+  - Run all synchronous, I/O-free validations before issuing any database round-trips
+  - Includes format, range, and required field checks
+- **Database-dependent checks last**:
+  - Entity existence, uniqueness constraints, and relational integrity checks
+  - Only run after all cheap checks have passed
+
 **Rationale**: Services can be called from multiple entry points (GraphQL, REST API, CLI, batch jobs). Defensive programming requires services to self-validate regardless of caller. Validation with business consequences belongs with business logic in the service layer.
 
 ### UI Guidelines
@@ -509,4 +541,4 @@ This constitution supersedes all other development guidelines. Amendments requir
 4. Commit with message: `docs: amend constitution to vX.Y.Z ([change summary])`
 5. Update dependent artifacts (templates, guidance docs) as flagged
 
-**Version**: 0.25.0 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2026-03-01
+**Version**: 0.26.0 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2026-03-01
