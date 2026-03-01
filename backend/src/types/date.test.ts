@@ -1,4 +1,4 @@
-import { isDateString, toDateString, toDateStringUndefined } from "./date";
+import { isDateString, toDateString, toDateStringOrUndefined } from "./date";
 
 describe("isDateString", () => {
   describe("valid dates", () => {
@@ -76,17 +76,21 @@ describe("toDateString", () => {
   });
 });
 
-describe("toDateStringUndefined", () => {
+describe("toDateStringOrUndefined", () => {
   it("returns undefined for undefined input", () => {
-    expect(toDateStringUndefined(undefined)).toBeUndefined();
+    expect(toDateStringOrUndefined(undefined)).toBeUndefined();
+  });
+
+  it("returns undefined for null input", () => {
+    expect(toDateStringOrUndefined(null)).toBeUndefined();
   });
 
   it("returns the value unchanged for a valid date", () => {
-    expect(toDateStringUndefined("2000-01-15")).toBe("2000-01-15");
+    expect(toDateStringOrUndefined("2000-01-15")).toBe("2000-01-15");
   });
 
   it("throws for an invalid date format", () => {
-    expect(() => toDateStringUndefined("15/01/2000")).toThrow(
+    expect(() => toDateStringOrUndefined("15/01/2000")).toThrow(
       'Invalid date format: "15/01/2000". Expected YYYY-MM-DD.',
     );
   });

@@ -42,10 +42,10 @@ export function toDateString(value: string): DateString {
   return value;
 }
 
-export function toDateStringUndefined(
-  value: string | undefined,
+export function toDateStringOrUndefined(
+  value: string | null | undefined,
 ): DateString | undefined {
-  if (value === undefined) {
+  if (value == null) {
     return undefined;
   }
 

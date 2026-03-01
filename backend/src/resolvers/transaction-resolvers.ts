@@ -13,7 +13,7 @@ import {
   TransactionType,
 } from "../models/transaction";
 import { GraphQLContext } from "../server";
-import { toDateString, toDateStringUndefined } from "../types/date";
+import { toDateString, toDateStringOrUndefined } from "../types/date";
 import type {
   TransactionEmbeddedAccount,
   TransactionEmbeddedCategory,
@@ -53,8 +53,8 @@ export const transactionResolvers = {
             pagination,
             filters && {
               ...filters,
-              dateAfter: toDateStringUndefined(filters.dateAfter),
-              dateBefore: toDateStringUndefined(filters.dateBefore),
+              dateAfter: toDateStringOrUndefined(filters.dateAfter),
+              dateBefore: toDateStringOrUndefined(filters.dateBefore),
             },
           );
         return transactionConnection;
@@ -148,7 +148,7 @@ export const transactionResolvers = {
           user.id,
           {
             ...rest,
-            date: toDateStringUndefined(rest.date ?? undefined),
+            date: toDateStringOrUndefined(rest.date),
             type: type !== undefined ? parseNonTransferType(type) : undefined,
           },
         );
