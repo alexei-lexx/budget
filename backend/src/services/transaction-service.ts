@@ -113,28 +113,8 @@ export class TransactionService {
     pagination?: PaginationInput,
     filters?: TransactionFilterInput,
   ): Promise<TransactionConnection> {
-    if (
-      pagination?.first !== undefined &&
-      (pagination.first < MIN_PAGE_SIZE || pagination.first > MAX_PAGE_SIZE)
-    ) {
-      throw new BusinessError(
-        `First must be between ${MIN_PAGE_SIZE} and ${MAX_PAGE_SIZE}`,
-        BusinessErrorCodes.INVALID_PARAMETERS,
-        { first: pagination.first, min: MIN_PAGE_SIZE, max: MAX_PAGE_SIZE },
-      );
-    }
-
-    if (
-      filters?.dateAfter &&
-      filters?.dateBefore &&
-      filters.dateAfter > filters.dateBefore
-    ) {
-      throw new BusinessError(
-        "Invalid date range: From date must be before or equal to To date",
-        BusinessErrorCodes.INVALID_DATE,
-        { dateAfter: filters.dateAfter, dateBefore: filters.dateBefore },
-      );
-    }
+    this.validatePagination(pagination);
+    this.validateDateRange(filters);
 
     return await this.transactionRepository.findActiveByUserId(
       userId,
@@ -391,6 +371,33 @@ export class TransactionService {
     }
 
     return account;
+  }
+
+  private validatePagination(pagination?: PaginationInput): void {
+    if (
+      pagination?.first !== undefined &&
+      (pagination.first < MIN_PAGE_SIZE || pagination.first > MAX_PAGE_SIZE)
+    ) {
+      throw new BusinessError(
+        `First must be between ${MIN_PAGE_SIZE} and ${MAX_PAGE_SIZE}`,
+        BusinessErrorCodes.INVALID_PARAMETERS,
+        { first: pagination.first, min: MIN_PAGE_SIZE, max: MAX_PAGE_SIZE },
+      );
+    }
+  }
+
+  private validateDateRange(filters?: TransactionFilterInput): void {
+    if (
+      filters?.dateAfter &&
+      filters?.dateBefore &&
+      filters.dateAfter > filters.dateBefore
+    ) {
+      throw new BusinessError(
+        "Invalid date range: From date must be before or equal to To date",
+        BusinessErrorCodes.INVALID_DATE,
+        { dateAfter: filters.dateAfter, dateBefore: filters.dateBefore },
+      );
+    }
   }
 
   /**
