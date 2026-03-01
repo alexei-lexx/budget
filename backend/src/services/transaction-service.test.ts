@@ -780,7 +780,6 @@ describe("TransactionService", () => {
 
       it("should throw for amount of zero", async () => {
         const input = fakeCreateTransactionServiceInput({
-          categoryId: undefined,
           amount: 0,
         });
 
@@ -795,7 +794,6 @@ describe("TransactionService", () => {
 
       it("should throw for negative amount", async () => {
         const input = fakeCreateTransactionServiceInput({
-          categoryId: undefined,
           amount: -100,
         });
 
@@ -810,7 +808,6 @@ describe("TransactionService", () => {
 
       it("should throw for description exceeding maximum length", async () => {
         const input = fakeCreateTransactionServiceInput({
-          categoryId: undefined,
           description: "x".repeat(DESCRIPTION_MAX_LENGTH + 1),
         });
 
