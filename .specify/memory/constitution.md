@@ -485,8 +485,8 @@ graph LR
 **Rules**:
 - **Public before private**: all public methods MUST appear before private methods so the
   public API is immediately visible at the top of the class
-- **Stepdown Rule**: a method that calls another method of the same visibility MUST appear
-  above it (caller above callee)
+- **Stepdown Rule**: within a group, a method that calls another method in the same group MUST
+  appear above it (caller above callee); cross-group calls do not override group placement
 - **Reads before writes** (for classes with CRUD-style methods): reads MUST come before writes,
   and within each group the sequence is also fixed:
   - Reads (in order): find-one, find-many, other reads (aggregations, calculations)
