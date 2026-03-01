@@ -484,19 +484,22 @@ graph LR
 
 **Non-negotiable rule**: Methods within a class MUST follow a consistent ordering that exposes the public API first and places higher-level logic above the details it depends on.
 
-**Rules**:
-- **Public before private**: all public methods MUST appear before private methods so the
-  public API is immediately visible at the top of the class
-- **Stepdown Rule**: within a group, a method that calls another method in the same group MUST
-  appear above it (caller above callee); cross-group calls do not override group placement
-- **Reads before writes** (for classes with CRUD-style methods): reads MUST come before writes,
-  and within each group the sequence is also fixed:
-  - Reads (in order): find-one, find-many, other reads (aggregations, calculations)
-  - Writes (in order): create, create-many, update, update-many, delete/archive, delete-many/archive-many
-- **Test files**: `describe` blocks MUST mirror the same method order as the source class
+**Rules** (listed by priority — earlier rules take precedence over later ones):
 
-**Rationale**: Consistent ordering makes the public API immediately visible, non-mutating
-operations readable before mutations, and test files predictably navigable alongside source.
+1. **Public before private**
+   - All public methods MUST appear before all private methods
+
+2. **Reads before writes** (CRUD classes only)
+   - Reads MUST come before writes
+   - Reads (in order): find one, find many, other reads (aggregations, calculations)
+   - Writes (in order): create one, create many, update one, update many, delete one/archive one, delete many/archive many
+
+3. **Stepdown Rule**
+   - Caller MUST appear above the methods it calls
+
+**Test files**: `describe` blocks MUST mirror the method order of the source class.
+
+**Rationale**: Consistent ordering makes the public API immediately visible, places non-mutating operations before mutations, and keeps test files predictably aligned with their source.
 
 ## Governance
 
