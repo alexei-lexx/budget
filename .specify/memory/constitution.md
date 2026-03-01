@@ -1,12 +1,14 @@
 <!-- SYNC IMPACT REPORT
-Version Change: 0.25.0 → 0.26.0
+Version Change: 0.24.0 → 0.25.0
 Changes:
-  - MINOR (0.26.0): Extracted Method Ordering into a standalone principle
+  - MINOR (0.25.0): Added Method Ordering as a standalone principle
 Modified Sections:
-  - TypeScript Code Generation: Removed inlined Method Ordering bullet
+  - TypeScript Code Generation: Removed "place public methods before private methods" bullet
+    (rule incorporated into the new principle)
 Added Sections:
-  - Method Ordering: New principle covering public-before-private, Stepdown Rule,
-    reads-before-writes for CRUD classes, and test file mirroring
+  - Method Ordering: New principle defining full method ordering convention —
+    public-before-private, Stepdown Rule (scoped within groups), reads-before-writes
+    with fixed sequence for CRUD classes, and test file mirroring
 Removed Sections:
   - None
 Templates Requiring Updates:
@@ -507,4 +509,4 @@ This constitution supersedes all other development guidelines. Amendments requir
 4. Commit with message: `docs: amend constitution to vX.Y.Z ([change summary])`
 5. Update dependent artifacts (templates, guidance docs) as flagged
 
-**Version**: 0.26.0 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2026-03-01
+**Version**: 0.25.0 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2026-03-01
