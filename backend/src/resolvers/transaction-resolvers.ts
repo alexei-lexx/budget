@@ -50,11 +50,19 @@ export const transactionResolvers = {
         const transactionConnection =
           await context.transactionService.getTransactionsByUser(
             user.id,
-            pagination,
-            filters && {
+            (pagination ?? undefined) && {
+              ...pagination,
+              first: pagination?.first ?? undefined,
+              after: pagination?.after ?? undefined,
+            },
+            (filters ?? undefined) && {
               ...filters,
-              dateAfter: toDateStringOrUndefined(filters.dateAfter),
-              dateBefore: toDateStringOrUndefined(filters.dateBefore),
+              accountIds: filters?.accountIds ?? undefined,
+              categoryIds: filters?.categoryIds ?? undefined,
+              dateAfter: toDateStringOrUndefined(filters?.dateAfter),
+              dateBefore: toDateStringOrUndefined(filters?.dateBefore),
+              includeUncategorized: filters?.includeUncategorized ?? undefined,
+              types: filters?.types ?? undefined,
             },
           );
         return transactionConnection;
@@ -124,7 +132,9 @@ export const transactionResolvers = {
         const transaction = await context.transactionService.createTransaction(
           {
             ...rest,
+            categoryId: rest.categoryId ?? undefined,
             date: toDateString(rest.date),
+            description: rest.description ?? undefined,
             type: parseNonTransferType(type),
           },
           user.id,
@@ -147,9 +157,16 @@ export const transactionResolvers = {
           id,
           user.id,
           {
+            // categoryId and description pass null through intentionally:
+            // null means "clear this field"; undefined means "leave unchanged"
             ...rest,
+            accountId: rest.accountId ?? undefined,
+            amount: rest.amount ?? undefined,
             date: toDateStringOrUndefined(rest.date),
-            type: type !== undefined ? parseNonTransferType(type) : undefined,
+            type:
+              type !== undefined && type !== null
+                ? parseNonTransferType(type)
+                : undefined,
           },
         );
         return transaction;
