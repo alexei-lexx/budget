@@ -36,17 +36,21 @@ export const DESCRIPTION_SUGGESTIONS_SAMPLE_SIZE = 100;
 export interface CreateTransactionServiceInput {
   accountId: string;
   amount: number;
-  categoryId?: string | null;
+  categoryId?: string;
   date: DateString;
-  description?: string | null;
+  description?: string;
   type: NonTransferTransactionType; // INCOME, EXPENSE, or REFUND
 }
 
 /**
  * Service layer input for updating transactions
  */
-export type UpdateTransactionServiceInput =
-  Partial<CreateTransactionServiceInput>;
+export type UpdateTransactionServiceInput = Partial<
+  Omit<CreateTransactionServiceInput, "categoryId" | "description">
+> & {
+  categoryId?: string | null; // Allow null to remove category association
+  description?: string | null; // Allow null to clear description
+};
 
 /**
  * Transaction service class for handling business logic and validation

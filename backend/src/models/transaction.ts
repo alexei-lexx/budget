@@ -42,18 +42,24 @@ export interface Transaction {
 export interface CreateTransactionInput {
   userId: string;
   accountId: string;
-  categoryId?: string | null;
+  categoryId?: string;
   type: TransactionType;
   amount: number;
   currency: string;
   date: DateString;
-  description?: string | null;
-  transferId?: string | null;
+  description?: string;
+  transferId?: string;
 }
 
 export type UpdateTransactionInput = Partial<
-  Omit<CreateTransactionInput, "userId" | "transferId">
->;
+  Omit<
+    CreateTransactionInput,
+    "categoryId" | "description" | "transferId" | "userId"
+  >
+> & {
+  categoryId?: string | null; // Allow null to remove category association
+  description?: string | null; // Allow null to clear description
+};
 
 // Transaction-specific pagination types using generic pagination interfaces
 export type TransactionEdge = Edge<Transaction>;

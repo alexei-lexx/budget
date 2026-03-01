@@ -49,11 +49,11 @@ const allTransactionTypesSchema = z.enum(TransactionType);
  */
 const createTransactionInputSchema = z.object({
   accountId: accountIdSchema,
-  categoryId: nullishCategoryIdSchema,
+  categoryId: nullishCategoryIdSchema.transform((value) => value ?? undefined),
   type: typeSchema,
   amount: amountSchema,
   date: dateSchema.transform(toDateString),
-  description: descriptionSchema,
+  description: descriptionSchema.transform((value) => value ?? undefined),
 });
 
 const updateTransactionInputSchema = z.object({
