@@ -206,7 +206,11 @@ export const transactionResolvers = {
         const user = await getAuthenticatedUser(context);
 
         const transaction = await context.transactionService.createTransaction(
-          validatedInput,
+          {
+            ...validatedInput,
+            categoryId: validatedInput.categoryId ?? undefined,
+            description: validatedInput.description ?? undefined,
+          },
           user.id,
         );
         return transaction;

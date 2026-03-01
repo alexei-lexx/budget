@@ -36,9 +36,9 @@ export const DESCRIPTION_SUGGESTIONS_SAMPLE_SIZE = 100;
 export interface CreateTransactionServiceInput {
   accountId: string;
   amount: number;
-  categoryId?: string | null;
+  categoryId?: string;
   date: DateString;
-  description?: string | null;
+  description?: string;
   type: NonTransferTransactionType; // INCOME, EXPENSE, or REFUND
 }
 
@@ -86,8 +86,6 @@ export class TransactionService {
       ...input,
       userId,
       currency: account.currency,
-      categoryId: input.categoryId ?? undefined,
-      description: input.description ?? undefined,
     };
 
     return await this.transactionRepository.create(createInput);
