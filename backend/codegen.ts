@@ -9,9 +9,11 @@ const config: CodegenConfig = {
       config: {
         // Provides GraphQL context type with auth, repositories, and services
         contextType: "../server#GraphQLContext",
-        // Use undefined instead of null for optional GraphQL inputs (matches TypeScript conventions)
-        inputMaybeValue: "T | undefined",
-        // Use undefined instead of null for nullable GraphQL outputs (matches TypeScript conventions)
+        // Inputs distinguish null (client wants to clear/overwrite field) from undefined (field not set, leave unchanged)
+        // This PATCH semantics difference is essential; TypeScript must type both so code that crashes on null is caught
+        inputMaybeValue: "T | null | undefined",
+        // Outputs only use undefined. GraphQL doesn't distinguish null vs omitted on responses
+        // Server controls what's sent, so null distinction is unnecessary
         maybeValue: "T | undefined",
         // Map GraphQL enums to model enums to avoid type mismatches
         enumValues: {

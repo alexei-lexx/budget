@@ -80,7 +80,12 @@ export const accountResolvers = {
         const account = await context.accountService.updateAccount(
           id,
           user.id,
-          updateData,
+          {
+            ...updateData,
+            currency: updateData.currency ?? undefined,
+            initialBalance: updateData.initialBalance ?? undefined,
+            name: updateData.name ?? undefined,
+          },
         );
 
         return account;

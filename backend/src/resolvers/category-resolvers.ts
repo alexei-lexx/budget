@@ -19,7 +19,7 @@ export const categoryResolvers = {
         const user = await getAuthenticatedUser(context);
         return await context.categoryService.getCategoriesByUser(
           user.id,
-          args.type,
+          args.type ?? undefined,
         );
       } catch (error) {
         handleResolverError(error, "Failed to fetch categories");
@@ -58,7 +58,12 @@ export const categoryResolvers = {
         const category = await context.categoryService.updateCategory(
           id,
           user.id,
-          updateData,
+          {
+            ...updateData,
+            excludeFromReports: updateData.excludeFromReports ?? undefined,
+            name: updateData.name ?? undefined,
+            type: updateData.type ?? undefined,
+          },
         );
         return category;
       } catch (error) {

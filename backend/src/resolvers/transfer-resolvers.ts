@@ -76,7 +76,10 @@ export const transferResolvers = {
           user.id,
           {
             ...updateData,
+            amount: updateData.amount ?? undefined,
             date: toDateStringOrUndefined(updateData.date),
+            fromAccountId: updateData.fromAccountId ?? undefined,
+            toAccountId: updateData.toAccountId ?? undefined,
           },
         );
 
