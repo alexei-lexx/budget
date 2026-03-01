@@ -1,4 +1,26 @@
 <!-- SYNC IMPACT REPORT
+Version Change: 0.25.0 → 0.26.0
+Changes:
+  - MINOR (0.26.0): Extracted Method Ordering into a standalone principle
+Modified Sections:
+  - TypeScript Code Generation: Removed inlined Method Ordering bullet
+Added Sections:
+  - Method Ordering: New principle covering public-before-private, Stepdown Rule,
+    reads-before-writes for CRUD classes, and test file mirroring
+Added Sections:
+  - None
+Removed Sections:
+  - None
+Templates Requiring Updates:
+  ✅ plan-template.md: Generic template, no method ordering guidance to update
+  ✅ spec-template.md: Generic template, no method ordering guidance to update
+  ✅ tasks-template.md: Generic template, no method ordering guidance to update
+Dependent Documentation Updates:
+  - No template changes required (principle adds new coding convention)
+Follow-up TODOs:
+  - Ratification date remains TODO (inherited from previous versions)
+
+Previous Sync Impact Report:
 Version Change: 0.23.0 → 0.24.0
 Changes:
   - MINOR (0.24.0): Revised Input Validation principle to clarify service-heavy validation approach
@@ -453,11 +475,28 @@ graph LR
   - Avoid abbreviated forms that obscure meaning
   - Avoid shortened versions (e.g., use `user` instead of `usr`, `transaction` instead of `tx`)
   - Keep names concise while prioritizing clarity over brevity
-- Place public methods before private methods in classes to ensure the public API is visible at the top
 - Run `npm run format` and fix all ESLint issues after generating or changing code
 - Run `npm run typecheck` to catch and fix compilation issues after generating or changing code
 
 **Rationale**: Maintains type safety, prevents runtime errors, ensures code quality, improves code readability and API discoverability.
+
+### Method Ordering
+
+**Non-negotiable rule**: Methods within a class MUST follow a consistent ordering that exposes the public API first and places higher-level logic above the details it depends on.
+
+**Rules**:
+- **Public before private**: all public methods MUST appear before private methods so the
+  public API is immediately visible at the top of the class
+- **Stepdown Rule**: a method that calls another method of the same visibility MUST appear
+  above it (caller above callee)
+- **Reads before writes** (for classes with CRUD-style methods): reads MUST come before writes,
+  and within each group the sequence is also fixed:
+  - Reads (in order): find-one, find-many, other reads (aggregations, calculations)
+  - Writes (in order): create, create-many, update, update-many, delete/archive, delete-many/archive-many
+- **Test files**: `describe` blocks MUST mirror the same method order as the source class
+
+**Rationale**: Consistent ordering makes the public API immediately visible, non-mutating
+operations readable before mutations, and test files predictably navigable alongside source.
 
 ## Governance
 
@@ -470,4 +509,4 @@ This constitution supersedes all other development guidelines. Amendments requir
 4. Commit with message: `docs: amend constitution to vX.Y.Z ([change summary])`
 5. Update dependent artifacts (templates, guidance docs) as flagged
 
-**Version**: 0.24.0 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2026-02-14
+**Version**: 0.26.0 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2026-03-01
