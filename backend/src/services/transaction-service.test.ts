@@ -789,6 +789,22 @@ describe("TransactionService", () => {
         await expect(promise).rejects.toThrow(BusinessError);
         await expect(promise).rejects.toMatchObject({
           code: BusinessErrorCodes.INVALID_AMOUNT,
+          message: "Transaction amount must be positive",
+        });
+      });
+
+      it("should throw for negative amount", async () => {
+        const input = fakeCreateTransactionServiceInput({
+          categoryId: undefined,
+          amount: -100,
+        });
+
+        const promise = service.createTransaction(input, userId);
+
+        await expect(promise).rejects.toThrow(BusinessError);
+        await expect(promise).rejects.toMatchObject({
+          code: BusinessErrorCodes.INVALID_AMOUNT,
+          message: "Transaction amount must be positive",
         });
       });
 
@@ -925,6 +941,19 @@ describe("TransactionService", () => {
         await expect(promise).rejects.toThrow(BusinessError);
         await expect(promise).rejects.toMatchObject({
           code: BusinessErrorCodes.INVALID_AMOUNT,
+          message: "Transaction amount must be positive",
+        });
+      });
+
+      it("should throw for negative amount", async () => {
+        const promise = service.updateTransaction(transactionId, userId, {
+          amount: -50,
+        });
+
+        await expect(promise).rejects.toThrow(BusinessError);
+        await expect(promise).rejects.toMatchObject({
+          code: BusinessErrorCodes.INVALID_AMOUNT,
+          message: "Transaction amount must be positive",
         });
       });
 

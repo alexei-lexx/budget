@@ -81,13 +81,13 @@ export class TransactionService {
     input: CreateTransactionServiceInput,
     userId: string,
   ): Promise<Transaction> {
+    // Validate cheap inputs before any async I/O
+    this.validateAmount(input.amount);
+    this.validateDescription(input.description);
+
     // Validate business rules
     const account = await this.validateAccount(input.accountId, userId);
     await this.validateCategory(input.categoryId, userId, input.type);
-
-    // Additional input validation
-    this.validateAmount(input.amount);
-    this.validateDescription(input.description);
 
     // Create the transaction through repository
     const createInput: CreateTransactionInput = {
