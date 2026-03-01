@@ -50,7 +50,7 @@ export const transactionResolvers = {
         const transactionConnection =
           await context.transactionService.getTransactionsByUser(
             user.id,
-            {
+            (pagination ?? undefined) && {
               ...pagination,
               first: pagination?.first ?? undefined,
               after: pagination?.after ?? undefined,
@@ -157,6 +157,8 @@ export const transactionResolvers = {
           id,
           user.id,
           {
+            // categoryId and description pass null through intentionally:
+            // null means "clear this field"; undefined means "leave unchanged"
             ...rest,
             accountId: rest.accountId ?? undefined,
             amount: rest.amount ?? undefined,
