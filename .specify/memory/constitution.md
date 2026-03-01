@@ -485,15 +485,12 @@ graph LR
 **Non-negotiable rule**: Methods within a class MUST follow a consistent ordering that exposes the public API first and places higher-level logic above the details it depends on.
 
 **Rules** (listed by priority — earlier rules take precedence over later ones):
-
 1. **Public before private**
    - All public methods MUST appear before all private methods
-
 2. **Reads before writes** (CRUD classes only)
    - Reads MUST come before writes
    - Reads (in order): find one, find many, other reads (aggregations, calculations)
    - Writes (in order): create one, create many, update one, update many, delete one/archive one, delete many/archive many
-
 3. **Stepdown Rule**
    - Caller MUST appear above the methods it calls
 
