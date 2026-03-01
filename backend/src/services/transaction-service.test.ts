@@ -771,166 +771,172 @@ describe("TransactionService", () => {
     });
   });
 
-  describe("createTransaction with REFUND type", () => {
-    const currency = "EUR";
-    let accountId: string;
-    let expenseCategory: Category;
-    let incomeCategory: Category;
+  describe("createTransaction", () => {
+    describe("with REFUND type", () => {
+      const currency = "EUR";
+      let accountId: string;
+      let expenseCategory: Category;
+      let incomeCategory: Category;
 
-    beforeEach(() => {
-      const account = fakeAccount({ currency, userId });
-      accountId = account.id;
-      expenseCategory = fakeCategory({
-        userId,
-        type: CategoryType.EXPENSE,
-      });
-      incomeCategory = fakeCategory({
-        userId,
-        type: CategoryType.INCOME,
+      beforeEach(() => {
+        const account = fakeAccount({ currency, userId });
+        accountId = account.id;
+        expenseCategory = fakeCategory({
+          userId,
+          type: CategoryType.EXPENSE,
+        });
+        incomeCategory = fakeCategory({
+          userId,
+          type: CategoryType.INCOME,
+        });
+
+        mockAccountRepository.findActiveById.mockResolvedValue(account);
+        mockTransactionRepository.create.mockResolvedValue(
+          fakeTransaction({ type: TransactionType.REFUND }),
+        );
       });
 
-      mockAccountRepository.findActiveById.mockResolvedValue(account);
-      mockTransactionRepository.create.mockResolvedValue(
-        fakeTransaction({ type: TransactionType.REFUND }),
-      );
+      it("should allow REFUND transaction with EXPENSE category", async () => {
+        // Arrange
+        const input = fakeCreateTransactionServiceInput({
+          accountId,
+          categoryId: expenseCategory.id,
+          type: TransactionType.REFUND,
+        });
+
+        mockCategoryRepository.findActiveById.mockResolvedValue(
+          expenseCategory,
+        );
+
+        // Act
+        const result = await service.createTransaction(input, userId);
+
+        // Assert
+        expect(result).toBeDefined();
+        expect(mockAccountRepository.findActiveById).toHaveBeenCalledWith(
+          accountId,
+          userId,
+        );
+        expect(mockCategoryRepository.findActiveById).toHaveBeenCalledWith(
+          expenseCategory.id,
+          userId,
+        );
+        expect(mockTransactionRepository.create).toHaveBeenCalledWith({
+          ...input,
+          currency,
+          userId,
+        });
+      });
+
+      it("should reject REFUND transaction with INCOME category", async () => {
+        // Arrange
+        const input = fakeCreateTransactionServiceInput({
+          accountId,
+          categoryId: incomeCategory.id,
+          type: TransactionType.REFUND,
+        });
+
+        mockCategoryRepository.findActiveById.mockResolvedValue(incomeCategory);
+
+        // Act & Assert
+        const promise = service.createTransaction(input, userId);
+
+        await expect(promise).rejects.toThrow(BusinessError);
+        await expect(promise).rejects.toMatchObject({
+          message: `Category type "${CategoryType.INCOME}" doesn't match transaction type "${TransactionType.REFUND}"`,
+          code: BusinessErrorCodes.INVALID_CATEGORY_TYPE,
+        });
+
+        expect(mockTransactionRepository.create).not.toHaveBeenCalled();
+      });
+
+      it("should allow REFUND transaction without category (uncategorized)", async () => {
+        // Arrange
+        const input = fakeCreateTransactionServiceInput({
+          accountId,
+          categoryId: undefined,
+          type: TransactionType.REFUND,
+        });
+
+        // Act
+        const result = await service.createTransaction(input, userId);
+
+        // Assert
+        expect(result).toBeDefined();
+        expect(mockCategoryRepository.findActiveById).not.toHaveBeenCalled();
+        expect(mockTransactionRepository.create).toHaveBeenCalled();
+      });
     });
 
-    it("should allow REFUND transaction with EXPENSE category", async () => {
-      // Arrange
-      const input = fakeCreateTransactionServiceInput({
-        accountId,
-        categoryId: expenseCategory.id,
-        type: TransactionType.REFUND,
+    describe("input validation", () => {
+      beforeEach(() => {
+        const account = fakeAccount({ userId });
+        mockAccountRepository.findActiveById.mockResolvedValue(account);
       });
 
-      mockCategoryRepository.findActiveById.mockResolvedValue(expenseCategory);
+      it("should throw for amount of zero", async () => {
+        const input = fakeCreateTransactionServiceInput({
+          categoryId: undefined,
+          amount: 0,
+        });
 
-      // Act
-      const result = await service.createTransaction(input, userId);
+        const promise = service.createTransaction(input, userId);
 
-      // Assert
-      expect(result).toBeDefined();
-      expect(mockAccountRepository.findActiveById).toHaveBeenCalledWith(
-        accountId,
-        userId,
-      );
-      expect(mockCategoryRepository.findActiveById).toHaveBeenCalledWith(
-        expenseCategory.id,
-        userId,
-      );
-      expect(mockTransactionRepository.create).toHaveBeenCalledWith({
-        ...input,
-        currency,
-        userId,
-      });
-    });
-
-    it("should reject REFUND transaction with INCOME category", async () => {
-      // Arrange
-      const input = fakeCreateTransactionServiceInput({
-        accountId,
-        categoryId: incomeCategory.id,
-        type: TransactionType.REFUND,
+        await expect(promise).rejects.toThrow(BusinessError);
+        await expect(promise).rejects.toMatchObject({
+          code: BusinessErrorCodes.INVALID_AMOUNT,
+        });
       });
 
-      mockCategoryRepository.findActiveById.mockResolvedValue(incomeCategory);
+      it("should throw for description exceeding maximum length", async () => {
+        const input = fakeCreateTransactionServiceInput({
+          categoryId: undefined,
+          description: "x".repeat(DESCRIPTION_MAX_LENGTH + 1),
+        });
 
-      // Act & Assert
-      const promise = service.createTransaction(input, userId);
+        const promise = service.createTransaction(input, userId);
 
-      await expect(promise).rejects.toThrow(BusinessError);
-      await expect(promise).rejects.toMatchObject({
-        message: `Category type "${CategoryType.INCOME}" doesn't match transaction type "${TransactionType.REFUND}"`,
-        code: BusinessErrorCodes.INVALID_CATEGORY_TYPE,
+        await expect(promise).rejects.toThrow(BusinessError);
+        await expect(promise).rejects.toMatchObject({
+          code: BusinessErrorCodes.INVALID_PARAMETERS,
+        });
       });
-
-      expect(mockTransactionRepository.create).not.toHaveBeenCalled();
-    });
-
-    it("should allow REFUND transaction without category (uncategorized)", async () => {
-      // Arrange
-      const input = fakeCreateTransactionServiceInput({
-        accountId,
-        categoryId: undefined,
-        type: TransactionType.REFUND,
-      });
-
-      // Act
-      const result = await service.createTransaction(input, userId);
-
-      // Assert
-      expect(result).toBeDefined();
-      expect(mockCategoryRepository.findActiveById).not.toHaveBeenCalled();
-      expect(mockTransactionRepository.create).toHaveBeenCalled();
     });
   });
 
-  describe("createTransaction input validation", () => {
-    beforeEach(() => {
-      const account = fakeAccount({ userId });
-      mockAccountRepository.findActiveById.mockResolvedValue(account);
-    });
+  describe("updateTransaction", () => {
+    describe("input validation", () => {
+      let transactionId: string;
 
-    it("should throw for amount of zero", async () => {
-      const input = fakeCreateTransactionServiceInput({
-        categoryId: undefined,
-        amount: 0,
+      beforeEach(() => {
+        const account = fakeAccount({ userId });
+        const transaction = fakeTransaction({ userId, accountId: account.id });
+        transactionId = transaction.id;
+
+        mockTransactionRepository.findActiveById.mockResolvedValue(transaction);
+        mockAccountRepository.findActiveById.mockResolvedValue(account);
       });
 
-      const promise = service.createTransaction(input, userId);
+      it("should throw for amount of zero", async () => {
+        const promise = service.updateTransaction(transactionId, userId, {
+          amount: 0,
+        });
 
-      await expect(promise).rejects.toThrow(BusinessError);
-      await expect(promise).rejects.toMatchObject({
-        code: BusinessErrorCodes.INVALID_AMOUNT,
-      });
-    });
-
-    it("should throw for description exceeding maximum length", async () => {
-      const input = fakeCreateTransactionServiceInput({
-        categoryId: undefined,
-        description: "x".repeat(DESCRIPTION_MAX_LENGTH + 1),
+        await expect(promise).rejects.toThrow(BusinessError);
+        await expect(promise).rejects.toMatchObject({
+          code: BusinessErrorCodes.INVALID_AMOUNT,
+        });
       });
 
-      const promise = service.createTransaction(input, userId);
+      it("should throw for description exceeding maximum length", async () => {
+        const promise = service.updateTransaction(transactionId, userId, {
+          description: "x".repeat(DESCRIPTION_MAX_LENGTH + 1),
+        });
 
-      await expect(promise).rejects.toThrow(BusinessError);
-      await expect(promise).rejects.toMatchObject({
-        code: BusinessErrorCodes.INVALID_PARAMETERS,
-      });
-    });
-  });
-
-  describe("updateTransaction input validation", () => {
-    let transactionId: string;
-
-    beforeEach(() => {
-      const account = fakeAccount({ userId });
-      const transaction = fakeTransaction({ userId, accountId: account.id });
-      transactionId = transaction.id;
-
-      mockTransactionRepository.findActiveById.mockResolvedValue(transaction);
-      mockAccountRepository.findActiveById.mockResolvedValue(account);
-    });
-
-    it("should throw for amount of zero", async () => {
-      const promise = service.updateTransaction(transactionId, userId, {
-        amount: 0,
-      });
-
-      await expect(promise).rejects.toThrow(BusinessError);
-      await expect(promise).rejects.toMatchObject({
-        code: BusinessErrorCodes.INVALID_AMOUNT,
-      });
-    });
-
-    it("should throw for description exceeding maximum length", async () => {
-      const promise = service.updateTransaction(transactionId, userId, {
-        description: "x".repeat(DESCRIPTION_MAX_LENGTH + 1),
-      });
-
-      await expect(promise).rejects.toThrow(BusinessError);
-      await expect(promise).rejects.toMatchObject({
-        code: BusinessErrorCodes.INVALID_PARAMETERS,
+        await expect(promise).rejects.toThrow(BusinessError);
+        await expect(promise).rejects.toMatchObject({
+          code: BusinessErrorCodes.INVALID_PARAMETERS,
+        });
       });
     });
   });
