@@ -7,8 +7,6 @@ Modified Sections:
 Added Sections:
   - Method Ordering: New principle covering public-before-private, Stepdown Rule,
     reads-before-writes for CRUD classes, and test file mirroring
-Added Sections:
-  - None
 Removed Sections:
   - None
 Templates Requiring Updates:
