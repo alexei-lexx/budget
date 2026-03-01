@@ -149,6 +149,12 @@ export class TransactionService {
       );
     }
 
+    // Validate cheap inputs before further async I/O
+    if (input.amount !== undefined) {
+      this.validateAmount(input.amount);
+    }
+    this.validateDescription(input.description);
+
     // Validate account if provided
     let account;
     if (input.accountId) {
@@ -166,12 +172,6 @@ export class TransactionService {
     if (input.categoryId) {
       await this.validateCategory(input.categoryId, userId, transactionType);
     }
-
-    // Additional input validation
-    if (input.amount !== undefined) {
-      this.validateAmount(input.amount);
-    }
-    this.validateDescription(input.description);
 
     // Update the transaction through repository, including currency if account changed
     const updateInput: UpdateTransactionInput = {
