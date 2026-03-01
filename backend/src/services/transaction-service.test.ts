@@ -2,7 +2,7 @@ import { faker } from "@faker-js/faker";
 import { Category, CategoryType } from "../models/category";
 import { TransactionPatternType, TransactionType } from "../models/transaction";
 import { toDateString } from "../types/date";
-import { MAX_PAGE_SIZE } from "../types/pagination";
+import { MAX_PAGE_SIZE, MIN_PAGE_SIZE } from "../types/pagination";
 import {
   DESCRIPTION_MAX_LENGTH,
   MIN_SEARCH_TEXT_LENGTH,
@@ -740,8 +740,7 @@ describe("TransactionService", () => {
       await expect(promise).rejects.toThrow(BusinessError);
 
       await expect(promise).rejects.toMatchObject({
-        message:
-          "Invalid date range: From date must be before or equal to To date",
+        message: "Filter dateAfter cannot be later than dateBefore",
         code: BusinessErrorCodes.INVALID_DATE,
       });
 
@@ -755,6 +754,7 @@ describe("TransactionService", () => {
 
       await expect(promise).rejects.toThrow(BusinessError);
       await expect(promise).rejects.toMatchObject({
+        message: `Pagination first must be between ${MIN_PAGE_SIZE} and ${MAX_PAGE_SIZE}`,
         code: BusinessErrorCodes.INVALID_PARAMETERS,
       });
     });

@@ -114,7 +114,7 @@ export class TransactionService {
     filters?: TransactionFilterInput,
   ): Promise<TransactionConnection> {
     this.validatePagination(pagination);
-    this.validateDateRange(filters);
+    this.validateFilters(filters);
 
     return await this.transactionRepository.findActiveByUserId(
       userId,
@@ -379,21 +379,21 @@ export class TransactionService {
       (pagination.first < MIN_PAGE_SIZE || pagination.first > MAX_PAGE_SIZE)
     ) {
       throw new BusinessError(
-        `First must be between ${MIN_PAGE_SIZE} and ${MAX_PAGE_SIZE}`,
+        `Pagination first must be between ${MIN_PAGE_SIZE} and ${MAX_PAGE_SIZE}`,
         BusinessErrorCodes.INVALID_PARAMETERS,
         { first: pagination.first, min: MIN_PAGE_SIZE, max: MAX_PAGE_SIZE },
       );
     }
   }
 
-  private validateDateRange(filters?: TransactionFilterInput): void {
+  private validateFilters(filters?: TransactionFilterInput): void {
     if (
       filters?.dateAfter &&
       filters?.dateBefore &&
       filters.dateAfter > filters.dateBefore
     ) {
       throw new BusinessError(
-        "Invalid date range: From date must be before or equal to To date",
+        "Filter dateAfter cannot be later than dateBefore",
         BusinessErrorCodes.INVALID_DATE,
         { dateAfter: filters.dateAfter, dateBefore: filters.dateBefore },
       );
