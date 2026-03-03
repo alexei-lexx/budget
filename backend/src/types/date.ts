@@ -1,10 +1,10 @@
 /**
- * Error thrown when date string fails validation
+ * Error thrown when a string fails to parse as a valid YYYY-MM-DD date
  */
-export class DateValidationError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = "DateValidationError";
+export class InvalidDateStringError extends Error {
+  constructor(value: string) {
+    super(`Invalid date format: "${value}". Expected YYYY-MM-DD.`);
+    this.name = "InvalidDateStringError";
   }
 }
 
@@ -47,9 +47,7 @@ export function isDateString(value: string): value is DateString {
  */
 export function toDateString(value: string): DateString {
   if (!isDateString(value)) {
-    throw new DateValidationError(
-      `Invalid date format: "${value}". Expected YYYY-MM-DD.`,
-    );
+    throw new InvalidDateStringError(value);
   }
   return value;
 }

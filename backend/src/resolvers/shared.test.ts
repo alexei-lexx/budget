@@ -1,33 +1,32 @@
 import { GraphQLError } from "graphql";
 import { BusinessError, BusinessErrorCodes } from "../services/business-error";
-import { DateValidationError } from "../types/date";
+import { InvalidDateStringError } from "../types/date";
 import { handleResolverError } from "./shared";
 
 describe("handleResolverError", () => {
-  describe("DateValidationError", () => {
-    it("converts DateValidationError to GraphQL BAD_USER_INPUT", () => {
-      const error = new DateValidationError(
-        'Invalid date format: "2000-13-31". Expected YYYY-MM-DD.',
-      );
+  describe("InvalidDateStringError", () => {
+    it("converts InvalidDateStringError to GraphQL BAD_USER_INPUT", () => {
+      const error = new InvalidDateStringError("2000-13-31");
       expect(() => handleResolverError(error, "default message")).toThrow(
         GraphQLError,
       );
     });
 
-    it("includes the original error message", () => {
-      const message = 'Invalid date format: "invalid". Expected YYYY-MM-DD.';
-      const error = new DateValidationError(message);
+    it("includes the error message with the invalid value", () => {
+      const error = new InvalidDateStringError("invalid");
       try {
         handleResolverError(error, "default message");
       } catch (e) {
         if (e instanceof GraphQLError) {
-          expect(e.message).toBe(message);
+          expect(e.message).toBe(
+            'Invalid date format: "invalid". Expected YYYY-MM-DD.',
+          );
         }
       }
     });
 
     it("sets code to BAD_USER_INPUT", () => {
-      const error = new DateValidationError("test message");
+      const error = new InvalidDateStringError("test");
       try {
         handleResolverError(error, "default message");
       } catch (e) {
