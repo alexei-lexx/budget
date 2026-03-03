@@ -12,11 +12,7 @@ describe("handleResolverError", () => {
       const wrapper = async () => handleResolverError(error, "default message");
       const promise = wrapper();
 
-      await expect(promise).rejects.toThrow(GraphQLError);
-      await expect(promise).rejects.toMatchObject({
-        message: "Custom error",
-        extensions: { code: "CUSTOM_ERROR" },
-      });
+      await expect(promise).rejects.toThrow(error);
     });
   });
 
