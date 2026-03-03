@@ -40,7 +40,7 @@ describe("handleResolverError", () => {
   });
 
   describe("unknown errors", () => {
-    it("returns INTERNAL_SERVER_ERROR", async () => {
+    it("converts to GraphQL INTERNAL_SERVER_ERROR", async () => {
       const error = new Error("Something broke");
       const wrapper = async () => handleResolverError(error, "default message");
       const promise = wrapper();
