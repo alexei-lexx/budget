@@ -9,10 +9,7 @@ describe("handleResolverError", () => {
       const error = new GraphQLError("Custom error", {
         extensions: { code: "CUSTOM_ERROR" },
       });
-      const wrapper = async () => handleResolverError(error, "default message");
-      const promise = wrapper();
-
-      await expect(promise).rejects.toThrow(error);
+      expect(() => handleResolverError(error, "default message")).toThrow(error);
     });
   });
 
