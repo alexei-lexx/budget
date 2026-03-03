@@ -71,10 +71,16 @@ describe("toDateString", () => {
 
   it("throws InvalidDateStringError for a non-existent date", () => {
     expect(() => toDateString("2000-13-31")).toThrow(InvalidDateStringError);
+    expect(() => toDateString("2000-13-31")).toThrow(
+      'Invalid date format: "2000-13-31". Expected YYYY-MM-DD.',
+    );
   });
 
   it("throws InvalidDateStringError for an empty string", () => {
     expect(() => toDateString("")).toThrow(InvalidDateStringError);
+    expect(() => toDateString("")).toThrow(
+      'Invalid date format: "". Expected YYYY-MM-DD.',
+    );
   });
 });
 
