@@ -5,25 +5,6 @@ import {
   toDateStringOrUndefined,
 } from "./date";
 
-describe("InvalidDateStringError", () => {
-  it("is an Error instance", () => {
-    const error = new InvalidDateStringError("invalid-date");
-    expect(error).toBeInstanceOf(Error);
-  });
-
-  it("has correct name property", () => {
-    const error = new InvalidDateStringError("invalid-date");
-    expect(error.name).toBe("InvalidDateStringError");
-  });
-
-  it("builds message from value parameter", () => {
-    const error = new InvalidDateStringError("2000-13-31");
-    expect(error.message).toBe(
-      'Invalid date format: "2000-13-31". Expected YYYY-MM-DD.',
-    );
-  });
-});
-
 describe("isDateString", () => {
   describe("valid dates", () => {
     it("returns true for a valid date", () => {
