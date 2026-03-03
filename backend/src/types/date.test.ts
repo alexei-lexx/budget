@@ -64,9 +64,6 @@ describe("toDateString", () => {
 
   it("throws InvalidDateStringError for an invalid date format", () => {
     expect(() => toDateString("15/01/2000")).toThrow(InvalidDateStringError);
-  });
-
-  it("throws InvalidDateStringError with correct message", () => {
     expect(() => toDateString("15/01/2000")).toThrow(
       'Invalid date format: "15/01/2000". Expected YYYY-MM-DD.',
     );
