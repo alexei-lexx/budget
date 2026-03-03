@@ -7,7 +7,7 @@
     >
       <h1 class="text-h5 text-sm-h4">Transactions</h1>
       <div class="d-flex">
-        <!-- d-none d-md-flex: hidden by default, shown at 960px+ -->
+        <!-- Desktop buttons: d-none d-md-flex - hidden by default, shown at 960px+ -->
         <v-btn
           class="d-none d-md-flex"
           color="primary"
@@ -16,7 +16,7 @@
         >
           Add Transaction
         </v-btn>
-        <!-- d-flex d-md-none: shown by default, hidden at 960px+ -->
+        <!-- Tablet/Mobile buttons: d-flex d-md-none - shown by default, hidden at 960px+ -->
         <v-btn
           class="d-flex d-md-none"
           color="primary"
