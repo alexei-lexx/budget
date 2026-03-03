@@ -4,6 +4,7 @@ import { AccountRepositoryError } from "../repositories/account-repository";
 import { CategoryRepositoryError } from "../repositories/category-repository";
 import { GraphQLContext } from "../server";
 import { BusinessError } from "../services/business-error";
+import { InvalidDateStringError } from "../types/date";
 
 /**
  * Helper function to check authentication and return auth user
@@ -62,6 +63,18 @@ export function handleResolverError(
   defaultMessage: string,
 ): never {
   console.error(`Resolver error: ${defaultMessage}`, error);
+
+  if (error instanceof GraphQLError) {
+    throw error;
+  }
+
+  if (error instanceof InvalidDateStringError) {
+    throw new GraphQLError(error.message, {
+      extensions: {
+        code: "BAD_USER_INPUT",
+      },
+    });
+  }
 
   if (
     error instanceof AccountRepositoryError ||

@@ -1,4 +1,14 @@
 /**
+ * Error thrown when a string fails to parse as a valid YYYY-MM-DD date
+ */
+export class InvalidDateStringError extends Error {
+  constructor(value: string) {
+    super(`Invalid date format: "${value}". Expected YYYY-MM-DD.`);
+    this.name = "InvalidDateStringError";
+  }
+}
+
+/**
  * Regular expression for validating date strings in YYYY-MM-DD format
  */
 export const DATE_FORMAT_REGEX = /^\d{4}-\d{2}-\d{2}$/;
@@ -37,7 +47,7 @@ export function isDateString(value: string): value is DateString {
  */
 export function toDateString(value: string): DateString {
   if (!isDateString(value)) {
-    throw new Error(`Invalid date format: "${value}". Expected YYYY-MM-DD.`);
+    throw new InvalidDateStringError(value);
   }
   return value;
 }
