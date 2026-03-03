@@ -4,6 +4,23 @@ import { InvalidDateStringError } from "../types/date";
 import { handleResolverError } from "./shared";
 
 describe("handleResolverError", () => {
+  describe("GraphQLError pass-through", () => {
+    it("passes through GraphQLError unchanged", async () => {
+      const originalError = new GraphQLError("Custom error", {
+        extensions: { code: "CUSTOM_ERROR" },
+      });
+      const wrapper = async () =>
+        handleResolverError(originalError, "default message");
+      const promise = wrapper();
+
+      await expect(promise).rejects.toThrow(GraphQLError);
+      await expect(promise).rejects.toMatchObject({
+        message: "Custom error",
+        extensions: { code: "CUSTOM_ERROR" },
+      });
+    });
+  });
+
   describe("InvalidDateStringError", () => {
     it("converts to GraphQL BAD_USER_INPUT", async () => {
       const error = new InvalidDateStringError("invalid");

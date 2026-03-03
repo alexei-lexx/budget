@@ -64,6 +64,10 @@ export function handleResolverError(
 ): never {
   console.error(`Resolver error: ${defaultMessage}`, error);
 
+  if (error instanceof GraphQLError) {
+    throw error;
+  }
+
   if (error instanceof InvalidDateStringError) {
     throw new GraphQLError(error.message, {
       extensions: {
