@@ -1,4 +1,25 @@
 <!-- SYNC IMPACT REPORT
+Version Change: 0.26.0 → 0.27.0
+Changes:
+  - MINOR (0.27.0): Extracted code quality checks into new standalone principle with test-first workflow
+Modified Sections:
+  - TypeScript Code Generation: Removed "npm run format" and "npm run typecheck" directives
+    (rules moved to new Code Quality Validation principle)
+Added Sections:
+  - Code Quality Validation: New principle defining mandatory post-change workflow —
+    test changed file first (if available), then full suite, then typecheck and lint
+Removed Sections:
+  - None
+Templates Requiring Updates:
+  ✅ plan-template.md: Generic template, no code quality workflow guidance to update
+  ✅ spec-template.md: Generic template, no code quality workflow guidance to update
+  ✅ tasks-template.md: Generic template, no code quality workflow guidance to update
+Dependent Documentation Updates:
+  - No template changes required (principle reorganizes existing guidance)
+Follow-up TODOs:
+  - Ratification date remains TODO (inherited from previous versions)
+
+Previous Sync Impact Report:
 Version Change: 0.25.0 → 0.26.0
 Changes:
   - MINOR (0.26.0): Added Validation Ordering rule to Input Validation principle
@@ -507,10 +528,32 @@ Checks MUST follow this order:
   - Avoid abbreviated forms that obscure meaning
   - Avoid shortened versions (e.g., use `user` instead of `usr`, `transaction` instead of `tx`)
   - Keep names concise while prioritizing clarity over brevity
-- Run `npm run format` and fix all ESLint issues after generating or changing code
-- Run `npm run typecheck` to catch and fix compilation issues after generating or changing code
 
 **Rationale**: Maintains type safety, prevents runtime errors, ensures code quality, improves code readability and API discoverability.
+
+### Code Quality Validation
+
+**Non-negotiable rule**: All code changes MUST pass a mandatory validation pipeline to ensure type safety, test coverage, and code quality before completion.
+
+**Workflow** (in order):
+1. **Test the changed file** (if tests exist for the changed code)
+   - Run tests for only the changed file or unit: `npm test -- path/to/file.test.ts`
+   - Fix any failures
+   - This gates proceeding to the next step
+2. **Run full test suite** (if tests exist for the package)
+   - Run `npm test` from the package root
+   - Ensure no regressions introduced by changes
+   - If full suite fails, debug and fix before proceeding
+3. **Run typecheck and linting**
+   - Run `npm run typecheck` to catch and fix TypeScript compilation issues
+   - Run `npm run format` and fix all ESLint issues
+   - Resolve all errors before considering changes complete
+
+**Exceptions**:
+- If the changed file has no test file, proceed to step 2 (full suite)
+- If the package has no test suite configured, proceed to step 3 (typecheck/lint)
+
+**Rationale**: Iterative validation catches errors early and locally, prevents broken code from entering version control, maintains quality standards across all changes.
 
 ### Method Ordering
 
@@ -541,4 +584,4 @@ This constitution supersedes all other development guidelines. Amendments requir
 4. Commit with message: `docs: amend constitution to vX.Y.Z ([change summary])`
 5. Update dependent artifacts (templates, guidance docs) as flagged
 
-**Version**: 0.26.0 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2026-03-01
+**Version**: 0.27.0 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2026-03-03
