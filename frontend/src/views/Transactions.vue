@@ -7,18 +7,18 @@
     >
       <h1 class="text-h5 text-sm-h4">Transactions</h1>
       <div class="d-flex">
-        <!-- Desktop buttons: d-none (hidden <600px) + d-sm-flex (shows ≥600px) -->
+        <!-- d-none d-md-flex: hidden by default, shown at 960px+ -->
         <v-btn
-          class="d-none d-sm-flex"
+          class="d-none d-md-flex"
           color="primary"
           prepend-icon="mdi-plus"
           @click="handleAddTransaction"
         >
           Add Transaction
         </v-btn>
-        <!-- Mobile buttons: d-flex (shows <600px) + d-sm-none (hidden ≥600px) -->
+        <!-- d-flex d-md-none: shown by default, hidden at 960px+ -->
         <v-btn
-          class="d-flex d-sm-none"
+          class="d-flex d-md-none"
           color="primary"
           icon="mdi-plus"
           size="large"
@@ -26,7 +26,7 @@
           @click="handleAddTransaction"
         />
         <v-btn
-          class="d-none d-sm-flex ml-3"
+          class="d-none d-md-flex ml-3"
           color="secondary"
           prepend-icon="mdi-swap-horizontal"
           @click="handleAddTransfer"
@@ -34,7 +34,7 @@
           Add Transfer
         </v-btn>
         <v-btn
-          class="d-flex d-sm-none ml-3"
+          class="d-flex d-md-none ml-3"
           color="secondary"
           icon="mdi-swap-horizontal"
           size="large"
