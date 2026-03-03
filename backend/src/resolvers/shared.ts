@@ -2,6 +2,7 @@ import { GraphQLError } from "graphql";
 import { User } from "../models/user";
 import { AccountRepositoryError } from "../repositories/account-repository";
 import { CategoryRepositoryError } from "../repositories/category-repository";
+import { DateValidationError } from "../types/date";
 import { GraphQLContext } from "../server";
 import { BusinessError } from "../services/business-error";
 
@@ -62,6 +63,14 @@ export function handleResolverError(
   defaultMessage: string,
 ): never {
   console.error(`Resolver error: ${defaultMessage}`, error);
+
+  if (error instanceof DateValidationError) {
+    throw new GraphQLError(error.message, {
+      extensions: {
+        code: "BAD_USER_INPUT",
+      },
+    });
+  }
 
   if (
     error instanceof AccountRepositoryError ||

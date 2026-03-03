@@ -1,4 +1,22 @@
-import { isDateString, toDateString, toDateStringOrUndefined } from "./date";
+import { DateValidationError, isDateString, toDateString, toDateStringOrUndefined } from "./date";
+
+describe("DateValidationError", () => {
+  it("is an Error instance", () => {
+    const error = new DateValidationError("test message");
+    expect(error).toBeInstanceOf(Error);
+  });
+
+  it("has correct name property", () => {
+    const error = new DateValidationError("test message");
+    expect(error.name).toBe("DateValidationError");
+  });
+
+  it("preserves the message", () => {
+    const message = "test error message";
+    const error = new DateValidationError(message);
+    expect(error.message).toBe(message);
+  });
+});
 
 describe("isDateString", () => {
   describe("valid dates", () => {
@@ -57,22 +75,22 @@ describe("toDateString", () => {
     expect(toDateString("2000-01-15")).toBe("2000-01-15");
   });
 
-  it("throws for an invalid date format", () => {
+  it("throws DateValidationError for an invalid date format", () => {
+    expect(() => toDateString("15/01/2000")).toThrow(DateValidationError);
+  });
+
+  it("throws DateValidationError with correct message", () => {
     expect(() => toDateString("15/01/2000")).toThrow(
       'Invalid date format: "15/01/2000". Expected YYYY-MM-DD.',
     );
   });
 
-  it("throws for a non-existent date", () => {
-    expect(() => toDateString("2000-13-31")).toThrow(
-      'Invalid date format: "2000-13-31". Expected YYYY-MM-DD.',
-    );
+  it("throws DateValidationError for a non-existent date", () => {
+    expect(() => toDateString("2000-13-31")).toThrow(DateValidationError);
   });
 
-  it("throws for an empty string", () => {
-    expect(() => toDateString("")).toThrow(
-      'Invalid date format: "". Expected YYYY-MM-DD.',
-    );
+  it("throws DateValidationError for an empty string", () => {
+    expect(() => toDateString("")).toThrow(DateValidationError);
   });
 });
 
@@ -89,9 +107,7 @@ describe("toDateStringOrUndefined", () => {
     expect(toDateStringOrUndefined("2000-01-15")).toBe("2000-01-15");
   });
 
-  it("throws for an invalid date format", () => {
-    expect(() => toDateStringOrUndefined("15/01/2000")).toThrow(
-      'Invalid date format: "15/01/2000". Expected YYYY-MM-DD.',
-    );
+  it("throws DateValidationError for an invalid date format", () => {
+    expect(() => toDateStringOrUndefined("15/01/2000")).toThrow(DateValidationError);
   });
 });
