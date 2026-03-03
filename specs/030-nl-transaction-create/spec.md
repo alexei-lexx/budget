@@ -17,7 +17,7 @@ A user is on the transactions page and wants to quickly log an expense. They typ
 
 **Acceptance Scenarios**:
 
-1. **Given** I am on the transactions page, **When** I type `spent 45 euro at rewe yesterday` and submit, **Then** a transaction is created with type `expense`, amount `45`, currency matching the EUR account, category `groceries`, date set to yesterday, and description `rewe`; the input clears and the transaction appears at the top of the list.
+1. **Given** I am on the transactions page, **When** I type `spent 45 euro at rewe yesterday` and submit, **Then** the input and submit button become disabled and a loading indicator appears while inference runs, then a transaction is created with type `expense`, amount `45`, currency matching the EUR account, category `groceries`, date set to yesterday, and description `rewe`; the loading state clears, the input clears, and the transaction appears at the top of the list.
 2. **Given** I am on the transactions page, **When** I type `20` and submit, **Then** a transaction is created with type `expense`, amount `20`, the most-used account, today's date, and no category or description.
 3. **Given** I am on the transactions page, **When** I type `bought coffee 3.50` and submit, **Then** a transaction is created with type `expense`, amount `3.50`, and today's date.
 
@@ -66,6 +66,7 @@ The user submits input from which the system cannot extract the required amount.
 
 1. **Given** I submit input with no numeric or written amount value (e.g., `bought something`), **Then** an error message is shown and the input field retains its original text unchanged.
 2. **Given** I have no accounts configured, **When** I submit any valid input, **Then** an error message is shown indicating no accounts are available and the transaction is not created.
+3. **Given** I submit input mentioning multiple currencies or multiple distinct amounts (e.g., `paid 50 EUR and 30 USD`), **Then** an error message is shown stating only one transaction at a time is supported, and the input is preserved.
 
 ---
 
@@ -73,10 +74,11 @@ The user submits input from which the system cannot extract the required amount.
 
 - What happens when the input mentions a currency that matches no existing account?
 - What happens when there is no transaction history (first-time user) — account defaults to the first account in the list.
-- What happens when multiple currencies are mentioned in the same input?
-- What happens when the input is empty or contains only whitespace?
-- What happens when the inferred category does not exist in the user's category list?
+- When multiple currencies or multiple transaction amounts are mentioned in a single input, the system rejects the submission with an error explaining that only one transaction at a time is supported.
+- When the input is empty or whitespace-only, submission is blocked before reaching the AI service.
+- When the AI cannot match the input to any category in the user's list, category is omitted — the AI is constrained to the user's existing category list.
 - How does the system handle ambiguous relative date references (e.g., `last Monday` near a week boundary)?
+- What happens when the AI/LLM service is unavailable or returns an error — is the input rejected with an error, or is there a fallback?
 
 ## Requirements *(mandatory)*
 
@@ -88,7 +90,7 @@ The user submits input from which the system cannot extract the required amount.
   - Refund indicators: `refund`
   - Expense indicators: `spent`, `bought`, `paid`
 - **FR-003**: System MUST extract the transaction `amount` from numeric or written numeric values in the input.
-- **FR-004**: System MUST infer the transaction `category` from store names, product names, and keywords when determinable (for all transaction types); it MUST omit the category when not determinable.
+- **FR-004**: System MUST infer the transaction `category` by providing the AI/LLM service with the user's full list of available categories alongside the input text; the AI MUST select the best-matching category from that list. System MUST omit the category when no category in the user's list is a reasonable match.
 - **FR-005**: System MUST resolve the transaction `account` using the following ordered algorithm:
   1. Fetch all user accounts. If none exist, display an error and abort.
   2. If the input mentions a currency, narrow candidates to accounts with that currency.
@@ -96,6 +98,9 @@ The user submits input from which the system cannot extract the required amount.
   4. Otherwise, use the most-used account across all recent transactions regardless of category.
   5. If no transaction history exists, use the first account.
 - **FR-006**: System MUST display an error and abort transaction creation when no accounts exist.
+- **FR-013**: System MUST reject input that implies more than one transaction (e.g., multiple currencies, multiple amounts for distinct items) with a user-facing error stating that only a single transaction per submission is supported.
+- **FR-014**: System MUST prevent submission when the input field is empty or contains only whitespace; the submit action MUST be disabled or blocked client-side without invoking the AI service.
+- **FR-015**: While the AI inference and transaction creation request is in progress, the system MUST disable the input field and submit button and display a loading indicator, following the same loading-state pattern used on the Insight page.
 - **FR-007**: System MUST parse a `date` from the input when a date or relative time reference (e.g., yesterday, last Monday) is present; it MUST default to today's date when no date is mentioned.
 - **FR-008**: System MUST derive the `description` from meaningful text in the input (e.g., store name, merchant, keyword) when determinable; it MAY leave description blank when nothing meaningful can be derived.
 - **FR-009**: System MUST create the transaction and clear the input field upon successful submission.
@@ -109,6 +114,13 @@ The user submits input from which the system cannot extract the required amount.
 - **Transaction**: A persisted financial record with attributes: type (expense/income/refund), account, amount, date, category (optional), description (optional), currency (inherited from account).
 - **Inference Result**: The intermediate set of resolved transaction attributes derived from parsing the input, including an error state when required fields cannot be determined.
 
+## Non-Functional Requirements
+
+- **NFR-001**: The AI/LLM inference call MUST complete within a time that keeps the overall submission response under a user-perceivable threshold (target: ≤ 3 seconds end-to-end on a standard connection).
+- **NFR-002**: If the AI/LLM service is unavailable or returns an error, the system MUST surface a user-facing error message; silent fallback to random values is not acceptable.
+- **NFR-003**: User input sent to the AI/LLM service MUST be treated as potentially sensitive; it MUST NOT be stored or logged externally beyond what is required for the inference call.
+- **NFR-004**: The inference pipeline MUST be observable — at minimum, inference failures and latency outliers MUST be recorded in application logs.
+
 ## Success Criteria *(mandatory)*
 
 ### Measurable Outcomes
@@ -120,13 +132,25 @@ The user submits input from which the system cannot extract the required amount.
 - **SC-005**: Successfully created transactions appear at the top of the list within the same page update as creation confirmation.
 - **SC-006**: The natural-language field is discoverable on the transactions page without onboarding instructions — users identify and use it on first visit.
 
+## Clarifications
+
+### Session 2026-03-03
+
+- Q: Is inference (type, category, date, description) implemented via rule-based keyword matching or an AI/LLM service? → A: AI/LLM service — all field inference is powered by a natural language AI model.
+- Q: When the AI infers a category name that does not exist in the user's category list, what should happen? → A: Omit — the AI receives the user's available category list as context and selects the best match from it; if no category fits, category is left blank.
+- Q: When multiple currencies are mentioned in the input, which currency wins for account resolution? → A: Show an error — only a single transaction per submission is supported; input implying multiple transactions or multiple currencies MUST be rejected with a clear error message.
+- Q: What happens when the input is empty or whitespace-only? → A: Prevent submission client-side — the submit action is disabled or blocked when the input is empty or contains only whitespace; no AI call is made.
+- Q: What does the UI show while AI inference is in progress? → A: Loading indicator — disable input and submit button, show a loading/spinner state following the same pattern used on the Insight page.
+
 ## Assumptions
 
 - The system has access to the authenticated user's full list of accounts and their currencies.
 - The system has access to the user's recent transaction history to determine the most-used account.
 - "Most-used account" is determined by frequency (count) of past transactions, not by monetary volume.
 - "Recent transactions" for account inference is bounded by a reasonable history window; the exact window is an implementation detail.
-- Category inference relies on a known mapping of store/product names and keywords to categories; unknown names leave category blank.
-- Date parsing handles common relative expressions (today, yesterday, last Monday, etc.) in addition to explicit date strings.
+- All inference (type, amount, category, date, description) is performed by an AI/LLM service, not by a static keyword map.
+- The AI/LLM service may occasionally fail to infer a field; the system treats any unresolvable required field as an error.
+- Date parsing handles common relative expressions (today, yesterday, last Monday, etc.) in addition to explicit date strings; the AI service is responsible for resolving these relative to the current date.
+- The loading state pattern (spinner, disabled input/submit) follows the established convention used on the Insight page.
 - The feature is available only to authenticated users.
 - If a currency mentioned in the input matches no existing account, the currency filter is ignored and the algorithm continues with all accounts.
