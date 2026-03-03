@@ -95,5 +95,8 @@ describe("toDateStringOrUndefined", () => {
     expect(() => toDateStringOrUndefined("15/01/2000")).toThrow(
       InvalidDateStringError,
     );
+    expect(() => toDateStringOrUndefined("15/01/2000")).toThrow(
+      'Invalid date format: "15/01/2000". Expected YYYY-MM-DD.',
+    );
   });
 });
