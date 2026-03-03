@@ -1,13 +1,17 @@
 import { GraphQLError } from "graphql";
-import { DateValidationError } from "../types/date";
 import { BusinessError, BusinessErrorCodes } from "../services/business-error";
+import { DateValidationError } from "../types/date";
 import { handleResolverError } from "./shared";
 
 describe("handleResolverError", () => {
   describe("DateValidationError", () => {
     it("converts DateValidationError to GraphQL BAD_USER_INPUT", () => {
-      const error = new DateValidationError('Invalid date format: "2000-13-31". Expected YYYY-MM-DD.');
-      expect(() => handleResolverError(error, "default message")).toThrow(GraphQLError);
+      const error = new DateValidationError(
+        'Invalid date format: "2000-13-31". Expected YYYY-MM-DD.',
+      );
+      expect(() => handleResolverError(error, "default message")).toThrow(
+        GraphQLError,
+      );
     });
 
     it("includes the original error message", () => {
@@ -36,7 +40,10 @@ describe("handleResolverError", () => {
 
   describe("BusinessError", () => {
     it("converts BusinessError to GraphQL error with custom code", () => {
-      const error = new BusinessError("User not found", BusinessErrorCodes.ACCOUNT_NOT_FOUND);
+      const error = new BusinessError(
+        "User not found",
+        BusinessErrorCodes.ACCOUNT_NOT_FOUND,
+      );
       try {
         handleResolverError(error, "default message");
       } catch (e) {
@@ -49,7 +56,11 @@ describe("handleResolverError", () => {
 
     it("includes business error details in extensions", () => {
       const details = { userId: "123", reason: "archived" };
-      const error = new BusinessError("Account not found", BusinessErrorCodes.ACCOUNT_NOT_FOUND, details);
+      const error = new BusinessError(
+        "Account not found",
+        BusinessErrorCodes.ACCOUNT_NOT_FOUND,
+        details,
+      );
       try {
         handleResolverError(error, "default message");
       } catch (e) {

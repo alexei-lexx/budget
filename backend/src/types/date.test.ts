@@ -1,4 +1,9 @@
-import { DateValidationError, isDateString, toDateString, toDateStringOrUndefined } from "./date";
+import {
+  DateValidationError,
+  isDateString,
+  toDateString,
+  toDateStringOrUndefined,
+} from "./date";
 
 describe("DateValidationError", () => {
   it("is an Error instance", () => {
@@ -108,6 +113,8 @@ describe("toDateStringOrUndefined", () => {
   });
 
   it("throws DateValidationError for an invalid date format", () => {
-    expect(() => toDateStringOrUndefined("15/01/2000")).toThrow(DateValidationError);
+    expect(() => toDateStringOrUndefined("15/01/2000")).toThrow(
+      DateValidationError,
+    );
   });
 });

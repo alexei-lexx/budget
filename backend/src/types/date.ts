@@ -47,7 +47,9 @@ export function isDateString(value: string): value is DateString {
  */
 export function toDateString(value: string): DateString {
   if (!isDateString(value)) {
-    throw new DateValidationError(`Invalid date format: "${value}". Expected YYYY-MM-DD.`);
+    throw new DateValidationError(
+      `Invalid date format: "${value}". Expected YYYY-MM-DD.`,
+    );
   }
   return value;
 }
