@@ -99,7 +99,9 @@ const createTransactionInputSchema = z.object({
     .describe("Transaction type"),
 });
 
-type CreateTransactionToolInput = z.infer<typeof createTransactionInputSchema>;
+export type CreateTransactionToolInput = z.infer<
+  typeof createTransactionInputSchema
+>;
 
 interface TransactionData {
   accountId: string;
@@ -129,14 +131,14 @@ export const createCreateTransactionTool = (
     );
 
     const transactionData: TransactionData = {
-      id: created.id,
       accountId: created.accountId,
-      categoryId: created.categoryId,
-      type: created.type,
       amount: created.amount,
+      categoryId: created.categoryId,
       currency: created.currency,
       date: created.date,
       description: created.description,
+      id: created.id,
+      type: created.type,
     };
 
     return JSON.stringify(transactionData);
