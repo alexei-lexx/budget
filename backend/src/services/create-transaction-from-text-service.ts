@@ -15,7 +15,6 @@ import { TransactionService } from "./transaction-service";
 
 /**
  * How many days back the agent may look for transaction history
- * Used for account resolution via category history (FR-005)
  */
 const HISTORY_DAYS = 365;
 
