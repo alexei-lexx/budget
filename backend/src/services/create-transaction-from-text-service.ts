@@ -13,9 +13,7 @@ import {
 import { BusinessError, BusinessErrorCodes } from "./business-error";
 import { TransactionService } from "./transaction-service";
 
-/**
- * How many days back the agent may look for transaction history
- */
+// How many days back the agent may look for transaction history
 const HISTORY_DAYS = 365;
 
 const SYSTEM_PROMPT = `
