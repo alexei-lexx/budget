@@ -137,11 +137,11 @@ export async function createContext(req: {
       categoryRepository,
       transactionRepository,
     );
-    createTransactionFromTextService = new CreateTransactionFromTextService(
+    createTransactionFromTextService = new CreateTransactionFromTextService({
       agentDataService,
       agent,
       transactionService,
-    );
+    });
   }
 
   if (!transferService) {
