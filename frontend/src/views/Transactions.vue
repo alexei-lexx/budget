@@ -54,23 +54,23 @@
       @clear="() => {}"
     />
 
-    <!-- Natural Language Transaction Input -->
+    <!-- Create Transaction from Text -->
     <div class="d-flex align-center ga-2 mb-4">
       <v-text-field
-        v-model="nlText"
-        :disabled="nlLoading"
+        v-model="createTransactionFromTextQuestion"
+        :disabled="createTransactionFromTextLoading"
         placeholder="e.g., morning coffee 4.5 euro"
         variant="outlined"
         density="compact"
         hide-details
         class="flex-grow-1"
-        @keydown.enter="handleNlSubmit"
+        @keydown.enter="handleCreateTransactionFromText"
       />
       <v-btn
-        :loading="nlLoading"
-        :disabled="!nlText.trim() || nlLoading"
+        :loading="createTransactionFromTextLoading"
+        :disabled="!createTransactionFromTextQuestion.trim() || createTransactionFromTextLoading"
         color="primary"
-        @click="handleNlSubmit"
+        @click="handleCreateTransactionFromText"
       >
         Create transaction
       </v-btn>
@@ -254,11 +254,15 @@ const { showSuccessSnackbar, showErrorSnackbar } = useSnackbar();
 const { createTransfer, updateTransfer, deleteTransfer, getTransfer, transfersError } =
   useTransfers();
 
-// NL transaction creation
-const { text: nlText, loading: nlLoading, submit: nlSubmit } = useCreateTransactionFromText();
+// Create transaction from text
+const {
+  text: createTransactionFromTextQuestion,
+  loading: createTransactionFromTextLoading,
+  submit: createTransactionFromTextSubmit,
+} = useCreateTransactionFromText();
 
-const handleNlSubmit = async () => {
-  const transaction = await nlSubmit();
+const handleCreateTransactionFromText = async () => {
+  const transaction = await createTransactionFromTextSubmit();
   if (transaction) {
     // Prepend the new transaction to the list so it appears at the top
     addTransactionsToList([transaction]);
