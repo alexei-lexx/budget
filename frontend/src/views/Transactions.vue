@@ -54,28 +54,6 @@
       @clear="() => {}"
     />
 
-    <!-- Create Transaction from Text -->
-    <div class="d-flex align-center ga-2 mb-4">
-      <v-text-field
-        v-model="createTransactionFromTextQuestion"
-        :disabled="createTransactionFromTextLoading"
-        placeholder="e.g., morning coffee 4.5 euro"
-        variant="outlined"
-        density="compact"
-        hide-details
-        class="flex-grow-1"
-        @keydown.enter="handleCreateTransactionFromText"
-      />
-      <v-btn
-        :loading="createTransactionFromTextLoading"
-        :disabled="!createTransactionFromTextQuestion.trim() || createTransactionFromTextLoading"
-        color="primary"
-        @click="handleCreateTransactionFromText"
-      >
-        Create transaction
-      </v-btn>
-    </div>
-
     <!-- Loading State -->
     <div v-if="paginatedLoading" class="text-center py-8">
       <v-progress-circular indeterminate color="primary" size="64" width="4"></v-progress-circular>
@@ -197,6 +175,28 @@
       />
     </v-dialog>
   </v-container>
+
+  <!-- Create Transaction from Text (fixed bottom bar) -->
+  <v-footer app elevation="4" class="pa-3 pa-sm-4">
+    <v-text-field
+      v-model="createTransactionFromTextQuestion"
+      :disabled="createTransactionFromTextLoading"
+      placeholder="e.g., morning coffee 4.5 euro"
+      variant="outlined"
+      density="compact"
+      hide-details
+      class="flex-grow-1 mr-3"
+      @keydown.enter="handleCreateTransactionFromText"
+    />
+    <v-btn
+      :loading="createTransactionFromTextLoading"
+      :disabled="!createTransactionFromTextQuestion.trim() || createTransactionFromTextLoading"
+      color="primary"
+      @click="handleCreateTransactionFromText"
+    >
+      Create transaction
+    </v-btn>
+  </v-footer>
 </template>
 
 <script setup lang="ts">
