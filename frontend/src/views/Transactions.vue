@@ -59,7 +59,7 @@
       <v-text-field
         v-model="nlText"
         :disabled="nlLoading"
-        placeholder="e.g. spent 45 euro at rewe yesterday"
+        placeholder="e.g., morning coffee 4.5 euro"
         label="Create transaction from text"
         variant="outlined"
         density="compact"
