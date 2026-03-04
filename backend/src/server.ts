@@ -138,8 +138,8 @@ export async function createContext(req: {
       transactionRepository,
     );
     createTransactionFromTextService = new CreateTransactionFromTextService({
-      agentDataService,
       agent,
+      agentDataService,
       transactionService,
     });
   }
