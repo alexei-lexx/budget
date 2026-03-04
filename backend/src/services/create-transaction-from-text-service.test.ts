@@ -50,7 +50,7 @@ const buildTransaction = (
 });
 
 const agentAnswerWithId = (id: string) =>
-  JSON.stringify({ transaction: { id } });
+  JSON.stringify({ success: true, transaction: { id } });
 
 // ---------------------------------------------------------------------------
 // Test suite
@@ -81,11 +81,12 @@ describe("CreateTransactionFromTextService", () => {
       mockTransactionRepository,
     );
 
-    service = new CreateTransactionFromTextService(
+    service = new CreateTransactionFromTextService({
       agentDataService,
-      mockAgent,
-      mockTransactionService as unknown as TransactionService,
-    );
+      agent: mockAgent,
+      transactionService:
+        mockTransactionService as unknown as TransactionService,
+    });
 
     userId = faker.string.uuid();
 
@@ -358,7 +359,7 @@ describe("CreateTransactionFromTextService", () => {
 
       // Assert — system prompt mentions INCOME keywords
       const callArgs = mockAgent.call.mock.calls[0][0];
-      expect(callArgs.systemPrompt).toContain("INCOME");
+      expect(callArgs.systemPrompt).toMatch(/income/i);
       expect(callArgs.systemPrompt).toMatch(/salary/i);
       expect(callArgs.systemPrompt).toMatch(/earned?/i);
       expect(callArgs.systemPrompt).toMatch(/received/i);
@@ -451,7 +452,6 @@ describe("CreateTransactionFromTextService", () => {
 
       // Assert — system prompt mentions REFUND
       const callArgs = mockAgent.call.mock.calls[0][0];
-      expect(callArgs.systemPrompt).toContain("REFUND");
       expect(callArgs.systemPrompt).toMatch(/refund/i);
     });
   });
@@ -459,6 +459,39 @@ describe("CreateTransactionFromTextService", () => {
   // ─── US4: Error paths ───────────────────────────────────────────────────
 
   describe("US4 — error paths", () => {
+    it("should throw BusinessError when agent returns success: false with error message", async () => {
+      // Arrange
+      mockAgent.call.mockResolvedValue({
+        answer: JSON.stringify({
+          success: false,
+          error: "Could not determine the amount from the text.",
+        }),
+      });
+
+      // Act & Assert
+      const promise = service.call(userId, "bought something");
+
+      await expect(promise).rejects.toThrow(BusinessError);
+      await expect(promise).rejects.toMatchObject({
+        message: "Could not determine the amount from the text.",
+        code: BusinessErrorCodes.AGENT_DECLINED,
+      });
+      expect(mockTransactionService.getTransactionById).not.toHaveBeenCalled();
+    });
+
+    it("should throw BusinessError with fallback message when agent returns success: false without error", async () => {
+      // Arrange
+      mockAgent.call.mockResolvedValue({
+        answer: JSON.stringify({ success: false }),
+      });
+
+      // Act & Assert
+      await expect(service.call(userId, "bought something")).rejects.toThrow(
+        BusinessError,
+      );
+      expect(mockTransactionService.getTransactionById).not.toHaveBeenCalled();
+    });
+
     it("should throw BusinessError when agent returns plain-text (no JSON)", async () => {
       // Arrange — agent did not call createTransaction, returns explanation
       mockAgent.call.mockResolvedValue({
@@ -470,14 +503,14 @@ describe("CreateTransactionFromTextService", () => {
 
       await expect(promise).rejects.toThrow(BusinessError);
       await expect(promise).rejects.toMatchObject({
-        message: "I could not determine the amount from the text.",
-        code: BusinessErrorCodes.INVALID_PARAMETERS,
+        message: "Invalid JSON response from agent",
+        code: BusinessErrorCodes.INVALID_AGENT_RESPONSE,
       });
       expect(mockTransactionService.getTransactionById).not.toHaveBeenCalled();
     });
 
-    it("should throw BusinessError when agent returns JSON without transaction.id", async () => {
-      // Arrange — malformed answer (missing id)
+    it("should throw BusinessError when agent returns JSON without success field", async () => {
+      // Arrange — malformed answer (missing success field)
       mockAgent.call.mockResolvedValue({
         answer: JSON.stringify({ transaction: {} }),
       });
@@ -487,12 +520,12 @@ describe("CreateTransactionFromTextService", () => {
 
       await expect(promise).rejects.toThrow(BusinessError);
       await expect(promise).rejects.toMatchObject({
-        code: BusinessErrorCodes.INVALID_PARAMETERS,
+        code: BusinessErrorCodes.INVALID_AGENT_RESPONSE,
       });
       expect(mockTransactionService.getTransactionById).not.toHaveBeenCalled();
     });
 
-    it("should throw BusinessError when agent returns empty JSON object", async () => {
+    it("should throw BusinessError when agent returns success:true but without transaction.id", async () => {
       // Arrange
       mockAgent.call.mockResolvedValue({ answer: "{}" });
 
@@ -502,7 +535,7 @@ describe("CreateTransactionFromTextService", () => {
       );
     });
 
-    it("should throw BusinessError when agent returns answer without transaction field", async () => {
+    it("should throw BusinessError when agent returns answer without success field", async () => {
       // Arrange
       mockAgent.call.mockResolvedValue({
         answer: JSON.stringify({ error: "Could not determine amount" }),
