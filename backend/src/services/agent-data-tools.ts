@@ -1,7 +1,12 @@
 import { z } from "zod";
 import { ToolSignature } from "../models/agent";
+import { TransactionType } from "../models/transaction";
 import { DateString, toDateString } from "../types/date";
 import { AgentDataService } from "./agent-data-service";
+import {
+  CreateTransactionServiceInput,
+  TransactionService,
+} from "./transaction-service";
 
 export const createGetAccountsTool = (
   agentDataService: AgentDataService,
@@ -73,5 +78,67 @@ export const createGetTransactionsTool = (params: {
       input.accountId,
     );
     return JSON.stringify(transactions);
+  },
+});
+
+const createTransactionInputSchema = z.object({
+  accountId: z.string().min(1).describe("ID of the account"),
+  amount: z.number().positive().describe("Transaction amount"),
+  categoryId: z.string().min(1).optional().describe("ID of the category"),
+  date: z.iso
+    .date()
+    .transform(toDateString)
+    .describe("Transaction date in YYYY-MM-DD format"),
+  description: z.string().optional().describe("Short transaction description"),
+  type: z
+    .enum([
+      TransactionType.INCOME,
+      TransactionType.EXPENSE,
+      TransactionType.REFUND,
+    ])
+    .describe("Transaction type"),
+});
+
+type CreateTransactionToolInput = z.infer<typeof createTransactionInputSchema>;
+
+interface TransactionData {
+  accountId: string;
+  amount: number;
+  categoryId?: string;
+  currency: string;
+  date: string;
+  description?: string;
+  id: string;
+  type: TransactionType;
+}
+
+export const createCreateTransactionTool = (
+  transactionService: TransactionService,
+  userId: string,
+): ToolSignature<CreateTransactionToolInput> => ({
+  name: "createTransaction",
+  description: "Create a new transaction.",
+  inputSchema: createTransactionInputSchema,
+  func: async (input: CreateTransactionToolInput): Promise<string> => {
+    const serviceInput: CreateTransactionServiceInput = {
+      ...input,
+    };
+    const created = await transactionService.createTransaction(
+      serviceInput,
+      userId,
+    );
+
+    const transactionData: TransactionData = {
+      id: created.id,
+      accountId: created.accountId,
+      categoryId: created.categoryId,
+      type: created.type,
+      amount: created.amount,
+      currency: created.currency,
+      date: created.date,
+      description: created.description,
+    };
+
+    return JSON.stringify(transactionData);
   },
 });

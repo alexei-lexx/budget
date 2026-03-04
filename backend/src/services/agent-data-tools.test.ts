@@ -1,4 +1,5 @@
 import { faker } from "@faker-js/faker";
+import { TransactionType } from "../models/transaction";
 import { toDateString } from "../types/date";
 import {
   fakeAccount,
@@ -7,16 +8,21 @@ import {
 } from "../utils/test-utils/factories";
 import { AgentDataService } from "./agent-data-service";
 import {
+  createCreateTransactionTool,
   createGetAccountsTool,
   createGetCategoriesTool,
   createGetTransactionsTool,
 } from "./agent-data-tools";
+import { TransactionService } from "./transaction-service";
 
 describe("agent-data-tools", () => {
   let mockAgentDataService: {
     getAllAccounts: jest.Mock;
     getAllCategories: jest.Mock;
     getFilteredTransactions: jest.Mock;
+  };
+  let mockTransactionService: {
+    createTransaction: jest.Mock;
   };
   const userId = faker.string.uuid();
 
@@ -25,6 +31,9 @@ describe("agent-data-tools", () => {
       getAllAccounts: jest.fn(),
       getAllCategories: jest.fn(),
       getFilteredTransactions: jest.fn(),
+    };
+    mockTransactionService = {
+      createTransaction: jest.fn(),
     };
   });
 
@@ -318,6 +327,86 @@ describe("agent-data-tools", () => {
         categoryId,
         accountId,
       );
+    });
+  });
+
+  describe("createCreateTransactionTool", () => {
+    it("should return tool with correct name", () => {
+      const tool = createCreateTransactionTool(
+        mockTransactionService as unknown as TransactionService,
+        userId,
+      );
+
+      expect(tool.name).toBe("createTransaction");
+    });
+
+    it("should call createTransaction with correct input and return projected data", async () => {
+      const created = fakeTransaction({
+        type: TransactionType.EXPENSE,
+        date: toDateString("2000-01-15"),
+      });
+      mockTransactionService.createTransaction.mockResolvedValue(created);
+
+      const tool = createCreateTransactionTool(
+        mockTransactionService as unknown as TransactionService,
+        userId,
+      );
+
+      const result = await tool.func({
+        type: TransactionType.EXPENSE,
+        amount: created.amount,
+        accountId: created.accountId,
+        categoryId: created.categoryId,
+        date: toDateString("2000-01-15"),
+        description: created.description,
+      });
+
+      expect(mockTransactionService.createTransaction).toHaveBeenCalledWith(
+        {
+          type: TransactionType.EXPENSE,
+          amount: created.amount,
+          accountId: created.accountId,
+          categoryId: created.categoryId,
+          date: toDateString("2000-01-15"),
+          description: created.description,
+        },
+        userId,
+      );
+
+      expect(JSON.parse(result)).toEqual({
+        id: created.id,
+        accountId: created.accountId,
+        categoryId: created.categoryId,
+        type: created.type,
+        amount: created.amount,
+        currency: created.currency,
+        date: created.date,
+        description: created.description,
+      });
+    });
+
+    it("should not expose internal fields (userId, isArchived, createdAt, updatedAt)", async () => {
+      const created = fakeTransaction();
+      mockTransactionService.createTransaction.mockResolvedValue(created);
+
+      const tool = createCreateTransactionTool(
+        mockTransactionService as unknown as TransactionService,
+        userId,
+      );
+
+      const result = JSON.parse(
+        await tool.func({
+          type: TransactionType.EXPENSE,
+          amount: created.amount,
+          accountId: created.accountId,
+          date: toDateString("2000-01-15"),
+        }),
+      );
+
+      expect(result).not.toHaveProperty("userId");
+      expect(result).not.toHaveProperty("isArchived");
+      expect(result).not.toHaveProperty("createdAt");
+      expect(result).not.toHaveProperty("updatedAt");
     });
   });
 });

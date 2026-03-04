@@ -1,19 +1,16 @@
-import { z } from "zod";
-import { Agent, ToolSignature } from "../models/agent";
-import { NonTransferTransactionType, Transaction } from "../models/transaction";
+import { Agent } from "../models/agent";
+import { Transaction } from "../models/transaction";
 import { DateString, toDateString } from "../types/date";
 import { formatDateAsYYYYMMDD } from "../utils/date";
 import { AgentDataService } from "./agent-data-service";
 import {
+  createCreateTransactionTool,
   createGetAccountsTool,
   createGetCategoriesTool,
   createGetTransactionsTool,
 } from "./agent-data-tools";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
-import {
-  CreateTransactionServiceInput,
-  TransactionService,
-} from "./transaction-service";
+import { TransactionService } from "./transaction-service";
 
 /**
  * How many days back the agent may look for transaction history
@@ -69,49 +66,9 @@ Extract the id from the result and output {"transaction":{"id":"<id>"}} as your 
 If you cannot extract the amount, or there are no accounts available: explain why and do NOT call createTransaction.
 `.trim();
 
-const createTransactionInputSchema = z.object({
-  type: z.enum(["EXPENSE", "INCOME", "REFUND"]),
-  amount: z.number().positive(),
-  accountId: z.string().min(1),
-  categoryId: z.string().min(1).optional(),
-  date: z.iso.date(),
-  description: z.string().optional(),
-});
-
-type CreateTransactionToolInput = z.infer<typeof createTransactionInputSchema>;
-
 interface AgentAnswer {
   transaction: {
     id: string;
-  };
-}
-
-function createCreateTransactionTool(
-  transactionService: TransactionService,
-  userId: string,
-): ToolSignature<CreateTransactionToolInput> {
-  return {
-    name: "createTransaction",
-    description:
-      "Create a new transaction with the resolved fields. Returns the full transaction object. Call this once all fields are resolved.",
-    inputSchema: createTransactionInputSchema,
-    func: async (rawInput: CreateTransactionToolInput): Promise<string> => {
-      // Explicitly parse with Zod so validation always runs (defensive — agent may bypass)
-      const input = createTransactionInputSchema.parse(rawInput);
-      const serviceInput: CreateTransactionServiceInput = {
-        type: input.type as NonTransferTransactionType,
-        amount: input.amount,
-        accountId: input.accountId,
-        categoryId: input.categoryId,
-        date: toDateString(input.date) as DateString,
-        description: input.description,
-      };
-      const created = await transactionService.createTransaction(
-        serviceInput,
-        userId,
-      );
-      return JSON.stringify(created);
-    },
   };
 }
 
