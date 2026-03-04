@@ -60,7 +60,6 @@
         v-model="nlText"
         :disabled="nlLoading"
         placeholder="e.g., morning coffee 4.5 euro"
-        label="Create transaction from text"
         variant="outlined"
         density="compact"
         hide-details
@@ -73,7 +72,7 @@
         color="primary"
         @click="handleNlSubmit"
       >
-        Add
+        Create transaction
       </v-btn>
     </div>
 
