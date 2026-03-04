@@ -57,10 +57,7 @@ describe("TransactionService", () => {
     it("should return transaction when it exists", async () => {
       // Arrange
       const transactionId = faker.string.uuid();
-      const transaction = fakeTransaction({
-        id: transactionId,
-        userId,
-      });
+      const transaction = fakeTransaction();
 
       mockTransactionRepository.findActiveById.mockResolvedValue(transaction);
 
