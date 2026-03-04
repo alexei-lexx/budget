@@ -82,14 +82,10 @@ export const createGetTransactionsTool = (params: {
 });
 
 const createTransactionInputSchema = z.object({
-  accountId: z
-    .string()
-    .min(1)
-    .describe("Account ID to associate the transaction with"),
+  accountId: z.uuid().describe("Account ID to associate the transaction with"),
   amount: z.number().positive().describe("Transaction amount"),
   categoryId: z
-    .string()
-    .min(1)
+    .uuid()
     .optional()
     .describe("Category ID to associate the transaction with"),
   date: z.iso
