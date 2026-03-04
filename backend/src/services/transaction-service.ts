@@ -70,6 +70,13 @@ export class TransactionService {
     private transactionRepository: ITransactionRepository,
   ) {}
 
+  /**
+   * Get a single transaction by ID with ownership validation
+   * @param id - The transaction ID to retrieve
+   * @param userId - The user ID to validate ownership
+   * @returns Promise<Transaction> - The retrieved transaction
+   * @throws BusinessError if transaction not found or doesn't belong to user
+   */
   async getTransactionById(id: string, userId: string): Promise<Transaction> {
     const transaction = await this.transactionRepository.findActiveById(
       id,
