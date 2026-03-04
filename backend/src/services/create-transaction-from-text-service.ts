@@ -173,6 +173,10 @@ export class CreateTransactionFromTextService {
     });
 
     if (!agentResponse.answer) {
+      console.log("Agent error", {
+        code: BusinessErrorCodes.EMPTY_RESPONSE,
+      });
+
       throw new BusinessError(
         "Empty response from agent",
         BusinessErrorCodes.EMPTY_RESPONSE,
@@ -182,7 +186,12 @@ export class CreateTransactionFromTextService {
     let agentAnswerJson: unknown;
     try {
       agentAnswerJson = JSON.parse(agentResponse.answer);
-    } catch {
+    } catch (error) {
+      console.log("Agent error", {
+        code: BusinessErrorCodes.INVALID_AGENT_RESPONSE,
+        error: error instanceof Error ? error.message : String(error),
+      });
+
       throw new BusinessError(
         "Invalid JSON response from agent",
         BusinessErrorCodes.INVALID_AGENT_RESPONSE,
@@ -191,6 +200,11 @@ export class CreateTransactionFromTextService {
 
     const parsedAgentAnswer = agentAnswerSchema.safeParse(agentAnswerJson);
     if (!parsedAgentAnswer.success) {
+      console.log("Agent error", {
+        code: BusinessErrorCodes.INVALID_AGENT_RESPONSE,
+        error: z.prettifyError(parsedAgentAnswer.error),
+      });
+
       throw new BusinessError(
         "Response from agent does not match expected format",
         BusinessErrorCodes.INVALID_AGENT_RESPONSE,
@@ -200,6 +214,11 @@ export class CreateTransactionFromTextService {
     const agentAnswer = parsedAgentAnswer.data;
 
     if (!agentAnswer.success) {
+      console.log("Agent error", {
+        code: BusinessErrorCodes.AGENT_DECLINED,
+        error: agentAnswer.error,
+      });
+
       throw new BusinessError(
         agentAnswer.error || "Agent could not create the transaction",
         BusinessErrorCodes.AGENT_DECLINED,
