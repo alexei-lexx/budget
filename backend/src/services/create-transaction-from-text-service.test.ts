@@ -193,6 +193,7 @@ describe("CreateTransactionFromTextService", () => {
       await expect(service.call(userId, text)).rejects.toThrow(
         "Agent unavailable",
       );
+      expect(mockTransactionService.getTransactionById).not.toHaveBeenCalled();
     });
 
     it("should throw BusinessError when agent returns empty answer", async () => {
