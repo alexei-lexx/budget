@@ -166,22 +166,22 @@ export class CreateTransactionFromTextService {
 
     const systemPrompt = `${SYSTEM_PROMPT}\n\nToday is ${today}.`;
 
-    const response = await this.agent.call({
+    const agentResponse = await this.agent.call({
       messages: [{ role: "user", content: normalizedText }],
       systemPrompt,
       tools,
     });
 
-    if (!response.answer) {
+    if (!agentResponse.answer) {
       throw new BusinessError(
         "Empty response from agent",
         BusinessErrorCodes.EMPTY_RESPONSE,
       );
     }
 
-    let parsedJson: unknown;
+    let agentAnswerJson: unknown;
     try {
-      parsedJson = JSON.parse(response.answer);
+      agentAnswerJson = JSON.parse(agentResponse.answer);
     } catch {
       throw new BusinessError(
         "Invalid JSON response from agent",
@@ -189,7 +189,7 @@ export class CreateTransactionFromTextService {
       );
     }
 
-    const parsedAgentAnswer = agentAnswerSchema.safeParse(parsedJson);
+    const parsedAgentAnswer = agentAnswerSchema.safeParse(agentAnswerJson);
     if (!parsedAgentAnswer.success) {
       throw new BusinessError(
         "Response from agent does not match expected format",
