@@ -70,13 +70,6 @@ export class TransactionService {
     private transactionRepository: ITransactionRepository,
   ) {}
 
-  /**
-   * Get a single active transaction by ID, validating user ownership
-   * @param id - Transaction ID to fetch
-   * @param userId - User ID owning the transaction
-   * @returns Promise<Transaction> - The transaction
-   * @throws BusinessError if transaction not found or doesn't belong to user
-   */
   async getTransactionById(id: string, userId: string): Promise<Transaction> {
     const transaction = await this.transactionRepository.findActiveById(
       id,
@@ -90,6 +83,37 @@ export class TransactionService {
       );
     }
     return transaction;
+  }
+
+  /**
+   * Create a new transaction with full business validation
+   * @param input - Transaction creation input (currency will be derived from account)
+   * @param userId - The user ID creating the transaction
+   * @returns Promise<Transaction> - The created transaction
+   * @throws BusinessError for any business rule violations
+   */
+  async createTransaction(
+    input: CreateTransactionServiceInput,
+    userId: string,
+  ): Promise<Transaction> {
+    // Validate cheap inputs before any async I/O
+    this.validateAmount(input.amount);
+    this.validateDescription(input.description);
+
+    // Validate business rules
+    const account = await this.validateAccount(input.accountId, userId);
+    await this.validateCategory(input.categoryId, userId, input.type);
+
+    // Create the transaction through repository
+    const createInput: CreateTransactionInput = {
+      ...input,
+      userId,
+      currency: account.currency,
+      categoryId: input.categoryId ?? undefined,
+      description: input.description ?? undefined,
+    };
+
+    return await this.transactionRepository.create(createInput);
   }
 
   /**
@@ -112,6 +136,95 @@ export class TransactionService {
       pagination,
       filters,
     );
+  }
+
+  /**
+   * Update an existing transaction with business validation
+   * @param id - Transaction ID to update
+   * @param userId - User ID owning the transaction
+   * @param input - Partial update input (currency automatically updated when account changes)
+   * @returns Promise<Transaction> - The updated transaction
+   * @throws BusinessError for any business rule violations
+   */
+  async updateTransaction(
+    id: string,
+    userId: string,
+    input: UpdateTransactionServiceInput,
+  ): Promise<Transaction> {
+    // First verify the transaction exists and belongs to the user
+    const existingTransaction = await this.transactionRepository.findActiveById(
+      id,
+      userId,
+    );
+    if (!existingTransaction) {
+      throw new BusinessError(
+        "Transaction not found or doesn't belong to user",
+        BusinessErrorCodes.TRANSACTION_NOT_FOUND,
+        { transactionId: id, userId },
+      );
+    }
+
+    // Validate cheap inputs before further async I/O
+    if (input.amount !== undefined) {
+      this.validateAmount(input.amount);
+    }
+    this.validateDescription(input.description);
+
+    // Validate account if provided
+    let account;
+    if (input.accountId) {
+      account = await this.validateAccount(input.accountId, userId);
+    } else {
+      // Get current account for reference
+      account = await this.validateAccount(
+        existingTransaction.accountId,
+        userId,
+      );
+    }
+
+    // Validate category if provided (only if transaction type is also provided or can be determined)
+    const transactionType = input.type || existingTransaction.type;
+    if (input.categoryId) {
+      await this.validateCategory(input.categoryId, userId, transactionType);
+    }
+
+    // Update the transaction through repository, including currency if account changed
+    const updateInput: UpdateTransactionInput = {
+      ...input,
+      ...(input.accountId && { currency: account.currency }),
+    };
+
+    return await this.transactionRepository.update(id, userId, updateInput);
+  }
+
+  /**
+   * Archive (soft delete) an existing transaction
+   * @param id - Transaction ID to archive
+   * @param userId - User ID owning the transaction
+   * @returns Promise<Transaction> - The archived transaction
+   * @throws BusinessError if transaction not found or doesn't belong to user
+   */
+  async deleteTransaction(id: string, userId: string): Promise<Transaction> {
+    // First verify the transaction exists and belongs to the user
+    const existingTransaction = await this.transactionRepository.findActiveById(
+      id,
+      userId,
+    );
+    if (!existingTransaction) {
+      throw new BusinessError(
+        "Transaction not found or doesn't belong to user",
+        BusinessErrorCodes.TRANSACTION_NOT_FOUND,
+        { transactionId: id, userId },
+      );
+    }
+
+    // Check if transaction is already archived - if so, return it as-is
+    if (existingTransaction.isArchived) {
+      return existingTransaction;
+    }
+
+    // Archive the transaction through repository
+    return await this.transactionRepository.archive(id, userId);
   }
 
   /**
@@ -246,126 +359,6 @@ export class TransactionService {
       .sort(([, frequencyA], [, frequencyB]) => frequencyB - frequencyA) // Sort by frequency descending
       .slice(0, validatedLimit) // Take top N
       .map(([description]) => description); // Extract just the description strings
-  }
-
-  /**
-   * Create a new transaction with full business validation
-   * @param input - Transaction creation input (currency will be derived from account)
-   * @param userId - The user ID creating the transaction
-   * @returns Promise<Transaction> - The created transaction
-   * @throws BusinessError for any business rule violations
-   */
-  async createTransaction(
-    input: CreateTransactionServiceInput,
-    userId: string,
-  ): Promise<Transaction> {
-    // Validate cheap inputs before any async I/O
-    this.validateAmount(input.amount);
-    this.validateDescription(input.description);
-
-    // Validate business rules
-    const account = await this.validateAccount(input.accountId, userId);
-    await this.validateCategory(input.categoryId, userId, input.type);
-
-    // Create the transaction through repository
-    const createInput: CreateTransactionInput = {
-      ...input,
-      userId,
-      currency: account.currency,
-      categoryId: input.categoryId ?? undefined,
-      description: input.description ?? undefined,
-    };
-
-    return await this.transactionRepository.create(createInput);
-  }
-
-  /**
-   * Update an existing transaction with business validation
-   * @param id - Transaction ID to update
-   * @param userId - User ID owning the transaction
-   * @param input - Partial update input (currency automatically updated when account changes)
-   * @returns Promise<Transaction> - The updated transaction
-   * @throws BusinessError for any business rule violations
-   */
-  async updateTransaction(
-    id: string,
-    userId: string,
-    input: UpdateTransactionServiceInput,
-  ): Promise<Transaction> {
-    // First verify the transaction exists and belongs to the user
-    const existingTransaction = await this.transactionRepository.findActiveById(
-      id,
-      userId,
-    );
-    if (!existingTransaction) {
-      throw new BusinessError(
-        "Transaction not found or doesn't belong to user",
-        BusinessErrorCodes.TRANSACTION_NOT_FOUND,
-        { transactionId: id, userId },
-      );
-    }
-
-    // Validate cheap inputs before further async I/O
-    if (input.amount !== undefined) {
-      this.validateAmount(input.amount);
-    }
-    this.validateDescription(input.description);
-
-    // Validate account if provided
-    let account;
-    if (input.accountId) {
-      account = await this.validateAccount(input.accountId, userId);
-    } else {
-      // Get current account for reference
-      account = await this.validateAccount(
-        existingTransaction.accountId,
-        userId,
-      );
-    }
-
-    // Validate category if provided (only if transaction type is also provided or can be determined)
-    const transactionType = input.type || existingTransaction.type;
-    if (input.categoryId) {
-      await this.validateCategory(input.categoryId, userId, transactionType);
-    }
-
-    // Update the transaction through repository, including currency if account changed
-    const updateInput: UpdateTransactionInput = {
-      ...input,
-      ...(input.accountId && { currency: account.currency }),
-    };
-
-    return await this.transactionRepository.update(id, userId, updateInput);
-  }
-
-  /**
-   * Archive (soft delete) an existing transaction
-   * @param id - Transaction ID to archive
-   * @param userId - User ID owning the transaction
-   * @returns Promise<Transaction> - The archived transaction
-   * @throws BusinessError if transaction not found or doesn't belong to user
-   */
-  async deleteTransaction(id: string, userId: string): Promise<Transaction> {
-    // First verify the transaction exists and belongs to the user
-    const existingTransaction = await this.transactionRepository.findActiveById(
-      id,
-      userId,
-    );
-    if (!existingTransaction) {
-      throw new BusinessError(
-        "Transaction not found or doesn't belong to user",
-        BusinessErrorCodes.TRANSACTION_NOT_FOUND,
-        { transactionId: id, userId },
-      );
-    }
-
-    // Check if transaction is already archived - if so, return it as-is
-    if (existingTransaction.isArchived) {
-      return existingTransaction;
-    }
-
-    // Archive the transaction through repository
-    return await this.transactionRepository.archive(id, userId);
   }
 
   /**
