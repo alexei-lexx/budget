@@ -51,16 +51,11 @@ export type CreateCategoryInput = {
   type: CategoryType;
 };
 
-/**
- * Input for creating a transaction from a natural-language text description.
- * All transaction fields (type, amount, category, account, date, description)
- * are inferred from text by the AI agent.
- */
+/** Input for creating a transaction from a natural-language text description. */
 export type CreateTransactionFromTextInput = {
   /**
    * Free-text description of the transaction.
-   * Examples: "spent 45 euro at rewe yesterday", "received salary 4500 PLN", "got a refund from zalando 29.99"
-   * Must be non-empty (validated on the client before submission).
+   * Examples: "spent 45 euro at rewe yesterday", "received salary 4500 USD", "got a refund from zalando 29.99"
    */
   text: Scalars['String']['input'];
 };

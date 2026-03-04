@@ -150,6 +150,17 @@ input CreateTransactionInput {
   description: String
 }
 
+"""
+Input for creating a transaction from a natural-language text description.
+"""
+input CreateTransactionFromTextInput {
+  """
+  Free-text description of the transaction.
+  Examples: "spent 45 euro at rewe yesterday", "received salary 4500 USD", "got a refund from zalando 29.99"
+  """
+  text: String!
+}
+
 input UpdateTransactionInput {
   id: ID!
   accountId: ID
@@ -199,20 +210,6 @@ input DateRangeInput {
 input InsightInput {
   question: String!
   dateRange: DateRangeInput!
-}
-
-"""
-Input for creating a transaction from a natural-language text description.
-All transaction fields (type, amount, category, account, date, description)
-are inferred from text by the AI agent.
-"""
-input CreateTransactionFromTextInput {
-  """
-  Free-text description of the transaction.
-  Examples: "spent 45 euro at rewe yesterday", "received salary 4500 PLN", "got a refund from zalando 29.99"
-  Must be non-empty (validated on the client before submission).
-  """
-  text: String!
 }
 
 type PageInfo {
