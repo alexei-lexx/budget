@@ -102,6 +102,28 @@ export class TransactionService {
   }
 
   /**
+   * Get a single active transaction by ID, validating user ownership
+   * @param id - Transaction ID to fetch
+   * @param userId - User ID owning the transaction
+   * @returns Promise<Transaction> - The transaction
+   * @throws BusinessError if transaction not found or doesn't belong to user
+   */
+  async getTransactionById(id: string, userId: string): Promise<Transaction> {
+    const transaction = await this.transactionRepository.findActiveById(
+      id,
+      userId,
+    );
+    if (!transaction) {
+      throw new BusinessError(
+        "Transaction not found or doesn't belong to user",
+        BusinessErrorCodes.TRANSACTION_NOT_FOUND,
+        { transactionId: id, userId },
+      );
+    }
+    return transaction;
+  }
+
+  /**
    * Get active transactions for a user with pagination, sorted by date (newest first)
    * @param userId - The user ID to get transactions for
    * @param pagination - Optional pagination parameters (first, after)

@@ -201,6 +201,20 @@ input InsightInput {
   dateRange: DateRangeInput!
 }
 
+"""
+Input for creating a transaction from a natural-language text description.
+All transaction fields (type, amount, category, account, date, description)
+are inferred from text by the AI agent.
+"""
+input CreateTransactionFromTextInput {
+  """
+  Free-text description of the transaction.
+  Examples: "spent 45 euro at rewe yesterday", "received salary 4500 PLN", "got a refund from zalando 29.99"
+  Must be non-empty (validated on the client before submission).
+  """
+  text: String!
+}
+
 type PageInfo {
   hasNextPage: Boolean!
   hasPreviousPage: Boolean!
@@ -255,6 +269,9 @@ type Mutation {
   updateCategory(input: UpdateCategoryInput!): Category!
   deleteCategory(id: ID!): Category!
   createTransaction(input: CreateTransactionInput!): Transaction!
+  createTransactionFromText(
+    input: CreateTransactionFromTextInput!
+  ): Transaction!
   updateTransaction(input: UpdateTransactionInput!): Transaction!
   deleteTransaction(id: ID!): Transaction!
   createTransfer(input: CreateTransferInput!): Transfer!

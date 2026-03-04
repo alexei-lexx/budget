@@ -22,9 +22,9 @@ description: "Task list for Natural Language Transaction Creation"
 
 **Purpose**: Add GraphQL schema additions and regenerate TypeScript types before any implementation. Required by the constitution's Schema-Driven Development rule — codegen must precede implementation.
 
-- [ ] T001 Add `CreateTransactionFromTextInput` input type and `createTransactionFromText` mutation to `backend/src/schema.graphql` per `specs/030-nl-transaction-create/contracts/schema-additions.graphql`
-- [ ] T002 Run backend TypeScript codegen to generate resolver and input types in `backend/` (`npm run codegen`)
-- [ ] T003 [P] Run frontend schema sync and codegen to generate typed mutation hooks in `frontend/` (`npm run codegen:sync-schema && npm run codegen`)
+- [X] T001 Add `CreateTransactionFromTextInput` input type and `createTransactionFromText` mutation to `backend/src/schema.graphql` per `specs/030-nl-transaction-create/contracts/schema-additions.graphql`
+- [X] T002 Run backend TypeScript codegen to generate resolver and input types in `backend/` (`npm run codegen`)
+- [X] T003 [P] Run frontend schema sync and codegen to generate typed mutation hooks in `frontend/` (`npm run codegen:sync-schema && npm run codegen`)
 
 **Checkpoint**: Schema types are generated — backend and frontend TypeScript types reflect the new mutation
 
@@ -36,10 +36,10 @@ description: "Task list for Natural Language Transaction Creation"
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Implement `CreateTransactionFromTextService` with `call(userId, text)` method, four agent tools (`getAccounts`, `getCategories`, `getTransactions`, `createTransaction`), system prompt, agent call, `transaction.id` parse, and `getTransactionById` fetch in `backend/src/services/create-transaction-from-text-service.ts`
-- [ ] T005 [P] Create `createTransactionFromTextResolvers` module with `Mutation.createTransactionFromText` resolver (authenticates via `getAuthenticatedUser`, delegates to service) in `backend/src/resolvers/create-transaction-from-text-resolvers.ts`
-- [ ] T006 Register `createTransactionFromTextService` in `GraphQLContext` interface and add lazy-init block in `createContext()` (mirrors `insightService` pattern) in `backend/src/server.ts`
-- [ ] T007 Spread `createTransactionFromTextResolvers.Mutation` into the `Mutation` resolver map in `backend/src/resolvers/index.ts`
+- [X] T004 Implement `CreateTransactionFromTextService` with `call(userId, text)` method, four agent tools (`getAccounts`, `getCategories`, `getTransactions`, `createTransaction`), system prompt, agent call, `transaction.id` parse, and `getTransactionById` fetch in `backend/src/services/create-transaction-from-text-service.ts`
+- [X] T005 [P] Create `createTransactionFromTextResolvers` module with `Mutation.createTransactionFromText` resolver (authenticates via `getAuthenticatedUser`, delegates to service) in `backend/src/resolvers/create-transaction-from-text-resolvers.ts`
+- [X] T006 Register `createTransactionFromTextService` in `GraphQLContext` interface and add lazy-init block in `createContext()` (mirrors `insightService` pattern) in `backend/src/server.ts`
+- [X] T007 Spread `createTransactionFromTextResolvers.Mutation` into the `Mutation` resolver map in `backend/src/resolvers/index.ts`
 
 **Checkpoint**: Backend is fully wired — `createTransactionFromText` mutation is callable via GraphQL
 
@@ -51,11 +51,11 @@ description: "Task list for Natural Language Transaction Creation"
 
 **Independent Test**: Type `spent 45 euro at rewe yesterday` and verify: transaction type is `EXPENSE`, amount is `45`, currency matches a EUR account, category is closest match to "groceries", date is yesterday, description is `rewe`; input clears on success. Also verify `20` submits as an expense with today's date and most-used account.
 
-- [ ] T008 [US1] Write unit tests for the expense creation happy path (amount extracted, date resolved, category matched, account selected, transaction returned) in `backend/src/services/create-transaction-from-text-service.test.ts`
-- [ ] T009 [P] [US1] Add `CREATE_TRANSACTION_FROM_TEXT` mutation document (with full `Transaction` fields: id, type, amount, currency, date, description, account, category) to `frontend/src/graphql/mutations.ts`
-- [ ] T010 [US1] Re-run frontend codegen to generate typed `useCreateTransactionFromTextMutation` hook in `frontend/` after T009 (`npm run codegen`)
-- [ ] T011 [US1] Create `useCreateTransactionFromText` composable (reactive `text` ref, `loading`/`error` from Apollo mutation, `submit()` that invokes the mutation, clears `text` on success, calls `showErrorSnackbar` and preserves `text` on error) in `frontend/src/composables/useCreateTransactionFromText.ts`
-- [ ] T012 [US1] Add NL input section above the transaction list in `frontend/src/views/Transactions.vue`: `v-text-field` bound to `text`, disabled while loading, submit on Enter; `v-btn` with `:loading` and `:disabled="!text.trim() || loading"`, calls `submit()`; on success prepend created transaction to the list
+- [X] T008 [US1] Write unit tests for the expense creation happy path (amount extracted, date resolved, category matched, account selected, transaction returned) in `backend/src/services/create-transaction-from-text-service.test.ts`
+- [X] T009 [P] [US1] Add `CREATE_TRANSACTION_FROM_TEXT` mutation document (with full `Transaction` fields: id, type, amount, currency, date, description, account, category) to `frontend/src/graphql/mutations.ts`
+- [X] T010 [US1] Re-run frontend codegen to generate typed `useCreateTransactionFromTextMutation` hook in `frontend/` after T009 (`npm run codegen`)
+- [X] T011 [US1] Create `useCreateTransactionFromText` composable (reactive `text` ref, `loading`/`error` from Apollo mutation, `submit()` that invokes the mutation, clears `text` on success, calls `showErrorSnackbar` and preserves `text` on error) in `frontend/src/composables/useCreateTransactionFromText.ts`
+- [X] T012 [US1] Add NL input section above the transaction list in `frontend/src/views/Transactions.vue`: `v-text-field` bound to `text`, disabled while loading, submit on Enter; `v-btn` with `:loading` and `:disabled="!text.trim() || loading"`, calls `submit()`; on success prepend created transaction to the list
 
 **Checkpoint**: User Story 1 is fully functional — expense creation end-to-end works, loading state is visible, transaction appears at top of list
 
@@ -67,7 +67,7 @@ description: "Task list for Natural Language Transaction Creation"
 
 **Independent Test**: Type `received salary 4500 PLN` and verify transaction type is `INCOME`, amount is `4500`, a PLN account is selected, and category matches salary. Also verify `earned` and `earn` keywords produce type `INCOME`.
 
-- [ ] T013 [P] [US2] Add income scenario unit tests (salary/earn/earned/received keyword → type `INCOME`, amount and account resolved correctly, default-to-expense when no type indicator) to `backend/src/services/create-transaction-from-text-service.test.ts`
+- [X] T013 [P] [US2] Add income scenario unit tests (salary/earn/earned/received keyword → type `INCOME`, amount and account resolved correctly, default-to-expense when no type indicator) to `backend/src/services/create-transaction-from-text-service.test.ts`
 
 **Checkpoint**: User Story 2 verified — income classification and account resolution are correct
 
@@ -79,7 +79,7 @@ description: "Task list for Natural Language Transaction Creation"
 
 **Independent Test**: Type `got a refund from zalando 29.99` and verify transaction type is `REFUND`, amount is `29.99`, category is closest match to "shopping", and account is the most-used for shopping across all transaction types.
 
-- [ ] T014 [P] [US3] Add refund scenario unit tests (refund keyword → type `REFUND`, amount resolved, account selected using cross-type category history) to `backend/src/services/create-transaction-from-text-service.test.ts`
+- [X] T014 [P] [US3] Add refund scenario unit tests (refund keyword → type `REFUND`, amount resolved, account selected using cross-type category history) to `backend/src/services/create-transaction-from-text-service.test.ts`
 
 **Checkpoint**: User Story 3 verified — refund classification and cross-type account resolution are correct
 
@@ -91,8 +91,8 @@ description: "Task list for Natural Language Transaction Creation"
 
 **Independent Test**: Submit `bought something` (no amount) and verify an error is displayed via snackbar and the input text is unchanged. Submit from an account-free state and verify an appropriate error. Verify whitespace-only input keeps the submit button disabled.
 
-- [ ] T015 [US4] Add error path unit tests (agent skips `createTransaction` call → plain-text answer → `BusinessError` thrown; no accounts available; multiple-transaction rejection) to `backend/src/services/create-transaction-from-text-service.test.ts`
-- [ ] T016 [P] [US4] Verify `useCreateTransactionFromText` composable error branch: `showErrorSnackbar` is called with the error message and `text` is NOT cleared on mutation error in `frontend/src/composables/useCreateTransactionFromText.ts`
+- [X] T015 [US4] Add error path unit tests (agent skips `createTransaction` call → plain-text answer → `BusinessError` thrown; no accounts available; multiple-transaction rejection) to `backend/src/services/create-transaction-from-text-service.test.ts`
+- [X] T016 [P] [US4] Verify `useCreateTransactionFromText` composable error branch: `showErrorSnackbar` is called with the error message and `text` is NOT cleared on mutation error in `frontend/src/composables/useCreateTransactionFromText.ts`
 
 **Checkpoint**: User Story 4 verified — all error paths display user-facing messages and preserve input
 
@@ -102,8 +102,8 @@ description: "Task list for Natural Language Transaction Creation"
 
 **Purpose**: Code quality validation and final end-to-end verification per quickstart.md
 
-- [ ] T017 [P] Run full backend test suite, typecheck, and lint in `backend/` (`npm test && npm run typecheck && npm run format`)
-- [ ] T018 [P] Run frontend typecheck and lint in `frontend/` (`npm run typecheck && npm run format`)
+- [X] T017 [P] Run full backend test suite, typecheck, and lint in `backend/` (`npm test && npm run typecheck && npm run format`)
+- [X] T018 [P] Run frontend typecheck and lint in `frontend/` (`npm run typecheck && npm run format`)
 - [ ] T019 Manually validate all quickstart.md test scenarios end-to-end against the running dev server
 
 ---

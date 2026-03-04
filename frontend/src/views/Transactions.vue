@@ -54,6 +54,29 @@
       @clear="() => {}"
     />
 
+    <!-- Natural Language Transaction Input -->
+    <div class="d-flex align-center ga-2 mb-4">
+      <v-text-field
+        v-model="nlText"
+        :disabled="nlLoading"
+        placeholder="e.g. spent 45 euro at rewe yesterday"
+        label="Create transaction from text"
+        variant="outlined"
+        density="compact"
+        hide-details
+        class="flex-grow-1"
+        @keydown.enter="handleNlSubmit"
+      />
+      <v-btn
+        :loading="nlLoading"
+        :disabled="!nlText.trim() || nlLoading"
+        color="primary"
+        @click="handleNlSubmit"
+      >
+        Add
+      </v-btn>
+    </div>
+
     <!-- Loading State -->
     <div v-if="paginatedLoading" class="text-center py-8">
       <v-progress-circular indeterminate color="primary" size="64" width="4"></v-progress-circular>
@@ -184,6 +207,7 @@ import { getTodayDateString } from "@/utils/date";
 import { useTransactions } from "@/composables/useTransactions";
 import { useAccounts } from "@/composables/useAccounts";
 import { useCategories } from "@/composables/useCategories";
+import { useCreateTransactionFromText } from "@/composables/useCreateTransactionFromText";
 import { useSnackbar } from "@/composables/useSnackbar";
 import { useTransfers } from "@/composables/useTransfers";
 import { useTransactionFilters } from "@/composables/useTransactionFilters";
@@ -230,6 +254,17 @@ const { categories: categoriesData } = useCategories();
 const { showSuccessSnackbar, showErrorSnackbar } = useSnackbar();
 const { createTransfer, updateTransfer, deleteTransfer, getTransfer, transfersError } =
   useTransfers();
+
+// NL transaction creation
+const { text: nlText, loading: nlLoading, submit: nlSubmit } = useCreateTransactionFromText();
+
+const handleNlSubmit = async () => {
+  const transaction = await nlSubmit();
+  if (transaction) {
+    // Prepend the new transaction to the list so it appears at the top
+    addTransactionsToList([transaction]);
+  }
+};
 
 // Watch applied filters and refetch when they change
 watch(

@@ -54,6 +54,20 @@ export type CreateCategoryInput = {
   type: CategoryType;
 };
 
+/**
+ * Input for creating a transaction from a natural-language text description.
+ * All transaction fields (type, amount, category, account, date, description)
+ * are inferred from text by the AI agent.
+ */
+export type CreateTransactionFromTextInput = {
+  /**
+   * Free-text description of the transaction.
+   * Examples: "spent 45 euro at rewe yesterday", "received salary 4500 PLN", "got a refund from zalando 29.99"
+   * Must be non-empty (validated on the client before submission).
+   */
+  text: Scalars['String']['input'];
+};
+
 export type CreateTransactionInput = {
   accountId: Scalars['ID']['input'];
   amount: Scalars['Float']['input'];
@@ -122,6 +136,7 @@ export type Mutation = {
   createAccount: Account;
   createCategory: Category;
   createTransaction: Transaction;
+  createTransactionFromText: Transaction;
   createTransfer: Transfer;
   deleteAccount?: Maybe<Scalars['Boolean']['output']>;
   deleteCategory: Category;
@@ -147,6 +162,11 @@ export type MutationCreateCategoryArgs = {
 
 export type MutationCreateTransactionArgs = {
   input: CreateTransactionInput;
+};
+
+
+export type MutationCreateTransactionFromTextArgs = {
+  input: CreateTransactionFromTextInput;
 };
 
 
@@ -463,6 +483,7 @@ export type ResolversTypes = {
   CategoryType: CategoryType;
   CreateAccountInput: CreateAccountInput;
   CreateCategoryInput: CreateCategoryInput;
+  CreateTransactionFromTextInput: CreateTransactionFromTextInput;
   CreateTransactionInput: CreateTransactionInput;
   CreateTransferInput: CreateTransferInput;
   DateRangeInput: DateRangeInput;
@@ -505,6 +526,7 @@ export type ResolversParentTypes = {
   Category: Category;
   CreateAccountInput: CreateAccountInput;
   CreateCategoryInput: CreateCategoryInput;
+  CreateTransactionFromTextInput: CreateTransactionFromTextInput;
   CreateTransactionInput: CreateTransactionInput;
   CreateTransferInput: CreateTransferInput;
   DateRangeInput: DateRangeInput;
@@ -589,6 +611,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createAccount?: Resolver<ResolversTypes['Account'], ParentType, ContextType, RequireFields<MutationCreateAccountArgs, 'input'>>;
   createCategory?: Resolver<ResolversTypes['Category'], ParentType, ContextType, RequireFields<MutationCreateCategoryArgs, 'input'>>;
   createTransaction?: Resolver<ResolversTypes['Transaction'], ParentType, ContextType, RequireFields<MutationCreateTransactionArgs, 'input'>>;
+  createTransactionFromText?: Resolver<ResolversTypes['Transaction'], ParentType, ContextType, RequireFields<MutationCreateTransactionFromTextArgs, 'input'>>;
   createTransfer?: Resolver<ResolversTypes['Transfer'], ParentType, ContextType, RequireFields<MutationCreateTransferArgs, 'input'>>;
   deleteAccount?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType, RequireFields<MutationDeleteAccountArgs, 'id'>>;
   deleteCategory?: Resolver<ResolversTypes['Category'], ParentType, ContextType, RequireFields<MutationDeleteCategoryArgs, 'id'>>;

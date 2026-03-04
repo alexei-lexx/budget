@@ -47,6 +47,20 @@ export type CreateCategoryInput = {
   type: CategoryType;
 };
 
+/**
+ * Input for creating a transaction from a natural-language text description.
+ * All transaction fields (type, amount, category, account, date, description)
+ * are inferred from text by the AI agent.
+ */
+export type CreateTransactionFromTextInput = {
+  /**
+   * Free-text description of the transaction.
+   * Examples: "spent 45 euro at rewe yesterday", "received salary 4500 PLN", "got a refund from zalando 29.99"
+   * Must be non-empty (validated on the client before submission).
+   */
+  text: Scalars['String']['input'];
+};
+
 export type CreateTransactionInput = {
   accountId: Scalars['ID']['input'];
   amount: Scalars['Float']['input'];
@@ -115,6 +129,7 @@ export type Mutation = {
   createAccount: Account;
   createCategory: Category;
   createTransaction: Transaction;
+  createTransactionFromText: Transaction;
   createTransfer: Transfer;
   deleteAccount?: Maybe<Scalars['Boolean']['output']>;
   deleteCategory: Category;
@@ -140,6 +155,11 @@ export type MutationCreateCategoryArgs = {
 
 export type MutationCreateTransactionArgs = {
   input: CreateTransactionInput;
+};
+
+
+export type MutationCreateTransactionFromTextArgs = {
+  input: CreateTransactionFromTextInput;
 };
 
 
@@ -456,6 +476,13 @@ export type CreateTransactionMutationVariables = Exact<{
 
 
 export type CreateTransactionMutation = { __typename?: 'Mutation', createTransaction: { __typename?: 'Transaction', id: string, type: TransactionType, amount: number, currency: string, date: string, description?: string | null | undefined, transferId?: string | null | undefined, account: { __typename?: 'TransactionEmbeddedAccount', id: string, name: string, isArchived: boolean }, category?: { __typename?: 'TransactionEmbeddedCategory', id: string, name: string, isArchived: boolean } | null | undefined } };
+
+export type CreateTransactionFromTextMutationVariables = Exact<{
+  input: CreateTransactionFromTextInput;
+}>;
+
+
+export type CreateTransactionFromTextMutation = { __typename?: 'Mutation', createTransactionFromText: { __typename?: 'Transaction', id: string, type: TransactionType, amount: number, currency: string, date: string, description?: string | null | undefined, transferId?: string | null | undefined, account: { __typename?: 'TransactionEmbeddedAccount', id: string, name: string, isArchived: boolean }, category?: { __typename?: 'TransactionEmbeddedCategory', id: string, name: string, isArchived: boolean } | null | undefined } };
 
 export type UpdateTransactionMutationVariables = Exact<{
   input: UpdateTransactionInput;
