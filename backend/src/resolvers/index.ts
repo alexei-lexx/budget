@@ -18,10 +18,10 @@ export const resolvers: Resolvers = {
     ...transferResolvers.Query,
   },
   Mutation: {
-    ...createTransactionFromTextResolvers.Mutation,
     ...accountResolvers.Mutation,
     ...userResolvers.Mutation,
     ...categoryResolvers.Mutation,
+    ...createTransactionFromTextResolvers.Mutation,
     ...transactionResolvers.Mutation,
     ...transferResolvers.Mutation,
   },
