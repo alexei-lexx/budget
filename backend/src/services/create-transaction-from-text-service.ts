@@ -1,6 +1,6 @@
 import { Agent } from "../models/agent";
 import { Transaction } from "../models/transaction";
-import { DateString, toDateString } from "../types/date";
+import { toDateString } from "../types/date";
 import { formatDateAsYYYYMMDD } from "../utils/date";
 import { AgentDataService } from "./agent-data-service";
 import {
@@ -106,8 +106,8 @@ export class CreateTransactionFromTextService {
       createGetTransactionsTool({
         agentDataService: this.agentDataService,
         userId,
-        allowedStartDate: toDateString(historyStartDate) as DateString,
-        allowedEndDate: toDateString(today) as DateString,
+        allowedStartDate: toDateString(historyStartDate),
+        allowedEndDate: toDateString(today),
       }),
     ];
 
