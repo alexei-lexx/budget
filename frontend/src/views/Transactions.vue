@@ -194,7 +194,7 @@
       color="primary"
       @click="handleCreateTransactionFromText"
     >
-      Create transaction
+      Add
     </v-btn>
   </v-footer>
 </template>
