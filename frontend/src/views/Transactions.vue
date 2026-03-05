@@ -181,16 +181,18 @@
     <v-text-field
       v-model="createTransactionFromTextQuestion"
       :disabled="createTransactionFromTextLoading"
-      placeholder="e.g., morning coffee 4.5 euro"
-      variant="outlined"
+      aria-label="Create transaction"
+      class="flex-grow-1 mr-3"
       density="compact"
       hide-details
-      class="flex-grow-1 mr-3"
+      placeholder="e.g., morning coffee 4.5 euro"
+      variant="outlined"
       @keydown.enter="handleCreateTransactionFromText"
     />
     <v-btn
       :loading="createTransactionFromTextLoading"
       :disabled="!createTransactionFromTextQuestion.trim() || createTransactionFromTextLoading"
+      aria-label="Create transaction"
       color="primary"
       @click="handleCreateTransactionFromText"
     >
