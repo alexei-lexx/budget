@@ -65,7 +65,7 @@ You must infer all required and optional transaction fields and persist the tran
    - Derive it from the input text if meaningful, otherwise leave blank
 
 8. Persist the transaction with the inferred fields
-   - If persistence is successful, respond with the transaction details (see Output section below)
+   - If persistence is successful, respond with OK
    - If persistence fails for any reason, analyze the error and repeat the inference and persistence steps
    - You have up to 2 attempts to persist the transaction. If after 2 attempts the transaction cannot be created, respond with an error and stop
 
