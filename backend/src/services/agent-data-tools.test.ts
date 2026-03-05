@@ -355,9 +355,9 @@ describe("agent-data-tools", () => {
       );
 
       const input: CreateTransactionToolInput = {
-        accountId: "some-account-id",
+        accountId: faker.string.uuid(),
         amount: 123.45,
-        categoryId: "some-category-id",
+        categoryId: faker.string.uuid(),
         date: toDateString("2000-01-15"),
         description: "Some description",
         type: TransactionType.EXPENSE,
