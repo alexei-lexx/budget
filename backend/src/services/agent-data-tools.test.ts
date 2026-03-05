@@ -97,21 +97,54 @@ describe("agent-data-tools", () => {
   });
 
   describe("createGetTransactionsTool", () => {
-    const allowedStartDate = toDateString("2000-01-01");
-    const allowedEndDate = toDateString("2000-01-31");
-
     it("should return tool with correct name", () => {
       const tool = createGetTransactionsTool({
         agentDataService: mockAgentDataService as unknown as AgentDataService,
         userId,
-        allowedStartDate,
-        allowedEndDate,
       });
 
       expect(tool.name).toBe("getTransactions");
     });
 
-    it("should accept dates within allowed range", async () => {
+    it("should reject when startDate is after endDate", async () => {
+      const tool = createGetTransactionsTool({
+        agentDataService: mockAgentDataService as unknown as AgentDataService,
+        userId,
+      });
+
+      const result = await tool.func({
+        startDate: "2000-01-20",
+        endDate: "2000-01-10",
+      });
+
+      expect(
+        mockAgentDataService.getFilteredTransactions,
+      ).not.toHaveBeenCalled();
+      expect(result).toBe(
+        JSON.stringify({ error: "startDate must not be after endDate" }),
+      );
+    });
+
+    it("should reject when date range exceeds 365 days", async () => {
+      const tool = createGetTransactionsTool({
+        agentDataService: mockAgentDataService as unknown as AgentDataService,
+        userId,
+      });
+
+      const result = await tool.func({
+        startDate: "2000-01-01",
+        endDate: "2001-01-02",
+      });
+
+      expect(
+        mockAgentDataService.getFilteredTransactions,
+      ).not.toHaveBeenCalled();
+      expect(result).toBe(
+        JSON.stringify({ error: "Date range must not exceed 365 days" }),
+      );
+    });
+
+    it("should filter by date range and return transactions", async () => {
       const transactions = [fakeTransaction()];
       const transactionsData = transactions.map((transaction) => ({
         id: transaction.id,
@@ -131,102 +164,6 @@ describe("agent-data-tools", () => {
       const tool = createGetTransactionsTool({
         agentDataService: mockAgentDataService as unknown as AgentDataService,
         userId,
-        allowedStartDate,
-        allowedEndDate,
-      });
-
-      const result = await tool.func({
-        startDate: "2000-01-10",
-        endDate: "2000-01-20",
-      });
-
-      expect(mockAgentDataService.getFilteredTransactions).toHaveBeenCalledWith(
-        userId,
-        "2000-01-10",
-        "2000-01-20",
-        undefined,
-        undefined,
-      );
-      expect(result).toBe(JSON.stringify(transactionsData));
-    });
-
-    it("should reject startDate before allowed range", async () => {
-      const tool = createGetTransactionsTool({
-        agentDataService: mockAgentDataService as unknown as AgentDataService,
-        userId,
-        allowedStartDate,
-        allowedEndDate,
-      });
-
-      const result = await tool.func({
-        startDate: "1999-12-31",
-        endDate: "2000-01-15",
-      });
-
-      expect(
-        mockAgentDataService.getFilteredTransactions,
-      ).not.toHaveBeenCalled();
-      expect(result).toBe(
-        JSON.stringify({
-          error: "Date range must be within 2000-01-01 to 2000-01-31",
-        }),
-      );
-    });
-
-    it("should reject endDate after allowed range", async () => {
-      const tool = createGetTransactionsTool({
-        agentDataService: mockAgentDataService as unknown as AgentDataService,
-        userId,
-        allowedStartDate,
-        allowedEndDate,
-      });
-
-      const result = await tool.func({
-        startDate: "2000-01-15",
-        endDate: "2000-02-01",
-      });
-
-      expect(
-        mockAgentDataService.getFilteredTransactions,
-      ).not.toHaveBeenCalled();
-      expect(result).toBe(
-        JSON.stringify({
-          error: "Date range must be within 2000-01-01 to 2000-01-31",
-        }),
-      );
-    });
-
-    it("should reject when startDate is after endDate", async () => {
-      const tool = createGetTransactionsTool({
-        agentDataService: mockAgentDataService as unknown as AgentDataService,
-        userId,
-        allowedStartDate,
-        allowedEndDate,
-      });
-
-      const result = await tool.func({
-        startDate: "2000-01-20",
-        endDate: "2000-01-10",
-      });
-
-      expect(
-        mockAgentDataService.getFilteredTransactions,
-      ).not.toHaveBeenCalled();
-      expect(result).toBe(
-        JSON.stringify({
-          error: "startDate must not be after endDate",
-        }),
-      );
-    });
-
-    it("should accept dates at boundary of allowed range (inclusive)", async () => {
-      mockAgentDataService.getFilteredTransactions.mockResolvedValue([]);
-
-      const tool = createGetTransactionsTool({
-        agentDataService: mockAgentDataService as unknown as AgentDataService,
-        userId,
-        allowedStartDate,
-        allowedEndDate,
       });
 
       const result = await tool.func({
@@ -234,6 +171,7 @@ describe("agent-data-tools", () => {
         endDate: "2000-01-31",
       });
 
+      expect(result).toBe(JSON.stringify(transactionsData));
       expect(mockAgentDataService.getFilteredTransactions).toHaveBeenCalledWith(
         userId,
         "2000-01-01",
@@ -241,7 +179,6 @@ describe("agent-data-tools", () => {
         undefined,
         undefined,
       );
-      expect(result).toBe(JSON.stringify([]));
     });
 
     it("should filter by accountId", async () => {
@@ -251,8 +188,6 @@ describe("agent-data-tools", () => {
       const tool = createGetTransactionsTool({
         agentDataService: mockAgentDataService as unknown as AgentDataService,
         userId,
-        allowedStartDate,
-        allowedEndDate,
       });
 
       await tool.func({
@@ -277,8 +212,6 @@ describe("agent-data-tools", () => {
       const tool = createGetTransactionsTool({
         agentDataService: mockAgentDataService as unknown as AgentDataService,
         userId,
-        allowedStartDate,
-        allowedEndDate,
       });
 
       await tool.func({
@@ -304,8 +237,6 @@ describe("agent-data-tools", () => {
       const tool = createGetTransactionsTool({
         agentDataService: mockAgentDataService as unknown as AgentDataService,
         userId,
-        allowedStartDate,
-        allowedEndDate,
       });
 
       await tool.func({

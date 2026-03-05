@@ -11,3 +11,9 @@ export function formatDateAsYYYYMMDD(date: Date): string {
   const day = date.getDate().toString().padStart(2, "0");
   return `${year}-${month}-${day}`;
 }
+
+const MS_PER_DAY = 1000 * 60 * 60 * 24;
+
+export function daysBetween(start: Date, end: Date): number {
+  return Math.floor((end.getTime() - start.getTime()) / MS_PER_DAY);
+}

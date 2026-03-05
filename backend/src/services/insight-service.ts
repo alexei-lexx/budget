@@ -98,8 +98,6 @@ export class InsightService {
       createGetTransactionsTool({
         agentDataService: this.agentDataService,
         userId,
-        allowedStartDate: startDate,
-        allowedEndDate: endDate,
       }),
     ];
 
