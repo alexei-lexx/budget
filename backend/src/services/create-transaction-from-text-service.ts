@@ -140,15 +140,15 @@ export class CreateTransactionFromTextService {
       tools,
     });
 
-    if (toolExecutions && toolExecutions.length > 0) {
-      this.logToolExecution(toolExecutions);
-    }
+    let lastCreateTransactionToolExecution: ToolExecution | undefined;
 
-    const lastCreateTransactionToolExecution = toolExecutions
-      ? toolExecutions.findLast(
-          (toolExecution) => toolExecution.tool === createTransactionTool.name,
-        )
-      : undefined;
+    if (toolExecutions && toolExecutions.length > 0) {
+      this.logToolExecutions(toolExecutions);
+
+      lastCreateTransactionToolExecution = toolExecutions.findLast(
+        (toolExecution) => toolExecution.tool === createTransactionTool.name,
+      );
+    }
 
     if (!lastCreateTransactionToolExecution) {
       console.log("Agent error", {
@@ -206,7 +206,7 @@ export class CreateTransactionFromTextService {
     return this.transactionService.getTransactionById(transactionId, userId);
   }
 
-  private logToolExecution(toolExecutions: ToolExecution[]) {
+  private logToolExecutions(toolExecutions: ToolExecution[]) {
     for (let index = 0; index < toolExecutions.length; index++) {
       console.log(`Tool execution #${index}`, {
         tool: toolExecutions[index].tool,
