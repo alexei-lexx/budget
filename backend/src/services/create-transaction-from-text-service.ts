@@ -1,7 +1,6 @@
 import { z } from "zod";
 import { Agent, ToolExecution } from "../models/agent";
 import { Transaction } from "../models/transaction";
-import { toDateString } from "../types/date";
 import { formatDateAsYYYYMMDD } from "../utils/date";
 import { AgentDataService } from "./agent-data-service";
 import {
@@ -12,9 +11,6 @@ import {
 } from "./agent-data-tools";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
 import { TransactionService } from "./transaction-service";
-
-// How many days back the agent may look for transaction history
-const HISTORY_DAYS = 365;
 
 const SYSTEM_PROMPT = `
 ## Role
@@ -111,9 +107,6 @@ export class CreateTransactionFromTextService {
     }
 
     const today = formatDateAsYYYYMMDD(new Date());
-    const historyStartDate = formatDateAsYYYYMMDD(
-      new Date(Date.now() - HISTORY_DAYS * 24 * 60 * 60 * 1000),
-    );
 
     const createTransactionTool = createCreateTransactionTool(
       this.transactionService,
@@ -126,8 +119,6 @@ export class CreateTransactionFromTextService {
       createGetTransactionsTool({
         agentDataService: this.agentDataService,
         userId,
-        allowedStartDate: toDateString(historyStartDate),
-        allowedEndDate: toDateString(today),
       }),
       createTransactionTool,
     ];
