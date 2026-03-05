@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { Agent } from "../models/agent";
+import { Agent, ToolExecution } from "../models/agent";
 import { Transaction } from "../models/transaction";
 import { toDateString } from "../types/date";
 import { formatDateAsYYYYMMDD } from "../utils/date";
@@ -71,64 +71,27 @@ You must infer all required and optional transaction fields and persist the tran
 
 ## Output
 
-- If the transaction is successfully created, respond with a JSON object containing "success": true and the created transaction details
-- If the transaction cannot be created, respond with a JSON object containing "success": false and an error message
-- Do not include any explanation or additional text, only the JSON object
-- Do not surround the JSON object with markdown or code formatting
-
-Use the following format for the successful response:
-{
-  "success": true,
-  "transaction": {
-    "accountId": "<account-id>",
-    "amount": <amount>,
-    "categoryId": "<category-id or null>",
-    "date": "<date in YYYY-MM-DD format>",
-    "description": "<description or null>",
-    "id": "<transaction-id>",
-    "type": "<transaction-type>"
-  }
-}
-
-Use the following format for the failure response:
-{
-  "success": false,
-  "error": "<explanation of why the transaction could not be created>"
-}
+- If the transaction is successfully created, respond with OK
+- If the transaction cannot be created, respond with an error message explaining why
 `.trim();
 
-const agentAnswerSchema = z.discriminatedUnion("success", [
-  z.object({
-    success: z.literal(true),
-    transaction: z.object({
-      id: z.string().min(1),
-    }),
-  }),
-  z.object({
-    success: z.literal(false),
-    error: z.string(),
-  }),
-]);
-
-interface CreateTransactionFromTextServiceOptions {
-  agentDataService: AgentDataService;
-  agent: Agent;
-  transactionService: TransactionService;
-}
+const createdTransactionSchema = z.object({
+  id: z.string(),
+});
 
 export class CreateTransactionFromTextService {
   private agent: Agent;
   private agentDataService: AgentDataService;
   private transactionService: TransactionService;
 
-  constructor({
-    agent,
-    agentDataService,
-    transactionService,
-  }: CreateTransactionFromTextServiceOptions) {
-    this.agent = agent;
-    this.agentDataService = agentDataService;
-    this.transactionService = transactionService;
+  constructor(options: {
+    agentDataService: AgentDataService;
+    agent: Agent;
+    transactionService: TransactionService;
+  }) {
+    this.agent = options.agent;
+    this.agentDataService = options.agentDataService;
+    this.transactionService = options.transactionService;
   }
 
   async call(userId: string, text: string): Promise<Transaction> {
@@ -152,6 +115,11 @@ export class CreateTransactionFromTextService {
       new Date(Date.now() - HISTORY_DAYS * 24 * 60 * 60 * 1000),
     );
 
+    const createTransactionTool = createCreateTransactionTool(
+      this.transactionService,
+      userId,
+    );
+
     const tools = [
       createGetAccountsTool(this.agentDataService, userId),
       createGetCategoriesTool(this.agentDataService, userId),
@@ -161,48 +129,70 @@ export class CreateTransactionFromTextService {
         allowedStartDate: toDateString(historyStartDate),
         allowedEndDate: toDateString(today),
       }),
-      createCreateTransactionTool(this.transactionService, userId),
+      createTransactionTool,
     ];
 
     const systemPrompt = `${SYSTEM_PROMPT}\n\nToday is ${today}.`;
 
-    const agentResponse = await this.agent.call({
+    const { answer, toolExecutions } = await this.agent.call({
       messages: [{ role: "user", content: normalizedText }],
       systemPrompt,
       tools,
     });
 
-    if (!agentResponse.answer) {
+    if (toolExecutions && toolExecutions.length > 0) {
+      this.logToolExecution(toolExecutions);
+    }
+
+    const lastCreateTransactionToolExecution = toolExecutions
+      ? toolExecutions.findLast(
+          (toolExecution) => toolExecution.tool === createTransactionTool.name,
+        )
+      : undefined;
+
+    if (!lastCreateTransactionToolExecution) {
       console.log("Agent error", {
-        code: BusinessErrorCodes.EMPTY_RESPONSE,
+        code: BusinessErrorCodes.AGENT_DECLINED,
+        error: "Agent did not attempt to create a transaction",
+        agentAnswer: answer,
+        toolExecutions,
       });
 
       throw new BusinessError(
-        "Empty response from agent",
-        BusinessErrorCodes.EMPTY_RESPONSE,
+        "Agent did not attempt to create a transaction" +
+          (answer ? `\n${answer}` : ""),
+        BusinessErrorCodes.AGENT_DECLINED,
       );
     }
 
-    let agentAnswerJson: unknown;
+    let transactionDataJson;
     try {
-      agentAnswerJson = JSON.parse(agentResponse.answer);
+      transactionDataJson = JSON.parse(
+        lastCreateTransactionToolExecution.output,
+      );
     } catch (error) {
       console.log("Agent error", {
         code: BusinessErrorCodes.INVALID_AGENT_RESPONSE,
         error: error instanceof Error ? error.message : String(error),
+        agentAnswer: answer,
+        toolOutput: lastCreateTransactionToolExecution.output,
       });
 
       throw new BusinessError(
-        "Invalid JSON response from agent",
+        "Response from agent is not valid JSON",
         BusinessErrorCodes.INVALID_AGENT_RESPONSE,
       );
     }
 
-    const parsedAgentAnswer = agentAnswerSchema.safeParse(agentAnswerJson);
-    if (!parsedAgentAnswer.success) {
+    const parsedTransactionData =
+      createdTransactionSchema.safeParse(transactionDataJson);
+
+    if (!parsedTransactionData.success) {
       console.log("Agent error", {
         code: BusinessErrorCodes.INVALID_AGENT_RESPONSE,
-        error: z.prettifyError(parsedAgentAnswer.error),
+        error: z.prettifyError(parsedTransactionData.error),
+        agentAnswer: answer,
+        toolOutput: lastCreateTransactionToolExecution.output,
       });
 
       throw new BusinessError(
@@ -211,23 +201,18 @@ export class CreateTransactionFromTextService {
       );
     }
 
-    const agentAnswer = parsedAgentAnswer.data;
+    const transactionId = parsedTransactionData.data.id;
 
-    if (!agentAnswer.success) {
-      console.log("Agent error", {
-        code: BusinessErrorCodes.AGENT_DECLINED,
-        error: agentAnswer.error,
+    return this.transactionService.getTransactionById(transactionId, userId);
+  }
+
+  private logToolExecution(toolExecutions: ToolExecution[]) {
+    for (let index = 0; index < toolExecutions.length; index++) {
+      console.log(`Tool execution #${index}`, {
+        tool: toolExecutions[index].tool,
+        input: toolExecutions[index].input,
+        output: toolExecutions[index].output,
       });
-
-      throw new BusinessError(
-        agentAnswer.error || "Agent could not create the transaction",
-        BusinessErrorCodes.AGENT_DECLINED,
-      );
     }
-
-    return this.transactionService.getTransactionById(
-      agentAnswer.transaction.id,
-      userId,
-    );
   }
 }

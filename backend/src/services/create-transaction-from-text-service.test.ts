@@ -24,15 +24,6 @@ const createMockTransactionService = (): jest.Mocked<
   getTransactionById: jest.fn(),
 });
 
-function buildSuccessfulAgentResponse(transactionId: string) {
-  return {
-    answer: JSON.stringify({
-      success: true,
-      transaction: { id: transactionId },
-    }),
-  };
-}
-
 describe("CreateTransactionFromTextService", () => {
   const userId = faker.string.uuid();
   const text = "coffee at starbucks for 5 euros";
@@ -100,18 +91,38 @@ describe("CreateTransactionFromTextService", () => {
   });
 
   describe("happy path", () => {
-    it("should return the created transaction when agent responds with success", async () => {
-      // Arrange
-      const transactionId = faker.string.uuid();
-      const createdTransaction = fakeTransaction();
+    const transactionId = faker.string.uuid();
+    const createdTransaction = fakeTransaction();
 
-      mockAgent.call.mockResolvedValue(
-        buildSuccessfulAgentResponse(transactionId),
-      );
+    beforeEach(() => {
+      // Arrange
+      mockAgent.call.mockResolvedValue({
+        answer: "Transaction created successfully",
+        toolExecutions: [
+          {
+            tool: "yetAnotherToolOne",
+            input: "{}",
+            output: "{}",
+          },
+          {
+            tool: "createTransaction",
+            input: '{ "amount": 5 }',
+            output: `{ "id": "${transactionId}" }`,
+          },
+          {
+            tool: "yetAnotherToolTwo",
+            input: "{}",
+            output: "{}",
+          },
+        ],
+      });
+
       mockTransactionService.getTransactionById.mockResolvedValue(
         createdTransaction,
       );
+    });
 
+    it("should return the created transaction", async () => {
       // Act
       const result = await service.call(userId, text);
 
@@ -124,15 +135,6 @@ describe("CreateTransactionFromTextService", () => {
     });
 
     it("should pass trimmed text to agent", async () => {
-      // Arrange
-      const transactionId = faker.string.uuid();
-      mockAgent.call.mockResolvedValue(
-        buildSuccessfulAgentResponse(transactionId),
-      );
-      mockTransactionService.getTransactionById.mockResolvedValue(
-        fakeTransaction(),
-      );
-
       // Act
       await service.call(userId, `    ${text}    `);
 
@@ -142,15 +144,6 @@ describe("CreateTransactionFromTextService", () => {
     });
 
     it("should include all required tools in agent call", async () => {
-      // Arrange
-      const transactionId = faker.string.uuid();
-      mockAgent.call.mockResolvedValue(
-        buildSuccessfulAgentResponse(transactionId),
-      );
-      mockTransactionService.getTransactionById.mockResolvedValue(
-        fakeTransaction(),
-      );
-
       // Act
       await service.call(userId, text);
 
@@ -165,15 +158,6 @@ describe("CreateTransactionFromTextService", () => {
     });
 
     it("should include today's date in system prompt", async () => {
-      // Arrange
-      const transactionId = faker.string.uuid();
-      mockAgent.call.mockResolvedValue(
-        buildSuccessfulAgentResponse(transactionId),
-      );
-      mockTransactionService.getTransactionById.mockResolvedValue(
-        fakeTransaction(),
-      );
-
       // Act
       await service.call(userId, text);
 
@@ -196,9 +180,18 @@ describe("CreateTransactionFromTextService", () => {
       expect(mockTransactionService.getTransactionById).not.toHaveBeenCalled();
     });
 
-    it("should throw BusinessError when agent returns empty answer", async () => {
+    it("should throw when agent does not attempt to create transaction", async () => {
       // Arrange
-      mockAgent.call.mockResolvedValue({ answer: "" });
+      mockAgent.call.mockResolvedValue({
+        answer: "I need more information.",
+        toolExecutions: [
+          {
+            tool: "anotherTool",
+            input: "{}",
+            output: "{}",
+          },
+        ],
+      });
 
       // Act
       const promise = service.call(userId, text);
@@ -206,16 +199,24 @@ describe("CreateTransactionFromTextService", () => {
       // Assert
       await expect(promise).rejects.toThrow(BusinessError);
       await expect(promise).rejects.toMatchObject({
-        code: BusinessErrorCodes.EMPTY_RESPONSE,
-        message: "Empty response from agent",
+        code: BusinessErrorCodes.AGENT_DECLINED,
+        message:
+          "Agent did not attempt to create a transaction\nI need more information.",
       });
       expect(mockTransactionService.getTransactionById).not.toHaveBeenCalled();
     });
 
-    it("should throw BusinessError when agent answers with non-JSON", async () => {
+    it("should throw when tool output is not valid JSON", async () => {
       // Arrange
       mockAgent.call.mockResolvedValue({
-        answer: "This is not JSON",
+        answer: "Creating transaction...",
+        toolExecutions: [
+          {
+            tool: "createTransaction",
+            input: '{ "amount": 5 }',
+            output: "This is not valid JSON",
+          },
+        ],
       });
 
       // Act
@@ -225,15 +226,22 @@ describe("CreateTransactionFromTextService", () => {
       await expect(promise).rejects.toThrow(BusinessError);
       await expect(promise).rejects.toMatchObject({
         code: BusinessErrorCodes.INVALID_AGENT_RESPONSE,
-        message: "Invalid JSON response from agent",
+        message: "Response from agent is not valid JSON",
       });
       expect(mockTransactionService.getTransactionById).not.toHaveBeenCalled();
     });
 
-    it("should throw BusinessError when agent answers with JSON that doesn't match expected format", async () => {
+    it("should throw when tool output does not match expected schema", async () => {
       // Arrange
       mockAgent.call.mockResolvedValue({
-        answer: JSON.stringify({}),
+        answer: "Creating transaction...",
+        toolExecutions: [
+          {
+            tool: "createTransaction",
+            input: '{ "amount": 5 }',
+            output: '{ "currency": "EUR" }', // missing "id"
+          },
+        ],
       });
 
       // Act
@@ -248,25 +256,39 @@ describe("CreateTransactionFromTextService", () => {
       expect(mockTransactionService.getTransactionById).not.toHaveBeenCalled();
     });
 
-    it("should throw BusinessError when agent answers with error", async () => {
+    it("should handle multiple creation tool executions", async () => {
       // Arrange
+      const transactionId = faker.string.uuid();
+      const createdTransaction = fakeTransaction();
+
       mockAgent.call.mockResolvedValue({
-        answer: JSON.stringify({
-          success: false,
-          error: "Could not determine the amount from the text.",
-        }),
+        answer: "Two transactions created successfully",
+        toolExecutions: [
+          {
+            tool: "createTransaction",
+            input: '{ "amount": 4 }',
+            output: `{ "id": "first-created-transaction-id" }`,
+          },
+          {
+            tool: "createTransaction",
+            input: '{ "amount": 5 }',
+            output: `{ "id": "${transactionId}" }`,
+          },
+        ],
       });
+      mockTransactionService.getTransactionById.mockResolvedValue(
+        createdTransaction,
+      );
 
       // Act
-      const promise = service.call(userId, text);
+      const result = await service.call(userId, text);
 
       // Assert
-      await expect(promise).rejects.toThrow(BusinessError);
-      await expect(promise).rejects.toMatchObject({
-        code: BusinessErrorCodes.AGENT_DECLINED,
-        message: "Could not determine the amount from the text.",
-      });
-      expect(mockTransactionService.getTransactionById).not.toHaveBeenCalled();
+      expect(result).toBe(createdTransaction);
+      expect(mockTransactionService.getTransactionById).toHaveBeenCalledWith(
+        transactionId,
+        userId,
+      );
     });
   });
 });
