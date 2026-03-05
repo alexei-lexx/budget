@@ -64,7 +64,7 @@ Uses DynamoDB Local running in Docker with a named volume for data persistence.
 - **First-time setup**: `npm run db:setup`
 - **Apply schema changes**: `npm run db:recreate` (local development only)
 - **Reset to empty tables**: `npm run db:recreate`
-- **Reset with sample data**: `npm run db:recreate && npm run db:seed`
+- **Seed sample data for existing users**: `npm run db:seed`
 - **Production schema changes**: Use the migration framework (never drop tables)
 
 ## Quality Checks
