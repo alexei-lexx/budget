@@ -53,6 +53,47 @@ describe("TransactionService", () => {
     jest.clearAllMocks();
   });
 
+  describe("getTransactionById", () => {
+    it("should return transaction when it exists", async () => {
+      // Arrange
+      const transactionId = faker.string.uuid();
+      const transaction = fakeTransaction();
+
+      mockTransactionRepository.findActiveById.mockResolvedValue(transaction);
+
+      // Act
+      const result = await service.getTransactionById(transactionId, userId);
+
+      // Assert
+      expect(result).toEqual(transaction);
+      expect(mockTransactionRepository.findActiveById).toHaveBeenCalledWith(
+        transactionId,
+        userId,
+      );
+      expect(mockTransactionRepository.findActiveById).toHaveBeenCalledTimes(1);
+    });
+
+    it("should throw error when transaction not found", async () => {
+      // Arrange
+      const transactionId = faker.string.uuid();
+      mockTransactionRepository.findActiveById.mockResolvedValue(null);
+
+      // Act & Assert
+      const promise = service.getTransactionById(transactionId, userId);
+
+      await expect(promise).rejects.toThrow(BusinessError);
+      await expect(promise).rejects.toMatchObject({
+        message: "Transaction not found or doesn't belong to user",
+        code: BusinessErrorCodes.TRANSACTION_NOT_FOUND,
+      });
+
+      expect(mockTransactionRepository.findActiveById).toHaveBeenCalledWith(
+        transactionId,
+        userId,
+      );
+    });
+  });
+
   describe("getTransactionPatterns", () => {
     it("should return enriched patterns for valid account and category combinations", async () => {
       // Arrange

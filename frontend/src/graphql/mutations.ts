@@ -74,6 +74,15 @@ export const CREATE_TRANSACTION = gql`
   ${TRANSACTION_FRAGMENT}
 `;
 
+export const CREATE_TRANSACTION_FROM_TEXT = gql`
+  mutation CreateTransactionFromText($input: CreateTransactionFromTextInput!) {
+    createTransactionFromText(input: $input) {
+      ...TransactionFields
+    }
+  }
+  ${TRANSACTION_FRAGMENT}
+`;
+
 export const UPDATE_TRANSACTION = gql`
   mutation UpdateTransaction($input: UpdateTransactionInput!) {
     updateTransaction(input: $input) {

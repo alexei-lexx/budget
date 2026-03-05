@@ -175,6 +175,30 @@
       />
     </v-dialog>
   </v-container>
+
+  <!-- Create Transaction from Text (fixed bottom bar) -->
+  <v-footer app elevation="4" class="pa-3 pa-sm-4">
+    <v-text-field
+      v-model="createTransactionFromTextQuestion"
+      :disabled="createTransactionFromTextLoading"
+      aria-label="Create transaction"
+      class="flex-grow-1 mr-3"
+      density="compact"
+      hide-details
+      placeholder="e.g., morning coffee 4.5 euro"
+      variant="outlined"
+      @keydown.enter="handleCreateTransactionFromText"
+    />
+    <v-btn
+      :loading="createTransactionFromTextLoading"
+      :disabled="!createTransactionFromTextQuestion.trim() || createTransactionFromTextLoading"
+      aria-label="Create transaction"
+      color="primary"
+      @click="handleCreateTransactionFromText"
+    >
+      Add
+    </v-btn>
+  </v-footer>
 </template>
 
 <script setup lang="ts">
@@ -184,6 +208,7 @@ import { getTodayDateString } from "@/utils/date";
 import { useTransactions } from "@/composables/useTransactions";
 import { useAccounts } from "@/composables/useAccounts";
 import { useCategories } from "@/composables/useCategories";
+import { useCreateTransactionFromText } from "@/composables/useCreateTransactionFromText";
 import { useSnackbar } from "@/composables/useSnackbar";
 import { useTransfers } from "@/composables/useTransfers";
 import { useTransactionFilters } from "@/composables/useTransactionFilters";
@@ -230,6 +255,21 @@ const { categories: categoriesData } = useCategories();
 const { showSuccessSnackbar, showErrorSnackbar } = useSnackbar();
 const { createTransfer, updateTransfer, deleteTransfer, getTransfer, transfersError } =
   useTransfers();
+
+// Create transaction from text
+const {
+  text: createTransactionFromTextQuestion,
+  loading: createTransactionFromTextLoading,
+  submit: createTransactionFromTextSubmit,
+} = useCreateTransactionFromText();
+
+const handleCreateTransactionFromText = async () => {
+  const transaction = await createTransactionFromTextSubmit();
+  if (transaction) {
+    // Prepend the new transaction to the list so it appears at the top
+    addTransactionsToList([transaction]);
+  }
+};
 
 // Watch applied filters and refetch when they change
 watch(

@@ -71,6 +71,28 @@ export class TransactionService {
   ) {}
 
   /**
+   * Get a single transaction by ID with ownership validation
+   * @param id - The transaction ID to retrieve
+   * @param userId - The user ID to validate ownership
+   * @returns Promise<Transaction> - The retrieved transaction
+   * @throws BusinessError if transaction not found or doesn't belong to user
+   */
+  async getTransactionById(id: string, userId: string): Promise<Transaction> {
+    const transaction = await this.transactionRepository.findActiveById(
+      id,
+      userId,
+    );
+    if (!transaction) {
+      throw new BusinessError(
+        "Transaction not found or doesn't belong to user",
+        BusinessErrorCodes.TRANSACTION_NOT_FOUND,
+        { transactionId: id, userId },
+      );
+    }
+    return transaction;
+  }
+
+  /**
    * Create a new transaction with full business validation
    * @param input - Transaction creation input (currency will be derived from account)
    * @param userId - The user ID creating the transaction

@@ -51,6 +51,15 @@ export type CreateCategoryInput = {
   type: CategoryType;
 };
 
+/** Input for creating a transaction from a natural-language text description. */
+export type CreateTransactionFromTextInput = {
+  /**
+   * Free-text description of the transaction.
+   * Examples: "spent 45 euro at rewe yesterday", "received salary 4500 USD", "got a refund from zalando 29.99"
+   */
+  text: Scalars['String']['input'];
+};
+
 export type CreateTransactionInput = {
   accountId: Scalars['ID']['input'];
   amount: Scalars['Float']['input'];
@@ -119,6 +128,7 @@ export type Mutation = {
   createAccount: Account;
   createCategory: Category;
   createTransaction: Transaction;
+  createTransactionFromText: Transaction;
   createTransfer: Transfer;
   deleteAccount?: Maybe<Scalars['Boolean']['output']>;
   deleteCategory: Category;
@@ -144,6 +154,11 @@ export type MutationCreateCategoryArgs = {
 
 export type MutationCreateTransactionArgs = {
   input: CreateTransactionInput;
+};
+
+
+export type MutationCreateTransactionFromTextArgs = {
+  input: CreateTransactionFromTextInput;
 };
 
 
@@ -460,6 +475,13 @@ export type CreateTransactionMutationVariables = Exact<{
 
 
 export type CreateTransactionMutation = { __typename?: 'Mutation', createTransaction: { __typename?: 'Transaction', id: string, type: TransactionType, amount: number, currency: string, date: string, description?: string | null | undefined, transferId?: string | null | undefined, account: { __typename?: 'TransactionEmbeddedAccount', id: string, name: string, isArchived: boolean }, category?: { __typename?: 'TransactionEmbeddedCategory', id: string, name: string, isArchived: boolean } | null | undefined } };
+
+export type CreateTransactionFromTextMutationVariables = Exact<{
+  input: CreateTransactionFromTextInput;
+}>;
+
+
+export type CreateTransactionFromTextMutation = { __typename?: 'Mutation', createTransactionFromText: { __typename?: 'Transaction', id: string, type: TransactionType, amount: number, currency: string, date: string, description?: string | null | undefined, transferId?: string | null | undefined, account: { __typename?: 'TransactionEmbeddedAccount', id: string, name: string, isArchived: boolean }, category?: { __typename?: 'TransactionEmbeddedCategory', id: string, name: string, isArchived: boolean } | null | undefined } };
 
 export type UpdateTransactionMutationVariables = Exact<{
   input: UpdateTransactionInput;
@@ -874,6 +896,35 @@ export function useCreateTransactionMutation(options: VueApolloComposable.UseMut
   return VueApolloComposable.useMutation<CreateTransactionMutation, CreateTransactionMutationVariables>(CreateTransactionDocument, options);
 }
 export type CreateTransactionMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<CreateTransactionMutation, CreateTransactionMutationVariables>;
+export const CreateTransactionFromTextDocument = gql`
+    mutation CreateTransactionFromText($input: CreateTransactionFromTextInput!) {
+  createTransactionFromText(input: $input) {
+    ...TransactionFields
+  }
+}
+    ${TransactionFieldsFragmentDoc}`;
+
+/**
+ * __useCreateTransactionFromTextMutation__
+ *
+ * To run a mutation, you first call `useCreateTransactionFromTextMutation` within a Vue component and pass it any options that fit your needs.
+ * When your component renders, `useCreateTransactionFromTextMutation` returns an object that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - Several other properties: https://v4.apollo.vuejs.org/api/use-mutation.html#return
+ *
+ * @param options that will be passed into the mutation, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/mutation.html#options;
+ *
+ * @example
+ * const { mutate, loading, error, onDone } = useCreateTransactionFromTextMutation({
+ *   variables: {
+ *     input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateTransactionFromTextMutation(options: VueApolloComposable.UseMutationOptions<CreateTransactionFromTextMutation, CreateTransactionFromTextMutationVariables> | ReactiveFunction<VueApolloComposable.UseMutationOptions<CreateTransactionFromTextMutation, CreateTransactionFromTextMutationVariables>> = {}) {
+  return VueApolloComposable.useMutation<CreateTransactionFromTextMutation, CreateTransactionFromTextMutationVariables>(CreateTransactionFromTextDocument, options);
+}
+export type CreateTransactionFromTextMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<CreateTransactionFromTextMutation, CreateTransactionFromTextMutationVariables>;
 export const UpdateTransactionDocument = gql`
     mutation UpdateTransaction($input: UpdateTransactionInput!) {
   updateTransaction(input: $input) {

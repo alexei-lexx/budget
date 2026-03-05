@@ -150,6 +150,17 @@ input CreateTransactionInput {
   description: String
 }
 
+"""
+Input for creating a transaction from a natural-language text description.
+"""
+input CreateTransactionFromTextInput {
+  """
+  Free-text description of the transaction.
+  Examples: "spent 45 euro at rewe yesterday", "received salary 4500 USD", "got a refund from zalando 29.99"
+  """
+  text: String!
+}
+
 input UpdateTransactionInput {
   id: ID!
   accountId: ID
@@ -255,6 +266,9 @@ type Mutation {
   updateCategory(input: UpdateCategoryInput!): Category!
   deleteCategory(id: ID!): Category!
   createTransaction(input: CreateTransactionInput!): Transaction!
+  createTransactionFromText(
+    input: CreateTransactionFromTextInput!
+  ): Transaction!
   updateTransaction(input: UpdateTransactionInput!): Transaction!
   deleteTransaction(id: ID!): Transaction!
   createTransfer(input: CreateTransferInput!): Transfer!

@@ -19,6 +19,7 @@ import { getAuthenticatedUser } from "./resolvers/shared";
 import { AccountService } from "./services/account-service";
 import { AgentDataService } from "./services/agent-data-service";
 import { CategoryService } from "./services/category-service";
+import { CreateTransactionFromTextService } from "./services/create-transaction-from-text-service";
 import { InsightService } from "./services/insight-service";
 import { MonthlyByCategoryReportService } from "./services/monthly-by-category-report-service";
 import { TransactionService } from "./services/transaction-service";
@@ -39,6 +40,7 @@ export interface GraphQLContext {
   transactionService: TransactionService;
   accountService: AccountService;
   insightService: InsightService;
+  createTransactionFromTextService: CreateTransactionFromTextService;
   transferService: TransferService;
   monthlyByCategoryReportService: MonthlyByCategoryReportService;
   jwtAuthService: JwtAuthService;
@@ -56,6 +58,7 @@ let categoryService: CategoryService;
 let transactionService: TransactionService;
 let accountService: AccountService;
 let insightService: InsightService;
+let createTransactionFromTextService: CreateTransactionFromTextService;
 let transferService: TransferService;
 let monthlyByCategoryReportService: MonthlyByCategoryReportService;
 
@@ -127,6 +130,20 @@ export async function createContext(req: {
     insightService = new InsightService(agentDataService, agent);
   }
 
+  if (!createTransactionFromTextService) {
+    const agent = new ReActAgent(createBedrockChatModel());
+    const agentDataService = new AgentDataService(
+      accountRepository,
+      categoryRepository,
+      transactionRepository,
+    );
+    createTransactionFromTextService = new CreateTransactionFromTextService({
+      agent,
+      agentDataService,
+      transactionService,
+    });
+  }
+
   if (!transferService) {
     transferService = new TransferService(
       transactionRepository,
@@ -163,6 +180,7 @@ export async function createContext(req: {
     transactionService,
     accountService,
     insightService,
+    createTransactionFromTextService,
     transferService,
     monthlyByCategoryReportService,
     jwtAuthService,
