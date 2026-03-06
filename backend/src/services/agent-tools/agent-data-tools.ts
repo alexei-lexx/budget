@@ -1,13 +1,13 @@
 import { z } from "zod";
-import { ToolSignature } from "../models/agent";
-import { TransactionType } from "../models/transaction";
-import { toDateString } from "../types/date";
-import { daysBetween } from "../utils/date";
-import { AgentDataService, EntityScope } from "./agent-data-service";
+import { ToolSignature } from "../../models/agent";
+import { TransactionType } from "../../models/transaction";
+import { toDateString } from "../../types/date";
+import { daysBetween } from "../../utils/date";
+import { AgentDataService, EntityScope } from "../agent-data-service";
 import {
   CreateTransactionServiceInput,
   TransactionService,
-} from "./transaction-service";
+} from "../transaction-service";
 
 const getAccountsInputSchema = z.object({
   scope: z

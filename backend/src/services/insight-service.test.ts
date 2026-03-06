@@ -11,7 +11,7 @@ import {
   createMockTransactionRepository,
 } from "../utils/test-utils/mock-repositories";
 import { AgentDataService } from "./agent-data-service";
-import { MAX_PERIOD_DAYS } from "./agent-data-tools";
+import { MAX_PERIOD_DAYS } from "./agent-tools/agent-data-tools";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
 import { type InsightInput, InsightService } from "./insight-service";
 
