@@ -1,104 +1,79 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <template>
-  <v-container class="insight-container pa-0" fluid>
-    <div class="d-flex flex-column fill-height">
-      <!-- Answer area -->
-      <div class="answer-area flex-grow-1 overflow-y-auto pa-4">
-        <v-empty-state
-          v-if="!insightAnswer && !insightLoading"
-          icon="mdi-lightbulb-on-outline"
-          title="Ask about your finances"
-          text="Select a time period and ask a question to get started."
-        />
+  <v-container class="pa-3 pa-sm-6">
+    <!-- Page Header -->
+    <div class="mb-6">
+      <h1 class="text-h5 text-sm-h4">Insight</h1>
+    </div>
 
-        <div v-else-if="insightLoading" class="d-flex justify-center align-center fill-height">
-          <v-progress-circular indeterminate size="40" width="3" />
-        </div>
+    <v-empty-state
+      v-if="!insightAnswer && !insightLoading"
+      icon="mdi-lightbulb-on-outline"
+      title="Ask about your finances"
+      text="Select a time period and ask a question to get started."
+    />
 
-        <div v-else-if="insightAnswer" class="answer-content mx-auto">
-          <div class="text-body-1" style="white-space: pre-wrap">
-            {{ insightAnswer }}
-          </div>
-        </div>
-      </div>
+    <div v-else-if="insightLoading" class="d-flex justify-center align-center fill-height">
+      <v-progress-circular indeterminate size="40" width="3" />
+    </div>
 
-      <!-- Input area -->
-      <div class="input-area pa-4 bg-surface">
-        <div class="input-content mx-auto">
-          <!-- Period selector -->
-          <div class="d-flex align-center ga-1 mb-3 flex-wrap">
-            <v-chip
-              v-for="option in dateRangePresetOptions"
-              :key="option.value"
-              :color="selectedDateRangePreset === option.value ? 'primary' : undefined"
-              :variant="selectedDateRangePreset === option.value ? 'flat' : 'tonal'"
-              size="small"
-              label
-              @click="selectedDateRangePreset = option.value"
-            >
-              {{ option.label }}
-            </v-chip>
-          </div>
-
-          <v-row v-if="isCustomDateRangePreset" class="mb-3" dense>
-            <v-col cols="6">
-              <v-text-field
-                v-model="startDate"
-                type="date"
-                label="Start"
-                variant="outlined"
-                density="compact"
-                hide-details
-              />
-            </v-col>
-            <v-col cols="6">
-              <v-text-field
-                v-model="endDate"
-                type="date"
-                label="End"
-                variant="outlined"
-                density="compact"
-                hide-details
-              />
-            </v-col>
-          </v-row>
-
-          <!-- Question input -->
-          <div class="d-flex ga-2 align-end">
-            <v-textarea
-              v-model="question"
-              placeholder="Ask about your spending..."
-              variant="outlined"
-              density="compact"
-              auto-grow
-              rows="1"
-              max-rows="4"
-              hide-details
-              :disabled="insightLoading"
-              @keydown.enter.exact.prevent="handleAskQuestion"
-            >
-              <template #append-inner>
-                <v-icon
-                  v-if="question.trim()"
-                  icon="mdi-close-circle"
-                  size="small"
-                  class="cursor-pointer"
-                  @click="question = ''"
-                />
-              </template>
-            </v-textarea>
-            <v-btn
-              icon="mdi-send"
-              color="primary"
-              :loading="insightLoading"
-              :disabled="insightLoading || !question.trim()"
-              @click="handleAskQuestion"
-            />
-          </div>
-        </div>
+    <div v-else-if="insightAnswer" class="answer-content mx-auto">
+      <div class="text-body-1" style="white-space: pre-wrap">
+        {{ insightAnswer }}
       </div>
     </div>
   </v-container>
+
+  <v-footer app elevation="4" class="pa-3 pa-sm-4">
+    <div class="w-100">
+      <!-- Period selector -->
+      <div class="d-flex align-center ga-1 mb-3 flex-wrap">
+        <v-chip
+          v-for="option in dateRangePresetOptions"
+          :key="option.value"
+          :color="selectedDateRangePreset === option.value ? 'primary' : undefined"
+          :variant="selectedDateRangePreset === option.value ? 'flat' : 'tonal'"
+          size="small"
+          label
+          @click="selectedDateRangePreset = option.value"
+        >
+          {{ option.label }}
+        </v-chip>
+      </div>
+
+      <v-row v-if="isCustomDateRangePreset" class="mb-3" dense>
+        <v-col cols="6">
+          <v-text-field
+            v-model="startDate"
+            type="date"
+            label="Start"
+            variant="outlined"
+            density="compact"
+            hide-details
+          />
+        </v-col>
+        <v-col cols="6">
+          <v-text-field
+            v-model="endDate"
+            type="date"
+            label="End"
+            variant="outlined"
+            density="compact"
+            hide-details
+          />
+        </v-col>
+      </v-row>
+
+      <TextboxButtonInput
+        v-model="question"
+        :loading="insightLoading"
+        placeholder="Ask about your spending..."
+        input-aria-label="Ask a question"
+        submit-aria-label="Submit question"
+        @submit="handleAskQuestion"
+      />
+    </div>
+  </v-footer>
 </template>
 
 <script setup lang="ts">
@@ -106,6 +81,7 @@ import { computed, onMounted, ref, watch } from "vue";
 import { useInsight } from "@/composables/useInsight";
 import { useSnackbar } from "@/composables/useSnackbar";
 import { formatDateAsYYYYMMDD } from "@/utils/date";
+import TextboxButtonInput from "@/components/common/TextboxButtonInput.vue";
 
 type InsightDateRangePreset =
   | "THIS_MONTH"
@@ -268,30 +244,3 @@ onMounted(() => {
   }
 });
 </script>
-
-<style scoped>
-.insight-container {
-  height: calc(100vh - 64px);
-  max-height: calc(100vh - 64px);
-}
-
-.answer-area {
-  min-height: 0;
-}
-
-.answer-content {
-  max-width: 720px;
-}
-
-.input-area {
-  border-top: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
-}
-
-.input-content {
-  max-width: 720px;
-}
-
-.cursor-pointer {
-  cursor: pointer;
-}
-</style>
