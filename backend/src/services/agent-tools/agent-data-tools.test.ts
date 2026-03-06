@@ -1,12 +1,13 @@
 import { faker } from "@faker-js/faker";
-import { TransactionType } from "../models/transaction";
-import { toDateString } from "../types/date";
+import { TransactionType } from "../../models/transaction";
+import { toDateString } from "../../types/date";
 import {
   fakeAccount,
   fakeCategory,
   fakeTransaction,
-} from "../utils/test-utils/factories";
-import { AgentDataService, EntityScope } from "./agent-data-service";
+} from "../../utils/test-utils/factories";
+import { AgentDataService, EntityScope } from "../agent-data-service";
+import { TransactionService } from "../transaction-service";
 import {
   CreateTransactionToolInput,
   MAX_PERIOD_DAYS,
@@ -15,7 +16,6 @@ import {
   createGetCategoriesTool,
   createGetTransactionsTool,
 } from "./agent-data-tools";
-import { TransactionService } from "./transaction-service";
 
 describe("agent-data-tools", () => {
   let mockAgentDataService: {

@@ -8,8 +8,12 @@ import {
   createGetAccountsTool,
   createGetCategoriesTool,
   createGetTransactionsTool,
-} from "./agent-data-tools";
-import { avgTool, calculateTool, sumTool } from "./agent-math-tools";
+} from "./agent-tools/agent-data-tools";
+import {
+  avgTool,
+  calculateTool,
+  sumTool,
+} from "./agent-tools/agent-math-tools";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
 
 const SYSTEM_PROMPT = `
