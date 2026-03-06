@@ -30,9 +30,9 @@ interface TransactionData {
 }
 
 export enum EntityScope {
-  ACTIVE = "active",
-  ARCHIVED = "archived",
-  ALL = "all",
+  ACTIVE = "ACTIVE",
+  ARCHIVED = "ARCHIVED",
+  ALL = "ALL",
 }
 
 export class AgentDataService {
