@@ -1,222 +1,132 @@
-# Research: Textbox-Button Component Implementation
+# Research: Reusable Textbox-Button Input Component
 
-**Date**: 2026-03-06 | **Status**: Phase 0 Complete
+**Phase**: 0 — Pre-design research
+**Branch**: `031-textbox-button-component`
+**Date**: 2026-03-06
 
-## Research Topics
+All patterns below are resolved by reading existing code in the repository. No external research required.
 
-### 1. Vue 3 Textarea Auto-Growing Pattern
+---
 
-**Decision**: Use Vuetify `VTextarea` component with `auto-grow` and `max-rows="4"` props for built-in auto-expanding behavior.
+## 1. Textarea Pattern
 
-**Rationale**:
-- Vuetify's VTextarea provides native auto-grow support with no manual computation needed
-- `max-rows="4"` constraint is enforced by the framework
-- Constitutional requirement: "Prefer framework components" — leverage Vuetify features
-- Simpler, cleaner code with no height calculation overhead
-- Existing Insight.vue already uses this pattern, ensuring consistency
+**Decision**: Use `v-textarea` with `auto-grow`, `rows="1"`, `max-rows="4"`, and `#append-inner` slot for the clear icon — exactly as currently implemented in `Insight.vue`.
 
-**Alternatives Considered**:
-- Manual scrollHeight computation with native textarea — unnecessary complexity
-- External auto-grow library — adds dependency weight, redundant with framework
-- **Selected**: Vuetify `VTextarea` with `auto-grow` + `max-rows` (framework-native, proven pattern)
+**Rationale**: The pattern is already proven in production. The `append-inner` slot places the clear icon inside the input border, which is the desired UX (icon visually part of the textarea).
 
-**Implementation Pattern**:
-```vue
+**Source**: `frontend/src/views/Insight.vue` lines 68–89
+
+```html
 <v-textarea
-  v-model="text"
+  v-model="question"
+  placeholder="Ask about your spending..."
+  variant="outlined"
+  density="compact"
   auto-grow
+  rows="1"
   max-rows="4"
-  :disabled="loading"
-  :placeholder="placeholder"
-  :aria-label="ariaLabel"
-/>
-```
-
-### 2. Vue 3 Event Handling: Enter Key vs. Newline
-
-**Decision**: Prevent Enter key default behavior to block newline insertion; emit submit event instead.
-
-**Rationale**:
-- Requirement FR-004: "Pressing Enter submits the form; it does not insert a newline"
-- Vue 3 event modifiers (`@keydown.enter.prevent`) provide clean syntax
-- Clear separation between submit action and content modification
-
-**Implementation Pattern**:
-```typescript
-const handleKeyDown = (e: KeyboardEvent) => {
-  if (e.key === 'Enter' && !e.shiftKey) {
-    e.preventDefault()
-    emits('submit', text.value)
-    // Caller handles clearing after submission
-  }
-}
-```
-
-### 3. Vuetify Icon Components & Accessibility
-
-**Decision**: Use Vuetify `VIcon` for send/clear icons, with descriptive `aria-label` on parent button. Use `VBtn` with icon prop for consistent styling.
-
-**Rationale**:
-- Constitutional requirement: "Prefer framework components" — use Vuetify VBtn and VIcon
-- VBtn handles focus, ripple, and accessibility defaults
-- Requirement FR-012: Component must have descriptive aria-labels
-
-**Implementation Pattern**:
-```vue
-<v-btn
-  :aria-label="submitAriaLabel"
-  @click="emits('submit', text)"
-  icon
+  hide-details
+  :disabled="insightLoading"
+  @keydown.enter.exact.prevent="handleAskQuestion"
 >
-  <v-icon icon="mdi-send" />
-</v-btn>
-
-<v-btn
-  v-if="text"
-  :aria-label="clearAriaLabel"
-  @click="clearInput"
-  icon
-  size="small"
->
-  <v-icon icon="mdi-close" />
-</v-btn>
+  <template #append-inner>
+    <v-icon
+      v-if="question.trim()"
+      icon="mdi-close-circle"
+      size="small"
+      class="cursor-pointer"
+      @click="question = ''"
+    />
+  </template>
+</v-textarea>
 ```
 
-### 4. Component Props & Emits Pattern
-
-**Decision**: Use TypeScript `type Props` with `defineProps`, and `emits()` with typed event definitions for full type safety.
-
-**Rationale**:
-- Vue 3 `<script setup>` with TypeScript provides compile-time type checking
-- Constitutional requirement: "Avoid non-null assertions and type assertions"
-- Prevents prop drilling and maintains parent control over submit behavior
-
-**Implementation Pattern**:
-```typescript
-interface Props {
-  modelValue: string
-  placeholder?: string
-  loading?: boolean
-  submitAriaLabel: string
-  clearAriaLabel: string
-}
-
-const emits = defineEmits<{
-  submit: [value: string]
-  'update:modelValue': [value: string]
-}>()
-```
-
-### 5. Loading State & Disabled Input Pattern
-
-**Decision**: When `loading` prop is true, disable textarea with `disabled` attribute and show spinner in submit button.
-
-**Rationale**:
-- Requirement FR-010: "Component accepts loading state that shows spinner and disables text input"
-- Native HTML disabled attribute prevents all interactions
-- Vuetify VBtn `:loading` prop shows spinner automatically
-
-**Implementation Pattern**:
-```vue
-<v-textarea
-  :disabled="loading"
-  :model-value="modelValue"
-  @update:model-value="emits('update:modelValue', $event)"
-/>
-
-<v-btn
-  :loading="loading"
-  :disabled="!text"
-  @click="emits('submit', text)"
-/>
-```
-
-### 6. Focus Management: Post-Clear Behavior
-
-**Decision**: After clearing input via clear button, return focus to textarea so user can continue typing without mouse movement.
-
-**Rationale**:
-- Requirement edge case: "Focus should remain on the input after clearing"
-- Improves UX for keyboard users
-- Avoids focus loss that could confuse users
-
-**Implementation Pattern**:
-```typescript
-const clearInput = () => {
-  emits('update:modelValue', '')
-  nextTick(() => {
-    textareaRef.value?.focus()
-  })
-}
-```
-
-### 7. Jest Testing Strategy for Vue 3 Component
-
-**Decision**: Test component in isolation using `@vue/test-utils` with `flushPromises` for async behavior. Mock parent callbacks.
-
-**Rationale**:
-- Constitutional requirement: Component tests required for complex/critical components
-- Mock props and emits to isolate component logic
-- No GraphQL integration needed for unit tests
-
-**Test Categories**:
-1. **Props & Rendering**: Component renders with correct props and defaults
-2. **User Interaction**: Click events, keyboard input, focus management
-3. **State Management**: Text updates, height calculations, loading state
-4. **Accessibility**: aria-labels present, keyboard shortcuts functional
-
-**Implementation Pattern**:
-```typescript
-const wrapper = mount(TextboxButtonInput, {
-  props: {
-    modelValue: '',
-    submitAriaLabel: 'Submit',
-    clearAriaLabel: 'Clear',
-  },
-})
-
-expect(wrapper.find('textarea').exists()).toBe(true)
-await wrapper.find('textarea').setValue('test')
-expect(wrapper.emitted('update:modelValue')).toBeTruthy()
-```
-
-### 8. Page Integration: InsightPage & TransactionsPage Refactoring
-
-**Decision**: Both pages use identical component in `<v-footer app>` layout. No changes to submit handlers or parent logic — only UI refactoring.
-
-**Rationale**:
-- Requirement FR-007, FR-008, FR-009: Consistency across pages
-- Requirement SC-001: Single component, no bespoke patterns
-- Handlers already exist in page components; component is presentation-only
-
-**Integration Points**:
-- InsightPage: Replace `.input-area` div with component, pass `modelValue` and `loading` props
-- TransactionsPage: Replace text-input-with-button pattern with component
-- Both: Maintain existing submit handler logic (parent concerns)
+**Alternatives considered**: `v-text-field` (single-line, no auto-grow, already used on Transactions page) — rejected because it cannot grow to multiple rows.
 
 ---
 
-## Decisions Summary
+## 2. Submit Button Pattern
 
-| Topic | Decision | Rationale |
-|-------|----------|-----------|
-| Textarea Growth | Native textarea + computed height | Control over max-height, no library dependency |
-| Enter Key | Prevent default, emit submit | Requirement: no newline on Enter |
-| Icons | Vuetify VIcon/VBtn | Consistency with framework components |
-| Props Pattern | TypeScript defineProps | Type safety per constitution |
-| Loading State | `:disabled` + `:loading` props | Clear disabled UI feedback |
-| Focus After Clear | `nextTick()` + `.focus()` | UX improvement for keyboard users |
-| Testing | Jest + @vue/test-utils | Per test strategy; co-located .test.ts |
-| Page Integration | Replace inline UI with component | No handler changes, presentation refactor |
+**Decision**: Use `v-btn` with `icon="mdi-send"`, `color="primary"`, `:loading` and `:disabled` bindings — the send icon button currently on Insight page. Both pages will use this pattern in the unified component.
+
+**Rationale**: The send icon clearly communicates "submit this input". The existing Transactions page footer used a text "Add" button, which is replaced by the icon button for visual consistency across both pages.
+
+**Source**: `frontend/src/views/Insight.vue` lines 90–96
+
+```html
+<v-btn
+  icon="mdi-send"
+  color="primary"
+  :loading="insightLoading"
+  :disabled="insightLoading || !question.trim()"
+  @click="handleAskQuestion"
+/>
+```
+
+**Alternatives considered**: Text button with label (current Transactions page pattern) — rejected per spec FR-011 (send icon required on both pages).
 
 ---
 
-## Unknowns Resolved
+## 3. Footer Layout
 
-✅ Vue 3 textarea auto-grow pattern → Established via scrollHeight computation
-✅ Vuetify best practices for this use case → Prefer VBtn, VIcon, VTextarea where appropriate
-✅ Jest testing patterns for Vue 3 → @vue/test-utils with component isolation
-✅ Focus management in Vue 3 → nextTick() + ref.focus() pattern
-✅ Accessibility requirements → aria-label attributes on interactive elements
+**Decision**: Use `<v-footer app elevation="4" class="pa-3 pa-sm-4">` — the native app footer already used by Transactions page. The Insight page's current `.input-area` div will be removed and replaced with this footer.
 
-No blocking unknowns remain. Phase 0 research complete.
+**Rationale**: `v-footer app` is a Vuetify layout component that pins to the bottom of the viewport, stretches full width, and integrates with the router-view content area (which adjusts its padding automatically). `elevation="4"` provides visual separation from content.
+
+**Source**: `frontend/src/views/Transactions.vue` line 180
+
+```html
+<v-footer app elevation="4" class="pa-3 pa-sm-4">
+```
+
+**Impact on Insight page**: The `.insight-container` styles (`height: calc(100vh - 64px)`) and `.input-area` styles (border-top, padding) will be removed. Content scrolling in the answer area will need to remain, but the footer positioning is handled by Vuetify's layout system.
+
+**Alternatives considered**: Keeping the Insight page's current inline `.input-area` div — rejected per spec FR-007 and user clarification.
+
+---
+
+## 4. Component Interface (Vue 3 Props/Emits)
+
+**Decision**: The `TextboxButtonInput` component uses `v-model` for the text value and emits a `submit` event. No internal submission logic — parent page handles submission.
+
+**Props**:
+| Prop | Type | Default | Purpose |
+|------|------|---------|---------|
+| `modelValue` | `string` | required | v-model binding for textarea content |
+| `loading` | `boolean` | `false` | Shows spinner on submit btn, disables input |
+| `placeholder` | `string` | `''` | Textarea placeholder text |
+| `inputAriaLabel` | `string` | `''` | aria-label on the textarea |
+| `submitAriaLabel` | `string` | `''` | aria-label on the submit button |
+
+**Emits**:
+| Event | Payload | Trigger |
+|-------|---------|---------|
+| `update:modelValue` | `string` | Any keystroke (v-model) |
+| `submit` | none | Enter key or send button click |
+
+**Rationale**: Keeping submission logic in the parent preserves each page's independent business logic (Insight: `handleAskQuestion`; Transactions: `handleCreateTransactionFromText`). The component is purely presentational with controlled input.
+
+**Alternatives considered**: Accepting a submit callback prop — rejected in favour of standard Vue emit pattern.
+
+---
+
+## 5. Insight Page Layout Adjustment
+
+**Decision**: Remove the wrapping `v-container` + flex-column structure from Insight page. The answer area becomes a standalone scrollable `v-container`. The period selector chips and custom date inputs stay inside the `v-footer` above the `TextboxButtonInput`, as they are currently.
+
+**Rationale**: When `v-footer app` is used, Vuetify automatically adjusts the main content area's bottom padding so content is not obscured by the footer. The existing `height: calc(100vh - 64px)` hack becomes unnecessary.
+
+**Source observation**: Transactions page uses a plain `<v-container class="pa-3 pa-sm-6">` for its content, while the footer lives outside as a sibling. Insight page must adopt the same structure.
+
+---
+
+## Summary: All NEEDS CLARIFICATION Resolved
+
+| Unknown | Resolution |
+|---------|-----------|
+| Textarea component source | Insight.vue `v-textarea` with `#append-inner` clear icon |
+| Submit button style | Send icon button (`mdi-send`) from Insight page; applied to both pages |
+| Footer layout source | Transactions.vue `<v-footer app elevation="4">` |
+| Component interface pattern | Vue 3 `v-model` + `submit` emit |
+| Insight layout restructuring | Remove flex-column wrapper; rely on Vuetify layout system |
+| No backend/API changes needed | Confirmed — purely frontend refactor |
