@@ -193,7 +193,7 @@ describe("AgentDataService", () => {
       const mockCategories = [
         fakeCategory({
           userId,
-          name: "Food",
+          name: "Groceries",
           type: CategoryType.EXPENSE,
           isArchived: false,
         }),
@@ -213,7 +213,7 @@ describe("AgentDataService", () => {
       expect(result).toHaveLength(2);
       expect(result[0]).toEqual({
         id: mockCategories[0].id,
-        name: "Food",
+        name: "Groceries",
         type: CategoryType.EXPENSE,
         isArchived: false,
       });
