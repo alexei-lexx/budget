@@ -59,8 +59,10 @@ You MUST infer all required and optional transaction fields and then MUST persis
 
 7. Infer the transaction description
    - Keep the original language of the user's text
-   - Derive it from the input text if meaningful, otherwise leave blank
+   - Describe the item or service transacted, not the reason, parties, or context
+   - Exclude details already captured by other inferred fields
    - Fix all grammatical errors and typos
+   - Leave blank if no meaningful description can be derived
 
 8. Persist the transaction with the inferred fields
    - AFTER completing all inference steps, you MUST persist the transaction with all inferred fields
