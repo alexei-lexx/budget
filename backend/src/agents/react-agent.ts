@@ -42,7 +42,11 @@ export class ReActAgent implements Agent {
     const toolExecutionsMap = new Map<string, ToolExecution>();
 
     // Collect tool calls and results from agent conversation
-    for (const message of response.messages) {
+    for (let index = 0; index < response.messages.length; index++) {
+      const message = response.messages[index];
+
+      console.debug(`Message[${index}]`, JSON.stringify(message, null, 2));
+
       if (message instanceof AIMessage) {
         for (const toolCall of message.tool_calls || []) {
           const toolCallId = toolCall.id || randomUUID();
