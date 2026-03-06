@@ -26,6 +26,12 @@ gh pr view --json number,title,body,baseRefName,url 2>/dev/null
 
 ## Step 3: Analyze the changes
 
+**For existing PRs** (when you have a PR number from Step 1):
+```bash
+gh pr diff <pr-number>            # actual PR diff on GitHub
+```
+
+**For new PRs** (no PR number yet):
 ```bash
 git log <base>..HEAD --oneline    # commits on this branch
 git diff <base>..HEAD --stat      # files changed
