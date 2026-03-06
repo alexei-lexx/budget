@@ -13,7 +13,7 @@ import {
   createMockCategoryRepository,
   createMockTransactionRepository,
 } from "../utils/test-utils/mock-repositories";
-import { AgentDataService } from "./agent-data-service";
+import { AgentDataService, EntityScope } from "./agent-data-service";
 
 describe("AgentDataService", () => {
   let service: AgentDataService;
@@ -37,7 +37,7 @@ describe("AgentDataService", () => {
   });
 
   describe("getAccounts", () => {
-    it("should return empty array when includeActive is false and includeArchived is false", async () => {
+    it("should return all accounts when scope is all", async () => {
       // Arrange
       const mockAccounts = [
         fakeAccount({ isArchived: true }),
@@ -46,30 +46,7 @@ describe("AgentDataService", () => {
       mockAccountRepository.findAllByUserId.mockResolvedValue(mockAccounts);
 
       // Act
-      const result = await service.getAccounts({
-        userId,
-        includeActive: false,
-        includeArchived: false,
-      });
-
-      // Assert
-      expect(result).toEqual([]);
-    });
-
-    it("should return all accounts when includeActive is true and includeArchived is true", async () => {
-      // Arrange
-      const mockAccounts = [
-        fakeAccount({ isArchived: true }),
-        fakeAccount({ isArchived: false }),
-      ];
-      mockAccountRepository.findAllByUserId.mockResolvedValue(mockAccounts);
-
-      // Act
-      const result = await service.getAccounts({
-        userId,
-        includeActive: true,
-        includeArchived: true,
-      });
+      const result = await service.getAccounts(userId, EntityScope.ALL);
 
       // Assert
       expect(result).toHaveLength(2);
@@ -77,7 +54,7 @@ describe("AgentDataService", () => {
       expect(result[1].isArchived).toBe(false);
     });
 
-    it("should return only active accounts when includeActive is true and includeArchived is false", async () => {
+    it("should return only active accounts when scope is active", async () => {
       // Arrange
       const mockAccounts = [
         fakeAccount({ isArchived: true }),
@@ -86,18 +63,14 @@ describe("AgentDataService", () => {
       mockAccountRepository.findAllByUserId.mockResolvedValue(mockAccounts);
 
       // Act
-      const result = await service.getAccounts({
-        userId,
-        includeActive: true,
-        includeArchived: false,
-      });
+      const result = await service.getAccounts(userId, EntityScope.ACTIVE);
 
       // Assert
       expect(result).toHaveLength(1);
       expect(result[0].isArchived).toBe(false);
     });
 
-    it("should return only archived accounts when includeActive is false and includeArchived is true", async () => {
+    it("should return only archived accounts when scope is archived", async () => {
       // Arrange
       const mockAccounts = [
         fakeAccount({ isArchived: true }),
@@ -106,11 +79,7 @@ describe("AgentDataService", () => {
       mockAccountRepository.findAllByUserId.mockResolvedValue(mockAccounts);
 
       // Act
-      const result = await service.getAccounts({
-        userId,
-        includeActive: false,
-        includeArchived: true,
-      });
+      const result = await service.getAccounts(userId, EntityScope.ARCHIVED);
 
       // Assert
       expect(result).toHaveLength(1);
@@ -136,11 +105,7 @@ describe("AgentDataService", () => {
       mockAccountRepository.findAllByUserId.mockResolvedValue(mockAccounts);
 
       // Act
-      const result = await service.getAccounts({
-        userId,
-        includeActive: true,
-        includeArchived: true,
-      });
+      const result = await service.getAccounts(userId, EntityScope.ALL);
 
       // Assert
       expect(result).toHaveLength(2);
@@ -166,11 +131,7 @@ describe("AgentDataService", () => {
       mockAccountRepository.findAllByUserId.mockResolvedValue([]);
 
       // Act
-      const result = await service.getAccounts({
-        userId,
-        includeActive: true,
-        includeArchived: true,
-      });
+      const result = await service.getAccounts(userId, EntityScope.ALL);
 
       // Assert
       expect(result).toEqual([]);
@@ -178,7 +139,7 @@ describe("AgentDataService", () => {
   });
 
   describe("getCategories", () => {
-    it("should return empty array when includeActive is false and includeArchived is false", async () => {
+    it("should return all categories when scope is all", async () => {
       // Arrange
       const mockCategories = [
         fakeCategory({ isArchived: true }),
@@ -187,30 +148,7 @@ describe("AgentDataService", () => {
       mockCategoryRepository.findAllByUserId.mockResolvedValue(mockCategories);
 
       // Act
-      const result = await service.getCategories({
-        userId,
-        includeActive: false,
-        includeArchived: false,
-      });
-
-      // Assert
-      expect(result).toEqual([]);
-    });
-
-    it("should return all categories when includeActive is true and includeArchived is true", async () => {
-      // Arrange
-      const mockCategories = [
-        fakeCategory({ isArchived: true }),
-        fakeCategory({ isArchived: false }),
-      ];
-      mockCategoryRepository.findAllByUserId.mockResolvedValue(mockCategories);
-
-      // Act
-      const result = await service.getCategories({
-        userId,
-        includeActive: true,
-        includeArchived: true,
-      });
+      const result = await service.getCategories(userId, EntityScope.ALL);
 
       // Assert
       expect(result).toHaveLength(2);
@@ -218,7 +156,7 @@ describe("AgentDataService", () => {
       expect(result[1].isArchived).toBe(false);
     });
 
-    it("should return only active categories when includeActive is true and includeArchived is false", async () => {
+    it("should return only active categories when scope is active", async () => {
       // Arrange
       const mockCategories = [
         fakeCategory({ isArchived: true }),
@@ -227,18 +165,14 @@ describe("AgentDataService", () => {
       mockCategoryRepository.findAllByUserId.mockResolvedValue(mockCategories);
 
       // Act
-      const result = await service.getCategories({
-        userId,
-        includeActive: true,
-        includeArchived: false,
-      });
+      const result = await service.getCategories(userId, EntityScope.ACTIVE);
 
       // Assert
       expect(result).toHaveLength(1);
       expect(result[0].isArchived).toBe(false);
     });
 
-    it("should return only archived categories when includeActive is false and includeArchived is true", async () => {
+    it("should return only archived categories when scope is archived", async () => {
       // Arrange
       const mockCategories = [
         fakeCategory({ isArchived: true }),
@@ -247,11 +181,7 @@ describe("AgentDataService", () => {
       mockCategoryRepository.findAllByUserId.mockResolvedValue(mockCategories);
 
       // Act
-      const result = await service.getCategories({
-        userId,
-        includeActive: false,
-        includeArchived: true,
-      });
+      const result = await service.getCategories(userId, EntityScope.ARCHIVED);
 
       // Assert
       expect(result).toHaveLength(1);
@@ -277,11 +207,7 @@ describe("AgentDataService", () => {
       mockCategoryRepository.findAllByUserId.mockResolvedValue(mockCategories);
 
       // Act
-      const result = await service.getCategories({
-        userId,
-        includeActive: true,
-        includeArchived: true,
-      });
+      const result = await service.getCategories(userId, EntityScope.ALL);
 
       // Assert
       expect(result).toHaveLength(2);
@@ -307,11 +233,7 @@ describe("AgentDataService", () => {
       mockCategoryRepository.findAllByUserId.mockResolvedValue([]);
 
       // Act
-      const result = await service.getCategories({
-        userId,
-        includeActive: true,
-        includeArchived: true,
-      });
+      const result = await service.getCategories(userId, EntityScope.ALL);
 
       // Assert
       expect(result).toEqual([]);

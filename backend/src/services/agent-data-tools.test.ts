@@ -6,7 +6,7 @@ import {
   fakeCategory,
   fakeTransaction,
 } from "../utils/test-utils/factories";
-import { AgentDataService } from "./agent-data-service";
+import { AgentDataService, EntityScope } from "./agent-data-service";
 import {
   CreateTransactionToolInput,
   MAX_PERIOD_DAYS,
@@ -57,16 +57,18 @@ describe("agent-data-tools", () => {
         mockAgentDataService as unknown as AgentDataService,
         userId,
       );
-      const includeActive = faker.datatype.boolean();
-      const includeArchived = faker.datatype.boolean();
-      const result = await tool.func({ includeActive, includeArchived });
+      const scope = faker.helpers.arrayElement([
+        EntityScope.ACTIVE,
+        EntityScope.ARCHIVED,
+        EntityScope.ALL,
+      ]);
+      const result = await tool.func({ scope });
 
       expect(result).toBe(JSON.stringify(accountsData));
-      expect(mockAgentDataService.getAccounts).toHaveBeenCalledWith({
+      expect(mockAgentDataService.getAccounts).toHaveBeenCalledWith(
         userId,
-        includeActive,
-        includeArchived,
-      });
+        scope,
+      );
     });
   });
 
@@ -94,16 +96,18 @@ describe("agent-data-tools", () => {
         mockAgentDataService as unknown as AgentDataService,
         userId,
       );
-      const includeActive = faker.datatype.boolean();
-      const includeArchived = faker.datatype.boolean();
-      const result = await tool.func({ includeActive, includeArchived });
+      const scope = faker.helpers.arrayElement([
+        EntityScope.ACTIVE,
+        EntityScope.ARCHIVED,
+        EntityScope.ALL,
+      ]);
+      const result = await tool.func({ scope });
 
       expect(result).toBe(JSON.stringify(categoriesData));
-      expect(mockAgentDataService.getCategories).toHaveBeenCalledWith({
+      expect(mockAgentDataService.getCategories).toHaveBeenCalledWith(
         userId,
-        includeActive,
-        includeArchived,
-      });
+        scope,
+      );
     });
   });
 

@@ -3,19 +3,18 @@ import { ToolSignature } from "../models/agent";
 import { TransactionType } from "../models/transaction";
 import { toDateString } from "../types/date";
 import { daysBetween } from "../utils/date";
-import { AgentDataService } from "./agent-data-service";
+import { AgentDataService, EntityScope } from "./agent-data-service";
 import {
   CreateTransactionServiceInput,
   TransactionService,
 } from "./transaction-service";
 
 const getAccountsInputSchema = z.object({
-  includeActive: z
-    .boolean()
-    .describe("Whether to include active (non-archived) accounts"),
-  includeArchived: z
-    .boolean()
-    .describe("Whether to include archived (soft-deleted) accounts"),
+  scope: z
+    .enum(EntityScope)
+    .describe(
+      `Which accounts to retrieve: "${EntityScope.ACTIVE}" for active (non-archived) only, "${EntityScope.ARCHIVED}" for archived only, "${EntityScope.ALL}" for both active and archived`,
+    ),
 });
 
 type GetAccountsInput = z.infer<typeof getAccountsInputSchema>;
@@ -25,26 +24,21 @@ export const createGetAccountsTool = (
   userId: string,
 ): ToolSignature<GetAccountsInput> => ({
   name: "getAccounts",
-  description: "Get user accounts (active and/or archived).",
+  description: "Get user accounts filtered by scope.",
   inputSchema: getAccountsInputSchema,
   func: async (input: GetAccountsInput) => {
-    const accounts = await agentDataService.getAccounts({
-      userId,
-      includeActive: input.includeActive,
-      includeArchived: input.includeArchived,
-    });
+    const accounts = await agentDataService.getAccounts(userId, input.scope);
 
     return JSON.stringify(accounts);
   },
 });
 
 const getCategoriesInputSchema = z.object({
-  includeActive: z
-    .boolean()
-    .describe("Whether to include active (non-archived) categories"),
-  includeArchived: z
-    .boolean()
-    .describe("Whether to include archived (soft-deleted) categories"),
+  scope: z
+    .enum(EntityScope)
+    .describe(
+      `Which categories to retrieve: "${EntityScope.ACTIVE}" for active (non-archived) only, "${EntityScope.ARCHIVED}" for archived only, "${EntityScope.ALL}" for both active and archived`,
+    ),
 });
 
 type GetCategoriesInput = z.infer<typeof getCategoriesInputSchema>;
@@ -54,14 +48,13 @@ export const createGetCategoriesTool = (
   userId: string,
 ): ToolSignature<GetCategoriesInput> => ({
   name: "getCategories",
-  description: "Get user categories (active and/or archived).",
+  description: "Get user categories filtered by scope.",
   inputSchema: getCategoriesInputSchema,
   func: async (input: GetCategoriesInput) => {
-    const categories = await agentDataService.getCategories({
+    const categories = await agentDataService.getCategories(
       userId,
-      includeActive: input.includeActive,
-      includeArchived: input.includeArchived,
-    });
+      input.scope,
+    );
 
     return JSON.stringify(categories);
   },

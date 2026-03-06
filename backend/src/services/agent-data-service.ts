@@ -29,6 +29,12 @@ interface TransactionData {
   transferId?: string;
 }
 
+export enum EntityScope {
+  ACTIVE = "active",
+  ARCHIVED = "archived",
+  ALL = "all",
+}
+
 export class AgentDataService {
   constructor(
     private accountRepository: IAccountRepository,
@@ -36,23 +42,16 @@ export class AgentDataService {
     private transactionRepository: ITransactionRepository,
   ) {}
 
-  async getAccounts(input: {
-    userId: string;
-    includeActive: boolean;
-    includeArchived: boolean;
-  }): Promise<AccountData[]> {
-    const accounts = await this.accountRepository.findAllByUserId(input.userId);
+  async getAccounts(
+    userId: string,
+    scope: EntityScope,
+  ): Promise<AccountData[]> {
+    const accounts = await this.accountRepository.findAllByUserId(userId);
 
     const filteredAccounts = accounts.filter((account) => {
-      if (input.includeActive && !account.isArchived) {
-        return true;
-      }
-
-      if (input.includeArchived && account.isArchived) {
-        return true;
-      }
-
-      return false;
+      if (scope === EntityScope.ALL) return true;
+      if (scope === EntityScope.ACTIVE) return !account.isArchived;
+      return account.isArchived;
     });
 
     return filteredAccounts.map((account) => ({
@@ -63,25 +62,16 @@ export class AgentDataService {
     }));
   }
 
-  async getCategories(input: {
-    userId: string;
-    includeActive: boolean;
-    includeArchived: boolean;
-  }): Promise<CategoryData[]> {
-    const categories = await this.categoryRepository.findAllByUserId(
-      input.userId,
-    );
+  async getCategories(
+    userId: string,
+    scope: EntityScope,
+  ): Promise<CategoryData[]> {
+    const categories = await this.categoryRepository.findAllByUserId(userId);
 
     const filteredCategories = categories.filter((category) => {
-      if (input.includeActive && !category.isArchived) {
-        return true;
-      }
-
-      if (input.includeArchived && category.isArchived) {
-        return true;
-      }
-
-      return false;
+      if (scope === EntityScope.ALL) return true;
+      if (scope === EntityScope.ACTIVE) return !category.isArchived;
+      return category.isArchived;
     });
 
     return filteredCategories.map((category) => ({
