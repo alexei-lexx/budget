@@ -36,7 +36,87 @@ describe("AgentDataService", () => {
     );
   });
 
-  describe("getAllAccounts", () => {
+  describe("getAccounts", () => {
+    it("should return empty array when includeActive is false and includeArchived is false", async () => {
+      // Arrange
+      const mockAccounts = [
+        fakeAccount({ isArchived: true }),
+        fakeAccount({ isArchived: false }),
+      ];
+      mockAccountRepository.findAllByUserId.mockResolvedValue(mockAccounts);
+
+      // Act
+      const result = await service.getAccounts({
+        userId,
+        includeActive: false,
+        includeArchived: false,
+      });
+
+      // Assert
+      expect(result).toEqual([]);
+    });
+
+    it("should return all accounts when includeActive is true and includeArchived is true", async () => {
+      // Arrange
+      const mockAccounts = [
+        fakeAccount({ isArchived: true }),
+        fakeAccount({ isArchived: false }),
+      ];
+      mockAccountRepository.findAllByUserId.mockResolvedValue(mockAccounts);
+
+      // Act
+      const result = await service.getAccounts({
+        userId,
+        includeActive: true,
+        includeArchived: true,
+      });
+
+      // Assert
+      expect(result).toHaveLength(2);
+      expect(result[0].isArchived).toBe(true);
+      expect(result[1].isArchived).toBe(false);
+    });
+
+    it("should return only active accounts when includeActive is true and includeArchived is false", async () => {
+      // Arrange
+      const mockAccounts = [
+        fakeAccount({ isArchived: true }),
+        fakeAccount({ isArchived: false }),
+      ];
+      mockAccountRepository.findAllByUserId.mockResolvedValue(mockAccounts);
+
+      // Act
+      const result = await service.getAccounts({
+        userId,
+        includeActive: true,
+        includeArchived: false,
+      });
+
+      // Assert
+      expect(result).toHaveLength(1);
+      expect(result[0].isArchived).toBe(false);
+    });
+
+    it("should return only archived accounts when includeActive is false and includeArchived is true", async () => {
+      // Arrange
+      const mockAccounts = [
+        fakeAccount({ isArchived: true }),
+        fakeAccount({ isArchived: false }),
+      ];
+      mockAccountRepository.findAllByUserId.mockResolvedValue(mockAccounts);
+
+      // Act
+      const result = await service.getAccounts({
+        userId,
+        includeActive: false,
+        includeArchived: true,
+      });
+
+      // Assert
+      expect(result).toHaveLength(1);
+      expect(result[0].isArchived).toBe(true);
+    });
+
     it("should return plain account objects with required fields", async () => {
       // Arrange
       const mockAccounts = [
@@ -56,12 +136,13 @@ describe("AgentDataService", () => {
       mockAccountRepository.findAllByUserId.mockResolvedValue(mockAccounts);
 
       // Act
-      const result = await service.getAllAccounts(userId);
+      const result = await service.getAccounts({
+        userId,
+        includeActive: true,
+        includeArchived: true,
+      });
 
       // Assert
-      expect(mockAccountRepository.findAllByUserId).toHaveBeenCalledWith(
-        userId,
-      );
       expect(result).toHaveLength(2);
       expect(result[0]).toEqual({
         id: mockAccounts[0].id,
@@ -75,6 +156,9 @@ describe("AgentDataService", () => {
         currency: "EUR",
         isArchived: true,
       });
+      expect(mockAccountRepository.findAllByUserId).toHaveBeenCalledWith(
+        userId,
+      );
     });
 
     it("should return empty array when user has no accounts", async () => {
@@ -82,20 +166,104 @@ describe("AgentDataService", () => {
       mockAccountRepository.findAllByUserId.mockResolvedValue([]);
 
       // Act
-      const result = await service.getAllAccounts(userId);
+      const result = await service.getAccounts({
+        userId,
+        includeActive: true,
+        includeArchived: true,
+      });
 
       // Assert
       expect(result).toEqual([]);
     });
   });
 
-  describe("getAllCategories", () => {
+  describe("getCategories", () => {
+    it("should return empty array when includeActive is false and includeArchived is false", async () => {
+      // Arrange
+      const mockCategories = [
+        fakeCategory({ isArchived: true }),
+        fakeCategory({ isArchived: false }),
+      ];
+      mockCategoryRepository.findAllByUserId.mockResolvedValue(mockCategories);
+
+      // Act
+      const result = await service.getCategories({
+        userId,
+        includeActive: false,
+        includeArchived: false,
+      });
+
+      // Assert
+      expect(result).toEqual([]);
+    });
+
+    it("should return all categories when includeActive is true and includeArchived is true", async () => {
+      // Arrange
+      const mockCategories = [
+        fakeCategory({ isArchived: true }),
+        fakeCategory({ isArchived: false }),
+      ];
+      mockCategoryRepository.findAllByUserId.mockResolvedValue(mockCategories);
+
+      // Act
+      const result = await service.getCategories({
+        userId,
+        includeActive: true,
+        includeArchived: true,
+      });
+
+      // Assert
+      expect(result).toHaveLength(2);
+      expect(result[0].isArchived).toBe(true);
+      expect(result[1].isArchived).toBe(false);
+    });
+
+    it("should return only active categories when includeActive is true and includeArchived is false", async () => {
+      // Arrange
+      const mockCategories = [
+        fakeCategory({ isArchived: true }),
+        fakeCategory({ isArchived: false }),
+      ];
+      mockCategoryRepository.findAllByUserId.mockResolvedValue(mockCategories);
+
+      // Act
+      const result = await service.getCategories({
+        userId,
+        includeActive: true,
+        includeArchived: false,
+      });
+
+      // Assert
+      expect(result).toHaveLength(1);
+      expect(result[0].isArchived).toBe(false);
+    });
+
+    it("should return only archived categories when includeActive is false and includeArchived is true", async () => {
+      // Arrange
+      const mockCategories = [
+        fakeCategory({ isArchived: true }),
+        fakeCategory({ isArchived: false }),
+      ];
+      mockCategoryRepository.findAllByUserId.mockResolvedValue(mockCategories);
+
+      // Act
+      const result = await service.getCategories({
+        userId,
+        includeActive: false,
+        includeArchived: true,
+      });
+
+      // Assert
+      expect(result).toHaveLength(1);
+      expect(result[0].isArchived).toBe(true);
+    });
+
     it("should return plain category objects with required fields", async () => {
       // Arrange
       const mockCategories = [
         fakeCategory({
           userId,
-          name: "Groceries",
+          name: "Food",
           type: CategoryType.EXPENSE,
           isArchived: false,
         }),
@@ -109,16 +277,17 @@ describe("AgentDataService", () => {
       mockCategoryRepository.findAllByUserId.mockResolvedValue(mockCategories);
 
       // Act
-      const result = await service.getAllCategories(userId);
+      const result = await service.getCategories({
+        userId,
+        includeActive: true,
+        includeArchived: true,
+      });
 
       // Assert
-      expect(mockCategoryRepository.findAllByUserId).toHaveBeenCalledWith(
-        userId,
-      );
       expect(result).toHaveLength(2);
       expect(result[0]).toEqual({
         id: mockCategories[0].id,
-        name: "Groceries",
+        name: "Food",
         type: CategoryType.EXPENSE,
         isArchived: false,
       });
@@ -128,6 +297,9 @@ describe("AgentDataService", () => {
         type: CategoryType.INCOME,
         isArchived: true,
       });
+      expect(mockCategoryRepository.findAllByUserId).toHaveBeenCalledWith(
+        userId,
+      );
     });
 
     it("should return empty array when user has no categories", async () => {
@@ -135,7 +307,11 @@ describe("AgentDataService", () => {
       mockCategoryRepository.findAllByUserId.mockResolvedValue([]);
 
       // Act
-      const result = await service.getAllCategories(userId);
+      const result = await service.getCategories({
+        userId,
+        includeActive: true,
+        includeArchived: true,
+      });
 
       // Assert
       expect(result).toEqual([]);

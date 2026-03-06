@@ -19,16 +19,16 @@ import { TransactionService } from "./transaction-service";
 
 describe("agent-data-tools", () => {
   let mockAgentDataService: {
-    getAllAccounts: jest.Mock;
-    getAllCategories: jest.Mock;
+    getAccounts: jest.Mock;
+    getCategories: jest.Mock;
     getFilteredTransactions: jest.Mock;
   };
   const userId = faker.string.uuid();
 
   beforeEach(() => {
     mockAgentDataService = {
-      getAllAccounts: jest.fn(),
-      getAllCategories: jest.fn(),
+      getAccounts: jest.fn(),
+      getCategories: jest.fn(),
       getFilteredTransactions: jest.fn(),
     };
   });
@@ -51,16 +51,22 @@ describe("agent-data-tools", () => {
         currency: account.currency,
         isArchived: account.isArchived,
       }));
-      mockAgentDataService.getAllAccounts.mockResolvedValue(accountsData);
+      mockAgentDataService.getAccounts.mockResolvedValue(accountsData);
 
       const tool = createGetAccountsTool(
         mockAgentDataService as unknown as AgentDataService,
         userId,
       );
-      const result = await tool.func({});
+      const includeActive = faker.datatype.boolean();
+      const includeArchived = faker.datatype.boolean();
+      const result = await tool.func({ includeActive, includeArchived });
 
-      expect(mockAgentDataService.getAllAccounts).toHaveBeenCalledWith(userId);
       expect(result).toBe(JSON.stringify(accountsData));
+      expect(mockAgentDataService.getAccounts).toHaveBeenCalledWith({
+        userId,
+        includeActive,
+        includeArchived,
+      });
     });
   });
 
@@ -82,18 +88,22 @@ describe("agent-data-tools", () => {
         type: cat.type,
         isArchived: cat.isArchived,
       }));
-      mockAgentDataService.getAllCategories.mockResolvedValue(categoriesData);
+      mockAgentDataService.getCategories.mockResolvedValue(categoriesData);
 
       const tool = createGetCategoriesTool(
         mockAgentDataService as unknown as AgentDataService,
         userId,
       );
-      const result = await tool.func({});
+      const includeActive = faker.datatype.boolean();
+      const includeArchived = faker.datatype.boolean();
+      const result = await tool.func({ includeActive, includeArchived });
 
-      expect(mockAgentDataService.getAllCategories).toHaveBeenCalledWith(
-        userId,
-      );
       expect(result).toBe(JSON.stringify(categoriesData));
+      expect(mockAgentDataService.getCategories).toHaveBeenCalledWith({
+        userId,
+        includeActive,
+        includeArchived,
+      });
     });
   });
 

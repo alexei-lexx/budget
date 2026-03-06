@@ -9,28 +9,60 @@ import {
   TransactionService,
 } from "./transaction-service";
 
+const getAccountsInputSchema = z.object({
+  includeActive: z
+    .boolean()
+    .describe("Whether to include active (non-archived) accounts"),
+  includeArchived: z
+    .boolean()
+    .describe("Whether to include archived (soft-deleted) accounts"),
+});
+
+type GetAccountsInput = z.infer<typeof getAccountsInputSchema>;
+
 export const createGetAccountsTool = (
   agentDataService: AgentDataService,
   userId: string,
-): ToolSignature<object> => ({
+): ToolSignature<GetAccountsInput> => ({
   name: "getAccounts",
-  description: "Get all user accounts (both active and archived).",
-  inputSchema: z.object(),
-  func: async () => {
-    const accounts = await agentDataService.getAllAccounts(userId);
+  description: "Get user accounts (active and/or archived).",
+  inputSchema: getAccountsInputSchema,
+  func: async (input: GetAccountsInput) => {
+    const accounts = await agentDataService.getAccounts({
+      userId,
+      includeActive: input.includeActive,
+      includeArchived: input.includeArchived,
+    });
+
     return JSON.stringify(accounts);
   },
 });
 
+const getCategoriesInputSchema = z.object({
+  includeActive: z
+    .boolean()
+    .describe("Whether to include active (non-archived) categories"),
+  includeArchived: z
+    .boolean()
+    .describe("Whether to include archived (soft-deleted) categories"),
+});
+
+type GetCategoriesInput = z.infer<typeof getCategoriesInputSchema>;
+
 export const createGetCategoriesTool = (
   agentDataService: AgentDataService,
   userId: string,
-): ToolSignature<object> => ({
+): ToolSignature<GetCategoriesInput> => ({
   name: "getCategories",
-  description: "Get all user categories (both active and archived).",
-  inputSchema: z.object(),
-  func: async () => {
-    const categories = await agentDataService.getAllCategories(userId);
+  description: "Get user categories (active and/or archived).",
+  inputSchema: getCategoriesInputSchema,
+  func: async (input: GetCategoriesInput) => {
+    const categories = await agentDataService.getCategories({
+      userId,
+      includeActive: input.includeActive,
+      includeArchived: input.includeArchived,
+    });
+
     return JSON.stringify(categories);
   },
 });

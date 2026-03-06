@@ -36,10 +36,26 @@ export class AgentDataService {
     private transactionRepository: ITransactionRepository,
   ) {}
 
-  async getAllAccounts(userId: string): Promise<AccountData[]> {
-    const accounts = await this.accountRepository.findAllByUserId(userId);
+  async getAccounts(input: {
+    userId: string;
+    includeActive: boolean;
+    includeArchived: boolean;
+  }): Promise<AccountData[]> {
+    const accounts = await this.accountRepository.findAllByUserId(input.userId);
 
-    return accounts.map((account) => ({
+    const filteredAccounts = accounts.filter((account) => {
+      if (input.includeActive && !account.isArchived) {
+        return true;
+      }
+
+      if (input.includeArchived && account.isArchived) {
+        return true;
+      }
+
+      return false;
+    });
+
+    return filteredAccounts.map((account) => ({
       id: account.id,
       name: account.name,
       currency: account.currency,
@@ -47,10 +63,28 @@ export class AgentDataService {
     }));
   }
 
-  async getAllCategories(userId: string): Promise<CategoryData[]> {
-    const categories = await this.categoryRepository.findAllByUserId(userId);
+  async getCategories(input: {
+    userId: string;
+    includeActive: boolean;
+    includeArchived: boolean;
+  }): Promise<CategoryData[]> {
+    const categories = await this.categoryRepository.findAllByUserId(
+      input.userId,
+    );
 
-    return categories.map((category) => ({
+    const filteredCategories = categories.filter((category) => {
+      if (input.includeActive && !category.isArchived) {
+        return true;
+      }
+
+      if (input.includeArchived && category.isArchived) {
+        return true;
+      }
+
+      return false;
+    });
+
+    return filteredCategories.map((category) => ({
       id: category.id,
       name: category.name,
       type: category.type,
