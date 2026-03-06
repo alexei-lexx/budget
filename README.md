@@ -91,10 +91,10 @@ aws ssm put-parameter --overwrite --type String \
     --name "/manual/budget/production/bedrock/max-tokens" \
     --value "2000"
 
-# AI model ID (e.g., eu.amazon.nova-2-lite-v1:0)
+# AI model ID (e.g., openai.gpt-oss-120b-1:0)
 aws ssm put-parameter --overwrite --type String \
     --name "/manual/budget/production/bedrock/model-id" \
-    --value "eu.amazon.nova-2-lite-v1:0"
+    --value "openai.gpt-oss-120b-1:0"
 
 # AI sampling temperature
 aws ssm put-parameter --overwrite --type String \
