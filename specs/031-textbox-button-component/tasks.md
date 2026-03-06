@@ -24,7 +24,7 @@
 
 **Purpose**: Confirm the implementation environment before creating new files
 
-- [ ] T001 Confirm `frontend/src/components/common/` directory exists, verify `TextboxButtonInput.vue` does not already exist, and review one existing common component (e.g., `frontend/src/components/common/ActionButtons.vue`) to confirm naming and `<script setup>` conventions
+- [X] T001 Confirm `frontend/src/components/common/` directory exists, verify `TextboxButtonInput.vue` does not already exist, and review one existing common component (e.g., `frontend/src/components/common/ActionButtons.vue`) to confirm naming and `<script setup>` conventions
 
 ---
 
@@ -34,7 +34,7 @@
 
 **CRITICAL**: No page refactor can begin until this phase is complete
 
-- [ ] T002 Create `frontend/src/components/common/TextboxButtonInput.vue` — `<script setup lang="ts">` with `defineProps<{ modelValue: string; loading?: boolean; placeholder?: string; inputAriaLabel?: string; submitAriaLabel?: string }>()` and `defineEmits<{ 'update:modelValue': [value: string]; submit: [] }>()`, and empty `<template><div class="d-flex ga-2 align-end"></div></template>`
+- [X] T002 Create `frontend/src/components/common/TextboxButtonInput.vue` — `<script setup lang="ts">` with `defineProps<{ modelValue: string; loading?: boolean; placeholder?: string; inputAriaLabel?: string; submitAriaLabel?: string }>()` and `defineEmits<{ 'update:modelValue': [value: string]; submit: [] }>()`, and empty `<template><div class="d-flex ga-2 align-end"></div></template>`
 
 **Checkpoint**: Component file exists and compiles — page refactors can now begin in parallel
 
@@ -48,9 +48,9 @@
 
 ### Implementation for User Story 1
 
-- [ ] T003 [US1] Implement textarea and send button in `frontend/src/components/common/TextboxButtonInput.vue` — inside the `d-flex` wrapper add: `<v-textarea :model-value="modelValue" :placeholder="placeholder" :disabled="loading" :aria-label="inputAriaLabel" variant="outlined" density="compact" hide-details class="flex-grow-1" @update:model-value="$emit('update:modelValue', $event)" />` followed by `<v-btn icon="mdi-send" color="primary" :loading="loading" :disabled="loading || !modelValue.trim()" :aria-label="submitAriaLabel" @click="$emit('submit')" />`
-- [ ] T004 [P] [US1] Refactor `frontend/src/views/Insight.vue` — remove the `.input-area` div and restructure so a `<v-footer app elevation="4" class="pa-3 pa-sm-4">` is a sibling to the main `v-container`; import and use `TextboxButtonInput` inside the footer with `v-model="question" :loading="insightLoading" placeholder="Ask about your spending..." input-aria-label="Ask a question" submit-aria-label="Submit question" @submit="handleAskQuestion"`
-- [ ] T005 [P] [US1] Refactor `frontend/src/views/Transactions.vue` — inside the existing `<v-footer app elevation="4" class="pa-3 pa-sm-4">`, replace the current `v-text-field` + `v-btn` elements with `<TextboxButtonInput v-model="createTransactionFromTextQuestion" :loading="createTransactionFromTextLoading" placeholder="e.g., morning coffee 4.5 euro" input-aria-label="Create transaction" submit-aria-label="Add transaction" @submit="handleCreateTransactionFromText" />`; add the import for `TextboxButtonInput`
+- [X] T003 [US1] Implement textarea and send button in `frontend/src/components/common/TextboxButtonInput.vue` — inside the `d-flex` wrapper add: `<v-textarea :model-value="modelValue" :placeholder="placeholder" :disabled="loading" :aria-label="inputAriaLabel" variant="outlined" density="compact" hide-details class="flex-grow-1" @update:model-value="$emit('update:modelValue', $event)" />` followed by `<v-btn icon="mdi-send" color="primary" :loading="loading" :disabled="loading || !modelValue.trim()" :aria-label="submitAriaLabel" @click="$emit('submit')" />`
+- [X] T004 [P] [US1] Refactor `frontend/src/views/Insight.vue` — remove the `.input-area` div and restructure so a `<v-footer app elevation="4" class="pa-3 pa-sm-4">` is a sibling to the main `v-container`; import and use `TextboxButtonInput` inside the footer with `v-model="question" :loading="insightLoading" placeholder="Ask about your spending..." input-aria-label="Ask a question" submit-aria-label="Submit question" @submit="handleAskQuestion"`
+- [X] T005 [P] [US1] Refactor `frontend/src/views/Transactions.vue` — inside the existing `<v-footer app elevation="4" class="pa-3 pa-sm-4">`, replace the current `v-text-field` + `v-btn` elements with `<TextboxButtonInput v-model="createTransactionFromTextQuestion" :loading="createTransactionFromTextLoading" placeholder="e.g., morning coffee 4.5 euro" input-aria-label="Create transaction" submit-aria-label="Add transaction" @submit="handleCreateTransactionFromText" />`; add the import for `TextboxButtonInput`
 
 **Checkpoint**: Both pages render `TextboxButtonInput` inside a `v-footer app` layout; send button click triggers the page action on both pages
 
@@ -64,7 +64,7 @@
 
 ### Implementation for User Story 2
 
-- [ ] T006 [US2] Add `@keydown.enter.exact.prevent="$emit('submit')"` to the `<v-textarea>` element in `frontend/src/components/common/TextboxButtonInput.vue`
+- [X] T006 [US2] Add `@keydown.enter.exact.prevent="$emit('submit')"` to the `<v-textarea>` element in `frontend/src/components/common/TextboxButtonInput.vue`
 
 **Checkpoint**: Enter key submits on both pages, identical outcome to clicking the send button
 
@@ -78,7 +78,7 @@
 
 ### Implementation for User Story 3
 
-- [ ] T007 [US3] Add `<template #append-inner>` slot to the `<v-textarea>` in `frontend/src/components/common/TextboxButtonInput.vue` containing `<v-icon v-if="modelValue.trim()" icon="mdi-close-circle" size="small" class="cursor-pointer" @click="$emit('update:modelValue', '')" />`
+- [X] T007 [US3] Add `<template #append-inner>` slot to the `<v-textarea>` in `frontend/src/components/common/TextboxButtonInput.vue` containing `<v-icon v-if="modelValue.trim()" icon="mdi-close-circle" size="small" class="cursor-pointer" @click="$emit('update:modelValue', '')" />`
 
 **Checkpoint**: Clear icon is visible when input has text; clicking it empties the input and hides the icon
 
@@ -92,7 +92,7 @@
 
 ### Implementation for User Story 4
 
-- [ ] T008 [US4] Add `auto-grow`, `rows="1"`, and `max-rows="4"` attributes to the `<v-textarea>` element in `frontend/src/components/common/TextboxButtonInput.vue`
+- [X] T008 [US4] Add `auto-grow`, `rows="1"`, and `max-rows="4"` attributes to the `<v-textarea>` element in `frontend/src/components/common/TextboxButtonInput.vue`
 
 **Checkpoint**: Textarea grows from 1 to 4 rows and scrolls internally beyond 4 rows
 
@@ -102,8 +102,8 @@
 
 **Purpose**: Insight page layout cleanup and final cross-page verification
 
-- [ ] T009 [P] Remove now-unused CSS from `frontend/src/views/Insight.vue` — delete the `.insight-container` `height: calc(100vh - 64px)` rule and the `.input-area` CSS block; verify the answer content area still scrolls correctly under the new Vuetify layout system
-- [ ] T010 Visual verification per `specs/031-textbox-button-component/quickstart.md` — on both pages confirm: (1) send button click submits, (2) Enter key submits, (3) empty input disables button, (4) clear icon appears and disappears correctly, (5) textarea auto-grows to 4 rows then scrolls, (6) `loading` prop shows spinner and disables input
+- [X] T009 [P] Remove now-unused CSS from `frontend/src/views/Insight.vue` — delete the `.insight-container` `height: calc(100vh - 64px)` rule and the `.input-area` CSS block; verify the answer content area still scrolls correctly under the new Vuetify layout system
+- [X] T010 Visual verification per `specs/031-textbox-button-component/quickstart.md` — on both pages confirm: (1) send button click submits, (2) Enter key submits, (3) empty input disables button, (4) clear icon appears and disappears correctly, (5) textarea auto-grows to 4 rows then scrolls, (6) `loading` prop shows spinner and disables input
 
 ---
 

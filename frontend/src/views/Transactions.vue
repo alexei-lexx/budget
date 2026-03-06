@@ -178,26 +178,16 @@
 
   <!-- Create Transaction from Text (fixed bottom bar) -->
   <v-footer app elevation="4" class="pa-3 pa-sm-4">
-    <v-text-field
-      v-model="createTransactionFromTextQuestion"
-      :disabled="createTransactionFromTextLoading"
-      aria-label="Create transaction"
-      class="flex-grow-1 mr-3"
-      density="compact"
-      hide-details
-      placeholder="e.g., morning coffee 4.5 euro"
-      variant="outlined"
-      @keydown.enter="handleCreateTransactionFromText"
-    />
-    <v-btn
-      :loading="createTransactionFromTextLoading"
-      :disabled="!createTransactionFromTextQuestion.trim() || createTransactionFromTextLoading"
-      aria-label="Create transaction"
-      color="primary"
-      @click="handleCreateTransactionFromText"
-    >
-      Add
-    </v-btn>
+    <div class="w-100">
+      <TextboxButtonInput
+        v-model="createTransactionFromTextQuestion"
+        :loading="createTransactionFromTextLoading"
+        placeholder="e.g., morning coffee 4.5 euro"
+        input-aria-label="Create transaction"
+        submit-aria-label="Create transaction"
+        @submit="handleCreateTransactionFromText"
+      />
+    </div>
   </v-footer>
 </template>
 
@@ -218,6 +208,7 @@ import TransactionDeleteDialog from "@/components/transactions/TransactionDelete
 import TransactionFilterBar from "@/components/transactions/TransactionFilterBar.vue";
 import TransferDeleteDialog from "@/components/transfers/TransferDeleteDialog.vue";
 import TransferForm from "@/components/transfers/TransferForm.vue";
+import TextboxButtonInput from "@/components/common/TextboxButtonInput.vue";
 import type { Transaction, CreateTransactionInput } from "@/composables/useTransactions";
 import type {
   Transfer,
