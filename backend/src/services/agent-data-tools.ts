@@ -58,6 +58,8 @@ const getTransactionsInputSchema = z.object({
 
 type GetTransactionsInput = z.infer<typeof getTransactionsInputSchema>;
 
+export const MAX_PERIOD_DAYS = 365;
+
 export const createGetTransactionsTool = (params: {
   agentDataService: AgentDataService;
   userId: string;
@@ -71,13 +73,13 @@ export const createGetTransactionsTool = (params: {
       return JSON.stringify({ error: "startDate must not be after endDate" });
     }
 
-    // Validate that date range does not exceed 365 days
-    const maxDays = 365;
+    // Validate that date range does not exceed MAX_PERIOD_DAYS
     if (
-      daysBetween(new Date(input.startDate), new Date(input.endDate)) > maxDays
+      daysBetween(new Date(input.startDate), new Date(input.endDate)) >
+      MAX_PERIOD_DAYS
     ) {
       return JSON.stringify({
-        error: `Date range must not exceed ${maxDays} days`,
+        error: `Date range must not exceed ${MAX_PERIOD_DAYS} days`,
       });
     }
 

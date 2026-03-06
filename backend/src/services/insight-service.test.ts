@@ -11,6 +11,7 @@ import {
   createMockTransactionRepository,
 } from "../utils/test-utils/mock-repositories";
 import { AgentDataService } from "./agent-data-service";
+import { MAX_PERIOD_DAYS } from "./agent-data-tools";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
 import { type InsightInput, InsightService } from "./insight-service";
 
@@ -116,7 +117,7 @@ describe("InsightService", () => {
       });
     });
 
-    it("should throw error when date range exceeds 366 days", async () => {
+    it("should throw error when date range exceeds max period days", async () => {
       // Arrange
       const input: InsightInput = {
         ...validInput,
@@ -129,7 +130,7 @@ describe("InsightService", () => {
 
       await expect(promise).rejects.toThrow(BusinessError);
       await expect(promise).rejects.toMatchObject({
-        message: "Date range cannot exceed 366 days",
+        message: `Date range cannot exceed ${MAX_PERIOD_DAYS} days`,
         code: BusinessErrorCodes.INVALID_DATE,
       });
     });
