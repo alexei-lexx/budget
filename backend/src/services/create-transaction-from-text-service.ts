@@ -20,7 +20,7 @@ You are an agent that creates payment transactions based on user input in natura
 ## Task
 
 The user describes a transaction in plain text (e.g., "morning coffee 4.5 euro").
-You must infer all required and optional transaction fields and persist the transaction.
+You MUST infer all required and optional transaction fields and then MUST persist the transaction.
 
 ## Process
 
@@ -49,7 +49,7 @@ You must infer all required and optional transaction fields and persist the tran
    - If there is any currency hint in the user's text, narrow down to accounts with that currency
    - If category was inferred in the previous steps, fetch recent transactions for this category and remember which accounts were used
    - If no category was inferred, fetch recent transactions for the user and remember which accounts were used overall
-   - If no transactions fetched at all, then consider the accounts as equally used
+   - If no transactions are fetched at all, then consider the accounts as equally used
    - Pick the most used account among the candidate accounts matching the currency hint (if any)
    - Or pick the first account as a fallback
 
@@ -58,12 +58,17 @@ You must infer all required and optional transaction fields and persist the tran
    - If no date hint, use today's date
 
 7. Infer the transaction description
-   - Derive it from the input text if meaningful, otherwise leave blank
+   - Keep the original language of the user's text
+   - Describe the item or service transacted, not the reason, parties, or context
+   - Exclude details already captured by other inferred fields
+   - Fix all grammatical errors and typos
+   - Leave blank if no meaningful description can be derived
 
 8. Persist the transaction with the inferred fields
-   - If persistence is successful, respond with OK
-   - If persistence fails for any reason, analyze the error and repeat the inference and persistence steps
-   - You have up to 2 attempts to persist the transaction. If after 2 attempts the transaction cannot be created, respond with an error and stop
+   - AFTER completing all inference steps, you MUST persist the transaction with all inferred fields
+   - If persistence succeeds, respond with OK
+   - If persistence fails, analyze the error and MUST retry once with corrected fields
+   - If a second attempt also fails, respond with an error and stop
 
 ## Output
 
@@ -131,15 +136,13 @@ export class CreateTransactionFromTextService {
       tools,
     });
 
-    let lastCreateTransactionToolExecution: ToolExecution | undefined;
-
-    if (toolExecutions && toolExecutions.length > 0) {
-      this.logToolExecutions(toolExecutions);
-
-      lastCreateTransactionToolExecution = toolExecutions.findLast(
-        (toolExecution) => toolExecution.tool === createTransactionTool.name,
-      );
-    }
+    const lastCreateTransactionToolExecution: ToolExecution | undefined =
+      toolExecutions && toolExecutions.length > 0
+        ? toolExecutions.findLast(
+            (toolExecution) =>
+              toolExecution.tool === createTransactionTool.name,
+          )
+        : undefined;
 
     if (!lastCreateTransactionToolExecution) {
       console.log("Agent error", {
@@ -195,15 +198,5 @@ export class CreateTransactionFromTextService {
     const transactionId = parsedTransactionData.data.id;
 
     return this.transactionService.getTransactionById(transactionId, userId);
-  }
-
-  private logToolExecutions(toolExecutions: ToolExecution[]) {
-    for (let index = 0; index < toolExecutions.length; index++) {
-      console.log(`Tool execution #${index}`, {
-        tool: toolExecutions[index].tool,
-        input: toolExecutions[index].input,
-        output: toolExecutions[index].output,
-      });
-    }
   }
 }
