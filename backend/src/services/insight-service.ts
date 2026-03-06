@@ -1,17 +1,16 @@
 import { Agent } from "../models/agent";
 import { DateString } from "../types/date";
 import { YEAR_RANGE_OFFSET } from "../types/validation";
-import { formatDateAsYYYYMMDD } from "../utils/date";
+import { daysBetween, formatDateAsYYYYMMDD } from "../utils/date";
 import { AgentDataService } from "./agent-data-service";
 import {
+  MAX_PERIOD_DAYS,
   createGetAccountsTool,
   createGetCategoriesTool,
   createGetTransactionsTool,
 } from "./agent-data-tools";
 import { avgTool, calculateTool, sumTool } from "./agent-math-tools";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
-
-const MAX_PERIOD_DAYS = 366;
 
 const SYSTEM_PROMPT = `
 ## Role
@@ -171,8 +170,7 @@ export class InsightService {
       );
     }
 
-    const differenceInDays =
-      (endDateObj.getTime() - startDateObj.getTime()) / (1000 * 60 * 60 * 24);
+    const differenceInDays = daysBetween(startDateObj, endDateObj);
 
     if (differenceInDays > MAX_PERIOD_DAYS) {
       throw new BusinessError(

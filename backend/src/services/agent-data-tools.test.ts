@@ -9,6 +9,7 @@ import {
 import { AgentDataService } from "./agent-data-service";
 import {
   CreateTransactionToolInput,
+  MAX_PERIOD_DAYS,
   createCreateTransactionTool,
   createGetAccountsTool,
   createGetCategoriesTool,
@@ -125,7 +126,7 @@ describe("agent-data-tools", () => {
       );
     });
 
-    it("should reject when date range exceeds 365 days", async () => {
+    it("should reject when date range exceeds max period days", async () => {
       const tool = createGetTransactionsTool({
         agentDataService: mockAgentDataService as unknown as AgentDataService,
         userId,
@@ -140,7 +141,9 @@ describe("agent-data-tools", () => {
         mockAgentDataService.getFilteredTransactions,
       ).not.toHaveBeenCalled();
       expect(result).toBe(
-        JSON.stringify({ error: "Date range must not exceed 365 days" }),
+        JSON.stringify({
+          error: `Date range must not exceed ${MAX_PERIOD_DAYS} days`,
+        }),
       );
     });
 
