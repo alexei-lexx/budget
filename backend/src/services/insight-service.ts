@@ -28,6 +28,8 @@ And then perform calculations based on those transactions to answer the question
 First, break down the question into sub-questions if necessary.
 For each sub-question, identify what calculations are needed.
 For each calculation, identify what data is needed: accounts, categories, transactions.
+Keep in mind that transactions can be linked to archived accounts and categories,
+so you may need to retrieve both active and archived data.
 Retrieve the necessary data in small, focused chunks.
 Do calculations based on the retrieved data.
 Answer the user's question based on the calculations and data.

@@ -29,6 +29,12 @@ interface TransactionData {
   transferId?: string;
 }
 
+export enum EntityScope {
+  ACTIVE = "ACTIVE",
+  ARCHIVED = "ARCHIVED",
+  ALL = "ALL",
+}
+
 export class AgentDataService {
   constructor(
     private accountRepository: IAccountRepository,
@@ -36,10 +42,19 @@ export class AgentDataService {
     private transactionRepository: ITransactionRepository,
   ) {}
 
-  async getAllAccounts(userId: string): Promise<AccountData[]> {
+  async getAccounts(
+    userId: string,
+    scope: EntityScope,
+  ): Promise<AccountData[]> {
     const accounts = await this.accountRepository.findAllByUserId(userId);
 
-    return accounts.map((account) => ({
+    const filteredAccounts = accounts.filter((account) => {
+      if (scope === EntityScope.ALL) return true;
+      if (scope === EntityScope.ACTIVE) return !account.isArchived;
+      return account.isArchived;
+    });
+
+    return filteredAccounts.map((account) => ({
       id: account.id,
       name: account.name,
       currency: account.currency,
@@ -47,10 +62,19 @@ export class AgentDataService {
     }));
   }
 
-  async getAllCategories(userId: string): Promise<CategoryData[]> {
+  async getCategories(
+    userId: string,
+    scope: EntityScope,
+  ): Promise<CategoryData[]> {
     const categories = await this.categoryRepository.findAllByUserId(userId);
 
-    return categories.map((category) => ({
+    const filteredCategories = categories.filter((category) => {
+      if (scope === EntityScope.ALL) return true;
+      if (scope === EntityScope.ACTIVE) return !category.isArchived;
+      return category.isArchived;
+    });
+
+    return filteredCategories.map((category) => ({
       id: category.id,
       name: category.name,
       type: category.type,

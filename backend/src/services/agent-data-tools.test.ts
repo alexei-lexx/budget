@@ -6,7 +6,7 @@ import {
   fakeCategory,
   fakeTransaction,
 } from "../utils/test-utils/factories";
-import { AgentDataService } from "./agent-data-service";
+import { AgentDataService, EntityScope } from "./agent-data-service";
 import {
   CreateTransactionToolInput,
   MAX_PERIOD_DAYS,
@@ -19,16 +19,16 @@ import { TransactionService } from "./transaction-service";
 
 describe("agent-data-tools", () => {
   let mockAgentDataService: {
-    getAllAccounts: jest.Mock;
-    getAllCategories: jest.Mock;
+    getAccounts: jest.Mock;
+    getCategories: jest.Mock;
     getFilteredTransactions: jest.Mock;
   };
   const userId = faker.string.uuid();
 
   beforeEach(() => {
     mockAgentDataService = {
-      getAllAccounts: jest.fn(),
-      getAllCategories: jest.fn(),
+      getAccounts: jest.fn(),
+      getCategories: jest.fn(),
       getFilteredTransactions: jest.fn(),
     };
   });
@@ -51,16 +51,24 @@ describe("agent-data-tools", () => {
         currency: account.currency,
         isArchived: account.isArchived,
       }));
-      mockAgentDataService.getAllAccounts.mockResolvedValue(accountsData);
+      mockAgentDataService.getAccounts.mockResolvedValue(accountsData);
 
       const tool = createGetAccountsTool(
         mockAgentDataService as unknown as AgentDataService,
         userId,
       );
-      const result = await tool.func({});
+      const scope = faker.helpers.arrayElement([
+        EntityScope.ACTIVE,
+        EntityScope.ARCHIVED,
+        EntityScope.ALL,
+      ]);
+      const result = await tool.func({ scope });
 
-      expect(mockAgentDataService.getAllAccounts).toHaveBeenCalledWith(userId);
       expect(result).toBe(JSON.stringify(accountsData));
+      expect(mockAgentDataService.getAccounts).toHaveBeenCalledWith(
+        userId,
+        scope,
+      );
     });
   });
 
@@ -82,18 +90,24 @@ describe("agent-data-tools", () => {
         type: cat.type,
         isArchived: cat.isArchived,
       }));
-      mockAgentDataService.getAllCategories.mockResolvedValue(categoriesData);
+      mockAgentDataService.getCategories.mockResolvedValue(categoriesData);
 
       const tool = createGetCategoriesTool(
         mockAgentDataService as unknown as AgentDataService,
         userId,
       );
-      const result = await tool.func({});
+      const scope = faker.helpers.arrayElement([
+        EntityScope.ACTIVE,
+        EntityScope.ARCHIVED,
+        EntityScope.ALL,
+      ]);
+      const result = await tool.func({ scope });
 
-      expect(mockAgentDataService.getAllCategories).toHaveBeenCalledWith(
-        userId,
-      );
       expect(result).toBe(JSON.stringify(categoriesData));
+      expect(mockAgentDataService.getCategories).toHaveBeenCalledWith(
+        userId,
+        scope,
+      );
     });
   });
 
