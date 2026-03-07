@@ -83,7 +83,10 @@ Why this change is needed — the motivation or pain point it addresses.
 
 - Describe current behavior or limitations
 - Do not explain the code change — explain its purpose or user-facing effect
-- Use bullet points (ideally 3, max 5)
+- Use bullet points
+- For a small PR: 1-2 bullet points
+- For a medium PR: 2-3 bullet points
+- For a big PR: 3-5 bullet points
 - Use present tense and active voice
 
 ```
@@ -92,7 +95,10 @@ Why this change is needed — the motivation or pain point it addresses.
 
 - Describe new behavior or improvements
 - Do not explain the code change — explain its purpose or user-facing effect
-- Use bullet points (ideally 3, max 5)
+- Use bullet points
+- For a small PR: 1-2 bullet points
+- For a medium PR: 2-3 bullet points
+- For a big PR: 3-5 bullet points
 - Use present tense and active voice
 
 ### Example
