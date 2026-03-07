@@ -52,13 +52,19 @@ Also factor in any context the user provided — they often know things the diff
 
 ## Step 5: Write the description
 
+### Content principles
+
 - Focus on *what* and *why* — omit implementation details unless essential for understanding
+- Describe changes in plain language — explain intent and effect, not what the code says
 - Concise and factual — no filler, no vague statements
+- Write as a human developer — no mention of AI authorship
+
+### Format rules
+
 - Avoid long paragraphs — break prose into short sentences
 - Start each sentence on a new line
 - Include required sections: `context`, `before`, `after`
 - Use lowercase section headlines
-- Write as a human developer — no mention of AI authorship
 - If the branch addresses a GitHub issue, append `Close #<number>` after the last section (valid keywords: `Close`, `Fix`, `Resolve`)
 
 ### Sections
