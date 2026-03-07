@@ -69,7 +69,7 @@ Include the following sections in the description:
 ## context
 ```
 
-Brief explanation of the problem or need being addressed.
+Why this change is needed — the motivation or pain point it addresses.
 
 ```
 ## before
