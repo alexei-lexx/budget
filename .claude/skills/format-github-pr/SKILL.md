@@ -81,14 +81,18 @@ Why this change is needed — the motivation or pain point it addresses.
 ## before
 ```
 
-- Current behavior or limitations in bullet points (ideally 3, max 5 bullet points)
+- Describe current behavior or limitations
+- Do not explain the code change — explain its purpose or user-facing effect
+- Use bullet points (ideally 3, max 5)
 - Use present tense and active voice
 
 ```
 ## after
 ```
 
-- New behavior or improvements in bullet points (ideally 3, max 5 bullet points)
+- Describe new behavior or improvements
+- Do not explain the code change — explain its purpose or user-facing effect
+- Use bullet points (ideally 3, max 5)
 - Use present tense and active voice
 
 ### Example
