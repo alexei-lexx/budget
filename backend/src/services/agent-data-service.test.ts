@@ -1,8 +1,14 @@
 import { faker } from "@faker-js/faker";
 import { IAccountRepository } from "../models/account";
 import { CategoryType, ICategoryRepository } from "../models/category";
-import { ITransactionRepository, TransactionType } from "../models/transaction";
+import {
+  ITransactionRepository,
+  Transaction,
+  TransactionConnection,
+  TransactionType,
+} from "../models/transaction";
 import { toDateString } from "../types/date";
+import { MAX_PAGE_SIZE } from "../types/pagination";
 import {
   fakeAccount,
   fakeCategory,
@@ -241,74 +247,51 @@ describe("AgentDataService", () => {
   });
 
   describe("getFilteredTransactions", () => {
-    const accountId1 = faker.string.uuid();
-    const accountId2 = faker.string.uuid();
-    const categoryId1 = faker.string.uuid();
-    const categoryId2 = faker.string.uuid();
-
-    const mockTransactions = [
-      fakeTransaction({
-        userId,
-        id: faker.string.uuid(),
-        accountId: accountId1,
-        categoryId: categoryId1,
-        type: TransactionType.EXPENSE,
-        amount: 50,
-        currency: "USD",
-        date: toDateString("2024-01-15"),
-        description: "Groceries",
-        isArchived: false,
-      }),
-      fakeTransaction({
-        userId,
-        id: faker.string.uuid(),
-        accountId: accountId2,
-        categoryId: categoryId2,
-        type: TransactionType.INCOME,
-        amount: 1000,
-        currency: "USD",
-        date: toDateString("2024-01-20"),
-        description: "Salary",
-        isArchived: false,
-      }),
-      fakeTransaction({
-        userId,
-        id: faker.string.uuid(),
-        accountId: accountId1,
-        categoryId: categoryId1,
-        type: TransactionType.EXPENSE,
-        amount: 30,
-        currency: "USD",
-        date: toDateString("2024-01-25"),
-        description: "Transport",
-        isArchived: false,
-      }),
-    ];
-
-    it("should return all transactions when no filters are provided", async () => {
-      // Arrange
-      mockTransactionRepository.findActiveByDateRange.mockResolvedValue(
-        mockTransactions,
-      );
-
-      // Act
-      const result = await service.getFilteredTransactions(
-        userId,
-        toDateString("2024-01-01"),
-        toDateString("2024-01-31"),
-      );
-
-      // Assert
-      expect(
-        mockTransactionRepository.findActiveByDateRange,
-      ).toHaveBeenCalledWith(userId, "2024-01-01", "2024-01-31");
-      expect(result).toHaveLength(3);
+    const buildConnection = (input?: {
+      endCursor?: string;
+      hasNextPage?: boolean;
+      hasPreviousPage?: boolean;
+      transactions?: Transaction[];
+    }): TransactionConnection => ({
+      edges:
+        input?.transactions?.map((transaction) => ({
+          node: transaction,
+          cursor: "cursor",
+        })) || [],
+      pageInfo: {
+        hasNextPage: input?.hasNextPage ?? false,
+        hasPreviousPage: input?.hasPreviousPage ?? false,
+        endCursor: input?.endCursor,
+      },
+      totalCount: input?.transactions?.length || 0,
     });
 
-    it("should filter transactions by categoryId", async () => {
+    it("should return plain transaction objects", async () => {
       // Arrange
-      mockTransactionRepository.findActiveByDateRange.mockResolvedValue(
-        mockTransactions,
+      const transactions = [
+        fakeTransaction({
+          id: "transaction1",
+          accountId: "account1",
+          categoryId: "category1",
+          type: TransactionType.EXPENSE,
+          amount: 50,
+          currency: "USD",
+          date: toDateString("2024-01-15"),
+          description: "Grocery shopping",
+        }),
+        fakeTransaction({
+          id: "transaction2",
+          accountId: "account2",
+          categoryId: "category2",
+          type: TransactionType.INCOME,
+          amount: 1000,
+          currency: "USD",
+          date: toDateString("2024-01-20"),
+          description: "Salary",
+        }),
+      ];
+      mockTransactionRepository.findActiveByUserId.mockResolvedValue(
+        buildConnection({ transactions }),
       );
 
       // Act
@@ -316,102 +299,177 @@ describe("AgentDataService", () => {
         userId,
         toDateString("2024-01-01"),
         toDateString("2024-01-31"),
-        categoryId1,
       );
 
       // Assert
       expect(result).toHaveLength(2);
-      expect(result[0]?.categoryId).toBe(categoryId1);
-      expect(result[1]?.categoryId).toBe(categoryId1);
+      expect(result[0]).toEqual({
+        id: "transaction1",
+        accountId: "account1",
+        categoryId: "category1",
+        type: TransactionType.EXPENSE,
+        amount: 50,
+        currency: "USD",
+        date: "2024-01-15",
+        description: "Grocery shopping",
+        transferId: undefined,
+      });
+      expect(result[1]).toEqual({
+        id: "transaction2",
+        accountId: "account2",
+        categoryId: "category2",
+        type: TransactionType.INCOME,
+        amount: 1000,
+        currency: "USD",
+        date: "2024-01-20",
+        description: "Salary",
+        transferId: undefined,
+      });
+      expect(mockTransactionRepository.findActiveByUserId).toHaveBeenCalledWith(
+        userId,
+        { first: MAX_PAGE_SIZE, after: undefined },
+        { dateAfter: "2024-01-01", dateBefore: "2024-01-31" },
+      );
     });
 
-    it("should filter transactions by accountId", async () => {
+    it("should support categoryId filter", async () => {
       // Arrange
-      mockTransactionRepository.findActiveByDateRange.mockResolvedValue(
-        mockTransactions,
+      const categoryId = faker.string.uuid();
+      mockTransactionRepository.findActiveByUserId.mockResolvedValue(
+        buildConnection(),
       );
 
       // Act
-      const result = await service.getFilteredTransactions(
+      await service.getFilteredTransactions(
+        userId,
+        toDateString("2024-01-01"),
+        toDateString("2024-01-31"),
+        categoryId,
+      );
+
+      // Assert
+      expect(mockTransactionRepository.findActiveByUserId).toHaveBeenCalledWith(
+        userId,
+        { first: MAX_PAGE_SIZE, after: undefined },
+        {
+          dateAfter: "2024-01-01",
+          dateBefore: "2024-01-31",
+          categoryIds: [categoryId],
+        },
+      );
+    });
+
+    it("should support accountId filter", async () => {
+      // Arrange
+      const accountId = faker.string.uuid();
+      mockTransactionRepository.findActiveByUserId.mockResolvedValue(
+        buildConnection(),
+      );
+
+      // Act
+      await service.getFilteredTransactions(
         userId,
         toDateString("2024-01-01"),
         toDateString("2024-01-31"),
         undefined,
-        accountId1,
+        accountId,
       );
 
       // Assert
-      expect(result).toHaveLength(2);
-      expect(result[0]?.accountId).toBe(accountId1);
-      expect(result[1]?.accountId).toBe(accountId1);
+      expect(mockTransactionRepository.findActiveByUserId).toHaveBeenCalledWith(
+        userId,
+        { first: MAX_PAGE_SIZE, after: undefined },
+        {
+          dateAfter: "2024-01-01",
+          dateBefore: "2024-01-31",
+          accountIds: [accountId],
+        },
+      );
     });
 
-    it("should filter transactions by both categoryId and accountId", async () => {
+    it("should support both categoryId and accountId filters", async () => {
       // Arrange
-      mockTransactionRepository.findActiveByDateRange.mockResolvedValue(
-        mockTransactions,
+      const categoryId = faker.string.uuid();
+      const accountId = faker.string.uuid();
+      mockTransactionRepository.findActiveByUserId.mockResolvedValue(
+        buildConnection(),
       );
 
       // Act
-      const result = await service.getFilteredTransactions(
+      await service.getFilteredTransactions(
         userId,
         toDateString("2024-01-01"),
         toDateString("2024-01-31"),
-        categoryId1,
-        accountId1,
+        categoryId,
+        accountId,
       );
 
       // Assert
-      expect(result).toHaveLength(2);
-      expect(result[0]?.categoryId).toBe(categoryId1);
-      expect(result[0]?.accountId).toBe(accountId1);
-      expect(result[1]?.categoryId).toBe(categoryId1);
-      expect(result[1]?.accountId).toBe(accountId1);
+      expect(mockTransactionRepository.findActiveByUserId).toHaveBeenCalledWith(
+        userId,
+        { first: MAX_PAGE_SIZE, after: undefined },
+        {
+          dateAfter: "2024-01-01",
+          dateBefore: "2024-01-31",
+          categoryIds: [categoryId],
+          accountIds: [accountId],
+        },
+      );
     });
 
-    it("should return empty array when no transactions match filters", async () => {
+    it("should paginate through all pages and collect all results", async () => {
       // Arrange
-      mockTransactionRepository.findActiveByDateRange.mockResolvedValue(
-        mockTransactions,
-      );
+      const page1Transactions = [fakeTransaction(), fakeTransaction()];
+      const page2Transactions = [fakeTransaction()];
 
-      // Act
-      const result = await service.getFilteredTransactions(
-        userId,
-        toDateString("2024-01-01"),
-        toDateString("2024-01-31"),
-        "nonexistent-category-id",
-      );
-
-      // Assert
-      expect(result).toEqual([]);
-    });
-
-    it("should return plain transaction objects with required fields", async () => {
-      // Arrange
-      mockTransactionRepository.findActiveByDateRange.mockResolvedValue([
-        mockTransactions[0],
-      ]);
-
-      // Act
-      const result = await service.getFilteredTransactions(
-        userId,
-        toDateString("2024-01-01"),
-        toDateString("2024-01-31"),
-      );
-
-      // Assert
-      expect(result[0]).toEqual({
-        id: mockTransactions[0].id,
-        accountId: mockTransactions[0].accountId,
-        categoryId: mockTransactions[0].categoryId,
-        type: mockTransactions[0].type,
-        amount: mockTransactions[0].amount,
-        currency: mockTransactions[0].currency,
-        date: mockTransactions[0].date,
-        description: mockTransactions[0].description,
-        transferId: undefined,
+      const page1Connection = buildConnection({
+        endCursor: "cursor1",
+        hasNextPage: true,
+        hasPreviousPage: false,
+        transactions: page1Transactions,
       });
+
+      const page2Connection = buildConnection({
+        endCursor: "cursor2",
+        hasNextPage: false,
+        hasPreviousPage: true,
+        transactions: page2Transactions,
+      });
+
+      mockTransactionRepository.findActiveByUserId
+        .mockResolvedValueOnce(page1Connection)
+        .mockResolvedValueOnce(page2Connection);
+
+      // Act
+      const result = await service.getFilteredTransactions(
+        userId,
+        toDateString("2024-01-01"),
+        toDateString("2024-01-31"),
+      );
+
+      // Assert
+      expect(result).toHaveLength(3);
+      expect(
+        mockTransactionRepository.findActiveByUserId,
+      ).toHaveBeenCalledTimes(2);
+
+      expect(
+        mockTransactionRepository.findActiveByUserId,
+      ).toHaveBeenNthCalledWith(
+        1,
+        userId,
+        { first: MAX_PAGE_SIZE, after: undefined },
+        { dateAfter: "2024-01-01", dateBefore: "2024-01-31" },
+      );
+
+      expect(
+        mockTransactionRepository.findActiveByUserId,
+      ).toHaveBeenNthCalledWith(
+        2,
+        userId,
+        { first: MAX_PAGE_SIZE, after: "cursor1" },
+        { dateAfter: "2024-01-01", dateBefore: "2024-01-31" },
+      );
     });
   });
 });
