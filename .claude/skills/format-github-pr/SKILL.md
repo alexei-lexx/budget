@@ -70,32 +70,14 @@ Also factor in any context the user provided — they often know things the diff
 ### Sections
 
 Include the following sections in the description:
+- **context** — Why this change is needed — the motivation or pain point it addresses
+- **before** — Describe current behavior or limitations
+- **after** — Describe new behavior or improvements
 
-```
-## context
-```
-
-Why this change is needed — the motivation or pain point it addresses.
-
-```
-## before
-```
-
-- Describe current behavior or limitations
+Follow these rules for `before` and `after` sections:
 - Do not explain the code change — explain its purpose or user-facing effect
 - Use bullet points
-- For a small PR: 1-2 bullet points
-- For a medium PR: 2-3 bullet points
-- For a big PR: 3-5 bullet points
-- Use present tense and active voice
-
-```
-## after
-```
-
-- Describe new behavior or improvements
-- Do not explain the code change — explain its purpose or user-facing effect
-- Use bullet points
+- Classify the PR as **small**, **medium**, or **big** based on scope and number of changes
 - For a small PR: 1-2 bullet points
 - For a medium PR: 2-3 bullet points
 - For a big PR: 3-5 bullet points
