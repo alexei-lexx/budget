@@ -74,7 +74,7 @@ Include the following sections in the description:
 - **before** — Describe current behavior or limitations
 - **after** — Describe new behavior or improvements
 
-Follow these rules for `before` and `after` sections:
+**IMPORTANT: Follow these rules strictly for `before` and `after` sections:**
 - Do not explain the code change — explain its purpose or user-facing effect
 - Use bullet points
 - Classify the PR as **small**, **medium**, or **big** based on scope and number of changes
