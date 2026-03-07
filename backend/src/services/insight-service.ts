@@ -2,7 +2,7 @@ import { Agent } from "../models/agent";
 import { DateString } from "../types/date";
 import { YEAR_RANGE_OFFSET } from "../types/validation";
 import { daysBetween, formatDateAsYYYYMMDD } from "../utils/date";
-import { AgentDataService } from "./agent-data-service";
+import { IAgentDataService } from "./agent-data-service";
 import {
   MAX_PERIOD_DAYS,
   createGetAccountsTool,
@@ -66,7 +66,7 @@ export interface InsightInput {
 
 export class InsightService {
   constructor(
-    private agentDataService: AgentDataService,
+    private agentDataService: IAgentDataService,
     private agent: Agent,
   ) {}
 

@@ -1,16 +1,9 @@
 import { faker } from "@faker-js/faker";
-import { IAccountRepository } from "../models/account";
 import { type Agent } from "../models/agent";
-import { ICategoryRepository } from "../models/category";
-import { ITransactionRepository } from "../models/transaction";
 import { toDateString } from "../types/date";
 import { YEAR_RANGE_OFFSET } from "../types/validation";
-import {
-  createMockAccountRepository,
-  createMockCategoryRepository,
-  createMockTransactionRepository,
-} from "../utils/test-utils/mock-repositories";
-import { AgentDataService } from "./agent-data-service";
+import { createMockAgentDataService } from "../utils/test-utils/mock-services";
+import { type IAgentDataService } from "./agent-data-service";
 import { MAX_PERIOD_DAYS } from "./agent-tools/agent-data-tools";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
 import { type InsightInput, InsightService } from "./insight-service";
@@ -22,25 +15,14 @@ const createMockAgent = (): jest.Mocked<Agent> => ({
 describe("InsightService", () => {
   let service: InsightService;
   let userId: string;
-  let mockTransactionRepository: jest.Mocked<ITransactionRepository>;
-  let mockAccountRepository: jest.Mocked<IAccountRepository>;
-  let mockCategoryRepository: jest.Mocked<ICategoryRepository>;
+  let mockAgentDataService: jest.Mocked<IAgentDataService>;
   let mockAgent: jest.Mocked<Agent>;
-  let agentDataService: AgentDataService;
 
   beforeEach(() => {
-    mockTransactionRepository = createMockTransactionRepository();
-    mockAccountRepository = createMockAccountRepository();
-    mockCategoryRepository = createMockCategoryRepository();
+    mockAgentDataService = createMockAgentDataService();
     mockAgent = createMockAgent();
 
-    agentDataService = new AgentDataService(
-      mockAccountRepository,
-      mockCategoryRepository,
-      mockTransactionRepository,
-    );
-
-    service = new InsightService(agentDataService, mockAgent);
+    service = new InsightService(mockAgentDataService, mockAgent);
 
     userId = faker.string.uuid();
 
@@ -64,7 +46,7 @@ describe("InsightService", () => {
         code: BusinessErrorCodes.INVALID_PARAMETERS,
       });
       expect(
-        mockTransactionRepository.findActiveByDateRange,
+        mockAgentDataService.getFilteredTransactions,
       ).not.toHaveBeenCalled();
     });
 
@@ -81,7 +63,7 @@ describe("InsightService", () => {
         code: BusinessErrorCodes.INVALID_PARAMETERS,
       });
       expect(
-        mockTransactionRepository.findActiveByDateRange,
+        mockAgentDataService.getFilteredTransactions,
       ).not.toHaveBeenCalled();
     });
 
@@ -222,7 +204,6 @@ describe("InsightService", () => {
         ...validInput,
         question: "  What is my spending?  ",
       };
-      mockTransactionRepository.findActiveByDateRange.mockResolvedValue([]);
       mockAgent.call.mockResolvedValue({ answer: "Answer" });
 
       // Act
@@ -237,7 +218,6 @@ describe("InsightService", () => {
 
     it("should pass system prompt, tools, user message to AI agent", async () => {
       // Arrange
-      mockTransactionRepository.findActiveByDateRange.mockResolvedValue([]);
       mockAgent.call.mockResolvedValue({ answer: "Answer" });
 
       // Act
@@ -280,7 +260,6 @@ describe("InsightService", () => {
 
     it("should append tool executions to response when present", async () => {
       // Arrange
-      mockTransactionRepository.findActiveByDateRange.mockResolvedValue([]);
       mockAgent.call.mockResolvedValue({
         answer: "The total is $150.",
         toolExecutions: [

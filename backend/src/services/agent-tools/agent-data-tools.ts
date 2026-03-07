@@ -3,7 +3,7 @@ import { ToolSignature } from "../../models/agent";
 import { TransactionType } from "../../models/transaction";
 import { toDateString } from "../../types/date";
 import { daysBetween } from "../../utils/date";
-import { AgentDataService, EntityScope } from "../agent-data-service";
+import { EntityScope, IAgentDataService } from "../agent-data-service";
 import {
   CreateTransactionServiceInput,
   TransactionService,
@@ -20,7 +20,7 @@ const getAccountsInputSchema = z.object({
 type GetAccountsInput = z.infer<typeof getAccountsInputSchema>;
 
 export const createGetAccountsTool = (
-  agentDataService: AgentDataService,
+  agentDataService: IAgentDataService,
   userId: string,
 ): ToolSignature<GetAccountsInput> => ({
   name: "getAccounts",
@@ -44,7 +44,7 @@ const getCategoriesInputSchema = z.object({
 type GetCategoriesInput = z.infer<typeof getCategoriesInputSchema>;
 
 export const createGetCategoriesTool = (
-  agentDataService: AgentDataService,
+  agentDataService: IAgentDataService,
   userId: string,
 ): ToolSignature<GetCategoriesInput> => ({
   name: "getCategories",
@@ -86,7 +86,7 @@ type GetTransactionsInput = z.infer<typeof getTransactionsInputSchema>;
 export const MAX_PERIOD_DAYS = 365;
 
 export const createGetTransactionsTool = (params: {
-  agentDataService: AgentDataService;
+  agentDataService: IAgentDataService;
   userId: string;
 }): ToolSignature<GetTransactionsInput> => ({
   name: "getTransactions",
