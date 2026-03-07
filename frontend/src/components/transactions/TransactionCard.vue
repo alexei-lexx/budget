@@ -2,6 +2,7 @@
 import { computed } from "vue";
 import type { Transaction } from "@/composables/useTransactions";
 import { formatTransactionAmount } from "@/utils/currency";
+import { getTransactionTypeColor } from "@/utils/transaction";
 import ActionButtons from "@/components/common/ActionButtons.vue";
 
 // Define component props
@@ -52,15 +53,7 @@ const formattedDate = computed(() => {
 });
 
 // Amount color based on type
-const amountColor = computed(() => {
-  // INCOME, REFUND, and TRANSFER_IN are positive (green)
-  // EXPENSE and TRANSFER_OUT are negative (red)
-  return props.transaction.type === "INCOME" ||
-    props.transaction.type === "TRANSFER_IN" ||
-    props.transaction.type === "REFUND"
-    ? "success"
-    : "error";
-});
+const amountColor = computed(() => getTransactionTypeColor(props.transaction.type));
 
 // Add after existing computed properties (after line 91)
 const descriptionPreview = computed(() => {

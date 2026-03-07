@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
 import { getCurrencySymbol } from "@/utils/currency";
+import { getTransactionTypeColor } from "@/utils/transaction";
 import { checkRules, type CheckRule } from "@/utils/validation";
 import { currencyAmountRules } from "@/utils/currencyValidation";
 import { getTodayDateString } from "@/utils/date";
@@ -241,19 +242,19 @@ const handlePatternSelected = (pattern: { accountId: string; categoryId: string 
           >
             <v-btn value="EXPENSE" class="flex-1-1">
               <template #prepend>
-                <v-icon color="error">mdi-cash-minus</v-icon>
+                <v-icon :color="getTransactionTypeColor('EXPENSE')">mdi-cash-minus</v-icon>
               </template>
               Expense
             </v-btn>
             <v-btn value="INCOME" class="flex-1-1">
               <template #prepend>
-                <v-icon color="success">mdi-cash-plus</v-icon>
+                <v-icon :color="getTransactionTypeColor('INCOME')">mdi-cash-plus</v-icon>
               </template>
               Income
             </v-btn>
             <v-btn value="REFUND" class="flex-1-1">
               <template #prepend>
-                <v-icon color="info">mdi-cash-refund</v-icon>
+                <v-icon :color="getTransactionTypeColor('REFUND')">mdi-cash-refund</v-icon>
               </template>
               Refund
             </v-btn>

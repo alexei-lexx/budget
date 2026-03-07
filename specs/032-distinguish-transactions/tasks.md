@@ -23,7 +23,7 @@
 
 No project initialization needed. This is a pure frontend presentation-layer change. The repository and all dependencies are already configured.
 
-- [ ] T001 Read `frontend/src/utils/transaction.ts` to understand existing `isPositiveTransactionType()` before adding the new utility
+- [X] T001 Read `frontend/src/utils/transaction.ts` to understand existing `isPositiveTransactionType()` before adding the new utility
 
 ---
 
@@ -33,7 +33,7 @@ No project initialization needed. This is a pure frontend presentation-layer cha
 
 **CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T002 Add exported function `getTransactionTypeColor(type: TransactionType): string` to `frontend/src/utils/transaction.ts` — switch on all five TransactionType values: INCOME→"success", REFUND→"info", TRANSFER_IN→"warning", TRANSFER_OUT→"warning", EXPENSE→"error"
+- [X] T002 Add exported function `getTransactionTypeColor(type: TransactionType): string` to `frontend/src/utils/transaction.ts` — switch on all five TransactionType values: INCOME→"success", REFUND→"info", TRANSFER_IN→"warning", TRANSFER_OUT→"warning", EXPENSE→"error"
 
 **Checkpoint**: `getTransactionTypeColor` is exported from `transaction.ts` — both user stories can now proceed in parallel
 
@@ -47,7 +47,7 @@ No project initialization needed. This is a pure frontend presentation-layer cha
 
 ### Implementation for User Story 1
 
-- [ ] T003 [US1] Replace the inline `amountColor` computed property in `frontend/src/components/transactions/TransactionCard.vue` with `computed(() => getTransactionTypeColor(props.transaction.type))`, importing `getTransactionTypeColor` from `@/utils/transaction`
+- [X] T003 [US1] Replace the inline `amountColor` computed property in `frontend/src/components/transactions/TransactionCard.vue` with `computed(() => getTransactionTypeColor(props.transaction.type))`, importing `getTransactionTypeColor` from `@/utils/transaction`
 
 **Checkpoint**: User Story 1 complete — transaction list displays distinct Vuetify colors for all five transaction types
 
@@ -61,7 +61,7 @@ No project initialization needed. This is a pure frontend presentation-layer cha
 
 ### Implementation for User Story 2
 
-- [ ] T004 [US2] Replace hardcoded `color="..."` on the three type-toggle icons in `frontend/src/components/transactions/TransactionForm.vue` with dynamic bindings — `:color="getTransactionTypeColor('EXPENSE')"`, `:color="getTransactionTypeColor('INCOME')"`, `:color="getTransactionTypeColor('REFUND')"` — importing `getTransactionTypeColor` from `@/utils/transaction`
+- [X] T004 [US2] Replace hardcoded `color="..."` on the three type-toggle icons in `frontend/src/components/transactions/TransactionForm.vue` with dynamic bindings — `:color="getTransactionTypeColor('EXPENSE')"`, `:color="getTransactionTypeColor('INCOME')"`, `:color="getTransactionTypeColor('REFUND')"` — importing `getTransactionTypeColor` from `@/utils/transaction`
 
 **Checkpoint**: User Stories 1 AND 2 complete — TransactionCard and TransactionForm use identical color mapping via shared utility
 
@@ -71,7 +71,7 @@ No project initialization needed. This is a pure frontend presentation-layer cha
 
 **Purpose**: Full validation across both user stories
 
-- [ ] T005 [P] Run the complete manual testing checklist from `specs/032-distinguish-transactions/quickstart.md` — verify all 7 scenarios pass: INCOME=green in list, REFUND=blue in list, EXPENSE=red in list, TRANSFER=orange in list, EXPENSE=red in form, INCOME=green in form, REFUND=blue in form, and mobile viewport (375px) check
+- [X] T005 [P] Run the complete manual testing checklist from `specs/032-distinguish-transactions/quickstart.md` — verify all 7 scenarios pass: INCOME=green in list, REFUND=blue in list, EXPENSE=red in list, TRANSFER=orange in list, EXPENSE=red in form, INCOME=green in form, REFUND=blue in form, and mobile viewport (375px) check
 
 ---
 
