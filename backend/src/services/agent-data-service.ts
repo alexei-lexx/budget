@@ -1,7 +1,12 @@
 import { IAccountRepository } from "../models/account";
 import { CategoryType, ICategoryRepository } from "../models/category";
-import { ITransactionRepository, TransactionType } from "../models/transaction";
+import {
+  ITransactionRepository,
+  TransactionFilterInput,
+  TransactionType,
+} from "../models/transaction";
 import { DateString } from "../types/date";
+import { MAX_PAGE_SIZE } from "../types/pagination";
 
 export interface AccountData {
   id: string;
@@ -101,36 +106,39 @@ export class AgentDataService implements IAgentDataService {
     categoryId?: string,
     accountId?: string,
   ): Promise<TransactionData[]> {
-    const transactions = await this.transactionRepository.findActiveByDateRange(
-      userId,
-      startDate,
-      endDate,
-    );
+    const filters: TransactionFilterInput = {
+      dateAfter: startDate,
+      dateBefore: endDate,
+      ...(accountId && { accountIds: [accountId] }),
+      ...(categoryId && { categoryIds: [categoryId] }),
+    };
 
-    let filteredTransactions = transactions;
-
-    if (accountId) {
-      filteredTransactions = filteredTransactions.filter(
-        (transaction) => transaction.accountId === accountId,
+    const result: TransactionData[] = [];
+    let cursor: string | undefined;
+    do {
+      const connection = await this.transactionRepository.findActiveByUserId(
+        userId,
+        { first: MAX_PAGE_SIZE, after: cursor },
+        filters,
       );
-    }
-
-    if (categoryId) {
-      filteredTransactions = filteredTransactions.filter(
-        (transaction) => transaction.categoryId === categoryId,
+      result.push(
+        ...connection.edges.map((edge) => ({
+          id: edge.node.id,
+          accountId: edge.node.accountId,
+          categoryId: edge.node.categoryId,
+          type: edge.node.type,
+          amount: edge.node.amount,
+          currency: edge.node.currency,
+          date: edge.node.date,
+          description: edge.node.description,
+          transferId: edge.node.transferId,
+        })),
       );
-    }
+      cursor = connection.pageInfo.hasNextPage
+        ? connection.pageInfo.endCursor
+        : undefined;
+    } while (cursor);
 
-    return filteredTransactions.map((transaction) => ({
-      id: transaction.id,
-      accountId: transaction.accountId,
-      categoryId: transaction.categoryId,
-      type: transaction.type,
-      amount: transaction.amount,
-      currency: transaction.currency,
-      date: transaction.date,
-      description: transaction.description,
-      transferId: transaction.transferId,
-    }));
+    return result;
   }
 }

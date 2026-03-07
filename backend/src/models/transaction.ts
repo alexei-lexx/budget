@@ -115,11 +115,6 @@ export interface ITransactionRepository {
     searchText: string,
     limit: number,
   ): Promise<Transaction[]>;
-  findActiveByDateRange(
-    userId: string,
-    startDate: DateString,
-    endDate: DateString,
-  ): Promise<Transaction[]>;
   create(input: CreateTransactionInput): Promise<Transaction>;
   createMany(inputs: CreateTransactionInput[]): Promise<Transaction[]>;
   update(

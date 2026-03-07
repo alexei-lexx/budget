@@ -22,7 +22,6 @@ import {
   TransactionType,
   UpdateTransactionInput,
 } from "../models/transaction";
-import { DateString } from "../types/date";
 import {
   DEFAULT_PAGE_SIZE,
   MAX_PAGE_SIZE,
@@ -812,60 +811,6 @@ export class TransactionRepository implements ITransactionRepository {
       console.error("Error searching transactions by description:", error);
       throw new TransactionRepositoryError(
         "Failed to search transactions by description",
-        "QUERY_FAILED",
-        error,
-      );
-    }
-  }
-
-  async findActiveByDateRange(
-    userId: string,
-    startDate: DateString,
-    endDate: DateString,
-  ): Promise<Transaction[]> {
-    if (!userId) {
-      throw new TransactionRepositoryError(
-        "User ID is required",
-        "INVALID_PARAMETERS",
-      );
-    }
-
-    if (startDate > endDate) {
-      throw new TransactionRepositoryError(
-        "Start date must be before or equal to end date",
-        "INVALID_PARAMETERS",
-      );
-    }
-
-    try {
-      const { items } = await paginateQuery<Transaction>({
-        client: this.client,
-        params: {
-          TableName: this.tableName,
-          IndexName: USER_DATE_INDEX,
-          KeyConditionExpression:
-            "userId = :userId AND #date BETWEEN :startDate AND :endDate",
-          FilterExpression: "isArchived = :isArchived",
-          ExpressionAttributeNames: {
-            "#date": "date",
-          },
-          ExpressionAttributeValues: {
-            ":userId": userId,
-            ":startDate": startDate,
-            ":endDate": endDate,
-            ":isArchived": false,
-          },
-          ScanIndexForward: true,
-        },
-        options: {},
-        schema: transactionSchema,
-      });
-
-      return items;
-    } catch (error) {
-      console.error("Error finding transactions by date range:", error);
-      throw new TransactionRepositoryError(
-        "Failed to find transactions by date range",
         "QUERY_FAILED",
         error,
       );
