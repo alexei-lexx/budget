@@ -3,21 +3,21 @@ import { CategoryType, ICategoryRepository } from "../models/category";
 import { ITransactionRepository, TransactionType } from "../models/transaction";
 import { DateString } from "../types/date";
 
-interface AccountData {
+export interface AccountData {
   id: string;
   name: string;
   currency: string;
   isArchived: boolean;
 }
 
-interface CategoryData {
+export interface CategoryData {
   id: string;
   name: string;
   type: CategoryType;
   isArchived: boolean;
 }
 
-interface TransactionData {
+export interface TransactionData {
   id: string;
   accountId: string;
   categoryId?: string;
@@ -35,7 +35,19 @@ export enum EntityScope {
   ALL = "ALL",
 }
 
-export class AgentDataService {
+export interface IAgentDataService {
+  getAccounts(userId: string, scope: EntityScope): Promise<AccountData[]>;
+  getCategories(userId: string, scope: EntityScope): Promise<CategoryData[]>;
+  getFilteredTransactions(
+    userId: string,
+    startDate: DateString,
+    endDate: DateString,
+    categoryId?: string,
+    accountId?: string,
+  ): Promise<TransactionData[]>;
+}
+
+export class AgentDataService implements IAgentDataService {
   constructor(
     private accountRepository: IAccountRepository,
     private categoryRepository: ICategoryRepository,

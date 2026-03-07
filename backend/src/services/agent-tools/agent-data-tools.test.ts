@@ -6,7 +6,8 @@ import {
   fakeCategory,
   fakeTransaction,
 } from "../../utils/test-utils/factories";
-import { AgentDataService, EntityScope } from "../agent-data-service";
+import { createMockAgentDataService } from "../../utils/test-utils/mock-services";
+import { EntityScope, type IAgentDataService } from "../agent-data-service";
 import { TransactionService } from "../transaction-service";
 import {
   CreateTransactionToolInput,
@@ -18,27 +19,16 @@ import {
 } from "./agent-data-tools";
 
 describe("agent-data-tools", () => {
-  let mockAgentDataService: {
-    getAccounts: jest.Mock;
-    getCategories: jest.Mock;
-    getFilteredTransactions: jest.Mock;
-  };
+  let mockAgentDataService: jest.Mocked<IAgentDataService>;
   const userId = faker.string.uuid();
 
   beforeEach(() => {
-    mockAgentDataService = {
-      getAccounts: jest.fn(),
-      getCategories: jest.fn(),
-      getFilteredTransactions: jest.fn(),
-    };
+    mockAgentDataService = createMockAgentDataService();
   });
 
   describe("createGetAccountsTool", () => {
     it("should return tool with correct name", () => {
-      const tool = createGetAccountsTool(
-        mockAgentDataService as unknown as AgentDataService,
-        userId,
-      );
+      const tool = createGetAccountsTool(mockAgentDataService, userId);
 
       expect(tool.name).toBe("getAccounts");
     });
@@ -53,10 +43,7 @@ describe("agent-data-tools", () => {
       }));
       mockAgentDataService.getAccounts.mockResolvedValue(accountsData);
 
-      const tool = createGetAccountsTool(
-        mockAgentDataService as unknown as AgentDataService,
-        userId,
-      );
+      const tool = createGetAccountsTool(mockAgentDataService, userId);
       const scope = faker.helpers.arrayElement([
         EntityScope.ACTIVE,
         EntityScope.ARCHIVED,
@@ -74,10 +61,7 @@ describe("agent-data-tools", () => {
 
   describe("createGetCategoriesTool", () => {
     it("should return tool with correct name", () => {
-      const tool = createGetCategoriesTool(
-        mockAgentDataService as unknown as AgentDataService,
-        userId,
-      );
+      const tool = createGetCategoriesTool(mockAgentDataService, userId);
 
       expect(tool.name).toBe("getCategories");
     });
@@ -92,10 +76,7 @@ describe("agent-data-tools", () => {
       }));
       mockAgentDataService.getCategories.mockResolvedValue(categoriesData);
 
-      const tool = createGetCategoriesTool(
-        mockAgentDataService as unknown as AgentDataService,
-        userId,
-      );
+      const tool = createGetCategoriesTool(mockAgentDataService, userId);
       const scope = faker.helpers.arrayElement([
         EntityScope.ACTIVE,
         EntityScope.ARCHIVED,
@@ -114,7 +95,7 @@ describe("agent-data-tools", () => {
   describe("createGetTransactionsTool", () => {
     it("should return tool with correct name", () => {
       const tool = createGetTransactionsTool({
-        agentDataService: mockAgentDataService as unknown as AgentDataService,
+        agentDataService: mockAgentDataService,
         userId,
       });
 
@@ -123,7 +104,7 @@ describe("agent-data-tools", () => {
 
     it("should reject when startDate is after endDate", async () => {
       const tool = createGetTransactionsTool({
-        agentDataService: mockAgentDataService as unknown as AgentDataService,
+        agentDataService: mockAgentDataService,
         userId,
       });
 
@@ -142,7 +123,7 @@ describe("agent-data-tools", () => {
 
     it("should reject when date range exceeds max period days", async () => {
       const tool = createGetTransactionsTool({
-        agentDataService: mockAgentDataService as unknown as AgentDataService,
+        agentDataService: mockAgentDataService,
         userId,
       });
 
@@ -179,7 +160,7 @@ describe("agent-data-tools", () => {
       );
 
       const tool = createGetTransactionsTool({
-        agentDataService: mockAgentDataService as unknown as AgentDataService,
+        agentDataService: mockAgentDataService,
         userId,
       });
 
@@ -203,7 +184,7 @@ describe("agent-data-tools", () => {
       mockAgentDataService.getFilteredTransactions.mockResolvedValue([]);
 
       const tool = createGetTransactionsTool({
-        agentDataService: mockAgentDataService as unknown as AgentDataService,
+        agentDataService: mockAgentDataService,
         userId,
       });
 
@@ -227,7 +208,7 @@ describe("agent-data-tools", () => {
       mockAgentDataService.getFilteredTransactions.mockResolvedValue([]);
 
       const tool = createGetTransactionsTool({
-        agentDataService: mockAgentDataService as unknown as AgentDataService,
+        agentDataService: mockAgentDataService,
         userId,
       });
 
@@ -252,7 +233,7 @@ describe("agent-data-tools", () => {
       mockAgentDataService.getFilteredTransactions.mockResolvedValue([]);
 
       const tool = createGetTransactionsTool({
-        agentDataService: mockAgentDataService as unknown as AgentDataService,
+        agentDataService: mockAgentDataService,
         userId,
       });
 

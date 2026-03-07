@@ -2,7 +2,7 @@ import { z } from "zod";
 import { Agent, ToolExecution } from "../models/agent";
 import { Transaction } from "../models/transaction";
 import { formatDateAsYYYYMMDD } from "../utils/date";
-import { AgentDataService } from "./agent-data-service";
+import { IAgentDataService } from "./agent-data-service";
 import {
   createCreateTransactionTool,
   createGetAccountsTool,
@@ -82,11 +82,11 @@ const createdTransactionSchema = z.object({
 
 export class CreateTransactionFromTextService {
   private agent: Agent;
-  private agentDataService: AgentDataService;
+  private agentDataService: IAgentDataService;
   private transactionService: TransactionService;
 
   constructor(options: {
-    agentDataService: AgentDataService;
+    agentDataService: IAgentDataService;
     agent: Agent;
     transactionService: TransactionService;
   }) {

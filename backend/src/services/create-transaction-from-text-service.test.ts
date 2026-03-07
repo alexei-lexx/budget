@@ -1,17 +1,11 @@
 import { faker } from "@faker-js/faker";
 import { type Agent, ToolSignature } from "../models/agent";
 import { fakeTransaction } from "../utils/test-utils/factories";
-import { AgentDataService } from "./agent-data-service";
+import { createMockAgentDataService } from "../utils/test-utils/mock-services";
+import { type IAgentDataService } from "./agent-data-service";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
 import { CreateTransactionFromTextService } from "./create-transaction-from-text-service";
 import { TransactionService } from "./transaction-service";
-
-const createMockAgentDataService = (): jest.Mocked<AgentDataService> =>
-  ({
-    getAllAccounts: jest.fn(),
-    getAllCategories: jest.fn(),
-    getFilteredTransactions: jest.fn(),
-  }) as unknown as jest.Mocked<AgentDataService>;
 
 const createMockAgent = (): jest.Mocked<Agent> => ({
   call: jest.fn(),
@@ -29,7 +23,7 @@ describe("CreateTransactionFromTextService", () => {
   const text = "coffee at starbucks for 5 euros";
   let service: CreateTransactionFromTextService;
   let mockAgent: jest.Mocked<Agent>;
-  let mockAgentDataService: jest.Mocked<AgentDataService>;
+  let mockAgentDataService: jest.Mocked<IAgentDataService>;
   let mockTransactionService: jest.Mocked<
     Pick<TransactionService, "createTransaction" | "getTransactionById">
   >;
