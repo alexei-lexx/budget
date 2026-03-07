@@ -52,37 +52,35 @@ Also factor in any context the user provided — they often know things the diff
 
 ## Step 5: Write the description
 
+### Content principles
+
 - Focus on *what* and *why* — omit implementation details unless essential for understanding
+- Describe changes in plain language — explain intent and effect, not what the code says
 - Concise and factual — no filler, no vague statements
+- Write as a human developer — no mention of AI authorship
+
+### Format rules
+
 - Avoid long paragraphs — break prose into short sentences
 - Start each sentence on a new line
 - Include required sections: `context`, `before`, `after`
 - Use lowercase section headlines
-- Write as a human developer — no mention of AI authorship
 - If the branch addresses a GitHub issue, append `Close #<number>` after the last section (valid keywords: `Close`, `Fix`, `Resolve`)
 
 ### Sections
 
 Include the following sections in the description:
+- **context** — Why this change is needed — the motivation or pain point it addresses
+- **before** — Describe current behavior or limitations
+- **after** — Describe new behavior or improvements
 
-```
-## context
-```
-
-Brief explanation of the problem or need being addressed.
-
-```
-## before
-```
-
-- Current behavior or limitations in bullet points (ideally 3, max 5 bullet points)
-- Use present tense and active voice
-
-```
-## after
-```
-
-- New behavior or improvements in bullet points (ideally 3, max 5 bullet points)
+Follow these rules strictly for `before` and `after` sections:
+- Do not explain the code change — explain its purpose or user-facing effect
+- Use bullet points
+- IMPORTANT: Classify the PR as **small**, **medium**, or **big** based on scope and number of changes
+- For a small PR: 1-2 bullet points
+- For a medium PR: 2-3 bullet points
+- For a big PR: 3-5 bullet points
 - Use present tense and active voice
 
 ### Example
