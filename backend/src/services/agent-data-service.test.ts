@@ -21,6 +21,27 @@ import {
 } from "../utils/test-utils/mock-repositories";
 import { AgentDataService, EntityScope } from "./agent-data-service";
 
+function buildTransactionConnection(input?: {
+  endCursor?: string;
+  hasNextPage?: boolean;
+  hasPreviousPage?: boolean;
+  transactions?: Transaction[];
+}): TransactionConnection {
+  return {
+    edges:
+      input?.transactions?.map((transaction) => ({
+        node: transaction,
+        cursor: "cursor",
+      })) || [],
+    pageInfo: {
+      hasNextPage: input?.hasNextPage ?? false,
+      hasPreviousPage: input?.hasPreviousPage ?? false,
+      endCursor: input?.endCursor,
+    },
+    totalCount: input?.transactions?.length || 0,
+  };
+}
+
 describe("AgentDataService", () => {
   let service: AgentDataService;
   let mockTransactionRepository: jest.Mocked<ITransactionRepository>;
@@ -247,25 +268,6 @@ describe("AgentDataService", () => {
   });
 
   describe("getFilteredTransactions", () => {
-    const buildConnection = (input?: {
-      endCursor?: string;
-      hasNextPage?: boolean;
-      hasPreviousPage?: boolean;
-      transactions?: Transaction[];
-    }): TransactionConnection => ({
-      edges:
-        input?.transactions?.map((transaction) => ({
-          node: transaction,
-          cursor: "cursor",
-        })) || [],
-      pageInfo: {
-        hasNextPage: input?.hasNextPage ?? false,
-        hasPreviousPage: input?.hasPreviousPage ?? false,
-        endCursor: input?.endCursor,
-      },
-      totalCount: input?.transactions?.length || 0,
-    });
-
     it("should return plain transaction objects", async () => {
       // Arrange
       const transactions = [
@@ -291,7 +293,7 @@ describe("AgentDataService", () => {
         }),
       ];
       mockTransactionRepository.findActiveByUserId.mockResolvedValue(
-        buildConnection({ transactions }),
+        buildTransactionConnection({ transactions }),
       );
 
       // Act
@@ -336,7 +338,7 @@ describe("AgentDataService", () => {
       // Arrange
       const categoryId = faker.string.uuid();
       mockTransactionRepository.findActiveByUserId.mockResolvedValue(
-        buildConnection(),
+        buildTransactionConnection(),
       );
 
       // Act
@@ -363,7 +365,7 @@ describe("AgentDataService", () => {
       // Arrange
       const accountId = faker.string.uuid();
       mockTransactionRepository.findActiveByUserId.mockResolvedValue(
-        buildConnection(),
+        buildTransactionConnection(),
       );
 
       // Act
@@ -392,7 +394,7 @@ describe("AgentDataService", () => {
       const categoryId = faker.string.uuid();
       const accountId = faker.string.uuid();
       mockTransactionRepository.findActiveByUserId.mockResolvedValue(
-        buildConnection(),
+        buildTransactionConnection(),
       );
 
       // Act
@@ -422,14 +424,14 @@ describe("AgentDataService", () => {
       const page1Transactions = [fakeTransaction(), fakeTransaction()];
       const page2Transactions = [fakeTransaction()];
 
-      const page1Connection = buildConnection({
+      const page1Connection = buildTransactionConnection({
         endCursor: "cursor1",
         hasNextPage: true,
         hasPreviousPage: false,
         transactions: page1Transactions,
       });
 
-      const page2Connection = buildConnection({
+      const page2Connection = buildTransactionConnection({
         endCursor: "cursor2",
         hasNextPage: false,
         hasPreviousPage: true,
