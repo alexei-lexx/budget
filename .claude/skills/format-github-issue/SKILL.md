@@ -164,17 +164,7 @@ Body: `Rename "Apply filters" to "Apply" and "Clear filters" to "Clear"`
 - Empty body with unclear title
 - Single issue covering multiple unrelated changes
 
-### 5. Editing an existing issue
-
-When the user is editing an existing issue, append an update note at the bottom:
-
-```markdown
----
-
-**Updated [date]:** [description of what changed]
-```
-
-### 6. Output
+### 5. Output
 
 Return formatted title and body separately and clearly labeled:
 
