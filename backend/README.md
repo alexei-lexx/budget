@@ -10,13 +10,14 @@ GraphQL API server for the Personal Finance Tracker application.
 ## Development Setup
 
 1. `npm install` - Install dependencies
-2. `cp .env.example .env` - Copy environment template
-3. Edit `.env` to set environment variables; typically only:
+2. `cp .env.example .env` - Copy development environment template
+3. `cp .env.test.example .env.test` - Copy test environment template
+4. Edit `.env` to set environment variables; typically only:
    - `AUTH_CLIENT_ID`
    - `AUTH_ISSUER`
    - `AWS_BEARER_TOKEN_BEDROCK`
-4. `npm run db:setup` - Start DynamoDB Local and create tables
-5. `npm run dev` - Start the development server on http://localhost:4000
+5. `npm run db:setup` - Start DynamoDB Local and create tables
+6. `npm run dev` - Start the development server on http://localhost:4000
 
 ## Database (Development & Test)
 
