@@ -25,34 +25,42 @@ const describeLLM =
 
 // Use [LLM] prefix to separate tests that require LLM from regular tests
 describeLLM("[LLM] CreateTransactionFromTextService", () => {
-  const client = createDynamoDBDocumentClient();
-  const accountRepository = new AccountRepository(client);
-  const categoryRepository = new CategoryRepository(client);
-  const transactionRepository = new TransactionRepository(client);
-  const userRepository = new UserRepository(client);
-
-  const agentDataService = new AgentDataService(
-    accountRepository,
-    categoryRepository,
-    transactionRepository,
-  );
-
-  const transactionService = new TransactionService(
-    accountRepository,
-    categoryRepository,
-    transactionRepository,
-  );
-
-  const model = createBedrockChatModel();
-  const agent = new ReActAgent(model);
-
-  const service = new CreateTransactionFromTextService({
-    agentDataService,
-    agent,
-    transactionService,
-  });
-
+  let client: ReturnType<typeof createDynamoDBDocumentClient>;
+  let accountRepository: AccountRepository;
+  let categoryRepository: CategoryRepository;
+  let transactionRepository: TransactionRepository;
+  let userRepository: UserRepository;
+  let service: CreateTransactionFromTextService;
   let user: User;
+
+  beforeAll(async () => {
+    client = createDynamoDBDocumentClient();
+    accountRepository = new AccountRepository(client);
+    categoryRepository = new CategoryRepository(client);
+    transactionRepository = new TransactionRepository(client);
+    userRepository = new UserRepository(client);
+
+    const agentDataService = new AgentDataService(
+      accountRepository,
+      categoryRepository,
+      transactionRepository,
+    );
+
+    const transactionService = new TransactionService(
+      accountRepository,
+      categoryRepository,
+      transactionRepository,
+    );
+
+    const model = createBedrockChatModel();
+    const agent = new ReActAgent(model);
+
+    service = new CreateTransactionFromTextService({
+      agentDataService,
+      agent,
+      transactionService,
+    });
+  });
 
   beforeEach(async () => {
     // Clean up tables before each test
