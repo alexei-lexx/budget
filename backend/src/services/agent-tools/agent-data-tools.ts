@@ -48,7 +48,8 @@ export const createGetCategoriesTool = (
   userId: string,
 ): ToolSignature<GetCategoriesInput> => ({
   name: "getCategories",
-  description: "Get user categories filtered by scope.",
+  description:
+    "Get user categories filtered by scope. Each category includes recent usage examples showing how similar transactions were previously categorised.",
   inputSchema: getCategoriesInputSchema,
   func: async (input: GetCategoriesInput) => {
     const categories = await agentDataService.getCategories(

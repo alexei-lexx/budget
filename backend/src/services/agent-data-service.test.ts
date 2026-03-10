@@ -7,8 +7,9 @@ import {
   TransactionConnection,
   TransactionType,
 } from "../models/transaction";
-import { toDateString } from "../types/date";
+import { isDateString, toDateString } from "../types/date";
 import { MAX_PAGE_SIZE } from "../types/pagination";
+import { daysBetween } from "../utils/date";
 import {
   fakeAccount,
   fakeCategory,
@@ -19,7 +20,12 @@ import {
   createMockCategoryRepository,
   createMockTransactionRepository,
 } from "../utils/test-utils/mock-repositories";
-import { AgentDataService, EntityScope } from "./agent-data-service";
+import {
+  AgentDataService,
+  CATEGORY_HISTORY_LOOKBACK_DAYS,
+  CATEGORY_HISTORY_MAX_DESCRIPTIONS_PER_CATEGORY,
+  EntityScope,
+} from "./agent-data-service";
 
 function buildTransactionConnection(input?: {
   endCursor?: string;
@@ -173,6 +179,9 @@ describe("AgentDataService", () => {
         fakeCategory({ isArchived: false }),
       ];
       mockCategoryRepository.findAllByUserId.mockResolvedValue(mockCategories);
+      mockTransactionRepository.findActiveByUserId.mockResolvedValue(
+        buildTransactionConnection(),
+      );
 
       // Act
       const result = await service.getCategories(userId, EntityScope.ALL);
@@ -190,6 +199,9 @@ describe("AgentDataService", () => {
         fakeCategory({ isArchived: false }),
       ];
       mockCategoryRepository.findAllByUserId.mockResolvedValue(mockCategories);
+      mockTransactionRepository.findActiveByUserId.mockResolvedValue(
+        buildTransactionConnection(),
+      );
 
       // Act
       const result = await service.getCategories(userId, EntityScope.ACTIVE);
@@ -206,6 +218,9 @@ describe("AgentDataService", () => {
         fakeCategory({ isArchived: false }),
       ];
       mockCategoryRepository.findAllByUserId.mockResolvedValue(mockCategories);
+      mockTransactionRepository.findActiveByUserId.mockResolvedValue(
+        buildTransactionConnection(),
+      );
 
       // Act
       const result = await service.getCategories(userId, EntityScope.ARCHIVED);
@@ -232,6 +247,9 @@ describe("AgentDataService", () => {
         }),
       ];
       mockCategoryRepository.findAllByUserId.mockResolvedValue(mockCategories);
+      mockTransactionRepository.findActiveByUserId.mockResolvedValue(
+        buildTransactionConnection(),
+      );
 
       // Act
       const result = await service.getCategories(userId, EntityScope.ALL);
@@ -243,12 +261,14 @@ describe("AgentDataService", () => {
         name: "Groceries",
         type: CategoryType.EXPENSE,
         isArchived: false,
+        recentDescriptions: [],
       });
       expect(result[1]).toEqual({
         id: mockCategories[1].id,
         name: "Salary",
         type: CategoryType.INCOME,
         isArchived: true,
+        recentDescriptions: [],
       });
       expect(mockCategoryRepository.findAllByUserId).toHaveBeenCalledWith(
         userId,
@@ -258,12 +278,340 @@ describe("AgentDataService", () => {
     it("should return empty array when user has no categories", async () => {
       // Arrange
       mockCategoryRepository.findAllByUserId.mockResolvedValue([]);
+      mockTransactionRepository.findActiveByUserId.mockResolvedValue(
+        buildTransactionConnection(),
+      );
 
       // Act
       const result = await service.getCategories(userId, EntityScope.ALL);
 
       // Assert
       expect(result).toEqual([]);
+    });
+
+    it("should return recentDescriptions as empty array when no transactions exist", async () => {
+      // Arrange
+      const category = fakeCategory({ isArchived: false });
+      mockCategoryRepository.findAllByUserId.mockResolvedValue([category]);
+      mockTransactionRepository.findActiveByUserId.mockResolvedValue(
+        buildTransactionConnection(),
+      );
+
+      // Act
+      const result = await service.getCategories(userId, EntityScope.ACTIVE);
+
+      // Assert
+      expect(result).toHaveLength(1);
+      expect(result[0]).toMatchObject({
+        id: category.id,
+        recentDescriptions: [],
+      });
+    });
+
+    it("should exclude transactions without categoryId from recentDescriptions", async () => {
+      // Arrange
+      const category = fakeCategory({ isArchived: false });
+      const transactionsWithoutCategory = [
+        fakeTransaction({
+          categoryId: undefined,
+          description: "should be ignored",
+        }),
+        fakeTransaction({
+          categoryId: undefined,
+          description: "also ignored",
+        }),
+      ];
+      mockCategoryRepository.findAllByUserId.mockResolvedValue([category]);
+      mockTransactionRepository.findActiveByUserId.mockResolvedValue(
+        buildTransactionConnection({
+          transactions: transactionsWithoutCategory,
+        }),
+      );
+
+      // Act
+      const result = await service.getCategories(userId, EntityScope.ACTIVE);
+
+      // Assert
+      expect(result[0].recentDescriptions).toEqual([]);
+    });
+
+    it("should exclude transactions without description from recentDescriptions", async () => {
+      // Arrange
+      const category = fakeCategory({ isArchived: false });
+      const transactionsWithoutDescription = [
+        fakeTransaction({
+          categoryId: category.id,
+          description: undefined,
+        }),
+        fakeTransaction({
+          categoryId: category.id,
+          description: undefined,
+        }),
+      ];
+      mockCategoryRepository.findAllByUserId.mockResolvedValue([category]);
+      mockTransactionRepository.findActiveByUserId.mockResolvedValue(
+        buildTransactionConnection({
+          transactions: transactionsWithoutDescription,
+        }),
+      );
+
+      // Act
+      const result = await service.getCategories(userId, EntityScope.ACTIVE);
+
+      // Assert
+      expect(result[0].recentDescriptions).toEqual([]);
+    });
+
+    it("should exclude transactions with unknown categoryId from recentDescriptions", async () => {
+      // Arrange
+      const activeCategory = fakeCategory({ isArchived: false });
+      const archivedCategory = fakeCategory({ isArchived: true });
+
+      const transactions = [
+        fakeTransaction({
+          categoryId: activeCategory.id,
+          description: "milk and eggs",
+        }),
+        fakeTransaction({
+          categoryId: archivedCategory.id,
+          description: "should be filtered out",
+        }),
+      ];
+
+      mockCategoryRepository.findAllByUserId.mockResolvedValue([
+        activeCategory,
+        archivedCategory,
+      ]);
+      mockTransactionRepository.findActiveByUserId.mockResolvedValue(
+        buildTransactionConnection({ transactions }),
+      );
+
+      // Act - scope is ACTIVE, so archived category should not be in the returned set
+      const result = await service.getCategories(userId, EntityScope.ACTIVE);
+
+      // Assert
+      expect(result).toHaveLength(1);
+      expect(result[0]).toMatchObject({
+        id: activeCategory.id,
+        recentDescriptions: ["milk and eggs"],
+      });
+    });
+
+    it("should cap recentDescriptions", async () => {
+      // Arrange
+      const category = fakeCategory({ isArchived: false });
+      mockCategoryRepository.findAllByUserId.mockResolvedValue([category]);
+
+      // Create +5 extra transactions with descriptions
+      const transactions = Array.from(
+        { length: CATEGORY_HISTORY_MAX_DESCRIPTIONS_PER_CATEGORY + 5 },
+        (_, index) =>
+          fakeTransaction({
+            categoryId: category.id,
+            description: `description ${index}`,
+          }),
+      );
+
+      mockTransactionRepository.findActiveByUserId.mockResolvedValue(
+        buildTransactionConnection({ transactions }),
+      );
+
+      // Act
+      const result = await service.getCategories(userId, EntityScope.ACTIVE);
+
+      // Assert
+      expect(result[0].recentDescriptions).toHaveLength(
+        CATEGORY_HISTORY_MAX_DESCRIPTIONS_PER_CATEGORY,
+      );
+      expect(result[0].recentDescriptions[0]).toEqual("description 0");
+      expect(
+        result[0].recentDescriptions[
+          CATEGORY_HISTORY_MAX_DESCRIPTIONS_PER_CATEGORY - 1
+        ],
+      ).toEqual(
+        `description ${CATEGORY_HISTORY_MAX_DESCRIPTIONS_PER_CATEGORY - 1}`,
+      );
+    });
+
+    it("should group multiple descriptions by categoryId", async () => {
+      // Arrange
+      const groceryCategory = fakeCategory({ isArchived: false });
+      const eatingOutCategory = fakeCategory({ isArchived: false });
+
+      const transactions = [
+        fakeTransaction({
+          categoryId: groceryCategory.id,
+          description: "whole foods",
+        }),
+        fakeTransaction({
+          categoryId: eatingOutCategory.id,
+          description: "pizza place",
+        }),
+        fakeTransaction({
+          categoryId: groceryCategory.id,
+          description: "costco",
+        }),
+        fakeTransaction({
+          categoryId: eatingOutCategory.id,
+          description: "sushi restaurant",
+        }),
+      ];
+
+      mockCategoryRepository.findAllByUserId.mockResolvedValue([
+        groceryCategory,
+        eatingOutCategory,
+      ]);
+      mockTransactionRepository.findActiveByUserId.mockResolvedValue(
+        buildTransactionConnection({ transactions }),
+      );
+
+      // Act
+      const result = await service.getCategories(userId, EntityScope.ACTIVE);
+
+      // Assert
+      const groceries = result.find(
+        (categoryData) => categoryData.id === groceryCategory.id,
+      );
+      const eatingOut = result.find(
+        (categoryData) => categoryData.id === eatingOutCategory.id,
+      );
+
+      expect(groceries?.recentDescriptions).toEqual(["whole foods", "costco"]);
+      expect(eatingOut?.recentDescriptions).toEqual([
+        "pizza place",
+        "sushi restaurant",
+      ]);
+    });
+
+    it("should deduplicate repeated descriptions", async () => {
+      // Arrange
+      const category = fakeCategory({ isArchived: false });
+      mockCategoryRepository.findAllByUserId.mockResolvedValue([category]);
+
+      // Create multiple transactions with the same description
+      const transactions = [
+        fakeTransaction({
+          categoryId: category.id,
+          description: "ice cream",
+        }),
+        fakeTransaction({
+          categoryId: category.id,
+          description: "ice cream",
+        }),
+        fakeTransaction({
+          categoryId: category.id,
+          description: "milk",
+        }),
+        fakeTransaction({
+          categoryId: category.id,
+          description: "milk",
+        }),
+      ];
+
+      mockTransactionRepository.findActiveByUserId.mockResolvedValue(
+        buildTransactionConnection({ transactions }),
+      );
+
+      // Act
+      const result = await service.getCategories(userId, EntityScope.ACTIVE);
+
+      // Assert - should only see unique descriptions
+      expect(result[0].recentDescriptions).toEqual(["ice cream", "milk"]);
+      expect(result[0].recentDescriptions).toHaveLength(2);
+    });
+
+    it("should paginate through all pages of transactions", async () => {
+      // Arrange
+      const category = fakeCategory({ isArchived: false });
+      mockCategoryRepository.findAllByUserId.mockResolvedValue([category]);
+
+      // Create transactions for multiple pages
+      const page1Transactions = Array.from({ length: 3 }, (_, index) =>
+        fakeTransaction({
+          categoryId: category.id,
+          description: `page1-desc${index}`,
+        }),
+      );
+
+      const page2Transactions = Array.from({ length: 2 }, (_, index) =>
+        fakeTransaction({
+          categoryId: category.id,
+          description: `page2-desc${index}`,
+        }),
+      );
+
+      // Mock multiple pages: first call returns page 1 with hasNextPage=true,
+      // second call returns page 2 with hasNextPage=false
+      mockTransactionRepository.findActiveByUserId
+        .mockResolvedValueOnce(
+          buildTransactionConnection({
+            transactions: page1Transactions,
+            hasNextPage: true,
+            endCursor: "cursor-page-1",
+          }),
+        )
+        .mockResolvedValueOnce(
+          buildTransactionConnection({
+            transactions: page2Transactions,
+            hasNextPage: false,
+          }),
+        );
+
+      // Act
+      const result = await service.getCategories(userId, EntityScope.ACTIVE);
+
+      // Assert
+      // Should have descriptions from both pages
+      expect(result[0].recentDescriptions).toHaveLength(5); // 3 from page1 + 2 from page 2
+      expect(result[0].recentDescriptions).toContain("page1-desc0");
+      expect(result[0].recentDescriptions).toContain("page2-desc0");
+
+      // Verify pagination was called twice with correct parameters
+      expect(
+        mockTransactionRepository.findActiveByUserId,
+      ).toHaveBeenCalledTimes(2);
+
+      // Extract filters from both calls
+      const call1Filters =
+        mockTransactionRepository.findActiveByUserId.mock.calls[0][2];
+      const call2Filters =
+        mockTransactionRepository.findActiveByUserId.mock.calls[1][2];
+
+      // Verify date filters are the same on both calls
+      expect(call1Filters?.dateAfter).toBe(call2Filters?.dateAfter);
+      expect(call1Filters?.dateBefore).toBe(call2Filters?.dateBefore);
+
+      // Verify date filters are valid DateString format (YYYY-MM-DD)
+      expect(isDateString(call1Filters?.dateAfter || "")).toBe(true);
+      expect(isDateString(call1Filters?.dateBefore || "")).toBe(true);
+
+      // Verify lookback is approximately CATEGORY_HISTORY_LOOKBACK_DAYS days (allow 1 day variance for execution time)
+      const dateAfter = new Date(call1Filters?.dateAfter || "");
+      const dateBefore = new Date(call1Filters?.dateBefore || "");
+      const daysDiff = daysBetween(dateAfter, dateBefore);
+      expect(daysDiff).toBeGreaterThanOrEqual(
+        CATEGORY_HISTORY_LOOKBACK_DAYS - 1,
+      );
+      expect(daysDiff).toBeLessThanOrEqual(CATEGORY_HISTORY_LOOKBACK_DAYS);
+
+      // First call with no cursor
+      expect(
+        mockTransactionRepository.findActiveByUserId,
+      ).toHaveBeenNthCalledWith(
+        1,
+        userId,
+        { first: MAX_PAGE_SIZE, after: undefined },
+        call1Filters,
+      );
+      // Second call with cursor from first page
+      expect(
+        mockTransactionRepository.findActiveByUserId,
+      ).toHaveBeenNthCalledWith(
+        2,
+        userId,
+        { first: MAX_PAGE_SIZE, after: "cursor-page-1" },
+        call2Filters,
+      );
     });
   });
 
