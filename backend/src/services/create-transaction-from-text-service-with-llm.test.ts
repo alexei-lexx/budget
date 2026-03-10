@@ -18,8 +18,12 @@ import { AgentDataService } from "./agent-data-service";
 import { CreateTransactionFromTextService } from "./create-transaction-from-text-service";
 import { TransactionService } from "./transaction-service";
 
+// Disable LLM tests by default to avoid accidental execution,
+// as they can be slow and may incur costs
+const describeLLM = process.env.RUN_LLM_TESTS ? describe : describe.skip;
+
 // Use [LLM] prefix to separate tests that require LLM from regular tests
-describe("[LLM] CreateTransactionFromTextService", () => {
+describeLLM("[LLM] CreateTransactionFromTextService", () => {
   const client = createDynamoDBDocumentClient();
   const accountRepository = new AccountRepository(client);
   const categoryRepository = new CategoryRepository(client);
