@@ -20,7 +20,8 @@ import { TransactionService } from "./transaction-service";
 
 // Disable LLM tests by default to avoid accidental execution,
 // as they can be slow and may incur costs
-const describeLLM = process.env.RUN_LLM_TESTS === "1" ? describe : describe.skip;
+const describeLLM =
+  process.env.RUN_LLM_TESTS === "1" ? describe : describe.skip;
 
 // Use [LLM] prefix to separate tests that require LLM from regular tests
 describeLLM("[LLM] CreateTransactionFromTextService", () => {
@@ -99,7 +100,7 @@ describeLLM("[LLM] CreateTransactionFromTextService", () => {
   it("should create expense transaction", async () => {
     // Arrange
     const account = await accountRepository.create(
-      fakeAccount({ userId: user.id }),
+      fakeAccount({ userId: user.id, currency: "EUR" }),
     );
     const category = await categoryRepository.create(
       fakeCategory({
@@ -124,7 +125,7 @@ describeLLM("[LLM] CreateTransactionFromTextService", () => {
   it("should create income transaction", async () => {
     // Arrange
     const account = await accountRepository.create(
-      fakeAccount({ userId: user.id }),
+      fakeAccount({ userId: user.id, currency: "EUR" }),
     );
     const category = await categoryRepository.create(
       fakeCategory({
@@ -149,13 +150,13 @@ describeLLM("[LLM] CreateTransactionFromTextService", () => {
   it("should create refund transaction", async () => {
     // Arrange
     const account = await accountRepository.create(
-      fakeAccount({ userId: user.id }),
+      fakeAccount({ userId: user.id, currency: "EUR" }),
     );
     const category = await categoryRepository.create(
       fakeCategory({
         userId: user.id,
         type: CategoryType.EXPENSE,
-        name: "wear",
+        name: "shoes",
       }),
     );
 
