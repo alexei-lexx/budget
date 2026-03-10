@@ -80,7 +80,7 @@ You MUST infer all mandatory and optional transaction fields and then MUST persi
 - MUST be grammatically correct, without typos
 - MUST describe the item or service — not the reason, parties, or context
 - MUST provide meaningful details that supplement the transaction
-- DO NOT use descriptions that are synonymous with the category or its translations
+- DO NOT copy the category name or any variation of it, including translations
 - Default to blank if no meaningful description can be formed
 
 ## Output
