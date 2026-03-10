@@ -50,6 +50,10 @@ jobs:
       - name: Wait for DynamoDB
         run: timeout 30 bash -c 'until curl -s http://localhost:8000/ > /dev/null 2>&1; do sleep 1; done'
 
+      - name: Setup test environment variables
+        working-directory: backend
+        run: cp .env.test.example .env.test
+
       - name: Create test database tables
         working-directory: backend
         run: npm run test:db:create
