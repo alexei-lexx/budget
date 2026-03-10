@@ -97,6 +97,10 @@ export class AgentDataService implements IAgentDataService {
       return category.isArchived;
     });
 
+    if (filteredCategories.length === 0) {
+      return [];
+    }
+
     // Build enriched category data with recent transaction descriptions
     const categoryData = filteredCategories.map((category) => ({
       id: category.id,
