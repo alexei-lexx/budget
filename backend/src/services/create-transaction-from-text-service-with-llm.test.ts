@@ -60,6 +60,7 @@ describeLLM("[LLM] CreateTransactionFromTextService", () => {
       process.env.ACCOUNTS_TABLE_NAME || "",
       process.env.CATEGORIES_TABLE_NAME || "",
       process.env.TRANSACTIONS_TABLE_NAME || "",
+      process.env.USERS_TABLE_NAME || "",
     ];
 
     for (const tableName of tables) {
