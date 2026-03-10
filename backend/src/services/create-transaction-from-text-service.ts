@@ -79,6 +79,7 @@ You MUST infer all mandatory and optional transaction fields and then MUST persi
 - Keep the original language of the user's text
 - MUST be grammatically correct, without typos
 - MUST describe the item or service — not the reason, parties, or context
+- MUST provide meaningful details that add value beyond what can be inferred from the category
 - Default to blank if no meaningful description can be formed
 
 ## Output
