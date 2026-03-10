@@ -18,7 +18,8 @@ import { AgentDataService } from "./agent-data-service";
 import { CreateTransactionFromTextService } from "./create-transaction-from-text-service";
 import { TransactionService } from "./transaction-service";
 
-describe("CreateTransactionFromTextService with LLM", () => {
+// Use [LLM] prefix to separate tests that require LLM from regular tests
+describe("[LLM] CreateTransactionFromTextService", () => {
   const client = createDynamoDBDocumentClient();
   const accountRepository = new AccountRepository(client);
   const categoryRepository = new CategoryRepository(client);

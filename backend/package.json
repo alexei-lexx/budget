@@ -27,7 +27,8 @@
     "test:db:drop": "dotenvx run -f .env.test --verbose -- tsx src/scripts/drop-tables.ts",
     "test:db:recreate": "npm run test:db:drop && npm run test:db:create",
     "test:db:setup": "npm run db:start && sleep 1 && npm run test:db:create",
-    "test": "dotenvx run -f .env.test -- jest",
+    "test": "dotenvx run -f .env.test -- jest --testNamePattern='^(?!.*\\[LLM\\]).*$'",
+    "test:llm": "dotenvx run -f .env.test -- jest --testNamePattern='\\[LLM\\]'",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
