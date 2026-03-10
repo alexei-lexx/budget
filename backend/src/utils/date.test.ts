@@ -1,5 +1,5 @@
 import { describe, expect, it } from "@jest/globals";
-import { daysBetween, formatDateAsYYYYMMDD } from "./date";
+import { daysAgo, daysBetween, formatDateAsYYYYMMDD } from "./date";
 
 describe("date utilities", () => {
   describe("formatDateAsYYYYMMDD", () => {
@@ -31,6 +31,25 @@ describe("date utilities", () => {
       expect(daysBetween(new Date("2000-01-01"), new Date("2001-01-01"))).toBe(
         366,
       );
+    });
+  });
+
+  describe("daysAgo", () => {
+    it("should return the correct date for 0 days ago", () => {
+      const today = new Date();
+      expect(daysAgo(today, 0)).toEqual(today);
+    });
+
+    it("should return the correct date for 1 day ago", () => {
+      const today = new Date();
+      const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
+      expect(daysAgo(today, 1)).toEqual(yesterday);
+    });
+
+    it("should return the correct date for multiple days ago", () => {
+      const today = new Date();
+      const pastDate = new Date(today.getTime() - 5 * 24 * 60 * 60 * 1000);
+      expect(daysAgo(today, 5)).toEqual(pastDate);
     });
   });
 });

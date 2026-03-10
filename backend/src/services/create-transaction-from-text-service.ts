@@ -66,7 +66,7 @@ You MUST infer all mandatory and optional transaction fields and then MUST persi
   1. Name match — category name mentioned in user input
   2. Signal match — synonyms, store names, product names imply a category
   3. History — most used category for similar transactions
-- MUST look up past transactions for history-based criteria — do not guess
+- May look up past transactions for history-based criteria — do not guess
 
 ### Date
 

@@ -5,8 +5,13 @@ import {
   TransactionFilterInput,
   TransactionType,
 } from "../models/transaction";
-import { DateString } from "../types/date";
+import { DateString, toDateString } from "../types/date";
 import { MAX_PAGE_SIZE } from "../types/pagination";
+import { daysAgo, formatDateAsYYYYMMDD } from "../utils/date";
+
+// Category history enrichment constants
+export const CATEGORY_HISTORY_LOOKBACK_DAYS = 90;
+export const CATEGORY_HISTORY_MAX_DESCRIPTIONS_PER_CATEGORY = 10;
 
 export interface AccountData {
   id: string;
@@ -20,6 +25,7 @@ export interface CategoryData {
   name: string;
   type: CategoryType;
   isArchived: boolean;
+  recentDescriptions: string[];
 }
 
 export interface TransactionData {
@@ -91,12 +97,26 @@ export class AgentDataService implements IAgentDataService {
       return category.isArchived;
     });
 
-    return filteredCategories.map((category) => ({
+    if (filteredCategories.length === 0) {
+      return [];
+    }
+
+    // Build enriched category data with recent transaction descriptions
+    const categoryData = filteredCategories.map((category) => ({
       id: category.id,
       name: category.name,
       type: category.type,
       isArchived: category.isArchived,
+      recentDescriptions: [],
     }));
+
+    // Enrich with recent transaction descriptions
+    const enrichedCategoryData = await this.enrichCategoriesWithHistory(
+      userId,
+      categoryData,
+    );
+
+    return enrichedCategoryData;
   }
 
   async getFilteredTransactions(
@@ -140,5 +160,60 @@ export class AgentDataService implements IAgentDataService {
     } while (cursor);
 
     return result;
+  }
+
+  private async enrichCategoriesWithHistory(
+    userId: string,
+    categories: CategoryData[],
+  ): Promise<CategoryData[]> {
+    // Calculate lookback date (90 days ago from today)
+    const today = new Date();
+    const lookbackDate = daysAgo(today, CATEGORY_HISTORY_LOOKBACK_DAYS);
+
+    const lookbackDateString = toDateString(formatDateAsYYYYMMDD(lookbackDate));
+    const todayString = toDateString(formatDateAsYYYYMMDD(today));
+
+    // Fetch all transactions within lookback window
+    const transactions = await this.getFilteredTransactions(
+      userId,
+      lookbackDateString,
+      todayString,
+    );
+
+    // Build set of returned category IDs for quick lookup
+    const categoryIdSet = new Set(categories.map((category) => category.id));
+
+    // Group unique descriptions by categoryId (filter, deduplicate, and group in single pass)
+    const descriptionsByCategory = new Map<string, Set<string>>();
+    for (const transaction of transactions) {
+      const { categoryId, description } = transaction;
+
+      // Skip if missing categoryId, description, or not in returned category set
+      if (!categoryId || !description || !categoryIdSet.has(categoryId)) {
+        continue;
+      }
+
+      if (!descriptionsByCategory.has(categoryId)) {
+        descriptionsByCategory.set(categoryId, new Set());
+      }
+
+      const descriptions = descriptionsByCategory.get(categoryId);
+      if (descriptions) {
+        // Cap at max unique descriptions per category
+        if (
+          descriptions.size < CATEGORY_HISTORY_MAX_DESCRIPTIONS_PER_CATEGORY
+        ) {
+          descriptions.add(description);
+        }
+      }
+    }
+
+    // Attach grouped descriptions to categories
+    return categories.map((category) => ({
+      ...category,
+      recentDescriptions: Array.from(
+        descriptionsByCategory.get(category.id) || [],
+      ),
+    }));
   }
 }

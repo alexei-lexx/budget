@@ -73,6 +73,7 @@ describe("agent-data-tools", () => {
         name: cat.name,
         type: cat.type,
         isArchived: cat.isArchived,
+        recentDescriptions: [],
       }));
       mockAgentDataService.getCategories.mockResolvedValue(categoriesData);
 
