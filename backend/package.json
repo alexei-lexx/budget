@@ -28,6 +28,7 @@
     "test:db:recreate": "npm run test:db:drop && npm run test:db:create",
     "test:db:setup": "npm run db:start && sleep 1 && npm run test:db:create",
     "test": "dotenvx run -f .env.test -- jest",
+    "test:llm": "RUN_LLM_TESTS=1 dotenvx run -f .env.test -- jest --testNamePattern='\\[LLM\\]' --testTimeout=60000",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
