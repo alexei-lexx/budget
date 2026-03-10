@@ -12,6 +12,8 @@ Web application for personal financial management.
 - **Monthly Reports** - See where your money goes each month with detailed category breakdowns
 - **Smart Suggestions** - Save time with intelligent account and category recommendations based on your habits
 - **Transaction Search** - Find any transaction by filtering on account, category, date, etc.
+- **Quick Transaction Entry** - Type a transaction like "coffee 4.50" and let AI learn from your past history, figure out missing details and create the transaction autonomously
+- **Ask About Your Money** - Ask questions about cash flow, spending habits or trends in any language and let AI analyze your transaction history and provide thoughtful answers
 
 ## Technologies
 
