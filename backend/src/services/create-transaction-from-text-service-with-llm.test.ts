@@ -74,7 +74,7 @@ describeLLM("[LLM] CreateTransactionFromTextService", () => {
     user = await userRepository.create(fakeUser());
   });
 
-  it("should should decline if there are no accounts", async () => {
+  it("should decline if there are no accounts", async () => {
     // Act
     const promise = service.call(user.id, "apples 10 euro");
 
