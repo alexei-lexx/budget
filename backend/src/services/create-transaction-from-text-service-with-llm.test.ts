@@ -25,7 +25,6 @@ const describeLLM =
 
 // Use [LLM] prefix to separate tests that require LLM from regular tests
 describeLLM("[LLM] CreateTransactionFromTextService", () => {
-  let client: ReturnType<typeof createDynamoDBDocumentClient>;
   let accountRepository: AccountRepository;
   let categoryRepository: CategoryRepository;
   let transactionRepository: TransactionRepository;
@@ -34,11 +33,10 @@ describeLLM("[LLM] CreateTransactionFromTextService", () => {
   let user: User;
 
   beforeAll(async () => {
-    client = createDynamoDBDocumentClient();
-    accountRepository = new AccountRepository(client);
-    categoryRepository = new CategoryRepository(client);
-    transactionRepository = new TransactionRepository(client);
-    userRepository = new UserRepository(client);
+    accountRepository = new AccountRepository();
+    categoryRepository = new CategoryRepository();
+    transactionRepository = new TransactionRepository();
+    userRepository = new UserRepository();
 
     const agentDataService = new AgentDataService(
       accountRepository,
@@ -64,7 +62,7 @@ describeLLM("[LLM] CreateTransactionFromTextService", () => {
 
   beforeEach(async () => {
     // Clean up tables before each test
-
+    const client = createDynamoDBDocumentClient();
     const tables = [
       process.env.ACCOUNTS_TABLE_NAME || "",
       process.env.CATEGORIES_TABLE_NAME || "",
