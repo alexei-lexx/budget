@@ -20,7 +20,7 @@ import { TransactionService } from "./transaction-service";
 
 // Disable LLM tests by default to avoid accidental execution,
 // as they can be slow and may incur costs
-const describeLLM = process.env.RUN_LLM_TESTS ? describe : describe.skip;
+const describeLLM = process.env.RUN_LLM_TESTS === "1" ? describe : describe.skip;
 
 // Use [LLM] prefix to separate tests that require LLM from regular tests
 describeLLM("[LLM] CreateTransactionFromTextService", () => {
