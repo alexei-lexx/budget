@@ -1,0 +1,13 @@
+{
+  "extraKnownMarketplaces": {
+    "my-claude-plugins": {
+      "source": {
+        "source": "github",
+        "repo": "alexei-lexx/claude-plugins"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "formatter@my-claude-plugins": true
+  }
+}
