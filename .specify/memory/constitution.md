@@ -1,4 +1,26 @@
 <!-- SYNC IMPACT REPORT
+Version Change: 0.27.0 → 0.28.0
+Changes:
+  - MINOR (0.28.0): Removed TypeScript Code Generation, Code Quality Validation, and Method Ordering
+    principles — relocated to the standalone `.claude/skills/generate-typescript-code` project skill
+Modified Sections:
+  - None
+Added Sections:
+  - None
+Removed Sections:
+  - TypeScript Code Generation: Rules moved to generate-typescript-code skill
+  - Code Quality Validation: Rules moved to generate-typescript-code skill
+  - Method Ordering: Rules moved to generate-typescript-code skill
+Templates Requiring Updates:
+  ✅ plan-template.md: Generic template, no references to removed principles
+  ✅ spec-template.md: Generic template, no references to removed principles
+  ✅ tasks-template.md: Generic template, no references to removed principles
+Dependent Documentation Updates:
+  - No template changes required (principles relocated, not eliminated)
+Follow-up TODOs:
+  - Ratification date remains TODO (inherited from previous versions)
+
+Previous Sync Impact Report:
 Version Change: 0.26.0 → 0.27.0
 Changes:
   - MINOR (0.27.0): Extracted code quality checks into new standalone principle with test-first workflow
@@ -513,66 +535,6 @@ Checks MUST follow this order:
 
 **Rationale**: Reduces maintenance, ensures consistency.
 
-### TypeScript Code Generation
-
-**Non-negotiable rule**: All generated or manually written TypeScript code MUST adhere to strict type safety and code quality standards.
-
-**Implementation**:
-- Avoid non-null assertions (`!`) unless absolutely necessary
-  - Document the reason when used
-- Avoid type assertions (`as any`) unless absolutely necessary
-  - Document the reason when used
-- Avoid unnecessary type checks (`typeof`, non-null checks, non-undefined checks) when the provided type is explicit and doesn't require such checks
-- Use descriptive names for all variables, methods, parameters, and types
-  - Avoid single-character names (except standard loop indices: `i`, `j`, `k`)
-  - Avoid abbreviated forms that obscure meaning
-  - Avoid shortened versions (e.g., use `user` instead of `usr`, `transaction` instead of `tx`)
-  - Keep names concise while prioritizing clarity over brevity
-
-**Rationale**: Maintains type safety, prevents runtime errors, ensures code quality, improves code readability and API discoverability.
-
-### Code Quality Validation
-
-**Non-negotiable rule**: All code changes MUST pass a mandatory validation pipeline to ensure type safety, test coverage, and code quality before completion.
-
-**Workflow** (in order):
-1. **Test the changed file** (if tests exist for the changed code)
-   - Run tests for only the changed file or unit: `npm test -- path/to/file.test.ts`
-   - Fix any failures
-   - This gates proceeding to the next step
-2. **Run full test suite** (if tests exist for the package)
-   - Run `npm test` from the package root
-   - Ensure no regressions introduced by changes
-   - If full suite fails, debug and fix before proceeding
-3. **Run typecheck and linting**
-   - Run `npm run typecheck` to catch and fix TypeScript compilation issues
-   - Run `npm run format` and fix all ESLint issues
-   - Resolve all errors before considering changes complete
-
-**Exceptions**:
-- If the changed file has no test file, proceed to step 2 (full suite)
-- If the package has no test suite configured, proceed to step 3 (typecheck/lint)
-
-**Rationale**: Iterative validation catches errors early and locally, prevents broken code from entering version control, maintains quality standards across all changes.
-
-### Method Ordering
-
-**Non-negotiable rule**: Methods within a class MUST follow a consistent ordering that exposes the public API first and places higher-level logic above the details it depends on.
-
-**Rules** (listed by priority — earlier rules take precedence over later ones):
-1. **Public before private**
-   - All public methods MUST appear before all private methods
-2. **Reads before writes** (CRUD classes only)
-   - Reads MUST come before writes
-   - Reads (in order): find one, find many, other reads (aggregations, calculations)
-   - Writes (in order): create one, create many, update one, update many, delete one/archive one, delete many/archive many
-3. **Stepdown Rule**
-   - Caller MUST appear above the methods it calls
-
-**Test files**: `describe` blocks MUST mirror the method order of the source class.
-
-**Rationale**: Consistent ordering makes the public API immediately visible, places non-mutating operations before mutations, and keeps test files predictably aligned with their source.
-
 ## Governance
 
 This constitution supersedes all other development guidelines. Amendments require documentation in the sync impact report and ratification by the team.
@@ -584,4 +546,4 @@ This constitution supersedes all other development guidelines. Amendments requir
 4. Commit with message: `docs: amend constitution to vX.Y.Z ([change summary])`
 5. Update dependent artifacts (templates, guidance docs) as flagged
 
-**Version**: 0.27.0 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2026-03-03
+**Version**: 0.28.0 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2026-03-11
