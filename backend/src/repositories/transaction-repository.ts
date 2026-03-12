@@ -40,7 +40,7 @@ import {
   transactionSchema,
 } from "./schemas/transaction";
 import { hydrate } from "./utils/hydrate";
-import { paginateQuery } from "./utils/pagination";
+import { paginateQuery } from "./utils/query";
 
 /**
  * Monotonic ULID factory for generating sortable identifiers
@@ -505,7 +505,7 @@ export class TransactionRepository implements ITransactionRepository {
               },
             }),
           },
-          options: { pageSize: first },
+          pageSize: first,
           schema: transactionDbItemSchema,
         });
 
@@ -612,7 +612,7 @@ export class TransactionRepository implements ITransactionRepository {
             ":isArchived": false,
           },
         },
-        options: {}, // No pageSize = get all items
+        pageSize: undefined, // No pageSize = get all items
         schema: transactionSchema,
       });
 
@@ -652,7 +652,7 @@ export class TransactionRepository implements ITransactionRepository {
             ":isArchived": false,
           },
         },
-        options: {}, // No pageSize = get all items
+        pageSize: undefined, // No pageSize = get all items
         schema: transactionSchema,
       });
 
@@ -745,7 +745,7 @@ export class TransactionRepository implements ITransactionRepository {
           },
           ScanIndexForward: true, // Sort by date ascending
         },
-        options: {}, // No pageSize = get all items
+        pageSize: undefined, // No pageSize = get all items
         schema: transactionSchema,
       });
 
@@ -802,7 +802,7 @@ export class TransactionRepository implements ITransactionRepository {
           },
           ScanIndexForward: false, // Newest first (descending createdAtSortable order)
         },
-        options: { pageSize: limit },
+        pageSize: limit,
         schema: transactionSchema,
       });
 
@@ -899,7 +899,7 @@ export class TransactionRepository implements ITransactionRepository {
           },
           ScanIndexForward: false, // Newest first
         },
-        options: { pageSize: sampleSize }, // Limit to sampleSize transactions
+        pageSize: sampleSize, // Limit to sampleSize transactions
         schema: transactionSchema,
       });
 

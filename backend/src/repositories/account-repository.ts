@@ -16,7 +16,7 @@ import {
 import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
 import { accountSchema } from "./schemas/account";
 import { hydrate } from "./utils/hydrate";
-import { paginateQuery } from "./utils/pagination";
+import { paginateQuery } from "./utils/query";
 
 /**
  * Repository error class for better error handling
@@ -68,7 +68,7 @@ export class AccountRepository implements IAccountRepository {
             ":isArchived": false,
           },
         },
-        options: {}, // No pageSize = get all items
+        pageSize: undefined, // No pageSize = get all items
         schema: accountSchema,
       });
 
@@ -106,7 +106,7 @@ export class AccountRepository implements IAccountRepository {
             ":userId": userId,
           },
         },
-        options: {}, // No pageSize = get all items
+        pageSize: undefined, // No pageSize = get all items
         schema: accountSchema,
       });
 

@@ -17,7 +17,7 @@ import {
 import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
 import { categorySchema } from "./schemas/category";
 import { hydrate } from "./utils/hydrate";
-import { paginateQuery } from "./utils/pagination";
+import { paginateQuery } from "./utils/query";
 
 /**
  * Repository error class for better error handling
@@ -78,7 +78,7 @@ export class CategoryRepository implements ICategoryRepository {
             ":isArchived": false,
           },
         },
-        options: {}, // No pageSize = get all items
+        pageSize: undefined, // No pageSize = get all items
         schema: categorySchema,
       });
 
@@ -113,7 +113,7 @@ export class CategoryRepository implements ICategoryRepository {
             ":userId": userId,
           },
         },
-        options: {}, // No pageSize = get all items
+        pageSize: undefined, // No pageSize = get all items
         schema: categorySchema,
       });
 
@@ -155,7 +155,7 @@ export class CategoryRepository implements ICategoryRepository {
             ":type": type,
           },
         },
-        options: {}, // No pageSize = get all items
+        pageSize: undefined, // No pageSize = get all items
         schema: categorySchema,
       });
 
