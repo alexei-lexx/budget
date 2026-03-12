@@ -1,5 +1,5 @@
 import { faker } from "@faker-js/faker";
-import { type Agent } from "../models/agent";
+import { type Agent } from "./ports/agent";
 import { toDateString } from "../types/date";
 import { YEAR_RANGE_OFFSET } from "../types/validation";
 import { createMockAgentDataService } from "../utils/test-utils/mock-services";

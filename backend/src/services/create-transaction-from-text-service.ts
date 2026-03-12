@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { Agent, ToolExecution } from "../models/agent";
+import { Agent, ToolExecution } from "./ports/agent";
 import { Transaction } from "../models/transaction";
 import { formatDateAsYYYYMMDD } from "../utils/date";
 import { IAgentDataService } from "./agent-data-service";

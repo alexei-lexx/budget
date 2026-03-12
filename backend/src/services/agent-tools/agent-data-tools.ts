@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ToolSignature } from "../../models/agent";
+import { ToolSignature } from "../ports/agent";
 import { TransactionType } from "../../models/transaction";
 import { toDateString } from "../../types/date";
 import { daysBetween } from "../../utils/date";

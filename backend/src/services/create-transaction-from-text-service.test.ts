@@ -1,5 +1,5 @@
 import { faker } from "@faker-js/faker";
-import { type Agent, ToolSignature } from "../models/agent";
+import { type Agent, ToolSignature } from "./ports/agent";
 import { fakeTransaction } from "../utils/test-utils/factories";
 import { createMockAgentDataService } from "../utils/test-utils/mock-services";
 import { type IAgentDataService } from "./agent-data-service";
