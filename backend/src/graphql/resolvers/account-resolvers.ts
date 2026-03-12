@@ -3,9 +3,9 @@ import {
   MutationCreateAccountArgs,
   MutationDeleteAccountArgs,
   MutationUpdateAccountArgs,
-} from "../__generated__/resolvers-types";
-import { GraphQLContext } from "../server";
-import { SUPPORTED_CURRENCIES } from "../types/validation";
+} from "../../__generated__/resolvers-types";
+import { SUPPORTED_CURRENCIES } from "../../types/validation";
+import { GraphQLContext } from "../context";
 import { getAuthenticatedUser, handleResolverError } from "./shared";
 
 export const accountResolvers = {

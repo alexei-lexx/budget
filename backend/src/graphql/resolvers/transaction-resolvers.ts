@@ -6,18 +6,19 @@ import {
   QueryTransactionDescriptionSuggestionsArgs,
   QueryTransactionPatternsArgs,
   QueryTransactionsArgs,
-} from "../__generated__/resolvers-types";
+} from "../../__generated__/resolvers-types";
 import {
   NonTransferTransactionType,
   Transaction as TransactionModel,
   TransactionType,
-} from "../models/transaction";
-import { GraphQLContext } from "../server";
-import { toDateString, toDateStringOrUndefined } from "../types/date";
+} from "../../models/transaction";
+
+import { toDateString, toDateStringOrUndefined } from "../../types/date";
+import { GraphQLContext } from "../context";
 import type {
   TransactionEmbeddedAccount,
   TransactionEmbeddedCategory,
-} from "../types/graphql";
+} from "../embedded-types";
 import { getAuthenticatedUser, handleResolverError } from "./shared";
 
 function parseNonTransferType(

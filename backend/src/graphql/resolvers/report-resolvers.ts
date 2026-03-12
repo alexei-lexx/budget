@@ -1,5 +1,6 @@
-import { QueryMonthlyReportArgs } from "../__generated__/resolvers-types";
-import { GraphQLContext } from "../server";
+import { QueryMonthlyReportArgs } from "../../__generated__/resolvers-types";
+import { GraphQLContext } from "../context";
+
 import { getAuthenticatedUser, handleResolverError } from "./shared";
 
 export const reportResolvers = {

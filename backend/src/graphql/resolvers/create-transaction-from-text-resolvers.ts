@@ -1,5 +1,6 @@
-import { MutationCreateTransactionFromTextArgs } from "../__generated__/resolvers-types";
-import { GraphQLContext } from "../server";
+import { MutationCreateTransactionFromTextArgs } from "../../__generated__/resolvers-types";
+import { GraphQLContext } from "../context";
+
 import { getAuthenticatedUser, handleResolverError } from "./shared";
 
 export const createTransactionFromTextResolvers = {

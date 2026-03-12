@@ -1,6 +1,6 @@
-import { QueryInsightArgs } from "../__generated__/resolvers-types";
-import { GraphQLContext } from "../server";
-import { toDateString } from "../types/date";
+import { QueryInsightArgs } from "../../__generated__/resolvers-types";
+import { toDateString } from "../../types/date";
+import { GraphQLContext } from "../context";
 import { getAuthenticatedUser, handleResolverError } from "./shared";
 
 export const insightResolvers = {

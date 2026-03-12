@@ -2,13 +2,13 @@ import type { CodegenConfig } from "@graphql-codegen/cli";
 
 const config: CodegenConfig = {
   overwrite: true,
-  schema: "src/schema.graphql",
+  schema: "src/graphql/schema.graphql",
   generates: {
     "src/__generated__/resolvers-types.ts": {
       plugins: ["typescript", "typescript-resolvers"],
       config: {
         // Provides GraphQL context type with auth, repositories, and services
-        contextType: "../server#GraphQLContext",
+        contextType: "../graphql/context#GraphQLContext",
         // Inputs distinguish null (client wants to clear/overwrite field) from undefined (field not set, leave unchanged)
         // This PATCH semantics difference is essential; TypeScript must type both so code that crashes on null is caught
         inputMaybeValue: "T | null | undefined",
