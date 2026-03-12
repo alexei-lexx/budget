@@ -146,9 +146,6 @@ export async function createContext(req: {
   > = {
     auth,
     userRepository,
-    accountRepository,
-    categoryRepository,
-    transactionRepository,
     categoryService,
     transactionService,
     accountService,

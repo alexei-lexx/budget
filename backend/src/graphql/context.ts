@@ -5,9 +5,6 @@ import { CategoryService } from "../services/category-service";
 import { CreateTransactionFromTextService } from "../services/create-transaction-from-text-service";
 import { InsightService } from "../services/insight-service";
 import { MonthlyByCategoryReportService } from "../services/monthly-by-category-report-service";
-import { IAccountRepository } from "../services/ports/account-repository";
-import { ICategoryRepository } from "../services/ports/category-repository";
-import { ITransactionRepository } from "../services/ports/transaction-repository";
 import { IUserRepository } from "../services/ports/user-repository";
 import { TransactionService } from "../services/transaction-service";
 import { TransferService } from "../services/transfer-service";
@@ -19,9 +16,6 @@ import {
 export interface GraphQLContext {
   auth: AuthContext;
   userRepository: IUserRepository;
-  accountRepository: IAccountRepository;
-  categoryRepository: ICategoryRepository;
-  transactionRepository: ITransactionRepository;
   categoryService: CategoryService;
   transactionService: TransactionService;
   accountService: AccountService;
