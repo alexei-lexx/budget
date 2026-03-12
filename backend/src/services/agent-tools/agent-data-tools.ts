@@ -1,9 +1,9 @@
 import { z } from "zod";
-import { ToolSignature } from "../ports/agent";
 import { TransactionType } from "../../models/transaction";
 import { toDateString } from "../../types/date";
 import { daysBetween } from "../../utils/date";
 import { EntityScope, IAgentDataService } from "../agent-data-service";
+import { ToolSignature } from "../ports/agent";
 import {
   CreateTransactionServiceInput,
   TransactionService,
