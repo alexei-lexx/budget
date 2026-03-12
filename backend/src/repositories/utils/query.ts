@@ -6,13 +6,7 @@ import {
 import { z } from "zod";
 import { hydrate } from "./hydrate";
 
-export type QueryParams = QueryCommandInput;
-
-export interface PaginationOptions {
-  pageSize?: number; // undefined = get all items
-}
-
-export interface PaginationResult<T> {
+export interface QueryResult<T> {
   items: T[];
   hasNextPage: boolean;
 }
@@ -21,25 +15,23 @@ export interface PaginationResult<T> {
  * Unified pagination function that handles both paginated and "get all" queries
  * @param client - DynamoDB Document Client
  * @param params - Query parameters
- * @param options - Pagination options (pageSize undefined = get all items)
+ * @param pageSize - Number of items per page (undefined = get all items)
  * @param schema - Zod schema for item hydration
  * @param accumulatedItems - Accumulator for recursive calls
  */
 export async function paginateQuery<T>({
   client,
   params,
-  options = {},
+  pageSize,
   schema,
   accumulatedItems = [],
 }: {
   client: DynamoDBDocumentClient;
-  params: QueryParams;
-  options?: PaginationOptions;
+  params: QueryCommandInput;
+  pageSize?: number;
   schema: z.ZodType<T>;
   accumulatedItems?: T[];
-}): Promise<PaginationResult<T>> {
-  const { pageSize } = options;
-
+}): Promise<QueryResult<T>> {
   // Calculate how many more items we need
   const itemsNeedeCount = pageSize
     ? pageSize - accumulatedItems.length
@@ -73,7 +65,7 @@ export async function paginateQuery<T>({
         ...params,
         ExclusiveStartKey: result.LastEvaluatedKey,
       },
-      options,
+      pageSize,
       schema,
       accumulatedItems: newAccumulatedItems,
     });

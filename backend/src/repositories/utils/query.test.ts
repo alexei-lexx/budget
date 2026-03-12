@@ -1,6 +1,6 @@
 import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 import { ZodError, z } from "zod";
-import { paginateQuery } from "./pagination";
+import { paginateQuery } from "./query";
 
 describe("paginateQuery", () => {
   const testSchema = z.object({
@@ -122,7 +122,7 @@ describe("paginateQuery", () => {
     const result = await paginateQuery<TestItem>({
       client: mockClient,
       params: { TableName: "test" },
-      options: { pageSize: 2 },
+      pageSize: 2,
       schema: testSchema,
     });
 
