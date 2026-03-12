@@ -2,8 +2,8 @@
   "name": "backend",
   "version": "1.0.0",
   "scripts": {
-    "build:bundle:graphql": "esbuild src/lambdas/graphql.ts --bundle --platform=node --external:@aws-sdk/* --outfile=dist/graphql.js",
-    "build:bundle:migrate": "esbuild src/lambdas/migrate.ts --bundle --platform=node --external:@aws-sdk/* --outfile=dist/migrate.js",
+    "build:bundle:graphql": "esbuild src/lambdas/graphql.ts --bundle --platform=node --external:@aws-sdk/* --outfile=dist/graphql-lambda.js",
+    "build:bundle:migrate": "esbuild src/lambdas/migrate.ts --bundle --platform=node --external:@aws-sdk/* --outfile=dist/migrate-lambda.js",
     "build:bundle": "npm run build:bundle:graphql && npm run build:bundle:migrate",
     "build:clean": "rm -rf dist",
     "build:schema": "mkdir -p dist/graphql && cp src/graphql/schema.graphql dist/graphql/",

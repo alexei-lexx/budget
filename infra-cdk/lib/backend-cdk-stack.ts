@@ -133,7 +133,7 @@ export class BackendCdkStack extends cdk.Stack {
 
     const graphqlFunction = new lambda.Function(this, "GraphqlEndpoint", {
       ...functionConfig,
-      handler: "graphql.handler",
+      handler: "graphql-lambda.handler",
       logGroup: graphqlLogGroup,
       role: graphqlRole,
     });
@@ -167,7 +167,7 @@ export class BackendCdkStack extends cdk.Stack {
 
     const migrationFunction = new lambda.Function(this, "MigrationRunner", {
       ...functionConfig,
-      handler: "migrate.handler",
+      handler: "migrate-lambda.handler",
       timeout: cdk.Duration.minutes(15),
       logGroup: migrationLogGroup,
       role: migrationRole,
