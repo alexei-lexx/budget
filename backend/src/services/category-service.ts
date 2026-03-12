@@ -1,12 +1,11 @@
+import { Category, CategoryType } from "../models/category";
+import { NAME_MAX_LENGTH, NAME_MIN_LENGTH } from "../types/validation";
+import { BusinessError, BusinessErrorCodes } from "./business-error";
 import {
-  Category,
-  CategoryType,
   CreateCategoryInput,
   ICategoryRepository,
   UpdateCategoryInput,
-} from "../models/category";
-import { NAME_MAX_LENGTH, NAME_MIN_LENGTH } from "../types/validation";
-import { BusinessError, BusinessErrorCodes } from "./business-error";
+} from "./ports/category-repository";
 
 /**
  * Category service class for handling business logic

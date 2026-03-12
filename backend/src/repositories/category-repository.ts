@@ -7,13 +7,12 @@ import {
   PutCommand,
   UpdateCommand,
 } from "@aws-sdk/lib-dynamodb";
+import { Category, CategoryType } from "../models/category";
 import {
-  Category,
-  CategoryType,
   CreateCategoryInput,
   ICategoryRepository,
   UpdateCategoryInput,
-} from "../models/category";
+} from "../services/ports/category-repository";
 import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
 import { categorySchema } from "./schemas/category";
 import { hydrate } from "./utils/hydrate";

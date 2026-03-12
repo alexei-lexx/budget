@@ -1,4 +1,3 @@
-import { Agent } from "../models/agent";
 import { DateString } from "../types/date";
 import { YEAR_RANGE_OFFSET } from "../types/validation";
 import { daysBetween, formatDateAsYYYYMMDD } from "../utils/date";
@@ -15,6 +14,7 @@ import {
   sumTool,
 } from "./agent-tools/agent-math-tools";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
+import { Agent } from "./ports/agent";
 
 const SYSTEM_PROMPT = `
 ## Role

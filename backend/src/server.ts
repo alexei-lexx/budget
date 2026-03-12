@@ -1,21 +1,17 @@
 import { readFileSync } from "fs";
 import { join } from "path";
 import { ApolloServer } from "@apollo/server";
-import DataLoader from "dataloader";
 import { ReActAgent } from "./agents/react-agent";
-import { AuthContext, JwtAuthService } from "./auth/jwt-auth";
-import { createAccountLoader } from "./dataloaders/account-loader";
-import { createCategoryLoader } from "./dataloaders/category-loader";
-import { IAccountRepository } from "./models/account";
-import { ICategoryRepository } from "./models/category";
-import { ITransactionRepository } from "./models/transaction";
-import { IUserRepository } from "./models/user";
+import { JwtAuthService } from "./auth/jwt-auth";
+import { GraphQLContext } from "./graphql/context";
+import { createAccountLoader } from "./graphql/dataloaders/account-loader";
+import { createCategoryLoader } from "./graphql/dataloaders/category-loader";
+import { resolvers } from "./graphql/resolvers";
+import { getAuthenticatedUser } from "./graphql/resolvers/shared";
 import { AccountRepository } from "./repositories/account-repository";
 import { CategoryRepository } from "./repositories/category-repository";
 import { TransactionRepository } from "./repositories/transaction-repository";
 import { UserRepository } from "./repositories/user-repository";
-import { resolvers } from "./resolvers";
-import { getAuthenticatedUser } from "./resolvers/shared";
 import { AccountService } from "./services/account-service";
 import { AgentDataService } from "./services/agent-data-service";
 import { CategoryService } from "./services/category-service";
@@ -24,30 +20,7 @@ import { InsightService } from "./services/insight-service";
 import { MonthlyByCategoryReportService } from "./services/monthly-by-category-report-service";
 import { TransactionService } from "./services/transaction-service";
 import { TransferService } from "./services/transfer-service";
-import type {
-  TransactionEmbeddedAccount,
-  TransactionEmbeddedCategory,
-} from "./types/graphql";
 import { createBedrockChatModel } from "./utils/bedrock";
-
-export interface GraphQLContext {
-  auth: AuthContext;
-  userRepository: IUserRepository;
-  accountRepository: IAccountRepository;
-  categoryRepository: ICategoryRepository;
-  transactionRepository: ITransactionRepository;
-  categoryService: CategoryService;
-  transactionService: TransactionService;
-  accountService: AccountService;
-  insightService: InsightService;
-  createTransactionFromTextService: CreateTransactionFromTextService;
-  transferService: TransferService;
-  monthlyByCategoryReportService: MonthlyByCategoryReportService;
-  jwtAuthService: JwtAuthService;
-  authHeader?: string;
-  accountLoader: DataLoader<string, TransactionEmbeddedAccount>;
-  categoryLoader: DataLoader<string, TransactionEmbeddedCategory>;
-}
 
 let jwtAuthService: JwtAuthService;
 let userRepository: UserRepository;
@@ -62,7 +35,7 @@ let createTransactionFromTextService: CreateTransactionFromTextService;
 let transferService: TransferService;
 let monthlyByCategoryReportService: MonthlyByCategoryReportService;
 
-const typeDefs = readFileSync(join(__dirname, "schema.graphql"), {
+const typeDefs = readFileSync(join(__dirname, "graphql/schema.graphql"), {
   encoding: "utf-8",
 });
 
@@ -173,9 +146,6 @@ export async function createContext(req: {
   > = {
     auth,
     userRepository,
-    accountRepository,
-    categoryRepository,
-    transactionRepository,
     categoryService,
     transactionService,
     accountService,

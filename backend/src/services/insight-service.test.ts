@@ -1,5 +1,4 @@
 import { faker } from "@faker-js/faker";
-import { type Agent } from "../models/agent";
 import { toDateString } from "../types/date";
 import { YEAR_RANGE_OFFSET } from "../types/validation";
 import { createMockAgentDataService } from "../utils/test-utils/mock-services";
@@ -7,6 +6,7 @@ import { type IAgentDataService } from "./agent-data-service";
 import { MAX_PERIOD_DAYS } from "./agent-tools/agent-data-tools";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
 import { type InsightInput, InsightService } from "./insight-service";
+import { type Agent } from "./ports/agent";
 
 const createMockAgent = (): jest.Mocked<Agent> => ({
   call: jest.fn(),

@@ -3,9 +3,10 @@ import {
   MutationDeleteTransferArgs,
   MutationUpdateTransferArgs,
   QueryTransferArgs,
-} from "../__generated__/resolvers-types";
-import { GraphQLContext } from "../server";
-import { toDateString, toDateStringOrUndefined } from "../types/date";
+} from "../../__generated__/resolvers-types";
+
+import { toDateString, toDateStringOrUndefined } from "../../types/date";
+import { GraphQLContext } from "../context";
 import { getAuthenticatedUser, handleResolverError } from "./shared";
 
 export const transferResolvers = {

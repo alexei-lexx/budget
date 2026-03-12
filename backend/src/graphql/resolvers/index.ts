@@ -1,4 +1,4 @@
-import { Resolvers } from "../__generated__/resolvers-types";
+import { Resolvers } from "../../__generated__/resolvers-types";
 import { accountResolvers } from "./account-resolvers";
 import { categoryResolvers } from "./category-resolvers";
 import { createTransactionFromTextResolvers } from "./create-transaction-from-text-resolvers";

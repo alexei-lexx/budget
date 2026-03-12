@@ -1,6 +1,9 @@
 import { GraphQLError } from "graphql";
-import { BusinessError, BusinessErrorCodes } from "../services/business-error";
-import { InvalidDateStringError } from "../types/date";
+import {
+  BusinessError,
+  BusinessErrorCodes,
+} from "../../services/business-error";
+import { InvalidDateStringError } from "../../types/date";
 import { handleResolverError } from "./shared";
 
 describe("handleResolverError", () => {

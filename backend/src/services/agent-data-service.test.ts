@@ -1,12 +1,6 @@
 import { faker } from "@faker-js/faker";
-import { IAccountRepository } from "../models/account";
-import { CategoryType, ICategoryRepository } from "../models/category";
-import {
-  ITransactionRepository,
-  Transaction,
-  TransactionConnection,
-  TransactionType,
-} from "../models/transaction";
+import { CategoryType } from "../models/category";
+import { Transaction, TransactionType } from "../models/transaction";
 import { isDateString, toDateString } from "../types/date";
 import { MAX_PAGE_SIZE } from "../types/pagination";
 import { daysBetween } from "../utils/date";
@@ -26,6 +20,12 @@ import {
   CATEGORY_HISTORY_MAX_DESCRIPTIONS_PER_CATEGORY,
   EntityScope,
 } from "./agent-data-service";
+import { IAccountRepository } from "./ports/account-repository";
+import { ICategoryRepository } from "./ports/category-repository";
+import {
+  ITransactionRepository,
+  TransactionConnection,
+} from "./ports/transaction-repository";
 
 function buildTransactionConnection(input?: {
   endCursor?: string;

@@ -1,10 +1,10 @@
 import { faker } from "@faker-js/faker";
-import { type Agent, ToolSignature } from "../models/agent";
 import { fakeTransaction } from "../utils/test-utils/factories";
 import { createMockAgentDataService } from "../utils/test-utils/mock-services";
 import { type IAgentDataService } from "./agent-data-service";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
 import { CreateTransactionFromTextService } from "./create-transaction-from-text-service";
+import { type Agent, ToolSignature } from "./ports/agent";
 import { TransactionService } from "./transaction-service";
 
 const createMockAgent = (): jest.Mocked<Agent> => ({

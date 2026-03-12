@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { Agent, ToolExecution } from "../models/agent";
 import { Transaction } from "../models/transaction";
 import { formatDateAsYYYYMMDD } from "../utils/date";
 import { IAgentDataService } from "./agent-data-service";
@@ -10,6 +9,7 @@ import {
   createGetTransactionsTool,
 } from "./agent-tools/agent-data-tools";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
+import { Agent, ToolExecution } from "./ports/agent";
 import { TransactionService } from "./transaction-service";
 
 const SYSTEM_PROMPT = `

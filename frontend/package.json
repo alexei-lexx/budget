@@ -6,7 +6,7 @@
   "scripts": {
     "build-only": "vite build",
     "build": "npm run codegen && run-p typecheck \"build-only {@}\" --",
-    "codegen:sync-schema": "cp ../backend/src/schema.graphql src/schema.graphql",
+    "codegen:sync-schema": "cp ../backend/src/graphql/schema.graphql src/schema.graphql",
     "codegen": "npm run codegen:sync-schema && graphql-codegen",
     "dev": "npm run codegen && vite",
     "format": "npm run prettier:fix && npm run lint:fix",

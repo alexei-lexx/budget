@@ -241,7 +241,7 @@ graph TD
 **Non-negotiable rule**: GraphQL schema is the single source of truth for API contracts. All API changes begin with schema modification.
 
 **Development Process**:
-- Backend GraphQL schema defined at `backend/src/schema.graphql` (canonical source)
+- Backend GraphQL schema defined at `backend/src/graphql/schema.graphql` (canonical source)
 - Before making any change, read the schema
 - Start all API changes with schema updates
 - Backend generates TypeScript types via `npm run codegen` after schema changes

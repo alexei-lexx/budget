@@ -1,13 +1,13 @@
-import { ICategoryRepository } from "../models/category";
 import { ReportType } from "../models/report";
 import {
-  ITransactionRepository,
   Transaction,
   TransactionType,
   getSignedAmount,
 } from "../models/transaction";
 import { YEAR_RANGE_OFFSET } from "../types/validation";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
+import { ICategoryRepository } from "./ports/category-repository";
+import { ITransactionRepository } from "./ports/transaction-repository";
 
 const UNCATEGORIZED_LABEL = "Uncategorized";
 const TOP_TRANSACTIONS_LIMIT = 5;

@@ -1,10 +1,10 @@
 import { GraphQLError } from "graphql";
-import { User } from "../models/user";
-import { AccountRepositoryError } from "../repositories/account-repository";
-import { CategoryRepositoryError } from "../repositories/category-repository";
-import { GraphQLContext } from "../server";
-import { BusinessError } from "../services/business-error";
-import { InvalidDateStringError } from "../types/date";
+import { User } from "../../models/user";
+import { AccountRepositoryError } from "../../repositories/account-repository";
+import { CategoryRepositoryError } from "../../repositories/category-repository";
+import { BusinessError } from "../../services/business-error";
+import { InvalidDateStringError } from "../../types/date";
+import { GraphQLContext } from "../context";
 
 /**
  * Helper function to check authentication and return auth user

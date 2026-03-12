@@ -1,16 +1,17 @@
-import {
-  Account,
-  CreateAccountInput,
-  IAccountRepository,
-  UpdateAccountInput,
-} from "../models/account";
-import { ITransactionRepository, getSignedAmount } from "../models/transaction";
+import { Account } from "../models/account";
+import { getSignedAmount } from "../models/transaction";
 import {
   NAME_MAX_LENGTH,
   NAME_MIN_LENGTH,
   SUPPORTED_CURRENCIES,
 } from "../types/validation";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
+import {
+  CreateAccountInput,
+  IAccountRepository,
+  UpdateAccountInput,
+} from "./ports/account-repository";
+import { ITransactionRepository } from "./ports/transaction-repository";
 
 /**
  * Account service class for handling business logic and cross-repository operations

@@ -6,7 +6,11 @@ import {
   QueryCommand,
   ScanCommand,
 } from "@aws-sdk/lib-dynamodb";
-import { CreateUserInput, IUserRepository, User } from "../models/user";
+import { User } from "../models/user";
+import {
+  CreateUserInput,
+  IUserRepository,
+} from "../services/ports/user-repository";
 import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
 import { normalizeEmail } from "../utils/email";
 import { userSchema } from "./schemas/user";

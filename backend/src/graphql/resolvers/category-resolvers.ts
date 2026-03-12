@@ -4,8 +4,8 @@ import {
   MutationDeleteCategoryArgs,
   MutationUpdateCategoryArgs,
   QueryCategoriesArgs,
-} from "../__generated__/resolvers-types";
-import { GraphQLContext } from "../server";
+} from "../../__generated__/resolvers-types";
+import { GraphQLContext } from "../context";
 import { getAuthenticatedUser, handleResolverError } from "./shared";
 
 export const categoryResolvers = {

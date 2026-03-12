@@ -6,7 +6,7 @@ import {
   AgentMessage,
   ToolExecution,
   ToolSignature,
-} from "../models/agent";
+} from "../services/ports/agent";
 
 export class ReActAgent implements Agent {
   constructor(private model: BaseChatModel) {}
