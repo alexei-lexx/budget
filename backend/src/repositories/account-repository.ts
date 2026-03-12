@@ -7,12 +7,12 @@ import {
   PutCommand,
   UpdateCommand,
 } from "@aws-sdk/lib-dynamodb";
+import { Account } from "../models/account";
 import {
-  Account,
   CreateAccountInput,
   IAccountRepository,
   UpdateAccountInput,
-} from "../models/account";
+} from "../services/ports/account-repository";
 import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
 import { accountSchema } from "./schemas/account";
 import { hydrate } from "./utils/hydrate";

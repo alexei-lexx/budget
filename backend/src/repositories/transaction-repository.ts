@@ -11,17 +11,19 @@ import {
 import { monotonicFactory } from "ulidx";
 import { z } from "zod";
 import {
-  CreateTransactionInput,
-  ITransactionRepository,
   Transaction,
-  TransactionConnection,
-  TransactionEdge,
-  TransactionFilterInput,
   TransactionPattern,
   TransactionPatternType,
   TransactionType,
-  UpdateTransactionInput,
 } from "../models/transaction";
+import {
+  CreateTransactionInput,
+  ITransactionRepository,
+  TransactionConnection,
+  TransactionEdge,
+  TransactionFilterInput,
+  UpdateTransactionInput,
+} from "../services/ports/transaction-repository";
 import {
   DEFAULT_PAGE_SIZE,
   MAX_PAGE_SIZE,

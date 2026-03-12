@@ -1,17 +1,16 @@
 import { faker } from "@faker-js/faker";
-import { Account, CreateAccountInput } from "../../models/account";
+import { Account } from "../../models/account";
+import { Category, CategoryType } from "../../models/category";
 import {
-  Category,
-  CategoryType,
-  CreateCategoryInput,
-} from "../../models/category";
-import {
-  CreateTransactionInput,
   Transaction,
   TransactionPattern,
   TransactionType,
 } from "../../models/transaction";
-import { CreateUserInput, User } from "../../models/user";
+import { User } from "../../models/user";
+import { CreateAccountInput } from "../../services/ports/account-repository";
+import { CreateCategoryInput } from "../../services/ports/category-repository";
+import { CreateTransactionInput } from "../../services/ports/transaction-repository";
+import { CreateUserInput } from "../../services/ports/user-repository";
 import { toDateString } from "../../types/date";
 
 export const fakeAccount = (overrides: Partial<Account> = {}): Account => {

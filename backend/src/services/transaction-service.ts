@@ -1,20 +1,11 @@
-import { Account, IAccountRepository } from "../models/account";
+import { Account } from "../models/account";
+import { Category, CategoryType } from "../models/category";
 import {
-  Category,
-  CategoryType,
-  ICategoryRepository,
-} from "../models/category";
-import {
-  CreateTransactionInput,
-  EnrichedTransactionPattern,
-  ITransactionRepository,
   NonTransferTransactionType,
   Transaction,
-  TransactionConnection,
-  TransactionFilterInput,
+  TransactionPattern,
   TransactionPatternType,
   TransactionType,
-  UpdateTransactionInput,
 } from "../models/transaction";
 import { DateString } from "../types/date";
 import {
@@ -27,6 +18,15 @@ import {
   MIN_SEARCH_TEXT_LENGTH,
 } from "../types/validation";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
+import { IAccountRepository } from "./ports/account-repository";
+import { ICategoryRepository } from "./ports/category-repository";
+import {
+  CreateTransactionInput,
+  ITransactionRepository,
+  TransactionConnection,
+  TransactionFilterInput,
+  UpdateTransactionInput,
+} from "./ports/transaction-repository";
 
 export const DEFAULT_TRANSACTION_PATTERNS_LIMIT = 3;
 export const MIN_TRANSACTION_PATTERNS_LIMIT = 1;
@@ -58,6 +58,11 @@ export type UpdateTransactionServiceInput = Partial<
   categoryId?: string | null; // Allow null to remove category association
   description?: string | null; // Allow null to clear description
 };
+
+export interface EnrichedTransactionPattern extends TransactionPattern {
+  accountName: string;
+  categoryName: string;
+}
 
 /**
  * Transaction service class for handling business logic and validation

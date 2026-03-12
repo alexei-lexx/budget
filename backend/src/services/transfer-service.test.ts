@@ -1,6 +1,5 @@
 import { faker } from "@faker-js/faker";
-import { IAccountRepository } from "../models/account";
-import { ITransactionRepository, TransactionType } from "../models/transaction";
+import { TransactionType } from "../models/transaction";
 import { toDateString } from "../types/date";
 import { DESCRIPTION_MAX_LENGTH } from "../types/validation";
 import { fakeAccount, fakeTransaction } from "../utils/test-utils/factories";
@@ -9,6 +8,8 @@ import {
   createMockTransactionRepository,
 } from "../utils/test-utils/mock-repositories";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
+import { IAccountRepository } from "./ports/account-repository";
+import { ITransactionRepository } from "./ports/transaction-repository";
 import { TransferService } from "./transfer-service";
 
 describe("TransferService", () => {

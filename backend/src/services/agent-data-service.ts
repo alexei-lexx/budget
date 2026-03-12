@@ -1,13 +1,14 @@
-import { IAccountRepository } from "../models/account";
-import { CategoryType, ICategoryRepository } from "../models/category";
-import {
-  ITransactionRepository,
-  TransactionFilterInput,
-  TransactionType,
-} from "../models/transaction";
+import { CategoryType } from "../models/category";
+import { TransactionType } from "../models/transaction";
 import { DateString, toDateString } from "../types/date";
 import { MAX_PAGE_SIZE } from "../types/pagination";
 import { daysAgo, formatDateAsYYYYMMDD } from "../utils/date";
+import { IAccountRepository } from "./ports/account-repository";
+import { ICategoryRepository } from "./ports/category-repository";
+import {
+  ITransactionRepository,
+  TransactionFilterInput,
+} from "./ports/transaction-repository";
 
 // Category history enrichment constants
 export const CATEGORY_HISTORY_LOOKBACK_DAYS = 90;

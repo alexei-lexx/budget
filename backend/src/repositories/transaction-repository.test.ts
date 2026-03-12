@@ -4,12 +4,11 @@ import {
   UpdateCommand,
 } from "@aws-sdk/lib-dynamodb";
 import { faker } from "@faker-js/faker";
+import { TransactionPatternType, TransactionType } from "../models/transaction";
 import {
   CreateTransactionInput,
-  TransactionPatternType,
-  TransactionType,
   UpdateTransactionInput,
-} from "../models/transaction";
+} from "../services/ports/transaction-repository";
 import { toDateString } from "../types/date";
 import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
 import { truncateTable } from "../utils/test-utils/dynamodb-helpers";
