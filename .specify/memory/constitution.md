@@ -1,104 +1,23 @@
 <!-- SYNC IMPACT REPORT
-Version Change: 0.26.0 → 0.27.0
+Version Change: 0.27.0 → 0.28.0
 Changes:
-  - MINOR (0.27.0): Extracted code quality checks into new standalone principle with test-first workflow
+  - MINOR (0.28.0): Added function arguments rule to TypeScript Code Generation principle
 Modified Sections:
-  - TypeScript Code Generation: Removed "npm run format" and "npm run typecheck" directives
-    (rules moved to new Code Quality Validation principle)
-Added Sections:
-  - Code Quality Validation: New principle defining mandatory post-change workflow —
-    test changed file first (if available), then full suite, then typecheck and lint
-Removed Sections:
-  - None
-Templates Requiring Updates:
-  ✅ plan-template.md: Generic template, no code quality workflow guidance to update
-  ✅ spec-template.md: Generic template, no code quality workflow guidance to update
-  ✅ tasks-template.md: Generic template, no code quality workflow guidance to update
-Dependent Documentation Updates:
-  - No template changes required (principle reorganizes existing guidance)
-Follow-up TODOs:
-  - Ratification date remains TODO (inherited from previous versions)
-
-Previous Sync Impact Report:
-Version Change: 0.25.0 → 0.26.0
-Changes:
-  - MINOR (0.26.0): Added Validation Ordering rule to Input Validation principle
-Modified Sections:
-  - Input Validation: Added explicit ordering rule — auth/ownership first, then cheap
-    (sync, no I/O) checks, then database-dependent validation
+  - TypeScript Code Generation: Added arguments rule to Implementation section —
+    use positional arguments for 0–2 parameters, keyword arguments (object destructuring)
+    for 3+ parameters
 Added Sections:
   - None
 Removed Sections:
   - None
 Templates Requiring Updates:
-  ✅ plan-template.md: Generic template, no validation ordering guidance to update
-  ✅ spec-template.md: Generic template, no validation ordering guidance to update
-  ✅ tasks-template.md: Generic template, no validation ordering guidance to update
-Dependent Documentation Updates:
-  - No template changes required (principle adds ordering constraint to existing section)
-Follow-up TODOs:
-  - Ratification date remains TODO (inherited from previous versions)
-
-Previous Sync Impact Report:
-Version Change: 0.24.0 → 0.25.0
-Changes:
-  - MINOR (0.25.0): Added Method Ordering as a standalone principle
-Modified Sections:
-  - TypeScript Code Generation: Removed "place public methods before private methods" bullet
-    (rule incorporated into the new principle)
-Added Sections:
-  - Method Ordering: New principle defining full method ordering convention —
-    public-before-private, Stepdown Rule (scoped within groups), reads-before-writes
-    with fixed sequence for CRUD classes, and test file mirroring
-Removed Sections:
-  - None
-Templates Requiring Updates:
-  ✅ plan-template.md: Generic template, no method ordering guidance to update
-  ✅ spec-template.md: Generic template, no method ordering guidance to update
-  ✅ tasks-template.md: Generic template, no method ordering guidance to update
+  ✅ plan-template.md: Generic template, no function argument guidance to update
+  ✅ spec-template.md: Generic template, no function argument guidance to update
+  ✅ tasks-template.md: Generic template, no function argument guidance to update
 Dependent Documentation Updates:
   - No template changes required (principle adds new coding convention)
 Follow-up TODOs:
   - Ratification date remains TODO (inherited from previous versions)
-
-Previous Sync Impact Report:
-Version Change: 0.23.0 → 0.24.0
-Changes:
-  - MINOR (0.24.0): Revised Input Validation principle to clarify service-heavy validation approach
-Modified Sections:
-  - Backend Layer Structure - GraphQL Layer: Clarified thin validation role
-    - Removed: "Validate user input using Zod schemas"
-    - Added: "Rely on GraphQL schema validation (structure, field types, required fields, enums)"
-    - Added: "Can add minimal validation/parsing if needed to properly call service methods"
-  - Backend Layer Structure - Mermaid Diagram: Updated labels to reflect validation distribution
-    - GraphQL: "Validate & Auth" → "Auth & Delegate"
-    - Service: "Business Logic" → "Business Logic & Validation"
-  - Input Validation: Completely rewritten to clarify service-heavy validation approach
-    - Old approach: Two-layer validation (GraphQL for format/structure via Zod, Service for business rules)
-    - New approach: Service-heavy validation with clear responsibility distribution
-    - GraphQL Layer: Thin validation - relies on schema (structure, types, required, enums), minimal additions
-    - Service Layer: Self-validating entry point - MUST validate, CAN repeat GraphQL validations defensively, validates business rules + format/range IF business-important
-    - Repository Layer: Operational validation only (parameter presence, operand validity)
-    - Clarified: Not all format validation is mandatory - only what has business importance
-    - Rationale expanded: Multiple entry points (GraphQL, REST, CLI, batch), defensive programming, validation with business consequences belongs in services
-Added Sections:
-  - None
-Removed Sections:
-  - None
-Templates Requiring Updates:
-  ✅ plan-template.md: Generic template, no specific validation guidance to update
-  ✅ spec-template.md: Generic template, no specific validation guidance to update
-  ✅ tasks-template.md: Generic template, no specific validation guidance to update
-Dependent Documentation Updates:
-  - No template changes required (principle clarifies existing practice)
-Follow-up TODOs:
-  - Ratification date remains TODO (inherited from previous versions)
-
-Previous Version History:
-  - 0.22.3 → 0.23.0: Added new rule to TypeScript Code Generation principle requiring typecheck execution
-  - 0.22.2 → 0.22.3: Corrected user identification flow in Authentication & Authorization principle
-  - 0.22.1 → 0.22.2: Corrected authentication provider from Auth0 to AWS Cognito
-  - 0.22.0 → 0.22.1: Enhanced TypeScript naming standards
 -->
 
 # Personal Finance Tracker Constitution
@@ -528,6 +447,9 @@ Checks MUST follow this order:
   - Avoid abbreviated forms that obscure meaning
   - Avoid shortened versions (e.g., use `user` instead of `usr`, `transaction` instead of `tx`)
   - Keep names concise while prioritizing clarity over brevity
+- Use the following arguments rules
+  - For functions with 0–2 arguments, use positional arguments for simplicity
+  - For functions with 3 or more arguments, use keyword arguments (object destructuring)
 
 **Rationale**: Maintains type safety, prevents runtime errors, ensures code quality, improves code readability and API discoverability.
 
@@ -584,4 +506,4 @@ This constitution supersedes all other development guidelines. Amendments requir
 4. Commit with message: `docs: amend constitution to vX.Y.Z ([change summary])`
 5. Update dependent artifacts (templates, guidance docs) as flagged
 
-**Version**: 0.27.0 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2026-03-03
+**Version**: 0.28.0 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2026-03-12
