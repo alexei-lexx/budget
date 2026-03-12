@@ -6,7 +6,7 @@
     "build:bundle:migrate": "esbuild src/lambdas/migrate.ts --bundle --platform=node --external:@aws-sdk/* --outfile=dist/migrate.js",
     "build:bundle": "npm run build:bundle:graphql && npm run build:bundle:migrate",
     "build:clean": "rm -rf dist",
-    "build:schema": "cp src/graphql/schema.graphql dist/",
+    "build:schema": "mkdir -p dist/graphql && cp src/graphql/schema.graphql dist/graphql/",
     "build": "npm run codegen && npm run typecheck && npm run build:clean && npm run build:bundle && npm run build:schema",
     "codegen": "graphql-codegen --config codegen.ts",
     "db:create": "dotenvx run --verbose -- tsx src/scripts/create-tables.ts",
