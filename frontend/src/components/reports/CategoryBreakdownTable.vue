@@ -71,7 +71,7 @@
               <!-- Expanded transaction list -->
               <tr v-if="expandedCategories.has(getCategoryKey(category))">
                 <td :colspan="3" class="pa-0">
-                  <div class="pa-3">
+                  <div class="py-3">
                     <!-- Show count badge if there are more transactions than displayed -->
                     <div
                       v-if="category.totalTransactionCount > category.topTransactions.length"
@@ -220,5 +220,14 @@ const currencyTotals = computed(() => {
 
 .category-row:hover {
   background-color: rgba(var(--v-theme-on-surface), 0.05);
+}
+
+/* Force the table to stay within its container width so that flex layouts
+   inside expanded rows (TransactionCard) are correctly constrained. Without
+   this, table-layout: auto lets the table grow wider than the card, breaking
+   flex-shrink-0 on the amount column and defeating text-truncate. */
+.category-breakdown-table :deep(table) {
+  table-layout: fixed;
+  width: 100%;
 }
 </style>
