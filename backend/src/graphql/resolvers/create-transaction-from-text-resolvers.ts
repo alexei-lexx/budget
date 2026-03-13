@@ -12,10 +12,13 @@ export const createTransactionFromTextResolvers = {
     ) => {
       try {
         const user = await getAuthenticatedUser(context);
-        return await context.createTransactionFromTextService.call(
-          user.id,
-          args.input.text,
-        );
+        const { transaction, agentTrace } =
+          await context.createTransactionFromTextService.call(
+            user.id,
+            args.input.text,
+          );
+
+        return { transaction, agentTrace };
       } catch (error) {
         handleResolverError(error, "Failed to create transaction from text");
       }

@@ -49,8 +49,33 @@ enum ReportType {
   EXPENSE
 }
 
+union AgentTraceMessage =
+  | AgentTraceText
+  | AgentTraceToolCall
+  | AgentTraceToolResult
+
+type AgentTraceText {
+  content: String!
+}
+
+type AgentTraceToolCall {
+  toolName: String!
+  input: String!
+}
+
+type AgentTraceToolResult {
+  toolName: String!
+  output: String!
+}
+
 type InsightResponse {
   answer: String!
+  agentTrace: [AgentTraceMessage!]!
+}
+
+type CreateTransactionFromTextResponse {
+  transaction: Transaction!
+  agentTrace: [AgentTraceMessage!]!
 }
 
 type Category {
@@ -268,7 +293,7 @@ type Mutation {
   createTransaction(input: CreateTransactionInput!): Transaction!
   createTransactionFromText(
     input: CreateTransactionFromTextInput!
-  ): Transaction!
+  ): CreateTransactionFromTextResponse!
   updateTransaction(input: UpdateTransactionInput!): Transaction!
   deleteTransaction(id: ID!): Transaction!
   createTransfer(input: CreateTransferInput!): Transfer!

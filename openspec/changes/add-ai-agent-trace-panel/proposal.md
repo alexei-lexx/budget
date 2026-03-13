@@ -5,8 +5,8 @@ When the AI responds on the insight or transaction creation page, users see only
 ## What Changes
 
 - Both AI-powered services (`InsightService`, `CreateTransactionFromTextService`) capture and return the full chronological agent trace alongside existing results
-- GraphQL schema exposes `agentMessages: [AgentTraceMessage!]!` on both endpoints — **BREAKING** for `createTransactionFromText` (return type changes from `Transaction!` to a wrapper type)
-- A trigger button appears near the send button on both the insight page and transaction creation page, becoming visible only after a response is received
+- GraphQL schema exposes `agentTrace: [AgentTraceMessage!]!` on both endpoints — **BREAKING** for `createTransactionFromText` (return type changes from `Transaction!` to a wrapper type)
+- A trigger button is always shown near the send button on both the insight page and transaction creation page, becoming enabled once a response is received
 - Clicking the trigger opens a modal panel displaying the agent trace: reasoning steps, tool calls with inputs, and tool results — each individually expandable/collapsible
 
 ## Capabilities
@@ -17,7 +17,7 @@ When the AI responds on the insight or transaction creation page, users see only
 
 ### Modified Capabilities
 
-- `insight`: `InsightResponse` gains an `agentMessages` field returning the agent trace
+- `insight`: `InsightResponse` gains an `agentTrace` field returning the agent trace
 - `transactions`: `createTransactionFromText` mutation return type changes from `Transaction!` to `CreateTransactionFromTextResponse` containing both the transaction and agent trace — **BREAKING**
 
 ## Impact
@@ -28,7 +28,7 @@ When the AI responds on the insight or transaction creation page, users see only
 - `backend/src/services/create-transaction-from-text-service.ts` — pass trace through from agent
 - `backend/src/graphql/schema.graphql` — add `AgentTraceMessage` type, update `InsightResponse`, wrap `createTransactionFromText` return
 - `backend/src/graphql/resolvers/` — include trace in resolver responses
-- `frontend/src/graphql/` — sync schema, update queries/mutations to request `agentMessages`
+- `frontend/src/graphql/` — sync schema, update queries/mutations to request `agentTrace`
 - `frontend/src/composables/` — expose trace from `useInsight` and `useCreateTransactionFromText`
 - `frontend/src/views/` — add trigger button to Insight and Transactions pages
 - New `frontend/src/components/AgentTracePanel.vue` — modal with expandable trace messages

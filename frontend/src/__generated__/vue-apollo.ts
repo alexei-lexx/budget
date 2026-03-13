@@ -27,6 +27,25 @@ export type Account = {
   name: Scalars['String']['output'];
 };
 
+export type AgentTraceMessage = AgentTraceText | AgentTraceToolCall | AgentTraceToolResult;
+
+export type AgentTraceText = {
+  __typename?: 'AgentTraceText';
+  content: Scalars['String']['output'];
+};
+
+export type AgentTraceToolCall = {
+  __typename?: 'AgentTraceToolCall';
+  input: Scalars['String']['output'];
+  toolName: Scalars['String']['output'];
+};
+
+export type AgentTraceToolResult = {
+  __typename?: 'AgentTraceToolResult';
+  output: Scalars['String']['output'];
+  toolName: Scalars['String']['output'];
+};
+
 export type Category = {
   __typename?: 'Category';
   excludeFromReports: Scalars['Boolean']['output'];
@@ -60,6 +79,12 @@ export type CreateTransactionFromTextInput = {
   text: Scalars['String']['input'];
 };
 
+export type CreateTransactionFromTextResponse = {
+  __typename?: 'CreateTransactionFromTextResponse';
+  agentTrace: Array<AgentTraceMessage>;
+  transaction: Transaction;
+};
+
 export type CreateTransactionInput = {
   accountId: Scalars['ID']['input'];
   amount: Scalars['Float']['input'];
@@ -89,6 +114,7 @@ export type InsightInput = {
 
 export type InsightResponse = {
   __typename?: 'InsightResponse';
+  agentTrace: Array<AgentTraceMessage>;
   answer: Scalars['String']['output'];
 };
 
@@ -128,7 +154,7 @@ export type Mutation = {
   createAccount: Account;
   createCategory: Category;
   createTransaction: Transaction;
-  createTransactionFromText: Transaction;
+  createTransactionFromText: CreateTransactionFromTextResponse;
   createTransfer: Transfer;
   deleteAccount?: Maybe<Scalars['Boolean']['output']>;
   deleteCategory: Category;
@@ -481,7 +507,11 @@ export type CreateTransactionFromTextMutationVariables = Exact<{
 }>;
 
 
-export type CreateTransactionFromTextMutation = { __typename?: 'Mutation', createTransactionFromText: { __typename?: 'Transaction', id: string, type: TransactionType, amount: number, currency: string, date: string, description?: string | null | undefined, transferId?: string | null | undefined, account: { __typename?: 'TransactionEmbeddedAccount', id: string, name: string, isArchived: boolean }, category?: { __typename?: 'TransactionEmbeddedCategory', id: string, name: string, isArchived: boolean } | null | undefined } };
+export type CreateTransactionFromTextMutation = { __typename?: 'Mutation', createTransactionFromText: { __typename?: 'CreateTransactionFromTextResponse', transaction: { __typename?: 'Transaction', id: string, type: TransactionType, amount: number, currency: string, date: string, description?: string | null | undefined, transferId?: string | null | undefined, account: { __typename?: 'TransactionEmbeddedAccount', id: string, name: string, isArchived: boolean }, category?: { __typename?: 'TransactionEmbeddedCategory', id: string, name: string, isArchived: boolean } | null | undefined }, agentTrace: Array<
+      | { __typename?: 'AgentTraceText', content: string }
+      | { __typename?: 'AgentTraceToolCall', toolName: string, input: string }
+      | { __typename?: 'AgentTraceToolResult', toolName: string, output: string }
+    > } };
 
 export type UpdateTransactionMutationVariables = Exact<{
   input: UpdateTransactionInput;
@@ -578,7 +608,11 @@ export type GetInsightQueryVariables = Exact<{
 }>;
 
 
-export type GetInsightQuery = { __typename?: 'Query', insight: { __typename?: 'InsightResponse', answer: string } };
+export type GetInsightQuery = { __typename?: 'Query', insight: { __typename?: 'InsightResponse', answer: string, agentTrace: Array<
+      | { __typename?: 'AgentTraceText', content: string }
+      | { __typename?: 'AgentTraceToolCall', toolName: string, input: string }
+      | { __typename?: 'AgentTraceToolResult', toolName: string, output: string }
+    > } };
 
 export const AccountFieldsFragmentDoc = gql`
     fragment AccountFields on Account {
@@ -899,7 +933,22 @@ export type CreateTransactionMutationCompositionFunctionResult = VueApolloCompos
 export const CreateTransactionFromTextDocument = gql`
     mutation CreateTransactionFromText($input: CreateTransactionFromTextInput!) {
   createTransactionFromText(input: $input) {
-    ...TransactionFields
+    transaction {
+      ...TransactionFields
+    }
+    agentTrace {
+      ... on AgentTraceText {
+        content
+      }
+      ... on AgentTraceToolCall {
+        toolName
+        input
+      }
+      ... on AgentTraceToolResult {
+        toolName
+        output
+      }
+    }
   }
 }
     ${TransactionFieldsFragmentDoc}`;
@@ -1320,6 +1369,19 @@ export const GetInsightDocument = gql`
     query GetInsight($input: InsightInput!) {
   insight(input: $input) {
     answer
+    agentTrace {
+      ... on AgentTraceText {
+        content
+      }
+      ... on AgentTraceToolCall {
+        toolName
+        input
+      }
+      ... on AgentTraceToolResult {
+        toolName
+        output
+      }
+    }
   }
 }
     `;

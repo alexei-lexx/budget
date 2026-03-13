@@ -7,7 +7,7 @@ The system SHALL expose the agent trace for each insight response via the insigh
 #### Scenario: Trace is available after asking a question
 
 - **WHEN** the user submits a question and the AI responds successfully
-- **THEN** the agent trace for that response is available and the trigger button becomes visible
+- **THEN** the agent trace for that response is available and the trigger button becomes enabled
 
 #### Scenario: Trigger button is positioned near the submit button
 

@@ -7,7 +7,7 @@ The system SHALL expose the agent trace for each natural language transaction cr
 #### Scenario: Trace is available after creating a transaction from text
 
 - **WHEN** the user submits natural language input and the AI successfully creates a transaction
-- **THEN** the agent trace for that response is available and the trigger button becomes visible
+- **THEN** the agent trace for that response is available and the trigger button becomes enabled
 
 #### Scenario: Trigger button is positioned near the natural language submit button
 

@@ -1,4 +1,5 @@
 import { Resolvers } from "../../__generated__/resolvers-types";
+import { AgentTraceMessageType } from "../../services/ports/agent";
 import { accountResolvers } from "./account-resolvers";
 import { categoryResolvers } from "./category-resolvers";
 import { createTransactionFromTextResolvers } from "./create-transaction-from-text-resolvers";
@@ -27,4 +28,28 @@ export const resolvers: Resolvers = {
   },
   Account: accountResolvers.Account,
   Transaction: transactionResolvers.Transaction,
+  AgentTraceMessage: {
+    // GraphQL requires a __resolveType function for union types so it knows
+    // which concrete type to use when serialising each item in agentTrace[].
+    // The service layer uses a discriminated union keyed on `type`, so we map
+    // that enum value to the corresponding GraphQL type name here.
+    __resolveType(obj) {
+      // Guard against unexpected shapes coming from the service layer.
+      if (typeof obj !== "object" || obj === null) return undefined;
+      if (!("type" in obj) || typeof obj.type !== "string") return undefined;
+
+      switch (obj.type) {
+        case AgentTraceMessageType.TEXT:
+          return "AgentTraceText";
+        case AgentTraceMessageType.TOOL_CALL:
+          return "AgentTraceToolCall";
+        case AgentTraceMessageType.TOOL_RESULT:
+          return "AgentTraceToolResult";
+        // Unknown type — returning undefined tells GraphQL to omit the item
+        // rather than throw, keeping the response forward-compatible.
+        default:
+          return undefined;
+      }
+    },
+  },
 };

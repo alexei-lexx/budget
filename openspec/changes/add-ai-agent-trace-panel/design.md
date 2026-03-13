@@ -93,24 +93,24 @@ type AgentTraceToolResult {
 
 type InsightResponse {
   answer: String!
-  agentMessages: [AgentTraceMessage!]!
+  agentTrace: [AgentTraceMessage!]!
 }
 
 type CreateTransactionFromTextResponse {
   transaction: Transaction!
-  agentMessages: [AgentTraceMessage!]!
+  agentTrace: [AgentTraceMessage!]!
 }
 ```
 
 `createTransactionFromText` return type changes from `Transaction!` to `CreateTransactionFromTextResponse!` — a **breaking change** requiring coordinated frontend + backend deployment.
 
-**Rationale**: `InsightResponse` already exists as a wrapper, so adding `agentMessages` is non-breaking there. `createTransactionFromText` currently returns `Transaction!` directly, so a wrapper type is unavoidable. Extending `Transaction` with trace data would violate domain boundaries.
+**Rationale**: `InsightResponse` already exists as a wrapper, so adding `agentTrace` is non-breaking there. `createTransactionFromText` currently returns `Transaction!` directly, so a wrapper type is unavoidable. Extending `Transaction` with trace data would violate domain boundaries.
 
 **Alternative rejected**: Returning trace as a separate query/subscription — adds roundtrips and complexity for what is debug-only data.
 
 ### 4. Frontend: trace state lives in composables
 
-**Decision**: `useInsight` and `useCreateTransactionFromText` expose `agentMessages: Ref<AgentTraceMessage[]>` populated after each successful response. The trigger button's visibility is derived from `agentMessages.value.length > 0`.
+**Decision**: `useInsight` and `useCreateTransactionFromText` expose `agentTrace: Ref<AgentTraceMessage[]>` populated after each successful response. The trigger button is always visible; it is disabled when `agentTrace.value.length === 0` or while loading.
 
 **Rationale**: Consistent with existing patterns — composables already own `loading`, `error`, and result state. The views stay thin.
 

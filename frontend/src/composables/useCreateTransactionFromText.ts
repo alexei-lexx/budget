@@ -1,10 +1,11 @@
 import { ref } from "vue";
-import type { Transaction } from "@/__generated__/vue-apollo";
+import type { AgentTraceMessage, Transaction } from "@/__generated__/vue-apollo";
 import { useCreateTransactionFromTextMutation } from "@/__generated__/vue-apollo";
 import { useSnackbar } from "@/composables/useSnackbar";
 
 export function useCreateTransactionFromText() {
   const text = ref("");
+  const agentTrace = ref<AgentTraceMessage[]>([]);
   const { showErrorSnackbar } = useSnackbar();
 
   const { mutate, loading, error } = useCreateTransactionFromTextMutation();
@@ -17,7 +18,9 @@ export function useCreateTransactionFromText() {
 
     try {
       const result = await mutate({ input: { text: trimmedText } });
-      const transaction = result?.data?.createTransactionFromText ?? null;
+      const response = result?.data?.createTransactionFromText ?? null;
+      const transaction = response?.transaction ?? null;
+      agentTrace.value = response?.agentTrace ?? [];
       if (transaction) {
         text.value = "";
       }
@@ -35,6 +38,7 @@ export function useCreateTransactionFromText() {
     text,
     loading,
     error,
+    agentTrace,
     submit,
   };
 }

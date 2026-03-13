@@ -91,6 +91,19 @@ export const GET_INSIGHT = gql`
   query GetInsight($input: InsightInput!) {
     insight(input: $input) {
       answer
+      agentTrace {
+        ... on AgentTraceText {
+          content
+        }
+        ... on AgentTraceToolCall {
+          toolName
+          input
+        }
+        ... on AgentTraceToolResult {
+          toolName
+          output
+        }
+      }
     }
   }
 `;

@@ -32,6 +32,25 @@ export type Account = {
   name: Scalars['String']['output'];
 };
 
+export type AgentTraceMessage = AgentTraceText | AgentTraceToolCall | AgentTraceToolResult;
+
+export type AgentTraceText = {
+  __typename?: 'AgentTraceText';
+  content: Scalars['String']['output'];
+};
+
+export type AgentTraceToolCall = {
+  __typename?: 'AgentTraceToolCall';
+  input: Scalars['String']['output'];
+  toolName: Scalars['String']['output'];
+};
+
+export type AgentTraceToolResult = {
+  __typename?: 'AgentTraceToolResult';
+  output: Scalars['String']['output'];
+  toolName: Scalars['String']['output'];
+};
+
 export type Category = {
   __typename?: 'Category';
   excludeFromReports: Scalars['Boolean']['output'];
@@ -63,6 +82,12 @@ export type CreateTransactionFromTextInput = {
   text: Scalars['String']['input'];
 };
 
+export type CreateTransactionFromTextResponse = {
+  __typename?: 'CreateTransactionFromTextResponse';
+  agentTrace: Array<AgentTraceMessage>;
+  transaction: Transaction;
+};
+
 export type CreateTransactionInput = {
   accountId: Scalars['ID']['input'];
   amount: Scalars['Float']['input'];
@@ -92,6 +117,7 @@ export type InsightInput = {
 
 export type InsightResponse = {
   __typename?: 'InsightResponse';
+  agentTrace: Array<AgentTraceMessage>;
   answer: Scalars['String']['output'];
 };
 
@@ -131,7 +157,7 @@ export type Mutation = {
   createAccount: Account;
   createCategory: Category;
   createTransaction: Transaction;
-  createTransactionFromText: Transaction;
+  createTransactionFromText: CreateTransactionFromTextResponse;
   createTransfer: Transfer;
   deleteAccount?: Maybe<Scalars['Boolean']['output']>;
   deleteCategory: Category;
@@ -468,24 +494,37 @@ export type DirectiveResolverFn<TResult = Record<PropertyKey, never>, TParent = 
 
 
 
+/** Mapping of union types */
+export type ResolversUnionTypes<_RefType extends Record<string, unknown>> = {
+  AgentTraceMessage:
+    | ( AgentTraceText )
+    | ( AgentTraceToolCall )
+    | ( AgentTraceToolResult )
+  ;
+};
 
 
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = {
   Account: ResolverTypeWrapper<Omit<Account, 'balance'>>;
+  AgentTraceMessage: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['AgentTraceMessage']>;
+  AgentTraceText: ResolverTypeWrapper<AgentTraceText>;
+  AgentTraceToolCall: ResolverTypeWrapper<AgentTraceToolCall>;
+  AgentTraceToolResult: ResolverTypeWrapper<AgentTraceToolResult>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
   Category: ResolverTypeWrapper<Category>;
   CategoryType: CategoryType;
   CreateAccountInput: CreateAccountInput;
   CreateCategoryInput: CreateCategoryInput;
   CreateTransactionFromTextInput: CreateTransactionFromTextInput;
+  CreateTransactionFromTextResponse: ResolverTypeWrapper<Omit<CreateTransactionFromTextResponse, 'agentTrace' | 'transaction'> & { agentTrace: Array<ResolversTypes['AgentTraceMessage']>, transaction: ResolversTypes['Transaction'] }>;
   CreateTransactionInput: CreateTransactionInput;
   CreateTransferInput: CreateTransferInput;
   DateRangeInput: DateRangeInput;
   Float: ResolverTypeWrapper<Scalars['Float']['output']>;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   InsightInput: InsightInput;
-  InsightResponse: ResolverTypeWrapper<InsightResponse>;
+  InsightResponse: ResolverTypeWrapper<Omit<InsightResponse, 'agentTrace'> & { agentTrace: Array<ResolversTypes['AgentTraceMessage']> }>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
   MonthlyReport: ResolverTypeWrapper<Omit<MonthlyReport, 'categories'> & { categories: Array<ResolversTypes['MonthlyReportCategory']> }>;
   MonthlyReportCategory: ResolverTypeWrapper<Omit<MonthlyReportCategory, 'topTransactions'> & { topTransactions: Array<ResolversTypes['Transaction']> }>;
@@ -517,18 +556,23 @@ export type ResolversTypes = {
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = {
   Account: Omit<Account, 'balance'>;
+  AgentTraceMessage: ResolversUnionTypes<ResolversParentTypes>['AgentTraceMessage'];
+  AgentTraceText: AgentTraceText;
+  AgentTraceToolCall: AgentTraceToolCall;
+  AgentTraceToolResult: AgentTraceToolResult;
   Boolean: Scalars['Boolean']['output'];
   Category: Category;
   CreateAccountInput: CreateAccountInput;
   CreateCategoryInput: CreateCategoryInput;
   CreateTransactionFromTextInput: CreateTransactionFromTextInput;
+  CreateTransactionFromTextResponse: Omit<CreateTransactionFromTextResponse, 'agentTrace' | 'transaction'> & { agentTrace: Array<ResolversParentTypes['AgentTraceMessage']>, transaction: ResolversParentTypes['Transaction'] };
   CreateTransactionInput: CreateTransactionInput;
   CreateTransferInput: CreateTransferInput;
   DateRangeInput: DateRangeInput;
   Float: Scalars['Float']['output'];
   ID: Scalars['ID']['output'];
   InsightInput: InsightInput;
-  InsightResponse: InsightResponse;
+  InsightResponse: Omit<InsightResponse, 'agentTrace'> & { agentTrace: Array<ResolversParentTypes['AgentTraceMessage']> };
   Int: Scalars['Int']['output'];
   MonthlyReport: Omit<MonthlyReport, 'categories'> & { categories: Array<ResolversParentTypes['MonthlyReportCategory']> };
   MonthlyReportCategory: Omit<MonthlyReportCategory, 'topTransactions'> & { topTransactions: Array<ResolversParentTypes['Transaction']> };
@@ -562,6 +606,27 @@ export type AccountResolvers<ContextType = GraphQLContext, ParentType extends Re
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
 };
 
+export type AgentTraceMessageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['AgentTraceMessage'] = ResolversParentTypes['AgentTraceMessage']> = {
+  __resolveType: TypeResolveFn<'AgentTraceText' | 'AgentTraceToolCall' | 'AgentTraceToolResult', ParentType, ContextType>;
+};
+
+export type AgentTraceTextResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['AgentTraceText'] = ResolversParentTypes['AgentTraceText']> = {
+  content?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type AgentTraceToolCallResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['AgentTraceToolCall'] = ResolversParentTypes['AgentTraceToolCall']> = {
+  input?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  toolName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type AgentTraceToolResultResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['AgentTraceToolResult'] = ResolversParentTypes['AgentTraceToolResult']> = {
+  output?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  toolName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type CategoryResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Category'] = ResolversParentTypes['Category']> = {
   excludeFromReports?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -571,7 +636,13 @@ export type CategoryResolvers<ContextType = GraphQLContext, ParentType extends R
 
 export type CategoryTypeResolvers = EnumResolverSignature<{ EXPENSE?: any, INCOME?: any }, ResolversTypes['CategoryType']>;
 
+export type CreateTransactionFromTextResponseResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CreateTransactionFromTextResponse'] = ResolversParentTypes['CreateTransactionFromTextResponse']> = {
+  agentTrace?: Resolver<Array<ResolversTypes['AgentTraceMessage']>, ParentType, ContextType>;
+  transaction?: Resolver<ResolversTypes['Transaction'], ParentType, ContextType>;
+};
+
 export type InsightResponseResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['InsightResponse'] = ResolversParentTypes['InsightResponse']> = {
+  agentTrace?: Resolver<Array<ResolversTypes['AgentTraceMessage']>, ParentType, ContextType>;
   answer?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
 };
 
@@ -606,7 +677,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createAccount?: Resolver<ResolversTypes['Account'], ParentType, ContextType, RequireFields<MutationCreateAccountArgs, 'input'>>;
   createCategory?: Resolver<ResolversTypes['Category'], ParentType, ContextType, RequireFields<MutationCreateCategoryArgs, 'input'>>;
   createTransaction?: Resolver<ResolversTypes['Transaction'], ParentType, ContextType, RequireFields<MutationCreateTransactionArgs, 'input'>>;
-  createTransactionFromText?: Resolver<ResolversTypes['Transaction'], ParentType, ContextType, RequireFields<MutationCreateTransactionFromTextArgs, 'input'>>;
+  createTransactionFromText?: Resolver<ResolversTypes['CreateTransactionFromTextResponse'], ParentType, ContextType, RequireFields<MutationCreateTransactionFromTextArgs, 'input'>>;
   createTransfer?: Resolver<ResolversTypes['Transfer'], ParentType, ContextType, RequireFields<MutationCreateTransferArgs, 'input'>>;
   deleteAccount?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType, RequireFields<MutationDeleteAccountArgs, 'id'>>;
   deleteCategory?: Resolver<ResolversTypes['Category'], ParentType, ContextType, RequireFields<MutationDeleteCategoryArgs, 'id'>>;
@@ -698,8 +769,13 @@ export type UserResolvers<ContextType = GraphQLContext, ParentType extends Resol
 
 export type Resolvers<ContextType = GraphQLContext> = {
   Account?: AccountResolvers<ContextType>;
+  AgentTraceMessage?: AgentTraceMessageResolvers<ContextType>;
+  AgentTraceText?: AgentTraceTextResolvers<ContextType>;
+  AgentTraceToolCall?: AgentTraceToolCallResolvers<ContextType>;
+  AgentTraceToolResult?: AgentTraceToolResultResolvers<ContextType>;
   Category?: CategoryResolvers<ContextType>;
   CategoryType?: CategoryTypeResolvers;
+  CreateTransactionFromTextResponse?: CreateTransactionFromTextResponseResolvers<ContextType>;
   InsightResponse?: InsightResponseResolvers<ContextType>;
   MonthlyReport?: MonthlyReportResolvers<ContextType>;
   MonthlyReportCategory?: MonthlyReportCategoryResolvers<ContextType>;
