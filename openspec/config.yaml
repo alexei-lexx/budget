@@ -1,5 +1,10 @@
 schema: spec-driven
 
+context: |
+  Standards, code style, architecture, tech stack, and test strategy
+  live in `docs/constitution.md`.
+  Proceed ONLY AFTER reading it.
+
 # Project context (optional)
 # This is shown to AI when creating artifacts.
 # Add your tech stack, conventions, style guides, domain knowledge, etc.
