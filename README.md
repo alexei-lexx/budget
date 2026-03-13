@@ -23,14 +23,14 @@ Web application for personal financial management.
 - Deployed on [AWS](https://aws.amazon.com/)
 - Serverless, free-tier friendly
 - [TypeScript](https://www.typescriptlang.org/) throughout
-- [Spec-driven development](https://github.com/github/spec-kit)
+- [Spec-driven development](https://github.com/Fission-AI/OpenSpec)
 
 ## Repository Structure
 
 - [Backend](backend/README.md) - GraphQL API server setup and development
 - [Frontend](frontend/README.md) - Vue.js SPA setup and development
 - [Infrastructure](infra-cdk/README.md) - AWS CDK infrastructure
-- [Specs](specs/) - Feature specifications, implementation plans, and design artifacts
+- [Specs](openspec/) - Feature specifications, implementation plans, and design artifacts
 
 ## Deployment
 
