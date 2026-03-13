@@ -1,12 +1,12 @@
 {
     "github.copilot.chat.commitMessageGeneration.instructions": [
         {
-            "file": ".claude/skills/draft-git-commit/SKILL.md"
+            "file": ".claude/skills/format-git-commit/SKILL.md"
         }
     ],
     "github.copilot.chat.pullRequestDescriptionGeneration.instructions": [
         {
-            "file": ".claude/skills/github-pr/SKILL.md"
+            "file": ".claude/skills/format-github-pr/SKILL.md"
         }
     ]
 }
