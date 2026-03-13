@@ -135,6 +135,31 @@ describe("ReActAgent", () => {
       expect(result.answer).toBe("This is the final answer");
     });
 
+    it("should return answer from last text block of last message", async () => {
+      // Arrange
+      const messages = [{ role: "user" as const, content: "Test" }];
+
+      mockReactAgent.invoke.mockResolvedValue({
+        messages: [
+          new AIMessage({
+            content: "This is not the final answer",
+          }),
+          new AIMessage({
+            content: [
+              { type: "text", text: "This is not the final answer" },
+              { type: "text", text: "This is the final answer" },
+            ],
+          }),
+        ],
+      });
+
+      // Act
+      const result = await agent.call({ messages });
+
+      // Assert
+      expect(result.answer).toBe("This is the final answer");
+    });
+
     it("should extract tool executions from agent messages", async () => {
       // Arrange
       const messages = [{ role: "user" as const, content: "Calculate sum" }];
