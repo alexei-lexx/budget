@@ -218,10 +218,7 @@
     </div>
   </v-footer>
 
-  <AgentTracePanel
-    v-model="showAgentTrace"
-    :agent-trace="createTransactionFromTextAgentTrace"
-  />
+  <AgentTracePanel v-model="showAgentTrace" :agent-trace="createTransactionFromTextAgentTrace" />
 </template>
 
 <script setup lang="ts">
