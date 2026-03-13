@@ -472,6 +472,32 @@ The system SHALL use the user's recent transaction history to improve category a
 - WHEN the user enters a new similar description
 - THEN the system treats the conflict as ambiguous and falls back to semantic-only inference
 
+### Requirement: Dialog Escape Key Dismissal
+
+The system SHALL close any open transaction or transfer form dialog when the user
+presses Escape, regardless of which element inside or around the dialog currently
+holds focus.
+
+#### Scenario: Escape closes the dialog when a form field has focus
+
+- GIVEN a transaction or transfer form dialog is open and an input field has focus
+- WHEN the user presses Escape
+- THEN the dialog closes and the transactions page is shown
+
+#### Scenario: Escape closes the dialog after an outside-click attempt
+
+- GIVEN a transaction or transfer form dialog is open
+- AND the user has previously clicked outside the dialog (triggering the wobble animation)
+- WHEN the user presses Escape
+- THEN the dialog closes and the transactions page is shown
+
+#### Scenario: Clicking outside the dialog does not close it
+
+- GIVEN a transaction or transfer form dialog is open
+- WHEN the user clicks on the page backdrop outside the dialog
+- THEN the dialog remains open
+- AND a wobble animation plays to indicate the dialog is persistent
+
 ### Requirement: Text Input for Transaction Submission
 
 The system SHALL provide a text input area on the Transactions page that auto-grows with content, supports keyboard submission via Enter, and includes a clear button when content is present.

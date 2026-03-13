@@ -219,6 +219,7 @@ const handleCategoryCancel = () => {
       :max-width="$vuetify.display.xs ? '95vw' : '500'"
       :fullscreen="$vuetify.display.xs"
       persistent
+      @keydown.esc="handleCategoryCancel"
     >
       <CategoryForm
         :initial-type="activeTab"
@@ -234,6 +235,7 @@ const handleCategoryCancel = () => {
       :max-width="$vuetify.display.xs ? '95vw' : '500'"
       :fullscreen="$vuetify.display.xs"
       persistent
+      @keydown.esc="handleCategoryCancel"
     >
       <CategoryForm
         :category="editingCategory"
