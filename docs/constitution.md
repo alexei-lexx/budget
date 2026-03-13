@@ -1,25 +1,3 @@
-<!-- SYNC IMPACT REPORT
-Version Change: 0.27.0 → 0.28.0
-Changes:
-  - MINOR (0.28.0): Added function arguments rule to TypeScript Code Generation principle
-Modified Sections:
-  - TypeScript Code Generation: Added arguments rule to Implementation section —
-    use positional arguments for 0–2 parameters, keyword arguments (object destructuring)
-    for 3+ parameters
-Added Sections:
-  - None
-Removed Sections:
-  - None
-Templates Requiring Updates:
-  ✅ plan-template.md: Generic template, no function argument guidance to update
-  ✅ spec-template.md: Generic template, no function argument guidance to update
-  ✅ tasks-template.md: Generic template, no function argument guidance to update
-Dependent Documentation Updates:
-  - No template changes required (principle adds new coding convention)
-Follow-up TODOs:
-  - Ratification date remains TODO (inherited from previous versions)
--->
-
 # Personal Finance Tracker Constitution
 
 ## Repository Structure
@@ -494,16 +472,3 @@ Checks MUST follow this order:
 **Test files**: `describe` blocks MUST mirror the method order of the source class.
 
 **Rationale**: Consistent ordering makes the public API immediately visible, places non-mutating operations before mutations, and keeps test files predictably aligned with their source.
-
-## Governance
-
-This constitution supersedes all other development guidelines. Amendments require documentation in the sync impact report and ratification by the team.
-
-**Amendment Process**:
-1. Update `.specify/memory/constitution.md` with changes
-2. Increment version per semantic versioning (MAJOR/MINOR/PATCH)
-3. Document changes in sync impact report (top of file as HTML comment)
-4. Commit with message: `docs: amend constitution to vX.Y.Z ([change summary])`
-5. Update dependent artifacts (templates, guidance docs) as flagged
-
-**Version**: 0.28.0 | **Ratified**: TODO(RATIFICATION_DATE) | **Last Amended**: 2026-03-12

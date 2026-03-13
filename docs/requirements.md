@@ -6,7 +6,7 @@
 
 ---
 
-> **Note**: For architecture, code standards, and technical constraints, see `.specify/memory/constitution.md`
+> **Note**: For architecture, code standards, and technical constraints, see `docs/constitution.md`
 
 ## 1. Purpose
 
