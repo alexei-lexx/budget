@@ -83,7 +83,7 @@
     </div>
   </v-footer>
 
-  <AgentTracePanel v-model="showAgentTrace" :agent-messages="insightAgentTrace" />
+  <AgentTracePanel v-model="showAgentTrace" :agent-trace="insightAgentTrace" />
 </template>
 
 <script setup lang="ts">

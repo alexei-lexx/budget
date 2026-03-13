@@ -220,7 +220,7 @@
 
   <AgentTracePanel
     v-model="showAgentTrace"
-    :agent-messages="createTransactionFromTextAgentTrace"
+    :agent-trace="createTransactionFromTextAgentTrace"
   />
 </template>
 

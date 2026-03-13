@@ -19,7 +19,7 @@
 
       <v-card-text class="pa-0">
         <v-expansion-panels variant="accordion" flat>
-          <v-expansion-panel v-for="(message, index) in agentMessages" :key="index">
+          <v-expansion-panel v-for="(message, index) in agentTrace" :key="index">
             <v-expansion-panel-title>
               <v-chip size="small" :color="chipColor(message)" variant="tonal" label class="me-3">
                 {{ chipLabel(message) }}
@@ -36,7 +36,7 @@
           </v-expansion-panel>
         </v-expansion-panels>
 
-        <div v-if="agentMessages.length === 0" class="pa-6 text-center text-medium-emphasis">
+        <div v-if="agentTrace.length === 0" class="pa-6 text-center text-medium-emphasis">
           No trace messages available.
         </div>
       </v-card-text>
@@ -49,7 +49,7 @@ import type { AgentTraceMessage } from "@/__generated__/vue-apollo";
 
 interface Props {
   modelValue: boolean;
-  agentMessages: AgentTraceMessage[];
+  agentTrace: AgentTraceMessage[];
 }
 
 interface Emits {
