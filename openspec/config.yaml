@@ -1,8 +1,13 @@
 schema: spec-driven
 
 context: |
-  Standards, code style, architecture, tech stack, and test strategy live in `docs/constitution.md`.
+  File `docs/constitution.md` is the project's constitution.
+  The constitution defines the principles and guidelines that govern the project.
+  This includes coding standards, architectural decisions, tech stack choices, and test strategies.
   Proceed ONLY AFTER reading it.
+
+  All principles stated in the constitution are NON-NEGOTIABLE and MUST be followed.
+  After each artifact is created or updated, it MUST be reviewed for compliance with the constitution.
 
   Run `npx prettier --write openspec/` after creating or updating any artifact to ensure consistent formatting.
 
