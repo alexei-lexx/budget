@@ -87,22 +87,10 @@ export class ReActAgent implements Agent {
       if (typeof lastMessage.content === "string") {
         answer = lastMessage.content;
       } else if (Array.isArray(lastMessage.content)) {
-        answer = lastMessage.content
-          .map((item) => {
-            if ("text" in item) {
-              return item.text;
-            } else if (
-              "reasoningText" in item &&
-              typeof item["reasoningText"] === "object" &&
-              item["reasoningText"] !== null &&
-              "text" in item["reasoningText"]
-            ) {
-              return item["reasoningText"].text;
-            } else {
-              return JSON.stringify(item);
-            }
-          })
-          .join("\n");
+        const lastTextBlock = lastMessage.content.findLast(
+          (item) => "text" in item,
+        )?.text;
+        answer = String(lastTextBlock || "");
       }
     }
 
