@@ -1,8 +1,7 @@
 schema: spec-driven
 
 context: |
-  Standards, code style, architecture, tech stack, and test strategy
-  live in `docs/constitution.md`.
+  Standards, code style, architecture, tech stack, and test strategy live in `docs/constitution.md`.
   Proceed ONLY AFTER reading it.
 
   Run `npx prettier --write openspec/` after creating or updating any artifact to ensure consistent formatting.
