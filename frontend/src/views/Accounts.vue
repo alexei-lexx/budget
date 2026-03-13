@@ -173,6 +173,7 @@ const handleAccountCancel = () => {
       :max-width="$vuetify.display.xs ? '95vw' : '600'"
       :fullscreen="$vuetify.display.xs"
       persistent
+      @keydown.esc="handleAccountCancel"
     >
       <AccountForm
         :loading="formLoading"
@@ -187,6 +188,7 @@ const handleAccountCancel = () => {
       :max-width="$vuetify.display.xs ? '95vw' : '600'"
       :fullscreen="$vuetify.display.xs"
       persistent
+      @keydown.esc="handleAccountCancel"
     >
       <AccountForm
         :account="editingAccount"

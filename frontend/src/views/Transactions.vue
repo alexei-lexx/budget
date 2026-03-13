@@ -136,7 +136,12 @@
     />
 
     <!-- Create Transaction Dialog -->
-    <v-dialog v-model="showCreateTransactionDialog" :max-width="dialogMaxWidth" persistent>
+    <v-dialog
+      v-model="showCreateTransactionDialog"
+      :max-width="dialogMaxWidth"
+      persistent
+      @keydown.esc="handleTransactionFormCancel"
+    >
       <TransactionForm
         :transaction="duplicatingTransaction"
         :loading="transactionFormLoading"
@@ -146,7 +151,12 @@
     </v-dialog>
 
     <!-- Edit Transaction Dialog -->
-    <v-dialog v-model="showEditTransactionDialog" :max-width="dialogMaxWidth" persistent>
+    <v-dialog
+      v-model="showEditTransactionDialog"
+      :max-width="dialogMaxWidth"
+      persistent
+      @keydown.esc="handleTransactionFormCancel"
+    >
       <TransactionForm
         :transaction="editingTransaction"
         :loading="transactionFormLoading"
@@ -156,7 +166,12 @@
     </v-dialog>
 
     <!-- Create Transfer Dialog -->
-    <v-dialog v-model="showCreateTransferDialog" :max-width="dialogMaxWidth" persistent>
+    <v-dialog
+      v-model="showCreateTransferDialog"
+      :max-width="dialogMaxWidth"
+      persistent
+      @keydown.esc="handleTransactionFormCancel"
+    >
       <TransferForm
         :transfer="duplicatingTransfer"
         :loading="transferFormLoading"
@@ -166,7 +181,12 @@
     </v-dialog>
 
     <!-- Edit Transfer Dialog -->
-    <v-dialog v-model="showEditTransferDialog" :max-width="dialogMaxWidth" persistent>
+    <v-dialog
+      v-model="showEditTransferDialog"
+      :max-width="dialogMaxWidth"
+      persistent
+      @keydown.esc="handleTransactionFormCancel"
+    >
       <TransferForm
         :transfer="editingTransfer"
         :loading="transferFormLoading"
