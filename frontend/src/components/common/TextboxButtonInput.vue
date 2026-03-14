@@ -1,6 +1,7 @@
 <template>
   <div class="d-flex ga-2">
     <v-textarea
+      ref="textareaRef"
       :model-value="modelValue"
       :placeholder="placeholder"
       :disabled="loading"
@@ -30,6 +31,8 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from "vue";
+
 defineProps<{
   modelValue: string;
   loading?: boolean;
@@ -42,4 +45,10 @@ defineEmits<{
   "update:modelValue": [value: string];
   submit: [];
 }>();
+
+const textareaRef = ref<{ focus: () => void } | null>(null);
+
+defineExpose({
+  focus: () => textareaRef.value?.focus(),
+});
 </script>
