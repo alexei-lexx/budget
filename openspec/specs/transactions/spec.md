@@ -389,6 +389,7 @@ The system SHALL provide a text input field on the Transactions page that accept
 - WHEN the system processes the input
 - THEN a transaction is created with type expense, amount 45, description "rewe", and date set to yesterday
 - AND the transaction appears at the top of the list and the input field is cleared
+- AND the account balances are refreshed so they reflect the new transaction
 
 #### Scenario: Transaction type defaults to expense when no indicator is present
 
