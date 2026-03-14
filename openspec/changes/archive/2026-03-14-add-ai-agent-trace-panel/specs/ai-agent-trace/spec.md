@@ -55,17 +55,17 @@ The system SHALL display a trigger button near the send button on each AI-powere
 
 ### Requirement: Agent Trace Panel
 
-The system SHALL display the agent trace in a modal panel when the trigger button is activated. The panel SHALL list all trace messages in chronological order. Each message SHALL be individually expandable and collapsible. Message types SHALL be visually distinguished. JSON content in tool inputs and outputs SHALL be formatted for readability.
+The system SHALL display the agent trace in a modal panel when the trigger button is activated. The panel SHALL list all trace messages in chronological order. Messages SHALL be displayed in an accordion style — one message expanded at a time — allowing the user to inspect each entry individually. Message types SHALL be visually distinguished. JSON content in tool inputs and outputs SHALL be formatted for readability.
 
 #### Scenario: Clicking the trigger button opens the trace panel
 
 - **WHEN** the user clicks the trigger button
 - **THEN** a modal panel opens showing all trace messages for the most recent response
 
-#### Scenario: Each message is expandable and collapsible independently
+#### Scenario: Each message is expandable and collapsible
 
 - **WHEN** the trace panel is open
-- **THEN** each message entry can be expanded to show its full content and collapsed independently of others
+- **THEN** each message entry can be expanded to show its full content; expanding one message collapses the previously expanded one
 
 #### Scenario: Message types are visually distinguished
 

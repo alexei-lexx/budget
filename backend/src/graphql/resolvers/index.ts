@@ -45,8 +45,7 @@ export const resolvers: Resolvers = {
           return "AgentTraceToolCall";
         case AgentTraceMessageType.TOOL_RESULT:
           return "AgentTraceToolResult";
-        // Unknown type — returning undefined tells GraphQL to omit the item
-        // rather than throw, keeping the response forward-compatible.
+        // Unknown type — returning undefined causes a GraphQL error
         default:
           return undefined;
       }

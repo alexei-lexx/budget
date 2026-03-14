@@ -2,7 +2,7 @@
 
 ### Requirement: Agent Trace Access on Insight Page
 
-The system SHALL expose the agent trace for each insight response via the insight GraphQL query. A trigger button SHALL appear near the question submit button after each successful response, giving the user access to the agent trace panel for that response.
+The system SHALL expose the agent trace for each insight response via the insight GraphQL query. A trigger button SHALL always be visible near the question submit button, starting disabled, and becoming enabled after each successful response to give the user access to the agent trace panel for that response.
 
 #### Scenario: Trace is available after asking a question
 
