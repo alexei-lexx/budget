@@ -388,7 +388,7 @@ describe("ReActAgent", () => {
       });
     });
 
-    it.skip("should return agentTrace with tools", async () => {
+    it("should return agentTrace with tools", async () => {
       // Arrange
       const messages = [{ role: "user" as const, content: "Calculate sum" }];
 
@@ -441,12 +441,12 @@ describe("ReActAgent", () => {
       const result = await agent.call({ messages });
 
       // Assert
-      expect(result.agentTrace).toHaveLength(4);
+      expect(result.agentTrace).toHaveLength(5);
 
       expect(result.agentTrace[0]).toEqual({
         type: AgentTraceMessageType.TOOL_CALL,
         toolName: "sum",
-        input: JSON.stringify({ values: [5, 10] }),
+        input: JSON.stringify({ values: [5, 10] }, null, 2),
       });
 
       expect(result.agentTrace[1]).toEqual({
@@ -456,12 +456,17 @@ describe("ReActAgent", () => {
       });
 
       expect(result.agentTrace[2]).toEqual({
-        type: AgentTraceMessageType.TOOL_CALL,
-        toolName: "avg",
-        input: JSON.stringify({ values: [1, 2] }),
+        type: AgentTraceMessageType.TEXT,
+        content: "I will use a tool now.",
       });
 
       expect(result.agentTrace[3]).toEqual({
+        type: AgentTraceMessageType.TOOL_CALL,
+        toolName: "avg",
+        input: JSON.stringify({ values: [1, 2] }, null, 2),
+      });
+
+      expect(result.agentTrace[4]).toEqual({
         type: AgentTraceMessageType.TOOL_RESULT,
         toolName: "avg",
         output: "1.5",
