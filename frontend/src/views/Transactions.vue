@@ -296,6 +296,8 @@ const handleCreateTransactionFromText = async () => {
   if (transaction) {
     // Prepend the new transaction to the list so it appears at the top
     addTransactionsToList([transaction]);
+    // Refetch accounts to update balances
+    await refetchAccounts();
     // Wait for Vue to finish re-rendering the updated transaction list before
     // focusing, otherwise the DOM update can steal focus after we set it.
     await nextTick();
