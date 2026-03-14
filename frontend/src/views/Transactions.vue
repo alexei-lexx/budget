@@ -201,6 +201,7 @@
     <div class="w-100">
       <div class="d-flex align-center ga-2">
         <TextboxButtonInput
+          ref="createTransactionFromTextInputRef"
           v-model="createTransactionFromTextQuestion"
           :loading="createTransactionFromTextLoading"
           placeholder="e.g., morning coffee 4.5 euro"
@@ -222,7 +223,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
+import { computed, nextTick, ref, watch } from "vue";
 import { useDisplay } from "vuetify";
 import { getTodayDateString } from "@/utils/date";
 import { useTransactions } from "@/composables/useTransactions";
@@ -288,12 +289,17 @@ const {
 } = useCreateTransactionFromText();
 
 const showAgentTrace = ref(false);
+const createTransactionFromTextInputRef = ref<{ focus: () => void } | null>(null);
 
 const handleCreateTransactionFromText = async () => {
   const transaction = await createTransactionFromTextSubmit();
   if (transaction) {
     // Prepend the new transaction to the list so it appears at the top
     addTransactionsToList([transaction]);
+    // Wait for Vue to finish re-rendering the updated transaction list before
+    // focusing, otherwise the DOM update can steal focus after we set it.
+    await nextTick();
+    createTransactionFromTextInputRef.value?.focus();
   }
 };
 
