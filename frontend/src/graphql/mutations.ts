@@ -77,7 +77,22 @@ export const CREATE_TRANSACTION = gql`
 export const CREATE_TRANSACTION_FROM_TEXT = gql`
   mutation CreateTransactionFromText($input: CreateTransactionFromTextInput!) {
     createTransactionFromText(input: $input) {
-      ...TransactionFields
+      transaction {
+        ...TransactionFields
+      }
+      agentTrace {
+        ... on AgentTraceText {
+          content
+        }
+        ... on AgentTraceToolCall {
+          toolName
+          input
+        }
+        ... on AgentTraceToolResult {
+          toolName
+          output
+        }
+      }
     }
   }
   ${TRANSACTION_FRAGMENT}

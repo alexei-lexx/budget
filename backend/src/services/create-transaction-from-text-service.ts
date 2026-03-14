@@ -9,7 +9,7 @@ import {
   createGetTransactionsTool,
 } from "./agent-tools/agent-data-tools";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
-import { Agent, ToolExecution } from "./ports/agent";
+import { Agent, AgentTraceMessage, ToolExecution } from "./ports/agent";
 import { TransactionService } from "./transaction-service";
 
 const SYSTEM_PROMPT = `
@@ -108,7 +108,10 @@ export class CreateTransactionFromTextService {
     this.transactionService = options.transactionService;
   }
 
-  async call(userId: string, text: string): Promise<Transaction> {
+  async call(
+    userId: string,
+    text: string,
+  ): Promise<{ transaction: Transaction; agentTrace: AgentTraceMessage[] }> {
     if (!userId) {
       throw new BusinessError(
         "User ID is required",
@@ -143,7 +146,7 @@ export class CreateTransactionFromTextService {
 
     const systemPrompt = `${SYSTEM_PROMPT}\n\nToday is ${today}.`;
 
-    const { answer, toolExecutions } = await this.agent.call({
+    const { answer, toolExecutions, agentTrace } = await this.agent.call({
       messages: [{ role: "user", content: normalizedText }],
       systemPrompt,
       tools,
@@ -210,6 +213,10 @@ export class CreateTransactionFromTextService {
 
     const transactionId = parsedTransactionData.data.id;
 
-    return this.transactionService.getTransactionById(transactionId, userId);
+    const transaction = await this.transactionService.getTransactionById(
+      transactionId,
+      userId,
+    );
+    return { transaction, agentTrace };
   }
 }

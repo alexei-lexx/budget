@@ -28,6 +28,8 @@ export function useInsight() {
 
   const insightAnswer = computed(() => insightResult.value?.insight?.answer ?? null);
 
+  const insightAgentTrace = computed(() => insightResult.value?.insight?.agentTrace ?? []);
+
   const insightError = computed(() => insightQueryError.value?.message ?? null);
 
   const askQuestion = async (
@@ -48,6 +50,7 @@ export function useInsight() {
     insightLoading,
     insightError,
     insightAnswer,
+    insightAgentTrace,
     askQuestion,
   };
 }

@@ -14,7 +14,7 @@ import {
   sumTool,
 } from "./agent-tools/agent-math-tools";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
-import { Agent } from "./ports/agent";
+import { Agent, AgentTraceMessage } from "./ports/agent";
 
 const SYSTEM_PROMPT = `
 ## Role
@@ -70,7 +70,10 @@ export class InsightService {
     private agent: Agent,
   ) {}
 
-  async call(userId: string, input: InsightInput): Promise<string> {
+  async call(
+    userId: string,
+    input: InsightInput,
+  ): Promise<{ answer: string; agentTrace: AgentTraceMessage[] }> {
     if (!userId) {
       throw new BusinessError(
         "User ID is required",
@@ -122,23 +125,9 @@ export class InsightService {
       );
     }
 
-    let finalAnswer = response.answer.trim();
+    const finalAnswer = response.answer.trim();
 
-    // Append tool executions to the response for observability
-    if (response.toolExecutions && response.toolExecutions.length > 0) {
-      const toolsSummary = response.toolExecutions.map(
-        (toolExecution, index) => {
-          const formattedInput = this.formatJsonString(toolExecution.input);
-          const formattedOutput = this.formatJsonString(toolExecution.output);
-          return `${index + 1}. ${toolExecution.tool}\nInput:\n${formattedInput}\nOutput:\n${formattedOutput}`;
-        },
-      );
-
-      finalAnswer += "\n\n[DEBUG] Tools performed:\n";
-      finalAnswer += toolsSummary.join("\n");
-    }
-
-    return finalAnswer;
+    return { answer: finalAnswer, agentTrace: response.agentTrace };
   }
 
   private validateDateRange(startDate: DateString, endDate: DateString) {

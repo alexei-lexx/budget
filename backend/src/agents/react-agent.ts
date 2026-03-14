@@ -4,6 +4,8 @@ import { AIMessage, ToolMessage, createAgent, tool } from "langchain";
 import {
   Agent,
   AgentMessage,
+  AgentTraceMessage,
+  AgentTraceMessageType,
   ToolExecution,
   ToolSignature,
 } from "../services/ports/agent";
@@ -40,6 +42,7 @@ export class ReActAgent implements Agent {
 
     // Extract tool executions for user-facing summary
     const toolExecutionsMap = new Map<string, ToolExecution>();
+    const agentTrace: AgentTraceMessage[] = [];
 
     // Collect tool calls and results from agent conversation
     for (let index = 0; index < response.messages.length; index++) {
@@ -48,6 +51,8 @@ export class ReActAgent implements Agent {
       console.debug(`Message[${index}]`, JSON.stringify(message, null, 2));
 
       if (message instanceof AIMessage) {
+        agentTrace.push(...this.extractAgentTraceTexts(message));
+
         for (const toolCall of message.tool_calls || []) {
           const toolCallId = toolCall.id || randomUUID();
           toolExecutionsMap.set(toolCallId, {
@@ -57,6 +62,8 @@ export class ReActAgent implements Agent {
           });
         }
       } else if (message instanceof ToolMessage) {
+        agentTrace.push(this.extractAgentTraceToolResult(message));
+
         const toolCallId = message.tool_call_id || randomUUID();
         const existing = toolExecutionsMap.get(toolCallId);
 
@@ -94,6 +101,89 @@ export class ReActAgent implements Agent {
       }
     }
 
-    return { answer, toolExecutions: Array.from(toolExecutionsMap.values()) };
+    return {
+      answer,
+      toolExecutions: Array.from(toolExecutionsMap.values()),
+      agentTrace,
+    };
+  }
+
+  private extractAgentTraceTexts(message: AIMessage): AgentTraceMessage[] {
+    const result: AgentTraceMessage[] = [];
+
+    if (typeof message.content === "string") {
+      if (message.content.trim()) {
+        result.push({
+          type: AgentTraceMessageType.TEXT,
+          content: message.content,
+        });
+      }
+    } else if (Array.isArray(message.content)) {
+      for (const block of message.content) {
+        if (typeof block !== "object" || block === null) continue;
+
+        let text: unknown;
+
+        if ("text" in block) {
+          text = block.text;
+        } else if ("reasoningText" in block) {
+          const reasoningText = block.reasoningText;
+
+          if (
+            reasoningText &&
+            typeof reasoningText === "object" &&
+            "text" in reasoningText
+          ) {
+            text = reasoningText.text;
+          }
+        }
+
+        if (text) {
+          result.push({
+            type: AgentTraceMessageType.TEXT,
+            content: String(text),
+          });
+        }
+      }
+    }
+
+    for (const toolCall of message.tool_calls || []) {
+      result.push({
+        type: AgentTraceMessageType.TOOL_CALL,
+        toolName: toolCall.name,
+        input: this.prettifyJson(toolCall.args),
+      });
+    }
+
+    return result;
+  }
+
+  private extractAgentTraceToolResult(message: ToolMessage): AgentTraceMessage {
+    const toolName = message.name || "Unknown tool";
+    const rawToolOutput = message.content;
+    let toolOutput: string;
+
+    if (typeof rawToolOutput === "string") {
+      let parsedToolOutput;
+
+      try {
+        parsedToolOutput = JSON.parse(String(rawToolOutput));
+        toolOutput = this.prettifyJson(parsedToolOutput);
+      } catch {
+        toolOutput = rawToolOutput;
+      }
+    } else {
+      toolOutput = String(rawToolOutput);
+    }
+
+    return {
+      type: AgentTraceMessageType.TOOL_RESULT,
+      toolName: toolName,
+      output: toolOutput,
+    };
+  }
+
+  private prettifyJson(object: object) {
+    return JSON.stringify(object, null, 2);
   }
 }

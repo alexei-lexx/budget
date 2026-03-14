@@ -6,7 +6,11 @@ import { type IAgentDataService } from "./agent-data-service";
 import { MAX_PERIOD_DAYS } from "./agent-tools/agent-data-tools";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
 import { type InsightInput, InsightService } from "./insight-service";
-import { type Agent } from "./ports/agent";
+import {
+  type Agent,
+  type AgentTraceMessage,
+  AgentTraceMessageType,
+} from "./ports/agent";
 
 const createMockAgent = (): jest.Mocked<Agent> => ({
   call: jest.fn(),
@@ -172,13 +176,14 @@ describe("InsightService", () => {
       mockAgent.call.mockResolvedValue({
         answer: "Your food spending was $50.",
         toolExecutions: [],
+        agentTrace: [],
       });
 
       // Act
       const result = await service.call(userId, validInput);
 
       // Assert
-      expect(result).toContain("Your food spending was $50.");
+      expect(result.answer).toContain("Your food spending was $50.");
       expect(mockAgent.call).toHaveBeenCalledWith(
         expect.objectContaining({
           messages: expect.arrayOf(
@@ -204,7 +209,7 @@ describe("InsightService", () => {
         ...validInput,
         question: "  What is my spending?  ",
       };
-      mockAgent.call.mockResolvedValue({ answer: "Answer" });
+      mockAgent.call.mockResolvedValue({ answer: "Answer", agentTrace: [] });
 
       // Act
       await service.call(userId, input);
@@ -218,7 +223,7 @@ describe("InsightService", () => {
 
     it("should pass system prompt, tools, user message to AI agent", async () => {
       // Arrange
-      mockAgent.call.mockResolvedValue({ answer: "Answer" });
+      mockAgent.call.mockResolvedValue({ answer: "Answer", agentTrace: [] });
 
       // Act
       await service.call(userId, validInput);
@@ -258,32 +263,21 @@ describe("InsightService", () => {
       await expect(promise).rejects.toThrow("AI service unavailable");
     });
 
-    it("should append tool executions to response when present", async () => {
+    it("should return agentTrace from agent response", async () => {
       // Arrange
+      const agentTrace: AgentTraceMessage[] = [
+        { type: AgentTraceMessageType.TEXT, content: "Thinking..." },
+      ];
       mockAgent.call.mockResolvedValue({
-        answer: "The total is $150.",
-        toolExecutions: [
-          {
-            tool: "sum",
-            input: "[50, 100]",
-            output: "150",
-          },
-          {
-            tool: "avg",
-            input: "[50, 100]",
-            output: "75",
-          },
-        ],
+        answer: "Answer",
+        agentTrace,
       });
 
       // Act
       const result = await service.call(userId, validInput);
 
       // Assert
-      expect(result).toContain("The total is $150.");
-      expect(result).toContain("Tools performed:");
-      expect(result).toContain("1. sum");
-      expect(result).toContain("2. avg");
+      expect(result.agentTrace).toEqual(agentTrace);
     });
   });
 });

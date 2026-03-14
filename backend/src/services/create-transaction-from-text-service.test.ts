@@ -4,7 +4,11 @@ import { createMockAgentDataService } from "../utils/test-utils/mock-services";
 import { type IAgentDataService } from "./agent-data-service";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
 import { CreateTransactionFromTextService } from "./create-transaction-from-text-service";
-import { type Agent, ToolSignature } from "./ports/agent";
+import {
+  type Agent,
+  AgentTraceMessageType,
+  ToolSignature,
+} from "./ports/agent";
 import { TransactionService } from "./transaction-service";
 
 const createMockAgent = (): jest.Mocked<Agent> => ({
@@ -109,6 +113,12 @@ describe("CreateTransactionFromTextService", () => {
             output: "{}",
           },
         ],
+        agentTrace: [
+          {
+            type: AgentTraceMessageType.TEXT,
+            content: "Thinking...",
+          },
+        ],
       });
 
       mockTransactionService.getTransactionById.mockResolvedValue(
@@ -121,11 +131,24 @@ describe("CreateTransactionFromTextService", () => {
       const result = await service.call(userId, text);
 
       // Assert
-      expect(result).toBe(createdTransaction);
+      expect(result.transaction).toBe(createdTransaction);
       expect(mockTransactionService.getTransactionById).toHaveBeenCalledWith(
         transactionId,
         userId,
       );
+    });
+
+    it("should return agentTrace from agent response", async () => {
+      // Act
+      const result = await service.call(userId, text);
+
+      // Assert
+      expect(result.agentTrace).toEqual([
+        {
+          type: AgentTraceMessageType.TEXT,
+          content: "Thinking...",
+        },
+      ]);
     });
 
     it("should pass trimmed text to agent", async () => {
@@ -185,6 +208,7 @@ describe("CreateTransactionFromTextService", () => {
             output: "{}",
           },
         ],
+        agentTrace: [],
       });
 
       // Act
@@ -211,6 +235,7 @@ describe("CreateTransactionFromTextService", () => {
             output: "This is not valid JSON",
           },
         ],
+        agentTrace: [],
       });
 
       // Act
@@ -236,6 +261,7 @@ describe("CreateTransactionFromTextService", () => {
             output: '{ "currency": "EUR" }', // missing "id"
           },
         ],
+        agentTrace: [],
       });
 
       // Act
@@ -269,6 +295,7 @@ describe("CreateTransactionFromTextService", () => {
             output: `{ "id": "${transactionId}" }`,
           },
         ],
+        agentTrace: [],
       });
       mockTransactionService.getTransactionById.mockResolvedValue(
         createdTransaction,
@@ -278,7 +305,7 @@ describe("CreateTransactionFromTextService", () => {
       const result = await service.call(userId, text);
 
       // Assert
-      expect(result).toBe(createdTransaction);
+      expect(result.transaction).toBe(createdTransaction);
       expect(mockTransactionService.getTransactionById).toHaveBeenCalledWith(
         transactionId,
         userId,

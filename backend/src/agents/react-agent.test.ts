@@ -7,7 +7,7 @@ import {
   tool,
 } from "langchain";
 import { z } from "zod";
-import { ToolSignature } from "../services/ports/agent";
+import { AgentTraceMessageType, ToolSignature } from "../services/ports/agent";
 import { ReActAgent } from "./react-agent";
 
 // Mock LangChain's createAgent and tool
@@ -304,6 +304,203 @@ describe("ReActAgent", () => {
 
       // Assert
       expect(result.answer).toBe("");
+    });
+
+    it("should return agentTrace with text", async () => {
+      // Arrange
+      const messages = [{ role: "user" as const, content: "Calculate sum" }];
+
+      const aiMessage1 = new AIMessage({
+        content: "First message",
+      });
+
+      const aiMessage2 = new AIMessage({
+        content: [
+          {
+            text: "Second message",
+            type: "text",
+          },
+          {
+            text: "Third message",
+            type: "text",
+          },
+        ],
+      });
+
+      mockReactAgent.invoke.mockResolvedValue({
+        messages: [aiMessage1, aiMessage2],
+      });
+
+      // Act
+      const result = await agent.call({ messages });
+
+      // Assert
+      expect(result.agentTrace).toHaveLength(3);
+
+      expect(result.agentTrace[0]).toEqual({
+        type: AgentTraceMessageType.TEXT,
+        content: "First message",
+      });
+
+      expect(result.agentTrace[1]).toEqual({
+        type: AgentTraceMessageType.TEXT,
+        content: "Second message",
+      });
+
+      expect(result.agentTrace[2]).toEqual({
+        type: AgentTraceMessageType.TEXT,
+        content: "Third message",
+      });
+    });
+
+    it("should return agentTrace with reasoning", async () => {
+      // Arrange
+      const messages = [{ role: "user" as const, content: "Calculate sum" }];
+
+      const aiMessage = new AIMessage({
+        content: [
+          {
+            type: "reasoning_content",
+            reasoningText: { text: "First message" },
+          },
+          { type: "text", text: "Second message" },
+        ],
+      });
+
+      mockReactAgent.invoke.mockResolvedValue({
+        messages: [aiMessage],
+      });
+
+      // Act
+      const result = await agent.call({ messages });
+
+      // Assert
+      expect(result.agentTrace).toHaveLength(2);
+
+      expect(result.agentTrace[0]).toEqual({
+        type: AgentTraceMessageType.TEXT,
+        content: "First message",
+      });
+
+      expect(result.agentTrace[1]).toEqual({
+        type: AgentTraceMessageType.TEXT,
+        content: "Second message",
+      });
+    });
+
+    it("should return agentTrace with tools", async () => {
+      // Arrange
+      const messages = [{ role: "user" as const, content: "Calculate sum" }];
+
+      const aiMessage1 = new AIMessage({
+        content: "",
+        tool_calls: [
+          {
+            id: "call_1",
+            name: "sum",
+            args: { values: [5, 10] },
+            type: "tool_call",
+          },
+        ],
+      });
+
+      const toolResultMessage1 = new ToolMessage({
+        content: "15",
+        name: "sum",
+        tool_call_id: "call_1",
+      });
+
+      const aiMessage2 = new AIMessage({
+        content: [{ type: "text", text: "I will use a tool now." }],
+        tool_calls: [
+          {
+            id: "call_2",
+            name: "avg",
+            args: { values: [1, 2] },
+            type: "tool_call",
+          },
+        ],
+      });
+
+      const toolResultMessage2 = new ToolMessage({
+        content: "1.5",
+        name: "avg",
+        tool_call_id: "call_2",
+      });
+
+      mockReactAgent.invoke.mockResolvedValue({
+        messages: [
+          aiMessage1,
+          toolResultMessage1,
+          aiMessage2,
+          toolResultMessage2,
+        ],
+      });
+
+      // Act
+      const result = await agent.call({ messages });
+
+      // Assert
+      expect(result.agentTrace).toHaveLength(5);
+
+      expect(result.agentTrace[0]).toEqual({
+        type: AgentTraceMessageType.TOOL_CALL,
+        toolName: "sum",
+        input: JSON.stringify({ values: [5, 10] }, null, 2),
+      });
+
+      expect(result.agentTrace[1]).toEqual({
+        type: AgentTraceMessageType.TOOL_RESULT,
+        toolName: "sum",
+        output: "15",
+      });
+
+      expect(result.agentTrace[2]).toEqual({
+        type: AgentTraceMessageType.TEXT,
+        content: "I will use a tool now.",
+      });
+
+      expect(result.agentTrace[3]).toEqual({
+        type: AgentTraceMessageType.TOOL_CALL,
+        toolName: "avg",
+        input: JSON.stringify({ values: [1, 2] }, null, 2),
+      });
+
+      expect(result.agentTrace[4]).toEqual({
+        type: AgentTraceMessageType.TOOL_RESULT,
+        toolName: "avg",
+        output: "1.5",
+      });
+    });
+
+    it("should return empty agentTrace for messages with no content", async () => {
+      // Arrange
+      const messages = [{ role: "user" as const, content: "Test" }];
+
+      const aiMessage1 = new AIMessage({ content: "" });
+
+      const aiMessage2 = new AIMessage({
+        content: [
+          {
+            content: "",
+            type: "text",
+          },
+          {
+            content: "",
+            type: "reasoning_content",
+          },
+        ],
+      });
+
+      mockReactAgent.invoke.mockResolvedValue({
+        messages: [aiMessage1, aiMessage2],
+      });
+
+      // Act
+      const result = await agent.call({ messages });
+
+      // Assert
+      expect(result.agentTrace).toHaveLength(0);
     });
   });
 });

@@ -11,6 +11,8 @@ context: |
 
   Run `npx prettier --write openspec/` after creating or updating any artifact to ensure consistent formatting.
 
+  To check the application, assume that the backend and frontend are already up and running.
+
 # Project context (optional)
 # This is shown to AI when creating artifacts.
 # Add your tech stack, conventions, style guides, domain knowledge, etc.
