@@ -8,6 +8,7 @@ import { ITransactionRepository } from "../../services/ports/transaction-reposit
 export const createMockTransactionRepository =
   (): jest.Mocked<ITransactionRepository> => ({
     findActiveByUserId: jest.fn(),
+    findAllActiveByUserId: jest.fn(),
     findActiveById: jest.fn(),
     findActiveByAccountId: jest.fn(),
     findActiveByTransferId: jest.fn(),

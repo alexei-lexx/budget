@@ -33,6 +33,42 @@ describe("TransactionRepository", () => {
     });
   });
 
+  describe("findAllActiveByUserId", () => {
+    it("should return all transactions across multiple pages", async () => {
+      // Arrange: create pageSize + 1 transactions to span two pages
+      const userId = faker.string.uuid();
+      const pageSize = 5;
+      const totalCount = pageSize + 1;
+
+      await repository.createMany(
+        Array.from({ length: totalCount }, () =>
+          fakeCreateTransactionInput({ userId }),
+        ),
+      );
+
+      // Create transactions belonging to other users
+      await repository.createMany([
+        fakeCreateTransactionInput(),
+        fakeCreateTransactionInput(),
+      ]);
+
+      // Act
+      const result = await repository.findAllActiveByUserId(userId);
+
+      // Assert
+      expect(result).toHaveLength(totalCount);
+      result.forEach((transaction) => expect(transaction.userId).toBe(userId));
+    });
+
+    it("should return empty array when no transactions exist", async () => {
+      const userId = faker.string.uuid();
+
+      const result = await repository.findAllActiveByUserId(userId);
+
+      expect(result).toHaveLength(0);
+    });
+  });
+
   describe("create", () => {
     it("should create a transaction successfully", async () => {
       // Arrange

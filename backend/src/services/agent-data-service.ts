@@ -1,7 +1,6 @@
 import { CategoryType } from "../models/category";
 import { TransactionType } from "../models/transaction";
 import { DateString, toDateString } from "../types/date";
-import { MAX_PAGE_SIZE } from "../types/pagination";
 import { daysAgo, formatDateAsYYYYMMDD } from "../utils/date";
 import { IAccountRepository } from "./ports/account-repository";
 import { ICategoryRepository } from "./ports/category-repository";
@@ -134,31 +133,21 @@ export class AgentDataService implements IAgentDataService {
       ...(categoryId && { categoryIds: [categoryId] }),
     };
 
-    const result: TransactionData[] = [];
-    let cursor: string | undefined;
-    do {
-      const connection = await this.transactionRepository.findActiveByUserId(
-        userId,
-        { first: MAX_PAGE_SIZE, after: cursor },
-        filters,
-      );
-      result.push(
-        ...connection.edges.map((edge) => ({
-          id: edge.node.id,
-          accountId: edge.node.accountId,
-          categoryId: edge.node.categoryId,
-          type: edge.node.type,
-          amount: edge.node.amount,
-          currency: edge.node.currency,
-          date: edge.node.date,
-          description: edge.node.description,
-          transferId: edge.node.transferId,
-        })),
-      );
-      cursor = connection.pageInfo.hasNextPage
-        ? connection.pageInfo.endCursor
-        : undefined;
-    } while (cursor);
+    const transactions = await this.transactionRepository.findAllActiveByUserId(
+      userId,
+      filters,
+    );
+    const result: TransactionData[] = transactions.map((transaction) => ({
+      id: transaction.id,
+      accountId: transaction.accountId,
+      categoryId: transaction.categoryId,
+      type: transaction.type,
+      amount: transaction.amount,
+      currency: transaction.currency,
+      date: transaction.date,
+      description: transaction.description,
+      transferId: transaction.transferId,
+    }));
 
     return result;
   }

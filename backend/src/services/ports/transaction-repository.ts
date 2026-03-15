@@ -48,6 +48,11 @@ export interface ITransactionRepository {
     pagination?: PaginationInput,
     filters?: TransactionFilterInput,
   ): Promise<TransactionConnection>;
+  findAllActiveByUserId(
+    userId: string,
+    filters?: TransactionFilterInput,
+    pageSize?: number,
+  ): Promise<Transaction[]>;
   findActiveById(id: string, userId: string): Promise<Transaction | null>;
   findActiveByAccountId(
     accountId: string,

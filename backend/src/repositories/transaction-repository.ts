@@ -548,6 +548,31 @@ export class TransactionRepository implements ITransactionRepository {
     }
   }
 
+  async findAllActiveByUserId(
+    userId: string,
+    filters?: TransactionFilterInput,
+    pageSize: number = MAX_PAGE_SIZE,
+  ): Promise<Transaction[]> {
+    const allTransactions: Transaction[] = [];
+
+    let cursor: string | undefined;
+    do {
+      const connection = await this.findActiveByUserId(
+        userId,
+        { first: pageSize, after: cursor },
+        filters,
+      );
+
+      allTransactions.push(...connection.edges.map((edge) => edge.node));
+
+      cursor = connection.pageInfo.hasNextPage
+        ? connection.pageInfo.endCursor
+        : undefined;
+    } while (cursor);
+
+    return allTransactions;
+  }
+
   async findActiveById(
     id: string,
     userId: string,
