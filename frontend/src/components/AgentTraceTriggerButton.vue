@@ -3,7 +3,6 @@
     :disabled="agentTrace.length === 0 || loading"
     icon="mdi-robot-outline"
     variant="tonal"
-    size="small"
     aria-label="View agent trace"
     @click="$emit('click')"
   />
