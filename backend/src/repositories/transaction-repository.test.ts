@@ -53,7 +53,11 @@ describe("TransactionRepository", () => {
       ]);
 
       // Act
-      const result = await repository.findAllActiveByUserId(userId);
+      const result = await repository.findAllActiveByUserId(
+        userId,
+        undefined,
+        pageSize,
+      );
 
       // Assert
       expect(result).toHaveLength(totalCount);
