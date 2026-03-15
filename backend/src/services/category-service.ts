@@ -2,8 +2,8 @@ import { Category, CategoryType } from "../models/category";
 import { NAME_MAX_LENGTH, NAME_MIN_LENGTH } from "../types/validation";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
 import {
+  CategoryRepository,
   CreateCategoryInput,
-  ICategoryRepository,
   UpdateCategoryInput,
 } from "./ports/category-repository";
 
@@ -12,7 +12,7 @@ import {
  * Implements the service layer pattern for category operations
  */
 export class CategoryService {
-  constructor(private categoryRepository: ICategoryRepository) {}
+  constructor(private categoryRepository: CategoryRepository) {}
 
   /**
    * Get all active categories for a user, optionally filtered by type

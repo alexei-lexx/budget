@@ -13,14 +13,14 @@ import { toDateString } from "../types/date";
 import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
 import { truncateTable } from "../utils/test-utils/dynamodb-helpers";
 import { fakeCreateTransactionInput } from "../utils/test-utils/factories";
-import { TransactionRepository } from "./transaction-repository";
+import { DynTransactionRepository } from "./dyn-transaction-repository";
 
-describe("TransactionRepository", () => {
-  let repository: TransactionRepository;
+describe("DynTransactionRepository", () => {
+  let repository: DynTransactionRepository;
 
   beforeAll(async () => {
     // Create repository instance
-    repository = new TransactionRepository();
+    repository = new DynTransactionRepository();
   });
 
   beforeEach(async () => {

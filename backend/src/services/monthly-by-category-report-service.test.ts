@@ -10,13 +10,13 @@ import {
 } from "../utils/test-utils/mock-repositories";
 import { BusinessErrorCodes } from "./business-error";
 import { MonthlyByCategoryReportService } from "./monthly-by-category-report-service";
-import { ICategoryRepository } from "./ports/category-repository";
-import { ITransactionRepository } from "./ports/transaction-repository";
+import { CategoryRepository } from "./ports/category-repository";
+import { TransactionRepository } from "./ports/transaction-repository";
 
 describe("MonthlyByCategoryReportService", () => {
   let monthlyByCategoryReportService: MonthlyByCategoryReportService;
-  let mockTransactionRepository: jest.Mocked<ITransactionRepository>;
-  let mockCategoryRepository: jest.Mocked<ICategoryRepository>;
+  let mockTransactionRepository: jest.Mocked<TransactionRepository>;
+  let mockCategoryRepository: jest.Mocked<CategoryRepository>;
 
   const userId = uuidv4();
 

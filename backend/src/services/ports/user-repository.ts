@@ -4,7 +4,7 @@ export interface CreateUserInput {
   email: string;
 }
 
-export interface IUserRepository {
+export interface UserRepository {
   findByEmail(email: string): Promise<User | null>;
   findAll(): Promise<User[]>;
   create(input: CreateUserInput): Promise<User>;

@@ -42,7 +42,7 @@ export type UpdateTransactionInput = Partial<
   description?: string | null; // Allow null to clear description
 };
 
-export interface ITransactionRepository {
+export interface TransactionRepository {
   findActiveByUserId(
     userId: string,
     filters?: TransactionFilterInput,

@@ -1,6 +1,6 @@
 import DataLoader from "dataloader";
 import { Category } from "../../models/category";
-import { ICategoryRepository } from "../../services/ports/category-repository";
+import { CategoryRepository } from "../../services/ports/category-repository";
 import { TransactionEmbeddedCategory } from "../embedded-types";
 
 export type { TransactionEmbeddedCategory };
@@ -23,7 +23,7 @@ const createStubCategory = (id: string): TransactionEmbeddedCategory => ({
  */
 export async function batchLoadCategories(
   categoryIds: readonly string[],
-  categoryRepository: ICategoryRepository,
+  categoryRepository: CategoryRepository,
   userId: string,
 ): Promise<TransactionEmbeddedCategory[]> {
   if (categoryIds.length === 0) {
@@ -75,7 +75,7 @@ export async function batchLoadCategories(
  * @returns DataLoader instance configured for category batching
  */
 export function createCategoryLoader(
-  categoryRepository: ICategoryRepository,
+  categoryRepository: CategoryRepository,
   getUserId: () => Promise<string>,
 ): DataLoader<string, TransactionEmbeddedCategory> {
   return new DataLoader(async (categoryIds) => {

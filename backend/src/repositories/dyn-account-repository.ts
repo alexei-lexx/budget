@@ -7,50 +7,41 @@ import {
   PutCommand,
   UpdateCommand,
 } from "@aws-sdk/lib-dynamodb";
-import { Category, CategoryType } from "../models/category";
+import { Account } from "../models/account";
 import {
-  CreateCategoryInput,
-  ICategoryRepository,
-  UpdateCategoryInput,
-} from "../services/ports/category-repository";
+  AccountRepository,
+  CreateAccountInput,
+  UpdateAccountInput,
+} from "../services/ports/account-repository";
 import { RepositoryError } from "../services/ports/repository-error";
 import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
-import { categorySchema } from "./schemas/category";
+import { accountSchema } from "./schemas/account";
 import { hydrate } from "./utils/hydrate";
 import { paginateQuery } from "./utils/query";
 
-/**
- * Sort categories alphabetically by name
- */
-function sortCategories(categories: Category[]): Category[] {
-  return categories.sort((a, b) =>
-    a.name.localeCompare(b.name, undefined, { sensitivity: "base" }),
-  );
-}
-
-export class CategoryRepository implements ICategoryRepository {
+export class DynAccountRepository implements AccountRepository {
   private client: DynamoDBDocumentClient;
   private tableName: string;
 
   constructor(dynamoClient?: DynamoDBClient) {
     this.client = createDynamoDBDocumentClient(dynamoClient);
-    this.tableName = process.env.CATEGORIES_TABLE_NAME || "";
+    this.tableName = process.env.ACCOUNTS_TABLE_NAME || "";
 
     if (!this.tableName) {
       throw new RepositoryError(
-        "CATEGORIES_TABLE_NAME environment variable is required",
+        "ACCOUNTS_TABLE_NAME environment variable is required",
         "MISSING_TABLE_NAME",
       );
     }
   }
 
-  async findActiveByUserId(userId: string): Promise<Category[]> {
+  async findActiveByUserId(userId: string): Promise<Account[]> {
     if (!userId) {
       throw new RepositoryError("User ID is required", "INVALID_USER_ID");
     }
 
     try {
-      const result = await paginateQuery<Category>({
+      const result = await paginateQuery<Account>({
         client: this.client,
         params: {
           TableName: this.tableName,
@@ -62,29 +53,32 @@ export class CategoryRepository implements ICategoryRepository {
           },
         },
         pageSize: undefined, // No pageSize = get all items
-        schema: categorySchema,
+        schema: accountSchema,
       });
 
-      const categories = result.items;
+      const accounts = result.items;
 
-      return sortCategories(categories);
+      // Sort accounts by name (case-insensitive)
+      return accounts.sort((a, b) =>
+        a.name.toLowerCase().localeCompare(b.name.toLowerCase()),
+      );
     } catch (error) {
-      console.error("Error finding active categories by user ID:", error);
+      console.error("Error finding active accounts by user ID:", error);
       throw new RepositoryError(
-        "Failed to find active categories",
+        "Failed to find active accounts",
         "QUERY_FAILED",
         error,
       );
     }
   }
 
-  async findAllByUserId(userId: string): Promise<Category[]> {
+  async findAllByUserId(userId: string): Promise<Account[]> {
     if (!userId) {
       throw new RepositoryError("User ID is required", "INVALID_USER_ID");
     }
 
     try {
-      const result = await paginateQuery<Category>({
+      const result = await paginateQuery<Account>({
         client: this.client,
         params: {
           TableName: this.tableName,
@@ -94,68 +88,24 @@ export class CategoryRepository implements ICategoryRepository {
           },
         },
         pageSize: undefined, // No pageSize = get all items
-        schema: categorySchema,
+        schema: accountSchema,
       });
 
       return result.items;
     } catch (error) {
-      console.error("Error finding all categories by user ID:", error);
+      console.error("Error finding all accounts by user ID:", error);
       throw new RepositoryError(
-        "Failed to find all categories",
+        "Failed to find all accounts",
         "QUERY_FAILED",
         error,
       );
     }
   }
 
-  async findActiveByUserIdAndType(
-    userId: string,
-    type: CategoryType,
-  ): Promise<Category[]> {
-    if (!userId) {
-      throw new RepositoryError("User ID is required", "INVALID_USER_ID");
-    }
-
-    try {
-      const result = await paginateQuery<Category>({
-        client: this.client,
-        params: {
-          TableName: this.tableName,
-          KeyConditionExpression: "userId = :userId",
-          FilterExpression: "isArchived = :isArchived AND #type = :type",
-          ExpressionAttributeNames: {
-            "#type": "type",
-          },
-          ExpressionAttributeValues: {
-            ":userId": userId,
-            ":isArchived": false,
-            ":type": type,
-          },
-        },
-        pageSize: undefined, // No pageSize = get all items
-        schema: categorySchema,
-      });
-
-      const categories = result.items;
-
-      return sortCategories(categories);
-    } catch (error) {
-      console.error(
-        "Error finding active categories by user ID and type:",
-        error,
-      );
-      throw new RepositoryError(
-        "Failed to find active categories by type",
-        "QUERY_FAILED",
-        error,
-      );
-    }
-  }
-
-  async findActiveById(id: string, userId: string): Promise<Category | null> {
+  async findActiveById(id: string, userId: string): Promise<Account | null> {
     if (!id || !userId) {
       throw new RepositoryError(
-        "Category ID and User ID are required",
+        "Account ID and User ID are required",
         "INVALID_PARAMETERS",
       );
     }
@@ -172,21 +122,21 @@ export class CategoryRepository implements ICategoryRepository {
         return null;
       }
 
-      const category = hydrate(categorySchema, result.Item);
+      const account = hydrate(accountSchema, result.Item);
 
-      // Return null if category is archived (soft deleted)
-      if (category.isArchived) {
+      // Return null if account is archived (soft deleted)
+      if (account.isArchived) {
         return null;
       }
 
-      return category;
+      return account;
     } catch (error) {
-      console.error("Error finding category by ID:", error);
-      throw new RepositoryError("Failed to find category", "GET_FAILED", error);
+      console.error("Error finding account by ID:", error);
+      throw new RepositoryError("Failed to find account", "GET_FAILED", error);
     }
   }
 
-  async findByIds(ids: readonly string[], userId: string): Promise<Category[]> {
+  async findByIds(ids: readonly string[], userId: string): Promise<Account[]> {
     if (ids.length === 0) {
       return [];
     }
@@ -206,26 +156,26 @@ export class CategoryRepository implements ICategoryRepository {
 
       const result = await this.client.send(command);
       return (result.Responses?.[this.tableName] || []).map((item) =>
-        hydrate(categorySchema, item),
+        hydrate(accountSchema, item),
       );
     } catch (error) {
-      console.error("Error batch finding categories by IDs:", error);
+      console.error("Error batch finding accounts by IDs:", error);
       throw new RepositoryError(
-        "Failed to batch find categories",
+        "Failed to batch find accounts",
         "BATCH_GET_FAILED",
         error,
       );
     }
   }
 
-  async create(input: CreateCategoryInput): Promise<Category> {
+  async create(input: CreateAccountInput): Promise<Account> {
     const now = new Date().toISOString();
-    const category: Category = {
-      userId: input.userId,
+    const account: Account = {
       id: randomUUID(),
+      userId: input.userId,
       name: input.name,
-      type: input.type,
-      excludeFromReports: input.excludeFromReports,
+      currency: input.currency,
+      initialBalance: input.initialBalance,
       isArchived: false,
       createdAt: now,
       updatedAt: now,
@@ -234,15 +184,15 @@ export class CategoryRepository implements ICategoryRepository {
     try {
       const command = new PutCommand({
         TableName: this.tableName,
-        Item: category,
+        Item: account,
       });
 
       await this.client.send(command);
-      return category;
+      return account;
     } catch (error) {
-      console.error("Error creating category:", error);
+      console.error("Error creating account:", error);
       throw new RepositoryError(
-        "Failed to create category",
+        "Failed to create account",
         "CREATE_FAILED",
         error,
       );
@@ -252,50 +202,38 @@ export class CategoryRepository implements ICategoryRepository {
   async update(
     id: string,
     userId: string,
-    input: UpdateCategoryInput,
-  ): Promise<Category> {
-    if (!id) {
+    input: UpdateAccountInput,
+  ): Promise<Account> {
+    if (!id || !userId) {
       throw new RepositoryError(
-        "Category ID is required",
+        "Account ID and User ID are required",
         "INVALID_PARAMETERS",
       );
-    }
-
-    if (!userId) {
-      throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
-    }
-
-    // Get current category to check for duplicate names
-    const currentCategory = await this.findActiveById(id, userId);
-    if (!currentCategory) {
-      throw new RepositoryError("Category not found", "NOT_FOUND");
     }
 
     const now = new Date().toISOString();
 
     // Build update expression dynamically
     const updateExpressionParts: string[] = ["updatedAt = :updatedAt"];
-    const expressionAttributeValues: Record<string, string | boolean> = {
+    const expressionAttributeValues: Record<string, string | number> = {
       ":updatedAt": now,
     };
-    const expressionAttributeNames: Record<string, string> = {};
+    let hasNameUpdate = false;
 
     if (input.name !== undefined) {
       updateExpressionParts.push("#name = :name");
-      expressionAttributeValues[":name"] = input.name.trim();
-      expressionAttributeNames["#name"] = "name";
+      expressionAttributeValues[":name"] = input.name;
+      hasNameUpdate = true;
     }
 
-    if (input.type !== undefined) {
-      updateExpressionParts.push("#type = :type");
-      expressionAttributeValues[":type"] = input.type;
-      expressionAttributeNames["#type"] = "type";
+    if (input.currency !== undefined) {
+      updateExpressionParts.push("currency = :currency");
+      expressionAttributeValues[":currency"] = input.currency;
     }
 
-    if (input.excludeFromReports !== undefined) {
-      updateExpressionParts.push("excludeFromReports = :excludeFromReports");
-      expressionAttributeValues[":excludeFromReports"] =
-        input.excludeFromReports;
+    if (input.initialBalance !== undefined) {
+      updateExpressionParts.push("initialBalance = :initialBalance");
+      expressionAttributeValues[":initialBalance"] = input.initialBalance;
     }
 
     try {
@@ -305,9 +243,7 @@ export class CategoryRepository implements ICategoryRepository {
         UpdateExpression: `SET ${updateExpressionParts.join(", ")}`,
         ConditionExpression:
           "attribute_exists(userId) AND attribute_exists(id) AND isArchived <> :isArchived",
-        ...(Object.keys(expressionAttributeNames).length > 0 && {
-          ExpressionAttributeNames: expressionAttributeNames,
-        }),
+        ...(hasNameUpdate && { ExpressionAttributeNames: { "#name": "name" } }),
         ExpressionAttributeValues: {
           ...expressionAttributeValues,
           ":isArchived": true,
@@ -316,38 +252,34 @@ export class CategoryRepository implements ICategoryRepository {
       });
 
       const result = await this.client.send(command);
-      return hydrate(categorySchema, result.Attributes);
+      return hydrate(accountSchema, result.Attributes);
     } catch (error) {
-      console.error("Error updating category:", error);
+      console.error("Error updating account:", error);
 
       if (
         error instanceof Error &&
         error.name === "ConditionalCheckFailedException"
       ) {
         throw new RepositoryError(
-          "Category not found or is archived",
+          "Account not found or is archived",
           "NOT_FOUND",
         );
       }
 
       throw new RepositoryError(
-        "Failed to update category",
+        "Failed to update account",
         "UPDATE_FAILED",
         error,
       );
     }
   }
 
-  async archive(id: string, userId: string): Promise<Category> {
-    if (!id) {
+  async archive(id: string, userId: string): Promise<Account> {
+    if (!id || !userId) {
       throw new RepositoryError(
-        "Category ID is required",
+        "Account ID and User ID are required",
         "INVALID_PARAMETERS",
       );
-    }
-
-    if (!userId) {
-      throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
     }
 
     const now = new Date().toISOString();
@@ -368,22 +300,22 @@ export class CategoryRepository implements ICategoryRepository {
       });
 
       const result = await this.client.send(command);
-      return hydrate(categorySchema, result.Attributes);
+      return hydrate(accountSchema, result.Attributes);
     } catch (error) {
-      console.error("Error archiving category:", error);
+      console.error("Error archiving account:", error);
 
       if (
         error instanceof Error &&
         error.name === "ConditionalCheckFailedException"
       ) {
         throw new RepositoryError(
-          "Category not found or already archived",
+          "Account not found or already archived",
           "NOT_FOUND",
         );
       }
 
       throw new RepositoryError(
-        "Failed to archive category",
+        "Failed to archive account",
         "ARCHIVE_FAILED",
         error,
       );

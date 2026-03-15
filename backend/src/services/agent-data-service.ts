@@ -2,11 +2,11 @@ import { CategoryType } from "../models/category";
 import { TransactionType } from "../models/transaction";
 import { DateString, toDateString } from "../types/date";
 import { daysAgo, formatDateAsYYYYMMDD } from "../utils/date";
-import { IAccountRepository } from "./ports/account-repository";
-import { ICategoryRepository } from "./ports/category-repository";
+import { AccountRepository } from "./ports/account-repository";
+import { CategoryRepository } from "./ports/category-repository";
 import {
-  ITransactionRepository,
   TransactionFilterInput,
+  TransactionRepository,
 } from "./ports/transaction-repository";
 
 // Category history enrichment constants
@@ -60,9 +60,9 @@ export interface IAgentDataService {
 
 export class AgentDataService implements IAgentDataService {
   constructor(
-    private accountRepository: IAccountRepository,
-    private categoryRepository: ICategoryRepository,
-    private transactionRepository: ITransactionRepository,
+    private accountRepository: AccountRepository,
+    private categoryRepository: CategoryRepository,
+    private transactionRepository: TransactionRepository,
   ) {}
 
   async getAccounts(

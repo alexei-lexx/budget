@@ -9,14 +9,14 @@ import {
 import { User } from "../models/user";
 import {
   CreateUserInput,
-  IUserRepository,
+  UserRepository,
 } from "../services/ports/user-repository";
 import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
 import { normalizeEmail } from "../utils/email";
 import { userSchema } from "./schemas/user";
 import { hydrate } from "./utils/hydrate";
 
-export class UserRepository implements IUserRepository {
+export class DynUserRepository implements UserRepository {
   private client: DynamoDBDocumentClient;
   private tableName: string;
 

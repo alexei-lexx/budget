@@ -3,15 +3,15 @@ import { faker } from "@faker-js/faker";
 import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
 import { truncateTable } from "../utils/test-utils/dynamodb-helpers";
 import { fakeCreateAccountInput } from "../utils/test-utils/factories";
-import { AccountRepository } from "./account-repository";
+import { DynAccountRepository } from "./dyn-account-repository";
 
-describe("AccountRepository", () => {
-  let repository: AccountRepository;
+describe("DynAccountRepository", () => {
+  let repository: DynAccountRepository;
   const userId = faker.string.uuid();
 
   beforeAll(async () => {
     // Create repository instance
-    repository = new AccountRepository();
+    repository = new DynAccountRepository();
   });
 
   beforeEach(async () => {

@@ -19,10 +19,10 @@ import {
 import { RepositoryError } from "../services/ports/repository-error";
 import {
   CreateTransactionInput,
-  ITransactionRepository,
   TransactionConnection,
   TransactionEdge,
   TransactionFilterInput,
+  TransactionRepository,
   UpdateTransactionInput,
 } from "../services/ports/transaction-repository";
 import {
@@ -128,7 +128,7 @@ function buildCreatedAtSortable(transaction: Transaction): string {
   return `${transaction.createdAt}#${ulid()}`;
 }
 
-export class TransactionRepository implements ITransactionRepository {
+export class DynTransactionRepository implements TransactionRepository {
   private client: DynamoDBDocumentClient;
   private tableName: string;
 

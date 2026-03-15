@@ -1,12 +1,12 @@
-import { IAccountRepository } from "../../services/ports/account-repository";
-import { ICategoryRepository } from "../../services/ports/category-repository";
-import { ITransactionRepository } from "../../services/ports/transaction-repository";
+import { AccountRepository } from "../../services/ports/account-repository";
+import { CategoryRepository } from "../../services/ports/category-repository";
+import { TransactionRepository } from "../../services/ports/transaction-repository";
 
 /**
  * Mock transaction repository for testing
  */
 export const createMockTransactionRepository =
-  (): jest.Mocked<ITransactionRepository> => ({
+  (): jest.Mocked<TransactionRepository> => ({
     findActiveByUserIdPaginated: jest.fn(),
     findActiveByUserId: jest.fn(),
     findActiveById: jest.fn(),
@@ -28,7 +28,7 @@ export const createMockTransactionRepository =
  * Mock account repository for testing
  */
 export const createMockAccountRepository =
-  (): jest.Mocked<IAccountRepository> => ({
+  (): jest.Mocked<AccountRepository> => ({
     findActiveByUserId: jest.fn(),
     findAllByUserId: jest.fn(),
     findActiveById: jest.fn(),
@@ -42,7 +42,7 @@ export const createMockAccountRepository =
  * Mock category repository for testing
  */
 export const createMockCategoryRepository =
-  (): jest.Mocked<ICategoryRepository> => ({
+  (): jest.Mocked<CategoryRepository> => ({
     findActiveByUserId: jest.fn(),
     findAllByUserId: jest.fn(),
     findActiveByUserIdAndType: jest.fn(),

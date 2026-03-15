@@ -13,7 +13,7 @@ export interface UpdateAccountInput {
   initialBalance?: number;
 }
 
-export interface IAccountRepository {
+export interface AccountRepository {
   findActiveByUserId(userId: string): Promise<Account[]>;
   findAllByUserId(userId: string): Promise<Account[]>;
   findActiveById(id: string, userId: string): Promise<Account | null>;

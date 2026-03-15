@@ -3,14 +3,14 @@ import { faker } from "@faker-js/faker";
 import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
 import { truncateTable } from "../utils/test-utils/dynamodb-helpers";
 import { fakeCreateUserInput } from "../utils/test-utils/factories";
-import { UserRepository } from "./user-repository";
+import { DynUserRepository } from "./dyn-user-repository";
 
-describe("UserRepository", () => {
-  let repository: UserRepository;
+describe("DynUserRepository", () => {
+  let repository: DynUserRepository;
 
   beforeAll(async () => {
     // Create repository instance
-    repository = new UserRepository();
+    repository = new DynUserRepository();
   });
 
   beforeEach(async () => {

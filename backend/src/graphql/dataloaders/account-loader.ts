@@ -1,6 +1,6 @@
 import DataLoader from "dataloader";
 import { Account } from "../../models/account";
-import { IAccountRepository } from "../../services/ports/account-repository";
+import { AccountRepository } from "../../services/ports/account-repository";
 import { TransactionEmbeddedAccount } from "../embedded-types";
 
 export type { TransactionEmbeddedAccount };
@@ -23,7 +23,7 @@ const createStubAccount = (id: string): TransactionEmbeddedAccount => ({
  */
 export async function batchLoadAccounts(
   accountIds: readonly string[],
-  accountRepository: IAccountRepository,
+  accountRepository: AccountRepository,
   userId: string,
 ): Promise<TransactionEmbeddedAccount[]> {
   if (accountIds.length === 0) {
@@ -75,7 +75,7 @@ export async function batchLoadAccounts(
  * @returns DataLoader instance configured for account batching
  */
 export function createAccountLoader(
-  accountRepository: IAccountRepository,
+  accountRepository: AccountRepository,
   getUserId: () => Promise<string>,
 ): DataLoader<string, TransactionEmbeddedAccount> {
   return new DataLoader(async (accountIds) => {

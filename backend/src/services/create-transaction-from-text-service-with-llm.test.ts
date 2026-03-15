@@ -2,10 +2,10 @@ import { ReActAgent } from "../agents/react-agent";
 import { CategoryType } from "../models/category";
 import { TransactionType } from "../models/transaction";
 import { User } from "../models/user";
-import { AccountRepository } from "../repositories/account-repository";
-import { CategoryRepository } from "../repositories/category-repository";
-import { TransactionRepository } from "../repositories/transaction-repository";
-import { UserRepository } from "../repositories/user-repository";
+import { DynAccountRepository } from "../repositories/dyn-account-repository";
+import { DynCategoryRepository } from "../repositories/dyn-category-repository";
+import { DynTransactionRepository } from "../repositories/dyn-transaction-repository";
+import { DynUserRepository } from "../repositories/dyn-user-repository";
 import { createBedrockChatModel } from "../utils/bedrock";
 import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
 import { truncateTable } from "../utils/test-utils/dynamodb-helpers";
@@ -25,18 +25,18 @@ const describeLLM =
 
 // Use [LLM] prefix to separate tests that require LLM from regular tests
 describeLLM("[LLM] CreateTransactionFromTextService", () => {
-  let accountRepository: AccountRepository;
-  let categoryRepository: CategoryRepository;
-  let transactionRepository: TransactionRepository;
-  let userRepository: UserRepository;
+  let accountRepository: DynAccountRepository;
+  let categoryRepository: DynCategoryRepository;
+  let transactionRepository: DynTransactionRepository;
+  let userRepository: DynUserRepository;
   let service: CreateTransactionFromTextService;
   let user: User;
 
   beforeAll(async () => {
-    accountRepository = new AccountRepository();
-    categoryRepository = new CategoryRepository();
-    transactionRepository = new TransactionRepository();
-    userRepository = new UserRepository();
+    accountRepository = new DynAccountRepository();
+    categoryRepository = new DynCategoryRepository();
+    transactionRepository = new DynTransactionRepository();
+    userRepository = new DynUserRepository();
 
     const agentDataService = new AgentDataService(
       accountRepository,

@@ -8,10 +8,10 @@ import { createAccountLoader } from "./graphql/dataloaders/account-loader";
 import { createCategoryLoader } from "./graphql/dataloaders/category-loader";
 import { resolvers } from "./graphql/resolvers";
 import { getAuthenticatedUser } from "./graphql/resolvers/shared";
-import { AccountRepository } from "./repositories/account-repository";
-import { CategoryRepository } from "./repositories/category-repository";
-import { TransactionRepository } from "./repositories/transaction-repository";
-import { UserRepository } from "./repositories/user-repository";
+import { DynAccountRepository } from "./repositories/dyn-account-repository";
+import { DynCategoryRepository } from "./repositories/dyn-category-repository";
+import { DynTransactionRepository } from "./repositories/dyn-transaction-repository";
+import { DynUserRepository } from "./repositories/dyn-user-repository";
 import { AccountService } from "./services/account-service";
 import { AgentDataService } from "./services/agent-data-service";
 import { CategoryService } from "./services/category-service";
@@ -23,10 +23,10 @@ import { TransferService } from "./services/transfer-service";
 import { createBedrockChatModel } from "./utils/bedrock";
 
 let jwtAuthService: JwtAuthService;
-let userRepository: UserRepository;
-let accountRepository: AccountRepository;
-let categoryRepository: CategoryRepository;
-let transactionRepository: TransactionRepository;
+let userRepository: DynUserRepository;
+let accountRepository: DynAccountRepository;
+let categoryRepository: DynCategoryRepository;
+let transactionRepository: DynTransactionRepository;
 let categoryService: CategoryService;
 let transactionService: TransactionService;
 let accountService: AccountService;
@@ -58,19 +58,19 @@ export async function createContext(req: {
   }
 
   if (!userRepository) {
-    userRepository = new UserRepository();
+    userRepository = new DynUserRepository();
   }
 
   if (!accountRepository) {
-    accountRepository = new AccountRepository();
+    accountRepository = new DynAccountRepository();
   }
 
   if (!categoryRepository) {
-    categoryRepository = new CategoryRepository();
+    categoryRepository = new DynCategoryRepository();
   }
 
   if (!transactionRepository) {
-    transactionRepository = new TransactionRepository();
+    transactionRepository = new DynTransactionRepository();
   }
 
   if (!categoryService) {
