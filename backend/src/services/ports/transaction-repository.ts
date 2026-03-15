@@ -43,16 +43,16 @@ export type UpdateTransactionInput = Partial<
 };
 
 export interface ITransactionRepository {
-  findActiveByUserIdPaginated(
-    userId: string,
-    pagination?: PaginationInput,
-    filters?: TransactionFilterInput,
-  ): Promise<TransactionConnection>;
   findActiveByUserId(
     userId: string,
     filters?: TransactionFilterInput,
     pageSize?: number,
   ): Promise<Transaction[]>;
+  findActiveByUserIdPaginated(
+    userId: string,
+    pagination?: PaginationInput,
+    filters?: TransactionFilterInput,
+  ): Promise<TransactionConnection>;
   findActiveById(id: string, userId: string): Promise<Transaction | null>;
   findActiveByAccountId(
     accountId: string,

@@ -33,7 +33,7 @@ describe("TransactionRepository", () => {
     });
   });
 
-  describe("findAllActiveByUserId", () => {
+  describe("findActiveByUserId", () => {
     it("should return all transactions across multiple pages", async () => {
       // Arrange: create pageSize + 1 transactions to span two pages
       const userId = faker.string.uuid();
@@ -2016,7 +2016,7 @@ describe("TransactionRepository", () => {
     });
   });
 
-  describe("findActiveByUserId with account filters", () => {
+  describe("findActiveByUserIdPaginated with account filters", () => {
     it("should filter transactions by single account ID", async () => {
       // Arrange
       const userId = faker.string.uuid();
@@ -2093,7 +2093,7 @@ describe("TransactionRepository", () => {
     });
   });
 
-  describe("findActiveByUserId with category filters", () => {
+  describe("findActiveByUserIdPaginated with category filters", () => {
     it("should filter transactions by single category ID", async () => {
       // Arrange
       const userId = faker.string.uuid();
@@ -2283,7 +2283,7 @@ describe("TransactionRepository", () => {
     });
   });
 
-  describe("findActiveByUserId with date filters", () => {
+  describe("findActiveByUserIdPaginated with date filters", () => {
     it("should filter transactions by dateAfter (inclusive)", async () => {
       // Arrange
       const userId = faker.string.uuid();
@@ -2435,7 +2435,7 @@ describe("TransactionRepository", () => {
     });
   });
 
-  describe("findActiveByUserId with type filters", () => {
+  describe("findActiveByUserIdPaginated with type filters", () => {
     it("should filter transactions by single type", async () => {
       // Arrange
       const userId = faker.string.uuid();
@@ -2518,7 +2518,7 @@ describe("TransactionRepository", () => {
     });
   });
 
-  describe("findActiveByUserId with combined filters", () => {
+  describe("findActiveByUserIdPaginated with combined filters", () => {
     it("should filter by account and date range", async () => {
       // Arrange
       const userId = faker.string.uuid();
