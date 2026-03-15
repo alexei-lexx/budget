@@ -739,7 +739,7 @@ describe("TransactionService", () => {
         },
         totalCount: 0,
       };
-      mockTransactionRepository.findActiveByUserId.mockResolvedValue(
+      mockTransactionRepository.findActiveByUserIdPaginated.mockResolvedValue(
         expectedResult,
       );
 
@@ -762,13 +762,11 @@ describe("TransactionService", () => {
 
       // Assert - Service should pass all parameters through to repository unchanged
       expect(result).toEqual(expectedResult);
-      expect(mockTransactionRepository.findActiveByUserId).toHaveBeenCalledWith(
-        userId,
-        pagination,
-        filters,
-      );
       expect(
-        mockTransactionRepository.findActiveByUserId,
+        mockTransactionRepository.findActiveByUserIdPaginated,
+      ).toHaveBeenCalledWith(userId, pagination, filters);
+      expect(
+        mockTransactionRepository.findActiveByUserIdPaginated,
       ).toHaveBeenCalledTimes(1);
     });
 
@@ -786,7 +784,7 @@ describe("TransactionService", () => {
       });
 
       expect(
-        mockTransactionRepository.findActiveByUserId,
+        mockTransactionRepository.findActiveByUserIdPaginated,
       ).not.toHaveBeenCalled();
     });
 

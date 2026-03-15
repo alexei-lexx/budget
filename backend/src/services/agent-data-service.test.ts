@@ -1,8 +1,7 @@
 import { faker } from "@faker-js/faker";
 import { CategoryType } from "../models/category";
-import { Transaction, TransactionType } from "../models/transaction";
+import { TransactionType } from "../models/transaction";
 import { isDateString, toDateString } from "../types/date";
-import { MAX_PAGE_SIZE } from "../types/pagination";
 import { daysBetween } from "../utils/date";
 import {
   fakeAccount,
@@ -22,31 +21,7 @@ import {
 } from "./agent-data-service";
 import { IAccountRepository } from "./ports/account-repository";
 import { ICategoryRepository } from "./ports/category-repository";
-import {
-  ITransactionRepository,
-  TransactionConnection,
-} from "./ports/transaction-repository";
-
-function buildTransactionConnection(input?: {
-  endCursor?: string;
-  hasNextPage?: boolean;
-  hasPreviousPage?: boolean;
-  transactions?: Transaction[];
-}): TransactionConnection {
-  return {
-    edges:
-      input?.transactions?.map((transaction) => ({
-        node: transaction,
-        cursor: "cursor",
-      })) || [],
-    pageInfo: {
-      hasNextPage: input?.hasNextPage ?? false,
-      hasPreviousPage: input?.hasPreviousPage ?? false,
-      endCursor: input?.endCursor,
-    },
-    totalCount: input?.transactions?.length || 0,
-  };
-}
+import { ITransactionRepository } from "./ports/transaction-repository";
 
 describe("AgentDataService", () => {
   let service: AgentDataService;
@@ -179,9 +154,7 @@ describe("AgentDataService", () => {
         fakeCategory({ isArchived: false }),
       ];
       mockCategoryRepository.findAllByUserId.mockResolvedValue(mockCategories);
-      mockTransactionRepository.findActiveByUserId.mockResolvedValue(
-        buildTransactionConnection(),
-      );
+      mockTransactionRepository.findActiveByUserId.mockResolvedValue([]);
 
       // Act
       const result = await service.getCategories(userId, EntityScope.ALL);
@@ -199,9 +172,7 @@ describe("AgentDataService", () => {
         fakeCategory({ isArchived: false }),
       ];
       mockCategoryRepository.findAllByUserId.mockResolvedValue(mockCategories);
-      mockTransactionRepository.findActiveByUserId.mockResolvedValue(
-        buildTransactionConnection(),
-      );
+      mockTransactionRepository.findActiveByUserId.mockResolvedValue([]);
 
       // Act
       const result = await service.getCategories(userId, EntityScope.ACTIVE);
@@ -218,9 +189,7 @@ describe("AgentDataService", () => {
         fakeCategory({ isArchived: false }),
       ];
       mockCategoryRepository.findAllByUserId.mockResolvedValue(mockCategories);
-      mockTransactionRepository.findActiveByUserId.mockResolvedValue(
-        buildTransactionConnection(),
-      );
+      mockTransactionRepository.findActiveByUserId.mockResolvedValue([]);
 
       // Act
       const result = await service.getCategories(userId, EntityScope.ARCHIVED);
@@ -247,9 +216,7 @@ describe("AgentDataService", () => {
         }),
       ];
       mockCategoryRepository.findAllByUserId.mockResolvedValue(mockCategories);
-      mockTransactionRepository.findActiveByUserId.mockResolvedValue(
-        buildTransactionConnection(),
-      );
+      mockTransactionRepository.findActiveByUserId.mockResolvedValue([]);
 
       // Act
       const result = await service.getCategories(userId, EntityScope.ALL);
@@ -278,9 +245,7 @@ describe("AgentDataService", () => {
     it("should return empty array when user has no categories", async () => {
       // Arrange
       mockCategoryRepository.findAllByUserId.mockResolvedValue([]);
-      mockTransactionRepository.findActiveByUserId.mockResolvedValue(
-        buildTransactionConnection(),
-      );
+      mockTransactionRepository.findActiveByUserId.mockResolvedValue([]);
 
       // Act
       const result = await service.getCategories(userId, EntityScope.ALL);
@@ -293,9 +258,7 @@ describe("AgentDataService", () => {
       // Arrange
       const category = fakeCategory({ isArchived: false });
       mockCategoryRepository.findAllByUserId.mockResolvedValue([category]);
-      mockTransactionRepository.findActiveByUserId.mockResolvedValue(
-        buildTransactionConnection(),
-      );
+      mockTransactionRepository.findActiveByUserId.mockResolvedValue([]);
 
       // Act
       const result = await service.getCategories(userId, EntityScope.ACTIVE);
@@ -323,9 +286,7 @@ describe("AgentDataService", () => {
       ];
       mockCategoryRepository.findAllByUserId.mockResolvedValue([category]);
       mockTransactionRepository.findActiveByUserId.mockResolvedValue(
-        buildTransactionConnection({
-          transactions: transactionsWithoutCategory,
-        }),
+        transactionsWithoutCategory,
       );
 
       // Act
@@ -350,9 +311,7 @@ describe("AgentDataService", () => {
       ];
       mockCategoryRepository.findAllByUserId.mockResolvedValue([category]);
       mockTransactionRepository.findActiveByUserId.mockResolvedValue(
-        buildTransactionConnection({
-          transactions: transactionsWithoutDescription,
-        }),
+        transactionsWithoutDescription,
       );
 
       // Act
@@ -383,7 +342,7 @@ describe("AgentDataService", () => {
         archivedCategory,
       ]);
       mockTransactionRepository.findActiveByUserId.mockResolvedValue(
-        buildTransactionConnection({ transactions }),
+        transactions,
       );
 
       // Act - scope is ACTIVE, so archived category should not be in the returned set
@@ -413,7 +372,7 @@ describe("AgentDataService", () => {
       );
 
       mockTransactionRepository.findActiveByUserId.mockResolvedValue(
-        buildTransactionConnection({ transactions }),
+        transactions,
       );
 
       // Act
@@ -462,7 +421,7 @@ describe("AgentDataService", () => {
         eatingOutCategory,
       ]);
       mockTransactionRepository.findActiveByUserId.mockResolvedValue(
-        buildTransactionConnection({ transactions }),
+        transactions,
       );
 
       // Act
@@ -509,7 +468,7 @@ describe("AgentDataService", () => {
       ];
 
       mockTransactionRepository.findActiveByUserId.mockResolvedValue(
-        buildTransactionConnection({ transactions }),
+        transactions,
       );
 
       // Act
@@ -520,98 +479,37 @@ describe("AgentDataService", () => {
       expect(result[0].recentDescriptions).toHaveLength(2);
     });
 
-    it("should paginate through all pages of transactions", async () => {
+    it("should fetch transactions within the history lookback window", async () => {
       // Arrange
       const category = fakeCategory({ isArchived: false });
       mockCategoryRepository.findAllByUserId.mockResolvedValue([category]);
-
-      // Create transactions for multiple pages
-      const page1Transactions = Array.from({ length: 3 }, (_, index) =>
-        fakeTransaction({
-          categoryId: category.id,
-          description: `page1-desc${index}`,
-        }),
-      );
-
-      const page2Transactions = Array.from({ length: 2 }, (_, index) =>
-        fakeTransaction({
-          categoryId: category.id,
-          description: `page2-desc${index}`,
-        }),
-      );
-
-      // Mock multiple pages: first call returns page 1 with hasNextPage=true,
-      // second call returns page 2 with hasNextPage=false
-      mockTransactionRepository.findActiveByUserId
-        .mockResolvedValueOnce(
-          buildTransactionConnection({
-            transactions: page1Transactions,
-            hasNextPage: true,
-            endCursor: "cursor-page-1",
-          }),
-        )
-        .mockResolvedValueOnce(
-          buildTransactionConnection({
-            transactions: page2Transactions,
-            hasNextPage: false,
-          }),
-        );
+      mockTransactionRepository.findActiveByUserId.mockResolvedValue([]);
 
       // Act
-      const result = await service.getCategories(userId, EntityScope.ACTIVE);
+      await service.getCategories(userId, EntityScope.ACTIVE);
 
       // Assert
-      // Should have descriptions from both pages
-      expect(result[0].recentDescriptions).toHaveLength(5); // 3 from page1 + 2 from page 2
-      expect(result[0].recentDescriptions).toContain("page1-desc0");
-      expect(result[0].recentDescriptions).toContain("page2-desc0");
-
-      // Verify pagination was called twice with correct parameters
       expect(
         mockTransactionRepository.findActiveByUserId,
-      ).toHaveBeenCalledTimes(2);
+      ).toHaveBeenCalledTimes(1);
 
-      // Extract filters from both calls
-      const call1Filters =
-        mockTransactionRepository.findActiveByUserId.mock.calls[0][2];
-      const call2Filters =
-        mockTransactionRepository.findActiveByUserId.mock.calls[1][2];
-
-      // Verify date filters are the same on both calls
-      expect(call1Filters?.dateAfter).toBe(call2Filters?.dateAfter);
-      expect(call1Filters?.dateBefore).toBe(call2Filters?.dateBefore);
+      // Extract filters from call
+      const callFilters =
+        mockTransactionRepository.findActiveByUserId.mock.calls[0][1];
 
       // Verify date filters are valid DateString format (YYYY-MM-DD)
-      expect(isDateString(call1Filters?.dateAfter || "")).toBe(true);
-      expect(isDateString(call1Filters?.dateBefore || "")).toBe(true);
+      expect(isDateString(callFilters?.dateAfter || "")).toBe(true);
+      expect(isDateString(callFilters?.dateBefore || "")).toBe(true);
 
       // Verify lookback is approximately CATEGORY_HISTORY_LOOKBACK_DAYS days (allow 1 day variance for execution time)
-      const dateAfter = new Date(call1Filters?.dateAfter || "");
-      const dateBefore = new Date(call1Filters?.dateBefore || "");
+      const dateAfter = new Date(callFilters?.dateAfter || "");
+      const dateBefore = new Date(callFilters?.dateBefore || "");
       const daysDiff = daysBetween(dateAfter, dateBefore);
+
       expect(daysDiff).toBeGreaterThanOrEqual(
         CATEGORY_HISTORY_LOOKBACK_DAYS - 1,
       );
       expect(daysDiff).toBeLessThanOrEqual(CATEGORY_HISTORY_LOOKBACK_DAYS);
-
-      // First call with no cursor
-      expect(
-        mockTransactionRepository.findActiveByUserId,
-      ).toHaveBeenNthCalledWith(
-        1,
-        userId,
-        { first: MAX_PAGE_SIZE, after: undefined },
-        call1Filters,
-      );
-      // Second call with cursor from first page
-      expect(
-        mockTransactionRepository.findActiveByUserId,
-      ).toHaveBeenNthCalledWith(
-        2,
-        userId,
-        { first: MAX_PAGE_SIZE, after: "cursor-page-1" },
-        call2Filters,
-      );
     });
   });
 
@@ -641,7 +539,7 @@ describe("AgentDataService", () => {
         }),
       ];
       mockTransactionRepository.findActiveByUserId.mockResolvedValue(
-        buildTransactionConnection({ transactions }),
+        transactions,
       );
 
       // Act
@@ -677,17 +575,17 @@ describe("AgentDataService", () => {
       });
       expect(mockTransactionRepository.findActiveByUserId).toHaveBeenCalledWith(
         userId,
-        { first: MAX_PAGE_SIZE, after: undefined },
-        { dateAfter: "2024-01-01", dateBefore: "2024-01-31" },
+        {
+          dateAfter: "2024-01-01",
+          dateBefore: "2024-01-31",
+        },
       );
     });
 
     it("should support categoryId filter", async () => {
       // Arrange
       const categoryId = faker.string.uuid();
-      mockTransactionRepository.findActiveByUserId.mockResolvedValue(
-        buildTransactionConnection(),
-      );
+      mockTransactionRepository.findActiveByUserId.mockResolvedValue([]);
 
       // Act
       await service.getFilteredTransactions(
@@ -700,7 +598,6 @@ describe("AgentDataService", () => {
       // Assert
       expect(mockTransactionRepository.findActiveByUserId).toHaveBeenCalledWith(
         userId,
-        { first: MAX_PAGE_SIZE, after: undefined },
         {
           dateAfter: "2024-01-01",
           dateBefore: "2024-01-31",
@@ -712,9 +609,7 @@ describe("AgentDataService", () => {
     it("should support accountId filter", async () => {
       // Arrange
       const accountId = faker.string.uuid();
-      mockTransactionRepository.findActiveByUserId.mockResolvedValue(
-        buildTransactionConnection(),
-      );
+      mockTransactionRepository.findActiveByUserId.mockResolvedValue([]);
 
       // Act
       await service.getFilteredTransactions(
@@ -728,7 +623,6 @@ describe("AgentDataService", () => {
       // Assert
       expect(mockTransactionRepository.findActiveByUserId).toHaveBeenCalledWith(
         userId,
-        { first: MAX_PAGE_SIZE, after: undefined },
         {
           dateAfter: "2024-01-01",
           dateBefore: "2024-01-31",
@@ -741,9 +635,7 @@ describe("AgentDataService", () => {
       // Arrange
       const categoryId = faker.string.uuid();
       const accountId = faker.string.uuid();
-      mockTransactionRepository.findActiveByUserId.mockResolvedValue(
-        buildTransactionConnection(),
-      );
+      mockTransactionRepository.findActiveByUserId.mockResolvedValue([]);
 
       // Act
       await service.getFilteredTransactions(
@@ -757,68 +649,12 @@ describe("AgentDataService", () => {
       // Assert
       expect(mockTransactionRepository.findActiveByUserId).toHaveBeenCalledWith(
         userId,
-        { first: MAX_PAGE_SIZE, after: undefined },
         {
           dateAfter: "2024-01-01",
           dateBefore: "2024-01-31",
           categoryIds: [categoryId],
           accountIds: [accountId],
         },
-      );
-    });
-
-    it("should paginate through all pages and collect all results", async () => {
-      // Arrange
-      const page1Transactions = [fakeTransaction(), fakeTransaction()];
-      const page2Transactions = [fakeTransaction()];
-
-      const page1Connection = buildTransactionConnection({
-        endCursor: "cursor1",
-        hasNextPage: true,
-        hasPreviousPage: false,
-        transactions: page1Transactions,
-      });
-
-      const page2Connection = buildTransactionConnection({
-        endCursor: "cursor2",
-        hasNextPage: false,
-        hasPreviousPage: true,
-        transactions: page2Transactions,
-      });
-
-      mockTransactionRepository.findActiveByUserId
-        .mockResolvedValueOnce(page1Connection)
-        .mockResolvedValueOnce(page2Connection);
-
-      // Act
-      const result = await service.getFilteredTransactions(
-        userId,
-        toDateString("2024-01-01"),
-        toDateString("2024-01-31"),
-      );
-
-      // Assert
-      expect(result).toHaveLength(3);
-      expect(
-        mockTransactionRepository.findActiveByUserId,
-      ).toHaveBeenCalledTimes(2);
-
-      expect(
-        mockTransactionRepository.findActiveByUserId,
-      ).toHaveBeenNthCalledWith(
-        1,
-        userId,
-        { first: MAX_PAGE_SIZE, after: undefined },
-        { dateAfter: "2024-01-01", dateBefore: "2024-01-31" },
-      );
-
-      expect(
-        mockTransactionRepository.findActiveByUserId,
-      ).toHaveBeenNthCalledWith(
-        2,
-        userId,
-        { first: MAX_PAGE_SIZE, after: "cursor1" },
-        { dateAfter: "2024-01-01", dateBefore: "2024-01-31" },
       );
     });
   });

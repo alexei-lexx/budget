@@ -450,7 +450,7 @@ export class TransactionRepository implements ITransactionRepository {
     }
   }
 
-  async findActiveByUserId(
+  async findActiveByUserIdPaginated(
     userId: string,
     pagination?: PaginationInput,
     filters?: TransactionFilterInput,
@@ -542,6 +542,49 @@ export class TransactionRepository implements ITransactionRepository {
       console.error("Error finding paginated transactions:", error);
       throw new TransactionRepositoryError(
         "Failed to find paginated transactions",
+        "QUERY_FAILED",
+        error,
+      );
+    }
+  }
+
+  async findActiveByUserId(
+    userId: string,
+    filters?: TransactionFilterInput,
+  ): Promise<Transaction[]> {
+    if (!userId) {
+      throw new TransactionRepositoryError(
+        "User ID is required",
+        "INVALID_USER_ID",
+      );
+    }
+
+    try {
+      // Build query parameters (index selection, key condition, filters)
+      const queryParams = this.buildQueryParams(userId, filters);
+
+      const { items } = await paginateQuery<Transaction>({
+        client: this.client,
+        params: {
+          TableName: this.tableName,
+          IndexName: queryParams.indexName,
+          KeyConditionExpression: queryParams.keyConditionExpression,
+          FilterExpression: queryParams.filterExpression,
+          ...(Object.keys(queryParams.expressionAttributeNames).length > 0 && {
+            ExpressionAttributeNames: queryParams.expressionAttributeNames,
+          }),
+          ExpressionAttributeValues: queryParams.expressionAttributeValues,
+          ScanIndexForward: false, // Descending order (newest first)
+        },
+        pageSize: undefined, // No pageSize = get all items
+        schema: transactionSchema,
+      });
+
+      return items;
+    } catch (error) {
+      console.error("Error finding transactions by user ID:", error);
+      throw new TransactionRepositoryError(
+        "Failed to find transactions by user ID",
         "QUERY_FAILED",
         error,
       );

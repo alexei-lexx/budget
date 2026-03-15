@@ -143,7 +143,7 @@ export class TransactionService {
     this.validatePagination(pagination);
     this.validateFilters(filters);
 
-    return await this.transactionRepository.findActiveByUserId(
+    return await this.transactionRepository.findActiveByUserIdPaginated(
       userId,
       pagination,
       filters,
