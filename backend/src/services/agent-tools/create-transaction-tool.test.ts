@@ -68,12 +68,12 @@ describe("createCreateTransactionTool", () => {
     );
   });
 
-  it("should return error string when maxCreations limit is already reached", async () => {
+  it("should allow up to maxCreations successful calls and reject the next", async () => {
     const created = fakeTransaction();
     mockTransactionService.createTransaction.mockResolvedValue(created);
 
     const tool = createCreateTransactionTool({
-      maxCreations: 1,
+      maxCreations: 2,
       transactionService: mockTransactionService,
       userId,
     });
@@ -86,12 +86,15 @@ describe("createCreateTransactionTool", () => {
     };
 
     const result1 = await tool.func(input);
-    expect(result1).not.toMatch(/error/i);
+    expect(result1).not.toMatch(/^Error/);
 
     const result2 = await tool.func(input);
-    expect(result2).toMatch(/error/i);
+    expect(result2).not.toMatch(/^Error/);
 
-    expect(mockTransactionService.createTransaction).toHaveBeenCalledTimes(1);
+    const result3 = await tool.func(input);
+    expect(result3).toMatch(/^Error/);
+
+    expect(mockTransactionService.createTransaction).toHaveBeenCalledTimes(2);
   });
 
   it("should not count a failed attempt toward the limit", async () => {
@@ -128,31 +131,5 @@ describe("createCreateTransactionTool", () => {
         type: created.type,
       }),
     );
-  });
-
-  it("should allow up to maxCreations successful calls and reject the next", async () => {
-    const created = fakeTransaction();
-    mockTransactionService.createTransaction.mockResolvedValue(created);
-
-    const tool = createCreateTransactionTool({
-      transactionService:
-        mockTransactionService as unknown as TransactionService,
-      userId,
-      maxCreations: 2,
-    });
-
-    const input: CreateTransactionToolInput = {
-      accountId: faker.string.uuid(),
-      amount: 50,
-      date: toDateString("2000-01-15"),
-      type: TransactionType.EXPENSE,
-    };
-
-    await tool.func(input);
-    await tool.func(input);
-    const result = await tool.func(input);
-
-    expect(result).toMatch(/error/i);
-    expect(mockTransactionService.createTransaction).toHaveBeenCalledTimes(2);
   });
 });
