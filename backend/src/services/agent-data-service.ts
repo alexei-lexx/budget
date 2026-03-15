@@ -137,6 +137,7 @@ export class AgentDataService implements IAgentDataService {
       userId,
       filters,
     );
+
     const result: TransactionData[] = transactions.map((transaction) => ({
       id: transaction.id,
       accountId: transaction.accountId,
