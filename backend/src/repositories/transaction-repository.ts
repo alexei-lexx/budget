@@ -16,6 +16,7 @@ import {
   TransactionPatternType,
   TransactionType,
 } from "../models/transaction";
+import { RepositoryError } from "../services/ports/repository-error";
 import {
   CreateTransactionInput,
   ITransactionRepository,
@@ -60,20 +61,6 @@ const USER_CREATED_AT_SORTABLE_INDEX = "UserCreatedAtSortableIndex";
  */
 const SORT_KEY_DATE = "date";
 const SORT_KEY_CREATED_AT_SORTABLE = "createdAtSortable";
-
-/**
- * Repository error class for better error handling
- */
-class TransactionRepositoryError extends Error {
-  constructor(
-    message: string,
-    public code: string,
-    public originalError?: unknown,
-  ) {
-    super(message);
-    this.name = "TransactionRepositoryError";
-  }
-}
 
 /**
  * Cursor structure for pagination
@@ -124,11 +111,7 @@ function decodeCursor(cursor: string): CursorData {
     const cursorData = cursorDataSchema.parse(parsed);
     return cursorData;
   } catch (error) {
-    throw new TransactionRepositoryError(
-      "Invalid cursor format",
-      "INVALID_CURSOR",
-      error,
-    );
+    throw new RepositoryError("Invalid cursor format", "INVALID_CURSOR", error);
   }
 }
 
@@ -154,7 +137,7 @@ export class TransactionRepository implements ITransactionRepository {
     this.tableName = process.env.TRANSACTIONS_TABLE_NAME || "";
 
     if (!this.tableName) {
-      throw new TransactionRepositoryError(
+      throw new RepositoryError(
         "TRANSACTIONS_TABLE_NAME environment variable is required",
         "MISSING_TABLE_NAME",
       );
@@ -180,7 +163,7 @@ export class TransactionRepository implements ITransactionRepository {
       return transaction;
     } catch (error) {
       console.error("Error creating transaction:", error);
-      throw new TransactionRepositoryError(
+      throw new RepositoryError(
         "Failed to create transaction",
         "CREATE_FAILED",
         error,
@@ -190,14 +173,14 @@ export class TransactionRepository implements ITransactionRepository {
 
   async createMany(inputs: CreateTransactionInput[]): Promise<Transaction[]> {
     if (!inputs.length) {
-      throw new TransactionRepositoryError(
+      throw new RepositoryError(
         "At least one transaction input is required",
         "INVALID_PARAMETERS",
       );
     }
 
     if (inputs.length > DYNAMODB_TRANSACT_WRITE_MAX_ITEMS) {
-      throw new TransactionRepositoryError(
+      throw new RepositoryError(
         `DynamoDB transactions support a maximum of ${DYNAMODB_TRANSACT_WRITE_MAX_ITEMS} items`,
         "TOO_MANY_ITEMS",
       );
@@ -227,7 +210,7 @@ export class TransactionRepository implements ITransactionRepository {
       return transactions;
     } catch (error) {
       console.error("Error creating transactions atomically:", error);
-      throw new TransactionRepositoryError(
+      throw new RepositoryError(
         "Failed to create transactions atomically",
         "TRANSACT_WRITE_FAILED",
         error,
@@ -241,7 +224,7 @@ export class TransactionRepository implements ITransactionRepository {
     input: UpdateTransactionInput,
   ): Promise<Transaction> {
     if (!id || !userId) {
-      throw new TransactionRepositoryError(
+      throw new RepositoryError(
         "Transaction ID and User ID are required",
         "INVALID_PARAMETERS",
       );
@@ -260,13 +243,13 @@ export class TransactionRepository implements ITransactionRepository {
         error instanceof Error &&
         error.name === "ConditionalCheckFailedException"
       ) {
-        throw new TransactionRepositoryError(
+        throw new RepositoryError(
           "Transaction not found or is archived",
           "NOT_FOUND",
         );
       }
 
-      throw new TransactionRepositoryError(
+      throw new RepositoryError(
         "Failed to update transaction",
         "UPDATE_FAILED",
         error,
@@ -279,24 +262,21 @@ export class TransactionRepository implements ITransactionRepository {
     userId: string,
   ): Promise<void> {
     if (!updates.length) {
-      throw new TransactionRepositoryError(
+      throw new RepositoryError(
         "At least one transaction update is required",
         "INVALID_PARAMETERS",
       );
     }
 
     if (updates.length > DYNAMODB_TRANSACT_WRITE_MAX_ITEMS) {
-      throw new TransactionRepositoryError(
+      throw new RepositoryError(
         `DynamoDB transactions support a maximum of ${DYNAMODB_TRANSACT_WRITE_MAX_ITEMS} items`,
         "TOO_MANY_ITEMS",
       );
     }
 
     if (!userId) {
-      throw new TransactionRepositoryError(
-        "User ID is required",
-        "INVALID_PARAMETERS",
-      );
+      throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
     }
 
     const now = new Date().toISOString();
@@ -322,13 +302,13 @@ export class TransactionRepository implements ITransactionRepository {
         error instanceof Error &&
         error.name === "TransactionCanceledException"
       ) {
-        throw new TransactionRepositoryError(
+        throw new RepositoryError(
           "One or more transactions not found or already archived",
           "NOT_FOUND",
         );
       }
 
-      throw new TransactionRepositoryError(
+      throw new RepositoryError(
         "Failed to update transactions atomically",
         "UPDATE_MANY_FAILED",
         error,
@@ -338,7 +318,7 @@ export class TransactionRepository implements ITransactionRepository {
 
   async archive(id: string, userId: string): Promise<Transaction> {
     if (!id || !userId) {
-      throw new TransactionRepositoryError(
+      throw new RepositoryError(
         "Transaction ID and User ID are required",
         "INVALID_PARAMETERS",
       );
@@ -370,13 +350,13 @@ export class TransactionRepository implements ITransactionRepository {
         error instanceof Error &&
         error.name === "ConditionalCheckFailedException"
       ) {
-        throw new TransactionRepositoryError(
+        throw new RepositoryError(
           "Transaction not found or already archived",
           "NOT_FOUND",
         );
       }
 
-      throw new TransactionRepositoryError(
+      throw new RepositoryError(
         "Failed to archive transaction",
         "ARCHIVE_FAILED",
         error,
@@ -386,24 +366,21 @@ export class TransactionRepository implements ITransactionRepository {
 
   async archiveMany(ids: string[], userId: string): Promise<void> {
     if (!ids.length) {
-      throw new TransactionRepositoryError(
+      throw new RepositoryError(
         "At least one transaction ID is required",
         "INVALID_PARAMETERS",
       );
     }
 
     if (ids.length > DYNAMODB_TRANSACT_WRITE_MAX_ITEMS) {
-      throw new TransactionRepositoryError(
+      throw new RepositoryError(
         `DynamoDB transactions support a maximum of ${DYNAMODB_TRANSACT_WRITE_MAX_ITEMS} items`,
         "TOO_MANY_ITEMS",
       );
     }
 
     if (!userId) {
-      throw new TransactionRepositoryError(
-        "User ID is required",
-        "INVALID_PARAMETERS",
-      );
+      throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
     }
 
     const now = new Date().toISOString();
@@ -436,13 +413,13 @@ export class TransactionRepository implements ITransactionRepository {
         error instanceof Error &&
         error.name === "TransactionCanceledException"
       ) {
-        throw new TransactionRepositoryError(
+        throw new RepositoryError(
           "One or more transactions not found or already archived",
           "NOT_FOUND",
         );
       }
 
-      throw new TransactionRepositoryError(
+      throw new RepositoryError(
         "Failed to archive transactions atomically",
         "ARCHIVE_MANY_FAILED",
         error,
@@ -456,10 +433,7 @@ export class TransactionRepository implements ITransactionRepository {
     filters?: TransactionFilterInput,
   ): Promise<TransactionConnection> {
     if (!userId) {
-      throw new TransactionRepositoryError(
-        "User ID is required",
-        "INVALID_USER_ID",
-      );
+      throw new RepositoryError("User ID is required", "INVALID_USER_ID");
     }
 
     // Default pagination values
@@ -468,7 +442,7 @@ export class TransactionRepository implements ITransactionRepository {
 
     // Validate pagination parameters
     if (first < MIN_PAGE_SIZE || first > MAX_PAGE_SIZE) {
-      throw new TransactionRepositoryError(
+      throw new RepositoryError(
         `First parameter must be between ${MIN_PAGE_SIZE} and ${MAX_PAGE_SIZE}`,
         "INVALID_PAGINATION",
       );
@@ -535,12 +509,12 @@ export class TransactionRepository implements ITransactionRepository {
         totalCount,
       };
     } catch (error) {
-      if (error instanceof TransactionRepositoryError) {
+      if (error instanceof RepositoryError) {
         throw error;
       }
 
       console.error("Error finding paginated transactions:", error);
-      throw new TransactionRepositoryError(
+      throw new RepositoryError(
         "Failed to find paginated transactions",
         "QUERY_FAILED",
         error,
@@ -553,10 +527,7 @@ export class TransactionRepository implements ITransactionRepository {
     filters?: TransactionFilterInput,
   ): Promise<Transaction[]> {
     if (!userId) {
-      throw new TransactionRepositoryError(
-        "User ID is required",
-        "INVALID_USER_ID",
-      );
+      throw new RepositoryError("User ID is required", "INVALID_USER_ID");
     }
 
     try {
@@ -583,7 +554,7 @@ export class TransactionRepository implements ITransactionRepository {
       return items;
     } catch (error) {
       console.error("Error finding transactions by user ID:", error);
-      throw new TransactionRepositoryError(
+      throw new RepositoryError(
         "Failed to find transactions by user ID",
         "QUERY_FAILED",
         error,
@@ -596,7 +567,7 @@ export class TransactionRepository implements ITransactionRepository {
     userId: string,
   ): Promise<Transaction | null> {
     if (!id || !userId) {
-      throw new TransactionRepositoryError(
+      throw new RepositoryError(
         "Transaction ID and User ID are required",
         "INVALID_PARAMETERS",
       );
@@ -624,7 +595,7 @@ export class TransactionRepository implements ITransactionRepository {
       return transaction;
     } catch (error) {
       console.error("Error finding transaction by ID:", error);
-      throw new TransactionRepositoryError(
+      throw new RepositoryError(
         "Failed to find transaction",
         "GET_FAILED",
         error,
@@ -637,7 +608,7 @@ export class TransactionRepository implements ITransactionRepository {
     userId: string,
   ): Promise<Transaction[]> {
     if (!accountId || !userId) {
-      throw new TransactionRepositoryError(
+      throw new RepositoryError(
         "Account ID and User ID are required",
         "INVALID_PARAMETERS",
       );
@@ -664,7 +635,7 @@ export class TransactionRepository implements ITransactionRepository {
       return items;
     } catch (error) {
       console.error("Error finding transactions by account ID:", error);
-      throw new TransactionRepositoryError(
+      throw new RepositoryError(
         "Failed to find transactions by account",
         "QUERY_FAILED",
         error,
@@ -677,7 +648,7 @@ export class TransactionRepository implements ITransactionRepository {
     userId: string,
   ): Promise<Transaction[]> {
     if (!transferId || !userId) {
-      throw new TransactionRepositoryError(
+      throw new RepositoryError(
         "Transfer ID and User ID are required",
         "INVALID_PARAMETERS",
       );
@@ -704,7 +675,7 @@ export class TransactionRepository implements ITransactionRepository {
       return items;
     } catch (error) {
       console.error("Error finding transactions by transfer ID:", error);
-      throw new TransactionRepositoryError(
+      throw new RepositoryError(
         "Failed to find transactions by transfer",
         "QUERY_FAILED",
         error,
@@ -719,28 +690,25 @@ export class TransactionRepository implements ITransactionRepository {
     types: TransactionType[],
   ): Promise<Transaction[]> {
     if (!userId) {
-      throw new TransactionRepositoryError(
-        "User ID is required",
-        "INVALID_PARAMETERS",
-      );
+      throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
     }
 
     if (types.length === 0) {
-      throw new TransactionRepositoryError(
+      throw new RepositoryError(
         "At least one transaction type is required",
         "INVALID_PARAMETERS",
       );
     }
 
     if (!Number.isInteger(year) || year <= 0) {
-      throw new TransactionRepositoryError(
+      throw new RepositoryError(
         "Year must be a positive integer",
         "INVALID_PARAMETERS",
       );
     }
 
     if (!Number.isInteger(month) || month < 1 || month > 12) {
-      throw new TransactionRepositoryError(
+      throw new RepositoryError(
         "Month must be a valid integer between 1 and 12",
         "INVALID_PARAMETERS",
       );
@@ -797,7 +765,7 @@ export class TransactionRepository implements ITransactionRepository {
       return items;
     } catch (error) {
       console.error("Error finding transactions by month and types:", error);
-      throw new TransactionRepositoryError(
+      throw new RepositoryError(
         "Failed to find transactions by month and types",
         "QUERY_FAILED",
         error,
@@ -811,14 +779,11 @@ export class TransactionRepository implements ITransactionRepository {
     limit: number,
   ): Promise<Transaction[]> {
     if (!userId) {
-      throw new TransactionRepositoryError(
-        "User ID is required",
-        "INVALID_PARAMETERS",
-      );
+      throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
     }
 
     if (!Number.isInteger(limit) || limit <= 0) {
-      throw new TransactionRepositoryError(
+      throw new RepositoryError(
         "Limit must be a positive integer",
         "INVALID_PARAMETERS",
       );
@@ -854,7 +819,7 @@ export class TransactionRepository implements ITransactionRepository {
       return transactions;
     } catch (error) {
       console.error("Error searching transactions by description:", error);
-      throw new TransactionRepositoryError(
+      throw new RepositoryError(
         "Failed to search transactions by description",
         "QUERY_FAILED",
         error,
@@ -867,7 +832,7 @@ export class TransactionRepository implements ITransactionRepository {
     userId: string,
   ): Promise<boolean> {
     if (!accountId || !userId) {
-      throw new TransactionRepositoryError(
+      throw new RepositoryError(
         "Account ID and User ID are required",
         "INVALID_PARAMETERS",
       );
@@ -890,7 +855,7 @@ export class TransactionRepository implements ITransactionRepository {
       return (result.Count || 0) > 0;
     } catch (error) {
       console.error("Error checking transactions for account:", error);
-      throw new TransactionRepositoryError(
+      throw new RepositoryError(
         "Failed to check transactions for account",
         "QUERY_FAILED",
         error,
@@ -905,21 +870,18 @@ export class TransactionRepository implements ITransactionRepository {
     sampleSize: number,
   ): Promise<TransactionPattern[]> {
     if (!userId) {
-      throw new TransactionRepositoryError(
-        "User ID is required",
-        "INVALID_PARAMETERS",
-      );
+      throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
     }
 
     if (!Number.isInteger(limit) || limit <= 0) {
-      throw new TransactionRepositoryError(
+      throw new RepositoryError(
         "Limit must be a positive integer",
         "INVALID_PARAMETERS",
       );
     }
 
     if (!Number.isInteger(sampleSize) || sampleSize <= 0) {
-      throw new TransactionRepositoryError(
+      throw new RepositoryError(
         "Sample size must be a positive integer",
         "INVALID_PARAMETERS",
       );
@@ -995,12 +957,12 @@ export class TransactionRepository implements ITransactionRepository {
 
       return patterns;
     } catch (error) {
-      if (error instanceof TransactionRepositoryError) {
+      if (error instanceof RepositoryError) {
         throw error;
       }
 
       console.error("Error getting account category patterns:", error);
-      throw new TransactionRepositoryError(
+      throw new RepositoryError(
         "Failed to get account category patterns",
         "QUERY_FAILED",
         error,
@@ -1259,7 +1221,7 @@ export class TransactionRepository implements ITransactionRepository {
       return result.Count || 0;
     } catch (error) {
       console.error("Error getting active transaction count:", error);
-      throw new TransactionRepositoryError(
+      throw new RepositoryError(
         "Failed to get active transaction count",
         "QUERY_FAILED",
         error,
@@ -1267,6 +1229,3 @@ export class TransactionRepository implements ITransactionRepository {
     }
   }
 }
-
-// Export the error class for use in resolvers
-export { TransactionRepositoryError };

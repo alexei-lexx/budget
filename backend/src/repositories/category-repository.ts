@@ -13,24 +13,11 @@ import {
   ICategoryRepository,
   UpdateCategoryInput,
 } from "../services/ports/category-repository";
+import { RepositoryError } from "../services/ports/repository-error";
 import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
 import { categorySchema } from "./schemas/category";
 import { hydrate } from "./utils/hydrate";
 import { paginateQuery } from "./utils/query";
-
-/**
- * Repository error class for better error handling
- */
-class CategoryRepositoryError extends Error {
-  constructor(
-    message: string,
-    public code: string,
-    public originalError?: unknown,
-  ) {
-    super(message);
-    this.name = "CategoryRepositoryError";
-  }
-}
 
 /**
  * Sort categories alphabetically by name
@@ -50,7 +37,7 @@ export class CategoryRepository implements ICategoryRepository {
     this.tableName = process.env.CATEGORIES_TABLE_NAME || "";
 
     if (!this.tableName) {
-      throw new CategoryRepositoryError(
+      throw new RepositoryError(
         "CATEGORIES_TABLE_NAME environment variable is required",
         "MISSING_TABLE_NAME",
       );
@@ -59,10 +46,7 @@ export class CategoryRepository implements ICategoryRepository {
 
   async findActiveByUserId(userId: string): Promise<Category[]> {
     if (!userId) {
-      throw new CategoryRepositoryError(
-        "User ID is required",
-        "INVALID_USER_ID",
-      );
+      throw new RepositoryError("User ID is required", "INVALID_USER_ID");
     }
 
     try {
@@ -86,7 +70,7 @@ export class CategoryRepository implements ICategoryRepository {
       return sortCategories(categories);
     } catch (error) {
       console.error("Error finding active categories by user ID:", error);
-      throw new CategoryRepositoryError(
+      throw new RepositoryError(
         "Failed to find active categories",
         "QUERY_FAILED",
         error,
@@ -96,10 +80,7 @@ export class CategoryRepository implements ICategoryRepository {
 
   async findAllByUserId(userId: string): Promise<Category[]> {
     if (!userId) {
-      throw new CategoryRepositoryError(
-        "User ID is required",
-        "INVALID_USER_ID",
-      );
+      throw new RepositoryError("User ID is required", "INVALID_USER_ID");
     }
 
     try {
@@ -119,7 +100,7 @@ export class CategoryRepository implements ICategoryRepository {
       return result.items;
     } catch (error) {
       console.error("Error finding all categories by user ID:", error);
-      throw new CategoryRepositoryError(
+      throw new RepositoryError(
         "Failed to find all categories",
         "QUERY_FAILED",
         error,
@@ -132,10 +113,7 @@ export class CategoryRepository implements ICategoryRepository {
     type: CategoryType,
   ): Promise<Category[]> {
     if (!userId) {
-      throw new CategoryRepositoryError(
-        "User ID is required",
-        "INVALID_USER_ID",
-      );
+      throw new RepositoryError("User ID is required", "INVALID_USER_ID");
     }
 
     try {
@@ -166,7 +144,7 @@ export class CategoryRepository implements ICategoryRepository {
         "Error finding active categories by user ID and type:",
         error,
       );
-      throw new CategoryRepositoryError(
+      throw new RepositoryError(
         "Failed to find active categories by type",
         "QUERY_FAILED",
         error,
@@ -176,7 +154,7 @@ export class CategoryRepository implements ICategoryRepository {
 
   async findActiveById(id: string, userId: string): Promise<Category | null> {
     if (!id || !userId) {
-      throw new CategoryRepositoryError(
+      throw new RepositoryError(
         "Category ID and User ID are required",
         "INVALID_PARAMETERS",
       );
@@ -204,11 +182,7 @@ export class CategoryRepository implements ICategoryRepository {
       return category;
     } catch (error) {
       console.error("Error finding category by ID:", error);
-      throw new CategoryRepositoryError(
-        "Failed to find category",
-        "GET_FAILED",
-        error,
-      );
+      throw new RepositoryError("Failed to find category", "GET_FAILED", error);
     }
   }
 
@@ -218,10 +192,7 @@ export class CategoryRepository implements ICategoryRepository {
     }
 
     if (!userId) {
-      throw new CategoryRepositoryError(
-        "User ID is required",
-        "INVALID_PARAMETERS",
-      );
+      throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
     }
 
     try {
@@ -239,7 +210,7 @@ export class CategoryRepository implements ICategoryRepository {
       );
     } catch (error) {
       console.error("Error batch finding categories by IDs:", error);
-      throw new CategoryRepositoryError(
+      throw new RepositoryError(
         "Failed to batch find categories",
         "BATCH_GET_FAILED",
         error,
@@ -270,7 +241,7 @@ export class CategoryRepository implements ICategoryRepository {
       return category;
     } catch (error) {
       console.error("Error creating category:", error);
-      throw new CategoryRepositoryError(
+      throw new RepositoryError(
         "Failed to create category",
         "CREATE_FAILED",
         error,
@@ -284,23 +255,20 @@ export class CategoryRepository implements ICategoryRepository {
     input: UpdateCategoryInput,
   ): Promise<Category> {
     if (!id) {
-      throw new CategoryRepositoryError(
+      throw new RepositoryError(
         "Category ID is required",
         "INVALID_PARAMETERS",
       );
     }
 
     if (!userId) {
-      throw new CategoryRepositoryError(
-        "User ID is required",
-        "INVALID_PARAMETERS",
-      );
+      throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
     }
 
     // Get current category to check for duplicate names
     const currentCategory = await this.findActiveById(id, userId);
     if (!currentCategory) {
-      throw new CategoryRepositoryError("Category not found", "NOT_FOUND");
+      throw new RepositoryError("Category not found", "NOT_FOUND");
     }
 
     const now = new Date().toISOString();
@@ -356,13 +324,13 @@ export class CategoryRepository implements ICategoryRepository {
         error instanceof Error &&
         error.name === "ConditionalCheckFailedException"
       ) {
-        throw new CategoryRepositoryError(
+        throw new RepositoryError(
           "Category not found or is archived",
           "NOT_FOUND",
         );
       }
 
-      throw new CategoryRepositoryError(
+      throw new RepositoryError(
         "Failed to update category",
         "UPDATE_FAILED",
         error,
@@ -372,17 +340,14 @@ export class CategoryRepository implements ICategoryRepository {
 
   async archive(id: string, userId: string): Promise<Category> {
     if (!id) {
-      throw new CategoryRepositoryError(
+      throw new RepositoryError(
         "Category ID is required",
         "INVALID_PARAMETERS",
       );
     }
 
     if (!userId) {
-      throw new CategoryRepositoryError(
-        "User ID is required",
-        "INVALID_PARAMETERS",
-      );
+      throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
     }
 
     const now = new Date().toISOString();
@@ -411,13 +376,13 @@ export class CategoryRepository implements ICategoryRepository {
         error instanceof Error &&
         error.name === "ConditionalCheckFailedException"
       ) {
-        throw new CategoryRepositoryError(
+        throw new RepositoryError(
           "Category not found or already archived",
           "NOT_FOUND",
         );
       }
 
-      throw new CategoryRepositoryError(
+      throw new RepositoryError(
         "Failed to archive category",
         "ARCHIVE_FAILED",
         error,
@@ -425,6 +390,3 @@ export class CategoryRepository implements ICategoryRepository {
     }
   }
 }
-
-// Export the error class for use in resolvers
-export { CategoryRepositoryError };
