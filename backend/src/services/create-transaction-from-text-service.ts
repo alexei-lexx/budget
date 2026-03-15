@@ -2,12 +2,10 @@ import { z } from "zod";
 import { Transaction } from "../models/transaction";
 import { formatDateAsYYYYMMDD } from "../utils/date";
 import { IAgentDataService } from "./agent-data-service";
-import {
-  createCreateTransactionTool,
-  createGetAccountsTool,
-  createGetCategoriesTool,
-  createGetTransactionsTool,
-} from "./agent-tools/agent-data-tools";
+import { createCreateTransactionTool } from "./agent-tools/create-transaction-tool";
+import { createGetAccountsTool } from "./agent-tools/get-accounts-tool";
+import { createGetCategoriesTool } from "./agent-tools/get-categories-tool";
+import { createGetTransactionsTool } from "./agent-tools/get-transactions-tool";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
 import { Agent, AgentTraceMessage, ToolExecution } from "./ports/agent";
 import { TransactionService } from "./transaction-service";
