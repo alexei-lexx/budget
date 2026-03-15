@@ -3,7 +3,7 @@ import { toDateString } from "../types/date";
 import { YEAR_RANGE_OFFSET } from "../types/validation";
 import { createMockAgentDataService } from "../utils/test-utils/mock-services";
 import { type IAgentDataService } from "./agent-data-service";
-import { MAX_PERIOD_DAYS } from "./agent-tools/agent-data-tools";
+import { MAX_PERIOD_DAYS } from "./agent-tools/get-transactions-tool";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
 import { type InsightInput, InsightService } from "./insight-service";
 import {

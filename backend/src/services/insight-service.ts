@@ -2,17 +2,13 @@ import { DateString } from "../types/date";
 import { YEAR_RANGE_OFFSET } from "../types/validation";
 import { daysBetween, formatDateAsYYYYMMDD } from "../utils/date";
 import { IAgentDataService } from "./agent-data-service";
+import { createGetAccountsTool } from "./agent-tools/get-accounts-tool";
+import { createGetCategoriesTool } from "./agent-tools/get-categories-tool";
 import {
   MAX_PERIOD_DAYS,
-  createGetAccountsTool,
-  createGetCategoriesTool,
   createGetTransactionsTool,
-} from "./agent-tools/agent-data-tools";
-import {
-  avgTool,
-  calculateTool,
-  sumTool,
-} from "./agent-tools/agent-math-tools";
+} from "./agent-tools/get-transactions-tool";
+import { avgTool, calculateTool, sumTool } from "./agent-tools/math";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
 import { Agent, AgentTraceMessage } from "./ports/agent";
 
