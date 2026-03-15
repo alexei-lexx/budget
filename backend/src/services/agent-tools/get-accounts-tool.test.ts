@@ -37,10 +37,13 @@ describe("createGetAccountsTool", () => {
     const tool = createGetAccountsTool(mockAccountRepository, userId);
     const result = await tool.func({ scope: EntityScope.ALL });
 
-    const parsed = JSON.parse(result);
-    expect(parsed).toHaveLength(2);
-    expect(parsed[0].isArchived).toBe(true);
-    expect(parsed[1].isArchived).toBe(false);
+    expect(result).toEqual({
+      success: true,
+      data: [
+        expect.objectContaining({ isArchived: true }),
+        expect.objectContaining({ isArchived: false }),
+      ],
+    });
   });
 
   it("should return only active accounts when scope is active", async () => {
@@ -53,9 +56,10 @@ describe("createGetAccountsTool", () => {
     const tool = createGetAccountsTool(mockAccountRepository, userId);
     const result = await tool.func({ scope: EntityScope.ACTIVE });
 
-    const parsed = JSON.parse(result);
-    expect(parsed).toHaveLength(1);
-    expect(parsed[0].isArchived).toBe(false);
+    expect(result).toEqual({
+      success: true,
+      data: [expect.objectContaining({ isArchived: false })],
+    });
   });
 
   it("should return only archived accounts when scope is archived", async () => {
@@ -68,20 +72,10 @@ describe("createGetAccountsTool", () => {
     const tool = createGetAccountsTool(mockAccountRepository, userId);
     const result = await tool.func({ scope: EntityScope.ARCHIVED });
 
-    const parsed = JSON.parse(result);
-    expect(parsed).toHaveLength(1);
-    expect(parsed[0].isArchived).toBe(true);
-  });
-
-  it("should return accounts as JSON string", async () => {
-    const mockAccounts = [fakeAccount(), fakeAccount()];
-    mockAccountRepository.findAllByUserId.mockResolvedValue(mockAccounts);
-
-    const tool = createGetAccountsTool(mockAccountRepository, userId);
-    const result = await tool.func({ scope: EntityScope.ALL });
-
-    expect(typeof result).toBe("string");
-    expect(() => JSON.parse(result)).not.toThrow();
+    expect(result).toEqual({
+      success: true,
+      data: [expect.objectContaining({ isArchived: true })],
+    });
   });
 
   it("should return required fields only", async () => {
@@ -104,21 +98,22 @@ describe("createGetAccountsTool", () => {
     const tool = createGetAccountsTool(mockAccountRepository, userId);
     const result = await tool.func({ scope: EntityScope.ALL });
 
-    const parsed = JSON.parse(result);
-    expect(parsed).toHaveLength(2);
-
-    expect(parsed[0]).toEqual({
-      id: mockAccounts[0].id,
-      name: "Checking Account",
-      currency: "USD",
-      isArchived: false,
-    });
-
-    expect(parsed[1]).toEqual({
-      id: mockAccounts[1].id,
-      name: "Savings Account",
-      currency: "EUR",
-      isArchived: true,
+    expect(result).toEqual({
+      success: true,
+      data: [
+        {
+          id: mockAccounts[0].id,
+          name: "Checking Account",
+          currency: "USD",
+          isArchived: false,
+        },
+        {
+          id: mockAccounts[1].id,
+          name: "Savings Account",
+          currency: "EUR",
+          isArchived: true,
+        },
+      ],
     });
   });
 
@@ -128,6 +123,9 @@ describe("createGetAccountsTool", () => {
     const tool = createGetAccountsTool(mockAccountRepository, userId);
     const result = await tool.func({ scope: EntityScope.ALL });
 
-    expect(result).toBe("[]");
+    expect(result).toEqual({
+      success: true,
+      data: [],
+    });
   });
 });

@@ -8,6 +8,7 @@ import {
 } from "langchain";
 import { z } from "zod";
 import { AgentTraceMessageType, ToolSignature } from "../services/ports/agent";
+import { Success } from "../types/result";
 import { ReActAgent } from "./react-agent";
 
 // Mock LangChain's createAgent and tool
@@ -43,10 +44,10 @@ describe("ReActAgent", () => {
       // Arrange
       const messages = [{ role: "user" as const, content: "Test question" }];
       const systemPrompt = "You are a test assistant";
-      const testTool: ToolSignature<{ text: string }> = {
+      const testTool: ToolSignature<{ text: string }, string> = {
         name: "test_tool",
         description: "A test tool",
-        func: async (input: { text: string }) => `Echo: ${input.text}`,
+        func: async (input: { text: string }) => Success(`Echo: ${input.text}`),
         inputSchema: z.object({ text: z.string() }),
       };
       mockReactAgent.invoke.mockResolvedValue({

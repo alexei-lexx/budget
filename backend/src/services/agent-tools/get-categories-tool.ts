@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { CategoryType } from "../../models/category";
 import { toDateString } from "../../types/date";
+import { Success } from "../../types/result";
 import { daysAgo, formatDateAsYYYYMMDD } from "../../utils/date";
 import { ToolSignature } from "../ports/agent";
 import { CategoryRepository } from "../ports/category-repository";
@@ -41,7 +42,7 @@ export const createGetCategoriesTool = ({
   categoryRepository: CategoryRepository;
   transactionRepository: TransactionRepository;
   userId: string;
-}): ToolSignature<GetCategoriesInput> => ({
+}): ToolSignature<GetCategoriesInput, CategoryData[]> => ({
   name: "getCategories",
   description:
     "Get user categories filtered by scope. Each category includes recent usage examples showing how similar transactions were previously categorised.",
@@ -56,7 +57,7 @@ export const createGetCategoriesTool = ({
     });
 
     if (filteredCategories.length === 0) {
-      return JSON.stringify([]);
+      return Success([]);
     }
 
     const categoryDataList: CategoryData[] = filteredCategories.map(
@@ -116,6 +117,6 @@ export const createGetCategoriesTool = ({
       ),
     }));
 
-    return JSON.stringify(enrichedCategoryDataList);
+    return Success(enrichedCategoryDataList);
   },
 });

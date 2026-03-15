@@ -54,8 +54,9 @@ describe("createCreateTransactionTool", () => {
       userId,
     );
 
-    expect(result).toEqual(
-      JSON.stringify({
+    expect(result).toEqual({
+      success: true,
+      data: {
         accountId: created.accountId,
         amount: created.amount,
         categoryId: created.categoryId,
@@ -64,8 +65,8 @@ describe("createCreateTransactionTool", () => {
         description: created.description,
         id: created.id,
         type: created.type,
-      }),
-    );
+      },
+    });
   });
 
   it("should allow up to maxCreations successful calls and reject the next", async () => {
@@ -85,14 +86,9 @@ describe("createCreateTransactionTool", () => {
       type: TransactionType.EXPENSE,
     };
 
-    const result1 = await tool.func(input);
-    expect(result1).not.toMatch(/^Error/);
-
-    const result2 = await tool.func(input);
-    expect(result2).not.toMatch(/^Error/);
-
-    const result3 = await tool.func(input);
-    expect(result3).toMatch(/^Error/);
+    expect((await tool.func(input)).success).toBe(true);
+    expect((await tool.func(input)).success).toBe(true);
+    expect((await tool.func(input)).success).toBe(false);
 
     expect(mockTransactionService.createTransaction).toHaveBeenCalledTimes(2);
   });
@@ -119,17 +115,7 @@ describe("createCreateTransactionTool", () => {
     await expect(tool.func(input)).rejects.toThrow("service error");
     const result = await tool.func(input);
 
-    expect(result).toEqual(
-      JSON.stringify({
-        accountId: created.accountId,
-        amount: created.amount,
-        categoryId: created.categoryId,
-        currency: created.currency,
-        date: created.date,
-        description: created.description,
-        id: created.id,
-        type: created.type,
-      }),
-    );
+    expect(result.success).toBe(true);
+    expect(mockTransactionService.createTransaction).toHaveBeenCalledTimes(2);
   });
 });

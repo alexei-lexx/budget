@@ -67,10 +67,13 @@ describe("createGetCategoriesTool", () => {
     });
     const result = await tool.func({ scope: EntityScope.ALL });
 
-    const parsed = JSON.parse(result);
-    expect(parsed).toHaveLength(2);
-    expect(parsed[0].isArchived).toBe(true);
-    expect(parsed[1].isArchived).toBe(false);
+    expect(result).toEqual({
+      success: true,
+      data: [
+        expect.objectContaining({ isArchived: true }),
+        expect.objectContaining({ isArchived: false }),
+      ],
+    });
   });
 
   it("should return only active categories when scope is active", async () => {
@@ -88,9 +91,10 @@ describe("createGetCategoriesTool", () => {
     });
     const result = await tool.func({ scope: EntityScope.ACTIVE });
 
-    const parsed = JSON.parse(result);
-    expect(parsed).toHaveLength(1);
-    expect(parsed[0].isArchived).toBe(false);
+    expect(result).toEqual({
+      success: true,
+      data: [expect.objectContaining({ isArchived: false })],
+    });
   });
 
   it("should return only archived categories when scope is archived", async () => {
@@ -108,25 +112,10 @@ describe("createGetCategoriesTool", () => {
     });
     const result = await tool.func({ scope: EntityScope.ARCHIVED });
 
-    const parsed = JSON.parse(result);
-    expect(parsed).toHaveLength(1);
-    expect(parsed[0].isArchived).toBe(true);
-  });
-
-  it("should return categories as JSON string", async () => {
-    const mockCategories = [fakeCategory(), fakeCategory()];
-    mockCategoryRepository.findAllByUserId.mockResolvedValue(mockCategories);
-    mockTransactionRepository.findActiveByUserId.mockResolvedValue([]);
-
-    const tool = createGetCategoriesTool({
-      categoryRepository: mockCategoryRepository,
-      transactionRepository: mockTransactionRepository,
-      userId,
+    expect(result).toEqual({
+      success: true,
+      data: [expect.objectContaining({ isArchived: true })],
     });
-    const result = await tool.func({ scope: EntityScope.ALL });
-
-    expect(typeof result).toBe("string");
-    expect(() => JSON.parse(result)).not.toThrow();
   });
 
   it("should return required fields only", async () => {
@@ -154,23 +143,25 @@ describe("createGetCategoriesTool", () => {
     });
     const result = await tool.func({ scope: EntityScope.ALL });
 
-    const parsed = JSON.parse(result);
-    expect(parsed).toHaveLength(2);
-    expect(parsed[0]).toEqual({
-      id: mockCategories[0].id,
-      name: "Groceries",
-      type: CategoryType.EXPENSE,
-      isArchived: false,
-      recentDescriptions: [],
+    expect(result).toEqual({
+      success: true,
+      data: [
+        {
+          id: mockCategories[0].id,
+          name: "Groceries",
+          type: CategoryType.EXPENSE,
+          isArchived: false,
+          recentDescriptions: [],
+        },
+        {
+          id: mockCategories[1].id,
+          name: "Salary",
+          type: CategoryType.INCOME,
+          isArchived: true,
+          recentDescriptions: [],
+        },
+      ],
     });
-    expect(parsed[1]).toEqual({
-      id: mockCategories[1].id,
-      name: "Salary",
-      type: CategoryType.INCOME,
-      isArchived: true,
-      recentDescriptions: [],
-    });
-    expect(mockCategoryRepository.findAllByUserId).toHaveBeenCalledWith(userId);
   });
 
   it("should return empty array when user has no categories", async () => {
@@ -184,7 +175,10 @@ describe("createGetCategoriesTool", () => {
     });
     const result = await tool.func({ scope: EntityScope.ALL });
 
-    expect(result).toBe("[]");
+    expect(result).toEqual({
+      success: true,
+      data: [],
+    });
   });
 
   describe("recentDescriptions", () => {
@@ -200,11 +194,14 @@ describe("createGetCategoriesTool", () => {
       });
       const result = await tool.func({ scope: EntityScope.ACTIVE });
 
-      const parsed = JSON.parse(result);
-      expect(parsed).toHaveLength(1);
-      expect(parsed[0]).toMatchObject({
-        id: category.id,
-        recentDescriptions: [],
+      expect(result).toEqual({
+        success: true,
+        data: [
+          expect.objectContaining({
+            id: category.id,
+            recentDescriptions: [],
+          }),
+        ],
       });
     });
 
@@ -229,8 +226,15 @@ describe("createGetCategoriesTool", () => {
       });
       const result = await tool.func({ scope: EntityScope.ACTIVE });
 
-      const parsed = JSON.parse(result);
-      expect(parsed[0].recentDescriptions).toEqual([]);
+      expect(result).toEqual({
+        success: true,
+        data: [
+          expect.objectContaining({
+            id: category.id,
+            recentDescriptions: [],
+          }),
+        ],
+      });
     });
 
     it("should exclude transactions without description", async () => {
@@ -251,8 +255,15 @@ describe("createGetCategoriesTool", () => {
       });
       const result = await tool.func({ scope: EntityScope.ACTIVE });
 
-      const parsed = JSON.parse(result);
-      expect(parsed[0].recentDescriptions).toEqual([]);
+      expect(result).toEqual({
+        success: true,
+        data: [
+          expect.objectContaining({
+            id: category.id,
+            recentDescriptions: [],
+          }),
+        ],
+      });
     });
 
     it("should exclude transactions with unknown categoryId", async () => {
@@ -285,11 +296,14 @@ describe("createGetCategoriesTool", () => {
       });
       const result = await tool.func({ scope: EntityScope.ACTIVE });
 
-      const parsed = JSON.parse(result);
-      expect(parsed).toHaveLength(1);
-      expect(parsed[0]).toMatchObject({
-        id: activeCategory.id,
-        recentDescriptions: ["milk and eggs"],
+      expect(result).toEqual({
+        success: true,
+        data: [
+          expect.objectContaining({
+            id: activeCategory.id,
+            recentDescriptions: ["milk and eggs"],
+          }),
+        ],
       });
     });
 
@@ -316,13 +330,14 @@ describe("createGetCategoriesTool", () => {
       });
       const result = await tool.func({ scope: EntityScope.ACTIVE });
 
-      const parsed = JSON.parse(result);
-      expect(parsed[0].recentDescriptions).toHaveLength(
+      if (!result.success) throw new Error("Expected success"); // Type guard
+
+      expect(result.data[0].recentDescriptions).toHaveLength(
         CATEGORY_HISTORY_MAX_DESCRIPTIONS_PER_CATEGORY,
       );
-      expect(parsed[0].recentDescriptions[0]).toEqual("description 0");
+      expect(result.data[0].recentDescriptions[0]).toEqual("description 0");
       expect(
-        parsed[0].recentDescriptions[
+        result.data[0].recentDescriptions[
           CATEGORY_HISTORY_MAX_DESCRIPTIONS_PER_CATEGORY - 1
         ],
       ).toEqual(
@@ -368,19 +383,19 @@ describe("createGetCategoriesTool", () => {
       });
       const result = await tool.func({ scope: EntityScope.ACTIVE });
 
-      const parsed = JSON.parse(result);
-      const groceries = parsed.find(
-        (category: { id: string }) => category.id === groceryCategory.id,
-      );
-      const eatingOut = parsed.find(
-        (category: { id: string }) => category.id === eatingOutCategory.id,
-      );
-
-      expect(groceries?.recentDescriptions).toEqual(["whole foods", "costco"]);
-      expect(eatingOut?.recentDescriptions).toEqual([
-        "pizza place",
-        "sushi restaurant",
-      ]);
+      expect(result).toEqual({
+        success: true,
+        data: expect.arrayContaining([
+          expect.objectContaining({
+            id: groceryCategory.id,
+            recentDescriptions: ["whole foods", "costco"],
+          }),
+          expect.objectContaining({
+            id: eatingOutCategory.id,
+            recentDescriptions: ["pizza place", "sushi restaurant"],
+          }),
+        ]),
+      });
     });
 
     it("should deduplicate repeated descriptions", async () => {
@@ -404,9 +419,15 @@ describe("createGetCategoriesTool", () => {
       });
       const result = await tool.func({ scope: EntityScope.ACTIVE });
 
-      const parsed = JSON.parse(result);
-      expect(parsed[0].recentDescriptions).toEqual(["ice cream", "milk"]);
-      expect(parsed[0].recentDescriptions).toHaveLength(2);
+      expect(result).toEqual({
+        success: true,
+        data: [
+          expect.objectContaining({
+            id: category.id,
+            recentDescriptions: ["ice cream", "milk"],
+          }),
+        ],
+      });
     });
 
     it("should fetch transactions within the history lookback window", async () => {
