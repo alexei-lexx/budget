@@ -1,8 +1,8 @@
 import { z } from "zod";
 import { toDateString } from "../../types/date";
 import { daysBetween } from "../../utils/date";
-import { IAgentDataService } from "../agent-data-service";
 import { ToolSignature } from "../ports/agent";
+import { TransactionRepository } from "../ports/transaction-repository";
 
 const getTransactionsInputSchema = z.object({
   startDate: z.iso
@@ -27,10 +27,22 @@ const getTransactionsInputSchema = z.object({
 
 type GetTransactionsInput = z.infer<typeof getTransactionsInputSchema>;
 
+interface TransactionData {
+  id: string;
+  accountId: string;
+  categoryId?: string;
+  type: string;
+  amount: number;
+  currency: string;
+  date: string;
+  description?: string;
+  transferId?: string;
+}
+
 export const MAX_PERIOD_DAYS = 365;
 
 export const createGetTransactionsTool = (params: {
-  agentDataService: IAgentDataService;
+  transactionRepository: TransactionRepository;
   userId: string;
 }): ToolSignature<GetTransactionsInput> => ({
   name: "getTransactions",
@@ -52,13 +64,30 @@ export const createGetTransactionsTool = (params: {
       });
     }
 
-    const transactions = await params.agentDataService.getFilteredTransactions(
+    const transactions = await params.transactionRepository.findActiveByUserId(
       params.userId,
-      toDateString(input.startDate),
-      toDateString(input.endDate),
-      input.categoryId,
-      input.accountId,
+      {
+        dateAfter: toDateString(input.startDate),
+        dateBefore: toDateString(input.endDate),
+        ...(input.categoryId && { categoryIds: [input.categoryId] }),
+        ...(input.accountId && { accountIds: [input.accountId] }),
+      },
     );
-    return JSON.stringify(transactions);
+
+    const transactionData: TransactionData[] = transactions.map(
+      (transaction) => ({
+        id: transaction.id,
+        accountId: transaction.accountId,
+        categoryId: transaction.categoryId,
+        type: transaction.type,
+        amount: transaction.amount,
+        currency: transaction.currency,
+        date: transaction.date,
+        description: transaction.description,
+        transferId: transaction.transferId,
+      }),
+    );
+
+    return JSON.stringify(transactionData);
   },
 });

@@ -13,7 +13,6 @@ import { DynCategoryRepository } from "./repositories/dyn-category-repository";
 import { DynTransactionRepository } from "./repositories/dyn-transaction-repository";
 import { DynUserRepository } from "./repositories/dyn-user-repository";
 import { AccountService } from "./services/account-service";
-import { AgentDataService } from "./services/agent-data-service";
 import { CategoryService } from "./services/category-service";
 import { CreateTransactionFromTextService } from "./services/create-transaction-from-text-service";
 import { InsightService } from "./services/insight-service";
@@ -98,25 +97,21 @@ export async function createContext(req: {
 
   if (!insightService) {
     const agent = new ReActAgent(createBedrockChatModel());
-    const agentDataService = new AgentDataService(
+    insightService = new InsightService({
       accountRepository,
       categoryRepository,
       transactionRepository,
-    );
-
-    insightService = new InsightService(agentDataService, agent);
+      agent,
+    });
   }
 
   if (!createTransactionFromTextService) {
     const agent = new ReActAgent(createBedrockChatModel());
-    const agentDataService = new AgentDataService(
+    createTransactionFromTextService = new CreateTransactionFromTextService({
       accountRepository,
       categoryRepository,
       transactionRepository,
-    );
-    createTransactionFromTextService = new CreateTransactionFromTextService({
       agent,
-      agentDataService,
       transactionService,
     });
   }

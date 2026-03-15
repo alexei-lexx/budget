@@ -1,8 +1,11 @@
 import { faker } from "@faker-js/faker";
 import { toDateString } from "../types/date";
 import { YEAR_RANGE_OFFSET } from "../types/validation";
-import { createMockAgentDataService } from "../utils/test-utils/mock-services";
-import { type IAgentDataService } from "./agent-data-service";
+import {
+  createMockAccountRepository,
+  createMockCategoryRepository,
+  createMockTransactionRepository,
+} from "../utils/test-utils/mock-repositories";
 import { MAX_PERIOD_DAYS } from "./agent-tools/get-transactions-tool";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
 import { type InsightInput, InsightService } from "./insight-service";
@@ -19,14 +22,17 @@ const createMockAgent = (): jest.Mocked<Agent> => ({
 describe("InsightService", () => {
   let service: InsightService;
   let userId: string;
-  let mockAgentDataService: jest.Mocked<IAgentDataService>;
   let mockAgent: jest.Mocked<Agent>;
 
   beforeEach(() => {
-    mockAgentDataService = createMockAgentDataService();
     mockAgent = createMockAgent();
 
-    service = new InsightService(mockAgentDataService, mockAgent);
+    service = new InsightService({
+      accountRepository: createMockAccountRepository(),
+      categoryRepository: createMockCategoryRepository(),
+      transactionRepository: createMockTransactionRepository(),
+      agent: mockAgent,
+    });
 
     userId = faker.string.uuid();
 
@@ -49,9 +55,7 @@ describe("InsightService", () => {
         message: "User ID is required",
         code: BusinessErrorCodes.INVALID_PARAMETERS,
       });
-      expect(
-        mockAgentDataService.getFilteredTransactions,
-      ).not.toHaveBeenCalled();
+      expect(mockAgent.call).not.toHaveBeenCalled();
     });
 
     it("should throw error when question is empty", async () => {
@@ -66,9 +70,7 @@ describe("InsightService", () => {
         message: "Question is required",
         code: BusinessErrorCodes.INVALID_PARAMETERS,
       });
-      expect(
-        mockAgentDataService.getFilteredTransactions,
-      ).not.toHaveBeenCalled();
+      expect(mockAgent.call).not.toHaveBeenCalled();
     });
 
     it("should throw error when question is only whitespace", async () => {

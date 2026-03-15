@@ -1,13 +1,15 @@
 import { z } from "zod";
 import { Transaction } from "../models/transaction";
 import { formatDateAsYYYYMMDD } from "../utils/date";
-import { IAgentDataService } from "./agent-data-service";
 import { createCreateTransactionTool } from "./agent-tools/create-transaction-tool";
 import { createGetAccountsTool } from "./agent-tools/get-accounts-tool";
 import { createGetCategoriesTool } from "./agent-tools/get-categories-tool";
 import { createGetTransactionsTool } from "./agent-tools/get-transactions-tool";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
+import { AccountRepository } from "./ports/account-repository";
 import { Agent, AgentTraceMessage, ToolExecution } from "./ports/agent";
+import { CategoryRepository } from "./ports/category-repository";
+import { TransactionRepository } from "./ports/transaction-repository";
 import { TransactionService } from "./transaction-service";
 
 const SYSTEM_PROMPT = `
@@ -93,16 +95,22 @@ const createdTransactionSchema = z.object({
 
 export class CreateTransactionFromTextService {
   private agent: Agent;
-  private agentDataService: IAgentDataService;
+  private accountRepository: AccountRepository;
+  private categoryRepository: CategoryRepository;
+  private transactionRepository: TransactionRepository;
   private transactionService: TransactionService;
 
   constructor(options: {
-    agentDataService: IAgentDataService;
+    accountRepository: AccountRepository;
+    categoryRepository: CategoryRepository;
+    transactionRepository: TransactionRepository;
     agent: Agent;
     transactionService: TransactionService;
   }) {
     this.agent = options.agent;
-    this.agentDataService = options.agentDataService;
+    this.accountRepository = options.accountRepository;
+    this.categoryRepository = options.categoryRepository;
+    this.transactionRepository = options.transactionRepository;
     this.transactionService = options.transactionService;
   }
 
@@ -134,10 +142,14 @@ export class CreateTransactionFromTextService {
     });
 
     const tools = [
-      createGetAccountsTool(this.agentDataService, userId),
-      createGetCategoriesTool(this.agentDataService, userId),
+      createGetAccountsTool(this.accountRepository, userId),
+      createGetCategoriesTool({
+        categoryRepository: this.categoryRepository,
+        transactionRepository: this.transactionRepository,
+        userId,
+      }),
       createGetTransactionsTool({
-        agentDataService: this.agentDataService,
+        transactionRepository: this.transactionRepository,
         userId,
       }),
       createTransactionTool,
