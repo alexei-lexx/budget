@@ -548,7 +548,7 @@ export class TransactionRepository implements ITransactionRepository {
     }
   }
 
-  async findAllActiveByUserId(
+  async findActiveByUserId(
     userId: string,
     filters?: TransactionFilterInput,
     pageSize: number = MAX_PAGE_SIZE,

@@ -133,7 +133,7 @@ export class AgentDataService implements IAgentDataService {
       ...(categoryId && { categoryIds: [categoryId] }),
     };
 
-    const transactions = await this.transactionRepository.findAllActiveByUserId(
+    const transactions = await this.transactionRepository.findActiveByUserId(
       userId,
       filters,
     );
@@ -165,7 +165,7 @@ export class AgentDataService implements IAgentDataService {
     const todayDateString = toDateString(formatDateAsYYYYMMDD(today));
 
     // Fetch all transactions within lookback window
-    const transactions = await this.transactionRepository.findAllActiveByUserId(
+    const transactions = await this.transactionRepository.findActiveByUserId(
       userId,
       {
         dateAfter: lookbackDateString,

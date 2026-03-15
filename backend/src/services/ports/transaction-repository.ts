@@ -48,7 +48,7 @@ export interface ITransactionRepository {
     pagination?: PaginationInput,
     filters?: TransactionFilterInput,
   ): Promise<TransactionConnection>;
-  findAllActiveByUserId(
+  findActiveByUserId(
     userId: string,
     filters?: TransactionFilterInput,
     pageSize?: number,

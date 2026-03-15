@@ -154,7 +154,7 @@ describe("AgentDataService", () => {
         fakeCategory({ isArchived: false }),
       ];
       mockCategoryRepository.findAllByUserId.mockResolvedValue(mockCategories);
-      mockTransactionRepository.findAllActiveByUserId.mockResolvedValue([]);
+      mockTransactionRepository.findActiveByUserId.mockResolvedValue([]);
 
       // Act
       const result = await service.getCategories(userId, EntityScope.ALL);
@@ -172,7 +172,7 @@ describe("AgentDataService", () => {
         fakeCategory({ isArchived: false }),
       ];
       mockCategoryRepository.findAllByUserId.mockResolvedValue(mockCategories);
-      mockTransactionRepository.findAllActiveByUserId.mockResolvedValue([]);
+      mockTransactionRepository.findActiveByUserId.mockResolvedValue([]);
 
       // Act
       const result = await service.getCategories(userId, EntityScope.ACTIVE);
@@ -189,7 +189,7 @@ describe("AgentDataService", () => {
         fakeCategory({ isArchived: false }),
       ];
       mockCategoryRepository.findAllByUserId.mockResolvedValue(mockCategories);
-      mockTransactionRepository.findAllActiveByUserId.mockResolvedValue([]);
+      mockTransactionRepository.findActiveByUserId.mockResolvedValue([]);
 
       // Act
       const result = await service.getCategories(userId, EntityScope.ARCHIVED);
@@ -216,7 +216,7 @@ describe("AgentDataService", () => {
         }),
       ];
       mockCategoryRepository.findAllByUserId.mockResolvedValue(mockCategories);
-      mockTransactionRepository.findAllActiveByUserId.mockResolvedValue([]);
+      mockTransactionRepository.findActiveByUserId.mockResolvedValue([]);
 
       // Act
       const result = await service.getCategories(userId, EntityScope.ALL);
@@ -245,7 +245,7 @@ describe("AgentDataService", () => {
     it("should return empty array when user has no categories", async () => {
       // Arrange
       mockCategoryRepository.findAllByUserId.mockResolvedValue([]);
-      mockTransactionRepository.findAllActiveByUserId.mockResolvedValue([]);
+      mockTransactionRepository.findActiveByUserId.mockResolvedValue([]);
 
       // Act
       const result = await service.getCategories(userId, EntityScope.ALL);
@@ -258,7 +258,7 @@ describe("AgentDataService", () => {
       // Arrange
       const category = fakeCategory({ isArchived: false });
       mockCategoryRepository.findAllByUserId.mockResolvedValue([category]);
-      mockTransactionRepository.findAllActiveByUserId.mockResolvedValue([]);
+      mockTransactionRepository.findActiveByUserId.mockResolvedValue([]);
 
       // Act
       const result = await service.getCategories(userId, EntityScope.ACTIVE);
@@ -285,7 +285,7 @@ describe("AgentDataService", () => {
         }),
       ];
       mockCategoryRepository.findAllByUserId.mockResolvedValue([category]);
-      mockTransactionRepository.findAllActiveByUserId.mockResolvedValue(
+      mockTransactionRepository.findActiveByUserId.mockResolvedValue(
         transactionsWithoutCategory,
       );
 
@@ -310,7 +310,7 @@ describe("AgentDataService", () => {
         }),
       ];
       mockCategoryRepository.findAllByUserId.mockResolvedValue([category]);
-      mockTransactionRepository.findAllActiveByUserId.mockResolvedValue(
+      mockTransactionRepository.findActiveByUserId.mockResolvedValue(
         transactionsWithoutDescription,
       );
 
@@ -341,7 +341,7 @@ describe("AgentDataService", () => {
         activeCategory,
         archivedCategory,
       ]);
-      mockTransactionRepository.findAllActiveByUserId.mockResolvedValue(
+      mockTransactionRepository.findActiveByUserId.mockResolvedValue(
         transactions,
       );
 
@@ -371,7 +371,7 @@ describe("AgentDataService", () => {
           }),
       );
 
-      mockTransactionRepository.findAllActiveByUserId.mockResolvedValue(
+      mockTransactionRepository.findActiveByUserId.mockResolvedValue(
         transactions,
       );
 
@@ -420,7 +420,7 @@ describe("AgentDataService", () => {
         groceryCategory,
         eatingOutCategory,
       ]);
-      mockTransactionRepository.findAllActiveByUserId.mockResolvedValue(
+      mockTransactionRepository.findActiveByUserId.mockResolvedValue(
         transactions,
       );
 
@@ -467,7 +467,7 @@ describe("AgentDataService", () => {
         }),
       ];
 
-      mockTransactionRepository.findAllActiveByUserId.mockResolvedValue(
+      mockTransactionRepository.findActiveByUserId.mockResolvedValue(
         transactions,
       );
 
@@ -483,19 +483,19 @@ describe("AgentDataService", () => {
       // Arrange
       const category = fakeCategory({ isArchived: false });
       mockCategoryRepository.findAllByUserId.mockResolvedValue([category]);
-      mockTransactionRepository.findAllActiveByUserId.mockResolvedValue([]);
+      mockTransactionRepository.findActiveByUserId.mockResolvedValue([]);
 
       // Act
       await service.getCategories(userId, EntityScope.ACTIVE);
 
       // Assert
       expect(
-        mockTransactionRepository.findAllActiveByUserId,
+        mockTransactionRepository.findActiveByUserId,
       ).toHaveBeenCalledTimes(1);
 
       // Extract filters from call
       const callFilters =
-        mockTransactionRepository.findAllActiveByUserId.mock.calls[0][1];
+        mockTransactionRepository.findActiveByUserId.mock.calls[0][1];
 
       // Verify date filters are valid DateString format (YYYY-MM-DD)
       expect(isDateString(callFilters?.dateAfter || "")).toBe(true);
@@ -538,7 +538,7 @@ describe("AgentDataService", () => {
           description: "Salary",
         }),
       ];
-      mockTransactionRepository.findAllActiveByUserId.mockResolvedValue(
+      mockTransactionRepository.findActiveByUserId.mockResolvedValue(
         transactions,
       );
 
@@ -574,7 +574,7 @@ describe("AgentDataService", () => {
         transferId: undefined,
       });
       expect(
-        mockTransactionRepository.findAllActiveByUserId,
+        mockTransactionRepository.findActiveByUserId,
       ).toHaveBeenCalledWith(userId, {
         dateAfter: "2024-01-01",
         dateBefore: "2024-01-31",
@@ -584,7 +584,7 @@ describe("AgentDataService", () => {
     it("should support categoryId filter", async () => {
       // Arrange
       const categoryId = faker.string.uuid();
-      mockTransactionRepository.findAllActiveByUserId.mockResolvedValue([]);
+      mockTransactionRepository.findActiveByUserId.mockResolvedValue([]);
 
       // Act
       await service.getFilteredTransactions(
@@ -596,7 +596,7 @@ describe("AgentDataService", () => {
 
       // Assert
       expect(
-        mockTransactionRepository.findAllActiveByUserId,
+        mockTransactionRepository.findActiveByUserId,
       ).toHaveBeenCalledWith(userId, {
         dateAfter: "2024-01-01",
         dateBefore: "2024-01-31",
@@ -607,7 +607,7 @@ describe("AgentDataService", () => {
     it("should support accountId filter", async () => {
       // Arrange
       const accountId = faker.string.uuid();
-      mockTransactionRepository.findAllActiveByUserId.mockResolvedValue([]);
+      mockTransactionRepository.findActiveByUserId.mockResolvedValue([]);
 
       // Act
       await service.getFilteredTransactions(
@@ -620,7 +620,7 @@ describe("AgentDataService", () => {
 
       // Assert
       expect(
-        mockTransactionRepository.findAllActiveByUserId,
+        mockTransactionRepository.findActiveByUserId,
       ).toHaveBeenCalledWith(userId, {
         dateAfter: "2024-01-01",
         dateBefore: "2024-01-31",
@@ -632,7 +632,7 @@ describe("AgentDataService", () => {
       // Arrange
       const categoryId = faker.string.uuid();
       const accountId = faker.string.uuid();
-      mockTransactionRepository.findAllActiveByUserId.mockResolvedValue([]);
+      mockTransactionRepository.findActiveByUserId.mockResolvedValue([]);
 
       // Act
       await service.getFilteredTransactions(
@@ -645,7 +645,7 @@ describe("AgentDataService", () => {
 
       // Assert
       expect(
-        mockTransactionRepository.findAllActiveByUserId,
+        mockTransactionRepository.findActiveByUserId,
       ).toHaveBeenCalledWith(userId, {
         dateAfter: "2024-01-01",
         dateBefore: "2024-01-31",

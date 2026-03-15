@@ -53,7 +53,7 @@ describe("TransactionRepository", () => {
       ]);
 
       // Act
-      const result = await repository.findAllActiveByUserId(
+      const result = await repository.findActiveByUserId(
         userId,
         undefined,
         pageSize,
@@ -68,7 +68,7 @@ describe("TransactionRepository", () => {
       const userId = faker.string.uuid();
 
       // Act
-      const result = await repository.findAllActiveByUserId(userId);
+      const result = await repository.findActiveByUserId(userId);
 
       // Assert
       expect(result).toHaveLength(0);
