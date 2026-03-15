@@ -513,7 +513,7 @@ export class TransactionRepository implements ITransactionRepository {
 
       // Create edges with cursors
       const edges: TransactionEdge[] = dbItems.map((dbItem) => ({
-        node: toTransaction(dbItem), // Remove createdAtSortable before returning
+        node: toTransaction(dbItem),
         cursor: encodeCursor(dbItem),
       }));
 
