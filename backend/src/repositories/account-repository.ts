@@ -322,6 +322,3 @@ export class AccountRepository implements IAccountRepository {
     }
   }
 }
-
-// Export the error class for use in resolvers
-export { RepositoryError as AccountRepositoryError };

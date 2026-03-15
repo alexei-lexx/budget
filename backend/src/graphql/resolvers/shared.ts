@@ -1,8 +1,7 @@
 import { GraphQLError } from "graphql";
 import { User } from "../../models/user";
-import { AccountRepositoryError } from "../../repositories/account-repository";
-import { CategoryRepositoryError } from "../../repositories/category-repository";
 import { BusinessError } from "../../services/business-error";
+import { RepositoryError } from "../../services/ports/repository-error";
 import { InvalidDateStringError } from "../../types/date";
 import { GraphQLContext } from "../context";
 
@@ -76,10 +75,7 @@ export function handleResolverError(
     });
   }
 
-  if (
-    error instanceof AccountRepositoryError ||
-    error instanceof CategoryRepositoryError
-  ) {
+  if (error instanceof RepositoryError) {
     throw new GraphQLError(error.message, {
       extensions: {
         code: error.code,

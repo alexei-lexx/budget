@@ -390,6 +390,3 @@ export class CategoryRepository implements ICategoryRepository {
     }
   }
 }
-
-// Export the error class for use in resolvers
-export { RepositoryError as CategoryRepositoryError };

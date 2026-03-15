@@ -1229,6 +1229,3 @@ export class TransactionRepository implements ITransactionRepository {
     }
   }
 }
-
-// Export the error class for use in resolvers
-export { RepositoryError as TransactionRepositoryError };
