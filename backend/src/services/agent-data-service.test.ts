@@ -1,7 +1,8 @@
 import { faker } from "@faker-js/faker";
 import { CategoryType } from "../models/category";
 import { TransactionType } from "../models/transaction";
-import { toDateString } from "../types/date";
+import { isDateString, toDateString } from "../types/date";
+import { daysBetween } from "../utils/date";
 import {
   fakeAccount,
   fakeCategory,
@@ -14,6 +15,7 @@ import {
 } from "../utils/test-utils/mock-repositories";
 import {
   AgentDataService,
+  CATEGORY_HISTORY_LOOKBACK_DAYS,
   CATEGORY_HISTORY_MAX_DESCRIPTIONS_PER_CATEGORY,
   EntityScope,
 } from "./agent-data-service";
@@ -475,6 +477,39 @@ describe("AgentDataService", () => {
       // Assert - should only see unique descriptions
       expect(result[0].recentDescriptions).toEqual(["ice cream", "milk"]);
       expect(result[0].recentDescriptions).toHaveLength(2);
+    });
+
+    it("should fetch transactions within the history lookback window", async () => {
+      // Arrange
+      const category = fakeCategory({ isArchived: false });
+      mockCategoryRepository.findAllByUserId.mockResolvedValue([category]);
+      mockTransactionRepository.findAllActiveByUserId.mockResolvedValue([]);
+
+      // Act
+      await service.getCategories(userId, EntityScope.ACTIVE);
+
+      // Assert
+      expect(
+        mockTransactionRepository.findAllActiveByUserId,
+      ).toHaveBeenCalledTimes(1);
+
+      // Extract filters from call
+      const callFilters =
+        mockTransactionRepository.findAllActiveByUserId.mock.calls[0][1];
+
+      // Verify date filters are valid DateString format (YYYY-MM-DD)
+      expect(isDateString(callFilters?.dateAfter || "")).toBe(true);
+      expect(isDateString(callFilters?.dateBefore || "")).toBe(true);
+
+      // Verify lookback is approximately CATEGORY_HISTORY_LOOKBACK_DAYS days (allow 1 day variance for execution time)
+      const dateAfter = new Date(callFilters?.dateAfter || "");
+      const dateBefore = new Date(callFilters?.dateBefore || "");
+      const daysDiff = daysBetween(dateAfter, dateBefore);
+
+      expect(daysDiff).toBeGreaterThanOrEqual(
+        CATEGORY_HISTORY_LOOKBACK_DAYS - 1,
+      );
+      expect(daysDiff).toBeLessThanOrEqual(CATEGORY_HISTORY_LOOKBACK_DAYS);
     });
   });
 
