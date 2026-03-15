@@ -127,10 +127,11 @@ export class CreateTransactionFromTextService {
 
     const today = formatDateAsYYYYMMDD(new Date());
 
-    const createTransactionTool = createCreateTransactionTool(
-      this.transactionService,
+    const createTransactionTool = createCreateTransactionTool({
+      maxCreations: 1, // Limit to 1 transaction per call to prevent unexpected multiple creations
+      transactionService: this.transactionService,
       userId,
-    );
+    });
 
     const tools = [
       createGetAccountsTool(this.agentDataService, userId),

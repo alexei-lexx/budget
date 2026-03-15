@@ -444,6 +444,18 @@ The system SHALL provide a text input field on the Transactions page that accept
 - WHEN the user attempts to submit
 - THEN submission is prevented client-side without invoking the AI service
 
+#### Scenario: Only one transaction is persisted per submission
+
+- GIVEN the user submits a natural language description
+- WHEN the AI processes the request
+- THEN exactly one transaction is persisted regardless of how many creation attempts the agent makes
+
+#### Scenario: Agent retry after failure still creates the transaction
+
+- GIVEN the agent's first creation attempt fails
+- AND the agent retries
+- THEN the retry succeeds and exactly one transaction is persisted
+
 ### Requirement: Category Inference from Transaction History
 
 The system SHALL use the user's recent transaction history to improve category assignment for ambiguous inputs, while preserving semantic inference for clear matches and gracefully handling absent history.

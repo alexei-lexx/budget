@@ -43,33 +43,44 @@ interface TransactionData {
   type: TransactionType;
 }
 
-export const createCreateTransactionTool = (
-  transactionService: TransactionService,
-  userId: string,
-): ToolSignature<CreateTransactionToolInput> => ({
-  name: "createTransaction",
-  description: "Create a new transaction.",
-  inputSchema: createTransactionInputSchema,
-  func: async (input: CreateTransactionToolInput): Promise<string> => {
-    const serviceInput: CreateTransactionServiceInput = {
-      ...input,
-    };
-    const created = await transactionService.createTransaction(
-      serviceInput,
-      userId,
-    );
+export const createCreateTransactionTool = (params: {
+  maxCreations: number;
+  transactionService: TransactionService;
+  userId: string;
+}): ToolSignature<CreateTransactionToolInput> => {
+  let successfulCreations = 0;
 
-    const transactionData: TransactionData = {
-      accountId: created.accountId,
-      amount: created.amount,
-      categoryId: created.categoryId,
-      currency: created.currency,
-      date: created.date,
-      description: created.description,
-      id: created.id,
-      type: created.type,
-    };
+  return {
+    name: "createTransaction",
+    description: "Create a new transaction.",
+    inputSchema: createTransactionInputSchema,
+    func: async (input: CreateTransactionToolInput): Promise<string> => {
+      if (successfulCreations >= params.maxCreations) {
+        return `Error: transaction creation limit reached (${params.maxCreations} transactions)`;
+      }
 
-    return JSON.stringify(transactionData);
-  },
-});
+      const serviceInput: CreateTransactionServiceInput = {
+        ...input,
+      };
+      const created = await params.transactionService.createTransaction(
+        serviceInput,
+        params.userId,
+      );
+
+      successfulCreations++;
+
+      const transactionData: TransactionData = {
+        accountId: created.accountId,
+        amount: created.amount,
+        categoryId: created.categoryId,
+        currency: created.currency,
+        date: created.date,
+        description: created.description,
+        id: created.id,
+        type: created.type,
+      };
+
+      return JSON.stringify(transactionData);
+    },
+  };
+};
