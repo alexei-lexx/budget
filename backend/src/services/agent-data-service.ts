@@ -162,13 +162,15 @@ export class AgentDataService implements IAgentDataService {
     const lookbackDate = daysAgo(today, CATEGORY_HISTORY_LOOKBACK_DAYS);
 
     const lookbackDateString = toDateString(formatDateAsYYYYMMDD(lookbackDate));
-    const todayString = toDateString(formatDateAsYYYYMMDD(today));
+    const todayDateString = toDateString(formatDateAsYYYYMMDD(today));
 
     // Fetch all transactions within lookback window
-    const transactions = await this.getFilteredTransactions(
+    const transactions = await this.transactionRepository.findAllActiveByUserId(
       userId,
-      lookbackDateString,
-      todayString,
+      {
+        dateAfter: lookbackDateString,
+        dateBefore: todayDateString,
+      },
     );
 
     // Build set of returned category IDs for quick lookup
