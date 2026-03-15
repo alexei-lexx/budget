@@ -63,8 +63,10 @@ describe("TransactionRepository", () => {
     it("should return empty array when no transactions exist", async () => {
       const userId = faker.string.uuid();
 
+      // Act
       const result = await repository.findAllActiveByUserId(userId);
 
+      // Assert
       expect(result).toHaveLength(0);
     });
   });
