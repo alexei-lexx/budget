@@ -89,9 +89,18 @@ You MUST infer all mandatory and optional transaction fields and then MUST persi
 - If the transaction cannot be created, respond with an error message explaining why
 `.trim();
 
-const createdTransactionSchema = z.object({
-  id: z.string(),
-});
+const createdTransactionSchema = z.discriminatedUnion("success", [
+  z.object({
+    success: z.literal(true),
+    data: z.object({
+      id: z.string(),
+    }),
+  }),
+  z.object({
+    success: z.literal(false),
+    error: z.string(),
+  }),
+]);
 
 export class CreateTransactionFromTextService {
   private agent: Agent;
@@ -222,7 +231,22 @@ export class CreateTransactionFromTextService {
       );
     }
 
-    const transactionId = parsedTransactionData.data.id;
+    // Tool responded with a failure
+    if (!parsedTransactionData.data.success) {
+      console.log("Agent error", {
+        code: BusinessErrorCodes.AGENT_DECLINED,
+        error: parsedTransactionData.data.error,
+        agentAnswer: answer,
+        toolOutput: lastCreateTransactionToolExecution.output,
+      });
+
+      throw new BusinessError(
+        "Agent failed to create transaction",
+        BusinessErrorCodes.AGENT_DECLINED,
+      );
+    }
+
+    const transactionId = parsedTransactionData.data.data.id;
 
     const transaction = await this.transactionService.getTransactionById(
       transactionId,

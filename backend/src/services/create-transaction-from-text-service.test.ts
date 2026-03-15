@@ -108,7 +108,10 @@ describe("CreateTransactionFromTextService", () => {
           {
             tool: "createTransaction",
             input: '{ "amount": 5 }',
-            output: `{ "id": "${transactionId}" }`,
+            output: JSON.stringify({
+              success: true,
+              data: { id: transactionId },
+            }),
           },
           {
             tool: "yetAnotherToolTwo",
@@ -170,7 +173,8 @@ describe("CreateTransactionFromTextService", () => {
       // Assert
       const callArgs = mockAgent.call.mock.calls[0][0];
       const toolNames =
-        callArgs.tools?.map((t: ToolSignature<unknown>) => t.name) ?? [];
+        callArgs.tools?.map((t: ToolSignature<unknown, unknown>) => t.name) ??
+        [];
       expect(toolNames).toContain("createTransaction");
       expect(toolNames).toContain("getAccounts");
       expect(toolNames).toContain("getCategories");
@@ -261,7 +265,12 @@ describe("CreateTransactionFromTextService", () => {
           {
             tool: "createTransaction",
             input: '{ "amount": 5 }',
-            output: '{ "currency": "EUR" }', // missing "id"
+            output: JSON.stringify({
+              success: true,
+              data: {
+                currency: "EUR", // missing "id"
+              },
+            }),
           },
         ],
         agentTrace: [],
@@ -290,12 +299,18 @@ describe("CreateTransactionFromTextService", () => {
           {
             tool: "createTransaction",
             input: '{ "amount": 4 }',
-            output: `{ "id": "first-created-transaction-id" }`,
+            output: JSON.stringify({
+              success: true,
+              data: { id: faker.string.uuid() },
+            }),
           },
           {
             tool: "createTransaction",
             input: '{ "amount": 5 }',
-            output: `{ "id": "${transactionId}" }`,
+            output: JSON.stringify({
+              success: true,
+              data: { id: transactionId },
+            }),
           },
         ],
         agentTrace: [],

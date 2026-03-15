@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { Success } from "../../types/result";
 import { AccountRepository } from "../ports/account-repository";
 import { ToolSignature } from "../ports/agent";
 
@@ -28,7 +29,7 @@ interface AccountData {
 export const createGetAccountsTool = (
   accountRepository: AccountRepository,
   userId: string,
-): ToolSignature<GetAccountsInput> => ({
+): ToolSignature<GetAccountsInput, AccountData[]> => ({
   name: "getAccounts",
   description: "Get user accounts filtered by scope.",
   inputSchema: getAccountsInputSchema,
@@ -48,6 +49,6 @@ export const createGetAccountsTool = (
       isArchived: account.isArchived,
     }));
 
-    return JSON.stringify(accountDataList);
+    return Success(accountDataList);
   },
 });

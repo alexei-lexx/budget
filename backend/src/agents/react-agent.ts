@@ -16,7 +16,7 @@ export class ReActAgent implements Agent {
   async call(input: {
     messages: readonly AgentMessage[];
     systemPrompt?: string;
-    tools?: readonly ToolSignature<any>[]; // eslint-disable-line @typescript-eslint/no-explicit-any
+    tools?: readonly ToolSignature<any, any>[]; // eslint-disable-line @typescript-eslint/no-explicit-any
   }) {
     const langchainTools = input.tools?.map((toolSignature) => {
       return tool(toolSignature.func, {

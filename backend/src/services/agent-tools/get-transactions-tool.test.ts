@@ -38,9 +38,10 @@ describe("createGetTransactionsTool", () => {
     });
 
     expect(mockTransactionRepository.findActiveByUserId).not.toHaveBeenCalled();
-    expect(result).toBe(
-      JSON.stringify({ error: "startDate must not be after endDate" }),
-    );
+    expect(result).toEqual({
+      success: false,
+      error: "startDate must not be after endDate",
+    });
   });
 
   it("should reject when date range exceeds max period days", async () => {
@@ -55,11 +56,10 @@ describe("createGetTransactionsTool", () => {
     });
 
     expect(mockTransactionRepository.findActiveByUserId).not.toHaveBeenCalled();
-    expect(result).toBe(
-      JSON.stringify({
-        error: `Date range must not exceed ${MAX_PERIOD_DAYS} days`,
-      }),
-    );
+    expect(result).toEqual({
+      success: false,
+      error: `Date range must not exceed ${MAX_PERIOD_DAYS} days`,
+    });
   });
 
   it("should filter by date range and return transactions as JSON", async () => {
@@ -78,8 +78,7 @@ describe("createGetTransactionsTool", () => {
       endDate: "2000-01-31",
     });
 
-    expect(typeof result).toBe("string");
-    expect(() => JSON.parse(result)).not.toThrow();
+    expect(result.success).toBe(true);
     expect(mockTransactionRepository.findActiveByUserId).toHaveBeenCalledWith(
       userId,
       {
@@ -125,29 +124,32 @@ describe("createGetTransactionsTool", () => {
       endDate: "2024-01-31",
     });
 
-    const parsed = JSON.parse(result);
-    expect(parsed).toHaveLength(2);
-    expect(parsed[0]).toEqual({
-      id: "transaction1",
-      accountId: "account1",
-      categoryId: "category1",
-      type: TransactionType.EXPENSE,
-      amount: 50,
-      currency: "USD",
-      date: "2024-01-15",
-      description: "Grocery shopping",
-      transferId: undefined,
-    });
-    expect(parsed[1]).toEqual({
-      id: "transaction2",
-      accountId: "account2",
-      categoryId: "category2",
-      type: TransactionType.INCOME,
-      amount: 1000,
-      currency: "USD",
-      date: "2024-01-20",
-      description: "Salary",
-      transferId: undefined,
+    expect(result).toEqual({
+      success: true,
+      data: [
+        {
+          id: "transaction1",
+          accountId: "account1",
+          categoryId: "category1",
+          type: TransactionType.EXPENSE,
+          amount: 50,
+          currency: "USD",
+          date: toDateString("2024-01-15"),
+          description: "Grocery shopping",
+          transferId: undefined,
+        },
+        {
+          id: "transaction2",
+          accountId: "account2",
+          categoryId: "category2",
+          type: TransactionType.INCOME,
+          amount: 1000,
+          currency: "USD",
+          date: toDateString("2024-01-20"),
+          description: "Salary",
+          transferId: undefined,
+        },
+      ],
     });
   });
 

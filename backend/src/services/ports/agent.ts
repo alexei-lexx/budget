@@ -1,14 +1,15 @@
 import { z } from "zod";
+import { Result } from "../../types/result";
 
 export interface AgentMessage {
   role: "system" | "user" | "assistant";
   content: string;
 }
 
-export interface ToolSignature<TInput> {
+export interface ToolSignature<TInput, TOutput> {
   name: string;
   description: string;
-  func: (input: TInput) => Promise<string>;
+  func: (input: TInput) => Promise<Result<TOutput>>;
   inputSchema: z.ZodType<TInput>;
 }
 
@@ -50,7 +51,7 @@ export interface Agent {
   call(input: {
     messages: readonly AgentMessage[];
     systemPrompt?: string;
-    tools?: readonly ToolSignature<any>[]; // eslint-disable-line @typescript-eslint/no-explicit-any
+    tools?: readonly ToolSignature<any, any>[]; // eslint-disable-line @typescript-eslint/no-explicit-any
   }): Promise<{
     answer: string;
     toolExecutions?: ToolExecution[];

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { toDateString } from "../../types/date";
+import { Failure, Success } from "../../types/result";
 import { daysBetween } from "../../utils/date";
 import { ToolSignature } from "../ports/agent";
 import { TransactionRepository } from "../ports/transaction-repository";
@@ -44,14 +45,14 @@ export const MAX_PERIOD_DAYS = 365;
 export const createGetTransactionsTool = (params: {
   transactionRepository: TransactionRepository;
   userId: string;
-}): ToolSignature<GetTransactionsInput> => ({
+}): ToolSignature<GetTransactionsInput, TransactionData[]> => ({
   name: "getTransactions",
   description: `Get filtered transactions by date range and optionally by single categoryId or accountId. Only returns active (non-archived) transactions. Date format: YYYY-MM-DD. The date range must not exceed 365 days.`,
   inputSchema: getTransactionsInputSchema,
   func: async (input: GetTransactionsInput) => {
     // Validate that startDate is not after endDate
     if (input.startDate > input.endDate) {
-      return JSON.stringify({ error: "startDate must not be after endDate" });
+      return Failure("startDate must not be after endDate");
     }
 
     // Validate that date range does not exceed MAX_PERIOD_DAYS
@@ -59,9 +60,7 @@ export const createGetTransactionsTool = (params: {
       daysBetween(new Date(input.startDate), new Date(input.endDate)) >
       MAX_PERIOD_DAYS
     ) {
-      return JSON.stringify({
-        error: `Date range must not exceed ${MAX_PERIOD_DAYS} days`,
-      });
+      return Failure(`Date range must not exceed ${MAX_PERIOD_DAYS} days`);
     }
 
     const transactions = await params.transactionRepository.findActiveByUserId(
@@ -88,6 +87,6 @@ export const createGetTransactionsTool = (params: {
       }),
     );
 
-    return JSON.stringify(transactionData);
+    return Success(transactionData);
   },
 });

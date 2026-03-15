@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { TransactionType } from "../../models/transaction";
 import { toDateString } from "../../types/date";
+import { Failure, Success } from "../../types/result";
 import { ToolSignature } from "../ports/agent";
 import {
   CreateTransactionServiceInput,
@@ -47,16 +48,18 @@ export const createCreateTransactionTool = (params: {
   maxCreations: number;
   transactionService: TransactionService;
   userId: string;
-}): ToolSignature<CreateTransactionToolInput> => {
+}): ToolSignature<CreateTransactionToolInput, TransactionData> => {
   let successfulCreations = 0;
 
   return {
     name: "createTransaction",
     description: "Create a new transaction.",
     inputSchema: createTransactionInputSchema,
-    func: async (input: CreateTransactionToolInput): Promise<string> => {
+    func: async (input: CreateTransactionToolInput) => {
       if (successfulCreations >= params.maxCreations) {
-        return `Error: transaction creation limit reached (${params.maxCreations} transactions)`;
+        return Failure(
+          `Error: transaction creation limit reached (${params.maxCreations} transactions)`,
+        );
       }
 
       const serviceInput: CreateTransactionServiceInput = {
@@ -80,7 +83,7 @@ export const createCreateTransactionTool = (params: {
         type: created.type,
       };
 
-      return JSON.stringify(transactionData);
+      return Success(transactionData);
     },
   };
 };
