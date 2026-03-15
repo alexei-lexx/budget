@@ -250,7 +250,7 @@ import type {
 } from "@/composables/useTransfers";
 
 // Composables
-const { xs } = useDisplay();
+const { xs, mobile } = useDisplay();
 
 // Filter state
 const transactionFilters = useTransactionFilters();
@@ -301,7 +301,9 @@ const handleCreateTransactionFromText = async () => {
     // Wait for Vue to finish re-rendering the updated transaction list before
     // focusing, otherwise the DOM update can steal focus after we set it.
     await nextTick();
-    createTransactionFromTextInputRef.value?.focus();
+    if (!mobile.value) {
+      createTransactionFromTextInputRef.value?.focus();
+    }
   }
 };
 
