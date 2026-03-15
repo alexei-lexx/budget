@@ -573,12 +573,13 @@ describe("AgentDataService", () => {
         description: "Salary",
         transferId: undefined,
       });
-      expect(
-        mockTransactionRepository.findActiveByUserId,
-      ).toHaveBeenCalledWith(userId, {
-        dateAfter: "2024-01-01",
-        dateBefore: "2024-01-31",
-      });
+      expect(mockTransactionRepository.findActiveByUserId).toHaveBeenCalledWith(
+        userId,
+        {
+          dateAfter: "2024-01-01",
+          dateBefore: "2024-01-31",
+        },
+      );
     });
 
     it("should support categoryId filter", async () => {
@@ -595,13 +596,14 @@ describe("AgentDataService", () => {
       );
 
       // Assert
-      expect(
-        mockTransactionRepository.findActiveByUserId,
-      ).toHaveBeenCalledWith(userId, {
-        dateAfter: "2024-01-01",
-        dateBefore: "2024-01-31",
-        categoryIds: [categoryId],
-      });
+      expect(mockTransactionRepository.findActiveByUserId).toHaveBeenCalledWith(
+        userId,
+        {
+          dateAfter: "2024-01-01",
+          dateBefore: "2024-01-31",
+          categoryIds: [categoryId],
+        },
+      );
     });
 
     it("should support accountId filter", async () => {
@@ -619,13 +621,14 @@ describe("AgentDataService", () => {
       );
 
       // Assert
-      expect(
-        mockTransactionRepository.findActiveByUserId,
-      ).toHaveBeenCalledWith(userId, {
-        dateAfter: "2024-01-01",
-        dateBefore: "2024-01-31",
-        accountIds: [accountId],
-      });
+      expect(mockTransactionRepository.findActiveByUserId).toHaveBeenCalledWith(
+        userId,
+        {
+          dateAfter: "2024-01-01",
+          dateBefore: "2024-01-31",
+          accountIds: [accountId],
+        },
+      );
     });
 
     it("should support both categoryId and accountId filters", async () => {
@@ -644,14 +647,15 @@ describe("AgentDataService", () => {
       );
 
       // Assert
-      expect(
-        mockTransactionRepository.findActiveByUserId,
-      ).toHaveBeenCalledWith(userId, {
-        dateAfter: "2024-01-01",
-        dateBefore: "2024-01-31",
-        categoryIds: [categoryId],
-        accountIds: [accountId],
-      });
+      expect(mockTransactionRepository.findActiveByUserId).toHaveBeenCalledWith(
+        userId,
+        {
+          dateAfter: "2024-01-01",
+          dateBefore: "2024-01-31",
+          categoryIds: [categoryId],
+          accountIds: [accountId],
+        },
+      );
     });
   });
 });

@@ -513,7 +513,7 @@ export class TransactionRepository implements ITransactionRepository {
 
       // Create edges with cursors
       const edges: TransactionEdge[] = dbItems.map((dbItem) => ({
-        node: toTransaction(dbItem),
+        node: toTransaction(dbItem), // Remove createdAtSortable before returning
         cursor: encodeCursor(dbItem),
       }));
 
@@ -551,26 +551,44 @@ export class TransactionRepository implements ITransactionRepository {
   async findActiveByUserId(
     userId: string,
     filters?: TransactionFilterInput,
-    pageSize: number = MAX_PAGE_SIZE,
   ): Promise<Transaction[]> {
-    const allTransactions: Transaction[] = [];
-
-    let cursor: string | undefined;
-    do {
-      const connection = await this.findActiveByUserIdPaginated(
-        userId,
-        { first: pageSize, after: cursor },
-        filters,
+    if (!userId) {
+      throw new TransactionRepositoryError(
+        "User ID is required",
+        "INVALID_USER_ID",
       );
+    }
 
-      allTransactions.push(...connection.edges.map((edge) => edge.node));
+    try {
+      // Build query parameters (index selection, key condition, filters)
+      const queryParams = this.buildQueryParams(userId, filters);
 
-      cursor = connection.pageInfo.hasNextPage
-        ? connection.pageInfo.endCursor
-        : undefined;
-    } while (cursor);
+      const { items } = await paginateQuery<Transaction>({
+        client: this.client,
+        params: {
+          TableName: this.tableName,
+          IndexName: queryParams.indexName,
+          KeyConditionExpression: queryParams.keyConditionExpression,
+          FilterExpression: queryParams.filterExpression,
+          ...(Object.keys(queryParams.expressionAttributeNames).length > 0 && {
+            ExpressionAttributeNames: queryParams.expressionAttributeNames,
+          }),
+          ExpressionAttributeValues: queryParams.expressionAttributeValues,
+          ScanIndexForward: false, // Descending order (newest first)
+        },
+        pageSize: undefined, // No pageSize = get all items
+        schema: transactionSchema,
+      });
 
-    return allTransactions;
+      return items;
+    } catch (error) {
+      console.error("Error finding transactions by user ID:", error);
+      throw new TransactionRepositoryError(
+        "Failed to find transactions by user ID",
+        "QUERY_FAILED",
+        error,
+      );
+    }
   }
 
   async findActiveById(

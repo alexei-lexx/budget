@@ -762,11 +762,9 @@ describe("TransactionService", () => {
 
       // Assert - Service should pass all parameters through to repository unchanged
       expect(result).toEqual(expectedResult);
-      expect(mockTransactionRepository.findActiveByUserIdPaginated).toHaveBeenCalledWith(
-        userId,
-        pagination,
-        filters,
-      );
+      expect(
+        mockTransactionRepository.findActiveByUserIdPaginated,
+      ).toHaveBeenCalledWith(userId, pagination, filters);
       expect(
         mockTransactionRepository.findActiveByUserIdPaginated,
       ).toHaveBeenCalledTimes(1);
