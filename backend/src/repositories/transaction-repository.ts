@@ -450,7 +450,7 @@ export class TransactionRepository implements ITransactionRepository {
     }
   }
 
-  async findActiveByUserId(
+  async findActiveByUserIdPaginated(
     userId: string,
     pagination?: PaginationInput,
     filters?: TransactionFilterInput,
@@ -557,7 +557,7 @@ export class TransactionRepository implements ITransactionRepository {
 
     let cursor: string | undefined;
     do {
-      const connection = await this.findActiveByUserId(
+      const connection = await this.findActiveByUserIdPaginated(
         userId,
         { first: pageSize, after: cursor },
         filters,

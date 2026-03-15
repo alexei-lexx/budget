@@ -43,7 +43,7 @@ export type UpdateTransactionInput = Partial<
 };
 
 export interface ITransactionRepository {
-  findActiveByUserId(
+  findActiveByUserIdPaginated(
     userId: string,
     pagination?: PaginationInput,
     filters?: TransactionFilterInput,

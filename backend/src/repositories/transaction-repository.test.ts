@@ -339,7 +339,7 @@ describe("TransactionRepository", () => {
       ]);
 
       // Query transactions (descending order - newest first)
-      const result = await repository.findActiveByUserId(userId);
+      const result = await repository.findActiveByUserIdPaginated(userId);
 
       // Verify TRANSFER_IN appears first
       expect(result.edges[0].node.type).toBe(TransactionType.TRANSFER_IN);
@@ -2031,7 +2031,7 @@ describe("TransactionRepository", () => {
       ]);
 
       // Act
-      const result = await repository.findActiveByUserId(userId, undefined, {
+      const result = await repository.findActiveByUserIdPaginated(userId, undefined, {
         accountIds: [account1],
       });
 
@@ -2059,7 +2059,7 @@ describe("TransactionRepository", () => {
       ]);
 
       // Act - Filter by account1 and account2 (should get 3 transactions)
-      const result = await repository.findActiveByUserId(userId, undefined, {
+      const result = await repository.findActiveByUserIdPaginated(userId, undefined, {
         accountIds: [account1, account2],
       });
 
@@ -2083,7 +2083,7 @@ describe("TransactionRepository", () => {
       );
 
       // Act
-      const result = await repository.findActiveByUserId(userId, undefined, {
+      const result = await repository.findActiveByUserIdPaginated(userId, undefined, {
         accountIds: [nonExistentAccount],
       });
 
@@ -2121,7 +2121,7 @@ describe("TransactionRepository", () => {
       ]);
 
       // Act
-      const result = await repository.findActiveByUserId(userId, undefined, {
+      const result = await repository.findActiveByUserIdPaginated(userId, undefined, {
         categoryIds: [category1],
       });
 
@@ -2161,7 +2161,7 @@ describe("TransactionRepository", () => {
       ]);
 
       // Act - Filter by category1 and category2
-      const result = await repository.findActiveByUserId(userId, undefined, {
+      const result = await repository.findActiveByUserIdPaginated(userId, undefined, {
         categoryIds: [category1, category2],
       });
 
@@ -2200,7 +2200,7 @@ describe("TransactionRepository", () => {
       ]);
 
       // Act
-      const result = await repository.findActiveByUserId(userId, undefined, {
+      const result = await repository.findActiveByUserIdPaginated(userId, undefined, {
         includeUncategorized: true,
       });
 
@@ -2244,7 +2244,7 @@ describe("TransactionRepository", () => {
       ]);
 
       // Act - Filter by category1 + uncategorized
-      const result = await repository.findActiveByUserId(userId, undefined, {
+      const result = await repository.findActiveByUserIdPaginated(userId, undefined, {
         categoryIds: [category1],
         includeUncategorized: true,
       });
@@ -2273,7 +2273,7 @@ describe("TransactionRepository", () => {
       );
 
       // Act
-      const result = await repository.findActiveByUserId(userId, undefined, {
+      const result = await repository.findActiveByUserIdPaginated(userId, undefined, {
         categoryIds: [nonExistentCategory],
       });
 
@@ -2308,7 +2308,7 @@ describe("TransactionRepository", () => {
       ]);
 
       // Act - Get transactions on or after 2024-01-15 (should include 2024-01-15)
-      const result = await repository.findActiveByUserId(userId, undefined, {
+      const result = await repository.findActiveByUserIdPaginated(userId, undefined, {
         dateAfter: toDateString("2024-01-15"),
       });
 
@@ -2343,7 +2343,7 @@ describe("TransactionRepository", () => {
       ]);
 
       // Act - Get transactions on or before 2024-01-20 (should include 2024-01-20)
-      const result = await repository.findActiveByUserId(userId, undefined, {
+      const result = await repository.findActiveByUserIdPaginated(userId, undefined, {
         dateBefore: toDateString("2024-01-20"),
       });
 
@@ -2388,7 +2388,7 @@ describe("TransactionRepository", () => {
       ]);
 
       // Act - Get transactions between 2024-01-10 and 2024-01-20 (both inclusive)
-      const result = await repository.findActiveByUserId(userId, undefined, {
+      const result = await repository.findActiveByUserIdPaginated(userId, undefined, {
         dateAfter: toDateString("2024-01-10"),
         dateBefore: toDateString("2024-01-20"),
       });
@@ -2427,7 +2427,7 @@ describe("TransactionRepository", () => {
 
       // Act & Assert - Should throw error when dateAfter > dateBefore
       await expect(
-        repository.findActiveByUserId(userId, undefined, {
+        repository.findActiveByUserIdPaginated(userId, undefined, {
           dateAfter: toDateString("2024-12-31"),
           dateBefore: toDateString("2024-01-01"),
         }),
@@ -2460,7 +2460,7 @@ describe("TransactionRepository", () => {
       ]);
 
       // Act
-      const result = await repository.findActiveByUserId(userId, undefined, {
+      const result = await repository.findActiveByUserIdPaginated(userId, undefined, {
         types: [TransactionType.INCOME],
       });
 
@@ -2501,7 +2501,7 @@ describe("TransactionRepository", () => {
       ]);
 
       // Act
-      const result = await repository.findActiveByUserId(userId, undefined, {
+      const result = await repository.findActiveByUserIdPaginated(userId, undefined, {
         types: [TransactionType.INCOME, TransactionType.EXPENSE],
       });
 
@@ -2549,7 +2549,7 @@ describe("TransactionRepository", () => {
       ]);
 
       // Act
-      const result = await repository.findActiveByUserId(userId, undefined, {
+      const result = await repository.findActiveByUserIdPaginated(userId, undefined, {
         accountIds: [account1],
         dateAfter: toDateString("2024-01-12"),
         dateBefore: toDateString("2024-01-22"),
@@ -2597,7 +2597,7 @@ describe("TransactionRepository", () => {
       ]);
 
       // Act
-      const result = await repository.findActiveByUserId(userId, undefined, {
+      const result = await repository.findActiveByUserIdPaginated(userId, undefined, {
         categoryIds: [category1],
         types: [TransactionType.EXPENSE],
       });
@@ -2663,7 +2663,7 @@ describe("TransactionRepository", () => {
       ]);
 
       // Act - Complex filter: account1 + category1 + date range + EXPENSE type
-      const result = await repository.findActiveByUserId(userId, undefined, {
+      const result = await repository.findActiveByUserIdPaginated(userId, undefined, {
         accountIds: [account1],
         categoryIds: [category1],
         dateAfter: toDateString("2024-01-18"),
@@ -2724,7 +2724,7 @@ describe("TransactionRepository", () => {
       ]);
 
       // Act - Fetch first page with date filter (triggers UserDateIndex usage)
-      const page1 = await repository.findActiveByUserId(
+      const page1 = await repository.findActiveByUserIdPaginated(
         userId,
         { first: 3 }, // Get 3 items per page
         {
@@ -2740,7 +2740,7 @@ describe("TransactionRepository", () => {
       expect(page1.totalCount).toBe(6);
 
       // Act - Fetch second page using cursor from page 1
-      const page2 = await repository.findActiveByUserId(
+      const page2 = await repository.findActiveByUserIdPaginated(
         userId,
         { first: 3, after: page1.pageInfo.endCursor },
         {
@@ -2816,7 +2816,7 @@ describe("TransactionRepository", () => {
       ]);
 
       // Act - Fetch first page WITHOUT date filter (triggers UserCreatedAtIndex usage)
-      const page1 = await repository.findActiveByUserId(
+      const page1 = await repository.findActiveByUserIdPaginated(
         userId,
         { first: 3 }, // Get 3 items per page
         {}, // No filters - should use UserCreatedAtIndex
@@ -2829,7 +2829,7 @@ describe("TransactionRepository", () => {
       expect(page1.totalCount).toBe(6);
 
       // Act - Fetch second page using cursor
-      const page2 = await repository.findActiveByUserId(
+      const page2 = await repository.findActiveByUserIdPaginated(
         userId,
         { first: 3, after: page1.pageInfo.endCursor },
         {}, // No filters
@@ -2860,7 +2860,7 @@ describe("TransactionRepository", () => {
 
       // Act & Assert
       await expect(
-        repository.findActiveByUserId(userId, {
+        repository.findActiveByUserIdPaginated(userId, {
           first: 10,
           after: invalidCursor,
         }),
@@ -2875,7 +2875,7 @@ describe("TransactionRepository", () => {
 
       // Act & Assert
       await expect(
-        repository.findActiveByUserId(userId, {
+        repository.findActiveByUserIdPaginated(userId, {
           first: 10,
           after: corruptedCursor,
         }),
@@ -2891,7 +2891,7 @@ describe("TransactionRepository", () => {
 
       // Act & Assert
       await expect(
-        repository.findActiveByUserId(userId, {
+        repository.findActiveByUserIdPaginated(userId, {
           first: 10,
           after: cursorWithoutCreatedAtSortable,
         }),
@@ -2910,7 +2910,7 @@ describe("TransactionRepository", () => {
 
       // Act & Assert
       await expect(
-        repository.findActiveByUserId(userId, {
+        repository.findActiveByUserIdPaginated(userId, {
           first: 10,
           after: cursorWithoutDate,
         }),
@@ -2929,7 +2929,7 @@ describe("TransactionRepository", () => {
 
       // Act & Assert
       await expect(
-        repository.findActiveByUserId(userId, {
+        repository.findActiveByUserIdPaginated(userId, {
           first: 10,
           after: cursorWithoutId,
         }),
