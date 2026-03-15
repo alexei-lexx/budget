@@ -119,10 +119,12 @@ describeLLM("[LLM] CreateTransactionFromTextService", () => {
 
     // Assert
     await expect(promise).resolves.toMatchObject({
-      accountId: account.id,
-      categoryId: category.id,
-      amount: 10,
-      type: TransactionType.EXPENSE,
+      transaction: {
+        accountId: account.id,
+        categoryId: category.id,
+        amount: 10,
+        type: TransactionType.EXPENSE,
+      },
     });
   });
 
@@ -144,10 +146,12 @@ describeLLM("[LLM] CreateTransactionFromTextService", () => {
 
     // Assert
     await expect(promise).resolves.toMatchObject({
-      accountId: account.id,
-      categoryId: category.id,
-      amount: 2000,
-      type: TransactionType.INCOME,
+      transaction: {
+        accountId: account.id,
+        categoryId: category.id,
+        amount: 2000,
+        type: TransactionType.INCOME,
+      },
     });
   });
 
@@ -169,10 +173,12 @@ describeLLM("[LLM] CreateTransactionFromTextService", () => {
 
     // Assert
     await expect(promise).resolves.toMatchObject({
-      accountId: account.id,
-      categoryId: category.id,
-      amount: 50,
-      type: TransactionType.REFUND,
+      transaction: {
+        accountId: account.id,
+        categoryId: category.id,
+        amount: 50,
+        type: TransactionType.REFUND,
+      },
     });
   });
 });
