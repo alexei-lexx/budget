@@ -8,15 +8,15 @@ import {
   createMockTransactionRepository,
 } from "../utils/test-utils/mock-repositories";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
-import { IAccountRepository } from "./ports/account-repository";
-import { ITransactionRepository } from "./ports/transaction-repository";
+import { AccountRepository } from "./ports/account-repository";
+import { TransactionRepository } from "./ports/transaction-repository";
 import { TransferService } from "./transfer-service";
 
 describe("TransferService", () => {
   let service: TransferService;
   let userId: string;
-  let mockTransactionRepository: jest.Mocked<ITransactionRepository>;
-  let mockAccountRepository: jest.Mocked<IAccountRepository>;
+  let mockTransactionRepository: jest.Mocked<TransactionRepository>;
+  let mockAccountRepository: jest.Mocked<AccountRepository>;
 
   beforeEach(() => {
     mockTransactionRepository = createMockTransactionRepository();

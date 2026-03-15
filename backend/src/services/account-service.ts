@@ -7,11 +7,11 @@ import {
 } from "../types/validation";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
 import {
+  AccountRepository,
   CreateAccountInput,
-  IAccountRepository,
   UpdateAccountInput,
 } from "./ports/account-repository";
-import { ITransactionRepository } from "./ports/transaction-repository";
+import { TransactionRepository } from "./ports/transaction-repository";
 
 /**
  * Account service class for handling business logic and cross-repository operations
@@ -19,8 +19,8 @@ import { ITransactionRepository } from "./ports/transaction-repository";
  */
 export class AccountService {
   constructor(
-    private accountRepository: IAccountRepository,
-    private transactionRepository: ITransactionRepository,
+    private accountRepository: AccountRepository,
+    private transactionRepository: TransactionRepository,
   ) {}
 
   /**

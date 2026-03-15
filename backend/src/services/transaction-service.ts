@@ -18,13 +18,13 @@ import {
   MIN_SEARCH_TEXT_LENGTH,
 } from "../types/validation";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
-import { IAccountRepository } from "./ports/account-repository";
-import { ICategoryRepository } from "./ports/category-repository";
+import { AccountRepository } from "./ports/account-repository";
+import { CategoryRepository } from "./ports/category-repository";
 import {
   CreateTransactionInput,
-  ITransactionRepository,
   TransactionConnection,
   TransactionFilterInput,
+  TransactionRepository,
   UpdateTransactionInput,
 } from "./ports/transaction-repository";
 
@@ -70,9 +70,9 @@ export interface EnrichedTransactionPattern extends TransactionPattern {
  */
 export class TransactionService {
   constructor(
-    private accountRepository: IAccountRepository,
-    private categoryRepository: ICategoryRepository,
-    private transactionRepository: ITransactionRepository,
+    private accountRepository: AccountRepository,
+    private categoryRepository: CategoryRepository,
+    private transactionRepository: TransactionRepository,
   ) {}
 
   /**

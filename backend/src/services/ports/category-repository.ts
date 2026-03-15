@@ -13,7 +13,7 @@ export interface UpdateCategoryInput {
   excludeFromReports?: boolean;
 }
 
-export interface ICategoryRepository {
+export interface CategoryRepository {
   findActiveByUserId(userId: string): Promise<Category[]>;
   findAllByUserId(userId: string): Promise<Category[]>;
   findActiveByUserIdAndType(

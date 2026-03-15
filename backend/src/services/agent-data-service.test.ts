@@ -19,15 +19,15 @@ import {
   CATEGORY_HISTORY_MAX_DESCRIPTIONS_PER_CATEGORY,
   EntityScope,
 } from "./agent-data-service";
-import { IAccountRepository } from "./ports/account-repository";
-import { ICategoryRepository } from "./ports/category-repository";
-import { ITransactionRepository } from "./ports/transaction-repository";
+import { AccountRepository } from "./ports/account-repository";
+import { CategoryRepository } from "./ports/category-repository";
+import { TransactionRepository } from "./ports/transaction-repository";
 
 describe("AgentDataService", () => {
   let service: AgentDataService;
-  let mockTransactionRepository: jest.Mocked<ITransactionRepository>;
-  let mockAccountRepository: jest.Mocked<IAccountRepository>;
-  let mockCategoryRepository: jest.Mocked<ICategoryRepository>;
+  let mockTransactionRepository: jest.Mocked<TransactionRepository>;
+  let mockAccountRepository: jest.Mocked<AccountRepository>;
+  let mockCategoryRepository: jest.Mocked<CategoryRepository>;
 
   const userId = faker.string.uuid();
 

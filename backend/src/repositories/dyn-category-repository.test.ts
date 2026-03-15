@@ -4,15 +4,15 @@ import { CategoryType } from "../models/category";
 import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
 import { truncateTable } from "../utils/test-utils/dynamodb-helpers";
 import { fakeCreateCategoryInput } from "../utils/test-utils/factories";
-import { CategoryRepository } from "./category-repository";
+import { DynCategoryRepository } from "./dyn-category-repository";
 
-describe("CategoryRepository", () => {
-  let repository: CategoryRepository;
+describe("DynCategoryRepository", () => {
+  let repository: DynCategoryRepository;
   const userId = faker.string.uuid();
 
   beforeAll(async () => {
     // Create repository instance
-    repository = new CategoryRepository();
+    repository = new DynCategoryRepository();
   });
 
   beforeEach(async () => {

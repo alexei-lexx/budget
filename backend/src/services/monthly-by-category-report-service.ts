@@ -6,8 +6,8 @@ import {
 } from "../models/transaction";
 import { YEAR_RANGE_OFFSET } from "../types/validation";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
-import { ICategoryRepository } from "./ports/category-repository";
-import { ITransactionRepository } from "./ports/transaction-repository";
+import { CategoryRepository } from "./ports/category-repository";
+import { TransactionRepository } from "./ports/transaction-repository";
 
 const UNCATEGORIZED_LABEL = "Uncategorized";
 const TOP_TRANSACTIONS_LIMIT = 5;
@@ -41,8 +41,8 @@ export interface MonthlyReport {
 
 export class MonthlyByCategoryReportService {
   constructor(
-    private transactionRepository: ITransactionRepository,
-    private categoryRepository: ICategoryRepository,
+    private transactionRepository: TransactionRepository,
+    private categoryRepository: CategoryRepository,
   ) {}
 
   /**

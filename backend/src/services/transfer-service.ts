@@ -4,10 +4,10 @@ import { Transaction, TransactionType } from "../models/transaction";
 import { DateString } from "../types/date";
 import { DESCRIPTION_MAX_LENGTH } from "../types/validation";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
-import { IAccountRepository } from "./ports/account-repository";
+import { AccountRepository } from "./ports/account-repository";
 import {
   CreateTransactionInput,
-  ITransactionRepository,
+  TransactionRepository,
 } from "./ports/transaction-repository";
 
 /**
@@ -47,8 +47,8 @@ export interface TransferResult {
  */
 export class TransferService {
   constructor(
-    private transactionRepository: ITransactionRepository,
-    private accountRepository: IAccountRepository,
+    private transactionRepository: TransactionRepository,
+    private accountRepository: AccountRepository,
   ) {}
 
   /**

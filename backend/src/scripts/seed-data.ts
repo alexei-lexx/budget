@@ -3,10 +3,10 @@
 import { DeleteCommand, ScanCommand } from "@aws-sdk/lib-dynamodb";
 import { CategoryType } from "../models/category";
 import { TransactionType } from "../models/transaction";
-import { AccountRepository } from "../repositories/account-repository";
-import { CategoryRepository } from "../repositories/category-repository";
-import { TransactionRepository } from "../repositories/transaction-repository";
-import { UserRepository } from "../repositories/user-repository";
+import { DynAccountRepository } from "../repositories/dyn-account-repository";
+import { DynCategoryRepository } from "../repositories/dyn-category-repository";
+import { DynTransactionRepository } from "../repositories/dyn-transaction-repository";
+import { DynUserRepository } from "../repositories/dyn-user-repository";
 import { TransactionService } from "../services/transaction-service";
 import { toDateString } from "../types/date";
 import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
@@ -15,10 +15,10 @@ import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
 const dynamoClient = createDynamoDBDocumentClient();
 
 // Initialize repositories
-const userRepository = new UserRepository();
-const accountRepository = new AccountRepository();
-const categoryRepository = new CategoryRepository();
-const transactionRepository = new TransactionRepository();
+const userRepository = new DynUserRepository();
+const accountRepository = new DynAccountRepository();
+const categoryRepository = new DynCategoryRepository();
+const transactionRepository = new DynTransactionRepository();
 
 // Initialize services
 const transactionService = new TransactionService(
