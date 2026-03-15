@@ -13,24 +13,11 @@ import {
   IAccountRepository,
   UpdateAccountInput,
 } from "../services/ports/account-repository";
+import { RepositoryError } from "../services/ports/repository-error";
 import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
 import { accountSchema } from "./schemas/account";
 import { hydrate } from "./utils/hydrate";
 import { paginateQuery } from "./utils/query";
-
-/**
- * Repository error class for better error handling
- */
-class AccountRepositoryError extends Error {
-  constructor(
-    message: string,
-    public code: string,
-    public originalError?: unknown,
-  ) {
-    super(message);
-    this.name = "AccountRepositoryError";
-  }
-}
 
 export class AccountRepository implements IAccountRepository {
   private client: DynamoDBDocumentClient;
@@ -41,7 +28,7 @@ export class AccountRepository implements IAccountRepository {
     this.tableName = process.env.ACCOUNTS_TABLE_NAME || "";
 
     if (!this.tableName) {
-      throw new AccountRepositoryError(
+      throw new RepositoryError(
         "ACCOUNTS_TABLE_NAME environment variable is required",
         "MISSING_TABLE_NAME",
       );
@@ -50,10 +37,7 @@ export class AccountRepository implements IAccountRepository {
 
   async findActiveByUserId(userId: string): Promise<Account[]> {
     if (!userId) {
-      throw new AccountRepositoryError(
-        "User ID is required",
-        "INVALID_USER_ID",
-      );
+      throw new RepositoryError("User ID is required", "INVALID_USER_ID");
     }
 
     try {
@@ -80,7 +64,7 @@ export class AccountRepository implements IAccountRepository {
       );
     } catch (error) {
       console.error("Error finding active accounts by user ID:", error);
-      throw new AccountRepositoryError(
+      throw new RepositoryError(
         "Failed to find active accounts",
         "QUERY_FAILED",
         error,
@@ -90,10 +74,7 @@ export class AccountRepository implements IAccountRepository {
 
   async findAllByUserId(userId: string): Promise<Account[]> {
     if (!userId) {
-      throw new AccountRepositoryError(
-        "User ID is required",
-        "INVALID_USER_ID",
-      );
+      throw new RepositoryError("User ID is required", "INVALID_USER_ID");
     }
 
     try {
@@ -113,7 +94,7 @@ export class AccountRepository implements IAccountRepository {
       return result.items;
     } catch (error) {
       console.error("Error finding all accounts by user ID:", error);
-      throw new AccountRepositoryError(
+      throw new RepositoryError(
         "Failed to find all accounts",
         "QUERY_FAILED",
         error,
@@ -123,7 +104,7 @@ export class AccountRepository implements IAccountRepository {
 
   async findActiveById(id: string, userId: string): Promise<Account | null> {
     if (!id || !userId) {
-      throw new AccountRepositoryError(
+      throw new RepositoryError(
         "Account ID and User ID are required",
         "INVALID_PARAMETERS",
       );
@@ -151,11 +132,7 @@ export class AccountRepository implements IAccountRepository {
       return account;
     } catch (error) {
       console.error("Error finding account by ID:", error);
-      throw new AccountRepositoryError(
-        "Failed to find account",
-        "GET_FAILED",
-        error,
-      );
+      throw new RepositoryError("Failed to find account", "GET_FAILED", error);
     }
   }
 
@@ -165,10 +142,7 @@ export class AccountRepository implements IAccountRepository {
     }
 
     if (!userId) {
-      throw new AccountRepositoryError(
-        "User ID is required",
-        "INVALID_PARAMETERS",
-      );
+      throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
     }
 
     try {
@@ -186,7 +160,7 @@ export class AccountRepository implements IAccountRepository {
       );
     } catch (error) {
       console.error("Error batch finding accounts by IDs:", error);
-      throw new AccountRepositoryError(
+      throw new RepositoryError(
         "Failed to batch find accounts",
         "BATCH_GET_FAILED",
         error,
@@ -217,7 +191,7 @@ export class AccountRepository implements IAccountRepository {
       return account;
     } catch (error) {
       console.error("Error creating account:", error);
-      throw new AccountRepositoryError(
+      throw new RepositoryError(
         "Failed to create account",
         "CREATE_FAILED",
         error,
@@ -231,7 +205,7 @@ export class AccountRepository implements IAccountRepository {
     input: UpdateAccountInput,
   ): Promise<Account> {
     if (!id || !userId) {
-      throw new AccountRepositoryError(
+      throw new RepositoryError(
         "Account ID and User ID are required",
         "INVALID_PARAMETERS",
       );
@@ -286,13 +260,13 @@ export class AccountRepository implements IAccountRepository {
         error instanceof Error &&
         error.name === "ConditionalCheckFailedException"
       ) {
-        throw new AccountRepositoryError(
+        throw new RepositoryError(
           "Account not found or is archived",
           "NOT_FOUND",
         );
       }
 
-      throw new AccountRepositoryError(
+      throw new RepositoryError(
         "Failed to update account",
         "UPDATE_FAILED",
         error,
@@ -302,7 +276,7 @@ export class AccountRepository implements IAccountRepository {
 
   async archive(id: string, userId: string): Promise<Account> {
     if (!id || !userId) {
-      throw new AccountRepositoryError(
+      throw new RepositoryError(
         "Account ID and User ID are required",
         "INVALID_PARAMETERS",
       );
@@ -334,13 +308,13 @@ export class AccountRepository implements IAccountRepository {
         error instanceof Error &&
         error.name === "ConditionalCheckFailedException"
       ) {
-        throw new AccountRepositoryError(
+        throw new RepositoryError(
           "Account not found or already archived",
           "NOT_FOUND",
         );
       }
 
-      throw new AccountRepositoryError(
+      throw new RepositoryError(
         "Failed to archive account",
         "ARCHIVE_FAILED",
         error,
@@ -350,4 +324,4 @@ export class AccountRepository implements IAccountRepository {
 }
 
 // Export the error class for use in resolvers
-export { AccountRepositoryError };
+export { RepositoryError as AccountRepositoryError };
