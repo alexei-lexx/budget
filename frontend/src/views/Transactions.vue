@@ -199,27 +199,18 @@
   <!-- Create Transaction from Text (fixed bottom bar) -->
   <v-footer app elevation="4" class="pa-3 pa-sm-4">
     <div class="w-100">
-      <div class="d-flex align-center ga-2">
-        <TextboxButtonInput
-          ref="createTransactionFromTextInputRef"
-          v-model="createTransactionFromTextQuestion"
-          :loading="createTransactionFromTextLoading"
-          placeholder="e.g., morning coffee 4.5 euro"
-          input-aria-label="Create transaction"
-          submit-aria-label="Create transaction"
-          class="flex-grow-1"
-          @submit="handleCreateTransactionFromText"
-        />
-        <AgentTraceTriggerButton
-          :agent-trace="createTransactionFromTextAgentTrace"
-          :loading="createTransactionFromTextLoading"
-          @click="showAgentTrace = true"
-        />
-      </div>
+      <AgenticInput
+        ref="createTransactionFromTextInputRef"
+        v-model="createTransactionFromTextQuestion"
+        :loading="createTransactionFromTextLoading"
+        :agent-trace="createTransactionFromTextAgentTrace"
+        placeholder="e.g., morning coffee 4.5 euro"
+        input-aria-label="Create transaction"
+        submit-aria-label="Create transaction"
+        @submit="handleCreateTransactionFromText"
+      />
     </div>
   </v-footer>
-
-  <AgentTracePanel v-model="showAgentTrace" :agent-trace="createTransactionFromTextAgentTrace" />
 </template>
 
 <script setup lang="ts">
@@ -239,9 +230,7 @@ import TransactionDeleteDialog from "@/components/transactions/TransactionDelete
 import TransactionFilterBar from "@/components/transactions/TransactionFilterBar.vue";
 import TransferDeleteDialog from "@/components/transfers/TransferDeleteDialog.vue";
 import TransferForm from "@/components/transfers/TransferForm.vue";
-import AgentTracePanel from "@/components/AgentTracePanel.vue";
-import AgentTraceTriggerButton from "@/components/AgentTraceTriggerButton.vue";
-import TextboxButtonInput from "@/components/common/TextboxButtonInput.vue";
+import AgenticInput from "@/components/AgenticInput.vue";
 import type { Transaction, CreateTransactionInput } from "@/composables/useTransactions";
 import type {
   Transfer,
@@ -288,7 +277,6 @@ const {
   submit: createTransactionFromTextSubmit,
 } = useCreateTransactionFromText();
 
-const showAgentTrace = ref(false);
 const createTransactionFromTextInputRef = ref<{ focus: () => void } | null>(null);
 
 const handleCreateTransactionFromText = async () => {

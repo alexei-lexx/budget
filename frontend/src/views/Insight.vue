@@ -64,26 +64,17 @@
         </v-col>
       </v-row>
 
-      <div class="d-flex align-center ga-2">
-        <TextboxButtonInput
-          v-model="question"
-          :loading="insightLoading"
-          placeholder="Ask about your spending..."
-          input-aria-label="Ask a question"
-          submit-aria-label="Submit question"
-          class="flex-grow-1"
-          @submit="handleAskQuestion"
-        />
-        <AgentTraceTriggerButton
-          :agent-trace="insightAgentTrace"
-          :loading="insightLoading"
-          @click="showAgentTrace = true"
-        />
-      </div>
+      <AgenticInput
+        v-model="question"
+        :loading="insightLoading"
+        :agent-trace="insightAgentTrace"
+        placeholder="Ask about your spending..."
+        input-aria-label="Ask a question"
+        submit-aria-label="Submit question"
+        @submit="handleAskQuestion"
+      />
     </div>
   </v-footer>
-
-  <AgentTracePanel v-model="showAgentTrace" :agent-trace="insightAgentTrace" />
 </template>
 
 <script setup lang="ts">
@@ -91,9 +82,7 @@ import { computed, onMounted, ref, watch } from "vue";
 import { useInsight } from "@/composables/useInsight";
 import { useSnackbar } from "@/composables/useSnackbar";
 import { formatDateAsYYYYMMDD } from "@/utils/date";
-import AgentTracePanel from "@/components/AgentTracePanel.vue";
-import AgentTraceTriggerButton from "@/components/AgentTraceTriggerButton.vue";
-import TextboxButtonInput from "@/components/common/TextboxButtonInput.vue";
+import AgenticInput from "@/components/AgenticInput.vue";
 
 type InsightDateRangePreset =
   | "THIS_MONTH"
@@ -110,8 +99,6 @@ const STORAGE_KEY = "insight-input";
 const { showErrorSnackbar } = useSnackbar();
 const { insightLoading, insightError, insightAnswer, insightAgentTrace, askQuestion } =
   useInsight();
-
-const showAgentTrace = ref(false);
 
 interface StoredInput {
   question: string;
