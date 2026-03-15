@@ -14,7 +14,6 @@ import {
   fakeCategory,
   fakeUser,
 } from "../utils/test-utils/factories";
-import { AgentDataService } from "./agent-data-service";
 import { CreateTransactionFromTextService } from "./create-transaction-from-text-service";
 import { TransactionService } from "./transaction-service";
 
@@ -38,12 +37,6 @@ describeLLM("[LLM] CreateTransactionFromTextService", () => {
     transactionRepository = new DynTransactionRepository();
     userRepository = new DynUserRepository();
 
-    const agentDataService = new AgentDataService(
-      accountRepository,
-      categoryRepository,
-      transactionRepository,
-    );
-
     const transactionService = new TransactionService(
       accountRepository,
       categoryRepository,
@@ -54,7 +47,9 @@ describeLLM("[LLM] CreateTransactionFromTextService", () => {
     const agent = new ReActAgent(model);
 
     service = new CreateTransactionFromTextService({
-      agentDataService,
+      accountRepository,
+      categoryRepository,
+      transactionRepository,
       agent,
       transactionService,
     });

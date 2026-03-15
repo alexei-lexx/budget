@@ -1,7 +1,6 @@
 import { DateString } from "../types/date";
 import { YEAR_RANGE_OFFSET } from "../types/validation";
 import { daysBetween, formatDateAsYYYYMMDD } from "../utils/date";
-import { IAgentDataService } from "./agent-data-service";
 import { createGetAccountsTool } from "./agent-tools/get-accounts-tool";
 import { createGetCategoriesTool } from "./agent-tools/get-categories-tool";
 import {
@@ -10,7 +9,10 @@ import {
 } from "./agent-tools/get-transactions-tool";
 import { avgTool, calculateTool, sumTool } from "./agent-tools/math";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
+import { AccountRepository } from "./ports/account-repository";
 import { Agent, AgentTraceMessage } from "./ports/agent";
+import { CategoryRepository } from "./ports/category-repository";
+import { TransactionRepository } from "./ports/transaction-repository";
 
 const SYSTEM_PROMPT = `
 ## Role
@@ -61,10 +63,27 @@ export interface InsightInput {
 }
 
 export class InsightService {
-  constructor(
-    private agentDataService: IAgentDataService,
-    private agent: Agent,
-  ) {}
+  private accountRepository: AccountRepository;
+  private categoryRepository: CategoryRepository;
+  private transactionRepository: TransactionRepository;
+  private agent: Agent;
+
+  constructor({
+    accountRepository,
+    categoryRepository,
+    transactionRepository,
+    agent,
+  }: {
+    accountRepository: AccountRepository;
+    categoryRepository: CategoryRepository;
+    transactionRepository: TransactionRepository;
+    agent: Agent;
+  }) {
+    this.accountRepository = accountRepository;
+    this.categoryRepository = categoryRepository;
+    this.transactionRepository = transactionRepository;
+    this.agent = agent;
+  }
 
   async call(
     userId: string,
@@ -97,10 +116,14 @@ export class InsightService {
     );
 
     const dataTools = [
-      createGetAccountsTool(this.agentDataService, userId),
-      createGetCategoriesTool(this.agentDataService, userId),
+      createGetAccountsTool(this.accountRepository, userId),
+      createGetCategoriesTool({
+        categoryRepository: this.categoryRepository,
+        transactionRepository: this.transactionRepository,
+        userId,
+      }),
       createGetTransactionsTool({
-        agentDataService: this.agentDataService,
+        transactionRepository: this.transactionRepository,
         userId,
       }),
     ];
