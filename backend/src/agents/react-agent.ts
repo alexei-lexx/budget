@@ -178,7 +178,7 @@ export class ReActAgent implements Agent {
   }
 
   private convertTools(tools: readonly ToolSignature<unknown, unknown>[]) {
-    return tools?.map((toolSignature) => {
+    return tools.map((toolSignature) => {
       return tool(toolSignature.func, {
         name: toolSignature.name,
         description: toolSignature.description,
