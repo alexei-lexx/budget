@@ -133,10 +133,12 @@ const emit = defineEmits<{
   clear: [];
 }>();
 
+// Add "Uncategorized" option to categories
 const categoryOptions = computed(() => {
   return [...props.categories];
 });
 
+// Transaction type options
 const transactionTypeOptions = computed(() => [
   { title: "Income", value: "INCOME" as TransactionType },
   { title: "Expense", value: "EXPENSE" as TransactionType },
@@ -152,7 +154,7 @@ function handleApply() {
 
 function handleClear() {
   props.filters.clearFilters();
-  props.filters.applyFilters();
+  props.filters.applyFilters(); // Apply empty filters
   emit("clear");
 }
 </script>
