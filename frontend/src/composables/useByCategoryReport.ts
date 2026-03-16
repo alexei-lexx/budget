@@ -8,6 +8,7 @@ import {
   type ReportType,
 } from "@/__generated__/vue-apollo";
 
+// Re-export types for backward compatibility
 export type {
   ByCategoryReport,
   ByCategoryReportCategory,
@@ -18,6 +19,7 @@ export type {
 export function useByCategoryReport() {
   const byCategoryReportError = ref<string | null>(null);
 
+  // Create a reactive function to get by-category report for a given year, month, and type
   const getByCategoryReport = (
     year: Ref<number> | number,
     month: Ref<number> | number,
@@ -40,14 +42,16 @@ export function useByCategoryReport() {
       }),
     );
 
+    // Computed report data
     const byCategoryReport = computed(() => {
       return byCategoryReportResult.value?.byCategoryReport || null;
     });
 
+    // Watch for query errors
     if (byCategoryReportQueryError.value) {
       console.error("By-category report query failed:", byCategoryReportQueryError.value);
       byCategoryReportError.value =
-        byCategoryReportQueryError.value.message || "Failed to fetch report";
+        byCategoryReportQueryError.value.message || "Failed to fetch by-category report";
     }
 
     return {
@@ -59,7 +63,10 @@ export function useByCategoryReport() {
   };
 
   return {
+    // Main functions
     getByCategoryReport,
+
+    // Global error state
     byCategoryReportError,
   };
 }

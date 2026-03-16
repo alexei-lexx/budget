@@ -440,14 +440,6 @@ export type TransactionFieldsFragment = { __typename?: 'Transaction', id: string
 
 export type TransferFieldsFragment = { __typename?: 'Transfer', id: string, outboundTransaction: { __typename?: 'Transaction', id: string, type: TransactionType, amount: number, currency: string, date: string, description?: string | null | undefined, transferId?: string | null | undefined, account: { __typename?: 'TransactionEmbeddedAccount', id: string, name: string, isArchived: boolean }, category?: { __typename?: 'TransactionEmbeddedCategory', id: string, name: string, isArchived: boolean } | null | undefined }, inboundTransaction: { __typename?: 'Transaction', id: string, type: TransactionType, amount: number, currency: string, date: string, description?: string | null | undefined, transferId?: string | null | undefined, account: { __typename?: 'TransactionEmbeddedAccount', id: string, name: string, isArchived: boolean }, category?: { __typename?: 'TransactionEmbeddedCategory', id: string, name: string, isArchived: boolean } | null | undefined } };
 
-export type ByCategoryReportCurrencyBreakdownFieldsFragment = { __typename?: 'ByCategoryReportCurrencyBreakdown', currency: string, totalAmount: number, percentage: number };
-
-export type ByCategoryReportCategoryFieldsFragment = { __typename?: 'ByCategoryReportCategory', categoryId?: string | null | undefined, categoryName: string, totalTransactionCount: number, currencyBreakdowns: Array<{ __typename?: 'ByCategoryReportCurrencyBreakdown', currency: string, totalAmount: number, percentage: number }>, topTransactions: Array<{ __typename?: 'Transaction', id: string, type: TransactionType, amount: number, currency: string, date: string, description?: string | null | undefined, transferId?: string | null | undefined, account: { __typename?: 'TransactionEmbeddedAccount', id: string, name: string, isArchived: boolean }, category?: { __typename?: 'TransactionEmbeddedCategory', id: string, name: string, isArchived: boolean } | null | undefined }> };
-
-export type ByCategoryReportCurrencyTotalFieldsFragment = { __typename?: 'ByCategoryReportCurrencyTotal', currency: string, totalAmount: number };
-
-export type ByCategoryReportFieldsFragment = { __typename?: 'ByCategoryReport', year: number, month: number, type: ReportType, categories: Array<{ __typename?: 'ByCategoryReportCategory', categoryId?: string | null | undefined, categoryName: string, totalTransactionCount: number, currencyBreakdowns: Array<{ __typename?: 'ByCategoryReportCurrencyBreakdown', currency: string, totalAmount: number, percentage: number }>, topTransactions: Array<{ __typename?: 'Transaction', id: string, type: TransactionType, amount: number, currency: string, date: string, description?: string | null | undefined, transferId?: string | null | undefined, account: { __typename?: 'TransactionEmbeddedAccount', id: string, name: string, isArchived: boolean }, category?: { __typename?: 'TransactionEmbeddedCategory', id: string, name: string, isArchived: boolean } | null | undefined }> }>, currencyTotals: Array<{ __typename?: 'ByCategoryReportCurrencyTotal', currency: string, totalAmount: number }> };
-
 export type EnsureUserMutationVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -663,47 +655,6 @@ export const TransferFieldsFragmentDoc = gql`
   }
 }
     ${TransactionFieldsFragmentDoc}`;
-export const ByCategoryReportCurrencyBreakdownFieldsFragmentDoc = gql`
-    fragment ByCategoryReportCurrencyBreakdownFields on ByCategoryReportCurrencyBreakdown {
-  currency
-  totalAmount
-  percentage
-}
-    `;
-export const ByCategoryReportCategoryFieldsFragmentDoc = gql`
-    fragment ByCategoryReportCategoryFields on ByCategoryReportCategory {
-  categoryId
-  categoryName
-  currencyBreakdowns {
-    ...ByCategoryReportCurrencyBreakdownFields
-  }
-  topTransactions {
-    ...TransactionFields
-  }
-  totalTransactionCount
-}
-    ${ByCategoryReportCurrencyBreakdownFieldsFragmentDoc}
-${TransactionFieldsFragmentDoc}`;
-export const ByCategoryReportCurrencyTotalFieldsFragmentDoc = gql`
-    fragment ByCategoryReportCurrencyTotalFields on ByCategoryReportCurrencyTotal {
-  currency
-  totalAmount
-}
-    `;
-export const ByCategoryReportFieldsFragmentDoc = gql`
-    fragment ByCategoryReportFields on ByCategoryReport {
-  year
-  month
-  type
-  categories {
-    ...ByCategoryReportCategoryFields
-  }
-  currencyTotals {
-    ...ByCategoryReportCurrencyTotalFields
-  }
-}
-    ${ByCategoryReportCategoryFieldsFragmentDoc}
-${ByCategoryReportCurrencyTotalFieldsFragmentDoc}`;
 export const EnsureUserDocument = gql`
     mutation EnsureUser {
   ensureUser {
@@ -1308,10 +1259,29 @@ export type GetTransactionPatternsQueryCompositionFunctionResult = VueApolloComp
 export const GetByCategoryReportDocument = gql`
     query GetByCategoryReport($year: Int!, $month: Int!, $type: ReportType!) {
   byCategoryReport(year: $year, month: $month, type: $type) {
-    ...ByCategoryReportFields
+    year
+    month
+    type
+    categories {
+      categoryId
+      categoryName
+      currencyBreakdowns {
+        currency
+        totalAmount
+        percentage
+      }
+      topTransactions {
+        ...TransactionFields
+      }
+      totalTransactionCount
+    }
+    currencyTotals {
+      currency
+      totalAmount
+    }
   }
 }
-    ${ByCategoryReportFieldsFragmentDoc}`;
+    ${TransactionFieldsFragmentDoc}`;
 
 /**
  * __useGetByCategoryReportQuery__
