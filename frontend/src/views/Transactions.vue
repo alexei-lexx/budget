@@ -14,11 +14,7 @@
           :model-value="transactionFilters.hasAppliedFilters.value"
           color="primary"
         >
-          <v-btn
-            color="secondary"
-            prepend-icon="mdi-filter-variant"
-            @click="showFilter = !showFilter"
-          >
+          <v-btn color="secondary" prepend-icon="mdi-filter-variant" @click="toggleFilter">
             Filter
           </v-btn>
         </v-badge>
@@ -34,7 +30,7 @@
             icon="mdi-filter-variant"
             size="large"
             aria-label="Filter"
-            @click="showFilter = !showFilter"
+            @click="toggleFilter"
           />
         </v-badge>
 
@@ -276,6 +272,7 @@ const { xs, mobile } = useDisplay();
 // Filter state
 const transactionFilters = useTransactionFilters();
 const showFilter = ref(false);
+const toggleFilter = () => (showFilter.value = !showFilter.value);
 
 const {
   paginatedTransactions,
