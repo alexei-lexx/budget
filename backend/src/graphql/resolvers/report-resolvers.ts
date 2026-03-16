@@ -13,14 +13,14 @@ export const reportResolvers = {
       try {
         const user = await getAuthenticatedUser(context);
 
-        const byCategoryReport = await context.byCategoryReportService.call(
+        const report = await context.byCategoryReportService.call(
           user.id,
           args.year,
           args.month,
           args.type,
         );
 
-        return byCategoryReport;
+        return report;
       } catch (error) {
         handleResolverError(error, "Failed to fetch report");
       }
