@@ -6,7 +6,38 @@
       class="d-flex align-center mb-6 flex-column flex-sm-row ga-3 ga-sm-0 justify-sm-space-between"
     >
       <h1 class="text-h5 text-sm-h4">Transactions</h1>
-      <div class="d-flex">
+      <div class="d-flex align-center">
+        <!-- Filter button: desktop -->
+        <v-badge
+          class="d-none d-md-flex mr-3"
+          dot
+          :model-value="transactionFilters.hasAppliedFilters.value"
+          color="primary"
+        >
+          <v-btn
+            color="secondary"
+            prepend-icon="mdi-filter-variant"
+            @click="showFilter = !showFilter"
+          >
+            Filter
+          </v-btn>
+        </v-badge>
+        <!-- Filter button: mobile -->
+        <v-badge
+          class="d-flex d-md-none mr-3"
+          dot
+          :model-value="transactionFilters.hasAppliedFilters.value"
+          color="primary"
+        >
+          <v-btn
+            color="secondary"
+            icon="mdi-filter-variant"
+            size="large"
+            aria-label="Filter"
+            @click="showFilter = !showFilter"
+          />
+        </v-badge>
+
         <!-- Desktop buttons: d-none d-md-flex - hidden by default, shown at 960px+ -->
         <v-btn
           class="d-none d-md-flex"
@@ -46,6 +77,7 @@
 
     <!-- Transaction Filter Bar -->
     <TransactionFilterBar
+      v-model="showFilter"
       :accounts="accounts"
       :categories="categories"
       :filters="transactionFilters"
@@ -243,6 +275,7 @@ const { xs, mobile } = useDisplay();
 
 // Filter state
 const transactionFilters = useTransactionFilters();
+const showFilter = ref(false);
 
 const {
   paginatedTransactions,
