@@ -104,7 +104,7 @@
             Clear
           </v-btn>
           <v-spacer />
-          <v-btn color="primary" :disabled="loading" @click="handleApply"> Apply </v-btn>
+          <v-btn color="primary" @click="handleApply" :disabled="loading"> Apply </v-btn>
         </v-col>
       </v-row>
     </div>
