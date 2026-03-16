@@ -4,7 +4,6 @@ import {
   CATEGORY_FRAGMENT,
   TRANSACTION_FRAGMENT,
   TRANSFER_FRAGMENT,
-  BY_CATEGORY_REPORT_FRAGMENT,
 } from "./fragments";
 
 export const GET_ACCOUNTS = gql`
@@ -75,10 +74,29 @@ export const GET_TRANSACTION_PATTERNS = gql`
 export const GET_BY_CATEGORY_REPORT = gql`
   query GetByCategoryReport($year: Int!, $month: Int!, $type: ReportType!) {
     byCategoryReport(year: $year, month: $month, type: $type) {
-      ...ByCategoryReportFields
+      year
+      month
+      type
+      categories {
+        categoryId
+        categoryName
+        currencyBreakdowns {
+          currency
+          totalAmount
+          percentage
+        }
+        topTransactions {
+          ...TransactionFields
+        }
+        totalTransactionCount
+      }
+      currencyTotals {
+        currency
+        totalAmount
+      }
     }
   }
-  ${BY_CATEGORY_REPORT_FRAGMENT}
+  ${TRANSACTION_FRAGMENT}
 `;
 
 export const GET_TRANSACTION_DESCRIPTION_SUGGESTIONS = gql`
