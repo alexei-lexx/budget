@@ -61,17 +61,6 @@ export interface TransactionRepository {
     transferId: string,
     userId: string,
   ): Promise<Transaction[]>;
-  /**
-   * Find active transactions by month and transaction types
-   * Supports multiple types for reports that need to factor in different transaction types
-   * (e.g., EXPENSE reports factoring in REFUND transactions)
-   */
-  findActiveByMonthAndTypes(
-    userId: string,
-    year: number,
-    month: number,
-    types: TransactionType[],
-  ): Promise<Transaction[]>;
   findActiveByDescription(
     userId: string,
     searchText: string,
