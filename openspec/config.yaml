@@ -7,11 +7,18 @@ context: |
   Proceed ONLY AFTER reading it.
 
   All principles stated in the constitution are NON-NEGOTIABLE and MUST be followed.
-  After each artifact is created or updated, it MUST be reviewed for compliance with the constitution.
 
   Run `npx prettier --write openspec/` after creating or updating any artifact to ensure consistent formatting.
 
   To check the application, assume that the backend and frontend are already up and running.
+
+rules:
+  proposal:
+    - Include a "## Constitution Compliance" section listing which constitution principles apply and confirming compliance or flagging violations
+  design:
+    - Include a "## Constitution Compliance" section listing which constitution principles apply and confirming compliance or flagging violations
+  tasks:
+    - Include a "## Constitution Compliance" section listing which constitution principles apply and confirming compliance or flagging violations
 
 # Project context (optional)
 # This is shown to AI when creating artifacts.
