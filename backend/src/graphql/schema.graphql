@@ -8,7 +8,11 @@ type Query {
   ): TransactionConnection!
   transfer(id: ID!): Transfer
   transactionPatterns(type: TransactionPatternType!): [TransactionPattern!]!
-  byCategoryReport(year: Int!, month: Int!, type: ReportType!): ByCategoryReport!
+  byCategoryReport(
+    year: Int!
+    month: Int!
+    type: ReportType!
+  ): ByCategoryReport!
   insight(input: InsightInput!): InsightResponse!
   transactionDescriptionSuggestions(searchText: String!): [String!]!
 }
