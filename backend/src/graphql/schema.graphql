@@ -8,7 +8,7 @@ type Query {
   ): TransactionConnection!
   transfer(id: ID!): Transfer
   transactionPatterns(type: TransactionPatternType!): [TransactionPattern!]!
-  monthlyReport(year: Int!, month: Int!, type: ReportType!): MonthlyReport!
+  byCategoryReport(year: Int!, month: Int!, type: ReportType!): ByCategoryReport!
   insight(input: InsightInput!): InsightResponse!
   transactionDescriptionSuggestions(searchText: String!): [String!]!
 }
@@ -255,31 +255,31 @@ type TransactionConnection {
   totalCount: Int!
 }
 
-type MonthlyReportCurrencyBreakdown {
+type ByCategoryReportCurrencyBreakdown {
   currency: String!
   totalAmount: Float!
   percentage: Int!
 }
 
-type MonthlyReportCategory {
+type ByCategoryReportCategory {
   categoryId: ID
   categoryName: String!
-  currencyBreakdowns: [MonthlyReportCurrencyBreakdown!]!
+  currencyBreakdowns: [ByCategoryReportCurrencyBreakdown!]!
   topTransactions: [Transaction!]!
   totalTransactionCount: Int!
 }
 
-type MonthlyReportCurrencyTotal {
+type ByCategoryReportCurrencyTotal {
   currency: String!
   totalAmount: Float!
 }
 
-type MonthlyReport {
+type ByCategoryReport {
   year: Int!
   month: Int!
   type: ReportType! # TODO: remove if not needed
-  categories: [MonthlyReportCategory!]!
-  currencyTotals: [MonthlyReportCurrencyTotal!]!
+  categories: [ByCategoryReportCategory!]!
+  currencyTotals: [ByCategoryReportCurrencyTotal!]!
 }
 
 type Mutation {

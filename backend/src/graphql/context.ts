@@ -4,7 +4,7 @@ import { AccountService } from "../services/account-service";
 import { CategoryService } from "../services/category-service";
 import { CreateTransactionFromTextService } from "../services/create-transaction-from-text-service";
 import { InsightService } from "../services/insight-service";
-import { MonthlyByCategoryReportService } from "../services/monthly-by-category-report-service";
+import { ByCategoryReportService } from "../services/by-category-report-service";
 import { UserRepository } from "../services/ports/user-repository";
 import { TransactionService } from "../services/transaction-service";
 import { TransferService } from "../services/transfer-service";
@@ -22,7 +22,7 @@ export interface GraphQLContext {
   insightService: InsightService;
   createTransactionFromTextService: CreateTransactionFromTextService;
   transferService: TransferService;
-  monthlyByCategoryReportService: MonthlyByCategoryReportService;
+  byCategoryReportService: ByCategoryReportService;
   jwtAuthService: JwtAuthService;
   authHeader?: string;
   accountLoader: DataLoader<string, TransactionEmbeddedAccount>;

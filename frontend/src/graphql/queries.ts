@@ -4,7 +4,7 @@ import {
   CATEGORY_FRAGMENT,
   TRANSACTION_FRAGMENT,
   TRANSFER_FRAGMENT,
-  MONTHLY_REPORT_FRAGMENT,
+  BY_CATEGORY_REPORT_FRAGMENT,
 } from "./fragments";
 
 export const GET_ACCOUNTS = gql`
@@ -72,13 +72,13 @@ export const GET_TRANSACTION_PATTERNS = gql`
   }
 `;
 
-export const GET_MONTHLY_REPORT = gql`
-  query GetMonthlyReport($year: Int!, $month: Int!, $type: ReportType!) {
-    monthlyReport(year: $year, month: $month, type: $type) {
-      ...MonthlyReportFields
+export const GET_BY_CATEGORY_REPORT = gql`
+  query GetByCategoryReport($year: Int!, $month: Int!, $type: ReportType!) {
+    byCategoryReport(year: $year, month: $month, type: $type) {
+      ...ByCategoryReportFields
     }
   }
-  ${MONTHLY_REPORT_FRAGMENT}
+  ${BY_CATEGORY_REPORT_FRAGMENT}
 `;
 
 export const GET_TRANSACTION_DESCRIPTION_SUGGESTIONS = gql`

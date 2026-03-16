@@ -5,7 +5,7 @@
     <div
       class="d-flex align-center mb-6 flex-column flex-sm-row ga-3 ga-sm-0 justify-sm-space-between"
     >
-      <h1 class="text-h5 text-sm-h4">Monthly Expense Report</h1>
+      <h1 class="text-h5 text-sm-h4">Expense Report</h1>
     </div>
 
     <!-- Global Error Alert -->
@@ -25,16 +25,16 @@
     <MonthNavigation
       :year="selectedYear"
       :month="selectedMonth"
-      :disabled="monthlyReportLoading"
+      :disabled="byCategoryReportLoading"
       @navigate="handleMonthNavigation"
       class="mb-6"
     />
 
-    <!-- Monthly Report Content -->
+    <!-- Report Content -->
     <CategoryBreakdownTable
-      :categories="monthlyReport?.categories"
-      :currency-totals="monthlyReport?.currencyTotals"
-      :loading="monthlyReportLoading"
+      :categories="byCategoryReport?.categories"
+      :currency-totals="byCategoryReport?.currencyTotals"
+      :loading="byCategoryReportLoading"
       :error="reportError"
       :month-year="selectedMonthYearDisplay"
     />
@@ -46,68 +46,52 @@ import { ref, computed, watch, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import CategoryBreakdownTable from "@/components/reports/CategoryBreakdownTable.vue";
 import MonthNavigation from "@/components/reports/MonthNavigation.vue";
-import { useMonthlyReports } from "@/composables/useMonthlyReports";
+import { useByCategoryReport } from "@/composables/useByCategoryReport";
 import { isValidYearMonth } from "@/utils/dateValidation";
 import { formatMonthYear } from "@/utils/date";
 
-// Router for URL parameter management
 const route = useRoute();
 const router = useRouter();
 
-// Initialize with current date
 const now = new Date();
 const defaultYear = now.getFullYear();
 const defaultMonth = now.getMonth() + 1;
 
-// Reactive state for selected month and year
 const selectedYear = ref<number>(defaultYear);
 const selectedMonth = ref<number>(defaultMonth);
 
-// Computed display string
 const selectedMonthYearDisplay = computed(() => {
   return formatMonthYear(selectedYear.value, selectedMonth.value);
 });
 
-// Get monthly reports composable functions
-const { getMonthlyReport } = useMonthlyReports();
+const { getByCategoryReport } = useByCategoryReport();
 
-// Global error state for better error handling
 const globalError = ref<string | null>(null);
 
-// Get monthly report data reactively based on selected month/year
-const { monthlyReport, monthlyReportLoading, monthlyReportError } = getMonthlyReport(
-  selectedYear,
-  selectedMonth,
-  "EXPENSE",
-);
+const { byCategoryReport, byCategoryReportLoading, byCategoryReportError } =
+  getByCategoryReport(selectedYear, selectedMonth, "EXPENSE");
 
-// Computed error message for consistent display
 const reportError = computed(() => {
-  return monthlyReportError.value?.message || null;
+  return byCategoryReportError.value?.message || null;
 });
 
-// Watch for errors and show global error alert
-watch(monthlyReportError, (error) => {
+watch(byCategoryReportError, (error) => {
   if (error) {
-    globalError.value = `Failed to load monthly report: ${error.message}`;
-    console.error("Monthly report error:", error);
+    globalError.value = `Failed to load report: ${error.message}`;
+    console.error("By-category report error:", error);
   }
 });
 
-// Clear global error
 const clearGlobalError = () => {
   globalError.value = null;
 };
 
-// Handle month navigation
 const handleMonthNavigation = ({ year, month }: { year: number; month: number }) => {
-  // Clear any existing errors when navigating
   globalError.value = null;
 
   selectedYear.value = year;
   selectedMonth.value = month;
 
-  // Update URL parameters for bookmarkable URLs
   router.replace({
     query: {
       ...route.query,
@@ -117,7 +101,6 @@ const handleMonthNavigation = ({ year, month }: { year: number; month: number })
   });
 };
 
-// Initialize from URL parameters on mount
 onMounted(() => {
   const yearParam = route.query.year;
   const monthParam = route.query.month;
@@ -126,7 +109,6 @@ onMounted(() => {
     const year = parseInt(yearParam as string);
     const month = parseInt(monthParam as string);
 
-    // Validate parameters
     if (isValidYearMonth(year, month)) {
       selectedYear.value = year;
       selectedMonth.value = month;

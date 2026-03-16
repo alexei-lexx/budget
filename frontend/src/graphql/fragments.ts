@@ -54,49 +54,49 @@ export const TRANSFER_FRAGMENT = gql`
   ${TRANSACTION_FRAGMENT}
 `;
 
-export const MONTHLY_REPORT_CURRENCY_BREAKDOWN_FRAGMENT = gql`
-  fragment MonthlyReportCurrencyBreakdownFields on MonthlyReportCurrencyBreakdown {
+export const BY_CATEGORY_REPORT_CURRENCY_BREAKDOWN_FRAGMENT = gql`
+  fragment ByCategoryReportCurrencyBreakdownFields on ByCategoryReportCurrencyBreakdown {
     currency
     totalAmount
     percentage
   }
 `;
 
-export const MONTHLY_REPORT_CATEGORY_FRAGMENT = gql`
-  fragment MonthlyReportCategoryFields on MonthlyReportCategory {
+export const BY_CATEGORY_REPORT_CATEGORY_FRAGMENT = gql`
+  fragment ByCategoryReportCategoryFields on ByCategoryReportCategory {
     categoryId
     categoryName
     currencyBreakdowns {
-      ...MonthlyReportCurrencyBreakdownFields
+      ...ByCategoryReportCurrencyBreakdownFields
     }
     topTransactions {
       ...TransactionFields
     }
     totalTransactionCount
   }
-  ${MONTHLY_REPORT_CURRENCY_BREAKDOWN_FRAGMENT}
+  ${BY_CATEGORY_REPORT_CURRENCY_BREAKDOWN_FRAGMENT}
   ${TRANSACTION_FRAGMENT}
 `;
 
-export const MONTHLY_REPORT_CURRENCY_TOTAL_FRAGMENT = gql`
-  fragment MonthlyReportCurrencyTotalFields on MonthlyReportCurrencyTotal {
+export const BY_CATEGORY_REPORT_CURRENCY_TOTAL_FRAGMENT = gql`
+  fragment ByCategoryReportCurrencyTotalFields on ByCategoryReportCurrencyTotal {
     currency
     totalAmount
   }
 `;
 
-export const MONTHLY_REPORT_FRAGMENT = gql`
-  fragment MonthlyReportFields on MonthlyReport {
+export const BY_CATEGORY_REPORT_FRAGMENT = gql`
+  fragment ByCategoryReportFields on ByCategoryReport {
     year
     month
     type
     categories {
-      ...MonthlyReportCategoryFields
+      ...ByCategoryReportCategoryFields
     }
     currencyTotals {
-      ...MonthlyReportCurrencyTotalFields
+      ...ByCategoryReportCurrencyTotalFields
     }
   }
-  ${MONTHLY_REPORT_CATEGORY_FRAGMENT}
-  ${MONTHLY_REPORT_CURRENCY_TOTAL_FRAGMENT}
+  ${BY_CATEGORY_REPORT_CATEGORY_FRAGMENT}
+  ${BY_CATEGORY_REPORT_CURRENCY_TOTAL_FRAGMENT}
 `;

@@ -46,6 +46,37 @@ export type AgentTraceToolResult = {
   toolName: Scalars['String']['output'];
 };
 
+export type ByCategoryReport = {
+  __typename?: 'ByCategoryReport';
+  categories: Array<ByCategoryReportCategory>;
+  currencyTotals: Array<ByCategoryReportCurrencyTotal>;
+  month: Scalars['Int']['output'];
+  type: ReportType;
+  year: Scalars['Int']['output'];
+};
+
+export type ByCategoryReportCategory = {
+  __typename?: 'ByCategoryReportCategory';
+  categoryId?: Maybe<Scalars['ID']['output']>;
+  categoryName: Scalars['String']['output'];
+  currencyBreakdowns: Array<ByCategoryReportCurrencyBreakdown>;
+  topTransactions: Array<Transaction>;
+  totalTransactionCount: Scalars['Int']['output'];
+};
+
+export type ByCategoryReportCurrencyBreakdown = {
+  __typename?: 'ByCategoryReportCurrencyBreakdown';
+  currency: Scalars['String']['output'];
+  percentage: Scalars['Int']['output'];
+  totalAmount: Scalars['Float']['output'];
+};
+
+export type ByCategoryReportCurrencyTotal = {
+  __typename?: 'ByCategoryReportCurrencyTotal';
+  currency: Scalars['String']['output'];
+  totalAmount: Scalars['Float']['output'];
+};
+
 export type Category = {
   __typename?: 'Category';
   excludeFromReports: Scalars['Boolean']['output'];
@@ -116,37 +147,6 @@ export type InsightResponse = {
   __typename?: 'InsightResponse';
   agentTrace: Array<AgentTraceMessage>;
   answer: Scalars['String']['output'];
-};
-
-export type MonthlyReport = {
-  __typename?: 'MonthlyReport';
-  categories: Array<MonthlyReportCategory>;
-  currencyTotals: Array<MonthlyReportCurrencyTotal>;
-  month: Scalars['Int']['output'];
-  type: ReportType;
-  year: Scalars['Int']['output'];
-};
-
-export type MonthlyReportCategory = {
-  __typename?: 'MonthlyReportCategory';
-  categoryId?: Maybe<Scalars['ID']['output']>;
-  categoryName: Scalars['String']['output'];
-  currencyBreakdowns: Array<MonthlyReportCurrencyBreakdown>;
-  topTransactions: Array<Transaction>;
-  totalTransactionCount: Scalars['Int']['output'];
-};
-
-export type MonthlyReportCurrencyBreakdown = {
-  __typename?: 'MonthlyReportCurrencyBreakdown';
-  currency: Scalars['String']['output'];
-  percentage: Scalars['Int']['output'];
-  totalAmount: Scalars['Float']['output'];
-};
-
-export type MonthlyReportCurrencyTotal = {
-  __typename?: 'MonthlyReportCurrencyTotal';
-  currency: Scalars['String']['output'];
-  totalAmount: Scalars['Float']['output'];
 };
 
 export type Mutation = {
@@ -248,14 +248,21 @@ export type PaginationInput = {
 export type Query = {
   __typename?: 'Query';
   accounts: Array<Account>;
+  byCategoryReport: ByCategoryReport;
   categories: Array<Category>;
   insight: InsightResponse;
-  monthlyReport: MonthlyReport;
   supportedCurrencies: Array<Scalars['String']['output']>;
   transactionDescriptionSuggestions: Array<Scalars['String']['output']>;
   transactionPatterns: Array<TransactionPattern>;
   transactions: TransactionConnection;
   transfer?: Maybe<Transfer>;
+};
+
+
+export type QueryByCategoryReportArgs = {
+  month: Scalars['Int']['input'];
+  type: ReportType;
+  year: Scalars['Int']['input'];
 };
 
 
@@ -266,13 +273,6 @@ export type QueryCategoriesArgs = {
 
 export type QueryInsightArgs = {
   input: InsightInput;
-};
-
-
-export type QueryMonthlyReportArgs = {
-  month: Scalars['Int']['input'];
-  type: ReportType;
-  year: Scalars['Int']['input'];
 };
 
 
@@ -440,13 +440,13 @@ export type TransactionFieldsFragment = { __typename?: 'Transaction', id: string
 
 export type TransferFieldsFragment = { __typename?: 'Transfer', id: string, outboundTransaction: { __typename?: 'Transaction', id: string, type: TransactionType, amount: number, currency: string, date: string, description?: string | null | undefined, transferId?: string | null | undefined, account: { __typename?: 'TransactionEmbeddedAccount', id: string, name: string, isArchived: boolean }, category?: { __typename?: 'TransactionEmbeddedCategory', id: string, name: string, isArchived: boolean } | null | undefined }, inboundTransaction: { __typename?: 'Transaction', id: string, type: TransactionType, amount: number, currency: string, date: string, description?: string | null | undefined, transferId?: string | null | undefined, account: { __typename?: 'TransactionEmbeddedAccount', id: string, name: string, isArchived: boolean }, category?: { __typename?: 'TransactionEmbeddedCategory', id: string, name: string, isArchived: boolean } | null | undefined } };
 
-export type MonthlyReportCurrencyBreakdownFieldsFragment = { __typename?: 'MonthlyReportCurrencyBreakdown', currency: string, totalAmount: number, percentage: number };
+export type ByCategoryReportCurrencyBreakdownFieldsFragment = { __typename?: 'ByCategoryReportCurrencyBreakdown', currency: string, totalAmount: number, percentage: number };
 
-export type MonthlyReportCategoryFieldsFragment = { __typename?: 'MonthlyReportCategory', categoryId?: string | null | undefined, categoryName: string, totalTransactionCount: number, currencyBreakdowns: Array<{ __typename?: 'MonthlyReportCurrencyBreakdown', currency: string, totalAmount: number, percentage: number }>, topTransactions: Array<{ __typename?: 'Transaction', id: string, type: TransactionType, amount: number, currency: string, date: string, description?: string | null | undefined, transferId?: string | null | undefined, account: { __typename?: 'TransactionEmbeddedAccount', id: string, name: string, isArchived: boolean }, category?: { __typename?: 'TransactionEmbeddedCategory', id: string, name: string, isArchived: boolean } | null | undefined }> };
+export type ByCategoryReportCategoryFieldsFragment = { __typename?: 'ByCategoryReportCategory', categoryId?: string | null | undefined, categoryName: string, totalTransactionCount: number, currencyBreakdowns: Array<{ __typename?: 'ByCategoryReportCurrencyBreakdown', currency: string, totalAmount: number, percentage: number }>, topTransactions: Array<{ __typename?: 'Transaction', id: string, type: TransactionType, amount: number, currency: string, date: string, description?: string | null | undefined, transferId?: string | null | undefined, account: { __typename?: 'TransactionEmbeddedAccount', id: string, name: string, isArchived: boolean }, category?: { __typename?: 'TransactionEmbeddedCategory', id: string, name: string, isArchived: boolean } | null | undefined }> };
 
-export type MonthlyReportCurrencyTotalFieldsFragment = { __typename?: 'MonthlyReportCurrencyTotal', currency: string, totalAmount: number };
+export type ByCategoryReportCurrencyTotalFieldsFragment = { __typename?: 'ByCategoryReportCurrencyTotal', currency: string, totalAmount: number };
 
-export type MonthlyReportFieldsFragment = { __typename?: 'MonthlyReport', year: number, month: number, type: ReportType, categories: Array<{ __typename?: 'MonthlyReportCategory', categoryId?: string | null | undefined, categoryName: string, totalTransactionCount: number, currencyBreakdowns: Array<{ __typename?: 'MonthlyReportCurrencyBreakdown', currency: string, totalAmount: number, percentage: number }>, topTransactions: Array<{ __typename?: 'Transaction', id: string, type: TransactionType, amount: number, currency: string, date: string, description?: string | null | undefined, transferId?: string | null | undefined, account: { __typename?: 'TransactionEmbeddedAccount', id: string, name: string, isArchived: boolean }, category?: { __typename?: 'TransactionEmbeddedCategory', id: string, name: string, isArchived: boolean } | null | undefined }> }>, currencyTotals: Array<{ __typename?: 'MonthlyReportCurrencyTotal', currency: string, totalAmount: number }> };
+export type ByCategoryReportFieldsFragment = { __typename?: 'ByCategoryReport', year: number, month: number, type: ReportType, categories: Array<{ __typename?: 'ByCategoryReportCategory', categoryId?: string | null | undefined, categoryName: string, totalTransactionCount: number, currencyBreakdowns: Array<{ __typename?: 'ByCategoryReportCurrencyBreakdown', currency: string, totalAmount: number, percentage: number }>, topTransactions: Array<{ __typename?: 'Transaction', id: string, type: TransactionType, amount: number, currency: string, date: string, description?: string | null | undefined, transferId?: string | null | undefined, account: { __typename?: 'TransactionEmbeddedAccount', id: string, name: string, isArchived: boolean }, category?: { __typename?: 'TransactionEmbeddedCategory', id: string, name: string, isArchived: boolean } | null | undefined }> }>, currencyTotals: Array<{ __typename?: 'ByCategoryReportCurrencyTotal', currency: string, totalAmount: number }> };
 
 export type EnsureUserMutationVariables = Exact<{ [key: string]: never; }>;
 
@@ -587,14 +587,14 @@ export type GetTransactionPatternsQueryVariables = Exact<{
 
 export type GetTransactionPatternsQuery = { __typename?: 'Query', transactionPatterns: Array<{ __typename?: 'TransactionPattern', accountId: string, accountName: string, categoryId: string, categoryName: string }> };
 
-export type GetMonthlyReportQueryVariables = Exact<{
+export type GetByCategoryReportQueryVariables = Exact<{
   year: Scalars['Int']['input'];
   month: Scalars['Int']['input'];
   type: ReportType;
 }>;
 
 
-export type GetMonthlyReportQuery = { __typename?: 'Query', monthlyReport: { __typename?: 'MonthlyReport', year: number, month: number, type: ReportType, categories: Array<{ __typename?: 'MonthlyReportCategory', categoryId?: string | null | undefined, categoryName: string, totalTransactionCount: number, currencyBreakdowns: Array<{ __typename?: 'MonthlyReportCurrencyBreakdown', currency: string, totalAmount: number, percentage: number }>, topTransactions: Array<{ __typename?: 'Transaction', id: string, type: TransactionType, amount: number, currency: string, date: string, description?: string | null | undefined, transferId?: string | null | undefined, account: { __typename?: 'TransactionEmbeddedAccount', id: string, name: string, isArchived: boolean }, category?: { __typename?: 'TransactionEmbeddedCategory', id: string, name: string, isArchived: boolean } | null | undefined }> }>, currencyTotals: Array<{ __typename?: 'MonthlyReportCurrencyTotal', currency: string, totalAmount: number }> } };
+export type GetByCategoryReportQuery = { __typename?: 'Query', byCategoryReport: { __typename?: 'ByCategoryReport', year: number, month: number, type: ReportType, categories: Array<{ __typename?: 'ByCategoryReportCategory', categoryId?: string | null | undefined, categoryName: string, totalTransactionCount: number, currencyBreakdowns: Array<{ __typename?: 'ByCategoryReportCurrencyBreakdown', currency: string, totalAmount: number, percentage: number }>, topTransactions: Array<{ __typename?: 'Transaction', id: string, type: TransactionType, amount: number, currency: string, date: string, description?: string | null | undefined, transferId?: string | null | undefined, account: { __typename?: 'TransactionEmbeddedAccount', id: string, name: string, isArchived: boolean }, category?: { __typename?: 'TransactionEmbeddedCategory', id: string, name: string, isArchived: boolean } | null | undefined }> }>, currencyTotals: Array<{ __typename?: 'ByCategoryReportCurrencyTotal', currency: string, totalAmount: number }> } };
 
 export type GetTransactionDescriptionSuggestionsQueryVariables = Exact<{
   searchText: Scalars['String']['input'];
@@ -663,47 +663,47 @@ export const TransferFieldsFragmentDoc = gql`
   }
 }
     ${TransactionFieldsFragmentDoc}`;
-export const MonthlyReportCurrencyBreakdownFieldsFragmentDoc = gql`
-    fragment MonthlyReportCurrencyBreakdownFields on MonthlyReportCurrencyBreakdown {
+export const ByCategoryReportCurrencyBreakdownFieldsFragmentDoc = gql`
+    fragment ByCategoryReportCurrencyBreakdownFields on ByCategoryReportCurrencyBreakdown {
   currency
   totalAmount
   percentage
 }
     `;
-export const MonthlyReportCategoryFieldsFragmentDoc = gql`
-    fragment MonthlyReportCategoryFields on MonthlyReportCategory {
+export const ByCategoryReportCategoryFieldsFragmentDoc = gql`
+    fragment ByCategoryReportCategoryFields on ByCategoryReportCategory {
   categoryId
   categoryName
   currencyBreakdowns {
-    ...MonthlyReportCurrencyBreakdownFields
+    ...ByCategoryReportCurrencyBreakdownFields
   }
   topTransactions {
     ...TransactionFields
   }
   totalTransactionCount
 }
-    ${MonthlyReportCurrencyBreakdownFieldsFragmentDoc}
+    ${ByCategoryReportCurrencyBreakdownFieldsFragmentDoc}
 ${TransactionFieldsFragmentDoc}`;
-export const MonthlyReportCurrencyTotalFieldsFragmentDoc = gql`
-    fragment MonthlyReportCurrencyTotalFields on MonthlyReportCurrencyTotal {
+export const ByCategoryReportCurrencyTotalFieldsFragmentDoc = gql`
+    fragment ByCategoryReportCurrencyTotalFields on ByCategoryReportCurrencyTotal {
   currency
   totalAmount
 }
     `;
-export const MonthlyReportFieldsFragmentDoc = gql`
-    fragment MonthlyReportFields on MonthlyReport {
+export const ByCategoryReportFieldsFragmentDoc = gql`
+    fragment ByCategoryReportFields on ByCategoryReport {
   year
   month
   type
   categories {
-    ...MonthlyReportCategoryFields
+    ...ByCategoryReportCategoryFields
   }
   currencyTotals {
-    ...MonthlyReportCurrencyTotalFields
+    ...ByCategoryReportCurrencyTotalFields
   }
 }
-    ${MonthlyReportCategoryFieldsFragmentDoc}
-${MonthlyReportCurrencyTotalFieldsFragmentDoc}`;
+    ${ByCategoryReportCategoryFieldsFragmentDoc}
+${ByCategoryReportCurrencyTotalFieldsFragmentDoc}`;
 export const EnsureUserDocument = gql`
     mutation EnsureUser {
   ensureUser {
@@ -1305,38 +1305,38 @@ export function useGetTransactionPatternsLazyQuery(variables?: GetTransactionPat
   return VueApolloComposable.useLazyQuery<GetTransactionPatternsQuery, GetTransactionPatternsQueryVariables>(GetTransactionPatternsDocument, variables, options);
 }
 export type GetTransactionPatternsQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<GetTransactionPatternsQuery, GetTransactionPatternsQueryVariables>;
-export const GetMonthlyReportDocument = gql`
-    query GetMonthlyReport($year: Int!, $month: Int!, $type: ReportType!) {
-  monthlyReport(year: $year, month: $month, type: $type) {
-    ...MonthlyReportFields
+export const GetByCategoryReportDocument = gql`
+    query GetByCategoryReport($year: Int!, $month: Int!, $type: ReportType!) {
+  byCategoryReport(year: $year, month: $month, type: $type) {
+    ...ByCategoryReportFields
   }
 }
-    ${MonthlyReportFieldsFragmentDoc}`;
+    ${ByCategoryReportFieldsFragmentDoc}`;
 
 /**
- * __useGetMonthlyReportQuery__
+ * __useGetByCategoryReportQuery__
  *
- * To run a query within a Vue component, call `useGetMonthlyReportQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetMonthlyReportQuery` returns an object from Apollo Client that contains result, loading and error properties
+ * To run a query within a Vue component, call `useGetByCategoryReportQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetByCategoryReportQuery` returns an object from Apollo Client that contains result, loading and error properties
  * you can use to render your UI.
  *
  * @param variables that will be passed into the query
  * @param options that will be passed into the query, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/query.html#options;
  *
  * @example
- * const { result, loading, error } = useGetMonthlyReportQuery({
+ * const { result, loading, error } = useGetByCategoryReportQuery({
  *   year: // value for 'year'
  *   month: // value for 'month'
  *   type: // value for 'type'
  * });
  */
-export function useGetMonthlyReportQuery(variables: GetMonthlyReportQueryVariables | VueCompositionApi.Ref<GetMonthlyReportQueryVariables> | ReactiveFunction<GetMonthlyReportQueryVariables>, options: VueApolloComposable.UseQueryOptions<GetMonthlyReportQuery, GetMonthlyReportQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<GetMonthlyReportQuery, GetMonthlyReportQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<GetMonthlyReportQuery, GetMonthlyReportQueryVariables>> = {}) {
-  return VueApolloComposable.useQuery<GetMonthlyReportQuery, GetMonthlyReportQueryVariables>(GetMonthlyReportDocument, variables, options);
+export function useGetByCategoryReportQuery(variables: GetByCategoryReportQueryVariables | VueCompositionApi.Ref<GetByCategoryReportQueryVariables> | ReactiveFunction<GetByCategoryReportQueryVariables>, options: VueApolloComposable.UseQueryOptions<GetByCategoryReportQuery, GetByCategoryReportQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<GetByCategoryReportQuery, GetByCategoryReportQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<GetByCategoryReportQuery, GetByCategoryReportQueryVariables>> = {}) {
+  return VueApolloComposable.useQuery<GetByCategoryReportQuery, GetByCategoryReportQueryVariables>(GetByCategoryReportDocument, variables, options);
 }
-export function useGetMonthlyReportLazyQuery(variables?: GetMonthlyReportQueryVariables | VueCompositionApi.Ref<GetMonthlyReportQueryVariables> | ReactiveFunction<GetMonthlyReportQueryVariables>, options: VueApolloComposable.UseQueryOptions<GetMonthlyReportQuery, GetMonthlyReportQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<GetMonthlyReportQuery, GetMonthlyReportQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<GetMonthlyReportQuery, GetMonthlyReportQueryVariables>> = {}) {
-  return VueApolloComposable.useLazyQuery<GetMonthlyReportQuery, GetMonthlyReportQueryVariables>(GetMonthlyReportDocument, variables, options);
+export function useGetByCategoryReportLazyQuery(variables?: GetByCategoryReportQueryVariables | VueCompositionApi.Ref<GetByCategoryReportQueryVariables> | ReactiveFunction<GetByCategoryReportQueryVariables>, options: VueApolloComposable.UseQueryOptions<GetByCategoryReportQuery, GetByCategoryReportQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<GetByCategoryReportQuery, GetByCategoryReportQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<GetByCategoryReportQuery, GetByCategoryReportQueryVariables>> = {}) {
+  return VueApolloComposable.useLazyQuery<GetByCategoryReportQuery, GetByCategoryReportQueryVariables>(GetByCategoryReportDocument, variables, options);
 }
-export type GetMonthlyReportQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<GetMonthlyReportQuery, GetMonthlyReportQueryVariables>;
+export type GetByCategoryReportQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<GetByCategoryReportQuery, GetByCategoryReportQueryVariables>;
 export const GetTransactionDescriptionSuggestionsDocument = gql`
     query GetTransactionDescriptionSuggestions($searchText: String!) {
   transactionDescriptionSuggestions(searchText: $searchText)

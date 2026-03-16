@@ -51,6 +51,37 @@ export type AgentTraceToolResult = {
   toolName: Scalars['String']['output'];
 };
 
+export type ByCategoryReport = {
+  __typename?: 'ByCategoryReport';
+  categories: Array<ByCategoryReportCategory>;
+  currencyTotals: Array<ByCategoryReportCurrencyTotal>;
+  month: Scalars['Int']['output'];
+  type: ReportType;
+  year: Scalars['Int']['output'];
+};
+
+export type ByCategoryReportCategory = {
+  __typename?: 'ByCategoryReportCategory';
+  categoryId?: Maybe<Scalars['ID']['output']>;
+  categoryName: Scalars['String']['output'];
+  currencyBreakdowns: Array<ByCategoryReportCurrencyBreakdown>;
+  topTransactions: Array<Transaction>;
+  totalTransactionCount: Scalars['Int']['output'];
+};
+
+export type ByCategoryReportCurrencyBreakdown = {
+  __typename?: 'ByCategoryReportCurrencyBreakdown';
+  currency: Scalars['String']['output'];
+  percentage: Scalars['Int']['output'];
+  totalAmount: Scalars['Float']['output'];
+};
+
+export type ByCategoryReportCurrencyTotal = {
+  __typename?: 'ByCategoryReportCurrencyTotal';
+  currency: Scalars['String']['output'];
+  totalAmount: Scalars['Float']['output'];
+};
+
 export type Category = {
   __typename?: 'Category';
   excludeFromReports: Scalars['Boolean']['output'];
@@ -119,37 +150,6 @@ export type InsightResponse = {
   __typename?: 'InsightResponse';
   agentTrace: Array<AgentTraceMessage>;
   answer: Scalars['String']['output'];
-};
-
-export type MonthlyReport = {
-  __typename?: 'MonthlyReport';
-  categories: Array<MonthlyReportCategory>;
-  currencyTotals: Array<MonthlyReportCurrencyTotal>;
-  month: Scalars['Int']['output'];
-  type: ReportType;
-  year: Scalars['Int']['output'];
-};
-
-export type MonthlyReportCategory = {
-  __typename?: 'MonthlyReportCategory';
-  categoryId?: Maybe<Scalars['ID']['output']>;
-  categoryName: Scalars['String']['output'];
-  currencyBreakdowns: Array<MonthlyReportCurrencyBreakdown>;
-  topTransactions: Array<Transaction>;
-  totalTransactionCount: Scalars['Int']['output'];
-};
-
-export type MonthlyReportCurrencyBreakdown = {
-  __typename?: 'MonthlyReportCurrencyBreakdown';
-  currency: Scalars['String']['output'];
-  percentage: Scalars['Int']['output'];
-  totalAmount: Scalars['Float']['output'];
-};
-
-export type MonthlyReportCurrencyTotal = {
-  __typename?: 'MonthlyReportCurrencyTotal';
-  currency: Scalars['String']['output'];
-  totalAmount: Scalars['Float']['output'];
 };
 
 export type Mutation = {
@@ -251,14 +251,21 @@ export type PaginationInput = {
 export type Query = {
   __typename?: 'Query';
   accounts: Array<Account>;
+  byCategoryReport: ByCategoryReport;
   categories: Array<Category>;
   insight: InsightResponse;
-  monthlyReport: MonthlyReport;
   supportedCurrencies: Array<Scalars['String']['output']>;
   transactionDescriptionSuggestions: Array<Scalars['String']['output']>;
   transactionPatterns: Array<TransactionPattern>;
   transactions: TransactionConnection;
   transfer?: Maybe<Transfer>;
+};
+
+
+export type QueryByCategoryReportArgs = {
+  month: Scalars['Int']['input'];
+  type: ReportType;
+  year: Scalars['Int']['input'];
 };
 
 
@@ -269,13 +276,6 @@ export type QueryCategoriesArgs = {
 
 export type QueryInsightArgs = {
   input: InsightInput;
-};
-
-
-export type QueryMonthlyReportArgs = {
-  month: Scalars['Int']['input'];
-  type: ReportType;
-  year: Scalars['Int']['input'];
 };
 
 
@@ -512,6 +512,10 @@ export type ResolversTypes = {
   AgentTraceToolCall: ResolverTypeWrapper<AgentTraceToolCall>;
   AgentTraceToolResult: ResolverTypeWrapper<AgentTraceToolResult>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
+  ByCategoryReport: ResolverTypeWrapper<Omit<ByCategoryReport, 'categories'> & { categories: Array<ResolversTypes['ByCategoryReportCategory']> }>;
+  ByCategoryReportCategory: ResolverTypeWrapper<Omit<ByCategoryReportCategory, 'topTransactions'> & { topTransactions: Array<ResolversTypes['Transaction']> }>;
+  ByCategoryReportCurrencyBreakdown: ResolverTypeWrapper<ByCategoryReportCurrencyBreakdown>;
+  ByCategoryReportCurrencyTotal: ResolverTypeWrapper<ByCategoryReportCurrencyTotal>;
   Category: ResolverTypeWrapper<Category>;
   CategoryType: CategoryType;
   CreateAccountInput: CreateAccountInput;
@@ -526,10 +530,6 @@ export type ResolversTypes = {
   InsightInput: InsightInput;
   InsightResponse: ResolverTypeWrapper<Omit<InsightResponse, 'agentTrace'> & { agentTrace: Array<ResolversTypes['AgentTraceMessage']> }>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
-  MonthlyReport: ResolverTypeWrapper<Omit<MonthlyReport, 'categories'> & { categories: Array<ResolversTypes['MonthlyReportCategory']> }>;
-  MonthlyReportCategory: ResolverTypeWrapper<Omit<MonthlyReportCategory, 'topTransactions'> & { topTransactions: Array<ResolversTypes['Transaction']> }>;
-  MonthlyReportCurrencyBreakdown: ResolverTypeWrapper<MonthlyReportCurrencyBreakdown>;
-  MonthlyReportCurrencyTotal: ResolverTypeWrapper<MonthlyReportCurrencyTotal>;
   Mutation: ResolverTypeWrapper<Record<PropertyKey, never>>;
   PageInfo: ResolverTypeWrapper<PageInfo>;
   PaginationInput: PaginationInput;
@@ -561,6 +561,10 @@ export type ResolversParentTypes = {
   AgentTraceToolCall: AgentTraceToolCall;
   AgentTraceToolResult: AgentTraceToolResult;
   Boolean: Scalars['Boolean']['output'];
+  ByCategoryReport: Omit<ByCategoryReport, 'categories'> & { categories: Array<ResolversParentTypes['ByCategoryReportCategory']> };
+  ByCategoryReportCategory: Omit<ByCategoryReportCategory, 'topTransactions'> & { topTransactions: Array<ResolversParentTypes['Transaction']> };
+  ByCategoryReportCurrencyBreakdown: ByCategoryReportCurrencyBreakdown;
+  ByCategoryReportCurrencyTotal: ByCategoryReportCurrencyTotal;
   Category: Category;
   CreateAccountInput: CreateAccountInput;
   CreateCategoryInput: CreateCategoryInput;
@@ -574,10 +578,6 @@ export type ResolversParentTypes = {
   InsightInput: InsightInput;
   InsightResponse: Omit<InsightResponse, 'agentTrace'> & { agentTrace: Array<ResolversParentTypes['AgentTraceMessage']> };
   Int: Scalars['Int']['output'];
-  MonthlyReport: Omit<MonthlyReport, 'categories'> & { categories: Array<ResolversParentTypes['MonthlyReportCategory']> };
-  MonthlyReportCategory: Omit<MonthlyReportCategory, 'topTransactions'> & { topTransactions: Array<ResolversParentTypes['Transaction']> };
-  MonthlyReportCurrencyBreakdown: MonthlyReportCurrencyBreakdown;
-  MonthlyReportCurrencyTotal: MonthlyReportCurrencyTotal;
   Mutation: Record<PropertyKey, never>;
   PageInfo: PageInfo;
   PaginationInput: PaginationInput;
@@ -627,6 +627,33 @@ export type AgentTraceToolResultResolvers<ContextType = GraphQLContext, ParentTy
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type ByCategoryReportResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ByCategoryReport'] = ResolversParentTypes['ByCategoryReport']> = {
+  categories?: Resolver<Array<ResolversTypes['ByCategoryReportCategory']>, ParentType, ContextType>;
+  currencyTotals?: Resolver<Array<ResolversTypes['ByCategoryReportCurrencyTotal']>, ParentType, ContextType>;
+  month?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['ReportType'], ParentType, ContextType>;
+  year?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+};
+
+export type ByCategoryReportCategoryResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ByCategoryReportCategory'] = ResolversParentTypes['ByCategoryReportCategory']> = {
+  categoryId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
+  categoryName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  currencyBreakdowns?: Resolver<Array<ResolversTypes['ByCategoryReportCurrencyBreakdown']>, ParentType, ContextType>;
+  topTransactions?: Resolver<Array<ResolversTypes['Transaction']>, ParentType, ContextType>;
+  totalTransactionCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+};
+
+export type ByCategoryReportCurrencyBreakdownResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ByCategoryReportCurrencyBreakdown'] = ResolversParentTypes['ByCategoryReportCurrencyBreakdown']> = {
+  currency?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  percentage?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  totalAmount?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+};
+
+export type ByCategoryReportCurrencyTotalResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ByCategoryReportCurrencyTotal'] = ResolversParentTypes['ByCategoryReportCurrencyTotal']> = {
+  currency?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  totalAmount?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+};
+
 export type CategoryResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Category'] = ResolversParentTypes['Category']> = {
   excludeFromReports?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -644,33 +671,6 @@ export type CreateTransactionFromTextResponseResolvers<ContextType = GraphQLCont
 export type InsightResponseResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['InsightResponse'] = ResolversParentTypes['InsightResponse']> = {
   agentTrace?: Resolver<Array<ResolversTypes['AgentTraceMessage']>, ParentType, ContextType>;
   answer?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-};
-
-export type MonthlyReportResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['MonthlyReport'] = ResolversParentTypes['MonthlyReport']> = {
-  categories?: Resolver<Array<ResolversTypes['MonthlyReportCategory']>, ParentType, ContextType>;
-  currencyTotals?: Resolver<Array<ResolversTypes['MonthlyReportCurrencyTotal']>, ParentType, ContextType>;
-  month?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  type?: Resolver<ResolversTypes['ReportType'], ParentType, ContextType>;
-  year?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-};
-
-export type MonthlyReportCategoryResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['MonthlyReportCategory'] = ResolversParentTypes['MonthlyReportCategory']> = {
-  categoryId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
-  categoryName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  currencyBreakdowns?: Resolver<Array<ResolversTypes['MonthlyReportCurrencyBreakdown']>, ParentType, ContextType>;
-  topTransactions?: Resolver<Array<ResolversTypes['Transaction']>, ParentType, ContextType>;
-  totalTransactionCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-};
-
-export type MonthlyReportCurrencyBreakdownResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['MonthlyReportCurrencyBreakdown'] = ResolversParentTypes['MonthlyReportCurrencyBreakdown']> = {
-  currency?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  percentage?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  totalAmount?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
-};
-
-export type MonthlyReportCurrencyTotalResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['MonthlyReportCurrencyTotal'] = ResolversParentTypes['MonthlyReportCurrencyTotal']> = {
-  currency?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  totalAmount?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
 };
 
 export type MutationResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
@@ -699,9 +699,9 @@ export type PageInfoResolvers<ContextType = GraphQLContext, ParentType extends R
 
 export type QueryResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
   accounts?: Resolver<Array<ResolversTypes['Account']>, ParentType, ContextType>;
+  byCategoryReport?: Resolver<ResolversTypes['ByCategoryReport'], ParentType, ContextType, RequireFields<QueryByCategoryReportArgs, 'month' | 'type' | 'year'>>;
   categories?: Resolver<Array<ResolversTypes['Category']>, ParentType, ContextType, Partial<QueryCategoriesArgs>>;
   insight?: Resolver<ResolversTypes['InsightResponse'], ParentType, ContextType, RequireFields<QueryInsightArgs, 'input'>>;
-  monthlyReport?: Resolver<ResolversTypes['MonthlyReport'], ParentType, ContextType, RequireFields<QueryMonthlyReportArgs, 'month' | 'type' | 'year'>>;
   supportedCurrencies?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   transactionDescriptionSuggestions?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType, RequireFields<QueryTransactionDescriptionSuggestionsArgs, 'searchText'>>;
   transactionPatterns?: Resolver<Array<ResolversTypes['TransactionPattern']>, ParentType, ContextType, RequireFields<QueryTransactionPatternsArgs, 'type'>>;
@@ -773,14 +773,14 @@ export type Resolvers<ContextType = GraphQLContext> = {
   AgentTraceText?: AgentTraceTextResolvers<ContextType>;
   AgentTraceToolCall?: AgentTraceToolCallResolvers<ContextType>;
   AgentTraceToolResult?: AgentTraceToolResultResolvers<ContextType>;
+  ByCategoryReport?: ByCategoryReportResolvers<ContextType>;
+  ByCategoryReportCategory?: ByCategoryReportCategoryResolvers<ContextType>;
+  ByCategoryReportCurrencyBreakdown?: ByCategoryReportCurrencyBreakdownResolvers<ContextType>;
+  ByCategoryReportCurrencyTotal?: ByCategoryReportCurrencyTotalResolvers<ContextType>;
   Category?: CategoryResolvers<ContextType>;
   CategoryType?: CategoryTypeResolvers;
   CreateTransactionFromTextResponse?: CreateTransactionFromTextResponseResolvers<ContextType>;
   InsightResponse?: InsightResponseResolvers<ContextType>;
-  MonthlyReport?: MonthlyReportResolvers<ContextType>;
-  MonthlyReportCategory?: MonthlyReportCategoryResolvers<ContextType>;
-  MonthlyReportCurrencyBreakdown?: MonthlyReportCurrencyBreakdownResolvers<ContextType>;
-  MonthlyReportCurrencyTotal?: MonthlyReportCurrencyTotalResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   PageInfo?: PageInfoResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
