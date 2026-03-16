@@ -50,34 +50,43 @@ import { useByCategoryReport } from "@/composables/useByCategoryReport";
 import { isValidYearMonth } from "@/utils/dateValidation";
 import { formatMonthYear } from "@/utils/date";
 
+// Router for URL parameter management
 const route = useRoute();
 const router = useRouter();
 
+// Initialize with current date
 const now = new Date();
 const defaultYear = now.getFullYear();
 const defaultMonth = now.getMonth() + 1;
 
+// Reactive state for selected month and year
 const selectedYear = ref<number>(defaultYear);
 const selectedMonth = ref<number>(defaultMonth);
 
+// Computed display string
 const selectedMonthYearDisplay = computed(() => {
   return formatMonthYear(selectedYear.value, selectedMonth.value);
 });
 
+// Get by-category report composable functions
 const { getByCategoryReport } = useByCategoryReport();
 
+// Global error state for better error handling
 const globalError = ref<string | null>(null);
 
+// Get report data reactively based on selected month/year
 const { byCategoryReport, byCategoryReportLoading, byCategoryReportError } = getByCategoryReport(
   selectedYear,
   selectedMonth,
   "EXPENSE",
 );
 
+// Computed error message for consistent display
 const reportError = computed(() => {
   return byCategoryReportError.value?.message || null;
 });
 
+// Watch for errors and show global error alert
 watch(byCategoryReportError, (error) => {
   if (error) {
     globalError.value = `Failed to load report: ${error.message}`;
@@ -85,16 +94,20 @@ watch(byCategoryReportError, (error) => {
   }
 });
 
+// Clear global error
 const clearGlobalError = () => {
   globalError.value = null;
 };
 
+// Handle month navigation
 const handleMonthNavigation = ({ year, month }: { year: number; month: number }) => {
+  // Clear any existing errors when navigating
   globalError.value = null;
 
   selectedYear.value = year;
   selectedMonth.value = month;
 
+  // Update URL parameters for bookmarkable URLs
   router.replace({
     query: {
       ...route.query,
@@ -104,6 +117,7 @@ const handleMonthNavigation = ({ year, month }: { year: number; month: number })
   });
 };
 
+// Initialize from URL parameters on mount
 onMounted(() => {
   const yearParam = route.query.year;
   const monthParam = route.query.month;
@@ -112,6 +126,7 @@ onMounted(() => {
     const year = parseInt(yearParam as string);
     const month = parseInt(monthParam as string);
 
+    // Validate parameters
     if (isValidYearMonth(year, month)) {
       selectedYear.value = year;
       selectedMonth.value = month;
