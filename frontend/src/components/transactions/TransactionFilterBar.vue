@@ -98,8 +98,8 @@
         <v-col cols="12" class="d-flex">
           <v-btn
             variant="outlined"
-            :disabled="loading || !filters.hasSelectedFilters.value"
             @click="handleClear"
+            :disabled="loading || !filters.hasSelectedFilters.value"
           >
             Clear
           </v-btn>
