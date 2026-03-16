@@ -18,13 +18,7 @@ export class ReActAgent implements Agent {
     systemPrompt?: string;
     tools?: readonly ToolSignature<any, any>[]; // eslint-disable-line @typescript-eslint/no-explicit-any
   }) {
-    const langchainTools = input.tools?.map((toolSignature) => {
-      return tool(toolSignature.func, {
-        name: toolSignature.name,
-        description: toolSignature.description,
-        schema: toolSignature.inputSchema,
-      });
-    });
+    const langchainTools = input.tools && this.convertTools(input.tools);
 
     // Create ReAct agent with tools
     const react = createAgent({
@@ -181,6 +175,16 @@ export class ReActAgent implements Agent {
       toolName: toolName,
       output: toolOutput,
     };
+  }
+
+  private convertTools(tools: readonly ToolSignature<unknown, unknown>[]) {
+    return tools.map((toolSignature) =>
+      tool(toolSignature.func, {
+        name: toolSignature.name,
+        description: toolSignature.description,
+        schema: toolSignature.inputSchema,
+      }),
+    );
   }
 
   private prettifyJson(object: object) {
