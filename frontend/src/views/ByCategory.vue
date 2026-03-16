@@ -68,8 +68,11 @@ const { getByCategoryReport } = useByCategoryReport();
 
 const globalError = ref<string | null>(null);
 
-const { byCategoryReport, byCategoryReportLoading, byCategoryReportError } =
-  getByCategoryReport(selectedYear, selectedMonth, "EXPENSE");
+const { byCategoryReport, byCategoryReportLoading, byCategoryReportError } = getByCategoryReport(
+  selectedYear,
+  selectedMonth,
+  "EXPENSE",
+);
 
 const reportError = computed(() => {
   return byCategoryReportError.value?.message || null;
