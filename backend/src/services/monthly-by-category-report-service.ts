@@ -101,18 +101,18 @@ export class MonthlyByCategoryReportService {
       throw new Error("Invalid report type");
     }
 
-    const startDate = toDateString(
+    const dateAfter = toDateString(
       formatDateAsYYYYMMDD(new Date(year, month - 1, 1)),
     );
-    const endDate = toDateString(
+    const dateBefore = toDateString(
       formatDateAsYYYYMMDD(new Date(year, month, 0)),
     );
 
     const transactions = await this.transactionRepository.findActiveByUserId(
       userId,
       {
-        dateAfter: startDate,
-        dateBefore: endDate,
+        dateAfter,
+        dateBefore,
         types: transactionTypesToFetch,
       },
     );
