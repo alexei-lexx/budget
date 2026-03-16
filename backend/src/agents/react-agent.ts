@@ -178,13 +178,13 @@ export class ReActAgent implements Agent {
   }
 
   private convertTools(tools: readonly ToolSignature<unknown, unknown>[]) {
-    return tools.map((toolSignature) => {
-      return tool(toolSignature.func, {
+    return tools.map((toolSignature) =>
+      tool(toolSignature.func, {
         name: toolSignature.name,
         description: toolSignature.description,
         schema: toolSignature.inputSchema,
-      });
-    });
+      }),
+    );
   }
 
   private prettifyJson(object: object) {
