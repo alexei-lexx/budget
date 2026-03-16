@@ -32,7 +32,6 @@ import {
   PageInfo,
   PaginationInput,
 } from "../types/pagination";
-import { formatDateAsYYYYMMDD } from "../utils/date";
 import {
   DYNAMODB_TRANSACT_WRITE_MAX_ITEMS,
   createDynamoDBDocumentClient,
@@ -677,96 +676,6 @@ export class DynTransactionRepository implements TransactionRepository {
       console.error("Error finding transactions by transfer ID:", error);
       throw new RepositoryError(
         "Failed to find transactions by transfer",
-        "QUERY_FAILED",
-        error,
-      );
-    }
-  }
-
-  async findActiveByMonthAndTypes(
-    userId: string,
-    year: number,
-    month: number,
-    types: TransactionType[],
-  ): Promise<Transaction[]> {
-    if (!userId) {
-      throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
-    }
-
-    if (types.length === 0) {
-      throw new RepositoryError(
-        "At least one transaction type is required",
-        "INVALID_PARAMETERS",
-      );
-    }
-
-    if (!Number.isInteger(year) || year <= 0) {
-      throw new RepositoryError(
-        "Year must be a positive integer",
-        "INVALID_PARAMETERS",
-      );
-    }
-
-    if (!Number.isInteger(month) || month < 1 || month > 12) {
-      throw new RepositoryError(
-        "Month must be a valid integer between 1 and 12",
-        "INVALID_PARAMETERS",
-      );
-    }
-
-    // Calculate start and end dates for the month using Date class
-    const startOfMonth = new Date(year, month - 1, 1); // month is 0-indexed in Date constructor
-    const endOfMonth = new Date(year, month, 0); // day=0 gives last day of previous month
-
-    const startDate = formatDateAsYYYYMMDD(startOfMonth);
-    const endDate = formatDateAsYYYYMMDD(endOfMonth);
-
-    // Build type filter expression with OR conditions
-    // For single type: "#type = :type0"
-    // For multiple types: "(#type = :type0 OR #type = :type1 OR #type = :type2)"
-    const typeConditions = types
-      .map((_, index) => `#type = :type${index}`)
-      .join(" OR ");
-    const typeFilterExpression =
-      types.length > 1 ? `(${typeConditions})` : typeConditions;
-
-    // Build expression attribute values for types
-    const typeAttributeValues: Record<string, TransactionType> = {};
-    types.forEach((type, index) => {
-      typeAttributeValues[`:type${index}`] = type;
-    });
-
-    try {
-      const { items } = await paginateQuery<Transaction>({
-        client: this.client,
-        params: {
-          TableName: this.tableName,
-          IndexName: USER_DATE_INDEX,
-          KeyConditionExpression:
-            "userId = :userId AND #date BETWEEN :startDate AND :endDate",
-          FilterExpression: `${typeFilterExpression} AND isArchived = :isArchived`,
-          ExpressionAttributeNames: {
-            "#date": "date",
-            "#type": "type",
-          },
-          ExpressionAttributeValues: {
-            ":userId": userId,
-            ":startDate": startDate,
-            ":endDate": endDate,
-            ":isArchived": false,
-            ...typeAttributeValues,
-          },
-          ScanIndexForward: true, // Sort by date ascending
-        },
-        pageSize: undefined, // No pageSize = get all items
-        schema: transactionSchema,
-      });
-
-      return items;
-    } catch (error) {
-      console.error("Error finding transactions by month and types:", error);
-      throw new RepositoryError(
-        "Failed to find transactions by month and types",
         "QUERY_FAILED",
         error,
       );

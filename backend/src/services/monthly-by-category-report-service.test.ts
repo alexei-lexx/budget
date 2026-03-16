@@ -35,7 +35,7 @@ describe("MonthlyByCategoryReportService", () => {
 
   describe("call", () => {
     it("should return empty report when no transactions exist", async () => {
-      mockTransactionRepository.findActiveByMonthAndTypes.mockResolvedValue([]);
+      mockTransactionRepository.findActiveByUserId.mockResolvedValue([]);
 
       const result = await monthlyByCategoryReportService.call(
         userId,
@@ -76,7 +76,7 @@ describe("MonthlyByCategoryReportService", () => {
         fakeTransaction({ categoryId: undefined, currency: "USD", amount: 75 }),
       ];
 
-      mockTransactionRepository.findActiveByMonthAndTypes.mockResolvedValue(
+      mockTransactionRepository.findActiveByUserId.mockResolvedValue(
         transactions,
       );
       mockCategoryRepository.findActiveById
@@ -120,7 +120,7 @@ describe("MonthlyByCategoryReportService", () => {
         fakeTransaction({ categoryId, amount: 400 }),
       ];
 
-      mockTransactionRepository.findActiveByMonthAndTypes.mockResolvedValue(
+      mockTransactionRepository.findActiveByUserId.mockResolvedValue(
         transactions,
       );
       mockCategoryRepository.findActiveById.mockResolvedValue(
@@ -153,7 +153,7 @@ describe("MonthlyByCategoryReportService", () => {
         fakeTransaction({ currency: "EUR", amount: 150 }),
       ];
 
-      mockTransactionRepository.findActiveByMonthAndTypes.mockResolvedValue(
+      mockTransactionRepository.findActiveByUserId.mockResolvedValue(
         transactions,
       );
 
@@ -181,7 +181,7 @@ describe("MonthlyByCategoryReportService", () => {
         }),
       ];
 
-      mockTransactionRepository.findActiveByMonthAndTypes.mockResolvedValue(
+      mockTransactionRepository.findActiveByUserId.mockResolvedValue(
         transactions,
       );
       mockCategoryRepository.findActiveById.mockResolvedValue(
@@ -216,7 +216,7 @@ describe("MonthlyByCategoryReportService", () => {
         fakeTransaction({ categoryId: undefined, currency: "EUR", amount: 50 }),
       ];
 
-      mockTransactionRepository.findActiveByMonthAndTypes.mockResolvedValue(
+      mockTransactionRepository.findActiveByUserId.mockResolvedValue(
         transactions,
       );
 
@@ -243,7 +243,7 @@ describe("MonthlyByCategoryReportService", () => {
         }),
       ];
 
-      mockTransactionRepository.findActiveByMonthAndTypes.mockResolvedValue(
+      mockTransactionRepository.findActiveByUserId.mockResolvedValue(
         transactions,
       );
       mockCategoryRepository.findActiveById.mockResolvedValue(null);
@@ -277,7 +277,7 @@ describe("MonthlyByCategoryReportService", () => {
         fakeTransaction({ categoryId: undefined, currency: "USD", amount: 50 }),
       ];
 
-      mockTransactionRepository.findActiveByMonthAndTypes.mockResolvedValue(
+      mockTransactionRepository.findActiveByUserId.mockResolvedValue(
         transactions,
       );
       mockCategoryRepository.findActiveById
@@ -311,7 +311,7 @@ describe("MonthlyByCategoryReportService", () => {
         fakeTransaction({ categoryId: undefined, currency: "GBP", amount: 75 }),
       ];
 
-      mockTransactionRepository.findActiveByMonthAndTypes.mockResolvedValue(
+      mockTransactionRepository.findActiveByUserId.mockResolvedValue(
         transactions,
       );
 
@@ -346,7 +346,7 @@ describe("MonthlyByCategoryReportService", () => {
         }),
       ];
 
-      mockTransactionRepository.findActiveByMonthAndTypes.mockResolvedValue(
+      mockTransactionRepository.findActiveByUserId.mockResolvedValue(
         transactions,
       );
 
@@ -378,7 +378,7 @@ describe("MonthlyByCategoryReportService", () => {
         currency: "EUR",
       });
 
-      mockTransactionRepository.findActiveByMonthAndTypes.mockResolvedValue([
+      mockTransactionRepository.findActiveByUserId.mockResolvedValue([
         expenseTransaction,
         refundTransaction,
       ]);
@@ -408,7 +408,7 @@ describe("MonthlyByCategoryReportService", () => {
         currency: "EUR",
       });
 
-      mockTransactionRepository.findActiveByMonthAndTypes.mockResolvedValue([
+      mockTransactionRepository.findActiveByUserId.mockResolvedValue([
         refundTransaction,
       ]);
 
@@ -437,7 +437,7 @@ describe("MonthlyByCategoryReportService", () => {
         currency: "EUR",
       });
 
-      mockTransactionRepository.findActiveByMonthAndTypes.mockResolvedValue([
+      mockTransactionRepository.findActiveByUserId.mockResolvedValue([
         incomeTransaction,
       ]);
 
@@ -452,13 +452,13 @@ describe("MonthlyByCategoryReportService", () => {
         ReportType.INCOME,
       );
 
-      expect(
-        mockTransactionRepository.findActiveByMonthAndTypes,
-      ).toHaveBeenCalledWith(
+      expect(mockTransactionRepository.findActiveByUserId).toHaveBeenCalledWith(
         userId,
-        2025,
-        11,
-        [TransactionType.INCOME], // Only INCOME, no REFUND
+        {
+          dateAfter: "2025-11-01",
+          dateBefore: "2025-11-30",
+          types: [TransactionType.INCOME], // Only INCOME, no REFUND
+        },
       );
       expect(result.categories[0].currencyBreakdowns[0].totalAmount).toBe(500);
     });
@@ -492,7 +492,7 @@ describe("MonthlyByCategoryReportService", () => {
         }),
       ];
 
-      mockTransactionRepository.findActiveByMonthAndTypes.mockResolvedValue(
+      mockTransactionRepository.findActiveByUserId.mockResolvedValue(
         transactions,
       );
 
@@ -535,7 +535,7 @@ describe("MonthlyByCategoryReportService", () => {
         }),
       ];
 
-      mockTransactionRepository.findActiveByMonthAndTypes.mockResolvedValue(
+      mockTransactionRepository.findActiveByUserId.mockResolvedValue(
         transactions,
       );
 
@@ -583,7 +583,7 @@ describe("MonthlyByCategoryReportService", () => {
         }),
       ];
 
-      mockTransactionRepository.findActiveByMonthAndTypes.mockResolvedValue(
+      mockTransactionRepository.findActiveByUserId.mockResolvedValue(
         transactions,
       );
       mockCategoryRepository.findActiveByUserId.mockResolvedValue([
@@ -637,9 +637,7 @@ describe("MonthlyByCategoryReportService", () => {
         const currentYear = new Date().getFullYear();
         const validYear = currentYear - 50;
 
-        mockTransactionRepository.findActiveByMonthAndTypes.mockResolvedValue(
-          [],
-        );
+        mockTransactionRepository.findActiveByUserId.mockResolvedValue([]);
 
         await expect(
           monthlyByCategoryReportService.call(
@@ -675,9 +673,7 @@ describe("MonthlyByCategoryReportService", () => {
       it("should accept valid months (1-12)", async () => {
         const currentYear = new Date().getFullYear();
 
-        mockTransactionRepository.findActiveByMonthAndTypes.mockResolvedValue(
-          [],
-        );
+        mockTransactionRepository.findActiveByUserId.mockResolvedValue([]);
 
         for (let month = 1; month <= 12; month++) {
           await expect(

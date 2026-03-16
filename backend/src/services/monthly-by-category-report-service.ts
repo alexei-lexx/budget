@@ -4,7 +4,9 @@ import {
   TransactionType,
   getSignedAmount,
 } from "../models/transaction";
+import { toDateString } from "../types/date";
 import { YEAR_RANGE_OFFSET } from "../types/validation";
+import { formatDateAsYYYYMMDD } from "../utils/date";
 import { BusinessError, BusinessErrorCodes } from "./business-error";
 import { CategoryRepository } from "./ports/category-repository";
 import { TransactionRepository } from "./ports/transaction-repository";
@@ -99,13 +101,21 @@ export class MonthlyByCategoryReportService {
       throw new Error("Invalid report type");
     }
 
-    const transactions =
-      await this.transactionRepository.findActiveByMonthAndTypes(
-        userId,
-        year,
-        month,
-        transactionTypesToFetch,
-      );
+    const startDate = toDateString(
+      formatDateAsYYYYMMDD(new Date(year, month - 1, 1)),
+    );
+    const endDate = toDateString(
+      formatDateAsYYYYMMDD(new Date(year, month, 0)),
+    );
+
+    const transactions = await this.transactionRepository.findActiveByUserId(
+      userId,
+      {
+        dateAfter: startDate,
+        dateBefore: endDate,
+        types: transactionTypesToFetch,
+      },
+    );
 
     if (transactions.length === 0) {
       return {
