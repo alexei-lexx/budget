@@ -72,7 +72,7 @@ export const GET_TRANSACTION_PATTERNS = gql`
 `;
 
 export const GET_BY_CATEGORY_REPORT = gql`
-  query GetByCategoryReport($year: Int!, $month: Int!, $type: ReportType!) {
+  query GetByCategoryReport($year: Int!, $month: Int, $type: ReportType!) {
     byCategoryReport(year: $year, month: $month, type: $type) {
       year
       month

@@ -609,6 +609,68 @@ describe("ByCategoryReportService", () => {
     });
   });
 
+  describe("yearly report (month=undefined)", () => {
+    it("should use full-year date range when month is undefined", async () => {
+      mockTransactionRepository.findActiveByUserId.mockResolvedValue([]);
+
+      await reportService.call(userId, 2000, undefined, ReportType.EXPENSE);
+
+      expect(mockTransactionRepository.findActiveByUserId).toHaveBeenCalledWith(
+        userId,
+        {
+          dateAfter: "2000-01-01",
+          dateBefore: "2000-12-31",
+          types: [TransactionType.EXPENSE, TransactionType.REFUND],
+        },
+      );
+    });
+
+    it("should return month as undefined in yearly report result", async () => {
+      mockTransactionRepository.findActiveByUserId.mockResolvedValue([]);
+
+      const result = await reportService.call(
+        userId,
+        2000,
+        undefined,
+        ReportType.EXPENSE,
+      );
+
+      expect(result.month).toBeUndefined();
+      expect(result.year).toBe(2000);
+    });
+
+    it("should calculate currency totals correctly", async () => {
+      const transactions = [
+        fakeTransaction({
+          type: TransactionType.EXPENSE,
+          amount: 100,
+          currency: "EUR",
+        }),
+        fakeTransaction({
+          type: TransactionType.EXPENSE,
+          amount: 200,
+          currency: "EUR",
+        }),
+      ];
+
+      mockTransactionRepository.findActiveByUserId.mockResolvedValue(
+        transactions,
+      );
+      mockCategoryRepository.findActiveById.mockResolvedValue(fakeCategory());
+
+      const result = await reportService.call(
+        userId,
+        2000,
+        undefined,
+        ReportType.EXPENSE,
+      );
+
+      expect(result.currencyTotals).toEqual([
+        { currency: "EUR", totalAmount: 300 },
+      ]);
+    });
+  });
+
   describe("validation", () => {
     describe("year validation", () => {
       it("should throw error for invalid year", async () => {

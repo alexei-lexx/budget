@@ -130,7 +130,6 @@ interface Props {
   currencyTotals?: ByCategoryReportCurrencyTotal[] | null;
   loading?: boolean;
   error?: string | null;
-  monthYear?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -138,7 +137,6 @@ const props = withDefaults(defineProps<Props>(), {
   currencyTotals: null,
   loading: false,
   error: null,
-  monthYear: "",
 });
 
 // Sort options state

@@ -16,7 +16,7 @@ export const reportResolvers = {
         const report = await context.byCategoryReportService.call(
           user.id,
           args.year,
-          args.month,
+          args.month ?? undefined,
           args.type,
         );
 
