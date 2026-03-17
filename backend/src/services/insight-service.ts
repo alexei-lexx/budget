@@ -1,4 +1,5 @@
 import { DateString } from "../types/date";
+import { Failure, Result, Success } from "../types/result";
 import { daysBetween, formatDateAsYYYYMMDD } from "../utils/date";
 import { createGetAccountsTool } from "./agent-tools/get-accounts-tool";
 import { createGetCategoriesTool } from "./agent-tools/get-categories-tool";
@@ -7,7 +8,6 @@ import {
   createGetTransactionsTool,
 } from "./agent-tools/get-transactions-tool";
 import { avgTool, calculateTool, sumTool } from "./agent-tools/math";
-import { BusinessError, BusinessErrorCodes } from "./business-error";
 import { AccountRepository } from "./ports/account-repository";
 import { Agent, AgentTraceMessage } from "./ports/agent";
 import { CategoryRepository } from "./ports/category-repository";
@@ -61,6 +61,11 @@ export interface InsightInput {
   endDate: DateString;
 }
 
+type InsightOutput = Result<{
+  answer: string;
+  agentTrace: AgentTraceMessage[];
+}>;
+
 export class InsightService {
   private accountRepository: AccountRepository;
   private categoryRepository: CategoryRepository;
@@ -84,28 +89,30 @@ export class InsightService {
     this.agent = agent;
   }
 
-  async call(
-    userId: string,
-    input: InsightInput,
-  ): Promise<{ answer: string; agentTrace: AgentTraceMessage[] }> {
+  async call(userId: string, input: InsightInput): Promise<InsightOutput> {
     if (!userId) {
-      throw new BusinessError(
-        "User ID is required",
-        BusinessErrorCodes.INVALID_PARAMETERS,
-      );
+      return Failure("User ID is required");
     }
 
     const { question, startDate, endDate } = input;
 
     const normalizedQuestion = question.trim();
     if (!normalizedQuestion) {
-      throw new BusinessError(
-        "Question is required",
-        BusinessErrorCodes.INVALID_PARAMETERS,
-      );
+      return Failure("Question is required");
     }
 
-    this.validateDateRange(startDate, endDate);
+    if (startDate > endDate) {
+      return Failure("Start date must be before or equal to end date");
+    }
+
+    const differenceInDays = daysBetween(
+      new Date(startDate),
+      new Date(endDate),
+    );
+
+    if (differenceInDays > MAX_PERIOD_DAYS) {
+      return Failure(`Date range cannot exceed ${MAX_PERIOD_DAYS} days`);
+    }
 
     const systemPrompt = this.buildSystemPrompt();
     const userPrompt = this.buildUserPrompt(
@@ -137,36 +144,12 @@ export class InsightService {
     });
 
     if (!response.answer) {
-      throw new BusinessError(
-        "Empty response",
-        BusinessErrorCodes.EMPTY_RESPONSE,
-      );
+      return Failure("Empty response");
     }
 
     const finalAnswer = response.answer.trim();
 
-    return { answer: finalAnswer, agentTrace: response.agentTrace };
-  }
-
-  private validateDateRange(startDate: DateString, endDate: DateString) {
-    if (startDate > endDate) {
-      throw new BusinessError(
-        "Start date must be before or equal to end date",
-        BusinessErrorCodes.INVALID_DATE,
-      );
-    }
-
-    const startDateObj = new Date(startDate);
-    const endDateObj = new Date(endDate);
-
-    const differenceInDays = daysBetween(startDateObj, endDateObj);
-
-    if (differenceInDays > MAX_PERIOD_DAYS) {
-      throw new BusinessError(
-        `Date range cannot exceed ${MAX_PERIOD_DAYS} days`,
-        BusinessErrorCodes.INVALID_DATE,
-      );
-    }
+    return Success({ answer: finalAnswer, agentTrace: response.agentTrace });
   }
 
   private buildUserPrompt(
@@ -185,15 +168,5 @@ export class InsightService {
     const currentDate = formatDateAsYYYYMMDD(new Date());
 
     return SYSTEM_PROMPT + `\n\nToday's date is ${currentDate}.`;
-  }
-
-  private formatJsonString(jsonInput: string): string {
-    try {
-      const parsed = JSON.parse(jsonInput);
-
-      return JSON.stringify(parsed, null, 2);
-    } catch {
-      return jsonInput;
-    }
   }
 }
