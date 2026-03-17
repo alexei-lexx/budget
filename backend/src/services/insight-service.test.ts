@@ -1,6 +1,5 @@
 import { faker } from "@faker-js/faker";
 import { toDateString } from "../types/date";
-import { YEAR_RANGE_OFFSET } from "../types/validation";
 import {
   createMockAccountRepository,
   createMockCategoryRepository,
@@ -119,48 +118,6 @@ describe("InsightService", () => {
       await expect(promise).rejects.toThrow(BusinessError);
       await expect(promise).rejects.toMatchObject({
         message: `Date range cannot exceed ${MAX_PERIOD_DAYS} days`,
-        code: BusinessErrorCodes.INVALID_DATE,
-      });
-    });
-
-    it("should throw error when startDate year is out of range", async () => {
-      // Arrange
-      const currentYear = new Date().getFullYear();
-      const minYear = currentYear - YEAR_RANGE_OFFSET;
-      const maxYear = currentYear + YEAR_RANGE_OFFSET;
-      const outOfRangeYear = minYear - 1;
-      const input: InsightInput = {
-        ...validInput,
-        startDate: toDateString(`${outOfRangeYear}-01-01`),
-      };
-
-      // Act & Assert
-      const promise = service.call(userId, input);
-
-      await expect(promise).rejects.toThrow(BusinessError);
-      await expect(promise).rejects.toMatchObject({
-        message: `Start date must be between ${minYear} and ${maxYear}`,
-        code: BusinessErrorCodes.INVALID_DATE,
-      });
-    });
-
-    it("should throw error when endDate year is out of range", async () => {
-      // Arrange
-      const currentYear = new Date().getFullYear();
-      const minYear = currentYear - YEAR_RANGE_OFFSET;
-      const maxYear = currentYear + YEAR_RANGE_OFFSET;
-      const outOfRangeYear = maxYear + 1;
-      const input: InsightInput = {
-        ...validInput,
-        endDate: toDateString(`${outOfRangeYear}-01-31`),
-      };
-
-      // Act & Assert
-      const promise = service.call(userId, input);
-
-      await expect(promise).rejects.toThrow(BusinessError);
-      await expect(promise).rejects.toMatchObject({
-        message: `End date must be between ${minYear} and ${maxYear}`,
         code: BusinessErrorCodes.INVALID_DATE,
       });
     });

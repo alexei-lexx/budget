@@ -1,5 +1,4 @@
 import { DateString } from "../types/date";
-import { YEAR_RANGE_OFFSET } from "../types/validation";
 import { daysBetween, formatDateAsYYYYMMDD } from "../utils/date";
 import { createGetAccountsTool } from "./agent-tools/get-accounts-tool";
 import { createGetCategoriesTool } from "./agent-tools/get-categories-tool";
@@ -159,30 +158,6 @@ export class InsightService {
 
     const startDateObj = new Date(startDate);
     const endDateObj = new Date(endDate);
-
-    const currentYear = new Date().getFullYear();
-    const minimumYear = currentYear - YEAR_RANGE_OFFSET;
-    const maximumYear = currentYear + YEAR_RANGE_OFFSET;
-
-    if (
-      startDateObj.getFullYear() < minimumYear ||
-      startDateObj.getFullYear() > maximumYear
-    ) {
-      throw new BusinessError(
-        `Start date must be between ${minimumYear} and ${maximumYear}`,
-        BusinessErrorCodes.INVALID_DATE,
-      );
-    }
-
-    if (
-      endDateObj.getFullYear() < minimumYear ||
-      endDateObj.getFullYear() > maximumYear
-    ) {
-      throw new BusinessError(
-        `End date must be between ${minimumYear} and ${maximumYear}`,
-        BusinessErrorCodes.INVALID_DATE,
-      );
-    }
 
     const differenceInDays = daysBetween(startDateObj, endDateObj);
 
