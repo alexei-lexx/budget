@@ -55,7 +55,7 @@ export type ByCategoryReport = {
   __typename?: 'ByCategoryReport';
   categories: Array<ByCategoryReportCategory>;
   currencyTotals: Array<ByCategoryReportCurrencyTotal>;
-  month: Scalars['Int']['output'];
+  month?: Maybe<Scalars['Int']['output']>;
   type: ReportType;
   year: Scalars['Int']['output'];
 };
@@ -263,7 +263,7 @@ export type Query = {
 
 
 export type QueryByCategoryReportArgs = {
-  month: Scalars['Int']['input'];
+  month?: InputMaybe<Scalars['Int']['input']>;
   type: ReportType;
   year: Scalars['Int']['input'];
 };
@@ -630,7 +630,7 @@ export type AgentTraceToolResultResolvers<ContextType = GraphQLContext, ParentTy
 export type ByCategoryReportResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ByCategoryReport'] = ResolversParentTypes['ByCategoryReport']> = {
   categories?: Resolver<Array<ResolversTypes['ByCategoryReportCategory']>, ParentType, ContextType>;
   currencyTotals?: Resolver<Array<ResolversTypes['ByCategoryReportCurrencyTotal']>, ParentType, ContextType>;
-  month?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  month?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   type?: Resolver<ResolversTypes['ReportType'], ParentType, ContextType>;
   year?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
 };
@@ -699,7 +699,7 @@ export type PageInfoResolvers<ContextType = GraphQLContext, ParentType extends R
 
 export type QueryResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
   accounts?: Resolver<Array<ResolversTypes['Account']>, ParentType, ContextType>;
-  byCategoryReport?: Resolver<ResolversTypes['ByCategoryReport'], ParentType, ContextType, RequireFields<QueryByCategoryReportArgs, 'month' | 'type' | 'year'>>;
+  byCategoryReport?: Resolver<ResolversTypes['ByCategoryReport'], ParentType, ContextType, RequireFields<QueryByCategoryReportArgs, 'type' | 'year'>>;
   categories?: Resolver<Array<ResolversTypes['Category']>, ParentType, ContextType, Partial<QueryCategoriesArgs>>;
   insight?: Resolver<ResolversTypes['InsightResponse'], ParentType, ContextType, RequireFields<QueryInsightArgs, 'input'>>;
   supportedCurrencies?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;

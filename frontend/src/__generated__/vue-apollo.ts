@@ -50,7 +50,7 @@ export type ByCategoryReport = {
   __typename?: 'ByCategoryReport';
   categories: Array<ByCategoryReportCategory>;
   currencyTotals: Array<ByCategoryReportCurrencyTotal>;
-  month: Scalars['Int']['output'];
+  month?: Maybe<Scalars['Int']['output']>;
   type: ReportType;
   year: Scalars['Int']['output'];
 };
@@ -260,7 +260,7 @@ export type Query = {
 
 
 export type QueryByCategoryReportArgs = {
-  month: Scalars['Int']['input'];
+  month?: InputMaybe<Scalars['Int']['input']>;
   type: ReportType;
   year: Scalars['Int']['input'];
 };
@@ -581,12 +581,12 @@ export type GetTransactionPatternsQuery = { __typename?: 'Query', transactionPat
 
 export type GetByCategoryReportQueryVariables = Exact<{
   year: Scalars['Int']['input'];
-  month: Scalars['Int']['input'];
+  month?: InputMaybe<Scalars['Int']['input']>;
   type: ReportType;
 }>;
 
 
-export type GetByCategoryReportQuery = { __typename?: 'Query', byCategoryReport: { __typename?: 'ByCategoryReport', year: number, month: number, type: ReportType, categories: Array<{ __typename?: 'ByCategoryReportCategory', categoryId?: string | null | undefined, categoryName: string, totalTransactionCount: number, currencyBreakdowns: Array<{ __typename?: 'ByCategoryReportCurrencyBreakdown', currency: string, totalAmount: number, percentage: number }>, topTransactions: Array<{ __typename?: 'Transaction', id: string, type: TransactionType, amount: number, currency: string, date: string, description?: string | null | undefined, transferId?: string | null | undefined, account: { __typename?: 'TransactionEmbeddedAccount', id: string, name: string, isArchived: boolean }, category?: { __typename?: 'TransactionEmbeddedCategory', id: string, name: string, isArchived: boolean } | null | undefined }> }>, currencyTotals: Array<{ __typename?: 'ByCategoryReportCurrencyTotal', currency: string, totalAmount: number }> } };
+export type GetByCategoryReportQuery = { __typename?: 'Query', byCategoryReport: { __typename?: 'ByCategoryReport', year: number, month?: number | null | undefined, type: ReportType, categories: Array<{ __typename?: 'ByCategoryReportCategory', categoryId?: string | null | undefined, categoryName: string, totalTransactionCount: number, currencyBreakdowns: Array<{ __typename?: 'ByCategoryReportCurrencyBreakdown', currency: string, totalAmount: number, percentage: number }>, topTransactions: Array<{ __typename?: 'Transaction', id: string, type: TransactionType, amount: number, currency: string, date: string, description?: string | null | undefined, transferId?: string | null | undefined, account: { __typename?: 'TransactionEmbeddedAccount', id: string, name: string, isArchived: boolean }, category?: { __typename?: 'TransactionEmbeddedCategory', id: string, name: string, isArchived: boolean } | null | undefined }> }>, currencyTotals: Array<{ __typename?: 'ByCategoryReportCurrencyTotal', currency: string, totalAmount: number }> } };
 
 export type GetTransactionDescriptionSuggestionsQueryVariables = Exact<{
   searchText: Scalars['String']['input'];
@@ -1257,7 +1257,7 @@ export function useGetTransactionPatternsLazyQuery(variables?: GetTransactionPat
 }
 export type GetTransactionPatternsQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<GetTransactionPatternsQuery, GetTransactionPatternsQueryVariables>;
 export const GetByCategoryReportDocument = gql`
-    query GetByCategoryReport($year: Int!, $month: Int!, $type: ReportType!) {
+    query GetByCategoryReport($year: Int!, $month: Int, $type: ReportType!) {
   byCategoryReport(year: $year, month: $month, type: $type) {
     year
     month

@@ -35,7 +35,7 @@ export interface ByCategoryReportCurrencyTotal {
 
 export interface ByCategoryReport {
   year: number;
-  month: number;
+  month?: number;
   type: ReportType;
   categories: ByCategoryReportCategory[];
   currencyTotals: ByCategoryReportCurrencyTotal[];
@@ -68,11 +68,13 @@ export class ByCategoryReportService {
   async call(
     userId: string,
     year: number,
-    month: number,
+    month: number | undefined,
     type: ReportType,
   ): Promise<ByCategoryReport> {
     this.validateYear(year);
-    this.validateMonth(month);
+    if (month !== undefined) {
+      this.validateMonth(month);
+    }
 
     // For EXPENSE reports, fetch both EXPENSE and REFUND transactions
     // For INCOME reports, fetch only INCOME transactions
@@ -101,12 +103,14 @@ export class ByCategoryReportService {
       throw new Error("Invalid report type");
     }
 
-    const dateAfter = toDateString(
-      formatDateAsYYYYMMDD(new Date(year, month - 1, 1)),
-    );
-    const dateBefore = toDateString(
-      formatDateAsYYYYMMDD(new Date(year, month, 0)),
-    );
+    const dateAfter =
+      month !== undefined
+        ? toDateString(formatDateAsYYYYMMDD(new Date(year, month - 1, 1)))
+        : toDateString(formatDateAsYYYYMMDD(new Date(year, 0, 1)));
+    const dateBefore =
+      month !== undefined
+        ? toDateString(formatDateAsYYYYMMDD(new Date(year, month, 0)))
+        : toDateString(formatDateAsYYYYMMDD(new Date(year, 11, 31)));
 
     const transactions = await this.transactionRepository.findActiveByUserId(
       userId,

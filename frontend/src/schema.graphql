@@ -8,11 +8,7 @@ type Query {
   ): TransactionConnection!
   transfer(id: ID!): Transfer
   transactionPatterns(type: TransactionPatternType!): [TransactionPattern!]!
-  byCategoryReport(
-    year: Int!
-    month: Int!
-    type: ReportType!
-  ): ByCategoryReport!
+  byCategoryReport(year: Int!, month: Int, type: ReportType!): ByCategoryReport!
   insight(input: InsightInput!): InsightResponse!
   transactionDescriptionSuggestions(searchText: String!): [String!]!
 }
@@ -280,7 +276,7 @@ type ByCategoryReportCurrencyTotal {
 
 type ByCategoryReport {
   year: Int!
-  month: Int!
+  month: Int
   type: ReportType! # TODO: remove if not needed
   categories: [ByCategoryReportCategory!]!
   currencyTotals: [ByCategoryReportCurrencyTotal!]!

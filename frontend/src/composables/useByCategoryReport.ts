@@ -22,7 +22,7 @@ export function useByCategoryReport() {
   // Create a reactive function to get by-category report for a given year, month, and type
   const getByCategoryReport = (
     year: Ref<number> | number,
-    month: Ref<number> | number,
+    month: Ref<number | null> | number | null,
     type: ReportType,
   ) => {
     const {
