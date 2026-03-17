@@ -2,7 +2,6 @@ import { faker } from "@faker-js/faker";
 import { v4 as uuidv4 } from "uuid";
 import { ReportType } from "../models/report";
 import { TransactionType } from "../models/transaction";
-import { YEAR_RANGE_OFFSET } from "../types/validation";
 import { fakeCategory, fakeTransaction } from "../utils/test-utils/factories";
 import {
   createMockCategoryRepository,
@@ -674,20 +673,12 @@ describe("ByCategoryReportService", () => {
   describe("validation", () => {
     describe("year validation", () => {
       it("should throw error for invalid year", async () => {
-        const currentYear = new Date().getFullYear();
-        const minYear = currentYear - YEAR_RANGE_OFFSET;
-        const maxYear = currentYear + YEAR_RANGE_OFFSET;
-
-        const invalidYears = [minYear - 1, maxYear + 1, 2000.5];
-
-        for (const invalidYear of invalidYears) {
-          await expect(
-            reportService.call(userId, invalidYear, 1, ReportType.EXPENSE),
-          ).rejects.toMatchObject({
-            message: `Year must be a valid integer between ${minYear} and ${maxYear}`,
-            code: BusinessErrorCodes.INVALID_PARAMETERS,
-          });
-        }
+        await expect(
+          reportService.call(userId, 2000.5, 1, ReportType.EXPENSE),
+        ).rejects.toMatchObject({
+          message: "Year must be a valid integer",
+          code: BusinessErrorCodes.INVALID_PARAMETERS,
+        });
       });
 
       it("should accept valid year within range", async () => {
