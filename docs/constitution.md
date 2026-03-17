@@ -260,6 +260,17 @@ graph LR
 
 **Rationale**: Balances maintainability with flexibility for complex operations.
 
+### Backend Service Result Pattern
+
+**Non-negotiable rule**: Public service methods MUST use the Result pattern as their return type.
+
+**Implementation**:
+- Return a Result for every operation outcome — success with data or a known failure with a reason
+- Use the failure variant for validation errors and business rule violations
+- Propagate infrastructure errors (database, network) as exceptions
+
+**Rationale**: Makes operation outcomes explicit in the service contract.
+
 ### Database Record Hydration
 
 **Non-negotiable rule**: All data read from the database MUST be validated at the repository boundary before being returned to service or resolver layers.
@@ -373,7 +384,7 @@ graph LR
   - Example: email format validation matters IF email notifications are business-critical
   - Example: date format validation matters IF date queries are business operations
   - Not all format validation is mandatory - only what impacts business operations
-- Throw business errors for expected domain failures (validation errors, business rule violations)
+- Use the Result pattern for expected domain failures (validation errors, business rule violations)
 - Propagate infrastructure errors without wrapping (database failures, network errors)
 
 **Repository Layer**:
