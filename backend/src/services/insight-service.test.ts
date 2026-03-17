@@ -6,7 +6,6 @@ import {
   createMockTransactionRepository,
 } from "../utils/test-utils/mock-repositories";
 import { MAX_PERIOD_DAYS } from "./agent-tools/get-transactions-tool";
-import { BusinessError, BusinessErrorCodes } from "./business-error";
 import { type InsightInput, InsightService } from "./insight-service";
 import {
   type Agent,
@@ -45,48 +44,48 @@ describe("InsightService", () => {
       endDate: toDateString("2000-01-31"),
     };
 
-    it("should throw error when userId is empty", async () => {
-      // Act & Assert
-      const promise = service.call("", validInput);
+    it("should return failure when userId is empty", async () => {
+      // Act
+      const result = await service.call("", validInput);
 
-      await expect(promise).rejects.toThrow(BusinessError);
-      await expect(promise).rejects.toMatchObject({
-        message: "User ID is required",
-        code: BusinessErrorCodes.INVALID_PARAMETERS,
+      // Assert
+      expect(result).toMatchObject({
+        success: false,
+        error: "User ID is required",
       });
       expect(mockAgent.call).not.toHaveBeenCalled();
     });
 
-    it("should throw error when question is empty", async () => {
+    it("should return failure when question is empty", async () => {
       // Arrange
       const input: InsightInput = { ...validInput, question: "" };
 
-      // Act & Assert
-      const promise = service.call(userId, input);
+      // Act
+      const result = await service.call(userId, input);
 
-      await expect(promise).rejects.toThrow(BusinessError);
-      await expect(promise).rejects.toMatchObject({
-        message: "Question is required",
-        code: BusinessErrorCodes.INVALID_PARAMETERS,
+      // Assert
+      expect(result).toMatchObject({
+        success: false,
+        error: "Question is required",
       });
       expect(mockAgent.call).not.toHaveBeenCalled();
     });
 
-    it("should throw error when question is only whitespace", async () => {
+    it("should return failure when question is only whitespace", async () => {
       // Arrange
       const input: InsightInput = { ...validInput, question: "   " };
 
-      // Act & Assert
-      const promise = service.call(userId, input);
+      // Act
+      const result = await service.call(userId, input);
 
-      await expect(promise).rejects.toThrow(BusinessError);
-      await expect(promise).rejects.toMatchObject({
-        message: "Question is required",
-        code: BusinessErrorCodes.INVALID_PARAMETERS,
+      // Assert
+      expect(result).toMatchObject({
+        success: false,
+        error: "Question is required",
       });
     });
 
-    it("should throw error when startDate is after endDate", async () => {
+    it("should return failure when startDate is after endDate", async () => {
       // Arrange
       const input: InsightInput = {
         ...validInput,
@@ -94,17 +93,17 @@ describe("InsightService", () => {
         endDate: toDateString("2026-01-01"),
       };
 
-      // Act & Assert
-      const promise = service.call(userId, input);
+      // Act
+      const result = await service.call(userId, input);
 
-      await expect(promise).rejects.toThrow(BusinessError);
-      await expect(promise).rejects.toMatchObject({
-        message: "Start date must be before or equal to end date",
-        code: BusinessErrorCodes.INVALID_DATE,
+      // Assert
+      expect(result).toMatchObject({
+        success: false,
+        error: "Start date must be before or equal to end date",
       });
     });
 
-    it("should throw error when date range exceeds max period days", async () => {
+    it("should return failure when date range exceeds max period days", async () => {
       // Arrange
       const input: InsightInput = {
         ...validInput,
@@ -112,13 +111,13 @@ describe("InsightService", () => {
         endDate: toDateString("2001-01-02"),
       };
 
-      // Act & Assert
-      const promise = service.call(userId, input);
+      // Act
+      const result = await service.call(userId, input);
 
-      await expect(promise).rejects.toThrow(BusinessError);
-      await expect(promise).rejects.toMatchObject({
-        message: `Date range cannot exceed ${MAX_PERIOD_DAYS} days`,
-        code: BusinessErrorCodes.INVALID_DATE,
+      // Assert
+      expect(result).toMatchObject({
+        success: false,
+        error: `Date range cannot exceed ${MAX_PERIOD_DAYS} days`,
       });
     });
   });
@@ -142,7 +141,12 @@ describe("InsightService", () => {
       const result = await service.call(userId, validInput);
 
       // Assert
-      expect(result.answer).toContain("Your food spending was $50.");
+      expect(result).toMatchObject({
+        success: true,
+        data: {
+          answer: expect.stringContaining("Your food spending was $50."),
+        },
+      });
       expect(mockAgent.call).toHaveBeenCalledWith(
         expect.objectContaining({
           messages: expect.arrayOf(
@@ -236,7 +240,7 @@ describe("InsightService", () => {
       const result = await service.call(userId, validInput);
 
       // Assert
-      expect(result.agentTrace).toEqual(agentTrace);
+      expect(result).toMatchObject({ success: true, data: { agentTrace } });
     });
   });
 });
