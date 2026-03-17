@@ -9,7 +9,7 @@ import SignIn from "@/views/SignIn.vue";
 import Accounts from "@/views/Accounts.vue";
 import Categories from "@/views/Categories.vue";
 import Transactions from "@/views/Transactions.vue";
-import MonthlyCategory from "@/views/MonthlyCategory.vue";
+import ByCategoryReport from "@/views/ByCategoryReport.vue";
 import Insight from "@/views/Insight.vue";
 import { useAuth } from "@/composables/useAuth";
 
@@ -69,9 +69,9 @@ const routes = [
     beforeEnter: requireAuth,
   },
   {
-    path: "/reports/monthly-category",
-    name: "MonthlyCategoryReport",
-    component: MonthlyCategory,
+    path: "/reports/by-category",
+    name: "ByCategoryReport",
+    component: ByCategoryReport,
     beforeEnter: requireAuth,
   },
   {

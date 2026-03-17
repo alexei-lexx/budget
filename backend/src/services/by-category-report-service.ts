@@ -14,34 +14,34 @@ import { TransactionRepository } from "./ports/transaction-repository";
 const UNCATEGORIZED_LABEL = "Uncategorized";
 const TOP_TRANSACTIONS_LIMIT = 5;
 
-export interface MonthlyReportCurrencyBreakdown {
+export interface ByCategoryReportCurrencyBreakdown {
   currency: string;
   totalAmount: number;
   percentage: number;
 }
 
-export interface MonthlyReportCategory {
+export interface ByCategoryReportCategory {
   categoryId?: string;
   categoryName: string;
-  currencyBreakdowns: MonthlyReportCurrencyBreakdown[];
+  currencyBreakdowns: ByCategoryReportCurrencyBreakdown[];
   topTransactions: Transaction[];
   totalTransactionCount: number;
 }
 
-export interface MonthlyReportCurrencyTotal {
+export interface ByCategoryReportCurrencyTotal {
   currency: string;
   totalAmount: number;
 }
 
-export interface MonthlyReport {
+export interface ByCategoryReport {
   year: number;
   month: number;
   type: ReportType;
-  categories: MonthlyReportCategory[];
-  currencyTotals: MonthlyReportCurrencyTotal[];
+  categories: ByCategoryReportCategory[];
+  currencyTotals: ByCategoryReportCurrencyTotal[];
 }
 
-export class MonthlyByCategoryReportService {
+export class ByCategoryReportService {
   constructor(
     private transactionRepository: TransactionRepository,
     private categoryRepository: CategoryRepository,
@@ -70,7 +70,7 @@ export class MonthlyByCategoryReportService {
     year: number,
     month: number,
     type: ReportType,
-  ): Promise<MonthlyReport> {
+  ): Promise<ByCategoryReport> {
     this.validateYear(year);
     this.validateMonth(month);
 
@@ -167,7 +167,7 @@ export class MonthlyByCategoryReportService {
   private calculateCurrencyTotals(
     transactions: Transaction[],
     amountGetter: (t: Transaction) => number,
-  ): MonthlyReportCurrencyTotal[] {
+  ): ByCategoryReportCurrencyTotal[] {
     const totals = new Map<string, number>();
 
     for (const transaction of transactions) {
@@ -184,9 +184,9 @@ export class MonthlyByCategoryReportService {
   private async groupByCategoryAndCurrency(
     transactions: Transaction[],
     userId: string,
-    currencyTotals: MonthlyReportCurrencyTotal[],
+    currencyTotals: ByCategoryReportCurrencyTotal[],
     amountGetter: (t: Transaction) => number,
-  ): Promise<MonthlyReportCategory[]> {
+  ): Promise<ByCategoryReportCategory[]> {
     const categoryGroups = new Map<string | undefined, Transaction[]>();
 
     for (const transaction of transactions) {
@@ -196,7 +196,7 @@ export class MonthlyByCategoryReportService {
       categoryGroups.set(categoryId, existing);
     }
 
-    const categories: MonthlyReportCategory[] = [];
+    const categories: ByCategoryReportCategory[] = [];
 
     for (const [categoryId, categoryTransactions] of categoryGroups) {
       let categoryName: string;
@@ -237,9 +237,9 @@ export class MonthlyByCategoryReportService {
 
   private calculateCurrencyBreakdowns(
     transactions: Transaction[],
-    currencyTotals: MonthlyReportCurrencyTotal[],
+    currencyTotals: ByCategoryReportCurrencyTotal[],
     amountGetter: (t: Transaction) => number,
-  ): MonthlyReportCurrencyBreakdown[] {
+  ): ByCategoryReportCurrencyBreakdown[] {
     const categoryTotals = new Map<string, number>();
 
     for (const transaction of transactions) {
@@ -248,7 +248,7 @@ export class MonthlyByCategoryReportService {
       categoryTotals.set(transaction.currency, current + amount);
     }
 
-    const breakdowns: MonthlyReportCurrencyBreakdown[] = [];
+    const breakdowns: ByCategoryReportCurrencyBreakdown[] = [];
 
     for (const [currency, totalAmount] of categoryTotals) {
       const currencyTotal = currencyTotals.find(

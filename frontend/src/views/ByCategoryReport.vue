@@ -5,7 +5,7 @@
     <div
       class="d-flex align-center mb-6 flex-column flex-sm-row ga-3 ga-sm-0 justify-sm-space-between"
     >
-      <h1 class="text-h5 text-sm-h4">Monthly Expense Report</h1>
+      <h1 class="text-h5 text-sm-h4">Expense Report</h1>
     </div>
 
     <!-- Global Error Alert -->
@@ -25,16 +25,16 @@
     <MonthNavigation
       :year="selectedYear"
       :month="selectedMonth"
-      :disabled="monthlyReportLoading"
+      :disabled="byCategoryReportLoading"
       @navigate="handleMonthNavigation"
       class="mb-6"
     />
 
-    <!-- Monthly Report Content -->
+    <!-- Report Content -->
     <CategoryBreakdownTable
-      :categories="monthlyReport?.categories"
-      :currency-totals="monthlyReport?.currencyTotals"
-      :loading="monthlyReportLoading"
+      :categories="byCategoryReport?.categories"
+      :currency-totals="byCategoryReport?.currencyTotals"
+      :loading="byCategoryReportLoading"
       :error="reportError"
       :month-year="selectedMonthYearDisplay"
     />
@@ -46,7 +46,7 @@ import { ref, computed, watch, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import CategoryBreakdownTable from "@/components/reports/CategoryBreakdownTable.vue";
 import MonthNavigation from "@/components/reports/MonthNavigation.vue";
-import { useMonthlyReports } from "@/composables/useMonthlyReports";
+import { useByCategoryReport } from "@/composables/useByCategoryReport";
 import { isValidYearMonth } from "@/utils/dateValidation";
 import { formatMonthYear } from "@/utils/date";
 
@@ -68,14 +68,14 @@ const selectedMonthYearDisplay = computed(() => {
   return formatMonthYear(selectedYear.value, selectedMonth.value);
 });
 
-// Get monthly reports composable functions
-const { getMonthlyReport } = useMonthlyReports();
+// Get by-category report composable functions
+const { getByCategoryReport } = useByCategoryReport();
 
 // Global error state for better error handling
 const globalError = ref<string | null>(null);
 
-// Get monthly report data reactively based on selected month/year
-const { monthlyReport, monthlyReportLoading, monthlyReportError } = getMonthlyReport(
+// Get report data reactively based on selected month/year
+const { byCategoryReport, byCategoryReportLoading, byCategoryReportError } = getByCategoryReport(
   selectedYear,
   selectedMonth,
   "EXPENSE",
@@ -83,14 +83,14 @@ const { monthlyReport, monthlyReportLoading, monthlyReportError } = getMonthlyRe
 
 // Computed error message for consistent display
 const reportError = computed(() => {
-  return monthlyReportError.value?.message || null;
+  return byCategoryReportError.value?.message || null;
 });
 
 // Watch for errors and show global error alert
-watch(monthlyReportError, (error) => {
+watch(byCategoryReportError, (error) => {
   if (error) {
-    globalError.value = `Failed to load monthly report: ${error.message}`;
-    console.error("Monthly report error:", error);
+    globalError.value = `Failed to load report: ${error.message}`;
+    console.error("By-category report error:", error);
   }
 });
 

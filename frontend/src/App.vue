@@ -302,9 +302,9 @@ onMounted(() => {
         />
         <v-list-item
           v-if="isAuthenticated"
-          :to="{ name: 'MonthlyCategoryReport' }"
+          :to="{ name: 'ByCategoryReport' }"
           prepend-icon="mdi-table-large"
-          title="Monthly Report"
+          title="Reports"
           @click="mobile && (drawer = false)"
         />
         <v-list-item

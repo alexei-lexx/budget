@@ -13,10 +13,10 @@ import { DynCategoryRepository } from "./repositories/dyn-category-repository";
 import { DynTransactionRepository } from "./repositories/dyn-transaction-repository";
 import { DynUserRepository } from "./repositories/dyn-user-repository";
 import { AccountService } from "./services/account-service";
+import { ByCategoryReportService } from "./services/by-category-report-service";
 import { CategoryService } from "./services/category-service";
 import { CreateTransactionFromTextService } from "./services/create-transaction-from-text-service";
 import { InsightService } from "./services/insight-service";
-import { MonthlyByCategoryReportService } from "./services/monthly-by-category-report-service";
 import { AccountRepository } from "./services/ports/account-repository";
 import { CategoryRepository } from "./services/ports/category-repository";
 import { TransactionRepository } from "./services/ports/transaction-repository";
@@ -36,7 +36,7 @@ let accountService: AccountService;
 let insightService: InsightService;
 let createTransactionFromTextService: CreateTransactionFromTextService;
 let transferService: TransferService;
-let monthlyByCategoryReportService: MonthlyByCategoryReportService;
+let byCategoryReportService: ByCategoryReportService;
 
 const typeDefs = readFileSync(join(__dirname, "graphql/schema.graphql"), {
   encoding: "utf-8",
@@ -123,8 +123,8 @@ export async function createContext(req: {
     );
   }
 
-  if (!monthlyByCategoryReportService) {
-    monthlyByCategoryReportService = new MonthlyByCategoryReportService(
+  if (!byCategoryReportService) {
+    byCategoryReportService = new ByCategoryReportService(
       transactionRepository,
       categoryRepository,
     );
@@ -151,7 +151,7 @@ export async function createContext(req: {
     insightService,
     createTransactionFromTextService,
     transferService,
-    monthlyByCategoryReportService,
+    byCategoryReportService,
     jwtAuthService,
     authHeader: authHeaderString,
   };

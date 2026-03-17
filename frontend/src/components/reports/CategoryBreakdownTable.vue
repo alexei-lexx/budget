@@ -118,16 +118,16 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import type {
-  MonthlyReportCategory,
-  MonthlyReportCurrencyTotal,
-} from "@/composables/useMonthlyReports";
+  ByCategoryReportCategory,
+  ByCategoryReportCurrencyTotal,
+} from "@/composables/useByCategoryReport";
 import { formatCurrency } from "@/utils/currency";
 import TransactionCard from "@/components/transactions/TransactionCard.vue";
 
 // Define component props
 interface Props {
-  categories?: MonthlyReportCategory[] | null;
-  currencyTotals?: MonthlyReportCurrencyTotal[] | null;
+  categories?: ByCategoryReportCategory[] | null;
+  currencyTotals?: ByCategoryReportCurrencyTotal[] | null;
   loading?: boolean;
   error?: string | null;
   monthYear?: string;
@@ -151,12 +151,12 @@ const expandedCategories = ref<Set<string>>(new Set());
 const expandedTransactions = ref<Set<string>>(new Set());
 
 // Helper function to get a unique key for a category
-const getCategoryKey = (category: MonthlyReportCategory): string => {
+const getCategoryKey = (category: ByCategoryReportCategory): string => {
   return category.categoryId || "uncategorized";
 };
 
 // Handle category row click to expand/collapse
-const handleCategoryClick = (category: MonthlyReportCategory) => {
+const handleCategoryClick = (category: ByCategoryReportCategory) => {
   const key = getCategoryKey(category);
   if (expandedCategories.value.has(key)) {
     expandedCategories.value.delete(key);
@@ -179,7 +179,7 @@ const handleTransactionToggle = (transactionId: string) => {
 };
 
 // Helper function to calculate total amount across all currencies for a category
-const calculateCategoryTotal = (category: MonthlyReportCategory): number => {
+const calculateCategoryTotal = (category: ByCategoryReportCategory): number => {
   return category.currencyBreakdowns.reduce((sum, breakdown) => sum + breakdown.totalAmount, 0);
 };
 

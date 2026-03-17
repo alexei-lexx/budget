@@ -9,12 +9,12 @@ import {
   createMockTransactionRepository,
 } from "../utils/test-utils/mock-repositories";
 import { BusinessErrorCodes } from "./business-error";
-import { MonthlyByCategoryReportService } from "./monthly-by-category-report-service";
+import { ByCategoryReportService } from "./by-category-report-service";
 import { CategoryRepository } from "./ports/category-repository";
 import { TransactionRepository } from "./ports/transaction-repository";
 
-describe("MonthlyByCategoryReportService", () => {
-  let monthlyByCategoryReportService: MonthlyByCategoryReportService;
+describe("ByCategoryReportService", () => {
+  let reportService: ByCategoryReportService;
   let mockTransactionRepository: jest.Mocked<TransactionRepository>;
   let mockCategoryRepository: jest.Mocked<CategoryRepository>;
 
@@ -27,7 +27,7 @@ describe("MonthlyByCategoryReportService", () => {
     // Default mock: return empty array for findActiveByUserId (all categories included by default)
     mockCategoryRepository.findActiveByUserId.mockResolvedValue([]);
 
-    monthlyByCategoryReportService = new MonthlyByCategoryReportService(
+    reportService = new ByCategoryReportService(
       mockTransactionRepository,
       mockCategoryRepository,
     );
@@ -37,7 +37,7 @@ describe("MonthlyByCategoryReportService", () => {
     it("should return empty report when no transactions exist", async () => {
       mockTransactionRepository.findActiveByUserId.mockResolvedValue([]);
 
-      const result = await monthlyByCategoryReportService.call(
+      const result = await reportService.call(
         userId,
         2000,
         1,
@@ -85,7 +85,7 @@ describe("MonthlyByCategoryReportService", () => {
           fakeCategory({ id: categoryId2, name: "Transport" }),
         );
 
-      const result = await monthlyByCategoryReportService.call(
+      const result = await reportService.call(
         userId,
         2000,
         1,
@@ -127,7 +127,7 @@ describe("MonthlyByCategoryReportService", () => {
         fakeCategory({ id: categoryId, name: "Shopping" }),
       );
 
-      const result = await monthlyByCategoryReportService.call(
+      const result = await reportService.call(
         userId,
         2000,
         1,
@@ -157,7 +157,7 @@ describe("MonthlyByCategoryReportService", () => {
         transactions,
       );
 
-      const result = await monthlyByCategoryReportService.call(
+      const result = await reportService.call(
         userId,
         2000,
         1,
@@ -188,7 +188,7 @@ describe("MonthlyByCategoryReportService", () => {
         fakeCategory({ id: categoryId, name: "Food" }),
       );
 
-      const result = await monthlyByCategoryReportService.call(
+      const result = await reportService.call(
         userId,
         2000,
         1,
@@ -220,7 +220,7 @@ describe("MonthlyByCategoryReportService", () => {
         transactions,
       );
 
-      const result = await monthlyByCategoryReportService.call(
+      const result = await reportService.call(
         userId,
         2000,
         1,
@@ -248,7 +248,7 @@ describe("MonthlyByCategoryReportService", () => {
       );
       mockCategoryRepository.findActiveById.mockResolvedValue(null);
 
-      const result = await monthlyByCategoryReportService.call(
+      const result = await reportService.call(
         userId,
         2000,
         1,
@@ -286,7 +286,7 @@ describe("MonthlyByCategoryReportService", () => {
           fakeCategory({ id: categoryId2, name: "Apple" }),
         );
 
-      const result = await monthlyByCategoryReportService.call(
+      const result = await reportService.call(
         userId,
         2000,
         1,
@@ -315,7 +315,7 @@ describe("MonthlyByCategoryReportService", () => {
         transactions,
       );
 
-      const result = await monthlyByCategoryReportService.call(
+      const result = await reportService.call(
         userId,
         2000,
         1,
@@ -350,7 +350,7 @@ describe("MonthlyByCategoryReportService", () => {
         transactions,
       );
 
-      const result = await monthlyByCategoryReportService.call(
+      const result = await reportService.call(
         userId,
         2000,
         1,
@@ -387,7 +387,7 @@ describe("MonthlyByCategoryReportService", () => {
         fakeCategory({ id: categoryId }),
       );
 
-      const result = await monthlyByCategoryReportService.call(
+      const result = await reportService.call(
         userId,
         2025,
         11,
@@ -416,7 +416,7 @@ describe("MonthlyByCategoryReportService", () => {
         fakeCategory({ id: categoryId }),
       );
 
-      const result = await monthlyByCategoryReportService.call(
+      const result = await reportService.call(
         userId,
         2025,
         11,
@@ -445,7 +445,7 @@ describe("MonthlyByCategoryReportService", () => {
         fakeCategory({ id: categoryId }),
       );
 
-      const result = await monthlyByCategoryReportService.call(
+      const result = await reportService.call(
         userId,
         2025,
         11,
@@ -500,7 +500,7 @@ describe("MonthlyByCategoryReportService", () => {
         fakeCategory({ id: categoryId }),
       );
 
-      const result = await monthlyByCategoryReportService.call(
+      const result = await reportService.call(
         userId,
         2025,
         11,
@@ -539,7 +539,7 @@ describe("MonthlyByCategoryReportService", () => {
         transactions,
       );
 
-      const result = await monthlyByCategoryReportService.call(
+      const result = await reportService.call(
         userId,
         2025,
         11,
@@ -594,7 +594,7 @@ describe("MonthlyByCategoryReportService", () => {
         includedCategory,
       );
 
-      const result = await monthlyByCategoryReportService.call(
+      const result = await reportService.call(
         userId,
         2000,
         1,
@@ -620,12 +620,7 @@ describe("MonthlyByCategoryReportService", () => {
 
         for (const invalidYear of invalidYears) {
           await expect(
-            monthlyByCategoryReportService.call(
-              userId,
-              invalidYear,
-              1,
-              ReportType.EXPENSE,
-            ),
+            reportService.call(userId, invalidYear, 1, ReportType.EXPENSE),
           ).rejects.toMatchObject({
             message: `Year must be a valid integer between ${minYear} and ${maxYear}`,
             code: BusinessErrorCodes.INVALID_PARAMETERS,
@@ -640,12 +635,7 @@ describe("MonthlyByCategoryReportService", () => {
         mockTransactionRepository.findActiveByUserId.mockResolvedValue([]);
 
         await expect(
-          monthlyByCategoryReportService.call(
-            userId,
-            validYear,
-            1,
-            ReportType.EXPENSE,
-          ),
+          reportService.call(userId, validYear, 1, ReportType.EXPENSE),
         ).resolves.toBeDefined();
       });
     });
@@ -657,7 +647,7 @@ describe("MonthlyByCategoryReportService", () => {
 
         for (const invalidMonth of invalidMonths) {
           await expect(
-            monthlyByCategoryReportService.call(
+            reportService.call(
               userId,
               currentYear,
               invalidMonth,
@@ -677,12 +667,7 @@ describe("MonthlyByCategoryReportService", () => {
 
         for (let month = 1; month <= 12; month++) {
           await expect(
-            monthlyByCategoryReportService.call(
-              userId,
-              currentYear,
-              month,
-              ReportType.EXPENSE,
-            ),
+            reportService.call(userId, currentYear, month, ReportType.EXPENSE),
           ).resolves.toBeDefined();
         }
       });
