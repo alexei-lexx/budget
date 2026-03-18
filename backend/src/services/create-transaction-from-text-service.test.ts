@@ -8,6 +8,7 @@ import {
 import { CreateTransactionFromTextService } from "./create-transaction-from-text-service";
 import {
   type Agent,
+  type AgentTraceMessage,
   AgentTraceMessageType,
   ToolSignature,
 } from "./ports/agent";
@@ -291,6 +292,27 @@ describe("CreateTransactionFromTextService", () => {
         },
       });
       expect(mockTransactionService.getTransactionById).not.toHaveBeenCalled();
+    });
+
+    it("should return agentTrace from agent response", async () => {
+      // Arrange
+      const agentTrace: AgentTraceMessage[] = [
+        { type: AgentTraceMessageType.TEXT, content: "Thinking..." },
+      ];
+      mockAgent.call.mockResolvedValue({
+        answer: "I need more information.",
+        toolExecutions: [],
+        agentTrace,
+      });
+
+      // Act
+      const result = await service.call(userId, text);
+
+      // Assert
+      expect(result).toMatchObject({
+        success: false,
+        error: { agentTrace },
+      });
     });
 
     it("should handle multiple creation tool executions", async () => {

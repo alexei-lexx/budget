@@ -226,7 +226,7 @@ describe("InsightService", () => {
       await expect(promise).rejects.toThrow("AI service unavailable");
     });
 
-    it("should return agentTrace from agent response", async () => {
+    it("should return agentTrace on success", async () => {
       // Arrange
       const agentTrace: AgentTraceMessage[] = [
         { type: AgentTraceMessageType.TEXT, content: "Thinking..." },
@@ -241,6 +241,26 @@ describe("InsightService", () => {
 
       // Assert
       expect(result).toMatchObject({ success: true, data: { agentTrace } });
+    });
+
+    it("should return agentTrace on failure", async () => {
+      // Arrange
+      const agentTrace: AgentTraceMessage[] = [
+        { type: AgentTraceMessageType.TEXT, content: "Thinking..." },
+      ];
+      mockAgent.call.mockResolvedValue({
+        answer: "",
+        agentTrace,
+      });
+
+      // Act
+      const result = await service.call(userId, validInput);
+
+      // Assert
+      expect(result).toMatchObject({
+        success: false,
+        error: { message: "Empty response", agentTrace },
+      });
     });
   });
 });
