@@ -19,17 +19,28 @@ export function useCreateTransactionFromText() {
     try {
       const result = await mutate({ input: { text: trimmedText } });
       const response = result?.data?.createTransactionFromText ?? null;
-      const transaction = response?.transaction ?? null;
       agentTrace.value = response?.agentTrace ?? [];
-      if (transaction) {
-        text.value = "";
+
+      if (response?.__typename === "CreateTransactionFromTextFailure") {
+        showErrorSnackbar(response.message);
+        // text is intentionally NOT cleared on error
+        return null;
       }
-      return transaction;
+
+      if (response?.__typename === "CreateTransactionFromTextSuccess") {
+        if (response.transaction) {
+          text.value = "";
+        }
+
+        return response.transaction;
+      }
+
+      return null;
     } catch (e) {
       const message =
         e instanceof Error ? e.message : "Failed to create transaction. Please try again.";
       showErrorSnackbar(message);
-      // text is intentionally NOT cleared on error (US4 requirement)
+      // text is intentionally NOT cleared on error
       return null;
     }
   };

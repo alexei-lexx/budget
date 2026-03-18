@@ -1,4 +1,3 @@
-import { GraphQLError } from "graphql/error/GraphQLError";
 import { MutationCreateTransactionFromTextArgs } from "../../__generated__/resolvers-types";
 import { GraphQLContext } from "../context";
 
@@ -19,10 +18,15 @@ export const createTransactionFromTextResolvers = {
         );
 
         if (!result.success) {
-          throw new GraphQLError(result.error);
+          return {
+            __typename: "CreateTransactionFromTextFailure" as const,
+            message: result.error.message,
+            agentTrace: result.error.agentTrace,
+          };
         }
 
         return {
+          __typename: "CreateTransactionFromTextSuccess" as const,
           transaction: result.data.transaction,
           agentTrace: result.data.agentTrace,
         };

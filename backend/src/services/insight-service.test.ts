@@ -51,7 +51,7 @@ describe("InsightService", () => {
       // Assert
       expect(result).toMatchObject({
         success: false,
-        error: "User ID is required",
+        error: { message: "User ID is required" },
       });
       expect(mockAgent.call).not.toHaveBeenCalled();
     });
@@ -66,7 +66,7 @@ describe("InsightService", () => {
       // Assert
       expect(result).toMatchObject({
         success: false,
-        error: "Question is required",
+        error: { message: "Question is required" },
       });
       expect(mockAgent.call).not.toHaveBeenCalled();
     });
@@ -81,7 +81,7 @@ describe("InsightService", () => {
       // Assert
       expect(result).toMatchObject({
         success: false,
-        error: "Question is required",
+        error: { message: "Question is required" },
       });
     });
 
@@ -99,7 +99,7 @@ describe("InsightService", () => {
       // Assert
       expect(result).toMatchObject({
         success: false,
-        error: "Start date must be before or equal to end date",
+        error: { message: "Start date must be before or equal to end date" },
       });
     });
 
@@ -117,7 +117,7 @@ describe("InsightService", () => {
       // Assert
       expect(result).toMatchObject({
         success: false,
-        error: `Date range cannot exceed ${MAX_PERIOD_DAYS} days`,
+        error: { message: `Date range cannot exceed ${MAX_PERIOD_DAYS} days` },
       });
     });
   });

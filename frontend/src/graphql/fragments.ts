@@ -41,6 +41,22 @@ export const TRANSACTION_FRAGMENT = gql`
   }
 `;
 
+export const AGENT_TRACE_FRAGMENT = gql`
+  fragment AgentTraceFields on AgentTraceMessage {
+    ... on AgentTraceText {
+      content
+    }
+    ... on AgentTraceToolCall {
+      toolName
+      input
+    }
+    ... on AgentTraceToolResult {
+      toolName
+      output
+    }
+  }
+`;
+
 export const TRANSFER_FRAGMENT = gql`
   fragment TransferFields on Transfer {
     id

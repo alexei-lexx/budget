@@ -57,7 +57,7 @@ describe("CreateTransactionFromTextService", () => {
       // Assert
       expect(result).toMatchObject({
         success: false,
-        error: "User ID is required",
+        error: { message: "User ID is required" },
       });
       expect(mockAgent.call).not.toHaveBeenCalled();
     });
@@ -69,7 +69,7 @@ describe("CreateTransactionFromTextService", () => {
       // Assert
       expect(result).toMatchObject({
         success: false,
-        error: "Text is required",
+        error: { message: "Text is required" },
       });
       expect(mockAgent.call).not.toHaveBeenCalled();
     });
@@ -81,7 +81,7 @@ describe("CreateTransactionFromTextService", () => {
       // Assert
       expect(result).toMatchObject({
         success: false,
-        error: "Text is required",
+        error: { message: "Text is required" },
       });
       expect(mockAgent.call).not.toHaveBeenCalled();
     });
@@ -228,8 +228,10 @@ describe("CreateTransactionFromTextService", () => {
       // Assert
       expect(result).toMatchObject({
         success: false,
-        error:
-          "Agent did not attempt to create a transaction\nI need more information.",
+        error: {
+          message:
+            "Agent did not attempt to create a transaction\nI need more information.",
+        },
       });
       expect(mockTransactionService.getTransactionById).not.toHaveBeenCalled();
     });
@@ -254,7 +256,7 @@ describe("CreateTransactionFromTextService", () => {
       // Assert
       expect(result).toMatchObject({
         success: false,
-        error: "Response from agent is not valid JSON",
+        error: { message: "Response from agent is not valid JSON" },
       });
       expect(mockTransactionService.getTransactionById).not.toHaveBeenCalled();
     });
@@ -284,7 +286,9 @@ describe("CreateTransactionFromTextService", () => {
       // Assert
       expect(result).toMatchObject({
         success: false,
-        error: "Response from agent does not match expected format",
+        error: {
+          message: "Response from agent does not match expected format",
+        },
       });
       expect(mockTransactionService.getTransactionById).not.toHaveBeenCalled();
     });

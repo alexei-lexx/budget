@@ -97,6 +97,12 @@ export type CreateCategoryInput = {
   type: CategoryType;
 };
 
+export type CreateTransactionFromTextFailure = {
+  __typename?: 'CreateTransactionFromTextFailure';
+  agentTrace: Array<AgentTraceMessage>;
+  message: Scalars['String']['output'];
+};
+
 /** Input for creating a transaction from a natural-language text description. */
 export type CreateTransactionFromTextInput = {
   /**
@@ -106,8 +112,10 @@ export type CreateTransactionFromTextInput = {
   text: Scalars['String']['input'];
 };
 
-export type CreateTransactionFromTextResponse = {
-  __typename?: 'CreateTransactionFromTextResponse';
+export type CreateTransactionFromTextOutput = CreateTransactionFromTextFailure | CreateTransactionFromTextSuccess;
+
+export type CreateTransactionFromTextSuccess = {
+  __typename?: 'CreateTransactionFromTextSuccess';
   agentTrace: Array<AgentTraceMessage>;
   transaction: Transaction;
 };
@@ -134,13 +142,21 @@ export type DateRangeInput = {
   startDate: Scalars['String']['input'];
 };
 
+export type InsightFailure = {
+  __typename?: 'InsightFailure';
+  agentTrace: Array<AgentTraceMessage>;
+  message: Scalars['String']['output'];
+};
+
 export type InsightInput = {
   dateRange: DateRangeInput;
   question: Scalars['String']['input'];
 };
 
-export type InsightResponse = {
-  __typename?: 'InsightResponse';
+export type InsightOutput = InsightFailure | InsightSuccess;
+
+export type InsightSuccess = {
+  __typename?: 'InsightSuccess';
   agentTrace: Array<AgentTraceMessage>;
   answer: Scalars['String']['output'];
 };
@@ -150,7 +166,7 @@ export type Mutation = {
   createAccount: Account;
   createCategory: Category;
   createTransaction: Transaction;
-  createTransactionFromText: CreateTransactionFromTextResponse;
+  createTransactionFromText: CreateTransactionFromTextOutput;
   createTransfer: Transfer;
   deleteAccount?: Maybe<Scalars['Boolean']['output']>;
   deleteCategory: Category;
@@ -246,7 +262,7 @@ export type Query = {
   accounts: Array<Account>;
   byCategoryReport: ByCategoryReport;
   categories: Array<Category>;
-  insight: InsightResponse;
+  insight: InsightOutput;
   supportedCurrencies: Array<Scalars['String']['output']>;
   transactionDescriptionSuggestions: Array<Scalars['String']['output']>;
   transactionPatterns: Array<TransactionPattern>;
@@ -434,6 +450,18 @@ export type CategoryFieldsFragment = { __typename?: 'Category', id: string, name
 
 export type TransactionFieldsFragment = { __typename?: 'Transaction', id: string, type: TransactionType, amount: number, currency: string, date: string, description?: string | null | undefined, transferId?: string | null | undefined, account: { __typename?: 'TransactionEmbeddedAccount', id: string, name: string, isArchived: boolean }, category?: { __typename?: 'TransactionEmbeddedCategory', id: string, name: string, isArchived: boolean } | null | undefined };
 
+type AgentTraceFields_AgentTraceText_Fragment = { __typename?: 'AgentTraceText', content: string };
+
+type AgentTraceFields_AgentTraceToolCall_Fragment = { __typename?: 'AgentTraceToolCall', toolName: string, input: string };
+
+type AgentTraceFields_AgentTraceToolResult_Fragment = { __typename?: 'AgentTraceToolResult', toolName: string, output: string };
+
+export type AgentTraceFieldsFragment =
+  | AgentTraceFields_AgentTraceText_Fragment
+  | AgentTraceFields_AgentTraceToolCall_Fragment
+  | AgentTraceFields_AgentTraceToolResult_Fragment
+;
+
 export type TransferFieldsFragment = { __typename?: 'Transfer', id: string, outboundTransaction: { __typename?: 'Transaction', id: string, type: TransactionType, amount: number, currency: string, date: string, description?: string | null | undefined, transferId?: string | null | undefined, account: { __typename?: 'TransactionEmbeddedAccount', id: string, name: string, isArchived: boolean }, category?: { __typename?: 'TransactionEmbeddedCategory', id: string, name: string, isArchived: boolean } | null | undefined }, inboundTransaction: { __typename?: 'Transaction', id: string, type: TransactionType, amount: number, currency: string, date: string, description?: string | null | undefined, transferId?: string | null | undefined, account: { __typename?: 'TransactionEmbeddedAccount', id: string, name: string, isArchived: boolean }, category?: { __typename?: 'TransactionEmbeddedCategory', id: string, name: string, isArchived: boolean } | null | undefined } };
 
 export type EnsureUserMutationVariables = Exact<{ [key: string]: never; }>;
@@ -495,11 +523,18 @@ export type CreateTransactionFromTextMutationVariables = Exact<{
 }>;
 
 
-export type CreateTransactionFromTextMutation = { __typename?: 'Mutation', createTransactionFromText: { __typename?: 'CreateTransactionFromTextResponse', transaction: { __typename?: 'Transaction', id: string, type: TransactionType, amount: number, currency: string, date: string, description?: string | null | undefined, transferId?: string | null | undefined, account: { __typename?: 'TransactionEmbeddedAccount', id: string, name: string, isArchived: boolean }, category?: { __typename?: 'TransactionEmbeddedCategory', id: string, name: string, isArchived: boolean } | null | undefined }, agentTrace: Array<
-      | { __typename?: 'AgentTraceText', content: string }
-      | { __typename?: 'AgentTraceToolCall', toolName: string, input: string }
-      | { __typename?: 'AgentTraceToolResult', toolName: string, output: string }
-    > } };
+export type CreateTransactionFromTextMutation = { __typename?: 'Mutation', createTransactionFromText:
+    | { __typename?: 'CreateTransactionFromTextFailure', message: string, agentTrace: Array<
+        | { __typename?: 'AgentTraceText', content: string }
+        | { __typename?: 'AgentTraceToolCall', toolName: string, input: string }
+        | { __typename?: 'AgentTraceToolResult', toolName: string, output: string }
+      > }
+    | { __typename?: 'CreateTransactionFromTextSuccess', transaction: { __typename?: 'Transaction', id: string, type: TransactionType, amount: number, currency: string, date: string, description?: string | null | undefined, transferId?: string | null | undefined, account: { __typename?: 'TransactionEmbeddedAccount', id: string, name: string, isArchived: boolean }, category?: { __typename?: 'TransactionEmbeddedCategory', id: string, name: string, isArchived: boolean } | null | undefined }, agentTrace: Array<
+        | { __typename?: 'AgentTraceText', content: string }
+        | { __typename?: 'AgentTraceToolCall', toolName: string, input: string }
+        | { __typename?: 'AgentTraceToolResult', toolName: string, output: string }
+      > }
+   };
 
 export type UpdateTransactionMutationVariables = Exact<{
   input: UpdateTransactionInput;
@@ -596,8 +631,15 @@ export type GetInsightQueryVariables = Exact<{
 }>;
 
 
-export type GetInsightQuery = { __typename?: 'Query', insight: { __typename?: 'InsightResponse', answer: string, agentTrace: Array<
-      | { __typename?: 'AgentTraceText', content: string }
-      | { __typename?: 'AgentTraceToolCall', toolName: string, input: string }
-      | { __typename?: 'AgentTraceToolResult', toolName: string, output: string }
-    > } };
+export type GetInsightQuery = { __typename?: 'Query', insight:
+    | { __typename?: 'InsightFailure', message: string, agentTrace: Array<
+        | { __typename?: 'AgentTraceText', content: string }
+        | { __typename?: 'AgentTraceToolCall', toolName: string, input: string }
+        | { __typename?: 'AgentTraceToolResult', toolName: string, output: string }
+      > }
+    | { __typename?: 'InsightSuccess', answer: string, agentTrace: Array<
+        | { __typename?: 'AgentTraceText', content: string }
+        | { __typename?: 'AgentTraceToolCall', toolName: string, input: string }
+        | { __typename?: 'AgentTraceToolResult', toolName: string, output: string }
+      > }
+   };

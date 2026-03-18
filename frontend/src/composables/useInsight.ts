@@ -26,11 +26,19 @@ export function useInsight() {
     }),
   );
 
-  const insightAnswer = computed(() => insightResult.value?.insight?.answer ?? null);
+  const insightAnswer = computed(() => {
+    const insight = insightResult.value?.insight;
+    if (insight?.__typename === "InsightSuccess") return insight.answer;
+    return null;
+  });
 
   const insightAgentTrace = computed(() => insightResult.value?.insight?.agentTrace ?? []);
 
-  const insightError = computed(() => insightQueryError.value?.message ?? null);
+  const insightError = computed(() => {
+    const insight = insightResult.value?.insight;
+    if (insight?.__typename === "InsightFailure") return insight.message;
+    return insightQueryError.value?.message ?? null;
+  });
 
   const askQuestion = async (
     questionInput: string,
