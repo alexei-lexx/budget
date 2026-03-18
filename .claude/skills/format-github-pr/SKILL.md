@@ -54,6 +54,7 @@ Also factor in any context the user provided — they often know things the diff
 
 ### Content principles
 
+- Write from the user's perspective — product-oriented and user-facing throughout; exception: purely technical PRs (refactoring, infrastructure) where user impact doesn't apply
 - Focus on *what* and *why* — omit implementation details unless essential for understanding
 - Describe changes in plain language — explain intent and effect, not what the code says
 - Concise and factual — no filler, no vague statements
