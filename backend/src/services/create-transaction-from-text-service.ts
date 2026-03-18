@@ -1,11 +1,11 @@
 import { z } from "zod";
 import { Transaction } from "../models/transaction";
+import { Failure, Result, Success } from "../types/result";
 import { formatDateAsYYYYMMDD } from "../utils/date";
 import { createCreateTransactionTool } from "./agent-tools/create-transaction-tool";
 import { createGetAccountsTool } from "./agent-tools/get-accounts-tool";
 import { createGetCategoriesTool } from "./agent-tools/get-categories-tool";
 import { createGetTransactionsTool } from "./agent-tools/get-transactions-tool";
-import { BusinessError, BusinessErrorCodes } from "./business-error";
 import { AccountRepository } from "./ports/account-repository";
 import { Agent, AgentTraceMessage, ToolExecution } from "./ports/agent";
 import { CategoryRepository } from "./ports/category-repository";
@@ -102,6 +102,11 @@ const createdTransactionSchema = z.discriminatedUnion("success", [
   }),
 ]);
 
+type CreateTransactionFromTextOutput = Result<{
+  transaction: Transaction;
+  agentTrace: AgentTraceMessage[];
+}>;
+
 export class CreateTransactionFromTextService {
   private agent: Agent;
   private accountRepository: AccountRepository;
@@ -126,20 +131,14 @@ export class CreateTransactionFromTextService {
   async call(
     userId: string,
     text: string,
-  ): Promise<{ transaction: Transaction; agentTrace: AgentTraceMessage[] }> {
+  ): Promise<CreateTransactionFromTextOutput> {
     if (!userId) {
-      throw new BusinessError(
-        "User ID is required",
-        BusinessErrorCodes.INVALID_PARAMETERS,
-      );
+      return Failure("User ID is required");
     }
 
     const normalizedText = text.trim();
     if (!normalizedText) {
-      throw new BusinessError(
-        "Text is required",
-        BusinessErrorCodes.INVALID_PARAMETERS,
-      );
+      return Failure("Text is required");
     }
 
     const today = formatDateAsYYYYMMDD(new Date());
@@ -182,16 +181,14 @@ export class CreateTransactionFromTextService {
 
     if (!lastCreateTransactionToolExecution) {
       console.log("Agent error", {
-        code: BusinessErrorCodes.AGENT_DECLINED,
         error: "Agent did not attempt to create a transaction",
         agentAnswer: answer,
         toolExecutions,
       });
 
-      throw new BusinessError(
+      return Failure(
         "Agent did not attempt to create a transaction" +
           (answer ? `\n${answer}` : ""),
-        BusinessErrorCodes.AGENT_DECLINED,
       );
     }
 
@@ -202,16 +199,12 @@ export class CreateTransactionFromTextService {
       );
     } catch (error) {
       console.log("Agent error", {
-        code: BusinessErrorCodes.INVALID_AGENT_RESPONSE,
         error: error instanceof Error ? error.message : String(error),
         agentAnswer: answer,
         toolOutput: lastCreateTransactionToolExecution.output,
       });
 
-      throw new BusinessError(
-        "Response from agent is not valid JSON",
-        BusinessErrorCodes.INVALID_AGENT_RESPONSE,
-      );
+      return Failure("Response from agent is not valid JSON");
     }
 
     const parsedTransactionData =
@@ -219,31 +212,23 @@ export class CreateTransactionFromTextService {
 
     if (!parsedTransactionData.success) {
       console.log("Agent error", {
-        code: BusinessErrorCodes.INVALID_AGENT_RESPONSE,
         error: z.prettifyError(parsedTransactionData.error),
         agentAnswer: answer,
         toolOutput: lastCreateTransactionToolExecution.output,
       });
 
-      throw new BusinessError(
-        "Response from agent does not match expected format",
-        BusinessErrorCodes.INVALID_AGENT_RESPONSE,
-      );
+      return Failure("Response from agent does not match expected format");
     }
 
     // Tool responded with a failure
     if (!parsedTransactionData.data.success) {
       console.log("Agent error", {
-        code: BusinessErrorCodes.AGENT_DECLINED,
         error: parsedTransactionData.data.error,
         agentAnswer: answer,
         toolOutput: lastCreateTransactionToolExecution.output,
       });
 
-      throw new BusinessError(
-        "Agent failed to create transaction",
-        BusinessErrorCodes.AGENT_DECLINED,
-      );
+      return Failure("Agent failed to create transaction");
     }
 
     const transactionId = parsedTransactionData.data.data.id;
@@ -252,6 +237,6 @@ export class CreateTransactionFromTextService {
       transactionId,
       userId,
     );
-    return { transaction, agentTrace };
+    return Success({ transaction, agentTrace });
   }
 }

@@ -5,7 +5,6 @@ import {
   createMockCategoryRepository,
   createMockTransactionRepository,
 } from "../utils/test-utils/mock-repositories";
-import { BusinessError, BusinessErrorCodes } from "./business-error";
 import { CreateTransactionFromTextService } from "./create-transaction-from-text-service";
 import {
   type Agent,
@@ -51,41 +50,38 @@ describe("CreateTransactionFromTextService", () => {
   });
 
   describe("validation", () => {
-    it("should throw when userId is empty", async () => {
+    it("should return failure when userId is empty", async () => {
       // Act
-      const promise = service.call("", "some text");
+      const result = await service.call("", "some text");
 
       // Assert
-      await expect(promise).rejects.toThrow(BusinessError);
-      await expect(promise).rejects.toMatchObject({
-        code: BusinessErrorCodes.INVALID_PARAMETERS,
-        message: "User ID is required",
+      expect(result).toMatchObject({
+        success: false,
+        error: "User ID is required",
       });
       expect(mockAgent.call).not.toHaveBeenCalled();
     });
 
-    it("should throw when text is empty", async () => {
+    it("should return failure when text is empty", async () => {
       // Act
-      const promise = service.call(userId, "");
+      const result = await service.call(userId, "");
 
       // Assert
-      await expect(promise).rejects.toThrow(BusinessError);
-      await expect(promise).rejects.toMatchObject({
-        code: BusinessErrorCodes.INVALID_PARAMETERS,
-        message: "Text is required",
+      expect(result).toMatchObject({
+        success: false,
+        error: "Text is required",
       });
       expect(mockAgent.call).not.toHaveBeenCalled();
     });
 
-    it("should throw when text is only whitespace", async () => {
+    it("should return failure when text is only whitespace", async () => {
       // Act
-      const promise = service.call(userId, "   ");
+      const result = await service.call(userId, "   ");
 
       // Assert
-      await expect(promise).rejects.toThrow(BusinessError);
-      await expect(promise).rejects.toMatchObject({
-        code: BusinessErrorCodes.INVALID_PARAMETERS,
-        message: "Text is required",
+      expect(result).toMatchObject({
+        success: false,
+        error: "Text is required",
       });
       expect(mockAgent.call).not.toHaveBeenCalled();
     });
@@ -137,7 +133,9 @@ describe("CreateTransactionFromTextService", () => {
       const result = await service.call(userId, text);
 
       // Assert
-      expect(result.transaction).toBe(createdTransaction);
+      expect(result).toMatchObject({ success: true });
+      if (!result.success) return;
+      expect(result.data.transaction).toBe(createdTransaction);
       expect(mockTransactionService.getTransactionById).toHaveBeenCalledWith(
         transactionId,
         userId,
@@ -149,12 +147,17 @@ describe("CreateTransactionFromTextService", () => {
       const result = await service.call(userId, text);
 
       // Assert
-      expect(result.agentTrace).toEqual([
-        {
-          type: AgentTraceMessageType.TEXT,
-          content: "Thinking...",
+      expect(result).toMatchObject({
+        success: true,
+        data: {
+          agentTrace: [
+            {
+              type: AgentTraceMessageType.TEXT,
+              content: "Thinking...",
+            },
+          ],
         },
-      ]);
+      });
     });
 
     it("should pass trimmed text to agent", async () => {
@@ -204,7 +207,7 @@ describe("CreateTransactionFromTextService", () => {
       expect(mockTransactionService.getTransactionById).not.toHaveBeenCalled();
     });
 
-    it("should throw when agent does not attempt to create transaction", async () => {
+    it("should return failure when agent does not attempt to create transaction", async () => {
       // Arrange
       mockAgent.call.mockResolvedValue({
         answer: "I need more information.",
@@ -219,19 +222,18 @@ describe("CreateTransactionFromTextService", () => {
       });
 
       // Act
-      const promise = service.call(userId, text);
+      const result = await service.call(userId, text);
 
       // Assert
-      await expect(promise).rejects.toThrow(BusinessError);
-      await expect(promise).rejects.toMatchObject({
-        code: BusinessErrorCodes.AGENT_DECLINED,
-        message:
+      expect(result).toMatchObject({
+        success: false,
+        error:
           "Agent did not attempt to create a transaction\nI need more information.",
       });
       expect(mockTransactionService.getTransactionById).not.toHaveBeenCalled();
     });
 
-    it("should throw when tool output is not valid JSON", async () => {
+    it("should return failure when tool output is not valid JSON", async () => {
       // Arrange
       mockAgent.call.mockResolvedValue({
         answer: "Creating transaction...",
@@ -246,18 +248,17 @@ describe("CreateTransactionFromTextService", () => {
       });
 
       // Act
-      const promise = service.call(userId, text);
+      const result = await service.call(userId, text);
 
       // Assert
-      await expect(promise).rejects.toThrow(BusinessError);
-      await expect(promise).rejects.toMatchObject({
-        code: BusinessErrorCodes.INVALID_AGENT_RESPONSE,
-        message: "Response from agent is not valid JSON",
+      expect(result).toMatchObject({
+        success: false,
+        error: "Response from agent is not valid JSON",
       });
       expect(mockTransactionService.getTransactionById).not.toHaveBeenCalled();
     });
 
-    it("should throw when tool output does not match expected schema", async () => {
+    it("should return failure when tool output does not match expected schema", async () => {
       // Arrange
       mockAgent.call.mockResolvedValue({
         answer: "Creating transaction...",
@@ -277,13 +278,12 @@ describe("CreateTransactionFromTextService", () => {
       });
 
       // Act
-      const promise = service.call(userId, text);
+      const result = await service.call(userId, text);
 
       // Assert
-      await expect(promise).rejects.toThrow(BusinessError);
-      await expect(promise).rejects.toMatchObject({
-        code: BusinessErrorCodes.INVALID_AGENT_RESPONSE,
-        message: "Response from agent does not match expected format",
+      expect(result).toMatchObject({
+        success: false,
+        error: "Response from agent does not match expected format",
       });
       expect(mockTransactionService.getTransactionById).not.toHaveBeenCalled();
     });
@@ -323,7 +323,9 @@ describe("CreateTransactionFromTextService", () => {
       const result = await service.call(userId, text);
 
       // Assert
-      expect(result.transaction).toBe(createdTransaction);
+      expect(result).toMatchObject({ success: true });
+      if (!result.success) return;
+      expect(result.data.transaction).toBe(createdTransaction);
       expect(mockTransactionService.getTransactionById).toHaveBeenCalledWith(
         transactionId,
         userId,
