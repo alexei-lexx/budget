@@ -1,3 +1,4 @@
+import { GraphQLError } from "graphql/error/GraphQLError";
 import { MutationCreateTransactionFromTextArgs } from "../../__generated__/resolvers-types";
 import { GraphQLContext } from "../context";
 
@@ -12,13 +13,19 @@ export const createTransactionFromTextResolvers = {
     ) => {
       try {
         const user = await getAuthenticatedUser(context);
-        const { transaction, agentTrace } =
-          await context.createTransactionFromTextService.call(
-            user.id,
-            args.input.text,
-          );
+        const result = await context.createTransactionFromTextService.call(
+          user.id,
+          args.input.text,
+        );
 
-        return { transaction, agentTrace };
+        if (!result.success) {
+          throw new GraphQLError(result.error);
+        }
+
+        return {
+          transaction: result.data.transaction,
+          agentTrace: result.data.agentTrace,
+        };
       } catch (error) {
         handleResolverError(error, "Failed to create transaction from text");
       }
