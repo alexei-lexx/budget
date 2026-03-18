@@ -9,7 +9,7 @@ type Query {
   transfer(id: ID!): Transfer
   transactionPatterns(type: TransactionPatternType!): [TransactionPattern!]!
   byCategoryReport(year: Int!, month: Int, type: ReportType!): ByCategoryReport!
-  insight(input: InsightInput!): InsightResponse!
+  insight(input: InsightInput!): InsightOutput!
   transactionDescriptionSuggestions(searchText: String!): [String!]!
 }
 
@@ -68,13 +68,29 @@ type AgentTraceToolResult {
   output: String!
 }
 
-type InsightResponse {
+union InsightOutput = InsightSuccess | InsightFailure
+
+type InsightSuccess {
   answer: String!
   agentTrace: [AgentTraceMessage!]!
 }
 
-type CreateTransactionFromTextResponse {
+type InsightFailure {
+  message: String!
+  agentTrace: [AgentTraceMessage!]!
+}
+
+union CreateTransactionFromTextOutput =
+  | CreateTransactionFromTextSuccess
+  | CreateTransactionFromTextFailure
+
+type CreateTransactionFromTextSuccess {
   transaction: Transaction!
+  agentTrace: [AgentTraceMessage!]!
+}
+
+type CreateTransactionFromTextFailure {
+  message: String!
   agentTrace: [AgentTraceMessage!]!
 }
 
@@ -293,7 +309,7 @@ type Mutation {
   createTransaction(input: CreateTransactionInput!): Transaction!
   createTransactionFromText(
     input: CreateTransactionFromTextInput!
-  ): CreateTransactionFromTextResponse!
+  ): CreateTransactionFromTextOutput!
   updateTransaction(input: UpdateTransactionInput!): Transaction!
   deleteTransaction(id: ID!): Transaction!
   createTransfer(input: CreateTransferInput!): Transfer!

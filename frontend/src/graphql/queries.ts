@@ -1,6 +1,7 @@
 import { gql } from "@apollo/client/core";
 import {
   ACCOUNT_FRAGMENT,
+  AGENT_TRACE_FRAGMENT,
   CATEGORY_FRAGMENT,
   TRANSACTION_FRAGMENT,
   TRANSFER_FRAGMENT,
@@ -108,20 +109,19 @@ export const GET_TRANSACTION_DESCRIPTION_SUGGESTIONS = gql`
 export const GET_INSIGHT = gql`
   query GetInsight($input: InsightInput!) {
     insight(input: $input) {
-      answer
-      agentTrace {
-        ... on AgentTraceText {
-          content
+      ... on InsightSuccess {
+        answer
+        agentTrace {
+          ...AgentTraceFields
         }
-        ... on AgentTraceToolCall {
-          toolName
-          input
-        }
-        ... on AgentTraceToolResult {
-          toolName
-          output
+      }
+      ... on InsightFailure {
+        message
+        agentTrace {
+          ...AgentTraceFields
         }
       }
     }
   }
+  ${AGENT_TRACE_FRAGMENT}
 `;

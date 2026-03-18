@@ -1,4 +1,3 @@
-import { GraphQLError } from "graphql/error/GraphQLError";
 import { QueryInsightArgs } from "../../__generated__/resolvers-types";
 import { toDateString } from "../../types/date";
 import { GraphQLContext } from "../context";
@@ -21,10 +20,15 @@ export const insightResolvers = {
         });
 
         if (!result.success) {
-          throw new GraphQLError(result.error);
+          return {
+            __typename: "InsightFailure" as const,
+            message: result.error.message,
+            agentTrace: result.error.agentTrace,
+          };
         }
 
         return {
+          __typename: "InsightSuccess" as const,
           answer: result.data.answer,
           agentTrace: result.data.agentTrace,
         };

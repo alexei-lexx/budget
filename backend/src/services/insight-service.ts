@@ -61,10 +61,10 @@ export interface InsightInput {
   endDate: DateString;
 }
 
-type InsightOutput = Result<{
-  answer: string;
-  agentTrace: AgentTraceMessage[];
-}>;
+type InsightOutput = Result<
+  { answer: string; agentTrace: AgentTraceMessage[] },
+  { message: string; agentTrace: AgentTraceMessage[] }
+>;
 
 export class InsightService {
   private accountRepository: AccountRepository;
@@ -91,18 +91,21 @@ export class InsightService {
 
   async call(userId: string, input: InsightInput): Promise<InsightOutput> {
     if (!userId) {
-      return Failure("User ID is required");
+      return Failure({ message: "User ID is required", agentTrace: [] });
     }
 
     const { question, startDate, endDate } = input;
 
     const normalizedQuestion = question.trim();
     if (!normalizedQuestion) {
-      return Failure("Question is required");
+      return Failure({ message: "Question is required", agentTrace: [] });
     }
 
     if (startDate > endDate) {
-      return Failure("Start date must be before or equal to end date");
+      return Failure({
+        message: "Start date must be before or equal to end date",
+        agentTrace: [],
+      });
     }
 
     const differenceInDays = daysBetween(
@@ -111,7 +114,10 @@ export class InsightService {
     );
 
     if (differenceInDays > MAX_PERIOD_DAYS) {
-      return Failure(`Date range cannot exceed ${MAX_PERIOD_DAYS} days`);
+      return Failure({
+        message: `Date range cannot exceed ${MAX_PERIOD_DAYS} days`,
+        agentTrace: [],
+      });
     }
 
     const systemPrompt = this.buildSystemPrompt();
@@ -144,7 +150,10 @@ export class InsightService {
     });
 
     if (!response.answer) {
-      return Failure("Empty response");
+      return Failure({
+        message: "Empty response",
+        agentTrace: response.agentTrace,
+      });
     }
 
     const finalAnswer = response.answer.trim();

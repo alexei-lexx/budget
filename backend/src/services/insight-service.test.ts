@@ -51,7 +51,7 @@ describe("InsightService", () => {
       // Assert
       expect(result).toMatchObject({
         success: false,
-        error: "User ID is required",
+        error: { message: "User ID is required" },
       });
       expect(mockAgent.call).not.toHaveBeenCalled();
     });
@@ -66,7 +66,7 @@ describe("InsightService", () => {
       // Assert
       expect(result).toMatchObject({
         success: false,
-        error: "Question is required",
+        error: { message: "Question is required" },
       });
       expect(mockAgent.call).not.toHaveBeenCalled();
     });
@@ -81,7 +81,7 @@ describe("InsightService", () => {
       // Assert
       expect(result).toMatchObject({
         success: false,
-        error: "Question is required",
+        error: { message: "Question is required" },
       });
     });
 
@@ -99,7 +99,7 @@ describe("InsightService", () => {
       // Assert
       expect(result).toMatchObject({
         success: false,
-        error: "Start date must be before or equal to end date",
+        error: { message: "Start date must be before or equal to end date" },
       });
     });
 
@@ -117,7 +117,7 @@ describe("InsightService", () => {
       // Assert
       expect(result).toMatchObject({
         success: false,
-        error: `Date range cannot exceed ${MAX_PERIOD_DAYS} days`,
+        error: { message: `Date range cannot exceed ${MAX_PERIOD_DAYS} days` },
       });
     });
   });
@@ -226,7 +226,7 @@ describe("InsightService", () => {
       await expect(promise).rejects.toThrow("AI service unavailable");
     });
 
-    it("should return agentTrace from agent response", async () => {
+    it("should return agentTrace on success", async () => {
       // Arrange
       const agentTrace: AgentTraceMessage[] = [
         { type: AgentTraceMessageType.TEXT, content: "Thinking..." },
@@ -241,6 +241,26 @@ describe("InsightService", () => {
 
       // Assert
       expect(result).toMatchObject({ success: true, data: { agentTrace } });
+    });
+
+    it("should return agentTrace on failure", async () => {
+      // Arrange
+      const agentTrace: AgentTraceMessage[] = [
+        { type: AgentTraceMessageType.TEXT, content: "Thinking..." },
+      ];
+      mockAgent.call.mockResolvedValue({
+        answer: "",
+        agentTrace,
+      });
+
+      // Act
+      const result = await service.call(userId, validInput);
+
+      // Assert
+      expect(result).toMatchObject({
+        success: false,
+        error: { message: "Empty response", agentTrace },
+      });
     });
   });
 });

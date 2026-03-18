@@ -8,6 +8,7 @@ import {
 import { CreateTransactionFromTextService } from "./create-transaction-from-text-service";
 import {
   type Agent,
+  type AgentTraceMessage,
   AgentTraceMessageType,
   ToolSignature,
 } from "./ports/agent";
@@ -57,7 +58,7 @@ describe("CreateTransactionFromTextService", () => {
       // Assert
       expect(result).toMatchObject({
         success: false,
-        error: "User ID is required",
+        error: { message: "User ID is required" },
       });
       expect(mockAgent.call).not.toHaveBeenCalled();
     });
@@ -69,7 +70,7 @@ describe("CreateTransactionFromTextService", () => {
       // Assert
       expect(result).toMatchObject({
         success: false,
-        error: "Text is required",
+        error: { message: "Text is required" },
       });
       expect(mockAgent.call).not.toHaveBeenCalled();
     });
@@ -81,7 +82,7 @@ describe("CreateTransactionFromTextService", () => {
       // Assert
       expect(result).toMatchObject({
         success: false,
-        error: "Text is required",
+        error: { message: "Text is required" },
       });
       expect(mockAgent.call).not.toHaveBeenCalled();
     });
@@ -228,8 +229,10 @@ describe("CreateTransactionFromTextService", () => {
       // Assert
       expect(result).toMatchObject({
         success: false,
-        error:
-          "Agent did not attempt to create a transaction\nI need more information.",
+        error: {
+          message:
+            "Agent did not attempt to create a transaction\nI need more information.",
+        },
       });
       expect(mockTransactionService.getTransactionById).not.toHaveBeenCalled();
     });
@@ -254,7 +257,7 @@ describe("CreateTransactionFromTextService", () => {
       // Assert
       expect(result).toMatchObject({
         success: false,
-        error: "Response from agent is not valid JSON",
+        error: { message: "Response from agent is not valid JSON" },
       });
       expect(mockTransactionService.getTransactionById).not.toHaveBeenCalled();
     });
@@ -284,9 +287,32 @@ describe("CreateTransactionFromTextService", () => {
       // Assert
       expect(result).toMatchObject({
         success: false,
-        error: "Response from agent does not match expected format",
+        error: {
+          message: "Response from agent does not match expected format",
+        },
       });
       expect(mockTransactionService.getTransactionById).not.toHaveBeenCalled();
+    });
+
+    it("should return agentTrace from agent response", async () => {
+      // Arrange
+      const agentTrace: AgentTraceMessage[] = [
+        { type: AgentTraceMessageType.TEXT, content: "Thinking..." },
+      ];
+      mockAgent.call.mockResolvedValue({
+        answer: "I need more information.",
+        toolExecutions: [],
+        agentTrace,
+      });
+
+      // Act
+      const result = await service.call(userId, text);
+
+      // Assert
+      expect(result).toMatchObject({
+        success: false,
+        error: { agentTrace },
+      });
     });
 
     it("should handle multiple creation tool executions", async () => {

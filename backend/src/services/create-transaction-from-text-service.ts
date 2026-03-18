@@ -102,10 +102,10 @@ const createdTransactionSchema = z.discriminatedUnion("success", [
   }),
 ]);
 
-type CreateTransactionFromTextOutput = Result<{
-  transaction: Transaction;
-  agentTrace: AgentTraceMessage[];
-}>;
+type CreateTransactionFromTextOutput = Result<
+  { transaction: Transaction; agentTrace: AgentTraceMessage[] },
+  { message: string; agentTrace: AgentTraceMessage[] }
+>;
 
 export class CreateTransactionFromTextService {
   private agent: Agent;
@@ -133,12 +133,12 @@ export class CreateTransactionFromTextService {
     text: string,
   ): Promise<CreateTransactionFromTextOutput> {
     if (!userId) {
-      return Failure("User ID is required");
+      return Failure({ message: "User ID is required", agentTrace: [] });
     }
 
     const normalizedText = text.trim();
     if (!normalizedText) {
-      return Failure("Text is required");
+      return Failure({ message: "Text is required", agentTrace: [] });
     }
 
     const today = formatDateAsYYYYMMDD(new Date());
@@ -186,10 +186,12 @@ export class CreateTransactionFromTextService {
         toolExecutions,
       });
 
-      return Failure(
-        "Agent did not attempt to create a transaction" +
+      return Failure({
+        message:
+          "Agent did not attempt to create a transaction" +
           (answer ? `\n${answer}` : ""),
-      );
+        agentTrace,
+      });
     }
 
     let transactionDataJson;
@@ -204,7 +206,10 @@ export class CreateTransactionFromTextService {
         toolOutput: lastCreateTransactionToolExecution.output,
       });
 
-      return Failure("Response from agent is not valid JSON");
+      return Failure({
+        message: "Response from agent is not valid JSON",
+        agentTrace,
+      });
     }
 
     const parsedTransactionData =
@@ -217,7 +222,10 @@ export class CreateTransactionFromTextService {
         toolOutput: lastCreateTransactionToolExecution.output,
       });
 
-      return Failure("Response from agent does not match expected format");
+      return Failure({
+        message: "Response from agent does not match expected format",
+        agentTrace,
+      });
     }
 
     // Tool responded with a failure
@@ -228,7 +236,10 @@ export class CreateTransactionFromTextService {
         toolOutput: lastCreateTransactionToolExecution.output,
       });
 
-      return Failure("Agent failed to create transaction");
+      return Failure({
+        message: "Agent failed to create transaction",
+        agentTrace,
+      });
     }
 
     const transactionId = parsedTransactionData.data.data.id;

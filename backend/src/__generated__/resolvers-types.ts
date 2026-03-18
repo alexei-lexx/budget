@@ -104,6 +104,12 @@ export type CreateCategoryInput = {
   type: CategoryType;
 };
 
+export type CreateTransactionFromTextFailure = {
+  __typename?: 'CreateTransactionFromTextFailure';
+  agentTrace: Array<AgentTraceMessage>;
+  message: Scalars['String']['output'];
+};
+
 /** Input for creating a transaction from a natural-language text description. */
 export type CreateTransactionFromTextInput = {
   /**
@@ -113,8 +119,10 @@ export type CreateTransactionFromTextInput = {
   text: Scalars['String']['input'];
 };
 
-export type CreateTransactionFromTextResponse = {
-  __typename?: 'CreateTransactionFromTextResponse';
+export type CreateTransactionFromTextOutput = CreateTransactionFromTextFailure | CreateTransactionFromTextSuccess;
+
+export type CreateTransactionFromTextSuccess = {
+  __typename?: 'CreateTransactionFromTextSuccess';
   agentTrace: Array<AgentTraceMessage>;
   transaction: Transaction;
 };
@@ -141,13 +149,21 @@ export type DateRangeInput = {
   startDate: Scalars['String']['input'];
 };
 
+export type InsightFailure = {
+  __typename?: 'InsightFailure';
+  agentTrace: Array<AgentTraceMessage>;
+  message: Scalars['String']['output'];
+};
+
 export type InsightInput = {
   dateRange: DateRangeInput;
   question: Scalars['String']['input'];
 };
 
-export type InsightResponse = {
-  __typename?: 'InsightResponse';
+export type InsightOutput = InsightFailure | InsightSuccess;
+
+export type InsightSuccess = {
+  __typename?: 'InsightSuccess';
   agentTrace: Array<AgentTraceMessage>;
   answer: Scalars['String']['output'];
 };
@@ -157,7 +173,7 @@ export type Mutation = {
   createAccount: Account;
   createCategory: Category;
   createTransaction: Transaction;
-  createTransactionFromText: CreateTransactionFromTextResponse;
+  createTransactionFromText: CreateTransactionFromTextOutput;
   createTransfer: Transfer;
   deleteAccount?: Maybe<Scalars['Boolean']['output']>;
   deleteCategory: Category;
@@ -253,7 +269,7 @@ export type Query = {
   accounts: Array<Account>;
   byCategoryReport: ByCategoryReport;
   categories: Array<Category>;
-  insight: InsightResponse;
+  insight: InsightOutput;
   supportedCurrencies: Array<Scalars['String']['output']>;
   transactionDescriptionSuggestions: Array<Scalars['String']['output']>;
   transactionPatterns: Array<TransactionPattern>;
@@ -501,6 +517,14 @@ export type ResolversUnionTypes<_RefType extends Record<string, unknown>> = {
     | ( AgentTraceToolCall )
     | ( AgentTraceToolResult )
   ;
+  CreateTransactionFromTextOutput:
+    | ( Omit<CreateTransactionFromTextFailure, 'agentTrace'> & { agentTrace: Array<_RefType['AgentTraceMessage']> } )
+    | ( Omit<CreateTransactionFromTextSuccess, 'agentTrace' | 'transaction'> & { agentTrace: Array<_RefType['AgentTraceMessage']>, transaction: _RefType['Transaction'] } )
+  ;
+  InsightOutput:
+    | ( Omit<InsightFailure, 'agentTrace'> & { agentTrace: Array<_RefType['AgentTraceMessage']> } )
+    | ( Omit<InsightSuccess, 'agentTrace'> & { agentTrace: Array<_RefType['AgentTraceMessage']> } )
+  ;
 };
 
 
@@ -520,15 +544,19 @@ export type ResolversTypes = {
   CategoryType: CategoryType;
   CreateAccountInput: CreateAccountInput;
   CreateCategoryInput: CreateCategoryInput;
+  CreateTransactionFromTextFailure: ResolverTypeWrapper<Omit<CreateTransactionFromTextFailure, 'agentTrace'> & { agentTrace: Array<ResolversTypes['AgentTraceMessage']> }>;
   CreateTransactionFromTextInput: CreateTransactionFromTextInput;
-  CreateTransactionFromTextResponse: ResolverTypeWrapper<Omit<CreateTransactionFromTextResponse, 'agentTrace' | 'transaction'> & { agentTrace: Array<ResolversTypes['AgentTraceMessage']>, transaction: ResolversTypes['Transaction'] }>;
+  CreateTransactionFromTextOutput: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['CreateTransactionFromTextOutput']>;
+  CreateTransactionFromTextSuccess: ResolverTypeWrapper<Omit<CreateTransactionFromTextSuccess, 'agentTrace' | 'transaction'> & { agentTrace: Array<ResolversTypes['AgentTraceMessage']>, transaction: ResolversTypes['Transaction'] }>;
   CreateTransactionInput: CreateTransactionInput;
   CreateTransferInput: CreateTransferInput;
   DateRangeInput: DateRangeInput;
   Float: ResolverTypeWrapper<Scalars['Float']['output']>;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
+  InsightFailure: ResolverTypeWrapper<Omit<InsightFailure, 'agentTrace'> & { agentTrace: Array<ResolversTypes['AgentTraceMessage']> }>;
   InsightInput: InsightInput;
-  InsightResponse: ResolverTypeWrapper<Omit<InsightResponse, 'agentTrace'> & { agentTrace: Array<ResolversTypes['AgentTraceMessage']> }>;
+  InsightOutput: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['InsightOutput']>;
+  InsightSuccess: ResolverTypeWrapper<Omit<InsightSuccess, 'agentTrace'> & { agentTrace: Array<ResolversTypes['AgentTraceMessage']> }>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
   Mutation: ResolverTypeWrapper<Record<PropertyKey, never>>;
   PageInfo: ResolverTypeWrapper<PageInfo>;
@@ -568,15 +596,19 @@ export type ResolversParentTypes = {
   Category: Category;
   CreateAccountInput: CreateAccountInput;
   CreateCategoryInput: CreateCategoryInput;
+  CreateTransactionFromTextFailure: Omit<CreateTransactionFromTextFailure, 'agentTrace'> & { agentTrace: Array<ResolversParentTypes['AgentTraceMessage']> };
   CreateTransactionFromTextInput: CreateTransactionFromTextInput;
-  CreateTransactionFromTextResponse: Omit<CreateTransactionFromTextResponse, 'agentTrace' | 'transaction'> & { agentTrace: Array<ResolversParentTypes['AgentTraceMessage']>, transaction: ResolversParentTypes['Transaction'] };
+  CreateTransactionFromTextOutput: ResolversUnionTypes<ResolversParentTypes>['CreateTransactionFromTextOutput'];
+  CreateTransactionFromTextSuccess: Omit<CreateTransactionFromTextSuccess, 'agentTrace' | 'transaction'> & { agentTrace: Array<ResolversParentTypes['AgentTraceMessage']>, transaction: ResolversParentTypes['Transaction'] };
   CreateTransactionInput: CreateTransactionInput;
   CreateTransferInput: CreateTransferInput;
   DateRangeInput: DateRangeInput;
   Float: Scalars['Float']['output'];
   ID: Scalars['ID']['output'];
+  InsightFailure: Omit<InsightFailure, 'agentTrace'> & { agentTrace: Array<ResolversParentTypes['AgentTraceMessage']> };
   InsightInput: InsightInput;
-  InsightResponse: Omit<InsightResponse, 'agentTrace'> & { agentTrace: Array<ResolversParentTypes['AgentTraceMessage']> };
+  InsightOutput: ResolversUnionTypes<ResolversParentTypes>['InsightOutput'];
+  InsightSuccess: Omit<InsightSuccess, 'agentTrace'> & { agentTrace: Array<ResolversParentTypes['AgentTraceMessage']> };
   Int: Scalars['Int']['output'];
   Mutation: Record<PropertyKey, never>;
   PageInfo: PageInfo;
@@ -663,21 +695,43 @@ export type CategoryResolvers<ContextType = GraphQLContext, ParentType extends R
 
 export type CategoryTypeResolvers = EnumResolverSignature<{ EXPENSE?: any, INCOME?: any }, ResolversTypes['CategoryType']>;
 
-export type CreateTransactionFromTextResponseResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CreateTransactionFromTextResponse'] = ResolversParentTypes['CreateTransactionFromTextResponse']> = {
+export type CreateTransactionFromTextFailureResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CreateTransactionFromTextFailure'] = ResolversParentTypes['CreateTransactionFromTextFailure']> = {
   agentTrace?: Resolver<Array<ResolversTypes['AgentTraceMessage']>, ParentType, ContextType>;
-  transaction?: Resolver<ResolversTypes['Transaction'], ParentType, ContextType>;
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
-export type InsightResponseResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['InsightResponse'] = ResolversParentTypes['InsightResponse']> = {
+export type CreateTransactionFromTextOutputResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CreateTransactionFromTextOutput'] = ResolversParentTypes['CreateTransactionFromTextOutput']> = {
+  __resolveType: TypeResolveFn<'CreateTransactionFromTextFailure' | 'CreateTransactionFromTextSuccess', ParentType, ContextType>;
+};
+
+export type CreateTransactionFromTextSuccessResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CreateTransactionFromTextSuccess'] = ResolversParentTypes['CreateTransactionFromTextSuccess']> = {
+  agentTrace?: Resolver<Array<ResolversTypes['AgentTraceMessage']>, ParentType, ContextType>;
+  transaction?: Resolver<ResolversTypes['Transaction'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type InsightFailureResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['InsightFailure'] = ResolversParentTypes['InsightFailure']> = {
+  agentTrace?: Resolver<Array<ResolversTypes['AgentTraceMessage']>, ParentType, ContextType>;
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type InsightOutputResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['InsightOutput'] = ResolversParentTypes['InsightOutput']> = {
+  __resolveType: TypeResolveFn<'InsightFailure' | 'InsightSuccess', ParentType, ContextType>;
+};
+
+export type InsightSuccessResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['InsightSuccess'] = ResolversParentTypes['InsightSuccess']> = {
   agentTrace?: Resolver<Array<ResolversTypes['AgentTraceMessage']>, ParentType, ContextType>;
   answer?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type MutationResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   createAccount?: Resolver<ResolversTypes['Account'], ParentType, ContextType, RequireFields<MutationCreateAccountArgs, 'input'>>;
   createCategory?: Resolver<ResolversTypes['Category'], ParentType, ContextType, RequireFields<MutationCreateCategoryArgs, 'input'>>;
   createTransaction?: Resolver<ResolversTypes['Transaction'], ParentType, ContextType, RequireFields<MutationCreateTransactionArgs, 'input'>>;
-  createTransactionFromText?: Resolver<ResolversTypes['CreateTransactionFromTextResponse'], ParentType, ContextType, RequireFields<MutationCreateTransactionFromTextArgs, 'input'>>;
+  createTransactionFromText?: Resolver<ResolversTypes['CreateTransactionFromTextOutput'], ParentType, ContextType, RequireFields<MutationCreateTransactionFromTextArgs, 'input'>>;
   createTransfer?: Resolver<ResolversTypes['Transfer'], ParentType, ContextType, RequireFields<MutationCreateTransferArgs, 'input'>>;
   deleteAccount?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType, RequireFields<MutationDeleteAccountArgs, 'id'>>;
   deleteCategory?: Resolver<ResolversTypes['Category'], ParentType, ContextType, RequireFields<MutationDeleteCategoryArgs, 'id'>>;
@@ -701,7 +755,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   accounts?: Resolver<Array<ResolversTypes['Account']>, ParentType, ContextType>;
   byCategoryReport?: Resolver<ResolversTypes['ByCategoryReport'], ParentType, ContextType, RequireFields<QueryByCategoryReportArgs, 'type' | 'year'>>;
   categories?: Resolver<Array<ResolversTypes['Category']>, ParentType, ContextType, Partial<QueryCategoriesArgs>>;
-  insight?: Resolver<ResolversTypes['InsightResponse'], ParentType, ContextType, RequireFields<QueryInsightArgs, 'input'>>;
+  insight?: Resolver<ResolversTypes['InsightOutput'], ParentType, ContextType, RequireFields<QueryInsightArgs, 'input'>>;
   supportedCurrencies?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   transactionDescriptionSuggestions?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType, RequireFields<QueryTransactionDescriptionSuggestionsArgs, 'searchText'>>;
   transactionPatterns?: Resolver<Array<ResolversTypes['TransactionPattern']>, ParentType, ContextType, RequireFields<QueryTransactionPatternsArgs, 'type'>>;
@@ -779,8 +833,12 @@ export type Resolvers<ContextType = GraphQLContext> = {
   ByCategoryReportCurrencyTotal?: ByCategoryReportCurrencyTotalResolvers<ContextType>;
   Category?: CategoryResolvers<ContextType>;
   CategoryType?: CategoryTypeResolvers;
-  CreateTransactionFromTextResponse?: CreateTransactionFromTextResponseResolvers<ContextType>;
-  InsightResponse?: InsightResponseResolvers<ContextType>;
+  CreateTransactionFromTextFailure?: CreateTransactionFromTextFailureResolvers<ContextType>;
+  CreateTransactionFromTextOutput?: CreateTransactionFromTextOutputResolvers<ContextType>;
+  CreateTransactionFromTextSuccess?: CreateTransactionFromTextSuccessResolvers<ContextType>;
+  InsightFailure?: InsightFailureResolvers<ContextType>;
+  InsightOutput?: InsightOutputResolvers<ContextType>;
+  InsightSuccess?: InsightSuccessResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   PageInfo?: PageInfoResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;

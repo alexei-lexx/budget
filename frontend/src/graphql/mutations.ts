@@ -1,6 +1,7 @@
 import { gql } from "@apollo/client/core";
 import {
   ACCOUNT_FRAGMENT,
+  AGENT_TRACE_FRAGMENT,
   CATEGORY_FRAGMENT,
   TRANSACTION_FRAGMENT,
   TRANSFER_FRAGMENT,
@@ -77,24 +78,23 @@ export const CREATE_TRANSACTION = gql`
 export const CREATE_TRANSACTION_FROM_TEXT = gql`
   mutation CreateTransactionFromText($input: CreateTransactionFromTextInput!) {
     createTransactionFromText(input: $input) {
-      transaction {
-        ...TransactionFields
+      ... on CreateTransactionFromTextSuccess {
+        transaction {
+          ...TransactionFields
+        }
+        agentTrace {
+          ...AgentTraceFields
+        }
       }
-      agentTrace {
-        ... on AgentTraceText {
-          content
-        }
-        ... on AgentTraceToolCall {
-          toolName
-          input
-        }
-        ... on AgentTraceToolResult {
-          toolName
-          output
+      ... on CreateTransactionFromTextFailure {
+        message
+        agentTrace {
+          ...AgentTraceFields
         }
       }
     }
   }
+  ${AGENT_TRACE_FRAGMENT}
   ${TRANSACTION_FRAGMENT}
 `;
 
