@@ -133,9 +133,10 @@ describe("CreateTransactionFromTextService", () => {
       const result = await service.call(userId, text);
 
       // Assert
-      expect(result).toMatchObject({ success: true });
-      if (!result.success) return;
-      expect(result.data.transaction).toBe(createdTransaction);
+      expect(result).toMatchObject({
+        success: true,
+        data: { transaction: createdTransaction },
+      });
       expect(mockTransactionService.getTransactionById).toHaveBeenCalledWith(
         transactionId,
         userId,
@@ -323,9 +324,10 @@ describe("CreateTransactionFromTextService", () => {
       const result = await service.call(userId, text);
 
       // Assert
-      expect(result).toMatchObject({ success: true });
-      if (!result.success) return;
-      expect(result.data.transaction).toBe(createdTransaction);
+      expect(result).toMatchObject({
+        success: true,
+        data: { transaction: createdTransaction },
+      });
       expect(mockTransactionService.getTransactionById).toHaveBeenCalledWith(
         transactionId,
         userId,
