@@ -144,18 +144,18 @@ export class DynUserRepository implements UserRepository {
       ":updatedAt": now,
     };
 
-    if (input.voiceInputLanguage !== undefined) {
-      updateExpressionParts.push("voiceInputLanguage = :voiceInputLanguage");
-      expressionAttributeValues[":voiceInputLanguage"] =
-        input.voiceInputLanguage;
-    }
-
     if (input.transactionPatternsLimit !== undefined) {
       updateExpressionParts.push(
         "transactionPatternsLimit = :transactionPatternsLimit",
       );
       expressionAttributeValues[":transactionPatternsLimit"] =
         input.transactionPatternsLimit;
+    }
+
+    if (input.voiceInputLanguage !== undefined) {
+      updateExpressionParts.push("voiceInputLanguage = :voiceInputLanguage");
+      expressionAttributeValues[":voiceInputLanguage"] =
+        input.voiceInputLanguage;
     }
 
     try {
