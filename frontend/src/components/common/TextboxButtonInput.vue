@@ -71,6 +71,7 @@ function onMicClick() {
   // Blur the textarea to prevent the virtual keyboard from opening on mobile
   // when the mic icon is tapped while the textarea has focus
   textareaRef.value?.blur();
+
   if (props.isRecording) {
     emit("stopRecording");
   } else {
