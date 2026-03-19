@@ -458,7 +458,7 @@ export type User = {
 
 export type UserSettings = {
   __typename?: 'UserSettings';
-  transactionPatternsLimit?: Maybe<Scalars['Int']['output']>;
+  transactionPatternsLimit: Scalars['Int']['output'];
   voiceInputLanguage?: Maybe<Scalars['String']['output']>;
 };
 
@@ -594,7 +594,7 @@ export type UpdateUserSettingsMutationVariables = Exact<{
 }>;
 
 
-export type UpdateUserSettingsMutation = { __typename?: 'Mutation', updateUserSettings: { __typename?: 'UserSettings', voiceInputLanguage?: string | null | undefined, transactionPatternsLimit?: number | null | undefined } };
+export type UpdateUserSettingsMutation = { __typename?: 'Mutation', updateUserSettings: { __typename?: 'UserSettings', transactionPatternsLimit: number, voiceInputLanguage?: string | null | undefined } };
 
 export type GetAccountsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -672,4 +672,4 @@ export type GetInsightQuery = { __typename?: 'Query', insight:
 export type GetUserSettingsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetUserSettingsQuery = { __typename?: 'Query', userSettings: { __typename?: 'UserSettings', voiceInputLanguage?: string | null | undefined, transactionPatternsLimit?: number | null | undefined } };
+export type GetUserSettingsQuery = { __typename?: 'Query', userSettings: { __typename?: 'UserSettings', transactionPatternsLimit: number, voiceInputLanguage?: string | null | undefined } };

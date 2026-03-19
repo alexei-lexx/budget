@@ -31,6 +31,7 @@ import AgentTracePanel from "@/components/AgentTracePanel.vue";
 import AgentTraceTriggerButton from "@/components/AgentTraceTriggerButton.vue";
 import TextboxButtonInput from "@/components/common/TextboxButtonInput.vue";
 import { useSnackbar } from "@/composables/useSnackbar";
+import { useUserSettings } from "@/composables/useUserSettings";
 import { useVoiceInput } from "@/composables/useVoiceInput";
 
 defineProps<{
@@ -48,6 +49,7 @@ const emit = defineEmits<{
 }>();
 
 const { showErrorSnackbar } = useSnackbar();
+const { settings } = useUserSettings();
 
 const {
   isSupported: isVoiceSupported,
@@ -60,6 +62,7 @@ const {
     emit("submit");
   },
   onError: showErrorSnackbar,
+  language: () => settings.value?.voiceInputLanguage ?? undefined,
 });
 
 const showAgentTrace = ref(false);
