@@ -19,13 +19,15 @@
       @keydown.enter.exact.prevent="emit('submit')"
     >
       <template v-if="isVoiceSupported" #append-inner>
+        <!-- click.stop prevents Vuetify from focusing the textarea -->
+        <!-- when the mic icon inside append-inner is clicked -->
         <v-icon
           :color="isRecording ? 'error' : undefined"
           :class="{ 'mic-recording': isRecording }"
           :disabled="loading"
           role="button"
           aria-label="Voice input"
-          @click="onMicClick"
+          @click.stop="onMicClick"
         >
           {{ isRecording ? "mdi-microphone" : "mdi-microphone-outline" }}
         </v-icon>
@@ -63,9 +65,12 @@ const emit = defineEmits<{
   stopRecording: [];
 }>();
 
-const textareaRef = ref<{ focus: () => void } | null>(null);
+const textareaRef = ref<{ focus: () => void; blur: () => void } | null>(null);
 
 function onMicClick() {
+  // Blur the textarea to prevent the virtual keyboard from opening on mobile
+  // when the mic icon is tapped while the textarea has focus
+  textareaRef.value?.blur();
   if (props.isRecording) {
     emit("stopRecording");
   } else {

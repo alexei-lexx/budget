@@ -189,6 +189,12 @@ The system SHALL provide a mic button inside the natural language text input are
 - **WHEN** the transcript is empty
 - **THEN** the mic button returns to its idle state and no error or notification is shown to the user
 
+#### Scenario: Tapping the mic does not open the virtual keyboard
+
+- **GIVEN** the user is on a mobile device
+- **WHEN** the user taps the mic button (regardless of whether the textarea has focus)
+- **THEN** the virtual keyboard does not open
+
 #### Scenario: Mic button and text input are disabled during AI inference
 
 - **GIVEN** a voice transcript has been submitted and AI inference is in progress
