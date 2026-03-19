@@ -20,7 +20,7 @@ type User {
 
 type UserSettings {
   voiceInputLanguage: String
-  transactionPatternsLimit: Int
+  transactionPatternsLimit: Int!
 }
 
 input UpdateUserSettingsInput {

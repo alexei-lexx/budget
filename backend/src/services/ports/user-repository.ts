@@ -5,8 +5,8 @@ export interface CreateUserInput {
 }
 
 export interface UpdateUserInput {
-  voiceInputLanguage?: string;
   transactionPatternsLimit?: number;
+  voiceInputLanguage?: string;
 }
 
 export interface UserRepository {

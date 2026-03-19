@@ -1,13 +1,14 @@
 import { Failure, Result, Success } from "../types/result";
 import { UpdateUserInput, UserRepository } from "./ports/user-repository";
 import {
+  DEFAULT_TRANSACTION_PATTERNS_LIMIT,
   MAX_TRANSACTION_PATTERNS_LIMIT,
   MIN_TRANSACTION_PATTERNS_LIMIT,
 } from "./transaction-service";
 
 export interface UserSettingsData {
+  transactionPatternsLimit: number;
   voiceInputLanguage?: string;
-  transactionPatternsLimit?: number;
 }
 
 export class UserService {
@@ -25,19 +26,20 @@ export class UserService {
     }
 
     return Success({
+      transactionPatternsLimit:
+        user.transactionPatternsLimit ?? DEFAULT_TRANSACTION_PATTERNS_LIMIT,
       voiceInputLanguage: user.voiceInputLanguage,
-      transactionPatternsLimit: user.transactionPatternsLimit,
     });
   }
 
   async updateSettings({
     userId,
-    voiceInputLanguage,
     transactionPatternsLimit,
+    voiceInputLanguage,
   }: {
     userId: string;
-    voiceInputLanguage?: string;
     transactionPatternsLimit?: number;
+    voiceInputLanguage?: string;
   }): Promise<Result<UserSettingsData>> {
     if (!userId) {
       return Failure("User ID is required");
@@ -57,19 +59,20 @@ export class UserService {
 
     const updateInput: UpdateUserInput = {};
 
-    if (voiceInputLanguage !== undefined) {
-      updateInput.voiceInputLanguage = voiceInputLanguage;
-    }
-
     if (transactionPatternsLimit !== undefined) {
       updateInput.transactionPatternsLimit = transactionPatternsLimit;
+    }
+
+    if (voiceInputLanguage !== undefined) {
+      updateInput.voiceInputLanguage = voiceInputLanguage;
     }
 
     const updated = await this.userRepository.update(userId, updateInput);
 
     return Success({
+      transactionPatternsLimit:
+        updated.transactionPatternsLimit ?? DEFAULT_TRANSACTION_PATTERNS_LIMIT,
       voiceInputLanguage: updated.voiceInputLanguage,
-      transactionPatternsLimit: updated.transactionPatternsLimit,
     });
   }
 }

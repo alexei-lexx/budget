@@ -3,6 +3,7 @@ import { fakeUser } from "../utils/test-utils/factories";
 import { createMockUserRepository } from "../utils/test-utils/mock-repositories";
 import { UserRepository } from "./ports/user-repository";
 import {
+  DEFAULT_TRANSACTION_PATTERNS_LIMIT,
   MAX_TRANSACTION_PATTERNS_LIMIT,
   MIN_TRANSACTION_PATTERNS_LIMIT,
 } from "./transaction-service";
@@ -23,8 +24,8 @@ describe("UserService", () => {
       const userId = faker.string.uuid();
       const user = fakeUser({
         id: userId,
-        voiceInputLanguage: "pl-PL",
         transactionPatternsLimit: 5,
+        voiceInputLanguage: "pl-PL",
       });
       mockUserRepository.findById.mockResolvedValue(user);
 
@@ -34,11 +35,14 @@ describe("UserService", () => {
       // Assert
       expect(result).toEqual({
         success: true,
-        data: { voiceInputLanguage: "pl-PL", transactionPatternsLimit: 5 },
+        data: {
+          transactionPatternsLimit: 5,
+          voiceInputLanguage: "pl-PL",
+        },
       });
     });
 
-    it("should return empty data when no settings are saved", async () => {
+    it("should return defaults when no settings are saved", async () => {
       // Arrange
       const userId = faker.string.uuid();
       const user = fakeUser({ id: userId });
@@ -48,7 +52,13 @@ describe("UserService", () => {
       const result = await service.getSettings(userId);
 
       // Assert
-      expect(result).toEqual({ success: true, data: {} });
+      expect(result).toStrictEqual({
+        success: true,
+        data: {
+          transactionPatternsLimit: DEFAULT_TRANSACTION_PATTERNS_LIMIT,
+          voiceInputLanguage: undefined,
+        },
+      });
     });
 
     it("should fail when user is not found", async () => {
@@ -85,7 +95,10 @@ describe("UserService", () => {
       // Assert
       expect(result).toEqual({
         success: true,
-        data: { voiceInputLanguage: "de-DE" },
+        data: {
+          transactionPatternsLimit: DEFAULT_TRANSACTION_PATTERNS_LIMIT,
+          voiceInputLanguage: "de-DE",
+        },
       });
       expect(mockUserRepository.update).toHaveBeenCalledWith(userId, {
         voiceInputLanguage: "de-DE",
@@ -152,22 +165,25 @@ describe("UserService", () => {
       const userId = faker.string.uuid();
       const updated = fakeUser({
         id: userId,
-        voiceInputLanguage: "en-US",
         transactionPatternsLimit: 5,
+        voiceInputLanguage: "en-US",
       });
       mockUserRepository.update.mockResolvedValue(updated);
 
       // Act
       const result = await service.updateSettings({
         userId,
-        voiceInputLanguage: "en-US",
         transactionPatternsLimit: 5,
+        voiceInputLanguage: "en-US",
       });
 
       // Assert
       expect(result).toEqual({
         success: true,
-        data: { voiceInputLanguage: "en-US", transactionPatternsLimit: 5 },
+        data: {
+          transactionPatternsLimit: 5,
+          voiceInputLanguage: "en-US",
+        },
       });
     });
 
