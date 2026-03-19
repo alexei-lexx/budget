@@ -1,5 +1,6 @@
 import { computed } from "vue";
 import {
+  GetUserSettingsDocument,
   useGetUserSettingsQuery,
   useUpdateUserSettingsMutation,
   type UpdateUserSettingsInput,
@@ -16,7 +17,15 @@ export function useUserSettings() {
     mutate: updateSettingsMutation,
     loading: updateSettingsLoading,
     error: updateSettingsError,
-  } = useUpdateUserSettingsMutation();
+  } = useUpdateUserSettingsMutation({
+    update(cache, { data }) {
+      if (!data?.updateUserSettings) return;
+      cache.writeQuery({
+        query: GetUserSettingsDocument,
+        data: { userSettings: data.updateUserSettings },
+      });
+    },
+  });
 
   const settings = computed(() => settingsResult.value?.userSettings ?? null);
 
