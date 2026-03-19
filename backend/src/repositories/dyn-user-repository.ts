@@ -2,13 +2,17 @@ import { randomUUID } from "crypto";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import {
   DynamoDBDocumentClient,
+  GetCommand,
   PutCommand,
   QueryCommand,
   ScanCommand,
+  UpdateCommand,
 } from "@aws-sdk/lib-dynamodb";
 import { User } from "../models/user";
+import { RepositoryError } from "../services/ports/repository-error";
 import {
   CreateUserInput,
+  UpdateUserInput,
   UserRepository,
 } from "../services/ports/user-repository";
 import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
@@ -61,6 +65,30 @@ export class DynUserRepository implements UserRepository {
     }
   }
 
+  async findById(id: string): Promise<User | null> {
+    if (!id) {
+      throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
+    }
+
+    try {
+      const command = new GetCommand({
+        TableName: this.tableName,
+        Key: { id },
+      });
+
+      const result = await this.client.send(command);
+
+      if (!result.Item) {
+        return null;
+      }
+
+      return hydrate(userSchema, result.Item);
+    } catch (error) {
+      console.error("Error finding user by ID:", error);
+      throw new Error("Failed to find user by ID");
+    }
+  }
+
   async findAll(): Promise<User[]> {
     try {
       const command = new ScanCommand({
@@ -100,6 +128,63 @@ export class DynUserRepository implements UserRepository {
     } catch (error) {
       console.error("Error creating user:", error);
       throw new Error("Failed to create user");
+    }
+  }
+
+  async update(id: string, input: UpdateUserInput): Promise<User> {
+    if (!id) {
+      throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
+    }
+
+    const now = new Date().toISOString();
+
+    // Build SET expression dynamically — only include fields that were provided
+    const updateExpressionParts: string[] = ["updatedAt = :updatedAt"];
+    const expressionAttributeValues: Record<string, string | number> = {
+      ":updatedAt": now,
+    };
+
+    if (input.voiceInputLanguage !== undefined) {
+      updateExpressionParts.push("voiceInputLanguage = :voiceInputLanguage");
+      expressionAttributeValues[":voiceInputLanguage"] =
+        input.voiceInputLanguage;
+    }
+
+    if (input.transactionPatternsLimit !== undefined) {
+      updateExpressionParts.push(
+        "transactionPatternsLimit = :transactionPatternsLimit",
+      );
+      expressionAttributeValues[":transactionPatternsLimit"] =
+        input.transactionPatternsLimit;
+    }
+
+    try {
+      const command = new UpdateCommand({
+        TableName: this.tableName,
+        Key: { id },
+        UpdateExpression: `SET ${updateExpressionParts.join(", ")}`,
+        ConditionExpression: "attribute_exists(id)",
+        ExpressionAttributeValues: expressionAttributeValues,
+        ReturnValues: "ALL_NEW",
+      });
+
+      const result = await this.client.send(command);
+      return hydrate(userSchema, result.Attributes);
+    } catch (error) {
+      console.error("Error updating user:", error);
+
+      if (
+        error instanceof Error &&
+        error.name === "ConditionalCheckFailedException"
+      ) {
+        throw new RepositoryError("User not found", "NOT_FOUND");
+      }
+
+      throw new RepositoryError(
+        "Failed to update user",
+        "UPDATE_FAILED",
+        error,
+      );
     }
   }
 

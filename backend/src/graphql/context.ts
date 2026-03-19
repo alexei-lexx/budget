@@ -8,6 +8,7 @@ import { InsightService } from "../services/insight-service";
 import { UserRepository } from "../services/ports/user-repository";
 import { TransactionService } from "../services/transaction-service";
 import { TransferService } from "../services/transfer-service";
+import { UserService } from "../services/user-service";
 import {
   TransactionEmbeddedAccount,
   TransactionEmbeddedCategory,
@@ -16,6 +17,7 @@ import {
 export interface GraphQLContext {
   auth: AuthContext;
   userRepository: UserRepository;
+  userService: UserService;
   categoryService: CategoryService;
   transactionService: TransactionService;
   accountService: AccountService;

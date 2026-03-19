@@ -23,6 +23,7 @@ import { TransactionRepository } from "./services/ports/transaction-repository";
 import { UserRepository } from "./services/ports/user-repository";
 import { TransactionService } from "./services/transaction-service";
 import { TransferService } from "./services/transfer-service";
+import { UserService } from "./services/user-service";
 import { createBedrockChatModel } from "./utils/bedrock";
 
 let jwtAuthService: JwtAuthService;
@@ -37,6 +38,7 @@ let insightService: InsightService;
 let createTransactionFromTextService: CreateTransactionFromTextService;
 let transferService: TransferService;
 let byCategoryReportService: ByCategoryReportService;
+let userService: UserService;
 
 const typeDefs = readFileSync(join(__dirname, "graphql/schema.graphql"), {
   encoding: "utf-8",
@@ -130,6 +132,10 @@ export async function createContext(req: {
     );
   }
 
+  if (!userService) {
+    userService = new UserService(userRepository);
+  }
+
   const authHeader = req.headers.authorization;
   // Handle both string and string[] types from different contexts
   const authHeaderString = Array.isArray(authHeader)
@@ -145,6 +151,7 @@ export async function createContext(req: {
   > = {
     auth,
     userRepository,
+    userService,
     categoryService,
     transactionService,
     accountService,

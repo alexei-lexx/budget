@@ -181,6 +181,7 @@ export type Mutation = {
   updateCategory: Category;
   updateTransaction: Transaction;
   updateTransfer: Transfer;
+  updateUserSettings: UserSettings;
 };
 
 
@@ -248,6 +249,11 @@ export type MutationUpdateTransferArgs = {
   input: UpdateTransferInput;
 };
 
+
+export type MutationUpdateUserSettingsArgs = {
+  input: UpdateUserSettingsInput;
+};
+
 export type PageInfo = {
   __typename?: 'PageInfo';
   endCursor?: Maybe<Scalars['String']['output']>;
@@ -272,6 +278,7 @@ export type Query = {
   transactionPatterns: Array<TransactionPattern>;
   transactions: TransactionConnection;
   transfer?: Maybe<Transfer>;
+  userSettings: UserSettings;
 };
 
 
@@ -443,9 +450,20 @@ export type UpdateTransferInput = {
   toAccountId?: InputMaybe<Scalars['ID']['input']>;
 };
 
+export type UpdateUserSettingsInput = {
+  transactionPatternsLimit?: InputMaybe<Scalars['Int']['input']>;
+  voiceInputLanguage?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type User = {
   __typename?: 'User';
   email: Scalars['String']['output'];
+};
+
+export type UserSettings = {
+  __typename?: 'UserSettings';
+  transactionPatternsLimit?: Maybe<Scalars['Int']['output']>;
+  voiceInputLanguage?: Maybe<Scalars['String']['output']>;
 };
 
 export type AccountFieldsFragment = { __typename?: 'Account', id: string, name: string, currency: string, initialBalance: number, balance: number };
@@ -575,6 +593,13 @@ export type DeleteTransferMutationVariables = Exact<{
 
 export type DeleteTransferMutation = { __typename?: 'Mutation', deleteTransfer?: boolean | null | undefined };
 
+export type UpdateUserSettingsMutationVariables = Exact<{
+  input: UpdateUserSettingsInput;
+}>;
+
+
+export type UpdateUserSettingsMutation = { __typename?: 'Mutation', updateUserSettings: { __typename?: 'UserSettings', voiceInputLanguage?: string | null | undefined, transactionPatternsLimit?: number | null | undefined } };
+
 export type GetAccountsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -647,6 +672,11 @@ export type GetInsightQuery = { __typename?: 'Query', insight:
         | { __typename?: 'AgentTraceToolResult', toolName: string, output: string }
       > }
    };
+
+export type GetUserSettingsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetUserSettingsQuery = { __typename?: 'Query', userSettings: { __typename?: 'UserSettings', voiceInputLanguage?: string | null | undefined, transactionPatternsLimit?: number | null | undefined } };
 
 export const AccountFieldsFragmentDoc = gql`
     fragment AccountFields on Account {
@@ -1124,6 +1154,36 @@ export function useDeleteTransferMutation(options: VueApolloComposable.UseMutati
   return VueApolloComposable.useMutation<DeleteTransferMutation, DeleteTransferMutationVariables>(DeleteTransferDocument, options);
 }
 export type DeleteTransferMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<DeleteTransferMutation, DeleteTransferMutationVariables>;
+export const UpdateUserSettingsDocument = gql`
+    mutation UpdateUserSettings($input: UpdateUserSettingsInput!) {
+  updateUserSettings(input: $input) {
+    voiceInputLanguage
+    transactionPatternsLimit
+  }
+}
+    `;
+
+/**
+ * __useUpdateUserSettingsMutation__
+ *
+ * To run a mutation, you first call `useUpdateUserSettingsMutation` within a Vue component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateUserSettingsMutation` returns an object that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - Several other properties: https://v4.apollo.vuejs.org/api/use-mutation.html#return
+ *
+ * @param options that will be passed into the mutation, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/mutation.html#options;
+ *
+ * @example
+ * const { mutate, loading, error, onDone } = useUpdateUserSettingsMutation({
+ *   variables: {
+ *     input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateUserSettingsMutation(options: VueApolloComposable.UseMutationOptions<UpdateUserSettingsMutation, UpdateUserSettingsMutationVariables> | ReactiveFunction<VueApolloComposable.UseMutationOptions<UpdateUserSettingsMutation, UpdateUserSettingsMutationVariables>> = {}) {
+  return VueApolloComposable.useMutation<UpdateUserSettingsMutation, UpdateUserSettingsMutationVariables>(UpdateUserSettingsDocument, options);
+}
+export type UpdateUserSettingsMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<UpdateUserSettingsMutation, UpdateUserSettingsMutationVariables>;
 export const GetAccountsDocument = gql`
     query GetAccounts {
   accounts {
@@ -1432,3 +1492,31 @@ export function useGetInsightLazyQuery(variables?: GetInsightQueryVariables | Vu
   return VueApolloComposable.useLazyQuery<GetInsightQuery, GetInsightQueryVariables>(GetInsightDocument, variables, options);
 }
 export type GetInsightQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<GetInsightQuery, GetInsightQueryVariables>;
+export const GetUserSettingsDocument = gql`
+    query GetUserSettings {
+  userSettings {
+    voiceInputLanguage
+    transactionPatternsLimit
+  }
+}
+    `;
+
+/**
+ * __useGetUserSettingsQuery__
+ *
+ * To run a query within a Vue component, call `useGetUserSettingsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetUserSettingsQuery` returns an object from Apollo Client that contains result, loading and error properties
+ * you can use to render your UI.
+ *
+ * @param options that will be passed into the query, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/query.html#options;
+ *
+ * @example
+ * const { result, loading, error } = useGetUserSettingsQuery();
+ */
+export function useGetUserSettingsQuery(options: VueApolloComposable.UseQueryOptions<GetUserSettingsQuery, GetUserSettingsQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<GetUserSettingsQuery, GetUserSettingsQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<GetUserSettingsQuery, GetUserSettingsQueryVariables>> = {}) {
+  return VueApolloComposable.useQuery<GetUserSettingsQuery, GetUserSettingsQueryVariables>(GetUserSettingsDocument, {}, options);
+}
+export function useGetUserSettingsLazyQuery(options: VueApolloComposable.UseQueryOptions<GetUserSettingsQuery, GetUserSettingsQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<GetUserSettingsQuery, GetUserSettingsQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<GetUserSettingsQuery, GetUserSettingsQueryVariables>> = {}) {
+  return VueApolloComposable.useLazyQuery<GetUserSettingsQuery, GetUserSettingsQueryVariables>(GetUserSettingsDocument, {}, options);
+}
+export type GetUserSettingsQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<GetUserSettingsQuery, GetUserSettingsQueryVariables>;

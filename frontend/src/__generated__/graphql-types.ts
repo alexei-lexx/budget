@@ -177,6 +177,7 @@ export type Mutation = {
   updateCategory: Category;
   updateTransaction: Transaction;
   updateTransfer: Transfer;
+  updateUserSettings: UserSettings;
 };
 
 
@@ -244,6 +245,11 @@ export type MutationUpdateTransferArgs = {
   input: UpdateTransferInput;
 };
 
+
+export type MutationUpdateUserSettingsArgs = {
+  input: UpdateUserSettingsInput;
+};
+
 export type PageInfo = {
   __typename?: 'PageInfo';
   endCursor?: Maybe<Scalars['String']['output']>;
@@ -268,6 +274,7 @@ export type Query = {
   transactionPatterns: Array<TransactionPattern>;
   transactions: TransactionConnection;
   transfer?: Maybe<Transfer>;
+  userSettings: UserSettings;
 };
 
 
@@ -439,9 +446,20 @@ export type UpdateTransferInput = {
   toAccountId?: InputMaybe<Scalars['ID']['input']>;
 };
 
+export type UpdateUserSettingsInput = {
+  transactionPatternsLimit?: InputMaybe<Scalars['Int']['input']>;
+  voiceInputLanguage?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type User = {
   __typename?: 'User';
   email: Scalars['String']['output'];
+};
+
+export type UserSettings = {
+  __typename?: 'UserSettings';
+  transactionPatternsLimit?: Maybe<Scalars['Int']['output']>;
+  voiceInputLanguage?: Maybe<Scalars['String']['output']>;
 };
 
 export type AccountFieldsFragment = { __typename?: 'Account', id: string, name: string, currency: string, initialBalance: number, balance: number };
@@ -571,6 +589,13 @@ export type DeleteTransferMutationVariables = Exact<{
 
 export type DeleteTransferMutation = { __typename?: 'Mutation', deleteTransfer?: boolean | null | undefined };
 
+export type UpdateUserSettingsMutationVariables = Exact<{
+  input: UpdateUserSettingsInput;
+}>;
+
+
+export type UpdateUserSettingsMutation = { __typename?: 'Mutation', updateUserSettings: { __typename?: 'UserSettings', voiceInputLanguage?: string | null | undefined, transactionPatternsLimit?: number | null | undefined } };
+
 export type GetAccountsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -643,3 +668,8 @@ export type GetInsightQuery = { __typename?: 'Query', insight:
         | { __typename?: 'AgentTraceToolResult', toolName: string, output: string }
       > }
    };
+
+export type GetUserSettingsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetUserSettingsQuery = { __typename?: 'Query', userSettings: { __typename?: 'UserSettings', voiceInputLanguage?: string | null | undefined, transactionPatternsLimit?: number | null | undefined } };

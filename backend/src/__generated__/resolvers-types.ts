@@ -184,6 +184,7 @@ export type Mutation = {
   updateCategory: Category;
   updateTransaction: Transaction;
   updateTransfer: Transfer;
+  updateUserSettings: UserSettings;
 };
 
 
@@ -251,6 +252,11 @@ export type MutationUpdateTransferArgs = {
   input: UpdateTransferInput;
 };
 
+
+export type MutationUpdateUserSettingsArgs = {
+  input: UpdateUserSettingsInput;
+};
+
 export type PageInfo = {
   __typename?: 'PageInfo';
   endCursor?: Maybe<Scalars['String']['output']>;
@@ -275,6 +281,7 @@ export type Query = {
   transactionPatterns: Array<TransactionPattern>;
   transactions: TransactionConnection;
   transfer?: Maybe<Transfer>;
+  userSettings: UserSettings;
 };
 
 
@@ -436,9 +443,20 @@ export type UpdateTransferInput = {
   toAccountId?: InputMaybe<Scalars['ID']['input']>;
 };
 
+export type UpdateUserSettingsInput = {
+  transactionPatternsLimit?: InputMaybe<Scalars['Int']['input']>;
+  voiceInputLanguage?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type User = {
   __typename?: 'User';
   email: Scalars['String']['output'];
+};
+
+export type UserSettings = {
+  __typename?: 'UserSettings';
+  transactionPatternsLimit?: Maybe<Scalars['Int']['output']>;
+  voiceInputLanguage?: Maybe<Scalars['String']['output']>;
 };
 
 
@@ -578,7 +596,9 @@ export type ResolversTypes = {
   UpdateCategoryInput: UpdateCategoryInput;
   UpdateTransactionInput: UpdateTransactionInput;
   UpdateTransferInput: UpdateTransferInput;
+  UpdateUserSettingsInput: UpdateUserSettingsInput;
   User: ResolverTypeWrapper<User>;
+  UserSettings: ResolverTypeWrapper<UserSettings>;
 };
 
 /** Mapping between all available schema types and the resolvers parents */
@@ -627,7 +647,9 @@ export type ResolversParentTypes = {
   UpdateCategoryInput: UpdateCategoryInput;
   UpdateTransactionInput: UpdateTransactionInput;
   UpdateTransferInput: UpdateTransferInput;
+  UpdateUserSettingsInput: UpdateUserSettingsInput;
   User: User;
+  UserSettings: UserSettings;
 };
 
 export type AccountResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Account'] = ResolversParentTypes['Account']> = {
@@ -742,6 +764,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   updateCategory?: Resolver<ResolversTypes['Category'], ParentType, ContextType, RequireFields<MutationUpdateCategoryArgs, 'input'>>;
   updateTransaction?: Resolver<ResolversTypes['Transaction'], ParentType, ContextType, RequireFields<MutationUpdateTransactionArgs, 'input'>>;
   updateTransfer?: Resolver<ResolversTypes['Transfer'], ParentType, ContextType, RequireFields<MutationUpdateTransferArgs, 'input'>>;
+  updateUserSettings?: Resolver<ResolversTypes['UserSettings'], ParentType, ContextType, RequireFields<MutationUpdateUserSettingsArgs, 'input'>>;
 };
 
 export type PageInfoResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['PageInfo'] = ResolversParentTypes['PageInfo']> = {
@@ -761,6 +784,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   transactionPatterns?: Resolver<Array<ResolversTypes['TransactionPattern']>, ParentType, ContextType, RequireFields<QueryTransactionPatternsArgs, 'type'>>;
   transactions?: Resolver<ResolversTypes['TransactionConnection'], ParentType, ContextType, Partial<QueryTransactionsArgs>>;
   transfer?: Resolver<Maybe<ResolversTypes['Transfer']>, ParentType, ContextType, RequireFields<QueryTransferArgs, 'id'>>;
+  userSettings?: Resolver<ResolversTypes['UserSettings'], ParentType, ContextType>;
 };
 
 export type ReportTypeResolvers = EnumResolverSignature<{ EXPENSE?: any, INCOME?: any }, ResolversTypes['ReportType']>;
@@ -821,6 +845,11 @@ export type UserResolvers<ContextType = GraphQLContext, ParentType extends Resol
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
 };
 
+export type UserSettingsResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['UserSettings'] = ResolversParentTypes['UserSettings']> = {
+  transactionPatternsLimit?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  voiceInputLanguage?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+};
+
 export type Resolvers<ContextType = GraphQLContext> = {
   Account?: AccountResolvers<ContextType>;
   AgentTraceMessage?: AgentTraceMessageResolvers<ContextType>;
@@ -853,5 +882,6 @@ export type Resolvers<ContextType = GraphQLContext> = {
   TransactionType?: TransactionTypeResolvers;
   Transfer?: TransferResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
+  UserSettings?: UserSettingsResolvers<ContextType>;
 };
 
