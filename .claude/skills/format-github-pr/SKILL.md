@@ -71,7 +71,9 @@ Also factor in any context the user provided — they often know things the diff
 ### Sections
 
 Include the following sections in the description:
-- **context** — Why this change is needed — the motivation or pain point it addresses
+- **context** — Why this change is needed
+  - The motivation or pain point it addresses
+  - Which features or areas of the product are affected
 - **before** — Describe current behavior or limitations
 - **after** — Describe new behavior or improvements
 
