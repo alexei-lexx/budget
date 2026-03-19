@@ -19,13 +19,13 @@ type User {
 }
 
 type UserSettings {
-  voiceInputLanguage: String
   transactionPatternsLimit: Int!
+  voiceInputLanguage: String
 }
 
 input UpdateUserSettingsInput {
-  voiceInputLanguage: String
   transactionPatternsLimit: Int
+  voiceInputLanguage: String
 }
 
 type Account {
