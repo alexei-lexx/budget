@@ -381,13 +381,13 @@ The system SHALL suggest previously-used transaction descriptions as the user ty
 
 ### Requirement: Quick Action Buttons
 
-The system SHALL display quick action buttons for the top frequent account/category combinations when a user has sufficient transaction history, pre-filling the form on click.
+The system SHALL display quick action buttons for the top frequent account/category combinations when a user has sufficient transaction history, pre-filling the form on click. The number of buttons shown SHALL be determined by the user's configured shortcuts limit (defaulting to 3 when not set), within a system range of 1–10.
 
 #### Scenario: Quick action buttons appear with sufficient history
 
 - GIVEN a user with 25 or more transactions to the same account/category combination
 - WHEN they open the transaction form
-- THEN quick action buttons appear showing up to 3 most frequent patterns
+- THEN quick action buttons appear showing up to the user's configured shortcuts limit (default 3) most frequent patterns
 
 #### Scenario: Clicking a quick action pre-fills account and category
 
@@ -634,7 +634,7 @@ The system SHALL refresh account balances immediately after a transaction is suc
 
 ### Requirement: Voice Input for Natural Language Transaction Creation
 
-The system SHALL provide a mic button inside the natural language text input area that captures speech via the browser's Web Speech API and auto-submits the transcript to the existing transaction creation pipeline. The mic button SHALL only appear on devices where the Web Speech API is supported.
+The system SHALL provide a mic button inside the natural language text input area that captures speech via the browser's Web Speech API and auto-submits the transcript to the existing transaction creation pipeline. The mic button SHALL only appear on devices where the Web Speech API is supported. Speech recognition SHALL use the user's saved voice input language when set, falling back to the browser's default language when not set.
 
 #### Scenario: Mic button is visible when Web Speech API is supported
 
@@ -689,3 +689,15 @@ The system SHALL provide a mic button inside the natural language text input are
 - **GIVEN** a voice transcript has been submitted and AI inference is in progress
 - **WHEN** the user views the input area
 - **THEN** the mic button and text input are disabled until inference completes
+
+#### Scenario: Voice input uses the user's saved language
+
+- **GIVEN** the user has saved a voice input language in Settings
+- **WHEN** they tap the mic button on the Transactions page
+- **THEN** speech recognition uses the saved language
+
+#### Scenario: Voice input falls back to browser language when none is saved
+
+- **GIVEN** the user has not saved a voice input language
+- **WHEN** they tap the mic button on the Transactions page
+- **THEN** speech recognition uses the browser's default language

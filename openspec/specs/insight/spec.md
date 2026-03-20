@@ -145,7 +145,7 @@ The system SHALL expose the agent trace for each insight response via the insigh
 
 ### Requirement: Voice Input for Insight Query
 
-The system SHALL provide a mic button inside the natural language text input area on the Insight page that captures speech via the browser's Web Speech API and auto-submits the transcript to the existing insight query pipeline. The mic button SHALL only appear on devices where the Web Speech API is supported.
+The system SHALL provide a mic button inside the natural language text input area on the Insight page that captures speech via the browser's Web Speech API and auto-submits the transcript to the existing insight query pipeline. The mic button SHALL only appear on devices where the Web Speech API is supported. Speech recognition SHALL use the user's saved voice input language when set, falling back to the browser's default language when not set.
 
 #### Scenario: Mic button is visible when Web Speech API is supported
 
@@ -200,3 +200,15 @@ The system SHALL provide a mic button inside the natural language text input are
 - **GIVEN** a voice transcript has been submitted and AI inference is in progress
 - **WHEN** the user views the input area
 - **THEN** the mic button and text input are disabled until inference completes
+
+#### Scenario: Voice input uses the user's saved language
+
+- **GIVEN** the user has saved a voice input language in Settings
+- **WHEN** they tap the mic button on the Insight page
+- **THEN** speech recognition uses the saved language
+
+#### Scenario: Voice input falls back to browser language when none is saved
+
+- **GIVEN** the user has not saved a voice input language
+- **WHEN** they tap the mic button on the Insight page
+- **THEN** speech recognition uses the browser's default language
