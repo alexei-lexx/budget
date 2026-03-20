@@ -12,10 +12,11 @@ export const createTransactionFromTextResolvers = {
     ) => {
       try {
         const user = await getAuthenticatedUser(context);
-        const result = await context.createTransactionFromTextService.call(
-          user.id,
-          args.input.text,
-        );
+        const result = await context.createTransactionFromTextService.call({
+          userId: user.id,
+          text: args.input.text,
+          isVoiceInput: args.input.isVoiceInput ?? false,
+        });
 
         if (!result.success) {
           return {

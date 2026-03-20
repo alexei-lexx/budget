@@ -11,7 +11,7 @@
       :is-recording="isRecording"
       class="flex-grow-1"
       @update:model-value="$emit('update:modelValue', $event)"
-      @submit="$emit('submit')"
+      @submit="$emit('submit', false)"
       @start-recording="startRecording"
       @stop-recording="stopRecording"
     />
@@ -45,7 +45,7 @@ defineProps<{
 
 const emit = defineEmits<{
   "update:modelValue": [value: string];
-  submit: [];
+  submit: [isVoiceInput: boolean];
 }>();
 
 const { showErrorSnackbar } = useSnackbar();
@@ -59,7 +59,7 @@ const {
 } = useVoiceInput({
   onTranscript: (transcript: string) => {
     emit("update:modelValue", transcript);
-    emit("submit");
+    emit("submit", true);
   },
   onError: showErrorSnackbar,
   language: () => settings.value?.voiceInputLanguage ?? undefined,

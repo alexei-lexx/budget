@@ -211,6 +211,11 @@ input CreateTransactionFromTextInput {
   Examples: "spent 45 euro at rewe yesterday", "received salary 4500 USD", "got a refund from zalando 29.99"
   """
   text: String!
+  """
+  Whether the text was captured via voice recognition.
+  When true, the agent checks whether integer amounts may represent spoken prices collapsed by speech-to-text.
+  """
+  isVoiceInput: Boolean
 }
 
 input UpdateTransactionInput {

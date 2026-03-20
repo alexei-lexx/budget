@@ -53,7 +53,7 @@ describe("CreateTransactionFromTextService", () => {
   describe("validation", () => {
     it("should return failure when userId is empty", async () => {
       // Act
-      const result = await service.call("", "some text");
+      const result = await service.call({ userId: "", text: "some text" });
 
       // Assert
       expect(result).toMatchObject({
@@ -65,7 +65,7 @@ describe("CreateTransactionFromTextService", () => {
 
     it("should return failure when text is empty", async () => {
       // Act
-      const result = await service.call(userId, "");
+      const result = await service.call({ userId, text: "" });
 
       // Assert
       expect(result).toMatchObject({
@@ -77,7 +77,7 @@ describe("CreateTransactionFromTextService", () => {
 
     it("should return failure when text is only whitespace", async () => {
       // Act
-      const result = await service.call(userId, "   ");
+      const result = await service.call({ userId, text: "   " });
 
       // Assert
       expect(result).toMatchObject({
@@ -131,7 +131,7 @@ describe("CreateTransactionFromTextService", () => {
 
     it("should return the created transaction", async () => {
       // Act
-      const result = await service.call(userId, text);
+      const result = await service.call({ userId, text });
 
       // Assert
       expect(result).toMatchObject({
@@ -146,7 +146,7 @@ describe("CreateTransactionFromTextService", () => {
 
     it("should return agentTrace from agent response", async () => {
       // Act
-      const result = await service.call(userId, text);
+      const result = await service.call({ userId, text });
 
       // Assert
       expect(result).toMatchObject({
@@ -164,7 +164,7 @@ describe("CreateTransactionFromTextService", () => {
 
     it("should pass trimmed text to agent", async () => {
       // Act
-      await service.call(userId, `    ${text}    `);
+      await service.call({ userId, text: `    ${text}    ` });
 
       // Assert
       const callArgs = mockAgent.call.mock.calls[0][0];
@@ -173,7 +173,7 @@ describe("CreateTransactionFromTextService", () => {
 
     it("should include all required tools in agent call", async () => {
       // Act
-      await service.call(userId, text);
+      await service.call({ userId, text });
 
       // Assert
       const callArgs = mockAgent.call.mock.calls[0][0];
@@ -188,12 +188,30 @@ describe("CreateTransactionFromTextService", () => {
 
     it("should include today's date in system prompt", async () => {
       // Act
-      await service.call(userId, text);
+      await service.call({ userId, text });
 
       // Assert
       const callArgs = mockAgent.call.mock.calls[0][0];
       const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
       expect(callArgs.systemPrompt).toContain(`Today is ${today}`);
+    });
+
+    it("should not include voice hint in system prompt when isVoiceInput is false", async () => {
+      // Act
+      await service.call({ userId, text, isVoiceInput: false });
+
+      // Assert
+      const callArgs = mockAgent.call.mock.calls[0][0];
+      expect(callArgs.systemPrompt).not.toContain("voice recognition");
+    });
+
+    it("should include voice hint in system prompt when isVoiceInput is true", async () => {
+      // Act
+      await service.call({ userId, text, isVoiceInput: true });
+
+      // Assert
+      const callArgs = mockAgent.call.mock.calls[0][0];
+      expect(callArgs.systemPrompt).toContain("voice recognition");
     });
   });
 
@@ -203,7 +221,7 @@ describe("CreateTransactionFromTextService", () => {
       mockAgent.call.mockRejectedValue(new Error("Agent unavailable"));
 
       // Act & Assert
-      await expect(service.call(userId, text)).rejects.toThrow(
+      await expect(service.call({ userId, text })).rejects.toThrow(
         "Agent unavailable",
       );
       expect(mockTransactionService.getTransactionById).not.toHaveBeenCalled();
@@ -224,7 +242,7 @@ describe("CreateTransactionFromTextService", () => {
       });
 
       // Act
-      const result = await service.call(userId, text);
+      const result = await service.call({ userId, text });
 
       // Assert
       expect(result).toMatchObject({
@@ -252,7 +270,7 @@ describe("CreateTransactionFromTextService", () => {
       });
 
       // Act
-      const result = await service.call(userId, text);
+      const result = await service.call({ userId, text });
 
       // Assert
       expect(result).toMatchObject({
@@ -282,7 +300,7 @@ describe("CreateTransactionFromTextService", () => {
       });
 
       // Act
-      const result = await service.call(userId, text);
+      const result = await service.call({ userId, text });
 
       // Assert
       expect(result).toMatchObject({
@@ -306,7 +324,7 @@ describe("CreateTransactionFromTextService", () => {
       });
 
       // Act
-      const result = await service.call(userId, text);
+      const result = await service.call({ userId, text });
 
       // Assert
       expect(result).toMatchObject({
@@ -347,7 +365,7 @@ describe("CreateTransactionFromTextService", () => {
       );
 
       // Act
-      const result = await service.call(userId, text);
+      const result = await service.call({ userId, text });
 
       // Assert
       expect(result).toMatchObject({
