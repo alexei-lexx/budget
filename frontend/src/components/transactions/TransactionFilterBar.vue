@@ -113,7 +113,7 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import type { Account, Category, TransactionType } from "@/__generated__/graphql-types";
+import type { Account, Category, TransactionType } from "@/__generated__/vue-apollo";
 import type { TransactionFiltersState } from "@/composables/useTransactionFilters";
 import { getCategoryIconColor, getCategoryIcon } from "@/utils/category";
 

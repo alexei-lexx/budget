@@ -1,5 +1,5 @@
 import { ref, computed, type Ref, type ComputedRef } from "vue";
-import type { TransactionFilterInput, TransactionType } from "@/__generated__/graphql-types";
+import type { TransactionFilterInput, TransactionType } from "@/__generated__/vue-apollo";
 
 export interface TransactionFiltersState {
   // UI State (selected but not yet applied)
