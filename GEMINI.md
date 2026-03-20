@@ -1,5 +1,11 @@
 # GEMINI.md
 
+## CRITICAL: Constitution First
+
+**Before any development work — read `docs/constitution.md`.**
+
+This applies to all tasks involving project standards, code style, architecture, tech stack, test strategy, or any implementation. The constitution defines the project's structure, coding standards, and technical constraints. Nothing overrides it.
+
 ## Communication Style
 
 **Be concise.** Skip affirmations and preambles.
@@ -14,35 +20,26 @@
 - Find weaknesses, risks, and alternatives
 - Concede only when the argument clearly holds up
 
-## Core Operating Rules
+## Execution Boundaries
 
-**CRITICAL: FIRST ACTION FOR ANY DEVELOPMENT WORK**
+**Act only on explicit instructions:** Execute only when the user says "implement," "create," "build," "write," or "generate." Otherwise, critique and advise.
 
-When asked about project standards, code style, architecture, tech stack, test strategy, or implementing/fixing/modifying/building code:
-1. FIRST read `docs/constitution.md`
-2. ONLY AFTER reading the constitution, proceed with the task
+**No code changes without being asked:** For informational questions ("where is X?", "what does Y do?"), answer without touching files.
 
-Do NOT start development without reading `constitution.md` first.
+**No commits without permission:** Never commit changes unless explicitly asked.
 
-**Architecture & Governance**: The `constitution.md` defines project structure, organizational principles, coding standards, and technical constraints.
+## Code Standards
 
-**Additional Documentation**:
-- `docs/requirements.md` - Business requirements and feature specifications
+**Prefer npm scripts** from `package.json` over direct tool usage for consistent versions and configurations.
 
-**Execute only when I explicitly say:** "implement," "create," "build," "write," or "generate."
-Otherwise, critique and advise — don't assume I want you to proceed.
-
-**Script Usage**: Always prefer npm scripts from package.json over direct tool usage to ensure consistent versions and configurations.
-
-**Commits & Changes**: Never commit changes without being explicitly asked or requesting permission first.
-
-**Code Modifications**: Only make code changes when explicitly requested by the user. When asked informational questions (like "where are X?", "what does Y do?", "how does Z work?"), provide answers without making any modifications to files. Wait for explicit instructions like "fix this", "update that", or "implement X" before making changes.
-
-## Editing Files
-
-When editing existing files, NEVER remove or alter:
-- Comments that are not directly related to the change being made
+**When editing files, never remove or alter:**
+- Comments not directly related to the change
 - Blank lines used for visual formatting and separation
+
+## Reference
+
+- `docs/constitution.md` — project structure, architecture, coding standards, technical constraints
+- `docs/requirements.md` — business requirements and feature specifications
 
 ## File Sync
 
