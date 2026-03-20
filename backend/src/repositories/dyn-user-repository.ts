@@ -73,7 +73,7 @@ export class DynUserRepository implements UserRepository {
 
   async findById(id: string): Promise<User | null> {
     if (!id) {
-      throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
+      throw new RepositoryError("User ID is required", "INVALID_USER_ID");
     }
 
     try {
@@ -147,7 +147,7 @@ export class DynUserRepository implements UserRepository {
 
   async update(id: string, input: UpdateUserInput): Promise<User> {
     if (!id) {
-      throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
+      throw new RepositoryError("User ID is required", "INVALID_USER_ID");
     }
 
     const now = new Date().toISOString();
