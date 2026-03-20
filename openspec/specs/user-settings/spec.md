@@ -2,13 +2,13 @@
 
 ## Purpose
 
-TBD — This domain covers user-configurable application settings, including the Settings page, voice input language preference, and transaction shortcuts limit.
+This domain covers user-configurable application preferences: the Settings page where users view and update their preferences, voice input language selection for speech recognition, and the transaction shortcuts limit that controls how many quick-action buttons appear in the transaction form.
 
 ## Requirements
 
 ### Requirement: Settings Page Access
 
-The system SHALL provide a Settings page accessible from the navigation menu, positioned below Insight.
+The system SHALL provide a Settings page accessible from the navigation menu.
 
 #### Scenario: Authenticated user can open Settings
 
@@ -30,7 +30,7 @@ The system SHALL load the user's current saved settings from the backend when th
 
 - **GIVEN** a user with no saved settings
 - **WHEN** they open the Settings page
-- **THEN** the voice input language dropdown defaults to the browser language and the shortcuts limit field is empty
+- **THEN** the voice input language dropdown shows the best match for the browser language from the supported language list, falling back to English (United States) if no match is found, and the shortcuts limit field shows the system default (3)
 
 ### Requirement: Voice Input Language Setting
 
@@ -40,7 +40,7 @@ The system SHALL provide a dropdown of common languages for voice input recognit
 
 - **GIVEN** the Settings page is open
 - **WHEN** the user views the voice input language dropdown
-- **THEN** each option displays a human-readable language name (e.g., "English", "Polish", "German")
+- **THEN** each option displays a human-readable language name rendered in the user's browser language (e.g., "English", "Polski", "Deutsch" when the browser language is Polish)
 
 #### Scenario: Selecting and saving a language applies it to voice input
 
