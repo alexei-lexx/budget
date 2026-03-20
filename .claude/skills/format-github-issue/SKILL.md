@@ -30,13 +30,13 @@ If the type is ambiguous, ask before continuing.
 
 - Lowercase except proper nouns and acronyms (API, URL, CDK, AWS, etc.)
 - Non-bug issues: start with an action verb: `add`, `fix`, `show`, `move`, `rename`, `update`, `remove`, `enable`, `migrate`, `replace`, `merge`, `support`
-- Bug issues: use `[bug]` prefix and describe the symptom (not an action verb)
+- Bug issues: describe the symptom (not an action verb)
 - 5–10 words, specific — describe the exact change or problem, not vague goals
 
 **Examples:**
 - `show top 5 transactions per category in monthly report`
 - `fix npm audit issues`
-- `[bug] pagination fails when using date filters`
+- `pagination fails when using date filters`
 - `migrate user lookup from Auth0 ID to email`
 
 ### 3. Format the body
