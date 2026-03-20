@@ -248,7 +248,7 @@ describe("DynUserRepository", () => {
 
       // Should throw error due to data integrity issue
       await expect(repository.findByEmail("dupe@example.com")).rejects.toThrow(
-        "Failed to find user by email",
+        "Data integrity error: Multiple users found for email dupe@example.com",
       );
     });
   });
