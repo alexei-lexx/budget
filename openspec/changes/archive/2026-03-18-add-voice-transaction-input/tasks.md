@@ -18,11 +18,11 @@
 
 ## 4. Validation
 
-- [X] 4.1 Verify mic button appears in Chrome/Edge and is hidden in Firefox
-- [X] 4.2 Verify pulsing red animation plays while recording and stops on completion
-- [X] 4.3 Verify speaking a transaction (e.g. "coffee 4 euro") creates the transaction and clears the input
-- [X] 4.4 Verify silence returns the mic to idle with no error shown
-- [X] 4.5 Verify mic button is disabled while AI inference is in progress
+- [x] 4.1 Verify mic button appears in Chrome/Edge and is hidden in Firefox
+- [x] 4.2 Verify pulsing red animation plays while recording and stops on completion
+- [x] 4.3 Verify speaking a transaction (e.g. "coffee 4 euro") creates the transaction and clears the input
+- [x] 4.4 Verify silence returns the mic to idle with no error shown
+- [x] 4.5 Verify mic button is disabled while AI inference is in progress
 - [x] 4.6 Run `npm run typecheck` and `npm run format` in `frontend/`
 
 ## Constitution Compliance
