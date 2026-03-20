@@ -10,7 +10,7 @@ export function useCreateTransactionFromText() {
 
   const { mutate, loading, error } = useCreateTransactionFromTextMutation();
 
-  const submit = async (isVoiceInput: boolean = false): Promise<Transaction | null> => {
+  const submit = async (isVoiceInput: boolean): Promise<Transaction | null> => {
     const trimmedText = text.value.trim();
     if (!trimmedText) {
       return null;
