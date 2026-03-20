@@ -196,7 +196,7 @@ describe("CreateTransactionFromTextService", () => {
       expect(callArgs.systemPrompt).toContain(`Today is ${today}`);
     });
 
-    it("should not include voice hint in system prompt when isVoiceInput is false", async () => {
+    it("should not include voice amount hint in system prompt when isVoiceInput is false", async () => {
       // Act
       await service.call({ userId, text, isVoiceInput: false });
 
@@ -205,7 +205,7 @@ describe("CreateTransactionFromTextService", () => {
       expect(callArgs.systemPrompt).not.toContain("voice recognition");
     });
 
-    it("should include voice hint in system prompt when isVoiceInput is true", async () => {
+    it("should include voice amount hint in system prompt when isVoiceInput is true", async () => {
       // Act
       await service.call({ userId, text, isVoiceInput: true });
 
