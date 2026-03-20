@@ -1,6 +1,7 @@
 import { AccountRepository } from "../../services/ports/account-repository";
 import { CategoryRepository } from "../../services/ports/category-repository";
 import { TransactionRepository } from "../../services/ports/transaction-repository";
+import { UserRepository } from "../../services/ports/user-repository";
 
 /**
  * Mock transaction repository for testing
@@ -51,3 +52,15 @@ export const createMockCategoryRepository =
     update: jest.fn(),
     archive: jest.fn(),
   });
+
+/**
+ * Mock user repository for testing
+ */
+export const createMockUserRepository = (): jest.Mocked<UserRepository> => ({
+  findByEmail: jest.fn(),
+  findById: jest.fn(),
+  findAll: jest.fn(),
+  create: jest.fn(),
+  ensureUser: jest.fn(),
+  update: jest.fn(),
+});

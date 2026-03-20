@@ -30,13 +30,19 @@ The system SHALL redirect authenticated users to the transactions page when they
 
 ### Requirement: Section Navigation
 
-The system SHALL provide a navigation menu allowing users to move between the major sections of the application: Accounts, Categories, Transactions, and Reports.
+The system SHALL provide a navigation menu with items in this order: Transactions, Accounts, Categories, Reports, Insight, Settings.
 
 #### Scenario: User navigates to a section via menu
 
 - GIVEN an authenticated user on any page
 - WHEN they click a section in the navigation menu
 - THEN they are taken to that section's page without a full page reload
+
+#### Scenario: Navigation menu items appear in the specified order
+
+- GIVEN an authenticated user viewing the navigation menu
+- WHEN they look at the menu items
+- THEN the items appear in order: Transactions, Accounts, Categories, Reports, Insight, Settings
 
 ### Requirement: Sign-Out in Sidebar
 

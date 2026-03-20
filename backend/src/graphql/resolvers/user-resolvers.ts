@@ -1,8 +1,12 @@
 import { GraphQLError } from "graphql";
+import { MutationUpdateUserSettingsArgs } from "../../__generated__/resolvers-types";
 import { User } from "../../models/user";
-
 import { GraphQLContext } from "../context";
-import { handleResolverError, requireAuthentication } from "./shared";
+import {
+  getAuthenticatedUser,
+  handleResolverError,
+  requireAuthentication,
+} from "./shared";
 
 /**
  * Helper function for ensureUser mutation that creates user if needed
@@ -35,6 +39,26 @@ async function ensureAuthenticatedUser(context: GraphQLContext): Promise<User> {
 }
 
 export const userResolvers = {
+  Query: {
+    userSettings: async (
+      _parent: unknown,
+      _args: unknown,
+      context: GraphQLContext,
+    ) => {
+      try {
+        const user = await getAuthenticatedUser(context);
+        const result = await context.userService.getSettings(user.id);
+
+        if (!result.success) {
+          throw new GraphQLError(result.error);
+        }
+
+        return result.data;
+      } catch (error) {
+        handleResolverError(error, "Failed to fetch user settings");
+      }
+    },
+  },
   Mutation: {
     ensureUser: async (
       _parent: unknown,
@@ -46,6 +70,30 @@ export const userResolvers = {
         return user;
       } catch (error) {
         handleResolverError(error, "Failed to create or retrieve user");
+      }
+    },
+
+    updateUserSettings: async (
+      _parent: unknown,
+      args: MutationUpdateUserSettingsArgs,
+      context: GraphQLContext,
+    ) => {
+      try {
+        const user = await getAuthenticatedUser(context);
+        const result = await context.userService.updateSettings({
+          userId: user.id,
+          voiceInputLanguage: args.input.voiceInputLanguage ?? undefined,
+          transactionPatternsLimit:
+            args.input.transactionPatternsLimit ?? undefined,
+        });
+
+        if (!result.success) {
+          throw new GraphQLError(result.error);
+        }
+
+        return result.data;
+      } catch (error) {
+        handleResolverError(error, "Failed to update user settings");
       }
     },
   },

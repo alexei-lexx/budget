@@ -125,3 +125,12 @@ export const GET_INSIGHT = gql`
   }
   ${AGENT_TRACE_FRAGMENT}
 `;
+
+export const GET_USER_SETTINGS = gql`
+  query GetUserSettings {
+    userSettings {
+      transactionPatternsLimit
+      voiceInputLanguage
+    }
+  }
+`;

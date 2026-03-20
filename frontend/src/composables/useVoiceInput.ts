@@ -3,9 +3,11 @@ import { ref } from "vue";
 export function useVoiceInput({
   onTranscript,
   onError,
+  language,
 }: {
   onTranscript: (text: string) => void;
   onError?: (message: string) => void;
+  language?: () => string | undefined;
 }) {
   // SpeechRecognition is Chrome/Edge only — absent in Firefox
   const isSupported = typeof SpeechRecognition !== "undefined";
@@ -19,6 +21,14 @@ export function useVoiceInput({
     recognition = new SpeechRecognition();
     recognition.continuous = false; // Stop automatically after the first utterance
     recognition.interimResults = false; // Only deliver final transcripts, not partial guesses
+
+    // Absent language means the user has no saved preference
+    // Leave recognition.lang unset
+    // So the browser falls back to its own language detection
+    const lang = language?.();
+    if (lang) {
+      recognition.lang = lang;
+    }
 
     // Microphone opened — recording begins
     recognition.onstart = () => {

@@ -248,7 +248,7 @@ describe("DynUserRepository", () => {
 
       // Should throw error due to data integrity issue
       await expect(repository.findByEmail("dupe@example.com")).rejects.toThrow(
-        "Failed to find user by email",
+        "Data integrity error: Multiple users found for email dupe@example.com",
       );
     });
   });
@@ -320,6 +320,87 @@ describe("DynUserRepository", () => {
     it("should throw error when receiving invalid input", async () => {
       // Act & Assert - Empty email
       await expect(repository.ensureUser("")).rejects.toThrow();
+    });
+  });
+
+  describe("findById", () => {
+    it("should find user by ID", async () => {
+      // Arrange
+      const created = await repository.create(fakeCreateUserInput());
+
+      // Act
+      const result = await repository.findById(created.id);
+
+      // Assert
+      expect(result).toEqual(created);
+    });
+
+    it("should return null when ID not found", async () => {
+      const result = await repository.findById("nonexistent-id");
+
+      expect(result).toBeNull();
+    });
+
+    it("should throw when ID is empty", async () => {
+      await expect(repository.findById("")).rejects.toThrow();
+    });
+  });
+
+  describe("update", () => {
+    it("should update voiceInputLanguage", async () => {
+      // Arrange
+      const created = await repository.create(fakeCreateUserInput());
+
+      // Act
+      const result = await repository.update(created.id, {
+        voiceInputLanguage: "pl-PL",
+      });
+
+      // Assert
+      expect(result.voiceInputLanguage).toBe("pl-PL");
+      expect(result.id).toBe(created.id);
+      expect(result.email).toBe(created.email);
+      expect(result.updatedAt).not.toBe(created.updatedAt);
+    });
+
+    it("should update transactionPatternsLimit", async () => {
+      // Arrange
+      const created = await repository.create(fakeCreateUserInput());
+
+      // Act
+      const result = await repository.update(created.id, {
+        transactionPatternsLimit: 5,
+      });
+
+      // Assert
+      expect(result.transactionPatternsLimit).toBe(5);
+    });
+
+    it("should update both fields at once", async () => {
+      // Arrange
+      const created = await repository.create(fakeCreateUserInput());
+
+      // Act
+      const result = await repository.update(created.id, {
+        voiceInputLanguage: "de-DE",
+        transactionPatternsLimit: 7,
+      });
+
+      // Assert
+      expect(result.voiceInputLanguage).toBe("de-DE");
+      expect(result.transactionPatternsLimit).toBe(7);
+    });
+
+    it("should throw NOT_FOUND for nonexistent user ID", async () => {
+      await expect(
+        repository.update("nonexistent-id", { voiceInputLanguage: "en-US" }),
+      ).rejects.toThrow();
+    });
+
+    it("should throw when ID is empty", async () => {
+      await expect(
+        repository.update("", { voiceInputLanguage: "en-US" }),
+      ).rejects.toThrow();
     });
   });
 

@@ -11,10 +11,21 @@ type Query {
   byCategoryReport(year: Int!, month: Int, type: ReportType!): ByCategoryReport!
   insight(input: InsightInput!): InsightOutput!
   transactionDescriptionSuggestions(searchText: String!): [String!]!
+  userSettings: UserSettings!
 }
 
 type User {
   email: String!
+}
+
+type UserSettings {
+  transactionPatternsLimit: Int!
+  voiceInputLanguage: String
+}
+
+input UpdateUserSettingsInput {
+  transactionPatternsLimit: Int
+  voiceInputLanguage: String
 }
 
 type Account {
@@ -315,4 +326,5 @@ type Mutation {
   createTransfer(input: CreateTransferInput!): Transfer!
   updateTransfer(input: UpdateTransferInput!): Transfer!
   deleteTransfer(id: ID!): Boolean
+  updateUserSettings(input: UpdateUserSettingsInput!): UserSettings!
 }

@@ -5,6 +5,7 @@ export const userSchema = z.object({
   id: z.uuid(),
   email: z.email().lowercase(),
   transactionPatternsLimit: z.number().optional(),
+  voiceInputLanguage: z.string().optional(),
   createdAt: z.iso.datetime(),
   updatedAt: z.iso.datetime(),
 }) satisfies z.ZodType<User>;

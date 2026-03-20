@@ -314,6 +314,13 @@ onMounted(() => {
           title="Insight"
           @click="mobile && (drawer = false)"
         />
+        <v-list-item
+          v-if="isAuthenticated"
+          :to="{ name: 'Settings' }"
+          prepend-icon="mdi-cog-outline"
+          title="Settings"
+          @click="mobile && (drawer = false)"
+        />
         <!-- Passkey registration -->
         <v-list-item
           v-if="isAuthenticated && passkeyRegistrationUrl"
