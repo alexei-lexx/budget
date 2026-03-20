@@ -80,12 +80,17 @@ describeLLM("[LLM] CreateTransactionFromTextService", () => {
 
   it("should decline if there are no accounts", async () => {
     // Act
-    const promise = service.call(user.id, "apples 10 euro");
+    const result = await service.call(user.id, "apples 10 euro");
 
     // Assert
-    await expect(promise).rejects.toThrow(
-      /Agent did not attempt to create a transaction/,
-    );
+    expect(result).toMatchObject({
+      success: false,
+      error: {
+        message: expect.stringContaining(
+          "Agent did not attempt to create a transaction",
+        ),
+      },
+    });
   });
 
   it("should decline if cannot infer amount", async () => {
@@ -93,12 +98,17 @@ describeLLM("[LLM] CreateTransactionFromTextService", () => {
     await accountRepository.create(fakeAccount({ userId: user.id }));
 
     // Act
-    const promise = service.call(user.id, "bought apples");
+    const result = await service.call(user.id, "bought apples");
 
     // Assert
-    await expect(promise).rejects.toThrow(
-      /Agent did not attempt to create a transaction/,
-    );
+    expect(result).toMatchObject({
+      success: false,
+      error: {
+        message: expect.stringContaining(
+          "Agent did not attempt to create a transaction",
+        ),
+      },
+    });
   });
 
   it("should create expense transaction", async () => {
@@ -115,15 +125,18 @@ describeLLM("[LLM] CreateTransactionFromTextService", () => {
     );
 
     // Act
-    const promise = service.call(user.id, "bought apples for 10 euro");
+    const result = await service.call(user.id, "bought apples for 10 euro");
 
     // Assert
-    await expect(promise).resolves.toMatchObject({
-      transaction: {
-        accountId: account.id,
-        categoryId: category.id,
-        amount: 10,
-        type: TransactionType.EXPENSE,
+    expect(result).toMatchObject({
+      success: true,
+      data: {
+        transaction: {
+          accountId: account.id,
+          categoryId: category.id,
+          amount: 10,
+          type: TransactionType.EXPENSE,
+        },
       },
     });
   });
@@ -142,15 +155,18 @@ describeLLM("[LLM] CreateTransactionFromTextService", () => {
     );
 
     // Act
-    const promise = service.call(user.id, "received salary of 2000 euro");
+    const result = await service.call(user.id, "received salary of 2000 euro");
 
     // Assert
-    await expect(promise).resolves.toMatchObject({
-      transaction: {
-        accountId: account.id,
-        categoryId: category.id,
-        amount: 2000,
-        type: TransactionType.INCOME,
+    expect(result).toMatchObject({
+      success: true,
+      data: {
+        transaction: {
+          accountId: account.id,
+          categoryId: category.id,
+          amount: 2000,
+          type: TransactionType.INCOME,
+        },
       },
     });
   });
@@ -169,15 +185,21 @@ describeLLM("[LLM] CreateTransactionFromTextService", () => {
     );
 
     // Act
-    const promise = service.call(user.id, "got a refund of 50 euro for shoes");
+    const result = await service.call(
+      user.id,
+      "got a refund of 50 euro for shoes",
+    );
 
     // Assert
-    await expect(promise).resolves.toMatchObject({
-      transaction: {
-        accountId: account.id,
-        categoryId: category.id,
-        amount: 50,
-        type: TransactionType.REFUND,
+    expect(result).toMatchObject({
+      success: true,
+      data: {
+        transaction: {
+          accountId: account.id,
+          categoryId: category.id,
+          amount: 50,
+          type: TransactionType.REFUND,
+        },
       },
     });
   });
