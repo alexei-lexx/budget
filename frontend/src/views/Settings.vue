@@ -73,7 +73,7 @@ const displayNames = new Intl.DisplayNames([navigator.language], { type: "langua
 const languageOptions = LANGUAGE_CODES.map((code) => ({
   title: displayNames.of(code) ?? code,
   value: code,
-})).sort((a, b) => a.title.localeCompare(b.title));
+})).sort((languageA, languageB) => languageA.title.localeCompare(languageB.title));
 
 // Default to the browser language if it matches a supported code, otherwise fall back to en-US
 const browserLang = navigator.language;
