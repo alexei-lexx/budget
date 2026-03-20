@@ -184,6 +184,39 @@ describeLLM("[LLM] CreateTransactionFromTextService", () => {
     });
   });
 
+  it("should create refund transaction", async () => {
+    // Arrange
+    const account = await accountRepository.create(
+      fakeAccount({ userId: user.id, currency: "EUR" }),
+    );
+    const category = await categoryRepository.create(
+      fakeCategory({
+        userId: user.id,
+        type: CategoryType.EXPENSE,
+        name: "shoes",
+      }),
+    );
+
+    // Act
+    const result = await service.call({
+      userId: user.id,
+      text: "got a refund of 50 euro for shoes",
+    });
+
+    // Assert
+    expect(result).toMatchObject({
+      success: true,
+      data: {
+        transaction: {
+          accountId: account.id,
+          categoryId: category.id,
+          amount: 50,
+          type: TransactionType.REFUND,
+        },
+      },
+    });
+  });
+
   describe("voice input", () => {
     it("should use amount as transcribed when no similar transaction history exists", async () => {
       // Arrange
@@ -276,39 +309,6 @@ describeLLM("[LLM] CreateTransactionFromTextService", () => {
           transaction: { amount: 4 },
         },
       });
-    });
-  });
-
-  it("should create refund transaction", async () => {
-    // Arrange
-    const account = await accountRepository.create(
-      fakeAccount({ userId: user.id, currency: "EUR" }),
-    );
-    const category = await categoryRepository.create(
-      fakeCategory({
-        userId: user.id,
-        type: CategoryType.EXPENSE,
-        name: "shoes",
-      }),
-    );
-
-    // Act
-    const result = await service.call({
-      userId: user.id,
-      text: "got a refund of 50 euro for shoes",
-    });
-
-    // Assert
-    expect(result).toMatchObject({
-      success: true,
-      data: {
-        transaction: {
-          accountId: account.id,
-          categoryId: category.id,
-          amount: 50,
-          type: TransactionType.REFUND,
-        },
-      },
     });
   });
 });
