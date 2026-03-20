@@ -666,11 +666,11 @@ The system SHALL provide a mic button inside the natural language text input are
 - **WHEN** the user stops speaking and a pause is detected
 - **THEN** speech recognition stops automatically without requiring a manual tap to stop
 
-#### Scenario: Transcript is auto-submitted with voice flag
+#### Scenario: Transcript is auto-submitted with voice origin signal
 
 - **GIVEN** speech recognition has produced a non-empty transcript
 - **WHEN** recognition ends
-- **THEN** the transcript is submitted to the transaction creation pipeline with `isVoiceInput` set to true
+- **THEN** the transcript is submitted to the transaction creation pipeline with a signal indicating the input came from voice
 
 #### Scenario: Empty transcript returns to idle silently
 
@@ -705,13 +705,13 @@ The system SHALL provide a mic button inside the natural language text input are
 #### Scenario: Agent uses history to pick the most realistic amount interpretation
 
 - **GIVEN** the user says "two thirty four bananas" and speech-to-text transcribes it as "234 bananas"
-- **WHEN** the agent processes the input with `isVoiceInput` true and finds similar past transactions around 2–3 EUR
+- **WHEN** the agent processes the input knowing it came from voice and finds similar past transactions around 2–3 EUR
 - **THEN** the agent creates the transaction with amount 2.34
 
 #### Scenario: Agent saves the amount as-is when no history is available
 
 - **GIVEN** the user says something that produces an integer amount and there are no similar past transactions to validate against
-- **WHEN** the agent processes the input with `isVoiceInput` true
+- **WHEN** the agent processes the input knowing it came from voice
 - **THEN** the transaction is created with the amount as transcribed
 
 #### Scenario: Keyboard submission does not trigger voice amount validation
