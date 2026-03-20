@@ -16,6 +16,7 @@
             variant="outlined"
             hint="e.g. Card + Groceries, Cash + Transport"
             persistent-hint
+            step="1"
             :min="MIN_PATTERNS_LIMIT"
             :max="MAX_PATTERNS_LIMIT"
           />
@@ -104,9 +105,13 @@ watch(
 );
 
 const handleSave = async () => {
+  const transactionPatternsLimitRaw = transactionPatternsLimit.value.trim();
+
   const success = await updateSettings({
     voiceInputLanguage: voiceInputLanguage.value,
-    transactionPatternsLimit: Number(transactionPatternsLimit.value),
+    transactionPatternsLimit: transactionPatternsLimitRaw
+      ? parseInt(transactionPatternsLimitRaw, 10)
+      : undefined,
   });
 
   if (success) {

@@ -53,15 +53,21 @@ export class DynUserRepository implements UserRepository {
       }
 
       if (result.Items.length > 1) {
-        throw new Error(
+        throw new RepositoryError(
           `Data integrity error: Multiple users found for email ${normalizedEmail}`,
+          "QUERY_FAILED",
         );
       }
 
       return hydrate(userSchema, result.Items[0]);
     } catch (error) {
       console.error("Error finding user by email:", error);
-      throw new Error("Failed to find user by email");
+      if (error instanceof RepositoryError) throw error;
+      throw new RepositoryError(
+        "Failed to find user by email",
+        "QUERY_FAILED",
+        error,
+      );
     }
   }
 
@@ -85,7 +91,11 @@ export class DynUserRepository implements UserRepository {
       return hydrate(userSchema, result.Item);
     } catch (error) {
       console.error("Error finding user by ID:", error);
-      throw new Error("Failed to find user by ID");
+      throw new RepositoryError(
+        "Failed to find user by ID",
+        "GET_FAILED",
+        error,
+      );
     }
   }
 
@@ -104,7 +114,7 @@ export class DynUserRepository implements UserRepository {
       return result.Items.map((item) => hydrate(userSchema, item));
     } catch (error) {
       console.error("Error finding all users:", error);
-      throw new Error("Failed to find users");
+      throw new RepositoryError("Failed to find users", "QUERY_FAILED", error);
     }
   }
 
@@ -127,7 +137,11 @@ export class DynUserRepository implements UserRepository {
       return user;
     } catch (error) {
       console.error("Error creating user:", error);
-      throw new Error("Failed to create user");
+      throw new RepositoryError(
+        "Failed to create user",
+        "CREATE_FAILED",
+        error,
+      );
     }
   }
 

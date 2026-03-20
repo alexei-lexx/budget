@@ -66,7 +66,7 @@ user ID from context). `updateSettings` needs to persist only the changed fields
 - `findById(id: string): Promise<User | null>`
 - `update(id: string, input: UpdateUserInput): Promise<User>`
 
-where `UpdateUserInput` is `{ voiceInputLanguage?: string | null; transactionPatternsLimit?: number | null }`.
+where `UpdateUserInput` is `{ voiceInputLanguage?: string; transactionPatternsLimit?: number }`. Resetting a saved value back to the browser default is not supported — once a preference is set, it can only be changed to another value.
 
 ### 4 — No data migration for `voiceInputLanguage`
 
@@ -76,8 +76,7 @@ An absent value means "use browser default" — which is the current behaviour f
 users. No backfill is needed.
 
 **Alternative considered**: Migration that sets `voiceInputLanguage: null` explicitly
-on all users — unnecessary since `undefined` and `null` are treated the same way
-throughout.
+on all users — unnecessary since an absent field already means "use browser default".
 
 ### 5 — `useUserSettings` composable for frontend consumers
 

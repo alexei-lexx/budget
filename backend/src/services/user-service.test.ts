@@ -120,7 +120,7 @@ describe("UserService", () => {
       // Assert
       expect(result).toEqual({
         success: true,
-        data: { transactionPatternsLimit: 7 },
+        data: { transactionPatternsLimit: 7, voiceInputLanguage: undefined },
       });
     });
 
