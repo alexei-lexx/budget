@@ -1,3 +1,11 @@
+# AGENTS.md
+
+## CRITICAL: Constitution First
+
+**Before any development work — read `docs/constitution.md`.**
+
+This applies to all tasks involving project standards, code style, architecture, tech stack, test strategy, or any implementation. The constitution defines the project's structure, coding standards, and technical constraints. Nothing overrides it.
+
 ## Communication Style
 
 **Be concise.** Skip affirmations and preambles.
@@ -7,26 +15,38 @@
 - Challenge assumptions and surface tradeoffs
 - Ask clarifying questions on ambiguous requests
 
-## Core Operating Rules
+**Challenge first:**
+- Push back before agreeing
+- Find weaknesses, risks, and alternatives
+- Concede only when the argument clearly holds up
 
-**CRITICAL: FIRST ACTION FOR ANY DEVELOPMENT WORK**
+## Execution Boundaries
 
-When asked about project standards, code style, architecture, tech stack, test strategy, or implementing/fixing/modifying/building code:
-1. FIRST read `docs/constitution.md`
-2. ONLY AFTER reading the constitution, proceed with the task
+**Act only on explicit instructions:** Execute only when the user says "implement," "create," "build," "write," or "generate." Otherwise, critique and advise.
 
-Do NOT start development without reading `constitution.md` first.
+**No code changes without being asked:** For informational questions ("where is X?", "what does Y do?"), answer without touching files.
 
-**Architecture & Governance**: The `constitution.md` defines project structure, organizational principles, coding standards, and technical constraints.
+**No commits without permission:** Never commit changes unless explicitly asked.
 
-**Additional Documentation**:
-- `docs/requirements.md` - Business requirements and feature specifications
+## Code Standards
 
-**Execute only when I explicitly say:** "implement," "create," "build," "write," or "generate."
-Otherwise, critique and advise — don't assume I want you to proceed.
+**Prefer npm scripts** from `package.json` over direct tool usage for consistent versions and configurations.
 
-**Script Usage**: Always prefer npm scripts from package.json over direct tool usage to ensure consistent versions and configurations.
+**When editing files, never remove or alter:**
+- Comments not directly related to the change
+- Blank lines used for visual formatting and separation
 
-**Commits & Changes**: Never commit changes without being explicitly asked or requesting permission first.
+## Reference
 
-**Code Modifications**: Only make code changes when explicitly requested by the user. When asked informational questions (like "where are X?", "what does Y do?", "how does Z work?"), provide answers without making any modifications to files. Wait for explicit instructions like "fix this", "update that", or "implement X" before making changes.
+- `docs/constitution.md` — project structure, architecture, coding standards, technical constraints
+- `docs/requirements.md` — business requirements and feature specifications
+
+## File Sync
+
+These instruction files must stay in sync:
+- `AGENTS.md`
+- `CLAUDE.md`
+- `GEMINI.md`
+- `.github/copilot-instructions.md`
+
+**When editing any of these files, update all the others to match.**
