@@ -6,16 +6,13 @@ import { handleResolverError } from "./shared";
 describe("handleResolverError", () => {
   describe("GraphQLError pass-through", () => {
     it("passes through GraphQLError unchanged", async () => {
-      const error = new GraphQLError("Custom error", {
-        extensions: { code: "CUSTOM_ERROR" },
-      });
+      const error = new GraphQLError("Custom error");
       const wrapper = async () => handleResolverError(error, "default message");
       const promise = wrapper();
 
       await expect(promise).rejects.toThrow(GraphQLError);
       await expect(promise).rejects.toMatchObject({
         message: "Custom error",
-        extensions: { code: "CUSTOM_ERROR" },
       });
     });
   });

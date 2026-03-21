@@ -10,11 +10,7 @@ import { GraphQLContext } from "../context";
  */
 export function requireAuthentication(context: GraphQLContext) {
   if (!context.auth.isAuthenticated || !context.auth.user) {
-    throw new GraphQLError("Authentication required", {
-      extensions: {
-        code: "UNAUTHENTICATED",
-      },
-    });
+    throw new GraphQLError("Authentication required");
   }
   return context.auth.user;
 }
@@ -33,11 +29,7 @@ export async function getAuthenticatedUser(
     const user = await context.userRepository.findByEmail(authUser.email);
 
     if (!user) {
-      throw new GraphQLError("User not found", {
-        extensions: {
-          code: "USER_NOT_FOUND",
-        },
-      });
+      throw new GraphQLError("User not found");
     }
 
     return user;
@@ -46,11 +38,7 @@ export async function getAuthenticatedUser(
     if (error instanceof GraphQLError) {
       throw error;
     }
-    throw new GraphQLError("Failed to authenticate user", {
-      extensions: {
-        code: "AUTHENTICATION_ERROR",
-      },
-    });
+    throw new GraphQLError("Failed to authenticate user");
   }
 }
 

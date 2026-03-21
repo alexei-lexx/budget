@@ -102,9 +102,7 @@ export const accountResolvers = {
 
       // Validate input
       if (!id) {
-        throw new GraphQLError("Account ID is required", {
-          extensions: { code: "BAD_USER_INPUT" },
-        });
+        throw new GraphQLError("Account ID is required");
       }
 
       try {

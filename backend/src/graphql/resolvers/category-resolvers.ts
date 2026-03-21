@@ -79,9 +79,7 @@ export const categoryResolvers = {
 
       // Validate input
       if (!id) {
-        throw new GraphQLError("Category ID is required", {
-          extensions: { code: "BAD_USER_INPUT" },
-        });
+        throw new GraphQLError("Category ID is required");
       }
 
       try {
