@@ -5,7 +5,7 @@ import {
   NAME_MIN_LENGTH,
   SUPPORTED_CURRENCIES,
 } from "../types/validation";
-import { BusinessError, BusinessErrorCodes } from "./business-error";
+import { BusinessError } from "./business-error";
 import {
   AccountRepository,
   CreateAccountInput,
@@ -71,11 +71,7 @@ export class AccountService {
     );
 
     if (!currentAccount) {
-      throw new BusinessError(
-        "Account not found",
-        BusinessErrorCodes.ACCOUNT_NOT_FOUND,
-        { accountId: id, userId },
-      );
+      throw new BusinessError("Account not found");
     }
 
     const validatedInput = {
@@ -102,12 +98,6 @@ export class AccountService {
       if (hasTransactions) {
         throw new BusinessError(
           "Cannot change currency for account that has existing transactions. Please create a new account with the desired currency instead.",
-          BusinessErrorCodes.ACCOUNT_CURRENCY_CHANGE_BLOCKED,
-          {
-            accountId: id,
-            currentCurrency: currentAccount.currency,
-            requestedCurrency: validatedInput.currency,
-          },
         );
       }
     }
@@ -141,11 +131,7 @@ export class AccountService {
     );
 
     if (!account) {
-      throw new BusinessError(
-        "Account not found or doesn't belong to user",
-        BusinessErrorCodes.ACCOUNT_NOT_FOUND,
-        { accountId, userId },
-      );
+      throw new BusinessError("Account not found or doesn't belong to user");
     }
 
     // Get all transactions for this account
@@ -172,7 +158,6 @@ export class AccountService {
     ) {
       throw new BusinessError(
         `Account name must be between ${NAME_MIN_LENGTH} and ${NAME_MAX_LENGTH} characters`,
-        BusinessErrorCodes.INVALID_PARAMETERS,
       );
     }
 
@@ -185,7 +170,6 @@ export class AccountService {
     if (!SUPPORTED_CURRENCIES.includes(normalizedCurrency)) {
       throw new BusinessError(
         `Unsupported currency: ${normalizedCurrency}. Supported currencies: ${SUPPORTED_CURRENCIES.join(", ")}`,
-        BusinessErrorCodes.INVALID_PARAMETERS,
       );
     }
 
@@ -206,10 +190,7 @@ export class AccountService {
     );
 
     if (duplicateAccount) {
-      throw new BusinessError(
-        `Account "${name}" already exists`,
-        BusinessErrorCodes.DUPLICATE_NAME,
-      );
+      throw new BusinessError(`Account "${name}" already exists`);
     }
   }
 }

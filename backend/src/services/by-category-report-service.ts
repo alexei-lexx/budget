@@ -6,7 +6,7 @@ import {
 } from "../models/transaction";
 import { toDateString } from "../types/date";
 import { formatDateAsYYYYMMDD } from "../utils/date";
-import { BusinessError, BusinessErrorCodes } from "./business-error";
+import { BusinessError } from "./business-error";
 import { CategoryRepository } from "./ports/category-repository";
 import { TransactionRepository } from "./ports/transaction-repository";
 
@@ -274,19 +274,13 @@ export class ByCategoryReportService {
 
   private validateYear(year: number): void {
     if (!Number.isInteger(year)) {
-      throw new BusinessError(
-        "Year must be a valid integer",
-        BusinessErrorCodes.INVALID_PARAMETERS,
-      );
+      throw new BusinessError("Year must be a valid integer");
     }
   }
 
   private validateMonth(month: number): void {
     if (!Number.isInteger(month) || month < 1 || month > 12) {
-      throw new BusinessError(
-        "Month must be a valid integer between 1 and 12",
-        BusinessErrorCodes.INVALID_PARAMETERS,
-      );
+      throw new BusinessError("Month must be a valid integer between 1 and 12");
     }
   }
 }

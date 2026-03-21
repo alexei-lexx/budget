@@ -6,7 +6,7 @@ import {
   fakeCreateCategoryInput,
 } from "../utils/test-utils/factories";
 import { createMockCategoryRepository } from "../utils/test-utils/mock-repositories";
-import { BusinessError, BusinessErrorCodes } from "./business-error";
+import { BusinessError } from "./business-error";
 import { CategoryService } from "./category-service";
 
 describe("CategoryService", () => {
@@ -113,7 +113,6 @@ describe("CategoryService", () => {
       await expect(promise).rejects.toThrow(BusinessError);
       await expect(promise).rejects.toMatchObject({
         message: `Category name must be between ${NAME_MIN_LENGTH} and ${NAME_MAX_LENGTH} characters`,
-        code: BusinessErrorCodes.INVALID_PARAMETERS,
       });
       expect(mockCategoryRepository.create).not.toHaveBeenCalled();
     });
@@ -128,7 +127,6 @@ describe("CategoryService", () => {
       await expect(promise).rejects.toThrow(BusinessError);
       await expect(promise).rejects.toMatchObject({
         message: `Category name must be between ${NAME_MIN_LENGTH} and ${NAME_MAX_LENGTH} characters`,
-        code: BusinessErrorCodes.INVALID_PARAMETERS,
       });
       expect(mockCategoryRepository.create).not.toHaveBeenCalled();
     });
@@ -145,7 +143,6 @@ describe("CategoryService", () => {
       await expect(promise).rejects.toThrow(BusinessError);
       await expect(promise).rejects.toMatchObject({
         message: `Category name must be between ${NAME_MIN_LENGTH} and ${NAME_MAX_LENGTH} characters`,
-        code: BusinessErrorCodes.INVALID_PARAMETERS,
       });
       expect(mockCategoryRepository.create).not.toHaveBeenCalled();
     });
@@ -169,7 +166,6 @@ describe("CategoryService", () => {
       await expect(promise).rejects.toThrow(BusinessError);
       await expect(promise).rejects.toMatchObject({
         message: 'Category "groceries" already exists',
-        code: BusinessErrorCodes.DUPLICATE_NAME,
       });
       expect(mockCategoryRepository.create).not.toHaveBeenCalled();
     });
@@ -223,7 +219,6 @@ describe("CategoryService", () => {
       await expect(promise).rejects.toThrow(BusinessError);
       await expect(promise).rejects.toMatchObject({
         message: `Category name must be between ${NAME_MIN_LENGTH} and ${NAME_MAX_LENGTH} characters`,
-        code: BusinessErrorCodes.INVALID_PARAMETERS,
       });
       expect(mockCategoryRepository.update).not.toHaveBeenCalled();
     });
@@ -239,7 +234,6 @@ describe("CategoryService", () => {
       await expect(promise).rejects.toThrow(BusinessError);
       await expect(promise).rejects.toMatchObject({
         message: `Category name must be between ${NAME_MIN_LENGTH} and ${NAME_MAX_LENGTH} characters`,
-        code: BusinessErrorCodes.INVALID_PARAMETERS,
       });
       expect(mockCategoryRepository.update).not.toHaveBeenCalled();
     });
@@ -255,7 +249,6 @@ describe("CategoryService", () => {
       await expect(promise).rejects.toThrow(BusinessError);
       await expect(promise).rejects.toMatchObject({
         message: `Category name must be between ${NAME_MIN_LENGTH} and ${NAME_MAX_LENGTH} characters`,
-        code: BusinessErrorCodes.INVALID_PARAMETERS,
       });
       expect(mockCategoryRepository.update).not.toHaveBeenCalled();
     });
@@ -284,7 +277,6 @@ describe("CategoryService", () => {
       await expect(promise).rejects.toThrow(BusinessError);
       await expect(promise).rejects.toMatchObject({
         message: 'Category "Groceries" already exists',
-        code: BusinessErrorCodes.DUPLICATE_NAME,
       });
       expect(mockCategoryRepository.update).not.toHaveBeenCalled();
     });

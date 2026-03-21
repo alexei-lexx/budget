@@ -61,40 +61,27 @@ export function handleResolverError(
   error: unknown,
   defaultMessage: string,
 ): never {
-  console.error(`Resolver error: ${defaultMessage}`, error);
+  console.error("Resolver error", error);
 
   if (error instanceof GraphQLError) {
     throw error;
   }
 
+  // Input error - expose message
   if (error instanceof InvalidDateStringError) {
-    throw new GraphQLError(error.message, {
-      extensions: {
-        code: "BAD_USER_INPUT",
-      },
-    });
+    throw new GraphQLError(error.message);
   }
 
-  if (error instanceof RepositoryError) {
-    throw new GraphQLError(error.message, {
-      extensions: {
-        code: error.code,
-      },
-    });
-  }
-
+  // Business error - expose message
   if (error instanceof BusinessError) {
-    throw new GraphQLError(error.message, {
-      extensions: {
-        code: error.code,
-        details: error.details,
-      },
-    });
+    throw new GraphQLError(error.message);
   }
 
-  throw new GraphQLError(defaultMessage, {
-    extensions: {
-      code: "INTERNAL_SERVER_ERROR",
-    },
-  });
+  // Database error - hide message
+  if (error instanceof RepositoryError) {
+    throw new GraphQLError("Database error");
+  }
+
+  // Other errors - hide message
+  throw new GraphQLError(defaultMessage);
 }
