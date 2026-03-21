@@ -10,14 +10,14 @@ export function useCreateTransactionFromText() {
 
   const { mutate, loading, error } = useCreateTransactionFromTextMutation();
 
-  const submit = async (): Promise<Transaction | null> => {
+  const submit = async (isVoiceInput: boolean): Promise<Transaction | null> => {
     const trimmedText = text.value.trim();
     if (!trimmedText) {
       return null;
     }
 
     try {
-      const result = await mutate({ input: { text: trimmedText } });
+      const result = await mutate({ input: { text: trimmedText, isVoiceInput } });
       const response = result?.data?.createTransactionFromText ?? null;
       agentTrace.value = response?.agentTrace ?? [];
 

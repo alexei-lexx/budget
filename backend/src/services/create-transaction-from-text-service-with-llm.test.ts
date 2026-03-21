@@ -12,6 +12,7 @@ import { truncateTable } from "../utils/test-utils/dynamodb-helpers";
 import {
   fakeAccount,
   fakeCategory,
+  fakeTransaction,
   fakeUser,
 } from "../utils/test-utils/factories";
 import { CreateTransactionFromTextService } from "./create-transaction-from-text-service";
@@ -80,7 +81,10 @@ describeLLM("[LLM] CreateTransactionFromTextService", () => {
 
   it("should decline if there are no accounts", async () => {
     // Act
-    const result = await service.call(user.id, "apples 10 euro");
+    const result = await service.call({
+      userId: user.id,
+      text: "apples 10 euro",
+    });
 
     // Assert
     expect(result).toMatchObject({
@@ -98,7 +102,10 @@ describeLLM("[LLM] CreateTransactionFromTextService", () => {
     await accountRepository.create(fakeAccount({ userId: user.id }));
 
     // Act
-    const result = await service.call(user.id, "bought apples");
+    const result = await service.call({
+      userId: user.id,
+      text: "bought apples",
+    });
 
     // Assert
     expect(result).toMatchObject({
@@ -125,7 +132,10 @@ describeLLM("[LLM] CreateTransactionFromTextService", () => {
     );
 
     // Act
-    const result = await service.call(user.id, "bought apples for 10 euro");
+    const result = await service.call({
+      userId: user.id,
+      text: "bought apples for 10 euro",
+    });
 
     // Assert
     expect(result).toMatchObject({
@@ -155,7 +165,10 @@ describeLLM("[LLM] CreateTransactionFromTextService", () => {
     );
 
     // Act
-    const result = await service.call(user.id, "received salary of 2000 euro");
+    const result = await service.call({
+      userId: user.id,
+      text: "received salary of 2000 euro",
+    });
 
     // Assert
     expect(result).toMatchObject({
@@ -185,10 +198,10 @@ describeLLM("[LLM] CreateTransactionFromTextService", () => {
     );
 
     // Act
-    const result = await service.call(
-      user.id,
-      "got a refund of 50 euro for shoes",
-    );
+    const result = await service.call({
+      userId: user.id,
+      text: "got a refund of 50 euro for shoes",
+    });
 
     // Assert
     expect(result).toMatchObject({
@@ -201,6 +214,101 @@ describeLLM("[LLM] CreateTransactionFromTextService", () => {
           type: TransactionType.REFUND,
         },
       },
+    });
+  });
+
+  describe("voice input", () => {
+    it("should use amount as transcribed when no similar transaction history exists", async () => {
+      // Arrange
+      await accountRepository.create(
+        fakeAccount({ userId: user.id, currency: "EUR" }),
+      );
+
+      // Act
+      const result = await service.call({
+        userId: user.id,
+        text: "coffee 435", //spoken as four thirty-five
+        isVoiceInput: true,
+      });
+
+      // Assert
+      expect(result).toMatchObject({
+        success: true,
+        data: {
+          transaction: { amount: 435 },
+        },
+      });
+    });
+
+    it("should correct collapsed amount when similar transaction history suggests a much smaller price", async () => {
+      // Arrange
+      const account = await accountRepository.create(
+        fakeAccount({ userId: user.id, currency: "EUR" }),
+      );
+      const category = await categoryRepository.create(
+        fakeCategory({
+          userId: user.id,
+          type: CategoryType.EXPENSE,
+          name: "coffee",
+        }),
+      );
+
+      // Seed past coffee transactions at ~4 EUR to establish history
+      await transactionRepository.create(
+        fakeTransaction({
+          userId: user.id,
+          accountId: account.id,
+          categoryId: category.id,
+          amount: 4,
+          type: TransactionType.EXPENSE,
+        }),
+      );
+      await transactionRepository.create(
+        fakeTransaction({
+          userId: user.id,
+          accountId: account.id,
+          categoryId: category.id,
+          amount: 3.5,
+          type: TransactionType.EXPENSE,
+        }),
+      );
+
+      // Act
+      const result = await service.call({
+        userId: user.id,
+        text: "coffee 435", //spoken as four thirty-five
+        isVoiceInput: true,
+      });
+
+      // Assert
+      expect(result).toMatchObject({
+        success: true,
+        data: {
+          transaction: { amount: 4.35 },
+        },
+      });
+    });
+
+    it("should create transaction normally when voice amount is unambiguous", async () => {
+      // Arrange
+      await accountRepository.create(
+        fakeAccount({ userId: user.id, currency: "EUR" }),
+      );
+
+      // Act
+      const result = await service.call({
+        userId: user.id,
+        text: "coffee 4 euro",
+        isVoiceInput: true,
+      });
+
+      // Assert
+      expect(result).toMatchObject({
+        success: true,
+        data: {
+          transaction: { amount: 4 },
+        },
+      });
     });
   });
 });

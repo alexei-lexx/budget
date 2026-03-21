@@ -309,8 +309,8 @@ const {
 
 const createTransactionFromTextInputRef = ref<{ focus: () => void } | null>(null);
 
-const handleCreateTransactionFromText = async () => {
-  const transaction = await createTransactionFromTextSubmit();
+const handleCreateTransactionFromText = async (isVoiceInput: boolean) => {
+  const transaction = await createTransactionFromTextSubmit(isVoiceInput);
   if (transaction) {
     // Prepend the new transaction to the list so it appears at the top
     addTransactionsToList([transaction]);

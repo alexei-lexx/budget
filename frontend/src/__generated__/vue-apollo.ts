@@ -110,6 +110,11 @@ export type CreateTransactionFromTextFailure = {
 /** Input for creating a transaction from a natural-language text description. */
 export type CreateTransactionFromTextInput = {
   /**
+   * Whether the text was captured via voice recognition.
+   * When true, the agent checks whether integer amounts may represent spoken prices collapsed by speech-to-text.
+   */
+  isVoiceInput?: InputMaybe<Scalars['Boolean']['input']>;
+  /**
    * Free-text description of the transaction.
    * Examples: "spent 45 euro at rewe yesterday", "received salary 4500 USD", "got a refund from zalando 29.99"
    */
