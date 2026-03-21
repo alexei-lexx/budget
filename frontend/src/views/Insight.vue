@@ -7,20 +7,51 @@
     </div>
 
     <v-empty-state
-      v-if="!insightAnswer && !insightLoading"
+      v-if="chatHistory.length === 0 && !insightLoading"
       icon="mdi-lightbulb-on-outline"
       title="Ask about your finances"
       text="Select a time period and ask a question to get started."
     />
 
-    <div v-else-if="insightLoading" class="d-flex justify-center align-center fill-height">
-      <v-progress-circular indeterminate size="40" width="3" />
-    </div>
+    <div v-else class="conversation mx-auto">
+      <!-- Completed conversation exchanges -->
+      <template v-for="(message, index) in chatHistory" :key="index">
+        <div v-if="message.role === 'user'" class="d-flex justify-end mb-2">
+          <v-card
+            color="primary"
+            variant="tonal"
+            class="pa-3 text-body-2"
+            style="max-width: 80%"
+            rounded="lg"
+          >
+            {{ message.content }}
+          </v-card>
+        </div>
 
-    <div v-else-if="insightAnswer" class="answer-content mx-auto">
-      <div class="text-body-1" style="white-space: pre-wrap">
-        {{ insightAnswer }}
-      </div>
+        <div v-else class="d-flex justify-start mb-4">
+          <div class="text-body-1 answer-text" style="white-space: pre-wrap">
+            {{ message.content }}
+          </div>
+        </div>
+      </template>
+
+      <!-- Pending question while loading -->
+      <template v-if="insightLoading && currentQuestion">
+        <div class="d-flex justify-end mb-2">
+          <v-card
+            color="primary"
+            variant="tonal"
+            class="pa-3 text-body-2"
+            style="max-width: 80%"
+            rounded="lg"
+          >
+            {{ currentQuestion }}
+          </v-card>
+        </div>
+        <div class="d-flex justify-start mb-4">
+          <v-progress-circular indeterminate size="28" width="3" />
+        </div>
+      </template>
     </div>
   </v-container>
 
@@ -97,8 +128,14 @@ type InsightDateRangePreset =
 const STORAGE_KEY = "insight-input";
 
 const { showErrorSnackbar } = useSnackbar();
-const { insightLoading, insightError, insightAnswer, insightAgentTrace, askQuestion } =
-  useInsight();
+const {
+  insightLoading,
+  insightError,
+  insightAgentTrace,
+  chatHistory,
+  currentQuestion,
+  askQuestion,
+} = useInsight();
 
 interface StoredInput {
   question: string;

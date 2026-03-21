@@ -115,6 +115,7 @@ interface CreateTransactionFromTextInput {
   isVoiceInput?: boolean;
   text: string;
   userId: string;
+  history?: { role: "user" | "assistant"; content: string }[];
 }
 
 type CreateTransactionFromTextOutput = Result<
@@ -147,6 +148,7 @@ export class CreateTransactionFromTextService {
     userId,
     text,
     isVoiceInput = false,
+    history,
   }: CreateTransactionFromTextInput): Promise<CreateTransactionFromTextOutput> {
     if (!userId) {
       return Failure({ message: "User ID is required", agentTrace: [] });
@@ -183,7 +185,7 @@ export class CreateTransactionFromTextService {
     const systemPrompt = `${SYSTEM_PROMPT.replace("{{VOICE_AMOUNT_HINT}}", voiceAmountHint)}\n\nToday is ${today}.`;
 
     const { answer, toolExecutions, agentTrace } = await this.agent.call({
-      messages: [{ role: "user", content: normalizedText }],
+      messages: [...(history ?? []), { role: "user", content: normalizedText }],
       systemPrompt,
       tools,
     });

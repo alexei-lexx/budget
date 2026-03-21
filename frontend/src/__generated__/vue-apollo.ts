@@ -89,6 +89,15 @@ export type CategoryType =
   | 'EXPENSE'
   | 'INCOME';
 
+export type ChatMessageInput = {
+  content: Scalars['String']['input'];
+  role: ChatMessageRole;
+};
+
+export type ChatMessageRole =
+  | 'assistant'
+  | 'user';
+
 export type CreateAccountInput = {
   currency: Scalars['String']['input'];
   initialBalance: Scalars['Float']['input'];
@@ -109,6 +118,11 @@ export type CreateTransactionFromTextFailure = {
 
 /** Input for creating a transaction from a natural-language text description. */
 export type CreateTransactionFromTextInput = {
+  /**
+   * Prior conversation messages for multi-turn context, capped by the client.
+   * Enables follow-up requests like "actually make it 5 euros".
+   */
+  history?: InputMaybe<Array<ChatMessageInput>>;
   /**
    * Whether the text was captured via voice recognition.
    * When true, the agent checks whether integer amounts may represent spoken prices collapsed by speech-to-text.
@@ -159,6 +173,7 @@ export type InsightFailure = {
 
 export type InsightInput = {
   dateRange: DateRangeInput;
+  history?: InputMaybe<Array<ChatMessageInput>>;
   question: Scalars['String']['input'];
 };
 

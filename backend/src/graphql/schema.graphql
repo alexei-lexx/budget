@@ -216,6 +216,11 @@ input CreateTransactionFromTextInput {
   When true, the agent checks whether integer amounts may represent spoken prices collapsed by speech-to-text.
   """
   isVoiceInput: Boolean
+  """
+  Prior conversation messages for multi-turn context, capped by the client.
+  Enables follow-up requests like "actually make it 5 euros".
+  """
+  history: [ChatMessageInput!]
 }
 
 input UpdateTransactionInput {
@@ -264,9 +269,20 @@ input DateRangeInput {
   endDate: String!
 }
 
+enum ChatMessageRole {
+  user
+  assistant
+}
+
+input ChatMessageInput {
+  role: ChatMessageRole!
+  content: String!
+}
+
 input InsightInput {
   question: String!
   dateRange: DateRangeInput!
+  history: [ChatMessageInput!]
 }
 
 type PageInfo {

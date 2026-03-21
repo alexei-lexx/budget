@@ -55,10 +55,16 @@ Answer the user's question based on the calculations and data.
 - Do NOT respond in markdown
 `.trim();
 
+export interface InsightChatMessage {
+  role: "user" | "assistant";
+  content: string;
+}
+
 export interface InsightInput {
   question: string;
   startDate: DateString;
   endDate: DateString;
+  history?: InsightChatMessage[];
 }
 
 type InsightOutput = Result<
@@ -120,12 +126,8 @@ export class InsightService {
       });
     }
 
-    const systemPrompt = this.buildSystemPrompt();
-    const userPrompt = this.buildUserPrompt(
-      normalizedQuestion,
-      startDate,
-      endDate,
-    );
+    const systemPrompt = this.buildSystemPrompt(startDate, endDate);
+    const userPrompt = normalizedQuestion;
 
     const dataTools = [
       createGetAccountsTool(this.accountRepository, userId),
@@ -144,7 +146,10 @@ export class InsightService {
     const tools = [...dataTools, ...mathTools];
 
     const response = await this.agent.call({
-      messages: [{ role: "user", content: userPrompt }],
+      messages: [
+        ...(input.history ?? []),
+        { role: "user", content: userPrompt },
+      ],
       systemPrompt,
       tools,
     });
@@ -161,21 +166,15 @@ export class InsightService {
     return Success({ answer: finalAnswer, agentTrace: response.agentTrace });
   }
 
-  private buildUserPrompt(
-    question: string,
+  private buildSystemPrompt(
     startDate: DateString,
     endDate: DateString,
   ): string {
-    return [
-      `I have transactions between ${startDate} and ${endDate}.`,
-      "",
-      `My question: ${question}`,
-    ].join("\n");
-  }
-
-  private buildSystemPrompt(): string {
     const currentDate = formatDateAsYYYYMMDD(new Date());
 
-    return SYSTEM_PROMPT + `\n\nToday's date is ${currentDate}.`;
+    return (
+      SYSTEM_PROMPT +
+      `\n\nToday's date is ${currentDate}. The date range for this conversation is ${startDate} to ${endDate}.`
+    );
   }
 }

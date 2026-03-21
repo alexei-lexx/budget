@@ -92,6 +92,16 @@ export type Category = {
 
 export { CategoryType };
 
+export type ChatMessageInput = {
+  content: Scalars['String']['input'];
+  role: ChatMessageRole;
+};
+
+export enum ChatMessageRole {
+  Assistant = 'assistant',
+  User = 'user'
+}
+
 export type CreateAccountInput = {
   currency: Scalars['String']['input'];
   initialBalance: Scalars['Float']['input'];
@@ -112,6 +122,11 @@ export type CreateTransactionFromTextFailure = {
 
 /** Input for creating a transaction from a natural-language text description. */
 export type CreateTransactionFromTextInput = {
+  /**
+   * Prior conversation messages for multi-turn context, capped by the client.
+   * Enables follow-up requests like "actually make it 5 euros".
+   */
+  history?: InputMaybe<Array<ChatMessageInput>>;
   /**
    * Whether the text was captured via voice recognition.
    * When true, the agent checks whether integer amounts may represent spoken prices collapsed by speech-to-text.
@@ -162,6 +177,7 @@ export type InsightFailure = {
 
 export type InsightInput = {
   dateRange: DateRangeInput;
+  history?: InputMaybe<Array<ChatMessageInput>>;
   question: Scalars['String']['input'];
 };
 
@@ -565,6 +581,8 @@ export type ResolversTypes = {
   ByCategoryReportCurrencyTotal: ResolverTypeWrapper<ByCategoryReportCurrencyTotal>;
   Category: ResolverTypeWrapper<Category>;
   CategoryType: CategoryType;
+  ChatMessageInput: ChatMessageInput;
+  ChatMessageRole: ChatMessageRole;
   CreateAccountInput: CreateAccountInput;
   CreateCategoryInput: CreateCategoryInput;
   CreateTransactionFromTextFailure: ResolverTypeWrapper<Omit<CreateTransactionFromTextFailure, 'agentTrace'> & { agentTrace: Array<ResolversTypes['AgentTraceMessage']> }>;
@@ -619,6 +637,7 @@ export type ResolversParentTypes = {
   ByCategoryReportCurrencyBreakdown: ByCategoryReportCurrencyBreakdown;
   ByCategoryReportCurrencyTotal: ByCategoryReportCurrencyTotal;
   Category: Category;
+  ChatMessageInput: ChatMessageInput;
   CreateAccountInput: CreateAccountInput;
   CreateCategoryInput: CreateCategoryInput;
   CreateTransactionFromTextFailure: Omit<CreateTransactionFromTextFailure, 'agentTrace'> & { agentTrace: Array<ResolversParentTypes['AgentTraceMessage']> };

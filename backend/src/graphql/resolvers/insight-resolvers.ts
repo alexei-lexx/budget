@@ -14,9 +14,13 @@ export const insightResolvers = {
         const user = await getAuthenticatedUser(context);
 
         const result = await context.insightService.call(user.id, {
-          ...args.input,
+          question: args.input.question,
           startDate: toDateString(args.input.dateRange.startDate),
           endDate: toDateString(args.input.dateRange.endDate),
+          history: args.input.history?.map((message) => ({
+            role: message.role as "user" | "assistant",
+            content: message.content,
+          })),
         });
 
         if (!result.success) {

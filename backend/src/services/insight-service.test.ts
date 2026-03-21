@@ -179,9 +179,7 @@ describe("InsightService", () => {
 
       // Assert
       const callArgs = mockAgent.call.mock.calls[0];
-      expect(callArgs[0].messages[0].content).toContain(
-        "My question: What is my spending?",
-      );
+      expect(callArgs[0].messages[0].content).toBe("What is my spending?");
     });
 
     it("should pass system prompt, tools, user message to AI agent", async () => {
@@ -197,11 +195,11 @@ describe("InsightService", () => {
 
       expect(messages).toHaveLength(1);
       expect(messages[0].role).toBe("user");
-      expect(messages[0].content).toContain("2000-01-01");
-      expect(messages[0].content).toContain("2000-01-31");
-      expect(messages[0].content).toContain(validInput.question);
+      expect(messages[0].content).toBe(validInput.question);
 
       expect(systemPrompt).toContain("You are a personal finance assistant");
+      expect(systemPrompt).toContain("2000-01-01");
+      expect(systemPrompt).toContain("2000-01-31");
 
       expect(tools).toBeDefined();
       expect(tools?.map((tool) => tool.name)).toEqual(
@@ -214,6 +212,29 @@ describe("InsightService", () => {
           "sum",
         ]),
       );
+    });
+
+    it("should prepend history messages before the current user message", async () => {
+      // Arrange
+      const history = [
+        { role: "user" as const, content: "How much on food?" },
+        { role: "assistant" as const, content: "You spent 50 EUR on food." },
+      ];
+      const input: InsightInput = { ...validInput, history };
+      mockAgent.call.mockResolvedValue({ answer: "Answer", agentTrace: [] });
+
+      // Act
+      await service.call(userId, input);
+
+      // Assert
+      const callArgs = mockAgent.call.mock.calls[0];
+      const { messages } = callArgs[0];
+
+      expect(messages).toHaveLength(3);
+      expect(messages[0]).toEqual(history[0]);
+      expect(messages[1]).toEqual(history[1]);
+      expect(messages[2].role).toBe("user");
+      expect(messages[2].content).toBe(validInput.question);
     });
 
     it("should propagate error when AI agent fails", async () => {

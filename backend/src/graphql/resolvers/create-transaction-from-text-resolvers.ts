@@ -16,6 +16,10 @@ export const createTransactionFromTextResolvers = {
           userId: user.id,
           text: args.input.text,
           isVoiceInput: args.input.isVoiceInput ?? false,
+          history: args.input.history?.map((message) => ({
+            role: message.role as "user" | "assistant",
+            content: message.content,
+          })),
         });
 
         if (!result.success) {
