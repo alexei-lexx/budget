@@ -30,11 +30,7 @@ async function ensureAuthenticatedUser(context: GraphQLContext): Promise<User> {
     return user;
   } catch (error) {
     console.error("Error ensuring user:", error);
-    throw new GraphQLError("Failed to authenticate user", {
-      extensions: {
-        code: "AUTHENTICATION_ERROR",
-      },
-    });
+    throw new GraphQLError("Failed to authenticate user");
   }
 }
 

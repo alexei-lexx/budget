@@ -10,11 +10,7 @@ import { GraphQLContext } from "../context";
  */
 export function requireAuthentication(context: GraphQLContext) {
   if (!context.auth.isAuthenticated || !context.auth.user) {
-    throw new GraphQLError("Authentication required", {
-      extensions: {
-        code: "UNAUTHENTICATED",
-      },
-    });
+    throw new GraphQLError("Authentication required");
   }
   return context.auth.user;
 }
@@ -33,11 +29,7 @@ export async function getAuthenticatedUser(
     const user = await context.userRepository.findByEmail(authUser.email);
 
     if (!user) {
-      throw new GraphQLError("User not found", {
-        extensions: {
-          code: "USER_NOT_FOUND",
-        },
-      });
+      throw new GraphQLError("User not found");
     }
 
     return user;
@@ -46,11 +38,7 @@ export async function getAuthenticatedUser(
     if (error instanceof GraphQLError) {
       throw error;
     }
-    throw new GraphQLError("Failed to authenticate user", {
-      extensions: {
-        code: "AUTHENTICATION_ERROR",
-      },
-    });
+    throw new GraphQLError("Failed to authenticate user");
   }
 }
 
@@ -61,40 +49,26 @@ export function handleResolverError(
   error: unknown,
   defaultMessage: string,
 ): never {
-  console.error(`Resolver error: ${defaultMessage}`, error);
-
   if (error instanceof GraphQLError) {
     throw error;
   }
 
+  // User-facing: invalid input the user can correct
   if (error instanceof InvalidDateStringError) {
-    throw new GraphQLError(error.message, {
-      extensions: {
-        code: "BAD_USER_INPUT",
-      },
-    });
+    throw new GraphQLError(error.message);
   }
+
+  // User-facing: business rule violation the user needs to act on
+  if (error instanceof BusinessError) {
+    throw new GraphQLError(error.message);
+  }
+
+  // Internal: log full details for debugging, hide from client
+  console.error(defaultMessage, error);
 
   if (error instanceof RepositoryError) {
-    throw new GraphQLError(error.message, {
-      extensions: {
-        code: error.code,
-      },
-    });
+    throw new GraphQLError(defaultMessage);
   }
 
-  if (error instanceof BusinessError) {
-    throw new GraphQLError(error.message, {
-      extensions: {
-        code: error.code,
-        details: error.details,
-      },
-    });
-  }
-
-  throw new GraphQLError(defaultMessage, {
-    extensions: {
-      code: "INTERNAL_SERVER_ERROR",
-    },
-  });
+  throw new GraphQLError(defaultMessage);
 }

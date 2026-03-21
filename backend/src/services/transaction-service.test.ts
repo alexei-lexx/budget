@@ -19,7 +19,7 @@ import {
   createMockTransactionRepository,
 } from "../utils/test-utils/mock-repositories";
 import { fakeCreateTransactionServiceInput } from "../utils/test-utils/service-factories";
-import { BusinessError, BusinessErrorCodes } from "./business-error";
+import { BusinessError } from "./business-error";
 import {
   DEFAULT_TRANSACTION_PATTERNS_LIMIT,
   DESCRIPTION_SUGGESTIONS_SAMPLE_SIZE,
@@ -84,7 +84,6 @@ describe("TransactionService", () => {
       await expect(promise).rejects.toThrow(BusinessError);
       await expect(promise).rejects.toMatchObject({
         message: "Transaction not found or doesn't belong to user",
-        code: BusinessErrorCodes.TRANSACTION_NOT_FOUND,
       });
 
       expect(mockTransactionRepository.findActiveById).toHaveBeenCalledWith(
@@ -639,7 +638,6 @@ describe("TransactionService", () => {
 
       await expect(promise).rejects.toMatchObject({
         message: `Search text must be at least ${MIN_SEARCH_TEXT_LENGTH} characters long`,
-        code: BusinessErrorCodes.INVALID_PARAMETERS,
       });
 
       expect(
@@ -659,7 +657,6 @@ describe("TransactionService", () => {
 
       await expect(promise).rejects.toMatchObject({
         message: `Search text must be at least ${MIN_SEARCH_TEXT_LENGTH} characters long`,
-        code: BusinessErrorCodes.INVALID_PARAMETERS,
       });
     });
 
@@ -675,7 +672,6 @@ describe("TransactionService", () => {
 
       await expect(promise).rejects.toMatchObject({
         message: `Search text must be at least ${MIN_SEARCH_TEXT_LENGTH} characters long`,
-        code: BusinessErrorCodes.INVALID_PARAMETERS,
       });
 
       expect(
@@ -719,7 +715,6 @@ describe("TransactionService", () => {
 
       await expect(promise).rejects.toMatchObject({
         message: `Search text must be at least ${MIN_SEARCH_TEXT_LENGTH} characters long`,
-        code: BusinessErrorCodes.INVALID_PARAMETERS,
       });
 
       expect(
@@ -780,7 +775,6 @@ describe("TransactionService", () => {
 
       await expect(promise).rejects.toMatchObject({
         message: "Filter dateAfter cannot be later than dateBefore",
-        code: BusinessErrorCodes.INVALID_DATE,
       });
 
       expect(
@@ -794,7 +788,6 @@ describe("TransactionService", () => {
       await expect(promise).rejects.toThrow(BusinessError);
       await expect(promise).rejects.toMatchObject({
         message: `Pagination first must be between ${MIN_PAGE_SIZE} and ${MAX_PAGE_SIZE}`,
-        code: BusinessErrorCodes.INVALID_PARAMETERS,
       });
     });
 
@@ -804,9 +797,7 @@ describe("TransactionService", () => {
       });
 
       await expect(promise).rejects.toThrow(BusinessError);
-      await expect(promise).rejects.toMatchObject({
-        code: BusinessErrorCodes.INVALID_PARAMETERS,
-      });
+      await expect(promise).rejects.toMatchObject({});
     });
   });
 
@@ -826,7 +817,6 @@ describe("TransactionService", () => {
 
         await expect(promise).rejects.toThrow(BusinessError);
         await expect(promise).rejects.toMatchObject({
-          code: BusinessErrorCodes.INVALID_AMOUNT,
           message: "Transaction amount must be positive",
         });
       });
@@ -840,7 +830,6 @@ describe("TransactionService", () => {
 
         await expect(promise).rejects.toThrow(BusinessError);
         await expect(promise).rejects.toMatchObject({
-          code: BusinessErrorCodes.INVALID_AMOUNT,
           message: "Transaction amount must be positive",
         });
       });
@@ -854,7 +843,7 @@ describe("TransactionService", () => {
 
         await expect(promise).rejects.toThrow(BusinessError);
         await expect(promise).rejects.toMatchObject({
-          code: BusinessErrorCodes.INVALID_PARAMETERS,
+          message: `Description cannot exceed ${DESCRIPTION_MAX_LENGTH} characters`,
         });
       });
     });
@@ -931,7 +920,6 @@ describe("TransactionService", () => {
         await expect(promise).rejects.toThrow(BusinessError);
         await expect(promise).rejects.toMatchObject({
           message: `Category type "${CategoryType.INCOME}" doesn't match transaction type "${TransactionType.REFUND}"`,
-          code: BusinessErrorCodes.INVALID_CATEGORY_TYPE,
         });
 
         expect(mockTransactionRepository.create).not.toHaveBeenCalled();
@@ -974,7 +962,6 @@ describe("TransactionService", () => {
 
         await expect(promise).rejects.toThrow(BusinessError);
         await expect(promise).rejects.toMatchObject({
-          code: BusinessErrorCodes.INVALID_AMOUNT,
           message: "Transaction amount must be positive",
         });
       });
@@ -986,7 +973,6 @@ describe("TransactionService", () => {
 
         await expect(promise).rejects.toThrow(BusinessError);
         await expect(promise).rejects.toMatchObject({
-          code: BusinessErrorCodes.INVALID_AMOUNT,
           message: "Transaction amount must be positive",
         });
       });
@@ -998,7 +984,7 @@ describe("TransactionService", () => {
 
         await expect(promise).rejects.toThrow(BusinessError);
         await expect(promise).rejects.toMatchObject({
-          code: BusinessErrorCodes.INVALID_PARAMETERS,
+          message: `Description cannot exceed ${DESCRIPTION_MAX_LENGTH} characters`,
         });
       });
     });

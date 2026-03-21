@@ -3,7 +3,7 @@ import { Account } from "../models/account";
 import { Transaction, TransactionType } from "../models/transaction";
 import { DateString } from "../types/date";
 import { DESCRIPTION_MAX_LENGTH } from "../types/validation";
-import { BusinessError, BusinessErrorCodes } from "./business-error";
+import { BusinessError } from "./business-error";
 import { AccountRepository } from "./ports/account-repository";
 import {
   CreateTransactionInput,
@@ -82,11 +82,7 @@ export class TransferService {
     this.validateDescription(input.description);
 
     // Validate not transferring to the same account (fail fast before DB calls)
-    this.validateNotSelfTransfer(
-      input.fromAccountId,
-      input.toAccountId,
-      userId,
-    );
+    this.validateNotSelfTransfer(input.fromAccountId, input.toAccountId);
 
     // Validate both accounts exist and belong to user
     const fromAccount = await this.validateAccount(input.fromAccountId, userId);
@@ -146,17 +142,7 @@ export class TransferService {
         error,
       });
 
-      throw new BusinessError(
-        "Failed to create transfer transactions",
-        "TRANSFER_CREATION_FAILED",
-        {
-          transferId,
-          fromAccountId: input.fromAccountId,
-          toAccountId: input.toAccountId,
-          amount: input.amount,
-          originalError: error,
-        },
-      );
+      throw new BusinessError("Failed to create transfer transactions");
     }
   }
 
@@ -177,11 +163,7 @@ export class TransferService {
 
     // Validate transfer exists
     if (transferTransactions.length === 0) {
-      throw new BusinessError(
-        "Transfer not found or doesn't belong to user",
-        BusinessErrorCodes.TRANSFER_NOT_FOUND,
-        { transferId, userId },
-      );
+      throw new BusinessError("Transfer not found or doesn't belong to user");
     }
 
     try {
@@ -199,16 +181,7 @@ export class TransferService {
         error,
       });
 
-      throw new BusinessError(
-        "Failed to delete transfer transactions",
-        BusinessErrorCodes.TRANSFER_DELETION_FAILED,
-        {
-          transferId,
-          userId,
-          transactionIds: transferTransactions.map((t) => t.id),
-          originalError: error,
-        },
-      );
+      throw new BusinessError("Failed to delete transfer transactions");
     }
   }
 
@@ -238,11 +211,7 @@ export class TransferService {
     );
 
     if (!existingTransfer) {
-      throw new BusinessError(
-        "Transfer not found or doesn't belong to user",
-        BusinessErrorCodes.TRANSFER_NOT_FOUND,
-        { transferId, userId },
-      );
+      throw new BusinessError("Transfer not found or doesn't belong to user");
     }
 
     const { outboundTransaction, inboundTransaction } = existingTransfer;
@@ -261,7 +230,7 @@ export class TransferService {
         : outboundTransaction.description;
 
     // Validate not transferring to the same account (fail fast before DB calls)
-    this.validateNotSelfTransfer(fromAccountId, toAccountId, userId);
+    this.validateNotSelfTransfer(fromAccountId, toAccountId);
 
     // Validate both accounts exist and belong to user
     const fromAccount = await this.validateAccount(fromAccountId, userId);
@@ -308,8 +277,6 @@ export class TransferService {
       if (!updatedTransfer) {
         throw new BusinessError(
           "Failed to retrieve updated transfer transactions",
-          "TRANSFER_UPDATE_INCONSISTENT",
-          { transferId, userId },
         );
       }
 
@@ -324,17 +291,7 @@ export class TransferService {
         error,
       });
 
-      throw new BusinessError(
-        "Failed to update transfer transactions",
-        "TRANSFER_UPDATE_FAILED",
-        {
-          transferId,
-          fromAccountId: fromAccountId,
-          toAccountId: toAccountId,
-          amount: amount,
-          originalError: error,
-        },
-      );
+      throw new BusinessError("Failed to update transfer transactions");
     }
   }
 
@@ -355,12 +312,6 @@ export class TransferService {
     if (transferTransactions.length !== 2) {
       throw new BusinessError(
         `Invalid transfer state: expected 2 transactions, found ${transferTransactions.length}`,
-        BusinessErrorCodes.INVALID_TRANSFER_STATE,
-        {
-          transferId,
-          userId,
-          transactionCount: transferTransactions.length,
-        },
       );
     }
 
@@ -374,26 +325,12 @@ export class TransferService {
     if (!outboundTransaction) {
       throw new BusinessError(
         "Invalid transfer state: missing TRANSFER_OUT transaction",
-        BusinessErrorCodes.INVALID_TRANSFER_STATE,
-        {
-          transferId,
-          userId,
-          missingTransactionType: TransactionType.TRANSFER_OUT,
-          foundTransactionTypes: transferTransactions.map((t) => t.type),
-        },
       );
     }
 
     if (!inboundTransaction) {
       throw new BusinessError(
         "Invalid transfer state: missing TRANSFER_IN transaction",
-        BusinessErrorCodes.INVALID_TRANSFER_STATE,
-        {
-          transferId,
-          userId,
-          missingTransactionType: TransactionType.TRANSFER_IN,
-          foundTransactionTypes: transferTransactions.map((t) => t.type),
-        },
       );
     }
 
@@ -409,11 +346,6 @@ export class TransferService {
     if (description && description.length > DESCRIPTION_MAX_LENGTH) {
       throw new BusinessError(
         `Description cannot exceed ${DESCRIPTION_MAX_LENGTH} characters`,
-        BusinessErrorCodes.INVALID_PARAMETERS,
-        {
-          descriptionLength: description.length,
-          maxLength: DESCRIPTION_MAX_LENGTH,
-        },
       );
     }
   }
@@ -435,11 +367,7 @@ export class TransferService {
     );
 
     if (!account) {
-      throw new BusinessError(
-        "Account not found or doesn't belong to user",
-        BusinessErrorCodes.ACCOUNT_NOT_FOUND,
-        { accountId, userId },
-      );
+      throw new BusinessError("Account not found or doesn't belong to user");
     }
 
     return account;
@@ -452,11 +380,7 @@ export class TransferService {
    */
   private validateAmount(amount: number): void {
     if (amount <= 0) {
-      throw new BusinessError(
-        "Transfer amount must be positive",
-        BusinessErrorCodes.INVALID_AMOUNT,
-        { amount },
-      );
+      throw new BusinessError("Transfer amount must be positive");
     }
   }
 
@@ -473,15 +397,6 @@ export class TransferService {
     if (fromAccount.currency !== toAccount.currency) {
       throw new BusinessError(
         `Cannot transfer between accounts with different currencies. Source account uses ${fromAccount.currency}, destination account uses ${toAccount.currency}`,
-        BusinessErrorCodes.CURRENCY_MISMATCH,
-        {
-          fromAccountCurrency: fromAccount.currency,
-          toAccountCurrency: toAccount.currency,
-          fromAccountId: fromAccount.id,
-          toAccountId: toAccount.id,
-          fromAccountName: fromAccount.name,
-          toAccountName: toAccount.name,
-        },
       );
     }
   }
@@ -490,23 +405,14 @@ export class TransferService {
    * Validate that the transfer is not to the same account (self-transfer)
    * @param fromAccountId - The source account ID
    * @param toAccountId - The destination account ID
-   * @param userId - The user ID for error context
    * @throws BusinessError if attempting to transfer to the same account
    */
   private validateNotSelfTransfer(
     fromAccountId: string,
     toAccountId: string,
-    userId: string,
   ): void {
     if (fromAccountId === toAccountId) {
-      throw new BusinessError(
-        "Cannot transfer money to the same account",
-        BusinessErrorCodes.SELF_TRANSFER_NOT_ALLOWED,
-        {
-          accountId: fromAccountId,
-          userId,
-        },
-      );
+      throw new BusinessError("Cannot transfer money to the same account");
     }
   }
 }

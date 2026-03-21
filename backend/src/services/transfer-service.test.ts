@@ -7,7 +7,7 @@ import {
   createMockAccountRepository,
   createMockTransactionRepository,
 } from "../utils/test-utils/mock-repositories";
-import { BusinessError, BusinessErrorCodes } from "./business-error";
+import { BusinessError } from "./business-error";
 import { AccountRepository } from "./ports/account-repository";
 import { TransactionRepository } from "./ports/transaction-repository";
 import { TransferService } from "./transfer-service";
@@ -55,7 +55,6 @@ describe("TransferService", () => {
       await expect(promise).rejects.toThrow(BusinessError);
       await expect(promise).rejects.toMatchObject({
         message: "Invalid transfer state: expected 2 transactions, found 1",
-        code: BusinessErrorCodes.INVALID_TRANSFER_STATE,
       });
     });
 
@@ -71,7 +70,6 @@ describe("TransferService", () => {
       await expect(promise).rejects.toThrow(BusinessError);
       await expect(promise).rejects.toMatchObject({
         message: "Invalid transfer state: expected 2 transactions, found 3",
-        code: BusinessErrorCodes.INVALID_TRANSFER_STATE,
       });
     });
 
@@ -86,7 +84,6 @@ describe("TransferService", () => {
       await expect(promise).rejects.toThrow(BusinessError);
       await expect(promise).rejects.toMatchObject({
         message: "Invalid transfer state: missing TRANSFER_OUT transaction",
-        code: BusinessErrorCodes.INVALID_TRANSFER_STATE,
       });
     });
 
@@ -101,7 +98,6 @@ describe("TransferService", () => {
       await expect(promise).rejects.toThrow(BusinessError);
       await expect(promise).rejects.toMatchObject({
         message: "Invalid transfer state: missing TRANSFER_IN transaction",
-        code: BusinessErrorCodes.INVALID_TRANSFER_STATE,
       });
     });
 
@@ -206,7 +202,6 @@ describe("TransferService", () => {
       await expect(promise).rejects.toThrow(BusinessError);
       await expect(promise).rejects.toMatchObject({
         message: `Description cannot exceed ${DESCRIPTION_MAX_LENGTH} characters`,
-        code: BusinessErrorCodes.INVALID_PARAMETERS,
       });
 
       expect(mockTransactionRepository.createMany).not.toHaveBeenCalled();
@@ -255,7 +250,6 @@ describe("TransferService", () => {
       await expect(promise).rejects.toThrow(BusinessError);
       await expect(promise).rejects.toMatchObject({
         message: `Description cannot exceed ${DESCRIPTION_MAX_LENGTH} characters`,
-        code: BusinessErrorCodes.INVALID_PARAMETERS,
       });
 
       expect(mockTransactionRepository.updateMany).not.toHaveBeenCalled();

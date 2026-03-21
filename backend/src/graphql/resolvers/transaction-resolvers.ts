@@ -31,7 +31,6 @@ function parseNonTransferType(
   ) {
     throw new GraphQLError(
       `Transaction type must be ${TransactionType.INCOME}, ${TransactionType.EXPENSE}, or ${TransactionType.REFUND}`,
-      { extensions: { code: "BAD_USER_INPUT" } },
     );
   }
   return type;
@@ -100,9 +99,7 @@ export const transactionResolvers = {
 
       // Basic validation
       if (!searchText) {
-        throw new GraphQLError("Search text is required", {
-          extensions: { code: "BAD_USER_INPUT" },
-        });
+        throw new GraphQLError("Search text is required");
       }
 
       try {
@@ -184,9 +181,7 @@ export const transactionResolvers = {
 
       // Validate input
       if (!id) {
-        throw new GraphQLError("Transaction ID is required", {
-          extensions: { code: "BAD_USER_INPUT" },
-        });
+        throw new GraphQLError("Transaction ID is required");
       }
 
       try {

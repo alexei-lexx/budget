@@ -7,7 +7,6 @@ import {
   createMockCategoryRepository,
   createMockTransactionRepository,
 } from "../utils/test-utils/mock-repositories";
-import { BusinessErrorCodes } from "./business-error";
 import { ByCategoryReportService } from "./by-category-report-service";
 import { CategoryRepository } from "./ports/category-repository";
 import { TransactionRepository } from "./ports/transaction-repository";
@@ -677,7 +676,6 @@ describe("ByCategoryReportService", () => {
           reportService.call(userId, 2000.5, 1, ReportType.EXPENSE),
         ).rejects.toMatchObject({
           message: "Year must be a valid integer",
-          code: BusinessErrorCodes.INVALID_PARAMETERS,
         });
       });
 
@@ -708,7 +706,6 @@ describe("ByCategoryReportService", () => {
             ),
           ).rejects.toMatchObject({
             message: "Month must be a valid integer between 1 and 12",
-            code: BusinessErrorCodes.INVALID_PARAMETERS,
           });
         }
       });

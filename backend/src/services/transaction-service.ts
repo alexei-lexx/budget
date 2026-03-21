@@ -17,7 +17,7 @@ import {
   DESCRIPTION_MAX_LENGTH,
   MIN_SEARCH_TEXT_LENGTH,
 } from "../types/validation";
-import { BusinessError, BusinessErrorCodes } from "./business-error";
+import { BusinessError } from "./business-error";
 import { AccountRepository } from "./ports/account-repository";
 import { CategoryRepository } from "./ports/category-repository";
 import {
@@ -90,8 +90,6 @@ export class TransactionService {
     if (!transaction) {
       throw new BusinessError(
         "Transaction not found or doesn't belong to user",
-        BusinessErrorCodes.TRANSACTION_NOT_FOUND,
-        { transactionId: id, userId },
       );
     }
     return transaction;
@@ -171,8 +169,6 @@ export class TransactionService {
     if (!existingTransaction) {
       throw new BusinessError(
         "Transaction not found or doesn't belong to user",
-        BusinessErrorCodes.TRANSACTION_NOT_FOUND,
-        { transactionId: id, userId },
       );
     }
 
@@ -225,8 +221,6 @@ export class TransactionService {
     if (!existingTransaction) {
       throw new BusinessError(
         "Transaction not found or doesn't belong to user",
-        BusinessErrorCodes.TRANSACTION_NOT_FOUND,
-        { transactionId: id, userId },
       );
     }
 
@@ -331,12 +325,6 @@ export class TransactionService {
     if (normalizedSearchText.length < MIN_SEARCH_TEXT_LENGTH) {
       throw new BusinessError(
         `Search text must be at least ${MIN_SEARCH_TEXT_LENGTH} characters long`,
-        BusinessErrorCodes.INVALID_PARAMETERS,
-        {
-          searchText: normalizedSearchText,
-          searchTextLength: normalizedSearchText.length,
-          minLength: MIN_SEARCH_TEXT_LENGTH,
-        },
       );
     }
 
@@ -390,11 +378,7 @@ export class TransactionService {
     );
 
     if (!account) {
-      throw new BusinessError(
-        "Account not found or doesn't belong to user",
-        BusinessErrorCodes.ACCOUNT_NOT_FOUND,
-        { accountId, userId },
-      );
+      throw new BusinessError("Account not found or doesn't belong to user");
     }
 
     return account;
@@ -407,8 +391,6 @@ export class TransactionService {
     ) {
       throw new BusinessError(
         `Pagination first must be between ${MIN_PAGE_SIZE} and ${MAX_PAGE_SIZE}`,
-        BusinessErrorCodes.INVALID_PARAMETERS,
-        { first: pagination.first, min: MIN_PAGE_SIZE, max: MAX_PAGE_SIZE },
       );
     }
   }
@@ -421,8 +403,6 @@ export class TransactionService {
     ) {
       throw new BusinessError(
         "Filter dateAfter cannot be later than dateBefore",
-        BusinessErrorCodes.INVALID_DATE,
-        { dateAfter: filters.dateAfter, dateBefore: filters.dateBefore },
       );
     }
   }
@@ -434,11 +414,7 @@ export class TransactionService {
    */
   private validateAmount(amount: number): void {
     if (amount <= 0) {
-      throw new BusinessError(
-        "Transaction amount must be positive",
-        BusinessErrorCodes.INVALID_AMOUNT,
-        { amount },
-      );
+      throw new BusinessError("Transaction amount must be positive");
     }
   }
 
@@ -451,11 +427,6 @@ export class TransactionService {
     if (description && description.length > DESCRIPTION_MAX_LENGTH) {
       throw new BusinessError(
         `Description cannot exceed ${DESCRIPTION_MAX_LENGTH} characters`,
-        BusinessErrorCodes.INVALID_PARAMETERS,
-        {
-          descriptionLength: description.length,
-          maxLength: DESCRIPTION_MAX_LENGTH,
-        },
       );
     }
   }
@@ -483,11 +454,7 @@ export class TransactionService {
     );
 
     if (!category) {
-      throw new BusinessError(
-        "Category not found or doesn't belong to user",
-        BusinessErrorCodes.CATEGORY_NOT_FOUND,
-        { categoryId, userId },
-      );
+      throw new BusinessError("Category not found or doesn't belong to user");
     }
 
     const typeMismatch =
@@ -500,13 +467,6 @@ export class TransactionService {
     if (typeMismatch) {
       throw new BusinessError(
         `Category type "${category.type}" doesn't match transaction type "${transactionType}"`,
-        BusinessErrorCodes.INVALID_CATEGORY_TYPE,
-        {
-          categoryType: category.type,
-          transactionType,
-          categoryId,
-          categoryName: category.name,
-        },
       );
     }
 

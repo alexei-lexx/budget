@@ -1,6 +1,6 @@
 import { Category, CategoryType } from "../models/category";
 import { NAME_MAX_LENGTH, NAME_MIN_LENGTH } from "../types/validation";
-import { BusinessError, BusinessErrorCodes } from "./business-error";
+import { BusinessError } from "./business-error";
 import {
   CategoryRepository,
   CreateCategoryInput,
@@ -95,7 +95,6 @@ export class CategoryService {
     ) {
       throw new BusinessError(
         `Category name must be between ${NAME_MIN_LENGTH} and ${NAME_MAX_LENGTH} characters`,
-        BusinessErrorCodes.INVALID_PARAMETERS,
       );
     }
 
@@ -117,10 +116,7 @@ export class CategoryService {
     );
 
     if (duplicateCategory) {
-      throw new BusinessError(
-        `Category "${name}" already exists`,
-        BusinessErrorCodes.DUPLICATE_NAME,
-      );
+      throw new BusinessError(`Category "${name}" already exists`);
     }
   }
 }

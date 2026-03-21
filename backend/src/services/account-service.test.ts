@@ -15,7 +15,7 @@ import {
   createMockTransactionRepository,
 } from "../utils/test-utils/mock-repositories";
 import { AccountService } from "./account-service";
-import { BusinessError, BusinessErrorCodes } from "./business-error";
+import { BusinessError } from "./business-error";
 
 describe("AccountService", () => {
   let service: AccountService;
@@ -108,7 +108,6 @@ describe("AccountService", () => {
       await expect(promise).rejects.toThrow(BusinessError);
       await expect(promise).rejects.toMatchObject({
         message: `Account name must be between ${NAME_MIN_LENGTH} and ${NAME_MAX_LENGTH} characters`,
-        code: BusinessErrorCodes.INVALID_PARAMETERS,
       });
       expect(mockAccountRepository.create).not.toHaveBeenCalled();
     });
@@ -123,7 +122,6 @@ describe("AccountService", () => {
       await expect(promise).rejects.toThrow(BusinessError);
       await expect(promise).rejects.toMatchObject({
         message: `Account name must be between ${NAME_MIN_LENGTH} and ${NAME_MAX_LENGTH} characters`,
-        code: BusinessErrorCodes.INVALID_PARAMETERS,
       });
       expect(mockAccountRepository.create).not.toHaveBeenCalled();
     });
@@ -140,7 +138,6 @@ describe("AccountService", () => {
       await expect(promise).rejects.toThrow(BusinessError);
       await expect(promise).rejects.toMatchObject({
         message: `Account name must be between ${NAME_MIN_LENGTH} and ${NAME_MAX_LENGTH} characters`,
-        code: BusinessErrorCodes.INVALID_PARAMETERS,
       });
       expect(mockAccountRepository.create).not.toHaveBeenCalled();
     });
@@ -162,7 +159,6 @@ describe("AccountService", () => {
       await expect(promise).rejects.toThrow(BusinessError);
       await expect(promise).rejects.toMatchObject({
         message: 'Account "Checking" already exists',
-        code: BusinessErrorCodes.DUPLICATE_NAME,
       });
       expect(mockAccountRepository.create).not.toHaveBeenCalled();
     });
@@ -192,7 +188,6 @@ describe("AccountService", () => {
       await expect(promise).rejects.toThrow(BusinessError);
       await expect(promise).rejects.toMatchObject({
         message: `Unsupported currency: XYZ. Supported currencies: ${SUPPORTED_CURRENCIES.join(", ")}`,
-        code: BusinessErrorCodes.INVALID_PARAMETERS,
       });
       expect(mockAccountRepository.create).not.toHaveBeenCalled();
     });
@@ -309,7 +304,6 @@ describe("AccountService", () => {
       await expect(promise).rejects.toMatchObject({
         message:
           "Cannot change currency for account that has existing transactions. Please create a new account with the desired currency instead.",
-        code: BusinessErrorCodes.ACCOUNT_CURRENCY_CHANGE_BLOCKED,
       });
       expect(mockAccountRepository.update).not.toHaveBeenCalled();
     });
@@ -327,7 +321,6 @@ describe("AccountService", () => {
       await expect(promise).rejects.toThrow(BusinessError);
       await expect(promise).rejects.toMatchObject({
         message: "Account not found",
-        code: BusinessErrorCodes.ACCOUNT_NOT_FOUND,
       });
       expect(mockAccountRepository.update).not.toHaveBeenCalled();
     });
@@ -346,7 +339,6 @@ describe("AccountService", () => {
       await expect(promise).rejects.toThrow(BusinessError);
       await expect(promise).rejects.toMatchObject({
         message: `Account name must be between ${NAME_MIN_LENGTH} and ${NAME_MAX_LENGTH} characters`,
-        code: BusinessErrorCodes.INVALID_PARAMETERS,
       });
       expect(mockAccountRepository.update).not.toHaveBeenCalled();
     });
@@ -365,7 +357,6 @@ describe("AccountService", () => {
       await expect(promise).rejects.toThrow(BusinessError);
       await expect(promise).rejects.toMatchObject({
         message: `Account name must be between ${NAME_MIN_LENGTH} and ${NAME_MAX_LENGTH} characters`,
-        code: BusinessErrorCodes.INVALID_PARAMETERS,
       });
       expect(mockAccountRepository.update).not.toHaveBeenCalled();
     });
@@ -384,7 +375,6 @@ describe("AccountService", () => {
       await expect(promise).rejects.toThrow(BusinessError);
       await expect(promise).rejects.toMatchObject({
         message: `Account name must be between ${NAME_MIN_LENGTH} and ${NAME_MAX_LENGTH} characters`,
-        code: BusinessErrorCodes.INVALID_PARAMETERS,
       });
       expect(mockAccountRepository.update).not.toHaveBeenCalled();
     });
@@ -412,7 +402,6 @@ describe("AccountService", () => {
       await expect(promise).rejects.toThrow(BusinessError);
       await expect(promise).rejects.toMatchObject({
         message: 'Account "Checking" already exists',
-        code: BusinessErrorCodes.DUPLICATE_NAME,
       });
       expect(mockAccountRepository.update).not.toHaveBeenCalled();
     });
@@ -479,7 +468,6 @@ describe("AccountService", () => {
       await expect(promise).rejects.toThrow(BusinessError);
       await expect(promise).rejects.toMatchObject({
         message: `Unsupported currency: XYZ. Supported currencies: ${SUPPORTED_CURRENCIES.join(", ")}`,
-        code: BusinessErrorCodes.INVALID_PARAMETERS,
       });
       expect(mockAccountRepository.update).not.toHaveBeenCalled();
     });
@@ -576,7 +564,6 @@ describe("AccountService", () => {
       await expect(promise).rejects.toThrow(BusinessError);
       await expect(promise).rejects.toMatchObject({
         message: "Account not found or doesn't belong to user",
-        code: BusinessErrorCodes.ACCOUNT_NOT_FOUND,
       });
 
       expect(
