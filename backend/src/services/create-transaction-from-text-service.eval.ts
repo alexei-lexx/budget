@@ -9,7 +9,7 @@ import { DynUserRepository } from "../repositories/dyn-user-repository";
 import { createBedrockChatModel } from "../utils/bedrock";
 import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
 import { truncateTable } from "../utils/test-utils/dynamodb-helpers";
-import { Eval, runEvalSuite } from "../utils/test-utils/evals";
+import { EvalTask, runEvalSuite } from "../utils/test-utils/evals";
 import {
   fakeAccount,
   fakeCategory,
@@ -62,7 +62,7 @@ async function cleanupTables() {
   });
 }
 
-const evals: Eval<unknown>[] = [
+const evalTasks: EvalTask<unknown>[] = [
   {
     name: "decline when no accounts",
     run: async (iteration) => {
@@ -372,32 +372,32 @@ const evals: Eval<unknown>[] = [
 ];
 
 (async () => {
-  const results = await runEvalSuite(evals);
+  const results = await runEvalSuite(evalTasks);
   let failed = 0;
   let totalErrors = 0;
 
-  for (const { taskName, avgGrade, errors, success } of results) {
+  for (const { evalTaskName, avgGrade, errors, success } of results) {
     totalErrors += errors;
 
     if (success) {
       console.log(
-        `[SUCCESS] Task: ${taskName}, Average Grade: ${avgGrade.toFixed(2)}, Errors: ${errors}`,
+        `[SUCCESS] Eval task: ${evalTaskName}, Average Grade: ${avgGrade.toFixed(2)}, Errors: ${errors}`,
       );
     } else {
       failed++;
       console.error(
-        `[FAILURE] Task: ${taskName}, Average Grade: ${avgGrade.toFixed(2)}, Errors: ${errors}`,
+        `[FAILURE] Eval task: ${evalTaskName}, Average Grade: ${avgGrade.toFixed(2)}, Errors: ${errors}`,
       );
     }
   }
 
   if (failed > 0 || totalErrors > 0) {
     console.error(
-      `${failed} task(s) failed. ${totalErrors} error(s) occurred.`,
+      `${failed} eval task(s) failed. ${totalErrors} error(s) occurred.`,
     );
     process.exit(1);
   } else {
-    console.log("All tasks passed successfully.");
+    console.log("All eval tasks passed successfully.");
     process.exit(0);
   }
 })();
