@@ -31,15 +31,12 @@ export async function runEvalTask<TInput>(
 ): Promise<{ avgGrade: Grade; errors: number }> {
   const iterationGrades: number[] = [];
   let errors = 0;
-  const iterations: { input: TInput }[] = [];
-
   for (let iteration = 0; iteration < runs; iteration++) {
     try {
-      const { input, grades } = await evalTask.run(iteration);
+      const { grades } = await evalTask.run(iteration);
       const normalizedGrades = grades.map((grade) => Number(grade.value));
       const avgIterationGrade = avg(normalizedGrades);
       iterationGrades.push(avgIterationGrade);
-      iterations.push({ input });
     } catch (error) {
       console.error(
         `Error running iteration ${iteration} of task ${evalTask.name}:`,
