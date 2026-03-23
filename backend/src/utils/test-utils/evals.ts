@@ -1,0 +1,88 @@
+const DEFAULT_RUNS = 5;
+const DEFAULT_THRESHOLD_GRADE = toGrade(0.8);
+
+type Grade = number & { readonly __brand: unique symbol };
+
+function isGrade(value: number): value is Grade {
+  return value >= 0 && value <= 1;
+}
+
+function toGrade(value: number): Grade {
+  if (!isGrade(value)) {
+    throw new Error(
+      `Value ${value} is not a valid grade. Must be between 0 and 1.`,
+    );
+  }
+
+  return value;
+}
+
+export interface Eval<TInput> {
+  name: string;
+  run: (iteration: number) => Promise<{
+    input: TInput;
+    grades: { name: string; value: boolean | Grade }[];
+  }>;
+}
+
+export async function runEval<TInput>(
+  task: Eval<TInput>,
+  { runs = DEFAULT_RUNS }: { runs?: number } = {},
+): Promise<{ avgGrade: Grade; errors: number }> {
+  const iterationGrades: number[] = [];
+  let errors = 0;
+  const iterations: { input: TInput }[] = [];
+
+  for (let iteration = 0; iteration < runs; iteration++) {
+    try {
+      const { input, grades } = await task.run(iteration);
+      const normalizedGrades = grades.map((grade) => Number(grade.value));
+      const avgIterationGrade = avg(normalizedGrades);
+      iterationGrades.push(avgIterationGrade);
+      iterations.push({ input });
+    } catch (error) {
+      console.error(
+        `Error running iteration ${iteration} of task ${task.name}:`,
+        error,
+      );
+      errors++;
+      iterationGrades.push(0); // Treat errors as zero grade
+      continue;
+    }
+  }
+
+  const avgGrade = toGrade(avg(iterationGrades));
+
+  return { avgGrade, errors };
+}
+
+export async function runEvalSuite(
+  tasks: Eval<unknown>[],
+  {
+    runs = DEFAULT_RUNS,
+    thresholdGrade = DEFAULT_THRESHOLD_GRADE,
+  }: { runs?: number; thresholdGrade?: Grade } = {},
+): Promise<
+  { taskName: string; avgGrade: Grade; errors: number; success: boolean }[]
+> {
+  const result: {
+    taskName: string;
+    avgGrade: Grade;
+    errors: number;
+    success: boolean;
+  }[] = [];
+
+  for (const task of tasks) {
+    const { avgGrade, errors } = await runEval(task, { runs });
+    const success = avgGrade >= thresholdGrade;
+    result.push({ taskName: task.name, avgGrade, errors, success });
+  }
+
+  return result;
+}
+
+function avg(numbers: number[]): number {
+  if (numbers.length === 0) return 0;
+
+  return numbers.reduce((sum, num) => sum + num, 0) / numbers.length;
+}
