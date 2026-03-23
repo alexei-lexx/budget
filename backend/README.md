@@ -71,8 +71,5 @@ Uses DynamoDB Local running in Docker with a named volume for data persistence.
 ## Quality Checks
 
 - `npm run format` - Run Prettier and ESLint to check and fix code style
-- `npm run test` - Run tests with Jest (excludes LLM tests)
-  - ⚠️ LLM tests are excluded by default and must not be run automatically
-- `npm run test:llm` - Run LLM-specific tests with Jest (tests marked with `[LLM]` in test name)
-  - ⚠️ Only run manually when needed
+- `npm run test` - Run tests with Jest
 - `npm run typecheck` - Run TypeScript type checker
