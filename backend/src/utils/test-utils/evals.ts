@@ -32,13 +32,13 @@ export interface EvalTask<TInput> {
   }>;
 }
 
-interface EvalTrialResult<TInput> {
+export interface EvalTrialResult<TInput> {
   input: TInput;
   grades: { name: string; value: Grade }[];
   avgGrade: Grade;
 }
 
-interface EvalTaskResult<TInput> {
+export interface EvalTaskResult<TInput> {
   evalTaskName: string;
   avgGrade: Grade;
   errors: number;

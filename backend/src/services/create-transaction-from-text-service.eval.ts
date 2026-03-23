@@ -9,12 +9,8 @@ import { DynUserRepository } from "../repositories/dyn-user-repository";
 import { createBedrockChatModel } from "../utils/bedrock";
 import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
 import { truncateTable } from "../utils/test-utils/dynamodb-helpers";
-import {
-  EvalTask,
-  PASS,
-  runEvalSuite,
-  toGrade,
-} from "../utils/test-utils/evals";
+import { EvalTask, runEvalSuite, toGrade } from "../utils/test-utils/evals";
+import { reportToConsole } from "../utils/test-utils/evals-console-reporter";
 import {
   fakeAccount,
   fakeCategory,
@@ -396,33 +392,7 @@ const evalTasks: EvalTask<unknown>[] = [
 
 (async () => {
   const results = await runEvalSuite(evalTasks);
-  let failed = 0;
-  let totalErrors = 0;
-
-  for (const { evalTaskName, avgGrade, errors, success, trials } of results) {
-    totalErrors += errors;
-
-    if (success) {
-      console.log(
-        `[SUCCESS] Eval task: ${evalTaskName}, Average Grade: ${avgGrade.toFixed(2)}, Errors: ${errors}`,
-      );
-    } else {
-      failed++;
-      console.error(
-        `[FAILURE] Eval task: ${evalTaskName}, Average Grade: ${avgGrade.toFixed(2)}, Errors: ${errors}`,
-      );
-
-      for (const [iteration, trial] of trials.entries()) {
-        const allPassed = trial.grades.every((g) => g.value >= PASS);
-        if (!allPassed) {
-          console.error(`\tinput[${iteration}]=${JSON.stringify(trial.input)}`);
-          for (const { name, value } of trial.grades) {
-            console.error(`\t\t${name}: ${value.toFixed(2)}`);
-          }
-        }
-      }
-    }
-  }
+  const { failed, totalErrors } = reportToConsole(results);
 
   if (failed > 0 || totalErrors > 0) {
     console.error(
