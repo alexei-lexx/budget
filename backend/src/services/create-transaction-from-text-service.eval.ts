@@ -9,7 +9,12 @@ import { DynUserRepository } from "../repositories/dyn-user-repository";
 import { createBedrockChatModel } from "../utils/bedrock";
 import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
 import { truncateTable } from "../utils/test-utils/dynamodb-helpers";
-import { EvalTask, runEvalSuite } from "../utils/test-utils/evals";
+import {
+  EvalTask,
+  PASS,
+  runEvalSuite,
+  toGrade,
+} from "../utils/test-utils/evals";
 import {
   fakeAccount,
   fakeCategory,
@@ -77,15 +82,16 @@ const evalTasks: EvalTask<unknown>[] = [
         grades: [
           {
             name: "declined",
-            value: !result.success,
+            value: toGrade(!result.success),
           },
           {
             name: "correct error message",
-            value:
+            value: toGrade(
               !result.success &&
-              result.error.message.includes(
-                "Agent did not attempt to create a transaction",
-              ),
+                result.error.message.includes(
+                  "Agent did not attempt to create a transaction",
+                ),
+            ),
           },
         ],
       };
@@ -107,15 +113,16 @@ const evalTasks: EvalTask<unknown>[] = [
         grades: [
           {
             name: "declined",
-            value: !result.success,
+            value: toGrade(!result.success),
           },
           {
             name: "correct error message",
-            value:
+            value: toGrade(
               !result.success &&
-              result.error.message.includes(
-                "Agent did not attempt to create a transaction",
-              ),
+                result.error.message.includes(
+                  "Agent did not attempt to create a transaction",
+                ),
+            ),
           },
         ],
       };
@@ -149,27 +156,31 @@ const evalTasks: EvalTask<unknown>[] = [
         grades: [
           {
             name: "correct type",
-            value:
+            value: toGrade(
               result.success &&
-              result.data.transaction.type === TransactionType.EXPENSE,
+                result.data.transaction.type === TransactionType.EXPENSE,
+            ),
           },
           {
             name: "correct account",
-            value:
+            value: toGrade(
               result.success &&
-              result.data.transaction.accountId === account.id,
+                result.data.transaction.accountId === account.id,
+            ),
           },
           {
             name: "correct category",
-            value:
+            value: toGrade(
               result.success &&
-              result.data.transaction.categoryId === category.id,
+                result.data.transaction.categoryId === category.id,
+            ),
           },
           {
             name: "correct amount",
-            value:
+            value: toGrade(
               result.success &&
-              result.data.transaction.amount === 10 + iteration,
+                result.data.transaction.amount === 10 + iteration,
+            ),
           },
         ],
       };
@@ -203,27 +214,31 @@ const evalTasks: EvalTask<unknown>[] = [
         grades: [
           {
             name: "correct type",
-            value:
+            value: toGrade(
               result.success &&
-              result.data.transaction.type === TransactionType.INCOME,
+                result.data.transaction.type === TransactionType.INCOME,
+            ),
           },
           {
             name: "correct account",
-            value:
+            value: toGrade(
               result.success &&
-              result.data.transaction.accountId === account.id,
+                result.data.transaction.accountId === account.id,
+            ),
           },
           {
             name: "correct category",
-            value:
+            value: toGrade(
               result.success &&
-              result.data.transaction.categoryId === category.id,
+                result.data.transaction.categoryId === category.id,
+            ),
           },
           {
             name: "correct amount",
-            value:
+            value: toGrade(
               result.success &&
-              result.data.transaction.amount === 1000 + iteration,
+                result.data.transaction.amount === 1000 + iteration,
+            ),
           },
         ],
       };
@@ -257,27 +272,31 @@ const evalTasks: EvalTask<unknown>[] = [
         grades: [
           {
             name: "correct type",
-            value:
+            value: toGrade(
               result.success &&
-              result.data.transaction.type === TransactionType.REFUND,
+                result.data.transaction.type === TransactionType.REFUND,
+            ),
           },
           {
             name: "correct account",
-            value:
+            value: toGrade(
               result.success &&
-              result.data.transaction.accountId === account.id,
+                result.data.transaction.accountId === account.id,
+            ),
           },
           {
             name: "correct category",
-            value:
+            value: toGrade(
               result.success &&
-              result.data.transaction.categoryId === category.id,
+                result.data.transaction.categoryId === category.id,
+            ),
           },
           {
             name: "correct amount",
-            value:
+            value: toGrade(
               result.success &&
-              result.data.transaction.amount === 50 + iteration,
+                result.data.transaction.amount === 50 + iteration,
+            ),
           },
         ],
       };
@@ -307,7 +326,9 @@ const evalTasks: EvalTask<unknown>[] = [
         grades: [
           {
             name: "correct amount",
-            value: result.success && result.data.transaction.amount === 987,
+            value: toGrade(
+              result.success && result.data.transaction.amount === 987,
+            ),
           },
         ],
       };
@@ -363,7 +384,9 @@ const evalTasks: EvalTask<unknown>[] = [
         grades: [
           {
             name: "corrected amount",
-            value: result.success && result.data.transaction.amount === 9.87,
+            value: toGrade(
+              result.success && result.data.transaction.amount === 9.87,
+            ),
           },
         ],
       };
@@ -376,7 +399,7 @@ const evalTasks: EvalTask<unknown>[] = [
   let failed = 0;
   let totalErrors = 0;
 
-  for (const { evalTaskName, avgGrade, errors, success } of results) {
+  for (const { evalTaskName, avgGrade, errors, success, trials } of results) {
     totalErrors += errors;
 
     if (success) {
@@ -388,6 +411,16 @@ const evalTasks: EvalTask<unknown>[] = [
       console.error(
         `[FAILURE] Eval task: ${evalTaskName}, Average Grade: ${avgGrade.toFixed(2)}, Errors: ${errors}`,
       );
+
+      for (const [iteration, trial] of trials.entries()) {
+        const allPassed = trial.grades.every((g) => g.value >= PASS);
+        if (!allPassed) {
+          console.error(`\tinput[${iteration}]=${JSON.stringify(trial.input)}`);
+          for (const { name, value } of trial.grades) {
+            console.error(`\t\t${name}: ${value.toFixed(2)}`);
+          }
+        }
+      }
     }
   }
 
