@@ -93,7 +93,8 @@ Follow these rules strictly for `before` and `after` sections:
 ```
 ## context
 
-After navigating away from the Insight page, the previous answer and agent trace were lost.
+Users have to manually refresh the page to see updates made by other users,
+leading to stale data and confusion.
 
 ## before
 
