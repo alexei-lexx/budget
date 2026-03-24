@@ -5,7 +5,7 @@ description: "Assess current working directory changes, a pull request, or a bra
 
 # check-constitution-compliance
 
-Assess changes for compliance with every principle in `docs/constitution.md`.
+Assess changes for compliance with every principle in the project constitution.
 
 ## Step 1: Determine the target
 
@@ -36,9 +36,11 @@ git log <default-branch>..<branch> --oneline
 git diff <default-branch>..<branch>
 ```
 
-## Step 3: Read the constitution
+## Step 3: Find and read the constitution
 
-Read `docs/constitution.md` in full.
+Locate the constitution file by globbing for common names (`**/constitution.md`, `**/CONSTITUTION.md`) and variations. If multiple matches are found, pick the one whose content reads as a project-wide standards document (defines architecture, coding rules, or constraints) — not a library file, dependency, or unrelated document.
+
+Read the located constitution file in full.
 
 Read the constitution top to bottom and extract every assessable principle — any section, rule, or guideline that imposes a constraint on the codebase or process.
 
