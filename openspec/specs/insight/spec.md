@@ -12,15 +12,15 @@ The system SHALL accept a free-form question and submit it to the AI agent. Subm
 
 #### Scenario: Empty question is blocked
 
-- GIVEN the input field is empty or contains only whitespace
-- WHEN the user attempts to submit
-- THEN submission is prevented and no AI request is made
+- **GIVEN** the input field is empty or contains only whitespace
+- **WHEN** the user attempts to submit
+- **THEN** submission is prevented and no AI request is made
 
 #### Scenario: Valid question triggers AI analysis
 
-- GIVEN the user has entered a question
-- WHEN they submit
-- THEN the AI agent is invoked and a loading indicator is displayed
+- **GIVEN** the user has entered a question
+- **WHEN** they submit
+- **THEN** the AI agent is invoked and a loading indicator is displayed
 
 ### Requirement: Input Persistence
 
@@ -28,9 +28,9 @@ The system SHALL persist the question text, the last answer, and the last agent 
 
 #### Scenario: Stored question is restored on page revisit
 
-- GIVEN the user previously entered a question
-- WHEN they navigate away and return to the Insight page
-- THEN the question field is restored to its previous value
+- **GIVEN** the user previously entered a question
+- **WHEN** they navigate away and return to the Insight page
+- **THEN** the question field is restored to its previous value
 
 #### Scenario: Stored answer is restored on page revisit
 
@@ -56,39 +56,39 @@ The system SHALL use an AI agent with access to the user's accounts, categories,
 
 #### Scenario: Agent infers the date range from the question
 
-- GIVEN the user asks a question with a time reference (e.g. "What did I spend on food last month?")
-- WHEN the AI agent processes the question
-- THEN it determines the appropriate date range from the question and queries matching transactions
+- **GIVEN** the user asks a question with a time reference (e.g. "What did I spend on food last month?")
+- **WHEN** the AI agent processes the question
+- **THEN** it determines the appropriate date range from the question and queries matching transactions
 
 #### Scenario: Agent defaults to current month when no time period is specified
 
-- GIVEN the user asks a question with no time reference (e.g. "What did I spend the most on?")
-- WHEN the AI agent processes the question
-- THEN it uses the current month as the date range
+- **GIVEN** the user asks a question with no time reference (e.g. "What did I spend the most on?")
+- **WHEN** the AI agent processes the question
+- **THEN** it uses the current month as the date range
 
 #### Scenario: Agent states the assumed date range in the answer
 
-- GIVEN the agent assumed a time period because the question did not specify one
-- WHEN the answer is returned
-- THEN the answer includes the date range the agent assumed
+- **GIVEN** the agent assumed a time period because the question did not specify one
+- **WHEN** the answer is returned
+- **THEN** the answer includes the date range the agent assumed
 
 #### Scenario: Agent retrieves data and answers the question
 
-- GIVEN the user asks "What did I spend on food last month?"
-- WHEN the AI agent processes the question
-- THEN it queries the relevant transactions and returns a plain-text answer summarising the result
+- **GIVEN** the user asks "What did I spend on food last month?"
+- **WHEN** the AI agent processes the question
+- **THEN** it queries the relevant transactions and returns a plain-text answer summarising the result
 
 #### Scenario: Transaction queries are capped at 365 days
 
-- GIVEN the agent determines a date range for a transaction query
-- WHEN the range exceeds 365 days
-- THEN the query is rejected by the transactions tool with an error indicating the limit
+- **GIVEN** the agent determines a date range for a transaction query
+- **WHEN** the range exceeds 365 days
+- **THEN** the query is rejected by the transactions tool with an error indicating the limit
 
 #### Scenario: Agent can access both active and archived accounts and categories
 
-- GIVEN the user has archived accounts or categories that have associated transactions
-- WHEN the AI agent retrieves data to answer a question
-- THEN it can access archived entities to ensure complete and accurate answers
+- **GIVEN** the user has archived accounts or categories that have associated transactions
+- **WHEN** the AI agent retrieves data to answer a question
+- **THEN** it can access archived entities to ensure complete and accurate answers
 
 ### Requirement: Plain Text Response Display
 
@@ -96,9 +96,9 @@ The system SHALL display the AI's answer as plain text, preserving whitespace an
 
 #### Scenario: Answer is displayed as plain text
 
-- GIVEN the AI has returned an answer
-- WHEN the response is shown
-- THEN the text appears as-is with whitespace and line breaks preserved, without any markdown rendering
+- **GIVEN** the AI has returned an answer
+- **WHEN** the response is shown
+- **THEN** the text appears as-is with whitespace and line breaks preserved, without any markdown rendering
 
 ### Requirement: Empty and Loading States
 
@@ -106,15 +106,15 @@ The system SHALL display an empty state prompt before any question has been aske
 
 #### Scenario: Empty state is shown before the first question
 
-- GIVEN the user opens the Insight page for the first time
-- WHEN no question has been submitted yet
-- THEN an empty state is displayed prompting the user to ask a question
+- **GIVEN** the user opens the Insight page for the first time
+- **WHEN** no question has been submitted yet
+- **THEN** an empty state is displayed prompting the user to ask a question
 
 #### Scenario: Loading indicator is shown during AI processing
 
-- GIVEN the user has submitted a valid question
-- WHEN the AI is processing
-- THEN a loading indicator is displayed in place of the answer area
+- **GIVEN** the user has submitted a valid question
+- **WHEN** the AI is processing
+- **THEN** a loading indicator is displayed in place of the answer area
 
 ### Requirement: Error Handling
 
@@ -122,9 +122,9 @@ The system SHALL display an error message when the AI fails to return an answer,
 
 #### Scenario: AI failure shows an error message
 
-- GIVEN the user submits a valid question
-- WHEN the AI service fails or returns an error
-- THEN an error message is displayed and the question input remains unchanged
+- **GIVEN** the user submits a valid question
+- **WHEN** the AI service fails or returns an error
+- **THEN** an error message is displayed and the question input remains unchanged
 
 ### Requirement: Agent Trace Access on Insight Page
 
