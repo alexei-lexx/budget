@@ -21,8 +21,13 @@ const loadStoredResult = (): StoredInsightResult | null => {
 const saveStoredResult = (result: StoredInsightResult): void => {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(result));
-  } catch (error) {
-    console.error("Failed to persist insight result:", error);
+  } catch {
+    // Fallback: agentTrace can be large; try storing without it
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...result, agentTrace: [] }));
+    } catch (error) {
+      console.error("Failed to persist insight result:", error);
+    }
   }
 };
 
