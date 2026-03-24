@@ -24,7 +24,7 @@ The system SHALL accept a free-form question and submit it to the AI agent. Subm
 
 ### Requirement: Input Persistence
 
-The system SHALL persist the question text, the last answer, and the last agent trace in local storage and restore them when the user returns to the Insight page.
+The system SHALL persist the question text, the last answer, and the last agent trace client-side and restore them when the user returns to the Insight page.
 
 #### Scenario: Stored question is restored on page revisit
 
@@ -46,7 +46,7 @@ The system SHALL persist the question text, the last answer, and the last agent 
 
 #### Scenario: Empty state is not shown when a stored answer exists
 
-- **GIVEN** a previous answer is available in local storage
+- **GIVEN** a previous answer is available from a previous visit
 - **WHEN** the user returns to the Insight page before submitting a new question
 - **THEN** the empty state prompt SHALL NOT be displayed
 
