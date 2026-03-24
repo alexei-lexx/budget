@@ -48,7 +48,7 @@ import AgenticInput from "@/components/AgenticInput.vue";
 const STORAGE_KEY = "insight-input";
 
 const { showErrorSnackbar } = useSnackbar();
-const { askQuestion, insightAgentTrace, insightAnswer, insightError, insightLoading } =
+const { insightLoading, insightError, insightAnswer, insightAgentTrace, askQuestion } =
   useInsight();
 
 interface StoredInput {
@@ -65,7 +65,9 @@ const loadStoredInput = (): Partial<StoredInput> => {
 };
 
 const saveInput = () => {
-  const data: StoredInput = { question: question.value };
+  const data: StoredInput = {
+    question: question.value
+  };
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 };
 
