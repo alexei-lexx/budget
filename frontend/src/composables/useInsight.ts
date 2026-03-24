@@ -28,8 +28,8 @@ export function useInsight() {
 
   const stored = loadStoredResult();
   const storedQuestion = ref<string>(stored?.question ?? "");
-  const storedAnswer = ref<string | null>(stored?.answer ?? null);
-  const storedAgentTrace = ref<AgentTraceMessage[]>(stored?.agentTrace ?? []);
+  const storedAnswer = stored?.answer ?? null;
+  const storedAgentTrace = stored?.agentTrace ?? [];
 
   const {
     result: insightResult,
@@ -62,10 +62,10 @@ export function useInsight() {
     return insightQueryError.value?.message ?? null;
   });
 
-  const insightAnswer = computed(() => fetchedAnswer.value ?? storedAnswer.value);
+  const insightAnswer = computed(() => fetchedAnswer.value ?? storedAnswer);
 
   const insightAgentTrace = computed(() =>
-    fetchedAnswer.value !== null ? fetchedAgentTrace.value : storedAgentTrace.value,
+    fetchedAnswer.value !== null ? fetchedAgentTrace.value : storedAgentTrace,
   );
 
   watch(fetchedAnswer, (newAnswer) => {
@@ -76,8 +76,6 @@ export function useInsight() {
         agentTrace: fetchedAgentTrace.value,
       };
       saveStoredResult(result);
-      storedAnswer.value = newAnswer;
-      storedAgentTrace.value = fetchedAgentTrace.value;
     }
   });
 
