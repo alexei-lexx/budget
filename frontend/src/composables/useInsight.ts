@@ -5,7 +5,7 @@ import type { AgentTraceMessage } from "@/__generated__/vue-apollo";
 const STORAGE_KEY = "insight-last-result";
 
 interface StoredInsightResult {
-  answer: string;
+  answer?: string;
   agentTrace: AgentTraceMessage[];
 }
 
@@ -66,11 +66,17 @@ export function useInsight() {
     fetchedAnswer.value !== null ? fetchedAgentTrace.value : storedAgentTrace,
   );
 
-  watch(fetchedAnswer, (newAnswer) => {
-    if (newAnswer !== null) {
-      saveStoredResult({ answer: newAnswer, agentTrace: fetchedAgentTrace.value });
-    }
-  });
+  watch(
+    () => insightResult.value,
+    (result) => {
+      if (result?.insight) {
+        const agentTrace = result.insight.agentTrace;
+        const answer =
+          result.insight.__typename === "InsightSuccess" ? result.insight.answer : undefined;
+        saveStoredResult({ answer, agentTrace });
+      }
+    },
+  );
 
   const askQuestion = async (questionInput: string): Promise<void> => {
     question.value = questionInput;
