@@ -32,16 +32,16 @@ export function reportToConsole(evalTaskResults: EvalTaskResult<unknown>[]): {
   for (const { evalTaskName, success, trials } of evalTaskResults) {
     if (success) continue;
 
-    const failedTrials = trials.map((trial) => ({
+    const trialsForFailedTask = trials.map((trial) => ({
       input: formatInput(trial.input),
       ...Object.fromEntries(
         trial.grades.map(({ name, value }) => [name, value]),
       ),
     }));
 
-    if (failedTrials.length > 0) {
-      console.error(`\nFailed trials — ${evalTaskName}`);
-      console.table(failedTrials);
+    if (trialsForFailedTask.length > 0) {
+      console.error(`\nTrials for failed task — ${evalTaskName}`);
+      console.table(trialsForFailedTask);
     }
   }
 
