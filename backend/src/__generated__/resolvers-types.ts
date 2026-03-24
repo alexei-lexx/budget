@@ -149,11 +149,6 @@ export type CreateTransferInput = {
   toAccountId: Scalars['ID']['input'];
 };
 
-export type DateRangeInput = {
-  endDate: Scalars['String']['input'];
-  startDate: Scalars['String']['input'];
-};
-
 export type InsightFailure = {
   __typename?: 'InsightFailure';
   agentTrace: Array<AgentTraceMessage>;
@@ -161,7 +156,6 @@ export type InsightFailure = {
 };
 
 export type InsightInput = {
-  dateRange: DateRangeInput;
   question: Scalars['String']['input'];
 };
 
@@ -573,7 +567,6 @@ export type ResolversTypes = {
   CreateTransactionFromTextSuccess: ResolverTypeWrapper<Omit<CreateTransactionFromTextSuccess, 'agentTrace' | 'transaction'> & { agentTrace: Array<ResolversTypes['AgentTraceMessage']>, transaction: ResolversTypes['Transaction'] }>;
   CreateTransactionInput: CreateTransactionInput;
   CreateTransferInput: CreateTransferInput;
-  DateRangeInput: DateRangeInput;
   Float: ResolverTypeWrapper<Scalars['Float']['output']>;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   InsightFailure: ResolverTypeWrapper<Omit<InsightFailure, 'agentTrace'> & { agentTrace: Array<ResolversTypes['AgentTraceMessage']> }>;
@@ -627,7 +620,6 @@ export type ResolversParentTypes = {
   CreateTransactionFromTextSuccess: Omit<CreateTransactionFromTextSuccess, 'agentTrace' | 'transaction'> & { agentTrace: Array<ResolversParentTypes['AgentTraceMessage']>, transaction: ResolversParentTypes['Transaction'] };
   CreateTransactionInput: CreateTransactionInput;
   CreateTransferInput: CreateTransferInput;
-  DateRangeInput: DateRangeInput;
   Float: Scalars['Float']['output'];
   ID: Scalars['ID']['output'];
   InsightFailure: Omit<InsightFailure, 'agentTrace'> & { agentTrace: Array<ResolversParentTypes['AgentTraceMessage']> };

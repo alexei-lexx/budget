@@ -1,12 +1,8 @@
-import { DateString } from "../types/date";
 import { Failure, Result, Success } from "../types/result";
-import { daysBetween, formatDateAsYYYYMMDD } from "../utils/date";
+import { formatDateAsYYYYMMDD } from "../utils/date";
 import { createGetAccountsTool } from "./agent-tools/get-accounts-tool";
 import { createGetCategoriesTool } from "./agent-tools/get-categories-tool";
-import {
-  MAX_PERIOD_DAYS,
-  createGetTransactionsTool,
-} from "./agent-tools/get-transactions-tool";
+import { createGetTransactionsTool } from "./agent-tools/get-transactions-tool";
 import { avgTool, calculateTool, sumTool } from "./agent-tools/math";
 import { AccountRepository } from "./ports/account-repository";
 import { Agent, AgentTraceMessage } from "./ports/agent";
@@ -20,9 +16,9 @@ You are a personal finance assistant.
 
 ## Task
 
-User asks questions about their financial transactions within a specific date range.
-You must identify which transactions are relevant to the user's question.
-And then perform calculations based on those transactions to answer the question.
+User asks questions about their finances.
+You must identify what data is relevant to the question and retrieve it.
+And then perform calculations based on that data to answer the question.
 
 ## Process
 
@@ -31,9 +27,11 @@ For each sub-question, identify what calculations are needed.
 For each calculation, identify what data is needed: accounts, categories, transactions.
 Keep in mind that transactions can be linked to archived accounts and categories,
 so you may need to retrieve both active and archived data.
+When a step requires a time period and the user did not specify one, assume the current month.
 Retrieve the necessary data in small, focused chunks.
 Do calculations based on the retrieved data.
 Answer the user's question based on the calculations and data.
+If you assumed a time period, state it in the answer.
 
 ## Transaction types
 
@@ -57,8 +55,6 @@ Answer the user's question based on the calculations and data.
 
 export interface InsightInput {
   question: string;
-  startDate: DateString;
-  endDate: DateString;
 }
 
 type InsightOutput = Result<
@@ -94,38 +90,12 @@ export class InsightService {
       return Failure({ message: "User ID is required", agentTrace: [] });
     }
 
-    const { question, startDate, endDate } = input;
-
-    const normalizedQuestion = question.trim();
+    const normalizedQuestion = input.question.trim();
     if (!normalizedQuestion) {
       return Failure({ message: "Question is required", agentTrace: [] });
     }
 
-    if (startDate > endDate) {
-      return Failure({
-        message: "Start date must be before or equal to end date",
-        agentTrace: [],
-      });
-    }
-
-    const differenceInDays = daysBetween(
-      new Date(startDate),
-      new Date(endDate),
-    );
-
-    if (differenceInDays > MAX_PERIOD_DAYS) {
-      return Failure({
-        message: `Date range cannot exceed ${MAX_PERIOD_DAYS} days`,
-        agentTrace: [],
-      });
-    }
-
     const systemPrompt = this.buildSystemPrompt();
-    const userPrompt = this.buildUserPrompt(
-      normalizedQuestion,
-      startDate,
-      endDate,
-    );
 
     const dataTools = [
       createGetAccountsTool(this.accountRepository, userId),
@@ -144,7 +114,9 @@ export class InsightService {
     const tools = [...dataTools, ...mathTools];
 
     const response = await this.agent.call({
-      messages: [{ role: "user", content: userPrompt }],
+      messages: [
+        { role: "user", content: `My question: ${normalizedQuestion}` },
+      ],
       systemPrompt,
       tools,
     });
@@ -159,18 +131,6 @@ export class InsightService {
     const finalAnswer = response.answer.trim();
 
     return Success({ answer: finalAnswer, agentTrace: response.agentTrace });
-  }
-
-  private buildUserPrompt(
-    question: string,
-    startDate: DateString,
-    endDate: DateString,
-  ): string {
-    return [
-      `I have transactions between ${startDate} and ${endDate}.`,
-      "",
-      `My question: ${question}`,
-    ].join("\n");
   }
 
   private buildSystemPrompt(): string {
