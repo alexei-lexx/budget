@@ -2,35 +2,13 @@
 
 ## Purpose
 
-This domain covers AI-powered financial Q&A: users ask free-form questions about their finances within a specified date range, and an AI agent queries their accounts, categories, and transactions to compute a plain-text answer. It includes date range selection with presets, input persistence, validation, and response display.
+This domain covers AI-powered financial Q&A: users ask free-form questions about their finances, and an AI agent queries their accounts, categories, and transactions to compute a plain-text answer. It includes input persistence, validation, and response display.
 
 ## Requirements
 
-### Requirement: Date Range Selection
-
-The system SHALL provide preset date range options (This Month, Previous Month, Last 3 Months, Last 6 Months, Last 12 Months, This Year, Previous Year, Custom) that automatically populate start and end dates, and SHALL reveal manual date input fields when Custom is selected.
-
-#### Scenario: Selecting a preset populates the date range
-
-- GIVEN the user is on the Insight page
-- WHEN they select a preset such as "Last 3 Months"
-- THEN the start and end dates are automatically calculated and applied
-
-#### Scenario: Selecting Custom reveals date input fields
-
-- GIVEN the user selects the Custom preset
-- WHEN the preset changes
-- THEN start and end date input fields appear for manual entry
-
-#### Scenario: Switching away from Custom hides the date inputs
-
-- GIVEN the user previously selected Custom and manual date fields are visible
-- WHEN they select any other preset
-- THEN the manual date input fields are hidden and dates are recalculated from the preset
-
 ### Requirement: Question Submission
 
-The system SHALL accept a free-form question and submit it together with the selected date range to the AI agent. Submission SHALL be blocked when the question is empty or the date range is invalid.
+The system SHALL accept a free-form question and submit it to the AI agent. Submission SHALL be blocked when the question is empty.
 
 #### Scenario: Empty question is blocked
 
@@ -38,49 +16,55 @@ The system SHALL accept a free-form question and submit it together with the sel
 - WHEN the user attempts to submit
 - THEN submission is prevented and no AI request is made
 
-#### Scenario: Missing date fields are rejected
+#### Scenario: Valid question triggers AI analysis
 
-- GIVEN the Custom preset is selected and one or both date fields are empty
-- WHEN the user attempts to submit
-- THEN an error message is shown and no AI request is made
-
-#### Scenario: Start date after end date is rejected
-
-- GIVEN a date range where the start date is later than the end date
-- WHEN the user attempts to submit
-- THEN an error message is shown and no AI request is made
-
-#### Scenario: Date range exceeding 365 days is rejected
-
-- GIVEN a date range spanning more than 365 days
-- WHEN the user submits a question
-- THEN the system rejects the request with an error indicating the limit
-
-#### Scenario: Valid question and date range triggers AI analysis
-
-- GIVEN the user has entered a question and selected a valid date range
+- GIVEN the user has entered a question
 - WHEN they submit
 - THEN the AI agent is invoked and a loading indicator is displayed
 
 ### Requirement: Input Persistence
 
-The system SHALL persist the question text, selected date range preset, and any custom dates in local storage and restore them when the user returns to the Insight page.
+The system SHALL persist the question text in local storage and restore it when the user returns to the Insight page.
 
-#### Scenario: Stored values are restored on page revisit
+#### Scenario: Stored question is restored on page revisit
 
-- GIVEN the user previously entered a question and selected a preset
+- GIVEN the user previously entered a question
 - WHEN they navigate away and return to the Insight page
-- THEN the question field and date range preset are restored to their previous values
+- THEN the question field is restored to its previous value
 
 ### Requirement: AI-Powered Financial Analysis
 
-The system SHALL use an AI agent with access to the user's accounts, categories, and transactions to answer the question. The agent SHALL only query transactions within the selected date range and MAY perform sum, average, and arithmetic calculations.
+The system SHALL use an AI agent with access to the user's accounts, categories, and transactions to answer the question. The agent SHALL infer the relevant date range from the question when querying transactions, defaulting to the current month when no time period is specified. When the agent assumes a time period, it SHALL state it in the answer. The agent MAY perform sum, average, and arithmetic calculations.
+
+#### Scenario: Agent infers the date range from the question
+
+- GIVEN the user asks a question with a time reference (e.g. "What did I spend on food last month?")
+- WHEN the AI agent processes the question
+- THEN it determines the appropriate date range from the question and queries matching transactions
+
+#### Scenario: Agent defaults to current month when no time period is specified
+
+- GIVEN the user asks a question with no time reference (e.g. "What did I spend the most on?")
+- WHEN the AI agent processes the question
+- THEN it uses the current month as the date range
+
+#### Scenario: Agent states the assumed date range in the answer
+
+- GIVEN the agent assumed a time period because the question did not specify one
+- WHEN the answer is returned
+- THEN the answer includes the date range the agent assumed
 
 #### Scenario: Agent retrieves data and answers the question
 
-- GIVEN the user asks "What did I spend on food last month?" with a valid date range
+- GIVEN the user asks a question
 - WHEN the AI agent processes the question
 - THEN it queries the relevant transactions and returns a plain-text answer summarising the result
+
+#### Scenario: Transaction queries are capped at 365 days
+
+- GIVEN the agent determines a date range for a transaction query
+- WHEN the range exceeds 365 days
+- THEN the query is rejected by the transactions tool with an error indicating the limit
 
 #### Scenario: Agent can access both active and archived accounts and categories
 
@@ -116,13 +100,13 @@ The system SHALL display an empty state prompt before any question has been aske
 
 ### Requirement: Error Handling
 
-The system SHALL display an error message when the AI fails to return an answer, without clearing the user's question or date range inputs.
+The system SHALL display an error message when the AI fails to return an answer, without clearing the user's question.
 
 #### Scenario: AI failure shows an error message
 
 - GIVEN the user submits a valid question
 - WHEN the AI service fails or returns an error
-- THEN an error message is displayed and the question and date range inputs remain unchanged
+- THEN an error message is displayed and the question input remains unchanged
 
 ### Requirement: Agent Trace Access on Insight Page
 

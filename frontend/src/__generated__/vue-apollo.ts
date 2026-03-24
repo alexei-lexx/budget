@@ -146,11 +146,6 @@ export type CreateTransferInput = {
   toAccountId: Scalars['ID']['input'];
 };
 
-export type DateRangeInput = {
-  endDate: Scalars['String']['input'];
-  startDate: Scalars['String']['input'];
-};
-
 export type InsightFailure = {
   __typename?: 'InsightFailure';
   agentTrace: Array<AgentTraceMessage>;
@@ -158,7 +153,6 @@ export type InsightFailure = {
 };
 
 export type InsightInput = {
-  dateRange: DateRangeInput;
   question: Scalars['String']['input'];
 };
 

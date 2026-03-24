@@ -1,11 +1,9 @@
 import { faker } from "@faker-js/faker";
-import { toDateString } from "../types/date";
 import {
   createMockAccountRepository,
   createMockCategoryRepository,
   createMockTransactionRepository,
 } from "../utils/test-utils/mock-repositories";
-import { MAX_PERIOD_DAYS } from "./agent-tools/get-transactions-tool";
 import { type InsightInput, InsightService } from "./insight-service";
 import {
   type Agent,
@@ -38,15 +36,9 @@ describe("InsightService", () => {
   });
 
   describe("validation", () => {
-    const validInput: InsightInput = {
-      question: "Why did my food spending increase?",
-      startDate: toDateString("2000-01-01"),
-      endDate: toDateString("2000-01-31"),
-    };
-
     it("should return failure when userId is empty", async () => {
       // Act
-      const result = await service.call("", validInput);
+      const result = await service.call("", { question: "Valid question?" });
 
       // Assert
       expect(result).toMatchObject({
@@ -58,7 +50,7 @@ describe("InsightService", () => {
 
     it("should return failure when question is empty", async () => {
       // Arrange
-      const input: InsightInput = { ...validInput, question: "" };
+      const input: InsightInput = { question: "" };
 
       // Act
       const result = await service.call(userId, input);
@@ -73,7 +65,7 @@ describe("InsightService", () => {
 
     it("should return failure when question is only whitespace", async () => {
       // Arrange
-      const input: InsightInput = { ...validInput, question: "   " };
+      const input: InsightInput = { question: "   " };
 
       // Act
       const result = await service.call(userId, input);
@@ -84,49 +76,11 @@ describe("InsightService", () => {
         error: { message: "Question is required" },
       });
     });
-
-    it("should return failure when startDate is after endDate", async () => {
-      // Arrange
-      const input: InsightInput = {
-        ...validInput,
-        startDate: toDateString("2026-02-01"),
-        endDate: toDateString("2026-01-01"),
-      };
-
-      // Act
-      const result = await service.call(userId, input);
-
-      // Assert
-      expect(result).toMatchObject({
-        success: false,
-        error: { message: "Start date must be before or equal to end date" },
-      });
-    });
-
-    it("should return failure when date range exceeds max period days", async () => {
-      // Arrange
-      const input: InsightInput = {
-        ...validInput,
-        startDate: toDateString("2000-01-01"),
-        endDate: toDateString("2001-01-02"),
-      };
-
-      // Act
-      const result = await service.call(userId, input);
-
-      // Assert
-      expect(result).toMatchObject({
-        success: false,
-        error: { message: `Date range cannot exceed ${MAX_PERIOD_DAYS} days` },
-      });
-    });
   });
 
   describe("call", () => {
     const validInput: InsightInput = {
       question: "Why did my food spending increase?",
-      startDate: toDateString("2000-01-01"),
-      endDate: toDateString("2000-01-31"),
     };
 
     it("should return AI response for valid input", async () => {
@@ -168,10 +122,7 @@ describe("InsightService", () => {
 
     it("should trim question whitespace", async () => {
       // Arrange
-      const input: InsightInput = {
-        ...validInput,
-        question: "  What is my spending?  ",
-      };
+      const input: InsightInput = { question: "  What is my spending?  " };
       mockAgent.call.mockResolvedValue({ answer: "Answer", agentTrace: [] });
 
       // Act
@@ -197,8 +148,6 @@ describe("InsightService", () => {
 
       expect(messages).toHaveLength(1);
       expect(messages[0].role).toBe("user");
-      expect(messages[0].content).toContain("2000-01-01");
-      expect(messages[0].content).toContain("2000-01-31");
       expect(messages[0].content).toContain(validInput.question);
 
       expect(systemPrompt).toContain("You are a personal finance assistant");

@@ -259,14 +259,8 @@ input TransactionFilterInput {
   types: [TransactionType!]
 }
 
-input DateRangeInput {
-  startDate: String!
-  endDate: String!
-}
-
 input InsightInput {
   question: String!
-  dateRange: DateRangeInput!
 }
 
 type PageInfo {
