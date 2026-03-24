@@ -62,21 +62,21 @@ The system SHALL provide a toggle on the Expense Report page that allows users t
 
 #### Scenario: Toggle is visible on the Expense Report page
 
-- **GIVEN** a user navigates to the Expense Report page
-- **WHEN** the page loads
-- **THEN** a toggle with "Monthly" and "Yearly" options is visible in the page header
+- GIVEN a user navigates to the Expense Report page
+- WHEN the page loads
+- THEN a toggle with "Monthly" and "Yearly" options is visible in the page header
 
 #### Scenario: Monthly mode is active by default
 
-- **GIVEN** a user navigates to the Expense Report page with no URL parameters
-- **WHEN** the page loads
-- **THEN** the "Monthly" toggle option is selected and the current month's report is displayed
+- GIVEN a user navigates to the Expense Report page with no URL parameters
+- WHEN the page loads
+- THEN the "Monthly" toggle option is selected and the current month's report is displayed
 
 #### Scenario: Switching to yearly mode shows the yearly report
 
-- **GIVEN** the user is in monthly view mode
-- **WHEN** they click the "Yearly" toggle option
-- **THEN** the view switches to yearly mode and the current year's expense report is displayed
+- GIVEN the user is in monthly view mode
+- WHEN they click the "Yearly" toggle option
+- THEN the view switches to yearly mode and the current year's expense report is displayed
 
 ### Requirement: Yearly Expense Report
 
@@ -84,15 +84,15 @@ The system SHALL generate a yearly expense report aggregating all transactions i
 
 #### Scenario: Yearly report aggregates all 12 months
 
-- **GIVEN** a user with expenses spread across multiple months of a year
-- **WHEN** viewing the yearly expense report for that year
-- **THEN** the report shows totals that include transactions from all 12 months
+- GIVEN a user with expenses spread across multiple months of a year
+- WHEN viewing the yearly expense report for that year
+- THEN the report shows totals that include transactions from all 12 months
 
 #### Scenario: Year with no transactions shows empty state
 
-- **GIVEN** a year with no transactions
-- **WHEN** viewing that year's report in yearly mode
-- **THEN** the report shows an appropriate empty state message
+- GIVEN a year with no transactions
+- WHEN viewing that year's report in yearly mode
+- THEN the report shows an appropriate empty state message
 
 ### Requirement: Year Navigation
 
@@ -100,15 +100,15 @@ The system SHALL allow users to navigate between years using Previous and Next c
 
 #### Scenario: User navigates to the previous year
 
-- **GIVEN** the user is viewing a yearly expense report
-- **WHEN** they click the Previous button
-- **THEN** the report updates to show the previous year's data
+- GIVEN the user is viewing a yearly expense report
+- WHEN they click the Previous button
+- THEN the report updates to show the previous year's data
 
 #### Scenario: User navigates to the next year
 
-- **GIVEN** the user is viewing a yearly expense report
-- **WHEN** they click the Next button
-- **THEN** the report updates to show the next year's data
+- GIVEN the user is viewing a yearly expense report
+- WHEN they click the Next button
+- THEN the report updates to show the next year's data
 
 ### Requirement: Period URL State
 
@@ -116,27 +116,27 @@ The system SHALL encode the selected view mode and period in the URL so that rep
 
 #### Scenario: Monthly report URL includes year and month
 
-- **GIVEN** the user is viewing the March 2025 monthly report
-- **WHEN** looking at the URL
-- **THEN** the URL contains `?year=2025&month=3`
+- GIVEN the user is viewing the March 2025 monthly report
+- WHEN looking at the URL
+- THEN the URL contains `?year=2025&month=3`
 
 #### Scenario: Yearly report URL includes only year
 
-- **GIVEN** the user is viewing the 2025 yearly report
-- **WHEN** looking at the URL
-- **THEN** the URL contains `?year=2025` with no `month` parameter
+- GIVEN the user is viewing the 2025 yearly report
+- WHEN looking at the URL
+- THEN the URL contains `?year=2025` with no `month` parameter
 
 #### Scenario: Page loads from a yearly URL bookmark
 
-- **GIVEN** a user navigates directly to the report page with `?year=2024` (no month param)
-- **WHEN** the page loads
-- **THEN** the yearly view mode is active and the 2024 yearly report is displayed
+- GIVEN a user navigates directly to the report page with `?year=2024` (no month param)
+- WHEN the page loads
+- THEN the yearly view mode is active and the 2024 yearly report is displayed
 
 #### Scenario: Page loads from a monthly URL bookmark
 
-- **GIVEN** a user navigates directly to the report page with `?year=2024&month=6`
-- **WHEN** the page loads
-- **THEN** the monthly view mode is active and the June 2024 monthly report is displayed
+- GIVEN a user navigates directly to the report page with `?year=2024&month=6`
+- WHEN the page loads
+- THEN the monthly view mode is active and the June 2024 monthly report is displayed
 
 ### Requirement: Multi-Currency Report Display
 
@@ -217,13 +217,13 @@ The system SHALL display the expanded transaction list within the category break
 
 #### Scenario: Expanded category transactions fit within the card on mobile
 
-- **GIVEN** a user is viewing the monthly expense report on a narrow screen (e.g., 360px–768px wide)
-- **WHEN** they expand a category row to show its transactions
-- **THEN** the transaction list SHALL be fully contained within the report card width with no horizontal overflow or scroll
+- GIVEN a user is viewing the monthly expense report on a narrow screen (e.g., 360px–768px wide)
+- WHEN they expand a category row to show its transactions
+- THEN the transaction list SHALL be fully contained within the report card width with no horizontal overflow or scroll
 
 #### Scenario: Date and amount are always visible on narrow screens
 
-- **GIVEN** a user is viewing the monthly expense report on a narrow screen (e.g., 360px–768px wide)
-- **WHEN** they expand a category row to show its transactions
-- **THEN** each transaction SHALL display the full date and the full amount
+- GIVEN a user is viewing the monthly expense report on a narrow screen (e.g., 360px–768px wide)
+- WHEN they expand a category row to show its transactions
+- THEN each transaction SHALL display the full date and the full amount
 - **AND** any middle content (account name, category, description) MAY be truncated with an ellipsis to fit the available width
