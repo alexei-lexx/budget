@@ -79,7 +79,9 @@ Include the following sections in the description:
 
 Follow these rules strictly for `before` and `after` sections:
 - Do not explain the code change — explain its purpose or user-facing effect
+- Describe changes in user interface and user behaviour
 - Use bullet points
+- One distinct fact per bullet — never combine multiple facts into one bullet
 - IMPORTANT: Classify the PR as **small**, **medium**, or **big** based on scope and number of changes
 - For a small PR: 1-2 bullet points
 - For a medium PR: 2-3 bullet points
@@ -91,20 +93,18 @@ Follow these rules strictly for `before` and `after` sections:
 ```
 ## context
 
-Users have to manually refresh the page to see updates made by other users,
-leading to stale data and confusion.
+After navigating away from the Insight page, the previous answer and agent trace were lost.
 
 ## before
 
-- Users don't see changes from other users until they refresh
-- Users work with outdated information
-- Users must manually refresh to sync data
+- After navigating back to Insight, the user sees the previous question only
+- The answer and agent trace are gone
+- The user has to re-submit the question to see the answer again
 
 ## after
 
-- Users see changes from other users automatically
-- Users work with current information
-- Users don't need to manually refresh
+- After navigating back to Insight, the user sees the question, answer, and agent trace
+- The user does not need to re-submit
 ```
 
 ## Step 6: Present the result
