@@ -17,7 +17,7 @@ rules:
     - Include a "## Constitution Compliance" section listing which constitution principles apply and confirming compliance or flagging violations
   design:
     - Include a "## Constitution Compliance" section listing which constitution principles apply and confirming compliance or flagging violations
-  spec:
+  specs:
     - Make sure the spec does not include technical details
   tasks:
     - Include a "## Constitution Compliance" section listing which constitution principles apply and confirming compliance or flagging violations
