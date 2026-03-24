@@ -97,14 +97,15 @@ After navigating away from the Insight page, the previous answer and agent trace
 
 ## before
 
-- After navigating back to Insight, the user sees the previous question only
-- The answer and agent trace are gone
-- The user has to re-submit the question to see the answer again
+- Users don't see changes from other users until they refresh
+- Users work with outdated information
+- Users must manually refresh to sync data
 
 ## after
 
-- After navigating back to Insight, the user sees the question, answer, and agent trace
-- The user does not need to re-submit
+- Users see changes from other users automatically
+- Users work with current information
+- Users don't need to manually refresh
 ```
 
 ## Step 6: Present the result
