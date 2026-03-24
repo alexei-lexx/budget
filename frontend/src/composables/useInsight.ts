@@ -19,7 +19,11 @@ const loadStoredResult = (): StoredInsightResult | null => {
 };
 
 const saveStoredResult = (result: StoredInsightResult): void => {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(result));
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(result));
+  } catch (error) {
+    console.error("Failed to persist insight result:", error);
+  }
 };
 
 export function useInsight() {
