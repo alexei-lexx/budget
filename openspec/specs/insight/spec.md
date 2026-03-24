@@ -56,7 +56,7 @@ The system SHALL use an AI agent with access to the user's accounts, categories,
 
 #### Scenario: Agent retrieves data and answers the question
 
-- GIVEN the user asks a question
+- GIVEN the user asks "What did I spend on food last month?"
 - WHEN the AI agent processes the question
 - THEN it queries the relevant transactions and returns a plain-text answer summarising the result
 
