@@ -12,9 +12,9 @@ The system SHALL allow authenticated users to create financial accounts with a c
 
 #### Scenario: User creates a new account
 
-- GIVEN an authenticated user on the Accounts page
-- WHEN they click "Add New Account", enter a name, select a currency, set an initial balance, and submit
-- THEN the account is created and appears in the accounts list
+- **GIVEN** an authenticated user on the Accounts page
+- **WHEN** they click "Add New Account", enter a name, select a currency, set an initial balance, and submit
+- **THEN** the account is created and appears in the accounts list
 
 ### Requirement: Account Editing
 
@@ -22,9 +22,9 @@ The system SHALL allow users to edit an existing account's name and initial bala
 
 #### Scenario: User updates account details
 
-- GIVEN an existing account
-- WHEN the user edits the account name or initial balance and saves
-- THEN the updated values are reflected immediately in the accounts list
+- **GIVEN** an existing account
+- **WHEN** the user edits the account name or initial balance and saves
+- **THEN** the updated values are reflected immediately in the accounts list
 
 ### Requirement: Account Archiving
 
@@ -32,9 +32,9 @@ The system SHALL allow users to archive accounts, removing them from the active 
 
 #### Scenario: User archives an account
 
-- GIVEN an account with transactions
-- WHEN the user archives the account
-- THEN the account is hidden from the main accounts view
+- **GIVEN** an account with transactions
+- **WHEN** the user archives the account
+- **THEN** the account is hidden from the main accounts view
 - AND its associated transactions are preserved in the system
 
 ### Requirement: Account Listing
@@ -43,15 +43,15 @@ The system SHALL display all active accounts belonging to the authenticated user
 
 #### Scenario: User views the accounts page
 
-- GIVEN an authenticated user with multiple accounts
-- WHEN they view the Accounts page
-- THEN all active accounts are displayed with their names, currencies, and calculated balances
+- **GIVEN** an authenticated user with multiple accounts
+- **WHEN** they view the Accounts page
+- **THEN** all active accounts are displayed with their names, currencies, and calculated balances
 
 #### Scenario: No cross-user data is visible
 
-- GIVEN multiple users in the system
-- WHEN a user views the Accounts page
-- THEN only their own accounts are displayed
+- **GIVEN** multiple users in the system
+- **WHEN** a user views the Accounts page
+- **THEN** only their own accounts are displayed
 
 ### Requirement: Multi-Currency Support
 
@@ -59,15 +59,15 @@ The system SHALL allow accounts in different currencies to coexist without conve
 
 #### Scenario: Each account displays the correct currency symbol
 
-- GIVEN accounts created in multiple currencies
-- WHEN viewing the accounts list
-- THEN each account displays its balance with the correct currency symbol
+- **GIVEN** accounts created in multiple currencies
+- **WHEN** viewing the accounts list
+- **THEN** each account displays its balance with the correct currency symbol
 
 #### Scenario: Amounts are never converted between currencies
 
-- GIVEN accounts in different currencies
-- WHEN performing balance calculations
-- THEN amounts are kept in their original currency and never converted
+- **GIVEN** accounts in different currencies
+- **WHEN** performing balance calculations
+- **THEN** amounts are kept in their original currency and never converted
 
 ### Requirement: Real-Time Balance Calculation
 
@@ -75,33 +75,33 @@ The system SHALL calculate each account's balance as: initial balance + INCOME +
 
 #### Scenario: Balance reflects initial balance on a new account
 
-- GIVEN a newly created account with an initial balance of $1000
-- WHEN viewing the account
-- THEN the balance shows $1000.00
+- **GIVEN** a newly created account with an initial balance of $1000
+- **WHEN** viewing the account
+- **THEN** the balance shows $1000.00
 
 #### Scenario: Balance increases when income is added
 
-- GIVEN an account with an existing balance
-- WHEN an INCOME transaction is added
-- THEN the account balance immediately updates to include the income amount
+- **GIVEN** an account with an existing balance
+- **WHEN** an INCOME transaction is added
+- **THEN** the account balance immediately updates to include the income amount
 
 #### Scenario: Balance can go negative
 
-- GIVEN an account with a positive balance
-- WHEN an EXPENSE transaction larger than the balance is added
-- THEN the balance correctly shows a negative amount
+- **GIVEN** an account with a positive balance
+- **WHEN** an EXPENSE transaction larger than the balance is added
+- **THEN** the balance correctly shows a negative amount
 
 #### Scenario: Balance recalculates when a transaction is deleted
 
-- GIVEN an account with multiple transactions
-- WHEN a transaction is deleted
-- THEN the balance immediately recalculates without the deleted transaction
+- **GIVEN** an account with multiple transactions
+- **WHEN** a transaction is deleted
+- **THEN** the balance immediately recalculates without the deleted transaction
 
 #### Scenario: Transfer amounts are reflected in both accounts
 
-- GIVEN a TRANSFER_OUT on account A and TRANSFER_IN on account B
-- WHEN viewing both accounts
-- THEN account A balance is reduced by the transfer amount and account B balance is increased
+- **GIVEN** a TRANSFER_OUT on account A and TRANSFER_IN on account B
+- **WHEN** viewing both accounts
+- **THEN** account A balance is reduced by the transfer amount and account B balance is increased
 
 ### Requirement: Expandable Account Cards
 
@@ -109,33 +109,33 @@ The system SHALL display account cards in a collapsed state by default, revealin
 
 #### Scenario: Account card is collapsed by default
 
-- GIVEN a user viewing the accounts list
-- WHEN a card is in its default state
-- THEN only the account name and balance are visible, with no edit or delete buttons shown
+- **GIVEN** a user viewing the accounts list
+- **WHEN** a card is in its default state
+- **THEN** only the account name and balance are visible, with no edit or delete buttons shown
 
 #### Scenario: Clicking a collapsed card expands it
 
-- GIVEN a collapsed account card
-- WHEN the user clicks on the card
-- THEN edit and delete buttons appear in the expanded area, aligned to the right
+- **GIVEN** a collapsed account card
+- **WHEN** the user clicks on the card
+- **THEN** edit and delete buttons appear in the expanded area, aligned to the right
 
 #### Scenario: Clicking an expanded card collapses it
 
-- GIVEN an expanded account card
-- WHEN the user clicks on the card body (not on action buttons)
-- THEN the card returns to its collapsed state and action buttons are hidden
+- **GIVEN** an expanded account card
+- **WHEN** the user clicks on the card body (not on action buttons)
+- **THEN** the card returns to its collapsed state and action buttons are hidden
 
 #### Scenario: Action button clicks do not collapse the card
 
-- GIVEN an expanded account card
-- WHEN the user clicks the edit or delete button
-- THEN the respective action is triggered without collapsing the card
+- **GIVEN** an expanded account card
+- **WHEN** the user clicks the edit or delete button
+- **THEN** the respective action is triggered without collapsing the card
 
 #### Scenario: Multiple cards expand independently
 
-- GIVEN multiple account cards on the page
-- WHEN the user expands one card
-- THEN only that card expands; all other cards remain in their current state
+- **GIVEN** multiple account cards on the page
+- **WHEN** the user expands one card
+- **THEN** only that card expands; all other cards remain in their current state
 
 ### Requirement: Dialog Escape Key Dismissal
 
@@ -144,20 +144,20 @@ regardless of which element inside or around the dialog currently holds focus.
 
 #### Scenario: Escape closes the dialog when a form field has focus
 
-- GIVEN an account form dialog is open and an input field has focus
-- WHEN the user presses Escape
-- THEN the dialog closes and the accounts page is shown
+- **GIVEN** an account form dialog is open and an input field has focus
+- **WHEN** the user presses Escape
+- **THEN** the dialog closes and the accounts page is shown
 
 #### Scenario: Escape closes the dialog after an outside-click attempt
 
-- GIVEN an account form dialog is open
+- **GIVEN** an account form dialog is open
 - AND the user has previously clicked outside the dialog (triggering the wobble animation)
-- WHEN the user presses Escape
-- THEN the dialog closes and the accounts page is shown
+- **WHEN** the user presses Escape
+- **THEN** the dialog closes and the accounts page is shown
 
 #### Scenario: Clicking outside the dialog does not close it
 
-- GIVEN an account form dialog is open
-- WHEN the user clicks on the page backdrop outside the dialog
-- THEN the dialog remains open
+- **GIVEN** an account form dialog is open
+- **WHEN** the user clicks on the page backdrop outside the dialog
+- **THEN** the dialog remains open
 - AND a wobble animation plays to indicate the dialog is persistent
