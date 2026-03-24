@@ -79,7 +79,9 @@ Include the following sections in the description:
 
 Follow these rules strictly for `before` and `after` sections:
 - Do not explain the code change — explain its purpose or user-facing effect
+- Describe changes in user interface and user behaviour
 - Use bullet points
+- One distinct fact per bullet — never combine multiple facts into one bullet
 - IMPORTANT: Classify the PR as **small**, **medium**, or **big** based on scope and number of changes
 - For a small PR: 1-2 bullet points
 - For a medium PR: 2-3 bullet points
