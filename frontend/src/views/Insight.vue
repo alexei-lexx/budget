@@ -66,7 +66,7 @@ const loadStoredInput = (): Partial<StoredInput> => {
 
 const saveInput = () => {
   const data: StoredInput = {
-    question: question.value
+    question: question.value,
   };
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 };
