@@ -35,8 +35,8 @@ export function useInsight() {
   const question = ref("");
 
   const stored = loadStoredResult();
-  const storedAnswer = stored?.answer ?? null;
-  const storedAgentTrace = stored?.agentTrace ?? [];
+  const storedAnswer = ref<string | null>(stored?.answer ?? null);
+  const storedAgentTrace = ref<AgentTraceMessage[]>(stored?.agentTrace ?? []);
 
   const {
     result: insightResult,
@@ -69,10 +69,10 @@ export function useInsight() {
     return insightQueryError.value?.message ?? null;
   });
 
-  const insightAnswer = computed(() => fetchedAnswer.value ?? storedAnswer);
+  const insightAnswer = computed(() => fetchedAnswer.value ?? storedAnswer.value);
 
   const insightAgentTrace = computed(() =>
-    fetchedAnswer.value !== null ? fetchedAgentTrace.value : storedAgentTrace,
+    fetchedAnswer.value !== null ? fetchedAgentTrace.value : storedAgentTrace.value,
   );
 
   watch(
@@ -83,6 +83,10 @@ export function useInsight() {
         const answer =
           result.insight.__typename === "InsightSuccess" ? result.insight.answer : undefined;
         saveStoredResult({ answer, agentTrace });
+        // Keep in sync so the fallback reflects the latest result if fetchedAnswer goes null
+        // (e.g. if Apollo clears the result during a subsequent refetch)
+        storedAnswer.value = answer ?? null;
+        storedAgentTrace.value = agentTrace;
       }
     },
   );
