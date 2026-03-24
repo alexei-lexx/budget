@@ -40,39 +40,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { ref } from "vue";
 import { useInsight } from "@/composables/useInsight";
 import { useSnackbar } from "@/composables/useSnackbar";
 import AgenticInput from "@/components/AgenticInput.vue";
 
-const STORAGE_KEY = "insight-input";
-
 const { showErrorSnackbar } = useSnackbar();
-const { insightLoading, insightError, insightAnswer, insightAgentTrace, askQuestion } =
-  useInsight();
+const {
+  askQuestion,
+  insightAgentTrace,
+  insightAnswer,
+  insightError,
+  insightLoading,
+  storedQuestion,
+} = useInsight();
 
-interface StoredInput {
-  question: string;
-}
-
-const loadStoredInput = (): Partial<StoredInput> => {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    return stored ? JSON.parse(stored) : {};
-  } catch {
-    return {};
-  }
-};
-
-const saveInput = () => {
-  const data: StoredInput = {
-    question: question.value,
-  };
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-};
-
-const storedInput = loadStoredInput();
-const question = ref<string>(storedInput.question ?? "");
+const question = ref<string>(storedQuestion.value);
 
 const handleAskQuestion = async () => {
   const trimmedQuestion = question.value.trim();
@@ -86,8 +69,4 @@ const handleAskQuestion = async () => {
     showErrorSnackbar(insightError.value);
   }
 };
-
-watch(question, () => {
-  saveInput();
-});
 </script>
