@@ -24,7 +24,7 @@ The system SHALL accept a free-form question and submit it to the AI agent. Subm
 
 ### Requirement: Input Persistence
 
-The system SHALL persist the question text, the last answer, and the last agent trace client-side and restore them when the user returns to the Insight page.
+The system SHALL persist the question text, the last answer, and the last agent trace between visits and restore them when the user returns to the Insight page.
 
 #### Scenario: Stored question is restored on page revisit
 
