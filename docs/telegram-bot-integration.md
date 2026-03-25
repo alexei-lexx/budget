@@ -32,6 +32,34 @@ Connected:
 Connect failure: snackbar error, field retains token for retry.
 Test: snackbar success/failure, no state change.
 
+## Architecture Overview
+
+**GraphQL API** (entry point — connect/disconnect/test)
+- **Owns**: `connectTelegramBot` mutation, `disconnectTelegramBot` mutation, `telegramBotTest` query; authentication and userId resolution
+- **Relations**: TelegramBotService
+
+**Webhook handler** (entry point — inbound Telegram messages)
+- **Owns**: Webhook request validation via `X-Telegram-Bot-Api-Secret-Token` header; routing text vs non-text messages; async dispatch
+- **Relations**: TelegramBotService (connection lookup), AsyncJobDispatcher (port)
+
+**TelegramBotService** (domain entity service)
+- **Owns**: Connection lifecycle — connect, disconnect, test, lookup by webhookSecret
+- **Relations**: TelegramConnRepo, TelegramApiClient (port)
+
+**ProcessTelegramMessageService** (single-purpose service)
+- **Owns**: AI-reply orchestration for a single inbound Telegram message
+- **Relations**: InsightService, TelegramApiClient (port)
+
+**TelegramConnRepo**
+- **Owns**: Persistence of TelegramConnections records
+- **Relations**: TelegramConnectionsTable
+
+**TelegramConnectionsTable** (new DynamoDB table)
+- **Owns**: Connection state per user — bot token, webhookSecret, status, isArchived
+
+**Telegram API** (external)
+- **Owns**: Bot registration and message delivery
+
 ## Sequence Diagrams
 
 **Connect bot:**
@@ -156,11 +184,20 @@ User        Frontend     GraphQL      TelegramBotService   TelegramAPI   Telegra
 - **Rationale**: GraphQL convention — mutations for state changes, queries for reads
 
 **8. Composite primary key (`userId` PK + `webhookSecret` SK) on `TelegramConnectionsTable`**
-- **Decision**: Each connection record is keyed on the pair `(userId, webhookSecret)`, allowing multiple records per user to coexist
-- **Rationale**: During token replacement, the old record must stay alive (its webhook still receives messages) until the new one is fully set up; a single-key design would require deleting the old record first, creating a gap and making crash recovery harder
+- **Decision**: Each connection record is keyed on the pair `(userId, webhookSecret)`, allowing multiple records per user to coexist. A Global Secondary Index (GSI) on `webhookSecret` (partition key only) supports the `findByWebhookSecret` lookup used by the webhook handler, which knows only the secret from the `X-Telegram-Bot-Api-Secret-Token` header.
+- **Rationale**: During token replacement, the old record must stay alive (its webhook still receives messages) until the new one is fully set up; a single-key design would require deleting the old record first, creating a gap and making crash recovery harder. The GSI is a secondary index on a single field — portable to SQL and MongoDB per the vendor-independence principle.
 - **Alternative considered**: `userId` as sole PK — simpler but forces delete-before-create, with no safe recovery path if the replacement crashes mid-way
 
 **9. Port interfaces for all external dependencies**
 - **Decision**: Telegram API calls (`TelegramApiClient`) and async job dispatch (`AsyncJobDispatcher`) are accessed through port interfaces defined in `services/ports/`; concrete implementations are injected at the Lambda entry point
 - **Rationale**: Constitution requires the backend to be deployable to any Node.js runtime without code changes; embedding AWS SDK calls or direct `fetch` calls in application code would violate that
 - **Alternative considered**: Call dependencies directly in application code — fewer files but ties business logic to Lambda runtime and specific HTTP client
+
+## Observability
+
+Log errors at each failure point:
+
+- **Webhook handler**: webhookSecret not found in DB; async dispatch failed
+- **ProcessTelegramMessageService**: InsightService error; sendMessage error
+- **TelegramBotService.connect**: `getMe` error; `setWebhook` error; DB write error
+- **TelegramBotService.disconnect**: `deleteWebhook` error (best-effort — log and continue)
