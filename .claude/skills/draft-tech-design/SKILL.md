@@ -75,6 +75,9 @@ Cover these areas (adapt wording to the feature):
 8. **Security** — Any authorization concerns beyond what's standard in this project?
 9. **Rollback / reversibility** — Should this support undo, archiving, or soft-deletion?
 10. **Out of scope** — What are we explicitly NOT building in this iteration?
+11. **Observability** — How would we detect failures in production? What events must be logged? What metrics would indicate success or failure? Do we need alerts?
+    - Push hard on observability answers
+    - If the user cannot explain how failure would be detected, treat it as a gap and follow up
 
 After all questions, summarise the collected requirements and confirm with the user:
 
@@ -87,27 +90,70 @@ After all questions, summarise the collected requirements and confirm with the u
 Based on the requirements and codebase context, draft an outline with these sections:
 
 ### Vision
+
 One paragraph. What this feature achieves, why it matters, and what success looks like.
 
 ### User Perspective
+
 How the feature feels from the user's point of view:
+
 - User stories: "As a user, I can…"
 - UI flow description (prose, no wireframes needed)
 - Key screens or interactions
 
+### Architecture Overview
+
+List the main components involved in this feature.
+
+For each component, include:
+
+- **Owns**: what data, logic, or responsibility it owns
+- **Relations**: other components or systems it interacts with or relies on
+
+**What counts as a component**:
+
+- API / entry point
+- Service (business logic)
+- Database / storage
+- Cache
+- External system
+- Background worker / job
+
+**Do NOT include**:
+
+- functions, classes, helpers
+- generic layers ("service layer", "utils")
+
+A component must have a clear responsibility and ownership.
+If you can't state what it owns, don't include it.
+
 ### Sequence Diagrams
-Mermaid sequence diagrams covering the main flows. Use the actual components from the stack — both existing ones discovered in Step 1 and any new ones introduced by this feature.
+
+Text-based sequence diagrams covering the main flows.
+Use the actual components from the stack — both existing ones discovered in Step 1 and any new ones introduced by this feature.
 
 Include at minimum:
+
 - The primary happy-path flow end to end
 - Any authentication or authorization steps
 - Any async or multi-step operations if relevant
 
 ### Key Design Decisions
+
 For each significant decision (data model choice, pagination strategy, service decomposition, etc.):
+
 - **Decision**: what was chosen
 - **Rationale**: why, referencing the relevant constitution principle where applicable
 - **Alternative considered**: what was rejected and why
+- **Trade-offs / downsides**: what this decision makes harder, riskier, or less flexible
+
+### Observability
+
+Define how this feature will be monitored in production:
+
+- Key events to log
+- Metrics to track (e.g. volume, latency, error rate)
+- Alert conditions if applicable
 
 ---
 
@@ -144,9 +190,13 @@ Document structure at this point:
 
 ## User Perspective
 
+## Architecture Overview
+
 ## Sequence Diagrams
 
 ## Key Design Decisions
+
+## Observability
 ```
 
 Confirm the file path to the user.
@@ -158,6 +208,7 @@ Confirm the file path to the user.
 Re-read the constitution. Review the design document against every relevant principle it defines — architecture rules, coding standards, naming conventions, data model constraints, test strategy, and anything else it mandates.
 
 For each violation or concern found:
+
 - Quote the relevant constitution principle
 - Describe how the design conflicts with or risks violating it
 - Propose a concrete adjustment to bring it into compliance
