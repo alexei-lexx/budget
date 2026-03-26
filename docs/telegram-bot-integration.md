@@ -40,7 +40,7 @@ Test: snackbar success/failure, no state change.
 
 **Webhook handler** (entry point — inbound Telegram messages)
 - **Owns**: Webhook request validation via `X-Telegram-Bot-Api-Secret-Token` header; routing text vs non-text messages; async dispatch
-- **Relations**: TelegramBotService (connection lookup), AsyncJobDispatcher (port)
+- **Relations**: TelegramBotService (connection lookup), BackgroundJobDispatcher (port)
 
 **TelegramBotService** (domain entity service)
 - **Owns**: Connection lifecycle — connect, disconnect, test, lookup by webhookSecret
@@ -92,7 +92,7 @@ User        Frontend     GraphQL      TelegramBotService   TelegramAPI   Telegra
 
 **Webhook receive + async processing:**
 ```
-User     Telegram  WebLambda  TelegramBotService  TelegramConnRepo  ProcessorLambda  ProcessTelegramMessageService  InsightService  TelegramAPI
+User     Telegram  WebLambda  TelegramBotService  TelegramConnRepo  BackgroundJobLambda  ProcessTelegramMessageService  InsightService  TelegramAPI
   │          │         │              │                   │                │                  │                   │            │
   │ send msg │         │              │                   │                │                  │                   │            │
   │─────────>│         │              │                   │                │                  │                   │            │
@@ -167,11 +167,11 @@ User        Frontend     GraphQL      TelegramBotService   TelegramAPI   Telegra
 - **Alternative considered**: Separate webhook Lambda — more isolation but unnecessary complexity
 
 **4. Async processing: respond to Telegram immediately, process in a separate Lambda**
-- **Decision**: Web Lambda returns 200 to Telegram immediately after handing off to a Processor Lambda invoked asynchronously (fire-and-forget); async dispatch is abstracted behind an `AsyncJobDispatcher` port so application code stays runtime-agnostic
+- **Decision**: Web Lambda returns 200 to Telegram immediately after handing off to a Background Job Lambda invoked asynchronously (fire-and-forget); async dispatch is abstracted behind an `BackgroundJobDispatcher` port so application code stays runtime-agnostic
 - **Rationale**: AI processing regularly exceeds Telegram's 5-second webhook timeout. Lambda async invocation is built-in at no extra cost.
 - **Alternative considered**: SQS — better retry semantics but adds cost and complexity disproportionate to personal-scale usage
 
-**5. Processor Lambda as general-purpose async job dispatcher**
+**5. Background Job Lambda as general-purpose async job dispatcher**
 - **Decision**: Reads `type` field from payload, dispatches to appropriate handler; `telegram-message` is the first type
 - **Rationale**: Avoids proliferating Lambdas for each future async use case; single deployment unit for background work
 
@@ -189,7 +189,7 @@ User        Frontend     GraphQL      TelegramBotService   TelegramAPI   Telegra
 - **Alternative considered**: `userId` as sole PK — simpler but forces delete-before-create, with no safe recovery path if the replacement crashes mid-way
 
 **9. Port interfaces for all external dependencies**
-- **Decision**: Telegram API calls (`TelegramApiClient`) and async job dispatch (`AsyncJobDispatcher`) are accessed through port interfaces defined in `services/ports/`; concrete implementations are injected at the Lambda entry point
+- **Decision**: Telegram API calls (`TelegramApiClient`) and async job dispatch (`BackgroundJobDispatcher`) are accessed through port interfaces defined in `services/ports/`; concrete implementations are injected at the Lambda entry point
 - **Rationale**: Constitution requires the backend to be deployable to any Node.js runtime without code changes; embedding AWS SDK calls or direct `fetch` calls in application code would violate that
 - **Alternative considered**: Call dependencies directly in application code — fewer files but ties business logic to Lambda runtime and specific HTTP client
 
