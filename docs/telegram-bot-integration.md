@@ -8,7 +8,7 @@ Users connect a personal Telegram bot to their account via Settings. Once connec
 
 **User stories:**
 - As a user, I can paste my Telegram bot token in Settings and click Connect
-- As a user, I see a masked indicator (`••••••••••1234`) when a bot is connected
+- As a user, I see a masked indicator (`••••1234`) when a bot is connected
 - As a user, I can click Disconnect to remove the integration
 - As a user, I can click Test to verify the bot is still registered
 - As a user, I can paste a new token to replace the connected bot (old bot disconnected first)
@@ -26,7 +26,7 @@ Not connected:
 
 Connected:
   [Telegram Bot]  ✓ Connected
-  ••••••••••1234           [Test]  [Disconnect]
+  ••••1234           [Test]  [Disconnect]
 ```
 
 Connect failure: snackbar error, field retains token for retry.
