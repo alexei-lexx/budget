@@ -143,6 +143,316 @@ export class DynTransactionRepository implements TransactionRepository {
     }
   }
 
+  async findOneActiveById(
+    id: string,
+    userId: string,
+  ): Promise<Transaction | null> {
+    if (!id || !userId) {
+      throw new RepositoryError(
+        "Transaction ID and User ID are required",
+        "INVALID_PARAMETERS",
+      );
+    }
+
+    try {
+      const command = new GetCommand({
+        TableName: this.tableName,
+        Key: { userId, id },
+      });
+
+      const result = await this.client.send(command);
+
+      if (!result.Item) {
+        return null;
+      }
+
+      const transaction = hydrate(transactionSchema, result.Item);
+
+      // Return null if transaction is archived (soft deleted)
+      if (transaction.isArchived) {
+        return null;
+      }
+
+      return transaction;
+    } catch (error) {
+      console.error("Error finding transaction by ID:", error);
+      throw new RepositoryError(
+        "Failed to find transaction",
+        "GET_FAILED",
+        error,
+      );
+    }
+  }
+
+  async findManyActiveByUserId(
+    userId: string,
+    filters?: TransactionFilterInput,
+  ): Promise<Transaction[]> {
+    if (!userId) {
+      throw new RepositoryError("User ID is required", "INVALID_USER_ID");
+    }
+
+    try {
+      // Build query parameters (index selection, key condition, filters)
+      const queryParams = this.buildQueryParams(userId, filters);
+
+      const { items } = await paginateQuery<Transaction>({
+        client: this.client,
+        params: {
+          TableName: this.tableName,
+          IndexName: queryParams.indexName,
+          KeyConditionExpression: queryParams.keyConditionExpression,
+          FilterExpression: queryParams.filterExpression,
+          ...(Object.keys(queryParams.expressionAttributeNames).length > 0 && {
+            ExpressionAttributeNames: queryParams.expressionAttributeNames,
+          }),
+          ExpressionAttributeValues: queryParams.expressionAttributeValues,
+          ScanIndexForward: false, // Descending order (newest first)
+        },
+        pageSize: undefined, // No pageSize = get all items
+        schema: transactionSchema,
+      });
+
+      return items;
+    } catch (error) {
+      console.error("Error finding transactions by user ID:", error);
+      throw new RepositoryError(
+        "Failed to find transactions by user ID",
+        "QUERY_FAILED",
+        error,
+      );
+    }
+  }
+
+  async findManyActiveByUserIdPaginated(
+    userId: string,
+    pagination?: PaginationInput,
+    filters?: TransactionFilterInput,
+  ): Promise<TransactionConnection> {
+    if (!userId) {
+      throw new RepositoryError("User ID is required", "INVALID_USER_ID");
+    }
+
+    // Default pagination values
+    const first = pagination?.first || DEFAULT_PAGE_SIZE;
+    const after = pagination?.after;
+
+    // Validate pagination parameters
+    if (first < MIN_PAGE_SIZE || first > MAX_PAGE_SIZE) {
+      throw new RepositoryError(
+        `First parameter must be between ${MIN_PAGE_SIZE} and ${MAX_PAGE_SIZE}`,
+        "INVALID_PAGINATION",
+      );
+    }
+
+    try {
+      // Build query parameters (index selection, key condition, filters)
+      const queryParams = this.buildQueryParams(userId, filters);
+
+      // Decode cursor once if provided
+      const decodedAfter = after ? decodeCursor(after) : null;
+
+      // Execute query
+      const { items: dbItems, hasNextPage } =
+        await paginateQuery<TransactionDbItem>({
+          client: this.client,
+          params: {
+            TableName: this.tableName,
+            IndexName: queryParams.indexName,
+            KeyConditionExpression: queryParams.keyConditionExpression,
+            FilterExpression: queryParams.filterExpression,
+            ...(Object.keys(queryParams.expressionAttributeNames).length >
+              0 && {
+              ExpressionAttributeNames: queryParams.expressionAttributeNames,
+            }),
+            ExpressionAttributeValues: queryParams.expressionAttributeValues,
+            ScanIndexForward: false, // Descending order (newest first)
+            ...(decodedAfter && {
+              ExclusiveStartKey: {
+                userId: userId,
+                id: decodedAfter.id,
+                [queryParams.sortKeyName]:
+                  queryParams.sortKeyName === SORT_KEY_DATE
+                    ? decodedAfter.date
+                    : decodedAfter.createdAtSortable,
+              },
+            }),
+          },
+          pageSize: first,
+          schema: transactionDbItemSchema,
+        });
+
+      // Create edges with cursors
+      const edges: TransactionEdge[] = dbItems.map((dbItem) => ({
+        node: toTransaction(dbItem),
+        cursor: encodeCursor(dbItem),
+      }));
+
+      // Build page info
+      const pageInfo: PageInfo = {
+        hasNextPage,
+        hasPreviousPage: !!after, // Has previous page if we have an after cursor
+        startCursor: edges.length > 0 ? edges[0].cursor : undefined,
+        endCursor:
+          edges.length > 0 ? edges[edges.length - 1].cursor : undefined,
+      };
+
+      // Get total count (this is a separate query for accuracy)
+      const totalCount = await this.countActiveTransactions(queryParams);
+
+      return {
+        edges,
+        pageInfo,
+        totalCount,
+      };
+    } catch (error) {
+      if (error instanceof RepositoryError) {
+        throw error;
+      }
+
+      console.error("Error finding paginated transactions:", error);
+      throw new RepositoryError(
+        "Failed to find paginated transactions",
+        "QUERY_FAILED",
+        error,
+      );
+    }
+  }
+
+  async findManyActiveByAccountId(
+    accountId: string,
+    userId: string,
+  ): Promise<Transaction[]> {
+    if (!accountId || !userId) {
+      throw new RepositoryError(
+        "Account ID and User ID are required",
+        "INVALID_PARAMETERS",
+      );
+    }
+
+    try {
+      const { items } = await paginateQuery<Transaction>({
+        client: this.client,
+        params: {
+          TableName: this.tableName,
+          KeyConditionExpression: "userId = :userId",
+          FilterExpression:
+            "accountId = :accountId AND isArchived = :isArchived",
+          ExpressionAttributeValues: {
+            ":userId": userId,
+            ":accountId": accountId,
+            ":isArchived": false,
+          },
+        },
+        pageSize: undefined, // No pageSize = get all items
+        schema: transactionSchema,
+      });
+
+      return items;
+    } catch (error) {
+      console.error("Error finding transactions by account ID:", error);
+      throw new RepositoryError(
+        "Failed to find transactions by account",
+        "QUERY_FAILED",
+        error,
+      );
+    }
+  }
+
+  async findManyActiveByTransferId(
+    transferId: string,
+    userId: string,
+  ): Promise<Transaction[]> {
+    if (!transferId || !userId) {
+      throw new RepositoryError(
+        "Transfer ID and User ID are required",
+        "INVALID_PARAMETERS",
+      );
+    }
+
+    try {
+      const { items } = await paginateQuery<Transaction>({
+        client: this.client,
+        params: {
+          TableName: this.tableName,
+          KeyConditionExpression: "userId = :userId",
+          FilterExpression:
+            "transferId = :transferId AND isArchived = :isArchived",
+          ExpressionAttributeValues: {
+            ":userId": userId,
+            ":transferId": transferId,
+            ":isArchived": false,
+          },
+        },
+        pageSize: undefined, // No pageSize = get all items
+        schema: transactionSchema,
+      });
+
+      return items;
+    } catch (error) {
+      console.error("Error finding transactions by transfer ID:", error);
+      throw new RepositoryError(
+        "Failed to find transactions by transfer",
+        "QUERY_FAILED",
+        error,
+      );
+    }
+  }
+
+  async findManyActiveByDescription(
+    userId: string,
+    searchText: string,
+    limit: number,
+  ): Promise<Transaction[]> {
+    if (!userId) {
+      throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
+    }
+
+    if (!Number.isInteger(limit) || limit <= 0) {
+      throw new RepositoryError(
+        "Limit must be a positive integer",
+        "INVALID_PARAMETERS",
+      );
+    }
+
+    // No-op optimization for empty search text
+    if (!searchText) {
+      return [];
+    }
+
+    try {
+      // Query recent transactions by user, ordered by creation time (newest first)
+      // Use DynamoDB's native contains() function for efficient server-side filtering
+      const { items: transactions } = await paginateQuery<Transaction>({
+        client: this.client,
+        params: {
+          TableName: this.tableName,
+          IndexName: USER_CREATED_AT_SORTABLE_INDEX,
+          KeyConditionExpression: "userId = :userId",
+          FilterExpression:
+            "isArchived = :isArchived AND contains(description, :searchText)",
+          ExpressionAttributeValues: {
+            ":userId": userId,
+            ":isArchived": false,
+            ":searchText": searchText,
+          },
+          ScanIndexForward: false, // Newest first (descending createdAtSortable order)
+        },
+        pageSize: limit,
+        schema: transactionSchema,
+      });
+
+      return transactions;
+    } catch (error) {
+      console.error("Error searching transactions by description:", error);
+      throw new RepositoryError(
+        "Failed to search transactions by description",
+        "QUERY_FAILED",
+        error,
+      );
+    }
+  }
+
   async create(input: CreateTransactionInput): Promise<Transaction> {
     const now = new Date().toISOString();
     const transaction = this.buildTransaction(input, now);
@@ -421,316 +731,6 @@ export class DynTransactionRepository implements TransactionRepository {
       throw new RepositoryError(
         "Failed to archive transactions atomically",
         "ARCHIVE_MANY_FAILED",
-        error,
-      );
-    }
-  }
-
-  async findActiveByUserIdPaginated(
-    userId: string,
-    pagination?: PaginationInput,
-    filters?: TransactionFilterInput,
-  ): Promise<TransactionConnection> {
-    if (!userId) {
-      throw new RepositoryError("User ID is required", "INVALID_USER_ID");
-    }
-
-    // Default pagination values
-    const first = pagination?.first || DEFAULT_PAGE_SIZE;
-    const after = pagination?.after;
-
-    // Validate pagination parameters
-    if (first < MIN_PAGE_SIZE || first > MAX_PAGE_SIZE) {
-      throw new RepositoryError(
-        `First parameter must be between ${MIN_PAGE_SIZE} and ${MAX_PAGE_SIZE}`,
-        "INVALID_PAGINATION",
-      );
-    }
-
-    try {
-      // Build query parameters (index selection, key condition, filters)
-      const queryParams = this.buildQueryParams(userId, filters);
-
-      // Decode cursor once if provided
-      const decodedAfter = after ? decodeCursor(after) : null;
-
-      // Execute query
-      const { items: dbItems, hasNextPage } =
-        await paginateQuery<TransactionDbItem>({
-          client: this.client,
-          params: {
-            TableName: this.tableName,
-            IndexName: queryParams.indexName,
-            KeyConditionExpression: queryParams.keyConditionExpression,
-            FilterExpression: queryParams.filterExpression,
-            ...(Object.keys(queryParams.expressionAttributeNames).length >
-              0 && {
-              ExpressionAttributeNames: queryParams.expressionAttributeNames,
-            }),
-            ExpressionAttributeValues: queryParams.expressionAttributeValues,
-            ScanIndexForward: false, // Descending order (newest first)
-            ...(decodedAfter && {
-              ExclusiveStartKey: {
-                userId: userId,
-                id: decodedAfter.id,
-                [queryParams.sortKeyName]:
-                  queryParams.sortKeyName === SORT_KEY_DATE
-                    ? decodedAfter.date
-                    : decodedAfter.createdAtSortable,
-              },
-            }),
-          },
-          pageSize: first,
-          schema: transactionDbItemSchema,
-        });
-
-      // Create edges with cursors
-      const edges: TransactionEdge[] = dbItems.map((dbItem) => ({
-        node: toTransaction(dbItem),
-        cursor: encodeCursor(dbItem),
-      }));
-
-      // Build page info
-      const pageInfo: PageInfo = {
-        hasNextPage,
-        hasPreviousPage: !!after, // Has previous page if we have an after cursor
-        startCursor: edges.length > 0 ? edges[0].cursor : undefined,
-        endCursor:
-          edges.length > 0 ? edges[edges.length - 1].cursor : undefined,
-      };
-
-      // Get total count (this is a separate query for accuracy)
-      const totalCount = await this.countActiveTransactions(queryParams);
-
-      return {
-        edges,
-        pageInfo,
-        totalCount,
-      };
-    } catch (error) {
-      if (error instanceof RepositoryError) {
-        throw error;
-      }
-
-      console.error("Error finding paginated transactions:", error);
-      throw new RepositoryError(
-        "Failed to find paginated transactions",
-        "QUERY_FAILED",
-        error,
-      );
-    }
-  }
-
-  async findActiveByUserId(
-    userId: string,
-    filters?: TransactionFilterInput,
-  ): Promise<Transaction[]> {
-    if (!userId) {
-      throw new RepositoryError("User ID is required", "INVALID_USER_ID");
-    }
-
-    try {
-      // Build query parameters (index selection, key condition, filters)
-      const queryParams = this.buildQueryParams(userId, filters);
-
-      const { items } = await paginateQuery<Transaction>({
-        client: this.client,
-        params: {
-          TableName: this.tableName,
-          IndexName: queryParams.indexName,
-          KeyConditionExpression: queryParams.keyConditionExpression,
-          FilterExpression: queryParams.filterExpression,
-          ...(Object.keys(queryParams.expressionAttributeNames).length > 0 && {
-            ExpressionAttributeNames: queryParams.expressionAttributeNames,
-          }),
-          ExpressionAttributeValues: queryParams.expressionAttributeValues,
-          ScanIndexForward: false, // Descending order (newest first)
-        },
-        pageSize: undefined, // No pageSize = get all items
-        schema: transactionSchema,
-      });
-
-      return items;
-    } catch (error) {
-      console.error("Error finding transactions by user ID:", error);
-      throw new RepositoryError(
-        "Failed to find transactions by user ID",
-        "QUERY_FAILED",
-        error,
-      );
-    }
-  }
-
-  async findActiveById(
-    id: string,
-    userId: string,
-  ): Promise<Transaction | null> {
-    if (!id || !userId) {
-      throw new RepositoryError(
-        "Transaction ID and User ID are required",
-        "INVALID_PARAMETERS",
-      );
-    }
-
-    try {
-      const command = new GetCommand({
-        TableName: this.tableName,
-        Key: { userId, id },
-      });
-
-      const result = await this.client.send(command);
-
-      if (!result.Item) {
-        return null;
-      }
-
-      const transaction = hydrate(transactionSchema, result.Item);
-
-      // Return null if transaction is archived (soft deleted)
-      if (transaction.isArchived) {
-        return null;
-      }
-
-      return transaction;
-    } catch (error) {
-      console.error("Error finding transaction by ID:", error);
-      throw new RepositoryError(
-        "Failed to find transaction",
-        "GET_FAILED",
-        error,
-      );
-    }
-  }
-
-  async findActiveByAccountId(
-    accountId: string,
-    userId: string,
-  ): Promise<Transaction[]> {
-    if (!accountId || !userId) {
-      throw new RepositoryError(
-        "Account ID and User ID are required",
-        "INVALID_PARAMETERS",
-      );
-    }
-
-    try {
-      const { items } = await paginateQuery<Transaction>({
-        client: this.client,
-        params: {
-          TableName: this.tableName,
-          KeyConditionExpression: "userId = :userId",
-          FilterExpression:
-            "accountId = :accountId AND isArchived = :isArchived",
-          ExpressionAttributeValues: {
-            ":userId": userId,
-            ":accountId": accountId,
-            ":isArchived": false,
-          },
-        },
-        pageSize: undefined, // No pageSize = get all items
-        schema: transactionSchema,
-      });
-
-      return items;
-    } catch (error) {
-      console.error("Error finding transactions by account ID:", error);
-      throw new RepositoryError(
-        "Failed to find transactions by account",
-        "QUERY_FAILED",
-        error,
-      );
-    }
-  }
-
-  async findActiveByTransferId(
-    transferId: string,
-    userId: string,
-  ): Promise<Transaction[]> {
-    if (!transferId || !userId) {
-      throw new RepositoryError(
-        "Transfer ID and User ID are required",
-        "INVALID_PARAMETERS",
-      );
-    }
-
-    try {
-      const { items } = await paginateQuery<Transaction>({
-        client: this.client,
-        params: {
-          TableName: this.tableName,
-          KeyConditionExpression: "userId = :userId",
-          FilterExpression:
-            "transferId = :transferId AND isArchived = :isArchived",
-          ExpressionAttributeValues: {
-            ":userId": userId,
-            ":transferId": transferId,
-            ":isArchived": false,
-          },
-        },
-        pageSize: undefined, // No pageSize = get all items
-        schema: transactionSchema,
-      });
-
-      return items;
-    } catch (error) {
-      console.error("Error finding transactions by transfer ID:", error);
-      throw new RepositoryError(
-        "Failed to find transactions by transfer",
-        "QUERY_FAILED",
-        error,
-      );
-    }
-  }
-
-  async findActiveByDescription(
-    userId: string,
-    searchText: string,
-    limit: number,
-  ): Promise<Transaction[]> {
-    if (!userId) {
-      throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
-    }
-
-    if (!Number.isInteger(limit) || limit <= 0) {
-      throw new RepositoryError(
-        "Limit must be a positive integer",
-        "INVALID_PARAMETERS",
-      );
-    }
-
-    // No-op optimization for empty search text
-    if (!searchText) {
-      return [];
-    }
-
-    try {
-      // Query recent transactions by user, ordered by creation time (newest first)
-      // Use DynamoDB's native contains() function for efficient server-side filtering
-      const { items: transactions } = await paginateQuery<Transaction>({
-        client: this.client,
-        params: {
-          TableName: this.tableName,
-          IndexName: USER_CREATED_AT_SORTABLE_INDEX,
-          KeyConditionExpression: "userId = :userId",
-          FilterExpression:
-            "isArchived = :isArchived AND contains(description, :searchText)",
-          ExpressionAttributeValues: {
-            ":userId": userId,
-            ":isArchived": false,
-            ":searchText": searchText,
-          },
-          ScanIndexForward: false, // Newest first (descending createdAtSortable order)
-        },
-        pageSize: limit,
-        schema: transactionSchema,
-      });
-
-      return transactions;
-    } catch (error) {
-      console.error("Error searching transactions by description:", error);
-      throw new RepositoryError(
-        "Failed to search transactions by description",
-        "QUERY_FAILED",
         error,
       );
     }

@@ -8,12 +8,12 @@ import { UserRepository } from "../../services/ports/user-repository";
  */
 export const createMockTransactionRepository =
   (): jest.Mocked<TransactionRepository> => ({
-    findActiveByUserIdPaginated: jest.fn(),
-    findActiveByUserId: jest.fn(),
-    findActiveById: jest.fn(),
-    findActiveByAccountId: jest.fn(),
-    findActiveByTransferId: jest.fn(),
-    findActiveByDescription: jest.fn(),
+    findManyActiveByUserIdPaginated: jest.fn(),
+    findManyActiveByUserId: jest.fn(),
+    findOneActiveById: jest.fn(),
+    findManyActiveByAccountId: jest.fn(),
+    findManyActiveByTransferId: jest.fn(),
+    findManyActiveByDescription: jest.fn(),
     create: jest.fn(),
     createMany: jest.fn(),
     update: jest.fn(),
@@ -29,10 +29,10 @@ export const createMockTransactionRepository =
  */
 export const createMockAccountRepository =
   (): jest.Mocked<AccountRepository> => ({
-    findActiveByUserId: jest.fn(),
-    findAllByUserId: jest.fn(),
-    findActiveById: jest.fn(),
-    findByIds: jest.fn(),
+    findManyActiveByUserId: jest.fn(),
+    findManyByUserId: jest.fn(),
+    findOneActiveById: jest.fn(),
+    findManyByIds: jest.fn(),
     create: jest.fn(),
     update: jest.fn(),
     archive: jest.fn(),
@@ -43,11 +43,11 @@ export const createMockAccountRepository =
  */
 export const createMockCategoryRepository =
   (): jest.Mocked<CategoryRepository> => ({
-    findActiveByUserId: jest.fn(),
-    findAllByUserId: jest.fn(),
-    findActiveByUserIdAndType: jest.fn(),
-    findActiveById: jest.fn(),
-    findByIds: jest.fn(),
+    findManyActiveByUserId: jest.fn(),
+    findManyByUserId: jest.fn(),
+    findManyActiveByUserIdAndType: jest.fn(),
+    findOneActiveById: jest.fn(),
+    findManyByIds: jest.fn(),
     create: jest.fn(),
     update: jest.fn(),
     archive: jest.fn(),
@@ -57,9 +57,9 @@ export const createMockCategoryRepository =
  * Mock user repository for testing
  */
 export const createMockUserRepository = (): jest.Mocked<UserRepository> => ({
-  findByEmail: jest.fn(),
-  findById: jest.fn(),
-  findAll: jest.fn(),
+  findOneByEmail: jest.fn(),
+  findOneById: jest.fn(),
+  findMany: jest.fn(),
   create: jest.fn(),
   ensureUser: jest.fn(),
   update: jest.fn(),

@@ -22,6 +22,185 @@ describe("DynUserRepository", () => {
     });
   });
 
+  describe("findOneByEmail", () => {
+    it("should find user by exact email match (lowercase)", async () => {
+      const input = fakeCreateUserInput({ email: "user@example.com" });
+      await repository.create(input);
+
+      const result = await repository.findOneByEmail("user@example.com");
+
+      expect(result).toBeDefined();
+      expect(result?.email).toBe("user@example.com");
+    });
+
+    it("should return null when email not found", async () => {
+      const result = await repository.findOneByEmail("nonexistent@example.com");
+
+      expect(result).toBeNull();
+    });
+
+    it("should find correct user among multiple users", async () => {
+      const user1Input = fakeCreateUserInput({ email: "user1@example.com" });
+      const user2Input = fakeCreateUserInput({ email: "user2@example.com" });
+      const user3Input = fakeCreateUserInput({ email: "user3@example.com" });
+
+      const user1 = await repository.create(user1Input);
+      await repository.create(user2Input);
+      await repository.create(user3Input);
+
+      const result = await repository.findOneByEmail("user1@example.com");
+
+      expect(result).toBeDefined();
+      expect(result?.id).toBe(user1.id);
+      expect(result?.email).toBe("user1@example.com");
+    });
+
+    it("should find user with uppercase email (case-insensitive)", async () => {
+      const input = fakeCreateUserInput({ email: "user@example.com" });
+      await repository.create(input);
+
+      const result = await repository.findOneByEmail("USER@EXAMPLE.COM");
+
+      expect(result).toBeDefined();
+      expect(result?.email).toBe("user@example.com");
+    });
+
+    it("should trim whitespace from email", async () => {
+      const input = fakeCreateUserInput({ email: "user@example.com" });
+      await repository.create(input);
+
+      const result = await repository.findOneByEmail("  user@example.com  ");
+
+      expect(result).toBeDefined();
+      expect(result?.email).toBe("user@example.com");
+    });
+
+    it("should reject whitespace-only email", async () => {
+      await expect(repository.findOneByEmail("   ")).rejects.toThrow(
+        "Failed to find user by email",
+      );
+    });
+
+    it("should return null for invalid email format", async () => {
+      const result = await repository.findOneByEmail("not-an-email");
+      expect(result).toBeNull();
+    });
+
+    it("should throw error if multiple users with same email found (data corruption)", async () => {
+      const input1 = fakeCreateUserInput({ email: "dupe@example.com" });
+      const input2 = fakeCreateUserInput({ email: "dupe@example.com" });
+
+      // Manually create duplicates (bypassing normal constraints)
+      await repository.create(input1);
+      await repository.create(input2);
+
+      // Should throw error due to data integrity issue
+      await expect(
+        repository.findOneByEmail("dupe@example.com"),
+      ).rejects.toThrow(
+        "Data integrity error: Multiple users found for email dupe@example.com",
+      );
+    });
+  });
+
+  describe("findOneById", () => {
+    it("should find user by ID", async () => {
+      // Arrange
+      const created = await repository.create(fakeCreateUserInput());
+
+      // Act
+      const result = await repository.findOneById(created.id);
+
+      // Assert
+      expect(result).toEqual(created);
+    });
+
+    it("should return null when ID not found", async () => {
+      const result = await repository.findOneById("nonexistent-id");
+
+      expect(result).toBeNull();
+    });
+
+    it("should throw when ID is empty", async () => {
+      await expect(repository.findOneById("")).rejects.toThrow();
+    });
+  });
+
+  describe("findMany", () => {
+    it("should return empty array when no users exist", async () => {
+      // Act
+      const result = await repository.findMany();
+
+      // Assert
+      expect(result).toEqual([]);
+    });
+
+    it("should return all created users", async () => {
+      // Arrange
+      const inputs = [
+        fakeCreateUserInput(),
+        fakeCreateUserInput(),
+        fakeCreateUserInput(),
+      ];
+
+      const created = await Promise.all(
+        inputs.map((input) => repository.create(input)),
+      );
+
+      // Act
+      const result = await repository.findMany();
+
+      // Assert
+      expect(result).toHaveLength(3);
+      result.forEach((user) => {
+        expect(created).toContainEqual(user);
+      });
+    });
+
+    it("should return all users with correct properties", async () => {
+      // Arrange
+      const input1 = fakeCreateUserInput();
+      const input2 = fakeCreateUserInput();
+
+      await repository.create(input1);
+      await repository.create(input2);
+
+      // Act
+      const result = await repository.findMany();
+
+      // Assert
+      expect(result).toHaveLength(2);
+      result.forEach((user) => {
+        expect(user.id).toBeDefined();
+        expect(user.email).toBeDefined();
+        expect(user.createdAt).toBeDefined();
+        expect(user.updatedAt).toBeDefined();
+      });
+    });
+
+    it("should return users in any order", async () => {
+      // Arrange
+      const inputs = [
+        fakeCreateUserInput(),
+        fakeCreateUserInput(),
+        fakeCreateUserInput(),
+      ];
+
+      const created = await Promise.all(
+        inputs.map((input) => repository.create(input)),
+      );
+
+      // Act
+      const result = await repository.findMany();
+
+      // Assert - Results should contain all users regardless of order
+      expect(result).toHaveLength(3);
+      const resultIds = result.map((u) => u.id).sort();
+      const createdIds = created.map((u) => u.id).sort();
+      expect(resultIds).toEqual(createdIds);
+    });
+  });
+
   describe("create", () => {
     it("should create a user successfully", async () => {
       // Arrange
@@ -82,7 +261,7 @@ describe("DynUserRepository", () => {
 
       // Act
       const created = await repository.create(input);
-      const stored = await repository.findByEmail(created.email);
+      const stored = await repository.findOneByEmail(created.email);
 
       // Assert
       expect(stored).toBeDefined();
@@ -99,160 +278,6 @@ describe("DynUserRepository", () => {
     });
   });
 
-  describe("findAll", () => {
-    it("should return empty array when no users exist", async () => {
-      // Act
-      const result = await repository.findAll();
-
-      // Assert
-      expect(result).toEqual([]);
-    });
-
-    it("should return all created users", async () => {
-      // Arrange
-      const inputs = [
-        fakeCreateUserInput(),
-        fakeCreateUserInput(),
-        fakeCreateUserInput(),
-      ];
-
-      const created = await Promise.all(
-        inputs.map((input) => repository.create(input)),
-      );
-
-      // Act
-      const result = await repository.findAll();
-
-      // Assert
-      expect(result).toHaveLength(3);
-      result.forEach((user) => {
-        expect(created).toContainEqual(user);
-      });
-    });
-
-    it("should return all users with correct properties", async () => {
-      // Arrange
-      const input1 = fakeCreateUserInput();
-      const input2 = fakeCreateUserInput();
-
-      await repository.create(input1);
-      await repository.create(input2);
-
-      // Act
-      const result = await repository.findAll();
-
-      // Assert
-      expect(result).toHaveLength(2);
-      result.forEach((user) => {
-        expect(user.id).toBeDefined();
-        expect(user.email).toBeDefined();
-        expect(user.createdAt).toBeDefined();
-        expect(user.updatedAt).toBeDefined();
-      });
-    });
-
-    it("should return users in any order", async () => {
-      // Arrange
-      const inputs = [
-        fakeCreateUserInput(),
-        fakeCreateUserInput(),
-        fakeCreateUserInput(),
-      ];
-
-      const created = await Promise.all(
-        inputs.map((input) => repository.create(input)),
-      );
-
-      // Act
-      const result = await repository.findAll();
-
-      // Assert - Results should contain all users regardless of order
-      expect(result).toHaveLength(3);
-      const resultIds = result.map((u) => u.id).sort();
-      const createdIds = created.map((u) => u.id).sort();
-      expect(resultIds).toEqual(createdIds);
-    });
-  });
-
-  describe("findByEmail", () => {
-    it("should find user by exact email match (lowercase)", async () => {
-      const input = fakeCreateUserInput({ email: "user@example.com" });
-      await repository.create(input);
-
-      const result = await repository.findByEmail("user@example.com");
-
-      expect(result).toBeDefined();
-      expect(result?.email).toBe("user@example.com");
-    });
-
-    it("should return null when email not found", async () => {
-      const result = await repository.findByEmail("nonexistent@example.com");
-
-      expect(result).toBeNull();
-    });
-
-    it("should find correct user among multiple users", async () => {
-      const user1Input = fakeCreateUserInput({ email: "user1@example.com" });
-      const user2Input = fakeCreateUserInput({ email: "user2@example.com" });
-      const user3Input = fakeCreateUserInput({ email: "user3@example.com" });
-
-      const user1 = await repository.create(user1Input);
-      await repository.create(user2Input);
-      await repository.create(user3Input);
-
-      const result = await repository.findByEmail("user1@example.com");
-
-      expect(result).toBeDefined();
-      expect(result?.id).toBe(user1.id);
-      expect(result?.email).toBe("user1@example.com");
-    });
-
-    it("should find user with uppercase email (case-insensitive)", async () => {
-      const input = fakeCreateUserInput({ email: "user@example.com" });
-      await repository.create(input);
-
-      const result = await repository.findByEmail("USER@EXAMPLE.COM");
-
-      expect(result).toBeDefined();
-      expect(result?.email).toBe("user@example.com");
-    });
-
-    it("should trim whitespace from email", async () => {
-      const input = fakeCreateUserInput({ email: "user@example.com" });
-      await repository.create(input);
-
-      const result = await repository.findByEmail("  user@example.com  ");
-
-      expect(result).toBeDefined();
-      expect(result?.email).toBe("user@example.com");
-    });
-
-    it("should reject whitespace-only email", async () => {
-      await expect(repository.findByEmail("   ")).rejects.toThrow(
-        "Failed to find user by email",
-      );
-    });
-
-    it("should return null for invalid email format", async () => {
-      const result = await repository.findByEmail("not-an-email");
-      expect(result).toBeNull();
-    });
-
-    it("should throw error if multiple users with same email found (data corruption)", async () => {
-      const input1 = fakeCreateUserInput({ email: "dupe@example.com" });
-      const input2 = fakeCreateUserInput({ email: "dupe@example.com" });
-
-      // Manually create duplicates (bypassing normal constraints)
-      await repository.create(input1);
-      await repository.create(input2);
-
-      // Should throw error due to data integrity issue
-      await expect(repository.findByEmail("dupe@example.com")).rejects.toThrow(
-        "Data integrity error: Multiple users found for email dupe@example.com",
-      );
-    });
-  });
-
   describe("ensureUser", () => {
     it("should create user if not exists", async () => {
       // Arrange
@@ -266,7 +291,7 @@ describe("DynUserRepository", () => {
       expect(result.id).toBeDefined();
 
       // Verify user was actually created in database
-      const stored = await repository.findByEmail(email);
+      const stored = await repository.findOneByEmail(email);
       expect(stored).toEqual(result);
     });
 
@@ -313,36 +338,13 @@ describe("DynUserRepository", () => {
       expect(result2.id).toBe(result3.id);
 
       // Verify only one user exists in database
-      const allUsers = await repository.findAll();
+      const allUsers = await repository.findMany();
       expect(allUsers).toHaveLength(1);
     });
 
     it("should throw error when receiving invalid input", async () => {
       // Act & Assert - Empty email
       await expect(repository.ensureUser("")).rejects.toThrow();
-    });
-  });
-
-  describe("findById", () => {
-    it("should find user by ID", async () => {
-      // Arrange
-      const created = await repository.create(fakeCreateUserInput());
-
-      // Act
-      const result = await repository.findById(created.id);
-
-      // Assert
-      expect(result).toEqual(created);
-    });
-
-    it("should return null when ID not found", async () => {
-      const result = await repository.findById("nonexistent-id");
-
-      expect(result).toBeNull();
-    });
-
-    it("should throw when ID is empty", async () => {
-      await expect(repository.findById("")).rejects.toThrow();
     });
   });
 
@@ -421,8 +423,8 @@ describe("DynUserRepository", () => {
         }),
       );
 
-      // Act & Assert - findAll scans all records, will trigger hydration
-      await expect(repository.findAll()).rejects.toThrow();
+      // Act & Assert - findMany scans all records, will trigger hydration
+      await expect(repository.findMany()).rejects.toThrow();
     });
   });
 });

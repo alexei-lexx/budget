@@ -24,7 +24,7 @@ describe("DynAccountRepository", () => {
     });
   });
 
-  describe("findByIds", () => {
+  describe("findManyByIds", () => {
     it("should return accounts when IDs exist", async () => {
       // Arrange
       const account1 = await repository.create(
@@ -35,7 +35,7 @@ describe("DynAccountRepository", () => {
       );
 
       // Act
-      const result = await repository.findByIds(
+      const result = await repository.findManyByIds(
         [account1.id, account2.id],
         userId,
       );
@@ -48,7 +48,7 @@ describe("DynAccountRepository", () => {
 
     it("should return empty array when IDs are empty", async () => {
       // Act
-      const result = await repository.findByIds([], userId);
+      const result = await repository.findManyByIds([], userId);
 
       // Assert
       expect(result).toEqual([]);
@@ -61,7 +61,7 @@ describe("DynAccountRepository", () => {
       );
 
       // Act
-      const result = await repository.findByIds(
+      const result = await repository.findManyByIds(
         [account.id, "nonexistent-id"],
         userId,
       );
@@ -73,7 +73,7 @@ describe("DynAccountRepository", () => {
 
     it("should throw error when userId is missing", async () => {
       // Act & Assert
-      await expect(repository.findByIds(["account-1"], "")).rejects.toThrow(
+      await expect(repository.findManyByIds(["account-1"], "")).rejects.toThrow(
         "User ID is required",
       );
     });
@@ -86,7 +86,7 @@ describe("DynAccountRepository", () => {
       await repository.archive(account.id, userId);
 
       // Act
-      const result = await repository.findByIds([account.id], userId);
+      const result = await repository.findManyByIds([account.id], userId);
 
       // Assert
       expect(result).toHaveLength(1);
@@ -94,7 +94,7 @@ describe("DynAccountRepository", () => {
     });
   });
 
-  describe("findAllByUserId", () => {
+  describe("findManyByUserId", () => {
     it("should return all accounts including archived", async () => {
       // Arrange
       const activeAccount = await repository.create(
@@ -106,7 +106,7 @@ describe("DynAccountRepository", () => {
       archivedAccount = await repository.archive(archivedAccount.id, userId);
 
       // Act
-      const result = await repository.findAllByUserId(userId);
+      const result = await repository.findManyByUserId(userId);
 
       // Assert
       expect(result).toHaveLength(2);
@@ -123,7 +123,7 @@ describe("DynAccountRepository", () => {
       await repository.create(fakeCreateAccountInput({ userId: otherUserId }));
 
       // Act
-      const result = await repository.findAllByUserId(userId);
+      const result = await repository.findManyByUserId(userId);
 
       // Assert
       expect(result).toHaveLength(1);
@@ -132,7 +132,7 @@ describe("DynAccountRepository", () => {
 
     it("should throw error when userId is missing", async () => {
       // Act & Assert
-      await expect(repository.findAllByUserId("")).rejects.toThrow(
+      await expect(repository.findManyByUserId("")).rejects.toThrow(
         "User ID is required",
       );
     });
@@ -158,7 +158,7 @@ describe("DynAccountRepository", () => {
 
       // Act & Assert
       await expect(
-        repository.findByIds([account.id], userId),
+        repository.findManyByIds([account.id], userId),
       ).rejects.toThrow();
     });
   });

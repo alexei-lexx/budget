@@ -36,7 +36,7 @@ describe("Category Batch Loader", () => {
       });
 
       // Mock repository to return categories
-      mockRepository.findByIds.mockResolvedValue([
+      mockRepository.findManyByIds.mockResolvedValue([
         category3,
         category4,
         category1,
@@ -88,7 +88,7 @@ describe("Category Batch Loader", () => {
 
       const validCategory = fakeCategory({ id: "cat-valid" });
 
-      mockRepository.findByIds.mockResolvedValue([validCategory]);
+      mockRepository.findManyByIds.mockResolvedValue([validCategory]);
 
       const result = await batchLoadCategories(
         ["cat-valid", "cat-missing"],
@@ -115,7 +115,7 @@ describe("Category Batch Loader", () => {
 
       const category = fakeCategory({ id: "cat-1" });
 
-      mockRepository.findByIds.mockResolvedValue([category]);
+      mockRepository.findManyByIds.mockResolvedValue([category]);
 
       const result = await batchLoadCategories(
         ["cat-1", "cat-1", "cat-1"],
@@ -144,7 +144,7 @@ describe("Category Batch Loader", () => {
       );
 
       expect(result).toEqual([]);
-      expect(mockRepository.findByIds).not.toHaveBeenCalled();
+      expect(mockRepository.findManyByIds).not.toHaveBeenCalled();
     });
   });
 
@@ -163,7 +163,7 @@ describe("Category Batch Loader", () => {
       const mockRepository = createMockCategoryRepository();
       const category = fakeCategory({ id: "cat-1" });
 
-      mockRepository.findByIds.mockResolvedValue([category]);
+      mockRepository.findManyByIds.mockResolvedValue([category]);
 
       const loader = createCategoryLoader(
         mockRepository,

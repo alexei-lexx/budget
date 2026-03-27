@@ -111,14 +111,12 @@ export class ByCategoryReportService {
         ? toDateString(formatDateAsYYYYMMDD(new Date(year, month, 0)))
         : toDateString(formatDateAsYYYYMMDD(new Date(year, 11, 31)));
 
-    const transactions = await this.transactionRepository.findActiveByUserId(
-      userId,
-      {
+    const transactions =
+      await this.transactionRepository.findManyActiveByUserId(userId, {
         dateAfter,
         dateBefore,
         types: transactionTypesToFetch,
-      },
-    );
+      });
 
     if (transactions.length === 0) {
       return {
@@ -132,7 +130,7 @@ export class ByCategoryReportService {
 
     // Fetch all categories and build set of included category IDs
     const allCategories =
-      await this.categoryRepository.findActiveByUserId(userId);
+      await this.categoryRepository.findManyActiveByUserId(userId);
     const excludedCategoryIds = new Set(
       allCategories
         .filter((category) => category.excludeFromReports)
@@ -206,7 +204,7 @@ export class ByCategoryReportService {
       if (categoryId === undefined) {
         categoryName = UNCATEGORIZED_LABEL;
       } else {
-        const category = await this.categoryRepository.findActiveById(
+        const category = await this.categoryRepository.findOneActiveById(
           categoryId,
           userId,
         );

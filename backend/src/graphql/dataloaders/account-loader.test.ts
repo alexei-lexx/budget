@@ -36,7 +36,7 @@ describe("Account Batch Loader", () => {
       });
 
       // Mock repository to return accounts
-      mockRepository.findByIds.mockResolvedValue([
+      mockRepository.findManyByIds.mockResolvedValue([
         account3,
         account4,
         account1,
@@ -88,7 +88,7 @@ describe("Account Batch Loader", () => {
 
       const validAccount = fakeAccount({ id: "acc-valid" });
 
-      mockRepository.findByIds.mockResolvedValue([validAccount]);
+      mockRepository.findManyByIds.mockResolvedValue([validAccount]);
 
       const result = await batchLoadAccounts(
         ["acc-valid", "acc-missing"],
@@ -117,7 +117,7 @@ describe("Account Batch Loader", () => {
 
       const account = fakeAccount({ id: "acc-1" });
 
-      mockRepository.findByIds.mockResolvedValue([account]);
+      mockRepository.findManyByIds.mockResolvedValue([account]);
 
       const result = await batchLoadAccounts(
         ["acc-1", "acc-1", "acc-1"],
@@ -147,7 +147,7 @@ describe("Account Batch Loader", () => {
       );
 
       expect(result).toEqual([]);
-      expect(mockRepository.findByIds).not.toHaveBeenCalled();
+      expect(mockRepository.findManyByIds).not.toHaveBeenCalled();
     });
   });
 
@@ -166,7 +166,7 @@ describe("Account Batch Loader", () => {
       const mockRepository = createMockAccountRepository();
       const account = fakeAccount({ id: "acc-1" });
 
-      mockRepository.findByIds.mockResolvedValue([account]);
+      mockRepository.findManyByIds.mockResolvedValue([account]);
 
       const loader = createAccountLoader(
         mockRepository,

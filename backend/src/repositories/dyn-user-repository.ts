@@ -33,7 +33,7 @@ export class DynUserRepository implements UserRepository {
     }
   }
 
-  async findByEmail(email: string): Promise<User | null> {
+  async findOneByEmail(email: string): Promise<User | null> {
     try {
       const normalizedEmail = normalizeEmail(email);
 
@@ -71,7 +71,7 @@ export class DynUserRepository implements UserRepository {
     }
   }
 
-  async findById(id: string): Promise<User | null> {
+  async findOneById(id: string): Promise<User | null> {
     if (!id) {
       throw new RepositoryError("User ID is required", "INVALID_USER_ID");
     }
@@ -99,7 +99,7 @@ export class DynUserRepository implements UserRepository {
     }
   }
 
-  async findAll(): Promise<User[]> {
+  async findMany(): Promise<User[]> {
     try {
       const command = new ScanCommand({
         TableName: this.tableName,
@@ -143,6 +143,20 @@ export class DynUserRepository implements UserRepository {
         error,
       );
     }
+  }
+
+  async ensureUser(email: string): Promise<User> {
+    // Check if user exists
+    const existingUser = await this.findOneByEmail(email);
+
+    if (existingUser) {
+      return existingUser;
+    }
+
+    // Create new user if doesn't exist
+    return this.create({
+      email,
+    });
   }
 
   async update(id: string, input: UpdateUserInput): Promise<User> {
@@ -200,19 +214,5 @@ export class DynUserRepository implements UserRepository {
         error,
       );
     }
-  }
-
-  async ensureUser(email: string): Promise<User> {
-    // Check if user exists
-    const existingUser = await this.findByEmail(email);
-
-    if (existingUser) {
-      return existingUser;
-    }
-
-    // Create new user if doesn't exist
-    return this.create({
-      email,
-    });
   }
 }

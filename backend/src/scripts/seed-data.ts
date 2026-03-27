@@ -316,7 +316,7 @@ async function main() {
 
     // Get existing users
     console.log("Fetching existing users from database...\n");
-    const users = await userRepository.findAll();
+    const users = await userRepository.findMany();
 
     if (users.length === 0) {
       console.warn("⚠️  No users found in the database");

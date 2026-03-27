@@ -59,24 +59,28 @@ describe("TransactionService", () => {
       const transactionId = faker.string.uuid();
       const transaction = fakeTransaction();
 
-      mockTransactionRepository.findActiveById.mockResolvedValue(transaction);
+      mockTransactionRepository.findOneActiveById.mockResolvedValue(
+        transaction,
+      );
 
       // Act
       const result = await service.getTransactionById(transactionId, userId);
 
       // Assert
       expect(result).toEqual(transaction);
-      expect(mockTransactionRepository.findActiveById).toHaveBeenCalledWith(
+      expect(mockTransactionRepository.findOneActiveById).toHaveBeenCalledWith(
         transactionId,
         userId,
       );
-      expect(mockTransactionRepository.findActiveById).toHaveBeenCalledTimes(1);
+      expect(mockTransactionRepository.findOneActiveById).toHaveBeenCalledTimes(
+        1,
+      );
     });
 
     it("should throw error when transaction not found", async () => {
       // Arrange
       const transactionId = faker.string.uuid();
-      mockTransactionRepository.findActiveById.mockResolvedValue(null);
+      mockTransactionRepository.findOneActiveById.mockResolvedValue(null);
 
       // Act & Assert
       const promise = service.getTransactionById(transactionId, userId);
@@ -86,7 +90,7 @@ describe("TransactionService", () => {
         message: "Transaction not found or doesn't belong to user",
       });
 
-      expect(mockTransactionRepository.findActiveById).toHaveBeenCalledWith(
+      expect(mockTransactionRepository.findOneActiveById).toHaveBeenCalledWith(
         transactionId,
         userId,
       );
@@ -134,10 +138,10 @@ describe("TransactionService", () => {
       });
 
       mockTransactionRepository.detectPatterns.mockResolvedValue(patterns);
-      mockAccountRepository.findActiveById
+      mockAccountRepository.findOneActiveById
         .mockResolvedValueOnce(account1)
         .mockResolvedValueOnce(account2);
-      mockCategoryRepository.findActiveById
+      mockCategoryRepository.findOneActiveById
         .mockResolvedValueOnce(category1)
         .mockResolvedValueOnce(category2);
 
@@ -192,10 +196,10 @@ describe("TransactionService", () => {
       });
 
       mockTransactionRepository.detectPatterns.mockResolvedValue(patterns);
-      mockAccountRepository.findActiveById
+      mockAccountRepository.findOneActiveById
         .mockResolvedValueOnce(account1)
         .mockResolvedValueOnce(null); // Deleted account
-      mockCategoryRepository.findActiveById.mockResolvedValueOnce(category1);
+      mockCategoryRepository.findOneActiveById.mockResolvedValueOnce(category1);
 
       // Act
       const result = await service.getTransactionPatterns(
@@ -243,10 +247,10 @@ describe("TransactionService", () => {
       });
 
       mockTransactionRepository.detectPatterns.mockResolvedValue(patterns);
-      mockAccountRepository.findActiveById
+      mockAccountRepository.findOneActiveById
         .mockResolvedValueOnce(account1)
         .mockResolvedValueOnce(account2);
-      mockCategoryRepository.findActiveById
+      mockCategoryRepository.findOneActiveById
         .mockResolvedValueOnce(category1)
         .mockResolvedValueOnce(null); // Deleted category
 
@@ -303,10 +307,10 @@ describe("TransactionService", () => {
       });
 
       mockTransactionRepository.detectPatterns.mockResolvedValue(patterns);
-      mockAccountRepository.findActiveById
+      mockAccountRepository.findOneActiveById
         .mockResolvedValueOnce(account1)
         .mockResolvedValueOnce(account2);
-      mockCategoryRepository.findActiveById
+      mockCategoryRepository.findOneActiveById
         .mockResolvedValueOnce(incomeCategory)
         .mockResolvedValueOnce(expenseCategory);
 
@@ -337,8 +341,8 @@ describe("TransactionService", () => {
       ];
 
       mockTransactionRepository.detectPatterns.mockResolvedValue(patterns);
-      mockAccountRepository.findActiveById.mockResolvedValue(null); // All accounts deleted
-      mockCategoryRepository.findActiveById.mockResolvedValue(null); // All categories deleted
+      mockAccountRepository.findOneActiveById.mockResolvedValue(null); // All accounts deleted
+      mockCategoryRepository.findOneActiveById.mockResolvedValue(null); // All categories deleted
 
       // Act
       const result = await service.getTransactionPatterns(
@@ -366,8 +370,8 @@ describe("TransactionService", () => {
 
       // Assert
       expect(result).toEqual([]);
-      expect(mockAccountRepository.findActiveById).not.toHaveBeenCalled();
-      expect(mockCategoryRepository.findActiveById).not.toHaveBeenCalled();
+      expect(mockAccountRepository.findOneActiveById).not.toHaveBeenCalled();
+      expect(mockCategoryRepository.findOneActiveById).not.toHaveBeenCalled();
     });
 
     it("should pass correct parameters to repository", async () => {
@@ -530,7 +534,7 @@ describe("TransactionService", () => {
         fakeTransaction({ description: "Great restaurant" }),
       ];
 
-      mockTransactionRepository.findActiveByDescription.mockResolvedValue(
+      mockTransactionRepository.findManyActiveByDescription.mockResolvedValue(
         transactions,
       );
 
@@ -557,7 +561,7 @@ describe("TransactionService", () => {
         fakeTransaction({ description: "Test 5" }),
       ];
 
-      mockTransactionRepository.findActiveByDescription.mockResolvedValue(
+      mockTransactionRepository.findManyActiveByDescription.mockResolvedValue(
         transactions,
       );
 
@@ -575,7 +579,9 @@ describe("TransactionService", () => {
     it("should return empty array when no matches found", async () => {
       // Arrange
       const searchText = "xyz";
-      mockTransactionRepository.findActiveByDescription.mockResolvedValue([]);
+      mockTransactionRepository.findManyActiveByDescription.mockResolvedValue(
+        [],
+      );
 
       // Act
       const result = await service.getDescriptionSuggestions(
@@ -591,14 +597,16 @@ describe("TransactionService", () => {
     it("should call repository with correct parameters", async () => {
       // Arrange
       const searchText = "test";
-      mockTransactionRepository.findActiveByDescription.mockResolvedValue([]);
+      mockTransactionRepository.findManyActiveByDescription.mockResolvedValue(
+        [],
+      );
 
       // Act
       await service.getDescriptionSuggestions(userId, searchText, 3);
 
       // Assert
       expect(
-        mockTransactionRepository.findActiveByDescription,
+        mockTransactionRepository.findManyActiveByDescription,
       ).toHaveBeenCalledWith(
         userId,
         searchText,
@@ -610,7 +618,9 @@ describe("TransactionService", () => {
       // Arrange
       const searchText = "test";
       const customSampleSize = 50;
-      mockTransactionRepository.findActiveByDescription.mockResolvedValue([]);
+      mockTransactionRepository.findManyActiveByDescription.mockResolvedValue(
+        [],
+      );
 
       // Act
       await service.getDescriptionSuggestions(
@@ -622,7 +632,7 @@ describe("TransactionService", () => {
 
       // Assert
       expect(
-        mockTransactionRepository.findActiveByDescription,
+        mockTransactionRepository.findManyActiveByDescription,
       ).toHaveBeenCalledWith(userId, searchText, customSampleSize);
     });
 
@@ -641,7 +651,7 @@ describe("TransactionService", () => {
       });
 
       expect(
-        mockTransactionRepository.findActiveByDescription,
+        mockTransactionRepository.findManyActiveByDescription,
       ).not.toHaveBeenCalled();
     });
 
@@ -675,14 +685,16 @@ describe("TransactionService", () => {
       });
 
       expect(
-        mockTransactionRepository.findActiveByDescription,
+        mockTransactionRepository.findManyActiveByDescription,
       ).not.toHaveBeenCalled();
     });
 
     it("should pass trimmed search text to repository", async () => {
       // Arrange
       const searchTextWithWhitespace = "  test  ";
-      mockTransactionRepository.findActiveByDescription.mockResolvedValue([]);
+      mockTransactionRepository.findManyActiveByDescription.mockResolvedValue(
+        [],
+      );
 
       // Act
       await service.getDescriptionSuggestions(
@@ -693,7 +705,7 @@ describe("TransactionService", () => {
 
       // Assert - should pass trimmed text to repository
       expect(
-        mockTransactionRepository.findActiveByDescription,
+        mockTransactionRepository.findManyActiveByDescription,
       ).toHaveBeenCalledWith(
         userId,
         "test", // Trimmed version
@@ -718,7 +730,7 @@ describe("TransactionService", () => {
       });
 
       expect(
-        mockTransactionRepository.findActiveByDescription,
+        mockTransactionRepository.findManyActiveByDescription,
       ).not.toHaveBeenCalled();
     });
   });
@@ -734,7 +746,7 @@ describe("TransactionService", () => {
         },
         totalCount: 0,
       };
-      mockTransactionRepository.findActiveByUserIdPaginated.mockResolvedValue(
+      mockTransactionRepository.findManyActiveByUserIdPaginated.mockResolvedValue(
         expectedResult,
       );
 
@@ -758,10 +770,10 @@ describe("TransactionService", () => {
       // Assert - Service should pass all parameters through to repository unchanged
       expect(result).toEqual(expectedResult);
       expect(
-        mockTransactionRepository.findActiveByUserIdPaginated,
+        mockTransactionRepository.findManyActiveByUserIdPaginated,
       ).toHaveBeenCalledWith(userId, pagination, filters);
       expect(
-        mockTransactionRepository.findActiveByUserIdPaginated,
+        mockTransactionRepository.findManyActiveByUserIdPaginated,
       ).toHaveBeenCalledTimes(1);
     });
 
@@ -778,7 +790,7 @@ describe("TransactionService", () => {
       });
 
       expect(
-        mockTransactionRepository.findActiveByUserIdPaginated,
+        mockTransactionRepository.findManyActiveByUserIdPaginated,
       ).not.toHaveBeenCalled();
     });
 
@@ -805,7 +817,7 @@ describe("TransactionService", () => {
     describe("validation", () => {
       beforeEach(() => {
         const account = fakeAccount({ userId });
-        mockAccountRepository.findActiveById.mockResolvedValue(account);
+        mockAccountRepository.findOneActiveById.mockResolvedValue(account);
       });
 
       it("should throw for amount of zero", async () => {
@@ -866,7 +878,7 @@ describe("TransactionService", () => {
           type: CategoryType.INCOME,
         });
 
-        mockAccountRepository.findActiveById.mockResolvedValue(account);
+        mockAccountRepository.findOneActiveById.mockResolvedValue(account);
         mockTransactionRepository.create.mockResolvedValue(
           fakeTransaction({ type: TransactionType.REFUND }),
         );
@@ -880,7 +892,7 @@ describe("TransactionService", () => {
           type: TransactionType.REFUND,
         });
 
-        mockCategoryRepository.findActiveById.mockResolvedValue(
+        mockCategoryRepository.findOneActiveById.mockResolvedValue(
           expenseCategory,
         );
 
@@ -889,11 +901,11 @@ describe("TransactionService", () => {
 
         // Assert
         expect(result).toBeDefined();
-        expect(mockAccountRepository.findActiveById).toHaveBeenCalledWith(
+        expect(mockAccountRepository.findOneActiveById).toHaveBeenCalledWith(
           accountId,
           userId,
         );
-        expect(mockCategoryRepository.findActiveById).toHaveBeenCalledWith(
+        expect(mockCategoryRepository.findOneActiveById).toHaveBeenCalledWith(
           expenseCategory.id,
           userId,
         );
@@ -912,7 +924,9 @@ describe("TransactionService", () => {
           type: TransactionType.REFUND,
         });
 
-        mockCategoryRepository.findActiveById.mockResolvedValue(incomeCategory);
+        mockCategoryRepository.findOneActiveById.mockResolvedValue(
+          incomeCategory,
+        );
 
         // Act & Assert
         const promise = service.createTransaction(input, userId);
@@ -938,7 +952,7 @@ describe("TransactionService", () => {
 
         // Assert
         expect(result).toBeDefined();
-        expect(mockCategoryRepository.findActiveById).not.toHaveBeenCalled();
+        expect(mockCategoryRepository.findOneActiveById).not.toHaveBeenCalled();
         expect(mockTransactionRepository.create).toHaveBeenCalled();
       });
     });
@@ -952,7 +966,9 @@ describe("TransactionService", () => {
         const transaction = fakeTransaction({ userId });
         transactionId = transaction.id;
 
-        mockTransactionRepository.findActiveById.mockResolvedValue(transaction);
+        mockTransactionRepository.findOneActiveById.mockResolvedValue(
+          transaction,
+        );
       });
 
       it("should throw for amount of zero", async () => {

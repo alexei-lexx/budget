@@ -20,17 +20,17 @@ describe("CategoryService", () => {
     userId = faker.string.uuid();
 
     // Default mocks for duplicate name checking (can be overridden in specific tests)
-    mockCategoryRepository.findActiveByUserId.mockResolvedValue([]);
+    mockCategoryRepository.findManyActiveByUserId.mockResolvedValue([]);
 
     // Reset all mocks
     jest.clearAllMocks();
   });
 
   describe("getCategoriesByUser", () => {
-    it("should call findActiveByUserId when no type provided", async () => {
+    it("should call findManyActiveByUserId when no type provided", async () => {
       // Arrange
       const mockCategories = [fakeCategory(), fakeCategory()];
-      mockCategoryRepository.findActiveByUserId.mockResolvedValue(
+      mockCategoryRepository.findManyActiveByUserId.mockResolvedValue(
         mockCategories,
       );
 
@@ -38,23 +38,23 @@ describe("CategoryService", () => {
       const result = await service.getCategoriesByUser(userId);
 
       // Assert
-      expect(mockCategoryRepository.findActiveByUserId).toHaveBeenCalledWith(
-        userId,
-      );
-      expect(mockCategoryRepository.findActiveByUserId).toHaveBeenCalledTimes(
-        1,
-      );
       expect(
-        mockCategoryRepository.findActiveByUserIdAndType,
+        mockCategoryRepository.findManyActiveByUserId,
+      ).toHaveBeenCalledWith(userId);
+      expect(
+        mockCategoryRepository.findManyActiveByUserId,
+      ).toHaveBeenCalledTimes(1);
+      expect(
+        mockCategoryRepository.findManyActiveByUserIdAndType,
       ).not.toHaveBeenCalled();
       expect(result).toEqual(mockCategories);
     });
 
-    it("should call findActiveByUserIdAndType when type provided", async () => {
+    it("should call findManyActiveByUserIdAndType when type provided", async () => {
       // Arrange
       const type = CategoryType.INCOME;
       const mockCategories = [fakeCategory(), fakeCategory()];
-      mockCategoryRepository.findActiveByUserIdAndType.mockResolvedValue(
+      mockCategoryRepository.findManyActiveByUserIdAndType.mockResolvedValue(
         mockCategories,
       );
 
@@ -63,12 +63,14 @@ describe("CategoryService", () => {
 
       // Assert
       expect(
-        mockCategoryRepository.findActiveByUserIdAndType,
+        mockCategoryRepository.findManyActiveByUserIdAndType,
       ).toHaveBeenCalledWith(userId, type);
       expect(
-        mockCategoryRepository.findActiveByUserIdAndType,
+        mockCategoryRepository.findManyActiveByUserIdAndType,
       ).toHaveBeenCalledTimes(1);
-      expect(mockCategoryRepository.findActiveByUserId).not.toHaveBeenCalled();
+      expect(
+        mockCategoryRepository.findManyActiveByUserId,
+      ).not.toHaveBeenCalled();
       expect(result).toEqual(mockCategories);
     });
   });
@@ -149,7 +151,7 @@ describe("CategoryService", () => {
 
     it("should throw error when category name already exists", async () => {
       // Arrange
-      mockCategoryRepository.findActiveByUserId.mockResolvedValue([
+      mockCategoryRepository.findManyActiveByUserId.mockResolvedValue([
         fakeCategory({
           userId,
           name: "GROCERIES",
@@ -266,7 +268,7 @@ describe("CategoryService", () => {
       });
       const input = { name: "Groceries" };
 
-      mockCategoryRepository.findActiveByUserId.mockResolvedValue([
+      mockCategoryRepository.findManyActiveByUserId.mockResolvedValue([
         currentCategory,
         anotherExistingCategory,
       ]);
@@ -291,7 +293,7 @@ describe("CategoryService", () => {
       });
       const input = { name: "Groceries" }; // Same name
 
-      mockCategoryRepository.findActiveByUserId.mockResolvedValue([
+      mockCategoryRepository.findManyActiveByUserId.mockResolvedValue([
         currentCategory,
         fakeCategory({ userId }),
       ]);

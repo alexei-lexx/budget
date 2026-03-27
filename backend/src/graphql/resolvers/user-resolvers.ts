@@ -19,7 +19,7 @@ async function ensureAuthenticatedUser(context: GraphQLContext): Promise<User> {
     const email = authUser.email;
 
     // Check if user already exists
-    const existingUser = await context.userRepository.findByEmail(email);
+    const existingUser = await context.userRepository.findOneByEmail(email);
 
     if (existingUser) {
       console.log("[RESOLVER] User already exists");

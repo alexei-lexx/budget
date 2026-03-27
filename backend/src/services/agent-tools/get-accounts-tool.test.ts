@@ -19,12 +19,12 @@ describe("createGetAccountsTool", () => {
   });
 
   it("should call repository", async () => {
-    mockAccountRepository.findAllByUserId.mockResolvedValue([]);
+    mockAccountRepository.findManyByUserId.mockResolvedValue([]);
 
     const tool = createGetAccountsTool(mockAccountRepository, userId);
     await tool.func({ scope: EntityScope.ALL });
 
-    expect(mockAccountRepository.findAllByUserId).toHaveBeenCalledWith(userId);
+    expect(mockAccountRepository.findManyByUserId).toHaveBeenCalledWith(userId);
   });
 
   it("should return all accounts when scope is all", async () => {
@@ -32,7 +32,7 @@ describe("createGetAccountsTool", () => {
       fakeAccount({ isArchived: true }),
       fakeAccount({ isArchived: false }),
     ];
-    mockAccountRepository.findAllByUserId.mockResolvedValue(mockAccounts);
+    mockAccountRepository.findManyByUserId.mockResolvedValue(mockAccounts);
 
     const tool = createGetAccountsTool(mockAccountRepository, userId);
     const result = await tool.func({ scope: EntityScope.ALL });
@@ -51,7 +51,7 @@ describe("createGetAccountsTool", () => {
       fakeAccount({ isArchived: true }),
       fakeAccount({ isArchived: false }),
     ];
-    mockAccountRepository.findAllByUserId.mockResolvedValue(mockAccounts);
+    mockAccountRepository.findManyByUserId.mockResolvedValue(mockAccounts);
 
     const tool = createGetAccountsTool(mockAccountRepository, userId);
     const result = await tool.func({ scope: EntityScope.ACTIVE });
@@ -67,7 +67,7 @@ describe("createGetAccountsTool", () => {
       fakeAccount({ isArchived: true }),
       fakeAccount({ isArchived: false }),
     ];
-    mockAccountRepository.findAllByUserId.mockResolvedValue(mockAccounts);
+    mockAccountRepository.findManyByUserId.mockResolvedValue(mockAccounts);
 
     const tool = createGetAccountsTool(mockAccountRepository, userId);
     const result = await tool.func({ scope: EntityScope.ARCHIVED });
@@ -93,7 +93,7 @@ describe("createGetAccountsTool", () => {
         isArchived: true,
       }),
     ];
-    mockAccountRepository.findAllByUserId.mockResolvedValue(mockAccounts);
+    mockAccountRepository.findManyByUserId.mockResolvedValue(mockAccounts);
 
     const tool = createGetAccountsTool(mockAccountRepository, userId);
     const result = await tool.func({ scope: EntityScope.ALL });
@@ -118,7 +118,7 @@ describe("createGetAccountsTool", () => {
   });
 
   it("should return empty array when user has no accounts", async () => {
-    mockAccountRepository.findAllByUserId.mockResolvedValue([]);
+    mockAccountRepository.findManyByUserId.mockResolvedValue([]);
 
     const tool = createGetAccountsTool(mockAccountRepository, userId);
     const result = await tool.func({ scope: EntityScope.ALL });

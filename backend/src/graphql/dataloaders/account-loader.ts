@@ -35,7 +35,7 @@ export async function batchLoadAccounts(
 
   try {
     // Fetch all accounts in a single batch operation (including archived items)
-    const accounts = await accountRepository.findByIds(uniqueIds, userId);
+    const accounts = await accountRepository.findManyByIds(uniqueIds, userId);
 
     // Create a map of ID to account (repository returns arbitrary order)
     const accountMap = new Map<string, Account>();
