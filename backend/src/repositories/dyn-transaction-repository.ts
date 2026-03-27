@@ -143,7 +143,13 @@ export class DynTransactionRepository implements TransactionRepository {
     }
   }
 
-  async findOneById(id: string, userId: string): Promise<Transaction | null> {
+  async findOneById({
+    id,
+    userId,
+  }: {
+    id: string;
+    userId: string;
+  }): Promise<Transaction | null> {
     if (!id || !userId) {
       throw new RepositoryError(
         "Transaction ID and User ID are required",
@@ -316,10 +322,13 @@ export class DynTransactionRepository implements TransactionRepository {
     }
   }
 
-  async findManyByAccountId(
-    accountId: string,
-    userId: string,
-  ): Promise<Transaction[]> {
+  async findManyByAccountId({
+    accountId,
+    userId,
+  }: {
+    accountId: string;
+    userId: string;
+  }): Promise<Transaction[]> {
     if (!accountId || !userId) {
       throw new RepositoryError(
         "Account ID and User ID are required",
@@ -356,10 +365,13 @@ export class DynTransactionRepository implements TransactionRepository {
     }
   }
 
-  async findManyByTransferId(
-    transferId: string,
-    userId: string,
-  ): Promise<Transaction[]> {
+  async findManyByTransferId({
+    transferId,
+    userId,
+  }: {
+    transferId: string;
+    userId: string;
+  }): Promise<Transaction[]> {
     if (!transferId || !userId) {
       throw new RepositoryError(
         "Transfer ID and User ID are required",
@@ -396,11 +408,15 @@ export class DynTransactionRepository implements TransactionRepository {
     }
   }
 
-  async findManyByDescription(
-    userId: string,
-    searchText: string,
-    limit: number,
-  ): Promise<Transaction[]> {
+  async findManyByDescription({
+    userId,
+    searchText,
+    limit,
+  }: {
+    userId: string;
+    searchText: string;
+    limit: number;
+  }): Promise<Transaction[]> {
     if (!userId) {
       throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
     }
@@ -525,8 +541,7 @@ export class DynTransactionRepository implements TransactionRepository {
   }
 
   async update(
-    id: string,
-    userId: string,
+    { id, userId }: { id: string; userId: string },
     input: UpdateTransactionInput,
   ): Promise<Transaction> {
     if (!id || !userId) {
@@ -622,7 +637,13 @@ export class DynTransactionRepository implements TransactionRepository {
     }
   }
 
-  async archive(id: string, userId: string): Promise<Transaction> {
+  async archive({
+    id,
+    userId,
+  }: {
+    id: string;
+    userId: string;
+  }): Promise<Transaction> {
     if (!id || !userId) {
       throw new RepositoryError(
         "Transaction ID and User ID are required",
@@ -670,7 +691,13 @@ export class DynTransactionRepository implements TransactionRepository {
     }
   }
 
-  async archiveMany(ids: string[], userId: string): Promise<void> {
+  async archiveMany({
+    ids,
+    userId,
+  }: {
+    ids: string[];
+    userId: string;
+  }): Promise<void> {
     if (!ids.length) {
       throw new RepositoryError(
         "At least one transaction ID is required",
@@ -733,10 +760,13 @@ export class DynTransactionRepository implements TransactionRepository {
     }
   }
 
-  async hasTransactionsForAccount(
-    accountId: string,
-    userId: string,
-  ): Promise<boolean> {
+  async hasTransactionsForAccount({
+    accountId,
+    userId,
+  }: {
+    accountId: string;
+    userId: string;
+  }): Promise<boolean> {
     if (!accountId || !userId) {
       throw new RepositoryError(
         "Account ID and User ID are required",
@@ -769,12 +799,17 @@ export class DynTransactionRepository implements TransactionRepository {
     }
   }
 
-  async detectPatterns(
-    userId: string,
-    type: TransactionPatternType,
-    limit: number,
-    sampleSize: number,
-  ): Promise<TransactionPattern[]> {
+  async detectPatterns({
+    userId,
+    type,
+    limit,
+    sampleSize,
+  }: {
+    userId: string;
+    type: TransactionPatternType;
+    limit: number;
+    sampleSize: number;
+  }): Promise<TransactionPattern[]> {
     if (!userId) {
       throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
     }

@@ -35,10 +35,10 @@ export async function batchLoadAccounts(
 
   try {
     // Fetch all accounts in a single batch operation (including archived items)
-    const accounts = await accountRepository.findManyWithArchivedByIds(
-      uniqueIds,
+    const accounts = await accountRepository.findManyWithArchivedByIds({
+      ids: uniqueIds,
       userId,
-    );
+    });
 
     // Create a map of ID to account (repository returns arbitrary order)
     const accountMap = new Map<string, Account>();

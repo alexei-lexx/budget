@@ -69,7 +69,7 @@ export class CategoryService {
       await this.checkDuplicateName(userId, validatedInput.name, id);
     }
 
-    return await this.categoryRepository.update(id, userId, validatedInput);
+    return await this.categoryRepository.update({ id, userId }, validatedInput);
   }
 
   /**
@@ -79,7 +79,7 @@ export class CategoryService {
    * @returns Promise<Category> - The archived category
    */
   async deleteCategory(id: string, userId: string): Promise<Category> {
-    return await this.categoryRepository.archive(id, userId);
+    return await this.categoryRepository.archive({ id, userId });
   }
 
   private validateName(name: string): string {

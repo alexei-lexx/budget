@@ -14,21 +14,23 @@ export interface UpdateCategoryInput {
 }
 
 export interface CategoryRepository {
-  findOneById(id: string, userId: string): Promise<Category | null>;
+  findOneById(selector: {
+    id: string;
+    userId: string;
+  }): Promise<Category | null>;
   findManyByUserId(
     userId: string,
     filters?: { type?: CategoryType },
   ): Promise<Category[]>;
   findManyWithArchivedByUserId(userId: string): Promise<Category[]>;
-  findManyWithArchivedByIds(
-    ids: readonly string[],
-    userId: string,
-  ): Promise<Category[]>;
+  findManyWithArchivedByIds(selector: {
+    ids: readonly string[];
+    userId: string;
+  }): Promise<Category[]>;
   create(input: CreateCategoryInput): Promise<Category>;
   update(
-    id: string,
-    userId: string,
+    selector: { id: string; userId: string },
     input: UpdateCategoryInput,
   ): Promise<Category>;
-  archive(id: string, userId: string): Promise<Category>;
+  archive(selector: { id: string; userId: string }): Promise<Category>;
 }

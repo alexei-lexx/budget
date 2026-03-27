@@ -35,10 +35,10 @@ export async function batchLoadCategories(
 
   try {
     // Fetch all categories in a single batch operation (including archived items)
-    const categories = await categoryRepository.findManyWithArchivedByIds(
-      uniqueIds,
+    const categories = await categoryRepository.findManyWithArchivedByIds({
+      ids: uniqueIds,
       userId,
-    );
+    });
 
     // Create a map of ID to category (repository returns arbitrary order)
     const categoryMap = new Map<string, Category>();

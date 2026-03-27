@@ -35,10 +35,10 @@ describe("DynAccountRepository", () => {
       );
 
       // Act
-      const result = await repository.findManyWithArchivedByIds(
-        [account1.id, account2.id],
+      const result = await repository.findManyWithArchivedByIds({
+        ids: [account1.id, account2.id],
         userId,
-      );
+      });
 
       // Assert
       expect(result).toHaveLength(2);
@@ -48,7 +48,10 @@ describe("DynAccountRepository", () => {
 
     it("should return empty array when IDs are empty", async () => {
       // Act
-      const result = await repository.findManyWithArchivedByIds([], userId);
+      const result = await repository.findManyWithArchivedByIds({
+        ids: [],
+        userId,
+      });
 
       // Assert
       expect(result).toEqual([]);
@@ -61,10 +64,10 @@ describe("DynAccountRepository", () => {
       );
 
       // Act
-      const result = await repository.findManyWithArchivedByIds(
-        [account.id, "nonexistent-id"],
+      const result = await repository.findManyWithArchivedByIds({
+        ids: [account.id, "nonexistent-id"],
         userId,
-      );
+      });
 
       // Assert
       expect(result).toHaveLength(1);
@@ -74,7 +77,10 @@ describe("DynAccountRepository", () => {
     it("should throw error when userId is missing", async () => {
       // Act & Assert
       await expect(
-        repository.findManyWithArchivedByIds(["account-1"], ""),
+        repository.findManyWithArchivedByIds({
+          ids: ["account-1"],
+          userId: "",
+        }),
       ).rejects.toThrow("User ID is required");
     });
 
@@ -83,13 +89,13 @@ describe("DynAccountRepository", () => {
       const account = await repository.create(
         fakeCreateAccountInput({ userId }),
       );
-      await repository.archive(account.id, userId);
+      await repository.archive({ id: account.id, userId });
 
       // Act
-      const result = await repository.findManyWithArchivedByIds(
-        [account.id],
+      const result = await repository.findManyWithArchivedByIds({
+        ids: [account.id],
         userId,
-      );
+      });
 
       // Assert
       expect(result).toHaveLength(1);
@@ -106,7 +112,10 @@ describe("DynAccountRepository", () => {
       let archivedAccount = await repository.create(
         fakeCreateAccountInput({ userId }),
       );
-      archivedAccount = await repository.archive(archivedAccount.id, userId);
+      archivedAccount = await repository.archive({
+        id: archivedAccount.id,
+        userId,
+      });
 
       // Act
       const result = await repository.findManyWithArchivedByUserId(userId);
@@ -161,7 +170,7 @@ describe("DynAccountRepository", () => {
 
       // Act & Assert
       await expect(
-        repository.findManyWithArchivedByIds([account.id], userId),
+        repository.findManyWithArchivedByIds({ ids: [account.id], userId }),
       ).rejects.toThrow();
     });
   });

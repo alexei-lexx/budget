@@ -65,7 +65,10 @@ export class AccountService {
     input: UpdateAccountInput,
   ): Promise<Account> {
     // Fetch current account
-    const currentAccount = await this.accountRepository.findOneById(id, userId);
+    const currentAccount = await this.accountRepository.findOneById({
+      id,
+      userId,
+    });
 
     if (!currentAccount) {
       throw new BusinessError("Account not found");
@@ -90,7 +93,10 @@ export class AccountService {
       currentAccount.currency !== validatedInput.currency
     ) {
       const hasTransactions =
-        await this.transactionRepository.hasTransactionsForAccount(id, userId);
+        await this.transactionRepository.hasTransactionsForAccount({
+          accountId: id,
+          userId,
+        });
 
       if (hasTransactions) {
         throw new BusinessError(
@@ -99,7 +105,7 @@ export class AccountService {
       }
     }
 
-    return await this.accountRepository.update(id, userId, validatedInput);
+    return await this.accountRepository.update({ id, userId }, validatedInput);
   }
 
   /**
@@ -109,7 +115,7 @@ export class AccountService {
    * @returns Promise<Account> - The archived account
    */
   async deleteAccount(id: string, userId: string): Promise<Account> {
-    return await this.accountRepository.archive(id, userId);
+    return await this.accountRepository.archive({ id, userId });
   }
 
   /**
@@ -122,17 +128,20 @@ export class AccountService {
    */
   async calculateBalance(accountId: string, userId: string): Promise<number> {
     // First validate that the account exists and belongs to the user
-    const account = await this.accountRepository.findOneById(accountId, userId);
+    const account = await this.accountRepository.findOneById({
+      id: accountId,
+      userId,
+    });
 
     if (!account) {
       throw new BusinessError("Account not found or doesn't belong to user");
     }
 
     // Get all transactions for this account
-    const transactions = await this.transactionRepository.findManyByAccountId(
+    const transactions = await this.transactionRepository.findManyByAccountId({
       accountId,
       userId,
-    );
+    });
 
     // Calculate balance: initialBalance + INCOME + REFUND + TRANSFER_IN - EXPENSE - TRANSFER_OUT
     const balance = transactions.reduce(
