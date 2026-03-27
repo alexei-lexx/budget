@@ -35,7 +35,13 @@ export class DynAccountRepository implements AccountRepository {
     }
   }
 
-  async findOneById(id: string, userId: string): Promise<Account | null> {
+  async findOneById({
+    id,
+    userId,
+  }: {
+    id: string;
+    userId: string;
+  }): Promise<Account | null> {
     if (!id || !userId) {
       throw new RepositoryError(
         "Account ID and User ID are required",
@@ -106,10 +112,13 @@ export class DynAccountRepository implements AccountRepository {
     }
   }
 
-  async findManyWithArchivedByIds(
-    ids: readonly string[],
-    userId: string,
-  ): Promise<Account[]> {
+  async findManyWithArchivedByIds({
+    ids,
+    userId,
+  }: {
+    ids: readonly string[];
+    userId: string;
+  }): Promise<Account[]> {
     if (ids.length === 0) {
       return [];
     }
@@ -203,8 +212,7 @@ export class DynAccountRepository implements AccountRepository {
   }
 
   async update(
-    id: string,
-    userId: string,
+    { id, userId }: { id: string; userId: string },
     input: UpdateAccountInput,
   ): Promise<Account> {
     if (!id || !userId) {
@@ -277,7 +285,13 @@ export class DynAccountRepository implements AccountRepository {
     }
   }
 
-  async archive(id: string, userId: string): Promise<Account> {
+  async archive({
+    id,
+    userId,
+  }: {
+    id: string;
+    userId: string;
+  }): Promise<Account> {
     if (!id || !userId) {
       throw new RepositoryError(
         "Account ID and User ID are required",

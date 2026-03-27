@@ -43,7 +43,10 @@ export type UpdateTransactionInput = Partial<
 };
 
 export interface TransactionRepository {
-  findOneById(id: string, userId: string): Promise<Transaction | null>;
+  findOneById(selector: {
+    id: string;
+    userId: string;
+  }): Promise<Transaction | null>;
   findManyByUserId(
     userId: string,
     filters?: TransactionFilterInput,
@@ -53,40 +56,39 @@ export interface TransactionRepository {
     pagination?: PaginationInput,
     filters?: TransactionFilterInput,
   ): Promise<TransactionConnection>;
-  findManyByAccountId(
-    accountId: string,
-    userId: string,
-  ): Promise<Transaction[]>;
-  findManyByTransferId(
-    transferId: string,
-    userId: string,
-  ): Promise<Transaction[]>;
-  findManyByDescription(
-    userId: string,
-    searchText: string,
-    limit: number,
-  ): Promise<Transaction[]>;
+  findManyByAccountId(selector: {
+    accountId: string;
+    userId: string;
+  }): Promise<Transaction[]>;
+  findManyByTransferId(selector: {
+    transferId: string;
+    userId: string;
+  }): Promise<Transaction[]>;
+  findManyByDescription(selector: {
+    userId: string;
+    searchText: string;
+    limit: number;
+  }): Promise<Transaction[]>;
   create(input: CreateTransactionInput): Promise<Transaction>;
   createMany(inputs: CreateTransactionInput[]): Promise<Transaction[]>;
   update(
-    id: string,
-    userId: string,
+    selector: { id: string; userId: string },
     input: UpdateTransactionInput,
   ): Promise<Transaction>;
   updateMany(
     updates: { id: string; input: UpdateTransactionInput }[],
     userId: string,
   ): Promise<void>;
-  archive(id: string, userId: string): Promise<Transaction>;
-  archiveMany(ids: string[], userId: string): Promise<void>;
-  hasTransactionsForAccount(
-    accountId: string,
-    userId: string,
-  ): Promise<boolean>;
-  detectPatterns(
-    userId: string,
-    type: TransactionPatternType,
-    limit: number,
-    sampleSize: number,
-  ): Promise<TransactionPattern[]>;
+  archive(selector: { id: string; userId: string }): Promise<Transaction>;
+  archiveMany(selector: { ids: string[]; userId: string }): Promise<void>;
+  hasTransactionsForAccount(selector: {
+    accountId: string;
+    userId: string;
+  }): Promise<boolean>;
+  detectPatterns(options: {
+    userId: string;
+    type: TransactionPatternType;
+    limit: number;
+    sampleSize: number;
+  }): Promise<TransactionPattern[]>;
 }

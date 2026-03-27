@@ -156,7 +156,10 @@ export class TransferService {
   async deleteTransfer(transferId: string, userId: string): Promise<void> {
     // Find the paired transactions for this transfer
     const transferTransactions =
-      await this.transactionRepository.findManyByTransferId(transferId, userId);
+      await this.transactionRepository.findManyByTransferId({
+        transferId,
+        userId,
+      });
 
     // Validate transfer exists
     if (transferTransactions.length === 0) {
@@ -165,10 +168,10 @@ export class TransferService {
 
     try {
       // Archive all transactions for this transfer atomically using TransactWrite
-      await this.transactionRepository.archiveMany(
-        transferTransactions.map((transaction) => transaction.id),
+      await this.transactionRepository.archiveMany({
+        ids: transferTransactions.map((transaction) => transaction.id),
         userId,
-      );
+      });
     } catch (error) {
       // Log the error for debugging and monitoring
       console.error("Transfer deletion failed:", {
@@ -297,7 +300,10 @@ export class TransferService {
     userId: string,
   ): Promise<TransferResult | undefined> {
     const transferTransactions =
-      await this.transactionRepository.findManyByTransferId(transferId, userId);
+      await this.transactionRepository.findManyByTransferId({
+        transferId,
+        userId,
+      });
 
     if (transferTransactions.length === 0) {
       return undefined;
@@ -355,7 +361,10 @@ export class TransferService {
     accountId: string,
     userId: string,
   ): Promise<Account> {
-    const account = await this.accountRepository.findOneById(accountId, userId);
+    const account = await this.accountRepository.findOneById({
+      id: accountId,
+      userId,
+    });
 
     if (!account) {
       throw new BusinessError("Account not found or doesn't belong to user");

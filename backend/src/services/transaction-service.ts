@@ -83,10 +83,10 @@ export class TransactionService {
    * @throws BusinessError if transaction not found or doesn't belong to user
    */
   async getTransactionById(id: string, userId: string): Promise<Transaction> {
-    const transaction = await this.transactionRepository.findOneById(
+    const transaction = await this.transactionRepository.findOneById({
       id,
       userId,
-    );
+    });
     if (!transaction) {
       throw new BusinessError(
         "Transaction not found or doesn't belong to user",
@@ -162,10 +162,10 @@ export class TransactionService {
     input: UpdateTransactionServiceInput,
   ): Promise<Transaction> {
     // First verify the transaction exists and belongs to the user
-    const existingTransaction = await this.transactionRepository.findOneById(
+    const existingTransaction = await this.transactionRepository.findOneById({
       id,
       userId,
-    );
+    });
     if (!existingTransaction) {
       throw new BusinessError(
         "Transaction not found or doesn't belong to user",
@@ -202,7 +202,7 @@ export class TransactionService {
       ...(input.accountId && { currency: account.currency }),
     };
 
-    return await this.transactionRepository.update(id, userId, updateInput);
+    return await this.transactionRepository.update({ id, userId }, updateInput);
   }
 
   /**
@@ -214,10 +214,10 @@ export class TransactionService {
    */
   async deleteTransaction(id: string, userId: string): Promise<Transaction> {
     // First verify the transaction exists and belongs to the user
-    const existingTransaction = await this.transactionRepository.findOneById(
+    const existingTransaction = await this.transactionRepository.findOneById({
       id,
       userId,
-    );
+    });
     if (!existingTransaction) {
       throw new BusinessError(
         "Transaction not found or doesn't belong to user",
@@ -230,7 +230,7 @@ export class TransactionService {
     }
 
     // Archive the transaction through repository
-    return await this.transactionRepository.archive(id, userId);
+    return await this.transactionRepository.archive({ id, userId });
   }
 
   /**
@@ -251,32 +251,32 @@ export class TransactionService {
     const validatedLimit = this.validateTransactionPatternsLimit(limit);
 
     // Get raw patterns from repository
-    const patterns = await this.transactionRepository.detectPatterns(
+    const patterns = await this.transactionRepository.detectPatterns({
       userId,
       type,
-      validatedLimit,
+      limit: validatedLimit,
       sampleSize,
-    );
+    });
 
     // Validate and enrich patterns with full account and category objects
     const enrichedPatterns: EnrichedTransactionPattern[] = [];
 
     for (const pattern of patterns) {
       // Validate that account still exists and belongs to user
-      const account = await this.accountRepository.findOneById(
-        pattern.accountId,
+      const account = await this.accountRepository.findOneById({
+        id: pattern.accountId,
         userId,
-      );
+      });
       if (!account) {
         // Skip pattern if account is deleted/archived
         continue;
       }
 
       // Validate that category still exists and belongs to user
-      const category = await this.categoryRepository.findOneById(
-        pattern.categoryId,
+      const category = await this.categoryRepository.findOneById({
+        id: pattern.categoryId,
         userId,
-      );
+      });
       if (!category) {
         // Skip pattern if category is deleted/archived
         continue;
@@ -334,9 +334,11 @@ export class TransactionService {
     // Get transactions matching the search text from repository
     // Use configurable sample size to ensure we have enough data for processing
     const transactions = await this.transactionRepository.findManyByDescription(
-      userId,
-      normalizedSearchText,
-      sampleSize,
+      {
+        userId,
+        searchText: normalizedSearchText,
+        limit: sampleSize,
+      },
     );
 
     // Extract and count unique descriptions by frequency
@@ -371,7 +373,10 @@ export class TransactionService {
     accountId: string,
     userId: string,
   ): Promise<Account> {
-    const account = await this.accountRepository.findOneById(accountId, userId);
+    const account = await this.accountRepository.findOneById({
+      id: accountId,
+      userId,
+    });
 
     if (!account) {
       throw new BusinessError("Account not found or doesn't belong to user");
@@ -444,10 +449,10 @@ export class TransactionService {
       return null;
     }
 
-    const category = await this.categoryRepository.findOneById(
-      categoryId,
+    const category = await this.categoryRepository.findOneById({
+      id: categoryId,
       userId,
-    );
+    });
 
     if (!category) {
       throw new BusinessError("Category not found or doesn't belong to user");

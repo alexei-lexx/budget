@@ -175,8 +175,7 @@ describe("CategoryService", () => {
       // Assert
       expect(result).toEqual(updatedCategory);
       expect(mockCategoryRepository.update).toHaveBeenCalledWith(
-        categoryId,
-        userId,
+        { id: categoryId, userId },
         input,
       );
     });
@@ -192,8 +191,7 @@ describe("CategoryService", () => {
 
       // Assert
       expect(mockCategoryRepository.update).toHaveBeenCalledWith(
-        categoryId,
-        userId,
+        { id: categoryId, userId },
         { name: "Groceries" }, // Trimmed
       );
     });
@@ -291,8 +289,7 @@ describe("CategoryService", () => {
 
       // Assert
       expect(mockCategoryRepository.update).toHaveBeenCalledWith(
-        categoryId,
-        userId,
+        { id: categoryId, userId },
         input,
       );
     });
@@ -310,10 +307,10 @@ describe("CategoryService", () => {
 
       // Assert
       expect(result).toEqual(archivedCategory);
-      expect(mockCategoryRepository.archive).toHaveBeenCalledWith(
-        categoryId,
+      expect(mockCategoryRepository.archive).toHaveBeenCalledWith({
+        id: categoryId,
         userId,
-      );
+      });
     });
   });
 });

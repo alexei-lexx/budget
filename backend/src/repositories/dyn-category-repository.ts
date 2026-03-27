@@ -44,7 +44,13 @@ export class DynCategoryRepository implements CategoryRepository {
     }
   }
 
-  async findOneById(id: string, userId: string): Promise<Category | null> {
+  async findOneById({
+    id,
+    userId,
+  }: {
+    id: string;
+    userId: string;
+  }): Promise<Category | null> {
     if (!id || !userId) {
       throw new RepositoryError(
         "Category ID and User ID are required",
@@ -156,10 +162,13 @@ export class DynCategoryRepository implements CategoryRepository {
     }
   }
 
-  async findManyWithArchivedByIds(
-    ids: readonly string[],
-    userId: string,
-  ): Promise<Category[]> {
+  async findManyWithArchivedByIds({
+    ids,
+    userId,
+  }: {
+    ids: readonly string[];
+    userId: string;
+  }): Promise<Category[]> {
     if (ids.length === 0) {
       return [];
     }
@@ -223,8 +232,7 @@ export class DynCategoryRepository implements CategoryRepository {
   }
 
   async update(
-    id: string,
-    userId: string,
+    { id, userId }: { id: string; userId: string },
     input: UpdateCategoryInput,
   ): Promise<Category> {
     if (!id) {
@@ -239,7 +247,7 @@ export class DynCategoryRepository implements CategoryRepository {
     }
 
     // Get current category to check for duplicate names
-    const currentCategory = await this.findOneById(id, userId);
+    const currentCategory = await this.findOneById({ id, userId });
     if (!currentCategory) {
       throw new RepositoryError("Category not found", "NOT_FOUND");
     }
@@ -311,7 +319,13 @@ export class DynCategoryRepository implements CategoryRepository {
     }
   }
 
-  async archive(id: string, userId: string): Promise<Category> {
+  async archive({
+    id,
+    userId,
+  }: {
+    id: string;
+    userId: string;
+  }): Promise<Category> {
     if (!id) {
       throw new RepositoryError(
         "Category ID is required",

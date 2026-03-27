@@ -42,7 +42,7 @@ describe("TransferService", () => {
       expect(result).toBeUndefined();
       expect(
         mockTransactionRepository.findManyByTransferId,
-      ).toHaveBeenCalledWith(transferId, userId);
+      ).toHaveBeenCalledWith({ transferId, userId });
     });
 
     it("should throw INVALID_TRANSFER_STATE when only one transaction found", async () => {

@@ -49,7 +49,7 @@ describe("DynTransactionRepository", () => {
       const archived = await repository.create(
         fakeCreateTransactionInput({ userId }),
       );
-      await repository.archive(archived.id, userId);
+      await repository.archive({ id: archived.id, userId });
 
       // Transaction belonging to another user
       await repository.create(fakeCreateTransactionInput());
@@ -1137,7 +1137,11 @@ describe("DynTransactionRepository", () => {
       );
 
       // Act
-      const result = await repository.findManyByDescription(userId, "Gr", 10);
+      const result = await repository.findManyByDescription({
+        userId,
+        searchText: "Gr",
+        limit: 10,
+      });
 
       // Assert
       expect(result).toHaveLength(2);
@@ -1166,18 +1170,18 @@ describe("DynTransactionRepository", () => {
       await repository.createMany(createInputs);
 
       // Act - Search with uppercase "G"
-      const resultUppercase = await repository.findManyByDescription(
+      const resultUppercase = await repository.findManyByDescription({
         userId,
-        "Gr",
-        10,
-      );
+        searchText: "Gr",
+        limit: 10,
+      });
 
       // Act - Search with lowercase "g"
-      const resultLowercase = await repository.findManyByDescription(
+      const resultLowercase = await repository.findManyByDescription({
         userId,
-        "gr",
-        10,
-      );
+        searchText: "gr",
+        limit: 10,
+      });
 
       // Assert
       expect(resultUppercase).toHaveLength(1);
@@ -1213,11 +1217,11 @@ describe("DynTransactionRepository", () => {
       );
 
       // Act
-      const result = await repository.findManyByDescription(
+      const result = await repository.findManyByDescription({
         userId,
-        "Store",
-        10,
-      );
+        searchText: "Store",
+        limit: 10,
+      });
 
       // Assert - Should be ordered by creation time (newest first)
       expect(result).toHaveLength(2);
@@ -1244,7 +1248,11 @@ describe("DynTransactionRepository", () => {
       await repository.createMany(createInputs);
 
       // Act
-      const result = await repository.findManyByDescription(userId, "Store", 2);
+      const result = await repository.findManyByDescription({
+        userId,
+        searchText: "Store",
+        limit: 2,
+      });
 
       // Assert
       expect(result).toHaveLength(2);
@@ -1271,11 +1279,11 @@ describe("DynTransactionRepository", () => {
       await repository.createMany(createInputs);
 
       // Act
-      const result = await repository.findManyByDescription(
+      const result = await repository.findManyByDescription({
         userId,
-        "store",
-        10,
-      );
+        searchText: "store",
+        limit: 10,
+      });
 
       // Assert
       expect(result).toHaveLength(1);
@@ -1303,14 +1311,14 @@ describe("DynTransactionRepository", () => {
       const createdTransactions = await repository.createMany(createInputs);
 
       // Archive one transaction
-      await repository.archive(createdTransactions[0].id, userId);
+      await repository.archive({ id: createdTransactions[0].id, userId });
 
       // Act
-      const result = await repository.findManyByDescription(
+      const result = await repository.findManyByDescription({
         userId,
-        "Store",
-        10,
-      );
+        searchText: "Store",
+        limit: 10,
+      });
 
       // Assert - Should only return non-archived transaction
       expect(result).toHaveLength(1);
@@ -1339,16 +1347,16 @@ describe("DynTransactionRepository", () => {
       await repository.createMany(createInputs);
 
       // Act
-      const user1Result = await repository.findManyByDescription(
-        user1,
-        "store",
-        10,
-      );
-      const user2Result = await repository.findManyByDescription(
-        user2,
-        "store",
-        10,
-      );
+      const user1Result = await repository.findManyByDescription({
+        userId: user1,
+        searchText: "store",
+        limit: 10,
+      });
+      const user2Result = await repository.findManyByDescription({
+        userId: user2,
+        searchText: "store",
+        limit: 10,
+      });
 
       // Assert - Each user sees only their own transactions
       expect(user1Result).toHaveLength(1);
@@ -1372,7 +1380,11 @@ describe("DynTransactionRepository", () => {
       await repository.create(createInput);
 
       // Act
-      const result = await repository.findManyByDescription(userId, "", 10);
+      const result = await repository.findManyByDescription({
+        userId,
+        searchText: "",
+        limit: 10,
+      });
 
       // Assert
       expect(result).toHaveLength(0);
@@ -1394,7 +1406,11 @@ describe("DynTransactionRepository", () => {
       await repository.createMany(createInputs);
 
       // Act
-      const result = await repository.findManyByDescription(userId, "xyz", 10);
+      const result = await repository.findManyByDescription({
+        userId,
+        searchText: "xyz",
+        limit: 10,
+      });
 
       // Assert
       expect(result).toHaveLength(0);
@@ -1405,11 +1421,11 @@ describe("DynTransactionRepository", () => {
       const userId = faker.string.uuid();
 
       // Act
-      const result = await repository.findManyByDescription(
+      const result = await repository.findManyByDescription({
         userId,
-        "store",
-        10,
-      );
+        searchText: "store",
+        limit: 10,
+      });
 
       // Assert
       expect(result).toHaveLength(0);
@@ -1418,7 +1434,11 @@ describe("DynTransactionRepository", () => {
     it("should throw error for missing user ID", async () => {
       // Act & Assert
       await expect(
-        repository.findManyByDescription("", "store", 10),
+        repository.findManyByDescription({
+          userId: "",
+          searchText: "store",
+          limit: 10,
+        }),
       ).rejects.toThrow("User ID is required");
     });
 
@@ -1428,17 +1448,29 @@ describe("DynTransactionRepository", () => {
 
       // Act & Assert - Zero limit
       await expect(
-        repository.findManyByDescription(userId, "store", 0),
+        repository.findManyByDescription({
+          userId,
+          searchText: "store",
+          limit: 0,
+        }),
       ).rejects.toThrow("Limit must be a positive integer");
 
       // Act & Assert - Negative limit
       await expect(
-        repository.findManyByDescription(userId, "store", -1),
+        repository.findManyByDescription({
+          userId,
+          searchText: "store",
+          limit: -1,
+        }),
       ).rejects.toThrow("Limit must be a positive integer");
 
       // Act & Assert - Non-integer limit
       await expect(
-        repository.findManyByDescription(userId, "store", 3.5),
+        repository.findManyByDescription({
+          userId,
+          searchText: "store",
+          limit: 3.5,
+        }),
       ).rejects.toThrow("Limit must be a positive integer");
     });
 
@@ -1463,11 +1495,11 @@ describe("DynTransactionRepository", () => {
       await repository.createMany(createInputs);
 
       // Act
-      const result = await repository.findManyByDescription(
+      const result = await repository.findManyByDescription({
         userId,
-        "Exact match",
-        10,
-      );
+        searchText: "Exact match",
+        limit: 10,
+      });
 
       // Assert
       expect(result).toHaveLength(1);
@@ -1495,11 +1527,11 @@ describe("DynTransactionRepository", () => {
       await repository.createMany(createInputs);
 
       // Act
-      const result = await repository.findManyByDescription(
+      const result = await repository.findManyByDescription({
         userId,
-        "long description",
-        10,
-      );
+        searchText: "long description",
+        limit: 10,
+      });
 
       // Assert
       expect(result).toHaveLength(1);
@@ -1559,7 +1591,7 @@ describe("DynTransactionRepository", () => {
       );
 
       // Refetch from database to verify stored data matches result
-      const stored = await repository.findOneById(result.id, userId);
+      const stored = await repository.findOneById({ id: result.id, userId });
       expect(stored).toEqual(result);
     });
 
@@ -1618,7 +1650,7 @@ describe("DynTransactionRepository", () => {
       expect(result.isArchived).toBe(false);
 
       // Refetch from database to verify stored data matches result
-      const stored = await repository.findOneById(result.id, userId);
+      const stored = await repository.findOneById({ id: result.id, userId });
       expect(stored).toEqual(result);
     });
 
@@ -1643,7 +1675,7 @@ describe("DynTransactionRepository", () => {
       expect(result.type).toBe(TransactionType.TRANSFER_OUT);
 
       // Refetch from database to verify stored data matches result
-      const stored = await repository.findOneById(result.id, userId);
+      const stored = await repository.findOneById({ id: result.id, userId });
       expect(stored).toEqual(result);
     });
   });
@@ -1707,14 +1739,14 @@ describe("DynTransactionRepository", () => {
       // Verify that createdAtSortable is not in the returned object
       expect(result[1]).not.toHaveProperty("createdAtSortable");
 
-      const stored1 = await repository.findOneById(
-        result[0].id,
-        inputs[0].userId,
-      );
-      const stored2 = await repository.findOneById(
-        result[1].id,
-        inputs[1].userId,
-      );
+      const stored1 = await repository.findOneById({
+        id: result[0].id,
+        userId: inputs[0].userId,
+      });
+      const stored2 = await repository.findOneById({
+        id: result[1].id,
+        userId: inputs[1].userId,
+      });
 
       expect([stored1, stored2]).toEqual(expect.arrayContaining(result));
     });
@@ -1812,7 +1844,10 @@ describe("DynTransactionRepository", () => {
         description: "Updated description",
         categoryId: newCategoryId,
       };
-      const result = await repository.update(created.id, userId, updateInput);
+      const result = await repository.update(
+        { id: created.id, userId },
+        updateInput,
+      );
 
       // Assert - All attributes updated
       expect(result).toBeDefined();
@@ -1830,7 +1865,7 @@ describe("DynTransactionRepository", () => {
       expect(result.updatedAt).not.toBe(created.updatedAt);
 
       // Refetch from database to verify stored data matches result
-      const stored = await repository.findOneById(result.id, userId);
+      const stored = await repository.findOneById({ id: result.id, userId });
       expect(stored).toEqual(result);
     });
 
@@ -1855,7 +1890,10 @@ describe("DynTransactionRepository", () => {
 
       // Act - Update with empty input (only updatedAt should change)
       const updateInput = {};
-      const result = await repository.update(created.id, userId, updateInput);
+      const result = await repository.update(
+        { id: created.id, userId },
+        updateInput,
+      );
 
       // Assert - All original values preserved except updatedAt
       expect(result).toBeDefined();
@@ -1873,7 +1911,7 @@ describe("DynTransactionRepository", () => {
       expect(result.updatedAt).not.toBe(created.updatedAt);
 
       // Refetch from database to verify stored data matches result
-      const stored = await repository.findOneById(result.id, userId);
+      const stored = await repository.findOneById({ id: result.id, userId });
       expect(stored).toEqual(result);
     });
 
@@ -1894,7 +1932,10 @@ describe("DynTransactionRepository", () => {
         description: null,
         categoryId: null,
       };
-      const result = await repository.update(created.id, userId, updateInput);
+      const result = await repository.update(
+        { id: created.id, userId },
+        updateInput,
+      );
 
       // Assert
       expect(result).toBeDefined();
@@ -1902,7 +1943,7 @@ describe("DynTransactionRepository", () => {
       expect(result.categoryId).toBeUndefined();
 
       // Refetch from database to verify stored data matches result
-      const stored = await repository.findOneById(result.id, userId);
+      const stored = await repository.findOneById({ id: result.id, userId });
       expect(stored).toEqual(result);
     });
 
@@ -1927,7 +1968,10 @@ describe("DynTransactionRepository", () => {
 
       // Act - Update single field
       const updateInput = { amount: 175.0 };
-      const result = await repository.update(created.id, userId, updateInput);
+      const result = await repository.update(
+        { id: created.id, userId },
+        updateInput,
+      );
 
       // Assert - Only amount changed, others preserved
       expect(result).toBeDefined();
@@ -1939,7 +1983,7 @@ describe("DynTransactionRepository", () => {
       expect(result.date).toBe("2024-01-22");
 
       // Refetch from database to verify stored data matches result
-      const stored = await repository.findOneById(result.id, userId);
+      const stored = await repository.findOneById({ id: result.id, userId });
       expect(stored).toEqual(result);
     });
 
@@ -1951,7 +1995,7 @@ describe("DynTransactionRepository", () => {
 
       // Act & Assert
       await expect(
-        repository.update(nonExistentId, userId, updateInput),
+        repository.update({ id: nonExistentId, userId }, updateInput),
       ).rejects.toThrow("Transaction not found or is archived");
     });
 
@@ -1968,12 +2012,12 @@ describe("DynTransactionRepository", () => {
       const created = await repository.create(createInput);
 
       // Archive the transaction
-      await repository.archive(created.id, userId);
+      await repository.archive({ id: created.id, userId });
 
       // Act & Assert - Try to update archived transaction
       const updateInput = { description: "Should not work" };
       await expect(
-        repository.update(created.id, userId, updateInput),
+        repository.update({ id: created.id, userId }, updateInput),
       ).rejects.toThrow("Transaction not found or is archived");
     });
 
@@ -1993,11 +2037,14 @@ describe("DynTransactionRepository", () => {
       // Act & Assert - Try to update as different user
       const updateInput = { description: "Hacker attempt" };
       await expect(
-        repository.update(created.id, otherUserId, updateInput),
+        repository.update({ id: created.id, userId: otherUserId }, updateInput),
       ).rejects.toThrow("Transaction not found or is archived");
 
       // Verify original transaction is unchanged
-      const original = await repository.findOneById(created.id, ownerUserId);
+      const original = await repository.findOneById({
+        id: created.id,
+        userId: ownerUserId,
+      });
       expect(original).toBeDefined();
       expect(original?.description).toBe("Belongs to owner");
       expect(original?.userId).toBe(ownerUserId);
@@ -2009,12 +2056,12 @@ describe("DynTransactionRepository", () => {
 
       // Act & Assert - Missing transaction ID
       await expect(
-        repository.update("", "user-id", updateInput),
+        repository.update({ id: "", userId: "user-id" }, updateInput),
       ).rejects.toThrow("Transaction ID and User ID are required");
 
       // Act & Assert - Missing user ID
       await expect(
-        repository.update("transaction-id", "", updateInput),
+        repository.update({ id: "transaction-id", userId: "" }, updateInput),
       ).rejects.toThrow("Transaction ID and User ID are required");
     });
   });
@@ -2091,10 +2138,10 @@ describe("DynTransactionRepository", () => {
 
       await repository.updateMany(updates, userId);
 
-      const stored1 = await repository.findOneById(
-        createdTransactions[0].id,
+      const stored1 = await repository.findOneById({
+        id: createdTransactions[0].id,
         userId,
-      );
+      });
 
       expect(stored1).toBeDefined();
       expect(stored1?.accountId).toBe(newAccountId1);
@@ -2105,10 +2152,10 @@ describe("DynTransactionRepository", () => {
       expect(stored1?.date).toBe("2024-02-01");
       expect(stored1?.description).toBe("New description 1");
 
-      const stored2 = await repository.findOneById(
-        createdTransactions[1].id,
+      const stored2 = await repository.findOneById({
+        id: createdTransactions[1].id,
         userId,
-      );
+      });
 
       expect(stored2).toBeDefined();
       expect(stored2?.accountId).toBe(newAccountId2);
@@ -2127,12 +2174,12 @@ describe("DynTransactionRepository", () => {
       const userId = faker.string.uuid();
 
       // Act
-      const result = await repository.detectPatterns(
+      const result = await repository.detectPatterns({
         userId,
-        TransactionPatternType.INCOME,
-        3,
-        100,
-      );
+        type: TransactionPatternType.INCOME,
+        limit: 3,
+        sampleSize: 100,
+      });
 
       // Assert
       expect(result).toEqual([]);
@@ -2157,12 +2204,12 @@ describe("DynTransactionRepository", () => {
       await repository.createMany(createInputs);
 
       // Act
-      const result = await repository.detectPatterns(
+      const result = await repository.detectPatterns({
         userId,
-        TransactionPatternType.INCOME,
-        3,
-        100,
-      );
+        type: TransactionPatternType.INCOME,
+        limit: 3,
+        sampleSize: 100,
+      });
 
       // Assert
       expect(result).toEqual([]);
@@ -2222,12 +2269,12 @@ describe("DynTransactionRepository", () => {
 
       await repository.createMany(createInputs);
 
-      const result = await repository.detectPatterns(
+      const result = await repository.detectPatterns({
         userId,
-        TransactionPatternType.INCOME,
-        3,
-        100,
-      );
+        type: TransactionPatternType.INCOME,
+        limit: 3,
+        sampleSize: 100,
+      });
 
       expect(result).toHaveLength(3);
       expect(result[0]).toEqual({
@@ -2268,12 +2315,12 @@ describe("DynTransactionRepository", () => {
 
       await repository.createMany(createInputs);
 
-      const result = await repository.detectPatterns(
+      const result = await repository.detectPatterns({
         userId,
-        TransactionPatternType.EXPENSE,
-        3,
-        100,
-      );
+        type: TransactionPatternType.EXPENSE,
+        limit: 3,
+        sampleSize: 100,
+      });
 
       // Assert - Should return only top 3 patterns, sorted by frequency (most used first)
       expect(result).toHaveLength(3);
@@ -2349,12 +2396,12 @@ describe("DynTransactionRepository", () => {
 
       await repository.createMany(createInputs);
 
-      const result = await repository.detectPatterns(
+      const result = await repository.detectPatterns({
         userId,
-        TransactionPatternType.INCOME,
-        3,
-        100,
-      );
+        type: TransactionPatternType.INCOME,
+        limit: 3,
+        sampleSize: 100,
+      });
 
       // Assert - Should sort deterministically by accountId, then categoryId
       expect(result).toHaveLength(3);
@@ -2431,26 +2478,26 @@ describe("DynTransactionRepository", () => {
 
       await repository.createMany(createInputs);
 
-      const incomeResult = await repository.detectPatterns(
+      const incomeResult = await repository.detectPatterns({
         userId,
-        TransactionPatternType.INCOME,
-        3,
-        100,
-      );
+        type: TransactionPatternType.INCOME,
+        limit: 3,
+        sampleSize: 100,
+      });
 
-      const expenseResult = await repository.detectPatterns(
+      const expenseResult = await repository.detectPatterns({
         userId,
-        TransactionPatternType.EXPENSE,
-        3,
-        100,
-      );
+        type: TransactionPatternType.EXPENSE,
+        limit: 3,
+        sampleSize: 100,
+      });
 
-      const refundResult = await repository.detectPatterns(
+      const refundResult = await repository.detectPatterns({
         userId,
-        TransactionPatternType.REFUND,
-        3,
-        100,
-      );
+        type: TransactionPatternType.REFUND,
+        limit: 3,
+        sampleSize: 100,
+      });
 
       expect(incomeResult).toHaveLength(1);
       expect(incomeResult[0]).toEqual({
@@ -2498,14 +2545,14 @@ describe("DynTransactionRepository", () => {
       const createdTransactions = await repository.createMany(createInputs);
 
       // Archive one transaction
-      await repository.archive(createdTransactions[0].id, userId);
+      await repository.archive({ id: createdTransactions[0].id, userId });
 
-      const result = await repository.detectPatterns(
+      const result = await repository.detectPatterns({
         userId,
-        TransactionPatternType.INCOME,
-        3,
-        100,
-      );
+        type: TransactionPatternType.INCOME,
+        limit: 3,
+        sampleSize: 100,
+      });
 
       // Assert - Should only count non-archived transaction
       expect(result).toHaveLength(1);
@@ -2551,12 +2598,12 @@ describe("DynTransactionRepository", () => {
       await repository.createMany(createInputs2);
 
       // Act - Request with sampleSize of 5 (should only analyze last 5 transactions)
-      const result = await repository.detectPatterns(
+      const result = await repository.detectPatterns({
         userId,
-        TransactionPatternType.INCOME,
-        3,
-        5,
-      );
+        type: TransactionPatternType.INCOME,
+        limit: 3,
+        sampleSize: 5,
+      });
 
       // Assert - Should return the pattern but only based on 5 transactions
       expect(result).toHaveLength(1);
@@ -2569,7 +2616,12 @@ describe("DynTransactionRepository", () => {
 
     it("should throw error for missing user ID", async () => {
       await expect(
-        repository.detectPatterns("", TransactionPatternType.INCOME, 3, 100),
+        repository.detectPatterns({
+          userId: "",
+          type: TransactionPatternType.INCOME,
+          limit: 3,
+          sampleSize: 100,
+        }),
       ).rejects.toThrow("User ID is required");
     });
 
@@ -2578,32 +2630,32 @@ describe("DynTransactionRepository", () => {
 
       // Act & Assert - Zero limit
       await expect(
-        repository.detectPatterns(
+        repository.detectPatterns({
           userId,
-          TransactionPatternType.INCOME,
-          0,
-          100,
-        ),
+          type: TransactionPatternType.INCOME,
+          limit: 0,
+          sampleSize: 100,
+        }),
       ).rejects.toThrow("Limit must be a positive integer");
 
       // Act & Assert - Negative limit
       await expect(
-        repository.detectPatterns(
+        repository.detectPatterns({
           userId,
-          TransactionPatternType.INCOME,
-          -1,
-          100,
-        ),
+          type: TransactionPatternType.INCOME,
+          limit: -1,
+          sampleSize: 100,
+        }),
       ).rejects.toThrow("Limit must be a positive integer");
 
       // Act & Assert - Non-integer limit
       await expect(
-        repository.detectPatterns(
+        repository.detectPatterns({
           userId,
-          TransactionPatternType.INCOME,
-          3.5,
-          100,
-        ),
+          type: TransactionPatternType.INCOME,
+          limit: 3.5,
+          sampleSize: 100,
+        }),
       ).rejects.toThrow("Limit must be a positive integer");
     });
 
@@ -2612,22 +2664,32 @@ describe("DynTransactionRepository", () => {
 
       // Act & Assert - Zero sample size
       await expect(
-        repository.detectPatterns(userId, TransactionPatternType.INCOME, 3, 0),
+        repository.detectPatterns({
+          userId,
+          type: TransactionPatternType.INCOME,
+          limit: 3,
+          sampleSize: 0,
+        }),
       ).rejects.toThrow("Sample size must be a positive integer");
 
       // Act & Assert - Negative sample size
       await expect(
-        repository.detectPatterns(userId, TransactionPatternType.INCOME, 3, -1),
+        repository.detectPatterns({
+          userId,
+          type: TransactionPatternType.INCOME,
+          limit: 3,
+          sampleSize: -1,
+        }),
       ).rejects.toThrow("Sample size must be a positive integer");
 
       // Act & Assert - Non-integer sample size
       await expect(
-        repository.detectPatterns(
+        repository.detectPatterns({
           userId,
-          TransactionPatternType.INCOME,
-          3,
-          50.5,
-        ),
+          type: TransactionPatternType.INCOME,
+          limit: 3,
+          sampleSize: 50.5,
+        }),
       ).rejects.toThrow("Sample size must be a positive integer");
     });
 
@@ -2652,12 +2714,12 @@ describe("DynTransactionRepository", () => {
       await repository.createMany(createInputs);
 
       // Act - Request only 2 patterns
-      const result = await repository.detectPatterns(
+      const result = await repository.detectPatterns({
         userId,
-        TransactionPatternType.INCOME,
-        2,
-        100,
-      );
+        type: TransactionPatternType.INCOME,
+        limit: 2,
+        sampleSize: 100,
+      });
 
       // Assert - Should return only 2 patterns
       expect(result).toHaveLength(2);
@@ -2690,18 +2752,18 @@ describe("DynTransactionRepository", () => {
 
       await repository.createMany([...createInputsUser1, ...createInputsUser2]);
 
-      const user1Result = await repository.detectPatterns(
-        user1,
-        TransactionPatternType.INCOME,
-        3,
-        100,
-      );
-      const user2Result = await repository.detectPatterns(
-        user2,
-        TransactionPatternType.INCOME,
-        3,
-        100,
-      );
+      const user1Result = await repository.detectPatterns({
+        userId: user1,
+        type: TransactionPatternType.INCOME,
+        limit: 3,
+        sampleSize: 100,
+      });
+      const user2Result = await repository.detectPatterns({
+        userId: user2,
+        type: TransactionPatternType.INCOME,
+        limit: 3,
+        sampleSize: 100,
+      });
 
       // Assert - Each user sees only their own patterns
       expect(user1Result).toHaveLength(1);
@@ -2738,7 +2800,7 @@ describe("DynTransactionRepository", () => {
 
       // Act & Assert
       await expect(
-        repository.findOneById(transaction.id, userId),
+        repository.findOneById({ id: transaction.id, userId }),
       ).rejects.toThrow();
     });
   });

@@ -213,13 +213,12 @@ describe("AccountService", () => {
 
       // Assert
       expect(result).toEqual(updatedAccount);
-      expect(mockAccountRepository.findOneById).toHaveBeenCalledWith(
-        accountId,
+      expect(mockAccountRepository.findOneById).toHaveBeenCalledWith({
+        id: accountId,
         userId,
-      );
+      });
       expect(mockAccountRepository.update).toHaveBeenCalledWith(
-        accountId,
-        userId,
+        { id: accountId, userId },
         input,
       );
       expect(
@@ -244,8 +243,7 @@ describe("AccountService", () => {
 
       // Assert
       expect(mockAccountRepository.update).toHaveBeenCalledWith(
-        accountId,
-        userId,
+        { id: accountId, userId },
         { name: "Cash" }, // Trimmed
       );
     });
@@ -274,10 +272,9 @@ describe("AccountService", () => {
       expect(result).toEqual(updatedAccount);
       expect(
         mockTransactionRepository.hasTransactionsForAccount,
-      ).toHaveBeenCalledWith(accountId, userId);
+      ).toHaveBeenCalledWith({ accountId, userId });
       expect(mockAccountRepository.update).toHaveBeenCalledWith(
-        accountId,
-        userId,
+        { id: accountId, userId },
         input,
       );
     });
@@ -448,8 +445,7 @@ describe("AccountService", () => {
 
       // Assert
       expect(mockAccountRepository.update).toHaveBeenCalledWith(
-        accountId,
-        userId,
+        { id: accountId, userId },
         { currency: "EUR" }, // Trimmed and uppercased
       );
     });
@@ -489,10 +485,10 @@ describe("AccountService", () => {
 
       // Assert
       expect(result).toEqual(archivedAccount);
-      expect(mockAccountRepository.archive).toHaveBeenCalledWith(
-        accountId,
+      expect(mockAccountRepository.archive).toHaveBeenCalledWith({
+        id: accountId,
         userId,
-      );
+      });
     });
   });
 

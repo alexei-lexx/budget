@@ -14,18 +14,20 @@ export interface UpdateAccountInput {
 }
 
 export interface AccountRepository {
-  findOneById(id: string, userId: string): Promise<Account | null>;
+  findOneById(selector: {
+    id: string;
+    userId: string;
+  }): Promise<Account | null>;
   findManyByUserId(userId: string): Promise<Account[]>;
-  findManyWithArchivedByIds(
-    ids: readonly string[],
-    userId: string,
-  ): Promise<Account[]>;
+  findManyWithArchivedByIds(selector: {
+    ids: readonly string[];
+    userId: string;
+  }): Promise<Account[]>;
   findManyWithArchivedByUserId(userId: string): Promise<Account[]>;
   create(input: CreateAccountInput): Promise<Account>;
   update(
-    id: string,
-    userId: string,
+    selector: { id: string; userId: string },
     input: UpdateAccountInput,
   ): Promise<Account>;
-  archive(id: string, userId: string): Promise<Account>;
+  archive(selector: { id: string; userId: string }): Promise<Account>;
 }

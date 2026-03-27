@@ -206,10 +206,10 @@ export class ByCategoryReportService {
       if (categoryId === undefined) {
         categoryName = UNCATEGORIZED_LABEL;
       } else {
-        const category = await this.categoryRepository.findOneById(
-          categoryId,
+        const category = await this.categoryRepository.findOneById({
+          id: categoryId,
           userId,
-        );
+        });
         categoryName = category ? category.name : UNCATEGORIZED_LABEL;
       }
 

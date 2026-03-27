@@ -66,10 +66,10 @@ describe("TransactionService", () => {
 
       // Assert
       expect(result).toEqual(transaction);
-      expect(mockTransactionRepository.findOneById).toHaveBeenCalledWith(
-        transactionId,
+      expect(mockTransactionRepository.findOneById).toHaveBeenCalledWith({
+        id: transactionId,
         userId,
-      );
+      });
       expect(mockTransactionRepository.findOneById).toHaveBeenCalledTimes(1);
     });
 
@@ -86,10 +86,10 @@ describe("TransactionService", () => {
         message: "Transaction not found or doesn't belong to user",
       });
 
-      expect(mockTransactionRepository.findOneById).toHaveBeenCalledWith(
-        transactionId,
+      expect(mockTransactionRepository.findOneById).toHaveBeenCalledWith({
+        id: transactionId,
         userId,
-      );
+      });
     });
   });
 
@@ -383,12 +383,12 @@ describe("TransactionService", () => {
       );
 
       // Assert
-      expect(mockTransactionRepository.detectPatterns).toHaveBeenCalledWith(
+      expect(mockTransactionRepository.detectPatterns).toHaveBeenCalledWith({
         userId,
-        TransactionType.EXPENSE,
-        5,
-        200,
-      );
+        type: TransactionType.EXPENSE,
+        limit: 5,
+        sampleSize: 200,
+      });
     });
 
     describe("limit parameter validation", () => {
@@ -404,12 +404,12 @@ describe("TransactionService", () => {
         );
 
         // Assert
-        expect(mockTransactionRepository.detectPatterns).toHaveBeenCalledWith(
+        expect(mockTransactionRepository.detectPatterns).toHaveBeenCalledWith({
           userId,
-          TransactionPatternType.INCOME,
-          DEFAULT_TRANSACTION_PATTERNS_LIMIT,
-          100, // default sampleSize
-        );
+          type: TransactionPatternType.INCOME,
+          limit: DEFAULT_TRANSACTION_PATTERNS_LIMIT,
+          sampleSize: 100,
+        });
       });
 
       it("should use default limit when limit is null", async () => {
@@ -421,12 +421,12 @@ describe("TransactionService", () => {
         );
 
         // Assert
-        expect(mockTransactionRepository.detectPatterns).toHaveBeenCalledWith(
+        expect(mockTransactionRepository.detectPatterns).toHaveBeenCalledWith({
           userId,
-          TransactionPatternType.INCOME,
-          DEFAULT_TRANSACTION_PATTERNS_LIMIT,
-          100,
-        );
+          type: TransactionPatternType.INCOME,
+          limit: DEFAULT_TRANSACTION_PATTERNS_LIMIT,
+          sampleSize: 100,
+        });
       });
 
       it("should use default limit when limit is undefined", async () => {
@@ -438,12 +438,12 @@ describe("TransactionService", () => {
         );
 
         // Assert
-        expect(mockTransactionRepository.detectPatterns).toHaveBeenCalledWith(
+        expect(mockTransactionRepository.detectPatterns).toHaveBeenCalledWith({
           userId,
-          TransactionPatternType.INCOME,
-          DEFAULT_TRANSACTION_PATTERNS_LIMIT,
-          100,
-        );
+          type: TransactionPatternType.INCOME,
+          limit: DEFAULT_TRANSACTION_PATTERNS_LIMIT,
+          sampleSize: 100,
+        });
       });
 
       it("should accept valid limit values between min and max", async () => {
@@ -464,10 +464,12 @@ describe("TransactionService", () => {
 
           // Assert
           expect(mockTransactionRepository.detectPatterns).toHaveBeenCalledWith(
-            userId,
-            TransactionPatternType.INCOME,
-            limit,
-            100,
+            {
+              userId,
+              type: TransactionPatternType.INCOME,
+              limit,
+              sampleSize: 100,
+            },
           );
         }
       });
@@ -488,10 +490,12 @@ describe("TransactionService", () => {
 
           // Assert
           expect(mockTransactionRepository.detectPatterns).toHaveBeenCalledWith(
-            userId,
-            TransactionPatternType.INCOME,
-            DEFAULT_TRANSACTION_PATTERNS_LIMIT,
-            100,
+            {
+              userId,
+              type: TransactionPatternType.INCOME,
+              limit: DEFAULT_TRANSACTION_PATTERNS_LIMIT,
+              sampleSize: 100,
+            },
           );
         }
       });
@@ -509,10 +513,12 @@ describe("TransactionService", () => {
 
           // Assert
           expect(mockTransactionRepository.detectPatterns).toHaveBeenCalledWith(
-            userId,
-            TransactionPatternType.INCOME,
-            DEFAULT_TRANSACTION_PATTERNS_LIMIT,
-            100,
+            {
+              userId,
+              type: TransactionPatternType.INCOME,
+              limit: DEFAULT_TRANSACTION_PATTERNS_LIMIT,
+              sampleSize: 100,
+            },
           );
         }
       });
@@ -599,11 +605,11 @@ describe("TransactionService", () => {
       // Assert
       expect(
         mockTransactionRepository.findManyByDescription,
-      ).toHaveBeenCalledWith(
+      ).toHaveBeenCalledWith({
         userId,
         searchText,
-        DESCRIPTION_SUGGESTIONS_SAMPLE_SIZE, // Should use default sample size
-      );
+        limit: DESCRIPTION_SUGGESTIONS_SAMPLE_SIZE,
+      });
     });
 
     it("should call repository with custom sample size when provided", async () => {
@@ -623,7 +629,7 @@ describe("TransactionService", () => {
       // Assert
       expect(
         mockTransactionRepository.findManyByDescription,
-      ).toHaveBeenCalledWith(userId, searchText, customSampleSize);
+      ).toHaveBeenCalledWith({ userId, searchText, limit: customSampleSize });
     });
 
     it("should throw error for search text shorter than minimum length", async () => {
@@ -694,11 +700,11 @@ describe("TransactionService", () => {
       // Assert - should pass trimmed text to repository
       expect(
         mockTransactionRepository.findManyByDescription,
-      ).toHaveBeenCalledWith(
+      ).toHaveBeenCalledWith({
         userId,
-        "test", // Trimmed version
-        DESCRIPTION_SUGGESTIONS_SAMPLE_SIZE,
-      );
+        searchText: "test",
+        limit: DESCRIPTION_SUGGESTIONS_SAMPLE_SIZE,
+      });
     });
 
     it("should throw error when text is too short after trimming", async () => {
@@ -887,14 +893,14 @@ describe("TransactionService", () => {
 
         // Assert
         expect(result).toBeDefined();
-        expect(mockAccountRepository.findOneById).toHaveBeenCalledWith(
-          accountId,
+        expect(mockAccountRepository.findOneById).toHaveBeenCalledWith({
+          id: accountId,
           userId,
-        );
-        expect(mockCategoryRepository.findOneById).toHaveBeenCalledWith(
-          expenseCategory.id,
+        });
+        expect(mockCategoryRepository.findOneById).toHaveBeenCalledWith({
+          id: expenseCategory.id,
           userId,
-        );
+        });
         expect(mockTransactionRepository.create).toHaveBeenCalledWith({
           ...input,
           currency,
