@@ -26,7 +26,7 @@ export async function getAuthenticatedUser(
 
   try {
     // Get existing user from database
-    const user = await context.userRepository.findByEmail(authUser.email);
+    const user = await context.userRepository.findOneByEmail(authUser.email);
 
     if (!user) {
       throw new GraphQLError("User not found");

@@ -40,7 +40,7 @@ describe("createGetCategoriesTool", () => {
   });
 
   it("should call category repository", async () => {
-    mockCategoryRepository.findAllByUserId.mockResolvedValue([]);
+    mockCategoryRepository.findManyByUserId.mockResolvedValue([]);
 
     const tool = createGetCategoriesTool({
       categoryRepository: mockCategoryRepository,
@@ -49,7 +49,9 @@ describe("createGetCategoriesTool", () => {
     });
     await tool.func({ scope: EntityScope.ALL });
 
-    expect(mockCategoryRepository.findAllByUserId).toHaveBeenCalledWith(userId);
+    expect(mockCategoryRepository.findManyByUserId).toHaveBeenCalledWith(
+      userId,
+    );
   });
 
   it("should return all categories when scope is all", async () => {
@@ -57,8 +59,8 @@ describe("createGetCategoriesTool", () => {
       fakeCategory({ isArchived: true }),
       fakeCategory({ isArchived: false }),
     ];
-    mockCategoryRepository.findAllByUserId.mockResolvedValue(mockCategories);
-    mockTransactionRepository.findActiveByUserId.mockResolvedValue([]);
+    mockCategoryRepository.findManyByUserId.mockResolvedValue(mockCategories);
+    mockTransactionRepository.findManyActiveByUserId.mockResolvedValue([]);
 
     const tool = createGetCategoriesTool({
       categoryRepository: mockCategoryRepository,
@@ -81,8 +83,8 @@ describe("createGetCategoriesTool", () => {
       fakeCategory({ isArchived: true }),
       fakeCategory({ isArchived: false }),
     ];
-    mockCategoryRepository.findAllByUserId.mockResolvedValue(mockCategories);
-    mockTransactionRepository.findActiveByUserId.mockResolvedValue([]);
+    mockCategoryRepository.findManyByUserId.mockResolvedValue(mockCategories);
+    mockTransactionRepository.findManyActiveByUserId.mockResolvedValue([]);
 
     const tool = createGetCategoriesTool({
       categoryRepository: mockCategoryRepository,
@@ -102,8 +104,8 @@ describe("createGetCategoriesTool", () => {
       fakeCategory({ isArchived: true }),
       fakeCategory({ isArchived: false }),
     ];
-    mockCategoryRepository.findAllByUserId.mockResolvedValue(mockCategories);
-    mockTransactionRepository.findActiveByUserId.mockResolvedValue([]);
+    mockCategoryRepository.findManyByUserId.mockResolvedValue(mockCategories);
+    mockTransactionRepository.findManyActiveByUserId.mockResolvedValue([]);
 
     const tool = createGetCategoriesTool({
       categoryRepository: mockCategoryRepository,
@@ -133,8 +135,8 @@ describe("createGetCategoriesTool", () => {
         isArchived: true,
       }),
     ];
-    mockCategoryRepository.findAllByUserId.mockResolvedValue(mockCategories);
-    mockTransactionRepository.findActiveByUserId.mockResolvedValue([]);
+    mockCategoryRepository.findManyByUserId.mockResolvedValue(mockCategories);
+    mockTransactionRepository.findManyActiveByUserId.mockResolvedValue([]);
 
     const tool = createGetCategoriesTool({
       categoryRepository: mockCategoryRepository,
@@ -165,8 +167,8 @@ describe("createGetCategoriesTool", () => {
   });
 
   it("should return empty array when user has no categories", async () => {
-    mockCategoryRepository.findAllByUserId.mockResolvedValue([]);
-    mockTransactionRepository.findActiveByUserId.mockResolvedValue([]);
+    mockCategoryRepository.findManyByUserId.mockResolvedValue([]);
+    mockTransactionRepository.findManyActiveByUserId.mockResolvedValue([]);
 
     const tool = createGetCategoriesTool({
       categoryRepository: mockCategoryRepository,
@@ -184,8 +186,8 @@ describe("createGetCategoriesTool", () => {
   describe("recentDescriptions", () => {
     it("should return empty array when no transactions exist", async () => {
       const category = fakeCategory({ isArchived: false });
-      mockCategoryRepository.findAllByUserId.mockResolvedValue([category]);
-      mockTransactionRepository.findActiveByUserId.mockResolvedValue([]);
+      mockCategoryRepository.findManyByUserId.mockResolvedValue([category]);
+      mockTransactionRepository.findManyActiveByUserId.mockResolvedValue([]);
 
       const tool = createGetCategoriesTool({
         categoryRepository: mockCategoryRepository,
@@ -214,8 +216,8 @@ describe("createGetCategoriesTool", () => {
         }),
         fakeTransaction({ categoryId: undefined, description: "also ignored" }),
       ];
-      mockCategoryRepository.findAllByUserId.mockResolvedValue([category]);
-      mockTransactionRepository.findActiveByUserId.mockResolvedValue(
+      mockCategoryRepository.findManyByUserId.mockResolvedValue([category]);
+      mockTransactionRepository.findManyActiveByUserId.mockResolvedValue(
         transactionsWithoutCategory,
       );
 
@@ -243,8 +245,8 @@ describe("createGetCategoriesTool", () => {
         fakeTransaction({ categoryId: category.id, description: undefined }),
         fakeTransaction({ categoryId: category.id, description: undefined }),
       ];
-      mockCategoryRepository.findAllByUserId.mockResolvedValue([category]);
-      mockTransactionRepository.findActiveByUserId.mockResolvedValue(
+      mockCategoryRepository.findManyByUserId.mockResolvedValue([category]);
+      mockTransactionRepository.findManyActiveByUserId.mockResolvedValue(
         transactionsWithoutDescription,
       );
 
@@ -281,11 +283,11 @@ describe("createGetCategoriesTool", () => {
         }),
       ];
 
-      mockCategoryRepository.findAllByUserId.mockResolvedValue([
+      mockCategoryRepository.findManyByUserId.mockResolvedValue([
         activeCategory,
         archivedCategory,
       ]);
-      mockTransactionRepository.findActiveByUserId.mockResolvedValue(
+      mockTransactionRepository.findManyActiveByUserId.mockResolvedValue(
         transactions,
       );
 
@@ -309,7 +311,7 @@ describe("createGetCategoriesTool", () => {
 
     it("should cap recentDescriptions", async () => {
       const category = fakeCategory({ isArchived: false });
-      mockCategoryRepository.findAllByUserId.mockResolvedValue([category]);
+      mockCategoryRepository.findManyByUserId.mockResolvedValue([category]);
 
       const transactions = Array.from(
         { length: CATEGORY_HISTORY_MAX_DESCRIPTIONS_PER_CATEGORY + 5 },
@@ -319,7 +321,7 @@ describe("createGetCategoriesTool", () => {
             description: `description ${index}`,
           }),
       );
-      mockTransactionRepository.findActiveByUserId.mockResolvedValue(
+      mockTransactionRepository.findManyActiveByUserId.mockResolvedValue(
         transactions,
       );
 
@@ -368,11 +370,11 @@ describe("createGetCategoriesTool", () => {
         }),
       ];
 
-      mockCategoryRepository.findAllByUserId.mockResolvedValue([
+      mockCategoryRepository.findManyByUserId.mockResolvedValue([
         groceryCategory,
         eatingOutCategory,
       ]);
-      mockTransactionRepository.findActiveByUserId.mockResolvedValue(
+      mockTransactionRepository.findManyActiveByUserId.mockResolvedValue(
         transactions,
       );
 
@@ -400,7 +402,7 @@ describe("createGetCategoriesTool", () => {
 
     it("should deduplicate repeated descriptions", async () => {
       const category = fakeCategory({ isArchived: false });
-      mockCategoryRepository.findAllByUserId.mockResolvedValue([category]);
+      mockCategoryRepository.findManyByUserId.mockResolvedValue([category]);
 
       const transactions = [
         fakeTransaction({ categoryId: category.id, description: "ice cream" }),
@@ -408,7 +410,7 @@ describe("createGetCategoriesTool", () => {
         fakeTransaction({ categoryId: category.id, description: "milk" }),
         fakeTransaction({ categoryId: category.id, description: "milk" }),
       ];
-      mockTransactionRepository.findActiveByUserId.mockResolvedValue(
+      mockTransactionRepository.findManyActiveByUserId.mockResolvedValue(
         transactions,
       );
 
@@ -432,8 +434,8 @@ describe("createGetCategoriesTool", () => {
 
     it("should fetch transactions within the history lookback window", async () => {
       const category = fakeCategory({ isArchived: false });
-      mockCategoryRepository.findAllByUserId.mockResolvedValue([category]);
-      mockTransactionRepository.findActiveByUserId.mockResolvedValue([]);
+      mockCategoryRepository.findManyByUserId.mockResolvedValue([category]);
+      mockTransactionRepository.findManyActiveByUserId.mockResolvedValue([]);
 
       const tool = createGetCategoriesTool({
         categoryRepository: mockCategoryRepository,
@@ -443,11 +445,11 @@ describe("createGetCategoriesTool", () => {
       await tool.func({ scope: EntityScope.ACTIVE });
 
       expect(
-        mockTransactionRepository.findActiveByUserId,
+        mockTransactionRepository.findManyActiveByUserId,
       ).toHaveBeenCalledTimes(1);
 
       const callFilters =
-        mockTransactionRepository.findActiveByUserId.mock.calls[0][1];
+        mockTransactionRepository.findManyActiveByUserId.mock.calls[0][1];
       const dateAfterArg = callFilters?.dateAfter;
       const dateBeforeArg = callFilters?.dateBefore;
 

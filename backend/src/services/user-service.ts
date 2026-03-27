@@ -19,7 +19,7 @@ export class UserService {
       return Failure("User ID is required");
     }
 
-    const user = await this.userRepository.findById(userId);
+    const user = await this.userRepository.findOneById(userId);
 
     if (!user) {
       return Failure("User not found");

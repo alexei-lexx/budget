@@ -34,7 +34,7 @@ export const createGetAccountsTool = (
   description: "Get user accounts filtered by scope.",
   inputSchema: getAccountsInputSchema,
   func: async (input: GetAccountsInput) => {
-    const accounts = await accountRepository.findAllByUserId(userId);
+    const accounts = await accountRepository.findManyByUserId(userId);
 
     const filteredAccounts = accounts.filter((account) => {
       if (input.scope === EntityScope.ALL) return true;

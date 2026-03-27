@@ -27,7 +27,7 @@ describe("UserService", () => {
         transactionPatternsLimit: 5,
         voiceInputLanguage: "pl-PL",
       });
-      mockUserRepository.findById.mockResolvedValue(user);
+      mockUserRepository.findOneById.mockResolvedValue(user);
 
       // Act
       const result = await service.getSettings(userId);
@@ -46,7 +46,7 @@ describe("UserService", () => {
       // Arrange
       const userId = faker.string.uuid();
       const user = fakeUser({ id: userId });
-      mockUserRepository.findById.mockResolvedValue(user);
+      mockUserRepository.findOneById.mockResolvedValue(user);
 
       // Act
       const result = await service.getSettings(userId);
@@ -63,7 +63,7 @@ describe("UserService", () => {
 
     it("should fail when user is not found", async () => {
       // Arrange
-      mockUserRepository.findById.mockResolvedValue(null);
+      mockUserRepository.findOneById.mockResolvedValue(null);
 
       // Act
       const result = await service.getSettings(faker.string.uuid());

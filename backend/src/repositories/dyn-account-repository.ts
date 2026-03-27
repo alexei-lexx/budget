@@ -35,7 +35,41 @@ export class DynAccountRepository implements AccountRepository {
     }
   }
 
-  async findActiveByUserId(userId: string): Promise<Account[]> {
+  async findOneActiveById(id: string, userId: string): Promise<Account | null> {
+    if (!id || !userId) {
+      throw new RepositoryError(
+        "Account ID and User ID are required",
+        "INVALID_PARAMETERS",
+      );
+    }
+
+    try {
+      const command = new GetCommand({
+        TableName: this.tableName,
+        Key: { userId, id },
+      });
+
+      const result = await this.client.send(command);
+
+      if (!result.Item) {
+        return null;
+      }
+
+      const account = hydrate(accountSchema, result.Item);
+
+      // Return null if account is archived (soft deleted)
+      if (account.isArchived) {
+        return null;
+      }
+
+      return account;
+    } catch (error) {
+      console.error("Error finding account by ID:", error);
+      throw new RepositoryError("Failed to find account", "GET_FAILED", error);
+    }
+  }
+
+  async findManyActiveByUserId(userId: string): Promise<Account[]> {
     if (!userId) {
       throw new RepositoryError("User ID is required", "INVALID_USER_ID");
     }
@@ -72,71 +106,10 @@ export class DynAccountRepository implements AccountRepository {
     }
   }
 
-  async findAllByUserId(userId: string): Promise<Account[]> {
-    if (!userId) {
-      throw new RepositoryError("User ID is required", "INVALID_USER_ID");
-    }
-
-    try {
-      const result = await paginateQuery<Account>({
-        client: this.client,
-        params: {
-          TableName: this.tableName,
-          KeyConditionExpression: "userId = :userId",
-          ExpressionAttributeValues: {
-            ":userId": userId,
-          },
-        },
-        pageSize: undefined, // No pageSize = get all items
-        schema: accountSchema,
-      });
-
-      return result.items;
-    } catch (error) {
-      console.error("Error finding all accounts by user ID:", error);
-      throw new RepositoryError(
-        "Failed to find all accounts",
-        "QUERY_FAILED",
-        error,
-      );
-    }
-  }
-
-  async findActiveById(id: string, userId: string): Promise<Account | null> {
-    if (!id || !userId) {
-      throw new RepositoryError(
-        "Account ID and User ID are required",
-        "INVALID_PARAMETERS",
-      );
-    }
-
-    try {
-      const command = new GetCommand({
-        TableName: this.tableName,
-        Key: { userId, id },
-      });
-
-      const result = await this.client.send(command);
-
-      if (!result.Item) {
-        return null;
-      }
-
-      const account = hydrate(accountSchema, result.Item);
-
-      // Return null if account is archived (soft deleted)
-      if (account.isArchived) {
-        return null;
-      }
-
-      return account;
-    } catch (error) {
-      console.error("Error finding account by ID:", error);
-      throw new RepositoryError("Failed to find account", "GET_FAILED", error);
-    }
-  }
-
-  async findByIds(ids: readonly string[], userId: string): Promise<Account[]> {
+  async findManyByIds(
+    ids: readonly string[],
+    userId: string,
+  ): Promise<Account[]> {
     if (ids.length === 0) {
       return [];
     }
@@ -163,6 +136,36 @@ export class DynAccountRepository implements AccountRepository {
       throw new RepositoryError(
         "Failed to batch find accounts",
         "BATCH_GET_FAILED",
+        error,
+      );
+    }
+  }
+
+  async findManyByUserId(userId: string): Promise<Account[]> {
+    if (!userId) {
+      throw new RepositoryError("User ID is required", "INVALID_USER_ID");
+    }
+
+    try {
+      const result = await paginateQuery<Account>({
+        client: this.client,
+        params: {
+          TableName: this.tableName,
+          KeyConditionExpression: "userId = :userId",
+          ExpressionAttributeValues: {
+            ":userId": userId,
+          },
+        },
+        pageSize: undefined, // No pageSize = get all items
+        schema: accountSchema,
+      });
+
+      return result.items;
+    } catch (error) {
+      console.error("Error finding all accounts by user ID:", error);
+      throw new RepositoryError(
+        "Failed to find all accounts",
+        "QUERY_FAILED",
         error,
       );
     }

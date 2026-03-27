@@ -26,12 +26,12 @@ export class CategoryService {
     type?: CategoryType,
   ): Promise<Category[]> {
     if (type) {
-      return await this.categoryRepository.findActiveByUserIdAndType(
+      return await this.categoryRepository.findManyActiveByUserIdAndType(
         userId,
         type,
       );
     }
-    return await this.categoryRepository.findActiveByUserId(userId);
+    return await this.categoryRepository.findManyActiveByUserId(userId);
   }
 
   /**
@@ -107,7 +107,7 @@ export class CategoryService {
     excludeId?: string,
   ): Promise<void> {
     const existingCategories =
-      await this.categoryRepository.findActiveByUserId(userId);
+      await this.categoryRepository.findManyActiveByUserId(userId);
 
     const duplicateCategory = existingCategories.find(
       (category) =>

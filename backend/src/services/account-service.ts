@@ -29,7 +29,7 @@ export class AccountService {
    * @returns Promise<Account[]> - List of active accounts
    */
   async getAccountsByUser(userId: string): Promise<Account[]> {
-    return await this.accountRepository.findActiveByUserId(userId);
+    return await this.accountRepository.findManyActiveByUserId(userId);
   }
 
   /**
@@ -65,7 +65,7 @@ export class AccountService {
     input: UpdateAccountInput,
   ): Promise<Account> {
     // Fetch current account
-    const currentAccount = await this.accountRepository.findActiveById(
+    const currentAccount = await this.accountRepository.findOneActiveById(
       id,
       userId,
     );
@@ -125,7 +125,7 @@ export class AccountService {
    */
   async calculateBalance(accountId: string, userId: string): Promise<number> {
     // First validate that the account exists and belongs to the user
-    const account = await this.accountRepository.findActiveById(
+    const account = await this.accountRepository.findOneActiveById(
       accountId,
       userId,
     );
@@ -135,10 +135,11 @@ export class AccountService {
     }
 
     // Get all transactions for this account
-    const transactions = await this.transactionRepository.findActiveByAccountId(
-      accountId,
-      userId,
-    );
+    const transactions =
+      await this.transactionRepository.findManyActiveByAccountId(
+        accountId,
+        userId,
+      );
 
     // Calculate balance: initialBalance + INCOME + REFUND + TRANSFER_IN - EXPENSE - TRANSFER_OUT
     const balance = transactions.reduce(
@@ -182,7 +183,7 @@ export class AccountService {
     excludeId?: string,
   ): Promise<void> {
     const existingAccounts =
-      await this.accountRepository.findActiveByUserId(userId);
+      await this.accountRepository.findManyActiveByUserId(userId);
     const duplicateAccount = existingAccounts.find(
       (account) =>
         account.name.toLowerCase() === name.toLowerCase() &&

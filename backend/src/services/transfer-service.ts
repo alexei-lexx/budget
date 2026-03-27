@@ -156,7 +156,7 @@ export class TransferService {
   async deleteTransfer(transferId: string, userId: string): Promise<void> {
     // Find the paired transactions for this transfer
     const transferTransactions =
-      await this.transactionRepository.findActiveByTransferId(
+      await this.transactionRepository.findManyActiveByTransferId(
         transferId,
         userId,
       );
@@ -300,7 +300,7 @@ export class TransferService {
     userId: string,
   ): Promise<TransferResult | undefined> {
     const transferTransactions =
-      await this.transactionRepository.findActiveByTransferId(
+      await this.transactionRepository.findManyActiveByTransferId(
         transferId,
         userId,
       );
@@ -361,7 +361,7 @@ export class TransferService {
     accountId: string,
     userId: string,
   ): Promise<Account> {
-    const account = await this.accountRepository.findActiveById(
+    const account = await this.accountRepository.findOneActiveById(
       accountId,
       userId,
     );

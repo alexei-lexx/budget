@@ -44,7 +44,44 @@ export class DynCategoryRepository implements CategoryRepository {
     }
   }
 
-  async findActiveByUserId(userId: string): Promise<Category[]> {
+  async findOneActiveById(
+    id: string,
+    userId: string,
+  ): Promise<Category | null> {
+    if (!id || !userId) {
+      throw new RepositoryError(
+        "Category ID and User ID are required",
+        "INVALID_PARAMETERS",
+      );
+    }
+
+    try {
+      const command = new GetCommand({
+        TableName: this.tableName,
+        Key: { userId, id },
+      });
+
+      const result = await this.client.send(command);
+
+      if (!result.Item) {
+        return null;
+      }
+
+      const category = hydrate(categorySchema, result.Item);
+
+      // Return null if category is archived (soft deleted)
+      if (category.isArchived) {
+        return null;
+      }
+
+      return category;
+    } catch (error) {
+      console.error("Error finding category by ID:", error);
+      throw new RepositoryError("Failed to find category", "GET_FAILED", error);
+    }
+  }
+
+  async findManyActiveByUserId(userId: string): Promise<Category[]> {
     if (!userId) {
       throw new RepositoryError("User ID is required", "INVALID_USER_ID");
     }
@@ -78,7 +115,7 @@ export class DynCategoryRepository implements CategoryRepository {
     }
   }
 
-  async findAllByUserId(userId: string): Promise<Category[]> {
+  async findManyByUserId(userId: string): Promise<Category[]> {
     if (!userId) {
       throw new RepositoryError("User ID is required", "INVALID_USER_ID");
     }
@@ -108,7 +145,7 @@ export class DynCategoryRepository implements CategoryRepository {
     }
   }
 
-  async findActiveByUserIdAndType(
+  async findManyActiveByUserIdAndType(
     userId: string,
     type: CategoryType,
   ): Promise<Category[]> {
@@ -152,41 +189,10 @@ export class DynCategoryRepository implements CategoryRepository {
     }
   }
 
-  async findActiveById(id: string, userId: string): Promise<Category | null> {
-    if (!id || !userId) {
-      throw new RepositoryError(
-        "Category ID and User ID are required",
-        "INVALID_PARAMETERS",
-      );
-    }
-
-    try {
-      const command = new GetCommand({
-        TableName: this.tableName,
-        Key: { userId, id },
-      });
-
-      const result = await this.client.send(command);
-
-      if (!result.Item) {
-        return null;
-      }
-
-      const category = hydrate(categorySchema, result.Item);
-
-      // Return null if category is archived (soft deleted)
-      if (category.isArchived) {
-        return null;
-      }
-
-      return category;
-    } catch (error) {
-      console.error("Error finding category by ID:", error);
-      throw new RepositoryError("Failed to find category", "GET_FAILED", error);
-    }
-  }
-
-  async findByIds(ids: readonly string[], userId: string): Promise<Category[]> {
+  async findManyByIds(
+    ids: readonly string[],
+    userId: string,
+  ): Promise<Category[]> {
     if (ids.length === 0) {
       return [];
     }
@@ -266,7 +272,7 @@ export class DynCategoryRepository implements CategoryRepository {
     }
 
     // Get current category to check for duplicate names
-    const currentCategory = await this.findActiveById(id, userId);
+    const currentCategory = await this.findOneActiveById(id, userId);
     if (!currentCategory) {
       throw new RepositoryError("Category not found", "NOT_FOUND");
     }

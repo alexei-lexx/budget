@@ -14,14 +14,14 @@ export interface UpdateCategoryInput {
 }
 
 export interface CategoryRepository {
-  findActiveByUserId(userId: string): Promise<Category[]>;
-  findAllByUserId(userId: string): Promise<Category[]>;
-  findActiveByUserIdAndType(
+  findOneActiveById(id: string, userId: string): Promise<Category | null>;
+  findManyActiveByUserId(userId: string): Promise<Category[]>;
+  findManyByUserId(userId: string): Promise<Category[]>;
+  findManyActiveByUserIdAndType(
     userId: string,
     type: CategoryType,
   ): Promise<Category[]>;
-  findActiveById(id: string, userId: string): Promise<Category | null>;
-  findByIds(ids: readonly string[], userId: string): Promise<Category[]>;
+  findManyByIds(ids: readonly string[], userId: string): Promise<Category[]>;
   create(input: CreateCategoryInput): Promise<Category>;
   update(
     id: string,
