@@ -165,7 +165,7 @@ describe("DynCategoryRepository", () => {
       expect(result[0]?.id).toBe(active.id);
     });
 
-    it("should return only categories of specified type", async () => {
+    it("should return only categories of specified type when type filter is given", async () => {
       // Arrange
       await repository.create(
         fakeCreateCategoryInput({
