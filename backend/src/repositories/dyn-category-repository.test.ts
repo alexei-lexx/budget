@@ -164,6 +164,53 @@ describe("DynCategoryRepository", () => {
       expect(result).toHaveLength(1);
       expect(result[0]?.id).toBe(active.id);
     });
+
+    it("should return only categories of specified type when type filter is given", async () => {
+      // Arrange
+      await repository.create(
+        fakeCreateCategoryInput({
+          userId,
+          name: "Groceries",
+          type: CategoryType.EXPENSE,
+        }),
+      );
+      await repository.create(
+        fakeCreateCategoryInput({
+          userId,
+          name: "Salary",
+          type: CategoryType.INCOME,
+        }),
+      );
+      await repository.create(
+        fakeCreateCategoryInput({
+          userId,
+          name: "Utilities",
+          type: CategoryType.EXPENSE,
+        }),
+      );
+      await repository.create(
+        fakeCreateCategoryInput({
+          userId,
+          name: "Bonus",
+          type: CategoryType.INCOME,
+        }),
+      );
+
+      // Act
+      const result = await repository.findManyActiveByUserId(userId, {
+        type: CategoryType.EXPENSE,
+      });
+
+      // Assert
+      expect(result).toHaveLength(2);
+      expect(result.map((category) => category.name)).toEqual([
+        "Groceries",
+        "Utilities",
+      ]);
+      expect(
+        result.every((category) => category.type === CategoryType.EXPENSE),
+      ).toBe(true);
+    });
   });
 
   describe("findManyByUserId", () => {
@@ -225,128 +272,6 @@ describe("DynCategoryRepository", () => {
       await expect(repository.findManyByUserId("")).rejects.toThrow(
         "User ID is required",
       );
-    });
-  });
-
-  describe("findManyActiveByUserIdAndType", () => {
-    it("should return only categories of specified type, sorted alphabetically", async () => {
-      // Arrange
-      await repository.create(
-        fakeCreateCategoryInput({
-          userId,
-          name: "Groceries",
-          type: CategoryType.EXPENSE,
-        }),
-      );
-      await repository.create(
-        fakeCreateCategoryInput({
-          userId,
-          name: "Salary",
-          type: CategoryType.INCOME,
-        }),
-      );
-      await repository.create(
-        fakeCreateCategoryInput({
-          userId,
-          name: "Utilities",
-          type: CategoryType.EXPENSE,
-        }),
-      );
-      await repository.create(
-        fakeCreateCategoryInput({
-          userId,
-          name: "Bonus",
-          type: CategoryType.INCOME,
-        }),
-      );
-
-      // Act
-      const result = await repository.findManyActiveByUserIdAndType(
-        userId,
-        CategoryType.EXPENSE,
-      );
-
-      // Assert
-      expect(result).toHaveLength(2);
-      expect(result.map((category) => category.name)).toEqual([
-        "Groceries",
-        "Utilities",
-      ]);
-      expect(
-        result.every((category) => category.type === CategoryType.EXPENSE),
-      ).toBe(true);
-    });
-
-    it("should handle case-insensitive sorting", async () => {
-      // Arrange - Create categories with mixed case
-      await repository.create(
-        fakeCreateCategoryInput({
-          userId,
-          name: "travel",
-          type: CategoryType.EXPENSE,
-        }),
-      );
-      await repository.create(
-        fakeCreateCategoryInput({
-          userId,
-          name: "apple",
-          type: CategoryType.EXPENSE,
-        }),
-      );
-      await repository.create(
-        fakeCreateCategoryInput({
-          userId,
-          name: "Trip",
-          type: CategoryType.EXPENSE,
-        }),
-      );
-      await repository.create(
-        fakeCreateCategoryInput({
-          userId,
-          name: "ZEBRA",
-          type: CategoryType.EXPENSE,
-        }),
-      );
-
-      // Act
-      const result = await repository.findManyActiveByUserId(userId);
-
-      // Assert - Case-insensitive grouping
-      expect(result.map((category) => category.name)).toEqual([
-        "apple",
-        "travel",
-        "Trip",
-        "ZEBRA",
-      ]);
-    });
-
-    it("should not return archived categories", async () => {
-      // Arrange
-      const active = await repository.create(
-        fakeCreateCategoryInput({
-          userId,
-          name: "Active Income",
-          type: CategoryType.INCOME,
-        }),
-      );
-      const archived = await repository.create(
-        fakeCreateCategoryInput({
-          userId,
-          name: "Archived Income",
-          type: CategoryType.INCOME,
-        }),
-      );
-      await repository.archive(archived.id, userId);
-
-      // Act
-      const result = await repository.findManyActiveByUserIdAndType(
-        userId,
-        CategoryType.INCOME,
-      );
-
-      // Assert
-      expect(result).toHaveLength(1);
-      expect(result[0]?.id).toBe(active.id);
     });
   });
 

@@ -45,7 +45,6 @@ export const createMockCategoryRepository =
   (): jest.Mocked<CategoryRepository> => ({
     findManyActiveByUserId: jest.fn(),
     findManyByUserId: jest.fn(),
-    findManyActiveByUserIdAndType: jest.fn(),
     findOneActiveById: jest.fn(),
     findManyByIds: jest.fn(),
     create: jest.fn(),

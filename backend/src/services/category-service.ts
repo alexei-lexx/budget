@@ -25,13 +25,9 @@ export class CategoryService {
     userId: string,
     type?: CategoryType,
   ): Promise<Category[]> {
-    if (type) {
-      return await this.categoryRepository.findManyActiveByUserIdAndType(
-        userId,
-        type,
-      );
-    }
-    return await this.categoryRepository.findManyActiveByUserId(userId);
+    return await this.categoryRepository.findManyActiveByUserId(userId, {
+      type,
+    });
   }
 
   /**

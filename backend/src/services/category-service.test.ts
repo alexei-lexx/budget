@@ -27,7 +27,7 @@ describe("CategoryService", () => {
   });
 
   describe("getCategoriesByUser", () => {
-    it("should call findManyActiveByUserId when no type provided", async () => {
+    it("should call findManyActiveByUserId without type filter when no type provided", async () => {
       // Arrange
       const mockCategories = [fakeCategory(), fakeCategory()];
       mockCategoryRepository.findManyActiveByUserId.mockResolvedValue(
@@ -40,21 +40,18 @@ describe("CategoryService", () => {
       // Assert
       expect(
         mockCategoryRepository.findManyActiveByUserId,
-      ).toHaveBeenCalledWith(userId);
+      ).toHaveBeenCalledWith(userId, { type: undefined });
       expect(
         mockCategoryRepository.findManyActiveByUserId,
       ).toHaveBeenCalledTimes(1);
-      expect(
-        mockCategoryRepository.findManyActiveByUserIdAndType,
-      ).not.toHaveBeenCalled();
       expect(result).toEqual(mockCategories);
     });
 
-    it("should call findManyActiveByUserIdAndType when type provided", async () => {
+    it("should call findManyActiveByUserId with type filter when type provided", async () => {
       // Arrange
       const type = CategoryType.INCOME;
       const mockCategories = [fakeCategory(), fakeCategory()];
-      mockCategoryRepository.findManyActiveByUserIdAndType.mockResolvedValue(
+      mockCategoryRepository.findManyActiveByUserId.mockResolvedValue(
         mockCategories,
       );
 
@@ -63,14 +60,11 @@ describe("CategoryService", () => {
 
       // Assert
       expect(
-        mockCategoryRepository.findManyActiveByUserIdAndType,
-      ).toHaveBeenCalledWith(userId, type);
-      expect(
-        mockCategoryRepository.findManyActiveByUserIdAndType,
-      ).toHaveBeenCalledTimes(1);
+        mockCategoryRepository.findManyActiveByUserId,
+      ).toHaveBeenCalledWith(userId, { type });
       expect(
         mockCategoryRepository.findManyActiveByUserId,
-      ).not.toHaveBeenCalled();
+      ).toHaveBeenCalledTimes(1);
       expect(result).toEqual(mockCategories);
     });
   });
