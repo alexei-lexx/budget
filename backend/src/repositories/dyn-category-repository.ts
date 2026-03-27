@@ -81,30 +81,44 @@ export class DynCategoryRepository implements CategoryRepository {
     }
   }
 
-  async findManyActiveByUserId(userId: string): Promise<Category[]> {
+  async findManyActiveByUserId(
+    userId: string,
+    filters?: { type?: CategoryType },
+  ): Promise<Category[]> {
     if (!userId) {
       throw new RepositoryError("User ID is required", "INVALID_USER_ID");
     }
 
     try {
+      const filterParts = ["isArchived = :isArchived"];
+      const expressionAttributeValues: Record<string, string | boolean> = {
+        ":userId": userId,
+        ":isArchived": false,
+      };
+      const expressionAttributeNames: Record<string, string> = {};
+
+      if (filters?.type) {
+        filterParts.push("#type = :type");
+        expressionAttributeValues[":type"] = filters.type;
+        expressionAttributeNames["#type"] = "type";
+      }
+
       const result = await paginateQuery<Category>({
         client: this.client,
         params: {
           TableName: this.tableName,
           KeyConditionExpression: "userId = :userId",
-          FilterExpression: "isArchived = :isArchived",
-          ExpressionAttributeValues: {
-            ":userId": userId,
-            ":isArchived": false,
-          },
+          FilterExpression: filterParts.join(" AND "),
+          ExpressionAttributeValues: expressionAttributeValues,
+          ...(Object.keys(expressionAttributeNames).length > 0 && {
+            ExpressionAttributeNames: expressionAttributeNames,
+          }),
         },
         pageSize: undefined, // No pageSize = get all items
         schema: categorySchema,
       });
 
-      const categories = result.items;
-
-      return sortCategories(categories);
+      return sortCategories(result.items);
     } catch (error) {
       console.error("Error finding active categories by user ID:", error);
       throw new RepositoryError(
@@ -139,50 +153,6 @@ export class DynCategoryRepository implements CategoryRepository {
       console.error("Error finding all categories by user ID:", error);
       throw new RepositoryError(
         "Failed to find all categories",
-        "QUERY_FAILED",
-        error,
-      );
-    }
-  }
-
-  async findManyActiveByUserIdAndType(
-    userId: string,
-    type: CategoryType,
-  ): Promise<Category[]> {
-    if (!userId) {
-      throw new RepositoryError("User ID is required", "INVALID_USER_ID");
-    }
-
-    try {
-      const result = await paginateQuery<Category>({
-        client: this.client,
-        params: {
-          TableName: this.tableName,
-          KeyConditionExpression: "userId = :userId",
-          FilterExpression: "isArchived = :isArchived AND #type = :type",
-          ExpressionAttributeNames: {
-            "#type": "type",
-          },
-          ExpressionAttributeValues: {
-            ":userId": userId,
-            ":isArchived": false,
-            ":type": type,
-          },
-        },
-        pageSize: undefined, // No pageSize = get all items
-        schema: categorySchema,
-      });
-
-      const categories = result.items;
-
-      return sortCategories(categories);
-    } catch (error) {
-      console.error(
-        "Error finding active categories by user ID and type:",
-        error,
-      );
-      throw new RepositoryError(
-        "Failed to find active categories by type",
         "QUERY_FAILED",
         error,
       );

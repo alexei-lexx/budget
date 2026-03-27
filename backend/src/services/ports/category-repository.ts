@@ -15,12 +15,11 @@ export interface UpdateCategoryInput {
 
 export interface CategoryRepository {
   findOneActiveById(id: string, userId: string): Promise<Category | null>;
-  findManyActiveByUserId(userId: string): Promise<Category[]>;
-  findManyByUserId(userId: string): Promise<Category[]>;
-  findManyActiveByUserIdAndType(
+  findManyActiveByUserId(
     userId: string,
-    type: CategoryType,
+    filters?: { type?: CategoryType },
   ): Promise<Category[]>;
+  findManyByUserId(userId: string): Promise<Category[]>;
   findManyByIds(ids: readonly string[], userId: string): Promise<Category[]>;
   create(input: CreateCategoryInput): Promise<Category>;
   update(
