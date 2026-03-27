@@ -22,8 +22,8 @@ describe("ByCategoryReportService", () => {
     mockTransactionRepository = createMockTransactionRepository();
     mockCategoryRepository = createMockCategoryRepository();
 
-    // Default mock: return empty array for findManyActiveByUserId (all categories included by default)
-    mockCategoryRepository.findManyActiveByUserId.mockResolvedValue([]);
+    // Default mock: return empty array for findManyByUserId (all categories included by default)
+    mockCategoryRepository.findManyByUserId.mockResolvedValue([]);
 
     reportService = new ByCategoryReportService(
       mockTransactionRepository,
@@ -33,7 +33,7 @@ describe("ByCategoryReportService", () => {
 
   describe("call", () => {
     it("should return empty report when no transactions exist", async () => {
-      mockTransactionRepository.findManyActiveByUserId.mockResolvedValue([]);
+      mockTransactionRepository.findManyByUserId.mockResolvedValue([]);
 
       const result = await reportService.call(
         userId,
@@ -74,10 +74,10 @@ describe("ByCategoryReportService", () => {
         fakeTransaction({ categoryId: undefined, currency: "USD", amount: 75 }),
       ];
 
-      mockTransactionRepository.findManyActiveByUserId.mockResolvedValue(
+      mockTransactionRepository.findManyByUserId.mockResolvedValue(
         transactions,
       );
-      mockCategoryRepository.findOneActiveById
+      mockCategoryRepository.findOneById
         .mockResolvedValueOnce(fakeCategory({ id: categoryId1, name: "Food" }))
         .mockResolvedValueOnce(
           fakeCategory({ id: categoryId2, name: "Transport" }),
@@ -118,10 +118,10 @@ describe("ByCategoryReportService", () => {
         fakeTransaction({ categoryId, amount: 400 }),
       ];
 
-      mockTransactionRepository.findManyActiveByUserId.mockResolvedValue(
+      mockTransactionRepository.findManyByUserId.mockResolvedValue(
         transactions,
       );
-      mockCategoryRepository.findOneActiveById.mockResolvedValue(
+      mockCategoryRepository.findOneById.mockResolvedValue(
         fakeCategory({ id: categoryId, name: "Shopping" }),
       );
 
@@ -151,7 +151,7 @@ describe("ByCategoryReportService", () => {
         fakeTransaction({ currency: "EUR", amount: 150 }),
       ];
 
-      mockTransactionRepository.findManyActiveByUserId.mockResolvedValue(
+      mockTransactionRepository.findManyByUserId.mockResolvedValue(
         transactions,
       );
 
@@ -179,10 +179,10 @@ describe("ByCategoryReportService", () => {
         }),
       ];
 
-      mockTransactionRepository.findManyActiveByUserId.mockResolvedValue(
+      mockTransactionRepository.findManyByUserId.mockResolvedValue(
         transactions,
       );
-      mockCategoryRepository.findOneActiveById.mockResolvedValue(
+      mockCategoryRepository.findOneById.mockResolvedValue(
         fakeCategory({ id: categoryId, name: "Food" }),
       );
 
@@ -214,7 +214,7 @@ describe("ByCategoryReportService", () => {
         fakeTransaction({ categoryId: undefined, currency: "EUR", amount: 50 }),
       ];
 
-      mockTransactionRepository.findManyActiveByUserId.mockResolvedValue(
+      mockTransactionRepository.findManyByUserId.mockResolvedValue(
         transactions,
       );
 
@@ -241,10 +241,10 @@ describe("ByCategoryReportService", () => {
         }),
       ];
 
-      mockTransactionRepository.findManyActiveByUserId.mockResolvedValue(
+      mockTransactionRepository.findManyByUserId.mockResolvedValue(
         transactions,
       );
-      mockCategoryRepository.findOneActiveById.mockResolvedValue(null);
+      mockCategoryRepository.findOneById.mockResolvedValue(null);
 
       const result = await reportService.call(
         userId,
@@ -275,10 +275,10 @@ describe("ByCategoryReportService", () => {
         fakeTransaction({ categoryId: undefined, currency: "USD", amount: 50 }),
       ];
 
-      mockTransactionRepository.findManyActiveByUserId.mockResolvedValue(
+      mockTransactionRepository.findManyByUserId.mockResolvedValue(
         transactions,
       );
-      mockCategoryRepository.findOneActiveById
+      mockCategoryRepository.findOneById
         .mockResolvedValueOnce(fakeCategory({ id: categoryId1, name: "Zebra" }))
         .mockResolvedValueOnce(
           fakeCategory({ id: categoryId2, name: "Apple" }),
@@ -309,7 +309,7 @@ describe("ByCategoryReportService", () => {
         fakeTransaction({ categoryId: undefined, currency: "GBP", amount: 75 }),
       ];
 
-      mockTransactionRepository.findManyActiveByUserId.mockResolvedValue(
+      mockTransactionRepository.findManyByUserId.mockResolvedValue(
         transactions,
       );
 
@@ -344,7 +344,7 @@ describe("ByCategoryReportService", () => {
         }),
       ];
 
-      mockTransactionRepository.findManyActiveByUserId.mockResolvedValue(
+      mockTransactionRepository.findManyByUserId.mockResolvedValue(
         transactions,
       );
 
@@ -376,12 +376,12 @@ describe("ByCategoryReportService", () => {
         currency: "EUR",
       });
 
-      mockTransactionRepository.findManyActiveByUserId.mockResolvedValue([
+      mockTransactionRepository.findManyByUserId.mockResolvedValue([
         expenseTransaction,
         refundTransaction,
       ]);
 
-      mockCategoryRepository.findOneActiveById.mockResolvedValue(
+      mockCategoryRepository.findOneById.mockResolvedValue(
         fakeCategory({ id: categoryId }),
       );
 
@@ -406,11 +406,11 @@ describe("ByCategoryReportService", () => {
         currency: "EUR",
       });
 
-      mockTransactionRepository.findManyActiveByUserId.mockResolvedValue([
+      mockTransactionRepository.findManyByUserId.mockResolvedValue([
         refundTransaction,
       ]);
 
-      mockCategoryRepository.findOneActiveById.mockResolvedValue(
+      mockCategoryRepository.findOneById.mockResolvedValue(
         fakeCategory({ id: categoryId }),
       );
 
@@ -435,11 +435,11 @@ describe("ByCategoryReportService", () => {
         currency: "EUR",
       });
 
-      mockTransactionRepository.findManyActiveByUserId.mockResolvedValue([
+      mockTransactionRepository.findManyByUserId.mockResolvedValue([
         incomeTransaction,
       ]);
 
-      mockCategoryRepository.findOneActiveById.mockResolvedValue(
+      mockCategoryRepository.findOneById.mockResolvedValue(
         fakeCategory({ id: categoryId }),
       );
 
@@ -450,13 +450,14 @@ describe("ByCategoryReportService", () => {
         ReportType.INCOME,
       );
 
-      expect(
-        mockTransactionRepository.findManyActiveByUserId,
-      ).toHaveBeenCalledWith(userId, {
-        dateAfter: "2025-11-01",
-        dateBefore: "2025-11-30",
-        types: [TransactionType.INCOME], // Only INCOME, no REFUND
-      });
+      expect(mockTransactionRepository.findManyByUserId).toHaveBeenCalledWith(
+        userId,
+        {
+          dateAfter: "2025-11-01",
+          dateBefore: "2025-11-30",
+          types: [TransactionType.INCOME], // Only INCOME, no REFUND
+        },
+      );
       expect(result.categories[0].currencyBreakdowns[0].totalAmount).toBe(500);
     });
 
@@ -489,11 +490,11 @@ describe("ByCategoryReportService", () => {
         }),
       ];
 
-      mockTransactionRepository.findManyActiveByUserId.mockResolvedValue(
+      mockTransactionRepository.findManyByUserId.mockResolvedValue(
         transactions,
       );
 
-      mockCategoryRepository.findOneActiveById.mockResolvedValue(
+      mockCategoryRepository.findOneById.mockResolvedValue(
         fakeCategory({ id: categoryId }),
       );
 
@@ -532,7 +533,7 @@ describe("ByCategoryReportService", () => {
         }),
       ];
 
-      mockTransactionRepository.findManyActiveByUserId.mockResolvedValue(
+      mockTransactionRepository.findManyByUserId.mockResolvedValue(
         transactions,
       );
 
@@ -580,14 +581,14 @@ describe("ByCategoryReportService", () => {
         }),
       ];
 
-      mockTransactionRepository.findManyActiveByUserId.mockResolvedValue(
+      mockTransactionRepository.findManyByUserId.mockResolvedValue(
         transactions,
       );
-      mockCategoryRepository.findManyActiveByUserId.mockResolvedValue([
+      mockCategoryRepository.findManyByUserId.mockResolvedValue([
         includedCategory,
         excludedCategory,
       ]);
-      mockCategoryRepository.findOneActiveById.mockResolvedValueOnce(
+      mockCategoryRepository.findOneById.mockResolvedValueOnce(
         includedCategory,
       );
 
@@ -608,21 +609,22 @@ describe("ByCategoryReportService", () => {
 
   describe("yearly report (month=undefined)", () => {
     it("should use full-year date range when month is undefined", async () => {
-      mockTransactionRepository.findManyActiveByUserId.mockResolvedValue([]);
+      mockTransactionRepository.findManyByUserId.mockResolvedValue([]);
 
       await reportService.call(userId, 2000, undefined, ReportType.EXPENSE);
 
-      expect(
-        mockTransactionRepository.findManyActiveByUserId,
-      ).toHaveBeenCalledWith(userId, {
-        dateAfter: "2000-01-01",
-        dateBefore: "2000-12-31",
-        types: [TransactionType.EXPENSE, TransactionType.REFUND],
-      });
+      expect(mockTransactionRepository.findManyByUserId).toHaveBeenCalledWith(
+        userId,
+        {
+          dateAfter: "2000-01-01",
+          dateBefore: "2000-12-31",
+          types: [TransactionType.EXPENSE, TransactionType.REFUND],
+        },
+      );
     });
 
     it("should return month as undefined in yearly report result", async () => {
-      mockTransactionRepository.findManyActiveByUserId.mockResolvedValue([]);
+      mockTransactionRepository.findManyByUserId.mockResolvedValue([]);
 
       const result = await reportService.call(
         userId,
@@ -649,12 +651,10 @@ describe("ByCategoryReportService", () => {
         }),
       ];
 
-      mockTransactionRepository.findManyActiveByUserId.mockResolvedValue(
+      mockTransactionRepository.findManyByUserId.mockResolvedValue(
         transactions,
       );
-      mockCategoryRepository.findOneActiveById.mockResolvedValue(
-        fakeCategory(),
-      );
+      mockCategoryRepository.findOneById.mockResolvedValue(fakeCategory());
 
       const result = await reportService.call(
         userId,
@@ -683,7 +683,7 @@ describe("ByCategoryReportService", () => {
         const currentYear = new Date().getFullYear();
         const validYear = currentYear - 50;
 
-        mockTransactionRepository.findManyActiveByUserId.mockResolvedValue([]);
+        mockTransactionRepository.findManyByUserId.mockResolvedValue([]);
 
         await expect(
           reportService.call(userId, validYear, 1, ReportType.EXPENSE),
@@ -713,7 +713,7 @@ describe("ByCategoryReportService", () => {
       it("should accept valid months (1-12)", async () => {
         const currentYear = new Date().getFullYear();
 
-        mockTransactionRepository.findManyActiveByUserId.mockResolvedValue([]);
+        mockTransactionRepository.findManyByUserId.mockResolvedValue([]);
 
         for (let month = 1; month <= 12; month++) {
           await expect(

@@ -8,12 +8,12 @@ import { UserRepository } from "../../services/ports/user-repository";
  */
 export const createMockTransactionRepository =
   (): jest.Mocked<TransactionRepository> => ({
-    findManyActiveByUserIdPaginated: jest.fn(),
-    findManyActiveByUserId: jest.fn(),
-    findOneActiveById: jest.fn(),
-    findManyActiveByAccountId: jest.fn(),
-    findManyActiveByTransferId: jest.fn(),
-    findManyActiveByDescription: jest.fn(),
+    findManyByUserIdPaginated: jest.fn(),
+    findManyByUserId: jest.fn(),
+    findOneById: jest.fn(),
+    findManyByAccountId: jest.fn(),
+    findManyByTransferId: jest.fn(),
+    findManyByDescription: jest.fn(),
     create: jest.fn(),
     createMany: jest.fn(),
     update: jest.fn(),
@@ -29,10 +29,10 @@ export const createMockTransactionRepository =
  */
 export const createMockAccountRepository =
   (): jest.Mocked<AccountRepository> => ({
-    findManyActiveByUserId: jest.fn(),
     findManyByUserId: jest.fn(),
-    findOneActiveById: jest.fn(),
-    findManyByIds: jest.fn(),
+    findManyWithArchivedByUserId: jest.fn(),
+    findOneById: jest.fn(),
+    findManyWithArchivedByIds: jest.fn(),
     create: jest.fn(),
     update: jest.fn(),
     archive: jest.fn(),
@@ -43,10 +43,10 @@ export const createMockAccountRepository =
  */
 export const createMockCategoryRepository =
   (): jest.Mocked<CategoryRepository> => ({
-    findManyActiveByUserId: jest.fn(),
     findManyByUserId: jest.fn(),
-    findOneActiveById: jest.fn(),
-    findManyByIds: jest.fn(),
+    findManyWithArchivedByUserId: jest.fn(),
+    findOneById: jest.fn(),
+    findManyWithArchivedByIds: jest.fn(),
     create: jest.fn(),
     update: jest.fn(),
     archive: jest.fn(),

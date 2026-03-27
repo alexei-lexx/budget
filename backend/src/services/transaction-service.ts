@@ -83,7 +83,7 @@ export class TransactionService {
    * @throws BusinessError if transaction not found or doesn't belong to user
    */
   async getTransactionById(id: string, userId: string): Promise<Transaction> {
-    const transaction = await this.transactionRepository.findOneActiveById(
+    const transaction = await this.transactionRepository.findOneById(
       id,
       userId,
     );
@@ -141,7 +141,7 @@ export class TransactionService {
     this.validatePagination(pagination);
     this.validateFilters(filters);
 
-    return await this.transactionRepository.findManyActiveByUserIdPaginated(
+    return await this.transactionRepository.findManyByUserIdPaginated(
       userId,
       pagination,
       filters,
@@ -162,8 +162,10 @@ export class TransactionService {
     input: UpdateTransactionServiceInput,
   ): Promise<Transaction> {
     // First verify the transaction exists and belongs to the user
-    const existingTransaction =
-      await this.transactionRepository.findOneActiveById(id, userId);
+    const existingTransaction = await this.transactionRepository.findOneById(
+      id,
+      userId,
+    );
     if (!existingTransaction) {
       throw new BusinessError(
         "Transaction not found or doesn't belong to user",
@@ -212,8 +214,10 @@ export class TransactionService {
    */
   async deleteTransaction(id: string, userId: string): Promise<Transaction> {
     // First verify the transaction exists and belongs to the user
-    const existingTransaction =
-      await this.transactionRepository.findOneActiveById(id, userId);
+    const existingTransaction = await this.transactionRepository.findOneById(
+      id,
+      userId,
+    );
     if (!existingTransaction) {
       throw new BusinessError(
         "Transaction not found or doesn't belong to user",
@@ -259,7 +263,7 @@ export class TransactionService {
 
     for (const pattern of patterns) {
       // Validate that account still exists and belongs to user
-      const account = await this.accountRepository.findOneActiveById(
+      const account = await this.accountRepository.findOneById(
         pattern.accountId,
         userId,
       );
@@ -269,7 +273,7 @@ export class TransactionService {
       }
 
       // Validate that category still exists and belongs to user
-      const category = await this.categoryRepository.findOneActiveById(
+      const category = await this.categoryRepository.findOneById(
         pattern.categoryId,
         userId,
       );
@@ -329,12 +333,11 @@ export class TransactionService {
 
     // Get transactions matching the search text from repository
     // Use configurable sample size to ensure we have enough data for processing
-    const transactions =
-      await this.transactionRepository.findManyActiveByDescription(
-        userId,
-        normalizedSearchText,
-        sampleSize,
-      );
+    const transactions = await this.transactionRepository.findManyByDescription(
+      userId,
+      normalizedSearchText,
+      sampleSize,
+    );
 
     // Extract and count unique descriptions by frequency
     const descriptionFrequency = new Map<string, number>();
@@ -368,10 +371,7 @@ export class TransactionService {
     accountId: string,
     userId: string,
   ): Promise<Account> {
-    const account = await this.accountRepository.findOneActiveById(
-      accountId,
-      userId,
-    );
+    const account = await this.accountRepository.findOneById(accountId, userId);
 
     if (!account) {
       throw new BusinessError("Account not found or doesn't belong to user");
@@ -444,7 +444,7 @@ export class TransactionService {
       return null;
     }
 
-    const category = await this.categoryRepository.findOneActiveById(
+    const category = await this.categoryRepository.findOneById(
       categoryId,
       userId,
     );

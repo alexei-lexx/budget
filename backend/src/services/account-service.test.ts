@@ -36,7 +36,7 @@ describe("AccountService", () => {
     userId = faker.string.uuid();
 
     // Default mock for duplicate name checking (can be overridden in specific tests)
-    mockAccountRepository.findManyActiveByUserId.mockResolvedValue([]);
+    mockAccountRepository.findManyByUserId.mockResolvedValue([]);
 
     // Reset all mocks
     jest.clearAllMocks();
@@ -50,14 +50,14 @@ describe("AccountService", () => {
         fakeAccount({ userId }),
         fakeAccount({ userId }),
       ];
-      mockAccountRepository.findManyActiveByUserId.mockResolvedValue(accounts);
+      mockAccountRepository.findManyByUserId.mockResolvedValue(accounts);
 
       // Act
       const result = await service.getAccountsByUser(userId);
 
       // Assert
       expect(result).toEqual(accounts);
-      expect(mockAccountRepository.findManyActiveByUserId).toHaveBeenCalledWith(
+      expect(mockAccountRepository.findManyByUserId).toHaveBeenCalledWith(
         userId,
       );
     });
@@ -149,7 +149,7 @@ describe("AccountService", () => {
         userId,
         name: "checking", // Lowercase "c", to test case insensitivity
       });
-      mockAccountRepository.findManyActiveByUserId.mockResolvedValue([
+      mockAccountRepository.findManyByUserId.mockResolvedValue([
         existingAccount,
       ]);
 
@@ -205,7 +205,7 @@ describe("AccountService", () => {
       const input = { name: "Updated Account Name" };
       const updatedAccount = { ...currentAccount, ...input };
 
-      mockAccountRepository.findOneActiveById.mockResolvedValue(currentAccount);
+      mockAccountRepository.findOneById.mockResolvedValue(currentAccount);
       mockAccountRepository.update.mockResolvedValue(updatedAccount);
 
       // Act
@@ -213,7 +213,7 @@ describe("AccountService", () => {
 
       // Assert
       expect(result).toEqual(updatedAccount);
-      expect(mockAccountRepository.findOneActiveById).toHaveBeenCalledWith(
+      expect(mockAccountRepository.findOneById).toHaveBeenCalledWith(
         accountId,
         userId,
       );
@@ -237,7 +237,7 @@ describe("AccountService", () => {
         userId,
       });
 
-      mockAccountRepository.findOneActiveById.mockResolvedValue(currentAccount);
+      mockAccountRepository.findOneById.mockResolvedValue(currentAccount);
 
       // Act
       await service.updateAccount(accountId, userId, input);
@@ -261,7 +261,7 @@ describe("AccountService", () => {
       const input = { currency: "EUR" };
       const updatedAccount = { ...currentAccount, ...input };
 
-      mockAccountRepository.findOneActiveById.mockResolvedValue(currentAccount);
+      mockAccountRepository.findOneById.mockResolvedValue(currentAccount);
       mockTransactionRepository.hasTransactionsForAccount.mockResolvedValue(
         false,
       );
@@ -292,7 +292,7 @@ describe("AccountService", () => {
       });
       const input = { currency: "EUR" };
 
-      mockAccountRepository.findOneActiveById.mockResolvedValue(currentAccount);
+      mockAccountRepository.findOneById.mockResolvedValue(currentAccount);
       mockTransactionRepository.hasTransactionsForAccount.mockResolvedValue(
         true,
       );
@@ -311,7 +311,7 @@ describe("AccountService", () => {
     it("should throw error when account not found", async () => {
       // Arrange
       const accountId = faker.string.uuid();
-      mockAccountRepository.findOneActiveById.mockResolvedValue(null);
+      mockAccountRepository.findOneById.mockResolvedValue(null);
 
       // Act & Assert
       const promise = service.updateAccount(accountId, userId, {
@@ -331,7 +331,7 @@ describe("AccountService", () => {
       const input = { name: "" };
       const currentAccount = fakeAccount({ id: accountId, userId });
 
-      mockAccountRepository.findOneActiveById.mockResolvedValue(currentAccount);
+      mockAccountRepository.findOneById.mockResolvedValue(currentAccount);
 
       // Act & Assert
       const promise = service.updateAccount(accountId, userId, input);
@@ -349,7 +349,7 @@ describe("AccountService", () => {
       const input = { name: "   " };
       const currentAccount = fakeAccount({ id: accountId, userId });
 
-      mockAccountRepository.findOneActiveById.mockResolvedValue(currentAccount);
+      mockAccountRepository.findOneById.mockResolvedValue(currentAccount);
 
       // Act & Assert
       const promise = service.updateAccount(accountId, userId, input);
@@ -367,7 +367,7 @@ describe("AccountService", () => {
       const input = { name: "a".repeat(NAME_MAX_LENGTH + 1) };
       const currentAccount = fakeAccount({ id: accountId, userId });
 
-      mockAccountRepository.findOneActiveById.mockResolvedValue(currentAccount);
+      mockAccountRepository.findOneById.mockResolvedValue(currentAccount);
 
       // Act & Assert
       const promise = service.updateAccount(accountId, userId, input);
@@ -390,8 +390,8 @@ describe("AccountService", () => {
         name: "checking", // Lowercase "c", to test case insensitivity
       });
 
-      mockAccountRepository.findOneActiveById.mockResolvedValue(currentAccount);
-      mockAccountRepository.findManyActiveByUserId.mockResolvedValue([
+      mockAccountRepository.findOneById.mockResolvedValue(currentAccount);
+      mockAccountRepository.findManyByUserId.mockResolvedValue([
         currentAccount,
         existingAccount,
       ]);
@@ -416,8 +416,8 @@ describe("AccountService", () => {
         name: "Checking",
       });
 
-      mockAccountRepository.findOneActiveById.mockResolvedValue(currentAccount);
-      mockAccountRepository.findManyActiveByUserId.mockResolvedValue([
+      mockAccountRepository.findOneById.mockResolvedValue(currentAccount);
+      mockAccountRepository.findManyByUserId.mockResolvedValue([
         currentAccount,
       ]);
 
@@ -438,7 +438,7 @@ describe("AccountService", () => {
         currency: "USD",
       });
 
-      mockAccountRepository.findOneActiveById.mockResolvedValue(currentAccount);
+      mockAccountRepository.findOneById.mockResolvedValue(currentAccount);
       mockTransactionRepository.hasTransactionsForAccount.mockResolvedValue(
         false,
       );
@@ -460,7 +460,7 @@ describe("AccountService", () => {
       const input = { currency: "XYZ" };
       const currentAccount = fakeAccount({ id: accountId, userId });
 
-      mockAccountRepository.findOneActiveById.mockResolvedValue(currentAccount);
+      mockAccountRepository.findOneById.mockResolvedValue(currentAccount);
 
       // Act & Assert
       const promise = service.updateAccount(accountId, userId, input);
@@ -539,8 +539,8 @@ describe("AccountService", () => {
         }),
       ];
 
-      mockAccountRepository.findOneActiveById.mockResolvedValue(account);
-      mockTransactionRepository.findManyActiveByAccountId.mockResolvedValue(
+      mockAccountRepository.findOneById.mockResolvedValue(account);
+      mockTransactionRepository.findManyByAccountId.mockResolvedValue(
         transactions,
       );
 
@@ -556,7 +556,7 @@ describe("AccountService", () => {
     it("should throw error when account not found", async () => {
       // Arrange
       const accountId = faker.string.uuid();
-      mockAccountRepository.findOneActiveById.mockResolvedValue(null);
+      mockAccountRepository.findOneById.mockResolvedValue(null);
 
       // Act & Assert
       const promise = service.calculateBalance(accountId, userId);
@@ -567,7 +567,7 @@ describe("AccountService", () => {
       });
 
       expect(
-        mockTransactionRepository.findManyActiveByAccountId,
+        mockTransactionRepository.findManyByAccountId,
       ).not.toHaveBeenCalled();
     });
   });

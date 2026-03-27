@@ -143,10 +143,7 @@ export class DynTransactionRepository implements TransactionRepository {
     }
   }
 
-  async findOneActiveById(
-    id: string,
-    userId: string,
-  ): Promise<Transaction | null> {
+  async findOneById(id: string, userId: string): Promise<Transaction | null> {
     if (!id || !userId) {
       throw new RepositoryError(
         "Transaction ID and User ID are required",
@@ -184,7 +181,7 @@ export class DynTransactionRepository implements TransactionRepository {
     }
   }
 
-  async findManyActiveByUserId(
+  async findManyByUserId(
     userId: string,
     filters?: TransactionFilterInput,
   ): Promise<Transaction[]> {
@@ -224,7 +221,7 @@ export class DynTransactionRepository implements TransactionRepository {
     }
   }
 
-  async findManyActiveByUserIdPaginated(
+  async findManyByUserIdPaginated(
     userId: string,
     pagination?: PaginationInput,
     filters?: TransactionFilterInput,
@@ -319,7 +316,7 @@ export class DynTransactionRepository implements TransactionRepository {
     }
   }
 
-  async findManyActiveByAccountId(
+  async findManyByAccountId(
     accountId: string,
     userId: string,
   ): Promise<Transaction[]> {
@@ -359,7 +356,7 @@ export class DynTransactionRepository implements TransactionRepository {
     }
   }
 
-  async findManyActiveByTransferId(
+  async findManyByTransferId(
     transferId: string,
     userId: string,
   ): Promise<Transaction[]> {
@@ -399,7 +396,7 @@ export class DynTransactionRepository implements TransactionRepository {
     }
   }
 
-  async findManyActiveByDescription(
+  async findManyByDescription(
     userId: string,
     searchText: string,
     limit: number,

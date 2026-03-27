@@ -33,7 +33,7 @@ describe("DynTransactionRepository", () => {
     });
   });
 
-  describe("findManyActiveByUserId", () => {
+  describe("findManyByUserId", () => {
     it("should return transactions that belong to user and are not archived", async () => {
       const userId = faker.string.uuid();
 
@@ -55,7 +55,7 @@ describe("DynTransactionRepository", () => {
       await repository.create(fakeCreateTransactionInput());
 
       // Act
-      const result = await repository.findManyActiveByUserId(userId);
+      const result = await repository.findManyByUserId(userId);
 
       // Assert
       expect(result).toHaveLength(2);
@@ -67,14 +67,14 @@ describe("DynTransactionRepository", () => {
       const userId = faker.string.uuid();
 
       // Act
-      const result = await repository.findManyActiveByUserId(userId);
+      const result = await repository.findManyByUserId(userId);
 
       // Assert
       expect(result).toHaveLength(0);
     });
   });
 
-  describe("findManyActiveByUserIdPaginated", () => {
+  describe("findManyByUserIdPaginated", () => {
     describe("without filters", () => {
       it("should return transactions for a user", async () => {
         // Arrange
@@ -94,7 +94,7 @@ describe("DynTransactionRepository", () => {
         );
 
         // Act
-        const result = await repository.findManyActiveByUserIdPaginated(userId);
+        const result = await repository.findManyByUserIdPaginated(userId);
 
         // Assert
         expect(result.edges).toHaveLength(2);
@@ -120,7 +120,7 @@ describe("DynTransactionRepository", () => {
         ]);
 
         // Act
-        const result = await repository.findManyActiveByUserIdPaginated(
+        const result = await repository.findManyByUserIdPaginated(
           userId,
           undefined,
           {
@@ -152,7 +152,7 @@ describe("DynTransactionRepository", () => {
         ]);
 
         // Act - Filter by account1 and account2 (should get 3 transactions)
-        const result = await repository.findManyActiveByUserIdPaginated(
+        const result = await repository.findManyByUserIdPaginated(
           userId,
           undefined,
           {
@@ -180,7 +180,7 @@ describe("DynTransactionRepository", () => {
         );
 
         // Act
-        const result = await repository.findManyActiveByUserIdPaginated(
+        const result = await repository.findManyByUserIdPaginated(
           userId,
           undefined,
           {
@@ -222,7 +222,7 @@ describe("DynTransactionRepository", () => {
         ]);
 
         // Act
-        const result = await repository.findManyActiveByUserIdPaginated(
+        const result = await repository.findManyByUserIdPaginated(
           userId,
           undefined,
           {
@@ -266,7 +266,7 @@ describe("DynTransactionRepository", () => {
         ]);
 
         // Act - Filter by category1 and category2
-        const result = await repository.findManyActiveByUserIdPaginated(
+        const result = await repository.findManyByUserIdPaginated(
           userId,
           undefined,
           {
@@ -309,7 +309,7 @@ describe("DynTransactionRepository", () => {
         ]);
 
         // Act
-        const result = await repository.findManyActiveByUserIdPaginated(
+        const result = await repository.findManyByUserIdPaginated(
           userId,
           undefined,
           {
@@ -357,7 +357,7 @@ describe("DynTransactionRepository", () => {
         ]);
 
         // Act - Filter by category1 + uncategorized
-        const result = await repository.findManyActiveByUserIdPaginated(
+        const result = await repository.findManyByUserIdPaginated(
           userId,
           undefined,
           {
@@ -390,7 +390,7 @@ describe("DynTransactionRepository", () => {
         );
 
         // Act
-        const result = await repository.findManyActiveByUserIdPaginated(
+        const result = await repository.findManyByUserIdPaginated(
           userId,
           undefined,
           {
@@ -429,7 +429,7 @@ describe("DynTransactionRepository", () => {
         ]);
 
         // Act - Get transactions on or after 2024-01-15 (should include 2024-01-15)
-        const result = await repository.findManyActiveByUserIdPaginated(
+        const result = await repository.findManyByUserIdPaginated(
           userId,
           undefined,
           {
@@ -468,7 +468,7 @@ describe("DynTransactionRepository", () => {
         ]);
 
         // Act - Get transactions on or before 2024-01-20 (should include 2024-01-20)
-        const result = await repository.findManyActiveByUserIdPaginated(
+        const result = await repository.findManyByUserIdPaginated(
           userId,
           undefined,
           {
@@ -517,7 +517,7 @@ describe("DynTransactionRepository", () => {
         ]);
 
         // Act - Get transactions between 2024-01-10 and 2024-01-20 (both inclusive)
-        const result = await repository.findManyActiveByUserIdPaginated(
+        const result = await repository.findManyByUserIdPaginated(
           userId,
           undefined,
           {
@@ -560,7 +560,7 @@ describe("DynTransactionRepository", () => {
 
         // Act & Assert - Should throw error when dateAfter > dateBefore
         await expect(
-          repository.findManyActiveByUserIdPaginated(userId, undefined, {
+          repository.findManyByUserIdPaginated(userId, undefined, {
             dateAfter: toDateString("2024-12-31"),
             dateBefore: toDateString("2024-01-01"),
           }),
@@ -593,7 +593,7 @@ describe("DynTransactionRepository", () => {
         ]);
 
         // Act
-        const result = await repository.findManyActiveByUserIdPaginated(
+        const result = await repository.findManyByUserIdPaginated(
           userId,
           undefined,
           {
@@ -638,7 +638,7 @@ describe("DynTransactionRepository", () => {
         ]);
 
         // Act
-        const result = await repository.findManyActiveByUserIdPaginated(
+        const result = await repository.findManyByUserIdPaginated(
           userId,
           undefined,
           {
@@ -690,7 +690,7 @@ describe("DynTransactionRepository", () => {
         ]);
 
         // Act
-        const result = await repository.findManyActiveByUserIdPaginated(
+        const result = await repository.findManyByUserIdPaginated(
           userId,
           undefined,
           {
@@ -742,7 +742,7 @@ describe("DynTransactionRepository", () => {
         ]);
 
         // Act
-        const result = await repository.findManyActiveByUserIdPaginated(
+        const result = await repository.findManyByUserIdPaginated(
           userId,
           undefined,
           {
@@ -812,7 +812,7 @@ describe("DynTransactionRepository", () => {
         ]);
 
         // Act - Complex filter: account1 + category1 + date range + EXPENSE type
-        const result = await repository.findManyActiveByUserIdPaginated(
+        const result = await repository.findManyByUserIdPaginated(
           userId,
           undefined,
           {
@@ -877,7 +877,7 @@ describe("DynTransactionRepository", () => {
         ]);
 
         // Act - Fetch first page with date filter (triggers UserDateIndex usage)
-        const page1 = await repository.findManyActiveByUserIdPaginated(
+        const page1 = await repository.findManyByUserIdPaginated(
           userId,
           { first: 3 }, // Get 3 items per page
           {
@@ -893,7 +893,7 @@ describe("DynTransactionRepository", () => {
         expect(page1.totalCount).toBe(6);
 
         // Act - Fetch second page using cursor from page 1
-        const page2 = await repository.findManyActiveByUserIdPaginated(
+        const page2 = await repository.findManyByUserIdPaginated(
           userId,
           { first: 3, after: page1.pageInfo.endCursor },
           {
@@ -969,7 +969,7 @@ describe("DynTransactionRepository", () => {
         ]);
 
         // Act - Fetch first page WITHOUT date filter (triggers UserCreatedAtIndex usage)
-        const page1 = await repository.findManyActiveByUserIdPaginated(
+        const page1 = await repository.findManyByUserIdPaginated(
           userId,
           { first: 3 }, // Get 3 items per page
           {}, // No filters - should use UserCreatedAtIndex
@@ -982,7 +982,7 @@ describe("DynTransactionRepository", () => {
         expect(page1.totalCount).toBe(6);
 
         // Act - Fetch second page using cursor
-        const page2 = await repository.findManyActiveByUserIdPaginated(
+        const page2 = await repository.findManyByUserIdPaginated(
           userId,
           { first: 3, after: page1.pageInfo.endCursor },
           {}, // No filters
@@ -1014,7 +1014,7 @@ describe("DynTransactionRepository", () => {
 
       // Act & Assert
       await expect(
-        repository.findManyActiveByUserIdPaginated(userId, {
+        repository.findManyByUserIdPaginated(userId, {
           first: 10,
           after: invalidCursor,
         }),
@@ -1029,7 +1029,7 @@ describe("DynTransactionRepository", () => {
 
       // Act & Assert
       await expect(
-        repository.findManyActiveByUserIdPaginated(userId, {
+        repository.findManyByUserIdPaginated(userId, {
           first: 10,
           after: corruptedCursor,
         }),
@@ -1045,7 +1045,7 @@ describe("DynTransactionRepository", () => {
 
       // Act & Assert
       await expect(
-        repository.findManyActiveByUserIdPaginated(userId, {
+        repository.findManyByUserIdPaginated(userId, {
           first: 10,
           after: cursorWithoutCreatedAtSortable,
         }),
@@ -1064,7 +1064,7 @@ describe("DynTransactionRepository", () => {
 
       // Act & Assert
       await expect(
-        repository.findManyActiveByUserIdPaginated(userId, {
+        repository.findManyByUserIdPaginated(userId, {
           first: 10,
           after: cursorWithoutDate,
         }),
@@ -1083,7 +1083,7 @@ describe("DynTransactionRepository", () => {
 
       // Act & Assert
       await expect(
-        repository.findManyActiveByUserIdPaginated(userId, {
+        repository.findManyByUserIdPaginated(userId, {
           first: 10,
           after: cursorWithoutId,
         }),
@@ -1091,7 +1091,7 @@ describe("DynTransactionRepository", () => {
     });
   });
 
-  describe("findManyActiveByDescription", () => {
+  describe("findManyByDescription", () => {
     it("should return transactions that contain search text (case-sensitive)", async () => {
       // Arrange
       const userId = faker.string.uuid();
@@ -1137,11 +1137,7 @@ describe("DynTransactionRepository", () => {
       );
 
       // Act
-      const result = await repository.findManyActiveByDescription(
-        userId,
-        "Gr",
-        10,
-      );
+      const result = await repository.findManyByDescription(userId, "Gr", 10);
 
       // Assert
       expect(result).toHaveLength(2);
@@ -1170,14 +1166,14 @@ describe("DynTransactionRepository", () => {
       await repository.createMany(createInputs);
 
       // Act - Search with uppercase "G"
-      const resultUppercase = await repository.findManyActiveByDescription(
+      const resultUppercase = await repository.findManyByDescription(
         userId,
         "Gr",
         10,
       );
 
       // Act - Search with lowercase "g"
-      const resultLowercase = await repository.findManyActiveByDescription(
+      const resultLowercase = await repository.findManyByDescription(
         userId,
         "gr",
         10,
@@ -1217,7 +1213,7 @@ describe("DynTransactionRepository", () => {
       );
 
       // Act
-      const result = await repository.findManyActiveByDescription(
+      const result = await repository.findManyByDescription(
         userId,
         "Store",
         10,
@@ -1248,11 +1244,7 @@ describe("DynTransactionRepository", () => {
       await repository.createMany(createInputs);
 
       // Act
-      const result = await repository.findManyActiveByDescription(
-        userId,
-        "Store",
-        2,
-      );
+      const result = await repository.findManyByDescription(userId, "Store", 2);
 
       // Assert
       expect(result).toHaveLength(2);
@@ -1279,7 +1271,7 @@ describe("DynTransactionRepository", () => {
       await repository.createMany(createInputs);
 
       // Act
-      const result = await repository.findManyActiveByDescription(
+      const result = await repository.findManyByDescription(
         userId,
         "store",
         10,
@@ -1314,7 +1306,7 @@ describe("DynTransactionRepository", () => {
       await repository.archive(createdTransactions[0].id, userId);
 
       // Act
-      const result = await repository.findManyActiveByDescription(
+      const result = await repository.findManyByDescription(
         userId,
         "Store",
         10,
@@ -1347,12 +1339,12 @@ describe("DynTransactionRepository", () => {
       await repository.createMany(createInputs);
 
       // Act
-      const user1Result = await repository.findManyActiveByDescription(
+      const user1Result = await repository.findManyByDescription(
         user1,
         "store",
         10,
       );
-      const user2Result = await repository.findManyActiveByDescription(
+      const user2Result = await repository.findManyByDescription(
         user2,
         "store",
         10,
@@ -1380,11 +1372,7 @@ describe("DynTransactionRepository", () => {
       await repository.create(createInput);
 
       // Act
-      const result = await repository.findManyActiveByDescription(
-        userId,
-        "",
-        10,
-      );
+      const result = await repository.findManyByDescription(userId, "", 10);
 
       // Assert
       expect(result).toHaveLength(0);
@@ -1406,11 +1394,7 @@ describe("DynTransactionRepository", () => {
       await repository.createMany(createInputs);
 
       // Act
-      const result = await repository.findManyActiveByDescription(
-        userId,
-        "xyz",
-        10,
-      );
+      const result = await repository.findManyByDescription(userId, "xyz", 10);
 
       // Assert
       expect(result).toHaveLength(0);
@@ -1421,7 +1405,7 @@ describe("DynTransactionRepository", () => {
       const userId = faker.string.uuid();
 
       // Act
-      const result = await repository.findManyActiveByDescription(
+      const result = await repository.findManyByDescription(
         userId,
         "store",
         10,
@@ -1434,7 +1418,7 @@ describe("DynTransactionRepository", () => {
     it("should throw error for missing user ID", async () => {
       // Act & Assert
       await expect(
-        repository.findManyActiveByDescription("", "store", 10),
+        repository.findManyByDescription("", "store", 10),
       ).rejects.toThrow("User ID is required");
     });
 
@@ -1444,17 +1428,17 @@ describe("DynTransactionRepository", () => {
 
       // Act & Assert - Zero limit
       await expect(
-        repository.findManyActiveByDescription(userId, "store", 0),
+        repository.findManyByDescription(userId, "store", 0),
       ).rejects.toThrow("Limit must be a positive integer");
 
       // Act & Assert - Negative limit
       await expect(
-        repository.findManyActiveByDescription(userId, "store", -1),
+        repository.findManyByDescription(userId, "store", -1),
       ).rejects.toThrow("Limit must be a positive integer");
 
       // Act & Assert - Non-integer limit
       await expect(
-        repository.findManyActiveByDescription(userId, "store", 3.5),
+        repository.findManyByDescription(userId, "store", 3.5),
       ).rejects.toThrow("Limit must be a positive integer");
     });
 
@@ -1479,7 +1463,7 @@ describe("DynTransactionRepository", () => {
       await repository.createMany(createInputs);
 
       // Act
-      const result = await repository.findManyActiveByDescription(
+      const result = await repository.findManyByDescription(
         userId,
         "Exact match",
         10,
@@ -1511,7 +1495,7 @@ describe("DynTransactionRepository", () => {
       await repository.createMany(createInputs);
 
       // Act
-      const result = await repository.findManyActiveByDescription(
+      const result = await repository.findManyByDescription(
         userId,
         "long description",
         10,
@@ -1575,7 +1559,7 @@ describe("DynTransactionRepository", () => {
       );
 
       // Refetch from database to verify stored data matches result
-      const stored = await repository.findOneActiveById(result.id, userId);
+      const stored = await repository.findOneById(result.id, userId);
       expect(stored).toEqual(result);
     });
 
@@ -1634,7 +1618,7 @@ describe("DynTransactionRepository", () => {
       expect(result.isArchived).toBe(false);
 
       // Refetch from database to verify stored data matches result
-      const stored = await repository.findOneActiveById(result.id, userId);
+      const stored = await repository.findOneById(result.id, userId);
       expect(stored).toEqual(result);
     });
 
@@ -1659,7 +1643,7 @@ describe("DynTransactionRepository", () => {
       expect(result.type).toBe(TransactionType.TRANSFER_OUT);
 
       // Refetch from database to verify stored data matches result
-      const stored = await repository.findOneActiveById(result.id, userId);
+      const stored = await repository.findOneById(result.id, userId);
       expect(stored).toEqual(result);
     });
   });
@@ -1723,11 +1707,11 @@ describe("DynTransactionRepository", () => {
       // Verify that createdAtSortable is not in the returned object
       expect(result[1]).not.toHaveProperty("createdAtSortable");
 
-      const stored1 = await repository.findOneActiveById(
+      const stored1 = await repository.findOneById(
         result[0].id,
         inputs[0].userId,
       );
-      const stored2 = await repository.findOneActiveById(
+      const stored2 = await repository.findOneById(
         result[1].id,
         inputs[1].userId,
       );
@@ -1789,7 +1773,7 @@ describe("DynTransactionRepository", () => {
       ]);
 
       // Query transactions (descending order - newest first)
-      const result = await repository.findManyActiveByUserIdPaginated(userId);
+      const result = await repository.findManyByUserIdPaginated(userId);
 
       // Verify TRANSFER_IN appears first
       expect(result.edges[0].node.type).toBe(TransactionType.TRANSFER_IN);
@@ -1846,7 +1830,7 @@ describe("DynTransactionRepository", () => {
       expect(result.updatedAt).not.toBe(created.updatedAt);
 
       // Refetch from database to verify stored data matches result
-      const stored = await repository.findOneActiveById(result.id, userId);
+      const stored = await repository.findOneById(result.id, userId);
       expect(stored).toEqual(result);
     });
 
@@ -1889,7 +1873,7 @@ describe("DynTransactionRepository", () => {
       expect(result.updatedAt).not.toBe(created.updatedAt);
 
       // Refetch from database to verify stored data matches result
-      const stored = await repository.findOneActiveById(result.id, userId);
+      const stored = await repository.findOneById(result.id, userId);
       expect(stored).toEqual(result);
     });
 
@@ -1918,7 +1902,7 @@ describe("DynTransactionRepository", () => {
       expect(result.categoryId).toBeUndefined();
 
       // Refetch from database to verify stored data matches result
-      const stored = await repository.findOneActiveById(result.id, userId);
+      const stored = await repository.findOneById(result.id, userId);
       expect(stored).toEqual(result);
     });
 
@@ -1955,7 +1939,7 @@ describe("DynTransactionRepository", () => {
       expect(result.date).toBe("2024-01-22");
 
       // Refetch from database to verify stored data matches result
-      const stored = await repository.findOneActiveById(result.id, userId);
+      const stored = await repository.findOneById(result.id, userId);
       expect(stored).toEqual(result);
     });
 
@@ -2013,10 +1997,7 @@ describe("DynTransactionRepository", () => {
       ).rejects.toThrow("Transaction not found or is archived");
 
       // Verify original transaction is unchanged
-      const original = await repository.findOneActiveById(
-        created.id,
-        ownerUserId,
-      );
+      const original = await repository.findOneById(created.id, ownerUserId);
       expect(original).toBeDefined();
       expect(original?.description).toBe("Belongs to owner");
       expect(original?.userId).toBe(ownerUserId);
@@ -2110,7 +2091,7 @@ describe("DynTransactionRepository", () => {
 
       await repository.updateMany(updates, userId);
 
-      const stored1 = await repository.findOneActiveById(
+      const stored1 = await repository.findOneById(
         createdTransactions[0].id,
         userId,
       );
@@ -2124,7 +2105,7 @@ describe("DynTransactionRepository", () => {
       expect(stored1?.date).toBe("2024-02-01");
       expect(stored1?.description).toBe("New description 1");
 
-      const stored2 = await repository.findOneActiveById(
+      const stored2 = await repository.findOneById(
         createdTransactions[1].id,
         userId,
       );
@@ -2757,7 +2738,7 @@ describe("DynTransactionRepository", () => {
 
       // Act & Assert
       await expect(
-        repository.findOneActiveById(transaction.id, userId),
+        repository.findOneById(transaction.id, userId),
       ).rejects.toThrow();
     });
   });
