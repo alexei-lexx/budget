@@ -35,21 +35,19 @@ describe("TransferService", () => {
   describe("getTransfer", () => {
     it("should return undefined when transfer not found", async () => {
       const transferId = faker.string.uuid();
-      mockTransactionRepository.findManyActiveByTransferId.mockResolvedValue(
-        [],
-      );
+      mockTransactionRepository.findManyByTransferId.mockResolvedValue([]);
 
       const result = await service.getTransfer(transferId, userId);
 
       expect(result).toBeUndefined();
       expect(
-        mockTransactionRepository.findManyActiveByTransferId,
+        mockTransactionRepository.findManyByTransferId,
       ).toHaveBeenCalledWith(transferId, userId);
     });
 
     it("should throw INVALID_TRANSFER_STATE when only one transaction found", async () => {
       const transferId = faker.string.uuid();
-      mockTransactionRepository.findManyActiveByTransferId.mockResolvedValue([
+      mockTransactionRepository.findManyByTransferId.mockResolvedValue([
         fakeTransaction({ type: TransactionType.TRANSFER_OUT, transferId }),
       ]);
 
@@ -62,7 +60,7 @@ describe("TransferService", () => {
 
     it("should throw INVALID_TRANSFER_STATE when more than two transactions found", async () => {
       const transferId = faker.string.uuid();
-      mockTransactionRepository.findManyActiveByTransferId.mockResolvedValue([
+      mockTransactionRepository.findManyByTransferId.mockResolvedValue([
         fakeTransaction({ type: TransactionType.TRANSFER_OUT, transferId }),
         fakeTransaction({ type: TransactionType.TRANSFER_IN, transferId }),
         fakeTransaction({ type: TransactionType.TRANSFER_OUT, transferId }),
@@ -77,7 +75,7 @@ describe("TransferService", () => {
 
     it("should throw INVALID_TRANSFER_STATE when TRANSFER_OUT transaction is missing", async () => {
       const transferId = faker.string.uuid();
-      mockTransactionRepository.findManyActiveByTransferId.mockResolvedValue([
+      mockTransactionRepository.findManyByTransferId.mockResolvedValue([
         fakeTransaction({ type: TransactionType.TRANSFER_IN, transferId }),
         fakeTransaction({ type: TransactionType.TRANSFER_IN, transferId }),
       ]);
@@ -91,7 +89,7 @@ describe("TransferService", () => {
 
     it("should throw INVALID_TRANSFER_STATE when TRANSFER_IN transaction is missing", async () => {
       const transferId = faker.string.uuid();
-      mockTransactionRepository.findManyActiveByTransferId.mockResolvedValue([
+      mockTransactionRepository.findManyByTransferId.mockResolvedValue([
         fakeTransaction({ type: TransactionType.TRANSFER_OUT, transferId }),
         fakeTransaction({ type: TransactionType.TRANSFER_OUT, transferId }),
       ]);
@@ -113,7 +111,7 @@ describe("TransferService", () => {
         type: TransactionType.TRANSFER_IN,
         transferId,
       });
-      mockTransactionRepository.findManyActiveByTransferId.mockResolvedValue([
+      mockTransactionRepository.findManyByTransferId.mockResolvedValue([
         outboundTransaction,
         inboundTransaction,
       ]);
@@ -138,7 +136,7 @@ describe("TransferService", () => {
         transferId,
       });
       // Inbound arrives first in the array
-      mockTransactionRepository.findManyActiveByTransferId.mockResolvedValue([
+      mockTransactionRepository.findManyByTransferId.mockResolvedValue([
         inboundTransaction,
         outboundTransaction,
       ]);
@@ -164,7 +162,7 @@ describe("TransferService", () => {
         type: TransactionType.TRANSFER_IN,
       });
 
-      mockAccountRepository.findOneActiveById
+      mockAccountRepository.findOneById
         .mockResolvedValueOnce(fromAccount)
         .mockResolvedValueOnce(toAccount);
       mockTransactionRepository.createMany.mockResolvedValue([
@@ -226,10 +224,10 @@ describe("TransferService", () => {
         accountId: toAccount.id,
       });
 
-      mockTransactionRepository.findManyActiveByTransferId
+      mockTransactionRepository.findManyByTransferId
         .mockResolvedValueOnce([outboundTransaction, inboundTransaction])
         .mockResolvedValueOnce([outboundTransaction, inboundTransaction]);
-      mockAccountRepository.findOneActiveById
+      mockAccountRepository.findOneById
         .mockResolvedValueOnce(fromAccount)
         .mockResolvedValueOnce(toAccount);
 

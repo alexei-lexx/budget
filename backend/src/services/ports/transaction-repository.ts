@@ -43,25 +43,25 @@ export type UpdateTransactionInput = Partial<
 };
 
 export interface TransactionRepository {
-  findOneActiveById(id: string, userId: string): Promise<Transaction | null>;
-  findManyActiveByUserId(
+  findOneById(id: string, userId: string): Promise<Transaction | null>;
+  findManyByUserId(
     userId: string,
     filters?: TransactionFilterInput,
   ): Promise<Transaction[]>;
-  findManyActiveByUserIdPaginated(
+  findManyByUserIdPaginated(
     userId: string,
     pagination?: PaginationInput,
     filters?: TransactionFilterInput,
   ): Promise<TransactionConnection>;
-  findManyActiveByAccountId(
+  findManyByAccountId(
     accountId: string,
     userId: string,
   ): Promise<Transaction[]>;
-  findManyActiveByTransferId(
+  findManyByTransferId(
     transferId: string,
     userId: string,
   ): Promise<Transaction[]>;
-  findManyActiveByDescription(
+  findManyByDescription(
     userId: string,
     searchText: string,
     limit: number,

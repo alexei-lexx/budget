@@ -37,9 +37,7 @@ describe("createGetTransactionsTool", () => {
       endDate: "2000-01-10",
     });
 
-    expect(
-      mockTransactionRepository.findManyActiveByUserId,
-    ).not.toHaveBeenCalled();
+    expect(mockTransactionRepository.findManyByUserId).not.toHaveBeenCalled();
     expect(result).toEqual({
       success: false,
       error: "startDate must not be after endDate",
@@ -57,9 +55,7 @@ describe("createGetTransactionsTool", () => {
       endDate: "2001-01-02",
     });
 
-    expect(
-      mockTransactionRepository.findManyActiveByUserId,
-    ).not.toHaveBeenCalled();
+    expect(mockTransactionRepository.findManyByUserId).not.toHaveBeenCalled();
     expect(result).toEqual({
       success: false,
       error: `Date range must not exceed ${MAX_PERIOD_DAYS} days`,
@@ -68,9 +64,7 @@ describe("createGetTransactionsTool", () => {
 
   it("should filter by date range and return transactions as JSON", async () => {
     const transactions = [fakeTransaction()];
-    mockTransactionRepository.findManyActiveByUserId.mockResolvedValue(
-      transactions,
-    );
+    mockTransactionRepository.findManyByUserId.mockResolvedValue(transactions);
 
     const tool = createGetTransactionsTool({
       transactionRepository: mockTransactionRepository,
@@ -83,12 +77,13 @@ describe("createGetTransactionsTool", () => {
     });
 
     expect(result.success).toBe(true);
-    expect(
-      mockTransactionRepository.findManyActiveByUserId,
-    ).toHaveBeenCalledWith(userId, {
-      dateAfter: "2000-01-01",
-      dateBefore: "2000-01-31",
-    });
+    expect(mockTransactionRepository.findManyByUserId).toHaveBeenCalledWith(
+      userId,
+      {
+        dateAfter: "2000-01-01",
+        dateBefore: "2000-01-31",
+      },
+    );
   });
 
   it("should return required fields only", async () => {
@@ -114,9 +109,7 @@ describe("createGetTransactionsTool", () => {
         description: "Salary",
       }),
     ];
-    mockTransactionRepository.findManyActiveByUserId.mockResolvedValue(
-      transactions,
-    );
+    mockTransactionRepository.findManyByUserId.mockResolvedValue(transactions);
 
     const tool = createGetTransactionsTool({
       transactionRepository: mockTransactionRepository,
@@ -158,7 +151,7 @@ describe("createGetTransactionsTool", () => {
 
   it("should filter by accountId", async () => {
     const accountId = faker.string.uuid();
-    mockTransactionRepository.findManyActiveByUserId.mockResolvedValue([]);
+    mockTransactionRepository.findManyByUserId.mockResolvedValue([]);
 
     const tool = createGetTransactionsTool({
       transactionRepository: mockTransactionRepository,
@@ -171,18 +164,19 @@ describe("createGetTransactionsTool", () => {
       accountId,
     });
 
-    expect(
-      mockTransactionRepository.findManyActiveByUserId,
-    ).toHaveBeenCalledWith(userId, {
-      dateAfter: "2000-01-10",
-      dateBefore: "2000-01-20",
-      accountIds: [accountId],
-    });
+    expect(mockTransactionRepository.findManyByUserId).toHaveBeenCalledWith(
+      userId,
+      {
+        dateAfter: "2000-01-10",
+        dateBefore: "2000-01-20",
+        accountIds: [accountId],
+      },
+    );
   });
 
   it("should filter by categoryId", async () => {
     const categoryId = faker.string.uuid();
-    mockTransactionRepository.findManyActiveByUserId.mockResolvedValue([]);
+    mockTransactionRepository.findManyByUserId.mockResolvedValue([]);
 
     const tool = createGetTransactionsTool({
       transactionRepository: mockTransactionRepository,
@@ -195,19 +189,20 @@ describe("createGetTransactionsTool", () => {
       categoryId,
     });
 
-    expect(
-      mockTransactionRepository.findManyActiveByUserId,
-    ).toHaveBeenCalledWith(userId, {
-      dateAfter: "2000-01-10",
-      dateBefore: "2000-01-20",
-      categoryIds: [categoryId],
-    });
+    expect(mockTransactionRepository.findManyByUserId).toHaveBeenCalledWith(
+      userId,
+      {
+        dateAfter: "2000-01-10",
+        dateBefore: "2000-01-20",
+        categoryIds: [categoryId],
+      },
+    );
   });
 
   it("should filter by both accountId and categoryId", async () => {
     const accountId = faker.string.uuid();
     const categoryId = faker.string.uuid();
-    mockTransactionRepository.findManyActiveByUserId.mockResolvedValue([]);
+    mockTransactionRepository.findManyByUserId.mockResolvedValue([]);
 
     const tool = createGetTransactionsTool({
       transactionRepository: mockTransactionRepository,
@@ -221,13 +216,14 @@ describe("createGetTransactionsTool", () => {
       categoryId,
     });
 
-    expect(
-      mockTransactionRepository.findManyActiveByUserId,
-    ).toHaveBeenCalledWith(userId, {
-      dateAfter: "2000-01-10",
-      dateBefore: "2000-01-20",
-      categoryIds: [categoryId],
-      accountIds: [accountId],
-    });
+    expect(mockTransactionRepository.findManyByUserId).toHaveBeenCalledWith(
+      userId,
+      {
+        dateAfter: "2000-01-10",
+        dateBefore: "2000-01-20",
+        categoryIds: [categoryId],
+        accountIds: [accountId],
+      },
+    );
   });
 });

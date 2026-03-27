@@ -25,7 +25,7 @@ describe("DynCategoryRepository", () => {
     });
   });
 
-  describe("findManyActiveByUserId", () => {
+  describe("findManyByUserId", () => {
     it("should return categories sorted alphabetically", async () => {
       // Arrange - Create categories in mixed order with different types
       await repository.create(
@@ -58,7 +58,7 @@ describe("DynCategoryRepository", () => {
       );
 
       // Act
-      const result = await repository.findManyActiveByUserId(userId);
+      const result = await repository.findManyByUserId(userId);
 
       // Assert - Should be alphabetically sorted
       expect(result.map((category) => category.name)).toEqual([
@@ -101,7 +101,7 @@ describe("DynCategoryRepository", () => {
       );
 
       // Act
-      const result = await repository.findManyActiveByUserId(userId);
+      const result = await repository.findManyByUserId(userId);
 
       // Assert - Case-insensitive grouping
       expect(result.map((category) => category.name)).toEqual([
@@ -137,7 +137,7 @@ describe("DynCategoryRepository", () => {
       );
 
       // Act
-      const result = await repository.findManyActiveByUserId(userId);
+      const result = await repository.findManyByUserId(userId);
 
       // Assert - Numbers before letters
       expect(result.map((category) => category.name)).toEqual([
@@ -158,7 +158,7 @@ describe("DynCategoryRepository", () => {
       await repository.archive(archived.id, userId);
 
       // Act
-      const result = await repository.findManyActiveByUserId(userId);
+      const result = await repository.findManyByUserId(userId);
 
       // Assert
       expect(result).toHaveLength(1);
@@ -197,7 +197,7 @@ describe("DynCategoryRepository", () => {
       );
 
       // Act
-      const result = await repository.findManyActiveByUserId(userId, {
+      const result = await repository.findManyByUserId(userId, {
         type: CategoryType.EXPENSE,
       });
 
@@ -225,7 +225,7 @@ describe("DynCategoryRepository", () => {
       archivedCategory = await repository.archive(archivedCategory.id, userId);
 
       // Act
-      const result = await repository.findManyByUserId(userId);
+      const result = await repository.findManyWithArchivedByUserId(userId);
 
       // Assert
       expect(result).toHaveLength(2);
@@ -245,7 +245,7 @@ describe("DynCategoryRepository", () => {
       );
 
       // Act
-      const result = await repository.findManyByUserId(userId);
+      const result = await repository.findManyWithArchivedByUserId(userId);
 
       // Assert
       expect(result).toHaveLength(2);
@@ -260,7 +260,7 @@ describe("DynCategoryRepository", () => {
       await repository.create(fakeCreateCategoryInput({ userId: otherUserId }));
 
       // Act
-      const result = await repository.findManyByUserId(userId);
+      const result = await repository.findManyWithArchivedByUserId(userId);
 
       // Assert
       expect(result).toHaveLength(1);
@@ -269,9 +269,9 @@ describe("DynCategoryRepository", () => {
 
     it("should throw error when userId is missing", async () => {
       // Act & Assert
-      await expect(repository.findManyByUserId("")).rejects.toThrow(
-        "User ID is required",
-      );
+      await expect(
+        repository.findManyWithArchivedByUserId(""),
+      ).rejects.toThrow("User ID is required");
     });
   });
 
@@ -286,7 +286,7 @@ describe("DynCategoryRepository", () => {
       );
 
       // Act
-      const result = await repository.findManyByIds(
+      const result = await repository.findManyWithArchivedByIds(
         [category1.id, category2.id],
         userId,
       );
@@ -299,7 +299,10 @@ describe("DynCategoryRepository", () => {
 
     it("should return empty array when IDs are empty", async () => {
       // Act
-      const result = await repository.findManyByIds([], userId);
+      const result = await repository.findManyWithArchivedByIds(
+        [],
+        userId,
+      );
 
       // Assert
       expect(result).toEqual([]);
@@ -312,7 +315,7 @@ describe("DynCategoryRepository", () => {
       );
 
       // Act
-      const result = await repository.findManyByIds(
+      const result = await repository.findManyWithArchivedByIds(
         [category.id, "nonexistent-id"],
         userId,
       );
@@ -325,7 +328,7 @@ describe("DynCategoryRepository", () => {
     it("should throw error when userId is missing", async () => {
       // Act & Assert
       await expect(
-        repository.findManyByIds(["category-1"], ""),
+        repository.findManyWithArchivedByIds(["category-1"], ""),
       ).rejects.toThrow("User ID is required");
     });
 
@@ -337,7 +340,10 @@ describe("DynCategoryRepository", () => {
       await repository.archive(category.id, userId);
 
       // Act
-      const result = await repository.findManyByIds([category.id], userId);
+      const result = await repository.findManyWithArchivedByIds(
+        [category.id],
+        userId,
+      );
 
       // Assert
       expect(result).toHaveLength(1);
@@ -382,7 +388,7 @@ describe("DynCategoryRepository", () => {
 
       // Act
       const created = await repository.create(input);
-      const stored = await repository.findOneActiveById(created.id, userId);
+      const stored = await repository.findOneById(created.id, userId);
 
       // Assert
       expect(stored).toBeDefined();
@@ -577,7 +583,7 @@ describe("DynCategoryRepository", () => {
 
       // Act & Assert
       await expect(
-        repository.findManyByIds([category.id], userId),
+        repository.findManyWithArchivedByIds([category.id], userId),
       ).rejects.toThrow();
     });
   });

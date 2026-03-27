@@ -63,13 +63,15 @@ export const createGetTransactionsTool = (params: {
       return Failure(`Date range must not exceed ${MAX_PERIOD_DAYS} days`);
     }
 
-    const transactions =
-      await params.transactionRepository.findManyActiveByUserId(params.userId, {
+    const transactions = await params.transactionRepository.findManyByUserId(
+      params.userId,
+      {
         dateAfter: toDateString(input.startDate),
         dateBefore: toDateString(input.endDate),
         ...(input.categoryId && { categoryIds: [input.categoryId] }),
         ...(input.accountId && { accountIds: [input.accountId] }),
-      });
+      },
+    );
 
     const transactionData: TransactionData[] = transactions.map(
       (transaction) => ({

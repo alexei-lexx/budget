@@ -48,7 +48,8 @@ export const createGetCategoriesTool = ({
     "Get user categories filtered by scope. Each category includes recent usage examples showing how similar transactions were previously categorised.",
   inputSchema: getCategoriesInputSchema,
   func: async (input: GetCategoriesInput) => {
-    const allCategories = await categoryRepository.findManyByUserId(userId);
+    const allCategories =
+      await categoryRepository.findManyWithArchivedByUserId(userId);
 
     const filteredCategories = allCategories.filter((category) => {
       if (input.scope === EntityScope.ALL) return true;
@@ -76,13 +77,10 @@ export const createGetCategoriesTool = ({
     const lookbackDateString = toDateString(formatDateAsYYYYMMDD(lookbackDate));
     const todayDateString = toDateString(formatDateAsYYYYMMDD(today));
 
-    const transactions = await transactionRepository.findManyActiveByUserId(
-      userId,
-      {
-        dateAfter: lookbackDateString,
-        dateBefore: todayDateString,
-      },
-    );
+    const transactions = await transactionRepository.findManyByUserId(userId, {
+      dateAfter: lookbackDateString,
+      dateBefore: todayDateString,
+    });
 
     const categoryIdSet = new Set(
       categoryDataList.map((category) => category.id),

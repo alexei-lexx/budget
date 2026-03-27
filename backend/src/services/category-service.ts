@@ -25,7 +25,7 @@ export class CategoryService {
     userId: string,
     type?: CategoryType,
   ): Promise<Category[]> {
-    return await this.categoryRepository.findManyActiveByUserId(userId, {
+    return await this.categoryRepository.findManyByUserId(userId, {
       type,
     });
   }
@@ -103,7 +103,7 @@ export class CategoryService {
     excludeId?: string,
   ): Promise<void> {
     const existingCategories =
-      await this.categoryRepository.findManyActiveByUserId(userId);
+      await this.categoryRepository.findManyByUserId(userId);
 
     const duplicateCategory = existingCategories.find(
       (category) =>

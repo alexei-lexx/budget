@@ -29,7 +29,7 @@ export class AccountService {
    * @returns Promise<Account[]> - List of active accounts
    */
   async getAccountsByUser(userId: string): Promise<Account[]> {
-    return await this.accountRepository.findManyActiveByUserId(userId);
+    return await this.accountRepository.findManyByUserId(userId);
   }
 
   /**
@@ -65,10 +65,7 @@ export class AccountService {
     input: UpdateAccountInput,
   ): Promise<Account> {
     // Fetch current account
-    const currentAccount = await this.accountRepository.findOneActiveById(
-      id,
-      userId,
-    );
+    const currentAccount = await this.accountRepository.findOneById(id, userId);
 
     if (!currentAccount) {
       throw new BusinessError("Account not found");
@@ -125,21 +122,17 @@ export class AccountService {
    */
   async calculateBalance(accountId: string, userId: string): Promise<number> {
     // First validate that the account exists and belongs to the user
-    const account = await this.accountRepository.findOneActiveById(
-      accountId,
-      userId,
-    );
+    const account = await this.accountRepository.findOneById(accountId, userId);
 
     if (!account) {
       throw new BusinessError("Account not found or doesn't belong to user");
     }
 
     // Get all transactions for this account
-    const transactions =
-      await this.transactionRepository.findManyActiveByAccountId(
-        accountId,
-        userId,
-      );
+    const transactions = await this.transactionRepository.findManyByAccountId(
+      accountId,
+      userId,
+    );
 
     // Calculate balance: initialBalance + INCOME + REFUND + TRANSFER_IN - EXPENSE - TRANSFER_OUT
     const balance = transactions.reduce(
@@ -183,7 +176,7 @@ export class AccountService {
     excludeId?: string,
   ): Promise<void> {
     const existingAccounts =
-      await this.accountRepository.findManyActiveByUserId(userId);
+      await this.accountRepository.findManyByUserId(userId);
     const duplicateAccount = existingAccounts.find(
       (account) =>
         account.name.toLowerCase() === name.toLowerCase() &&
