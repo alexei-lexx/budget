@@ -191,7 +191,7 @@ export class BackendCdkStack extends cdk.Stack {
     });
 
     const lambdaIntegration = new integrations.HttpLambdaIntegration(
-      "WebIntegration",
+      "WebFunctionIntegration",
       webFunction,
     );
 
