@@ -117,9 +117,7 @@ describe("Category Batch Loader", () => {
 
       const category = fakeCategory({ id: "cat-1" });
 
-      mockRepository.findManyWithArchivedByIds.mockResolvedValue([
-        category,
-      ]);
+      mockRepository.findManyWithArchivedByIds.mockResolvedValue([category]);
 
       const result = await batchLoadCategories(
         ["cat-1", "cat-1", "cat-1"],
@@ -148,9 +146,7 @@ describe("Category Batch Loader", () => {
       );
 
       expect(result).toEqual([]);
-      expect(
-        mockRepository.findManyWithArchivedByIds,
-      ).not.toHaveBeenCalled();
+      expect(mockRepository.findManyWithArchivedByIds).not.toHaveBeenCalled();
     });
   });
 
@@ -169,9 +165,7 @@ describe("Category Batch Loader", () => {
       const mockRepository = createMockCategoryRepository();
       const category = fakeCategory({ id: "cat-1" });
 
-      mockRepository.findManyWithArchivedByIds.mockResolvedValue([
-        category,
-      ]);
+      mockRepository.findManyWithArchivedByIds.mockResolvedValue([category]);
 
       const loader = createCategoryLoader(
         mockRepository,

@@ -40,9 +40,7 @@ describe("createGetCategoriesTool", () => {
   });
 
   it("should call category repository", async () => {
-    mockCategoryRepository.findManyWithArchivedByUserId.mockResolvedValue(
-      [],
-    );
+    mockCategoryRepository.findManyWithArchivedByUserId.mockResolvedValue([]);
 
     const tool = createGetCategoriesTool({
       categoryRepository: mockCategoryRepository,
@@ -177,9 +175,7 @@ describe("createGetCategoriesTool", () => {
   });
 
   it("should return empty array when user has no categories", async () => {
-    mockCategoryRepository.findManyWithArchivedByUserId.mockResolvedValue(
-      [],
-    );
+    mockCategoryRepository.findManyWithArchivedByUserId.mockResolvedValue([]);
     mockTransactionRepository.findManyByUserId.mockResolvedValue([]);
 
     const tool = createGetCategoriesTool({
@@ -198,9 +194,9 @@ describe("createGetCategoriesTool", () => {
   describe("recentDescriptions", () => {
     it("should return empty array when no transactions exist", async () => {
       const category = fakeCategory({ isArchived: false });
-      mockCategoryRepository.findManyWithArchivedByUserId.mockResolvedValue(
-        [category],
-      );
+      mockCategoryRepository.findManyWithArchivedByUserId.mockResolvedValue([
+        category,
+      ]);
       mockTransactionRepository.findManyByUserId.mockResolvedValue([]);
 
       const tool = createGetCategoriesTool({
@@ -230,9 +226,9 @@ describe("createGetCategoriesTool", () => {
         }),
         fakeTransaction({ categoryId: undefined, description: "also ignored" }),
       ];
-      mockCategoryRepository.findManyWithArchivedByUserId.mockResolvedValue(
-        [category],
-      );
+      mockCategoryRepository.findManyWithArchivedByUserId.mockResolvedValue([
+        category,
+      ]);
       mockTransactionRepository.findManyByUserId.mockResolvedValue(
         transactionsWithoutCategory,
       );
@@ -261,9 +257,9 @@ describe("createGetCategoriesTool", () => {
         fakeTransaction({ categoryId: category.id, description: undefined }),
         fakeTransaction({ categoryId: category.id, description: undefined }),
       ];
-      mockCategoryRepository.findManyWithArchivedByUserId.mockResolvedValue(
-        [category],
-      );
+      mockCategoryRepository.findManyWithArchivedByUserId.mockResolvedValue([
+        category,
+      ]);
       mockTransactionRepository.findManyByUserId.mockResolvedValue(
         transactionsWithoutDescription,
       );
@@ -301,9 +297,10 @@ describe("createGetCategoriesTool", () => {
         }),
       ];
 
-      mockCategoryRepository.findManyWithArchivedByUserId.mockResolvedValue(
-        [activeCategory, archivedCategory],
-      );
+      mockCategoryRepository.findManyWithArchivedByUserId.mockResolvedValue([
+        activeCategory,
+        archivedCategory,
+      ]);
       mockTransactionRepository.findManyByUserId.mockResolvedValue(
         transactions,
       );
@@ -328,9 +325,9 @@ describe("createGetCategoriesTool", () => {
 
     it("should cap recentDescriptions", async () => {
       const category = fakeCategory({ isArchived: false });
-      mockCategoryRepository.findManyWithArchivedByUserId.mockResolvedValue(
-        [category],
-      );
+      mockCategoryRepository.findManyWithArchivedByUserId.mockResolvedValue([
+        category,
+      ]);
 
       const transactions = Array.from(
         { length: CATEGORY_HISTORY_MAX_DESCRIPTIONS_PER_CATEGORY + 5 },
@@ -389,9 +386,10 @@ describe("createGetCategoriesTool", () => {
         }),
       ];
 
-      mockCategoryRepository.findManyWithArchivedByUserId.mockResolvedValue(
-        [groceryCategory, eatingOutCategory],
-      );
+      mockCategoryRepository.findManyWithArchivedByUserId.mockResolvedValue([
+        groceryCategory,
+        eatingOutCategory,
+      ]);
       mockTransactionRepository.findManyByUserId.mockResolvedValue(
         transactions,
       );
@@ -420,9 +418,9 @@ describe("createGetCategoriesTool", () => {
 
     it("should deduplicate repeated descriptions", async () => {
       const category = fakeCategory({ isArchived: false });
-      mockCategoryRepository.findManyWithArchivedByUserId.mockResolvedValue(
-        [category],
-      );
+      mockCategoryRepository.findManyWithArchivedByUserId.mockResolvedValue([
+        category,
+      ]);
 
       const transactions = [
         fakeTransaction({ categoryId: category.id, description: "ice cream" }),
@@ -454,9 +452,9 @@ describe("createGetCategoriesTool", () => {
 
     it("should fetch transactions within the history lookback window", async () => {
       const category = fakeCategory({ isArchived: false });
-      mockCategoryRepository.findManyWithArchivedByUserId.mockResolvedValue(
-        [category],
-      );
+      mockCategoryRepository.findManyWithArchivedByUserId.mockResolvedValue([
+        category,
+      ]);
       mockTransactionRepository.findManyByUserId.mockResolvedValue([]);
 
       const tool = createGetCategoriesTool({

@@ -119,9 +119,7 @@ describe("Account Batch Loader", () => {
 
       const account = fakeAccount({ id: "acc-1" });
 
-      mockRepository.findManyWithArchivedByIds.mockResolvedValue([
-        account,
-      ]);
+      mockRepository.findManyWithArchivedByIds.mockResolvedValue([account]);
 
       const result = await batchLoadAccounts(
         ["acc-1", "acc-1", "acc-1"],
@@ -151,9 +149,7 @@ describe("Account Batch Loader", () => {
       );
 
       expect(result).toEqual([]);
-      expect(
-        mockRepository.findManyWithArchivedByIds,
-      ).not.toHaveBeenCalled();
+      expect(mockRepository.findManyWithArchivedByIds).not.toHaveBeenCalled();
     });
   });
 
@@ -172,9 +168,7 @@ describe("Account Batch Loader", () => {
       const mockRepository = createMockAccountRepository();
       const account = fakeAccount({ id: "acc-1" });
 
-      mockRepository.findManyWithArchivedByIds.mockResolvedValue([
-        account,
-      ]);
+      mockRepository.findManyWithArchivedByIds.mockResolvedValue([account]);
 
       const loader = createAccountLoader(
         mockRepository,

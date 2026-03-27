@@ -48,10 +48,7 @@ describe("DynAccountRepository", () => {
 
     it("should return empty array when IDs are empty", async () => {
       // Act
-      const result = await repository.findManyWithArchivedByIds(
-        [],
-        userId,
-      );
+      const result = await repository.findManyWithArchivedByIds([], userId);
 
       // Assert
       expect(result).toEqual([]);
@@ -138,9 +135,9 @@ describe("DynAccountRepository", () => {
 
     it("should throw error when userId is missing", async () => {
       // Act & Assert
-      await expect(
-        repository.findManyWithArchivedByUserId(""),
-      ).rejects.toThrow("User ID is required");
+      await expect(repository.findManyWithArchivedByUserId("")).rejects.toThrow(
+        "User ID is required",
+      );
     });
   });
 
