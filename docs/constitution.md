@@ -466,6 +466,17 @@ Checks MUST follow this order:
 
 **Rationale**: Iterative validation catches errors early and locally, prevents broken code from entering version control, maintains quality standards across all changes.
 
+### Finder Method Naming
+
+**Non-negotiable rule**: Finder method names MUST encode cardinality and error behavior.
+
+**Prefixes**:
+- `findOne` — returns a single instance or `null` if not found
+- `findMany` — returns an array of instances (empty array when nothing matches, never `null`)
+- `get` — returns a single instance and throws if not found (use when absence is a program error)
+
+**Rationale**: Callers know from the method name alone whether to handle `null`, iterate a collection, or catch a thrown error — without reading the return type or implementation.
+
 ### Method Ordering
 
 **Non-negotiable rule**: Methods within a class MUST follow a consistent ordering that exposes the public API first and places higher-level logic above the details it depends on.
