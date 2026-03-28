@@ -129,7 +129,7 @@ If you can't state what it owns, don't include it.
 
 ### Sequence Diagrams
 
-Text-based sequence diagrams covering the main flows.
+Mermaid sequence diagrams covering the main flows.
 Use the actual components from the stack — both existing ones discovered in Step 1 and any new ones introduced by this feature.
 
 Include at minimum:
