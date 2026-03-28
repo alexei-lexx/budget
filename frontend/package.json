@@ -49,9 +49,11 @@
     "jiti": "^2.6.1",
     "npm-run-all2": "^8.0.4",
     "prettier": "3.6.2",
+    "sharp": "^0.34.5",
     "ts-jest": "^29.4.6",
     "typescript": "~5.9.3",
     "vite": "^7.1.12",
+    "vite-plugin-pwa": "^1.2.0",
     "vite-plugin-vue-devtools": "^8.0.3",
     "vue-tsc": "^3.1.1"
   }
