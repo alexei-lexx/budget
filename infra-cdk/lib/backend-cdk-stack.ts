@@ -120,34 +120,34 @@ export class BackendCdkStack extends cdk.Stack {
       ...defaultLambdaOptions(),
     };
 
-    const graphqlLogGroup = new logs.LogGroup(this, "GraphqlFunctionLogs", {
+    const webLogGroup = new logs.LogGroup(this, "WebFunctionLogs", {
       retention: logRetention,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
 
     // Create custom role with explicit permissions to avoid managed policy warnings
-    const graphqlRole = new iam.Role(this, "GraphqlFunctionRole", {
+    const webRole = new iam.Role(this, "WebFunctionRole", {
       assumedBy: new iam.ServicePrincipal("lambda.amazonaws.com"),
-      description: "Custom role for GraphQL Lambda function",
+      description: "Custom role for Web Lambda function (GraphQL)",
     });
 
-    const graphqlFunction = new lambda.Function(this, "GraphqlEndpoint", {
+    const webFunction = new lambda.Function(this, "WebEndpoint", {
       ...functionConfig,
-      handler: "graphql-lambda.handler",
-      logGroup: graphqlLogGroup,
-      role: graphqlRole,
+      handler: "web-lambda.handler",
+      logGroup: webLogGroup,
+      role: webRole,
     });
 
     // Grant permissions explicitly since we're using a custom role
-    graphqlLogGroup.grantWrite(graphqlFunction);
+    webLogGroup.grantWrite(webFunction);
 
-    accountsTable.grantReadWriteData(graphqlFunction);
-    categoriesTable.grantReadWriteData(graphqlFunction);
-    transactionsTable.grantReadWriteData(graphqlFunction);
-    usersTable.grantReadWriteData(graphqlFunction);
+    accountsTable.grantReadWriteData(webFunction);
+    categoriesTable.grantReadWriteData(webFunction);
+    transactionsTable.grantReadWriteData(webFunction);
+    usersTable.grantReadWriteData(webFunction);
 
-    // Allow the GraphQL Lambda to invoke Bedrock models
-    graphqlFunction.addToRolePolicy(
+    // Allow the Web Lambda to invoke Bedrock models
+    webFunction.addToRolePolicy(
       new iam.PolicyStatement({
         actions: ["bedrock:InvokeModel"],
         resources: ["*"],
@@ -191,15 +191,16 @@ export class BackendCdkStack extends cdk.Stack {
     });
 
     const lambdaIntegration = new integrations.HttpLambdaIntegration(
-      "GraphqlIntegration",
-      graphqlFunction,
+      "WebFunctionIntegration",
+      webFunction,
     );
 
-    const accessLogGroup = new logs.LogGroup(this, "GraphqlApiAccessLogs", {
+    const accessLogGroup = new logs.LogGroup(this, "WebAccessLogs", {
       retention: logRetention,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
 
+    // TODO: Rename to WebHttpApi
     const httpApi = new apigatewayv2.HttpApi(this, "GraphqlHttpApi", {
       defaultIntegration: lambdaIntegration,
     });
