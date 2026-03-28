@@ -200,6 +200,7 @@ export class BackendCdkStack extends cdk.Stack {
       removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
 
+    // TODO: Rename to WebHttpApi
     const httpApi = new apigatewayv2.HttpApi(this, "GraphqlHttpApi", {
       defaultIntegration: lambdaIntegration,
     });
