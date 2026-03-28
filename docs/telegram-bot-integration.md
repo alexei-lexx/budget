@@ -48,7 +48,7 @@ Test: snackbar success/failure, no state change.
 
 **TelegramBotService** (domain entity service)
 
-- **Owns**: Bot lifecycle — connect, disconnect, test, findByUser, acceptMessage (lookup by webhookSecret, dispatch)
+- **Owns**: Bot lifecycle — connect, disconnect, test, findOneConnectedByUserId, acceptMessage (lookup by webhookSecret, dispatch)
 - **Relations**: TelegramBotRepository, TelegramApiClient (port), BackgroundJobDispatcher (port)
 
 **Background Job Lambda** (entry point for async jobs)
@@ -138,7 +138,7 @@ sequenceDiagram
     User->>Telegram: send message
     Telegram->>WebLambda: POST /telegram/webhook<br/>X-Telegram-Bot-Api-Secret-Token: secret
     WebLambda->>TelegramBotService: acceptMessage(secret, message)
-    TelegramBotService->>TelegramBotRepository: findByWebhookSecret
+    TelegramBotService->>TelegramBotRepository: findConnectedByWebhookSecret
     TelegramBotRepository-->>TelegramBotService: bot record (userId, token)
     TelegramBotService->>BackgroundJobLambda: dispatch({type: telegram-message, userId, chatId, message, botToken})
     TelegramBotService-->>WebLambda: ok
@@ -192,7 +192,7 @@ sequenceDiagram
 
 **7. Primary key (`userId` PK + `id` SK) + GSI on `webhookSecret` on `TelegramBotsTable`**
 
-- **Decision**: Each TelegramBot record has an `id` field as SK (consistent with other tables); a Global Secondary Index (GSI) on `webhookSecret` (partition key only) supports the `findByWebhookSecret` lookup inside `acceptMessage`, which knows only the secret from the `X-Telegram-Bot-Api-Secret-Token` header.
+- **Decision**: Each TelegramBot record has an `id` field as SK (consistent with other tables); a Global Secondary Index (GSI) on `webhookSecret` (partition key only) supports the `findConnectedByWebhookSecret` lookup inside `acceptMessage`, which knows only the secret from the `X-Telegram-Bot-Api-Secret-Token` header.
 - **Rationale**: The GSI is a secondary index on a single field — portable to SQL and MongoDB per the vendor-independence principle.
 - **Alternative considered**: `userId` as sole PK — would work given one bot per user, but inconsistent with the rest of the project's table design
 
