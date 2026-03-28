@@ -34,8 +34,8 @@ Test: snackbar success/failure, no state change.
 
 ## Architecture Overview
 
-**GraphQL API** (entry point — connect/disconnect/test)
-- **Owns**: `connectTelegramBot` mutation, `disconnectTelegramBot` mutation, `telegramBotTest` query; authentication and userId resolution
+**GraphQL API** (entry point — connect/disconnect/test/status)
+- **Owns**: `connectTelegramBot` mutation, `disconnectTelegramBot` mutation, `telegramBotTest` query, `telegramBot` query; authentication and userId resolution
 - **Relations**: TelegramBotService
 
 **Webhook handler** (entry point — inbound Telegram messages)
@@ -43,7 +43,7 @@ Test: snackbar success/failure, no state change.
 - **Relations**: TelegramBotService (connection lookup), BackgroundJobDispatcher (port)
 
 **TelegramBotService** (domain entity service)
-- **Owns**: Connection lifecycle — connect, disconnect, test, lookup by webhookSecret
+- **Owns**: Connection lifecycle — connect, disconnect, test, getStatus, lookup by webhookSecret
 - **Relations**: TelegramConnRepo, TelegramApiClient (port)
 
 **ProcessTelegramMessageService** (single-purpose service)
@@ -84,7 +84,7 @@ User        Frontend     GraphQL      TelegramBotService   TelegramAPI   Telegra
  │               │            │               │<─────────────────│               │
  │               │            │               │ update status=connected          │
  │               │            │               │─────────────────────────────────>│
- │               │            │ Success{tokenHint}               │               │
+ │               │            │ Success{maskedToken}             │               │
  │               │            │<──────────────│                  │               │
  │               │ masked + Test/Disconnect   │                  │               │
  │<──────────────│            │               │                  │               │
