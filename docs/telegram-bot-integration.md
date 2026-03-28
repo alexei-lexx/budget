@@ -44,17 +44,17 @@ Test: snackbar success/failure, no state change.
 
 **TelegramBotService** (domain entity service)
 - **Owns**: Connection lifecycle — connect, disconnect, test, getStatus, lookup by webhookSecret
-- **Relations**: TelegramConnRepo, TelegramApiClient (port)
+- **Relations**: TelegramBotRepository, TelegramApiClient (port)
 
 **ProcessTelegramMessageService** (single-purpose service)
 - **Owns**: AI-reply orchestration for a single inbound Telegram message
 - **Relations**: InsightService, TelegramApiClient (port)
 
-**TelegramConnRepo**
-- **Owns**: Persistence of TelegramConnections records
-- **Relations**: TelegramConnectionsTable
+**TelegramBotRepository**
+- **Owns**: Persistence of TelegramBots records
+- **Relations**: TelegramBotsTable
 
-**TelegramConnectionsTable** (new DynamoDB table)
+**TelegramBotsTable** (new DynamoDB table)
 - **Owns**: Connection state per user — bot token, webhookSecret, status, isArchived
 
 **Telegram API** (external)
@@ -64,7 +64,7 @@ Test: snackbar success/failure, no state change.
 
 **Connect bot:**
 ```
-User        Frontend     GraphQL      TelegramBotService   TelegramAPI   TelegramConnRepo
+User        Frontend     GraphQL      TelegramBotService   TelegramAPI   TelegramBotRepository
  │               │            │               │                  │               │
  │ paste token   │            │               │                  │               │
  │──────────────>│            │               │                  │               │
@@ -92,7 +92,7 @@ User        Frontend     GraphQL      TelegramBotService   TelegramAPI   Telegra
 
 **Webhook receive + async processing:**
 ```
-User     Telegram  WebLambda  TelegramBotService  TelegramConnRepo  BackgroundJobLambda  ProcessTelegramMessageService  InsightService  TelegramAPI
+User     Telegram  WebLambda  TelegramBotService  TelegramBotRepository  BackgroundJobLambda  ProcessTelegramMessageService  InsightService  TelegramAPI
   │          │         │              │                   │                │                  │                   │            │
   │ send msg │         │              │                   │                │                  │                   │            │
   │─────────>│         │              │                   │                │                  │                   │            │
@@ -129,7 +129,7 @@ User     Telegram  WebLambda  TelegramBotService  TelegramConnRepo  BackgroundJo
 
 **Disconnect:**
 ```
-User        Frontend     GraphQL      TelegramBotService   TelegramAPI   TelegramConnRepo
+User        Frontend     GraphQL      TelegramBotService   TelegramAPI   TelegramBotRepository
  │               │            │               │                  │               │
  │ click Disconnect           │               │                  │               │
  │──────────────>│            │               │                  │               │
@@ -151,7 +151,7 @@ User        Frontend     GraphQL      TelegramBotService   TelegramAPI   Telegra
 
 ## Key Design Decisions
 
-**1. Separate `TelegramConnections` DynamoDB table**
+**1. Separate `TelegramBots` DynamoDB table**
 - **Decision**: Store Telegram bot connections in a dedicated DynamoDB table with a status field (`PENDING` = webhook registered but not yet confirmed in DB; `CONNECTED` = fully active; `DELETING` = disconnect/replace in progress)
 - **Rationale**: setWebhook and DB write are not atomic; status tracking makes partial failures recoverable — a `PENDING` record signals an incomplete connect, a `DELETING` record signals an incomplete disconnect. Keeps User table focused on user settings.
 - **Alternative considered**: Fields on User record — simpler but no clean status tracking, harder to reason about partial failures during token replacement
@@ -183,7 +183,7 @@ User        Frontend     GraphQL      TelegramBotService   TelegramAPI   Telegra
 - **Decision**: Reads `getMe` + `getWebhookInfo` from Telegram API; no server state changed
 - **Rationale**: GraphQL convention — mutations for state changes, queries for reads
 
-**8. Composite primary key (`userId` PK + `webhookSecret` SK) on `TelegramConnectionsTable`**
+**8. Composite primary key (`userId` PK + `webhookSecret` SK) on `TelegramBotsTable`**
 - **Decision**: Each connection record is keyed on the pair `(userId, webhookSecret)`, allowing multiple records per user to coexist. A Global Secondary Index (GSI) on `webhookSecret` (partition key only) supports the `findByWebhookSecret` lookup used by the webhook handler, which knows only the secret from the `X-Telegram-Bot-Api-Secret-Token` header.
 - **Rationale**: During token replacement, the old record must stay alive (its webhook still receives messages) until the new one is fully set up; a single-key design would require deleting the old record first, creating a gap and making crash recovery harder. The GSI is a secondary index on a single field — portable to SQL and MongoDB per the vendor-independence principle.
 - **Alternative considered**: `userId` as sole PK — simpler but forces delete-before-create, with no safe recovery path if the replacement crashes mid-way
