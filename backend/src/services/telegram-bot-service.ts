@@ -183,6 +183,6 @@ export class TelegramBotService {
   }
 
   private get webhookUrl(): string {
-    return `${this.webhookBaseUrl}/telegram/webhook`;
+    return `${this.webhookBaseUrl}/webhooks/telegram`;
   }
 }

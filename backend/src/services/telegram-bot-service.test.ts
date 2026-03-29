@@ -63,7 +63,7 @@ describe("TelegramBotService", () => {
         expect.objectContaining({
           secretToken: expect.any(String),
           token,
-          url: "http://telegram.localhost/telegram/webhook",
+          url: "http://telegram.localhost/webhooks/telegram",
         }),
       );
       expect(telegramBotRepository.update).toHaveBeenCalledWith(
@@ -179,7 +179,7 @@ describe("TelegramBotService", () => {
       telegramBotRepository.findOneConnectedByUserId.mockResolvedValue(bot);
       telegramApiClient.getWebhookInfo.mockResolvedValue({
         success: true,
-        data: { url: "http://telegram.localhost/telegram/webhook" },
+        data: { url: "http://telegram.localhost/webhooks/telegram" },
       });
 
       const result = await service.test(userId);

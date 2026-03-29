@@ -30,15 +30,15 @@ Store bot records in their own table with a `status` field (`PENDING` → `CONNE
 
 ### 2. Single webhook URL + `X-Telegram-Bot-Api-Secret-Token` for bot identity
 
-All bots share one URL (`/telegram/webhook`). Each bot is registered with a unique `webhookSecret` UUID; Telegram echoes it as the `X-Telegram-Bot-Api-Secret-Token` header. The handler looks up the bot record by that secret.
+All bots share one URL (`/webhooks/telegram`). Each bot is registered with a unique `webhookSecret` UUID; Telegram echoes it as the `X-Telegram-Bot-Api-Secret-Token` header. The handler looks up the bot record by that secret.
 
 Credentials stay out of URLs and logs. `setWebhook` is scoped per bot token, so the same URL can be registered by many bots independently.
 
 **Alternative considered**: Secret in the URL path — rejected because credentials in URLs appear in access logs.
 
-### 3. Extend the existing web Lambda to handle `/telegram/webhook`
+### 3. Extend the existing web Lambda to handle `/webhooks/telegram`
 
-Dispatch based on `event.rawPath` in the Lambda handler. Everything except `/telegram/webhook` goes to Apollo Server. No new Lambda or API Gateway route is needed.
+Dispatch based on `event.rawPath` in the Lambda handler. Everything except `/webhooks/telegram` goes to Apollo Server. No new Lambda or API Gateway route is needed.
 
 **Implementation note**: `web.ts` currently passes all requests directly to `startServerAndCreateLambdaHandler`. The handler must be wrapped — check `event.rawPath` first and dispatch to the webhook handler before delegating to Apollo.
 
@@ -86,7 +86,7 @@ Consistent with other tables (every entity has an `id` SK). The GSI on `webhookS
 ## Migration Plan
 
 1. Deploy CDK changes: new `TelegramBotsTable`, new Background Job Lambda, updated IAM.
-2. Deploy backend code: web Lambda now handles `/telegram/webhook`; new GraphQL operations available.
+2. Deploy backend code: web Lambda now handles `/webhooks/telegram`; new GraphQL operations available.
 3. No data migration required — new table, no existing records to transform.
 4. Rollback: redeploy previous backend version; CDK table can be left in place (empty, unused).
 

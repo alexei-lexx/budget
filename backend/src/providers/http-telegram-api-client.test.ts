@@ -23,7 +23,7 @@ describe("HttpTelegramApiClient", () => {
 
   describe("getWebhookInfo", () => {
     it("should call Telegram getWebhookInfo endpoint and return webhook info", async () => {
-      const webhookInfo = { url: "https://example.com/telegram/webhook" };
+      const webhookInfo = { url: "https://example.com/webhooks/telegram" };
       mockFetch.mockResolvedValue(
         mockResponse({ ok: true, result: webhookInfo }),
       );
@@ -86,7 +86,7 @@ describe("HttpTelegramApiClient", () => {
   describe("setWebhook", () => {
     const params = {
       token: "token-12345",
-      url: "https://example.com/telegram/webhook",
+      url: "https://example.com/webhooks/telegram",
       secretToken: "secret-67890",
     };
 
@@ -102,7 +102,7 @@ describe("HttpTelegramApiClient", () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            url: "https://example.com/telegram/webhook",
+            url: "https://example.com/webhooks/telegram",
             secret_token: "secret-67890",
           }),
         }),

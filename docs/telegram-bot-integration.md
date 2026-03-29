@@ -41,7 +41,7 @@ Test: snackbar success/failure, no state change.
 - **Owns**: `connectTelegramBot` mutation, `disconnectTelegramBot` mutation, `testTelegramBot` query, `telegramBot` query; authentication and userId resolution
 - **Relations**: TelegramBotService
 
-**Web Lambda (/telegram/webhook)** (entry point for inbound Telegram messages)
+**Web Lambda (/webhooks/telegram)** (entry point for inbound Telegram messages)
 
 - **Owns**: Webhook request validation via `X-Telegram-Bot-Api-Secret-Token` header; immediate 200 OK response to Telegram
 - **Relations**: TelegramBotService
@@ -136,7 +136,7 @@ sequenceDiagram
     participant TelegramAPI
 
     User->>Telegram: send message
-    Telegram->>WebLambda: POST /telegram/webhook<br/>X-Telegram-Bot-Api-Secret-Token: secret
+    Telegram->>WebLambda: POST /webhooks/telegram<br/>X-Telegram-Bot-Api-Secret-Token: secret
     WebLambda->>TelegramBotService: acceptMessage(secret, message)
     TelegramBotService->>TelegramBotRepository: findConnectedByWebhookSecret
     TelegramBotRepository-->>TelegramBotService: bot record (userId, token)
@@ -164,13 +164,13 @@ sequenceDiagram
 
 **2. Single fixed webhook URL + `X-Telegram-Bot-Api-Secret-Token` header for identity and auth**
 
-- **Decision**: All connected bots share a single webhook URL `/telegram/webhook` — Telegram calls it for every inbound message; each bot is registered with a unique `secret_token` (the `webhookSecret` UUID); Telegram echoes it as `X-Telegram-Bot-Api-Secret-Token` header; handler looks up user by header value
+- **Decision**: All connected bots share a single webhook URL `/webhooks/telegram` — Telegram calls it for every inbound message; each bot is registered with a unique `secret_token` (the `webhookSecret` UUID); Telegram echoes it as `X-Telegram-Bot-Api-Secret-Token` header; handler looks up user by header value
 - **Rationale**: `setWebhook` is scoped per bot token — same URL can be registered by many bots independently (confirmed via official Telegram API docs). Secret never appears in URL or logs.
 - **Alternative considered**: Secret in URL path — rejected; credentials in URLs appear in access logs
 
-**3. Extend existing web Lambda to handle both `/graphql` and `/telegram/webhook`**
+**3. Extend existing web Lambda to handle both `/graphql` and `/webhooks/telegram`**
 
-- **Decision**: Dispatch based on `event.rawPath` in the Lambda handler; `/telegram/webhook` goes to the webhook handler, everything else to Apollo Server
+- **Decision**: Dispatch based on `event.rawPath` in the Lambda handler; `/webhooks/telegram` goes to the webhook handler, everything else to Apollo Server
 - **Rationale**: Less infrastructure, fewer cold starts in local dev, consistent with existing pattern of one backend process
 - **Alternative considered**: Separate webhook Lambda — more isolation but unnecessary complexity
 

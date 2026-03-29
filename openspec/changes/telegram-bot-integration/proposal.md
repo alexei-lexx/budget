@@ -7,7 +7,7 @@ Users want to ask finance questions through Telegram without opening the web app
 - New Settings section where users can connect, test, and disconnect a personal Telegram bot
 - New GraphQL mutations and query: `connectTelegramBot`, `disconnectTelegramBot`, `testTelegramBot`, `telegramBot`
 - New DynamoDB table `TelegramBotsTable` storing one bot record per user
-- New webhook endpoint `/telegram/webhook` on the existing web Lambda to receive inbound Telegram messages
+- New webhook endpoint `/webhooks/telegram` on the existing web Lambda to receive inbound Telegram messages
 - New Background Job Lambda for async AI processing (avoids Telegram's 5-second webhook timeout)
 - New port interfaces: `TelegramApiClient` and `BackgroundJobDispatcher` (keep business logic runtime-agnostic)
 - New CDK infrastructure: `TelegramBotsTable`, Background Job Lambda, IAM for Lambda-to-Lambda invocation
@@ -26,7 +26,7 @@ Users want to ask finance questions through Telegram without opening the web app
 
 - **Backend**: New services, repository, GraphQL schema additions, two new port interfaces, webhook handler added to existing web Lambda entry point
 - **Frontend**: New Telegram Bot section on the Settings page
-- **Infra (CDK)**: New DynamoDB table, new Background Job Lambda, updated IAM for Lambda-to-Lambda invocation (no new API Gateway route — existing web Lambda handles `/telegram/webhook` internally via `event.rawPath` dispatch)
+- **Infra (CDK)**: New DynamoDB table, new Background Job Lambda, updated IAM for Lambda-to-Lambda invocation (no new API Gateway route — existing web Lambda handles `/webhooks/telegram` internally via `event.rawPath` dispatch)
 - **External dependency**: Telegram Bot API (`setWebhook`, `deleteWebhook`, `sendMessage`)
 
 ## Constitution Compliance
