@@ -200,7 +200,6 @@ export class CreateTransactionFromTextService {
       console.log("Agent error", {
         error: "Agent did not attempt to create a transaction",
         agentAnswer: answer,
-        toolExecutions,
       });
 
       return Failure({
