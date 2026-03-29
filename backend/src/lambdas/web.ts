@@ -2,7 +2,7 @@ import {
   handlers,
   startServerAndCreateLambdaHandler,
 } from "@as-integrations/aws-lambda";
-import { APIGatewayProxyEventV2, Callback, Context } from "aws-lambda";
+import { APIGatewayProxyEventV2, Context } from "aws-lambda";
 import { createContext, server } from "../server";
 import { telegramWebhookHandler } from "./telegram-webhook-handler";
 
@@ -28,11 +28,12 @@ const apolloHandler = startServerAndCreateLambdaHandler(
 export const handler = async (
   event: APIGatewayProxyEventV2,
   context: Context,
-  callback: Callback,
 ) => {
   if (event.rawPath === "/webhooks/telegram") {
     return telegramWebhookHandler(event);
   }
 
-  return apolloHandler(event, context, callback);
+  // @ts-expect-error: handler is async despite the type requiring a callback
+  // https://github.com/apollo-server-integrations/apollo-server-integration-aws-lambda/issues/168
+  return apolloHandler(event, context);
 };
