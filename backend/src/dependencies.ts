@@ -36,6 +36,9 @@ export const resolveAccountRepository = createSingleton<AccountRepository>(
 export const resolveCategoryRepository = createSingleton<CategoryRepository>(
   () => new DynCategoryRepository(),
 );
+const resolveTelegramBotRepository = createSingleton(
+  () => new DynTelegramBotRepository(),
+);
 export const resolveTransactionRepository =
   createSingleton<TransactionRepository>(() => new DynTransactionRepository());
 export const resolveUserRepository = createSingleton<UserRepository>(
@@ -81,6 +84,16 @@ export const resolveByCategoryReportService = createSingleton(
     ),
 );
 
+// Providers
+const resolveBackgroundJobDispatcher = createSingleton(() =>
+  process.env.BACKGROUND_JOB_FUNCTION_NAME
+    ? new LambdaBackgroundJobDispatcher()
+    : { dispatch: async (job: unknown) => console.log("[dev] background job skipped:", job) },
+);
+const resolveTelegramApiClient = createSingleton(
+  () => new HttpTelegramApiClient(),
+);
+
 // AI infrastructure
 const resolveBedrockChatModel = createSingleton(() => createBedrockChatModel());
 
@@ -105,15 +118,13 @@ export const resolveInsightService = createSingleton(
     }),
 );
 
-// Telegram services
+// Telegram
 export const resolveTelegramBotService = createSingleton(
   () =>
     new TelegramBotService({
-      telegramBotRepository: new DynTelegramBotRepository(),
-      telegramApiClient: new HttpTelegramApiClient(),
-      backgroundJobDispatcher: process.env.BACKGROUND_JOB_FUNCTION_NAME
-        ? new LambdaBackgroundJobDispatcher()
-        : { dispatch: async (job: unknown) => console.log("[dev] background job skipped:", job) },
+      backgroundJobDispatcher: resolveBackgroundJobDispatcher(),
+      telegramApiClient: resolveTelegramApiClient(),
+      telegramBotRepository: resolveTelegramBotRepository(),
       webhookBaseUrl: requireEnv("WEBHOOK_BASE_URL"),
     }),
 );
