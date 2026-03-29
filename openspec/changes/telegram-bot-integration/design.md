@@ -66,7 +66,7 @@ Reads a `type` field from the payload and routes to the appropriate handler. `te
 
 ### 7. Table key design: `userId` PK + `id` SK, GSI on `webhookSecret`
 
-Consistent with other tables (every entity has an `id` SK). The GSI on `webhookSecret` supports the `findConnectedByWebhookSecret` lookup in `acceptMessage`, which only knows the secret from the request header. Both `findConnectedByWebhookSecret` and `findOneConnectedByUserId` filter by `status = CONNECTED` — the names encode this. The status update after a successful `setWebhook` targets the record by `id`, consistent with how other entities handle updates. Single-field GSI — portable to SQL and MongoDB.
+Consistent with other tables (every entity has an `id` SK). The GSI on `webhookSecret` supports the `findOneConnectedByWebhookSecret` lookup in `acceptMessage`, which only knows the secret from the request header. Both `findOneConnectedByWebhookSecret` and `findOneConnectedByUserId` filter by `status = CONNECTED` — the names encode this. The status update after a successful `setWebhook` targets the record by `id`, consistent with how other entities handle updates. Single-field GSI — portable to SQL and MongoDB.
 
 **Alternative considered**: `userId` as sole PK — workable given one bot per user, but inconsistent with the rest of the table design.
 
@@ -78,8 +78,8 @@ Consistent with other tables (every entity has an `id` SK). The GSI on `webhookS
 
 ## Risks / Trade-offs
 
-- **Partial connect** (`setWebhook` fails, error caught) → service archives the `PENDING` record before returning failure; no stuck records. If the Lambda crashes mid-connect, the stale `PENDING` record is inert (`findOneConnectedByUserId` and `findConnectedByWebhookSecret` both filter by `status = CONNECTED`); the next connect attempt creates a fresh record and proceeds normally.
-- **Partial disconnect** (`deleteWebhook` fails, record still archived) → `deleteWebhook` is best-effort; Telegram will keep calling the webhook but `findConnectedByWebhookSecret` returns null for archived records, so messages are silently dropped.
+- **Partial connect** (`setWebhook` fails, error caught) → service archives the `PENDING` record before returning failure; no stuck records. If the Lambda crashes mid-connect, the stale `PENDING` record is inert (`findOneConnectedByUserId` and `findOneConnectedByWebhookSecret` both filter by `status = CONNECTED`); the next connect attempt creates a fresh record and proceeds normally.
+- **Partial disconnect** (`deleteWebhook` fails, record still archived) → `deleteWebhook` is best-effort; Telegram will keep calling the webhook but `findOneConnectedByWebhookSecret` returns null for archived records, so messages are silently dropped.
 - **Background Lambda cold starts** add latency to the first reply after inactivity → acceptable for personal-scale usage; Telegram has no hard timeout on the reply-to-message path.
 - **Bot token stored in DB** → treat as a sensitive credential; do not log it.
 

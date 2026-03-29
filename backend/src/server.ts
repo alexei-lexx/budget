@@ -8,8 +8,11 @@ import { createAccountLoader } from "./graphql/dataloaders/account-loader";
 import { createCategoryLoader } from "./graphql/dataloaders/category-loader";
 import { resolvers } from "./graphql/resolvers";
 import { getAuthenticatedUser } from "./graphql/resolvers/shared";
+import { HttpTelegramApiClient } from "./providers/http-telegram-api-client";
+import { LambdaBackgroundJobDispatcher } from "./providers/lambda-background-job-dispatcher";
 import { DynAccountRepository } from "./repositories/dyn-account-repository";
 import { DynCategoryRepository } from "./repositories/dyn-category-repository";
+import { DynTelegramBotRepository } from "./repositories/dyn-telegram-bot-repository";
 import { DynTransactionRepository } from "./repositories/dyn-transaction-repository";
 import { DynUserRepository } from "./repositories/dyn-user-repository";
 import { AccountService } from "./services/account-service";
@@ -21,10 +24,12 @@ import { AccountRepository } from "./services/ports/account-repository";
 import { CategoryRepository } from "./services/ports/category-repository";
 import { TransactionRepository } from "./services/ports/transaction-repository";
 import { UserRepository } from "./services/ports/user-repository";
+import { TelegramBotService } from "./services/telegram-bot-service";
 import { TransactionService } from "./services/transaction-service";
 import { TransferService } from "./services/transfer-service";
 import { UserService } from "./services/user-service";
 import { createBedrockChatModel } from "./utils/bedrock";
+import { requireEnv } from "./utils/require-env";
 
 let jwtAuthService: JwtAuthService;
 let userRepository: UserRepository;
@@ -38,6 +43,7 @@ let insightService: InsightService;
 let createTransactionFromTextService: CreateTransactionFromTextService;
 let transferService: TransferService;
 let byCategoryReportService: ByCategoryReportService;
+let telegramBotService: TelegramBotService;
 let userService: UserService;
 
 const typeDefs = readFileSync(join(__dirname, "graphql/schema.graphql"), {
@@ -132,6 +138,26 @@ export async function createContext(req: {
     );
   }
 
+  if (!telegramBotService) {
+    const telegramBotRepository = new DynTelegramBotRepository();
+    const telegramApiClient = new HttpTelegramApiClient();
+    const backgroundJobDispatcher = process.env.BACKGROUND_JOB_FUNCTION_NAME
+      ? new LambdaBackgroundJobDispatcher()
+      : {
+          dispatch: async (job: unknown) =>
+            console.log("[dev] background job skipped:", job),
+        };
+
+    const webhookBaseUrl = requireEnv("WEBHOOK_BASE_URL");
+
+    telegramBotService = new TelegramBotService({
+      telegramBotRepository,
+      telegramApiClient,
+      backgroundJobDispatcher,
+      webhookBaseUrl,
+    });
+  }
+
   if (!userService) {
     userService = new UserService(userRepository);
   }
@@ -159,6 +185,7 @@ export async function createContext(req: {
     createTransactionFromTextService,
     transferService,
     byCategoryReportService,
+    telegramBotService,
     jwtAuthService,
     authHeader: authHeaderString,
   };

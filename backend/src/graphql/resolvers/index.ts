@@ -5,6 +5,7 @@ import { categoryResolvers } from "./category-resolvers";
 import { createTransactionFromTextResolvers } from "./create-transaction-from-text-resolvers";
 import { insightResolvers } from "./insight-resolvers";
 import { reportResolvers } from "./report-resolvers";
+import { telegramBotResolvers } from "./telegram-bot-resolvers";
 import { transactionResolvers } from "./transaction-resolvers";
 import { transferResolvers } from "./transfer-resolvers";
 import { userResolvers } from "./user-resolvers";
@@ -15,6 +16,7 @@ export const resolvers: Resolvers = {
     ...categoryResolvers.Query,
     ...insightResolvers.Query,
     ...reportResolvers.Query,
+    ...telegramBotResolvers.Query,
     ...transactionResolvers.Query,
     ...transferResolvers.Query,
     ...userResolvers.Query,
@@ -24,6 +26,7 @@ export const resolvers: Resolvers = {
     ...userResolvers.Mutation,
     ...categoryResolvers.Mutation,
     ...createTransactionFromTextResolvers.Mutation,
+    ...telegramBotResolvers.Mutation,
     ...transactionResolvers.Mutation,
     ...transferResolvers.Mutation,
   },

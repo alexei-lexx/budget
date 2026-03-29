@@ -169,6 +169,7 @@ export type InsightSuccess = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  connectTelegramBot: TelegramBot;
   createAccount: Account;
   createCategory: Category;
   createTransaction: Transaction;
@@ -178,12 +179,19 @@ export type Mutation = {
   deleteCategory: Category;
   deleteTransaction: Transaction;
   deleteTransfer?: Maybe<Scalars['Boolean']['output']>;
+  disconnectTelegramBot?: Maybe<Scalars['Boolean']['output']>;
   ensureUser: User;
+  testTelegramBot?: Maybe<Scalars['Boolean']['output']>;
   updateAccount: Account;
   updateCategory: Category;
   updateTransaction: Transaction;
   updateTransfer: Transfer;
   updateUserSettings: UserSettings;
+};
+
+
+export type MutationConnectTelegramBotArgs = {
+  token: Scalars['String']['input'];
 };
 
 
@@ -276,6 +284,7 @@ export type Query = {
   categories: Array<Category>;
   insight: InsightOutput;
   supportedCurrencies: Array<Scalars['String']['output']>;
+  telegramBot?: Maybe<TelegramBot>;
   transactionDescriptionSuggestions: Array<Scalars['String']['output']>;
   transactionPatterns: Array<TransactionPattern>;
   transactions: TransactionConnection;
@@ -322,6 +331,12 @@ export type QueryTransferArgs = {
 };
 
 export { ReportType };
+
+export type TelegramBot = {
+  __typename?: 'TelegramBot';
+  id: Scalars['ID']['output'];
+  maskedToken: Scalars['String']['output'];
+};
 
 /**
  * Transaction with embedded account and category data.
@@ -580,6 +595,7 @@ export type ResolversTypes = {
   Query: ResolverTypeWrapper<Record<PropertyKey, never>>;
   ReportType: ReportType;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
+  TelegramBot: ResolverTypeWrapper<TelegramBot>;
   Transaction: ResolverTypeWrapper<Omit<Transaction, 'account' | 'category'>>;
   TransactionConnection: ResolverTypeWrapper<Omit<TransactionConnection, 'edges'> & { edges: Array<ResolversTypes['TransactionEdge']> }>;
   TransactionEdge: ResolverTypeWrapper<Omit<TransactionEdge, 'node'> & { node: ResolversTypes['Transaction'] }>;
@@ -632,6 +648,7 @@ export type ResolversParentTypes = {
   PaginationInput: PaginationInput;
   Query: Record<PropertyKey, never>;
   String: Scalars['String']['output'];
+  TelegramBot: TelegramBot;
   Transaction: Omit<Transaction, 'account' | 'category'>;
   TransactionConnection: Omit<TransactionConnection, 'edges'> & { edges: Array<ResolversParentTypes['TransactionEdge']> };
   TransactionEdge: Omit<TransactionEdge, 'node'> & { node: ResolversParentTypes['Transaction'] };
@@ -747,6 +764,7 @@ export type InsightSuccessResolvers<ContextType = GraphQLContext, ParentType ext
 };
 
 export type MutationResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
+  connectTelegramBot?: Resolver<ResolversTypes['TelegramBot'], ParentType, ContextType, RequireFields<MutationConnectTelegramBotArgs, 'token'>>;
   createAccount?: Resolver<ResolversTypes['Account'], ParentType, ContextType, RequireFields<MutationCreateAccountArgs, 'input'>>;
   createCategory?: Resolver<ResolversTypes['Category'], ParentType, ContextType, RequireFields<MutationCreateCategoryArgs, 'input'>>;
   createTransaction?: Resolver<ResolversTypes['Transaction'], ParentType, ContextType, RequireFields<MutationCreateTransactionArgs, 'input'>>;
@@ -756,7 +774,9 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteCategory?: Resolver<ResolversTypes['Category'], ParentType, ContextType, RequireFields<MutationDeleteCategoryArgs, 'id'>>;
   deleteTransaction?: Resolver<ResolversTypes['Transaction'], ParentType, ContextType, RequireFields<MutationDeleteTransactionArgs, 'id'>>;
   deleteTransfer?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType, RequireFields<MutationDeleteTransferArgs, 'id'>>;
+  disconnectTelegramBot?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   ensureUser?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  testTelegramBot?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   updateAccount?: Resolver<ResolversTypes['Account'], ParentType, ContextType, RequireFields<MutationUpdateAccountArgs, 'input'>>;
   updateCategory?: Resolver<ResolversTypes['Category'], ParentType, ContextType, RequireFields<MutationUpdateCategoryArgs, 'input'>>;
   updateTransaction?: Resolver<ResolversTypes['Transaction'], ParentType, ContextType, RequireFields<MutationUpdateTransactionArgs, 'input'>>;
@@ -777,6 +797,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   categories?: Resolver<Array<ResolversTypes['Category']>, ParentType, ContextType, Partial<QueryCategoriesArgs>>;
   insight?: Resolver<ResolversTypes['InsightOutput'], ParentType, ContextType, RequireFields<QueryInsightArgs, 'input'>>;
   supportedCurrencies?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  telegramBot?: Resolver<Maybe<ResolversTypes['TelegramBot']>, ParentType, ContextType>;
   transactionDescriptionSuggestions?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType, RequireFields<QueryTransactionDescriptionSuggestionsArgs, 'searchText'>>;
   transactionPatterns?: Resolver<Array<ResolversTypes['TransactionPattern']>, ParentType, ContextType, RequireFields<QueryTransactionPatternsArgs, 'type'>>;
   transactions?: Resolver<ResolversTypes['TransactionConnection'], ParentType, ContextType, Partial<QueryTransactionsArgs>>;
@@ -785,6 +806,11 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
 };
 
 export type ReportTypeResolvers = EnumResolverSignature<{ EXPENSE?: any, INCOME?: any }, ResolversTypes['ReportType']>;
+
+export type TelegramBotResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TelegramBot'] = ResolversParentTypes['TelegramBot']> = {
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  maskedToken?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+};
 
 export type TransactionResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Transaction'] = ResolversParentTypes['Transaction']> = {
   account?: Resolver<ResolversTypes['TransactionEmbeddedAccount'], ParentType, ContextType>;
@@ -869,6 +895,7 @@ export type Resolvers<ContextType = GraphQLContext> = {
   PageInfo?: PageInfoResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   ReportType?: ReportTypeResolvers;
+  TelegramBot?: TelegramBotResolvers<ContextType>;
   Transaction?: TransactionResolvers<ContextType>;
   TransactionConnection?: TransactionConnectionResolvers<ContextType>;
   TransactionEdge?: TransactionEdgeResolvers<ContextType>;
