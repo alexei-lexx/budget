@@ -16,6 +16,7 @@ import { AccountRepository } from "./services/ports/account-repository";
 import { CategoryRepository } from "./services/ports/category-repository";
 import { TransactionRepository } from "./services/ports/transaction-repository";
 import { UserRepository } from "./services/ports/user-repository";
+import { ProcessTelegramMessageService } from "./services/process-telegram-message-service";
 import { TelegramBotService } from "./services/telegram-bot-service";
 import { TransactionService } from "./services/transaction-service";
 import { TransferService } from "./services/transfer-service";
@@ -88,7 +89,10 @@ export const resolveByCategoryReportService = createSingleton(
 const resolveBackgroundJobDispatcher = createSingleton(() =>
   process.env.BACKGROUND_JOB_FUNCTION_NAME
     ? new LambdaBackgroundJobDispatcher()
-    : { dispatch: async (job: unknown) => console.log("[dev] background job skipped:", job) },
+    : {
+        dispatch: async (job: unknown) =>
+          console.log("[dev] background job skipped:", job),
+      },
 );
 const resolveTelegramApiClient = createSingleton(
   () => new HttpTelegramApiClient(),
@@ -119,6 +123,14 @@ export const resolveInsightService = createSingleton(
 );
 
 // Telegram
+export const resolveProcessTelegramMessageService = createSingleton(
+  () =>
+    new ProcessTelegramMessageService({
+      insightService: resolveInsightService(),
+      telegramApiClient: resolveTelegramApiClient(),
+      telegramBotRepository: resolveTelegramBotRepository(),
+    }),
+);
 export const resolveTelegramBotService = createSingleton(
   () =>
     new TelegramBotService({

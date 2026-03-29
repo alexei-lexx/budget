@@ -171,11 +171,9 @@ export class TelegramBotService {
     await this.backgroundJobDispatcher.dispatch({
       type: "telegram-message",
       payload: {
-        webhookSecret,
-        botId: bot.id,
-        userId: bot.userId,
         chatId: message.chatId,
         text: message.text ?? null,
+        userId: bot.userId,
       },
     });
 

@@ -13,7 +13,11 @@ describe("LambdaBackgroundJobDispatcher", () => {
 
     await dispatcher.dispatch({
       type: "telegram-message",
-      payload: { webhookSecret: "abc", message: { text: "hello" } },
+      payload: {
+        chatId: 123,
+        text: "hello",
+        userId: "user-1",
+      },
     });
 
     expect(mockSend).toHaveBeenCalledTimes(1);
@@ -28,7 +32,11 @@ describe("LambdaBackgroundJobDispatcher", () => {
 
     expect(payload).toEqual({
       type: "telegram-message",
-      payload: { webhookSecret: "abc", message: { text: "hello" } },
+      payload: {
+        chatId: 123,
+        text: "hello",
+        userId: "user-1",
+      },
     });
   });
 
