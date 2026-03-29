@@ -145,14 +145,10 @@ export class BackendCdkStack extends cdk.Stack {
       },
     );
 
-    const backgroundJobRole = new iam.Role(
-      this,
-      "BackgroundJobFunctionRole",
-      {
-        assumedBy: new iam.ServicePrincipal("lambda.amazonaws.com"),
-        description: "Custom role for Background Job Lambda function",
-      },
-    );
+    const backgroundJobRole = new iam.Role(this, "BackgroundJobFunctionRole", {
+      assumedBy: new iam.ServicePrincipal("lambda.amazonaws.com"),
+      description: "Custom role for Background Job Lambda function",
+    });
 
     const backgroundJobFunction = new lambda.Function(
       this,
