@@ -39,11 +39,7 @@ export class ReActAgent implements Agent {
     const agentTrace: AgentTraceMessage[] = [];
 
     // Collect tool calls and results from agent conversation
-    for (let index = 0; index < response.messages.length; index++) {
-      const message = response.messages[index];
-
-      console.debug(`Message[${index}]`, JSON.stringify(message, null, 2));
-
+    for (const message of response.messages) {
       if (message instanceof AIMessage) {
         agentTrace.push(...this.extractAgentTraceTexts(message));
 
