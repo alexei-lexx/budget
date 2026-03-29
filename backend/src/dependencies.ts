@@ -76,6 +76,9 @@ export const resolveByCategoryReportService = createSingleton(
     ),
 );
 
+// AI infrastructure
+const resolveBedrockChatModel = createSingleton(() => createBedrockChatModel());
+
 // AI services
 export const resolveCreateTransactionFromTextService = createSingleton(
   () =>
@@ -83,7 +86,7 @@ export const resolveCreateTransactionFromTextService = createSingleton(
       accountRepository: resolveAccountRepository(),
       categoryRepository: resolveCategoryRepository(),
       transactionRepository: resolveTransactionRepository(),
-      agent: new ReActAgent(createBedrockChatModel()),
+      agent: new ReActAgent(resolveBedrockChatModel()),
       transactionService: resolveTransactionService(),
     }),
 );
@@ -93,6 +96,6 @@ export const resolveInsightService = createSingleton(
       accountRepository: resolveAccountRepository(),
       categoryRepository: resolveCategoryRepository(),
       transactionRepository: resolveTransactionRepository(),
-      agent: new ReActAgent(createBedrockChatModel()),
+      agent: new ReActAgent(resolveBedrockChatModel()),
     }),
 );

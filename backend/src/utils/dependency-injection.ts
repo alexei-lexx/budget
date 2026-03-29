@@ -1,8 +1,8 @@
 export function createSingleton<T>(factory: () => T): () => T {
-  let instance: T | null = null;
+  let instance: T | undefined;
 
   return () => {
-    if (instance === null) {
+    if (instance === undefined) {
       instance = factory();
     }
     return instance;
