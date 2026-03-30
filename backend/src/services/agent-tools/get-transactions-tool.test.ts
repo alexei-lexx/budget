@@ -224,7 +224,7 @@ describe("createGetTransactionsTool", () => {
     );
   });
 
-  it("should filter by both accountId, categoryId, and types", async () => {
+  it("should filter by accountId, categoryId, and types", async () => {
     const accountId = faker.string.uuid();
     const categoryId = faker.string.uuid();
     const types = [TransactionType.EXPENSE, TransactionType.INCOME];
