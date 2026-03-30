@@ -358,9 +358,7 @@ const evalTasks: EvalTask<unknown>[] = [
   },
 ];
 
-(async () => {
+export async function evaluate() {
   const results = await runEvalSuite(evalTasks);
-  const { failureCount: failed, errorCount: totalErrors } = reportToConsole(results);
-
-  return { failed, totalErrors };
-})();
+  return reportToConsole(results);
+}

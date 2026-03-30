@@ -14,7 +14,9 @@ export function reportToConsole(evalTaskResults: EvalTaskResult<unknown>[]): {
   failureCount: number;
   errorCount: number;
 } {
-  const failureCount = evalTaskResults.filter((result) => !result.success).length;
+  const failureCount = evalTaskResults.filter(
+    (result) => !result.success,
+  ).length;
   const errorCount = evalTaskResults.reduce(
     (sum, result) => sum + result.errors,
     0,

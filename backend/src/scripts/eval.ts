@@ -7,18 +7,22 @@ import { glob } from "glob";
   let totalErrorCount = 0;
 
   for (const file of files) {
-    const { failureCount, errorCount } = await import(path.resolve(file));
+    console.log(`\nEvaluating: ${file}`);
+
+    const { evaluate } = await import(path.resolve(file));
+    const { failureCount, errorCount } = await evaluate();
+
     totalFailureCount += failureCount;
     totalErrorCount += errorCount;
   }
 
   if (totalFailureCount > 0 || totalErrorCount > 0) {
-      console.error(
-        `${totalFailureCount} eval task(s) failed. ${totalErrorCount} error(s) occurred.`,
-      );
-      process.exit(1);
-    } else {
-      console.log("All eval tasks passed successfully.");
-      process.exit(0);
-    }
+    console.error(
+      `${totalFailureCount} eval task(s) failed. ${totalErrorCount} error(s) occurred.`,
+    );
+    process.exit(1);
+  } else {
+    console.log("All eval tasks passed successfully.");
+    process.exit(0);
+  }
 })();
