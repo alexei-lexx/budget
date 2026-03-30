@@ -11,6 +11,7 @@ type Query {
   byCategoryReport(year: Int!, month: Int, type: ReportType!): ByCategoryReport!
   insight(input: InsightInput!): InsightOutput!
   telegramBot: TelegramBot
+  testTelegramBot: Boolean
   transactionDescriptionSuggestions(searchText: String!): [String!]!
   userSettings: UserSettings!
 }
@@ -334,5 +335,4 @@ type Mutation {
   updateUserSettings(input: UpdateUserSettingsInput!): UserSettings!
   connectTelegramBot(token: String!): TelegramBot!
   disconnectTelegramBot: Boolean
-  testTelegramBot: Boolean
 }

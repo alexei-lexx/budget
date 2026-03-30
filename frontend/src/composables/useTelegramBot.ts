@@ -4,7 +4,7 @@ import {
   useConnectTelegramBotMutation,
   useDisconnectTelegramBotMutation,
   useGetTelegramBotQuery,
-  useTestTelegramBotMutation,
+  useTestTelegramBotLazyQuery,
 } from "@/__generated__/vue-apollo";
 
 export function useTelegramBot() {
@@ -42,10 +42,10 @@ export function useTelegramBot() {
   });
 
   const {
-    mutate: testTelegramBotMutation,
+    load: loadTestTelegramBot,
     loading: testTelegramBotLoading,
     error: testTelegramBotError,
-  } = useTestTelegramBotMutation();
+  } = useTestTelegramBotLazyQuery();
 
   const telegramBot = computed(() => telegramBotResult.value?.telegramBot ?? null);
 
@@ -69,8 +69,8 @@ export function useTelegramBot() {
 
   const testTelegramBot = async (): Promise<boolean> => {
     try {
-      const result = await testTelegramBotMutation();
-      return result?.data?.testTelegramBot === true;
+      const result = await loadTestTelegramBot();
+      return !!result && result.testTelegramBot === true;
     } catch {
       return false;
     }

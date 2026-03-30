@@ -164,8 +164,3 @@ export const DISCONNECT_TELEGRAM_BOT = gql`
   }
 `;
 
-export const TEST_TELEGRAM_BOT = gql`
-  mutation TestTelegramBot {
-    testTelegramBot
-  }
-`;

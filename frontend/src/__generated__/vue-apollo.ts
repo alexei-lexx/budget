@@ -178,7 +178,6 @@ export type Mutation = {
   deleteTransfer?: Maybe<Scalars['Boolean']['output']>;
   disconnectTelegramBot?: Maybe<Scalars['Boolean']['output']>;
   ensureUser: User;
-  testTelegramBot?: Maybe<Scalars['Boolean']['output']>;
   updateAccount: Account;
   updateCategory: Category;
   updateTransaction: Transaction;
@@ -282,6 +281,7 @@ export type Query = {
   insight: InsightOutput;
   supportedCurrencies: Array<Scalars['String']['output']>;
   telegramBot?: Maybe<TelegramBot>;
+  testTelegramBot?: Maybe<Scalars['Boolean']['output']>;
   transactionDescriptionSuggestions: Array<Scalars['String']['output']>;
   transactionPatterns: Array<TransactionPattern>;
   transactions: TransactionConnection;
@@ -626,11 +626,6 @@ export type DisconnectTelegramBotMutationVariables = Exact<{ [key: string]: neve
 
 export type DisconnectTelegramBotMutation = { __typename?: 'Mutation', disconnectTelegramBot?: boolean | null | undefined };
 
-export type TestTelegramBotMutationVariables = Exact<{ [key: string]: never; }>;
-
-
-export type TestTelegramBotMutation = { __typename?: 'Mutation', testTelegramBot?: boolean | null | undefined };
-
 export type GetAccountsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -713,6 +708,11 @@ export type GetTelegramBotQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type GetTelegramBotQuery = { __typename?: 'Query', telegramBot?: { __typename?: 'TelegramBot', id: string, maskedToken: string } | null | undefined };
+
+export type TestTelegramBotQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type TestTelegramBotQuery = { __typename?: 'Query', testTelegramBot?: boolean | null | undefined };
 
 export const AccountFieldsFragmentDoc = gql`
     fragment AccountFields on Account {
@@ -1273,29 +1273,6 @@ export function useDisconnectTelegramBotMutation(options: VueApolloComposable.Us
   return VueApolloComposable.useMutation<DisconnectTelegramBotMutation, DisconnectTelegramBotMutationVariables>(DisconnectTelegramBotDocument, options);
 }
 export type DisconnectTelegramBotMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<DisconnectTelegramBotMutation, DisconnectTelegramBotMutationVariables>;
-export const TestTelegramBotDocument = gql`
-    mutation TestTelegramBot {
-  testTelegramBot
-}
-    `;
-
-/**
- * __useTestTelegramBotMutation__
- *
- * To run a mutation, you first call `useTestTelegramBotMutation` within a Vue component and pass it any options that fit your needs.
- * When your component renders, `useTestTelegramBotMutation` returns an object that includes:
- * - A mutate function that you can call at any time to execute the mutation
- * - Several other properties: https://v4.apollo.vuejs.org/api/use-mutation.html#return
- *
- * @param options that will be passed into the mutation, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/mutation.html#options;
- *
- * @example
- * const { mutate, loading, error, onDone } = useTestTelegramBotMutation();
- */
-export function useTestTelegramBotMutation(options: VueApolloComposable.UseMutationOptions<TestTelegramBotMutation, TestTelegramBotMutationVariables> | ReactiveFunction<VueApolloComposable.UseMutationOptions<TestTelegramBotMutation, TestTelegramBotMutationVariables>> = {}) {
-  return VueApolloComposable.useMutation<TestTelegramBotMutation, TestTelegramBotMutationVariables>(TestTelegramBotDocument, options);
-}
-export type TestTelegramBotMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<TestTelegramBotMutation, TestTelegramBotMutationVariables>;
 export const GetAccountsDocument = gql`
     query GetAccounts {
   accounts {
@@ -1660,3 +1637,28 @@ export function useGetTelegramBotLazyQuery(options: VueApolloComposable.UseQuery
   return VueApolloComposable.useLazyQuery<GetTelegramBotQuery, GetTelegramBotQueryVariables>(GetTelegramBotDocument, {}, options);
 }
 export type GetTelegramBotQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<GetTelegramBotQuery, GetTelegramBotQueryVariables>;
+export const TestTelegramBotDocument = gql`
+    query TestTelegramBot {
+  testTelegramBot
+}
+    `;
+
+/**
+ * __useTestTelegramBotQuery__
+ *
+ * To run a query within a Vue component, call `useTestTelegramBotQuery` and pass it any options that fit your needs.
+ * When your component renders, `useTestTelegramBotQuery` returns an object from Apollo Client that contains result, loading and error properties
+ * you can use to render your UI.
+ *
+ * @param options that will be passed into the query, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/query.html#options;
+ *
+ * @example
+ * const { result, loading, error } = useTestTelegramBotQuery();
+ */
+export function useTestTelegramBotQuery(options: VueApolloComposable.UseQueryOptions<TestTelegramBotQuery, TestTelegramBotQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<TestTelegramBotQuery, TestTelegramBotQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<TestTelegramBotQuery, TestTelegramBotQueryVariables>> = {}) {
+  return VueApolloComposable.useQuery<TestTelegramBotQuery, TestTelegramBotQueryVariables>(TestTelegramBotDocument, {}, options);
+}
+export function useTestTelegramBotLazyQuery(options: VueApolloComposable.UseQueryOptions<TestTelegramBotQuery, TestTelegramBotQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<TestTelegramBotQuery, TestTelegramBotQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<TestTelegramBotQuery, TestTelegramBotQueryVariables>> = {}) {
+  return VueApolloComposable.useLazyQuery<TestTelegramBotQuery, TestTelegramBotQueryVariables>(TestTelegramBotDocument, {}, options);
+}
+export type TestTelegramBotQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<TestTelegramBotQuery, TestTelegramBotQueryVariables>;

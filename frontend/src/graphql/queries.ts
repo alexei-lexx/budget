@@ -143,3 +143,9 @@ export const GET_TELEGRAM_BOT = gql`
     }
   }
 `;
+
+export const TEST_TELEGRAM_BOT = gql`
+  query TestTelegramBot {
+    testTelegramBot
+  }
+`;

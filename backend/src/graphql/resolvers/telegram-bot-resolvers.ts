@@ -24,6 +24,25 @@ export const telegramBotResolvers = {
         handleResolverError(error, "Failed to fetch Telegram bot");
       }
     },
+
+    testTelegramBot: async (
+      _parent: unknown,
+      _args: unknown,
+      context: GraphQLContext,
+    ) => {
+      try {
+        const user = await getAuthenticatedUser(context);
+        const result = await context.telegramBotService.test(user.id);
+
+        if (!result.success) {
+          throw new GraphQLError(result.error);
+        }
+
+        return result.data;
+      } catch (error) {
+        handleResolverError(error, "Failed to test Telegram bot");
+      }
+    },
   },
   Mutation: {
     connectTelegramBot: async (
@@ -64,25 +83,6 @@ export const telegramBotResolvers = {
         return result.data;
       } catch (error) {
         handleResolverError(error, "Failed to disconnect Telegram bot");
-      }
-    },
-
-    testTelegramBot: async (
-      _parent: unknown,
-      _args: unknown,
-      context: GraphQLContext,
-    ) => {
-      try {
-        const user = await getAuthenticatedUser(context);
-        const result = await context.telegramBotService.test(user.id);
-
-        if (!result.success) {
-          throw new GraphQLError(result.error);
-        }
-
-        return result.data;
-      } catch (error) {
-        handleResolverError(error, "Failed to test Telegram bot");
       }
     },
   },
