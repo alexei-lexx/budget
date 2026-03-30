@@ -4,6 +4,7 @@ import { TelegramApiClient } from "./ports/telegram-api-client";
 import { TelegramBotRepository } from "./ports/telegram-bot-repository";
 
 export interface ProcessTelegramMessageInput {
+  botId: string;
   chatId: number;
   text: string | null;
   userId: string;
@@ -25,13 +26,22 @@ export class ProcessTelegramMessageService {
   }
 
   async call(input: ProcessTelegramMessageInput): Promise<Result<void>> {
-    const { userId, chatId, text } = input;
+    const { botId, userId, chatId, text } = input;
 
     const bot =
       await this.telegramBotRepository.findOneConnectedByUserId(userId);
 
     if (!bot) {
-      // Bot no longer active — nothing to do
+      // No connected bot for this user — nothing to do
+      console.warn(`No connected bot found for user ${userId}`);
+      return Success(undefined);
+    }
+
+    if (bot.id !== botId) {
+      // User reconnected a different bot — nothing to do
+      console.warn(
+        `Received message for bot ${botId}, but currently connected bot for user ${userId} is ${bot.id}`,
+      );
       return Success(undefined);
     }
 

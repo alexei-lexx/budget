@@ -171,6 +171,7 @@ export class TelegramBotService {
     await this.backgroundJobDispatcher.dispatch({
       type: "telegram-message",
       payload: {
+        botId: bot.id,
         chatId: message.chatId,
         text: message.text ?? null,
         userId: bot.userId,

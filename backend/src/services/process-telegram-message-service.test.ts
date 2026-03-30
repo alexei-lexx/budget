@@ -31,7 +31,27 @@ describe("ProcessTelegramMessageService", () => {
   it("should do nothing when bot is not found", async () => {
     telegramBotRepository.findOneConnectedByUserId.mockResolvedValue(null);
 
-    const result = await service.call({ userId, chatId, text: "hello" });
+    const result = await service.call({
+      botId: "some-id",
+      userId,
+      chatId,
+      text: "hello",
+    });
+
+    expect(result).toEqual({ success: true, data: undefined });
+    expect(telegramApiClient.sendMessage).not.toHaveBeenCalled();
+  });
+
+  it("should do nothing when connected bot id does not match", async () => {
+    const bot = fakeTelegramBot();
+    telegramBotRepository.findOneConnectedByUserId.mockResolvedValue(bot);
+
+    const result = await service.call({
+      botId: "stale-id",
+      userId,
+      chatId,
+      text: "hello",
+    });
 
     expect(result).toEqual({ success: true, data: undefined });
     expect(telegramApiClient.sendMessage).not.toHaveBeenCalled();
@@ -45,7 +65,12 @@ describe("ProcessTelegramMessageService", () => {
       data: undefined,
     });
 
-    const result = await service.call({ userId, chatId, text: null });
+    const result = await service.call({
+      botId: bot.id,
+      userId,
+      chatId,
+      text: null,
+    });
 
     expect(result).toEqual({ success: true, data: undefined });
     expect(telegramApiClient.sendMessage).toHaveBeenCalledWith({
@@ -69,6 +94,7 @@ describe("ProcessTelegramMessageService", () => {
     });
 
     const result = await service.call({
+      botId: bot.id,
       userId,
       chatId,
       text: "How much did I spend?",
@@ -98,6 +124,7 @@ describe("ProcessTelegramMessageService", () => {
     });
 
     const result = await service.call({
+      botId: bot.id,
       userId,
       chatId,
       text: "What is my balance?",
@@ -124,6 +151,7 @@ describe("ProcessTelegramMessageService", () => {
     });
 
     const result = await service.call({
+      botId: bot.id,
       userId,
       chatId,
       text: "How much did I spend?",

@@ -6,6 +6,7 @@ const backgroundJobEventSchema = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("telegram-message"),
     payload: z.object({
+      botId: z.string(),
       chatId: z.number(),
       text: z.string().nullable(),
       userId: z.string(),
@@ -28,6 +29,7 @@ export const handler = async (rawEvent: unknown): Promise<void> => {
   switch (event.type) {
     case "telegram-message": {
       const result = await resolveProcessTelegramMessageService().call({
+        botId: event.payload.botId,
         chatId: event.payload.chatId,
         text: event.payload.text,
         userId: event.payload.userId,

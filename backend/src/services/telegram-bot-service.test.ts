@@ -282,6 +282,7 @@ describe("TelegramBotService", () => {
       expect(backgroundJobDispatcher.dispatch).toHaveBeenCalledWith({
         type: "telegram-message",
         payload: {
+          botId: bot.id,
           chatId: 12345,
           text: "Hello",
           userId: bot.userId,

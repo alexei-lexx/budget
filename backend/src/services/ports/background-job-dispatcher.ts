@@ -1,9 +1,10 @@
 export interface TelegramMessageJob {
   type: "telegram-message";
   payload: {
-    userId: string;
+    botId: string;
     chatId: number;
     text: string | null;
+    userId: string;
   };
 }
 
