@@ -6,6 +6,7 @@ import { CategoryService } from "../services/category-service";
 import { CreateTransactionFromTextService } from "../services/create-transaction-from-text-service";
 import { InsightService } from "../services/insight-service";
 import { UserRepository } from "../services/ports/user-repository";
+import { TelegramBotService } from "../services/telegram-bot-service";
 import { TransactionService } from "../services/transaction-service";
 import { TransferService } from "../services/transfer-service";
 import { UserService } from "../services/user-service";
@@ -25,6 +26,7 @@ export interface GraphQLContext {
   createTransactionFromTextService: CreateTransactionFromTextService;
   transferService: TransferService;
   byCategoryReportService: ByCategoryReportService;
+  telegramBotService: TelegramBotService;
   jwtAuthService: JwtAuthService;
   authHeader?: string;
   accountLoader: DataLoader<string, TransactionEmbeddedAccount>;

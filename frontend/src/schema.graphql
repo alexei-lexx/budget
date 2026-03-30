@@ -10,8 +10,15 @@ type Query {
   transactionPatterns(type: TransactionPatternType!): [TransactionPattern!]!
   byCategoryReport(year: Int!, month: Int, type: ReportType!): ByCategoryReport!
   insight(input: InsightInput!): InsightOutput!
+  telegramBot: TelegramBot
+  testTelegramBot: Boolean
   transactionDescriptionSuggestions(searchText: String!): [String!]!
   userSettings: UserSettings!
+}
+
+type TelegramBot {
+  id: ID!
+  maskedToken: String!
 }
 
 type User {
@@ -326,4 +333,6 @@ type Mutation {
   updateTransfer(input: UpdateTransferInput!): Transfer!
   deleteTransfer(id: ID!): Boolean
   updateUserSettings(input: UpdateUserSettingsInput!): UserSettings!
+  connectTelegramBot(token: String!): TelegramBot!
+  disconnectTelegramBot: Boolean
 }

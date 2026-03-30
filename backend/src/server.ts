@@ -10,6 +10,7 @@ import {
   resolveCreateTransactionFromTextService,
   resolveInsightService,
   resolveJwtAuthService,
+  resolveTelegramBotService,
   resolveTransactionService,
   resolveTransferService,
   resolveUserRepository,
@@ -72,6 +73,9 @@ export async function createContext(req: {
     // AI services
     createTransactionFromTextService: resolveCreateTransactionFromTextService(),
     insightService: resolveInsightService(),
+
+    // Telegram services
+    telegramBotService: resolveTelegramBotService(),
   };
 
   // Create a function that gets the authenticated internal user ID (lazy evaluation)

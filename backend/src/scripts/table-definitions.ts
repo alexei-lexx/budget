@@ -83,6 +83,26 @@ export const tables: CreateTableCommandInput[] = [
       },
     ],
   },
+  {
+    TableName: process.env.TELEGRAM_BOTS_TABLE_NAME,
+    AttributeDefinitions: [
+      { AttributeName: "userId", AttributeType: "S" },
+      { AttributeName: "id", AttributeType: "S" },
+      { AttributeName: "webhookSecret", AttributeType: "S" },
+    ],
+    KeySchema: [
+      { AttributeName: "userId", KeyType: "HASH" },
+      { AttributeName: "id", KeyType: "RANGE" },
+    ],
+    BillingMode: "PAY_PER_REQUEST",
+    GlobalSecondaryIndexes: [
+      {
+        IndexName: "WebhookSecretIndex",
+        KeySchema: [{ AttributeName: "webhookSecret", KeyType: "HASH" }],
+        Projection: { ProjectionType: "ALL" },
+      },
+    ],
+  },
 ];
 
 export async function tableExists(

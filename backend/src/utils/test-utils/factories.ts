@@ -1,6 +1,7 @@
 import { faker } from "@faker-js/faker";
 import { Account } from "../../models/account";
 import { Category, CategoryType } from "../../models/category";
+import { TelegramBot, TelegramBotStatus } from "../../models/telegram-bot";
 import {
   Transaction,
   TransactionPattern,
@@ -9,6 +10,7 @@ import {
 import { User } from "../../models/user";
 import { CreateAccountInput } from "../../services/ports/account-repository";
 import { CreateCategoryInput } from "../../services/ports/category-repository";
+import { CreateTelegramBotInput } from "../../services/ports/telegram-bot-repository";
 import { CreateTransactionInput } from "../../services/ports/transaction-repository";
 import { CreateUserInput } from "../../services/ports/user-repository";
 import { toDateString } from "../../types/date";
@@ -63,6 +65,43 @@ export const fakeCreateCategoryInput = (
     name: `${faker.commerce.department()}-${faker.string.uuid()}`, // Ensure uniqueness
     type: CategoryType.EXPENSE,
     excludeFromReports: false,
+    ...overrides,
+  };
+};
+
+export const fakeTelegramBot = (
+  overrides: Partial<TelegramBot> = {},
+): TelegramBot => {
+  const now = new Date().toISOString();
+  return {
+    id: faker.string.uuid(),
+    userId: faker.string.uuid(),
+    token: faker.string.uuid(),
+    webhookSecret: faker.string.uuid(),
+    status: faker.helpers.arrayElement([
+      TelegramBotStatus.CONNECTED,
+      TelegramBotStatus.DELETING,
+      TelegramBotStatus.PENDING,
+    ]),
+    isArchived: false,
+    createdAt: now,
+    updatedAt: now,
+    ...overrides,
+  };
+};
+
+export const fakeCreateTelegramBotInput = (
+  overrides: Partial<CreateTelegramBotInput> = {},
+): CreateTelegramBotInput => {
+  return {
+    userId: faker.string.uuid(),
+    token: faker.string.uuid(),
+    webhookSecret: faker.string.uuid(),
+    status: faker.helpers.arrayElement([
+      TelegramBotStatus.CONNECTED,
+      TelegramBotStatus.DELETING,
+      TelegramBotStatus.PENDING,
+    ]),
     ...overrides,
   };
 };

@@ -100,6 +100,21 @@ export class BackendCdkStack extends cdk.Stack {
       ...commonTableOptions,
     });
 
+    const telegramBotsTable = new dynamodb.Table(this, "TelegramBotsTable", {
+      partitionKey: { name: "userId", type: dynamodb.AttributeType.STRING },
+      sortKey: { name: "id", type: dynamodb.AttributeType.STRING },
+      ...commonTableOptions,
+    });
+
+    telegramBotsTable.addGlobalSecondaryIndex({
+      indexName: "WebhookSecretIndex",
+      partitionKey: {
+        name: "webhookSecret",
+        type: dynamodb.AttributeType.STRING,
+      },
+      projectionType: dynamodb.ProjectionType.ALL,
+    });
+
     const functionConfig: Omit<lambda.FunctionProps, "handler"> = {
       runtime: lambda.Runtime.NODEJS_24_X,
       code: lambda.Code.fromAsset("../backend/dist"),
@@ -114,11 +129,55 @@ export class BackendCdkStack extends cdk.Stack {
         ACCOUNTS_TABLE_NAME: accountsTable.tableName,
         CATEGORIES_TABLE_NAME: categoriesTable.tableName,
         MIGRATIONS_TABLE_NAME: migrationsTable.tableName,
+        TELEGRAM_BOTS_TABLE_NAME: telegramBotsTable.tableName,
         TRANSACTIONS_TABLE_NAME: transactionsTable.tableName,
         USERS_TABLE_NAME: usersTable.tableName,
       },
       ...defaultLambdaOptions(),
     };
+
+    const backgroundJobLogGroup = new logs.LogGroup(
+      this,
+      "BackgroundJobFunctionLogs",
+      {
+        retention: logRetention,
+        removalPolicy: cdk.RemovalPolicy.DESTROY,
+      },
+    );
+
+    const backgroundJobRole = new iam.Role(this, "BackgroundJobFunctionRole", {
+      assumedBy: new iam.ServicePrincipal("lambda.amazonaws.com"),
+      description: "Custom role for Background Job Lambda function",
+    });
+
+    const backgroundJobFunction = new lambda.Function(
+      this,
+      "BackgroundJobFunction",
+      {
+        ...functionConfig,
+        handler: "background-job-lambda.handler",
+        timeout: cdk.Duration.minutes(5),
+        logGroup: backgroundJobLogGroup,
+        role: backgroundJobRole,
+      },
+    );
+
+    // Grant permissions explicitly since we're using a custom role, to avoid managed policy warnings
+    backgroundJobLogGroup.grantWrite(backgroundJobFunction);
+
+    accountsTable.grantReadWriteData(backgroundJobFunction);
+    categoriesTable.grantReadWriteData(backgroundJobFunction);
+    telegramBotsTable.grantReadWriteData(backgroundJobFunction);
+    transactionsTable.grantReadWriteData(backgroundJobFunction);
+    usersTable.grantReadWriteData(backgroundJobFunction);
+
+    // Allow Background Job Lambda to invoke Bedrock models
+    backgroundJobFunction.addToRolePolicy(
+      new iam.PolicyStatement({
+        actions: ["bedrock:InvokeModel"],
+        resources: ["*"],
+      }),
+    );
 
     const webLogGroup = new logs.LogGroup(this, "WebFunctionLogs", {
       retention: logRetention,
@@ -136,6 +195,10 @@ export class BackendCdkStack extends cdk.Stack {
       handler: "web-lambda.handler",
       logGroup: webLogGroup,
       role: webRole,
+      environment: {
+        ...functionConfig.environment,
+        BACKGROUND_JOB_FUNCTION_NAME: backgroundJobFunction.functionName,
+      },
     });
 
     // Grant permissions explicitly since we're using a custom role
@@ -143,6 +206,7 @@ export class BackendCdkStack extends cdk.Stack {
 
     accountsTable.grantReadWriteData(webFunction);
     categoriesTable.grantReadWriteData(webFunction);
+    telegramBotsTable.grantReadWriteData(webFunction);
     transactionsTable.grantReadWriteData(webFunction);
     usersTable.grantReadWriteData(webFunction);
 
@@ -151,6 +215,14 @@ export class BackendCdkStack extends cdk.Stack {
       new iam.PolicyStatement({
         actions: ["bedrock:InvokeModel"],
         resources: ["*"],
+      }),
+    );
+
+    // Allow the Web Lambda to asynchronously invoke the Background Job Lambda
+    webFunction.addToRolePolicy(
+      new iam.PolicyStatement({
+        actions: ["lambda:InvokeFunction"],
+        resources: [backgroundJobFunction.functionArn],
       }),
     );
 
@@ -228,6 +300,9 @@ export class BackendCdkStack extends cdk.Stack {
         }),
       };
     }
+
+    // Pass the API Gateway URL as the webhook base URL for Telegram
+    webFunction.addEnvironment("WEBHOOK_BASE_URL", httpApi.apiEndpoint);
 
     this.httpApi = httpApi;
   }

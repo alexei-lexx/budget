@@ -1,5 +1,6 @@
 import { AccountRepository } from "../../services/ports/account-repository";
 import { CategoryRepository } from "../../services/ports/category-repository";
+import { TelegramBotRepository } from "../../services/ports/telegram-bot-repository";
 import { TransactionRepository } from "../../services/ports/transaction-repository";
 import { UserRepository } from "../../services/ports/user-repository";
 
@@ -63,3 +64,15 @@ export const createMockUserRepository = (): jest.Mocked<UserRepository> => ({
   ensureUser: jest.fn(),
   update: jest.fn(),
 });
+
+/**
+ * Mock telegram bot repository for testing
+ */
+export const createMockTelegramBotRepository =
+  (): jest.Mocked<TelegramBotRepository> => ({
+    findOneConnectedByUserId: jest.fn(),
+    findOneConnectedByWebhookSecret: jest.fn(),
+    create: jest.fn(),
+    update: jest.fn(),
+    archive: jest.fn(),
+  });

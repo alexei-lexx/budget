@@ -148,3 +148,18 @@ export const UPDATE_USER_SETTINGS = gql`
     }
   }
 `;
+
+export const CONNECT_TELEGRAM_BOT = gql`
+  mutation ConnectTelegramBot($token: String!) {
+    connectTelegramBot(token: $token) {
+      id
+      maskedToken
+    }
+  }
+`;
+
+export const DISCONNECT_TELEGRAM_BOT = gql`
+  mutation DisconnectTelegramBot {
+    disconnectTelegramBot
+  }
+`;

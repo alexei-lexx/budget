@@ -134,3 +134,18 @@ export const GET_USER_SETTINGS = gql`
     }
   }
 `;
+
+export const GET_TELEGRAM_BOT = gql`
+  query GetTelegramBot {
+    telegramBot {
+      id
+      maskedToken
+    }
+  }
+`;
+
+export const TEST_TELEGRAM_BOT = gql`
+  query TestTelegramBot {
+    testTelegramBot
+  }
+`;

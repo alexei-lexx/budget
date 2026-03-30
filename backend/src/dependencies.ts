@@ -1,7 +1,10 @@
 import { ReActAgent } from "./agents/react-agent";
 import { JwtAuthService } from "./auth/jwt-auth";
+import { HttpTelegramApiClient } from "./providers/http-telegram-api-client";
+import { LambdaBackgroundJobDispatcher } from "./providers/lambda-background-job-dispatcher";
 import { DynAccountRepository } from "./repositories/dyn-account-repository";
 import { DynCategoryRepository } from "./repositories/dyn-category-repository";
+import { DynTelegramBotRepository } from "./repositories/dyn-telegram-bot-repository";
 import { DynTransactionRepository } from "./repositories/dyn-transaction-repository";
 import { DynUserRepository } from "./repositories/dyn-user-repository";
 import { AccountService } from "./services/account-service";
@@ -13,11 +16,14 @@ import { AccountRepository } from "./services/ports/account-repository";
 import { CategoryRepository } from "./services/ports/category-repository";
 import { TransactionRepository } from "./services/ports/transaction-repository";
 import { UserRepository } from "./services/ports/user-repository";
+import { ProcessTelegramMessageService } from "./services/process-telegram-message-service";
+import { TelegramBotService } from "./services/telegram-bot-service";
 import { TransactionService } from "./services/transaction-service";
 import { TransferService } from "./services/transfer-service";
 import { UserService } from "./services/user-service";
 import { createBedrockChatModel } from "./utils/bedrock";
 import { createSingleton } from "./utils/dependency-injection";
+import { requireEnv } from "./utils/require-env";
 
 // Auth
 export const resolveJwtAuthService = createSingleton(
@@ -30,6 +36,9 @@ export const resolveAccountRepository = createSingleton<AccountRepository>(
 );
 export const resolveCategoryRepository = createSingleton<CategoryRepository>(
   () => new DynCategoryRepository(),
+);
+const resolveTelegramBotRepository = createSingleton(
+  () => new DynTelegramBotRepository(),
 );
 export const resolveTransactionRepository =
   createSingleton<TransactionRepository>(() => new DynTransactionRepository());
@@ -76,6 +85,19 @@ export const resolveByCategoryReportService = createSingleton(
     ),
 );
 
+// Providers
+const resolveBackgroundJobDispatcher = createSingleton(() =>
+  process.env.BACKGROUND_JOB_FUNCTION_NAME
+    ? new LambdaBackgroundJobDispatcher()
+    : {
+        dispatch: async (job: unknown) =>
+          console.log("[dev] background job skipped:", job),
+      },
+);
+const resolveTelegramApiClient = createSingleton(
+  () => new HttpTelegramApiClient(),
+);
+
 // AI infrastructure
 const resolveBedrockChatModel = createSingleton(() => createBedrockChatModel());
 
@@ -97,5 +119,24 @@ export const resolveInsightService = createSingleton(
       categoryRepository: resolveCategoryRepository(),
       transactionRepository: resolveTransactionRepository(),
       agent: new ReActAgent(resolveBedrockChatModel()),
+    }),
+);
+
+// Telegram
+export const resolveProcessTelegramMessageService = createSingleton(
+  () =>
+    new ProcessTelegramMessageService({
+      insightService: resolveInsightService(),
+      telegramApiClient: resolveTelegramApiClient(),
+      telegramBotRepository: resolveTelegramBotRepository(),
+    }),
+);
+export const resolveTelegramBotService = createSingleton(
+  () =>
+    new TelegramBotService({
+      backgroundJobDispatcher: resolveBackgroundJobDispatcher(),
+      telegramApiClient: resolveTelegramApiClient(),
+      telegramBotRepository: resolveTelegramBotRepository(),
+      webhookBaseUrl: requireEnv("WEBHOOK_BASE_URL"),
     }),
 );
