@@ -3,6 +3,7 @@ import {
   DynamoDBDocumentClient,
   ScanCommand,
 } from "@aws-sdk/lib-dynamodb";
+import { requireEnv } from "../require-env";
 
 /**
  * Truncates a DynamoDB table by scanning all items and deleting them in batches.
@@ -62,4 +63,29 @@ export async function truncateTable(
       `Failed to truncate table ${tableName}: ${error instanceof Error ? error.message : String(error)}`,
     );
   }
+}
+
+/**
+ * Truncates all DynamoDB tables.
+ *
+ * @param client - The DynamoDB document client
+ */
+export async function truncateAllTables(client: DynamoDBDocumentClient) {
+  const tables = [
+    requireEnv("ACCOUNTS_TABLE_NAME"),
+    requireEnv("CATEGORIES_TABLE_NAME"),
+    requireEnv("TELEGRAM_BOTS_TABLE_NAME"),
+    requireEnv("TRANSACTIONS_TABLE_NAME"),
+  ];
+
+  for (const tableName of tables) {
+    await truncateTable(client, tableName, {
+      partitionKey: "userId",
+      sortKey: "id",
+    });
+  }
+
+  await truncateTable(client, requireEnv("USERS_TABLE_NAME"), {
+    partitionKey: "id",
+  });
 }

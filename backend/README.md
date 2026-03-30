@@ -70,6 +70,7 @@ Uses DynamoDB Local running in Docker with a named volume for data persistence.
 
 ## Quality Checks
 
+- `npm run eval` - Run Agent evaluations (don't run in CI, only for local development)
 - `npm run format` - Run Prettier and ESLint to check and fix code style
 - `npm run test` - Run tests with Jest
 - `npm run typecheck` - Run TypeScript type checker

@@ -11,11 +11,13 @@ function formatInput(input: unknown): string {
 }
 
 export function reportToConsole(evalTaskResults: EvalTaskResult<unknown>[]): {
-  failed: number;
-  totalErrors: number;
+  failureCount: number;
+  errorCount: number;
 } {
-  const failed = evalTaskResults.filter((result) => !result.success).length;
-  const totalErrors = evalTaskResults.reduce(
+  const failureCount = evalTaskResults.filter(
+    (result) => !result.success,
+  ).length;
+  const errorCount = evalTaskResults.reduce(
     (sum, result) => sum + result.errors,
     0,
   );
@@ -45,5 +47,5 @@ export function reportToConsole(evalTaskResults: EvalTaskResult<unknown>[]): {
     }
   }
 
-  return { failed, totalErrors };
+  return { failureCount, errorCount };
 }
