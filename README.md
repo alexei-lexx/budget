@@ -14,6 +14,7 @@ Web application for personal financial management.
 - **Transaction Search** - Find any transaction by filtering on account, category, date, etc.
 - **Quick Transaction Entry** - Type something like “coffee 4.50,” and let AI create the transaction autonomously, filling in missing details from your past entries
 - **Ask About Your Money** – Ask questions about cash flow, spending habits, or trends in any language, and let AI analyze your transaction history to provide insightful answers
+- **Telegram Integration** - Chat with the app directly from Telegram
 
 ## Technologies
 
