@@ -17,12 +17,14 @@ Each package maintains its own `package.json`, dependencies, and build configura
 An npm package providing Apollo GraphQL server and API implementation.
 
 **Technologies**:
+
 - **Language**: TypeScript
 - **Framework**: Apollo Server, Node.js
 - **Testing**: Jest
 - **Quality**: ESLint, Prettier, TypeScript strict mode
 
 **Responsibilities**:
+
 - **Business Logic**: Implement application domain logic and service layer operations
 - **GraphQL API**: Expose data and operations through GraphQL resolvers
 - **Database Access**: Handle all data persistence and retrieval operations
@@ -34,12 +36,14 @@ An npm package providing Apollo GraphQL server and API implementation.
 An npm package providing the user-facing single-page application.
 
 **Technologies**:
+
 - **Language**: TypeScript
 - **Framework**: Vue 3, Vite, Vuetify, Apollo Client
 - **Testing**: Jest
 - **Quality**: ESLint, Prettier, TypeScript strict mode, Vue type-checking
 
 **Responsibilities**:
+
 - **User Interface**: User interface and interactions
 - **Client Routing**: Single-page navigation and routing
 - **Authentication**: User sign-in and JWT token management
@@ -50,12 +54,14 @@ An npm package providing the user-facing single-page application.
 An npm package providing unified infrastructure-as-code for both backend and frontend deployment to AWS.
 
 **Technologies**:
+
 - **Language**: TypeScript
 - **Framework**: AWS CDK
 - **Testing**: Jest
 - **Quality**: ESLint, Prettier, TypeScript strict mode
 
 **Responsibilities**:
+
 - **Backend Infrastructure**: DynamoDB tables, Lambda functions, API Gateway for GraphQL endpoint
 - **Frontend Infrastructure**: S3 bucket for static assets, CloudFront distribution for content delivery
 - **Deployment Orchestration**: Single CDK app managing both BackendCdkStack and FrontendCdkStack
@@ -71,6 +77,7 @@ An npm package providing unified infrastructure-as-code for both backend and fro
 ### Production
 
 **AWS Services**:
+
 - **CloudFront**: Entry point, CDN, HTTPS enforcement
 - **S3**: Vue.js bundle storage
 - **API Gateway**: Routes GraphQL requests from CloudFront to Lambda
@@ -102,11 +109,13 @@ graph TD
 ```
 
 **Deployment**:
+
 - Manual deployment via `deploy.sh` script
 
 ### Development
 
 **Local Stack**:
+
 - **Vite** dev server replaces S3 + CloudFront
 - **Apollo Server** replaces Lambda + API Gateway
 - **DynamoDB Local** (Docker) replaces AWS DynamoDB
@@ -138,6 +147,7 @@ graph TD
 **Non-negotiable rule**: GraphQL schema is the single source of truth for API contracts. All API changes begin with schema modification.
 
 **Development Process**:
+
 - Backend GraphQL schema defined at `backend/src/graphql/schema.graphql` (canonical source)
 - Before making any change, read the schema
 - Start all API changes with schema updates
@@ -154,6 +164,7 @@ graph TD
 **Non-negotiable rule**: Backend MUST implement a clean three-layer architecture that separates concerns and maintains clear dependencies: **GraphQL Resolvers → Services → Repositories**.
 
 **Repository Layer**:
+
 - Provide database access interface
 - Perform pure data access operations (CRUD)
 - Handle errors for database operations
@@ -161,6 +172,7 @@ graph TD
 - Organize one repository per entity (recommended)
 
 **Service Layer**:
+
 - Implement business logic and domain rules
 - Provide business-specific error messages
 - Orchestrate multi-repository operations (operations across multiple repositories)
@@ -171,6 +183,7 @@ graph TD
 - Expose public methods for direct calling by GraphQL resolvers
 
 **GraphQL Layer**:
+
 - Enforce authentication and authorization
 - Define API schema and documentation
 - Transform requests and responses between GraphQL schema and service layer
@@ -215,6 +228,7 @@ graph LR
 **Non-negotiable rule**: GraphQL schema reflects user-facing functionality, not database implementation details. The schema serves as a Backend-For-Frontend (BFF) contract optimized for the frontend client.
 
 **Implementation**:
+
 - Expose only business-relevant fields with meaningful names
 - Never expose internal fields such as internal statuses or database timestamps
 - Current user ID handled automatically through authentication context, never passed as query/mutation parameters
@@ -228,10 +242,12 @@ graph LR
 **Non-negotiable rule**: Apply pagination strategy based on expected list size.
 
 **For Potentially Large Lists**:
+
 - MUST use Relay-Compatible Cursor pagination
 - Frontend MUST use "Load More" button instead of page numbers
 
 **For Short Lists** (typically < 100 items):
+
 - MAY return plain arrays without pagination wrapper
 
 **Rationale**: Balances performance with simplicity. Load-more pattern provides better mobile UX and stable navigation.
@@ -241,6 +257,7 @@ graph LR
 **Non-negotiable rule**: Service classes follow one of two patterns based on complexity and purpose.
 
 **Domain Entity Services (Default)**:
+
 - Represent a single domain entity
 - Expose multiple public methods such as CRUD operations
 - Centralize validation, business rules, and helper methods within domain
@@ -248,34 +265,39 @@ graph LR
 - May depend on other repositories if needed
 
 **Single-Purpose Services**:
+
 - Expose one public method (typically named `call`)
 - Contain complex, unique business logic
 - Handle non-CRUD operations requiring specialized orchestration
 - May orchestrate multiple repositories
 
 **Selection Criteria**:
+
 - Default to domain entity services for standard entity operations
 - Use single-purpose services when complexity is high and implementation is unique
 - Prefer single-purpose services when orchestrating multiple repositories
 
 **Rationale**: Balances maintainability with flexibility for complex operations.
 
-### Backend Service Result Pattern
+### Result Pattern
 
-**Non-negotiable rule**: Public service methods MUST use the Result pattern as their return type.
+**Non-negotiable rule**: Public methods of services and external integrations MUST use the Result pattern as their return type.
 
 **Implementation**:
-- Return a Result for every operation outcome — success with data or a known failure with a reason
-- Use the failure variant for validation errors and business rule violations
-- Propagate infrastructure errors (database, network) as exceptions
 
-**Rationale**: Makes operation outcomes explicit in the service contract.
+- Return a Result for every operation outcome — success with data or a known failure with a reason
+- Services: use the failure variant for validation errors and business rule violations
+- External integrations: use the failure variant for all failures
+- Propagate unrecoverable infrastructure errors (database) as exceptions
+
+**Rationale**: Use Result when the caller must handle the failure and make a decision; use exceptions for infrastructure panics the caller cannot recover from.
 
 ### Database Record Hydration
 
 **Non-negotiable rule**: All data read from the database MUST be validated at the repository boundary before being returned to service or resolver layers.
 
 **Implementation**:
+
 - Use schema validation (Zod or equivalent) to validate every database record at read time
 - Validate against TypeScript interfaces to ensure compile-time type safety
 - Apply validation consistently across all repositories for uniform error handling
@@ -287,6 +309,7 @@ graph LR
 **Non-negotiable rule**: All entities use soft-deletion by default unless explicitly excepted.
 
 **Implementation**:
+
 - All entities MUST support soft-deletion via an `isArchived` flag or equivalent
 - Soft-deleted records MUST NOT appear in user-facing queries by default
 - All queries scoped to non-archived records unless intentionally accessing archived data
@@ -299,6 +322,7 @@ graph LR
 **Non-negotiable rule**: All data modifications MUST be performed through versioned migration files that execute automatically during deployments and can be safely run multiple times.
 
 **Implementation**:
+
 - Store migration files in `backend/src/migrations/` directory
 - Modify data only; handle schema changes via CDK infrastructure definitions
 - Export an `up` function from each migration receiving DynamoDB client as sole dependency
@@ -312,10 +336,12 @@ graph LR
 **Non-negotiable rule**: All user authentication flows through AWS Cognito as the authentication service. User data is strictly isolated at the database level, ensuring zero cross-user data leakage.
 
 **Frontend**:
+
 - Force user authentication via AWS Cognito before allowing access to protected routes
 - Include JWT token in Authorization header for every GraphQL request to backend
 
 **Backend GraphQL Layer**:
+
 - Verify JWT token against AWS Cognito public keys before any resolver runs
 - Reject requests with missing or invalid JWT tokens
 - Extract email from JWT token and store in context
@@ -324,10 +350,12 @@ graph LR
 - Propagate internal database user ID to service layer
 
 **Backend Service Layer**:
+
 - Accept internal database user ID as parameter in all service methods
 - Pass internal database user ID down to repository layer
 
 **Backend Repository Layer**:
+
 - Design repository methods to require internal database user ID parameter and filter all queries by it
 
 **Rationale**: Reduces security risks, ensures industry-standard token management, prevents unauthorized data access.
@@ -348,10 +376,12 @@ graph LR
 - Keep test suite small and effective
 
 **Frontend**:
+
 - Test manually (visual verification in dev)
 - Write UI component tests only for complex/critical components; not required
 
 **Test File Location**:
+
 - Co-location strategy: tests MUST live next to the code they test
 - NEVER use separate test directories like `src/__tests__/` or `src/tests/`
 - Naming: `[source-file].test.ts` in same directory as source `[source-file].ts`
@@ -364,6 +394,7 @@ graph LR
 **Non-negotiable rule**: Services are the entry point to business logic and MUST self-validate all input. GraphQL provides thin validation through its schema. Repositories validate only operational requirements.
 
 **GraphQL Layer**:
+
 - Generally minimal - delegate to service layer
 - Authenticate users
 - Rely on GraphQL schema for automatic validation:
@@ -374,6 +405,7 @@ graph LR
 - Can add minimal validation/parsing if needed to properly call service methods
 
 **Service Layer**:
+
 - Services MUST self-validate because they are entry points to business logic
 - Can repeat GraphQL validations for defensive programming
 - MUST validate:
@@ -388,6 +420,7 @@ graph LR
 - Propagate infrastructure errors without wrapping (database failures, network errors)
 
 **Repository Layer**:
+
 - Validate only what is necessary to execute database operations correctly
 - Parameter presence checks
 - Operand validity checks
@@ -395,6 +428,7 @@ graph LR
 
 **Validation Ordering**:
 Checks MUST follow this order:
+
 - **Auth / ownership first**:
   - Verify the caller has access to the resource before revealing anything about it
   - Never expose resource existence or error details to callers who have not yet proven they own the resource
@@ -426,6 +460,7 @@ Checks MUST follow this order:
 **Non-negotiable rule**: All generated or manually written TypeScript code MUST adhere to strict type safety and code quality standards.
 
 **Implementation**:
+
 - Avoid non-null assertions (`!`) unless absolutely necessary
   - Document the reason when used
 - Avoid type assertions (`as any`) unless absolutely necessary
@@ -447,6 +482,7 @@ Checks MUST follow this order:
 **Non-negotiable rule**: All code changes MUST pass a mandatory validation pipeline to ensure type safety, test coverage, and code quality before completion.
 
 **Workflow** (in order):
+
 1. **Test the changed file** (if tests exist for the changed code)
    - Run tests for only the changed file or unit: `npm test -- path/to/file.test.ts`
    - Fix any failures
@@ -461,6 +497,7 @@ Checks MUST follow this order:
    - Resolve all errors before considering changes complete
 
 **Exceptions**:
+
 - If the changed file has no test file, proceed to step 2 (full suite)
 - If the package has no test suite configured, proceed to step 3 (typecheck/lint)
 
@@ -471,6 +508,7 @@ Checks MUST follow this order:
 **Non-negotiable rule**: Finder method names MUST encode cardinality and error behavior.
 
 **Prefixes**:
+
 - `findOne` — returns a single instance or `null` if not found
 - `findMany` — returns an array of instances (empty array when nothing matches, never `null`)
 - `get` — returns a single instance and throws if not found (use when absence is a program error)
@@ -482,6 +520,7 @@ Checks MUST follow this order:
 **Non-negotiable rule**: Methods within a class MUST follow a consistent ordering that exposes the public API first and places higher-level logic above the details it depends on.
 
 **Rules** (listed by priority — earlier rules take precedence over later ones):
+
 1. **Public before private**
    - All public methods MUST appear before all private methods
 2. **Reads before writes** (CRUD classes only)
