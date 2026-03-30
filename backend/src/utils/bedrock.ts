@@ -1,5 +1,6 @@
 import { BedrockRuntimeClient } from "@aws-sdk/client-bedrock-runtime";
 import { ChatBedrockConverse } from "@langchain/aws";
+import { NodeHttpHandler } from "@smithy/node-http-handler";
 import { requireEnv, requireFloatEnv, requireIntEnv } from "./require-env";
 
 const isLocalEnvironment =
@@ -15,7 +16,18 @@ export function createBedrockRuntimeClient(): BedrockRuntimeClient {
     ? { token: { token: requireEnv("AWS_BEARER_TOKEN_BEDROCK") } }
     : {};
 
-  return new BedrockRuntimeClient(config);
+  // Time to establish the TCP connection before giving up
+  const connectionTimeout = requireIntEnv("AWS_BEDROCK_CONNECTION_TIMEOUT");
+  // Total time cap for the full request/response cycle (non-streaming)
+  const requestTimeout = requireIntEnv("AWS_BEDROCK_REQUEST_TIMEOUT");
+
+  return new BedrockRuntimeClient({
+    ...config,
+    requestHandler: new NodeHttpHandler({
+      connectionTimeout,
+      requestTimeout,
+    }),
+  });
 }
 
 /** Creates a LangChain Bedrock chat model configured from environment variables. */

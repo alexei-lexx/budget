@@ -40,6 +40,7 @@
     "@aws-sdk/lib-dynamodb": "^3.914.0",
     "@langchain/aws": "^1.2.2",
     "@langchain/core": "^1.1.19",
+    "@smithy/node-http-handler": "^4.5.1",
     "aws-xray-sdk-core": "^3.11.0",
     "dataloader": "^2.2.3",
     "graphql": "^16.11.0",
