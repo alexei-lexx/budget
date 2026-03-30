@@ -14,6 +14,7 @@ describe("LambdaBackgroundJobDispatcher", () => {
     await dispatcher.dispatch({
       type: "telegram-message",
       payload: {
+        botId: "bot-1",
         chatId: 123,
         text: "hello",
         userId: "user-1",
@@ -33,6 +34,7 @@ describe("LambdaBackgroundJobDispatcher", () => {
     expect(payload).toEqual({
       type: "telegram-message",
       payload: {
+        botId: "bot-1",
         chatId: 123,
         text: "hello",
         userId: "user-1",
