@@ -149,6 +149,11 @@ export class TelegramBotService {
       return Failure("No connected bot found");
     }
 
+    await this.telegramBotRepository.update(
+      { id: bot.id, userId },
+      { status: TelegramBotStatus.DELETING },
+    );
+
     // Best-effort: delete the webhook from Telegram before archiving
     // Failure is non-fatal
     await this.telegramApiClient.deleteWebhook(bot.token);

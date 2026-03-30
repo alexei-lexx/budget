@@ -133,11 +133,12 @@ describe("TelegramBotService", () => {
   });
 
   describe("disconnect", () => {
-    it("should delete webhook and archive the bot", async () => {
+    it("should mark as DELETING, delete webhook, and archive the bot", async () => {
       const userId = faker.string.uuid();
       const bot = fakeTelegramBot();
 
       telegramBotRepository.findOneConnectedByUserId.mockResolvedValue(bot);
+      telegramBotRepository.update.mockResolvedValue(bot);
       telegramApiClient.deleteWebhook.mockResolvedValue({
         success: true,
         data: undefined,
@@ -147,6 +148,10 @@ describe("TelegramBotService", () => {
       const result = await service.disconnect(userId);
 
       expect(result).toEqual({ success: true, data: true });
+      expect(telegramBotRepository.update).toHaveBeenCalledWith(
+        { id: bot.id, userId },
+        { status: TelegramBotStatus.DELETING },
+      );
       expect(telegramApiClient.deleteWebhook).toHaveBeenCalledWith(bot.token);
       expect(telegramBotRepository.archive).toHaveBeenCalledWith({
         id: bot.id,
@@ -159,6 +164,7 @@ describe("TelegramBotService", () => {
       const bot = fakeTelegramBot();
 
       telegramBotRepository.findOneConnectedByUserId.mockResolvedValue(bot);
+      telegramBotRepository.update.mockResolvedValue(bot);
       telegramApiClient.deleteWebhook.mockResolvedValue({
         success: false,
         error: "Some error",
@@ -168,6 +174,10 @@ describe("TelegramBotService", () => {
       const result = await service.disconnect(userId);
 
       expect(result).toEqual({ success: true, data: true });
+      expect(telegramBotRepository.update).toHaveBeenCalledWith(
+        { id: bot.id, userId },
+        { status: TelegramBotStatus.DELETING },
+      );
       expect(telegramBotRepository.archive).toHaveBeenCalledWith({
         id: bot.id,
         userId,
