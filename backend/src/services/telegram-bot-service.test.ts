@@ -282,11 +282,9 @@ describe("TelegramBotService", () => {
       expect(backgroundJobDispatcher.dispatch).toHaveBeenCalledWith({
         type: "telegram-message",
         payload: {
-          webhookSecret: webhookSecret,
-          botId: bot.id,
-          userId: bot.userId,
           chatId: 12345,
           text: "Hello",
+          userId: bot.userId,
         },
       });
     });
