@@ -360,15 +360,7 @@ const evalTasks: EvalTask<unknown>[] = [
 
 (async () => {
   const results = await runEvalSuite(evalTasks);
-  const { failed, totalErrors } = reportToConsole(results);
+  const { failureCount: failed, errorCount: totalErrors } = reportToConsole(results);
 
-  if (failed > 0 || totalErrors > 0) {
-    console.error(
-      `${failed} eval task(s) failed. ${totalErrors} error(s) occurred.`,
-    );
-    process.exit(1);
-  } else {
-    console.log("All eval tasks passed successfully.");
-    process.exit(0);
-  }
+  return { failed, totalErrors };
 })();
