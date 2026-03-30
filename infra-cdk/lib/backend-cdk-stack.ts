@@ -122,10 +122,12 @@ export class BackendCdkStack extends cdk.Stack {
         AUTH_CLAIM_NAMESPACE: process.env.AUTH_CLAIM_NAMESPACE || "",
         AUTH_CLIENT_ID: props.userPoolClient.userPoolClientId,
         AUTH_ISSUER: props.userPool.userPoolProviderUrl,
-        AWS_BEDROCK_CONNECTION_TIMEOUT: process.env.AWS_BEDROCK_CONNECTION_TIMEOUT || "",
+        AWS_BEDROCK_CONNECTION_TIMEOUT:
+          process.env.AWS_BEDROCK_CONNECTION_TIMEOUT || "",
         AWS_BEDROCK_MAX_TOKENS: process.env.AWS_BEDROCK_MAX_TOKENS || "",
         AWS_BEDROCK_MODEL_ID: process.env.AWS_BEDROCK_MODEL_ID || "",
-        AWS_BEDROCK_REQUEST_TIMEOUT: process.env.AWS_BEDROCK_REQUEST_TIMEOUT || "",
+        AWS_BEDROCK_REQUEST_TIMEOUT:
+          process.env.AWS_BEDROCK_REQUEST_TIMEOUT || "",
         AWS_BEDROCK_TEMPERATURE: process.env.AWS_BEDROCK_TEMPERATURE || "",
         NODE_ENV: process.env.NODE_ENV || "",
         ACCOUNTS_TABLE_NAME: accountsTable.tableName,
