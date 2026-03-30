@@ -96,6 +96,22 @@ describe("TelegramBotService", () => {
       });
     });
 
+    it("should return failure when there is already a connected bot", async () => {
+      const userId = faker.string.uuid();
+      const existingBot = fakeTelegramBot();
+      telegramBotRepository.findOneConnectedByUserId.mockResolvedValue(
+        existingBot,
+      );
+
+      const result = await service.connect(userId, "new-token");
+
+      expect(result).toEqual({
+        success: false,
+        error: "A bot is already connected. Disconnect it first.",
+      });
+      expect(telegramBotRepository.create).not.toHaveBeenCalled();
+    });
+
     it("should return failure when userId is empty", async () => {
       const result = await service.connect("", "some-token");
 

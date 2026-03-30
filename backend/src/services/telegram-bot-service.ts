@@ -97,6 +97,13 @@ export class TelegramBotService {
       return Failure("Bot token is required");
     }
 
+    const existingConnectedBot =
+      await this.telegramBotRepository.findOneConnectedByUserId(userId);
+
+    if (existingConnectedBot) {
+      return Failure("A bot is already connected. Disconnect it first.");
+    }
+
     const webhookSecret = randomUUID();
 
     // Create a PENDING record first
