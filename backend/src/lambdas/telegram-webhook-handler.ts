@@ -49,8 +49,19 @@ export async function telegramWebhookHandler(
       console.error("Failed to accept Telegram message:", result.error);
       throw new Error(`Failed to accept Telegram message: ${result.error}`);
     }
+
+    if (result.data) {
+      return {
+        statusCode: 200,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          method: "sendMessage",
+          chat_id: telegramUpdate.message.chat.id,
+          text: result.data,
+        }),
+      };
+    }
   }
 
-  // Always return 200 immediately to acknowledge receipt
   return { statusCode: 200, body: "OK" };
 }

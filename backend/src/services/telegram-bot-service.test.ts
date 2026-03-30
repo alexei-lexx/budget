@@ -281,7 +281,7 @@ describe("TelegramBotService", () => {
   });
 
   describe("acceptMessage", () => {
-    it("should dispatch a background job for a known bot", async () => {
+    it("should dispatch a background job and return an immediate reply", async () => {
       const webhookSecret = faker.string.uuid();
       const bot = fakeTelegramBot();
       telegramBotRepository.findOneConnectedByWebhookSecret.mockResolvedValue(
@@ -294,7 +294,7 @@ describe("TelegramBotService", () => {
         text: "Hello",
       });
 
-      expect(result).toEqual({ success: true, data: true });
+      expect(result).toEqual({ success: true, data: "thinking..." });
       expect(backgroundJobDispatcher.dispatch).toHaveBeenCalledWith({
         type: "telegram-message",
         payload: {
@@ -316,7 +316,8 @@ describe("TelegramBotService", () => {
         text: "Hello?",
       });
 
-      expect(result.success).toBe(true);
+      expect(result).toEqual({ success: true, data: null });
+
       expect(backgroundJobDispatcher.dispatch).not.toHaveBeenCalled();
     });
   });

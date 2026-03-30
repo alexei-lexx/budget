@@ -60,6 +60,15 @@ The system SHALL route text messages sent to the connected bot through the AI se
 - **WHEN** the user sends a text message but the AI service is unable to produce an answer
 - **THEN** the bot replies with an error message
 
+### Requirement: Immediate acknowledgement on text message
+
+The system SHALL reply with "thinking..." immediately upon receiving a text message from the user, before the AI processes it.
+
+#### Scenario: User sends a text message
+
+- **WHEN** the user sends a text message to their connected bot in Telegram
+- **THEN** the bot immediately replies "thinking..." while the AI processes the request in the background
+
 ### Requirement: Non-text messages rejected
 
 The system SHALL reply with a standard message when the user sends a non-text message to the bot.
