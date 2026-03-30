@@ -196,7 +196,7 @@ sequenceDiagram
 - **Rationale**: The GSI is a secondary index on a single field — portable to SQL and MongoDB per the vendor-independence principle.
 - **Alternative considered**: `userId` as sole PK — would work given one bot per user, but inconsistent with the rest of the project's table design
 
-**9. Port interfaces for all external dependencies**
+**8. Port interfaces for all external dependencies**
 
 - **Decision**: Telegram API calls (`TelegramApiClient`) and async job dispatch (`BackgroundJobDispatcher`) are accessed through port interfaces defined in `services/ports/`; concrete implementations are injected at the Lambda entry point
 - **Rationale**: Constitution requires the backend to be deployable to any Node.js runtime without code changes; embedding AWS SDK calls or direct `fetch` calls in application code would violate that
