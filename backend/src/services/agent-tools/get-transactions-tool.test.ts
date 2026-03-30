@@ -199,7 +199,7 @@ describe("createGetTransactionsTool", () => {
     );
   });
 
-  it("should filter by transaction type", async () => {
+  it("should filter by types", async () => {
     const types = [TransactionType.EXPENSE, TransactionType.INCOME];
     mockTransactionRepository.findManyByUserId.mockResolvedValue([]);
 
