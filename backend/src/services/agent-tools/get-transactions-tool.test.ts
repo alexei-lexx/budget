@@ -199,9 +199,35 @@ describe("createGetTransactionsTool", () => {
     );
   });
 
-  it("should filter by both accountId and categoryId", async () => {
+  it("should filter by transaction type", async () => {
+    const types = [TransactionType.EXPENSE, TransactionType.INCOME];
+    mockTransactionRepository.findManyByUserId.mockResolvedValue([]);
+
+    const tool = createGetTransactionsTool({
+      transactionRepository: mockTransactionRepository,
+      userId,
+    });
+
+    await tool.func({
+      startDate: "2000-01-10",
+      endDate: "2000-01-20",
+      types,
+    });
+
+    expect(mockTransactionRepository.findManyByUserId).toHaveBeenCalledWith(
+      userId,
+      {
+        dateAfter: "2000-01-10",
+        dateBefore: "2000-01-20",
+        types,
+      },
+    );
+  });
+
+  it("should filter by both accountId, categoryId, and types", async () => {
     const accountId = faker.string.uuid();
     const categoryId = faker.string.uuid();
+    const types = [TransactionType.EXPENSE, TransactionType.INCOME];
     mockTransactionRepository.findManyByUserId.mockResolvedValue([]);
 
     const tool = createGetTransactionsTool({
@@ -214,6 +240,7 @@ describe("createGetTransactionsTool", () => {
       endDate: "2000-01-20",
       accountId,
       categoryId,
+      types,
     });
 
     expect(mockTransactionRepository.findManyByUserId).toHaveBeenCalledWith(
@@ -223,6 +250,7 @@ describe("createGetTransactionsTool", () => {
         dateBefore: "2000-01-20",
         categoryIds: [categoryId],
         accountIds: [accountId],
+        types,
       },
     );
   });
