@@ -163,4 +163,3 @@ export const DISCONNECT_TELEGRAM_BOT = gql`
     disconnectTelegramBot
   }
 `;
-
