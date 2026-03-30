@@ -1,14 +1,15 @@
 import { faker } from "@faker-js/faker";
-import { ReActAgent } from "../agents/react-agent";
+import {
+  resolveAccountRepository,
+  resolveCategoryRepository,
+  resolveCreateTransactionFromTextService,
+  resolveTransactionRepository,
+  resolveUserRepository,
+} from "../dependencies";
 import { CategoryType } from "../models/category";
 import { TransactionType } from "../models/transaction";
-import { DynAccountRepository } from "../repositories/dyn-account-repository";
-import { DynCategoryRepository } from "../repositories/dyn-category-repository";
-import { DynTransactionRepository } from "../repositories/dyn-transaction-repository";
-import { DynUserRepository } from "../repositories/dyn-user-repository";
-import { createBedrockChatModel } from "../utils/bedrock";
 import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
-import { truncateTable } from "../utils/test-utils/dynamodb-helpers";
+import { truncateAllTables } from "../utils/test-utils/dynamodb-helpers";
 import { EvalTask, runEvalSuite, toGrade } from "../utils/test-utils/evals";
 import { reportToConsole } from "../utils/test-utils/evals-console-reporter";
 import {
@@ -17,50 +18,17 @@ import {
   fakeCreateTransactionInput,
   fakeUser,
 } from "../utils/test-utils/factories";
-import { CreateTransactionFromTextService } from "./create-transaction-from-text-service";
-import { TransactionService } from "./transaction-service";
 
-const accountRepository: DynAccountRepository = new DynAccountRepository();
-const categoryRepository: DynCategoryRepository = new DynCategoryRepository();
-const transactionRepository: DynTransactionRepository =
-  new DynTransactionRepository();
-const userRepository: DynUserRepository = new DynUserRepository();
+const accountRepository = resolveAccountRepository();
+const categoryRepository = resolveCategoryRepository();
+const transactionRepository = resolveTransactionRepository();
+const userRepository = resolveUserRepository();
 
-const agent = new ReActAgent(createBedrockChatModel());
-
-const transactionService = new TransactionService(
-  accountRepository,
-  categoryRepository,
-  transactionRepository,
-);
-
-const service: CreateTransactionFromTextService =
-  new CreateTransactionFromTextService({
-    accountRepository,
-    categoryRepository,
-    transactionRepository,
-    agent,
-    transactionService,
-  });
+const service = resolveCreateTransactionFromTextService();
 
 async function cleanupTables() {
   const client = createDynamoDBDocumentClient();
-  const tables = [
-    process.env.ACCOUNTS_TABLE_NAME || "",
-    process.env.CATEGORIES_TABLE_NAME || "",
-    process.env.TRANSACTIONS_TABLE_NAME || "",
-  ];
-
-  for (const tableName of tables) {
-    await truncateTable(client, tableName, {
-      partitionKey: "userId",
-      sortKey: "id",
-    });
-  }
-
-  await truncateTable(client, process.env.USERS_TABLE_NAME || "", {
-    partitionKey: "id",
-  });
+  await truncateAllTables(client);
 }
 
 const evalTasks: EvalTask<unknown>[] = [
