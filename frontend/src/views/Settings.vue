@@ -83,10 +83,12 @@
         <v-col cols="12" sm="6">
           <v-text-field
             v-model="tokenInput"
-            label="Bot token"
-            variant="outlined"
-            placeholder="1234567890..."
+            autocomplete="off"
             hide-details
+            label="Bot token"
+            placeholder="1234567890..."
+            type="password"
+            variant="outlined"
             :disabled="connectTelegramBotLoading"
           />
         </v-col>
