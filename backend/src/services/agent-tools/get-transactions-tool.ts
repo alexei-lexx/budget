@@ -54,7 +54,7 @@ export const createGetTransactionsTool = (params: {
   userId: string;
 }): ToolSignature<GetTransactionsInput, TransactionData[]> => ({
   name: "getTransactions",
-  description: `Get filtered transactions by date range and optionally by single categoryId or accountId. Only returns active (non-archived) transactions. Date format: YYYY-MM-DD. The date range must not exceed 365 days.`,
+  description: `Get filtered transactions by date range and optionally by single accountId, single categoryId, or one or more transaction types. Date format: YYYY-MM-DD. The date range must not exceed ${MAX_PERIOD_DAYS} days.`,
   inputSchema: getTransactionsInputSchema,
   func: async (input: GetTransactionsInput) => {
     // Validate that startDate is not after endDate
