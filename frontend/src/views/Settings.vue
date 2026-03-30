@@ -35,12 +35,80 @@
         Save
       </v-btn>
     </v-form>
+
+    <v-divider class="my-6" />
+
+    <!-- Telegram Bot Section -->
+    <div class="mb-4">
+      <h2 class="text-h6">Telegram Bot</h2>
+    </div>
+
+    <div v-if="telegramBotLoading" class="d-flex align-center">
+      <v-progress-circular indeterminate />
+    </div>
+
+    <template v-else-if="telegramBot">
+      <!-- Connected state -->
+      <v-row>
+        <v-col cols="12" sm="6">
+          <v-text-field
+            :model-value="telegramBot.maskedToken"
+            label="Bot token"
+            variant="outlined"
+            readonly
+            hide-details
+            disabled
+          />
+        </v-col>
+        <v-col cols="12" sm="6" class="d-flex align-center">
+          <v-btn color="primary" :loading="testTelegramBotLoading" @click="handleTestTelegramBot">
+            Test
+          </v-btn>
+          <v-btn
+            color="error"
+            variant="outlined"
+            class="ml-2"
+            :loading="disconnectTelegramBotLoading"
+            @click="handleDisconnectTelegramBot"
+          >
+            Disconnect
+          </v-btn>
+        </v-col>
+      </v-row>
+    </template>
+
+    <template v-else>
+      <!-- Not connected state -->
+      <v-row>
+        <v-col cols="12" sm="6">
+          <v-text-field
+            v-model="tokenInput"
+            label="Bot token"
+            variant="outlined"
+            placeholder="1234567890..."
+            hide-details
+            :disabled="connectTelegramBotLoading"
+          />
+        </v-col>
+        <v-col cols="12" sm="6" class="d-flex align-center">
+          <v-btn
+            color="primary"
+            :loading="connectTelegramBotLoading"
+            :disabled="!tokenInput.trim()"
+            @click="handleConnectTelegramBot"
+          >
+            Connect
+          </v-btn>
+        </v-col>
+      </v-row>
+    </template>
   </v-container>
 </template>
 
 <script setup lang="ts">
 import { ref, watch } from "vue";
 import { useSnackbar } from "@/composables/useSnackbar";
+import { useTelegramBot } from "@/composables/useTelegramBot";
 import { useUserSettings } from "@/composables/useUserSettings";
 
 const MIN_PATTERNS_LIMIT = 1;
@@ -85,9 +153,23 @@ const defaultLanguage =
   "en-US";
 
 const { settings, updateSettings, updateSettingsLoading, updateSettingsError } = useUserSettings();
+const {
+  telegramBot,
+  telegramBotLoading,
+  connectTelegramBot,
+  connectTelegramBotLoading,
+  connectTelegramBotError,
+  disconnectTelegramBot,
+  disconnectTelegramBotLoading,
+  disconnectTelegramBotError,
+  testTelegramBot,
+  testTelegramBotLoading,
+  testTelegramBotError,
+} = useTelegramBot();
 const { showSuccessSnackbar, showErrorSnackbar } = useSnackbar();
 
 const transactionPatternsLimit = ref<string>("");
+const tokenInput = ref<string>("");
 const voiceInputLanguage = ref<string>(defaultLanguage);
 
 watch(
@@ -118,6 +200,36 @@ const handleSave = async () => {
     showSuccessSnackbar("Settings saved");
   } else {
     showErrorSnackbar(updateSettingsError.value?.message ?? "Failed to save settings");
+  }
+};
+
+const handleConnectTelegramBot = async () => {
+  const success = await connectTelegramBot(tokenInput.value.trim());
+  if (success) {
+    tokenInput.value = "";
+    showSuccessSnackbar("Telegram bot connected");
+  } else {
+    showErrorSnackbar(connectTelegramBotError.value?.message ?? "Failed to connect Telegram bot");
+  }
+};
+
+const handleDisconnectTelegramBot = async () => {
+  const success = await disconnectTelegramBot();
+  if (success) {
+    showSuccessSnackbar("Telegram bot disconnected");
+  } else {
+    showErrorSnackbar(
+      disconnectTelegramBotError.value?.message ?? "Failed to disconnect Telegram bot",
+    );
+  }
+};
+
+const handleTestTelegramBot = async () => {
+  const success = await testTelegramBot();
+  if (success) {
+    showSuccessSnackbar("Telegram bot is active");
+  } else {
+    showErrorSnackbar(testTelegramBotError.value?.message ?? "Telegram bot test failed");
   }
 };
 </script>
