@@ -91,3 +91,12 @@ The system SHALL persist all settings to the backend when the user submits the f
 - **GIVEN** a backend error occurs during save
 - **WHEN** the user submits the form
 - **THEN** an error snackbar is shown and the form values are preserved unchanged
+
+### Requirement: Settings page shows Telegram Bot section
+
+The system SHALL display a Telegram Bot section on the Settings page, showing either a token input (when no bot is connected) or the connected bot status with management actions.
+
+#### Scenario: User sees Telegram Bot section on Settings page
+
+- **WHEN** an authenticated user opens the Settings page
+- **THEN** a Telegram Bot section is visible alongside other settings
