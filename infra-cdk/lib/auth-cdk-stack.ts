@@ -55,10 +55,12 @@ export class AuthCdkStack extends cdk.Stack {
 
     // Callback/logout URLs are optional - supports local development with localhost URLs
     // Production URLs are set by AuthCallbackConfigStack after CloudFront deployment
-    const callbackUrls = (process.env.AUTH_CALLBACK_URLS || undefined)?.split(
+    const callbackUrls = (
+      requireEnv("AUTH_CALLBACK_URLS", "") || undefined
+    )?.split(",");
+    const logoutUrls = (requireEnv("AUTH_LOGOUT_URLS", "") || undefined)?.split(
       ",",
     );
-    const logoutUrls = (process.env.AUTH_LOGOUT_URLS || undefined)?.split(",");
 
     this.userPool = new cognito.UserPool(this, "UserPool", {
       // Users sign in with their email address (not username or phone)

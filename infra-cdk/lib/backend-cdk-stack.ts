@@ -7,7 +7,7 @@ import * as iam from "aws-cdk-lib/aws-iam";
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as logs from "aws-cdk-lib/aws-logs";
 import { Construct } from "constructs";
-import { requireEnv } from "./require-env";
+import { requireEnv, requireFloatEnv, requireIntEnv } from "./require-env";
 import { defaultLambdaOptions } from "./utils";
 
 export interface BackendCdkStackProps extends cdk.StackProps {
@@ -119,17 +119,23 @@ export class BackendCdkStack extends cdk.Stack {
       runtime: lambda.Runtime.NODEJS_24_X,
       code: lambda.Code.fromAsset("../backend/dist"),
       environment: {
-        AUTH_CLAIM_NAMESPACE: process.env.AUTH_CLAIM_NAMESPACE || "",
+        AUTH_CLAIM_NAMESPACE: requireEnv("AUTH_CLAIM_NAMESPACE"),
         AUTH_CLIENT_ID: props.userPoolClient.userPoolClientId,
         AUTH_ISSUER: props.userPool.userPoolProviderUrl,
-        AWS_BEDROCK_CONNECTION_TIMEOUT:
-          process.env.AWS_BEDROCK_CONNECTION_TIMEOUT || "",
-        AWS_BEDROCK_MAX_TOKENS: process.env.AWS_BEDROCK_MAX_TOKENS || "",
-        AWS_BEDROCK_MODEL_ID: process.env.AWS_BEDROCK_MODEL_ID || "",
-        AWS_BEDROCK_REQUEST_TIMEOUT:
-          process.env.AWS_BEDROCK_REQUEST_TIMEOUT || "",
-        AWS_BEDROCK_TEMPERATURE: process.env.AWS_BEDROCK_TEMPERATURE || "",
-        NODE_ENV: process.env.NODE_ENV || "",
+        AWS_BEDROCK_CONNECTION_TIMEOUT: requireIntEnv(
+          "AWS_BEDROCK_CONNECTION_TIMEOUT",
+        ).toString(),
+        AWS_BEDROCK_MAX_TOKENS: requireIntEnv(
+          "AWS_BEDROCK_MAX_TOKENS",
+        ).toString(),
+        AWS_BEDROCK_MODEL_ID: requireEnv("AWS_BEDROCK_MODEL_ID"),
+        AWS_BEDROCK_REQUEST_TIMEOUT: requireIntEnv(
+          "AWS_BEDROCK_REQUEST_TIMEOUT",
+        ).toString(),
+        AWS_BEDROCK_TEMPERATURE: requireFloatEnv(
+          "AWS_BEDROCK_TEMPERATURE",
+        ).toString(),
+        NODE_ENV: nodeEnv,
         ACCOUNTS_TABLE_NAME: accountsTable.tableName,
         CATEGORIES_TABLE_NAME: categoriesTable.tableName,
         MIGRATIONS_TABLE_NAME: migrationsTable.tableName,
