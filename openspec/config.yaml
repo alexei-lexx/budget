@@ -14,6 +14,7 @@ context: |
 
 rules:
   proposal:
+    - If applicable, include an issue number, title, and description at the beginning
     - Include a "## Constitution Compliance" section listing which constitution principles apply and confirming compliance or flagging violations
   design:
     - Include a "## Constitution Compliance" section listing which constitution principles apply and confirming compliance or flagging violations
