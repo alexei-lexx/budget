@@ -165,7 +165,7 @@ export class TelegramBotService {
   async acceptMessage(
     webhookSecret: string,
     message: { chatId: number; text?: string },
-  ): Promise<Result<string | null>> {
+  ): Promise<Result<void>> {
     if (!webhookSecret) {
       return Failure("Webhook secret is required");
     }
@@ -178,7 +178,7 @@ export class TelegramBotService {
     if (!bot) {
       // Unknown or inactive bot — silently ignore
       console.warn("Unknown or inactive bot");
-      return Success(null);
+      return Success(undefined);
     }
 
     await this.backgroundJobDispatcher.dispatch({
@@ -191,7 +191,7 @@ export class TelegramBotService {
       },
     });
 
-    return Success("thinking...");
+    return Success(undefined);
   }
 
   private get webhookUrl(): string {

@@ -68,12 +68,12 @@ The system SHALL route text messages sent to the connected bot through the AI se
 
 ### Requirement: Immediate acknowledgement on text message
 
-The system SHALL reply with "thinking..." immediately upon receiving a text message from the user, before the AI processes it.
+The system SHALL show a typing indicator to the user immediately upon receiving a text message, before the AI processes it.
 
 #### Scenario: User sends a text message
 
 - **WHEN** the user sends a text message to their connected bot in Telegram
-- **THEN** the bot immediately replies "thinking..." while the AI processes the request in the background
+- **THEN** the bot shows the native Telegram typing indicator while the AI processes the request, and sends only the AI answer as a reply
 
 ### Requirement: Non-text messages rejected
 
