@@ -1,18 +1,18 @@
-export function requireEnv(name: string): string {
-  const value = process.env[name];
+export function requireEnv(name: string, defaultValue?: string): string {
+  const value = process.env[name] ?? defaultValue;
   if (!value) {
     throw new Error(`${name} environment variable is required`);
   }
   return value;
 }
 
-export function requireIntEnv(name: string): number {
-  const value = requireEnv(name);
+export function requireIntEnv(name: string, defaultValue?: number): number {
+  const value = requireEnv(name, defaultValue?.toString());
   return parseIntEnv(name, value);
 }
 
-export function requireFloatEnv(name: string): number {
-  const value = requireEnv(name);
+export function requireFloatEnv(name: string, defaultValue?: number): number {
+  const value = requireEnv(name, defaultValue?.toString());
   return parseFloatEnv(name, value);
 }
 

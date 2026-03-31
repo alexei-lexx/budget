@@ -4,13 +4,10 @@ import { AuthCallbackConfigStack } from "../lib/auth-callback-config-stack";
 import { AuthCdkStack } from "../lib/auth-cdk-stack";
 import { BackendCdkStack } from "../lib/backend-cdk-stack";
 import { FrontendCdkStack } from "../lib/frontend-cdk-stack";
+import { requireEnv } from "../lib/require-env";
 
 const app = new cdk.App();
-
-const nodeEnv = process.env.NODE_ENV;
-if (!nodeEnv) {
-  throw new Error("NODE_ENV environment variable must be configured");
-}
+const nodeEnv = requireEnv("NODE_ENV");
 
 // Auth stack for Cognito User Pool
 const authStack = new AuthCdkStack(app, "AuthCdkStack", {
