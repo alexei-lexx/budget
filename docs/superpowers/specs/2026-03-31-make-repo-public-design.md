@@ -19,13 +19,11 @@ Scan the full git history for committed secrets, credentials, API keys, or PII u
 
 ### License
 
-Add a `LICENSE` file at the repo root using **Business Source License 1.1 (BUSL-1.1)**:
+Add a `LICENSE` file at the repo root using **PolyForm Noncommercial License 1.0.0**:
 
-- **Licensor**: alexei-lexx
-- **Licensed Work**: Personal Finance Tracker
-- **Additional Use Grant**: Use, copy, modify, and distribute for personal and non-commercial purposes is permitted free of charge.
-
-No Change Date or Change License — the non-commercial restriction applies permanently.
+- Personal, research, hobby, and non-profit use is permitted free of charge.
+- Commercial use is not permitted without contacting the licensor.
+- No expiry — the non-commercial restriction applies permanently.
 
 Rationale: permissive for personal/portfolio use, prevents commercial exploitation without permission.
 

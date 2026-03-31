@@ -1,5 +1,7 @@
 # Personal Finance Tracker
 
+[![CI](https://github.com/alexei-lexx/budget/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/alexei-lexx/budget/actions/workflows/ci.yml)
+
 Web application for personal financial management.
 
 ## Core Features
