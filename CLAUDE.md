@@ -36,6 +36,15 @@ This applies to all tasks involving project standards, code style, architecture,
 - Comments not directly related to the change
 - Blank lines used for visual formatting and separation
 
+## Git Worktrees
+
+When adding or removing a git worktree, always use `<project root>/../worktrees/<worktree-name>` as the path:
+
+```
+git worktree add ../worktrees/<worktree-name> <branch>
+git worktree remove ../worktrees/<worktree-name>
+```
+
 ## Reference
 
 - `docs/constitution.md` — project structure, architecture, coding standards, technical constraints
