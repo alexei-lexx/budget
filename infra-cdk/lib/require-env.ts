@@ -1,6 +1,10 @@
 export function requireEnv(name: string, defaultValue?: string): string {
-  const value = process.env[name] ?? defaultValue;
+  const value = process.env[name];
   if (!value) {
+    if (defaultValue !== undefined) {
+      return defaultValue;
+    }
+
     throw new Error(`${name} environment variable is required`);
   }
   return value;
