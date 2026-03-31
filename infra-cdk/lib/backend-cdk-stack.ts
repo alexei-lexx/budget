@@ -7,7 +7,7 @@ import * as iam from "aws-cdk-lib/aws-iam";
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as logs from "aws-cdk-lib/aws-logs";
 import { Construct } from "constructs";
-import { requireEnv, requireIntEnv } from "./require-env";
+import { requireEnv, requireFloatEnv, requireIntEnv } from "./require-env";
 import { defaultLambdaOptions } from "./utils";
 
 export interface BackendCdkStackProps extends cdk.StackProps {
@@ -132,7 +132,7 @@ export class BackendCdkStack extends cdk.Stack {
         AWS_BEDROCK_REQUEST_TIMEOUT: requireIntEnv(
           "AWS_BEDROCK_REQUEST_TIMEOUT",
         ).toString(),
-        AWS_BEDROCK_TEMPERATURE: requireIntEnv(
+        AWS_BEDROCK_TEMPERATURE: requireFloatEnv(
           "AWS_BEDROCK_TEMPERATURE",
         ).toString(),
         NODE_ENV: nodeEnv,
