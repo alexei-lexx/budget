@@ -127,14 +127,14 @@ The system SHALL allow new users to create their own account by signing up throu
 
 The system SHALL support disabling self-service registration so that no new accounts can be created after the initial setup is complete.
 
-#### Scenario: Registration is disabled by the operator
+#### Scenario: Registration is disabled by the administrator
 
-- **GIVEN** the operator has disabled user registration
+- **GIVEN** the administrator has disabled user registration
 - **WHEN** a new user attempts to access the sign-up page
 - **THEN** the sign-up option is not available and no new account can be created
 
 #### Scenario: Existing users are unaffected when registration is disabled
 
-- **GIVEN** the operator has disabled user registration
+- **GIVEN** the administrator has disabled user registration
 - **WHEN** an existing user signs in
 - **THEN** they can authenticate normally and access the application
