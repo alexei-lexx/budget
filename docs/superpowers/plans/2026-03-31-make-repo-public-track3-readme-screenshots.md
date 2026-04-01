@@ -24,7 +24,7 @@ Screenshots must be taken from a live staging environment with real-looking samp
 
 **Sample data spec:** [`docs/superpowers/plans/2026-04-01-screenshot-data.md`](2026-04-01-screenshot-data.md)
 
-- [ ] **Step 1: Set up staging environment**
+- [x] **Step 1: Set up staging environment**
 
 Deploy to staging (migrations run automatically as part of deployment):
 
@@ -43,7 +43,7 @@ pass budget/staging/user/password
 
 Sign in and manually enter realistic sample data across all screens (accounts, categories, transactions, etc.) before taking screenshots. There is no seed script for staging.
 
-- [ ] **Step 2: Prepare Telegram screenshot**
+- [x] **Step 2: Prepare Telegram screenshot**
 
 In Telegram, send the following to the bot and capture its reply:
 
@@ -51,7 +51,7 @@ In Telegram, send the following to the bot and capture its reply:
 
 Show the bot's response creating the transaction in the conversation.
 
-- [ ] **Step 3: Take screenshots of each screen**
+- [x] **Step 3: Take screenshots of each screen**
 
 Use browser DevTools to set viewport to 390×844 (iPhone 14 Pro) for mobile-first presentation. Save each as PNG to `docs/screenshots/`:
 
@@ -65,11 +65,11 @@ Use browser DevTools to set viewport to 390×844 (iPhone 14 Pro) for mobile-firs
 | Insights                   | `docs/screenshots/insights.png`          | Insights/AI section — ask "What did I spend most on this month?" and capture the answer                              |
 | Telegram                   | `docs/screenshots/telegram.png`          | In Telegram Web (web.telegram.org), open the bot chat — capture a conversation showing a command and the bot's reply |
 
-- [ ] **Step 4: Verify image quality**
+- [x] **Step 4: Verify image quality**
 
 Each image should be:
 
-- 390px wide (mobile viewport)
+- 430px wide (larger mobile viewport)
 - Clear and not blurry
 - Showing realistic sample data (not empty states)
 - Free of personal information (fictional names/amounts only)
@@ -95,7 +95,7 @@ Target structure after this task:
 5. `## Deployment`
 6. `## Screenshots` (new, at the bottom)
 
-- [ ] **Step 1: Add jump link after the Core Features list**
+- [x] **Step 1: Add jump link after the Core Features list**
 
 Find the end of the `## Core Features` section in `README.md`. The last bullet is currently:
 
@@ -111,7 +111,7 @@ Add a jump link on the next line:
 [→ See screenshots](#screenshots)
 ```
 
-- [ ] **Step 2: Add Screenshots section at the bottom of `README.md`**
+- [x] **Step 2: Add Screenshots section at the bottom of `README.md`**
 
 Append the following to the end of `README.md`:
 
@@ -147,7 +147,7 @@ Append the following to the end of `README.md`:
 ![Telegram integration](docs/screenshots/telegram.png)
 ```
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add README.md docs/screenshots/
@@ -158,28 +158,15 @@ git commit -m "add screenshots to README"
 
 ### Task 3: Add context note to `docs/requirements.md`
 
-- [ ] **Step 1: Edit `docs/requirements.md`**
+- [x] **Step 1: Edit `docs/requirements.md`** (skipped per user feedback)
 
-Add the following line at the very top of the file, before any existing content:
-
-```markdown
-> This is the living business requirements document for the Personal Finance Tracker. It describes features, user stories, and product constraints.
-```
-
-(Leave one blank line after the note before the existing content.)
-
-- [ ] **Step 2: Commit**
-
-```bash
-git add docs/requirements.md
-git commit -m "add context note to requirements doc"
-```
+- [x] **Step 2: Commit** (skipped)
 
 ---
 
 ### Task 4: Open PR
 
-- [ ] **Step 1: Push branch and open PR**
+- [x] **Step 1: Push branch and open PR**
 
 ```bash
 git push origin <branch-name>
