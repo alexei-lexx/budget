@@ -135,23 +135,21 @@ To override configuration for a specific environment, replace `production` in th
 
 ## Screenshots
 
-### Accounts
-![Accounts](docs/screenshots/accounts.png)
+<p align="center">
+    <img src="docs/screenshots/accounts.png" alt="Accounts" width="49%" />
+    <img src="docs/screenshots/categories.png" alt="Categories" width="49%" />
+</p>
 
-### Categories
-![Categories](docs/screenshots/categories.png)
+<p align="center">
+    <img src="docs/screenshots/transaction-entry.png" alt="Transaction Entry" width="49%" />
+    <img src="docs/screenshots/quick-entry.png" alt="Quick Entry" width="49%" />
+</p>
 
-### Transaction Entry
-![Transaction Entry](docs/screenshots/transaction-entry.png)
+<p align="center">
+    <img src="docs/screenshots/monthly-report.png" alt="Monthly Report" width="49%" />
+    <img src="docs/screenshots/insights.png" alt="Insights" width="49%" />
+</p>
 
-### Quick Entry
-![Quick Entry](docs/screenshots/quick-entry.png)
-
-### Monthly Report
-![Monthly Report](docs/screenshots/monthly-report.png)
-
-### Insights
-![Insights](docs/screenshots/insights.png)
-
-### Telegram Integration
-![Telegram Integration](docs/screenshots/telegram.png)
+<p align="center">
+    <img src="docs/screenshots/telegram.png" alt="Telegram Integration" width="49%" />
+</p>
