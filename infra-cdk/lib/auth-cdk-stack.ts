@@ -11,7 +11,7 @@ import { defaultLambdaOptions } from "./utils";
  * CDK Stack for Cognito User Pool infrastructure.
  *
  * Creates:
- * - User Pool with email sign-in, admin-only user creation, and passkey support
+ * - User Pool with email sign-in, configurable self sign-up, and passkey support
  * - User Pool Client for SPA with authorization code flow
  * - User Pool Domain for Cognito Hosted UI
  * - Pre Token Generation Lambda for adding email to access tokens
@@ -22,6 +22,7 @@ import { defaultLambdaOptions } from "./utils";
  *
  * Environment variables:
  * - NODE_ENV: Environment name (default: "test")
+ * - AUTH_ALLOW_USER_REGISTRATION: Enable self sign-up ("true") or disable it ("false")
  * - AUTH_CALLBACK_URLS: Comma-separated callback URLs (optional, for local development)
  * - AUTH_CLAIM_NAMESPACE: Namespace for custom claims (required)
  * - AUTH_DOMAIN_PREFIX: Cognito domain prefix
