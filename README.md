@@ -76,6 +76,12 @@ ENV=staging ./deploy.sh
 All parameters have sensible defaults. To override any default, create parameters in AWS Systems Manager Parameter Store:
 
 ```bash
+# Allow/disallow user self-registration
+# By default, self-registration is enabled
+aws ssm put-parameter --overwrite --type String \
+    --name "/manual/budget/production/auth/allow-user-registration" \
+    --value "true"
+
 # Auth claim namespace (custom namespace for JWT claims)
 aws ssm put-parameter --overwrite --type String \
     --name "/manual/budget/production/auth/claim-namespace" \

@@ -62,13 +62,15 @@ export class AuthCdkStack extends cdk.Stack {
       ",",
     );
 
+    const selfSignUpEnabled =
+      requireEnv("AUTH_ALLOW_USER_REGISTRATION") === "true";
+
     this.userPool = new cognito.UserPool(this, "UserPool", {
       // Users sign in with their email address (not username or phone)
       signInAliases: { email: true },
 
-      // Admin-only user creation: users cannot self-register
-      // All accounts must be created by an administrator via AWS Console or API
-      selfSignUpEnabled: false,
+      // Self sign-up controlled by AUTH_ALLOW_USER_REGISTRATION env var.
+      selfSignUpEnabled,
 
       // SignInPolicy: Configure which authentication methods users can choose from
       // Required for Managed Login choice-based authentication
