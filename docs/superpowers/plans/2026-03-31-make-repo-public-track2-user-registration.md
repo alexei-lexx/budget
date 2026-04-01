@@ -96,7 +96,10 @@ it("should disable self sign-up when AUTH_ALLOW_USER_REGISTRATION is false", () 
   process.env.AUTH_ALLOW_USER_REGISTRATION = "false";
 
   const appDisabled = new cdk.App();
-  const stackDisabled = new AuthCdkStack(appDisabled, "TestAuthCdkStackDisabled");
+  const stackDisabled = new AuthCdkStack(
+    appDisabled,
+    "TestAuthCdkStackDisabled",
+  );
   const templateDisabled = Template.fromStack(stackDisabled);
 
   templateDisabled.hasResourceProperties("AWS::Cognito::UserPool", {
@@ -273,9 +276,10 @@ In the "Override Configuration (Optional)" section, add a new entry. Place it wi
 
 ```markdown
 # Allow/disable user registration (disable after your initial sign-up)
+
 aws ssm put-parameter --overwrite --type String \
-    --name "/manual/budget/production/auth/allow-user-registration" \
-    --value "false"
+ --name "/manual/budget/production/auth/allow-user-registration" \
+ --value "false"
 ```
 
 Also add a note above the parameter block in that section. Currently the section starts with:
@@ -289,7 +293,6 @@ All parameters have sensible defaults. To override any default, create parameter
 Add this paragraph after "create parameters in AWS Systems Manager Parameter Store:":
 
 ```markdown
-
 > **First-time setup tip:** By default, user registration is open so you can sign up immediately after deployment. Once you've created your account, disable registration by setting `auth/allow-user-registration` to `false` and redeploying.
 ```
 
