@@ -4,6 +4,12 @@
 
 Web application for personal financial management.
 
+## Benefits
+
+- **Self-hosted on your own AWS account** — your financial data never leaves it, no third-party app has access to it
+- **No subscription fees** — pay only for what you use on AWS, typically low or zero for personal use
+- **Source-available** — read and customize the code (PolyForm Noncommercial License)
+
 ## Core Features
 
 - **Multiple Accounts** - Track all your finances in one place: bank accounts, cash, credit cards, and more
