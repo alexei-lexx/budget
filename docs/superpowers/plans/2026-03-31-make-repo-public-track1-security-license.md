@@ -20,7 +20,7 @@
 
 ### Task 1: Scan git history for secrets
 
-- [ ] **Step 1: Install trufflehog**
+- [x] **Step 1: Install trufflehog**
 
 ```bash
 pip install trufflehog
@@ -32,7 +32,7 @@ Or via Docker (no install needed):
 docker run --rm -v "$(pwd):/repo" trufflesecurity/trufflehog:latest git file:///repo --only-verified
 ```
 
-- [ ] **Step 2: Run the scan**
+- [x] **Step 2: Run the scan**
 
 From the repo root:
 
@@ -42,7 +42,7 @@ trufflehog git file://. --only-verified
 
 Expected output: no verified secrets found. If any are found, they will be printed with file path and commit hash.
 
-- [ ] **Step 3: If secrets are found — rewrite history**
+- [x] **Step 3: If secrets are found — rewrite history**
 
 Only needed if Step 2 reports verified findings. Install `git-filter-repo`:
 
@@ -62,7 +62,7 @@ Then force-push **before** making the repo public:
 git push origin main --force
 ```
 
-- [ ] **Step 4: If no secrets found — proceed**
+- [x] **Step 4: If no secrets found — proceed**
 
 No history rewrite needed. Continue to Task 2.
 
@@ -70,11 +70,11 @@ No history rewrite needed. Continue to Task 2.
 
 ### Task 2: Add PolyForm Noncommercial 1.0.0 LICENSE file
 
-- [ ] **Step 1: Create the LICENSE file**
+- [x] **Step 1: Create the LICENSE file**
 
 Copy the full license text from <https://polyformproject.org/licenses/noncommercial/1.0.0/> into `LICENSE` at the repo root.
 
-- [ ] **Step 2: Commit**
+- [x] **Step 2: Commit**
 
 ```bash
 git add LICENSE
@@ -85,7 +85,7 @@ git commit -m "add PolyForm Noncommercial 1.0.0 license"
 
 ### Task 3: Harden root `.gitignore`
 
-- [ ] **Step 1: Edit `.gitignore`**
+- [x] **Step 1: Edit `.gitignore`**
 
 Current contents of `/.gitignore`:
 ```
@@ -108,7 +108,7 @@ Replace with:
 *.key
 ```
 
-- [ ] **Step 2: Verify `.env.example` files are still tracked**
+- [x] **Step 2: Verify `.env.example` files are still tracked**
 
 ```bash
 git status
@@ -116,7 +116,7 @@ git status
 
 Expected: only `.gitignore` appears as modified. The `.env.example` files in subdirectories should not be affected (they're already tracked and the negation patterns preserve them).
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add .gitignore
@@ -127,7 +127,7 @@ git commit -m "harden root .gitignore"
 
 ### Task 4: Add CI badge to README
 
-- [ ] **Step 1: Edit `README.md`**
+- [x] **Step 1: Edit `README.md`**
 
 The current first line of `README.md` is:
 
@@ -143,7 +143,7 @@ Replace it with:
 [![CI](https://github.com/alexei-lexx/budget/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/alexei-lexx/budget/actions/workflows/ci.yml)
 ```
 
-- [ ] **Step 2: Commit**
+- [x] **Step 2: Commit**
 
 ```bash
 git add README.md
@@ -154,7 +154,7 @@ git commit -m "add CI badge to README"
 
 ### Task 5: Open PR
 
-- [ ] **Step 1: Push branch and open PR**
+- [x] **Step 1: Push branch and open PR**
 
 ```bash
 git push origin <branch-name>

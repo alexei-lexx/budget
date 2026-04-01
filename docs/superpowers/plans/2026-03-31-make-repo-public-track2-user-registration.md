@@ -24,7 +24,7 @@
 
 The existing test at `infra-cdk/test/auth-cdk.test.ts` already asserts `AllowAdminCreateUserOnly: true`. That assertion needs to be updated and two new tests added — one for `"true"`, one for `"false"`.
 
-- [ ] **Step 1: Update `beforeEach` in `infra-cdk/test/auth-cdk.test.ts`**
+- [x] **Step 1: Update `beforeEach` in `infra-cdk/test/auth-cdk.test.ts`**
 
 Add `AUTH_ALLOW_USER_REGISTRATION` to the `beforeEach` env setup (set to `"true"` as the normal deployment default):
 
@@ -56,7 +56,7 @@ afterEach(() => {
 });
 ```
 
-- [ ] **Step 2: Update the existing `AllowAdminCreateUserOnly` assertion**
+- [x] **Step 2: Update the existing `AllowAdminCreateUserOnly` assertion**
 
 In `it("should create the stack")`, change the existing assertion from:
 
@@ -78,7 +78,7 @@ template.hasResourceProperties("AWS::Cognito::UserPool", {
 });
 ```
 
-- [ ] **Step 3: Add two new `it` blocks for the registration toggle**
+- [x] **Step 3: Add two new `it` blocks for the registration toggle**
 
 Add the following after the existing tests:
 
@@ -107,7 +107,7 @@ it("should disable self sign-up when AUTH_ALLOW_USER_REGISTRATION is false", () 
 });
 ```
 
-- [ ] **Step 4: Run tests to verify they fail**
+- [x] **Step 4: Run tests to verify they fail**
 
 ```bash
 cd infra-cdk && npm test -- --testPathPattern=auth-cdk
@@ -119,7 +119,7 @@ Expected: the new tests and the updated existing assertion fail — `AllowAdminC
 
 ### Task 2: Implement `selfSignUpEnabled` in `AuthCdkStack`
 
-- [ ] **Step 1: Edit `infra-cdk/lib/auth-cdk-stack.ts`**
+- [x] **Step 1: Edit `infra-cdk/lib/auth-cdk-stack.ts`**
 
 After the existing `const callbackUrls` / `const logoutUrls` lines (around line 61), add:
 
@@ -145,7 +145,7 @@ to:
 selfSignUpEnabled,
 ```
 
-- [ ] **Step 3: Run tests to verify they pass**
+- [x] **Step 3: Run tests to verify they pass**
 
 ```bash
 cd infra-cdk && npm test -- --testPathPattern=auth-cdk
@@ -153,7 +153,7 @@ cd infra-cdk && npm test -- --testPathPattern=auth-cdk
 
 Expected: all tests pass.
 
-- [ ] **Step 4: Run full infra-cdk test suite**
+- [x] **Step 4: Run full infra-cdk test suite**
 
 ```bash
 cd infra-cdk && npm test
@@ -161,7 +161,7 @@ cd infra-cdk && npm test
 
 Expected: all tests pass.
 
-- [ ] **Step 5: Run typecheck**
+- [x] **Step 5: Run typecheck**
 
 ```bash
 cd infra-cdk && npm run typecheck
@@ -169,7 +169,7 @@ cd infra-cdk && npm run typecheck
 
 Expected: no errors.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add infra-cdk/lib/auth-cdk-stack.ts infra-cdk/test/auth-cdk.test.ts
@@ -180,7 +180,7 @@ git commit -m "enable self sign-up in Cognito, controlled by AUTH_ALLOW_USER_REG
 
 ### Task 3: Update `deploy.sh`
 
-- [ ] **Step 1: Add default and SSM read to `deploy.sh`**
+- [x] **Step 1: Add default and SSM read to `deploy.sh`**
 
 After the existing defaults block (after `DEFAULT_AWS_LAMBDA_TIMEOUT_SECONDS` line ~127), add:
 
@@ -195,7 +195,7 @@ AUTH_ALLOW_USER_REGISTRATION=$(ssm_get_or_default "/manual/budget/$ENV/auth/allo
 echo "AUTH_ALLOW_USER_REGISTRATION=$AUTH_ALLOW_USER_REGISTRATION"
 ```
 
-- [ ] **Step 2: Pass the env var to the CDK deploy command**
+- [x] **Step 2: Pass the env var to the CDK deploy command**
 
 Find the `env ... npm run deploy` block (~lines 175–185). It currently looks like:
 
@@ -230,7 +230,7 @@ env AUTH_CLAIM_NAMESPACE="$AUTH_CLAIM_NAMESPACE" \
   npm run deploy -- --outputs-file "$CDK_OUTPUT_FILE"
 ```
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add deploy.sh
@@ -241,7 +241,7 @@ git commit -m "pass AUTH_ALLOW_USER_REGISTRATION from SSM to CDK"
 
 ### Task 4: Update `infra-cdk/.env.example`
 
-- [ ] **Step 1: Edit `infra-cdk/.env.example`**
+- [x] **Step 1: Edit `infra-cdk/.env.example`**
 
 Add the new variable to the `# Auth Stack` section:
 
@@ -256,7 +256,7 @@ AWS_LAMBDA_MEMORY_SIZE=512
 AWS_LAMBDA_TIMEOUT_SECONDS=30
 ```
 
-- [ ] **Step 2: Commit**
+- [x] **Step 2: Commit**
 
 ```bash
 git add infra-cdk/.env.example
@@ -267,7 +267,7 @@ git commit -m "document AUTH_ALLOW_USER_REGISTRATION in .env.example"
 
 ### Task 5: Document the SSM parameter in `README.md`
 
-- [ ] **Step 1: Edit `README.md`**
+- [x] **Step 1: Edit `README.md`**
 
 In the "Override Configuration (Optional)" section, add a new entry. Place it with the other `auth/` parameters (after `auth/scope`):
 
@@ -293,7 +293,7 @@ Add this paragraph after "create parameters in AWS Systems Manager Parameter Sto
 > **First-time setup tip:** By default, user registration is open so you can sign up immediately after deployment. Once you've created your account, disable registration by setting `auth/allow-user-registration` to `false` and redeploying.
 ```
 
-- [ ] **Step 2: Commit**
+- [x] **Step 2: Commit**
 
 ```bash
 git add README.md
@@ -304,7 +304,7 @@ git commit -m "document user registration SSM parameter in README"
 
 ### Task 6: Open PR
 
-- [ ] **Step 1: Push branch and open PR**
+- [x] **Step 1: Push branch and open PR**
 
 ```bash
 git push origin <branch-name>
@@ -319,9 +319,9 @@ gh pr create --title "Track 2: user self-registration via Cognito" --body "$(cat
 
 ## Test plan
 
-- [ ] CDK tests pass (`npm test` in `infra-cdk/`)
-- [ ] Deploy to staging with default settings → self sign-up appears on Cognito hosted UI
-- [ ] Set SSM param to `false`, redeploy → sign-up option no longer available
+- [x] CDK tests pass (`npm test` in `infra-cdk/`)
+- [x] Deploy to staging with default settings → self sign-up appears on Cognito hosted UI
+- [x] Set SSM param to `false`, redeploy → sign-up option no longer available
 
 Closes part of #306.
 EOF
