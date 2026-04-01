@@ -22,6 +22,8 @@
 
 Screenshots must be taken from a live staging environment with real-looking sample data.
 
+**Sample data spec:** [`docs/superpowers/plans/2026-04-01-screenshot-data.md`](2026-04-01-screenshot-data.md)
+
 - [ ] **Step 1: Set up staging environment**
 
 Deploy to staging (migrations run automatically as part of deployment):
@@ -44,6 +46,7 @@ Sign in and manually enter realistic sample data across all screens (accounts, c
 - [ ] **Step 2: Prepare Telegram screenshot**
 
 In Telegram, send the following to the bot and capture its reply:
+
 - "coffee 4.50"
 
 Show the bot's response creating the transaction in the conversation.
@@ -52,19 +55,20 @@ Show the bot's response creating the transaction in the conversation.
 
 Use browser DevTools to set viewport to 390×844 (iPhone 14 Pro) for mobile-first presentation. Save each as PNG to `docs/screenshots/`:
 
-| Screen | File | How to reach it |
-|---|---|---|
-| Accounts list | `docs/screenshots/accounts.png` | Home screen — shows all accounts with balances |
-| Categories list | `docs/screenshots/categories.png` | Categories section — shows both income and expense tabs |
-| Transaction entry (manual) | `docs/screenshots/transaction-entry.png` | Open the "Add transaction" form, fill in Food / $62.30 / Groceries — capture before submitting |
-| Quick entry (AI) | `docs/screenshots/quick-entry.png` | Open AI quick entry, type "coffee 4.50" — capture after the AI fills in the form |
-| Monthly report | `docs/screenshots/monthly-report.png` | Reports section for current month — shows income/expense totals and category breakdown |
-| Insights | `docs/screenshots/insights.png` | Insights/AI section — ask "What did I spend most on this month?" and capture the answer |
-| Telegram | `docs/screenshots/telegram.png` | In Telegram Web (web.telegram.org), open the bot chat — capture a conversation showing a command and the bot's reply |
+| Screen                     | File                                     | How to reach it                                                                                                      |
+| -------------------------- | ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| Accounts list              | `docs/screenshots/accounts.png`          | Home screen — shows all accounts with balances                                                                       |
+| Categories list            | `docs/screenshots/categories.png`        | Categories section — shows both income and expense tabs                                                              |
+| Transaction entry (manual) | `docs/screenshots/transaction-entry.png` | Open the "Add transaction" form, fill in Food / $62.30 / Groceries — capture before submitting                       |
+| Quick entry (AI)           | `docs/screenshots/quick-entry.png`       | Open AI quick entry, type "coffee 4.50" — capture after the AI fills in the form                                     |
+| Monthly report             | `docs/screenshots/monthly-report.png`    | Reports section for current month — shows income/expense totals and category breakdown                               |
+| Insights                   | `docs/screenshots/insights.png`          | Insights/AI section — ask "What did I spend most on this month?" and capture the answer                              |
+| Telegram                   | `docs/screenshots/telegram.png`          | In Telegram Web (web.telegram.org), open the bot chat — capture a conversation showing a command and the bot's reply |
 
 - [ ] **Step 4: Verify image quality**
 
 Each image should be:
+
 - 390px wide (mobile viewport)
 - Clear and not blurry
 - Showing realistic sample data (not empty states)
@@ -75,6 +79,7 @@ Each image should be:
 ### Task 2: Update `README.md`
 
 The current README structure is:
+
 1. `# Personal Finance Tracker`
 2. `## Core Features`
 3. `## Technologies`
@@ -82,6 +87,7 @@ The current README structure is:
 5. `## Deployment`
 
 Target structure after this task:
+
 1. `# Personal Finance Tracker` + CI badge (added in Track 1)
 2. `## Core Features` + jump link to screenshots
 3. `## Technologies`
@@ -158,7 +164,6 @@ Add the following line at the very top of the file, before any existing content:
 
 ```markdown
 > This is the living business requirements document for the Personal Finance Tracker. It describes features, user stories, and product constraints.
-
 ```
 
 (Leave one blank line after the note before the existing content.)

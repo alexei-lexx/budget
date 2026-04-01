@@ -88,12 +88,14 @@ git commit -m "add PolyForm Noncommercial 1.0.0 license"
 - [x] **Step 1: Edit `.gitignore`**
 
 Current contents of `/.gitignore`:
+
 ```
 .playwright
 .playwright-cli
 ```
 
 Replace with:
+
 ```
 .playwright
 .playwright-cli

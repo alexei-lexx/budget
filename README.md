@@ -24,6 +24,8 @@ Web application for personal financial management.
 - **Ask About Your Money** – Ask questions about cash flow, spending habits, or trends in any language, and let AI analyze your transaction history to provide insightful answers
 - **Telegram Integration** - Chat with the app directly from Telegram
 
+[→ See screenshots](#screenshots)
+
 ## Technologies
 
 - [Node.js](https://nodejs.org/) backend with GraphQL API
@@ -130,3 +132,26 @@ aws ssm put-parameter --overwrite --type String \
 ```
 
 To override configuration for a specific environment, replace `production` in the parameter names with your target environment (e.g., `/manual/budget/staging/auth/domain-prefix`).
+
+## Screenshots
+
+### Accounts
+![Accounts](docs/screenshots/accounts.png)
+
+### Categories
+![Categories](docs/screenshots/categories.png)
+
+### Transaction Entry
+![Transaction Entry](docs/screenshots/transaction-entry.png)
+
+### Quick Entry
+![Quick Entry](docs/screenshots/quick-entry.png)
+
+### Monthly Report
+![Monthly Report](docs/screenshots/monthly-report.png)
+
+### Insights
+![Insights](docs/screenshots/insights.png)
+
+### Telegram Integration
+![Telegram Integration](docs/screenshots/telegram.png)
