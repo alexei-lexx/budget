@@ -24,12 +24,14 @@ export function toGrade(value: boolean | number): Grade {
 export const PASS = toGrade(1);
 export const FAIL = toGrade(0);
 
+export type EvalTaskRun<TInput> = (iteration: number) => Promise<{
+  input: TInput;
+  grades: { name: string; value: Grade }[];
+}>;
+
 export interface EvalTask<TInput> {
   name: string;
-  run: (iteration: number) => Promise<{
-    input: TInput;
-    grades: { name: string; value: Grade }[];
-  }>;
+  run: EvalTaskRun<TInput>;
 }
 
 export interface EvalTrialResult<TInput> {
@@ -102,6 +104,18 @@ export async function runEvalSuite(
   }
 
   return result;
+}
+
+const evalTaskRegistry: EvalTask<unknown>[] = [];
+
+export function task(name: string, run: EvalTaskRun<unknown>): void {
+  evalTaskRegistry.push({ name, run });
+}
+
+export function collectAndResetTasks(): EvalTask<unknown>[] {
+  const tasks = [...evalTaskRegistry];
+  evalTaskRegistry.length = 0; // Clear the registry
+  return tasks;
 }
 
 function avg(numbers: number[]): number {
