@@ -8,10 +8,10 @@ import { DynTelegramBotRepository } from "./repositories/dyn-telegram-bot-reposi
 import { DynTransactionRepository } from "./repositories/dyn-transaction-repository";
 import { DynUserRepository } from "./repositories/dyn-user-repository";
 import { AccountService } from "./services/account-service";
+import { CreateTransactionFromTextService } from "./services/agent-services/create-transaction-from-text-service";
+import { InsightService } from "./services/agent-services/insight-service";
 import { ByCategoryReportService } from "./services/by-category-report-service";
 import { CategoryService } from "./services/category-service";
-import { CreateTransactionFromTextService } from "./services/create-transaction-from-text-service";
-import { InsightService } from "./services/insight-service";
 import { AccountRepository } from "./services/ports/account-repository";
 import { CategoryRepository } from "./services/ports/category-repository";
 import { TransactionRepository } from "./services/ports/transaction-repository";

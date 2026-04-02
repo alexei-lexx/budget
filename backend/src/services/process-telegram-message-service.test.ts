@@ -2,7 +2,7 @@ import { faker } from "@faker-js/faker";
 import { fakeTelegramBot } from "../utils/test-utils/factories";
 import { createMockTelegramApiClient } from "../utils/test-utils/mock-providers";
 import { createMockTelegramBotRepository } from "../utils/test-utils/mock-repositories";
-import { InsightService } from "./insight-service";
+import { InsightService } from "./agent-services/insight-service";
 import { ProcessTelegramMessageService } from "./process-telegram-message-service";
 
 describe("ProcessTelegramMessageService", () => {

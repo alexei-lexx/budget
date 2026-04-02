@@ -1,5 +1,5 @@
 import { Failure, Result, Success } from "../types/result";
-import { InsightService } from "./insight-service";
+import { InsightService } from "./agent-services/insight-service";
 import { TelegramApiClient } from "./ports/telegram-api-client";
 import { TelegramBotRepository } from "./ports/telegram-bot-repository";
 

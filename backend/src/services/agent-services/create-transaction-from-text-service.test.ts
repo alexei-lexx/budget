@@ -1,18 +1,18 @@
 import { faker } from "@faker-js/faker";
-import { fakeTransaction } from "../utils/test-utils/factories";
+import { fakeTransaction } from "../../utils/test-utils/factories";
 import {
   createMockAccountRepository,
   createMockCategoryRepository,
   createMockTransactionRepository,
-} from "../utils/test-utils/mock-repositories";
-import { CreateTransactionFromTextService } from "./create-transaction-from-text-service";
+} from "../../utils/test-utils/mock-repositories";
 import {
   type Agent,
   type AgentTraceMessage,
   AgentTraceMessageType,
   ToolSignature,
-} from "./ports/agent";
-import { TransactionService } from "./transaction-service";
+} from "../ports/agent";
+import { TransactionService } from "../transaction-service";
+import { CreateTransactionFromTextService } from "./create-transaction-from-text-service";
 
 const createMockAgent = (): jest.Mocked<Agent> => ({
   call: jest.fn(),
