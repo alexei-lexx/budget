@@ -1,6 +1,6 @@
 import { EvalTaskResult } from "./evals";
 
-const MAX_TASK_NAME_LENGTH = 40;
+const MAX_TASK_NAME_LENGTH = 60;
 
 function truncate(str: string, max: number): string {
   return str.length <= max ? str : `${str.slice(0, max - 1)}…`;
