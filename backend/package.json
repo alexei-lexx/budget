@@ -18,7 +18,7 @@
     "db:start": "docker compose up -d",
     "db:stop": "docker compose down",
     "dev": "npm run db:start && npm run codegen && dotenvx run --verbose -- nodemon --exec tsx src/dev.ts",
-    "eval": "dotenvx run --verbose -- tsx src/scripts/eval.ts",
+    "eval": "dotenvx run -f .env.test --verbose -- tsx src/scripts/eval.ts",
     "format": "npm run prettier:fix && npm run lint:fix",
     "lint:fix": "eslint . --fix",
     "lint": "eslint .",
