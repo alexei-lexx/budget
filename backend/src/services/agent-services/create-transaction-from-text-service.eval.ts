@@ -5,19 +5,19 @@ import {
   resolveCreateTransactionFromTextService,
   resolveTransactionRepository,
   resolveUserRepository,
-} from "../dependencies";
-import { CategoryType } from "../models/category";
-import { TransactionType } from "../models/transaction";
-import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
-import { truncateAllTables } from "../utils/test-utils/dynamodb-helpers";
-import { EvalTask, runEvalSuite, toGrade } from "../utils/test-utils/evals";
-import { reportToConsole } from "../utils/test-utils/evals-console-reporter";
+} from "../../dependencies";
+import { CategoryType } from "../../models/category";
+import { TransactionType } from "../../models/transaction";
+import { createDynamoDBDocumentClient } from "../../utils/dynamo-client";
+import { truncateAllTables } from "../../utils/test-utils/dynamodb-helpers";
+import { EvalTask, runEvalSuite, toGrade } from "../../utils/test-utils/evals";
+import { reportToConsole } from "../../utils/test-utils/evals-console-reporter";
 import {
   fakeAccount,
   fakeCategory,
   fakeCreateTransactionInput,
   fakeUser,
-} from "../utils/test-utils/factories";
+} from "../../utils/test-utils/factories";
 
 const accountRepository = resolveAccountRepository();
 const categoryRepository = resolveCategoryRepository();

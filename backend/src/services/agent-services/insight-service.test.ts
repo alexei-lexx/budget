@@ -3,13 +3,13 @@ import {
   createMockAccountRepository,
   createMockCategoryRepository,
   createMockTransactionRepository,
-} from "../utils/test-utils/mock-repositories";
-import { type InsightInput, InsightService } from "./insight-service";
+} from "../../utils/test-utils/mock-repositories";
 import {
   type Agent,
   type AgentTraceMessage,
   AgentTraceMessageType,
-} from "./ports/agent";
+} from "../ports/agent";
+import { type InsightInput, InsightService } from "./insight-service";
 
 const createMockAgent = (): jest.Mocked<Agent> => ({
   call: jest.fn(),
