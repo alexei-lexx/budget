@@ -7,13 +7,13 @@
     </div>
 
     <v-empty-state
-      v-if="!insightAnswer && !insightLoading"
+      v-if="!insightAnswer && !askInsightLoading"
       icon="mdi-lightbulb-on-outline"
       title="Ask about your finances"
       text="Ask a question to get started."
     />
 
-    <div v-else-if="insightLoading" class="d-flex justify-center align-center fill-height">
+    <div v-else-if="askInsightLoading" class="d-flex justify-center align-center fill-height">
       <v-progress-circular indeterminate size="40" width="3" />
     </div>
 
@@ -28,7 +28,7 @@
     <div class="w-100">
       <AgenticInput
         v-model="question"
-        :loading="insightLoading"
+        :loading="askInsightLoading"
         :agent-trace="insightAgentTrace"
         placeholder="Ask about your spending..."
         input-aria-label="Ask a question"
@@ -48,7 +48,7 @@ import AgenticInput from "@/components/AgenticInput.vue";
 const STORAGE_KEY = "insight-input";
 
 const { showErrorSnackbar } = useSnackbar();
-const { insightLoading, insightError, insightAnswer, insightAgentTrace, askQuestion } =
+const { askInsightLoading, askInsightError, insightAnswer, insightAgentTrace, askInsight } =
   useInsight();
 
 interface StoredInput {
@@ -80,10 +80,10 @@ const handleAskQuestion = async () => {
     return;
   }
 
-  await askQuestion(trimmedQuestion);
+  await askInsight(trimmedQuestion);
 
-  if (insightError.value) {
-    showErrorSnackbar(insightError.value);
+  if (askInsightError.value) {
+    showErrorSnackbar(askInsightError.value);
   }
 };
 

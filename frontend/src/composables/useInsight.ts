@@ -1,6 +1,6 @@
-import { ref, computed, watch } from "vue";
+import { ref, computed } from "vue";
 import { useAskInsightMutation } from "@/__generated__/vue-apollo";
-import type { AgentTraceMessage, AskInsightMutation } from "@/__generated__/vue-apollo";
+import type { AgentTraceMessage } from "@/__generated__/vue-apollo";
 
 const STORAGE_KEY = "insight-last-result";
 
@@ -35,63 +35,56 @@ export function useInsight() {
   const stored = loadStoredResult();
   const storedAnswer = ref<string | null>(stored?.answer ?? null);
   const storedAgentTrace = ref<AgentTraceMessage[]>(stored?.agentTrace ?? []);
-  const mutationData = ref<AskInsightMutation | null>(null);
 
-  const {
-    mutate: askInsightMutate,
-    loading: insightLoading,
-    error: insightMutationError,
-    onDone,
-  } = useAskInsightMutation();
+  const fetchedAnswer = ref<string | null>(null);
+  const fetchedAgentTrace = ref<AgentTraceMessage[] | null>(null);
+  const askInsightError = ref<string | null>(null);
 
-  onDone((fetchResult) => {
-    mutationData.value = fetchResult.data ?? null;
-  });
+  const { mutate: askInsightMutation, loading: askInsightLoading } = useAskInsightMutation();
 
-  const fetchedAnswer = computed(() => {
-    const insight = mutationData.value?.askInsight;
-    if (insight?.__typename === "InsightSuccess") return insight.answer;
-    return null;
-  });
+  const askInsight = async (question: string): Promise<void> => {
+    askInsightError.value = null; // Reset error before new request
 
-  const fetchedAgentTrace = computed(() => mutationData.value?.askInsight?.agentTrace ?? []);
+    try {
+      const result = await askInsightMutation({ input: { question } });
+      const response = result?.data?.askInsight ?? null;
 
-  const insightError = computed(() => {
-    const insight = mutationData.value?.askInsight;
-    if (insight?.__typename === "InsightFailure") return insight.message;
-    return insightMutationError.value?.message ?? null;
-  });
-
-  const insightAnswer = computed(() => fetchedAnswer.value ?? storedAnswer.value);
-
-  const insightAgentTrace = computed(() =>
-    fetchedAnswer.value !== null ? fetchedAgentTrace.value : storedAgentTrace.value,
-  );
-
-  watch(
-    () => mutationData.value,
-    (data) => {
-      if (data?.askInsight) {
-        const agentTrace = data.askInsight.agentTrace;
-        const answer =
-          data.askInsight.__typename === "InsightSuccess" ? data.askInsight.answer : undefined;
-        saveStoredResult({ answer, agentTrace });
-        // Keep in sync so the fallback reflects the latest result if mutationData goes null
-        storedAnswer.value = answer ?? null;
-        storedAgentTrace.value = agentTrace;
+      if (response?.__typename === "InsightSuccess") {
+        fetchedAnswer.value = response.answer;
+        fetchedAgentTrace.value = response.agentTrace;
+      } else if (response?.__typename === "InsightFailure") {
+        askInsightError.value = response.message;
+        fetchedAnswer.value = null; // Clear answer on failure
+        fetchedAgentTrace.value = response.agentTrace;
       }
-    },
-  );
 
-  const askQuestion = async (question: string): Promise<void> => {
-    await askInsightMutate({ input: { question } });
+      saveStoredResult({
+        answer: fetchedAnswer.value ?? undefined,
+        agentTrace: fetchedAgentTrace.value ?? [],
+      });
+
+      // Keep stored in sync so the fallback clears on failure
+      // rather than showing a stale cached answer
+      storedAnswer.value = fetchedAnswer.value;
+      storedAgentTrace.value = fetchedAgentTrace.value ?? [];
+    } catch (error) {
+      askInsightError.value =
+        error instanceof Error ? error.message : "Failed to get insight. Please try again.";
+    }
   };
 
+  const insightAnswer = computed(() =>
+    fetchedAnswer.value !== null ? fetchedAnswer.value : storedAnswer.value,
+  );
+  const insightAgentTrace = computed(() =>
+    fetchedAgentTrace.value !== null ? fetchedAgentTrace.value : storedAgentTrace.value,
+  );
+
   return {
-    askQuestion,
+    askInsight,
+    askInsightError: computed(() => askInsightError.value),
+    askInsightLoading,
     insightAgentTrace,
     insightAnswer,
-    insightError,
-    insightLoading,
   };
 }

@@ -315,6 +315,7 @@ type ByCategoryReport {
 }
 
 type Mutation {
+  askInsight(input: InsightInput!): InsightOutput!
   ensureUser: User!
   createAccount(input: CreateAccountInput!): Account!
   updateAccount(input: UpdateAccountInput!): Account!
@@ -334,5 +335,4 @@ type Mutation {
   updateUserSettings(input: UpdateUserSettingsInput!): UserSettings!
   connectTelegramBot(token: String!): TelegramBot!
   disconnectTelegramBot: Boolean
-  askInsight(input: InsightInput!): InsightOutput!
 }
