@@ -1,4 +1,4 @@
-# Chat History Implementation Plan
+# Chat History — Track 2: Session History
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -7,6 +7,8 @@
 **Architecture:** `InsightChatService` owns the in-app session lifecycle (load history → call `InsightService` → save messages). `ProcessTelegramMessageService` owns the Telegram session lifecycle using the same `ChatMessageRepository`. `InsightService` stays stateless — accepts optional `history` and passes it to the agent.
 
 **Tech Stack:** TypeScript, DynamoDB (sort key: `sessionMessageCombinedId = "${sessionId}#${messageId}"`), `ulidx` (ULID generation), Apollo GraphQL, Vue 3 + Apollo composables.
+
+**Prerequisite:** Complete Track 1 (`2026-04-03-chat-history-track1-ask-insight-mutation.md`) first. Track 1 moves `insight` from `Query` to `Mutation.askInsight` using the existing `InsightInput`/`InsightOutput` types. This track picks up from there: renames types to `AskInsight*`, adds `sessionId`, and adds the full history implementation.
 
 ---
 
@@ -32,16 +34,15 @@
 - `backend/src/services/agent-services/insight-service.test.ts` — add history tests
 - `backend/src/services/process-telegram-message-service.ts` — add history support
 - `backend/src/services/process-telegram-message-service.test.ts` — update tests
-- `backend/src/graphql/schema.graphql` — remove `Query.insight`, add `Mutation.askInsight`
-- `backend/src/graphql/resolvers/insight-resolvers.ts` — delete (replaced by `ask-insight-resolvers.ts`)
-- `backend/src/graphql/resolvers/index.ts` — swap insight resolver
+- `backend/src/graphql/schema.graphql` — rename `Insight*` types to `AskInsight*`, add `sessionId`
+- `backend/src/graphql/resolvers/insight-resolvers.ts` — rename to `ask-insight-resolvers.ts`, switch to `InsightChatService`
+- `backend/src/graphql/resolvers/index.ts` — update import name
 - `backend/src/graphql/context.ts` — add `insightChatService`
 - `backend/src/dependencies.ts` — add `resolveChatMessageRepository`, `resolveInsightChatService`
 - `backend/src/server.ts` — add `insightChatService` to context
 - `infra-cdk/lib/backend-cdk-stack.ts` — add `ChatMessagesTable`, env vars, permissions
-- `frontend/src/graphql/mutations.ts` — add `ASK_INSIGHT` mutation
-- `frontend/src/graphql/queries.ts` — remove `GetInsight` query
-- `frontend/src/composables/useInsight.ts` — switch to mutation, add sessionId localStorage
+- `frontend/src/graphql/mutations.ts` — update `ASK_INSIGHT` to use `AskInsight*` types, add `sessionId`
+- `frontend/src/composables/useInsight.ts` — add sessionId localStorage persistence
 
 ---
 
@@ -1479,21 +1480,27 @@ git commit -m "add history support to ProcessTelegramMessageService"
 
 ---
 
-## Task 9: GraphQL schema + backend codegen
+## Task 9: Rename GraphQL types and add sessionId
+
+**Prerequisite:** The groundwork plan has already added `askInsight(input: InsightInput!): InsightOutput!` to the `Mutation` type. This task renames the types to `AskInsight*` and adds `sessionId`.
 
 **Files:**
 - Modify: `backend/src/graphql/schema.graphql`
 
-- [ ] **Step 1: Remove `Query.insight` and its types**
+- [ ] **Step 1: Update the mutation field signature**
 
-In `backend/src/graphql/schema.graphql`:
-
-Remove the `insight` field from the `Query` type:
+In `backend/src/graphql/schema.graphql`, in `type Mutation`, replace:
 ```graphql
-  insight(input: InsightInput!): InsightOutput!
+  askInsight(input: InsightInput!): InsightOutput!
+```
+with:
+```graphql
+  askInsight(input: AskInsightInput!): AskInsightOutput!
 ```
 
-Remove the following type definitions:
+- [ ] **Step 2: Replace the old Insight types with AskInsight types**
+
+Remove:
 ```graphql
 union InsightOutput = InsightSuccess | InsightFailure
 
@@ -1506,20 +1513,14 @@ type InsightFailure {
   message: String!
   agentTrace: [AgentTraceMessage!]!
 }
-
+```
+```graphql
 input InsightInput {
   question: String!
 }
 ```
 
-- [ ] **Step 2: Add `Mutation.askInsight` and its types**
-
-Add to the `Mutation` type in `schema.graphql`:
-```graphql
-  askInsight(input: AskInsightInput!): AskInsightOutput!
-```
-
-Add the new type definitions (alongside the other union/type definitions):
+Add in their place:
 ```graphql
 union AskInsightOutput = AskInsightSuccess | AskInsightFailure
 
@@ -1546,31 +1547,37 @@ input AskInsightInput {
 cd backend && npm run codegen
 ```
 
-Expected: Generates updated types in `backend/src/__generated__/resolvers-types.ts`. No errors.
+Expected: Generates updated types in `backend/src/__generated__/resolvers-types.ts` with `MutationAskInsightArgs` typed to `AskInsightInput`. No errors.
 
 - [ ] **Step 4: Commit**
 
 ```bash
 git add backend/src/graphql/schema.graphql backend/src/__generated__/
-git commit -m "replace Query.insight with Mutation.askInsight in schema"
+git commit -m "rename Insight types to AskInsight and add sessionId"
 ```
 
 ---
 
 ## Task 10: askInsight resolver and wiring
 
+**Prerequisite:** The groundwork plan has already updated `insight-resolvers.ts` (renamed to handle `Mutation.askInsight`) and updated `index.ts`. This task renames the file to `ask-insight-resolvers.ts` and switches the implementation to `InsightChatService`.
+
 **Files:**
-- Create: `backend/src/graphql/resolvers/ask-insight-resolvers.ts`
-- Delete: `backend/src/graphql/resolvers/insight-resolvers.ts`
+- Rename+Modify: `backend/src/graphql/resolvers/insight-resolvers.ts` → `ask-insight-resolvers.ts`
 - Modify: `backend/src/graphql/resolvers/index.ts`
 - Modify: `backend/src/graphql/context.ts`
 - Modify: `backend/src/dependencies.ts`
 - Modify: `backend/src/server.ts`
 
-- [ ] **Step 1: Create `ask-insight-resolvers.ts`**
+- [ ] **Step 1: Rename `insight-resolvers.ts` and replace its content**
+
+```bash
+git mv backend/src/graphql/resolvers/insight-resolvers.ts backend/src/graphql/resolvers/ask-insight-resolvers.ts
+```
+
+Then replace the entire content of `backend/src/graphql/resolvers/ask-insight-resolvers.ts`:
 
 ```typescript
-// backend/src/graphql/resolvers/ask-insight-resolvers.ts
 import { MutationAskInsightArgs } from "../../__generated__/resolvers-types";
 import { GraphQLContext } from "../context";
 import { getAuthenticatedUser, handleResolverError } from "./shared";
@@ -1612,35 +1619,18 @@ export const askInsightResolvers = {
 };
 ```
 
-- [ ] **Step 2: Delete `insight-resolvers.ts`**
+- [ ] **Step 2: Update `resolvers/index.ts`**
 
-```bash
-rm backend/src/graphql/resolvers/insight-resolvers.ts
-```
-
-- [ ] **Step 3: Update `resolvers/index.ts`**
-
-Replace the `insightResolvers` import and usage:
-
-Remove:
+The import path changed (file renamed) and the export name changed (`insightResolvers` → `askInsightResolvers`). Replace:
 ```typescript
 import { insightResolvers } from "./insight-resolvers";
 ```
-
-Add:
+with:
 ```typescript
 import { askInsightResolvers } from "./ask-insight-resolvers";
 ```
 
-In the `Query` section, remove:
-```typescript
-    ...insightResolvers.Query,
-```
-
-In the `Mutation` section, add:
-```typescript
-    ...askInsightResolvers.Mutation,
-```
+Replace `...insightResolvers.Mutation` with `...askInsightResolvers.Mutation` in the `Mutation` spread.
 
 Also add `AskInsightOutput` union resolver after `AgentTraceMessage`:
 
@@ -1825,16 +1815,17 @@ git commit -m "add ChatMessagesTable and env vars to CDK stack"
 
 ---
 
-## Task 12: Frontend
+## Task 12: Frontend — add sessionId
+
+**Prerequisite:** The groundwork plan has already added `ASK_INSIGHT` (using `InsightInput`/`InsightOutput` types) and updated `useInsight.ts` to use `useAskInsightMutation`. This task updates the mutation document to use the renamed `AskInsight*` types with `sessionId`, reruns codegen, and adds sessionId persistence to the composable.
 
 **Files:**
 - Modify: `frontend/src/graphql/mutations.ts`
-- Modify: `frontend/src/graphql/queries.ts`
 - Modify: `frontend/src/composables/useInsight.ts`
 
-- [ ] **Step 1: Add `ASK_INSIGHT` mutation**
+- [ ] **Step 1: Update `ASK_INSIGHT` mutation document**
 
-In `frontend/src/graphql/mutations.ts`, add (alongside the other mutations):
+In `frontend/src/graphql/mutations.ts`, replace the existing `ASK_INSIGHT` export:
 
 ```typescript
 export const ASK_INSIGHT = gql`
@@ -1859,30 +1850,15 @@ export const ASK_INSIGHT = gql`
 `;
 ```
 
-- [ ] **Step 2: Remove `GetInsight` query**
-
-In `frontend/src/graphql/queries.ts`, remove the `GetInsight` query:
-
-```typescript
-export const GET_INSIGHT = gql`
-  query GetInsight($input: InsightInput!) {
-    insight(input: $input) {
-      ...
-    }
-  }
-  ...
-`;
-```
-
-- [ ] **Step 3: Run frontend codegen**
+- [ ] **Step 2: Run frontend codegen**
 
 ```bash
 cd frontend && npm run codegen
 ```
 
-Expected: Generates `useAskInsightMutation` in `frontend/src/__generated__/vue-apollo.ts`. No errors.
+Expected: Regenerates `useAskInsightMutation` with `AskInsightInput` input type and `AskInsightSuccess`/`AskInsightFailure` result types. No errors.
 
-- [ ] **Step 4: Rewrite `useInsight.ts`**
+- [ ] **Step 3: Rewrite `useInsight.ts`**
 
 Replace the entire content of `frontend/src/composables/useInsight.ts` with:
 
