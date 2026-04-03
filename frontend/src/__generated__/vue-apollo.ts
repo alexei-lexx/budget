@@ -166,6 +166,7 @@ export type InsightSuccess = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  askInsight: InsightOutput;
   connectTelegramBot: TelegramBot;
   createAccount: Account;
   createCategory: Category;
@@ -183,6 +184,11 @@ export type Mutation = {
   updateTransaction: Transaction;
   updateTransfer: Transfer;
   updateUserSettings: UserSettings;
+};
+
+
+export type MutationAskInsightArgs = {
+  input: InsightInput;
 };
 
 
@@ -278,7 +284,6 @@ export type Query = {
   accounts: Array<Account>;
   byCategoryReport: ByCategoryReport;
   categories: Array<Category>;
-  insight: InsightOutput;
   supportedCurrencies: Array<Scalars['String']['output']>;
   telegramBot?: Maybe<TelegramBot>;
   testTelegramBot?: Maybe<Scalars['Boolean']['output']>;
@@ -299,11 +304,6 @@ export type QueryByCategoryReportArgs = {
 
 export type QueryCategoriesArgs = {
   type?: InputMaybe<CategoryType>;
-};
-
-
-export type QueryInsightArgs = {
-  input: InsightInput;
 };
 
 
@@ -626,6 +626,24 @@ export type DisconnectTelegramBotMutationVariables = Exact<{ [key: string]: neve
 
 export type DisconnectTelegramBotMutation = { __typename?: 'Mutation', disconnectTelegramBot?: boolean | null | undefined };
 
+export type AskInsightMutationVariables = Exact<{
+  input: InsightInput;
+}>;
+
+
+export type AskInsightMutation = { __typename?: 'Mutation', askInsight:
+    | { __typename?: 'InsightFailure', message: string, agentTrace: Array<
+        | { __typename?: 'AgentTraceText', content: string }
+        | { __typename?: 'AgentTraceToolCall', toolName: string, input: string }
+        | { __typename?: 'AgentTraceToolResult', toolName: string, output: string }
+      > }
+    | { __typename?: 'InsightSuccess', answer: string, agentTrace: Array<
+        | { __typename?: 'AgentTraceText', content: string }
+        | { __typename?: 'AgentTraceToolCall', toolName: string, input: string }
+        | { __typename?: 'AgentTraceToolResult', toolName: string, output: string }
+      > }
+   };
+
 export type GetAccountsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -680,24 +698,6 @@ export type GetTransactionDescriptionSuggestionsQueryVariables = Exact<{
 
 
 export type GetTransactionDescriptionSuggestionsQuery = { __typename?: 'Query', transactionDescriptionSuggestions: Array<string> };
-
-export type GetInsightQueryVariables = Exact<{
-  input: InsightInput;
-}>;
-
-
-export type GetInsightQuery = { __typename?: 'Query', insight:
-    | { __typename?: 'InsightFailure', message: string, agentTrace: Array<
-        | { __typename?: 'AgentTraceText', content: string }
-        | { __typename?: 'AgentTraceToolCall', toolName: string, input: string }
-        | { __typename?: 'AgentTraceToolResult', toolName: string, output: string }
-      > }
-    | { __typename?: 'InsightSuccess', answer: string, agentTrace: Array<
-        | { __typename?: 'AgentTraceText', content: string }
-        | { __typename?: 'AgentTraceToolCall', toolName: string, input: string }
-        | { __typename?: 'AgentTraceToolResult', toolName: string, output: string }
-      > }
-   };
 
 export type GetUserSettingsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -1273,6 +1273,46 @@ export function useDisconnectTelegramBotMutation(options: VueApolloComposable.Us
   return VueApolloComposable.useMutation<DisconnectTelegramBotMutation, DisconnectTelegramBotMutationVariables>(DisconnectTelegramBotDocument, options);
 }
 export type DisconnectTelegramBotMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<DisconnectTelegramBotMutation, DisconnectTelegramBotMutationVariables>;
+export const AskInsightDocument = gql`
+    mutation AskInsight($input: InsightInput!) {
+  askInsight(input: $input) {
+    ... on InsightSuccess {
+      answer
+      agentTrace {
+        ...AgentTraceFields
+      }
+    }
+    ... on InsightFailure {
+      message
+      agentTrace {
+        ...AgentTraceFields
+      }
+    }
+  }
+}
+    ${AgentTraceFieldsFragmentDoc}`;
+
+/**
+ * __useAskInsightMutation__
+ *
+ * To run a mutation, you first call `useAskInsightMutation` within a Vue component and pass it any options that fit your needs.
+ * When your component renders, `useAskInsightMutation` returns an object that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - Several other properties: https://v4.apollo.vuejs.org/api/use-mutation.html#return
+ *
+ * @param options that will be passed into the mutation, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/mutation.html#options;
+ *
+ * @example
+ * const { mutate, loading, error, onDone } = useAskInsightMutation({
+ *   variables: {
+ *     input: // value for 'input'
+ *   },
+ * });
+ */
+export function useAskInsightMutation(options: VueApolloComposable.UseMutationOptions<AskInsightMutation, AskInsightMutationVariables> | ReactiveFunction<VueApolloComposable.UseMutationOptions<AskInsightMutation, AskInsightMutationVariables>> = {}) {
+  return VueApolloComposable.useMutation<AskInsightMutation, AskInsightMutationVariables>(AskInsightDocument, options);
+}
+export type AskInsightMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<AskInsightMutation, AskInsightMutationVariables>;
 export const GetAccountsDocument = gql`
     query GetAccounts {
   accounts {
@@ -1540,47 +1580,6 @@ export function useGetTransactionDescriptionSuggestionsLazyQuery(variables?: Get
   return VueApolloComposable.useLazyQuery<GetTransactionDescriptionSuggestionsQuery, GetTransactionDescriptionSuggestionsQueryVariables>(GetTransactionDescriptionSuggestionsDocument, variables, options);
 }
 export type GetTransactionDescriptionSuggestionsQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<GetTransactionDescriptionSuggestionsQuery, GetTransactionDescriptionSuggestionsQueryVariables>;
-export const GetInsightDocument = gql`
-    query GetInsight($input: InsightInput!) {
-  insight(input: $input) {
-    ... on InsightSuccess {
-      answer
-      agentTrace {
-        ...AgentTraceFields
-      }
-    }
-    ... on InsightFailure {
-      message
-      agentTrace {
-        ...AgentTraceFields
-      }
-    }
-  }
-}
-    ${AgentTraceFieldsFragmentDoc}`;
-
-/**
- * __useGetInsightQuery__
- *
- * To run a query within a Vue component, call `useGetInsightQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetInsightQuery` returns an object from Apollo Client that contains result, loading and error properties
- * you can use to render your UI.
- *
- * @param variables that will be passed into the query
- * @param options that will be passed into the query, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/query.html#options;
- *
- * @example
- * const { result, loading, error } = useGetInsightQuery({
- *   input: // value for 'input'
- * });
- */
-export function useGetInsightQuery(variables: GetInsightQueryVariables | VueCompositionApi.Ref<GetInsightQueryVariables> | ReactiveFunction<GetInsightQueryVariables>, options: VueApolloComposable.UseQueryOptions<GetInsightQuery, GetInsightQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<GetInsightQuery, GetInsightQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<GetInsightQuery, GetInsightQueryVariables>> = {}) {
-  return VueApolloComposable.useQuery<GetInsightQuery, GetInsightQueryVariables>(GetInsightDocument, variables, options);
-}
-export function useGetInsightLazyQuery(variables?: GetInsightQueryVariables | VueCompositionApi.Ref<GetInsightQueryVariables> | ReactiveFunction<GetInsightQueryVariables>, options: VueApolloComposable.UseQueryOptions<GetInsightQuery, GetInsightQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<GetInsightQuery, GetInsightQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<GetInsightQuery, GetInsightQueryVariables>> = {}) {
-  return VueApolloComposable.useLazyQuery<GetInsightQuery, GetInsightQueryVariables>(GetInsightDocument, variables, options);
-}
-export type GetInsightQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<GetInsightQuery, GetInsightQueryVariables>;
 export const GetUserSettingsDocument = gql`
     query GetUserSettings {
   userSettings {

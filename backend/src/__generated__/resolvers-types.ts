@@ -169,6 +169,7 @@ export type InsightSuccess = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  askInsight: InsightOutput;
   connectTelegramBot: TelegramBot;
   createAccount: Account;
   createCategory: Category;
@@ -186,6 +187,11 @@ export type Mutation = {
   updateTransaction: Transaction;
   updateTransfer: Transfer;
   updateUserSettings: UserSettings;
+};
+
+
+export type MutationAskInsightArgs = {
+  input: InsightInput;
 };
 
 
@@ -281,7 +287,6 @@ export type Query = {
   accounts: Array<Account>;
   byCategoryReport: ByCategoryReport;
   categories: Array<Category>;
-  insight: InsightOutput;
   supportedCurrencies: Array<Scalars['String']['output']>;
   telegramBot?: Maybe<TelegramBot>;
   testTelegramBot?: Maybe<Scalars['Boolean']['output']>;
@@ -302,11 +307,6 @@ export type QueryByCategoryReportArgs = {
 
 export type QueryCategoriesArgs = {
   type?: InputMaybe<CategoryType>;
-};
-
-
-export type QueryInsightArgs = {
-  input: InsightInput;
 };
 
 
@@ -764,6 +764,7 @@ export type InsightSuccessResolvers<ContextType = GraphQLContext, ParentType ext
 };
 
 export type MutationResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
+  askInsight?: Resolver<ResolversTypes['InsightOutput'], ParentType, ContextType, RequireFields<MutationAskInsightArgs, 'input'>>;
   connectTelegramBot?: Resolver<ResolversTypes['TelegramBot'], ParentType, ContextType, RequireFields<MutationConnectTelegramBotArgs, 'token'>>;
   createAccount?: Resolver<ResolversTypes['Account'], ParentType, ContextType, RequireFields<MutationCreateAccountArgs, 'input'>>;
   createCategory?: Resolver<ResolversTypes['Category'], ParentType, ContextType, RequireFields<MutationCreateCategoryArgs, 'input'>>;
@@ -794,7 +795,6 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   accounts?: Resolver<Array<ResolversTypes['Account']>, ParentType, ContextType>;
   byCategoryReport?: Resolver<ResolversTypes['ByCategoryReport'], ParentType, ContextType, RequireFields<QueryByCategoryReportArgs, 'type' | 'year'>>;
   categories?: Resolver<Array<ResolversTypes['Category']>, ParentType, ContextType, Partial<QueryCategoriesArgs>>;
-  insight?: Resolver<ResolversTypes['InsightOutput'], ParentType, ContextType, RequireFields<QueryInsightArgs, 'input'>>;
   supportedCurrencies?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   telegramBot?: Resolver<Maybe<ResolversTypes['TelegramBot']>, ParentType, ContextType>;
   testTelegramBot?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
