@@ -1,12 +1,12 @@
-import { QueryInsightArgs } from "../../__generated__/resolvers-types";
+import { MutationAskInsightArgs } from "../../__generated__/resolvers-types";
 import { GraphQLContext } from "../context";
 import { getAuthenticatedUser, handleResolverError } from "./shared";
 
 export const insightResolvers = {
-  Query: {
-    insight: async (
+  Mutation: {
+    askInsight: async (
       _parent: unknown,
-      args: QueryInsightArgs,
+      args: MutationAskInsightArgs,
       context: GraphQLContext,
     ) => {
       try {

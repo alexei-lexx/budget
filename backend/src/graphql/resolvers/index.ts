@@ -14,7 +14,6 @@ export const resolvers: Resolvers = {
   Query: {
     ...accountResolvers.Query,
     ...categoryResolvers.Query,
-    ...insightResolvers.Query,
     ...reportResolvers.Query,
     ...telegramBotResolvers.Query,
     ...transactionResolvers.Query,
@@ -23,6 +22,7 @@ export const resolvers: Resolvers = {
   },
   Mutation: {
     ...accountResolvers.Mutation,
+    ...insightResolvers.Mutation,
     ...userResolvers.Mutation,
     ...categoryResolvers.Mutation,
     ...createTransactionFromTextResolvers.Mutation,
