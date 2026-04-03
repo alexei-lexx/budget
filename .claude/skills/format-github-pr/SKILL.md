@@ -66,7 +66,10 @@ Also factor in any context the user provided — they often know things the diff
 - Start each sentence on a new line
 - Include required sections: `context`, `before`, `after`
 - Use lowercase section headlines
-- If the branch addresses a GitHub issue, append `Close #<number>` after the last section (valid keywords: `Close`, `Fix`, `Resolve`)
+- If the branch addresses a GitHub issue:
+  - Use `Close #<number>` (or `Fix`/`Resolve`) only when the PR fully satisfies the issue requirements
+  - Use `Part of #<number>` when the PR only partially addresses the issue
+  - When uncertain, ask the user before deciding which to use
 
 ### Sections
 
