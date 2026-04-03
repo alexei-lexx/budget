@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Replace `Query.insight` with `Mutation.askInsight` — renaming types to `AskInsight*` and adding `sessionId` to the API contract (returned as a random UUID for now; history wiring comes in a later plan).
+**Goal:** Move `insight` from `Query` to `Mutation` — rename the field to `askInsight`, keep all existing types unchanged.
 
-**Architecture:** Schema types are renamed and the entry point moves from Query to Mutation. The resolver keeps calling `InsightService` directly with no session logic. `sessionId` is plumbed through the API now so the frontend can start storing it; actual history lookup is added in the next plan. Frontend switches from a lazy query to a mutation call and stores the returned `sessionId` in `localStorage`.
+**Architecture:** Schema change only: remove the field from `Query`, add it to `Mutation`. Existing `InsightInput`, `InsightOutput`, `InsightSuccess`, `InsightFailure` types stay as-is. Resolver moves from `Query` to `Mutation`. Frontend switches from lazy query to mutation call.
 
 **Tech Stack:** GraphQL (Apollo Server), TypeScript, GraphQL Code Generator, Vue 3, Vue Apollo
 
@@ -14,13 +14,12 @@
 
 | File | Action |
 |---|---|
-| `backend/src/graphql/schema.graphql` | Modify — replace Insight types with AskInsight types |
-| `backend/src/graphql/resolvers/insight-resolvers.ts` | Delete |
-| `backend/src/graphql/resolvers/ask-insight-resolvers.ts` | Create |
-| `backend/src/graphql/resolvers/index.ts` | Modify — swap insight import and move to Mutation |
+| `backend/src/graphql/schema.graphql` | Modify — move `insight` from Query to Mutation, rename to `askInsight` |
+| `backend/src/graphql/resolvers/insight-resolvers.ts` | Modify — move handler from `Query` to `Mutation`, rename key |
+| `backend/src/graphql/resolvers/index.ts` | Modify — move from `Query` spread to `Mutation` spread |
 | `frontend/src/graphql/queries.ts` | Modify — remove `GET_INSIGHT` |
 | `frontend/src/graphql/mutations.ts` | Modify — add `ASK_INSIGHT` |
-| `frontend/src/composables/useInsight.ts` | Modify — switch to mutation, add sessionId persistence |
+| `frontend/src/composables/useInsight.ts` | Modify — switch to mutation |
 
 ---
 
@@ -29,7 +28,7 @@
 **Files:**
 - Modify: `backend/src/graphql/schema.graphql`
 
-- [ ] **Step 1: Update the schema**
+- [ ] **Step 1: Move the field**
 
 In `backend/src/graphql/schema.graphql`:
 
@@ -38,51 +37,12 @@ Remove from `type Query`:
   insight(input: InsightInput!): InsightOutput!
 ```
 
-Remove these type definitions (lines ~89–99 and ~269–271):
-```graphql
-union InsightOutput = InsightSuccess | InsightFailure
-
-type InsightSuccess {
-  answer: String!
-  agentTrace: [AgentTraceMessage!]!
-}
-
-type InsightFailure {
-  message: String!
-  agentTrace: [AgentTraceMessage!]!
-}
-```
-```graphql
-input InsightInput {
-  question: String!
-}
-```
-
 Add to `type Mutation` (before the closing `}`):
 ```graphql
-  askInsight(input: AskInsightInput!): AskInsightOutput!
+  askInsight(input: InsightInput!): InsightOutput!
 ```
 
-Add these new type definitions (place near the other union types, after `CreateTransactionFromTextOutput`):
-```graphql
-input AskInsightInput {
-  question: String!
-  sessionId: ID
-}
-
-union AskInsightOutput = AskInsightSuccess | AskInsightFailure
-
-type AskInsightSuccess {
-  answer: String!
-  sessionId: ID!
-  agentTrace: [AgentTraceMessage!]!
-}
-
-type AskInsightFailure {
-  message: String!
-  agentTrace: [AgentTraceMessage!]!
-}
-```
+No other changes — `InsightInput`, `InsightOutput`, `InsightSuccess`, `InsightFailure` stay exactly as they are.
 
 - [ ] **Step 2: Run backend codegen**
 
@@ -90,36 +50,26 @@ type AskInsightFailure {
 cd backend && npm run codegen
 ```
 
-Expected: exits 0, regenerates `backend/src/__generated__/resolvers-types.ts` with `MutationAskInsightArgs`, `AskInsightSuccess`, `AskInsightFailure`.
-
-- [ ] **Step 3: Verify types compile**
-
-```bash
-cd backend && npm run typecheck
-```
-
-Expected: errors referencing `insightResolvers` and `QueryInsightArgs` (the old resolver still exists). That is fine — it will be fixed in Task 2.
+Expected: exits 0, regenerates `backend/src/__generated__/resolvers-types.ts` with `MutationAskInsightArgs` (replacing `QueryInsightArgs`).
 
 ---
 
-### Task 2: Replace insight resolver with ask-insight resolver
+### Task 2: Update the resolver and wire it into Mutation
 
 **Files:**
-- Delete: `backend/src/graphql/resolvers/insight-resolvers.ts`
-- Create: `backend/src/graphql/resolvers/ask-insight-resolvers.ts`
+- Modify: `backend/src/graphql/resolvers/insight-resolvers.ts`
 - Modify: `backend/src/graphql/resolvers/index.ts`
 
-- [ ] **Step 1: Create the new resolver**
+- [ ] **Step 1: Move the resolver from Query to Mutation**
 
-Create `backend/src/graphql/resolvers/ask-insight-resolvers.ts`:
+Replace the entire contents of `backend/src/graphql/resolvers/insight-resolvers.ts`:
 
 ```typescript
-import { randomUUID } from "crypto";
 import { MutationAskInsightArgs } from "../../__generated__/resolvers-types";
 import { GraphQLContext } from "../context";
 import { getAuthenticatedUser, handleResolverError } from "./shared";
 
-export const askInsightResolvers = {
+export const insightResolvers = {
   Mutation: {
     askInsight: async (
       _parent: unknown,
@@ -135,16 +85,15 @@ export const askInsightResolvers = {
 
         if (!result.success) {
           return {
-            __typename: "AskInsightFailure" as const,
+            __typename: "InsightFailure" as const,
             message: result.error.message,
             agentTrace: result.error.agentTrace,
           };
         }
 
         return {
-          __typename: "AskInsightSuccess" as const,
+          __typename: "InsightSuccess" as const,
           answer: result.data.answer,
-          sessionId: args.input.sessionId ?? randomUUID(),
           agentTrace: result.data.agentTrace,
         };
       } catch (error) {
@@ -155,24 +104,23 @@ export const askInsightResolvers = {
 };
 ```
 
-- [ ] **Step 2: Delete the old resolver**
+- [ ] **Step 2: Update resolvers/index.ts**
 
-Delete `backend/src/graphql/resolvers/insight-resolvers.ts`.
+Move `insightResolvers` from `Query` to `Mutation`. The full updated file:
 
-- [ ] **Step 3: Update resolvers/index.ts**
-
-Replace:
 ```typescript
+import { Resolvers } from "../../__generated__/resolvers-types";
+import { AgentTraceMessageType } from "../../services/ports/agent";
+import { accountResolvers } from "./account-resolvers";
+import { categoryResolvers } from "./category-resolvers";
+import { createTransactionFromTextResolvers } from "./create-transaction-from-text-resolvers";
 import { insightResolvers } from "./insight-resolvers";
-```
-with:
-```typescript
-import { askInsightResolvers } from "./ask-insight-resolvers";
-```
+import { reportResolvers } from "./report-resolvers";
+import { telegramBotResolvers } from "./telegram-bot-resolvers";
+import { transactionResolvers } from "./transaction-resolvers";
+import { transferResolvers } from "./transfer-resolvers";
+import { userResolvers } from "./user-resolvers";
 
-In the `resolvers` object, remove `...insightResolvers.Query` from `Query` and add `...askInsightResolvers.Mutation` to `Mutation`:
-
-```typescript
 export const resolvers: Resolvers = {
   Query: {
     ...accountResolvers.Query,
@@ -185,7 +133,7 @@ export const resolvers: Resolvers = {
   },
   Mutation: {
     ...accountResolvers.Mutation,
-    ...askInsightResolvers.Mutation,
+    ...insightResolvers.Mutation,
     ...userResolvers.Mutation,
     ...categoryResolvers.Mutation,
     ...createTransactionFromTextResolvers.Mutation,
@@ -215,7 +163,7 @@ export const resolvers: Resolvers = {
 };
 ```
 
-- [ ] **Step 4: Run typecheck**
+- [ ] **Step 3: Run typecheck**
 
 ```bash
 cd backend && npm run typecheck
@@ -223,12 +171,11 @@ cd backend && npm run typecheck
 
 Expected: exits 0 with no errors.
 
-- [ ] **Step 5: Commit**
+- [ ] **Step 4: Commit**
 
 ```bash
-cd backend && git add src/graphql/schema.graphql src/graphql/resolvers/ask-insight-resolvers.ts src/graphql/resolvers/index.ts src/__generated__/resolvers-types.ts
-git rm backend/src/graphql/resolvers/insight-resolvers.ts
-git commit -m "replace Query.insight with Mutation.askInsight"
+git add backend/src/graphql/schema.graphql backend/src/graphql/resolvers/insight-resolvers.ts backend/src/graphql/resolvers/index.ts backend/src/__generated__/resolvers-types.ts
+git commit -m "move insight from Query to Mutation"
 ```
 
 ---
@@ -266,24 +213,23 @@ export const GET_INSIGHT = gql`
 `;
 ```
 
-Also remove `AGENT_TRACE_FRAGMENT` from the import if it's no longer used in `queries.ts` after this deletion. Check the other queries — if none use it, remove it. If other queries still use it, leave it.
+Also remove `AGENT_TRACE_FRAGMENT` from the import at the top of `queries.ts` if no other query in that file uses it. Check the remaining queries — if none reference `AgentTraceFields`, remove it from the import.
 
 - [ ] **Step 2: Add ASK_INSIGHT to mutations.ts**
 
-In `frontend/src/graphql/mutations.ts`, add at the end (after the last export, before EOF). The `AGENT_TRACE_FRAGMENT` is already imported at the top of the file:
+In `frontend/src/graphql/mutations.ts`, add `AGENT_TRACE_FRAGMENT` to the existing import (it is already imported — verify first). Then add at the end of the file:
 
 ```typescript
 export const ASK_INSIGHT = gql`
-  mutation AskInsight($input: AskInsightInput!) {
+  mutation AskInsight($input: InsightInput!) {
     askInsight(input: $input) {
-      ... on AskInsightSuccess {
+      ... on InsightSuccess {
         answer
-        sessionId
         agentTrace {
           ...AgentTraceFields
         }
       }
-      ... on AskInsightFailure {
+      ... on InsightFailure {
         message
         agentTrace {
           ...AgentTraceFields
@@ -301,7 +247,7 @@ export const ASK_INSIGHT = gql`
 cd frontend && npm run codegen
 ```
 
-Expected: exits 0, regenerates `frontend/src/__generated__/vue-apollo.ts` with `useAskInsightMutation`.
+Expected: exits 0, regenerates `frontend/src/__generated__/vue-apollo.ts` with `useAskInsightMutation` (replacing `useGetInsightLazyQuery`).
 
 - [ ] **Step 4: Update useInsight.ts**
 
@@ -313,7 +259,6 @@ import { useAskInsightMutation } from "@/__generated__/vue-apollo";
 import type { AgentTraceMessage } from "@/__generated__/vue-apollo";
 
 const STORAGE_KEY = "insight-last-result";
-const SESSION_ID_STORAGE_KEY = "insight-session-id";
 
 interface StoredInsightResult {
   answer?: string;
@@ -342,25 +287,7 @@ const saveStoredResult = (result: StoredInsightResult): void => {
   }
 };
 
-const loadSessionId = (): string | null => {
-  try {
-    return localStorage.getItem(SESSION_ID_STORAGE_KEY);
-  } catch {
-    return null;
-  }
-};
-
-const saveSessionId = (sessionId: string): void => {
-  try {
-    localStorage.setItem(SESSION_ID_STORAGE_KEY, sessionId);
-  } catch {
-    console.error("Failed to persist insight session ID:", sessionId);
-  }
-};
-
 export function useInsight() {
-  const sessionId = ref<string | null>(loadSessionId());
-
   const stored = loadStoredResult();
   const insightAnswer = ref<string | null>(stored?.answer ?? null);
   const insightAgentTrace = ref<AgentTraceMessage[]>(stored?.agentTrace ?? []);
@@ -375,28 +302,20 @@ export function useInsight() {
     insightError.value = null;
 
     try {
-      const result = await mutate({
-        input: {
-          question,
-          sessionId: sessionId.value ?? undefined,
-        },
-      });
-
+      const result = await mutate({ input: { question } });
       const response = result?.data?.askInsight ?? null;
       const agentTrace = response?.agentTrace ?? [];
 
-      if (response?.__typename === "AskInsightFailure") {
+      if (response?.__typename === "InsightFailure") {
         insightError.value = response.message;
         insightAgentTrace.value = agentTrace;
         saveStoredResult({ agentTrace });
         return;
       }
 
-      if (response?.__typename === "AskInsightSuccess") {
+      if (response?.__typename === "InsightSuccess") {
         insightAnswer.value = response.answer;
         insightAgentTrace.value = agentTrace;
-        sessionId.value = response.sessionId;
-        saveSessionId(response.sessionId);
         saveStoredResult({ answer: response.answer, agentTrace });
       }
     } catch (e) {
@@ -406,9 +325,9 @@ export function useInsight() {
 
   return {
     askQuestion,
-    insightAgentTrace,
-    insightAnswer,
-    insightError,
+    insightAgentTrace: computed(() => insightAgentTrace.value),
+    insightAnswer: computed(() => insightAnswer.value),
+    insightError: computed(() => insightError.value),
     insightLoading,
   };
 }
@@ -428,22 +347,3 @@ Expected: exits 0 with no errors.
 git add frontend/src/graphql/queries.ts frontend/src/graphql/mutations.ts frontend/src/composables/useInsight.ts frontend/src/__generated__/vue-apollo.ts frontend/src/schema.graphql
 git commit -m "update frontend to use askInsight mutation"
 ```
-
----
-
-## Self-Review
-
-**Spec coverage:**
-- `Query.insight` removed ✓
-- `Mutation.askInsight` added ✓
-- `AskInsight*` types (input, output, success, failure) ✓
-- `sessionId` in input (optional) and output (required on success) ✓
-- Frontend uses mutation, stores sessionId in localStorage ✓
-- No history/session logic introduced ✓
-
-**Placeholder scan:** None found.
-
-**Type consistency:**
-- `MutationAskInsightArgs` generated from schema, used in resolver ✓
-- `useAskInsightMutation` generated from `ASK_INSIGHT` mutation doc, used in composable ✓
-- `AskInsightSuccess.__typename` matches schema type name ✓
