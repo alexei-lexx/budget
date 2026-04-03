@@ -163,3 +163,23 @@ export const DISCONNECT_TELEGRAM_BOT = gql`
     disconnectTelegramBot
   }
 `;
+
+export const ASK_INSIGHT = gql`
+  mutation AskInsight($input: InsightInput!) {
+    askInsight(input: $input) {
+      ... on InsightSuccess {
+        answer
+        agentTrace {
+          ...AgentTraceFields
+        }
+      }
+      ... on InsightFailure {
+        message
+        agentTrace {
+          ...AgentTraceFields
+        }
+      }
+    }
+  }
+  ${AGENT_TRACE_FRAGMENT}
+`;

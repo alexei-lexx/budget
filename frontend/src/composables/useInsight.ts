@@ -1,6 +1,6 @@
 import { ref, computed, watch } from "vue";
-import { useGetInsightLazyQuery } from "@/__generated__/vue-apollo";
-import type { AgentTraceMessage } from "@/__generated__/vue-apollo";
+import { useAskInsightMutation } from "@/__generated__/vue-apollo";
+import type { AgentTraceMessage, AskInsightMutation } from "@/__generated__/vue-apollo";
 
 const STORAGE_KEY = "insight-last-result";
 
@@ -32,41 +32,34 @@ const saveStoredResult = (result: StoredInsightResult): void => {
 };
 
 export function useInsight() {
-  const question = ref("");
-
   const stored = loadStoredResult();
   const storedAnswer = ref<string | null>(stored?.answer ?? null);
   const storedAgentTrace = ref<AgentTraceMessage[]>(stored?.agentTrace ?? []);
+  const mutationData = ref<AskInsightMutation | null>(null);
 
   const {
-    result: insightResult,
+    mutate: askInsightMutate,
     loading: insightLoading,
-    error: insightQueryError,
-    load: loadInsight,
-    refetch: refetchInsight,
-  } = useGetInsightLazyQuery(
-    () => ({
-      input: {
-        question: question.value,
-      },
-    }),
-    () => ({
-      fetchPolicy: "no-cache",
-    }),
-  );
+    error: insightMutationError,
+    onDone,
+  } = useAskInsightMutation();
+
+  onDone((fetchResult) => {
+    mutationData.value = fetchResult.data ?? null;
+  });
 
   const fetchedAnswer = computed(() => {
-    const insight = insightResult.value?.insight;
+    const insight = mutationData.value?.askInsight;
     if (insight?.__typename === "InsightSuccess") return insight.answer;
     return null;
   });
 
-  const fetchedAgentTrace = computed(() => insightResult.value?.insight?.agentTrace ?? []);
+  const fetchedAgentTrace = computed(() => mutationData.value?.askInsight?.agentTrace ?? []);
 
   const insightError = computed(() => {
-    const insight = insightResult.value?.insight;
+    const insight = mutationData.value?.askInsight;
     if (insight?.__typename === "InsightFailure") return insight.message;
-    return insightQueryError.value?.message ?? null;
+    return insightMutationError.value?.message ?? null;
   });
 
   const insightAnswer = computed(() => fetchedAnswer.value ?? storedAnswer.value);
@@ -76,29 +69,22 @@ export function useInsight() {
   );
 
   watch(
-    () => insightResult.value,
-    (result) => {
-      if (result?.insight) {
-        const agentTrace = result.insight.agentTrace;
+    () => mutationData.value,
+    (data) => {
+      if (data?.askInsight) {
+        const agentTrace = data.askInsight.agentTrace;
         const answer =
-          result.insight.__typename === "InsightSuccess" ? result.insight.answer : undefined;
+          data.askInsight.__typename === "InsightSuccess" ? data.askInsight.answer : undefined;
         saveStoredResult({ answer, agentTrace });
-        // Keep in sync so the fallback reflects the latest result if fetchedAnswer goes null
-        // (e.g. if Apollo clears the result during a subsequent refetch)
+        // Keep in sync so the fallback reflects the latest result if mutationData goes null
         storedAnswer.value = answer ?? null;
         storedAgentTrace.value = agentTrace;
       }
     },
   );
 
-  const askQuestion = async (questionInput: string): Promise<void> => {
-    question.value = questionInput;
-
-    // load() returns false if already loaded, use refetch() for subsequent calls
-    const loaded = await loadInsight();
-    if (!loaded) {
-      await refetchInsight();
-    }
+  const askQuestion = async (question: string): Promise<void> => {
+    await askInsightMutate({ input: { question } });
   };
 
   return {
