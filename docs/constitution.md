@@ -474,7 +474,7 @@ Checks MUST follow this order:
 - Use the following arguments rules
   - For functions with 0–2 arguments, use positional arguments for simplicity
   - For functions with 3 or more arguments, use keyword arguments (object destructuring)
-- Enum values MUST use UPPER_CASE for both key and value (e.g. `PENDING = "PENDING"`)
+- Enum values MUST use UPPER_CASE for both key and value (e.g. `PENDING = "PENDING"`); members MUST be sorted alphabetically
 
 **Rationale**: Maintains type safety, prevents runtime errors, ensures code quality, improves code readability and API discoverability.
 
