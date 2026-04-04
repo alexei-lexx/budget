@@ -1,4 +1,5 @@
 import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
+import { describe, expect, it, jest } from "@jest/globals";
 import { ZodError, z } from "zod";
 import { paginateQuery } from "./query";
 
@@ -12,7 +13,7 @@ describe("paginateQuery", () => {
 
   it("validates and returns valid items successfully", async () => {
     const mockClient = {
-      send: jest.fn().mockResolvedValue({
+      send: jest.fn<() => Promise<unknown>>().mockResolvedValue({
         Items: [
           { id: "1", name: "Test" },
           { id: "2", name: "Test2" },
@@ -34,7 +35,7 @@ describe("paginateQuery", () => {
 
   it("fails fast on first invalid item and stops processing", async () => {
     const mockClient = {
-      send: jest.fn().mockResolvedValue({
+      send: jest.fn<() => Promise<unknown>>().mockResolvedValue({
         Items: [
           { id: "1" }, // Invalid (missing name) - should fail here
           { id: "2", name: "Test" }, // Would be valid but shouldn't be processed
@@ -53,7 +54,7 @@ describe("paginateQuery", () => {
 
   it("includes validation error details for missing required fields", async () => {
     const mockClient = {
-      send: jest.fn().mockResolvedValue({
+      send: jest.fn<() => Promise<unknown>>().mockResolvedValue({
         Items: [
           { id: "1" }, // Missing 'name'
         ],
@@ -67,7 +68,7 @@ describe("paginateQuery", () => {
         schema: testSchema,
       });
 
-      fail("Expected ZodError to be thrown");
+      throw new Error("Expected ZodError to be thrown");
     } catch (error) {
       expect(error).toBeInstanceOf(ZodError);
       const zodError = error as ZodError;
@@ -82,7 +83,7 @@ describe("paginateQuery", () => {
 
   it("includes validation error details for type mismatches", async () => {
     const mockClient = {
-      send: jest.fn().mockResolvedValue({
+      send: jest.fn<() => Promise<unknown>>().mockResolvedValue({
         Items: [
           { id: "1", name: 123 }, // Type mismatch: number instead of string
         ],
@@ -96,7 +97,7 @@ describe("paginateQuery", () => {
         schema: testSchema,
       });
 
-      fail("Expected ZodError to be thrown");
+      throw new Error("Expected ZodError to be thrown");
     } catch (error) {
       expect(error).toBeInstanceOf(ZodError);
       const zodError = error as ZodError;
@@ -111,7 +112,7 @@ describe("paginateQuery", () => {
 
   it("validates all items when paginating with pageSize", async () => {
     const mockClient = {
-      send: jest.fn().mockResolvedValue({
+      send: jest.fn<() => Promise<unknown>>().mockResolvedValue({
         Items: [
           { id: "1", name: "Test1" },
           { id: "2", name: "Test2" },
@@ -134,7 +135,7 @@ describe("paginateQuery", () => {
   it("validates items during recursive pagination", async () => {
     let callCount = 0;
     const mockClient = {
-      send: jest.fn().mockImplementation(() => {
+      send: jest.fn<() => Promise<unknown>>().mockImplementation(() => {
         callCount++;
         if (callCount === 1) {
           // First batch: valid items with LastEvaluatedKey
@@ -162,7 +163,7 @@ describe("paginateQuery", () => {
 
   it("returns empty array for no items", async () => {
     const mockClient = {
-      send: jest.fn().mockResolvedValue({
+      send: jest.fn<() => Promise<unknown>>().mockResolvedValue({
         Items: [],
       }),
     } as unknown as DynamoDBDocumentClient;

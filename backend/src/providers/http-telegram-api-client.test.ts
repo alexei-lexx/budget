@@ -1,14 +1,15 @@
+import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import { HttpTelegramApiClient } from "./http-telegram-api-client";
 
-const mockFetch = jest.fn();
-global.fetch = mockFetch;
+const mockFetch = jest.fn<typeof fetch>();
+global.fetch = mockFetch as unknown as typeof fetch;
 
-function mockResponse(body: unknown, status = 200) {
+function mockResponse(body: unknown, status = 200): Response {
   return {
     ok: status >= 200 && status < 300,
     status,
     json: async () => body,
-  };
+  } as Response;
 }
 
 describe("HttpTelegramApiClient", () => {

@@ -1,7 +1,9 @@
 import { faker } from "@faker-js/faker";
+import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import { v4 as uuidv4 } from "uuid";
 import { ReportType } from "../models/report";
 import { TransactionType } from "../models/transaction";
+import { toDateString } from "../types/date";
 import { fakeCategory, fakeTransaction } from "../utils/test-utils/factories";
 import {
   createMockCategoryRepository,
@@ -453,8 +455,8 @@ describe("ByCategoryReportService", () => {
       expect(mockTransactionRepository.findManyByUserId).toHaveBeenCalledWith(
         userId,
         {
-          dateAfter: "2025-11-01",
-          dateBefore: "2025-11-30",
+          dateAfter: toDateString("2025-11-01"),
+          dateBefore: toDateString("2025-11-30"),
           types: [TransactionType.INCOME], // Only INCOME, no REFUND
         },
       );
@@ -616,8 +618,8 @@ describe("ByCategoryReportService", () => {
       expect(mockTransactionRepository.findManyByUserId).toHaveBeenCalledWith(
         userId,
         {
-          dateAfter: "2000-01-01",
-          dateBefore: "2000-12-31",
+          dateAfter: toDateString("2000-01-01"),
+          dateBefore: toDateString("2000-12-31"),
           types: [TransactionType.EXPENSE, TransactionType.REFUND],
         },
       );

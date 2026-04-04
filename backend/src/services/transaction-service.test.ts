@@ -1,4 +1,5 @@
 import { faker } from "@faker-js/faker";
+import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import { Category, CategoryType } from "../models/category";
 import { TransactionPatternType, TransactionType } from "../models/transaction";
 import { toDateString } from "../types/date";
@@ -385,7 +386,7 @@ describe("TransactionService", () => {
       // Assert
       expect(mockTransactionRepository.detectPatterns).toHaveBeenCalledWith({
         userId,
-        type: TransactionType.EXPENSE,
+        type: TransactionPatternType.EXPENSE,
         limit: 5,
         sampleSize: 200,
       });

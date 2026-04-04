@@ -1,3 +1,4 @@
+import { jest } from "@jest/globals";
 import { AccountRepository } from "../../services/ports/account-repository";
 import { CategoryRepository } from "../../services/ports/category-repository";
 import { TelegramBotRepository } from "../../services/ports/telegram-bot-repository";

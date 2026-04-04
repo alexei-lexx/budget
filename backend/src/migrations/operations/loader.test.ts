@@ -1,3 +1,4 @@
+import { describe, expect, it } from "@jest/globals";
 import { MigrationModule } from "../types";
 import { isValidMigrationModule, loadMigrations } from "./loader";
 

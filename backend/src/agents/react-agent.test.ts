@@ -1,3 +1,4 @@
+import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import { BaseChatModel } from "@langchain/core/language_models/chat_models";
 import {
   AIMessage,
@@ -12,27 +13,32 @@ import { Success } from "../types/result";
 import { ReActAgent } from "./react-agent";
 
 // Mock LangChain's createAgent and tool
-jest.mock("langchain", () => ({
-  ...jest.requireActual("langchain"),
-  createAgent: jest.fn(),
-  tool: jest.fn(),
-}));
+jest.mock("langchain", () => {
+  const actual = jest.requireActual<typeof import("langchain")>("langchain");
+
+  return {
+    ...actual,
+    createAgent: jest.fn(),
+    tool: jest.fn(),
+  };
+});
 
 describe("ReActAgent", () => {
   let agent: ReActAgent;
   let mockModel: BaseChatModel;
-  let mockReactAgent: { invoke: jest.Mock };
+  let mockInvoke: jest.MockedFunction<
+    (input: unknown) => Promise<{ messages: unknown[] }>
+  >;
 
   beforeEach(() => {
     // Create mock model
     mockModel = {} as BaseChatModel;
 
-    // Create mock ReAct agent
-    mockReactAgent = {
-      invoke: jest.fn(),
-    };
+    mockInvoke = jest.fn();
 
-    (createAgent as jest.Mock).mockReturnValue(mockReactAgent);
+    (createAgent as jest.Mock).mockReturnValue({
+      invoke: mockInvoke,
+    });
 
     agent = new ReActAgent(mockModel);
 
@@ -50,7 +56,7 @@ describe("ReActAgent", () => {
         func: async (input: { text: string }) => Success(`Echo: ${input.text}`),
         inputSchema: z.object({ text: z.string() }),
       };
-      mockReactAgent.invoke.mockResolvedValue({
+      mockInvoke.mockResolvedValue({
         messages: [
           new AIMessage({
             content: "Test answer",
@@ -91,7 +97,7 @@ describe("ReActAgent", () => {
         { role: "user" as const, content: "Question 2" },
       ];
 
-      mockReactAgent.invoke.mockResolvedValue({
+      mockInvoke.mockResolvedValue({
         messages: [
           new AIMessage({
             content: "Final answer",
@@ -103,7 +109,7 @@ describe("ReActAgent", () => {
       await agent.call({ messages });
 
       // Assert
-      expect(mockReactAgent.invoke).toHaveBeenCalledWith({
+      expect(mockInvoke).toHaveBeenCalledWith({
         messages: [
           { role: "user", content: "Question 1" },
           { role: "assistant", content: "Answer 1" },
@@ -116,7 +122,7 @@ describe("ReActAgent", () => {
       // Arrange
       const messages = [{ role: "user" as const, content: "Test" }];
 
-      mockReactAgent.invoke.mockResolvedValue({
+      mockInvoke.mockResolvedValue({
         messages: [
           new AIMessage({
             content: "This is not the final answer",
@@ -140,7 +146,7 @@ describe("ReActAgent", () => {
       // Arrange
       const messages = [{ role: "user" as const, content: "Test" }];
 
-      mockReactAgent.invoke.mockResolvedValue({
+      mockInvoke.mockResolvedValue({
         messages: [
           new AIMessage({
             content: "This is not the final answer",
@@ -200,7 +206,7 @@ describe("ReActAgent", () => {
         tool_calls: [],
       });
 
-      mockReactAgent.invoke.mockResolvedValue({
+      mockInvoke.mockResolvedValue({
         messages: [aiMessage, toolMessage1, toolMessage2, finalMessage],
       });
 
@@ -237,7 +243,7 @@ describe("ReActAgent", () => {
         tool_calls: [],
       });
 
-      mockReactAgent.invoke.mockResolvedValue({
+      mockInvoke.mockResolvedValue({
         messages: [toolMessage, finalMessage],
       });
 
@@ -274,7 +280,7 @@ describe("ReActAgent", () => {
         tool_calls: [],
       });
 
-      mockReactAgent.invoke.mockResolvedValue({
+      mockInvoke.mockResolvedValue({
         messages: [aiMessage, finalMessage],
       });
 
@@ -291,7 +297,7 @@ describe("ReActAgent", () => {
       // Arrange
       const messages = [{ role: "user" as const, content: "Test" }];
 
-      mockReactAgent.invoke.mockResolvedValue({
+      mockInvoke.mockResolvedValue({
         messages: [
           new AIMessage({
             content: "",
@@ -328,7 +334,7 @@ describe("ReActAgent", () => {
         ],
       });
 
-      mockReactAgent.invoke.mockResolvedValue({
+      mockInvoke.mockResolvedValue({
         messages: [aiMessage1, aiMessage2],
       });
 
@@ -368,7 +374,7 @@ describe("ReActAgent", () => {
         ],
       });
 
-      mockReactAgent.invoke.mockResolvedValue({
+      mockInvoke.mockResolvedValue({
         messages: [aiMessage],
       });
 
@@ -429,7 +435,7 @@ describe("ReActAgent", () => {
         tool_call_id: "call_2",
       });
 
-      mockReactAgent.invoke.mockResolvedValue({
+      mockInvoke.mockResolvedValue({
         messages: [
           aiMessage1,
           toolResultMessage1,
@@ -493,7 +499,7 @@ describe("ReActAgent", () => {
         ],
       });
 
-      mockReactAgent.invoke.mockResolvedValue({
+      mockInvoke.mockResolvedValue({
         messages: [aiMessage1, aiMessage2],
       });
 
