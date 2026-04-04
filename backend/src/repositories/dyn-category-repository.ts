@@ -1,8 +1,6 @@
 import { randomUUID } from "crypto";
-import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import {
   BatchGetCommand,
-  DynamoDBDocumentClient,
   GetCommand,
   PutCommand,
   UpdateCommand,
@@ -14,7 +12,7 @@ import {
   UpdateCategoryInput,
 } from "../services/ports/category-repository";
 import { RepositoryError } from "../services/ports/repository-error";
-import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
+import { DynBaseRepository } from "./dyn-base-repository";
 import { categorySchema } from "./schemas/category";
 import { hydrate } from "./utils/hydrate";
 import { paginateQuery } from "./utils/query";
@@ -28,22 +26,10 @@ function sortCategories(categories: Category[]): Category[] {
   );
 }
 
-export class DynCategoryRepository implements CategoryRepository {
-  private client: DynamoDBDocumentClient;
-  private tableName: string;
-
-  constructor(dynamoClient?: DynamoDBClient) {
-    this.client = createDynamoDBDocumentClient(dynamoClient);
-    this.tableName = process.env.CATEGORIES_TABLE_NAME || "";
-
-    if (!this.tableName) {
-      throw new RepositoryError(
-        "CATEGORIES_TABLE_NAME environment variable is required",
-        "MISSING_TABLE_NAME",
-      );
-    }
-  }
-
+export class DynCategoryRepository
+  extends DynBaseRepository
+  implements CategoryRepository
+{
   async findOneById({
     id,
     userId,

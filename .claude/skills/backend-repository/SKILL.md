@@ -8,6 +8,7 @@ description: Use when creating, redesigning, reviewing, or adding methods to a b
 The **Repository Pattern** abstracts data storage behind a collection-like interface, enabling storage backends to be swapped without touching business logic. Repositories return typed domain **entities**, not DTOs.
 
 **Structure**: define the interface first, then implement it.
+
 - Interface: `backend/src/services/ports/` — e.g., `AccountRepository` in `account-repository.ts`
 - Implementation: `backend/src/repositories/` — e.g., `DynAccountRepository` in `dyn-account-repository.ts`
 
@@ -27,20 +28,45 @@ The **Repository Pattern** abstracts data storage behind a collection-like inter
 
 **Input validation** — check only what's needed to execute the DB call: required parameters are present, operands are valid (e.g. IDs are non-empty).
 
+**Configuration injection** — inject configuration values (table name, TTL, etc.) via the constructor. Never read env vars inside the class. The composition root (`dependencies.ts`) is the only place that reads env vars and passes them in as primitives.
+
 **Finder naming**:
+
 - `findOne` — returns one instance or `null`
 - `findMany` — returns an array (empty when nothing matches)
 - `get` — returns one instance, throws if absent (use when absence is a program error)
 
+**Selector pattern** — group identity/scoping fields in a `selector` object as the first argument. Query modifiers (`limit`, `offset`, `sortOrder`) are separate arguments after the selector.
+
+```typescript
+findManyByParentId(selector: { userId: string; parentId: string }): Promise<Entity[]>;
+```
+
+**Write method naming prefixes**: `create` for insert, `update` for update, `archive` for soft-delete, `delete` for hard-delete.
+
 **Method ordering**:
+
 1. Public before private
 2. Reads before writes: find one → find many → other reads (aggregations, calculations) → create one → create many → update one → update many → archive one → delete one → archive many → delete many
 3. Stepdown Rule: caller appears above the methods it calls
 
 **One repository per entity** (recommended).
 
+## When reviewing
+
+Apply all rules to both the interface and the implementation.
+
 ## Tests
 
 - Use a **real database connection** — no mocks
 - Co-locate: `repository.test.ts` next to `repository.ts`
 - `describe` blocks mirror the method order of the source class
+- Test data factories live in `backend/src/utils/test-utils/factories.ts`
+  - Naming: `fake<Descriptor>` (e.g. `fakeAccount`, `fakeCreateAccountInput`), accept optional overrides:
+    ```typescript
+    export const fakeAccount = (overrides: Partial<Account> = {}): Account => ({
+      ...defaults,
+      ...overrides,
+    });
+    ```
+  - Randomize defaults using `faker`; for enum fields use `faker.helpers.arrayElement([...values])`

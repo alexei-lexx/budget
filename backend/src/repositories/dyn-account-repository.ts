@@ -1,8 +1,6 @@
 import { randomUUID } from "crypto";
-import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import {
   BatchGetCommand,
-  DynamoDBDocumentClient,
   GetCommand,
   PutCommand,
   UpdateCommand,
@@ -14,27 +12,15 @@ import {
   UpdateAccountInput,
 } from "../services/ports/account-repository";
 import { RepositoryError } from "../services/ports/repository-error";
-import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
+import { DynBaseRepository } from "./dyn-base-repository";
 import { accountSchema } from "./schemas/account";
 import { hydrate } from "./utils/hydrate";
 import { paginateQuery } from "./utils/query";
 
-export class DynAccountRepository implements AccountRepository {
-  private client: DynamoDBDocumentClient;
-  private tableName: string;
-
-  constructor(dynamoClient?: DynamoDBClient) {
-    this.client = createDynamoDBDocumentClient(dynamoClient);
-    this.tableName = process.env.ACCOUNTS_TABLE_NAME || "";
-
-    if (!this.tableName) {
-      throw new RepositoryError(
-        "ACCOUNTS_TABLE_NAME environment variable is required",
-        "MISSING_TABLE_NAME",
-      );
-    }
-  }
-
+export class DynAccountRepository
+  extends DynBaseRepository
+  implements AccountRepository
+{
   async findOneById({
     id,
     userId,

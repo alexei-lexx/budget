@@ -12,22 +12,23 @@ import {
 } from "../services/ports/transaction-repository";
 import { toDateString } from "../types/date";
 import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
+import { requireEnv } from "../utils/require-env";
 import { truncateTable } from "../utils/test-utils/dynamodb-helpers";
 import { fakeCreateTransactionInput } from "../utils/test-utils/factories";
 import { DynTransactionRepository } from "./dyn-transaction-repository";
 
 describe("DynTransactionRepository", () => {
   let repository: DynTransactionRepository;
+  const tableName = requireEnv("TRANSACTIONS_TABLE_NAME");
 
   beforeAll(async () => {
     // Create repository instance
-    repository = new DynTransactionRepository();
+    repository = new DynTransactionRepository(tableName);
   });
 
   beforeEach(async () => {
     // Clean up transactions table before each test
     const client = createDynamoDBDocumentClient();
-    const tableName = process.env.TRANSACTIONS_TABLE_NAME || "";
     await truncateTable(client, tableName, {
       partitionKey: "userId",
       sortKey: "id",
@@ -1605,7 +1606,6 @@ describe("DynTransactionRepository", () => {
 
       // Assert
       const client = createDynamoDBDocumentClient();
-      const tableName = process.env.TRANSACTIONS_TABLE_NAME || "";
       const { Item: rawItem } = await client.send(
         new GetCommand({
           TableName: tableName,
@@ -1765,7 +1765,6 @@ describe("DynTransactionRepository", () => {
 
       // Assert
       const client = createDynamoDBDocumentClient();
-      const tableName = process.env.TRANSACTIONS_TABLE_NAME || "";
       const ids = result.map((transaction) => transaction.id);
 
       const { Responses: responses } = await client.send(
@@ -2790,7 +2789,6 @@ describe("DynTransactionRepository", () => {
       const client = createDynamoDBDocumentClient();
 
       // Manually corrupt the database record by removing amount
-      const tableName = process.env.TRANSACTIONS_TABLE_NAME || "";
       await client.send(
         new UpdateCommand({
           TableName: tableName,

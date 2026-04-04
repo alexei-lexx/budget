@@ -2,6 +2,7 @@ import { UpdateCommand } from "@aws-sdk/lib-dynamodb";
 import { faker } from "@faker-js/faker";
 import { beforeAll, beforeEach, describe, expect, it } from "@jest/globals";
 import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
+import { requireEnv } from "../utils/require-env";
 import { truncateTable } from "../utils/test-utils/dynamodb-helpers";
 import { fakeCreateAccountInput } from "../utils/test-utils/factories";
 import { DynAccountRepository } from "./dyn-account-repository";
@@ -9,16 +10,16 @@ import { DynAccountRepository } from "./dyn-account-repository";
 describe("DynAccountRepository", () => {
   let repository: DynAccountRepository;
   const userId = faker.string.uuid();
+  const tableName = requireEnv("ACCOUNTS_TABLE_NAME");
 
   beforeAll(async () => {
     // Create repository instance
-    repository = new DynAccountRepository();
+    repository = new DynAccountRepository(tableName);
   });
 
   beforeEach(async () => {
     // Clean up accounts table before each test
     const client = createDynamoDBDocumentClient();
-    const tableName = process.env.ACCOUNTS_TABLE_NAME || "";
     await truncateTable(client, tableName, {
       partitionKey: "userId",
       sortKey: "id",
@@ -160,7 +161,6 @@ describe("DynAccountRepository", () => {
       const client = createDynamoDBDocumentClient();
 
       // Manually corrupt the database record by removing initialBalance
-      const tableName = process.env.ACCOUNTS_TABLE_NAME || "";
       await client.send(
         new UpdateCommand({
           TableName: tableName,

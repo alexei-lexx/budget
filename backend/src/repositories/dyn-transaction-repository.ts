@@ -1,7 +1,5 @@
 import { randomUUID } from "crypto";
-import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import {
-  DynamoDBDocumentClient,
   GetCommand,
   PutCommand,
   QueryCommand,
@@ -32,10 +30,8 @@ import {
   PageInfo,
   PaginationInput,
 } from "../types/pagination";
-import {
-  DYNAMODB_TRANSACT_WRITE_MAX_ITEMS,
-  createDynamoDBDocumentClient,
-} from "../utils/dynamo-client";
+import { DYNAMODB_TRANSACT_WRITE_MAX_ITEMS } from "../utils/dynamo-client";
+import { DynBaseRepository } from "./dyn-base-repository";
 import {
   TransactionDbItem,
   transactionDbItemSchema,
@@ -127,22 +123,10 @@ function buildCreatedAtSortable(transaction: Transaction): string {
   return `${transaction.createdAt}#${ulid()}`;
 }
 
-export class DynTransactionRepository implements TransactionRepository {
-  private client: DynamoDBDocumentClient;
-  private tableName: string;
-
-  constructor(dynamoClient?: DynamoDBClient) {
-    this.client = createDynamoDBDocumentClient(dynamoClient);
-    this.tableName = process.env.TRANSACTIONS_TABLE_NAME || "";
-
-    if (!this.tableName) {
-      throw new RepositoryError(
-        "TRANSACTIONS_TABLE_NAME environment variable is required",
-        "MISSING_TABLE_NAME",
-      );
-    }
-  }
-
+export class DynTransactionRepository
+  extends DynBaseRepository
+  implements TransactionRepository
+{
   async findOneById({
     id,
     userId,

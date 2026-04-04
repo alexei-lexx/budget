@@ -2,6 +2,7 @@ import { UpdateCommand } from "@aws-sdk/lib-dynamodb";
 import { faker } from "@faker-js/faker";
 import { beforeAll, beforeEach, describe, expect, it } from "@jest/globals";
 import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
+import { requireEnv } from "../utils/require-env";
 import { truncateTable } from "../utils/test-utils/dynamodb-helpers";
 import { fakeCreateUserInput } from "../utils/test-utils/factories";
 import { DynUserRepository } from "./dyn-user-repository";
@@ -9,15 +10,16 @@ import { DynUserRepository } from "./dyn-user-repository";
 describe("DynUserRepository", () => {
   let repository: DynUserRepository;
 
+  const tableName = requireEnv("USERS_TABLE_NAME");
+
   beforeAll(async () => {
     // Create repository instance
-    repository = new DynUserRepository();
+    repository = new DynUserRepository(tableName);
   });
 
   beforeEach(async () => {
     // Clean up users table before each test
     const client = createDynamoDBDocumentClient();
-    const tableName = process.env.USERS_TABLE_NAME || "";
     await truncateTable(client, tableName, {
       partitionKey: "id",
     });
@@ -415,7 +417,6 @@ describe("DynUserRepository", () => {
       const client = createDynamoDBDocumentClient();
 
       // Manually corrupt the database record by removing createdAt
-      const tableName = process.env.USERS_TABLE_NAME || "";
       await client.send(
         new UpdateCommand({
           TableName: tableName,

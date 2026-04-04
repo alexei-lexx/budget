@@ -2,6 +2,7 @@ import { faker } from "@faker-js/faker";
 import { beforeAll, beforeEach, describe, expect, it } from "@jest/globals";
 import { TelegramBotStatus } from "../models/telegram-bot";
 import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
+import { requireEnv } from "../utils/require-env";
 import { truncateTable } from "../utils/test-utils/dynamodb-helpers";
 import { fakeCreateTelegramBotInput } from "../utils/test-utils/factories";
 import { DynTelegramBotRepository } from "./dyn-telegram-bot-repository";
@@ -9,14 +10,14 @@ import { DynTelegramBotRepository } from "./dyn-telegram-bot-repository";
 describe("DynTelegramBotRepository", () => {
   let repository: DynTelegramBotRepository;
   const userId = faker.string.uuid();
+  const tableName = requireEnv("TELEGRAM_BOTS_TABLE_NAME");
 
   beforeAll(async () => {
-    repository = new DynTelegramBotRepository();
+    repository = new DynTelegramBotRepository(tableName);
   });
 
   beforeEach(async () => {
     const client = createDynamoDBDocumentClient();
-    const tableName = process.env.TELEGRAM_BOTS_TABLE_NAME || "";
     await truncateTable(client, tableName, {
       partitionKey: "userId",
       sortKey: "id",
