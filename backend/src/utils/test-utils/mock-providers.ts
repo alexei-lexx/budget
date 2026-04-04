@@ -1,3 +1,4 @@
+import { jest } from "@jest/globals";
 import { BackgroundJobDispatcher } from "../../services/ports/background-job-dispatcher";
 import { TelegramApiClient } from "../../services/ports/telegram-api-client";
 

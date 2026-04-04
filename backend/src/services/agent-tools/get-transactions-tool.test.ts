@@ -1,4 +1,5 @@
 import { faker } from "@faker-js/faker";
+import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import { TransactionType } from "../../models/transaction";
 import { toDateString } from "../../types/date";
 import { fakeTransaction } from "../../utils/test-utils/factories";
@@ -80,8 +81,8 @@ describe("createGetTransactionsTool", () => {
     expect(mockTransactionRepository.findManyByUserId).toHaveBeenCalledWith(
       userId,
       {
-        dateAfter: "2000-01-01",
-        dateBefore: "2000-01-31",
+        dateAfter: toDateString("2000-01-01"),
+        dateBefore: toDateString("2000-01-31"),
       },
     );
   });
@@ -167,8 +168,8 @@ describe("createGetTransactionsTool", () => {
     expect(mockTransactionRepository.findManyByUserId).toHaveBeenCalledWith(
       userId,
       {
-        dateAfter: "2000-01-10",
-        dateBefore: "2000-01-20",
+        dateAfter: toDateString("2000-01-10"),
+        dateBefore: toDateString("2000-01-20"),
         accountIds: [accountId],
       },
     );
@@ -192,8 +193,8 @@ describe("createGetTransactionsTool", () => {
     expect(mockTransactionRepository.findManyByUserId).toHaveBeenCalledWith(
       userId,
       {
-        dateAfter: "2000-01-10",
-        dateBefore: "2000-01-20",
+        dateAfter: toDateString("2000-01-10"),
+        dateBefore: toDateString("2000-01-20"),
         categoryIds: [categoryId],
       },
     );
@@ -217,8 +218,8 @@ describe("createGetTransactionsTool", () => {
     expect(mockTransactionRepository.findManyByUserId).toHaveBeenCalledWith(
       userId,
       {
-        dateAfter: "2000-01-10",
-        dateBefore: "2000-01-20",
+        dateAfter: toDateString("2000-01-10"),
+        dateBefore: toDateString("2000-01-20"),
         types,
       },
     );
@@ -246,8 +247,8 @@ describe("createGetTransactionsTool", () => {
     expect(mockTransactionRepository.findManyByUserId).toHaveBeenCalledWith(
       userId,
       {
-        dateAfter: "2000-01-10",
-        dateBefore: "2000-01-20",
+        dateAfter: toDateString("2000-01-10"),
+        dateBefore: toDateString("2000-01-20"),
         categoryIds: [categoryId],
         accountIds: [accountId],
         types,
