@@ -23,16 +23,13 @@ export class DynAccountRepository implements AccountRepository {
   private client: DynamoDBDocumentClient;
   private tableName: string;
 
-  constructor(dynamoClient?: DynamoDBClient) {
-    this.client = createDynamoDBDocumentClient(dynamoClient);
-    this.tableName = process.env.ACCOUNTS_TABLE_NAME || "";
-
-    if (!this.tableName) {
-      throw new RepositoryError(
-        "ACCOUNTS_TABLE_NAME environment variable is required",
-        "MISSING_TABLE_NAME",
-      );
+  constructor(tableName: string, dynamoClient?: DynamoDBClient) {
+    if (!tableName) {
+      throw new RepositoryError("tableName is required", "MISSING_TABLE_NAME");
     }
+
+    this.client = createDynamoDBDocumentClient(dynamoClient);
+    this.tableName = tableName;
   }
 
   async findOneById({

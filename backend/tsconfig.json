@@ -5,7 +5,8 @@
     "lib": ["es2024"],
     "rootDir": "./src",
     "outDir": "./dist",
-    "isolatedModules": true
+    "isolatedModules": true,
+    "types": ["node", "jest"]
   },
   "include": ["src/**/*"]
 }

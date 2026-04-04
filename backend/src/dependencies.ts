@@ -32,7 +32,7 @@ export const resolveJwtAuthService = createSingleton(
 
 // Repositories
 export const resolveAccountRepository = createSingleton<AccountRepository>(
-  () => new DynAccountRepository(),
+  () => new DynAccountRepository(requireEnv("ACCOUNTS_TABLE_NAME")),
 );
 export const resolveCategoryRepository = createSingleton<CategoryRepository>(
   () => new DynCategoryRepository(),
