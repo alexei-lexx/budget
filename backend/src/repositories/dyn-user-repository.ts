@@ -1,7 +1,5 @@
 import { randomUUID } from "crypto";
-import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import {
-  DynamoDBDocumentClient,
   GetCommand,
   PutCommand,
   QueryCommand,
@@ -15,24 +13,15 @@ import {
   UpdateUserInput,
   UserRepository,
 } from "../services/ports/user-repository";
-import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
 import { normalizeEmail } from "../utils/email";
+import { DynBaseRepository } from "./dyn-base-repository";
 import { userSchema } from "./schemas/user";
 import { hydrate } from "./utils/hydrate";
 
-export class DynUserRepository implements UserRepository {
-  private client: DynamoDBDocumentClient;
-  private tableName: string;
-
-  constructor(dynamoClient?: DynamoDBClient) {
-    this.client = createDynamoDBDocumentClient(dynamoClient);
-    this.tableName = process.env.USERS_TABLE_NAME || "";
-
-    if (!this.tableName) {
-      throw new Error("USERS_TABLE_NAME environment variable is required");
-    }
-  }
-
+export class DynUserRepository
+  extends DynBaseRepository
+  implements UserRepository
+{
   async findOneByEmail(email: string): Promise<User | null> {
     try {
       const normalizedEmail = normalizeEmail(email);

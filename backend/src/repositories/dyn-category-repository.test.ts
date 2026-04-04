@@ -3,6 +3,7 @@ import { faker } from "@faker-js/faker";
 import { beforeAll, beforeEach, describe, expect, it } from "@jest/globals";
 import { CategoryType } from "../models/category";
 import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
+import { requireEnv } from "../utils/require-env";
 import { truncateTable } from "../utils/test-utils/dynamodb-helpers";
 import { fakeCreateCategoryInput } from "../utils/test-utils/factories";
 import { DynCategoryRepository } from "./dyn-category-repository";
@@ -10,16 +11,16 @@ import { DynCategoryRepository } from "./dyn-category-repository";
 describe("DynCategoryRepository", () => {
   let repository: DynCategoryRepository;
   const userId = faker.string.uuid();
+  const tableName = requireEnv("CATEGORIES_TABLE_NAME");
 
   beforeAll(async () => {
     // Create repository instance
-    repository = new DynCategoryRepository();
+    repository = new DynCategoryRepository(tableName);
   });
 
   beforeEach(async () => {
     // Clean up categories table before each test
     const client = createDynamoDBDocumentClient();
-    const tableName = process.env.CATEGORIES_TABLE_NAME || "";
     await truncateTable(client, tableName, {
       partitionKey: "userId",
       sortKey: "id",
@@ -591,7 +592,6 @@ describe("DynCategoryRepository", () => {
       const client = createDynamoDBDocumentClient();
 
       // Manually corrupt the database record by removing type (type is a reserved keyword)
-      const tableName = process.env.CATEGORIES_TABLE_NAME || "";
       await client.send(
         new UpdateCommand({
           TableName: tableName,

@@ -35,15 +35,17 @@ export const resolveAccountRepository = createSingleton<AccountRepository>(
   () => new DynAccountRepository(requireEnv("ACCOUNTS_TABLE_NAME")),
 );
 export const resolveCategoryRepository = createSingleton<CategoryRepository>(
-  () => new DynCategoryRepository(),
+  () => new DynCategoryRepository(requireEnv("CATEGORIES_TABLE_NAME")),
 );
 const resolveTelegramBotRepository = createSingleton(
-  () => new DynTelegramBotRepository(),
+  () => new DynTelegramBotRepository(requireEnv("TELEGRAM_BOTS_TABLE_NAME")),
 );
 export const resolveTransactionRepository =
-  createSingleton<TransactionRepository>(() => new DynTransactionRepository());
+  createSingleton<TransactionRepository>(
+    () => new DynTransactionRepository(requireEnv("TRANSACTIONS_TABLE_NAME")),
+  );
 export const resolveUserRepository = createSingleton<UserRepository>(
-  () => new DynUserRepository(),
+  () => new DynUserRepository(requireEnv("USERS_TABLE_NAME")),
 );
 
 // CRUD services

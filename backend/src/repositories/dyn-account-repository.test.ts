@@ -161,7 +161,6 @@ describe("DynAccountRepository", () => {
       const client = createDynamoDBDocumentClient();
 
       // Manually corrupt the database record by removing initialBalance
-      const tableName = process.env.ACCOUNTS_TABLE_NAME || "";
       await client.send(
         new UpdateCommand({
           TableName: tableName,

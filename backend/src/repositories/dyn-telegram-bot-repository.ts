@@ -1,11 +1,5 @@
 import { randomUUID } from "crypto";
-import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import {
-  DynamoDBDocumentClient,
-  PutCommand,
-  QueryCommand,
-  UpdateCommand,
-} from "@aws-sdk/lib-dynamodb";
+import { PutCommand, QueryCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
 import { TelegramBot, TelegramBotStatus } from "../models/telegram-bot";
 import { RepositoryError } from "../services/ports/repository-error";
 import {
@@ -13,26 +7,14 @@ import {
   TelegramBotRepository,
   UpdateTelegramBotInput,
 } from "../services/ports/telegram-bot-repository";
-import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
+import { DynBaseRepository } from "./dyn-base-repository";
 import { telegramBotSchema } from "./schemas/telegram-bot";
 import { hydrate } from "./utils/hydrate";
 
-export class DynTelegramBotRepository implements TelegramBotRepository {
-  private client: DynamoDBDocumentClient;
-  private tableName: string;
-
-  constructor(dynamoClient?: DynamoDBClient) {
-    this.client = createDynamoDBDocumentClient(dynamoClient);
-    this.tableName = process.env.TELEGRAM_BOTS_TABLE_NAME || "";
-
-    if (!this.tableName) {
-      throw new RepositoryError(
-        "TELEGRAM_BOTS_TABLE_NAME environment variable is required",
-        "MISSING_TABLE_NAME",
-      );
-    }
-  }
-
+export class DynTelegramBotRepository
+  extends DynBaseRepository
+  implements TelegramBotRepository
+{
   async findOneConnectedByUserId(userId: string): Promise<TelegramBot | null> {
     if (!userId) {
       throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
