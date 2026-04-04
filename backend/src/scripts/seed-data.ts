@@ -1,31 +1,28 @@
 #!/usr/bin/env ts-node
 
 import { DeleteCommand, ScanCommand } from "@aws-sdk/lib-dynamodb";
+import {
+  resolveAccountRepository,
+  resolveCategoryRepository,
+  resolveTransactionService,
+  resolveUserRepository,
+} from "../dependencies";
 import { CategoryType } from "../models/category";
 import { TransactionType } from "../models/transaction";
-import { DynAccountRepository } from "../repositories/dyn-account-repository";
-import { DynCategoryRepository } from "../repositories/dyn-category-repository";
-import { DynTransactionRepository } from "../repositories/dyn-transaction-repository";
-import { DynUserRepository } from "../repositories/dyn-user-repository";
-import { TransactionService } from "../services/transaction-service";
 import { toDateString } from "../types/date";
 import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
+import { requireEnv } from "../utils/require-env";
 
 // Initialize DynamoDB client
 const dynamoClient = createDynamoDBDocumentClient();
 
 // Initialize repositories
-const userRepository = new DynUserRepository();
-const accountRepository = new DynAccountRepository();
-const categoryRepository = new DynCategoryRepository();
-const transactionRepository = new DynTransactionRepository();
+const accountRepository = resolveAccountRepository();
+const categoryRepository = resolveCategoryRepository();
+const userRepository = resolveUserRepository();
 
 // Initialize services
-const transactionService = new TransactionService(
-  accountRepository,
-  categoryRepository,
-  transactionRepository,
-);
+const transactionService = resolveTransactionService();
 
 /**
  * Truncate all tables to clear existing data
@@ -34,9 +31,9 @@ async function truncateTables(): Promise<void> {
   console.log("Clearing existing data...\n");
 
   const tables = [
-    process.env.TRANSACTIONS_TABLE_NAME,
-    process.env.CATEGORIES_TABLE_NAME,
-    process.env.ACCOUNTS_TABLE_NAME,
+    requireEnv("ACCOUNTS_TABLE_NAME"),
+    requireEnv("CATEGORIES_TABLE_NAME"),
+    requireEnv("TRANSACTIONS_TABLE_NAME"),
   ];
 
   for (const tableName of tables) {
