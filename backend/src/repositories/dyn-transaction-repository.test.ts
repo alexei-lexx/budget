@@ -14,7 +14,7 @@ import { toDateString } from "../types/date";
 import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
 import { requireEnv } from "../utils/require-env";
 import { truncateTable } from "../utils/test-utils/dynamodb-helpers";
-import { fakeCreateTransactionInput } from "../utils/test-utils/repositories/transaction-repository";
+import { fakeCreateTransactionInput } from "../utils/test-utils/repositories/transaction-repository-fakes";
 import { DynTransactionRepository } from "./dyn-transaction-repository";
 
 describe("DynTransactionRepository", () => {

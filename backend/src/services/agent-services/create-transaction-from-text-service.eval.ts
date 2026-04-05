@@ -14,7 +14,7 @@ import { task, toGrade } from "../../utils/test-utils/evals";
 import { fakeAccount } from "../../utils/test-utils/models/account";
 import { fakeCategory } from "../../utils/test-utils/models/category";
 import { fakeUser } from "../../utils/test-utils/models/user";
-import { fakeCreateTransactionInput } from "../../utils/test-utils/repositories/transaction-repository";
+import { fakeCreateTransactionInput } from "../../utils/test-utils/repositories/transaction-repository-fakes";
 
 const accountRepository = resolveAccountRepository();
 const categoryRepository = resolveCategoryRepository();

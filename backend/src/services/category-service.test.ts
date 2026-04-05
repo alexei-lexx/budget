@@ -5,8 +5,8 @@ import { NAME_MAX_LENGTH, NAME_MIN_LENGTH } from "../types/validation";
 import { fakeCategory } from "../utils/test-utils/models/category";
 import {
   createMockCategoryRepository,
-  fakeCreateCategoryInput,
 } from "../utils/test-utils/repositories/category-repository";
+import { fakeCreateCategoryInput } from "../utils/test-utils/repositories/category-repository-fakes";
 import { BusinessError } from "./business-error";
 import { CategoryService } from "./category-service";
 

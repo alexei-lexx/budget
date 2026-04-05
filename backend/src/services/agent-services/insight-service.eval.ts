@@ -11,7 +11,7 @@ import { truncateAllTables } from "../../utils/test-utils/dynamodb-helpers";
 import { task, toGrade } from "../../utils/test-utils/evals";
 import { fakeAccount } from "../../utils/test-utils/models/account";
 import { fakeUser } from "../../utils/test-utils/models/user";
-import { fakeCreateTransactionInput } from "../../utils/test-utils/repositories/transaction-repository";
+import { fakeCreateTransactionInput } from "../../utils/test-utils/repositories/transaction-repository-fakes";
 
 const accountRepository = resolveAccountRepository();
 const transactionRepository = resolveTransactionRepository();

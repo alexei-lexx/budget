@@ -17,11 +17,3 @@ export const createMockUserRepository = (): jest.Mocked<UserRepository> => ({
   update: jest.fn(),
 });
 
-export const fakeCreateUserInput = (
-  overrides: Partial<CreateUserInput> = {},
-): CreateUserInput => {
-  return {
-    email: faker.internet.email().toLowerCase(),
-    ...overrides,
-  };
-};
