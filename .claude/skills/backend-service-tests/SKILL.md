@@ -60,7 +60,9 @@ Explore the existing structure before adding anything:
 
 Reuse existing fakes and mocks. Create new ones if needed following the established patterns.
 
-Mock all dependencies — repositories, external API clients, other services. Never call real implementations.
+Mock all dependencies — repositories, external API clients, other services.
+Never call real implementations.
+Type mocked dependencies with `jest.Mocked<InterfaceName>` where an interface is available.
 
 ## Reference
 
