@@ -53,8 +53,6 @@ Each test asserts the return value first, then verifies dependency calls.
 
 **Fakes** are factory functions that create realistic test data (entities, input objects) with randomized defaults via `faker`.
 
-Explore the existing structure before adding anything:
-
 - **Model fakes** (entity objects) — `backend/src/utils/test-utils/models/<model name>-fakes.ts`
 - **Repository mocks** — `backend/src/utils/test-utils/repositories/<repository name>-mocks.ts`
 - **Repository-level fakes** (complex input types) — `backend/src/utils/test-utils/repositories/<repository name>-fakes.ts`
