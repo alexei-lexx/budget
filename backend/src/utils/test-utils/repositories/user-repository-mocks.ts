@@ -1,9 +1,5 @@
-import { faker } from "@faker-js/faker";
 import { jest } from "@jest/globals";
-import {
-  CreateUserInput,
-  UserRepository,
-} from "../../../services/ports/user-repository";
+import { UserRepository } from "../../../services/ports/user-repository";
 
 /**
  * Mock user repository for testing

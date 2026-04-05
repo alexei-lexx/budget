@@ -1,10 +1,5 @@
-import { faker } from "@faker-js/faker";
 import { jest } from "@jest/globals";
-import { CategoryType } from "../../../models/category";
-import {
-  CategoryRepository,
-  CreateCategoryInput,
-} from "../../../services/ports/category-repository";
+import { CategoryRepository } from "../../../services/ports/category-repository";
 
 /**
  * Mock category repository for testing

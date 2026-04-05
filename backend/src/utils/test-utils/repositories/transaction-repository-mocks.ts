@@ -1,11 +1,5 @@
-import { faker } from "@faker-js/faker";
 import { jest } from "@jest/globals";
-import { TransactionType } from "../../../models/transaction";
-import {
-  CreateTransactionInput,
-  TransactionRepository,
-} from "../../../services/ports/transaction-repository";
-import { toDateString } from "../../../types/date";
+import { TransactionRepository } from "../../../services/ports/transaction-repository";
 
 /**
  * Mock transaction repository for testing
