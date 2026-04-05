@@ -1,5 +1,5 @@
 import { randomUUID } from "crypto";
-import { Account } from "../models/account-fakes";
+import { Account } from "../models/account";
 import { Transaction, TransactionType } from "../models/transaction";
 import { DateString } from "../types/date";
 import { DESCRIPTION_MAX_LENGTH } from "../types/validation";

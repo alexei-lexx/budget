@@ -7,7 +7,7 @@ import { ByCategoryReportService } from "../services/by-category-report-service"
 import { CategoryService } from "../services/category-service";
 import { UserRepository } from "../services/ports/user-repository";
 import { TelegramBotService } from "../services/telegram-bot-service";
-import { TransactionService } from "../services/transaction-service-fakes";
+import { TransactionService } from "../services/transaction-service";
 import { TransferService } from "../services/transfer-service";
 import { UserService } from "../services/user-service";
 import {

@@ -1,4 +1,4 @@
-import { Account } from "../../models/account-fakes";
+import { Account } from "../../models/account";
 
 export interface CreateAccountInput {
   userId: string;

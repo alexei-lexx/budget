@@ -1,4 +1,4 @@
-import { Account } from "../models/account-fakes";
+import { Account } from "../models/account";
 import { getSignedAmount } from "../models/transaction";
 import {
   NAME_MAX_LENGTH,

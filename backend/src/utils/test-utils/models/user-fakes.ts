@@ -1,5 +1,5 @@
 import { faker } from "@faker-js/faker";
-import { User } from "../../../models/user-fakes";
+import { User } from "../../../models/user";
 
 export const fakeUser = (overrides: Partial<User> = {}): User => {
   const now = new Date().toISOString();

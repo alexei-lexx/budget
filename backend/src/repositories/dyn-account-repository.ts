@@ -5,7 +5,7 @@ import {
   PutCommand,
   UpdateCommand,
 } from "@aws-sdk/lib-dynamodb";
-import { Account } from "../models/account-fakes";
+import { Account } from "../models/account";
 import {
   AccountRepository,
   CreateAccountInput,

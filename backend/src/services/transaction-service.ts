@@ -1,4 +1,4 @@
-import { Account } from "../models/account-fakes";
+import { Account } from "../models/account";
 import { Category, CategoryType } from "../models/category";
 import {
   NonTransferTransactionType,

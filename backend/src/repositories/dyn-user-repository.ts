@@ -6,7 +6,7 @@ import {
   ScanCommand,
   UpdateCommand,
 } from "@aws-sdk/lib-dynamodb";
-import { User } from "../models/user-fakes";
+import { User } from "../models/user";
 import { RepositoryError } from "../services/ports/repository-error";
 import {
   CreateUserInput,
