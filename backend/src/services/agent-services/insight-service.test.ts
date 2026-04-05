@@ -8,7 +8,11 @@ import {
   type AgentTraceMessage,
   AgentTraceMessageType,
 } from "../ports/agent";
-import { type InsightInput, InsightService, InsightServiceImpl } from "./insight-service";
+import {
+  type InsightInput,
+  InsightService,
+  InsightServiceImpl,
+} from "./insight-service";
 
 const createMockAgent = (): jest.Mocked<Agent> => ({
   call: jest.fn(),
