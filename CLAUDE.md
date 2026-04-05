@@ -4,7 +4,7 @@
 
 **Before any development work — read `docs/constitution.md`.**
 
-This applies to all tasks involving project standards, code style, architecture, tech stack, test strategy, or any implementation. The constitution defines the project's structure, coding standards, and technical constraints. Nothing overrides it.
+This applies to all tasks involving project standards, code style, architecture, tech stack, test strategy, writing tests, or any implementation. The constitution defines the project's structure, coding standards, and technical constraints. Nothing overrides it.
 
 ## Communication Style
 
