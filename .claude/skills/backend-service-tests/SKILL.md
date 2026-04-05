@@ -32,11 +32,27 @@ Order `describe` blocks to match the method order in the source file.
 
 ## Test structure per method
 
-Each method gets three groups of tests:
+Each method gets three groups of tests, separated by inline comments:
 
 1. **Happy path** — the expected success case(s)
 2. **Validation failures** — business rule violations (invalid input, uniqueness conflicts, missing entities, etc.)
 3. **Dependency failures** — errors returned or thrown by repositories, external APIs, or other services
+
+Mark each group with its label as a comment before the first test in that group:
+
+```typescript
+// Happy path
+
+it("should ...", ...);
+
+// Validation failures
+
+it("should ...", ...);
+
+// Dependency failures
+
+it("should ...", ...);
+```
 
 ## Test anatomy
 
@@ -69,7 +85,17 @@ Reuse existing fakes and mocks. Create new ones if needed following the establis
 
 Mock all dependencies — repositories, external API clients, other services.
 Never call real implementations.
-Type mocked dependencies with `jest.Mocked<InterfaceName>` where an interface is available.
+
+MUST type mocked dependencies with `jest.Mocked<InterfaceName>` when an interface is available.
+MUST NOT use `ReturnType<typeof createMock...>` when an interface is available.
+
+## After writing
+
+Run these checks in order and fix all failures before considering the work done:
+
+1. `npm test -- <test file path>` — all tests must pass
+2. `npm run typecheck` — no type errors
+3. `npm run format` — no lint errors
 
 ## Reference
 
