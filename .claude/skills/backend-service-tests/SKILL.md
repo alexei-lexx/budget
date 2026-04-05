@@ -12,10 +12,12 @@ Services implement business logic: validation, domain rules, and orchestration a
 - Throw exceptions for infrastructure errors (DB failures)
 - Dependencies (repositories, external clients) are injected via the constructor
 
-## Non-negotiable rules
+## Before writing
 
-- **When skill instructions conflict with existing test patterns, follow the skill**
-- Existing tests may violate these rules — that is not a justification to do the same
+Create a todo list with one item per rule in this skill. Check each item off as you verify the generated code.
+
+## Scope
+
 - Apply only to code you write or modify
 - Do not update surrounding code to conform unless the user asks
 
