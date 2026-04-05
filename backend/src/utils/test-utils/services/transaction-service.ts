@@ -1,7 +1,7 @@
 import { faker } from "@faker-js/faker";
-import { TransactionType } from "../../models/transaction";
-import { CreateTransactionServiceInput } from "../../services/transaction-service";
-import { toDateString } from "../../types/date";
+import { TransactionType } from "../../../models/transaction";
+import { CreateTransactionServiceInput } from "../../../services/transaction-service";
+import { toDateString } from "../../../types/date";
 
 export const fakeCreateTransactionServiceInput = (
   overrides: Partial<CreateTransactionServiceInput> = {},

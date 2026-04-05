@@ -1,11 +1,9 @@
 import { faker } from "@faker-js/faker";
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import { TelegramBotStatus } from "../models/telegram-bot";
-import {
-  createMockBackgroundJobDispatcher,
-  createMockTelegramApiClient,
-} from "../utils/test-utils/mock-providers";
 import { fakeTelegramBot } from "../utils/test-utils/models/telegram-bot";
+import { createMockBackgroundJobDispatcher } from "../utils/test-utils/providers/background-job-dispatcher";
+import { createMockTelegramApiClient } from "../utils/test-utils/providers/telegram-api-client";
 import { createMockTelegramBotRepository } from "../utils/test-utils/repositories/telegram-bot-repository";
 import { BackgroundJobDispatcher } from "./ports/background-job-dispatcher";
 import { TelegramApiClient } from "./ports/telegram-api-client";

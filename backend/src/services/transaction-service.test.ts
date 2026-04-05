@@ -17,7 +17,7 @@ import {
 import { createMockAccountRepository } from "../utils/test-utils/repositories/account-repository";
 import { createMockCategoryRepository } from "../utils/test-utils/repositories/category-repository";
 import { createMockTransactionRepository } from "../utils/test-utils/repositories/transaction-repository";
-import { fakeCreateTransactionServiceInput } from "../utils/test-utils/service-factories";
+import { fakeCreateTransactionServiceInput } from "../utils/test-utils/services/transaction-service";
 import { BusinessError } from "./business-error";
 import {
   DEFAULT_TRANSACTION_PATTERNS_LIMIT,

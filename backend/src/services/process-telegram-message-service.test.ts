@@ -1,7 +1,7 @@
 import { faker } from "@faker-js/faker";
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
-import { createMockTelegramApiClient } from "../utils/test-utils/mock-providers";
 import { fakeTelegramBot } from "../utils/test-utils/models/telegram-bot";
+import { createMockTelegramApiClient } from "../utils/test-utils/providers/telegram-api-client";
 import { createMockTelegramBotRepository } from "../utils/test-utils/repositories/telegram-bot-repository";
 import { InsightService } from "./agent-services/insight-service";
 import { ProcessTelegramMessageService } from "./process-telegram-message-service";
