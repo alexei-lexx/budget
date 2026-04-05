@@ -2,11 +2,11 @@ import { faker } from "@faker-js/faker";
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import { CategoryType } from "../models/category";
 import { NAME_MAX_LENGTH, NAME_MIN_LENGTH } from "../types/validation";
+import { fakeCategory } from "../utils/test-utils/models/category";
 import {
-  fakeCategory,
+  createMockCategoryRepository,
   fakeCreateCategoryInput,
-} from "../utils/test-utils/factories";
-import { createMockCategoryRepository } from "../utils/test-utils/mock-repositories";
+} from "../utils/test-utils/repositories/category-repository";
 import { BusinessError } from "./business-error";
 import { CategoryService } from "./category-service";
 

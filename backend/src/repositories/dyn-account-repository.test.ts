@@ -4,7 +4,7 @@ import { beforeAll, beforeEach, describe, expect, it } from "@jest/globals";
 import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
 import { requireEnv } from "../utils/require-env";
 import { truncateTable } from "../utils/test-utils/dynamodb-helpers";
-import { fakeCreateAccountInput } from "../utils/test-utils/factories";
+import { fakeCreateAccountInput } from "../utils/test-utils/repositories/account-repository";
 import { DynAccountRepository } from "./dyn-account-repository";
 
 describe("DynAccountRepository", () => {

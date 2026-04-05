@@ -4,7 +4,7 @@ import { TelegramBotStatus } from "../models/telegram-bot";
 import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
 import { requireEnv } from "../utils/require-env";
 import { truncateTable } from "../utils/test-utils/dynamodb-helpers";
-import { fakeCreateTelegramBotInput } from "../utils/test-utils/factories";
+import { fakeCreateTelegramBotInput } from "../utils/test-utils/repositories/telegram-bot-repository";
 import { DynTelegramBotRepository } from "./dyn-telegram-bot-repository";
 
 describe("DynTelegramBotRepository", () => {

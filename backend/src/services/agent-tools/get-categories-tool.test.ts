@@ -3,14 +3,10 @@ import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import { CategoryType } from "../../models/category";
 import { isDateString } from "../../types/date";
 import { daysBetween } from "../../utils/date";
-import {
-  fakeCategory,
-  fakeTransaction,
-} from "../../utils/test-utils/factories";
-import {
-  createMockCategoryRepository,
-  createMockTransactionRepository,
-} from "../../utils/test-utils/mock-repositories";
+import { fakeCategory } from "../../utils/test-utils/models/category";
+import { fakeTransaction } from "../../utils/test-utils/models/transaction";
+import { createMockCategoryRepository } from "../../utils/test-utils/repositories/category-repository";
+import { createMockTransactionRepository } from "../../utils/test-utils/repositories/transaction-repository";
 import { CategoryRepository } from "../ports/category-repository";
 import { TransactionRepository } from "../ports/transaction-repository";
 import {

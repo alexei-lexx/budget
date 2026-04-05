@@ -11,12 +11,10 @@ import { TransactionType } from "../../models/transaction";
 import { createDynamoDBDocumentClient } from "../../utils/dynamo-client";
 import { truncateAllTables } from "../../utils/test-utils/dynamodb-helpers";
 import { task, toGrade } from "../../utils/test-utils/evals";
-import {
-  fakeAccount,
-  fakeCategory,
-  fakeCreateTransactionInput,
-  fakeUser,
-} from "../../utils/test-utils/factories";
+import { fakeAccount } from "../../utils/test-utils/models/account";
+import { fakeCategory } from "../../utils/test-utils/models/category";
+import { fakeUser } from "../../utils/test-utils/models/user";
+import { fakeCreateTransactionInput } from "../../utils/test-utils/repositories/transaction-repository";
 
 const accountRepository = resolveAccountRepository();
 const categoryRepository = resolveCategoryRepository();
