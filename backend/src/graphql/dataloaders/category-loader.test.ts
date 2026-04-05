@@ -1,7 +1,7 @@
 import { describe, expect, it } from "@jest/globals";
 import DataLoader from "dataloader";
-import { fakeCategory } from "../../utils/test-utils/factories";
-import { createMockCategoryRepository } from "../../utils/test-utils/mock-repositories";
+import { fakeCategory } from "../../utils/test-utils/models/category-fakes";
+import { createMockCategoryRepository } from "../../utils/test-utils/repositories/category-repository-mocks";
 import { batchLoadCategories, createCategoryLoader } from "./category-loader";
 
 describe("Category Batch Loader", () => {

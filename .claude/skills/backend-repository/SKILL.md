@@ -61,12 +61,29 @@ Apply all rules to both the interface and the implementation.
 - Use a **real database connection** — no mocks
 - Co-locate: `repository.test.ts` next to `repository.ts`
 - `describe` blocks mirror the method order of the source class
-- Test data factories live in `backend/src/utils/test-utils/factories.ts`
-  - Naming: `fake<Descriptor>` (e.g. `fakeAccount`, `fakeCreateAccountInput`), accept optional overrides:
+- Test data factories are split by purpose:
+  - **Model fakes** — full entity objects: `backend/src/utils/test-utils/models/<entity>-fakes.ts`
     ```typescript
-    export const fakeAccount = (overrides: Partial<Account> = {}): Account => ({
-      ...defaults,
+    export const fakeWidget = (overrides: Partial<Widget> = {}): Widget => ({
+      // ... all required fields with faker defaults
       ...overrides,
     });
+    ```
+  - **Input fakes** — write operation inputs: `backend/src/utils/test-utils/repositories/<entity>-repository-fakes.ts`
+    ```typescript
+    export const fakeCreateWidgetInput = (
+      overrides: Partial<CreateWidgetInput> = {},
+    ): CreateWidgetInput => ({
+      // ... all required fields with faker defaults
+      ...overrides,
+    });
+    ```
+  - **Repository mocks** — Jest-mocked repository interfaces for service tests: `backend/src/utils/test-utils/repositories/<entity>-repository-mocks.ts`
+    ```typescript
+    export const createMockWidgetRepository =
+      (): jest.Mocked<WidgetRepository> => ({
+        findXyz: jest.fn(),
+        // ... all interface methods
+      });
     ```
   - Randomize defaults using `faker`; for enum fields use `faker.helpers.arrayElement([...values])`

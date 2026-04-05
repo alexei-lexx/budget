@@ -5,7 +5,7 @@ import { CategoryType } from "../models/category";
 import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
 import { requireEnv } from "../utils/require-env";
 import { truncateTable } from "../utils/test-utils/dynamodb-helpers";
-import { fakeCreateCategoryInput } from "../utils/test-utils/factories";
+import { fakeCreateCategoryInput } from "../utils/test-utils/repositories/category-repository-fakes";
 import { DynCategoryRepository } from "./dyn-category-repository";
 
 describe("DynCategoryRepository", () => {

@@ -8,18 +8,16 @@ import {
   DESCRIPTION_MAX_LENGTH,
   MIN_SEARCH_TEXT_LENGTH,
 } from "../types/validation";
+import { fakeAccount } from "../utils/test-utils/models/account-fakes";
+import { fakeCategory } from "../utils/test-utils/models/category-fakes";
 import {
-  fakeAccount,
-  fakeCategory,
   fakeTransaction,
   fakeTransactionPattern,
-} from "../utils/test-utils/factories";
-import {
-  createMockAccountRepository,
-  createMockCategoryRepository,
-  createMockTransactionRepository,
-} from "../utils/test-utils/mock-repositories";
-import { fakeCreateTransactionServiceInput } from "../utils/test-utils/service-factories";
+} from "../utils/test-utils/models/transaction-fakes";
+import { createMockAccountRepository } from "../utils/test-utils/repositories/account-repository-mocks";
+import { createMockCategoryRepository } from "../utils/test-utils/repositories/category-repository-mocks";
+import { createMockTransactionRepository } from "../utils/test-utils/repositories/transaction-repository-mocks";
+import { fakeCreateTransactionServiceInput } from "../utils/test-utils/services/transaction-service-fakes";
 import { BusinessError } from "./business-error";
 import {
   DEFAULT_TRANSACTION_PATTERNS_LIMIT,
