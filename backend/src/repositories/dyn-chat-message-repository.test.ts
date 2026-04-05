@@ -1,8 +1,9 @@
 import { faker } from "@faker-js/faker";
+import { beforeAll, beforeEach, describe, expect, it } from "@jest/globals";
 import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
 import { requireEnv } from "../utils/require-env";
 import { truncateTable } from "../utils/test-utils/dynamodb-helpers";
-import { fakeCreateChatMessageInput } from "../utils/test-utils/factories";
+import { fakeCreateChatMessageInput } from "../utils/test-utils/repositories/chat-message-repository-fakes";
 import { DynChatMessageRepository } from "./dyn-chat-message-repository";
 
 describe("DynChatMessageRepository", () => {
@@ -12,7 +13,12 @@ describe("DynChatMessageRepository", () => {
   let repository: DynChatMessageRepository;
 
   beforeAll(() => {
-    repository = new DynChatMessageRepository();
+    repository = new DynChatMessageRepository(
+      requireEnv("CHAT_MESSAGES_TABLE_NAME"),
+      {
+        ttlSeconds: 3600, // 1 hour
+      },
+    );
   });
 
   beforeEach(async () => {
@@ -201,7 +207,7 @@ describe("DynChatMessageRepository", () => {
       expect(message.content).toBe(input.content);
       expect(message.createdAt).toBeDefined();
       expect(message.expiresAt).toBe(
-        Math.floor(new Date(message.createdAt).getTime() / 1000) + 86400,
+        Math.floor(new Date(message.createdAt).getTime() / 1000) + 3600,
       );
     });
 

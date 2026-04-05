@@ -1,10 +1,6 @@
 import { randomUUID } from "crypto";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import {
-  DynamoDBDocumentClient,
-  PutCommand,
-  QueryCommand,
-} from "@aws-sdk/lib-dynamodb";
+import { PutCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
 import { monotonicFactory } from "ulidx";
 import { z } from "zod";
 import { ChatMessage } from "../models/chat-message";
@@ -13,12 +9,11 @@ import {
   CreateChatMessageInput,
 } from "../services/ports/chat-message-repository";
 import { RepositoryError } from "../services/ports/repository-error";
-import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
-import { requireIntEnv } from "../utils/require-env";
+import { DynBaseRepository } from "./dyn-base-repository";
 import { chatMessageDbItemSchema } from "./schemas/chat-message";
 import { hydrate } from "./utils/hydrate";
 
-const DEFAULT_CHAT_MESSAGE_TTL_SECONDS = 24 * 60 * 60; // 24 hours
+export const DEFAULT_CHAT_MESSAGE_TTL_SECONDS = 24 * 60 * 60; // 24 hours
 
 const ulid = monotonicFactory();
 
@@ -30,25 +25,21 @@ function toChatMessage(
   return chatMessage;
 }
 
-export class DynChatMessageRepository implements ChatMessageRepository {
-  private client: DynamoDBDocumentClient;
-  private tableName: string;
+export class DynChatMessageRepository
+  extends DynBaseRepository
+  implements ChatMessageRepository
+{
   private ttlSeconds: number;
 
-  constructor(dynamoClient?: DynamoDBClient) {
-    if (!process.env.CHAT_MESSAGES_TABLE_NAME) {
-      throw new RepositoryError(
-        "CHAT_MESSAGES_TABLE_NAME environment variable is required",
-        "MISSING_TABLE_NAME",
-      );
-    }
-
-    this.client = createDynamoDBDocumentClient(dynamoClient);
-    this.tableName = process.env.CHAT_MESSAGES_TABLE_NAME;
-    this.ttlSeconds = requireIntEnv(
-      "CHAT_MESSAGE_TTL_SECONDS",
-      DEFAULT_CHAT_MESSAGE_TTL_SECONDS,
-    );
+  constructor(
+    tableName: string,
+    options: {
+      dynamoClient?: DynamoDBClient;
+      ttlSeconds?: number;
+    } = {},
+  ) {
+    super(tableName, options.dynamoClient);
+    this.ttlSeconds = options.ttlSeconds ?? DEFAULT_CHAT_MESSAGE_TTL_SECONDS;
   }
 
   async findManyRecentBySessionId(
