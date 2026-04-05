@@ -12,6 +12,12 @@ Services implement business logic: validation, domain rules, and orchestration a
 - Throw exceptions for infrastructure errors (DB failures)
 - Dependencies (repositories, external clients) are injected via the constructor
 
+## Important principles
+
+- Skill instructions take precedence over existing codebase patterns
+- Apply only to code you write or modify
+- Do not update surrounding code to conform unless the user asks
+
 ## Test file location
 
 Co-locate: `service-name.test.ts` next to `service-name.ts`.
