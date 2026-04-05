@@ -48,9 +48,11 @@ describe("WidgetService", () => {
 
       expect(mockWidgetRepository.findByName).toHaveBeenCalledWith("Foo");
 
-      expect(mockExternalApiClient.register).toHaveBeenCalledWith(
-        expect.objectContaining({ name: "Foo" }),
-      );
+      expect(mockExternalApiClient.register).toHaveBeenCalledWith({
+        // ...
+        name: "Foo",
+        // ...
+      });
 
       expect(mockWidgetRepository.create).toHaveBeenCalledWith(
         expect.objectContaining({ userId, externalId: "ext-123" }),
