@@ -18,4 +18,3 @@ export const createMockAccountRepository =
     update: jest.fn(),
     archive: jest.fn(),
   });
-

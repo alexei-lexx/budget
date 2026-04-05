@@ -19,4 +19,3 @@ export const createMockCategoryRepository =
     update: jest.fn(),
     archive: jest.fn(),
   });
-

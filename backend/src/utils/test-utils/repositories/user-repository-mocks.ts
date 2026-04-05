@@ -16,4 +16,3 @@ export const createMockUserRepository = (): jest.Mocked<UserRepository> => ({
   ensureUser: jest.fn(),
   update: jest.fn(),
 });
-

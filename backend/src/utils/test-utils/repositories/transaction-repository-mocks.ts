@@ -27,4 +27,3 @@ export const createMockTransactionRepository =
     hasTransactionsForAccount: jest.fn(),
     detectPatterns: jest.fn(),
   });
-

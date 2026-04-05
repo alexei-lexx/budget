@@ -1,8 +1,6 @@
 import { faker } from "@faker-js/faker";
 import { CategoryType } from "../../../models/category";
-import {
-  CreateCategoryInput,
-} from "../../../services/ports/category-repository";
+import { CreateCategoryInput } from "../../../services/ports/category-repository";
 
 export const fakeCreateCategoryInput = (
   overrides: Partial<CreateCategoryInput> = {},

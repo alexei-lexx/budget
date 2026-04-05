@@ -17,4 +17,3 @@ export const createMockTelegramBotRepository =
     update: jest.fn(),
     archive: jest.fn(),
   });
-

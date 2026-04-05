@@ -8,9 +8,7 @@ import {
 } from "../types/validation";
 import { fakeAccount } from "../utils/test-utils/models/account-fakes";
 import { fakeTransaction } from "../utils/test-utils/models/transaction-fakes";
-import {
-  createMockAccountRepository,
-} from "../utils/test-utils/repositories/account-repository-mocks";
+import { createMockAccountRepository } from "../utils/test-utils/repositories/account-repository-mocks";
 import { fakeCreateAccountInput } from "../utils/test-utils/repositories/account-repository-fakes";
 import { createMockTransactionRepository } from "../utils/test-utils/repositories/transaction-repository-mocks";
 import { AccountService } from "./account-service";

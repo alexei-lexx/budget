@@ -3,9 +3,7 @@ import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import { CategoryType } from "../models/category";
 import { NAME_MAX_LENGTH, NAME_MIN_LENGTH } from "../types/validation";
 import { fakeCategory } from "../utils/test-utils/models/category-fakes";
-import {
-  createMockCategoryRepository,
-} from "../utils/test-utils/repositories/category-repository-mocks";
+import { createMockCategoryRepository } from "../utils/test-utils/repositories/category-repository-mocks";
 import { fakeCreateCategoryInput } from "../utils/test-utils/repositories/category-repository-fakes";
 import { BusinessError } from "./business-error";
 import { CategoryService } from "./category-service";
