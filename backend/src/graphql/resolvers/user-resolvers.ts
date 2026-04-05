@@ -1,6 +1,6 @@
 import { GraphQLError } from "graphql";
 import { MutationUpdateUserSettingsArgs } from "../../__generated__/resolvers-types";
-import { User } from "../../models/user";
+import { User } from "../../models/user-fakes";
 import { GraphQLContext } from "../context";
 import {
   getAuthenticatedUser,

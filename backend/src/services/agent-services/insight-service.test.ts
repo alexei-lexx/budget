@@ -1,8 +1,8 @@
 import { faker } from "@faker-js/faker";
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
-import { createMockAccountRepository } from "../../utils/test-utils/repositories/account-repository";
-import { createMockCategoryRepository } from "../../utils/test-utils/repositories/category-repository";
-import { createMockTransactionRepository } from "../../utils/test-utils/repositories/transaction-repository";
+import { createMockAccountRepository } from "../../utils/test-utils/repositories/account-repository-mocks";
+import { createMockCategoryRepository } from "../../utils/test-utils/repositories/category-repository-mocks";
+import { createMockTransactionRepository } from "../../utils/test-utils/repositories/transaction-repository-mocks";
 import {
   type Agent,
   type AgentTraceMessage,

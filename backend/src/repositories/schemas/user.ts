@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { User } from "../../models/user";
+import type { User } from "../../models/user-fakes";
 
 export const userSchema = z.object({
   id: z.uuid(),

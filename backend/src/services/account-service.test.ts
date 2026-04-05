@@ -6,13 +6,13 @@ import {
   NAME_MIN_LENGTH,
   SUPPORTED_CURRENCIES,
 } from "../types/validation";
-import { fakeAccount } from "../utils/test-utils/models/account";
-import { fakeTransaction } from "../utils/test-utils/models/transaction";
+import { fakeAccount } from "../utils/test-utils/models/account-fakes";
+import { fakeTransaction } from "../utils/test-utils/models/transaction-fakes";
 import {
   createMockAccountRepository,
-} from "../utils/test-utils/repositories/account-repository";
+} from "../utils/test-utils/repositories/account-repository-mocks";
 import { fakeCreateAccountInput } from "../utils/test-utils/repositories/account-repository-fakes";
-import { createMockTransactionRepository } from "../utils/test-utils/repositories/transaction-repository";
+import { createMockTransactionRepository } from "../utils/test-utils/repositories/transaction-repository-mocks";
 import { AccountService } from "./account-service";
 import { BusinessError } from "./business-error";
 

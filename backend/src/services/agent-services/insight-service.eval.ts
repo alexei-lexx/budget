@@ -9,8 +9,8 @@ import { toDateString } from "../../types/date";
 import { createDynamoDBDocumentClient } from "../../utils/dynamo-client";
 import { truncateAllTables } from "../../utils/test-utils/dynamodb-helpers";
 import { task, toGrade } from "../../utils/test-utils/evals";
-import { fakeAccount } from "../../utils/test-utils/models/account";
-import { fakeUser } from "../../utils/test-utils/models/user";
+import { fakeAccount } from "../../utils/test-utils/models/account-fakes";
+import { fakeUser } from "../../utils/test-utils/models/user-fakes";
 import { fakeCreateTransactionInput } from "../../utils/test-utils/repositories/transaction-repository-fakes";
 
 const accountRepository = resolveAccountRepository();

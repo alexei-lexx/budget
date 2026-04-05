@@ -1,7 +1,7 @@
 import { faker } from "@faker-js/faker";
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
-import { fakeUser } from "../utils/test-utils/models/user";
-import { createMockUserRepository } from "../utils/test-utils/repositories/user-repository";
+import { fakeUser } from "../utils/test-utils/models/user-fakes";
+import { createMockUserRepository } from "../utils/test-utils/repositories/user-repository-mocks";
 import { UserRepository } from "./ports/user-repository";
 import {
   DEFAULT_TRANSACTION_PATTERNS_LIMIT,

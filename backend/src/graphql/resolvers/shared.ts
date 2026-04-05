@@ -1,5 +1,5 @@
 import { GraphQLError } from "graphql";
-import { User } from "../../models/user";
+import { User } from "../../models/user-fakes";
 import { BusinessError } from "../../services/business-error";
 import { RepositoryError } from "../../services/ports/repository-error";
 import { InvalidDateStringError } from "../../types/date";

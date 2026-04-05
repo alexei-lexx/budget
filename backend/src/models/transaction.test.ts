@@ -1,5 +1,5 @@
 import { describe, expect, it } from "@jest/globals";
-import { fakeTransaction } from "../utils/test-utils/models/transaction";
+import { fakeTransaction } from "../utils/test-utils/models/transaction-fakes";
 import { TransactionType, getSignedAmount } from "./transaction";
 
 describe("transaction model", () => {

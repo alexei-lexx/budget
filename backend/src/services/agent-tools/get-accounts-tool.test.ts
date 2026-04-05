@@ -1,7 +1,7 @@
 import { faker } from "@faker-js/faker";
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
-import { fakeAccount } from "../../utils/test-utils/models/account";
-import { createMockAccountRepository } from "../../utils/test-utils/repositories/account-repository";
+import { fakeAccount } from "../../utils/test-utils/models/account-fakes";
+import { createMockAccountRepository } from "../../utils/test-utils/repositories/account-repository-mocks";
 import { AccountRepository } from "../ports/account-repository";
 import { EntityScope, createGetAccountsTool } from "./get-accounts-tool";
 

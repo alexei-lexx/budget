@@ -1,6 +1,6 @@
 import { faker } from "@faker-js/faker";
 import { TransactionType } from "../../../models/transaction";
-import { CreateTransactionServiceInput } from "../../../services/transaction-service";
+import { CreateTransactionServiceInput } from "../../../services/transaction-service-fakes";
 import { toDateString } from "../../../types/date";
 
 export const fakeCreateTransactionServiceInput = (

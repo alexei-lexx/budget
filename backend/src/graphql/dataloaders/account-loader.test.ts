@@ -1,7 +1,7 @@
 import { describe, expect, it } from "@jest/globals";
 import DataLoader from "dataloader";
-import { fakeAccount } from "../../utils/test-utils/models/account";
-import { createMockAccountRepository } from "../../utils/test-utils/repositories/account-repository";
+import { fakeAccount } from "../../utils/test-utils/models/account-fakes";
+import { createMockAccountRepository } from "../../utils/test-utils/repositories/account-repository-mocks";
 import { batchLoadAccounts, createAccountLoader } from "./account-loader";
 
 describe("Account Batch Loader", () => {

@@ -1,5 +1,5 @@
 import DataLoader from "dataloader";
-import { Account } from "../../models/account";
+import { Account } from "../../models/account-fakes";
 import { AccountRepository } from "../../services/ports/account-repository";
 import { TransactionEmbeddedAccount } from "../embedded-types";
 

@@ -18,7 +18,7 @@ import { TransactionRepository } from "./services/ports/transaction-repository";
 import { UserRepository } from "./services/ports/user-repository";
 import { ProcessTelegramMessageService } from "./services/process-telegram-message-service";
 import { TelegramBotService } from "./services/telegram-bot-service";
-import { TransactionService } from "./services/transaction-service";
+import { TransactionService } from "./services/transaction-service-fakes";
 import { TransferService } from "./services/transfer-service";
 import { UserService } from "./services/user-service";
 import { createBedrockChatModel } from "./utils/bedrock";

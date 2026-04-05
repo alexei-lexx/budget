@@ -2,7 +2,7 @@ import { faker } from "@faker-js/faker";
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import { TransactionType } from "../../models/transaction";
 import { toDateString } from "../../types/date";
-import { fakeTransaction } from "../../utils/test-utils/models/transaction";
+import { fakeTransaction } from "../../utils/test-utils/models/transaction-fakes";
 import { TransactionService } from "../transaction-service";
 import {
   CreateTransactionToolInput,

@@ -1,4 +1,4 @@
-import { User } from "../../models/user";
+import { User } from "../../models/user-fakes";
 
 export interface CreateUserInput {
   email: string;
