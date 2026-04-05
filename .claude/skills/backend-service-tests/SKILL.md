@@ -79,6 +79,8 @@ Each test asserts the return value first, then verifies dependency calls.
 
 Reuse existing fakes and mocks. Create new ones if needed following the established patterns.
 
+When calling fakes, override only fields that drive the assertion or branching logic. Extra overrides imply the fields matter when they don't.
+
 Mock all dependencies — repositories, external API clients, other services.
 Never call real implementations.
 
