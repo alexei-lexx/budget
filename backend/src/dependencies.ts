@@ -10,20 +10,10 @@ import { DynTransactionRepository } from "./repositories/dyn-transaction-reposit
 import { DynUserRepository } from "./repositories/dyn-user-repository";
 import { AccountService } from "./services/account-service";
 import { CreateTransactionFromTextService } from "./services/agent-services/create-transaction-from-text-service";
-import {
-  InsightChatService,
-  InsightChatServiceImpl,
-} from "./services/agent-services/insight-chat-service";
-import {
-  InsightService,
-  InsightServiceImpl,
-} from "./services/agent-services/insight-service";
+import { InsightChatServiceImpl } from "./services/agent-services/insight-chat-service";
+import { InsightServiceImpl } from "./services/agent-services/insight-service";
 import { ByCategoryReportService } from "./services/by-category-report-service";
 import { CategoryService } from "./services/category-service";
-import { AccountRepository } from "./services/ports/account-repository";
-import { CategoryRepository } from "./services/ports/category-repository";
-import { TransactionRepository } from "./services/ports/transaction-repository";
-import { UserRepository } from "./services/ports/user-repository";
 import { ProcessTelegramMessageService } from "./services/process-telegram-message-service";
 import { TelegramBotService } from "./services/telegram-bot-service";
 import { TransactionService } from "./services/transaction-service";
@@ -41,10 +31,10 @@ export const resolveJwtAuthService = createSingleton(
 );
 
 // Repositories
-export const resolveAccountRepository = createSingleton<AccountRepository>(
+export const resolveAccountRepository = createSingleton(
   () => new DynAccountRepository(requireEnv("ACCOUNTS_TABLE_NAME")),
 );
-export const resolveCategoryRepository = createSingleton<CategoryRepository>(
+export const resolveCategoryRepository = createSingleton(
   () => new DynCategoryRepository(requireEnv("CATEGORIES_TABLE_NAME")),
 );
 export const resolveChatMessageRepository = createSingleton(
@@ -58,11 +48,10 @@ export const resolveChatMessageRepository = createSingleton(
 const resolveTelegramBotRepository = createSingleton(
   () => new DynTelegramBotRepository(requireEnv("TELEGRAM_BOTS_TABLE_NAME")),
 );
-export const resolveTransactionRepository =
-  createSingleton<TransactionRepository>(
-    () => new DynTransactionRepository(requireEnv("TRANSACTIONS_TABLE_NAME")),
-  );
-export const resolveUserRepository = createSingleton<UserRepository>(
+export const resolveTransactionRepository = createSingleton(
+  () => new DynTransactionRepository(requireEnv("TRANSACTIONS_TABLE_NAME")),
+);
+export const resolveUserRepository = createSingleton(
   () => new DynUserRepository(requireEnv("USERS_TABLE_NAME")),
 );
 
@@ -132,7 +121,7 @@ export const resolveCreateTransactionFromTextService = createSingleton(
       transactionService: resolveTransactionService(),
     }),
 );
-export const resolveInsightService = createSingleton<InsightService>(
+export const resolveInsightService = createSingleton(
   () =>
     new InsightServiceImpl({
       accountRepository: resolveAccountRepository(),
@@ -141,7 +130,7 @@ export const resolveInsightService = createSingleton<InsightService>(
       agent: new ReActAgent(resolveBedrockChatModel()),
     }),
 );
-export const resolveInsightChatService = createSingleton<InsightChatService>(
+export const resolveInsightChatService = createSingleton(
   () =>
     new InsightChatServiceImpl({
       chatMessageRepository: resolveChatMessageRepository(),
