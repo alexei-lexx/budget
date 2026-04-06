@@ -5,8 +5,6 @@ import { AgentMessage, AgentTraceMessage } from "../ports/agent";
 import { ChatMessageRepository } from "../ports/chat-message-repository";
 import { InsightService } from "./insight-service";
 
-export const DEFAULT_CHAT_HISTORY_MAX_MESSAGES = 20;
-
 export interface InsightChatInput {
   question: string;
   sessionId?: string;
@@ -41,11 +39,11 @@ export class InsightChatServiceImpl implements InsightChatService {
   constructor(deps: {
     chatMessageRepository: ChatMessageRepository;
     insightService: InsightService;
-    maxMessages?: number;
+    maxMessages: number;
   }) {
     this.chatMessageRepository = deps.chatMessageRepository;
     this.insightService = deps.insightService;
-    this.maxMessages = deps.maxMessages ?? DEFAULT_CHAT_HISTORY_MAX_MESSAGES;
+    this.maxMessages = deps.maxMessages;
   }
 
   async call(

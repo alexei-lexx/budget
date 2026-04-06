@@ -10,10 +10,7 @@ import { DynTransactionRepository } from "./repositories/dyn-transaction-reposit
 import { DynUserRepository } from "./repositories/dyn-user-repository";
 import { AccountService } from "./services/account-service";
 import { CreateTransactionFromTextService } from "./services/agent-services/create-transaction-from-text-service";
-import {
-  DEFAULT_CHAT_HISTORY_MAX_MESSAGES,
-  InsightChatServiceImpl,
-} from "./services/agent-services/insight-chat-service";
+import { InsightChatServiceImpl } from "./services/agent-services/insight-chat-service";
 import {
   InsightService,
   InsightServiceImpl,
@@ -33,10 +30,7 @@ import { createBedrockChatModel } from "./utils/bedrock";
 import { createSingleton } from "./utils/dependency-injection";
 import { requireEnv, requireIntEnv } from "./utils/require-env";
 
-const chatHistoryMaxMessages = requireIntEnv(
-  "CHAT_HISTORY_MAX_MESSAGES",
-  DEFAULT_CHAT_HISTORY_MAX_MESSAGES,
-);
+const chatHistoryMaxMessages = requireIntEnv("CHAT_HISTORY_MAX_MESSAGES");
 
 // Auth
 export const resolveJwtAuthService = createSingleton(
