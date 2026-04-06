@@ -154,6 +154,7 @@ export type InsightFailure = {
 
 export type InsightInput = {
   question: Scalars['String']['input'];
+  sessionId?: InputMaybe<Scalars['ID']['input']>;
 };
 
 export type InsightOutput = InsightFailure | InsightSuccess;
@@ -162,6 +163,7 @@ export type InsightSuccess = {
   __typename?: 'InsightSuccess';
   agentTrace: Array<AgentTraceMessage>;
   answer: Scalars['String']['output'];
+  sessionId: Scalars['ID']['output'];
 };
 
 export type Mutation = {
@@ -637,7 +639,7 @@ export type AskInsightMutation = { __typename?: 'Mutation', askInsight:
         | { __typename?: 'AgentTraceToolCall', toolName: string, input: string }
         | { __typename?: 'AgentTraceToolResult', toolName: string, output: string }
       > }
-    | { __typename?: 'InsightSuccess', answer: string, agentTrace: Array<
+    | { __typename?: 'InsightSuccess', answer: string, sessionId: string, agentTrace: Array<
         | { __typename?: 'AgentTraceText', content: string }
         | { __typename?: 'AgentTraceToolCall', toolName: string, input: string }
         | { __typename?: 'AgentTraceToolResult', toolName: string, output: string }
@@ -1278,6 +1280,7 @@ export const AskInsightDocument = gql`
   askInsight(input: $input) {
     ... on InsightSuccess {
       answer
+      sessionId
       agentTrace {
         ...AgentTraceFields
       }

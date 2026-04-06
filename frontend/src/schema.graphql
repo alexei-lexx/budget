@@ -90,6 +90,7 @@ union InsightOutput = InsightSuccess | InsightFailure
 type InsightSuccess {
   answer: String!
   agentTrace: [AgentTraceMessage!]!
+  sessionId: ID!
 }
 
 type InsightFailure {
@@ -267,6 +268,7 @@ input TransactionFilterInput {
 
 input InsightInput {
   question: String!
+  sessionId: ID
 }
 
 type PageInfo {
