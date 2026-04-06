@@ -4,7 +4,10 @@ import { ChatMessageRole } from "../../models/chat-message";
 import { fakeChatMessage } from "../../utils/test-utils/models/chat-message-fakes";
 import { createMockChatMessageRepository } from "../../utils/test-utils/repositories/chat-message-repository-mocks";
 import { ChatMessageRepository } from "../ports/chat-message-repository";
-import { InsightChatService } from "./insight-chat-service";
+import {
+  InsightChatService,
+  InsightChatServiceImpl,
+} from "./insight-chat-service";
 import { InsightService } from "./insight-service";
 
 const createMockInsightService = (): jest.Mocked<InsightService> => ({
@@ -23,7 +26,7 @@ describe("InsightChatService", () => {
     insightService = createMockInsightService();
     chatMessageRepository = createMockChatMessageRepository();
 
-    service = new InsightChatService({
+    service = new InsightChatServiceImpl({
       chatMessageRepository,
       insightService,
       maxMessages,
@@ -213,30 +216,6 @@ describe("InsightChatService", () => {
       expect(
         chatMessageRepository.findManyRecentBySessionId,
       ).toHaveBeenCalledWith({ userId, sessionId }, maxMessages);
-    });
-
-    it("should handle null sessionId same as undefined", async () => {
-      // Arrange
-      chatMessageRepository.findManyRecentBySessionId.mockResolvedValue([]);
-      chatMessageRepository.create.mockResolvedValue(fakeChatMessage());
-      insightService.call.mockResolvedValue({
-        success: true,
-        data: { answer: "Answer", agentTrace: [] },
-      });
-
-      // Act
-      const result = await service.call(userId, {
-        question: "Q?",
-        sessionId: null,
-      });
-
-      // Assert
-      expect(result).toEqual({
-        success: true,
-        data: expect.objectContaining({
-          sessionId: expect.any(String),
-        }),
-      });
     });
   });
 });

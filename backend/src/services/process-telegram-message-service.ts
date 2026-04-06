@@ -1,5 +1,5 @@
 import { Failure, Result, Success } from "../types/result";
-import { InsightService } from "./agent-services/insight-service";
+import { InsightChatService } from "./agent-services/insight-chat-service";
 import { TelegramApiClient } from "./ports/telegram-api-client";
 import { TelegramBotRepository } from "./ports/telegram-bot-repository";
 
@@ -11,16 +11,16 @@ export interface ProcessTelegramMessageInput {
 }
 
 export class ProcessTelegramMessageService {
-  private readonly insightService: InsightService;
+  private readonly insightChatService: InsightChatService;
   private readonly telegramApiClient: TelegramApiClient;
   private readonly telegramBotRepository: TelegramBotRepository;
 
   constructor(deps: {
-    insightService: InsightService;
+    insightChatService: InsightChatService;
     telegramApiClient: TelegramApiClient;
     telegramBotRepository: TelegramBotRepository;
   }) {
-    this.insightService = deps.insightService;
+    this.insightChatService = deps.insightChatService;
     this.telegramApiClient = deps.telegramApiClient;
     this.telegramBotRepository = deps.telegramBotRepository;
   }
@@ -60,8 +60,12 @@ export class ProcessTelegramMessageService {
       return Success(undefined);
     }
 
-    const insightResult = await this.insightService.call(userId, {
+    // Derive a deterministic sessionId from the bot+chat context
+    const sessionId = `${botId}#${chatId}`;
+
+    const insightResult = await this.insightChatService.call(userId, {
       question: text,
+      sessionId,
     });
 
     const replyText = insightResult.success

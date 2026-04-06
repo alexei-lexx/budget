@@ -157,6 +157,7 @@ export type InsightFailure = {
 
 export type InsightInput = {
   question: Scalars['String']['input'];
+  sessionId?: InputMaybe<Scalars['ID']['input']>;
 };
 
 export type InsightOutput = InsightFailure | InsightSuccess;
@@ -165,6 +166,7 @@ export type InsightSuccess = {
   __typename?: 'InsightSuccess';
   agentTrace: Array<AgentTraceMessage>;
   answer: Scalars['String']['output'];
+  sessionId: Scalars['ID']['output'];
 };
 
 export type Mutation = {
@@ -760,6 +762,7 @@ export type InsightOutputResolvers<ContextType = GraphQLContext, ParentType exte
 export type InsightSuccessResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['InsightSuccess'] = ResolversParentTypes['InsightSuccess']> = {
   agentTrace?: Resolver<Array<ResolversTypes['AgentTraceMessage']>, ParentType, ContextType>;
   answer?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  sessionId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 

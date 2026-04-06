@@ -8,7 +8,7 @@ import {
   resolveCategoryRepository,
   resolveCategoryService,
   resolveCreateTransactionFromTextService,
-  resolveInsightService,
+  resolveInsightChatService,
   resolveJwtAuthService,
   resolveTelegramBotService,
   resolveTransactionService,
@@ -72,7 +72,7 @@ export async function createContext(req: {
 
     // AI services
     createTransactionFromTextService: resolveCreateTransactionFromTextService(),
-    insightService: resolveInsightService(),
+    insightChatService: resolveInsightChatService(),
 
     // Telegram services
     telegramBotService: resolveTelegramBotService(),

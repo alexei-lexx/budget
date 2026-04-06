@@ -5,9 +5,11 @@ import { AgentMessage, AgentTraceMessage } from "../ports/agent";
 import { ChatMessageRepository } from "../ports/chat-message-repository";
 import { InsightService } from "./insight-service";
 
+export const DEFAULT_CHAT_HISTORY_MAX_MESSAGES = 20;
+
 export interface InsightChatInput {
   question: string;
-  sessionId?: string | null;
+  sessionId?: string;
 }
 
 export interface InsightChatOutput {
@@ -21,9 +23,11 @@ type InsightChatResult = Result<
   { message: string; agentTrace: AgentTraceMessage[] }
 >;
 
-export const DEFAULT_CHAT_HISTORY_MAX_MESSAGES = 20;
+export interface InsightChatService {
+  call(userId: string, input: InsightChatInput): Promise<InsightChatResult>;
+}
 
-export class InsightChatService {
+export class InsightChatServiceImpl implements InsightChatService {
   private readonly chatMessageRepository: ChatMessageRepository;
   private readonly insightService: InsightService;
   private readonly maxMessages: number;
