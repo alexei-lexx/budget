@@ -10,7 +10,10 @@ import { DynTransactionRepository } from "./repositories/dyn-transaction-reposit
 import { DynUserRepository } from "./repositories/dyn-user-repository";
 import { AccountService } from "./services/account-service";
 import { CreateTransactionFromTextService } from "./services/agent-services/create-transaction-from-text-service";
-import { InsightChatServiceImpl } from "./services/agent-services/insight-chat-service";
+import {
+  InsightChatService,
+  InsightChatServiceImpl,
+} from "./services/agent-services/insight-chat-service";
 import {
   InsightService,
   InsightServiceImpl,
@@ -138,7 +141,7 @@ export const resolveInsightService = createSingleton<InsightService>(
       agent: new ReActAgent(resolveBedrockChatModel()),
     }),
 );
-export const resolveInsightChatService = createSingleton(
+export const resolveInsightChatService = createSingleton<InsightChatService>(
   () =>
     new InsightChatServiceImpl({
       chatMessageRepository: resolveChatMessageRepository(),
