@@ -150,6 +150,7 @@ export type InsightFailure = {
   __typename?: 'InsightFailure';
   agentTrace: Array<AgentTraceMessage>;
   message: Scalars['String']['output'];
+  sessionId: Scalars['ID']['output'];
 };
 
 export type InsightInput = {
@@ -634,7 +635,7 @@ export type AskInsightMutationVariables = Exact<{
 
 
 export type AskInsightMutation = { __typename?: 'Mutation', askInsight:
-    | { __typename?: 'InsightFailure', message: string, agentTrace: Array<
+    | { __typename?: 'InsightFailure', message: string, sessionId: string, agentTrace: Array<
         | { __typename?: 'AgentTraceText', content: string }
         | { __typename?: 'AgentTraceToolCall', toolName: string, input: string }
         | { __typename?: 'AgentTraceToolResult', toolName: string, output: string }
@@ -1287,6 +1288,7 @@ export const AskInsightDocument = gql`
     }
     ... on InsightFailure {
       message
+      sessionId
       agentTrace {
         ...AgentTraceFields
       }

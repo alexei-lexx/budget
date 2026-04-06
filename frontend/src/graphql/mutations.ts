@@ -176,6 +176,7 @@ export const ASK_INSIGHT = gql`
       }
       ... on InsightFailure {
         message
+        sessionId
         agentTrace {
           ...AgentTraceFields
         }

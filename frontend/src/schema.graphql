@@ -96,6 +96,8 @@ type InsightSuccess {
 type InsightFailure {
   message: String!
   agentTrace: [AgentTraceMessage!]!
+  # Returned even on failure so the caller can continue the same session on retry.
+  sessionId: ID!
 }
 
 union CreateTransactionFromTextOutput =

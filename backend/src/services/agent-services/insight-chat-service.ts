@@ -1,6 +1,6 @@
 import { randomUUID } from "crypto";
 import { ChatMessageRole } from "../../models/chat-message";
-import { Result, Success } from "../../types/result";
+import { Failure, Result, Success } from "../../types/result";
 import { AgentMessage, AgentTraceMessage } from "../ports/agent";
 import { ChatMessageRepository } from "../ports/chat-message-repository";
 import { InsightService } from "./insight-service";
@@ -12,19 +12,25 @@ export interface InsightChatInput {
   sessionId?: string;
 }
 
-export interface InsightChatOutput {
-  answer: string;
+interface InsightChatData {
   agentTrace: AgentTraceMessage[];
+  answer: string;
   sessionId: string;
 }
 
-type InsightChatResult = Result<
-  InsightChatOutput,
-  { message: string; agentTrace: AgentTraceMessage[] }
->;
+// sessionId is included on both success and failure
+// so the caller can continue the same session on retry,
+// without needing to independently persist it client-side.
+interface InsightChatError {
+  agentTrace: AgentTraceMessage[];
+  message: string;
+  sessionId: string;
+}
+
+export type InsightChatOutput = Result<InsightChatData, InsightChatError>;
 
 export interface InsightChatService {
-  call(userId: string, input: InsightChatInput): Promise<InsightChatResult>;
+  call(userId: string, input: InsightChatInput): Promise<InsightChatOutput>;
 }
 
 export class InsightChatServiceImpl implements InsightChatService {
@@ -45,7 +51,7 @@ export class InsightChatServiceImpl implements InsightChatService {
   async call(
     userId: string,
     input: InsightChatInput,
-  ): Promise<InsightChatResult> {
+  ): Promise<InsightChatOutput> {
     const sessionId = input.sessionId || randomUUID();
 
     // Load history for this session
@@ -60,10 +66,12 @@ export class InsightChatServiceImpl implements InsightChatService {
       [ChatMessageRole.USER]: "user",
     };
 
-    const history: AgentMessage[] = recentMessages.reverse().map((message) => ({
-      role: roleMap[message.role],
-      content: message.content,
-    }));
+    const history: AgentMessage[] = recentMessages
+      .toReversed()
+      .map((message) => ({
+        role: roleMap[message.role],
+        content: message.content,
+      }));
 
     // Call InsightService with history
     const result = await this.insightService.call(userId, {
@@ -72,7 +80,7 @@ export class InsightChatServiceImpl implements InsightChatService {
     });
 
     if (!result.success) {
-      return result;
+      return Failure({ ...result.error, sessionId });
     }
 
     // Persist user question and assistant answer after successful response

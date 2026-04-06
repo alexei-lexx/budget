@@ -123,7 +123,11 @@ describe("ProcessTelegramMessageService", () => {
     });
     insightChatService.call.mockResolvedValue({
       success: false,
-      error: { message: "No data available", agentTrace: [] },
+      error: {
+        message: "No data available",
+        agentTrace: [],
+        sessionId: faker.string.uuid(),
+      },
     });
 
     const result = await service.call({

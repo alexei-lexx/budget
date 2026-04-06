@@ -87,6 +87,9 @@ export function useInsight() {
         askInsightError.value = response.message;
         fetchedAnswer.value = null; // Clear answer on failure
         fetchedAgentTrace.value = response.agentTrace;
+        // Persist session ID so the user can retry within the same session
+        sessionId.value = response.sessionId;
+        saveSessionId(response.sessionId);
       }
 
       saveStoredResult({

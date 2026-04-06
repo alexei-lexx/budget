@@ -153,6 +153,7 @@ export type InsightFailure = {
   __typename?: 'InsightFailure';
   agentTrace: Array<AgentTraceMessage>;
   message: Scalars['String']['output'];
+  sessionId: Scalars['ID']['output'];
 };
 
 export type InsightInput = {
@@ -752,6 +753,7 @@ export type CreateTransactionFromTextSuccessResolvers<ContextType = GraphQLConte
 export type InsightFailureResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['InsightFailure'] = ResolversParentTypes['InsightFailure']> = {
   agentTrace?: Resolver<Array<ResolversTypes['AgentTraceMessage']>, ParentType, ContextType>;
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  sessionId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 

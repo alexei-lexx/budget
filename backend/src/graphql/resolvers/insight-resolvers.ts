@@ -22,6 +22,7 @@ export const insightResolvers = {
             __typename: "InsightFailure" as const,
             message: result.error.message,
             agentTrace: result.error.agentTrace,
+            sessionId: result.error.sessionId,
           };
         }
 

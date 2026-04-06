@@ -173,7 +173,11 @@ describe("InsightChatService", () => {
       // Assert
       expect(result).toEqual({
         success: false,
-        error: { message: "AI failed", agentTrace: [] },
+        error: {
+          message: "AI failed",
+          agentTrace: [],
+          sessionId: expect.any(String),
+        },
       });
       expect(chatMessageRepository.create).not.toHaveBeenCalled();
     });
