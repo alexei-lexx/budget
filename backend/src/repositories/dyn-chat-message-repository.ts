@@ -65,6 +65,8 @@ export class DynChatMessageRepository
 
     const prefix = `${sessionId}#`;
 
+    let items: Record<string, unknown>[];
+
     try {
       const command = new QueryCommand({
         TableName: this.tableName,
@@ -80,13 +82,24 @@ export class DynChatMessageRepository
 
       const result = await this.client.send(command);
 
-      return (result.Items || []).map((item) =>
-        toChatMessage(hydrate(chatMessageDbItemSchema, item)),
-      );
+      items = result.Items || [];
     } catch (error) {
       console.error("Error finding chat messages:", error);
       throw new RepositoryError(
         "Failed to find chat messages",
+        "QUERY_FAILED",
+        error,
+      );
+    }
+
+    try {
+      return items.map((item) =>
+        toChatMessage(hydrate(chatMessageDbItemSchema, item)),
+      );
+    } catch (error) {
+      console.error("Error hydrating chat messages:", error);
+      throw new RepositoryError(
+        "Failed to hydrate chat messages",
         "QUERY_FAILED",
         error,
       );

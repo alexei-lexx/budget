@@ -183,7 +183,7 @@ describe("DynChatMessageRepository", () => {
         // Act & Assert
         await expect(
           repository.findManyRecentBySessionId({ userId, sessionId }, 10),
-        ).rejects.toThrow();
+        ).rejects.toThrow("Failed to hydrate chat messages");
       });
     });
   });
