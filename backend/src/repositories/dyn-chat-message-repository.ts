@@ -13,8 +13,6 @@ import { DynBaseRepository } from "./dyn-base-repository";
 import { chatMessageDbItemSchema } from "./schemas/chat-message";
 import { hydrate } from "./utils/hydrate";
 
-export const DEFAULT_CHAT_MESSAGE_TTL_SECONDS = 24 * 60 * 60; // 24 hours
-
 const ulid = monotonicFactory();
 
 function toChatMessage(
@@ -31,15 +29,13 @@ export class DynChatMessageRepository
 {
   private ttlSeconds: number;
 
-  constructor(
-    tableName: string,
-    options: {
-      dynamoClient?: DynamoDBClient;
-      ttlSeconds?: number;
-    } = {},
-  ) {
-    super(tableName, options.dynamoClient);
-    this.ttlSeconds = options.ttlSeconds ?? DEFAULT_CHAT_MESSAGE_TTL_SECONDS;
+  constructor(options: {
+    tableName: string;
+    ttlSeconds: number;
+    dynamoClient?: DynamoDBClient;
+  }) {
+    super(options.tableName, options.dynamoClient);
+    this.ttlSeconds = options.ttlSeconds;
   }
 
   async findManyRecentBySessionId(

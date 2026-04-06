@@ -13,12 +13,10 @@ describe("DynChatMessageRepository", () => {
   let repository: DynChatMessageRepository;
 
   beforeAll(() => {
-    repository = new DynChatMessageRepository(
-      requireEnv("CHAT_MESSAGES_TABLE_NAME"),
-      {
-        ttlSeconds: 3600, // 1 hour
-      },
-    );
+    repository = new DynChatMessageRepository({
+      tableName: requireEnv("CHAT_MESSAGES_TABLE_NAME"),
+      ttlSeconds: 3600, // 1 hour
+    });
   });
 
   beforeEach(async () => {

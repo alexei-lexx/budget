@@ -4,10 +4,7 @@ import { HttpTelegramApiClient } from "./providers/http-telegram-api-client";
 import { LambdaBackgroundJobDispatcher } from "./providers/lambda-background-job-dispatcher";
 import { DynAccountRepository } from "./repositories/dyn-account-repository";
 import { DynCategoryRepository } from "./repositories/dyn-category-repository";
-import {
-  DEFAULT_CHAT_MESSAGE_TTL_SECONDS,
-  DynChatMessageRepository,
-} from "./repositories/dyn-chat-message-repository";
+import { DynChatMessageRepository } from "./repositories/dyn-chat-message-repository";
 import { DynTelegramBotRepository } from "./repositories/dyn-telegram-bot-repository";
 import { DynTransactionRepository } from "./repositories/dyn-transaction-repository";
 import { DynUserRepository } from "./repositories/dyn-user-repository";
@@ -55,11 +52,9 @@ export const resolveCategoryRepository = createSingleton<CategoryRepository>(
 );
 export const resolveChatMessageRepository = createSingleton(
   () =>
-    new DynChatMessageRepository(requireEnv("CHAT_MESSAGES_TABLE_NAME"), {
-      ttlSeconds: requireIntEnv(
-        "CHAT_MESSAGE_TTL_SECONDS",
-        DEFAULT_CHAT_MESSAGE_TTL_SECONDS,
-      ),
+    new DynChatMessageRepository({
+      tableName: requireEnv("CHAT_MESSAGES_TABLE_NAME"),
+      ttlSeconds: requireIntEnv("CHAT_MESSAGE_TTL_SECONDS"),
     }),
 );
 
