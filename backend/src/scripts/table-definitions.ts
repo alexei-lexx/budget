@@ -4,7 +4,9 @@ import {
   DynamoDBClient,
 } from "@aws-sdk/client-dynamodb";
 
-export const tables: CreateTableCommandInput[] = [
+type TableDefinition = CreateTableCommandInput & { ttlAttribute?: string };
+
+export const tables: TableDefinition[] = [
   {
     TableName: process.env.MIGRATIONS_TABLE_NAME,
     AttributeDefinitions: [{ AttributeName: "PK", AttributeType: "S" }],
@@ -82,6 +84,19 @@ export const tables: CreateTableCommandInput[] = [
         Projection: { ProjectionType: "ALL" },
       },
     ],
+  },
+  {
+    TableName: process.env.CHAT_MESSAGES_TABLE_NAME,
+    AttributeDefinitions: [
+      { AttributeName: "userId", AttributeType: "S" },
+      { AttributeName: "sessionSortKey", AttributeType: "S" },
+    ],
+    KeySchema: [
+      { AttributeName: "userId", KeyType: "HASH" },
+      { AttributeName: "sessionSortKey", KeyType: "RANGE" },
+    ],
+    BillingMode: "PAY_PER_REQUEST",
+    ttlAttribute: "expiresAt",
   },
   {
     TableName: process.env.TELEGRAM_BOTS_TABLE_NAME,

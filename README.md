@@ -129,6 +129,16 @@ aws ssm put-parameter --overwrite --type String \
 aws ssm put-parameter --overwrite --type String \
     --name "/manual/budget/production/lambda/timeout-seconds" \
     --value "30"
+
+# Chat history max messages
+aws ssm put-parameter --overwrite --type String \
+    --name "/manual/budget/production/app/chat-history-max-messages" \
+    --value "20"
+
+# Chat message TTL (in seconds)
+aws ssm put-parameter --overwrite --type String \
+    --name "/manual/budget/production/app/chat-message-ttl-seconds" \
+    --value "86400"
 ```
 
 To override configuration for a specific environment, replace `production` in the parameter names with your target environment (e.g., `/manual/budget/staging/auth/domain-prefix`).

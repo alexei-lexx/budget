@@ -169,12 +169,14 @@ export const ASK_INSIGHT = gql`
     askInsight(input: $input) {
       ... on InsightSuccess {
         answer
+        sessionId
         agentTrace {
           ...AgentTraceFields
         }
       }
       ... on InsightFailure {
         message
+        sessionId
         agentTrace {
           ...AgentTraceFields
         }

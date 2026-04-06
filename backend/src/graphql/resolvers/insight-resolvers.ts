@@ -12,8 +12,9 @@ export const insightResolvers = {
       try {
         const user = await getAuthenticatedUser(context);
 
-        const result = await context.insightService.call(user.id, {
+        const result = await context.insightChatService.call(user.id, {
           question: args.input.question,
+          sessionId: args.input.sessionId || undefined,
         });
 
         if (!result.success) {
@@ -21,6 +22,7 @@ export const insightResolvers = {
             __typename: "InsightFailure" as const,
             message: result.error.message,
             agentTrace: result.error.agentTrace,
+            sessionId: result.error.sessionId,
           };
         }
 
@@ -28,6 +30,7 @@ export const insightResolvers = {
           __typename: "InsightSuccess" as const,
           answer: result.data.answer,
           agentTrace: result.data.agentTrace,
+          sessionId: result.data.sessionId,
         };
       } catch (error) {
         handleResolverError(error, "Failed to fetch insight");

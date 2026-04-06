@@ -5,7 +5,7 @@ import { createGetCategoriesTool } from "../agent-tools/get-categories-tool";
 import { createGetTransactionsTool } from "../agent-tools/get-transactions-tool";
 import { avgTool, calculateTool, sumTool } from "../agent-tools/math";
 import { AccountRepository } from "../ports/account-repository";
-import { Agent, AgentTraceMessage } from "../ports/agent";
+import { Agent, AgentMessage, AgentTraceMessage } from "../ports/agent";
 import { CategoryRepository } from "../ports/category-repository";
 import { TransactionRepository } from "../ports/transaction-repository";
 
@@ -55,6 +55,7 @@ If you assumed a time period, state it in the answer.
 
 export interface InsightInput {
   question: string;
+  history?: readonly AgentMessage[];
 }
 
 type InsightOutput = Result<
@@ -62,7 +63,11 @@ type InsightOutput = Result<
   { message: string; agentTrace: AgentTraceMessage[] }
 >;
 
-export class InsightService {
+export interface InsightService {
+  call(userId: string, input: InsightInput): Promise<InsightOutput>;
+}
+
+export class InsightServiceImpl implements InsightService {
   private accountRepository: AccountRepository;
   private categoryRepository: CategoryRepository;
   private transactionRepository: TransactionRepository;
@@ -113,10 +118,14 @@ export class InsightService {
     const mathTools = [avgTool, calculateTool, sumTool];
     const tools = [...dataTools, ...mathTools];
 
+    const historyMessages: readonly AgentMessage[] = input.history ?? [];
+    const currentMessage: AgentMessage = {
+      role: "user",
+      content: `My question: ${normalizedQuestion}`,
+    };
+
     const response = await this.agent.call({
-      messages: [
-        { role: "user", content: `My question: ${normalizedQuestion}` },
-      ],
+      messages: [...historyMessages, currentMessage],
       systemPrompt,
       tools,
     });

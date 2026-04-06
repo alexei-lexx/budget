@@ -150,10 +150,12 @@ export type InsightFailure = {
   __typename?: 'InsightFailure';
   agentTrace: Array<AgentTraceMessage>;
   message: Scalars['String']['output'];
+  sessionId: Scalars['ID']['output'];
 };
 
 export type InsightInput = {
   question: Scalars['String']['input'];
+  sessionId?: InputMaybe<Scalars['ID']['input']>;
 };
 
 export type InsightOutput = InsightFailure | InsightSuccess;
@@ -162,6 +164,7 @@ export type InsightSuccess = {
   __typename?: 'InsightSuccess';
   agentTrace: Array<AgentTraceMessage>;
   answer: Scalars['String']['output'];
+  sessionId: Scalars['ID']['output'];
 };
 
 export type Mutation = {
@@ -632,12 +635,12 @@ export type AskInsightMutationVariables = Exact<{
 
 
 export type AskInsightMutation = { __typename?: 'Mutation', askInsight:
-    | { __typename?: 'InsightFailure', message: string, agentTrace: Array<
+    | { __typename?: 'InsightFailure', message: string, sessionId: string, agentTrace: Array<
         | { __typename?: 'AgentTraceText', content: string }
         | { __typename?: 'AgentTraceToolCall', toolName: string, input: string }
         | { __typename?: 'AgentTraceToolResult', toolName: string, output: string }
       > }
-    | { __typename?: 'InsightSuccess', answer: string, agentTrace: Array<
+    | { __typename?: 'InsightSuccess', answer: string, sessionId: string, agentTrace: Array<
         | { __typename?: 'AgentTraceText', content: string }
         | { __typename?: 'AgentTraceToolCall', toolName: string, input: string }
         | { __typename?: 'AgentTraceToolResult', toolName: string, output: string }
@@ -1278,12 +1281,14 @@ export const AskInsightDocument = gql`
   askInsight(input: $input) {
     ... on InsightSuccess {
       answer
+      sessionId
       agentTrace {
         ...AgentTraceFields
       }
     }
     ... on InsightFailure {
       message
+      sessionId
       agentTrace {
         ...AgentTraceFields
       }

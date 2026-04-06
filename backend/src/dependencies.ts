@@ -4,18 +4,16 @@ import { HttpTelegramApiClient } from "./providers/http-telegram-api-client";
 import { LambdaBackgroundJobDispatcher } from "./providers/lambda-background-job-dispatcher";
 import { DynAccountRepository } from "./repositories/dyn-account-repository";
 import { DynCategoryRepository } from "./repositories/dyn-category-repository";
+import { DynChatMessageRepository } from "./repositories/dyn-chat-message-repository";
 import { DynTelegramBotRepository } from "./repositories/dyn-telegram-bot-repository";
 import { DynTransactionRepository } from "./repositories/dyn-transaction-repository";
 import { DynUserRepository } from "./repositories/dyn-user-repository";
 import { AccountService } from "./services/account-service";
 import { CreateTransactionFromTextService } from "./services/agent-services/create-transaction-from-text-service";
-import { InsightService } from "./services/agent-services/insight-service";
+import { InsightChatServiceImpl } from "./services/agent-services/insight-chat-service";
+import { InsightServiceImpl } from "./services/agent-services/insight-service";
 import { ByCategoryReportService } from "./services/by-category-report-service";
 import { CategoryService } from "./services/category-service";
-import { AccountRepository } from "./services/ports/account-repository";
-import { CategoryRepository } from "./services/ports/category-repository";
-import { TransactionRepository } from "./services/ports/transaction-repository";
-import { UserRepository } from "./services/ports/user-repository";
 import { ProcessTelegramMessageService } from "./services/process-telegram-message-service";
 import { TelegramBotService } from "./services/telegram-bot-service";
 import { TransactionService } from "./services/transaction-service";
@@ -23,7 +21,9 @@ import { TransferService } from "./services/transfer-service";
 import { UserService } from "./services/user-service";
 import { createBedrockChatModel } from "./utils/bedrock";
 import { createSingleton } from "./utils/dependency-injection";
-import { requireEnv } from "./utils/require-env";
+import { requireEnv, requireIntEnv } from "./utils/require-env";
+
+const chatHistoryMaxMessages = requireIntEnv("CHAT_HISTORY_MAX_MESSAGES");
 
 // Auth
 export const resolveJwtAuthService = createSingleton(
@@ -31,20 +31,27 @@ export const resolveJwtAuthService = createSingleton(
 );
 
 // Repositories
-export const resolveAccountRepository = createSingleton<AccountRepository>(
+export const resolveAccountRepository = createSingleton(
   () => new DynAccountRepository(requireEnv("ACCOUNTS_TABLE_NAME")),
 );
-export const resolveCategoryRepository = createSingleton<CategoryRepository>(
+export const resolveCategoryRepository = createSingleton(
   () => new DynCategoryRepository(requireEnv("CATEGORIES_TABLE_NAME")),
 );
+export const resolveChatMessageRepository = createSingleton(
+  () =>
+    new DynChatMessageRepository({
+      tableName: requireEnv("CHAT_MESSAGES_TABLE_NAME"),
+      ttlSeconds: requireIntEnv("CHAT_MESSAGE_TTL_SECONDS"),
+    }),
+);
+
 const resolveTelegramBotRepository = createSingleton(
   () => new DynTelegramBotRepository(requireEnv("TELEGRAM_BOTS_TABLE_NAME")),
 );
-export const resolveTransactionRepository =
-  createSingleton<TransactionRepository>(
-    () => new DynTransactionRepository(requireEnv("TRANSACTIONS_TABLE_NAME")),
-  );
-export const resolveUserRepository = createSingleton<UserRepository>(
+export const resolveTransactionRepository = createSingleton(
+  () => new DynTransactionRepository(requireEnv("TRANSACTIONS_TABLE_NAME")),
+);
+export const resolveUserRepository = createSingleton(
   () => new DynUserRepository(requireEnv("USERS_TABLE_NAME")),
 );
 
@@ -116,11 +123,19 @@ export const resolveCreateTransactionFromTextService = createSingleton(
 );
 export const resolveInsightService = createSingleton(
   () =>
-    new InsightService({
+    new InsightServiceImpl({
       accountRepository: resolveAccountRepository(),
       categoryRepository: resolveCategoryRepository(),
       transactionRepository: resolveTransactionRepository(),
       agent: new ReActAgent(resolveBedrockChatModel()),
+    }),
+);
+export const resolveInsightChatService = createSingleton(
+  () =>
+    new InsightChatServiceImpl({
+      chatMessageRepository: resolveChatMessageRepository(),
+      insightService: resolveInsightService(),
+      maxMessages: chatHistoryMaxMessages,
     }),
 );
 
@@ -128,7 +143,7 @@ export const resolveInsightService = createSingleton(
 export const resolveProcessTelegramMessageService = createSingleton(
   () =>
     new ProcessTelegramMessageService({
-      insightService: resolveInsightService(),
+      insightChatService: resolveInsightChatService(),
       telegramApiClient: resolveTelegramApiClient(),
       telegramBotRepository: resolveTelegramBotRepository(),
     }),

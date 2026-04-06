@@ -100,6 +100,16 @@ export class BackendCdkStack extends cdk.Stack {
       ...commonTableOptions,
     });
 
+    const chatMessagesTable = new dynamodb.Table(this, "ChatMessagesTable", {
+      partitionKey: { name: "userId", type: dynamodb.AttributeType.STRING },
+      sortKey: {
+        name: "sessionSortKey",
+        type: dynamodb.AttributeType.STRING,
+      },
+      timeToLiveAttribute: "expiresAt",
+      ...commonTableOptions,
+    });
+
     const telegramBotsTable = new dynamodb.Table(this, "TelegramBotsTable", {
       partitionKey: { name: "userId", type: dynamodb.AttributeType.STRING },
       sortKey: { name: "id", type: dynamodb.AttributeType.STRING },
@@ -138,10 +148,17 @@ export class BackendCdkStack extends cdk.Stack {
         NODE_ENV: nodeEnv,
         ACCOUNTS_TABLE_NAME: accountsTable.tableName,
         CATEGORIES_TABLE_NAME: categoriesTable.tableName,
+        CHAT_MESSAGES_TABLE_NAME: chatMessagesTable.tableName,
         MIGRATIONS_TABLE_NAME: migrationsTable.tableName,
         TELEGRAM_BOTS_TABLE_NAME: telegramBotsTable.tableName,
         TRANSACTIONS_TABLE_NAME: transactionsTable.tableName,
         USERS_TABLE_NAME: usersTable.tableName,
+        CHAT_HISTORY_MAX_MESSAGES: requireIntEnv(
+          "CHAT_HISTORY_MAX_MESSAGES",
+        ).toString(),
+        CHAT_MESSAGE_TTL_SECONDS: requireIntEnv(
+          "CHAT_MESSAGE_TTL_SECONDS",
+        ).toString(),
       },
       ...defaultLambdaOptions(),
     };
@@ -177,6 +194,7 @@ export class BackendCdkStack extends cdk.Stack {
 
     accountsTable.grantReadWriteData(backgroundJobFunction);
     categoriesTable.grantReadWriteData(backgroundJobFunction);
+    chatMessagesTable.grantReadWriteData(backgroundJobFunction);
     telegramBotsTable.grantReadWriteData(backgroundJobFunction);
     transactionsTable.grantReadWriteData(backgroundJobFunction);
     usersTable.grantReadWriteData(backgroundJobFunction);
@@ -216,6 +234,7 @@ export class BackendCdkStack extends cdk.Stack {
 
     accountsTable.grantReadWriteData(webFunction);
     categoriesTable.grantReadWriteData(webFunction);
+    chatMessagesTable.grantReadWriteData(webFunction);
     telegramBotsTable.grantReadWriteData(webFunction);
     transactionsTable.grantReadWriteData(webFunction);
     usersTable.grantReadWriteData(webFunction);

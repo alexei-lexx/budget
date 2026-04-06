@@ -8,7 +8,7 @@ This domain covers AI-powered financial Q&A: users ask free-form questions about
 
 ### Requirement: Question Submission
 
-The system SHALL accept a free-form question and submit it to the AI agent. Submission SHALL be blocked when the question is empty.
+The system SHALL accept a free-form question and submit it to the AI agent, which answers it in context of prior exchanges within the current session. Submission SHALL be blocked when the question is empty.
 
 #### Scenario: Empty question is blocked
 
@@ -22,9 +22,27 @@ The system SHALL accept a free-form question and submit it to the AI agent. Subm
 - **WHEN** they submit
 - **THEN** the AI agent is invoked and a loading indicator is displayed
 
+#### Scenario: Follow-up question is answered in context
+
+- **GIVEN** the user has previously asked questions in the current session
+- **WHEN** they submit a follow-up question
+- **THEN** the AI agent answers it in context of the prior exchanges in that session
+
+#### Scenario: Only recent exchanges are used as context
+
+- **GIVEN** the user has had a long conversation in the current session
+- **WHEN** they submit a new question
+- **THEN** only the most recent exchanges are used as context for the AI agent
+
+#### Scenario: Exchanges older than 24 hours are not used as context
+
+- **GIVEN** some prior exchanges occurred more than 24 hours ago
+- **WHEN** the user submits a new question
+- **THEN** those older exchanges are not included in the context provided to the AI agent
+
 ### Requirement: Input Persistence
 
-The system SHALL persist the question text, the last answer, and the last agent trace between visits and restore them when the user returns to the Insight page.
+The system SHALL persist the question text, the last answer, the last agent trace, and the current session between visits, and restore them when the user returns to the Insight page.
 
 #### Scenario: Stored question is restored on page revisit
 
@@ -49,6 +67,12 @@ The system SHALL persist the question text, the last answer, and the last agent 
 - **GIVEN** a previous answer is available from a previous visit
 - **WHEN** the user returns to the Insight page before submitting a new question
 - **THEN** the empty state prompt SHALL NOT be displayed
+
+#### Scenario: Session is resumed on page revisit
+
+- **GIVEN** the user has had a conversation in the current session
+- **WHEN** they navigate away and return to the Insight page
+- **THEN** subsequent questions are answered in context of the prior exchanges from that session
 
 ### Requirement: AI-Powered Financial Analysis
 

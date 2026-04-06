@@ -8,7 +8,11 @@ import {
   type AgentTraceMessage,
   AgentTraceMessageType,
 } from "../ports/agent";
-import { type InsightInput, InsightService } from "./insight-service";
+import {
+  type InsightInput,
+  InsightService,
+  InsightServiceImpl,
+} from "./insight-service";
 
 const createMockAgent = (): jest.Mocked<Agent> => ({
   call: jest.fn(),
@@ -22,7 +26,7 @@ describe("InsightService", () => {
   beforeEach(() => {
     mockAgent = createMockAgent();
 
-    service = new InsightService({
+    service = new InsightServiceImpl({
       accountRepository: createMockAccountRepository(),
       categoryRepository: createMockCategoryRepository(),
       transactionRepository: createMockTransactionRepository(),
@@ -162,6 +166,40 @@ describe("InsightService", () => {
           "sum",
         ]),
       );
+    });
+
+    it("should prepend history messages before the user question", async () => {
+      // Arrange
+      mockAgent.call.mockResolvedValue({ answer: "Answer", agentTrace: [] });
+      const history = [
+        { role: "user" as const, content: "Previous question" },
+        { role: "assistant" as const, content: "Previous answer" },
+      ];
+
+      // Act
+      await service.call(userId, { ...validInput, history });
+
+      // Assert
+      const callArgs = mockAgent.call.mock.calls[0];
+      const { messages } = callArgs[0];
+
+      expect(messages).toHaveLength(3);
+      expect(messages[0]).toEqual(history[0]);
+      expect(messages[1]).toEqual(history[1]);
+      expect(messages[2].role).toBe("user");
+      expect(messages[2].content).toContain(validInput.question);
+    });
+
+    it("should work without history (history defaults to empty)", async () => {
+      // Arrange
+      mockAgent.call.mockResolvedValue({ answer: "Answer", agentTrace: [] });
+
+      // Act
+      await service.call(userId, validInput);
+
+      // Assert
+      const callArgs = mockAgent.call.mock.calls[0];
+      expect(callArgs[0].messages).toHaveLength(1);
     });
 
     it("should propagate error when AI agent fails", async () => {

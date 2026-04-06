@@ -153,10 +153,12 @@ export type InsightFailure = {
   __typename?: 'InsightFailure';
   agentTrace: Array<AgentTraceMessage>;
   message: Scalars['String']['output'];
+  sessionId: Scalars['ID']['output'];
 };
 
 export type InsightInput = {
   question: Scalars['String']['input'];
+  sessionId?: InputMaybe<Scalars['ID']['input']>;
 };
 
 export type InsightOutput = InsightFailure | InsightSuccess;
@@ -165,6 +167,7 @@ export type InsightSuccess = {
   __typename?: 'InsightSuccess';
   agentTrace: Array<AgentTraceMessage>;
   answer: Scalars['String']['output'];
+  sessionId: Scalars['ID']['output'];
 };
 
 export type Mutation = {
@@ -750,6 +753,7 @@ export type CreateTransactionFromTextSuccessResolvers<ContextType = GraphQLConte
 export type InsightFailureResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['InsightFailure'] = ResolversParentTypes['InsightFailure']> = {
   agentTrace?: Resolver<Array<ResolversTypes['AgentTraceMessage']>, ParentType, ContextType>;
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  sessionId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -760,6 +764,7 @@ export type InsightOutputResolvers<ContextType = GraphQLContext, ParentType exte
 export type InsightSuccessResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['InsightSuccess'] = ResolversParentTypes['InsightSuccess']> = {
   agentTrace?: Resolver<Array<ResolversTypes['AgentTraceMessage']>, ParentType, ContextType>;
   answer?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  sessionId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 

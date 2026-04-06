@@ -3,6 +3,7 @@
 import {
   CreateTableCommand,
   ListTablesCommand,
+  UpdateTimeToLiveCommand,
 } from "@aws-sdk/client-dynamodb";
 import { createDynamoDBClient } from "../utils/dynamo-client";
 import { tableExists, tables } from "./table-definitions";
@@ -18,6 +19,21 @@ async function createTables() {
     } else if (table.TableName) {
       await client.send(new CreateTableCommand(table));
       console.log(`Created ${table.TableName}`);
+
+      if (table.ttlAttribute) {
+        await client.send(
+          new UpdateTimeToLiveCommand({
+            TableName: table.TableName,
+            TimeToLiveSpecification: {
+              AttributeName: table.ttlAttribute,
+              Enabled: true,
+            },
+          }),
+        );
+        console.log(
+          `Enabled TTL on ${table.TableName} (${table.ttlAttribute})`,
+        );
+      }
     } else {
       console.error("Table definition missing TableName property.");
     }
