@@ -15,7 +15,7 @@ export const fakeChatMessage = (
     ]),
     content: faker.lorem.sentence(),
     createdAt: now.toISOString(),
-    expiresAt: new Date(now.getTime() + 60 * 60 * 1000).getTime() / 1000, // Expires in 1 hour
+    expiresAt: Math.floor(faker.date.future().getTime() / 1000),
     ...overrides,
   };
 };
