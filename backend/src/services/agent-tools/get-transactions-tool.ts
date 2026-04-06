@@ -17,14 +17,14 @@ const getTransactionsInputSchema = z.object({
     .describe(
       "End date for filtering transactions (inclusive). Date format: YYYY-MM-DD",
     ),
-  accountId: z
-    .string()
+  accountIds: z
+    .array(z.string())
     .optional()
-    .describe("Account ID to filter transactions by"),
-  categoryId: z
-    .string()
+    .describe("Account IDs to filter transactions by (one or more)"),
+  categoryIds: z
+    .array(z.string())
     .optional()
-    .describe("Category ID to filter transactions by"),
+    .describe("Category IDs to filter transactions by (one or more)"),
   types: z
     .array(z.enum(TransactionType))
     .optional()
@@ -54,7 +54,7 @@ export const createGetTransactionsTool = (params: {
   userId: string;
 }): ToolSignature<GetTransactionsInput, TransactionData[]> => ({
   name: "getTransactions",
-  description: `Get filtered transactions by date range and optionally by single accountId, single categoryId, or one or more transaction types. Date format: YYYY-MM-DD. The date range must not exceed ${MAX_PERIOD_DAYS} days.`,
+  description: `Get filtered transactions by date range and optionally by one or more accountIds, one or more categoryIds, or one or more transaction types. Date format: YYYY-MM-DD. The date range must not exceed ${MAX_PERIOD_DAYS} days.`,
   inputSchema: getTransactionsInputSchema,
   func: async (input: GetTransactionsInput) => {
     // Validate that startDate is not after endDate
@@ -75,8 +75,8 @@ export const createGetTransactionsTool = (params: {
       {
         dateAfter: toDateString(input.startDate),
         dateBefore: toDateString(input.endDate),
-        ...(input.accountId && { accountIds: [input.accountId] }),
-        ...(input.categoryId && { categoryIds: [input.categoryId] }),
+        ...(input.accountIds && { accountIds: input.accountIds }),
+        ...(input.categoryIds && { categoryIds: input.categoryIds }),
         ...(input.types !== undefined && { types: input.types }),
       },
     );
