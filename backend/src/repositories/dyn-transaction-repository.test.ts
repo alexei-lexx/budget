@@ -2057,12 +2057,12 @@ describe("DynTransactionRepository", () => {
       // Act & Assert - Missing transaction ID
       await expect(
         repository.update({ id: "", userId: "user-id" }, updateInput),
-      ).rejects.toThrow("Transaction ID and User ID are required");
+      ).rejects.toThrow("Transaction ID is required");
 
       // Act & Assert - Missing user ID
       await expect(
         repository.update({ id: "transaction-id", userId: "" }, updateInput),
-      ).rejects.toThrow("Transaction ID and User ID are required");
+      ).rejects.toThrow("User ID is required");
     });
   });
 

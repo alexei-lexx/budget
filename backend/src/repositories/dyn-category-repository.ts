@@ -37,11 +37,15 @@ export class DynCategoryRepository
     id: string;
     userId: string;
   }): Promise<Category | null> {
-    if (!id || !userId) {
+    if (!id) {
       throw new RepositoryError(
-        "Category ID and User ID are required",
+        "Category ID is required",
         "INVALID_PARAMETERS",
       );
+    }
+
+    if (!userId) {
+      throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
     }
 
     try {
@@ -75,7 +79,7 @@ export class DynCategoryRepository
     filters?: { type?: CategoryType },
   ): Promise<Category[]> {
     if (!userId) {
-      throw new RepositoryError("User ID is required", "INVALID_USER_ID");
+      throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
     }
 
     try {
@@ -120,7 +124,7 @@ export class DynCategoryRepository
 
   async findManyWithArchivedByUserId(userId: string): Promise<Category[]> {
     if (!userId) {
-      throw new RepositoryError("User ID is required", "INVALID_USER_ID");
+      throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
     }
 
     try {
