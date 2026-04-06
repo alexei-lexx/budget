@@ -150,7 +150,7 @@ describe("createGetTransactionsTool", () => {
     });
   });
 
-  it("should filter by accountId", async () => {
+  it("should filter by accountIds", async () => {
     const accountId = faker.string.uuid();
     mockTransactionRepository.findManyByUserId.mockResolvedValue([]);
 
@@ -162,7 +162,7 @@ describe("createGetTransactionsTool", () => {
     await tool.func({
       startDate: "2000-01-10",
       endDate: "2000-01-20",
-      accountId,
+      accountIds: [accountId],
     });
 
     expect(mockTransactionRepository.findManyByUserId).toHaveBeenCalledWith(
@@ -175,7 +175,7 @@ describe("createGetTransactionsTool", () => {
     );
   });
 
-  it("should filter by categoryId", async () => {
+  it("should filter by categoryIds", async () => {
     const categoryId = faker.string.uuid();
     mockTransactionRepository.findManyByUserId.mockResolvedValue([]);
 
@@ -187,7 +187,7 @@ describe("createGetTransactionsTool", () => {
     await tool.func({
       startDate: "2000-01-10",
       endDate: "2000-01-20",
-      categoryId,
+      categoryIds: [categoryId],
     });
 
     expect(mockTransactionRepository.findManyByUserId).toHaveBeenCalledWith(
@@ -225,7 +225,7 @@ describe("createGetTransactionsTool", () => {
     );
   });
 
-  it("should filter by accountId, categoryId, and types", async () => {
+  it("should filter by accountIds, categoryIds, and types", async () => {
     const accountId = faker.string.uuid();
     const categoryId = faker.string.uuid();
     const types = [TransactionType.EXPENSE, TransactionType.INCOME];
@@ -239,8 +239,8 @@ describe("createGetTransactionsTool", () => {
     await tool.func({
       startDate: "2000-01-10",
       endDate: "2000-01-20",
-      accountId,
-      categoryId,
+      accountIds: [accountId],
+      categoryIds: [categoryId],
       types,
     });
 
