@@ -28,11 +28,12 @@ export class DynAccountRepository
     id: string;
     userId: string;
   }): Promise<Account | null> {
-    if (!id || !userId) {
-      throw new RepositoryError(
-        "Account ID and User ID are required",
-        "INVALID_PARAMETERS",
-      );
+    if (!id) {
+      throw new RepositoryError("Account ID is required", "INVALID_PARAMETERS");
+    }
+
+    if (!userId) {
+      throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
     }
 
     try {
@@ -63,7 +64,7 @@ export class DynAccountRepository
 
   async findManyByUserId(userId: string): Promise<Account[]> {
     if (!userId) {
-      throw new RepositoryError("User ID is required", "INVALID_USER_ID");
+      throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
     }
 
     try {
@@ -138,7 +139,7 @@ export class DynAccountRepository
 
   async findManyWithArchivedByUserId(userId: string): Promise<Account[]> {
     if (!userId) {
-      throw new RepositoryError("User ID is required", "INVALID_USER_ID");
+      throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
     }
 
     try {
@@ -201,11 +202,12 @@ export class DynAccountRepository
     { id, userId }: { id: string; userId: string },
     input: UpdateAccountInput,
   ): Promise<Account> {
-    if (!id || !userId) {
-      throw new RepositoryError(
-        "Account ID and User ID are required",
-        "INVALID_PARAMETERS",
-      );
+    if (!id) {
+      throw new RepositoryError("Account ID is required", "INVALID_PARAMETERS");
+    }
+
+    if (!userId) {
+      throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
     }
 
     const now = new Date().toISOString();
@@ -278,11 +280,12 @@ export class DynAccountRepository
     id: string;
     userId: string;
   }): Promise<Account> {
-    if (!id || !userId) {
-      throw new RepositoryError(
-        "Account ID and User ID are required",
-        "INVALID_PARAMETERS",
-      );
+    if (!id) {
+      throw new RepositoryError("Account ID is required", "INVALID_PARAMETERS");
+    }
+
+    if (!userId) {
+      throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
     }
 
     const now = new Date().toISOString();

@@ -134,11 +134,15 @@ export class DynTransactionRepository
     id: string;
     userId: string;
   }): Promise<Transaction | null> {
-    if (!id || !userId) {
+    if (!id) {
       throw new RepositoryError(
-        "Transaction ID and User ID are required",
+        "Transaction ID is required",
         "INVALID_PARAMETERS",
       );
+    }
+
+    if (!userId) {
+      throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
     }
 
     try {
@@ -176,7 +180,7 @@ export class DynTransactionRepository
     filters?: TransactionFilterInput,
   ): Promise<Transaction[]> {
     if (!userId) {
-      throw new RepositoryError("User ID is required", "INVALID_USER_ID");
+      throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
     }
 
     try {
@@ -217,7 +221,7 @@ export class DynTransactionRepository
     filters?: TransactionFilterInput,
   ): Promise<TransactionConnection> {
     if (!userId) {
-      throw new RepositoryError("User ID is required", "INVALID_USER_ID");
+      throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
     }
 
     // Default pagination values
@@ -313,11 +317,12 @@ export class DynTransactionRepository
     accountId: string;
     userId: string;
   }): Promise<Transaction[]> {
-    if (!accountId || !userId) {
-      throw new RepositoryError(
-        "Account ID and User ID are required",
-        "INVALID_PARAMETERS",
-      );
+    if (!accountId) {
+      throw new RepositoryError("Account ID is required", "INVALID_PARAMETERS");
+    }
+
+    if (!userId) {
+      throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
     }
 
     try {
@@ -356,11 +361,15 @@ export class DynTransactionRepository
     transferId: string;
     userId: string;
   }): Promise<Transaction[]> {
-    if (!transferId || !userId) {
+    if (!transferId) {
       throw new RepositoryError(
-        "Transfer ID and User ID are required",
+        "Transfer ID is required",
         "INVALID_PARAMETERS",
       );
+    }
+
+    if (!userId) {
+      throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
     }
 
     try {
@@ -528,11 +537,15 @@ export class DynTransactionRepository
     { id, userId }: { id: string; userId: string },
     input: UpdateTransactionInput,
   ): Promise<Transaction> {
-    if (!id || !userId) {
+    if (!id) {
       throw new RepositoryError(
-        "Transaction ID and User ID are required",
+        "Transaction ID is required",
         "INVALID_PARAMETERS",
       );
+    }
+
+    if (!userId) {
+      throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
     }
 
     const now = new Date().toISOString();
@@ -628,11 +641,15 @@ export class DynTransactionRepository
     id: string;
     userId: string;
   }): Promise<Transaction> {
-    if (!id || !userId) {
+    if (!id) {
       throw new RepositoryError(
-        "Transaction ID and User ID are required",
+        "Transaction ID is required",
         "INVALID_PARAMETERS",
       );
+    }
+
+    if (!userId) {
+      throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
     }
 
     const now = new Date().toISOString();
@@ -751,11 +768,12 @@ export class DynTransactionRepository
     accountId: string;
     userId: string;
   }): Promise<boolean> {
-    if (!accountId || !userId) {
-      throw new RepositoryError(
-        "Account ID and User ID are required",
-        "INVALID_PARAMETERS",
-      );
+    if (!accountId) {
+      throw new RepositoryError("Account ID is required", "INVALID_PARAMETERS");
+    }
+
+    if (!userId) {
+      throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
     }
 
     try {
