@@ -23,7 +23,7 @@ describe("createGetAccountsTool", () => {
     mockAccountRepository.findManyWithArchivedByUserId.mockResolvedValue([]);
 
     const tool = createGetAccountsTool(mockAccountRepository, userId);
-    await tool.func({ scope: EntityScope.ALL });
+    await tool.call({ scope: EntityScope.ALL });
 
     expect(
       mockAccountRepository.findManyWithArchivedByUserId,
@@ -40,7 +40,7 @@ describe("createGetAccountsTool", () => {
     );
 
     const tool = createGetAccountsTool(mockAccountRepository, userId);
-    const result = await tool.func({ scope: EntityScope.ALL });
+    const result = await tool.call({ scope: EntityScope.ALL });
 
     expect(result).toEqual({
       success: true,
@@ -61,7 +61,7 @@ describe("createGetAccountsTool", () => {
     );
 
     const tool = createGetAccountsTool(mockAccountRepository, userId);
-    const result = await tool.func({ scope: EntityScope.ACTIVE });
+    const result = await tool.call({ scope: EntityScope.ACTIVE });
 
     expect(result).toEqual({
       success: true,
@@ -79,7 +79,7 @@ describe("createGetAccountsTool", () => {
     );
 
     const tool = createGetAccountsTool(mockAccountRepository, userId);
-    const result = await tool.func({ scope: EntityScope.ARCHIVED });
+    const result = await tool.call({ scope: EntityScope.ARCHIVED });
 
     expect(result).toEqual({
       success: true,
@@ -107,7 +107,7 @@ describe("createGetAccountsTool", () => {
     );
 
     const tool = createGetAccountsTool(mockAccountRepository, userId);
-    const result = await tool.func({ scope: EntityScope.ALL });
+    const result = await tool.call({ scope: EntityScope.ALL });
 
     expect(result).toEqual({
       success: true,
@@ -132,7 +132,7 @@ describe("createGetAccountsTool", () => {
     mockAccountRepository.findManyWithArchivedByUserId.mockResolvedValue([]);
 
     const tool = createGetAccountsTool(mockAccountRepository, userId);
-    const result = await tool.func({ scope: EntityScope.ALL });
+    const result = await tool.call({ scope: EntityScope.ALL });
 
     expect(result).toEqual({
       success: true,

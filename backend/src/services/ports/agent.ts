@@ -9,7 +9,7 @@ export interface AgentMessage {
 export interface ToolSignature<TInput, TOutput> {
   name: string;
   description: string;
-  func: (input: TInput) => Promise<Result<TOutput>>;
+  call: (input: TInput) => Promise<Result<TOutput>>;
   inputSchema: z.ZodType<TInput>;
 }
 

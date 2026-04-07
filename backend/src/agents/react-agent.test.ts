@@ -53,7 +53,7 @@ describe("ReActAgent", () => {
       const testTool: ToolSignature<{ text: string }, string> = {
         name: "test_tool",
         description: "A test tool",
-        func: async (input: { text: string }) => Success(`Echo: ${input.text}`),
+        call: async (input: { text: string }) => Success(`Echo: ${input.text}`),
         inputSchema: z.object({ text: z.string() }),
       };
       mockInvoke.mockResolvedValue({
@@ -77,7 +77,7 @@ describe("ReActAgent", () => {
       await agent.call({ messages, systemPrompt, tools: [testTool] });
 
       // Assert
-      expect(tool).toHaveBeenCalledWith(testTool.func, {
+      expect(tool).toHaveBeenCalledWith(testTool.call, {
         name: testTool.name,
         description: testTool.description,
         schema: testTool.inputSchema,

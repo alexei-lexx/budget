@@ -55,7 +55,7 @@ export const createCreateTransactionTool = (params: {
     name: "createTransaction",
     description: "Create a new transaction.",
     inputSchema: createTransactionInputSchema,
-    func: async (input: CreateTransactionToolInput) => {
+    call: async (input: CreateTransactionToolInput) => {
       if (successfulCreations >= params.maxCreations) {
         return Failure(
           `Error: transaction creation limit reached (${params.maxCreations} transactions)`,

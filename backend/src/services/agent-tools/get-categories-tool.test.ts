@@ -44,7 +44,7 @@ describe("createGetCategoriesTool", () => {
       transactionRepository: mockTransactionRepository,
       userId,
     });
-    await tool.func({ scope: EntityScope.ALL });
+    await tool.call({ scope: EntityScope.ALL });
 
     expect(
       mockCategoryRepository.findManyWithArchivedByUserId,
@@ -66,7 +66,7 @@ describe("createGetCategoriesTool", () => {
       transactionRepository: mockTransactionRepository,
       userId,
     });
-    const result = await tool.func({ scope: EntityScope.ALL });
+    const result = await tool.call({ scope: EntityScope.ALL });
 
     expect(result).toEqual({
       success: true,
@@ -92,7 +92,7 @@ describe("createGetCategoriesTool", () => {
       transactionRepository: mockTransactionRepository,
       userId,
     });
-    const result = await tool.func({ scope: EntityScope.ACTIVE });
+    const result = await tool.call({ scope: EntityScope.ACTIVE });
 
     expect(result).toEqual({
       success: true,
@@ -115,7 +115,7 @@ describe("createGetCategoriesTool", () => {
       transactionRepository: mockTransactionRepository,
       userId,
     });
-    const result = await tool.func({ scope: EntityScope.ARCHIVED });
+    const result = await tool.call({ scope: EntityScope.ARCHIVED });
 
     expect(result).toEqual({
       success: true,
@@ -148,7 +148,7 @@ describe("createGetCategoriesTool", () => {
       transactionRepository: mockTransactionRepository,
       userId,
     });
-    const result = await tool.func({ scope: EntityScope.ALL });
+    const result = await tool.call({ scope: EntityScope.ALL });
 
     expect(result).toEqual({
       success: true,
@@ -180,7 +180,7 @@ describe("createGetCategoriesTool", () => {
       transactionRepository: mockTransactionRepository,
       userId,
     });
-    const result = await tool.func({ scope: EntityScope.ALL });
+    const result = await tool.call({ scope: EntityScope.ALL });
 
     expect(result).toEqual({
       success: true,
@@ -201,7 +201,7 @@ describe("createGetCategoriesTool", () => {
         transactionRepository: mockTransactionRepository,
         userId,
       });
-      const result = await tool.func({ scope: EntityScope.ACTIVE });
+      const result = await tool.call({ scope: EntityScope.ACTIVE });
 
       expect(result).toEqual({
         success: true,
@@ -235,7 +235,7 @@ describe("createGetCategoriesTool", () => {
         transactionRepository: mockTransactionRepository,
         userId,
       });
-      const result = await tool.func({ scope: EntityScope.ACTIVE });
+      const result = await tool.call({ scope: EntityScope.ACTIVE });
 
       expect(result).toEqual({
         success: true,
@@ -266,7 +266,7 @@ describe("createGetCategoriesTool", () => {
         transactionRepository: mockTransactionRepository,
         userId,
       });
-      const result = await tool.func({ scope: EntityScope.ACTIVE });
+      const result = await tool.call({ scope: EntityScope.ACTIVE });
 
       expect(result).toEqual({
         success: true,
@@ -307,7 +307,7 @@ describe("createGetCategoriesTool", () => {
         transactionRepository: mockTransactionRepository,
         userId,
       });
-      const result = await tool.func({ scope: EntityScope.ACTIVE });
+      const result = await tool.call({ scope: EntityScope.ACTIVE });
 
       expect(result).toEqual({
         success: true,
@@ -343,7 +343,7 @@ describe("createGetCategoriesTool", () => {
         transactionRepository: mockTransactionRepository,
         userId,
       });
-      const result = await tool.func({ scope: EntityScope.ACTIVE });
+      const result = await tool.call({ scope: EntityScope.ACTIVE });
 
       if (!result.success) throw new Error("Expected success"); // Type guard
 
@@ -396,7 +396,7 @@ describe("createGetCategoriesTool", () => {
         transactionRepository: mockTransactionRepository,
         userId,
       });
-      const result = await tool.func({ scope: EntityScope.ACTIVE });
+      const result = await tool.call({ scope: EntityScope.ACTIVE });
 
       expect(result).toEqual({
         success: true,
@@ -434,7 +434,7 @@ describe("createGetCategoriesTool", () => {
         transactionRepository: mockTransactionRepository,
         userId,
       });
-      const result = await tool.func({ scope: EntityScope.ACTIVE });
+      const result = await tool.call({ scope: EntityScope.ACTIVE });
 
       expect(result).toEqual({
         success: true,
@@ -459,7 +459,7 @@ describe("createGetCategoriesTool", () => {
         transactionRepository: mockTransactionRepository,
         userId,
       });
-      await tool.func({ scope: EntityScope.ACTIVE });
+      await tool.call({ scope: EntityScope.ACTIVE });
 
       expect(mockTransactionRepository.findManyByUserId).toHaveBeenCalledTimes(
         1,

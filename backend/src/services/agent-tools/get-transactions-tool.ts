@@ -56,7 +56,7 @@ export const createGetTransactionsTool = (params: {
   name: "getTransactions",
   description: `Get filtered transactions by date range and optionally by one or more accountIds, one or more categoryIds, or one or more transaction types. Date format: YYYY-MM-DD. The date range must not exceed ${MAX_PERIOD_DAYS} days.`,
   inputSchema: getTransactionsInputSchema,
-  func: async (input: GetTransactionsInput) => {
+  call: async (input: GetTransactionsInput) => {
     // Validate that startDate is not after endDate
     if (input.startDate > input.endDate) {
       return Failure("startDate must not be after endDate");
