@@ -1,5 +1,6 @@
 import { Failure, Result, Success } from "../../types/result";
 import { formatDateAsYYYYMMDD } from "../../utils/date";
+import { createAggregateTransactionsTool } from "../agent-tools/aggregate-transactions-tool";
 import { createGetAccountsTool } from "../agent-tools/get-accounts-tool";
 import { createGetCategoriesTool } from "../agent-tools/get-categories-tool";
 import { createGetTransactionsTool } from "../agent-tools/get-transactions-tool";
@@ -110,6 +111,10 @@ export class InsightServiceImpl implements InsightService {
         userId,
       }),
       createGetTransactionsTool({
+        transactionRepository: this.transactionRepository,
+        userId,
+      }),
+      createAggregateTransactionsTool({
         transactionRepository: this.transactionRepository,
         userId,
       }),
