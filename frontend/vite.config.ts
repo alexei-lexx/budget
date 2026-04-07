@@ -44,8 +44,13 @@ export default defineConfig({
             src: "pwa-512x512.png",
             sizes: "512x512",
             type: "image/png",
-            // "maskable" = icon can be cropped to a circle/squircle on Android; "any" = used as-is elsewhere
-            purpose: "any maskable",
+          },
+          {
+            // maskable = full-bleed icon used on Android home screen (cropped to squircle)
+            src: "pwa-maskable-512x512.png",
+            sizes: "512x512",
+            type: "image/png",
+            purpose: "maskable",
           },
         ],
       },
