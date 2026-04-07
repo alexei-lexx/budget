@@ -27,7 +27,7 @@ export default defineConfig({
         // Color of the browser toolbar / status bar when the app is open
         theme_color: "#ff6b35",
         // Background color of the splash screen shown while the app is loading
-        background_color: "#ffffff",
+        background_color: "#ff6b35",
         // "standalone" = opens without browser UI (no address bar) — required for proper PWA install instead of shortcut
         display: "standalone",
         // The URL opened when the installed app is launched
@@ -44,8 +44,13 @@ export default defineConfig({
             src: "pwa-512x512.png",
             sizes: "512x512",
             type: "image/png",
-            // "maskable" = icon can be cropped to a circle/squircle on Android; "any" = used as-is elsewhere
-            purpose: "any maskable",
+          },
+          {
+            // maskable = full-bleed icon used on Android home screen (cropped to squircle)
+            src: "pwa-maskable-512x512.png",
+            sizes: "512x512",
+            type: "image/png",
+            purpose: "maskable",
           },
         ],
       },
