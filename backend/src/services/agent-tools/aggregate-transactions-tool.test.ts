@@ -31,7 +31,7 @@ describe("createAggregateTransactionsTool", () => {
       userId,
     });
 
-    const result = await tool.func({
+    const result = await tool.call({
       startDate: "2000-01-20",
       endDate: "2000-01-10",
     });
@@ -49,7 +49,7 @@ describe("createAggregateTransactionsTool", () => {
       userId,
     });
 
-    const result = await tool.func({
+    const result = await tool.call({
       startDate: "2000-01-01",
       endDate: "2001-01-02",
     });
@@ -69,7 +69,7 @@ describe("createAggregateTransactionsTool", () => {
       userId,
     });
 
-    const result = await tool.func({
+    const result = await tool.call({
       startDate: "2024-01-01",
       endDate: "2024-01-31",
     });
@@ -104,7 +104,7 @@ describe("createAggregateTransactionsTool", () => {
       userId,
     });
 
-    const result = await tool.func({
+    const result = await tool.call({
       startDate: "2024-01-01",
       endDate: "2024-01-31",
     });
@@ -143,7 +143,7 @@ describe("createAggregateTransactionsTool", () => {
       userId,
     });
 
-    const result = await tool.func({
+    const result = await tool.call({
       startDate: "2024-01-01",
       endDate: "2024-01-31",
     });
@@ -165,7 +165,7 @@ describe("createAggregateTransactionsTool", () => {
       userId,
     });
 
-    await tool.func({
+    await tool.call({
       startDate: "2024-01-01",
       endDate: "2024-01-31",
     });
@@ -188,7 +188,7 @@ describe("createAggregateTransactionsTool", () => {
       userId,
     });
 
-    await tool.func({
+    await tool.call({
       startDate: "2024-01-01",
       endDate: "2024-01-31",
       accountIds: [accountId],
@@ -213,7 +213,7 @@ describe("createAggregateTransactionsTool", () => {
       userId,
     });
 
-    await tool.func({
+    await tool.call({
       startDate: "2024-01-01",
       endDate: "2024-01-31",
       categoryIds: [categoryId],
@@ -243,7 +243,7 @@ describe("createAggregateTransactionsTool", () => {
       userId,
     });
 
-    const result = await tool.func({
+    const result = await tool.call({
       startDate: "2024-01-01",
       endDate: "2024-01-31",
       types: [TransactionType.EXPENSE],

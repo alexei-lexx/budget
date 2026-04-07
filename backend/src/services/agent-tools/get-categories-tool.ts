@@ -47,7 +47,7 @@ export const createGetCategoriesTool = ({
   description:
     "Get user categories filtered by scope. Each category includes recent usage examples showing how similar transactions were previously categorised.",
   inputSchema: getCategoriesInputSchema,
-  func: async (input: GetCategoriesInput) => {
+  call: async (input: GetCategoriesInput) => {
     const allCategories =
       await categoryRepository.findManyWithArchivedByUserId(userId);
 

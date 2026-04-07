@@ -57,7 +57,7 @@ export const createAggregateTransactionsTool = (params: {
     ` Filter transactions by date range and optionally by one or more accountIds, one or more categoryIds, or one or more transaction types.` +
     ` Date format: YYYY-MM-DD. The date range must not exceed ${MAX_PERIOD_DAYS} days.`,
   inputSchema: aggregateTransactionsInputSchema,
-  func: async (input: AggregateTransactionsInput) => {
+  call: async (input: AggregateTransactionsInput) => {
     if (input.startDate > input.endDate) {
       return Failure("startDate must not be after endDate");
     }

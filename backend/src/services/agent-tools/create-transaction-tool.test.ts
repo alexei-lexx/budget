@@ -48,7 +48,7 @@ describe("createCreateTransactionTool", () => {
       type: TransactionType.EXPENSE,
     };
 
-    const result = await tool.func(input);
+    const result = await tool.call(input);
 
     expect(mockTransactionService.createTransaction).toHaveBeenCalledWith(
       input,
@@ -87,9 +87,9 @@ describe("createCreateTransactionTool", () => {
       type: TransactionType.EXPENSE,
     };
 
-    expect((await tool.func(input)).success).toBe(true);
-    expect((await tool.func(input)).success).toBe(true);
-    expect((await tool.func(input)).success).toBe(false);
+    expect((await tool.call(input)).success).toBe(true);
+    expect((await tool.call(input)).success).toBe(true);
+    expect((await tool.call(input)).success).toBe(false);
 
     expect(mockTransactionService.createTransaction).toHaveBeenCalledTimes(2);
   });
@@ -113,8 +113,8 @@ describe("createCreateTransactionTool", () => {
       type: TransactionType.EXPENSE,
     };
 
-    await expect(tool.func(input)).rejects.toThrow("service error");
-    const result = await tool.func(input);
+    await expect(tool.call(input)).rejects.toThrow("service error");
+    const result = await tool.call(input);
 
     expect(result.success).toBe(true);
     expect(mockTransactionService.createTransaction).toHaveBeenCalledTimes(2);

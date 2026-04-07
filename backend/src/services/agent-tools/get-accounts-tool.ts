@@ -33,7 +33,7 @@ export const createGetAccountsTool = (
   name: "getAccounts",
   description: "Get user accounts filtered by scope.",
   inputSchema: getAccountsInputSchema,
-  func: async (input: GetAccountsInput) => {
+  call: async (input: GetAccountsInput) => {
     const accounts =
       await accountRepository.findManyWithArchivedByUserId(userId);
 

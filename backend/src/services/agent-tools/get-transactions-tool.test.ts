@@ -33,7 +33,7 @@ describe("createGetTransactionsTool", () => {
       userId,
     });
 
-    const result = await tool.func({
+    const result = await tool.call({
       startDate: "2000-01-20",
       endDate: "2000-01-10",
     });
@@ -51,7 +51,7 @@ describe("createGetTransactionsTool", () => {
       userId,
     });
 
-    const result = await tool.func({
+    const result = await tool.call({
       startDate: "2000-01-01",
       endDate: "2001-01-02",
     });
@@ -72,7 +72,7 @@ describe("createGetTransactionsTool", () => {
       userId,
     });
 
-    const result = await tool.func({
+    const result = await tool.call({
       startDate: "2000-01-01",
       endDate: "2000-01-31",
     });
@@ -116,7 +116,7 @@ describe("createGetTransactionsTool", () => {
       transactionRepository: mockTransactionRepository,
       userId,
     });
-    const result = await tool.func({
+    const result = await tool.call({
       startDate: "2024-01-01",
       endDate: "2024-01-31",
     });
@@ -159,7 +159,7 @@ describe("createGetTransactionsTool", () => {
       userId,
     });
 
-    await tool.func({
+    await tool.call({
       startDate: "2000-01-10",
       endDate: "2000-01-20",
       accountIds: [accountId],
@@ -184,7 +184,7 @@ describe("createGetTransactionsTool", () => {
       userId,
     });
 
-    await tool.func({
+    await tool.call({
       startDate: "2000-01-10",
       endDate: "2000-01-20",
       categoryIds: [categoryId],
@@ -209,7 +209,7 @@ describe("createGetTransactionsTool", () => {
       userId,
     });
 
-    await tool.func({
+    await tool.call({
       startDate: "2000-01-10",
       endDate: "2000-01-20",
       types,
@@ -236,7 +236,7 @@ describe("createGetTransactionsTool", () => {
       userId,
     });
 
-    await tool.func({
+    await tool.call({
       startDate: "2000-01-10",
       endDate: "2000-01-20",
       accountIds: [accountId],
