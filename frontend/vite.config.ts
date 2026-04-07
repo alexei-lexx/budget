@@ -27,7 +27,7 @@ export default defineConfig({
         // Color of the browser toolbar / status bar when the app is open
         theme_color: "#ff6b35",
         // Background color of the splash screen shown while the app is loading
-        background_color: "#ff6b35",
+        background_color: "#ffffff",
         // "standalone" = opens without browser UI (no address bar) — required for proper PWA install instead of shortcut
         display: "standalone",
         // The URL opened when the installed app is launched
