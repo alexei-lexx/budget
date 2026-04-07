@@ -51,7 +51,7 @@ export const createAggregateTransactionsTool = (params: {
 }): ToolSignature<AggregateTransactionsInput, AggregationOutput> => ({
   name: "aggregateTransactions",
   description:
-    `Aggregate and returns sum and count for a filtered set of transactions.` +
+    `Aggregate and return sum and count for a filtered set of transactions.` +
     ` Sum uses signed cashflow convention: ${TransactionType.EXPENSE} and ${TransactionType.TRANSFER_OUT} are negative;` +
     ` ${TransactionType.INCOME}, ${TransactionType.REFUND}, and ${TransactionType.TRANSFER_IN} are positive.` +
     ` Filter transactions by date range and optionally by one or more accountIds, one or more categoryIds, or one or more transaction types.` +
