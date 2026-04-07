@@ -32,7 +32,7 @@
     "@graphql-codegen/cli": "^6.0.1",
     "@graphql-codegen/typescript": "^5.0.2",
     "@graphql-codegen/typescript-operations": "^5.0.2",
-    "@graphql-codegen/typescript-vue-apollo": "^4.1.2",
+    "@graphql-codegen/typescript-vue-apollo": "^5.0.0",
     "@mdi/font": "^7.4.47",
     "@tsconfig/node22": "^22.0.2",
     "@types/dom-speech-recognition": "^0.0.7",
