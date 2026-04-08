@@ -66,8 +66,8 @@ describe("transaction model", () => {
         Transaction.build(
           fakeTransactionData({
             transferId: undefined,
-            type: TransactionType.TRANSFER_IN
-           }),
+            type: TransactionType.TRANSFER_IN,
+          }),
         ),
       ).toThrow("transferId is required for TRANSFER_IN");
     });
@@ -77,8 +77,8 @@ describe("transaction model", () => {
         Transaction.build(
           fakeTransactionData({
             transferId: undefined,
-            type: TransactionType.TRANSFER_OUT
-           }),
+            type: TransactionType.TRANSFER_OUT,
+          }),
         ),
       ).toThrow("transferId is required for TRANSFER_OUT");
     });
