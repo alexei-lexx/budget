@@ -62,9 +62,14 @@ export class Transaction {
   }
 
   // Enforces domain invariants:
+  // - amount must be positive
   // - transferId must be set for TRANSFER_IN / TRANSFER_OUT
   // - transferId must be absent for all other types
   static build(data: TransactionData): Transaction {
+    if (data.amount <= 0) {
+      throw new Error("amount must be a positive number");
+    }
+
     const isTransferType =
       data.type === TransactionType.TRANSFER_IN ||
       data.type === TransactionType.TRANSFER_OUT;

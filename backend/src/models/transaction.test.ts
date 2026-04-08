@@ -61,6 +61,36 @@ describe("transaction model", () => {
   });
 
   describe("Transaction.build", () => {
+    it("should throw when amount is zero", () => {
+      expect(() =>
+        Transaction.build(
+          fakeTransactionData({
+            amount: 0,
+          }),
+        ),
+      ).toThrow("amount must be a positive number");
+    });
+
+    it("should throw when amount is negative", () => {
+      expect(() =>
+        Transaction.build(
+          fakeTransactionData({
+            amount: -100,
+          }),
+        ),
+      ).toThrow("amount must be a positive number");
+    });
+
+    it("should succeed when amount is positive", () => {
+      expect(() =>
+        Transaction.build(
+          fakeTransactionData({
+            amount: 100,
+          }),
+        ),
+      ).not.toThrow();
+    });
+
     it("should throw when TRANSFER_IN has no transferId", () => {
       expect(() =>
         Transaction.build(

@@ -147,9 +147,21 @@ describe("ByCategoryReportService", () => {
 
     it("should calculate currency totals correctly", async () => {
       const transactions = [
-        fakeTransaction({ currency: "USD", amount: 100 }),
-        fakeTransaction({ currency: "USD", amount: 200 }),
-        fakeTransaction({ currency: "EUR", amount: 150 }),
+        fakeTransaction({
+          currency: "USD",
+          amount: 100,
+          type: TransactionType.EXPENSE,
+        }),
+        fakeTransaction({
+          currency: "USD",
+          amount: 200,
+          type: TransactionType.EXPENSE,
+        }),
+        fakeTransaction({
+          currency: "EUR",
+          amount: 150,
+          type: TransactionType.EXPENSE,
+        }),
       ];
 
       mockTransactionRepository.findManyByUserId.mockResolvedValue(
@@ -172,11 +184,17 @@ describe("ByCategoryReportService", () => {
     it("should calculate percentages within each currency", async () => {
       const categoryId = uuidv4();
       const transactions = [
-        fakeTransaction({ categoryId, currency: "USD", amount: 100 }),
+        fakeTransaction({
+          categoryId,
+          currency: "USD",
+          amount: 100,
+          type: TransactionType.EXPENSE,
+        }),
         fakeTransaction({
           categoryId: undefined,
           currency: "USD",
           amount: 300,
+          type: TransactionType.EXPENSE,
         }),
       ];
 

@@ -16,7 +16,11 @@ export const fakeTransactionData = (
     userId: faker.string.uuid(),
     accountId: faker.string.uuid(),
     amount: faker.number.float({ min: 1, max: 1000, fractionDigits: 2 }),
-    type: TransactionType.EXPENSE,
+    type: faker.helpers.arrayElement([
+      TransactionType.EXPENSE,
+      TransactionType.INCOME,
+      TransactionType.REFUND,
+    ]),
     currency: "USD",
     description: faker.finance.transactionDescription(),
     date: toDateString(faker.date.recent().toISOString().split("T")[0]),
