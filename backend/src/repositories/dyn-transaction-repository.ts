@@ -35,7 +35,6 @@ import { DynBaseRepository } from "./dyn-base-repository";
 import {
   TransactionDbItem,
   transactionDbItemSchema,
-  transactionSchema,
 } from "./schemas/transaction";
 import { hydrate } from "./utils/hydrate";
 import { paginateQuery } from "./utils/query";
@@ -115,8 +114,8 @@ function decodeCursor(cursor: string): CursorData {
  */
 function toTransaction(dbItem: TransactionDbItem): Transaction {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { createdAtSortable, ...transaction } = dbItem;
-  return transaction;
+  const { createdAtSortable, ...data } = dbItem;
+  return Transaction.build(data);
 }
 
 function buildCreatedAtSortable(transaction: Transaction): string {
@@ -157,7 +156,9 @@ export class DynTransactionRepository
         return null;
       }
 
-      const transaction = hydrate(transactionSchema, result.Item);
+      const transaction = Transaction.build(
+        toTransaction(hydrate(transactionDbItemSchema, result.Item)),
+      );
 
       // Return null if transaction is archived (soft deleted)
       if (transaction.isArchived) {
@@ -187,7 +188,7 @@ export class DynTransactionRepository
       // Build query parameters (index selection, key condition, filters)
       const queryParams = this.buildQueryParams(userId, filters);
 
-      const { items } = await paginateQuery<Transaction>({
+      const { items } = await paginateQuery<TransactionDbItem>({
         client: this.client,
         params: {
           TableName: this.tableName,
@@ -201,10 +202,10 @@ export class DynTransactionRepository
           ScanIndexForward: false, // Descending order (newest first)
         },
         pageSize: undefined, // No pageSize = get all items
-        schema: transactionSchema,
+        schema: transactionDbItemSchema,
       });
 
-      return items;
+      return items.map((item) => Transaction.build(toTransaction(item)));
     } catch (error) {
       console.error("Error finding transactions by user ID:", error);
       throw new RepositoryError(
@@ -326,7 +327,7 @@ export class DynTransactionRepository
     }
 
     try {
-      const { items } = await paginateQuery<Transaction>({
+      const { items } = await paginateQuery<TransactionDbItem>({
         client: this.client,
         params: {
           TableName: this.tableName,
@@ -340,10 +341,10 @@ export class DynTransactionRepository
           },
         },
         pageSize: undefined, // No pageSize = get all items
-        schema: transactionSchema,
+        schema: transactionDbItemSchema,
       });
 
-      return items;
+      return items.map((item) => Transaction.build(toTransaction(item)));
     } catch (error) {
       console.error("Error finding transactions by account ID:", error);
       throw new RepositoryError(
@@ -373,7 +374,7 @@ export class DynTransactionRepository
     }
 
     try {
-      const { items } = await paginateQuery<Transaction>({
+      const { items } = await paginateQuery<TransactionDbItem>({
         client: this.client,
         params: {
           TableName: this.tableName,
@@ -387,10 +388,10 @@ export class DynTransactionRepository
           },
         },
         pageSize: undefined, // No pageSize = get all items
-        schema: transactionSchema,
+        schema: transactionDbItemSchema,
       });
 
-      return items;
+      return items.map((item) => Transaction.build(toTransaction(item)));
     } catch (error) {
       console.error("Error finding transactions by transfer ID:", error);
       throw new RepositoryError(
@@ -429,7 +430,7 @@ export class DynTransactionRepository
     try {
       // Query recent transactions by user, ordered by creation time (newest first)
       // Use DynamoDB's native contains() function for efficient server-side filtering
-      const { items: transactions } = await paginateQuery<Transaction>({
+      const { items } = await paginateQuery<TransactionDbItem>({
         client: this.client,
         params: {
           TableName: this.tableName,
@@ -445,10 +446,10 @@ export class DynTransactionRepository
           ScanIndexForward: false, // Newest first (descending createdAtSortable order)
         },
         pageSize: limit,
-        schema: transactionSchema,
+        schema: transactionDbItemSchema,
       });
 
-      return transactions;
+      return items.map((item) => Transaction.build(toTransaction(item)));
     } catch (error) {
       console.error("Error searching transactions by description:", error);
       throw new RepositoryError(
@@ -555,7 +556,9 @@ export class DynTransactionRepository
       const command = new UpdateCommand(updateParams);
 
       const result = await this.client.send(command);
-      return hydrate(transactionSchema, result.Attributes);
+      return Transaction.build(
+        toTransaction(hydrate(transactionDbItemSchema, result.Attributes)),
+      );
     } catch (error) {
       if (
         error instanceof Error &&
@@ -670,7 +673,9 @@ export class DynTransactionRepository
       });
 
       const result = await this.client.send(command);
-      return hydrate(transactionSchema, result.Attributes);
+      return Transaction.build(
+        toTransaction(hydrate(transactionDbItemSchema, result.Attributes)),
+      );
     } catch (error) {
       console.error("Error archiving transaction:", error);
 
@@ -832,7 +837,7 @@ export class DynTransactionRepository
 
     try {
       // Query up to sampleSize transactions of the specified type, ordered by creation time (newest first)
-      const { items: transactions } = await paginateQuery<Transaction>({
+      const { items } = await paginateQuery<TransactionDbItem>({
         client: this.client,
         params: {
           TableName: this.tableName,
@@ -850,8 +855,9 @@ export class DynTransactionRepository
           ScanIndexForward: false, // Newest first
         },
         pageSize: sampleSize, // Limit to sampleSize transactions
-        schema: transactionSchema,
+        schema: transactionDbItemSchema,
       });
+      const transactions = items.map((item) => Transaction.build(item));
 
       // Filter transactions that have both accountId and categoryId
       const transactionsWithCategory = transactions.filter(
@@ -1037,7 +1043,7 @@ export class DynTransactionRepository
     input: CreateTransactionInput,
     timestamp: string,
   ): Transaction {
-    return {
+    return Transaction.build({
       id: randomUUID(),
       userId: input.userId,
       accountId: input.accountId,
@@ -1051,7 +1057,7 @@ export class DynTransactionRepository
       isArchived: false,
       createdAt: timestamp,
       updatedAt: timestamp,
-    };
+    });
   }
 
   private buildUpdateParams(

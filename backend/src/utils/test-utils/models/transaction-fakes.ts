@@ -1,16 +1,17 @@
 import { faker } from "@faker-js/faker";
 import {
   Transaction,
+  TransactionData,
   TransactionPattern,
   TransactionType,
 } from "../../../models/transaction";
 import { toDateString } from "../../../types/date";
 
 export const fakeTransaction = (
-  overrides: Partial<Transaction> = {},
+  overrides: Partial<TransactionData> = {},
 ): Transaction => {
   const now = new Date().toISOString();
-  return {
+  return Transaction.build({
     id: faker.string.uuid(),
     userId: faker.string.uuid(),
     accountId: faker.string.uuid(),
@@ -24,7 +25,7 @@ export const fakeTransaction = (
     createdAt: now,
     updatedAt: now,
     ...overrides,
-  };
+  });
 };
 
 export const fakeTransactionPattern = (

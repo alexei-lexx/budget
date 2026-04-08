@@ -1,9 +1,9 @@
 import { z } from "zod";
-import type { Transaction } from "../../models/transaction";
 import { TransactionType } from "../../models/transaction";
 import { toDateString } from "../../types/date";
 
-export const transactionSchema = z.object({
+// Database item schema — includes createdAtSortable used for pagination cursors
+export const transactionDbItemSchema = z.object({
   userId: z.uuid(),
   id: z.uuid(),
   accountId: z.uuid(),
@@ -17,10 +17,6 @@ export const transactionSchema = z.object({
   isArchived: z.boolean(),
   createdAt: z.iso.datetime(),
   updatedAt: z.iso.datetime(),
-}) satisfies z.ZodType<Transaction>;
-
-// Database item schema extends Transaction schema with createdAtSortable
-export const transactionDbItemSchema = transactionSchema.extend({
   createdAtSortable: z.string().min(1),
 });
 

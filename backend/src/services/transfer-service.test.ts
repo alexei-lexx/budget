@@ -155,11 +155,14 @@ describe("TransferService", () => {
     it("should create transfer and return result with outbound and inbound transactions", async () => {
       const fromAccount = fakeAccount({ userId });
       const toAccount = fakeAccount({ userId, currency: fromAccount.currency });
+      const transferId = faker.string.uuid();
       const outboundTransaction = fakeTransaction({
         type: TransactionType.TRANSFER_OUT,
+        transferId,
       });
       const inboundTransaction = fakeTransaction({
         type: TransactionType.TRANSFER_IN,
+        transferId,
       });
 
       mockAccountRepository.findOneById

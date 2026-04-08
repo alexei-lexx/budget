@@ -585,10 +585,12 @@ describe("AccountService", () => {
         }),
         fakeTransaction({
           type: TransactionType.TRANSFER_IN,
+          transferId: faker.string.uuid(),
           amount: 100,
         }),
         fakeTransaction({
           type: TransactionType.TRANSFER_OUT,
+          transferId: faker.string.uuid(),
           amount: 40,
         }),
       ]);
