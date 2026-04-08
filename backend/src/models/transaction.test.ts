@@ -46,6 +46,15 @@ describe("transaction model", () => {
       });
       expect(transaction.signedAmount).toBe(-100);
     });
+
+    it("should throw error for unknown transaction type", () => {
+      const transaction = fakeTransaction({
+        type: "UNKNOWN" as TransactionType,
+      });
+      expect(() => transaction.signedAmount).toThrow(
+        "Unknown transaction type: UNKNOWN",
+      );
+    });
   });
 
   describe("Transaction.build", () => {
