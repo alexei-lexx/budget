@@ -857,7 +857,9 @@ export class DynTransactionRepository
         pageSize: sampleSize, // Limit to sampleSize transactions
         schema: transactionDbItemSchema,
       });
-      const transactions = items.map((item) => Transaction.build(item));
+      const transactions = items.map((item) =>
+        Transaction.build(toTransaction(item)),
+      );
 
       // Filter transactions that have both accountId and categoryId
       const transactionsWithCategory = transactions.filter(
