@@ -1,7 +1,7 @@
-import { ReActAgent } from "./agents/react-agent";
 import { JwtAuthService } from "./auth/jwt-auth";
 import { HttpTelegramApiClient } from "./providers/http-telegram-api-client";
 import { LambdaBackgroundJobDispatcher } from "./providers/lambda-background-job-dispatcher";
+import { ReActAgent } from "./providers/react-agent";
 import { DynAccountRepository } from "./repositories/dyn-account-repository";
 import { DynCategoryRepository } from "./repositories/dyn-category-repository";
 import { DynChatMessageRepository } from "./repositories/dyn-chat-message-repository";
