@@ -156,8 +156,8 @@ export class DynTransactionRepository
         return null;
       }
 
-      const transaction = Transaction.build(
-        toTransaction(hydrate(transactionDbItemSchema, result.Item)),
+      const transaction = toTransaction(
+        hydrate(transactionDbItemSchema, result.Item),
       );
 
       // Return null if transaction is archived (soft deleted)
@@ -205,7 +205,7 @@ export class DynTransactionRepository
         schema: transactionDbItemSchema,
       });
 
-      return items.map((item) => Transaction.build(toTransaction(item)));
+      return items.map(toTransaction);
     } catch (error) {
       console.error("Error finding transactions by user ID:", error);
       throw new RepositoryError(
@@ -344,7 +344,7 @@ export class DynTransactionRepository
         schema: transactionDbItemSchema,
       });
 
-      return items.map((item) => Transaction.build(toTransaction(item)));
+      return items.map(toTransaction);
     } catch (error) {
       console.error("Error finding transactions by account ID:", error);
       throw new RepositoryError(
@@ -391,7 +391,7 @@ export class DynTransactionRepository
         schema: transactionDbItemSchema,
       });
 
-      return items.map((item) => Transaction.build(toTransaction(item)));
+      return items.map(toTransaction);
     } catch (error) {
       console.error("Error finding transactions by transfer ID:", error);
       throw new RepositoryError(
@@ -449,7 +449,7 @@ export class DynTransactionRepository
         schema: transactionDbItemSchema,
       });
 
-      return items.map((item) => Transaction.build(toTransaction(item)));
+      return items.map(toTransaction);
     } catch (error) {
       console.error("Error searching transactions by description:", error);
       throw new RepositoryError(
@@ -556,9 +556,7 @@ export class DynTransactionRepository
       const command = new UpdateCommand(updateParams);
 
       const result = await this.client.send(command);
-      return Transaction.build(
-        toTransaction(hydrate(transactionDbItemSchema, result.Attributes)),
-      );
+      return toTransaction(hydrate(transactionDbItemSchema, result.Attributes));
     } catch (error) {
       if (
         error instanceof Error &&
@@ -673,9 +671,7 @@ export class DynTransactionRepository
       });
 
       const result = await this.client.send(command);
-      return Transaction.build(
-        toTransaction(hydrate(transactionDbItemSchema, result.Attributes)),
-      );
+      return toTransaction(hydrate(transactionDbItemSchema, result.Attributes));
     } catch (error) {
       console.error("Error archiving transaction:", error);
 
@@ -857,9 +853,7 @@ export class DynTransactionRepository
         pageSize: sampleSize, // Limit to sampleSize transactions
         schema: transactionDbItemSchema,
       });
-      const transactions = items.map((item) =>
-        Transaction.build(toTransaction(item)),
-      );
+      const transactions = items.map(toTransaction);
 
       // Filter transactions that have both accountId and categoryId
       const transactionsWithCategory = transactions.filter(
