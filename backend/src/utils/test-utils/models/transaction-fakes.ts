@@ -7,11 +7,11 @@ import {
 } from "../../../models/transaction";
 import { toDateString } from "../../../types/date";
 
-export const fakeTransaction = (
+export const fakeTransactionData = (
   overrides: Partial<TransactionData> = {},
-): Transaction => {
+): TransactionData => {
   const now = new Date().toISOString();
-  return Transaction.build({
+  return {
     id: faker.string.uuid(),
     userId: faker.string.uuid(),
     accountId: faker.string.uuid(),
@@ -25,8 +25,12 @@ export const fakeTransaction = (
     createdAt: now,
     updatedAt: now,
     ...overrides,
-  });
+  };
 };
+
+export const fakeTransaction = (
+  overrides: Partial<TransactionData> = {},
+): Transaction => Transaction.build(fakeTransactionData(overrides));
 
 export const fakeTransactionPattern = (
   overrides: Partial<TransactionPattern> = {},

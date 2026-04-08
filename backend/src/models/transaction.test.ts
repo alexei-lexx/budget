@@ -1,6 +1,9 @@
 import { faker } from "@faker-js/faker";
 import { describe, expect, it } from "@jest/globals";
-import { fakeTransaction } from "../utils/test-utils/models/transaction-fakes";
+import {
+  fakeTransaction,
+  fakeTransactionData,
+} from "../utils/test-utils/models/transaction-fakes";
 import { Transaction, TransactionType } from "./transaction";
 
 describe("transaction model", () => {
@@ -61,7 +64,7 @@ describe("transaction model", () => {
     it("should throw when TRANSFER_IN has no transferId", () => {
       expect(() =>
         Transaction.build(
-          fakeTransaction({ type: TransactionType.TRANSFER_IN }),
+          fakeTransactionData({ type: TransactionType.TRANSFER_IN }),
         ),
       ).toThrow("transferId is required for TRANSFER_IN");
     });
@@ -69,7 +72,7 @@ describe("transaction model", () => {
     it("should throw when TRANSFER_OUT has no transferId", () => {
       expect(() =>
         Transaction.build(
-          fakeTransaction({ type: TransactionType.TRANSFER_OUT }),
+          fakeTransactionData({ type: TransactionType.TRANSFER_OUT }),
         ),
       ).toThrow("transferId is required for TRANSFER_OUT");
     });
@@ -77,7 +80,7 @@ describe("transaction model", () => {
     it("should throw when non-transfer type has transferId", () => {
       expect(() =>
         Transaction.build(
-          fakeTransaction({
+          fakeTransactionData({
             type: TransactionType.EXPENSE,
             transferId: "some-transfer-id",
           }),
@@ -88,7 +91,7 @@ describe("transaction model", () => {
     it("should succeed for TRANSFER_IN with transferId", () => {
       expect(() =>
         Transaction.build(
-          fakeTransaction({
+          fakeTransactionData({
             type: TransactionType.TRANSFER_IN,
             transferId: "some-transfer-id",
           }),
@@ -99,7 +102,7 @@ describe("transaction model", () => {
     it("should succeed for EXPENSE without transferId", () => {
       expect(() =>
         Transaction.build(
-          fakeTransaction({
+          fakeTransactionData({
             type: TransactionType.EXPENSE,
             transferId: undefined,
           }),
