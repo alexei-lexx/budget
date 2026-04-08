@@ -48,39 +48,6 @@ describe("transaction model", () => {
     });
   });
 
-  describe("isTransfer", () => {
-    it("should return true for TRANSFER_IN", () => {
-      const transaction = fakeTransaction({
-        type: TransactionType.TRANSFER_IN,
-        transferId: "some-transfer-id",
-      });
-      expect(transaction.isTransfer()).toBe(true);
-    });
-
-    it("should return true for TRANSFER_OUT", () => {
-      const transaction = fakeTransaction({
-        type: TransactionType.TRANSFER_OUT,
-        transferId: "some-transfer-id",
-      });
-      expect(transaction.isTransfer()).toBe(true);
-    });
-
-    it("should return false for INCOME", () => {
-      const transaction = fakeTransaction({ type: TransactionType.INCOME });
-      expect(transaction.isTransfer()).toBe(false);
-    });
-
-    it("should return false for EXPENSE", () => {
-      const transaction = fakeTransaction({ type: TransactionType.EXPENSE });
-      expect(transaction.isTransfer()).toBe(false);
-    });
-
-    it("should return false for REFUND", () => {
-      const transaction = fakeTransaction({ type: TransactionType.REFUND });
-      expect(transaction.isTransfer()).toBe(false);
-    });
-  });
-
   describe("Transaction.build", () => {
     it("should throw when TRANSFER_IN has no transferId", () => {
       expect(() =>

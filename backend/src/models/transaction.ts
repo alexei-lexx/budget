@@ -94,13 +94,6 @@ export class Transaction {
         throw new Error(`Unknown transaction type: ${this.type}`);
     }
   }
-
-  isTransfer(): boolean {
-    return (
-      this.type === TransactionType.TRANSFER_IN ||
-      this.type === TransactionType.TRANSFER_OUT
-    );
-  }
 }
 
 // Most popular combinations of account and category
