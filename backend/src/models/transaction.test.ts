@@ -64,7 +64,10 @@ describe("transaction model", () => {
     it("should throw when TRANSFER_IN has no transferId", () => {
       expect(() =>
         Transaction.build(
-          fakeTransactionData({ type: TransactionType.TRANSFER_IN }),
+          fakeTransactionData({
+            transferId: undefined,
+            type: TransactionType.TRANSFER_IN
+           }),
         ),
       ).toThrow("transferId is required for TRANSFER_IN");
     });
@@ -72,7 +75,10 @@ describe("transaction model", () => {
     it("should throw when TRANSFER_OUT has no transferId", () => {
       expect(() =>
         Transaction.build(
-          fakeTransactionData({ type: TransactionType.TRANSFER_OUT }),
+          fakeTransactionData({
+            transferId: undefined,
+            type: TransactionType.TRANSFER_OUT
+           }),
         ),
       ).toThrow("transferId is required for TRANSFER_OUT");
     });
@@ -81,8 +87,8 @@ describe("transaction model", () => {
       expect(() =>
         Transaction.build(
           fakeTransactionData({
-            type: TransactionType.EXPENSE,
             transferId: "some-transfer-id",
+            type: TransactionType.EXPENSE,
           }),
         ),
       ).toThrow("transferId must not be set for EXPENSE");
@@ -92,8 +98,8 @@ describe("transaction model", () => {
       expect(() =>
         Transaction.build(
           fakeTransactionData({
-            type: TransactionType.TRANSFER_IN,
             transferId: "some-transfer-id",
+            type: TransactionType.TRANSFER_IN,
           }),
         ),
       ).not.toThrow();
@@ -103,8 +109,8 @@ describe("transaction model", () => {
       expect(() =>
         Transaction.build(
           fakeTransactionData({
-            type: TransactionType.EXPENSE,
             transferId: undefined,
+            type: TransactionType.EXPENSE,
           }),
         ),
       ).not.toThrow();
