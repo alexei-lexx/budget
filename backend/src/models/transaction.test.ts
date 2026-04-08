@@ -1,3 +1,4 @@
+import { faker } from "@faker-js/faker";
 import { describe, expect, it } from "@jest/globals";
 import { fakeTransaction } from "../utils/test-utils/models/transaction-fakes";
 import { Transaction, TransactionType } from "./transaction";
@@ -12,10 +13,36 @@ describe("transaction model", () => {
       expect(transaction.signedAmount).toBe(100);
     });
 
+    it("should return positive amount for REFUND transactions", () => {
+      const transaction = fakeTransaction({
+        type: TransactionType.REFUND,
+        amount: 100,
+      });
+      expect(transaction.signedAmount).toBe(100);
+    });
+
+    it("should return positive amount for TRANSFER_IN transactions", () => {
+      const transaction = fakeTransaction({
+        type: TransactionType.TRANSFER_IN,
+        amount: 100,
+        transferId: faker.string.uuid(),
+      });
+      expect(transaction.signedAmount).toBe(100);
+    });
+
     it("should return negative amount for EXPENSE transactions", () => {
       const transaction = fakeTransaction({
         type: TransactionType.EXPENSE,
         amount: 100,
+      });
+      expect(transaction.signedAmount).toBe(-100);
+    });
+
+    it("should return negative amount for TRANSFER_OUT transactions", () => {
+      const transaction = fakeTransaction({
+        type: TransactionType.TRANSFER_OUT,
+        amount: 100,
+        transferId: faker.string.uuid(),
       });
       expect(transaction.signedAmount).toBe(-100);
     });
