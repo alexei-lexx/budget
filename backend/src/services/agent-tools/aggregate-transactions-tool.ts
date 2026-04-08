@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { TransactionType, getSignedAmount } from "../../models/transaction";
+import { TransactionType } from "../../models/transaction";
 import { toDateString } from "../../types/date";
 import { Failure, Success } from "../../types/result";
 import { daysBetween } from "../../utils/date";
@@ -84,8 +84,7 @@ export const createAggregateTransactionsTool = (params: {
     const countByCurrency: Record<Currency, number> = {};
 
     for (const transaction of transactions) {
-      const { currency } = transaction;
-      const signedAmount = getSignedAmount(transaction);
+      const { currency, signedAmount } = transaction;
 
       sumByCurrency[currency] = (sumByCurrency[currency] ?? 0) + signedAmount;
       countByCurrency[currency] = (countByCurrency[currency] ?? 0) + 1;

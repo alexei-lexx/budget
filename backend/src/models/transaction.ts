@@ -116,8 +116,3 @@ export enum TransactionPatternType {
   EXPENSE = "EXPENSE",
   REFUND = "REFUND",
 }
-
-// Backward-compatible delegate — existing callers need no changes
-export function getSignedAmount(transaction: Transaction): number {
-  return transaction.signedAmount;
-}

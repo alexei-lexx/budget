@@ -1,5 +1,4 @@
 import { Account } from "../models/account";
-import { getSignedAmount } from "../models/transaction";
 import {
   NAME_MAX_LENGTH,
   NAME_MIN_LENGTH,
@@ -145,7 +144,7 @@ export class AccountService {
 
     // Calculate balance: initialBalance + INCOME + REFUND + TRANSFER_IN - EXPENSE - TRANSFER_OUT
     const balance = transactions.reduce(
-      (sum, transaction) => sum + getSignedAmount(transaction),
+      (sum, transaction) => sum + transaction.signedAmount,
       account.initialBalance,
     );
 

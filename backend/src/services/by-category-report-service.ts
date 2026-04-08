@@ -1,9 +1,5 @@
 import { ReportType } from "../models/report";
-import {
-  Transaction,
-  TransactionType,
-  getSignedAmount,
-} from "../models/transaction";
+import { Transaction, TransactionType } from "../models/transaction";
 import { toDateString } from "../types/date";
 import { formatDateAsYYYYMMDD } from "../utils/date";
 import { BusinessError } from "./business-error";
@@ -82,11 +78,11 @@ export class ByCategoryReportService {
     // Function to get signed amount based on report type
     // For EXPENSE: expenses are positive, refunds are negative
     // For INCOME: amounts are as-is
-    let amountGetter: typeof getSignedAmount;
+    let amountGetter: (transaction: Transaction) => number;
 
     // Negate to get expenses as positive, refunds as negative
     const negatedSignedAmount = (transaction: Transaction) =>
-      -getSignedAmount(transaction);
+      -transaction.signedAmount;
 
     if (type === ReportType.EXPENSE) {
       transactionTypesToFetch = [
@@ -97,7 +93,7 @@ export class ByCategoryReportService {
       amountGetter = negatedSignedAmount;
     } else if (type === ReportType.INCOME) {
       transactionTypesToFetch = [TransactionType.INCOME];
-      amountGetter = getSignedAmount;
+      amountGetter = (transaction) => transaction.signedAmount;
     } else {
       throw new Error("Invalid report type");
     }
