@@ -17,15 +17,20 @@ describe("TransferService", () => {
   let userId: string;
   let mockTransactionRepository: jest.Mocked<TransactionRepository>;
   let mockAccountRepository: jest.Mocked<AccountRepository>;
+  let mockGenerateId: jest.Mock<() => string>;
 
   beforeEach(() => {
     mockTransactionRepository = createMockTransactionRepository();
     mockAccountRepository = createMockAccountRepository();
+    mockGenerateId = jest
+      .fn<() => string>()
+      .mockReturnValue(faker.string.uuid());
 
-    service = new TransferService(
-      mockTransactionRepository,
-      mockAccountRepository,
-    );
+    service = new TransferService({
+      accountRepository: mockAccountRepository,
+      generateId: mockGenerateId,
+      transactionRepository: mockTransactionRepository,
+    });
 
     userId = faker.string.uuid();
 
@@ -153,9 +158,11 @@ describe("TransferService", () => {
 
   describe("createTransfer", () => {
     it("should create transfer and return result with outbound and inbound transactions", async () => {
+      const transferId = faker.string.uuid();
+      mockGenerateId.mockReturnValueOnce(transferId);
+
       const fromAccount = fakeAccount({ userId });
       const toAccount = fakeAccount({ userId, currency: fromAccount.currency });
-      const transferId = faker.string.uuid();
       const outboundTransaction = fakeTransaction({
         type: TransactionType.TRANSFER_OUT,
         transferId,
@@ -184,7 +191,7 @@ describe("TransferService", () => {
       );
 
       expect(result).toEqual({
-        transferId: expect.any(String),
+        transferId,
         outboundTransaction,
         inboundTransaction,
       });

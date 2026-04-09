@@ -46,10 +46,23 @@ export interface TransferResult {
  * Implements the service layer pattern for transfer operations
  */
 export class TransferService {
-  constructor(
-    private transactionRepository: TransactionRepository,
-    private accountRepository: AccountRepository,
-  ) {}
+  private accountRepository: AccountRepository;
+  private generateId: () => string;
+  private transactionRepository: TransactionRepository;
+
+  constructor({
+    accountRepository,
+    generateId = randomUUID,
+    transactionRepository,
+  }: {
+    accountRepository: AccountRepository;
+    generateId?: () => string;
+    transactionRepository: TransactionRepository;
+  }) {
+    this.accountRepository = accountRepository;
+    this.generateId = generateId;
+    this.transactionRepository = transactionRepository;
+  }
 
   /**
    * Get a transfer by ID with its paired transactions
@@ -92,7 +105,7 @@ export class TransferService {
     this.validateCurrencyMatch(fromAccount, toAccount);
 
     // Generate a unique transfer ID to link the two transactions
-    const transferId = randomUUID();
+    const transferId = this.generateId();
 
     // Create the outbound transaction (TRANSFER_OUT)
     const outboundInput: CreateTransactionInput = {
