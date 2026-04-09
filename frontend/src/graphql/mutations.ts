@@ -164,17 +164,17 @@ export const DISCONNECT_TELEGRAM_BOT = gql`
   }
 `;
 
-export const ASK_INSIGHT = gql`
-  mutation AskInsight($input: InsightInput!) {
-    askInsight(input: $input) {
-      ... on InsightSuccess {
+export const ASK_ASSISTANT = gql`
+  mutation AskAssistant($input: AssistantInput!) {
+    askAssistant(input: $input) {
+      ... on AssistantSuccess {
         answer
         sessionId
         agentTrace {
           ...AgentTraceFields
         }
       }
-      ... on InsightFailure {
+      ... on AssistantFailure {
         message
         sessionId
         agentTrace {

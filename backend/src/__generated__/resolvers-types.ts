@@ -51,6 +51,27 @@ export type AgentTraceToolResult = {
   toolName: Scalars['String']['output'];
 };
 
+export type AssistantFailure = {
+  __typename?: 'AssistantFailure';
+  agentTrace: Array<AgentTraceMessage>;
+  message: Scalars['String']['output'];
+  sessionId: Scalars['ID']['output'];
+};
+
+export type AssistantInput = {
+  question: Scalars['String']['input'];
+  sessionId?: InputMaybe<Scalars['ID']['input']>;
+};
+
+export type AssistantOutput = AssistantFailure | AssistantSuccess;
+
+export type AssistantSuccess = {
+  __typename?: 'AssistantSuccess';
+  agentTrace: Array<AgentTraceMessage>;
+  answer: Scalars['String']['output'];
+  sessionId: Scalars['ID']['output'];
+};
+
 export type ByCategoryReport = {
   __typename?: 'ByCategoryReport';
   categories: Array<ByCategoryReportCategory>;
@@ -149,30 +170,9 @@ export type CreateTransferInput = {
   toAccountId: Scalars['ID']['input'];
 };
 
-export type InsightFailure = {
-  __typename?: 'InsightFailure';
-  agentTrace: Array<AgentTraceMessage>;
-  message: Scalars['String']['output'];
-  sessionId: Scalars['ID']['output'];
-};
-
-export type InsightInput = {
-  question: Scalars['String']['input'];
-  sessionId?: InputMaybe<Scalars['ID']['input']>;
-};
-
-export type InsightOutput = InsightFailure | InsightSuccess;
-
-export type InsightSuccess = {
-  __typename?: 'InsightSuccess';
-  agentTrace: Array<AgentTraceMessage>;
-  answer: Scalars['String']['output'];
-  sessionId: Scalars['ID']['output'];
-};
-
 export type Mutation = {
   __typename?: 'Mutation';
-  askInsight: InsightOutput;
+  askAssistant: AssistantOutput;
   connectTelegramBot: TelegramBot;
   createAccount: Account;
   createCategory: Category;
@@ -193,8 +193,8 @@ export type Mutation = {
 };
 
 
-export type MutationAskInsightArgs = {
-  input: InsightInput;
+export type MutationAskAssistantArgs = {
+  input: AssistantInput;
 };
 
 
@@ -552,13 +552,13 @@ export type ResolversUnionTypes<_RefType extends Record<string, unknown>> = {
     | ( AgentTraceToolCall )
     | ( AgentTraceToolResult )
   ;
+  AssistantOutput:
+    | ( Omit<AssistantFailure, 'agentTrace'> & { agentTrace: Array<_RefType['AgentTraceMessage']> } )
+    | ( Omit<AssistantSuccess, 'agentTrace'> & { agentTrace: Array<_RefType['AgentTraceMessage']> } )
+  ;
   CreateTransactionFromTextOutput:
     | ( Omit<CreateTransactionFromTextFailure, 'agentTrace'> & { agentTrace: Array<_RefType['AgentTraceMessage']> } )
     | ( Omit<CreateTransactionFromTextSuccess, 'agentTrace' | 'transaction'> & { agentTrace: Array<_RefType['AgentTraceMessage']>, transaction: _RefType['Transaction'] } )
-  ;
-  InsightOutput:
-    | ( Omit<InsightFailure, 'agentTrace'> & { agentTrace: Array<_RefType['AgentTraceMessage']> } )
-    | ( Omit<InsightSuccess, 'agentTrace'> & { agentTrace: Array<_RefType['AgentTraceMessage']> } )
   ;
 };
 
@@ -570,6 +570,10 @@ export type ResolversTypes = {
   AgentTraceText: ResolverTypeWrapper<AgentTraceText>;
   AgentTraceToolCall: ResolverTypeWrapper<AgentTraceToolCall>;
   AgentTraceToolResult: ResolverTypeWrapper<AgentTraceToolResult>;
+  AssistantFailure: ResolverTypeWrapper<Omit<AssistantFailure, 'agentTrace'> & { agentTrace: Array<ResolversTypes['AgentTraceMessage']> }>;
+  AssistantInput: AssistantInput;
+  AssistantOutput: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['AssistantOutput']>;
+  AssistantSuccess: ResolverTypeWrapper<Omit<AssistantSuccess, 'agentTrace'> & { agentTrace: Array<ResolversTypes['AgentTraceMessage']> }>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
   ByCategoryReport: ResolverTypeWrapper<Omit<ByCategoryReport, 'categories'> & { categories: Array<ResolversTypes['ByCategoryReportCategory']> }>;
   ByCategoryReportCategory: ResolverTypeWrapper<Omit<ByCategoryReportCategory, 'topTransactions'> & { topTransactions: Array<ResolversTypes['Transaction']> }>;
@@ -587,10 +591,6 @@ export type ResolversTypes = {
   CreateTransferInput: CreateTransferInput;
   Float: ResolverTypeWrapper<Scalars['Float']['output']>;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
-  InsightFailure: ResolverTypeWrapper<Omit<InsightFailure, 'agentTrace'> & { agentTrace: Array<ResolversTypes['AgentTraceMessage']> }>;
-  InsightInput: InsightInput;
-  InsightOutput: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['InsightOutput']>;
-  InsightSuccess: ResolverTypeWrapper<Omit<InsightSuccess, 'agentTrace'> & { agentTrace: Array<ResolversTypes['AgentTraceMessage']> }>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
   Mutation: ResolverTypeWrapper<Record<PropertyKey, never>>;
   PageInfo: ResolverTypeWrapper<PageInfo>;
@@ -625,6 +625,10 @@ export type ResolversParentTypes = {
   AgentTraceText: AgentTraceText;
   AgentTraceToolCall: AgentTraceToolCall;
   AgentTraceToolResult: AgentTraceToolResult;
+  AssistantFailure: Omit<AssistantFailure, 'agentTrace'> & { agentTrace: Array<ResolversParentTypes['AgentTraceMessage']> };
+  AssistantInput: AssistantInput;
+  AssistantOutput: ResolversUnionTypes<ResolversParentTypes>['AssistantOutput'];
+  AssistantSuccess: Omit<AssistantSuccess, 'agentTrace'> & { agentTrace: Array<ResolversParentTypes['AgentTraceMessage']> };
   Boolean: Scalars['Boolean']['output'];
   ByCategoryReport: Omit<ByCategoryReport, 'categories'> & { categories: Array<ResolversParentTypes['ByCategoryReportCategory']> };
   ByCategoryReportCategory: Omit<ByCategoryReportCategory, 'topTransactions'> & { topTransactions: Array<ResolversParentTypes['Transaction']> };
@@ -641,10 +645,6 @@ export type ResolversParentTypes = {
   CreateTransferInput: CreateTransferInput;
   Float: Scalars['Float']['output'];
   ID: Scalars['ID']['output'];
-  InsightFailure: Omit<InsightFailure, 'agentTrace'> & { agentTrace: Array<ResolversParentTypes['AgentTraceMessage']> };
-  InsightInput: InsightInput;
-  InsightOutput: ResolversUnionTypes<ResolversParentTypes>['InsightOutput'];
-  InsightSuccess: Omit<InsightSuccess, 'agentTrace'> & { agentTrace: Array<ResolversParentTypes['AgentTraceMessage']> };
   Int: Scalars['Int']['output'];
   Mutation: Record<PropertyKey, never>;
   PageInfo: PageInfo;
@@ -695,6 +695,24 @@ export type AgentTraceToolCallResolvers<ContextType = GraphQLContext, ParentType
 export type AgentTraceToolResultResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['AgentTraceToolResult'] = ResolversParentTypes['AgentTraceToolResult']> = {
   output?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   toolName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type AssistantFailureResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['AssistantFailure'] = ResolversParentTypes['AssistantFailure']> = {
+  agentTrace?: Resolver<Array<ResolversTypes['AgentTraceMessage']>, ParentType, ContextType>;
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  sessionId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type AssistantOutputResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['AssistantOutput'] = ResolversParentTypes['AssistantOutput']> = {
+  __resolveType: TypeResolveFn<'AssistantFailure' | 'AssistantSuccess', ParentType, ContextType>;
+};
+
+export type AssistantSuccessResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['AssistantSuccess'] = ResolversParentTypes['AssistantSuccess']> = {
+  agentTrace?: Resolver<Array<ResolversTypes['AgentTraceMessage']>, ParentType, ContextType>;
+  answer?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  sessionId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -750,26 +768,8 @@ export type CreateTransactionFromTextSuccessResolvers<ContextType = GraphQLConte
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
-export type InsightFailureResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['InsightFailure'] = ResolversParentTypes['InsightFailure']> = {
-  agentTrace?: Resolver<Array<ResolversTypes['AgentTraceMessage']>, ParentType, ContextType>;
-  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  sessionId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-};
-
-export type InsightOutputResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['InsightOutput'] = ResolversParentTypes['InsightOutput']> = {
-  __resolveType: TypeResolveFn<'InsightFailure' | 'InsightSuccess', ParentType, ContextType>;
-};
-
-export type InsightSuccessResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['InsightSuccess'] = ResolversParentTypes['InsightSuccess']> = {
-  agentTrace?: Resolver<Array<ResolversTypes['AgentTraceMessage']>, ParentType, ContextType>;
-  answer?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  sessionId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-};
-
 export type MutationResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
-  askInsight?: Resolver<ResolversTypes['InsightOutput'], ParentType, ContextType, RequireFields<MutationAskInsightArgs, 'input'>>;
+  askAssistant?: Resolver<ResolversTypes['AssistantOutput'], ParentType, ContextType, RequireFields<MutationAskAssistantArgs, 'input'>>;
   connectTelegramBot?: Resolver<ResolversTypes['TelegramBot'], ParentType, ContextType, RequireFields<MutationConnectTelegramBotArgs, 'token'>>;
   createAccount?: Resolver<ResolversTypes['Account'], ParentType, ContextType, RequireFields<MutationCreateAccountArgs, 'input'>>;
   createCategory?: Resolver<ResolversTypes['Category'], ParentType, ContextType, RequireFields<MutationCreateCategoryArgs, 'input'>>;
@@ -884,6 +884,9 @@ export type Resolvers<ContextType = GraphQLContext> = {
   AgentTraceText?: AgentTraceTextResolvers<ContextType>;
   AgentTraceToolCall?: AgentTraceToolCallResolvers<ContextType>;
   AgentTraceToolResult?: AgentTraceToolResultResolvers<ContextType>;
+  AssistantFailure?: AssistantFailureResolvers<ContextType>;
+  AssistantOutput?: AssistantOutputResolvers<ContextType>;
+  AssistantSuccess?: AssistantSuccessResolvers<ContextType>;
   ByCategoryReport?: ByCategoryReportResolvers<ContextType>;
   ByCategoryReportCategory?: ByCategoryReportCategoryResolvers<ContextType>;
   ByCategoryReportCurrencyBreakdown?: ByCategoryReportCurrencyBreakdownResolvers<ContextType>;
@@ -893,9 +896,6 @@ export type Resolvers<ContextType = GraphQLContext> = {
   CreateTransactionFromTextFailure?: CreateTransactionFromTextFailureResolvers<ContextType>;
   CreateTransactionFromTextOutput?: CreateTransactionFromTextOutputResolvers<ContextType>;
   CreateTransactionFromTextSuccess?: CreateTransactionFromTextSuccessResolvers<ContextType>;
-  InsightFailure?: InsightFailureResolvers<ContextType>;
-  InsightOutput?: InsightOutputResolvers<ContextType>;
-  InsightSuccess?: InsightSuccessResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   PageInfo?: PageInfoResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;

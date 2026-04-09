@@ -1,7 +1,7 @@
 <template>
   <v-btn
     :disabled="agentTrace.length === 0 || loading"
-    icon="mdi-robot-outline"
+    icon="mdi-bug-outline"
     variant="tonal"
     aria-label="View agent trace"
     @click="$emit('click')"

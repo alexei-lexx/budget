@@ -3,23 +3,23 @@
   <v-container class="pa-3 pa-sm-6">
     <!-- Page Header -->
     <div class="mb-6">
-      <h1 class="text-h5 text-sm-h4">Insight</h1>
+      <h1 class="text-h5 text-sm-h4">Assistant</h1>
     </div>
 
     <v-empty-state
-      v-if="!insightAnswer && !askInsightLoading"
-      icon="mdi-lightbulb-on-outline"
+      v-if="!assistantAnswer && !askAssistantLoading"
+      icon="mdi-creation-outline"
       title="Ask about your finances"
       text="Ask a question to get started."
     />
 
-    <div v-else-if="askInsightLoading" class="d-flex justify-center align-center fill-height">
+    <div v-else-if="askAssistantLoading" class="d-flex justify-center align-center fill-height">
       <v-progress-circular indeterminate size="40" width="3" />
     </div>
 
-    <div v-else-if="insightAnswer" class="answer-content mx-auto">
+    <div v-else-if="assistantAnswer" class="answer-content mx-auto">
       <div class="text-body-1" style="white-space: pre-wrap">
-        {{ insightAnswer }}
+        {{ assistantAnswer }}
       </div>
     </div>
   </v-container>
@@ -28,8 +28,8 @@
     <div class="w-100">
       <AgenticInput
         v-model="question"
-        :loading="askInsightLoading"
-        :agent-trace="insightAgentTrace"
+        :loading="askAssistantLoading"
+        :agent-trace="assistantAgentTrace"
         placeholder="Ask about your spending..."
         input-aria-label="Ask a question"
         submit-aria-label="Submit question"
@@ -41,15 +41,20 @@
 
 <script setup lang="ts">
 import { ref, watch } from "vue";
-import { useInsight } from "@/composables/useInsight";
+import { useAssistant } from "@/composables/useAssistant";
 import { useSnackbar } from "@/composables/useSnackbar";
 import AgenticInput from "@/components/AgenticInput.vue";
 
-const STORAGE_KEY = "insight-input";
+const STORAGE_KEY = "assistant-input";
 
 const { showErrorSnackbar } = useSnackbar();
-const { askInsightLoading, askInsightError, insightAnswer, insightAgentTrace, askInsight } =
-  useInsight();
+const {
+  askAssistantLoading,
+  askAssistantError,
+  assistantAnswer,
+  assistantAgentTrace,
+  askAssistant,
+} = useAssistant();
 
 interface StoredInput {
   question: string;
@@ -80,10 +85,10 @@ const handleAskQuestion = async () => {
     return;
   }
 
-  await askInsight(trimmedQuestion);
+  await askAssistant(trimmedQuestion);
 
-  if (askInsightError.value) {
-    showErrorSnackbar(askInsightError.value);
+  if (askAssistantError.value) {
+    showErrorSnackbar(askAssistantError.value);
   }
 };
 

@@ -46,6 +46,27 @@ export type AgentTraceToolResult = {
   toolName: Scalars['String']['output'];
 };
 
+export type AssistantFailure = {
+  __typename?: 'AssistantFailure';
+  agentTrace: Array<AgentTraceMessage>;
+  message: Scalars['String']['output'];
+  sessionId: Scalars['ID']['output'];
+};
+
+export type AssistantInput = {
+  question: Scalars['String']['input'];
+  sessionId?: InputMaybe<Scalars['ID']['input']>;
+};
+
+export type AssistantOutput = AssistantFailure | AssistantSuccess;
+
+export type AssistantSuccess = {
+  __typename?: 'AssistantSuccess';
+  agentTrace: Array<AgentTraceMessage>;
+  answer: Scalars['String']['output'];
+  sessionId: Scalars['ID']['output'];
+};
+
 export type ByCategoryReport = {
   __typename?: 'ByCategoryReport';
   categories: Array<ByCategoryReportCategory>;
@@ -146,30 +167,9 @@ export type CreateTransferInput = {
   toAccountId: Scalars['ID']['input'];
 };
 
-export type InsightFailure = {
-  __typename?: 'InsightFailure';
-  agentTrace: Array<AgentTraceMessage>;
-  message: Scalars['String']['output'];
-  sessionId: Scalars['ID']['output'];
-};
-
-export type InsightInput = {
-  question: Scalars['String']['input'];
-  sessionId?: InputMaybe<Scalars['ID']['input']>;
-};
-
-export type InsightOutput = InsightFailure | InsightSuccess;
-
-export type InsightSuccess = {
-  __typename?: 'InsightSuccess';
-  agentTrace: Array<AgentTraceMessage>;
-  answer: Scalars['String']['output'];
-  sessionId: Scalars['ID']['output'];
-};
-
 export type Mutation = {
   __typename?: 'Mutation';
-  askInsight: InsightOutput;
+  askAssistant: AssistantOutput;
   connectTelegramBot: TelegramBot;
   createAccount: Account;
   createCategory: Category;
@@ -190,8 +190,8 @@ export type Mutation = {
 };
 
 
-export type MutationAskInsightArgs = {
-  input: InsightInput;
+export type MutationAskAssistantArgs = {
+  input: AssistantInput;
 };
 
 
@@ -629,18 +629,18 @@ export type DisconnectTelegramBotMutationVariables = Exact<{ [key: string]: neve
 
 export type DisconnectTelegramBotMutation = { __typename?: 'Mutation', disconnectTelegramBot?: boolean | null | undefined };
 
-export type AskInsightMutationVariables = Exact<{
-  input: InsightInput;
+export type AskAssistantMutationVariables = Exact<{
+  input: AssistantInput;
 }>;
 
 
-export type AskInsightMutation = { __typename?: 'Mutation', askInsight:
-    | { __typename?: 'InsightFailure', message: string, sessionId: string, agentTrace: Array<
+export type AskAssistantMutation = { __typename?: 'Mutation', askAssistant:
+    | { __typename?: 'AssistantFailure', message: string, sessionId: string, agentTrace: Array<
         | { __typename?: 'AgentTraceText', content: string }
         | { __typename?: 'AgentTraceToolCall', toolName: string, input: string }
         | { __typename?: 'AgentTraceToolResult', toolName: string, output: string }
       > }
-    | { __typename?: 'InsightSuccess', answer: string, sessionId: string, agentTrace: Array<
+    | { __typename?: 'AssistantSuccess', answer: string, sessionId: string, agentTrace: Array<
         | { __typename?: 'AgentTraceText', content: string }
         | { __typename?: 'AgentTraceToolCall', toolName: string, input: string }
         | { __typename?: 'AgentTraceToolResult', toolName: string, output: string }
@@ -1276,17 +1276,17 @@ export function useDisconnectTelegramBotMutation(options: VueApolloComposable.Us
   return VueApolloComposable.useMutation<DisconnectTelegramBotMutation, DisconnectTelegramBotMutationVariables>(DisconnectTelegramBotDocument, options);
 }
 export type DisconnectTelegramBotMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<DisconnectTelegramBotMutation, DisconnectTelegramBotMutationVariables>;
-export const AskInsightDocument = gql`
-    mutation AskInsight($input: InsightInput!) {
-  askInsight(input: $input) {
-    ... on InsightSuccess {
+export const AskAssistantDocument = gql`
+    mutation AskAssistant($input: AssistantInput!) {
+  askAssistant(input: $input) {
+    ... on AssistantSuccess {
       answer
       sessionId
       agentTrace {
         ...AgentTraceFields
       }
     }
-    ... on InsightFailure {
+    ... on AssistantFailure {
       message
       sessionId
       agentTrace {
@@ -1298,26 +1298,26 @@ export const AskInsightDocument = gql`
     ${AgentTraceFieldsFragmentDoc}`;
 
 /**
- * __useAskInsightMutation__
+ * __useAskAssistantMutation__
  *
- * To run a mutation, you first call `useAskInsightMutation` within a Vue component and pass it any options that fit your needs.
- * When your component renders, `useAskInsightMutation` returns an object that includes:
+ * To run a mutation, you first call `useAskAssistantMutation` within a Vue component and pass it any options that fit your needs.
+ * When your component renders, `useAskAssistantMutation` returns an object that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - Several other properties: https://v4.apollo.vuejs.org/api/use-mutation.html#return
  *
  * @param options that will be passed into the mutation, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/mutation.html#options;
  *
  * @example
- * const { mutate, loading, error, onDone } = useAskInsightMutation({
+ * const { mutate, loading, error, onDone } = useAskAssistantMutation({
  *   variables: {
  *     input: // value for 'input'
  *   },
  * });
  */
-export function useAskInsightMutation(options: VueApolloComposable.UseMutationOptions<AskInsightMutation, AskInsightMutationVariables> | ReactiveFunction<VueApolloComposable.UseMutationOptions<AskInsightMutation, AskInsightMutationVariables>> = {}) {
-  return VueApolloComposable.useMutation<AskInsightMutation, AskInsightMutationVariables>(AskInsightDocument, options);
+export function useAskAssistantMutation(options: VueApolloComposable.UseMutationOptions<AskAssistantMutation, AskAssistantMutationVariables> | ReactiveFunction<VueApolloComposable.UseMutationOptions<AskAssistantMutation, AskAssistantMutationVariables>> = {}) {
+  return VueApolloComposable.useMutation<AskAssistantMutation, AskAssistantMutationVariables>(AskAssistantDocument, options);
 }
-export type AskInsightMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<AskInsightMutation, AskInsightMutationVariables>;
+export type AskAssistantMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<AskAssistantMutation, AskAssistantMutationVariables>;
 export const GetAccountsDocument = gql`
     query GetAccounts {
   accounts {

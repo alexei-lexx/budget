@@ -1,9 +1,9 @@
 import { Resolvers } from "../../__generated__/resolvers-types";
 import { AgentTraceMessageType } from "../../services/ports/agent";
 import { accountResolvers } from "./account-resolvers";
+import { assistantResolvers } from "./assistant-resolvers";
 import { categoryResolvers } from "./category-resolvers";
 import { createTransactionFromTextResolvers } from "./create-transaction-from-text-resolvers";
-import { insightResolvers } from "./insight-resolvers";
 import { reportResolvers } from "./report-resolvers";
 import { telegramBotResolvers } from "./telegram-bot-resolvers";
 import { transactionResolvers } from "./transaction-resolvers";
@@ -22,9 +22,9 @@ export const resolvers: Resolvers = {
   },
   Mutation: {
     ...accountResolvers.Mutation,
+    ...assistantResolvers.Mutation,
     ...categoryResolvers.Mutation,
     ...createTransactionFromTextResolvers.Mutation,
-    ...insightResolvers.Mutation,
     ...telegramBotResolvers.Mutation,
     ...transactionResolvers.Mutation,
     ...transferResolvers.Mutation,

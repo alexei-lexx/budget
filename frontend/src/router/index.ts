@@ -10,7 +10,7 @@ import Accounts from "@/views/Accounts.vue";
 import Categories from "@/views/Categories.vue";
 import Transactions from "@/views/Transactions.vue";
 import ByCategoryReport from "@/views/ByCategoryReport.vue";
-import Insight from "@/views/Insight.vue";
+import Assistant from "@/views/Assistant.vue";
 import Settings from "@/views/Settings.vue";
 import { useAuth } from "@/composables/useAuth";
 
@@ -76,9 +76,9 @@ const routes = [
     beforeEnter: requireAuth,
   },
   {
-    path: "/insight",
-    name: "Insight",
-    component: Insight,
+    path: "/assistant",
+    name: "Assistant",
+    component: Assistant,
     beforeEnter: requireAuth,
   },
   {

@@ -45,7 +45,7 @@ The system SHALL provide a dropdown of common languages for voice input recognit
 #### Scenario: Selecting and saving a language applies it to voice input
 
 - **GIVEN** the user selects a language from the dropdown and saves
-- **WHEN** they use voice input on the Transactions or Insight page
+- **WHEN** they use voice input on the Transactions or Assistant page
 - **THEN** speech recognition uses the selected language
 
 #### Scenario: No saved language falls back to browser default
