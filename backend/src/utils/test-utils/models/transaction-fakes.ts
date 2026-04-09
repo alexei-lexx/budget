@@ -11,7 +11,7 @@ export const fakeTransactionData = (
   overrides: Partial<TransactionData> = {},
 ): TransactionData => {
   const now = new Date().toISOString();
-  const type = faker.helpers.arrayElement([
+  const type = overrides.type ?? faker.helpers.arrayElement([
     TransactionType.EXPENSE,
     TransactionType.INCOME,
     TransactionType.REFUND,
