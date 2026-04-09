@@ -11,13 +11,15 @@ export const fakeTransactionData = (
   overrides: Partial<TransactionData> = {},
 ): TransactionData => {
   const now = new Date().toISOString();
-  const type = overrides.type ?? faker.helpers.arrayElement([
-    TransactionType.EXPENSE,
-    TransactionType.INCOME,
-    TransactionType.REFUND,
-    TransactionType.TRANSFER_IN,
-    TransactionType.TRANSFER_OUT,
-  ]);
+  const type =
+    overrides.type ??
+    faker.helpers.arrayElement([
+      TransactionType.EXPENSE,
+      TransactionType.INCOME,
+      TransactionType.REFUND,
+      TransactionType.TRANSFER_IN,
+      TransactionType.TRANSFER_OUT,
+    ]);
   const transferId =
     type === TransactionType.TRANSFER_IN ||
     type === TransactionType.TRANSFER_OUT
