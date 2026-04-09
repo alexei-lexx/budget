@@ -20,9 +20,10 @@ export const fakeTransactionData = (
       TransactionType.TRANSFER_IN,
       TransactionType.TRANSFER_OUT,
     ]);
-  const transferId =
-    type === TransactionType.TRANSFER_IN ||
-    type === TransactionType.TRANSFER_OUT
+  const transferId = Object.hasOwn(overrides, "transferId")
+    ? overrides.transferId
+    : type === TransactionType.TRANSFER_IN ||
+        type === TransactionType.TRANSFER_OUT
       ? faker.string.uuid()
       : undefined;
 
