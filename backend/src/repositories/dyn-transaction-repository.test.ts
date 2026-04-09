@@ -615,7 +615,6 @@ describe("DynTransactionRepository", () => {
         // Arrange
         const userId = faker.string.uuid();
         const accountId = faker.string.uuid();
-        const transferId = faker.string.uuid();
 
         await repository.createMany([
           fakeCreateTransactionInput({
@@ -632,13 +631,11 @@ describe("DynTransactionRepository", () => {
             userId,
             accountId,
             type: TransactionType.TRANSFER_IN,
-            transferId,
           }),
           fakeCreateTransactionInput({
             userId,
             accountId,
             type: TransactionType.TRANSFER_OUT,
-            transferId,
           }),
         ]);
 
@@ -2476,7 +2473,6 @@ describe("DynTransactionRepository", () => {
           accountId,
           categoryId: categoryTransfer,
           type: TransactionType.TRANSFER_IN,
-          transferId: faker.string.uuid(),
         }),
       ];
 
