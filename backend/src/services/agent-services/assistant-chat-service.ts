@@ -5,12 +5,12 @@ import { AgentMessage, AgentTraceMessage } from "../ports/agent";
 import { ChatMessageRepository } from "../ports/chat-message-repository";
 import { InsightService } from "./insight-service";
 
-export interface InsightChatInput {
+export interface AssistantChatInput {
   question: string;
   sessionId?: string;
 }
 
-interface InsightChatData {
+interface AssistantChatData {
   agentTrace: AgentTraceMessage[];
   answer: string;
   sessionId: string;
@@ -19,19 +19,19 @@ interface InsightChatData {
 // sessionId is included on both success and failure
 // so the caller can continue the same session on retry,
 // without needing to independently persist it client-side.
-interface InsightChatError {
+interface AssistantChatError {
   agentTrace: AgentTraceMessage[];
   message: string;
   sessionId: string;
 }
 
-export type InsightChatOutput = Result<InsightChatData, InsightChatError>;
+export type AssistantChatOutput = Result<AssistantChatData, AssistantChatError>;
 
-export interface InsightChatService {
-  call(userId: string, input: InsightChatInput): Promise<InsightChatOutput>;
+export interface AssistantChatService {
+  call(userId: string, input: AssistantChatInput): Promise<AssistantChatOutput>;
 }
 
-export class InsightChatServiceImpl implements InsightChatService {
+export class AssistantChatServiceImpl implements AssistantChatService {
   private readonly chatMessageRepository: ChatMessageRepository;
   private readonly insightService: InsightService;
   private readonly maxMessages: number;
@@ -48,8 +48,8 @@ export class InsightChatServiceImpl implements InsightChatService {
 
   async call(
     userId: string,
-    input: InsightChatInput,
-  ): Promise<InsightChatOutput> {
+    input: AssistantChatInput,
+  ): Promise<AssistantChatOutput> {
     const sessionId = input.sessionId || randomUUID();
 
     // Load history for this session

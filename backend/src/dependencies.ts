@@ -9,8 +9,8 @@ import { DynTelegramBotRepository } from "./repositories/dyn-telegram-bot-reposi
 import { DynTransactionRepository } from "./repositories/dyn-transaction-repository";
 import { DynUserRepository } from "./repositories/dyn-user-repository";
 import { AccountService } from "./services/account-service";
+import { AssistantChatServiceImpl } from "./services/agent-services/assistant-chat-service";
 import { CreateTransactionFromTextService } from "./services/agent-services/create-transaction-from-text-service";
-import { InsightChatServiceImpl } from "./services/agent-services/insight-chat-service";
 import { InsightServiceImpl } from "./services/agent-services/insight-service";
 import { ByCategoryReportService } from "./services/by-category-report-service";
 import { CategoryService } from "./services/category-service";
@@ -130,9 +130,9 @@ export const resolveInsightService = createSingleton(
       agent: new ReActAgent(resolveBedrockChatModel()),
     }),
 );
-export const resolveInsightChatService = createSingleton(
+export const resolveAssistantChatService = createSingleton(
   () =>
-    new InsightChatServiceImpl({
+    new AssistantChatServiceImpl({
       chatMessageRepository: resolveChatMessageRepository(),
       insightService: resolveInsightService(),
       maxMessages: chatHistoryMaxMessages,
@@ -143,7 +143,7 @@ export const resolveInsightChatService = createSingleton(
 export const resolveProcessTelegramMessageService = createSingleton(
   () =>
     new ProcessTelegramMessageService({
-      insightChatService: resolveInsightChatService(),
+      assistantChatService: resolveAssistantChatService(),
       telegramApiClient: resolveTelegramApiClient(),
       telegramBotRepository: resolveTelegramBotRepository(),
     }),

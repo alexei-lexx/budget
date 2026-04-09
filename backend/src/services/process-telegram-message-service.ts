@@ -1,5 +1,5 @@
 import { Failure, Result, Success } from "../types/result";
-import { InsightChatService } from "./agent-services/insight-chat-service";
+import { AssistantChatService } from "./agent-services/assistant-chat-service";
 import { TelegramApiClient } from "./ports/telegram-api-client";
 import { TelegramBotRepository } from "./ports/telegram-bot-repository";
 
@@ -11,16 +11,16 @@ export interface ProcessTelegramMessageInput {
 }
 
 export class ProcessTelegramMessageService {
-  private readonly insightChatService: InsightChatService;
+  private readonly assistantChatService: AssistantChatService;
   private readonly telegramApiClient: TelegramApiClient;
   private readonly telegramBotRepository: TelegramBotRepository;
 
   constructor(deps: {
-    insightChatService: InsightChatService;
+    assistantChatService: AssistantChatService;
     telegramApiClient: TelegramApiClient;
     telegramBotRepository: TelegramBotRepository;
   }) {
-    this.insightChatService = deps.insightChatService;
+    this.assistantChatService = deps.assistantChatService;
     this.telegramApiClient = deps.telegramApiClient;
     this.telegramBotRepository = deps.telegramBotRepository;
   }
@@ -63,14 +63,14 @@ export class ProcessTelegramMessageService {
     // Derive a deterministic sessionId from the bot+chat context
     const sessionId = `${botId}#${chatId}`;
 
-    const insightResult = await this.insightChatService.call(userId, {
+    const assistantResult = await this.assistantChatService.call(userId, {
       question: text,
       sessionId,
     });
 
-    const replyText = insightResult.success
-      ? insightResult.data.answer
-      : insightResult.error.message || "Unknown error occurred";
+    const replyText = assistantResult.success
+      ? assistantResult.data.answer
+      : assistantResult.error.message || "Unknown error occurred";
 
     const result = await this.telegramApiClient.sendMessage({
       token: bot.token,
