@@ -12,7 +12,7 @@ export const assistantResolvers = {
       try {
         const user = await getAuthenticatedUser(context);
 
-        const result = await context.insightChatService.call(user.id, {
+        const result = await context.assistantChatService.call(user.id, {
           question: args.input.question,
           sessionId: args.input.sessionId || undefined,
         });

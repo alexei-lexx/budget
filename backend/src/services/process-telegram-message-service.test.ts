@@ -3,11 +3,11 @@ import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import { fakeTelegramBot } from "../utils/test-utils/models/telegram-bot-fakes";
 import { createMockTelegramApiClient } from "../utils/test-utils/providers/telegram-api-client-mocks";
 import { createMockTelegramBotRepository } from "../utils/test-utils/repositories/telegram-bot-repository-mocks";
-import { InsightChatService } from "./agent-services/insight-chat-service";
+import { AssistantChatService } from "./agent-services/assistant-chat-service";
 import { ProcessTelegramMessageService } from "./process-telegram-message-service";
 
 describe("ProcessTelegramMessageService", () => {
-  let insightChatService: jest.Mocked<InsightChatService>;
+  let assistantChatService: jest.Mocked<AssistantChatService>;
   let telegramApiClient: ReturnType<typeof createMockTelegramApiClient>;
   let telegramBotRepository: ReturnType<typeof createMockTelegramBotRepository>;
   let service: ProcessTelegramMessageService;
@@ -16,12 +16,12 @@ describe("ProcessTelegramMessageService", () => {
   const userId = faker.string.uuid();
 
   beforeEach(() => {
-    insightChatService = { call: jest.fn() };
+    assistantChatService = { call: jest.fn() };
     telegramApiClient = createMockTelegramApiClient();
     telegramBotRepository = createMockTelegramBotRepository();
 
     service = new ProcessTelegramMessageService({
-      insightChatService,
+      assistantChatService: assistantChatService,
       telegramApiClient,
       telegramBotRepository,
     });
@@ -79,10 +79,10 @@ describe("ProcessTelegramMessageService", () => {
       text: "I can only process text messages",
       token: bot.token,
     });
-    expect(insightChatService.call).not.toHaveBeenCalled();
+    expect(assistantChatService.call).not.toHaveBeenCalled();
   });
 
-  it("should call InsightChatService and reply with the answer", async () => {
+  it("should call AssistantChatService and reply with the answer", async () => {
     const bot = fakeTelegramBot();
     const sessionId = `${bot.id}#${chatId}`;
     telegramBotRepository.findOneConnectedByUserId.mockResolvedValue(bot);
@@ -90,7 +90,7 @@ describe("ProcessTelegramMessageService", () => {
       success: true,
       data: undefined,
     });
-    insightChatService.call.mockResolvedValue({
+    assistantChatService.call.mockResolvedValue({
       success: true,
       data: { answer: "You spent 50 euro", agentTrace: [], sessionId },
     });
@@ -103,7 +103,7 @@ describe("ProcessTelegramMessageService", () => {
     });
 
     expect(result).toEqual({ success: true, data: undefined });
-    expect(insightChatService.call).toHaveBeenCalledWith(userId, {
+    expect(assistantChatService.call).toHaveBeenCalledWith(userId, {
       question: "How much did I spend?",
       sessionId,
     });
@@ -114,14 +114,14 @@ describe("ProcessTelegramMessageService", () => {
     });
   });
 
-  it("should reply with error message when InsightChatService fails", async () => {
+  it("should reply with error message when AssistantChatService fails", async () => {
     const bot = fakeTelegramBot({ userId });
     telegramBotRepository.findOneConnectedByUserId.mockResolvedValue(bot);
     telegramApiClient.sendMessage.mockResolvedValue({
       success: true,
       data: undefined,
     });
-    insightChatService.call.mockResolvedValue({
+    assistantChatService.call.mockResolvedValue({
       success: false,
       error: {
         message: "No data available",
@@ -153,7 +153,7 @@ describe("ProcessTelegramMessageService", () => {
       success: false,
       error: "Telegram API error",
     });
-    insightChatService.call.mockResolvedValue({
+    assistantChatService.call.mockResolvedValue({
       success: true,
       data: { answer: "You spent 50 euro", agentTrace: [], sessionId },
     });

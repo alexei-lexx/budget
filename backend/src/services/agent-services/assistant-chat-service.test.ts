@@ -5,20 +5,20 @@ import { fakeChatMessage } from "../../utils/test-utils/models/chat-message-fake
 import { createMockChatMessageRepository } from "../../utils/test-utils/repositories/chat-message-repository-mocks";
 import { ChatMessageRepository } from "../ports/chat-message-repository";
 import {
-  InsightChatService,
-  InsightChatServiceImpl,
-} from "./insight-chat-service";
+  AssistantChatService,
+  AssistantChatServiceImpl,
+} from "./assistant-chat-service";
 import { InsightService } from "./insight-service";
 
 const createMockInsightService = (): jest.Mocked<InsightService> => ({
   call: jest.fn(),
 });
 
-describe("InsightChatService", () => {
+describe("AssistantChatService", () => {
   const userId = faker.string.uuid();
   const maxMessages = 20;
 
-  let service: InsightChatService;
+  let service: AssistantChatService;
   let insightService: jest.Mocked<InsightService>;
   let chatMessageRepository: jest.Mocked<ChatMessageRepository>;
 
@@ -26,7 +26,7 @@ describe("InsightChatService", () => {
     insightService = createMockInsightService();
     chatMessageRepository = createMockChatMessageRepository();
 
-    service = new InsightChatServiceImpl({
+    service = new AssistantChatServiceImpl({
       chatMessageRepository,
       insightService,
       maxMessages,

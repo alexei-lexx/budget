@@ -4,11 +4,11 @@ import { ApolloServer } from "@apollo/server";
 import {
   resolveAccountRepository,
   resolveAccountService,
+  resolveAssistantChatService,
   resolveByCategoryReportService,
   resolveCategoryRepository,
   resolveCategoryService,
   resolveCreateTransactionFromTextService,
-  resolveInsightChatService,
   resolveJwtAuthService,
   resolveTelegramBotService,
   resolveTransactionService,
@@ -72,7 +72,7 @@ export async function createContext(req: {
 
     // AI services
     createTransactionFromTextService: resolveCreateTransactionFromTextService(),
-    insightChatService: resolveInsightChatService(),
+    assistantChatService: resolveAssistantChatService(),
 
     // Telegram services
     telegramBotService: resolveTelegramBotService(),
