@@ -30,7 +30,7 @@ The system SHALL redirect authenticated users to the transactions page when they
 
 ### Requirement: Section Navigation
 
-The system SHALL provide a navigation menu with items in this order: Transactions, Accounts, Categories, Reports, Insight, Settings.
+The system SHALL provide a navigation menu with items in this order: Transactions, Accounts, Categories, Reports, Assistant, Settings.
 
 #### Scenario: User navigates to a section via menu
 
@@ -42,7 +42,7 @@ The system SHALL provide a navigation menu with items in this order: Transaction
 
 - **GIVEN** an authenticated user viewing the navigation menu
 - **WHEN** they look at the menu items
-- **THEN** the items appear in order: Transactions, Accounts, Categories, Reports, Insight, Settings
+- **THEN** the items appear in order: Transactions, Accounts, Categories, Reports, Assistant, Settings
 
 ### Requirement: Sign-Out in Sidebar
 

@@ -309,9 +309,9 @@ onMounted(() => {
         />
         <v-list-item
           v-if="isAuthenticated"
-          :to="{ name: 'Insight' }"
-          prepend-icon="mdi-lightbulb-on-outline"
-          title="Insight"
+          :to="{ name: 'Assistant' }"
+          prepend-icon="mdi-creation-outline"
+          title="Assistant"
           @click="mobile && (drawer = false)"
         />
         <v-list-item

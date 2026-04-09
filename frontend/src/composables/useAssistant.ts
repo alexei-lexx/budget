@@ -1,16 +1,16 @@
 import { ref, computed } from "vue";
-import { useAskInsightMutation } from "@/__generated__/vue-apollo";
+import { useAskAssistantMutation } from "@/__generated__/vue-apollo";
 import type { AgentTraceMessage } from "@/__generated__/vue-apollo";
 
-const LAST_RESULT_STORAGE_KEY = "insight-last-result";
-const SESSION_ID_STORAGE_KEY = "insight-session-id";
+const LAST_RESULT_STORAGE_KEY = "assistant-last-result";
+const SESSION_ID_STORAGE_KEY = "assistant-session-id";
 
-interface StoredInsightResult {
+interface StoredAssistantResult {
   answer?: string;
   agentTrace: AgentTraceMessage[];
 }
 
-const loadStoredResult = (): StoredInsightResult | null => {
+const loadStoredResult = (): StoredAssistantResult | null => {
   try {
     const stored = localStorage.getItem(LAST_RESULT_STORAGE_KEY);
     return stored ? JSON.parse(stored) : null;
@@ -20,7 +20,7 @@ const loadStoredResult = (): StoredInsightResult | null => {
   }
 };
 
-const saveStoredResult = (result: StoredInsightResult): void => {
+const saveStoredResult = (result: StoredAssistantResult): void => {
   try {
     localStorage.setItem(LAST_RESULT_STORAGE_KEY, JSON.stringify(result));
   } catch {
@@ -28,7 +28,7 @@ const saveStoredResult = (result: StoredInsightResult): void => {
     try {
       localStorage.setItem(LAST_RESULT_STORAGE_KEY, JSON.stringify({ ...result, agentTrace: [] }));
     } catch (error) {
-      console.error("Failed to persist insight result:", error);
+      console.error("Failed to persist assistant result:", error);
     }
   }
 };
@@ -52,7 +52,7 @@ const saveSessionId = (sessionId: string): void => {
   }
 };
 
-export function useInsight() {
+export function useAssistant() {
   const stored = loadStoredResult();
   const storedAnswer = ref<string | null>(stored?.answer ?? null);
   const storedAgentTrace = ref<AgentTraceMessage[]>(stored?.agentTrace ?? []);
@@ -61,30 +61,30 @@ export function useInsight() {
 
   const fetchedAnswer = ref<string | null>(null);
   const fetchedAgentTrace = ref<AgentTraceMessage[] | null>(null);
-  const askInsightError = ref<string | null>(null);
+  const askAssistantError = ref<string | null>(null);
 
-  const { mutate: askInsightMutation, loading: askInsightLoading } = useAskInsightMutation();
+  const { mutate: askAssistantMutation, loading: askAssistantLoading } = useAskAssistantMutation();
 
-  const askInsight = async (question: string): Promise<void> => {
-    askInsightError.value = null; // Reset error before new request
+  const askAssistant = async (question: string): Promise<void> => {
+    askAssistantError.value = null; // Reset error before new request
 
     try {
-      const result = await askInsightMutation({
+      const result = await askAssistantMutation({
         input: {
           question,
           sessionId: sessionId.value ?? undefined,
         },
       });
-      const response = result?.data?.askInsight ?? null;
+      const response = result?.data?.askAssistant ?? null;
 
-      if (response?.__typename === "InsightSuccess") {
+      if (response?.__typename === "AssistantSuccess") {
         fetchedAnswer.value = response.answer;
         fetchedAgentTrace.value = response.agentTrace;
         // Persist session ID for future follow-up questions
         sessionId.value = response.sessionId;
         saveSessionId(response.sessionId);
-      } else if (response?.__typename === "InsightFailure") {
-        askInsightError.value = response.message;
+      } else if (response?.__typename === "AssistantFailure") {
+        askAssistantError.value = response.message;
         fetchedAnswer.value = null; // Clear answer on failure
         fetchedAgentTrace.value = response.agentTrace;
         // Persist session ID so the user can retry within the same session
@@ -102,23 +102,25 @@ export function useInsight() {
       storedAnswer.value = fetchedAnswer.value;
       storedAgentTrace.value = fetchedAgentTrace.value ?? [];
     } catch (error) {
-      askInsightError.value =
-        error instanceof Error ? error.message : "Failed to get insight. Please try again.";
+      askAssistantError.value =
+        error instanceof Error
+          ? error.message
+          : "Failed to get assistant response. Please try again.";
     }
   };
 
-  const insightAnswer = computed(() =>
+  const assistantAnswer = computed(() =>
     fetchedAnswer.value !== null ? fetchedAnswer.value : storedAnswer.value,
   );
-  const insightAgentTrace = computed(() =>
+  const assistantAgentTrace = computed(() =>
     fetchedAgentTrace.value !== null ? fetchedAgentTrace.value : storedAgentTrace.value,
   );
 
   return {
-    askInsight,
-    askInsightError: computed(() => askInsightError.value),
-    askInsightLoading,
-    insightAgentTrace,
-    insightAnswer,
+    askAssistant,
+    askAssistantError: computed(() => askAssistantError.value),
+    askAssistantLoading,
+    assistantAgentTrace,
+    assistantAnswer,
   };
 }

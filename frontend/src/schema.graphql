@@ -85,15 +85,15 @@ type AgentTraceToolResult {
   output: String!
 }
 
-union InsightOutput = InsightSuccess | InsightFailure
+union AssistantOutput = AssistantSuccess | AssistantFailure
 
-type InsightSuccess {
+type AssistantSuccess {
   answer: String!
   agentTrace: [AgentTraceMessage!]!
   sessionId: ID!
 }
 
-type InsightFailure {
+type AssistantFailure {
   message: String!
   agentTrace: [AgentTraceMessage!]!
   # Returned even on failure so the caller can continue the same session on retry.
@@ -268,7 +268,7 @@ input TransactionFilterInput {
   types: [TransactionType!]
 }
 
-input InsightInput {
+input AssistantInput {
   question: String!
   sessionId: ID
 }
@@ -319,7 +319,7 @@ type ByCategoryReport {
 }
 
 type Mutation {
-  askInsight(input: InsightInput!): InsightOutput!
+  askAssistant(input: AssistantInput!): AssistantOutput!
   ensureUser: User!
   createAccount(input: CreateAccountInput!): Account!
   updateAccount(input: UpdateAccountInput!): Account!

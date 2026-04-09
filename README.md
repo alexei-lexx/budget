@@ -21,7 +21,7 @@ Web application for personal financial management.
 - **Smart Suggestions** - Save time with intelligent account and category recommendations based on your habits
 - **Transaction Search** - Find any transaction by filtering on account, category, date, etc.
 - **Quick Transaction Entry** - Type something like “coffee 4.50,” and let AI create the transaction autonomously, filling in missing details from your past entries
-- **Ask About Your Money** – Ask questions about cash flow, spending habits, or trends in any language, and let AI analyze your transaction history to provide insightful answers
+- **Ask About Your Money** – Use the built-in Assistant to ask questions about cash flow, spending habits, or trends in any language, and let AI analyze your transaction history to provide insightful answers
 - **Telegram Integration** - Chat with the app directly from Telegram
 
 [→ See screenshots](#screenshots)
@@ -157,7 +157,7 @@ To override configuration for a specific environment, replace `production` in th
 
 <p align="center">
     <img src="docs/screenshots/monthly-report.png" alt="Monthly Report" width="49%" />
-    <img src="docs/screenshots/insights.png" alt="Insights" width="49%" />
+    <img src="docs/screenshots/assistant.png" alt="Assistant" width="49%" />
 </p>
 
 <p align="center">

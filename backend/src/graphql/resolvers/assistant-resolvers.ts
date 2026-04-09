@@ -1,12 +1,12 @@
-import { MutationAskInsightArgs } from "../../__generated__/resolvers-types";
+import { MutationAskAssistantArgs } from "../../__generated__/resolvers-types";
 import { GraphQLContext } from "../context";
 import { getAuthenticatedUser, handleResolverError } from "./shared";
 
-export const insightResolvers = {
+export const assistantResolvers = {
   Mutation: {
-    askInsight: async (
+    askAssistant: async (
       _parent: unknown,
-      args: MutationAskInsightArgs,
+      args: MutationAskAssistantArgs,
       context: GraphQLContext,
     ) => {
       try {
@@ -19,7 +19,7 @@ export const insightResolvers = {
 
         if (!result.success) {
           return {
-            __typename: "InsightFailure" as const,
+            __typename: "AssistantFailure" as const,
             message: result.error.message,
             agentTrace: result.error.agentTrace,
             sessionId: result.error.sessionId,
@@ -27,13 +27,13 @@ export const insightResolvers = {
         }
 
         return {
-          __typename: "InsightSuccess" as const,
+          __typename: "AssistantSuccess" as const,
           answer: result.data.answer,
           agentTrace: result.data.agentTrace,
           sessionId: result.data.sessionId,
         };
       } catch (error) {
-        handleResolverError(error, "Failed to fetch insight");
+        handleResolverError(error, "Failed to fetch assistant response");
       }
     },
   },
