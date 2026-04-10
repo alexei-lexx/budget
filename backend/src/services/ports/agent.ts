@@ -1,17 +1,8 @@
 import { StructuredTool } from "@langchain/core/tools";
-import { z } from "zod";
-import { Result } from "../../types/result";
 
 export interface AgentMessage {
   role: "system" | "user" | "assistant";
   content: string;
-}
-
-export interface ToolSignature<TInput, TOutput> {
-  name: string;
-  description: string;
-  call: (input: TInput) => Promise<Result<TOutput>>;
-  inputSchema: z.ZodType<TInput>;
 }
 
 export interface ToolExecution {
