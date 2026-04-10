@@ -6,6 +6,7 @@ import { TransactionRepository } from "../../services/ports/transaction-reposito
 import { toDateString } from "../../types/date";
 import { Success } from "../../types/result";
 import { daysAgo, formatDateAsYYYYMMDD } from "../../utils/date";
+import { agentContextSchema } from "./agent-context";
 import { EntityScope } from "./get-accounts";
 
 export const CATEGORY_HISTORY_LOOKBACK_DAYS = 90;
@@ -30,14 +31,13 @@ interface CategoryData {
 export const createGetCategoriesTool = ({
   categoryRepository,
   transactionRepository,
-  userId,
 }: {
   categoryRepository: CategoryRepository;
   transactionRepository: TransactionRepository;
-  userId: string;
 }) =>
   tool(
-    async ({ scope }) => {
+    async ({ scope }, config) => {
+      const { userId } = agentContextSchema.parse(config?.context);
       const allCategories =
         await categoryRepository.findManyWithArchivedByUserId(userId);
 

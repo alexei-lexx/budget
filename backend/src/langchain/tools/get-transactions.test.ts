@@ -18,22 +18,33 @@ describe("createGetTransactionsTool", () => {
   it("should return tool with correct name", () => {
     const transactionsTool = createGetTransactionsTool({
       transactionRepository: mockTransactionRepository,
-      userId,
     });
 
     expect(transactionsTool.name).toBe("getTransactions");
   });
 
+  it("should throw when userId in context is not a valid UUID", async () => {
+    const transactionsTool = createGetTransactionsTool({
+      transactionRepository: mockTransactionRepository,
+    });
+
+    await expect(
+      transactionsTool.invoke(
+        { startDate: "2000-01-01", endDate: "2000-01-31" },
+        { context: { userId: "not-a-uuid" } },
+      ),
+    ).rejects.toThrow();
+  });
+
   it("should reject when startDate is after endDate", async () => {
     const transactionsTool = createGetTransactionsTool({
       transactionRepository: mockTransactionRepository,
-      userId,
     });
 
-    const result = await transactionsTool.invoke({
-      startDate: "2000-01-20",
-      endDate: "2000-01-10",
-    });
+    const result = await transactionsTool.invoke(
+      { startDate: "2000-01-20", endDate: "2000-01-10" },
+      { context: { userId } },
+    );
 
     expect(mockTransactionRepository.findManyByUserId).not.toHaveBeenCalled();
     expect(result).toEqual({
@@ -45,13 +56,12 @@ describe("createGetTransactionsTool", () => {
   it("should reject when date range exceeds max period days", async () => {
     const transactionsTool = createGetTransactionsTool({
       transactionRepository: mockTransactionRepository,
-      userId,
     });
 
-    const result = await transactionsTool.invoke({
-      startDate: "2000-01-01",
-      endDate: "2001-01-02",
-    });
+    const result = await transactionsTool.invoke(
+      { startDate: "2000-01-01", endDate: "2001-01-02" },
+      { context: { userId } },
+    );
 
     expect(mockTransactionRepository.findManyByUserId).not.toHaveBeenCalled();
     expect(result).toEqual({
@@ -66,13 +76,12 @@ describe("createGetTransactionsTool", () => {
 
     const transactionsTool = createGetTransactionsTool({
       transactionRepository: mockTransactionRepository,
-      userId,
     });
 
-    const result = await transactionsTool.invoke({
-      startDate: "2000-01-01",
-      endDate: "2000-01-31",
-    });
+    const result = await transactionsTool.invoke(
+      { startDate: "2000-01-01", endDate: "2000-01-31" },
+      { context: { userId } },
+    );
 
     expect(result.success).toBe(true);
     expect(mockTransactionRepository.findManyByUserId).toHaveBeenCalledWith(
@@ -111,12 +120,11 @@ describe("createGetTransactionsTool", () => {
 
     const transactionsTool = createGetTransactionsTool({
       transactionRepository: mockTransactionRepository,
-      userId,
     });
-    const result = await transactionsTool.invoke({
-      startDate: "2024-01-01",
-      endDate: "2024-01-31",
-    });
+    const result = await transactionsTool.invoke(
+      { startDate: "2024-01-01", endDate: "2024-01-31" },
+      { context: { userId } },
+    );
 
     expect(result).toEqual({
       success: true,
@@ -153,14 +161,16 @@ describe("createGetTransactionsTool", () => {
 
     const transactionsTool = createGetTransactionsTool({
       transactionRepository: mockTransactionRepository,
-      userId,
     });
 
-    await transactionsTool.invoke({
-      startDate: "2000-01-10",
-      endDate: "2000-01-20",
-      accountIds: [accountId],
-    });
+    await transactionsTool.invoke(
+      {
+        startDate: "2000-01-10",
+        endDate: "2000-01-20",
+        accountIds: [accountId],
+      },
+      { context: { userId } },
+    );
 
     expect(mockTransactionRepository.findManyByUserId).toHaveBeenCalledWith(
       userId,
@@ -178,14 +188,16 @@ describe("createGetTransactionsTool", () => {
 
     const transactionsTool = createGetTransactionsTool({
       transactionRepository: mockTransactionRepository,
-      userId,
     });
 
-    await transactionsTool.invoke({
-      startDate: "2000-01-10",
-      endDate: "2000-01-20",
-      categoryIds: [categoryId],
-    });
+    await transactionsTool.invoke(
+      {
+        startDate: "2000-01-10",
+        endDate: "2000-01-20",
+        categoryIds: [categoryId],
+      },
+      { context: { userId } },
+    );
 
     expect(mockTransactionRepository.findManyByUserId).toHaveBeenCalledWith(
       userId,
@@ -203,14 +215,12 @@ describe("createGetTransactionsTool", () => {
 
     const transactionsTool = createGetTransactionsTool({
       transactionRepository: mockTransactionRepository,
-      userId,
     });
 
-    await transactionsTool.invoke({
-      startDate: "2000-01-10",
-      endDate: "2000-01-20",
-      types,
-    });
+    await transactionsTool.invoke(
+      { startDate: "2000-01-10", endDate: "2000-01-20", types },
+      { context: { userId } },
+    );
 
     expect(mockTransactionRepository.findManyByUserId).toHaveBeenCalledWith(
       userId,
@@ -230,16 +240,18 @@ describe("createGetTransactionsTool", () => {
 
     const transactionsTool = createGetTransactionsTool({
       transactionRepository: mockTransactionRepository,
-      userId,
     });
 
-    await transactionsTool.invoke({
-      startDate: "2000-01-10",
-      endDate: "2000-01-20",
-      accountIds: [accountId],
-      categoryIds: [categoryId],
-      types,
-    });
+    await transactionsTool.invoke(
+      {
+        startDate: "2000-01-10",
+        endDate: "2000-01-20",
+        accountIds: [accountId],
+        categoryIds: [categoryId],
+        types,
+      },
+      { context: { userId } },
+    );
 
     expect(mockTransactionRepository.findManyByUserId).toHaveBeenCalledWith(
       userId,

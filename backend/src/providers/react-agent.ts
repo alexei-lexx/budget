@@ -16,6 +16,7 @@ export class ReActAgent implements Agent {
     messages: readonly AgentMessage[];
     systemPrompt?: string;
     tools?: readonly StructuredTool[];
+    context?: Record<string, unknown>;
   }) {
     // Create ReAct agent with tools
     const react = createAgent({
@@ -24,12 +25,15 @@ export class ReActAgent implements Agent {
       systemPrompt: input.systemPrompt,
     });
 
-    const response = await react.invoke({
-      messages: input.messages.map((msg) => ({
-        role: msg.role,
-        content: msg.content,
-      })),
-    });
+    const response = await react.invoke(
+      {
+        messages: input.messages.map((msg) => ({
+          role: msg.role,
+          content: msg.content,
+        })),
+      },
+      { context: input.context },
+    );
 
     // Extract tool executions for user-facing summary
     const toolExecutionsMap = new Map<string, ToolExecution>();

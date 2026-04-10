@@ -23,10 +23,27 @@ describe("createCreateTransactionTool", () => {
     const createTool = createCreateTransactionTool({
       maxCreations: 1,
       transactionService: mockTransactionService,
-      userId,
     });
 
     expect(createTool.name).toBe("createTransaction");
+  });
+
+  it("should throw when userId in context is not a valid UUID", async () => {
+    const createTool = createCreateTransactionTool({
+      maxCreations: 1,
+      transactionService: mockTransactionService,
+    });
+
+    const input: CreateTransactionInput = {
+      accountId: faker.string.uuid(),
+      amount: 10,
+      date: toDateString("2000-01-15"),
+      type: TransactionType.EXPENSE,
+    };
+
+    await expect(
+      createTool.invoke(input, { context: { userId: "not-a-uuid" } }),
+    ).rejects.toThrow();
   });
 
   it("should call createTransaction with correct input and return created transaction", async () => {
@@ -36,7 +53,6 @@ describe("createCreateTransactionTool", () => {
     const createTool = createCreateTransactionTool({
       maxCreations: 1,
       transactionService: mockTransactionService,
-      userId,
     });
 
     const input: CreateTransactionInput = {
@@ -48,7 +64,7 @@ describe("createCreateTransactionTool", () => {
       type: TransactionType.EXPENSE,
     };
 
-    const result = await createTool.invoke(input);
+    const result = await createTool.invoke(input, { context: { userId } });
 
     expect(mockTransactionService.createTransaction).toHaveBeenCalledWith(
       input,
@@ -76,7 +92,6 @@ describe("createCreateTransactionTool", () => {
     const createTool = createCreateTransactionTool({
       maxCreations: 1,
       transactionService: mockTransactionService,
-      userId,
     });
 
     const input: CreateTransactionInput = {
@@ -86,8 +101,8 @@ describe("createCreateTransactionTool", () => {
       type: TransactionType.EXPENSE,
     };
 
-    await createTool.invoke(input);
-    const result = await createTool.invoke(input);
+    await createTool.invoke(input, { context: { userId } });
+    const result = await createTool.invoke(input, { context: { userId } });
 
     expect(result).toEqual({
       success: false,

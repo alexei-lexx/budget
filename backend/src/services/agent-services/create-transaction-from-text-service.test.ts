@@ -184,6 +184,15 @@ describe("CreateTransactionFromTextService", () => {
       expect(toolNames).toContain("getTransactions");
     });
 
+    it("should pass userId as context to agent", async () => {
+      // Act
+      await service.call({ userId, text });
+
+      // Assert
+      const callArgs = mockAgent.call.mock.calls[0][0];
+      expect(callArgs.context).toEqual({ userId });
+    });
+
     it("should include today's date in system prompt", async () => {
       // Act
       await service.call({ userId, text });

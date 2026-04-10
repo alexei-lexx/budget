@@ -44,6 +44,7 @@ export interface Agent {
     messages: readonly AgentMessage[];
     systemPrompt?: string;
     tools?: readonly StructuredTool[];
+    context?: Record<string, unknown>;
   }): Promise<{
     answer: string;
     toolExecutions?: ToolExecution[];

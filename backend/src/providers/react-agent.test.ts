@@ -20,7 +20,7 @@ describe("ReActAgent", () => {
   let agent: ReActAgent;
   let mockModel: BaseChatModel;
   let mockInvoke: jest.MockedFunction<
-    (input: unknown) => Promise<{ messages: unknown[] }>
+    (input: unknown, config?: unknown) => Promise<{ messages: unknown[] }>
   >;
 
   beforeEach(() => {
@@ -91,13 +91,16 @@ describe("ReActAgent", () => {
       await agent.call({ messages });
 
       // Assert
-      expect(mockInvoke).toHaveBeenCalledWith({
-        messages: [
-          { role: "user", content: "Question 1" },
-          { role: "assistant", content: "Answer 1" },
-          { role: "user", content: "Question 2" },
-        ],
-      });
+      expect(mockInvoke).toHaveBeenCalledWith(
+        {
+          messages: [
+            { role: "user", content: "Question 1" },
+            { role: "assistant", content: "Answer 1" },
+            { role: "user", content: "Question 2" },
+          ],
+        },
+        { context: undefined },
+      );
     });
 
     it("should return answer from last message", async () => {

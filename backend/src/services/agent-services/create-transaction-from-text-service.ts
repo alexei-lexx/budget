@@ -162,19 +162,16 @@ export class CreateTransactionFromTextService {
     const createTransactionTool = createCreateTransactionTool({
       maxCreations: 1, // Limit to 1 transaction per call to prevent unexpected multiple creations
       transactionService: this.transactionService,
-      userId,
     });
 
     const tools = [
-      createGetAccountsTool(this.accountRepository, userId),
+      createGetAccountsTool(this.accountRepository),
       createGetCategoriesTool({
         categoryRepository: this.categoryRepository,
         transactionRepository: this.transactionRepository,
-        userId,
       }),
       createGetTransactionsTool({
         transactionRepository: this.transactionRepository,
-        userId,
       }),
       createTransactionTool,
     ];
@@ -186,6 +183,7 @@ export class CreateTransactionFromTextService {
       messages: [{ role: "user", content: normalizedText }],
       systemPrompt,
       tools,
+      context: { userId },
     });
 
     const lastCreateTransactionToolExecution: ToolExecution | undefined =

@@ -147,7 +147,7 @@ describe("InsightService", () => {
 
       // Assert
       const callArgs = mockAgent.call.mock.calls[0];
-      const { messages, systemPrompt, tools } = callArgs[0];
+      const { messages, systemPrompt, tools, context } = callArgs[0];
 
       expect(messages).toHaveLength(1);
       expect(messages[0].role).toBe("user");
@@ -166,6 +166,8 @@ describe("InsightService", () => {
           "sum",
         ]),
       );
+
+      expect(context).toEqual({ userId });
     });
 
     it("should prepend history messages before the user question", async () => {

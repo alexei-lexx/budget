@@ -104,19 +104,16 @@ export class InsightServiceImpl implements InsightService {
     const systemPrompt = this.buildSystemPrompt();
 
     const dataTools = [
-      createGetAccountsTool(this.accountRepository, userId),
+      createGetAccountsTool(this.accountRepository),
       createGetCategoriesTool({
         categoryRepository: this.categoryRepository,
         transactionRepository: this.transactionRepository,
-        userId,
       }),
       createGetTransactionsTool({
         transactionRepository: this.transactionRepository,
-        userId,
       }),
       createAggregateTransactionsTool({
         transactionRepository: this.transactionRepository,
-        userId,
       }),
     ];
 
@@ -133,6 +130,7 @@ export class InsightServiceImpl implements InsightService {
       messages: [...historyMessages, currentMessage],
       systemPrompt,
       tools,
+      context: { userId },
     });
 
     if (!response.answer) {

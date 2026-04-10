@@ -19,22 +19,33 @@ describe("createAggregateTransactionsTool", () => {
   it("should return tool with correct name", () => {
     const aggregateTool = createAggregateTransactionsTool({
       transactionRepository: mockTransactionRepository,
-      userId,
     });
 
     expect(aggregateTool.name).toBe("aggregateTransactions");
   });
 
+  it("should throw when userId in context is not a valid UUID", async () => {
+    const aggregateTool = createAggregateTransactionsTool({
+      transactionRepository: mockTransactionRepository,
+    });
+
+    await expect(
+      aggregateTool.invoke(
+        { startDate: "2000-01-01", endDate: "2000-01-31" },
+        { context: { userId: "not-a-uuid" } },
+      ),
+    ).rejects.toThrow();
+  });
+
   it("should reject when startDate is after endDate", async () => {
     const aggregateTool = createAggregateTransactionsTool({
       transactionRepository: mockTransactionRepository,
-      userId,
     });
 
-    const result = await aggregateTool.invoke({
-      startDate: "2000-01-20",
-      endDate: "2000-01-10",
-    });
+    const result = await aggregateTool.invoke(
+      { startDate: "2000-01-20", endDate: "2000-01-10" },
+      { context: { userId } },
+    );
 
     expect(mockTransactionRepository.findManyByUserId).not.toHaveBeenCalled();
     expect(result).toEqual({
@@ -46,13 +57,12 @@ describe("createAggregateTransactionsTool", () => {
   it("should reject when date range exceeds max period days", async () => {
     const aggregateTool = createAggregateTransactionsTool({
       transactionRepository: mockTransactionRepository,
-      userId,
     });
 
-    const result = await aggregateTool.invoke({
-      startDate: "2000-01-01",
-      endDate: "2001-01-02",
-    });
+    const result = await aggregateTool.invoke(
+      { startDate: "2000-01-01", endDate: "2001-01-02" },
+      { context: { userId } },
+    );
 
     expect(mockTransactionRepository.findManyByUserId).not.toHaveBeenCalled();
     expect(result).toEqual({
@@ -66,13 +76,12 @@ describe("createAggregateTransactionsTool", () => {
 
     const aggregateTool = createAggregateTransactionsTool({
       transactionRepository: mockTransactionRepository,
-      userId,
     });
 
-    const result = await aggregateTool.invoke({
-      startDate: "2000-01-01",
-      endDate: "2000-01-31",
-    });
+    const result = await aggregateTool.invoke(
+      { startDate: "2000-01-01", endDate: "2000-01-31" },
+      { context: { userId } },
+    );
 
     expect(result).toEqual({ success: true, data: { sum: {}, count: {} } });
   });
@@ -98,13 +107,12 @@ describe("createAggregateTransactionsTool", () => {
 
     const aggregateTool = createAggregateTransactionsTool({
       transactionRepository: mockTransactionRepository,
-      userId,
     });
 
-    const result = await aggregateTool.invoke({
-      startDate: "2000-01-01",
-      endDate: "2000-01-31",
-    });
+    const result = await aggregateTool.invoke(
+      { startDate: "2000-01-01", endDate: "2000-01-31" },
+      { context: { userId } },
+    );
 
     expect(result).toEqual({
       success: true,
@@ -120,13 +128,12 @@ describe("createAggregateTransactionsTool", () => {
 
     const aggregateTool = createAggregateTransactionsTool({
       transactionRepository: mockTransactionRepository,
-      userId,
     });
 
-    await aggregateTool.invoke({
-      startDate: "2000-01-10",
-      endDate: "2000-01-20",
-    });
+    await aggregateTool.invoke(
+      { startDate: "2000-01-10", endDate: "2000-01-20" },
+      { context: { userId } },
+    );
 
     expect(mockTransactionRepository.findManyByUserId).toHaveBeenCalledWith(
       userId,
