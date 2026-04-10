@@ -1,5 +1,6 @@
 import { faker } from "@faker-js/faker";
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
+import { StructuredTool } from "@langchain/core/tools";
 import { fakeTransaction } from "../../utils/test-utils/models/transaction-fakes";
 import { createMockAccountRepository } from "../../utils/test-utils/repositories/account-repository-mocks";
 import { createMockCategoryRepository } from "../../utils/test-utils/repositories/category-repository-mocks";
@@ -8,7 +9,6 @@ import {
   type Agent,
   type AgentTraceMessage,
   AgentTraceMessageType,
-  ToolSignature,
 } from "../ports/agent";
 import { TransactionService } from "../transaction-service";
 import { CreateTransactionFromTextService } from "./create-transaction-from-text-service";
@@ -177,8 +177,7 @@ describe("CreateTransactionFromTextService", () => {
       // Assert
       const callArgs = mockAgent.call.mock.calls[0][0];
       const toolNames =
-        callArgs.tools?.map((t: ToolSignature<unknown, unknown>) => t.name) ??
-        [];
+        callArgs.tools?.map((tool: StructuredTool) => tool.name) ?? [];
       expect(toolNames).toContain("createTransaction");
       expect(toolNames).toContain("getAccounts");
       expect(toolNames).toContain("getCategories");

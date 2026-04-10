@@ -1,14 +1,8 @@
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import { BaseChatModel } from "@langchain/core/language_models/chat_models";
-import {
-  AIMessage,
-  StructuredTool,
-  ToolMessage,
-  createAgent,
-  tool,
-} from "langchain";
+import { AIMessage, ToolMessage, createAgent, tool } from "langchain";
 import { z } from "zod";
-import { AgentTraceMessageType, ToolSignature } from "../services/ports/agent";
+import { AgentTraceMessageType } from "../services/ports/agent";
 import { Success } from "../types/result";
 import { ReActAgent } from "./react-agent";
 
@@ -19,7 +13,6 @@ jest.mock("langchain", () => {
   return {
     ...actual,
     createAgent: jest.fn(),
-    tool: jest.fn(),
   };
 });
 
@@ -50,12 +43,14 @@ describe("ReActAgent", () => {
       // Arrange
       const messages = [{ role: "user" as const, content: "Test question" }];
       const systemPrompt = "You are a test assistant";
-      const testTool: ToolSignature<{ text: string }, string> = {
-        name: "test_tool",
-        description: "A test tool",
-        call: async (input: { text: string }) => Success(`Echo: ${input.text}`),
-        inputSchema: z.object({ text: z.string() }),
-      };
+      const testTool = tool(
+        (input: { text: string }) => Success(`Echo: ${input.text}`),
+        {
+          name: "test_tool",
+          description: "A test tool",
+          schema: z.object({ text: z.string() }),
+        },
+      );
       mockInvoke.mockResolvedValue({
         messages: [
           new AIMessage({
@@ -65,26 +60,13 @@ describe("ReActAgent", () => {
         ],
       });
 
-      // Mock the tool() function to return LangChain tools
-      const mockLangchainTool = {
-        name: "test_tool",
-        description: "A test tool",
-      } as StructuredTool;
-
-      (tool as jest.Mock).mockReturnValue(mockLangchainTool);
-
       // Act
       await agent.call({ messages, systemPrompt, tools: [testTool] });
 
       // Assert
-      expect(tool).toHaveBeenCalledWith(testTool.call, {
-        name: testTool.name,
-        description: testTool.description,
-        schema: testTool.inputSchema,
-      });
       expect(createAgent).toHaveBeenCalledWith({
         model: mockModel,
-        tools: [mockLangchainTool],
+        tools: [testTool],
         systemPrompt,
       });
     });

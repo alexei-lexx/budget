@@ -1,13 +1,12 @@
 import { randomUUID } from "crypto";
 import { BaseChatModel } from "@langchain/core/language_models/chat_models";
-import { AIMessage, ToolMessage, createAgent, tool } from "langchain";
+import { AIMessage, StructuredTool, ToolMessage, createAgent } from "langchain";
 import {
   Agent,
   AgentMessage,
   AgentTraceMessage,
   AgentTraceMessageType,
   ToolExecution,
-  ToolSignature,
 } from "../services/ports/agent";
 
 export class ReActAgent implements Agent {
@@ -16,14 +15,12 @@ export class ReActAgent implements Agent {
   async call(input: {
     messages: readonly AgentMessage[];
     systemPrompt?: string;
-    tools?: readonly ToolSignature<any, any>[]; // eslint-disable-line @typescript-eslint/no-explicit-any
+    tools?: readonly StructuredTool[];
   }) {
-    const langchainTools = input.tools && this.convertTools(input.tools);
-
     // Create ReAct agent with tools
     const react = createAgent({
       model: this.model,
-      tools: langchainTools,
+      tools: [...(input.tools || [])],
       systemPrompt: input.systemPrompt,
     });
 
@@ -171,16 +168,6 @@ export class ReActAgent implements Agent {
       toolName: toolName,
       output: toolOutput,
     };
-  }
-
-  private convertTools(tools: readonly ToolSignature<unknown, unknown>[]) {
-    return tools.map((toolSignature) =>
-      tool(toolSignature.call, {
-        name: toolSignature.name,
-        description: toolSignature.description,
-        schema: toolSignature.inputSchema,
-      }),
-    );
   }
 
   private prettifyJson(object: object) {

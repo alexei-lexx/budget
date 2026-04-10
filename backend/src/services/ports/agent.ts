@@ -1,3 +1,4 @@
+import { StructuredTool } from "@langchain/core/tools";
 import { z } from "zod";
 import { Result } from "../../types/result";
 
@@ -51,7 +52,7 @@ export interface Agent {
   call(input: {
     messages: readonly AgentMessage[];
     systemPrompt?: string;
-    tools?: readonly ToolSignature<any, any>[]; // eslint-disable-line @typescript-eslint/no-explicit-any
+    tools?: readonly StructuredTool[];
   }): Promise<{
     answer: string;
     toolExecutions?: ToolExecution[];
