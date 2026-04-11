@@ -1,8 +1,8 @@
 import { JwtAuthService } from "./auth/jwt-auth";
+import { createCreateTransactionAgent } from "./langchain/agents/create-transaction-agent";
 import { createInsightAgent } from "./langchain/agents/insight-agent";
 import { HttpTelegramApiClient } from "./providers/http-telegram-api-client";
 import { LambdaBackgroundJobDispatcher } from "./providers/lambda-background-job-dispatcher";
-import { ReActAgent } from "./providers/react-agent";
 import { DynAccountRepository } from "./repositories/dyn-account-repository";
 import { DynCategoryRepository } from "./repositories/dyn-category-repository";
 import { DynChatMessageRepository } from "./repositories/dyn-chat-message-repository";
@@ -112,6 +112,15 @@ const resolveTelegramApiClient = createSingleton(
 const resolveBedrockChatModel = createSingleton(() => createBedrockChatModel());
 
 // AI agents
+export const resolveCreateTransactionAgent = createSingleton(() =>
+  createCreateTransactionAgent({
+    model: resolveBedrockChatModel(),
+    accountRepository: resolveAccountRepository(),
+    categoryRepository: resolveCategoryRepository(),
+    transactionRepository: resolveTransactionRepository(),
+    transactionService: resolveTransactionService(),
+  }),
+);
 export const resolveInsightAgent = createSingleton(() =>
   createInsightAgent({
     model: resolveBedrockChatModel(),
@@ -125,21 +134,12 @@ export const resolveInsightAgent = createSingleton(() =>
 export const resolveCreateTransactionFromTextService = createSingleton(
   () =>
     new CreateTransactionFromTextService({
-      accountRepository: resolveAccountRepository(),
-      categoryRepository: resolveCategoryRepository(),
-      transactionRepository: resolveTransactionRepository(),
-      agent: new ReActAgent(resolveBedrockChatModel()),
+      createTransactionAgent: resolveCreateTransactionAgent(),
       transactionService: resolveTransactionService(),
     }),
 );
 export const resolveInsightService = createSingleton(
-  () =>
-    new InsightServiceImpl({
-      accountRepository: resolveAccountRepository(),
-      categoryRepository: resolveCategoryRepository(),
-      transactionRepository: resolveTransactionRepository(),
-      insightAgent: resolveInsightAgent(),
-    }),
+  () => new InsightServiceImpl(resolveInsightAgent()),
 );
 export const resolveAssistantChatService = createSingleton(
   () =>

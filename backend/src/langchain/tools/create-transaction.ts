@@ -32,6 +32,8 @@ const schema = z.object({
 
 export type CreateTransactionInput = z.infer<typeof schema>;
 
+export const CREATE_TRANSACTION_TOOL_NAME = "createTransaction";
+
 export const createCreateTransactionTool = ({
   maxCreations,
   transactionService,
@@ -70,7 +72,7 @@ export const createCreateTransactionTool = ({
       });
     },
     {
-      name: "createTransaction",
+      name: CREATE_TRANSACTION_TOOL_NAME,
       description: "Create a new transaction.",
       schema,
     },

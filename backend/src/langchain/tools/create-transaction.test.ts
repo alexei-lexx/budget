@@ -5,6 +5,7 @@ import { TransactionService } from "../../services/transaction-service";
 import { toDateString } from "../../types/date";
 import { fakeTransaction } from "../../utils/test-utils/models/transaction-fakes";
 import {
+  CREATE_TRANSACTION_TOOL_NAME,
   CreateTransactionInput,
   createCreateTransactionTool,
 } from "./create-transaction";
@@ -25,7 +26,7 @@ describe("createCreateTransactionTool", () => {
       transactionService: mockTransactionService,
     });
 
-    expect(createTool.name).toBe("createTransaction");
+    expect(createTool.name).toBe(CREATE_TRANSACTION_TOOL_NAME);
   });
 
   it("should throw when userId in context is not a valid UUID", async () => {

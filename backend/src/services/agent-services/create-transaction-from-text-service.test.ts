@@ -1,26 +1,21 @@
 import { faker } from "@faker-js/faker";
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
-import { StructuredTool } from "@langchain/core/tools";
+import { AIMessage, ReactAgent, ToolMessage } from "langchain";
+import { CREATE_TRANSACTION_TOOL_NAME } from "../../langchain/tools/create-transaction";
 import { fakeTransaction } from "../../utils/test-utils/models/transaction-fakes";
-import { createMockAccountRepository } from "../../utils/test-utils/repositories/account-repository-mocks";
-import { createMockCategoryRepository } from "../../utils/test-utils/repositories/category-repository-mocks";
-import { createMockTransactionRepository } from "../../utils/test-utils/repositories/transaction-repository-mocks";
-import {
-  type Agent,
-  type AgentTraceMessage,
-  AgentTraceMessageType,
-} from "../ports/agent";
+import { AgentTraceMessageType } from "../ports/agent";
 import { TransactionService } from "../transaction-service";
 import { CreateTransactionFromTextService } from "./create-transaction-from-text-service";
 
-const createMockAgent = (): jest.Mocked<Agent> => ({
-  call: jest.fn(),
+const createMockCreateTransactionAgent = () => ({
+  invoke: jest.fn() as jest.MockedFunction<
+    (input: unknown, config?: unknown) => Promise<{ messages: unknown[] }>
+  >,
 });
 
 const createMockTransactionService = (): jest.Mocked<
-  Pick<TransactionService, "createTransaction" | "getTransactionById">
+  Pick<TransactionService, "getTransactionById">
 > => ({
-  createTransaction: jest.fn(),
   getTransactionById: jest.fn(),
 });
 
@@ -28,20 +23,20 @@ describe("CreateTransactionFromTextService", () => {
   const userId = faker.string.uuid();
   const text = "coffee at starbucks for 5 euros";
   let service: CreateTransactionFromTextService;
-  let mockAgent: jest.Mocked<Agent>;
+  let mockCreateTransactionAgent: ReturnType<
+    typeof createMockCreateTransactionAgent
+  >;
   let mockTransactionService: jest.Mocked<
-    Pick<TransactionService, "createTransaction" | "getTransactionById">
+    Pick<TransactionService, "getTransactionById">
   >;
 
   beforeEach(() => {
-    mockAgent = createMockAgent();
+    mockCreateTransactionAgent = createMockCreateTransactionAgent();
     mockTransactionService = createMockTransactionService();
 
     service = new CreateTransactionFromTextService({
-      accountRepository: createMockAccountRepository(),
-      categoryRepository: createMockCategoryRepository(),
-      transactionRepository: createMockTransactionRepository(),
-      agent: mockAgent,
+      createTransactionAgent:
+        mockCreateTransactionAgent as unknown as ReactAgent,
       transactionService:
         mockTransactionService as unknown as TransactionService,
     });
@@ -59,7 +54,7 @@ describe("CreateTransactionFromTextService", () => {
         success: false,
         error: { message: "User ID is required" },
       });
-      expect(mockAgent.call).not.toHaveBeenCalled();
+      expect(mockCreateTransactionAgent.invoke).not.toHaveBeenCalled();
     });
 
     it("should return failure when text is empty", async () => {
@@ -71,7 +66,7 @@ describe("CreateTransactionFromTextService", () => {
         success: false,
         error: { message: "Text is required" },
       });
-      expect(mockAgent.call).not.toHaveBeenCalled();
+      expect(mockCreateTransactionAgent.invoke).not.toHaveBeenCalled();
     });
 
     it("should return failure when text is only whitespace", async () => {
@@ -83,7 +78,7 @@ describe("CreateTransactionFromTextService", () => {
         success: false,
         error: { message: "Text is required" },
       });
-      expect(mockAgent.call).not.toHaveBeenCalled();
+      expect(mockCreateTransactionAgent.invoke).not.toHaveBeenCalled();
     });
   });
 
@@ -93,33 +88,29 @@ describe("CreateTransactionFromTextService", () => {
 
     beforeEach(() => {
       // Arrange
-      mockAgent.call.mockResolvedValue({
-        answer: "Transaction created successfully",
-        toolExecutions: [
-          {
-            tool: "yetAnotherToolOne",
-            input: "{}",
-            output: "{}",
-          },
-          {
-            tool: "createTransaction",
-            input: '{ "amount": 5 }',
-            output: JSON.stringify({
+      mockCreateTransactionAgent.invoke.mockResolvedValue({
+        messages: [
+          new AIMessage({ content: "Thinking..." }),
+          new AIMessage({
+            content: "",
+            tool_calls: [
+              {
+                id: "call_createtx",
+                name: CREATE_TRANSACTION_TOOL_NAME,
+                args: { amount: 5 },
+                type: "tool_call",
+              },
+            ],
+          }),
+          new ToolMessage({
+            content: JSON.stringify({
               success: true,
               data: { id: transactionId },
             }),
-          },
-          {
-            tool: "yetAnotherToolTwo",
-            input: "{}",
-            output: "{}",
-          },
-        ],
-        agentTrace: [
-          {
-            type: AgentTraceMessageType.TEXT,
-            content: "Thinking...",
-          },
+            tool_call_id: "call_createtx",
+            name: CREATE_TRANSACTION_TOOL_NAME,
+          }),
+          new AIMessage({ content: "Transaction created successfully" }),
         ],
       });
 
@@ -151,12 +142,9 @@ describe("CreateTransactionFromTextService", () => {
       expect(result).toMatchObject({
         success: true,
         data: {
-          agentTrace: [
-            {
-              type: AgentTraceMessageType.TEXT,
-              content: "Thinking...",
-            },
-          ],
+          agentTrace: expect.arrayContaining([
+            { type: AgentTraceMessageType.TEXT, content: "Thinking..." },
+          ]),
         },
       });
     });
@@ -166,22 +154,11 @@ describe("CreateTransactionFromTextService", () => {
       await service.call({ userId, text: `    ${text}    ` });
 
       // Assert
-      const callArgs = mockAgent.call.mock.calls[0][0];
-      expect(callArgs.messages[0].content).toContain(text);
-    });
-
-    it("should include all required tools in agent call", async () => {
-      // Act
-      await service.call({ userId, text });
-
-      // Assert
-      const callArgs = mockAgent.call.mock.calls[0][0];
-      const toolNames =
-        callArgs.tools?.map((tool: StructuredTool) => tool.name) ?? [];
-      expect(toolNames).toContain("createTransaction");
-      expect(toolNames).toContain("getAccounts");
-      expect(toolNames).toContain("getCategories");
-      expect(toolNames).toContain("getTransactions");
+      const [state] = mockCreateTransactionAgent.invoke.mock.calls[0] as [
+        { messages: { content: string }[] },
+        unknown,
+      ];
+      expect(state.messages[0].content).toContain(text);
     });
 
     it("should pass userId as context to agent", async () => {
@@ -189,8 +166,10 @@ describe("CreateTransactionFromTextService", () => {
       await service.call({ userId, text });
 
       // Assert
-      const callArgs = mockAgent.call.mock.calls[0][0];
-      expect(callArgs.context).toEqual({ userId });
+      expect(mockCreateTransactionAgent.invoke).toHaveBeenCalledWith(
+        expect.any(Object),
+        { context: { userId } },
+      );
     });
 
     it("should include today's date in user message", async () => {
@@ -198,9 +177,12 @@ describe("CreateTransactionFromTextService", () => {
       await service.call({ userId, text });
 
       // Assert
-      const callArgs = mockAgent.call.mock.calls[0][0];
+      const [state] = mockCreateTransactionAgent.invoke.mock.calls[0] as [
+        { messages: { content: string }[] },
+        unknown,
+      ];
       const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
-      expect(callArgs.messages[0].content).toContain(`Today is ${today}`);
+      expect(state.messages[0].content).toContain(`Today is ${today}`);
     });
 
     it("should not include voice input flag in user message when isVoiceInput is false", async () => {
@@ -208,8 +190,11 @@ describe("CreateTransactionFromTextService", () => {
       await service.call({ userId, text, isVoiceInput: false });
 
       // Assert
-      const callArgs = mockAgent.call.mock.calls[0][0];
-      expect(callArgs.messages[0].content).not.toContain("voice recognition");
+      const [state] = mockCreateTransactionAgent.invoke.mock.calls[0] as [
+        { messages: { content: string }[] },
+        unknown,
+      ];
+      expect(state.messages[0].content).not.toContain("voice recognition");
     });
 
     it("should include voice input flag in user message when isVoiceInput is true", async () => {
@@ -217,15 +202,20 @@ describe("CreateTransactionFromTextService", () => {
       await service.call({ userId, text, isVoiceInput: true });
 
       // Assert
-      const callArgs = mockAgent.call.mock.calls[0][0];
-      expect(callArgs.messages[0].content).toContain("voice recognition");
+      const [state] = mockCreateTransactionAgent.invoke.mock.calls[0] as [
+        { messages: { content: string }[] },
+        unknown,
+      ];
+      expect(state.messages[0].content).toContain("voice recognition");
     });
   });
 
   describe("error paths", () => {
     it("should propagate error when agent call fails", async () => {
       // Arrange
-      mockAgent.call.mockRejectedValue(new Error("Agent unavailable"));
+      mockCreateTransactionAgent.invoke.mockRejectedValue(
+        new Error("Agent unavailable"),
+      );
 
       // Act & Assert
       await expect(service.call({ userId, text })).rejects.toThrow(
@@ -236,16 +226,8 @@ describe("CreateTransactionFromTextService", () => {
 
     it("should return failure when agent does not attempt to create transaction", async () => {
       // Arrange
-      mockAgent.call.mockResolvedValue({
-        answer: "I need more information.",
-        toolExecutions: [
-          {
-            tool: "anotherTool",
-            input: "{}",
-            output: "{}",
-          },
-        ],
-        agentTrace: [],
+      mockCreateTransactionAgent.invoke.mockResolvedValue({
+        messages: [new AIMessage({ content: "I need more information." })],
       });
 
       // Act
@@ -264,16 +246,25 @@ describe("CreateTransactionFromTextService", () => {
 
     it("should return failure when tool output is not valid JSON", async () => {
       // Arrange
-      mockAgent.call.mockResolvedValue({
-        answer: "Creating transaction...",
-        toolExecutions: [
-          {
-            tool: "createTransaction",
-            input: '{ "amount": 5 }',
-            output: "This is not valid JSON",
-          },
+      mockCreateTransactionAgent.invoke.mockResolvedValue({
+        messages: [
+          new AIMessage({
+            content: "",
+            tool_calls: [
+              {
+                id: "call_1",
+                name: CREATE_TRANSACTION_TOOL_NAME,
+                args: { amount: 5 },
+                type: "tool_call",
+              },
+            ],
+          }),
+          new ToolMessage({
+            content: "This is not valid JSON",
+            tool_call_id: "call_1",
+            name: CREATE_TRANSACTION_TOOL_NAME,
+          }),
         ],
-        agentTrace: [],
       });
 
       // Act
@@ -289,21 +280,30 @@ describe("CreateTransactionFromTextService", () => {
 
     it("should return failure when tool output does not match expected schema", async () => {
       // Arrange
-      mockAgent.call.mockResolvedValue({
-        answer: "Creating transaction...",
-        toolExecutions: [
-          {
-            tool: "createTransaction",
-            input: '{ "amount": 5 }',
-            output: JSON.stringify({
+      mockCreateTransactionAgent.invoke.mockResolvedValue({
+        messages: [
+          new AIMessage({
+            content: "",
+            tool_calls: [
+              {
+                id: "call_1",
+                name: CREATE_TRANSACTION_TOOL_NAME,
+                args: { amount: 5 },
+                type: "tool_call",
+              },
+            ],
+          }),
+          new ToolMessage({
+            content: JSON.stringify({
               success: true,
               data: {
                 currency: "EUR", // missing "id"
               },
             }),
-          },
+            tool_call_id: "call_1",
+            name: CREATE_TRANSACTION_TOOL_NAME,
+          }),
         ],
-        agentTrace: [],
       });
 
       // Act
@@ -321,13 +321,8 @@ describe("CreateTransactionFromTextService", () => {
 
     it("should return agentTrace from agent response", async () => {
       // Arrange
-      const agentTrace: AgentTraceMessage[] = [
-        { type: AgentTraceMessageType.TEXT, content: "Thinking..." },
-      ];
-      mockAgent.call.mockResolvedValue({
-        answer: "I need more information.",
-        toolExecutions: [],
-        agentTrace,
+      mockCreateTransactionAgent.invoke.mockResolvedValue({
+        messages: [new AIMessage({ content: "Thinking..." })],
       });
 
       // Act
@@ -336,36 +331,60 @@ describe("CreateTransactionFromTextService", () => {
       // Assert
       expect(result).toMatchObject({
         success: false,
-        error: { agentTrace },
+        error: {
+          agentTrace: [
+            { type: AgentTraceMessageType.TEXT, content: "Thinking..." },
+          ],
+        },
       });
     });
 
-    it("should handle multiple creation tool executions", async () => {
+    it("should handle multiple creation tool executions and use the last one", async () => {
       // Arrange
       const transactionId = faker.string.uuid();
       const createdTransaction = fakeTransaction();
 
-      mockAgent.call.mockResolvedValue({
-        answer: "Two transactions created successfully",
-        toolExecutions: [
-          {
-            tool: "createTransaction",
-            input: '{ "amount": 4 }',
-            output: JSON.stringify({
+      mockCreateTransactionAgent.invoke.mockResolvedValue({
+        messages: [
+          new AIMessage({
+            content: "",
+            tool_calls: [
+              {
+                id: "call_first",
+                name: CREATE_TRANSACTION_TOOL_NAME,
+                args: { amount: 4 },
+                type: "tool_call",
+              },
+            ],
+          }),
+          new ToolMessage({
+            content: JSON.stringify({
               success: true,
               data: { id: faker.string.uuid() },
             }),
-          },
-          {
-            tool: "createTransaction",
-            input: '{ "amount": 5 }',
-            output: JSON.stringify({
+            tool_call_id: "call_first",
+            name: CREATE_TRANSACTION_TOOL_NAME,
+          }),
+          new AIMessage({
+            content: "",
+            tool_calls: [
+              {
+                id: "call_last",
+                name: CREATE_TRANSACTION_TOOL_NAME,
+                args: { amount: 5 },
+                type: "tool_call",
+              },
+            ],
+          }),
+          new ToolMessage({
+            content: JSON.stringify({
               success: true,
               data: { id: transactionId },
             }),
-          },
+            tool_call_id: "call_last",
+            name: CREATE_TRANSACTION_TOOL_NAME,
+          }),
         ],
-        agentTrace: [],
       });
       mockTransactionService.getTransactionById.mockResolvedValue(
         createdTransaction,
