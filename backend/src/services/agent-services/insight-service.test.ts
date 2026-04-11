@@ -12,7 +12,9 @@ import {
 } from "./insight-service";
 
 const createMockInsightAgent = () => ({
-  invoke: jest.fn() as jest.MockedFunction<(input: unknown, config?: unknown) => Promise<{ messages: unknown[] }>>,
+  invoke: jest.fn() as jest.MockedFunction<
+    (input: unknown, config?: unknown) => Promise<{ messages: unknown[] }>
+  >,
 });
 
 describe("InsightService", () => {
