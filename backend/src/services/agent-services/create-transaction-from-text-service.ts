@@ -1,11 +1,11 @@
 import { ReactAgent } from "langchain";
 import { z } from "zod";
+import { CREATE_TRANSACTION_TOOL_NAME } from "../../langchain/tools/create-transaction";
 import {
   extractAgentTrace,
   extractLastMessageText,
   extractToolExecutions,
-} from "../../langchain/agents/utils";
-import { CREATE_TRANSACTION_TOOL_NAME } from "../../langchain/tools/create-transaction";
+} from "../../langchain/utils";
 import { Transaction } from "../../models/transaction";
 import { Failure, Result, Success } from "../../types/result";
 import { formatDateAsYYYYMMDD } from "../../utils/date";

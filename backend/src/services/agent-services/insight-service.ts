@@ -2,7 +2,7 @@ import { ReactAgent } from "langchain";
 import {
   extractAgentTrace,
   extractLastMessageText,
-} from "../../langchain/agents/utils";
+} from "../../langchain/utils";
 import { Failure, Result, Success } from "../../types/result";
 import { formatDateAsYYYYMMDD } from "../../utils/date";
 import { AgentMessage, AgentTraceMessage } from "../ports/agent";
