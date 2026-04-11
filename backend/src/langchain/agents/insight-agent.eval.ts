@@ -84,18 +84,10 @@ task("calculate total expenses for a given month", async (iteration) => {
   ]);
 
   const question = `How much did I spend in February ${year}? Return only the number.`;
-  const today = formatDateAsYYYYMMDD(new Date());
 
   const response = await agent.invoke(
-    {
-      messages: [
-        {
-          role: "user",
-          content: `Today is ${today}.\nMy question: ${question}`,
-        },
-      ],
-    },
-    { context: { userId: user.id } },
+    { messages: [{ role: "user", content: question }] },
+    { context: { userId: user.id, today: formatDateAsYYYYMMDD(new Date()) } },
   );
 
   const answer = extractLastMessageText(response.messages)?.trim();

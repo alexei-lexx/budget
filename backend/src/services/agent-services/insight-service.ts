@@ -35,10 +35,9 @@ export class InsightServiceImpl implements InsightService {
     }
 
     const historyMessages: readonly AgentMessage[] = input.history ?? [];
-    const currentDate = formatDateAsYYYYMMDD(new Date());
     const currentMessage: AgentMessage = {
       role: "user",
-      content: `Today is ${currentDate}.\nMy question: ${normalizedQuestion}`,
+      content: `My question: ${normalizedQuestion}`,
     };
     const messages = [...historyMessages, currentMessage].map((message) => ({
       role: message.role,
@@ -47,7 +46,7 @@ export class InsightServiceImpl implements InsightService {
 
     const response = await this.insightAgent.invoke(
       { messages },
-      { context: { userId } },
+      { context: { userId, today: formatDateAsYYYYMMDD(new Date()) } },
     );
 
     const answer = extractLastMessageText(response.messages)?.trim();

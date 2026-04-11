@@ -1,5 +1,6 @@
 import { BaseChatModel } from "@langchain/core/language_models/chat_models";
-import { createAgent } from "langchain";
+import { createAgent, dynamicSystemPromptMiddleware } from "langchain";
+import { z } from "zod";
 import { AccountRepository } from "../../services/ports/account-repository";
 import { CategoryRepository } from "../../services/ports/category-repository";
 import { TransactionRepository } from "../../services/ports/transaction-repository";
@@ -8,6 +9,16 @@ import { createCreateTransactionTool } from "../tools/create-transaction";
 import { createGetAccountsTool } from "../tools/get-accounts";
 import { createGetCategoriesTool } from "../tools/get-categories";
 import { createGetTransactionsTool } from "../tools/get-transactions";
+
+export const createTransactionAgentContextSchema = z.object({
+  isVoiceInput: z.boolean().default(false),
+  today: z.iso.date(),
+  userId: z.uuid(),
+});
+
+export type CreateTransactionAgentContext = z.infer<
+  typeof createTransactionAgentContextSchema
+>;
 
 const SYSTEM_PROMPT = `
 ## Role
@@ -43,7 +54,7 @@ You MUST infer all mandatory and optional transaction fields and then MUST persi
 - Mandatory field
 - Numeric or written value representing a money quantity (e.g., 25, 20.5, "twenty five euros")
 - If multiple amounts are present, MUST stop and report an error — only one transaction at a time
-- If the user indicates this is a voice input:
+- If voice input is indicated:
   - Speech-to-text commonly collapses spoken prices — "two thirty four" becomes "234"
   - The integer "234" may represent 2.34, 23.4, or 234
   - Look up similar past transactions (same or related category, similar description) to assess which interpretation is most realistic
@@ -117,6 +128,23 @@ export function createCreateTransactionAgent({
   return createAgent({
     model,
     tools,
-    systemPrompt: SYSTEM_PROMPT,
+    contextSchema: createTransactionAgentContextSchema,
+    middleware: [
+      dynamicSystemPromptMiddleware<CreateTransactionAgentContext>(
+        (_state, runtime) => {
+          const { today, isVoiceInput } = runtime.context;
+          const parts = [
+            SYSTEM_PROMPT,
+            `## Current Date\n\nToday is ${today}.`,
+            ...(isVoiceInput
+              ? [
+                  "## Voice Input Indicator\n\nThe user's input was captured via voice recognition.",
+                ]
+              : []),
+          ];
+          return parts.join("\n\n");
+        },
+      ),
+    ],
   });
 }

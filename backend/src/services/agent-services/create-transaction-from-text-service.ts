@@ -12,8 +12,6 @@ import { formatDateAsYYYYMMDD } from "../../utils/date";
 import { AgentTraceMessage } from "../ports/agent";
 import { TransactionService } from "../transaction-service";
 
-const VOICE_INPUT_FLAG = "Note: this input was captured via voice recognition.";
-
 const createdTransactionSchema = z.discriminatedUnion("success", [
   z.object({
     success: z.literal(true),
@@ -64,16 +62,15 @@ export class CreateTransactionFromTextService {
       return Failure({ message: "Text is required", agentTrace: [] });
     }
 
-    const today = formatDateAsYYYYMMDD(new Date());
-    const userMessageParts = [`Today is ${today}.`, normalizedText];
-
-    if (isVoiceInput) {
-      userMessageParts.push(VOICE_INPUT_FLAG);
-    }
-
     const response = await this.createTransactionAgent.invoke(
-      { messages: [{ role: "user", content: userMessageParts.join("\n") }] },
-      { context: { userId } },
+      { messages: [{ role: "user", content: normalizedText }] },
+      {
+        context: {
+          userId,
+          isVoiceInput,
+          today: formatDateAsYYYYMMDD(new Date()),
+        },
+      },
     );
 
     const toolExecutions = extractToolExecutions(response.messages);

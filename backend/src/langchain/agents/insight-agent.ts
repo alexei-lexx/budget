@@ -1,5 +1,6 @@
 import { BaseChatModel } from "@langchain/core/language_models/chat_models";
-import { createAgent } from "langchain";
+import { createAgent, dynamicSystemPromptMiddleware } from "langchain";
+import { z } from "zod";
 import { AccountRepository } from "../../services/ports/account-repository";
 import { CategoryRepository } from "../../services/ports/category-repository";
 import { TransactionRepository } from "../../services/ports/transaction-repository";
@@ -8,6 +9,13 @@ import { createGetAccountsTool } from "../tools/get-accounts";
 import { createGetCategoriesTool } from "../tools/get-categories";
 import { createGetTransactionsTool } from "../tools/get-transactions";
 import { avgTool, calculateTool, sumTool } from "../tools/math";
+
+export const insightAgentContextSchema = z.object({
+  today: z.iso.date(),
+  userId: z.uuid(),
+});
+
+export type InsightAgentContext = z.infer<typeof insightAgentContextSchema>;
 
 const SYSTEM_PROMPT = `
 ## Role
@@ -84,6 +92,11 @@ export function createInsightAgent({
   return createAgent({
     model,
     tools,
-    systemPrompt: SYSTEM_PROMPT,
+    contextSchema: insightAgentContextSchema,
+    middleware: [
+      dynamicSystemPromptMiddleware<InsightAgentContext>((_state, runtime) => {
+        return `${SYSTEM_PROMPT}\n\n## Current Date\n\nToday is ${runtime.context.today}.`;
+      }),
+    ],
   });
 }
