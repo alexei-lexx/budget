@@ -1,11 +1,11 @@
 import { faker } from "@faker-js/faker";
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import { AIMessage, ReactAgent, ToolMessage } from "langchain";
-import { CREATE_TRANSACTION_TOOL_NAME } from "../../langchain/tools/create-transaction";
-import { fakeTransaction } from "../../utils/test-utils/models/transaction-fakes";
-import { AgentTraceMessageType } from "../ports/agent-types";
-import { TransactionService } from "../transaction-service";
+import { CREATE_TRANSACTION_TOOL_NAME } from "../langchain/tools/create-transaction";
+import { fakeTransaction } from "../utils/test-utils/models/transaction-fakes";
 import { CreateTransactionFromTextService } from "./create-transaction-from-text-service";
+import { AgentTraceMessageType } from "./ports/agent-types";
+import { TransactionService } from "./transaction-service";
 
 describe("CreateTransactionFromTextService", () => {
   const userId = faker.string.uuid();

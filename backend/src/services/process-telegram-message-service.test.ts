@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import { fakeTelegramBot } from "../utils/test-utils/models/telegram-bot-fakes";
 import { createMockTelegramApiClient } from "../utils/test-utils/providers/telegram-api-client-mocks";
 import { createMockTelegramBotRepository } from "../utils/test-utils/repositories/telegram-bot-repository-mocks";
-import { AssistantChatService } from "./agent-services/assistant-chat-service";
+import { AssistantChatService } from "./assistant-chat-service";
 import { ProcessTelegramMessageService } from "./process-telegram-message-service";
 
 describe("ProcessTelegramMessageService", () => {
