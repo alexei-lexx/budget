@@ -1,23 +1,25 @@
 import {
   resolveAccountRepository,
-  resolveInsightService,
+  resolveInsightAgent,
   resolveTransactionRepository,
   resolveUserRepository,
 } from "../../dependencies";
 import { TransactionType } from "../../models/transaction";
 import { toDateString } from "../../types/date";
+import { formatDateAsYYYYMMDD } from "../../utils/date";
 import { createDynamoDBDocumentClient } from "../../utils/dynamo-client";
 import { truncateAllTables } from "../../utils/test-utils/dynamodb-helpers";
 import { task, toGrade } from "../../utils/test-utils/evals";
 import { fakeAccount } from "../../utils/test-utils/models/account-fakes";
 import { fakeUser } from "../../utils/test-utils/models/user-fakes";
 import { fakeCreateTransactionInput } from "../../utils/test-utils/repositories/transaction-repository-fakes";
+import { extractLastMessageText } from "../utils";
 
 const accountRepository = resolveAccountRepository();
 const transactionRepository = resolveTransactionRepository();
 const userRepository = resolveUserRepository();
 
-const service = resolveInsightService();
+const agent = resolveInsightAgent();
 
 async function cleanupTables() {
   const client = createDynamoDBDocumentClient();
@@ -82,15 +84,28 @@ task("calculate total expenses for a given month", async (iteration) => {
   ]);
 
   const question = `How much did I spend in February ${year}? Return only the number.`;
+  const today = formatDateAsYYYYMMDD(new Date());
 
-  const result = await service.call(user.id, { question });
+  const response = await agent.invoke(
+    {
+      messages: [
+        {
+          role: "user",
+          content: `Today is ${today}.\nMy question: ${question}`,
+        },
+      ],
+    },
+    { context: { userId: user.id } },
+  );
+
+  const answer = extractLastMessageText(response.messages)?.trim();
 
   return {
     input: question,
     grades: [
       {
         name: "correct total",
-        value: toGrade(result.success && result.data.answer.includes("260.84")),
+        value: toGrade(!!answer && answer.includes("260.84")),
       },
     ],
   };
