@@ -17,7 +17,7 @@ export function extractLastMessageText(
       result = lastMessage.content;
     } else if (Array.isArray(lastMessage.content)) {
       const lastTextBlock = lastMessage.content.findLast(
-        (item) => "text" in item,
+        (item) => typeof item === "object" && item !== null && "text" in item,
       )?.text;
 
       result = lastTextBlock ? String(lastTextBlock) : undefined;
