@@ -27,9 +27,10 @@ describe("createCreateTransactionAgent", () => {
   let mockModel: BaseChatModel;
 
   beforeEach(() => {
+    jest.clearAllMocks();
+
     mockModel = {} as BaseChatModel;
     (createAgent as jest.Mock).mockReturnValue({ invoke: jest.fn() });
-    jest.clearAllMocks();
   });
 
   it("should call createAgent", () => {
