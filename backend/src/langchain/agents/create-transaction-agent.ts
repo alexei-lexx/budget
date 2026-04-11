@@ -1,11 +1,18 @@
 import { BaseChatModel } from "@langchain/core/language_models/chat_models";
-import { createAgent, dynamicSystemPromptMiddleware } from "langchain";
+import {
+  createAgent,
+  dynamicSystemPromptMiddleware,
+  toolCallLimitMiddleware,
+} from "langchain";
 import { z } from "zod";
 import { AccountRepository } from "../../services/ports/account-repository";
 import { CategoryRepository } from "../../services/ports/category-repository";
 import { TransactionRepository } from "../../services/ports/transaction-repository";
 import { TransactionService } from "../../services/transaction-service";
-import { createCreateTransactionTool } from "../tools/create-transaction";
+import {
+  CREATE_TRANSACTION_TOOL_NAME,
+  createCreateTransactionTool,
+} from "../tools/create-transaction";
 import { createGetAccountsTool } from "../tools/get-accounts";
 import { createGetCategoriesTool } from "../tools/get-categories";
 import { createGetTransactionsTool } from "../tools/get-transactions";
@@ -119,10 +126,7 @@ export function createCreateTransactionAgent({
     createGetAccountsTool(accountRepository),
     createGetCategoriesTool({ categoryRepository, transactionRepository }),
     createGetTransactionsTool({ transactionRepository }),
-    createCreateTransactionTool({
-      maxCreations: 1, // Limit to 1 transaction per call to prevent unexpected multiple creations
-      transactionService,
-    }),
+    createCreateTransactionTool({ transactionService }),
   ];
 
   return createAgent({
@@ -145,6 +149,11 @@ export function createCreateTransactionAgent({
           return parts.join("\n\n");
         },
       ),
+      // Prevent creating more than one transaction per invocation
+      toolCallLimitMiddleware({
+        toolName: CREATE_TRANSACTION_TOOL_NAME,
+        runLimit: 1,
+      }),
     ],
   });
 }

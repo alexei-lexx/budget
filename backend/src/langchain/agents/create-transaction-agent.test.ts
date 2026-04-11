@@ -1,6 +1,10 @@
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import { BaseChatModel } from "@langchain/core/language_models/chat_models";
-import { createAgent } from "langchain";
+import {
+  createAgent,
+  dynamicSystemPromptMiddleware,
+  toolCallLimitMiddleware,
+} from "langchain";
 import { CREATE_TRANSACTION_TOOL_NAME } from "../../langchain/tools/create-transaction";
 import { TransactionService } from "../../services/transaction-service";
 import { createMockAccountRepository } from "../../utils/test-utils/repositories/account-repository-mocks";
@@ -14,6 +18,8 @@ jest.mock("langchain", () => {
   return {
     ...actual,
     createAgent: jest.fn(),
+    dynamicSystemPromptMiddleware: jest.fn(),
+    toolCallLimitMiddleware: jest.fn(),
   };
 });
 
@@ -26,7 +32,7 @@ describe("createCreateTransactionAgent", () => {
     jest.clearAllMocks();
   });
 
-  it("should call createAgent with model, tools, and system prompt", () => {
+  it("should call createAgent", () => {
     // Act
     createCreateTransactionAgent({
       model: mockModel,
@@ -40,9 +46,9 @@ describe("createCreateTransactionAgent", () => {
     const callArg = (createAgent as jest.Mock).mock.calls[0][0] as {
       model: BaseChatModel;
       tools: { name: string }[];
-      systemPrompt: string;
+      middleware: unknown[];
     };
-    const { model, tools, systemPrompt } = callArg;
+    const { model, tools, middleware } = callArg;
 
     expect(model).toBe(mockModel);
 
@@ -57,9 +63,25 @@ describe("createCreateTransactionAgent", () => {
       ]),
     );
 
+    expect(middleware).toHaveLength(2);
+    expect(toolCallLimitMiddleware).toHaveBeenCalledWith({
+      toolName: CREATE_TRANSACTION_TOOL_NAME,
+      runLimit: 1,
+    });
+
+    const buildSystemPrompt = (
+      dynamicSystemPromptMiddleware as jest.Mock<
+        typeof dynamicSystemPromptMiddleware
+      >
+    ).mock.calls[0][0];
+    const systemPrompt = buildSystemPrompt(
+      { messages: [] },
+      { context: { today: "2000-01-02", isVoiceInput: false } },
+    );
     expect(systemPrompt).toContain(
       "You are an agent that creates payment transactions",
     );
+    expect(systemPrompt).toContain("2000-01-02");
   });
 
   it("should return the agent created by createAgent", () => {

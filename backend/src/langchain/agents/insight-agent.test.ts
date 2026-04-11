@@ -1,6 +1,7 @@
+import { faker } from "@faker-js/faker";
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import { BaseChatModel } from "@langchain/core/language_models/chat_models";
-import { createAgent } from "langchain";
+import { createAgent, dynamicSystemPromptMiddleware } from "langchain";
 import { createMockAccountRepository } from "../../utils/test-utils/repositories/account-repository-mocks";
 import { createMockCategoryRepository } from "../../utils/test-utils/repositories/category-repository-mocks";
 import { createMockTransactionRepository } from "../../utils/test-utils/repositories/transaction-repository-mocks";
@@ -12,6 +13,7 @@ jest.mock("langchain", () => {
   return {
     ...actual,
     createAgent: jest.fn(),
+    dynamicSystemPromptMiddleware: jest.fn(),
   };
 });
 
@@ -24,7 +26,7 @@ describe("createInsightAgent", () => {
     jest.clearAllMocks();
   });
 
-  it("should call createAgent with model, tools, and system prompt", () => {
+  it("should call createAgent", () => {
     // Act
     createInsightAgent({
       model: mockModel,
@@ -37,9 +39,9 @@ describe("createInsightAgent", () => {
     const callArg = (createAgent as jest.Mock).mock.calls[0][0] as {
       model: BaseChatModel;
       tools: { name: string }[];
-      systemPrompt: string;
+      middleware: unknown[];
     };
-    const { model, tools, systemPrompt } = callArg;
+    const { model, tools, middleware } = callArg;
 
     expect(model).toBe(mockModel);
 
@@ -57,7 +59,24 @@ describe("createInsightAgent", () => {
       ]),
     );
 
+    expect(middleware).toHaveLength(1);
+
+    const buildSystemPrompt = (
+      dynamicSystemPromptMiddleware as jest.Mock<
+        typeof dynamicSystemPromptMiddleware
+      >
+    ).mock.calls[0][0];
+    const systemPrompt = buildSystemPrompt(
+      { messages: [] },
+      {
+        context: {
+          today: "2000-01-02",
+          userId: faker.string.uuid(),
+        },
+      },
+    );
     expect(systemPrompt).toContain("You are a personal finance assistant");
+    expect(systemPrompt).toContain("Today is 2000-01-02");
   });
 
   it("should return the agent created by createAgent", () => {

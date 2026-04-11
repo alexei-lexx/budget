@@ -133,7 +133,7 @@ describe("InsightService", () => {
       );
     });
 
-    it("should include today's date in the user message", async () => {
+    it("should pass userId in context", async () => {
       // Arrange
       mockInsightAgent.invoke.mockResolvedValue({
         messages: [new AIMessage({ content: "Answer" })],
@@ -143,15 +143,14 @@ describe("InsightService", () => {
       await service.call(userId, validInput);
 
       // Assert
-      const [state] = mockInsightAgent.invoke.mock.calls[0] as [
-        { messages: { content: string }[] },
+      const [, config] = mockInsightAgent.invoke.mock.calls[0] as [
         unknown,
+        { context: { userId: string } },
       ];
-      const lastMessage = state.messages[state.messages.length - 1];
-      expect(lastMessage.content).toMatch(/Today is \d{4}-\d{2}-\d{2}/);
+      expect(config.context.userId).toBe(userId);
     });
 
-    it("should pass userId in context to insightAgent", async () => {
+    it("should pass today's date in context", async () => {
       // Arrange
       mockInsightAgent.invoke.mockResolvedValue({
         messages: [new AIMessage({ content: "Answer" })],
@@ -161,9 +160,11 @@ describe("InsightService", () => {
       await service.call(userId, validInput);
 
       // Assert
-      expect(mockInsightAgent.invoke).toHaveBeenCalledWith(expect.any(Object), {
-        context: { userId },
-      });
+      const [, config] = mockInsightAgent.invoke.mock.calls[0] as [
+        unknown,
+        { context: { today: string } },
+      ];
+      expect(config.context.today).toMatch(/^\d{4}-\d{2}-\d{2}$/);
     });
 
     it("should prepend history messages before the user question", async () => {

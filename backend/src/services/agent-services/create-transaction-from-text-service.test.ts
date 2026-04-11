@@ -241,54 +241,52 @@ describe("CreateTransactionFromTextService", () => {
         expect(state.messages[0].content).toContain(text);
       });
 
-      it("should pass userId as context to agent", async () => {
+      it("should pass userId in context", async () => {
         // Act
         await service.call({ userId, text });
 
         // Assert
-        expect(mockCreateTransactionAgent.invoke).toHaveBeenCalledWith(
-          expect.any(Object),
-          {
-            context: { userId },
-          },
-        );
-      });
-
-      it("should include today's date in user message", async () => {
-        // Act
-        await service.call({ userId, text });
-
-        // Assert
-        const [state] = mockCreateTransactionAgent.invoke.mock.calls[0] as [
-          { messages: { content: string }[] },
+        const [, config] = mockCreateTransactionAgent.invoke.mock.calls[0] as [
           unknown,
+          { context: { userId: string } },
         ];
-        const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
-        expect(state.messages[0].content).toContain(`Today is ${today}`);
+        expect(config.context.userId).toBe(userId);
       });
 
-      it("should not include voice input flag when isVoiceInput is false", async () => {
+      it("should pass today's date in context", async () => {
+        // Act
+        await service.call({ userId, text });
+
+        // Assert
+        const [, config] = mockCreateTransactionAgent.invoke.mock.calls[0] as [
+          unknown,
+          { context: { today: string } },
+        ];
+        expect(config.context.today).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      });
+
+      it("should pass isVoiceInput false in context by default", async () => {
         // Act
         await service.call({ userId, text, isVoiceInput: false });
 
         // Assert
-        const [state] = mockCreateTransactionAgent.invoke.mock.calls[0] as [
-          { messages: { content: string }[] },
+        const [, config] = mockCreateTransactionAgent.invoke.mock.calls[0] as [
           unknown,
+          { context: { isVoiceInput: boolean } },
         ];
-        expect(state.messages[0].content).not.toContain("voice recognition");
+        expect(config.context.isVoiceInput).toBe(false);
       });
 
-      it("should include voice input flag when isVoiceInput is true", async () => {
+      it("should pass isVoiceInput true in context when set", async () => {
         // Act
         await service.call({ userId, text, isVoiceInput: true });
 
         // Assert
-        const [state] = mockCreateTransactionAgent.invoke.mock.calls[0] as [
-          { messages: { content: string }[] },
+        const [, config] = mockCreateTransactionAgent.invoke.mock.calls[0] as [
           unknown,
+          { context: { isVoiceInput: boolean } },
         ];
-        expect(state.messages[0].content).toContain("voice recognition");
+        expect(config.context.isVoiceInput).toBe(true);
       });
     });
 

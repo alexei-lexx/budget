@@ -22,7 +22,6 @@ describe("createCreateTransactionTool", () => {
 
   it("should return tool with correct name", () => {
     const createTool = createCreateTransactionTool({
-      maxCreations: 1,
       transactionService: mockTransactionService,
     });
 
@@ -31,7 +30,6 @@ describe("createCreateTransactionTool", () => {
 
   it("should throw when userId in context is not a valid UUID", async () => {
     const createTool = createCreateTransactionTool({
-      maxCreations: 1,
       transactionService: mockTransactionService,
     });
 
@@ -52,7 +50,6 @@ describe("createCreateTransactionTool", () => {
     mockTransactionService.createTransaction.mockResolvedValue(created);
 
     const createTool = createCreateTransactionTool({
-      maxCreations: 1,
       transactionService: mockTransactionService,
     });
 
@@ -84,31 +81,5 @@ describe("createCreateTransactionTool", () => {
         type: created.type,
       },
     });
-  });
-
-  it("should return failure when creation limit is reached", async () => {
-    const created = fakeTransaction();
-    mockTransactionService.createTransaction.mockResolvedValue(created);
-
-    const createTool = createCreateTransactionTool({
-      maxCreations: 1,
-      transactionService: mockTransactionService,
-    });
-
-    const input: CreateTransactionInput = {
-      accountId: faker.string.uuid(),
-      amount: 10,
-      date: toDateString("2000-01-15"),
-      type: TransactionType.EXPENSE,
-    };
-
-    await createTool.invoke(input, { context: { userId } });
-    const result = await createTool.invoke(input, { context: { userId } });
-
-    expect(result).toEqual({
-      success: false,
-      error: "Error: transaction creation limit reached (1 transactions)",
-    });
-    expect(mockTransactionService.createTransaction).toHaveBeenCalledTimes(1);
   });
 });

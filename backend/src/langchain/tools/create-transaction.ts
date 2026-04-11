@@ -6,7 +6,7 @@ import {
   TransactionService,
 } from "../../services/transaction-service";
 import { toDateString } from "../../types/date";
-import { Failure, Success } from "../../types/result";
+import { Success } from "../../types/result";
 import { agentContextSchema } from "./agent-context";
 
 const schema = z.object({
@@ -35,30 +35,19 @@ export type CreateTransactionInput = z.infer<typeof schema>;
 export const CREATE_TRANSACTION_TOOL_NAME = "createTransaction";
 
 export const createCreateTransactionTool = ({
-  maxCreations,
   transactionService,
 }: {
-  maxCreations: number;
   transactionService: TransactionService;
 }) => {
-  let successfulCreations = 0;
-
   return tool(
     async (input: CreateTransactionInput, config) => {
       const { userId } = agentContextSchema.parse(config?.context);
-      if (successfulCreations >= maxCreations) {
-        return Failure(
-          `Error: transaction creation limit reached (${maxCreations} transactions)`,
-        );
-      }
 
       const serviceInput: CreateTransactionServiceInput = { ...input };
       const created = await transactionService.createTransaction(
         serviceInput,
         userId,
       );
-
-      successfulCreations++;
 
       return Success({
         id: created.id,
