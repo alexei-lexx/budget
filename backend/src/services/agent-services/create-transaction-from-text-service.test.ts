@@ -167,7 +167,7 @@ describe("CreateTransactionFromTextService", () => {
 
       // Assert
       const callArgs = mockAgent.call.mock.calls[0][0];
-      expect(callArgs.messages[0].content).toBe(text);
+      expect(callArgs.messages[0].content).toContain(text);
     });
 
     it("should include all required tools in agent call", async () => {
@@ -193,32 +193,32 @@ describe("CreateTransactionFromTextService", () => {
       expect(callArgs.context).toEqual({ userId });
     });
 
-    it("should include today's date in system prompt", async () => {
+    it("should include today's date in user message", async () => {
       // Act
       await service.call({ userId, text });
 
       // Assert
       const callArgs = mockAgent.call.mock.calls[0][0];
       const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
-      expect(callArgs.systemPrompt).toContain(`Today is ${today}`);
+      expect(callArgs.messages[0].content).toContain(`Today is ${today}`);
     });
 
-    it("should not include voice amount hint in system prompt when isVoiceInput is false", async () => {
+    it("should not include voice input flag in user message when isVoiceInput is false", async () => {
       // Act
       await service.call({ userId, text, isVoiceInput: false });
 
       // Assert
       const callArgs = mockAgent.call.mock.calls[0][0];
-      expect(callArgs.systemPrompt).not.toContain("voice recognition");
+      expect(callArgs.messages[0].content).not.toContain("voice recognition");
     });
 
-    it("should include voice amount hint in system prompt when isVoiceInput is true", async () => {
+    it("should include voice input flag in user message when isVoiceInput is true", async () => {
       // Act
       await service.call({ userId, text, isVoiceInput: true });
 
       // Assert
       const callArgs = mockAgent.call.mock.calls[0][0];
-      expect(callArgs.systemPrompt).toContain("voice recognition");
+      expect(callArgs.messages[0].content).toContain("voice recognition");
     });
   });
 

@@ -46,7 +46,11 @@ You MUST infer all mandatory and optional transaction fields and then MUST persi
 - Mandatory field
 - Numeric or written value representing a money quantity (e.g., 25, 20.5, "twenty five euros")
 - If multiple amounts are present, MUST stop and report an error — only one transaction at a time
-{{VOICE_AMOUNT_HINT}}
+- If the user indicates this is a voice input:
+  - Speech-to-text commonly collapses spoken prices — "two thirty four" becomes "234"
+  - The integer "234" may represent 2.34, 23.4, or 234
+  - Look up similar past transactions (same or related category, similar description) to assess which interpretation is most realistic
+  - If no similar history exists, use the amount as transcribed
 
 ### Account
 
@@ -90,13 +94,7 @@ You MUST infer all mandatory and optional transaction fields and then MUST persi
 - If the transaction cannot be created, respond with an error message explaining why
 `.trim();
 
-const VOICE_AMOUNT_HINT = `
-- This description was captured via voice recognition
-- Speech-to-text commonly collapses spoken prices — "two thirty four" becomes "234"
-- The integer "234" may represent 2.34, 23.4, or 234
-- Look up similar past transactions (same or related category, similar description) to assess which interpretation is most realistic
-- If no similar history exists, use the amount as transcribed
-`.trim();
+const VOICE_INPUT_FLAG = "Note: this input was captured via voice recognition.";
 
 const createdTransactionSchema = z.discriminatedUnion("success", [
   z.object({
@@ -157,8 +155,6 @@ export class CreateTransactionFromTextService {
       return Failure({ message: "Text is required", agentTrace: [] });
     }
 
-    const today = formatDateAsYYYYMMDD(new Date());
-
     const createTransactionTool = createCreateTransactionTool({
       maxCreations: 1, // Limit to 1 transaction per call to prevent unexpected multiple creations
       transactionService: this.transactionService,
@@ -176,12 +172,16 @@ export class CreateTransactionFromTextService {
       createTransactionTool,
     ];
 
-    const voiceAmountHint = isVoiceInput ? VOICE_AMOUNT_HINT : "";
-    const systemPrompt = `${SYSTEM_PROMPT.replace("{{VOICE_AMOUNT_HINT}}", voiceAmountHint)}\n\nToday is ${today}.`;
+    const today = formatDateAsYYYYMMDD(new Date());
+    const userMessageParts = [`Today is ${today}.`, normalizedText];
+
+    if (isVoiceInput) {
+      userMessageParts.push(VOICE_INPUT_FLAG);
+    }
 
     const { answer, toolExecutions, agentTrace } = await this.agent.call({
-      messages: [{ role: "user", content: normalizedText }],
-      systemPrompt,
+      messages: [{ role: "user", content: userMessageParts.join("\n") }],
+      systemPrompt: SYSTEM_PROMPT,
       tools,
       context: { userId },
     });
