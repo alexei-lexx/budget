@@ -22,7 +22,8 @@ export interface InsightService {
 }
 
 export class InsightServiceImpl implements InsightService {
-  constructor(private insightAgent: ReactAgent) {}
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  constructor(private insightAgent: ReactAgent<any>) {}
 
   async call(userId: string, input: InsightInput): Promise<InsightOutput> {
     if (!userId) {

@@ -41,7 +41,8 @@ export class CreateTransactionFromTextService {
   private transactionService: TransactionService;
 
   constructor(deps: {
-    createTransactionAgent: ReactAgent;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    createTransactionAgent: ReactAgent<any>;
     transactionService: TransactionService;
   }) {
     this.createTransactionAgent = deps.createTransactionAgent;
