@@ -1,5 +1,3 @@
-import { StructuredTool } from "@langchain/core/tools";
-
 export interface AgentMessage {
   role: "system" | "user" | "assistant";
   content: string;
@@ -38,16 +36,3 @@ export type AgentTraceMessage =
   | AgentTraceText
   | AgentTraceToolCall
   | AgentTraceToolResult;
-
-export interface Agent {
-  call(input: {
-    messages: readonly AgentMessage[];
-    systemPrompt?: string;
-    tools?: readonly StructuredTool[];
-    context?: Record<string, unknown>;
-  }): Promise<{
-    answer: string;
-    toolExecutions?: ToolExecution[];
-    agentTrace: AgentTraceMessage[];
-  }>;
-}

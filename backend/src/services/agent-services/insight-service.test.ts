@@ -1,7 +1,7 @@
 import { faker } from "@faker-js/faker";
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import { AIMessage, ReactAgent, ToolMessage } from "langchain";
-import { AgentTraceMessageType } from "../ports/agent";
+import { AgentTraceMessageType } from "../ports/agent-types";
 import {
   type InsightInput,
   InsightService,

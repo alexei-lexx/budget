@@ -5,7 +5,7 @@ import {
 } from "../../langchain/utils";
 import { Failure, Result, Success } from "../../types/result";
 import { formatDateAsYYYYMMDD } from "../../utils/date";
-import { AgentMessage, AgentTraceMessage } from "../ports/agent";
+import { AgentMessage, AgentTraceMessage } from "../ports/agent-types";
 
 export interface InsightInput {
   question: string;

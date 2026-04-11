@@ -1,6 +1,6 @@
 import { describe, expect, it } from "@jest/globals";
 import { AIMessage, BaseMessage, ToolMessage } from "langchain";
-import { AgentTraceMessageType } from "../services/ports/agent";
+import { AgentTraceMessageType } from "../services/ports/agent-types";
 import {
   extractAgentTrace,
   extractLastMessageText,
