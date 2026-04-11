@@ -10,11 +10,11 @@ import { DynTelegramBotRepository } from "./repositories/dyn-telegram-bot-reposi
 import { DynTransactionRepository } from "./repositories/dyn-transaction-repository";
 import { DynUserRepository } from "./repositories/dyn-user-repository";
 import { AccountService } from "./services/account-service";
-import { AssistantChatServiceImpl } from "./services/agent-services/assistant-chat-service";
-import { CreateTransactionFromTextService } from "./services/agent-services/create-transaction-from-text-service";
-import { InsightServiceImpl } from "./services/agent-services/insight-service";
+import { AssistantChatServiceImpl } from "./services/assistant-chat-service";
 import { ByCategoryReportService } from "./services/by-category-report-service";
 import { CategoryService } from "./services/category-service";
+import { CreateTransactionFromTextService } from "./services/create-transaction-from-text-service";
+import { InsightServiceImpl } from "./services/insight-service";
 import { ProcessTelegramMessageService } from "./services/process-telegram-message-service";
 import { TelegramBotService } from "./services/telegram-bot-service";
 import { TransactionService } from "./services/transaction-service";
