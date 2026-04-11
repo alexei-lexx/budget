@@ -63,133 +63,6 @@ describe("extractLastMessageText", () => {
   });
 });
 
-describe("extractToolExecutions", () => {
-  it("should return empty array for empty messages", () => {
-    expect(extractToolExecutions([])).toEqual([]);
-  });
-
-  it("should match tool call with its tool result", () => {
-    const aiMessage = new AIMessage({
-      content: "",
-      tool_calls: [
-        {
-          id: "call_1",
-          name: "sum",
-          args: { values: [5, 10] },
-          type: "tool_call",
-        },
-      ],
-    });
-    const toolMessage = new ToolMessage({
-      content: "15",
-      tool_call_id: "call_1",
-      name: "sum",
-    });
-    const finalMessage = new AIMessage({ content: "The sum is 15." });
-
-    const toolExecutions = extractToolExecutions([
-      aiMessage,
-      toolMessage,
-      finalMessage,
-    ]);
-
-    expect(toolExecutions).toHaveLength(1);
-    expect(toolExecutions[0]).toEqual({
-      tool: "sum",
-      input: JSON.stringify({ values: [5, 10] }),
-      output: "15",
-    });
-  });
-
-  it("should return 'Not executed' for tool call without matching result", () => {
-    const aiMessage = new AIMessage({
-      content: "",
-      tool_calls: [
-        {
-          id: "call_1",
-          name: "not_executed_tool",
-          args: {},
-          type: "tool_call",
-        },
-      ],
-    });
-
-    const toolExecutions = extractToolExecutions([aiMessage]);
-
-    expect(toolExecutions).toHaveLength(1);
-    expect(toolExecutions[0]).toEqual({
-      tool: "not_executed_tool",
-      input: JSON.stringify({}),
-      output: "Not executed",
-    });
-  });
-
-  it("should return 'Unknown arguments' for orphan tool result", () => {
-    const toolMessage = new ToolMessage({
-      content: "Result",
-      tool_call_id: "orphan_id",
-      name: "orphan_tool",
-    });
-
-    const toolExecutions = extractToolExecutions([toolMessage]);
-
-    expect(toolExecutions).toHaveLength(1);
-    expect(toolExecutions[0]).toEqual({
-      tool: "orphan_tool",
-      input: "Unknown arguments",
-      output: "Result",
-    });
-  });
-
-  it("should match multiple tool calls in one AIMessage to their results", () => {
-    const aiMessage = new AIMessage({
-      content: "",
-      tool_calls: [
-        {
-          id: "call_1",
-          name: "sum",
-          args: { values: [5, 10] },
-          type: "tool_call",
-        },
-        {
-          id: "call_2",
-          name: "avg",
-          args: { values: [5, 10] },
-          type: "tool_call",
-        },
-      ],
-    });
-    const toolMessage1 = new ToolMessage({
-      content: "15",
-      tool_call_id: "call_1",
-      name: "sum",
-    });
-    const toolMessage2 = new ToolMessage({
-      content: "7.5",
-      tool_call_id: "call_2",
-      name: "avg",
-    });
-
-    const toolExecutions = extractToolExecutions([
-      aiMessage,
-      toolMessage1,
-      toolMessage2,
-    ]);
-
-    expect(toolExecutions).toHaveLength(2);
-    expect(toolExecutions[0]).toEqual({
-      tool: "sum",
-      input: JSON.stringify({ values: [5, 10] }),
-      output: "15",
-    });
-    expect(toolExecutions[1]).toEqual({
-      tool: "avg",
-      input: JSON.stringify({ values: [5, 10] }),
-      output: "7.5",
-    });
-  });
-});
-
 describe("extractAgentTrace", () => {
   it("should return empty array for empty messages", () => {
     expect(extractAgentTrace([])).toEqual([]);
@@ -401,5 +274,132 @@ describe("extractAgentTrace", () => {
         output: "1.5",
       },
     ]);
+  });
+});
+
+describe("extractToolExecutions", () => {
+  it("should return empty array for empty messages", () => {
+    expect(extractToolExecutions([])).toEqual([]);
+  });
+
+  it("should match tool call with its tool result", () => {
+    const aiMessage = new AIMessage({
+      content: "",
+      tool_calls: [
+        {
+          id: "call_1",
+          name: "sum",
+          args: { values: [5, 10] },
+          type: "tool_call",
+        },
+      ],
+    });
+    const toolMessage = new ToolMessage({
+      content: "15",
+      tool_call_id: "call_1",
+      name: "sum",
+    });
+    const finalMessage = new AIMessage({ content: "The sum is 15." });
+
+    const toolExecutions = extractToolExecutions([
+      aiMessage,
+      toolMessage,
+      finalMessage,
+    ]);
+
+    expect(toolExecutions).toHaveLength(1);
+    expect(toolExecutions[0]).toEqual({
+      tool: "sum",
+      input: JSON.stringify({ values: [5, 10] }),
+      output: "15",
+    });
+  });
+
+  it("should return 'Not executed' for tool call without matching result", () => {
+    const aiMessage = new AIMessage({
+      content: "",
+      tool_calls: [
+        {
+          id: "call_1",
+          name: "not_executed_tool",
+          args: {},
+          type: "tool_call",
+        },
+      ],
+    });
+
+    const toolExecutions = extractToolExecutions([aiMessage]);
+
+    expect(toolExecutions).toHaveLength(1);
+    expect(toolExecutions[0]).toEqual({
+      tool: "not_executed_tool",
+      input: JSON.stringify({}),
+      output: "Not executed",
+    });
+  });
+
+  it("should return 'Unknown arguments' for orphan tool result", () => {
+    const toolMessage = new ToolMessage({
+      content: "Result",
+      tool_call_id: "orphan_id",
+      name: "orphan_tool",
+    });
+
+    const toolExecutions = extractToolExecutions([toolMessage]);
+
+    expect(toolExecutions).toHaveLength(1);
+    expect(toolExecutions[0]).toEqual({
+      tool: "orphan_tool",
+      input: "Unknown arguments",
+      output: "Result",
+    });
+  });
+
+  it("should match multiple tool calls in one AIMessage to their results", () => {
+    const aiMessage = new AIMessage({
+      content: "",
+      tool_calls: [
+        {
+          id: "call_1",
+          name: "sum",
+          args: { values: [5, 10] },
+          type: "tool_call",
+        },
+        {
+          id: "call_2",
+          name: "avg",
+          args: { values: [5, 10] },
+          type: "tool_call",
+        },
+      ],
+    });
+    const toolMessage1 = new ToolMessage({
+      content: "15",
+      tool_call_id: "call_1",
+      name: "sum",
+    });
+    const toolMessage2 = new ToolMessage({
+      content: "7.5",
+      tool_call_id: "call_2",
+      name: "avg",
+    });
+
+    const toolExecutions = extractToolExecutions([
+      aiMessage,
+      toolMessage1,
+      toolMessage2,
+    ]);
+
+    expect(toolExecutions).toHaveLength(2);
+    expect(toolExecutions[0]).toEqual({
+      tool: "sum",
+      input: JSON.stringify({ values: [5, 10] }),
+      output: "15",
+    });
+    expect(toolExecutions[1]).toEqual({
+      tool: "avg",
+      input: JSON.stringify({ values: [5, 10] }),
+      output: "7.5",
+    });
   });
 });

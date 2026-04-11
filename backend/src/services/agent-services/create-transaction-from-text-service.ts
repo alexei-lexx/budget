@@ -40,12 +40,12 @@ export class CreateTransactionFromTextService {
   private createTransactionAgent: ReactAgent;
   private transactionService: TransactionService;
 
-  constructor(devs: {
+  constructor(deps: {
     createTransactionAgent: ReactAgent;
     transactionService: TransactionService;
   }) {
-    this.createTransactionAgent = devs.createTransactionAgent;
-    this.transactionService = devs.transactionService;
+    this.createTransactionAgent = deps.createTransactionAgent;
+    this.transactionService = deps.transactionService;
   }
 
   async call({
