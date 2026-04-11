@@ -1,20 +1,20 @@
 import { faker } from "@faker-js/faker";
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import { CategoryType } from "../../models/category";
+import { CategoryRepository } from "../../services/ports/category-repository";
+import { TransactionRepository } from "../../services/ports/transaction-repository";
 import { isDateString } from "../../types/date";
 import { daysBetween } from "../../utils/date";
 import { fakeCategory } from "../../utils/test-utils/models/category-fakes";
 import { fakeTransaction } from "../../utils/test-utils/models/transaction-fakes";
 import { createMockCategoryRepository } from "../../utils/test-utils/repositories/category-repository-mocks";
 import { createMockTransactionRepository } from "../../utils/test-utils/repositories/transaction-repository-mocks";
-import { CategoryRepository } from "../ports/category-repository";
-import { TransactionRepository } from "../ports/transaction-repository";
+import { EntityScope } from "./get-accounts";
 import {
   CATEGORY_HISTORY_LOOKBACK_DAYS,
   CATEGORY_HISTORY_MAX_DESCRIPTIONS_PER_CATEGORY,
-  EntityScope,
   createGetCategoriesTool,
-} from "./get-categories-tool";
+} from "./get-categories";
 
 describe("createGetCategoriesTool", () => {
   let mockCategoryRepository: jest.Mocked<CategoryRepository>;
@@ -27,24 +27,39 @@ describe("createGetCategoriesTool", () => {
   });
 
   it("should return tool with correct name", () => {
-    const tool = createGetCategoriesTool({
+    const categoriesTool = createGetCategoriesTool({
       categoryRepository: mockCategoryRepository,
       transactionRepository: mockTransactionRepository,
-      userId,
     });
 
-    expect(tool.name).toBe("getCategories");
+    expect(categoriesTool.name).toBe("getCategories");
+  });
+
+  it("should throw when userId in context is not a valid UUID", async () => {
+    const categoriesTool = createGetCategoriesTool({
+      categoryRepository: mockCategoryRepository,
+      transactionRepository: mockTransactionRepository,
+    });
+
+    await expect(
+      categoriesTool.invoke(
+        { scope: EntityScope.ALL },
+        { context: { userId: "not-a-uuid" } },
+      ),
+    ).rejects.toThrow();
   });
 
   it("should call category repository", async () => {
     mockCategoryRepository.findManyWithArchivedByUserId.mockResolvedValue([]);
 
-    const tool = createGetCategoriesTool({
+    const categoriesTool = createGetCategoriesTool({
       categoryRepository: mockCategoryRepository,
       transactionRepository: mockTransactionRepository,
-      userId,
     });
-    await tool.call({ scope: EntityScope.ALL });
+    await categoriesTool.invoke(
+      { scope: EntityScope.ALL },
+      { context: { userId } },
+    );
 
     expect(
       mockCategoryRepository.findManyWithArchivedByUserId,
@@ -61,12 +76,14 @@ describe("createGetCategoriesTool", () => {
     );
     mockTransactionRepository.findManyByUserId.mockResolvedValue([]);
 
-    const tool = createGetCategoriesTool({
+    const categoriesTool = createGetCategoriesTool({
       categoryRepository: mockCategoryRepository,
       transactionRepository: mockTransactionRepository,
-      userId,
     });
-    const result = await tool.call({ scope: EntityScope.ALL });
+    const result = await categoriesTool.invoke(
+      { scope: EntityScope.ALL },
+      { context: { userId } },
+    );
 
     expect(result).toEqual({
       success: true,
@@ -87,12 +104,14 @@ describe("createGetCategoriesTool", () => {
     );
     mockTransactionRepository.findManyByUserId.mockResolvedValue([]);
 
-    const tool = createGetCategoriesTool({
+    const categoriesTool = createGetCategoriesTool({
       categoryRepository: mockCategoryRepository,
       transactionRepository: mockTransactionRepository,
-      userId,
     });
-    const result = await tool.call({ scope: EntityScope.ACTIVE });
+    const result = await categoriesTool.invoke(
+      { scope: EntityScope.ACTIVE },
+      { context: { userId } },
+    );
 
     expect(result).toEqual({
       success: true,
@@ -110,12 +129,14 @@ describe("createGetCategoriesTool", () => {
     );
     mockTransactionRepository.findManyByUserId.mockResolvedValue([]);
 
-    const tool = createGetCategoriesTool({
+    const categoriesTool = createGetCategoriesTool({
       categoryRepository: mockCategoryRepository,
       transactionRepository: mockTransactionRepository,
-      userId,
     });
-    const result = await tool.call({ scope: EntityScope.ARCHIVED });
+    const result = await categoriesTool.invoke(
+      { scope: EntityScope.ARCHIVED },
+      { context: { userId } },
+    );
 
     expect(result).toEqual({
       success: true,
@@ -143,12 +164,14 @@ describe("createGetCategoriesTool", () => {
     );
     mockTransactionRepository.findManyByUserId.mockResolvedValue([]);
 
-    const tool = createGetCategoriesTool({
+    const categoriesTool = createGetCategoriesTool({
       categoryRepository: mockCategoryRepository,
       transactionRepository: mockTransactionRepository,
-      userId,
     });
-    const result = await tool.call({ scope: EntityScope.ALL });
+    const result = await categoriesTool.invoke(
+      { scope: EntityScope.ALL },
+      { context: { userId } },
+    );
 
     expect(result).toEqual({
       success: true,
@@ -175,17 +198,16 @@ describe("createGetCategoriesTool", () => {
     mockCategoryRepository.findManyWithArchivedByUserId.mockResolvedValue([]);
     mockTransactionRepository.findManyByUserId.mockResolvedValue([]);
 
-    const tool = createGetCategoriesTool({
+    const categoriesTool = createGetCategoriesTool({
       categoryRepository: mockCategoryRepository,
       transactionRepository: mockTransactionRepository,
-      userId,
     });
-    const result = await tool.call({ scope: EntityScope.ALL });
+    const result = await categoriesTool.invoke(
+      { scope: EntityScope.ALL },
+      { context: { userId } },
+    );
 
-    expect(result).toEqual({
-      success: true,
-      data: [],
-    });
+    expect(result).toEqual({ success: true, data: [] });
   });
 
   describe("recentDescriptions", () => {
@@ -196,12 +218,14 @@ describe("createGetCategoriesTool", () => {
       ]);
       mockTransactionRepository.findManyByUserId.mockResolvedValue([]);
 
-      const tool = createGetCategoriesTool({
+      const categoriesTool = createGetCategoriesTool({
         categoryRepository: mockCategoryRepository,
         transactionRepository: mockTransactionRepository,
-        userId,
       });
-      const result = await tool.call({ scope: EntityScope.ACTIVE });
+      const result = await categoriesTool.invoke(
+        { scope: EntityScope.ACTIVE },
+        { context: { userId } },
+      );
 
       expect(result).toEqual({
         success: true,
@@ -216,26 +240,25 @@ describe("createGetCategoriesTool", () => {
 
     it("should exclude transactions without categoryId", async () => {
       const category = fakeCategory({ isArchived: false });
-      const transactionsWithoutCategory = [
+      mockCategoryRepository.findManyWithArchivedByUserId.mockResolvedValue([
+        category,
+      ]);
+      mockTransactionRepository.findManyByUserId.mockResolvedValue([
         fakeTransaction({
           categoryId: undefined,
           description: "should be ignored",
         }),
         fakeTransaction({ categoryId: undefined, description: "also ignored" }),
-      ];
-      mockCategoryRepository.findManyWithArchivedByUserId.mockResolvedValue([
-        category,
       ]);
-      mockTransactionRepository.findManyByUserId.mockResolvedValue(
-        transactionsWithoutCategory,
-      );
 
-      const tool = createGetCategoriesTool({
+      const categoriesTool = createGetCategoriesTool({
         categoryRepository: mockCategoryRepository,
         transactionRepository: mockTransactionRepository,
-        userId,
       });
-      const result = await tool.call({ scope: EntityScope.ACTIVE });
+      const result = await categoriesTool.invoke(
+        { scope: EntityScope.ACTIVE },
+        { context: { userId } },
+      );
 
       expect(result).toEqual({
         success: true,
@@ -250,23 +273,22 @@ describe("createGetCategoriesTool", () => {
 
     it("should exclude transactions without description", async () => {
       const category = fakeCategory({ isArchived: false });
-      const transactionsWithoutDescription = [
-        fakeTransaction({ categoryId: category.id, description: undefined }),
-        fakeTransaction({ categoryId: category.id, description: undefined }),
-      ];
       mockCategoryRepository.findManyWithArchivedByUserId.mockResolvedValue([
         category,
       ]);
-      mockTransactionRepository.findManyByUserId.mockResolvedValue(
-        transactionsWithoutDescription,
-      );
+      mockTransactionRepository.findManyByUserId.mockResolvedValue([
+        fakeTransaction({ categoryId: category.id, description: undefined }),
+        fakeTransaction({ categoryId: category.id, description: undefined }),
+      ]);
 
-      const tool = createGetCategoriesTool({
+      const categoriesTool = createGetCategoriesTool({
         categoryRepository: mockCategoryRepository,
         transactionRepository: mockTransactionRepository,
-        userId,
       });
-      const result = await tool.call({ scope: EntityScope.ACTIVE });
+      const result = await categoriesTool.invoke(
+        { scope: EntityScope.ACTIVE },
+        { context: { userId } },
+      );
 
       expect(result).toEqual({
         success: true,
@@ -283,7 +305,11 @@ describe("createGetCategoriesTool", () => {
       const activeCategory = fakeCategory({ isArchived: false });
       const archivedCategory = fakeCategory({ isArchived: true });
 
-      const transactions = [
+      mockCategoryRepository.findManyWithArchivedByUserId.mockResolvedValue([
+        activeCategory,
+        archivedCategory,
+      ]);
+      mockTransactionRepository.findManyByUserId.mockResolvedValue([
         fakeTransaction({
           categoryId: activeCategory.id,
           description: "milk and eggs",
@@ -292,22 +318,16 @@ describe("createGetCategoriesTool", () => {
           categoryId: archivedCategory.id,
           description: "should be filtered out",
         }),
-      ];
-
-      mockCategoryRepository.findManyWithArchivedByUserId.mockResolvedValue([
-        activeCategory,
-        archivedCategory,
       ]);
-      mockTransactionRepository.findManyByUserId.mockResolvedValue(
-        transactions,
-      );
 
-      const tool = createGetCategoriesTool({
+      const categoriesTool = createGetCategoriesTool({
         categoryRepository: mockCategoryRepository,
         transactionRepository: mockTransactionRepository,
-        userId,
       });
-      const result = await tool.call({ scope: EntityScope.ACTIVE });
+      const result = await categoriesTool.invoke(
+        { scope: EntityScope.ACTIVE },
+        { context: { userId } },
+      );
 
       expect(result).toEqual({
         success: true,
@@ -338,12 +358,14 @@ describe("createGetCategoriesTool", () => {
         transactions,
       );
 
-      const tool = createGetCategoriesTool({
+      const categoriesTool = createGetCategoriesTool({
         categoryRepository: mockCategoryRepository,
         transactionRepository: mockTransactionRepository,
-        userId,
       });
-      const result = await tool.call({ scope: EntityScope.ACTIVE });
+      const result = await categoriesTool.invoke(
+        { scope: EntityScope.ACTIVE },
+        { context: { userId } },
+      );
 
       if (!result.success) throw new Error("Expected success"); // Type guard
 
@@ -391,12 +413,14 @@ describe("createGetCategoriesTool", () => {
         transactions,
       );
 
-      const tool = createGetCategoriesTool({
+      const categoriesTool = createGetCategoriesTool({
         categoryRepository: mockCategoryRepository,
         transactionRepository: mockTransactionRepository,
-        userId,
       });
-      const result = await tool.call({ scope: EntityScope.ACTIVE });
+      const result = await categoriesTool.invoke(
+        { scope: EntityScope.ACTIVE },
+        { context: { userId } },
+      );
 
       expect(result).toEqual({
         success: true,
@@ -429,12 +453,14 @@ describe("createGetCategoriesTool", () => {
         transactions,
       );
 
-      const tool = createGetCategoriesTool({
+      const categoriesTool = createGetCategoriesTool({
         categoryRepository: mockCategoryRepository,
         transactionRepository: mockTransactionRepository,
-        userId,
       });
-      const result = await tool.call({ scope: EntityScope.ACTIVE });
+      const result = await categoriesTool.invoke(
+        { scope: EntityScope.ACTIVE },
+        { context: { userId } },
+      );
 
       expect(result).toEqual({
         success: true,
@@ -454,12 +480,14 @@ describe("createGetCategoriesTool", () => {
       ]);
       mockTransactionRepository.findManyByUserId.mockResolvedValue([]);
 
-      const tool = createGetCategoriesTool({
+      const categoriesTool = createGetCategoriesTool({
         categoryRepository: mockCategoryRepository,
         transactionRepository: mockTransactionRepository,
-        userId,
       });
-      await tool.call({ scope: EntityScope.ACTIVE });
+      await categoriesTool.invoke(
+        { scope: EntityScope.ACTIVE },
+        { context: { userId } },
+      );
 
       expect(mockTransactionRepository.findManyByUserId).toHaveBeenCalledTimes(
         1,

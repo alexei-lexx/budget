@@ -1,9 +1,9 @@
 import { faker } from "@faker-js/faker";
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
+import { AccountRepository } from "../../services/ports/account-repository";
 import { fakeAccount } from "../../utils/test-utils/models/account-fakes";
 import { createMockAccountRepository } from "../../utils/test-utils/repositories/account-repository-mocks";
-import { AccountRepository } from "../ports/account-repository";
-import { EntityScope, createGetAccountsTool } from "./get-accounts-tool";
+import { EntityScope, createGetAccountsTool } from "./get-accounts";
 
 describe("createGetAccountsTool", () => {
   let mockAccountRepository: jest.Mocked<AccountRepository>;
@@ -14,16 +14,30 @@ describe("createGetAccountsTool", () => {
   });
 
   it("should return tool with correct name", () => {
-    const tool = createGetAccountsTool(mockAccountRepository, userId);
+    const accountsTool = createGetAccountsTool(mockAccountRepository);
 
-    expect(tool.name).toBe("getAccounts");
+    expect(accountsTool.name).toBe("getAccounts");
+  });
+
+  it("should throw when userId in context is not a valid UUID", async () => {
+    const accountsTool = createGetAccountsTool(mockAccountRepository);
+
+    await expect(
+      accountsTool.invoke(
+        { scope: EntityScope.ALL },
+        { context: { userId: "not-a-uuid" } },
+      ),
+    ).rejects.toThrow();
   });
 
   it("should call repository", async () => {
     mockAccountRepository.findManyWithArchivedByUserId.mockResolvedValue([]);
 
-    const tool = createGetAccountsTool(mockAccountRepository, userId);
-    await tool.call({ scope: EntityScope.ALL });
+    const accountsTool = createGetAccountsTool(mockAccountRepository);
+    await accountsTool.invoke(
+      { scope: EntityScope.ALL },
+      { context: { userId } },
+    );
 
     expect(
       mockAccountRepository.findManyWithArchivedByUserId,
@@ -39,8 +53,11 @@ describe("createGetAccountsTool", () => {
       mockAccounts,
     );
 
-    const tool = createGetAccountsTool(mockAccountRepository, userId);
-    const result = await tool.call({ scope: EntityScope.ALL });
+    const accountsTool = createGetAccountsTool(mockAccountRepository);
+    const result = await accountsTool.invoke(
+      { scope: EntityScope.ALL },
+      { context: { userId } },
+    );
 
     expect(result).toEqual({
       success: true,
@@ -60,8 +77,11 @@ describe("createGetAccountsTool", () => {
       mockAccounts,
     );
 
-    const tool = createGetAccountsTool(mockAccountRepository, userId);
-    const result = await tool.call({ scope: EntityScope.ACTIVE });
+    const accountsTool = createGetAccountsTool(mockAccountRepository);
+    const result = await accountsTool.invoke(
+      { scope: EntityScope.ACTIVE },
+      { context: { userId } },
+    );
 
     expect(result).toEqual({
       success: true,
@@ -78,8 +98,11 @@ describe("createGetAccountsTool", () => {
       mockAccounts,
     );
 
-    const tool = createGetAccountsTool(mockAccountRepository, userId);
-    const result = await tool.call({ scope: EntityScope.ARCHIVED });
+    const accountsTool = createGetAccountsTool(mockAccountRepository);
+    const result = await accountsTool.invoke(
+      { scope: EntityScope.ARCHIVED },
+      { context: { userId } },
+    );
 
     expect(result).toEqual({
       success: true,
@@ -106,8 +129,11 @@ describe("createGetAccountsTool", () => {
       mockAccounts,
     );
 
-    const tool = createGetAccountsTool(mockAccountRepository, userId);
-    const result = await tool.call({ scope: EntityScope.ALL });
+    const accountsTool = createGetAccountsTool(mockAccountRepository);
+    const result = await accountsTool.invoke(
+      { scope: EntityScope.ALL },
+      { context: { userId } },
+    );
 
     expect(result).toEqual({
       success: true,
@@ -131,12 +157,12 @@ describe("createGetAccountsTool", () => {
   it("should return empty array when user has no accounts", async () => {
     mockAccountRepository.findManyWithArchivedByUserId.mockResolvedValue([]);
 
-    const tool = createGetAccountsTool(mockAccountRepository, userId);
-    const result = await tool.call({ scope: EntityScope.ALL });
+    const accountsTool = createGetAccountsTool(mockAccountRepository);
+    const result = await accountsTool.invoke(
+      { scope: EntityScope.ALL },
+      { context: { userId } },
+    );
 
-    expect(result).toEqual({
-      success: true,
-      data: [],
-    });
+    expect(result).toEqual({ success: true, data: [] });
   });
 });

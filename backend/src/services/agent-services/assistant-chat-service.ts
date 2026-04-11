@@ -1,7 +1,7 @@
 import { randomUUID } from "crypto";
 import { ChatMessageRole } from "../../models/chat-message";
 import { Failure, Result, Success } from "../../types/result";
-import { AgentMessage, AgentTraceMessage } from "../ports/agent";
+import { AgentMessage, AgentTraceMessage } from "../ports/agent-types";
 import { ChatMessageRepository } from "../ports/chat-message-repository";
 import { InsightService } from "./insight-service";
 

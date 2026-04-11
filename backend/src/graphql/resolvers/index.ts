@@ -1,5 +1,5 @@
 import { Resolvers } from "../../__generated__/resolvers-types";
-import { AgentTraceMessageType } from "../../services/ports/agent";
+import { AgentTraceMessageType } from "../../services/ports/agent-types";
 import { accountResolvers } from "./account-resolvers";
 import { assistantResolvers } from "./assistant-resolvers";
 import { categoryResolvers } from "./category-resolvers";
