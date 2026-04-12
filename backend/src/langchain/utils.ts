@@ -1,10 +1,72 @@
 import { randomUUID } from "crypto";
-import { AIMessage, BaseMessage, ToolMessage } from "langchain";
+import { BaseCallbackHandler } from "@langchain/core/callbacks/base";
+import { CallbackManager } from "@langchain/core/callbacks/manager";
+import { AIMessage, BaseMessage, ReactAgent, ToolMessage } from "langchain";
 import {
+  Agent,
+  AgentMessage,
   AgentTraceMessage,
   AgentTraceMessageType,
   ToolExecution,
 } from "../ports/agent-types";
+
+export class AgentLike<TContext extends Record<string, unknown>>
+  implements Agent<TContext>
+{
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  constructor(private agent: ReactAgent<any>) {}
+
+  async invoke(
+    state: { messages: readonly AgentMessage[] },
+    config: { context: TContext },
+  ) {
+    const agentTrace: AgentTraceMessage[] = [];
+    const callbackManager = new CallbackManager();
+
+    callbackManager.addHandler(
+      BaseCallbackHandler.fromMethods({
+        handleLLMEnd(llmResult) {
+          for (const promptGenerations of llmResult.generations) {
+            for (const generation of promptGenerations) {
+              if (!("message" in generation)) {
+                // Skip if the generation does not contain a message
+                continue;
+              }
+
+              const message = generation.message;
+
+              if (!(message instanceof AIMessage)) {
+                // Skip to narrow down to AIMessage instances
+                continue;
+              }
+
+              const agentTraceMessages = extractAgentTraceTexts(message);
+              agentTrace.push(...agentTraceMessages);
+            }
+          }
+        },
+        handleToolEnd(output) {
+          const agentTraceMessage = extractAgentTraceToolResult(output);
+          agentTrace.push(agentTraceMessage);
+        },
+      }),
+    );
+
+    const messages = state.messages.map((message) => ({
+      role: message.role,
+      content: message.content,
+    }));
+
+    const response = await this.agent.invoke(
+      { ...state, messages },
+      { ...config, callbacks: callbackManager },
+    );
+
+    const answer = extractLastMessageText(response.messages)?.trim();
+
+    return { answer, agentTrace };
+  }
+}
 
 export function extractLastMessageText(
   messages: BaseMessage[],

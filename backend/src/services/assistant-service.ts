@@ -1,6 +1,4 @@
-import { ReactAgent } from "langchain";
-import { extractAgentTrace, extractLastMessageText } from "../langchain/utils";
-import { AgentMessage, AgentTraceMessage } from "../ports/agent-types";
+import { Agent, AgentMessage, AgentTraceMessage } from "../ports/agent-types";
 import { Failure, Result, Success } from "../types/result";
 import { formatDateAsYYYYMMDD } from "../utils/date";
 
@@ -19,8 +17,9 @@ export interface AssistantService {
 }
 
 export class AssistantServiceImpl implements AssistantService {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  constructor(private assistantAgent: ReactAgent<any>) {}
+  constructor(
+    private assistantAgent: Agent<{ today: string; userId: string }>,
+  ) {}
 
   async call(userId: string, input: AssistantInput): Promise<AssistantOutput> {
     if (!userId) {
@@ -47,8 +46,7 @@ export class AssistantServiceImpl implements AssistantService {
       { context: { userId, today: formatDateAsYYYYMMDD(new Date()) } },
     );
 
-    const answer = extractLastMessageText(response.messages)?.trim();
-    const agentTrace = extractAgentTrace(response.messages);
+    const { answer, agentTrace } = response;
 
     if (!answer) {
       return Failure({
