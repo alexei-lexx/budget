@@ -8,6 +8,7 @@ import { createAggregateTransactionsTool } from "../tools/aggregate-transactions
 import { createGetAccountsTool } from "../tools/get-accounts";
 import { createGetCategoriesTool } from "../tools/get-categories";
 import { createGetTransactionsTool } from "../tools/get-transactions";
+import { createJokeTool } from "../tools/joke";
 import { avgTool, calculateTool, sumTool } from "../tools/math";
 
 export const assistantAgentContextSchema = z.object({
@@ -87,7 +88,8 @@ export function createAssistantAgent({
   ];
 
   const mathTools = [avgTool, calculateTool, sumTool];
-  const tools = [...dataTools, ...mathTools];
+  const subagentTools = [createJokeTool(model)];
+  const tools = [...dataTools, ...mathTools, ...subagentTools];
 
   return createAgent({
     model,
