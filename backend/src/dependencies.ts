@@ -1,7 +1,6 @@
 import { JwtAuthService } from "./auth/jwt-auth";
 import { createAssistantAgent } from "./langchain/agents/assistant-agent";
 import { createCreateTransactionAgent } from "./langchain/agents/create-transaction-agent";
-import { createInsightAgent } from "./langchain/agents/insight-agent";
 import { HttpTelegramApiClient } from "./providers/http-telegram-api-client";
 import { LambdaBackgroundJobDispatcher } from "./providers/lambda-background-job-dispatcher";
 import { DynAccountRepository } from "./repositories/dyn-account-repository";
@@ -130,15 +129,6 @@ export const resolveCreateTransactionAgent = createSingleton(() =>
     transactionService: resolveTransactionService(),
   }),
 );
-export const resolveInsightAgent = createSingleton(() =>
-  createInsightAgent({
-    model: resolveBedrockChatModel(),
-    accountRepository: resolveAccountRepository(),
-    categoryRepository: resolveCategoryRepository(),
-    transactionRepository: resolveTransactionRepository(),
-  }),
-);
-
 // AI services
 export const resolveAssistantService = createSingleton(
   () => new AssistantServiceImpl(resolveAssistantAgent()),
