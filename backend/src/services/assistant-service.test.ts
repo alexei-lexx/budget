@@ -1,17 +1,20 @@
 import { faker } from "@faker-js/faker";
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
-import { AIMessage, ReactAgent, ToolMessage } from "langchain";
-import { AgentTraceMessageType } from "../ports/agent-types";
+import {
+  Agent,
+  AgentTraceMessage,
+  AgentTraceMessageType,
+} from "../ports/agent-types";
 import {
   type AssistantInput,
   AssistantService,
   AssistantServiceImpl,
 } from "./assistant-service";
 
-const createMockAssistantAgent = () => ({
-  invoke: jest.fn() as jest.MockedFunction<
-    (input: unknown, config?: unknown) => Promise<{ messages: unknown[] }>
-  >,
+const createMockAssistantAgent = (): jest.Mocked<
+  Agent<{ today: string; userId: string }>
+> => ({
+  invoke: jest.fn(),
 });
 
 describe("AssistantService", () => {
@@ -21,9 +24,7 @@ describe("AssistantService", () => {
 
   beforeEach(() => {
     mockAssistantAgent = createMockAssistantAgent();
-    service = new AssistantServiceImpl(
-      mockAssistantAgent as unknown as ReactAgent,
-    );
+    service = new AssistantServiceImpl(mockAssistantAgent);
     userId = faker.string.uuid();
 
     jest.clearAllMocks();
@@ -81,7 +82,8 @@ describe("AssistantService", () => {
     it("should return AI response for valid input", async () => {
       // Arrange
       mockAssistantAgent.invoke.mockResolvedValue({
-        messages: [new AIMessage({ content: "Your food spending was $50." })],
+        answer: "Your food spending was $50.",
+        agentTrace: [],
       });
 
       // Act
@@ -90,18 +92,15 @@ describe("AssistantService", () => {
       // Assert
       expect(result).toMatchObject({
         success: true,
-        data: {
-          answer: "Your food spending was $50.",
-        },
+        data: { answer: "Your food spending was $50." },
       });
     });
 
     it("should trim answer whitespace", async () => {
       // Arrange
       mockAssistantAgent.invoke.mockResolvedValue({
-        messages: [
-          new AIMessage({ content: "  Your food spending was $50.  " }),
-        ],
+        answer: "  Your food spending was $50.  ",
+        agentTrace: [],
       });
 
       // Act
@@ -118,14 +117,15 @@ describe("AssistantService", () => {
       // Arrange
       const input: AssistantInput = { question: "  What is my spending?  " };
       mockAssistantAgent.invoke.mockResolvedValue({
-        messages: [new AIMessage({ content: "Answer" })],
+        answer: "Answer",
+        agentTrace: [],
       });
 
       // Act
       await service.call(userId, input);
 
       // Assert
-      const [state] = mockAssistantAgent.invoke.mock.calls[0] as [
+      const [state] = mockAssistantAgent.invoke.mock.calls[0] as unknown as [
         { messages: { content: string }[] },
         unknown,
       ];
@@ -138,7 +138,8 @@ describe("AssistantService", () => {
     it("should pass userId in context", async () => {
       // Arrange
       mockAssistantAgent.invoke.mockResolvedValue({
-        messages: [new AIMessage({ content: "Answer" })],
+        answer: "Answer",
+        agentTrace: [],
       });
 
       // Act
@@ -155,7 +156,8 @@ describe("AssistantService", () => {
     it("should pass today's date in context", async () => {
       // Arrange
       mockAssistantAgent.invoke.mockResolvedValue({
-        messages: [new AIMessage({ content: "Answer" })],
+        answer: "Answer",
+        agentTrace: [],
       });
 
       // Act
@@ -172,7 +174,8 @@ describe("AssistantService", () => {
     it("should prepend history messages before the user question", async () => {
       // Arrange
       mockAssistantAgent.invoke.mockResolvedValue({
-        messages: [new AIMessage({ content: "Answer" })],
+        answer: "Answer",
+        agentTrace: [],
       });
       const history = [
         { role: "user" as const, content: "Previous question" },
@@ -196,7 +199,8 @@ describe("AssistantService", () => {
     it("should work without history (history defaults to empty)", async () => {
       // Arrange
       mockAssistantAgent.invoke.mockResolvedValue({
-        messages: [new AIMessage({ content: "Answer" })],
+        answer: "Answer",
+        agentTrace: [],
       });
 
       // Act
@@ -210,7 +214,7 @@ describe("AssistantService", () => {
       expect(state.messages).toHaveLength(1);
     });
 
-    it("should propagate error when assistantAgent fails", async () => {
+    it("should propagate error when agent fails", async () => {
       // Arrange
       mockAssistantAgent.invoke.mockRejectedValue(
         new Error("AI service unavailable"),
@@ -222,35 +226,11 @@ describe("AssistantService", () => {
       );
     });
 
-    it("should return agentTrace on success", async () => {
+    it("should return failure when answer is empty", async () => {
       // Arrange
       mockAssistantAgent.invoke.mockResolvedValue({
-        messages: [
-          new AIMessage({ content: "Thinking..." }),
-          new AIMessage({ content: "Answer" }),
-        ],
-      });
-
-      // Act
-      const result = await service.call(userId, validInput);
-
-      // Assert
-      expect(result).toMatchObject({
-        success: true,
-        data: {
-          agentTrace: expect.arrayContaining([
-            { type: AgentTraceMessageType.TEXT, content: "Thinking..." },
-          ]),
-        },
-      });
-    });
-
-    it("should return agentTrace on empty response failure", async () => {
-      // Arrange
-      const thinkingMessage = new AIMessage({ content: "Thinking..." });
-      const emptyFinalMessage = new AIMessage({ content: "" });
-      mockAssistantAgent.invoke.mockResolvedValue({
-        messages: [thinkingMessage, emptyFinalMessage],
+        answer: "",
+        agentTrace: [],
       });
 
       // Act
@@ -259,31 +239,35 @@ describe("AssistantService", () => {
       // Assert
       expect(result).toMatchObject({
         success: false,
-        error: {
-          message: "Empty response",
-          agentTrace: [
-            { type: AgentTraceMessageType.TEXT, content: "Thinking..." },
-          ],
-        },
+        error: { message: "Empty response" },
       });
     });
 
-    it("should include tool call and result in agentTrace", async () => {
+    it("should return failure when answer is undefined", async () => {
       // Arrange
-      const aiMessage = new AIMessage({
-        content: "",
-        tool_calls: [
-          { id: "call_1", name: "getAccounts", args: {}, type: "tool_call" },
-        ],
-      });
-      const toolMessage = new ToolMessage({
-        content: "[]",
-        tool_call_id: "call_1",
-        name: "getAccounts",
-      });
-      const finalMessage = new AIMessage({ content: "You have no accounts." });
       mockAssistantAgent.invoke.mockResolvedValue({
-        messages: [aiMessage, toolMessage, finalMessage],
+        answer: undefined,
+        agentTrace: [],
+      });
+
+      // Act
+      const result = await service.call(userId, validInput);
+
+      // Assert
+      expect(result).toMatchObject({
+        success: false,
+        error: { message: "Empty response" },
+      });
+    });
+
+    it("should return agentTrace on success", async () => {
+      // Arrange
+      const agentTrace: AgentTraceMessage[] = [
+        { type: AgentTraceMessageType.TEXT, content: "Thinking..." },
+      ];
+      mockAssistantAgent.invoke.mockResolvedValue({
+        answer: "Answer",
+        agentTrace,
       });
 
       // Act
@@ -292,18 +276,27 @@ describe("AssistantService", () => {
       // Assert
       expect(result).toMatchObject({
         success: true,
-        data: {
-          agentTrace: expect.arrayContaining([
-            expect.objectContaining({
-              type: AgentTraceMessageType.TOOL_CALL,
-              toolName: "getAccounts",
-            }),
-            expect.objectContaining({
-              type: AgentTraceMessageType.TOOL_RESULT,
-              toolName: "getAccounts",
-            }),
-          ]),
-        },
+        data: { agentTrace },
+      });
+    });
+
+    it("should return agentTrace on empty response failure", async () => {
+      // Arrange
+      const agentTrace: AgentTraceMessage[] = [
+        { type: AgentTraceMessageType.TEXT, content: "Thinking..." },
+      ];
+      mockAssistantAgent.invoke.mockResolvedValue({
+        answer: undefined,
+        agentTrace,
+      });
+
+      // Act
+      const result = await service.call(userId, validInput);
+
+      // Assert
+      expect(result).toMatchObject({
+        success: false,
+        error: { message: "Empty response", agentTrace },
       });
     });
   });

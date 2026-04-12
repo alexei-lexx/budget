@@ -46,7 +46,8 @@ export class AssistantServiceImpl implements AssistantService {
       { context: { userId, today: formatDateAsYYYYMMDD(new Date()) } },
     );
 
-    const { answer, agentTrace } = response;
+    const { answer: rawAnswer, agentTrace } = response;
+    const answer = rawAnswer?.trim();
 
     if (!answer) {
       return Failure({
