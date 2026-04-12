@@ -8,9 +8,9 @@ import {
   AssistantChatService,
   AssistantChatServiceImpl,
 } from "./assistant-chat-service";
-import { InsightService } from "./insight-service";
+import { AssistantService } from "./assistant-service";
 
-const createMockInsightService = (): jest.Mocked<InsightService> => ({
+const createMockAssistantService = (): jest.Mocked<AssistantService> => ({
   call: jest.fn(),
 });
 
@@ -19,16 +19,16 @@ describe("AssistantChatService", () => {
   const maxMessages = 20;
 
   let service: AssistantChatService;
-  let insightService: jest.Mocked<InsightService>;
+  let assistantService: jest.Mocked<AssistantService>;
   let chatMessageRepository: jest.Mocked<ChatMessageRepository>;
 
   beforeEach(() => {
-    insightService = createMockInsightService();
+    assistantService = createMockAssistantService();
     chatMessageRepository = createMockChatMessageRepository();
 
     service = new AssistantChatServiceImpl({
       chatMessageRepository,
-      insightService,
+      assistantService,
       maxMessages,
     });
 
@@ -36,11 +36,16 @@ describe("AssistantChatService", () => {
   });
 
   describe("call", () => {
+    // Happy path
+
     it("should return success with answer and sessionId", async () => {
       // Arrange
+      // No prior messages for this session
       chatMessageRepository.findManyRecentBySessionId.mockResolvedValue([]);
+      // Message persistence succeeds
       chatMessageRepository.create.mockResolvedValue(fakeChatMessage());
-      insightService.call.mockResolvedValue({
+      // Assistant answers successfully
+      assistantService.call.mockResolvedValue({
         success: true,
         data: { answer: "You spent $100", agentTrace: [] },
       });
@@ -64,9 +69,12 @@ describe("AssistantChatService", () => {
     it("should use provided sessionId if given", async () => {
       // Arrange
       const sessionId = faker.string.uuid();
+      // No prior messages for this session
       chatMessageRepository.findManyRecentBySessionId.mockResolvedValue([]);
+      // Message persistence succeeds
       chatMessageRepository.create.mockResolvedValue(fakeChatMessage());
-      insightService.call.mockResolvedValue({
+      // Assistant answers successfully
+      assistantService.call.mockResolvedValue({
         success: true,
         data: { answer: "Answer", agentTrace: [] },
       });
@@ -87,9 +95,10 @@ describe("AssistantChatService", () => {
       ).toHaveBeenCalledWith({ userId, sessionId }, maxMessages);
     });
 
-    it("should load history and pass it to InsightService", async () => {
+    it("should load history and pass it to AssistantService", async () => {
       // Arrange
       const sessionId = faker.string.uuid();
+      // Returns prior messages for the session (most recent first)
       chatMessageRepository.findManyRecentBySessionId.mockResolvedValue([
         fakeChatMessage({
           userId,
@@ -104,8 +113,10 @@ describe("AssistantChatService", () => {
           content: "Prior question",
         }),
       ]);
+      // Message persistence succeeds
       chatMessageRepository.create.mockResolvedValue(fakeChatMessage());
-      insightService.call.mockResolvedValue({
+      // Assistant answers successfully
+      assistantService.call.mockResolvedValue({
         success: true,
         data: { answer: "Answer", agentTrace: [] },
       });
@@ -114,7 +125,7 @@ describe("AssistantChatService", () => {
       await service.call(userId, { question: "Follow-up?", sessionId });
 
       // Assert
-      expect(insightService.call).toHaveBeenCalledWith(
+      expect(assistantService.call).toHaveBeenCalledWith(
         userId,
         expect.objectContaining({
           question: "Follow-up?",
@@ -129,9 +140,12 @@ describe("AssistantChatService", () => {
     it("should save user message and assistant answer after success", async () => {
       // Arrange
       const sessionId = faker.string.uuid();
+      // No prior messages for this session
       chatMessageRepository.findManyRecentBySessionId.mockResolvedValue([]);
+      // Message persistence succeeds
       chatMessageRepository.create.mockResolvedValue(fakeChatMessage());
-      insightService.call.mockResolvedValue({
+      // Assistant answers successfully
+      assistantService.call.mockResolvedValue({
         success: true,
         data: { answer: "You spent $100", agentTrace: [] },
       });
@@ -159,34 +173,14 @@ describe("AssistantChatService", () => {
       );
     });
 
-    it("should return failure and not save messages when InsightService fails", async () => {
-      // Arrange
-      chatMessageRepository.findManyRecentBySessionId.mockResolvedValue([]);
-      insightService.call.mockResolvedValue({
-        success: false,
-        error: { message: "AI failed", agentTrace: [] },
-      });
-
-      // Act
-      const result = await service.call(userId, { question: "Q?" });
-
-      // Assert
-      expect(result).toEqual({
-        success: false,
-        error: {
-          message: "AI failed",
-          agentTrace: [],
-          sessionId: expect.any(String),
-        },
-      });
-      expect(chatMessageRepository.create).not.toHaveBeenCalled();
-    });
-
     it("should generate sessionId when not provided", async () => {
       // Arrange
+      // No prior messages for this session
       chatMessageRepository.findManyRecentBySessionId.mockResolvedValue([]);
+      // Message persistence succeeds
       chatMessageRepository.create.mockResolvedValue(fakeChatMessage());
-      insightService.call.mockResolvedValue({
+      // Assistant answers successfully
+      assistantService.call.mockResolvedValue({
         success: true,
         data: { answer: "Answer", agentTrace: [] },
       });
@@ -206,9 +200,12 @@ describe("AssistantChatService", () => {
     it("should call repository with maxMessages limit", async () => {
       // Arrange
       const sessionId = faker.string.uuid();
+      // No prior messages for this session
       chatMessageRepository.findManyRecentBySessionId.mockResolvedValue([]);
+      // Message persistence succeeds
       chatMessageRepository.create.mockResolvedValue(fakeChatMessage());
-      insightService.call.mockResolvedValue({
+      // Assistant answers successfully
+      assistantService.call.mockResolvedValue({
         success: true,
         data: { answer: "Answer", agentTrace: [] },
       });
@@ -220,6 +217,33 @@ describe("AssistantChatService", () => {
       expect(
         chatMessageRepository.findManyRecentBySessionId,
       ).toHaveBeenCalledWith({ userId, sessionId }, maxMessages);
+    });
+
+    // Dependency failures
+
+    it("should return failure and not save messages when AssistantService fails", async () => {
+      // Arrange
+      // No prior messages for this session
+      chatMessageRepository.findManyRecentBySessionId.mockResolvedValue([]);
+      // Assistant fails with an error
+      assistantService.call.mockResolvedValue({
+        success: false,
+        error: { message: "AI failed", agentTrace: [] },
+      });
+
+      // Act
+      const result = await service.call(userId, { question: "Q?" });
+
+      // Assert
+      expect(result).toEqual({
+        success: false,
+        error: {
+          message: "AI failed",
+          agentTrace: [],
+          sessionId: expect.any(String),
+        },
+      });
+      expect(chatMessageRepository.create).not.toHaveBeenCalled();
     });
   });
 });

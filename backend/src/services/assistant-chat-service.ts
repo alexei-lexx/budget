@@ -3,7 +3,7 @@ import { ChatMessageRole } from "../models/chat-message";
 import { AgentMessage, AgentTraceMessage } from "../ports/agent-types";
 import { ChatMessageRepository } from "../ports/chat-message-repository";
 import { Failure, Result, Success } from "../types/result";
-import { InsightService } from "./insight-service";
+import { AssistantService } from "./assistant-service";
 
 export interface AssistantChatInput {
   question: string;
@@ -33,16 +33,16 @@ export interface AssistantChatService {
 
 export class AssistantChatServiceImpl implements AssistantChatService {
   private readonly chatMessageRepository: ChatMessageRepository;
-  private readonly insightService: InsightService;
+  private readonly assistantService: AssistantService;
   private readonly maxMessages: number;
 
   constructor(deps: {
     chatMessageRepository: ChatMessageRepository;
-    insightService: InsightService;
+    assistantService: AssistantService;
     maxMessages: number;
   }) {
     this.chatMessageRepository = deps.chatMessageRepository;
-    this.insightService = deps.insightService;
+    this.assistantService = deps.assistantService;
     this.maxMessages = deps.maxMessages;
   }
 
@@ -71,8 +71,8 @@ export class AssistantChatServiceImpl implements AssistantChatService {
         content: message.content,
       }));
 
-    // Call InsightService with history
-    const result = await this.insightService.call(userId, {
+    // Call AssistantService with history
+    const result = await this.assistantService.call(userId, {
       question: input.question,
       history,
     });

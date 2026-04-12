@@ -9,6 +9,12 @@ export interface ToolExecution {
   output: string;
 }
 
+export interface AgentSkill {
+  name: string;
+  description: string;
+  prompt: string;
+}
+
 export enum AgentTraceMessageType {
   TEXT = "TEXT",
   TOOL_CALL = "TOOL_CALL",

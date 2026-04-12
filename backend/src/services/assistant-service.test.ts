@@ -3,82 +3,43 @@ import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import { AIMessage, ReactAgent, ToolMessage } from "langchain";
 import { AgentTraceMessageType } from "../ports/agent-types";
 import {
-  type InsightInput,
-  InsightService,
-  InsightServiceImpl,
-} from "./insight-service";
+  AssistantInput,
+  AssistantService,
+  AssistantServiceImpl,
+} from "./assistant-service";
 
-const createMockInsightAgent = () => ({
+const createMockAssistantAgent = () => ({
   invoke: jest.fn() as jest.MockedFunction<
     (input: unknown, config?: unknown) => Promise<{ messages: unknown[] }>
   >,
 });
 
-describe("InsightService", () => {
-  let service: InsightService;
+describe("AssistantService", () => {
+  let service: AssistantService;
   let userId: string;
-  let mockInsightAgent: ReturnType<typeof createMockInsightAgent>;
+  let mockAssistantAgent: ReturnType<typeof createMockAssistantAgent>;
 
   beforeEach(() => {
-    mockInsightAgent = createMockInsightAgent();
-    service = new InsightServiceImpl(mockInsightAgent as unknown as ReactAgent);
+    mockAssistantAgent = createMockAssistantAgent();
+    service = new AssistantServiceImpl(
+      mockAssistantAgent as unknown as ReactAgent,
+    );
     userId = faker.string.uuid();
 
     jest.clearAllMocks();
   });
 
-  describe("validation", () => {
-    it("should return failure when userId is empty", async () => {
-      // Act
-      const result = await service.call("", { question: "Valid question?" });
-
-      // Assert
-      expect(result).toMatchObject({
-        success: false,
-        error: { message: "User ID is required" },
-      });
-      expect(mockInsightAgent.invoke).not.toHaveBeenCalled();
-    });
-
-    it("should return failure when question is empty", async () => {
-      // Arrange
-      const input: InsightInput = { question: "" };
-
-      // Act
-      const result = await service.call(userId, input);
-
-      // Assert
-      expect(result).toMatchObject({
-        success: false,
-        error: { message: "Question is required" },
-      });
-      expect(mockInsightAgent.invoke).not.toHaveBeenCalled();
-    });
-
-    it("should return failure when question is only whitespace", async () => {
-      // Arrange
-      const input: InsightInput = { question: "   " };
-
-      // Act
-      const result = await service.call(userId, input);
-
-      // Assert
-      expect(result).toMatchObject({
-        success: false,
-        error: { message: "Question is required" },
-      });
-      expect(mockInsightAgent.invoke).not.toHaveBeenCalled();
-    });
-  });
-
   describe("call", () => {
-    const validInput: InsightInput = {
+    const validInput: AssistantInput = {
       question: "Why did my food spending increase?",
     };
 
+    // Happy path
+
     it("should return AI response for valid input", async () => {
       // Arrange
-      mockInsightAgent.invoke.mockResolvedValue({
+      // Agent returns a text answer
+      mockAssistantAgent.invoke.mockResolvedValue({
         messages: [new AIMessage({ content: "Your food spending was $50." })],
       });
 
@@ -96,7 +57,8 @@ describe("InsightService", () => {
 
     it("should trim answer whitespace", async () => {
       // Arrange
-      mockInsightAgent.invoke.mockResolvedValue({
+      // Agent returns answer with surrounding whitespace
+      mockAssistantAgent.invoke.mockResolvedValue({
         messages: [
           new AIMessage({ content: "  Your food spending was $50.  " }),
         ],
@@ -114,8 +76,10 @@ describe("InsightService", () => {
 
     it("should trim question whitespace before sending", async () => {
       // Arrange
-      const input: InsightInput = { question: "  What is my spending?  " };
-      mockInsightAgent.invoke.mockResolvedValue({
+      const input: AssistantInput = { question: "  What is my spending?  " };
+
+      // Agent returns a response (content irrelevant to this test)
+      mockAssistantAgent.invoke.mockResolvedValue({
         messages: [new AIMessage({ content: "Answer" })],
       });
 
@@ -123,19 +87,18 @@ describe("InsightService", () => {
       await service.call(userId, input);
 
       // Assert
-      const [state] = mockInsightAgent.invoke.mock.calls[0] as [
+      const [state] = mockAssistantAgent.invoke.mock.calls[0] as [
         { messages: { content: string }[] },
         unknown,
       ];
       const lastMessage = state.messages[state.messages.length - 1];
-      expect(lastMessage.content).toContain(
-        "My question: What is my spending?",
-      );
+      expect(lastMessage.content).toBe("What is my spending?");
     });
 
     it("should pass userId in context", async () => {
       // Arrange
-      mockInsightAgent.invoke.mockResolvedValue({
+      // Agent returns a response (content irrelevant to this test)
+      mockAssistantAgent.invoke.mockResolvedValue({
         messages: [new AIMessage({ content: "Answer" })],
       });
 
@@ -143,7 +106,7 @@ describe("InsightService", () => {
       await service.call(userId, validInput);
 
       // Assert
-      const [, config] = mockInsightAgent.invoke.mock.calls[0] as [
+      const [, config] = mockAssistantAgent.invoke.mock.calls[0] as [
         unknown,
         { context: { userId: string } },
       ];
@@ -152,7 +115,8 @@ describe("InsightService", () => {
 
     it("should pass today's date in context", async () => {
       // Arrange
-      mockInsightAgent.invoke.mockResolvedValue({
+      // Agent returns a response (content irrelevant to this test)
+      mockAssistantAgent.invoke.mockResolvedValue({
         messages: [new AIMessage({ content: "Answer" })],
       });
 
@@ -160,7 +124,7 @@ describe("InsightService", () => {
       await service.call(userId, validInput);
 
       // Assert
-      const [, config] = mockInsightAgent.invoke.mock.calls[0] as [
+      const [, config] = mockAssistantAgent.invoke.mock.calls[0] as [
         unknown,
         { context: { today: string } },
       ];
@@ -169,7 +133,8 @@ describe("InsightService", () => {
 
     it("should prepend history messages before the user question", async () => {
       // Arrange
-      mockInsightAgent.invoke.mockResolvedValue({
+      // Agent returns a response (content irrelevant to this test)
+      mockAssistantAgent.invoke.mockResolvedValue({
         messages: [new AIMessage({ content: "Answer" })],
       });
       const history = [
@@ -181,7 +146,7 @@ describe("InsightService", () => {
       await service.call(userId, { ...validInput, history });
 
       // Assert
-      const [state] = mockInsightAgent.invoke.mock.calls[0] as [
+      const [state] = mockAssistantAgent.invoke.mock.calls[0] as [
         { messages: { role: string; content: string }[] },
         unknown,
       ];
@@ -193,7 +158,8 @@ describe("InsightService", () => {
 
     it("should work without history (history defaults to empty)", async () => {
       // Arrange
-      mockInsightAgent.invoke.mockResolvedValue({
+      // Agent returns a response (content irrelevant to this test)
+      mockAssistantAgent.invoke.mockResolvedValue({
         messages: [new AIMessage({ content: "Answer" })],
       });
 
@@ -201,28 +167,17 @@ describe("InsightService", () => {
       await service.call(userId, validInput);
 
       // Assert
-      const [state] = mockInsightAgent.invoke.mock.calls[0] as [
+      const [state] = mockAssistantAgent.invoke.mock.calls[0] as [
         { messages: unknown[] },
         unknown,
       ];
       expect(state.messages).toHaveLength(1);
     });
 
-    it("should propagate error when insightAgent fails", async () => {
-      // Arrange
-      mockInsightAgent.invoke.mockRejectedValue(
-        new Error("AI service unavailable"),
-      );
-
-      // Act & Assert
-      await expect(service.call(userId, validInput)).rejects.toThrow(
-        "AI service unavailable",
-      );
-    });
-
     it("should return agentTrace on success", async () => {
       // Arrange
-      mockInsightAgent.invoke.mockResolvedValue({
+      // Agent returns multiple messages including intermediate thinking
+      mockAssistantAgent.invoke.mockResolvedValue({
         messages: [
           new AIMessage({ content: "Thinking..." }),
           new AIMessage({ content: "Answer" }),
@@ -243,31 +198,9 @@ describe("InsightService", () => {
       });
     });
 
-    it("should return agentTrace on empty response failure", async () => {
-      // Arrange
-      const thinkingMessage = new AIMessage({ content: "Thinking..." });
-      const emptyFinalMessage = new AIMessage({ content: "" });
-      mockInsightAgent.invoke.mockResolvedValue({
-        messages: [thinkingMessage, emptyFinalMessage],
-      });
-
-      // Act
-      const result = await service.call(userId, validInput);
-
-      // Assert
-      expect(result).toMatchObject({
-        success: false,
-        error: {
-          message: "Empty response",
-          agentTrace: [
-            { type: AgentTraceMessageType.TEXT, content: "Thinking..." },
-          ],
-        },
-      });
-    });
-
     it("should include tool call and result in agentTrace", async () => {
       // Arrange
+      // Agent calls a tool then returns a final answer
       const aiMessage = new AIMessage({
         content: "",
         tool_calls: [
@@ -280,7 +213,7 @@ describe("InsightService", () => {
         name: "getAccounts",
       });
       const finalMessage = new AIMessage({ content: "You have no accounts." });
-      mockInsightAgent.invoke.mockResolvedValue({
+      mockAssistantAgent.invoke.mockResolvedValue({
         messages: [aiMessage, toolMessage, finalMessage],
       });
 
@@ -303,6 +236,90 @@ describe("InsightService", () => {
           ]),
         },
       });
+    });
+
+    // Validation failures
+
+    it("should return failure when userId is empty", async () => {
+      // Act
+      const result = await service.call("", { question: "Valid question?" });
+
+      // Assert
+      expect(result).toMatchObject({
+        success: false,
+        error: { message: "User ID is required" },
+      });
+      expect(mockAssistantAgent.invoke).not.toHaveBeenCalled();
+    });
+
+    it("should return failure when question is empty", async () => {
+      // Arrange
+      const input: AssistantInput = { question: "" };
+
+      // Act
+      const result = await service.call(userId, input);
+
+      // Assert
+      expect(result).toMatchObject({
+        success: false,
+        error: { message: "Question is required" },
+      });
+      expect(mockAssistantAgent.invoke).not.toHaveBeenCalled();
+    });
+
+    it("should return failure when question is only whitespace", async () => {
+      // Arrange
+      const input: AssistantInput = { question: "   " };
+
+      // Act
+      const result = await service.call(userId, input);
+
+      // Assert
+      expect(result).toMatchObject({
+        success: false,
+        error: { message: "Question is required" },
+      });
+      expect(mockAssistantAgent.invoke).not.toHaveBeenCalled();
+    });
+
+    // Dependency failures
+
+    it("should return agentTrace on empty response failure", async () => {
+      // Arrange
+      const thinkingMessage = new AIMessage({ content: "Thinking..." });
+      const emptyFinalMessage = new AIMessage({ content: "" });
+
+      // Agent returns an empty final message after thinking
+      mockAssistantAgent.invoke.mockResolvedValue({
+        messages: [thinkingMessage, emptyFinalMessage],
+      });
+
+      // Act
+      const result = await service.call(userId, validInput);
+
+      // Assert
+      expect(result).toMatchObject({
+        success: false,
+        error: {
+          message: "Empty response",
+          agentTrace: [
+            { type: AgentTraceMessageType.TEXT, content: "Thinking..." },
+          ],
+        },
+      });
+    });
+
+    it("should propagate error when assistantAgent fails", async () => {
+      // Arrange
+      // Agent throws an infrastructure error
+      mockAssistantAgent.invoke.mockRejectedValue(
+        new Error("AI service unavailable"),
+      );
+
+      // Act & Assert
+      await expect(service.call(userId, validInput)).rejects.toThrow(
+        "AI service unavailable",
+      );
     });
   });
 });
