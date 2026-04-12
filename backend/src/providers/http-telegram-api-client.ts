@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { TelegramApiClient } from "../services/ports/telegram-api-client";
+import { TelegramApiClient } from "../ports/telegram-api-client";
 import { Failure, Result, Success } from "../types/result";
 
 const baseResponseSchema = z.discriminatedUnion("ok", [

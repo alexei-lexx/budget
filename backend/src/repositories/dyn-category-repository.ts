@@ -10,8 +10,8 @@ import {
   CategoryRepository,
   CreateCategoryInput,
   UpdateCategoryInput,
-} from "../services/ports/category-repository";
-import { RepositoryError } from "../services/ports/repository-error";
+} from "../ports/category-repository";
+import { RepositoryError } from "../ports/repository-error";
 import { DynBaseRepository } from "./dyn-base-repository";
 import { categorySchema } from "./schemas/category";
 import { hydrate } from "./utils/hydrate";

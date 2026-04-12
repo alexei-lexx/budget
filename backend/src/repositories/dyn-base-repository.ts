@@ -1,6 +1,6 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
-import { RepositoryError } from "../services/ports/repository-error";
+import { RepositoryError } from "../ports/repository-error";
 import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
 
 export abstract class DynBaseRepository {

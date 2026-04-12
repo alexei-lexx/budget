@@ -1,5 +1,5 @@
 import { jest } from "@jest/globals";
-import { TelegramApiClient } from "../../../services/ports/telegram-api-client";
+import { TelegramApiClient } from "../../../ports/telegram-api-client";
 
 export const createMockTelegramApiClient =
   (): jest.Mocked<TelegramApiClient> => ({

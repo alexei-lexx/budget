@@ -1,4 +1,4 @@
-import { Result } from "../../types/result";
+import { Result } from "../types/result";
 
 export interface TelegramApiClient {
   getWebhookInfo(token: string): Promise<Result<{ url: string }>>;

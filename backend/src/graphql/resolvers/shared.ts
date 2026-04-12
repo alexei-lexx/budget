@@ -1,7 +1,7 @@
 import { GraphQLError } from "graphql";
 import { User } from "../../models/user";
+import { RepositoryError } from "../../ports/repository-error";
 import { BusinessError } from "../../services/business-error";
-import { RepositoryError } from "../../services/ports/repository-error";
 import { InvalidDateStringError } from "../../types/date";
 import { GraphQLContext } from "../context";
 

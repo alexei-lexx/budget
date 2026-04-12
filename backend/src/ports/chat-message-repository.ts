@@ -1,4 +1,4 @@
-import { ChatMessage, ChatMessageRole } from "../../models/chat-message";
+import { ChatMessage, ChatMessageRole } from "../models/chat-message";
 
 export interface CreateChatMessageInput {
   userId: string;

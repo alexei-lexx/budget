@@ -7,9 +7,9 @@ import {
   extractToolExecutions,
 } from "../langchain/utils";
 import { Transaction } from "../models/transaction";
+import { AgentTraceMessage } from "../ports/agent-types";
 import { Failure, Result, Success } from "../types/result";
 import { formatDateAsYYYYMMDD } from "../utils/date";
-import { AgentTraceMessage } from "./ports/agent-types";
 import { TransactionService } from "./transaction-service";
 
 const createdTransactionSchema = z.discriminatedUnion("success", [

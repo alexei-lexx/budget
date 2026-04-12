@@ -1,8 +1,8 @@
 import { ReactAgent } from "langchain";
 import { extractAgentTrace, extractLastMessageText } from "../langchain/utils";
+import { AgentMessage, AgentTraceMessage } from "../ports/agent-types";
 import { Failure, Result, Success } from "../types/result";
 import { formatDateAsYYYYMMDD } from "../utils/date";
-import { AgentMessage, AgentTraceMessage } from "./ports/agent-types";
 
 export interface InsightInput {
   question: string;

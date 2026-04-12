@@ -1,6 +1,7 @@
 import { faker } from "@faker-js/faker";
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import { ChatMessageRole } from "../models/chat-message";
+import { ChatMessageRepository } from "../ports/chat-message-repository";
 import { fakeChatMessage } from "../utils/test-utils/models/chat-message-fakes";
 import { createMockChatMessageRepository } from "../utils/test-utils/repositories/chat-message-repository-mocks";
 import {
@@ -8,7 +9,6 @@ import {
   AssistantChatServiceImpl,
 } from "./assistant-chat-service";
 import { InsightService } from "./insight-service";
-import { ChatMessageRepository } from "./ports/chat-message-repository";
 
 const createMockInsightService = (): jest.Mocked<InsightService> => ({
   call: jest.fn(),

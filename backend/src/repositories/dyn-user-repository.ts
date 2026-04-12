@@ -7,12 +7,12 @@ import {
   UpdateCommand,
 } from "@aws-sdk/lib-dynamodb";
 import { User } from "../models/user";
-import { RepositoryError } from "../services/ports/repository-error";
+import { RepositoryError } from "../ports/repository-error";
 import {
   CreateUserInput,
   UpdateUserInput,
   UserRepository,
-} from "../services/ports/user-repository";
+} from "../ports/user-repository";
 import { normalizeEmail } from "../utils/email";
 import { DynBaseRepository } from "./dyn-base-repository";
 import { userSchema } from "./schemas/user";

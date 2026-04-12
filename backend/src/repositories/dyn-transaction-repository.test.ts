@@ -9,7 +9,7 @@ import { TransactionPatternType, TransactionType } from "../models/transaction";
 import {
   CreateTransactionInput,
   UpdateTransactionInput,
-} from "../services/ports/transaction-repository";
+} from "../ports/transaction-repository";
 import { toDateString } from "../types/date";
 import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
 import { requireEnv } from "../utils/require-env";

@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { resolveProcessTelegramMessageService } from "../dependencies";
-import { BackgroundJob } from "../services/ports/background-job-dispatcher";
+import { BackgroundJob } from "../ports/background-job-dispatcher";
 
 const backgroundJobEventSchema = z.discriminatedUnion("type", [
   z.object({

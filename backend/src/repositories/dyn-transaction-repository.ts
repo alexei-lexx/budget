@@ -14,7 +14,7 @@ import {
   TransactionPatternType,
   TransactionType,
 } from "../models/transaction";
-import { RepositoryError } from "../services/ports/repository-error";
+import { RepositoryError } from "../ports/repository-error";
 import {
   CreateTransactionInput,
   TransactionConnection,
@@ -22,7 +22,7 @@ import {
   TransactionFilterInput,
   TransactionRepository,
   UpdateTransactionInput,
-} from "../services/ports/transaction-repository";
+} from "../ports/transaction-repository";
 import {
   DEFAULT_PAGE_SIZE,
   MAX_PAGE_SIZE,

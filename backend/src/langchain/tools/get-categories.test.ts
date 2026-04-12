@@ -1,8 +1,8 @@
 import { faker } from "@faker-js/faker";
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import { CategoryType } from "../../models/category";
-import { CategoryRepository } from "../../services/ports/category-repository";
-import { TransactionRepository } from "../../services/ports/transaction-repository";
+import { CategoryRepository } from "../../ports/category-repository";
+import { TransactionRepository } from "../../ports/transaction-repository";
 import { isDateString } from "../../types/date";
 import { daysBetween } from "../../utils/date";
 import { fakeCategory } from "../../utils/test-utils/models/category-fakes";

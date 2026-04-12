@@ -1,6 +1,6 @@
 import { tool } from "langchain";
 import { z } from "zod";
-import { AccountRepository } from "../../services/ports/account-repository";
+import { AccountRepository } from "../../ports/account-repository";
 import { Success } from "../../types/result";
 import { agentContextSchema } from "./agent-context";
 

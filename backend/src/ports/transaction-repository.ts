@@ -3,9 +3,9 @@ import {
   TransactionPattern,
   TransactionPatternType,
   TransactionType,
-} from "../../models/transaction";
-import { DateString } from "../../types/date";
-import { Connection, Edge, PaginationInput } from "../../types/pagination";
+} from "../models/transaction";
+import { DateString } from "../types/date";
+import { Connection, Edge, PaginationInput } from "../types/pagination";
 
 export interface TransactionFilterInput {
   accountIds?: string[];

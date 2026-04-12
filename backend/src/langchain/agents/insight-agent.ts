@@ -1,9 +1,9 @@
 import { BaseChatModel } from "@langchain/core/language_models/chat_models";
 import { createAgent, dynamicSystemPromptMiddleware } from "langchain";
 import { z } from "zod";
-import { AccountRepository } from "../../services/ports/account-repository";
-import { CategoryRepository } from "../../services/ports/category-repository";
-import { TransactionRepository } from "../../services/ports/transaction-repository";
+import { AccountRepository } from "../../ports/account-repository";
+import { CategoryRepository } from "../../ports/category-repository";
+import { TransactionRepository } from "../../ports/transaction-repository";
 import { createAggregateTransactionsTool } from "../tools/aggregate-transactions";
 import { createGetAccountsTool } from "../tools/get-accounts";
 import { createGetCategoriesTool } from "../tools/get-categories";

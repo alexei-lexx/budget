@@ -10,8 +10,8 @@ import {
   AccountRepository,
   CreateAccountInput,
   UpdateAccountInput,
-} from "../services/ports/account-repository";
-import { RepositoryError } from "../services/ports/repository-error";
+} from "../ports/account-repository";
+import { RepositoryError } from "../ports/repository-error";
 import { DynBaseRepository } from "./dyn-base-repository";
 import { accountSchema } from "./schemas/account";
 import { hydrate } from "./utils/hydrate";

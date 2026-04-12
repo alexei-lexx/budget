@@ -1,5 +1,5 @@
 import { faker } from "@faker-js/faker";
-import { CreateAccountInput } from "../../../services/ports/account-repository";
+import { CreateAccountInput } from "../../../ports/account-repository";
 
 export const fakeCreateAccountInput = (
   overrides: Partial<CreateAccountInput> = {},
