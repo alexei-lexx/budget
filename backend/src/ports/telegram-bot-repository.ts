@@ -1,4 +1,4 @@
-import { TelegramBot, TelegramBotStatus } from "../../models/telegram-bot";
+import { TelegramBot, TelegramBotStatus } from "../models/telegram-bot";
 
 export interface CreateTelegramBotInput {
   userId: string;

@@ -1,5 +1,5 @@
 import { jest } from "@jest/globals";
-import { CategoryRepository } from "../../../services/ports/category-repository";
+import { CategoryRepository } from "../../../ports/category-repository";
 
 /**
  * Mock category repository for testing

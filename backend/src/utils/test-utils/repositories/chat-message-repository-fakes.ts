@@ -1,6 +1,6 @@
 import { faker } from "@faker-js/faker";
 import { ChatMessageRole } from "../../../models/chat-message";
-import { CreateChatMessageInput } from "../../../services/ports/chat-message-repository";
+import { CreateChatMessageInput } from "../../../ports/chat-message-repository";
 
 export const fakeCreateChatMessageInput = (
   overrides: Partial<CreateChatMessageInput> = {},

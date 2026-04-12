@@ -1,12 +1,12 @@
 import { randomUUID } from "crypto";
 import { PutCommand, QueryCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
 import { TelegramBot, TelegramBotStatus } from "../models/telegram-bot";
-import { RepositoryError } from "../services/ports/repository-error";
+import { RepositoryError } from "../ports/repository-error";
 import {
   CreateTelegramBotInput,
   TelegramBotRepository,
   UpdateTelegramBotInput,
-} from "../services/ports/telegram-bot-repository";
+} from "../ports/telegram-bot-repository";
 import { DynBaseRepository } from "./dyn-base-repository";
 import { telegramBotSchema } from "./schemas/telegram-bot";
 import { hydrate } from "./utils/hydrate";

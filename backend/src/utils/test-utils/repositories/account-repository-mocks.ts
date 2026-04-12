@@ -1,5 +1,5 @@
 import { jest } from "@jest/globals";
-import { AccountRepository } from "../../../services/ports/account-repository";
+import { AccountRepository } from "../../../ports/account-repository";
 
 /**
  * Mock account repository for testing

@@ -1,6 +1,6 @@
 import DataLoader from "dataloader";
 import { Category } from "../../models/category";
-import { CategoryRepository } from "../../services/ports/category-repository";
+import { CategoryRepository } from "../../ports/category-repository";
 import { TransactionEmbeddedCategory } from "../embedded-types";
 
 export type { TransactionEmbeddedCategory };

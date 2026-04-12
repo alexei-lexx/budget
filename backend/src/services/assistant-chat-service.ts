@@ -1,9 +1,9 @@
 import { randomUUID } from "crypto";
 import { ChatMessageRole } from "../models/chat-message";
+import { AgentMessage, AgentTraceMessage } from "../ports/agent-types";
+import { ChatMessageRepository } from "../ports/chat-message-repository";
 import { Failure, Result, Success } from "../types/result";
 import { InsightService } from "./insight-service";
-import { AgentMessage, AgentTraceMessage } from "./ports/agent-types";
-import { ChatMessageRepository } from "./ports/chat-message-repository";
 
 export interface AssistantChatInput {
   question: string;

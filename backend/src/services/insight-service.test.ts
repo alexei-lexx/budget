@@ -1,12 +1,12 @@
 import { faker } from "@faker-js/faker";
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import { AIMessage, ReactAgent, ToolMessage } from "langchain";
+import { AgentTraceMessageType } from "../ports/agent-types";
 import {
   type InsightInput,
   InsightService,
   InsightServiceImpl,
 } from "./insight-service";
-import { AgentTraceMessageType } from "./ports/agent-types";
 
 const createMockInsightAgent = () => ({
   invoke: jest.fn() as jest.MockedFunction<

@@ -1,5 +1,5 @@
+import { UpdateUserInput, UserRepository } from "../ports/user-repository";
 import { Failure, Result, Success } from "../types/result";
-import { UpdateUserInput, UserRepository } from "./ports/user-repository";
 import {
   DEFAULT_TRANSACTION_PATTERNS_LIMIT,
   MAX_TRANSACTION_PATTERNS_LIMIT,

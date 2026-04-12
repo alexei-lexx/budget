@@ -1,6 +1,6 @@
 import DataLoader from "dataloader";
 import { Account } from "../../models/account";
-import { AccountRepository } from "../../services/ports/account-repository";
+import { AccountRepository } from "../../ports/account-repository";
 import { TransactionEmbeddedAccount } from "../embedded-types";
 
 export type { TransactionEmbeddedAccount };

@@ -7,8 +7,8 @@ import { ChatMessage } from "../models/chat-message";
 import {
   ChatMessageRepository,
   CreateChatMessageInput,
-} from "../services/ports/chat-message-repository";
-import { RepositoryError } from "../services/ports/repository-error";
+} from "../ports/chat-message-repository";
+import { RepositoryError } from "../ports/repository-error";
 import { DynBaseRepository } from "./dyn-base-repository";
 import { chatMessageDbItemSchema } from "./schemas/chat-message";
 import { hydrate } from "./utils/hydrate";

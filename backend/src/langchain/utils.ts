@@ -4,7 +4,7 @@ import {
   AgentTraceMessage,
   AgentTraceMessageType,
   ToolExecution,
-} from "../services/ports/agent-types";
+} from "../ports/agent-types";
 
 export function extractLastMessageText(
   messages: BaseMessage[],

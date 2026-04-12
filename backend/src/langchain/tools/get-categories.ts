@@ -1,8 +1,8 @@
 import { tool } from "langchain";
 import { z } from "zod";
 import { CategoryType } from "../../models/category";
-import { CategoryRepository } from "../../services/ports/category-repository";
-import { TransactionRepository } from "../../services/ports/transaction-repository";
+import { CategoryRepository } from "../../ports/category-repository";
+import { TransactionRepository } from "../../ports/transaction-repository";
 import { toDateString } from "../../types/date";
 import { Success } from "../../types/result";
 import { daysAgo, formatDateAsYYYYMMDD } from "../../utils/date";

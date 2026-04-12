@@ -1,7 +1,7 @@
 import { faker } from "@faker-js/faker";
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import { TransactionType } from "../../models/transaction";
-import { TransactionRepository } from "../../services/ports/transaction-repository";
+import { TransactionRepository } from "../../ports/transaction-repository";
 import { toDateString } from "../../types/date";
 import { fakeTransaction } from "../../utils/test-utils/models/transaction-fakes";
 import { createMockTransactionRepository } from "../../utils/test-utils/repositories/transaction-repository-mocks";

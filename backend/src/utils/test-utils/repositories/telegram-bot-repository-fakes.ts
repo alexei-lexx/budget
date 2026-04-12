@@ -1,6 +1,6 @@
 import { faker } from "@faker-js/faker";
 import { TelegramBotStatus } from "../../../models/telegram-bot";
-import { CreateTelegramBotInput } from "../../../services/ports/telegram-bot-repository";
+import { CreateTelegramBotInput } from "../../../ports/telegram-bot-repository";
 
 export const fakeCreateTelegramBotInput = (
   overrides: Partial<CreateTelegramBotInput> = {},

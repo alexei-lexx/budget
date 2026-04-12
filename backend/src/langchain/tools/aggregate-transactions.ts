@@ -1,7 +1,7 @@
 import { tool } from "langchain";
 import { z } from "zod";
 import { TransactionType, getSignedAmount } from "../../models/transaction";
-import { TransactionRepository } from "../../services/ports/transaction-repository";
+import { TransactionRepository } from "../../ports/transaction-repository";
 import { toDateString } from "../../types/date";
 import { Failure, Success } from "../../types/result";
 import { daysBetween } from "../../utils/date";

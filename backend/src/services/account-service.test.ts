@@ -1,6 +1,8 @@
 import { faker } from "@faker-js/faker";
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import { TransactionType } from "../models/transaction";
+import { AccountRepository } from "../ports/account-repository";
+import { TransactionRepository } from "../ports/transaction-repository";
 import {
   NAME_MAX_LENGTH,
   NAME_MIN_LENGTH,
@@ -13,8 +15,6 @@ import { createMockAccountRepository } from "../utils/test-utils/repositories/ac
 import { createMockTransactionRepository } from "../utils/test-utils/repositories/transaction-repository-mocks";
 import { AccountService } from "./account-service";
 import { BusinessError } from "./business-error";
-import { AccountRepository } from "./ports/account-repository";
-import { TransactionRepository } from "./ports/transaction-repository";
 
 describe("AccountService", () => {
   let mockAccountRepository: jest.Mocked<AccountRepository>;

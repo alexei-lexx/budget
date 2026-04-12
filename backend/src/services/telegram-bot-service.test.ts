@@ -1,13 +1,13 @@
 import { faker } from "@faker-js/faker";
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import { TelegramBotStatus } from "../models/telegram-bot";
+import { BackgroundJobDispatcher } from "../ports/background-job-dispatcher";
+import { TelegramApiClient } from "../ports/telegram-api-client";
+import { TelegramBotRepository } from "../ports/telegram-bot-repository";
 import { fakeTelegramBot } from "../utils/test-utils/models/telegram-bot-fakes";
 import { createMockBackgroundJobDispatcher } from "../utils/test-utils/providers/background-job-dispatcher-mocks";
 import { createMockTelegramApiClient } from "../utils/test-utils/providers/telegram-api-client-mocks";
 import { createMockTelegramBotRepository } from "../utils/test-utils/repositories/telegram-bot-repository-mocks";
-import { BackgroundJobDispatcher } from "./ports/background-job-dispatcher";
-import { TelegramApiClient } from "./ports/telegram-api-client";
-import { TelegramBotRepository } from "./ports/telegram-bot-repository";
 import { TelegramBotService } from "./telegram-bot-service";
 
 describe("TelegramBotService", () => {

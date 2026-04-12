@@ -1,6 +1,8 @@
 import { faker } from "@faker-js/faker";
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import { TransactionType } from "../models/transaction";
+import { AccountRepository } from "../ports/account-repository";
+import { TransactionRepository } from "../ports/transaction-repository";
 import { toDateString } from "../types/date";
 import { DESCRIPTION_MAX_LENGTH } from "../types/validation";
 import { fakeAccount } from "../utils/test-utils/models/account-fakes";
@@ -8,8 +10,6 @@ import { fakeTransaction } from "../utils/test-utils/models/transaction-fakes";
 import { createMockAccountRepository } from "../utils/test-utils/repositories/account-repository-mocks";
 import { createMockTransactionRepository } from "../utils/test-utils/repositories/transaction-repository-mocks";
 import { BusinessError } from "./business-error";
-import { AccountRepository } from "./ports/account-repository";
-import { TransactionRepository } from "./ports/transaction-repository";
 import { TransferService } from "./transfer-service";
 
 describe("TransferService", () => {

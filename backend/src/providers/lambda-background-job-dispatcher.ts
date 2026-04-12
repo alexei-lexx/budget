@@ -2,7 +2,7 @@ import { InvokeCommand, LambdaClient } from "@aws-sdk/client-lambda";
 import {
   BackgroundJob,
   BackgroundJobDispatcher,
-} from "../services/ports/background-job-dispatcher";
+} from "../ports/background-job-dispatcher";
 
 export class LambdaBackgroundJobDispatcher implements BackgroundJobDispatcher {
   private client: LambdaClient;

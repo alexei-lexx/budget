@@ -1,5 +1,5 @@
 import { jest } from "@jest/globals";
-import { TransactionRepository } from "../../../services/ports/transaction-repository";
+import { TransactionRepository } from "../../../ports/transaction-repository";
 
 /**
  * Mock transaction repository for testing

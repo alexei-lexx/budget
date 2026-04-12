@@ -1,5 +1,5 @@
 import { jest } from "@jest/globals";
-import { TelegramBotRepository } from "../../../services/ports/telegram-bot-repository";
+import { TelegramBotRepository } from "../../../ports/telegram-bot-repository";
 
 /**
  * Mock telegram bot repository for testing

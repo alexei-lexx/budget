@@ -5,9 +5,9 @@ import {
   toolCallLimitMiddleware,
 } from "langchain";
 import { z } from "zod";
-import { AccountRepository } from "../../services/ports/account-repository";
-import { CategoryRepository } from "../../services/ports/category-repository";
-import { TransactionRepository } from "../../services/ports/transaction-repository";
+import { AccountRepository } from "../../ports/account-repository";
+import { CategoryRepository } from "../../ports/category-repository";
+import { TransactionRepository } from "../../ports/transaction-repository";
 import { TransactionService } from "../../services/transaction-service";
 import {
   CREATE_TRANSACTION_TOOL_NAME,

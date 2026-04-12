@@ -1,9 +1,9 @@
 import { randomUUID } from "crypto";
 import { TelegramBot, TelegramBotStatus } from "../models/telegram-bot";
+import { BackgroundJobDispatcher } from "../ports/background-job-dispatcher";
+import { TelegramApiClient } from "../ports/telegram-api-client";
+import { TelegramBotRepository } from "../ports/telegram-bot-repository";
 import { Failure, Result, Success } from "../types/result";
-import { BackgroundJobDispatcher } from "./ports/background-job-dispatcher";
-import { TelegramApiClient } from "./ports/telegram-api-client";
-import { TelegramBotRepository } from "./ports/telegram-bot-repository";
 
 export interface MaskedTelegramBot {
   id: string;
