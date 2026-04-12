@@ -28,7 +28,7 @@ describe("AssistantChatService", () => {
 
     service = new AssistantChatServiceImpl({
       chatMessageRepository,
-      assistantService: assistantService,
+      assistantService,
       maxMessages,
     });
 
