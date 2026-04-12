@@ -10,12 +10,12 @@ import { createGetCategoriesTool } from "../tools/get-categories";
 import { createGetTransactionsTool } from "../tools/get-transactions";
 import { avgTool, calculateTool, sumTool } from "../tools/math";
 
-export const insightAgentContextSchema = z.object({
+export const assistantAgentContextSchema = z.object({
   today: z.iso.date(),
   userId: z.uuid(),
 });
 
-export type InsightAgentContext = z.infer<typeof insightAgentContextSchema>;
+export type AssistantAgentContext = z.infer<typeof assistantAgentContextSchema>;
 
 const SYSTEM_PROMPT = `
 ## Role
@@ -61,7 +61,7 @@ If you assumed a time period, state it in the answer.
 - Do NOT respond in markdown
 `.trim();
 
-export function createInsightAgent({
+export function createAssistantAgent({
   model,
   accountRepository,
   categoryRepository,
@@ -92,11 +92,13 @@ export function createInsightAgent({
   return createAgent({
     model,
     tools,
-    contextSchema: insightAgentContextSchema,
+    contextSchema: assistantAgentContextSchema,
     middleware: [
-      dynamicSystemPromptMiddleware<InsightAgentContext>((_state, runtime) => {
-        return `${SYSTEM_PROMPT}\n\n## Current Date\n\nToday is ${runtime.context.today}.`;
-      }),
+      dynamicSystemPromptMiddleware<AssistantAgentContext>(
+        (_state, runtime) => {
+          return `${SYSTEM_PROMPT}\n\n## Current Date\n\nToday is ${runtime.context.today}.`;
+        },
+      ),
     ],
   });
 }

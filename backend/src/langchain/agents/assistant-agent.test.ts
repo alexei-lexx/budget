@@ -5,7 +5,7 @@ import { createAgent, dynamicSystemPromptMiddleware } from "langchain";
 import { createMockAccountRepository } from "../../utils/test-utils/repositories/account-repository-mocks";
 import { createMockCategoryRepository } from "../../utils/test-utils/repositories/category-repository-mocks";
 import { createMockTransactionRepository } from "../../utils/test-utils/repositories/transaction-repository-mocks";
-import { createInsightAgent } from "./insight-agent";
+import { createAssistantAgent } from "./assistant-agent";
 
 jest.mock("langchain", () => {
   const actual = jest.requireActual<typeof import("langchain")>("langchain");
@@ -17,7 +17,7 @@ jest.mock("langchain", () => {
   };
 });
 
-describe("createInsightAgent", () => {
+describe("createAssistantAgent", () => {
   let mockModel: BaseChatModel;
 
   beforeEach(() => {
@@ -28,7 +28,7 @@ describe("createInsightAgent", () => {
 
   it("should call createAgent", () => {
     // Act
-    createInsightAgent({
+    createAssistantAgent({
       model: mockModel,
       accountRepository: createMockAccountRepository(),
       categoryRepository: createMockCategoryRepository(),
@@ -85,7 +85,7 @@ describe("createInsightAgent", () => {
     (createAgent as jest.Mock).mockReturnValue(fakeAgent);
 
     // Act
-    const result = createInsightAgent({
+    const result = createAssistantAgent({
       model: mockModel,
       accountRepository: createMockAccountRepository(),
       categoryRepository: createMockCategoryRepository(),
