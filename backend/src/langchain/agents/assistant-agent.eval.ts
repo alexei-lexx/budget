@@ -1,6 +1,6 @@
 import {
   resolveAccountRepository,
-  resolveInsightAgent,
+  resolveAssistantAgent,
   resolveTransactionRepository,
   resolveUserRepository,
 } from "../../dependencies";
@@ -19,7 +19,7 @@ const accountRepository = resolveAccountRepository();
 const transactionRepository = resolveTransactionRepository();
 const userRepository = resolveUserRepository();
 
-const agent = resolveInsightAgent();
+const agent = resolveAssistantAgent();
 
 async function cleanupTables() {
   const client = createDynamoDBDocumentClient();

@@ -1,6 +1,6 @@
 import { JwtAuthService } from "./auth/jwt-auth";
+import { createAssistantAgent } from "./langchain/agents/assistant-agent";
 import { createCreateTransactionAgent } from "./langchain/agents/create-transaction-agent";
-import { createInsightAgent } from "./langchain/agents/insight-agent";
 import { HttpTelegramApiClient } from "./providers/http-telegram-api-client";
 import { LambdaBackgroundJobDispatcher } from "./providers/lambda-background-job-dispatcher";
 import { DynAccountRepository } from "./repositories/dyn-account-repository";
@@ -11,10 +11,10 @@ import { DynTransactionRepository } from "./repositories/dyn-transaction-reposit
 import { DynUserRepository } from "./repositories/dyn-user-repository";
 import { AccountService } from "./services/account-service";
 import { AssistantChatServiceImpl } from "./services/assistant-chat-service";
+import { AssistantServiceImpl } from "./services/assistant-service";
 import { ByCategoryReportService } from "./services/by-category-report-service";
 import { CategoryService } from "./services/category-service";
 import { CreateTransactionFromTextService } from "./services/create-transaction-from-text-service";
-import { InsightServiceImpl } from "./services/insight-service";
 import { ProcessTelegramMessageService } from "./services/process-telegram-message-service";
 import { TelegramBotService } from "./services/telegram-bot-service";
 import { TransactionService } from "./services/transaction-service";
@@ -112,6 +112,14 @@ const resolveTelegramApiClient = createSingleton(
 const resolveBedrockChatModel = createSingleton(() => createBedrockChatModel());
 
 // AI agents
+export const resolveAssistantAgent = createSingleton(() =>
+  createAssistantAgent({
+    model: resolveBedrockChatModel(),
+    accountRepository: resolveAccountRepository(),
+    categoryRepository: resolveCategoryRepository(),
+    transactionRepository: resolveTransactionRepository(),
+  }),
+);
 export const resolveCreateTransactionAgent = createSingleton(() =>
   createCreateTransactionAgent({
     model: resolveBedrockChatModel(),
@@ -119,14 +127,6 @@ export const resolveCreateTransactionAgent = createSingleton(() =>
     categoryRepository: resolveCategoryRepository(),
     transactionRepository: resolveTransactionRepository(),
     transactionService: resolveTransactionService(),
-  }),
-);
-export const resolveInsightAgent = createSingleton(() =>
-  createInsightAgent({
-    model: resolveBedrockChatModel(),
-    accountRepository: resolveAccountRepository(),
-    categoryRepository: resolveCategoryRepository(),
-    transactionRepository: resolveTransactionRepository(),
   }),
 );
 
@@ -138,14 +138,14 @@ export const resolveCreateTransactionFromTextService = createSingleton(
       transactionService: resolveTransactionService(),
     }),
 );
-export const resolveInsightService = createSingleton(
-  () => new InsightServiceImpl(resolveInsightAgent()),
+export const resolveAssistantService = createSingleton(
+  () => new AssistantServiceImpl(resolveAssistantAgent()),
 );
 export const resolveAssistantChatService = createSingleton(
   () =>
     new AssistantChatServiceImpl({
       chatMessageRepository: resolveChatMessageRepository(),
-      insightService: resolveInsightService(),
+      assistantService: resolveAssistantService(),
       maxMessages: chatHistoryMaxMessages,
     }),
 );
