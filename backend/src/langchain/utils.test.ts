@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
+import { CallbackManager } from "@langchain/core/callbacks/manager";
 import { AIMessage, BaseMessage, ReactAgent, ToolMessage } from "langchain";
 import { AgentTraceMessageType } from "../ports/agent-types";
 import {
@@ -90,17 +91,60 @@ describe("AgentLike", () => {
       expect(passedConfig.context.userId).toBe("user-123");
     });
 
-    it("should return empty agentTrace when underlying agent fires no callbacks", async () => {
+    it("should build agentTrace TEXT entry from LLM callback", async () => {
       // Arrange
-      mockAgent.invoke.mockResolvedValue({
-        messages: [new AIMessage({ content: "Answer" })],
+      mockAgent.invoke.mockImplementation(async (_state, options) => {
+        const { callbacks } = options as { callbacks: CallbackManager };
+        const llmResult = {
+          generations: [
+            [{ text: "", message: new AIMessage({ content: "Thinking..." }) }],
+          ],
+        };
+
+        for (const handler of callbacks.handlers) {
+          await handler.handleLLMEnd?.(llmResult, "run-id");
+        }
+
+        return { messages: [new AIMessage({ content: "Answer" })] };
       });
 
       // Act
       const result = await agentLike.invoke(state, config);
 
       // Assert
-      expect(result.agentTrace).toEqual([]);
+      expect(result.agentTrace).toEqual([
+        { type: AgentTraceMessageType.TEXT, content: "Thinking..." },
+      ]);
+    });
+
+    it("should build agentTrace TOOL_RESULT entry from tool callback", async () => {
+      // Arrange
+      mockAgent.invoke.mockImplementation(async (_state, options) => {
+        const { callbacks } = options as { callbacks: CallbackManager };
+        const toolMessage = new ToolMessage({
+          content: "42",
+          tool_call_id: "call-1",
+          name: "sum",
+        });
+
+        for (const handler of callbacks.handlers) {
+          await handler.handleToolEnd?.(toolMessage, "run-id");
+        }
+
+        return { messages: [new AIMessage({ content: "Answer" })] };
+      });
+
+      // Act
+      const result = await agentLike.invoke(state, config);
+
+      // Assert
+      expect(result.agentTrace).toEqual([
+        {
+          type: AgentTraceMessageType.TOOL_RESULT,
+          toolName: "sum",
+          output: "42",
+        },
+      ]);
     });
 
     // Dependency failures
