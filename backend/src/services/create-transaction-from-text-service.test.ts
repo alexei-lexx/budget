@@ -139,7 +139,7 @@ describe("CreateTransactionFromTextService", () => {
         toolExecutions: [
           {
             tool: CREATE_TRANSACTION_TOOL_NAME,
-            input: JSON.stringify({ amount: 5 }),
+            input: JSON.stringify({ amount: 4 }),
             output: JSON.stringify({
               success: true,
               data: { id: firstTransactionId },

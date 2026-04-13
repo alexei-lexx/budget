@@ -8,21 +8,24 @@ export const createJokeTool = (model: BaseChatModel) => {
   const agent = createJokeAgent(model);
 
   return tool(
-    async ({ topic }) => {
-      const response = await agent.invoke({
-        messages: [
-          {
-            role: "user",
-            content: topic
-              ? `Tell me a joke about ${topic}.`
-              : "Tell me a joke.",
-          },
-        ],
-      });
+    async ({ topic }, config) => {
+      const response = await agent.invoke(
+        {
+          messages: [
+            {
+              role: "user",
+              content: topic
+                ? `Tell me a joke about ${topic}.`
+                : "Tell me a joke.",
+            },
+          ],
+        },
+        config,
+      );
 
       const answer = extractLastMessageText(response.messages)?.trim();
 
-      return answer;
+      return answer ?? "I'm not in the mood for jokes right now.";
     },
     {
       name: "joke",
