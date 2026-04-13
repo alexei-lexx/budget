@@ -17,7 +17,6 @@ import { fakeCategory } from "../../utils/test-utils/models/category-fakes";
 import { fakeUser } from "../../utils/test-utils/models/user-fakes";
 import { fakeCreateTransactionInput } from "../../utils/test-utils/repositories/transaction-repository-fakes";
 import { CREATE_TRANSACTION_TOOL_NAME } from "../tools/create-transaction";
-import { extractToolExecutions } from "../utils";
 
 const accountRepository = resolveAccountRepository();
 const categoryRepository = resolveCategoryRepository();
@@ -51,7 +50,7 @@ task("decline when no accounts", async (iteration) => {
   const text = `bought apples for ${10 + iteration} euro`;
   const response = await invokeAgent(user.id, text);
 
-  const toolExecutions = extractToolExecutions(response.messages);
+  const { toolExecutions } = response;
   const createExecution = toolExecutions.findLast(
     (execution) => execution.tool === CREATE_TRANSACTION_TOOL_NAME,
   );
@@ -76,7 +75,7 @@ task("decline when cannot infer amount", async () => {
   const text = `bought ${faker.food.fruit()}`;
   const response = await invokeAgent(user.id, text);
 
-  const toolExecutions = extractToolExecutions(response.messages);
+  const { toolExecutions } = response;
   const createExecution = toolExecutions.findLast(
     (execution) => execution.tool === CREATE_TRANSACTION_TOOL_NAME,
   );
@@ -110,7 +109,7 @@ task("create expense transaction", async (iteration) => {
   const text = `bought apples for ${10 + iteration} euro`;
   const response = await invokeAgent(user.id, text);
 
-  const toolExecutions = extractToolExecutions(response.messages);
+  const { toolExecutions } = response;
   const createExecution = toolExecutions.findLast(
     (execution) => execution.tool === CREATE_TRANSACTION_TOOL_NAME,
   );
@@ -157,7 +156,7 @@ task("create income transaction", async (iteration) => {
   const text = `received salary of ${1000 + iteration} euro`;
   const response = await invokeAgent(user.id, text);
 
-  const toolExecutions = extractToolExecutions(response.messages);
+  const { toolExecutions } = response;
   const createExecution = toolExecutions.findLast(
     (execution) => execution.tool === CREATE_TRANSACTION_TOOL_NAME,
   );
@@ -204,7 +203,7 @@ task("create refund transaction", async (iteration) => {
   const text = `got a refund for shoes of ${50 + iteration} euro`;
   const response = await invokeAgent(user.id, text);
 
-  const toolExecutions = extractToolExecutions(response.messages);
+  const { toolExecutions } = response;
   const createExecution = toolExecutions.findLast(
     (execution) => execution.tool === CREATE_TRANSACTION_TOOL_NAME,
   );
@@ -246,7 +245,7 @@ task(
     const text = `${faker.food.dish()} 987`; // spoken as nine eighty-seven
     const response = await invokeAgent(user.id, text, true);
 
-    const toolExecutions = extractToolExecutions(response.messages);
+    const { toolExecutions } = response;
     const createExecution = toolExecutions.findLast(
       (execution) => execution.tool === CREATE_TRANSACTION_TOOL_NAME,
     );
@@ -302,7 +301,7 @@ task(
     const text = `${faker.food.dish()} 987`; // spoken as nine eighty-seven
     const response = await invokeAgent(user.id, text, true);
 
-    const toolExecutions = extractToolExecutions(response.messages);
+    const { toolExecutions } = response;
     const createExecution = toolExecutions.findLast(
       (execution) => execution.tool === CREATE_TRANSACTION_TOOL_NAME,
     );

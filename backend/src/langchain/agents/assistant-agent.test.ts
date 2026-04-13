@@ -5,6 +5,7 @@ import { createAgent, dynamicSystemPromptMiddleware } from "langchain";
 import { createMockAccountRepository } from "../../utils/test-utils/repositories/account-repository-mocks";
 import { createMockCategoryRepository } from "../../utils/test-utils/repositories/category-repository-mocks";
 import { createMockTransactionRepository } from "../../utils/test-utils/repositories/transaction-repository-mocks";
+import { createJokeTool } from "../tools/joke";
 import { createAssistantAgent } from "./assistant-agent";
 
 jest.mock("langchain", () => {
@@ -17,13 +18,22 @@ jest.mock("langchain", () => {
   };
 });
 
+jest.mock("../tools/joke", () => ({
+  createJokeTool: jest.fn(),
+}));
+
+const mockDynamicSystemPromptMiddleware = jest.mocked(
+  dynamicSystemPromptMiddleware,
+);
+
 describe("createAssistantAgent", () => {
   let mockModel: BaseChatModel;
 
   beforeEach(() => {
+    jest.clearAllMocks();
     mockModel = {} as BaseChatModel;
     (createAgent as jest.Mock).mockReturnValue({ invoke: jest.fn() });
-    jest.clearAllMocks();
+    (createJokeTool as jest.Mock).mockReturnValue({ name: "joke" });
   });
 
   it("should call createAgent", () => {
@@ -36,17 +46,17 @@ describe("createAssistantAgent", () => {
     });
 
     // Assert
-    const callArg = (createAgent as jest.Mock).mock.calls[0][0] as {
+    const assistantCallArg = (createAgent as jest.Mock).mock.calls[0][0] as {
       model: BaseChatModel;
       tools: { name: string }[];
       middleware: unknown[];
     };
-    const { model, tools, middleware } = callArg;
+    const { model, tools, middleware } = assistantCallArg;
 
     expect(model).toBe(mockModel);
 
     const toolNames = tools.map((tool) => tool.name);
-    expect(toolNames).toHaveLength(7);
+    expect(toolNames).toHaveLength(8);
     expect(toolNames).toEqual(
       expect.arrayContaining([
         "aggregateTransactions",
@@ -55,17 +65,15 @@ describe("createAssistantAgent", () => {
         "getAccounts",
         "getCategories",
         "getTransactions",
+        "joke",
         "sum",
       ]),
     );
 
     expect(middleware).toHaveLength(1);
 
-    const buildSystemPrompt = (
-      dynamicSystemPromptMiddleware as jest.Mock<
-        typeof dynamicSystemPromptMiddleware
-      >
-    ).mock.calls[0][0];
+    const buildSystemPrompt =
+      mockDynamicSystemPromptMiddleware.mock.calls[0][0];
     const systemPrompt = buildSystemPrompt(
       { messages: [] },
       {

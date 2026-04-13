@@ -36,3 +36,14 @@ export type AgentTraceMessage =
   | AgentTraceText
   | AgentTraceToolCall
   | AgentTraceToolResult;
+
+export interface Agent<TContext extends Record<string, unknown>> {
+  invoke(
+    state: { messages: readonly AgentMessage[] },
+    config: { context: TContext },
+  ): Promise<{
+    answer?: string;
+    agentTrace: AgentTraceMessage[];
+    toolExecutions: ToolExecution[];
+  }>;
+}

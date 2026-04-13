@@ -1,36 +1,44 @@
 import { faker } from "@faker-js/faker";
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
-import { AIMessage, ReactAgent, ToolMessage } from "langchain";
 import { CREATE_TRANSACTION_TOOL_NAME } from "../langchain/tools/create-transaction";
-import { AgentTraceMessageType } from "../ports/agent-types";
+import {
+  Agent,
+  AgentTraceMessage,
+  AgentTraceMessageType,
+} from "../ports/agent-types";
 import { fakeTransaction } from "../utils/test-utils/models/transaction-fakes";
 import { CreateTransactionFromTextService } from "./create-transaction-from-text-service";
 import { TransactionService } from "./transaction-service";
+
+const createMockCreateTransactionAgent = (): jest.Mocked<
+  Agent<{ userId: string; isVoiceInput: boolean; today: string }>
+> => ({
+  invoke: jest.fn(),
+});
 
 describe("CreateTransactionFromTextService", () => {
   const userId = faker.string.uuid();
   const text = "coffee at starbucks for 5 euros";
 
-  let mockCreateTransactionAgent: {
-    invoke: jest.MockedFunction<
-      (input: unknown, config?: unknown) => Promise<{ messages: unknown[] }>
-    >;
-  };
+  let mockCreateTransactionAgent: jest.Mocked<
+    Agent<{ userId: string; isVoiceInput: boolean; today: string }>
+  >;
   let mockTransactionService: jest.Mocked<
     Pick<TransactionService, "getTransactionById">
   >;
   let service: CreateTransactionFromTextService;
 
   beforeEach(() => {
-    mockCreateTransactionAgent = { invoke: jest.fn() };
+    mockCreateTransactionAgent = createMockCreateTransactionAgent();
     mockTransactionService = { getTransactionById: jest.fn() };
 
     service = new CreateTransactionFromTextService({
-      createTransactionAgent:
-        mockCreateTransactionAgent as unknown as ReactAgent,
+      createTransactionAgent: mockCreateTransactionAgent,
       transactionService:
         mockTransactionService as unknown as TransactionService,
     });
+
+    jest.clearAllMocks();
   });
 
   describe("call", () => {
@@ -43,31 +51,21 @@ describe("CreateTransactionFromTextService", () => {
 
       // Agent successfully creates a transaction
       mockCreateTransactionAgent.invoke.mockResolvedValue({
-        messages: [
-          new AIMessage({
-            content: "",
-            tool_calls: [
-              {
-                id: "call_1",
-                name: CREATE_TRANSACTION_TOOL_NAME,
-                args: { amount: 5 },
-                type: "tool_call",
-              },
-            ],
-          }),
-          new ToolMessage({
-            content: JSON.stringify({
+        answer: "OK",
+        agentTrace: [],
+        toolExecutions: [
+          {
+            tool: CREATE_TRANSACTION_TOOL_NAME,
+            input: JSON.stringify({ amount: 5 }),
+            output: JSON.stringify({
               success: true,
               data: { id: transactionId },
             }),
-            tool_call_id: "call_1",
-            name: CREATE_TRANSACTION_TOOL_NAME,
-          }),
-          new AIMessage({ content: "OK" }),
+          },
         ],
       });
 
-      // Fetch by ID returns the persisted transaction
+      // Fetching the created transaction succeeds
       mockTransactionService.getTransactionById.mockResolvedValue(
         createdTransaction,
       );
@@ -89,33 +87,27 @@ describe("CreateTransactionFromTextService", () => {
     it("should return agentTrace from agent response", async () => {
       // Arrange
       const transactionId = faker.string.uuid();
+      const agentTrace: AgentTraceMessage[] = [
+        { type: AgentTraceMessageType.TEXT, content: "Thinking..." },
+      ];
 
-      // Agent responds with a thinking trace before the tool call
+      // Agent returns a thinking trace alongside the tool execution
       mockCreateTransactionAgent.invoke.mockResolvedValue({
-        messages: [
-          new AIMessage({ content: "Thinking..." }),
-          new AIMessage({
-            content: "",
-            tool_calls: [
-              {
-                id: "call_1",
-                name: CREATE_TRANSACTION_TOOL_NAME,
-                args: { amount: 5 },
-                type: "tool_call",
-              },
-            ],
-          }),
-          new ToolMessage({
-            content: JSON.stringify({
+        answer: "OK",
+        agentTrace,
+        toolExecutions: [
+          {
+            tool: CREATE_TRANSACTION_TOOL_NAME,
+            input: JSON.stringify({ amount: 5 }),
+            output: JSON.stringify({
               success: true,
               data: { id: transactionId },
             }),
-            tool_call_id: "call_1",
-            name: CREATE_TRANSACTION_TOOL_NAME,
-          }),
-          new AIMessage({ content: "OK" }),
+          },
         ],
       });
+
+      // Fetching the created transaction succeeds
       mockTransactionService.getTransactionById.mockResolvedValue(
         fakeTransaction(),
       );
@@ -142,42 +134,29 @@ describe("CreateTransactionFromTextService", () => {
 
       // Agent calls createTransaction twice — only the last result should be used
       mockCreateTransactionAgent.invoke.mockResolvedValue({
-        messages: [
-          new AIMessage({
-            content: "",
-            tool_calls: [
-              {
-                id: "call_first",
-                name: CREATE_TRANSACTION_TOOL_NAME,
-                args: { amount: 4 },
-                type: "tool_call",
-              },
-              {
-                id: "call_last",
-                name: CREATE_TRANSACTION_TOOL_NAME,
-                args: { amount: 5 },
-                type: "tool_call",
-              },
-            ],
-          }),
-          new ToolMessage({
-            content: JSON.stringify({
+        answer: "OK",
+        agentTrace: [],
+        toolExecutions: [
+          {
+            tool: CREATE_TRANSACTION_TOOL_NAME,
+            input: JSON.stringify({ amount: 4 }),
+            output: JSON.stringify({
               success: true,
               data: { id: firstTransactionId },
             }),
-            tool_call_id: "call_first",
-            name: CREATE_TRANSACTION_TOOL_NAME,
-          }),
-          new ToolMessage({
-            content: JSON.stringify({
+          },
+          {
+            tool: CREATE_TRANSACTION_TOOL_NAME,
+            input: JSON.stringify({ amount: 5 }),
+            output: JSON.stringify({
               success: true,
               data: { id: lastTransactionId },
             }),
-            tool_call_id: "call_last",
-            name: CREATE_TRANSACTION_TOOL_NAME,
-          }),
+          },
         ],
       });
+
+      // Fetching the created transaction succeeds
       mockTransactionService.getTransactionById.mockResolvedValue(
         createdTransaction,
       );
@@ -198,32 +177,23 @@ describe("CreateTransactionFromTextService", () => {
 
     describe("agent call parameters", () => {
       beforeEach(() => {
-        const transactionId = faker.string.uuid();
-
+        // Agent successfully creates a transaction
         mockCreateTransactionAgent.invoke.mockResolvedValue({
-          messages: [
-            new AIMessage({
-              content: "",
-              tool_calls: [
-                {
-                  id: "call_1",
-                  name: CREATE_TRANSACTION_TOOL_NAME,
-                  args: { amount: 5 },
-                  type: "tool_call",
-                },
-              ],
-            }),
-            new ToolMessage({
-              content: JSON.stringify({
+          answer: "OK",
+          agentTrace: [],
+          toolExecutions: [
+            {
+              tool: CREATE_TRANSACTION_TOOL_NAME,
+              input: JSON.stringify({ amount: 5 }),
+              output: JSON.stringify({
                 success: true,
-                data: { id: transactionId },
+                data: { id: faker.string.uuid() },
               }),
-              tool_call_id: "call_1",
-              name: CREATE_TRANSACTION_TOOL_NAME,
-            }),
-            new AIMessage({ content: "OK" }),
+            },
           ],
         });
+
+        // Fetching the created transaction succeeds
         mockTransactionService.getTransactionById.mockResolvedValue(
           fakeTransaction(),
         );
@@ -234,7 +204,8 @@ describe("CreateTransactionFromTextService", () => {
         await service.call({ userId, text: `    ${text}    ` });
 
         // Assert
-        const [state] = mockCreateTransactionAgent.invoke.mock.calls[0] as [
+        const [state] = mockCreateTransactionAgent.invoke.mock
+          .calls[0] as unknown as [
           { messages: { content: string }[] },
           unknown,
         ];
@@ -333,7 +304,7 @@ describe("CreateTransactionFromTextService", () => {
     it("should propagate error when agent throws", async () => {
       // Arrange
 
-      // Agent call fails with an infrastructure error
+      // Agent is unavailable
       mockCreateTransactionAgent.invoke.mockRejectedValue(
         new Error("Agent unavailable"),
       );
@@ -350,7 +321,9 @@ describe("CreateTransactionFromTextService", () => {
 
       // Agent responds without invoking the createTransaction tool
       mockCreateTransactionAgent.invoke.mockResolvedValue({
-        messages: [new AIMessage({ content: "I need more information." })],
+        answer: "I need more information.",
+        agentTrace: [],
+        toolExecutions: [],
       });
 
       // Act
@@ -372,23 +345,14 @@ describe("CreateTransactionFromTextService", () => {
 
       // Agent invokes the tool but the output is malformed
       mockCreateTransactionAgent.invoke.mockResolvedValue({
-        messages: [
-          new AIMessage({
-            content: "",
-            tool_calls: [
-              {
-                id: "call_1",
-                name: CREATE_TRANSACTION_TOOL_NAME,
-                args: {},
-                type: "tool_call",
-              },
-            ],
-          }),
-          new ToolMessage({
-            content: "This is not valid JSON",
-            tool_call_id: "call_1",
-            name: CREATE_TRANSACTION_TOOL_NAME,
-          }),
+        answer: undefined,
+        agentTrace: [],
+        toolExecutions: [
+          {
+            tool: CREATE_TRANSACTION_TOOL_NAME,
+            input: JSON.stringify({}),
+            output: "This is not valid JSON",
+          },
         ],
       });
 
@@ -408,26 +372,17 @@ describe("CreateTransactionFromTextService", () => {
 
       // Agent invokes the tool but returns an unexpected JSON shape
       mockCreateTransactionAgent.invoke.mockResolvedValue({
-        messages: [
-          new AIMessage({
-            content: "",
-            tool_calls: [
-              {
-                id: "call_1",
-                name: CREATE_TRANSACTION_TOOL_NAME,
-                args: {},
-                type: "tool_call",
-              },
-            ],
-          }),
-          new ToolMessage({
-            content: JSON.stringify({
+        answer: undefined,
+        agentTrace: [],
+        toolExecutions: [
+          {
+            tool: CREATE_TRANSACTION_TOOL_NAME,
+            input: JSON.stringify({}),
+            output: JSON.stringify({
               success: true,
               data: { currency: "EUR" }, // missing "id"
             }),
-            tool_call_id: "call_1",
-            name: CREATE_TRANSACTION_TOOL_NAME,
-          }),
+          },
         ],
       });
 
@@ -449,26 +404,17 @@ describe("CreateTransactionFromTextService", () => {
 
       // Agent invokes the tool but the tool itself reports a business failure
       mockCreateTransactionAgent.invoke.mockResolvedValue({
-        messages: [
-          new AIMessage({
-            content: "",
-            tool_calls: [
-              {
-                id: "call_1",
-                name: CREATE_TRANSACTION_TOOL_NAME,
-                args: {},
-                type: "tool_call",
-              },
-            ],
-          }),
-          new ToolMessage({
-            content: JSON.stringify({
+        answer: undefined,
+        agentTrace: [],
+        toolExecutions: [
+          {
+            tool: CREATE_TRANSACTION_TOOL_NAME,
+            input: JSON.stringify({}),
+            output: JSON.stringify({
               success: false,
               error: "Account not found",
             }),
-            tool_call_id: "call_1",
-            name: CREATE_TRANSACTION_TOOL_NAME,
-          }),
+          },
         ],
       });
 
@@ -488,7 +434,11 @@ describe("CreateTransactionFromTextService", () => {
 
       // Agent responds with a thinking trace but no tool call
       mockCreateTransactionAgent.invoke.mockResolvedValue({
-        messages: [new AIMessage({ content: "Thinking..." })],
+        answer: undefined,
+        agentTrace: [
+          { type: AgentTraceMessageType.TEXT, content: "Thinking..." },
+        ],
+        toolExecutions: [],
       });
 
       // Act

@@ -1,6 +1,7 @@
 import { JwtAuthService } from "./auth/jwt-auth";
 import { createAssistantAgent } from "./langchain/agents/assistant-agent";
 import { createCreateTransactionAgent } from "./langchain/agents/create-transaction-agent";
+import { LangChainAgent } from "./langchain/langchain-agent";
 import { HttpTelegramApiClient } from "./providers/http-telegram-api-client";
 import { LambdaBackgroundJobDispatcher } from "./providers/lambda-background-job-dispatcher";
 import { DynAccountRepository } from "./repositories/dyn-account-repository";
@@ -112,22 +113,28 @@ const resolveTelegramApiClient = createSingleton(
 const resolveBedrockChatModel = createSingleton(() => createBedrockChatModel());
 
 // AI agents
-export const resolveAssistantAgent = createSingleton(() =>
-  createAssistantAgent({
-    model: resolveBedrockChatModel(),
-    accountRepository: resolveAccountRepository(),
-    categoryRepository: resolveCategoryRepository(),
-    transactionRepository: resolveTransactionRepository(),
-  }),
+export const resolveAssistantAgent = createSingleton(
+  () =>
+    new LangChainAgent(
+      createAssistantAgent({
+        model: resolveBedrockChatModel(),
+        accountRepository: resolveAccountRepository(),
+        categoryRepository: resolveCategoryRepository(),
+        transactionRepository: resolveTransactionRepository(),
+      }),
+    ),
 );
-export const resolveCreateTransactionAgent = createSingleton(() =>
-  createCreateTransactionAgent({
-    model: resolveBedrockChatModel(),
-    accountRepository: resolveAccountRepository(),
-    categoryRepository: resolveCategoryRepository(),
-    transactionRepository: resolveTransactionRepository(),
-    transactionService: resolveTransactionService(),
-  }),
+export const resolveCreateTransactionAgent = createSingleton(
+  () =>
+    new LangChainAgent(
+      createCreateTransactionAgent({
+        model: resolveBedrockChatModel(),
+        accountRepository: resolveAccountRepository(),
+        categoryRepository: resolveCategoryRepository(),
+        transactionRepository: resolveTransactionRepository(),
+        transactionService: resolveTransactionService(),
+      }),
+    ),
 );
 
 // AI services

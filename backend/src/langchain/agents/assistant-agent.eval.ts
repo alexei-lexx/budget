@@ -13,7 +13,6 @@ import { task, toGrade } from "../../utils/test-utils/evals";
 import { fakeAccount } from "../../utils/test-utils/models/account-fakes";
 import { fakeUser } from "../../utils/test-utils/models/user-fakes";
 import { fakeCreateTransactionInput } from "../../utils/test-utils/repositories/transaction-repository-fakes";
-import { extractLastMessageText } from "../utils";
 
 const accountRepository = resolveAccountRepository();
 const transactionRepository = resolveTransactionRepository();
@@ -90,7 +89,7 @@ task("calculate total expenses for a given month", async (iteration) => {
     { context: { userId: user.id, today: formatDateAsYYYYMMDD(new Date()) } },
   );
 
-  const answer = extractLastMessageText(response.messages)?.trim();
+  const answer = response.answer?.trim();
 
   return {
     input: question,
