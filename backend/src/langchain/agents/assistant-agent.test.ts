@@ -30,10 +30,10 @@ describe("createAssistantAgent", () => {
   let mockModel: BaseChatModel;
 
   beforeEach(() => {
+    jest.clearAllMocks();
     mockModel = {} as BaseChatModel;
     (createAgent as jest.Mock).mockReturnValue({ invoke: jest.fn() });
     (createJokeTool as jest.Mock).mockReturnValue({ name: "joke" });
-    jest.clearAllMocks();
   });
 
   it("should call createAgent", () => {

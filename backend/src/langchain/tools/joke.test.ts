@@ -15,10 +15,10 @@ describe("createJokeTool", () => {
   let mockModel: BaseChatModel;
 
   beforeEach(() => {
+    jest.clearAllMocks();
     mockAgent = { invoke: jest.fn<AgentInvokeFn>() };
     mockModel = {} as BaseChatModel;
     (createJokeAgent as jest.Mock).mockReturnValue(mockAgent);
-    jest.clearAllMocks();
   });
 
   // Happy path
