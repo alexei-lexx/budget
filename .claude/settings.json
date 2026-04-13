@@ -1,0 +1,18 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "if": "Edit(*.ts)|Edit(*.tsx)|Write(*.ts)|Write(*.tsx)",
+            "command": "cd \"$(jq -r '.tool_input.file_path' | xargs dirname)\" && npx tsc --noEmit",
+            "timeout": 60,
+            "statusMessage": "Type checking..."
+          }
+        ]
+      }
+    ]
+  }
+}
