@@ -1,10 +1,5 @@
-import { randomUUID } from "crypto";
 import { AIMessage, BaseMessage, ToolMessage } from "langchain";
-import {
-  AgentTraceMessage,
-  AgentTraceMessageType,
-  ToolExecution,
-} from "../ports/agent-types";
+import { AgentTraceMessage, AgentTraceMessageType } from "../ports/agent-types";
 
 export function extractLastMessageText(
   messages: BaseMessage[],
@@ -25,60 +20,6 @@ export function extractLastMessageText(
   }
 
   return result;
-}
-
-export function extractAgentTrace(
-  messages: BaseMessage[],
-): AgentTraceMessage[] {
-  const agentTrace: AgentTraceMessage[] = [];
-
-  for (const message of messages) {
-    if (message instanceof AIMessage) {
-      agentTrace.push(...extractAgentTraceTexts(message));
-    } else if (message instanceof ToolMessage) {
-      agentTrace.push(extractAgentTraceToolResult(message));
-    }
-  }
-
-  return agentTrace;
-}
-
-export function extractToolExecutions(
-  messages: BaseMessage[],
-): ToolExecution[] {
-  const toolExecutionsMap = new Map<string, ToolExecution>();
-
-  // Collect tool calls and results from agent conversation
-  for (const message of messages) {
-    if (message instanceof AIMessage) {
-      for (const toolCall of message.tool_calls || []) {
-        const toolCallId = toolCall.id || randomUUID();
-        toolExecutionsMap.set(toolCallId, {
-          tool: toolCall.name,
-          input: JSON.stringify(toolCall.args),
-          output: "Not executed",
-        });
-      }
-    } else if (message instanceof ToolMessage) {
-      const toolCallId = message.tool_call_id || randomUUID();
-      const existing = toolExecutionsMap.get(toolCallId);
-
-      if (existing) {
-        toolExecutionsMap.set(toolCallId, {
-          ...existing,
-          output: message.content ? String(message.content) : "Unknown result",
-        });
-      } else {
-        toolExecutionsMap.set(toolCallId, {
-          tool: message.name || "Unknown tool",
-          input: "Unknown arguments",
-          output: message.content ? String(message.content) : "Unknown result",
-        });
-      }
-    }
-  }
-
-  return Array.from(toolExecutionsMap.values());
 }
 
 export function extractAgentTraceTexts(

@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import { CallbackManager } from "@langchain/core/callbacks/manager";
+import type { Serialized } from "@langchain/core/load/serializable";
 import { AIMessage, BaseMessage, ReactAgent, ToolMessage } from "langchain";
 import { AgentTraceMessageType } from "../ports/agent-types";
 import { LangChainAgent } from "./langchain-agent";
@@ -139,6 +140,109 @@ describe("LangChainAgent", () => {
           toolName: "sum",
           output: "42",
         },
+      ]);
+    });
+
+    it("should build toolExecutions entry from tool callbacks", async () => {
+      // Arrange
+      mockAgent.invoke.mockImplementation(async (_state, options) => {
+        const { callbacks } = options as { callbacks: CallbackManager };
+        const toolMessage = new ToolMessage({
+          content: "42",
+          tool_call_id: "call-1",
+          name: "sum",
+        });
+
+        for (const handler of callbacks.handlers) {
+          await handler.handleToolStart?.(
+            { lc: 1, type: "not_implemented", id: [] } satisfies Serialized,
+            '{"a":1}',
+            "run-1",
+          );
+          await handler.handleToolEnd?.(toolMessage, "run-1");
+        }
+
+        return { messages: [new AIMessage({ content: "Answer" })] };
+      });
+
+      // Act
+      const result = await agent.invoke(state, config);
+
+      // Assert
+      expect(result.toolExecutions).toEqual([
+        { tool: "sum", input: '{"a":1}', output: "42" },
+      ]);
+    });
+
+    it("should use 'Unknown arguments' in toolExecutions when handleToolStart was not fired", async () => {
+      // Arrange
+      mockAgent.invoke.mockImplementation(async (_state, options) => {
+        const { callbacks } = options as { callbacks: CallbackManager };
+
+        // handleToolEnd fires without a prior handleToolStart for the same runId
+        const toolMessage = new ToolMessage({
+          content: "42",
+          tool_call_id: "call-1",
+          name: "sum",
+        });
+
+        for (const handler of callbacks.handlers) {
+          await handler.handleToolEnd?.(toolMessage, "run-orphan");
+        }
+
+        return { messages: [new AIMessage({ content: "Answer" })] };
+      });
+
+      // Act
+      const result = await agent.invoke(state, config);
+
+      // Assert
+      expect(result.toolExecutions).toEqual([
+        { tool: "sum", input: "Unknown arguments", output: "42" },
+      ]);
+    });
+
+    it("should build separate toolExecutions entries for multiple tool calls", async () => {
+      // Arrange
+      mockAgent.invoke.mockImplementation(async (_state, options) => {
+        const { callbacks } = options as { callbacks: CallbackManager };
+
+        const firstToolMessage = new ToolMessage({
+          content: "3",
+          tool_call_id: "call-1",
+          name: "add",
+        });
+        const secondToolMessage = new ToolMessage({
+          content: "6",
+          tool_call_id: "call-2",
+          name: "multiply",
+        });
+
+        for (const handler of callbacks.handlers) {
+          await handler.handleToolStart?.(
+            { lc: 1, type: "not_implemented", id: [] } satisfies Serialized,
+            '{"a":1,"b":2}',
+            "run-1",
+          );
+          await handler.handleToolEnd?.(firstToolMessage, "run-1");
+          await handler.handleToolStart?.(
+            { lc: 1, type: "not_implemented", id: [] } satisfies Serialized,
+            '{"a":2,"b":3}',
+            "run-2",
+          );
+          await handler.handleToolEnd?.(secondToolMessage, "run-2");
+        }
+
+        return { messages: [new AIMessage({ content: "Answer" })] };
+      });
+
+      // Act
+      const result = await agent.invoke(state, config);
+
+      // Assert
+      expect(result.toolExecutions).toEqual([
+        { tool: "add", input: '{"a":1,"b":2}', output: "3" },
+        { tool: "multiply", input: '{"a":2,"b":3}', output: "6" },
       ]);
     });
 
