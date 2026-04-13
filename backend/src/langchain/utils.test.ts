@@ -1,11 +1,121 @@
-import { describe, expect, it } from "@jest/globals";
-import { AIMessage, BaseMessage, ToolMessage } from "langchain";
+import { beforeEach, describe, expect, it, jest } from "@jest/globals";
+import { AIMessage, BaseMessage, ReactAgent, ToolMessage } from "langchain";
 import { AgentTraceMessageType } from "../ports/agent-types";
 import {
+  AgentLike,
   extractAgentTrace,
   extractLastMessageText,
   extractToolExecutions,
 } from "./utils";
+
+type AgentInvokeFn = (
+  input: unknown,
+  options?: unknown,
+) => Promise<{ messages: BaseMessage[] }>;
+
+describe("AgentLike", () => {
+  const state = { messages: [{ role: "user" as const, content: "Hello" }] };
+  const config = { context: { userId: "user-123" } };
+
+  let mockAgent: { invoke: jest.Mock<AgentInvokeFn> };
+  let agentLike: AgentLike<Record<string, unknown>>;
+
+  describe("invoke", () => {
+    beforeEach(() => {
+      mockAgent = { invoke: jest.fn<AgentInvokeFn>() };
+      agentLike = new AgentLike(mockAgent as unknown as ReactAgent);
+      jest.clearAllMocks();
+    });
+
+    // Happy path
+
+    it("should return answer from last message", async () => {
+      // Arrange
+      mockAgent.invoke.mockResolvedValue({
+        messages: [
+          new AIMessage({ content: "First message" }),
+          new AIMessage({ content: "Last message" }),
+        ],
+      });
+
+      // Act & Assert
+      const result = await agentLike.invoke(state, config);
+      expect(result.answer).toBe("Last message");
+    });
+
+    it("should trim whitespace from answer", async () => {
+      // Arrange
+      mockAgent.invoke.mockResolvedValue({
+        messages: [new AIMessage({ content: "  Answer  " })],
+      });
+
+      // Act & Assert
+      const result = await agentLike.invoke(state, config);
+      expect(result.answer).toBe("Answer");
+    });
+
+    it("should pass messages mapped to role and content to underlying agent", async () => {
+      // Arrange
+      mockAgent.invoke.mockResolvedValue({
+        messages: [new AIMessage({ content: "Answer" })],
+      });
+
+      // Act
+      await agentLike.invoke(state, config);
+
+      // Assert
+      const [passedState] = mockAgent.invoke.mock.calls[0] as [
+        { messages: { role: string; content: string }[] },
+        unknown,
+      ];
+      expect(passedState.messages).toEqual([
+        { role: "user", content: "Hello" },
+      ]);
+    });
+
+    it("should pass context to underlying agent", async () => {
+      // Arrange
+      mockAgent.invoke.mockResolvedValue({
+        messages: [new AIMessage({ content: "Answer" })],
+      });
+
+      // Act
+      await agentLike.invoke(state, config);
+
+      // Assert
+      const [, passedConfig] = mockAgent.invoke.mock.calls[0] as [
+        unknown,
+        { context: { userId: string } },
+      ];
+      expect(passedConfig.context.userId).toBe("user-123");
+    });
+
+    it("should return empty agentTrace when underlying agent fires no callbacks", async () => {
+      // Arrange
+      mockAgent.invoke.mockResolvedValue({
+        messages: [new AIMessage({ content: "Answer" })],
+      });
+
+      // Act
+      const result = await agentLike.invoke(state, config);
+
+      // Assert
+      expect(result.agentTrace).toEqual([]);
+    });
+
+    // Dependency failures
+
+    it("should propagate error from underlying agent", async () => {
+      // Arrange
+      mockAgent.invoke.mockRejectedValue(new Error("Agent error"));
+
+      // Act & Assert
+      await expect(agentLike.invoke(state, config)).rejects.toThrow(
+        "Agent error",
+      );
+    });
+  });
+});
 
 describe("extractLastMessageText", () => {
   it("should return undefined when messages array is empty", () => {
