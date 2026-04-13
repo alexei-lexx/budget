@@ -124,14 +124,17 @@ export const resolveAssistantAgent = createSingleton(
       }),
     ),
 );
-export const resolveCreateTransactionAgent = createSingleton(() =>
-  createCreateTransactionAgent({
-    model: resolveBedrockChatModel(),
-    accountRepository: resolveAccountRepository(),
-    categoryRepository: resolveCategoryRepository(),
-    transactionRepository: resolveTransactionRepository(),
-    transactionService: resolveTransactionService(),
-  }),
+export const resolveCreateTransactionAgent = createSingleton(
+  () =>
+    new AgentLike(
+      createCreateTransactionAgent({
+        model: resolveBedrockChatModel(),
+        accountRepository: resolveAccountRepository(),
+        categoryRepository: resolveCategoryRepository(),
+        transactionRepository: resolveTransactionRepository(),
+        transactionService: resolveTransactionService(),
+      }),
+    ),
 );
 
 // AI services

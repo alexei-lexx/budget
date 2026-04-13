@@ -1,13 +1,7 @@
-import { ReactAgent } from "langchain";
 import { z } from "zod";
 import { CREATE_TRANSACTION_TOOL_NAME } from "../langchain/tools/create-transaction";
-import {
-  extractAgentTrace,
-  extractLastMessageText,
-  extractToolExecutions,
-} from "../langchain/utils";
 import { Transaction } from "../models/transaction";
-import { AgentTraceMessage } from "../ports/agent-types";
+import { Agent, AgentTraceMessage } from "../ports/agent-types";
 import { Failure, Result, Success } from "../types/result";
 import { formatDateAsYYYYMMDD } from "../utils/date";
 import { TransactionService } from "./transaction-service";
@@ -37,16 +31,26 @@ type CreateTransactionFromTextOutput = Result<
 >;
 
 export class CreateTransactionFromTextService {
-  private createTransactionAgent: ReactAgent;
+  private createTransactionAgent: Agent<{
+    isVoiceInput: boolean;
+    today: string;
+    userId: string;
+  }>;
   private transactionService: TransactionService;
 
-  constructor(deps: {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    createTransactionAgent: ReactAgent<any>;
+  constructor({
+    createTransactionAgent,
+    transactionService,
+  }: {
+    createTransactionAgent: Agent<{
+      isVoiceInput: boolean;
+      today: string;
+      userId: string;
+    }>;
     transactionService: TransactionService;
   }) {
-    this.createTransactionAgent = deps.createTransactionAgent;
-    this.transactionService = deps.transactionService;
+    this.createTransactionAgent = createTransactionAgent;
+    this.transactionService = transactionService;
   }
 
   async call({
@@ -74,9 +78,8 @@ export class CreateTransactionFromTextService {
       },
     );
 
-    const toolExecutions = extractToolExecutions(response.messages);
-    const agentTrace = extractAgentTrace(response.messages);
-    const answer = extractLastMessageText(response.messages)?.trim();
+    const { answer: rawAnswer, agentTrace, toolExecutions } = response;
+    const answer = rawAnswer?.trim();
 
     const lastCreateTransactionToolExecution = toolExecutions.findLast(
       (toolExecution) => toolExecution.tool === CREATE_TRANSACTION_TOOL_NAME,

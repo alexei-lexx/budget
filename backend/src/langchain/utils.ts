@@ -21,6 +21,8 @@ export class AgentLike<TContext extends Record<string, unknown>>
     config: { context: TContext },
   ) {
     const agentTrace: AgentTraceMessage[] = [];
+    const pendingToolInputs = new Map<string, string>();
+    const toolExecutions: ToolExecution[] = [];
     const callbackManager = new CallbackManager();
 
     callbackManager.addHandler(
@@ -45,9 +47,19 @@ export class AgentLike<TContext extends Record<string, unknown>>
             }
           }
         },
-        handleToolEnd(output) {
+        handleToolStart(_tool, input, runId) {
+          pendingToolInputs.set(runId, input);
+        },
+        handleToolEnd(output, runId) {
           const agentTraceMessage = extractAgentTraceToolResult(output);
           agentTrace.push(agentTraceMessage);
+
+          toolExecutions.push({
+            tool: output.name || "Unknown tool",
+            input: pendingToolInputs.get(runId) ?? "Unknown arguments",
+            output: output.content ? String(output.content) : "Unknown result",
+          });
+          pendingToolInputs.delete(runId);
         },
       }),
     );
@@ -64,7 +76,7 @@ export class AgentLike<TContext extends Record<string, unknown>>
 
     const answer = extractLastMessageText(response.messages)?.trim();
 
-    return { answer, agentTrace };
+    return { answer, agentTrace, toolExecutions };
   }
 }
 
