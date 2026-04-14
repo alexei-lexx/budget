@@ -160,7 +160,7 @@ You can optionally use your own domain name to access the app.
    cd infra-cdk && npx cdk bootstrap aws://YOUR_ACCOUNT_ID/us-east-1 --app ""
    ```
 2. Create a Route 53 hosted zone for your domain in your AWS account (via the AWS Console or CLI)
-3. Copy the NS records from the hosted zone and add them to your domain registrar's DNS settings
+3. Copy the NS records from the hosted zone and add them to wherever you currently manage DNS for that domain
 4. Wait for NS propagation — this can take a few minutes to a few hours. Verify with:
    ```bash
    nslookup -type=NS app.example.com
@@ -168,7 +168,7 @@ You can optionally use your own domain name to access the app.
 
 **Setup:**
 
-1. Set the SSM parameter:
+1. Set the SSM parameter to the **exact name of your Route 53 hosted zone** (not a subdomain under it — the value must match the hosted zone domain name used in the lookup):
    ```bash
    aws ssm put-parameter --overwrite --type String \
        --name "/manual/budget/production/frontend/custom-domain" \
@@ -176,19 +176,23 @@ You can optionally use your own domain name to access the app.
    ```
 2. Run `./deploy.sh`
 
-**To change the domain:** update the SSM parameter, clear the CDK context cache, and redeploy:
+**To change the domain:** update the SSM parameter, remove the stale `ssm:` and `hosted-zone:` entries for your domain from `infra-cdk/cdk.context.json`, then redeploy:
 
 ```bash
-cd infra-cdk && npx cdk context --clear
 ./deploy.sh
 ```
 
-**To remove the custom domain:** delete the SSM parameter, clear the cache, and redeploy:
+**To remove the custom domain:** delete the SSM parameter, remove the `ssm:` and `hosted-zone:` entries for your domain from `infra-cdk/cdk.context.json`, then redeploy:
 
 ```bash
 aws ssm delete-parameter --name "/manual/budget/production/frontend/custom-domain"
-cd infra-cdk && npx cdk context --clear
 ./deploy.sh
+```
+
+Then explicitly destroy the cert stack (it is conditionally created, so `./deploy.sh` alone will not remove it):
+
+```bash
+cd infra-cdk && npx cdk destroy ${NODE_ENV}-BudgetFrontend-Cert --region us-east-1
 ```
 
 ## Screenshots

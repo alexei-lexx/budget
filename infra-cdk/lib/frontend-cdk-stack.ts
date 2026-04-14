@@ -72,6 +72,9 @@ export class FrontendCdkStack extends cdk.Stack {
     if (hasCustomDomain) {
       // Pre-existing hosted zone looked up by domain name.
       // Route 53 is a global service; lookup works from any region.
+      // IMPORTANT: customDomain must equal the hosted zone name exactly.
+      // Subdomains of a parent zone are not supported — the SSM parameter
+      // value must match the Route 53 hosted zone domain name.
       hostedZone = route53.HostedZone.fromLookup(this, "HostedZone", {
         domainName: customDomain,
       });
