@@ -58,9 +58,9 @@ describe("createCreateTransactionAgent", () => {
     expect(toolNames).toEqual(
       expect.arrayContaining([
         CREATE_TRANSACTION_TOOL_NAME,
-        "getAccounts",
-        "getCategories",
-        "getTransactions",
+        "get_accounts",
+        "get_categories",
+        "get_transactions",
       ]),
     );
 
