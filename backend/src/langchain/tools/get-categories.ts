@@ -113,7 +113,7 @@ export const createGetCategoriesTool = ({
       return Success(enrichedCategoryDataList);
     },
     {
-      name: "getCategories",
+      name: "get_categories",
       description:
         "Get user categories filtered by scope. Each category includes recent usage examples showing how similar transactions were previously categorised.",
       schema,

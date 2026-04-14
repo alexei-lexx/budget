@@ -21,7 +21,7 @@ describe("createAggregateTransactionsTool", () => {
       transactionRepository: mockTransactionRepository,
     });
 
-    expect(aggregateTool.name).toBe("aggregateTransactions");
+    expect(aggregateTool.name).toBe("aggregate_transactions");
   });
 
   it("should throw when userId in context is not a valid UUID", async () => {

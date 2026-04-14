@@ -16,7 +16,7 @@ describe("createGetAccountsTool", () => {
   it("should return tool with correct name", () => {
     const accountsTool = createGetAccountsTool(mockAccountRepository);
 
-    expect(accountsTool.name).toBe("getAccounts");
+    expect(accountsTool.name).toBe("get_accounts");
   });
 
   it("should throw when userId in context is not a valid UUID", async () => {

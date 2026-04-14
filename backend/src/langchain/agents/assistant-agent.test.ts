@@ -59,12 +59,12 @@ describe("createAssistantAgent", () => {
     expect(toolNames).toHaveLength(8);
     expect(toolNames).toEqual(
       expect.arrayContaining([
-        "aggregateTransactions",
+        "aggregate_transactions",
         "avg",
         "calculate",
-        "getAccounts",
-        "getCategories",
-        "getTransactions",
+        "get_accounts",
+        "get_categories",
+        "get_transactions",
         "joke",
         "sum",
       ]),

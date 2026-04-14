@@ -20,7 +20,7 @@ describe("createGetTransactionsTool", () => {
       transactionRepository: mockTransactionRepository,
     });
 
-    expect(transactionsTool.name).toBe("getTransactions");
+    expect(transactionsTool.name).toBe("get_transactions");
   });
 
   it("should throw when userId in context is not a valid UUID", async () => {

@@ -41,7 +41,7 @@ export const createGetAccountsTool = (accountRepository: AccountRepository) =>
       return Success(accountDataList);
     },
     {
-      name: "getAccounts",
+      name: "get_accounts",
       description: "Get user accounts filtered by scope.",
       schema,
     },

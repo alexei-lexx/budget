@@ -32,7 +32,7 @@ const schema = z.object({
 
 export type CreateTransactionInput = z.infer<typeof schema>;
 
-export const CREATE_TRANSACTION_TOOL_NAME = "createTransaction";
+export const CREATE_TRANSACTION_TOOL_NAME = "create_transaction";
 
 export const createCreateTransactionTool = ({
   transactionService,
