@@ -19,15 +19,15 @@ describe("createGetAccountsTool", () => {
     expect(accountsTool.name).toBe("get_accounts");
   });
 
-  it("should throw when userId in context is not a valid UUID", async () => {
+  it("should throw an error when userId is missing from context", async () => {
     const accountsTool = createGetAccountsTool(mockAccountRepository);
 
     await expect(
       accountsTool.invoke(
         { scope: EntityScope.ALL },
-        { context: { userId: "not-a-uuid" } },
+        { context: { userId: "" } },
       ),
-    ).rejects.toThrow();
+    ).rejects.toThrow("Invalid tool context: missing userId");
   });
 
   it("should call repository", async () => {

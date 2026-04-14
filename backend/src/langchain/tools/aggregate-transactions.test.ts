@@ -24,7 +24,7 @@ describe("createAggregateTransactionsTool", () => {
     expect(aggregateTool.name).toBe("aggregate_transactions");
   });
 
-  it("should throw when userId in context is not a valid UUID", async () => {
+  it("should throw an error when userId is missing from context", async () => {
     const aggregateTool = createAggregateTransactionsTool({
       transactionRepository: mockTransactionRepository,
     });
@@ -32,9 +32,9 @@ describe("createAggregateTransactionsTool", () => {
     await expect(
       aggregateTool.invoke(
         { startDate: "2000-01-01", endDate: "2000-01-31" },
-        { context: { userId: "not-a-uuid" } },
+        { context: { userId: "" } },
       ),
-    ).rejects.toThrow();
+    ).rejects.toThrow("Invalid tool context: missing userId");
   });
 
   it("should reject when startDate is after endDate", async () => {
