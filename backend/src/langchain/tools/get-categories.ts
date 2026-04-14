@@ -6,6 +6,7 @@ import { TransactionRepository } from "../../ports/transaction-repository";
 import { toDateString } from "../../types/date";
 import { Success } from "../../types/result";
 import { daysAgo, formatDateAsYYYYMMDD } from "../../utils/date";
+import { agentContextSchema } from "../agents/agent-context";
 import { EntityScope } from "./get-accounts";
 
 export const CATEGORY_HISTORY_LOOKBACK_DAYS = 90;
@@ -36,7 +37,9 @@ export const createGetCategoriesTool = ({
 }) =>
   tool(
     async ({ scope }, config) => {
-      const userId = z.uuid().parse(config?.context?.userId);
+      const userId = agentContextSchema.shape.userId.parse(
+        config?.context?.userId,
+      );
       const allCategories =
         await categoryRepository.findManyWithArchivedByUserId(userId);
 

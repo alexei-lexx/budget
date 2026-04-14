@@ -5,6 +5,7 @@ import { TransactionRepository } from "../../ports/transaction-repository";
 import { toDateString } from "../../types/date";
 import { Failure, Success } from "../../types/result";
 import { daysBetween } from "../../utils/date";
+import { agentContextSchema } from "../agents/agent-context";
 
 export const MAX_PERIOD_DAYS = 365;
 
@@ -42,7 +43,9 @@ export const createGetTransactionsTool = ({
 }) =>
   tool(
     async ({ startDate, endDate, accountIds, categoryIds, types }, config) => {
-      const userId = z.uuid().parse(config?.context?.userId);
+      const userId = agentContextSchema.shape.userId.parse(
+        config?.context?.userId,
+      );
       if (startDate > endDate) {
         return Failure("startDate must not be after endDate");
       }
