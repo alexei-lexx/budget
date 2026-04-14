@@ -4,7 +4,6 @@ import {
   dynamicSystemPromptMiddleware,
   toolCallLimitMiddleware,
 } from "langchain";
-import { z } from "zod";
 import { AccountRepository } from "../../ports/account-repository";
 import { CategoryRepository } from "../../ports/category-repository";
 import { TransactionRepository } from "../../ports/transaction-repository";
@@ -16,16 +15,7 @@ import {
 import { createGetAccountsTool } from "../tools/get-accounts";
 import { createGetCategoriesTool } from "../tools/get-categories";
 import { createGetTransactionsTool } from "../tools/get-transactions";
-
-export const createTransactionAgentContextSchema = z.object({
-  isVoiceInput: z.boolean().default(false),
-  today: z.iso.date(),
-  userId: z.uuid(),
-});
-
-export type CreateTransactionAgentContext = z.infer<
-  typeof createTransactionAgentContextSchema
->;
+import { AgentContext, agentContextSchema } from "./agent-context";
 
 const SYSTEM_PROMPT = `
 ## Role
@@ -132,23 +122,21 @@ export function createCreateTransactionAgent({
   return createAgent({
     model,
     tools,
-    contextSchema: createTransactionAgentContextSchema,
+    contextSchema: agentContextSchema,
     middleware: [
-      dynamicSystemPromptMiddleware<CreateTransactionAgentContext>(
-        (_state, runtime) => {
-          const { today, isVoiceInput } = runtime.context;
-          const parts = [
-            SYSTEM_PROMPT,
-            `## Current Date\n\nToday is ${today}.`,
-            ...(isVoiceInput
-              ? [
-                  "## Voice Input Indicator\n\nThe user's input was captured via voice recognition.",
-                ]
-              : []),
-          ];
-          return parts.join("\n\n");
-        },
-      ),
+      dynamicSystemPromptMiddleware<AgentContext>((_state, runtime) => {
+        const { today, isVoiceInput } = runtime.context;
+        const parts = [
+          SYSTEM_PROMPT,
+          `## Current Date\n\nToday is ${today}.`,
+          ...(isVoiceInput
+            ? [
+                "## Voice Input Indicator\n\nThe user's input was captured via voice recognition.",
+              ]
+            : []),
+        ];
+        return parts.join("\n\n");
+      }),
       // Prevent creating more than one transaction per invocation
       toolCallLimitMiddleware({
         toolName: CREATE_TRANSACTION_TOOL_NAME,

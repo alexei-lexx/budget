@@ -1,6 +1,5 @@
 import { BaseChatModel } from "@langchain/core/language_models/chat_models";
 import { createAgent, dynamicSystemPromptMiddleware } from "langchain";
-import { z } from "zod";
 import { AccountRepository } from "../../ports/account-repository";
 import { CategoryRepository } from "../../ports/category-repository";
 import { TransactionRepository } from "../../ports/transaction-repository";
@@ -10,13 +9,7 @@ import { createGetCategoriesTool } from "../tools/get-categories";
 import { createGetTransactionsTool } from "../tools/get-transactions";
 import { createJokeTool } from "../tools/joke";
 import { avgTool, calculateTool, sumTool } from "../tools/math";
-
-export const assistantAgentContextSchema = z.object({
-  today: z.iso.date(),
-  userId: z.uuid(),
-});
-
-export type AssistantAgentContext = z.infer<typeof assistantAgentContextSchema>;
+import { AgentContext, agentContextSchema } from "./agent-context";
 
 const SYSTEM_PROMPT = `
 ## Role
@@ -94,13 +87,11 @@ export function createAssistantAgent({
   return createAgent({
     model,
     tools,
-    contextSchema: assistantAgentContextSchema,
+    contextSchema: agentContextSchema,
     middleware: [
-      dynamicSystemPromptMiddleware<AssistantAgentContext>(
-        (_state, runtime) => {
-          return `${SYSTEM_PROMPT}\n\n## Current Date\n\nToday is ${runtime.context.today}.`;
-        },
-      ),
+      dynamicSystemPromptMiddleware<AgentContext>((_state, runtime) => {
+        return `${SYSTEM_PROMPT}\n\n## Current Date\n\nToday is ${runtime.context.today}.`;
+      }),
     ],
   });
 }

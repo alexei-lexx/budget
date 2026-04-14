@@ -2,7 +2,7 @@ import { tool } from "langchain";
 import { z } from "zod";
 import { AccountRepository } from "../../ports/account-repository";
 import { Success } from "../../types/result";
-import { agentContextSchema } from "./agent-context";
+import { agentContextSchema } from "../agents/agent-context";
 
 export enum EntityScope {
   ACTIVE = "ACTIVE",
@@ -21,7 +21,9 @@ const schema = z.object({
 export const createGetAccountsTool = (accountRepository: AccountRepository) =>
   tool(
     async ({ scope }, config) => {
-      const { userId } = agentContextSchema.parse(config?.context);
+      const userId = agentContextSchema.shape.userId.parse(
+        config?.context?.userId,
+      );
       const accounts =
         await accountRepository.findManyWithArchivedByUserId(userId);
 

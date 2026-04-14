@@ -7,7 +7,7 @@ import {
 } from "../../services/transaction-service";
 import { toDateString } from "../../types/date";
 import { Success } from "../../types/result";
-import { agentContextSchema } from "./agent-context";
+import { agentContextSchema } from "../agents/agent-context";
 
 const schema = z.object({
   accountId: z.uuid().describe("Account ID to associate the transaction with"),
@@ -41,7 +41,9 @@ export const createCreateTransactionTool = ({
 }) => {
   return tool(
     async (input: CreateTransactionInput, config) => {
-      const { userId } = agentContextSchema.parse(config?.context);
+      const userId = agentContextSchema.shape.userId.parse(
+        config?.context?.userId,
+      );
 
       const serviceInput: CreateTransactionServiceInput = { ...input };
       const created = await transactionService.createTransaction(
