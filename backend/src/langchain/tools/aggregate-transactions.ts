@@ -45,7 +45,7 @@ export const createAggregateTransactionsTool = ({
     async ({ startDate, endDate, accountIds, categoryIds, types }, config) => {
       const userId = config.context.userId;
       if (!userId || typeof userId !== "string") {
-        throw new Error("Invalid tool config: missing userId");
+        throw new Error("Invalid tool context: missing userId");
       }
 
       if (startDate > endDate) {
