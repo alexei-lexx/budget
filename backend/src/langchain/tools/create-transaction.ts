@@ -41,6 +41,7 @@ export const createCreateTransactionTool = ({
   return tool(
     async (input: CreateTransactionInput, config) => {
       const userId = z.uuid().parse(config?.context?.userId);
+
       const serviceInput: CreateTransactionServiceInput = { ...input };
       const created = await transactionService.createTransaction(
         serviceInput,
