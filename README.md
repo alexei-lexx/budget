@@ -23,6 +23,7 @@ Web application for personal financial management.
 - **Quick Transaction Entry** - Type something like “coffee 4.50,” and let AI create the transaction autonomously, filling in missing details from your past entries
 - **Ask About Your Money** – Use the built-in Assistant to ask questions about cash flow, spending habits, or trends in any language, and let AI analyze your transaction history to provide insightful answers
 - **Telegram Integration** - Chat with the app directly from Telegram
+- **Custom Domain Support** - Use your own domain name instead of the default AWS URL
 
 [→ See screenshots](#screenshots)
 
@@ -120,6 +121,11 @@ aws ssm put-parameter --overwrite --type String \
     --name "/manual/budget/production/bedrock/temperature" \
     --value "0.2"
 
+# Custom domain (optional, see Custom Domain Setup)
+aws ssm put-parameter --overwrite --type String \
+    --name "/manual/budget/production/frontend/custom-domain" \
+    --value "app.example.com"
+
 # Lambda memory size (in MB)
 aws ssm put-parameter --overwrite --type String \
     --name "/manual/budget/production/lambda/memory-size" \
@@ -142,6 +148,52 @@ aws ssm put-parameter --overwrite --type String \
 ```
 
 To override configuration for a specific environment, replace `production` in the parameter names with your target environment (e.g., `/manual/budget/staging/auth/domain-prefix`).
+
+## Custom Domain Setup
+
+You can optionally use your own domain name to access the app.
+
+**Prerequisites** (one-time setup):
+
+1. Bootstrap CDK in `us-east-1` — CloudFront requires ACM certificates to be in that region, so a separate CDK bootstrap is needed there. Run with `--app ""` to skip loading the app (which would require all env vars):
+   ```bash
+   cd infra-cdk && npx cdk bootstrap aws://YOUR_ACCOUNT_ID/us-east-1 --app ""
+   ```
+2. Create a Route 53 hosted zone for your domain in your AWS account (via the AWS Console or CLI)
+3. Copy the NS records from the hosted zone and add them to wherever you currently manage DNS for that domain
+4. Wait for NS propagation — this can take a few minutes to a few hours. Verify with:
+   ```bash
+   nslookup -type=NS app.example.com
+   ```
+
+**Setup:**
+
+1. Set the SSM parameter to the **exact name of your Route 53 hosted zone** (not a subdomain under it — the value must match the hosted zone domain name used in the lookup):
+   ```bash
+   aws ssm put-parameter --overwrite --type String \
+       --name "/manual/budget/production/frontend/custom-domain" \
+       --value "app.example.com"
+   ```
+2. Run `./deploy.sh`
+
+**To change the domain:** update the SSM parameter, remove the stale `ssm:` and `hosted-zone:` entries for your domain from `infra-cdk/cdk.context.json`, then redeploy:
+
+```bash
+./deploy.sh
+```
+
+**To remove the custom domain:** delete the SSM parameter, remove the `ssm:` and `hosted-zone:` entries for your domain from `infra-cdk/cdk.context.json`, then redeploy:
+
+```bash
+aws ssm delete-parameter --name "/manual/budget/production/frontend/custom-domain"
+./deploy.sh
+```
+
+Then explicitly destroy the cert stack (it is conditionally created, so `./deploy.sh` alone will not remove it):
+
+```bash
+cd infra-cdk && npx cdk destroy ${NODE_ENV}-BudgetFrontend-Cert --region us-east-1
+```
 
 ## Screenshots
 
