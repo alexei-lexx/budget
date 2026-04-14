@@ -19,7 +19,7 @@ describe("createGetAccountsTool", () => {
     expect(accountsTool.name).toBe("get_accounts");
   });
 
-  it("should throw an error when userId is missing from context", async () => {
+  it("should throw when userId is missing from context", async () => {
     const accountsTool = createGetAccountsTool(mockAccountRepository);
 
     await expect(

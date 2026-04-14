@@ -35,7 +35,7 @@ describe("createGetCategoriesTool", () => {
     expect(categoriesTool.name).toBe("get_categories");
   });
 
-  it("should throw an error when userId is missing from context", async () => {
+  it("should throw when userId is missing from context", async () => {
     const categoriesTool = createGetCategoriesTool({
       categoryRepository: mockCategoryRepository,
       transactionRepository: mockTransactionRepository,

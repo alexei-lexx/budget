@@ -24,7 +24,7 @@ describe("createAggregateTransactionsTool", () => {
     expect(aggregateTool.name).toBe("aggregate_transactions");
   });
 
-  it("should throw an error when userId is missing from context", async () => {
+  it("should throw when userId is missing from context", async () => {
     const aggregateTool = createAggregateTransactionsTool({
       transactionRepository: mockTransactionRepository,
     });

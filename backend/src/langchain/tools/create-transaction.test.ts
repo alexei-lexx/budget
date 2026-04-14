@@ -28,7 +28,7 @@ describe("createCreateTransactionTool", () => {
     expect(createTool.name).toBe(CREATE_TRANSACTION_TOOL_NAME);
   });
 
-  it("should throw an error when userId is missing from context", async () => {
+  it("should throw when userId is missing from context", async () => {
     const createTool = createCreateTransactionTool({
       transactionService: mockTransactionService,
     });
