@@ -5,7 +5,6 @@ import { TransactionRepository } from "../../ports/transaction-repository";
 import { toDateString } from "../../types/date";
 import { Failure, Success } from "../../types/result";
 import { daysBetween } from "../../utils/date";
-import { agentContextSchema } from "./agent-context";
 import { MAX_PERIOD_DAYS } from "./get-transactions";
 
 const schema = z.object({
@@ -44,7 +43,11 @@ export const createAggregateTransactionsTool = ({
 }) =>
   tool(
     async ({ startDate, endDate, accountIds, categoryIds, types }, config) => {
-      const { userId } = agentContextSchema.parse(config?.context);
+      const userId = config.context.userId;
+      if (!userId || typeof userId !== "string") {
+        throw new Error("Invalid tool config: missing userId");
+      }
+
       if (startDate > endDate) {
         return Failure("startDate must not be after endDate");
       }

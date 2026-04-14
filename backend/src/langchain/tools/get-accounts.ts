@@ -2,7 +2,6 @@ import { tool } from "langchain";
 import { z } from "zod";
 import { AccountRepository } from "../../ports/account-repository";
 import { Success } from "../../types/result";
-import { agentContextSchema } from "./agent-context";
 
 export enum EntityScope {
   ACTIVE = "ACTIVE",
@@ -21,7 +20,11 @@ const schema = z.object({
 export const createGetAccountsTool = (accountRepository: AccountRepository) =>
   tool(
     async ({ scope }, config) => {
-      const { userId } = agentContextSchema.parse(config?.context);
+      const userId = config.context.userId;
+      if (!userId || typeof userId !== "string") {
+        throw new Error("Invalid tool config: missing userId");
+      }
+
       const accounts =
         await accountRepository.findManyWithArchivedByUserId(userId);
 

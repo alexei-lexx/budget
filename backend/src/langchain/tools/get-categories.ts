@@ -6,7 +6,6 @@ import { TransactionRepository } from "../../ports/transaction-repository";
 import { toDateString } from "../../types/date";
 import { Success } from "../../types/result";
 import { daysAgo, formatDateAsYYYYMMDD } from "../../utils/date";
-import { agentContextSchema } from "./agent-context";
 import { EntityScope } from "./get-accounts";
 
 export const CATEGORY_HISTORY_LOOKBACK_DAYS = 90;
@@ -37,7 +36,11 @@ export const createGetCategoriesTool = ({
 }) =>
   tool(
     async ({ scope }, config) => {
-      const { userId } = agentContextSchema.parse(config?.context);
+      const userId = config.context.userId;
+      if (!userId || typeof userId !== "string") {
+        throw new Error("Invalid tool config: missing userId");
+      }
+
       const allCategories =
         await categoryRepository.findManyWithArchivedByUserId(userId);
 
