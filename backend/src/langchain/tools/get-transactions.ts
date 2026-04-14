@@ -80,7 +80,7 @@ export const createGetTransactionsTool = ({
       return Success(transactionData);
     },
     {
-      name: "getTransactions",
+      name: "get_transactions",
       description: `Get filtered transactions by date range and optionally by one or more accountIds, one or more categoryIds, or one or more transaction types. Date format: YYYY-MM-DD. The date range must not exceed ${MAX_PERIOD_DAYS} days.`,
       schema,
     },

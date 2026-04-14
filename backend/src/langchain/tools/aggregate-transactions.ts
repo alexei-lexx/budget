@@ -83,7 +83,7 @@ export const createAggregateTransactionsTool = ({
       });
     },
     {
-      name: "aggregateTransactions",
+      name: "aggregate_transactions",
       description:
         `Aggregate and return sum and count for a filtered set of transactions.` +
         ` Sum uses signed cashflow convention: ${TransactionType.EXPENSE} and ${TransactionType.TRANSFER_OUT} are negative;` +

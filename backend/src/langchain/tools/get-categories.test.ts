@@ -32,7 +32,7 @@ describe("createGetCategoriesTool", () => {
       transactionRepository: mockTransactionRepository,
     });
 
-    expect(categoriesTool.name).toBe("getCategories");
+    expect(categoriesTool.name).toBe("get_categories");
   });
 
   it("should throw when userId in context is not a valid UUID", async () => {
