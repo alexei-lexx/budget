@@ -2,13 +2,14 @@
 
 [![CI](https://github.com/alexei-lexx/budget/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/alexei-lexx/budget/actions/workflows/ci.yml)
 
-Web application for personal financial management.
+A self-hosted personal finance tracker you deploy to your own AWS account. Track income, expenses, and transfers across multiple accounts and currencies, get an AI Assistant, and keep full control of your cash flow.
 
 ## Benefits
 
-- **Self-hosted on your own AWS account** — your financial data never leaves it, no third-party app has access to it
-- **No subscription fees** — pay only for what you use on AWS, typically low or zero for personal use
-- **Source-available** — read and customize the code (PolyForm Noncommercial License)
+- **Complete financial privacy** — self-hosted on your own AWS account; your data never leaves it and no third party can access it
+- **Low or zero cost** — no subscription fees; runs on AWS with pay-as-you-go pricing, so most personal use costs nothing
+- **Browser and mobile ready** — runs in any browser; install it on your phone or tablet like a native app, no app store needed (Progressive Web App)
+- **Source-available** — read the code to verify how your data is handled; fork and customize it to fit your needs
 
 ## Core Features
 
