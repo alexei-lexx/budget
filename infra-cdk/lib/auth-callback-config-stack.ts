@@ -44,6 +44,9 @@ export interface AuthCallbackConfigStackProps extends StackProps {
   userPool: IUserPool;
   userPoolClient: IUserPoolClient;
   distribution: IDistribution;
+  // Optional custom domain URL (e.g. 'https://example.com').
+  // When provided, it is added alongside the CloudFront URL in CallbackURLs and LogoutURLs.
+  customDomainUrl?: string;
 }
 
 export class AuthCallbackConfigStack extends Stack {
@@ -60,6 +63,12 @@ export class AuthCallbackConfigStack extends Stack {
     Tags.of(this).add("environment", nodeEnv);
 
     const distributionUrl = `https://${props.distribution.distributionDomainName}`;
+
+    // Include the custom domain URL in allowed callback/logout URLs when configured.
+    // Both URLs must be present so auth works regardless of which URL the user accesses.
+    const callbackUrls = props.customDomainUrl
+      ? [distributionUrl, props.customDomainUrl]
+      : [distributionUrl];
 
     // Log group for callback URL updater Lambda
     const updateCallbackUrlsLogGroup = new LogGroup(
@@ -109,16 +118,16 @@ export class AuthCallbackConfigStack extends Stack {
       properties: {
         UserPoolId: props.userPool.userPoolId,
         ClientId: props.userPoolClient.userPoolClientId,
-        CallbackURLs: [distributionUrl],
-        LogoutURLs: [distributionUrl],
+        CallbackURLs: callbackUrls,
+        LogoutURLs: callbackUrls,
         Version: "1", // Increment to force re-run
       } satisfies CustomResourceProperties,
     });
 
     // Output for verification
     new CfnOutput(this, "ConfiguredCallbackUrl", {
-      value: distributionUrl,
-      description: "Distribution URL configured as callback/logout URL",
+      value: callbackUrls.join(", "),
+      description: "Distribution URL(s) configured as callback/logout URLs",
     });
   }
 }
