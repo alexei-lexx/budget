@@ -32,9 +32,9 @@
 
 ## 5. Verification
 
-- [ ] 5.1 Deploy to staging with the SSM param set — confirm `CustomDomainURL` output appears and app is accessible at the custom domain
-- [ ] 5.2 Confirm sign-in and sign-out work via the custom domain
-- [ ] 5.3 Deploy without the SSM param — confirm no custom domain resources are created and `CloudFrontFullURL` is correct
+- [x] 5.1 Deploy to staging with the SSM param set — confirm `CustomDomainURL` output appears and app is accessible at the custom domain
+- [x] 5.2 Confirm sign-in and sign-out work via the custom domain
+- [x] 5.3 Deploy without the SSM param — confirm no custom domain resources are created and `CloudFrontFullURL` is correct
 - [x] 5.4 Run `npm run typecheck` in `infra-cdk/` — no TypeScript errors
 
 ## Constitution Compliance
