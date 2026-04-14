@@ -35,7 +35,7 @@ describe("createGetCategoriesTool", () => {
     expect(categoriesTool.name).toBe("get_categories");
   });
 
-  it("should throw when userId is missing from context", async () => {
+  it("should throw when userId in context is not a valid UUID", async () => {
     const categoriesTool = createGetCategoriesTool({
       categoryRepository: mockCategoryRepository,
       transactionRepository: mockTransactionRepository,
@@ -44,9 +44,9 @@ describe("createGetCategoriesTool", () => {
     await expect(
       categoriesTool.invoke(
         { scope: EntityScope.ALL },
-        { context: { userId: "" } },
+        { context: { userId: "not-a-uuid" } },
       ),
-    ).rejects.toThrow("Invalid tool context: missing userId");
+    ).rejects.toThrow();
   });
 
   it("should call category repository", async () => {

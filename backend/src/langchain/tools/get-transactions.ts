@@ -42,11 +42,7 @@ export const createGetTransactionsTool = ({
 }) =>
   tool(
     async ({ startDate, endDate, accountIds, categoryIds, types }, config) => {
-      const userId = config.context.userId;
-      if (!userId || typeof userId !== "string") {
-        throw new Error("Invalid tool context: missing userId");
-      }
-
+      const userId = z.uuid().parse(config?.context?.userId);
       if (startDate > endDate) {
         return Failure("startDate must not be after endDate");
       }

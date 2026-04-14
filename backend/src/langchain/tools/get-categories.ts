@@ -36,11 +36,7 @@ export const createGetCategoriesTool = ({
 }) =>
   tool(
     async ({ scope }, config) => {
-      const userId = config.context.userId;
-      if (!userId || typeof userId !== "string") {
-        throw new Error("Invalid tool context: missing userId");
-      }
-
+      const userId = z.uuid().parse(config?.context?.userId);
       const allCategories =
         await categoryRepository.findManyWithArchivedByUserId(userId);
 

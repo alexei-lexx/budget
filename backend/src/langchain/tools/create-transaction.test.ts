@@ -28,7 +28,7 @@ describe("createCreateTransactionTool", () => {
     expect(createTool.name).toBe(CREATE_TRANSACTION_TOOL_NAME);
   });
 
-  it("should throw when userId is missing from context", async () => {
+  it("should throw when userId in context is not a valid UUID", async () => {
     const createTool = createCreateTransactionTool({
       transactionService: mockTransactionService,
     });
@@ -41,8 +41,8 @@ describe("createCreateTransactionTool", () => {
     };
 
     await expect(
-      createTool.invoke(input, { context: { userId: "" } }),
-    ).rejects.toThrow("Invalid tool context: missing userId");
+      createTool.invoke(input, { context: { userId: "not-a-uuid" } }),
+    ).rejects.toThrow();
   });
 
   it("should call createTransaction with correct input and return created transaction", async () => {

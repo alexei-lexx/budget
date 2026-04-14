@@ -20,11 +20,7 @@ const schema = z.object({
 export const createGetAccountsTool = (accountRepository: AccountRepository) =>
   tool(
     async ({ scope }, config) => {
-      const userId = config.context.userId;
-      if (!userId || typeof userId !== "string") {
-        throw new Error("Invalid tool context: missing userId");
-      }
-
+      const userId = z.uuid().parse(config?.context?.userId);
       const accounts =
         await accountRepository.findManyWithArchivedByUserId(userId);
 
