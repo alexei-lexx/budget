@@ -3,6 +3,7 @@ import { z } from "zod";
 import { AccountRepository } from "../../ports/account-repository";
 import { Success } from "../../types/result";
 import { agentContextSchema } from "../agents/agent-context";
+import { toAccountDto } from "./account-dto";
 
 export enum EntityScope {
   ACTIVE = "ACTIVE",
@@ -33,14 +34,7 @@ export const createGetAccountsTool = (accountRepository: AccountRepository) =>
         return account.isArchived;
       });
 
-      const accountDataList = filteredAccounts.map((account) => ({
-        id: account.id,
-        name: account.name,
-        currency: account.currency,
-        isArchived: account.isArchived,
-      }));
-
-      return Success(accountDataList);
+      return Success(filteredAccounts.map(toAccountDto));
     },
     {
       name: "get_accounts",

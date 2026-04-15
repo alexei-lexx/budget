@@ -13,11 +13,23 @@ import {
 } from "../types/validation";
 import { BusinessError } from "./business-error";
 
+export interface AccountService {
+  getAccountsByUser(userId: string): Promise<Account[]>;
+  calculateBalance(accountId: string, userId: string): Promise<number>;
+  createAccount(input: CreateAccountInput): Promise<Account>;
+  updateAccount(
+    id: string,
+    userId: string,
+    input: UpdateAccountInput,
+  ): Promise<Account>;
+  deleteAccount(id: string, userId: string): Promise<Account>;
+}
+
 /**
  * Account service class for handling business logic and cross-repository operations
  * Implements the service layer pattern for account operations
  */
-export class AccountService {
+export class AccountServiceImpl implements AccountService {
   constructor(
     private accountRepository: AccountRepository,
     private transactionRepository: TransactionRepository,

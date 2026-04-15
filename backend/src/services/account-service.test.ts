@@ -13,20 +13,20 @@ import { fakeTransaction } from "../utils/test-utils/models/transaction-fakes";
 import { fakeCreateAccountInput } from "../utils/test-utils/repositories/account-repository-fakes";
 import { createMockAccountRepository } from "../utils/test-utils/repositories/account-repository-mocks";
 import { createMockTransactionRepository } from "../utils/test-utils/repositories/transaction-repository-mocks";
-import { AccountService } from "./account-service";
+import { AccountServiceImpl } from "./account-service";
 import { BusinessError } from "./business-error";
 
 describe("AccountService", () => {
   let mockAccountRepository: jest.Mocked<AccountRepository>;
   let mockTransactionRepository: jest.Mocked<TransactionRepository>;
-  let service: AccountService;
+  let service: AccountServiceImpl;
   let userId: string;
 
   beforeEach(() => {
     mockAccountRepository = createMockAccountRepository();
     mockTransactionRepository = createMockTransactionRepository();
 
-    service = new AccountService(
+    service = new AccountServiceImpl(
       mockAccountRepository,
       mockTransactionRepository,
     );

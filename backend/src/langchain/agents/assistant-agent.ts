@@ -3,14 +3,17 @@ import { createAgent, dynamicSystemPromptMiddleware } from "langchain";
 import { AccountRepository } from "../../ports/account-repository";
 import { CategoryRepository } from "../../ports/category-repository";
 import { TransactionRepository } from "../../ports/transaction-repository";
+import { AccountService } from "../../services/account-service";
 import { TransactionService } from "../../services/transaction-service";
 import { createAggregateTransactionsTool } from "../tools/aggregate-transactions";
+import { createCreateAccountTool } from "../tools/create-account";
 import { createCreateTransactionSubagentTool } from "../tools/create-transaction-subagent";
 import { createGetAccountsTool } from "../tools/get-accounts";
 import { createGetCategoriesTool } from "../tools/get-categories";
 import { createGetTransactionsTool } from "../tools/get-transactions";
 import { createJokeTool } from "../tools/joke";
 import { avgTool, calculateTool, sumTool } from "../tools/math";
+import { createUpdateAccountTool } from "../tools/update-account";
 import { AgentContext, agentContextSchema } from "./agent-context";
 
 const SYSTEM_PROMPT = `
@@ -85,12 +88,14 @@ treat it as a request to log a transaction.
 export function createAssistantAgent({
   model,
   accountRepository,
+  accountService,
   categoryRepository,
   transactionRepository,
   transactionService,
 }: {
   model: BaseChatModel;
   accountRepository: AccountRepository;
+  accountService: AccountService;
   categoryRepository: CategoryRepository;
   transactionRepository: TransactionRepository;
   transactionService: TransactionService;
@@ -110,6 +115,10 @@ export function createAssistantAgent({
   ];
 
   const mathTools = [avgTool, calculateTool, sumTool];
+  const writeTools = [
+    createCreateAccountTool({ accountService }),
+    createUpdateAccountTool({ accountService }),
+  ];
   const subagentTools = [
     createJokeTool(model),
     createCreateTransactionSubagentTool({
@@ -120,7 +129,7 @@ export function createAssistantAgent({
       transactionService,
     }),
   ];
-  const tools = [...dataTools, ...mathTools, ...subagentTools];
+  const tools = [...dataTools, ...mathTools, ...writeTools, ...subagentTools];
 
   return createAgent({
     model,

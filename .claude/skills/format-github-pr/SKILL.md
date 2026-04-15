@@ -49,10 +49,11 @@ Also factor in any context the user provided — they often know things the diff
 - Lowercase except proper nouns and acronyms (API, URL, CDK, AWS, etc.)
 - Imperative mood: `add`, `fix`, `update`, `remove`, `migrate`, `replace`, etc.
 - Describe what changes for the user — not what was technically done
+- Keep it short. Cut every word that does not change meaning
 - No trailing period
 
-**Good:** `let users filter transactions by date range`
-**Avoid:** `add date filter API endpoint`, `Update transaction page`, `Fix issue`, `refactor auth middleware`
+**Good:** `filter transactions by date range`
+**Avoid:** `let users filter transactions by date range`, `add date filter API endpoint`, `Update transaction page`, `Fix issue`, `refactor auth middleware`
 
 ## Step 5: Write the description
 

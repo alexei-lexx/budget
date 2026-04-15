@@ -10,7 +10,7 @@ import { DynChatMessageRepository } from "./repositories/dyn-chat-message-reposi
 import { DynTelegramBotRepository } from "./repositories/dyn-telegram-bot-repository";
 import { DynTransactionRepository } from "./repositories/dyn-transaction-repository";
 import { DynUserRepository } from "./repositories/dyn-user-repository";
-import { AccountService } from "./services/account-service";
+import { AccountServiceImpl } from "./services/account-service";
 import { AssistantChatServiceImpl } from "./services/assistant-chat-service";
 import { AssistantServiceImpl } from "./services/assistant-service";
 import { ByCategoryReportService } from "./services/by-category-report-service";
@@ -60,7 +60,7 @@ export const resolveUserRepository = createSingleton(
 // CRUD services
 export const resolveAccountService = createSingleton(
   () =>
-    new AccountService(
+    new AccountServiceImpl(
       resolveAccountRepository(),
       resolveTransactionRepository(),
     ),
@@ -119,6 +119,7 @@ export const resolveAssistantAgent = createSingleton(
       createAssistantAgent({
         model: resolveBedrockChatModel(),
         accountRepository: resolveAccountRepository(),
+        accountService: resolveAccountService(),
         categoryRepository: resolveCategoryRepository(),
         transactionRepository: resolveTransactionRepository(),
         transactionService: resolveTransactionService(),
