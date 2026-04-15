@@ -107,7 +107,6 @@ Account ID: <account ID>
 Account name: <account name>
 Category ID: <category ID or N/A>
 Category name: <category name or N/A>
-Category ID: <category ID or N/A>
 Currency: <currency>
 Amount: <amount>
 Date: <YYYY-MM-DD>
