@@ -5,6 +5,7 @@ import { formatDateAsYYYYMMDD } from "../utils/date";
 export interface AssistantInput {
   question: string;
   history?: readonly AgentMessage[];
+  isVoiceInput?: boolean;
 }
 
 type AssistantOutput = Result<
@@ -18,7 +19,11 @@ export interface AssistantService {
 
 export class AssistantServiceImpl implements AssistantService {
   constructor(
-    private assistantAgent: Agent<{ today: string; userId: string }>,
+    private assistantAgent: Agent<{
+      isVoiceInput: boolean;
+      today: string;
+      userId: string;
+    }>,
   ) {}
 
   async call(userId: string, input: AssistantInput): Promise<AssistantOutput> {
@@ -43,7 +48,13 @@ export class AssistantServiceImpl implements AssistantService {
 
     const response = await this.assistantAgent.invoke(
       { messages },
-      { context: { userId, today: formatDateAsYYYYMMDD(new Date()) } },
+      {
+        context: {
+          isVoiceInput: input.isVoiceInput ?? false,
+          today: formatDateAsYYYYMMDD(new Date()),
+          userId,
+        },
+      },
     );
 
     const { answer: rawAnswer, agentTrace } = response;

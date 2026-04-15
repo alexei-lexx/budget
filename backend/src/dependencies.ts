@@ -121,6 +121,7 @@ export const resolveAssistantAgent = createSingleton(
         accountRepository: resolveAccountRepository(),
         categoryRepository: resolveCategoryRepository(),
         transactionRepository: resolveTransactionRepository(),
+        transactionService: resolveTransactionService(),
       }),
     ),
 );

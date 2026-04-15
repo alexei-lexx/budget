@@ -3,7 +3,9 @@ import { createAgent, dynamicSystemPromptMiddleware } from "langchain";
 import { AccountRepository } from "../../ports/account-repository";
 import { CategoryRepository } from "../../ports/category-repository";
 import { TransactionRepository } from "../../ports/transaction-repository";
+import { TransactionService } from "../../services/transaction-service";
 import { createAggregateTransactionsTool } from "../tools/aggregate-transactions";
+import { createCreateTransactionSubagentTool } from "../tools/create-transaction-subagent";
 import { createGetAccountsTool } from "../tools/get-accounts";
 import { createGetCategoriesTool } from "../tools/get-categories";
 import { createGetTransactionsTool } from "../tools/get-transactions";
@@ -48,6 +50,12 @@ If you assumed a time period, state it in the answer.
 - For each calculation, always state the number of transactions included
 - Apply filtering consistently
 
+## Clarification Rule
+
+When it is unclear whether the user wants to
+log a transaction or ask a question about their finances,
+ask a clarifying question instead of guessing.
+
 ## Output
 
 - Keep the answer concise and focused on the question
@@ -60,11 +68,13 @@ export function createAssistantAgent({
   accountRepository,
   categoryRepository,
   transactionRepository,
+  transactionService,
 }: {
   model: BaseChatModel;
   accountRepository: AccountRepository;
   categoryRepository: CategoryRepository;
   transactionRepository: TransactionRepository;
+  transactionService: TransactionService;
 }) {
   const dataTools = [
     createGetAccountsTool(accountRepository),
@@ -81,7 +91,16 @@ export function createAssistantAgent({
   ];
 
   const mathTools = [avgTool, calculateTool, sumTool];
-  const subagentTools = [createJokeTool(model)];
+  const subagentTools = [
+    createJokeTool(model),
+    createCreateTransactionSubagentTool({
+      model,
+      accountRepository,
+      categoryRepository,
+      transactionRepository,
+      transactionService,
+    }),
+  ];
   const tools = [...dataTools, ...mathTools, ...subagentTools];
 
   return createAgent({

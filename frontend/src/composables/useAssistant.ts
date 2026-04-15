@@ -65,7 +65,7 @@ export function useAssistant() {
 
   const { mutate: askAssistantMutation, loading: askAssistantLoading } = useAskAssistantMutation();
 
-  const askAssistant = async (question: string): Promise<void> => {
+  const askAssistant = async (question: string, isVoiceInput?: boolean): Promise<void> => {
     askAssistantError.value = null; // Reset error before new request
 
     try {
@@ -73,6 +73,7 @@ export function useAssistant() {
         input: {
           question,
           sessionId: sessionId.value ?? undefined,
+          isVoiceInput: isVoiceInput || undefined,
         },
       });
       const response = result?.data?.askAssistant ?? null;

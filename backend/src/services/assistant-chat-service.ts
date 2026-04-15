@@ -7,6 +7,7 @@ import { AssistantService } from "./assistant-service";
 
 export interface AssistantChatInput {
   question: string;
+  isVoiceInput?: boolean;
   sessionId?: string;
 }
 
@@ -75,6 +76,7 @@ export class AssistantChatServiceImpl implements AssistantChatService {
     const result = await this.assistantService.call(userId, {
       question: input.question,
       history,
+      isVoiceInput: input.isVoiceInput,
     });
 
     if (!result.success) {

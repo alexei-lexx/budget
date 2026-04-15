@@ -271,6 +271,11 @@ input TransactionFilterInput {
 input AssistantInput {
   question: String!
   sessionId: ID
+  """
+  Whether the question was captured via voice recognition.
+  When true, the assistant agent uses voice-input disambiguation when creating transactions.
+  """
+  isVoiceInput: Boolean
 }
 
 type PageInfo {
