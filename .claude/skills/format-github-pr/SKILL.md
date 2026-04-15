@@ -48,11 +48,11 @@ Also factor in any context the user provided — they often know things the diff
 
 - Lowercase except proper nouns and acronyms (API, URL, CDK, AWS, etc.)
 - Imperative mood: `add`, `fix`, `update`, `remove`, `migrate`, `replace`, etc.
-- Specific — describe the actual change, not a vague intent
+- Describe what changes for the user — not what was technically done
 - No trailing period
 
-**Good:** `add start/end date filters to transaction list`
-**Avoid:** `Update transaction page`, `Fix issue`, `Various improvements`
+**Good:** `let users filter transactions by date range`
+**Avoid:** `add date filter API endpoint`, `Update transaction page`, `Fix issue`, `refactor auth middleware`
 
 ## Step 5: Write the description
 
@@ -79,15 +79,16 @@ Also factor in any context the user provided — they often know things the diff
 
 Include the following sections in the description:
 
-- **context** — Why this change is needed
-  - The motivation or pain point it addresses
-  - Which features or areas of the product are affected
+- **context** — Why this change is needed, from the user's perspective
+  - The pain point or unmet need the user experiences
+  - Which part of the product they're affected by
+  - No technical details — no code, APIs, architecture, or implementation
 - **before** — Describe current behavior or limitations
 - **after** — Describe new behavior or improvements
 
 Follow these rules strictly for `before` and `after` sections:
 
-- Do not explain the code change — explain its purpose or user-facing effect
+- Write only what users experience — no code, APIs, architecture, or implementation
 - Describe changes in user interface and user behaviour
 - Use bullet points
 - One distinct fact per bullet — never combine multiple facts into one bullet
@@ -99,11 +100,12 @@ Follow these rules strictly for `before` and `after` sections:
 
 ### Example
 
+**Good (user-facing):**
+
 ```
 ## context
 
-Users have to manually refresh the page to see updates made by other users,
-leading to stale data and confusion.
+Users have to manually refresh the page to see updates made by other users, leading to stale data and confusion.
 
 ## before
 
@@ -116,6 +118,24 @@ leading to stale data and confusion.
 - Users see changes from other users automatically
 - Users work with current information
 - Users don't need to manually refresh
+```
+
+**Bad (technical, not user-facing):**
+
+```
+## context
+
+The WebSocket subscription handler did not invalidate the Apollo cache on remote mutation events.
+
+## before
+
+- Cache invalidation was not triggered on remote updates
+- The component used stale props
+
+## after
+
+- Added subscription listener to Apollo client
+- Cache is now invalidated on mutation broadcast
 ```
 
 ## Step 6: Present the result
