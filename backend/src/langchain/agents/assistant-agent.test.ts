@@ -2,9 +2,11 @@ import { faker } from "@faker-js/faker";
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import { BaseChatModel } from "@langchain/core/language_models/chat_models";
 import { createAgent, dynamicSystemPromptMiddleware } from "langchain";
+import { TransactionService } from "../../services/transaction-service";
 import { createMockAccountRepository } from "../../utils/test-utils/repositories/account-repository-mocks";
 import { createMockCategoryRepository } from "../../utils/test-utils/repositories/category-repository-mocks";
 import { createMockTransactionRepository } from "../../utils/test-utils/repositories/transaction-repository-mocks";
+import { createCreateTransactionSubagentTool } from "../tools/create-transaction-subagent";
 import { createJokeTool } from "../tools/joke";
 import { createAssistantAgent } from "./assistant-agent";
 
@@ -22,6 +24,10 @@ jest.mock("../tools/joke", () => ({
   createJokeTool: jest.fn(),
 }));
 
+jest.mock("../tools/create-transaction-subagent", () => ({
+  createCreateTransactionSubagentTool: jest.fn(),
+}));
+
 const mockDynamicSystemPromptMiddleware = jest.mocked(
   dynamicSystemPromptMiddleware,
 );
@@ -34,6 +40,9 @@ describe("createAssistantAgent", () => {
     mockModel = {} as BaseChatModel;
     (createAgent as jest.Mock).mockReturnValue({ invoke: jest.fn() });
     (createJokeTool as jest.Mock).mockReturnValue({ name: "joke" });
+    (createCreateTransactionSubagentTool as jest.Mock).mockReturnValue({
+      name: "create_transaction_subagent",
+    });
   });
 
   it("should call createAgent", () => {
@@ -43,6 +52,7 @@ describe("createAssistantAgent", () => {
       accountRepository: createMockAccountRepository(),
       categoryRepository: createMockCategoryRepository(),
       transactionRepository: createMockTransactionRepository(),
+      transactionService: {} as TransactionService,
     });
 
     // Assert
@@ -56,12 +66,13 @@ describe("createAssistantAgent", () => {
     expect(model).toBe(mockModel);
 
     const toolNames = tools.map((tool) => tool.name);
-    expect(toolNames).toHaveLength(8);
+    expect(toolNames).toHaveLength(9);
     expect(toolNames).toEqual(
       expect.arrayContaining([
         "aggregate_transactions",
         "avg",
         "calculate",
+        "create_transaction_subagent",
         "get_accounts",
         "get_categories",
         "get_transactions",
@@ -98,6 +109,7 @@ describe("createAssistantAgent", () => {
       accountRepository: createMockAccountRepository(),
       categoryRepository: createMockCategoryRepository(),
       transactionRepository: createMockTransactionRepository(),
+      transactionService: {} as TransactionService,
     });
 
     // Assert

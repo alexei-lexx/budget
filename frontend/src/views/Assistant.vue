@@ -79,13 +79,13 @@ const saveInput = () => {
 const storedInput = loadStoredInput();
 const question = ref<string>(storedInput.question ?? "");
 
-const handleAskQuestion = async () => {
+const handleAskQuestion = async (isVoiceInput: boolean) => {
   const trimmedQuestion = question.value.trim();
   if (!trimmedQuestion) {
     return;
   }
 
-  await askAssistant(trimmedQuestion);
+  await askAssistant(trimmedQuestion, isVoiceInput);
 
   if (askAssistantError.value) {
     showErrorSnackbar(askAssistantError.value);

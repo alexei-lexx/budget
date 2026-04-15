@@ -12,7 +12,11 @@ import {
 } from "./assistant-service";
 
 const createMockAssistantAgent = (): jest.Mocked<
-  Agent<{ today: string; userId: string }>
+  Agent<{
+    isVoiceInput: boolean;
+    today: string;
+    userId: string;
+  }>
 > => ({
   invoke: jest.fn(),
 });
@@ -20,7 +24,13 @@ const createMockAssistantAgent = (): jest.Mocked<
 describe("AssistantService", () => {
   let service: AssistantService;
   let userId: string;
-  let mockAssistantAgent: jest.Mocked<Agent<{ today: string; userId: string }>>;
+  let mockAssistantAgent: jest.Mocked<
+    Agent<{
+      isVoiceInput: boolean;
+      today: string;
+      userId: string;
+    }>
+  >;
 
   beforeEach(() => {
     mockAssistantAgent = createMockAssistantAgent();
@@ -142,6 +152,44 @@ describe("AssistantService", () => {
         { context: { today: string } },
       ];
       expect(config.context.today).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    });
+
+    it("should pass isVoiceInput: false in context when not provided", async () => {
+      // Arrange
+      mockAssistantAgent.invoke.mockResolvedValue({
+        answer: "Answer",
+        agentTrace: [],
+        toolExecutions: [],
+      });
+
+      // Act
+      await service.call(userId, validInput);
+
+      // Assert
+      const [, config] = mockAssistantAgent.invoke.mock.calls[0] as [
+        unknown,
+        { context: { isVoiceInput: boolean } },
+      ];
+      expect(config.context.isVoiceInput).toBe(false);
+    });
+
+    it("should pass isVoiceInput: true in context when provided", async () => {
+      // Arrange
+      mockAssistantAgent.invoke.mockResolvedValue({
+        answer: "Answer",
+        agentTrace: [],
+        toolExecutions: [],
+      });
+
+      // Act
+      await service.call(userId, { ...validInput, isVoiceInput: true });
+
+      // Assert
+      const [, config] = mockAssistantAgent.invoke.mock.calls[0] as [
+        unknown,
+        { context: { isVoiceInput: boolean } },
+      ];
+      expect(config.context.isVoiceInput).toBe(true);
     });
 
     it("should prepend history messages before the user question", async () => {

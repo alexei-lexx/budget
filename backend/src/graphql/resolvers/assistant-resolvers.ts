@@ -14,6 +14,7 @@ export const assistantResolvers = {
 
         const result = await context.assistantChatService.call(user.id, {
           question: args.input.question,
+          isVoiceInput: args.input.isVoiceInput || undefined,
           sessionId: args.input.sessionId || undefined,
         });
 

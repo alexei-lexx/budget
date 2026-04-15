@@ -54,6 +54,11 @@ export type AssistantFailure = {
 };
 
 export type AssistantInput = {
+  /**
+   * Whether the question was captured via voice recognition.
+   * When true, the assistant agent uses voice-input disambiguation when creating transactions.
+   */
+  isVoiceInput?: InputMaybe<Scalars['Boolean']['input']>;
   question: Scalars['String']['input'];
   sessionId?: InputMaybe<Scalars['ID']['input']>;
 };

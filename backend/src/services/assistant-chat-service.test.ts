@@ -203,6 +203,47 @@ describe("AssistantChatService", () => {
       });
     });
 
+    it("should forward isVoiceInput to AssistantService when provided", async () => {
+      // Arrange
+      chatMessageRepository.findManyRecentBySessionId.mockResolvedValue([]);
+      chatMessageRepository.create.mockResolvedValue(fakeChatMessage());
+      assistantService.call.mockResolvedValue({
+        success: true,
+        data: { answer: "Answer", agentTrace: [] },
+      });
+
+      // Act
+      await service.call(userId, {
+        question: "coffee 5€",
+        isVoiceInput: true,
+      });
+
+      // Assert
+      expect(assistantService.call).toHaveBeenCalledWith(
+        userId,
+        expect.objectContaining({ isVoiceInput: true }),
+      );
+    });
+
+    it("should forward isVoiceInput: undefined to AssistantService when not provided", async () => {
+      // Arrange
+      chatMessageRepository.findManyRecentBySessionId.mockResolvedValue([]);
+      chatMessageRepository.create.mockResolvedValue(fakeChatMessage());
+      assistantService.call.mockResolvedValue({
+        success: true,
+        data: { answer: "Answer", agentTrace: [] },
+      });
+
+      // Act
+      await service.call(userId, { question: "How much did I spend?" });
+
+      // Assert
+      expect(assistantService.call).toHaveBeenCalledWith(
+        userId,
+        expect.objectContaining({ isVoiceInput: undefined }),
+      );
+    });
+
     it("should call repository with maxMessages limit", async () => {
       // Arrange
       const sessionId = faker.string.uuid();

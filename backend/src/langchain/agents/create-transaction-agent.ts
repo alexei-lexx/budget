@@ -95,8 +95,24 @@ You MUST infer all mandatory and optional transaction fields and then MUST persi
 
 ## Output
 
-- If the transaction is successfully created, respond with OK
-- If the transaction cannot be created, respond with an error message explaining why
+- If the transaction is successfully created, respond in the exact format inside \`<successful-response>\`
+- Do not include the \`<successful-response>\` tags in the output
+- If the transaction cannot be created, respond with an error message explaining why.
+
+<successful-response>
+Transaction created successfully
+ID: <transaction ID>
+Type: <transaction type>
+Account ID: <account ID>
+Account name: <account name>
+Category ID: <category ID or N/A>
+Category name: <category name or N/A>
+Category ID: <category ID or N/A>
+Currency: <currency>
+Amount: <amount>
+Date: <YYYY-MM-DD>
+Description: <description or N/A>
+</successful-response>
 `.trim();
 
 export function createCreateTransactionAgent({
