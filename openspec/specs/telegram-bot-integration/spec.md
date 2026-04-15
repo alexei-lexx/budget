@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This domain covers connecting a personal Telegram bot to the application, managing its lifecycle (connect, test, disconnect), and routing user messages through the AI service to provide conversational responses via Telegram.
+This domain covers connecting a personal Telegram bot to the application, managing its lifecycle (connect, test, disconnect), and routing user messages through the Assistant to provide conversational responses via Telegram.
 
 ## Requirements
 
@@ -52,7 +52,7 @@ The system SHALL allow at most one connected bot per user at a time. To connect 
 - **WHEN** a user has a bot connected
 - **THEN** the token input and Connect button are not shown; only the masked token, Test, and Disconnect are visible
 
-### Requirement: Telegram text message answered by AI
+### Requirement: Telegram text message answered by Assistant
 
 The system SHALL route text messages sent to the connected bot through the Assistant, using prior exchanges from the current chat as context, and send the Assistant's response back to the user via Telegram. The Telegram bot SHALL inherit every capability the Assistant offers on the web Assistant page; any new Assistant capability SHALL be available through the bot without a separate Telegram-side requirement.
 
@@ -61,7 +61,7 @@ The system SHALL route text messages sent to the connected bot through the Assis
 - **WHEN** the user sends a text message to their connected bot in Telegram
 - **THEN** the bot replies with the Assistant's answer
 
-#### Scenario: AI service fails
+#### Scenario: Assistant fails to produce an answer
 
 - **WHEN** the user sends a text message but the Assistant is unable to produce an answer
 - **THEN** the bot replies with an error message
@@ -92,12 +92,12 @@ The system SHALL route text messages sent to the connected bot through the Assis
 
 ### Requirement: Immediate acknowledgement on text message
 
-The system SHALL show a typing indicator to the user immediately upon receiving a text message, before the AI processes it.
+The system SHALL show a typing indicator to the user immediately upon receiving a text message, before the Assistant processes it.
 
 #### Scenario: User sends a text message
 
 - **WHEN** the user sends a text message to their connected bot in Telegram
-- **THEN** the bot shows the native Telegram typing indicator while the AI processes the request, and sends only the AI answer as a reply
+- **THEN** the bot shows the native Telegram typing indicator while the Assistant processes the request, and sends only the Assistant's answer as a reply
 
 ### Requirement: Non-text messages rejected
 
@@ -107,4 +107,3 @@ The system SHALL reply with a standard message when the user sends a non-text me
 
 - **WHEN** the user sends a photo, sticker, voice note, or other non-text content
 - **THEN** the bot replies "I can only process text messages"
-
