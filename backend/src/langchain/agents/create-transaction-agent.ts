@@ -97,6 +97,8 @@ You MUST infer all mandatory and optional transaction fields and then MUST persi
 
 - If the transaction is successfully created, respond in the exact format inside \`<successful-response>\`
 - Do not include the \`<successful-response>\` tags in the output
+- Every field value MUST be copied verbatim from the created transaction returned by the tool
+- Do NOT use inferred values, prior conversation, or your own reasoning for the output fields
 - If the transaction cannot be created, respond with an error message explaining why.
 
 <successful-response>
