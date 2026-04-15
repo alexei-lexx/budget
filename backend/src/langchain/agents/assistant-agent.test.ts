@@ -2,12 +2,15 @@ import { faker } from "@faker-js/faker";
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import { BaseChatModel } from "@langchain/core/language_models/chat_models";
 import { createAgent, dynamicSystemPromptMiddleware } from "langchain";
+import { AccountService } from "../../services/account-service";
 import { TransactionService } from "../../services/transaction-service";
 import { createMockAccountRepository } from "../../utils/test-utils/repositories/account-repository-mocks";
 import { createMockCategoryRepository } from "../../utils/test-utils/repositories/category-repository-mocks";
 import { createMockTransactionRepository } from "../../utils/test-utils/repositories/transaction-repository-mocks";
+import { createCreateAccountTool } from "../tools/create-account";
 import { createCreateTransactionSubagentTool } from "../tools/create-transaction-subagent";
 import { createJokeTool } from "../tools/joke";
+import { createUpdateAccountTool } from "../tools/update-account";
 import { createAssistantAgent } from "./assistant-agent";
 
 jest.mock("langchain", () => {
@@ -28,6 +31,14 @@ jest.mock("../tools/create-transaction-subagent", () => ({
   createCreateTransactionSubagentTool: jest.fn(),
 }));
 
+jest.mock("../tools/create-account", () => ({
+  createCreateAccountTool: jest.fn(),
+}));
+
+jest.mock("../tools/update-account", () => ({
+  createUpdateAccountTool: jest.fn(),
+}));
+
 const mockDynamicSystemPromptMiddleware = jest.mocked(
   dynamicSystemPromptMiddleware,
 );
@@ -43,15 +54,25 @@ describe("createAssistantAgent", () => {
     (createCreateTransactionSubagentTool as jest.Mock).mockReturnValue({
       name: "create_transaction_subagent",
     });
+    (createCreateAccountTool as jest.Mock).mockReturnValue({
+      name: "create_account",
+    });
+    (createUpdateAccountTool as jest.Mock).mockReturnValue({
+      name: "update_account",
+    });
   });
 
   it("should call createAgent", () => {
+    // Arrange
+    const accountService = {} as AccountService;
+
     // Act
     createAssistantAgent({
       model: mockModel,
       accountRepository: createMockAccountRepository(),
       categoryRepository: createMockCategoryRepository(),
       transactionRepository: createMockTransactionRepository(),
+      accountService,
       transactionService: {} as TransactionService,
     });
 
@@ -66,18 +87,20 @@ describe("createAssistantAgent", () => {
     expect(model).toBe(mockModel);
 
     const toolNames = tools.map((tool) => tool.name);
-    expect(toolNames).toHaveLength(9);
+    expect(toolNames).toHaveLength(11);
     expect(toolNames).toEqual(
       expect.arrayContaining([
         "aggregate_transactions",
         "avg",
         "calculate",
+        "create_account",
         "create_transaction_subagent",
         "get_accounts",
         "get_categories",
         "get_transactions",
         "joke",
         "sum",
+        "update_account",
       ]),
     );
 
@@ -107,6 +130,7 @@ describe("createAssistantAgent", () => {
     const result = createAssistantAgent({
       model: mockModel,
       accountRepository: createMockAccountRepository(),
+      accountService: {} as AccountService,
       categoryRepository: createMockCategoryRepository(),
       transactionRepository: createMockTransactionRepository(),
       transactionService: {} as TransactionService,
