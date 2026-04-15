@@ -1,16 +1,9 @@
 ---
-name: backend-service-tests
-description: Use when writing, rewriting, reviewing, adding, or modifying tests for backend services in backend/src/services/.
+name: jest-tests
+description: Use when writing, rewriting, reviewing, adding, or modifying Jest tests.
 ---
 
-# backend-service-tests
-
-Services implement business logic: validation, domain rules, and orchestration across repositories.
-
-- Called by GraphQL resolvers, call repositories to read/write data
-- Return `{ success: true, data }` or `{ success: false, error }` for all expected outcomes
-- Throw exceptions for infrastructure errors (DB failures)
-- Dependencies (repositories, external clients) are injected via the constructor
+# jest-tests
 
 ## Scope
 
@@ -23,8 +16,21 @@ Co-locate: `service-name.test.ts` next to `service-name.ts`.
 
 ## What to test
 
-Test all public methods unless the user says otherwise.
-Order `describe` blocks to match the method order in the source file.
+Test the public API of the unit under test (exported functions, class methods).
+Order `describe` blocks to match the declaration order in the source file.
+
+## What not to test
+
+Don't test implementation details (private helpers, internal state).
+Don't re-test library or framework behavior.
+Don't assert on things the type system already guarantees.
+
+## Test naming
+
+Name tests with `it("should ...")` or `it("should ... when ...")` describing the expected behavior, not the implementation.
+
+Good: `it("should return failure when name is empty")`
+Bad: `it("calls findByName then throws")`
 
 ## Test structure per method
 
@@ -61,11 +67,31 @@ Add a short comment above each mock setup in `// Arrange` explaining what it sim
 
 Each test asserts the return value first, then verifies dependency calls.
 
+## Async tests
+
+Use `async/await`, not `.then()`.
+Assert on resolved values with `await expect(fn()).resolves.toEqual(...)` or store and assert on the result.
+For rejections, use `await expect(fn()).rejects.toThrow(...)`.
+
+## Timers and dates
+
+Use `jest.useFakeTimers()` when the code under test depends on `setTimeout`, `setInterval`, or `Date.now()`.
+Advance time explicitly with `jest.advanceTimersByTime(ms)` or `jest.runAllTimers()`.
+Restore real timers with `jest.useRealTimers()` in `afterEach`.
+
+## Test isolation
+
+Tests must not share mutable state.
+Reset mocks in `beforeEach` (or rely on `resetMocks: true` in Jest config).
+Avoid `beforeAll` for state that any test could mutate.
+
 ## Mocks and fakes
 
 **Mocks** replace real dependencies (repositories, clients) with Jest mock objects whose return values can be controlled per test.
 
 **Fakes** are factory functions that create realistic test data (entities, input objects) with randomized defaults via `faker`.
+
+The paths below follow the backend layout.
 
 - **Model fakes** (entity objects) — `backend/src/utils/test-utils/models/<model name>-fakes.ts`
 - **Repository mocks** — `backend/src/utils/test-utils/repositories/<repository name>-mocks.ts`
