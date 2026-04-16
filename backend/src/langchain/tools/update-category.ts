@@ -12,7 +12,7 @@ const schema = z
     id: z.uuid().describe("Category ID to update"),
     name: z.string().optional().describe("New category name"),
     type: z
-      .nativeEnum(CategoryType)
+      .enum(CategoryType)
       .optional()
       .describe("New category type: INCOME or EXPENSE"),
   })
