@@ -1,13 +1,15 @@
 import { tool } from "langchain";
 import { z } from "zod";
-import { CategoryType } from "../../models/category";
 import { CategoryRepository } from "../../ports/category-repository";
 import { TransactionRepository } from "../../ports/transaction-repository";
 import { toDateString } from "../../types/date";
 import { Success } from "../../types/result";
 import { daysAgo, formatDateAsYYYYMMDD } from "../../utils/date";
 import { agentContextSchema } from "../agents/agent-context";
+import { CategoryDto, toCategoryDto } from "./category-dto";
 import { EntityScope } from "./get-accounts";
+
+type CategoryData = CategoryDto & { recentDescriptions: string[] };
 
 export const CATEGORY_HISTORY_LOOKBACK_DAYS = 90;
 export const CATEGORY_HISTORY_MAX_DESCRIPTIONS_PER_CATEGORY = 10;
@@ -19,14 +21,6 @@ const schema = z.object({
       `Which categories to retrieve: "${EntityScope.ACTIVE}" for active (non-archived) only, "${EntityScope.ARCHIVED}" for archived only, "${EntityScope.ALL}" for both active and archived`,
     ),
 });
-
-interface CategoryData {
-  id: string;
-  name: string;
-  type: CategoryType;
-  isArchived: boolean;
-  recentDescriptions: string[];
-}
 
 export const createGetCategoriesTool = ({
   categoryRepository,
@@ -55,10 +49,7 @@ export const createGetCategoriesTool = ({
 
       const categoryDataList: CategoryData[] = filteredCategories.map(
         (category) => ({
-          id: category.id,
-          name: category.name,
-          type: category.type,
-          isArchived: category.isArchived,
+          ...toCategoryDto(category),
           recentDescriptions: [],
         }),
       );

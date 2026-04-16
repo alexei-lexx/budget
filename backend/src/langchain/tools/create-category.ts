@@ -7,6 +7,12 @@ import { agentContextSchema } from "../agents/agent-context";
 import { toCategoryDto } from "./category-dto";
 
 const schema = z.object({
+  excludeFromReports: z
+    .boolean()
+    .default(false)
+    .describe(
+      "Whether to exclude transactions in this category from financial reports.",
+    ),
   name: z.string().describe("Category name"),
   type: z
     .enum(CategoryType)
@@ -25,6 +31,9 @@ If the requested name is a semantic near-variant of an existing active one
 (pluralisation, typo, abbreviation, or synonym)
 ask the user to confirm before creating.
 Archived categories are not considered — reusing an archived category's name is not a duplicate.
+
+Set excludeFromReports to true if the user wants transactions in this category
+excluded from financial reports and spending/income calculations.
 `.trim();
 
 export const createCreateCategoryTool = ({
@@ -33,7 +42,7 @@ export const createCreateCategoryTool = ({
   categoryService: CategoryService;
 }) => {
   return tool(
-    async (input: CreateCategoryInput, config) => {
+    async (input, config) => {
       const userId = agentContextSchema.shape.userId.parse(
         config?.context?.userId,
       );
@@ -42,7 +51,7 @@ export const createCreateCategoryTool = ({
         userId,
         name: input.name,
         type: input.type,
-        excludeFromReports: false,
+        excludeFromReports: input.excludeFromReports,
       });
 
       return Success(toCategoryDto(created));

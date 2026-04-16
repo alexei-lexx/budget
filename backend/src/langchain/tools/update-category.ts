@@ -10,6 +10,12 @@ import { toCategoryDto } from "./category-dto";
 const schema = z
   .object({
     id: z.uuid().describe("Category ID to update"),
+    excludeFromReports: z
+      .boolean()
+      .optional()
+      .describe(
+        "New report-exclusion setting. Whether to exclude transactions in this category from financial reports.",
+      ),
     name: z.string().optional().describe("New category name"),
     type: z
       .enum(CategoryType)
@@ -23,7 +29,7 @@ const schema = z
 export type UpdateCategoryInput = z.infer<typeof schema>;
 
 const description = `
-Update an existing category's name and/or type.
+Update an existing category's name, type, and/or report-exclusion setting.
 
 Before calling, check the user's existing active (non-archived) categories
 to resolve the category id (never guess it or accept it from user input).
@@ -32,7 +38,8 @@ If the requested new name is a semantic near-variant of another existing active 
 ask the user to confirm before updating.
 Archived categories are not considered — reusing an archived category's name is not a duplicate.
 
-Changing a category's excludeFromReports setting is not supported.
+Set excludeFromReports to control whether transactions in this category
+are excluded from financial reports and spending/income calculations.
 `.trim();
 
 export const createUpdateCategoryTool = ({
@@ -47,6 +54,9 @@ export const createUpdateCategoryTool = ({
       );
 
       const serviceInput: UpdateCategoryServiceInput = {
+        ...(input.excludeFromReports !== undefined && {
+          excludeFromReports: input.excludeFromReports,
+        }),
         ...(input.name !== undefined && { name: input.name }),
         ...(input.type !== undefined && { type: input.type }),
       };

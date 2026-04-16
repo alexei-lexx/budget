@@ -177,6 +177,7 @@ describe("createGetCategoriesTool", () => {
       success: true,
       data: [
         {
+          excludeFromReports: mockCategories[0].excludeFromReports,
           id: mockCategories[0].id,
           name: "Groceries",
           type: CategoryType.EXPENSE,
@@ -184,6 +185,7 @@ describe("createGetCategoriesTool", () => {
           recentDescriptions: [],
         },
         {
+          excludeFromReports: mockCategories[1].excludeFromReports,
           id: mockCategories[1].id,
           name: "Salary",
           type: CategoryType.INCOME,
