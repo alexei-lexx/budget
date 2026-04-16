@@ -25,8 +25,8 @@ export type UpdateCategoryInput = z.infer<typeof schema>;
 const description = `
 Update an existing category's name and/or type.
 
-Before calling, you MUST check the user's existing categories to resolve the category id
-(never guess it or accept it from user input).
+Before calling, check the user's existing categories
+to resolve the category id (never guess it or accept it from user input).
 If the requested new name is a semantic near-variant of another existing category
 (pluralisation, typo, abbreviation, or synonym)
 ask the user to confirm before updating.
