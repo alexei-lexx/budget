@@ -20,10 +20,11 @@ export type CreateCategoryInput = z.infer<typeof schema>;
 const description = `
 Create a new category for the user.
 
-Before calling, check the user's existing categories.
-If the requested name is a semantic near-variant of an existing one
+Before calling, check the user's existing active (non-archived) categories.
+If the requested name is a semantic near-variant of an existing active one
 (pluralisation, typo, abbreviation, or synonym)
 ask the user to confirm before creating.
+Archived categories are not considered — reusing an archived category's name is not a duplicate.
 `.trim();
 
 export const createCreateCategoryTool = ({
