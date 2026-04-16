@@ -42,7 +42,7 @@ describe("createUpdateCategoryTool", () => {
 
     const input = {
       id: categoryId,
-      excludeFromReports: true,
+      excludeFromReports: faker.datatype.boolean(),
     };
 
     // Act
@@ -57,7 +57,7 @@ describe("createUpdateCategoryTool", () => {
     expect(mockCategoryService.updateCategory).toHaveBeenCalledWith(
       categoryId,
       userId,
-      { excludeFromReports: true },
+      { excludeFromReports: input.excludeFromReports },
     );
   });
 
