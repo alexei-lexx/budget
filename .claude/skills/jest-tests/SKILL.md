@@ -29,8 +29,11 @@ Don't assert on things the type system already guarantees.
 
 Name tests with `it("should ...")` or `it("should ... when ...")` describing the expected behavior, not the implementation.
 
-Good: `it("should return failure when name is empty")`
-Bad: `it("calls findByName then throws")`
+Omit articles (`a`, `an`, `the`) from test names and comments.
+
+- Good: `it("should return failure when name is empty")`
+- Bad: `it("calls findByName then throws")`
+- Bad: `it("should return a failure when the name is empty")`
 
 ## Test structure per method
 
@@ -64,6 +67,10 @@ Each `it` block uses `// Arrange`, `// Act`, `// Assert` sections:
 - Use `// Act & Assert` when the action and assertion are a single command
 
 Add a short comment above each mock setup in `// Arrange` explaining what it simulates.
+Omit articles (`a`, `an`, `the`) from comments:
+
+- Good: `// Persists and returns new widget`
+- Bad: `// Persists and returns the new widget`
 
 Each test asserts the return value first, then verifies dependency calls.
 

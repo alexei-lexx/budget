@@ -6,10 +6,7 @@ import { CategoryService } from "../../services/category-service";
 import { fakeCategory } from "../../utils/test-utils/models/category-fakes";
 import { createMockCategoryService } from "../../utils/test-utils/services/category-service-mocks";
 import { toCategoryDto } from "./category-dto";
-import {
-  UpdateCategoryInput,
-  createUpdateCategoryTool,
-} from "./update-category";
+import { createUpdateCategoryTool } from "./update-category";
 
 describe("createUpdateCategoryTool", () => {
   let mockCategoryService: jest.Mocked<CategoryService>;
@@ -31,18 +28,52 @@ describe("createUpdateCategoryTool", () => {
 
   // Happy path
 
-  it("should update the category name and return the category", async () => {
+  it("should update category excludeFromReports", async () => {
     // Arrange
     const categoryId = faker.string.uuid();
-    const updated = fakeCategory({ id: categoryId, name: "Renamed" });
+    const updated = fakeCategory();
 
+    // Updates and returns category
     mockCategoryService.updateCategory.mockResolvedValue(updated);
 
     const updateTool = createUpdateCategoryTool({
       categoryService: mockCategoryService,
     });
 
-    const input: UpdateCategoryInput = {
+    const input = {
+      id: categoryId,
+      excludeFromReports: true,
+    };
+
+    // Act
+    const result = await updateTool.invoke(input, { context: { userId } });
+
+    // Assert
+    expect(result).toEqual({
+      success: true,
+      data: toCategoryDto(updated),
+    });
+
+    expect(mockCategoryService.updateCategory).toHaveBeenCalledWith(
+      categoryId,
+      userId,
+      { excludeFromReports: true },
+    );
+  });
+
+  it("should update category name", async () => {
+    // Arrange
+    const categoryId = faker.string.uuid();
+    const updated = fakeCategory();
+
+    // Updates and returns category
+    mockCategoryService.updateCategory.mockResolvedValue(updated);
+
+    const updateTool = createUpdateCategoryTool({
+      categoryService: mockCategoryService,
+    });
+
+    const input = {
       id: categoryId,
       name: "Renamed",
     };
@@ -63,26 +94,32 @@ describe("createUpdateCategoryTool", () => {
     );
   });
 
-  it("should update the category type", async () => {
+  it("should update category type", async () => {
     // Arrange
     const categoryId = faker.string.uuid();
-    const updated = fakeCategory({ id: categoryId, type: CategoryType.INCOME });
+    const updated = fakeCategory();
 
+    // Updates and returns category
     mockCategoryService.updateCategory.mockResolvedValue(updated);
 
     const updateTool = createUpdateCategoryTool({
       categoryService: mockCategoryService,
     });
 
-    const input: UpdateCategoryInput = {
+    const input = {
       id: categoryId,
       type: CategoryType.INCOME,
     };
 
     // Act
-    await updateTool.invoke(input, { context: { userId } });
+    const result = await updateTool.invoke(input, { context: { userId } });
 
     // Assert
+    expect(result).toEqual({
+      success: true,
+      data: toCategoryDto(updated),
+    });
+
     expect(mockCategoryService.updateCategory).toHaveBeenCalledWith(
       categoryId,
       userId,
@@ -90,35 +127,42 @@ describe("createUpdateCategoryTool", () => {
     );
   });
 
-  it("should update both name and type", async () => {
+  it("should update all fields at once", async () => {
     // Arrange
     const categoryId = faker.string.uuid();
-    const updated = fakeCategory({
-      id: categoryId,
-      name: "Renamed",
-      type: CategoryType.INCOME,
-    });
+    const updated = fakeCategory();
 
+    // Updates and returns category
     mockCategoryService.updateCategory.mockResolvedValue(updated);
 
     const updateTool = createUpdateCategoryTool({
       categoryService: mockCategoryService,
     });
 
-    const input: UpdateCategoryInput = {
+    const input = {
       id: categoryId,
       name: "Renamed",
       type: CategoryType.INCOME,
+      excludeFromReports: true,
     };
 
     // Act
-    await updateTool.invoke(input, { context: { userId } });
+    const result = await updateTool.invoke(input, { context: { userId } });
 
     // Assert
+    expect(result).toEqual({
+      success: true,
+      data: toCategoryDto(updated),
+    });
+
     expect(mockCategoryService.updateCategory).toHaveBeenCalledWith(
       categoryId,
       userId,
-      { name: "Renamed", type: CategoryType.INCOME },
+      {
+        excludeFromReports: true,
+        name: "Renamed",
+        type: CategoryType.INCOME,
+      },
     );
   });
 
@@ -130,7 +174,7 @@ describe("createUpdateCategoryTool", () => {
       categoryService: mockCategoryService,
     });
 
-    const input: UpdateCategoryInput = {
+    const input = {
       id: faker.string.uuid(),
       name: "Renamed",
     };
@@ -138,25 +182,6 @@ describe("createUpdateCategoryTool", () => {
     // Act & Assert
     await expect(
       updateTool.invoke(input, { context: { userId: "not-a-uuid" } }),
-    ).rejects.toThrow();
-
-    expect(mockCategoryService.updateCategory).not.toHaveBeenCalled();
-  });
-
-  it("should reject input shapes containing excludeFromReports", async () => {
-    // Arrange
-    const updateTool = createUpdateCategoryTool({
-      categoryService: mockCategoryService,
-    });
-
-    const input = {
-      id: faker.string.uuid(),
-      excludeFromReports: true,
-    };
-
-    // Act & Assert
-    await expect(
-      updateTool.invoke(input, { context: { userId } }),
     ).rejects.toThrow();
 
     expect(mockCategoryService.updateCategory).not.toHaveBeenCalled();
@@ -174,7 +199,7 @@ describe("createUpdateCategoryTool", () => {
       categoryService: mockCategoryService,
     });
 
-    const input: UpdateCategoryInput = {
+    const input = {
       id: faker.string.uuid(),
       name: "Groceries",
     };

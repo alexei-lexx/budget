@@ -6,10 +6,7 @@ import { CategoryService } from "../../services/category-service";
 import { fakeCategory } from "../../utils/test-utils/models/category-fakes";
 import { createMockCategoryService } from "../../utils/test-utils/services/category-service-mocks";
 import { toCategoryDto } from "./category-dto";
-import {
-  CreateCategoryInput,
-  createCreateCategoryTool,
-} from "./create-category";
+import { createCreateCategoryTool } from "./create-category";
 
 describe("createCreateCategoryTool", () => {
   let mockCategoryService: jest.Mocked<CategoryService>;
@@ -31,20 +28,18 @@ describe("createCreateCategoryTool", () => {
 
   // Happy path
 
-  it("should create the category with excludeFromReports false", async () => {
+  it("should create category and return it", async () => {
     // Arrange
-    const created = fakeCategory({
-      name: "Groceries",
-      type: CategoryType.EXPENSE,
-    });
+    const created = fakeCategory();
 
+    // Persists and returns new category
     mockCategoryService.createCategory.mockResolvedValue(created);
 
     const createTool = createCreateCategoryTool({
       categoryService: mockCategoryService,
     });
 
-    const input: CreateCategoryInput = {
+    const input = {
       name: "Groceries",
       type: CategoryType.EXPENSE,
     };
@@ -66,6 +61,40 @@ describe("createCreateCategoryTool", () => {
     });
   });
 
+  it("should pass excludeFromReports true to service", async () => {
+    // Arrange
+    const created = fakeCategory();
+
+    // Persists and returns new category
+    mockCategoryService.createCategory.mockResolvedValue(created);
+
+    const createTool = createCreateCategoryTool({
+      categoryService: mockCategoryService,
+    });
+
+    const input = {
+      name: "Internal Transfers",
+      type: CategoryType.EXPENSE,
+      excludeFromReports: true,
+    };
+
+    // Act
+    const result = await createTool.invoke(input, { context: { userId } });
+
+    // Assert
+    expect(result).toEqual({
+      success: true,
+      data: toCategoryDto(created),
+    });
+
+    expect(mockCategoryService.createCategory).toHaveBeenCalledWith({
+      userId,
+      name: "Internal Transfers",
+      type: CategoryType.EXPENSE,
+      excludeFromReports: true,
+    });
+  });
+
   // Validation failures
 
   it("should throw when userId in context is not a valid UUID", async () => {
@@ -74,7 +103,7 @@ describe("createCreateCategoryTool", () => {
       categoryService: mockCategoryService,
     });
 
-    const input: CreateCategoryInput = {
+    const input = {
       name: "Groceries",
       type: CategoryType.EXPENSE,
     };
@@ -99,7 +128,7 @@ describe("createCreateCategoryTool", () => {
       categoryService: mockCategoryService,
     });
 
-    const input: CreateCategoryInput = {
+    const input = {
       name: "Groceries",
       type: CategoryType.EXPENSE,
     };

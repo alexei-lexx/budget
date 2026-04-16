@@ -23,7 +23,7 @@ describe("WidgetService", () => {
   describe("createWidget", () => {
     // Happy path
 
-    it("should create and return a new widget", async () => {
+    it("should create and return new widget", async () => {
       // Arrange
       const userId = faker.string.uuid();
       const created = fakeWidget();
@@ -37,7 +37,7 @@ describe("WidgetService", () => {
         data: { externalId: "ext-123" },
       });
 
-      // Persists and returns the new widget
+      // Persists and returns new widget
       mockWidgetRepository.create.mockResolvedValue(created);
 
       // Act
