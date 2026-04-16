@@ -16,7 +16,7 @@ export type CreateCategoryInput = z.infer<typeof schema>;
 const description = `
 Create a new category for the user.
 
-Before calling, call get_categories to check the user's existing categories.
+Before calling, check the user's existing categories.
 If the requested name is a semantic near-variant of an existing one
 (pluralisation, typo, abbreviation, or synonym)
 ask the user to confirm before creating.
