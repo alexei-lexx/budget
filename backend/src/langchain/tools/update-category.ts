@@ -14,7 +14,9 @@ const schema = z
     type: z
       .enum(CategoryType)
       .optional()
-      .describe("New category type: INCOME or EXPENSE"),
+      .describe(
+        `New category type: ${CategoryType.INCOME} or ${CategoryType.EXPENSE}`,
+      ),
   })
   .strict();
 
