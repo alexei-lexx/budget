@@ -8,7 +8,7 @@ import { toCategoryDto } from "./category-dto";
 
 const schema = z.object({
   name: z.string().describe("Category name"),
-  type: z.nativeEnum(CategoryType).describe("Category type: INCOME or EXPENSE"),
+  type: z.enum(CategoryType).describe("Category type: INCOME or EXPENSE"),
 });
 
 export type CreateCategoryInput = z.infer<typeof schema>;
