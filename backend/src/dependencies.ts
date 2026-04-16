@@ -14,7 +14,7 @@ import { AccountServiceImpl } from "./services/account-service";
 import { AssistantChatServiceImpl } from "./services/assistant-chat-service";
 import { AssistantServiceImpl } from "./services/assistant-service";
 import { ByCategoryReportService } from "./services/by-category-report-service";
-import { CategoryService } from "./services/category-service";
+import { CategoryServiceImpl } from "./services/category-service";
 import { CreateTransactionFromTextService } from "./services/create-transaction-from-text-service";
 import { ProcessTelegramMessageService } from "./services/process-telegram-message-service";
 import { TelegramBotService } from "./services/telegram-bot-service";
@@ -66,7 +66,7 @@ export const resolveAccountService = createSingleton(
     ),
 );
 export const resolveCategoryService = createSingleton(
-  () => new CategoryService(resolveCategoryRepository()),
+  () => new CategoryServiceImpl(resolveCategoryRepository()),
 );
 export const resolveTransactionService = createSingleton(
   () =>
@@ -121,6 +121,7 @@ export const resolveAssistantAgent = createSingleton(
         accountRepository: resolveAccountRepository(),
         accountService: resolveAccountService(),
         categoryRepository: resolveCategoryRepository(),
+        categoryService: resolveCategoryService(),
         transactionRepository: resolveTransactionRepository(),
         transactionService: resolveTransactionService(),
       }),

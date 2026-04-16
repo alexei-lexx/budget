@@ -4,9 +4,11 @@ import { AccountRepository } from "../../ports/account-repository";
 import { CategoryRepository } from "../../ports/category-repository";
 import { TransactionRepository } from "../../ports/transaction-repository";
 import { AccountService } from "../../services/account-service";
+import { CategoryService } from "../../services/category-service";
 import { TransactionService } from "../../services/transaction-service";
 import { createAggregateTransactionsTool } from "../tools/aggregate-transactions";
 import { createCreateAccountTool } from "../tools/create-account";
+import { createCreateCategoryTool } from "../tools/create-category";
 import { createCreateTransactionSubagentTool } from "../tools/create-transaction-subagent";
 import { createGetAccountsTool } from "../tools/get-accounts";
 import { createGetCategoriesTool } from "../tools/get-categories";
@@ -14,6 +16,7 @@ import { createGetTransactionsTool } from "../tools/get-transactions";
 import { createJokeTool } from "../tools/joke";
 import { avgTool, calculateTool, sumTool } from "../tools/math";
 import { createUpdateAccountTool } from "../tools/update-account";
+import { createUpdateCategoryTool } from "../tools/update-category";
 import { AgentContext, agentContextSchema } from "./agent-context";
 
 const SYSTEM_PROMPT = `
@@ -90,6 +93,7 @@ export function createAssistantAgent({
   accountRepository,
   accountService,
   categoryRepository,
+  categoryService,
   transactionRepository,
   transactionService,
 }: {
@@ -97,6 +101,7 @@ export function createAssistantAgent({
   accountRepository: AccountRepository;
   accountService: AccountService;
   categoryRepository: CategoryRepository;
+  categoryService: CategoryService;
   transactionRepository: TransactionRepository;
   transactionService: TransactionService;
 }) {
@@ -117,7 +122,9 @@ export function createAssistantAgent({
   const mathTools = [avgTool, calculateTool, sumTool];
   const writeTools = [
     createCreateAccountTool({ accountService }),
+    createCreateCategoryTool({ categoryService }),
     createUpdateAccountTool({ accountService }),
+    createUpdateCategoryTool({ categoryService }),
   ];
   const subagentTools = [
     createJokeTool(model),

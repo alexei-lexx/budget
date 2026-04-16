@@ -6,16 +6,16 @@ import { fakeCategory } from "../utils/test-utils/models/category-fakes";
 import { fakeCreateCategoryInput } from "../utils/test-utils/repositories/category-repository-fakes";
 import { createMockCategoryRepository } from "../utils/test-utils/repositories/category-repository-mocks";
 import { BusinessError } from "./business-error";
-import { CategoryService } from "./category-service";
+import { CategoryServiceImpl } from "./category-service";
 
 describe("CategoryService", () => {
-  let service: CategoryService;
+  let service: CategoryServiceImpl;
   let userId: string;
   let mockCategoryRepository: ReturnType<typeof createMockCategoryRepository>;
 
   beforeEach(() => {
     mockCategoryRepository = createMockCategoryRepository();
-    service = new CategoryService(mockCategoryRepository);
+    service = new CategoryServiceImpl(mockCategoryRepository);
     userId = faker.string.uuid();
 
     // Default mocks for duplicate name checking (can be overridden in specific tests)

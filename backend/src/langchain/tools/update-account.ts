@@ -25,11 +25,12 @@ export type UpdateAccountInput = z.infer<typeof schema>;
 const description = `
 Update an existing account's name and/or currency.
 
-Before calling, check the user's existing accounts
+Before calling, check the user's existing active (non-archived) accounts
 to resolve the account id (never guess it or accept it from user input).
-If the requested new name is a semantic near-variant of another existing account
+If the requested new name is a semantic near-variant of another existing active account
 (pluralisation, typo, abbreviation, or synonym)
 ask the user to confirm before updating.
+Archived accounts are not considered — reusing an archived account's name is not a duplicate.
 
 Changing an account's initial balance is not supported.
 `.trim();
