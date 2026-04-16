@@ -7,11 +7,22 @@ import {
 import { NAME_MAX_LENGTH, NAME_MIN_LENGTH } from "../types/validation";
 import { BusinessError } from "./business-error";
 
+export interface CategoryService {
+  getCategoriesByUser(userId: string, type?: CategoryType): Promise<Category[]>;
+  createCategory(input: CreateCategoryInput): Promise<Category>;
+  updateCategory(
+    id: string,
+    userId: string,
+    input: UpdateCategoryInput,
+  ): Promise<Category>;
+  deleteCategory(id: string, userId: string): Promise<Category>;
+}
+
 /**
  * Category service class for handling business logic
  * Implements the service layer pattern for category operations
  */
-export class CategoryService {
+export class CategoryServiceImpl implements CategoryService {
   constructor(private categoryRepository: CategoryRepository) {}
 
   /**
