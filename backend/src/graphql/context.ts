@@ -6,6 +6,7 @@ import { AssistantChatService } from "../services/assistant-chat-service";
 import { ByCategoryReportService } from "../services/by-category-report-service";
 import { CategoryService } from "../services/category-service";
 import { CreateTransactionFromTextService } from "../services/create-transaction-from-text-service";
+import { CurrencyService } from "../services/currency-service";
 import { TelegramBotService } from "../services/telegram-bot-service";
 import { TransactionService } from "../services/transaction-service";
 import { TransferService } from "../services/transfer-service";
@@ -20,6 +21,7 @@ export interface GraphQLContext {
   userRepository: UserRepository;
   userService: UserService;
   categoryService: CategoryService;
+  currencyService: CurrencyService;
   transactionService: TransactionService;
   accountService: AccountService;
   assistantChatService: AssistantChatService;

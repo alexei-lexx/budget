@@ -203,7 +203,7 @@ const handleCancel = () => {
 
           <v-col cols="12" md="6">
             <!-- Currency Selection -->
-            <v-select
+            <v-autocomplete
               v-model="formData.currency"
               label="Currency"
               :items="supportedCurrencies"
@@ -220,7 +220,7 @@ const handleCancel = () => {
                   </v-list-item-title>
                 </v-list-item>
               </template>
-            </v-select>
+            </v-autocomplete>
           </v-col>
 
           <v-col cols="12" md="6">

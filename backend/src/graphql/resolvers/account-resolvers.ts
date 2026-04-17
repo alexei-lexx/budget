@@ -4,7 +4,6 @@ import {
   MutationDeleteAccountArgs,
   MutationUpdateAccountArgs,
 } from "../../__generated__/resolvers-types";
-import { SUPPORTED_CURRENCIES } from "../../types/validation";
 import { GraphQLContext } from "../context";
 import { getAuthenticatedUser, handleResolverError } from "./shared";
 
@@ -43,8 +42,19 @@ export const accountResolvers = {
         handleResolverError(error, "Failed to fetch accounts");
       }
     },
-    supportedCurrencies: () => {
-      return Array.from(SUPPORTED_CURRENCIES);
+    supportedCurrencies: async (
+      _parent: unknown,
+      _args: unknown,
+      context: GraphQLContext,
+    ) => {
+      try {
+        const user = await getAuthenticatedUser(context);
+        return await context.currencyService.getSupportedCurrencies({
+          userId: user.id,
+        });
+      } catch (error) {
+        handleResolverError(error, "Failed to fetch supported currencies");
+      }
     },
   },
   Mutation: {

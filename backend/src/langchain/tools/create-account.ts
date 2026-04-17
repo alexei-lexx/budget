@@ -2,7 +2,6 @@ import { tool } from "langchain";
 import { z } from "zod";
 import { AccountService } from "../../services/account-service";
 import { Success } from "../../types/result";
-import { SUPPORTED_CURRENCIES } from "../../types/validation";
 import { agentContextSchema } from "../agents/agent-context";
 import { toAccountDto } from "./account-dto";
 
@@ -10,9 +9,7 @@ const schema = z.object({
   name: z.string().describe("Account name"),
   currency: z
     .string()
-    .describe(
-      `Account currency (ISO 4217 code). Supported currencies: ${SUPPORTED_CURRENCIES.join(", ")}.`,
-    ),
+    .describe("Account currency — any ISO 4217 code (e.g. USD, EUR, GBP)."),
   initialBalance: z
     .number()
     .optional()

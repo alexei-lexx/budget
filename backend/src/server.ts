@@ -9,6 +9,7 @@ import {
   resolveCategoryRepository,
   resolveCategoryService,
   resolveCreateTransactionFromTextService,
+  resolveCurrencyService,
   resolveJwtAuthService,
   resolveTelegramBotService,
   resolveTransactionService,
@@ -63,6 +64,7 @@ export async function createContext(req: {
     // CRUD services
     accountService: resolveAccountService(),
     categoryService: resolveCategoryService(),
+    currencyService: resolveCurrencyService(),
     transactionService: resolveTransactionService(),
     transferService: resolveTransferService(),
     userService: resolveUserService(),

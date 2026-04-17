@@ -6,11 +6,8 @@ import {
   UpdateAccountInput,
 } from "../ports/account-repository";
 import { TransactionRepository } from "../ports/transaction-repository";
-import {
-  NAME_MAX_LENGTH,
-  NAME_MIN_LENGTH,
-  SUPPORTED_CURRENCIES,
-} from "../types/validation";
+import { isSupportedCurrency } from "../types/currency";
+import { NAME_MAX_LENGTH, NAME_MIN_LENGTH } from "../types/validation";
 import { BusinessError } from "./business-error";
 
 export interface AccountService {
@@ -180,15 +177,11 @@ export class AccountServiceImpl implements AccountService {
   }
 
   private validateCurrency(currency: string): string {
-    const normalizedCurrency = currency.trim().toUpperCase();
-
-    if (!SUPPORTED_CURRENCIES.includes(normalizedCurrency)) {
-      throw new BusinessError(
-        `Unsupported currency: ${normalizedCurrency}. Supported currencies: ${SUPPORTED_CURRENCIES.join(", ")}`,
-      );
+    if (!isSupportedCurrency(currency)) {
+      throw new BusinessError(`Unsupported currency: ${currency}`);
     }
 
-    return normalizedCurrency;
+    return currency;
   }
 
   private async checkDuplicateName(

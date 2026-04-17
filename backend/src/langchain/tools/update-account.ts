@@ -3,7 +3,6 @@ import { z } from "zod";
 import { UpdateAccountInput as UpdateAccountServiceInput } from "../../ports/account-repository";
 import { AccountService } from "../../services/account-service";
 import { Success } from "../../types/result";
-import { SUPPORTED_CURRENCIES } from "../../types/validation";
 import { agentContextSchema } from "../agents/agent-context";
 import { toAccountDto } from "./account-dto";
 
@@ -15,7 +14,7 @@ const schema = z
       .string()
       .optional()
       .describe(
-        `New account currency (ISO 4217 code). Supported currencies: ${SUPPORTED_CURRENCIES.join(", ")}.`,
+        "New account currency — any ISO 4217 code (e.g. USD, EUR, GBP).",
       ),
   })
   .strict();
