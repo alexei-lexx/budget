@@ -5,44 +5,20 @@
 import type { TransactionType } from "@/composables/useTransactions";
 import { isPositiveTransactionType } from "./transaction";
 
-// Currency symbol mapping
-const CURRENCY_SYMBOLS: Record<string, string> = {
-  USD: "$",
-  EUR: "€",
-  GBP: "£",
-  JPY: "¥",
-  CAD: "C$",
-  AUD: "A$",
-  CHF: "Fr",
-  CNY: "¥",
-  // Add more currencies as needed
-};
-
-// Currency name mapping
-const CURRENCY_NAMES: Record<string, string> = {
-  USD: "US Dollar",
-  EUR: "Euro",
-  GBP: "British Pound",
-  JPY: "Japanese Yen",
-  CAD: "Canadian Dollar",
-  AUD: "Australian Dollar",
-  CHF: "Swiss Franc",
-  CNY: "Chinese Yuan",
-  // Add more currencies as needed
-};
-
 /**
  * Get currency symbol for a given currency code
  */
-export function getCurrencySymbol(currencyCode: string): string {
-  return CURRENCY_SYMBOLS[currencyCode.toUpperCase()] || currencyCode;
-}
-
-/**
- * Get currency name for a given currency code
- */
-export function getCurrencyName(currencyCode: string): string {
-  return CURRENCY_NAMES[currencyCode.toUpperCase()] || currencyCode;
+export function getCurrencySymbol(currencyCode: string, locale?: string): string {
+  try {
+    const parts = new Intl.NumberFormat(locale, {
+      style: "currency",
+      currency: currencyCode,
+      currencyDisplay: "symbol",
+    }).formatToParts(0);
+    return parts.find((part) => part.type === "currency")?.value ?? currencyCode;
+  } catch {
+    return currencyCode;
+  }
 }
 
 /**
@@ -55,28 +31,16 @@ export function formatCurrency(amount: number, currencyCode: string): string {
     amount = 0;
   }
 
-  const numberFormatOptions = {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  };
-
   try {
     return new Intl.NumberFormat(undefined, {
       style: "currency",
-      currency: currencyCode.toUpperCase(),
-      ...numberFormatOptions,
+      currency: currencyCode,
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
     }).format(amount);
   } catch (error) {
-    // Fallback if currency code is not supported by Intl.NumberFormat
     console.warn(`Unsupported currency code: ${currencyCode}`, error);
-    const symbol = getCurrencySymbol(currencyCode);
-    try {
-      const formatted = new Intl.NumberFormat(undefined, numberFormatOptions).format(amount);
-      return `${symbol}${formatted}`;
-    } catch (fallbackError) {
-      console.error("Fallback formatting also failed:", fallbackError);
-      return `${symbol}${amount.toFixed(2)}`;
-    }
+    return `${currencyCode} ${amount.toFixed(2)}`;
   }
 }
 

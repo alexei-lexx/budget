@@ -3,11 +3,7 @@ import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import { TransactionType } from "../models/transaction";
 import { AccountRepository } from "../ports/account-repository";
 import { TransactionRepository } from "../ports/transaction-repository";
-import {
-  NAME_MAX_LENGTH,
-  NAME_MIN_LENGTH,
-  SUPPORTED_CURRENCIES,
-} from "../types/validation";
+import { NAME_MAX_LENGTH, NAME_MIN_LENGTH } from "../types/validation";
 import { fakeAccount } from "../utils/test-utils/models/account-fakes";
 import { fakeTransaction } from "../utils/test-utils/models/transaction-fakes";
 import { fakeCreateAccountInput } from "../utils/test-utils/repositories/account-repository-fakes";
@@ -107,22 +103,6 @@ describe("AccountService", () => {
       );
     });
 
-    it("should normalize currency to uppercase before creating", async () => {
-      // Arrange
-      const input = fakeCreateAccountInput({ userId, currency: "usd" });
-      const createdAccount = fakeAccount();
-      mockAccountRepository.findManyByUserId.mockResolvedValue([]);
-      mockAccountRepository.create.mockResolvedValue(createdAccount);
-
-      // Act
-      await service.createAccount(input);
-
-      // Assert
-      expect(mockAccountRepository.create).toHaveBeenCalledWith(
-        expect.objectContaining({ currency: "USD" }),
-      );
-    });
-
     // Validation failures
 
     it("should throw when name is empty", async () => {
@@ -172,14 +152,14 @@ describe("AccountService", () => {
 
     it("should throw when currency is unsupported", async () => {
       // Arrange
-      const input = fakeCreateAccountInput({ userId, currency: "GBP" });
+      const input = fakeCreateAccountInput({ userId, currency: "INVALID" });
 
       // Act & Assert
       const promise = service.createAccount(input);
 
       await expect(promise).rejects.toThrow(BusinessError);
       await expect(promise).rejects.toMatchObject({
-        message: `Unsupported currency: GBP. Supported currencies: ${SUPPORTED_CURRENCIES.join(", ")}`,
+        message: "Unsupported currency: INVALID",
       });
       expect(mockAccountRepository.create).not.toHaveBeenCalled();
     });
@@ -269,28 +249,6 @@ describe("AccountService", () => {
       expect(mockAccountRepository.update).toHaveBeenCalledWith(
         { id: accountId, userId },
         { name: "Savings" },
-      );
-    });
-
-    it("should normalize currency to uppercase before updating", async () => {
-      // Arrange
-      const accountId = faker.string.uuid();
-      const currentAccount = fakeAccount({ id: accountId, currency: "USD" });
-
-      mockAccountRepository.findOneById.mockResolvedValue(currentAccount);
-      // No transactions — currency change is allowed
-      mockTransactionRepository.hasTransactionsForAccount.mockResolvedValue(
-        false,
-      );
-      mockAccountRepository.update.mockResolvedValue(currentAccount);
-
-      // Act
-      await service.updateAccount(accountId, userId, { currency: "eur" });
-
-      // Assert
-      expect(mockAccountRepository.update).toHaveBeenCalledWith(
-        { id: accountId, userId },
-        { currency: "EUR" },
       );
     });
 
@@ -402,12 +360,12 @@ describe("AccountService", () => {
 
       // Act & Assert
       const promise = service.updateAccount(accountId, userId, {
-        currency: "GBP",
+        currency: "INVALID",
       });
 
       await expect(promise).rejects.toThrow(BusinessError);
       await expect(promise).rejects.toMatchObject({
-        message: `Unsupported currency: GBP. Supported currencies: ${SUPPORTED_CURRENCIES.join(", ")}`,
+        message: "Unsupported currency: INVALID",
       });
       expect(mockAccountRepository.update).not.toHaveBeenCalled();
     });
