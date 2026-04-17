@@ -13,7 +13,6 @@ import { createCreateTransactionSubagentTool } from "../tools/create-transaction
 import { createGetAccountsTool } from "../tools/get-accounts";
 import { createGetCategoriesTool } from "../tools/get-categories";
 import { createGetTransactionsTool } from "../tools/get-transactions";
-import { createJokeTool } from "../tools/joke";
 import { avgTool, calculateTool, sumTool } from "../tools/math";
 import { createUpdateAccountTool } from "../tools/update-account";
 import { createUpdateCategoryTool } from "../tools/update-category";
@@ -129,7 +128,6 @@ export function createAssistantAgent({
     createUpdateCategoryTool({ categoryService }),
   ];
   const subagentTools = [
-    createJokeTool(model),
     createCreateTransactionSubagentTool({
       model,
       accountRepository,

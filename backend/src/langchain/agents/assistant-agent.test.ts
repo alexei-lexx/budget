@@ -11,7 +11,6 @@ import { createMockTransactionRepository } from "../../utils/test-utils/reposito
 import { createCreateAccountTool } from "../tools/create-account";
 import { createCreateCategoryTool } from "../tools/create-category";
 import { createCreateTransactionSubagentTool } from "../tools/create-transaction-subagent";
-import { createJokeTool } from "../tools/joke";
 import { createUpdateAccountTool } from "../tools/update-account";
 import { createUpdateCategoryTool } from "../tools/update-category";
 import { createAssistantAgent } from "./assistant-agent";
@@ -25,10 +24,6 @@ jest.mock("langchain", () => {
     dynamicSystemPromptMiddleware: jest.fn(),
   };
 });
-
-jest.mock("../tools/joke", () => ({
-  createJokeTool: jest.fn(),
-}));
 
 jest.mock("../tools/create-transaction-subagent", () => ({
   createCreateTransactionSubagentTool: jest.fn(),
@@ -61,7 +56,6 @@ describe("createAssistantAgent", () => {
     jest.clearAllMocks();
     mockModel = {} as BaseChatModel;
     (createAgent as jest.Mock).mockReturnValue({ invoke: jest.fn() });
-    (createJokeTool as jest.Mock).mockReturnValue({ name: "joke" });
     (createCreateTransactionSubagentTool as jest.Mock).mockReturnValue({
       name: "create_transaction_subagent",
     });
@@ -106,7 +100,7 @@ describe("createAssistantAgent", () => {
     expect(model).toBe(mockModel);
 
     const toolNames = tools.map((tool) => tool.name);
-    expect(toolNames).toHaveLength(13);
+    expect(toolNames).toHaveLength(12);
     expect(toolNames).toEqual(
       expect.arrayContaining([
         "aggregate_transactions",
@@ -118,7 +112,6 @@ describe("createAssistantAgent", () => {
         "get_accounts",
         "get_categories",
         "get_transactions",
-        "joke",
         "sum",
         "update_account",
         "update_category",
