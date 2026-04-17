@@ -13,7 +13,7 @@ export function useCurrencies() {
     refetch: refetchCurrencies,
   } = useGetSupportedCurrenciesQuery();
 
-  // Transform currencies for v-select format
+  // Transform currencies for v-autocomplete format
   const supportedCurrencies = computed(() => {
     if (currenciesResult.value?.supportedCurrencies) {
       return currenciesResult.value.supportedCurrencies.map((currency: string) => ({
@@ -51,11 +51,6 @@ export function useCurrencies() {
     );
   });
 
-  // Check if a currency code is supported
-  const isCurrencySupported = (currencyCode: string): boolean => {
-    return currencyCodes.value.includes(currencyCode.toUpperCase());
-  };
-
   // Get default currency (first in list)
   const defaultCurrency = computed(() => {
     return supportedCurrencies.value[0]?.value || "";
@@ -76,6 +71,5 @@ export function useCurrencies() {
 
     // Actions
     retry,
-    isCurrencySupported,
   };
 }
