@@ -116,6 +116,11 @@ Description: <description or N/A>
 </successful-response>
 `.trim();
 
+export const VOICE_INPUT_INDICATOR = `## Voice Input Indicator
+
+The user's input was captured via voice recognition.
+`.trim();
+
 export function createCreateTransactionAgent({
   model,
   accountRepository,
@@ -146,11 +151,7 @@ export function createCreateTransactionAgent({
         const parts = [
           SYSTEM_PROMPT,
           `## Current Date\n\nToday is ${today}.`,
-          ...(isVoiceInput
-            ? [
-                "## Voice Input Indicator\n\nThe user's input was captured via voice recognition.",
-              ]
-            : []),
+          ...(isVoiceInput ? [VOICE_INPUT_INDICATOR] : []),
         ];
         return parts.join("\n\n");
       }),
