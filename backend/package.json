@@ -18,7 +18,6 @@
     "db:start": "docker compose up -d",
     "db:stop": "docker compose down",
     "dev": "npm run db:start && npm run codegen && dotenvx run --verbose -- nodemon --exec tsx src/dev.ts",
-    "eval": "dotenvx run -f .env.test --verbose -- tsx src/scripts/eval.ts",
     "format": "npm run prettier:fix && npm run lint:fix",
     "lint:fix": "eslint . --fix",
     "lint": "eslint .",
@@ -30,6 +29,7 @@
     "test:db:drop": "dotenvx run -f .env.test --verbose -- tsx src/scripts/drop-tables.ts",
     "test:db:recreate": "npm run test:db:drop && npm run test:db:create",
     "test:db:setup": "npm run db:start && sleep 1 && npm run test:db:create",
+    "test:integration": "dotenvx run -f .env.test -- jest --config jest.config.integration.json",
     "test": "dotenvx run -f .env.test -- jest",
     "typecheck": "tsc --noEmit"
   },
