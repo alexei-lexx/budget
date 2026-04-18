@@ -1,12 +1,12 @@
 import { faker } from "@faker-js/faker";
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import { AIMessage, ToolMessage, fakeModel } from "langchain";
-import { TransactionService } from "../../services/transaction-service";
 import { createMockAccountRepository } from "../../utils/test-utils/repositories/account-repository-mocks";
 import { createMockCategoryRepository } from "../../utils/test-utils/repositories/category-repository-mocks";
 import { createMockTransactionRepository } from "../../utils/test-utils/repositories/transaction-repository-mocks";
 import { createMockAccountService } from "../../utils/test-utils/services/account-service-mocks";
 import { createMockCategoryService } from "../../utils/test-utils/services/category-service-mocks";
+import { createMockTransactionService } from "../../utils/test-utils/services/transaction-service-mocks";
 import { createAssistantAgent } from "./assistant-agent";
 
 describe("createAssistantAgent", () => {
@@ -34,7 +34,7 @@ describe("createAssistantAgent", () => {
       categoryRepository: createMockCategoryRepository(),
       categoryService: createMockCategoryService(),
       transactionRepository: createMockTransactionRepository(),
-      transactionService: {} as TransactionService,
+      transactionService: createMockTransactionService(),
     });
   });
 

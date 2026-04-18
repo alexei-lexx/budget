@@ -7,6 +7,7 @@ import {
   AgentTraceMessageType,
 } from "../ports/agent-types";
 import { fakeTransaction } from "../utils/test-utils/models/transaction-fakes";
+import { createMockTransactionService } from "../utils/test-utils/services/transaction-service-mocks";
 import { CreateTransactionFromTextService } from "./create-transaction-from-text-service";
 import { TransactionService } from "./transaction-service";
 
@@ -23,19 +24,16 @@ describe("CreateTransactionFromTextService", () => {
   let mockCreateTransactionAgent: jest.Mocked<
     Agent<{ userId: string; isVoiceInput: boolean; today: string }>
   >;
-  let mockTransactionService: jest.Mocked<
-    Pick<TransactionService, "getTransactionById">
-  >;
+  let mockTransactionService: jest.Mocked<TransactionService>;
   let service: CreateTransactionFromTextService;
 
   beforeEach(() => {
     mockCreateTransactionAgent = createMockCreateTransactionAgent();
-    mockTransactionService = { getTransactionById: jest.fn() };
+    mockTransactionService = createMockTransactionService();
 
     service = new CreateTransactionFromTextService({
       createTransactionAgent: mockCreateTransactionAgent,
-      transactionService:
-        mockTransactionService as unknown as TransactionService,
+      transactionService: mockTransactionService,
     });
 
     jest.clearAllMocks();

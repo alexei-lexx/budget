@@ -1,10 +1,10 @@
 import { faker } from "@faker-js/faker";
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import { AIMessage, HumanMessage, fakeModel } from "langchain";
-import { TransactionService } from "../../services/transaction-service";
 import { createMockAccountRepository } from "../../utils/test-utils/repositories/account-repository-mocks";
 import { createMockCategoryRepository } from "../../utils/test-utils/repositories/category-repository-mocks";
 import { createMockTransactionRepository } from "../../utils/test-utils/repositories/transaction-repository-mocks";
+import { createMockTransactionService } from "../../utils/test-utils/services/transaction-service-mocks";
 import { VOICE_INPUT_INDICATOR } from "../agents/create-transaction-agent";
 import { createCreateTransactionSubagentTool } from "./create-transaction-subagent";
 
@@ -27,7 +27,7 @@ describe("createCreateTransactionSubagentTool", () => {
       accountRepository: createMockAccountRepository(),
       categoryRepository: createMockCategoryRepository(),
       transactionRepository: createMockTransactionRepository(),
-      transactionService: {} as TransactionService,
+      transactionService: createMockTransactionService(),
     });
   });
 

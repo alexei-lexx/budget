@@ -7,6 +7,7 @@ import { fakeTransaction } from "../../utils/test-utils/models/transaction-fakes
 import { createMockAccountRepository } from "../../utils/test-utils/repositories/account-repository-mocks";
 import { createMockCategoryRepository } from "../../utils/test-utils/repositories/category-repository-mocks";
 import { createMockTransactionRepository } from "../../utils/test-utils/repositories/transaction-repository-mocks";
+import { createMockTransactionService } from "../../utils/test-utils/services/transaction-service-mocks";
 import { CREATE_TRANSACTION_TOOL_NAME } from "../tools/create-transaction";
 import {
   VOICE_INPUT_INDICATOR,
@@ -16,9 +17,7 @@ import {
 describe("createCreateTransactionAgent", () => {
   let agent: ReturnType<typeof createCreateTransactionAgent>;
   let mockModel: ReturnType<typeof fakeModel>;
-  let mockTransactionService: jest.Mocked<
-    Pick<TransactionService, "createTransaction">
-  >;
+  let mockTransactionService: jest.Mocked<TransactionService>;
 
   const baseContext = {
     today: "2000-01-02",
@@ -31,15 +30,14 @@ describe("createCreateTransactionAgent", () => {
     jest.clearAllMocks();
 
     mockModel = fakeModel();
-    mockTransactionService = { createTransaction: jest.fn() };
+    mockTransactionService = createMockTransactionService();
 
     agent = createCreateTransactionAgent({
       model: mockModel,
       accountRepository: createMockAccountRepository(),
       categoryRepository: createMockCategoryRepository(),
       transactionRepository: createMockTransactionRepository(),
-      transactionService:
-        mockTransactionService as unknown as TransactionService,
+      transactionService: mockTransactionService,
     });
   });
 

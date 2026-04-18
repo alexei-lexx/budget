@@ -64,11 +64,43 @@ export interface EnrichedTransactionPattern extends TransactionPattern {
   categoryName: string;
 }
 
+export interface TransactionService {
+  getTransactionById(id: string, userId: string): Promise<Transaction>;
+  getTransactionsByUser(
+    userId: string,
+    pagination?: PaginationInput,
+    filters?: TransactionFilterInput,
+  ): Promise<TransactionConnection>;
+  getTransactionPatterns(
+    userId: string,
+    type: TransactionPatternType,
+    limit?: number | null,
+    sampleSize?: number,
+  ): Promise<EnrichedTransactionPattern[]>;
+  getDescriptionSuggestions(
+    userId: string,
+    searchText: string,
+    limit?: number | null,
+    sampleSize?: number,
+  ): Promise<string[]>;
+  createTransaction(
+    input: CreateTransactionServiceInput,
+    userId: string,
+  ): Promise<Transaction>;
+
+  updateTransaction(
+    id: string,
+    userId: string,
+    input: UpdateTransactionServiceInput,
+  ): Promise<Transaction>;
+  deleteTransaction(id: string, userId: string): Promise<Transaction>;
+}
+
 /**
  * Transaction service class for handling business logic and validation
  * Implements the service layer pattern for transaction operations
  */
-export class TransactionService {
+export class TransactionServiceImpl implements TransactionService {
   constructor(
     private accountRepository: AccountRepository,
     private categoryRepository: CategoryRepository,
