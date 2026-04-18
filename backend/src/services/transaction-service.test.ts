@@ -25,6 +25,7 @@ import {
   MAX_TRANSACTION_PATTERNS_LIMIT,
   MIN_TRANSACTION_PATTERNS_LIMIT,
   TransactionService,
+  TransactionServiceImpl,
 } from "./transaction-service";
 
 describe("TransactionService", () => {
@@ -41,7 +42,7 @@ describe("TransactionService", () => {
     mockAccountRepository = createMockAccountRepository();
     mockCategoryRepository = createMockCategoryRepository();
 
-    service = new TransactionService(
+    service = new TransactionServiceImpl(
       mockAccountRepository,
       mockCategoryRepository,
       mockTransactionRepository,

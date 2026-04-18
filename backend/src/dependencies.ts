@@ -19,7 +19,7 @@ import { CreateTransactionFromTextService } from "./services/create-transaction-
 import { CurrencyServiceImpl } from "./services/currency-service";
 import { ProcessTelegramMessageService } from "./services/process-telegram-message-service";
 import { TelegramBotService } from "./services/telegram-bot-service";
-import { TransactionService } from "./services/transaction-service";
+import { TransactionServiceImpl } from "./services/transaction-service";
 import { TransferService } from "./services/transfer-service";
 import { UserService } from "./services/user-service";
 import { createBedrockChatModel } from "./utils/bedrock";
@@ -74,7 +74,7 @@ export const resolveCurrencyService = createSingleton(
 );
 export const resolveTransactionService = createSingleton(
   () =>
-    new TransactionService(
+    new TransactionServiceImpl(
       resolveAccountRepository(),
       resolveCategoryRepository(),
       resolveTransactionRepository(),
