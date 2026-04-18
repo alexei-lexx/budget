@@ -143,6 +143,9 @@ describe("AssistantAgent (integration)", () => {
     );
 
     // Assert
+    const accounts = await accountRepository.findManyByUserId(userId);
+    expect(accounts).toHaveLength(1);
+
     const lastToolCallMessage = response.messages.findLast(
       (message): message is AIMessage =>
         AIMessage.isInstance(message) && (message.tool_calls ?? []).length > 0,
@@ -170,6 +173,9 @@ describe("AssistantAgent (integration)", () => {
     );
 
     // Assert
+    const categories = await categoryRepository.findManyByUserId(userId);
+    expect(categories).toHaveLength(1);
+
     const lastToolCallMessage = response.messages.findLast(
       (message): message is AIMessage =>
         AIMessage.isInstance(message) && (message.tool_calls ?? []).length > 0,
@@ -200,6 +206,12 @@ describe("AssistantAgent (integration)", () => {
     );
 
     // Assert
+    const persistedAccount = await accountRepository.findOneById({
+      id: account.id,
+      userId,
+    });
+    expect(persistedAccount?.name).toEqual(expect.stringMatching(/amex/i));
+
     const lastToolCallMessage = response.messages.findLast(
       (message): message is AIMessage =>
         AIMessage.isInstance(message) && (message.tool_calls ?? []).length > 0,
@@ -234,6 +246,12 @@ describe("AssistantAgent (integration)", () => {
     );
 
     // Assert
+    const persistedCategory = await categoryRepository.findOneById({
+      id: category.id,
+      userId,
+    });
+    expect(persistedCategory?.name).toEqual(expect.stringMatching(/food/i));
+
     const lastToolCallMessage = response.messages.findLast(
       (message): message is AIMessage =>
         AIMessage.isInstance(message) && (message.tool_calls ?? []).length > 0,

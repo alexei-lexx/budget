@@ -71,6 +71,9 @@ describe("CreateTransactionAgent (integration)", () => {
     );
 
     // Assert
+    const transactions = await transactionRepository.findManyByUserId(userId);
+    expect(transactions).toHaveLength(1);
+
     const lastToolCallMessage = response.messages.findLast(
       (message): message is AIMessage =>
         AIMessage.isInstance(message) && (message.tool_calls ?? []).length > 0,
@@ -109,6 +112,9 @@ describe("CreateTransactionAgent (integration)", () => {
     );
 
     // Assert
+    const transactions = await transactionRepository.findManyByUserId(userId);
+    expect(transactions).toHaveLength(1);
+
     const lastToolCallMessage = response.messages.findLast(
       (message): message is AIMessage =>
         AIMessage.isInstance(message) && (message.tool_calls ?? []).length > 0,
@@ -147,6 +153,9 @@ describe("CreateTransactionAgent (integration)", () => {
     );
 
     // Assert
+    const transactions = await transactionRepository.findManyByUserId(userId);
+    expect(transactions).toHaveLength(1);
+
     const lastToolCallMessage = response.messages.findLast(
       (message): message is AIMessage =>
         AIMessage.isInstance(message) && (message.tool_calls ?? []).length > 0,
@@ -176,6 +185,9 @@ describe("CreateTransactionAgent (integration)", () => {
     );
 
     // Assert
+    const transactions = await transactionRepository.findManyByUserId(userId);
+    expect(transactions).toHaveLength(1);
+
     const lastToolCallMessage = response.messages.findLast(
       (message): message is AIMessage =>
         AIMessage.isInstance(message) && (message.tool_calls ?? []).length > 0,
@@ -223,6 +235,9 @@ describe("CreateTransactionAgent (integration)", () => {
     );
 
     // Assert
+    const transactions = await transactionRepository.findManyByUserId(userId);
+    expect(transactions).toHaveLength(3);
+
     const lastToolCallMessage = response.messages.findLast(
       (message): message is AIMessage =>
         AIMessage.isInstance(message) && (message.tool_calls ?? []).length > 0,
