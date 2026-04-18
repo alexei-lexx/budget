@@ -4,7 +4,7 @@ import { AgentTraceMessage, AgentTraceMessageType } from "../ports/agent-types";
 export function extractLastMessageText(
   messages: BaseMessage[],
 ): string | undefined {
-  const lastMessage = messages[messages.length - 1];
+  const lastMessage = messages.at(-1);
   let result: string | undefined = undefined;
 
   if (lastMessage) {

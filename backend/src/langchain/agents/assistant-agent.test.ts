@@ -50,8 +50,8 @@ describe("createAssistantAgent", () => {
     const result = await agent.invoke({ messages }, { context: baseContext });
 
     // Assert
-    const lastMessage = result.messages[result.messages.length - 1];
-    expect(lastMessage.content).toBe("Hello!");
+    const lastMessage = result.messages.at(-1);
+    expect(lastMessage?.content).toBe("Hello!");
   });
 
   it("should include role in system prompt", async () => {
@@ -105,8 +105,8 @@ describe("createAssistantAgent", () => {
     const result = await agent.invoke({ messages }, { context: baseContext });
 
     // Assert
-    const lastMessage = result.messages[result.messages.length - 1];
-    expect(lastMessage.content).toBe("You have no accounts.");
+    const lastMessage = result.messages.at(-1);
+    expect(lastMessage?.content).toBe("You have no accounts.");
 
     const toolMessages = result.messages.filter(
       (message) =>

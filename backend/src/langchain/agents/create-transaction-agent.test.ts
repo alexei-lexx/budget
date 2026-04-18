@@ -74,8 +74,8 @@ describe("createCreateTransactionAgent", () => {
     const result = await agent.invoke({ messages }, { context: baseContext });
 
     // Assert
-    const lastMessage = result.messages[result.messages.length - 1];
-    expect(lastMessage.content).toContain("Transaction created successfully");
+    const lastMessage = result.messages.at(-1);
+    expect(lastMessage?.content).toContain("Transaction created successfully");
     expect(mockTransactionService.createTransaction).toHaveBeenCalledTimes(1);
   });
 
