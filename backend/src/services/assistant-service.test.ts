@@ -106,8 +106,8 @@ describe("AssistantService", () => {
         { messages: { content: string }[] },
         unknown,
       ];
-      const lastMessage = state.messages[state.messages.length - 1];
-      expect(lastMessage.content).toContain(
+      const lastMessage = state.messages.at(-1);
+      expect(lastMessage?.content).toContain(
         "My question: What is my spending?",
       );
     });

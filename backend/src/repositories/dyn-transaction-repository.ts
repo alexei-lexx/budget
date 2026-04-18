@@ -285,7 +285,7 @@ export class DynTransactionRepository
         hasPreviousPage: !!after, // Has previous page if we have an after cursor
         startCursor: edges.length > 0 ? edges[0].cursor : undefined,
         endCursor:
-          edges.length > 0 ? edges[edges.length - 1].cursor : undefined,
+          edges.length > 0 ? edges.at(-1)?.cursor : undefined,
       };
 
       // Get total count (this is a separate query for accuracy)
