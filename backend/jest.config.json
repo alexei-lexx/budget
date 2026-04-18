@@ -3,6 +3,7 @@
   "testEnvironment": "node",
   "roots": ["<rootDir>/src"],
   "testMatch": ["**/?(*.)+(test).ts"],
+  "testPathIgnorePatterns": ["/node_modules/", "\\.int\\.test\\.ts$"],
   "transform": {
     "^.+\\.ts$": "ts-jest"
   },

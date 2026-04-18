@@ -1,0 +1,14 @@
+{
+  "preset": "ts-jest",
+  "testEnvironment": "node",
+  "roots": ["<rootDir>/src"],
+  "testMatch": ["**/*.int.test.ts"],
+  "transform": {
+    "^.+\\.ts$": "ts-jest"
+  },
+  "setupFilesAfterEnv": [
+    "<rootDir>/src/utils/test-utils/integration-matchers.ts"
+  ],
+  "testTimeout": 100000,
+  "maxWorkers": 1
+}
