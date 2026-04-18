@@ -1,157 +1,120 @@
 import { faker } from "@faker-js/faker";
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
-import { BaseChatModel } from "@langchain/core/language_models/chat_models";
-import { createAgent, dynamicSystemPromptMiddleware } from "langchain";
-import { AccountService } from "../../services/account-service";
-import { CategoryService } from "../../services/category-service";
+import { AIMessage, ToolMessage, fakeModel } from "langchain";
 import { TransactionService } from "../../services/transaction-service";
 import { createMockAccountRepository } from "../../utils/test-utils/repositories/account-repository-mocks";
 import { createMockCategoryRepository } from "../../utils/test-utils/repositories/category-repository-mocks";
 import { createMockTransactionRepository } from "../../utils/test-utils/repositories/transaction-repository-mocks";
-import { createCreateAccountTool } from "../tools/create-account";
-import { createCreateCategoryTool } from "../tools/create-category";
-import { createCreateTransactionSubagentTool } from "../tools/create-transaction-subagent";
-import { createUpdateAccountTool } from "../tools/update-account";
-import { createUpdateCategoryTool } from "../tools/update-category";
+import { createMockAccountService } from "../../utils/test-utils/services/account-service-mocks";
+import { createMockCategoryService } from "../../utils/test-utils/services/category-service-mocks";
 import { createAssistantAgent } from "./assistant-agent";
 
-jest.mock("langchain", () => {
-  const actual = jest.requireActual<typeof import("langchain")>("langchain");
-
-  return {
-    ...actual,
-    createAgent: jest.fn(),
-    dynamicSystemPromptMiddleware: jest.fn(),
-  };
-});
-
-jest.mock("../tools/create-transaction-subagent", () => ({
-  createCreateTransactionSubagentTool: jest.fn(),
-}));
-
-jest.mock("../tools/create-account", () => ({
-  createCreateAccountTool: jest.fn(),
-}));
-
-jest.mock("../tools/create-category", () => ({
-  createCreateCategoryTool: jest.fn(),
-}));
-
-jest.mock("../tools/update-account", () => ({
-  createUpdateAccountTool: jest.fn(),
-}));
-
-jest.mock("../tools/update-category", () => ({
-  createUpdateCategoryTool: jest.fn(),
-}));
-
-const mockDynamicSystemPromptMiddleware = jest.mocked(
-  dynamicSystemPromptMiddleware,
-);
-
 describe("createAssistantAgent", () => {
-  let mockModel: BaseChatModel;
+  let agent: ReturnType<typeof createAssistantAgent>;
+  let mockModel: ReturnType<typeof fakeModel>;
+  let mockAccountRepository: ReturnType<typeof createMockAccountRepository>;
+
+  const baseContext = {
+    today: "2000-01-02",
+    userId: faker.string.uuid(),
+  };
+
+  const messages = [{ role: "user", content: "list my accounts" }];
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockModel = {} as BaseChatModel;
-    (createAgent as jest.Mock).mockReturnValue({ invoke: jest.fn() });
-    (createCreateTransactionSubagentTool as jest.Mock).mockReturnValue({
-      name: "create_transaction_subagent",
-    });
-    (createCreateAccountTool as jest.Mock).mockReturnValue({
-      name: "create_account",
-    });
-    (createCreateCategoryTool as jest.Mock).mockReturnValue({
-      name: "create_category",
-    });
-    (createUpdateAccountTool as jest.Mock).mockReturnValue({
-      name: "update_account",
-    });
-    (createUpdateCategoryTool as jest.Mock).mockReturnValue({
-      name: "update_category",
-    });
-  });
 
-  it("should call createAgent", () => {
-    // Arrange
-    const accountService = {} as AccountService;
-    const categoryService = {} as CategoryService;
+    mockModel = fakeModel();
+    mockAccountRepository = createMockAccountRepository();
 
-    // Act
-    createAssistantAgent({
+    agent = createAssistantAgent({
       model: mockModel,
-      accountRepository: createMockAccountRepository(),
-      accountService,
+      accountRepository: mockAccountRepository,
+      accountService: createMockAccountService(),
       categoryRepository: createMockCategoryRepository(),
-      categoryService,
+      categoryService: createMockCategoryService(),
       transactionRepository: createMockTransactionRepository(),
       transactionService: {} as TransactionService,
     });
+  });
+
+  // Happy path
+
+  it("should respond to user message", async () => {
+    // Arrange
+
+    // Model emits final text without tool calls
+    mockModel.respond(new AIMessage("Hello!"));
+
+    // Act
+    const result = await agent.invoke({ messages }, { context: baseContext });
 
     // Assert
-    const assistantCallArg = (createAgent as jest.Mock).mock.calls[0][0] as {
-      model: BaseChatModel;
-      tools: { name: string }[];
-      middleware: unknown[];
-    };
-    const { model, tools, middleware } = assistantCallArg;
+    const lastMessage = result.messages[result.messages.length - 1];
+    expect(lastMessage.content).toBe("Hello!");
+  });
 
-    expect(model).toBe(mockModel);
+  it("should include role in system prompt", async () => {
+    // Arrange
 
-    const toolNames = tools.map((tool) => tool.name);
-    expect(toolNames).toHaveLength(12);
-    expect(toolNames).toEqual(
-      expect.arrayContaining([
-        "aggregate_transactions",
-        "avg",
-        "calculate",
-        "create_account",
-        "create_category",
-        "create_transaction_subagent",
-        "get_accounts",
-        "get_categories",
-        "get_transactions",
-        "sum",
-        "update_account",
-        "update_category",
-      ]),
+    // Model emits final text without tool calls
+    mockModel.respond(new AIMessage("OK"));
+
+    // Act
+    await agent.invoke({ messages }, { context: baseContext });
+
+    // Assert
+    expect(mockModel.calls[0].messages[0].content).toContain(
+      "You are a personal finance assistant",
     );
+  });
 
-    expect(middleware).toHaveLength(1);
+  it("should include today's date in system prompt", async () => {
+    // Arrange
 
-    const buildSystemPrompt =
-      mockDynamicSystemPromptMiddleware.mock.calls[0][0];
-    const systemPrompt = buildSystemPrompt(
-      { messages: [] },
+    // Model emits final text without tool calls
+    mockModel.respond(new AIMessage("OK"));
+
+    // Act
+    await agent.invoke({ messages }, { context: baseContext });
+
+    // Assert
+    expect(mockModel.calls[0].messages[0].content).toContain(
+      "Today is 2000-01-02.",
+    );
+  });
+
+  it("should invoke bound tool when model requests it", async () => {
+    // Arrange
+
+    // Returns empty account list for get_accounts tool
+    mockAccountRepository.findManyWithArchivedByUserId.mockResolvedValue([]);
+
+    // Model calls get_accounts tool
+    mockModel.respondWithTools([
       {
-        context: {
-          today: "2000-01-02",
-          userId: faker.string.uuid(),
-        },
+        name: "get_accounts",
+        args: { scope: "ACTIVE" },
       },
-    );
-    expect(systemPrompt).toContain("You are a personal finance assistant");
-    expect(systemPrompt).toContain("Today is 2000-01-02");
-  });
+    ]);
 
-  it("should return the agent created by createAgent", () => {
-    // Arrange
-    const fakeAgent = { invoke: jest.fn() };
-    (createAgent as jest.Mock).mockReturnValue(fakeAgent);
+    // Model emits final text after tool result
+    mockModel.respond(new AIMessage("You have no accounts."));
 
     // Act
-    const result = createAssistantAgent({
-      model: mockModel,
-      accountRepository: createMockAccountRepository(),
-      accountService: {} as AccountService,
-      categoryRepository: createMockCategoryRepository(),
-      categoryService: {} as CategoryService,
-      transactionRepository: createMockTransactionRepository(),
-      transactionService: {} as TransactionService,
-    });
+    const result = await agent.invoke({ messages }, { context: baseContext });
 
     // Assert
-    expect(result).toBe(fakeAgent);
+    const lastMessage = result.messages[result.messages.length - 1];
+    expect(lastMessage.content).toBe("You have no accounts.");
+
+    const toolMessages = result.messages.filter(
+      (message) =>
+        message instanceof ToolMessage && message.name === "get_accounts",
+    );
+    expect(toolMessages).toHaveLength(1);
+    expect(
+      mockAccountRepository.findManyWithArchivedByUserId,
+    ).toHaveBeenCalledTimes(1);
   });
 });
