@@ -9,6 +9,9 @@ import { requireEnv } from "../lib/require-env";
 const app = new cdk.App();
 const nodeEnv = requireEnv("NODE_ENV");
 
+// Add tags to all resources in app
+cdk.Tags.of(app).add("environment", nodeEnv);
+
 // CDK_DEFAULT_ACCOUNT and CDK_DEFAULT_REGION are set automatically
 // by the CDK CLI based on the active AWS profile.
 // FrontendCdkStack requires env for SSM/Route53 context lookups.

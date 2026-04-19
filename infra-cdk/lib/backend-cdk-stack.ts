@@ -23,9 +23,6 @@ export class BackendCdkStack extends cdk.Stack {
 
     const nodeEnv = requireEnv("NODE_ENV");
 
-    // Add tags to all resources in this stack
-    cdk.Tags.of(this).add("environment", nodeEnv);
-
     const logRetention = logs.RetentionDays.ONE_WEEK;
 
     const commonTableOptions: Partial<dynamodb.TableProps> = {
