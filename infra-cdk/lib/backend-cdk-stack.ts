@@ -7,10 +7,19 @@ import * as iam from "aws-cdk-lib/aws-iam";
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as logs from "aws-cdk-lib/aws-logs";
 import { Construct } from "constructs";
-import { requireEnv, requireFloatEnv, requireIntEnv } from "./require-env";
-import { defaultLambdaOptions } from "./utils";
 
 export interface BackendCdkStackProps extends cdk.StackProps {
+  authClaimNamespace: string;
+  bedrockConnectionTimeout: number;
+  bedrockMaxTokens: number;
+  bedrockModelId: string;
+  bedrockRequestTimeout: number;
+  bedrockTemperature: number;
+  chatHistoryMaxMessages: number;
+  chatMessageTtlSeconds: number;
+  lambdaMemorySizeMb: number;
+  lambdaTimeoutSeconds: number;
+  nodeEnv: string;
   userPool: UserPool; // IUserPool doesn't have the userPoolProviderUrl property
   userPoolClient: IUserPoolClient;
 }
@@ -21,7 +30,21 @@ export class BackendCdkStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: BackendCdkStackProps) {
     super(scope, id, props);
 
-    const nodeEnv = requireEnv("NODE_ENV");
+    const {
+      authClaimNamespace,
+      bedrockConnectionTimeout,
+      bedrockMaxTokens,
+      bedrockModelId,
+      bedrockRequestTimeout,
+      bedrockTemperature,
+      chatHistoryMaxMessages,
+      chatMessageTtlSeconds,
+      lambdaMemorySizeMb,
+      lambdaTimeoutSeconds,
+      nodeEnv,
+      userPool,
+      userPoolClient,
+    } = props;
 
     const logRetention = logs.RetentionDays.ONE_WEEK;
 
@@ -126,22 +149,14 @@ export class BackendCdkStack extends cdk.Stack {
       runtime: lambda.Runtime.NODEJS_24_X,
       code: lambda.Code.fromAsset("../backend/dist"),
       environment: {
-        AUTH_CLAIM_NAMESPACE: requireEnv("AUTH_CLAIM_NAMESPACE"),
-        AUTH_CLIENT_ID: props.userPoolClient.userPoolClientId,
-        AUTH_ISSUER: props.userPool.userPoolProviderUrl,
-        AWS_BEDROCK_CONNECTION_TIMEOUT: requireIntEnv(
-          "AWS_BEDROCK_CONNECTION_TIMEOUT",
-        ).toString(),
-        AWS_BEDROCK_MAX_TOKENS: requireIntEnv(
-          "AWS_BEDROCK_MAX_TOKENS",
-        ).toString(),
-        AWS_BEDROCK_MODEL_ID: requireEnv("AWS_BEDROCK_MODEL_ID"),
-        AWS_BEDROCK_REQUEST_TIMEOUT: requireIntEnv(
-          "AWS_BEDROCK_REQUEST_TIMEOUT",
-        ).toString(),
-        AWS_BEDROCK_TEMPERATURE: requireFloatEnv(
-          "AWS_BEDROCK_TEMPERATURE",
-        ).toString(),
+        AUTH_CLAIM_NAMESPACE: authClaimNamespace,
+        AUTH_CLIENT_ID: userPoolClient.userPoolClientId,
+        AUTH_ISSUER: userPool.userPoolProviderUrl,
+        AWS_BEDROCK_CONNECTION_TIMEOUT: bedrockConnectionTimeout.toString(),
+        AWS_BEDROCK_MAX_TOKENS: bedrockMaxTokens.toString(),
+        AWS_BEDROCK_MODEL_ID: bedrockModelId,
+        AWS_BEDROCK_REQUEST_TIMEOUT: bedrockRequestTimeout.toString(),
+        AWS_BEDROCK_TEMPERATURE: bedrockTemperature.toString(),
         NODE_ENV: nodeEnv,
         ACCOUNTS_TABLE_NAME: accountsTable.tableName,
         CATEGORIES_TABLE_NAME: categoriesTable.tableName,
@@ -150,14 +165,12 @@ export class BackendCdkStack extends cdk.Stack {
         TELEGRAM_BOTS_TABLE_NAME: telegramBotsTable.tableName,
         TRANSACTIONS_TABLE_NAME: transactionsTable.tableName,
         USERS_TABLE_NAME: usersTable.tableName,
-        CHAT_HISTORY_MAX_MESSAGES: requireIntEnv(
-          "CHAT_HISTORY_MAX_MESSAGES",
-        ).toString(),
-        CHAT_MESSAGE_TTL_SECONDS: requireIntEnv(
-          "CHAT_MESSAGE_TTL_SECONDS",
-        ).toString(),
+        CHAT_HISTORY_MAX_MESSAGES: chatHistoryMaxMessages.toString(),
+        CHAT_MESSAGE_TTL_SECONDS: chatMessageTtlSeconds.toString(),
       },
-      ...defaultLambdaOptions(),
+      tracing: lambda.Tracing.ACTIVE,
+      memorySize: lambdaMemorySizeMb,
+      timeout: cdk.Duration.seconds(lambdaTimeoutSeconds),
     };
 
     const backgroundJobLogGroup = new logs.LogGroup(

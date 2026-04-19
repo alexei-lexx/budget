@@ -1,6 +1,7 @@
 import {
   CfnOutput,
   CustomResource,
+  Duration,
   RemovalPolicy,
   Stack,
   StackProps,
@@ -8,13 +9,12 @@ import {
 import { IDistribution } from "aws-cdk-lib/aws-cloudfront";
 import { IUserPool, IUserPoolClient } from "aws-cdk-lib/aws-cognito";
 import { PolicyStatement } from "aws-cdk-lib/aws-iam";
-import { Runtime } from "aws-cdk-lib/aws-lambda";
+import * as lambda from "aws-cdk-lib/aws-lambda";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { LogGroup, RetentionDays } from "aws-cdk-lib/aws-logs";
 import { Provider } from "aws-cdk-lib/custom-resources";
 import { Construct } from "constructs";
 import { CustomResourceProperties } from "./update-callback-urls-handler";
-import { defaultLambdaOptions } from "./utils";
 
 /**
  * CDK Stack for configuring authentication callback URLs.
@@ -39,9 +39,11 @@ import { defaultLambdaOptions } from "./utils";
  * - distribution: The CloudFront distribution from Frontend stack
  */
 export interface AuthCallbackConfigStackProps extends StackProps {
+  distribution: IDistribution;
+  lambdaMemorySizeMb: number;
+  lambdaTimeoutSeconds: number;
   userPool: IUserPool;
   userPoolClient: IUserPoolClient;
-  distribution: IDistribution;
   // Optional custom domain URL (e.g. 'https://example.com').
   // When provided, it is added alongside the CloudFront URL in CallbackURLs and LogoutURLs.
   customDomainUrl?: string;
@@ -55,12 +57,19 @@ export class AuthCallbackConfigStack extends Stack {
   ) {
     super(scope, id, props);
 
-    const distributionUrl = `https://${props.distribution.distributionDomainName}`;
+    const {
+      distribution,
+      lambdaMemorySizeMb,
+      lambdaTimeoutSeconds,
+      customDomainUrl,
+    } = props;
+
+    const distributionUrl = `https://${distribution.distributionDomainName}`;
 
     // Include the custom domain URL in allowed callback/logout URLs when configured.
     // Both URLs must be present so auth works regardless of which URL the user accesses.
-    const callbackUrls = props.customDomainUrl
-      ? [distributionUrl, props.customDomainUrl]
+    const callbackUrls = customDomainUrl
+      ? [distributionUrl, customDomainUrl]
       : [distributionUrl];
 
     // Log group for callback URL updater Lambda
@@ -79,11 +88,13 @@ export class AuthCallbackConfigStack extends Stack {
       this,
       "UpdateCallbackUrlsFunction",
       {
-        runtime: Runtime.NODEJS_20_X,
+        runtime: lambda.Runtime.NODEJS_20_X,
         entry: "lib/update-callback-urls-handler.ts",
         handler: "handler",
         logGroup: updateCallbackUrlsLogGroup,
-        ...defaultLambdaOptions(),
+        tracing: lambda.Tracing.ACTIVE,
+        memorySize: lambdaMemorySizeMb,
+        timeout: Duration.seconds(lambdaTimeoutSeconds),
       },
     );
 
