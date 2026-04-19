@@ -1,7 +1,6 @@
 import {
   CfnOutput,
   CustomResource,
-  Duration,
   RemovalPolicy,
   Stack,
   StackProps,
@@ -14,6 +13,7 @@ import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { LogGroup, RetentionDays } from "aws-cdk-lib/aws-logs";
 import { Provider } from "aws-cdk-lib/custom-resources";
 import { Construct } from "constructs";
+import { defaultLambdaOptions } from "./default-lambda-options";
 import { CustomResourceProperties } from "./update-callback-urls-handler";
 
 /**
@@ -40,8 +40,8 @@ import { CustomResourceProperties } from "./update-callback-urls-handler";
  */
 export interface AuthCallbackConfigStackProps extends StackProps {
   distribution: IDistribution;
-  lambdaMemorySizeMb: number;
-  lambdaTimeoutSeconds: number;
+  lambdaMemorySizeMb?: number;
+  lambdaTimeoutSeconds?: number;
   userPool: IUserPool;
   userPoolClient: IUserPoolClient;
   // Optional custom domain URL (e.g. 'https://example.com').
@@ -92,9 +92,7 @@ export class AuthCallbackConfigStack extends Stack {
         entry: "lib/update-callback-urls-handler.ts",
         handler: "handler",
         logGroup: updateCallbackUrlsLogGroup,
-        tracing: lambda.Tracing.ACTIVE,
-        memorySize: lambdaMemorySizeMb,
-        timeout: Duration.seconds(lambdaTimeoutSeconds),
+        ...defaultLambdaOptions({ lambdaMemorySizeMb, lambdaTimeoutSeconds }),
       },
     );
 

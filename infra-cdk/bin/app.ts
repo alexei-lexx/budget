@@ -22,8 +22,12 @@ const env = {
 };
 
 const lambdaProps = {
-  lambdaMemorySizeMb: requireIntEnv("AWS_LAMBDA_MEMORY_SIZE"),
-  lambdaTimeoutSeconds: requireIntEnv("AWS_LAMBDA_TIMEOUT_SECONDS"),
+  ...(process.env.AWS_LAMBDA_MEMORY_SIZE && {
+    lambdaMemorySizeMb: requireIntEnv("AWS_LAMBDA_MEMORY_SIZE"),
+  }),
+  ...(process.env.AWS_LAMBDA_TIMEOUT_SECONDS && {
+    lambdaTimeoutSeconds: requireIntEnv("AWS_LAMBDA_TIMEOUT_SECONDS"),
+  }),
 };
 
 const authClaimNamespace = requireEnv("AUTH_CLAIM_NAMESPACE");
@@ -32,10 +36,10 @@ const authClaimNamespace = requireEnv("AUTH_CLAIM_NAMESPACE");
 const authStack = new AuthCdkStack(app, "AuthCdkStack", {
   ...lambdaProps,
   authClaimNamespace,
-  callbackUrls: process.env.AUTH_CALLBACK_URLS?.split(","),
+  callbackUrls: (process.env.AUTH_CALLBACK_URLS || undefined)?.split(","),
   domainPrefix: requireEnv("AUTH_DOMAIN_PREFIX"),
   env,
-  logoutUrls: process.env.AUTH_LOGOUT_URLS?.split(","),
+  logoutUrls: (process.env.AUTH_LOGOUT_URLS || undefined)?.split(","),
   retainUserPoolOnDestroy: nodeEnv === "production",
   selfSignUpEnabled: requireEnv("AUTH_ALLOW_USER_REGISTRATION") === "true",
   stackName: `${nodeEnv}-BudgetAuth`,

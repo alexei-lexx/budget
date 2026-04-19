@@ -4,6 +4,7 @@ import * as lambda from "aws-cdk-lib/aws-lambda";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import * as logs from "aws-cdk-lib/aws-logs";
 import { Construct } from "constructs";
+import { defaultLambdaOptions } from "./default-lambda-options";
 
 /**
  * CDK Stack for Cognito User Pool infrastructure.
@@ -40,8 +41,8 @@ interface AuthCdkStackProps extends cdk.StackProps {
   authClaimNamespace: string;
   callbackUrls?: readonly string[];
   domainPrefix: string;
-  lambdaMemorySizeMb: number;
-  lambdaTimeoutSeconds: number;
+  lambdaMemorySizeMb?: number;
+  lambdaTimeoutSeconds?: number;
   logoutUrls?: readonly string[];
   retainUserPoolOnDestroy: boolean;
   selfSignUpEnabled: boolean;
@@ -138,9 +139,7 @@ export class AuthCdkStack extends cdk.Stack {
         environment: {
           AUTH_CLAIM_NAMESPACE: authClaimNamespace,
         },
-        tracing: lambda.Tracing.ACTIVE,
-        memorySize: lambdaMemorySizeMb,
-        timeout: cdk.Duration.seconds(lambdaTimeoutSeconds),
+        ...defaultLambdaOptions({ lambdaMemorySizeMb, lambdaTimeoutSeconds }),
       },
     );
 

@@ -7,6 +7,7 @@ import * as iam from "aws-cdk-lib/aws-iam";
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as logs from "aws-cdk-lib/aws-logs";
 import { Construct } from "constructs";
+import { defaultLambdaOptions } from "./default-lambda-options";
 
 export interface BackendCdkStackProps extends cdk.StackProps {
   authClaimNamespace: string;
@@ -17,8 +18,8 @@ export interface BackendCdkStackProps extends cdk.StackProps {
   bedrockTemperature: number;
   chatHistoryMaxMessages: number;
   chatMessageTtlSeconds: number;
-  lambdaMemorySizeMb: number;
-  lambdaTimeoutSeconds: number;
+  lambdaMemorySizeMb?: number;
+  lambdaTimeoutSeconds?: number;
   nodeEnv: string;
   userPool: UserPool; // IUserPool doesn't have the userPoolProviderUrl property
   userPoolClient: IUserPoolClient;
@@ -168,9 +169,7 @@ export class BackendCdkStack extends cdk.Stack {
         CHAT_HISTORY_MAX_MESSAGES: chatHistoryMaxMessages.toString(),
         CHAT_MESSAGE_TTL_SECONDS: chatMessageTtlSeconds.toString(),
       },
-      tracing: lambda.Tracing.ACTIVE,
-      memorySize: lambdaMemorySizeMb,
-      timeout: cdk.Duration.seconds(lambdaTimeoutSeconds),
+      ...defaultLambdaOptions({ lambdaMemorySizeMb, lambdaTimeoutSeconds }),
     };
 
     const backgroundJobLogGroup = new logs.LogGroup(
