@@ -8,10 +8,10 @@ import * as route53targets from "aws-cdk-lib/aws-route53-targets";
 import * as s3 from "aws-cdk-lib/aws-s3";
 import * as ssm from "aws-cdk-lib/aws-ssm";
 import { Construct } from "constructs";
-import { requireEnv } from "./require-env";
 
 export interface FrontendCdkStackProps extends cdk.StackProps {
   httpApi: apigatewayv2.IHttpApi;
+  nodeEnv: string;
 }
 
 export class FrontendCdkStack extends cdk.Stack {
@@ -23,7 +23,7 @@ export class FrontendCdkStack extends cdk.Stack {
     // from stacks deployed to other regions
     super(scope, id, { crossRegionReferences: true, ...props });
 
-    const nodeEnv = requireEnv("NODE_ENV");
+    const { httpApi, nodeEnv } = props;
 
     // SSM lookup for optional custom domain — empty string default means
     // the parameter is optional (mustExist: false); no error if absent
@@ -41,7 +41,7 @@ export class FrontendCdkStack extends cdk.Stack {
       customDomain !== "" &&
       !customDomain.startsWith("dummy-value-for-");
 
-    const apiGatewayDomain = `${props.httpApi.apiId}.execute-api.${this.region}.amazonaws.com`;
+    const apiGatewayDomain = `${httpApi.apiId}.execute-api.${this.region}.amazonaws.com`;
 
     const frontendBucket = new s3.Bucket(this, "Assets", {
       websiteIndexDocument: "index.html",

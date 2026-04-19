@@ -1,11 +1,10 @@
 import * as cdk from "aws-cdk-lib";
 import * as cognito from "aws-cdk-lib/aws-cognito";
-import { Runtime } from "aws-cdk-lib/aws-lambda";
+import * as lambda from "aws-cdk-lib/aws-lambda";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import * as logs from "aws-cdk-lib/aws-logs";
 import { Construct } from "constructs";
-import { requireEnv } from "./require-env";
-import { defaultLambdaOptions } from "./utils";
+import { defaultLambdaOptions } from "./default-lambda-options";
 
 /**
  * CDK Stack for Cognito User Pool infrastructure.
@@ -38,30 +37,34 @@ import { defaultLambdaOptions } from "./utils";
  * - Production: Set by AuthCallbackConfigStack after CloudFront deployment
  * - Development: Can be set via AUTH_CALLBACK_URLS/AUTH_LOGOUT_URLS for localhost testing
  */
+interface AuthCdkStackProps extends cdk.StackProps {
+  authClaimNamespace: string;
+  callbackUrls?: readonly string[];
+  domainPrefix: string;
+  lambdaMemorySizeMb?: number;
+  lambdaTimeoutSeconds?: number;
+  logoutUrls?: readonly string[];
+  retainUserPoolOnDestroy: boolean;
+  selfSignUpEnabled: boolean;
+}
+
 export class AuthCdkStack extends cdk.Stack {
   public readonly userPool: cognito.UserPool;
   public readonly userPoolClient: cognito.UserPoolClient;
 
-  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+  constructor(scope: Construct, id: string, props: AuthCdkStackProps) {
     super(scope, id, props);
 
-    const nodeEnv = requireEnv("NODE_ENV");
-    const isProduction = nodeEnv === "production";
-
-    const domainPrefix = requireEnv("AUTH_DOMAIN_PREFIX");
-    const claimNamespace = requireEnv("AUTH_CLAIM_NAMESPACE");
-
-    // Callback/logout URLs are optional - supports local development with localhost URLs
-    // Production URLs are set by AuthCallbackConfigStack after CloudFront deployment
-    const callbackUrls = (
-      requireEnv("AUTH_CALLBACK_URLS", "") || undefined
-    )?.split(",");
-    const logoutUrls = (requireEnv("AUTH_LOGOUT_URLS", "") || undefined)?.split(
-      ",",
-    );
-
-    const selfSignUpEnabled =
-      requireEnv("AUTH_ALLOW_USER_REGISTRATION") === "true";
+    const {
+      authClaimNamespace,
+      callbackUrls,
+      domainPrefix,
+      lambdaMemorySizeMb,
+      lambdaTimeoutSeconds,
+      logoutUrls,
+      retainUserPoolOnDestroy,
+      selfSignUpEnabled,
+    } = props;
 
     this.userPool = new cognito.UserPool(this, "UserPool", {
       // Users sign in with their email address (not username or phone)
@@ -104,10 +107,10 @@ export class AuthCdkStack extends cdk.Stack {
       mfa: cognito.Mfa.OFF,
 
       // Prevent accidental deletion via AWS Console or API (production only)
-      deletionProtection: isProduction,
+      deletionProtection: retainUserPoolOnDestroy,
 
       // Retain User Pool data if CDK stack is deleted (production only)
-      removalPolicy: isProduction
+      removalPolicy: retainUserPoolOnDestroy
         ? cdk.RemovalPolicy.RETAIN
         : cdk.RemovalPolicy.DESTROY,
     });
@@ -129,14 +132,14 @@ export class AuthCdkStack extends cdk.Stack {
       this,
       "PreTokenGeneration",
       {
-        runtime: Runtime.NODEJS_20_X,
+        runtime: lambda.Runtime.NODEJS_20_X,
         entry: "lib/pre-token-generation.ts",
         handler: "handler",
         logGroup: preTokenGenerationLogGroup,
         environment: {
-          AUTH_CLAIM_NAMESPACE: claimNamespace,
+          AUTH_CLAIM_NAMESPACE: authClaimNamespace,
         },
-        ...defaultLambdaOptions(),
+        ...defaultLambdaOptions({ lambdaMemorySizeMb, lambdaTimeoutSeconds }),
       },
     );
 
@@ -176,10 +179,12 @@ export class AuthCdkStack extends cdk.Stack {
           cognito.OAuthScope.PROFILE,
           cognito.OAuthScope.EMAIL,
         ],
+        // Callback/logout URLs are optional - supports local development with localhost URLs
+        // Production URLs are set by AuthCallbackConfigStack after CloudFront deployment
         // Where Cognito redirects after login
-        ...(callbackUrls && { callbackUrls }),
+        ...(callbackUrls && { callbackUrls: [...callbackUrls] }),
         // Where Cognito redirects after logout
-        ...(logoutUrls && { logoutUrls }),
+        ...(logoutUrls && { logoutUrls: [...logoutUrls] }),
       },
 
       // Return generic error messages to prevent user enumeration attacks

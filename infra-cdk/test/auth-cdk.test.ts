@@ -1,25 +1,19 @@
+import { beforeEach, describe, expect, it } from "@jest/globals";
 import * as cdk from "aws-cdk-lib";
 import { Template } from "aws-cdk-lib/assertions";
 import { AuthCdkStack } from "../lib/auth-cdk-stack";
 
 describe("AuthCdkStack", () => {
-  beforeEach(() => {
-    process.env.AUTH_ALLOW_USER_REGISTRATION = "true";
-    process.env.AUTH_CALLBACK_URLS = "http://localhost:5173";
-    process.env.AUTH_CLAIM_NAMESPACE = "https://personal-budget-tracker";
-    process.env.AUTH_DOMAIN_PREFIX = "test-budget-auth";
-    process.env.AUTH_LOGOUT_URLS = "http://localhost:5173";
-    process.env.NODE_ENV = "test";
-  });
-
-  afterEach(() => {
-    delete process.env.AUTH_ALLOW_USER_REGISTRATION;
-    delete process.env.AUTH_CALLBACK_URLS;
-    delete process.env.AUTH_CLAIM_NAMESPACE;
-    delete process.env.AUTH_DOMAIN_PREFIX;
-    delete process.env.AUTH_LOGOUT_URLS;
-    delete process.env.NODE_ENV;
-  });
+  const props = {
+    authClaimNamespace: "https://personal-budget-tracker",
+    callbackUrls: ["http://localhost:5173"],
+    domainPrefix: "test-budget-auth",
+    lambdaMemorySizeMb: 128,
+    lambdaTimeoutSeconds: 5,
+    logoutUrls: ["http://localhost:5173"],
+    retainUserPoolOnDestroy: false,
+    selfSignUpEnabled: true,
+  } as const;
 
   describe("default configuration", () => {
     let app: cdk.App;
@@ -28,7 +22,7 @@ describe("AuthCdkStack", () => {
 
     beforeEach(() => {
       app = new cdk.App();
-      stack = new AuthCdkStack(app, "TestAuthCdkStack");
+      stack = new AuthCdkStack(app, "TestAuthCdkStack", props);
       template = Template.fromStack(stack);
     });
 
@@ -88,11 +82,12 @@ describe("AuthCdkStack", () => {
     let stack: AuthCdkStack;
     let template: Template;
 
-    it("should enable self sign-up when AUTH_ALLOW_USER_REGISTRATION is true", () => {
-      process.env.AUTH_ALLOW_USER_REGISTRATION = "true";
-
+    it("should enable self sign-up when selfSignUpEnabled is true", () => {
       app = new cdk.App();
-      stack = new AuthCdkStack(app, "TestAuthCdkStack");
+      stack = new AuthCdkStack(app, "TestAuthCdkStack", {
+        ...props,
+        selfSignUpEnabled: true,
+      });
       template = Template.fromStack(stack);
 
       template.hasResourceProperties("AWS::Cognito::UserPool", {
@@ -102,11 +97,12 @@ describe("AuthCdkStack", () => {
       });
     });
 
-    it("should disable self sign-up when AUTH_ALLOW_USER_REGISTRATION is false", () => {
-      process.env.AUTH_ALLOW_USER_REGISTRATION = "false";
-
+    it("should disable self sign-up when selfSignUpEnabled is false", () => {
       app = new cdk.App();
-      stack = new AuthCdkStack(app, "TestAuthCdkStack");
+      stack = new AuthCdkStack(app, "TestAuthCdkStack", {
+        ...props,
+        selfSignUpEnabled: false,
+      });
       template = Template.fromStack(stack);
 
       template.hasResourceProperties("AWS::Cognito::UserPool", {
