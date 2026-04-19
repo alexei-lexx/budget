@@ -11,7 +11,7 @@ describe("AuthCdkStack", () => {
     lambdaMemorySizeMb: 128,
     lambdaTimeoutSeconds: 5,
     logoutUrls: ["http://localhost:5173"],
-    retainUserPoolOnDestroy: true,
+    retainUserPoolOnDestroy: false,
     selfSignUpEnabled: true,
   } as const;
 

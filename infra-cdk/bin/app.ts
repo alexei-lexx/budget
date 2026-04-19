@@ -4,7 +4,7 @@ import { AuthCallbackConfigStack } from "../lib/auth-callback-config-stack";
 import { AuthCdkStack } from "../lib/auth-cdk-stack";
 import { BackendCdkStack } from "../lib/backend-cdk-stack";
 import { FrontendCdkStack } from "../lib/frontend-cdk-stack";
-import { requireEnv, requireIntEnv } from "../lib/require-env";
+import { requireEnv, requireFloatEnv, requireIntEnv } from "../lib/require-env";
 
 const app = new cdk.App();
 const nodeEnv = requireEnv("NODE_ENV");
@@ -32,10 +32,10 @@ const authClaimNamespace = requireEnv("AUTH_CLAIM_NAMESPACE");
 const authStack = new AuthCdkStack(app, "AuthCdkStack", {
   ...lambdaProps,
   authClaimNamespace,
-  callbackUrls: (requireEnv("AUTH_CALLBACK_URLS", "") || undefined)?.split(","),
+  callbackUrls: process.env.AUTH_CALLBACK_URLS?.split(","),
   domainPrefix: requireEnv("AUTH_DOMAIN_PREFIX"),
   env,
-  logoutUrls: (requireEnv("AUTH_LOGOUT_URLS", "") || undefined)?.split(","),
+  logoutUrls: process.env.AUTH_LOGOUT_URLS?.split(","),
   retainUserPoolOnDestroy: nodeEnv === "production",
   selfSignUpEnabled: requireEnv("AUTH_ALLOW_USER_REGISTRATION") === "true",
   stackName: `${nodeEnv}-BudgetAuth`,
@@ -48,7 +48,7 @@ const backendStack = new BackendCdkStack(app, "BackendCdkStack", {
   bedrockMaxTokens: requireIntEnv("AWS_BEDROCK_MAX_TOKENS"),
   bedrockModelId: requireEnv("AWS_BEDROCK_MODEL_ID"),
   bedrockRequestTimeout: requireIntEnv("AWS_BEDROCK_REQUEST_TIMEOUT"),
-  bedrockTemperature: parseFloat(requireEnv("AWS_BEDROCK_TEMPERATURE")),
+  bedrockTemperature: requireFloatEnv("AWS_BEDROCK_TEMPERATURE"),
   chatHistoryMaxMessages: requireIntEnv("CHAT_HISTORY_MAX_MESSAGES"),
   chatMessageTtlSeconds: requireIntEnv("CHAT_MESSAGE_TTL_SECONDS"),
   env,
