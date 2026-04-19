@@ -4,7 +4,6 @@ import {
   RemovalPolicy,
   Stack,
   StackProps,
-  Tags,
 } from "aws-cdk-lib";
 import { IDistribution } from "aws-cdk-lib/aws-cloudfront";
 import { IUserPool, IUserPoolClient } from "aws-cdk-lib/aws-cognito";
@@ -14,7 +13,6 @@ import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { LogGroup, RetentionDays } from "aws-cdk-lib/aws-logs";
 import { Provider } from "aws-cdk-lib/custom-resources";
 import { Construct } from "constructs";
-import { requireEnv } from "./require-env";
 import { CustomResourceProperties } from "./update-callback-urls-handler";
 import { defaultLambdaOptions } from "./utils";
 
@@ -56,11 +54,6 @@ export class AuthCallbackConfigStack extends Stack {
     props: AuthCallbackConfigStackProps,
   ) {
     super(scope, id, props);
-
-    const nodeEnv = requireEnv("NODE_ENV");
-
-    // Add tags to all resources in this stack
-    Tags.of(this).add("environment", nodeEnv);
 
     const distributionUrl = `https://${props.distribution.distributionDomainName}`;
 

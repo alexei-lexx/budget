@@ -25,9 +25,6 @@ export class FrontendCdkStack extends cdk.Stack {
 
     const nodeEnv = requireEnv("NODE_ENV");
 
-    // Add tags to all resources in this stack
-    cdk.Tags.of(this).add("environment", nodeEnv);
-
     // SSM lookup for optional custom domain — empty string default means
     // the parameter is optional (mustExist: false); no error if absent
     const customDomain = ssm.StringParameter.valueFromLookup(
@@ -87,7 +84,6 @@ export class FrontendCdkStack extends cdk.Stack {
         env: { account: this.account, region: "us-east-1" },
         crossRegionReferences: true,
       });
-      cdk.Tags.of(certStack).add("environment", nodeEnv);
 
       // Route 53 is global; a second fromLookup in the cert stack provides
       // the hosted zone construct scoped to that stack (needed for cert validation)
