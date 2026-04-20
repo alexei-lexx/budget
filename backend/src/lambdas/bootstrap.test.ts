@@ -106,6 +106,38 @@ describe("injectRuntimeEnv", () => {
     expect(secondCallNames).toHaveLength(5);
   });
 
+  it("should set only found params when SSM returns partial response", async () => {
+    // Arrange
+    const processEnv: NodeJS.ProcessEnv = {
+      AWS_LAMBDA_FUNCTION_NAME: "web-lambda",
+      NODE_ENV: "test",
+    };
+
+    const bindings = [
+      { ssmPath: "/budget/test/feature-x", envVar: "FEATURE_X" },
+      { ssmPath: "/budget/test/feature-y", envVar: "FEATURE_Y" },
+      { ssmPath: "/budget/test/feature-z", envVar: "FEATURE_Z" },
+    ];
+
+    // SSM returns two of three; third reported as invalid
+    sendMock.mockResolvedValue({
+      $metadata: {},
+      Parameters: [
+        { Name: "/budget/test/feature-x", Value: "value-x" },
+        { Name: "/budget/test/feature-z", Value: "value-z" },
+      ],
+      InvalidParameters: ["/budget/test/feature-y"],
+    });
+
+    // Act
+    await injectRuntimeEnv(processEnv, () => bindings);
+
+    // Assert
+    expect(processEnv.FEATURE_X).toBe("value-x");
+    expect(processEnv.FEATURE_Y).toBeUndefined();
+    expect(processEnv.FEATURE_Z).toBe("value-z");
+  });
+
   // Validation failures
 
   it("should skip SSM fetch when not running on Lambda", async () => {
@@ -163,5 +195,19 @@ describe("injectRuntimeEnv", () => {
 
     // Assert
     expect(processEnv.FEATURE_X).toBe("preset");
+  });
+
+  it("should skip SSM fetch when bindings are empty", async () => {
+    // Arrange
+    const processEnv: NodeJS.ProcessEnv = {
+      AWS_LAMBDA_FUNCTION_NAME: "web-lambda",
+      NODE_ENV: "test",
+    };
+
+    // Act
+    await injectRuntimeEnv(processEnv, () => []);
+
+    // Assert
+    expect(sendMock).not.toHaveBeenCalled();
   });
 });
