@@ -26,8 +26,6 @@ import { createBedrockChatModel } from "./utils/bedrock";
 import { createSingleton } from "./utils/dependency-injection";
 import { requireEnv, requireIntEnv } from "./utils/require-env";
 
-const chatHistoryMaxMessages = requireIntEnv("CHAT_HISTORY_MAX_MESSAGES");
-
 // Auth
 export const resolveJwtAuthService = createSingleton(
   () => new JwtAuthService(),
@@ -160,7 +158,7 @@ export const resolveAssistantChatService = createSingleton(
     new AssistantChatServiceImpl({
       chatMessageRepository: resolveChatMessageRepository(),
       assistantService: resolveAssistantService(),
-      maxMessages: chatHistoryMaxMessages,
+      maxMessages: requireIntEnv("CHAT_HISTORY_MAX_MESSAGES"),
     }),
 );
 
