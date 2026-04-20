@@ -8,21 +8,42 @@ interface ParamBinding {
   envVar: string;
 }
 
-function getSsmEnvBindings(nodeEnv: string): ParamBinding[] {
-  return [
-    {
-      ssmPath: `/manual/budget/${nodeEnv}/app/chat-history-max-messages`,
-      envVar: "CHAT_HISTORY_MAX_MESSAGES",
-    },
-    {
-      ssmPath: `/manual/budget/${nodeEnv}/app/chat-message-ttl-seconds`,
-      envVar: "CHAT_MESSAGE_TTL_SECONDS",
-    },
-  ];
-}
+type SsmEnvBindingsFactory = (nodeEnv: string) => ParamBinding[];
+
+const defaultSsmEnvBindings: SsmEnvBindingsFactory = (nodeEnv) => [
+  {
+    ssmPath: `/manual/budget/${nodeEnv}/bedrock/connection-timeout`,
+    envVar: "AWS_BEDROCK_CONNECTION_TIMEOUT",
+  },
+  {
+    ssmPath: `/manual/budget/${nodeEnv}/bedrock/max-tokens`,
+    envVar: "AWS_BEDROCK_MAX_TOKENS",
+  },
+  {
+    ssmPath: `/manual/budget/${nodeEnv}/bedrock/model-id`,
+    envVar: "AWS_BEDROCK_MODEL_ID",
+  },
+  {
+    ssmPath: `/manual/budget/${nodeEnv}/bedrock/request-timeout`,
+    envVar: "AWS_BEDROCK_REQUEST_TIMEOUT",
+  },
+  {
+    ssmPath: `/manual/budget/${nodeEnv}/bedrock/temperature`,
+    envVar: "AWS_BEDROCK_TEMPERATURE",
+  },
+  {
+    ssmPath: `/manual/budget/${nodeEnv}/app/chat-history-max-messages`,
+    envVar: "CHAT_HISTORY_MAX_MESSAGES",
+  },
+  {
+    ssmPath: `/manual/budget/${nodeEnv}/app/chat-message-ttl-seconds`,
+    envVar: "CHAT_MESSAGE_TTL_SECONDS",
+  },
+];
 
 export async function injectRuntimeEnv(
   processEnv: NodeJS.ProcessEnv,
+  getBindings: SsmEnvBindingsFactory = defaultSsmEnvBindings,
 ): Promise<void> {
   // AWS_LAMBDA_FUNCTION_NAME is set by the Lambda runtime, never in local dev.
   // Local dev loads its config from .env via dotenvx and must not hit SSM.
@@ -35,7 +56,7 @@ export async function injectRuntimeEnv(
     return;
   }
 
-  const bindings = getSsmEnvBindings(nodeEnv);
+  const bindings = getBindings(nodeEnv);
   if (bindings.length === 0) {
     return;
   }

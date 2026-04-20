@@ -11,11 +11,6 @@ import { defaultLambdaOptions } from "./default-lambda-options";
 
 export interface BackendCdkStackProps extends cdk.StackProps {
   authClaimNamespace: string;
-  bedrockConnectionTimeout: number;
-  bedrockMaxTokens: number;
-  bedrockModelId: string;
-  bedrockRequestTimeout: number;
-  bedrockTemperature: number;
   lambdaMemorySizeMb?: number;
   lambdaTimeoutSeconds?: number;
   nodeEnv: string;
@@ -31,11 +26,6 @@ export class BackendCdkStack extends cdk.Stack {
 
     const {
       authClaimNamespace,
-      bedrockConnectionTimeout,
-      bedrockMaxTokens,
-      bedrockModelId,
-      bedrockRequestTimeout,
-      bedrockTemperature,
       lambdaMemorySizeMb,
       lambdaTimeoutSeconds,
       nodeEnv,
@@ -149,11 +139,6 @@ export class BackendCdkStack extends cdk.Stack {
         AUTH_CLAIM_NAMESPACE: authClaimNamespace,
         AUTH_CLIENT_ID: userPoolClient.userPoolClientId,
         AUTH_ISSUER: userPool.userPoolProviderUrl,
-        AWS_BEDROCK_CONNECTION_TIMEOUT: bedrockConnectionTimeout.toString(),
-        AWS_BEDROCK_MAX_TOKENS: bedrockMaxTokens.toString(),
-        AWS_BEDROCK_MODEL_ID: bedrockModelId,
-        AWS_BEDROCK_REQUEST_TIMEOUT: bedrockRequestTimeout.toString(),
-        AWS_BEDROCK_TEMPERATURE: bedrockTemperature.toString(),
         NODE_ENV: nodeEnv,
         ACCOUNTS_TABLE_NAME: accountsTable.tableName,
         CATEGORIES_TABLE_NAME: categoriesTable.tableName,
