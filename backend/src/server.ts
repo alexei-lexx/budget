@@ -31,6 +31,10 @@ export const server = new ApolloServer<GraphQLContext>({
   typeDefs,
   resolvers,
   introspection: process.env.NODE_ENV === "development", // Enable introspection for development
+  formatError: (formattedError, error) => {
+    console.error("GraphQL error:", error);
+    return formattedError;
+  },
 });
 
 /**
