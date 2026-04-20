@@ -63,8 +63,6 @@ const backendStack = new BackendCdkStack(app, "BackendCdkStack", {
   bedrockModelId: requireEnv("AWS_BEDROCK_MODEL_ID"),
   bedrockRequestTimeout: requireIntEnv("AWS_BEDROCK_REQUEST_TIMEOUT"),
   bedrockTemperature: requireFloatEnv("AWS_BEDROCK_TEMPERATURE"),
-  chatHistoryMaxMessages: requireIntEnv("CHAT_HISTORY_MAX_MESSAGES"),
-  chatMessageTtlSeconds: requireIntEnv("CHAT_MESSAGE_TTL_SECONDS"),
   env,
   nodeEnv,
   stackName: `${nodeEnv}-BudgetBackend`,

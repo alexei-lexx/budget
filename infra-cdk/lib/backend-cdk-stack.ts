@@ -16,8 +16,6 @@ export interface BackendCdkStackProps extends cdk.StackProps {
   bedrockModelId: string;
   bedrockRequestTimeout: number;
   bedrockTemperature: number;
-  chatHistoryMaxMessages: number;
-  chatMessageTtlSeconds: number;
   lambdaMemorySizeMb?: number;
   lambdaTimeoutSeconds?: number;
   nodeEnv: string;
@@ -38,8 +36,6 @@ export class BackendCdkStack extends cdk.Stack {
       bedrockModelId,
       bedrockRequestTimeout,
       bedrockTemperature,
-      chatHistoryMaxMessages,
-      chatMessageTtlSeconds,
       lambdaMemorySizeMb,
       lambdaTimeoutSeconds,
       nodeEnv,
@@ -166,8 +162,6 @@ export class BackendCdkStack extends cdk.Stack {
         TELEGRAM_BOTS_TABLE_NAME: telegramBotsTable.tableName,
         TRANSACTIONS_TABLE_NAME: transactionsTable.tableName,
         USERS_TABLE_NAME: usersTable.tableName,
-        CHAT_HISTORY_MAX_MESSAGES: chatHistoryMaxMessages.toString(),
-        CHAT_MESSAGE_TTL_SECONDS: chatMessageTtlSeconds.toString(),
       },
       ...defaultLambdaOptions({ lambdaMemorySizeMb, lambdaTimeoutSeconds }),
     };
@@ -291,6 +285,26 @@ export class BackendCdkStack extends cdk.Stack {
     categoriesTable.grantReadWriteData(migrationFunction);
     transactionsTable.grantReadWriteData(migrationFunction);
     usersTable.grantReadWriteData(migrationFunction);
+
+    // Allow all Lambdas to read runtime config from SSM Parameter Store at cold start.
+    // The bootstrap module resolves explicit paths under this prefix.
+    const appConfigParameterArn = cdk.Arn.format(
+      {
+        service: "ssm",
+        resource: "parameter",
+        resourceName: `manual/budget/${nodeEnv}/*`,
+      },
+      this,
+    );
+
+    const readAppConfigPolicy = new iam.PolicyStatement({
+      actions: ["ssm:GetParameters"],
+      resources: [appConfigParameterArn],
+    });
+
+    webFunction.addToRolePolicy(readAppConfigPolicy);
+    backgroundJobFunction.addToRolePolicy(readAppConfigPolicy);
+    migrationFunction.addToRolePolicy(readAppConfigPolicy);
 
     // Used by deploy.sh to invoke the migration Lambda after deploy.
     new cdk.CfnOutput(this, "MigrationFunctionName", {
