@@ -1,6 +1,11 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { Handler } from "aws-lambda";
 import { runMigrations } from "../migrations/runner";
+import { createSingleton } from "../utils/dependency-injection";
+import { injectRuntimeEnv } from "./bootstrap";
+
+// Handler runs per invocation; cache so warm-start invocations skip the SSM fetch.
+const ensureRuntimeEnv = createSingleton(() => injectRuntimeEnv(process.env));
 
 /**
  * Lambda handler for production migrations
@@ -16,6 +21,8 @@ const client = new DynamoDBClient({});
 export const handler: Handler = async () => {
   try {
     console.log("Lambda migration handler invoked");
+
+    await ensureRuntimeEnv();
 
     const stats = await runMigrations(client);
 

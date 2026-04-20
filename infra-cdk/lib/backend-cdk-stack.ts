@@ -11,13 +11,6 @@ import { defaultLambdaOptions } from "./default-lambda-options";
 
 export interface BackendCdkStackProps extends cdk.StackProps {
   authClaimNamespace: string;
-  bedrockConnectionTimeout: number;
-  bedrockMaxTokens: number;
-  bedrockModelId: string;
-  bedrockRequestTimeout: number;
-  bedrockTemperature: number;
-  chatHistoryMaxMessages: number;
-  chatMessageTtlSeconds: number;
   lambdaMemorySizeMb?: number;
   lambdaTimeoutSeconds?: number;
   nodeEnv: string;
@@ -33,13 +26,6 @@ export class BackendCdkStack extends cdk.Stack {
 
     const {
       authClaimNamespace,
-      bedrockConnectionTimeout,
-      bedrockMaxTokens,
-      bedrockModelId,
-      bedrockRequestTimeout,
-      bedrockTemperature,
-      chatHistoryMaxMessages,
-      chatMessageTtlSeconds,
       lambdaMemorySizeMb,
       lambdaTimeoutSeconds,
       nodeEnv,
@@ -153,11 +139,6 @@ export class BackendCdkStack extends cdk.Stack {
         AUTH_CLAIM_NAMESPACE: authClaimNamespace,
         AUTH_CLIENT_ID: userPoolClient.userPoolClientId,
         AUTH_ISSUER: userPool.userPoolProviderUrl,
-        AWS_BEDROCK_CONNECTION_TIMEOUT: bedrockConnectionTimeout.toString(),
-        AWS_BEDROCK_MAX_TOKENS: bedrockMaxTokens.toString(),
-        AWS_BEDROCK_MODEL_ID: bedrockModelId,
-        AWS_BEDROCK_REQUEST_TIMEOUT: bedrockRequestTimeout.toString(),
-        AWS_BEDROCK_TEMPERATURE: bedrockTemperature.toString(),
         NODE_ENV: nodeEnv,
         ACCOUNTS_TABLE_NAME: accountsTable.tableName,
         CATEGORIES_TABLE_NAME: categoriesTable.tableName,
@@ -166,8 +147,6 @@ export class BackendCdkStack extends cdk.Stack {
         TELEGRAM_BOTS_TABLE_NAME: telegramBotsTable.tableName,
         TRANSACTIONS_TABLE_NAME: transactionsTable.tableName,
         USERS_TABLE_NAME: usersTable.tableName,
-        CHAT_HISTORY_MAX_MESSAGES: chatHistoryMaxMessages.toString(),
-        CHAT_MESSAGE_TTL_SECONDS: chatMessageTtlSeconds.toString(),
       },
       ...defaultLambdaOptions({ lambdaMemorySizeMb, lambdaTimeoutSeconds }),
     };
@@ -291,6 +270,26 @@ export class BackendCdkStack extends cdk.Stack {
     categoriesTable.grantReadWriteData(migrationFunction);
     transactionsTable.grantReadWriteData(migrationFunction);
     usersTable.grantReadWriteData(migrationFunction);
+
+    // Allow all Lambdas to read runtime config from SSM Parameter Store at cold start.
+    // The bootstrap module resolves explicit paths under this prefix.
+    const appConfigParameterArn = cdk.Arn.format(
+      {
+        service: "ssm",
+        resource: "parameter",
+        resourceName: `manual/budget/${nodeEnv}/*`,
+      },
+      this,
+    );
+
+    const readAppConfigPolicy = new iam.PolicyStatement({
+      actions: ["ssm:GetParameters"],
+      resources: [appConfigParameterArn],
+    });
+
+    webFunction.addToRolePolicy(readAppConfigPolicy);
+    backgroundJobFunction.addToRolePolicy(readAppConfigPolicy);
+    migrationFunction.addToRolePolicy(readAppConfigPolicy);
 
     // Used by deploy.sh to invoke the migration Lambda after deploy.
     new cdk.CfnOutput(this, "MigrationFunctionName", {

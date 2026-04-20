@@ -4,7 +4,12 @@ import {
 } from "@as-integrations/aws-lambda";
 import { APIGatewayProxyEventV2, Context } from "aws-lambda";
 import { createContext, server } from "../server";
+import { createSingleton } from "../utils/dependency-injection";
+import { injectRuntimeEnv } from "./bootstrap";
 import { telegramWebhookHandler } from "./telegram-webhook-handler";
+
+// Handler runs per invocation; cache so warm-start invocations skip the SSM fetch.
+const ensureRuntimeEnv = createSingleton(() => injectRuntimeEnv(process.env));
 
 const apolloHandler = startServerAndCreateLambdaHandler(
   server,
@@ -29,6 +34,8 @@ export const handler = async (
   event: APIGatewayProxyEventV2,
   context: Context,
 ) => {
+  await ensureRuntimeEnv();
+
   if (event.rawPath === "/webhooks/telegram") {
     return telegramWebhookHandler(event);
   }

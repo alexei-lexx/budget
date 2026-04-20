@@ -2,6 +2,10 @@ import { JwtAuthService } from "./auth/jwt-auth";
 import { createAssistantAgent } from "./langchain/agents/assistant-agent";
 import { createCreateTransactionAgent } from "./langchain/agents/create-transaction-agent";
 import { LangChainAgent } from "./langchain/langchain-agent";
+import {
+  DEFAULT_CHAT_HISTORY_MAX_MESSAGES,
+  DEFAULT_CHAT_MESSAGE_TTL_SECONDS,
+} from "./models/chat-message";
 import { HttpTelegramApiClient } from "./providers/http-telegram-api-client";
 import { LambdaBackgroundJobDispatcher } from "./providers/lambda-background-job-dispatcher";
 import { DynAccountRepository } from "./repositories/dyn-account-repository";
@@ -26,8 +30,6 @@ import { createBedrockChatModel } from "./utils/bedrock";
 import { createSingleton } from "./utils/dependency-injection";
 import { requireEnv, requireIntEnv } from "./utils/require-env";
 
-const chatHistoryMaxMessages = requireIntEnv("CHAT_HISTORY_MAX_MESSAGES");
-
 // Auth
 export const resolveJwtAuthService = createSingleton(
   () => new JwtAuthService(),
@@ -44,7 +46,10 @@ export const resolveChatMessageRepository = createSingleton(
   () =>
     new DynChatMessageRepository({
       tableName: requireEnv("CHAT_MESSAGES_TABLE_NAME"),
-      ttlSeconds: requireIntEnv("CHAT_MESSAGE_TTL_SECONDS"),
+      ttlSeconds: requireIntEnv(
+        "CHAT_MESSAGE_TTL_SECONDS",
+        DEFAULT_CHAT_MESSAGE_TTL_SECONDS,
+      ),
     }),
 );
 
@@ -160,7 +165,10 @@ export const resolveAssistantChatService = createSingleton(
     new AssistantChatServiceImpl({
       chatMessageRepository: resolveChatMessageRepository(),
       assistantService: resolveAssistantService(),
-      maxMessages: chatHistoryMaxMessages,
+      maxMessages: requireIntEnv(
+        "CHAT_HISTORY_MAX_MESSAGES",
+        DEFAULT_CHAT_HISTORY_MAX_MESSAGES,
+      ),
     }),
 );
 

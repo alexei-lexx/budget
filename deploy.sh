@@ -115,21 +115,11 @@ ssm_get_or_default() {
   return "$rc"
 }
 
-DEFAULT_AUTH_ALLOW_USER_REGISTRATION="true"
 DEFAULT_AUTH_CLAIM_NAMESPACE="https://personal-budget-tracker"
 DEFAULT_AUTH_DOMAIN_PREFIX="$ENV-budget-auth"
 DEFAULT_AUTH_SCOPE="openid profile email"
-DEFAULT_AWS_BEDROCK_CONNECTION_TIMEOUT="5000"
-DEFAULT_AWS_BEDROCK_MAX_TOKENS="2000"
-DEFAULT_AWS_BEDROCK_MODEL_ID="openai.gpt-oss-120b-1:0"
-DEFAULT_AWS_BEDROCK_REQUEST_TIMEOUT="30000"
-DEFAULT_AWS_BEDROCK_TEMPERATURE="0.2"
-DEFAULT_AWS_LAMBDA_MEMORY_SIZE="512"
-DEFAULT_AWS_LAMBDA_TIMEOUT_SECONDS="30"
-DEFAULT_CHAT_HISTORY_MAX_MESSAGES="20"
-DEFAULT_CHAT_MESSAGE_TTL_SECONDS="86400" # 24 hours
 
-AUTH_ALLOW_USER_REGISTRATION=$(ssm_get_or_default "/manual/budget/$ENV/auth/allow-user-registration" "$DEFAULT_AUTH_ALLOW_USER_REGISTRATION") || exit $?
+AUTH_ALLOW_USER_REGISTRATION=$(ssm_get_or_default "/manual/budget/$ENV/auth/allow-user-registration" "") || exit $?
 echo "AUTH_ALLOW_USER_REGISTRATION=$AUTH_ALLOW_USER_REGISTRATION"
 
 AUTH_CLAIM_NAMESPACE=$(ssm_get_or_default "/manual/budget/$ENV/auth/claim-namespace" "$DEFAULT_AUTH_CLAIM_NAMESPACE") || exit $?
@@ -141,32 +131,11 @@ echo "AUTH_DOMAIN_PREFIX=$AUTH_DOMAIN_PREFIX"
 AUTH_SCOPE=$(ssm_get_or_default "/manual/budget/$ENV/auth/scope" "$DEFAULT_AUTH_SCOPE") || exit $?
 echo "AUTH_SCOPE=$AUTH_SCOPE"
 
-AWS_BEDROCK_CONNECTION_TIMEOUT=$(ssm_get_or_default "/manual/budget/$ENV/bedrock/connection-timeout" "$DEFAULT_AWS_BEDROCK_CONNECTION_TIMEOUT") || exit $?
-echo "AWS_BEDROCK_CONNECTION_TIMEOUT=$AWS_BEDROCK_CONNECTION_TIMEOUT"
-
-AWS_BEDROCK_MAX_TOKENS=$(ssm_get_or_default "/manual/budget/$ENV/bedrock/max-tokens" "$DEFAULT_AWS_BEDROCK_MAX_TOKENS") || exit $?
-echo "AWS_BEDROCK_MAX_TOKENS=$AWS_BEDROCK_MAX_TOKENS"
-
-AWS_BEDROCK_MODEL_ID=$(ssm_get_or_default "/manual/budget/$ENV/bedrock/model-id" "$DEFAULT_AWS_BEDROCK_MODEL_ID") || exit $?
-echo "AWS_BEDROCK_MODEL_ID=$AWS_BEDROCK_MODEL_ID"
-
-AWS_BEDROCK_REQUEST_TIMEOUT=$(ssm_get_or_default "/manual/budget/$ENV/bedrock/request-timeout" "$DEFAULT_AWS_BEDROCK_REQUEST_TIMEOUT") || exit $?
-echo "AWS_BEDROCK_REQUEST_TIMEOUT=$AWS_BEDROCK_REQUEST_TIMEOUT"
-
-AWS_BEDROCK_TEMPERATURE=$(ssm_get_or_default "/manual/budget/$ENV/bedrock/temperature" "$DEFAULT_AWS_BEDROCK_TEMPERATURE") || exit $?
-echo "AWS_BEDROCK_TEMPERATURE=$AWS_BEDROCK_TEMPERATURE"
-
-AWS_LAMBDA_MEMORY_SIZE=$(ssm_get_or_default "/manual/budget/$ENV/lambda/memory-size" "$DEFAULT_AWS_LAMBDA_MEMORY_SIZE") || exit $?
+AWS_LAMBDA_MEMORY_SIZE=$(ssm_get_or_default "/manual/budget/$ENV/lambda/memory-size" "") || exit $?
 echo "AWS_LAMBDA_MEMORY_SIZE=$AWS_LAMBDA_MEMORY_SIZE"
 
-AWS_LAMBDA_TIMEOUT_SECONDS=$(ssm_get_or_default "/manual/budget/$ENV/lambda/timeout-seconds" "$DEFAULT_AWS_LAMBDA_TIMEOUT_SECONDS") || exit $?
+AWS_LAMBDA_TIMEOUT_SECONDS=$(ssm_get_or_default "/manual/budget/$ENV/lambda/timeout-seconds" "") || exit $?
 echo "AWS_LAMBDA_TIMEOUT_SECONDS=$AWS_LAMBDA_TIMEOUT_SECONDS"
-
-CHAT_HISTORY_MAX_MESSAGES=$(ssm_get_or_default "/manual/budget/$ENV/app/chat-history-max-messages" "$DEFAULT_CHAT_HISTORY_MAX_MESSAGES") || exit $?
-echo "CHAT_HISTORY_MAX_MESSAGES=$CHAT_HISTORY_MAX_MESSAGES"
-
-CHAT_MESSAGE_TTL_SECONDS=$(ssm_get_or_default "/manual/budget/$ENV/app/chat-message-ttl-seconds" "$DEFAULT_CHAT_MESSAGE_TTL_SECONDS") || exit $?
-echo "CHAT_MESSAGE_TTL_SECONDS=$CHAT_MESSAGE_TTL_SECONDS"
 
 echo "Switching to backend directory..."
 cd backend
@@ -187,15 +156,8 @@ echo "Deploying infrastructure..."
 env AUTH_ALLOW_USER_REGISTRATION="$AUTH_ALLOW_USER_REGISTRATION" \
     AUTH_CLAIM_NAMESPACE="$AUTH_CLAIM_NAMESPACE" \
     AUTH_DOMAIN_PREFIX="$AUTH_DOMAIN_PREFIX" \
-    AWS_BEDROCK_CONNECTION_TIMEOUT="$AWS_BEDROCK_CONNECTION_TIMEOUT" \
-    AWS_BEDROCK_MAX_TOKENS="$AWS_BEDROCK_MAX_TOKENS" \
-    AWS_BEDROCK_MODEL_ID="$AWS_BEDROCK_MODEL_ID" \
-    AWS_BEDROCK_REQUEST_TIMEOUT="$AWS_BEDROCK_REQUEST_TIMEOUT" \
-    AWS_BEDROCK_TEMPERATURE="$AWS_BEDROCK_TEMPERATURE" \
     AWS_LAMBDA_MEMORY_SIZE="$AWS_LAMBDA_MEMORY_SIZE" \
     AWS_LAMBDA_TIMEOUT_SECONDS="$AWS_LAMBDA_TIMEOUT_SECONDS" \
-    CHAT_HISTORY_MAX_MESSAGES="$CHAT_HISTORY_MAX_MESSAGES" \
-    CHAT_MESSAGE_TTL_SECONDS="$CHAT_MESSAGE_TTL_SECONDS" \
     NODE_ENV="$NODE_ENV" \
   npm run deploy -- --outputs-file "$CDK_OUTPUT_FILE"
 

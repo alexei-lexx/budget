@@ -1,6 +1,11 @@
 import { z } from "zod";
 import { resolveProcessTelegramMessageService } from "../dependencies";
 import { BackgroundJob } from "../ports/background-job-dispatcher";
+import { createSingleton } from "../utils/dependency-injection";
+import { injectRuntimeEnv } from "./bootstrap";
+
+// Handler runs per invocation; cache so warm-start invocations skip the SSM fetch.
+const ensureRuntimeEnv = createSingleton(() => injectRuntimeEnv(process.env));
 
 const backgroundJobEventSchema = z.discriminatedUnion("type", [
   z.object({
@@ -15,6 +20,8 @@ const backgroundJobEventSchema = z.discriminatedUnion("type", [
 ]) satisfies z.ZodType<BackgroundJob>;
 
 export const handler = async (rawEvent: unknown): Promise<void> => {
+  await ensureRuntimeEnv();
+
   const parsedEvent = backgroundJobEventSchema.safeParse(rawEvent);
 
   if (!parsedEvent.success) {

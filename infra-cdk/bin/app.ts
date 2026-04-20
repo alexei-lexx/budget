@@ -4,7 +4,11 @@ import { AuthCallbackConfigStack } from "../lib/auth-callback-config-stack";
 import { AuthCdkStack } from "../lib/auth-cdk-stack";
 import { BackendCdkStack } from "../lib/backend-cdk-stack";
 import { FrontendCdkStack } from "../lib/frontend-cdk-stack";
-import { requireEnv, requireFloatEnv, requireIntEnv } from "../lib/require-env";
+import { requireEnv, requireIntEnv } from "../lib/require-env";
+
+const DEFAULT_AUTH_ALLOW_USER_REGISTRATION = "true";
+const DEFAULT_AWS_LAMBDA_MEMORY_SIZE = 512;
+const DEFAULT_AWS_LAMBDA_TIMEOUT_SECONDS = 30;
 
 const app = new cdk.App();
 const nodeEnv = requireEnv("NODE_ENV");
@@ -22,12 +26,14 @@ const env = {
 };
 
 const lambdaProps = {
-  ...(process.env.AWS_LAMBDA_MEMORY_SIZE && {
-    lambdaMemorySizeMb: requireIntEnv("AWS_LAMBDA_MEMORY_SIZE"),
-  }),
-  ...(process.env.AWS_LAMBDA_TIMEOUT_SECONDS && {
-    lambdaTimeoutSeconds: requireIntEnv("AWS_LAMBDA_TIMEOUT_SECONDS"),
-  }),
+  lambdaMemorySizeMb: requireIntEnv(
+    "AWS_LAMBDA_MEMORY_SIZE",
+    DEFAULT_AWS_LAMBDA_MEMORY_SIZE,
+  ),
+  lambdaTimeoutSeconds: requireIntEnv(
+    "AWS_LAMBDA_TIMEOUT_SECONDS",
+    DEFAULT_AWS_LAMBDA_TIMEOUT_SECONDS,
+  ),
 };
 
 const authClaimNamespace = requireEnv("AUTH_CLAIM_NAMESPACE");
@@ -41,20 +47,17 @@ const authStack = new AuthCdkStack(app, "AuthCdkStack", {
   env,
   logoutUrls: (process.env.AUTH_LOGOUT_URLS || undefined)?.split(","),
   retainUserPoolOnDestroy: nodeEnv === "production",
-  selfSignUpEnabled: requireEnv("AUTH_ALLOW_USER_REGISTRATION") === "true",
+  selfSignUpEnabled:
+    requireEnv(
+      "AUTH_ALLOW_USER_REGISTRATION",
+      DEFAULT_AUTH_ALLOW_USER_REGISTRATION,
+    ) === "true",
   stackName: `${nodeEnv}-BudgetAuth`,
 });
 
 const backendStack = new BackendCdkStack(app, "BackendCdkStack", {
   ...lambdaProps,
   authClaimNamespace,
-  bedrockConnectionTimeout: requireIntEnv("AWS_BEDROCK_CONNECTION_TIMEOUT"),
-  bedrockMaxTokens: requireIntEnv("AWS_BEDROCK_MAX_TOKENS"),
-  bedrockModelId: requireEnv("AWS_BEDROCK_MODEL_ID"),
-  bedrockRequestTimeout: requireIntEnv("AWS_BEDROCK_REQUEST_TIMEOUT"),
-  bedrockTemperature: requireFloatEnv("AWS_BEDROCK_TEMPERATURE"),
-  chatHistoryMaxMessages: requireIntEnv("CHAT_HISTORY_MAX_MESSAGES"),
-  chatMessageTtlSeconds: requireIntEnv("CHAT_MESSAGE_TTL_SECONDS"),
   env,
   nodeEnv,
   stackName: `${nodeEnv}-BudgetBackend`,
