@@ -114,7 +114,7 @@ export async function injectRuntimeEnv(
     }
 
     for (const parameter of response.InvalidParameters ?? []) {
-      console.log(`Skipped SSM parameter ${parameter}: likely not existent`);
+      console.log(`Skipped SSM parameter ${parameter}: likely nonexistent`);
     }
   }
 }
