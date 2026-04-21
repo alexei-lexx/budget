@@ -7,6 +7,7 @@ import { FrontendCdkStack } from "../lib/frontend-cdk-stack";
 import { requireEnv, requireIntEnv } from "../lib/require-env";
 
 const DEFAULT_AUTH_ALLOW_USER_REGISTRATION = "true";
+const DEFAULT_AUTH_CLAIM_NAMESPACE = "https://personal-budget-tracker";
 const DEFAULT_AWS_LAMBDA_MEMORY_SIZE = 512;
 const DEFAULT_AWS_LAMBDA_TIMEOUT_SECONDS = 30;
 
@@ -36,14 +37,20 @@ const lambdaProps = {
   ),
 };
 
-const authClaimNamespace = requireEnv("AUTH_CLAIM_NAMESPACE");
+const authClaimNamespace = requireEnv(
+  "AUTH_CLAIM_NAMESPACE",
+  DEFAULT_AUTH_CLAIM_NAMESPACE,
+);
 
 // Auth stack for Cognito User Pool
 const authStack = new AuthCdkStack(app, "AuthCdkStack", {
   ...lambdaProps,
   authClaimNamespace,
   callbackUrls: (process.env.AUTH_CALLBACK_URLS || undefined)?.split(","),
-  domainPrefix: requireEnv("AUTH_DOMAIN_PREFIX"),
+  domainPrefix: requireEnv(
+    "AUTH_DOMAIN_PREFIX",
+    `${nodeEnv.toLowerCase()}-budget-auth`,
+  ),
   env,
   logoutUrls: (process.env.AUTH_LOGOUT_URLS || undefined)?.split(","),
   retainUserPoolOnDestroy: nodeEnv === "production",

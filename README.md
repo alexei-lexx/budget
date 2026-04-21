@@ -83,7 +83,14 @@ ENV=staging ./deploy.sh
 
 ### Override Configuration (Optional)
 
-All parameters have sensible defaults. To override any default, create parameters in AWS Systems Manager Parameter Store:
+All parameters have sensible defaults. To override any default, create parameters in AWS Systems Manager Parameter Store.
+
+Parameters fall into two groups:
+
+- **Deployment-time** — read by `deploy.sh` and CDK during stack deployment. Changes take effect on the next `./deploy.sh`.
+- **Runtime** — read by the backend Lambda on cold start. Changes take effect on the next cold start without redeploy.
+
+#### Deployment-time
 
 ```bash
 # Allow/disallow user self-registration
@@ -102,26 +109,6 @@ aws ssm put-parameter --overwrite --type String \
     --name "/manual/budget/production/auth/domain-prefix" \
     --value "production-budget-auth"
 
-# Auth scopes
-aws ssm put-parameter --overwrite --type String \
-    --name "/manual/budget/production/auth/scope" \
-    --value "openid profile email"
-
-# AI max response tokens
-aws ssm put-parameter --overwrite --type String \
-    --name "/manual/budget/production/bedrock/max-tokens" \
-    --value "2000"
-
-# AI model ID (e.g., openai.gpt-oss-120b-1:0)
-aws ssm put-parameter --overwrite --type String \
-    --name "/manual/budget/production/bedrock/model-id" \
-    --value "openai.gpt-oss-120b-1:0"
-
-# AI sampling temperature
-aws ssm put-parameter --overwrite --type String \
-    --name "/manual/budget/production/bedrock/temperature" \
-    --value "0.2"
-
 # Custom domain (optional, see Custom Domain Setup)
 aws ssm put-parameter --overwrite --type String \
     --name "/manual/budget/production/frontend/custom-domain" \
@@ -136,6 +123,35 @@ aws ssm put-parameter --overwrite --type String \
 aws ssm put-parameter --overwrite --type String \
     --name "/manual/budget/production/lambda/timeout-seconds" \
     --value "30"
+```
+
+#### Runtime
+
+```bash
+# AI connection timeout (in milliseconds)
+aws ssm put-parameter --overwrite --type String \
+    --name "/manual/budget/production/bedrock/connection-timeout" \
+    --value "5000"
+
+# AI max response tokens
+aws ssm put-parameter --overwrite --type String \
+    --name "/manual/budget/production/bedrock/max-tokens" \
+    --value "2000"
+
+# AI model ID (e.g., openai.gpt-oss-120b-1:0)
+aws ssm put-parameter --overwrite --type String \
+    --name "/manual/budget/production/bedrock/model-id" \
+    --value "openai.gpt-oss-120b-1:0"
+
+# AI request timeout (in milliseconds)
+aws ssm put-parameter --overwrite --type String \
+    --name "/manual/budget/production/bedrock/request-timeout" \
+    --value "30000"
+
+# AI sampling temperature
+aws ssm put-parameter --overwrite --type String \
+    --name "/manual/budget/production/bedrock/temperature" \
+    --value "0.2"
 
 # Chat history max messages
 aws ssm put-parameter --overwrite --type String \

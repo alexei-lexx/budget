@@ -20,7 +20,7 @@ NODE_ENV="$ENV"
 #
 # Behavior:
 #   - Returns the parameter value if it exists and is non-empty
-#   - Returns the provided default if:
+#   - Returns empty string if:
 #       • the parameter does not exist (ParameterNotFound)
 #       • the parameter exists but is empty (or AWS returns "None")
 #   - Fails hard on real AWS problems:
@@ -31,22 +31,17 @@ NODE_ENV="$ENV"
 # Designed for: set -euo pipefail
 #
 # Usage:
-#   VALUE=$(ssm_get_or_default "/path/to/param" "fallback") || exit $?
+#   VALUE=$(ssm_get "/path/to/param") || exit $?
 
-ssm_get_or_default() {
-  # First argument: full SSM parameter name
+ssm_get() {
+  # Full SSM parameter name
   local name="$1"
 
-  # Second argument: default value (optional)
-  local def="${2-}"
-
-  # Will capture either:
-  #   - the parameter value (stdout)
-  #   - or AWS error message (stderr redirected to stdout)
+  # Captures either the parameter value (stdout) or the AWS error message
+  # (stderr redirected to stdout via 2>&1 below)
   local out
 
-  # Will store the exit status of the aws command
-  # (0 = success, non-zero = failure)
+  # Exit status of the aws command (0 = success, non-zero = failure)
   local rc
 
   # Log what we are about to fetch (stderr keeps stdout clean for command substitution)
@@ -62,79 +57,49 @@ ssm_get_or_default() {
           --query 'Parameter.Value' \
           --output text 2>&1)
 
-  # Immediately save the exit code of the aws command.
-  # $? always refers to the most recently executed command.
+  # Save exit code immediately — $? always refers to the most recent command
   rc=$?
 
-  # Show raw AWS result for debugging
   echo "[ssm] aws exit code: $rc" >&2
   echo "[ssm] raw output: $out" >&2
 
-  # ------------------------------------------------------------------
-  # SUCCESS PATH — AWS returned without error
-  # ------------------------------------------------------------------
+  # SUCCESS — AWS returned without error
   if [[ $rc -eq 0 ]]; then
-    # out now contains the parameter value (may be empty)
-
-    # Use the value only if:
-    #   - it is non-empty
-    #   - and not the AWS placeholder string "None"
+    # "None" is AWS placeholder for empty; normalize to empty string
     if [[ -n "$out" && "$out" != "None" ]]; then
-      echo "[ssm] value found → returning value" >&2
+      echo "[ssm] value found" >&2
       printf '%s' "$out"
     else
-      # Parameter exists but is empty → fall back to default
-      echo "[ssm] value empty → using default" >&2
-      printf '%s' "$def"
+      echo "[ssm] value empty" >&2
     fi
     return 0
   fi
 
-  # ------------------------------------------------------------------
-  # MISSING PARAMETER PATH — not a real failure
-  # ------------------------------------------------------------------
-
-  # If AWS explicitly reports ParameterNotFound,
-  # treat this as expected and return the default.
+  # MISSING — ParameterNotFound is expected, not a failure
   if grep -q 'ParameterNotFound' <<<"$out"; then
-    echo "[ssm] parameter not found → using default" >&2
-    printf '%s' "$def"
+    echo "[ssm] parameter not found" >&2
     return 0
   fi
 
-  # ------------------------------------------------------------------
-  # REAL ERROR PATH — must stop the script
-  # ------------------------------------------------------------------
-
-  # Any other error means something is genuinely wrong:
-  # credentials missing, IAM denied, network issues, etc.
+  # REAL ERROR — credentials, IAM, network
   echo "[ssm] fatal AWS error:" >&2
   echo "$out" >&2
-
-  # Propagate the original AWS exit code
   return "$rc"
 }
 
-DEFAULT_AUTH_CLAIM_NAMESPACE="https://personal-budget-tracker"
-DEFAULT_AUTH_DOMAIN_PREFIX="$ENV-budget-auth"
-DEFAULT_AUTH_SCOPE="openid profile email"
-
-AUTH_ALLOW_USER_REGISTRATION=$(ssm_get_or_default "/manual/budget/$ENV/auth/allow-user-registration" "") || exit $?
+AUTH_ALLOW_USER_REGISTRATION=$(ssm_get "/manual/budget/$ENV/auth/allow-user-registration") || exit $?
 echo "AUTH_ALLOW_USER_REGISTRATION=$AUTH_ALLOW_USER_REGISTRATION"
 
-AUTH_CLAIM_NAMESPACE=$(ssm_get_or_default "/manual/budget/$ENV/auth/claim-namespace" "$DEFAULT_AUTH_CLAIM_NAMESPACE") || exit $?
+AUTH_CLAIM_NAMESPACE=$(ssm_get "/manual/budget/$ENV/auth/claim-namespace") || exit $?
 echo "AUTH_CLAIM_NAMESPACE=$AUTH_CLAIM_NAMESPACE"
 
-AUTH_DOMAIN_PREFIX=$(ssm_get_or_default "/manual/budget/$ENV/auth/domain-prefix" "$DEFAULT_AUTH_DOMAIN_PREFIX") || exit $?
+AUTH_DOMAIN_PREFIX=$(ssm_get "/manual/budget/$ENV/auth/domain-prefix") || exit $?
 echo "AUTH_DOMAIN_PREFIX=$AUTH_DOMAIN_PREFIX"
 
-AUTH_SCOPE=$(ssm_get_or_default "/manual/budget/$ENV/auth/scope" "$DEFAULT_AUTH_SCOPE") || exit $?
-echo "AUTH_SCOPE=$AUTH_SCOPE"
-
-AWS_LAMBDA_MEMORY_SIZE=$(ssm_get_or_default "/manual/budget/$ENV/lambda/memory-size" "") || exit $?
+AWS_LAMBDA_MEMORY_SIZE=$(ssm_get "/manual/budget/$ENV/lambda/memory-size") || exit $?
 echo "AWS_LAMBDA_MEMORY_SIZE=$AWS_LAMBDA_MEMORY_SIZE"
 
-AWS_LAMBDA_TIMEOUT_SECONDS=$(ssm_get_or_default "/manual/budget/$ENV/lambda/timeout-seconds" "") || exit $?
+AWS_LAMBDA_TIMEOUT_SECONDS=$(ssm_get "/manual/budget/$ENV/lambda/timeout-seconds") || exit $?
 echo "AWS_LAMBDA_TIMEOUT_SECONDS=$AWS_LAMBDA_TIMEOUT_SECONDS"
 
 echo "Switching to backend directory..."
@@ -164,6 +129,7 @@ env AUTH_ALLOW_USER_REGISTRATION="$AUTH_ALLOW_USER_REGISTRATION" \
 echo "Extracting auth configuration from CDK outputs..."
 AUTH_ISSUER=$(cat "$CDK_OUTPUT_FILE" | jq -r '."'"$ENV"'-BudgetAuth".AuthIssuer // empty')
 AUTH_CLIENT_ID=$(cat "$CDK_OUTPUT_FILE" | jq -r '."'"$ENV"'-BudgetAuth".UserPoolClientId // empty')
+AUTH_SCOPE=$(cat "$CDK_OUTPUT_FILE" | jq -r '."'"$ENV"'-BudgetAuth".AuthScope // empty')
 AUTH_UI_URL=$(cat "$CDK_OUTPUT_FILE" | jq -r '."'"$ENV"'-BudgetAuth".UserPoolDomainUrl // empty')
 
 if [ -z "$AUTH_ISSUER" ] || [ "$AUTH_ISSUER" = "null" ]; then
@@ -179,6 +145,13 @@ if [ -z "$AUTH_CLIENT_ID" ] || [ "$AUTH_CLIENT_ID" = "null" ]; then
   exit 1
 fi
 echo "AUTH_CLIENT_ID=$AUTH_CLIENT_ID"
+
+if [ -z "$AUTH_SCOPE" ] || [ "$AUTH_SCOPE" = "null" ]; then
+  echo "ERROR: AuthScope not found in CDK outputs from auth stack"
+  echo "Auth stack deployment may have failed or outputs are misconfigured"
+  exit 1
+fi
+echo "AUTH_SCOPE=$AUTH_SCOPE"
 
 if [ -z "$AUTH_UI_URL" ] || [ "$AUTH_UI_URL" = "null" ]; then
   echo "ERROR: UserPoolDomainUrl not found in CDK outputs from auth stack"
