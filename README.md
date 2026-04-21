@@ -162,6 +162,21 @@ aws ssm put-parameter --overwrite --type String \
 aws ssm put-parameter --overwrite --type String \
     --name "/manual/budget/production/app/chat-message-ttl-seconds" \
     --value "86400"
+
+# LangSmith tracing enabled
+aws ssm put-parameter --overwrite --type String \
+    --name "/manual/budget/production/langsmith/tracing" \
+    --value "true"
+
+# LangSmith API key
+aws ssm put-parameter --overwrite --type SecureString \
+    --name "/manual/budget/production/langsmith/api-key" \
+    --value "<your-langsmith-api-key>"
+
+# LangSmith project name
+aws ssm put-parameter --overwrite --type String \
+    --name "/manual/budget/production/langsmith/project" \
+    --value "<your-langsmith-project>"
 ```
 
 To override configuration for a specific environment, replace `production` in the parameter names with your target environment (e.g., `/manual/budget/staging/auth/domain-prefix`).

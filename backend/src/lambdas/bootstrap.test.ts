@@ -138,6 +138,27 @@ describe("injectRuntimeEnv", () => {
     expect(processEnv.FEATURE_Z).toBe("value-z");
   });
 
+  it("should request SSM parameters with decryption enabled", async () => {
+    // Arrange
+    const processEnv: NodeJS.ProcessEnv = {
+      AWS_LAMBDA_FUNCTION_NAME: "web-lambda",
+      NODE_ENV: "test",
+    };
+    const bindings = [
+      { ssmPath: "/budget/test/feature-x", envVar: "FEATURE_X" },
+    ];
+
+    // SSM returns nothing; test only inspects outgoing command
+    sendMock.mockResolvedValue({ $metadata: {}, Parameters: [] });
+
+    // Act
+    await injectRuntimeEnv(processEnv, () => bindings);
+
+    // Assert
+    const command = sendMock.mock.calls[0][0] as GetParametersCommand;
+    expect(command.input.WithDecryption).toBe(true);
+  });
+
   // Validation failures
 
   it("should skip SSM fetch when not running on Lambda", async () => {

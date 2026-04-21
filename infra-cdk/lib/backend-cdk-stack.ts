@@ -287,9 +287,33 @@ export class BackendCdkStack extends cdk.Stack {
       resources: [appConfigParameterArn],
     });
 
+    // Decrypt SecureString SSM parameters using the AWS-managed `aws/ssm` key.
+    // Scoped via kms:ViaService so the grant is only usable through the SSM service.
+    const decryptSsmSecureStringPolicy = new iam.PolicyStatement({
+      actions: ["kms:Decrypt"],
+      resources: [
+        cdk.Arn.format(
+          {
+            service: "kms",
+            resource: "alias",
+            resourceName: "aws/ssm",
+          },
+          this,
+        ),
+      ],
+      conditions: {
+        StringEquals: {
+          "kms:ViaService": `ssm.${this.region}.amazonaws.com`,
+        },
+      },
+    });
+
     webFunction.addToRolePolicy(readAppConfigPolicy);
+    webFunction.addToRolePolicy(decryptSsmSecureStringPolicy);
     backgroundJobFunction.addToRolePolicy(readAppConfigPolicy);
+    backgroundJobFunction.addToRolePolicy(decryptSsmSecureStringPolicy);
     migrationFunction.addToRolePolicy(readAppConfigPolicy);
+    migrationFunction.addToRolePolicy(decryptSsmSecureStringPolicy);
 
     // Used by deploy.sh to invoke the migration Lambda after deploy.
     new cdk.CfnOutput(this, "MigrationFunctionName", {

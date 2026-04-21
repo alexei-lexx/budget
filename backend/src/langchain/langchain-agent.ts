@@ -18,8 +18,11 @@ export class LangChainAgent<TContext extends Record<string, unknown>>
 {
   // ReactAgent is generic over its internal state shape, which is irrelevant
   // at this abstraction level — we only call invoke() and read response.messages.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  constructor(private agent: ReactAgent<any>) {}
+  constructor(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    private agent: ReactAgent<any>,
+    private runName?: string,
+  ) {}
 
   async invoke(
     state: { messages: readonly AgentMessage[] },
@@ -76,7 +79,11 @@ export class LangChainAgent<TContext extends Record<string, unknown>>
 
     const response = await this.agent.invoke(
       { ...state, messages },
-      { ...config, callbacks: callbackManager },
+      {
+        ...config,
+        callbacks: callbackManager,
+        ...(this.runName === undefined ? {} : { runName: this.runName }),
+      },
     );
 
     const answer = extractLastMessageText(response.messages)?.trim();
