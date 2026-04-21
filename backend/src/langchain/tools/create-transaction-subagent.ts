@@ -39,11 +39,6 @@ export const createCreateTransactionSubagentTool = ({
     transactionService,
   });
 
-  // The agent's invoke accepts a narrower config type than LangChain's generic
-  // ToolRunnableConfig. The cast is safe: LangChain always propagates the full
-  // runnable config (including context) from the outer agent to tool functions.
-  type AgentInvokeConfig = Parameters<typeof agent.invoke>[1];
-
   return tool(
     async ({ text }, config) => {
       const response = await agent.invoke(
@@ -55,7 +50,16 @@ export const createCreateTransactionSubagentTool = ({
             },
           ],
         },
-        config as AgentInvokeConfig,
+        {
+          ...config,
+          // Explicit re-assignment: the inner agent requires a non-optional `context`,
+          // but ToolRunnableConfig types it as optional.
+          // Spread alone loses the required-ness.
+          // This line carries the loosely-typed context through
+          // so TS accepts the stricter target.
+          context: config.context,
+          runName: "create-transaction-subagent",
+        },
       );
 
       const answer = extractLastMessageText(response.messages)?.trim();

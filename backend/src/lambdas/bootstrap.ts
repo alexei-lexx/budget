@@ -39,6 +39,18 @@ const defaultSsmEnvBindings: SsmEnvBindingsFactory = (nodeEnv) => [
     ssmPath: `/manual/budget/${nodeEnv}/app/chat-message-ttl-seconds`,
     envVar: "CHAT_MESSAGE_TTL_SECONDS",
   },
+  {
+    ssmPath: `/manual/budget/${nodeEnv}/langsmith/tracing`,
+    envVar: "LANGSMITH_TRACING",
+  },
+  {
+    ssmPath: `/manual/budget/${nodeEnv}/langsmith/api-key`,
+    envVar: "LANGSMITH_API_KEY",
+  },
+  {
+    ssmPath: `/manual/budget/${nodeEnv}/langsmith/project`,
+    envVar: "LANGSMITH_PROJECT",
+  },
 ];
 
 export async function injectRuntimeEnv(
@@ -48,16 +60,23 @@ export async function injectRuntimeEnv(
   // AWS_LAMBDA_FUNCTION_NAME is set by the Lambda runtime, never in local dev.
   // Local dev loads its config from .env via dotenvx and must not hit SSM.
   if (!processEnv.AWS_LAMBDA_FUNCTION_NAME) {
+    console.warn(
+      "Skipping SSM parameter injection: AWS_LAMBDA_FUNCTION_NAME is not set",
+    );
     return;
   }
 
   const nodeEnv = processEnv.NODE_ENV;
   if (!nodeEnv) {
+    console.warn("Skipping SSM parameter injection: NODE_ENV is not set");
     return;
   }
 
   const bindings = getBindings(nodeEnv);
   if (bindings.length === 0) {
+    console.warn(
+      "Skipping SSM parameter injection: no parameter bindings configured",
+    );
     return;
   }
 
@@ -69,7 +88,7 @@ export async function injectRuntimeEnv(
 
     const ssmPaths = chunk.map((binding) => binding.ssmPath);
     const response = await ssmClient.send(
-      new GetParametersCommand({ Names: ssmPaths }),
+      new GetParametersCommand({ Names: ssmPaths, WithDecryption: true }),
     );
 
     for (const parameter of response.Parameters ?? []) {
@@ -92,6 +111,10 @@ export async function injectRuntimeEnv(
           `Skipped ${binding.envVar}: already set (SSM parameter ${parameter.Name} ignored)`,
         );
       }
+    }
+
+    for (const parameter of response.InvalidParameters ?? []) {
+      console.log(`Skipped SSM parameter ${parameter}: likely nonexistent`);
     }
   }
 }
