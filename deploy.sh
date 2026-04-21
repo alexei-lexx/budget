@@ -117,7 +117,6 @@ ssm_get_or_default() {
 
 DEFAULT_AUTH_CLAIM_NAMESPACE="https://personal-budget-tracker"
 DEFAULT_AUTH_DOMAIN_PREFIX="$ENV-budget-auth"
-DEFAULT_AUTH_SCOPE="openid profile email"
 
 AUTH_ALLOW_USER_REGISTRATION=$(ssm_get_or_default "/manual/budget/$ENV/auth/allow-user-registration" "") || exit $?
 echo "AUTH_ALLOW_USER_REGISTRATION=$AUTH_ALLOW_USER_REGISTRATION"
@@ -127,9 +126,6 @@ echo "AUTH_CLAIM_NAMESPACE=$AUTH_CLAIM_NAMESPACE"
 
 AUTH_DOMAIN_PREFIX=$(ssm_get_or_default "/manual/budget/$ENV/auth/domain-prefix" "$DEFAULT_AUTH_DOMAIN_PREFIX") || exit $?
 echo "AUTH_DOMAIN_PREFIX=$AUTH_DOMAIN_PREFIX"
-
-AUTH_SCOPE=$(ssm_get_or_default "/manual/budget/$ENV/auth/scope" "$DEFAULT_AUTH_SCOPE") || exit $?
-echo "AUTH_SCOPE=$AUTH_SCOPE"
 
 AWS_LAMBDA_MEMORY_SIZE=$(ssm_get_or_default "/manual/budget/$ENV/lambda/memory-size" "") || exit $?
 echo "AWS_LAMBDA_MEMORY_SIZE=$AWS_LAMBDA_MEMORY_SIZE"
@@ -164,6 +160,7 @@ env AUTH_ALLOW_USER_REGISTRATION="$AUTH_ALLOW_USER_REGISTRATION" \
 echo "Extracting auth configuration from CDK outputs..."
 AUTH_ISSUER=$(cat "$CDK_OUTPUT_FILE" | jq -r '."'"$ENV"'-BudgetAuth".AuthIssuer // empty')
 AUTH_CLIENT_ID=$(cat "$CDK_OUTPUT_FILE" | jq -r '."'"$ENV"'-BudgetAuth".UserPoolClientId // empty')
+AUTH_SCOPE=$(cat "$CDK_OUTPUT_FILE" | jq -r '."'"$ENV"'-BudgetAuth".AuthScope // empty')
 AUTH_UI_URL=$(cat "$CDK_OUTPUT_FILE" | jq -r '."'"$ENV"'-BudgetAuth".UserPoolDomainUrl // empty')
 
 if [ -z "$AUTH_ISSUER" ] || [ "$AUTH_ISSUER" = "null" ]; then
@@ -179,6 +176,13 @@ if [ -z "$AUTH_CLIENT_ID" ] || [ "$AUTH_CLIENT_ID" = "null" ]; then
   exit 1
 fi
 echo "AUTH_CLIENT_ID=$AUTH_CLIENT_ID"
+
+if [ -z "$AUTH_SCOPE" ] || [ "$AUTH_SCOPE" = "null" ]; then
+  echo "ERROR: AuthScope not found in CDK outputs from auth stack"
+  echo "Auth stack deployment may have failed or outputs are misconfigured"
+  exit 1
+fi
+echo "AUTH_SCOPE=$AUTH_SCOPE"
 
 if [ -z "$AUTH_UI_URL" ] || [ "$AUTH_UI_URL" = "null" ]; then
   echo "ERROR: UserPoolDomainUrl not found in CDK outputs from auth stack"

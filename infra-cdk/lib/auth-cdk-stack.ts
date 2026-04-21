@@ -150,6 +150,12 @@ export class AuthCdkStack extends cdk.Stack {
       cognito.LambdaVersion.V2_0,
     );
 
+    const scopes = [
+      cognito.OAuthScope.OPENID, // Required for OIDC compliance and to get ID tokens
+      cognito.OAuthScope.PROFILE, // Grants access to user's name and other profile info
+      cognito.OAuthScope.EMAIL, // Grants access to user's email address
+    ];
+
     this.userPoolClient = new cognito.UserPoolClient(this, "UserPoolClient", {
       userPool: this.userPool,
 
@@ -173,12 +179,8 @@ export class AuthCdkStack extends cdk.Stack {
           implicitCodeGrant: false, // Deprecated, less secure
           clientCredentials: false, // Machine-to-machine only, not for users
         },
-        // OIDC scopes: openid (required), profile (name), email (email address)
-        scopes: [
-          cognito.OAuthScope.OPENID,
-          cognito.OAuthScope.PROFILE,
-          cognito.OAuthScope.EMAIL,
-        ],
+        // OIDC scopes
+        scopes,
         // Callback/logout URLs are optional - supports local development with localhost URLs
         // Production URLs are set by AuthCallbackConfigStack after CloudFront deployment
         // Where Cognito redirects after login
@@ -243,6 +245,11 @@ export class AuthCdkStack extends cdk.Stack {
     new cdk.CfnOutput(this, "AuthIssuer", {
       value: this.userPool.userPoolProviderUrl,
       description: "OIDC Issuer URL for JWT verification",
+    });
+
+    new cdk.CfnOutput(this, "AuthScope", {
+      value: scopes.map((scope) => scope.scopeName).join(" "),
+      description: "Space-separated list of OAuth scopes",
     });
   }
 }
