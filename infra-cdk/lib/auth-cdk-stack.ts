@@ -19,19 +19,12 @@ import { defaultLambdaOptions } from "./default-lambda-options";
  * - Password: Traditional email + password authentication
  * - Passkey: WebAuthn/FIDO2 passwordless authentication
  *
- * Environment variables:
- * - NODE_ENV: Environment name (default: "test")
- * - AUTH_ALLOW_USER_REGISTRATION: Enable self sign-up ("true") or disable it ("false")
- * - AUTH_CALLBACK_URLS: Comma-separated callback URLs (optional, for local development)
- * - AUTH_CLAIM_NAMESPACE: Namespace for custom claims (required)
- * - AUTH_DOMAIN_PREFIX: Cognito domain prefix
- * - AUTH_LOGOUT_URLS: Comma-separated logout URLs (optional, for local development)
- *
  * Outputs:
  * - UserPoolId: The Cognito User Pool ID
  * - UserPoolClientId: The ID of the User Pool Client
  * - UserPoolDomainUrl: The full Cognito Hosted UI domain URL
  * - AuthIssuer: The OIDC issuer URL for JWT verification
+ * - AuthScope: The space-separated list of OAuth scopes
  *
  * Note on Callback/Logout URLs:
  * - Production: Set by AuthCallbackConfigStack after CloudFront deployment
