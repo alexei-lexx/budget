@@ -1793,7 +1793,7 @@ describe("DynTransactionRepository", () => {
       expect(stored).toEqual(updated);
     });
 
-    it("REMOVES optional fields when undefined on Transaction", async () => {
+    it("removes optional fields when undefined on Transaction", async () => {
       // Arrange
       const userId = faker.string.uuid();
       const created = fakeTransaction({

@@ -6,7 +6,7 @@ import { batchLoadAccounts, createAccountLoader } from "./account-loader";
 
 describe("Account Batch Loader", () => {
   describe("batchLoadAccounts", () => {
-    it("batches load 5 valid account IDs and returns correct data", async () => {
+    it("batch-loads 5 valid account IDs and returns correct data", async () => {
       const mockRepository = createMockAccountRepository();
 
       // Create 5 fake accounts
@@ -165,7 +165,7 @@ describe("Account Batch Loader", () => {
       expect(loader).toBeInstanceOf(DataLoader);
     });
 
-    it("batches load through DataLoader", async () => {
+    it("batch-loads through DataLoader", async () => {
       const mockRepository = createMockAccountRepository();
       const account = fakeAccount({ id: "acc-1" });
 

@@ -6,7 +6,7 @@ import { batchLoadCategories, createCategoryLoader } from "./category-loader";
 
 describe("Category Batch Loader", () => {
   describe("batchLoadCategories", () => {
-    it("batches load 5 valid category IDs and returns correct data", async () => {
+    it("batch-loads 5 valid category IDs and returns correct data", async () => {
       const mockRepository = createMockCategoryRepository();
 
       // Create 5 fake categories
@@ -162,7 +162,7 @@ describe("Category Batch Loader", () => {
       expect(loader).toBeInstanceOf(DataLoader);
     });
 
-    it("batches load through DataLoader with valid ID", async () => {
+    it("batch-loads through DataLoader with valid ID", async () => {
       const mockRepository = createMockCategoryRepository();
       const category = fakeCategory({ id: "cat-1" });
 
