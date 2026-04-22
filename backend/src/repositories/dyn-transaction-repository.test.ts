@@ -1154,7 +1154,7 @@ describe("DynTransactionRepository", () => {
       const userId = faker.string.uuid();
       const accountId = faker.string.uuid();
 
-      const createInputs: Transaction[] = [
+      const transactions: Transaction[] = [
         fakeTransaction({
           userId,
           accountId,
@@ -1167,7 +1167,7 @@ describe("DynTransactionRepository", () => {
         }),
       ];
 
-      await repository.createMany(createInputs);
+      await repository.createMany(transactions);
 
       // Act - Search with uppercase "G"
       const resultUppercase = await repository.findManyByDescription({
