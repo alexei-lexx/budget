@@ -1,6 +1,6 @@
 import { faker } from "@faker-js/faker";
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
-import { TransactionType } from "../models/transaction";
+import { TransactionType, createTransactionModel } from "../models/transaction";
 import { AccountRepository } from "../ports/account-repository";
 import { TransactionRepository } from "../ports/transaction-repository";
 import { toDateString } from "../types/date";
@@ -17,15 +17,20 @@ describe("TransferService", () => {
   let userId: string;
   let mockTransactionRepository: jest.Mocked<TransactionRepository>;
   let mockAccountRepository: jest.Mocked<AccountRepository>;
+  let mockCreateTransactionModel: jest.MockedFunction<
+    typeof createTransactionModel
+  >;
 
   beforeEach(() => {
-    mockTransactionRepository = createMockTransactionRepository();
     mockAccountRepository = createMockAccountRepository();
+    mockTransactionRepository = createMockTransactionRepository();
+    mockCreateTransactionModel = jest.fn<typeof createTransactionModel>();
 
-    service = new TransferService(
-      mockTransactionRepository,
-      mockAccountRepository,
-    );
+    service = new TransferService({
+      accountRepository: mockAccountRepository,
+      transactionRepository: mockTransactionRepository,
+      createTransactionModel: mockCreateTransactionModel,
+    });
 
     userId = faker.string.uuid();
 
@@ -165,10 +170,10 @@ describe("TransferService", () => {
       mockAccountRepository.findOneById
         .mockResolvedValueOnce(fromAccount)
         .mockResolvedValueOnce(toAccount);
-      mockTransactionRepository.createMany.mockResolvedValue([
-        outboundTransaction,
-        inboundTransaction,
-      ]);
+      mockCreateTransactionModel
+        .mockReturnValueOnce(outboundTransaction)
+        .mockReturnValueOnce(inboundTransaction);
+      mockTransactionRepository.createMany.mockResolvedValue();
 
       const result = await service.createTransfer(
         {
@@ -185,6 +190,28 @@ describe("TransferService", () => {
         outboundTransaction,
         inboundTransaction,
       });
+      expect(mockCreateTransactionModel).toHaveBeenNthCalledWith(1, {
+        userId,
+        account: fromAccount,
+        type: TransactionType.TRANSFER_OUT,
+        amount: 100,
+        date: toDateString("2024-01-01"),
+        description: undefined,
+        transferId: result.transferId,
+      });
+      expect(mockCreateTransactionModel).toHaveBeenNthCalledWith(2, {
+        userId,
+        account: toAccount,
+        type: TransactionType.TRANSFER_IN,
+        amount: 100,
+        date: toDateString("2024-01-01"),
+        description: undefined,
+        transferId: result.transferId,
+      });
+      expect(mockTransactionRepository.createMany).toHaveBeenCalledWith([
+        outboundTransaction,
+        inboundTransaction,
+      ]);
     });
 
     it("should reject description exceeding maximum length", async () => {

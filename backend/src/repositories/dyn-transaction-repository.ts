@@ -1,4 +1,3 @@
-import { randomUUID } from "crypto";
 import {
   GetCommand,
   PutCommand,
@@ -16,7 +15,6 @@ import {
 } from "../models/transaction";
 import { RepositoryError } from "../ports/repository-error";
 import {
-  CreateTransactionInput,
   TransactionConnection,
   TransactionEdge,
   TransactionFilterInput,
@@ -492,25 +490,20 @@ export class DynTransactionRepository
     }
   }
 
-  async createMany(inputs: CreateTransactionInput[]): Promise<Transaction[]> {
-    if (!inputs.length) {
+  async createMany(transactions: Transaction[]): Promise<void> {
+    if (!transactions.length) {
       throw new RepositoryError(
-        "At least one transaction input is required",
+        "At least one transaction is required",
         "INVALID_PARAMETERS",
       );
     }
 
-    if (inputs.length > DYNAMODB_TRANSACT_WRITE_MAX_ITEMS) {
+    if (transactions.length > DYNAMODB_TRANSACT_WRITE_MAX_ITEMS) {
       throw new RepositoryError(
         `DynamoDB transactions support a maximum of ${DYNAMODB_TRANSACT_WRITE_MAX_ITEMS} items`,
         "TOO_MANY_ITEMS",
       );
     }
-
-    const now = new Date().toISOString();
-    const transactions = inputs.map((input) =>
-      this.buildTransaction(input, now),
-    );
 
     try {
       const transactItems = transactions.map((transaction) => ({
@@ -528,7 +521,6 @@ export class DynTransactionRepository
       });
 
       await this.client.send(command);
-      return transactions;
     } catch (error) {
       console.error("Error creating transactions atomically:", error);
       throw new RepositoryError(
@@ -1036,27 +1028,6 @@ export class DynTransactionRepository
       filterExpression: filterConditions.join(" AND "),
       expressionAttributeNames,
       expressionAttributeValues,
-    };
-  }
-
-  private buildTransaction(
-    input: CreateTransactionInput,
-    timestamp: string,
-  ): Transaction {
-    return {
-      id: randomUUID(),
-      userId: input.userId,
-      accountId: input.accountId,
-      categoryId: input.categoryId || undefined,
-      type: input.type,
-      amount: input.amount,
-      currency: input.currency,
-      date: input.date,
-      description: input.description || undefined,
-      transferId: input.transferId || undefined,
-      isArchived: false,
-      createdAt: timestamp,
-      updatedAt: timestamp,
     };
   }
 

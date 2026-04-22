@@ -18,8 +18,8 @@ import { createDynamoDBDocumentClient } from "../../utils/dynamo-client";
 import { truncateAllTables } from "../../utils/test-utils/dynamodb-helpers";
 import { fakeAccount } from "../../utils/test-utils/models/account-fakes";
 import { fakeCategory } from "../../utils/test-utils/models/category-fakes";
+import { fakeTransaction } from "../../utils/test-utils/models/transaction-fakes";
 import { fakeUser } from "../../utils/test-utils/models/user-fakes";
-import { fakeCreateTransactionInput } from "../../utils/test-utils/repositories/transaction-repository-fakes";
 import { createAssistantAgent } from "./assistant-agent";
 
 const accountRepository = resolveAccountRepository();
@@ -97,7 +97,7 @@ describe("AssistantAgent (integration)", () => {
     // Arrange
     const account = await accountRepository.create(fakeAccount({ userId }));
     await transactionRepository.createMany([
-      fakeCreateTransactionInput({
+      fakeTransaction({
         userId,
         accountId: account.id,
         amount: 20,
@@ -105,7 +105,7 @@ describe("AssistantAgent (integration)", () => {
         date: toDateString(today),
         type: TransactionType.EXPENSE,
       }),
-      fakeCreateTransactionInput({
+      fakeTransaction({
         userId,
         accountId: account.id,
         amount: 30,

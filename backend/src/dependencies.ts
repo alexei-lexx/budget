@@ -87,10 +87,10 @@ export const resolveTransactionService = createSingleton(
 );
 export const resolveTransferService = createSingleton(
   () =>
-    new TransferService(
-      resolveTransactionRepository(),
-      resolveAccountRepository(),
-    ),
+    new TransferService({
+      accountRepository: resolveAccountRepository(),
+      transactionRepository: resolveTransactionRepository(),
+    }),
 );
 export const resolveUserService = createSingleton(
   () => new UserService(resolveUserRepository()),

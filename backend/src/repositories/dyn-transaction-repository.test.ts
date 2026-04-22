@@ -5,17 +5,17 @@ import {
 } from "@aws-sdk/lib-dynamodb";
 import { faker } from "@faker-js/faker";
 import { beforeAll, beforeEach, describe, expect, it } from "@jest/globals";
-import { TransactionPatternType, TransactionType } from "../models/transaction";
 import {
-  CreateTransactionInput,
-  UpdateTransactionInput,
-} from "../ports/transaction-repository";
+  Transaction,
+  TransactionPatternType,
+  TransactionType,
+} from "../models/transaction";
+import { UpdateTransactionInput } from "../ports/transaction-repository";
 import { toDateString } from "../types/date";
 import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
 import { requireEnv } from "../utils/require-env";
 import { truncateTable } from "../utils/test-utils/dynamodb-helpers";
 import { fakeTransaction } from "../utils/test-utils/models/transaction-fakes";
-import { fakeCreateTransactionInput } from "../utils/test-utils/repositories/transaction-repository-fakes";
 import { DynTransactionRepository } from "./dyn-transaction-repository";
 
 describe("DynTransactionRepository", () => {
@@ -112,9 +112,9 @@ describe("DynTransactionRepository", () => {
 
         // Create transactions for different accounts
         await repository.createMany([
-          fakeCreateTransactionInput({ userId, accountId: account1 }),
-          fakeCreateTransactionInput({ userId, accountId: account2 }),
-          fakeCreateTransactionInput({ userId, accountId: account1 }),
+          fakeTransaction({ userId, accountId: account1 }),
+          fakeTransaction({ userId, accountId: account2 }),
+          fakeTransaction({ userId, accountId: account1 }),
         ]);
 
         // Act
@@ -143,10 +143,10 @@ describe("DynTransactionRepository", () => {
 
         // Create transactions for three different accounts
         await repository.createMany([
-          fakeCreateTransactionInput({ userId, accountId: account1 }),
-          fakeCreateTransactionInput({ userId, accountId: account2 }),
-          fakeCreateTransactionInput({ userId, accountId: account3 }),
-          fakeCreateTransactionInput({ userId, accountId: account1 }),
+          fakeTransaction({ userId, accountId: account1 }),
+          fakeTransaction({ userId, accountId: account2 }),
+          fakeTransaction({ userId, accountId: account3 }),
+          fakeTransaction({ userId, accountId: account1 }),
         ]);
 
         // Act - Filter by account1 and account2 (should get 3 transactions)
@@ -202,17 +202,17 @@ describe("DynTransactionRepository", () => {
 
         // Create transactions for different categories
         await repository.createMany([
-          fakeCreateTransactionInput({
+          fakeTransaction({
             userId,
             accountId,
             categoryId: category1,
           }),
-          fakeCreateTransactionInput({
+          fakeTransaction({
             userId,
             accountId,
             categoryId: category2,
           }),
-          fakeCreateTransactionInput({
+          fakeTransaction({
             userId,
             accountId,
             categoryId: category1,
@@ -246,17 +246,17 @@ describe("DynTransactionRepository", () => {
 
         // Create transactions for three different categories
         await repository.createMany([
-          fakeCreateTransactionInput({
+          fakeTransaction({
             userId,
             accountId,
             categoryId: category1,
           }),
-          fakeCreateTransactionInput({
+          fakeTransaction({
             userId,
             accountId,
             categoryId: category2,
           }),
-          fakeCreateTransactionInput({
+          fakeTransaction({
             userId,
             accountId,
             categoryId: category3,
@@ -289,17 +289,17 @@ describe("DynTransactionRepository", () => {
 
         // Create transactions: some with categories, some without
         await repository.createMany([
-          fakeCreateTransactionInput({
+          fakeTransaction({
             userId,
             accountId,
             categoryId: category1,
           }),
-          fakeCreateTransactionInput({
+          fakeTransaction({
             userId,
             accountId,
             categoryId: undefined,
           }),
-          fakeCreateTransactionInput({
+          fakeTransaction({
             userId,
             accountId,
             categoryId: undefined,
@@ -332,22 +332,22 @@ describe("DynTransactionRepository", () => {
 
         // Create transactions: some with category1, some with category2, some uncategorized
         await repository.createMany([
-          fakeCreateTransactionInput({
+          fakeTransaction({
             userId,
             accountId,
             categoryId: category1,
           }),
-          fakeCreateTransactionInput({
+          fakeTransaction({
             userId,
             accountId,
             categoryId: category2,
           }),
-          fakeCreateTransactionInput({
+          fakeTransaction({
             userId,
             accountId,
             categoryId: undefined,
           }),
-          fakeCreateTransactionInput({
+          fakeTransaction({
             userId,
             accountId,
             categoryId: category1,
@@ -409,17 +409,17 @@ describe("DynTransactionRepository", () => {
         const accountId = faker.string.uuid();
 
         await repository.createMany([
-          fakeCreateTransactionInput({
+          fakeTransaction({
             userId,
             accountId,
             date: toDateString("2024-01-10"),
           }),
-          fakeCreateTransactionInput({
+          fakeTransaction({
             userId,
             accountId,
             date: toDateString("2024-01-15"),
           }),
-          fakeCreateTransactionInput({
+          fakeTransaction({
             userId,
             accountId,
             date: toDateString("2024-01-20"),
@@ -448,17 +448,17 @@ describe("DynTransactionRepository", () => {
         const accountId = faker.string.uuid();
 
         await repository.createMany([
-          fakeCreateTransactionInput({
+          fakeTransaction({
             userId,
             accountId,
             date: toDateString("2024-01-10"),
           }),
-          fakeCreateTransactionInput({
+          fakeTransaction({
             userId,
             accountId,
             date: toDateString("2024-01-20"),
           }),
-          fakeCreateTransactionInput({
+          fakeTransaction({
             userId,
             accountId,
             date: toDateString("2024-01-25"),
@@ -487,27 +487,27 @@ describe("DynTransactionRepository", () => {
         const accountId = faker.string.uuid();
 
         await repository.createMany([
-          fakeCreateTransactionInput({
+          fakeTransaction({
             userId,
             accountId,
             date: toDateString("2024-01-05"),
           }),
-          fakeCreateTransactionInput({
+          fakeTransaction({
             userId,
             accountId,
             date: toDateString("2024-01-10"),
           }),
-          fakeCreateTransactionInput({
+          fakeTransaction({
             userId,
             accountId,
             date: toDateString("2024-01-15"),
           }),
-          fakeCreateTransactionInput({
+          fakeTransaction({
             userId,
             accountId,
             date: toDateString("2024-01-20"),
           }),
-          fakeCreateTransactionInput({
+          fakeTransaction({
             userId,
             accountId,
             date: toDateString("2024-01-25"),
@@ -539,17 +539,17 @@ describe("DynTransactionRepository", () => {
         const accountId = faker.string.uuid();
 
         await repository.createMany([
-          fakeCreateTransactionInput({
+          fakeTransaction({
             userId,
             accountId,
             date: toDateString("2024-01-01"),
           }),
-          fakeCreateTransactionInput({
+          fakeTransaction({
             userId,
             accountId,
             date: toDateString("2024-06-15"),
           }),
-          fakeCreateTransactionInput({
+          fakeTransaction({
             userId,
             accountId,
             date: toDateString("2024-12-31"),
@@ -573,17 +573,17 @@ describe("DynTransactionRepository", () => {
         const accountId = faker.string.uuid();
 
         await repository.createMany([
-          fakeCreateTransactionInput({
+          fakeTransaction({
             userId,
             accountId,
             type: TransactionType.INCOME,
           }),
-          fakeCreateTransactionInput({
+          fakeTransaction({
             userId,
             accountId,
             type: TransactionType.EXPENSE,
           }),
-          fakeCreateTransactionInput({
+          fakeTransaction({
             userId,
             accountId,
             type: TransactionType.INCOME,
@@ -613,22 +613,22 @@ describe("DynTransactionRepository", () => {
         const accountId = faker.string.uuid();
 
         await repository.createMany([
-          fakeCreateTransactionInput({
+          fakeTransaction({
             userId,
             accountId,
             type: TransactionType.INCOME,
           }),
-          fakeCreateTransactionInput({
+          fakeTransaction({
             userId,
             accountId,
             type: TransactionType.EXPENSE,
           }),
-          fakeCreateTransactionInput({
+          fakeTransaction({
             userId,
             accountId,
             type: TransactionType.TRANSFER_IN,
           }),
-          fakeCreateTransactionInput({
+          fakeTransaction({
             userId,
             accountId,
             type: TransactionType.TRANSFER_OUT,
@@ -665,22 +665,22 @@ describe("DynTransactionRepository", () => {
         const account2 = faker.string.uuid();
 
         await repository.createMany([
-          fakeCreateTransactionInput({
+          fakeTransaction({
             userId,
             accountId: account1,
             date: toDateString("2024-01-10"),
           }),
-          fakeCreateTransactionInput({
+          fakeTransaction({
             userId,
             accountId: account1,
             date: toDateString("2024-01-20"),
           }),
-          fakeCreateTransactionInput({
+          fakeTransaction({
             userId,
             accountId: account2,
             date: toDateString("2024-01-15"),
           }),
-          fakeCreateTransactionInput({
+          fakeTransaction({
             userId,
             accountId: account2,
             date: toDateString("2024-01-25"),
@@ -713,25 +713,25 @@ describe("DynTransactionRepository", () => {
         const category2 = faker.string.uuid();
 
         await repository.createMany([
-          fakeCreateTransactionInput({
+          fakeTransaction({
             userId,
             accountId,
             categoryId: category1,
             type: TransactionType.INCOME,
           }),
-          fakeCreateTransactionInput({
+          fakeTransaction({
             userId,
             accountId,
             categoryId: category1,
             type: TransactionType.EXPENSE,
           }),
-          fakeCreateTransactionInput({
+          fakeTransaction({
             userId,
             accountId,
             categoryId: category2,
             type: TransactionType.INCOME,
           }),
-          fakeCreateTransactionInput({
+          fakeTransaction({
             userId,
             accountId,
             categoryId: category2,
@@ -765,42 +765,42 @@ describe("DynTransactionRepository", () => {
         const category2 = faker.string.uuid();
 
         await repository.createMany([
-          fakeCreateTransactionInput({
+          fakeTransaction({
             userId,
             accountId: account1,
             categoryId: category1,
             date: toDateString("2024-01-15"),
             type: TransactionType.EXPENSE,
           }),
-          fakeCreateTransactionInput({
+          fakeTransaction({
             userId,
             accountId: account1,
             categoryId: category1,
             date: toDateString("2024-01-20"),
             type: TransactionType.EXPENSE,
           }),
-          fakeCreateTransactionInput({
+          fakeTransaction({
             userId,
             accountId: account1,
             categoryId: category2,
             date: toDateString("2024-01-20"),
             type: TransactionType.EXPENSE,
           }),
-          fakeCreateTransactionInput({
+          fakeTransaction({
             userId,
             accountId: account2,
             categoryId: category1,
             date: toDateString("2024-01-20"),
             type: TransactionType.EXPENSE,
           }),
-          fakeCreateTransactionInput({
+          fakeTransaction({
             userId,
             accountId: account1,
             categoryId: category1,
             date: toDateString("2024-01-20"),
             type: TransactionType.INCOME,
           }),
-          fakeCreateTransactionInput({
+          fakeTransaction({
             userId,
             accountId: account1,
             categoryId: category1,
@@ -841,38 +841,39 @@ describe("DynTransactionRepository", () => {
         const userId = faker.string.uuid();
         const accountId = faker.string.uuid();
 
-        const transactions = await repository.createMany([
-          fakeCreateTransactionInput({
+        const transactions = [
+          fakeTransaction({
             userId,
             accountId,
             date: toDateString("2024-01-20"),
           }),
-          fakeCreateTransactionInput({
+          fakeTransaction({
             userId,
             accountId,
             date: toDateString("2024-01-19"),
           }),
-          fakeCreateTransactionInput({
+          fakeTransaction({
             userId,
             accountId,
             date: toDateString("2024-01-18"),
           }),
-          fakeCreateTransactionInput({
+          fakeTransaction({
             userId,
             accountId,
             date: toDateString("2024-01-17"),
           }),
-          fakeCreateTransactionInput({
+          fakeTransaction({
             userId,
             accountId,
             date: toDateString("2024-01-16"),
           }),
-          fakeCreateTransactionInput({
+          fakeTransaction({
             userId,
             accountId,
             date: toDateString("2024-01-15"),
           }),
-        ]);
+        ];
+        await repository.createMany(transactions);
 
         // Act - Fetch first page with date filter (triggers UserDateIndex usage)
         const page1 = await repository.findManyByUserIdPaginated(
@@ -933,38 +934,39 @@ describe("DynTransactionRepository", () => {
         const userId = faker.string.uuid();
         const accountId = faker.string.uuid();
 
-        const transactions = await repository.createMany([
-          fakeCreateTransactionInput({
+        const transactions = [
+          fakeTransaction({
             userId,
             accountId,
             date: toDateString("2024-01-20"),
           }),
-          fakeCreateTransactionInput({
+          fakeTransaction({
             userId,
             accountId,
             date: toDateString("2024-01-19"),
           }),
-          fakeCreateTransactionInput({
+          fakeTransaction({
             userId,
             accountId,
             date: toDateString("2024-01-18"),
           }),
-          fakeCreateTransactionInput({
+          fakeTransaction({
             userId,
             accountId,
             date: toDateString("2024-01-17"),
           }),
-          fakeCreateTransactionInput({
+          fakeTransaction({
             userId,
             accountId,
             date: toDateString("2024-01-16"),
           }),
-          fakeCreateTransactionInput({
+          fakeTransaction({
             userId,
             accountId,
             date: toDateString("2024-01-15"),
           }),
-        ]);
+        ];
+        await repository.createMany(transactions);
 
         // Act - Fetch first page WITHOUT date filter (triggers UserCreatedAtIndex usage)
         const page1 = await repository.findManyByUserIdPaginated(
@@ -1152,13 +1154,13 @@ describe("DynTransactionRepository", () => {
       const userId = faker.string.uuid();
       const accountId = faker.string.uuid();
 
-      const createInputs: CreateTransactionInput[] = [
-        fakeCreateTransactionInput({
+      const createInputs: Transaction[] = [
+        fakeTransaction({
           userId,
           accountId,
           description: "Grocery store",
         }),
-        fakeCreateTransactionInput({
+        fakeTransaction({
           userId,
           accountId,
           description: "grocery shopping",
@@ -1230,10 +1232,10 @@ describe("DynTransactionRepository", () => {
       const userId = faker.string.uuid();
       const accountId = faker.string.uuid();
 
-      const createInputs: CreateTransactionInput[] = [];
+      const createInputs: Transaction[] = [];
       for (let i = 1; i <= 3; i++) {
         createInputs.push(
-          fakeCreateTransactionInput({
+          fakeTransaction({
             userId,
             accountId,
             description: `Store transaction ${i}`,
@@ -1259,13 +1261,13 @@ describe("DynTransactionRepository", () => {
       const userId = faker.string.uuid();
       const accountId = faker.string.uuid();
 
-      const createInputs: CreateTransactionInput[] = [
-        fakeCreateTransactionInput({
+      const createInputs: Transaction[] = [
+        fakeTransaction({
           userId,
           accountId,
           description: "Grocery store",
         }),
-        fakeCreateTransactionInput({
+        fakeTransaction({
           userId,
           accountId,
           description: undefined, // No description
@@ -1291,23 +1293,23 @@ describe("DynTransactionRepository", () => {
       const userId = faker.string.uuid();
       const accountId = faker.string.uuid();
 
-      const createInputs: CreateTransactionInput[] = [
-        fakeCreateTransactionInput({
+      const createInputs: Transaction[] = [
+        fakeTransaction({
           userId,
           accountId,
           description: "Store purchase 1",
         }),
-        fakeCreateTransactionInput({
+        fakeTransaction({
           userId,
           accountId,
           description: "Store purchase 2",
         }),
       ];
 
-      const createdTransactions = await repository.createMany(createInputs);
+      await repository.createMany(createInputs);
 
       // Archive one transaction
-      await repository.archive({ id: createdTransactions[0].id, userId });
+      await repository.archive({ id: createInputs[0].id, userId });
 
       // Act
       const result = await repository.findManyByDescription({
@@ -1327,13 +1329,13 @@ describe("DynTransactionRepository", () => {
       const user2 = faker.string.uuid();
       const accountId = faker.string.uuid();
 
-      const createInputs: CreateTransactionInput[] = [
-        fakeCreateTransactionInput({
+      const createInputs: Transaction[] = [
+        fakeTransaction({
           userId: user1,
           accountId,
           description: "User 1 store",
         }),
-        fakeCreateTransactionInput({
+        fakeTransaction({
           userId: user2,
           accountId,
           description: "User 2 store",
@@ -1391,8 +1393,8 @@ describe("DynTransactionRepository", () => {
       const userId = faker.string.uuid();
       const accountId = faker.string.uuid();
 
-      const createInputs: CreateTransactionInput[] = [
-        fakeCreateTransactionInput({
+      const createInputs: Transaction[] = [
+        fakeTransaction({
           userId,
           accountId,
           description: "Grocery store",
@@ -1475,13 +1477,13 @@ describe("DynTransactionRepository", () => {
       const userId = faker.string.uuid();
       const accountId = faker.string.uuid();
 
-      const createInputs: CreateTransactionInput[] = [
-        fakeCreateTransactionInput({
+      const createInputs: Transaction[] = [
+        fakeTransaction({
           userId,
           accountId,
           description: "Exact match",
         }),
-        fakeCreateTransactionInput({
+        fakeTransaction({
           userId,
           accountId,
           description: "Not a match",
@@ -1507,13 +1509,13 @@ describe("DynTransactionRepository", () => {
       const userId = faker.string.uuid();
       const accountId = faker.string.uuid();
 
-      const createInputs: CreateTransactionInput[] = [
-        fakeCreateTransactionInput({
+      const createInputs: Transaction[] = [
+        fakeTransaction({
           userId,
           accountId,
           description: "This is a long description with multiple words",
         }),
-        fakeCreateTransactionInput({
+        fakeTransaction({
           userId,
           accountId,
           description: "Short desc",
@@ -1618,89 +1620,59 @@ describe("DynTransactionRepository", () => {
 
   describe("createMany", () => {
     it("should throw error for empty input array", async () => {
-      const inputs: CreateTransactionInput[] = [];
+      const inputs: Transaction[] = [];
 
       await expect(repository.createMany(inputs)).rejects.toThrow(
-        "At least one transaction input is required",
+        "At least one transaction is required",
       );
     });
 
     it("should create multiple transactions successfully", async () => {
       const userId1 = faker.string.uuid();
-      const accountId1 = faker.string.uuid();
       const userId2 = faker.string.uuid();
-      const accountId2 = faker.string.uuid();
-      const inputs: CreateTransactionInput[] = [
-        {
+      const inputs: Transaction[] = [
+        fakeTransaction({
           userId: userId1,
-          accountId: accountId1,
           type: TransactionType.INCOME,
           amount: 300.0,
           currency: "USD",
           date: toDateString("2024-01-18"),
-        },
-        {
+        }),
+        fakeTransaction({
           userId: userId2,
-          accountId: accountId2,
           type: TransactionType.EXPENSE,
           amount: 150.0,
           currency: "EUR",
           date: toDateString("2024-01-19"),
-        },
+        }),
       ];
 
-      const result = await repository.createMany(inputs);
-
-      expect(result.length).toBe(2);
-
-      expect(result[0]).toBeDefined();
-      expect(result[0].userId).toBe(inputs[0].userId);
-      expect(result[0].accountId).toBe(inputs[0].accountId);
-      expect(result[0].type).toBe(inputs[0].type);
-      expect(result[0].amount).toBe(inputs[0].amount);
-      expect(result[0].currency).toBe(inputs[0].currency);
-      expect(result[0].date).toBe(inputs[0].date);
-
-      // Verify that createdAtSortable is not in the returned object
-      expect(result[0]).not.toHaveProperty("createdAtSortable");
-
-      expect(result[1]).toBeDefined();
-      expect(result[1].userId).toBe(inputs[1].userId);
-      expect(result[1].accountId).toBe(inputs[1].accountId);
-      expect(result[1].type).toBe(inputs[1].type);
-      expect(result[1].amount).toBe(inputs[1].amount);
-      expect(result[1].currency).toBe(inputs[1].currency);
-      expect(result[1].date).toBe(inputs[1].date);
-
-      // Verify that createdAtSortable is not in the returned object
-      expect(result[1]).not.toHaveProperty("createdAtSortable");
+      await repository.createMany(inputs);
 
       const stored1 = await repository.findOneById({
-        id: result[0].id,
-        userId: inputs[0].userId,
+        id: inputs[0].id,
+        userId: userId1,
       });
       const stored2 = await repository.findOneById({
-        id: result[1].id,
-        userId: inputs[1].userId,
+        id: inputs[1].id,
+        userId: userId2,
       });
 
-      expect([stored1, stored2]).toEqual(expect.arrayContaining(result));
+      expect(stored1).toEqual(inputs[0]);
+      expect(stored2).toEqual(inputs[1]);
     });
 
     it("should include createdAtSortable in the raw DynamoDB items", async () => {
       // Arrange
       const userId = faker.string.uuid();
-      const inputs = [
-        fakeCreateTransactionInput({ userId }),
-        fakeCreateTransactionInput({ userId }),
-      ];
+      const inputs = [fakeTransaction({ userId }), fakeTransaction({ userId })];
 
       // Act
-      const result = await repository.createMany(inputs);
+      await repository.createMany(inputs);
 
       // Assert
       const client = createDynamoDBDocumentClient();
-      const ids = result.map((transaction) => transaction.id);
+      const ids = inputs.map((transaction) => transaction.id);
 
       const { Responses: responses } = await client.send(
         new BatchGetCommand({
@@ -1727,12 +1699,12 @@ describe("DynTransactionRepository", () => {
       const transferId = faker.string.uuid();
       // Create paired transfer transactions
       await repository.createMany([
-        fakeCreateTransactionInput({
+        fakeTransaction({
           userId,
           type: TransactionType.TRANSFER_OUT,
           transferId,
         }),
-        fakeCreateTransactionInput({
+        fakeTransaction({
           userId,
           type: TransactionType.TRANSFER_IN,
           transferId,
@@ -2014,30 +1986,26 @@ describe("DynTransactionRepository", () => {
     it("should update multiple transactions successfully", async () => {
       const userId = faker.string.uuid();
 
-      const createInputs: CreateTransactionInput[] = [
-        {
+      const createInputs: Transaction[] = [
+        fakeTransaction({
           userId,
-          accountId: faker.string.uuid(),
-          categoryId: faker.string.uuid(),
           type: TransactionType.INCOME,
           amount: 300.0,
           currency: "USD",
           date: toDateString("2024-01-01"),
           description: "Test transaction 1",
-        },
-        {
+        }),
+        fakeTransaction({
           userId,
-          accountId: faker.string.uuid(),
-          categoryId: faker.string.uuid(),
           type: TransactionType.EXPENSE,
           amount: 150.0,
           currency: "EUR",
           date: toDateString("2024-01-02"),
           description: "Test transaction 2",
-        },
+        }),
       ];
 
-      const createdTransactions = await repository.createMany(createInputs);
+      await repository.createMany(createInputs);
 
       const newAccountId1 = faker.string.uuid();
       const newCategoryId1 = faker.string.uuid();
@@ -2046,7 +2014,7 @@ describe("DynTransactionRepository", () => {
 
       const updates: { id: string; input: UpdateTransactionInput }[] = [
         {
-          id: createdTransactions[0].id,
+          id: createInputs[0].id,
           input: {
             accountId: newAccountId1,
             categoryId: newCategoryId1,
@@ -2058,7 +2026,7 @@ describe("DynTransactionRepository", () => {
           },
         },
         {
-          id: createdTransactions[1].id,
+          id: createInputs[1].id,
           input: {
             accountId: newAccountId2,
             categoryId: newCategoryId2,
@@ -2074,7 +2042,7 @@ describe("DynTransactionRepository", () => {
       await repository.updateMany(updates, userId);
 
       const stored1 = await repository.findOneById({
-        id: createdTransactions[0].id,
+        id: createInputs[0].id,
         userId,
       });
 
@@ -2088,7 +2056,7 @@ describe("DynTransactionRepository", () => {
       expect(stored1?.description).toBe("New description 1");
 
       const stored2 = await repository.findOneById({
-        id: createdTransactions[1].id,
+        id: createInputs[1].id,
         userId,
       });
 
@@ -2123,13 +2091,13 @@ describe("DynTransactionRepository", () => {
     it("should return empty array when no transactions have category", async () => {
       // Arrange
       const userId = faker.string.uuid();
-      const createInputs: CreateTransactionInput[] = [
-        fakeCreateTransactionInput({
+      const createInputs: Transaction[] = [
+        fakeTransaction({
           userId,
           categoryId: undefined,
           type: TransactionType.INCOME,
         }),
-        fakeCreateTransactionInput({
+        fakeTransaction({
           userId,
           categoryId: undefined,
           type: TransactionType.INCOME,
@@ -2159,42 +2127,42 @@ describe("DynTransactionRepository", () => {
       const account3 = faker.string.uuid();
       const category3 = faker.string.uuid();
 
-      const createInputs: CreateTransactionInput[] = [
+      const createInputs: Transaction[] = [
         // Pattern 1: account1 + category1 (3 occurrences)
-        fakeCreateTransactionInput({
+        fakeTransaction({
           userId,
           accountId: account1,
           categoryId: category1,
           type: TransactionType.INCOME,
         }),
 
-        fakeCreateTransactionInput({
+        fakeTransaction({
           userId,
           accountId: account1,
           categoryId: category1,
           type: TransactionType.INCOME,
         }),
-        fakeCreateTransactionInput({
+        fakeTransaction({
           userId,
           accountId: account1,
           categoryId: category1,
           type: TransactionType.INCOME,
         }),
         // Pattern 2: account2 + category2 (2 occurrences)
-        fakeCreateTransactionInput({
+        fakeTransaction({
           userId,
           accountId: account2,
           categoryId: category2,
           type: TransactionType.INCOME,
         }),
-        fakeCreateTransactionInput({
+        fakeTransaction({
           userId,
           accountId: account2,
           categoryId: category2,
           type: TransactionType.INCOME,
         }),
         // Pattern 3: account3 + category3 (1 occurrence)
-        fakeCreateTransactionInput({
+        fakeTransaction({
           userId,
           accountId: account3,
           categoryId: category3,
@@ -2228,7 +2196,7 @@ describe("DynTransactionRepository", () => {
 
     it("should return only top N patterns based on limit", async () => {
       const userId = faker.string.uuid();
-      const createInputs: CreateTransactionInput[] = [];
+      const createInputs: Transaction[] = [];
 
       // Create account/category IDs as proper UUIDs
       const accountIds = Array.from({ length: 5 }, () => faker.string.uuid());
@@ -2238,7 +2206,7 @@ describe("DynTransactionRepository", () => {
       for (let i = 0; i < 5; i++) {
         for (let j = 0; j <= i; j++) {
           createInputs.push(
-            fakeCreateTransactionInput({
+            fakeTransaction({
               userId,
               accountId: accountIds[i],
               categoryId: categoryIds[i],
@@ -2283,9 +2251,9 @@ describe("DynTransactionRepository", () => {
       const categoryB = "22222222-2222-4222-8222-222222222222";
       const categoryC = "33333333-3333-4333-8333-333333333333";
 
-      const createInputs: CreateTransactionInput[] = [
+      const createInputs: Transaction[] = [
         // Pattern 1: accountB + categoryB (2 occurrences)
-        fakeCreateTransactionInput({
+        fakeTransaction({
           userId,
           accountId: accountB,
           categoryId: categoryB,
@@ -2293,7 +2261,7 @@ describe("DynTransactionRepository", () => {
           amount: 100.0,
           currency: "USD",
         }),
-        fakeCreateTransactionInput({
+        fakeTransaction({
           userId,
           accountId: accountB,
           categoryId: categoryB,
@@ -2302,26 +2270,26 @@ describe("DynTransactionRepository", () => {
           currency: "USD",
         }),
         // Pattern 2: accountA + categoryA (2 occurrences, same count)
-        fakeCreateTransactionInput({
+        fakeTransaction({
           userId,
           accountId: accountA,
           categoryId: categoryA,
           type: TransactionType.INCOME,
         }),
-        fakeCreateTransactionInput({
+        fakeTransaction({
           userId,
           accountId: accountA,
           categoryId: categoryA,
           type: TransactionType.INCOME,
         }),
         // Pattern 3: accountA + categoryC (2 occurrences, same account different category)
-        fakeCreateTransactionInput({
+        fakeTransaction({
           userId,
           accountId: accountA,
           categoryId: categoryC,
           type: TransactionType.INCOME,
         }),
-        fakeCreateTransactionInput({
+        fakeTransaction({
           userId,
           accountId: accountA,
           categoryId: categoryC,
@@ -2362,48 +2330,48 @@ describe("DynTransactionRepository", () => {
       const categoryRefund = faker.string.uuid();
       const categoryTransfer = faker.string.uuid();
 
-      const createInputs: CreateTransactionInput[] = [
+      const createInputs: Transaction[] = [
         // Income transactions
-        fakeCreateTransactionInput({
+        fakeTransaction({
           userId,
           accountId,
           categoryId: categoryIncome,
           type: TransactionType.INCOME,
         }),
-        fakeCreateTransactionInput({
+        fakeTransaction({
           userId,
           accountId,
           categoryId: categoryIncome,
           type: TransactionType.INCOME,
         }),
         // Expense transactions
-        fakeCreateTransactionInput({
+        fakeTransaction({
           userId,
           accountId,
           categoryId: categoryExpense,
           type: TransactionType.EXPENSE,
         }),
-        fakeCreateTransactionInput({
+        fakeTransaction({
           userId,
           accountId,
           categoryId: categoryExpense,
           type: TransactionType.EXPENSE,
         }),
         // Refund transactions
-        fakeCreateTransactionInput({
+        fakeTransaction({
           userId,
           accountId,
           categoryId: categoryRefund,
           type: TransactionType.REFUND,
         }),
-        fakeCreateTransactionInput({
+        fakeTransaction({
           userId,
           accountId,
           categoryId: categoryRefund,
           type: TransactionType.REFUND,
         }),
         // Transfer transactions (should be excluded)
-        fakeCreateTransactionInput({
+        fakeTransaction({
           userId,
           accountId,
           categoryId: categoryTransfer,
@@ -2462,14 +2430,14 @@ describe("DynTransactionRepository", () => {
       const account2 = faker.string.uuid();
       const category2 = faker.string.uuid();
 
-      const createInputs: CreateTransactionInput[] = [
-        fakeCreateTransactionInput({
+      const createInputs: Transaction[] = [
+        fakeTransaction({
           userId,
           accountId: account1,
           categoryId: category1,
           type: TransactionType.INCOME,
         }),
-        fakeCreateTransactionInput({
+        fakeTransaction({
           userId,
           accountId: account2,
           categoryId: category2,
@@ -2477,10 +2445,10 @@ describe("DynTransactionRepository", () => {
         }),
       ];
 
-      const createdTransactions = await repository.createMany(createInputs);
+      await repository.createMany(createInputs);
 
       // Archive one transaction
-      await repository.archive({ id: createdTransactions[0].id, userId });
+      await repository.archive({ id: createInputs[0].id, userId });
 
       const result = await repository.detectPatterns({
         userId,
@@ -2506,10 +2474,10 @@ describe("DynTransactionRepository", () => {
 
       // Create 5+5 transactions
 
-      const createInputs1: CreateTransactionInput[] = [];
+      const createInputs1: Transaction[] = [];
       for (let i = 0; i < 5; i++) {
         createInputs1.push(
-          fakeCreateTransactionInput({
+          fakeTransaction({
             userId,
             accountId: account1,
             categoryId: category1,
@@ -2519,10 +2487,10 @@ describe("DynTransactionRepository", () => {
       }
       await repository.createMany(createInputs1);
 
-      const createInputs2: CreateTransactionInput[] = [];
+      const createInputs2: Transaction[] = [];
       for (let i = 0; i < 5; i++) {
         createInputs2.push(
-          fakeCreateTransactionInput({
+          fakeTransaction({
             userId,
             accountId: account2,
             categoryId: category2,
@@ -2630,14 +2598,14 @@ describe("DynTransactionRepository", () => {
 
     it("should return only top N patterns based on limit parameter", async () => {
       const userId = faker.string.uuid();
-      const createInputs: CreateTransactionInput[] = [];
+      const createInputs: Transaction[] = [];
       const accountIds = Array.from({ length: 5 }, () => faker.string.uuid());
       const categoryIds = Array.from({ length: 5 }, () => faker.string.uuid());
 
       // Create 5 different patterns
       for (let i = 0; i < 5; i++) {
         createInputs.push(
-          fakeCreateTransactionInput({
+          fakeTransaction({
             userId,
             accountId: accountIds[i],
             categoryId: categoryIds[i],
@@ -2668,16 +2636,16 @@ describe("DynTransactionRepository", () => {
       const account2 = faker.string.uuid();
       const category2 = faker.string.uuid();
 
-      const createInputsUser1: CreateTransactionInput[] = [
-        fakeCreateTransactionInput({
+      const createInputsUser1: Transaction[] = [
+        fakeTransaction({
           userId: user1,
           accountId: account1,
           categoryId: category1,
           type: TransactionType.INCOME,
         }),
       ];
-      const createInputsUser2: CreateTransactionInput[] = [
-        fakeCreateTransactionInput({
+      const createInputsUser2: Transaction[] = [
+        fakeTransaction({
           userId: user2,
           accountId: account2,
           categoryId: category2,
