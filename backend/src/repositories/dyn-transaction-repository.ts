@@ -23,7 +23,6 @@ import {
   TransactionEdge,
   TransactionFilterInput,
   TransactionRepository,
-  UpdateTransactionInput,
 } from "../ports/transaction-repository";
 import {
   DEFAULT_PAGE_SIZE,
@@ -540,38 +539,15 @@ export class DynTransactionRepository
     }
   }
 
-  async update(
-    { id, userId }: { id: string; userId: string },
-    input: UpdateTransactionInput,
-  ): Promise<Transaction> {
-    if (!id) {
-      throw new RepositoryError(
-        "Transaction ID is required",
-        "INVALID_PARAMETERS",
-      );
-    }
-
-    if (!userId) {
-      throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
-    }
-
-    const now = new Date().toISOString();
-    const updateParams = this.buildUpdateParams(input, now, userId, id);
+  async update(transaction: Transaction): Promise<void> {
+    const updateParams = this.buildUpdateParams(transaction);
 
     try {
       const command = new UpdateCommand(updateParams);
-
-      const result = await this.client.send(command);
-      return hydrate(transactionSchema, result.Attributes);
+      await this.client.send(command);
     } catch (error) {
-      if (
-        error instanceof Error &&
-        error.name === "ConditionalCheckFailedException"
-      ) {
-        throw new RepositoryError(
-          "Transaction not found or is archived",
-          "NOT_FOUND",
-        );
+      if (error instanceof ConditionalCheckFailedException) {
+        throw new RepositoryError("Transaction not found", "NOT_FOUND");
       }
 
       throw new RepositoryError(
@@ -582,38 +558,25 @@ export class DynTransactionRepository
     }
   }
 
-  async updateMany(
-    updates: { id: string; input: UpdateTransactionInput }[],
-    userId: string,
-  ): Promise<void> {
-    if (!updates.length) {
+  async updateMany(transactions: Transaction[]): Promise<void> {
+    if (!transactions.length) {
       throw new RepositoryError(
-        "At least one transaction update is required",
+        "At least one transaction is required",
         "INVALID_PARAMETERS",
       );
     }
 
-    if (updates.length > DYNAMODB_TRANSACT_WRITE_MAX_ITEMS) {
+    if (transactions.length > DYNAMODB_TRANSACT_WRITE_MAX_ITEMS) {
       throw new RepositoryError(
         `DynamoDB transactions support a maximum of ${DYNAMODB_TRANSACT_WRITE_MAX_ITEMS} items`,
         "TOO_MANY_ITEMS",
       );
     }
 
-    if (!userId) {
-      throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
-    }
-
-    const now = new Date().toISOString();
-
     try {
-      const transactItems = updates.map(({ id, input }) => {
-        const updateParams = this.buildUpdateParams(input, now, userId, id);
-
-        return {
-          Update: updateParams,
-        };
-      });
+      const transactItems = transactions.map((transaction) => ({
+        Update: this.buildUpdateParams(transaction),
+      }));
 
       const command = new TransactWriteCommand({
         TransactItems: transactItems,
@@ -623,12 +586,9 @@ export class DynTransactionRepository
     } catch (error) {
       console.error("Error updating transactions atomically:", error);
 
-      if (
-        error instanceof Error &&
-        error.name === "TransactionCanceledException"
-      ) {
+      if (error instanceof TransactionCanceledException) {
         throw new RepositoryError(
-          "One or more transactions not found or already archived",
+          "One or more transactions not found",
           "NOT_FOUND",
         );
       }
@@ -681,10 +641,7 @@ export class DynTransactionRepository
     } catch (error) {
       console.error("Error archiving transaction:", error);
 
-      if (
-        error instanceof Error &&
-        error.name === "ConditionalCheckFailedException"
-      ) {
+      if (error instanceof ConditionalCheckFailedException) {
         throw new RepositoryError(
           "Transaction not found or already archived",
           "NOT_FOUND",
@@ -750,10 +707,7 @@ export class DynTransactionRepository
     } catch (error) {
       console.error("Error archiving transactions atomically:", error);
 
-      if (
-        error instanceof Error &&
-        error.name === "TransactionCanceledException"
-      ) {
+      if (error instanceof TransactionCanceledException) {
         throw new RepositoryError(
           "One or more transactions not found or already archived",
           "NOT_FOUND",
@@ -1040,93 +994,73 @@ export class DynTransactionRepository
     };
   }
 
-  private buildUpdateParams(
-    input: UpdateTransactionInput,
-    timestamp: string,
-    userId: string,
-    id: string,
-  ): {
+  private buildUpdateParams(transaction: Transaction): {
     TableName: string;
     Key: { userId: string; id: string };
     UpdateExpression: string;
     ConditionExpression: string;
-    ExpressionAttributeNames?: Record<string, string>;
+    ExpressionAttributeNames: Record<string, string>;
     ExpressionAttributeValues: Record<string, unknown>;
-    ReturnValues: "ALL_NEW";
   } {
-    const setExpressionParts: string[] = ["updatedAt = :updatedAt"];
-    const removeExpressionParts: string[] = [];
-    const expressionAttributeValues: Record<string, unknown> = {
-      ":updatedAt": timestamp,
-      ":isArchived": true,
+    const setParts: string[] = [
+      "accountId = :accountId",
+      "#type = :type",
+      "amount = :amount",
+      "currency = :currency",
+      "#date = :date",
+      "isArchived = :isArchived",
+      "createdAt = :createdAt",
+      "updatedAt = :updatedAt",
+    ];
+    const removeParts: string[] = [];
+    const expressionAttributeNames: Record<string, string> = {
+      "#type": "type",
+      "#date": "date",
     };
-    const expressionAttributeNames: Record<string, string> = {};
+    const expressionAttributeValues: Record<string, unknown> = {
+      ":accountId": transaction.accountId,
+      ":type": transaction.type,
+      ":amount": transaction.amount,
+      ":currency": transaction.currency,
+      ":date": transaction.date,
+      ":isArchived": transaction.isArchived,
+      ":createdAt": transaction.createdAt,
+      ":updatedAt": transaction.updatedAt,
+    };
 
-    if (input.accountId !== undefined) {
-      setExpressionParts.push("accountId = :accountId");
-      expressionAttributeValues[":accountId"] = input.accountId;
+    if (transaction.categoryId !== undefined) {
+      setParts.push("categoryId = :categoryId");
+      expressionAttributeValues[":categoryId"] = transaction.categoryId;
+    } else {
+      removeParts.push("categoryId");
     }
 
-    if (input.categoryId !== undefined) {
-      if (input.categoryId === null) {
-        removeExpressionParts.push("categoryId");
-      } else {
-        setExpressionParts.push("categoryId = :categoryId");
-        expressionAttributeValues[":categoryId"] = input.categoryId;
-      }
+    if (transaction.description !== undefined) {
+      setParts.push("description = :description");
+      expressionAttributeValues[":description"] = transaction.description;
+    } else {
+      removeParts.push("description");
     }
 
-    if (input.type !== undefined) {
-      setExpressionParts.push("#type = :type");
-      expressionAttributeValues[":type"] = input.type;
-      expressionAttributeNames["#type"] = "type";
+    if (transaction.transferId !== undefined) {
+      setParts.push("transferId = :transferId");
+      expressionAttributeValues[":transferId"] = transaction.transferId;
+    } else {
+      removeParts.push("transferId");
     }
 
-    if (input.amount !== undefined) {
-      setExpressionParts.push("amount = :amount");
-      expressionAttributeValues[":amount"] = input.amount;
-    }
-
-    if (input.currency !== undefined) {
-      setExpressionParts.push("currency = :currency");
-      expressionAttributeValues[":currency"] = input.currency;
-    }
-
-    if (input.date !== undefined) {
-      setExpressionParts.push("#date = :date");
-      expressionAttributeValues[":date"] = input.date;
-      expressionAttributeNames["#date"] = "date";
-    }
-
-    if (input.description !== undefined) {
-      if (input.description === null) {
-        removeExpressionParts.push("description");
-      } else {
-        setExpressionParts.push("description = :description");
-        expressionAttributeValues[":description"] = input.description;
-      }
-    }
-
-    // Build UpdateExpression with both SET and REMOVE clauses
-    const updateExpressionParts: string[] = [];
-    if (setExpressionParts.length > 0) {
-      updateExpressionParts.push(`SET ${setExpressionParts.join(", ")}`);
-    }
-    if (removeExpressionParts.length > 0) {
-      updateExpressionParts.push(`REMOVE ${removeExpressionParts.join(", ")}`);
+    const updateExpressionParts: string[] = [`SET ${setParts.join(", ")}`];
+    if (removeParts.length > 0) {
+      updateExpressionParts.push(`REMOVE ${removeParts.join(", ")}`);
     }
 
     return {
       TableName: this.tableName,
-      Key: { userId, id },
+      Key: { userId: transaction.userId, id: transaction.id },
       UpdateExpression: updateExpressionParts.join(" "),
-      ConditionExpression:
-        "attribute_exists(userId) AND attribute_exists(id) AND isArchived <> :isArchived",
-      ...(Object.keys(expressionAttributeNames).length > 0 && {
-        ExpressionAttributeNames: expressionAttributeNames,
-      }),
+      ConditionExpression: "attribute_exists(userId) AND attribute_exists(id)",
+      ExpressionAttributeNames: expressionAttributeNames,
       ExpressionAttributeValues: expressionAttributeValues,
-      ReturnValues: "ALL_NEW",
     };
   }
 

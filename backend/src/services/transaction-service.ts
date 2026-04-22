@@ -7,6 +7,7 @@ import {
   TransactionPatternType,
   TransactionType,
   createTransactionModel as defaultCreateTransactionModel,
+  updateTransactionModel as defaultUpdateTransactionModel,
 } from "../models/transaction";
 import { AccountRepository } from "../ports/account-repository";
 import { CategoryRepository } from "../ports/category-repository";
@@ -14,7 +15,6 @@ import {
   TransactionConnection,
   TransactionFilterInput,
   TransactionRepository,
-  UpdateTransactionInput,
 } from "../ports/transaction-repository";
 import { DateString } from "../types/date";
 import {
@@ -22,10 +22,7 @@ import {
   MIN_PAGE_SIZE,
   PaginationInput,
 } from "../types/pagination";
-import {
-  DESCRIPTION_MAX_LENGTH,
-  MIN_SEARCH_TEXT_LENGTH,
-} from "../types/validation";
+import { MIN_SEARCH_TEXT_LENGTH } from "../types/validation";
 import { BusinessError } from "./business-error";
 
 export const DEFAULT_TRANSACTION_PATTERNS_LIMIT = 3;
@@ -105,22 +102,26 @@ export class TransactionServiceImpl implements TransactionService {
   private categoryRepository: CategoryRepository;
   private transactionRepository: TransactionRepository;
   private createTransactionModel: typeof defaultCreateTransactionModel;
+  private updateTransactionModel: typeof defaultUpdateTransactionModel;
 
   constructor({
     accountRepository,
     categoryRepository,
     transactionRepository,
     createTransactionModel = defaultCreateTransactionModel,
+    updateTransactionModel = defaultUpdateTransactionModel,
   }: {
     accountRepository: AccountRepository;
     categoryRepository: CategoryRepository;
     transactionRepository: TransactionRepository;
     createTransactionModel?: typeof defaultCreateTransactionModel;
+    updateTransactionModel?: typeof defaultUpdateTransactionModel;
   }) {
     this.accountRepository = accountRepository;
     this.categoryRepository = categoryRepository;
     this.transactionRepository = transactionRepository;
     this.createTransactionModel = createTransactionModel;
+    this.updateTransactionModel = updateTransactionModel;
   }
 
   /**
@@ -235,37 +236,34 @@ export class TransactionServiceImpl implements TransactionService {
       );
     }
 
-    // Validate cheap inputs before further async I/O
-    if (input.amount !== undefined) {
-      this.validateAmount(input.amount);
-    }
-    this.validateDescription(input.description);
+    const account = input.accountId
+      ? await this.validateAccount(input.accountId, userId)
+      : undefined;
 
-    // Validate account if provided
-    let account;
-    if (input.accountId) {
-      account = await this.validateAccount(input.accountId, userId);
-    } else {
-      // Get current account for reference
-      account = await this.validateAccount(
-        existingTransaction.accountId,
-        userId,
-      );
-    }
+    const transactionType = input.type ?? existingTransaction.type;
+    const category =
+      input.categoryId === undefined
+        ? undefined
+        : input.categoryId === null
+          ? null
+          : await this.validateCategory(
+              input.categoryId,
+              userId,
+              transactionType,
+            );
 
-    // Validate category if provided (only if transaction type is also provided or can be determined)
-    const transactionType = input.type || existingTransaction.type;
-    if (input.categoryId) {
-      await this.validateCategory(input.categoryId, userId, transactionType);
-    }
+    const updated = this.updateTransactionModel(existingTransaction, {
+      account,
+      category,
+      type: input.type,
+      amount: input.amount,
+      date: input.date,
+      description: input.description,
+    });
 
-    // Update the transaction through repository, including currency if account changed
-    const updateInput: UpdateTransactionInput = {
-      ...input,
-      ...(input.accountId && { currency: account.currency }),
-    };
+    await this.transactionRepository.update(updated);
 
-    return await this.transactionRepository.update({ id, userId }, updateInput);
+    return updated;
   }
 
   /**
@@ -467,30 +465,6 @@ export class TransactionServiceImpl implements TransactionService {
     ) {
       throw new BusinessError(
         "Filter dateAfter cannot be later than dateBefore",
-      );
-    }
-  }
-
-  /**
-   * Validate that the transaction amount is positive
-   * @param amount - The amount to validate
-   * @throws BusinessError if amount is zero or negative
-   */
-  private validateAmount(amount: number): void {
-    if (amount <= 0) {
-      throw new BusinessError("Transaction amount must be positive");
-    }
-  }
-
-  /**
-   * Validate that the transaction description does not exceed the maximum length
-   * @param description - The description to validate
-   * @throws BusinessError if description exceeds DESCRIPTION_MAX_LENGTH
-   */
-  private validateDescription(description: string | null | undefined): void {
-    if (description && description.length > DESCRIPTION_MAX_LENGTH) {
-      throw new BusinessError(
-        `Description cannot exceed ${DESCRIPTION_MAX_LENGTH} characters`,
       );
     }
   }

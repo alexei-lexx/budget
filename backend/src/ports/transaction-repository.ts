@@ -20,16 +20,6 @@ export interface TransactionFilterInput {
 export type TransactionEdge = Edge<Transaction>;
 export type TransactionConnection = Connection<Transaction>;
 
-export interface UpdateTransactionInput {
-  accountId?: string;
-  categoryId?: string | null; // Allow null to remove category association
-  type?: TransactionType;
-  amount?: number;
-  currency?: string;
-  date?: DateString;
-  description?: string | null; // Allow null to clear description
-}
-
 export interface TransactionRepository {
   findOneById(selector: {
     id: string;
@@ -59,14 +49,8 @@ export interface TransactionRepository {
   }): Promise<Transaction[]>;
   create(transaction: Transaction): Promise<void>;
   createMany(transactions: Transaction[]): Promise<void>;
-  update(
-    selector: { id: string; userId: string },
-    input: UpdateTransactionInput,
-  ): Promise<Transaction>;
-  updateMany(
-    updates: { id: string; input: UpdateTransactionInput }[],
-    userId: string,
-  ): Promise<void>;
+  update(transaction: Transaction): Promise<void>;
+  updateMany(transactions: Transaction[]): Promise<void>;
   archive(selector: { id: string; userId: string }): Promise<Transaction>;
   archiveMany(selector: { ids: string[]; userId: string }): Promise<void>;
   hasTransactionsForAccount(selector: {
