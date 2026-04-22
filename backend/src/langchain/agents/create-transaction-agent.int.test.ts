@@ -15,8 +15,8 @@ import { createDynamoDBDocumentClient } from "../../utils/dynamo-client";
 import { truncateAllTables } from "../../utils/test-utils/dynamodb-helpers";
 import { fakeAccount } from "../../utils/test-utils/models/account-fakes";
 import { fakeCategory } from "../../utils/test-utils/models/category-fakes";
+import { fakeTransaction } from "../../utils/test-utils/models/transaction-fakes";
 import { fakeUser } from "../../utils/test-utils/models/user-fakes";
-import { fakeCreateTransactionInput } from "../../utils/test-utils/repositories/transaction-repository-fakes";
 import { CREATE_TRANSACTION_TOOL_NAME } from "../tools/create-transaction";
 import { createCreateTransactionAgent } from "./create-transaction-agent";
 
@@ -212,14 +212,14 @@ describe("CreateTransactionAgent (integration)", () => {
     );
     // Seed similar history — prior "food" expenses around 5–15 EUR
     await transactionRepository.createMany([
-      fakeCreateTransactionInput({
+      fakeTransaction({
         userId,
         accountId: account.id,
         categoryId: category.id,
         amount: 5,
         type: TransactionType.EXPENSE,
       }),
-      fakeCreateTransactionInput({
+      fakeTransaction({
         userId,
         accountId: account.id,
         categoryId: category.id,

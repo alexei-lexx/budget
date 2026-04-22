@@ -1,11 +1,12 @@
 import { randomUUID } from "crypto";
 import { Account } from "../models/account";
-import { Transaction, TransactionType } from "../models/transaction";
-import { AccountRepository } from "../ports/account-repository";
 import {
-  CreateTransactionInput,
-  TransactionRepository,
-} from "../ports/transaction-repository";
+  Transaction,
+  TransactionType,
+  createTransactionModel as defaultCreateTransactionModel,
+} from "../models/transaction";
+import { AccountRepository } from "../ports/account-repository";
+import { TransactionRepository } from "../ports/transaction-repository";
 import { DateString } from "../types/date";
 import { DESCRIPTION_MAX_LENGTH } from "../types/validation";
 import { BusinessError } from "./business-error";
@@ -46,10 +47,23 @@ export interface TransferResult {
  * Implements the service layer pattern for transfer operations
  */
 export class TransferService {
-  constructor(
-    private transactionRepository: TransactionRepository,
-    private accountRepository: AccountRepository,
-  ) {}
+  private accountRepository: AccountRepository;
+  private transactionRepository: TransactionRepository;
+  private createTransactionModel: typeof defaultCreateTransactionModel;
+
+  constructor({
+    accountRepository,
+    transactionRepository,
+    createTransactionModel = defaultCreateTransactionModel,
+  }: {
+    accountRepository: AccountRepository;
+    transactionRepository: TransactionRepository;
+    createTransactionModel?: typeof defaultCreateTransactionModel;
+  }) {
+    this.accountRepository = accountRepository;
+    this.transactionRepository = transactionRepository;
+    this.createTransactionModel = createTransactionModel;
+  }
 
   /**
    * Get a transfer by ID with its paired transactions
@@ -77,10 +91,6 @@ export class TransferService {
     input: CreateTransferServiceInput,
     userId: string,
   ): Promise<TransferResult> {
-    // Validate input parameters
-    this.validateAmount(input.amount);
-    this.validateDescription(input.description);
-
     // Validate not transferring to the same account (fail fast before DB calls)
     this.validateNotSelfTransfer(input.fromAccountId, input.toAccountId);
 
@@ -94,43 +104,41 @@ export class TransferService {
     // Generate a unique transfer ID to link the two transactions
     const transferId = randomUUID();
 
-    // Create the outbound transaction (TRANSFER_OUT)
-    const outboundInput: CreateTransactionInput = {
+    // Build the outbound transaction (TRANSFER_OUT)
+    const outboundTransaction = this.createTransactionModel({
       userId,
-      accountId: input.fromAccountId,
+      account: fromAccount,
       type: TransactionType.TRANSFER_OUT,
       amount: input.amount,
-      currency: fromAccount.currency,
       date: input.date,
       description: input.description || undefined,
       transferId,
-    };
+    });
 
-    // Create the inbound transaction (TRANSFER_IN)
-    const inboundInput: CreateTransactionInput = {
+    // Build the inbound transaction (TRANSFER_IN)
+    const inboundTransaction = this.createTransactionModel({
       userId,
-      accountId: input.toAccountId,
+      account: toAccount,
       type: TransactionType.TRANSFER_IN,
       amount: input.amount,
-      currency: toAccount.currency, // Should be same as fromAccount.currency due to validation
       date: input.date,
       description: input.description || undefined,
       transferId,
-    };
+    });
 
     try {
-      // Create both transactions atomically using DynamoDB transaction
+      // Persist both transactions atomically using DynamoDB transaction
       // TransactWriteCommand guarantees either both succeed or both fail
-      const transactions = await this.transactionRepository.createMany([
-        outboundInput,
-        inboundInput,
+      await this.transactionRepository.createMany([
+        outboundTransaction,
+        inboundTransaction,
       ]);
 
       // Return the transfer result with ID and transactions
       return {
         transferId,
-        outboundTransaction: transactions[0],
-        inboundTransaction: transactions[1],
+        outboundTransaction,
+        inboundTransaction,
       };
     } catch (error) {
       // Log the error for debugging and monitoring

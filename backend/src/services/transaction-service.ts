@@ -6,11 +6,11 @@ import {
   TransactionPattern,
   TransactionPatternType,
   TransactionType,
+  createTransactionModel as defaultCreateTransactionModel,
 } from "../models/transaction";
 import { AccountRepository } from "../ports/account-repository";
 import { CategoryRepository } from "../ports/category-repository";
 import {
-  CreateTransactionInput,
   TransactionConnection,
   TransactionFilterInput,
   TransactionRepository,
@@ -101,11 +101,27 @@ export interface TransactionService {
  * Implements the service layer pattern for transaction operations
  */
 export class TransactionServiceImpl implements TransactionService {
-  constructor(
-    private accountRepository: AccountRepository,
-    private categoryRepository: CategoryRepository,
-    private transactionRepository: TransactionRepository,
-  ) {}
+  private accountRepository: AccountRepository;
+  private categoryRepository: CategoryRepository;
+  private transactionRepository: TransactionRepository;
+  private createTransactionModel: typeof defaultCreateTransactionModel;
+
+  constructor({
+    accountRepository,
+    categoryRepository,
+    transactionRepository,
+    createTransactionModel = defaultCreateTransactionModel,
+  }: {
+    accountRepository: AccountRepository;
+    categoryRepository: CategoryRepository;
+    transactionRepository: TransactionRepository;
+    createTransactionModel?: typeof defaultCreateTransactionModel;
+  }) {
+    this.accountRepository = accountRepository;
+    this.categoryRepository = categoryRepository;
+    this.transactionRepository = transactionRepository;
+    this.createTransactionModel = createTransactionModel;
+  }
 
   /**
    * Get a single transaction by ID with ownership validation
@@ -138,24 +154,39 @@ export class TransactionServiceImpl implements TransactionService {
     input: CreateTransactionServiceInput,
     userId: string,
   ): Promise<Transaction> {
-    // Validate cheap inputs before any async I/O
-    this.validateAmount(input.amount);
-    this.validateDescription(input.description);
+    const account = await this.accountRepository.findOneById({
+      id: input.accountId,
+      userId,
+    });
 
-    // Validate business rules
-    const account = await this.validateAccount(input.accountId, userId);
-    await this.validateCategory(input.categoryId, userId, input.type);
+    if (!account) {
+      throw new BusinessError("Account not found or doesn't belong to user");
+    }
 
-    // Create the transaction through repository
-    const createInput: CreateTransactionInput = {
+    let category: Category | undefined;
+
+    if (input.categoryId) {
+      category =
+        (await this.categoryRepository.findOneById({
+          id: input.categoryId,
+          userId,
+        })) ?? undefined;
+
+      if (!category) {
+        throw new BusinessError("Category not found or doesn't belong to user");
+      }
+    }
+
+    const transaction = this.createTransactionModel({
       ...input,
       userId,
-      currency: account.currency,
-      categoryId: input.categoryId ?? undefined,
-      description: input.description ?? undefined,
-    };
+      account,
+      category,
+    });
 
-    return await this.transactionRepository.create(createInput);
+    await this.transactionRepository.create(transaction);
+
+    return transaction;
   }
 
   /**

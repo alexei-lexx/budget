@@ -1,7 +1,12 @@
 import { faker } from "@faker-js/faker";
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
-import { Category, CategoryType } from "../models/category";
-import { TransactionPatternType, TransactionType } from "../models/transaction";
+import { CategoryType } from "../models/category";
+import { ModelError } from "../models/model-error";
+import {
+  TransactionPatternType,
+  TransactionType,
+  createTransactionModel,
+} from "../models/transaction";
 import { toDateString } from "../types/date";
 import { MAX_PAGE_SIZE, MIN_PAGE_SIZE } from "../types/pagination";
 import {
@@ -36,17 +41,22 @@ describe("TransactionService", () => {
   >;
   let mockAccountRepository: ReturnType<typeof createMockAccountRepository>;
   let mockCategoryRepository: ReturnType<typeof createMockCategoryRepository>;
+  let mockCreateTransactionModel: jest.MockedFunction<
+    typeof createTransactionModel
+  >;
 
   beforeEach(() => {
     mockTransactionRepository = createMockTransactionRepository();
     mockAccountRepository = createMockAccountRepository();
     mockCategoryRepository = createMockCategoryRepository();
+    mockCreateTransactionModel = jest.fn<typeof createTransactionModel>();
 
-    service = new TransactionServiceImpl(
-      mockAccountRepository,
-      mockCategoryRepository,
-      mockTransactionRepository,
-    );
+    service = new TransactionServiceImpl({
+      accountRepository: mockAccountRepository,
+      categoryRepository: mockCategoryRepository,
+      transactionRepository: mockTransactionRepository,
+      createTransactionModel: mockCreateTransactionModel,
+    });
     userId = faker.string.uuid();
 
     // Reset all mocks
@@ -808,143 +818,140 @@ describe("TransactionService", () => {
   });
 
   describe("createTransaction", () => {
-    describe("validation", () => {
-      beforeEach(() => {
-        const account = fakeAccount({ userId });
-        mockAccountRepository.findOneById.mockResolvedValue(account);
+    // Happy path
+
+    it("should create and return transaction", async () => {
+      // Arrange
+      const account = fakeAccount({ userId });
+      const category = fakeCategory({ userId, type: CategoryType.EXPENSE });
+      const createdTransaction = fakeTransaction();
+      const input = fakeCreateTransactionServiceInput({
+        accountId: account.id,
+        categoryId: category.id,
+        type: TransactionType.EXPENSE,
       });
 
-      it("should throw for amount of zero", async () => {
-        const input = fakeCreateTransactionServiceInput({
-          amount: 0,
-        });
+      // Returns account owned by user
+      mockAccountRepository.findOneById.mockResolvedValue(account);
+      // Returns category owned by user
+      mockCategoryRepository.findOneById.mockResolvedValue(category);
+      // Returns built transaction
+      mockCreateTransactionModel.mockReturnValue(createdTransaction);
+      // Persists transaction
+      mockTransactionRepository.create.mockResolvedValue();
 
-        const promise = service.createTransaction(input, userId);
+      // Act
+      const result = await service.createTransaction(input, userId);
 
-        await expect(promise).rejects.toThrow(BusinessError);
-        await expect(promise).rejects.toMatchObject({
-          message: "Transaction amount must be positive",
-        });
+      // Assert
+      expect(result).toBe(createdTransaction);
+      expect(mockCreateTransactionModel).toHaveBeenCalledTimes(1);
+      expect(mockCreateTransactionModel).toHaveBeenCalledWith({
+        ...input,
+        userId,
+        account,
+        category,
       });
-
-      it("should throw for negative amount", async () => {
-        const input = fakeCreateTransactionServiceInput({
-          amount: -100,
-        });
-
-        const promise = service.createTransaction(input, userId);
-
-        await expect(promise).rejects.toThrow(BusinessError);
-        await expect(promise).rejects.toMatchObject({
-          message: "Transaction amount must be positive",
-        });
-      });
-
-      it("should throw for description exceeding maximum length", async () => {
-        const input = fakeCreateTransactionServiceInput({
-          description: "x".repeat(DESCRIPTION_MAX_LENGTH + 1),
-        });
-
-        const promise = service.createTransaction(input, userId);
-
-        await expect(promise).rejects.toThrow(BusinessError);
-        await expect(promise).rejects.toMatchObject({
-          message: `Description cannot exceed ${DESCRIPTION_MAX_LENGTH} characters`,
-        });
-      });
+      expect(mockTransactionRepository.create).toHaveBeenCalledTimes(1);
+      expect(mockTransactionRepository.create).toHaveBeenCalledWith(
+        createdTransaction,
+      );
     });
 
-    describe("with REFUND type", () => {
-      const currency = "EUR";
-      let accountId: string;
-      let expenseCategory: Category;
-      let incomeCategory: Category;
-
-      beforeEach(() => {
-        const account = fakeAccount({ currency, userId });
-        accountId = account.id;
-        expenseCategory = fakeCategory({
-          userId,
-          type: CategoryType.EXPENSE,
-        });
-        incomeCategory = fakeCategory({
-          userId,
-          type: CategoryType.INCOME,
-        });
-
-        mockAccountRepository.findOneById.mockResolvedValue(account);
-        mockTransactionRepository.create.mockResolvedValue(
-          fakeTransaction({ type: TransactionType.REFUND }),
-        );
+    it("should skip category when categoryId is omitted", async () => {
+      // Arrange
+      const input = fakeCreateTransactionServiceInput({
+        categoryId: undefined,
       });
 
-      it("should allow REFUND transaction with EXPENSE category", async () => {
-        // Arrange
-        const input = fakeCreateTransactionServiceInput({
-          accountId,
-          categoryId: expenseCategory.id,
-          type: TransactionType.REFUND,
-        });
+      // Returns account owned by user
+      mockAccountRepository.findOneById.mockResolvedValue(fakeAccount());
+      // Returns built transaction
+      mockCreateTransactionModel.mockReturnValue(fakeTransaction());
 
-        mockCategoryRepository.findOneById.mockResolvedValue(expenseCategory);
+      // Act
+      await service.createTransaction(input, userId);
 
-        // Act
-        const result = await service.createTransaction(input, userId);
+      // Assert
+      expect(mockCategoryRepository.findOneById).not.toHaveBeenCalled();
+      expect(mockCreateTransactionModel).toHaveBeenCalledWith(
+        expect.objectContaining({
+          category: undefined,
+        }),
+      );
+    });
 
-        // Assert
-        expect(result).toBeDefined();
-        expect(mockAccountRepository.findOneById).toHaveBeenCalledWith({
-          id: accountId,
-          userId,
-        });
-        expect(mockCategoryRepository.findOneById).toHaveBeenCalledWith({
-          id: expenseCategory.id,
-          userId,
-        });
-        expect(mockTransactionRepository.create).toHaveBeenCalledWith({
-          ...input,
-          currency,
-          userId,
-        });
+    // Validation failures
+
+    it("should throw BusinessError when account is not found", async () => {
+      // Arrange
+      const input = fakeCreateTransactionServiceInput({
+        categoryId: undefined,
       });
 
-      it("should reject REFUND transaction with INCOME category", async () => {
-        // Arrange
-        const input = fakeCreateTransactionServiceInput({
-          accountId,
-          categoryId: incomeCategory.id,
-          type: TransactionType.REFUND,
-        });
+      // Returns no account
+      mockAccountRepository.findOneById.mockResolvedValue(null);
 
-        mockCategoryRepository.findOneById.mockResolvedValue(incomeCategory);
+      // Act
+      const promise = service.createTransaction(input, userId);
 
-        // Act & Assert
-        const promise = service.createTransaction(input, userId);
+      // Assert
+      await expect(promise).rejects.toThrow(BusinessError);
+      await expect(promise).rejects.toMatchObject({
+        message: "Account not found or doesn't belong to user",
+      });
+      expect(mockCreateTransactionModel).not.toHaveBeenCalled();
+      expect(mockTransactionRepository.create).not.toHaveBeenCalled();
+    });
 
-        await expect(promise).rejects.toThrow(BusinessError);
-        await expect(promise).rejects.toMatchObject({
-          message: `Category type "${CategoryType.INCOME}" doesn't match transaction type "${TransactionType.REFUND}"`,
-        });
+    it("should throw BusinessError when category is not found", async () => {
+      // Arrange
+      const categoryId = faker.string.uuid();
+      const input = fakeCreateTransactionServiceInput({ categoryId });
 
-        expect(mockTransactionRepository.create).not.toHaveBeenCalled();
+      // Returns account owned by user
+      mockAccountRepository.findOneById.mockResolvedValue(fakeAccount());
+      // Returns no category
+      mockCategoryRepository.findOneById.mockResolvedValue(null);
+
+      // Act
+      const promise = service.createTransaction(input, userId);
+
+      // Assert
+      await expect(promise).rejects.toThrow(BusinessError);
+      await expect(promise).rejects.toMatchObject({
+        message: "Category not found or doesn't belong to user",
+      });
+      expect(mockCategoryRepository.findOneById).toHaveBeenCalledWith({
+        id: categoryId,
+        userId,
+      });
+      expect(mockCreateTransactionModel).not.toHaveBeenCalled();
+      expect(mockTransactionRepository.create).not.toHaveBeenCalled();
+    });
+
+    it("should propagate factory errors without persisting", async () => {
+      // Arrange
+      const input = fakeCreateTransactionServiceInput({
+        categoryId: undefined,
       });
 
-      it("should allow REFUND transaction without category (uncategorized)", async () => {
-        // Arrange
-        const input = fakeCreateTransactionServiceInput({
-          accountId,
-          categoryId: undefined,
-          type: TransactionType.REFUND,
-        });
-
-        // Act
-        const result = await service.createTransaction(input, userId);
-
-        // Assert
-        expect(result).toBeDefined();
-        expect(mockCategoryRepository.findOneById).not.toHaveBeenCalled();
-        expect(mockTransactionRepository.create).toHaveBeenCalled();
+      // Returns account owned by user
+      mockAccountRepository.findOneById.mockResolvedValue(fakeAccount());
+      // Factory rejects input
+      mockCreateTransactionModel.mockImplementation(() => {
+        throw new ModelError("Invalid transaction data");
       });
+
+      // Act
+      const promise = service.createTransaction(input, userId);
+
+      // Assert
+      await expect(promise).rejects.toThrow(ModelError);
+      await expect(promise).rejects.toMatchObject({
+        message: "Invalid transaction data",
+      });
+      expect(mockTransactionRepository.create).not.toHaveBeenCalled();
     });
   });
 

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "@jest/globals";
 import { GraphQLError } from "graphql";
+import { ModelError } from "../../models/model-error";
 import { BusinessError } from "../../services/business-error";
 import { InvalidDateStringError } from "../../types/date";
 import { handleResolverError } from "./shared";
@@ -40,6 +41,19 @@ describe("handleResolverError", () => {
       await expect(promise).rejects.toThrow(GraphQLError);
       await expect(promise).rejects.toMatchObject({
         message: "A business error occurred",
+      });
+    });
+  });
+
+  describe("ModelError", () => {
+    it("converts to GraphQL error with same message", async () => {
+      const error = new ModelError("A model invariant was violated");
+      const wrapper = async () => handleResolverError(error, "default message");
+      const promise = wrapper();
+
+      await expect(promise).rejects.toThrow(GraphQLError);
+      await expect(promise).rejects.toMatchObject({
+        message: "A model invariant was violated",
       });
     });
   });
