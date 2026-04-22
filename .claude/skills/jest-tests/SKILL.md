@@ -27,13 +27,14 @@ Don't assert on things the type system already guarantees.
 
 ## Test naming
 
-Name tests with `it("should ...")` or `it("should ... when ...")` describing the expected behavior, not the implementation.
+Name tests in present tense describing the expected behavior, not the implementation.
 
 Omit articles (`a`, `an`, `the`) from test names and comments.
 
-- Good: `it("should return failure when name is empty")`
+- Good: `it("returns failure when name is empty")`
+- Bad: `it("should return failure when name is empty")`
 - Bad: `it("calls findByName then throws")`
-- Bad: `it("should return a failure when the name is empty")`
+- Bad: `it("returns a failure when the name is empty")`
 
 ## Test structure per method
 
@@ -48,15 +49,15 @@ Mark each group with its label as a comment before the first test in that group:
 ```typescript
 // Happy path
 
-it("should ...", ...);
+it("...", ...);
 
 // Validation failures
 
-it("should ...", ...);
+it("...", ...);
 
 // Dependency failures
 
-it("should ...", ...);
+it("...", ...);
 ```
 
 ## Test anatomy

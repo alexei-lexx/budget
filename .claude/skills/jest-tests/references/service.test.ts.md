@@ -23,7 +23,7 @@ describe("WidgetService", () => {
   describe("createWidget", () => {
     // Happy path
 
-    it("should create and return new widget", async () => {
+    it("creates and returns new widget", async () => {
       // Arrange
       const userId = faker.string.uuid();
       const created = fakeWidget();
@@ -61,7 +61,7 @@ describe("WidgetService", () => {
 
     // Validation failures
 
-    it("should return failure when name is empty", async () => {
+    it("returns failure when name is empty", async () => {
       // Arrange
       const userId = faker.string.uuid();
 
@@ -76,7 +76,7 @@ describe("WidgetService", () => {
       expect(mockWidgetRepository.create).not.toHaveBeenCalled();
     });
 
-    it("should return failure when name is already taken", async () => {
+    it("returns failure when name is already taken", async () => {
       // Arrange
       const userId = faker.string.uuid();
       const existingWidget = fakeWidget();
@@ -100,7 +100,7 @@ describe("WidgetService", () => {
 
     // Dependency failures
 
-    it("should return failure when external API fails", async () => {
+    it("returns failure when external API fails", async () => {
       // Arrange
       const userId = faker.string.uuid();
 
