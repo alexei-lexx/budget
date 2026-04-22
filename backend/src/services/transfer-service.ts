@@ -180,11 +180,11 @@ export class TransferService {
       throw new BusinessError("Transfer not found or doesn't belong to user");
     }
 
-    const archivedTransactions = transferTransactions.map((transaction) =>
-      this.archiveTransactionModel(transaction),
-    );
-
     try {
+      const archivedTransactions = transferTransactions.map((transaction) =>
+        this.archiveTransactionModel(transaction),
+      );
+
       // Archive all transactions for this transfer atomically using TransactWrite
       await this.transactionRepository.updateMany(archivedTransactions);
     } catch (error) {
