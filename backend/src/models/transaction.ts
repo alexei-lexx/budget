@@ -150,6 +150,21 @@ export function updateTransactionModel(
   return updatedTransaction;
 }
 
+export function archiveTransactionModel(
+  transaction: Transaction,
+  { clock = () => new Date() }: { clock?: () => Date } = {},
+): Transaction {
+  if (transaction.isArchived) {
+    throw new ModelError("Cannot archive archived transaction");
+  }
+
+  return {
+    ...transaction,
+    isArchived: true,
+    updatedAt: clock().toISOString(),
+  };
+}
+
 // Get signed amount based on transaction type
 // Positive for INCOME, REFUND, TRANSFER_IN
 // Negative for EXPENSE, TRANSFER_OUT

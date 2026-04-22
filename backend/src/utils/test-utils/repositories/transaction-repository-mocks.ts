@@ -16,8 +16,6 @@ export const createMockTransactionRepository =
     createMany: jest.fn(),
     update: jest.fn(),
     updateMany: jest.fn(),
-    archive: jest.fn(),
-    archiveMany: jest.fn(),
     hasTransactionsForAccount: jest.fn(),
     detectPatterns: jest.fn(),
   });

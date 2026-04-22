@@ -12,6 +12,7 @@ import { CategoryType } from "./category";
 import { ModelError } from "./model-error";
 import {
   TransactionType,
+  archiveTransactionModel,
   createTransactionModel,
   getSignedAmount,
   updateTransactionModel,
@@ -771,6 +772,58 @@ describe("transaction model", () => {
         ),
       ).toThrow(
         new ModelError("Only transfer transactions can include transferId"),
+      );
+    });
+  });
+
+  describe("archiveTransactionModel", () => {
+    const fixedClock = () => new Date("2000-01-02T10:11:12.000Z");
+    const fixedDeps = { clock: fixedClock };
+
+    // Happy path
+
+    it("should set isArchived to true", () => {
+      // Arrange
+      const existing = fakeTransaction();
+
+      // Act
+      const result = archiveTransactionModel(existing, fixedDeps);
+
+      // Assert
+      expect(result.isArchived).toBe(true);
+    });
+
+    it("should set updatedAt", () => {
+      // Arrange
+      const existing = fakeTransaction();
+
+      // Act
+      const result = archiveTransactionModel(existing, fixedDeps);
+
+      // Assert
+      expect(result.updatedAt).toBe("2000-01-02T10:11:12.000Z");
+    });
+
+    it("should use default clock when options omitted", () => {
+      // Arrange
+      const existing = fakeTransaction();
+
+      // Act
+      const result = archiveTransactionModel(existing);
+
+      // Assert
+      expect(result.updatedAt).toBeDefined();
+    });
+
+    // Validation failures
+
+    it("should reject already archived transaction", () => {
+      // Arrange
+      const existing = fakeTransaction({ isArchived: true });
+
+      // Act & Assert
+      expect(() => archiveTransactionModel(existing, fixedDeps)).toThrow(
+        new ModelError("Cannot archive archived transaction"),
       );
     });
   });

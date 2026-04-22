@@ -5,6 +5,7 @@ import { ModelError } from "../models/model-error";
 import {
   TransactionPatternType,
   TransactionType,
+  archiveTransactionModel,
   createTransactionModel,
   updateTransactionModel,
 } from "../models/transaction";
@@ -45,6 +46,9 @@ describe("TransactionService", () => {
   let mockUpdateTransactionModel: jest.MockedFunction<
     typeof updateTransactionModel
   >;
+  let mockArchiveTransactionModel: jest.MockedFunction<
+    typeof archiveTransactionModel
+  >;
 
   beforeEach(() => {
     mockTransactionRepository = createMockTransactionRepository();
@@ -52,6 +56,7 @@ describe("TransactionService", () => {
     mockCategoryRepository = createMockCategoryRepository();
     mockCreateTransactionModel = jest.fn<typeof createTransactionModel>();
     mockUpdateTransactionModel = jest.fn<typeof updateTransactionModel>();
+    mockArchiveTransactionModel = jest.fn<typeof archiveTransactionModel>();
 
     service = new TransactionServiceImpl({
       accountRepository: mockAccountRepository,
@@ -59,6 +64,7 @@ describe("TransactionService", () => {
       transactionRepository: mockTransactionRepository,
       createTransactionModel: mockCreateTransactionModel,
       updateTransactionModel: mockUpdateTransactionModel,
+      archiveTransactionModel: mockArchiveTransactionModel,
     });
     userId = faker.string.uuid();
 
@@ -1102,6 +1108,63 @@ describe("TransactionService", () => {
 
       // Assert
       await expect(promise).rejects.toThrow(ModelError);
+      expect(mockTransactionRepository.update).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("deleteTransaction", () => {
+    // Happy path
+
+    it("should archive transaction and return it", async () => {
+      // Arrange
+      const existing = fakeTransaction({ userId });
+      const archived = fakeTransaction({ userId });
+
+      // Returns existing transaction
+      mockTransactionRepository.findOneById.mockResolvedValue(existing);
+      // Returns built archived transaction
+      mockArchiveTransactionModel.mockReturnValue(archived);
+
+      // Act
+      const result = await service.deleteTransaction(existing.id, userId);
+
+      // Assert
+      expect(result).toBe(archived);
+      expect(mockArchiveTransactionModel).toHaveBeenCalledWith(existing);
+      expect(mockTransactionRepository.update).toHaveBeenCalledWith(archived);
+    });
+
+    it("should return existing transaction when already archived", async () => {
+      // Arrange
+      const existing = fakeTransaction({ userId, isArchived: true });
+      // Returns already-archived transaction
+      mockTransactionRepository.findOneById.mockResolvedValue(existing);
+
+      // Act
+      const result = await service.deleteTransaction(existing.id, userId);
+
+      // Assert
+      expect(result).toBe(existing);
+      expect(mockArchiveTransactionModel).not.toHaveBeenCalled();
+      expect(mockTransactionRepository.update).not.toHaveBeenCalled();
+    });
+
+    // Validation failures
+
+    it("should throw when transaction not found", async () => {
+      // Arrange
+      // Returns no transaction
+      mockTransactionRepository.findOneById.mockResolvedValue(null);
+
+      // Act
+      const promise = service.deleteTransaction("id", userId);
+
+      // Assert
+      await expect(promise).rejects.toThrow(BusinessError);
+      await expect(promise).rejects.toMatchObject({
+        message: "Transaction not found or doesn't belong to user",
+      });
+      expect(mockArchiveTransactionModel).not.toHaveBeenCalled();
       expect(mockTransactionRepository.update).not.toHaveBeenCalled();
     });
   });

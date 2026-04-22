@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import { ModelError } from "../models/model-error";
 import {
   TransactionType,
+  archiveTransactionModel,
   createTransactionModel,
   updateTransactionModel,
 } from "../models/transaction";
@@ -27,18 +28,23 @@ describe("TransferService", () => {
   let mockUpdateTransactionModel: jest.MockedFunction<
     typeof updateTransactionModel
   >;
+  let mockArchiveTransactionModel: jest.MockedFunction<
+    typeof archiveTransactionModel
+  >;
 
   beforeEach(() => {
     mockAccountRepository = createMockAccountRepository();
     mockTransactionRepository = createMockTransactionRepository();
     mockCreateTransactionModel = jest.fn<typeof createTransactionModel>();
     mockUpdateTransactionModel = jest.fn<typeof updateTransactionModel>();
+    mockArchiveTransactionModel = jest.fn<typeof archiveTransactionModel>();
 
     service = new TransferService({
       accountRepository: mockAccountRepository,
       transactionRepository: mockTransactionRepository,
       createTransactionModel: mockCreateTransactionModel,
       updateTransactionModel: mockUpdateTransactionModel,
+      archiveTransactionModel: mockArchiveTransactionModel,
     });
 
     userId = faker.string.uuid();
@@ -386,6 +392,65 @@ describe("TransferService", () => {
 
       // Assert
       await expect(promise).rejects.toThrow(ModelError);
+      expect(mockTransactionRepository.updateMany).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("deleteTransfer", () => {
+    // Happy path
+
+    it("should archive both paired transactions", async () => {
+      // Arrange
+      const transferId = faker.string.uuid();
+      const outboundTransaction = fakeTransaction();
+      const inboundTransaction = fakeTransaction();
+      const archivedOutbound = fakeTransaction();
+      const archivedInbound = fakeTransaction();
+
+      // Returns existing pair
+      mockTransactionRepository.findManyByTransferId.mockResolvedValue([
+        outboundTransaction,
+        inboundTransaction,
+      ]);
+      // Returns archived sides
+      mockArchiveTransactionModel
+        .mockReturnValueOnce(archivedOutbound)
+        .mockReturnValueOnce(archivedInbound);
+
+      // Act
+      await service.deleteTransfer(transferId, userId);
+
+      // Assert
+      expect(mockArchiveTransactionModel).toHaveBeenNthCalledWith(
+        1,
+        outboundTransaction,
+      );
+      expect(mockArchiveTransactionModel).toHaveBeenNthCalledWith(
+        2,
+        inboundTransaction,
+      );
+      expect(mockTransactionRepository.updateMany).toHaveBeenCalledWith([
+        archivedOutbound,
+        archivedInbound,
+      ]);
+    });
+
+    // Validation failures
+
+    it("should throw when transfer not found", async () => {
+      // Arrange
+      const transferId = faker.string.uuid();
+      mockTransactionRepository.findManyByTransferId.mockResolvedValue([]);
+
+      // Act
+      const promise = service.deleteTransfer(transferId, userId);
+
+      // Assert
+      await expect(promise).rejects.toThrow(BusinessError);
+      await expect(promise).rejects.toMatchObject({
+        message: "Transfer not found or doesn't belong to user",
+      });
+      expect(mockArchiveTransactionModel).not.toHaveBeenCalled();
       expect(mockTransactionRepository.updateMany).not.toHaveBeenCalled();
     });
   });
