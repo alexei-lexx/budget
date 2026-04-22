@@ -69,7 +69,7 @@ export interface TransactionRepository {
     searchText: string;
     limit: number;
   }): Promise<Transaction[]>;
-  create(transaction: Transaction): Promise<Transaction>;
+  create(transaction: Transaction): Promise<void>;
   createMany(inputs: CreateTransactionInput[]): Promise<Transaction[]>;
   update(
     selector: { id: string; userId: string },

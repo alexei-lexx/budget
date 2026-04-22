@@ -458,7 +458,7 @@ export class DynTransactionRepository
     }
   }
 
-  async create(transaction: Transaction): Promise<Transaction> {
+  async create(transaction: Transaction): Promise<void> {
     try {
       const dbItem: TransactionDbItem = {
         ...transaction,
@@ -472,7 +472,6 @@ export class DynTransactionRepository
       });
 
       await this.client.send(command);
-      return transaction;
     } catch (error) {
       if (
         error instanceof Error &&

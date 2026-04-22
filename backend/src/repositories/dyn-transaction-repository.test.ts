@@ -45,7 +45,8 @@ describe("DynTransactionRepository", () => {
       const active2 = await repository.create(fakeTransaction({ userId }));
 
       // Archived transaction for the user
-      const archived = await repository.create(fakeTransaction({ userId }));
+      const archived = fakeTransaction({ userId });
+      await repository.create(archived);
       await repository.archive({ id: archived.id, userId });
 
       // Transaction belonging to another user
@@ -1194,24 +1195,22 @@ describe("DynTransactionRepository", () => {
       const accountId = faker.string.uuid();
 
       // Create transactions with a delay to ensure different creation times
-      const transaction1 = await repository.create(
-        fakeTransaction({
-          userId,
-          accountId,
-          description: "Store purchase 1",
-        }),
-      );
+      const transaction1 = fakeTransaction({
+        userId,
+        accountId,
+        description: "Store purchase 1",
+      });
+      await repository.create(transaction1);
 
       // Small delay to ensure different timestamps
       await new Promise((resolve) => setTimeout(resolve, 10));
 
-      const transaction2 = await repository.create(
-        fakeTransaction({
-          userId,
-          accountId,
-          description: "Store purchase 2",
-        }),
-      );
+      const transaction2 = fakeTransaction({
+        userId,
+        accountId,
+        description: "Store purchase 2",
+      });
+      await repository.create(transaction2);
 
       // Act
       const result = await repository.findManyByDescription({
@@ -1760,18 +1759,17 @@ describe("DynTransactionRepository", () => {
       const accountId = faker.string.uuid();
 
       // Create transaction first
-      const created = await repository.create(
-        fakeTransaction({
-          userId,
-          accountId,
-          type: TransactionType.EXPENSE,
-          amount: 75.0,
-          currency: "USD",
-          date: toDateString("2024-01-20"),
-          description: "Original description",
-          categoryId: faker.string.uuid(),
-        }),
-      );
+      const created = fakeTransaction({
+        userId,
+        accountId,
+        type: TransactionType.EXPENSE,
+        amount: 75.0,
+        currency: "USD",
+        date: toDateString("2024-01-20"),
+        description: "Original description",
+        categoryId: faker.string.uuid(),
+      });
+      await repository.create(created);
 
       // Act - Update ALL possible attributes
       const newAccountId = faker.string.uuid();
@@ -1817,18 +1815,17 @@ describe("DynTransactionRepository", () => {
       const categoryId = faker.string.uuid();
 
       // Create transaction first
-      const created = await repository.create(
-        fakeTransaction({
-          userId,
-          accountId,
-          type: TransactionType.EXPENSE,
-          amount: 50.0,
-          currency: "USD",
-          date: toDateString("2024-01-25"),
-          description: "No change description",
-          categoryId,
-        }),
-      );
+      const created = fakeTransaction({
+        userId,
+        accountId,
+        type: TransactionType.EXPENSE,
+        amount: 50.0,
+        currency: "USD",
+        date: toDateString("2024-01-25"),
+        description: "No change description",
+        categoryId,
+      });
+      await repository.create(created);
 
       // Act - Update with empty input (only updatedAt should change)
       const updateInput = {};
@@ -1862,13 +1859,12 @@ describe("DynTransactionRepository", () => {
       const userId = faker.string.uuid();
 
       // Create transaction first
-      const created = await repository.create(
-        fakeTransaction({
-          userId,
-          description: "Test description",
-          categoryId: faker.string.uuid(),
-        }),
-      );
+      const created = fakeTransaction({
+        userId,
+        description: "Test description",
+        categoryId: faker.string.uuid(),
+      });
+      await repository.create(created);
 
       // Act - Update with null values
       const updateInput = {
@@ -1897,18 +1893,17 @@ describe("DynTransactionRepository", () => {
       const originalCategoryId = faker.string.uuid();
 
       // Create transaction first
-      const created = await repository.create(
-        fakeTransaction({
-          userId,
-          accountId,
-          type: TransactionType.EXPENSE,
-          amount: 150.0,
-          currency: "GBP",
-          date: toDateString("2024-01-22"),
-          description: "Original description",
-          categoryId: originalCategoryId,
-        }),
-      );
+      const created = fakeTransaction({
+        userId,
+        accountId,
+        type: TransactionType.EXPENSE,
+        amount: 150.0,
+        currency: "GBP",
+        date: toDateString("2024-01-22"),
+        description: "Original description",
+        categoryId: originalCategoryId,
+      });
+      await repository.create(created);
 
       // Act - Update single field
       const updateInput = { amount: 175.0 };
@@ -1948,13 +1943,12 @@ describe("DynTransactionRepository", () => {
       const userId = faker.string.uuid();
 
       // Create transaction first
-      const created = await repository.create(
-        fakeTransaction({
-          userId,
-          currency: "USD",
-          description: "Will be archived",
-        }),
-      );
+      const created = fakeTransaction({
+        userId,
+        currency: "USD",
+        description: "Will be archived",
+      });
+      await repository.create(created);
 
       // Archive the transaction
       await repository.archive({ id: created.id, userId });
@@ -1972,13 +1966,12 @@ describe("DynTransactionRepository", () => {
       const otherUserId = faker.string.uuid();
 
       // Create transaction as owner
-      const created = await repository.create(
-        fakeTransaction({
-          userId: ownerUserId,
-          description: "Belongs to owner",
-          categoryId: faker.string.uuid(),
-        }),
-      );
+      const created = fakeTransaction({
+        userId: ownerUserId,
+        description: "Belongs to owner",
+        categoryId: faker.string.uuid(),
+      });
+      await repository.create(created);
 
       // Act & Assert - Try to update as different user
       const updateInput = { description: "Hacker attempt" };

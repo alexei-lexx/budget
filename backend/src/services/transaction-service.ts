@@ -184,7 +184,9 @@ export class TransactionServiceImpl implements TransactionService {
       category,
     });
 
-    return await this.transactionRepository.create(transaction);
+    await this.transactionRepository.create(transaction);
+
+    return transaction;
   }
 
   /**

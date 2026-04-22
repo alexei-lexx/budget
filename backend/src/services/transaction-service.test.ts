@@ -839,7 +839,7 @@ describe("TransactionService", () => {
       // Returns built transaction
       mockCreateTransactionModel.mockReturnValue(builtTransaction);
       // Returns persisted transaction
-      mockTransactionRepository.create.mockResolvedValue(persistedTransaction);
+      mockTransactionRepository.create.mockResolvedValue();
 
       // Act
       const result = await service.createTransaction(input, userId);
