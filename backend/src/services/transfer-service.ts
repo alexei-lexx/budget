@@ -91,10 +91,6 @@ export class TransferService {
     input: CreateTransferServiceInput,
     userId: string,
   ): Promise<TransferResult> {
-    // Validate input parameters
-    this.validateAmount(input.amount);
-    this.validateDescription(input.description);
-
     // Validate not transferring to the same account (fail fast before DB calls)
     this.validateNotSelfTransfer(input.fromAccountId, input.toAccountId);
 

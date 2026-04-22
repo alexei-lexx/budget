@@ -213,26 +213,6 @@ describe("TransferService", () => {
         inboundTransaction,
       ]);
     });
-
-    it("should reject description exceeding maximum length", async () => {
-      const promise = service.createTransfer(
-        {
-          fromAccountId: faker.string.uuid(),
-          toAccountId: faker.string.uuid(),
-          amount: 100,
-          date: toDateString("2024-01-01"),
-          description: "a".repeat(DESCRIPTION_MAX_LENGTH + 1),
-        },
-        userId,
-      );
-
-      await expect(promise).rejects.toThrow(BusinessError);
-      await expect(promise).rejects.toMatchObject({
-        message: `Description cannot exceed ${DESCRIPTION_MAX_LENGTH} characters`,
-      });
-
-      expect(mockTransactionRepository.createMany).not.toHaveBeenCalled();
-    });
   });
 
   describe("updateTransfer", () => {
