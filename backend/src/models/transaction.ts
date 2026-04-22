@@ -118,7 +118,12 @@ export function createTransactionModel(
     }
   }
 
-  if (description && description.trim().length > DESCRIPTION_MAX_LENGTH) {
+  const normalizedDescription = description?.trim() || undefined;
+
+  if (
+    normalizedDescription &&
+    normalizedDescription.length > DESCRIPTION_MAX_LENGTH
+  ) {
     throw new ModelError(
       `Description cannot exceed ${DESCRIPTION_MAX_LENGTH} characters`,
     );
@@ -147,7 +152,7 @@ export function createTransactionModel(
     amount,
     currency,
     date,
-    description: description?.trim() || undefined,
+    description: normalizedDescription,
     transferId,
     isArchived: false,
     createdAt: now,

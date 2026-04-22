@@ -513,6 +513,7 @@ export class DynTransactionRepository
             ...transaction,
             createdAtSortable: buildCreatedAtSortable(transaction),
           },
+          ConditionExpression: "attribute_not_exists(id)",
         },
       }));
 
@@ -522,6 +523,16 @@ export class DynTransactionRepository
 
       await this.client.send(command);
     } catch (error) {
+      if (
+        error instanceof Error &&
+        error.name === "TransactionCanceledException"
+      ) {
+        throw new RepositoryError(
+          "Transaction with this ID already exists",
+          "CREATE_FAILED",
+        );
+      }
+
       console.error("Error creating transactions atomically:", error);
       throw new RepositoryError(
         "Failed to create transactions atomically",

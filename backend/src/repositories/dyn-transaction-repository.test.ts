@@ -1619,15 +1619,10 @@ describe("DynTransactionRepository", () => {
   });
 
   describe("createMany", () => {
-    it("should throw error for empty input array", async () => {
-      const inputs: Transaction[] = [];
+    // Happy path
 
-      await expect(repository.createMany(inputs)).rejects.toThrow(
-        "At least one transaction is required",
-      );
-    });
-
-    it("should create multiple transactions successfully", async () => {
+    it("should create multiple transactions", async () => {
+      // Arrange
       const userId1 = faker.string.uuid();
       const userId2 = faker.string.uuid();
       const inputs: Transaction[] = [
@@ -1647,8 +1642,10 @@ describe("DynTransactionRepository", () => {
         }),
       ];
 
+      // Act
       await repository.createMany(inputs);
 
+      // Assert
       const stored1 = await repository.findOneById({
         id: inputs[0].id,
         userId: userId1,
@@ -1662,7 +1659,7 @@ describe("DynTransactionRepository", () => {
       expect(stored2).toEqual(inputs[1]);
     });
 
-    it("should include createdAtSortable in the raw DynamoDB items", async () => {
+    it("should include createdAtSortable in raw DynamoDB items", async () => {
       // Arrange
       const userId = faker.string.uuid();
       const inputs = [fakeTransaction({ userId }), fakeTransaction({ userId })];
@@ -1694,10 +1691,12 @@ describe("DynTransactionRepository", () => {
       expect(rawItems[1]).toHaveProperty("createdAtSortable");
     });
 
-    it("should return transfer transactions in correct order (TRANSFER_IN before TRANSFER_OUT)", async () => {
+    it("should order paired transfers TRANSFER_IN before TRANSFER_OUT", async () => {
+      // Arrange
       const userId = faker.string.uuid();
       const transferId = faker.string.uuid();
-      // Create paired transfer transactions
+
+      // Act - create paired transfer transactions
       await repository.createMany([
         fakeTransaction({
           userId,
@@ -1711,12 +1710,50 @@ describe("DynTransactionRepository", () => {
         }),
       ]);
 
-      // Query transactions (descending order - newest first)
+      // Assert - descending order (newest first) places TRANSFER_IN first
       const result = await repository.findManyByUserIdPaginated(userId);
-
-      // Verify TRANSFER_IN appears first
       expect(result.edges[0].node.type).toBe(TransactionType.TRANSFER_IN);
       expect(result.edges[1].node.type).toBe(TransactionType.TRANSFER_OUT);
+    });
+
+    // Validation failures
+
+    it("should throw for empty input", async () => {
+      // Arrange
+      const inputs: Transaction[] = [];
+
+      // Act & Assert
+      await expect(repository.createMany(inputs)).rejects.toThrow(
+        "At least one transaction is required",
+      );
+    });
+
+    it("should reject when any transaction has duplicate ID", async () => {
+      // Arrange
+      const existing = fakeTransaction();
+      await repository.create(existing);
+
+      const duplicate = fakeTransaction({
+        id: existing.id,
+        userId: existing.userId,
+      });
+      const fresh = fakeTransaction();
+
+      // Act
+      const promise = repository.createMany([fresh, duplicate]);
+
+      // Assert
+      await expect(promise).rejects.toMatchObject({
+        code: "CREATE_FAILED",
+        message: "Transaction with this ID already exists",
+      });
+
+      // Fresh transaction must not persist (atomic rollback)
+      const stored = await repository.findOneById({
+        id: fresh.id,
+        userId: fresh.userId,
+      });
+      expect(stored).toBeNull();
     });
   });
 
