@@ -14,6 +14,7 @@ import { toDateString } from "../types/date";
 import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
 import { requireEnv } from "../utils/require-env";
 import { truncateTable } from "../utils/test-utils/dynamodb-helpers";
+import { fakeTransaction } from "../utils/test-utils/models/transaction-fakes";
 import { fakeCreateTransactionInput } from "../utils/test-utils/repositories/transaction-repository-fakes";
 import { DynTransactionRepository } from "./dyn-transaction-repository";
 
@@ -1540,6 +1541,89 @@ describe("DynTransactionRepository", () => {
       expect(result[0].description).toBe(
         "This is a long description with multiple words",
       );
+    });
+  });
+
+  describe("createEntity", () => {
+    // Happy path
+
+    it("should persist pre-built transaction and return it unchanged", async () => {
+      // Arrange
+      const transaction = fakeTransaction();
+
+      // Act
+      const result = await repository.createEntity(transaction);
+
+      // Assert
+      expect(result).toEqual(transaction);
+
+      const stored = await repository.findOneById({
+        id: transaction.id,
+        userId: transaction.userId,
+      });
+      expect(stored).toEqual(transaction);
+    });
+
+    it("should persist transaction without optional fields", async () => {
+      // Arrange
+      const transaction = fakeTransaction({
+        categoryId: undefined,
+        description: undefined,
+        transferId: undefined,
+      });
+
+      // Act
+      const result = await repository.createEntity(transaction);
+
+      // Assert
+      expect(result).toEqual(transaction);
+
+      const stored = await repository.findOneById({
+        id: transaction.id,
+        userId: transaction.userId,
+      });
+      expect(stored).toEqual(transaction);
+    });
+
+    it("should include createdAtSortable in raw DynamoDB item", async () => {
+      // Arrange
+      const transaction = fakeTransaction();
+
+      // Act
+      await repository.createEntity(transaction);
+
+      // Assert
+      const client = createDynamoDBDocumentClient();
+      const { Item: rawItem } = await client.send(
+        new GetCommand({
+          TableName: tableName,
+          Key: { userId: transaction.userId, id: transaction.id },
+        }),
+      );
+
+      expect(rawItem).toBeDefined();
+      expect(rawItem?.createdAtSortable).toMatch(
+        new RegExp(`^${transaction.createdAt}#.+`),
+      );
+    });
+
+    // Validation failures
+
+    it("should reject when transaction with same ID already exists", async () => {
+      // Arrange
+      const transaction = fakeTransaction();
+      await repository.createEntity(transaction);
+
+      const duplicate = fakeTransaction({
+        id: transaction.id,
+        userId: transaction.userId,
+      });
+
+      // Act & Assert
+      await expect(repository.createEntity(duplicate)).rejects.toMatchObject({
+        code: "CREATE_FAILED",
+        message: "Transaction with this ID already exists",
+      });
     });
   });
 

@@ -458,6 +458,41 @@ export class DynTransactionRepository
     }
   }
 
+  async createEntity(transaction: Transaction): Promise<Transaction> {
+    try {
+      const dbItem: TransactionDbItem = {
+        ...transaction,
+        createdAtSortable: buildCreatedAtSortable(transaction),
+      };
+
+      const command = new PutCommand({
+        TableName: this.tableName,
+        Item: dbItem,
+        ConditionExpression: "attribute_not_exists(id)",
+      });
+
+      await this.client.send(command);
+      return transaction;
+    } catch (error) {
+      if (
+        error instanceof Error &&
+        error.name === "ConditionalCheckFailedException"
+      ) {
+        throw new RepositoryError(
+          "Transaction with this ID already exists",
+          "CREATE_FAILED",
+        );
+      }
+
+      console.error("Error creating transaction:", error);
+      throw new RepositoryError(
+        "Failed to create transaction",
+        "CREATE_FAILED",
+        error,
+      );
+    }
+  }
+
   async create(input: CreateTransactionInput): Promise<Transaction> {
     const now = new Date().toISOString();
     const transaction = this.buildTransaction(input, now);

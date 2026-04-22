@@ -79,11 +79,11 @@ export const resolveCurrencyService = createSingleton(
 );
 export const resolveTransactionService = createSingleton(
   () =>
-    new TransactionServiceImpl(
-      resolveAccountRepository(),
-      resolveCategoryRepository(),
-      resolveTransactionRepository(),
-    ),
+    new TransactionServiceImpl({
+      accountRepository: resolveAccountRepository(),
+      categoryRepository: resolveCategoryRepository(),
+      transactionRepository: resolveTransactionRepository(),
+    }),
 );
 export const resolveTransferService = createSingleton(
   () =>

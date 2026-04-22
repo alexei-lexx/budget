@@ -69,6 +69,7 @@ export interface TransactionRepository {
     searchText: string;
     limit: number;
   }): Promise<Transaction[]>;
+  createEntity(transaction: Transaction): Promise<Transaction>;
   create(input: CreateTransactionInput): Promise<Transaction>;
   createMany(inputs: CreateTransactionInput[]): Promise<Transaction[]>;
   update(

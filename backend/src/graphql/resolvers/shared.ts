@@ -1,4 +1,5 @@
 import { GraphQLError } from "graphql";
+import { ModelError } from "../../models/model-error";
 import { User } from "../../models/user";
 import { RepositoryError } from "../../ports/repository-error";
 import { BusinessError } from "../../services/business-error";
@@ -59,7 +60,7 @@ export function handleResolverError(
   }
 
   // User-facing: business rule violation the user needs to act on
-  if (error instanceof BusinessError) {
+  if (error instanceof BusinessError || error instanceof ModelError) {
     throw new GraphQLError(error.message);
   }
 
