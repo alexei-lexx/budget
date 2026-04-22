@@ -33,11 +33,11 @@ describe("createCreateTransactionSubagentTool", () => {
 
   // Happy path
 
-  it("should return tool with correct name", () => {
+  it("returns tool with correct name", () => {
     expect(transactionTool.name).toBe("create_transaction_subagent");
   });
 
-  it("should forward user text to model", async () => {
+  it("forwards user text to model", async () => {
     // Arrange
 
     // Model emits final text without tool calls
@@ -56,7 +56,7 @@ describe("createCreateTransactionSubagentTool", () => {
     expect(userMessage?.content).toBe("create transaction");
   });
 
-  it("should propagate agent context to model", async () => {
+  it("propagates agent context to model", async () => {
     // Arrange
     const context = {
       ...baseContext,
@@ -75,7 +75,7 @@ describe("createCreateTransactionSubagentTool", () => {
     expect(systemPrompt).toContain(VOICE_INPUT_INDICATOR);
   });
 
-  it("should return model last message text as tool output", async () => {
+  it("returns model last message text as tool output", async () => {
     // Arrange
 
     // Model emits final text without tool calls
@@ -91,7 +91,7 @@ describe("createCreateTransactionSubagentTool", () => {
     expect(result).toBe("Transaction created successfully");
   });
 
-  it("should trim whitespace from model answer", async () => {
+  it("trims whitespace from model answer", async () => {
     // Arrange
 
     // Model emits whitespace-padded text
@@ -107,7 +107,7 @@ describe("createCreateTransactionSubagentTool", () => {
     expect(result).toBe("Transaction created.");
   });
 
-  it("should return safe fallback when model yields no text", async () => {
+  it("returns safe fallback when model yields no text", async () => {
     // Arrange
 
     // Model emits message with no text blocks
@@ -125,7 +125,7 @@ describe("createCreateTransactionSubagentTool", () => {
 
   // Dependency failures
 
-  it("should propagate error from model", async () => {
+  it("propagates error from model", async () => {
     // Arrange
 
     // Model always throws

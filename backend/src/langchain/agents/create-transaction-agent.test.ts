@@ -43,7 +43,7 @@ describe("createCreateTransactionAgent", () => {
 
   // Happy path
 
-  it("should create transaction", async () => {
+  it("creates transaction", async () => {
     // Arrange
     const createdTransaction = fakeTransaction();
 
@@ -77,7 +77,7 @@ describe("createCreateTransactionAgent", () => {
     expect(mockTransactionService.createTransaction).toHaveBeenCalledTimes(1);
   });
 
-  it("should include today's date in system prompt", async () => {
+  it("includes today's date in system prompt", async () => {
     // Arrange
 
     // Model emits final text without tool calls
@@ -92,7 +92,7 @@ describe("createCreateTransactionAgent", () => {
     );
   });
 
-  it("should not include voice input indicator in system prompt when isVoiceInput is false", async () => {
+  it("does not include voice input indicator in system prompt when isVoiceInput is false", async () => {
     // Arrange
     const context = {
       ...baseContext,
@@ -111,7 +111,7 @@ describe("createCreateTransactionAgent", () => {
     );
   });
 
-  it("should include voice input indicator in system prompt when isVoiceInput is true", async () => {
+  it("includes voice input indicator in system prompt when isVoiceInput is true", async () => {
     // Arrange
     const context = {
       ...baseContext,
@@ -132,7 +132,7 @@ describe("createCreateTransactionAgent", () => {
 
   // Validation failures
 
-  it("should block second creation tool call within same invocation", async () => {
+  it("blocks second creation tool call within same invocation", async () => {
     // Arrange
     const createdTransaction = fakeTransaction();
     const toolCall = {

@@ -29,7 +29,7 @@ describe("ProcessTelegramMessageService", () => {
     jest.clearAllMocks();
   });
 
-  it("should do nothing when bot is not found", async () => {
+  it("does nothing when bot is not found", async () => {
     telegramBotRepository.findOneConnectedByUserId.mockResolvedValue(null);
 
     const result = await service.call({
@@ -43,7 +43,7 @@ describe("ProcessTelegramMessageService", () => {
     expect(telegramApiClient.sendMessage).not.toHaveBeenCalled();
   });
 
-  it("should do nothing when connected bot id does not match", async () => {
+  it("does nothing when connected bot id does not match", async () => {
     const bot = fakeTelegramBot();
     telegramBotRepository.findOneConnectedByUserId.mockResolvedValue(bot);
 
@@ -58,7 +58,7 @@ describe("ProcessTelegramMessageService", () => {
     expect(telegramApiClient.sendMessage).not.toHaveBeenCalled();
   });
 
-  it("should reply with non-text message notice when text is null", async () => {
+  it("replies with non-text message notice when text is null", async () => {
     const bot = fakeTelegramBot();
     telegramBotRepository.findOneConnectedByUserId.mockResolvedValue(bot);
     telegramApiClient.sendMessage.mockResolvedValue({
@@ -82,7 +82,7 @@ describe("ProcessTelegramMessageService", () => {
     expect(assistantChatService.call).not.toHaveBeenCalled();
   });
 
-  it("should call AssistantChatService and reply with the answer", async () => {
+  it("calls AssistantChatService and replies with answer", async () => {
     const bot = fakeTelegramBot();
     const sessionId = `${bot.id}#${chatId}`;
     telegramBotRepository.findOneConnectedByUserId.mockResolvedValue(bot);
@@ -114,7 +114,7 @@ describe("ProcessTelegramMessageService", () => {
     });
   });
 
-  it("should reply with error message when AssistantChatService fails", async () => {
+  it("replies with error message when AssistantChatService fails", async () => {
     const bot = fakeTelegramBot({ userId });
     telegramBotRepository.findOneConnectedByUserId.mockResolvedValue(bot);
     telegramApiClient.sendMessage.mockResolvedValue({
@@ -145,7 +145,7 @@ describe("ProcessTelegramMessageService", () => {
     });
   });
 
-  it("should fail when sendMessage fails", async () => {
+  it("fails when sendMessage fails", async () => {
     const bot = fakeTelegramBot({ userId });
     const sessionId = `${bot.id}#${chatId}`;
     telegramBotRepository.findOneConnectedByUserId.mockResolvedValue(bot);

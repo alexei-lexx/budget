@@ -25,7 +25,7 @@ describe("DynTelegramBotRepository", () => {
   });
 
   describe("findOneConnectedByUserId", () => {
-    it("should return null when no connected bot exists", async () => {
+    it("returns null when no connected bot exists", async () => {
       const result = await repository.findOneConnectedByUserId(
         faker.string.uuid(),
       );
@@ -33,7 +33,7 @@ describe("DynTelegramBotRepository", () => {
       expect(result).toBeNull();
     });
 
-    it("should return connected bot", async () => {
+    it("returns connected bot", async () => {
       const created = await repository.create(
         fakeCreateTelegramBotInput({
           userId,
@@ -46,7 +46,7 @@ describe("DynTelegramBotRepository", () => {
       expect(result).toEqual(created);
     });
 
-    it("should not return archived bot", async () => {
+    it("does not return archived bot", async () => {
       const created = await repository.create(
         fakeCreateTelegramBotInput({
           userId,
@@ -60,7 +60,7 @@ describe("DynTelegramBotRepository", () => {
       expect(result).toBeNull();
     });
 
-    it("should not return PENDING bot", async () => {
+    it("does not return PENDING bot", async () => {
       await repository.create(
         fakeCreateTelegramBotInput({
           userId,
@@ -73,7 +73,7 @@ describe("DynTelegramBotRepository", () => {
       expect(result).toBeNull();
     });
 
-    it("should not return DELETING bot", async () => {
+    it("does not return DELETING bot", async () => {
       await repository.create(
         fakeCreateTelegramBotInput({
           userId,
@@ -86,7 +86,7 @@ describe("DynTelegramBotRepository", () => {
       expect(result).toBeNull();
     });
 
-    it("should throw when multiple connected bots exist", async () => {
+    it("throws when multiple connected bots exist", async () => {
       await repository.create(
         fakeCreateTelegramBotInput({
           userId,
@@ -110,7 +110,7 @@ describe("DynTelegramBotRepository", () => {
   });
 
   describe("findOneConnectedByWebhookSecret", () => {
-    it("should return null when no bot matches the secret", async () => {
+    it("returns null when no bot matches secret", async () => {
       const result = await repository.findOneConnectedByWebhookSecret(
         faker.string.uuid(),
       );
@@ -118,7 +118,7 @@ describe("DynTelegramBotRepository", () => {
       expect(result).toBeNull();
     });
 
-    it("should return connected bot by webhook secret", async () => {
+    it("returns connected bot by webhook secret", async () => {
       const webhookSecret = faker.string.uuid();
       const created = await repository.create(
         fakeCreateTelegramBotInput({
@@ -134,7 +134,7 @@ describe("DynTelegramBotRepository", () => {
       expect(result).toEqual(created);
     });
 
-    it("should not return archived bot", async () => {
+    it("does not return archived bot", async () => {
       const webhookSecret = faker.string.uuid();
       const created = await repository.create(
         fakeCreateTelegramBotInput({
@@ -151,7 +151,7 @@ describe("DynTelegramBotRepository", () => {
       expect(result).toBeNull();
     });
 
-    it("should not return PENDING bot", async () => {
+    it("does not return PENDING bot", async () => {
       const webhookSecret = faker.string.uuid();
       await repository.create(
         fakeCreateTelegramBotInput({
@@ -167,7 +167,7 @@ describe("DynTelegramBotRepository", () => {
       expect(result).toBeNull();
     });
 
-    it("should not return DELETING bot", async () => {
+    it("does not return DELETING bot", async () => {
       const webhookSecret = faker.string.uuid();
       await repository.create(
         fakeCreateTelegramBotInput({
@@ -183,7 +183,7 @@ describe("DynTelegramBotRepository", () => {
       expect(result).toBeNull();
     });
 
-    it("should throw when multiple connected bots share the same webhook secret", async () => {
+    it("throws when multiple connected bots share same webhook secret", async () => {
       const webhookSecret = faker.string.uuid();
       await repository.create(
         fakeCreateTelegramBotInput({
@@ -210,7 +210,7 @@ describe("DynTelegramBotRepository", () => {
   });
 
   describe("create", () => {
-    it("should create a telegram bot record", async () => {
+    it("creates telegram bot record", async () => {
       const input = fakeCreateTelegramBotInput({ userId });
 
       const bot = await repository.create(input);
@@ -227,7 +227,7 @@ describe("DynTelegramBotRepository", () => {
   });
 
   describe("update", () => {
-    it("should update the status of a bot", async () => {
+    it("updates status of bot", async () => {
       const created = await repository.create(
         fakeCreateTelegramBotInput({
           userId,
@@ -246,7 +246,7 @@ describe("DynTelegramBotRepository", () => {
   });
 
   describe("archive", () => {
-    it("should set isArchived to true and return the archived bot", async () => {
+    it("sets isArchived to true and returns archived bot", async () => {
       const created = await repository.create(
         fakeCreateTelegramBotInput({ userId }),
       );

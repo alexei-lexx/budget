@@ -36,7 +36,7 @@ describe("DynTransactionRepository", () => {
   });
 
   describe("findManyByUserId", () => {
-    it("should return transactions that belong to user and are not archived", async () => {
+    it("returns transactions that belong to user and are not archived", async () => {
       const userId = faker.string.uuid();
 
       // Active transactions for the user
@@ -61,7 +61,7 @@ describe("DynTransactionRepository", () => {
       expect(result).toContainEqual(active2);
     });
 
-    it("should return empty array when no transactions exist", async () => {
+    it("returns empty array when no transactions exist", async () => {
       const userId = faker.string.uuid();
 
       // Act
@@ -74,7 +74,7 @@ describe("DynTransactionRepository", () => {
 
   describe("findManyByUserIdPaginated", () => {
     describe("without filters", () => {
-      it("should return transactions for a user", async () => {
+      it("returns transactions for user", async () => {
         // Arrange
         const userId = faker.string.uuid();
 
@@ -102,7 +102,7 @@ describe("DynTransactionRepository", () => {
     });
 
     describe("with account filters", () => {
-      it("should filter transactions by single account ID", async () => {
+      it("filters transactions by single account ID", async () => {
         // Arrange
         const userId = faker.string.uuid();
         const account1 = faker.string.uuid();
@@ -132,7 +132,7 @@ describe("DynTransactionRepository", () => {
         });
       });
 
-      it("should filter transactions by multiple account IDs", async () => {
+      it("filters transactions by multiple account IDs", async () => {
         // Arrange
         const userId = faker.string.uuid();
         const account1 = faker.string.uuid();
@@ -165,7 +165,7 @@ describe("DynTransactionRepository", () => {
         );
       });
 
-      it("should return empty results when filtering by non-existent account ID", async () => {
+      it("returns empty results when filtering by non-existent account ID", async () => {
         // Arrange
         const userId = faker.string.uuid();
         const account1 = faker.string.uuid();
@@ -191,7 +191,7 @@ describe("DynTransactionRepository", () => {
     });
 
     describe("with category filters", () => {
-      it("should filter transactions by single category ID", async () => {
+      it("filters transactions by single category ID", async () => {
         // Arrange
         const userId = faker.string.uuid();
         const accountId = faker.string.uuid();
@@ -234,7 +234,7 @@ describe("DynTransactionRepository", () => {
         });
       });
 
-      it("should filter transactions by multiple category IDs", async () => {
+      it("filters transactions by multiple category IDs", async () => {
         // Arrange
         const userId = faker.string.uuid();
         const accountId = faker.string.uuid();
@@ -279,7 +279,7 @@ describe("DynTransactionRepository", () => {
         );
       });
 
-      it("should include only uncategorized transactions when includeUncategorized is true and no categoryIds", async () => {
+      it("includes only uncategorized transactions when includeUncategorized is true and no categoryIds", async () => {
         // Arrange
         const userId = faker.string.uuid();
         const accountId = faker.string.uuid();
@@ -321,7 +321,7 @@ describe("DynTransactionRepository", () => {
         });
       });
 
-      it("should include both categorized and uncategorized transactions when both filters are provided", async () => {
+      it("includes both categorized and uncategorized transactions when both filters are provided", async () => {
         // Arrange
         const userId = faker.string.uuid();
         const accountId = faker.string.uuid();
@@ -370,7 +370,7 @@ describe("DynTransactionRepository", () => {
         expect(categoryIds.filter((id) => id === undefined)).toHaveLength(1);
       });
 
-      it("should return empty results when filtering by non-existent category ID", async () => {
+      it("returns empty results when filtering by non-existent category ID", async () => {
         // Arrange
         const userId = faker.string.uuid();
         const accountId = faker.string.uuid();
@@ -401,7 +401,7 @@ describe("DynTransactionRepository", () => {
     });
 
     describe("with date filters", () => {
-      it("should filter transactions by dateAfter (inclusive)", async () => {
+      it("filters transactions by dateAfter (inclusive)", async () => {
         // Arrange
         const userId = faker.string.uuid();
         const accountId = faker.string.uuid();
@@ -440,7 +440,7 @@ describe("DynTransactionRepository", () => {
         expect(dates).toEqual(["2024-01-15", "2024-01-20"]);
       });
 
-      it("should filter transactions by dateBefore (inclusive)", async () => {
+      it("filters transactions by dateBefore (inclusive)", async () => {
         // Arrange
         const userId = faker.string.uuid();
         const accountId = faker.string.uuid();
@@ -479,7 +479,7 @@ describe("DynTransactionRepository", () => {
         expect(dates).toEqual(["2024-01-10", "2024-01-20"]);
       });
 
-      it("should filter transactions by date range (both boundaries inclusive)", async () => {
+      it("filters transactions by date range (both boundaries inclusive)", async () => {
         // Arrange
         const userId = faker.string.uuid();
         const accountId = faker.string.uuid();
@@ -529,7 +529,7 @@ describe("DynTransactionRepository", () => {
         expect(dates).toEqual(["2024-01-10", "2024-01-15", "2024-01-20"]);
       });
 
-      it("should throw error when dateAfter > dateBefore (DynamoDB constraint)", async () => {
+      it("throws error when dateAfter > dateBefore (DynamoDB constraint)", async () => {
         // Verify DynamoDB constraint behavior when dateAfter > dateBefore
         // DynamoDB BETWEEN operator requires lower bound <= upper bound
         // When this is violated, DynamoDB throws ValidationException
@@ -565,7 +565,7 @@ describe("DynTransactionRepository", () => {
     });
 
     describe("with type filters", () => {
-      it("should filter transactions by single type", async () => {
+      it("filters transactions by single type", async () => {
         // Arrange
         const userId = faker.string.uuid();
         const accountId = faker.string.uuid();
@@ -605,7 +605,7 @@ describe("DynTransactionRepository", () => {
         });
       });
 
-      it("should filter transactions by multiple types", async () => {
+      it("filters transactions by multiple types", async () => {
         // Arrange
         const userId = faker.string.uuid();
         const accountId = faker.string.uuid();
@@ -656,7 +656,7 @@ describe("DynTransactionRepository", () => {
     });
 
     describe("with combined filters", () => {
-      it("should filter by account and date range", async () => {
+      it("filters by account and date range", async () => {
         // Arrange
         const userId = faker.string.uuid();
         const account1 = faker.string.uuid();
@@ -703,7 +703,7 @@ describe("DynTransactionRepository", () => {
         expect(result.edges[0].node.date).toBe("2024-01-20");
       });
 
-      it("should filter by category and type", async () => {
+      it("filters by category and type", async () => {
         // Arrange
         const userId = faker.string.uuid();
         const accountId = faker.string.uuid();
@@ -754,7 +754,7 @@ describe("DynTransactionRepository", () => {
         expect(result.edges[0].node.type).toBe(TransactionType.EXPENSE);
       });
 
-      it("should filter by account, category, date range, and type", async () => {
+      it("filters by account, category, date range, and type", async () => {
         // Arrange
         const userId = faker.string.uuid();
         const account1 = faker.string.uuid();
@@ -831,7 +831,7 @@ describe("DynTransactionRepository", () => {
     });
 
     describe("pagination with date filters (UserDateIndex)", () => {
-      it("should paginate correctly when using date filters without duplicates or missing items", async () => {
+      it("paginates correctly when using date filters without duplicates or missing items", async () => {
         // See detailed explanation of the issue here:
         // https://github.com/alexei-lexx/budget/issues/36
 
@@ -927,7 +927,7 @@ describe("DynTransactionRepository", () => {
     });
 
     describe("pagination without date filters (UserCreatedAtIndex)", () => {
-      it("should paginate correctly without date filters", async () => {
+      it("paginates correctly without date filters", async () => {
         // Arrange - Create 6 transactions
         const userId = faker.string.uuid();
         const accountId = faker.string.uuid();
@@ -1005,7 +1005,7 @@ describe("DynTransactionRepository", () => {
   });
 
   describe("cursor validation - error handling", () => {
-    it("should throw error for invalid base64 cursor format", async () => {
+    it("throws error for invalid base64 cursor format", async () => {
       // Arrange
       const userId = faker.string.uuid();
       const invalidCursor = "not-valid-base64!!!";
@@ -1019,7 +1019,7 @@ describe("DynTransactionRepository", () => {
       ).rejects.toThrow("Invalid cursor format");
     });
 
-    it("should throw error for corrupted JSON in cursor", async () => {
+    it("throws error for corrupted JSON in cursor", async () => {
       // Arrange
       const userId = faker.string.uuid();
       const corruptedCursor =
@@ -1034,7 +1034,7 @@ describe("DynTransactionRepository", () => {
       ).rejects.toThrow("Invalid cursor format");
     });
 
-    it("should throw error for missing createdAtSortable field in cursor", async () => {
+    it("throws error for missing createdAtSortable field in cursor", async () => {
       // Arrange
       const userId = faker.string.uuid();
       const cursorWithoutCreatedAtSortable = Buffer.from(
@@ -1050,7 +1050,7 @@ describe("DynTransactionRepository", () => {
       ).rejects.toThrow("Invalid cursor format");
     });
 
-    it("should throw error for missing date field in cursor", async () => {
+    it("throws error for missing date field in cursor", async () => {
       // Arrange
       const userId = faker.string.uuid();
       const cursorWithoutDate = Buffer.from(
@@ -1069,7 +1069,7 @@ describe("DynTransactionRepository", () => {
       ).rejects.toThrow("Invalid cursor format");
     });
 
-    it("should throw error for missing id field in cursor", async () => {
+    it("throws error for missing id field in cursor", async () => {
       // Arrange
       const userId = faker.string.uuid();
       const cursorWithoutId = Buffer.from(
@@ -1090,7 +1090,7 @@ describe("DynTransactionRepository", () => {
   });
 
   describe("findManyByDescription", () => {
-    it("should return transactions that contain search text (case-sensitive)", async () => {
+    it("returns transactions that contain search text (case-sensitive)", async () => {
       // Arrange
       const userId = faker.string.uuid();
       const accountId = faker.string.uuid();
@@ -1147,7 +1147,7 @@ describe("DynTransactionRepository", () => {
       expect(result[1].description).toBe("Grocery store");
     });
 
-    it("should be case-sensitive in matching", async () => {
+    it("is case-sensitive in matching", async () => {
       // Arrange
       const userId = faker.string.uuid();
       const accountId = faker.string.uuid();
@@ -1189,7 +1189,7 @@ describe("DynTransactionRepository", () => {
       expect(resultLowercase[0].description).toBe("grocery shopping");
     });
 
-    it("should return results ordered by creation time (most recent first)", async () => {
+    it("returns results ordered by creation time (most recent first)", async () => {
       // Arrange
       const userId = faker.string.uuid();
       const accountId = faker.string.uuid();
@@ -1225,7 +1225,7 @@ describe("DynTransactionRepository", () => {
       expect(result[1].id).toBe(transaction1.id);
     });
 
-    it("should respect the limit parameter", async () => {
+    it("respects limit parameter", async () => {
       // Arrange
       const userId = faker.string.uuid();
       const accountId = faker.string.uuid();
@@ -1254,7 +1254,7 @@ describe("DynTransactionRepository", () => {
       expect(result).toHaveLength(2);
     });
 
-    it("should exclude transactions without descriptions", async () => {
+    it("excludes transactions without descriptions", async () => {
       // Arrange
       const userId = faker.string.uuid();
       const accountId = faker.string.uuid();
@@ -1286,7 +1286,7 @@ describe("DynTransactionRepository", () => {
       expect(result[0].description).toBe("Grocery store");
     });
 
-    it("should exclude archived transactions", async () => {
+    it("excludes archived transactions", async () => {
       // Arrange
       const userId = faker.string.uuid();
       const accountId = faker.string.uuid();
@@ -1319,7 +1319,7 @@ describe("DynTransactionRepository", () => {
       expect(result[0].description).toBe("Store purchase 2");
     });
 
-    it("should isolate results by user", async () => {
+    it("isolates results by user", async () => {
       // Arrange
       const user1 = faker.string.uuid();
       const user2 = faker.string.uuid();
@@ -1362,7 +1362,7 @@ describe("DynTransactionRepository", () => {
       expect(user2Result[0].userId).toBe(user2);
     });
 
-    it("should return empty array for empty search text", async () => {
+    it("returns empty array for empty search text", async () => {
       // Arrange
       const userId = faker.string.uuid();
 
@@ -1384,7 +1384,7 @@ describe("DynTransactionRepository", () => {
       expect(result).toHaveLength(0);
     });
 
-    it("should return empty array when no matches found", async () => {
+    it("returns empty array when no matches found", async () => {
       // Arrange
       const userId = faker.string.uuid();
       const accountId = faker.string.uuid();
@@ -1410,7 +1410,7 @@ describe("DynTransactionRepository", () => {
       expect(result).toHaveLength(0);
     });
 
-    it("should return empty array for user with no transactions", async () => {
+    it("returns empty array for user with no transactions", async () => {
       // Arrange
       const userId = faker.string.uuid();
 
@@ -1425,7 +1425,7 @@ describe("DynTransactionRepository", () => {
       expect(result).toHaveLength(0);
     });
 
-    it("should throw error for missing user ID", async () => {
+    it("throws error for missing user ID", async () => {
       // Act & Assert
       await expect(
         repository.findManyByDescription({
@@ -1436,7 +1436,7 @@ describe("DynTransactionRepository", () => {
       ).rejects.toThrow("User ID is required");
     });
 
-    it("should throw error for invalid limit parameter", async () => {
+    it("throws error for invalid limit parameter", async () => {
       // Arrange
       const userId = faker.string.uuid();
 
@@ -1468,7 +1468,7 @@ describe("DynTransactionRepository", () => {
       ).rejects.toThrow("Limit must be a positive integer");
     });
 
-    it("should handle exact string matches", async () => {
+    it("handles exact string matches", async () => {
       // Arrange
       const userId = faker.string.uuid();
       const accountId = faker.string.uuid();
@@ -1500,7 +1500,7 @@ describe("DynTransactionRepository", () => {
       expect(result[0].description).toBe("Exact match");
     });
 
-    it("should handle substring matches", async () => {
+    it("handles substring matches", async () => {
       // Arrange
       const userId = faker.string.uuid();
       const accountId = faker.string.uuid();
@@ -1538,7 +1538,7 @@ describe("DynTransactionRepository", () => {
   describe("create", () => {
     // Happy path
 
-    it("should persist pre-built transaction and return it unchanged", async () => {
+    it("persists pre-built transaction and returns it unchanged", async () => {
       // Arrange
       const transaction = fakeTransaction();
 
@@ -1553,7 +1553,7 @@ describe("DynTransactionRepository", () => {
       expect(stored).toEqual(transaction);
     });
 
-    it("should persist transaction without optional fields", async () => {
+    it("persists transaction without optional fields", async () => {
       // Arrange
       const transaction = fakeTransaction({
         categoryId: undefined,
@@ -1572,7 +1572,7 @@ describe("DynTransactionRepository", () => {
       expect(stored).toEqual(transaction);
     });
 
-    it("should include createdAtSortable in raw DynamoDB item", async () => {
+    it("includes createdAtSortable in raw DynamoDB item", async () => {
       // Arrange
       const transaction = fakeTransaction();
 
@@ -1596,7 +1596,7 @@ describe("DynTransactionRepository", () => {
 
     // Validation failures
 
-    it("should reject when transaction with same ID already exists", async () => {
+    it("rejects when transaction with same ID already exists", async () => {
       // Arrange
       const transaction = fakeTransaction();
       await repository.create(transaction);
@@ -1617,7 +1617,7 @@ describe("DynTransactionRepository", () => {
   describe("createMany", () => {
     // Happy path
 
-    it("should create multiple transactions", async () => {
+    it("creates multiple transactions", async () => {
       // Arrange
       const userId1 = faker.string.uuid();
       const userId2 = faker.string.uuid();
@@ -1655,7 +1655,7 @@ describe("DynTransactionRepository", () => {
       expect(stored2).toEqual(inputs[1]);
     });
 
-    it("should include createdAtSortable in raw DynamoDB items", async () => {
+    it("includes createdAtSortable in raw DynamoDB items", async () => {
       // Arrange
       const userId = faker.string.uuid();
       const inputs = [fakeTransaction({ userId }), fakeTransaction({ userId })];
@@ -1687,7 +1687,7 @@ describe("DynTransactionRepository", () => {
       expect(rawItems[1]).toHaveProperty("createdAtSortable");
     });
 
-    it("should order paired transfers TRANSFER_IN before TRANSFER_OUT", async () => {
+    it("orders paired transfers TRANSFER_IN before TRANSFER_OUT", async () => {
       // Arrange
       const userId = faker.string.uuid();
       const transferId = faker.string.uuid();
@@ -1714,7 +1714,7 @@ describe("DynTransactionRepository", () => {
 
     // Validation failures
 
-    it("should throw for empty input", async () => {
+    it("throws for empty input", async () => {
       // Arrange
       const inputs: Transaction[] = [];
 
@@ -1724,7 +1724,7 @@ describe("DynTransactionRepository", () => {
       );
     });
 
-    it("should reject when any transaction has duplicate ID", async () => {
+    it("rejects when any transaction has duplicate ID", async () => {
       // Arrange
       const existing = fakeTransaction();
       await repository.create(existing);
@@ -1756,7 +1756,7 @@ describe("DynTransactionRepository", () => {
   describe("update", () => {
     // Happy path
 
-    it("should persist every field on the passed Transaction", async () => {
+    it("persists every field on passed Transaction", async () => {
       // Arrange
       const userId = faker.string.uuid();
       const created = fakeTransaction({
@@ -1793,7 +1793,7 @@ describe("DynTransactionRepository", () => {
       expect(stored).toEqual(updated);
     });
 
-    it("should REMOVE optional fields when undefined on the Transaction", async () => {
+    it("removes optional fields when undefined on Transaction", async () => {
       // Arrange
       const userId = faker.string.uuid();
       const created = fakeTransaction({
@@ -1823,7 +1823,7 @@ describe("DynTransactionRepository", () => {
 
     // Validation failures
 
-    it("should throw NOT_FOUND when transaction does not exist", async () => {
+    it("throws NOT_FOUND when transaction does not exist", async () => {
       // Arrange
       const transaction = fakeTransaction();
 
@@ -1833,7 +1833,7 @@ describe("DynTransactionRepository", () => {
       );
     });
 
-    it("should throw NOT_FOUND when userId does not match", async () => {
+    it("throws NOT_FOUND when userId does not match", async () => {
       // Arrange
       const owner = faker.string.uuid();
       const other = faker.string.uuid();
@@ -1853,7 +1853,7 @@ describe("DynTransactionRepository", () => {
       expect(original).toEqual(created);
     });
 
-    it("should preserve createdAtSortable GSI sort key across updates", async () => {
+    it("preserves createdAtSortable GSI sort key across updates", async () => {
       // Arrange
       const userId = faker.string.uuid();
       const created = fakeTransaction({ userId });
@@ -1888,7 +1888,7 @@ describe("DynTransactionRepository", () => {
   describe("updateMany", () => {
     // Happy path
 
-    it("should update multiple transactions atomically", async () => {
+    it("updates multiple transactions atomically", async () => {
       // Arrange
       const userId = faker.string.uuid();
       const transactions = [
@@ -1918,14 +1918,14 @@ describe("DynTransactionRepository", () => {
 
     // Validation failures
 
-    it("should throw error for empty input array", async () => {
+    it("throws error for empty input array", async () => {
       // Act & Assert
       await expect(repository.updateMany([])).rejects.toThrow(
         "At least one transaction is required",
       );
     });
 
-    it("should throw NOT_FOUND when any transaction does not exist", async () => {
+    it("throws NOT_FOUND when any transaction does not exist", async () => {
       // Arrange
       const userId = faker.string.uuid();
       const existing = fakeTransaction({ userId });
@@ -1954,7 +1954,7 @@ describe("DynTransactionRepository", () => {
   });
 
   describe("detectPatterns", () => {
-    it("should return empty array for new user with no transactions", async () => {
+    it("returns empty array for new user with no transactions", async () => {
       // Arrange
       const userId = faker.string.uuid();
 
@@ -1970,7 +1970,7 @@ describe("DynTransactionRepository", () => {
       expect(result).toEqual([]);
     });
 
-    it("should return empty array when no transactions have category", async () => {
+    it("returns empty array when no transactions have category", async () => {
       // Arrange
       const userId = faker.string.uuid();
       const transactions = [
@@ -2000,7 +2000,7 @@ describe("DynTransactionRepository", () => {
       expect(result).toEqual([]);
     });
 
-    it("should return patterns sorted by usage count descending", async () => {
+    it("returns patterns sorted by usage count descending", async () => {
       const userId = faker.string.uuid();
       const account1 = faker.string.uuid();
       const category1 = faker.string.uuid();
@@ -2076,7 +2076,7 @@ describe("DynTransactionRepository", () => {
       });
     });
 
-    it("should return only top N patterns based on limit", async () => {
+    it("returns only top N patterns based on limit", async () => {
       const userId = faker.string.uuid();
       const transactions = [];
 
@@ -2123,7 +2123,7 @@ describe("DynTransactionRepository", () => {
       }); // Third most frequent (3 uses)
     });
 
-    it("should sort deterministically when usage counts are equal", async () => {
+    it("sorts deterministically when usage counts are equal", async () => {
       const userId = faker.string.uuid();
       // Generate UUIDs and sort them so we can predict the deterministic sort order
       // Using proper UUID v4 format with correct version (4) and variant (8-b) bits
@@ -2204,7 +2204,7 @@ describe("DynTransactionRepository", () => {
       });
     });
 
-    it("should filter by transaction type correctly", async () => {
+    it("filters by transaction type correctly", async () => {
       const userId = faker.string.uuid();
       const accountId = faker.string.uuid();
       const categoryIncome = faker.string.uuid();
@@ -2305,7 +2305,7 @@ describe("DynTransactionRepository", () => {
       });
     });
 
-    it("should exclude archived transactions", async () => {
+    it("excludes archived transactions", async () => {
       const userId = faker.string.uuid();
       const account1 = faker.string.uuid();
       const category1 = faker.string.uuid();
@@ -2345,7 +2345,7 @@ describe("DynTransactionRepository", () => {
       });
     });
 
-    it("should respect sample size limit", async () => {
+    it("respects sample size limit", async () => {
       const userId = faker.string.uuid();
       const account1 = faker.string.uuid();
       const category1 = faker.string.uuid();
@@ -2397,7 +2397,7 @@ describe("DynTransactionRepository", () => {
       });
     });
 
-    it("should throw error for missing user ID", async () => {
+    it("throws error for missing user ID", async () => {
       await expect(
         repository.detectPatterns({
           userId: "",
@@ -2408,7 +2408,7 @@ describe("DynTransactionRepository", () => {
       ).rejects.toThrow("User ID is required");
     });
 
-    it("should throw error for invalid limit parameter", async () => {
+    it("throws error for invalid limit parameter", async () => {
       const userId = faker.string.uuid();
 
       // Act & Assert - Zero limit
@@ -2442,7 +2442,7 @@ describe("DynTransactionRepository", () => {
       ).rejects.toThrow("Limit must be a positive integer");
     });
 
-    it("should throw error for invalid sampleSize parameter", async () => {
+    it("throws error for invalid sampleSize parameter", async () => {
       const userId = faker.string.uuid();
 
       // Act & Assert - Zero sample size
@@ -2476,7 +2476,7 @@ describe("DynTransactionRepository", () => {
       ).rejects.toThrow("Sample size must be a positive integer");
     });
 
-    it("should return only top N patterns based on limit parameter", async () => {
+    it("returns only top N patterns based on limit parameter", async () => {
       const userId = faker.string.uuid();
       const transactions = [];
       const accountIds = Array.from({ length: 5 }, () => faker.string.uuid());
@@ -2508,7 +2508,7 @@ describe("DynTransactionRepository", () => {
       expect(result).toHaveLength(2);
     });
 
-    it("should isolate patterns by user", async () => {
+    it("isolates patterns by user", async () => {
       const user1 = faker.string.uuid();
       const user2 = faker.string.uuid();
       const account1 = faker.string.uuid();
@@ -2564,7 +2564,7 @@ describe("DynTransactionRepository", () => {
   });
 
   describe("hydration - data corruption detection", () => {
-    it("should throw error when required field amount is missing from database record", async () => {
+    it("throws error when required field amount is missing from database record", async () => {
       // Arrange
       const userId = faker.string.uuid();
       const transaction = fakeTransaction({ userId });

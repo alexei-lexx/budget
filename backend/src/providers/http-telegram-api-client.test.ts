@@ -23,7 +23,7 @@ describe("HttpTelegramApiClient", () => {
   });
 
   describe("getWebhookInfo", () => {
-    it("should call Telegram getWebhookInfo endpoint and return webhook info", async () => {
+    it("calls Telegram getWebhookInfo endpoint and returns webhook info", async () => {
       const webhookInfo = { url: "https://example.com/webhooks/telegram" };
       mockFetch.mockResolvedValue(
         mockResponse({ ok: true, result: webhookInfo }),
@@ -37,7 +37,7 @@ describe("HttpTelegramApiClient", () => {
       );
     });
 
-    it("should return failure when Telegram returns ok: false", async () => {
+    it("returns failure when Telegram returns ok: false", async () => {
       mockFetch.mockResolvedValue(
         mockResponse({ ok: false, description: "Some error" }),
       );
@@ -50,7 +50,7 @@ describe("HttpTelegramApiClient", () => {
       });
     });
 
-    it("should return failure when response has unexpected format", async () => {
+    it("returns failure when response has unexpected format", async () => {
       mockFetch.mockResolvedValue(mockResponse({ status: "error" }));
 
       const result = await client.getWebhookInfo("token-12345");
@@ -61,7 +61,7 @@ describe("HttpTelegramApiClient", () => {
       });
     });
 
-    it("should return failure when HTTP status is not ok", async () => {
+    it("returns failure when HTTP status is not ok", async () => {
       mockFetch.mockResolvedValue(mockResponse({}, 500));
 
       const result = await client.getWebhookInfo("token-12345");
@@ -72,7 +72,7 @@ describe("HttpTelegramApiClient", () => {
       });
     });
 
-    it("should return failure when fetch throws", async () => {
+    it("returns failure when fetch throws", async () => {
       mockFetch.mockRejectedValue(new Error("Network error"));
 
       const result = await client.getWebhookInfo("token-12345");
@@ -91,7 +91,7 @@ describe("HttpTelegramApiClient", () => {
       secretToken: "secret-67890",
     };
 
-    it("should call Telegram setWebhook endpoint", async () => {
+    it("calls Telegram setWebhook endpoint", async () => {
       mockFetch.mockResolvedValue(mockResponse({ ok: true }));
 
       const result = await client.setWebhook(params);
@@ -110,7 +110,7 @@ describe("HttpTelegramApiClient", () => {
       );
     });
 
-    it("should return failure when Telegram returns ok: false", async () => {
+    it("returns failure when Telegram returns ok: false", async () => {
       mockFetch.mockResolvedValue(
         mockResponse({ ok: false, description: "Some error" }),
       );
@@ -123,7 +123,7 @@ describe("HttpTelegramApiClient", () => {
       });
     });
 
-    it("should return failure when response has unexpected format", async () => {
+    it("returns failure when response has unexpected format", async () => {
       mockFetch.mockResolvedValue(mockResponse({ status: "error" }));
 
       const result = await client.setWebhook(params);
@@ -134,7 +134,7 @@ describe("HttpTelegramApiClient", () => {
       });
     });
 
-    it("should return failure when HTTP status is not ok", async () => {
+    it("returns failure when HTTP status is not ok", async () => {
       mockFetch.mockResolvedValue(mockResponse({}, 500));
 
       const result = await client.setWebhook(params);
@@ -145,7 +145,7 @@ describe("HttpTelegramApiClient", () => {
       });
     });
 
-    it("should return failure when fetch throws", async () => {
+    it("returns failure when fetch throws", async () => {
       mockFetch.mockRejectedValue(new Error("Network error"));
 
       const result = await client.setWebhook(params);
@@ -158,7 +158,7 @@ describe("HttpTelegramApiClient", () => {
   });
 
   describe("deleteWebhook", () => {
-    it("should call Telegram deleteWebhook endpoint", async () => {
+    it("calls Telegram deleteWebhook endpoint", async () => {
       mockFetch.mockResolvedValue(mockResponse({ ok: true }));
 
       const result = await client.deleteWebhook("token-12345");
@@ -170,7 +170,7 @@ describe("HttpTelegramApiClient", () => {
       );
     });
 
-    it("should return failure when Telegram returns ok: false", async () => {
+    it("returns failure when Telegram returns ok: false", async () => {
       mockFetch.mockResolvedValue(
         mockResponse({ ok: false, description: "Some error" }),
       );
@@ -183,7 +183,7 @@ describe("HttpTelegramApiClient", () => {
       });
     });
 
-    it("should return failure when response has unexpected format", async () => {
+    it("returns failure when response has unexpected format", async () => {
       mockFetch.mockResolvedValue(mockResponse({ status: "error" }));
 
       const result = await client.deleteWebhook("token-12345");
@@ -194,7 +194,7 @@ describe("HttpTelegramApiClient", () => {
       });
     });
 
-    it("should return failure when HTTP status is not ok", async () => {
+    it("returns failure when HTTP status is not ok", async () => {
       mockFetch.mockResolvedValue(mockResponse({}, 500));
 
       const result = await client.deleteWebhook("token-12345");
@@ -205,7 +205,7 @@ describe("HttpTelegramApiClient", () => {
       });
     });
 
-    it("should return failure when fetch throws", async () => {
+    it("returns failure when fetch throws", async () => {
       mockFetch.mockRejectedValue(new Error("Network error"));
 
       const result = await client.deleteWebhook("token-12345");
@@ -224,7 +224,7 @@ describe("HttpTelegramApiClient", () => {
       text: "Hello!",
     };
 
-    it("should call Telegram sendMessage endpoint", async () => {
+    it("calls Telegram sendMessage endpoint", async () => {
       mockFetch.mockResolvedValue(mockResponse({ ok: true }));
 
       const result = await client.sendMessage(params);
@@ -240,7 +240,7 @@ describe("HttpTelegramApiClient", () => {
       );
     });
 
-    it("should return failure when Telegram returns ok: false", async () => {
+    it("returns failure when Telegram returns ok: false", async () => {
       mockFetch.mockResolvedValue(
         mockResponse({ ok: false, description: "Some error" }),
       );
@@ -253,7 +253,7 @@ describe("HttpTelegramApiClient", () => {
       });
     });
 
-    it("should return failure when response has unexpected format", async () => {
+    it("returns failure when response has unexpected format", async () => {
       mockFetch.mockResolvedValue(mockResponse({ status: "error" }));
 
       const result = await client.sendMessage(params);
@@ -264,7 +264,7 @@ describe("HttpTelegramApiClient", () => {
       });
     });
 
-    it("should return failure when HTTP status is not ok", async () => {
+    it("returns failure when HTTP status is not ok", async () => {
       mockFetch.mockResolvedValue(mockResponse({}, 500));
 
       const result = await client.sendMessage(params);
@@ -275,7 +275,7 @@ describe("HttpTelegramApiClient", () => {
       });
     });
 
-    it("should return failure when fetch throws", async () => {
+    it("returns failure when fetch throws", async () => {
       mockFetch.mockRejectedValue(new Error("Network error"));
 
       const result = await client.sendMessage(params);

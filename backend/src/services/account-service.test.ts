@@ -32,7 +32,7 @@ describe("AccountService", () => {
   describe("getAccountsByUser", () => {
     // Happy path
 
-    it("should return accounts for a user", async () => {
+    it("returns accounts for user", async () => {
       // Arrange
       const accounts = [fakeAccount(), fakeAccount()];
       mockAccountRepository.findManyByUserId.mockResolvedValue(accounts);
@@ -49,7 +49,7 @@ describe("AccountService", () => {
 
     // Dependency failures
 
-    it("should propagate repository errors", async () => {
+    it("propagates repository errors", async () => {
       // Arrange
 
       // Repository throws on DB error
@@ -67,7 +67,7 @@ describe("AccountService", () => {
   describe("createAccount", () => {
     // Happy path
 
-    it("should create and return a new account", async () => {
+    it("creates and returns new account", async () => {
       // Arrange
       const input = fakeCreateAccountInput({ userId });
       const createdAccount = fakeAccount();
@@ -87,7 +87,7 @@ describe("AccountService", () => {
       });
     });
 
-    it("should trim the name before creating", async () => {
+    it("trims name before creating", async () => {
       // Arrange
       const input = fakeCreateAccountInput({ userId, name: "  Savings  " });
       const createdAccount = fakeAccount();
@@ -105,7 +105,7 @@ describe("AccountService", () => {
 
     // Validation failures
 
-    it("should throw when name is empty", async () => {
+    it("throws when name is empty", async () => {
       // Arrange
       const input = fakeCreateAccountInput({ userId, name: "" });
 
@@ -119,7 +119,7 @@ describe("AccountService", () => {
       expect(mockAccountRepository.create).not.toHaveBeenCalled();
     });
 
-    it("should throw when name is only whitespace", async () => {
+    it("throws when name is only whitespace", async () => {
       // Arrange
       const input = fakeCreateAccountInput({ userId, name: "   " });
 
@@ -133,7 +133,7 @@ describe("AccountService", () => {
       expect(mockAccountRepository.create).not.toHaveBeenCalled();
     });
 
-    it("should throw when name exceeds maximum length", async () => {
+    it("throws when name exceeds maximum length", async () => {
       // Arrange
       const input = fakeCreateAccountInput({
         userId,
@@ -150,7 +150,7 @@ describe("AccountService", () => {
       expect(mockAccountRepository.create).not.toHaveBeenCalled();
     });
 
-    it("should throw when currency is unsupported", async () => {
+    it("throws when currency is unsupported", async () => {
       // Arrange
       const input = fakeCreateAccountInput({ userId, currency: "INVALID" });
 
@@ -164,7 +164,7 @@ describe("AccountService", () => {
       expect(mockAccountRepository.create).not.toHaveBeenCalled();
     });
 
-    it("should throw when account name already exists (case-insensitive)", async () => {
+    it("throws when account name already exists (case-insensitive)", async () => {
       // Arrange
       // Another account with the same name exists (different casing)
       mockAccountRepository.findManyByUserId.mockResolvedValue([
@@ -184,7 +184,7 @@ describe("AccountService", () => {
 
     // Dependency failures
 
-    it("should propagate repository errors on create", async () => {
+    it("propagates repository errors on create", async () => {
       // Arrange
       const input = fakeCreateAccountInput({ userId });
       mockAccountRepository.findManyByUserId.mockResolvedValue([]);
@@ -204,7 +204,7 @@ describe("AccountService", () => {
   describe("updateAccount", () => {
     // Happy path
 
-    it("should update and return the account", async () => {
+    it("updates and returns account", async () => {
       // Arrange
       const accountId = faker.string.uuid();
       const currentAccount = fakeAccount({ id: accountId });
@@ -231,7 +231,7 @@ describe("AccountService", () => {
       );
     });
 
-    it("should trim the name before updating", async () => {
+    it("trims name before updating", async () => {
       // Arrange
       const accountId = faker.string.uuid();
       const currentAccount = fakeAccount({ id: accountId });
@@ -252,7 +252,7 @@ describe("AccountService", () => {
       );
     });
 
-    it("should allow keeping the same account name", async () => {
+    it("allows keeping same account name", async () => {
       // Arrange
       const accountId = faker.string.uuid();
       const currentAccount = fakeAccount({ id: accountId, name: "Savings" });
@@ -274,7 +274,7 @@ describe("AccountService", () => {
       expect(mockAccountRepository.update).toHaveBeenCalled();
     });
 
-    it("should allow currency change when account has no transactions", async () => {
+    it("allows currency change when account has no transactions", async () => {
       // Arrange
       const accountId = faker.string.uuid();
       const currentAccount = fakeAccount({ id: accountId, currency: "USD" });
@@ -299,7 +299,7 @@ describe("AccountService", () => {
 
     // Validation failures
 
-    it("should throw when account is not found", async () => {
+    it("throws when account is not found", async () => {
       // Arrange
       const accountId = faker.string.uuid();
 
@@ -318,7 +318,7 @@ describe("AccountService", () => {
       expect(mockAccountRepository.update).not.toHaveBeenCalled();
     });
 
-    it("should throw when updated name is empty", async () => {
+    it("throws when updated name is empty", async () => {
       // Arrange
       const accountId = faker.string.uuid();
       const currentAccount = fakeAccount({ id: accountId });
@@ -334,7 +334,7 @@ describe("AccountService", () => {
       expect(mockAccountRepository.update).not.toHaveBeenCalled();
     });
 
-    it("should throw when updated name exceeds maximum length", async () => {
+    it("throws when updated name exceeds maximum length", async () => {
       // Arrange
       const accountId = faker.string.uuid();
       const currentAccount = fakeAccount({ id: accountId });
@@ -352,7 +352,7 @@ describe("AccountService", () => {
       expect(mockAccountRepository.update).not.toHaveBeenCalled();
     });
 
-    it("should throw when updated currency is unsupported", async () => {
+    it("throws when updated currency is unsupported", async () => {
       // Arrange
       const accountId = faker.string.uuid();
       const currentAccount = fakeAccount({ id: accountId });
@@ -370,7 +370,7 @@ describe("AccountService", () => {
       expect(mockAccountRepository.update).not.toHaveBeenCalled();
     });
 
-    it("should throw when updated name already exists for another account", async () => {
+    it("throws when updated name already exists for another account", async () => {
       // Arrange
       const accountId = faker.string.uuid();
       const currentAccount = fakeAccount({ id: accountId, name: "Checking" });
@@ -395,7 +395,7 @@ describe("AccountService", () => {
       expect(mockAccountRepository.update).not.toHaveBeenCalled();
     });
 
-    it("should throw when changing currency and account has existing transactions", async () => {
+    it("throws when changing currency and account has existing transactions", async () => {
       // Arrange
       const accountId = faker.string.uuid();
       const currentAccount = fakeAccount({ id: accountId, currency: "USD" });
@@ -421,7 +421,7 @@ describe("AccountService", () => {
 
     // Dependency failures
 
-    it("should propagate repository errors on update", async () => {
+    it("propagates repository errors on update", async () => {
       // Arrange
       const accountId = faker.string.uuid();
       const currentAccount = fakeAccount({ id: accountId });
@@ -446,7 +446,7 @@ describe("AccountService", () => {
   describe("deleteAccount", () => {
     // Happy path
 
-    it("should archive and return the account", async () => {
+    it("archives and returns account", async () => {
       // Arrange
       const accountId = faker.string.uuid();
       const archivedAccount = fakeAccount({ id: accountId, isArchived: true });
@@ -465,7 +465,7 @@ describe("AccountService", () => {
 
     // Dependency failures
 
-    it("should propagate repository errors on archive", async () => {
+    it("propagates repository errors on archive", async () => {
       // Arrange
       const accountId = faker.string.uuid();
 
@@ -484,7 +484,7 @@ describe("AccountService", () => {
   describe("calculateBalance", () => {
     // Happy path
 
-    it("should return initial balance when there are no transactions", async () => {
+    it("returns initial balance when there are no transactions", async () => {
       // Arrange
       const accountId = faker.string.uuid();
       const account = fakeAccount({ id: accountId, initialBalance: 500 });
@@ -506,7 +506,7 @@ describe("AccountService", () => {
       });
     });
 
-    it("should add income and subtract expenses from initial balance", async () => {
+    it("adds income and subtracts expenses from initial balance", async () => {
       // Arrange
       const accountId = faker.string.uuid();
       const account = fakeAccount({ id: accountId, initialBalance: 100 });
@@ -530,7 +530,7 @@ describe("AccountService", () => {
       });
     });
 
-    it("should include REFUND and TRANSFER_IN as positive, TRANSFER_OUT as negative", async () => {
+    it("includes REFUND and TRANSFER_IN as positive, TRANSFER_OUT as negative", async () => {
       // Arrange
       const accountId = faker.string.uuid();
       const account = fakeAccount({ id: accountId, initialBalance: 0 });
@@ -566,7 +566,7 @@ describe("AccountService", () => {
 
     // Validation failures
 
-    it("should throw when account is not found", async () => {
+    it("throws when account is not found", async () => {
       // Arrange
       const accountId = faker.string.uuid();
 
@@ -587,7 +587,7 @@ describe("AccountService", () => {
 
     // Dependency failures
 
-    it("should propagate transaction repository errors", async () => {
+    it("propagates transaction repository errors", async () => {
       // Arrange
       const accountId = faker.string.uuid();
       const account = fakeAccount({ id: accountId });

@@ -6,7 +6,7 @@ import { batchLoadCategories, createCategoryLoader } from "./category-loader";
 
 describe("Category Batch Loader", () => {
   describe("batchLoadCategories", () => {
-    it("should batch load 5 valid category IDs and return correct data", async () => {
+    it("batch-loads 5 valid category IDs and returns correct data", async () => {
       const mockRepository = createMockCategoryRepository();
 
       // Create 5 fake categories
@@ -84,7 +84,7 @@ describe("Category Batch Loader", () => {
       });
     });
 
-    it("should handle mix of valid and non-existent categories with stub data", async () => {
+    it("handles mix of valid and non-existent categories with stub data", async () => {
       const mockRepository = createMockCategoryRepository();
 
       const validCategory = fakeCategory({ id: "cat-valid" });
@@ -113,7 +113,7 @@ describe("Category Batch Loader", () => {
       });
     });
 
-    it("should handle duplicate IDs by deduplicating and preserving order", async () => {
+    it("handles duplicate IDs by deduplicating and preserving order", async () => {
       const mockRepository = createMockCategoryRepository();
 
       const category = fakeCategory({ id: "cat-1" });
@@ -137,7 +137,7 @@ describe("Category Batch Loader", () => {
       });
     });
 
-    it("should return empty array for empty input", async () => {
+    it("returns empty array for empty input", async () => {
       const mockRepository = createMockCategoryRepository();
 
       const result = await batchLoadCategories(
@@ -152,7 +152,7 @@ describe("Category Batch Loader", () => {
   });
 
   describe("createCategoryLoader", () => {
-    it("should create a DataLoader instance", () => {
+    it("creates DataLoader instance", () => {
       const mockRepository = createMockCategoryRepository();
       const loader = createCategoryLoader(
         mockRepository,
@@ -162,7 +162,7 @@ describe("Category Batch Loader", () => {
       expect(loader).toBeInstanceOf(DataLoader);
     });
 
-    it("should batch load through DataLoader with valid ID", async () => {
+    it("batch-loads through DataLoader with valid ID", async () => {
       const mockRepository = createMockCategoryRepository();
       const category = fakeCategory({ id: "cat-1" });
 

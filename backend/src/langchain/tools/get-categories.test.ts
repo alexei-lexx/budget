@@ -26,7 +26,7 @@ describe("createGetCategoriesTool", () => {
     mockTransactionRepository = createMockTransactionRepository();
   });
 
-  it("should return tool with correct name", () => {
+  it("returns tool with correct name", () => {
     const categoriesTool = createGetCategoriesTool({
       categoryRepository: mockCategoryRepository,
       transactionRepository: mockTransactionRepository,
@@ -35,7 +35,7 @@ describe("createGetCategoriesTool", () => {
     expect(categoriesTool.name).toBe("get_categories");
   });
 
-  it("should throw when userId in context is not a valid UUID", async () => {
+  it("throws when userId in context is not a valid UUID", async () => {
     const categoriesTool = createGetCategoriesTool({
       categoryRepository: mockCategoryRepository,
       transactionRepository: mockTransactionRepository,
@@ -49,7 +49,7 @@ describe("createGetCategoriesTool", () => {
     ).rejects.toThrow();
   });
 
-  it("should call category repository", async () => {
+  it("calls category repository", async () => {
     mockCategoryRepository.findManyWithArchivedByUserId.mockResolvedValue([]);
 
     const categoriesTool = createGetCategoriesTool({
@@ -66,7 +66,7 @@ describe("createGetCategoriesTool", () => {
     ).toHaveBeenCalledWith(userId);
   });
 
-  it("should return all categories when scope is all", async () => {
+  it("returns all categories when scope is all", async () => {
     const mockCategories = [
       fakeCategory({ isArchived: true }),
       fakeCategory({ isArchived: false }),
@@ -94,7 +94,7 @@ describe("createGetCategoriesTool", () => {
     });
   });
 
-  it("should return only active categories when scope is active", async () => {
+  it("returns only active categories when scope is active", async () => {
     const mockCategories = [
       fakeCategory({ isArchived: true }),
       fakeCategory({ isArchived: false }),
@@ -119,7 +119,7 @@ describe("createGetCategoriesTool", () => {
     });
   });
 
-  it("should return only archived categories when scope is archived", async () => {
+  it("returns only archived categories when scope is archived", async () => {
     const mockCategories = [
       fakeCategory({ isArchived: true }),
       fakeCategory({ isArchived: false }),
@@ -144,7 +144,7 @@ describe("createGetCategoriesTool", () => {
     });
   });
 
-  it("should return required fields only", async () => {
+  it("returns required fields only", async () => {
     const mockCategories = [
       fakeCategory({
         userId,
@@ -196,7 +196,7 @@ describe("createGetCategoriesTool", () => {
     });
   });
 
-  it("should return empty array when user has no categories", async () => {
+  it("returns empty array when user has no categories", async () => {
     mockCategoryRepository.findManyWithArchivedByUserId.mockResolvedValue([]);
     mockTransactionRepository.findManyByUserId.mockResolvedValue([]);
 
@@ -213,7 +213,7 @@ describe("createGetCategoriesTool", () => {
   });
 
   describe("recentDescriptions", () => {
-    it("should return empty array when no transactions exist", async () => {
+    it("returns empty array when no transactions exist", async () => {
       const category = fakeCategory({ isArchived: false });
       mockCategoryRepository.findManyWithArchivedByUserId.mockResolvedValue([
         category,
@@ -240,7 +240,7 @@ describe("createGetCategoriesTool", () => {
       });
     });
 
-    it("should exclude transactions without categoryId", async () => {
+    it("excludes transactions without categoryId", async () => {
       const category = fakeCategory({ isArchived: false });
       mockCategoryRepository.findManyWithArchivedByUserId.mockResolvedValue([
         category,
@@ -273,7 +273,7 @@ describe("createGetCategoriesTool", () => {
       });
     });
 
-    it("should exclude transactions without description", async () => {
+    it("excludes transactions without description", async () => {
       const category = fakeCategory({ isArchived: false });
       mockCategoryRepository.findManyWithArchivedByUserId.mockResolvedValue([
         category,
@@ -303,7 +303,7 @@ describe("createGetCategoriesTool", () => {
       });
     });
 
-    it("should exclude transactions with unknown categoryId", async () => {
+    it("excludes transactions with unknown categoryId", async () => {
       const activeCategory = fakeCategory({ isArchived: false });
       const archivedCategory = fakeCategory({ isArchived: true });
 
@@ -342,7 +342,7 @@ describe("createGetCategoriesTool", () => {
       });
     });
 
-    it("should cap recentDescriptions", async () => {
+    it("caps recentDescriptions", async () => {
       const category = fakeCategory({ isArchived: false });
       mockCategoryRepository.findManyWithArchivedByUserId.mockResolvedValue([
         category,
@@ -384,7 +384,7 @@ describe("createGetCategoriesTool", () => {
       );
     });
 
-    it("should group multiple descriptions by categoryId", async () => {
+    it("groups multiple descriptions by categoryId", async () => {
       const groceryCategory = fakeCategory({ isArchived: false });
       const eatingOutCategory = fakeCategory({ isArchived: false });
 
@@ -439,7 +439,7 @@ describe("createGetCategoriesTool", () => {
       });
     });
 
-    it("should deduplicate repeated descriptions", async () => {
+    it("deduplicates repeated descriptions", async () => {
       const category = fakeCategory({ isArchived: false });
       mockCategoryRepository.findManyWithArchivedByUserId.mockResolvedValue([
         category,
@@ -475,7 +475,7 @@ describe("createGetCategoriesTool", () => {
       });
     });
 
-    it("should fetch transactions within the history lookback window", async () => {
+    it("fetches transactions within the history lookback window", async () => {
       const category = fakeCategory({ isArchived: false });
       mockCategoryRepository.findManyWithArchivedByUserId.mockResolvedValue([
         category,

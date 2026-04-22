@@ -15,7 +15,7 @@ describe("createUpdateAccountTool", () => {
     mockAccountService = createMockAccountService();
   });
 
-  it("should return tool with correct name", () => {
+  it("returns tool with correct name", () => {
     // Act
     const updateTool = createUpdateAccountTool({
       accountService: mockAccountService,
@@ -27,7 +27,7 @@ describe("createUpdateAccountTool", () => {
 
   // Happy path
 
-  it("should update the account name and return the account", async () => {
+  it("updates the account name and returns the account", async () => {
     // Arrange
     const accountId = faker.string.uuid();
     const updated = fakeAccount({ id: accountId, name: "Renamed" });
@@ -60,7 +60,7 @@ describe("createUpdateAccountTool", () => {
     );
   });
 
-  it("should update the account currency", async () => {
+  it("updates the account currency", async () => {
     // Arrange
     const accountId = faker.string.uuid();
     const updated = fakeAccount({ id: accountId, currency: "EUR" });
@@ -88,7 +88,7 @@ describe("createUpdateAccountTool", () => {
     );
   });
 
-  it("should update both name and currency", async () => {
+  it("updates both name and currency", async () => {
     // Arrange
     const accountId = faker.string.uuid();
     const updated = fakeAccount({
@@ -123,7 +123,7 @@ describe("createUpdateAccountTool", () => {
 
   // Validation failures
 
-  it("should throw when userId in context is not a valid UUID", async () => {
+  it("throws when userId in context is not a valid UUID", async () => {
     // Arrange
     const updateTool = createUpdateAccountTool({
       accountService: mockAccountService,
@@ -142,7 +142,7 @@ describe("createUpdateAccountTool", () => {
     expect(mockAccountService.updateAccount).not.toHaveBeenCalled();
   });
 
-  it("should reject input shapes containing initialBalance", async () => {
+  it("rejects input shapes containing initialBalance", async () => {
     // Arrange
     const updateTool = createUpdateAccountTool({
       accountService: mockAccountService,
@@ -163,7 +163,7 @@ describe("createUpdateAccountTool", () => {
 
   // Dependency failures
 
-  it("should propagate BusinessError from the service unchanged", async () => {
+  it("propagates BusinessError from the service unchanged", async () => {
     // Arrange
     const error = new BusinessError(
       "Cannot change currency for account that has existing transactions. Please create a new account with the desired currency instead.",

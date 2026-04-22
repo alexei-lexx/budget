@@ -4,7 +4,7 @@ import { isValidMigrationModule, loadMigrations } from "./loader";
 
 describe("Migration Loader Operations", () => {
   describe("isValidMigrationModule", () => {
-    it("should return true for valid migration module", () => {
+    it("returns true for valid migration module", () => {
       const validModule: MigrationModule = {
         up: async () => {
           return;
@@ -14,29 +14,29 @@ describe("Migration Loader Operations", () => {
       expect(isValidMigrationModule(validModule)).toBe(true);
     });
 
-    it("should return false when up function is missing", () => {
+    it("returns false when up function is missing", () => {
       const invalidModule = {};
 
       expect(isValidMigrationModule(invalidModule)).toBe(false);
     });
 
-    it("should return false when up is not a function", () => {
+    it("returns false when up is not function", () => {
       const invalidModule = { up: "not a function" };
 
       expect(isValidMigrationModule(invalidModule)).toBe(false);
     });
 
-    it("should return false for null module", () => {
+    it("returns false for null module", () => {
       expect(isValidMigrationModule(null)).toBe(false);
     });
 
-    it("should return false for undefined module", () => {
+    it("returns false for undefined module", () => {
       expect(isValidMigrationModule(undefined)).toBe(false);
     });
   });
 
   describe("loadMigrations", () => {
-    it("should load and sort migrations by timestamp", () => {
+    it("loads and sorts migrations by timestamp", () => {
       const migrations = loadMigrations();
 
       expect(migrations.length).toBeGreaterThanOrEqual(0);
@@ -48,7 +48,7 @@ describe("Migration Loader Operations", () => {
       }
     });
 
-    it("should extract timestamp from migration key", () => {
+    it("extracts timestamp from migration key", () => {
       const migrations = loadMigrations();
 
       for (const migration of migrations) {
@@ -56,7 +56,7 @@ describe("Migration Loader Operations", () => {
       }
     });
 
-    it("should extract description from migration key", () => {
+    it("extracts description from migration key", () => {
       const migrations = loadMigrations();
 
       for (const migration of migrations) {
@@ -65,7 +65,7 @@ describe("Migration Loader Operations", () => {
       }
     });
 
-    it("should include up function for each migration", () => {
+    it("includes up function for each migration", () => {
       const migrations = loadMigrations();
 
       for (const migration of migrations) {

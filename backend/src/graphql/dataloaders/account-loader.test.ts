@@ -6,7 +6,7 @@ import { batchLoadAccounts, createAccountLoader } from "./account-loader";
 
 describe("Account Batch Loader", () => {
   describe("batchLoadAccounts", () => {
-    it("should batch load 5 valid account IDs and return correct data", async () => {
+    it("batch-loads 5 valid account IDs and returns correct data", async () => {
       const mockRepository = createMockAccountRepository();
 
       // Create 5 fake accounts
@@ -84,7 +84,7 @@ describe("Account Batch Loader", () => {
       });
     });
 
-    it("should handle mix of valid and non-existent accounts with stub data", async () => {
+    it("handles mix of valid and non-existent accounts with stub data", async () => {
       const mockRepository = createMockAccountRepository();
 
       const validAccount = fakeAccount({ id: "acc-valid" });
@@ -115,7 +115,7 @@ describe("Account Batch Loader", () => {
       });
     });
 
-    it("should handle duplicate IDs by deduplicating and preserving order", async () => {
+    it("handles duplicate IDs by deduplicating and preserving order", async () => {
       const mockRepository = createMockAccountRepository();
 
       const account = fakeAccount({ id: "acc-1" });
@@ -140,7 +140,7 @@ describe("Account Batch Loader", () => {
       });
     });
 
-    it("should return empty array for empty input", async () => {
+    it("returns empty array for empty input", async () => {
       const mockRepository = createMockAccountRepository();
 
       const result = await batchLoadAccounts(
@@ -155,7 +155,7 @@ describe("Account Batch Loader", () => {
   });
 
   describe("createAccountLoader", () => {
-    it("should create a DataLoader instance", () => {
+    it("creates DataLoader instance", () => {
       const mockRepository = createMockAccountRepository();
       const loader = createAccountLoader(
         mockRepository,
@@ -165,7 +165,7 @@ describe("Account Batch Loader", () => {
       expect(loader).toBeInstanceOf(DataLoader);
     });
 
-    it("should batch load through DataLoader", async () => {
+    it("batch-loads through DataLoader", async () => {
       const mockRepository = createMockAccountRepository();
       const account = fakeAccount({ id: "acc-1" });
 

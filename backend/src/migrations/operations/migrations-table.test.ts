@@ -30,12 +30,12 @@ describe("Migrations Table Operations", () => {
 
   describe("Migration History Operations", () => {
     describe("isExecuted", () => {
-      it("should return false when migration has not been executed", async () => {
+      it("returns false when migration has not been executed", async () => {
         const executed = await isExecuted(client, tableName, "20231203120000");
         expect(executed).toBe(false);
       });
 
-      it("should return true when migration has been executed", async () => {
+      it("returns true when migration has been executed", async () => {
         await markExecuted(client, tableName, "20231203120000");
 
         const executed = await isExecuted(client, tableName, "20231203120000");
@@ -44,14 +44,14 @@ describe("Migrations Table Operations", () => {
     });
 
     describe("markExecuted", () => {
-      it("should create migration history record", async () => {
+      it("creates migration history record", async () => {
         await markExecuted(client, tableName, "20231203120000");
 
         const executed = await isExecuted(client, tableName, "20231203120000");
         expect(executed).toBe(true);
       });
 
-      it("should handle marking the same migration multiple times", async () => {
+      it("handles marking same migration multiple times", async () => {
         await markExecuted(client, tableName, "20231203120000");
         await markExecuted(client, tableName, "20231203120000");
 
@@ -59,7 +59,7 @@ describe("Migrations Table Operations", () => {
         expect(executed).toBe(true);
       });
 
-      it("should create records for multiple migrations", async () => {
+      it("creates records for multiple migrations", async () => {
         await markExecuted(client, tableName, "20231203120000");
         await markExecuted(client, tableName, "20231203130000");
         await markExecuted(client, tableName, "20231204090000");
@@ -77,12 +77,12 @@ describe("Migrations Table Operations", () => {
     });
 
     describe("getExecutedMigrations", () => {
-      it("should return empty array when no migrations executed", async () => {
+      it("returns empty array when no migrations executed", async () => {
         const migrations = await getExecutedMigrations(client, tableName);
         expect(migrations).toEqual([]);
       });
 
-      it("should return all executed migration timestamps", async () => {
+      it("returns all executed migration timestamps", async () => {
         await markExecuted(client, tableName, "20231203120000");
         await markExecuted(client, tableName, "20231203130000");
         await markExecuted(client, tableName, "20231204090000");
@@ -94,7 +94,7 @@ describe("Migrations Table Operations", () => {
         expect(migrations).toContain("20231204090000");
       });
 
-      it("should return migrations sorted in ascending order", async () => {
+      it("returns migrations sorted in ascending order", async () => {
         await markExecuted(client, tableName, "20231204090000");
         await markExecuted(client, tableName, "20231203120000");
         await markExecuted(client, tableName, "20231203130000");
@@ -107,7 +107,7 @@ describe("Migrations Table Operations", () => {
         ]);
       });
 
-      it("should not return lock record in migrations list", async () => {
+      it("does not return lock record in migrations list", async () => {
         await client.send(
           new PutCommand({
             TableName: tableName,
@@ -129,14 +129,14 @@ describe("Migrations Table Operations", () => {
 
   describe("Migration Lock Operations", () => {
     describe("acquireLock", () => {
-      it("should successfully acquire lock when none exists", async () => {
+      it("successfully acquires lock when none exists", async () => {
         await expect(acquireLock(client, tableName)).resolves.not.toThrow();
 
         const locked = await isLocked(client, tableName);
         expect(locked).toBe(true);
       });
 
-      it("should throw error when lock already exists", async () => {
+      it("throws error when lock already exists", async () => {
         await acquireLock(client, tableName);
 
         await expect(acquireLock(client, tableName)).rejects.toThrow(
@@ -146,7 +146,7 @@ describe("Migrations Table Operations", () => {
     });
 
     describe("releaseLock", () => {
-      it("should successfully release an existing lock", async () => {
+      it("successfully releases existing lock", async () => {
         await acquireLock(client, tableName);
         await releaseLock(client, tableName);
 
@@ -154,13 +154,13 @@ describe("Migrations Table Operations", () => {
         expect(locked).toBe(false);
       });
 
-      it("should not throw error when releasing non-existent lock", async () => {
+      it("does not throw error when releasing non-existent lock", async () => {
         await expect(releaseLock(client, tableName)).resolves.not.toThrow();
       });
     });
 
     describe("lock lifecycle", () => {
-      it("should support acquire-release-acquire cycle", async () => {
+      it("supports acquire-release-acquire cycle", async () => {
         await acquireLock(client, tableName);
         await releaseLock(client, tableName);
         await expect(acquireLock(client, tableName)).resolves.not.toThrow();

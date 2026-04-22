@@ -33,7 +33,7 @@ describe("ByCategoryReportService", () => {
   });
 
   describe("call", () => {
-    it("should return empty report when no transactions exist", async () => {
+    it("returns empty report when no transactions exist", async () => {
       mockTransactionRepository.findManyByUserId.mockResolvedValue([]);
 
       const result = await reportService.call(
@@ -52,7 +52,7 @@ describe("ByCategoryReportService", () => {
       });
     });
 
-    it("should group transactions by category and currency", async () => {
+    it("groups transactions by category and currency", async () => {
       const categoryId1 = faker.string.uuid();
       const categoryId2 = faker.string.uuid();
 
@@ -105,7 +105,7 @@ describe("ByCategoryReportService", () => {
       });
     });
 
-    it("should include top 5 transactions sorted by amount", async () => {
+    it("includes top 5 transactions sorted by amount", async () => {
       const categoryId = faker.string.uuid();
 
       // Create 7 transactions with different amounts
@@ -145,7 +145,7 @@ describe("ByCategoryReportService", () => {
       expect(amounts).toEqual([500, 400, 300, 200, 150]);
     });
 
-    it("should calculate currency totals correctly", async () => {
+    it("calculates currency totals correctly", async () => {
       const transactions = [
         fakeTransaction({ currency: "USD", amount: 100 }),
         fakeTransaction({ currency: "USD", amount: 200 }),
@@ -169,7 +169,7 @@ describe("ByCategoryReportService", () => {
       ]);
     });
 
-    it("should calculate percentages within each currency", async () => {
+    it("calculates percentages within each currency", async () => {
       const categoryId = uuidv4();
       const transactions = [
         fakeTransaction({ categoryId, currency: "USD", amount: 100 }),
@@ -205,7 +205,7 @@ describe("ByCategoryReportService", () => {
       expect(uncategorizedCategory?.currencyBreakdowns[0].percentage).toBe(75); // 300/400 = 75%
     });
 
-    it("should handle transactions without categories as Uncategorized", async () => {
+    it("handles transactions without categories as Uncategorized", async () => {
       const transactions = [
         fakeTransaction({
           categoryId: undefined,
@@ -232,7 +232,7 @@ describe("ByCategoryReportService", () => {
       expect(result.categories[0].currencyBreakdowns).toHaveLength(2);
     });
 
-    it("should handle deleted categories as Uncategorized", async () => {
+    it("handles deleted categories as Uncategorized", async () => {
       const deletedCategoryId = uuidv4();
       const transactions = [
         fakeTransaction({
@@ -258,7 +258,7 @@ describe("ByCategoryReportService", () => {
       expect(result.categories[0].categoryName).toBe("Uncategorized");
     });
 
-    it("should sort categories alphabetically by name", async () => {
+    it("sorts categories alphabetically by name", async () => {
       const categoryId1 = uuidv4();
       const categoryId2 = uuidv4();
 
@@ -299,7 +299,7 @@ describe("ByCategoryReportService", () => {
       ]);
     });
 
-    it("should sort currencies alphabetically within breakdowns and totals", async () => {
+    it("sorts currencies alphabetically within breakdowns and totals", async () => {
       const transactions = [
         fakeTransaction({
           categoryId: undefined,
@@ -331,7 +331,7 @@ describe("ByCategoryReportService", () => {
       ).toEqual(["EUR", "GBP", "USD"]);
     });
 
-    it("should round percentages to whole numbers", async () => {
+    it("rounds percentages to whole numbers", async () => {
       const transactions = [
         fakeTransaction({
           categoryId: undefined,
@@ -361,7 +361,7 @@ describe("ByCategoryReportService", () => {
       expect(percentages).toBe(100); // Should round to 100% for single category
     });
 
-    it("should calculate net amount (expenses - refunds)", async () => {
+    it("calculates net amount (expenses - refunds)", async () => {
       const categoryId = uuidv4();
       const expenseTransaction = fakeTransaction({
         categoryId,
@@ -398,7 +398,7 @@ describe("ByCategoryReportService", () => {
       expect(result.currencyTotals[0].totalAmount).toBe(800);
     });
 
-    it("should handle negative net amount (refunds > expenses)", async () => {
+    it("handles negative net amount (refunds > expenses)", async () => {
       const categoryId = uuidv4();
       const refundTransaction = fakeTransaction({
         categoryId,
@@ -427,7 +427,7 @@ describe("ByCategoryReportService", () => {
       expect(result.currencyTotals[0].totalAmount).toBe(-300);
     });
 
-    it("should not factor refunds for INCOME reports", async () => {
+    it("does not factor refunds for INCOME reports", async () => {
       const categoryId = uuidv4();
       const incomeTransaction = fakeTransaction({
         categoryId,
@@ -462,7 +462,7 @@ describe("ByCategoryReportService", () => {
       expect(result.categories[0].currencyBreakdowns[0].totalAmount).toBe(500);
     });
 
-    it("should handle multiple currencies with refunds", async () => {
+    it("handles multiple currencies with refunds", async () => {
       const categoryId = uuidv4();
       const transactions = [
         fakeTransaction({
@@ -518,7 +518,7 @@ describe("ByCategoryReportService", () => {
       expect(usdBreakdown?.totalAmount).toBe(400); // 500 - 100
     });
 
-    it("should handle uncategorized transactions with refunds", async () => {
+    it("handles uncategorized transactions with refunds", async () => {
       const transactions = [
         fakeTransaction({
           categoryId: undefined,
@@ -550,7 +550,7 @@ describe("ByCategoryReportService", () => {
       expect(result.categories[0].currencyBreakdowns[0].totalAmount).toBe(500); // 600 - 100
     });
 
-    it("should exclude transactions in excluded categories from report", async () => {
+    it("excludes transactions in excluded categories from report", async () => {
       const includedCategory = fakeCategory({
         userId,
         name: "Groceries",
@@ -609,7 +609,7 @@ describe("ByCategoryReportService", () => {
   });
 
   describe("yearly report (month=undefined)", () => {
-    it("should use full-year date range when month is undefined", async () => {
+    it("uses full-year date range when month is undefined", async () => {
       mockTransactionRepository.findManyByUserId.mockResolvedValue([]);
 
       await reportService.call(userId, 2000, undefined, ReportType.EXPENSE);
@@ -624,7 +624,7 @@ describe("ByCategoryReportService", () => {
       );
     });
 
-    it("should return month as undefined in yearly report result", async () => {
+    it("returns month as undefined in yearly report result", async () => {
       mockTransactionRepository.findManyByUserId.mockResolvedValue([]);
 
       const result = await reportService.call(
@@ -638,7 +638,7 @@ describe("ByCategoryReportService", () => {
       expect(result.year).toBe(2000);
     });
 
-    it("should calculate currency totals correctly", async () => {
+    it("calculates currency totals correctly", async () => {
       const transactions = [
         fakeTransaction({
           type: TransactionType.EXPENSE,
@@ -672,7 +672,7 @@ describe("ByCategoryReportService", () => {
 
   describe("validation", () => {
     describe("year validation", () => {
-      it("should throw error for invalid year", async () => {
+      it("throws error for invalid year", async () => {
         await expect(
           reportService.call(userId, 2000.5, 1, ReportType.EXPENSE),
         ).rejects.toMatchObject({
@@ -680,7 +680,7 @@ describe("ByCategoryReportService", () => {
         });
       });
 
-      it("should accept valid year within range", async () => {
+      it("accepts valid year within range", async () => {
         const currentYear = new Date().getFullYear();
         const validYear = currentYear - 50;
 
@@ -693,7 +693,7 @@ describe("ByCategoryReportService", () => {
     });
 
     describe("month validation", () => {
-      it("should throw error for invalid month", async () => {
+      it("throws error for invalid month", async () => {
         const currentYear = new Date().getFullYear();
         const invalidMonths = [0, 13, 5.5];
 
@@ -711,7 +711,7 @@ describe("ByCategoryReportService", () => {
         }
       });
 
-      it("should accept valid months (1-12)", async () => {
+      it("accepts valid months (1-12)", async () => {
         const currentYear = new Date().getFullYear();
 
         mockTransactionRepository.findManyByUserId.mockResolvedValue([]);

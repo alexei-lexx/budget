@@ -20,7 +20,7 @@ describe("UserService", () => {
   });
 
   describe("getSettings", () => {
-    it("should return settings for an existing user", async () => {
+    it("returns settings for existing user", async () => {
       // Arrange
       const userId = faker.string.uuid();
       const user = fakeUser({
@@ -43,7 +43,7 @@ describe("UserService", () => {
       });
     });
 
-    it("should return defaults when no settings are saved", async () => {
+    it("returns defaults when no settings are saved", async () => {
       // Arrange
       const userId = faker.string.uuid();
       const user = fakeUser({ id: userId });
@@ -62,7 +62,7 @@ describe("UserService", () => {
       });
     });
 
-    it("should fail when user is not found", async () => {
+    it("fails when user is not found", async () => {
       // Arrange
       mockUserRepository.findOneById.mockResolvedValue(null);
 
@@ -73,7 +73,7 @@ describe("UserService", () => {
       expect(result).toEqual({ success: false, error: "User not found" });
     });
 
-    it("should fail when userId is empty", async () => {
+    it("fails when userId is empty", async () => {
       const result = await service.getSettings("");
 
       expect(result).toEqual({ success: false, error: "User ID is required" });
@@ -81,7 +81,7 @@ describe("UserService", () => {
   });
 
   describe("updateSettings", () => {
-    it("should update voiceInputLanguage", async () => {
+    it("updates voiceInputLanguage", async () => {
       // Arrange
       const userId = faker.string.uuid();
       const updated = fakeUser({ id: userId, voiceInputLanguage: "de-DE" });
@@ -106,7 +106,7 @@ describe("UserService", () => {
       });
     });
 
-    it("should update transactionPatternsLimit", async () => {
+    it("updates transactionPatternsLimit", async () => {
       // Arrange
       const userId = faker.string.uuid();
       const updated = fakeUser({ id: userId, transactionPatternsLimit: 7 });
@@ -125,7 +125,7 @@ describe("UserService", () => {
       });
     });
 
-    it("should fail when transactionPatternsLimit is below minimum", async () => {
+    it("fails when transactionPatternsLimit is below minimum", async () => {
       const result = await service.updateSettings({
         userId: faker.string.uuid(),
         transactionPatternsLimit: MIN_TRANSACTION_PATTERNS_LIMIT - 1,
@@ -137,7 +137,7 @@ describe("UserService", () => {
       });
     });
 
-    it("should fail when transactionPatternsLimit is above maximum", async () => {
+    it("fails when transactionPatternsLimit is above maximum", async () => {
       const result = await service.updateSettings({
         userId: faker.string.uuid(),
         transactionPatternsLimit: MAX_TRANSACTION_PATTERNS_LIMIT + 1,
@@ -149,7 +149,7 @@ describe("UserService", () => {
       });
     });
 
-    it("should fail when transactionPatternsLimit is not an integer", async () => {
+    it("fails when transactionPatternsLimit is not an integer", async () => {
       const result = await service.updateSettings({
         userId: faker.string.uuid(),
         transactionPatternsLimit: 2.5,
@@ -161,7 +161,7 @@ describe("UserService", () => {
       });
     });
 
-    it("should update both fields at once", async () => {
+    it("updates both fields at once", async () => {
       // Arrange
       const userId = faker.string.uuid();
       const updated = fakeUser({
@@ -188,7 +188,7 @@ describe("UserService", () => {
       });
     });
 
-    it("should fail when userId is empty", async () => {
+    it("fails when userId is empty", async () => {
       const result = await service.updateSettings({
         userId: "",
         voiceInputLanguage: "en-US",

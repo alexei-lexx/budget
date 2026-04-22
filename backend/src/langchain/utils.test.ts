@@ -3,13 +3,13 @@ import { AIMessage, BaseMessage } from "langchain";
 import { extractLastMessageText } from "./utils";
 
 describe("extractLastMessageText", () => {
-  it("should return undefined when messages array is empty", () => {
+  it("returns undefined when messages array is empty", () => {
     const result = extractLastMessageText([]);
 
     expect(result).toBeUndefined();
   });
 
-  it("should return string content of last message", () => {
+  it("returns string content of last message", () => {
     const messages: BaseMessage[] = [
       new AIMessage({ content: "First" }),
       new AIMessage({ content: "Last" }),
@@ -20,7 +20,7 @@ describe("extractLastMessageText", () => {
     expect(result).toBe("Last");
   });
 
-  it("should return last text block from array content", () => {
+  it("returns last text block from array content", () => {
     const messages: BaseMessage[] = [
       new AIMessage({
         content: [
@@ -35,7 +35,7 @@ describe("extractLastMessageText", () => {
     expect(result).toBe("Last block");
   });
 
-  it("should return empty string when last message has empty string content", () => {
+  it("returns empty string when last message has empty string content", () => {
     const messages: BaseMessage[] = [new AIMessage({ content: "" })];
 
     const result = extractLastMessageText(messages);
@@ -43,7 +43,7 @@ describe("extractLastMessageText", () => {
     expect(result).toBe("");
   });
 
-  it("should return undefined when array content has no text blocks", () => {
+  it("returns undefined when array content has no text blocks", () => {
     const messages: BaseMessage[] = [
       new AIMessage({
         content: [

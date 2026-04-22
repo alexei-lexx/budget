@@ -42,7 +42,7 @@ describe("CreateTransactionFromTextService", () => {
   describe("call", () => {
     // Happy path
 
-    it("should return the created transaction", async () => {
+    it("returns created transaction", async () => {
       // Arrange
       const transactionId = faker.string.uuid();
       const createdTransaction = fakeTransaction();
@@ -82,7 +82,7 @@ describe("CreateTransactionFromTextService", () => {
       );
     });
 
-    it("should return agentTrace from agent response", async () => {
+    it("returns agentTrace from agent response", async () => {
       // Arrange
       const transactionId = faker.string.uuid();
       const agentTrace: AgentTraceMessage[] = [
@@ -124,7 +124,7 @@ describe("CreateTransactionFromTextService", () => {
       });
     });
 
-    it("should use the last createTransaction execution when multiple exist", async () => {
+    it("uses last createTransaction execution when multiple exist", async () => {
       // Arrange
       const firstTransactionId = faker.string.uuid();
       const lastTransactionId = faker.string.uuid();
@@ -197,7 +197,7 @@ describe("CreateTransactionFromTextService", () => {
         );
       });
 
-      it("should pass trimmed text to agent", async () => {
+      it("passes trimmed text to agent", async () => {
         // Act
         await service.call({ userId, text: `    ${text}    ` });
 
@@ -210,7 +210,7 @@ describe("CreateTransactionFromTextService", () => {
         expect(state.messages[0].content).toContain(text);
       });
 
-      it("should pass userId in context", async () => {
+      it("passes userId in context", async () => {
         // Act
         await service.call({ userId, text });
 
@@ -222,7 +222,7 @@ describe("CreateTransactionFromTextService", () => {
         expect(config.context.userId).toBe(userId);
       });
 
-      it("should pass today's date in context", async () => {
+      it("passes today's date in context", async () => {
         // Act
         await service.call({ userId, text });
 
@@ -234,7 +234,7 @@ describe("CreateTransactionFromTextService", () => {
         expect(config.context.today).toMatch(/^\d{4}-\d{2}-\d{2}$/);
       });
 
-      it("should pass isVoiceInput false in context by default", async () => {
+      it("passes isVoiceInput false in context by default", async () => {
         // Act
         await service.call({ userId, text, isVoiceInput: false });
 
@@ -246,7 +246,7 @@ describe("CreateTransactionFromTextService", () => {
         expect(config.context.isVoiceInput).toBe(false);
       });
 
-      it("should pass isVoiceInput true in context when set", async () => {
+      it("passes isVoiceInput true in context when set", async () => {
         // Act
         await service.call({ userId, text, isVoiceInput: true });
 
@@ -261,7 +261,7 @@ describe("CreateTransactionFromTextService", () => {
 
     // Validation failures
 
-    it("should return failure when userId is empty", async () => {
+    it("returns failure when userId is empty", async () => {
       // Act
       const result = await service.call({ userId: "", text });
 
@@ -273,7 +273,7 @@ describe("CreateTransactionFromTextService", () => {
       expect(mockCreateTransactionAgent.invoke).not.toHaveBeenCalled();
     });
 
-    it("should return failure when text is empty", async () => {
+    it("returns failure when text is empty", async () => {
       // Act
       const result = await service.call({ userId, text: "" });
 
@@ -285,7 +285,7 @@ describe("CreateTransactionFromTextService", () => {
       expect(mockCreateTransactionAgent.invoke).not.toHaveBeenCalled();
     });
 
-    it("should return failure when text is only whitespace", async () => {
+    it("returns failure when text is only whitespace", async () => {
       // Act
       const result = await service.call({ userId, text: "   " });
 
@@ -299,7 +299,7 @@ describe("CreateTransactionFromTextService", () => {
 
     // Dependency failures
 
-    it("should propagate error when agent throws", async () => {
+    it("propagates error when agent throws", async () => {
       // Arrange
 
       // Agent is unavailable
@@ -314,7 +314,7 @@ describe("CreateTransactionFromTextService", () => {
       expect(mockTransactionService.getTransactionById).not.toHaveBeenCalled();
     });
 
-    it("should return failure when agent does not attempt to create transaction", async () => {
+    it("returns failure when agent does not attempt to create transaction", async () => {
       // Arrange
 
       // Agent responds without invoking the createTransaction tool
@@ -338,7 +338,7 @@ describe("CreateTransactionFromTextService", () => {
       expect(mockTransactionService.getTransactionById).not.toHaveBeenCalled();
     });
 
-    it("should return failure when tool output is not valid JSON", async () => {
+    it("returns failure when tool output is not valid JSON", async () => {
       // Arrange
 
       // Agent invokes the tool but the output is malformed
@@ -365,7 +365,7 @@ describe("CreateTransactionFromTextService", () => {
       expect(mockTransactionService.getTransactionById).not.toHaveBeenCalled();
     });
 
-    it("should return failure when tool output does not match expected schema", async () => {
+    it("returns failure when tool output does not match expected schema", async () => {
       // Arrange
 
       // Agent invokes the tool but returns an unexpected JSON shape
@@ -397,7 +397,7 @@ describe("CreateTransactionFromTextService", () => {
       expect(mockTransactionService.getTransactionById).not.toHaveBeenCalled();
     });
 
-    it("should return failure when tool reports transaction creation failed", async () => {
+    it("returns failure when tool reports transaction creation failed", async () => {
       // Arrange
 
       // Agent invokes the tool but the tool itself reports a business failure
@@ -427,7 +427,7 @@ describe("CreateTransactionFromTextService", () => {
       expect(mockTransactionService.getTransactionById).not.toHaveBeenCalled();
     });
 
-    it("should include agentTrace in failure response", async () => {
+    it("includes agentTrace in failure response", async () => {
       // Arrange
 
       // Agent responds with a thinking trace but no tool call

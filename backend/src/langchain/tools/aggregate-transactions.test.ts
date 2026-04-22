@@ -16,7 +16,7 @@ describe("createAggregateTransactionsTool", () => {
     mockTransactionRepository = createMockTransactionRepository();
   });
 
-  it("should return tool with correct name", () => {
+  it("returns tool with correct name", () => {
     const aggregateTool = createAggregateTransactionsTool({
       transactionRepository: mockTransactionRepository,
     });
@@ -24,7 +24,7 @@ describe("createAggregateTransactionsTool", () => {
     expect(aggregateTool.name).toBe("aggregate_transactions");
   });
 
-  it("should throw when userId in context is not a valid UUID", async () => {
+  it("throws when userId in context is not valid UUID", async () => {
     const aggregateTool = createAggregateTransactionsTool({
       transactionRepository: mockTransactionRepository,
     });
@@ -37,7 +37,7 @@ describe("createAggregateTransactionsTool", () => {
     ).rejects.toThrow();
   });
 
-  it("should reject when startDate is after endDate", async () => {
+  it("rejects when startDate is after endDate", async () => {
     const aggregateTool = createAggregateTransactionsTool({
       transactionRepository: mockTransactionRepository,
     });
@@ -54,7 +54,7 @@ describe("createAggregateTransactionsTool", () => {
     });
   });
 
-  it("should reject when date range exceeds max period days", async () => {
+  it("rejects when date range exceeds max period days", async () => {
     const aggregateTool = createAggregateTransactionsTool({
       transactionRepository: mockTransactionRepository,
     });
@@ -71,7 +71,7 @@ describe("createAggregateTransactionsTool", () => {
     });
   });
 
-  it("should return zero aggregation when no transactions exist", async () => {
+  it("returns zero aggregation when no transactions exist", async () => {
     mockTransactionRepository.findManyByUserId.mockResolvedValue([]);
 
     const aggregateTool = createAggregateTransactionsTool({
@@ -86,7 +86,7 @@ describe("createAggregateTransactionsTool", () => {
     expect(result).toEqual({ success: true, data: { sum: {}, count: {} } });
   });
 
-  it("should aggregate transactions by currency", async () => {
+  it("aggregates transactions by currency", async () => {
     mockTransactionRepository.findManyByUserId.mockResolvedValue([
       fakeTransaction({
         type: TransactionType.EXPENSE,
@@ -123,7 +123,7 @@ describe("createAggregateTransactionsTool", () => {
     });
   });
 
-  it("should filter by date range", async () => {
+  it("filters by date range", async () => {
     mockTransactionRepository.findManyByUserId.mockResolvedValue([]);
 
     const aggregateTool = createAggregateTransactionsTool({
