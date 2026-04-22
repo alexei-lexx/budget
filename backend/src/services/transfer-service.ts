@@ -3,6 +3,7 @@ import { Account } from "../models/account";
 import {
   Transaction,
   TransactionType,
+  archiveTransactionModel as defaultArchiveTransactionModel,
   createTransactionModel as defaultCreateTransactionModel,
   updateTransactionModel as defaultUpdateTransactionModel,
 } from "../models/transaction";
@@ -51,22 +52,23 @@ export class TransferService {
   private transactionRepository: TransactionRepository;
   private createTransactionModel: typeof defaultCreateTransactionModel;
   private updateTransactionModel: typeof defaultUpdateTransactionModel;
+  private archiveTransactionModel: typeof defaultArchiveTransactionModel;
 
-  constructor({
-    accountRepository,
-    transactionRepository,
-    createTransactionModel = defaultCreateTransactionModel,
-    updateTransactionModel = defaultUpdateTransactionModel,
-  }: {
+  constructor(deps: {
     accountRepository: AccountRepository;
     transactionRepository: TransactionRepository;
     createTransactionModel?: typeof defaultCreateTransactionModel;
     updateTransactionModel?: typeof defaultUpdateTransactionModel;
+    archiveTransactionModel?: typeof defaultArchiveTransactionModel;
   }) {
-    this.accountRepository = accountRepository;
-    this.transactionRepository = transactionRepository;
-    this.createTransactionModel = createTransactionModel;
-    this.updateTransactionModel = updateTransactionModel;
+    this.accountRepository = deps.accountRepository;
+    this.transactionRepository = deps.transactionRepository;
+    this.createTransactionModel =
+      deps.createTransactionModel ?? defaultCreateTransactionModel;
+    this.updateTransactionModel =
+      deps.updateTransactionModel ?? defaultUpdateTransactionModel;
+    this.archiveTransactionModel =
+      deps.archiveTransactionModel ?? defaultArchiveTransactionModel;
   }
 
   /**
@@ -179,11 +181,12 @@ export class TransferService {
     }
 
     try {
+      const archivedTransactions = transferTransactions.map((transaction) =>
+        this.archiveTransactionModel(transaction),
+      );
+
       // Archive all transactions for this transfer atomically using TransactWrite
-      await this.transactionRepository.archiveMany({
-        ids: transferTransactions.map((transaction) => transaction.id),
-        userId,
-      });
+      await this.transactionRepository.updateMany(archivedTransactions);
     } catch (error) {
       // Log the error for debugging and monitoring
       console.error("Transfer deletion failed:", {

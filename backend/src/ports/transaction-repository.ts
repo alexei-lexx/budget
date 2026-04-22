@@ -51,8 +51,6 @@ export interface TransactionRepository {
   createMany(transactions: Transaction[]): Promise<void>;
   update(transaction: Transaction): Promise<void>;
   updateMany(transactions: Transaction[]): Promise<void>;
-  archive(selector: { id: string; userId: string }): Promise<Transaction>;
-  archiveMany(selector: { ids: string[]; userId: string }): Promise<void>;
   hasTransactionsForAccount(selector: {
     accountId: string;
     userId: string;

@@ -6,6 +6,7 @@ import {
   TransactionPattern,
   TransactionPatternType,
   TransactionType,
+  archiveTransactionModel as defaultArchiveTransactionModel,
   createTransactionModel as defaultCreateTransactionModel,
   updateTransactionModel as defaultUpdateTransactionModel,
 } from "../models/transaction";
@@ -103,25 +104,25 @@ export class TransactionServiceImpl implements TransactionService {
   private transactionRepository: TransactionRepository;
   private createTransactionModel: typeof defaultCreateTransactionModel;
   private updateTransactionModel: typeof defaultUpdateTransactionModel;
+  private archiveTransactionModel: typeof defaultArchiveTransactionModel;
 
-  constructor({
-    accountRepository,
-    categoryRepository,
-    transactionRepository,
-    createTransactionModel = defaultCreateTransactionModel,
-    updateTransactionModel = defaultUpdateTransactionModel,
-  }: {
+  constructor(deps: {
     accountRepository: AccountRepository;
     categoryRepository: CategoryRepository;
     transactionRepository: TransactionRepository;
     createTransactionModel?: typeof defaultCreateTransactionModel;
     updateTransactionModel?: typeof defaultUpdateTransactionModel;
+    archiveTransactionModel?: typeof defaultArchiveTransactionModel;
   }) {
-    this.accountRepository = accountRepository;
-    this.categoryRepository = categoryRepository;
-    this.transactionRepository = transactionRepository;
-    this.createTransactionModel = createTransactionModel;
-    this.updateTransactionModel = updateTransactionModel;
+    this.accountRepository = deps.accountRepository;
+    this.categoryRepository = deps.categoryRepository;
+    this.transactionRepository = deps.transactionRepository;
+    this.createTransactionModel =
+      deps.createTransactionModel ?? defaultCreateTransactionModel;
+    this.updateTransactionModel =
+      deps.updateTransactionModel ?? defaultUpdateTransactionModel;
+    this.archiveTransactionModel =
+      deps.archiveTransactionModel ?? defaultArchiveTransactionModel;
   }
 
   /**
@@ -290,8 +291,11 @@ export class TransactionServiceImpl implements TransactionService {
       return existingTransaction;
     }
 
-    // Archive the transaction through repository
-    return await this.transactionRepository.archive({ id, userId });
+    const archived = this.archiveTransactionModel(existingTransaction);
+
+    await this.transactionRepository.update(archived);
+
+    return archived;
   }
 
   /**

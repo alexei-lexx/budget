@@ -46,9 +46,8 @@ describe("DynTransactionRepository", () => {
       await repository.create(active2);
 
       // Archived transaction for the user
-      const archived = fakeTransaction({ userId });
+      const archived = fakeTransaction({ userId, isArchived: true });
       await repository.create(archived);
-      await repository.archive({ id: archived.id, userId });
 
       // Transaction belonging to another user
       await repository.create(fakeTransaction({ userId: faker.string.uuid() }));
@@ -1297,6 +1296,7 @@ describe("DynTransactionRepository", () => {
           userId,
           accountId,
           description: "Store purchase 1",
+          isArchived: true,
         }),
         fakeTransaction({
           userId,
@@ -1306,9 +1306,6 @@ describe("DynTransactionRepository", () => {
       ];
 
       await repository.createMany(transactions);
-
-      // Archive one transaction
-      await repository.archive({ id: transactions[0].id, userId });
 
       // Act
       const result = await repository.findManyByDescription({
@@ -2321,6 +2318,7 @@ describe("DynTransactionRepository", () => {
           accountId: account1,
           categoryId: category1,
           type: TransactionType.INCOME,
+          isArchived: true,
         }),
         fakeTransaction({
           userId,
@@ -2331,9 +2329,6 @@ describe("DynTransactionRepository", () => {
       ];
 
       await repository.createMany(transactions);
-
-      // Archive one transaction
-      await repository.archive({ id: transactions[0].id, userId });
 
       const result = await repository.detectPatterns({
         userId,
