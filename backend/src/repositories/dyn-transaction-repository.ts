@@ -1,4 +1,8 @@
 import {
+  ConditionalCheckFailedException,
+  TransactionCanceledException,
+} from "@aws-sdk/client-dynamodb";
+import {
   GetCommand,
   PutCommand,
   QueryCommand,
@@ -471,10 +475,7 @@ export class DynTransactionRepository
 
       await this.client.send(command);
     } catch (error) {
-      if (
-        error instanceof Error &&
-        error.name === "ConditionalCheckFailedException"
-      ) {
+      if (error instanceof ConditionalCheckFailedException) {
         throw new RepositoryError(
           "Transaction with this ID already exists",
           "CREATE_FAILED",
@@ -523,10 +524,7 @@ export class DynTransactionRepository
 
       await this.client.send(command);
     } catch (error) {
-      if (
-        error instanceof Error &&
-        error.name === "TransactionCanceledException"
-      ) {
+      if (error instanceof TransactionCanceledException) {
         throw new RepositoryError(
           "Transaction with this ID already exists",
           "CREATE_FAILED",
