@@ -252,7 +252,6 @@ export class TransferService {
     });
 
     try {
-      // Update both transactions atomically using the new updateMany method
       await this.transactionRepository.updateMany([
         updatedOutbound,
         updatedInbound,

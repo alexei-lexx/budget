@@ -182,12 +182,12 @@ function assertTransactionInvariants({
     }
 
     if (newAccount.isArchived) {
-      throw new ModelError("Cannot create transaction for archived account");
+      throw new ModelError("Account must not be archived");
     }
   }
 
   if (transaction.amount <= 0) {
-    throw new ModelError("Transaction amount must be positive");
+    throw new ModelError("Amount must be positive");
   }
 
   const isTransfer =
@@ -214,7 +214,7 @@ function assertTransactionInvariants({
     }
 
     if (newCategory.isArchived) {
-      throw new ModelError("Cannot create transaction for archived category");
+      throw new ModelError("Category must not be archived");
     }
 
     const typeMismatch =

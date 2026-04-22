@@ -243,9 +243,7 @@ describe("transaction model", () => {
           fakeCreateTransactionInput({ userId, account }),
           fixedDeps,
         ),
-      ).toThrow(
-        new ModelError("Cannot create transaction for archived account"),
-      );
+      ).toThrow(new ModelError("Account must not be archived"));
     });
 
     it("should reject zero amount", () => {
@@ -255,7 +253,7 @@ describe("transaction model", () => {
           fakeCreateTransactionInput({ amount: 0 }),
           fixedDeps,
         ),
-      ).toThrow(new ModelError("Transaction amount must be positive"));
+      ).toThrow(new ModelError("Amount must be positive"));
     });
 
     it("should reject negative amount", () => {
@@ -265,7 +263,7 @@ describe("transaction model", () => {
           fakeCreateTransactionInput({ amount: -5 }),
           fixedDeps,
         ),
-      ).toThrow(new ModelError("Transaction amount must be positive"));
+      ).toThrow(new ModelError("Amount must be positive"));
     });
 
     it("should reject when category belongs to different user", () => {
@@ -300,9 +298,7 @@ describe("transaction model", () => {
           fakeCreateTransactionInput({ userId, category }),
           fixedDeps,
         ),
-      ).toThrow(
-        new ModelError("Cannot create transaction for archived category"),
-      );
+      ).toThrow(new ModelError("Category must not be archived"));
     });
 
     it("should reject INCOME category on EXPENSE transaction", () => {
@@ -624,7 +620,7 @@ describe("transaction model", () => {
       // Act & Assert
       expect(() =>
         updateTransactionModel(existing, { amount: 0 }, fixedDeps),
-      ).toThrow(new ModelError("Transaction amount must be positive"));
+      ).toThrow(new ModelError("Amount must be positive"));
     });
 
     it("should reject negative amount", () => {
@@ -634,7 +630,7 @@ describe("transaction model", () => {
       // Act & Assert
       expect(() =>
         updateTransactionModel(existing, { amount: -1 }, fixedDeps),
-      ).toThrow(new ModelError("Transaction amount must be positive"));
+      ).toThrow(new ModelError("Amount must be positive"));
     });
 
     it("should reject account belonging to different user", () => {
@@ -657,9 +653,7 @@ describe("transaction model", () => {
       // Act & Assert
       expect(() =>
         updateTransactionModel(existing, { account }, fixedDeps),
-      ).toThrow(
-        new ModelError("Cannot create transaction for archived account"),
-      );
+      ).toThrow(new ModelError("Account must not be archived"));
     });
 
     it("should reject category belonging to different user", () => {
@@ -689,9 +683,7 @@ describe("transaction model", () => {
       // Act & Assert
       expect(() =>
         updateTransactionModel(existing, { category }, fixedDeps),
-      ).toThrow(
-        new ModelError("Cannot create transaction for archived category"),
-      );
+      ).toThrow(new ModelError("Category must not be archived"));
     });
 
     it("should reject INCOME category on EXPENSE transaction", () => {

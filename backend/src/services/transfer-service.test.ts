@@ -376,7 +376,7 @@ describe("TransferService", () => {
         .mockResolvedValueOnce(toAccount);
       // Model rejects input
       mockUpdateTransactionModel.mockImplementation(() => {
-        throw new ModelError("Transaction amount must be positive");
+        throw new ModelError("Amount must be positive");
       });
 
       // Act
