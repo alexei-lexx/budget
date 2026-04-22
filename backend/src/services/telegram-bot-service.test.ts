@@ -32,7 +32,7 @@ describe("TelegramBotService", () => {
   });
 
   describe("connect", () => {
-    it("should create a PENDING record, call setWebhook, and return CONNECTED bot", async () => {
+    it("creates PENDING record, calls setWebhook, and returns CONNECTED bot", async () => {
       const userId = faker.string.uuid();
       const token = "1234567890";
       const pendingBot = fakeTelegramBot({ token });
@@ -71,7 +71,7 @@ describe("TelegramBotService", () => {
       );
     });
 
-    it("should archive the pending record and return failure when setWebhook fails", async () => {
+    it("archives pending record and returns failure when setWebhook fails", async () => {
       const userId = faker.string.uuid();
       const pendingBot = fakeTelegramBot();
 
@@ -95,7 +95,7 @@ describe("TelegramBotService", () => {
       });
     });
 
-    it("should return failure when there is already a connected bot", async () => {
+    it("returns failure when there is already a connected bot", async () => {
       const userId = faker.string.uuid();
       const existingBot = fakeTelegramBot();
       telegramBotRepository.findOneConnectedByUserId.mockResolvedValue(
@@ -111,7 +111,7 @@ describe("TelegramBotService", () => {
       expect(telegramBotRepository.create).not.toHaveBeenCalled();
     });
 
-    it("should return failure when userId is empty", async () => {
+    it("returns failure when userId is empty", async () => {
       const result = await service.connect("", "some-token");
 
       expect(result).toEqual({
@@ -120,7 +120,7 @@ describe("TelegramBotService", () => {
       });
     });
 
-    it("should return failure when token is empty", async () => {
+    it("returns failure when token is empty", async () => {
       const userId = faker.string.uuid();
       const result = await service.connect(userId, "");
 
@@ -132,7 +132,7 @@ describe("TelegramBotService", () => {
   });
 
   describe("disconnect", () => {
-    it("should mark as DELETING, delete webhook, and archive the bot", async () => {
+    it("marks as DELETING, deletes webhook, and archives bot", async () => {
       const userId = faker.string.uuid();
       const bot = fakeTelegramBot();
 
@@ -158,7 +158,7 @@ describe("TelegramBotService", () => {
       });
     });
 
-    it("should still archive when deleteWebhook fails", async () => {
+    it("still archives when deleteWebhook fails", async () => {
       const userId = faker.string.uuid();
       const bot = fakeTelegramBot();
 
@@ -183,7 +183,7 @@ describe("TelegramBotService", () => {
       });
     });
 
-    it("should return failure when no connected bot found", async () => {
+    it("returns failure when no connected bot found", async () => {
       const userId = faker.string.uuid();
       telegramBotRepository.findOneConnectedByUserId.mockResolvedValue(null);
 
@@ -197,7 +197,7 @@ describe("TelegramBotService", () => {
   });
 
   describe("test", () => {
-    it("should return success when webhook is registered", async () => {
+    it("returns success when webhook is registered", async () => {
       const userId = faker.string.uuid();
       const bot = fakeTelegramBot();
 
@@ -212,7 +212,7 @@ describe("TelegramBotService", () => {
       expect(result).toEqual({ success: true, data: true });
     });
 
-    it("should return failure when webhook URL does not match", async () => {
+    it("returns failure when webhook URL does not match", async () => {
       const userId = faker.string.uuid();
       const bot = fakeTelegramBot();
 
@@ -230,7 +230,7 @@ describe("TelegramBotService", () => {
       });
     });
 
-    it("should return failure when getWebhookInfo fails", async () => {
+    it("returns failure when getWebhookInfo fails", async () => {
       const userId = faker.string.uuid();
       const bot = fakeTelegramBot();
 
@@ -248,7 +248,7 @@ describe("TelegramBotService", () => {
       });
     });
 
-    it("should return failure when no connected bot found", async () => {
+    it("returns failure when no connected bot found", async () => {
       const userId = faker.string.uuid();
 
       telegramBotRepository.findOneConnectedByUserId.mockResolvedValue(null);
@@ -263,7 +263,7 @@ describe("TelegramBotService", () => {
   });
 
   describe("findOneConnectedByUserId", () => {
-    it("should return null when no bot is connected", async () => {
+    it("returns null when no bot is connected", async () => {
       const userId = faker.string.uuid();
       telegramBotRepository.findOneConnectedByUserId.mockResolvedValue(null);
 
@@ -272,7 +272,7 @@ describe("TelegramBotService", () => {
       expect(result).toEqual({ success: true, data: null });
     });
 
-    it("should return masked bot when connected", async () => {
+    it("returns masked bot when connected", async () => {
       const userId = faker.string.uuid();
       const bot = fakeTelegramBot({ token: "1234567890" });
       telegramBotRepository.findOneConnectedByUserId.mockResolvedValue(bot);
@@ -290,7 +290,7 @@ describe("TelegramBotService", () => {
   });
 
   describe("acceptMessage", () => {
-    it("should dispatch a background job", async () => {
+    it("dispatches background job", async () => {
       const webhookSecret = faker.string.uuid();
       const bot = fakeTelegramBot();
       telegramBotRepository.findOneConnectedByWebhookSecret.mockResolvedValue(
@@ -315,7 +315,7 @@ describe("TelegramBotService", () => {
       });
     });
 
-    it("should silently succeed when bot is unknown", async () => {
+    it("silently succeeds when bot is unknown", async () => {
       telegramBotRepository.findOneConnectedByWebhookSecret.mockResolvedValue(
         null,
       );

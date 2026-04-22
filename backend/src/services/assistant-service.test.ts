@@ -47,7 +47,7 @@ describe("AssistantService", () => {
 
     // Happy path
 
-    it("should return AI response for valid input", async () => {
+    it("returns AI response for valid input", async () => {
       // Arrange
 
       // Agent returns a valid answer
@@ -67,7 +67,7 @@ describe("AssistantService", () => {
       });
     });
 
-    it("should trim answer whitespace", async () => {
+    it("trims answer whitespace", async () => {
       // Arrange
 
       // Agent returns answer with surrounding whitespace
@@ -87,7 +87,7 @@ describe("AssistantService", () => {
       });
     });
 
-    it("should trim question whitespace before sending", async () => {
+    it("trims question whitespace before sending", async () => {
       // Arrange
       const input: AssistantInput = { question: "  What is my spending?  " };
 
@@ -112,7 +112,7 @@ describe("AssistantService", () => {
       );
     });
 
-    it("should pass userId in context", async () => {
+    it("passes userId in context", async () => {
       // Arrange
 
       // Agent accepts the call and returns an answer
@@ -133,7 +133,7 @@ describe("AssistantService", () => {
       expect(config.context.userId).toBe(userId);
     });
 
-    it("should pass today's date in context", async () => {
+    it("passes today's date in context", async () => {
       // Arrange
 
       // Agent accepts the call and returns an answer
@@ -154,7 +154,7 @@ describe("AssistantService", () => {
       expect(config.context.today).toMatch(/^\d{4}-\d{2}-\d{2}$/);
     });
 
-    it("should pass isVoiceInput: false in context when not provided", async () => {
+    it("passes isVoiceInput: false in context when not provided", async () => {
       // Arrange
       mockAssistantAgent.invoke.mockResolvedValue({
         answer: "Answer",
@@ -173,7 +173,7 @@ describe("AssistantService", () => {
       expect(config.context.isVoiceInput).toBe(false);
     });
 
-    it("should pass isVoiceInput: true in context when provided", async () => {
+    it("passes isVoiceInput: true in context when provided", async () => {
       // Arrange
       mockAssistantAgent.invoke.mockResolvedValue({
         answer: "Answer",
@@ -192,7 +192,7 @@ describe("AssistantService", () => {
       expect(config.context.isVoiceInput).toBe(true);
     });
 
-    it("should prepend history messages before the user question", async () => {
+    it("prepends history messages before user question", async () => {
       // Arrange
 
       // Agent accepts the call and returns an answer
@@ -220,7 +220,7 @@ describe("AssistantService", () => {
       expect(state.messages[2].content).toContain(validInput.question);
     });
 
-    it("should work without history (history defaults to empty)", async () => {
+    it("works without history (history defaults to empty)", async () => {
       // Arrange
 
       // Agent accepts the call and returns an answer
@@ -241,7 +241,7 @@ describe("AssistantService", () => {
       expect(state.messages).toHaveLength(1);
     });
 
-    it("should return agentTrace on success", async () => {
+    it("returns agentTrace on success", async () => {
       // Arrange
       const agentTrace: AgentTraceMessage[] = [
         { type: AgentTraceMessageType.TEXT, content: "Thinking..." },
@@ -266,7 +266,7 @@ describe("AssistantService", () => {
 
     // Validation failures
 
-    it("should return failure when userId is empty", async () => {
+    it("returns failure when userId is empty", async () => {
       // Act
       const result = await service.call("", { question: "Valid question?" });
 
@@ -278,7 +278,7 @@ describe("AssistantService", () => {
       expect(mockAssistantAgent.invoke).not.toHaveBeenCalled();
     });
 
-    it("should return failure when question is empty", async () => {
+    it("returns failure when question is empty", async () => {
       // Arrange
       const input: AssistantInput = { question: "" };
 
@@ -293,7 +293,7 @@ describe("AssistantService", () => {
       expect(mockAssistantAgent.invoke).not.toHaveBeenCalled();
     });
 
-    it("should return failure when question is only whitespace", async () => {
+    it("returns failure when question is only whitespace", async () => {
       // Arrange
       const input: AssistantInput = { question: "   " };
 
@@ -310,7 +310,7 @@ describe("AssistantService", () => {
 
     // Dependency failures
 
-    it("should propagate error when agent fails", async () => {
+    it("propagates error when agent fails", async () => {
       // Arrange
 
       // Agent throws unexpectedly
@@ -324,7 +324,7 @@ describe("AssistantService", () => {
       );
     });
 
-    it("should return failure when answer is empty", async () => {
+    it("returns failure when answer is empty", async () => {
       // Arrange
 
       // Agent returns an empty answer
@@ -344,7 +344,7 @@ describe("AssistantService", () => {
       });
     });
 
-    it("should return failure when answer is undefined", async () => {
+    it("returns failure when answer is undefined", async () => {
       // Arrange
 
       // Agent returns no answer
@@ -364,7 +364,7 @@ describe("AssistantService", () => {
       });
     });
 
-    it("should return agentTrace on empty response failure", async () => {
+    it("returns agentTrace on empty response failure", async () => {
       // Arrange
       const agentTrace: AgentTraceMessage[] = [
         { type: AgentTraceMessageType.TEXT, content: "Thinking..." },

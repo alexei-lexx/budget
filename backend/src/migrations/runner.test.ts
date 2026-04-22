@@ -63,7 +63,7 @@ describe("executeMigrations", () => {
   });
 
   describe("successful execution", () => {
-    it("should execute all pending migrations", async () => {
+    it("executes all pending migrations", async () => {
       const migration1 = jest
         .fn<MigrationFunction>()
         .mockResolvedValue(undefined);
@@ -98,7 +98,7 @@ describe("executeMigrations", () => {
       expect(mockMarkExecuted).toHaveBeenCalledTimes(2);
     });
 
-    it("should skip already executed migrations", async () => {
+    it("skips already executed migrations", async () => {
       const migration1 = jest
         .fn<MigrationFunction>()
         .mockResolvedValue(undefined);
@@ -137,7 +137,7 @@ describe("executeMigrations", () => {
       expect(mockMarkExecuted).toHaveBeenCalledTimes(1);
     });
 
-    it("should execute empty migration list successfully", async () => {
+    it("executes empty migration list successfully", async () => {
       const stats = await executeMigrations(mockClient, [], tableName);
 
       expect(stats.total).toBe(0);
@@ -149,7 +149,7 @@ describe("executeMigrations", () => {
   });
 
   describe("lock management", () => {
-    it("should acquire lock before executing migrations", async () => {
+    it("acquires lock before executing migrations", async () => {
       const migration = jest
         .fn<MigrationFunction>()
         .mockResolvedValue(undefined);
@@ -167,7 +167,7 @@ describe("executeMigrations", () => {
       expect(migration).toHaveBeenCalledWith(mockClient);
     });
 
-    it("should release lock after successful execution", async () => {
+    it("releases lock after successful execution", async () => {
       const migrations: Migration[] = [
         {
           timestamp: "20231203120000",
@@ -181,7 +181,7 @@ describe("executeMigrations", () => {
       expect(mockReleaseLock).toHaveBeenCalledWith(mockDocClient, tableName);
     });
 
-    it("should release lock after migration failure", async () => {
+    it("releases lock after migration failure", async () => {
       const migrations: Migration[] = [
         {
           timestamp: "20231203120000",
@@ -199,7 +199,7 @@ describe("executeMigrations", () => {
       expect(mockReleaseLock).toHaveBeenCalledWith(mockDocClient, tableName);
     });
 
-    it("should not release lock if acquisition failed", async () => {
+    it("does not release lock if acquisition failed", async () => {
       mockAcquireLock.mockRejectedValue(new Error("Lock already held"));
 
       const migrations: Migration[] = [
@@ -219,7 +219,7 @@ describe("executeMigrations", () => {
   });
 
   describe("error handling", () => {
-    it("should throw error when migration fails", async () => {
+    it("throws error when migration fails", async () => {
       const migrations: Migration[] = [
         {
           timestamp: "20231203120000",
@@ -235,7 +235,7 @@ describe("executeMigrations", () => {
       ).rejects.toThrow("Migration 20231203120000 failed: Database error");
     });
 
-    it("should not execute subsequent migrations after failure", async () => {
+    it("does not execute subsequent migrations after failure", async () => {
       const migration1 = jest
         .fn<MigrationFunction>()
         .mockRejectedValue(new Error("Failed"));
@@ -264,7 +264,7 @@ describe("executeMigrations", () => {
       expect(migration2).not.toHaveBeenCalled();
     });
 
-    it("should not mark failed migration as executed", async () => {
+    it("does not mark failed migration as executed", async () => {
       const migrations: Migration[] = [
         {
           timestamp: "20231203120000",
@@ -282,7 +282,7 @@ describe("executeMigrations", () => {
       expect(mockMarkExecuted).not.toHaveBeenCalled();
     });
 
-    it("should record error in statistics", async () => {
+    it("records error in statistics", async () => {
       const error = new Error("Migration failed");
       const migrations: Migration[] = [
         {
@@ -302,7 +302,7 @@ describe("executeMigrations", () => {
   });
 
   describe("statistics tracking", () => {
-    it("should track execution duration", async () => {
+    it("tracks execution duration", async () => {
       const migrations: Migration[] = [
         {
           timestamp: "20231203120000",
@@ -317,7 +317,7 @@ describe("executeMigrations", () => {
       expect(stats.results[0].durationMs).toBeGreaterThanOrEqual(0);
     });
 
-    it("should record all results in order", async () => {
+    it("records all results in order", async () => {
       mockIsExecuted.mockImplementation(async (_, __, timestamp) => {
         return timestamp === "20231203130000";
       });

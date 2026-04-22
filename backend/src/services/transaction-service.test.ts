@@ -73,7 +73,7 @@ describe("TransactionService", () => {
   });
 
   describe("getTransactionById", () => {
-    it("should return transaction when it exists", async () => {
+    it("returns transaction when it exists", async () => {
       // Arrange
       const transactionId = faker.string.uuid();
       const transaction = fakeTransaction();
@@ -92,7 +92,7 @@ describe("TransactionService", () => {
       expect(mockTransactionRepository.findOneById).toHaveBeenCalledTimes(1);
     });
 
-    it("should throw error when transaction not found", async () => {
+    it("throws error when transaction not found", async () => {
       // Arrange
       const transactionId = faker.string.uuid();
       mockTransactionRepository.findOneById.mockResolvedValue(null);
@@ -113,7 +113,7 @@ describe("TransactionService", () => {
   });
 
   describe("getTransactionPatterns", () => {
-    it("should return enriched patterns for valid account and category combinations", async () => {
+    it("returns enriched patterns for valid account and category combinations", async () => {
       // Arrange
       const patterns = [
         fakeTransactionPattern({
@@ -184,7 +184,7 @@ describe("TransactionService", () => {
       });
     });
 
-    it("should filter out patterns with deleted accounts", async () => {
+    it("filters out patterns with deleted accounts", async () => {
       // Arrange
       const patterns = [
         fakeTransactionPattern({
@@ -229,7 +229,7 @@ describe("TransactionService", () => {
       expect(result[0].accountId).toBe("account-1");
     });
 
-    it("should filter out patterns with deleted categories", async () => {
+    it("filters out patterns with deleted categories", async () => {
       // Arrange
       const patterns = [
         fakeTransactionPattern({
@@ -282,7 +282,7 @@ describe("TransactionService", () => {
       expect(result[0].categoryId).toBe("category-1");
     });
 
-    it("should filter out patterns with mismatched category types", async () => {
+    it("filters out patterns with mismatched category types", async () => {
       // Arrange
       const patterns = [
         fakeTransactionPattern({
@@ -342,7 +342,7 @@ describe("TransactionService", () => {
       expect(result[0].categoryId).toBe("category-income");
     });
 
-    it("should return empty array when all patterns are invalid", async () => {
+    it("returns empty array when all patterns are invalid", async () => {
       // Arrange
       const patterns = [
         fakeTransactionPattern({
@@ -371,7 +371,7 @@ describe("TransactionService", () => {
       expect(result).toEqual([]);
     });
 
-    it("should return empty array for new users with no transaction history", async () => {
+    it("returns empty array for new users with no transaction history", async () => {
       // Arrange
       mockTransactionRepository.detectPatterns.mockResolvedValue([]);
 
@@ -389,7 +389,7 @@ describe("TransactionService", () => {
       expect(mockCategoryRepository.findOneById).not.toHaveBeenCalled();
     });
 
-    it("should pass correct parameters to repository", async () => {
+    it("passes correct parameters to repository", async () => {
       // Arrange
       mockTransactionRepository.detectPatterns.mockResolvedValue([]);
 
@@ -415,7 +415,7 @@ describe("TransactionService", () => {
         mockTransactionRepository.detectPatterns.mockResolvedValue([]);
       });
 
-      it("should use default limit when no limit is provided", async () => {
+      it("uses default limit when no limit is provided", async () => {
         // Act
         await service.getTransactionPatterns(
           userId,
@@ -431,7 +431,7 @@ describe("TransactionService", () => {
         });
       });
 
-      it("should use default limit when limit is null", async () => {
+      it("uses default limit when limit is null", async () => {
         // Act
         await service.getTransactionPatterns(
           userId,
@@ -448,7 +448,7 @@ describe("TransactionService", () => {
         });
       });
 
-      it("should use default limit when limit is undefined", async () => {
+      it("uses default limit when limit is undefined", async () => {
         // Act
         await service.getTransactionPatterns(
           userId,
@@ -465,7 +465,7 @@ describe("TransactionService", () => {
         });
       });
 
-      it("should accept valid limit values between min and max", async () => {
+      it("accepts valid limit values between min and max", async () => {
         const validLimits = [
           MIN_TRANSACTION_PATTERNS_LIMIT,
           MIN_TRANSACTION_PATTERNS_LIMIT + 1,
@@ -493,7 +493,7 @@ describe("TransactionService", () => {
         }
       });
 
-      it("should fall back to default limit for invalid values", async () => {
+      it("falls back to default limit for invalid values", async () => {
         const invalidLimits = [
           MIN_TRANSACTION_PATTERNS_LIMIT - 1,
           MAX_TRANSACTION_PATTERNS_LIMIT + 1,
@@ -519,7 +519,7 @@ describe("TransactionService", () => {
         }
       });
 
-      it("should fall back to default limit for non-integer values", async () => {
+      it("falls back to default limit for non-integer values", async () => {
         const nonIntegerLimits = [1.5, 3.7, 5.9, 2.1];
 
         for (const limit of nonIntegerLimits) {
@@ -545,7 +545,7 @@ describe("TransactionService", () => {
   });
 
   describe("getDescriptionSuggestions", () => {
-    it("should return suggestions ordered by frequency", async () => {
+    it("returns suggestions ordered by frequency", async () => {
       // Arrange
       const searchText = "Gr";
       const transactions = [
@@ -571,7 +571,7 @@ describe("TransactionService", () => {
       expect(result[0]).toBe("Grocery store"); // Should be first (highest frequency)
     });
 
-    it("should respect the limit parameter", async () => {
+    it("respects limit parameter", async () => {
       // Arrange
       const searchText = "te";
       const transactions = [
@@ -597,7 +597,7 @@ describe("TransactionService", () => {
       expect(result).toHaveLength(3); // Limited to 3 results
     });
 
-    it("should return empty array when no matches found", async () => {
+    it("returns empty array when no matches found", async () => {
       // Arrange
       const searchText = "xyz";
       mockTransactionRepository.findManyByDescription.mockResolvedValue([]);
@@ -613,7 +613,7 @@ describe("TransactionService", () => {
       expect(result).toEqual([]);
     });
 
-    it("should call repository with correct parameters", async () => {
+    it("calls repository with correct parameters", async () => {
       // Arrange
       const searchText = "test";
       mockTransactionRepository.findManyByDescription.mockResolvedValue([]);
@@ -631,7 +631,7 @@ describe("TransactionService", () => {
       });
     });
 
-    it("should call repository with custom sample size when provided", async () => {
+    it("calls repository with custom sample size when provided", async () => {
       // Arrange
       const searchText = "test";
       const customSampleSize = 50;
@@ -651,7 +651,7 @@ describe("TransactionService", () => {
       ).toHaveBeenCalledWith({ userId, searchText, limit: customSampleSize });
     });
 
-    it("should throw error for search text shorter than minimum length", async () => {
+    it("throws error for search text shorter than minimum length", async () => {
       const shortSearchText = "a".repeat(MIN_SEARCH_TEXT_LENGTH - 1);
       const promise = service.getDescriptionSuggestions(
         userId,
@@ -670,7 +670,7 @@ describe("TransactionService", () => {
       ).not.toHaveBeenCalled();
     });
 
-    it("should throw error for empty search text", async () => {
+    it("throws error for empty search text", async () => {
       const emptySearchText = "";
       const promise = service.getDescriptionSuggestions(
         userId,
@@ -685,7 +685,7 @@ describe("TransactionService", () => {
       });
     });
 
-    it("should throw error for whitespace-only search text", async () => {
+    it("throws error for whitespace-only search text", async () => {
       const whitespaceSearchText = "   ";
       const promise = service.getDescriptionSuggestions(
         userId,
@@ -704,7 +704,7 @@ describe("TransactionService", () => {
       ).not.toHaveBeenCalled();
     });
 
-    it("should pass trimmed search text to repository", async () => {
+    it("passes trimmed search text to repository", async () => {
       // Arrange
       const searchTextWithWhitespace = "  test  ";
       mockTransactionRepository.findManyByDescription.mockResolvedValue([]);
@@ -726,7 +726,7 @@ describe("TransactionService", () => {
       });
     });
 
-    it("should throw error when text is too short after trimming", async () => {
+    it("throws error when text is too short after trimming", async () => {
       // Arrange - Text that looks long but is too short after trimming
       const shortTextWithPadding = "   a   "; // 7 chars before trim, 1 char after
       const promise = service.getDescriptionSuggestions(
@@ -749,7 +749,7 @@ describe("TransactionService", () => {
   });
 
   describe("getTransactionsByUser", () => {
-    it("should pass filters correctly to repository", async () => {
+    it("passes filters correctly to repository", async () => {
       // Arrange
       const expectedResult = {
         edges: [],
@@ -790,7 +790,7 @@ describe("TransactionService", () => {
       ).toHaveBeenCalledTimes(1);
     });
 
-    it("should throw error for invalid date range (dateAfter > dateBefore)", async () => {
+    it("throws error for invalid date range (dateAfter > dateBefore)", async () => {
       const promise = service.getTransactionsByUser(userId, undefined, {
         dateAfter: toDateString("2024-12-31"),
         dateBefore: toDateString("2024-01-01"),
@@ -807,7 +807,7 @@ describe("TransactionService", () => {
       ).not.toHaveBeenCalled();
     });
 
-    it("should throw for pagination first below minimum", async () => {
+    it("throws for pagination first below minimum", async () => {
       const promise = service.getTransactionsByUser(userId, { first: 0 });
 
       await expect(promise).rejects.toThrow(BusinessError);
@@ -816,7 +816,7 @@ describe("TransactionService", () => {
       });
     });
 
-    it("should throw for pagination first above maximum", async () => {
+    it("throws for pagination first above maximum", async () => {
       const promise = service.getTransactionsByUser(userId, {
         first: MAX_PAGE_SIZE + 1,
       });
@@ -829,7 +829,7 @@ describe("TransactionService", () => {
   describe("createTransaction", () => {
     // Happy path
 
-    it("should create and return transaction", async () => {
+    it("creates and returns transaction", async () => {
       // Arrange
       const account = fakeAccount({ userId });
       const category = fakeCategory({ userId, type: CategoryType.EXPENSE });
@@ -867,7 +867,7 @@ describe("TransactionService", () => {
       );
     });
 
-    it("should skip category when categoryId is omitted", async () => {
+    it("skips category when categoryId is omitted", async () => {
       // Arrange
       const input = fakeCreateTransactionServiceInput({
         categoryId: undefined,
@@ -892,7 +892,7 @@ describe("TransactionService", () => {
 
     // Validation failures
 
-    it("should throw BusinessError when account is not found", async () => {
+    it("throws BusinessError when account is not found", async () => {
       // Arrange
       const input = fakeCreateTransactionServiceInput({
         categoryId: undefined,
@@ -913,7 +913,7 @@ describe("TransactionService", () => {
       expect(mockTransactionRepository.create).not.toHaveBeenCalled();
     });
 
-    it("should throw BusinessError when category is not found", async () => {
+    it("throws BusinessError when category is not found", async () => {
       // Arrange
       const categoryId = faker.string.uuid();
       const input = fakeCreateTransactionServiceInput({ categoryId });
@@ -939,7 +939,7 @@ describe("TransactionService", () => {
       expect(mockTransactionRepository.create).not.toHaveBeenCalled();
     });
 
-    it("should propagate factory errors without persisting", async () => {
+    it("propagates factory errors without persisting", async () => {
       // Arrange
       const input = fakeCreateTransactionServiceInput({
         categoryId: undefined,
@@ -967,7 +967,7 @@ describe("TransactionService", () => {
   describe("updateTransaction", () => {
     // Happy path
 
-    it("should return updated transaction", async () => {
+    it("returns updated transaction", async () => {
       // Arrange
       const existing = fakeTransaction({ userId });
       const account = fakeAccount({ userId });
@@ -1008,7 +1008,7 @@ describe("TransactionService", () => {
       );
     });
 
-    it("should skip account lookup when accountId is omitted", async () => {
+    it("skips account lookup when accountId is omitted", async () => {
       // Arrange
       const existing = fakeTransaction({ userId });
       // Returns existing transaction
@@ -1027,7 +1027,7 @@ describe("TransactionService", () => {
       );
     });
 
-    it("should clear category when categoryId is null", async () => {
+    it("clears category when categoryId is null", async () => {
       // Arrange
       const existing = fakeTransaction({ userId });
       // Returns existing transaction
@@ -1050,7 +1050,7 @@ describe("TransactionService", () => {
 
     // Validation failures
 
-    it("should throw when transaction not found", async () => {
+    it("throws when transaction not found", async () => {
       // Arrange
       // Returns no transaction
       mockTransactionRepository.findOneById.mockResolvedValue(null);
@@ -1067,7 +1067,7 @@ describe("TransactionService", () => {
       expect(mockTransactionRepository.update).not.toHaveBeenCalled();
     });
 
-    it("should throw when account not found", async () => {
+    it("throws when account not found", async () => {
       // Arrange
       const existing = fakeTransaction({ userId });
       // Returns existing transaction
@@ -1091,7 +1091,7 @@ describe("TransactionService", () => {
 
     // Dependency failures
 
-    it("should propagate ModelError without persisting", async () => {
+    it("propagates ModelError without persisting", async () => {
       // Arrange
       const existing = fakeTransaction({ userId });
       // Returns existing transaction
@@ -1115,7 +1115,7 @@ describe("TransactionService", () => {
   describe("deleteTransaction", () => {
     // Happy path
 
-    it("should archive transaction and return it", async () => {
+    it("archives transaction and returns it", async () => {
       // Arrange
       const existing = fakeTransaction({ userId });
       const archived = fakeTransaction({ userId });
@@ -1134,7 +1134,7 @@ describe("TransactionService", () => {
       expect(mockTransactionRepository.update).toHaveBeenCalledWith(archived);
     });
 
-    it("should return existing transaction when already archived", async () => {
+    it("returns existing transaction when already archived", async () => {
       // Arrange
       const existing = fakeTransaction({ userId, isArchived: true });
       // Returns already-archived transaction
@@ -1151,7 +1151,7 @@ describe("TransactionService", () => {
 
     // Validation failures
 
-    it("should throw when transaction not found", async () => {
+    it("throws when transaction not found", async () => {
       // Arrange
       // Returns no transaction
       mockTransactionRepository.findOneById.mockResolvedValue(null);

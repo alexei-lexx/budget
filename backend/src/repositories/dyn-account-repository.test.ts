@@ -27,7 +27,7 @@ describe("DynAccountRepository", () => {
   });
 
   describe("findManyByIds", () => {
-    it("should return accounts when IDs exist", async () => {
+    it("returns accounts when IDs exist", async () => {
       // Arrange
       const account1 = await repository.create(
         fakeCreateAccountInput({ userId }),
@@ -48,7 +48,7 @@ describe("DynAccountRepository", () => {
       expect(result).toContainEqual(account2);
     });
 
-    it("should return empty array when IDs are empty", async () => {
+    it("returns empty array when IDs are empty", async () => {
       // Act
       const result = await repository.findManyWithArchivedByIds({
         ids: [],
@@ -59,7 +59,7 @@ describe("DynAccountRepository", () => {
       expect(result).toEqual([]);
     });
 
-    it("should return only found accounts when some IDs are missing", async () => {
+    it("returns only found accounts when some IDs are missing", async () => {
       // Arrange
       const account = await repository.create(
         fakeCreateAccountInput({ userId }),
@@ -76,7 +76,7 @@ describe("DynAccountRepository", () => {
       expect(result[0]).toEqual(account);
     });
 
-    it("should throw error when userId is missing", async () => {
+    it("throws error when userId is missing", async () => {
       // Act & Assert
       await expect(
         repository.findManyWithArchivedByIds({
@@ -86,7 +86,7 @@ describe("DynAccountRepository", () => {
       ).rejects.toThrow("User ID is required");
     });
 
-    it("should return archived accounts (not filtered)", async () => {
+    it("returns archived accounts (not filtered)", async () => {
       // Arrange
       const account = await repository.create(
         fakeCreateAccountInput({ userId }),
@@ -106,7 +106,7 @@ describe("DynAccountRepository", () => {
   });
 
   describe("findManyByUserId", () => {
-    it("should return all accounts including archived", async () => {
+    it("returns all accounts including archived", async () => {
       // Arrange
       const activeAccount = await repository.create(
         fakeCreateAccountInput({ userId }),
@@ -130,7 +130,7 @@ describe("DynAccountRepository", () => {
       expect(archivedAccount.isArchived).toBe(true);
     });
 
-    it("should not return accounts from other users", async () => {
+    it("does not return accounts from other users", async () => {
       // Arrange
       const otherUserId = faker.string.uuid();
       await repository.create(fakeCreateAccountInput({ userId }));
@@ -144,7 +144,7 @@ describe("DynAccountRepository", () => {
       expect(result[0]?.userId).toBe(userId);
     });
 
-    it("should throw error when userId is missing", async () => {
+    it("throws error when userId is missing", async () => {
       // Act & Assert
       await expect(repository.findManyWithArchivedByUserId("")).rejects.toThrow(
         "User ID is required",
@@ -153,7 +153,7 @@ describe("DynAccountRepository", () => {
   });
 
   describe("hydration - data corruption detection", () => {
-    it("should throw error when required field initialBalance is missing from database record", async () => {
+    it("throws error when required field initialBalance is missing from database record", async () => {
       // Arrange
       const account = await repository.create(
         fakeCreateAccountInput({ userId }),

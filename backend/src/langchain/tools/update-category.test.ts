@@ -16,7 +16,7 @@ describe("createUpdateCategoryTool", () => {
     mockCategoryService = createMockCategoryService();
   });
 
-  it("should return tool with correct name", () => {
+  it("returns tool with correct name", () => {
     // Act
     const updateTool = createUpdateCategoryTool({
       categoryService: mockCategoryService,
@@ -28,7 +28,7 @@ describe("createUpdateCategoryTool", () => {
 
   // Happy path
 
-  it("should update category excludeFromReports", async () => {
+  it("updates category excludeFromReports", async () => {
     // Arrange
     const categoryId = faker.string.uuid();
     const updated = fakeCategory();
@@ -61,7 +61,7 @@ describe("createUpdateCategoryTool", () => {
     );
   });
 
-  it("should update category name", async () => {
+  it("updates category name", async () => {
     // Arrange
     const categoryId = faker.string.uuid();
     const updated = fakeCategory();
@@ -94,7 +94,7 @@ describe("createUpdateCategoryTool", () => {
     );
   });
 
-  it("should update category type", async () => {
+  it("updates category type", async () => {
     // Arrange
     const categoryId = faker.string.uuid();
     const updated = fakeCategory();
@@ -127,7 +127,7 @@ describe("createUpdateCategoryTool", () => {
     );
   });
 
-  it("should update all fields at once", async () => {
+  it("updates all fields at once", async () => {
     // Arrange
     const categoryId = faker.string.uuid();
     const updated = fakeCategory();
@@ -168,7 +168,7 @@ describe("createUpdateCategoryTool", () => {
 
   // Validation failures
 
-  it("should throw when userId in context is not a valid UUID", async () => {
+  it("throws when userId in context is not a valid UUID", async () => {
     // Arrange
     const updateTool = createUpdateCategoryTool({
       categoryService: mockCategoryService,
@@ -189,7 +189,7 @@ describe("createUpdateCategoryTool", () => {
 
   // Dependency failures
 
-  it("should propagate BusinessError from the service unchanged", async () => {
+  it("propagates BusinessError from the service unchanged", async () => {
     // Arrange
     const error = new BusinessError('Category "Groceries" already exists');
 

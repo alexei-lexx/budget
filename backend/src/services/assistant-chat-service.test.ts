@@ -36,7 +36,7 @@ describe("AssistantChatService", () => {
   });
 
   describe("call", () => {
-    it("should return success with answer and sessionId", async () => {
+    it("returns success with answer and sessionId", async () => {
       // Arrange
       chatMessageRepository.findManyRecentBySessionId.mockResolvedValue([]);
       chatMessageRepository.create.mockResolvedValue(fakeChatMessage());
@@ -61,7 +61,7 @@ describe("AssistantChatService", () => {
       });
     });
 
-    it("should use provided sessionId if given", async () => {
+    it("uses provided sessionId if given", async () => {
       // Arrange
       const sessionId = faker.string.uuid();
       chatMessageRepository.findManyRecentBySessionId.mockResolvedValue([]);
@@ -87,7 +87,7 @@ describe("AssistantChatService", () => {
       ).toHaveBeenCalledWith({ userId, sessionId }, maxMessages);
     });
 
-    it("should load history and pass it to AssistantService", async () => {
+    it("loads history and passes it to AssistantService", async () => {
       // Arrange
       const sessionId = faker.string.uuid();
       chatMessageRepository.findManyRecentBySessionId.mockResolvedValue([
@@ -126,7 +126,7 @@ describe("AssistantChatService", () => {
       );
     });
 
-    it("should save user message and assistant answer after success", async () => {
+    it("saves user message and assistant answer after success", async () => {
       // Arrange
       const sessionId = faker.string.uuid();
       chatMessageRepository.findManyRecentBySessionId.mockResolvedValue([]);
@@ -159,7 +159,7 @@ describe("AssistantChatService", () => {
       );
     });
 
-    it("should return failure and not save messages when AssistantService fails", async () => {
+    it("returns failure and does not save messages when AssistantService fails", async () => {
       // Arrange
       chatMessageRepository.findManyRecentBySessionId.mockResolvedValue([]);
       assistantService.call.mockResolvedValue({
@@ -182,7 +182,7 @@ describe("AssistantChatService", () => {
       expect(chatMessageRepository.create).not.toHaveBeenCalled();
     });
 
-    it("should generate sessionId when not provided", async () => {
+    it("generates sessionId when not provided", async () => {
       // Arrange
       chatMessageRepository.findManyRecentBySessionId.mockResolvedValue([]);
       chatMessageRepository.create.mockResolvedValue(fakeChatMessage());
@@ -203,7 +203,7 @@ describe("AssistantChatService", () => {
       });
     });
 
-    it("should forward isVoiceInput to AssistantService when provided", async () => {
+    it("forwards isVoiceInput to AssistantService when provided", async () => {
       // Arrange
       chatMessageRepository.findManyRecentBySessionId.mockResolvedValue([]);
       chatMessageRepository.create.mockResolvedValue(fakeChatMessage());
@@ -225,7 +225,7 @@ describe("AssistantChatService", () => {
       );
     });
 
-    it("should forward isVoiceInput: undefined to AssistantService when not provided", async () => {
+    it("forwards isVoiceInput: undefined to AssistantService when not provided", async () => {
       // Arrange
       chatMessageRepository.findManyRecentBySessionId.mockResolvedValue([]);
       chatMessageRepository.create.mockResolvedValue(fakeChatMessage());
@@ -244,7 +244,7 @@ describe("AssistantChatService", () => {
       );
     });
 
-    it("should call repository with maxMessages limit", async () => {
+    it("calls repository with maxMessages limit", async () => {
       // Arrange
       const sessionId = faker.string.uuid();
       chatMessageRepository.findManyRecentBySessionId.mockResolvedValue([]);

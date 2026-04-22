@@ -51,7 +51,7 @@ describe("CreateTransactionAgent (integration)", () => {
 
   // Happy path
 
-  it("should call create_transaction when expense is given", async () => {
+  it("calls create_transaction when expense is given", async () => {
     // Arrange
     const account = await accountRepository.create(
       fakeAccount({ userId, currency: "EUR" }),
@@ -92,7 +92,7 @@ describe("CreateTransactionAgent (integration)", () => {
     ]);
   });
 
-  it("should call create_transaction when income is given", async () => {
+  it("calls create_transaction when income is given", async () => {
     // Arrange
     const account = await accountRepository.create(
       fakeAccount({ userId, currency: "EUR" }),
@@ -133,7 +133,7 @@ describe("CreateTransactionAgent (integration)", () => {
     ]);
   });
 
-  it("should call create_transaction when refund is given", async () => {
+  it("calls create_transaction when refund is given", async () => {
     // Arrange
     const account = await accountRepository.create(
       fakeAccount({ userId, currency: "EUR" }),
@@ -174,7 +174,7 @@ describe("CreateTransactionAgent (integration)", () => {
     ]);
   });
 
-  it("should use amount as transcribed when no similar transaction history exists", async () => {
+  it("uses amount as transcribed when no similar transaction history exists", async () => {
     // Arrange
     await accountRepository.create(fakeAccount({ userId }));
 
@@ -200,7 +200,7 @@ describe("CreateTransactionAgent (integration)", () => {
     ]);
   });
 
-  it("should correct collapsed amount when similar transaction history suggests much smaller price", async () => {
+  it("corrects collapsed amount when similar transaction history suggests much smaller price", async () => {
     // Arrange
     const account = await accountRepository.create(fakeAccount({ userId }));
     const category = await categoryRepository.create(
@@ -252,7 +252,7 @@ describe("CreateTransactionAgent (integration)", () => {
 
   // Validation failures
 
-  it("should not call create_transaction when user has no accounts", async () => {
+  it("does not call create_transaction when user has no accounts", async () => {
     // Act
     const response = await agent.invoke(
       { messages: [new HumanMessage("bought apples for 10 euro")] },
@@ -267,7 +267,7 @@ describe("CreateTransactionAgent (integration)", () => {
     expect(toolNames).not.toContain(CREATE_TRANSACTION_TOOL_NAME);
   });
 
-  it("should not call create_transaction when amount is not given", async () => {
+  it("does not call create_transaction when amount is not given", async () => {
     // Arrange
     await accountRepository.create(fakeAccount({ userId }));
 

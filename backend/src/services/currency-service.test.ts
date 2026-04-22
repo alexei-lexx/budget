@@ -20,7 +20,7 @@ describe("CurrencyService", () => {
   describe("getSupportedCurrencies", () => {
     // Happy path
 
-    it("should return full alphabetical list when user has no accounts", async () => {
+    it("returns full alphabetical list when user has no accounts", async () => {
       // Arrange
 
       // User has no accounts
@@ -36,7 +36,7 @@ describe("CurrencyService", () => {
       );
     });
 
-    it("should place deduplicated user currencies at head sorted alphabetically, followed by remaining currencies", async () => {
+    it("places deduplicated user currencies at head sorted alphabetically, followed by remaining currencies", async () => {
       // Arrange
 
       // User has accounts in USD, CHF, and USD again
@@ -66,7 +66,7 @@ describe("CurrencyService", () => {
 
     // Dependency failures
 
-    it("should propagate error when repository rejects", async () => {
+    it("propagates error when repository rejects", async () => {
       // Arrange
 
       // Repository fails to load accounts

@@ -57,7 +57,7 @@ describe("AssistantAgent (integration)", () => {
 
   // Happy path — reads
 
-  it("should call get_accounts when user asks to list accounts", async () => {
+  it("calls get_accounts when user asks to list accounts", async () => {
     // Arrange
     await accountRepository.create(fakeAccount({ userId }));
 
@@ -75,7 +75,7 @@ describe("AssistantAgent (integration)", () => {
     expect(toolNames).toContain("get_accounts");
   });
 
-  it("should call get_categories when user asks to list categories", async () => {
+  it("calls get_categories when user asks to list categories", async () => {
     // Arrange
     await categoryRepository.create(fakeCategory({ userId }));
 
@@ -93,7 +93,7 @@ describe("AssistantAgent (integration)", () => {
     expect(toolNames).toContain("get_categories");
   });
 
-  it("should call aggregate_transactions when user asks about total spending", async () => {
+  it("calls aggregate_transactions when user asks about total spending", async () => {
     // Arrange
     const account = await accountRepository.create(fakeAccount({ userId }));
     await transactionRepository.createMany([
@@ -131,7 +131,7 @@ describe("AssistantAgent (integration)", () => {
 
   // Happy path — writes
 
-  it("should call create_account when user asks to create account", async () => {
+  it("calls create_account when user asks to create account", async () => {
     // Act
     const response = await agent.invoke(
       {
@@ -161,7 +161,7 @@ describe("AssistantAgent (integration)", () => {
     ]);
   });
 
-  it("should call create_category when user asks to create category", async () => {
+  it("calls create_category when user asks to create category", async () => {
     // Act
     const response = await agent.invoke(
       {
@@ -191,7 +191,7 @@ describe("AssistantAgent (integration)", () => {
     ]);
   });
 
-  it("should call update_account when user asks to rename account", async () => {
+  it("calls update_account when user asks to rename account", async () => {
     // Arrange
     const account = await accountRepository.create(
       fakeAccount({ userId, name: "Visa" }),
@@ -227,7 +227,7 @@ describe("AssistantAgent (integration)", () => {
     ]);
   });
 
-  it("should call update_category when user asks to rename category", async () => {
+  it("calls update_category when user asks to rename category", async () => {
     // Arrange
     const category = await categoryRepository.create(
       fakeCategory({
@@ -267,7 +267,7 @@ describe("AssistantAgent (integration)", () => {
     ]);
   });
 
-  it("should call create_transaction_subagent when user logs a transaction", async () => {
+  it("calls create_transaction_subagent when user logs transaction", async () => {
     // Arrange
     await accountRepository.create(fakeAccount({ userId, currency: "EUR" }));
 

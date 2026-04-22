@@ -53,7 +53,7 @@ describe("TransferService", () => {
   });
 
   describe("getTransfer", () => {
-    it("should return undefined when transfer not found", async () => {
+    it("returns undefined when transfer not found", async () => {
       const transferId = faker.string.uuid();
       mockTransactionRepository.findManyByTransferId.mockResolvedValue([]);
 
@@ -65,7 +65,7 @@ describe("TransferService", () => {
       ).toHaveBeenCalledWith({ transferId, userId });
     });
 
-    it("should throw INVALID_TRANSFER_STATE when only one transaction found", async () => {
+    it("throws INVALID_TRANSFER_STATE when only one transaction found", async () => {
       const transferId = faker.string.uuid();
       mockTransactionRepository.findManyByTransferId.mockResolvedValue([
         fakeTransaction({ type: TransactionType.TRANSFER_OUT, transferId }),
@@ -78,7 +78,7 @@ describe("TransferService", () => {
       });
     });
 
-    it("should throw INVALID_TRANSFER_STATE when more than two transactions found", async () => {
+    it("throws INVALID_TRANSFER_STATE when more than two transactions found", async () => {
       const transferId = faker.string.uuid();
       mockTransactionRepository.findManyByTransferId.mockResolvedValue([
         fakeTransaction({ type: TransactionType.TRANSFER_OUT, transferId }),
@@ -93,7 +93,7 @@ describe("TransferService", () => {
       });
     });
 
-    it("should throw INVALID_TRANSFER_STATE when TRANSFER_OUT transaction is missing", async () => {
+    it("throws INVALID_TRANSFER_STATE when TRANSFER_OUT transaction is missing", async () => {
       const transferId = faker.string.uuid();
       mockTransactionRepository.findManyByTransferId.mockResolvedValue([
         fakeTransaction({ type: TransactionType.TRANSFER_IN, transferId }),
@@ -107,7 +107,7 @@ describe("TransferService", () => {
       });
     });
 
-    it("should throw INVALID_TRANSFER_STATE when TRANSFER_IN transaction is missing", async () => {
+    it("throws INVALID_TRANSFER_STATE when TRANSFER_IN transaction is missing", async () => {
       const transferId = faker.string.uuid();
       mockTransactionRepository.findManyByTransferId.mockResolvedValue([
         fakeTransaction({ type: TransactionType.TRANSFER_OUT, transferId }),
@@ -121,7 +121,7 @@ describe("TransferService", () => {
       });
     });
 
-    it("should return transfer result with correctly identified outbound and inbound transactions", async () => {
+    it("returns transfer result with correctly identified outbound and inbound transactions", async () => {
       const transferId = faker.string.uuid();
       const outboundTransaction = fakeTransaction({
         type: TransactionType.TRANSFER_OUT,
@@ -145,7 +145,7 @@ describe("TransferService", () => {
       });
     });
 
-    it("should identify outbound and inbound correctly regardless of array order", async () => {
+    it("identifies outbound and inbound correctly regardless of array order", async () => {
       const transferId = faker.string.uuid();
       const outboundTransaction = fakeTransaction({
         type: TransactionType.TRANSFER_OUT,
@@ -172,7 +172,7 @@ describe("TransferService", () => {
   });
 
   describe("createTransfer", () => {
-    it("should create transfer and return result with outbound and inbound transactions", async () => {
+    it("creates transfer and returns result with outbound and inbound transactions", async () => {
       const fromAccount = fakeAccount({ userId });
       const toAccount = fakeAccount({ userId, currency: fromAccount.currency });
       const outboundTransaction = fakeTransaction({
@@ -233,7 +233,7 @@ describe("TransferService", () => {
   describe("updateTransfer", () => {
     // Happy path
 
-    it("should update transfer and return result with updated transactions", async () => {
+    it("updates transfer and returns result with updated transactions", async () => {
       // Arrange
       const transferId = faker.string.uuid();
       const fromAccount = fakeAccount({ userId });
@@ -307,7 +307,7 @@ describe("TransferService", () => {
       ]);
     });
 
-    it("should resolve new accounts when account ids change", async () => {
+    it("resolves new accounts when account ids change", async () => {
       // Arrange
       const transferId = faker.string.uuid();
       const fromAccount = fakeAccount({ userId });
@@ -355,7 +355,7 @@ describe("TransferService", () => {
 
     // Dependency failures
 
-    it("should propagate ModelError without persisting", async () => {
+    it("propagates ModelError without persisting", async () => {
       // Arrange
       const transferId = faker.string.uuid();
       const fromAccount = fakeAccount({ userId });
@@ -399,7 +399,7 @@ describe("TransferService", () => {
   describe("deleteTransfer", () => {
     // Happy path
 
-    it("should archive both paired transactions", async () => {
+    it("archives both paired transactions", async () => {
       // Arrange
       const transferId = faker.string.uuid();
       const outboundTransaction = fakeTransaction();
@@ -437,7 +437,7 @@ describe("TransferService", () => {
 
     // Validation failures
 
-    it("should throw when transfer not found", async () => {
+    it("throws when transfer not found", async () => {
       // Arrange
       const transferId = faker.string.uuid();
       mockTransactionRepository.findManyByTransferId.mockResolvedValue([]);

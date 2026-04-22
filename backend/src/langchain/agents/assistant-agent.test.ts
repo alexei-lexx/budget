@@ -40,7 +40,7 @@ describe("createAssistantAgent", () => {
 
   // Happy path
 
-  it("should respond to user message", async () => {
+  it("responds to user message", async () => {
     // Arrange
 
     // Model emits final text without tool calls
@@ -54,7 +54,7 @@ describe("createAssistantAgent", () => {
     expect(lastMessage?.content).toBe("Hello!");
   });
 
-  it("should include role in system prompt", async () => {
+  it("includes role in system prompt", async () => {
     // Arrange
 
     // Model emits final text without tool calls
@@ -69,7 +69,7 @@ describe("createAssistantAgent", () => {
     );
   });
 
-  it("should include today's date in system prompt", async () => {
+  it("includes today's date in system prompt", async () => {
     // Arrange
 
     // Model emits final text without tool calls
@@ -84,7 +84,7 @@ describe("createAssistantAgent", () => {
     );
   });
 
-  it("should invoke bound tool when model requests it", async () => {
+  it("invokes bound tool when model requests it", async () => {
     // Arrange
 
     // Returns empty account list for get_accounts tool

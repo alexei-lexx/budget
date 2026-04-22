@@ -13,13 +13,13 @@ describe("createGetAccountsTool", () => {
     mockAccountRepository = createMockAccountRepository();
   });
 
-  it("should return tool with correct name", () => {
+  it("returns tool with correct name", () => {
     const accountsTool = createGetAccountsTool(mockAccountRepository);
 
     expect(accountsTool.name).toBe("get_accounts");
   });
 
-  it("should throw when userId in context is not a valid UUID", async () => {
+  it("throws when userId in context is not valid UUID", async () => {
     const accountsTool = createGetAccountsTool(mockAccountRepository);
 
     await expect(
@@ -30,7 +30,7 @@ describe("createGetAccountsTool", () => {
     ).rejects.toThrow();
   });
 
-  it("should call repository", async () => {
+  it("calls repository", async () => {
     mockAccountRepository.findManyWithArchivedByUserId.mockResolvedValue([]);
 
     const accountsTool = createGetAccountsTool(mockAccountRepository);
@@ -44,7 +44,7 @@ describe("createGetAccountsTool", () => {
     ).toHaveBeenCalledWith(userId);
   });
 
-  it("should return all accounts when scope is all", async () => {
+  it("returns all accounts when scope is all", async () => {
     const mockAccounts = [
       fakeAccount({ isArchived: true }),
       fakeAccount({ isArchived: false }),
@@ -68,7 +68,7 @@ describe("createGetAccountsTool", () => {
     });
   });
 
-  it("should return only active accounts when scope is active", async () => {
+  it("returns only active accounts when scope is active", async () => {
     const mockAccounts = [
       fakeAccount({ isArchived: true }),
       fakeAccount({ isArchived: false }),
@@ -89,7 +89,7 @@ describe("createGetAccountsTool", () => {
     });
   });
 
-  it("should return only archived accounts when scope is archived", async () => {
+  it("returns only archived accounts when scope is archived", async () => {
     const mockAccounts = [
       fakeAccount({ isArchived: true }),
       fakeAccount({ isArchived: false }),
@@ -110,7 +110,7 @@ describe("createGetAccountsTool", () => {
     });
   });
 
-  it("should return required fields only", async () => {
+  it("returns required fields only", async () => {
     const mockAccounts = [
       fakeAccount({
         userId,
@@ -154,7 +154,7 @@ describe("createGetAccountsTool", () => {
     });
   });
 
-  it("should return empty array when user has no accounts", async () => {
+  it("returns empty array when user has no accounts", async () => {
     mockAccountRepository.findManyWithArchivedByUserId.mockResolvedValue([]);
 
     const accountsTool = createGetAccountsTool(mockAccountRepository);

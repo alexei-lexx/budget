@@ -5,7 +5,7 @@ import { toCategoryDto } from "./category-dto";
 describe("toCategoryDto", () => {
   // Happy path
 
-  it("should map the exposed fields from the category", () => {
+  it("maps the exposed fields from the category", () => {
     // Arrange
     const category = fakeCategory();
 

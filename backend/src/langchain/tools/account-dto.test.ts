@@ -5,7 +5,7 @@ import { toAccountDto } from "./account-dto";
 describe("toAccountDto", () => {
   // Happy path
 
-  it("should map the exposed fields from the account", () => {
+  it("maps the exposed fields from the account", () => {
     // Arrange
     const account = fakeAccount({
       name: "Checking",

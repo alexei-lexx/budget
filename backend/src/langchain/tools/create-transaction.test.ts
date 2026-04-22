@@ -20,7 +20,7 @@ describe("createCreateTransactionTool", () => {
     } as unknown as jest.Mocked<TransactionService>;
   });
 
-  it("should return tool with correct name", () => {
+  it("returns tool with correct name", () => {
     const createTool = createCreateTransactionTool({
       transactionService: mockTransactionService,
     });
@@ -28,7 +28,7 @@ describe("createCreateTransactionTool", () => {
     expect(createTool.name).toBe(CREATE_TRANSACTION_TOOL_NAME);
   });
 
-  it("should throw when userId in context is not a valid UUID", async () => {
+  it("throws when userId in context is not a valid UUID", async () => {
     const createTool = createCreateTransactionTool({
       transactionService: mockTransactionService,
     });
@@ -45,7 +45,7 @@ describe("createCreateTransactionTool", () => {
     ).rejects.toThrow();
   });
 
-  it("should call createTransaction with correct input and return created transaction", async () => {
+  it("calls createTransaction with correct input and returns created transaction", async () => {
     const created = fakeTransaction();
     mockTransactionService.createTransaction.mockResolvedValue(created);
 

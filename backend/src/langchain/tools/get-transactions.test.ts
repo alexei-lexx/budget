@@ -15,7 +15,7 @@ describe("createGetTransactionsTool", () => {
     mockTransactionRepository = createMockTransactionRepository();
   });
 
-  it("should return tool with correct name", () => {
+  it("returns tool with correct name", () => {
     const transactionsTool = createGetTransactionsTool({
       transactionRepository: mockTransactionRepository,
     });
@@ -23,7 +23,7 @@ describe("createGetTransactionsTool", () => {
     expect(transactionsTool.name).toBe("get_transactions");
   });
 
-  it("should throw when userId in context is not a valid UUID", async () => {
+  it("throws when userId in context is not valid UUID", async () => {
     const transactionsTool = createGetTransactionsTool({
       transactionRepository: mockTransactionRepository,
     });
@@ -36,7 +36,7 @@ describe("createGetTransactionsTool", () => {
     ).rejects.toThrow();
   });
 
-  it("should reject when startDate is after endDate", async () => {
+  it("rejects when startDate is after endDate", async () => {
     const transactionsTool = createGetTransactionsTool({
       transactionRepository: mockTransactionRepository,
     });
@@ -53,7 +53,7 @@ describe("createGetTransactionsTool", () => {
     });
   });
 
-  it("should reject when date range exceeds max period days", async () => {
+  it("rejects when date range exceeds max period days", async () => {
     const transactionsTool = createGetTransactionsTool({
       transactionRepository: mockTransactionRepository,
     });
@@ -70,7 +70,7 @@ describe("createGetTransactionsTool", () => {
     });
   });
 
-  it("should filter by date range and return transactions as JSON", async () => {
+  it("filters by date range and returns transactions as JSON", async () => {
     const transactions = [fakeTransaction()];
     mockTransactionRepository.findManyByUserId.mockResolvedValue(transactions);
 
@@ -93,7 +93,7 @@ describe("createGetTransactionsTool", () => {
     );
   });
 
-  it("should return required fields only", async () => {
+  it("returns required fields only", async () => {
     const transactions = [
       fakeTransaction({
         id: "transaction1",
@@ -155,7 +155,7 @@ describe("createGetTransactionsTool", () => {
     });
   });
 
-  it("should filter by accountIds", async () => {
+  it("filters by accountIds", async () => {
     const accountId = faker.string.uuid();
     mockTransactionRepository.findManyByUserId.mockResolvedValue([]);
 
@@ -182,7 +182,7 @@ describe("createGetTransactionsTool", () => {
     );
   });
 
-  it("should filter by categoryIds", async () => {
+  it("filters by categoryIds", async () => {
     const categoryId = faker.string.uuid();
     mockTransactionRepository.findManyByUserId.mockResolvedValue([]);
 
@@ -209,7 +209,7 @@ describe("createGetTransactionsTool", () => {
     );
   });
 
-  it("should filter by types", async () => {
+  it("filters by types", async () => {
     const types = [TransactionType.EXPENSE, TransactionType.INCOME];
     mockTransactionRepository.findManyByUserId.mockResolvedValue([]);
 
@@ -232,7 +232,7 @@ describe("createGetTransactionsTool", () => {
     );
   });
 
-  it("should filter by accountIds, categoryIds, and types", async () => {
+  it("filters by accountIds, categoryIds, and types", async () => {
     const accountId = faker.string.uuid();
     const categoryId = faker.string.uuid();
     const types = [TransactionType.EXPENSE, TransactionType.INCOME];

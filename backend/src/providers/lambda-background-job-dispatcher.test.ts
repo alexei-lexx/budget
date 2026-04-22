@@ -14,7 +14,7 @@ jest.mock("@aws-sdk/client-lambda", () => {
 });
 
 describe("LambdaBackgroundJobDispatcher", () => {
-  it("should invoke the Lambda function with Event invocation type", async () => {
+  it("invokes Lambda function with Event invocation type", async () => {
     const mockSend = jest
       .fn<(command: unknown) => Promise<unknown>>()
       .mockResolvedValue({});
@@ -61,7 +61,7 @@ describe("LambdaBackgroundJobDispatcher", () => {
     });
   });
 
-  it("should throw when function name is not set", () => {
+  it("throws when function name is not set", () => {
     expect(() => new LambdaBackgroundJobDispatcher()).toThrow(
       "BACKGROUND_JOB_FUNCTION_NAME environment variable is required",
     );

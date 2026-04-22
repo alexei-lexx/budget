@@ -33,7 +33,7 @@ describe("injectRuntimeEnv", () => {
 
   // Happy path
 
-  it("should fetch SSM parameters and inject env vars", async () => {
+  it("fetches SSM parameters and injects env vars", async () => {
     // Arrange
     const processEnv: NodeJS.ProcessEnv = {
       AWS_LAMBDA_FUNCTION_NAME: "web-lambda",
@@ -63,7 +63,7 @@ describe("injectRuntimeEnv", () => {
     expect(sendMock).toHaveBeenCalledTimes(1);
   });
 
-  it("should call SSM multiple times when bindings exceed batch size", async () => {
+  it("calls SSM multiple times when bindings exceed batch size", async () => {
     // Arrange
     const processEnv: NodeJS.ProcessEnv = {
       AWS_LAMBDA_FUNCTION_NAME: "web-lambda",
@@ -106,7 +106,7 @@ describe("injectRuntimeEnv", () => {
     expect(secondCallNames).toHaveLength(5);
   });
 
-  it("should set only found params when SSM returns partial response", async () => {
+  it("only sets found params when SSM returns partial response", async () => {
     // Arrange
     const processEnv: NodeJS.ProcessEnv = {
       AWS_LAMBDA_FUNCTION_NAME: "web-lambda",
@@ -138,7 +138,7 @@ describe("injectRuntimeEnv", () => {
     expect(processEnv.FEATURE_Z).toBe("value-z");
   });
 
-  it("should request SSM parameters with decryption enabled", async () => {
+  it("requests SSM parameters with decryption enabled", async () => {
     // Arrange
     const processEnv: NodeJS.ProcessEnv = {
       AWS_LAMBDA_FUNCTION_NAME: "web-lambda",
@@ -161,7 +161,7 @@ describe("injectRuntimeEnv", () => {
 
   // Validation failures
 
-  it("should skip SSM fetch when not running on Lambda", async () => {
+  it("skips SSM fetch when not running on Lambda", async () => {
     // Arrange
     const processEnv: NodeJS.ProcessEnv = { NODE_ENV: "test" };
     const bindings = [
@@ -176,7 +176,7 @@ describe("injectRuntimeEnv", () => {
     expect(sendMock).not.toHaveBeenCalled();
   });
 
-  it("should skip SSM fetch when NODE_ENV is unset", async () => {
+  it("skips SSM fetch when NODE_ENV is unset", async () => {
     // Arrange
     const processEnv: NodeJS.ProcessEnv = {
       AWS_LAMBDA_FUNCTION_NAME: "web-lambda",
@@ -193,7 +193,7 @@ describe("injectRuntimeEnv", () => {
     expect(sendMock).not.toHaveBeenCalled();
   });
 
-  it("should not overwrite env vars when already set", async () => {
+  it("does not overwrite env vars when already set", async () => {
     // Arrange
     const processEnv: NodeJS.ProcessEnv = {
       AWS_LAMBDA_FUNCTION_NAME: "web-lambda",
@@ -218,7 +218,7 @@ describe("injectRuntimeEnv", () => {
     expect(processEnv.FEATURE_X).toBe("preset");
   });
 
-  it("should skip SSM fetch when bindings are empty", async () => {
+  it("skips SSM fetch when bindings are empty", async () => {
     // Arrange
     const processEnv: NodeJS.ProcessEnv = {
       AWS_LAMBDA_FUNCTION_NAME: "web-lambda",

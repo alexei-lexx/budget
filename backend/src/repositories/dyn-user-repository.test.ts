@@ -26,7 +26,7 @@ describe("DynUserRepository", () => {
   });
 
   describe("findOneByEmail", () => {
-    it("should find user by exact email match (lowercase)", async () => {
+    it("finds user by exact email match (lowercase)", async () => {
       const input = fakeCreateUserInput({ email: "user@example.com" });
       await repository.create(input);
 
@@ -36,13 +36,13 @@ describe("DynUserRepository", () => {
       expect(result?.email).toBe("user@example.com");
     });
 
-    it("should return null when email not found", async () => {
+    it("returns null when email not found", async () => {
       const result = await repository.findOneByEmail("nonexistent@example.com");
 
       expect(result).toBeNull();
     });
 
-    it("should find correct user among multiple users", async () => {
+    it("finds correct user among multiple users", async () => {
       const user1Input = fakeCreateUserInput({ email: "user1@example.com" });
       const user2Input = fakeCreateUserInput({ email: "user2@example.com" });
       const user3Input = fakeCreateUserInput({ email: "user3@example.com" });
@@ -58,7 +58,7 @@ describe("DynUserRepository", () => {
       expect(result?.email).toBe("user1@example.com");
     });
 
-    it("should find user with uppercase email (case-insensitive)", async () => {
+    it("finds user with uppercase email (case-insensitive)", async () => {
       const input = fakeCreateUserInput({ email: "user@example.com" });
       await repository.create(input);
 
@@ -68,7 +68,7 @@ describe("DynUserRepository", () => {
       expect(result?.email).toBe("user@example.com");
     });
 
-    it("should trim whitespace from email", async () => {
+    it("trims whitespace from email", async () => {
       const input = fakeCreateUserInput({ email: "user@example.com" });
       await repository.create(input);
 
@@ -78,18 +78,18 @@ describe("DynUserRepository", () => {
       expect(result?.email).toBe("user@example.com");
     });
 
-    it("should reject whitespace-only email", async () => {
+    it("rejects whitespace-only email", async () => {
       await expect(repository.findOneByEmail("   ")).rejects.toThrow(
         "Failed to find user by email",
       );
     });
 
-    it("should return null for invalid email format", async () => {
+    it("returns null for invalid email format", async () => {
       const result = await repository.findOneByEmail("not-an-email");
       expect(result).toBeNull();
     });
 
-    it("should throw error if multiple users with same email found (data corruption)", async () => {
+    it("throws error if multiple users with same email found (data corruption)", async () => {
       const input1 = fakeCreateUserInput({ email: "dupe@example.com" });
       const input2 = fakeCreateUserInput({ email: "dupe@example.com" });
 
@@ -107,7 +107,7 @@ describe("DynUserRepository", () => {
   });
 
   describe("findOneById", () => {
-    it("should find user by ID", async () => {
+    it("finds user by ID", async () => {
       // Arrange
       const created = await repository.create(fakeCreateUserInput());
 
@@ -118,19 +118,19 @@ describe("DynUserRepository", () => {
       expect(result).toEqual(created);
     });
 
-    it("should return null when ID not found", async () => {
+    it("returns null when ID not found", async () => {
       const result = await repository.findOneById("nonexistent-id");
 
       expect(result).toBeNull();
     });
 
-    it("should throw when ID is empty", async () => {
+    it("throws when ID is empty", async () => {
       await expect(repository.findOneById("")).rejects.toThrow();
     });
   });
 
   describe("findMany", () => {
-    it("should return empty array when no users exist", async () => {
+    it("returns empty array when no users exist", async () => {
       // Act
       const result = await repository.findMany();
 
@@ -138,7 +138,7 @@ describe("DynUserRepository", () => {
       expect(result).toEqual([]);
     });
 
-    it("should return all created users", async () => {
+    it("returns all created users", async () => {
       // Arrange
       const inputs = [
         fakeCreateUserInput(),
@@ -160,7 +160,7 @@ describe("DynUserRepository", () => {
       });
     });
 
-    it("should return all users with correct properties", async () => {
+    it("returns all users with correct properties", async () => {
       // Arrange
       const input1 = fakeCreateUserInput();
       const input2 = fakeCreateUserInput();
@@ -181,7 +181,7 @@ describe("DynUserRepository", () => {
       });
     });
 
-    it("should return users in any order", async () => {
+    it("returns users in any order", async () => {
       // Arrange
       const inputs = [
         fakeCreateUserInput(),
@@ -205,7 +205,7 @@ describe("DynUserRepository", () => {
   });
 
   describe("create", () => {
-    it("should create a user successfully", async () => {
+    it("creates user successfully", async () => {
       // Arrange
       const input = fakeCreateUserInput();
 
@@ -231,7 +231,7 @@ describe("DynUserRepository", () => {
       );
     });
 
-    it("should normalize email to lowercase", async () => {
+    it("normalizes email to lowercase", async () => {
       // Arrange
       const input = fakeCreateUserInput({
         email: "Test.Email@EXAMPLE.COM",
@@ -244,7 +244,7 @@ describe("DynUserRepository", () => {
       expect(result.email).toBe("test.email@example.com");
     });
 
-    it("should create multiple users", async () => {
+    it("creates multiple users", async () => {
       // Arrange
       const input1 = fakeCreateUserInput();
       const input2 = fakeCreateUserInput();
@@ -258,7 +258,7 @@ describe("DynUserRepository", () => {
       expect(result1.email).not.toBe(result2.email);
     });
 
-    it("should refetch created user from database to verify stored data", async () => {
+    it("refetches created user from database to verify stored data", async () => {
       // Arrange
       const input = fakeCreateUserInput();
 
@@ -271,7 +271,7 @@ describe("DynUserRepository", () => {
       expect(stored).toEqual(created);
     });
 
-    it("should throw error when required fields are missing during create", async () => {
+    it("throws error when required fields are missing during create", async () => {
       // Act & Assert - Missing email
       await expect(
         repository.create({
@@ -282,7 +282,7 @@ describe("DynUserRepository", () => {
   });
 
   describe("ensureUser", () => {
-    it("should create user if not exists", async () => {
+    it("creates user if not exists", async () => {
       // Arrange
       const email = faker.internet.email().toLowerCase();
 
@@ -298,7 +298,7 @@ describe("DynUserRepository", () => {
       expect(stored).toEqual(result);
     });
 
-    it("should return existing user if already exists (idempotent)", async () => {
+    it("returns existing user if already exists (idempotent)", async () => {
       // Arrange
       const input = fakeCreateUserInput();
       const created = await repository.create(input);
@@ -313,7 +313,7 @@ describe("DynUserRepository", () => {
       expect(result1.id).toBe(result2.id);
     });
 
-    it("should handle case-insensitive email matching in ensureUser", async () => {
+    it("handles case-insensitive email matching in ensureUser", async () => {
       const email = "Test@Example.COM";
 
       // Create user with mixed-case email
@@ -327,7 +327,7 @@ describe("DynUserRepository", () => {
       expect(result.email).toBe("test@example.com");
     });
 
-    it("should not create duplicates on multiple calls", async () => {
+    it("does not create duplicates on multiple calls", async () => {
       // Arrange
       const email = faker.internet.email().toLowerCase();
 
@@ -345,14 +345,14 @@ describe("DynUserRepository", () => {
       expect(allUsers).toHaveLength(1);
     });
 
-    it("should throw error when receiving invalid input", async () => {
+    it("throws error when receiving invalid input", async () => {
       // Act & Assert - Empty email
       await expect(repository.ensureUser("")).rejects.toThrow();
     });
   });
 
   describe("update", () => {
-    it("should update voiceInputLanguage", async () => {
+    it("updates voiceInputLanguage", async () => {
       // Arrange
       const created = await repository.create(fakeCreateUserInput());
 
@@ -368,7 +368,7 @@ describe("DynUserRepository", () => {
       expect(result.updatedAt).not.toBe(created.updatedAt);
     });
 
-    it("should update transactionPatternsLimit", async () => {
+    it("updates transactionPatternsLimit", async () => {
       // Arrange
       const created = await repository.create(fakeCreateUserInput());
 
@@ -381,7 +381,7 @@ describe("DynUserRepository", () => {
       expect(result.transactionPatternsLimit).toBe(5);
     });
 
-    it("should update both fields at once", async () => {
+    it("updates both fields at once", async () => {
       // Arrange
       const created = await repository.create(fakeCreateUserInput());
 
@@ -396,13 +396,13 @@ describe("DynUserRepository", () => {
       expect(result.transactionPatternsLimit).toBe(7);
     });
 
-    it("should throw NOT_FOUND for nonexistent user ID", async () => {
+    it("throws NOT_FOUND for nonexistent user ID", async () => {
       await expect(
         repository.update("nonexistent-id", { voiceInputLanguage: "en-US" }),
       ).rejects.toThrow();
     });
 
-    it("should throw when ID is empty", async () => {
+    it("throws when ID is empty", async () => {
       await expect(
         repository.update("", { voiceInputLanguage: "en-US" }),
       ).rejects.toThrow();
@@ -410,7 +410,7 @@ describe("DynUserRepository", () => {
   });
 
   describe("hydration - data corruption detection", () => {
-    it("should throw error when required field createdAt is missing from database record", async () => {
+    it("throws error when required field createdAt is missing from database record", async () => {
       // Arrange
       const input = fakeCreateUserInput();
       const created = await repository.create(input);

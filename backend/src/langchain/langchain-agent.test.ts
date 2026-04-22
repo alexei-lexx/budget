@@ -26,7 +26,7 @@ describe("LangChainAgent", () => {
 
     // Happy path
 
-    it("should return answer from last message", async () => {
+    it("returns answer from last message", async () => {
       // Arrange
       mockAgent.invoke.mockResolvedValue({
         messages: [
@@ -40,7 +40,7 @@ describe("LangChainAgent", () => {
       expect(result.answer).toBe("Last message");
     });
 
-    it("should trim whitespace from answer", async () => {
+    it("trims whitespace from answer", async () => {
       // Arrange
       mockAgent.invoke.mockResolvedValue({
         messages: [new AIMessage({ content: "  Answer  " })],
@@ -51,7 +51,7 @@ describe("LangChainAgent", () => {
       expect(result.answer).toBe("Answer");
     });
 
-    it("should pass messages mapped to role and content to underlying agent", async () => {
+    it("passes messages mapped to role and content to underlying agent", async () => {
       // Arrange
       mockAgent.invoke.mockResolvedValue({
         messages: [new AIMessage({ content: "Answer" })],
@@ -70,7 +70,7 @@ describe("LangChainAgent", () => {
       ]);
     });
 
-    it("should pass context to underlying agent", async () => {
+    it("passes context to underlying agent", async () => {
       // Arrange
       mockAgent.invoke.mockResolvedValue({
         messages: [new AIMessage({ content: "Answer" })],
@@ -87,7 +87,7 @@ describe("LangChainAgent", () => {
       expect(passedConfig.context.userId).toBe("user-123");
     });
 
-    it("should forward runName to underlying agent when provided", async () => {
+    it("forwards runName to underlying agent when provided", async () => {
       // Arrange
       const namedAgent = new LangChainAgent(
         mockAgent as unknown as ReactAgent,
@@ -108,7 +108,7 @@ describe("LangChainAgent", () => {
       expect(passedConfig.runName).toBe("my-agent");
     });
 
-    it("should not include runName in forwarded config when not provided", async () => {
+    it("does not include runName in forwarded config when not provided", async () => {
       // Arrange
       mockAgent.invoke.mockResolvedValue({
         messages: [new AIMessage({ content: "Answer" })],
@@ -125,7 +125,7 @@ describe("LangChainAgent", () => {
       expect(passedConfig).not.toHaveProperty("runName");
     });
 
-    it("should build agentTrace TEXT entry from LLM callback", async () => {
+    it("builds agentTrace TEXT entry from LLM callback", async () => {
       // Arrange
       mockAgent.invoke.mockImplementation(async (_state, options) => {
         const { callbacks } = options as { callbacks: CallbackManager };
@@ -151,7 +151,7 @@ describe("LangChainAgent", () => {
       ]);
     });
 
-    it("should build agentTrace TOOL_RESULT entry from tool callback", async () => {
+    it("builds agentTrace TOOL_RESULT entry from tool callback", async () => {
       // Arrange
       mockAgent.invoke.mockImplementation(async (_state, options) => {
         const { callbacks } = options as { callbacks: CallbackManager };
@@ -181,7 +181,7 @@ describe("LangChainAgent", () => {
       ]);
     });
 
-    it("should build toolExecutions entry from tool callbacks", async () => {
+    it("builds toolExecutions entry from tool callbacks", async () => {
       // Arrange
       mockAgent.invoke.mockImplementation(async (_state, options) => {
         const { callbacks } = options as { callbacks: CallbackManager };
@@ -212,7 +212,7 @@ describe("LangChainAgent", () => {
       ]);
     });
 
-    it("should use 'Unknown arguments' in toolExecutions when handleToolStart was not fired", async () => {
+    it("uses 'Unknown arguments' in toolExecutions when handleToolStart was not fired", async () => {
       // Arrange
       mockAgent.invoke.mockImplementation(async (_state, options) => {
         const { callbacks } = options as { callbacks: CallbackManager };
@@ -240,7 +240,7 @@ describe("LangChainAgent", () => {
       ]);
     });
 
-    it("should build separate toolExecutions entries for multiple tool calls", async () => {
+    it("builds separate toolExecutions entries for multiple tool calls", async () => {
       // Arrange
       mockAgent.invoke.mockImplementation(async (_state, options) => {
         const { callbacks } = options as { callbacks: CallbackManager };
@@ -286,7 +286,7 @@ describe("LangChainAgent", () => {
 
     // Dependency failures
 
-    it("should propagate error from underlying agent", async () => {
+    it("propagates error from underlying agent", async () => {
       // Arrange
       mockAgent.invoke.mockRejectedValue(new Error("Agent error"));
 

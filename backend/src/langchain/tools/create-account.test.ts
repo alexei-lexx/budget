@@ -15,7 +15,7 @@ describe("createCreateAccountTool", () => {
     mockAccountService = createMockAccountService();
   });
 
-  it("should return tool with correct name", () => {
+  it("returns tool with correct name", () => {
     // Act
     const createTool = createCreateAccountTool({
       accountService: mockAccountService,
@@ -27,7 +27,7 @@ describe("createCreateAccountTool", () => {
 
   // Happy path
 
-  it("should create the account and default initialBalance to 0 when omitted", async () => {
+  it("creates account and defaults initialBalance to 0 when omitted", async () => {
     // Arrange
     const created = fakeAccount({
       name: "Savings",
@@ -67,7 +67,7 @@ describe("createCreateAccountTool", () => {
     });
   });
 
-  it("should pass initialBalance through when provided", async () => {
+  it("passes initialBalance through when provided", async () => {
     // Arrange
     const created = fakeAccount({ initialBalance: 500 });
 
@@ -97,7 +97,7 @@ describe("createCreateAccountTool", () => {
 
   // Validation failures
 
-  it("should throw when userId in context is not a valid UUID", async () => {
+  it("throws when userId in context is not valid UUID", async () => {
     // Arrange
     const createTool = createCreateAccountTool({
       accountService: mockAccountService,
@@ -118,7 +118,7 @@ describe("createCreateAccountTool", () => {
 
   // Dependency failures
 
-  it("should propagate BusinessError from the service unchanged", async () => {
+  it("propagates BusinessError from service unchanged", async () => {
     // Arrange
     const error = new BusinessError('Account "Savings" already exists');
 

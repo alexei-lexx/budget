@@ -16,7 +16,7 @@ describe("createCreateCategoryTool", () => {
     mockCategoryService = createMockCategoryService();
   });
 
-  it("should return tool with correct name", () => {
+  it("returns tool with correct name", () => {
     // Act
     const createTool = createCreateCategoryTool({
       categoryService: mockCategoryService,
@@ -28,7 +28,7 @@ describe("createCreateCategoryTool", () => {
 
   // Happy path
 
-  it("should create category and return it", async () => {
+  it("creates category and returns it", async () => {
     // Arrange
     const created = fakeCategory();
 
@@ -61,7 +61,7 @@ describe("createCreateCategoryTool", () => {
     });
   });
 
-  it("should pass excludeFromReports true to service", async () => {
+  it("passes excludeFromReports true to service", async () => {
     // Arrange
     const created = fakeCategory();
 
@@ -97,7 +97,7 @@ describe("createCreateCategoryTool", () => {
 
   // Validation failures
 
-  it("should throw when userId in context is not a valid UUID", async () => {
+  it("throws when userId in context is not valid UUID", async () => {
     // Arrange
     const createTool = createCreateCategoryTool({
       categoryService: mockCategoryService,
@@ -118,7 +118,7 @@ describe("createCreateCategoryTool", () => {
 
   // Dependency failures
 
-  it("should propagate BusinessError from the service unchanged", async () => {
+  it("propagates BusinessError from service unchanged", async () => {
     // Arrange
     const error = new BusinessError('Category "Groceries" already exists');
 

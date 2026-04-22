@@ -26,7 +26,7 @@ describe("CategoryService", () => {
   });
 
   describe("getCategoriesByUser", () => {
-    it("should call findManyByUserId without type filter when no type provided", async () => {
+    it("calls findManyByUserId without type filter when no type provided", async () => {
       // Arrange
       const mockCategories = [fakeCategory(), fakeCategory()];
       mockCategoryRepository.findManyByUserId.mockResolvedValue(mockCategories);
@@ -43,7 +43,7 @@ describe("CategoryService", () => {
       expect(result).toEqual(mockCategories);
     });
 
-    it("should call findManyByUserId with type filter when type provided", async () => {
+    it("calls findManyByUserId with type filter when type provided", async () => {
       // Arrange
       const type = CategoryType.INCOME;
       const mockCategories = [fakeCategory(), fakeCategory()];
@@ -63,7 +63,7 @@ describe("CategoryService", () => {
   });
 
   describe("createCategory", () => {
-    it("should create a new category", async () => {
+    it("creates new category", async () => {
       // Arrange
       const input = fakeCreateCategoryInput();
       const createdCategory = fakeCategory();
@@ -77,7 +77,7 @@ describe("CategoryService", () => {
       expect(mockCategoryRepository.create).toHaveBeenCalledWith(input);
     });
 
-    it("should trim name", async () => {
+    it("trims name", async () => {
       // Arrange
       const input = fakeCreateCategoryInput({ name: "  Groceries  " });
 
@@ -92,7 +92,7 @@ describe("CategoryService", () => {
       );
     });
 
-    it("should throw error when name is empty string", async () => {
+    it("throws error when name is empty string", async () => {
       // Arrange
       const input = fakeCreateCategoryInput({ name: "" });
 
@@ -106,7 +106,7 @@ describe("CategoryService", () => {
       expect(mockCategoryRepository.create).not.toHaveBeenCalled();
     });
 
-    it("should throw error when name is only whitespace", async () => {
+    it("throws error when name is only whitespace", async () => {
       // Arrange
       const input = fakeCreateCategoryInput({ name: "   " });
 
@@ -120,7 +120,7 @@ describe("CategoryService", () => {
       expect(mockCategoryRepository.create).not.toHaveBeenCalled();
     });
 
-    it("should throw error when name exceeds maximum length", async () => {
+    it("throws error when name exceeds maximum length", async () => {
       // Arrange
       const input = fakeCreateCategoryInput({
         name: "a".repeat(NAME_MAX_LENGTH + 1),
@@ -136,7 +136,7 @@ describe("CategoryService", () => {
       expect(mockCategoryRepository.create).not.toHaveBeenCalled();
     });
 
-    it("should throw error when category name already exists", async () => {
+    it("throws error when category name already exists", async () => {
       // Arrange
       mockCategoryRepository.findManyByUserId.mockResolvedValue([
         fakeCategory({
@@ -161,7 +161,7 @@ describe("CategoryService", () => {
   });
 
   describe("updateCategory", () => {
-    it("should update a category", async () => {
+    it("updates category", async () => {
       // Arrange
       const categoryId = faker.string.uuid();
       const input = { name: "Updated Category Name" };
@@ -179,7 +179,7 @@ describe("CategoryService", () => {
       );
     });
 
-    it("should trim name", async () => {
+    it("trims name", async () => {
       // Arrange
       const categoryId = faker.string.uuid();
 
@@ -195,7 +195,7 @@ describe("CategoryService", () => {
       );
     });
 
-    it("should throw error when name is empty string", async () => {
+    it("throws error when name is empty string", async () => {
       // Arrange
       const categoryId = faker.string.uuid();
       const input = { name: "" };
@@ -210,7 +210,7 @@ describe("CategoryService", () => {
       expect(mockCategoryRepository.update).not.toHaveBeenCalled();
     });
 
-    it("should throw error when name is only whitespace", async () => {
+    it("throws error when name is only whitespace", async () => {
       // Arrange
       const categoryId = faker.string.uuid();
       const input = { name: "   " };
@@ -225,7 +225,7 @@ describe("CategoryService", () => {
       expect(mockCategoryRepository.update).not.toHaveBeenCalled();
     });
 
-    it("should throw error when name exceeds maximum length", async () => {
+    it("throws error when name exceeds maximum length", async () => {
       // Arrange
       const categoryId = faker.string.uuid();
       const input = { name: "a".repeat(NAME_MAX_LENGTH + 1) };
@@ -240,7 +240,7 @@ describe("CategoryService", () => {
       expect(mockCategoryRepository.update).not.toHaveBeenCalled();
     });
 
-    it("should throw error when updated name already exists", async () => {
+    it("throws error when updated name already exists", async () => {
       // Arrange
       const categoryId = faker.string.uuid();
       const currentCategory = fakeCategory({
@@ -268,7 +268,7 @@ describe("CategoryService", () => {
       expect(mockCategoryRepository.update).not.toHaveBeenCalled();
     });
 
-    it("should allow keeping same name when updating", async () => {
+    it("allows keeping same name when updating", async () => {
       // Arrange
       const categoryId = faker.string.uuid();
       const currentCategory = fakeCategory({
@@ -295,7 +295,7 @@ describe("CategoryService", () => {
   });
 
   describe("deleteCategory", () => {
-    it("should archive a category", async () => {
+    it("archives category", async () => {
       // Arrange
       const categoryId = faker.string.uuid();
       const archivedCategory = fakeCategory();
