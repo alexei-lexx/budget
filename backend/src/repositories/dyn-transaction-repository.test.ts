@@ -1154,7 +1154,7 @@ describe("DynTransactionRepository", () => {
       const userId = faker.string.uuid();
       const accountId = faker.string.uuid();
 
-      const transactions: Transaction[] = [
+      const transactions = [
         fakeTransaction({
           userId,
           accountId,
@@ -1232,9 +1232,9 @@ describe("DynTransactionRepository", () => {
       const userId = faker.string.uuid();
       const accountId = faker.string.uuid();
 
-      const createInputs: Transaction[] = [];
+      const transactions = [];
       for (let i = 1; i <= 3; i++) {
-        createInputs.push(
+        transactions.push(
           fakeTransaction({
             userId,
             accountId,
@@ -1243,7 +1243,7 @@ describe("DynTransactionRepository", () => {
         );
       }
 
-      await repository.createMany(createInputs);
+      await repository.createMany(transactions);
 
       // Act
       const result = await repository.findManyByDescription({
@@ -1261,7 +1261,7 @@ describe("DynTransactionRepository", () => {
       const userId = faker.string.uuid();
       const accountId = faker.string.uuid();
 
-      const createInputs: Transaction[] = [
+      const transactions = [
         fakeTransaction({
           userId,
           accountId,
@@ -1274,7 +1274,7 @@ describe("DynTransactionRepository", () => {
         }),
       ];
 
-      await repository.createMany(createInputs);
+      await repository.createMany(transactions);
 
       // Act
       const result = await repository.findManyByDescription({
@@ -1293,7 +1293,7 @@ describe("DynTransactionRepository", () => {
       const userId = faker.string.uuid();
       const accountId = faker.string.uuid();
 
-      const createInputs: Transaction[] = [
+      const transactions = [
         fakeTransaction({
           userId,
           accountId,
@@ -1306,10 +1306,10 @@ describe("DynTransactionRepository", () => {
         }),
       ];
 
-      await repository.createMany(createInputs);
+      await repository.createMany(transactions);
 
       // Archive one transaction
-      await repository.archive({ id: createInputs[0].id, userId });
+      await repository.archive({ id: transactions[0].id, userId });
 
       // Act
       const result = await repository.findManyByDescription({
@@ -1329,7 +1329,7 @@ describe("DynTransactionRepository", () => {
       const user2 = faker.string.uuid();
       const accountId = faker.string.uuid();
 
-      const createInputs: Transaction[] = [
+      const transactions = [
         fakeTransaction({
           userId: user1,
           accountId,
@@ -1342,7 +1342,7 @@ describe("DynTransactionRepository", () => {
         }),
       ];
 
-      await repository.createMany(createInputs);
+      await repository.createMany(transactions);
 
       // Act
       const user1Result = await repository.findManyByDescription({
@@ -1393,7 +1393,7 @@ describe("DynTransactionRepository", () => {
       const userId = faker.string.uuid();
       const accountId = faker.string.uuid();
 
-      const createInputs: Transaction[] = [
+      const transactions = [
         fakeTransaction({
           userId,
           accountId,
@@ -1401,7 +1401,7 @@ describe("DynTransactionRepository", () => {
         }),
       ];
 
-      await repository.createMany(createInputs);
+      await repository.createMany(transactions);
 
       // Act
       const result = await repository.findManyByDescription({
@@ -1477,7 +1477,7 @@ describe("DynTransactionRepository", () => {
       const userId = faker.string.uuid();
       const accountId = faker.string.uuid();
 
-      const createInputs: Transaction[] = [
+      const transactions = [
         fakeTransaction({
           userId,
           accountId,
@@ -1490,7 +1490,7 @@ describe("DynTransactionRepository", () => {
         }),
       ];
 
-      await repository.createMany(createInputs);
+      await repository.createMany(transactions);
 
       // Act
       const result = await repository.findManyByDescription({
@@ -1509,7 +1509,7 @@ describe("DynTransactionRepository", () => {
       const userId = faker.string.uuid();
       const accountId = faker.string.uuid();
 
-      const createInputs: Transaction[] = [
+      const transactions = [
         fakeTransaction({
           userId,
           accountId,
@@ -1522,7 +1522,7 @@ describe("DynTransactionRepository", () => {
         }),
       ];
 
-      await repository.createMany(createInputs);
+      await repository.createMany(transactions);
 
       // Act
       const result = await repository.findManyByDescription({
@@ -1986,7 +1986,7 @@ describe("DynTransactionRepository", () => {
     it("should update multiple transactions successfully", async () => {
       const userId = faker.string.uuid();
 
-      const createInputs: Transaction[] = [
+      const transactions = [
         fakeTransaction({
           userId,
           type: TransactionType.INCOME,
@@ -2005,7 +2005,7 @@ describe("DynTransactionRepository", () => {
         }),
       ];
 
-      await repository.createMany(createInputs);
+      await repository.createMany(transactions);
 
       const newAccountId1 = faker.string.uuid();
       const newCategoryId1 = faker.string.uuid();
@@ -2014,7 +2014,7 @@ describe("DynTransactionRepository", () => {
 
       const updates: { id: string; input: UpdateTransactionInput }[] = [
         {
-          id: createInputs[0].id,
+          id: transactions[0].id,
           input: {
             accountId: newAccountId1,
             categoryId: newCategoryId1,
@@ -2026,7 +2026,7 @@ describe("DynTransactionRepository", () => {
           },
         },
         {
-          id: createInputs[1].id,
+          id: transactions[1].id,
           input: {
             accountId: newAccountId2,
             categoryId: newCategoryId2,
@@ -2042,7 +2042,7 @@ describe("DynTransactionRepository", () => {
       await repository.updateMany(updates, userId);
 
       const stored1 = await repository.findOneById({
-        id: createInputs[0].id,
+        id: transactions[0].id,
         userId,
       });
 
@@ -2056,7 +2056,7 @@ describe("DynTransactionRepository", () => {
       expect(stored1?.description).toBe("New description 1");
 
       const stored2 = await repository.findOneById({
-        id: createInputs[1].id,
+        id: transactions[1].id,
         userId,
       });
 
@@ -2091,7 +2091,7 @@ describe("DynTransactionRepository", () => {
     it("should return empty array when no transactions have category", async () => {
       // Arrange
       const userId = faker.string.uuid();
-      const createInputs: Transaction[] = [
+      const transactions = [
         fakeTransaction({
           userId,
           categoryId: undefined,
@@ -2104,7 +2104,7 @@ describe("DynTransactionRepository", () => {
         }),
       ];
 
-      await repository.createMany(createInputs);
+      await repository.createMany(transactions);
 
       // Act
       const result = await repository.detectPatterns({
@@ -2127,7 +2127,7 @@ describe("DynTransactionRepository", () => {
       const account3 = faker.string.uuid();
       const category3 = faker.string.uuid();
 
-      const createInputs: Transaction[] = [
+      const transactions = [
         // Pattern 1: account1 + category1 (3 occurrences)
         fakeTransaction({
           userId,
@@ -2170,7 +2170,7 @@ describe("DynTransactionRepository", () => {
         }),
       ];
 
-      await repository.createMany(createInputs);
+      await repository.createMany(transactions);
 
       const result = await repository.detectPatterns({
         userId,
@@ -2196,7 +2196,7 @@ describe("DynTransactionRepository", () => {
 
     it("should return only top N patterns based on limit", async () => {
       const userId = faker.string.uuid();
-      const createInputs: Transaction[] = [];
+      const transactions = [];
 
       // Create account/category IDs as proper UUIDs
       const accountIds = Array.from({ length: 5 }, () => faker.string.uuid());
@@ -2205,7 +2205,7 @@ describe("DynTransactionRepository", () => {
       // Create 5 different patterns with different usage counts
       for (let i = 0; i < 5; i++) {
         for (let j = 0; j <= i; j++) {
-          createInputs.push(
+          transactions.push(
             fakeTransaction({
               userId,
               accountId: accountIds[i],
@@ -2216,7 +2216,7 @@ describe("DynTransactionRepository", () => {
         }
       }
 
-      await repository.createMany(createInputs);
+      await repository.createMany(transactions);
 
       const result = await repository.detectPatterns({
         userId,
@@ -2251,7 +2251,7 @@ describe("DynTransactionRepository", () => {
       const categoryB = "22222222-2222-4222-8222-222222222222";
       const categoryC = "33333333-3333-4333-8333-333333333333";
 
-      const createInputs: Transaction[] = [
+      const transactions = [
         // Pattern 1: accountB + categoryB (2 occurrences)
         fakeTransaction({
           userId,
@@ -2297,7 +2297,7 @@ describe("DynTransactionRepository", () => {
         }),
       ];
 
-      await repository.createMany(createInputs);
+      await repository.createMany(transactions);
 
       const result = await repository.detectPatterns({
         userId,
@@ -2330,7 +2330,7 @@ describe("DynTransactionRepository", () => {
       const categoryRefund = faker.string.uuid();
       const categoryTransfer = faker.string.uuid();
 
-      const createInputs: Transaction[] = [
+      const transactions = [
         // Income transactions
         fakeTransaction({
           userId,
@@ -2379,7 +2379,7 @@ describe("DynTransactionRepository", () => {
         }),
       ];
 
-      await repository.createMany(createInputs);
+      await repository.createMany(transactions);
 
       const incomeResult = await repository.detectPatterns({
         userId,
@@ -2430,7 +2430,7 @@ describe("DynTransactionRepository", () => {
       const account2 = faker.string.uuid();
       const category2 = faker.string.uuid();
 
-      const createInputs: Transaction[] = [
+      const transactions = [
         fakeTransaction({
           userId,
           accountId: account1,
@@ -2445,10 +2445,10 @@ describe("DynTransactionRepository", () => {
         }),
       ];
 
-      await repository.createMany(createInputs);
+      await repository.createMany(transactions);
 
       // Archive one transaction
-      await repository.archive({ id: createInputs[0].id, userId });
+      await repository.archive({ id: transactions[0].id, userId });
 
       const result = await repository.detectPatterns({
         userId,
@@ -2598,13 +2598,13 @@ describe("DynTransactionRepository", () => {
 
     it("should return only top N patterns based on limit parameter", async () => {
       const userId = faker.string.uuid();
-      const createInputs: Transaction[] = [];
+      const transactions = [];
       const accountIds = Array.from({ length: 5 }, () => faker.string.uuid());
       const categoryIds = Array.from({ length: 5 }, () => faker.string.uuid());
 
       // Create 5 different patterns
       for (let i = 0; i < 5; i++) {
-        createInputs.push(
+        transactions.push(
           fakeTransaction({
             userId,
             accountId: accountIds[i],
@@ -2614,7 +2614,7 @@ describe("DynTransactionRepository", () => {
         );
       }
 
-      await repository.createMany(createInputs);
+      await repository.createMany(transactions);
 
       // Act - Request only 2 patterns
       const result = await repository.detectPatterns({
@@ -2636,7 +2636,7 @@ describe("DynTransactionRepository", () => {
       const account2 = faker.string.uuid();
       const category2 = faker.string.uuid();
 
-      const createInputsUser1: Transaction[] = [
+      const user1Transactions: Transaction[] = [
         fakeTransaction({
           userId: user1,
           accountId: account1,
@@ -2644,7 +2644,7 @@ describe("DynTransactionRepository", () => {
           type: TransactionType.INCOME,
         }),
       ];
-      const createInputsUser2: Transaction[] = [
+      const user2Transactions: Transaction[] = [
         fakeTransaction({
           userId: user2,
           accountId: account2,
@@ -2653,7 +2653,7 @@ describe("DynTransactionRepository", () => {
         }),
       ];
 
-      await repository.createMany([...createInputsUser1, ...createInputsUser2]);
+      await repository.createMany([...user1Transactions, ...user2Transactions]);
 
       const user1Result = await repository.detectPatterns({
         userId: user1,
