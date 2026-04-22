@@ -41,8 +41,10 @@ describe("DynTransactionRepository", () => {
       const userId = faker.string.uuid();
 
       // Active transactions for the user
-      const active1 = await repository.create(fakeTransaction({ userId }));
-      const active2 = await repository.create(fakeTransaction({ userId }));
+      const active1 = fakeTransaction({ userId });
+      await repository.create(active1);
+      const active2 = fakeTransaction({ userId });
+      await repository.create(active2);
 
       // Archived transaction for the user
       const archived = fakeTransaction({ userId });
@@ -79,12 +81,10 @@ describe("DynTransactionRepository", () => {
         const userId = faker.string.uuid();
 
         // Transactions for the user
-        const transaction1 = await repository.create(
-          fakeTransaction({ userId }),
-        );
-        const transaction2 = await repository.create(
-          fakeTransaction({ userId }),
-        );
+        const transaction1 = fakeTransaction({ userId });
+        await repository.create(transaction1);
+        const transaction2 = fakeTransaction({ userId });
+        await repository.create(transaction2);
 
         // Transaction for another user
         await repository.create(
@@ -1545,11 +1545,9 @@ describe("DynTransactionRepository", () => {
       const transaction = fakeTransaction();
 
       // Act
-      const result = await repository.create(transaction);
+      await repository.create(transaction);
 
       // Assert
-      expect(result).toEqual(transaction);
-
       const stored = await repository.findOneById({
         id: transaction.id,
         userId: transaction.userId,
@@ -1566,11 +1564,9 @@ describe("DynTransactionRepository", () => {
       });
 
       // Act
-      const result = await repository.create(transaction);
+      await repository.create(transaction);
 
       // Assert
-      expect(result).toEqual(transaction);
-
       const stored = await repository.findOneById({
         id: transaction.id,
         userId: transaction.userId,

@@ -824,8 +824,7 @@ describe("TransactionService", () => {
       // Arrange
       const account = fakeAccount({ userId });
       const category = fakeCategory({ userId, type: CategoryType.EXPENSE });
-      const builtTransaction = fakeTransaction();
-      const persistedTransaction = fakeTransaction();
+      const createdTransaction = fakeTransaction();
       const input = fakeCreateTransactionServiceInput({
         accountId: account.id,
         categoryId: category.id,
@@ -837,15 +836,15 @@ describe("TransactionService", () => {
       // Returns category owned by user
       mockCategoryRepository.findOneById.mockResolvedValue(category);
       // Returns built transaction
-      mockCreateTransactionModel.mockReturnValue(builtTransaction);
-      // Returns persisted transaction
+      mockCreateTransactionModel.mockReturnValue(createdTransaction);
+      // Persists transaction
       mockTransactionRepository.create.mockResolvedValue();
 
       // Act
       const result = await service.createTransaction(input, userId);
 
       // Assert
-      expect(result).toBe(persistedTransaction);
+      expect(result).toBe(createdTransaction);
       expect(mockCreateTransactionModel).toHaveBeenCalledTimes(1);
       expect(mockCreateTransactionModel).toHaveBeenCalledWith({
         ...input,
@@ -855,7 +854,7 @@ describe("TransactionService", () => {
       });
       expect(mockTransactionRepository.create).toHaveBeenCalledTimes(1);
       expect(mockTransactionRepository.create).toHaveBeenCalledWith(
-        builtTransaction,
+        createdTransaction,
       );
     });
 
