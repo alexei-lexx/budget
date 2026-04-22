@@ -458,7 +458,7 @@ export class DynTransactionRepository
     }
   }
 
-  async createEntity(transaction: Transaction): Promise<Transaction> {
+  async create(transaction: Transaction): Promise<Transaction> {
     try {
       const dbItem: TransactionDbItem = {
         ...transaction,
@@ -484,33 +484,6 @@ export class DynTransactionRepository
         );
       }
 
-      console.error("Error creating transaction:", error);
-      throw new RepositoryError(
-        "Failed to create transaction",
-        "CREATE_FAILED",
-        error,
-      );
-    }
-  }
-
-  async create(input: CreateTransactionInput): Promise<Transaction> {
-    const now = new Date().toISOString();
-    const transaction = this.buildTransaction(input, now);
-
-    try {
-      const dbItem = {
-        ...transaction,
-        createdAtSortable: buildCreatedAtSortable(transaction),
-      };
-
-      const command = new PutCommand({
-        TableName: this.tableName,
-        Item: dbItem,
-      });
-
-      await this.client.send(command);
-      return transaction;
-    } catch (error) {
       console.error("Error creating transaction:", error);
       throw new RepositoryError(
         "Failed to create transaction",

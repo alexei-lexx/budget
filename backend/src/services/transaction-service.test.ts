@@ -839,9 +839,7 @@ describe("TransactionService", () => {
       // Returns built transaction
       mockCreateTransactionModel.mockReturnValue(builtTransaction);
       // Returns persisted transaction
-      mockTransactionRepository.createEntity.mockResolvedValue(
-        persistedTransaction,
-      );
+      mockTransactionRepository.create.mockResolvedValue(persistedTransaction);
 
       // Act
       const result = await service.createTransaction(input, userId);
@@ -855,8 +853,8 @@ describe("TransactionService", () => {
         account,
         category,
       });
-      expect(mockTransactionRepository.createEntity).toHaveBeenCalledTimes(1);
-      expect(mockTransactionRepository.createEntity).toHaveBeenCalledWith(
+      expect(mockTransactionRepository.create).toHaveBeenCalledTimes(1);
+      expect(mockTransactionRepository.create).toHaveBeenCalledWith(
         builtTransaction,
       );
     });
@@ -904,7 +902,7 @@ describe("TransactionService", () => {
         message: "Account not found or doesn't belong to user",
       });
       expect(mockCreateTransactionModel).not.toHaveBeenCalled();
-      expect(mockTransactionRepository.createEntity).not.toHaveBeenCalled();
+      expect(mockTransactionRepository.create).not.toHaveBeenCalled();
     });
 
     it("should throw BusinessError when category is not found", async () => {
@@ -930,7 +928,7 @@ describe("TransactionService", () => {
         userId,
       });
       expect(mockCreateTransactionModel).not.toHaveBeenCalled();
-      expect(mockTransactionRepository.createEntity).not.toHaveBeenCalled();
+      expect(mockTransactionRepository.create).not.toHaveBeenCalled();
     });
 
     it("should propagate factory errors without persisting", async () => {
@@ -954,7 +952,7 @@ describe("TransactionService", () => {
       await expect(promise).rejects.toMatchObject({
         message: "Invalid transaction data",
       });
-      expect(mockTransactionRepository.createEntity).not.toHaveBeenCalled();
+      expect(mockTransactionRepository.create).not.toHaveBeenCalled();
     });
   });
 
