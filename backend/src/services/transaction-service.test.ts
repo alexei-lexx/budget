@@ -6,13 +6,11 @@ import {
   TransactionPatternType,
   TransactionType,
   createTransactionModel,
+  updateTransactionModel,
 } from "../models/transaction";
 import { toDateString } from "../types/date";
 import { MAX_PAGE_SIZE, MIN_PAGE_SIZE } from "../types/pagination";
-import {
-  DESCRIPTION_MAX_LENGTH,
-  MIN_SEARCH_TEXT_LENGTH,
-} from "../types/validation";
+import { MIN_SEARCH_TEXT_LENGTH } from "../types/validation";
 import { fakeAccount } from "../utils/test-utils/models/account-fakes";
 import { fakeCategory } from "../utils/test-utils/models/category-fakes";
 import {
@@ -44,18 +42,23 @@ describe("TransactionService", () => {
   let mockCreateTransactionModel: jest.MockedFunction<
     typeof createTransactionModel
   >;
+  let mockUpdateTransactionModel: jest.MockedFunction<
+    typeof updateTransactionModel
+  >;
 
   beforeEach(() => {
     mockTransactionRepository = createMockTransactionRepository();
     mockAccountRepository = createMockAccountRepository();
     mockCategoryRepository = createMockCategoryRepository();
     mockCreateTransactionModel = jest.fn<typeof createTransactionModel>();
+    mockUpdateTransactionModel = jest.fn<typeof updateTransactionModel>();
 
     service = new TransactionServiceImpl({
       accountRepository: mockAccountRepository,
       categoryRepository: mockCategoryRepository,
       transactionRepository: mockTransactionRepository,
       createTransactionModel: mockCreateTransactionModel,
+      updateTransactionModel: mockUpdateTransactionModel,
     });
     userId = faker.string.uuid();
 
@@ -956,48 +959,150 @@ describe("TransactionService", () => {
   });
 
   describe("updateTransaction", () => {
-    describe("validation", () => {
-      let transactionId: string;
+    // Happy path
 
-      beforeEach(() => {
-        const transaction = fakeTransaction({ userId });
-        transactionId = transaction.id;
-
-        mockTransactionRepository.findOneById.mockResolvedValue(transaction);
+    it("should return updated transaction", async () => {
+      // Arrange
+      const existing = fakeTransaction({ userId });
+      const account = fakeAccount({ userId });
+      const category = fakeCategory({ userId, type: CategoryType.EXPENSE });
+      const updatedTransaction = fakeTransaction({
+        id: existing.id,
+        userId,
       });
 
-      it("should throw for amount of zero", async () => {
-        const promise = service.updateTransaction(transactionId, userId, {
-          amount: 0,
-        });
+      // Returns existing transaction
+      mockTransactionRepository.findOneById.mockResolvedValue(existing);
+      // Returns new account owned by user
+      mockAccountRepository.findOneById.mockResolvedValue(account);
+      // Returns new category owned by user
+      mockCategoryRepository.findOneById.mockResolvedValue(category);
+      // Returns built updated transaction
+      mockUpdateTransactionModel.mockReturnValue(updatedTransaction);
 
-        await expect(promise).rejects.toThrow(BusinessError);
-        await expect(promise).rejects.toMatchObject({
-          message: "Transaction amount must be positive",
-        });
+      // Act
+      const result = await service.updateTransaction(existing.id, userId, {
+        accountId: account.id,
+        categoryId: category.id,
+        amount: 200,
       });
 
-      it("should throw for negative amount", async () => {
-        const promise = service.updateTransaction(transactionId, userId, {
-          amount: -50,
-        });
+      // Assert
+      expect(result).toBe(updatedTransaction);
+      expect(mockUpdateTransactionModel).toHaveBeenCalledWith(existing, {
+        account,
+        category,
+        type: undefined,
+        amount: 200,
+        date: undefined,
+        description: undefined,
+      });
+      expect(mockTransactionRepository.update).toHaveBeenCalledWith(
+        updatedTransaction,
+      );
+    });
 
-        await expect(promise).rejects.toThrow(BusinessError);
-        await expect(promise).rejects.toMatchObject({
-          message: "Transaction amount must be positive",
-        });
+    it("should skip account lookup when accountId is omitted", async () => {
+      // Arrange
+      const existing = fakeTransaction({ userId });
+      // Returns existing transaction
+      mockTransactionRepository.findOneById.mockResolvedValue(existing);
+      // Returns built updated transaction
+      mockUpdateTransactionModel.mockReturnValue(existing);
+
+      // Act
+      await service.updateTransaction(existing.id, userId, { amount: 5 });
+
+      // Assert
+      expect(mockAccountRepository.findOneById).not.toHaveBeenCalled();
+      expect(mockUpdateTransactionModel).toHaveBeenCalledWith(
+        existing,
+        expect.objectContaining({ account: undefined }),
+      );
+    });
+
+    it("should clear category when categoryId is null", async () => {
+      // Arrange
+      const existing = fakeTransaction({ userId });
+      // Returns existing transaction
+      mockTransactionRepository.findOneById.mockResolvedValue(existing);
+      // Returns built updated transaction
+      mockUpdateTransactionModel.mockReturnValue(existing);
+
+      // Act
+      await service.updateTransaction(existing.id, userId, {
+        categoryId: null,
       });
 
-      it("should throw for description exceeding maximum length", async () => {
-        const promise = service.updateTransaction(transactionId, userId, {
-          description: "x".repeat(DESCRIPTION_MAX_LENGTH + 1),
-        });
+      // Assert
+      expect(mockCategoryRepository.findOneById).not.toHaveBeenCalled();
+      expect(mockUpdateTransactionModel).toHaveBeenCalledWith(
+        existing,
+        expect.objectContaining({ category: null }),
+      );
+    });
 
-        await expect(promise).rejects.toThrow(BusinessError);
-        await expect(promise).rejects.toMatchObject({
-          message: `Description cannot exceed ${DESCRIPTION_MAX_LENGTH} characters`,
-        });
+    // Validation failures
+
+    it("should throw when transaction not found", async () => {
+      // Arrange
+      // Returns no transaction
+      mockTransactionRepository.findOneById.mockResolvedValue(null);
+
+      // Act
+      const promise = service.updateTransaction("id", userId, { amount: 1 });
+
+      // Assert
+      await expect(promise).rejects.toThrow(BusinessError);
+      await expect(promise).rejects.toMatchObject({
+        message: "Transaction not found or doesn't belong to user",
       });
+      expect(mockUpdateTransactionModel).not.toHaveBeenCalled();
+      expect(mockTransactionRepository.update).not.toHaveBeenCalled();
+    });
+
+    it("should throw when account not found", async () => {
+      // Arrange
+      const existing = fakeTransaction({ userId });
+      // Returns existing transaction
+      mockTransactionRepository.findOneById.mockResolvedValue(existing);
+      // Returns no account
+      mockAccountRepository.findOneById.mockResolvedValue(null);
+
+      // Act
+      const promise = service.updateTransaction(existing.id, userId, {
+        accountId: "missing",
+      });
+
+      // Assert
+      await expect(promise).rejects.toThrow(BusinessError);
+      await expect(promise).rejects.toMatchObject({
+        message: "Account not found or doesn't belong to user",
+      });
+      expect(mockUpdateTransactionModel).not.toHaveBeenCalled();
+      expect(mockTransactionRepository.update).not.toHaveBeenCalled();
+    });
+
+    // Dependency failures
+
+    it("should propagate ModelError without persisting", async () => {
+      // Arrange
+      const existing = fakeTransaction({ userId });
+      // Returns existing transaction
+      mockTransactionRepository.findOneById.mockResolvedValue(existing);
+      // Model rejects input
+      mockUpdateTransactionModel.mockImplementation(() => {
+        throw new ModelError("Transaction amount must be positive");
+      });
+
+      // Act
+      const promise = service.updateTransaction(existing.id, userId, {
+        amount: -1,
+      });
+
+      // Assert
+      await expect(promise).rejects.toThrow(ModelError);
+      expect(mockTransactionRepository.update).not.toHaveBeenCalled();
     });
   });
 });

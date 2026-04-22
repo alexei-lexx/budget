@@ -4,11 +4,11 @@ import {
   Transaction,
   TransactionType,
   createTransactionModel as defaultCreateTransactionModel,
+  updateTransactionModel as defaultUpdateTransactionModel,
 } from "../models/transaction";
 import { AccountRepository } from "../ports/account-repository";
 import { TransactionRepository } from "../ports/transaction-repository";
 import { DateString } from "../types/date";
-import { DESCRIPTION_MAX_LENGTH } from "../types/validation";
 import { BusinessError } from "./business-error";
 
 /**
@@ -50,19 +50,23 @@ export class TransferService {
   private accountRepository: AccountRepository;
   private transactionRepository: TransactionRepository;
   private createTransactionModel: typeof defaultCreateTransactionModel;
+  private updateTransactionModel: typeof defaultUpdateTransactionModel;
 
   constructor({
     accountRepository,
     transactionRepository,
     createTransactionModel = defaultCreateTransactionModel,
+    updateTransactionModel = defaultUpdateTransactionModel,
   }: {
     accountRepository: AccountRepository;
     transactionRepository: TransactionRepository;
     createTransactionModel?: typeof defaultCreateTransactionModel;
+    updateTransactionModel?: typeof defaultUpdateTransactionModel;
   }) {
     this.accountRepository = accountRepository;
     this.transactionRepository = transactionRepository;
     this.createTransactionModel = createTransactionModel;
+    this.updateTransactionModel = updateTransactionModel;
   }
 
   /**
@@ -206,12 +210,6 @@ export class TransferService {
     userId: string,
     input: UpdateTransferServiceInput,
   ): Promise<TransferResult> {
-    // Validate input parameters before any DB calls
-    if (input.amount !== undefined) {
-      this.validateAmount(input.amount);
-    }
-    this.validateDescription(input.description);
-
     // Find and validate the existing transfer
     const existingTransfer = await this.fetchValidatedTransfer(
       transferId,
@@ -224,18 +222,8 @@ export class TransferService {
 
     const { outboundTransaction, inboundTransaction } = existingTransfer;
 
-    // Merge input with existing values for partial updates
     const fromAccountId = input.fromAccountId ?? outboundTransaction.accountId;
     const toAccountId = input.toAccountId ?? inboundTransaction.accountId;
-    const amount = input.amount ?? outboundTransaction.amount;
-    const date = input.date ?? outboundTransaction.date;
-    // Note: Can't use ?? for description because we need to distinguish:
-    // - undefined = "field not provided" (keep existing value)
-    // - null = "field explicitly set to null" (clear the description)
-    const description =
-      input.description !== undefined
-        ? input.description
-        : outboundTransaction.description;
 
     // Validate not transferring to the same account (fail fast before DB calls)
     this.validateNotSelfTransfer(fromAccountId, toAccountId);
@@ -247,34 +235,28 @@ export class TransferService {
     // Validate accounts have the same currency
     this.validateCurrencyMatch(fromAccount, toAccount);
 
+    const sharedUpdate = {
+      amount: input.amount,
+      date: input.date,
+      description: input.description,
+    };
+
+    const updatedOutbound = this.updateTransactionModel(outboundTransaction, {
+      ...sharedUpdate,
+      account: input.fromAccountId ? fromAccount : undefined,
+    });
+
+    const updatedInbound = this.updateTransactionModel(inboundTransaction, {
+      ...sharedUpdate,
+      account: input.toAccountId ? toAccount : undefined,
+    });
+
     try {
       // Update both transactions atomically using the new updateMany method
-      const updates = [
-        {
-          id: outboundTransaction.id,
-          input: {
-            accountId: fromAccountId,
-            amount: amount,
-            currency: fromAccount.currency,
-            date: date,
-            description: description || undefined, // Convert null to undefined for repository layer
-            // Note: transferId is intentionally not included as it cannot be changed
-          },
-        },
-        {
-          id: inboundTransaction.id,
-          input: {
-            accountId: toAccountId,
-            amount: amount,
-            currency: toAccount.currency, // Should be same as fromAccount.currency due to validation
-            date: date,
-            description: description || undefined,
-            // Note: transferId is intentionally not included as it cannot be changed
-          },
-        },
-      ];
-
-      await this.transactionRepository.updateMany(updates, userId);
+      await this.transactionRepository.updateMany([
+        updatedOutbound,
+        updatedInbound,
+      ]);
 
       // Fetch and return the updated transfer
       const updatedTransfer = await this.fetchValidatedTransfer(
@@ -293,9 +275,9 @@ export class TransferService {
       // Log the error for debugging and monitoring
       console.error("Transfer update failed:", {
         transferId,
-        fromAccountId: fromAccountId,
-        toAccountId: toAccountId,
-        amount: amount,
+        fromAccountId,
+        toAccountId,
+        amount: input.amount,
         error,
       });
 
@@ -346,19 +328,6 @@ export class TransferService {
   }
 
   /**
-   * Validate that the description does not exceed the maximum allowed length
-   * @param description - The description to validate (null/undefined are allowed)
-   * @throws BusinessError if description exceeds maximum length
-   */
-  private validateDescription(description?: string | null): void {
-    if (description && description.length > DESCRIPTION_MAX_LENGTH) {
-      throw new BusinessError(
-        `Description cannot exceed ${DESCRIPTION_MAX_LENGTH} characters`,
-      );
-    }
-  }
-
-  /**
    * Validate that an account exists and belongs to the user
    * @param accountId - The account ID to validate
    * @param userId - The user ID to check ownership
@@ -379,17 +348,6 @@ export class TransferService {
     }
 
     return account;
-  }
-
-  /**
-   * Validate that the transfer amount is valid (positive)
-   * @param amount - The amount to validate
-   * @throws BusinessError if amount is not positive
-   */
-  private validateAmount(amount: number): void {
-    if (amount <= 0) {
-      throw new BusinessError("Transfer amount must be positive");
-    }
   }
 
   /**

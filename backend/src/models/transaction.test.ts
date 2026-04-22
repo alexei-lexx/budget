@@ -420,7 +420,7 @@ describe("transaction model", () => {
 
     // Happy path
 
-    it("should set amount and preserve the rest", () => {
+    it("should set amount", () => {
       // Arrange
       const existing = fakeTransaction({ amount: 10 });
 
@@ -573,11 +573,7 @@ describe("transaction model", () => {
       });
 
       // Act
-      const result = updateTransactionModel(
-        existing,
-        { amount: 1 },
-        fixedDeps,
-      );
+      const result = updateTransactionModel(existing, { amount: 1 }, fixedDeps);
 
       // Assert
       expect(result.id).toBe("id-1");

@@ -1,10 +1,14 @@
 import { faker } from "@faker-js/faker";
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
-import { TransactionType, createTransactionModel } from "../models/transaction";
+import { ModelError } from "../models/model-error";
+import {
+  TransactionType,
+  createTransactionModel,
+  updateTransactionModel,
+} from "../models/transaction";
 import { AccountRepository } from "../ports/account-repository";
 import { TransactionRepository } from "../ports/transaction-repository";
 import { toDateString } from "../types/date";
-import { DESCRIPTION_MAX_LENGTH } from "../types/validation";
 import { fakeAccount } from "../utils/test-utils/models/account-fakes";
 import { fakeTransaction } from "../utils/test-utils/models/transaction-fakes";
 import { createMockAccountRepository } from "../utils/test-utils/repositories/account-repository-mocks";
@@ -20,16 +24,21 @@ describe("TransferService", () => {
   let mockCreateTransactionModel: jest.MockedFunction<
     typeof createTransactionModel
   >;
+  let mockUpdateTransactionModel: jest.MockedFunction<
+    typeof updateTransactionModel
+  >;
 
   beforeEach(() => {
     mockAccountRepository = createMockAccountRepository();
     mockTransactionRepository = createMockTransactionRepository();
     mockCreateTransactionModel = jest.fn<typeof createTransactionModel>();
+    mockUpdateTransactionModel = jest.fn<typeof updateTransactionModel>();
 
     service = new TransferService({
       accountRepository: mockAccountRepository,
       transactionRepository: mockTransactionRepository,
       createTransactionModel: mockCreateTransactionModel,
+      updateTransactionModel: mockUpdateTransactionModel,
     });
 
     userId = faker.string.uuid();
@@ -216,7 +225,132 @@ describe("TransferService", () => {
   });
 
   describe("updateTransfer", () => {
+    // Happy path
+
     it("should update transfer and return result with updated transactions", async () => {
+      // Arrange
+      const transferId = faker.string.uuid();
+      const fromAccount = fakeAccount({ userId });
+      const toAccount = fakeAccount({ userId, currency: fromAccount.currency });
+      const outboundTransaction = fakeTransaction({
+        type: TransactionType.TRANSFER_OUT,
+        transferId,
+        accountId: fromAccount.id,
+      });
+      const inboundTransaction = fakeTransaction({
+        type: TransactionType.TRANSFER_IN,
+        transferId,
+        accountId: toAccount.id,
+      });
+      const updatedOutbound = fakeTransaction({
+        id: outboundTransaction.id,
+        type: TransactionType.TRANSFER_OUT,
+      });
+      const updatedInbound = fakeTransaction({
+        id: inboundTransaction.id,
+        type: TransactionType.TRANSFER_IN,
+      });
+
+      // Returns existing pair, then updated pair on refetch
+      mockTransactionRepository.findManyByTransferId
+        .mockResolvedValueOnce([outboundTransaction, inboundTransaction])
+        .mockResolvedValueOnce([updatedOutbound, updatedInbound]);
+      // Returns accounts owned by user
+      mockAccountRepository.findOneById
+        .mockResolvedValueOnce(fromAccount)
+        .mockResolvedValueOnce(toAccount);
+      // Returns updated transactions
+      mockUpdateTransactionModel
+        .mockReturnValueOnce(updatedOutbound)
+        .mockReturnValueOnce(updatedInbound);
+
+      // Act
+      const result = await service.updateTransfer(transferId, userId, {
+        amount: 200,
+      });
+
+      // Assert
+      expect(result).toEqual({
+        transferId,
+        outboundTransaction: updatedOutbound,
+        inboundTransaction: updatedInbound,
+      });
+      expect(mockUpdateTransactionModel).toHaveBeenNthCalledWith(
+        1,
+        outboundTransaction,
+        {
+          account: undefined,
+          amount: 200,
+          date: undefined,
+          description: undefined,
+        },
+      );
+      expect(mockUpdateTransactionModel).toHaveBeenNthCalledWith(
+        2,
+        inboundTransaction,
+        {
+          account: undefined,
+          amount: 200,
+          date: undefined,
+          description: undefined,
+        },
+      );
+      expect(mockTransactionRepository.updateMany).toHaveBeenCalledWith([
+        updatedOutbound,
+        updatedInbound,
+      ]);
+    });
+
+    it("should resolve new accounts when account ids change", async () => {
+      // Arrange
+      const transferId = faker.string.uuid();
+      const fromAccount = fakeAccount({ userId });
+      const toAccount = fakeAccount({ userId, currency: fromAccount.currency });
+      const outboundTransaction = fakeTransaction({
+        type: TransactionType.TRANSFER_OUT,
+        transferId,
+      });
+      const inboundTransaction = fakeTransaction({
+        type: TransactionType.TRANSFER_IN,
+        transferId,
+      });
+
+      // Returns existing pair on both lookups
+      mockTransactionRepository.findManyByTransferId
+        .mockResolvedValueOnce([outboundTransaction, inboundTransaction])
+        .mockResolvedValueOnce([outboundTransaction, inboundTransaction]);
+      // Returns accounts owned by user
+      mockAccountRepository.findOneById
+        .mockResolvedValueOnce(fromAccount)
+        .mockResolvedValueOnce(toAccount);
+      // Returns built updated sides
+      mockUpdateTransactionModel
+        .mockReturnValueOnce(outboundTransaction)
+        .mockReturnValueOnce(inboundTransaction);
+
+      // Act
+      await service.updateTransfer(transferId, userId, {
+        fromAccountId: fromAccount.id,
+        toAccountId: toAccount.id,
+      });
+
+      // Assert
+      expect(mockUpdateTransactionModel).toHaveBeenNthCalledWith(
+        1,
+        outboundTransaction,
+        expect.objectContaining({ account: fromAccount }),
+      );
+      expect(mockUpdateTransactionModel).toHaveBeenNthCalledWith(
+        2,
+        inboundTransaction,
+        expect.objectContaining({ account: toAccount }),
+      );
+    });
+
+    // Dependency failures
+
+    it("should propagate ModelError without persisting", async () => {
+      // Arrange
       const transferId = faker.string.uuid();
       const fromAccount = fakeAccount({ userId });
       const toAccount = fakeAccount({ userId, currency: fromAccount.currency });
@@ -231,34 +365,27 @@ describe("TransferService", () => {
         accountId: toAccount.id,
       });
 
-      mockTransactionRepository.findManyByTransferId
-        .mockResolvedValueOnce([outboundTransaction, inboundTransaction])
-        .mockResolvedValueOnce([outboundTransaction, inboundTransaction]);
+      // Returns existing pair
+      mockTransactionRepository.findManyByTransferId.mockResolvedValueOnce([
+        outboundTransaction,
+        inboundTransaction,
+      ]);
+      // Returns accounts owned by user
       mockAccountRepository.findOneById
         .mockResolvedValueOnce(fromAccount)
         .mockResolvedValueOnce(toAccount);
-
-      const result = await service.updateTransfer(transferId, userId, {
-        amount: 200,
+      // Model rejects input
+      mockUpdateTransactionModel.mockImplementation(() => {
+        throw new ModelError("Transaction amount must be positive");
       });
 
-      expect(result).toEqual({
-        transferId,
-        outboundTransaction,
-        inboundTransaction,
-      });
-    });
-
-    it("should reject description exceeding maximum length", async () => {
-      const promise = service.updateTransfer(faker.string.uuid(), userId, {
-        description: "a".repeat(DESCRIPTION_MAX_LENGTH + 1),
+      // Act
+      const promise = service.updateTransfer(transferId, userId, {
+        amount: -1,
       });
 
-      await expect(promise).rejects.toThrow(BusinessError);
-      await expect(promise).rejects.toMatchObject({
-        message: `Description cannot exceed ${DESCRIPTION_MAX_LENGTH} characters`,
-      });
-
+      // Assert
+      await expect(promise).rejects.toThrow(ModelError);
       expect(mockTransactionRepository.updateMany).not.toHaveBeenCalled();
     });
   });
