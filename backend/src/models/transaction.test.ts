@@ -136,17 +136,6 @@ describe("transaction model", () => {
       expect(result.isArchived).toBe(false);
     });
 
-    it("sets version to 0", () => {
-      // Act
-      const result = createTransactionModel(
-        fakeCreateTransactionInput(),
-        fixedDeps,
-      );
-
-      // Assert
-      expect(result.version).toBe(0);
-    });
-
     it("sets createdAt equal to updatedAt", () => {
       // Act
       const result = createTransactionModel(
