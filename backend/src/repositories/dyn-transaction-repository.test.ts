@@ -1807,7 +1807,7 @@ describe("DynTransactionRepository", () => {
       await repository.create(created);
 
       // Act
-      const updated: Transaction = {
+      const updated = await repository.update({
         ...created,
         accountId: faker.string.uuid(),
         categoryId: faker.string.uuid(),
@@ -1816,11 +1816,8 @@ describe("DynTransactionRepository", () => {
         currency: "EUR",
         date: toDateString("2024-02-01"),
         description: "Updated description",
-        version: created.version + 1,
         updatedAt: new Date().toISOString(),
-      };
-
-      await repository.update(updated);
+      });
 
       // Assert
       const stored = await repository.findOneById({
@@ -1828,6 +1825,24 @@ describe("DynTransactionRepository", () => {
         userId,
       });
       expect(stored).toEqual(updated);
+    });
+
+    it("increments version by 1", async () => {
+      // Arrange
+      const created = fakeTransaction();
+      await repository.create(created);
+
+      // Act
+      const updated = await repository.update({ ...created, amount: 50 });
+
+      // Assert
+      expect(updated.version).toBe(created.version + 1);
+
+      const stored = await repository.findOneById({
+        id: created.id,
+        userId: created.userId,
+      });
+      expect(stored?.version).toBe(updated.version);
     });
 
     it("removes optional fields when undefined on Transaction", async () => {
@@ -1841,14 +1856,12 @@ describe("DynTransactionRepository", () => {
       await repository.create(created);
 
       // Act
-      const updated: Transaction = {
+      await repository.update({
         ...created,
         description: undefined,
         categoryId: undefined,
-        version: created.version + 1,
         updatedAt: new Date().toISOString(),
-      };
-      await repository.update(updated);
+      });
 
       // Assert
       const stored = await repository.findOneById({
@@ -1877,7 +1890,6 @@ describe("DynTransactionRepository", () => {
       await repository.update({
         ...created,
         amount: 999,
-        version: created.version + 1,
         updatedAt: new Date().toISOString(),
       });
 
@@ -1894,12 +1906,13 @@ describe("DynTransactionRepository", () => {
     // Validation failures
 
     it("throws VersionConflictError when version is stale", async () => {
-      // Arrange — stored row at v1
-      const stored = fakeTransaction({ version: 1 });
-      await repository.create(stored);
+      // Arrange — row at v0, then bumped to v1 by a first update
+      const created = fakeTransaction({ version: 0 });
+      await repository.create(created);
+      await repository.update({ ...created, amount: 50 });
 
-      // Stale write assumes v0 is current, would bump to v1
-      const staleUpdate = { ...stored, amount: 99, version: 1 };
+      // Stale write expects v0 but disk is at v1
+      const staleUpdate = { ...created, amount: 99 };
 
       // Act & Assert
       await expect(repository.update(staleUpdate)).rejects.toThrow(
@@ -1951,23 +1964,42 @@ describe("DynTransactionRepository", () => {
       await repository.createMany(transactions);
 
       // Act
-      const updated = transactions.map((transaction) => ({
-        ...transaction,
-        amount: transaction.amount + 100,
-        description: "Updated",
-        version: transaction.version + 1,
-        updatedAt: new Date().toISOString(),
-      }));
-      await repository.updateMany(updated);
+      const updatedTransactions = await repository.updateMany(
+        transactions.map((transaction) => ({
+          ...transaction,
+          amount: transaction.amount + 100,
+          description: "Updated",
+          updatedAt: new Date().toISOString(),
+        })),
+      );
 
       // Assert
-      for (const updatedTransaction of updated) {
+      for (const updatedTransaction of updatedTransactions) {
         const stored = await repository.findOneById({
           id: updatedTransaction.id,
           userId,
         });
         expect(stored).toEqual(updatedTransaction);
       }
+    });
+
+    it("increments version by 1 on every transaction", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+      const transactions = [
+        fakeTransaction({ userId, version: 0 }),
+        fakeTransaction({ userId, version: 0 }),
+      ];
+      await repository.createMany(transactions);
+
+      // Act
+      const updated = await repository.updateMany(
+        transactions.map((transaction) => ({ ...transaction, amount: 50 })),
+      );
+
+      // Assert
+      expect(updated[0].version).toBe(1);
+      expect(updated[1].version).toBe(1);
     });
 
     // Validation failures
@@ -1990,9 +2022,9 @@ describe("DynTransactionRepository", () => {
       // Act & Assert
       await expect(
         repository.updateMany([
-          { ...transaction1, amount: 11, version: 2 },
+          { ...transaction1, amount: 11 },
           // transaction2 is stale because current version is 2, update assumes it's 1
-          { ...transaction2, amount: 22, version: 2 },
+          { ...transaction2, amount: 22, version: 1 },
         ]),
       ).rejects.toThrow(VersionConflictError);
 
@@ -2020,13 +2052,8 @@ describe("DynTransactionRepository", () => {
 
       // Act
       const promise = repository.updateMany([
-        {
-          ...existing,
-          amount: 999,
-          version: 1,
-          updatedAt: new Date().toISOString(),
-        },
-        { ...missing, version: 1 },
+        { ...existing, amount: 999, updatedAt: new Date().toISOString() },
+        missing,
       ]);
 
       // Assert

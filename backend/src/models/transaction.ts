@@ -140,7 +140,6 @@ export function updateTransactionModel(
     currency: account ? account.currency : transaction.currency,
     date: input.date ?? transaction.date,
     description: newDescription,
-    version: transaction.version + 1,
     updatedAt: now,
   };
 
@@ -164,7 +163,6 @@ export function archiveTransactionModel(
   return {
     ...transaction,
     isArchived: true,
-    version: transaction.version + 1,
     updatedAt: clock().toISOString(),
   };
 }

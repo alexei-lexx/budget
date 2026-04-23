@@ -553,7 +553,7 @@ export class DynTransactionRepository
         ReturnValuesOnConditionCheckFailure: "ALL_OLD",
       });
       await this.client.send(command);
-      return transaction;
+      return { ...transaction, version: transaction.version + 1 };
     } catch (error) {
       if (error instanceof ConditionalCheckFailedException) {
         // Persisted transaction has different version
@@ -602,7 +602,10 @@ export class DynTransactionRepository
       });
 
       await this.client.send(command);
-      return [...transactions];
+      return transactions.map((transaction) => ({
+        ...transaction,
+        version: transaction.version + 1,
+      }));
     } catch (error) {
       if (error instanceof TransactionCanceledException) {
         const reasons = error.CancellationReasons ?? [];
@@ -945,8 +948,8 @@ export class DynTransactionRepository
       ":currency": transaction.currency,
       ":date": transaction.date,
       ":isArchived": transaction.isArchived,
-      ":newVersion": transaction.version,
-      ":expectedOld": transaction.version - 1,
+      ":expectedVersion": transaction.version,
+      ":newVersion": transaction.version + 1,
       ":createdAt": transaction.createdAt,
       ":updatedAt": transaction.updatedAt,
     };
@@ -982,7 +985,7 @@ export class DynTransactionRepository
       Key: { userId: transaction.userId, id: transaction.id },
       UpdateExpression: updateExpressionParts.join(" "),
       ConditionExpression:
-        "attribute_exists(userId) AND attribute_exists(id) AND version = :expectedOld",
+        "attribute_exists(userId) AND attribute_exists(id) AND version = :expectedVersion",
       ExpressionAttributeNames: expressionAttributeNames,
       ExpressionAttributeValues: expressionAttributeValues,
     };

@@ -614,17 +614,6 @@ describe("transaction model", () => {
       expect(result.updatedAt).toBeDefined();
     });
 
-    it("increments version by 1", () => {
-      // Arrange
-      const existing = fakeTransaction({ version: 5 });
-
-      // Act
-      const result = updateTransactionModel(existing, { amount: 1 }, fixedDeps);
-
-      // Assert
-      expect(result.version).toBe(6);
-    });
-
     // Validation failures
 
     it("rejects updating archived transaction", () => {
@@ -836,17 +825,6 @@ describe("transaction model", () => {
 
       // Assert
       expect(result.updatedAt).toBeDefined();
-    });
-
-    it("increments version by 1", () => {
-      // Arrange
-      const existing = fakeTransaction({ version: 3 });
-
-      // Act
-      const result = archiveTransactionModel(existing, fixedDeps);
-
-      // Assert
-      expect(result.version).toBe(4);
     });
 
     // Validation failures
