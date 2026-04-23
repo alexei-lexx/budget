@@ -1,5 +1,7 @@
 # Transaction Versioning (OCC) Implementation Plan
 
+> **Stale — implementation has drifted.** The shipped code puts the version bump in the repository (not the model), and `update` / `updateMany` return the post-bump entity. Treat the source code as authoritative; use this plan only for historical context.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Add optimistic concurrency control to Transaction writes via a `version` attribute so concurrent updates and transfer-leg interleaving are detected and surfaced to the user.

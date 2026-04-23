@@ -1,5 +1,7 @@
 # Transaction Versioning (OCC) — Design
 
+> **Stale — implementation has drifted.** The shipped code puts the version bump in the repository (not the model), and `update` / `updateMany` return the post-bump entity. Treat the source code as authoritative; use this design only for historical context.
+
 ## Problem
 
 Transactions and transfers are mutated without conflict detection. Two failure modes exist today:
