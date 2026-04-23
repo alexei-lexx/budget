@@ -8,3 +8,10 @@ export class RepositoryError extends Error {
     this.name = "RepositoryError";
   }
 }
+
+export class VersionConflictError extends RepositoryError {
+  constructor(originalError?: unknown) {
+    super("Version conflict", "VERSION_CONFLICT", originalError);
+    this.name = "VersionConflictError";
+  }
+}

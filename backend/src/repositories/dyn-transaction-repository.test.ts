@@ -10,6 +10,7 @@ import {
   TransactionPatternType,
   TransactionType,
 } from "../models/transaction";
+import { VersionConflictError } from "../ports/repository-error";
 import { toDateString } from "../types/date";
 import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
 import { requireEnv } from "../utils/require-env";
@@ -1594,6 +1595,21 @@ describe("DynTransactionRepository", () => {
       );
     });
 
+    it("persists version = 0", async () => {
+      // Arrange
+      const transaction = fakeTransaction({ version: 0 });
+
+      // Act
+      await repository.create(transaction);
+
+      // Assert
+      const loaded = await repository.findOneById({
+        id: transaction.id,
+        userId: transaction.userId,
+      });
+      expect(loaded?.version).toBe(0);
+    });
+
     // Validation failures
 
     it("rejects when transaction with same ID already exists", async () => {
@@ -1712,6 +1728,26 @@ describe("DynTransactionRepository", () => {
       expect(result.edges[1].node.type).toBe(TransactionType.TRANSFER_OUT);
     });
 
+    it("persists version = 0 on every transaction", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+      const inputs = [
+        fakeTransaction({ userId, version: 0 }),
+        fakeTransaction({ userId, version: 0 }),
+      ];
+
+      // Act
+      await repository.createMany(inputs);
+
+      // Assert
+      const [loaded1, loaded2] = await Promise.all([
+        repository.findOneById({ id: inputs[0].id, userId }),
+        repository.findOneById({ id: inputs[1].id, userId }),
+      ]);
+      expect(loaded1?.version).toBe(0);
+      expect(loaded2?.version).toBe(0);
+    });
+
     // Validation failures
 
     it("throws for empty input", async () => {
@@ -1780,6 +1816,7 @@ describe("DynTransactionRepository", () => {
         currency: "EUR",
         date: toDateString("2024-02-01"),
         description: "Updated description",
+        version: created.version + 1,
         updatedAt: new Date().toISOString(),
       };
 
@@ -1808,6 +1845,7 @@ describe("DynTransactionRepository", () => {
         ...created,
         description: undefined,
         categoryId: undefined,
+        version: created.version + 1,
         updatedAt: new Date().toISOString(),
       };
       await repository.update(updated);
@@ -1821,7 +1859,53 @@ describe("DynTransactionRepository", () => {
       expect(stored?.categoryId).toBeUndefined();
     });
 
+    it("preserves createdAtSortable GSI sort key across updates", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+      const created = fakeTransaction({ userId });
+      await repository.create(created);
+
+      const client = createDynamoDBDocumentClient();
+      const { Item: before } = await client.send(
+        new GetCommand({
+          TableName: tableName,
+          Key: { userId, id: created.id },
+        }),
+      );
+
+      // Act
+      await repository.update({
+        ...created,
+        amount: 999,
+        version: created.version + 1,
+        updatedAt: new Date().toISOString(),
+      });
+
+      // Assert
+      const { Item: after } = await client.send(
+        new GetCommand({
+          TableName: tableName,
+          Key: { userId, id: created.id },
+        }),
+      );
+      expect(after?.createdAtSortable).toBe(before?.createdAtSortable);
+    });
+
     // Validation failures
+
+    it("throws VersionConflictError when version is stale", async () => {
+      // Arrange — stored row at v1
+      const stored = fakeTransaction({ version: 1 });
+      await repository.create(stored);
+
+      // Stale write assumes v0 is current, would bump to v1
+      const staleUpdate = { ...stored, amount: 99, version: 1 };
+
+      // Act & Assert
+      await expect(repository.update(staleUpdate)).rejects.toThrow(
+        VersionConflictError,
+      );
+    });
 
     it("throws NOT_FOUND when transaction does not exist", async () => {
       // Arrange
@@ -1852,37 +1936,6 @@ describe("DynTransactionRepository", () => {
       });
       expect(original).toEqual(created);
     });
-
-    it("preserves createdAtSortable GSI sort key across updates", async () => {
-      // Arrange
-      const userId = faker.string.uuid();
-      const created = fakeTransaction({ userId });
-      await repository.create(created);
-
-      const client = createDynamoDBDocumentClient();
-      const { Item: before } = await client.send(
-        new GetCommand({
-          TableName: tableName,
-          Key: { userId, id: created.id },
-        }),
-      );
-
-      // Act
-      await repository.update({
-        ...created,
-        amount: 999,
-        updatedAt: new Date().toISOString(),
-      });
-
-      // Assert
-      const { Item: after } = await client.send(
-        new GetCommand({
-          TableName: tableName,
-          Key: { userId, id: created.id },
-        }),
-      );
-      expect(after?.createdAtSortable).toBe(before?.createdAtSortable);
-    });
   });
 
   describe("updateMany", () => {
@@ -1902,6 +1955,7 @@ describe("DynTransactionRepository", () => {
         ...transaction,
         amount: transaction.amount + 100,
         description: "Updated",
+        version: transaction.version + 1,
         updatedAt: new Date().toISOString(),
       }));
       await repository.updateMany(updated);
@@ -1925,18 +1979,54 @@ describe("DynTransactionRepository", () => {
       );
     });
 
+    it("throws VersionConflictError when any transaction has stale version", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+      const transaction1 = fakeTransaction({ userId, version: 1 });
+      const transaction2 = fakeTransaction({ userId, version: 2 });
+      await repository.create(transaction1);
+      await repository.create(transaction2);
+
+      // Act & Assert
+      await expect(
+        repository.updateMany([
+          { ...transaction1, amount: 11, version: 2 },
+          // transaction2 is stale because current version is 2, update assumes it's 1
+          { ...transaction2, amount: 22, version: 2 },
+        ]),
+      ).rejects.toThrow(VersionConflictError);
+
+      // Atomicity — both transactions must remain at original version
+      const loaded1 = await repository.findOneById({
+        id: transaction1.id,
+        userId,
+      });
+      expect(loaded1?.version).toBe(1);
+
+      const loaded2 = await repository.findOneById({
+        id: transaction2.id,
+        userId,
+      });
+      expect(loaded2?.version).toBe(2);
+    });
+
     it("throws NOT_FOUND when any transaction does not exist", async () => {
       // Arrange
       const userId = faker.string.uuid();
-      const existing = fakeTransaction({ userId });
+      const existing = fakeTransaction({ userId, version: 0 });
       await repository.create(existing);
 
-      const missing = fakeTransaction({ userId });
+      const missing = fakeTransaction({ userId, version: 0 });
 
       // Act
       const promise = repository.updateMany([
-        { ...existing, amount: 999, updatedAt: new Date().toISOString() },
-        missing,
+        {
+          ...existing,
+          amount: 999,
+          version: 1,
+          updatedAt: new Date().toISOString(),
+        },
+        { ...missing, version: 1 },
       ]);
 
       // Assert

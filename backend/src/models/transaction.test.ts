@@ -57,6 +57,7 @@ describe("transaction model", () => {
         description: "lunch",
         transferId: undefined,
         isArchived: false,
+        version: 0,
         createdAt: "2000-01-02T10:11:12.000Z",
         updatedAt: "2000-01-02T10:11:12.000Z",
       });
@@ -133,6 +134,17 @@ describe("transaction model", () => {
 
       // Assert
       expect(result.isArchived).toBe(false);
+    });
+
+    it("sets version to 0", () => {
+      // Act
+      const result = createTransactionModel(
+        fakeCreateTransactionInput(),
+        fixedDeps,
+      );
+
+      // Assert
+      expect(result.version).toBe(0);
     });
 
     it("sets createdAt equal to updatedAt", () => {
@@ -602,6 +614,17 @@ describe("transaction model", () => {
       expect(result.updatedAt).toBeDefined();
     });
 
+    it("increments version by 1", () => {
+      // Arrange
+      const existing = fakeTransaction({ version: 5 });
+
+      // Act
+      const result = updateTransactionModel(existing, { amount: 1 }, fixedDeps);
+
+      // Assert
+      expect(result.version).toBe(6);
+    });
+
     // Validation failures
 
     it("rejects updating archived transaction", () => {
@@ -813,6 +836,17 @@ describe("transaction model", () => {
 
       // Assert
       expect(result.updatedAt).toBeDefined();
+    });
+
+    it("increments version by 1", () => {
+      // Arrange
+      const existing = fakeTransaction({ version: 3 });
+
+      // Act
+      const result = archiveTransactionModel(existing, fixedDeps);
+
+      // Assert
+      expect(result.version).toBe(4);
     });
 
     // Validation failures

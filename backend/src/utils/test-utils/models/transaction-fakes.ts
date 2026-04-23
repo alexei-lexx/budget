@@ -23,6 +23,7 @@ export const fakeTransaction = (
     date: toDateString(faker.date.recent().toISOString().split("T")[0]),
     categoryId: faker.string.uuid(),
     isArchived: false,
+    version: faker.number.int({ min: 1, max: 100 }),
     createdAt: now,
     updatedAt: now,
     ...overrides,
