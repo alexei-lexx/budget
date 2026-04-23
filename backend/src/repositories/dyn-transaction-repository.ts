@@ -556,7 +556,8 @@ export class DynTransactionRepository
       return { ...transaction, version: transaction.version + 1 };
     } catch (error) {
       if (error instanceof ConditionalCheckFailedException) {
-        // Persisted transaction has different version
+        // ReturnValuesOnConditionCheckFailure returns the pre-write row.
+        // Present = version mismatch. Absent = row missing.
         if (error.Item) {
           throw new VersionConflictError(error);
         }
@@ -610,7 +611,7 @@ export class DynTransactionRepository
       if (error instanceof TransactionCanceledException) {
         const reasons = error.CancellationReasons ?? [];
 
-        // Persisted transaction has different version
+        // Any version mismatch takes precedence over missing rows.
         const hasConflict = reasons.some(
           (reason) =>
             reason.Code === "ConditionalCheckFailed" &&
