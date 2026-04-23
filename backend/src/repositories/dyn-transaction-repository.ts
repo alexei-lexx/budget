@@ -462,7 +462,7 @@ export class DynTransactionRepository
     }
   }
 
-  async create(transaction: Transaction): Promise<void> {
+  async create(transaction: Readonly<Transaction>): Promise<void> {
     try {
       const dbItem: TransactionDbItem = {
         ...transaction,
@@ -493,7 +493,9 @@ export class DynTransactionRepository
     }
   }
 
-  async createMany(transactions: Transaction[]): Promise<void> {
+  async createMany(
+    transactions: readonly Readonly<Transaction>[],
+  ): Promise<void> {
     if (!transactions.length) {
       throw new RepositoryError(
         "At least one transaction is required",
@@ -542,7 +544,7 @@ export class DynTransactionRepository
     }
   }
 
-  async update(transaction: Transaction): Promise<void> {
+  async update(transaction: Readonly<Transaction>): Promise<Transaction> {
     const updateParams = this.buildUpdateParams(transaction);
 
     try {
@@ -551,6 +553,7 @@ export class DynTransactionRepository
         ReturnValuesOnConditionCheckFailure: "ALL_OLD",
       });
       await this.client.send(command);
+      return transaction;
     } catch (error) {
       if (error instanceof ConditionalCheckFailedException) {
         // Persisted transaction has different version
@@ -569,7 +572,9 @@ export class DynTransactionRepository
     }
   }
 
-  async updateMany(transactions: Transaction[]): Promise<void> {
+  async updateMany(
+    transactions: readonly Readonly<Transaction>[],
+  ): Promise<Transaction[]> {
     if (!transactions.length) {
       throw new RepositoryError(
         "At least one transaction is required",
@@ -597,6 +602,7 @@ export class DynTransactionRepository
       });
 
       await this.client.send(command);
+      return [...transactions];
     } catch (error) {
       if (error instanceof TransactionCanceledException) {
         const reasons = error.CancellationReasons ?? [];

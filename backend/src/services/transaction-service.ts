@@ -263,11 +263,9 @@ export class TransactionServiceImpl implements TransactionService {
       description: input.description,
     });
 
-    await handleVersionConflict("Transaction", () =>
+    return handleVersionConflict("Transaction", () =>
       this.transactionRepository.update(updated),
     );
-
-    return updated;
   }
 
   /**
@@ -296,11 +294,9 @@ export class TransactionServiceImpl implements TransactionService {
 
     const archived = this.archiveTransactionModel(existingTransaction);
 
-    await handleVersionConflict("Transaction", () =>
+    return handleVersionConflict("Transaction", () =>
       this.transactionRepository.update(archived),
     );
-
-    return archived;
   }
 
   /**

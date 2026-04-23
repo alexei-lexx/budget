@@ -986,6 +986,8 @@ describe("TransactionService", () => {
       mockCategoryRepository.findOneById.mockResolvedValue(category);
       // Returns built updated transaction
       mockUpdateTransactionModel.mockReturnValue(updatedTransaction);
+      // Saves and returns updated transaction
+      mockTransactionRepository.update.mockResolvedValue(updatedTransaction);
 
       // Act
       const result = await service.updateTransaction(existing.id, userId, {
@@ -1149,6 +1151,8 @@ describe("TransactionService", () => {
       mockTransactionRepository.findOneById.mockResolvedValue(existing);
       // Returns built archived transaction
       mockArchiveTransactionModel.mockReturnValue(archived);
+      // Saves and returns archived transaction
+      mockTransactionRepository.update.mockResolvedValue(archived);
 
       // Act
       const result = await service.deleteTransaction(existing.id, userId);
