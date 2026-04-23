@@ -15,6 +15,7 @@ export const transactionSchema = z.object({
   description: z.string().optional(),
   transferId: z.uuid().optional(),
   isArchived: z.boolean(),
+  version: z.int().nonnegative(),
   createdAt: z.iso.datetime(),
   updatedAt: z.iso.datetime(),
 }) satisfies z.ZodType<Transaction>;

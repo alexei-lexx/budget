@@ -11,6 +11,7 @@ import { AccountRepository } from "../ports/account-repository";
 import { TransactionRepository } from "../ports/transaction-repository";
 import { DateString } from "../types/date";
 import { BusinessError } from "./business-error";
+import { handleVersionConflict } from "./utils/handle-version-conflict";
 
 /**
  * Input type for creating transfers between accounts
@@ -185,9 +186,14 @@ export class TransferService {
         this.archiveTransactionModel(transaction),
       );
 
-      // Archive all transactions for this transfer atomically using TransactWrite
-      await this.transactionRepository.updateMany(archivedTransactions);
+      await handleVersionConflict("Transfer", () =>
+        this.transactionRepository.updateMany(archivedTransactions),
+      );
     } catch (error) {
+      if (error instanceof BusinessError) {
+        throw error;
+      }
+
       // Log the error for debugging and monitoring
       console.error("Transfer deletion failed:", {
         transferId,
@@ -255,10 +261,12 @@ export class TransferService {
     });
 
     try {
-      await this.transactionRepository.updateMany([
-        updatedOutbound,
-        updatedInbound,
-      ]);
+      await handleVersionConflict("Transfer", () =>
+        this.transactionRepository.updateMany([
+          updatedOutbound,
+          updatedInbound,
+        ]),
+      );
 
       // Fetch and return the updated transfer
       const updatedTransfer = await this.fetchValidatedTransfer(
@@ -274,6 +282,10 @@ export class TransferService {
 
       return updatedTransfer;
     } catch (error) {
+      if (error instanceof BusinessError) {
+        throw error;
+      }
+
       // Log the error for debugging and monitoring
       console.error("Transfer update failed:", {
         transferId,

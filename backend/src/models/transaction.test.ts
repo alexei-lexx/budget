@@ -57,6 +57,7 @@ describe("transaction model", () => {
         description: "lunch",
         transferId: undefined,
         isArchived: false,
+        version: 0,
         createdAt: "2000-01-02T10:11:12.000Z",
         updatedAt: "2000-01-02T10:11:12.000Z",
       });

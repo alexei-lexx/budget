@@ -9,6 +9,7 @@ import {
   createTransactionModel,
   updateTransactionModel,
 } from "../models/transaction";
+import { VersionConflictError } from "../ports/repository-error";
 import { toDateString } from "../types/date";
 import { MAX_PAGE_SIZE, MIN_PAGE_SIZE } from "../types/pagination";
 import { MIN_SEARCH_TEXT_LENGTH } from "../types/validation";
@@ -985,6 +986,8 @@ describe("TransactionService", () => {
       mockCategoryRepository.findOneById.mockResolvedValue(category);
       // Returns built updated transaction
       mockUpdateTransactionModel.mockReturnValue(updatedTransaction);
+      // Saves and returns updated transaction
+      mockTransactionRepository.update.mockResolvedValue(updatedTransaction);
 
       // Act
       const result = await service.updateTransaction(existing.id, userId, {
@@ -1110,6 +1113,30 @@ describe("TransactionService", () => {
       await expect(promise).rejects.toThrow(ModelError);
       expect(mockTransactionRepository.update).not.toHaveBeenCalled();
     });
+
+    it("maps VersionConflictError from repo to BusinessError", async () => {
+      // Arrange
+      const existing = fakeTransaction({ userId });
+      // Returns existing transaction
+      mockTransactionRepository.findOneById.mockResolvedValue(existing);
+      // Returns account owned by user
+      mockAccountRepository.findOneById.mockResolvedValue(
+        fakeAccount({ userId, id: existing.accountId }),
+      );
+      // Repository rejects with version conflict
+      mockTransactionRepository.update.mockRejectedValue(
+        new VersionConflictError(),
+      );
+
+      // Act & Assert
+      await expect(
+        service.updateTransaction(existing.id, userId, { amount: 50 }),
+      ).rejects.toThrow(
+        new BusinessError(
+          "Transaction was modified, please reload and try again",
+        ),
+      );
+    });
   });
 
   describe("deleteTransaction", () => {
@@ -1124,6 +1151,8 @@ describe("TransactionService", () => {
       mockTransactionRepository.findOneById.mockResolvedValue(existing);
       // Returns built archived transaction
       mockArchiveTransactionModel.mockReturnValue(archived);
+      // Saves and returns archived transaction
+      mockTransactionRepository.update.mockResolvedValue(archived);
 
       // Act
       const result = await service.deleteTransaction(existing.id, userId);
@@ -1166,6 +1195,28 @@ describe("TransactionService", () => {
       });
       expect(mockArchiveTransactionModel).not.toHaveBeenCalled();
       expect(mockTransactionRepository.update).not.toHaveBeenCalled();
+    });
+
+    // Dependency failures
+
+    it("maps VersionConflictError from repo to BusinessError", async () => {
+      // Arrange
+      const existing = fakeTransaction({ userId });
+      // Returns existing transaction
+      mockTransactionRepository.findOneById.mockResolvedValue(existing);
+      // Repository rejects with version conflict
+      mockTransactionRepository.update.mockRejectedValue(
+        new VersionConflictError(),
+      );
+
+      // Act & Assert
+      await expect(
+        service.deleteTransaction(existing.id, userId),
+      ).rejects.toThrow(
+        new BusinessError(
+          "Transaction was modified, please reload and try again",
+        ),
+      );
     });
   });
 });

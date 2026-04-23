@@ -8,6 +8,7 @@ import {
   updateTransactionModel,
 } from "../models/transaction";
 import { AccountRepository } from "../ports/account-repository";
+import { VersionConflictError } from "../ports/repository-error";
 import { TransactionRepository } from "../ports/transaction-repository";
 import { toDateString } from "../types/date";
 import { fakeAccount } from "../utils/test-utils/models/account-fakes";
@@ -355,6 +356,47 @@ describe("TransferService", () => {
 
     // Dependency failures
 
+    it("maps VersionConflictError from repo to BusinessError", async () => {
+      // Arrange
+      const fromAccount = fakeAccount({ userId });
+      const toAccount = fakeAccount({ userId, currency: fromAccount.currency });
+      const transferId = faker.string.uuid();
+      const outbound = fakeTransaction({
+        userId,
+        accountId: fromAccount.id,
+        type: TransactionType.TRANSFER_OUT,
+        transferId,
+        categoryId: undefined,
+      });
+      const inbound = fakeTransaction({
+        userId,
+        accountId: toAccount.id,
+        type: TransactionType.TRANSFER_IN,
+        transferId,
+        categoryId: undefined,
+      });
+      // Returns existing pair
+      mockTransactionRepository.findManyByTransferId.mockResolvedValue([
+        outbound,
+        inbound,
+      ]);
+      // Returns accounts owned by user
+      mockAccountRepository.findOneById.mockImplementation(async ({ id }) =>
+        id === fromAccount.id ? fromAccount : toAccount,
+      );
+      // Repository rejects with version conflict
+      mockTransactionRepository.updateMany.mockRejectedValue(
+        new VersionConflictError(),
+      );
+
+      // Act & Assert
+      await expect(
+        service.updateTransfer(transferId, userId, { amount: 50 }),
+      ).rejects.toThrow(
+        new BusinessError("Transfer was modified, please reload and try again"),
+      );
+    });
+
     it("propagates ModelError without persisting", async () => {
       // Arrange
       const transferId = faker.string.uuid();
@@ -452,6 +494,39 @@ describe("TransferService", () => {
       });
       expect(mockArchiveTransactionModel).not.toHaveBeenCalled();
       expect(mockTransactionRepository.updateMany).not.toHaveBeenCalled();
+    });
+
+    // Dependency failures
+
+    it("maps VersionConflictError from repo to BusinessError", async () => {
+      // Arrange
+      const transferId = faker.string.uuid();
+      const outbound = fakeTransaction({
+        userId,
+        type: TransactionType.TRANSFER_OUT,
+        transferId,
+        categoryId: undefined,
+      });
+      const inbound = fakeTransaction({
+        userId,
+        type: TransactionType.TRANSFER_IN,
+        transferId,
+        categoryId: undefined,
+      });
+      // Returns existing pair
+      mockTransactionRepository.findManyByTransferId.mockResolvedValue([
+        outbound,
+        inbound,
+      ]);
+      // Repository rejects with version conflict
+      mockTransactionRepository.updateMany.mockRejectedValue(
+        new VersionConflictError(),
+      );
+
+      // Act & Assert
+      await expect(service.deleteTransfer(transferId, userId)).rejects.toThrow(
+        new BusinessError("Transfer was modified, please reload and try again"),
+      );
     });
   });
 });

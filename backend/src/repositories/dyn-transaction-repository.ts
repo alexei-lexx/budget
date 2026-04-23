@@ -17,7 +17,10 @@ import {
   TransactionPatternType,
   TransactionType,
 } from "../models/transaction";
-import { RepositoryError } from "../ports/repository-error";
+import {
+  RepositoryError,
+  VersionConflictError,
+} from "../ports/repository-error";
 import {
   TransactionConnection,
   TransactionEdge,
@@ -459,7 +462,7 @@ export class DynTransactionRepository
     }
   }
 
-  async create(transaction: Transaction): Promise<void> {
+  async create(transaction: Readonly<Transaction>): Promise<void> {
     try {
       const dbItem: TransactionDbItem = {
         ...transaction,
@@ -490,7 +493,9 @@ export class DynTransactionRepository
     }
   }
 
-  async createMany(transactions: Transaction[]): Promise<void> {
+  async createMany(
+    transactions: readonly Readonly<Transaction>[],
+  ): Promise<void> {
     if (!transactions.length) {
       throw new RepositoryError(
         "At least one transaction is required",
@@ -539,15 +544,25 @@ export class DynTransactionRepository
     }
   }
 
-  async update(transaction: Transaction): Promise<void> {
+  async update(transaction: Readonly<Transaction>): Promise<Transaction> {
     const updateParams = this.buildUpdateParams(transaction);
 
     try {
-      const command = new UpdateCommand(updateParams);
+      const command = new UpdateCommand({
+        ...updateParams,
+        ReturnValuesOnConditionCheckFailure: "ALL_OLD",
+      });
       await this.client.send(command);
+      return { ...transaction, version: transaction.version + 1 };
     } catch (error) {
       if (error instanceof ConditionalCheckFailedException) {
-        throw new RepositoryError("Transaction not found", "NOT_FOUND");
+        // ReturnValuesOnConditionCheckFailure returns the pre-write row.
+        // Present = version mismatch. Absent = row missing.
+        if (error.Item) {
+          throw new VersionConflictError(error);
+        }
+
+        throw new RepositoryError("Transaction not found", "NOT_FOUND", error);
       }
 
       throw new RepositoryError(
@@ -558,7 +573,9 @@ export class DynTransactionRepository
     }
   }
 
-  async updateMany(transactions: Transaction[]): Promise<void> {
+  async updateMany(
+    transactions: readonly Readonly<Transaction>[],
+  ): Promise<Transaction[]> {
     if (!transactions.length) {
       throw new RepositoryError(
         "At least one transaction is required",
@@ -575,7 +592,10 @@ export class DynTransactionRepository
 
     try {
       const transactItems = transactions.map((transaction) => ({
-        Update: this.buildUpdateParams(transaction),
+        Update: {
+          ...this.buildUpdateParams(transaction),
+          ReturnValuesOnConditionCheckFailure: "ALL_OLD" as const,
+        },
       }));
 
       const command = new TransactWriteCommand({
@@ -583,16 +603,41 @@ export class DynTransactionRepository
       });
 
       await this.client.send(command);
+      return transactions.map((transaction) => ({
+        ...transaction,
+        version: transaction.version + 1,
+      }));
     } catch (error) {
-      console.error("Error updating transactions atomically:", error);
-
       if (error instanceof TransactionCanceledException) {
-        throw new RepositoryError(
-          "One or more transactions not found",
-          "NOT_FOUND",
+        const reasons = error.CancellationReasons ?? [];
+
+        // Any version mismatch takes precedence over missing rows.
+        const hasConflict = reasons.some(
+          (reason) =>
+            reason.Code === "ConditionalCheckFailed" &&
+            reason.Item !== undefined,
         );
+
+        if (hasConflict) {
+          throw new VersionConflictError(error);
+        }
+
+        const hasMissing = reasons.some(
+          (reason) =>
+            reason.Code === "ConditionalCheckFailed" &&
+            reason.Item === undefined,
+        );
+
+        if (hasMissing) {
+          throw new RepositoryError(
+            "One or more transactions not found",
+            "NOT_FOUND",
+            error,
+          );
+        }
       }
 
+      console.error("Error updating transactions atomically:", error);
       throw new RepositoryError(
         "Failed to update transactions atomically",
         "UPDATE_MANY_FAILED",
@@ -888,6 +933,7 @@ export class DynTransactionRepository
       "currency = :currency",
       "#date = :date",
       "isArchived = :isArchived",
+      "version = :newVersion",
       "createdAt = :createdAt",
       "updatedAt = :updatedAt",
     ];
@@ -903,6 +949,8 @@ export class DynTransactionRepository
       ":currency": transaction.currency,
       ":date": transaction.date,
       ":isArchived": transaction.isArchived,
+      ":expectedVersion": transaction.version,
+      ":newVersion": transaction.version + 1,
       ":createdAt": transaction.createdAt,
       ":updatedAt": transaction.updatedAt,
     };
@@ -937,7 +985,8 @@ export class DynTransactionRepository
       TableName: this.tableName,
       Key: { userId: transaction.userId, id: transaction.id },
       UpdateExpression: updateExpressionParts.join(" "),
-      ConditionExpression: "attribute_exists(userId) AND attribute_exists(id)",
+      ConditionExpression:
+        "attribute_exists(userId) AND attribute_exists(id) AND version = :expectedVersion",
       ExpressionAttributeNames: expressionAttributeNames,
       ExpressionAttributeValues: expressionAttributeValues,
     };

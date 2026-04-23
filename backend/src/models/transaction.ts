@@ -30,6 +30,7 @@ export interface Transaction {
   description?: string; // Optional description
   transferId?: string; // Optional UUID linking paired transfer transactions
   isArchived: boolean; // Soft delete flag
+  version: number; // OCC token
   createdAt: string; // ISO timestamp
   updatedAt: string; // ISO timestamp
 }
@@ -81,6 +82,7 @@ export function createTransactionModel(
     description: normalizeDescription(input.description),
     transferId: input.transferId,
     isArchived: false,
+    version: 0,
     createdAt: now,
     updatedAt: now,
   };

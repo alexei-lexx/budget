@@ -25,6 +25,7 @@ import {
 } from "../types/pagination";
 import { MIN_SEARCH_TEXT_LENGTH } from "../types/validation";
 import { BusinessError } from "./business-error";
+import { handleVersionConflict } from "./utils/handle-version-conflict";
 
 export const DEFAULT_TRANSACTION_PATTERNS_LIMIT = 3;
 export const MIN_TRANSACTION_PATTERNS_LIMIT = 1;
@@ -262,9 +263,9 @@ export class TransactionServiceImpl implements TransactionService {
       description: input.description,
     });
 
-    await this.transactionRepository.update(updated);
-
-    return updated;
+    return handleVersionConflict("Transaction", () =>
+      this.transactionRepository.update(updated),
+    );
   }
 
   /**
@@ -293,9 +294,9 @@ export class TransactionServiceImpl implements TransactionService {
 
     const archived = this.archiveTransactionModel(existingTransaction);
 
-    await this.transactionRepository.update(archived);
-
-    return archived;
+    return handleVersionConflict("Transaction", () =>
+      this.transactionRepository.update(archived),
+    );
   }
 
   /**
