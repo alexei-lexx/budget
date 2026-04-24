@@ -458,7 +458,7 @@ describe("TransferService", () => {
 
       // Assert
       await expect(promise).rejects.toThrow(ModelError);
-      expect(mockTransactionRepository.updateMany).not.toHaveBeenCalled();
+      expect(mockTransactionRepository.update).not.toHaveBeenCalled();
     });
   });
 
@@ -526,7 +526,7 @@ describe("TransferService", () => {
         message: "Transfer not found or doesn't belong to user",
       });
       expect(mockArchiveTransactionModel).not.toHaveBeenCalled();
-      expect(mockTransactionRepository.updateMany).not.toHaveBeenCalled();
+      expect(mockTransactionRepository.update).not.toHaveBeenCalled();
     });
 
     // Dependency failures

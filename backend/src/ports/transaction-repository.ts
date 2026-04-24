@@ -52,14 +52,10 @@ export interface TransactionRepository {
     transaction: Readonly<Transaction>,
     atomicWriter?: AtomicWriter,
   ): Promise<void>;
-  createMany(transactions: readonly Readonly<Transaction>[]): Promise<void>;
   update(
     transaction: Readonly<Transaction>,
     atomicWriter?: AtomicWriter,
   ): Promise<Transaction>;
-  updateMany(
-    transactions: readonly Readonly<Transaction>[],
-  ): Promise<Transaction[]>;
   hasTransactionsForAccount(selector: {
     accountId: string;
     userId: string;

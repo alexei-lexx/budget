@@ -13,9 +13,7 @@ export const createMockTransactionRepository =
     findManyByTransferId: jest.fn(),
     findManyByDescription: jest.fn(),
     create: jest.fn(),
-    createMany: jest.fn(),
     update: jest.fn(),
-    updateMany: jest.fn(),
     hasTransactionsForAccount: jest.fn(),
     detectPatterns: jest.fn(),
   });

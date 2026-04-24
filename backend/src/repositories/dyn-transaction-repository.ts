@@ -1,12 +1,8 @@
-import {
-  ConditionalCheckFailedException,
-  TransactionCanceledException,
-} from "@aws-sdk/client-dynamodb";
+import { ConditionalCheckFailedException } from "@aws-sdk/client-dynamodb";
 import {
   GetCommand,
   PutCommand,
   QueryCommand,
-  TransactWriteCommand,
   UpdateCommand,
 } from "@aws-sdk/lib-dynamodb";
 import { monotonicFactory } from "ulidx";
@@ -35,7 +31,6 @@ import {
   PageInfo,
   PaginationInput,
 } from "../types/pagination";
-import { DYNAMODB_TRANSACT_WRITE_MAX_ITEMS } from "../utils/dynamo-client";
 import { TransactionWriteItemBuilder } from "./dyn-atomic-writer";
 import { DynBaseRepository } from "./dyn-base-repository";
 import {
@@ -518,57 +513,6 @@ export class DynTransactionRepository
     }
   }
 
-  async createMany(
-    transactions: readonly Readonly<Transaction>[],
-  ): Promise<void> {
-    if (!transactions.length) {
-      throw new RepositoryError(
-        "At least one transaction is required",
-        "INVALID_PARAMETERS",
-      );
-    }
-
-    if (transactions.length > DYNAMODB_TRANSACT_WRITE_MAX_ITEMS) {
-      throw new RepositoryError(
-        `DynamoDB transactions support a maximum of ${DYNAMODB_TRANSACT_WRITE_MAX_ITEMS} items`,
-        "TOO_MANY_ITEMS",
-      );
-    }
-
-    try {
-      const transactItems = transactions.map((transaction) => ({
-        Put: {
-          TableName: this.tableName,
-          Item: {
-            ...transaction,
-            createdAtSortable: buildCreatedAtSortable(transaction),
-          },
-          ConditionExpression: "attribute_not_exists(id)",
-        },
-      }));
-
-      const command = new TransactWriteCommand({
-        TransactItems: transactItems,
-      });
-
-      await this.client.send(command);
-    } catch (error) {
-      if (error instanceof TransactionCanceledException) {
-        throw new RepositoryError(
-          "Transaction with this ID already exists",
-          "CREATE_FAILED",
-        );
-      }
-
-      console.error("Error creating transactions atomically:", error);
-      throw new RepositoryError(
-        "Failed to create transactions atomically",
-        "TRANSACT_WRITE_FAILED",
-        error,
-      );
-    }
-  }
-
   async update(
     transaction: Readonly<Transaction>,
     atomicWriter?: AtomicWriter,
@@ -596,79 +540,6 @@ export class DynTransactionRepository
       throw new RepositoryError(
         "Failed to update transaction",
         "UPDATE_FAILED",
-        error,
-      );
-    }
-  }
-
-  async updateMany(
-    transactions: readonly Readonly<Transaction>[],
-  ): Promise<Transaction[]> {
-    if (!transactions.length) {
-      throw new RepositoryError(
-        "At least one transaction is required",
-        "INVALID_PARAMETERS",
-      );
-    }
-
-    if (transactions.length > DYNAMODB_TRANSACT_WRITE_MAX_ITEMS) {
-      throw new RepositoryError(
-        `DynamoDB transactions support a maximum of ${DYNAMODB_TRANSACT_WRITE_MAX_ITEMS} items`,
-        "TOO_MANY_ITEMS",
-      );
-    }
-
-    try {
-      const transactItems = transactions.map((transaction) => ({
-        Update: {
-          ...this.buildUpdateParams(transaction),
-          ReturnValuesOnConditionCheckFailure: "ALL_OLD" as const,
-        },
-      }));
-
-      const command = new TransactWriteCommand({
-        TransactItems: transactItems,
-      });
-
-      await this.client.send(command);
-      return transactions.map((transaction) => ({
-        ...transaction,
-        version: transaction.version + 1,
-      }));
-    } catch (error) {
-      if (error instanceof TransactionCanceledException) {
-        const reasons = error.CancellationReasons ?? [];
-
-        // Any version mismatch takes precedence over missing rows.
-        const hasConflict = reasons.some(
-          (reason) =>
-            reason.Code === "ConditionalCheckFailed" &&
-            reason.Item !== undefined,
-        );
-
-        if (hasConflict) {
-          throw new VersionConflictError(error);
-        }
-
-        const hasMissing = reasons.some(
-          (reason) =>
-            reason.Code === "ConditionalCheckFailed" &&
-            reason.Item === undefined,
-        );
-
-        if (hasMissing) {
-          throw new RepositoryError(
-            "One or more transactions not found",
-            "NOT_FOUND",
-            error,
-          );
-        }
-      }
-
-      console.error("Error updating transactions atomically:", error);
-      throw new RepositoryError(
-        "Failed to update transactions atomically",
-        "UPDATE_MANY_FAILED",
         error,
       );
     }
