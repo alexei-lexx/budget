@@ -9,6 +9,7 @@ import {
 import { HttpTelegramApiClient } from "./providers/http-telegram-api-client";
 import { LambdaBackgroundJobDispatcher } from "./providers/lambda-background-job-dispatcher";
 import { DynAccountRepository } from "./repositories/dyn-account-repository";
+import { DynAtomicWriter } from "./repositories/dyn-atomic-writer";
 import { DynCategoryRepository } from "./repositories/dyn-category-repository";
 import { DynChatMessageRepository } from "./repositories/dyn-chat-message-repository";
 import { DynTelegramBotRepository } from "./repositories/dyn-telegram-bot-repository";
@@ -28,6 +29,7 @@ import { TransferService } from "./services/transfer-service";
 import { UserService } from "./services/user-service";
 import { createBedrockChatModel } from "./utils/bedrock";
 import { createSingleton } from "./utils/dependency-injection";
+import { createDynamoDBDocumentClient } from "./utils/dynamo-client";
 import { requireEnv, requireIntEnv } from "./utils/require-env";
 
 // Auth
@@ -90,6 +92,11 @@ export const resolveTransferService = createSingleton(
     new TransferService({
       accountRepository: resolveAccountRepository(),
       transactionRepository: resolveTransactionRepository(),
+      atomicWriterFactory: () =>
+        new DynAtomicWriter({
+          client: createDynamoDBDocumentClient(),
+          transactionWriteItemBuilder: resolveTransactionRepository(),
+        }),
     }),
 );
 export const resolveUserService = createSingleton(

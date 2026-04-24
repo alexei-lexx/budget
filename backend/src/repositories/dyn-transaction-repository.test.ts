@@ -16,6 +16,7 @@ import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
 import { requireEnv } from "../utils/require-env";
 import { truncateTable } from "../utils/test-utils/dynamodb-helpers";
 import { fakeTransaction } from "../utils/test-utils/models/transaction-fakes";
+import { DynAtomicWriter } from "./dyn-atomic-writer";
 import { DynTransactionRepository } from "./dyn-transaction-repository";
 
 describe("DynTransactionRepository", () => {
@@ -1610,6 +1611,47 @@ describe("DynTransactionRepository", () => {
       expect(loaded?.version).toBe(0);
     });
 
+    it("does not persist transaction before commit", async () => {
+      // Arrange
+      const transaction = fakeTransaction();
+      const client = createDynamoDBDocumentClient();
+      const atomicWriter = new DynAtomicWriter({
+        client,
+        transactionWriteItemBuilder: repository,
+      });
+
+      // Act
+      await repository.create(transaction, atomicWriter);
+
+      // Assert
+      const stored = await repository.findOneById({
+        id: transaction.id,
+        userId: transaction.userId,
+      });
+      expect(stored).toBeNull();
+    });
+
+    it("persists transaction after commit", async () => {
+      // Arrange
+      const transaction = fakeTransaction();
+      const client = createDynamoDBDocumentClient();
+      const atomicWriter = new DynAtomicWriter({
+        client,
+        transactionWriteItemBuilder: repository,
+      });
+
+      // Act
+      await repository.create(transaction, atomicWriter);
+      await atomicWriter.commit();
+
+      // Assert
+      const stored = await repository.findOneById({
+        id: transaction.id,
+        userId: transaction.userId,
+      });
+      expect(stored).toEqual(transaction);
+    });
+
     // Validation failures
 
     it("rejects when transaction with same ID already exists", async () => {
@@ -1901,6 +1943,57 @@ describe("DynTransactionRepository", () => {
         }),
       );
       expect(after?.createdAtSortable).toBe(before?.createdAtSortable);
+    });
+
+    it("does not update transaction before commit", async () => {
+      // Arrange
+      const original = fakeTransaction({ amount: 10 });
+      await repository.create(original);
+
+      const client = createDynamoDBDocumentClient();
+      const atomicWriter = new DynAtomicWriter({
+        client,
+        transactionWriteItemBuilder: repository,
+      });
+      const updated = { ...original, amount: 99 };
+
+      // Act
+      const result = await repository.update(updated, atomicWriter);
+
+      // Assert
+      expect(result).toEqual({ ...updated, version: original.version + 1 });
+
+      const stored = await repository.findOneById({
+        id: original.id,
+        userId: original.userId,
+      });
+      expect(stored).toEqual(original);
+    });
+
+    it("updates transaction after commit", async () => {
+      // Arrange
+      const original = fakeTransaction({ amount: 10 });
+      await repository.create(original);
+
+      const client = createDynamoDBDocumentClient();
+      const atomicWriter = new DynAtomicWriter({
+        client,
+        transactionWriteItemBuilder: repository,
+      });
+      const updated = { ...original, amount: 99 };
+
+      // Act
+      const result = await repository.update(updated, atomicWriter);
+      await atomicWriter.commit();
+
+      // Assert
+      expect(result).toEqual({ ...updated, version: original.version + 1 });
+
+      const stored = await repository.findOneById({
+        id: original.id,
+        userId: original.userId,
+      });
+      expect(stored).toEqual({ ...updated, version: original.version + 1 });
     });
 
     // Validation failures

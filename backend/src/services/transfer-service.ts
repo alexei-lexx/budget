@@ -8,6 +8,7 @@ import {
   updateTransactionModel as defaultUpdateTransactionModel,
 } from "../models/transaction";
 import { AccountRepository } from "../ports/account-repository";
+import { AtomicWriter } from "../ports/atomic-writer";
 import { TransactionRepository } from "../ports/transaction-repository";
 import { DateString } from "../types/date";
 import { BusinessError } from "./business-error";
@@ -54,6 +55,7 @@ export class TransferService {
   private createTransactionModel: typeof defaultCreateTransactionModel;
   private updateTransactionModel: typeof defaultUpdateTransactionModel;
   private archiveTransactionModel: typeof defaultArchiveTransactionModel;
+  private atomicWriterFactory: () => AtomicWriter;
 
   constructor(deps: {
     accountRepository: AccountRepository;
@@ -61,6 +63,7 @@ export class TransferService {
     createTransactionModel?: typeof defaultCreateTransactionModel;
     updateTransactionModel?: typeof defaultUpdateTransactionModel;
     archiveTransactionModel?: typeof defaultArchiveTransactionModel;
+    atomicWriterFactory: () => AtomicWriter;
   }) {
     this.accountRepository = deps.accountRepository;
     this.transactionRepository = deps.transactionRepository;
@@ -70,6 +73,7 @@ export class TransferService {
       deps.updateTransactionModel ?? defaultUpdateTransactionModel;
     this.archiveTransactionModel =
       deps.archiveTransactionModel ?? defaultArchiveTransactionModel;
+    this.atomicWriterFactory = deps.atomicWriterFactory;
   }
 
   /**
@@ -134,12 +138,13 @@ export class TransferService {
     });
 
     try {
-      // Persist both transactions atomically using DynamoDB transaction
-      // TransactWriteCommand guarantees either both succeed or both fail
-      await this.transactionRepository.createMany([
+      const atomicWriter = this.atomicWriterFactory();
+      await this.transactionRepository.create(
         outboundTransaction,
-        inboundTransaction,
-      ]);
+        atomicWriter,
+      );
+      await this.transactionRepository.create(inboundTransaction, atomicWriter);
+      await atomicWriter.commit();
 
       // Return the transfer result with ID and transactions
       return {
@@ -186,9 +191,16 @@ export class TransferService {
         this.archiveTransactionModel(transaction),
       );
 
-      await handleVersionConflict("Transfer", () =>
-        this.transactionRepository.updateMany(archivedTransactions),
-      );
+      await handleVersionConflict("Transfer", async () => {
+        const atomicWriter = this.atomicWriterFactory();
+        for (const archivedTransaction of archivedTransactions) {
+          await this.transactionRepository.update(
+            archivedTransaction,
+            atomicWriter,
+          );
+        }
+        await atomicWriter.commit();
+      });
     } catch (error) {
       if (error instanceof BusinessError) {
         throw error;
@@ -261,12 +273,12 @@ export class TransferService {
     });
 
     try {
-      await handleVersionConflict("Transfer", () =>
-        this.transactionRepository.updateMany([
-          updatedOutbound,
-          updatedInbound,
-        ]),
-      );
+      await handleVersionConflict("Transfer", async () => {
+        const atomicWriter = this.atomicWriterFactory();
+        await this.transactionRepository.update(updatedOutbound, atomicWriter);
+        await this.transactionRepository.update(updatedInbound, atomicWriter);
+        await atomicWriter.commit();
+      });
 
       // Fetch and return the updated transfer
       const updatedTransfer = await this.fetchValidatedTransfer(

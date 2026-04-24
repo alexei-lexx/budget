@@ -17,6 +17,7 @@ import {
   TransactionPatternType,
   TransactionType,
 } from "../models/transaction";
+import { AtomicWriter } from "../ports/atomic-writer";
 import {
   RepositoryError,
   VersionConflictError,
@@ -35,6 +36,7 @@ import {
   PaginationInput,
 } from "../types/pagination";
 import { DYNAMODB_TRANSACT_WRITE_MAX_ITEMS } from "../utils/dynamo-client";
+import { TransactionWriteItemBuilder } from "./dyn-atomic-writer";
 import { DynBaseRepository } from "./dyn-base-repository";
 import {
   TransactionDbItem,
@@ -129,7 +131,7 @@ function buildCreatedAtSortable(transaction: Transaction): string {
 
 export class DynTransactionRepository
   extends DynBaseRepository
-  implements TransactionRepository
+  implements TransactionRepository, TransactionWriteItemBuilder
 {
   async findOneById({
     id,
@@ -462,20 +464,43 @@ export class DynTransactionRepository
     }
   }
 
-  async create(transaction: Readonly<Transaction>): Promise<void> {
-    try {
-      const dbItem: TransactionDbItem = {
-        ...transaction,
-        createdAtSortable: buildCreatedAtSortable(transaction),
-      };
+  buildCreateWriteItem(transaction: Readonly<Transaction>) {
+    const dbItem: TransactionDbItem = {
+      ...transaction,
+      createdAtSortable: buildCreatedAtSortable(transaction),
+    };
 
-      const command = new PutCommand({
+    return {
+      Put: {
         TableName: this.tableName,
         Item: dbItem,
         ConditionExpression: "attribute_not_exists(id)",
-      });
+      },
+    };
+  }
 
-      await this.client.send(command);
+  buildUpdateWriteItem(transaction: Readonly<Transaction>) {
+    const updateParams = this.buildUpdateParams(transaction);
+
+    return {
+      Update: {
+        ...updateParams,
+        ReturnValuesOnConditionCheckFailure: "ALL_OLD" as const,
+      },
+    };
+  }
+
+  async create(
+    transaction: Readonly<Transaction>,
+    atomicWriter?: AtomicWriter,
+  ): Promise<void> {
+    try {
+      if (atomicWriter) {
+        atomicWriter.appendCreateTransaction(transaction);
+      } else {
+        const { Put } = this.buildCreateWriteItem(transaction);
+        await this.client.send(new PutCommand(Put));
+      }
     } catch (error) {
       if (error instanceof ConditionalCheckFailedException) {
         throw new RepositoryError(
@@ -544,15 +569,18 @@ export class DynTransactionRepository
     }
   }
 
-  async update(transaction: Readonly<Transaction>): Promise<Transaction> {
-    const updateParams = this.buildUpdateParams(transaction);
-
+  async update(
+    transaction: Readonly<Transaction>,
+    atomicWriter?: AtomicWriter,
+  ): Promise<Transaction> {
     try {
-      const command = new UpdateCommand({
-        ...updateParams,
-        ReturnValuesOnConditionCheckFailure: "ALL_OLD",
-      });
-      await this.client.send(command);
+      if (atomicWriter) {
+        atomicWriter.appendUpdateTransaction(transaction);
+      } else {
+        const { Update } = this.buildUpdateWriteItem(transaction);
+        await this.client.send(new UpdateCommand(Update));
+      }
+
       return { ...transaction, version: transaction.version + 1 };
     } catch (error) {
       if (error instanceof ConditionalCheckFailedException) {

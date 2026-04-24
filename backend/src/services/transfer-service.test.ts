@@ -8,12 +8,14 @@ import {
   updateTransactionModel,
 } from "../models/transaction";
 import { AccountRepository } from "../ports/account-repository";
+import { AtomicWriter } from "../ports/atomic-writer";
 import { VersionConflictError } from "../ports/repository-error";
 import { TransactionRepository } from "../ports/transaction-repository";
 import { toDateString } from "../types/date";
 import { fakeAccount } from "../utils/test-utils/models/account-fakes";
 import { fakeTransaction } from "../utils/test-utils/models/transaction-fakes";
 import { createMockAccountRepository } from "../utils/test-utils/repositories/account-repository-mocks";
+import { createMockAtomicWriter } from "../utils/test-utils/repositories/atomic-writer-mocks";
 import { createMockTransactionRepository } from "../utils/test-utils/repositories/transaction-repository-mocks";
 import { BusinessError } from "./business-error";
 import { TransferService } from "./transfer-service";
@@ -32,6 +34,8 @@ describe("TransferService", () => {
   let mockArchiveTransactionModel: jest.MockedFunction<
     typeof archiveTransactionModel
   >;
+  let mockAtomicWriter: jest.Mocked<AtomicWriter>;
+  let mockAtomicWriterFactory: jest.MockedFunction<() => AtomicWriter>;
 
   beforeEach(() => {
     mockAccountRepository = createMockAccountRepository();
@@ -39,6 +43,10 @@ describe("TransferService", () => {
     mockCreateTransactionModel = jest.fn<typeof createTransactionModel>();
     mockUpdateTransactionModel = jest.fn<typeof updateTransactionModel>();
     mockArchiveTransactionModel = jest.fn<typeof archiveTransactionModel>();
+    mockAtomicWriter = createMockAtomicWriter();
+    mockAtomicWriterFactory = jest
+      .fn<() => AtomicWriter>()
+      .mockReturnValue(mockAtomicWriter);
 
     service = new TransferService({
       accountRepository: mockAccountRepository,
@@ -46,6 +54,7 @@ describe("TransferService", () => {
       createTransactionModel: mockCreateTransactionModel,
       updateTransactionModel: mockUpdateTransactionModel,
       archiveTransactionModel: mockArchiveTransactionModel,
+      atomicWriterFactory: mockAtomicWriterFactory,
     });
 
     userId = faker.string.uuid();
@@ -189,7 +198,6 @@ describe("TransferService", () => {
       mockCreateTransactionModel
         .mockReturnValueOnce(outboundTransaction)
         .mockReturnValueOnce(inboundTransaction);
-      mockTransactionRepository.createMany.mockResolvedValue();
 
       const result = await service.createTransfer(
         {
@@ -224,10 +232,19 @@ describe("TransferService", () => {
         description: undefined,
         transferId: result.transferId,
       });
-      expect(mockTransactionRepository.createMany).toHaveBeenCalledWith([
+      expect(mockAtomicWriterFactory).toHaveBeenCalledTimes(1);
+      expect(mockTransactionRepository.create).toHaveBeenCalledTimes(2);
+      expect(mockTransactionRepository.create).toHaveBeenNthCalledWith(
+        1,
         outboundTransaction,
+        mockAtomicWriter,
+      );
+      expect(mockTransactionRepository.create).toHaveBeenNthCalledWith(
+        2,
         inboundTransaction,
-      ]);
+        mockAtomicWriter,
+      );
+      expect(mockAtomicWriter.commit).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -302,10 +319,19 @@ describe("TransferService", () => {
           description: undefined,
         },
       );
-      expect(mockTransactionRepository.updateMany).toHaveBeenCalledWith([
+      expect(mockAtomicWriterFactory).toHaveBeenCalledTimes(1);
+      expect(mockTransactionRepository.update).toHaveBeenCalledTimes(2);
+      expect(mockTransactionRepository.update).toHaveBeenNthCalledWith(
+        1,
         updatedOutbound,
+        mockAtomicWriter,
+      );
+      expect(mockTransactionRepository.update).toHaveBeenNthCalledWith(
+        2,
         updatedInbound,
-      ]);
+        mockAtomicWriter,
+      );
+      expect(mockAtomicWriter.commit).toHaveBeenCalledTimes(1);
     });
 
     it("resolves new accounts when account ids change", async () => {
@@ -384,10 +410,8 @@ describe("TransferService", () => {
       mockAccountRepository.findOneById.mockImplementation(async ({ id }) =>
         id === fromAccount.id ? fromAccount : toAccount,
       );
-      // Repository rejects with version conflict
-      mockTransactionRepository.updateMany.mockRejectedValue(
-        new VersionConflictError(),
-      );
+      // Atomic commit rejects with version conflict
+      mockAtomicWriter.commit.mockRejectedValue(new VersionConflictError());
 
       // Act & Assert
       await expect(
@@ -471,10 +495,19 @@ describe("TransferService", () => {
         2,
         inboundTransaction,
       );
-      expect(mockTransactionRepository.updateMany).toHaveBeenCalledWith([
+      expect(mockAtomicWriterFactory).toHaveBeenCalledTimes(1);
+      expect(mockTransactionRepository.update).toHaveBeenCalledTimes(2);
+      expect(mockTransactionRepository.update).toHaveBeenNthCalledWith(
+        1,
         archivedOutbound,
+        mockAtomicWriter,
+      );
+      expect(mockTransactionRepository.update).toHaveBeenNthCalledWith(
+        2,
         archivedInbound,
-      ]);
+        mockAtomicWriter,
+      );
+      expect(mockAtomicWriter.commit).toHaveBeenCalledTimes(1);
     });
 
     // Validation failures
@@ -518,10 +551,8 @@ describe("TransferService", () => {
         outbound,
         inbound,
       ]);
-      // Repository rejects with version conflict
-      mockTransactionRepository.updateMany.mockRejectedValue(
-        new VersionConflictError(),
-      );
+      // Atomic commit rejects with version conflict
+      mockAtomicWriter.commit.mockRejectedValue(new VersionConflictError());
 
       // Act & Assert
       await expect(service.deleteTransfer(transferId, userId)).rejects.toThrow(

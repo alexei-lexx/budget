@@ -6,6 +6,7 @@ import {
 } from "../models/transaction";
 import { DateString } from "../types/date";
 import { Connection, Edge, PaginationInput } from "../types/pagination";
+import { AtomicWriter } from "./atomic-writer";
 
 export interface TransactionFilterInput {
   accountIds?: string[];
@@ -47,9 +48,15 @@ export interface TransactionRepository {
     searchText: string;
     limit: number;
   }): Promise<Transaction[]>;
-  create(transaction: Readonly<Transaction>): Promise<void>;
+  create(
+    transaction: Readonly<Transaction>,
+    atomicWriter?: AtomicWriter,
+  ): Promise<void>;
   createMany(transactions: readonly Readonly<Transaction>[]): Promise<void>;
-  update(transaction: Readonly<Transaction>): Promise<Transaction>;
+  update(
+    transaction: Readonly<Transaction>,
+    atomicWriter?: AtomicWriter,
+  ): Promise<Transaction>;
   updateMany(
     transactions: readonly Readonly<Transaction>[],
   ): Promise<Transaction[]>;
