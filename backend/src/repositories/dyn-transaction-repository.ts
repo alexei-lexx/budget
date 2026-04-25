@@ -13,7 +13,6 @@ import { monotonicFactory } from "ulidx";
 import { z } from "zod";
 import {
   Transaction,
-  TransactionData,
   TransactionEntity,
   TransactionPattern,
   TransactionPatternType,
@@ -124,7 +123,17 @@ function toTransaction(dbItem: TransactionDbItem): Transaction {
   return TransactionEntity.fromPersistence(data);
 }
 
-function buildCreatedAtSortable(transaction: TransactionData): string {
+// Transform Transaction to TransactionDbItem by adding createdAtSortable
+function toTransactionDbItem(transaction: Transaction): TransactionDbItem {
+  const data = transaction.toData();
+  const dbItem: TransactionDbItem = {
+    ...data,
+    createdAtSortable: buildCreatedAtSortable(transaction),
+  };
+  return dbItem;
+}
+
+function buildCreatedAtSortable(transaction: Transaction): string {
   return `${transaction.createdAt}#${ulid()}`;
 }
 
@@ -463,11 +472,7 @@ export class DynTransactionRepository
 
   async create(transaction: Readonly<Transaction>): Promise<void> {
     try {
-      const data = transaction.toData();
-      const dbItem: TransactionDbItem = {
-        ...data,
-        createdAtSortable: buildCreatedAtSortable(data),
-      };
+      const dbItem: TransactionDbItem = toTransactionDbItem(transaction);
 
       const command = new PutCommand({
         TableName: this.tableName,
@@ -512,14 +517,12 @@ export class DynTransactionRepository
 
     try {
       const transactItems = transactions.map((transaction) => {
-        const data = transaction.toData();
+        const dbItem = toTransactionDbItem(transaction);
+
         return {
           Put: {
             TableName: this.tableName,
-            Item: {
-              ...data,
-              createdAtSortable: buildCreatedAtSortable(data),
-            },
+            Item: dbItem,
             ConditionExpression: "attribute_not_exists(id)",
           },
         };
