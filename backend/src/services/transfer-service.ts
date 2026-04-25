@@ -1,12 +1,6 @@
 import { randomUUID } from "crypto";
 import { Account } from "../models/account";
-import {
-  Transaction,
-  TransactionType,
-  archiveTransactionModel as defaultArchiveTransactionModel,
-  createTransactionModel as defaultCreateTransactionModel,
-  updateTransactionModel as defaultUpdateTransactionModel,
-} from "../models/transaction";
+import { Transaction, TransactionType } from "../models/transaction";
 import { AccountRepository } from "../ports/account-repository";
 import { TransactionRepository } from "../ports/transaction-repository";
 import { DateString } from "../types/date";
@@ -51,25 +45,13 @@ export interface TransferResult {
 export class TransferService {
   private accountRepository: AccountRepository;
   private transactionRepository: TransactionRepository;
-  private createTransactionModel: typeof defaultCreateTransactionModel;
-  private updateTransactionModel: typeof defaultUpdateTransactionModel;
-  private archiveTransactionModel: typeof defaultArchiveTransactionModel;
 
   constructor(deps: {
     accountRepository: AccountRepository;
     transactionRepository: TransactionRepository;
-    createTransactionModel?: typeof defaultCreateTransactionModel;
-    updateTransactionModel?: typeof defaultUpdateTransactionModel;
-    archiveTransactionModel?: typeof defaultArchiveTransactionModel;
   }) {
     this.accountRepository = deps.accountRepository;
     this.transactionRepository = deps.transactionRepository;
-    this.createTransactionModel =
-      deps.createTransactionModel ?? defaultCreateTransactionModel;
-    this.updateTransactionModel =
-      deps.updateTransactionModel ?? defaultUpdateTransactionModel;
-    this.archiveTransactionModel =
-      deps.archiveTransactionModel ?? defaultArchiveTransactionModel;
   }
 
   /**
@@ -112,7 +94,7 @@ export class TransferService {
     const transferId = randomUUID();
 
     // Build the outbound transaction (TRANSFER_OUT)
-    const outboundTransaction = this.createTransactionModel({
+    const outboundTransaction = Transaction.create({
       userId,
       account: fromAccount,
       type: TransactionType.TRANSFER_OUT,
@@ -123,7 +105,7 @@ export class TransferService {
     });
 
     // Build the inbound transaction (TRANSFER_IN)
-    const inboundTransaction = this.createTransactionModel({
+    const inboundTransaction = Transaction.create({
       userId,
       account: toAccount,
       type: TransactionType.TRANSFER_IN,
@@ -183,7 +165,7 @@ export class TransferService {
 
     try {
       const archivedTransactions = transferTransactions.map((transaction) =>
-        this.archiveTransactionModel(transaction),
+        transaction.archive(),
       );
 
       await handleVersionConflict("Transfer", () =>
@@ -250,12 +232,12 @@ export class TransferService {
       description: input.description,
     };
 
-    const updatedOutbound = this.updateTransactionModel(outboundTransaction, {
+    const updatedOutbound = outboundTransaction.update({
       ...sharedUpdate,
       account: input.fromAccountId ? fromAccount : undefined,
     });
 
-    const updatedInbound = this.updateTransactionModel(inboundTransaction, {
+    const updatedInbound = inboundTransaction.update({
       ...sharedUpdate,
       account: input.toAccountId ? toAccount : undefined,
     });

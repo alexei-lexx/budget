@@ -1,6 +1,6 @@
 import { tool } from "langchain";
 import { z } from "zod";
-import { TransactionType, getSignedAmount } from "../../models/transaction";
+import { TransactionType } from "../../models/transaction";
 import { TransactionRepository } from "../../ports/transaction-repository";
 import { toDateString } from "../../types/date";
 import { Failure, Success } from "../../types/result";
@@ -73,7 +73,7 @@ export const createAggregateTransactionsTool = ({
 
       for (const transaction of transactions) {
         const { currency } = transaction;
-        const signedAmount = getSignedAmount(transaction);
+        const signedAmount = transaction.signedAmount;
 
         sumByCurrency[currency] = (sumByCurrency[currency] ?? 0) + signedAmount;
         countByCurrency[currency] = (countByCurrency[currency] ?? 0) + 1;

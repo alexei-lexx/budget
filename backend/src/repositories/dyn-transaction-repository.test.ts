@@ -5,6 +5,7 @@ import {
 } from "@aws-sdk/lib-dynamodb";
 import { faker } from "@faker-js/faker";
 import { beforeAll, beforeEach, describe, expect, it } from "@jest/globals";
+import { CategoryType } from "../models/category";
 import {
   Transaction,
   TransactionPatternType,
@@ -15,6 +16,8 @@ import { toDateString } from "../types/date";
 import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
 import { requireEnv } from "../utils/require-env";
 import { truncateTable } from "../utils/test-utils/dynamodb-helpers";
+import { fakeAccount } from "../utils/test-utils/models/account-fakes";
+import { fakeCategory } from "../utils/test-utils/models/category-fakes";
 import { fakeTransaction } from "../utils/test-utils/models/transaction-fakes";
 import { DynTransactionRepository } from "./dyn-transaction-repository";
 
@@ -1802,22 +1805,23 @@ describe("DynTransactionRepository", () => {
         currency: "USD",
         date: toDateString("2024-01-20"),
         description: "Original description",
-        categoryId: faker.string.uuid(),
       });
       await repository.create(created);
 
+      const newAccount = fakeAccount({ userId, currency: "EUR" });
+      const newCategory = fakeCategory({ userId, type: CategoryType.INCOME });
+
       // Act
-      const updated = await repository.update({
-        ...created,
-        accountId: faker.string.uuid(),
-        categoryId: faker.string.uuid(),
-        type: TransactionType.INCOME,
-        amount: 100.0,
-        currency: "EUR",
-        date: toDateString("2024-02-01"),
-        description: "Updated description",
-        updatedAt: new Date().toISOString(),
-      });
+      const updated = await repository.update(
+        created.update({
+          account: newAccount,
+          category: newCategory,
+          type: TransactionType.INCOME,
+          amount: 100.0,
+          date: toDateString("2024-02-01"),
+          description: "Updated description",
+        }),
+      );
 
       // Assert
       const stored = await repository.findOneById({
@@ -1833,7 +1837,7 @@ describe("DynTransactionRepository", () => {
       await repository.create(created);
 
       // Act
-      const updated = await repository.update({ ...created, amount: 50 });
+      const updated = await repository.update(created.update({ amount: 50 }));
 
       // Assert
       expect(updated.version).toBe(created.version + 1);
@@ -1856,12 +1860,9 @@ describe("DynTransactionRepository", () => {
       await repository.create(created);
 
       // Act
-      await repository.update({
-        ...created,
-        description: undefined,
-        categoryId: undefined,
-        updatedAt: new Date().toISOString(),
-      });
+      await repository.update(
+        created.update({ description: null, category: null }),
+      );
 
       // Assert
       const stored = await repository.findOneById({
@@ -1887,11 +1888,7 @@ describe("DynTransactionRepository", () => {
       );
 
       // Act
-      await repository.update({
-        ...created,
-        amount: 999,
-        updatedAt: new Date().toISOString(),
-      });
+      await repository.update(created.update({ amount: 999 }));
 
       // Assert
       const { Item: after } = await client.send(
@@ -1909,10 +1906,10 @@ describe("DynTransactionRepository", () => {
       // Arrange — row at v0, then bumped to v1 by a first update
       const created = fakeTransaction({ version: 0 });
       await repository.create(created);
-      await repository.update({ ...created, amount: 50 });
+      await repository.update(created.update({ amount: 50 }));
 
       // Stale write expects v0 but disk is at v1
-      const staleUpdate = { ...created, amount: 99 };
+      const staleUpdate = created.update({ amount: 99 });
 
       // Act & Assert
       await expect(repository.update(staleUpdate)).rejects.toThrow(
@@ -1939,7 +1936,12 @@ describe("DynTransactionRepository", () => {
 
       // Act & Assert - Write as different user, partition key mismatch => condition fails
       await expect(
-        repository.update({ ...created, userId: other }),
+        repository.update(
+          Transaction.fromPersistence({
+            ...created.toData(),
+            userId: other,
+          }),
+        ),
       ).rejects.toThrow("Transaction not found");
 
       // Verify original transaction is unchanged
@@ -1965,12 +1967,12 @@ describe("DynTransactionRepository", () => {
 
       // Act
       const updatedTransactions = await repository.updateMany(
-        transactions.map((transaction) => ({
-          ...transaction,
-          amount: transaction.amount + 100,
-          description: "Updated",
-          updatedAt: new Date().toISOString(),
-        })),
+        transactions.map((transaction) =>
+          transaction.update({
+            amount: transaction.amount + 100,
+            description: "Updated",
+          }),
+        ),
       );
 
       // Assert
@@ -1994,7 +1996,7 @@ describe("DynTransactionRepository", () => {
 
       // Act
       const updated = await repository.updateMany(
-        transactions.map((transaction) => ({ ...transaction, amount: 50 })),
+        transactions.map((transaction) => transaction.update({ amount: 50 })),
       );
 
       // Assert
@@ -2022,9 +2024,13 @@ describe("DynTransactionRepository", () => {
       // Act & Assert
       await expect(
         repository.updateMany([
-          { ...transaction1, amount: 11 },
+          transaction1.update({ amount: 11 }),
           // transaction2 is stale because current version is 2, update assumes it's 1
-          { ...transaction2, amount: 22, version: 1 },
+          Transaction.fromPersistence({
+            ...transaction2.toData(),
+            amount: 22,
+            version: 1,
+          }),
         ]),
       ).rejects.toThrow(VersionConflictError);
 
@@ -2052,7 +2058,7 @@ describe("DynTransactionRepository", () => {
 
       // Act
       const promise = repository.updateMany([
-        { ...existing, amount: 999, updatedAt: new Date().toISOString() },
+        existing.update({ amount: 999 }),
         missing,
       ]);
 
@@ -2327,7 +2333,6 @@ describe("DynTransactionRepository", () => {
       const categoryIncome = faker.string.uuid();
       const categoryExpense = faker.string.uuid();
       const categoryRefund = faker.string.uuid();
-      const categoryTransfer = faker.string.uuid();
 
       const transactions = [
         // Income transactions
@@ -2373,7 +2378,6 @@ describe("DynTransactionRepository", () => {
         fakeTransaction({
           userId,
           accountId,
-          categoryId: categoryTransfer,
           type: TransactionType.TRANSFER_IN,
         }),
       ];

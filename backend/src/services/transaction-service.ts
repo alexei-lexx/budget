@@ -6,9 +6,6 @@ import {
   TransactionPattern,
   TransactionPatternType,
   TransactionType,
-  archiveTransactionModel as defaultArchiveTransactionModel,
-  createTransactionModel as defaultCreateTransactionModel,
-  updateTransactionModel as defaultUpdateTransactionModel,
 } from "../models/transaction";
 import { AccountRepository } from "../ports/account-repository";
 import { CategoryRepository } from "../ports/category-repository";
@@ -103,27 +100,15 @@ export class TransactionServiceImpl implements TransactionService {
   private accountRepository: AccountRepository;
   private categoryRepository: CategoryRepository;
   private transactionRepository: TransactionRepository;
-  private createTransactionModel: typeof defaultCreateTransactionModel;
-  private updateTransactionModel: typeof defaultUpdateTransactionModel;
-  private archiveTransactionModel: typeof defaultArchiveTransactionModel;
 
   constructor(deps: {
     accountRepository: AccountRepository;
     categoryRepository: CategoryRepository;
     transactionRepository: TransactionRepository;
-    createTransactionModel?: typeof defaultCreateTransactionModel;
-    updateTransactionModel?: typeof defaultUpdateTransactionModel;
-    archiveTransactionModel?: typeof defaultArchiveTransactionModel;
   }) {
     this.accountRepository = deps.accountRepository;
     this.categoryRepository = deps.categoryRepository;
     this.transactionRepository = deps.transactionRepository;
-    this.createTransactionModel =
-      deps.createTransactionModel ?? defaultCreateTransactionModel;
-    this.updateTransactionModel =
-      deps.updateTransactionModel ?? defaultUpdateTransactionModel;
-    this.archiveTransactionModel =
-      deps.archiveTransactionModel ?? defaultArchiveTransactionModel;
   }
 
   /**
@@ -180,7 +165,7 @@ export class TransactionServiceImpl implements TransactionService {
       }
     }
 
-    const transaction = this.createTransactionModel({
+    const transaction = Transaction.create({
       ...input,
       userId,
       account,
@@ -254,7 +239,7 @@ export class TransactionServiceImpl implements TransactionService {
               transactionType,
             );
 
-    const updated = this.updateTransactionModel(existingTransaction, {
+    const updated = existingTransaction.update({
       account,
       category,
       type: input.type,
@@ -292,7 +277,7 @@ export class TransactionServiceImpl implements TransactionService {
       return existingTransaction;
     }
 
-    const archived = this.archiveTransactionModel(existingTransaction);
+    const archived = existingTransaction.archive();
 
     return handleVersionConflict("Transaction", () =>
       this.transactionRepository.update(archived),
