@@ -13,7 +13,6 @@ import { monotonicFactory } from "ulidx";
 import { z } from "zod";
 import {
   Transaction,
-  TransactionEntity,
   TransactionPattern,
   TransactionPatternType,
   TransactionType,
@@ -120,7 +119,7 @@ function decodeCursor(cursor: string): CursorData {
 function toTransaction(dbItem: TransactionDbItem): Transaction {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { createdAtSortable, ...data } = dbItem;
-  return TransactionEntity.fromPersistence(data);
+  return Transaction.fromPersistence(data);
 }
 
 // Transform Transaction to TransactionDbItem by adding createdAtSortable

@@ -3,7 +3,6 @@ import { Category, CategoryType } from "../models/category";
 import {
   NonTransferTransactionType,
   Transaction,
-  TransactionEntity,
   TransactionPattern,
   TransactionPatternType,
   TransactionType,
@@ -166,7 +165,7 @@ export class TransactionServiceImpl implements TransactionService {
       }
     }
 
-    const transaction = TransactionEntity.create({
+    const transaction = Transaction.create({
       ...input,
       userId,
       account,

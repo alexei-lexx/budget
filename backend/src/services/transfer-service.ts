@@ -1,10 +1,6 @@
 import { randomUUID } from "crypto";
 import { Account } from "../models/account";
-import {
-  Transaction,
-  TransactionEntity,
-  TransactionType,
-} from "../models/transaction";
+import { Transaction, TransactionType } from "../models/transaction";
 import { AccountRepository } from "../ports/account-repository";
 import { TransactionRepository } from "../ports/transaction-repository";
 import { DateString } from "../types/date";
@@ -98,7 +94,7 @@ export class TransferService {
     const transferId = randomUUID();
 
     // Build the outbound transaction (TRANSFER_OUT)
-    const outboundTransaction = TransactionEntity.create({
+    const outboundTransaction = Transaction.create({
       userId,
       account: fromAccount,
       type: TransactionType.TRANSFER_OUT,
@@ -109,7 +105,7 @@ export class TransferService {
     });
 
     // Build the inbound transaction (TRANSFER_IN)
-    const inboundTransaction = TransactionEntity.create({
+    const inboundTransaction = Transaction.create({
       userId,
       account: toAccount,
       type: TransactionType.TRANSFER_IN,

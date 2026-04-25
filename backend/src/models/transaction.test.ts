@@ -10,9 +10,9 @@ import {
 } from "../utils/test-utils/models/transaction-fakes";
 import { CategoryType } from "./category";
 import { ModelError } from "./model-error";
-import { TransactionEntity, TransactionType } from "./transaction";
+import { Transaction, TransactionType } from "./transaction";
 
-describe("TransactionEntity", () => {
+describe("Transaction", () => {
   describe("create", () => {
     const fixedClock = () => new Date("2000-01-02T10:11:12.000Z");
     const fixedIdGenerator = () => "fixed-uuid";
@@ -36,7 +36,7 @@ describe("TransactionEntity", () => {
       });
 
       // Act
-      const result = TransactionEntity.create(input, fixedDeps);
+      const result = Transaction.create(input, fixedDeps);
 
       // Assert
       expect(result.toData()).toEqual({
@@ -59,7 +59,7 @@ describe("TransactionEntity", () => {
 
     it("builds transaction without category", () => {
       // Act
-      const result = TransactionEntity.create(
+      const result = Transaction.create(
         fakeCreateTransactionInput({ category: undefined }),
         fixedDeps,
       );
@@ -73,7 +73,7 @@ describe("TransactionEntity", () => {
       const account = fakeAccount({ currency: "GBP" });
 
       // Act
-      const result = TransactionEntity.create(
+      const result = Transaction.create(
         fakeCreateTransactionInput({ userId: account.userId, account }),
         fixedDeps,
       );
@@ -84,7 +84,7 @@ describe("TransactionEntity", () => {
 
     it("trims description", () => {
       // Act
-      const result = TransactionEntity.create(
+      const result = Transaction.create(
         fakeCreateTransactionInput({ description: "  spaced  " }),
         fixedDeps,
       );
@@ -99,7 +99,7 @@ describe("TransactionEntity", () => {
       const padded = `  ${withinLimit}  `;
 
       // Act
-      const result = TransactionEntity.create(
+      const result = Transaction.create(
         fakeCreateTransactionInput({ description: padded }),
         fixedDeps,
       );
@@ -110,7 +110,7 @@ describe("TransactionEntity", () => {
 
     it("sets description to undefined when empty after trim", () => {
       // Act
-      const result = TransactionEntity.create(
+      const result = Transaction.create(
         fakeCreateTransactionInput({ description: "   " }),
         fixedDeps,
       );
@@ -121,7 +121,7 @@ describe("TransactionEntity", () => {
 
     it("defaults isArchived to false", () => {
       // Act
-      const result = TransactionEntity.create(
+      const result = Transaction.create(
         fakeCreateTransactionInput(),
         fixedDeps,
       );
@@ -132,7 +132,7 @@ describe("TransactionEntity", () => {
 
     it("sets createdAt equal to updatedAt", () => {
       // Act
-      const result = TransactionEntity.create(
+      const result = Transaction.create(
         fakeCreateTransactionInput(),
         fixedDeps,
       );
@@ -143,7 +143,7 @@ describe("TransactionEntity", () => {
 
     it("sets id and timestamps with default dependencies", () => {
       // Act
-      const result = TransactionEntity.create(fakeCreateTransactionInput());
+      const result = Transaction.create(fakeCreateTransactionInput());
 
       // Assert
       expect(result.id).toBeDefined();
@@ -158,7 +158,7 @@ describe("TransactionEntity", () => {
       const category = fakeCategory({ userId, type: CategoryType.EXPENSE });
 
       // Act
-      const result = TransactionEntity.create(
+      const result = Transaction.create(
         fakeCreateTransactionInput({
           userId,
           account,
@@ -178,7 +178,7 @@ describe("TransactionEntity", () => {
       const transferId = faker.string.uuid();
 
       // Act
-      const result = TransactionEntity.create(
+      const result = Transaction.create(
         fakeCreateTransactionInput({
           type: TransactionType.TRANSFER_OUT,
           transferId,
@@ -197,7 +197,7 @@ describe("TransactionEntity", () => {
       const transferId = faker.string.uuid();
 
       // Act
-      const result = TransactionEntity.create(
+      const result = Transaction.create(
         fakeCreateTransactionInput({
           type: TransactionType.TRANSFER_IN,
           transferId,
@@ -218,7 +218,7 @@ describe("TransactionEntity", () => {
 
       // Act & Assert
       expect(() =>
-        TransactionEntity.create(
+        Transaction.create(
           fakeCreateTransactionInput({
             userId: faker.string.uuid(),
             account,
@@ -235,7 +235,7 @@ describe("TransactionEntity", () => {
 
       // Act & Assert
       expect(() =>
-        TransactionEntity.create(
+        Transaction.create(
           fakeCreateTransactionInput({ userId, account }),
           fixedDeps,
         ),
@@ -245,7 +245,7 @@ describe("TransactionEntity", () => {
     it("throws on zero amount", () => {
       // Act & Assert
       expect(() =>
-        TransactionEntity.create(
+        Transaction.create(
           fakeCreateTransactionInput({ amount: 0 }),
           fixedDeps,
         ),
@@ -255,7 +255,7 @@ describe("TransactionEntity", () => {
     it("throws on negative amount", () => {
       // Act & Assert
       expect(() =>
-        TransactionEntity.create(
+        Transaction.create(
           fakeCreateTransactionInput({ amount: -5 }),
           fixedDeps,
         ),
@@ -272,7 +272,7 @@ describe("TransactionEntity", () => {
 
       // Act & Assert
       expect(() =>
-        TransactionEntity.create(
+        Transaction.create(
           fakeCreateTransactionInput({ userId, category }),
           fixedDeps,
         ),
@@ -290,7 +290,7 @@ describe("TransactionEntity", () => {
 
       // Act & Assert
       expect(() =>
-        TransactionEntity.create(
+        Transaction.create(
           fakeCreateTransactionInput({ userId, category }),
           fixedDeps,
         ),
@@ -304,7 +304,7 @@ describe("TransactionEntity", () => {
 
       // Act & Assert
       expect(() =>
-        TransactionEntity.create(
+        Transaction.create(
           fakeCreateTransactionInput({
             userId,
             category,
@@ -324,7 +324,7 @@ describe("TransactionEntity", () => {
 
       // Act & Assert
       expect(() =>
-        TransactionEntity.create(
+        Transaction.create(
           fakeCreateTransactionInput({
             userId,
             category,
@@ -343,7 +343,7 @@ describe("TransactionEntity", () => {
 
       // Act & Assert
       expect(() =>
-        TransactionEntity.create(
+        Transaction.create(
           fakeCreateTransactionInput({ description: tooLong }),
           fixedDeps,
         ),
@@ -362,7 +362,7 @@ describe("TransactionEntity", () => {
 
       // Act & Assert
       expect(() =>
-        TransactionEntity.create(
+        Transaction.create(
           fakeCreateTransactionInput({
             userId,
             account,
@@ -378,7 +378,7 @@ describe("TransactionEntity", () => {
     it("throws on transfer without transferId", () => {
       // Act & Assert
       expect(() =>
-        TransactionEntity.create(
+        Transaction.create(
           fakeCreateTransactionInput({
             type: TransactionType.TRANSFER_OUT,
             transferId: undefined,
@@ -393,7 +393,7 @@ describe("TransactionEntity", () => {
     it("throws on non-transfer with transferId", () => {
       // Act & Assert
       expect(() =>
-        TransactionEntity.create(
+        Transaction.create(
           fakeCreateTransactionInput({
             type: TransactionType.EXPENSE,
             transferId: faker.string.uuid(),
@@ -414,7 +414,7 @@ describe("TransactionEntity", () => {
       const data = fakeTransaction().toData();
 
       // Act
-      const result = TransactionEntity.fromPersistence(data);
+      const result = Transaction.fromPersistence(data);
 
       // Assert
       expect(result.toData()).toEqual(data);
@@ -427,7 +427,7 @@ describe("TransactionEntity", () => {
       const data = { ...fakeTransaction().toData(), amount: 0 };
 
       // Act & Assert
-      expect(() => TransactionEntity.fromPersistence(data)).toThrow(
+      expect(() => Transaction.fromPersistence(data)).toThrow(
         new ModelError("Amount must be positive"),
       );
     });
@@ -498,7 +498,7 @@ describe("TransactionEntity", () => {
     it("returns plain object with all data fields", () => {
       // Arrange
       const data = fakeTransaction().toData();
-      const tx = TransactionEntity.fromPersistence(data);
+      const tx = Transaction.fromPersistence(data);
 
       // Act & Assert
       expect(tx.toData()).toEqual(data);

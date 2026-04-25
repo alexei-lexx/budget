@@ -2,7 +2,6 @@ import { faker } from "@faker-js/faker";
 import {
   CreateTransactionInput,
   Transaction,
-  TransactionEntity,
   TransactionPattern,
   TransactionType,
 } from "../../../models/transaction";
@@ -18,7 +17,7 @@ export const fakeTransaction = (
     type === TransactionType.TRANSFER_IN ||
     type === TransactionType.TRANSFER_OUT;
 
-  return TransactionEntity.fromPersistence({
+  return Transaction.fromPersistence({
     id: faker.string.uuid(),
     userId: faker.string.uuid(),
     accountId: faker.string.uuid(),

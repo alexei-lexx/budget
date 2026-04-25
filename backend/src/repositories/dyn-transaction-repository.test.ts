@@ -8,7 +8,6 @@ import { beforeAll, beforeEach, describe, expect, it } from "@jest/globals";
 import { CategoryType } from "../models/category";
 import {
   Transaction,
-  TransactionEntity,
   TransactionPatternType,
   TransactionType,
 } from "../models/transaction";
@@ -1938,7 +1937,7 @@ describe("DynTransactionRepository", () => {
       // Act & Assert - Write as different user, partition key mismatch => condition fails
       await expect(
         repository.update(
-          TransactionEntity.fromPersistence({
+          Transaction.fromPersistence({
             ...created.toData(),
             userId: other,
           }),
@@ -2027,7 +2026,7 @@ describe("DynTransactionRepository", () => {
         repository.updateMany([
           transaction1.update({ amount: 11 }),
           // transaction2 is stale because current version is 2, update assumes it's 1
-          TransactionEntity.fromPersistence({
+          Transaction.fromPersistence({
             ...transaction2.toData(),
             amount: 22,
             version: 1,

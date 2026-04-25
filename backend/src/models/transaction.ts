@@ -18,6 +18,8 @@ export type NonTransferTransactionType = Exclude<
   TransactionType.TRANSFER_IN | TransactionType.TRANSFER_OUT
 >;
 
+const defaultClock = () => new Date();
+
 // Plain data shape.
 interface TransactionData {
   userId: string;
@@ -36,18 +38,7 @@ interface TransactionData {
   updatedAt: string;
 }
 
-export interface Transaction extends TransactionData {
-  readonly signedAmount: number;
-  toData(): TransactionData;
-  bumpVersion(): Transaction;
-  update(
-    input: UpdateTransactionInput,
-    deps?: { clock?: () => Date },
-  ): Transaction;
-  archive(deps?: { clock?: () => Date }): Transaction;
-}
-
-export class TransactionEntity implements Transaction {
+export class Transaction {
   readonly userId: string;
   readonly id: string;
   readonly accountId: string;
@@ -66,7 +57,7 @@ export class TransactionEntity implements Transaction {
   static create(
     input: CreateTransactionInput,
     {
-      clock = () => new Date(),
+      clock = defaultClock,
       idGenerator = randomUUID,
     }: { clock?: () => Date; idGenerator?: () => string } = {},
   ) {
@@ -90,14 +81,14 @@ export class TransactionEntity implements Transaction {
       updatedAt: now,
     };
 
-    return new TransactionEntity(data, {
+    return new Transaction(data, {
       newAccount: account,
       newCategory: category,
     });
   }
 
-  static fromPersistence(data: TransactionData): TransactionEntity {
-    return new TransactionEntity(data);
+  static fromPersistence(data: TransactionData): Transaction {
+    return new Transaction(data);
   }
 
   get signedAmount(): number {
@@ -134,20 +125,21 @@ export class TransactionEntity implements Transaction {
   }
 
   bumpVersion() {
-    return new TransactionEntity(
+    return new Transaction(
       {
         ...this.toData(),
         version: this.version + 1,
       },
       undefined,
+      // Version bump leaves all invariant-bearing fields unchanged.
       { skipInvariants: true },
     );
   }
 
   update(
     input: UpdateTransactionInput,
-    { clock = () => new Date() }: { clock?: () => Date } = {},
-  ): TransactionEntity {
+    { clock = defaultClock }: { clock?: () => Date } = {},
+  ): Transaction {
     if (this.isArchived) {
       throw new ModelError("Cannot update archived transaction");
     }
@@ -171,6 +163,7 @@ export class TransactionEntity implements Transaction {
 
     const data: TransactionData = {
       ...this.toData(),
+      // Override account fields only when a new account is provided.
       ...(account && { accountId: account.id, currency: account.currency }),
       categoryId: newCategoryId,
       type: input.type ?? this.type,
@@ -180,15 +173,13 @@ export class TransactionEntity implements Transaction {
       updatedAt: now,
     };
 
-    return new TransactionEntity(data, {
+    return new Transaction(data, {
       newAccount: account,
       newCategory: category ?? undefined,
     });
   }
 
-  archive({
-    clock = () => new Date(),
-  }: { clock?: () => Date } = {}): TransactionEntity {
+  archive({ clock = defaultClock }: { clock?: () => Date } = {}): Transaction {
     if (this.isArchived) {
       throw new ModelError("Cannot archive archived transaction");
     }
@@ -201,7 +192,7 @@ export class TransactionEntity implements Transaction {
       updatedAt: now,
     };
 
-    return new TransactionEntity(data);
+    return new Transaction(data);
   }
 
   private constructor(
@@ -210,7 +201,7 @@ export class TransactionEntity implements Transaction {
     { skipInvariants = false }: { skipInvariants?: boolean } = {},
   ) {
     if (!skipInvariants) {
-      TransactionEntity.assertInvariants(data, transientRelations);
+      Transaction.assertInvariants(data, transientRelations);
     }
 
     this.userId = data.userId;
