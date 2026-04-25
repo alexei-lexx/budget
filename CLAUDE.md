@@ -48,6 +48,12 @@ git worktree add ../worktrees/<worktree-name> <branch>
 git worktree remove ../worktrees/<worktree-name>
 ```
 
+## Temporary Files
+
+Write all temporary files (scratch scripts, debug output, ad-hoc data dumps)
+to the project's `tmp/` directory — not the system `/tmp`.
+Avoids permission prompts for paths outside the project.
+
 ## Reference
 
 - `docs/constitution.md` — project structure, architecture, coding standards, technical constraints
