@@ -123,7 +123,7 @@ function toTransaction(dbItem: TransactionDbItem): Transaction {
 }
 
 // Transform Transaction to TransactionDbItem by adding createdAtSortable
-function toTransactionDbItemToCreate(
+function toTransactionDbItemForCreate(
   transaction: Transaction,
 ): TransactionDbItem {
   const data = transaction.toData();
@@ -476,7 +476,7 @@ export class DynTransactionRepository
   async create(transaction: Readonly<Transaction>): Promise<void> {
     try {
       const dbItem: TransactionDbItem =
-        toTransactionDbItemToCreate(transaction);
+        toTransactionDbItemForCreate(transaction);
 
       const command = new PutCommand({
         TableName: this.tableName,
@@ -521,7 +521,7 @@ export class DynTransactionRepository
 
     try {
       const transactItems = transactions.map((transaction) => {
-        const dbItem = toTransactionDbItemToCreate(transaction);
+        const dbItem = toTransactionDbItemForCreate(transaction);
 
         return {
           Put: {

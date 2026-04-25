@@ -21,7 +21,7 @@ export type NonTransferTransactionType = Exclude<
 const defaultClock = () => new Date();
 
 // Plain data shape.
-interface TransactionData {
+export interface TransactionData {
   userId: string;
   id: string;
   accountId: string;
@@ -60,7 +60,7 @@ export class Transaction implements TransactionData {
       clock = defaultClock,
       idGenerator = randomUUID,
     }: { clock?: () => Date; idGenerator?: () => string } = {},
-  ) {
+  ): Transaction {
     const { account, category } = input;
     const now = clock().toISOString();
 
@@ -100,8 +100,6 @@ export class Transaction implements TransactionData {
       case TransactionType.EXPENSE:
       case TransactionType.TRANSFER_OUT:
         return -this.amount;
-      default:
-        throw new Error(`Unknown transaction type: ${this.type}`);
     }
   }
 
@@ -124,7 +122,7 @@ export class Transaction implements TransactionData {
     };
   }
 
-  bumpVersion() {
+  bumpVersion(): Transaction {
     return new Transaction(
       {
         ...this.toData(),
@@ -245,7 +243,7 @@ export class Transaction implements TransactionData {
       data.type === TransactionType.TRANSFER_IN ||
       data.type === TransactionType.TRANSFER_OUT;
 
-    if (isTransfer && newCategory) {
+    if (isTransfer && data.categoryId) {
       throw new ModelError("Transfer transactions cannot have a category");
     }
 

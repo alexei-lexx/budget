@@ -1,4 +1,5 @@
 import { z } from "zod";
+import type { TransactionData } from "../../models/transaction";
 import { TransactionType } from "../../models/transaction";
 import { toDateString } from "../../types/date";
 
@@ -19,6 +20,6 @@ export const transactionDbItemSchema = z.object({
   createdAt: z.iso.datetime(),
   updatedAt: z.iso.datetime(),
   createdAtSortable: z.string().min(1),
-});
+}) satisfies z.ZodType<TransactionData & { createdAtSortable: string }>;
 
 export type TransactionDbItem = z.infer<typeof transactionDbItemSchema>;

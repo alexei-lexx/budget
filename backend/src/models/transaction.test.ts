@@ -431,6 +431,19 @@ describe("Transaction", () => {
         new ModelError("Amount must be positive"),
       );
     });
+
+    it("throws when transfer has categoryId", () => {
+      // Arrange
+      const data = {
+        ...fakeTransaction({ type: TransactionType.TRANSFER_OUT }).toData(),
+        categoryId: faker.string.uuid(),
+      };
+
+      // Act & Assert
+      expect(() => Transaction.fromPersistence(data)).toThrow(
+        new ModelError("Transfer transactions cannot have a category"),
+      );
+    });
   });
 
   describe("signedAmount", () => {
@@ -823,6 +836,7 @@ describe("Transaction", () => {
       // Arrange
       const existing = fakeTransaction({
         type: TransactionType.EXPENSE,
+        categoryId: undefined,
         transferId: undefined,
       });
 
@@ -832,6 +846,17 @@ describe("Transaction", () => {
       ).toThrow(
         new ModelError("Transfer transactions must include transferId"),
       );
+    });
+
+    it("throws when switching to transfer type without clearing category", () => {
+      // Arrange — existing transaction has categoryId; switching type to
+      // transfer surfaces the category invariant first
+      const existing = fakeTransaction({ type: TransactionType.EXPENSE });
+
+      // Act & Assert
+      expect(() =>
+        existing.update({ type: TransactionType.TRANSFER_OUT }),
+      ).toThrow(new ModelError("Transfer transactions cannot have a category"));
     });
 
     it("throws on switching transfer to non-transfer type", () => {

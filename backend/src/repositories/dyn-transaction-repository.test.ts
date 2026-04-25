@@ -2333,7 +2333,6 @@ describe("DynTransactionRepository", () => {
       const categoryIncome = faker.string.uuid();
       const categoryExpense = faker.string.uuid();
       const categoryRefund = faker.string.uuid();
-      const categoryTransfer = faker.string.uuid();
 
       const transactions = [
         // Income transactions
@@ -2379,7 +2378,6 @@ describe("DynTransactionRepository", () => {
         fakeTransaction({
           userId,
           accountId,
-          categoryId: categoryTransfer,
           type: TransactionType.TRANSFER_IN,
         }),
       ];

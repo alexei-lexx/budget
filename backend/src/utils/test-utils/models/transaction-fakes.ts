@@ -2,6 +2,7 @@ import { faker } from "@faker-js/faker";
 import {
   CreateTransactionInput,
   Transaction,
+  TransactionData,
   TransactionPattern,
   TransactionType,
 } from "../../../models/transaction";
@@ -9,7 +10,7 @@ import { toDateString } from "../../../types/date";
 import { fakeAccount } from "./account-fakes";
 
 export const fakeTransaction = (
-  overrides: Partial<Transaction> = {},
+  overrides: Partial<TransactionData> = {},
 ): Transaction => {
   const now = new Date().toISOString();
   const type = overrides.type ?? TransactionType.EXPENSE;
