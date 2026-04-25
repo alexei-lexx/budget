@@ -1,12 +1,7 @@
 import { faker } from "@faker-js/faker";
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import { ModelError } from "../models/model-error";
-import {
-  TransactionType,
-  archiveTransactionModel,
-  createTransactionModel,
-  updateTransactionModel,
-} from "../models/transaction";
+import { TransactionType } from "../models/transaction";
 import { AccountRepository } from "../ports/account-repository";
 import { VersionConflictError } from "../ports/repository-error";
 import { TransactionRepository } from "../ports/transaction-repository";
@@ -23,29 +18,14 @@ describe("TransferService", () => {
   let userId: string;
   let mockTransactionRepository: jest.Mocked<TransactionRepository>;
   let mockAccountRepository: jest.Mocked<AccountRepository>;
-  let mockCreateTransactionModel: jest.MockedFunction<
-    typeof createTransactionModel
-  >;
-  let mockUpdateTransactionModel: jest.MockedFunction<
-    typeof updateTransactionModel
-  >;
-  let mockArchiveTransactionModel: jest.MockedFunction<
-    typeof archiveTransactionModel
-  >;
 
   beforeEach(() => {
     mockAccountRepository = createMockAccountRepository();
     mockTransactionRepository = createMockTransactionRepository();
-    mockCreateTransactionModel = jest.fn<typeof createTransactionModel>();
-    mockUpdateTransactionModel = jest.fn<typeof updateTransactionModel>();
-    mockArchiveTransactionModel = jest.fn<typeof archiveTransactionModel>();
 
     service = new TransferService({
       accountRepository: mockAccountRepository,
       transactionRepository: mockTransactionRepository,
-      createTransactionModel: mockCreateTransactionModel,
-      updateTransactionModel: mockUpdateTransactionModel,
-      archiveTransactionModel: mockArchiveTransactionModel,
     });
 
     userId = faker.string.uuid();
@@ -176,19 +156,10 @@ describe("TransferService", () => {
     it("creates transfer and returns result with outbound and inbound transactions", async () => {
       const fromAccount = fakeAccount({ userId });
       const toAccount = fakeAccount({ userId, currency: fromAccount.currency });
-      const outboundTransaction = fakeTransaction({
-        type: TransactionType.TRANSFER_OUT,
-      });
-      const inboundTransaction = fakeTransaction({
-        type: TransactionType.TRANSFER_IN,
-      });
 
       mockAccountRepository.findOneById
         .mockResolvedValueOnce(fromAccount)
         .mockResolvedValueOnce(toAccount);
-      mockCreateTransactionModel
-        .mockReturnValueOnce(outboundTransaction)
-        .mockReturnValueOnce(inboundTransaction);
       mockTransactionRepository.createMany.mockResolvedValue();
 
       const result = await service.createTransfer(
@@ -201,32 +172,30 @@ describe("TransferService", () => {
         userId,
       );
 
-      expect(result).toEqual({
-        transferId: expect.any(String),
-        outboundTransaction,
-        inboundTransaction,
-      });
-      expect(mockCreateTransactionModel).toHaveBeenNthCalledWith(1, {
-        userId,
-        account: fromAccount,
-        type: TransactionType.TRANSFER_OUT,
-        amount: 100,
-        date: toDateString("2024-01-01"),
-        description: undefined,
-        transferId: result.transferId,
-      });
-      expect(mockCreateTransactionModel).toHaveBeenNthCalledWith(2, {
-        userId,
-        account: toAccount,
-        type: TransactionType.TRANSFER_IN,
-        amount: 100,
-        date: toDateString("2024-01-01"),
-        description: undefined,
-        transferId: result.transferId,
-      });
+      expect(result.transferId).toEqual(expect.any(String));
+      expect(result.outboundTransaction).toEqual(
+        expect.objectContaining({
+          userId,
+          accountId: fromAccount.id,
+          type: TransactionType.TRANSFER_OUT,
+          amount: 100,
+          date: toDateString("2024-01-01"),
+          transferId: result.transferId,
+        }),
+      );
+      expect(result.inboundTransaction).toEqual(
+        expect.objectContaining({
+          userId,
+          accountId: toAccount.id,
+          type: TransactionType.TRANSFER_IN,
+          amount: 100,
+          date: toDateString("2024-01-01"),
+          transferId: result.transferId,
+        }),
+      );
       expect(mockTransactionRepository.createMany).toHaveBeenCalledWith([
-        outboundTransaction,
-        inboundTransaction,
+        result.outboundTransaction,
+        result.inboundTransaction,
       ]);
     });
   });
@@ -240,23 +209,21 @@ describe("TransferService", () => {
       const fromAccount = fakeAccount({ userId });
       const toAccount = fakeAccount({ userId, currency: fromAccount.currency });
       const outboundTransaction = fakeTransaction({
+        userId,
         type: TransactionType.TRANSFER_OUT,
         transferId,
         accountId: fromAccount.id,
+        currency: fromAccount.currency,
       });
       const inboundTransaction = fakeTransaction({
+        userId,
         type: TransactionType.TRANSFER_IN,
         transferId,
         accountId: toAccount.id,
+        currency: toAccount.currency,
       });
-      const updatedOutbound = fakeTransaction({
-        id: outboundTransaction.id,
-        type: TransactionType.TRANSFER_OUT,
-      });
-      const updatedInbound = fakeTransaction({
-        id: inboundTransaction.id,
-        type: TransactionType.TRANSFER_IN,
-      });
+      const updatedOutbound = outboundTransaction.update({ amount: 200 });
+      const updatedInbound = inboundTransaction.update({ amount: 200 });
 
       // Returns existing pair, then updated pair on refetch
       mockTransactionRepository.findManyByTransferId
@@ -266,10 +233,9 @@ describe("TransferService", () => {
       mockAccountRepository.findOneById
         .mockResolvedValueOnce(fromAccount)
         .mockResolvedValueOnce(toAccount);
-      // Returns updated transactions
-      mockUpdateTransactionModel
-        .mockReturnValueOnce(updatedOutbound)
-        .mockReturnValueOnce(updatedInbound);
+      mockTransactionRepository.updateMany.mockImplementation(async (txs) => [
+        ...txs,
+      ]);
 
       // Act
       const result = await service.updateTransfer(transferId, userId, {
@@ -277,34 +243,20 @@ describe("TransferService", () => {
       });
 
       // Assert
-      expect(result).toEqual({
-        transferId,
-        outboundTransaction: updatedOutbound,
-        inboundTransaction: updatedInbound,
-      });
-      expect(mockUpdateTransactionModel).toHaveBeenNthCalledWith(
-        1,
-        outboundTransaction,
-        {
-          account: undefined,
-          amount: 200,
-          date: undefined,
-          description: undefined,
-        },
-      );
-      expect(mockUpdateTransactionModel).toHaveBeenNthCalledWith(
-        2,
-        inboundTransaction,
-        {
-          account: undefined,
-          amount: 200,
-          date: undefined,
-          description: undefined,
-        },
-      );
+      expect(result.transferId).toBe(transferId);
+      expect(result.outboundTransaction.amount).toBe(200);
+      expect(result.inboundTransaction.amount).toBe(200);
       expect(mockTransactionRepository.updateMany).toHaveBeenCalledWith([
-        updatedOutbound,
-        updatedInbound,
+        expect.objectContaining({
+          id: outboundTransaction.id,
+          amount: 200,
+          accountId: fromAccount.id,
+        }),
+        expect.objectContaining({
+          id: inboundTransaction.id,
+          amount: 200,
+          accountId: toAccount.id,
+        }),
       ]);
     });
 
@@ -314,12 +266,16 @@ describe("TransferService", () => {
       const fromAccount = fakeAccount({ userId });
       const toAccount = fakeAccount({ userId, currency: fromAccount.currency });
       const outboundTransaction = fakeTransaction({
+        userId,
         type: TransactionType.TRANSFER_OUT,
         transferId,
+        currency: fromAccount.currency,
       });
       const inboundTransaction = fakeTransaction({
+        userId,
         type: TransactionType.TRANSFER_IN,
         transferId,
+        currency: toAccount.currency,
       });
 
       // Returns existing pair on both lookups
@@ -330,10 +286,9 @@ describe("TransferService", () => {
       mockAccountRepository.findOneById
         .mockResolvedValueOnce(fromAccount)
         .mockResolvedValueOnce(toAccount);
-      // Returns built updated sides
-      mockUpdateTransactionModel
-        .mockReturnValueOnce(outboundTransaction)
-        .mockReturnValueOnce(inboundTransaction);
+      mockTransactionRepository.updateMany.mockImplementation(async (txs) => [
+        ...txs,
+      ]);
 
       // Act
       await service.updateTransfer(transferId, userId, {
@@ -342,16 +297,10 @@ describe("TransferService", () => {
       });
 
       // Assert
-      expect(mockUpdateTransactionModel).toHaveBeenNthCalledWith(
-        1,
-        outboundTransaction,
-        expect.objectContaining({ account: fromAccount }),
-      );
-      expect(mockUpdateTransactionModel).toHaveBeenNthCalledWith(
-        2,
-        inboundTransaction,
-        expect.objectContaining({ account: toAccount }),
-      );
+      expect(mockTransactionRepository.updateMany).toHaveBeenCalledWith([
+        expect.objectContaining({ accountId: fromAccount.id }),
+        expect.objectContaining({ accountId: toAccount.id }),
+      ]);
     });
 
     // Dependency failures
@@ -422,10 +371,6 @@ describe("TransferService", () => {
       mockAccountRepository.findOneById
         .mockResolvedValueOnce(fromAccount)
         .mockResolvedValueOnce(toAccount);
-      // Model rejects input
-      mockUpdateTransactionModel.mockImplementation(() => {
-        throw new ModelError("Amount must be positive");
-      });
 
       // Act
       const promise = service.updateTransfer(transferId, userId, {
@@ -434,6 +379,9 @@ describe("TransferService", () => {
 
       // Assert
       await expect(promise).rejects.toThrow(ModelError);
+      await expect(promise).rejects.toMatchObject({
+        message: "Amount must be positive",
+      });
       expect(mockTransactionRepository.updateMany).not.toHaveBeenCalled();
     });
   });
@@ -446,34 +394,29 @@ describe("TransferService", () => {
       const transferId = faker.string.uuid();
       const outboundTransaction = fakeTransaction();
       const inboundTransaction = fakeTransaction();
-      const archivedOutbound = fakeTransaction();
-      const archivedInbound = fakeTransaction();
 
       // Returns existing pair
       mockTransactionRepository.findManyByTransferId.mockResolvedValue([
         outboundTransaction,
         inboundTransaction,
       ]);
-      // Returns archived sides
-      mockArchiveTransactionModel
-        .mockReturnValueOnce(archivedOutbound)
-        .mockReturnValueOnce(archivedInbound);
+      mockTransactionRepository.updateMany.mockImplementation(async (txs) => [
+        ...txs,
+      ]);
 
       // Act
       await service.deleteTransfer(transferId, userId);
 
       // Assert
-      expect(mockArchiveTransactionModel).toHaveBeenNthCalledWith(
-        1,
-        outboundTransaction,
-      );
-      expect(mockArchiveTransactionModel).toHaveBeenNthCalledWith(
-        2,
-        inboundTransaction,
-      );
       expect(mockTransactionRepository.updateMany).toHaveBeenCalledWith([
-        archivedOutbound,
-        archivedInbound,
+        expect.objectContaining({
+          id: outboundTransaction.id,
+          isArchived: true,
+        }),
+        expect.objectContaining({
+          id: inboundTransaction.id,
+          isArchived: true,
+        }),
       ]);
     });
 
@@ -492,7 +435,6 @@ describe("TransferService", () => {
       await expect(promise).rejects.toMatchObject({
         message: "Transfer not found or doesn't belong to user",
       });
-      expect(mockArchiveTransactionModel).not.toHaveBeenCalled();
       expect(mockTransactionRepository.updateMany).not.toHaveBeenCalled();
     });
 

@@ -18,21 +18,306 @@ export type NonTransferTransactionType = Exclude<
   TransactionType.TRANSFER_IN | TransactionType.TRANSFER_OUT
 >;
 
-export interface Transaction {
-  userId: string; // Partition key (same pattern as other entities)
-  id: string; // Sort key - UUID v4
-  accountId: string; // Foreign key to Account
-  categoryId?: string; // Optional foreign key to Category
-  type: TransactionType; // Transaction type (matches category type)
-  amount: number; // Transaction amount (positive value)
-  currency: string; // ISO currency code (inherited from account)
-  date: DateString; // Transaction date (YYYY-MM-DD format)
-  description?: string; // Optional description
-  transferId?: string; // Optional UUID linking paired transfer transactions
-  isArchived: boolean; // Soft delete flag
-  version: number; // OCC token
-  createdAt: string; // ISO timestamp
-  updatedAt: string; // ISO timestamp
+// Plain data shape.
+// Used anywhere a value (not a domain object) is needed.
+export interface TransactionData {
+  userId: string;
+  id: string;
+  accountId: string;
+  categoryId?: string;
+  type: TransactionType;
+  amount: number;
+  currency: string;
+  date: DateString;
+  description?: string;
+  transferId?: string;
+  isArchived: boolean;
+  version: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Transaction extends TransactionData {
+  readonly signedAmount: number;
+  toData(): TransactionData;
+  bumpVersion(): Transaction;
+  update(
+    input: UpdateTransactionInput,
+    deps?: { clock?: () => Date },
+  ): Transaction;
+  archive(deps?: { clock?: () => Date }): Transaction;
+}
+
+export class TransactionEntity implements Transaction {
+  readonly userId: string;
+  readonly id: string;
+  readonly accountId: string;
+  readonly categoryId?: string;
+  readonly type: TransactionType;
+  readonly amount: number;
+  readonly currency: string;
+  readonly date: DateString;
+  readonly description?: string;
+  readonly transferId?: string;
+  readonly isArchived: boolean;
+  readonly version: number;
+  readonly createdAt: string;
+  readonly updatedAt: string;
+
+  static create(
+    input: CreateTransactionInput,
+    {
+      clock = () => new Date(),
+      idGenerator = randomUUID,
+    }: { clock?: () => Date; idGenerator?: () => string } = {},
+  ) {
+    const { account, category } = input;
+    const now = clock().toISOString();
+
+    const data: TransactionData = {
+      id: idGenerator(),
+      userId: input.userId,
+      accountId: account.id,
+      categoryId: category?.id,
+      type: input.type,
+      amount: input.amount,
+      currency: account.currency,
+      date: input.date,
+      description: normalizeDescription(input.description),
+      transferId: input.transferId,
+      isArchived: false,
+      version: 0,
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    return new TransactionEntity(data, {
+      newAccount: account,
+      newCategory: category,
+    });
+  }
+
+  static fromPersistence(data: TransactionData): TransactionEntity {
+    return new TransactionEntity(data);
+  }
+
+  get signedAmount(): number {
+    switch (this.type) {
+      case TransactionType.INCOME:
+      case TransactionType.REFUND:
+      case TransactionType.TRANSFER_IN:
+        return this.amount;
+      case TransactionType.EXPENSE:
+      case TransactionType.TRANSFER_OUT:
+        return -this.amount;
+      default:
+        throw new Error(`Unknown transaction type: ${this.type}`);
+    }
+  }
+
+  toData(): TransactionData {
+    return {
+      userId: this.userId,
+      id: this.id,
+      accountId: this.accountId,
+      categoryId: this.categoryId,
+      type: this.type,
+      amount: this.amount,
+      currency: this.currency,
+      date: this.date,
+      description: this.description,
+      transferId: this.transferId,
+      isArchived: this.isArchived,
+      version: this.version,
+      createdAt: this.createdAt,
+      updatedAt: this.updatedAt,
+    };
+  }
+
+  bumpVersion() {
+    return new TransactionEntity(
+      {
+        ...this.toData(),
+        version: this.version + 1,
+      },
+      undefined,
+      { skipInvariants: true },
+    );
+  }
+
+  update(
+    input: UpdateTransactionInput,
+    { clock = () => new Date() }: { clock?: () => Date } = {},
+  ): TransactionEntity {
+    if (this.isArchived) {
+      throw new ModelError("Cannot update archived transaction");
+    }
+
+    const { account, category } = input;
+    const now = clock().toISOString();
+
+    const newCategoryId =
+      category === undefined // Keep existing category
+        ? this.categoryId
+        : category === null // Remove category
+          ? undefined
+          : category.id;
+
+    const newDescription =
+      input.description === undefined // Keep existing description
+        ? this.description
+        : input.description === null // Remove description
+          ? undefined
+          : normalizeDescription(input.description);
+
+    const data: TransactionData = {
+      ...this.toData(),
+      ...(account && { accountId: account.id, currency: account.currency }),
+      categoryId: newCategoryId,
+      type: input.type ?? this.type,
+      amount: input.amount ?? this.amount,
+      date: input.date ?? this.date,
+      description: newDescription,
+      updatedAt: now,
+    };
+
+    return new TransactionEntity(data, {
+      newAccount: account,
+      newCategory: category ?? undefined,
+    });
+  }
+
+  archive({
+    clock = () => new Date(),
+  }: { clock?: () => Date } = {}): TransactionEntity {
+    if (this.isArchived) {
+      throw new ModelError("Cannot archive archived transaction");
+    }
+
+    const now = clock().toISOString();
+
+    const data: TransactionData = {
+      ...this.toData(),
+      isArchived: true,
+      updatedAt: now,
+    };
+
+    return new TransactionEntity(data);
+  }
+
+  private constructor(
+    data: TransactionData,
+    transientRelations?: { newAccount?: Account; newCategory?: Category },
+    { skipInvariants = false }: { skipInvariants?: boolean } = {},
+  ) {
+    if (!skipInvariants) {
+      TransactionEntity.assertInvariants(data, transientRelations);
+    }
+
+    this.userId = data.userId;
+    this.id = data.id;
+    this.accountId = data.accountId;
+    this.categoryId = data.categoryId;
+    this.type = data.type;
+    this.amount = data.amount;
+    this.currency = data.currency;
+    this.date = data.date;
+    this.description = data.description;
+    this.transferId = data.transferId;
+    this.isArchived = data.isArchived;
+    this.version = data.version;
+    this.createdAt = data.createdAt;
+    this.updatedAt = data.updatedAt;
+  }
+
+  private static assertInvariants(
+    data: TransactionData,
+    transientRelations?: { newAccount?: Account; newCategory?: Category },
+  ): void {
+    const newAccount = transientRelations?.newAccount;
+    const newCategory = transientRelations?.newCategory;
+
+    if (newAccount) {
+      if (newAccount.userId !== data.userId) {
+        throw new ModelError("Account does not belong to user");
+      }
+
+      if (newAccount.isArchived) {
+        throw new ModelError("Account must not be archived");
+      }
+    }
+
+    if (data.amount <= 0) {
+      throw new ModelError("Amount must be positive");
+    }
+
+    const isTransfer =
+      data.type === TransactionType.TRANSFER_IN ||
+      data.type === TransactionType.TRANSFER_OUT;
+
+    if (isTransfer && newCategory) {
+      throw new ModelError("Transfer transactions cannot have a category");
+    }
+
+    if (isTransfer) {
+      if (!data.transferId) {
+        throw new ModelError("Transfer transactions must include transferId");
+      }
+    } else {
+      if (data.transferId) {
+        throw new ModelError(
+          "Only transfer transactions can include transferId",
+        );
+      }
+    }
+
+    if (newCategory) {
+      if (newCategory.userId !== data.userId) {
+        throw new ModelError("Category does not belong to user");
+      }
+
+      if (newCategory.isArchived) {
+        throw new ModelError("Category must not be archived");
+      }
+
+      const typeMismatch =
+        (newCategory.type === CategoryType.INCOME &&
+          data.type !== TransactionType.INCOME) ||
+        (newCategory.type === CategoryType.EXPENSE &&
+          data.type !== TransactionType.EXPENSE &&
+          data.type !== TransactionType.REFUND);
+
+      if (typeMismatch) {
+        throw new ModelError("Category type does not match transaction type");
+      }
+    }
+
+    if (data.description && data.description.length > DESCRIPTION_MAX_LENGTH) {
+      throw new ModelError(
+        `Description cannot exceed ${DESCRIPTION_MAX_LENGTH} characters`,
+      );
+    }
+  }
+}
+
+export interface CreateTransactionInput {
+  userId: string;
+  account: Account;
+  category?: Category;
+  type: TransactionType;
+  amount: number;
+  date: DateString;
+  description?: string;
+  transferId?: string;
+}
+
+export interface UpdateTransactionInput {
+  account?: Account;
+  category?: Category | null;
+  type?: TransactionType;
+  amount?: number;
+  date?: DateString;
+  description?: string | null;
 }
 
 // Most popular combinations of account and category
@@ -47,213 +332,6 @@ export enum TransactionPatternType {
   INCOME = "INCOME",
   EXPENSE = "EXPENSE",
   REFUND = "REFUND",
-}
-
-export interface CreateTransactionInput {
-  userId: string;
-  account: Account;
-  category?: Category;
-  type: TransactionType;
-  amount: number;
-  date: DateString;
-  description?: string;
-  transferId?: string;
-}
-
-export function createTransactionModel(
-  input: CreateTransactionInput,
-  {
-    clock = () => new Date(),
-    idGenerator = randomUUID,
-  }: { clock?: () => Date; idGenerator?: () => string } = {},
-): Transaction {
-  const { account, category } = input;
-  const now = clock().toISOString();
-
-  const transaction: Transaction = {
-    id: idGenerator(),
-    userId: input.userId,
-    accountId: account.id,
-    categoryId: category?.id,
-    type: input.type,
-    amount: input.amount,
-    currency: account.currency,
-    date: input.date,
-    description: normalizeDescription(input.description),
-    transferId: input.transferId,
-    isArchived: false,
-    version: 0,
-    createdAt: now,
-    updatedAt: now,
-  };
-
-  assertTransactionInvariants({
-    transaction,
-    newAccount: account,
-    newCategory: category,
-  });
-
-  return transaction;
-}
-
-export interface UpdateTransactionInput {
-  account?: Account;
-  category?: Category | null;
-  type?: TransactionType;
-  amount?: number;
-  date?: DateString;
-  description?: string | null;
-}
-
-export function updateTransactionModel(
-  transaction: Transaction,
-  input: UpdateTransactionInput,
-  { clock = () => new Date() }: { clock?: () => Date } = {},
-): Transaction {
-  if (transaction.isArchived) {
-    throw new ModelError("Cannot update archived transaction");
-  }
-
-  const { account, category } = input;
-  const now = clock().toISOString();
-
-  const newCategoryId =
-    category === undefined // Not overriding category
-      ? transaction.categoryId
-      : category === null // Explicitly removing category
-        ? undefined
-        : category.id;
-
-  const newDescription =
-    input.description === undefined // Not overriding description
-      ? transaction.description
-      : input.description === null // Explicitly removing description
-        ? undefined
-        : normalizeDescription(input.description);
-
-  const updatedTransaction: Transaction = {
-    ...transaction,
-    accountId: account ? account.id : transaction.accountId,
-    categoryId: newCategoryId,
-    type: input.type ?? transaction.type,
-    amount: input.amount ?? transaction.amount,
-    currency: account ? account.currency : transaction.currency,
-    date: input.date ?? transaction.date,
-    description: newDescription,
-    updatedAt: now,
-  };
-
-  assertTransactionInvariants({
-    transaction: updatedTransaction,
-    newAccount: account,
-    newCategory: category ?? undefined,
-  });
-
-  return updatedTransaction;
-}
-
-export function archiveTransactionModel(
-  transaction: Transaction,
-  { clock = () => new Date() }: { clock?: () => Date } = {},
-): Transaction {
-  if (transaction.isArchived) {
-    throw new ModelError("Cannot archive archived transaction");
-  }
-
-  return {
-    ...transaction,
-    isArchived: true,
-    updatedAt: clock().toISOString(),
-  };
-}
-
-// Get signed amount based on transaction type
-// Positive for INCOME, REFUND, TRANSFER_IN
-// Negative for EXPENSE, TRANSFER_OUT
-export function getSignedAmount(transaction: Transaction): number {
-  switch (transaction.type) {
-    case TransactionType.INCOME:
-    case TransactionType.REFUND:
-    case TransactionType.TRANSFER_IN:
-      return transaction.amount;
-    case TransactionType.EXPENSE:
-    case TransactionType.TRANSFER_OUT:
-      return -transaction.amount;
-    default:
-      throw new Error(`Unknown transaction type: ${transaction.type}`);
-  }
-}
-
-function assertTransactionInvariants({
-  transaction,
-  newAccount,
-  newCategory,
-}: {
-  transaction: Transaction;
-  newAccount?: Account;
-  newCategory?: Category;
-}): void {
-  if (newAccount) {
-    if (newAccount.userId !== transaction.userId) {
-      throw new ModelError("Account does not belong to user");
-    }
-
-    if (newAccount.isArchived) {
-      throw new ModelError("Account must not be archived");
-    }
-  }
-
-  if (transaction.amount <= 0) {
-    throw new ModelError("Amount must be positive");
-  }
-
-  const isTransfer =
-    transaction.type === TransactionType.TRANSFER_IN ||
-    transaction.type === TransactionType.TRANSFER_OUT;
-
-  if (isTransfer && newCategory) {
-    throw new ModelError("Transfer transactions cannot have a category");
-  }
-
-  if (isTransfer) {
-    if (!transaction.transferId) {
-      throw new ModelError("Transfer transactions must include transferId");
-    }
-  } else {
-    if (transaction.transferId) {
-      throw new ModelError("Only transfer transactions can include transferId");
-    }
-  }
-
-  if (newCategory) {
-    if (newCategory.userId !== transaction.userId) {
-      throw new ModelError("Category does not belong to user");
-    }
-
-    if (newCategory.isArchived) {
-      throw new ModelError("Category must not be archived");
-    }
-
-    const typeMismatch =
-      (newCategory.type === CategoryType.INCOME &&
-        transaction.type !== TransactionType.INCOME) ||
-      (newCategory.type === CategoryType.EXPENSE &&
-        transaction.type !== TransactionType.EXPENSE &&
-        transaction.type !== TransactionType.REFUND);
-
-    if (typeMismatch) {
-      throw new ModelError("Category type does not match transaction type");
-    }
-  }
-
-  if (
-    transaction.description &&
-    transaction.description.length > DESCRIPTION_MAX_LENGTH
-  ) {
-    throw new ModelError(
-      `Description cannot exceed ${DESCRIPTION_MAX_LENGTH} characters`,
-    );
-  }
 }
 
 function normalizeDescription(description?: string | null): string | undefined {

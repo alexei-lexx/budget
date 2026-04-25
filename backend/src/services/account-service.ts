@@ -1,5 +1,4 @@
 import { Account } from "../models/account";
-import { getSignedAmount } from "../models/transaction";
 import {
   AccountRepository,
   CreateAccountInput,
@@ -154,7 +153,7 @@ export class AccountServiceImpl implements AccountService {
 
     // Calculate balance: initialBalance + INCOME + REFUND + TRANSFER_IN - EXPENSE - TRANSFER_OUT
     const balance = transactions.reduce(
-      (sum, transaction) => sum + getSignedAmount(transaction),
+      (sum, transaction) => sum + transaction.signedAmount,
       account.initialBalance,
     );
 

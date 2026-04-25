@@ -7,19 +7,14 @@ import { fakeCategory } from "../utils/test-utils/models/category-fakes";
 import {
   fakeCreateTransactionInput,
   fakeTransaction,
+  fakeTransactionData,
 } from "../utils/test-utils/models/transaction-fakes";
 import { CategoryType } from "./category";
 import { ModelError } from "./model-error";
-import {
-  TransactionType,
-  archiveTransactionModel,
-  createTransactionModel,
-  getSignedAmount,
-  updateTransactionModel,
-} from "./transaction";
+import { TransactionEntity, TransactionType } from "./transaction";
 
-describe("transaction model", () => {
-  describe("createTransactionModel", () => {
+describe("TransactionEntity", () => {
+  describe("create", () => {
     const fixedClock = () => new Date("2000-01-02T10:11:12.000Z");
     const fixedIdGenerator = () => "fixed-uuid";
     const fixedDeps = { clock: fixedClock, idGenerator: fixedIdGenerator };
@@ -42,10 +37,10 @@ describe("transaction model", () => {
       });
 
       // Act
-      const result = createTransactionModel(input, fixedDeps);
+      const result = TransactionEntity.create(input, fixedDeps);
 
       // Assert
-      expect(result).toEqual({
+      expect(result.toData()).toEqual({
         id: "fixed-uuid",
         userId,
         accountId: account.id,
@@ -65,7 +60,7 @@ describe("transaction model", () => {
 
     it("builds transaction without category", () => {
       // Act
-      const result = createTransactionModel(
+      const result = TransactionEntity.create(
         fakeCreateTransactionInput({ category: undefined }),
         fixedDeps,
       );
@@ -79,7 +74,7 @@ describe("transaction model", () => {
       const account = fakeAccount({ currency: "GBP" });
 
       // Act
-      const result = createTransactionModel(
+      const result = TransactionEntity.create(
         fakeCreateTransactionInput({ userId: account.userId, account }),
         fixedDeps,
       );
@@ -90,7 +85,7 @@ describe("transaction model", () => {
 
     it("trims description", () => {
       // Act
-      const result = createTransactionModel(
+      const result = TransactionEntity.create(
         fakeCreateTransactionInput({ description: "  spaced  " }),
         fixedDeps,
       );
@@ -105,7 +100,7 @@ describe("transaction model", () => {
       const padded = `  ${withinLimit}  `;
 
       // Act
-      const result = createTransactionModel(
+      const result = TransactionEntity.create(
         fakeCreateTransactionInput({ description: padded }),
         fixedDeps,
       );
@@ -116,7 +111,7 @@ describe("transaction model", () => {
 
     it("sets description to undefined when empty after trim", () => {
       // Act
-      const result = createTransactionModel(
+      const result = TransactionEntity.create(
         fakeCreateTransactionInput({ description: "   " }),
         fixedDeps,
       );
@@ -127,7 +122,7 @@ describe("transaction model", () => {
 
     it("defaults isArchived to false", () => {
       // Act
-      const result = createTransactionModel(
+      const result = TransactionEntity.create(
         fakeCreateTransactionInput(),
         fixedDeps,
       );
@@ -138,7 +133,7 @@ describe("transaction model", () => {
 
     it("sets createdAt equal to updatedAt", () => {
       // Act
-      const result = createTransactionModel(
+      const result = TransactionEntity.create(
         fakeCreateTransactionInput(),
         fixedDeps,
       );
@@ -149,7 +144,7 @@ describe("transaction model", () => {
 
     it("sets id and timestamps with default dependencies", () => {
       // Act
-      const result = createTransactionModel(fakeCreateTransactionInput());
+      const result = TransactionEntity.create(fakeCreateTransactionInput());
 
       // Assert
       expect(result.id).toBeDefined();
@@ -164,7 +159,7 @@ describe("transaction model", () => {
       const category = fakeCategory({ userId, type: CategoryType.EXPENSE });
 
       // Act
-      const result = createTransactionModel(
+      const result = TransactionEntity.create(
         fakeCreateTransactionInput({
           userId,
           account,
@@ -184,7 +179,7 @@ describe("transaction model", () => {
       const transferId = faker.string.uuid();
 
       // Act
-      const result = createTransactionModel(
+      const result = TransactionEntity.create(
         fakeCreateTransactionInput({
           type: TransactionType.TRANSFER_OUT,
           transferId,
@@ -203,7 +198,7 @@ describe("transaction model", () => {
       const transferId = faker.string.uuid();
 
       // Act
-      const result = createTransactionModel(
+      const result = TransactionEntity.create(
         fakeCreateTransactionInput({
           type: TransactionType.TRANSFER_IN,
           transferId,
@@ -218,13 +213,13 @@ describe("transaction model", () => {
 
     // Validation failures
 
-    it("rejects when account belongs to different user", () => {
+    it("throws when account belongs to different user", () => {
       // Arrange
       const account = fakeAccount({ userId: faker.string.uuid() });
 
       // Act & Assert
       expect(() =>
-        createTransactionModel(
+        TransactionEntity.create(
           fakeCreateTransactionInput({
             userId: faker.string.uuid(),
             account,
@@ -234,41 +229,41 @@ describe("transaction model", () => {
       ).toThrow(new ModelError("Account does not belong to user"));
     });
 
-    it("rejects when account is archived", () => {
+    it("throws when account is archived", () => {
       // Arrange
       const userId = faker.string.uuid();
       const account = fakeAccount({ userId, isArchived: true });
 
       // Act & Assert
       expect(() =>
-        createTransactionModel(
+        TransactionEntity.create(
           fakeCreateTransactionInput({ userId, account }),
           fixedDeps,
         ),
       ).toThrow(new ModelError("Account must not be archived"));
     });
 
-    it("rejects zero amount", () => {
+    it("throws on zero amount", () => {
       // Act & Assert
       expect(() =>
-        createTransactionModel(
+        TransactionEntity.create(
           fakeCreateTransactionInput({ amount: 0 }),
           fixedDeps,
         ),
       ).toThrow(new ModelError("Amount must be positive"));
     });
 
-    it("rejects negative amount", () => {
+    it("throws on negative amount", () => {
       // Act & Assert
       expect(() =>
-        createTransactionModel(
+        TransactionEntity.create(
           fakeCreateTransactionInput({ amount: -5 }),
           fixedDeps,
         ),
       ).toThrow(new ModelError("Amount must be positive"));
     });
 
-    it("rejects when category belongs to different user", () => {
+    it("throws when category belongs to different user", () => {
       // Arrange
       const userId = faker.string.uuid();
       const category = fakeCategory({
@@ -278,14 +273,14 @@ describe("transaction model", () => {
 
       // Act & Assert
       expect(() =>
-        createTransactionModel(
+        TransactionEntity.create(
           fakeCreateTransactionInput({ userId, category }),
           fixedDeps,
         ),
       ).toThrow(new ModelError("Category does not belong to user"));
     });
 
-    it("rejects when category is archived", () => {
+    it("throws when category is archived", () => {
       // Arrange
       const userId = faker.string.uuid();
       const category = fakeCategory({
@@ -296,21 +291,21 @@ describe("transaction model", () => {
 
       // Act & Assert
       expect(() =>
-        createTransactionModel(
+        TransactionEntity.create(
           fakeCreateTransactionInput({ userId, category }),
           fixedDeps,
         ),
       ).toThrow(new ModelError("Category must not be archived"));
     });
 
-    it("rejects INCOME category on EXPENSE transaction", () => {
+    it("throws on INCOME category for EXPENSE transaction", () => {
       // Arrange
       const userId = faker.string.uuid();
       const category = fakeCategory({ userId, type: CategoryType.INCOME });
 
       // Act & Assert
       expect(() =>
-        createTransactionModel(
+        TransactionEntity.create(
           fakeCreateTransactionInput({
             userId,
             category,
@@ -323,14 +318,14 @@ describe("transaction model", () => {
       );
     });
 
-    it("rejects EXPENSE category on INCOME transaction", () => {
+    it("throws on EXPENSE category for INCOME transaction", () => {
       // Arrange
       const userId = faker.string.uuid();
       const category = fakeCategory({ userId, type: CategoryType.EXPENSE });
 
       // Act & Assert
       expect(() =>
-        createTransactionModel(
+        TransactionEntity.create(
           fakeCreateTransactionInput({
             userId,
             category,
@@ -343,13 +338,13 @@ describe("transaction model", () => {
       );
     });
 
-    it("rejects description exceeding max length", () => {
+    it("throws when description exceeds maximum length", () => {
       // Arrange
       const tooLong = "x".repeat(DESCRIPTION_MAX_LENGTH + 1);
 
       // Act & Assert
       expect(() =>
-        createTransactionModel(
+        TransactionEntity.create(
           fakeCreateTransactionInput({ description: tooLong }),
           fixedDeps,
         ),
@@ -360,7 +355,7 @@ describe("transaction model", () => {
       );
     });
 
-    it("rejects transfer with category", () => {
+    it("throws on transfer with category", () => {
       // Arrange
       const userId = faker.string.uuid();
       const account = fakeAccount({ userId });
@@ -368,7 +363,7 @@ describe("transaction model", () => {
 
       // Act & Assert
       expect(() =>
-        createTransactionModel(
+        TransactionEntity.create(
           fakeCreateTransactionInput({
             userId,
             account,
@@ -381,10 +376,10 @@ describe("transaction model", () => {
       ).toThrow(new ModelError("Transfer transactions cannot have a category"));
     });
 
-    it("rejects transfer without transferId", () => {
+    it("throws on transfer without transferId", () => {
       // Act & Assert
       expect(() =>
-        createTransactionModel(
+        TransactionEntity.create(
           fakeCreateTransactionInput({
             type: TransactionType.TRANSFER_OUT,
             transferId: undefined,
@@ -396,10 +391,10 @@ describe("transaction model", () => {
       );
     });
 
-    it("rejects non-transfer with transferId", () => {
+    it("throws on non-transfer with transferId", () => {
       // Act & Assert
       expect(() =>
-        createTransactionModel(
+        TransactionEntity.create(
           fakeCreateTransactionInput({
             type: TransactionType.EXPENSE,
             transferId: faker.string.uuid(),
@@ -412,10 +407,135 @@ describe("transaction model", () => {
     });
   });
 
-  describe("updateTransactionModel", () => {
-    const fixedClock = () => new Date("2000-01-02T10:11:12.000Z");
-    const fixedDeps = { clock: fixedClock };
+  describe("fromPersistence", () => {
+    // Happy path
 
+    it("reconstructs instance from data", () => {
+      // Arrange
+      const data = fakeTransactionData();
+
+      // Act
+      const result = TransactionEntity.fromPersistence(data);
+
+      // Assert
+      expect(result.toData()).toEqual(data);
+    });
+
+    // Validation failures
+
+    it("throws on zero amount", () => {
+      // Arrange
+      const data = fakeTransactionData({ amount: 0 });
+
+      // Act & Assert
+      expect(() => TransactionEntity.fromPersistence(data)).toThrow(
+        new ModelError("Amount must be positive"),
+      );
+    });
+  });
+
+  describe("signedAmount", () => {
+    // Happy path
+
+    it("returns positive amount for INCOME transactions", () => {
+      // Arrange
+      const tx = fakeTransaction({
+        type: TransactionType.INCOME,
+        amount: 100,
+      });
+
+      // Act & Assert
+      expect(tx.signedAmount).toBe(100);
+    });
+
+    it("returns positive amount for REFUND transactions", () => {
+      // Arrange
+      const tx = fakeTransaction({
+        type: TransactionType.REFUND,
+        amount: 100,
+      });
+
+      // Act & Assert
+      expect(tx.signedAmount).toBe(100);
+    });
+
+    it("returns positive amount for TRANSFER_IN transactions", () => {
+      // Arrange
+      const tx = fakeTransaction({
+        type: TransactionType.TRANSFER_IN,
+        amount: 100,
+      });
+
+      // Act & Assert
+      expect(tx.signedAmount).toBe(100);
+    });
+
+    it("returns negative amount for EXPENSE transactions", () => {
+      // Arrange
+      const tx = fakeTransaction({
+        type: TransactionType.EXPENSE,
+        amount: 100,
+      });
+
+      // Act & Assert
+      expect(tx.signedAmount).toBe(-100);
+    });
+
+    it("returns negative amount for TRANSFER_OUT transactions", () => {
+      // Arrange
+      const tx = fakeTransaction({
+        type: TransactionType.TRANSFER_OUT,
+        amount: 100,
+      });
+
+      // Act & Assert
+      expect(tx.signedAmount).toBe(-100);
+    });
+  });
+
+  describe("toData", () => {
+    // Happy path
+
+    it("returns plain object with all data fields", () => {
+      // Arrange
+      const data = fakeTransactionData();
+      const tx = TransactionEntity.fromPersistence(data);
+
+      // Act & Assert
+      expect(tx.toData()).toEqual(data);
+    });
+  });
+
+  describe("bumpVersion", () => {
+    // Happy path
+
+    it("increments version by 1", () => {
+      // Arrange
+      const existing = fakeTransaction({ version: 4 });
+
+      // Act
+      const result = existing.bumpVersion();
+
+      // Assert
+      expect(result.version).toBe(5);
+    });
+
+    it("preserves all other fields", () => {
+      // Arrange
+      const existing = fakeTransaction();
+
+      // Act
+      const result = existing.bumpVersion();
+
+      // Assert
+      expect(result.toData()).toEqual({
+        ...existing.toData(),
+        version: existing.version + 1,
+      });
+    });
+  });
+
+  describe("update", () => {
     // Happy path
 
     it("sets amount", () => {
@@ -423,11 +543,7 @@ describe("transaction model", () => {
       const existing = fakeTransaction({ amount: 10 });
 
       // Act
-      const result = updateTransactionModel(
-        existing,
-        { amount: 20 },
-        fixedDeps,
-      );
+      const result = existing.update({ amount: 20 });
 
       // Assert
       expect(result.amount).toEqual(20);
@@ -440,11 +556,7 @@ describe("transaction model", () => {
       const newAccount = fakeAccount({ userId, currency: "EUR" });
 
       // Act
-      const result = updateTransactionModel(
-        existing,
-        { account: newAccount },
-        fixedDeps,
-      );
+      const result = existing.update({ account: newAccount });
 
       // Assert
       expect(result.accountId).toBe(newAccount.id);
@@ -456,11 +568,7 @@ describe("transaction model", () => {
       const existing = fakeTransaction({ currency: "GBP" });
 
       // Act
-      const result = updateTransactionModel(
-        existing,
-        { account: undefined, amount: 1 },
-        fixedDeps,
-      );
+      const result = existing.update({ account: undefined, amount: 1 });
 
       // Assert
       expect(result.accountId).toBe(existing.accountId);
@@ -474,11 +582,7 @@ describe("transaction model", () => {
       const newCategory = fakeCategory({ userId, type: CategoryType.EXPENSE });
 
       // Act
-      const result = updateTransactionModel(
-        existing,
-        { category: newCategory },
-        fixedDeps,
-      );
+      const result = existing.update({ category: newCategory });
 
       // Assert
       expect(result.categoryId).toBe(newCategory.id);
@@ -489,11 +593,7 @@ describe("transaction model", () => {
       const existing = fakeTransaction({ categoryId: faker.string.uuid() });
 
       // Act
-      const result = updateTransactionModel(
-        existing,
-        { category: null },
-        fixedDeps,
-      );
+      const result = existing.update({ category: null });
 
       // Assert
       expect(result.categoryId).toBeUndefined();
@@ -504,11 +604,7 @@ describe("transaction model", () => {
       const existing = fakeTransaction({ categoryId: "existing-category" });
 
       // Act
-      const result = updateTransactionModel(
-        existing,
-        { category: undefined, amount: 1 },
-        fixedDeps,
-      );
+      const result = existing.update({ category: undefined, amount: 1 });
 
       // Assert
       expect(result.categoryId).toBe("existing-category");
@@ -519,11 +615,7 @@ describe("transaction model", () => {
       const existing = fakeTransaction({ description: "old" });
 
       // Act
-      const result = updateTransactionModel(
-        existing,
-        { description: "  new  " },
-        fixedDeps,
-      );
+      const result = existing.update({ description: "  new  " });
 
       // Assert
       expect(result.description).toBe("new");
@@ -534,11 +626,7 @@ describe("transaction model", () => {
       const existing = fakeTransaction({ description: "old" });
 
       // Act
-      const result = updateTransactionModel(
-        existing,
-        { description: null },
-        fixedDeps,
-      );
+      const result = existing.update({ description: null });
 
       // Assert
       expect(result.description).toBeUndefined();
@@ -549,11 +637,7 @@ describe("transaction model", () => {
       const existing = fakeTransaction({ description: "keep me" });
 
       // Act
-      const result = updateTransactionModel(
-        existing,
-        { description: undefined, amount: 1 },
-        fixedDeps,
-      );
+      const result = existing.update({ description: undefined, amount: 1 });
 
       // Assert
       expect(result.description).toBe("keep me");
@@ -571,7 +655,7 @@ describe("transaction model", () => {
       });
 
       // Act
-      const result = updateTransactionModel(existing, { amount: 1 }, fixedDeps);
+      const result = existing.update({ amount: 1 });
 
       // Assert
       expect(result.id).toBe("id-1");
@@ -582,11 +666,14 @@ describe("transaction model", () => {
     });
 
     it("sets updatedAt", () => {
+      const fixedClock = () => new Date("2000-01-02T10:11:12.000Z");
+      const fixedDeps = { clock: fixedClock };
+
       // Arrange
       const existing = fakeTransaction();
 
       // Act
-      const result = updateTransactionModel(existing, { amount: 1 }, fixedDeps);
+      const result = existing.update({ amount: 1 }, fixedDeps);
 
       // Assert
       expect(result.updatedAt).toBe("2000-01-02T10:11:12.000Z");
@@ -597,7 +684,7 @@ describe("transaction model", () => {
       const existing = fakeTransaction();
 
       // Act
-      const result = updateTransactionModel(existing, { amount: 1 });
+      const result = existing.update({ amount: 1 });
 
       // Assert
       expect(result.updatedAt).toBeDefined();
@@ -605,60 +692,60 @@ describe("transaction model", () => {
 
     // Validation failures
 
-    it("rejects updating archived transaction", () => {
+    it("throws on updating archived transaction", () => {
       // Arrange
       const existing = fakeTransaction({ isArchived: true });
 
       // Act & Assert
-      expect(() =>
-        updateTransactionModel(existing, { amount: 5 }, fixedDeps),
-      ).toThrow(new ModelError("Cannot update archived transaction"));
+      expect(() => existing.update({ amount: 5 })).toThrow(
+        new ModelError("Cannot update archived transaction"),
+      );
     });
 
-    it("rejects zero amount", () => {
+    it("throws on zero amount", () => {
       // Arrange
       const existing = fakeTransaction();
 
       // Act & Assert
-      expect(() =>
-        updateTransactionModel(existing, { amount: 0 }, fixedDeps),
-      ).toThrow(new ModelError("Amount must be positive"));
+      expect(() => existing.update({ amount: 0 })).toThrow(
+        new ModelError("Amount must be positive"),
+      );
     });
 
-    it("rejects negative amount", () => {
+    it("throws on negative amount", () => {
       // Arrange
       const existing = fakeTransaction();
 
       // Act & Assert
-      expect(() =>
-        updateTransactionModel(existing, { amount: -1 }, fixedDeps),
-      ).toThrow(new ModelError("Amount must be positive"));
+      expect(() => existing.update({ amount: -1 })).toThrow(
+        new ModelError("Amount must be positive"),
+      );
     });
 
-    it("rejects account belonging to different user", () => {
+    it("throws when account belongs to different user", () => {
       // Arrange
       const existing = fakeTransaction({ userId: "user-a" });
       const account = fakeAccount({ userId: "user-b" });
 
       // Act & Assert
-      expect(() =>
-        updateTransactionModel(existing, { account }, fixedDeps),
-      ).toThrow(new ModelError("Account does not belong to user"));
+      expect(() => existing.update({ account })).toThrow(
+        new ModelError("Account does not belong to user"),
+      );
     });
 
-    it("rejects archived account", () => {
+    it("throws on archived account", () => {
       // Arrange
       const userId = faker.string.uuid();
       const existing = fakeTransaction({ userId });
       const account = fakeAccount({ userId, isArchived: true });
 
       // Act & Assert
-      expect(() =>
-        updateTransactionModel(existing, { account }, fixedDeps),
-      ).toThrow(new ModelError("Account must not be archived"));
+      expect(() => existing.update({ account })).toThrow(
+        new ModelError("Account must not be archived"),
+      );
     });
 
-    it("rejects category belonging to different user", () => {
+    it("throws when category belongs to different user", () => {
       // Arrange
       const existing = fakeTransaction({ userId: "user-a" });
       const category = fakeCategory({
@@ -667,12 +754,12 @@ describe("transaction model", () => {
       });
 
       // Act & Assert
-      expect(() =>
-        updateTransactionModel(existing, { category }, fixedDeps),
-      ).toThrow(new ModelError("Category does not belong to user"));
+      expect(() => existing.update({ category })).toThrow(
+        new ModelError("Category does not belong to user"),
+      );
     });
 
-    it("rejects archived category", () => {
+    it("throws on archived category", () => {
       // Arrange
       const userId = faker.string.uuid();
       const existing = fakeTransaction({ userId });
@@ -683,12 +770,12 @@ describe("transaction model", () => {
       });
 
       // Act & Assert
-      expect(() =>
-        updateTransactionModel(existing, { category }, fixedDeps),
-      ).toThrow(new ModelError("Category must not be archived"));
+      expect(() => existing.update({ category })).toThrow(
+        new ModelError("Category must not be archived"),
+      );
     });
 
-    it("rejects INCOME category on EXPENSE transaction", () => {
+    it("throws on INCOME category for EXPENSE transaction", () => {
       // Arrange
       const userId = faker.string.uuid();
       const existing = fakeTransaction({
@@ -698,14 +785,12 @@ describe("transaction model", () => {
       const category = fakeCategory({ userId, type: CategoryType.INCOME });
 
       // Act & Assert
-      expect(() =>
-        updateTransactionModel(existing, { category }, fixedDeps),
-      ).toThrow(
+      expect(() => existing.update({ category })).toThrow(
         new ModelError("Category type does not match transaction type"),
       );
     });
 
-    it("rejects setting category on transfer transaction", () => {
+    it("throws when setting category on transfer transaction", () => {
       // Arrange
       const userId = faker.string.uuid();
       const existing = fakeTransaction({
@@ -717,27 +802,25 @@ describe("transaction model", () => {
       const category = fakeCategory({ userId, type: CategoryType.EXPENSE });
 
       // Act & Assert
-      expect(() =>
-        updateTransactionModel(existing, { category }, fixedDeps),
-      ).toThrow(new ModelError("Transfer transactions cannot have a category"));
+      expect(() => existing.update({ category })).toThrow(
+        new ModelError("Transfer transactions cannot have a category"),
+      );
     });
 
-    it("rejects description exceeding max length", () => {
+    it("throws when description exceeds maximum length", () => {
       // Arrange
       const existing = fakeTransaction();
       const tooLong = "x".repeat(DESCRIPTION_MAX_LENGTH + 1);
 
       // Act & Assert
-      expect(() =>
-        updateTransactionModel(existing, { description: tooLong }, fixedDeps),
-      ).toThrow(
+      expect(() => existing.update({ description: tooLong })).toThrow(
         new ModelError(
           `Description cannot exceed ${DESCRIPTION_MAX_LENGTH} characters`,
         ),
       );
     });
 
-    it("rejects switching non-transfer to transfer type", () => {
+    it("throws on switching non-transfer to transfer type", () => {
       // Arrange
       const existing = fakeTransaction({
         type: TransactionType.EXPENSE,
@@ -746,17 +829,13 @@ describe("transaction model", () => {
 
       // Act & Assert
       expect(() =>
-        updateTransactionModel(
-          existing,
-          { type: TransactionType.TRANSFER_OUT },
-          fixedDeps,
-        ),
+        existing.update({ type: TransactionType.TRANSFER_OUT }),
       ).toThrow(
         new ModelError("Transfer transactions must include transferId"),
       );
     });
 
-    it("rejects switching transfer to non-transfer type", () => {
+    it("throws on switching transfer to non-transfer type", () => {
       // Arrange
       const existing = fakeTransaction({
         type: TransactionType.TRANSFER_OUT,
@@ -765,22 +844,13 @@ describe("transaction model", () => {
       });
 
       // Act & Assert
-      expect(() =>
-        updateTransactionModel(
-          existing,
-          { type: TransactionType.EXPENSE },
-          fixedDeps,
-        ),
-      ).toThrow(
+      expect(() => existing.update({ type: TransactionType.EXPENSE })).toThrow(
         new ModelError("Only transfer transactions can include transferId"),
       );
     });
   });
 
-  describe("archiveTransactionModel", () => {
-    const fixedClock = () => new Date("2000-01-02T10:11:12.000Z");
-    const fixedDeps = { clock: fixedClock };
-
+  describe("archive", () => {
     // Happy path
 
     it("sets isArchived to true", () => {
@@ -788,7 +858,7 @@ describe("transaction model", () => {
       const existing = fakeTransaction();
 
       // Act
-      const result = archiveTransactionModel(existing, fixedDeps);
+      const result = existing.archive();
 
       // Assert
       expect(result.isArchived).toBe(true);
@@ -796,10 +866,11 @@ describe("transaction model", () => {
 
     it("sets updatedAt", () => {
       // Arrange
+      const fixedClock = () => new Date("2000-01-02T10:11:12.000Z");
       const existing = fakeTransaction();
 
       // Act
-      const result = archiveTransactionModel(existing, fixedDeps);
+      const result = existing.archive({ clock: fixedClock });
 
       // Assert
       expect(result.updatedAt).toBe("2000-01-02T10:11:12.000Z");
@@ -810,7 +881,7 @@ describe("transaction model", () => {
       const existing = fakeTransaction();
 
       // Act
-      const result = archiveTransactionModel(existing);
+      const result = existing.archive();
 
       // Assert
       expect(result.updatedAt).toBeDefined();
@@ -818,64 +889,13 @@ describe("transaction model", () => {
 
     // Validation failures
 
-    it("rejects already archived transaction", () => {
+    it("throws on already archived transaction", () => {
       // Arrange
       const existing = fakeTransaction({ isArchived: true });
 
       // Act & Assert
-      expect(() => archiveTransactionModel(existing, fixedDeps)).toThrow(
+      expect(() => existing.archive()).toThrow(
         new ModelError("Cannot archive archived transaction"),
-      );
-    });
-  });
-
-  describe("getSignedAmount", () => {
-    it("returns positive amount for INCOME transactions", () => {
-      const transaction = fakeTransaction({
-        type: TransactionType.INCOME,
-        amount: 100,
-      });
-      expect(getSignedAmount(transaction)).toBe(100);
-    });
-
-    it("returns positive amount for REFUND transactions", () => {
-      const transaction = fakeTransaction({
-        type: TransactionType.REFUND,
-        amount: 100,
-      });
-      expect(getSignedAmount(transaction)).toBe(100);
-    });
-
-    it("returns positive amount for TRANSFER_IN transactions", () => {
-      const transaction = fakeTransaction({
-        type: TransactionType.TRANSFER_IN,
-        amount: 100,
-      });
-      expect(getSignedAmount(transaction)).toBe(100);
-    });
-
-    it("returns negative amount for EXPENSE transactions", () => {
-      const transaction = fakeTransaction({
-        type: TransactionType.EXPENSE,
-        amount: 100,
-      });
-      expect(getSignedAmount(transaction)).toBe(-100);
-    });
-
-    it("returns negative amount for TRANSFER_OUT transactions", () => {
-      const transaction = fakeTransaction({
-        type: TransactionType.TRANSFER_OUT,
-        amount: 100,
-      });
-      expect(getSignedAmount(transaction)).toBe(-100);
-    });
-
-    it("throws error for unknown transaction type", () => {
-      const transaction = fakeTransaction({
-        type: "UNKNOWN" as TransactionType,
-      });
-      expect(() => getSignedAmount(transaction)).toThrow(
-        "Unknown transaction type: UNKNOWN",
       );
     });
   });

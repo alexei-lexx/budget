@@ -7,6 +7,7 @@ import { faker } from "@faker-js/faker";
 import { beforeAll, beforeEach, describe, expect, it } from "@jest/globals";
 import {
   Transaction,
+  TransactionEntity,
   TransactionPatternType,
   TransactionType,
 } from "../models/transaction";
@@ -1807,17 +1808,19 @@ describe("DynTransactionRepository", () => {
       await repository.create(created);
 
       // Act
-      const updated = await repository.update({
-        ...created,
-        accountId: faker.string.uuid(),
-        categoryId: faker.string.uuid(),
-        type: TransactionType.INCOME,
-        amount: 100.0,
-        currency: "EUR",
-        date: toDateString("2024-02-01"),
-        description: "Updated description",
-        updatedAt: new Date().toISOString(),
-      });
+      const updated = await repository.update(
+        TransactionEntity.fromPersistence({
+          ...created.toData(),
+          accountId: faker.string.uuid(),
+          categoryId: faker.string.uuid(),
+          type: TransactionType.INCOME,
+          amount: 100.0,
+          currency: "EUR",
+          date: toDateString("2024-02-01"),
+          description: "Updated description",
+          updatedAt: new Date().toISOString(),
+        }),
+      );
 
       // Assert
       const stored = await repository.findOneById({
@@ -1833,7 +1836,9 @@ describe("DynTransactionRepository", () => {
       await repository.create(created);
 
       // Act
-      const updated = await repository.update({ ...created, amount: 50 });
+      const updated = await repository.update(
+        TransactionEntity.fromPersistence({ ...created.toData(), amount: 50 }),
+      );
 
       // Assert
       expect(updated.version).toBe(created.version + 1);
@@ -1856,12 +1861,14 @@ describe("DynTransactionRepository", () => {
       await repository.create(created);
 
       // Act
-      await repository.update({
-        ...created,
-        description: undefined,
-        categoryId: undefined,
-        updatedAt: new Date().toISOString(),
-      });
+      await repository.update(
+        TransactionEntity.fromPersistence({
+          ...created.toData(),
+          description: undefined,
+          categoryId: undefined,
+          updatedAt: new Date().toISOString(),
+        }),
+      );
 
       // Assert
       const stored = await repository.findOneById({
@@ -1887,11 +1894,13 @@ describe("DynTransactionRepository", () => {
       );
 
       // Act
-      await repository.update({
-        ...created,
-        amount: 999,
-        updatedAt: new Date().toISOString(),
-      });
+      await repository.update(
+        TransactionEntity.fromPersistence({
+          ...created.toData(),
+          amount: 999,
+          updatedAt: new Date().toISOString(),
+        }),
+      );
 
       // Assert
       const { Item: after } = await client.send(
@@ -1909,10 +1918,15 @@ describe("DynTransactionRepository", () => {
       // Arrange — row at v0, then bumped to v1 by a first update
       const created = fakeTransaction({ version: 0 });
       await repository.create(created);
-      await repository.update({ ...created, amount: 50 });
+      await repository.update(
+        TransactionEntity.fromPersistence({ ...created.toData(), amount: 50 }),
+      );
 
       // Stale write expects v0 but disk is at v1
-      const staleUpdate = { ...created, amount: 99 };
+      const staleUpdate = TransactionEntity.fromPersistence({
+        ...created.toData(),
+        amount: 99,
+      });
 
       // Act & Assert
       await expect(repository.update(staleUpdate)).rejects.toThrow(
@@ -1939,7 +1953,12 @@ describe("DynTransactionRepository", () => {
 
       // Act & Assert - Write as different user, partition key mismatch => condition fails
       await expect(
-        repository.update({ ...created, userId: other }),
+        repository.update(
+          TransactionEntity.fromPersistence({
+            ...created.toData(),
+            userId: other,
+          }),
+        ),
       ).rejects.toThrow("Transaction not found");
 
       // Verify original transaction is unchanged
@@ -1965,12 +1984,14 @@ describe("DynTransactionRepository", () => {
 
       // Act
       const updatedTransactions = await repository.updateMany(
-        transactions.map((transaction) => ({
-          ...transaction,
-          amount: transaction.amount + 100,
-          description: "Updated",
-          updatedAt: new Date().toISOString(),
-        })),
+        transactions.map((transaction) =>
+          TransactionEntity.fromPersistence({
+            ...transaction.toData(),
+            amount: transaction.amount + 100,
+            description: "Updated",
+            updatedAt: new Date().toISOString(),
+          }),
+        ),
       );
 
       // Assert
@@ -1994,7 +2015,12 @@ describe("DynTransactionRepository", () => {
 
       // Act
       const updated = await repository.updateMany(
-        transactions.map((transaction) => ({ ...transaction, amount: 50 })),
+        transactions.map((transaction) =>
+          TransactionEntity.fromPersistence({
+            ...transaction.toData(),
+            amount: 50,
+          }),
+        ),
       );
 
       // Assert
@@ -2022,9 +2048,16 @@ describe("DynTransactionRepository", () => {
       // Act & Assert
       await expect(
         repository.updateMany([
-          { ...transaction1, amount: 11 },
+          TransactionEntity.fromPersistence({
+            ...transaction1.toData(),
+            amount: 11,
+          }),
           // transaction2 is stale because current version is 2, update assumes it's 1
-          { ...transaction2, amount: 22, version: 1 },
+          TransactionEntity.fromPersistence({
+            ...transaction2.toData(),
+            amount: 22,
+            version: 1,
+          }),
         ]),
       ).rejects.toThrow(VersionConflictError);
 
@@ -2052,7 +2085,11 @@ describe("DynTransactionRepository", () => {
 
       // Act
       const promise = repository.updateMany([
-        { ...existing, amount: 999, updatedAt: new Date().toISOString() },
+        TransactionEntity.fromPersistence({
+          ...existing.toData(),
+          amount: 999,
+          updatedAt: new Date().toISOString(),
+        }),
         missing,
       ]);
 
