@@ -38,7 +38,7 @@ interface TransactionData {
   updatedAt: string;
 }
 
-export class Transaction {
+export class Transaction implements TransactionData {
   readonly userId: string;
   readonly id: string;
   readonly accountId: string;
