@@ -7,7 +7,6 @@ import { fakeCategory } from "../utils/test-utils/models/category-fakes";
 import {
   fakeCreateTransactionInput,
   fakeTransaction,
-  fakeTransactionData,
 } from "../utils/test-utils/models/transaction-fakes";
 import { CategoryType } from "./category";
 import { ModelError } from "./model-error";
@@ -412,7 +411,7 @@ describe("TransactionEntity", () => {
 
     it("reconstructs instance from data", () => {
       // Arrange
-      const data = fakeTransactionData();
+      const data = fakeTransaction().toData();
 
       // Act
       const result = TransactionEntity.fromPersistence(data);
@@ -425,7 +424,7 @@ describe("TransactionEntity", () => {
 
     it("throws on zero amount", () => {
       // Arrange
-      const data = fakeTransactionData({ amount: 0 });
+      const data = { ...fakeTransaction().toData(), amount: 0 };
 
       // Act & Assert
       expect(() => TransactionEntity.fromPersistence(data)).toThrow(
@@ -498,7 +497,7 @@ describe("TransactionEntity", () => {
 
     it("returns plain object with all data fields", () => {
       // Arrange
-      const data = fakeTransactionData();
+      const data = fakeTransaction().toData();
       const tx = TransactionEntity.fromPersistence(data);
 
       // Act & Assert

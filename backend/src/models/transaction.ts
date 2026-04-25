@@ -19,8 +19,7 @@ export type NonTransferTransactionType = Exclude<
 >;
 
 // Plain data shape.
-// Used anywhere a value (not a domain object) is needed.
-export interface TransactionData {
+interface TransactionData {
   userId: string;
   id: string;
   accountId: string;

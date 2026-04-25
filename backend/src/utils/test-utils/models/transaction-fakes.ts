@@ -1,7 +1,7 @@
 import { faker } from "@faker-js/faker";
 import {
   CreateTransactionInput,
-  TransactionData,
+  Transaction,
   TransactionEntity,
   TransactionPattern,
   TransactionType,
@@ -9,37 +9,33 @@ import {
 import { toDateString } from "../../../types/date";
 import { fakeAccount } from "./account-fakes";
 
-export const fakeTransactionData = (
-  overrides: Partial<TransactionData> = {},
-): TransactionData => {
+export const fakeTransaction = (
+  overrides: Partial<Transaction> = {},
+): Transaction => {
   const now = new Date().toISOString();
   const type = overrides.type ?? TransactionType.EXPENSE;
   const isTransfer =
     type === TransactionType.TRANSFER_IN ||
     type === TransactionType.TRANSFER_OUT;
-  return {
+
+  return TransactionEntity.fromPersistence({
     id: faker.string.uuid(),
     userId: faker.string.uuid(),
     accountId: faker.string.uuid(),
+    categoryId: isTransfer ? undefined : faker.string.uuid(),
     amount: faker.number.float({ min: 1, max: 1000, fractionDigits: 2 }),
     type,
     currency: faker.helpers.arrayElement(["EUR", "USD"]),
-    description: faker.finance.transactionDescription(),
     date: toDateString(faker.date.recent().toISOString().split("T")[0]),
-    categoryId: isTransfer ? undefined : faker.string.uuid(),
+    description: faker.finance.transactionDescription(),
     transferId: isTransfer ? faker.string.uuid() : undefined,
     isArchived: false,
     version: faker.number.int({ min: 1, max: 100 }),
     createdAt: now,
     updatedAt: now,
     ...overrides,
-  };
+  });
 };
-
-export const fakeTransaction = (
-  overrides: Partial<TransactionData> = {},
-): TransactionEntity =>
-  TransactionEntity.fromPersistence(fakeTransactionData(overrides));
 
 export const fakeCreateTransactionInput = (
   overrides: Partial<CreateTransactionInput> = {},
