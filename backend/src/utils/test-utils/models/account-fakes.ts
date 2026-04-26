@@ -1,15 +1,13 @@
 import { faker } from "@faker-js/faker";
 import {
+  Account,
   AccountData,
-  AccountEntity,
   CreateAccountInput,
 } from "../../../models/account";
 
-export const fakeAccount = (
-  overrides: Partial<AccountData> = {},
-): AccountEntity => {
+export const fakeAccount = (overrides: Partial<AccountData> = {}): Account => {
   const now = new Date().toISOString();
-  return AccountEntity.fromPersistence({
+  return Account.fromPersistence({
     id: faker.string.uuid(),
     userId: faker.string.uuid(),
     name: faker.finance.accountName(),

@@ -1,6 +1,5 @@
 import { faker } from "@faker-js/faker";
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
-import { AccountEntity } from "../models/account";
 import { ModelError } from "../models/model-error";
 import { TransactionType } from "../models/transaction";
 import { AccountRepository } from "../ports/account-repository";
@@ -88,9 +87,7 @@ describe("AccountService", () => {
         version: 0,
       });
       expect(mockAccountRepository.create).toHaveBeenCalledTimes(1);
-      expect(mockAccountRepository.create).toHaveBeenCalledWith(
-        result as AccountEntity,
-      );
+      expect(mockAccountRepository.create).toHaveBeenCalledWith(result);
     });
 
     // Validation failures
@@ -373,9 +370,7 @@ describe("AccountService", () => {
 
       // Assert
       expect(result.isArchived).toBe(true);
-      expect(mockAccountRepository.update).toHaveBeenCalledWith(
-        result as AccountEntity,
-      );
+      expect(mockAccountRepository.update).toHaveBeenCalledWith(result);
     });
 
     // Validation failures

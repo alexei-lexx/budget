@@ -1,6 +1,5 @@
 import {
   Account,
-  AccountEntity,
   CreateAccountInput,
   UpdateAccountInput,
 } from "../models/account";
@@ -45,7 +44,7 @@ export class AccountServiceImpl implements AccountService {
    * @returns Promise<Account> - The created account
    */
   async createAccount(input: CreateAccountInput): Promise<Account> {
-    const account = AccountEntity.create(input);
+    const account = Account.create(input);
 
     await this.checkDuplicateName(account.userId, account.name);
     await this.accountRepository.create(account);

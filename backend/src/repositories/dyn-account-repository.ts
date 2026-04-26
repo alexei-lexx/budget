@@ -5,7 +5,7 @@ import {
   PutCommand,
   UpdateCommand,
 } from "@aws-sdk/lib-dynamodb";
-import { AccountEntity } from "../models/account";
+import { Account } from "../models/account";
 import { AccountRepository } from "../ports/account-repository";
 import {
   RepositoryError,
@@ -26,7 +26,7 @@ export class DynAccountRepository
   }: {
     id: string;
     userId: string;
-  }): Promise<AccountEntity | null> {
+  }): Promise<Account | null> {
     if (!id) {
       throw new RepositoryError("Account ID is required", "INVALID_PARAMETERS");
     }
@@ -48,7 +48,7 @@ export class DynAccountRepository
       }
 
       const data = hydrate(accountDataSchema, result.Item);
-      const account = AccountEntity.fromPersistence(data);
+      const account = Account.fromPersistence(data);
 
       // Return null if account is archived (soft deleted)
       if (account.isArchived) {
@@ -62,7 +62,7 @@ export class DynAccountRepository
     }
   }
 
-  async findManyByUserId(userId: string): Promise<AccountEntity[]> {
+  async findManyByUserId(userId: string): Promise<Account[]> {
     if (!userId) {
       throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
     }
@@ -84,7 +84,7 @@ export class DynAccountRepository
       });
 
       const accounts = result.items.map((data) =>
-        AccountEntity.fromPersistence(data),
+        Account.fromPersistence(data),
       );
 
       // Sort accounts by name (case-insensitive)
@@ -107,7 +107,7 @@ export class DynAccountRepository
   }: {
     ids: readonly string[];
     userId: string;
-  }): Promise<AccountEntity[]> {
+  }): Promise<Account[]> {
     if (ids.length === 0) {
       return [];
     }
@@ -127,7 +127,7 @@ export class DynAccountRepository
 
       const result = await this.client.send(command);
       return (result.Responses?.[this.tableName] || []).map((item) =>
-        AccountEntity.fromPersistence(hydrate(accountDataSchema, item)),
+        Account.fromPersistence(hydrate(accountDataSchema, item)),
       );
     } catch (error) {
       console.error("Error batch finding accounts by IDs:", error);
@@ -139,7 +139,7 @@ export class DynAccountRepository
     }
   }
 
-  async findManyWithArchivedByUserId(userId: string): Promise<AccountEntity[]> {
+  async findManyWithArchivedByUserId(userId: string): Promise<Account[]> {
     if (!userId) {
       throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
     }
@@ -158,7 +158,7 @@ export class DynAccountRepository
         schema: accountDataSchema,
       });
 
-      return result.items.map((data) => AccountEntity.fromPersistence(data));
+      return result.items.map((data) => Account.fromPersistence(data));
     } catch (error) {
       console.error("Error finding all accounts by user ID:", error);
       throw new RepositoryError(
@@ -169,7 +169,7 @@ export class DynAccountRepository
     }
   }
 
-  async create(account: Readonly<AccountEntity>): Promise<void> {
+  async create(account: Readonly<Account>): Promise<void> {
     const data = account.toData();
 
     try {
@@ -190,7 +190,7 @@ export class DynAccountRepository
     }
   }
 
-  async update(account: Readonly<AccountEntity>): Promise<AccountEntity> {
+  async update(account: Readonly<Account>): Promise<Account> {
     const data = account.toData();
 
     try {

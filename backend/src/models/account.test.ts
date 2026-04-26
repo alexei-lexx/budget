@@ -4,10 +4,10 @@ import {
   fakeAccount,
   fakeCreateAccountInput,
 } from "../utils/test-utils/models/account-fakes";
-import { AccountEntity, NAME_MAX_LENGTH } from "./account";
+import { Account, NAME_MAX_LENGTH } from "./account";
 import { ModelError } from "./model-error";
 
-describe("AccountEntity", () => {
+describe("Account", () => {
   describe("create", () => {
     const fixedClock = () => new Date("2000-01-02T10:11:12.000Z");
     const fixedIdGenerator = () => "fixed-uuid";
@@ -26,7 +26,7 @@ describe("AccountEntity", () => {
       });
 
       // Act
-      const result = AccountEntity.create(input, fixedDeps);
+      const result = Account.create(input, fixedDeps);
 
       // Assert
       expect(result.toData()).toEqual({
@@ -44,7 +44,7 @@ describe("AccountEntity", () => {
 
     it("trims name", () => {
       // Act
-      const result = AccountEntity.create(
+      const result = Account.create(
         fakeCreateAccountInput({ name: "  Cash  " }),
       );
 
@@ -54,7 +54,7 @@ describe("AccountEntity", () => {
 
     it("sets id and timestamps with default dependencies", () => {
       // Act
-      const result = AccountEntity.create(fakeCreateAccountInput());
+      const result = Account.create(fakeCreateAccountInput());
 
       // Assert
       expect(result.id).toBeDefined();
@@ -67,7 +67,7 @@ describe("AccountEntity", () => {
     it("throws when name is empty", () => {
       // Act & Assert
       expect(() =>
-        AccountEntity.create(fakeCreateAccountInput({ name: "" })),
+        Account.create(fakeCreateAccountInput({ name: "" })),
       ).toThrow(ModelError);
     });
 
@@ -77,14 +77,14 @@ describe("AccountEntity", () => {
 
       // Act & Assert
       expect(() =>
-        AccountEntity.create(fakeCreateAccountInput({ name: tooLong })),
+        Account.create(fakeCreateAccountInput({ name: tooLong })),
       ).toThrow(ModelError);
     });
 
     it("throws on unsupported currency", () => {
       // Act & Assert
       expect(() =>
-        AccountEntity.create(fakeCreateAccountInput({ currency: "ZZZ" })),
+        Account.create(fakeCreateAccountInput({ currency: "ZZZ" })),
       ).toThrow(ModelError);
     });
   });
@@ -97,7 +97,7 @@ describe("AccountEntity", () => {
       const data = fakeAccount().toData();
 
       // Act
-      const result = AccountEntity.fromPersistence(data);
+      const result = Account.fromPersistence(data);
 
       // Assert
       expect(result.toData()).toEqual(data);
@@ -110,7 +110,7 @@ describe("AccountEntity", () => {
       const data = { ...fakeAccount().toData(), currency: "ZZZ" };
 
       // Act & Assert
-      expect(() => AccountEntity.fromPersistence(data)).toThrow(ModelError);
+      expect(() => Account.fromPersistence(data)).toThrow(ModelError);
     });
   });
 
@@ -120,7 +120,7 @@ describe("AccountEntity", () => {
     it("returns plain object with all data fields", () => {
       // Arrange
       const data = fakeAccount().toData();
-      const account = AccountEntity.fromPersistence(data);
+      const account = Account.fromPersistence(data);
 
       // Act & Assert
       expect(account.toData()).toEqual(data);

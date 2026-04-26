@@ -1,7 +1,7 @@
 import { UpdateCommand } from "@aws-sdk/lib-dynamodb";
 import { faker } from "@faker-js/faker";
 import { beforeAll, beforeEach, describe, expect, it } from "@jest/globals";
-import { AccountEntity } from "../models/account";
+import { Account } from "../models/account";
 import {
   RepositoryError,
   VersionConflictError,
@@ -38,10 +38,10 @@ describe("DynAccountRepository", () => {
       // Arrange
       const otherUserId = faker.string.uuid();
       await repository.create(
-        AccountEntity.create(fakeCreateAccountInput({ userId })),
+        Account.create(fakeCreateAccountInput({ userId })),
       );
       await repository.create(
-        AccountEntity.create(fakeCreateAccountInput({ userId: otherUserId })),
+        Account.create(fakeCreateAccountInput({ userId: otherUserId })),
       );
 
       // Act
@@ -67,8 +67,8 @@ describe("DynAccountRepository", () => {
 
     it("returns accounts when ids exist", async () => {
       // Arrange
-      const account1 = AccountEntity.create(fakeCreateAccountInput({ userId }));
-      const account2 = AccountEntity.create(fakeCreateAccountInput({ userId }));
+      const account1 = Account.create(fakeCreateAccountInput({ userId }));
+      const account2 = Account.create(fakeCreateAccountInput({ userId }));
       await repository.create(account1);
       await repository.create(account2);
 
@@ -97,7 +97,7 @@ describe("DynAccountRepository", () => {
 
     it("returns only found accounts when some ids are missing", async () => {
       // Arrange
-      const account = AccountEntity.create(fakeCreateAccountInput({ userId }));
+      const account = Account.create(fakeCreateAccountInput({ userId }));
       await repository.create(account);
 
       // Act
@@ -113,7 +113,7 @@ describe("DynAccountRepository", () => {
 
     it("includes archived accounts", async () => {
       // Arrange
-      const account = AccountEntity.create(fakeCreateAccountInput({ userId }));
+      const account = Account.create(fakeCreateAccountInput({ userId }));
       await repository.create(account);
       await repository.update(account.archive());
 
@@ -146,8 +146,8 @@ describe("DynAccountRepository", () => {
 
     it("returns all accounts including archived", async () => {
       // Arrange
-      const active = AccountEntity.create(fakeCreateAccountInput({ userId }));
-      const archived = AccountEntity.create(fakeCreateAccountInput({ userId }));
+      const active = Account.create(fakeCreateAccountInput({ userId }));
+      const archived = Account.create(fakeCreateAccountInput({ userId }));
       await repository.create(active);
       await repository.create(archived);
       await repository.update(archived.archive());
@@ -180,7 +180,7 @@ describe("DynAccountRepository", () => {
 
     it("persists account", async () => {
       // Arrange
-      const account = AccountEntity.create(fakeCreateAccountInput({ userId }));
+      const account = Account.create(fakeCreateAccountInput({ userId }));
 
       // Act
       const result = await repository.create(account);
@@ -200,7 +200,7 @@ describe("DynAccountRepository", () => {
 
     it("rejects duplicate id", async () => {
       // Arrange
-      const account = AccountEntity.create(fakeCreateAccountInput({ userId }));
+      const account = Account.create(fakeCreateAccountInput({ userId }));
       await repository.create(account);
 
       // Act & Assert
@@ -213,7 +213,7 @@ describe("DynAccountRepository", () => {
 
     it("persists changes and bumps version", async () => {
       // Arrange
-      const account = AccountEntity.create(
+      const account = Account.create(
         fakeCreateAccountInput({ userId, name: "Cash", initialBalance: 100 }),
       );
       await repository.create(account);
@@ -237,7 +237,7 @@ describe("DynAccountRepository", () => {
 
     it("archives account", async () => {
       // Arrange
-      const account = AccountEntity.create(fakeCreateAccountInput({ userId }));
+      const account = Account.create(fakeCreateAccountInput({ userId }));
       await repository.create(account);
 
       // Act
@@ -255,7 +255,7 @@ describe("DynAccountRepository", () => {
 
     it("throws VersionConflictError when version is stale", async () => {
       // Arrange — row at v0, then bumped to v1 by first update
-      const account = AccountEntity.create(fakeCreateAccountInput({ userId }));
+      const account = Account.create(fakeCreateAccountInput({ userId }));
       await repository.create(account);
 
       const firstUpdate = await repository.update(
@@ -271,7 +271,7 @@ describe("DynAccountRepository", () => {
 
     it("throws VersionConflictError for non-existent record", async () => {
       // Arrange — entity built but never persisted
-      const ghost = AccountEntity.create(fakeCreateAccountInput({ userId }));
+      const ghost = Account.create(fakeCreateAccountInput({ userId }));
 
       // Act & Assert
       await expect(
@@ -283,7 +283,7 @@ describe("DynAccountRepository", () => {
   describe("hydration - data corruption detection", () => {
     it("throws when required field initialBalance is missing from database record", async () => {
       // Arrange
-      const account = AccountEntity.create(fakeCreateAccountInput({ userId }));
+      const account = Account.create(fakeCreateAccountInput({ userId }));
       await repository.create(account);
       const client = createDynamoDBDocumentClient();
 

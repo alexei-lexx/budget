@@ -7,17 +7,6 @@ export const NAME_MAX_LENGTH = 100;
 
 const defaultClock = () => new Date();
 
-export interface Account {
-  id: string; // UUID v4 primary key
-  userId: string; // Foreign key to User
-  name: string; // Account name (e.g., "Cash", "Bank Account")
-  currency: string; // ISO currency code (USD, EUR, etc.)
-  initialBalance: number; // Starting balance
-  isArchived: boolean; // Soft delete flag
-  createdAt: string; // ISO timestamp
-  updatedAt: string; // ISO timestamp
-}
-
 // Plain data shape.
 export interface AccountData {
   userId: string;
@@ -31,7 +20,7 @@ export interface AccountData {
   updatedAt: string;
 }
 
-export class AccountEntity implements AccountData {
+export class Account implements AccountData {
   readonly userId: string;
   readonly id: string;
   readonly name: string;
@@ -48,7 +37,7 @@ export class AccountEntity implements AccountData {
       clock = defaultClock,
       idGenerator = randomUUID,
     }: { clock?: () => Date; idGenerator?: () => string } = {},
-  ): AccountEntity {
+  ): Account {
     const now = clock().toISOString();
 
     const data: AccountData = {
@@ -63,11 +52,11 @@ export class AccountEntity implements AccountData {
       updatedAt: now,
     };
 
-    return new AccountEntity(data);
+    return new Account(data);
   }
 
-  static fromPersistence(data: AccountData): AccountEntity {
-    return new AccountEntity(data);
+  static fromPersistence(data: AccountData): Account {
+    return new Account(data);
   }
 
   toData(): AccountData {
@@ -84,13 +73,13 @@ export class AccountEntity implements AccountData {
     };
   }
 
-  bumpVersion(): AccountEntity {
+  bumpVersion(): Account {
     const data: AccountData = {
       ...this.toData(),
       version: this.version + 1,
     };
 
-    return new AccountEntity(
+    return new Account(
       data,
       // Version bump leaves all invariant-bearing fields unchanged.
       { skipInvariants: true },
@@ -100,7 +89,7 @@ export class AccountEntity implements AccountData {
   update(
     input: UpdateAccountInput,
     { clock = defaultClock }: { clock?: () => Date } = {},
-  ): AccountEntity {
+  ): Account {
     if (this.isArchived) {
       throw new ModelError("Cannot update archived account");
     }
@@ -116,12 +105,10 @@ export class AccountEntity implements AccountData {
       updatedAt: now,
     };
 
-    return new AccountEntity(data);
+    return new Account(data);
   }
 
-  archive({
-    clock = defaultClock,
-  }: { clock?: () => Date } = {}): AccountEntity {
+  archive({ clock = defaultClock }: { clock?: () => Date } = {}): Account {
     if (this.isArchived) {
       throw new ModelError("Cannot archive archived account");
     }
@@ -140,7 +127,7 @@ export class AccountEntity implements AccountData {
       updatedAt: now,
     };
 
-    return new AccountEntity(data);
+    return new Account(data);
   }
 
   private constructor(
@@ -148,7 +135,7 @@ export class AccountEntity implements AccountData {
     { skipInvariants = false }: { skipInvariants?: boolean } = {},
   ) {
     if (!skipInvariants) {
-      AccountEntity.assertInvariants(data);
+      Account.assertInvariants(data);
     }
 
     this.userId = data.userId;
