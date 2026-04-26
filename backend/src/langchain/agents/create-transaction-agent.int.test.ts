@@ -53,9 +53,8 @@ describe("CreateTransactionAgent (integration)", () => {
 
   it("calls create_transaction when expense is given", async () => {
     // Arrange
-    const account = await accountRepository.create(
-      fakeAccount({ userId, currency: "EUR" }),
-    );
+    const account = fakeAccount({ userId, currency: "EUR" });
+    await accountRepository.create(account);
     const category = await categoryRepository.create(
       fakeCategory({
         userId,
@@ -94,9 +93,8 @@ describe("CreateTransactionAgent (integration)", () => {
 
   it("calls create_transaction when income is given", async () => {
     // Arrange
-    const account = await accountRepository.create(
-      fakeAccount({ userId, currency: "EUR" }),
-    );
+    const account = fakeAccount({ userId, currency: "EUR" });
+    await accountRepository.create(account);
     const category = await categoryRepository.create(
       fakeCategory({
         userId,
@@ -135,9 +133,8 @@ describe("CreateTransactionAgent (integration)", () => {
 
   it("calls create_transaction when refund is given", async () => {
     // Arrange
-    const account = await accountRepository.create(
-      fakeAccount({ userId, currency: "EUR" }),
-    );
+    const account = fakeAccount({ userId, currency: "EUR" });
+    await accountRepository.create(account);
     const category = await categoryRepository.create(
       fakeCategory({
         userId,
@@ -202,7 +199,8 @@ describe("CreateTransactionAgent (integration)", () => {
 
   it("corrects collapsed amount when similar transaction history suggests much smaller price", async () => {
     // Arrange
-    const account = await accountRepository.create(fakeAccount({ userId }));
+    const account = fakeAccount({ userId });
+    await accountRepository.create(account);
     const category = await categoryRepository.create(
       fakeCategory({
         userId,

@@ -1,11 +1,11 @@
-import { Account, NAME_MAX_LENGTH, NAME_MIN_LENGTH } from "../models/account";
 import {
-  AccountRepository,
+  Account,
+  AccountEntity,
   CreateAccountInput,
   UpdateAccountInput,
-} from "../ports/account-repository";
+} from "../models/account";
+import { AccountRepository } from "../ports/account-repository";
 import { TransactionRepository } from "../ports/transaction-repository";
-import { isSupportedCurrency } from "../types/currency";
 import { BusinessError } from "./business-error";
 
 export interface AccountService {
@@ -45,16 +45,11 @@ export class AccountServiceImpl implements AccountService {
    * @returns Promise<Account> - The created account
    */
   async createAccount(input: CreateAccountInput): Promise<Account> {
-    const validatedInput = {
-      ...input,
-      name: this.validateName(input.name),
-      currency: this.validateCurrency(input.currency),
-    };
+    const account = AccountEntity.create(input);
 
-    // Check for duplicate names
-    await this.checkDuplicateName(validatedInput.userId, validatedInput.name);
-
-    return await this.accountRepository.create(validatedInput);
+    await this.checkDuplicateName(account.userId, account.name);
+    await this.accountRepository.create(account);
+    return account;
   }
 
   /**
@@ -71,34 +66,25 @@ export class AccountServiceImpl implements AccountService {
     userId: string,
     input: UpdateAccountInput,
   ): Promise<Account> {
-    // Fetch current account
-    const currentAccount = await this.accountRepository.findOneById({
+    // Fetch existing account
+    const existingAccount = await this.accountRepository.findOneById({
       id,
       userId,
     });
 
-    if (!currentAccount) {
+    if (!existingAccount) {
       throw new BusinessError("Account not found");
     }
 
-    const validatedInput = {
-      ...input,
-      ...(input.name !== undefined && { name: this.validateName(input.name) }),
-      ...(input.currency !== undefined && {
-        currency: this.validateCurrency(input.currency),
-      }),
-    };
+    const updatedAccount = existingAccount.update(input);
 
     // Check for duplicate names if name is being updated
-    if (validatedInput.name !== undefined) {
-      await this.checkDuplicateName(userId, validatedInput.name, id);
+    if (updatedAccount.name !== existingAccount.name) {
+      await this.checkDuplicateName(userId, updatedAccount.name, id);
     }
 
     // If currency is being changed, check for existing transactions
-    if (
-      validatedInput.currency &&
-      currentAccount.currency !== validatedInput.currency
-    ) {
+    if (existingAccount.currency !== updatedAccount.currency) {
       const hasTransactions =
         await this.transactionRepository.hasTransactionsForAccount({
           accountId: id,
@@ -112,7 +98,7 @@ export class AccountServiceImpl implements AccountService {
       }
     }
 
-    return await this.accountRepository.update({ id, userId }, validatedInput);
+    return await this.accountRepository.update(updatedAccount);
   }
 
   /**
@@ -122,7 +108,16 @@ export class AccountServiceImpl implements AccountService {
    * @returns Promise<Account> - The archived account
    */
   async deleteAccount(id: string, userId: string): Promise<Account> {
-    return await this.accountRepository.archive({ id, userId });
+    const existingAccount = await this.accountRepository.findOneById({
+      id,
+      userId,
+    });
+
+    if (!existingAccount) {
+      throw new BusinessError("Account not found");
+    }
+
+    return await this.accountRepository.update(existingAccount.archive());
   }
 
   /**
@@ -157,29 +152,6 @@ export class AccountServiceImpl implements AccountService {
     );
 
     return balance;
-  }
-
-  private validateName(name: string): string {
-    const trimmedName = name.trim();
-
-    if (
-      trimmedName.length < NAME_MIN_LENGTH ||
-      trimmedName.length > NAME_MAX_LENGTH
-    ) {
-      throw new BusinessError(
-        `Account name must be between ${NAME_MIN_LENGTH} and ${NAME_MAX_LENGTH} characters`,
-      );
-    }
-
-    return trimmedName;
-  }
-
-  private validateCurrency(currency: string): string {
-    if (!isSupportedCurrency(currency)) {
-      throw new BusinessError(`Unsupported currency: ${currency}`);
-    }
-
-    return currency;
   }
 
   private async checkDuplicateName(

@@ -1542,7 +1542,7 @@ describe("DynTransactionRepository", () => {
   describe("create", () => {
     // Happy path
 
-    it("persists pre-built transaction and returns it unchanged", async () => {
+    it("persists transaction", async () => {
       // Arrange
       const transaction = fakeTransaction();
 

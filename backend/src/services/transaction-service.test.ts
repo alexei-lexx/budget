@@ -1124,7 +1124,7 @@ describe("TransactionService", () => {
   describe("deleteTransaction", () => {
     // Happy path
 
-    it("archives transaction and returns it", async () => {
+    it("returns archived transaction", async () => {
       // Arrange
       const existing = fakeTransaction({ userId });
 

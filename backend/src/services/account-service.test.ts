@@ -1,16 +1,19 @@
 import { faker } from "@faker-js/faker";
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
+import { AccountEntity } from "../models/account";
+import { ModelError } from "../models/model-error";
 import { TransactionType } from "../models/transaction";
 import { AccountRepository } from "../ports/account-repository";
 import { TransactionRepository } from "../ports/transaction-repository";
-import { fakeAccount } from "../utils/test-utils/models/account-fakes";
+import {
+  fakeAccount,
+  fakeCreateAccountInput,
+} from "../utils/test-utils/models/account-fakes";
 import { fakeTransaction } from "../utils/test-utils/models/transaction-fakes";
-import { fakeCreateAccountInput } from "../utils/test-utils/repositories/account-repository-fakes";
 import { createMockAccountRepository } from "../utils/test-utils/repositories/account-repository-mocks";
 import { createMockTransactionRepository } from "../utils/test-utils/repositories/transaction-repository-mocks";
 import { AccountServiceImpl } from "./account-service";
 import { BusinessError } from "./business-error";
-import { NAME_MAX_LENGTH, NAME_MIN_LENGTH } from "./category-service";
 
 describe("AccountService", () => {
   let mockAccountRepository: jest.Mocked<AccountRepository>;
@@ -70,97 +73,35 @@ describe("AccountService", () => {
     it("creates and returns new account", async () => {
       // Arrange
       const input = fakeCreateAccountInput({ userId });
-      const createdAccount = fakeAccount();
       mockAccountRepository.findManyByUserId.mockResolvedValue([]);
-      mockAccountRepository.create.mockResolvedValue(createdAccount);
 
       // Act
       const result = await service.createAccount(input);
 
       // Assert
-      expect(result).toEqual(createdAccount);
-      expect(mockAccountRepository.create).toHaveBeenCalledWith({
+      expect(result).toMatchObject({
+        userId,
+        name: input.name,
         currency: input.currency,
         initialBalance: input.initialBalance,
-        name: input.name,
-        userId,
+        isArchived: false,
+        version: 0,
       });
-    });
-
-    it("trims name before creating", async () => {
-      // Arrange
-      const input = fakeCreateAccountInput({ userId, name: "  Savings  " });
-      const createdAccount = fakeAccount();
-      mockAccountRepository.findManyByUserId.mockResolvedValue([]);
-      mockAccountRepository.create.mockResolvedValue(createdAccount);
-
-      // Act
-      await service.createAccount(input);
-
-      // Assert
+      expect(mockAccountRepository.create).toHaveBeenCalledTimes(1);
       expect(mockAccountRepository.create).toHaveBeenCalledWith(
-        expect.objectContaining({ name: "Savings" }),
+        result as AccountEntity,
       );
     });
 
     // Validation failures
 
-    it("throws when name is empty", async () => {
+    it("propagates ModelError without persisting", async () => {
       // Arrange
       const input = fakeCreateAccountInput({ userId, name: "" });
 
       // Act & Assert
-      const promise = service.createAccount(input);
-
-      await expect(promise).rejects.toThrow(BusinessError);
-      await expect(promise).rejects.toMatchObject({
-        message: `Account name must be between ${NAME_MIN_LENGTH} and ${NAME_MAX_LENGTH} characters`,
-      });
-      expect(mockAccountRepository.create).not.toHaveBeenCalled();
-    });
-
-    it("throws when name is only whitespace", async () => {
-      // Arrange
-      const input = fakeCreateAccountInput({ userId, name: "   " });
-
-      // Act & Assert
-      const promise = service.createAccount(input);
-
-      await expect(promise).rejects.toThrow(BusinessError);
-      await expect(promise).rejects.toMatchObject({
-        message: `Account name must be between ${NAME_MIN_LENGTH} and ${NAME_MAX_LENGTH} characters`,
-      });
-      expect(mockAccountRepository.create).not.toHaveBeenCalled();
-    });
-
-    it("throws when name exceeds maximum length", async () => {
-      // Arrange
-      const input = fakeCreateAccountInput({
-        userId,
-        name: "a".repeat(NAME_MAX_LENGTH + 1),
-      });
-
-      // Act & Assert
-      const promise = service.createAccount(input);
-
-      await expect(promise).rejects.toThrow(BusinessError);
-      await expect(promise).rejects.toMatchObject({
-        message: `Account name must be between ${NAME_MIN_LENGTH} and ${NAME_MAX_LENGTH} characters`,
-      });
-      expect(mockAccountRepository.create).not.toHaveBeenCalled();
-    });
-
-    it("throws when currency is unsupported", async () => {
-      // Arrange
-      const input = fakeCreateAccountInput({ userId, currency: "INVALID" });
-
-      // Act & Assert
-      const promise = service.createAccount(input);
-
-      await expect(promise).rejects.toThrow(BusinessError);
-      await expect(promise).rejects.toMatchObject({
-        message: "Unsupported currency: INVALID",
-      });
+      await expect(service.createAccount(input)).rejects.toThrow(ModelError);
+      expect(mockAccountRepository.findManyByUserId).not.toHaveBeenCalled();
       expect(mockAccountRepository.create).not.toHaveBeenCalled();
     });
 
@@ -204,19 +145,24 @@ describe("AccountService", () => {
   describe("updateAccount", () => {
     // Happy path
 
-    it("updates and returns account", async () => {
+    it("returns updated account", async () => {
       // Arrange
       const accountId = faker.string.uuid();
-      const currentAccount = fakeAccount({ id: accountId });
-      const updatedAccount = fakeAccount({ id: accountId });
+      const existingAccount = fakeAccount({
+        id: accountId,
+        userId,
+        name: "Original",
+      });
 
       // Account exists
-      mockAccountRepository.findOneById.mockResolvedValue(currentAccount);
+      mockAccountRepository.findOneById.mockResolvedValue(existingAccount);
       // No name conflicts
       mockAccountRepository.findManyByUserId.mockResolvedValue([
-        currentAccount,
+        existingAccount,
       ]);
-      mockAccountRepository.update.mockResolvedValue(updatedAccount);
+      mockAccountRepository.update.mockImplementation(
+        async (account) => account,
+      );
 
       // Act
       const result = await service.updateAccount(accountId, userId, {
@@ -224,45 +170,29 @@ describe("AccountService", () => {
       });
 
       // Assert
-      expect(result).toEqual(updatedAccount);
+      expect(result).toMatchObject({
+        id: accountId,
+        userId,
+        name: "New Name",
+      });
       expect(mockAccountRepository.update).toHaveBeenCalledWith(
-        { id: accountId, userId },
-        { name: "New Name" },
-      );
-    });
-
-    it("trims name before updating", async () => {
-      // Arrange
-      const accountId = faker.string.uuid();
-      const currentAccount = fakeAccount({ id: accountId });
-
-      mockAccountRepository.findOneById.mockResolvedValue(currentAccount);
-      mockAccountRepository.findManyByUserId.mockResolvedValue([
-        currentAccount,
-      ]);
-      mockAccountRepository.update.mockResolvedValue(currentAccount);
-
-      // Act
-      await service.updateAccount(accountId, userId, { name: "  Savings  " });
-
-      // Assert
-      expect(mockAccountRepository.update).toHaveBeenCalledWith(
-        { id: accountId, userId },
-        { name: "Savings" },
+        expect.objectContaining({ id: accountId, name: "New Name" }),
       );
     });
 
     it("allows keeping same account name", async () => {
       // Arrange
       const accountId = faker.string.uuid();
-      const currentAccount = fakeAccount({ id: accountId, name: "Savings" });
+      const currentAccount = fakeAccount({
+        id: accountId,
+        userId,
+        name: "Savings",
+      });
 
       mockAccountRepository.findOneById.mockResolvedValue(currentAccount);
-      // Only the current account exists — same name is not a conflict
-      mockAccountRepository.findManyByUserId.mockResolvedValue([
-        currentAccount,
-      ]);
-      mockAccountRepository.update.mockResolvedValue(currentAccount);
+      mockAccountRepository.update.mockImplementation(
+        async (account) => account,
+      );
 
       // Act
       const result = await service.updateAccount(accountId, userId, {
@@ -270,22 +200,29 @@ describe("AccountService", () => {
       });
 
       // Assert
-      expect(result).toEqual(currentAccount);
+      expect(result.name).toBe("Savings");
       expect(mockAccountRepository.update).toHaveBeenCalled();
+      // No duplicate-name lookup when the name does not change
+      expect(mockAccountRepository.findManyByUserId).not.toHaveBeenCalled();
     });
 
     it("allows currency change when account has no transactions", async () => {
       // Arrange
       const accountId = faker.string.uuid();
-      const currentAccount = fakeAccount({ id: accountId, currency: "USD" });
-      const updatedAccount = fakeAccount({ id: accountId, currency: "EUR" });
+      const currentAccount = fakeAccount({
+        id: accountId,
+        userId,
+        currency: "USD",
+      });
 
       mockAccountRepository.findOneById.mockResolvedValue(currentAccount);
       // No transactions for this account
       mockTransactionRepository.hasTransactionsForAccount.mockResolvedValue(
         false,
       );
-      mockAccountRepository.update.mockResolvedValue(updatedAccount);
+      mockAccountRepository.update.mockImplementation(
+        async (account) => account,
+      );
 
       // Act
       const result = await service.updateAccount(accountId, userId, {
@@ -293,8 +230,10 @@ describe("AccountService", () => {
       });
 
       // Assert
-      expect(result).toEqual(updatedAccount);
-      expect(mockAccountRepository.update).toHaveBeenCalled();
+      expect(result.currency).toBe("EUR");
+      expect(mockAccountRepository.update).toHaveBeenCalledWith(
+        expect.objectContaining({ currency: "EUR" }),
+      );
     });
 
     // Validation failures
@@ -318,63 +257,28 @@ describe("AccountService", () => {
       expect(mockAccountRepository.update).not.toHaveBeenCalled();
     });
 
-    it("throws when updated name is empty", async () => {
+    it("propagates ModelError without persisting", async () => {
       // Arrange
       const accountId = faker.string.uuid();
-      const currentAccount = fakeAccount({ id: accountId });
+      const currentAccount = fakeAccount({ id: accountId, userId });
       mockAccountRepository.findOneById.mockResolvedValue(currentAccount);
 
       // Act & Assert
-      const promise = service.updateAccount(accountId, userId, { name: "" });
-
-      await expect(promise).rejects.toThrow(BusinessError);
-      await expect(promise).rejects.toMatchObject({
-        message: `Account name must be between ${NAME_MIN_LENGTH} and ${NAME_MAX_LENGTH} characters`,
-      });
-      expect(mockAccountRepository.update).not.toHaveBeenCalled();
-    });
-
-    it("throws when updated name exceeds maximum length", async () => {
-      // Arrange
-      const accountId = faker.string.uuid();
-      const currentAccount = fakeAccount({ id: accountId });
-      mockAccountRepository.findOneById.mockResolvedValue(currentAccount);
-
-      // Act & Assert
-      const promise = service.updateAccount(accountId, userId, {
-        name: "a".repeat(NAME_MAX_LENGTH + 1),
-      });
-
-      await expect(promise).rejects.toThrow(BusinessError);
-      await expect(promise).rejects.toMatchObject({
-        message: `Account name must be between ${NAME_MIN_LENGTH} and ${NAME_MAX_LENGTH} characters`,
-      });
-      expect(mockAccountRepository.update).not.toHaveBeenCalled();
-    });
-
-    it("throws when updated currency is unsupported", async () => {
-      // Arrange
-      const accountId = faker.string.uuid();
-      const currentAccount = fakeAccount({ id: accountId });
-      mockAccountRepository.findOneById.mockResolvedValue(currentAccount);
-
-      // Act & Assert
-      const promise = service.updateAccount(accountId, userId, {
-        currency: "INVALID",
-      });
-
-      await expect(promise).rejects.toThrow(BusinessError);
-      await expect(promise).rejects.toMatchObject({
-        message: "Unsupported currency: INVALID",
-      });
+      await expect(
+        service.updateAccount(accountId, userId, { name: "" }),
+      ).rejects.toThrow(ModelError);
       expect(mockAccountRepository.update).not.toHaveBeenCalled();
     });
 
     it("throws when updated name already exists for another account", async () => {
       // Arrange
       const accountId = faker.string.uuid();
-      const currentAccount = fakeAccount({ id: accountId, name: "Checking" });
-      const anotherAccount = fakeAccount({ name: "Savings" });
+      const currentAccount = fakeAccount({
+        id: accountId,
+        userId,
+        name: "Checking",
+      });
+      const anotherAccount = fakeAccount({ userId, name: "Savings" });
 
       mockAccountRepository.findOneById.mockResolvedValue(currentAccount);
       // Another account already has the name "Savings"
@@ -398,7 +302,11 @@ describe("AccountService", () => {
     it("throws when changing currency and account has existing transactions", async () => {
       // Arrange
       const accountId = faker.string.uuid();
-      const currentAccount = fakeAccount({ id: accountId, currency: "USD" });
+      const currentAccount = fakeAccount({
+        id: accountId,
+        userId,
+        currency: "USD",
+      });
 
       mockAccountRepository.findOneById.mockResolvedValue(currentAccount);
       // Account has existing transactions — currency cannot be changed
@@ -424,7 +332,7 @@ describe("AccountService", () => {
     it("propagates repository errors on update", async () => {
       // Arrange
       const accountId = faker.string.uuid();
-      const currentAccount = fakeAccount({ id: accountId });
+      const currentAccount = fakeAccount({ id: accountId, userId });
 
       mockAccountRepository.findOneById.mockResolvedValue(currentAccount);
       mockAccountRepository.findManyByUserId.mockResolvedValue([
@@ -446,31 +354,58 @@ describe("AccountService", () => {
   describe("deleteAccount", () => {
     // Happy path
 
-    it("archives and returns account", async () => {
+    it("returns archived account", async () => {
       // Arrange
       const accountId = faker.string.uuid();
-      const archivedAccount = fakeAccount({ id: accountId, isArchived: true });
-      mockAccountRepository.archive.mockResolvedValue(archivedAccount);
+      const currentAccount = fakeAccount({
+        id: accountId,
+        userId,
+        isArchived: false,
+      });
+
+      mockAccountRepository.findOneById.mockResolvedValue(currentAccount);
+      mockAccountRepository.update.mockImplementation(
+        async (account) => account,
+      );
 
       // Act
       const result = await service.deleteAccount(accountId, userId);
 
       // Assert
-      expect(result).toEqual(archivedAccount);
-      expect(mockAccountRepository.archive).toHaveBeenCalledWith({
-        id: accountId,
-        userId,
+      expect(result.isArchived).toBe(true);
+      expect(mockAccountRepository.update).toHaveBeenCalledWith(
+        result as AccountEntity,
+      );
+    });
+
+    // Validation failures
+
+    it("throws when account is not found", async () => {
+      // Arrange
+      const accountId = faker.string.uuid();
+
+      mockAccountRepository.findOneById.mockResolvedValue(null);
+
+      // Act & Assert
+      const promise = service.deleteAccount(accountId, userId);
+
+      await expect(promise).rejects.toThrow(BusinessError);
+      await expect(promise).rejects.toMatchObject({
+        message: "Account not found",
       });
+      expect(mockAccountRepository.update).not.toHaveBeenCalled();
     });
 
     // Dependency failures
 
-    it("propagates repository errors on archive", async () => {
+    it("propagates repository errors on update", async () => {
       // Arrange
       const accountId = faker.string.uuid();
+      const currentAccount = fakeAccount({ id: accountId, userId });
 
+      mockAccountRepository.findOneById.mockResolvedValue(currentAccount);
       // Repository throws on DB error
-      mockAccountRepository.archive.mockRejectedValue(
+      mockAccountRepository.update.mockRejectedValue(
         new Error("Database error"),
       );
 
