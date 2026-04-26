@@ -30,6 +30,7 @@ export const fakeTransaction = (
     description: faker.finance.transactionDescription(),
     transferId: isTransfer ? faker.string.uuid() : undefined,
     isArchived: false,
+    // Randomized to surface tests that wrongly assume a specific version.
     version: faker.number.int({ min: 1, max: 100 }),
     createdAt: now,
     updatedAt: now,
