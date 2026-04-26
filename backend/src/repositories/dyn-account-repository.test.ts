@@ -89,9 +89,9 @@ describe("DynAccountRepository", () => {
 
     it("throws when id is missing", async () => {
       // Act & Assert
-      await expect(
-        repository.findOneById({ id: "", userId }),
-      ).rejects.toThrow("Account ID is required");
+      await expect(repository.findOneById({ id: "", userId })).rejects.toThrow(
+        "Account ID is required",
+      );
     });
 
     it("throws when userId is missing", async () => {
