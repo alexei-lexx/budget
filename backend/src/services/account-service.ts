@@ -1,4 +1,4 @@
-import { Account } from "../models/account";
+import { Account, NAME_MAX_LENGTH, NAME_MIN_LENGTH } from "../models/account";
 import {
   AccountRepository,
   CreateAccountInput,
@@ -6,7 +6,6 @@ import {
 } from "../ports/account-repository";
 import { TransactionRepository } from "../ports/transaction-repository";
 import { isSupportedCurrency } from "../types/currency";
-import { NAME_MAX_LENGTH, NAME_MIN_LENGTH } from "../types/validation";
 import { BusinessError } from "./business-error";
 
 export interface AccountService {

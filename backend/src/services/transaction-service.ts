@@ -20,9 +20,10 @@ import {
   MIN_PAGE_SIZE,
   PaginationInput,
 } from "../types/pagination";
-import { MIN_SEARCH_TEXT_LENGTH } from "../types/validation";
 import { BusinessError } from "./business-error";
 import { handleVersionConflict } from "./utils/handle-version-conflict";
+
+export const MIN_SEARCH_TEXT_LENGTH = 2;
 
 export const DEFAULT_TRANSACTION_PATTERNS_LIMIT = 3;
 export const MIN_TRANSACTION_PATTERNS_LIMIT = 1;

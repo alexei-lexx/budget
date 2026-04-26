@@ -6,7 +6,6 @@ import { TransactionPatternType, TransactionType } from "../models/transaction";
 import { VersionConflictError } from "../ports/repository-error";
 import { toDateString } from "../types/date";
 import { MAX_PAGE_SIZE, MIN_PAGE_SIZE } from "../types/pagination";
-import { MIN_SEARCH_TEXT_LENGTH } from "../types/validation";
 import { fakeAccount } from "../utils/test-utils/models/account-fakes";
 import { fakeCategory } from "../utils/test-utils/models/category-fakes";
 import {
@@ -22,6 +21,7 @@ import {
   DEFAULT_TRANSACTION_PATTERNS_LIMIT,
   DESCRIPTION_SUGGESTIONS_SAMPLE_SIZE,
   MAX_TRANSACTION_PATTERNS_LIMIT,
+  MIN_SEARCH_TEXT_LENGTH,
   MIN_TRANSACTION_PATTERNS_LIMIT,
   TransactionService,
   TransactionServiceImpl,

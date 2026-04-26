@@ -13,7 +13,7 @@ import {
 } from "../ports/account-repository";
 import { RepositoryError } from "../ports/repository-error";
 import { DynBaseRepository } from "./dyn-base-repository";
-import { accountSchema } from "./schemas/account";
+import { accountDataSchema } from "./schemas/account";
 import { hydrate } from "./utils/hydrate";
 import { paginateQuery } from "./utils/query";
 
@@ -48,7 +48,7 @@ export class DynAccountRepository
         return null;
       }
 
-      const account = hydrate(accountSchema, result.Item);
+      const account = hydrate(accountDataSchema, result.Item);
 
       // Return null if account is archived (soft deleted)
       if (account.isArchived) {
@@ -80,7 +80,7 @@ export class DynAccountRepository
           },
         },
         pageSize: undefined, // No pageSize = get all items
-        schema: accountSchema,
+        schema: accountDataSchema,
       });
 
       const accounts = result.items;
@@ -125,7 +125,7 @@ export class DynAccountRepository
 
       const result = await this.client.send(command);
       return (result.Responses?.[this.tableName] || []).map((item) =>
-        hydrate(accountSchema, item),
+        hydrate(accountDataSchema, item),
       );
     } catch (error) {
       console.error("Error batch finding accounts by IDs:", error);
@@ -153,7 +153,7 @@ export class DynAccountRepository
           },
         },
         pageSize: undefined, // No pageSize = get all items
-        schema: accountSchema,
+        schema: accountDataSchema,
       });
 
       return result.items;
@@ -251,7 +251,7 @@ export class DynAccountRepository
       });
 
       const result = await this.client.send(command);
-      return hydrate(accountSchema, result.Attributes);
+      return hydrate(accountDataSchema, result.Attributes);
     } catch (error) {
       console.error("Error updating account:", error);
 
@@ -306,7 +306,7 @@ export class DynAccountRepository
       });
 
       const result = await this.client.send(command);
-      return hydrate(accountSchema, result.Attributes);
+      return hydrate(accountDataSchema, result.Attributes);
     } catch (error) {
       console.error("Error archiving account:", error);
 

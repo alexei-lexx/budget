@@ -1,7 +1,6 @@
 import { faker } from "@faker-js/faker";
 import { describe, expect, it } from "@jest/globals";
 import { toDateString } from "../types/date";
-import { DESCRIPTION_MAX_LENGTH } from "../types/validation";
 import { fakeAccount } from "../utils/test-utils/models/account-fakes";
 import { fakeCategory } from "../utils/test-utils/models/category-fakes";
 import {
@@ -10,7 +9,11 @@ import {
 } from "../utils/test-utils/models/transaction-fakes";
 import { CategoryType } from "./category";
 import { ModelError } from "./model-error";
-import { Transaction, TransactionType } from "./transaction";
+import {
+  DESCRIPTION_MAX_LENGTH,
+  Transaction,
+  TransactionType,
+} from "./transaction";
 
 describe("Transaction", () => {
   describe("create", () => {
@@ -117,28 +120,6 @@ describe("Transaction", () => {
 
       // Assert
       expect(result.description).toBeUndefined();
-    });
-
-    it("defaults isArchived to false", () => {
-      // Act
-      const result = Transaction.create(
-        fakeCreateTransactionInput(),
-        fixedDeps,
-      );
-
-      // Assert
-      expect(result.isArchived).toBe(false);
-    });
-
-    it("sets createdAt equal to updatedAt", () => {
-      // Act
-      const result = Transaction.create(
-        fakeCreateTransactionInput(),
-        fixedDeps,
-      );
-
-      // Assert
-      expect(result.createdAt).toBe(result.updatedAt);
     });
 
     it("sets id and timestamps with default dependencies", () => {

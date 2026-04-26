@@ -1,9 +1,10 @@
 import { randomUUID } from "crypto";
 import { DateString } from "../types/date";
-import { DESCRIPTION_MAX_LENGTH } from "../types/validation";
 import { Account } from "./account";
 import { Category, CategoryType } from "./category";
 import { ModelError } from "./model-error";
+
+export const DESCRIPTION_MAX_LENGTH = 500;
 
 export enum TransactionType {
   INCOME = "INCOME",
