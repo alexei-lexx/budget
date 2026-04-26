@@ -31,6 +31,77 @@ describe("DynAccountRepository", () => {
     });
   });
 
+  describe("findOneById", () => {
+    // Happy path
+
+    it("returns account when it exists", async () => {
+      // Arrange
+      const account = Account.create(fakeCreateAccountInput({ userId }));
+      await repository.create(account);
+
+      // Act
+      const result = await repository.findOneById({ id: account.id, userId });
+
+      // Assert
+      expect(result?.toData()).toEqual(account.toData());
+    });
+
+    it("returns null when account does not exist", async () => {
+      // Act
+      const result = await repository.findOneById({
+        id: faker.string.uuid(),
+        userId,
+      });
+
+      // Assert
+      expect(result).toBeNull();
+    });
+
+    it("returns null when account is archived", async () => {
+      // Arrange
+      const account = Account.create(fakeCreateAccountInput({ userId }));
+      await repository.create(account);
+      await repository.update(account.archive());
+
+      // Act
+      const result = await repository.findOneById({ id: account.id, userId });
+
+      // Assert
+      expect(result).toBeNull();
+    });
+
+    it("returns null when account belongs to another user", async () => {
+      // Arrange
+      const otherUserId = faker.string.uuid();
+      const account = Account.create(
+        fakeCreateAccountInput({ userId: otherUserId }),
+      );
+      await repository.create(account);
+
+      // Act
+      const result = await repository.findOneById({ id: account.id, userId });
+
+      // Assert
+      expect(result).toBeNull();
+    });
+
+    // Validation failures
+
+    it("throws when id is missing", async () => {
+      // Act & Assert
+      await expect(
+        repository.findOneById({ id: "", userId }),
+      ).rejects.toThrow("Account ID is required");
+    });
+
+    it("throws when userId is missing", async () => {
+      // Act & Assert
+      await expect(
+        repository.findOneById({ id: faker.string.uuid(), userId: "" }),
+      ).rejects.toThrow("User ID is required");
+    });
+  });
+
   describe("findManyByUserId", () => {
     // Happy path
 
