@@ -1,12 +1,15 @@
 import { faker } from "@faker-js/faker";
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import { CategoryType } from "../models/category";
-import { NAME_MAX_LENGTH, NAME_MIN_LENGTH } from "../types/validation";
 import { fakeCategory } from "../utils/test-utils/models/category-fakes";
 import { fakeCreateCategoryInput } from "../utils/test-utils/repositories/category-repository-fakes";
 import { createMockCategoryRepository } from "../utils/test-utils/repositories/category-repository-mocks";
 import { BusinessError } from "./business-error";
-import { CategoryServiceImpl } from "./category-service";
+import {
+  CategoryServiceImpl,
+  NAME_MAX_LENGTH,
+  NAME_MIN_LENGTH,
+} from "./category-service";
 
 describe("CategoryService", () => {
   let service: CategoryServiceImpl;

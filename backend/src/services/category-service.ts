@@ -4,8 +4,10 @@ import {
   CreateCategoryInput,
   UpdateCategoryInput,
 } from "../ports/category-repository";
-import { NAME_MAX_LENGTH, NAME_MIN_LENGTH } from "../types/validation";
 import { BusinessError } from "./business-error";
+
+export const NAME_MIN_LENGTH = 1;
+export const NAME_MAX_LENGTH = 100;
 
 export interface CategoryService {
   getCategoriesByUser(userId: string, type?: CategoryType): Promise<Category[]>;

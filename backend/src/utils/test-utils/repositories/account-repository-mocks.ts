@@ -12,5 +12,4 @@ export const createMockAccountRepository =
     findManyWithArchivedByIds: jest.fn(),
     create: jest.fn(),
     update: jest.fn(),
-    archive: jest.fn(),
   });

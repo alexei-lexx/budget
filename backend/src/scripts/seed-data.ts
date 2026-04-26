@@ -7,6 +7,7 @@ import {
   resolveTransactionService,
   resolveUserRepository,
 } from "../dependencies";
+import { Account } from "../models/account";
 import { CategoryType } from "../models/category";
 import { TransactionType } from "../models/transaction";
 import { toDateString } from "../types/date";
@@ -92,12 +93,13 @@ async function createAccounts(userId: string): Promise<string[]> {
 
   const accountIds: string[] = [];
   for (const config of accountsConfig) {
-    const account = await accountRepository.create({
+    const account = Account.create({
       userId,
       name: config.name,
       currency: config.currency,
       initialBalance: config.initialBalance,
     });
+    await accountRepository.create(account);
     accountIds.push(account.id);
     console.log(`✓ Created account: ${account.name} (${account.currency})`);
   }

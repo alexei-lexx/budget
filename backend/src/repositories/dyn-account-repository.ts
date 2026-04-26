@@ -1,4 +1,4 @@
-import { randomUUID } from "crypto";
+import { ConditionalCheckFailedException } from "@aws-sdk/client-dynamodb";
 import {
   BatchGetCommand,
   GetCommand,
@@ -6,14 +6,13 @@ import {
   UpdateCommand,
 } from "@aws-sdk/lib-dynamodb";
 import { Account } from "../models/account";
+import { AccountRepository } from "../ports/account-repository";
 import {
-  AccountRepository,
-  CreateAccountInput,
-  UpdateAccountInput,
-} from "../ports/account-repository";
-import { RepositoryError } from "../ports/repository-error";
+  RepositoryError,
+  VersionConflictError,
+} from "../ports/repository-error";
 import { DynBaseRepository } from "./dyn-base-repository";
-import { accountSchema } from "./schemas/account";
+import { accountDataSchema } from "./schemas/account";
 import { hydrate } from "./utils/hydrate";
 import { paginateQuery } from "./utils/query";
 
@@ -48,7 +47,8 @@ export class DynAccountRepository
         return null;
       }
 
-      const account = hydrate(accountSchema, result.Item);
+      const data = hydrate(accountDataSchema, result.Item);
+      const account = Account.fromPersistence(data);
 
       // Return null if account is archived (soft deleted)
       if (account.isArchived) {
@@ -68,7 +68,7 @@ export class DynAccountRepository
     }
 
     try {
-      const result = await paginateQuery<Account>({
+      const result = await paginateQuery({
         client: this.client,
         params: {
           TableName: this.tableName,
@@ -80,10 +80,12 @@ export class DynAccountRepository
           },
         },
         pageSize: undefined, // No pageSize = get all items
-        schema: accountSchema,
+        schema: accountDataSchema,
       });
 
-      const accounts = result.items;
+      const accounts = result.items.map((data) =>
+        Account.fromPersistence(data),
+      );
 
       // Sort accounts by name (case-insensitive)
       return accounts.sort((a, b) =>
@@ -125,7 +127,7 @@ export class DynAccountRepository
 
       const result = await this.client.send(command);
       return (result.Responses?.[this.tableName] || []).map((item) =>
-        hydrate(accountSchema, item),
+        Account.fromPersistence(hydrate(accountDataSchema, item)),
       );
     } catch (error) {
       console.error("Error batch finding accounts by IDs:", error);
@@ -143,7 +145,7 @@ export class DynAccountRepository
     }
 
     try {
-      const result = await paginateQuery<Account>({
+      const result = await paginateQuery({
         client: this.client,
         params: {
           TableName: this.tableName,
@@ -153,10 +155,10 @@ export class DynAccountRepository
           },
         },
         pageSize: undefined, // No pageSize = get all items
-        schema: accountSchema,
+        schema: accountDataSchema,
       });
 
-      return result.items;
+      return result.items.map((data) => Account.fromPersistence(data));
     } catch (error) {
       console.error("Error finding all accounts by user ID:", error);
       throw new RepositoryError(
@@ -167,27 +169,17 @@ export class DynAccountRepository
     }
   }
 
-  async create(input: CreateAccountInput): Promise<Account> {
-    const now = new Date().toISOString();
-    const account: Account = {
-      id: randomUUID(),
-      userId: input.userId,
-      name: input.name,
-      currency: input.currency,
-      initialBalance: input.initialBalance,
-      isArchived: false,
-      createdAt: now,
-      updatedAt: now,
-    };
+  async create(account: Readonly<Account>): Promise<void> {
+    const data = account.toData();
 
     try {
       const command = new PutCommand({
         TableName: this.tableName,
-        Item: account,
+        Item: data,
+        ConditionExpression: "attribute_not_exists(id)",
       });
 
       await this.client.send(command);
-      return account;
     } catch (error) {
       console.error("Error creating account:", error);
       throw new RepositoryError(
@@ -198,131 +190,48 @@ export class DynAccountRepository
     }
   }
 
-  async update(
-    { id, userId }: { id: string; userId: string },
-    input: UpdateAccountInput,
-  ): Promise<Account> {
-    if (!id) {
-      throw new RepositoryError("Account ID is required", "INVALID_PARAMETERS");
-    }
-
-    if (!userId) {
-      throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
-    }
-
-    const now = new Date().toISOString();
-
-    // Build update expression dynamically
-    const updateExpressionParts: string[] = ["updatedAt = :updatedAt"];
-    const expressionAttributeValues: Record<string, string | number> = {
-      ":updatedAt": now,
-    };
-    let hasNameUpdate = false;
-
-    if (input.name !== undefined) {
-      updateExpressionParts.push("#name = :name");
-      expressionAttributeValues[":name"] = input.name;
-      hasNameUpdate = true;
-    }
-
-    if (input.currency !== undefined) {
-      updateExpressionParts.push("currency = :currency");
-      expressionAttributeValues[":currency"] = input.currency;
-    }
-
-    if (input.initialBalance !== undefined) {
-      updateExpressionParts.push("initialBalance = :initialBalance");
-      expressionAttributeValues[":initialBalance"] = input.initialBalance;
-    }
+  async update(account: Readonly<Account>): Promise<Account> {
+    const data = account.toData();
 
     try {
+      const setParts = [
+        "#name = :name",
+        "currency = :currency",
+        "initialBalance = :initialBalance",
+        "isArchived = :isArchived",
+        "updatedAt = :updatedAt",
+        "version = :nextVersion",
+      ];
+
       const command = new UpdateCommand({
         TableName: this.tableName,
-        Key: { userId, id },
-        UpdateExpression: `SET ${updateExpressionParts.join(", ")}`,
+        Key: { userId: data.userId, id: data.id },
+        UpdateExpression: `SET ${setParts.join(", ")}`,
         ConditionExpression:
-          "attribute_exists(userId) AND attribute_exists(id) AND isArchived <> :isArchived",
-        ...(hasNameUpdate && { ExpressionAttributeNames: { "#name": "name" } }),
+          "attribute_exists(userId) AND attribute_exists(id) AND version = :currentVersion",
+        ExpressionAttributeNames: { "#name": "name" },
         ExpressionAttributeValues: {
-          ...expressionAttributeValues,
-          ":isArchived": true,
+          ":name": data.name,
+          ":currency": data.currency,
+          ":initialBalance": data.initialBalance,
+          ":isArchived": data.isArchived,
+          ":updatedAt": data.updatedAt,
+          ":currentVersion": data.version,
+          ":nextVersion": data.version + 1,
         },
-        ReturnValues: "ALL_NEW",
       });
 
-      const result = await this.client.send(command);
-      return hydrate(accountSchema, result.Attributes);
+      await this.client.send(command);
+      return account.bumpVersion();
     } catch (error) {
-      console.error("Error updating account:", error);
-
-      if (
-        error instanceof Error &&
-        error.name === "ConditionalCheckFailedException"
-      ) {
-        throw new RepositoryError(
-          "Account not found or is archived",
-          "NOT_FOUND",
-        );
+      if (error instanceof ConditionalCheckFailedException) {
+        throw new VersionConflictError(error);
       }
 
+      console.error("Error updating account:", error);
       throw new RepositoryError(
         "Failed to update account",
         "UPDATE_FAILED",
-        error,
-      );
-    }
-  }
-
-  async archive({
-    id,
-    userId,
-  }: {
-    id: string;
-    userId: string;
-  }): Promise<Account> {
-    if (!id) {
-      throw new RepositoryError("Account ID is required", "INVALID_PARAMETERS");
-    }
-
-    if (!userId) {
-      throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
-    }
-
-    const now = new Date().toISOString();
-
-    try {
-      const command = new UpdateCommand({
-        TableName: this.tableName,
-        Key: { userId, id },
-        UpdateExpression:
-          "SET isArchived = :isArchived, updatedAt = :updatedAt",
-        ConditionExpression:
-          "attribute_exists(userId) AND attribute_exists(id) AND isArchived <> :isArchived",
-        ExpressionAttributeValues: {
-          ":isArchived": true,
-          ":updatedAt": now,
-        },
-        ReturnValues: "ALL_NEW",
-      });
-
-      const result = await this.client.send(command);
-      return hydrate(accountSchema, result.Attributes);
-    } catch (error) {
-      console.error("Error archiving account:", error);
-
-      if (
-        error instanceof Error &&
-        error.name === "ConditionalCheckFailedException"
-      ) {
-        throw new RepositoryError(
-          "Account not found or already archived",
-          "NOT_FOUND",
-        );
-      }
-
-      throw new RepositoryError(
-        "Failed to archive account",
-        "ARCHIVE_FAILED",
         error,
       );
     }

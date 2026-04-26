@@ -1,18 +1,5 @@
 import { Account } from "../models/account";
 
-export interface CreateAccountInput {
-  userId: string;
-  name: string;
-  currency: string;
-  initialBalance: number;
-}
-
-export interface UpdateAccountInput {
-  name?: string;
-  currency?: string;
-  initialBalance?: number;
-}
-
 export interface AccountRepository {
   findOneById(selector: {
     id: string;
@@ -24,10 +11,6 @@ export interface AccountRepository {
     userId: string;
   }): Promise<Account[]>;
   findManyWithArchivedByUserId(userId: string): Promise<Account[]>;
-  create(input: CreateAccountInput): Promise<Account>;
-  update(
-    selector: { id: string; userId: string },
-    input: UpdateAccountInput,
-  ): Promise<Account>;
-  archive(selector: { id: string; userId: string }): Promise<Account>;
+  create(account: Readonly<Account>): Promise<void>;
+  update(account: Readonly<Account>): Promise<Account>;
 }
