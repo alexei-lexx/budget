@@ -209,7 +209,7 @@ describe("CreateTransactionAgent (integration)", () => {
       }),
     );
     // Seed similar history — prior "food" expenses around 5–15 EUR
-    await transactionRepository.createMany([
+    await transactionRepository.create(
       fakeTransaction({
         userId,
         accountId: account.id,
@@ -217,6 +217,8 @@ describe("CreateTransactionAgent (integration)", () => {
         amount: 5,
         type: TransactionType.EXPENSE,
       }),
+    );
+    await transactionRepository.create(
       fakeTransaction({
         userId,
         accountId: account.id,
@@ -224,7 +226,7 @@ describe("CreateTransactionAgent (integration)", () => {
         amount: 15,
         type: TransactionType.EXPENSE,
       }),
-    ]);
+    );
 
     // Act
     const response = await agent.invoke(

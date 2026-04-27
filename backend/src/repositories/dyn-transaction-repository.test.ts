@@ -113,11 +113,15 @@ describe("DynTransactionRepository", () => {
         const account2 = faker.string.uuid();
 
         // Create transactions for different accounts
-        await repository.createMany([
+        await repository.create(
           fakeTransaction({ userId, accountId: account1 }),
+        );
+        await repository.create(
           fakeTransaction({ userId, accountId: account2 }),
+        );
+        await repository.create(
           fakeTransaction({ userId, accountId: account1 }),
-        ]);
+        );
 
         // Act
         const result = await repository.findManyByUserIdPaginated(
@@ -144,12 +148,18 @@ describe("DynTransactionRepository", () => {
         const account3 = faker.string.uuid();
 
         // Create transactions for three different accounts
-        await repository.createMany([
+        await repository.create(
           fakeTransaction({ userId, accountId: account1 }),
+        );
+        await repository.create(
           fakeTransaction({ userId, accountId: account2 }),
+        );
+        await repository.create(
           fakeTransaction({ userId, accountId: account3 }),
+        );
+        await repository.create(
           fakeTransaction({ userId, accountId: account1 }),
-        ]);
+        );
 
         // Act - Filter by account1 and account2 (should get 3 transactions)
         const result = await repository.findManyByUserIdPaginated(
@@ -203,23 +213,27 @@ describe("DynTransactionRepository", () => {
         const category2 = faker.string.uuid();
 
         // Create transactions for different categories
-        await repository.createMany([
+        await repository.create(
           fakeTransaction({
             userId,
             accountId,
             categoryId: category1,
           }),
+        );
+        await repository.create(
           fakeTransaction({
             userId,
             accountId,
             categoryId: category2,
           }),
+        );
+        await repository.create(
           fakeTransaction({
             userId,
             accountId,
             categoryId: category1,
           }),
-        ]);
+        );
 
         // Act
         const result = await repository.findManyByUserIdPaginated(
@@ -247,23 +261,27 @@ describe("DynTransactionRepository", () => {
         const category3 = faker.string.uuid();
 
         // Create transactions for three different categories
-        await repository.createMany([
+        await repository.create(
           fakeTransaction({
             userId,
             accountId,
             categoryId: category1,
           }),
+        );
+        await repository.create(
           fakeTransaction({
             userId,
             accountId,
             categoryId: category2,
           }),
+        );
+        await repository.create(
           fakeTransaction({
             userId,
             accountId,
             categoryId: category3,
           }),
-        ]);
+        );
 
         // Act - Filter by category1 and category2
         const result = await repository.findManyByUserIdPaginated(
@@ -290,23 +308,27 @@ describe("DynTransactionRepository", () => {
         const category1 = faker.string.uuid();
 
         // Create transactions: some with categories, some without
-        await repository.createMany([
+        await repository.create(
           fakeTransaction({
             userId,
             accountId,
             categoryId: category1,
           }),
+        );
+        await repository.create(
           fakeTransaction({
             userId,
             accountId,
             categoryId: undefined,
           }),
+        );
+        await repository.create(
           fakeTransaction({
             userId,
             accountId,
             categoryId: undefined,
           }),
-        ]);
+        );
 
         // Act
         const result = await repository.findManyByUserIdPaginated(
@@ -333,28 +355,34 @@ describe("DynTransactionRepository", () => {
         const category2 = faker.string.uuid();
 
         // Create transactions: some with category1, some with category2, some uncategorized
-        await repository.createMany([
+        await repository.create(
           fakeTransaction({
             userId,
             accountId,
             categoryId: category1,
           }),
+        );
+        await repository.create(
           fakeTransaction({
             userId,
             accountId,
             categoryId: category2,
           }),
+        );
+        await repository.create(
           fakeTransaction({
             userId,
             accountId,
             categoryId: undefined,
           }),
+        );
+        await repository.create(
           fakeTransaction({
             userId,
             accountId,
             categoryId: category1,
           }),
-        ]);
+        );
 
         // Act - Filter by category1 + uncategorized
         const result = await repository.findManyByUserIdPaginated(
@@ -410,23 +438,27 @@ describe("DynTransactionRepository", () => {
         const userId = faker.string.uuid();
         const accountId = faker.string.uuid();
 
-        await repository.createMany([
+        await repository.create(
           fakeTransaction({
             userId,
             accountId,
             date: toDateString("2024-01-10"),
           }),
+        );
+        await repository.create(
           fakeTransaction({
             userId,
             accountId,
             date: toDateString("2024-01-15"),
           }),
+        );
+        await repository.create(
           fakeTransaction({
             userId,
             accountId,
             date: toDateString("2024-01-20"),
           }),
-        ]);
+        );
 
         // Act - Get transactions on or after 2024-01-15 (should include 2024-01-15)
         const result = await repository.findManyByUserIdPaginated(
@@ -449,23 +481,27 @@ describe("DynTransactionRepository", () => {
         const userId = faker.string.uuid();
         const accountId = faker.string.uuid();
 
-        await repository.createMany([
+        await repository.create(
           fakeTransaction({
             userId,
             accountId,
             date: toDateString("2024-01-10"),
           }),
+        );
+        await repository.create(
           fakeTransaction({
             userId,
             accountId,
             date: toDateString("2024-01-20"),
           }),
+        );
+        await repository.create(
           fakeTransaction({
             userId,
             accountId,
             date: toDateString("2024-01-25"),
           }),
-        ]);
+        );
 
         // Act - Get transactions on or before 2024-01-20 (should include 2024-01-20)
         const result = await repository.findManyByUserIdPaginated(
@@ -488,33 +524,41 @@ describe("DynTransactionRepository", () => {
         const userId = faker.string.uuid();
         const accountId = faker.string.uuid();
 
-        await repository.createMany([
+        await repository.create(
           fakeTransaction({
             userId,
             accountId,
             date: toDateString("2024-01-05"),
           }),
+        );
+        await repository.create(
           fakeTransaction({
             userId,
             accountId,
             date: toDateString("2024-01-10"),
           }),
+        );
+        await repository.create(
           fakeTransaction({
             userId,
             accountId,
             date: toDateString("2024-01-15"),
           }),
+        );
+        await repository.create(
           fakeTransaction({
             userId,
             accountId,
             date: toDateString("2024-01-20"),
           }),
+        );
+        await repository.create(
           fakeTransaction({
             userId,
             accountId,
             date: toDateString("2024-01-25"),
           }),
-        ]);
+        );
 
         // Act - Get transactions between 2024-01-10 and 2024-01-20 (both inclusive)
         const result = await repository.findManyByUserIdPaginated(
@@ -540,23 +584,27 @@ describe("DynTransactionRepository", () => {
         const userId = faker.string.uuid();
         const accountId = faker.string.uuid();
 
-        await repository.createMany([
+        await repository.create(
           fakeTransaction({
             userId,
             accountId,
             date: toDateString("2024-01-01"),
           }),
+        );
+        await repository.create(
           fakeTransaction({
             userId,
             accountId,
             date: toDateString("2024-06-15"),
           }),
+        );
+        await repository.create(
           fakeTransaction({
             userId,
             accountId,
             date: toDateString("2024-12-31"),
           }),
-        ]);
+        );
 
         // Act & Assert - Should throw error when dateAfter > dateBefore
         await expect(
@@ -574,23 +622,27 @@ describe("DynTransactionRepository", () => {
         const userId = faker.string.uuid();
         const accountId = faker.string.uuid();
 
-        await repository.createMany([
+        await repository.create(
           fakeTransaction({
             userId,
             accountId,
             type: TransactionType.INCOME,
           }),
+        );
+        await repository.create(
           fakeTransaction({
             userId,
             accountId,
             type: TransactionType.EXPENSE,
           }),
+        );
+        await repository.create(
           fakeTransaction({
             userId,
             accountId,
             type: TransactionType.INCOME,
           }),
-        ]);
+        );
 
         // Act
         const result = await repository.findManyByUserIdPaginated(
@@ -614,28 +666,34 @@ describe("DynTransactionRepository", () => {
         const userId = faker.string.uuid();
         const accountId = faker.string.uuid();
 
-        await repository.createMany([
+        await repository.create(
           fakeTransaction({
             userId,
             accountId,
             type: TransactionType.INCOME,
           }),
+        );
+        await repository.create(
           fakeTransaction({
             userId,
             accountId,
             type: TransactionType.EXPENSE,
           }),
+        );
+        await repository.create(
           fakeTransaction({
             userId,
             accountId,
             type: TransactionType.TRANSFER_IN,
           }),
+        );
+        await repository.create(
           fakeTransaction({
             userId,
             accountId,
             type: TransactionType.TRANSFER_OUT,
           }),
-        ]);
+        );
 
         // Act
         const result = await repository.findManyByUserIdPaginated(
@@ -666,28 +724,34 @@ describe("DynTransactionRepository", () => {
         const account1 = faker.string.uuid();
         const account2 = faker.string.uuid();
 
-        await repository.createMany([
+        await repository.create(
           fakeTransaction({
             userId,
             accountId: account1,
             date: toDateString("2024-01-10"),
           }),
+        );
+        await repository.create(
           fakeTransaction({
             userId,
             accountId: account1,
             date: toDateString("2024-01-20"),
           }),
+        );
+        await repository.create(
           fakeTransaction({
             userId,
             accountId: account2,
             date: toDateString("2024-01-15"),
           }),
+        );
+        await repository.create(
           fakeTransaction({
             userId,
             accountId: account2,
             date: toDateString("2024-01-25"),
           }),
-        ]);
+        );
 
         // Act
         const result = await repository.findManyByUserIdPaginated(
@@ -714,32 +778,38 @@ describe("DynTransactionRepository", () => {
         const category1 = faker.string.uuid();
         const category2 = faker.string.uuid();
 
-        await repository.createMany([
+        await repository.create(
           fakeTransaction({
             userId,
             accountId,
             categoryId: category1,
             type: TransactionType.INCOME,
           }),
+        );
+        await repository.create(
           fakeTransaction({
             userId,
             accountId,
             categoryId: category1,
             type: TransactionType.EXPENSE,
           }),
+        );
+        await repository.create(
           fakeTransaction({
             userId,
             accountId,
             categoryId: category2,
             type: TransactionType.INCOME,
           }),
+        );
+        await repository.create(
           fakeTransaction({
             userId,
             accountId,
             categoryId: category2,
             type: TransactionType.EXPENSE,
           }),
-        ]);
+        );
 
         // Act
         const result = await repository.findManyByUserIdPaginated(
@@ -766,7 +836,7 @@ describe("DynTransactionRepository", () => {
         const category1 = faker.string.uuid();
         const category2 = faker.string.uuid();
 
-        await repository.createMany([
+        await repository.create(
           fakeTransaction({
             userId,
             accountId: account1,
@@ -774,6 +844,8 @@ describe("DynTransactionRepository", () => {
             date: toDateString("2024-01-15"),
             type: TransactionType.EXPENSE,
           }),
+        );
+        await repository.create(
           fakeTransaction({
             userId,
             accountId: account1,
@@ -781,6 +853,8 @@ describe("DynTransactionRepository", () => {
             date: toDateString("2024-01-20"),
             type: TransactionType.EXPENSE,
           }),
+        );
+        await repository.create(
           fakeTransaction({
             userId,
             accountId: account1,
@@ -788,6 +862,8 @@ describe("DynTransactionRepository", () => {
             date: toDateString("2024-01-20"),
             type: TransactionType.EXPENSE,
           }),
+        );
+        await repository.create(
           fakeTransaction({
             userId,
             accountId: account2,
@@ -795,6 +871,8 @@ describe("DynTransactionRepository", () => {
             date: toDateString("2024-01-20"),
             type: TransactionType.EXPENSE,
           }),
+        );
+        await repository.create(
           fakeTransaction({
             userId,
             accountId: account1,
@@ -802,6 +880,8 @@ describe("DynTransactionRepository", () => {
             date: toDateString("2024-01-20"),
             type: TransactionType.INCOME,
           }),
+        );
+        await repository.create(
           fakeTransaction({
             userId,
             accountId: account1,
@@ -809,7 +889,7 @@ describe("DynTransactionRepository", () => {
             date: toDateString("2024-01-25"),
             type: TransactionType.EXPENSE,
           }),
-        ]);
+        );
 
         // Act - Complex filter: account1 + category1 + date range + EXPENSE type
         const result = await repository.findManyByUserIdPaginated(
@@ -875,7 +955,9 @@ describe("DynTransactionRepository", () => {
             date: toDateString("2024-01-15"),
           }),
         ];
-        await repository.createMany(transactions);
+        for (const transaction of transactions) {
+          await repository.create(transaction);
+        }
 
         // Act - Fetch first page with date filter (triggers UserDateIndex usage)
         const page1 = await repository.findManyByUserIdPaginated(
@@ -968,7 +1050,9 @@ describe("DynTransactionRepository", () => {
             date: toDateString("2024-01-15"),
           }),
         ];
-        await repository.createMany(transactions);
+        for (const transaction of transactions) {
+          await repository.create(transaction);
+        }
 
         // Act - Fetch first page WITHOUT date filter (triggers UserCreatedAtIndex usage)
         const page1 = await repository.findManyByUserIdPaginated(
@@ -1169,7 +1253,9 @@ describe("DynTransactionRepository", () => {
         }),
       ];
 
-      await repository.createMany(transactions);
+      for (const transaction of transactions) {
+        await repository.create(transaction);
+      }
 
       // Act - Search with uppercase "G"
       const resultUppercase = await repository.findManyByDescription({
@@ -1245,7 +1331,9 @@ describe("DynTransactionRepository", () => {
         );
       }
 
-      await repository.createMany(transactions);
+      for (const transaction of transactions) {
+        await repository.create(transaction);
+      }
 
       // Act
       const result = await repository.findManyByDescription({
@@ -1276,7 +1364,9 @@ describe("DynTransactionRepository", () => {
         }),
       ];
 
-      await repository.createMany(transactions);
+      for (const transaction of transactions) {
+        await repository.create(transaction);
+      }
 
       // Act
       const result = await repository.findManyByDescription({
@@ -1309,7 +1399,9 @@ describe("DynTransactionRepository", () => {
         }),
       ];
 
-      await repository.createMany(transactions);
+      for (const transaction of transactions) {
+        await repository.create(transaction);
+      }
 
       // Act
       const result = await repository.findManyByDescription({
@@ -1342,7 +1434,9 @@ describe("DynTransactionRepository", () => {
         }),
       ];
 
-      await repository.createMany(transactions);
+      for (const transaction of transactions) {
+        await repository.create(transaction);
+      }
 
       // Act
       const user1Result = await repository.findManyByDescription({
@@ -1401,7 +1495,9 @@ describe("DynTransactionRepository", () => {
         }),
       ];
 
-      await repository.createMany(transactions);
+      for (const transaction of transactions) {
+        await repository.create(transaction);
+      }
 
       // Act
       const result = await repository.findManyByDescription({
@@ -1490,7 +1586,9 @@ describe("DynTransactionRepository", () => {
         }),
       ];
 
-      await repository.createMany(transactions);
+      for (const transaction of transactions) {
+        await repository.create(transaction);
+      }
 
       // Act
       const result = await repository.findManyByDescription({
@@ -1522,7 +1620,9 @@ describe("DynTransactionRepository", () => {
         }),
       ];
 
-      await repository.createMany(transactions);
+      for (const transaction of transactions) {
+        await repository.create(transaction);
+      }
 
       // Act
       const result = await repository.findManyByDescription({
@@ -1963,7 +2063,9 @@ describe("DynTransactionRepository", () => {
         fakeTransaction({ userId, amount: 300.0 }),
         fakeTransaction({ userId, amount: 150.0 }),
       ];
-      await repository.createMany(transactions);
+      for (const transaction of transactions) {
+        await repository.create(transaction);
+      }
 
       // Act
       const updatedTransactions = await repository.updateMany(
@@ -1992,7 +2094,9 @@ describe("DynTransactionRepository", () => {
         fakeTransaction({ userId, version: 0 }),
         fakeTransaction({ userId, version: 0 }),
       ];
-      await repository.createMany(transactions);
+      for (const transaction of transactions) {
+        await repository.create(transaction);
+      }
 
       // Act
       const updated = await repository.updateMany(
@@ -2109,7 +2213,9 @@ describe("DynTransactionRepository", () => {
         }),
       ];
 
-      await repository.createMany(transactions);
+      for (const transaction of transactions) {
+        await repository.create(transaction);
+      }
 
       // Act
       const result = await repository.detectPatterns({
@@ -2175,7 +2281,9 @@ describe("DynTransactionRepository", () => {
         }),
       ];
 
-      await repository.createMany(transactions);
+      for (const transaction of transactions) {
+        await repository.create(transaction);
+      }
 
       const result = await repository.detectPatterns({
         userId,
@@ -2221,7 +2329,9 @@ describe("DynTransactionRepository", () => {
         }
       }
 
-      await repository.createMany(transactions);
+      for (const transaction of transactions) {
+        await repository.create(transaction);
+      }
 
       const result = await repository.detectPatterns({
         userId,
@@ -2302,7 +2412,9 @@ describe("DynTransactionRepository", () => {
         }),
       ];
 
-      await repository.createMany(transactions);
+      for (const transaction of transactions) {
+        await repository.create(transaction);
+      }
 
       const result = await repository.detectPatterns({
         userId,
@@ -2382,7 +2494,9 @@ describe("DynTransactionRepository", () => {
         }),
       ];
 
-      await repository.createMany(transactions);
+      for (const transaction of transactions) {
+        await repository.create(transaction);
+      }
 
       const incomeResult = await repository.detectPatterns({
         userId,
@@ -2449,7 +2563,9 @@ describe("DynTransactionRepository", () => {
         }),
       ];
 
-      await repository.createMany(transactions);
+      for (const transaction of transactions) {
+        await repository.create(transaction);
+      }
 
       const result = await repository.detectPatterns({
         userId,
@@ -2486,7 +2602,9 @@ describe("DynTransactionRepository", () => {
           }),
         );
       }
-      await repository.createMany(createInputs1);
+      for (const transaction of createInputs1) {
+        await repository.create(transaction);
+      }
 
       const createInputs2: Transaction[] = [];
       for (let i = 0; i < 5; i++) {
@@ -2499,7 +2617,9 @@ describe("DynTransactionRepository", () => {
           }),
         );
       }
-      await repository.createMany(createInputs2);
+      for (const transaction of createInputs2) {
+        await repository.create(transaction);
+      }
 
       // Act - Request with sampleSize of 5 (should only analyze last 5 transactions)
       const result = await repository.detectPatterns({
@@ -2615,7 +2735,9 @@ describe("DynTransactionRepository", () => {
         );
       }
 
-      await repository.createMany(transactions);
+      for (const transaction of transactions) {
+        await repository.create(transaction);
+      }
 
       // Act - Request only 2 patterns
       const result = await repository.detectPatterns({
@@ -2654,7 +2776,9 @@ describe("DynTransactionRepository", () => {
         }),
       ];
 
-      await repository.createMany([...user1Transactions, ...user2Transactions]);
+      for (const transaction of [...user1Transactions, ...user2Transactions]) {
+        await repository.create(transaction);
+      }
 
       const user1Result = await repository.detectPatterns({
         userId: user1,

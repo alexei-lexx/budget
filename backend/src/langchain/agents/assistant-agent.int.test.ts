@@ -97,7 +97,7 @@ describe("AssistantAgent (integration)", () => {
     // Arrange
     const account = fakeAccount({ userId });
     await accountRepository.create(account);
-    await transactionRepository.createMany([
+    await transactionRepository.create(
       fakeTransaction({
         userId,
         accountId: account.id,
@@ -106,6 +106,8 @@ describe("AssistantAgent (integration)", () => {
         date: toDateString(today),
         type: TransactionType.EXPENSE,
       }),
+    );
+    await transactionRepository.create(
       fakeTransaction({
         userId,
         accountId: account.id,
@@ -114,7 +116,7 @@ describe("AssistantAgent (integration)", () => {
         date: toDateString(today),
         type: TransactionType.EXPENSE,
       }),
-    ]);
+    );
 
     // Act
     const response = await agent.invoke(
