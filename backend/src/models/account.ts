@@ -33,7 +33,7 @@ export class Account implements AccountData {
     input: CreateAccountInput,
     {
       idGenerator = randomUUID,
-    }: { clock?: () => Date; idGenerator?: () => string } = {},
+    }: { idGenerator?: () => string } = {},
   ): Account {
     const now = new Date().toISOString();
 
