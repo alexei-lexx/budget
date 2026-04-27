@@ -5,8 +5,6 @@ import { ModelError } from "./model-error";
 export const NAME_MIN_LENGTH = 1;
 export const NAME_MAX_LENGTH = 100;
 
-const defaultClock = () => new Date();
-
 // Plain data shape.
 export interface AccountData {
   userId: string;
@@ -33,12 +31,9 @@ export class Account implements AccountData {
 
   static create(
     input: CreateAccountInput,
-    {
-      clock = defaultClock,
-      idGenerator = randomUUID,
-    }: { clock?: () => Date; idGenerator?: () => string } = {},
+    { idGenerator = randomUUID }: { idGenerator?: () => string } = {},
   ): Account {
-    const now = clock().toISOString();
+    const now = new Date().toISOString();
 
     const data: AccountData = {
       id: idGenerator(),
@@ -86,15 +81,12 @@ export class Account implements AccountData {
     );
   }
 
-  update(
-    input: UpdateAccountInput,
-    { clock = defaultClock }: { clock?: () => Date } = {},
-  ): Account {
+  update(input: UpdateAccountInput): Account {
     if (this.isArchived) {
       throw new ModelError("Cannot update archived account");
     }
 
-    const now = clock().toISOString();
+    const now = new Date().toISOString();
 
     const data: AccountData = {
       ...this.toData(),
@@ -108,22 +100,16 @@ export class Account implements AccountData {
     return new Account(data);
   }
 
-  archive({ clock = defaultClock }: { clock?: () => Date } = {}): Account {
+  archive(): Account {
     if (this.isArchived) {
       throw new ModelError("Cannot archive archived account");
     }
 
-    const now = clock().toISOString();
+    const now = new Date().toISOString();
 
     const data: AccountData = {
-      userId: this.userId,
-      id: this.id,
-      name: this.name,
-      currency: this.currency,
-      initialBalance: this.initialBalance,
+      ...this.toData(),
       isArchived: true,
-      version: this.version,
-      createdAt: this.createdAt,
       updatedAt: now,
     };
 
