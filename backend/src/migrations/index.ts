@@ -17,3 +17,4 @@ export * as migration_20251230120000 from "./20251230120000-remove-auth0-user-id
 export * as migration_20260119201355 from "./20260119201355-add-exclude-from-reports";
 export * as migration_20260423093628 from "./20260423093628-add-transaction-version";
 export * as migration_20260425213107 from "./20260425213107-add-account-version";
+export * as migration_20260426204239 from "./20260426204239-add-account-transaction-balance";

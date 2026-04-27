@@ -12,6 +12,7 @@ export interface AccountData {
   name: string;
   currency: string;
   initialBalance: number;
+  transactionBalance: number;
   isArchived: boolean;
   version: number;
   createdAt: string;
@@ -24,6 +25,7 @@ export class Account implements AccountData {
   readonly name: string;
   readonly currency: string;
   readonly initialBalance: number;
+  readonly transactionBalance: number;
   readonly isArchived: boolean;
   readonly version: number;
   readonly createdAt: string;
@@ -41,6 +43,7 @@ export class Account implements AccountData {
       name: normalizeAccountName(input.name),
       currency: input.currency,
       initialBalance: input.initialBalance,
+      transactionBalance: 0,
       isArchived: false,
       version: 0,
       createdAt: now,
@@ -54,6 +57,10 @@ export class Account implements AccountData {
     return new Account(data);
   }
 
+  get balance(): number {
+    return this.initialBalance + this.transactionBalance;
+  }
+
   toData(): AccountData {
     return {
       userId: this.userId,
@@ -61,6 +68,7 @@ export class Account implements AccountData {
       name: this.name,
       currency: this.currency,
       initialBalance: this.initialBalance,
+      transactionBalance: this.transactionBalance,
       isArchived: this.isArchived,
       version: this.version,
       createdAt: this.createdAt,
@@ -116,6 +124,24 @@ export class Account implements AccountData {
     return new Account(data);
   }
 
+  increaseBalanceBySignedAmount(deltaAmount: number): Account {
+    const data: AccountData = {
+      ...this.toData(),
+      transactionBalance: this.transactionBalance + deltaAmount,
+      updatedAt: new Date().toISOString(),
+    };
+    return new Account(data);
+  }
+
+  decreaseBalanceBySignedAmount(deltaAmount: number): Account {
+    const data: AccountData = {
+      ...this.toData(),
+      transactionBalance: this.transactionBalance - deltaAmount,
+      updatedAt: new Date().toISOString(),
+    };
+    return new Account(data);
+  }
+
   private constructor(
     data: AccountData,
     { skipInvariants = false }: { skipInvariants?: boolean } = {},
@@ -129,6 +155,7 @@ export class Account implements AccountData {
     this.name = data.name;
     this.currency = data.currency;
     this.initialBalance = data.initialBalance;
+    this.transactionBalance = data.transactionBalance;
     this.isArchived = data.isArchived;
     this.version = data.version;
     this.createdAt = data.createdAt;
