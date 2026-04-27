@@ -1,5 +1,12 @@
 import { faker } from "@faker-js/faker";
-import { describe, expect, it } from "@jest/globals";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  jest,
+} from "@jest/globals";
 import {
   fakeAccount,
   fakeCreateAccountInput,
@@ -9,14 +16,18 @@ import { ModelError } from "./model-error";
 
 describe("Account", () => {
   describe("create", () => {
-    const fixedClock = () => new Date("2000-01-02T10:11:12.000Z");
-    const fixedIdGenerator = () => "fixed-uuid";
+    beforeEach(() => {
+      jest.useFakeTimers().setSystemTime(new Date("2000-01-02T10:11:12.000Z"));
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
 
     // Happy path
 
     it("builds account with all fields populated", () => {
       // Arrange
-      const fixedDeps = { clock: fixedClock, idGenerator: fixedIdGenerator };
       const userId = faker.string.uuid();
       const input = fakeCreateAccountInput({
         userId,
@@ -26,7 +37,7 @@ describe("Account", () => {
       });
 
       // Act
-      const result = Account.create(input, fixedDeps);
+      const result = Account.create(input, { idGenerator: () => "fixed-uuid" });
 
       // Assert
       expect(result.toData()).toEqual({
@@ -52,14 +63,12 @@ describe("Account", () => {
       expect(result.name).toBe("Cash");
     });
 
-    it("sets id and timestamps with default dependencies", () => {
+    it("uses default id generator when options omitted", () => {
       // Act
       const result = Account.create(fakeCreateAccountInput());
 
       // Assert
       expect(result.id).toBeDefined();
-      expect(result.createdAt).toBeDefined();
-      expect(result.updatedAt).toBeDefined();
     });
 
     // Validation failures
@@ -130,7 +139,7 @@ describe("Account", () => {
   describe("bumpVersion", () => {
     // Happy path
 
-    it("increments version by 1", () => {
+    it("increments version by 1 and preserves other fields", () => {
       // Arrange
       const existing = fakeAccount({ version: 4 });
 
@@ -138,25 +147,22 @@ describe("Account", () => {
       const result = existing.bumpVersion();
 
       // Assert
-      expect(result.version).toBe(5);
-    });
-
-    it("preserves all other fields", () => {
-      // Arrange
-      const existing = fakeAccount();
-
-      // Act
-      const result = existing.bumpVersion();
-
-      // Assert
       expect(result.toData()).toEqual({
         ...existing.toData(),
-        version: existing.version + 1,
+        version: 5,
       });
     });
   });
 
   describe("update", () => {
+    beforeEach(() => {
+      jest.useFakeTimers().setSystemTime(new Date("2000-01-02T10:11:12.000Z"));
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
     // Happy path
 
     it("sets name", () => {
@@ -235,25 +241,13 @@ describe("Account", () => {
 
     it("sets updatedAt", () => {
       // Arrange
-      const fixedClock = () => new Date("2000-01-02T10:11:12.000Z");
-      const existing = fakeAccount();
-
-      // Act
-      const result = existing.update({ name: "Wallet" }, { clock: fixedClock });
-
-      // Assert
-      expect(result.updatedAt).toBe("2000-01-02T10:11:12.000Z");
-    });
-
-    it("uses default clock when options omitted", () => {
-      // Arrange
       const existing = fakeAccount();
 
       // Act
       const result = existing.update({ name: "Wallet" });
 
       // Assert
-      expect(result.updatedAt).toBeDefined();
+      expect(result.updatedAt).toBe("2000-01-02T10:11:12.000Z");
     });
 
     // Validation failures
@@ -290,6 +284,14 @@ describe("Account", () => {
   });
 
   describe("archive", () => {
+    beforeEach(() => {
+      jest.useFakeTimers().setSystemTime(new Date("2000-01-02T10:11:12.000Z"));
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
     // Happy path
 
     it("sets isArchived to true", () => {
@@ -305,25 +307,13 @@ describe("Account", () => {
 
     it("sets updatedAt", () => {
       // Arrange
-      const fixedClock = () => new Date("2000-01-02T10:11:12.000Z");
-      const existing = fakeAccount();
-
-      // Act
-      const result = existing.archive({ clock: fixedClock });
-
-      // Assert
-      expect(result.updatedAt).toBe("2000-01-02T10:11:12.000Z");
-    });
-
-    it("uses default clock when options omitted", () => {
-      // Arrange
       const existing = fakeAccount();
 
       // Act
       const result = existing.archive();
 
       // Assert
-      expect(result.updatedAt).toBeDefined();
+      expect(result.updatedAt).toBe("2000-01-02T10:11:12.000Z");
     });
 
     // Validation failures
