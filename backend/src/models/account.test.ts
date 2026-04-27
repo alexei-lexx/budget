@@ -176,7 +176,7 @@ describe("Account", () => {
       // Assert
       expect(result.toData()).toEqual({
         ...existing.toData(),
-        version: existing.version + 1,
+        version: 5,
       });
     });
   });
