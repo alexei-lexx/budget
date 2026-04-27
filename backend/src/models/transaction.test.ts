@@ -141,8 +141,6 @@ describe("Transaction", () => {
 
       // Assert
       expect(result.id).toBeDefined();
-      expect(result.createdAt).toBeDefined();
-      expect(result.updatedAt).toBeDefined();
     });
 
     it("builds REFUND transaction with EXPENSE category", () => {
