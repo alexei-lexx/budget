@@ -5,8 +5,6 @@ import { ModelError } from "./model-error";
 export const NAME_MIN_LENGTH = 1;
 export const NAME_MAX_LENGTH = 100;
 
-const defaultClock = () => new Date();
-
 // Plain data shape.
 export interface AccountData {
   userId: string;
@@ -14,6 +12,7 @@ export interface AccountData {
   name: string;
   currency: string;
   initialBalance: number;
+  transactionBalance: number;
   isArchived: boolean;
   version: number;
   createdAt: string;
@@ -26,6 +25,7 @@ export class Account implements AccountData {
   readonly name: string;
   readonly currency: string;
   readonly initialBalance: number;
+  readonly transactionBalance: number;
   readonly isArchived: boolean;
   readonly version: number;
   readonly createdAt: string;
@@ -33,12 +33,9 @@ export class Account implements AccountData {
 
   static create(
     input: CreateAccountInput,
-    {
-      clock = defaultClock,
-      idGenerator = randomUUID,
-    }: { clock?: () => Date; idGenerator?: () => string } = {},
+    { idGenerator = randomUUID }: { idGenerator?: () => string } = {},
   ): Account {
-    const now = clock().toISOString();
+    const now = new Date().toISOString();
 
     const data: AccountData = {
       id: idGenerator(),
@@ -46,6 +43,7 @@ export class Account implements AccountData {
       name: normalizeAccountName(input.name),
       currency: input.currency,
       initialBalance: input.initialBalance,
+      transactionBalance: 0,
       isArchived: false,
       version: 0,
       createdAt: now,
@@ -59,6 +57,10 @@ export class Account implements AccountData {
     return new Account(data);
   }
 
+  get balance(): number {
+    return this.initialBalance + this.transactionBalance;
+  }
+
   toData(): AccountData {
     return {
       userId: this.userId,
@@ -66,6 +68,7 @@ export class Account implements AccountData {
       name: this.name,
       currency: this.currency,
       initialBalance: this.initialBalance,
+      transactionBalance: this.transactionBalance,
       isArchived: this.isArchived,
       version: this.version,
       createdAt: this.createdAt,
@@ -86,15 +89,12 @@ export class Account implements AccountData {
     );
   }
 
-  update(
-    input: UpdateAccountInput,
-    { clock = defaultClock }: { clock?: () => Date } = {},
-  ): Account {
+  update(input: UpdateAccountInput): Account {
     if (this.isArchived) {
       throw new ModelError("Cannot update archived account");
     }
 
-    const now = clock().toISOString();
+    const now = new Date().toISOString();
 
     const data: AccountData = {
       ...this.toData(),
@@ -108,25 +108,37 @@ export class Account implements AccountData {
     return new Account(data);
   }
 
-  archive({ clock = defaultClock }: { clock?: () => Date } = {}): Account {
+  archive(): Account {
     if (this.isArchived) {
       throw new ModelError("Cannot archive archived account");
     }
 
-    const now = clock().toISOString();
+    const now = new Date().toISOString();
 
     const data: AccountData = {
-      userId: this.userId,
-      id: this.id,
-      name: this.name,
-      currency: this.currency,
-      initialBalance: this.initialBalance,
+      ...this.toData(),
       isArchived: true,
-      version: this.version,
-      createdAt: this.createdAt,
       updatedAt: now,
     };
 
+    return new Account(data);
+  }
+
+  increaseBalanceBySignedAmount(deltaAmount: number): Account {
+    const data: AccountData = {
+      ...this.toData(),
+      transactionBalance: this.transactionBalance + deltaAmount,
+      updatedAt: new Date().toISOString(),
+    };
+    return new Account(data);
+  }
+
+  decreaseBalanceBySignedAmount(deltaAmount: number): Account {
+    const data: AccountData = {
+      ...this.toData(),
+      transactionBalance: this.transactionBalance - deltaAmount,
+      updatedAt: new Date().toISOString(),
+    };
     return new Account(data);
   }
 
@@ -143,6 +155,7 @@ export class Account implements AccountData {
     this.name = data.name;
     this.currency = data.currency;
     this.initialBalance = data.initialBalance;
+    this.transactionBalance = data.transactionBalance;
     this.isArchived = data.isArchived;
     this.version = data.version;
     this.createdAt = data.createdAt;

@@ -1,5 +1,12 @@
 import { faker } from "@faker-js/faker";
-import { describe, expect, it } from "@jest/globals";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  jest,
+} from "@jest/globals";
 import {
   fakeAccount,
   fakeCreateAccountInput,
@@ -9,14 +16,18 @@ import { ModelError } from "./model-error";
 
 describe("Account", () => {
   describe("create", () => {
-    const fixedClock = () => new Date("2000-01-02T10:11:12.000Z");
-    const fixedIdGenerator = () => "fixed-uuid";
+    beforeEach(() => {
+      jest.useFakeTimers().setSystemTime(new Date("2000-01-02T10:11:12.000Z"));
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
 
     // Happy path
 
     it("builds account with all fields populated", () => {
       // Arrange
-      const fixedDeps = { clock: fixedClock, idGenerator: fixedIdGenerator };
       const userId = faker.string.uuid();
       const input = fakeCreateAccountInput({
         userId,
@@ -26,7 +37,7 @@ describe("Account", () => {
       });
 
       // Act
-      const result = Account.create(input, fixedDeps);
+      const result = Account.create(input, { idGenerator: () => "fixed-uuid" });
 
       // Assert
       expect(result.toData()).toEqual({
@@ -35,6 +46,7 @@ describe("Account", () => {
         name: "Cash",
         currency: "USD",
         initialBalance: 100,
+        transactionBalance: 0,
         isArchived: false,
         version: 0,
         createdAt: "2000-01-02T10:11:12.000Z",
@@ -52,14 +64,12 @@ describe("Account", () => {
       expect(result.name).toBe("Cash");
     });
 
-    it("sets id and timestamps with default dependencies", () => {
+    it("uses default id generator when options omitted", () => {
       // Act
       const result = Account.create(fakeCreateAccountInput());
 
       // Assert
       expect(result.id).toBeDefined();
-      expect(result.createdAt).toBeDefined();
-      expect(result.updatedAt).toBeDefined();
     });
 
     // Validation failures
@@ -114,6 +124,32 @@ describe("Account", () => {
     });
   });
 
+  describe("balance", () => {
+    // Happy path
+
+    it("returns initialBalance plus transactionBalance", () => {
+      // Arrange
+      const account = fakeAccount({
+        initialBalance: 100,
+        transactionBalance: 50,
+      });
+
+      // Act & Assert
+      expect(account.balance).toBe(150);
+    });
+
+    it("handles negative transactionBalance", () => {
+      // Arrange
+      const account = fakeAccount({
+        initialBalance: 100,
+        transactionBalance: -30,
+      });
+
+      // Act & Assert
+      expect(account.balance).toBe(70);
+    });
+  });
+
   describe("toData", () => {
     // Happy path
 
@@ -130,20 +166,9 @@ describe("Account", () => {
   describe("bumpVersion", () => {
     // Happy path
 
-    it("increments version by 1", () => {
+    it("increments version by 1 and preserves other fields", () => {
       // Arrange
       const existing = fakeAccount({ version: 4 });
-
-      // Act
-      const result = existing.bumpVersion();
-
-      // Assert
-      expect(result.version).toBe(5);
-    });
-
-    it("preserves all other fields", () => {
-      // Arrange
-      const existing = fakeAccount();
 
       // Act
       const result = existing.bumpVersion();
@@ -157,6 +182,14 @@ describe("Account", () => {
   });
 
   describe("update", () => {
+    beforeEach(() => {
+      jest.useFakeTimers().setSystemTime(new Date("2000-01-02T10:11:12.000Z"));
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
     // Happy path
 
     it("sets name", () => {
@@ -235,25 +268,13 @@ describe("Account", () => {
 
     it("sets updatedAt", () => {
       // Arrange
-      const fixedClock = () => new Date("2000-01-02T10:11:12.000Z");
-      const existing = fakeAccount();
-
-      // Act
-      const result = existing.update({ name: "Wallet" }, { clock: fixedClock });
-
-      // Assert
-      expect(result.updatedAt).toBe("2000-01-02T10:11:12.000Z");
-    });
-
-    it("uses default clock when options omitted", () => {
-      // Arrange
       const existing = fakeAccount();
 
       // Act
       const result = existing.update({ name: "Wallet" });
 
       // Assert
-      expect(result.updatedAt).toBeDefined();
+      expect(result.updatedAt).toBe("2000-01-02T10:11:12.000Z");
     });
 
     // Validation failures
@@ -290,6 +311,14 @@ describe("Account", () => {
   });
 
   describe("archive", () => {
+    beforeEach(() => {
+      jest.useFakeTimers().setSystemTime(new Date("2000-01-02T10:11:12.000Z"));
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
     // Happy path
 
     it("sets isArchived to true", () => {
@@ -305,25 +334,13 @@ describe("Account", () => {
 
     it("sets updatedAt", () => {
       // Arrange
-      const fixedClock = () => new Date("2000-01-02T10:11:12.000Z");
-      const existing = fakeAccount();
-
-      // Act
-      const result = existing.archive({ clock: fixedClock });
-
-      // Assert
-      expect(result.updatedAt).toBe("2000-01-02T10:11:12.000Z");
-    });
-
-    it("uses default clock when options omitted", () => {
-      // Arrange
       const existing = fakeAccount();
 
       // Act
       const result = existing.archive();
 
       // Assert
-      expect(result.updatedAt).toBeDefined();
+      expect(result.updatedAt).toBe("2000-01-02T10:11:12.000Z");
     });
 
     // Validation failures
@@ -336,6 +353,126 @@ describe("Account", () => {
       expect(() => existing.archive()).toThrow(
         new ModelError("Cannot archive archived account"),
       );
+    });
+  });
+
+  describe("increaseBalanceBySignedAmount", () => {
+    beforeEach(() => {
+      jest.useFakeTimers().setSystemTime(new Date("2000-01-02T10:11:12.000Z"));
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    // Happy path
+
+    it("increases when delta is positive", () => {
+      // Arrange
+      const account = fakeAccount({ transactionBalance: 100 });
+
+      // Act
+      const result = account.increaseBalanceBySignedAmount(25);
+
+      // Assert
+      expect(result.transactionBalance).toBe(125);
+    });
+
+    it("decreases when delta is negative", () => {
+      // Arrange
+      const account = fakeAccount({ transactionBalance: 100 });
+
+      // Act
+      const result = account.increaseBalanceBySignedAmount(-30);
+
+      // Assert
+      expect(result.transactionBalance).toBe(70);
+    });
+
+    it("sets updatedAt", () => {
+      // Arrange
+      const account = fakeAccount();
+
+      // Act
+      const result = account.increaseBalanceBySignedAmount(10);
+
+      // Assert
+      expect(result.updatedAt).toBe("2000-01-02T10:11:12.000Z");
+    });
+
+    it("works on archived accounts", () => {
+      // Arrange
+      const account = fakeAccount({
+        transactionBalance: 100,
+        isArchived: true,
+      });
+
+      // Act
+      const result = account.increaseBalanceBySignedAmount(20);
+
+      // Assert
+      expect(result.transactionBalance).toBe(120);
+      expect(result.isArchived).toBe(true);
+    });
+  });
+
+  describe("decreaseBalanceBySignedAmount", () => {
+    beforeEach(() => {
+      jest.useFakeTimers().setSystemTime(new Date("2000-01-02T10:11:12.000Z"));
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    // Happy path
+
+    it("decreases when delta is positive", () => {
+      // Arrange
+      const account = fakeAccount({ transactionBalance: 100 });
+
+      // Act
+      const result = account.decreaseBalanceBySignedAmount(40);
+
+      // Assert
+      expect(result.transactionBalance).toBe(60);
+    });
+
+    it("increases when delta is negative", () => {
+      // Arrange
+      const account = fakeAccount({ transactionBalance: 100 });
+
+      // Act
+      const result = account.decreaseBalanceBySignedAmount(-30);
+
+      // Assert
+      expect(result.transactionBalance).toBe(130);
+    });
+
+    it("sets updatedAt", () => {
+      // Arrange
+      const account = fakeAccount();
+
+      // Act
+      const result = account.decreaseBalanceBySignedAmount(10);
+
+      // Assert
+      expect(result.updatedAt).toBe("2000-01-02T10:11:12.000Z");
+    });
+
+    it("works on archived accounts", () => {
+      // Arrange
+      const account = fakeAccount({
+        transactionBalance: 100,
+        isArchived: true,
+      });
+
+      // Act
+      const result = account.decreaseBalanceBySignedAmount(20);
+
+      // Assert
+      expect(result.transactionBalance).toBe(80);
+      expect(result.isArchived).toBe(true);
     });
   });
 });
