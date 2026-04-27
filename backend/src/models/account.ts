@@ -31,9 +31,7 @@ export class Account implements AccountData {
 
   static create(
     input: CreateAccountInput,
-    {
-      idGenerator = randomUUID,
-    }: { idGenerator?: () => string } = {},
+    { idGenerator = randomUUID }: { idGenerator?: () => string } = {},
   ): Account {
     const now = new Date().toISOString();
 
