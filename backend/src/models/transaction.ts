@@ -55,9 +55,7 @@ export class Transaction implements TransactionData {
 
   static create(
     input: CreateTransactionInput,
-    {
-      idGenerator = randomUUID,
-    }: { clock?: () => Date; idGenerator?: () => string } = {},
+    { idGenerator = randomUUID }: { idGenerator?: () => string } = {},
   ): Transaction {
     const { account, category } = input;
     const now = new Date().toISOString();
