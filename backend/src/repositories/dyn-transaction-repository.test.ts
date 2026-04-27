@@ -2063,7 +2063,9 @@ describe("DynTransactionRepository", () => {
         fakeTransaction({ userId, amount: 300.0 }),
         fakeTransaction({ userId, amount: 150.0 }),
       ];
-      await repository.createMany(transactions);
+      for (const transaction of transactions) {
+        await repository.create(transaction);
+      }
 
       // Act
       const updatedTransactions = await repository.updateMany(
@@ -2092,7 +2094,9 @@ describe("DynTransactionRepository", () => {
         fakeTransaction({ userId, version: 0 }),
         fakeTransaction({ userId, version: 0 }),
       ];
-      await repository.createMany(transactions);
+      for (const transaction of transactions) {
+        await repository.create(transaction);
+      }
 
       // Act
       const updated = await repository.updateMany(
