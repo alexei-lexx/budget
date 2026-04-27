@@ -15,6 +15,50 @@ import { DynBaseRepository } from "./dyn-base-repository";
 import { accountDataSchema } from "./schemas/account";
 import { hydrate } from "./utils/hydrate";
 import { paginateQuery } from "./utils/query";
+import { UpdateWriteItem } from "./utils/transact-write";
+
+/**
+ * Builds a TransactWrite Update item
+ * that persists every mutable field on the Account row,
+ * with optimistic-lock condition on `version`.
+ * Used by both the repository's own `update` and `DynLedgerWriter`.
+ */
+export function buildUpdateAccountItem(
+  account: Readonly<Account>,
+  tableName: string,
+): UpdateWriteItem {
+  const setParts = [
+    "#name = :name",
+    "currency = :currency",
+    "initialBalance = :initialBalance",
+    "transactionBalance = :transactionBalance",
+    "isArchived = :isArchived",
+    "updatedAt = :updatedAt",
+    "version = :nextVersion",
+  ];
+
+  return {
+    Update: {
+      TableName: tableName,
+      Key: { userId: account.userId, id: account.id },
+      UpdateExpression: `SET ${setParts.join(", ")}`,
+      ConditionExpression:
+        "attribute_exists(userId) AND attribute_exists(id) AND version = :currentVersion",
+      ExpressionAttributeNames: { "#name": "name" },
+      ExpressionAttributeValues: {
+        ":name": account.name,
+        ":currency": account.currency,
+        ":initialBalance": account.initialBalance,
+        ":transactionBalance": account.transactionBalance,
+        ":isArchived": account.isArchived,
+        ":updatedAt": account.updatedAt,
+        ":currentVersion": account.version,
+        ":nextVersion": account.version + 1,
+      },
+      ReturnValuesOnConditionCheckFailure: "ALL_OLD",
+    },
+  };
+}
 
 export class DynAccountRepository
   extends DynBaseRepository
@@ -58,6 +102,41 @@ export class DynAccountRepository
       return account;
     } catch (error) {
       console.error("Error finding account by ID:", error);
+      throw new RepositoryError("Failed to find account", "GET_FAILED", error);
+    }
+  }
+
+  async findOneWithArchivedById({
+    id,
+    userId,
+  }: {
+    id: string;
+    userId: string;
+  }): Promise<Account | null> {
+    if (!id) {
+      throw new RepositoryError("Account ID is required", "INVALID_PARAMETERS");
+    }
+
+    if (!userId) {
+      throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
+    }
+
+    try {
+      const command = new GetCommand({
+        TableName: this.tableName,
+        Key: { userId, id },
+      });
+
+      const result = await this.client.send(command);
+
+      if (!result.Item) {
+        return null;
+      }
+
+      const data = hydrate(accountDataSchema, result.Item);
+      return Account.fromPersistence(data);
+    } catch (error) {
+      console.error("Error finding account by ID (with archived):", error);
       throw new RepositoryError("Failed to find account", "GET_FAILED", error);
     }
   }
@@ -191,41 +270,22 @@ export class DynAccountRepository
   }
 
   async update(account: Readonly<Account>): Promise<Account> {
-    const data = account.toData();
+    const { Update } = buildUpdateAccountItem(account, this.tableName);
 
     try {
-      const setParts = [
-        "#name = :name",
-        "currency = :currency",
-        "initialBalance = :initialBalance",
-        "isArchived = :isArchived",
-        "updatedAt = :updatedAt",
-        "version = :nextVersion",
-      ];
-
-      const command = new UpdateCommand({
-        TableName: this.tableName,
-        Key: { userId: data.userId, id: data.id },
-        UpdateExpression: `SET ${setParts.join(", ")}`,
-        ConditionExpression:
-          "attribute_exists(userId) AND attribute_exists(id) AND version = :currentVersion",
-        ExpressionAttributeNames: { "#name": "name" },
-        ExpressionAttributeValues: {
-          ":name": data.name,
-          ":currency": data.currency,
-          ":initialBalance": data.initialBalance,
-          ":isArchived": data.isArchived,
-          ":updatedAt": data.updatedAt,
-          ":currentVersion": data.version,
-          ":nextVersion": data.version + 1,
-        },
-      });
+      const command = new UpdateCommand(Update);
 
       await this.client.send(command);
       return account.bumpVersion();
     } catch (error) {
       if (error instanceof ConditionalCheckFailedException) {
-        throw new VersionConflictError(error);
+        // ReturnValuesOnConditionCheckFailure returns the pre-write row.
+        // Present = version mismatch. Absent = row missing.
+        if (error.Item) {
+          throw new VersionConflictError(error);
+        }
+
+        throw new RepositoryError("Account not found", "NOT_FOUND", error);
       }
 
       console.error("Error updating account:", error);

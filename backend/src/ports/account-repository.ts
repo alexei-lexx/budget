@@ -5,6 +5,10 @@ export interface AccountRepository {
     id: string;
     userId: string;
   }): Promise<Account | null>;
+  findOneWithArchivedById(selector: {
+    id: string;
+    userId: string;
+  }): Promise<Account | null>;
   findManyByUserId(userId: string): Promise<Account[]>;
   findManyWithArchivedByIds(selector: {
     ids: readonly string[];
