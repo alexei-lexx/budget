@@ -19,8 +19,6 @@ export type NonTransferTransactionType = Exclude<
   TransactionType.TRANSFER_IN | TransactionType.TRANSFER_OUT
 >;
 
-const defaultClock = () => new Date();
-
 // Plain data shape.
 export interface TransactionData {
   userId: string;
@@ -57,13 +55,10 @@ export class Transaction implements TransactionData {
 
   static create(
     input: CreateTransactionInput,
-    {
-      clock = defaultClock,
-      idGenerator = randomUUID,
-    }: { clock?: () => Date; idGenerator?: () => string } = {},
+    { idGenerator = randomUUID }: { idGenerator?: () => string } = {},
   ): Transaction {
     const { account, category } = input;
-    const now = clock().toISOString();
+    const now = new Date().toISOString();
 
     const data: TransactionData = {
       id: idGenerator(),
@@ -135,16 +130,13 @@ export class Transaction implements TransactionData {
     );
   }
 
-  update(
-    input: UpdateTransactionInput,
-    { clock = defaultClock }: { clock?: () => Date } = {},
-  ): Transaction {
+  update(input: UpdateTransactionInput): Transaction {
     if (this.isArchived) {
       throw new ModelError("Cannot update archived transaction");
     }
 
     const { account, category } = input;
-    const now = clock().toISOString();
+    const now = new Date().toISOString();
 
     const newCategoryId =
       category === undefined // Keep existing category
@@ -178,12 +170,12 @@ export class Transaction implements TransactionData {
     });
   }
 
-  archive({ clock = defaultClock }: { clock?: () => Date } = {}): Transaction {
+  archive(): Transaction {
     if (this.isArchived) {
       throw new ModelError("Cannot archive archived transaction");
     }
 
-    const now = clock().toISOString();
+    const now = new Date().toISOString();
 
     const data: TransactionData = {
       ...this.toData(),
