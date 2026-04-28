@@ -2,6 +2,7 @@ import { randomUUID } from "crypto";
 import { Account } from "../models/account";
 import { Transaction, TransactionType } from "../models/transaction";
 import { AccountRepository } from "../ports/account-repository";
+import { AtomicWriter } from "../ports/atomic-writer";
 import { TransactionRepository } from "../ports/transaction-repository";
 import { DateString } from "../types/date";
 import { BusinessError } from "./business-error";
@@ -45,13 +46,16 @@ export interface TransferResult {
 export class TransferService {
   private accountRepository: AccountRepository;
   private transactionRepository: TransactionRepository;
+  private atomicWriter: AtomicWriter;
 
   constructor(deps: {
     accountRepository: AccountRepository;
     transactionRepository: TransactionRepository;
+    atomicWriter: AtomicWriter;
   }) {
     this.accountRepository = deps.accountRepository;
     this.transactionRepository = deps.transactionRepository;
+    this.atomicWriter = deps.atomicWriter;
   }
 
   /**
@@ -84,11 +88,17 @@ export class TransferService {
     this.validateNotSelfTransfer(input.fromAccountId, input.toAccountId);
 
     // Validate both accounts exist and belong to user
-    const fromAccount = await this.validateAccount(input.fromAccountId, userId);
-    const toAccount = await this.validateAccount(input.toAccountId, userId);
+    const sourceAccount = await this.ensureActiveAccount(
+      input.fromAccountId,
+      userId,
+    );
+    const destAccount = await this.ensureActiveAccount(
+      input.toAccountId,
+      userId,
+    );
 
     // Validate accounts have the same currency
-    this.validateCurrencyMatch(fromAccount, toAccount);
+    this.validateCurrencyMatch(sourceAccount, destAccount);
 
     // Generate a unique transfer ID to link the two transactions
     const transferId = randomUUID();
@@ -96,7 +106,7 @@ export class TransferService {
     // Build the outbound transaction (TRANSFER_OUT)
     const outboundTransaction = Transaction.create({
       userId,
-      account: fromAccount,
+      account: sourceAccount,
       type: TransactionType.TRANSFER_OUT,
       amount: input.amount,
       date: input.date,
@@ -107,7 +117,7 @@ export class TransferService {
     // Build the inbound transaction (TRANSFER_IN)
     const inboundTransaction = Transaction.create({
       userId,
-      account: toAccount,
+      account: destAccount,
       type: TransactionType.TRANSFER_IN,
       amount: input.amount,
       date: input.date,
@@ -115,22 +125,31 @@ export class TransferService {
       transferId,
     });
 
-    try {
-      // Persist both transactions atomically using DynamoDB transaction
-      // TransactWriteCommand guarantees either both succeed or both fail
-      await this.transactionRepository.createMany([
-        outboundTransaction,
-        inboundTransaction,
-      ]);
+    const sourceAccountToUpdate = sourceAccount.increaseBalanceBySignedAmount(
+      outboundTransaction.signedAmount,
+    );
+    const destAccountToUpdate = destAccount.increaseBalanceBySignedAmount(
+      inboundTransaction.signedAmount,
+    );
 
-      // Return the transfer result with ID and transactions
+    try {
+      await handleVersionConflict("Transfer", () =>
+        this.atomicWriter.commit({
+          transactionsToCreate: [outboundTransaction, inboundTransaction],
+          accountsToUpdate: [sourceAccountToUpdate, destAccountToUpdate],
+        }),
+      );
+
       return {
         transferId,
         outboundTransaction,
         inboundTransaction,
       };
     } catch (error) {
-      // Log the error for debugging and monitoring
+      if (error instanceof BusinessError) {
+        throw error;
+      }
+
       console.error("Transfer creation failed:", {
         transferId,
         fromAccountId: input.fromAccountId,
@@ -163,24 +182,57 @@ export class TransferService {
       throw new BusinessError("Transfer not found or doesn't belong to user");
     }
 
-    try {
-      const archivedTransactions = transferTransactions.map((transaction) =>
-        transaction.archive(),
-      );
+    const outboundTransaction = transferTransactions.find(
+      (transaction) => transaction.type === TransactionType.TRANSFER_OUT,
+    );
+    const inboundTransaction = transferTransactions.find(
+      (transaction) => transaction.type === TransactionType.TRANSFER_IN,
+    );
+    if (!outboundTransaction || !inboundTransaction) {
+      throw new BusinessError("Invalid transfer state: missing pair");
+    }
 
+    const sourceAccount = await this.accountRepository.findOneWithArchivedById({
+      id: outboundTransaction.accountId,
+      userId,
+    });
+    const destAccount = await this.accountRepository.findOneWithArchivedById({
+      id: inboundTransaction.accountId,
+      userId,
+    });
+    if (!sourceAccount || !destAccount) {
+      throw new BusinessError("Account not found");
+    }
+
+    const outboundTransactionToArchive = outboundTransaction.archive();
+    const inboundTransactionToArchive = inboundTransaction.archive();
+
+    const sourceAccountToUpdate = sourceAccount.decreaseBalanceBySignedAmount(
+      outboundTransaction.signedAmount,
+    );
+    const destAccountToUpdate = destAccount.decreaseBalanceBySignedAmount(
+      inboundTransaction.signedAmount,
+    );
+
+    try {
       await handleVersionConflict("Transfer", () =>
-        this.transactionRepository.updateMany(archivedTransactions),
+        this.atomicWriter.commit({
+          transactionsToUpdate: [
+            outboundTransactionToArchive,
+            inboundTransactionToArchive,
+          ],
+          accountsToUpdate: [sourceAccountToUpdate, destAccountToUpdate],
+        }),
       );
     } catch (error) {
       if (error instanceof BusinessError) {
         throw error;
       }
 
-      // Log the error for debugging and monitoring
       console.error("Transfer deletion failed:", {
         transferId,
         userId,
-        transactionIds: transferTransactions.map((t) => t.id),
+        transactionIds: [outboundTransaction.id, inboundTransaction.id],
         error,
       });
 
@@ -213,18 +265,43 @@ export class TransferService {
 
     const { outboundTransaction, inboundTransaction } = existingTransfer;
 
-    const fromAccountId = input.fromAccountId ?? outboundTransaction.accountId;
-    const toAccountId = input.toAccountId ?? inboundTransaction.accountId;
+    // After change, source and destination accounts cannot be the same
+    this.validateNotSelfTransfer(
+      input.fromAccountId ?? outboundTransaction.accountId,
+      input.toAccountId ?? inboundTransaction.accountId,
+    );
 
-    // Validate not transferring to the same account (fail fast before DB calls)
-    this.validateNotSelfTransfer(fromAccountId, toAccountId);
+    const oldSourceAccount =
+      await this.accountRepository.findOneWithArchivedById({
+        id: outboundTransaction.accountId,
+        userId,
+      });
 
-    // Validate both accounts exist and belong to user
-    const fromAccount = await this.validateAccount(fromAccountId, userId);
-    const toAccount = await this.validateAccount(toAccountId, userId);
+    if (!oldSourceAccount) {
+      throw new BusinessError("Account not found or doesn't belong to user");
+    }
+
+    const oldDestAccount = await this.accountRepository.findOneWithArchivedById(
+      {
+        id: inboundTransaction.accountId,
+        userId,
+      },
+    );
+
+    if (!oldDestAccount) {
+      throw new BusinessError("Account not found or doesn't belong to user");
+    }
+
+    const newSourceAccount = input.fromAccountId
+      ? await this.ensureActiveAccount(input.fromAccountId, userId)
+      : oldSourceAccount;
+
+    const newDestAccount = input.toAccountId
+      ? await this.ensureActiveAccount(input.toAccountId, userId)
+      : oldDestAccount;
 
     // Validate accounts have the same currency
-    this.validateCurrencyMatch(fromAccount, toAccount);
+    this.validateCurrencyMatch(newSourceAccount, newDestAccount);
 
     const sharedUpdate = {
       amount: input.amount,
@@ -232,47 +309,108 @@ export class TransferService {
       description: input.description,
     };
 
-    const updatedOutbound = outboundTransaction.update({
+    const outboundTransactionToUpdate = outboundTransaction.update({
       ...sharedUpdate,
-      account: input.fromAccountId ? fromAccount : undefined,
+      account: input.fromAccountId ? newSourceAccount : undefined,
     });
 
-    const updatedInbound = inboundTransaction.update({
+    const inboundTransactionToUpdate = inboundTransaction.update({
       ...sharedUpdate,
-      account: input.toAccountId ? toAccount : undefined,
+      account: input.toAccountId ? newDestAccount : undefined,
     });
+
+    const balanceAffected =
+      // Amount changed
+      outboundTransaction.amount !== outboundTransactionToUpdate.amount ||
+      // Source account changed
+      oldSourceAccount !== newSourceAccount ||
+      // Destination account changed
+      oldDestAccount !== newDestAccount;
+
+    // Use a map to deduplicate accounts in case of overlaps
+    const accountsToUpdate = new Map<string, Account>();
+
+    if (balanceAffected) {
+      // Process outbound transaction account adjustments
+      if (oldSourceAccount === newSourceAccount) {
+        // Same source account, adjust by difference in amount
+        const sourceAccountToUpdate = oldSourceAccount
+          .decreaseBalanceBySignedAmount(outboundTransaction.signedAmount)
+          .increaseBalanceBySignedAmount(
+            outboundTransactionToUpdate.signedAmount,
+          );
+
+        accountsToUpdate.set(sourceAccountToUpdate.id, sourceAccountToUpdate);
+      } else {
+        // Different source account, adjust old and new source accounts
+        const oldSourceAccountToUpdate =
+          oldSourceAccount.decreaseBalanceBySignedAmount(
+            outboundTransaction.signedAmount,
+          );
+
+        const newSourceAccountToUpdate =
+          newSourceAccount.increaseBalanceBySignedAmount(
+            outboundTransactionToUpdate.signedAmount,
+          );
+
+        accountsToUpdate
+          .set(oldSourceAccountToUpdate.id, oldSourceAccountToUpdate)
+          .set(newSourceAccountToUpdate.id, newSourceAccountToUpdate);
+      }
+
+      // Process inbound transaction account adjustments
+      if (oldDestAccount === newDestAccount) {
+        // Same destination account, adjust by difference in amount
+        const destAccountToUpdate = (
+          accountsToUpdate.get(oldDestAccount.id) ?? oldDestAccount
+        )
+          .decreaseBalanceBySignedAmount(inboundTransaction.signedAmount)
+          .increaseBalanceBySignedAmount(
+            inboundTransactionToUpdate.signedAmount,
+          );
+
+        accountsToUpdate.set(destAccountToUpdate.id, destAccountToUpdate);
+      } else {
+        // Different destination account, adjust old and new destination accounts
+        const oldDestAccountToUpdate = (
+          accountsToUpdate.get(oldDestAccount.id) ?? oldDestAccount
+        ).decreaseBalanceBySignedAmount(inboundTransaction.signedAmount);
+
+        const newDestAccountToUpdate = (
+          accountsToUpdate.get(newDestAccount.id) ?? newDestAccount
+        ).increaseBalanceBySignedAmount(
+          inboundTransactionToUpdate.signedAmount,
+        );
+
+        accountsToUpdate
+          .set(oldDestAccountToUpdate.id, oldDestAccountToUpdate)
+          .set(newDestAccountToUpdate.id, newDestAccountToUpdate);
+      }
+    }
 
     try {
       await handleVersionConflict("Transfer", () =>
-        this.transactionRepository.updateMany([
-          updatedOutbound,
-          updatedInbound,
-        ]),
+        this.atomicWriter.commit({
+          transactionsToUpdate: [
+            outboundTransactionToUpdate,
+            inboundTransactionToUpdate,
+          ],
+          accountsToUpdate: Array.from(accountsToUpdate.values()),
+        }),
       );
 
-      // Fetch and return the updated transfer
-      const updatedTransfer = await this.fetchValidatedTransfer(
+      return {
         transferId,
-        userId,
-      );
-
-      if (!updatedTransfer) {
-        throw new BusinessError(
-          "Failed to retrieve updated transfer transactions",
-        );
-      }
-
-      return updatedTransfer;
+        outboundTransaction: outboundTransactionToUpdate.bumpVersion(),
+        inboundTransaction: inboundTransactionToUpdate.bumpVersion(),
+      };
     } catch (error) {
       if (error instanceof BusinessError) {
         throw error;
       }
 
-      // Log the error for debugging and monitoring
       console.error("Transfer update failed:", {
         transferId,
-        fromAccountId,
-        toAccountId,
         amount: input.amount,
         error,
       });
@@ -330,7 +468,7 @@ export class TransferService {
    * @returns Promise<Account> - The validated account
    * @throws BusinessError if account not found or doesn't belong to user
    */
-  private async validateAccount(
+  private async ensureActiveAccount(
     accountId: string,
     userId: string,
   ): Promise<Account> {

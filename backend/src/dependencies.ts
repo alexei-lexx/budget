@@ -9,6 +9,7 @@ import {
 import { HttpTelegramApiClient } from "./providers/http-telegram-api-client";
 import { LambdaBackgroundJobDispatcher } from "./providers/lambda-background-job-dispatcher";
 import { DynAccountRepository } from "./repositories/dyn-account-repository";
+import { DynAtomicWriter } from "./repositories/dyn-atomic-writer";
 import { DynCategoryRepository } from "./repositories/dyn-category-repository";
 import { DynChatMessageRepository } from "./repositories/dyn-chat-message-repository";
 import { DynTelegramBotRepository } from "./repositories/dyn-telegram-bot-repository";
@@ -36,6 +37,13 @@ export const resolveJwtAuthService = createSingleton(
 );
 
 // Repositories
+export const resolveAtomicWriter = createSingleton(
+  () =>
+    new DynAtomicWriter({
+      accountsTableName: requireEnv("ACCOUNTS_TABLE_NAME"),
+      transactionsTableName: requireEnv("TRANSACTIONS_TABLE_NAME"),
+    }),
+);
 export const resolveAccountRepository = createSingleton(
   () => new DynAccountRepository(requireEnv("ACCOUNTS_TABLE_NAME")),
 );
@@ -83,6 +91,7 @@ export const resolveTransactionService = createSingleton(
       accountRepository: resolveAccountRepository(),
       categoryRepository: resolveCategoryRepository(),
       transactionRepository: resolveTransactionRepository(),
+      atomicWriter: resolveAtomicWriter(),
     }),
 );
 export const resolveTransferService = createSingleton(
@@ -90,6 +99,7 @@ export const resolveTransferService = createSingleton(
     new TransferService({
       accountRepository: resolveAccountRepository(),
       transactionRepository: resolveTransactionRepository(),
+      atomicWriter: resolveAtomicWriter(),
     }),
 );
 export const resolveUserService = createSingleton(

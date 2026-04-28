@@ -68,11 +68,11 @@ Files unaffected (mentioned for confidence):
 
 The migration is self-contained (no project imports beyond `requireEnv` + AWS SDK), idempotent, and independent of the entity refactor. Land it first so deploys can roll forward.
 
-- [ ] **Step 1: Pick the timestamp**
+- [x] **Step 1: Pick the timestamp**
 
 Use `YYYYMMDDHHMMSS` for the current UTC moment. Example: `20260426120000-add-account-transaction-balance.ts`. Replace `<timestamp>` below with that value.
 
-- [ ] **Step 2: Create the migration file**
+- [x] **Step 2: Create the migration file**
 
 Create `backend/src/migrations/<timestamp>-add-account-transaction-balance.ts` with:
 
@@ -177,16 +177,16 @@ export async function up(client: DynamoDBClient): Promise<void> {
 }
 ```
 
-- [ ] **Step 3: Register the migration**
+- [x] **Step 3: Register the migration**
 
 Open `backend/src/migrations/index.ts`. Find the array of migrations (similar entries already present). Add the import and array entry for the new migration in chronological order. Match the surrounding style exactly (e.g. `{ name: "<timestamp>-add-account-transaction-balance", up }`).
 
-- [ ] **Step 4: Typecheck**
+- [x] **Step 4: Typecheck**
 
 Run: `cd backend && npm run typecheck`
 Expected: 0 errors.
 
-- [ ] **Step 5: Stage changes**
+- [x] **Step 5: Stage changes**
 
 ```bash
 git add backend/src/migrations/<timestamp>-add-account-transaction-balance.ts backend/src/migrations/index.ts
@@ -205,7 +205,7 @@ Stop. Do not commit.
 
 This task **only** adds the field — `AccountData`, zod, fakes, and round-trip through `Account.create / fromPersistence / archive / bumpVersion / toData / update`. Helpers/getter come in Task 3.
 
-- [ ] **Step 1: Invoke `jest-tests` Skill via the Skill tool, then add a failing test for `transactionBalance` field round-trip**
+- [x] **Step 1: Invoke `jest-tests` Skill via the Skill tool, then add a failing test for `transactionBalance` field round-trip**
 
 Open `backend/src/models/account.test.ts`. Add a new test inside `describe("Account", () => { ... })`:
 
@@ -244,12 +244,12 @@ describe("transactionBalance field", () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `cd backend && npm test -- account.test.ts -t "transactionBalance field"`
 Expected: FAIL — `transactionBalance` does not exist on `AccountData` (typecheck error before test runs).
 
-- [ ] **Step 3: Add `transactionBalance` to `AccountData` interface**
+- [x] **Step 3: Add `transactionBalance` to `AccountData` interface**
 
 In `backend/src/models/account.ts`, add a field to `AccountData`:
 
@@ -268,7 +268,7 @@ export interface AccountData {
 }
 ```
 
-- [ ] **Step 4: Add `readonly transactionBalance` to the `Account` class**
+- [x] **Step 4: Add `readonly transactionBalance` to the `Account` class**
 
 Below `readonly initialBalance: number;`, add:
 
@@ -282,7 +282,7 @@ In the constructor body, after `this.initialBalance = data.initialBalance;`, add
 this.transactionBalance = data.transactionBalance;
 ```
 
-- [ ] **Step 5: Default `transactionBalance: 0` in `Account.create()`**
+- [x] **Step 5: Default `transactionBalance: 0` in `Account.create()`**
 
 In the `Account.create` static method, where the `data` literal is built, add `transactionBalance: 0` alongside `initialBalance: input.initialBalance`:
 
@@ -301,7 +301,7 @@ const data: AccountData = {
 };
 ```
 
-- [ ] **Step 6: Round-trip `transactionBalance` in `toData()`**
+- [x] **Step 6: Round-trip `transactionBalance` in `toData()`**
 
 Update `toData()`:
 
@@ -322,7 +322,7 @@ toData(): AccountData {
 }
 ```
 
-- [ ] **Step 7: Carry `transactionBalance` through `archive()`**
+- [x] **Step 7: Carry `transactionBalance` through `archive()`**
 
 Update `archive()`'s data literal:
 
@@ -343,7 +343,7 @@ const data: AccountData = {
 
 (`bumpVersion()` and `update()` already build via `...this.toData()` spread, so they pick up `transactionBalance` automatically once `toData()` returns it.)
 
-- [ ] **Step 8: Add `transactionBalance` to zod schema**
+- [x] **Step 8: Add `transactionBalance` to zod schema**
 
 Open `backend/src/repositories/schemas/account.ts`:
 
@@ -365,7 +365,7 @@ export const accountDataSchema = z.object({
 }) satisfies z.ZodType<AccountData>;
 ```
 
-- [ ] **Step 9: Update `fakeAccount` to default `transactionBalance: 0`**
+- [x] **Step 9: Update `fakeAccount` to default `transactionBalance: 0`**
 
 In `backend/src/utils/test-utils/models/account-fakes.ts`, add `transactionBalance: 0` to the literal passed to `Account.fromPersistence`:
 
@@ -385,22 +385,22 @@ return Account.fromPersistence({
 });
 ```
 
-- [ ] **Step 10: Invoke `jest-tests` Skill via the Skill tool, then re-run the new tests to verify they pass**
+- [x] **Step 10: Invoke `jest-tests` Skill via the Skill tool, then re-run the new tests to verify they pass**
 
 Run: `cd backend && npm test -- account.test.ts -t "transactionBalance field"`
 Expected: PASS (all 5 tests).
 
-- [ ] **Step 11: Invoke `jest-tests` Skill via the Skill tool, then run the entire backend suite to confirm no regressions**
+- [x] **Step 11: Invoke `jest-tests` Skill via the Skill tool, then run the entire backend suite to confirm no regressions**
 
 Run: `cd backend && npm test`
 Expected: PASS for all suites. (Some pre-existing tests may explicitly assert `toData()` equals a literal; if any fail because the expected literal lacks `transactionBalance`, add `transactionBalance: 0` to that literal — do not change runtime behavior.)
 
-- [ ] **Step 12: Typecheck**
+- [x] **Step 12: Typecheck**
 
 Run: `cd backend && npm run typecheck`
 Expected: 0 errors.
 
-- [ ] **Step 13: Stage changes**
+- [x] **Step 13: Stage changes**
 
 ```bash
 git add backend/src/models/account.ts backend/src/models/account.test.ts backend/src/repositories/schemas/account.ts backend/src/utils/test-utils/models/account-fakes.ts
@@ -417,7 +417,7 @@ Stop. Do not commit.
 
 Adds the read-side getter and the two write-side helpers (`increaseBalanceBySignedAmount`, `decreaseBalanceBySignedAmount`) that produce a new `Account` with adjusted `transactionBalance`. Helpers do NOT call `update()` — they bypass the archived-account check (txn-driven balance moves are legal on archived accounts) and skip invariant assertions.
 
-- [ ] **Step 1: Invoke `jest-tests` Skill via the Skill tool, then add failing tests for `balance` getter and helpers**
+- [x] **Step 1: Invoke `jest-tests` Skill via the Skill tool, then add failing tests for `balance` getter and helpers**
 
 Open `backend/src/models/account.test.ts`. Add a new `describe`:
 
@@ -500,12 +500,12 @@ describe("balance getter and helpers", () => {
 });
 ```
 
-- [ ] **Step 2: Run tests to verify they fail**
+- [x] **Step 2: Run tests to verify they fail**
 
 Run: `cd backend && npm test -- account.test.ts -t "balance getter and helpers"`
 Expected: FAIL (typecheck errors — `balance`, `increaseBalanceBySignedAmount`, `decreaseBalanceBySignedAmount` not defined on `Account`).
 
-- [ ] **Step 3: Add `balance` getter, `updateTransactionBalance` private helper, and the two public helpers**
+- [x] **Step 3: Add `balance` getter, `updateTransactionBalance` private helper, and the two public helpers**
 
 In `backend/src/models/account.ts`, inside the `Account` class, after `archive()` and before `private constructor(...)`, add:
 
@@ -537,22 +537,22 @@ private updateTransactionBalance(
 }
 ```
 
-- [ ] **Step 4: Invoke `jest-tests` Skill via the Skill tool, then re-run the tests to verify they pass**
+- [x] **Step 4: Invoke `jest-tests` Skill via the Skill tool, then re-run the tests to verify they pass**
 
 Run: `cd backend && npm test -- account.test.ts -t "balance getter and helpers"`
 Expected: PASS (all tests).
 
-- [ ] **Step 5: Invoke `jest-tests` Skill via the Skill tool, then run the entire backend suite**
+- [x] **Step 5: Invoke `jest-tests` Skill via the Skill tool, then run the entire backend suite**
 
 Run: `cd backend && npm test`
 Expected: PASS — full backend suite still green.
 
-- [ ] **Step 6: Typecheck**
+- [x] **Step 6: Typecheck**
 
 Run: `cd backend && npm run typecheck`
 Expected: 0 errors.
 
-- [ ] **Step 7: Stage changes**
+- [x] **Step 7: Stage changes**
 
 ```bash
 git add backend/src/models/account.ts backend/src/models/account.test.ts
@@ -571,7 +571,7 @@ Stop. Do not commit.
 
 Adds a singular fetch that returns archived rows (used by txn update/delete flows that must adjust an archived account's `transactionBalance`).
 
-- [ ] **Step 1: Invoke `jest-tests` Skill via the Skill tool, then add failing tests for `findOneWithArchivedById`**
+- [x] **Step 1: Invoke `jest-tests` Skill via the Skill tool, then add failing tests for `findOneWithArchivedById`**
 
 Open `backend/src/repositories/dyn-account-repository.test.ts`. Find the existing `describe("findOneById", ...)` block; add a sibling block after it:
 
@@ -634,12 +634,12 @@ describe("findOneWithArchivedById", () => {
 
 (If `faker` and helpers aren't already imported in the file, leave existing imports alone — they should be there from sibling tests.)
 
-- [ ] **Step 2: Run tests to verify they fail**
+- [x] **Step 2: Run tests to verify they fail**
 
 Run: `cd backend && npm test -- dyn-account-repository.test.ts -t "findOneWithArchivedById"`
 Expected: FAIL — `findOneWithArchivedById` does not exist.
 
-- [ ] **Step 3: Declare `findOneWithArchivedById` in the port**
+- [x] **Step 3: Declare `findOneWithArchivedById` in the port**
 
 In `backend/src/ports/account-repository.ts`, add the method to the `AccountRepository` interface:
 
@@ -666,7 +666,7 @@ export interface AccountRepository {
 }
 ```
 
-- [ ] **Step 4: Implement `findOneWithArchivedById` in `DynAccountRepository`**
+- [x] **Step 4: Implement `findOneWithArchivedById` in `DynAccountRepository`**
 
 In `backend/src/repositories/dyn-account-repository.ts`, add the method after `findOneById` (model the body on existing `findOneById`, but skip the archived filter):
 
@@ -711,7 +711,7 @@ async findOneWithArchivedById({
 }
 ```
 
-- [ ] **Step 5: Add `findOneWithArchivedById` to the mock factory**
+- [x] **Step 5: Add `findOneWithArchivedById` to the mock factory**
 
 In `backend/src/utils/test-utils/repositories/account-repository-mocks.ts`:
 
@@ -731,22 +731,22 @@ export const createMockAccountRepository =
   });
 ```
 
-- [ ] **Step 6: Invoke `jest-tests` Skill via the Skill tool, then re-run the new tests to verify they pass**
+- [x] **Step 6: Invoke `jest-tests` Skill via the Skill tool, then re-run the new tests to verify they pass**
 
 Run: `cd backend && npm test -- dyn-account-repository.test.ts -t "findOneWithArchivedById"`
 Expected: PASS.
 
-- [ ] **Step 7: Invoke `jest-tests` Skill via the Skill tool, then run the full backend suite**
+- [x] **Step 7: Invoke `jest-tests` Skill via the Skill tool, then run the full backend suite**
 
 Run: `cd backend && npm test`
 Expected: PASS — no regressions.
 
-- [ ] **Step 8: Typecheck**
+- [x] **Step 8: Typecheck**
 
 Run: `cd backend && npm run typecheck`
 Expected: 0 errors.
 
-- [ ] **Step 9: Stage changes**
+- [x] **Step 9: Stage changes**
 
 ```bash
 git add backend/src/ports/account-repository.ts backend/src/repositories/dyn-account-repository.ts backend/src/repositories/dyn-account-repository.test.ts backend/src/utils/test-utils/repositories/account-repository-mocks.ts
@@ -763,7 +763,7 @@ Stop. Do not commit.
 
 Extract the SET expression assembly into an exported pure function `buildUpdateAccountItem(account, tableName)` that returns a `{ Update: {...} }` TransactWriteItem. The repo's `update` method calls it (wrapping in single-item `UpdateCommand`). `transactionBalance` is added to the SET list.
 
-- [ ] **Step 1: Invoke `jest-tests` Skill via the Skill tool, then add a failing test for `transactionBalance` round-trip through repo**
+- [x] **Step 1: Invoke `jest-tests` Skill via the Skill tool, then add a failing test for `transactionBalance` round-trip through repo**
 
 Open `backend/src/repositories/dyn-account-repository.test.ts`. Inside the existing `describe("update", ...)` block (or add one if absent), add:
 
@@ -788,12 +788,12 @@ it("persists transactionBalance changes", async () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `cd backend && npm test -- dyn-account-repository.test.ts -t "persists transactionBalance"`
 Expected: FAIL — current `update()` does not include `transactionBalance` in the SET expression, so the field stays at 0 in storage.
 
-- [ ] **Step 3: Add and export `buildUpdateAccountItem`**
+- [x] **Step 3: Add and export `buildUpdateAccountItem`**
 
 In `backend/src/repositories/dyn-account-repository.ts`, after the imports and before the class, add:
 
@@ -842,7 +842,7 @@ export function buildUpdateAccountItem(
 }
 ```
 
-- [ ] **Step 4: Refactor `DynAccountRepository.update()` to use the builder**
+- [x] **Step 4: Refactor `DynAccountRepository.update()` to use the builder**
 
 Replace the body of `update()` with:
 
@@ -877,22 +877,22 @@ async update(account: Readonly<Account>): Promise<Account> {
 }
 ```
 
-- [ ] **Step 5: Invoke `jest-tests` Skill via the Skill tool, then re-run the new test to verify it passes**
+- [x] **Step 5: Invoke `jest-tests` Skill via the Skill tool, then re-run the new test to verify it passes**
 
 Run: `cd backend && npm test -- dyn-account-repository.test.ts -t "persists transactionBalance"`
 Expected: PASS.
 
-- [ ] **Step 6: Invoke `jest-tests` Skill via the Skill tool, then run all account-repo tests**
+- [x] **Step 6: Invoke `jest-tests` Skill via the Skill tool, then run all account-repo tests**
 
 Run: `cd backend && npm test -- dyn-account-repository.test.ts`
 Expected: PASS — existing `update` tests still green; the SET-expression refactor preserves behavior.
 
-- [ ] **Step 7: Typecheck**
+- [x] **Step 7: Typecheck**
 
 Run: `cd backend && npm run typecheck`
 Expected: 0 errors.
 
-- [ ] **Step 8: Stage changes**
+- [x] **Step 8: Stage changes**
 
 ```bash
 git add backend/src/repositories/dyn-account-repository.ts backend/src/repositories/dyn-account-repository.test.ts
@@ -908,7 +908,7 @@ Stop. Do not commit.
 
 Pure refactor. No behavior change. The existing `buildUpdateParams` private method becomes the exported `buildUpdateTransactionItem` returning a `{ Update: {...} }` shape. Add a sibling `buildCreateTransactionItem` for Puts. Internal `create` and `update` call them. `createMany` / `updateMany` will be removed in Task 10 (don't touch them yet — services still depend on them).
 
-- [ ] **Step 1: Add `buildCreateTransactionItem` and `buildUpdateTransactionItem` exports**
+- [x] **Step 1: Add `buildCreateTransactionItem` and `buildUpdateTransactionItem` exports**
 
 In `backend/src/repositories/dyn-transaction-repository.ts`, after the imports and helper functions and before the class:
 
@@ -1010,7 +1010,7 @@ export function buildUpdateTransactionItem(
 }
 ```
 
-- [ ] **Step 2: Refactor `DynTransactionRepository.create()` to use `buildCreateTransactionItem`**
+- [x] **Step 2: Refactor `DynTransactionRepository.create()` to use `buildCreateTransactionItem`**
 
 Replace the existing `create()` body's PutCommand assembly with:
 
@@ -1041,7 +1041,7 @@ async create(transaction: Readonly<Transaction>): Promise<void> {
 }
 ```
 
-- [ ] **Step 3: Refactor `DynTransactionRepository.update()` to use `buildUpdateTransactionItem`**
+- [x] **Step 3: Refactor `DynTransactionRepository.update()` to use `buildUpdateTransactionItem`**
 
 Replace the body of `update()` with:
 
@@ -1078,21 +1078,21 @@ async update(transaction: Readonly<Transaction>): Promise<Transaction> {
 }
 ```
 
-- [ ] **Step 4: Delete the now-unused private `buildUpdateParams` method**
+- [x] **Step 4: Delete the now-unused private `buildUpdateParams` method**
 
 If a private `buildUpdateParams` (or similar) remains and is no longer referenced, remove it. `createMany` / `updateMany` may still reference it; if so, leave it for now and it will be removed in Task 10 along with those methods.
 
-- [ ] **Step 5: Invoke `jest-tests` Skill via the Skill tool, then run all transaction-repo tests**
+- [x] **Step 5: Invoke `jest-tests` Skill via the Skill tool, then run all transaction-repo tests**
 
 Run: `cd backend && npm test -- dyn-transaction-repository.test.ts`
 Expected: PASS — existing tests cover `create`, `update`, `createMany`, `updateMany`. The refactor is behavior-preserving.
 
-- [ ] **Step 6: Typecheck**
+- [x] **Step 6: Typecheck**
 
 Run: `cd backend && npm run typecheck`
 Expected: 0 errors.
 
-- [ ] **Step 7: Stage changes**
+- [x] **Step 7: Stage changes**
 
 ```bash
 git add backend/src/repositories/dyn-transaction-repository.ts
@@ -1108,7 +1108,7 @@ Stop. Do not commit.
 
 Port-only task. Implementation in Task 8. Mock in Task 9.
 
-- [ ] **Step 1: Create the port file**
+- [x] **Step 1: Create the port file**
 
 Create `backend/src/ports/ledger-writer.ts`:
 
@@ -1149,12 +1149,12 @@ export interface LedgerWriter {
 }
 ```
 
-- [ ] **Step 2: Typecheck**
+- [x] **Step 2: Typecheck**
 
 Run: `cd backend && npm run typecheck`
 Expected: 0 errors.
 
-- [ ] **Step 3: Stage changes**
+- [x] **Step 3: Stage changes**
 
 ```bash
 git add backend/src/ports/ledger-writer.ts
@@ -1171,7 +1171,7 @@ Stop. Do not commit.
 
 The implementation imports the three builders extracted in Tasks 5 and 6. Error mapping is inline — `TransactionCanceledException` reasons distinguish version conflict (`Item` present) from missing-row / duplicate-id (`Item` absent).
 
-- [ ] **Step 1: Invoke `jest-tests` Skill via the Skill tool, then add a failing test for the create-transaction + account-update flow**
+- [x] **Step 1: Invoke `jest-tests` Skill via the Skill tool, then add a failing test for the create-transaction + account-update flow**
 
 Create `backend/src/repositories/dyn-ledger-writer.test.ts`. Use the existing repo integration-test pattern (DynamoDB Local / `jest.config.integration.json`). Sketch:
 
@@ -1235,12 +1235,12 @@ describe("DynLedgerWriter (integration)", () => {
 
 (Add additional test cases in subsequent steps; this first one drives the minimal happy-path implementation.)
 
-- [ ] **Step 2: Run the test to verify it fails**
+- [x] **Step 2: Run the test to verify it fails**
 
 Run: `cd backend && npm run test:integration -- dyn-ledger-writer.test.ts`
 Expected: FAIL — `dyn-ledger-writer.ts` does not exist.
 
-- [ ] **Step 3: Create `DynLedgerWriter`**
+- [x] **Step 3: Create `DynLedgerWriter`**
 
 Create `backend/src/repositories/dyn-ledger-writer.ts`:
 
@@ -1377,12 +1377,12 @@ function mapTransactWriteError(error: unknown): Error {
 }
 ```
 
-- [ ] **Step 4: Invoke `jest-tests` Skill via the Skill tool, then re-run the integration test**
+- [x] **Step 4: Invoke `jest-tests` Skill via the Skill tool, then re-run the integration test**
 
 Run: `cd backend && npm run test:integration -- dyn-ledger-writer.test.ts`
 Expected: PASS for the create-transaction test.
 
-- [ ] **Step 5: Invoke `jest-tests` Skill via the Skill tool, then add the rest of the integration suite**
+- [x] **Step 5: Invoke `jest-tests` Skill via the Skill tool, then add the rest of the integration suite**
 
 Open `backend/src/repositories/dyn-ledger-writer.test.ts`. Add these additional `it` blocks after the first:
 
@@ -1515,17 +1515,17 @@ async function createAccountWith(
 }
 ```
 
-- [ ] **Step 6: Run integration suite**
+- [x] **Step 6: Run integration suite**
 
 Run: `cd backend && npm run test:integration -- dyn-ledger-writer.test.ts`
 Expected: PASS for all new tests.
 
-- [ ] **Step 7: Typecheck**
+- [x] **Step 7: Typecheck**
 
 Run: `cd backend && npm run typecheck`
 Expected: 0 errors.
 
-- [ ] **Step 8: Stage changes**
+- [x] **Step 8: Stage changes**
 
 ```bash
 git add backend/src/repositories/dyn-ledger-writer.ts backend/src/repositories/dyn-ledger-writer.test.ts
@@ -1541,7 +1541,7 @@ Stop. Do not commit.
 
 Used by service-level tests in Tasks 10 and 11.
 
-- [ ] **Step 1: Create the mock factory**
+- [x] **Step 1: Create the mock factory**
 
 Create `backend/src/utils/test-utils/repositories/ledger-writer-mocks.ts`:
 
@@ -1558,12 +1558,12 @@ export const createMockLedgerWriter = (): jest.Mocked<LedgerWriter> => ({
 });
 ```
 
-- [ ] **Step 2: Typecheck**
+- [x] **Step 2: Typecheck**
 
 Run: `cd backend && npm run typecheck`
 Expected: 0 errors.
 
-- [ ] **Step 3: Stage changes**
+- [x] **Step 3: Stage changes**
 
 ```bash
 git add backend/src/utils/test-utils/repositories/ledger-writer-mocks.ts
@@ -1580,7 +1580,7 @@ Stop. Do not commit.
 
 `createTransaction`, `updateTransaction`, `deleteTransaction` now bundle the txn op with version-checked account updates via the writer. Read paths (`getTransactionById`, `getTransactionsByUser`, `getTransactionPatterns`, `getDescriptionSuggestions`) are unchanged.
 
-- [ ] **Step 1: Invoke `jest-tests` Skill via the Skill tool, then update `transaction-service.test.ts` setup to inject a mock `LedgerWriter`**
+- [x] **Step 1: Invoke `jest-tests` Skill via the Skill tool, then update `transaction-service.test.ts` setup to inject a mock `LedgerWriter`**
 
 Open `backend/src/services/transaction-service.test.ts`. At the top of the suite where the service is constructed, add:
 
@@ -1603,7 +1603,7 @@ beforeEach(() => {
 
 (Don't change existing tests' assertions yet — just the constructor wiring. Existing `transactionRepository.create` / `update` mocks may go unused after the rewrite; remove their setup once tests are migrated.)
 
-- [ ] **Step 2: Invoke `jest-tests` Skill via the Skill tool, then add a failing test for `createTransaction` calling the writer**
+- [x] **Step 2: Invoke `jest-tests` Skill via the Skill tool, then add a failing test for `createTransaction` calling the writer**
 
 Add a new test inside the existing `describe("createTransaction", ...)` block:
 
@@ -1631,12 +1631,12 @@ it("calls ledgerWriter.apply with createTransactions and the increased account",
 });
 ```
 
-- [ ] **Step 3: Run test to verify it fails**
+- [x] **Step 3: Run test to verify it fails**
 
 Run: `cd backend && npm test -- transaction-service.test.ts -t "calls ledgerWriter.apply with createTransactions"`
 Expected: FAIL — service constructor doesn't accept `ledgerWriter`.
 
-- [ ] **Step 4: Add `ledgerWriter` to `TransactionServiceImpl` constructor**
+- [x] **Step 4: Add `ledgerWriter` to `TransactionServiceImpl` constructor**
 
 In `backend/src/services/transaction-service.ts`, update the class:
 
@@ -1665,7 +1665,7 @@ export class TransactionServiceImpl implements TransactionService {
 }
 ```
 
-- [ ] **Step 5: Rewrite `createTransaction`**
+- [x] **Step 5: Rewrite `createTransaction`**
 
 Replace the body of `createTransaction` with:
 
@@ -1716,12 +1716,12 @@ async createTransaction(
 }
 ```
 
-- [ ] **Step 6: Invoke `jest-tests` Skill via the Skill tool, then re-run the createTransaction test**
+- [x] **Step 6: Invoke `jest-tests` Skill via the Skill tool, then re-run the createTransaction test**
 
 Run: `cd backend && npm test -- transaction-service.test.ts -t "calls ledgerWriter.apply with createTransactions"`
 Expected: PASS.
 
-- [ ] **Step 7: Invoke `jest-tests` Skill via the Skill tool, then add failing tests for `updateTransaction` (4 branches)**
+- [x] **Step 7: Invoke `jest-tests` Skill via the Skill tool, then add failing tests for `updateTransaction` (4 branches)**
 
 Add to the existing `describe("updateTransaction", ...)` block:
 
@@ -1818,12 +1818,12 @@ it("type change with sign flip: balance-affected branch taken", async () => {
 });
 ```
 
-- [ ] **Step 8: Run tests to verify they fail**
+- [x] **Step 8: Run tests to verify they fail**
 
 Run: `cd backend && npm test -- transaction-service.test.ts -t "updateTransaction"`
 Expected: FAIL — `updateTransaction` not yet rewritten.
 
-- [ ] **Step 9: Rewrite `updateTransaction`**
+- [x] **Step 9: Rewrite `updateTransaction`**
 
 Replace the body with:
 
@@ -1920,12 +1920,12 @@ async updateTransaction(
 
 (`Account` may need to be imported into the service file — add `import { Account } from "../models/account";` at the top.)
 
-- [ ] **Step 10: Invoke `jest-tests` Skill via the Skill tool, then re-run updateTransaction tests**
+- [x] **Step 10: Invoke `jest-tests` Skill via the Skill tool, then re-run updateTransaction tests**
 
 Run: `cd backend && npm test -- transaction-service.test.ts -t "updateTransaction"`
 Expected: PASS.
 
-- [ ] **Step 11: Invoke `jest-tests` Skill via the Skill tool, then add failing test for `deleteTransaction`**
+- [x] **Step 11: Invoke `jest-tests` Skill via the Skill tool, then add failing test for `deleteTransaction`**
 
 Add to the existing `describe("deleteTransaction", ...)`:
 
@@ -1966,12 +1966,12 @@ it("returns existing unchanged when already archived (no writer call)", async ()
 });
 ```
 
-- [ ] **Step 12: Run tests to verify they fail**
+- [x] **Step 12: Run tests to verify they fail**
 
 Run: `cd backend && npm test -- transaction-service.test.ts -t "deleteTransaction"`
 Expected: FAIL.
 
-- [ ] **Step 13: Rewrite `deleteTransaction`**
+- [x] **Step 13: Rewrite `deleteTransaction`**
 
 Replace the body with:
 
@@ -2014,17 +2014,17 @@ async deleteTransaction(id: string, userId: string): Promise<Transaction> {
 }
 ```
 
-- [ ] **Step 14: Invoke `jest-tests` Skill via the Skill tool, then run all transaction-service tests**
+- [x] **Step 14: Invoke `jest-tests` Skill via the Skill tool, then run all transaction-service tests**
 
 Run: `cd backend && npm test -- transaction-service.test.ts`
 Expected: PASS — entire suite green.
 
-- [ ] **Step 15: Typecheck**
+- [x] **Step 15: Typecheck**
 
 Run: `cd backend && npm run typecheck`
 Expected: 0 errors.
 
-- [ ] **Step 16: Stage changes**
+- [x] **Step 16: Stage changes**
 
 ```bash
 git add backend/src/services/transaction-service.ts backend/src/services/transaction-service.test.ts
@@ -2039,7 +2039,7 @@ Stop. Do not commit.
 - Modify: `backend/src/services/transfer-service.ts`
 - Modify: `backend/src/services/transfer-service.test.ts`
 
-- [ ] **Step 1: Invoke `jest-tests` Skill via the Skill tool, then update `transfer-service.test.ts` setup to inject a mock writer**
+- [x] **Step 1: Invoke `jest-tests` Skill via the Skill tool, then update `transfer-service.test.ts` setup to inject a mock writer**
 
 Open `backend/src/services/transfer-service.test.ts`. At the suite top:
 
@@ -2059,7 +2059,7 @@ beforeEach(() => {
 });
 ```
 
-- [ ] **Step 2: Invoke `jest-tests` Skill via the Skill tool, then add failing test for `createTransfer`**
+- [x] **Step 2: Invoke `jest-tests` Skill via the Skill tool, then add failing test for `createTransfer`**
 
 ```ts
 it("createTransfer calls ledgerWriter.apply with two creates and two account increases", async () => {
@@ -2095,12 +2095,12 @@ it("createTransfer calls ledgerWriter.apply with two creates and two account inc
 });
 ```
 
-- [ ] **Step 3: Run test to verify it fails**
+- [x] **Step 3: Run test to verify it fails**
 
 Run: `cd backend && npm test -- transfer-service.test.ts -t "createTransfer calls ledgerWriter.apply"`
 Expected: FAIL — service doesn't yet take `ledgerWriter`.
 
-- [ ] **Step 4: Add `ledgerWriter` to `TransferService` constructor**
+- [x] **Step 4: Add `ledgerWriter` to `TransferService` constructor**
 
 In `backend/src/services/transfer-service.ts`:
 
@@ -2126,7 +2126,7 @@ export class TransferService {
 }
 ```
 
-- [ ] **Step 5: Rewrite `createTransfer`**
+- [x] **Step 5: Rewrite `createTransfer`**
 
 Replace the body with:
 
@@ -2193,12 +2193,12 @@ async createTransfer(
 }
 ```
 
-- [ ] **Step 6: Invoke `jest-tests` Skill via the Skill tool, then re-run createTransfer test**
+- [x] **Step 6: Invoke `jest-tests` Skill via the Skill tool, then re-run createTransfer test**
 
 Run: `cd backend && npm test -- transfer-service.test.ts -t "createTransfer calls ledgerWriter.apply"`
 Expected: PASS.
 
-- [ ] **Step 7: Invoke `jest-tests` Skill via the Skill tool, then add failing tests for `updateTransfer` (no balance impact + balance affected)**
+- [x] **Step 7: Invoke `jest-tests` Skill via the Skill tool, then add failing tests for `updateTransfer` (no balance impact + balance affected)**
 
 ```ts
 it("updateTransfer with no balance impact: writer called with empty updateAccounts", async () => {
@@ -2287,12 +2287,12 @@ it("updateTransfer with amount change: 2 unique account updates with combined de
 });
 ```
 
-- [ ] **Step 8: Run tests to verify they fail**
+- [x] **Step 8: Run tests to verify they fail**
 
 Run: `cd backend && npm test -- transfer-service.test.ts -t "updateTransfer"`
 Expected: FAIL.
 
-- [ ] **Step 9: Rewrite `updateTransfer`**
+- [x] **Step 9: Rewrite `updateTransfer`**
 
 Replace the body with:
 
@@ -2406,12 +2406,12 @@ async updateTransfer(
 
 (Add `import { Account } from "../models/account";` if not present.)
 
-- [ ] **Step 10: Invoke `jest-tests` Skill via the Skill tool, then re-run updateTransfer tests**
+- [x] **Step 10: Invoke `jest-tests` Skill via the Skill tool, then re-run updateTransfer tests**
 
 Run: `cd backend && npm test -- transfer-service.test.ts -t "updateTransfer"`
 Expected: PASS.
 
-- [ ] **Step 11: Invoke `jest-tests` Skill via the Skill tool, then add failing test for `deleteTransfer`**
+- [x] **Step 11: Invoke `jest-tests` Skill via the Skill tool, then add failing test for `deleteTransfer`**
 
 ```ts
 it("deleteTransfer calls ledgerWriter.apply with archived pair and decreased accounts", async () => {
@@ -2466,12 +2466,12 @@ it("deleteTransfer calls ledgerWriter.apply with archived pair and decreased acc
 });
 ```
 
-- [ ] **Step 12: Run test to verify it fails**
+- [x] **Step 12: Run test to verify it fails**
 
 Run: `cd backend && npm test -- transfer-service.test.ts -t "deleteTransfer"`
 Expected: FAIL.
 
-- [ ] **Step 13: Rewrite `deleteTransfer`**
+- [x] **Step 13: Rewrite `deleteTransfer`**
 
 Replace the body with:
 
@@ -2540,17 +2540,17 @@ async deleteTransfer(transferId: string, userId: string): Promise<void> {
 }
 ```
 
-- [ ] **Step 14: Invoke `jest-tests` Skill via the Skill tool, then run all transfer-service tests**
+- [x] **Step 14: Invoke `jest-tests` Skill via the Skill tool, then run all transfer-service tests**
 
 Run: `cd backend && npm test -- transfer-service.test.ts`
 Expected: PASS — entire suite green.
 
-- [ ] **Step 15: Typecheck**
+- [x] **Step 15: Typecheck**
 
 Run: `cd backend && npm run typecheck`
 Expected: 0 errors.
 
-- [ ] **Step 16: Stage changes**
+- [x] **Step 16: Stage changes**
 
 ```bash
 git add backend/src/services/transfer-service.ts backend/src/services/transfer-service.test.ts
@@ -2569,14 +2569,14 @@ Stop. Do not commit.
 
 After Tasks 10 and 11, no service uses these methods. Remove them.
 
-- [ ] **Step 1: Confirm no remaining callers**
+- [x] **Step 1: Confirm no remaining callers**
 
 Run: `cd backend && grep -rn "transactionRepository\.\(createMany\|updateMany\)" src --include='*.ts'`
 Expected: 0 matches (any references should be in code being deleted in this task).
 
 If matches exist outside the repo / port / mocks / test files, fix those callers first before continuing.
 
-- [ ] **Step 2: Remove `createMany` and `updateMany` from the port**
+- [x] **Step 2: Remove `createMany` and `updateMany` from the port**
 
 In `backend/src/ports/transaction-repository.ts`, delete these two methods from the interface:
 
@@ -2587,29 +2587,29 @@ updateMany(
 ): Promise<Transaction[]>;
 ```
 
-- [ ] **Step 3: Remove `createMany` and `updateMany` from the impl**
+- [x] **Step 3: Remove `createMany` and `updateMany` from the impl**
 
 In `backend/src/repositories/dyn-transaction-repository.ts`, delete the two method bodies. Also remove now-unused imports (`TransactionCanceledException`, `TransactWriteCommand`, `DYNAMODB_TRANSACT_WRITE_MAX_ITEMS`) if they're not referenced elsewhere in the file.
 
-- [ ] **Step 4: Remove the mock entries**
+- [x] **Step 4: Remove the mock entries**
 
 In `backend/src/utils/test-utils/repositories/transaction-repository-mocks.ts`, drop `createMany: jest.fn()` and `updateMany: jest.fn()` entries.
 
-- [ ] **Step 5: Invoke `jest-tests` Skill via the Skill tool, then delete the `createMany` and `updateMany` test suites**
+- [x] **Step 5: Invoke `jest-tests` Skill via the Skill tool, then delete the `createMany` and `updateMany` test suites**
 
 In `backend/src/repositories/dyn-transaction-repository.test.ts`, delete the entire `describe("createMany", ...)` and `describe("updateMany", ...)` blocks.
 
-- [ ] **Step 6: Invoke `jest-tests` Skill via the Skill tool, then run the full backend suite**
+- [x] **Step 6: Invoke `jest-tests` Skill via the Skill tool, then run the full backend suite**
 
 Run: `cd backend && npm test`
 Expected: PASS — all suites green; nothing depends on the removed methods.
 
-- [ ] **Step 7: Typecheck**
+- [x] **Step 7: Typecheck**
 
 Run: `cd backend && npm run typecheck`
 Expected: 0 errors.
 
-- [ ] **Step 8: Stage changes**
+- [x] **Step 8: Stage changes**
 
 ```bash
 git add backend/src/ports/transaction-repository.ts backend/src/repositories/dyn-transaction-repository.ts backend/src/repositories/dyn-transaction-repository.test.ts backend/src/utils/test-utils/repositories/transaction-repository-mocks.ts
@@ -2627,7 +2627,7 @@ Stop. Do not commit.
 
 The resolver reads the entity getter. The service method and its test are removed.
 
-- [ ] **Step 1: Update the GraphQL resolver to read the entity getter**
+- [x] **Step 1: Update the GraphQL resolver to read the entity getter**
 
 In `backend/src/graphql/resolvers/account-resolvers.ts`, replace the `Account.balance` resolver:
 
@@ -2649,28 +2649,28 @@ export const accountResolvers = {
 
 (`getAuthenticatedUser` is no longer needed for `Account.balance`. Remove its import only if it isn't used elsewhere in the file.)
 
-- [ ] **Step 2: Remove `calculateBalance` from `AccountService` interface and impl**
+- [x] **Step 2: Remove `calculateBalance` from `AccountService` interface and impl**
 
 In `backend/src/services/account-service.ts`:
 
 - Delete the line `calculateBalance(accountId: string, userId: string): Promise<number>;` from the `AccountService` interface.
 - Delete the entire `calculateBalance` method body from `AccountServiceImpl`.
 
-- [ ] **Step 3: Invoke `jest-tests` Skill via the Skill tool, then delete the `calculateBalance` test suite**
+- [x] **Step 3: Invoke `jest-tests` Skill via the Skill tool, then delete the `calculateBalance` test suite**
 
 In `backend/src/services/account-service.test.ts`, delete the entire `describe("calculateBalance", ...)` block.
 
-- [ ] **Step 4: Invoke `jest-tests` Skill via the Skill tool, then run the full backend suite**
+- [x] **Step 4: Invoke `jest-tests` Skill via the Skill tool, then run the full backend suite**
 
 Run: `cd backend && npm test`
 Expected: PASS — no test relies on `calculateBalance`.
 
-- [ ] **Step 5: Typecheck**
+- [x] **Step 5: Typecheck**
 
 Run: `cd backend && npm run typecheck`
 Expected: 0 errors.
 
-- [ ] **Step 6: Stage changes**
+- [x] **Step 6: Stage changes**
 
 ```bash
 git add backend/src/services/account-service.ts backend/src/services/account-service.test.ts backend/src/graphql/resolvers/account-resolvers.ts
@@ -2684,7 +2684,7 @@ Stop. Do not commit.
 **Files:**
 - Modify: `backend/src/dependencies.ts`
 
-- [ ] **Step 1: Add `resolveLedgerWriter` and inject into the two services**
+- [x] **Step 1: Add `resolveLedgerWriter` and inject into the two services**
 
 In `backend/src/dependencies.ts`:
 
@@ -2733,22 +2733,22 @@ export const resolveTransferService = createSingleton(
 );
 ```
 
-- [ ] **Step 2: Typecheck**
+- [x] **Step 2: Typecheck**
 
 Run: `cd backend && npm run typecheck`
 Expected: 0 errors.
 
-- [ ] **Step 3: Build**
+- [x] **Step 3: Build**
 
 Run: `cd backend && npm run build`
 Expected: succeeds.
 
-- [ ] **Step 4: Invoke `jest-tests` Skill via the Skill tool, then run the full backend suite (unit + integration)**
+- [x] **Step 4: Invoke `jest-tests` Skill via the Skill tool, then run the full backend suite (unit + integration)**
 
 Run: `cd backend && npm test && npm run test:integration`
 Expected: PASS for both.
 
-- [ ] **Step 5: Stage changes**
+- [x] **Step 5: Stage changes**
 
 ```bash
 git add backend/src/dependencies.ts
@@ -2762,15 +2762,15 @@ Stop. Do not commit.
 **Files:**
 - (no modifications — verification only)
 
-- [ ] **Step 1: Confirm full clean run**
+- [x] **Step 1: Confirm full clean run**
 
 Run: `cd backend && npm run lint && npm run typecheck && npm test && npm run test:integration && npm run build`
 Expected: every command succeeds.
 
-- [ ] **Step 2: Confirm staged-but-uncommitted state**
+- [x] **Step 2: Confirm staged-but-uncommitted state**
 
 Run: `git status` and verify the staged file list matches what was staged across Tasks 1–14, and there are no leftover unstaged changes.
 
-- [ ] **Step 3: Stop**
+- [x] **Step 3: Stop**
 
 Hand control back to the user. The user decides when to commit and how to split commits.
