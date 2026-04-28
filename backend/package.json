@@ -29,8 +29,9 @@
     "test:db:drop": "dotenvx run -f .env.test --verbose -- tsx src/scripts/drop-tables.ts",
     "test:db:recreate": "npm run test:db:drop && npm run test:db:create",
     "test:db:setup": "npm run db:start && sleep 1 && npm run test:db:create",
-    "test:integration": "dotenvx run -f .env.test -- jest --config jest.config.integration.json",
-    "test": "dotenvx run -f .env.test -- jest",
+    "test:integration": "dotenvx run -f .env.test -- jest --config jest.config.integration.ts",
+    "test:repositories": "dotenvx run -f .env.test -- jest --config jest.config.repositories.ts",
+    "test": "dotenvx run -f .env.test -- jest && npm run test:repositories",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
