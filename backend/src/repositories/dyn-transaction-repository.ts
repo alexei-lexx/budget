@@ -35,7 +35,6 @@ import {
   TransactionDbItem,
   transactionDbItemSchema,
 } from "./schemas/transaction";
-import { hydrate } from "./utils/hydrate";
 import { PutWriteItem, UpdateWriteItem } from "./utils/transact-write";
 
 /**
@@ -265,7 +264,7 @@ export class DynTransactionRepository
         return null;
       }
 
-      const dbItem = hydrate(transactionDbItemSchema, result.Item);
+      const dbItem = this.hydrate(transactionDbItemSchema, result.Item);
 
       // Return null if transaction is archived (soft deleted)
       if (dbItem.isArchived) {

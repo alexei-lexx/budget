@@ -9,7 +9,6 @@ import {
 } from "../ports/telegram-bot-repository";
 import { DynBaseRepository } from "./dyn-base-repository";
 import { telegramBotSchema } from "./schemas/telegram-bot";
-import { hydrate } from "./utils/hydrate";
 
 export class DynTelegramBotRepository
   extends DynBaseRepository
@@ -46,7 +45,7 @@ export class DynTelegramBotRepository
         );
       }
 
-      return hydrate(telegramBotSchema, result.Items[0]);
+      return this.hydrate(telegramBotSchema, result.Items[0]);
     } catch (error) {
       console.error("Error finding telegram bot by userId:", error);
 
@@ -99,7 +98,7 @@ export class DynTelegramBotRepository
         );
       }
 
-      return hydrate(telegramBotSchema, result.Items[0]);
+      return this.hydrate(telegramBotSchema, result.Items[0]);
     } catch (error) {
       console.error("Error finding telegram bot by webhookSecret:", error);
 
@@ -191,7 +190,7 @@ export class DynTelegramBotRepository
       });
 
       const result = await this.client.send(command);
-      return hydrate(telegramBotSchema, result.Attributes);
+      return this.hydrate(telegramBotSchema, result.Attributes);
     } catch (error) {
       console.error("Error updating telegram bot:", error);
 
@@ -249,7 +248,7 @@ export class DynTelegramBotRepository
       });
 
       const result = await this.client.send(command);
-      return hydrate(telegramBotSchema, result.Attributes);
+      return this.hydrate(telegramBotSchema, result.Attributes);
     } catch (error) {
       console.error("Error archiving telegram bot:", error);
 
