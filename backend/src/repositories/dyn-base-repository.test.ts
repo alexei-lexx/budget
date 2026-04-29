@@ -1,4 +1,7 @@
-import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
+import {
+  DynamoDBDocumentClient,
+  QueryCommandInput,
+} from "@aws-sdk/lib-dynamodb";
 import { describe, expect, it, jest } from "@jest/globals";
 import { ZodError, z } from "zod";
 import { DynBaseRepository, QueryResult } from "./dyn-base-repository";
@@ -11,25 +14,16 @@ const testSchema = z.object({
 type TestItem = z.infer<typeof testSchema>;
 
 class TestRepo extends DynBaseRepository {
-  constructor(mockClient: DynamoDBDocumentClient) {
-    super("test-table");
-    // @ts-expect-error - test override of readonly client to inject mock
-    this.client = mockClient;
+  constructor(documentClient: DynamoDBDocumentClient) {
+    super("test-table", documentClient);
   }
 
   async run<T>(args: {
-    params: Parameters<TestRepo["paginateQueryProxy"]>[0]["params"];
+    params: QueryCommandInput;
     pageSize?: number;
     schema: z.ZodType<T>;
   }): Promise<QueryResult<T>> {
     return this.paginateQuery<T>(args);
-  }
-
-  // Helper used only to derive param type above; never called.
-  private async paginateQueryProxy(args: {
-    params: Parameters<DynBaseRepository["paginateQuery"]>[0]["params"];
-  }): Promise<void> {
-    void args;
   }
 }
 
