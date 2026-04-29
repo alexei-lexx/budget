@@ -112,7 +112,8 @@ describe("DynAtomicWriter", () => {
       await transactionRepository.create(transaction);
 
       // In the meantime, another process updates transaction — making our version stale
-      const updatedTransaction = await transactionRepository.update(transaction);
+      const updatedTransaction =
+        await transactionRepository.update(transaction);
 
       // Act & Assert
       await expect(
