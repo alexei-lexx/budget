@@ -15,7 +15,6 @@ import { RepositoryError } from "../ports/repository-error";
 import { DynBaseRepository } from "./dyn-base-repository";
 import { categorySchema } from "./schemas/category";
 import { hydrate } from "./utils/hydrate";
-import { paginateQuery } from "./utils/query";
 
 /**
  * Sort categories alphabetically by name
@@ -96,8 +95,7 @@ export class DynCategoryRepository
         expressionAttributeNames["#type"] = "type";
       }
 
-      const result = await paginateQuery<Category>({
-        client: this.client,
+      const result = await this.paginateQuery<Category>({
         params: {
           TableName: this.tableName,
           KeyConditionExpression: "userId = :userId",
@@ -128,8 +126,7 @@ export class DynCategoryRepository
     }
 
     try {
-      const result = await paginateQuery<Category>({
-        client: this.client,
+      const result = await this.paginateQuery<Category>({
         params: {
           TableName: this.tableName,
           KeyConditionExpression: "userId = :userId",
