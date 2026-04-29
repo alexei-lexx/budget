@@ -38,12 +38,11 @@ export const resolveJwtAuthService = createSingleton(
   () => new JwtAuthService(),
 );
 
-// DynamoDB client (shared across all repositories)
+// Repositories
 const resolveDynDocumentClient = createSingleton(() =>
   DynamoDBDocumentClient.from(createDynamoDBClient()),
 );
 
-// Repositories
 export const resolveAtomicWriter = createSingleton(
   () =>
     new DynAtomicWriter({
