@@ -14,7 +14,6 @@ import {
 import { DynBaseRepository } from "./dyn-base-repository";
 import { accountDataSchema } from "./schemas/account";
 import { hydrate } from "./utils/hydrate";
-import { paginateQuery } from "./utils/query";
 import { UpdateWriteItem } from "./utils/transact-write";
 
 /**
@@ -147,8 +146,7 @@ export class DynAccountRepository
     }
 
     try {
-      const result = await paginateQuery({
-        client: this.client,
+      const result = await this.paginateQuery({
         params: {
           TableName: this.tableName,
           KeyConditionExpression: "userId = :userId",
@@ -224,8 +222,7 @@ export class DynAccountRepository
     }
 
     try {
-      const result = await paginateQuery({
-        client: this.client,
+      const result = await this.paginateQuery({
         params: {
           TableName: this.tableName,
           KeyConditionExpression: "userId = :userId",
