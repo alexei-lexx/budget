@@ -16,7 +16,6 @@ import {
 import { normalizeEmail } from "../utils/email";
 import { DynBaseRepository } from "./dyn-base-repository";
 import { userSchema } from "./schemas/user";
-import { hydrate } from "./utils/hydrate";
 
 export class DynUserRepository
   extends DynBaseRepository
@@ -48,7 +47,7 @@ export class DynUserRepository
         );
       }
 
-      return hydrate(userSchema, result.Items[0]);
+      return this.hydrate(userSchema, result.Items[0]);
     } catch (error) {
       console.error("Error finding user by email:", error);
       if (error instanceof RepositoryError) throw error;
@@ -77,7 +76,7 @@ export class DynUserRepository
         return null;
       }
 
-      return hydrate(userSchema, result.Item);
+      return this.hydrate(userSchema, result.Item);
     } catch (error) {
       console.error("Error finding user by ID:", error);
       throw new RepositoryError(
@@ -100,7 +99,7 @@ export class DynUserRepository
         return [];
       }
 
-      return result.Items.map((item) => hydrate(userSchema, item));
+      return result.Items.map((item) => this.hydrate(userSchema, item));
     } catch (error) {
       console.error("Error finding all users:", error);
       throw new RepositoryError("Failed to find users", "QUERY_FAILED", error);
@@ -186,7 +185,7 @@ export class DynUserRepository
       });
 
       const result = await this.client.send(command);
-      return hydrate(userSchema, result.Attributes);
+      return this.hydrate(userSchema, result.Attributes);
     } catch (error) {
       console.error("Error updating user:", error);
 

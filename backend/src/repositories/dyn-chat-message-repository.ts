@@ -14,7 +14,6 @@ import {
 import { RepositoryError } from "../ports/repository-error";
 import { DynBaseRepository } from "./dyn-base-repository";
 import { chatMessageDbItemSchema } from "./schemas/chat-message";
-import { hydrate } from "./utils/hydrate";
 
 const ulid = monotonicFactory();
 
@@ -93,7 +92,7 @@ export class DynChatMessageRepository
 
     try {
       return items.map((item) =>
-        toChatMessage(hydrate(chatMessageDbItemSchema, item)),
+        toChatMessage(this.hydrate(chatMessageDbItemSchema, item)),
       );
     } catch (error) {
       console.error("Error hydrating chat messages:", error);

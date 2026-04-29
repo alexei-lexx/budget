@@ -5,7 +5,6 @@ import {
 } from "@aws-sdk/lib-dynamodb";
 import { z } from "zod";
 import { RepositoryError } from "../ports/repository-error";
-import { hydrate } from "./utils/hydrate";
 
 export interface QueryResult<T> {
   items: T[];
@@ -33,7 +32,7 @@ export abstract class DynBaseRepository {
    * @param schema - Zod schema for item hydration
    * @param accumulatedItems - Accumulator for recursive calls
    */
-  protected async paginateQuery<T>({
+  protected async paginateQuery<TDbItem>({
     params,
     pageSize,
     schema,
@@ -41,9 +40,9 @@ export abstract class DynBaseRepository {
   }: {
     params: QueryCommandInput;
     pageSize?: number;
-    schema: z.ZodType<T>;
-    accumulatedItems?: T[];
-  }): Promise<QueryResult<T>> {
+    schema: z.ZodType<TDbItem>;
+    accumulatedItems?: TDbItem[];
+  }): Promise<QueryResult<TDbItem>> {
     const itemsNeedeCount = pageSize
       ? pageSize - accumulatedItems.length
       : undefined;
@@ -54,7 +53,9 @@ export abstract class DynBaseRepository {
 
     const command = new QueryCommand(queryParams);
     const result = await this.client.send(command);
-    const newItems = (result.Items || []).map((item) => hydrate(schema, item));
+    const newItems = (result.Items || []).map((item) =>
+      this.hydrate(schema, item),
+    );
 
     const newAccumulatedItems = [...accumulatedItems, ...newItems];
 
@@ -81,5 +82,15 @@ export abstract class DynBaseRepository {
       items: newAccumulatedItems,
       hasNextPage,
     };
+  }
+
+  /**
+   * Validate and hydrate a database record against a Zod schema.
+   */
+  protected hydrate<TDbItem>(
+    schema: z.ZodType<TDbItem>,
+    data: unknown,
+  ): TDbItem {
+    return schema.parse(data);
   }
 }

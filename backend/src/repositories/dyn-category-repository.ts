@@ -14,7 +14,6 @@ import {
 import { RepositoryError } from "../ports/repository-error";
 import { DynBaseRepository } from "./dyn-base-repository";
 import { categorySchema } from "./schemas/category";
-import { hydrate } from "./utils/hydrate";
 
 /**
  * Sort categories alphabetically by name
@@ -59,7 +58,7 @@ export class DynCategoryRepository
         return null;
       }
 
-      const category = hydrate(categorySchema, result.Item);
+      const category = this.hydrate(categorySchema, result.Item);
 
       // Return null if category is archived (soft deleted)
       if (category.isArchived) {
@@ -175,7 +174,7 @@ export class DynCategoryRepository
 
       const result = await this.client.send(command);
       return (result.Responses?.[this.tableName] || []).map((item) =>
-        hydrate(categorySchema, item),
+        this.hydrate(categorySchema, item),
       );
     } catch (error) {
       console.error("Error batch finding categories by IDs:", error);
@@ -284,7 +283,7 @@ export class DynCategoryRepository
       });
 
       const result = await this.client.send(command);
-      return hydrate(categorySchema, result.Attributes);
+      return this.hydrate(categorySchema, result.Attributes);
     } catch (error) {
       console.error("Error updating category:", error);
 
@@ -342,7 +341,7 @@ export class DynCategoryRepository
       });
 
       const result = await this.client.send(command);
-      return hydrate(categorySchema, result.Attributes);
+      return this.hydrate(categorySchema, result.Attributes);
     } catch (error) {
       console.error("Error archiving category:", error);
 

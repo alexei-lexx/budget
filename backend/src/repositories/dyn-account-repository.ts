@@ -13,7 +13,6 @@ import {
 } from "../ports/repository-error";
 import { DynBaseRepository } from "./dyn-base-repository";
 import { accountDataSchema } from "./schemas/account";
-import { hydrate } from "./utils/hydrate";
 import { UpdateWriteItem } from "./utils/transact-write";
 
 /**
@@ -90,7 +89,7 @@ export class DynAccountRepository
         return null;
       }
 
-      const data = hydrate(accountDataSchema, result.Item);
+      const data = this.hydrate(accountDataSchema, result.Item);
       const account = Account.fromPersistence(data);
 
       // Return null if account is archived (soft deleted)
@@ -132,7 +131,7 @@ export class DynAccountRepository
         return null;
       }
 
-      const data = hydrate(accountDataSchema, result.Item);
+      const data = this.hydrate(accountDataSchema, result.Item);
       return Account.fromPersistence(data);
     } catch (error) {
       console.error("Error finding account by ID (with archived):", error);
@@ -204,7 +203,7 @@ export class DynAccountRepository
 
       const result = await this.client.send(command);
       return (result.Responses?.[this.tableName] || []).map((item) =>
-        Account.fromPersistence(hydrate(accountDataSchema, item)),
+        Account.fromPersistence(this.hydrate(accountDataSchema, item)),
       );
     } catch (error) {
       console.error("Error batch finding accounts by IDs:", error);
