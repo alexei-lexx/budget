@@ -39,7 +39,7 @@ export const resolveJwtAuthService = createSingleton(
 );
 
 // DynamoDB client (shared across all repositories)
-const resolveDocumentClient = createSingleton(() =>
+const resolveDynDocumentClient = createSingleton(() =>
   DynamoDBDocumentClient.from(createDynamoDBClient()),
 );
 
@@ -55,14 +55,14 @@ export const resolveAccountRepository = createSingleton(
   () =>
     new DynAccountRepository(
       requireEnv("ACCOUNTS_TABLE_NAME"),
-      resolveDocumentClient(),
+      resolveDynDocumentClient(),
     ),
 );
 export const resolveCategoryRepository = createSingleton(
   () =>
     new DynCategoryRepository(
       requireEnv("CATEGORIES_TABLE_NAME"),
-      resolveDocumentClient(),
+      resolveDynDocumentClient(),
     ),
 );
 export const resolveChatMessageRepository = createSingleton(
@@ -73,7 +73,7 @@ export const resolveChatMessageRepository = createSingleton(
         "CHAT_MESSAGE_TTL_SECONDS",
         DEFAULT_CHAT_MESSAGE_TTL_SECONDS,
       ),
-      documentClient: resolveDocumentClient(),
+      documentClient: resolveDynDocumentClient(),
     }),
 );
 
@@ -81,21 +81,21 @@ const resolveTelegramBotRepository = createSingleton(
   () =>
     new DynTelegramBotRepository(
       requireEnv("TELEGRAM_BOTS_TABLE_NAME"),
-      resolveDocumentClient(),
+      resolveDynDocumentClient(),
     ),
 );
 export const resolveTransactionRepository = createSingleton(
   () =>
     new DynTransactionRepository(
       requireEnv("TRANSACTIONS_TABLE_NAME"),
-      resolveDocumentClient(),
+      resolveDynDocumentClient(),
     ),
 );
 export const resolveUserRepository = createSingleton(
   () =>
     new DynUserRepository(
       requireEnv("USERS_TABLE_NAME"),
-      resolveDocumentClient(),
+      resolveDynDocumentClient(),
     ),
 );
 
