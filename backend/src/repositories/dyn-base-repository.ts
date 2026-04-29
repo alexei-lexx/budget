@@ -1,18 +1,85 @@
-import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
+import {
+  DynamoDBDocumentClient,
+  QueryCommand,
+  QueryCommandInput,
+} from "@aws-sdk/lib-dynamodb";
+import { z } from "zod";
 import { RepositoryError } from "../ports/repository-error";
-import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
+import { hydrate } from "./utils/hydrate";
+
+export interface QueryResult<T> {
+  items: T[];
+  hasNextPage: boolean;
+}
 
 export abstract class DynBaseRepository {
-  protected readonly client: DynamoDBDocumentClient;
   protected readonly tableName: string;
 
-  constructor(tableName: string, dynamoClient?: DynamoDBClient) {
+  constructor(
+    tableName: string,
+    protected readonly client: DynamoDBDocumentClient,
+  ) {
     if (!tableName) {
       throw new RepositoryError("tableName is required", "MISSING_TABLE_NAME");
     }
 
-    this.client = createDynamoDBDocumentClient(dynamoClient);
     this.tableName = tableName;
+  }
+
+  /**
+   * Unified pagination that handles both paginated and "get all" queries.
+   * @param params - Query parameters
+   * @param pageSize - Number of items per page (undefined = get all items)
+   * @param schema - Zod schema for item hydration
+   * @param accumulatedItems - Accumulator for recursive calls
+   */
+  protected async paginateQuery<T>({
+    params,
+    pageSize,
+    schema,
+    accumulatedItems = [],
+  }: {
+    params: QueryCommandInput;
+    pageSize?: number;
+    schema: z.ZodType<T>;
+    accumulatedItems?: T[];
+  }): Promise<QueryResult<T>> {
+    const itemsNeedeCount = pageSize
+      ? pageSize - accumulatedItems.length
+      : undefined;
+
+    const queryParams = itemsNeedeCount
+      ? { ...params, Limit: itemsNeedeCount }
+      : params;
+
+    const command = new QueryCommand(queryParams);
+    const result = await this.client.send(command);
+    const newItems = (result.Items || []).map((item) => hydrate(schema, item));
+
+    const newAccumulatedItems = [...accumulatedItems, ...newItems];
+
+    const hasMoreInDb = Boolean(result.LastEvaluatedKey);
+
+    const shouldContinue =
+      hasMoreInDb && (!pageSize || newAccumulatedItems.length < pageSize);
+
+    if (shouldContinue) {
+      return this.paginateQuery({
+        params: {
+          ...params,
+          ExclusiveStartKey: result.LastEvaluatedKey,
+        },
+        pageSize,
+        schema,
+        accumulatedItems: newAccumulatedItems,
+      });
+    }
+
+    const hasNextPage = pageSize ? hasMoreInDb : false;
+
+    return {
+      items: newAccumulatedItems,
+      hasNextPage,
+    };
   }
 }

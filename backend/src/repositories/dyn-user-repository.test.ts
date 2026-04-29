@@ -11,15 +11,15 @@ describe("DynUserRepository", () => {
   let repository: DynUserRepository;
 
   const tableName = requireEnv("USERS_TABLE_NAME");
+  const client = createDynamoDBDocumentClient();
 
   beforeAll(async () => {
     // Create repository instance
-    repository = new DynUserRepository(tableName);
+    repository = new DynUserRepository(tableName, client);
   });
 
   beforeEach(async () => {
     // Clean up users table before each test
-    const client = createDynamoDBDocumentClient();
     await truncateTable(client, tableName, {
       partitionKey: "id",
     });

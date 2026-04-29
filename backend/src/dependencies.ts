@@ -1,3 +1,4 @@
+import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 import { JwtAuthService } from "./auth/jwt-auth";
 import { createAssistantAgent } from "./langchain/agents/assistant-agent";
 import { createCreateTransactionAgent } from "./langchain/agents/create-transaction-agent";
@@ -29,6 +30,7 @@ import { TransferService } from "./services/transfer-service";
 import { UserService } from "./services/user-service";
 import { createBedrockChatModel } from "./utils/bedrock";
 import { createSingleton } from "./utils/dependency-injection";
+import { createDynamoDBClient } from "./utils/dynamo-client";
 import { requireEnv, requireIntEnv } from "./utils/require-env";
 
 // Auth
@@ -37,6 +39,10 @@ export const resolveJwtAuthService = createSingleton(
 );
 
 // Repositories
+const resolveDynDocumentClient = createSingleton(() =>
+  DynamoDBDocumentClient.from(createDynamoDBClient()),
+);
+
 export const resolveAtomicWriter = createSingleton(
   () =>
     new DynAtomicWriter({
@@ -45,10 +51,18 @@ export const resolveAtomicWriter = createSingleton(
     }),
 );
 export const resolveAccountRepository = createSingleton(
-  () => new DynAccountRepository(requireEnv("ACCOUNTS_TABLE_NAME")),
+  () =>
+    new DynAccountRepository(
+      requireEnv("ACCOUNTS_TABLE_NAME"),
+      resolveDynDocumentClient(),
+    ),
 );
 export const resolveCategoryRepository = createSingleton(
-  () => new DynCategoryRepository(requireEnv("CATEGORIES_TABLE_NAME")),
+  () =>
+    new DynCategoryRepository(
+      requireEnv("CATEGORIES_TABLE_NAME"),
+      resolveDynDocumentClient(),
+    ),
 );
 export const resolveChatMessageRepository = createSingleton(
   () =>
@@ -58,17 +72,30 @@ export const resolveChatMessageRepository = createSingleton(
         "CHAT_MESSAGE_TTL_SECONDS",
         DEFAULT_CHAT_MESSAGE_TTL_SECONDS,
       ),
+      documentClient: resolveDynDocumentClient(),
     }),
 );
 
 const resolveTelegramBotRepository = createSingleton(
-  () => new DynTelegramBotRepository(requireEnv("TELEGRAM_BOTS_TABLE_NAME")),
+  () =>
+    new DynTelegramBotRepository(
+      requireEnv("TELEGRAM_BOTS_TABLE_NAME"),
+      resolveDynDocumentClient(),
+    ),
 );
 export const resolveTransactionRepository = createSingleton(
-  () => new DynTransactionRepository(requireEnv("TRANSACTIONS_TABLE_NAME")),
+  () =>
+    new DynTransactionRepository(
+      requireEnv("TRANSACTIONS_TABLE_NAME"),
+      resolveDynDocumentClient(),
+    ),
 );
 export const resolveUserRepository = createSingleton(
-  () => new DynUserRepository(requireEnv("USERS_TABLE_NAME")),
+  () =>
+    new DynUserRepository(
+      requireEnv("USERS_TABLE_NAME"),
+      resolveDynDocumentClient(),
+    ),
 );
 
 // CRUD services

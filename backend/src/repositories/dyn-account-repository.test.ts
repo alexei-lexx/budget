@@ -16,15 +16,15 @@ describe("DynAccountRepository", () => {
   let repository: DynAccountRepository;
   const userId = faker.string.uuid();
   const tableName = requireEnv("ACCOUNTS_TABLE_NAME");
+  const client = createDynamoDBDocumentClient();
 
   beforeAll(async () => {
     // Create repository instance
-    repository = new DynAccountRepository(tableName);
+    repository = new DynAccountRepository(tableName, client);
   });
 
   beforeEach(async () => {
     // Clean up accounts table before each test
-    const client = createDynamoDBDocumentClient();
     await truncateTable(client, tableName, {
       partitionKey: "userId",
       sortKey: "id",

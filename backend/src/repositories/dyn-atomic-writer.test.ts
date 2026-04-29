@@ -1,5 +1,6 @@
 import { beforeAll, describe, expect, it } from "@jest/globals";
 import { VersionConflictError } from "../ports/repository-error";
+import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
 import { requireEnv } from "../utils/require-env";
 import { fakeAccount } from "../utils/test-utils/models/account-fakes";
 import { fakeTransaction } from "../utils/test-utils/models/transaction-fakes";
@@ -13,10 +14,14 @@ describe("DynAtomicWriter", () => {
   let transactionRepository: DynTransactionRepository;
   const accountsTableName = requireEnv("ACCOUNTS_TABLE_NAME");
   const transactionsTableName = requireEnv("TRANSACTIONS_TABLE_NAME");
+  const client = createDynamoDBDocumentClient();
 
   beforeAll(() => {
-    accountRepository = new DynAccountRepository(accountsTableName);
-    transactionRepository = new DynTransactionRepository(transactionsTableName);
+    accountRepository = new DynAccountRepository(accountsTableName, client);
+    transactionRepository = new DynTransactionRepository(
+      transactionsTableName,
+      client,
+    );
     writer = new DynAtomicWriter({
       accountsTableName,
       transactionsTableName,

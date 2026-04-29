@@ -11,13 +11,13 @@ describe("DynTelegramBotRepository", () => {
   let repository: DynTelegramBotRepository;
   const userId = faker.string.uuid();
   const tableName = requireEnv("TELEGRAM_BOTS_TABLE_NAME");
+  const client = createDynamoDBDocumentClient();
 
   beforeAll(async () => {
-    repository = new DynTelegramBotRepository(tableName);
+    repository = new DynTelegramBotRepository(tableName, client);
   });
 
   beforeEach(async () => {
-    const client = createDynamoDBDocumentClient();
     await truncateTable(client, tableName, {
       partitionKey: "userId",
       sortKey: "id",

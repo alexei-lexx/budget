@@ -36,7 +36,6 @@ import {
   transactionDbItemSchema,
 } from "./schemas/transaction";
 import { hydrate } from "./utils/hydrate";
-import { paginateQuery } from "./utils/query";
 import { PutWriteItem, UpdateWriteItem } from "./utils/transact-write";
 
 /**
@@ -296,8 +295,7 @@ export class DynTransactionRepository
       // Build query parameters (index selection, key condition, filters)
       const queryParams = this.buildQueryParams(userId, filters);
 
-      const { items } = await paginateQuery({
-        client: this.client,
+      const { items } = await this.paginateQuery({
         params: {
           TableName: this.tableName,
           IndexName: queryParams.indexName,
@@ -353,8 +351,7 @@ export class DynTransactionRepository
       const decodedAfter = after ? decodeCursor(after) : null;
 
       // Execute query
-      const { items: dbItems, hasNextPage } = await paginateQuery({
-        client: this.client,
+      const { items: dbItems, hasNextPage } = await this.paginateQuery({
         params: {
           TableName: this.tableName,
           IndexName: queryParams.indexName,
@@ -432,8 +429,7 @@ export class DynTransactionRepository
     }
 
     try {
-      const { items } = await paginateQuery({
-        client: this.client,
+      const { items } = await this.paginateQuery({
         params: {
           TableName: this.tableName,
           KeyConditionExpression: "userId = :userId",
@@ -479,8 +475,7 @@ export class DynTransactionRepository
     }
 
     try {
-      const { items } = await paginateQuery({
-        client: this.client,
+      const { items } = await this.paginateQuery({
         params: {
           TableName: this.tableName,
           KeyConditionExpression: "userId = :userId",
@@ -535,8 +530,7 @@ export class DynTransactionRepository
     try {
       // Query recent transactions by user, ordered by creation time (newest first)
       // Use DynamoDB's native contains() function for efficient server-side filtering
-      const { items: transactions } = await paginateQuery({
-        client: this.client,
+      const { items: transactions } = await this.paginateQuery({
         params: {
           TableName: this.tableName,
           IndexName: USER_CREATED_AT_SORTABLE_INDEX,
@@ -685,8 +679,7 @@ export class DynTransactionRepository
 
     try {
       // Query up to sampleSize transactions of the specified type, ordered by creation time (newest first)
-      const { items } = await paginateQuery({
-        client: this.client,
+      const { items } = await this.paginateQuery({
         params: {
           TableName: this.tableName,
           IndexName: USER_CREATED_AT_SORTABLE_INDEX,

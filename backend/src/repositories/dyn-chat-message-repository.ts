@@ -1,6 +1,9 @@
 import { randomUUID } from "crypto";
-import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { PutCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
+import {
+  DynamoDBDocumentClient,
+  PutCommand,
+  QueryCommand,
+} from "@aws-sdk/lib-dynamodb";
 import { monotonicFactory } from "ulidx";
 import { z } from "zod";
 import { ChatMessage } from "../models/chat-message";
@@ -32,9 +35,9 @@ export class DynChatMessageRepository
   constructor(options: {
     tableName: string;
     ttlSeconds: number;
-    dynamoClient?: DynamoDBClient;
+    documentClient: DynamoDBDocumentClient;
   }) {
-    super(options.tableName, options.dynamoClient);
+    super(options.tableName, options.documentClient);
     this.ttlSeconds = options.ttlSeconds;
   }
 
