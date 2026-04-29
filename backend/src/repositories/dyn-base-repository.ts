@@ -5,7 +5,6 @@ import {
 } from "@aws-sdk/lib-dynamodb";
 import { z } from "zod";
 import { RepositoryError } from "../ports/repository-error";
-import { createDynamoDBClient } from "../utils/dynamo-client";
 import { hydrate } from "./utils/hydrate";
 
 export interface QueryResult<T> {
@@ -17,12 +16,12 @@ export abstract class DynBaseRepository {
   protected readonly client: DynamoDBDocumentClient;
   protected readonly tableName: string;
 
-  constructor(tableName: string, client?: DynamoDBDocumentClient) {
+  constructor(tableName: string, client: DynamoDBDocumentClient) {
     if (!tableName) {
       throw new RepositoryError("tableName is required", "MISSING_TABLE_NAME");
     }
 
-    this.client = client ?? DynamoDBDocumentClient.from(createDynamoDBClient());
+    this.client = client;
     this.tableName = tableName;
   }
 

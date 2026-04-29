@@ -12,15 +12,15 @@ describe("DynCategoryRepository", () => {
   let repository: DynCategoryRepository;
   const userId = faker.string.uuid();
   const tableName = requireEnv("CATEGORIES_TABLE_NAME");
+  const client = createDynamoDBDocumentClient();
 
   beforeAll(async () => {
     // Create repository instance
-    repository = new DynCategoryRepository(tableName);
+    repository = new DynCategoryRepository(tableName, client);
   });
 
   beforeEach(async () => {
     // Clean up categories table before each test
-    const client = createDynamoDBDocumentClient();
     await truncateTable(client, tableName, {
       partitionKey: "userId",
       sortKey: "id",

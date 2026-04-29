@@ -9,20 +9,20 @@ import { DynChatMessageRepository } from "./dyn-chat-message-repository";
 describe("DynChatMessageRepository", () => {
   const userId = faker.string.uuid();
   const sessionId = faker.string.uuid();
+  const tableName = requireEnv("CHAT_MESSAGES_TABLE_NAME");
+  const client = createDynamoDBDocumentClient();
 
   let repository: DynChatMessageRepository;
 
   beforeAll(() => {
     repository = new DynChatMessageRepository({
-      tableName: requireEnv("CHAT_MESSAGES_TABLE_NAME"),
+      tableName,
       ttlSeconds: 3600, // 1 hour
+      documentClient: client,
     });
   });
 
   beforeEach(async () => {
-    const client = createDynamoDBDocumentClient();
-    const tableName = requireEnv("CHAT_MESSAGES_TABLE_NAME");
-
     await truncateTable(client, tableName, {
       partitionKey: "userId",
       sortKey: "sessionSortKey",

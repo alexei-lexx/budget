@@ -35,7 +35,7 @@ export class DynChatMessageRepository
   constructor(options: {
     tableName: string;
     ttlSeconds: number;
-    documentClient?: DynamoDBDocumentClient;
+    documentClient: DynamoDBDocumentClient;
   }) {
     super(options.tableName, options.documentClient);
     this.ttlSeconds = options.ttlSeconds;

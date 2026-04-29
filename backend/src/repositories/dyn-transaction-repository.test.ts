@@ -20,15 +20,15 @@ import { DynTransactionRepository } from "./dyn-transaction-repository";
 describe("DynTransactionRepository", () => {
   let repository: DynTransactionRepository;
   const tableName = requireEnv("TRANSACTIONS_TABLE_NAME");
+  const client = createDynamoDBDocumentClient();
 
   beforeAll(async () => {
     // Create repository instance
-    repository = new DynTransactionRepository(tableName);
+    repository = new DynTransactionRepository(tableName, client);
   });
 
   beforeEach(async () => {
     // Clean up transactions table before each test
-    const client = createDynamoDBDocumentClient();
     await truncateTable(client, tableName, {
       partitionKey: "userId",
       sortKey: "id",
