@@ -6,8 +6,8 @@ import {
 import { z } from "zod";
 import { RepositoryError } from "../ports/repository-error";
 
-export interface QueryResult<T> {
-  items: T[];
+export interface QueryResult<TDbItem> {
+  items: TDbItem[];
   hasNextPage: boolean;
 }
 
