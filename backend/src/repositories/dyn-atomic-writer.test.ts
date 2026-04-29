@@ -111,8 +111,8 @@ describe("DynAtomicWriter", () => {
       const transaction = fakeTransaction();
       await transactionRepository.create(transaction);
 
-      // Bump persisted row so in-memory entity is now stale
-      await transactionRepository.update(transaction);
+      // In the meantime, another process updates transaction — making our version stale
+      const updatedTransaction = await transactionRepository.update(transaction);
 
       // Act & Assert
       await expect(
@@ -128,6 +128,13 @@ describe("DynAtomicWriter", () => {
         userId: account.userId,
       });
       expect(persistedAccount?.version).toBe(account.version);
+
+      // Transaction row was NOT bumped a second time — proves atomic rollback
+      const persistedTransaction = await transactionRepository.findOneById({
+        id: transaction.id,
+        userId: transaction.userId,
+      });
+      expect(persistedTransaction?.version).toBe(updatedTransaction.version);
     });
 
     it("throws when creating transaction with duplicate id", async () => {
