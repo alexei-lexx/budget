@@ -13,15 +13,16 @@ export interface QueryResult<T> {
 }
 
 export abstract class DynBaseRepository {
-  protected readonly client: DynamoDBDocumentClient;
   protected readonly tableName: string;
 
-  constructor(tableName: string, client: DynamoDBDocumentClient) {
+  constructor(
+    tableName: string,
+    protected readonly client: DynamoDBDocumentClient,
+  ) {
     if (!tableName) {
       throw new RepositoryError("tableName is required", "MISSING_TABLE_NAME");
     }
 
-    this.client = client;
     this.tableName = tableName;
   }
 
