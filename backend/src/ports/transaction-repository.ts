@@ -48,11 +48,7 @@ export interface TransactionRepository {
     limit: number;
   }): Promise<Transaction[]>;
   create(transaction: Readonly<Transaction>): Promise<void>;
-  createMany(transactions: readonly Readonly<Transaction>[]): Promise<void>;
   update(transaction: Readonly<Transaction>): Promise<Transaction>;
-  updateMany(
-    transactions: readonly Readonly<Transaction>[],
-  ): Promise<Transaction[]>;
   hasTransactionsForAccount(selector: {
     accountId: string;
     userId: string;

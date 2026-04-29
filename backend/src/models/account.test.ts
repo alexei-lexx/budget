@@ -46,6 +46,7 @@ describe("Account", () => {
         name: "Cash",
         currency: "USD",
         initialBalance: 100,
+        transactionBalance: 0,
         isArchived: false,
         version: 0,
         createdAt: "2000-01-02T10:11:12.000Z",
@@ -120,6 +121,32 @@ describe("Account", () => {
 
       // Act & Assert
       expect(() => Account.fromPersistence(data)).toThrow(ModelError);
+    });
+  });
+
+  describe("balance", () => {
+    // Happy path
+
+    it("returns initialBalance plus transactionBalance", () => {
+      // Arrange
+      const account = fakeAccount({
+        initialBalance: 100,
+        transactionBalance: 50,
+      });
+
+      // Act & Assert
+      expect(account.balance).toBe(150);
+    });
+
+    it("handles negative transactionBalance", () => {
+      // Arrange
+      const account = fakeAccount({
+        initialBalance: 100,
+        transactionBalance: -30,
+      });
+
+      // Act & Assert
+      expect(account.balance).toBe(70);
     });
   });
 
@@ -326,6 +353,126 @@ describe("Account", () => {
       expect(() => existing.archive()).toThrow(
         new ModelError("Cannot archive archived account"),
       );
+    });
+  });
+
+  describe("increaseBalanceBySignedAmount", () => {
+    beforeEach(() => {
+      jest.useFakeTimers().setSystemTime(new Date("2000-01-02T10:11:12.000Z"));
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    // Happy path
+
+    it("increases when delta is positive", () => {
+      // Arrange
+      const account = fakeAccount({ transactionBalance: 100 });
+
+      // Act
+      const result = account.increaseBalanceBySignedAmount(25);
+
+      // Assert
+      expect(result.transactionBalance).toBe(125);
+    });
+
+    it("decreases when delta is negative", () => {
+      // Arrange
+      const account = fakeAccount({ transactionBalance: 100 });
+
+      // Act
+      const result = account.increaseBalanceBySignedAmount(-30);
+
+      // Assert
+      expect(result.transactionBalance).toBe(70);
+    });
+
+    it("sets updatedAt", () => {
+      // Arrange
+      const account = fakeAccount();
+
+      // Act
+      const result = account.increaseBalanceBySignedAmount(10);
+
+      // Assert
+      expect(result.updatedAt).toBe("2000-01-02T10:11:12.000Z");
+    });
+
+    it("works on archived accounts", () => {
+      // Arrange
+      const account = fakeAccount({
+        transactionBalance: 100,
+        isArchived: true,
+      });
+
+      // Act
+      const result = account.increaseBalanceBySignedAmount(20);
+
+      // Assert
+      expect(result.transactionBalance).toBe(120);
+      expect(result.isArchived).toBe(true);
+    });
+  });
+
+  describe("decreaseBalanceBySignedAmount", () => {
+    beforeEach(() => {
+      jest.useFakeTimers().setSystemTime(new Date("2000-01-02T10:11:12.000Z"));
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    // Happy path
+
+    it("decreases when delta is positive", () => {
+      // Arrange
+      const account = fakeAccount({ transactionBalance: 100 });
+
+      // Act
+      const result = account.decreaseBalanceBySignedAmount(40);
+
+      // Assert
+      expect(result.transactionBalance).toBe(60);
+    });
+
+    it("increases when delta is negative", () => {
+      // Arrange
+      const account = fakeAccount({ transactionBalance: 100 });
+
+      // Act
+      const result = account.decreaseBalanceBySignedAmount(-30);
+
+      // Assert
+      expect(result.transactionBalance).toBe(130);
+    });
+
+    it("sets updatedAt", () => {
+      // Arrange
+      const account = fakeAccount();
+
+      // Act
+      const result = account.decreaseBalanceBySignedAmount(10);
+
+      // Assert
+      expect(result.updatedAt).toBe("2000-01-02T10:11:12.000Z");
+    });
+
+    it("works on archived accounts", () => {
+      // Arrange
+      const account = fakeAccount({
+        transactionBalance: 100,
+        isArchived: true,
+      });
+
+      // Act
+      const result = account.decreaseBalanceBySignedAmount(20);
+
+      // Assert
+      expect(result.transactionBalance).toBe(80);
+      expect(result.isArchived).toBe(true);
     });
   });
 });

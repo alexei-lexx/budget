@@ -6,10 +6,11 @@ import { AccountRepository } from "../../../ports/account-repository";
  */
 export const createMockAccountRepository =
   (): jest.Mocked<AccountRepository> => ({
-    findManyByUserId: jest.fn(),
-    findManyWithArchivedByUserId: jest.fn(),
     findOneById: jest.fn(),
+    findOneWithArchivedById: jest.fn(),
+    findManyByUserId: jest.fn(),
     findManyWithArchivedByIds: jest.fn(),
+    findManyWithArchivedByUserId: jest.fn(),
     create: jest.fn(),
     update: jest.fn(),
   });

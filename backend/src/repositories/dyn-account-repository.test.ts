@@ -102,6 +102,91 @@ describe("DynAccountRepository", () => {
     });
   });
 
+  describe("findOneWithArchivedById", () => {
+    // Happy path
+
+    it("returns account when active", async () => {
+      // Arrange
+      const account = Account.create(fakeCreateAccountInput({ userId }));
+      await repository.create(account);
+
+      // Act
+      const result = await repository.findOneWithArchivedById({
+        id: account.id,
+        userId,
+      });
+
+      // Assert
+      expect(result?.id).toBe(account.id);
+      expect(result?.isArchived).toBe(false);
+    });
+
+    it("returns account when archived", async () => {
+      // Arrange
+      const account = Account.create(fakeCreateAccountInput({ userId }));
+      await repository.create(account);
+      await repository.update(account.archive());
+
+      // Act
+      const result = await repository.findOneWithArchivedById({
+        id: account.id,
+        userId,
+      });
+
+      // Assert
+      expect(result?.id).toBe(account.id);
+      expect(result?.isArchived).toBe(true);
+    });
+
+    it("returns null when account does not exist", async () => {
+      // Act
+      const result = await repository.findOneWithArchivedById({
+        id: faker.string.uuid(),
+        userId,
+      });
+
+      // Assert
+      expect(result).toBeNull();
+    });
+
+    it("returns null when account belongs to another user", async () => {
+      // Arrange
+      const otherUserId = faker.string.uuid();
+      const account = Account.create(
+        fakeCreateAccountInput({ userId: otherUserId }),
+      );
+      await repository.create(account);
+
+      // Act
+      const result = await repository.findOneWithArchivedById({
+        id: account.id,
+        userId,
+      });
+
+      // Assert
+      expect(result).toBeNull();
+    });
+
+    // Validation failures
+
+    it("throws when id is missing", async () => {
+      // Act & Assert
+      await expect(
+        repository.findOneWithArchivedById({ id: "", userId }),
+      ).rejects.toThrow("Account ID is required");
+    });
+
+    it("throws when userId is missing", async () => {
+      // Act & Assert
+      await expect(
+        repository.findOneWithArchivedById({
+          id: faker.string.uuid(),
+          userId: "",
+        }),
+      ).rejects.toThrow("User ID is required");
+    });
+  });
+
   describe("findManyByUserId", () => {
     // Happy path
 
@@ -291,12 +376,15 @@ describe("DynAccountRepository", () => {
 
       // Act
       const result = await repository.update(
-        account.update({ name: "Wallet", initialBalance: 250 }),
+        account
+          .update({ name: "Wallet", initialBalance: 250 })
+          .increaseBalanceBySignedAmount(123),
       );
 
       // Assert
       expect(result.name).toBe("Wallet");
       expect(result.initialBalance).toBe(250);
+      expect(result.transactionBalance).toBe(123);
       expect(result.version).toBe(account.version + 1);
 
       const reloaded = await repository.findOneById({
@@ -340,14 +428,17 @@ describe("DynAccountRepository", () => {
       ).rejects.toThrow(VersionConflictError);
     });
 
-    it("throws VersionConflictError for non-existent record", async () => {
+    it("throws RepositoryError NOT_FOUND for non-existent record", async () => {
       // Arrange — entity built but never persisted
       const ghost = Account.create(fakeCreateAccountInput({ userId }));
 
       // Act & Assert
       await expect(
         repository.update(ghost.update({ name: "Ghost-2" })),
-      ).rejects.toThrow(VersionConflictError);
+      ).rejects.toMatchObject({
+        code: "NOT_FOUND",
+        message: "Account not found",
+      });
     });
   });
 

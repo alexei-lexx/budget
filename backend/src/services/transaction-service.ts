@@ -8,6 +8,7 @@ import {
   TransactionType,
 } from "../models/transaction";
 import { AccountRepository } from "../ports/account-repository";
+import { AtomicWriter } from "../ports/atomic-writer";
 import { CategoryRepository } from "../ports/category-repository";
 import {
   TransactionConnection,
@@ -101,15 +102,18 @@ export class TransactionServiceImpl implements TransactionService {
   private accountRepository: AccountRepository;
   private categoryRepository: CategoryRepository;
   private transactionRepository: TransactionRepository;
+  private atomicWriter: AtomicWriter;
 
   constructor(deps: {
     accountRepository: AccountRepository;
     categoryRepository: CategoryRepository;
     transactionRepository: TransactionRepository;
+    atomicWriter: AtomicWriter;
   }) {
     this.accountRepository = deps.accountRepository;
     this.categoryRepository = deps.categoryRepository;
     this.transactionRepository = deps.transactionRepository;
+    this.atomicWriter = deps.atomicWriter;
   }
 
   /**
@@ -166,16 +170,27 @@ export class TransactionServiceImpl implements TransactionService {
       }
     }
 
-    const transaction = Transaction.create({
+    const transactionToCreate = Transaction.create({
       ...input,
       userId,
       account,
       category,
     });
 
-    await this.transactionRepository.create(transaction);
+    const accountToUpdate = account.increaseBalanceBySignedAmount(
+      transactionToCreate.signedAmount,
+    );
 
-    return transaction;
+    const result = await handleVersionConflict("Transaction", () =>
+      this.atomicWriter.commit({
+        transactionsToCreate: [transactionToCreate],
+        accountsToUpdate: [accountToUpdate],
+      }),
+    );
+
+    const createdTransaction = result.createdTransactions[0];
+
+    return createdTransaction;
   }
 
   /**
@@ -224,7 +239,7 @@ export class TransactionServiceImpl implements TransactionService {
       );
     }
 
-    const account = input.accountId
+    const newAccount = input.accountId
       ? await this.validateAccount(input.accountId, userId)
       : undefined;
 
@@ -240,8 +255,8 @@ export class TransactionServiceImpl implements TransactionService {
               transactionType,
             );
 
-    const updated = existingTransaction.update({
-      account,
+    const transactionToUpdate = existingTransaction.update({
+      account: newAccount,
       category,
       type: input.type,
       amount: input.amount,
@@ -249,9 +264,65 @@ export class TransactionServiceImpl implements TransactionService {
       description: input.description,
     });
 
-    return handleVersionConflict("Transaction", () =>
-      this.transactionRepository.update(updated),
+    const isBalanceAffected =
+      existingTransaction.accountId !== transactionToUpdate.accountId ||
+      existingTransaction.signedAmount !== transactionToUpdate.signedAmount;
+
+    let accountsToUpdate: Account[] = [];
+
+    if (isBalanceAffected) {
+      if (existingTransaction.accountId === transactionToUpdate.accountId) {
+        // Same account — single fetch (with-archived); chain decrease then increase.
+        const account = await this.accountRepository.findOneWithArchivedById({
+          id: existingTransaction.accountId,
+          userId,
+        });
+
+        if (!account) {
+          throw new BusinessError("Account not found");
+        }
+
+        accountsToUpdate = [
+          account
+            .decreaseBalanceBySignedAmount(existingTransaction.signedAmount)
+            .increaseBalanceBySignedAmount(transactionToUpdate.signedAmount),
+        ];
+      } else {
+        // Cross-account — separate decrement on old, increment on new.
+        const oldAccount = await this.accountRepository.findOneWithArchivedById(
+          {
+            id: existingTransaction.accountId,
+            userId,
+          },
+        );
+
+        if (!oldAccount) {
+          throw new BusinessError("Old account not found");
+        }
+
+        if (!newAccount) {
+          throw new BusinessError("New account not found");
+        }
+
+        accountsToUpdate = [
+          oldAccount.decreaseBalanceBySignedAmount(
+            existingTransaction.signedAmount,
+          ),
+          newAccount.increaseBalanceBySignedAmount(
+            transactionToUpdate.signedAmount,
+          ),
+        ];
+      }
+    }
+
+    const result = await handleVersionConflict("Transaction", () =>
+      this.atomicWriter.commit({
+        transactionsToUpdate: [transactionToUpdate],
+        accountsToUpdate: accountsToUpdate,
+      }),
     );
+
+    return result.updatedTransactions[0];
   }
 
   /**
@@ -278,11 +349,28 @@ export class TransactionServiceImpl implements TransactionService {
       return existingTransaction;
     }
 
-    const archived = existingTransaction.archive();
+    const account = await this.accountRepository.findOneWithArchivedById({
+      id: existingTransaction.accountId,
+      userId,
+    });
 
-    return handleVersionConflict("Transaction", () =>
-      this.transactionRepository.update(archived),
+    if (!account) {
+      throw new BusinessError("Account not found");
+    }
+
+    const transactionToArchive = existingTransaction.archive();
+    const accountToUpdate = account.decreaseBalanceBySignedAmount(
+      transactionToArchive.signedAmount,
     );
+
+    const result = await handleVersionConflict("Transaction", () =>
+      this.atomicWriter.commit({
+        transactionsToUpdate: [transactionToArchive],
+        accountsToUpdate: [accountToUpdate],
+      }),
+    );
+
+    return result.updatedTransactions[0];
   }
 
   /**

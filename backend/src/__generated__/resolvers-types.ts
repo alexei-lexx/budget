@@ -570,7 +570,7 @@ export type ResolversUnionTypes<_RefType extends Record<string, unknown>> = {
 
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = {
-  Account: ResolverTypeWrapper<Omit<Account, 'balance'>>;
+  Account: ResolverTypeWrapper<Account>;
   AgentTraceMessage: ResolverTypeWrapper<ResolversUnionTypes<ResolversTypes>['AgentTraceMessage']>;
   AgentTraceText: ResolverTypeWrapper<AgentTraceText>;
   AgentTraceToolCall: ResolverTypeWrapper<AgentTraceToolCall>;
@@ -625,7 +625,7 @@ export type ResolversTypes = {
 
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = {
-  Account: Omit<Account, 'balance'>;
+  Account: Account;
   AgentTraceMessage: ResolversUnionTypes<ResolversParentTypes>['AgentTraceMessage'];
   AgentTraceText: AgentTraceText;
   AgentTraceToolCall: AgentTraceToolCall;

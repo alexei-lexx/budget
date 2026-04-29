@@ -9,7 +9,6 @@ import { BusinessError } from "./business-error";
 
 export interface AccountService {
   getAccountsByUser(userId: string): Promise<Account[]>;
-  calculateBalance(accountId: string, userId: string): Promise<number>;
   createAccount(input: CreateAccountInput): Promise<Account>;
   updateAccount(
     id: string,
@@ -117,40 +116,6 @@ export class AccountServiceImpl implements AccountService {
     }
 
     return await this.accountRepository.update(existingAccount.archive());
-  }
-
-  /**
-   * Calculate the current balance for an account based on its initial balance and transaction history
-   * Formula: initialBalance + INCOME transactions - EXPENSE transactions
-   * @param accountId - The account ID to calculate balance for
-   * @param userId - The user ID to verify ownership and scope queries
-   * @returns Promise<number> - The calculated current balance
-   * @throws BusinessError if account not found
-   */
-  async calculateBalance(accountId: string, userId: string): Promise<number> {
-    // First validate that the account exists and belongs to the user
-    const account = await this.accountRepository.findOneById({
-      id: accountId,
-      userId,
-    });
-
-    if (!account) {
-      throw new BusinessError("Account not found or doesn't belong to user");
-    }
-
-    // Get all transactions for this account
-    const transactions = await this.transactionRepository.findManyByAccountId({
-      accountId,
-      userId,
-    });
-
-    // Calculate balance: initialBalance + INCOME + REFUND + TRANSFER_IN - EXPENSE - TRANSFER_OUT
-    const balance = transactions.reduce(
-      (sum, transaction) => sum + transaction.signedAmount,
-      account.initialBalance,
-    );
-
-    return balance;
   }
 
   private async checkDuplicateName(

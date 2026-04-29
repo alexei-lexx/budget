@@ -13,6 +13,7 @@ export const fakeAccount = (overrides: Partial<AccountData> = {}): Account => {
     name: faker.finance.accountName(),
     currency: faker.helpers.arrayElement(["EUR", "USD"]),
     initialBalance: faker.number.int({ min: 0, max: 10000 }),
+    transactionBalance: 0,
     isArchived: false,
     // Randomized to surface tests that wrongly assume a specific version.
     version: faker.number.int({ min: 1, max: 100 }),

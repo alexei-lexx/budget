@@ -1,14 +1,12 @@
 import { faker } from "@faker-js/faker";
 import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import { ModelError } from "../models/model-error";
-import { TransactionType } from "../models/transaction";
 import { AccountRepository } from "../ports/account-repository";
 import { TransactionRepository } from "../ports/transaction-repository";
 import {
   fakeAccount,
   fakeCreateAccountInput,
 } from "../utils/test-utils/models/account-fakes";
-import { fakeTransaction } from "../utils/test-utils/models/transaction-fakes";
 import { createMockAccountRepository } from "../utils/test-utils/repositories/account-repository-mocks";
 import { createMockTransactionRepository } from "../utils/test-utils/repositories/transaction-repository-mocks";
 import { AccountServiceImpl } from "./account-service";
@@ -406,131 +404,6 @@ describe("AccountService", () => {
 
       // Act & Assert
       await expect(service.deleteAccount(accountId, userId)).rejects.toThrow(
-        "Database error",
-      );
-    });
-  });
-
-  describe("calculateBalance", () => {
-    // Happy path
-
-    it("returns initial balance when there are no transactions", async () => {
-      // Arrange
-      const accountId = faker.string.uuid();
-      const account = fakeAccount({ id: accountId, initialBalance: 500 });
-
-      mockAccountRepository.findOneById.mockResolvedValue(account);
-      // No transactions
-      mockTransactionRepository.findManyByAccountId.mockResolvedValue([]);
-
-      // Act
-      const result = await service.calculateBalance(accountId, userId);
-
-      // Assert
-      expect(result).toBe(500);
-      expect(
-        mockTransactionRepository.findManyByAccountId,
-      ).toHaveBeenCalledWith({
-        accountId,
-        userId,
-      });
-    });
-
-    it("adds income and subtracts expenses from initial balance", async () => {
-      // Arrange
-      const accountId = faker.string.uuid();
-      const account = fakeAccount({ id: accountId, initialBalance: 100 });
-
-      mockAccountRepository.findOneById.mockResolvedValue(account);
-      mockTransactionRepository.findManyByAccountId.mockResolvedValue([
-        fakeTransaction({ type: TransactionType.INCOME, amount: 200 }),
-        fakeTransaction({ type: TransactionType.EXPENSE, amount: 50 }),
-      ]);
-
-      // Act
-      const result = await service.calculateBalance(accountId, userId);
-
-      // Assert
-      expect(result).toBe(250); // 100 + 200 - 50
-      expect(
-        mockTransactionRepository.findManyByAccountId,
-      ).toHaveBeenCalledWith({
-        accountId,
-        userId,
-      });
-    });
-
-    it("includes REFUND and TRANSFER_IN as positive, TRANSFER_OUT as negative", async () => {
-      // Arrange
-      const accountId = faker.string.uuid();
-      const account = fakeAccount({ id: accountId, initialBalance: 0 });
-
-      mockAccountRepository.findOneById.mockResolvedValue(account);
-      mockTransactionRepository.findManyByAccountId.mockResolvedValue([
-        fakeTransaction({
-          type: TransactionType.REFUND,
-          amount: 30,
-        }),
-        fakeTransaction({
-          type: TransactionType.TRANSFER_IN,
-          amount: 100,
-        }),
-        fakeTransaction({
-          type: TransactionType.TRANSFER_OUT,
-          amount: 40,
-        }),
-      ]);
-
-      // Act
-      const result = await service.calculateBalance(accountId, userId);
-
-      // Assert
-      expect(result).toBe(90); // 0 + 30 + 100 - 40
-      expect(
-        mockTransactionRepository.findManyByAccountId,
-      ).toHaveBeenCalledWith({
-        accountId,
-        userId,
-      });
-    });
-
-    // Validation failures
-
-    it("throws when account is not found", async () => {
-      // Arrange
-      const accountId = faker.string.uuid();
-
-      // Account does not exist or does not belong to user
-      mockAccountRepository.findOneById.mockResolvedValue(null);
-
-      // Act & Assert
-      const promise = service.calculateBalance(accountId, userId);
-
-      await expect(promise).rejects.toThrow(BusinessError);
-      await expect(promise).rejects.toMatchObject({
-        message: "Account not found or doesn't belong to user",
-      });
-      expect(
-        mockTransactionRepository.findManyByAccountId,
-      ).not.toHaveBeenCalled();
-    });
-
-    // Dependency failures
-
-    it("propagates transaction repository errors", async () => {
-      // Arrange
-      const accountId = faker.string.uuid();
-      const account = fakeAccount({ id: accountId });
-
-      mockAccountRepository.findOneById.mockResolvedValue(account);
-
-      // Repository throws on DB error
-      mockTransactionRepository.findManyByAccountId.mockRejectedValue(
-        new Error("Database error"),
-      );
-
-      // Act & Assert
-      await expect(service.calculateBalance(accountId, userId)).rejects.toThrow(
         "Database error",
       );
     });

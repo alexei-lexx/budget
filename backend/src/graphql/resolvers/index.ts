@@ -30,7 +30,6 @@ export const resolvers: Resolvers = {
     ...transferResolvers.Mutation,
     ...userResolvers.Mutation,
   },
-  Account: accountResolvers.Account,
   Transaction: transactionResolvers.Transaction,
   AgentTraceMessage: {
     // GraphQL requires a __resolveType function for union types so it knows

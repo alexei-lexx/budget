@@ -1,12 +1,8 @@
-import {
-  ConditionalCheckFailedException,
-  TransactionCanceledException,
-} from "@aws-sdk/client-dynamodb";
+import { ConditionalCheckFailedException } from "@aws-sdk/client-dynamodb";
 import {
   GetCommand,
   PutCommand,
   QueryCommand,
-  TransactWriteCommand,
   UpdateCommand,
 } from "@aws-sdk/lib-dynamodb";
 import { monotonicFactory } from "ulidx";
@@ -34,7 +30,6 @@ import {
   PageInfo,
   PaginationInput,
 } from "../types/pagination";
-import { DYNAMODB_TRANSACT_WRITE_MAX_ITEMS } from "../utils/dynamo-client";
 import { DynBaseRepository } from "./dyn-base-repository";
 import {
   TransactionDbItem,
@@ -42,6 +37,7 @@ import {
 } from "./schemas/transaction";
 import { hydrate } from "./utils/hydrate";
 import { paginateQuery } from "./utils/query";
+import { PutWriteItem, UpdateWriteItem } from "./utils/transact-write";
 
 /**
  * Monotonic ULID factory for generating sortable identifiers
@@ -138,6 +134,102 @@ function toTransactionDbItemForCreate(
 
 function buildCreatedAtSortable(transaction: Transaction): string {
   return `${transaction.createdAt}#${ulid()}`;
+}
+
+/**
+ * Builds a TransactWrite Put item for a freshly-created transaction.
+ * Used by both the repository's own `create` and `DynLedgerWriter`.
+ */
+export function buildCreateTransactionItem(
+  transaction: Readonly<Transaction>,
+  tableName: string,
+): PutWriteItem {
+  const dbItem = toTransactionDbItemForCreate(transaction);
+  return {
+    Put: {
+      TableName: tableName,
+      Item: dbItem,
+      ConditionExpression: "attribute_not_exists(id)",
+    },
+  };
+}
+
+/**
+ * Builds a TransactWrite Update item for an existing transaction with
+ * optimistic-lock condition on `version`.
+ * Used by both the repository's own `update` and `DynLedgerWriter`.
+ */
+export function buildUpdateTransactionItem(
+  transaction: Readonly<Transaction>,
+  tableName: string,
+): UpdateWriteItem {
+  const setParts: string[] = [
+    "accountId = :accountId",
+    "#type = :type",
+    "amount = :amount",
+    "currency = :currency",
+    "#date = :date",
+    "isArchived = :isArchived",
+    "version = :newVersion",
+    "createdAt = :createdAt",
+    "updatedAt = :updatedAt",
+  ];
+  const removeParts: string[] = [];
+  const expressionAttributeNames: Record<string, string> = {
+    "#type": "type",
+    "#date": "date",
+  };
+  const expressionAttributeValues: Record<string, unknown> = {
+    ":accountId": transaction.accountId,
+    ":type": transaction.type,
+    ":amount": transaction.amount,
+    ":currency": transaction.currency,
+    ":date": transaction.date,
+    ":isArchived": transaction.isArchived,
+    ":expectedVersion": transaction.version,
+    ":newVersion": transaction.version + 1,
+    ":createdAt": transaction.createdAt,
+    ":updatedAt": transaction.updatedAt,
+  };
+
+  if (transaction.categoryId !== undefined) {
+    setParts.push("categoryId = :categoryId");
+    expressionAttributeValues[":categoryId"] = transaction.categoryId;
+  } else {
+    removeParts.push("categoryId");
+  }
+
+  if (transaction.description !== undefined) {
+    setParts.push("description = :description");
+    expressionAttributeValues[":description"] = transaction.description;
+  } else {
+    removeParts.push("description");
+  }
+
+  if (transaction.transferId !== undefined) {
+    setParts.push("transferId = :transferId");
+    expressionAttributeValues[":transferId"] = transaction.transferId;
+  } else {
+    removeParts.push("transferId");
+  }
+
+  const updateExpressionParts: string[] = [`SET ${setParts.join(", ")}`];
+  if (removeParts.length > 0) {
+    updateExpressionParts.push(`REMOVE ${removeParts.join(", ")}`);
+  }
+
+  return {
+    Update: {
+      TableName: tableName,
+      Key: { userId: transaction.userId, id: transaction.id },
+      UpdateExpression: updateExpressionParts.join(" "),
+      ConditionExpression:
+        "attribute_exists(userId) AND attribute_exists(id) AND version = :expectedVersion",
+      ExpressionAttributeNames: expressionAttributeNames,
+      ExpressionAttributeValues: expressionAttributeValues,
+      ReturnValuesOnConditionCheckFailure: "ALL_OLD",
+    },
+  };
 }
 
 export class DynTransactionRepository
@@ -475,14 +567,8 @@ export class DynTransactionRepository
 
   async create(transaction: Readonly<Transaction>): Promise<void> {
     try {
-      const dbItem: TransactionDbItem =
-        toTransactionDbItemForCreate(transaction);
-
-      const command = new PutCommand({
-        TableName: this.tableName,
-        Item: dbItem,
-        ConditionExpression: "attribute_not_exists(id)",
-      });
+      const { Put } = buildCreateTransactionItem(transaction, this.tableName);
+      const command = new PutCommand(Put);
 
       await this.client.send(command);
     } catch (error) {
@@ -502,66 +588,11 @@ export class DynTransactionRepository
     }
   }
 
-  async createMany(
-    transactions: readonly Readonly<Transaction>[],
-  ): Promise<void> {
-    if (!transactions.length) {
-      throw new RepositoryError(
-        "At least one transaction is required",
-        "INVALID_PARAMETERS",
-      );
-    }
-
-    if (transactions.length > DYNAMODB_TRANSACT_WRITE_MAX_ITEMS) {
-      throw new RepositoryError(
-        `DynamoDB transactions support a maximum of ${DYNAMODB_TRANSACT_WRITE_MAX_ITEMS} items`,
-        "TOO_MANY_ITEMS",
-      );
-    }
-
-    try {
-      const transactItems = transactions.map((transaction) => {
-        const dbItem = toTransactionDbItemForCreate(transaction);
-
-        return {
-          Put: {
-            TableName: this.tableName,
-            Item: dbItem,
-            ConditionExpression: "attribute_not_exists(id)",
-          },
-        };
-      });
-
-      const command = new TransactWriteCommand({
-        TransactItems: transactItems,
-      });
-
-      await this.client.send(command);
-    } catch (error) {
-      if (error instanceof TransactionCanceledException) {
-        throw new RepositoryError(
-          "Transaction with this ID already exists",
-          "CREATE_FAILED",
-        );
-      }
-
-      console.error("Error creating transactions atomically:", error);
-      throw new RepositoryError(
-        "Failed to create transactions atomically",
-        "TRANSACT_WRITE_FAILED",
-        error,
-      );
-    }
-  }
-
   async update(transaction: Readonly<Transaction>): Promise<Transaction> {
-    const updateParams = this.buildUpdateParams(transaction);
+    const { Update } = buildUpdateTransactionItem(transaction, this.tableName);
 
     try {
-      const command = new UpdateCommand({
-        ...updateParams,
-        ReturnValuesOnConditionCheckFailure: "ALL_OLD",
-      });
+      const command = new UpdateCommand(Update);
       await this.client.send(command);
       return transaction.bumpVersion();
     } catch (error) {
@@ -578,76 +609,6 @@ export class DynTransactionRepository
       throw new RepositoryError(
         "Failed to update transaction",
         "UPDATE_FAILED",
-        error,
-      );
-    }
-  }
-
-  async updateMany(
-    transactions: readonly Readonly<Transaction>[],
-  ): Promise<Transaction[]> {
-    if (!transactions.length) {
-      throw new RepositoryError(
-        "At least one transaction is required",
-        "INVALID_PARAMETERS",
-      );
-    }
-
-    if (transactions.length > DYNAMODB_TRANSACT_WRITE_MAX_ITEMS) {
-      throw new RepositoryError(
-        `DynamoDB transactions support a maximum of ${DYNAMODB_TRANSACT_WRITE_MAX_ITEMS} items`,
-        "TOO_MANY_ITEMS",
-      );
-    }
-
-    try {
-      const transactItems = transactions.map((transaction) => ({
-        Update: {
-          ...this.buildUpdateParams(transaction),
-          ReturnValuesOnConditionCheckFailure: "ALL_OLD" as const,
-        },
-      }));
-
-      const command = new TransactWriteCommand({
-        TransactItems: transactItems,
-      });
-
-      await this.client.send(command);
-      return transactions.map((transaction) => transaction.bumpVersion());
-    } catch (error) {
-      if (error instanceof TransactionCanceledException) {
-        const reasons = error.CancellationReasons ?? [];
-
-        // Any version mismatch takes precedence over missing rows.
-        const hasConflict = reasons.some(
-          (reason) =>
-            reason.Code === "ConditionalCheckFailed" &&
-            reason.Item !== undefined,
-        );
-
-        if (hasConflict) {
-          throw new VersionConflictError(error);
-        }
-
-        const hasMissing = reasons.some(
-          (reason) =>
-            reason.Code === "ConditionalCheckFailed" &&
-            reason.Item === undefined,
-        );
-
-        if (hasMissing) {
-          throw new RepositoryError(
-            "One or more transactions not found",
-            "NOT_FOUND",
-            error,
-          );
-        }
-      }
-
-      console.error("Error updating transactions atomically:", error);
-      throw new RepositoryError(
-        "Failed to update transactions atomically",
-        "UPDATE_MANY_FAILED",
         error,
       );
     }
@@ -922,80 +883,6 @@ export class DynTransactionRepository
       filterExpression: filterConditions.join(" AND "),
       expressionAttributeNames,
       expressionAttributeValues,
-    };
-  }
-
-  private buildUpdateParams(transaction: Transaction): {
-    TableName: string;
-    Key: { userId: string; id: string };
-    UpdateExpression: string;
-    ConditionExpression: string;
-    ExpressionAttributeNames: Record<string, string>;
-    ExpressionAttributeValues: Record<string, unknown>;
-  } {
-    const setParts: string[] = [
-      "accountId = :accountId",
-      "#type = :type",
-      "amount = :amount",
-      "currency = :currency",
-      "#date = :date",
-      "isArchived = :isArchived",
-      "version = :newVersion",
-      "createdAt = :createdAt",
-      "updatedAt = :updatedAt",
-    ];
-    const removeParts: string[] = [];
-    const expressionAttributeNames: Record<string, string> = {
-      "#type": "type",
-      "#date": "date",
-    };
-    const expressionAttributeValues: Record<string, unknown> = {
-      ":accountId": transaction.accountId,
-      ":type": transaction.type,
-      ":amount": transaction.amount,
-      ":currency": transaction.currency,
-      ":date": transaction.date,
-      ":isArchived": transaction.isArchived,
-      ":expectedVersion": transaction.version,
-      ":newVersion": transaction.version + 1,
-      ":createdAt": transaction.createdAt,
-      ":updatedAt": transaction.updatedAt,
-    };
-
-    if (transaction.categoryId !== undefined) {
-      setParts.push("categoryId = :categoryId");
-      expressionAttributeValues[":categoryId"] = transaction.categoryId;
-    } else {
-      removeParts.push("categoryId");
-    }
-
-    if (transaction.description !== undefined) {
-      setParts.push("description = :description");
-      expressionAttributeValues[":description"] = transaction.description;
-    } else {
-      removeParts.push("description");
-    }
-
-    if (transaction.transferId !== undefined) {
-      setParts.push("transferId = :transferId");
-      expressionAttributeValues[":transferId"] = transaction.transferId;
-    } else {
-      removeParts.push("transferId");
-    }
-
-    const updateExpressionParts: string[] = [`SET ${setParts.join(", ")}`];
-    if (removeParts.length > 0) {
-      updateExpressionParts.push(`REMOVE ${removeParts.join(", ")}`);
-    }
-
-    return {
-      TableName: this.tableName,
-      Key: { userId: transaction.userId, id: transaction.id },
-      UpdateExpression: updateExpressionParts.join(" "),
-      ConditionExpression:
-        "attribute_exists(userId) AND attribute_exists(id) AND version = :expectedVersion",
-      ExpressionAttributeNames: expressionAttributeNames,
-      ExpressionAttributeValues: expressionAttributeValues,
     };
   }
 

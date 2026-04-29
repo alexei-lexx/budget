@@ -25,8 +25,7 @@ const config: CodegenConfig = {
         },
         // Map GraphQL types to model types for field resolvers and computed fields
         mappers: {
-          // Account balance is computed by field resolver, so exclude from base type
-          Account: "Omit<Account, 'balance'>",
+          Account: "Account",
           // Transaction account and category are computed by field resolvers via DataLoaders, exclude from parent type
           Transaction: "Omit<Transaction, 'account' | 'category'>",
         },
