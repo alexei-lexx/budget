@@ -22,8 +22,7 @@ export abstract class DynBaseRepository {
       throw new RepositoryError("tableName is required", "MISSING_TABLE_NAME");
     }
 
-    this.client =
-      client ?? DynamoDBDocumentClient.from(createDynamoDBClient());
+    this.client = client ?? DynamoDBDocumentClient.from(createDynamoDBClient());
     this.tableName = tableName;
   }
 
