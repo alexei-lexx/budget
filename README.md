@@ -128,24 +128,29 @@ aws ssm put-parameter --overwrite --type String \
 #### Runtime
 
 ```bash
+# AI connection timeout (in milliseconds)
+aws ssm put-parameter --overwrite --type String \
+    --name "/manual/budget/production/bedrock/connection-timeout" \
+    --value "5000"
+
 # AI max response tokens
 aws ssm put-parameter --overwrite --type String \
-    --name "/manual/budget/production/langchain/max-tokens" \
+    --name "/manual/budget/production/bedrock/max-tokens" \
     --value "2000"
 
 # AI model ID (e.g., openai.gpt-oss-120b-1:0)
 aws ssm put-parameter --overwrite --type String \
-    --name "/manual/budget/production/langchain/model-id" \
+    --name "/manual/budget/production/bedrock/model-id" \
     --value "openai.gpt-oss-120b-1:0"
 
-# AI request timeout (in seconds)
+# AI request timeout (in milliseconds)
 aws ssm put-parameter --overwrite --type String \
-    --name "/manual/budget/production/langchain/timeout" \
-    --value "30"
+    --name "/manual/budget/production/bedrock/request-timeout" \
+    --value "30000"
 
 # AI sampling temperature
 aws ssm put-parameter --overwrite --type String \
-    --name "/manual/budget/production/langchain/temperature" \
+    --name "/manual/budget/production/bedrock/temperature" \
     --value "0.2"
 
 # Chat history max messages

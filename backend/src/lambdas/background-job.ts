@@ -35,8 +35,7 @@ export const handler = async (rawEvent: unknown): Promise<void> => {
 
   switch (event.type) {
     case "telegram-message": {
-      const service = await resolveProcessTelegramMessageService();
-      const result = await service.call({
+      const result = await resolveProcessTelegramMessageService().call({
         botId: event.payload.botId,
         chatId: event.payload.chatId,
         text: event.payload.text,
