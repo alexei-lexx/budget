@@ -27,7 +27,6 @@ const defaultSsmEnvBindings: SsmEnvBindingsFactory = (nodeEnv) => [
     ssmPath: `/manual/budget/${nodeEnv}/langchain/timeout`,
     envVar: "LANGCHAIN_TIMEOUT",
   },
-
   {
     ssmPath: `/manual/budget/${nodeEnv}/app/chat-history-max-messages`,
     envVar: "CHAT_HISTORY_MAX_MESSAGES",

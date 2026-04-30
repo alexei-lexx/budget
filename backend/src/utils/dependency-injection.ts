@@ -12,12 +12,15 @@ export function createSingleton<T>(factory: () => T): () => T {
 export function createAsyncSingleton<T>(
   factory: () => Promise<T>,
 ): () => Promise<T> {
-  let instance: T | undefined;
+  let promise: Promise<T> | undefined;
 
-  return async () => {
-    if (instance === undefined) {
-      instance = await factory();
+  return () => {
+    if (!promise) {
+      promise = factory().catch((error) => {
+        promise = undefined;
+        throw error;
+      });
     }
-    return instance;
+    return promise;
   };
 }

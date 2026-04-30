@@ -40,7 +40,11 @@ import {
   createSingleton,
 } from "./utils/dependency-injection";
 import { createDynamoDBClient } from "./utils/dynamo-client";
-import { requireEnv, requireIntEnv } from "./utils/require-env";
+import {
+  requireEnv,
+  requireFloatEnv,
+  requireIntEnv,
+} from "./utils/require-env";
 
 // Auth
 export const resolveJwtAuthService = createSingleton(
@@ -173,7 +177,7 @@ export const createChatModel = async () =>
         "LANGCHAIN_MAX_TOKENS",
         DEFAULT_LANGCHAIN_MAX_TOKENS,
       ),
-      temperature: requireIntEnv(
+      temperature: requireFloatEnv(
         "LANGCHAIN_TEMPERATURE",
         DEFAULT_LANGCHAIN_TEMPERATURE,
       ),
