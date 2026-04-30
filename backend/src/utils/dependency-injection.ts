@@ -8,19 +8,3 @@ export function createSingleton<T>(factory: () => T): () => T {
     return instance;
   };
 }
-
-export function createAsyncSingleton<T>(
-  factory: () => Promise<T>,
-): () => Promise<T> {
-  let promise: Promise<T> | undefined;
-
-  return () => {
-    if (!promise) {
-      promise = factory().catch((error) => {
-        promise = undefined;
-        throw error;
-      });
-    }
-    return promise;
-  };
-}
