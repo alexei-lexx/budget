@@ -1,8 +1,15 @@
 import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
+import { initChatModel } from "langchain";
 import { JwtAuthService } from "./auth/jwt-auth";
 import { createAssistantAgent } from "./langchain/agents/assistant-agent";
 import { createCreateTransactionAgent } from "./langchain/agents/create-transaction-agent";
 import { LangChainAgent } from "./langchain/langchain-agent";
+import {
+  DEFAULT_LANGCHAIN_MAX_TOKENS,
+  DEFAULT_LANGCHAIN_MODEL_ID,
+  DEFAULT_LANGCHAIN_TEMPERATURE,
+  DEFAULT_LANGCHAIN_TIMEOUT,
+} from "./langchain/settings";
 import {
   DEFAULT_CHAT_HISTORY_MAX_MESSAGES,
   DEFAULT_CHAT_MESSAGE_TTL_SECONDS,
@@ -28,8 +35,10 @@ import { TelegramBotService } from "./services/telegram-bot-service";
 import { TransactionServiceImpl } from "./services/transaction-service";
 import { TransferService } from "./services/transfer-service";
 import { UserService } from "./services/user-service";
-import { createBedrockChatModel } from "./utils/bedrock";
-import { createSingleton } from "./utils/dependency-injection";
+import {
+  createAsyncSingleton,
+  createSingleton,
+} from "./utils/dependency-injection";
 import { createDynamoDBClient } from "./utils/dynamo-client";
 import { requireEnv, requireIntEnv } from "./utils/require-env";
 
@@ -156,14 +165,30 @@ const resolveTelegramApiClient = createSingleton(
 );
 
 // AI infrastructure
-const resolveBedrockChatModel = createSingleton(() => createBedrockChatModel());
+export const createChatModel = async () =>
+  await initChatModel(
+    requireEnv("LANGCHAIN_MODEL_ID", DEFAULT_LANGCHAIN_MODEL_ID),
+    {
+      maxTokens: requireIntEnv(
+        "LANGCHAIN_MAX_TOKENS",
+        DEFAULT_LANGCHAIN_MAX_TOKENS,
+      ),
+      temperature: requireIntEnv(
+        "LANGCHAIN_TEMPERATURE",
+        DEFAULT_LANGCHAIN_TEMPERATURE,
+      ),
+      timeout: requireIntEnv("LANGCHAIN_TIMEOUT", DEFAULT_LANGCHAIN_TIMEOUT),
+    },
+  );
+
+const resolveChatModel = createAsyncSingleton(() => createChatModel());
 
 // AI agents
-export const resolveAssistantAgent = createSingleton(
-  () =>
+export const resolveAssistantAgent = createAsyncSingleton(
+  async () =>
     new LangChainAgent(
       createAssistantAgent({
-        model: resolveBedrockChatModel(),
+        model: await resolveChatModel(),
         accountRepository: resolveAccountRepository(),
         accountService: resolveAccountService(),
         categoryRepository: resolveCategoryRepository(),
@@ -174,11 +199,11 @@ export const resolveAssistantAgent = createSingleton(
       "assistant-agent",
     ),
 );
-export const resolveCreateTransactionAgent = createSingleton(
-  () =>
+export const resolveCreateTransactionAgent = createAsyncSingleton(
+  async () =>
     new LangChainAgent(
       createCreateTransactionAgent({
-        model: resolveBedrockChatModel(),
+        model: await resolveChatModel(),
         accountRepository: resolveAccountRepository(),
         categoryRepository: resolveCategoryRepository(),
         transactionRepository: resolveTransactionRepository(),
@@ -189,21 +214,21 @@ export const resolveCreateTransactionAgent = createSingleton(
 );
 
 // AI services
-export const resolveCreateTransactionFromTextService = createSingleton(
-  () =>
+export const resolveCreateTransactionFromTextService = createAsyncSingleton(
+  async () =>
     new CreateTransactionFromTextService({
-      createTransactionAgent: resolveCreateTransactionAgent(),
+      createTransactionAgent: await resolveCreateTransactionAgent(),
       transactionService: resolveTransactionService(),
     }),
 );
-export const resolveAssistantService = createSingleton(
-  () => new AssistantServiceImpl(resolveAssistantAgent()),
+export const resolveAssistantService = createAsyncSingleton(
+  async () => new AssistantServiceImpl(await resolveAssistantAgent()),
 );
-export const resolveAssistantChatService = createSingleton(
-  () =>
+export const resolveAssistantChatService = createAsyncSingleton(
+  async () =>
     new AssistantChatServiceImpl({
       chatMessageRepository: resolveChatMessageRepository(),
-      assistantService: resolveAssistantService(),
+      assistantService: await resolveAssistantService(),
       maxMessages: requireIntEnv(
         "CHAT_HISTORY_MAX_MESSAGES",
         DEFAULT_CHAT_HISTORY_MAX_MESSAGES,
@@ -212,10 +237,10 @@ export const resolveAssistantChatService = createSingleton(
 );
 
 // Telegram
-export const resolveProcessTelegramMessageService = createSingleton(
-  () =>
+export const resolveProcessTelegramMessageService = createAsyncSingleton(
+  async () =>
     new ProcessTelegramMessageService({
-      assistantChatService: resolveAssistantChatService(),
+      assistantChatService: await resolveAssistantChatService(),
       telegramApiClient: resolveTelegramApiClient(),
       telegramBotRepository: resolveTelegramBotRepository(),
     }),

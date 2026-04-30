@@ -77,8 +77,9 @@ export async function createContext(req: {
     byCategoryReportService: resolveByCategoryReportService(),
 
     // AI services
-    createTransactionFromTextService: resolveCreateTransactionFromTextService(),
-    assistantChatService: resolveAssistantChatService(),
+    createTransactionFromTextService:
+      await resolveCreateTransactionFromTextService(),
+    assistantChatService: await resolveAssistantChatService(),
 
     // Telegram services
     telegramBotService: resolveTelegramBotService(),
