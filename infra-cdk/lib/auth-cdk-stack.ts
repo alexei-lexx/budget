@@ -125,7 +125,7 @@ export class AuthCdkStack extends cdk.Stack {
       this,
       "PreTokenGeneration",
       {
-        runtime: lambda.Runtime.NODEJS_20_X,
+        runtime: lambda.Runtime.NODEJS_24_X,
         entry: "lib/pre-token-generation.ts",
         handler: "handler",
         logGroup: preTokenGenerationLogGroup,
