@@ -63,7 +63,7 @@ describe("AuthCdkStack", () => {
       const lambda = lambdas[lambdaName || ""];
 
       // Verify Lambda function is created with Node.js runtime
-      expect(lambda.Properties.Runtime).toBe("nodejs20.x");
+      expect(lambda.Properties.Runtime).toBe("nodejs24.x");
       expect(lambda.Properties.Handler).toBe("index.handler");
 
       // Verify User Pool has Lambda trigger configured with V2_0 for access token customization

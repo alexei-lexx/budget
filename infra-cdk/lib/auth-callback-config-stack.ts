@@ -88,7 +88,7 @@ export class AuthCallbackConfigStack extends Stack {
       this,
       "UpdateCallbackUrlsFunction",
       {
-        runtime: lambda.Runtime.NODEJS_20_X,
+        runtime: lambda.Runtime.NODEJS_24_X,
         entry: "lib/update-callback-urls-handler.ts",
         handler: "handler",
         logGroup: updateCallbackUrlsLogGroup,
