@@ -1,6 +1,7 @@
-import { beforeEach, describe, expect, it } from "@jest/globals";
+import { beforeAll, beforeEach, describe, expect, it } from "@jest/globals";
 import { AIMessage, HumanMessage } from "langchain";
 import {
+  createChatModel,
   resolveAccountRepository,
   resolveAccountService,
   resolveCategoryRepository,
@@ -12,7 +13,6 @@ import {
 import { CategoryType } from "../../models/category";
 import { TransactionType } from "../../models/transaction";
 import { toDateString } from "../../types/date";
-import { createBedrockChatModel } from "../../utils/bedrock";
 import { formatDateAsYYYYMMDD } from "../../utils/date";
 import { createDynamoDBDocumentClient } from "../../utils/dynamo-client";
 import { truncateAllTables } from "../../utils/test-utils/dynamodb-helpers";
@@ -30,20 +30,23 @@ const transactionRepository = resolveTransactionRepository();
 const transactionService = resolveTransactionService();
 const userRepository = resolveUserRepository();
 
-const agent = createAssistantAgent({
-  model: createBedrockChatModel(),
-  accountRepository,
-  accountService,
-  categoryRepository,
-  categoryService,
-  transactionRepository,
-  transactionService,
-});
-
 describe("AssistantAgent (integration)", () => {
   let context: { userId: string; today: string };
   let today: string;
   let userId: string;
+  let agent: ReturnType<typeof createAssistantAgent>;
+
+  beforeAll(async () => {
+    agent = createAssistantAgent({
+      model: await createChatModel(),
+      accountRepository,
+      accountService,
+      categoryRepository,
+      categoryService,
+      transactionRepository,
+      transactionService,
+    });
+  });
 
   beforeEach(async () => {
     await truncateAllTables(createDynamoDBDocumentClient());
