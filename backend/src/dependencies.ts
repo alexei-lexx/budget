@@ -2,8 +2,6 @@ import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 import * as aws from "@langchain/aws";
 import { initChatModel } from "langchain";
 import { registerProviderForBundling } from "langchain/chat_models/universal";
-
-registerProviderForBundling("bedrock", aws);
 import { JwtAuthService } from "./auth/jwt-auth";
 import { createAssistantAgent } from "./langchain/agents/assistant-agent";
 import { createCreateTransactionAgent } from "./langchain/agents/create-transaction-agent";
@@ -49,6 +47,8 @@ import {
   requireFloatEnv,
   requireIntEnv,
 } from "./utils/require-env";
+
+registerProviderForBundling("bedrock", aws);
 
 // Auth
 export const resolveJwtAuthService = createSingleton(
