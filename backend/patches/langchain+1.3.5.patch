@@ -1,0 +1,169 @@
+diff --git a/node_modules/langchain/dist/chat_models/universal.cjs b/node_modules/langchain/dist/chat_models/universal.cjs
+index 37b88b2..0b2ae99 100644
+--- a/node_modules/langchain/dist/chat_models/universal.cjs
++++ b/node_modules/langchain/dist/chat_models/universal.cjs
+@@ -9,8 +9,10 @@ var universal_exports = /* @__PURE__ */ require_runtime.__exportAll({
+ 	MODEL_PROVIDER_CONFIG: () => MODEL_PROVIDER_CONFIG,
+ 	_inferModelProvider: () => _inferModelProvider,
+ 	getChatModelByClassName: () => getChatModelByClassName,
+-	initChatModel: () => initChatModel
++	initChatModel: () => initChatModel,
++	registerProviderForBundling: () => registerProviderForBundling
+ });
++globalThis.lc_chat_model_provider_registry ??= new Map();
+ const MODEL_PROVIDER_CONFIG = {
+ 	openai: {
+ 		package: "@langchain/openai",
+@@ -110,6 +112,8 @@ async function getChatModelByClassName(className, modelProvider) {
+ 		config = providerEntry ? providerEntry[1] : void 0;
+ 	}
+ 	if (!config) return;
++	const registeredModule = modelProvider !== void 0 ? globalThis.lc_chat_model_provider_registry.get(modelProvider) : void 0;
++	if (registeredModule) return registeredModule[config.className];
+ 	try {
+ 		return (await import(config.package))[config.className];
+ 	} catch (e) {
+@@ -146,6 +150,9 @@ async function _initChatModelHelper(model, modelProvider, params = {}) {
+ * _inferModelProvider("claude-2"); // returns "anthropic"
+ * _inferModelProvider("unknown-model"); // returns undefined
+ */
++function registerProviderForBundling(provider, packageModule) {
++	globalThis.lc_chat_model_provider_registry.set(provider, packageModule);
++}
+ function _inferModelProvider(modelName) {
+ 	if (modelName.startsWith("gpt-3") || modelName.startsWith("gpt-4") || modelName.startsWith("gpt-5") || modelName.startsWith("o1") || modelName.startsWith("o3") || modelName.startsWith("o4")) return "openai";
+ 	else if (modelName.startsWith("claude")) return "anthropic";
+@@ -603,6 +610,7 @@ exports.MODEL_PROVIDER_CONFIG = MODEL_PROVIDER_CONFIG;
+ exports._inferModelProvider = _inferModelProvider;
+ exports.getChatModelByClassName = getChatModelByClassName;
+ exports.initChatModel = initChatModel;
++exports.registerProviderForBundling = registerProviderForBundling;
+ Object.defineProperty(exports, "universal_exports", {
+ 	enumerable: true,
+ 	get: function() {
+diff --git a/node_modules/langchain/dist/chat_models/universal.d.cts b/node_modules/langchain/dist/chat_models/universal.d.cts
+index d05535a..76ba074 100644
+--- a/node_modules/langchain/dist/chat_models/universal.d.cts
++++ b/node_modules/langchain/dist/chat_models/universal.d.cts
+@@ -118,6 +118,28 @@ declare function getChatModelByClassName(className: string, modelProvider?: stri
+  * _inferModelProvider("unknown-model"); // returns undefined
+  */
+ declare function _inferModelProvider(modelName: string): string | undefined;
++/**
++ * Register a provider package module so bundlers
++ * (esbuild, rollup, webpack)
++ * include it in production bundles.
++ *
++ * Without this call,
++ * `initChatModel` resolves provider packages via runtime `import(packageName)`,
++ * which bundlers cannot statically analyze.
++ * This causes `Cannot find module '@langchain/X'` errors
++ * in single-file bundles (lambdas, browser bundles).
++ *
++ * Pass the namespace import of the provider package.
++ * Call once per provider key at app entry,
++ * before any `initChatModel` invocation.
++ *
++ * @example
++ *   import * as aws from "@langchain/aws";
++ *   import { registerProviderForBundling } from "langchain/chat_models/universal";
++ *
++ *   registerProviderForBundling("bedrock", aws);
++ */
++declare function registerProviderForBundling(provider: ChatModelProvider, packageModule: Record<string, unknown>): void;
+ interface ConfigurableModelFields extends BaseChatModelParams {
+   defaultConfig?: Record<string, any>;
+   /**
+@@ -229,5 +251,5 @@ declare function initChatModel<RunInput extends BaseLanguageModelInput = BaseLan
+   profile?: ModelProfile;
+ }): Promise<ConfigurableModel<RunInput, CallOptions>>;
+ //#endregion
+-export { ChatModelProvider, ConfigurableChatModelCallOptions, ConfigurableFields, ConfigurableModel, InitChatModelFields, MODEL_PROVIDER_CONFIG, _inferModelProvider, getChatModelByClassName, initChatModel };
++export { ChatModelProvider, ConfigurableChatModelCallOptions, ConfigurableFields, ConfigurableModel, InitChatModelFields, MODEL_PROVIDER_CONFIG, _inferModelProvider, getChatModelByClassName, initChatModel, registerProviderForBundling };
+ //# sourceMappingURL=universal.d.cts.map
+\ No newline at end of file
+diff --git a/node_modules/langchain/dist/chat_models/universal.d.ts b/node_modules/langchain/dist/chat_models/universal.d.ts
+index c6eea31..ec0d33d 100644
+--- a/node_modules/langchain/dist/chat_models/universal.d.ts
++++ b/node_modules/langchain/dist/chat_models/universal.d.ts
+@@ -118,6 +118,28 @@ declare function getChatModelByClassName(className: string, modelProvider?: stri
+  * _inferModelProvider("unknown-model"); // returns undefined
+  */
+ declare function _inferModelProvider(modelName: string): string | undefined;
++/**
++ * Register a provider package module so bundlers
++ * (esbuild, rollup, webpack)
++ * include it in production bundles.
++ *
++ * Without this call,
++ * `initChatModel` resolves provider packages via runtime `import(packageName)`,
++ * which bundlers cannot statically analyze.
++ * This causes `Cannot find module '@langchain/X'` errors
++ * in single-file bundles (lambdas, browser bundles).
++ *
++ * Pass the namespace import of the provider package.
++ * Call once per provider key at app entry,
++ * before any `initChatModel` invocation.
++ *
++ * @example
++ *   import * as aws from "@langchain/aws";
++ *   import { registerProviderForBundling } from "langchain/chat_models/universal";
++ *
++ *   registerProviderForBundling("bedrock", aws);
++ */
++declare function registerProviderForBundling(provider: ChatModelProvider, packageModule: Record<string, unknown>): void;
+ interface ConfigurableModelFields extends BaseChatModelParams {
+   defaultConfig?: Record<string, any>;
+   /**
+@@ -229,5 +251,5 @@ declare function initChatModel<RunInput extends BaseLanguageModelInput = BaseLan
+   profile?: ModelProfile;
+ }): Promise<ConfigurableModel<RunInput, CallOptions>>;
+ //#endregion
+-export { ChatModelProvider, ConfigurableChatModelCallOptions, ConfigurableFields, ConfigurableModel, InitChatModelFields, MODEL_PROVIDER_CONFIG, _inferModelProvider, getChatModelByClassName, initChatModel };
++export { ChatModelProvider, ConfigurableChatModelCallOptions, ConfigurableFields, ConfigurableModel, InitChatModelFields, MODEL_PROVIDER_CONFIG, _inferModelProvider, getChatModelByClassName, initChatModel, registerProviderForBundling };
+ //# sourceMappingURL=universal.d.ts.map
+\ No newline at end of file
+diff --git a/node_modules/langchain/dist/chat_models/universal.js b/node_modules/langchain/dist/chat_models/universal.js
+index db8f73a..7dec942 100644
+--- a/node_modules/langchain/dist/chat_models/universal.js
++++ b/node_modules/langchain/dist/chat_models/universal.js
+@@ -8,8 +8,10 @@ var universal_exports = /* @__PURE__ */ __exportAll({
+ 	MODEL_PROVIDER_CONFIG: () => MODEL_PROVIDER_CONFIG,
+ 	_inferModelProvider: () => _inferModelProvider,
+ 	getChatModelByClassName: () => getChatModelByClassName,
+-	initChatModel: () => initChatModel
++	initChatModel: () => initChatModel,
++	registerProviderForBundling: () => registerProviderForBundling
+ });
++globalThis.lc_chat_model_provider_registry ??= new Map();
+ const MODEL_PROVIDER_CONFIG = {
+ 	openai: {
+ 		package: "@langchain/openai",
+@@ -109,6 +111,8 @@ async function getChatModelByClassName(className, modelProvider) {
+ 		config = providerEntry ? providerEntry[1] : void 0;
+ 	}
+ 	if (!config) return;
++	const registeredModule = modelProvider !== void 0 ? globalThis.lc_chat_model_provider_registry.get(modelProvider) : void 0;
++	if (registeredModule) return registeredModule[config.className];
+ 	try {
+ 		return (await import(config.package))[config.className];
+ 	} catch (e) {
+@@ -145,6 +149,9 @@ async function _initChatModelHelper(model, modelProvider, params = {}) {
+ * _inferModelProvider("claude-2"); // returns "anthropic"
+ * _inferModelProvider("unknown-model"); // returns undefined
+ */
++function registerProviderForBundling(provider, packageModule) {
++	globalThis.lc_chat_model_provider_registry.set(provider, packageModule);
++}
+ function _inferModelProvider(modelName) {
+ 	if (modelName.startsWith("gpt-3") || modelName.startsWith("gpt-4") || modelName.startsWith("gpt-5") || modelName.startsWith("o1") || modelName.startsWith("o3") || modelName.startsWith("o4")) return "openai";
+ 	else if (modelName.startsWith("claude")) return "anthropic";
+@@ -597,6 +604,6 @@ async function initChatModel(model, fields) {
+ 	return configurableModel;
+ }
+ //#endregion
+-export { ConfigurableModel, MODEL_PROVIDER_CONFIG, _inferModelProvider, getChatModelByClassName, initChatModel, universal_exports };
++export { ConfigurableModel, MODEL_PROVIDER_CONFIG, _inferModelProvider, getChatModelByClassName, initChatModel, registerProviderForBundling, universal_exports };
+ 
+ //# sourceMappingURL=universal.js.map
+\ No newline at end of file
