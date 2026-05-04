@@ -128,6 +128,32 @@ describe("WidgetService", () => {
       );
       expect(mockWidgetRepository.create).not.toHaveBeenCalled();
     });
+
+    describe("when parent widget is provided", () => {
+      // Happy path
+
+      it("inherits settings from parent", async () => {
+        // Arrange
+        // Act
+        // Assert
+      });
+
+      // Validation failures
+
+      it("returns failure when parent does not exist", async () => {
+        // Arrange
+        // Act
+        // Assert
+      });
+
+      // Dependency failures
+
+      it("throws when parent lookup fails", async () => {
+        // Arrange
+        // Act
+        // Assert
+      });
+    });
   });
 });
 ```
