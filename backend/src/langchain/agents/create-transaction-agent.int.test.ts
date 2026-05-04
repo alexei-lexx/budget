@@ -291,7 +291,7 @@ describe("CreateTransactionAgent (integration)", () => {
   describe("when message contains HH:MM-shaped string", () => {
     // Happy path
 
-    it("interprets bare HH:MM string as decimal amount under voice input", async () => {
+    it("treats bare HH:MM string as price under voice input", async () => {
       // Arrange
       await accountRepository.create(fakeAccount({ userId }));
 
@@ -315,7 +315,7 @@ describe("CreateTransactionAgent (integration)", () => {
       ]);
     });
 
-    it("interprets HH:MM string in mixed text as decimal amount under voice input", async () => {
+    it("treats HH:MM string in mixed text as price under voice input", async () => {
       // Arrange
       await accountRepository.create(fakeAccount({ userId }));
 
@@ -339,7 +339,7 @@ describe("CreateTransactionAgent (integration)", () => {
       ]);
     });
 
-    it("interprets HH:MM string as amount when at refers to place", async () => {
+    it("treats HH:MM string as price when preposition refers to place", async () => {
       // Arrange
       await accountRepository.create(fakeAccount({ userId }));
 
@@ -363,7 +363,7 @@ describe("CreateTransactionAgent (integration)", () => {
       ]);
     });
 
-    it("prefers explicit numeric amount over HH:MM string framed as time", async () => {
+    it("prefers explicit numeric amount over HH:MM string when both are given", async () => {
       // Arrange
       await accountRepository.create(fakeAccount({ userId }));
 
@@ -389,7 +389,7 @@ describe("CreateTransactionAgent (integration)", () => {
 
     // Validation failures
 
-    it("does not call create_transaction when HH:MM string is framed as time", async () => {
+    it("does not call create_transaction when HH:MM string is clock time", async () => {
       // Arrange
       await accountRepository.create(fakeAccount({ userId }));
 
