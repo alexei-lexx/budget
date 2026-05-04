@@ -51,7 +51,17 @@ You MUST infer all mandatory and optional transaction fields and then MUST persi
 - Mandatory field
 - Numeric or written value representing a money quantity (e.g., 25, 20.5, "twenty five euros")
 - If multiple amounts are present, MUST stop and report an error — only one transaction at a time
-{{VOICE_INPUT_INSTRUCTIONS}}
+- If voice input is indicated, apply additional rules:
+  - Speech-to-text often transcribes a spoken price as a single number — "two thirty four" becomes "234"
+    - The integer "234" may represent 2.34, 23.4, or 234
+    - Look up similar past transactions (same or related category, similar description) to assess which interpretation is most realistic
+    - If no similar history exists, use the amount as transcribed
+  - Speech-to-text often transcribes a spoken price as a clock time — "eleven twenty three" becomes "11:23"
+    - The "11:23" string may represent a price of 11.23 or a clock time of 11:23
+    - If no time preposition ("at", "around", "by") is present and no other numeric amount is present, treat it as a price
+    - Example: "11:23" → amount 11.23
+    - Example: "lunch 11:23 at cafe" → amount 11.23 ("at cafe" identifies a place)
+    - Example: "coffee at 12:34" → 12:34 is a time
 
 ### Account
 
@@ -110,24 +120,11 @@ Amount: <amount>
 Date: <YYYY-MM-DD>
 Description: <description or N/A>
 </successful-response>
-
-## Current Date
-
-Today is {{TODAY}}.
 `.trim();
 
-const VOICE_INPUT_INSTRUCTIONS = `
-- Voice input is detected (special rules apply):
-  - Speech-to-text often transcribes a spoken price as a single number — "two thirty four" becomes "234"
-    - The integer "234" may represent 2.34, 23.4, or 234
-    - Look up similar past transactions (same or related category, similar description) to assess which interpretation is most realistic
-    - If no similar history exists, use the amount as transcribed
-  - Speech-to-text often transcribes a spoken price as a clock time — "eleven twenty three" becomes "11:23"
-    - The "11:23" string may represent a price of 11.23 or a clock time of 11:23
-    - If no time preposition ("at", "around", "by") is present and no other numeric amount is present, treat it as a price
-    - Example: "11:23" → amount 11.23
-    - Example: "lunch 11:23 at cafe" → amount 11.23 ("at cafe" identifies a place)
-    - Example: "coffee at 12:34" → 12:34 is a time
+export const VOICE_INPUT_INDICATOR = `## Voice Input Indicator
+
+The user's input was captured via voice recognition.
 `.trim();
 
 export function createCreateTransactionAgent({
@@ -157,12 +154,12 @@ export function createCreateTransactionAgent({
     middleware: [
       dynamicSystemPromptMiddleware<AgentContext>((_state, runtime) => {
         const { today, isVoiceInput } = runtime.context;
-        const systemPrompt = SYSTEM_PROMPT.replace("{{TODAY}}", today).replace(
-          "{{VOICE_INPUT_INSTRUCTIONS}}",
-          isVoiceInput ? VOICE_INPUT_INSTRUCTIONS : "",
-        );
-
-        return systemPrompt;
+        const parts = [
+          SYSTEM_PROMPT,
+          `## Current Date\n\nToday is ${today}.`,
+          ...(isVoiceInput ? [VOICE_INPUT_INDICATOR] : []),
+        ];
+        return parts.join("\n\n");
       }),
       // Prevent creating more than one transaction per invocation
       toolCallLimitMiddleware({

@@ -9,7 +9,10 @@ import { createMockCategoryRepository } from "../../utils/test-utils/repositorie
 import { createMockTransactionRepository } from "../../utils/test-utils/repositories/transaction-repository-mocks";
 import { createMockTransactionService } from "../../utils/test-utils/services/transaction-service-mocks";
 import { CREATE_TRANSACTION_TOOL_NAME } from "../tools/create-transaction";
-import { createCreateTransactionAgent } from "./create-transaction-agent";
+import {
+  VOICE_INPUT_INDICATOR,
+  createCreateTransactionAgent,
+} from "./create-transaction-agent";
 
 describe("createCreateTransactionAgent", () => {
   let agent: ReturnType<typeof createCreateTransactionAgent>;
@@ -104,7 +107,7 @@ describe("createCreateTransactionAgent", () => {
 
     // Assert
     expect(mockModel.calls[0].messages[0].content).not.toContain(
-      "Voice input is detected",
+      VOICE_INPUT_INDICATOR,
     );
   });
 
@@ -123,7 +126,7 @@ describe("createCreateTransactionAgent", () => {
 
     // Assert
     expect(mockModel.calls[0].messages[0].content).toContain(
-      "Voice input is detected",
+      VOICE_INPUT_INDICATOR,
     );
   });
 
