@@ -36,6 +36,16 @@ Omit articles (`a`, `an`, `the`) from test names and comments.
 - Bad: `it("calls findByName then throws")`
 - Bad: `it("returns a failure when the name is empty")`
 
+## Describe nesting
+
+Up to three nested `describe` levels, outer to inner:
+
+1. Class or module — `describe("WidgetService", ...)`
+2. Method or function — `describe("createWidget", ...)`
+3. Scenario context, optional — `describe("when parent is provided", ...)`
+
+Use level 3 to group tests that share a precondition that branches the method's behavior (input shape, entity state, mode flag). MUST hold 3+ `it` tests — branches with fewer stay flat under level 2. Name it `"when ..."`, present tense, no articles.
+
 ## Test structure per method
 
 Each method gets three groups of tests, separated by inline comments:

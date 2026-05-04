@@ -287,4 +287,142 @@ describe("CreateTransactionAgent (integration)", () => {
       .map((toolCall) => toolCall.name);
     expect(toolNames).not.toContain(CREATE_TRANSACTION_TOOL_NAME);
   });
+
+  describe("when message contains HH:MM-shaped string", () => {
+    // Happy path
+
+    it("interprets bare HH:MM string as decimal amount under voice input", async () => {
+      // Arrange
+      await accountRepository.create(fakeAccount({ userId }));
+
+      // Act
+      const response = await agent.invoke(
+        { messages: [new HumanMessage("11:23")] },
+        { context: { ...context, isVoiceInput: true } },
+      );
+
+      // Assert
+      const lastToolCallMessage = response.messages.findLast(
+        (message): message is AIMessage =>
+          AIMessage.isInstance(message) &&
+          (message.tool_calls ?? []).length > 0,
+      );
+      expect(lastToolCallMessage).toHaveToolCalls([
+        {
+          name: CREATE_TRANSACTION_TOOL_NAME,
+          args: expect.objectContaining({ amount: 11.23 }),
+        },
+      ]);
+    });
+
+    it("interprets HH:MM string in mixed text as decimal amount under voice input", async () => {
+      // Arrange
+      await accountRepository.create(fakeAccount({ userId }));
+
+      // Act
+      const response = await agent.invoke(
+        { messages: [new HumanMessage("groceries 7:50")] },
+        { context: { ...context, isVoiceInput: true } },
+      );
+
+      // Assert
+      const lastToolCallMessage = response.messages.findLast(
+        (message): message is AIMessage =>
+          AIMessage.isInstance(message) &&
+          (message.tool_calls ?? []).length > 0,
+      );
+      expect(lastToolCallMessage).toHaveToolCalls([
+        {
+          name: CREATE_TRANSACTION_TOOL_NAME,
+          args: expect.objectContaining({ amount: 7.5 }),
+        },
+      ]);
+    });
+
+    it("interprets HH:MM string as amount when at refers to place", async () => {
+      // Arrange
+      await accountRepository.create(fakeAccount({ userId }));
+
+      // Act
+      const response = await agent.invoke(
+        { messages: [new HumanMessage("lunch 11:23 at cafe")] },
+        { context: { ...context, isVoiceInput: true } },
+      );
+
+      // Assert
+      const lastToolCallMessage = response.messages.findLast(
+        (message): message is AIMessage =>
+          AIMessage.isInstance(message) &&
+          (message.tool_calls ?? []).length > 0,
+      );
+      expect(lastToolCallMessage).toHaveToolCalls([
+        {
+          name: CREATE_TRANSACTION_TOOL_NAME,
+          args: expect.objectContaining({ amount: 11.23 }),
+        },
+      ]);
+    });
+
+    it("prefers explicit numeric amount over HH:MM string framed as time", async () => {
+      // Arrange
+      await accountRepository.create(fakeAccount({ userId }));
+
+      // Act
+      const response = await agent.invoke(
+        { messages: [new HumanMessage("transferred 100 at 15:30")] },
+        { context: { ...context, isVoiceInput: true } },
+      );
+
+      // Assert
+      const lastToolCallMessage = response.messages.findLast(
+        (message): message is AIMessage =>
+          AIMessage.isInstance(message) &&
+          (message.tool_calls ?? []).length > 0,
+      );
+      expect(lastToolCallMessage).toHaveToolCalls([
+        {
+          name: CREATE_TRANSACTION_TOOL_NAME,
+          args: expect.objectContaining({ amount: 100 }),
+        },
+      ]);
+    });
+
+    // Validation failures
+
+    it("does not call create_transaction when HH:MM string is framed as time", async () => {
+      // Arrange
+      await accountRepository.create(fakeAccount({ userId }));
+
+      // Act
+      const response = await agent.invoke(
+        { messages: [new HumanMessage("I brought coffee at 12:34")] },
+        { context: { ...context, isVoiceInput: true } },
+      );
+
+      // Assert
+      const toolNames = response.messages
+        .filter(AIMessage.isInstance)
+        .flatMap((message) => message.tool_calls ?? [])
+        .map((toolCall) => toolCall.name);
+      expect(toolNames).not.toContain(CREATE_TRANSACTION_TOOL_NAME);
+    });
+
+    it("does not call create_transaction under keyboard input", async () => {
+      // Arrange
+      await accountRepository.create(fakeAccount({ userId }));
+
+      // Act
+      const response = await agent.invoke(
+        { messages: [new HumanMessage("11:23")] },
+        { context },
+      );
+
+      // Assert
+      const toolNames = response.messages
+        .filter(AIMessage.isInstance)
+        .flatMap((message) => message.tool_calls ?? [])
+        .map((toolCall) => toolCall.name);
+      expect(toolNames).not.toContain(CREATE_TRANSACTION_TOOL_NAME);
+    });
+  });
 });

@@ -5,7 +5,6 @@ import { createMockAccountRepository } from "../../utils/test-utils/repositories
 import { createMockCategoryRepository } from "../../utils/test-utils/repositories/category-repository-mocks";
 import { createMockTransactionRepository } from "../../utils/test-utils/repositories/transaction-repository-mocks";
 import { createMockTransactionService } from "../../utils/test-utils/services/transaction-service-mocks";
-import { VOICE_INPUT_INDICATOR } from "../agents/create-transaction-agent";
 import { createCreateTransactionSubagentTool } from "./create-transaction-subagent";
 
 describe("createCreateTransactionSubagentTool", () => {
@@ -72,7 +71,7 @@ describe("createCreateTransactionSubagentTool", () => {
     // Assert
     const systemPrompt = mockModel.calls[0].messages[0].content;
     expect(systemPrompt).toContain("Today is 2026-04-15");
-    expect(systemPrompt).toContain(VOICE_INPUT_INDICATOR);
+    expect(systemPrompt).toContain("Voice input is detected");
   });
 
   it("returns model last message text as tool output", async () => {
