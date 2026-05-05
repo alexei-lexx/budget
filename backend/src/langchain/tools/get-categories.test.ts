@@ -12,7 +12,7 @@ import { createMockTransactionRepository } from "../../utils/test-utils/reposito
 import { EntityScope } from "./get-accounts";
 import {
   CATEGORY_HISTORY_LOOKBACK_DAYS,
-  CATEGORY_HISTORY_MAX_DESCRIPTIONS_PER_CATEGORY,
+  CATEGORY_HISTORY_MAX_KEYWORDS_PER_CATEGORY,
   createGetCategoriesTool,
 } from "./get-categories";
 
@@ -182,7 +182,7 @@ describe("createGetCategoriesTool", () => {
           name: "Groceries",
           type: CategoryType.EXPENSE,
           isArchived: false,
-          recentDescriptions: [],
+          keywords: [],
         },
         {
           excludeFromReports: mockCategories[1].excludeFromReports,
@@ -190,7 +190,7 @@ describe("createGetCategoriesTool", () => {
           name: "Salary",
           type: CategoryType.INCOME,
           isArchived: true,
-          recentDescriptions: [],
+          keywords: [],
         },
       ],
     });
@@ -212,7 +212,7 @@ describe("createGetCategoriesTool", () => {
     expect(result).toEqual({ success: true, data: [] });
   });
 
-  describe("recentDescriptions", () => {
+  describe("keywords", () => {
     it("returns empty array when no transactions exist", async () => {
       const category = fakeCategory({ isArchived: false });
       mockCategoryRepository.findManyWithArchivedByUserId.mockResolvedValue([
@@ -234,7 +234,7 @@ describe("createGetCategoriesTool", () => {
         data: [
           expect.objectContaining({
             id: category.id,
-            recentDescriptions: [],
+            keywords: [],
           }),
         ],
       });
@@ -267,7 +267,7 @@ describe("createGetCategoriesTool", () => {
         data: [
           expect.objectContaining({
             id: category.id,
-            recentDescriptions: [],
+            keywords: [],
           }),
         ],
       });
@@ -297,7 +297,7 @@ describe("createGetCategoriesTool", () => {
         data: [
           expect.objectContaining({
             id: category.id,
-            recentDescriptions: [],
+            keywords: [],
           }),
         ],
       });
@@ -336,20 +336,20 @@ describe("createGetCategoriesTool", () => {
         data: [
           expect.objectContaining({
             id: activeCategory.id,
-            recentDescriptions: ["milk and eggs"],
+            keywords: ["milk and eggs"],
           }),
         ],
       });
     });
 
-    it("caps recentDescriptions", async () => {
+    it("caps keywords", async () => {
       const category = fakeCategory({ isArchived: false });
       mockCategoryRepository.findManyWithArchivedByUserId.mockResolvedValue([
         category,
       ]);
 
       const transactions = Array.from(
-        { length: CATEGORY_HISTORY_MAX_DESCRIPTIONS_PER_CATEGORY + 5 },
+        { length: CATEGORY_HISTORY_MAX_KEYWORDS_PER_CATEGORY + 5 },
         (_, index) =>
           fakeTransaction({
             categoryId: category.id,
@@ -371,20 +371,18 @@ describe("createGetCategoriesTool", () => {
 
       if (!result.success) throw new Error("Expected success"); // Type guard
 
-      expect(result.data[0].recentDescriptions).toHaveLength(
-        CATEGORY_HISTORY_MAX_DESCRIPTIONS_PER_CATEGORY,
+      expect(result.data[0].keywords).toHaveLength(
+        CATEGORY_HISTORY_MAX_KEYWORDS_PER_CATEGORY,
       );
-      expect(result.data[0].recentDescriptions[0]).toEqual("description 0");
+      expect(result.data[0].keywords[0]).toEqual("description 0");
       expect(
-        result.data[0].recentDescriptions[
-          CATEGORY_HISTORY_MAX_DESCRIPTIONS_PER_CATEGORY - 1
-        ],
+        result.data[0].keywords[CATEGORY_HISTORY_MAX_KEYWORDS_PER_CATEGORY - 1],
       ).toEqual(
-        `description ${CATEGORY_HISTORY_MAX_DESCRIPTIONS_PER_CATEGORY - 1}`,
+        `description ${CATEGORY_HISTORY_MAX_KEYWORDS_PER_CATEGORY - 1}`,
       );
     });
 
-    it("groups multiple descriptions by categoryId", async () => {
+    it("groups multiple keywords by categoryId", async () => {
       const groceryCategory = fakeCategory({ isArchived: false });
       const eatingOutCategory = fakeCategory({ isArchived: false });
 
@@ -429,17 +427,17 @@ describe("createGetCategoriesTool", () => {
         data: expect.arrayContaining([
           expect.objectContaining({
             id: groceryCategory.id,
-            recentDescriptions: ["whole foods", "costco"],
+            keywords: ["whole foods", "costco"],
           }),
           expect.objectContaining({
             id: eatingOutCategory.id,
-            recentDescriptions: ["pizza place", "sushi restaurant"],
+            keywords: ["pizza place", "sushi restaurant"],
           }),
         ]),
       });
     });
 
-    it("deduplicates repeated descriptions", async () => {
+    it("deduplicates repeated keywords", async () => {
       const category = fakeCategory({ isArchived: false });
       mockCategoryRepository.findManyWithArchivedByUserId.mockResolvedValue([
         category,
@@ -469,7 +467,7 @@ describe("createGetCategoriesTool", () => {
         data: [
           expect.objectContaining({
             id: category.id,
-            recentDescriptions: ["ice cream", "milk"],
+            keywords: ["ice cream", "milk"],
           }),
         ],
       });
