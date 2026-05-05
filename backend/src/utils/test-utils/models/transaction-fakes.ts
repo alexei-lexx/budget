@@ -27,7 +27,7 @@ export const fakeTransaction = (
     type,
     currency: faker.helpers.arrayElement(["EUR", "USD"]),
     date: toDateString(faker.date.recent().toISOString().split("T")[0]),
-    description: faker.finance.transactionDescription(),
+    description: faker.commerce.product(),
     transferId: isTransfer ? faker.string.uuid() : undefined,
     isArchived: false,
     // Randomized to surface tests that wrongly assume a specific version.
@@ -50,7 +50,7 @@ export const fakeCreateTransactionInput = (
     type: TransactionType.EXPENSE,
     amount: faker.number.float({ min: 1, max: 1000, fractionDigits: 2 }),
     date: toDateString(faker.date.recent().toISOString().split("T")[0]),
-    description: faker.finance.transactionDescription(),
+    description: faker.commerce.product(),
     ...overrides,
   };
 };

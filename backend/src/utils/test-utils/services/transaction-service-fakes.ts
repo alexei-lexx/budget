@@ -12,7 +12,7 @@ export const fakeCreateTransactionServiceInput = (
     type: TransactionType.EXPENSE,
     amount: faker.number.float({ min: 1, max: 1000, fractionDigits: 2 }),
     date: toDateString(faker.date.recent().toISOString().split("T")[0]),
-    description: faker.finance.transactionDescription(),
+    description: faker.commerce.product(),
     ...overrides,
   };
 };

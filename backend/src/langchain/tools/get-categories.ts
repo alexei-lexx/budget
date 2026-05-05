@@ -9,10 +9,10 @@ import { agentContextSchema } from "../agents/agent-context";
 import { CategoryDto, toCategoryDto } from "./category-dto";
 import { EntityScope } from "./get-accounts";
 
-type CategoryData = CategoryDto & { recentDescriptions: string[] };
+type CategoryData = CategoryDto & { keywords: string[] };
 
 export const CATEGORY_HISTORY_LOOKBACK_DAYS = 90;
-export const CATEGORY_HISTORY_MAX_DESCRIPTIONS_PER_CATEGORY = 10;
+export const CATEGORY_HISTORY_MAX_KEYWORDS_PER_CATEGORY = 10;
 
 const schema = z.object({
   scope: z
@@ -50,7 +50,7 @@ export const createGetCategoriesTool = ({
       const categoryDataList: CategoryData[] = filteredCategories.map(
         (category) => ({
           ...toCategoryDto(category),
-          recentDescriptions: [],
+          keywords: [],
         }),
       );
 
@@ -73,7 +73,7 @@ export const createGetCategoriesTool = ({
       const categoryIdSet = new Set(
         categoryDataList.map((category) => category.id),
       );
-      const descriptionsByCategory = new Map<string, Set<string>>();
+      const keywordsByCategory = new Map<string, Set<string>>();
 
       for (const transaction of transactions) {
         const { categoryId, description } = transaction;
@@ -82,25 +82,21 @@ export const createGetCategoriesTool = ({
           continue;
         }
 
-        if (!descriptionsByCategory.has(categoryId)) {
-          descriptionsByCategory.set(categoryId, new Set());
+        if (!keywordsByCategory.has(categoryId)) {
+          keywordsByCategory.set(categoryId, new Set());
         }
 
-        const descriptions = descriptionsByCategory.get(categoryId);
-        if (descriptions) {
-          if (
-            descriptions.size < CATEGORY_HISTORY_MAX_DESCRIPTIONS_PER_CATEGORY
-          ) {
-            descriptions.add(description);
+        const keywords = keywordsByCategory.get(categoryId);
+        if (keywords) {
+          if (keywords.size < CATEGORY_HISTORY_MAX_KEYWORDS_PER_CATEGORY) {
+            keywords.add(description);
           }
         }
       }
 
       const enrichedCategoryDataList = categoryDataList.map((category) => ({
         ...category,
-        recentDescriptions: Array.from(
-          descriptionsByCategory.get(category.id) || [],
-        ),
+        keywords: Array.from(keywordsByCategory.get(category.id) || []),
       }));
 
       return Success(enrichedCategoryDataList);
@@ -108,7 +104,7 @@ export const createGetCategoriesTool = ({
     {
       name: "get_categories",
       description:
-        "Get user categories filtered by scope. Each category includes recent usage examples showing how similar transactions were previously categorised.",
+        "Get user categories filtered by scope. Each category includes keywords showing how similar transactions were previously categorised.",
       schema,
     },
   );

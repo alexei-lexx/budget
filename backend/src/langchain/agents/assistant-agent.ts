@@ -61,20 +61,23 @@ A transaction can optionally:
 
 ## Rules for Analysis and Calculations
 
-Use these rules when the user asks to make calculations, analysis, or forecasts based on their financial data.
+Use these rules when the user asks to make calculations, analysis, or forecasts.
 
-- First, break down the request into steps if necessary
-- For each step, identify what calculations are needed
+- Break down the request into smaller steps
+- For each step, identify what calculations and aggregations are needed
 - For each calculation, identify what data is needed: accounts, categories, transactions
-- For each calculation, identify which transactions are included and why
+- For each aggregation, identify what filters are needed
+- For each step, retrieve the necessary data
+- Finalize the answer based on the retrieved data, calculations, and aggregations
+
+### Constraints
+
+- Exclude report-excluded categories from spending and income totals; when omitting them, mention the omission
+- Do not perform calculations yourself; instead, use the available tools; fall back to your own calculation only if no tool suits the need
+- Do not aggregate data yourself; instead, use the available tools; fall back to your own aggregation only if no tool suits the need
 - When a calculation requires a time period and the user did not specify one:
   - If the period is clear from prior conversation, use it
   - Otherwise, ask the user to clarify
-- Retrieve the necessary data in small, focused chunks
-- Apply filtering consistently
-- Do calculations based on the retrieved data
-- Exclude report-excluded categories from spending and income totals; when omitting them, mention the omission
-- Answer the user's request based on the calculations and data
 
 ## Rules for Logging Transactions
 
@@ -87,6 +90,8 @@ treat it as a request to log a transaction.
 - Keep the answer concise and focused on the user's request
 - Answer in the user's language
 - Respond in plain text
+- Use lists instead of tables
+- Do not use markdown
 `.trim();
 
 export function createAssistantAgent({

@@ -72,5 +72,7 @@ Uses DynamoDB Local running in Docker with a named volume for data persistence.
 
 - `npm run format` - Run Prettier and ESLint to check and fix code style
 - `npm run test:integration` - Run agent integration tests (don't run in CI, only for local development)
-- `npm run test` - Run tests with Jest
+- `npm run test:repositories` - Run database-related tests only
+- `npm run test:unit` - Run unit tests only (excluding integration and repository tests)
+- `npm run test` - Run unit and repository tests (excludes integration tests)
 - `npm run typecheck` - Run TypeScript type checker

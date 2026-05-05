@@ -31,7 +31,8 @@
     "test:db:setup": "npm run db:start && sleep 1 && npm run test:db:create",
     "test:integration": "dotenvx run -f .env.test -- jest --config jest.config.integration.ts",
     "test:repositories": "dotenvx run -f .env.test -- jest --config jest.config.repositories.ts",
-    "test": "dotenvx run -f .env.test -- jest && npm run test:repositories",
+    "test:unit": "dotenvx run -f .env.test -- jest",
+    "test": "npm run test:unit && npm run test:repositories",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
