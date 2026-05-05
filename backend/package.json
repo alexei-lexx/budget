@@ -1,6 +1,7 @@
 {
   "name": "backend",
   "version": "1.0.0",
+  "type": "module",
   "scripts": {
     "build:bundle:background-job": "esbuild src/lambdas/background-job.ts --bundle --platform=node --external:@aws-sdk/* --outfile=dist/background-job-lambda.js",
     "build:bundle:migrate": "esbuild src/lambdas/migrate.ts --bundle --platform=node --external:@aws-sdk/* --outfile=dist/migrate-lambda.js",
