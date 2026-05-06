@@ -104,8 +104,6 @@ const handleSignOut = () => {
   if (mobile.value) {
     drawer.value = false;
   }
-  // Wipe localStorage so no per-user data leaks to the next user on this browser.
-  // OIDC tokens live here too — they get re-created on next sign-in.
   localStorage.clear();
   logout();
 };
