@@ -52,15 +52,6 @@ const saveSessionId = (sessionId: string): void => {
   }
 };
 
-export const clearAssistantStorage = (): void => {
-  try {
-    localStorage.removeItem(LAST_RESULT_STORAGE_KEY);
-    localStorage.removeItem(SESSION_ID_STORAGE_KEY);
-  } catch (error) {
-    console.error("Failed to clear assistant storage:", error);
-  }
-};
-
 export function useAssistant() {
   const stored = loadStoredResult();
   const storedAnswer = ref<string | null>(stored?.answer ?? null);

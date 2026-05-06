@@ -5,7 +5,6 @@ import { useUser } from "@/composables/useUser";
 import { useSnackbar } from "@/composables/useSnackbar";
 import { useDisplay } from "vuetify";
 import { setAuthTokenGetter, globalError, clearGlobalError } from "@/apollo";
-import { clearAssistantStorage } from "@/composables/useAssistant";
 
 const {
   user,
@@ -105,7 +104,13 @@ const handleSignOut = () => {
   if (mobile.value) {
     drawer.value = false;
   }
-  clearAssistantStorage();
+  // Remove all assistant-scoped data so it doesn't leak to the next user.
+  // Prefix sweep covers any future `assistant-*` key without further changes here.
+  for (const key of Object.keys(localStorage)) {
+    if (key.startsWith("assistant-")) {
+      localStorage.removeItem(key);
+    }
+  }
   logout();
 };
 
