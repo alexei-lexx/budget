@@ -104,13 +104,9 @@ const handleSignOut = () => {
   if (mobile.value) {
     drawer.value = false;
   }
-  // Remove all assistant-scoped data so it doesn't leak to the next user.
-  // Prefix sweep covers any future `assistant-*` key without further changes here.
-  for (const key of Object.keys(localStorage)) {
-    if (key.startsWith("assistant-")) {
-      localStorage.removeItem(key);
-    }
-  }
+  // Wipe localStorage so no per-user data leaks to the next user on this browser.
+  // OIDC tokens live here too — they get re-created on next sign-in.
+  localStorage.clear();
   logout();
 };
 
