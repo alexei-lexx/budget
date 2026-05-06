@@ -10,7 +10,7 @@ import { createMockTransactionRepository } from "../../utils/test-utils/reposito
 import { createMockTransactionService } from "../../utils/test-utils/services/transaction-service-mocks";
 import { CREATE_TRANSACTION_TOOL_NAME } from "../tools/create-transaction";
 import {
-  VOICE_INPUT_INDICATOR,
+  VOICE_INPUT_SUBPROMPT,
   createCreateTransactionAgent,
 } from "./create-transaction-agent";
 
@@ -107,7 +107,7 @@ describe("createCreateTransactionAgent", () => {
 
     // Assert
     expect(mockModel.calls[0].messages[0].content).not.toContain(
-      VOICE_INPUT_INDICATOR,
+      VOICE_INPUT_SUBPROMPT,
     );
   });
 
@@ -126,7 +126,7 @@ describe("createCreateTransactionAgent", () => {
 
     // Assert
     expect(mockModel.calls[0].messages[0].content).toContain(
-      VOICE_INPUT_INDICATOR,
+      VOICE_INPUT_SUBPROMPT,
     );
   });
 

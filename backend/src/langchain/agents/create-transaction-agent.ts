@@ -18,7 +18,7 @@ import { createGetCategoriesTool } from "../tools/get-categories";
 import { createGetTransactionsTool } from "../tools/get-transactions";
 import { AgentContext, agentContextSchema } from "./agent-context";
 
-const SYSTEM_PROMPT = `
+const SYSTEM_PROMPT_TEMPLATE = `
 ## Role
 
 You are an agent that creates payment transactions based on user input in natural language.
@@ -118,9 +118,9 @@ Description: <description or N/A>
 Today is {TODAY}.
 `.trim();
 
-const promptTemplate = PromptTemplate.fromTemplate(SYSTEM_PROMPT);
+const promptTemplate = PromptTemplate.fromTemplate(SYSTEM_PROMPT_TEMPLATE);
 
-export const VOICE_INPUT_INDICATOR = `
+export const VOICE_INPUT_SUBPROMPT = `
 The user's input was captured via voice recognition. Follow these additional rules.
 
 Speech-to-text often transcribes a spoken price as a single number — "two thirty four" becomes "234".
@@ -167,7 +167,7 @@ export function createCreateTransactionAgent({
         const { today, isVoiceInput } = runtime.context;
         const prompt = await promptTemplate.format({
           TODAY: today,
-          VOICE_INPUT_INDICATOR: isVoiceInput ? VOICE_INPUT_INDICATOR : "",
+          VOICE_INPUT_INDICATOR: isVoiceInput ? VOICE_INPUT_SUBPROMPT : "",
         });
         return prompt;
       }),
