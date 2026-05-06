@@ -83,6 +83,21 @@ Write all temporary files (scratch scripts, debug output, ad-hoc data dumps)
 to the project's `tmp/` directory — not the system `/tmp`.
 Avoids permission prompts for paths outside the project.
 
+## Cloud Agent Setup
+
+**Run when starting in a fresh cloud sandbox.** Skip if already set up.
+
+- Use Node.js version from `.tool-versions` (`nodejs` key)
+- Run `npm install` in any package you plan to modify (`backend/`, `frontend/`, `infra-cdk/`)
+
+Before first backend test run:
+
+```
+cd backend
+cp .env.test.example .env.test
+npm run test:db:setup
+```
+
 ## Reference
 
 - `docs/constitution.md` — project structure, architecture, coding standards, technical constraints
