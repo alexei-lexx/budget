@@ -5,6 +5,7 @@ import { useUser } from "@/composables/useUser";
 import { useSnackbar } from "@/composables/useSnackbar";
 import { useDisplay } from "vuetify";
 import { setAuthTokenGetter, globalError, clearGlobalError } from "@/apollo";
+import { clearAssistantStorage } from "@/composables/useAssistant";
 
 const {
   user,
@@ -104,6 +105,7 @@ const handleSignOut = () => {
   if (mobile.value) {
     drawer.value = false;
   }
+  clearAssistantStorage();
   logout();
 };
 
