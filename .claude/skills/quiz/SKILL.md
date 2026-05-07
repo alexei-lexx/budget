@@ -34,6 +34,7 @@ Present each question like this:
 ## Rules
 
 - **One question at a time.** Never batch questions.
+- **Wait for an explicit answer.** Don't record or advance until the user picks one.
 - **Adapt on the fly.** If an earlier answer makes a later question irrelevant, skip it. If it opens a new question, add it.
 - **Accept any response form.** User can pick a number, type a free-form answer, or ask to discuss. All valid.
 - **Discussion mode.** If user picks "discuss" or asks a follow-up, engage fully. When resolved, record the answer and move on.
