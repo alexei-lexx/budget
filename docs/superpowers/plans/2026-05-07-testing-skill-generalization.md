@@ -1,6 +1,6 @@
 # Generalize `jest-tests` skill into `testing` — Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Rename project skill `jest-tests` to `testing` and make all guidance applicable to both Jest and Vitest, preserving every existing rule in substance.
 
@@ -28,13 +28,13 @@ Frozen (do not touch): `docs/superpowers/plans/2026-04-*.md`, `openspec/changes/
 **Files:**
 - Move: `.claude/skills/jest-tests/` → `.claude/skills/testing/`
 
-- [ ] **Step 1: Move the directory with `git mv`**
+- [x] **Step 1: Move the directory with `git mv`**
 
 ```bash
 git mv .claude/skills/jest-tests .claude/skills/testing
 ```
 
-- [ ] **Step 2: Verify move**
+- [x] **Step 2: Verify move**
 
 ```bash
 ls .claude/skills/testing/
@@ -55,7 +55,7 @@ test ! -d .claude/skills/jest-tests && echo "old dir gone"
 
 Expected: `old dir gone`
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add -A .claude/skills/
@@ -69,7 +69,7 @@ git commit -m "rename jest-tests skill to testing"
 **Files:**
 - Modify: `.claude/skills/testing/SKILL.md` (lines 1–6)
 
-- [ ] **Step 1: Replace frontmatter block**
+- [x] **Step 1: Replace frontmatter block**
 
 Old (lines 1–4):
 
@@ -89,7 +89,7 @@ description: Use when writing, rewriting, reviewing, adding, or modifying unit t
 ---
 ```
 
-- [ ] **Step 2: Replace H1**
+- [x] **Step 2: Replace H1**
 
 Old (line 6):
 
@@ -103,7 +103,7 @@ New:
 # testing
 ```
 
-- [ ] **Step 3: Verify**
+- [x] **Step 3: Verify**
 
 ```bash
 head -7 .claude/skills/testing/SKILL.md
@@ -111,7 +111,7 @@ head -7 .claude/skills/testing/SKILL.md
 
 Expected: shows the new frontmatter and H1 above.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add .claude/skills/testing/SKILL.md
@@ -125,7 +125,7 @@ git commit -m "rename testing skill identifier and description"
 **Files:**
 - Modify: `.claude/skills/testing/SKILL.md` (insert after the Scope section, before `## Test file location`)
 
-- [ ] **Step 1: Insert the new section**
+- [x] **Step 1: Insert the new section**
 
 Locate the line `## Test file location` and insert the following block immediately above it (separated from Scope above by one blank line and from "Test file location" below by one blank line):
 
@@ -145,7 +145,7 @@ Skill applies to both Jest and Vitest. Use the APIs of whichever runner the pack
 | Module mock               | `jest.mock(path)`               | `vi.mock(path)`                   |
 ```
 
-- [ ] **Step 2: Verify section position and content**
+- [x] **Step 2: Verify section position and content**
 
 ```bash
 grep -n "^## " .claude/skills/testing/SKILL.md
@@ -171,7 +171,7 @@ Expected order (the new section appears second):
 ## Reference
 ```
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add .claude/skills/testing/SKILL.md
@@ -185,7 +185,7 @@ git commit -m "add Test runner section with Jest/Vitest mapping table"
 **Files:**
 - Modify: `.claude/skills/testing/SKILL.md` (the `## Timers and dates` section, originally lines 95–98 in the pre-rename file)
 
-- [ ] **Step 1: Replace section body**
+- [x] **Step 1: Replace section body**
 
 Old:
 
@@ -207,7 +207,7 @@ Advance time explicitly with `advanceTimersByTime(ms)` or `runAllTimers()` on th
 Restore real timers with `useRealTimers()` in `afterEach`.
 ```
 
-- [ ] **Step 2: Verify**
+- [x] **Step 2: Verify**
 
 ```bash
 sed -n '/^## Timers and dates/,/^## /p' .claude/skills/testing/SKILL.md
@@ -215,7 +215,7 @@ sed -n '/^## Timers and dates/,/^## /p' .claude/skills/testing/SKILL.md
 
 Expected: prints the new section body, ending at the next `## ` heading. Confirm both `jest.useFakeTimers()` and `vi.useFakeTimers()` appear, and no bare `jest.advanceTimersByTime` / `jest.runAllTimers` / `jest.useRealTimers` remain in this section.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add .claude/skills/testing/SKILL.md
@@ -229,7 +229,7 @@ git commit -m "neutralize Timers and dates wording for Jest/Vitest"
 **Files:**
 - Modify: `.claude/skills/testing/SKILL.md` (the `## Test isolation` section)
 
-- [ ] **Step 1: Replace the `Reset mocks` line**
+- [x] **Step 1: Replace the `Reset mocks` line**
 
 Old:
 
@@ -245,7 +245,7 @@ Reset mocks in `beforeEach` (or via runner config: Jest `resetMocks`, Vitest `cl
 
 Leave the surrounding lines (`Tests must not share mutable state.` and `Avoid beforeAll for state that any test could mutate.`) unchanged.
 
-- [ ] **Step 2: Verify**
+- [x] **Step 2: Verify**
 
 ```bash
 sed -n '/^## Test isolation/,/^## /p' .claude/skills/testing/SKILL.md
@@ -253,7 +253,7 @@ sed -n '/^## Test isolation/,/^## /p' .claude/skills/testing/SKILL.md
 
 Expected: the section now mentions both Jest `resetMocks` and Vitest `clearMocks` / `restoreMocks`.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add .claude/skills/testing/SKILL.md
@@ -267,7 +267,7 @@ git commit -m "neutralize Test isolation wording for Jest/Vitest"
 **Files:**
 - Modify: `.claude/skills/testing/SKILL.md` (the `## Mocks and fakes` section)
 
-- [ ] **Step 1: Replace the "Mocks" definition line**
+- [x] **Step 1: Replace the "Mocks" definition line**
 
 Old:
 
@@ -281,7 +281,7 @@ New:
 **Mocks** replace real dependencies (repositories, clients) with runner mock objects whose return values can be controlled per test.
 ```
 
-- [ ] **Step 2: Replace the two `jest.Mocked` rules at the bottom of the section**
+- [x] **Step 2: Replace the two `jest.Mocked` rules at the bottom of the section**
 
 Old:
 
@@ -297,7 +297,7 @@ MUST type mocked dependencies with the runner's mocked type (`jest.Mocked<Interf
 MUST NOT use `ReturnType<typeof createMock...>` when an interface is available.
 ```
 
-- [ ] **Step 3: Verify**
+- [x] **Step 3: Verify**
 
 ```bash
 sed -n '/^## Mocks and fakes/,/^## /p' .claude/skills/testing/SKILL.md
@@ -305,7 +305,7 @@ sed -n '/^## Mocks and fakes/,/^## /p' .claude/skills/testing/SKILL.md
 
 Expected: `runner mock objects` appears once; the mocked-type rule mentions both `jest.Mocked` and `Mocked<InterfaceName>` from `vitest`. The bottom-of-section text about `Reuse existing fakes`, the fakes paths, and the `Mock all dependencies` line are unchanged.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add .claude/skills/testing/SKILL.md
@@ -319,7 +319,7 @@ git commit -m "neutralize Mocks and fakes wording for Jest/Vitest"
 **Files:**
 - Modify: `.claude/skills/testing/references/service.test.ts.md`
 
-- [ ] **Step 1: Add an intro note above the existing code block**
+- [x] **Step 1: Add an intro note above the existing code block**
 
 Insert this paragraph before the opening fence (line 1) so the file starts with the note, then a blank line, then the existing ```typescript fence:
 
@@ -335,7 +335,7 @@ Resulting first 3 lines of file:
 ```typescript
 ```
 
-- [ ] **Step 2: Annotate the two `jest.Mocked` declarations**
+- [x] **Step 2: Annotate the two `jest.Mocked` declarations**
 
 Inside the code block, replace the two declaration lines (originally lines 3–4 of the file's TS code) so each carries a Vitest annotation immediately above it.
 
@@ -355,7 +355,7 @@ New:
   let mockExternalApiClient: jest.Mocked<ExternalApiClient>;
 ```
 
-- [ ] **Step 3: Verify**
+- [x] **Step 3: Verify**
 
 ```bash
 head -10 .claude/skills/testing/references/service.test.ts.md
@@ -375,7 +375,7 @@ grep -c "jest.Mocked" .claude/skills/testing/references/service.test.ts.md
 
 Expected: `2` (declarations preserved unchanged).
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add .claude/skills/testing/references/service.test.ts.md
@@ -389,7 +389,7 @@ git commit -m "annotate testing skill example with Vitest equivalents"
 **Files:**
 - Modify: `openspec/config.yaml:26`
 
-- [ ] **Step 1: Replace the `jest-tests` reference**
+- [x] **Step 1: Replace the `jest-tests` reference**
 
 Old (line 26):
 
@@ -403,7 +403,7 @@ New:
     - Prefix every task that writes or modifies tests with "(use `testing` skill)" after the task number
 ```
 
-- [ ] **Step 2: Verify**
+- [x] **Step 2: Verify**
 
 ```bash
 grep -n "jest-tests\|testing.*skill" openspec/config.yaml
@@ -411,7 +411,7 @@ grep -n "jest-tests\|testing.*skill" openspec/config.yaml
 
 Expected: a single match on line 26 referencing `` `testing` skill ``, and no remaining `jest-tests` matches.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add openspec/config.yaml
@@ -424,7 +424,7 @@ git commit -m "update openspec rule to reference testing skill"
 
 **Files:** none modified.
 
-- [ ] **Step 1: No stale `jest-tests` references in live locations**
+- [x] **Step 1: No stale `jest-tests` references in live locations**
 
 ```bash
 grep -rn "jest-tests" .claude/ openspec/config.yaml
@@ -432,7 +432,7 @@ grep -rn "jest-tests" .claude/ openspec/config.yaml
 
 Expected: no output (exit code 1). Historical plans and archives are intentionally untouched and not in this scope.
 
-- [ ] **Step 2: Mapping table contains every previously named Jest API**
+- [x] **Step 2: Mapping table contains every previously named Jest API**
 
 ```bash
 for token in 'jest.Mocked' 'jest.useFakeTimers' 'jest.advanceTimersByTime' 'jest.runAllTimers' 'jest.useRealTimers' 'resetMocks' 'jest.mock'; do
@@ -442,7 +442,7 @@ done
 
 Expected: `ok:` for all seven tokens.
 
-- [ ] **Step 3: All Jest tokens have a Vitest counterpart in the document**
+- [x] **Step 3: All Jest tokens have a Vitest counterpart in the document**
 
 ```bash
 for token in 'vi.useFakeTimers' 'vi.advanceTimersByTime' 'vi.runAllTimers' 'vi.useRealTimers' 'clearMocks' 'restoreMocks' 'vi.mock' 'Mocked<T>'; do
@@ -452,7 +452,7 @@ done
 
 Expected: `ok:` for all eight tokens.
 
-- [ ] **Step 4: Reference example carries the intro note and Vitest annotations**
+- [x] **Step 4: Reference example carries the intro note and Vitest annotations**
 
 ```bash
 head -1 .claude/skills/testing/references/service.test.ts.md | grep -q "vitest:" && echo "ok: intro note"
@@ -466,7 +466,7 @@ ok: intro note
 ok: 2 annotations
 ```
 
-- [ ] **Step 5: Skill directory rename committed cleanly**
+- [x] **Step 5: Skill directory rename committed cleanly**
 
 ```bash
 git log --oneline -10
@@ -480,6 +480,6 @@ git status
 
 Expected: `nothing to commit, working tree clean`.
 
-- [ ] **Step 6: No further action — plan complete**
+- [x] **Step 6: No further action — plan complete**
 
 If any step above fails, fix the corresponding earlier task and re-run validation.
