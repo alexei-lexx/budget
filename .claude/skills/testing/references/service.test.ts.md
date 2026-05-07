@@ -1,7 +1,7 @@
 ```typescript
 describe("WidgetService", () => {
-  let mockWidgetRepository: jest.Mocked<WidgetRepository>;
-  let mockExternalApiClient: jest.Mocked<ExternalApiClient>;
+  let mockWidgetRepository: jest.Mocked<WidgetRepository>; // vitest: Mocked<WidgetRepository>
+  let mockExternalApiClient: jest.Mocked<ExternalApiClient>; // vitest: Mocked<ExternalApiClient>
   let service: WidgetService;
 
   // Code here...
