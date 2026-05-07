@@ -14,15 +14,15 @@ description: Use when writing, rewriting, reviewing, adding, or modifying unit t
 
 Skill applies to both Jest and Vitest. Use the APIs of whichever runner the package uses (check `package.json`). The mapping table below covers every runner-specific call referenced in this skill.
 
-| Concept                   | Jest                            | Vitest                            |
-| ------------------------- | ------------------------------- | --------------------------------- |
-| Mocked type               | `jest.Mocked<T>`                | `Mocked<T>` from `vitest`         |
-| Enable fake timers        | `jest.useFakeTimers()`          | `vi.useFakeTimers()`              |
-| Advance timers            | `jest.advanceTimersByTime(ms)`  | `vi.advanceTimersByTime(ms)`      |
-| Run all timers            | `jest.runAllTimers()`           | `vi.runAllTimers()`               |
-| Restore real timers       | `jest.useRealTimers()`          | `vi.useRealTimers()`              |
-| Auto-reset mocks (config) | `resetMocks: true`              | `clearMocks: true` / `restoreMocks: true` |
-| Module mock               | `jest.mock(path)`               | `vi.mock(path)`                   |
+| Concept                   | Jest                           | Vitest                                    |
+| ------------------------- | ------------------------------ | ----------------------------------------- |
+| Mocked type               | `jest.Mocked<T>`               | `Mocked<T>` from `vitest`                 |
+| Enable fake timers        | `jest.useFakeTimers()`         | `vi.useFakeTimers()`                      |
+| Advance timers            | `jest.advanceTimersByTime(ms)` | `vi.advanceTimersByTime(ms)`              |
+| Run all timers            | `jest.runAllTimers()`          | `vi.runAllTimers()`                       |
+| Restore real timers       | `jest.useRealTimers()`         | `vi.useRealTimers()`                      |
+| Auto-reset mocks (config) | `resetMocks: true`             | `clearMocks: true` / `restoreMocks: true` |
+| Module mock               | `jest.mock(path)`              | `vi.mock(path)`                           |
 
 ## Test file location
 
