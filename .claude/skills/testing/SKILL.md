@@ -1,9 +1,9 @@
 ---
-name: jest-tests
-description: Use when writing, rewriting, reviewing, adding, or modifying Jest tests.
+name: testing
+description: Use when writing, rewriting, reviewing, adding, or modifying unit tests (Jest or Vitest).
 ---
 
-# jest-tests
+# testing
 
 ## Scope
 
