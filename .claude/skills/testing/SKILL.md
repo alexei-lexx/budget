@@ -107,15 +107,15 @@ For rejections, use `await expect(fn()).rejects.toThrow(...)`.
 
 ## Timers and dates
 
-Use `jest.useFakeTimers()` when the code under test depends on `setTimeout`, `setInterval`, or `Date.now()`.
-Advance time explicitly with `jest.advanceTimersByTime(ms)` or `jest.runAllTimers()`.
-Restore real timers with `jest.useRealTimers()` in `afterEach`.
+- Use fake timers when code under test depends on `setTimeout`, `setInterval`, or `Date.now()`
+- Advance time explicitly instead of relying on real time
+- Restore real timers in `afterEach`
 
 ## Test isolation
 
-Tests must not share mutable state.
-Reset mocks in `beforeEach` (or rely on `resetMocks: true` in Jest config).
-Avoid `beforeAll` for state that any test could mutate.
+- Tests must not share mutable state
+- Reset mocks in `beforeEach` (or via runner's auto-reset config)
+- Avoid `beforeAll` for state any test could mutate
 
 ## Mocks and fakes
 
