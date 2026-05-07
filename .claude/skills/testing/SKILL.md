@@ -1,14 +1,18 @@
 ---
-name: jest-tests
-description: Use when writing, rewriting, reviewing, adding, or modifying Jest tests.
+name: testing
+description: Use when writing, rewriting, reviewing, adding, or modifying tests (Jest or Vitest).
 ---
 
-# jest-tests
+# testing
 
 ## Scope
 
 - Apply only to code you write or modify
 - Do not update surrounding code to conform unless the user asks
+
+## Test runner
+
+Use the APIs of whichever runner the package uses (check `package.json`).
 
 ## Test file location
 
@@ -93,19 +97,20 @@ For rejections, use `await expect(fn()).rejects.toThrow(...)`.
 
 ## Timers and dates
 
-Use `jest.useFakeTimers()` when the code under test depends on `setTimeout`, `setInterval`, or `Date.now()`.
-Advance time explicitly with `jest.advanceTimersByTime(ms)` or `jest.runAllTimers()`.
-Restore real timers with `jest.useRealTimers()` in `afterEach`.
+- Use `jest.useFakeTimers()` (Jest) or `vi.useFakeTimers()` (Vitest) when code under test depends on `setTimeout`, `setInterval`, or `Date.now()`
+- Advance time explicitly with `jest.advanceTimersByTime(ms)` (Jest) or `vi.advanceTimersByTime(ms)` (Vitest)
+- Run all pending timers with `jest.runAllTimers()` (Jest) or `vi.runAllTimers()` (Vitest)
+- Restore real timers with `jest.useRealTimers()` (Jest) or `vi.useRealTimers()` (Vitest) in `afterEach`
 
 ## Test isolation
 
-Tests must not share mutable state.
-Reset mocks in `beforeEach` (or rely on `resetMocks: true` in Jest config).
-Avoid `beforeAll` for state that any test could mutate.
+- Tests must not share mutable state
+- Reset mocks in `beforeEach` (or via runner config: `resetMocks: true` (Jest) or `mockReset: true` (Vitest))
+- Avoid `beforeAll` for state any test could mutate
 
 ## Mocks and fakes
 
-**Mocks** replace real dependencies (repositories, clients) with Jest mock objects whose return values can be controlled per test.
+**Mocks** replace real dependencies (repositories, clients) with mock objects whose return values can be controlled per test.
 
 **Fakes** are factory functions that create realistic test data (entities, input objects) with randomized defaults via `faker`.
 
@@ -128,7 +133,7 @@ When calling fakes, override only fields that drive the assertion or branching l
 Mock all dependencies — repositories, external API clients, other services.
 Never call real implementations.
 
-MUST type mocked dependencies with `jest.Mocked<InterfaceName>` when an interface is available.
+MUST type mocked dependencies with the runner's mocked type when an interface is available — `jest.Mocked<InterfaceName>` (Jest) or `Mocked<InterfaceName>` imported from `vitest` (Vitest).
 MUST NOT use `ReturnType<typeof createMock...>` when an interface is available.
 
 ## After writing

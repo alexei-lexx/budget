@@ -23,7 +23,7 @@ rules:
     - Make sure the spec does not include technical details
   tasks:
     - Use test-driven development - write tests first, then implement and refactor
-    - Prefix every task that writes or modifies tests with "(use `jest-tests` skill)" after the task number
+    - Prefix every task that writes or modifies tests with "(use `testing` skill)" after the task number
     - Include a "## Constitution Compliance" section listing which constitution principles apply and confirming compliance or flagging violations
 
 # Project context (optional)
