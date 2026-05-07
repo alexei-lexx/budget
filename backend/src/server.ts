@@ -1,5 +1,6 @@
 import { readFileSync } from "fs";
-import { join } from "path";
+import { dirname, join } from "path";
+import { fileURLToPath } from "url";
 import { ApolloServer } from "@apollo/server";
 import {
   resolveAccountRepository,
@@ -23,7 +24,9 @@ import { createCategoryLoader } from "./graphql/dataloaders/category-loader";
 import { resolvers } from "./graphql/resolvers";
 import { getAuthenticatedUser } from "./graphql/resolvers/shared";
 
-const typeDefs = readFileSync(join(__dirname, "graphql/schema.graphql"), {
+const currentDir = dirname(fileURLToPath(import.meta.url));
+
+const typeDefs = readFileSync(join(currentDir, "graphql/schema.graphql"), {
   encoding: "utf-8",
 });
 
