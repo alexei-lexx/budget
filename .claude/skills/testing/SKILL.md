@@ -114,12 +114,12 @@ For rejections, use `await expect(fn()).rejects.toThrow(...)`.
 ## Test isolation
 
 - Tests must not share mutable state
-- Reset mocks in `beforeEach` (or via runner's auto-reset config)
+- Reset mocks in `beforeEach` (or via auto-reset config)
 - Avoid `beforeAll` for state any test could mutate
 
 ## Mocks and fakes
 
-**Mocks** replace real dependencies (repositories, clients) with Jest mock objects whose return values can be controlled per test.
+**Mocks** replace real dependencies (repositories, clients) with mock objects whose return values can be controlled per test.
 
 **Fakes** are factory functions that create realistic test data (entities, input objects) with randomized defaults via `faker`.
 
@@ -142,7 +142,7 @@ When calling fakes, override only fields that drive the assertion or branching l
 Mock all dependencies — repositories, external API clients, other services.
 Never call real implementations.
 
-MUST type mocked dependencies with `jest.Mocked<InterfaceName>` when an interface is available.
+MUST type mocked dependencies with `Mocked<InterfaceName>` when an interface is available.
 MUST NOT use `ReturnType<typeof createMock...>` when an interface is available.
 
 ## After writing
