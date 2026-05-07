@@ -1,6 +1,6 @@
 ---
 name: testing
-description: Use when writing, rewriting, reviewing, adding, or modifying unit tests (Jest or Vitest).
+description: Use when writing, rewriting, reviewing, adding, or modifying tests (Jest or Vitest).
 ---
 
 # testing
@@ -12,17 +12,7 @@ description: Use when writing, rewriting, reviewing, adding, or modifying unit t
 
 ## Test runner
 
-Skill applies to both Jest and Vitest. Use the APIs of whichever runner the package uses (check `package.json`). The mapping table below covers every runner-specific call referenced in this skill.
-
-| Concept                   | Jest                           | Vitest                                    |
-| ------------------------- | ------------------------------ | ----------------------------------------- |
-| Mocked type               | `jest.Mocked<T>`               | `Mocked<T>` from `vitest`                 |
-| Enable fake timers        | `jest.useFakeTimers()`         | `vi.useFakeTimers()`                      |
-| Advance timers            | `jest.advanceTimersByTime(ms)` | `vi.advanceTimersByTime(ms)`              |
-| Run all timers            | `jest.runAllTimers()`          | `vi.runAllTimers()`                       |
-| Restore real timers       | `jest.useRealTimers()`         | `vi.useRealTimers()`                      |
-| Auto-reset mocks (config) | `resetMocks: true`             | `clearMocks: true` / `restoreMocks: true` |
-| Module mock               | `jest.mock(path)`              | `vi.mock(path)`                           |
+Use the APIs of whichever runner the package uses (check `package.json`).
 
 ## Test file location
 
@@ -107,14 +97,15 @@ For rejections, use `await expect(fn()).rejects.toThrow(...)`.
 
 ## Timers and dates
 
-- Use fake timers when code under test depends on `setTimeout`, `setInterval`, or `Date.now()`
-- Advance time explicitly instead of relying on real time
-- Restore real timers in `afterEach`
+- Use `jest.useFakeTimers()` (Jest) or `vi.useFakeTimers()` (Vitest) when code under test depends on `setTimeout`, `setInterval`, or `Date.now()`
+- Advance time explicitly with `jest.advanceTimersByTime(ms)` (Jest) or `vi.advanceTimersByTime(ms)` (Vitest)
+- Run all pending timers with `jest.runAllTimers()` (Jest) or `vi.runAllTimers()` (Vitest)
+- Restore real timers with `jest.useRealTimers()` (Jest) or `vi.useRealTimers()` (Vitest) in `afterEach`
 
 ## Test isolation
 
 - Tests must not share mutable state
-- Reset mocks in `beforeEach` (or via auto-reset config)
+- Reset mocks in `beforeEach` (or via runner config: `resetMocks: true` (Jest) or `mockReset: true` (Vitest))
 - Avoid `beforeAll` for state any test could mutate
 
 ## Mocks and fakes
@@ -142,7 +133,7 @@ When calling fakes, override only fields that drive the assertion or branching l
 Mock all dependencies — repositories, external API clients, other services.
 Never call real implementations.
 
-MUST type mocked dependencies with `Mocked<InterfaceName>` when an interface is available.
+MUST type mocked dependencies with the runner's mocked type when an interface is available — `jest.Mocked<InterfaceName>` (Jest) or `Mocked<InterfaceName>` imported from `vitest` (Vitest).
 MUST NOT use `ReturnType<typeof createMock...>` when an interface is available.
 
 ## After writing
