@@ -1,4 +1,4 @@
-import { it } from "@jest/globals";
+import { it } from "vitest";
 // import * as cdk from 'aws-cdk-lib';
 // import { Template } from 'aws-cdk-lib/assertions';
 // import * as BackendCdk from '../lib/backend-cdk-stack';
