@@ -43,6 +43,7 @@
 import { ref, watch } from "vue";
 import { useAssistant } from "@/composables/useAssistant";
 import { useSnackbar } from "@/composables/useSnackbar";
+import { appStorage } from "@/lib/appStorage";
 import AgenticInput from "@/components/AgenticInput.vue";
 
 const STORAGE_KEY = "assistant-input";
@@ -62,7 +63,7 @@ interface StoredInput {
 
 const loadStoredInput = (): Partial<StoredInput> => {
   try {
-    const stored = localStorage.getItem(STORAGE_KEY);
+    const stored = appStorage.getItem(STORAGE_KEY);
     return stored ? JSON.parse(stored) : {};
   } catch {
     return {};
@@ -73,7 +74,7 @@ const saveInput = () => {
   const data: StoredInput = {
     question: question.value,
   };
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  appStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 };
 
 const storedInput = loadStoredInput();

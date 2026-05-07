@@ -1,6 +1,7 @@
 import { ref, computed } from "vue";
 import { useAskAssistantMutation } from "@/__generated__/vue-apollo";
 import type { AgentTraceMessage } from "@/__generated__/vue-apollo";
+import { appStorage } from "@/lib/appStorage";
 
 const LAST_RESULT_STORAGE_KEY = "assistant-last-result";
 const SESSION_ID_STORAGE_KEY = "assistant-session-id";
@@ -12,7 +13,7 @@ interface StoredAssistantResult {
 
 const loadStoredResult = (): StoredAssistantResult | null => {
   try {
-    const stored = localStorage.getItem(LAST_RESULT_STORAGE_KEY);
+    const stored = appStorage.getItem(LAST_RESULT_STORAGE_KEY);
     return stored ? JSON.parse(stored) : null;
   } catch (error) {
     console.error("Failed to load stored result:", error);
@@ -22,11 +23,11 @@ const loadStoredResult = (): StoredAssistantResult | null => {
 
 const saveStoredResult = (result: StoredAssistantResult): void => {
   try {
-    localStorage.setItem(LAST_RESULT_STORAGE_KEY, JSON.stringify(result));
+    appStorage.setItem(LAST_RESULT_STORAGE_KEY, JSON.stringify(result));
   } catch {
     // Fallback: agentTrace can be large; try storing without it
     try {
-      localStorage.setItem(LAST_RESULT_STORAGE_KEY, JSON.stringify({ ...result, agentTrace: [] }));
+      appStorage.setItem(LAST_RESULT_STORAGE_KEY, JSON.stringify({ ...result, agentTrace: [] }));
     } catch (error) {
       console.error("Failed to persist assistant result:", error);
     }
@@ -35,7 +36,7 @@ const saveStoredResult = (result: StoredAssistantResult): void => {
 
 const loadStoredSessionId = (): string | null => {
   try {
-    return localStorage.getItem(SESSION_ID_STORAGE_KEY);
+    return appStorage.getItem(SESSION_ID_STORAGE_KEY);
   } catch (error) {
     // Non-critical — session will just restart next visit
     console.error("Failed to load session ID:", error);
@@ -45,7 +46,7 @@ const loadStoredSessionId = (): string | null => {
 
 const saveSessionId = (sessionId: string): void => {
   try {
-    localStorage.setItem(SESSION_ID_STORAGE_KEY, sessionId);
+    appStorage.setItem(SESSION_ID_STORAGE_KEY, sessionId);
   } catch (error) {
     // Non-critical — session will just restart next visit
     console.error("Failed to persist session ID:", error);

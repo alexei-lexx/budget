@@ -5,6 +5,7 @@ import { useUser } from "@/composables/useUser";
 import { useSnackbar } from "@/composables/useSnackbar";
 import { useDisplay } from "vuetify";
 import { setAuthTokenGetter, globalError, clearGlobalError } from "@/apollo";
+import { appStorage } from "@/lib/appStorage";
 
 const {
   user,
@@ -65,27 +66,27 @@ onMounted(() => {
 });
 
 // Track if user has been ensured for this auth session
-const USER_ENSURED_KEY = "budget_user_ensured";
+const USER_ENSURED_KEY = "user_ensured";
 
 // Watch for authentication state changes - only ensure user on fresh login
 watch(
   [isAuthenticated, authLoading],
   async ([authenticated, loading]) => {
     if (authenticated && !loading) {
-      const userAlreadyEnsured = localStorage.getItem(USER_ENSURED_KEY) === "true";
+      const userAlreadyEnsured = appStorage.getItem(USER_ENSURED_KEY) === "true";
 
       if (!userAlreadyEnsured) {
         try {
           console.log("Fresh login detected, ensuring user exists");
           await ensureUser();
-          localStorage.setItem(USER_ENSURED_KEY, "true");
+          appStorage.setItem(USER_ENSURED_KEY, "true");
         } catch (error) {
           console.error("Failed to ensure user after login:", error);
         }
       }
     } else if (!authenticated && !loading) {
       // Clear the flag when user logs out
-      localStorage.removeItem(USER_ENSURED_KEY);
+      appStorage.removeItem(USER_ENSURED_KEY);
     }
   },
   { immediate: true },
@@ -104,7 +105,7 @@ const handleSignOut = () => {
   if (mobile.value) {
     drawer.value = false;
   }
-  localStorage.clear();
+  appStorage.clearAll();
   logout();
 };
 
