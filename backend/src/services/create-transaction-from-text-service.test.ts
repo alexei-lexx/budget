@@ -47,7 +47,7 @@ describe("CreateTransactionFromTextService", () => {
       const transactionId = faker.string.uuid();
       const createdTransaction = fakeTransaction();
 
-      // Agent successfully creates a transaction
+      // Agent successfully creates transaction
       mockCreateTransactionAgent.invoke.mockResolvedValue({
         answer: "OK",
         agentTrace: [],
@@ -63,7 +63,7 @@ describe("CreateTransactionFromTextService", () => {
         ],
       });
 
-      // Fetching the created transaction succeeds
+      // Fetching created transaction succeeds
       mockTransactionService.getTransactionById.mockResolvedValue(
         createdTransaction,
       );
@@ -89,7 +89,7 @@ describe("CreateTransactionFromTextService", () => {
         { type: AgentTraceMessageType.TEXT, content: "Thinking..." },
       ];
 
-      // Agent returns a thinking trace alongside the tool execution
+      // Agent returns thinking trace alongside tool execution
       mockCreateTransactionAgent.invoke.mockResolvedValue({
         answer: "OK",
         agentTrace,
@@ -105,7 +105,7 @@ describe("CreateTransactionFromTextService", () => {
         ],
       });
 
-      // Fetching the created transaction succeeds
+      // Fetching created transaction succeeds
       mockTransactionService.getTransactionById.mockResolvedValue(
         fakeTransaction(),
       );
@@ -130,7 +130,7 @@ describe("CreateTransactionFromTextService", () => {
       const lastTransactionId = faker.string.uuid();
       const createdTransaction = fakeTransaction();
 
-      // Agent calls createTransaction twice — only the last result should be used
+      // Agent calls createTransaction twice — only last result is used
       mockCreateTransactionAgent.invoke.mockResolvedValue({
         answer: "OK",
         agentTrace: [],
@@ -154,7 +154,7 @@ describe("CreateTransactionFromTextService", () => {
         ],
       });
 
-      // Fetching the created transaction succeeds
+      // Fetching created transaction succeeds
       mockTransactionService.getTransactionById.mockResolvedValue(
         createdTransaction,
       );
@@ -175,7 +175,7 @@ describe("CreateTransactionFromTextService", () => {
 
     describe("agent call parameters", () => {
       beforeEach(() => {
-        // Agent successfully creates a transaction
+        // Agent successfully creates transaction
         mockCreateTransactionAgent.invoke.mockResolvedValue({
           answer: "OK",
           agentTrace: [],
@@ -191,7 +191,7 @@ describe("CreateTransactionFromTextService", () => {
           ],
         });
 
-        // Fetching the created transaction succeeds
+        // Fetching created transaction succeeds
         mockTransactionService.getTransactionById.mockResolvedValue(
           fakeTransaction(),
         );
@@ -317,7 +317,7 @@ describe("CreateTransactionFromTextService", () => {
     it("returns failure when agent does not attempt to create transaction", async () => {
       // Arrange
 
-      // Agent responds without invoking the createTransaction tool
+      // Agent responds without invoking createTransaction tool
       mockCreateTransactionAgent.invoke.mockResolvedValue({
         answer: "I need more information.",
         agentTrace: [],
@@ -341,7 +341,7 @@ describe("CreateTransactionFromTextService", () => {
     it("returns failure when tool output is not valid JSON", async () => {
       // Arrange
 
-      // Agent invokes the tool but the output is malformed
+      // Agent invokes tool but output is malformed
       mockCreateTransactionAgent.invoke.mockResolvedValue({
         answer: undefined,
         agentTrace: [],
@@ -368,7 +368,7 @@ describe("CreateTransactionFromTextService", () => {
     it("returns failure when tool output does not match expected schema", async () => {
       // Arrange
 
-      // Agent invokes the tool but returns an unexpected JSON shape
+      // Agent invokes tool but returns unexpected JSON shape
       mockCreateTransactionAgent.invoke.mockResolvedValue({
         answer: undefined,
         agentTrace: [],
@@ -400,7 +400,7 @@ describe("CreateTransactionFromTextService", () => {
     it("returns failure when tool reports transaction creation failed", async () => {
       // Arrange
 
-      // Agent invokes the tool but the tool itself reports a business failure
+      // Agent invokes tool but tool itself reports business failure
       mockCreateTransactionAgent.invoke.mockResolvedValue({
         answer: undefined,
         agentTrace: [],
@@ -430,7 +430,7 @@ describe("CreateTransactionFromTextService", () => {
     it("includes agentTrace in failure response", async () => {
       // Arrange
 
-      // Agent responds with a thinking trace but no tool call
+      // Agent responds with thinking trace but no tool call
       mockCreateTransactionAgent.invoke.mockResolvedValue({
         answer: undefined,
         agentTrace: [
