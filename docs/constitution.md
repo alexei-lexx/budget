@@ -39,7 +39,7 @@ An npm package providing the user-facing single-page application.
 
 - **Language**: TypeScript
 - **Framework**: Vue 3, Vite, Vuetify, Apollo Client
-- **Testing**: Jest
+- **Testing**: Vitest
 - **Quality**: ESLint, Prettier, TypeScript strict mode, Vue type-checking
 
 **Responsibilities**:

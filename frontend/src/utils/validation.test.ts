@@ -1,3 +1,4 @@
+import { describe, it, expect } from "vitest";
 import { checkRules, type CheckRule } from "./validation";
 
 describe("checkRules", () => {
