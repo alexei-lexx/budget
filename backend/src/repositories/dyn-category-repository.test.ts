@@ -28,6 +28,8 @@ describe("DynCategoryRepository", () => {
   });
 
   describe("findManyByUserId", () => {
+    // Happy path
+
     it("returns categories sorted alphabetically", async () => {
       // Arrange - Create categories in mixed order with different types
       await repository.create(
@@ -215,7 +217,9 @@ describe("DynCategoryRepository", () => {
     });
   });
 
-  describe("findManyByUserId", () => {
+  describe("findManyWithArchivedByUserId", () => {
+    // Happy path
+
     it("returns all categories including archived", async () => {
       // Arrange
       const activeCategory = await repository.create(
@@ -272,6 +276,8 @@ describe("DynCategoryRepository", () => {
       expect(result[0]?.userId).toBe(userId);
     });
 
+    // Validation failures
+
     it("throws error when userId is missing", async () => {
       // Act & Assert
       await expect(repository.findManyWithArchivedByUserId("")).rejects.toThrow(
@@ -280,7 +286,9 @@ describe("DynCategoryRepository", () => {
     });
   });
 
-  describe("findManyByIds", () => {
+  describe("findManyWithArchivedByIds", () => {
+    // Happy path
+
     it("returns categories when IDs exist", async () => {
       // Arrange
       const category1 = await repository.create(
@@ -330,16 +338,6 @@ describe("DynCategoryRepository", () => {
       expect(result[0]).toEqual(category);
     });
 
-    it("throws error when userId is missing", async () => {
-      // Act & Assert
-      await expect(
-        repository.findManyWithArchivedByIds({
-          ids: ["category-1"],
-          userId: "",
-        }),
-      ).rejects.toThrow("User ID is required");
-    });
-
     it("returns archived categories (not filtered)", async () => {
       // Arrange
       const category = await repository.create(
@@ -357,9 +355,49 @@ describe("DynCategoryRepository", () => {
       expect(result).toHaveLength(1);
       expect(result[0]?.isArchived).toBe(true);
     });
+
+    // Validation failures
+
+    it("throws error when userId is missing", async () => {
+      // Act & Assert
+      await expect(
+        repository.findManyWithArchivedByIds({
+          ids: ["category-1"],
+          userId: "",
+        }),
+      ).rejects.toThrow("User ID is required");
+    });
+
+    // Dependency failures
+
+    it("throws error when required field type is missing from database record", async () => {
+      // Arrange
+      const category = await repository.create(
+        fakeCreateCategoryInput({ userId }),
+      );
+
+      // Manually corrupt database record by removing type (type is reserved keyword)
+      await client.send(
+        new UpdateCommand({
+          TableName: tableName,
+          Key: { userId, id: category.id },
+          UpdateExpression: "REMOVE #t",
+          ExpressionAttributeNames: {
+            "#t": "type",
+          },
+        }),
+      );
+
+      // Act & Assert
+      await expect(
+        repository.findManyWithArchivedByIds({ ids: [category.id], userId }),
+      ).rejects.toThrow();
+    });
   });
 
   describe("create", () => {
+    // Happy path
+
     it("creates category successfully", async () => {
       // Arrange
       const input = fakeCreateCategoryInput({ userId });
@@ -405,6 +443,8 @@ describe("DynCategoryRepository", () => {
   });
 
   describe("update", () => {
+    // Happy path
+
     it("updates category name successfully", async () => {
       // Arrange
       const category = await repository.create(
@@ -500,6 +540,8 @@ describe("DynCategoryRepository", () => {
       expect(result.updatedAt).not.toBe(category.updatedAt);
     });
 
+    // Validation failures
+
     it("throws error when category does not exist", async () => {
       // Act & Assert
       await expect(
@@ -536,6 +578,8 @@ describe("DynCategoryRepository", () => {
   });
 
   describe("archive", () => {
+    // Happy path
+
     it("archives category successfully", async () => {
       // Arrange
       const category = await repository.create(
@@ -550,6 +594,8 @@ describe("DynCategoryRepository", () => {
       expect(result.isArchived).toBe(true);
       expect(result.updatedAt).not.toBe(category.updatedAt);
     });
+
+    // Validation failures
 
     it("throws error when archiving non-existent category", async () => {
       // Act & Assert
@@ -580,33 +626,6 @@ describe("DynCategoryRepository", () => {
       await expect(
         repository.archive({ id: "some-id", userId: "" }),
       ).rejects.toThrow("User ID is required");
-    });
-  });
-
-  describe("hydration - data corruption detection", () => {
-    it("throws error when required field type is missing from database record", async () => {
-      // Arrange
-      const category = await repository.create(
-        fakeCreateCategoryInput({ userId }),
-      );
-      const client = createDynamoDBDocumentClient();
-
-      // Manually corrupt the database record by removing type (type is a reserved keyword)
-      await client.send(
-        new UpdateCommand({
-          TableName: tableName,
-          Key: { userId, id: category.id },
-          UpdateExpression: "REMOVE #t",
-          ExpressionAttributeNames: {
-            "#t": "type",
-          },
-        }),
-      );
-
-      // Act & Assert
-      await expect(
-        repository.findManyWithArchivedByIds({ ids: [category.id], userId }),
-      ).rejects.toThrow();
     });
   });
 });
