@@ -10,11 +10,9 @@ describe("FrontendCdkStack", () => {
   it("synthesizes with CloudFront distribution", () => {
     // Arrange
     const app = new cdk.App();
-    const carrierStack = new cdk.Stack(app, "CarrierStack", {
-      env: { account: "111111111111", region: "us-east-1" },
-    });
+    const fakeBackendStack = new cdk.Stack(app, "FakeBackendStack");
     const httpApi = apigatewayv2.HttpApi.fromHttpApiAttributes(
-      carrierStack,
+      fakeBackendStack,
       "ImportedHttpApi",
       { httpApiId: "test-http-api-id" },
     );
