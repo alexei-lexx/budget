@@ -3,7 +3,7 @@ import {
   GetParametersCommandOutput,
   SSMClient,
 } from "@aws-sdk/client-ssm";
-import { beforeEach, describe, expect, it, vi, type Mock } from "vitest";
+import { type Mock, beforeEach, describe, expect, it, vi } from "vitest";
 import { injectRuntimeEnv } from "./bootstrap";
 
 vi.mock("@aws-sdk/client-ssm", async () => {
@@ -18,9 +18,7 @@ vi.mock("@aws-sdk/client-ssm", async () => {
 });
 
 describe("injectRuntimeEnv", () => {
-  let sendMock: Mock<
-    (command: unknown) => Promise<GetParametersCommandOutput>
-  >;
+  let sendMock: Mock<(command: unknown) => Promise<GetParametersCommandOutput>>;
 
   beforeEach(() => {
     vi.clearAllMocks();

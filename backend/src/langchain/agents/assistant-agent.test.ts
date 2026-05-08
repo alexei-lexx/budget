@@ -1,6 +1,6 @@
 import { faker } from "@faker-js/faker";
-import { beforeEach, describe, expect, it, vi } from "vitest";
 import { AIMessage, ToolMessage, fakeModel } from "langchain";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createMockAccountRepository } from "../../utils/test-utils/repositories/account-repository-mocks";
 import { createMockCategoryRepository } from "../../utils/test-utils/repositories/category-repository-mocks";
 import { createMockTransactionRepository } from "../../utils/test-utils/repositories/transaction-repository-mocks";

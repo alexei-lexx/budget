@@ -1,6 +1,6 @@
 import { faker } from "@faker-js/faker";
-import { beforeEach, describe, expect, it, vi, type Mocked } from "vitest";
 import { v4 as uuidv4 } from "uuid";
+import { type Mocked, beforeEach, describe, expect, it } from "vitest";
 import { ReportType } from "../models/report";
 import { TransactionType } from "../models/transaction";
 import { CategoryRepository } from "../ports/category-repository";

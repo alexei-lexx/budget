@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
 import DataLoader from "dataloader";
+import { describe, expect, it } from "vitest";
 import { fakeCategory } from "../../utils/test-utils/models/category-fakes";
 import { createMockCategoryRepository } from "../../utils/test-utils/repositories/category-repository-mocks";
 import { batchLoadCategories, createCategoryLoader } from "./category-loader";

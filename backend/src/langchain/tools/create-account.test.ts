@@ -1,5 +1,5 @@
 import { faker } from "@faker-js/faker";
-import { beforeEach, describe, expect, it, vi, type Mocked } from "vitest";
+import { type Mocked, beforeEach, describe, expect, it } from "vitest";
 import { AccountService } from "../../services/account-service";
 import { BusinessError } from "../../services/business-error";
 import { fakeAccount } from "../../utils/test-utils/models/account-fakes";

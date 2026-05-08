@@ -1,6 +1,6 @@
 import { faker } from "@faker-js/faker";
-import { beforeEach, describe, expect, it, vi, type Mocked } from "vitest";
 import { AIMessage, ToolMessage, fakeModel } from "langchain";
+import { type Mocked, beforeEach, describe, expect, it, vi } from "vitest";
 import { TransactionType } from "../../models/transaction";
 import { TransactionService } from "../../services/transaction-service";
 import { fakeTransaction } from "../../utils/test-utils/models/transaction-fakes";

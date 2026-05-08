@@ -1,5 +1,5 @@
 import { faker } from "@faker-js/faker";
-import { beforeEach, describe, expect, it, vi, type Mocked } from "vitest";
+import { type Mocked, beforeEach, describe, expect, it, vi } from "vitest";
 import { CREATE_TRANSACTION_TOOL_NAME } from "../langchain/tools/create-transaction";
 import {
   Agent,

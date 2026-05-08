@@ -1,4 +1,4 @@
-import { vi, type Mocked } from "vitest";
+import { type Mocked, vi } from "vitest";
 import { TelegramBotRepository } from "../../../ports/telegram-bot-repository";
 
 /**

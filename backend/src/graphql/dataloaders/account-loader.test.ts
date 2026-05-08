@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
 import DataLoader from "dataloader";
+import { describe, expect, it } from "vitest";
 import { fakeAccount } from "../../utils/test-utils/models/account-fakes";
 import { createMockAccountRepository } from "../../utils/test-utils/repositories/account-repository-mocks";
 import { batchLoadAccounts, createAccountLoader } from "./account-loader";

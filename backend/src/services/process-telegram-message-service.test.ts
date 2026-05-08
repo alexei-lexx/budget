@@ -1,5 +1,5 @@
 import { faker } from "@faker-js/faker";
-import { beforeEach, describe, expect, it, vi, type Mocked } from "vitest";
+import { type Mocked, beforeEach, describe, expect, it, vi } from "vitest";
 import { TelegramApiClient } from "../ports/telegram-api-client";
 import { TelegramBotRepository } from "../ports/telegram-bot-repository";
 import { fakeTelegramBot } from "../utils/test-utils/models/telegram-bot-fakes";

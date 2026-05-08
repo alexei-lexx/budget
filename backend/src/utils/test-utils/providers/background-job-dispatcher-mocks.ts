@@ -1,4 +1,4 @@
-import { vi, type Mocked } from "vitest";
+import { type Mocked, vi } from "vitest";
 import { BackgroundJobDispatcher } from "../../../ports/background-job-dispatcher";
 
 export const createMockBackgroundJobDispatcher =

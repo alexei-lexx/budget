@@ -1,6 +1,14 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
-import { afterEach, beforeEach, describe, expect, it, vi, type MockedFunction } from "vitest";
+import {
+  type MockedFunction,
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vitest";
 
 // Mock the operations modules
 vi.mock("./operations/migrations-table");
@@ -17,9 +25,7 @@ import { executeMigrations } from "./runner";
 import { Migration, MigrationFunction } from "./types";
 
 const mockIsExecuted = isExecuted as MockedFunction<typeof isExecuted>;
-const mockMarkExecuted = markExecuted as MockedFunction<
-  typeof markExecuted
->;
+const mockMarkExecuted = markExecuted as MockedFunction<typeof markExecuted>;
 const mockAcquireLock = acquireLock as MockedFunction<typeof acquireLock>;
 const mockReleaseLock = releaseLock as MockedFunction<typeof releaseLock>;
 const mockCreateDynamoDBDocumentClient =
@@ -143,9 +149,7 @@ describe("executeMigrations", () => {
 
   describe("lock management", () => {
     it("acquires lock before executing migrations", async () => {
-      const migration = vi
-        .fn<MigrationFunction>()
-        .mockResolvedValue(undefined);
+      const migration = vi.fn<MigrationFunction>().mockResolvedValue(undefined);
       const migrations: Migration[] = [
         {
           timestamp: "20231203120000",
@@ -262,9 +266,7 @@ describe("executeMigrations", () => {
         {
           timestamp: "20231203120000",
           description: "test-migration",
-          up: vi
-            .fn<MigrationFunction>()
-            .mockRejectedValue(new Error("Failed")),
+          up: vi.fn<MigrationFunction>().mockRejectedValue(new Error("Failed")),
         },
       ];
 

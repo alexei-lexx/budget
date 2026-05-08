@@ -1,5 +1,5 @@
 import { faker } from "@faker-js/faker";
-import { beforeEach, describe, expect, it, vi, type Mocked } from "vitest";
+import { type Mocked, beforeEach, describe, expect, it, vi } from "vitest";
 import { ChatMessageRole } from "../models/chat-message";
 import { ChatMessageRepository } from "../ports/chat-message-repository";
 import { fakeChatMessage } from "../utils/test-utils/models/chat-message-fakes";

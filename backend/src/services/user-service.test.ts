@@ -1,5 +1,5 @@
 import { faker } from "@faker-js/faker";
-import { beforeEach, describe, expect, it, vi, type Mocked } from "vitest";
+import { type Mocked, beforeEach, describe, expect, it } from "vitest";
 import { UserRepository } from "../ports/user-repository";
 import { fakeUser } from "../utils/test-utils/models/user-fakes";
 import { createMockUserRepository } from "../utils/test-utils/repositories/user-repository-mocks";

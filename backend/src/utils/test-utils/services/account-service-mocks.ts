@@ -1,4 +1,4 @@
-import { vi, type Mocked } from "vitest";
+import { type Mocked, vi } from "vitest";
 import { AccountService } from "../../../services/account-service";
 
 export const createMockAccountService = (): Mocked<AccountService> => ({

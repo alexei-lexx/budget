@@ -1,5 +1,5 @@
 import { InvokeCommand, LambdaClient } from "@aws-sdk/client-lambda";
-import { describe, expect, it, vi, type Mock } from "vitest";
+import { type Mock, describe, expect, it, vi } from "vitest";
 import { LambdaBackgroundJobDispatcher } from "./lambda-background-job-dispatcher";
 
 vi.mock("@aws-sdk/client-lambda", async () => {

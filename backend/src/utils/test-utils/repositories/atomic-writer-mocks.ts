@@ -1,4 +1,4 @@
-import { vi, type Mocked } from "vitest";
+import { type Mocked, vi } from "vitest";
 import { AtomicWriter } from "../../../ports/atomic-writer";
 
 export const createMockAtomicWriter = (): Mocked<AtomicWriter> => ({
