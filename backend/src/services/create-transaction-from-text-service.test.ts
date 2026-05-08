@@ -1,5 +1,5 @@
 import { faker } from "@faker-js/faker";
-import { beforeEach, describe, expect, it, jest } from "@jest/globals";
+import { beforeEach, describe, expect, it, vi, type Mocked } from "vitest";
 import { CREATE_TRANSACTION_TOOL_NAME } from "../langchain/tools/create-transaction";
 import {
   Agent,
@@ -11,20 +11,20 @@ import { createMockTransactionService } from "../utils/test-utils/services/trans
 import { CreateTransactionFromTextService } from "./create-transaction-from-text-service";
 import { TransactionService } from "./transaction-service";
 
-const createMockCreateTransactionAgent = (): jest.Mocked<
+const createMockCreateTransactionAgent = (): Mocked<
   Agent<{ userId: string; isVoiceInput: boolean; today: string }>
 > => ({
-  invoke: jest.fn(),
+  invoke: vi.fn(),
 });
 
 describe("CreateTransactionFromTextService", () => {
   const userId = faker.string.uuid();
   const text = "coffee at starbucks for 5 euros";
 
-  let mockCreateTransactionAgent: jest.Mocked<
+  let mockCreateTransactionAgent: Mocked<
     Agent<{ userId: string; isVoiceInput: boolean; today: string }>
   >;
-  let mockTransactionService: jest.Mocked<TransactionService>;
+  let mockTransactionService: Mocked<TransactionService>;
   let service: CreateTransactionFromTextService;
 
   beforeEach(() => {
@@ -36,7 +36,7 @@ describe("CreateTransactionFromTextService", () => {
       transactionService: mockTransactionService,
     });
 
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe("call", () => {

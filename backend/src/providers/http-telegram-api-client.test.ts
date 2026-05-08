@@ -1,7 +1,7 @@
-import { beforeEach, describe, expect, it, jest } from "@jest/globals";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { HttpTelegramApiClient } from "./http-telegram-api-client";
 
-const mockFetch = jest.fn<typeof fetch>();
+const mockFetch = vi.fn<typeof fetch>();
 global.fetch = mockFetch as unknown as typeof fetch;
 
 function mockResponse(body: unknown, status = 200): Response {

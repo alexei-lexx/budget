@@ -1,5 +1,5 @@
 import { faker } from "@faker-js/faker";
-import { beforeEach, describe, expect, it, jest } from "@jest/globals";
+import { beforeEach, describe, expect, it, vi, type Mocked } from "vitest";
 import { AccountRepository } from "../ports/account-repository";
 import { SUPPORTED_CURRENCIES } from "../types/currency";
 import { fakeAccount } from "../utils/test-utils/models/account-fakes";
@@ -7,7 +7,7 @@ import { createMockAccountRepository } from "../utils/test-utils/repositories/ac
 import { CurrencyServiceImpl } from "./currency-service";
 
 describe("CurrencyService", () => {
-  let mockAccountRepository: jest.Mocked<AccountRepository>;
+  let mockAccountRepository: Mocked<AccountRepository>;
   let service: CurrencyServiceImpl;
   let userId: string;
 

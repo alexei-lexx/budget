@@ -1,5 +1,5 @@
 import { faker } from "@faker-js/faker";
-import { beforeEach, describe, expect, it, jest } from "@jest/globals";
+import { beforeEach, describe, expect, it, vi, type Mocked } from "vitest";
 import { TelegramApiClient } from "../ports/telegram-api-client";
 import { TelegramBotRepository } from "../ports/telegram-bot-repository";
 import { fakeTelegramBot } from "../utils/test-utils/models/telegram-bot-fakes";
@@ -9,15 +9,15 @@ import { AssistantChatService } from "./assistant-chat-service";
 import { ProcessTelegramMessageService } from "./process-telegram-message-service";
 
 describe("ProcessTelegramMessageService", () => {
-  let mockAssistantChatService: jest.Mocked<AssistantChatService>;
-  let mockTelegramApiClient: jest.Mocked<TelegramApiClient>;
-  let mockTelegramBotRepository: jest.Mocked<TelegramBotRepository>;
+  let mockAssistantChatService: Mocked<AssistantChatService>;
+  let mockTelegramApiClient: Mocked<TelegramApiClient>;
+  let mockTelegramBotRepository: Mocked<TelegramBotRepository>;
   let service: ProcessTelegramMessageService;
   let chatId: number;
   let userId: string;
 
   beforeEach(() => {
-    mockAssistantChatService = { call: jest.fn() };
+    mockAssistantChatService = { call: vi.fn() };
     mockTelegramApiClient = createMockTelegramApiClient();
     mockTelegramBotRepository = createMockTelegramBotRepository();
 

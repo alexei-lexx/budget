@@ -1,19 +1,19 @@
-import { jest } from "@jest/globals";
+import { vi, type Mocked } from "vitest";
 import { TransactionRepository } from "../../../ports/transaction-repository";
 
 /**
  * Mock transaction repository for testing
  */
 export const createMockTransactionRepository =
-  (): jest.Mocked<TransactionRepository> => ({
-    findManyByUserIdPaginated: jest.fn(),
-    findManyByUserId: jest.fn(),
-    findOneById: jest.fn(),
-    findManyByAccountId: jest.fn(),
-    findManyByTransferId: jest.fn(),
-    findManyByDescription: jest.fn(),
-    create: jest.fn(),
-    update: jest.fn(),
-    hasTransactionsForAccount: jest.fn(),
-    detectPatterns: jest.fn(),
+  (): Mocked<TransactionRepository> => ({
+    findManyByUserIdPaginated: vi.fn(),
+    findManyByUserId: vi.fn(),
+    findOneById: vi.fn(),
+    findManyByAccountId: vi.fn(),
+    findManyByTransferId: vi.fn(),
+    findManyByDescription: vi.fn(),
+    create: vi.fn(),
+    update: vi.fn(),
+    hasTransactionsForAccount: vi.fn(),
+    detectPatterns: vi.fn(),
   });

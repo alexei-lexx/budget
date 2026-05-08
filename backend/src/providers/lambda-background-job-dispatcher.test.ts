@@ -1,25 +1,25 @@
 import { InvokeCommand, LambdaClient } from "@aws-sdk/client-lambda";
-import { describe, expect, it, jest } from "@jest/globals";
+import { describe, expect, it, vi, type Mock } from "vitest";
 import { LambdaBackgroundJobDispatcher } from "./lambda-background-job-dispatcher";
 
-jest.mock("@aws-sdk/client-lambda", () => {
-  const actual = jest.requireActual<typeof import("@aws-sdk/client-lambda")>(
+vi.mock("@aws-sdk/client-lambda", async () => {
+  const actual = await vi.importActual<typeof import("@aws-sdk/client-lambda")>(
     "@aws-sdk/client-lambda",
   );
 
   return {
     ...actual,
-    LambdaClient: jest.fn(),
+    LambdaClient: vi.fn(),
   };
 });
 
 describe("LambdaBackgroundJobDispatcher", () => {
   it("invokes Lambda function with Event invocation type", async () => {
-    const mockSend = jest
+    const mockSend = vi
       .fn<(command: unknown) => Promise<unknown>>()
       .mockResolvedValue({});
 
-    (LambdaClient as jest.Mock).mockImplementation(() => ({
+    (LambdaClient as Mock).mockImplementation(() => ({
       send: mockSend,
     }));
 

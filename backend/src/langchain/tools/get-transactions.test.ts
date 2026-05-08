@@ -1,5 +1,5 @@
 import { faker } from "@faker-js/faker";
-import { beforeEach, describe, expect, it, jest } from "@jest/globals";
+import { beforeEach, describe, expect, it, vi, type Mocked } from "vitest";
 import { TransactionType } from "../../models/transaction";
 import { TransactionRepository } from "../../ports/transaction-repository";
 import { toDateString } from "../../types/date";
@@ -8,7 +8,7 @@ import { createMockTransactionRepository } from "../../utils/test-utils/reposito
 import { MAX_PERIOD_DAYS, createGetTransactionsTool } from "./get-transactions";
 
 describe("createGetTransactionsTool", () => {
-  let mockTransactionRepository: jest.Mocked<TransactionRepository>;
+  let mockTransactionRepository: Mocked<TransactionRepository>;
   const userId = faker.string.uuid();
 
   beforeEach(() => {

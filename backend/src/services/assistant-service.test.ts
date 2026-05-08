@@ -1,5 +1,5 @@
 import { faker } from "@faker-js/faker";
-import { beforeEach, describe, expect, it, jest } from "@jest/globals";
+import { beforeEach, describe, expect, it, vi, type Mocked } from "vitest";
 import {
   Agent,
   AgentTraceMessage,
@@ -11,20 +11,20 @@ import {
   AssistantServiceImpl,
 } from "./assistant-service";
 
-const createMockAssistantAgent = (): jest.Mocked<
+const createMockAssistantAgent = (): Mocked<
   Agent<{
     isVoiceInput: boolean;
     today: string;
     userId: string;
   }>
 > => ({
-  invoke: jest.fn(),
+  invoke: vi.fn(),
 });
 
 describe("AssistantService", () => {
   let service: AssistantService;
   let userId: string;
-  let mockAssistantAgent: jest.Mocked<
+  let mockAssistantAgent: Mocked<
     Agent<{
       isVoiceInput: boolean;
       today: string;
@@ -37,7 +37,7 @@ describe("AssistantService", () => {
     service = new AssistantServiceImpl(mockAssistantAgent);
     userId = faker.string.uuid();
 
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe("call", () => {

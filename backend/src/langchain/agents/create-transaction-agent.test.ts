@@ -1,5 +1,5 @@
 import { faker } from "@faker-js/faker";
-import { beforeEach, describe, expect, it, jest } from "@jest/globals";
+import { beforeEach, describe, expect, it, vi, type Mocked } from "vitest";
 import { AIMessage, ToolMessage, fakeModel } from "langchain";
 import { TransactionType } from "../../models/transaction";
 import { TransactionService } from "../../services/transaction-service";
@@ -17,7 +17,7 @@ import {
 describe("createCreateTransactionAgent", () => {
   let agent: ReturnType<typeof createCreateTransactionAgent>;
   let mockModel: ReturnType<typeof fakeModel>;
-  let mockTransactionService: jest.Mocked<TransactionService>;
+  let mockTransactionService: Mocked<TransactionService>;
 
   const baseContext = {
     today: "2000-01-02",
@@ -27,7 +27,7 @@ describe("createCreateTransactionAgent", () => {
   const messages = [{ role: "user", content: "coffee $5" }];
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     mockModel = fakeModel();
     mockTransactionService = createMockTransactionService();

@@ -1,5 +1,5 @@
 import { faker } from "@faker-js/faker";
-import { beforeEach, describe, expect, it, jest } from "@jest/globals";
+import { beforeEach, describe, expect, it, vi, type Mocked } from "vitest";
 import { UserRepository } from "../ports/user-repository";
 import { fakeUser } from "../utils/test-utils/models/user-fakes";
 import { createMockUserRepository } from "../utils/test-utils/repositories/user-repository-mocks";
@@ -12,7 +12,7 @@ import { UserService } from "./user-service";
 
 describe("UserService", () => {
   let service: UserService;
-  let mockUserRepository: jest.Mocked<UserRepository>;
+  let mockUserRepository: Mocked<UserRepository>;
 
   beforeEach(() => {
     mockUserRepository = createMockUserRepository();

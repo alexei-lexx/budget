@@ -1,5 +1,5 @@
 import { faker } from "@faker-js/faker";
-import { beforeEach, describe, expect, it, jest } from "@jest/globals";
+import { beforeEach, describe, expect, it, vi, type Mocked } from "vitest";
 import { TransactionType } from "../../models/transaction";
 import { TransactionService } from "../../services/transaction-service";
 import { toDateString } from "../../types/date";
@@ -11,13 +11,13 @@ import {
 } from "./create-transaction";
 
 describe("createCreateTransactionTool", () => {
-  let mockTransactionService: jest.Mocked<TransactionService>;
+  let mockTransactionService: Mocked<TransactionService>;
   const userId = faker.string.uuid();
 
   beforeEach(() => {
     mockTransactionService = {
-      createTransaction: jest.fn(),
-    } as unknown as jest.Mocked<TransactionService>;
+      createTransaction: vi.fn(),
+    } as unknown as Mocked<TransactionService>;
   });
 
   it("returns tool with correct name", () => {

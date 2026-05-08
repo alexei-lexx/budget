@@ -1,16 +1,16 @@
-import { jest } from "@jest/globals";
+import { vi, type Mocked } from "vitest";
 import { CategoryRepository } from "../../../ports/category-repository";
 
 /**
  * Mock category repository for testing
  */
 export const createMockCategoryRepository =
-  (): jest.Mocked<CategoryRepository> => ({
-    findManyByUserId: jest.fn(),
-    findManyWithArchivedByUserId: jest.fn(),
-    findOneById: jest.fn(),
-    findManyWithArchivedByIds: jest.fn(),
-    create: jest.fn(),
-    update: jest.fn(),
-    archive: jest.fn(),
+  (): Mocked<CategoryRepository> => ({
+    findManyByUserId: vi.fn(),
+    findManyWithArchivedByUserId: vi.fn(),
+    findOneById: vi.fn(),
+    findManyWithArchivedByIds: vi.fn(),
+    create: vi.fn(),
+    update: vi.fn(),
+    archive: vi.fn(),
   });

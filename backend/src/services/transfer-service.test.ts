@@ -1,5 +1,5 @@
 import { faker } from "@faker-js/faker";
-import { beforeEach, describe, expect, it, jest } from "@jest/globals";
+import { beforeEach, describe, expect, it, vi, type Mocked } from "vitest";
 import { ModelError } from "../models/model-error";
 import { TransactionType } from "../models/transaction";
 import { AccountRepository } from "../ports/account-repository";
@@ -18,9 +18,9 @@ import { TransferService } from "./transfer-service";
 describe("TransferService", () => {
   let service: TransferService;
   let userId: string;
-  let mockTransactionRepository: jest.Mocked<TransactionRepository>;
-  let mockAccountRepository: jest.Mocked<AccountRepository>;
-  let mockAtomicWriter: jest.Mocked<AtomicWriter>;
+  let mockTransactionRepository: Mocked<TransactionRepository>;
+  let mockAccountRepository: Mocked<AccountRepository>;
+  let mockAtomicWriter: Mocked<AtomicWriter>;
 
   beforeEach(() => {
     mockAccountRepository = createMockAccountRepository();
@@ -1405,7 +1405,7 @@ describe("TransferService", () => {
       // Rejects with unexpected error
       mockAtomicWriter.commit.mockRejectedValue(new Error("DB down"));
       // Suppress error log noise
-      jest.spyOn(console, "error").mockImplementation(jest.fn());
+      vi.spyOn(console, "error").mockImplementation(vi.fn());
 
       // Act & Assert
       await expect(

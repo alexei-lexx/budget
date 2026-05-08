@@ -1,5 +1,5 @@
 import { faker } from "@faker-js/faker";
-import { beforeEach, describe, expect, it, jest } from "@jest/globals";
+import { beforeEach, describe, expect, it, vi, type Mocked } from "vitest";
 import { TransactionType } from "../../models/transaction";
 import { TransactionRepository } from "../../ports/transaction-repository";
 import { toDateString } from "../../types/date";
@@ -9,7 +9,7 @@ import { createAggregateTransactionsTool } from "./aggregate-transactions";
 import { MAX_PERIOD_DAYS } from "./get-transactions";
 
 describe("createAggregateTransactionsTool", () => {
-  let mockTransactionRepository: jest.Mocked<TransactionRepository>;
+  let mockTransactionRepository: Mocked<TransactionRepository>;
   const userId = faker.string.uuid();
 
   beforeEach(() => {

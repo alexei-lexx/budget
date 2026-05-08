@@ -1,5 +1,5 @@
 import { faker } from "@faker-js/faker";
-import { beforeEach, describe, expect, it, jest } from "@jest/globals";
+import { beforeEach, describe, expect, it, vi, type Mocked } from "vitest";
 import { ChatMessageRole } from "../models/chat-message";
 import { ChatMessageRepository } from "../ports/chat-message-repository";
 import { fakeChatMessage } from "../utils/test-utils/models/chat-message-fakes";
@@ -10,8 +10,8 @@ import {
 } from "./assistant-chat-service";
 import { AssistantService } from "./assistant-service";
 
-const createMockAssistantService = (): jest.Mocked<AssistantService> => ({
-  call: jest.fn(),
+const createMockAssistantService = (): Mocked<AssistantService> => ({
+  call: vi.fn(),
 });
 
 describe("AssistantChatService", () => {
@@ -19,8 +19,8 @@ describe("AssistantChatService", () => {
   const maxMessages = 20;
 
   let service: AssistantChatService;
-  let assistantService: jest.Mocked<AssistantService>;
-  let chatMessageRepository: jest.Mocked<ChatMessageRepository>;
+  let assistantService: Mocked<AssistantService>;
+  let chatMessageRepository: Mocked<ChatMessageRepository>;
 
   beforeEach(() => {
     assistantService = createMockAssistantService();
@@ -32,7 +32,7 @@ describe("AssistantChatService", () => {
       maxMessages,
     });
 
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe("call", () => {

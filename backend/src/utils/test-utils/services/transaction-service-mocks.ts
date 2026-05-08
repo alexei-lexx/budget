@@ -1,13 +1,13 @@
-import { jest } from "@jest/globals";
+import { vi, type Mocked } from "vitest";
 import { TransactionService } from "../../../services/transaction-service";
 
 export const createMockTransactionService =
-  (): jest.Mocked<TransactionService> => ({
-    getTransactionById: jest.fn(),
-    getTransactionsByUser: jest.fn(),
-    getTransactionPatterns: jest.fn(),
-    getDescriptionSuggestions: jest.fn(),
-    createTransaction: jest.fn(),
-    updateTransaction: jest.fn(),
-    deleteTransaction: jest.fn(),
+  (): Mocked<TransactionService> => ({
+    getTransactionById: vi.fn(),
+    getTransactionsByUser: vi.fn(),
+    getTransactionPatterns: vi.fn(),
+    getDescriptionSuggestions: vi.fn(),
+    createTransaction: vi.fn(),
+    updateTransaction: vi.fn(),
+    deleteTransaction: vi.fn(),
   });

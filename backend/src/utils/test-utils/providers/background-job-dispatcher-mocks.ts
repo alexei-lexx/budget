@@ -1,7 +1,7 @@
-import { jest } from "@jest/globals";
+import { vi, type Mocked } from "vitest";
 import { BackgroundJobDispatcher } from "../../../ports/background-job-dispatcher";
 
 export const createMockBackgroundJobDispatcher =
-  (): jest.Mocked<BackgroundJobDispatcher> => ({
-    dispatch: jest.fn(),
+  (): Mocked<BackgroundJobDispatcher> => ({
+    dispatch: vi.fn(),
   });

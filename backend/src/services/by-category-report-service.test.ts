@@ -1,5 +1,5 @@
 import { faker } from "@faker-js/faker";
-import { beforeEach, describe, expect, it, jest } from "@jest/globals";
+import { beforeEach, describe, expect, it, vi, type Mocked } from "vitest";
 import { v4 as uuidv4 } from "uuid";
 import { ReportType } from "../models/report";
 import { TransactionType } from "../models/transaction";
@@ -14,8 +14,8 @@ import { ByCategoryReportService } from "./by-category-report-service";
 
 describe("ByCategoryReportService", () => {
   let reportService: ByCategoryReportService;
-  let mockTransactionRepository: jest.Mocked<TransactionRepository>;
-  let mockCategoryRepository: jest.Mocked<CategoryRepository>;
+  let mockTransactionRepository: Mocked<TransactionRepository>;
+  let mockCategoryRepository: Mocked<CategoryRepository>;
 
   const userId = uuidv4();
 

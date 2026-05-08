@@ -1,16 +1,16 @@
-import { jest } from "@jest/globals";
+import { vi, type Mocked } from "vitest";
 import { AccountRepository } from "../../../ports/account-repository";
 
 /**
  * Mock account repository for testing
  */
 export const createMockAccountRepository =
-  (): jest.Mocked<AccountRepository> => ({
-    findOneById: jest.fn(),
-    findOneWithArchivedById: jest.fn(),
-    findManyByUserId: jest.fn(),
-    findManyWithArchivedByIds: jest.fn(),
-    findManyWithArchivedByUserId: jest.fn(),
-    create: jest.fn(),
-    update: jest.fn(),
+  (): Mocked<AccountRepository> => ({
+    findOneById: vi.fn(),
+    findOneWithArchivedById: vi.fn(),
+    findManyByUserId: vi.fn(),
+    findManyWithArchivedByIds: vi.fn(),
+    findManyWithArchivedByUserId: vi.fn(),
+    create: vi.fn(),
+    update: vi.fn(),
   });

@@ -2,7 +2,7 @@ import {
   DynamoDBDocumentClient,
   QueryCommandInput,
 } from "@aws-sdk/lib-dynamodb";
-import { describe, expect, it, jest } from "@jest/globals";
+import { describe, expect, it, vi } from "vitest";
 import { ZodError, z } from "zod";
 import { DynBaseRepository, QueryResult } from "./dyn-base-repository";
 
@@ -35,7 +35,7 @@ describe("DynBaseRepository", () => {
       // Arrange
       // Single page of two valid records, no continuation key
       const mockClient = {
-        send: jest.fn<() => Promise<unknown>>().mockResolvedValue({
+        send: vi.fn<() => Promise<unknown>>().mockResolvedValue({
           Items: [
             { id: "1", name: "Test" },
             { id: "2", name: "Test2" },
@@ -62,7 +62,7 @@ describe("DynBaseRepository", () => {
       // Arrange
       // Single page returns exactly pageSize items, no continuation key
       const mockClient = {
-        send: jest.fn<() => Promise<unknown>>().mockResolvedValue({
+        send: vi.fn<() => Promise<unknown>>().mockResolvedValue({
           Items: [
             { id: "1", name: "Test1" },
             { id: "2", name: "Test2" },
@@ -89,7 +89,7 @@ describe("DynBaseRepository", () => {
       // Arrange
       // Empty result set
       const mockClient = {
-        send: jest.fn<() => Promise<unknown>>().mockResolvedValue({
+        send: vi.fn<() => Promise<unknown>>().mockResolvedValue({
           Items: [],
         }),
       } as unknown as DynamoDBDocumentClient;
@@ -113,7 +113,7 @@ describe("DynBaseRepository", () => {
       // Arrange
       // First item missing required `name`; second would pass but must not be reached
       const mockClient = {
-        send: jest.fn<() => Promise<unknown>>().mockResolvedValue({
+        send: vi.fn<() => Promise<unknown>>().mockResolvedValue({
           Items: [{ id: "1" }, { id: "2", name: "Test" }],
         }),
       } as unknown as DynamoDBDocumentClient;
@@ -130,7 +130,7 @@ describe("DynBaseRepository", () => {
       // Arrange
       // Single record missing required `name`
       const mockClient = {
-        send: jest.fn<() => Promise<unknown>>().mockResolvedValue({
+        send: vi.fn<() => Promise<unknown>>().mockResolvedValue({
           Items: [{ id: "1" }],
         }),
       } as unknown as DynamoDBDocumentClient;
@@ -160,7 +160,7 @@ describe("DynBaseRepository", () => {
       // Arrange
       // Record where `name` has wrong type (number instead of string)
       const mockClient = {
-        send: jest.fn<() => Promise<unknown>>().mockResolvedValue({
+        send: vi.fn<() => Promise<unknown>>().mockResolvedValue({
           Items: [{ id: "1", name: 123 }],
         }),
       } as unknown as DynamoDBDocumentClient;
@@ -191,7 +191,7 @@ describe("DynBaseRepository", () => {
       // First page returns valid item with continuation key, second page returns invalid item
       let callCount = 0;
       const mockClient = {
-        send: jest.fn<() => Promise<unknown>>().mockImplementation(() => {
+        send: vi.fn<() => Promise<unknown>>().mockImplementation(() => {
           callCount++;
           if (callCount === 1) {
             return Promise.resolve({

@@ -1,14 +1,14 @@
-import { jest } from "@jest/globals";
+import { vi, type Mocked } from "vitest";
 import { UserRepository } from "../../../ports/user-repository";
 
 /**
  * Mock user repository for testing
  */
-export const createMockUserRepository = (): jest.Mocked<UserRepository> => ({
-  findOneByEmail: jest.fn(),
-  findOneById: jest.fn(),
-  findMany: jest.fn(),
-  create: jest.fn(),
-  ensureUser: jest.fn(),
-  update: jest.fn(),
+export const createMockUserRepository = (): Mocked<UserRepository> => ({
+  findOneByEmail: vi.fn(),
+  findOneById: vi.fn(),
+  findMany: vi.fn(),
+  create: vi.fn(),
+  ensureUser: vi.fn(),
+  update: vi.fn(),
 });

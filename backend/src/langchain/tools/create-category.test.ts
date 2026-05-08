@@ -1,5 +1,5 @@
 import { faker } from "@faker-js/faker";
-import { beforeEach, describe, expect, it, jest } from "@jest/globals";
+import { beforeEach, describe, expect, it, vi, type Mocked } from "vitest";
 import { CategoryType } from "../../models/category";
 import { BusinessError } from "../../services/business-error";
 import { CategoryService } from "../../services/category-service";
@@ -9,7 +9,7 @@ import { toCategoryDto } from "./category-dto";
 import { createCreateCategoryTool } from "./create-category";
 
 describe("createCreateCategoryTool", () => {
-  let mockCategoryService: jest.Mocked<CategoryService>;
+  let mockCategoryService: Mocked<CategoryService>;
   const userId = faker.string.uuid();
 
   beforeEach(() => {

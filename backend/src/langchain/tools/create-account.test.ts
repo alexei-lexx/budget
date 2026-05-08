@@ -1,5 +1,5 @@
 import { faker } from "@faker-js/faker";
-import { beforeEach, describe, expect, it, jest } from "@jest/globals";
+import { beforeEach, describe, expect, it, vi, type Mocked } from "vitest";
 import { AccountService } from "../../services/account-service";
 import { BusinessError } from "../../services/business-error";
 import { fakeAccount } from "../../utils/test-utils/models/account-fakes";
@@ -8,7 +8,7 @@ import { toAccountDto } from "./account-dto";
 import { CreateAccountInput, createCreateAccountTool } from "./create-account";
 
 describe("createCreateAccountTool", () => {
-  let mockAccountService: jest.Mocked<AccountService>;
+  let mockAccountService: Mocked<AccountService>;
   const userId = faker.string.uuid();
 
   beforeEach(() => {

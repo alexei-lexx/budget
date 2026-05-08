@@ -1,4 +1,4 @@
-import { describe, expect, it } from "@jest/globals";
+import { describe, expect, it } from "vitest";
 import { GraphQLError } from "graphql";
 import { ModelError } from "../../models/model-error";
 import { BusinessError } from "../../services/business-error";

@@ -1,5 +1,5 @@
 import { faker } from "@faker-js/faker";
-import { beforeEach, describe, expect, it, jest } from "@jest/globals";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { CategoryType } from "../models/category";
 import { fakeCategory } from "../utils/test-utils/models/category-fakes";
 import { fakeCreateCategoryInput } from "../utils/test-utils/repositories/category-repository-fakes";
@@ -25,7 +25,7 @@ describe("CategoryService", () => {
     mockCategoryRepository.findManyByUserId.mockResolvedValue([]);
 
     // Reset all mocks
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe("getCategoriesByUser", () => {

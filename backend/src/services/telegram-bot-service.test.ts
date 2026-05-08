@@ -1,5 +1,5 @@
 import { faker } from "@faker-js/faker";
-import { beforeEach, describe, expect, it, jest } from "@jest/globals";
+import { beforeEach, describe, expect, it, vi, type Mocked } from "vitest";
 import { TelegramBotStatus } from "../models/telegram-bot";
 import { BackgroundJobDispatcher } from "../ports/background-job-dispatcher";
 import { TelegramApiClient } from "../ports/telegram-api-client";
@@ -11,9 +11,9 @@ import { createMockTelegramBotRepository } from "../utils/test-utils/repositorie
 import { TelegramBotService } from "./telegram-bot-service";
 
 describe("TelegramBotService", () => {
-  let backgroundJobDispatcher: jest.Mocked<BackgroundJobDispatcher>;
-  let telegramApiClient: jest.Mocked<TelegramApiClient>;
-  let telegramBotRepository: jest.Mocked<TelegramBotRepository>;
+  let backgroundJobDispatcher: Mocked<BackgroundJobDispatcher>;
+  let telegramApiClient: Mocked<TelegramApiClient>;
+  let telegramBotRepository: Mocked<TelegramBotRepository>;
   let service: TelegramBotService;
 
   beforeEach(() => {
@@ -28,7 +28,7 @@ describe("TelegramBotService", () => {
       webhookBaseUrl: "http://telegram.localhost",
     });
 
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe("connect", () => {

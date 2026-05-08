@@ -1,5 +1,5 @@
 import { faker } from "@faker-js/faker";
-import { beforeEach, describe, expect, it, jest } from "@jest/globals";
+import { beforeEach, describe, expect, it, vi, type Mocked } from "vitest";
 import { CategoryType } from "../../models/category";
 import { CategoryRepository } from "../../ports/category-repository";
 import { TransactionRepository } from "../../ports/transaction-repository";
@@ -17,8 +17,8 @@ import {
 } from "./get-categories";
 
 describe("createGetCategoriesTool", () => {
-  let mockCategoryRepository: jest.Mocked<CategoryRepository>;
-  let mockTransactionRepository: jest.Mocked<TransactionRepository>;
+  let mockCategoryRepository: Mocked<CategoryRepository>;
+  let mockTransactionRepository: Mocked<TransactionRepository>;
   const userId = faker.string.uuid();
 
   beforeEach(() => {
