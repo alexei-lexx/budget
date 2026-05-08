@@ -1,10 +1,20 @@
+import { mkdirSync } from "node:fs";
+import { resolve } from "node:path";
 import * as cdk from "aws-cdk-lib";
 import { Template } from "aws-cdk-lib/assertions";
 import { UserPool } from "aws-cdk-lib/aws-cognito";
-import { describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it } from "vitest";
 import { BackendCdkStack } from "../lib/backend-cdk-stack";
 
 describe("BackendCdkStack", () => {
+  beforeAll(() => {
+    // The stack uses `lambda.Code.fromAsset("../backend/dist")`.
+    // Synthesis requires the directory to exist on disk.
+    // In CI the backend has not been built,
+    // so we materialize an empty placeholder.
+    mkdirSync(resolve(__dirname, "../../backend/dist"), { recursive: true });
+  });
+
   it("synthesizes with the expected DynamoDB tables and Lambda functions", () => {
     const app = new cdk.App();
     const authStack = new cdk.Stack(app, "AuthStack");
