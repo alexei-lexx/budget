@@ -24,10 +24,7 @@ import { createCategoryLoader } from "./graphql/dataloaders/category-loader";
 import { resolvers } from "./graphql/resolvers";
 import { getAuthenticatedUser } from "./graphql/resolvers/shared";
 
-const currentDir =
-  typeof __dirname !== "undefined"
-    ? __dirname
-    : dirname(fileURLToPath(import.meta.url));
+const currentDir = dirname(fileURLToPath(import.meta.url));
 
 const typeDefs = readFileSync(join(currentDir, "graphql/schema.graphql"), {
   encoding: "utf-8",
