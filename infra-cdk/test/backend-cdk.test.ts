@@ -1,17 +1,26 @@
-import { it } from "@jest/globals";
-// import * as cdk from 'aws-cdk-lib';
-// import { Template } from 'aws-cdk-lib/assertions';
-// import * as BackendCdk from '../lib/backend-cdk-stack';
+import * as cdk from "aws-cdk-lib";
+import { Template } from "aws-cdk-lib/assertions";
+import { UserPool } from "aws-cdk-lib/aws-cognito";
+import { describe, expect, it } from "vitest";
+import { BackendCdkStack } from "../lib/backend-cdk-stack";
 
-// example test. To run these tests, uncomment this file along with the
-// example resource in lib/backend-cdk-stack.ts
-it("SQS Queue Created", () => {
-  //   const app = new cdk.App();
-  //     // WHEN
-  //   const stack = new BackendCdk.BackendCdkStack(app, 'MyTestStack');
-  //     // THEN
-  //   const template = Template.fromStack(stack);
-  //   template.hasResourceProperties('AWS::SQS::Queue', {
-  //     VisibilityTimeout: 300
-  //   });
+describe("BackendCdkStack", () => {
+  it("synthesizes with the expected DynamoDB tables and Lambda functions", () => {
+    const app = new cdk.App();
+    const authStack = new cdk.Stack(app, "AuthStack");
+    const userPool = new UserPool(authStack, "UserPool");
+    const userPoolClient = userPool.addClient("Client");
+
+    const stack = new BackendCdkStack(app, "TestBackendCdkStack", {
+      authClaimNamespace: "https://test",
+      nodeEnv: "test",
+      userPool,
+      userPoolClient,
+    });
+
+    const template = Template.fromStack(stack);
+    template.resourceCountIs("AWS::DynamoDB::Table", 7);
+    template.resourceCountIs("AWS::Lambda::Function", 3);
+    expect(stack).toBeDefined();
+  });
 });
