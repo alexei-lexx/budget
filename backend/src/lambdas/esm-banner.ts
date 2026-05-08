@@ -5,5 +5,5 @@
 // esbuild's __require helper reads `require` from this scope at bundle init.
 
 import { createRequire } from "module";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const require = createRequire(import.meta.url);
-export { require };
