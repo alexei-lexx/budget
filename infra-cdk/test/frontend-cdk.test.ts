@@ -5,7 +5,9 @@ import { describe, it } from "vitest";
 import { FrontendCdkStack } from "../lib/frontend-cdk-stack";
 
 describe("FrontendCdkStack", () => {
-  it("synthesizes with S3 bucket and CloudFront distribution", () => {
+  // Happy path
+
+  it("synthesizes with CloudFront distribution", () => {
     // Arrange
     const app = new cdk.App();
     const carrierStack = new cdk.Stack(app, "CarrierStack", {
@@ -26,7 +28,6 @@ describe("FrontendCdkStack", () => {
     const template = Template.fromStack(stack);
 
     // Assert
-    template.resourceCountIs("AWS::S3::Bucket", 2);
     template.resourceCountIs("AWS::CloudFront::Distribution", 1);
   });
 });

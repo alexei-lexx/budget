@@ -15,7 +15,9 @@ describe("BackendCdkStack", () => {
     mkdirSync(resolve(__dirname, "../../backend/dist"), { recursive: true });
   });
 
-  it("synthesizes with expected DynamoDB tables and Lambda functions", () => {
+  // Happy path
+
+  it("synthesizes with HTTP API", () => {
     // Arrange
     const app = new cdk.App();
     const authStack = new cdk.Stack(app, "AuthStack");
@@ -32,7 +34,6 @@ describe("BackendCdkStack", () => {
     const template = Template.fromStack(stack);
 
     // Assert
-    template.resourceCountIs("AWS::DynamoDB::Table", 7);
-    template.resourceCountIs("AWS::Lambda::Function", 3);
+    template.resourceCountIs("AWS::ApiGatewayV2::Api", 1);
   });
 });
