@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "build:bundle:background-job": "esbuild src/lambdas/background-job.ts --bundle --platform=node --external:@aws-sdk/* --outfile=dist/background-job-lambda.js",
-    "build:bundle:migrate": "esbuild src/lambdas/migrate.ts --bundle --platform=node --external:@aws-sdk/* --outfile=dist/migrate-lambda.js",
-    "build:bundle:web": "esbuild src/lambdas/web.ts --bundle --platform=node --external:@aws-sdk/* --outfile=dist/web-lambda.js",
+    "build:bundle:background-job": "esbuild src/lambdas/background-job.ts --bundle --platform=node --format=esm --external:@aws-sdk/* --outfile=dist/background-job-lambda.mjs --banner:js=\"$(cat src/lambdas/esm-banner.ts)\"",
+    "build:bundle:migrate": "esbuild src/lambdas/migrate.ts --bundle --platform=node --format=esm --external:@aws-sdk/* --outfile=dist/migrate-lambda.mjs --banner:js=\"$(cat src/lambdas/esm-banner.ts)\"",
+    "build:bundle:web": "esbuild src/lambdas/web.ts --bundle --platform=node --format=esm --external:@aws-sdk/* --outfile=dist/web-lambda.mjs --banner:js=\"$(cat src/lambdas/esm-banner.ts)\"",
     "build:bundle": "npm run build:bundle:web && npm run build:bundle:background-job && npm run build:bundle:migrate",
     "build:clean": "rm -rf dist",
     "build:schema": "mkdir -p dist/graphql && cp src/graphql/schema.graphql dist/graphql/",
