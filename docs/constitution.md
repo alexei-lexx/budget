@@ -292,6 +292,53 @@ graph LR
 
 **Rationale**: Hexagonal architecture. Business logic owns its contracts; infrastructure conforms. Services are testable with fake adapters and infrastructure can be swapped without touching the domain.
 
+### Domain Model Pattern
+
+**Non-negotiable rule**: Entities MUST be represented as rich domain models — classes that encapsulate both data and the behaviour that operates on that data.
+
+**Structure**:
+
+Each entity is defined in two parts, both living in `src/models/`:
+
+- A plain `XData` interface — the raw data shape used for persistence and serialisation
+- A rich `X` class implementing `XData` — the domain model that owns all invariants and behaviour
+
+**Implementation rules**:
+
+- Constructor is `private`; instantiation goes through static factory methods only
+  - `X.create(input)` — creates a new entity from user-supplied input; assigns IDs, timestamps, and defaults
+  - `X.fromPersistence(data)` — reconstructs an entity from a stored `XData` record; skips side-effect-free invariant checks that persistence already guarantees
+- All properties are `readonly`; mutation methods return a **new instance** rather than modifying in place
+- Invariants are enforced in a private `assertInvariants()` method called by the constructor (except when `fromPersistence` bypasses them for performance)
+- Invariant violations throw `ModelError` — never a service or repository error
+- A `toData()` method serialises the instance back to `XData` for the repository layer
+- A `bumpVersion()` method increments the `version` field to support optimistic locking; it skips invariant checks because no domain-relevant field changes
+
+**Example skeleton**:
+
+```typescript
+export interface AccountData { id: string; name: string; version: number; /* … */ }
+
+export class Account implements AccountData {
+  readonly id: string;
+  readonly name: string;
+  readonly version: number;
+
+  static create(input: CreateAccountInput): Account { /* assign defaults, call new Account(data) */ }
+  static fromPersistence(data: AccountData): Account { return new Account(data); }
+
+  update(input: UpdateAccountInput): Account { /* return new Account({ ...this.toData(), … }) */ }
+  archive(): Account { /* return new Account({ ...this.toData(), isArchived: true }) */ }
+  bumpVersion(): Account { /* return new Account(data, { skipInvariants: true }) */ }
+  toData(): AccountData { /* return plain object */ }
+
+  private constructor(data: AccountData, opts?: { skipInvariants?: boolean }) { /* assert, then assign */ }
+  private static assertInvariants(data: AccountData): void { /* throw ModelError on violation */ }
+}
+```
+
+**Rationale**: Keeps domain rules co-located with the data they protect, prevents invalid state from being constructed anywhere in the codebase, and makes business behaviour discoverable on the model itself rather than scattered across services.
+
 ### Result Pattern
 
 **Non-negotiable rule**: Public methods of services and external integrations MUST use the Result pattern as their return type.
