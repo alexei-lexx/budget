@@ -1,5 +1,5 @@
-import { describe, expect, it } from "@jest/globals";
 import { AIMessage, BaseMessage } from "langchain";
+import { describe, expect, it } from "vitest";
 import { extractLastMessageText } from "./utils";
 
 describe("extractLastMessageText", () => {

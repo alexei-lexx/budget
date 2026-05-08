@@ -1,12 +1,5 @@
 import { faker } from "@faker-js/faker";
-import {
-  afterEach,
-  beforeEach,
-  describe,
-  expect,
-  it,
-  jest,
-} from "@jest/globals";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   fakeAccount,
   fakeCreateAccountInput,
@@ -17,11 +10,11 @@ import { ModelError } from "./model-error";
 describe("Account", () => {
   describe("create", () => {
     beforeEach(() => {
-      jest.useFakeTimers().setSystemTime(new Date("2000-01-02T10:11:12.000Z"));
+      vi.useFakeTimers().setSystemTime(new Date("2000-01-02T10:11:12.000Z"));
     });
 
     afterEach(() => {
-      jest.useRealTimers();
+      vi.useRealTimers();
     });
 
     // Happy path
@@ -183,11 +176,11 @@ describe("Account", () => {
 
   describe("update", () => {
     beforeEach(() => {
-      jest.useFakeTimers().setSystemTime(new Date("2000-01-02T10:11:12.000Z"));
+      vi.useFakeTimers().setSystemTime(new Date("2000-01-02T10:11:12.000Z"));
     });
 
     afterEach(() => {
-      jest.useRealTimers();
+      vi.useRealTimers();
     });
 
     // Happy path
@@ -312,11 +305,11 @@ describe("Account", () => {
 
   describe("archive", () => {
     beforeEach(() => {
-      jest.useFakeTimers().setSystemTime(new Date("2000-01-02T10:11:12.000Z"));
+      vi.useFakeTimers().setSystemTime(new Date("2000-01-02T10:11:12.000Z"));
     });
 
     afterEach(() => {
-      jest.useRealTimers();
+      vi.useRealTimers();
     });
 
     // Happy path
@@ -358,11 +351,11 @@ describe("Account", () => {
 
   describe("increaseBalanceBySignedAmount", () => {
     beforeEach(() => {
-      jest.useFakeTimers().setSystemTime(new Date("2000-01-02T10:11:12.000Z"));
+      vi.useFakeTimers().setSystemTime(new Date("2000-01-02T10:11:12.000Z"));
     });
 
     afterEach(() => {
-      jest.useRealTimers();
+      vi.useRealTimers();
     });
 
     // Happy path
@@ -418,11 +411,11 @@ describe("Account", () => {
 
   describe("decreaseBalanceBySignedAmount", () => {
     beforeEach(() => {
-      jest.useFakeTimers().setSystemTime(new Date("2000-01-02T10:11:12.000Z"));
+      vi.useFakeTimers().setSystemTime(new Date("2000-01-02T10:11:12.000Z"));
     });
 
     afterEach(() => {
-      jest.useRealTimers();
+      vi.useRealTimers();
     });
 
     // Happy path

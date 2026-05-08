@@ -1,9 +1,9 @@
-import { jest } from "@jest/globals";
+import { type Mocked, vi } from "vitest";
 import { CategoryService } from "../../../services/category-service";
 
-export const createMockCategoryService = (): jest.Mocked<CategoryService> => ({
-  getCategoriesByUser: jest.fn(),
-  createCategory: jest.fn(),
-  updateCategory: jest.fn(),
-  deleteCategory: jest.fn(),
+export const createMockCategoryService = (): Mocked<CategoryService> => ({
+  getCategoriesByUser: vi.fn(),
+  createCategory: vi.fn(),
+  updateCategory: vi.fn(),
+  deleteCategory: vi.fn(),
 });

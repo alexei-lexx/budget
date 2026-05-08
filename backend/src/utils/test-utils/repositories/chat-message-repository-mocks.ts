@@ -1,8 +1,8 @@
-import { jest } from "@jest/globals";
+import { type Mocked, vi } from "vitest";
 import { ChatMessageRepository } from "../../../ports/chat-message-repository";
 
 export const createMockChatMessageRepository =
-  (): jest.Mocked<ChatMessageRepository> => ({
-    findManyRecentBySessionId: jest.fn(),
-    create: jest.fn(),
+  (): Mocked<ChatMessageRepository> => ({
+    findManyRecentBySessionId: vi.fn(),
+    create: vi.fn(),
   });

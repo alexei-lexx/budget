@@ -1,5 +1,5 @@
 import { faker } from "@faker-js/faker";
-import { beforeEach, describe, expect, it, jest } from "@jest/globals";
+import { type Mocked, beforeEach, describe, expect, it } from "vitest";
 import { CategoryType } from "../models/category";
 import { ModelError } from "../models/model-error";
 import { TransactionPatternType, TransactionType } from "../models/transaction";
@@ -35,10 +35,10 @@ import {
 describe("TransactionService", () => {
   let service: TransactionService;
   let userId: string;
-  let mockTransactionRepository: jest.Mocked<TransactionRepository>;
-  let mockAccountRepository: jest.Mocked<AccountRepository>;
-  let mockCategoryRepository: jest.Mocked<CategoryRepository>;
-  let mockAtomicWriter: jest.Mocked<AtomicWriter>;
+  let mockTransactionRepository: Mocked<TransactionRepository>;
+  let mockAccountRepository: Mocked<AccountRepository>;
+  let mockCategoryRepository: Mocked<CategoryRepository>;
+  let mockAtomicWriter: Mocked<AtomicWriter>;
 
   beforeEach(() => {
     mockTransactionRepository = createMockTransactionRepository();

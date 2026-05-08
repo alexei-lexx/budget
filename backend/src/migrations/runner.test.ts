@@ -1,17 +1,18 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 import {
+  type MockedFunction,
   afterEach,
   beforeEach,
   describe,
   expect,
   it,
-  jest,
-} from "@jest/globals";
+  vi,
+} from "vitest";
 
 // Mock the operations modules
-jest.mock("./operations/migrations-table");
-jest.mock("../utils/dynamo-client");
+vi.mock("./operations/migrations-table");
+vi.mock("../utils/dynamo-client");
 
 import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
 import {
@@ -23,14 +24,12 @@ import {
 import { executeMigrations } from "./runner";
 import { Migration, MigrationFunction } from "./types";
 
-const mockIsExecuted = isExecuted as jest.MockedFunction<typeof isExecuted>;
-const mockMarkExecuted = markExecuted as jest.MockedFunction<
-  typeof markExecuted
->;
-const mockAcquireLock = acquireLock as jest.MockedFunction<typeof acquireLock>;
-const mockReleaseLock = releaseLock as jest.MockedFunction<typeof releaseLock>;
+const mockIsExecuted = isExecuted as MockedFunction<typeof isExecuted>;
+const mockMarkExecuted = markExecuted as MockedFunction<typeof markExecuted>;
+const mockAcquireLock = acquireLock as MockedFunction<typeof acquireLock>;
+const mockReleaseLock = releaseLock as MockedFunction<typeof releaseLock>;
 const mockCreateDynamoDBDocumentClient =
-  createDynamoDBDocumentClient as jest.MockedFunction<
+  createDynamoDBDocumentClient as MockedFunction<
     typeof createDynamoDBDocumentClient
   >;
 
@@ -40,7 +39,7 @@ describe("executeMigrations", () => {
   const tableName = "test-migrations-table";
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     // Mock clients
     mockClient = {} as DynamoDBClient;
@@ -54,20 +53,20 @@ describe("executeMigrations", () => {
     mockMarkExecuted.mockResolvedValue(undefined);
 
     // Suppress console output in tests
-    jest.spyOn(console, "log").mockImplementation(() => undefined);
-    jest.spyOn(console, "error").mockImplementation(() => undefined);
+    vi.spyOn(console, "log").mockImplementation(() => undefined);
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
   });
 
   afterEach(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   describe("successful execution", () => {
     it("executes all pending migrations", async () => {
-      const migration1 = jest
+      const migration1 = vi
         .fn<MigrationFunction>()
         .mockResolvedValue(undefined);
-      const migration2 = jest
+      const migration2 = vi
         .fn<MigrationFunction>()
         .mockResolvedValue(undefined);
 
@@ -99,10 +98,10 @@ describe("executeMigrations", () => {
     });
 
     it("skips already executed migrations", async () => {
-      const migration1 = jest
+      const migration1 = vi
         .fn<MigrationFunction>()
         .mockResolvedValue(undefined);
-      const migration2 = jest
+      const migration2 = vi
         .fn<MigrationFunction>()
         .mockResolvedValue(undefined);
 
@@ -150,9 +149,7 @@ describe("executeMigrations", () => {
 
   describe("lock management", () => {
     it("acquires lock before executing migrations", async () => {
-      const migration = jest
-        .fn<MigrationFunction>()
-        .mockResolvedValue(undefined);
+      const migration = vi.fn<MigrationFunction>().mockResolvedValue(undefined);
       const migrations: Migration[] = [
         {
           timestamp: "20231203120000",
@@ -172,7 +169,7 @@ describe("executeMigrations", () => {
         {
           timestamp: "20231203120000",
           description: "test-migration",
-          up: jest.fn<MigrationFunction>().mockResolvedValue(undefined),
+          up: vi.fn<MigrationFunction>().mockResolvedValue(undefined),
         },
       ];
 
@@ -186,7 +183,7 @@ describe("executeMigrations", () => {
         {
           timestamp: "20231203120000",
           description: "test-migration",
-          up: jest
+          up: vi
             .fn<MigrationFunction>()
             .mockRejectedValue(new Error("Migration failed")),
         },
@@ -206,7 +203,7 @@ describe("executeMigrations", () => {
         {
           timestamp: "20231203120000",
           description: "test-migration",
-          up: jest.fn<MigrationFunction>().mockResolvedValue(undefined),
+          up: vi.fn<MigrationFunction>().mockResolvedValue(undefined),
         },
       ];
 
@@ -224,7 +221,7 @@ describe("executeMigrations", () => {
         {
           timestamp: "20231203120000",
           description: "test-migration",
-          up: jest
+          up: vi
             .fn<MigrationFunction>()
             .mockRejectedValue(new Error("Database error")),
         },
@@ -236,10 +233,10 @@ describe("executeMigrations", () => {
     });
 
     it("does not execute subsequent migrations after failure", async () => {
-      const migration1 = jest
+      const migration1 = vi
         .fn<MigrationFunction>()
         .mockRejectedValue(new Error("Failed"));
-      const migration2 = jest
+      const migration2 = vi
         .fn<MigrationFunction>()
         .mockResolvedValue(undefined);
 
@@ -269,9 +266,7 @@ describe("executeMigrations", () => {
         {
           timestamp: "20231203120000",
           description: "test-migration",
-          up: jest
-            .fn<MigrationFunction>()
-            .mockRejectedValue(new Error("Failed")),
+          up: vi.fn<MigrationFunction>().mockRejectedValue(new Error("Failed")),
         },
       ];
 
@@ -288,7 +283,7 @@ describe("executeMigrations", () => {
         {
           timestamp: "20231203120000",
           description: "test-migration",
-          up: jest.fn<MigrationFunction>().mockRejectedValue(error),
+          up: vi.fn<MigrationFunction>().mockRejectedValue(error),
         },
       ];
 
@@ -307,7 +302,7 @@ describe("executeMigrations", () => {
         {
           timestamp: "20231203120000",
           description: "test-migration",
-          up: jest.fn<MigrationFunction>().mockResolvedValue(undefined),
+          up: vi.fn<MigrationFunction>().mockResolvedValue(undefined),
         },
       ];
 
@@ -326,17 +321,17 @@ describe("executeMigrations", () => {
         {
           timestamp: "20231203120000",
           description: "first-migration",
-          up: jest.fn<MigrationFunction>().mockResolvedValue(undefined),
+          up: vi.fn<MigrationFunction>().mockResolvedValue(undefined),
         },
         {
           timestamp: "20231203130000",
           description: "second-migration",
-          up: jest.fn<MigrationFunction>().mockResolvedValue(undefined),
+          up: vi.fn<MigrationFunction>().mockResolvedValue(undefined),
         },
         {
           timestamp: "20231203140000",
           description: "third-migration",
-          up: jest.fn<MigrationFunction>().mockResolvedValue(undefined),
+          up: vi.fn<MigrationFunction>().mockResolvedValue(undefined),
         },
       ];
 

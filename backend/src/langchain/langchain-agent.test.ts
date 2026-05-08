@@ -1,7 +1,7 @@
-import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import { CallbackManager } from "@langchain/core/callbacks/manager";
 import type { Serialized } from "@langchain/core/load/serializable";
 import { AIMessage, BaseMessage, ReactAgent, ToolMessage } from "langchain";
+import { type Mock, beforeEach, describe, expect, it, vi } from "vitest";
 import { AgentTraceMessageType } from "../ports/agent-types";
 import { LangChainAgent } from "./langchain-agent";
 
@@ -14,14 +14,14 @@ describe("LangChainAgent", () => {
   const state = { messages: [{ role: "user" as const, content: "Hello" }] };
   const config = { context: { userId: "user-123" } };
 
-  let mockAgent: { invoke: jest.Mock<AgentInvokeFn> };
+  let mockAgent: { invoke: Mock<AgentInvokeFn> };
   let agent: LangChainAgent<Record<string, unknown>>;
 
   describe("invoke", () => {
     beforeEach(() => {
-      mockAgent = { invoke: jest.fn<AgentInvokeFn>() };
+      mockAgent = { invoke: vi.fn<AgentInvokeFn>() };
       agent = new LangChainAgent(mockAgent as unknown as ReactAgent);
-      jest.clearAllMocks();
+      vi.clearAllMocks();
     });
 
     // Happy path

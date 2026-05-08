@@ -1,9 +1,9 @@
-import { describe, expect, it, jest } from "@jest/globals";
+import { describe, expect, it, vi } from "vitest";
 import { createAsyncSingleton, createSingleton } from "./dependency-injection";
 
 describe("createSingleton", () => {
   it("calls the factory only once", () => {
-    const factory = jest.fn(() => ({ value: 42 }));
+    const factory = vi.fn(() => ({ value: 42 }));
     const resolve = createSingleton(factory);
 
     resolve();
@@ -20,7 +20,7 @@ describe("createSingleton", () => {
   });
 
   it("calls the factory only once when it returns null", () => {
-    const factory = jest.fn(() => null);
+    const factory = vi.fn(() => null);
     const resolve = createSingleton(factory);
 
     resolve();
@@ -32,7 +32,7 @@ describe("createSingleton", () => {
 
 describe("createAsyncSingleton", () => {
   it("calls the factory only once across sequential awaits", async () => {
-    const factory = jest.fn(async () => ({ value: 42 }));
+    const factory = vi.fn(async () => ({ value: 42 }));
     const resolve = createAsyncSingleton(factory);
 
     await resolve();
@@ -43,7 +43,7 @@ describe("createAsyncSingleton", () => {
   });
 
   it("calls the factory only once for concurrent callers", async () => {
-    const factory = jest.fn(
+    const factory = vi.fn(
       () => new Promise((resolve) => setTimeout(() => resolve({}), 10)),
     );
     const resolve = createAsyncSingleton(factory);
@@ -60,7 +60,7 @@ describe("createAsyncSingleton", () => {
   });
 
   it("retries the factory after a rejection", async () => {
-    const factory = jest
+    const factory = vi
       .fn<() => Promise<{ value: number }>>()
       .mockRejectedValueOnce(new Error("boom"))
       .mockResolvedValueOnce({ value: 42 });

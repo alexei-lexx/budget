@@ -1,12 +1,12 @@
 import { faker } from "@faker-js/faker";
-import { beforeEach, describe, expect, it, jest } from "@jest/globals";
+import { type Mocked, beforeEach, describe, expect, it } from "vitest";
 import { AccountRepository } from "../../ports/account-repository";
 import { fakeAccount } from "../../utils/test-utils/models/account-fakes";
 import { createMockAccountRepository } from "../../utils/test-utils/repositories/account-repository-mocks";
 import { EntityScope, createGetAccountsTool } from "./get-accounts";
 
 describe("createGetAccountsTool", () => {
-  let mockAccountRepository: jest.Mocked<AccountRepository>;
+  let mockAccountRepository: Mocked<AccountRepository>;
   const userId = faker.string.uuid();
 
   beforeEach(() => {

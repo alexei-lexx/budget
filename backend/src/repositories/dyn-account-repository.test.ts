@@ -1,6 +1,6 @@
 import { UpdateCommand } from "@aws-sdk/lib-dynamodb";
 import { faker } from "@faker-js/faker";
-import { beforeAll, beforeEach, describe, expect, it } from "@jest/globals";
+import { beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { Account } from "../models/account";
 import {
   RepositoryError,

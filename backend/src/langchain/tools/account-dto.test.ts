@@ -1,4 +1,4 @@
-import { describe, expect, it } from "@jest/globals";
+import { describe, expect, it } from "vitest";
 import { fakeAccount } from "../../utils/test-utils/models/account-fakes";
 import { toAccountDto } from "./account-dto";
 

@@ -1,12 +1,5 @@
 import { faker } from "@faker-js/faker";
-import {
-  afterEach,
-  beforeEach,
-  describe,
-  expect,
-  it,
-  jest,
-} from "@jest/globals";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { toDateString } from "../types/date";
 import { fakeAccount } from "../utils/test-utils/models/account-fakes";
 import { fakeCategory } from "../utils/test-utils/models/category-fakes";
@@ -25,11 +18,11 @@ import {
 describe("Transaction", () => {
   describe("create", () => {
     beforeEach(() => {
-      jest.useFakeTimers().setSystemTime(new Date("2000-01-02T10:11:12.000Z"));
+      vi.useFakeTimers().setSystemTime(new Date("2000-01-02T10:11:12.000Z"));
     });
 
     afterEach(() => {
-      jest.useRealTimers();
+      vi.useRealTimers();
     });
 
     const fixedDeps = { idGenerator: () => "fixed-uuid" };
@@ -530,11 +523,11 @@ describe("Transaction", () => {
 
   describe("update", () => {
     beforeEach(() => {
-      jest.useFakeTimers().setSystemTime(new Date("2000-01-02T10:11:12.000Z"));
+      vi.useFakeTimers().setSystemTime(new Date("2000-01-02T10:11:12.000Z"));
     });
 
     afterEach(() => {
-      jest.useRealTimers();
+      vi.useRealTimers();
     });
 
     // Happy path
@@ -851,11 +844,11 @@ describe("Transaction", () => {
 
   describe("archive", () => {
     beforeEach(() => {
-      jest.useFakeTimers().setSystemTime(new Date("2000-01-02T10:11:12.000Z"));
+      vi.useFakeTimers().setSystemTime(new Date("2000-01-02T10:11:12.000Z"));
     });
 
     afterEach(() => {
-      jest.useRealTimers();
+      vi.useRealTimers();
     });
 
     // Happy path

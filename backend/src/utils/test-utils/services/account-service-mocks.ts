@@ -1,9 +1,9 @@
-import { jest } from "@jest/globals";
+import { type Mocked, vi } from "vitest";
 import { AccountService } from "../../../services/account-service";
 
-export const createMockAccountService = (): jest.Mocked<AccountService> => ({
-  getAccountsByUser: jest.fn(),
-  createAccount: jest.fn(),
-  updateAccount: jest.fn(),
-  deleteAccount: jest.fn(),
+export const createMockAccountService = (): Mocked<AccountService> => ({
+  getAccountsByUser: vi.fn(),
+  createAccount: vi.fn(),
+  updateAccount: vi.fn(),
+  deleteAccount: vi.fn(),
 });

@@ -1,4 +1,4 @@
-import { describe, expect, it } from "@jest/globals";
+import { describe, expect, it } from "vitest";
 import { SUPPORTED_CURRENCIES, isSupportedCurrency } from "./currency";
 
 describe("SUPPORTED_CURRENCIES", () => {

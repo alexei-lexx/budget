@@ -3,32 +3,32 @@ import {
   GetParametersCommandOutput,
   SSMClient,
 } from "@aws-sdk/client-ssm";
-import { beforeEach, describe, expect, it, jest } from "@jest/globals";
+import { type Mock, beforeEach, describe, expect, it, vi } from "vitest";
 import { injectRuntimeEnv } from "./bootstrap";
 
-jest.mock("@aws-sdk/client-ssm", () => {
-  const actual = jest.requireActual<typeof import("@aws-sdk/client-ssm")>(
+vi.mock("@aws-sdk/client-ssm", async () => {
+  const actual = await vi.importActual<typeof import("@aws-sdk/client-ssm")>(
     "@aws-sdk/client-ssm",
   );
 
   return {
     ...actual,
-    SSMClient: jest.fn(),
+    SSMClient: vi.fn(),
   };
 });
 
 describe("injectRuntimeEnv", () => {
-  let sendMock: jest.Mock<
-    (command: unknown) => Promise<GetParametersCommandOutput>
-  >;
+  let sendMock: Mock<(command: unknown) => Promise<GetParametersCommandOutput>>;
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     sendMock =
-      jest.fn<(command: unknown) => Promise<GetParametersCommandOutput>>();
+      vi.fn<(command: unknown) => Promise<GetParametersCommandOutput>>();
 
-    (SSMClient as jest.Mock).mockImplementation(() => ({ send: sendMock }));
+    (SSMClient as Mock).mockImplementation(function () {
+      return { send: sendMock };
+    });
   });
 
   // Happy path

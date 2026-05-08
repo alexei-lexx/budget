@@ -1,4 +1,5 @@
 !docker/dynamodb/.gitkeep
+coverage
 dist
 docker/dynamodb/*
 node_modules

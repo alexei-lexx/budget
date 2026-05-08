@@ -78,11 +78,13 @@ Apply all rules to both the interface and the implementation.
       ...overrides,
     });
     ```
-  - **Repository mocks** — Jest-mocked repository interfaces for service tests: `backend/src/utils/test-utils/repositories/<entity>-repository-mocks.ts`
+  - **Repository mocks** — Vitest-mocked repository interfaces for service tests: `backend/src/utils/test-utils/repositories/<entity>-repository-mocks.ts`
     ```typescript
+    import { vi, type Mocked } from "vitest";
+
     export const createMockWidgetRepository =
-      (): jest.Mocked<WidgetRepository> => ({
-        findXyz: jest.fn(),
+      (): Mocked<WidgetRepository> => ({
+        findXyz: vi.fn(),
         // ... all interface methods
       });
     ```
