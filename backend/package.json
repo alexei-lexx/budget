@@ -35,7 +35,7 @@
     "test:repositories": "dotenvx run -f .env.test -- vitest run --project repositories",
     "test:unit": "dotenvx run -f .env.test -- vitest run --project unit",
     "test:watch": "dotenvx run -f .env.test -- vitest --project unit --project repositories",
-    "test": "npm run test:unit && npm run test:repositories",
+    "test": "dotenvx run -f .env.test -- vitest run --project unit --project repositories",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
