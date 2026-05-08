@@ -294,11 +294,22 @@ graph LR
 
 ### Domain Model Pattern
 
-**Non-negotiable rule**: Entities MUST be represented as rich domain models — classes that encapsulate both data and the behaviour that operates on that data.
+**Non-negotiable rule**: Entities with complex invariants or domain behaviour MUST be represented as rich domain model classes. Simple entities with no invariants or behaviour may be plain interfaces.
 
-**Structure**:
+**When to use a rich domain model class** (examples: `Account`, `Transaction`):
 
-Each entity is defined in two parts, both living in `src/models/`:
+- The entity has invariants that must hold at all times (e.g. valid currency, name length)
+- Mutations carry domain rules or side effects (e.g. cannot update an archived account)
+- The entity participates in optimistic locking (`version` field)
+
+**When a plain interface is sufficient** (examples: `Category`, `User`, `ChatMessage`):
+
+- The entity is a simple data bag with no invariants or domain behaviour
+- All mutations are straightforward field updates handled directly by the service
+
+**Structure of a rich domain model**:
+
+Each rich entity is defined in two parts, both living in `src/models/`:
 
 - A plain `XData` interface — the raw data shape used for persistence and serialisation
 - A rich `X` class implementing `XData` — the domain model that owns all invariants and behaviour
@@ -307,9 +318,9 @@ Each entity is defined in two parts, both living in `src/models/`:
 
 - Constructor is `private`; instantiation goes through static factory methods only
   - `X.create(input)` — creates a new entity from user-supplied input; assigns IDs, timestamps, and defaults
-  - `X.fromPersistence(data)` — reconstructs an entity from a stored `XData` record; skips side-effect-free invariant checks that persistence already guarantees
+  - `X.fromPersistence(data)` — reconstructs an entity from a stored `XData` record
 - All properties are `readonly`; mutation methods return a **new instance** rather than modifying in place
-- Invariants are enforced in a private `assertInvariants()` method called by the constructor (except when `fromPersistence` bypasses them for performance)
+- Invariants are enforced in a private `assertInvariants()` method called by the constructor
 - Invariant violations throw `ModelError` — never a service or repository error
 - A `toData()` method serialises the instance back to `XData` for the repository layer
 - A `bumpVersion()` method increments the `version` field to support optimistic locking; it skips invariant checks because no domain-relevant field changes
