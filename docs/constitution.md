@@ -223,6 +223,19 @@ graph LR
 
 **Rationale**: Enables independent testing, maintainable code, and portable architecture.
 
+### Backend Port Interfaces
+
+**Non-negotiable rule**: Each repository and external integration MUST expose a port interface, and all consumers (services, resolvers) MUST depend on these interfaces — never on concrete implementations.
+
+**Implementation**:
+
+- Define port interfaces in `src/ports/` (one file per interface, e.g., `account-repository.ts`)
+- Name concrete implementations with an adapter prefix that reflects the underlying technology (e.g., `DynAccountRepository` for a DynamoDB-backed `AccountRepository`)
+- Services receive port interfaces as constructor parameters — never concrete classes
+- Wire concrete implementations together exclusively in `dependencies.ts`
+
+**Rationale**: Decouples business logic from infrastructure. Services coded to interfaces can be tested with mock repositories without touching a database, and the underlying storage technology can be swapped by substituting the concrete implementation without modifying any service or resolver.
+
 ### Backend GraphQL Layer
 
 **Non-negotiable rule**: GraphQL schema reflects user-facing functionality, not database implementation details. The schema serves as a Backend-For-Frontend (BFF) contract optimized for the frontend client.
