@@ -57,7 +57,7 @@ An npm package providing unified infrastructure-as-code for both backend and fro
 
 - **Language**: TypeScript
 - **Framework**: AWS CDK
-- **Testing**: Jest
+- **Testing**: Vitest
 - **Quality**: ESLint, Prettier, TypeScript strict mode
 
 **Responsibilities**:

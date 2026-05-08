@@ -1,17 +1,31 @@
-import { it } from "@jest/globals";
-// import * as cdk from 'aws-cdk-lib';
-// import { Template } from 'aws-cdk-lib/assertions';
-// import * as FrontendCdk from '../lib/frontend-cdk-stack';
+import * as cdk from "aws-cdk-lib";
+import { Template } from "aws-cdk-lib/assertions";
+import * as apigatewayv2 from "aws-cdk-lib/aws-apigatewayv2";
+import { describe, it } from "vitest";
+import { FrontendCdkStack } from "../lib/frontend-cdk-stack";
 
-// example test. To run these tests, uncomment this file along with the
-// example resource in lib/frontend-cdk-stack.ts
-it("SQS Queue Created", () => {
-  //   const app = new cdk.App();
-  //     // WHEN
-  //   const stack = new FrontendCdk.FrontendCdkStack(app, 'MyTestStack');
-  //     // THEN
-  //   const template = Template.fromStack(stack);
-  //   template.hasResourceProperties('AWS::SQS::Queue', {
-  //     VisibilityTimeout: 300
-  //   });
+describe("FrontendCdkStack", () => {
+  // Happy path
+
+  it("synthesizes with CloudFront distribution", () => {
+    // Arrange
+    const app = new cdk.App();
+    const fakeBackendStack = new cdk.Stack(app, "FakeBackendStack");
+    const httpApi = apigatewayv2.HttpApi.fromHttpApiAttributes(
+      fakeBackendStack,
+      "ImportedHttpApi",
+      { httpApiId: "test-http-api-id" },
+    );
+
+    // Act
+    const stack = new FrontendCdkStack(app, "TestFrontendCdkStack", {
+      env: { account: "111111111111", region: "us-east-1" },
+      httpApi,
+      nodeEnv: "test",
+    });
+    const template = Template.fromStack(stack);
+
+    // Assert
+    template.resourceCountIs("AWS::CloudFront::Distribution", 1);
+  });
 });

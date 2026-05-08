@@ -1,6 +1,6 @@
-import { beforeEach, describe, expect, it } from "@jest/globals";
 import * as cdk from "aws-cdk-lib";
 import { Template } from "aws-cdk-lib/assertions";
+import { beforeEach, describe, expect, it } from "vitest";
 import { AuthCdkStack } from "../lib/auth-cdk-stack";
 
 describe("AuthCdkStack", () => {
