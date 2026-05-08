@@ -20,7 +20,7 @@ An npm package providing Apollo GraphQL server and API implementation.
 
 - **Language**: TypeScript
 - **Framework**: Apollo Server, Node.js
-- **Testing**: Jest
+- **Testing**: Vitest
 - **Quality**: ESLint, Prettier, TypeScript strict mode
 
 **Responsibilities**:
