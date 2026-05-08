@@ -223,19 +223,6 @@ graph LR
 
 **Rationale**: Enables independent testing, maintainable code, and portable architecture.
 
-### Backend Port Interfaces
-
-**Non-negotiable rule**: Each repository and external integration MUST expose a port interface, and all consumers (services, resolvers) MUST depend on these interfaces — never on concrete implementations.
-
-**Implementation**:
-
-- Define port interfaces in `src/ports/` (one file per interface, e.g., `account-repository.ts`)
-- Name concrete implementations with an adapter prefix that reflects the underlying technology (e.g., `DynAccountRepository` for a DynamoDB-backed `AccountRepository`)
-- Services receive port interfaces as constructor parameters — never concrete classes
-- Wire concrete implementations together exclusively in `dependencies.ts`
-
-**Rationale**: Decouples business logic from infrastructure. Services coded to interfaces can be tested with mock repositories without touching a database, and the underlying storage technology can be swapped by substituting the concrete implementation without modifying any service or resolver.
-
 ### Backend GraphQL Layer
 
 **Non-negotiable rule**: GraphQL schema reflects user-facing functionality, not database implementation details. The schema serves as a Backend-For-Frontend (BFF) contract optimized for the frontend client.
@@ -291,6 +278,19 @@ graph LR
 - Prefer single-purpose services when orchestrating multiple repositories
 
 **Rationale**: Balances maintainability with flexibility for complex operations.
+
+### Backend Port Interfaces
+
+**Non-negotiable rule**: The service layer defines ports (interfaces) at its boundary with infrastructure and external systems. Repositories and external integrations are adapters that implement these ports. Services depend only on ports, never on adapters.
+
+**Implementation**:
+
+- Ports live in `src/ports/`, one per file (e.g., `account-repository.ts`); they are owned by the service layer
+- Adapters use a prefix naming the technology (e.g., `DynAccountRepository` implements the `AccountRepository` port for DynamoDB)
+- Services receive ports via constructor — never adapters
+- Adapters are wired to ports in `dependencies.ts`
+
+**Rationale**: Hexagonal architecture. Business logic owns its contracts; infrastructure conforms. Services are testable with fake adapters and infrastructure can be swapped without touching the domain.
 
 ### Result Pattern
 
