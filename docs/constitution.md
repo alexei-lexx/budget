@@ -279,6 +279,19 @@ graph LR
 
 **Rationale**: Balances maintainability with flexibility for complex operations.
 
+### Backend Port Interfaces
+
+**Non-negotiable rule**: The service layer defines ports (interfaces) at its boundary with infrastructure and external systems. Repositories and external integrations are adapters that implement these ports. Services depend only on ports, never on adapters.
+
+**Implementation**:
+
+- Ports live in `src/ports/`, one per file (e.g., `account-repository.ts`); they are owned by the service layer
+- Adapters use a prefix naming the technology (e.g., `DynAccountRepository` implements the `AccountRepository` port for DynamoDB)
+- Services receive ports via constructor — never adapters
+- Adapters are wired to ports in `dependencies.ts`
+
+**Rationale**: Hexagonal architecture. Business logic owns its contracts; infrastructure conforms. Services are testable with fake adapters and infrastructure can be swapped without touching the domain.
+
 ### Result Pattern
 
 **Non-negotiable rule**: Public methods of services and external integrations MUST use the Result pattern as their return type.
