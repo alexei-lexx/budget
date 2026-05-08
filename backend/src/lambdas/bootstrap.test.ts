@@ -28,7 +28,9 @@ describe("injectRuntimeEnv", () => {
     sendMock =
       vi.fn<(command: unknown) => Promise<GetParametersCommandOutput>>();
 
-    (SSMClient as Mock).mockImplementation(() => ({ send: sendMock }));
+    (SSMClient as Mock).mockImplementation(function () {
+      return { send: sendMock };
+    });
   });
 
   // Happy path

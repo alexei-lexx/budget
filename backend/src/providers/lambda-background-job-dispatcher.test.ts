@@ -19,9 +19,9 @@ describe("LambdaBackgroundJobDispatcher", () => {
       .fn<(command: unknown) => Promise<unknown>>()
       .mockResolvedValue({});
 
-    (LambdaClient as Mock).mockImplementation(() => ({
-      send: mockSend,
-    }));
+    (LambdaClient as Mock).mockImplementation(function () {
+      return { send: mockSend };
+    });
 
     const mockClient = new LambdaClient({});
 
