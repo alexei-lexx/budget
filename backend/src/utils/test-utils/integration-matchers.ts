@@ -1,12 +1,13 @@
-import { expect } from "@jest/globals";
 import { LangChainMatchers, langchainMatchers } from "@langchain/core/testing";
+import { expect } from "vitest";
 
 expect.extend(langchainMatchers);
 
-declare module "expect" {
-  // Merging generics with the upstream `Matchers` interface requires the same
-  // signature; the second parameter is unused here but must be preserved.
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-object-type
-  interface Matchers<R extends void | Promise<void>, T = unknown>
-    extends LangChainMatchers<R> {}
+declare module "vitest" {
+  // LangChainMatchers is generic over the assertion return type; in Vitest the
+  // chainable type is `Assertion<T>`, so we map it through.
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+  interface Assertion<T = any> extends LangChainMatchers<Assertion<T>> {}
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+  interface AsymmetricMatchersContaining extends LangChainMatchers<unknown> {}
 }
