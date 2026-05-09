@@ -68,7 +68,7 @@
     "@graphql-codegen/cli": "6.0.1",
     "@graphql-codegen/typescript": "5.0.2",
     "@graphql-codegen/typescript-resolvers": "5.1.0",
-    "@tsconfig/node22": "^22.0.2",
+    "@tsconfig/node24": "^24.0.4",
     "@types/aws-lambda": "^8.10.159",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/mathjs": "^9.4.1",
