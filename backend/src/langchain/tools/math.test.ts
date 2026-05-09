@@ -30,9 +30,7 @@ describe("sumTool", () => {
     const result = await sumTool.invoke({ numbers: [10.5, 20.3, 15.0] });
 
     // Assert
-    expect(result.success).toBe(true);
-    if (!result.success) return;
-    expect(result.data).toBeCloseTo(45.8);
+    expect(result).toEqual({ success: true, data: 45.8 });
   });
 });
 
@@ -81,9 +79,7 @@ describe("calculateTool", () => {
     });
 
     // Assert
-    expect(result.success).toBe(true);
-    if (!result.success) return;
-    expect(result.data).toBeCloseTo(22.9);
+    expect(result).toEqual({ success: true, data: 22.9 });
   });
 
   // Validation failures
