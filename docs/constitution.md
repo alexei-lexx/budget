@@ -279,6 +279,20 @@ graph LR
 
 **Rationale**: Balances maintainability with flexibility for complex operations.
 
+### Backend Domain Entities
+
+**Non-negotiable rule**: Domain entities MUST be rich and immutable, enforcing their own invariants.
+
+**Implementation**:
+
+- All properties are `readonly`; business operations (`.update()`, `.archive()`, `.approve()`) return a new instance rather than mutating state
+- Private constructor validates all domain invariants, making invalid state unrepresentable
+- `create()` static factory constructs a new entity from new data, applies managed defaults, and delegates to the private constructor
+- `fromPersistence()` static factory rehydrates an entity from a stored record and delegates to the private constructor
+- Domain invariant violations throw `ModelError`
+
+**Rationale**: The private constructor guarantees every instance satisfies domain rules regardless of caller. Two named factories make intent explicit — creation versus rehydration — while both paths enforce invariants.
+
 ### Backend Port Interfaces
 
 **Non-negotiable rule**: The service layer defines ports (interfaces) at its boundary with infrastructure and external systems. Repositories and external integrations are adapters that implement these ports. Services depend only on ports, never on adapters.
