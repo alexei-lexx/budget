@@ -252,6 +252,25 @@ graph LR
 
 **Rationale**: Balances performance with simplicity. Load-more pattern provides better mobile UX and stable navigation.
 
+### GraphQL DataLoaders
+
+**Non-negotiable rule**: Any resolver that loads a related entity by ID MUST use a DataLoader. Direct repository calls for per-item lookups inside list resolvers are forbidden.
+
+**Problem**: Without batching, resolving a list of N transactions where each transaction has an `account` field triggers N separate database round-trips — the classic N+1 problem.
+
+**Implementation**:
+
+- DataLoaders live in `src/graphql/dataloaders/`, one file per entity type (e.g. `account-loader.ts`)
+- Each DataLoader is instantiated fresh per GraphQL request and attached to `GraphQLContext` — never shared across requests
+- Resolvers call `context.<entity>Loader.load(id)` rather than accessing repositories directly
+- Each loader's batch function fetches all IDs in a single repository call and maps results back in input order
+- When an entity is missing (e.g. soft-deleted or orphaned), return a stub value with an `"Unknown"` display name rather than `null` — this preserves data resilience for historical records
+- Batch functions and loader factories are kept in separate named exports to allow unit-testing the batch logic independently of the DataLoader wrapper
+
+**Embedded Types**: Loaders project entities to a minimal embedded shape (e.g. `TransactionEmbeddedAccount`) defined in `src/graphql/embedded-types.ts` — never return the full domain entity from a loader.
+
+**Rationale**: Batching collapses N database round-trips into one per entity type per request. Per-request scoping ensures isolation between concurrent operations. Stub data prevents null-propagation errors in historical records that reference since-archived entities.
+
 ### Backend Service Layer
 
 **Non-negotiable rule**: Service classes follow one of two patterns based on complexity and purpose.
