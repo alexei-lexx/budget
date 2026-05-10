@@ -319,6 +319,30 @@ graph LR
 
 **Rationale**: Use Result when the caller must handle the failure and make a decision; use exceptions for infrastructure panics the caller cannot recover from.
 
+### Backend Error Hierarchy
+
+**Non-negotiable rule**: Each architectural layer owns one error type. The GraphQL layer translates all layer errors into client-safe `GraphQLError` instances through a shared error handler.
+
+**Error types by layer**:
+
+| Error Class | Owned By | When to Throw |
+|---|---|---|
+| `ModelError` | Domain Model | Invariant violated during construction or state transition |
+| `BusinessError` | Service | Business rule violated (not found, duplicate, constraint) |
+| `RepositoryError` | Repository | Data access operation failed |
+
+**GraphQL error translation**:
+
+The shared `handleResolverError` helper in the GraphQL layer translates layer errors into client responses:
+
+- `BusinessError` and `ModelError` → `GraphQLError` with the original message (user-facing; safe to expose)
+- `RepositoryError` → `GraphQLError` with a generic message; full details logged server-side
+- Unknown errors → `GraphQLError` with a generic message; full details logged server-side
+
+Call `handleResolverError` in every resolver catch block to ensure consistent error mapping.
+
+**Rationale**: Each layer signals failures in its own vocabulary. The GraphQL boundary is the only place that decides whether an error message is safe to expose — it must never pass raw infrastructure error details to clients.
+
 ### Database Record Hydration
 
 **Non-negotiable rule**: All data read from the database MUST be validated at the repository boundary before being returned to service or resolver layers.
