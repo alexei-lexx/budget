@@ -116,6 +116,7 @@ export async function acquireLock(
     ) {
       throw new Error(
         "Migration lock already held. Another migration may be running.",
+        { cause: error },
       );
     }
     throw error;

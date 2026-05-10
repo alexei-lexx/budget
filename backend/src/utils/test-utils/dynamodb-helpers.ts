@@ -61,6 +61,7 @@ export async function truncateTable(
     console.error(`Error truncating table ${tableName}:`, error);
     throw new Error(
       `Failed to truncate table ${tableName}: ${error instanceof Error ? error.message : String(error)}`,
+      { cause: error },
     );
   }
 }
