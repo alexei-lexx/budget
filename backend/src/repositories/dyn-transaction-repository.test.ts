@@ -35,32 +35,6 @@ describe("DynTransactionRepository", () => {
     });
   });
 
-  describe("findOneById", () => {
-    // Dependency failures
-
-    it("throws when required field is missing from database record", async () => {
-      // Arrange
-      const userId = faker.string.uuid();
-      const transaction = fakeTransaction({ userId });
-      await repository.create(transaction);
-      const client = createDynamoDBDocumentClient();
-
-      // Corrupt record by removing amount
-      await client.send(
-        new UpdateCommand({
-          TableName: tableName,
-          Key: { userId, id: transaction.id },
-          UpdateExpression: "REMOVE amount",
-        }),
-      );
-
-      // Act & Assert
-      await expect(
-        repository.findOneById({ id: transaction.id, userId }),
-      ).rejects.toThrow();
-    });
-  });
-
   describe("findManyByUserId", () => {
     // Happy path
 
@@ -2594,6 +2568,30 @@ describe("DynTransactionRepository", () => {
           sampleSize: 50.5,
         }),
       ).rejects.toThrow("Sample size must be a positive integer");
+    });
+  });
+
+  describe("hydration - data corruption detection", () => {
+    it("throws when required field is missing from database record", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+      const transaction = fakeTransaction({ userId });
+      await repository.create(transaction);
+      const client = createDynamoDBDocumentClient();
+
+      // Corrupt record by removing amount
+      await client.send(
+        new UpdateCommand({
+          TableName: tableName,
+          Key: { userId, id: transaction.id },
+          UpdateExpression: "REMOVE amount",
+        }),
+      );
+
+      // Act & Assert
+      await expect(
+        repository.findOneById({ id: transaction.id, userId }),
+      ).rejects.toThrow();
     });
   });
 });
