@@ -13,9 +13,9 @@ import {
   extractLastMessageText,
 } from "./utils";
 
-export class LangChainAgent<TContext extends Record<string, unknown>>
-  implements Agent<TContext>
-{
+export class LangChainAgent<
+  TContext extends Record<string, unknown>,
+> implements Agent<TContext> {
   // ReactAgent is generic over its internal state shape, which is irrelevant
   // at this abstraction level — we only call invoke() and read response.messages.
   constructor(
