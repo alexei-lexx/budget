@@ -44,6 +44,7 @@ describe("UserService", () => {
           voiceInputLanguage: "pl-PL",
         },
       });
+      expect(mockUserRepository.findOneById).toHaveBeenCalledWith(userId);
     });
 
     it("returns defaults when no settings are saved", async () => {
@@ -64,6 +65,7 @@ describe("UserService", () => {
           voiceInputLanguage: undefined,
         },
       });
+      expect(mockUserRepository.findOneById).toHaveBeenCalledWith(userId);
     });
 
     // Validation failures
@@ -79,14 +81,16 @@ describe("UserService", () => {
 
     it("returns failure when user is not found", async () => {
       // Arrange
+      const userId = faker.string.uuid();
       // Returns no user for given id
       mockUserRepository.findOneById.mockResolvedValue(null);
 
       // Act
-      const result = await service.getSettings(faker.string.uuid());
+      const result = await service.getSettings(userId);
 
       // Assert
       expect(result).toEqual({ success: false, error: "User not found" });
+      expect(mockUserRepository.findOneById).toHaveBeenCalledWith(userId);
     });
   });
 
@@ -137,6 +141,9 @@ describe("UserService", () => {
         success: true,
         data: { transactionPatternsLimit: 7, voiceInputLanguage: undefined },
       });
+      expect(mockUserRepository.update).toHaveBeenCalledWith(userId, {
+        transactionPatternsLimit: 7,
+      });
     });
 
     it("updates both fields at once", async () => {
@@ -164,6 +171,10 @@ describe("UserService", () => {
           transactionPatternsLimit: 5,
           voiceInputLanguage: "en-US",
         },
+      });
+      expect(mockUserRepository.update).toHaveBeenCalledWith(userId, {
+        transactionPatternsLimit: 5,
+        voiceInputLanguage: "en-US",
       });
     });
 
