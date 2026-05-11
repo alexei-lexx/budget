@@ -159,7 +159,7 @@ describe("DynTransactionRepository", () => {
           fakeTransaction({ userId, accountId: account1 }),
         );
 
-        // Act — filter by account1 and account2
+        // Act
         const result = await repository.findManyByUserIdPaginated(
           userId,
           undefined,
@@ -281,7 +281,7 @@ describe("DynTransactionRepository", () => {
           }),
         );
 
-        // Act — filter by category1 and category2
+        // Act
         const result = await repository.findManyByUserIdPaginated(
           userId,
           undefined,
@@ -382,7 +382,7 @@ describe("DynTransactionRepository", () => {
           }),
         );
 
-        // Act — filter by category1 + uncategorized
+        // Act
         const result = await repository.findManyByUserIdPaginated(
           userId,
           undefined,
@@ -458,7 +458,7 @@ describe("DynTransactionRepository", () => {
           }),
         );
 
-        // Act — get transactions on or after 2024-01-15 (boundary inclusive)
+        // Act
         const result = await repository.findManyByUserIdPaginated(
           userId,
           undefined,
@@ -467,7 +467,7 @@ describe("DynTransactionRepository", () => {
           },
         );
 
-        // Assert — includes boundary date (2024-01-15)
+        // Assert
         expect(result.edges).toHaveLength(2);
         expect(result.totalCount).toBe(2);
         const dates = result.edges.map((edge) => edge.node.date).sort();
@@ -501,7 +501,7 @@ describe("DynTransactionRepository", () => {
           }),
         );
 
-        // Act — get transactions on or before 2024-01-20 (boundary inclusive)
+        // Act
         const result = await repository.findManyByUserIdPaginated(
           userId,
           undefined,
@@ -510,7 +510,7 @@ describe("DynTransactionRepository", () => {
           },
         );
 
-        // Assert — includes boundary date (2024-01-20)
+        // Assert
         expect(result.edges).toHaveLength(2);
         expect(result.totalCount).toBe(2);
         const dates = result.edges.map((edge) => edge.node.date).sort();
@@ -558,7 +558,7 @@ describe("DynTransactionRepository", () => {
           }),
         );
 
-        // Act — get transactions between 2024-01-10 and 2024-01-20 (both inclusive)
+        // Act
         const result = await repository.findManyByUserIdPaginated(
           userId,
           undefined,
@@ -568,7 +568,7 @@ describe("DynTransactionRepository", () => {
           },
         );
 
-        // Assert — includes both boundary dates (2024-01-10 and 2024-01-20)
+        // Assert
         expect(result.edges).toHaveLength(3);
         expect(result.totalCount).toBe(3);
         const dates = result.edges.map((edge) => edge.node.date).sort();
@@ -887,7 +887,7 @@ describe("DynTransactionRepository", () => {
           }),
         );
 
-        // Act — complex filter: account1 + category1 + date range + EXPENSE type
+        // Act
         const result = await repository.findManyByUserIdPaginated(
           userId,
           undefined,
@@ -900,7 +900,7 @@ describe("DynTransactionRepository", () => {
           },
         );
 
-        // Assert — only one transaction matches
+        // Assert
         expect(result.edges).toHaveLength(1);
         expect(result.totalCount).toBe(1);
         expect(result.edges[0].node.accountId).toBe(account1);
@@ -914,7 +914,7 @@ describe("DynTransactionRepository", () => {
       // See detailed explanation of issue:
       // https://github.com/alexei-lexx/budget/issues/36
 
-      // Arrange — 6 transactions across different dates
+      // Arrange
       const userId = faker.string.uuid();
       const accountId = faker.string.uuid();
 
@@ -954,7 +954,7 @@ describe("DynTransactionRepository", () => {
         await repository.create(transaction);
       }
 
-      // Act — fetch first page with date filter (triggers UserDateIndex usage)
+      // Act
       const page1 = await repository.findManyByUserIdPaginated(
         userId,
         { first: 3 },
@@ -964,13 +964,13 @@ describe("DynTransactionRepository", () => {
         },
       );
 
-      // Assert — page 1 has 3 items and indicates more pages
+      // Assert
       expect(page1.edges).toHaveLength(3);
       expect(page1.pageInfo.hasNextPage).toBe(true);
       expect(page1.pageInfo.endCursor).toBeDefined();
       expect(page1.totalCount).toBe(6);
 
-      // Act — fetch second page using cursor from page 1
+      // Act
       const page2 = await repository.findManyByUserIdPaginated(
         userId,
         { first: 3, after: page1.pageInfo.endCursor },
@@ -980,7 +980,7 @@ describe("DynTransactionRepository", () => {
         },
       );
 
-      // Assert — page 2 has remaining 3 items
+      // Assert
       expect(page2.edges).toHaveLength(3);
       // hasNextPage may be true due to DynamoDB returning LastEvaluatedKey when Limit is reached;
       // acceptable as long as there are no duplicates or missing items
@@ -1007,7 +1007,7 @@ describe("DynTransactionRepository", () => {
     });
 
     it("paginates without date filters using UserCreatedAtIndex", async () => {
-      // Arrange — 6 transactions
+      // Arrange
       const userId = faker.string.uuid();
       const accountId = faker.string.uuid();
 
@@ -1047,27 +1047,27 @@ describe("DynTransactionRepository", () => {
         await repository.create(transaction);
       }
 
-      // Act — fetch first page WITHOUT date filter (triggers UserCreatedAtIndex usage)
+      // Act
       const page1 = await repository.findManyByUserIdPaginated(
         userId,
         { first: 3 },
         {},
       );
 
-      // Assert — page 1 has 3 items
+      // Assert
       expect(page1.edges).toHaveLength(3);
       expect(page1.pageInfo.hasNextPage).toBe(true);
       expect(page1.pageInfo.endCursor).toBeDefined();
       expect(page1.totalCount).toBe(6);
 
-      // Act — fetch second page using cursor
+      // Act
       const page2 = await repository.findManyByUserIdPaginated(
         userId,
         { first: 3, after: page1.pageInfo.endCursor },
         {},
       );
 
-      // Assert — page 2 has remaining 3 items
+      // Assert
       expect(page2.edges).toHaveLength(3);
       expect(page2.totalCount).toBe(6);
 
@@ -1253,14 +1253,14 @@ describe("DynTransactionRepository", () => {
         await repository.create(transaction);
       }
 
-      // Act — search with uppercase "G"
+      // Act
       const resultUppercase = await repository.findManyByDescription({
         userId,
         searchText: "Gr",
         limit: 10,
       });
 
-      // Act — search with lowercase "g"
+      // Act
       const resultLowercase = await repository.findManyByDescription({
         userId,
         searchText: "gr",
@@ -1305,7 +1305,7 @@ describe("DynTransactionRepository", () => {
         limit: 10,
       });
 
-      // Assert — ordered by creation time (newest first)
+      // Assert
       expect(result).toHaveLength(2);
       expect(result[0].id).toBe(transaction2.id);
       expect(result[1].id).toBe(transaction1.id);
@@ -1406,7 +1406,7 @@ describe("DynTransactionRepository", () => {
         limit: 10,
       });
 
-      // Assert — only non-archived transaction returned
+      // Assert
       expect(result).toHaveLength(1);
       expect(result[0].description).toBe("Store purchase 2");
     });
@@ -1446,7 +1446,7 @@ describe("DynTransactionRepository", () => {
         limit: 10,
       });
 
-      // Assert — each user sees only their own transactions
+      // Assert
       expect(user1Result).toHaveLength(1);
       expect(user1Result[0].description).toBe("User 1 store");
       expect(user1Result[0].userId).toBe(user1);
@@ -1852,7 +1852,7 @@ describe("DynTransactionRepository", () => {
     // Validation failures
 
     it("throws VersionConflictError when version is stale", async () => {
-      // Arrange — row at v0, then bumped to v1 by first update
+      // Arrange
       const created = fakeTransaction({ version: 0 });
       await repository.create(created);
       await repository.update(created.update({ amount: 50 }));
@@ -1883,7 +1883,7 @@ describe("DynTransactionRepository", () => {
       const created = fakeTransaction({ userId: owner });
       await repository.create(created);
 
-      // Act & Assert — write as different user; partition key mismatch fails condition
+      // Act & Assert
       await expect(
         repository.update(
           Transaction.fromPersistence({
@@ -2068,7 +2068,7 @@ describe("DynTransactionRepository", () => {
         sampleSize: 100,
       });
 
-      // Assert — returns only top 3 patterns, sorted by frequency (most used first)
+      // Assert
       expect(result).toHaveLength(3);
       expect(result[0]).toEqual({
         accountId: accountIds[4],
@@ -2153,7 +2153,7 @@ describe("DynTransactionRepository", () => {
         sampleSize: 100,
       });
 
-      // Assert — sorts deterministically by accountId, then categoryId
+      // Assert
       expect(result).toHaveLength(3);
       expect(result[0]).toEqual({
         accountId: accountA,
@@ -2251,21 +2251,21 @@ describe("DynTransactionRepository", () => {
         sampleSize: 100,
       });
 
-      // Assert — income patterns
+      // Assert
       expect(incomeResult).toHaveLength(1);
       expect(incomeResult[0]).toEqual({
         accountId,
         categoryId: categoryIncome,
       });
 
-      // Assert — expense patterns
+      // Assert
       expect(expenseResult).toHaveLength(1);
       expect(expenseResult[0]).toEqual({
         accountId,
         categoryId: categoryExpense,
       });
 
-      // Assert — refund patterns
+      // Assert
       expect(refundResult).toHaveLength(1);
       expect(refundResult[0]).toEqual({
         accountId,
@@ -2309,7 +2309,7 @@ describe("DynTransactionRepository", () => {
         sampleSize: 100,
       });
 
-      // Assert — only counts non-archived transaction
+      // Assert
       expect(result).toHaveLength(1);
       expect(result[0]).toEqual({
         accountId: account2,
@@ -2356,7 +2356,7 @@ describe("DynTransactionRepository", () => {
         await repository.create(transaction);
       }
 
-      // Act — request with sampleSize of 5 (analyzes only last 5 transactions)
+      // Act
       const result = await repository.detectPatterns({
         userId,
         type: TransactionPatternType.INCOME,
@@ -2364,7 +2364,7 @@ describe("DynTransactionRepository", () => {
         sampleSize: 5,
       });
 
-      // Assert — returns one pattern derived from 5-transaction sample
+      // Assert
       expect(result).toHaveLength(1);
       expect(result[0]).toEqual({
         accountId: account2,
@@ -2396,7 +2396,7 @@ describe("DynTransactionRepository", () => {
         await repository.create(transaction);
       }
 
-      // Act — request only 2 patterns
+      // Act
       const result = await repository.detectPatterns({
         userId,
         type: TransactionPatternType.INCOME,
@@ -2404,7 +2404,7 @@ describe("DynTransactionRepository", () => {
         sampleSize: 100,
       });
 
-      // Assert — returns only 2 patterns
+      // Assert
       expect(result).toHaveLength(2);
     });
 
@@ -2452,7 +2452,7 @@ describe("DynTransactionRepository", () => {
         sampleSize: 100,
       });
 
-      // Assert — each user sees only their own patterns
+      // Assert
       expect(user1Result).toHaveLength(1);
       expect(user1Result[0]).toEqual({
         accountId: account1,
