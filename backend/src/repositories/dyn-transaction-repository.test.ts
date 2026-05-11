@@ -79,7 +79,7 @@ describe("DynTransactionRepository", () => {
   describe("findManyByUserIdPaginated", () => {
     // Happy path
 
-    it("returns paginated transactions for user", async () => {
+    it("returns transactions for user without filters", async () => {
       // Arrange
       const userId = faker.string.uuid();
 
