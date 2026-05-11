@@ -2570,7 +2570,7 @@ describe("DynTransactionRepository", () => {
   });
 
   describe("hydration - data corruption detection", () => {
-    it("throws when required field is missing from database record", async () => {
+    it("throws when amount is missing from database record", async () => {
       // Arrange
       const userId = faker.string.uuid();
       const transaction = fakeTransaction({ userId });
