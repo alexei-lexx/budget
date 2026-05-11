@@ -1692,7 +1692,6 @@ describe("DynTransactionRepository", () => {
       await repository.create(transaction);
 
       // Assert
-      const client = createDynamoDBDocumentClient();
       const { Item: rawItem } = await client.send(
         new GetCommand({
           TableName: tableName,
@@ -1828,7 +1827,6 @@ describe("DynTransactionRepository", () => {
       const created = fakeTransaction({ userId });
       await repository.create(created);
 
-      const client = createDynamoDBDocumentClient();
       const { Item: before } = await client.send(
         new GetCommand({
           TableName: tableName,
@@ -2577,7 +2575,6 @@ describe("DynTransactionRepository", () => {
       const userId = faker.string.uuid();
       const transaction = fakeTransaction({ userId });
       await repository.create(transaction);
-      const client = createDynamoDBDocumentClient();
 
       // Corrupt record by removing amount
       await client.send(
