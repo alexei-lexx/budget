@@ -28,7 +28,7 @@ describe("DynTransactionRepository", () => {
   });
 
   beforeEach(async () => {
-    // Clean up transactions table before each test
+    // Truncate transactions table before each test
     await truncateTable(client, tableName, {
       partitionKey: "userId",
       sortKey: "id",
@@ -36,16 +36,19 @@ describe("DynTransactionRepository", () => {
   });
 
   describe("findManyByUserId", () => {
-    it("returns transactions that belong to user and are not archived", async () => {
+    // Happy path
+
+    it("returns non-archived transactions for user", async () => {
+      // Arrange
       const userId = faker.string.uuid();
 
-      // Active transactions for the user
+      // Active transactions for user
       const active1 = fakeTransaction({ userId });
       await repository.create(active1);
       const active2 = fakeTransaction({ userId });
       await repository.create(active2);
 
-      // Archived transaction for the user
+      // Archived transaction for user
       const archived = fakeTransaction({ userId, isArchived: true });
       await repository.create(archived);
 
@@ -62,6 +65,7 @@ describe("DynTransactionRepository", () => {
     });
 
     it("returns empty array when no transactions exist", async () => {
+      // Arrange
       const userId = faker.string.uuid();
 
       // Act
@@ -73,35 +77,33 @@ describe("DynTransactionRepository", () => {
   });
 
   describe("findManyByUserIdPaginated", () => {
-    describe("without filters", () => {
-      it("returns transactions for user", async () => {
-        // Arrange
-        const userId = faker.string.uuid();
+    // Happy path
 
-        // Transactions for the user
-        const transaction1 = fakeTransaction({ userId });
-        await repository.create(transaction1);
-        const transaction2 = fakeTransaction({ userId });
-        await repository.create(transaction2);
+    it("returns transactions for user without filters", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
 
-        // Transaction for another user
-        await repository.create(
-          fakeTransaction({ userId: faker.string.uuid() }),
-        );
+      // Transactions for user
+      const transaction1 = fakeTransaction({ userId });
+      await repository.create(transaction1);
+      const transaction2 = fakeTransaction({ userId });
+      await repository.create(transaction2);
 
-        // Act
-        const result = await repository.findManyByUserIdPaginated(userId);
+      // Transaction for another user
+      await repository.create(fakeTransaction({ userId: faker.string.uuid() }));
 
-        // Assert
-        expect(result.edges).toHaveLength(2);
-        expect(result.totalCount).toBe(2);
-        expect(result.edges.map((edge) => edge.node)).toEqual(
-          expect.arrayContaining([transaction1, transaction2]),
-        );
-      });
+      // Act
+      const result = await repository.findManyByUserIdPaginated(userId);
+
+      // Assert
+      expect(result.edges).toHaveLength(2);
+      expect(result.totalCount).toBe(2);
+      expect(result.edges.map((edge) => edge.node)).toEqual(
+        expect.arrayContaining([transaction1, transaction2]),
+      );
     });
 
-    describe("with account filters", () => {
+    describe("when filtering by account", () => {
       it("filters transactions by single account ID", async () => {
         // Arrange
         const userId = faker.string.uuid();
@@ -157,7 +159,7 @@ describe("DynTransactionRepository", () => {
           fakeTransaction({ userId, accountId: account1 }),
         );
 
-        // Act - Filter by account1 and account2 (should get 3 transactions)
+        // Act
         const result = await repository.findManyByUserIdPaginated(
           userId,
           undefined,
@@ -200,7 +202,7 @@ describe("DynTransactionRepository", () => {
       });
     });
 
-    describe("with category filters", () => {
+    describe("when filtering by category", () => {
       it("filters transactions by single category ID", async () => {
         // Arrange
         const userId = faker.string.uuid();
@@ -279,7 +281,7 @@ describe("DynTransactionRepository", () => {
           }),
         );
 
-        // Act - Filter by category1 and category2
+        // Act
         const result = await repository.findManyByUserIdPaginated(
           userId,
           undefined,
@@ -380,7 +382,7 @@ describe("DynTransactionRepository", () => {
           }),
         );
 
-        // Act - Filter by category1 + uncategorized
+        // Act
         const result = await repository.findManyByUserIdPaginated(
           userId,
           undefined,
@@ -428,7 +430,7 @@ describe("DynTransactionRepository", () => {
       });
     });
 
-    describe("with date filters", () => {
+    describe("when filtering by date", () => {
       it("filters transactions by dateAfter (inclusive)", async () => {
         // Arrange
         const userId = faker.string.uuid();
@@ -456,7 +458,7 @@ describe("DynTransactionRepository", () => {
           }),
         );
 
-        // Act - Get transactions on or after 2024-01-15 (should include 2024-01-15)
+        // Act
         const result = await repository.findManyByUserIdPaginated(
           userId,
           undefined,
@@ -465,7 +467,7 @@ describe("DynTransactionRepository", () => {
           },
         );
 
-        // Assert - Should include the boundary date (2024-01-15)
+        // Assert
         expect(result.edges).toHaveLength(2);
         expect(result.totalCount).toBe(2);
         const dates = result.edges.map((edge) => edge.node.date).sort();
@@ -499,7 +501,7 @@ describe("DynTransactionRepository", () => {
           }),
         );
 
-        // Act - Get transactions on or before 2024-01-20 (should include 2024-01-20)
+        // Act
         const result = await repository.findManyByUserIdPaginated(
           userId,
           undefined,
@@ -508,7 +510,7 @@ describe("DynTransactionRepository", () => {
           },
         );
 
-        // Assert - Should include the boundary date (2024-01-20)
+        // Assert
         expect(result.edges).toHaveLength(2);
         expect(result.totalCount).toBe(2);
         const dates = result.edges.map((edge) => edge.node.date).sort();
@@ -556,7 +558,7 @@ describe("DynTransactionRepository", () => {
           }),
         );
 
-        // Act - Get transactions between 2024-01-10 and 2024-01-20 (both inclusive)
+        // Act
         const result = await repository.findManyByUserIdPaginated(
           userId,
           undefined,
@@ -566,17 +568,17 @@ describe("DynTransactionRepository", () => {
           },
         );
 
-        // Assert - Should include both boundary dates (2024-01-10 and 2024-01-20)
+        // Assert
         expect(result.edges).toHaveLength(3);
         expect(result.totalCount).toBe(3);
         const dates = result.edges.map((edge) => edge.node.date).sort();
         expect(dates).toEqual(["2024-01-10", "2024-01-15", "2024-01-20"]);
       });
 
-      it("throws error when dateAfter > dateBefore (DynamoDB constraint)", async () => {
-        // Verify DynamoDB constraint behavior when dateAfter > dateBefore
-        // DynamoDB BETWEEN operator requires lower bound <= upper bound
-        // When this is violated, DynamoDB throws ValidationException
+      it("throws when dateAfter > dateBefore (DynamoDB constraint)", async () => {
+        // Arrange
+        // DynamoDB BETWEEN operator requires lower bound <= upper bound;
+        // when violated, DynamoDB throws ValidationException
         const userId = faker.string.uuid();
         const accountId = faker.string.uuid();
 
@@ -602,7 +604,7 @@ describe("DynTransactionRepository", () => {
           }),
         );
 
-        // Act & Assert - Should throw error when dateAfter > dateBefore
+        // Act & Assert
         await expect(
           repository.findManyByUserIdPaginated(userId, undefined, {
             dateAfter: toDateString("2024-12-31"),
@@ -612,108 +614,106 @@ describe("DynTransactionRepository", () => {
       });
     });
 
-    describe("with type filters", () => {
-      it("filters transactions by single type", async () => {
-        // Arrange
-        const userId = faker.string.uuid();
-        const accountId = faker.string.uuid();
+    it("filters transactions by single type", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+      const accountId = faker.string.uuid();
 
-        await repository.create(
-          fakeTransaction({
-            userId,
-            accountId,
-            type: TransactionType.INCOME,
-          }),
-        );
-        await repository.create(
-          fakeTransaction({
-            userId,
-            accountId,
-            type: TransactionType.EXPENSE,
-          }),
-        );
-        await repository.create(
-          fakeTransaction({
-            userId,
-            accountId,
-            type: TransactionType.INCOME,
-          }),
-        );
-
-        // Act
-        const result = await repository.findManyByUserIdPaginated(
+      await repository.create(
+        fakeTransaction({
           userId,
-          undefined,
-          {
-            types: [TransactionType.INCOME],
-          },
-        );
-
-        // Assert
-        expect(result.edges).toHaveLength(2);
-        expect(result.totalCount).toBe(2);
-        result.edges.forEach((edge) => {
-          expect(edge.node.type).toBe(TransactionType.INCOME);
-        });
-      });
-
-      it("filters transactions by multiple types", async () => {
-        // Arrange
-        const userId = faker.string.uuid();
-        const accountId = faker.string.uuid();
-
-        await repository.create(
-          fakeTransaction({
-            userId,
-            accountId,
-            type: TransactionType.INCOME,
-          }),
-        );
-        await repository.create(
-          fakeTransaction({
-            userId,
-            accountId,
-            type: TransactionType.EXPENSE,
-          }),
-        );
-        await repository.create(
-          fakeTransaction({
-            userId,
-            accountId,
-            type: TransactionType.TRANSFER_IN,
-          }),
-        );
-        await repository.create(
-          fakeTransaction({
-            userId,
-            accountId,
-            type: TransactionType.TRANSFER_OUT,
-          }),
-        );
-
-        // Act
-        const result = await repository.findManyByUserIdPaginated(
+          accountId,
+          type: TransactionType.INCOME,
+        }),
+      );
+      await repository.create(
+        fakeTransaction({
           userId,
-          undefined,
-          {
-            types: [TransactionType.INCOME, TransactionType.EXPENSE],
-          },
-        );
+          accountId,
+          type: TransactionType.EXPENSE,
+        }),
+      );
+      await repository.create(
+        fakeTransaction({
+          userId,
+          accountId,
+          type: TransactionType.INCOME,
+        }),
+      );
 
-        // Assert
-        expect(result.edges).toHaveLength(2);
-        expect(result.totalCount).toBe(2);
-        const types = result.edges.map((edge) => edge.node.type);
-        expect(types).toEqual(
-          expect.arrayContaining([
-            TransactionType.INCOME,
-            TransactionType.EXPENSE,
-          ]),
-        );
+      // Act
+      const result = await repository.findManyByUserIdPaginated(
+        userId,
+        undefined,
+        {
+          types: [TransactionType.INCOME],
+        },
+      );
+
+      // Assert
+      expect(result.edges).toHaveLength(2);
+      expect(result.totalCount).toBe(2);
+      result.edges.forEach((edge) => {
+        expect(edge.node.type).toBe(TransactionType.INCOME);
       });
     });
 
-    describe("with combined filters", () => {
+    it("filters transactions by multiple types", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+      const accountId = faker.string.uuid();
+
+      await repository.create(
+        fakeTransaction({
+          userId,
+          accountId,
+          type: TransactionType.INCOME,
+        }),
+      );
+      await repository.create(
+        fakeTransaction({
+          userId,
+          accountId,
+          type: TransactionType.EXPENSE,
+        }),
+      );
+      await repository.create(
+        fakeTransaction({
+          userId,
+          accountId,
+          type: TransactionType.TRANSFER_IN,
+        }),
+      );
+      await repository.create(
+        fakeTransaction({
+          userId,
+          accountId,
+          type: TransactionType.TRANSFER_OUT,
+        }),
+      );
+
+      // Act
+      const result = await repository.findManyByUserIdPaginated(
+        userId,
+        undefined,
+        {
+          types: [TransactionType.INCOME, TransactionType.EXPENSE],
+        },
+      );
+
+      // Assert
+      expect(result.edges).toHaveLength(2);
+      expect(result.totalCount).toBe(2);
+      const types = result.edges.map((edge) => edge.node.type);
+      expect(types).toEqual(
+        expect.arrayContaining([
+          TransactionType.INCOME,
+          TransactionType.EXPENSE,
+        ]),
+      );
+    });
+
+    describe("when filters are combined", () => {
       it("filters by account and date range", async () => {
         // Arrange
         const userId = faker.string.uuid();
@@ -887,7 +887,7 @@ describe("DynTransactionRepository", () => {
           }),
         );
 
-        // Act - Complex filter: account1 + category1 + date range + EXPENSE type
+        // Act
         const result = await repository.findManyByUserIdPaginated(
           userId,
           undefined,
@@ -900,7 +900,7 @@ describe("DynTransactionRepository", () => {
           },
         );
 
-        // Assert - Should only match one transaction
+        // Assert
         expect(result.edges).toHaveLength(1);
         expect(result.totalCount).toBe(1);
         expect(result.edges[0].node.accountId).toBe(account1);
@@ -910,270 +910,270 @@ describe("DynTransactionRepository", () => {
       });
     });
 
-    describe("pagination with date filters (UserDateIndex)", () => {
-      it("paginates correctly when using date filters without duplicates or missing items", async () => {
-        // See detailed explanation of the issue here:
-        // https://github.com/alexei-lexx/budget/issues/36
+    it("paginates over date-filtered results without duplicates or missing items", async () => {
+      // See detailed explanation of issue:
+      // https://github.com/alexei-lexx/budget/issues/36
 
-        // Arrange - Create 6 transactions across different dates
+      // Arrange
+      const userId = faker.string.uuid();
+      const accountId = faker.string.uuid();
+
+      const transactions = [
+        fakeTransaction({
+          userId,
+          accountId,
+          date: toDateString("2024-01-20"),
+        }),
+        fakeTransaction({
+          userId,
+          accountId,
+          date: toDateString("2024-01-19"),
+        }),
+        fakeTransaction({
+          userId,
+          accountId,
+          date: toDateString("2024-01-18"),
+        }),
+        fakeTransaction({
+          userId,
+          accountId,
+          date: toDateString("2024-01-17"),
+        }),
+        fakeTransaction({
+          userId,
+          accountId,
+          date: toDateString("2024-01-16"),
+        }),
+        fakeTransaction({
+          userId,
+          accountId,
+          date: toDateString("2024-01-15"),
+        }),
+      ];
+      for (const transaction of transactions) {
+        await repository.create(transaction);
+      }
+
+      // Act
+      const page1 = await repository.findManyByUserIdPaginated(
+        userId,
+        { first: 3 },
+        {
+          dateAfter: toDateString("2024-01-01"),
+          dateBefore: toDateString("2024-01-31"),
+        },
+      );
+
+      // Assert
+      expect(page1.edges).toHaveLength(3);
+      expect(page1.pageInfo.hasNextPage).toBe(true);
+      expect(page1.pageInfo.endCursor).toBeDefined();
+      expect(page1.totalCount).toBe(6);
+
+      // Act
+      const page2 = await repository.findManyByUserIdPaginated(
+        userId,
+        { first: 3, after: page1.pageInfo.endCursor },
+        {
+          dateAfter: toDateString("2024-01-01"),
+          dateBefore: toDateString("2024-01-31"),
+        },
+      );
+
+      // Assert
+      expect(page2.edges).toHaveLength(3);
+      // hasNextPage may be true due to DynamoDB returning LastEvaluatedKey when Limit is reached;
+      // acceptable as long as there are no duplicates or missing items
+      expect(page2.totalCount).toBe(6);
+
+      // No duplicates between pages
+      const page1Ids = page1.edges.map((edge) => edge.node.id);
+      const page2Ids = page2.edges.map((edge) => edge.node.id);
+      const duplicates = page1Ids.filter((id) => page2Ids.includes(id));
+      expect(duplicates).toHaveLength(0);
+
+      // All transactions are present (no missing items)
+      const allPagedIds = [...page1Ids, ...page2Ids];
+      const expectedIds = transactions.map((transaction) => transaction.id);
+      expect(allPagedIds.sort()).toEqual(expectedIds.sort());
+
+      // Correct ordering (newest first: 2024-01-20 -> 2024-01-15)
+      expect(page1.edges[0].node.date).toBe("2024-01-20");
+      expect(page1.edges[1].node.date).toBe("2024-01-19");
+      expect(page1.edges[2].node.date).toBe("2024-01-18");
+      expect(page2.edges[0].node.date).toBe("2024-01-17");
+      expect(page2.edges[1].node.date).toBe("2024-01-16");
+      expect(page2.edges[2].node.date).toBe("2024-01-15");
+    });
+
+    it("paginates without date filters using UserCreatedAtIndex", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+      const accountId = faker.string.uuid();
+
+      const transactions = [
+        fakeTransaction({
+          userId,
+          accountId,
+          date: toDateString("2024-01-20"),
+        }),
+        fakeTransaction({
+          userId,
+          accountId,
+          date: toDateString("2024-01-19"),
+        }),
+        fakeTransaction({
+          userId,
+          accountId,
+          date: toDateString("2024-01-18"),
+        }),
+        fakeTransaction({
+          userId,
+          accountId,
+          date: toDateString("2024-01-17"),
+        }),
+        fakeTransaction({
+          userId,
+          accountId,
+          date: toDateString("2024-01-16"),
+        }),
+        fakeTransaction({
+          userId,
+          accountId,
+          date: toDateString("2024-01-15"),
+        }),
+      ];
+      for (const transaction of transactions) {
+        await repository.create(transaction);
+      }
+
+      // Act
+      const page1 = await repository.findManyByUserIdPaginated(
+        userId,
+        { first: 3 },
+        {},
+      );
+
+      // Assert
+      expect(page1.edges).toHaveLength(3);
+      expect(page1.pageInfo.hasNextPage).toBe(true);
+      expect(page1.pageInfo.endCursor).toBeDefined();
+      expect(page1.totalCount).toBe(6);
+
+      // Act
+      const page2 = await repository.findManyByUserIdPaginated(
+        userId,
+        { first: 3, after: page1.pageInfo.endCursor },
+        {},
+      );
+
+      // Assert
+      expect(page2.edges).toHaveLength(3);
+      expect(page2.totalCount).toBe(6);
+
+      // No duplicates between pages
+      const page1Ids = page1.edges.map((edge) => edge.node.id);
+      const page2Ids = page2.edges.map((edge) => edge.node.id);
+      const duplicates = page1Ids.filter((id) => page2Ids.includes(id));
+      expect(duplicates).toHaveLength(0);
+
+      // All transactions are present (no missing items)
+      const allPagedIds = [...page1Ids, ...page2Ids];
+      const expectedIds = transactions.map((transaction) => transaction.id);
+      expect(allPagedIds.sort()).toEqual(expectedIds.sort());
+    });
+
+    describe("when cursor is invalid", () => {
+      // Validation failures
+
+      it("throws for invalid base64 cursor format", async () => {
+        // Arrange
         const userId = faker.string.uuid();
-        const accountId = faker.string.uuid();
+        const invalidCursor = "not-valid-base64!!!";
 
-        const transactions = [
-          fakeTransaction({
-            userId,
-            accountId,
-            date: toDateString("2024-01-20"),
+        // Act & Assert
+        await expect(
+          repository.findManyByUserIdPaginated(userId, {
+            first: 10,
+            after: invalidCursor,
           }),
-          fakeTransaction({
-            userId,
-            accountId,
-            date: toDateString("2024-01-19"),
-          }),
-          fakeTransaction({
-            userId,
-            accountId,
-            date: toDateString("2024-01-18"),
-          }),
-          fakeTransaction({
-            userId,
-            accountId,
-            date: toDateString("2024-01-17"),
-          }),
-          fakeTransaction({
-            userId,
-            accountId,
-            date: toDateString("2024-01-16"),
-          }),
-          fakeTransaction({
-            userId,
-            accountId,
-            date: toDateString("2024-01-15"),
-          }),
-        ];
-        for (const transaction of transactions) {
-          await repository.create(transaction);
-        }
-
-        // Act - Fetch first page with date filter (triggers UserDateIndex usage)
-        const page1 = await repository.findManyByUserIdPaginated(
-          userId,
-          { first: 3 }, // Get 3 items per page
-          {
-            dateAfter: toDateString("2024-01-01"),
-            dateBefore: toDateString("2024-01-31"),
-          },
-        );
-
-        // Assert - Page 1 should have 3 items and indicate more pages
-        expect(page1.edges).toHaveLength(3);
-        expect(page1.pageInfo.hasNextPage).toBe(true);
-        expect(page1.pageInfo.endCursor).toBeDefined();
-        expect(page1.totalCount).toBe(6);
-
-        // Act - Fetch second page using cursor from page 1
-        const page2 = await repository.findManyByUserIdPaginated(
-          userId,
-          { first: 3, after: page1.pageInfo.endCursor },
-          {
-            dateAfter: toDateString("2024-01-01"),
-            dateBefore: toDateString("2024-01-31"),
-          },
-        );
-
-        // Assert - Page 2 should have remaining 3 items
-        expect(page2.edges).toHaveLength(3);
-        // Note: hasNextPage may be true due to DynamoDB pagination behavior (returns LastEvaluatedKey when Limit is reached)
-        // This is acceptable as long as there are no duplicates or missing items
-        expect(page2.totalCount).toBe(6);
-
-        // CRITICAL: Verify no duplicates between pages
-        const page1Ids = page1.edges.map((edge) => edge.node.id);
-        const page2Ids = page2.edges.map((edge) => edge.node.id);
-        const duplicates = page1Ids.filter((id) => page2Ids.includes(id));
-        expect(duplicates).toHaveLength(0);
-
-        // CRITICAL: Verify all transactions are present (no missing items)
-        const allPagedIds = [...page1Ids, ...page2Ids];
-        const expectedIds = transactions.map((transaction) => transaction.id);
-        expect(allPagedIds.sort()).toEqual(expectedIds.sort());
-
-        // Verify correct ordering (newest first: 2024-01-20 -> 2024-01-15)
-        expect(page1.edges[0].node.date).toBe("2024-01-20");
-        expect(page1.edges[1].node.date).toBe("2024-01-19");
-        expect(page1.edges[2].node.date).toBe("2024-01-18");
-        expect(page2.edges[0].node.date).toBe("2024-01-17");
-        expect(page2.edges[1].node.date).toBe("2024-01-16");
-        expect(page2.edges[2].node.date).toBe("2024-01-15");
+        ).rejects.toThrow("Invalid cursor format");
       });
-    });
 
-    describe("pagination without date filters (UserCreatedAtIndex)", () => {
-      it("paginates correctly without date filters", async () => {
-        // Arrange - Create 6 transactions
+      it("throws for corrupted JSON in cursor", async () => {
+        // Arrange
         const userId = faker.string.uuid();
-        const accountId = faker.string.uuid();
+        const corruptedCursor =
+          Buffer.from("{ invalid json }").toString("base64");
 
-        const transactions = [
-          fakeTransaction({
-            userId,
-            accountId,
-            date: toDateString("2024-01-20"),
+        // Act & Assert
+        await expect(
+          repository.findManyByUserIdPaginated(userId, {
+            first: 10,
+            after: corruptedCursor,
           }),
-          fakeTransaction({
-            userId,
-            accountId,
-            date: toDateString("2024-01-19"),
-          }),
-          fakeTransaction({
-            userId,
-            accountId,
-            date: toDateString("2024-01-18"),
-          }),
-          fakeTransaction({
-            userId,
-            accountId,
-            date: toDateString("2024-01-17"),
-          }),
-          fakeTransaction({
-            userId,
-            accountId,
-            date: toDateString("2024-01-16"),
-          }),
-          fakeTransaction({
-            userId,
-            accountId,
-            date: toDateString("2024-01-15"),
-          }),
-        ];
-        for (const transaction of transactions) {
-          await repository.create(transaction);
-        }
-
-        // Act - Fetch first page WITHOUT date filter (triggers UserCreatedAtIndex usage)
-        const page1 = await repository.findManyByUserIdPaginated(
-          userId,
-          { first: 3 }, // Get 3 items per page
-          {}, // No filters - should use UserCreatedAtIndex
-        );
-
-        // Assert - Page 1 should have 3 items
-        expect(page1.edges).toHaveLength(3);
-        expect(page1.pageInfo.hasNextPage).toBe(true);
-        expect(page1.pageInfo.endCursor).toBeDefined();
-        expect(page1.totalCount).toBe(6);
-
-        // Act - Fetch second page using cursor
-        const page2 = await repository.findManyByUserIdPaginated(
-          userId,
-          { first: 3, after: page1.pageInfo.endCursor },
-          {}, // No filters
-        );
-
-        // Assert - Page 2 should have remaining 3 items
-        expect(page2.edges).toHaveLength(3);
-        expect(page2.totalCount).toBe(6);
-
-        // CRITICAL: Verify no duplicates between pages
-        const page1Ids = page1.edges.map((edge) => edge.node.id);
-        const page2Ids = page2.edges.map((edge) => edge.node.id);
-        const duplicates = page1Ids.filter((id) => page2Ids.includes(id));
-        expect(duplicates).toHaveLength(0);
-
-        // CRITICAL: Verify all transactions are present (no missing items)
-        const allPagedIds = [...page1Ids, ...page2Ids];
-        const expectedIds = transactions.map((transaction) => transaction.id);
-        expect(allPagedIds.sort()).toEqual(expectedIds.sort());
+        ).rejects.toThrow("Invalid cursor format");
       });
-    });
-  });
 
-  describe("cursor validation - error handling", () => {
-    it("throws error for invalid base64 cursor format", async () => {
-      // Arrange
-      const userId = faker.string.uuid();
-      const invalidCursor = "not-valid-base64!!!";
+      it("throws when createdAtSortable field is missing from cursor", async () => {
+        // Arrange
+        const userId = faker.string.uuid();
+        const cursorWithoutCreatedAtSortable = Buffer.from(
+          JSON.stringify({ date: "2024-01-20", id: "abc-123" }),
+        ).toString("base64");
 
-      // Act & Assert
-      await expect(
-        repository.findManyByUserIdPaginated(userId, {
-          first: 10,
-          after: invalidCursor,
-        }),
-      ).rejects.toThrow("Invalid cursor format");
-    });
+        // Act & Assert
+        await expect(
+          repository.findManyByUserIdPaginated(userId, {
+            first: 10,
+            after: cursorWithoutCreatedAtSortable,
+          }),
+        ).rejects.toThrow("Invalid cursor format");
+      });
 
-    it("throws error for corrupted JSON in cursor", async () => {
-      // Arrange
-      const userId = faker.string.uuid();
-      const corruptedCursor =
-        Buffer.from("{ invalid json }").toString("base64");
+      it("throws when date field is missing from cursor", async () => {
+        // Arrange
+        const userId = faker.string.uuid();
+        const cursorWithoutDate = Buffer.from(
+          JSON.stringify({
+            createdAtSortable: "2024-01-20T10:00:00.000Z#some-ulid",
+            id: "abc-123",
+          }),
+        ).toString("base64");
 
-      // Act & Assert
-      await expect(
-        repository.findManyByUserIdPaginated(userId, {
-          first: 10,
-          after: corruptedCursor,
-        }),
-      ).rejects.toThrow("Invalid cursor format");
-    });
+        // Act & Assert
+        await expect(
+          repository.findManyByUserIdPaginated(userId, {
+            first: 10,
+            after: cursorWithoutDate,
+          }),
+        ).rejects.toThrow("Invalid cursor format");
+      });
 
-    it("throws error for missing createdAtSortable field in cursor", async () => {
-      // Arrange
-      const userId = faker.string.uuid();
-      const cursorWithoutCreatedAtSortable = Buffer.from(
-        JSON.stringify({ date: "2024-01-20", id: "abc-123" }),
-      ).toString("base64");
+      it("throws when id field is missing from cursor", async () => {
+        // Arrange
+        const userId = faker.string.uuid();
+        const cursorWithoutId = Buffer.from(
+          JSON.stringify({
+            createdAtSortable: "2024-01-20T10:00:00.000Z#some-ulid",
+            date: "2024-01-20",
+          }),
+        ).toString("base64");
 
-      // Act & Assert
-      await expect(
-        repository.findManyByUserIdPaginated(userId, {
-          first: 10,
-          after: cursorWithoutCreatedAtSortable,
-        }),
-      ).rejects.toThrow("Invalid cursor format");
-    });
-
-    it("throws error for missing date field in cursor", async () => {
-      // Arrange
-      const userId = faker.string.uuid();
-      const cursorWithoutDate = Buffer.from(
-        JSON.stringify({
-          createdAtSortable: "2024-01-20T10:00:00.000Z#some-ulid",
-          id: "abc-123",
-        }),
-      ).toString("base64");
-
-      // Act & Assert
-      await expect(
-        repository.findManyByUserIdPaginated(userId, {
-          first: 10,
-          after: cursorWithoutDate,
-        }),
-      ).rejects.toThrow("Invalid cursor format");
-    });
-
-    it("throws error for missing id field in cursor", async () => {
-      // Arrange
-      const userId = faker.string.uuid();
-      const cursorWithoutId = Buffer.from(
-        JSON.stringify({
-          createdAtSortable: "2024-01-20T10:00:00.000Z#some-ulid",
-          date: "2024-01-20",
-        }),
-      ).toString("base64");
-
-      // Act & Assert
-      await expect(
-        repository.findManyByUserIdPaginated(userId, {
-          first: 10,
-          after: cursorWithoutId,
-        }),
-      ).rejects.toThrow("Invalid cursor format");
+        // Act & Assert
+        await expect(
+          repository.findManyByUserIdPaginated(userId, {
+            first: 10,
+            after: cursorWithoutId,
+          }),
+        ).rejects.toThrow("Invalid cursor format");
+      });
     });
   });
 
   describe("findManyByDescription", () => {
+    // Happy path
+
     it("returns transactions that contain search text (case-sensitive)", async () => {
       // Arrange
       const userId = faker.string.uuid();
@@ -1253,14 +1253,14 @@ describe("DynTransactionRepository", () => {
         await repository.create(transaction);
       }
 
-      // Act - Search with uppercase "G"
+      // Act
       const resultUppercase = await repository.findManyByDescription({
         userId,
         searchText: "Gr",
         limit: 10,
       });
 
-      // Act - Search with lowercase "g"
+      // Act
       const resultLowercase = await repository.findManyByDescription({
         userId,
         searchText: "gr",
@@ -1280,7 +1280,7 @@ describe("DynTransactionRepository", () => {
       const userId = faker.string.uuid();
       const accountId = faker.string.uuid();
 
-      // Create transactions with a delay to ensure different creation times
+      // Create transactions with delay to ensure different creation times
       const transaction1 = fakeTransaction({
         userId,
         accountId,
@@ -1305,7 +1305,7 @@ describe("DynTransactionRepository", () => {
         limit: 10,
       });
 
-      // Assert - Should be ordered by creation time (newest first)
+      // Assert
       expect(result).toHaveLength(2);
       expect(result[0].id).toBe(transaction2.id);
       expect(result[1].id).toBe(transaction1.id);
@@ -1406,7 +1406,7 @@ describe("DynTransactionRepository", () => {
         limit: 10,
       });
 
-      // Assert - Should only return non-archived transaction
+      // Assert
       expect(result).toHaveLength(1);
       expect(result[0].description).toBe("Store purchase 2");
     });
@@ -1446,7 +1446,7 @@ describe("DynTransactionRepository", () => {
         limit: 10,
       });
 
-      // Assert - Each user sees only their own transactions
+      // Assert
       expect(user1Result).toHaveLength(1);
       expect(user1Result[0].description).toBe("User 1 store");
       expect(user1Result[0].userId).toBe(user1);
@@ -1521,49 +1521,6 @@ describe("DynTransactionRepository", () => {
       expect(result).toHaveLength(0);
     });
 
-    it("throws error for missing user ID", async () => {
-      // Act & Assert
-      await expect(
-        repository.findManyByDescription({
-          userId: "",
-          searchText: "store",
-          limit: 10,
-        }),
-      ).rejects.toThrow("User ID is required");
-    });
-
-    it("throws error for invalid limit parameter", async () => {
-      // Arrange
-      const userId = faker.string.uuid();
-
-      // Act & Assert - Zero limit
-      await expect(
-        repository.findManyByDescription({
-          userId,
-          searchText: "store",
-          limit: 0,
-        }),
-      ).rejects.toThrow("Limit must be a positive integer");
-
-      // Act & Assert - Negative limit
-      await expect(
-        repository.findManyByDescription({
-          userId,
-          searchText: "store",
-          limit: -1,
-        }),
-      ).rejects.toThrow("Limit must be a positive integer");
-
-      // Act & Assert - Non-integer limit
-      await expect(
-        repository.findManyByDescription({
-          userId,
-          searchText: "store",
-          limit: 3.5,
-        }),
-      ).rejects.toThrow("Limit must be a positive integer");
-    });
-
     it("handles exact string matches", async () => {
       // Arrange
       const userId = faker.string.uuid();
@@ -1633,6 +1590,61 @@ describe("DynTransactionRepository", () => {
         "This is a long description with multiple words",
       );
     });
+
+    // Validation failures
+
+    it("throws when user ID is missing", async () => {
+      // Act & Assert
+      await expect(
+        repository.findManyByDescription({
+          userId: "",
+          searchText: "store",
+          limit: 10,
+        }),
+      ).rejects.toThrow("User ID is required");
+    });
+
+    it("throws when limit is zero", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+
+      // Act & Assert
+      await expect(
+        repository.findManyByDescription({
+          userId,
+          searchText: "store",
+          limit: 0,
+        }),
+      ).rejects.toThrow("Limit must be a positive integer");
+    });
+
+    it("throws when limit is negative", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+
+      // Act & Assert
+      await expect(
+        repository.findManyByDescription({
+          userId,
+          searchText: "store",
+          limit: -1,
+        }),
+      ).rejects.toThrow("Limit must be a positive integer");
+    });
+
+    it("throws when limit is not integer", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+
+      // Act & Assert
+      await expect(
+        repository.findManyByDescription({
+          userId,
+          searchText: "store",
+          limit: 3.5,
+        }),
+      ).rejects.toThrow("Limit must be a positive integer");
+    });
   });
 
   describe("create", () => {
@@ -1680,7 +1692,6 @@ describe("DynTransactionRepository", () => {
       await repository.create(transaction);
 
       // Assert
-      const client = createDynamoDBDocumentClient();
       const { Item: rawItem } = await client.send(
         new GetCommand({
           TableName: tableName,
@@ -1816,7 +1827,6 @@ describe("DynTransactionRepository", () => {
       const created = fakeTransaction({ userId });
       await repository.create(created);
 
-      const client = createDynamoDBDocumentClient();
       const { Item: before } = await client.send(
         new GetCommand({
           TableName: tableName,
@@ -1840,7 +1850,7 @@ describe("DynTransactionRepository", () => {
     // Validation failures
 
     it("throws VersionConflictError when version is stale", async () => {
-      // Arrange — row at v0, then bumped to v1 by a first update
+      // Arrange
       const created = fakeTransaction({ version: 0 });
       await repository.create(created);
       await repository.update(created.update({ amount: 50 }));
@@ -1871,7 +1881,7 @@ describe("DynTransactionRepository", () => {
       const created = fakeTransaction({ userId: owner });
       await repository.create(created);
 
-      // Act & Assert - Write as different user, partition key mismatch => condition fails
+      // Act & Assert
       await expect(
         repository.update(
           Transaction.fromPersistence({
@@ -1891,6 +1901,8 @@ describe("DynTransactionRepository", () => {
   });
 
   describe("detectPatterns", () => {
+    // Happy path
+
     it("returns empty array for new user with no transactions", async () => {
       // Arrange
       const userId = faker.string.uuid();
@@ -1940,6 +1952,7 @@ describe("DynTransactionRepository", () => {
     });
 
     it("returns patterns sorted by usage count descending", async () => {
+      // Arrange
       const userId = faker.string.uuid();
       const account1 = faker.string.uuid();
       const category1 = faker.string.uuid();
@@ -1956,7 +1969,6 @@ describe("DynTransactionRepository", () => {
           categoryId: category1,
           type: TransactionType.INCOME,
         }),
-
         fakeTransaction({
           userId,
           accountId: account1,
@@ -1995,6 +2007,7 @@ describe("DynTransactionRepository", () => {
         await repository.create(transaction);
       }
 
+      // Act
       const result = await repository.detectPatterns({
         userId,
         type: TransactionPatternType.INCOME,
@@ -2002,6 +2015,7 @@ describe("DynTransactionRepository", () => {
         sampleSize: 100,
       });
 
+      // Assert
       expect(result).toHaveLength(3);
       expect(result[0]).toEqual({
         accountId: account1,
@@ -2018,14 +2032,15 @@ describe("DynTransactionRepository", () => {
     });
 
     it("returns only top N patterns based on limit", async () => {
+      // Arrange
       const userId = faker.string.uuid();
       const transactions = [];
 
-      // Create account/category IDs as proper UUIDs
+      // Account/category IDs as proper UUIDs
       const accountIds = Array.from({ length: 5 }, () => faker.string.uuid());
       const categoryIds = Array.from({ length: 5 }, () => faker.string.uuid());
 
-      // Create 5 different patterns with different usage counts
+      // 5 different patterns with different usage counts
       for (let i = 0; i < 5; i++) {
         for (let j = 0; j <= i; j++) {
           transactions.push(
@@ -2043,6 +2058,7 @@ describe("DynTransactionRepository", () => {
         await repository.create(transaction);
       }
 
+      // Act
       const result = await repository.detectPatterns({
         userId,
         type: TransactionPatternType.EXPENSE,
@@ -2050,7 +2066,7 @@ describe("DynTransactionRepository", () => {
         sampleSize: 100,
       });
 
-      // Assert - Should return only top 3 patterns, sorted by frequency (most used first)
+      // Assert
       expect(result).toHaveLength(3);
       expect(result[0]).toEqual({
         accountId: accountIds[4],
@@ -2067,9 +2083,10 @@ describe("DynTransactionRepository", () => {
     });
 
     it("sorts deterministically when usage counts are equal", async () => {
+      // Arrange
       const userId = faker.string.uuid();
-      // Generate UUIDs and sort them so we can predict the deterministic sort order
-      // Using proper UUID v4 format with correct version (4) and variant (8-b) bits
+      // Predefined UUIDs in v4 format (correct version 4 and variant 8-b bits)
+      // chosen so we can predict deterministic sort order
       const accountA = "11111111-1111-4111-8111-111111111111";
       const accountB = "22222222-2222-4222-8222-222222222222";
       const categoryA = "11111111-1111-4111-8111-111111111111";
@@ -2126,6 +2143,7 @@ describe("DynTransactionRepository", () => {
         await repository.create(transaction);
       }
 
+      // Act
       const result = await repository.detectPatterns({
         userId,
         type: TransactionPatternType.INCOME,
@@ -2133,7 +2151,7 @@ describe("DynTransactionRepository", () => {
         sampleSize: 100,
       });
 
-      // Assert - Should sort deterministically by accountId, then categoryId
+      // Assert
       expect(result).toHaveLength(3);
       expect(result[0]).toEqual({
         accountId: accountA,
@@ -2150,6 +2168,7 @@ describe("DynTransactionRepository", () => {
     });
 
     it("filters by transaction type correctly", async () => {
+      // Arrange
       const userId = faker.string.uuid();
       const accountId = faker.string.uuid();
       const categoryIncome = faker.string.uuid();
@@ -2196,7 +2215,7 @@ describe("DynTransactionRepository", () => {
           categoryId: categoryRefund,
           type: TransactionType.REFUND,
         }),
-        // Transfer transactions (should be excluded)
+        // Transfer transactions (excluded from result)
         fakeTransaction({
           userId,
           accountId,
@@ -2208,6 +2227,7 @@ describe("DynTransactionRepository", () => {
         await repository.create(transaction);
       }
 
+      // Act
       const incomeResult = await repository.detectPatterns({
         userId,
         type: TransactionPatternType.INCOME,
@@ -2229,20 +2249,21 @@ describe("DynTransactionRepository", () => {
         sampleSize: 100,
       });
 
+      // Assert
       expect(incomeResult).toHaveLength(1);
       expect(incomeResult[0]).toEqual({
         accountId,
         categoryId: categoryIncome,
       });
 
-      // Assert - Expense patterns
+      // Assert
       expect(expenseResult).toHaveLength(1);
       expect(expenseResult[0]).toEqual({
         accountId,
         categoryId: categoryExpense,
       });
 
-      // Assert - Refund patterns
+      // Assert
       expect(refundResult).toHaveLength(1);
       expect(refundResult[0]).toEqual({
         accountId,
@@ -2251,6 +2272,7 @@ describe("DynTransactionRepository", () => {
     });
 
     it("excludes archived transactions", async () => {
+      // Arrange
       const userId = faker.string.uuid();
       const account1 = faker.string.uuid();
       const category1 = faker.string.uuid();
@@ -2277,6 +2299,7 @@ describe("DynTransactionRepository", () => {
         await repository.create(transaction);
       }
 
+      // Act
       const result = await repository.detectPatterns({
         userId,
         type: TransactionPatternType.INCOME,
@@ -2284,7 +2307,7 @@ describe("DynTransactionRepository", () => {
         sampleSize: 100,
       });
 
-      // Assert - Should only count non-archived transaction
+      // Assert
       expect(result).toHaveLength(1);
       expect(result[0]).toEqual({
         accountId: account2,
@@ -2293,6 +2316,7 @@ describe("DynTransactionRepository", () => {
     });
 
     it("respects sample size limit", async () => {
+      // Arrange
       const userId = faker.string.uuid();
       const account1 = faker.string.uuid();
       const category1 = faker.string.uuid();
@@ -2300,7 +2324,6 @@ describe("DynTransactionRepository", () => {
       const category2 = faker.string.uuid();
 
       // Create 5+5 transactions
-
       const createInputs1: Transaction[] = [];
       for (let i = 0; i < 5; i++) {
         createInputs1.push(
@@ -2331,7 +2354,7 @@ describe("DynTransactionRepository", () => {
         await repository.create(transaction);
       }
 
-      // Act - Request with sampleSize of 5 (should only analyze last 5 transactions)
+      // Act
       const result = await repository.detectPatterns({
         userId,
         type: TransactionPatternType.INCOME,
@@ -2339,7 +2362,7 @@ describe("DynTransactionRepository", () => {
         sampleSize: 5,
       });
 
-      // Assert - Should return the pattern but only based on 5 transactions
+      // Assert
       expect(result).toHaveLength(1);
       expect(result[0]).toEqual({
         accountId: account2,
@@ -2348,86 +2371,8 @@ describe("DynTransactionRepository", () => {
       });
     });
 
-    it("throws error for missing user ID", async () => {
-      await expect(
-        repository.detectPatterns({
-          userId: "",
-          type: TransactionPatternType.INCOME,
-          limit: 3,
-          sampleSize: 100,
-        }),
-      ).rejects.toThrow("User ID is required");
-    });
-
-    it("throws error for invalid limit parameter", async () => {
-      const userId = faker.string.uuid();
-
-      // Act & Assert - Zero limit
-      await expect(
-        repository.detectPatterns({
-          userId,
-          type: TransactionPatternType.INCOME,
-          limit: 0,
-          sampleSize: 100,
-        }),
-      ).rejects.toThrow("Limit must be a positive integer");
-
-      // Act & Assert - Negative limit
-      await expect(
-        repository.detectPatterns({
-          userId,
-          type: TransactionPatternType.INCOME,
-          limit: -1,
-          sampleSize: 100,
-        }),
-      ).rejects.toThrow("Limit must be a positive integer");
-
-      // Act & Assert - Non-integer limit
-      await expect(
-        repository.detectPatterns({
-          userId,
-          type: TransactionPatternType.INCOME,
-          limit: 3.5,
-          sampleSize: 100,
-        }),
-      ).rejects.toThrow("Limit must be a positive integer");
-    });
-
-    it("throws error for invalid sampleSize parameter", async () => {
-      const userId = faker.string.uuid();
-
-      // Act & Assert - Zero sample size
-      await expect(
-        repository.detectPatterns({
-          userId,
-          type: TransactionPatternType.INCOME,
-          limit: 3,
-          sampleSize: 0,
-        }),
-      ).rejects.toThrow("Sample size must be a positive integer");
-
-      // Act & Assert - Negative sample size
-      await expect(
-        repository.detectPatterns({
-          userId,
-          type: TransactionPatternType.INCOME,
-          limit: 3,
-          sampleSize: -1,
-        }),
-      ).rejects.toThrow("Sample size must be a positive integer");
-
-      // Act & Assert - Non-integer sample size
-      await expect(
-        repository.detectPatterns({
-          userId,
-          type: TransactionPatternType.INCOME,
-          limit: 3,
-          sampleSize: 50.5,
-        }),
-      ).rejects.toThrow("Sample size must be a positive integer");
-    });
-
     it("returns only top N patterns based on limit parameter", async () => {
+      // Arrange
       const userId = faker.string.uuid();
       const transactions = [];
       const accountIds = Array.from({ length: 5 }, () => faker.string.uuid());
@@ -2449,7 +2394,7 @@ describe("DynTransactionRepository", () => {
         await repository.create(transaction);
       }
 
-      // Act - Request only 2 patterns
+      // Act
       const result = await repository.detectPatterns({
         userId,
         type: TransactionPatternType.INCOME,
@@ -2457,11 +2402,12 @@ describe("DynTransactionRepository", () => {
         sampleSize: 100,
       });
 
-      // Assert - Should return only 2 patterns
+      // Assert
       expect(result).toHaveLength(2);
     });
 
     it("isolates patterns by user", async () => {
+      // Arrange
       const user1 = faker.string.uuid();
       const user2 = faker.string.uuid();
       const account1 = faker.string.uuid();
@@ -2490,6 +2436,7 @@ describe("DynTransactionRepository", () => {
         await repository.create(transaction);
       }
 
+      // Act
       const user1Result = await repository.detectPatterns({
         userId: user1,
         type: TransactionPatternType.INCOME,
@@ -2503,7 +2450,7 @@ describe("DynTransactionRepository", () => {
         sampleSize: 100,
       });
 
-      // Assert - Each user sees only their own patterns
+      // Assert
       expect(user1Result).toHaveLength(1);
       expect(user1Result[0]).toEqual({
         accountId: account1,
@@ -2516,17 +2463,120 @@ describe("DynTransactionRepository", () => {
         categoryId: category2,
       });
     });
+
+    // Validation failures
+
+    it("throws when user ID is missing", async () => {
+      // Act & Assert
+      await expect(
+        repository.detectPatterns({
+          userId: "",
+          type: TransactionPatternType.INCOME,
+          limit: 3,
+          sampleSize: 100,
+        }),
+      ).rejects.toThrow("User ID is required");
+    });
+
+    it("throws when limit is zero", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+
+      // Act & Assert
+      await expect(
+        repository.detectPatterns({
+          userId,
+          type: TransactionPatternType.INCOME,
+          limit: 0,
+          sampleSize: 100,
+        }),
+      ).rejects.toThrow("Limit must be a positive integer");
+    });
+
+    it("throws when limit is negative", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+
+      // Act & Assert
+      await expect(
+        repository.detectPatterns({
+          userId,
+          type: TransactionPatternType.INCOME,
+          limit: -1,
+          sampleSize: 100,
+        }),
+      ).rejects.toThrow("Limit must be a positive integer");
+    });
+
+    it("throws when limit is not integer", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+
+      // Act & Assert
+      await expect(
+        repository.detectPatterns({
+          userId,
+          type: TransactionPatternType.INCOME,
+          limit: 3.5,
+          sampleSize: 100,
+        }),
+      ).rejects.toThrow("Limit must be a positive integer");
+    });
+
+    it("throws when sampleSize is zero", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+
+      // Act & Assert
+      await expect(
+        repository.detectPatterns({
+          userId,
+          type: TransactionPatternType.INCOME,
+          limit: 3,
+          sampleSize: 0,
+        }),
+      ).rejects.toThrow("Sample size must be a positive integer");
+    });
+
+    it("throws when sampleSize is negative", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+
+      // Act & Assert
+      await expect(
+        repository.detectPatterns({
+          userId,
+          type: TransactionPatternType.INCOME,
+          limit: 3,
+          sampleSize: -1,
+        }),
+      ).rejects.toThrow("Sample size must be a positive integer");
+    });
+
+    it("throws when sampleSize is not integer", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+
+      // Act & Assert
+      await expect(
+        repository.detectPatterns({
+          userId,
+          type: TransactionPatternType.INCOME,
+          limit: 3,
+          sampleSize: 50.5,
+        }),
+      ).rejects.toThrow("Sample size must be a positive integer");
+    });
   });
 
   describe("hydration - data corruption detection", () => {
-    it("throws error when required field amount is missing from database record", async () => {
+    it("throws when amount is missing from database record", async () => {
       // Arrange
       const userId = faker.string.uuid();
       const transaction = fakeTransaction({ userId });
       await repository.create(transaction);
-      const client = createDynamoDBDocumentClient();
 
-      // Manually corrupt the database record by removing amount
+      // Corrupt record by removing amount
       await client.send(
         new UpdateCommand({
           TableName: tableName,
