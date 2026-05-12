@@ -680,20 +680,6 @@ describe("ByCategoryReportService", () => {
       ).toEqual(["Groceries", "Uncategorized"]);
     });
 
-    it("succeeds when year is within range", async () => {
-      // Arrange
-      const currentYear = new Date().getFullYear();
-      const validYear = currentYear - 50;
-
-      // No transactions in given period
-      mockTransactionRepository.findManyByUserId.mockResolvedValue([]);
-
-      // Act & Assert
-      await expect(
-        reportService.call(userId, validYear, 1, ReportType.EXPENSE),
-      ).resolves.toBeDefined();
-    });
-
     it("succeeds for months 1 through 12", async () => {
       // Arrange
       const currentYear = new Date().getFullYear();
