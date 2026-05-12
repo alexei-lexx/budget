@@ -64,7 +64,7 @@ describe("ByCategoryReportService", () => {
       const categoryId2 = faker.string.uuid();
 
       // Transactions across two categories, two currencies, plus uncategorized
-      const transactions = [
+      mockTransactionRepository.findManyByUserId.mockResolvedValue([
         fakeTransaction({
           categoryId: categoryId1,
           currency: "USD",
@@ -81,10 +81,7 @@ describe("ByCategoryReportService", () => {
           amount: 200,
         }),
         fakeTransaction({ categoryId: undefined, currency: "USD", amount: 75 }),
-      ];
-      mockTransactionRepository.findManyByUserId.mockResolvedValue(
-        transactions,
-      );
+      ]);
 
       // Resolve each categoryId in order to its named category
       mockCategoryRepository.findOneById
