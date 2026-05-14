@@ -108,7 +108,7 @@ describe("DynUserRepository", () => {
 
     it("throws when multiple users share same email", async () => {
       // Arrange
-      // Bypass uniqueness by inserting two users with identical email
+      // Create duplicate users with same email
       await repository.create(
         fakeCreateUserInput({ email: "dupe@example.com" }),
       );
