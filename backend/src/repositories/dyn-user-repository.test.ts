@@ -191,25 +191,6 @@ describe("DynUserRepository", () => {
         created.map((user) => user.id).sort(),
       );
     });
-
-    // Dependency failures
-
-    it("throws when stored record is missing required field", async () => {
-      // Arrange
-      const created = await repository.create(fakeCreateUserInput());
-
-      // Corrupt record by removing createdAt to trigger hydration failure
-      await client.send(
-        new UpdateCommand({
-          TableName: tableName,
-          Key: { id: created.id },
-          UpdateExpression: "REMOVE createdAt",
-        }),
-      );
-
-      // Act & Assert
-      await expect(repository.findMany()).rejects.toThrow();
-    });
   });
 
   describe("create", () => {
@@ -257,13 +238,13 @@ describe("DynUserRepository", () => {
       expect(result1.id).not.toBe(result2.id);
     });
 
-    it("persists user readable by findOneByEmail", async () => {
+    it("persists user", async () => {
       // Arrange
       const input = fakeCreateUserInput();
 
       // Act
       const created = await repository.create(input);
-      const stored = await repository.findOneByEmail(created.email);
+      const stored = await repository.findOneById(created.id);
 
       // Assert
       expect(stored).toEqual(created);
@@ -404,6 +385,25 @@ describe("DynUserRepository", () => {
       await expect(
         repository.update("nonexistent-id", { voiceInputLanguage: "en-US" }),
       ).rejects.toThrow();
+    });
+  });
+
+  describe("hydration - data corruption detection", () => {
+    it("throws when stored record is missing required field", async () => {
+      // Arrange
+      const created = await repository.create(fakeCreateUserInput());
+
+      // Corrupt record by removing createdAt to trigger hydration failure
+      await client.send(
+        new UpdateCommand({
+          TableName: tableName,
+          Key: { id: created.id },
+          UpdateExpression: "REMOVE createdAt",
+        }),
+      );
+
+      // Act & Assert
+      await expect(repository.findMany()).rejects.toThrow();
     });
   });
 });
