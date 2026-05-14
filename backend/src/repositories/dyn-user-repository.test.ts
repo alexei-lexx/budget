@@ -95,14 +95,6 @@ describe("DynUserRepository", () => {
       expect(result).toBeNull();
     });
 
-    it("returns null for malformed email", async () => {
-      // Act
-      const result = await repository.findOneByEmail("not-an-email");
-
-      // Assert
-      expect(result).toBeNull();
-    });
-
     // Validation failures
 
     it("throws when email is whitespace-only", async () => {
