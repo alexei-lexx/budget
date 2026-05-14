@@ -151,7 +151,10 @@ describe("DynUserRepository", () => {
 
     it("throws when id is empty", async () => {
       // Act & Assert
-      await expect(repository.findOneById("")).rejects.toThrow();
+      await expect(repository.findOneById("")).rejects.toMatchObject({
+        message: "User ID is required",
+        code: "INVALID_PARAMETERS",
+      });
     });
   });
 
