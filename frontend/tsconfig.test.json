@@ -1,6 +1,10 @@
 {
   "extends": "@vue/tsconfig/tsconfig.dom.json",
-  "include": ["src/**/*.test.ts"],
+  "include": [
+    "env.d.ts", // Provides SpeechRecognition types
+    "src/test-setup.ts", // Activates $vuetify on component instances
+    "src/**/*.test.ts"
+  ],
   "compilerOptions": {
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.test.tsbuildinfo",
     "types": ["vite/client"],
