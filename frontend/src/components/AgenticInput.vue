@@ -12,6 +12,7 @@
       class="flex-grow-1"
       @update:model-value="$emit('update:modelValue', $event)"
       @submit="$emit('submit', false)"
+      @abort="$emit('abort')"
       @start-recording="startRecording"
       @stop-recording="stopRecording"
     />
@@ -46,6 +47,7 @@ defineProps<{
 const emit = defineEmits<{
   "update:modelValue": [value: string];
   submit: [isVoiceInput: boolean];
+  abort: [];
 }>();
 
 const { showErrorSnackbar } = useSnackbar();

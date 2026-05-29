@@ -34,6 +34,7 @@
         input-aria-label="Ask a question"
         submit-aria-label="Submit question"
         @submit="handleAskQuestion"
+        @abort="abortAskAssistant"
       />
     </div>
   </v-footer>
@@ -55,6 +56,7 @@ const {
   assistantAnswer,
   assistantAgentTrace,
   askAssistant,
+  abortAskAssistant,
 } = useAssistant();
 
 interface StoredInput {

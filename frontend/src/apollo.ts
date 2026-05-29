@@ -59,6 +59,10 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
   }
 
   if (networkError) {
+    if (networkError.name === "AbortError") {
+      return;
+    }
+
     console.error("Network error:", networkError);
     globalError.value = "Connection problem. Please check your internet and try again.";
   }
