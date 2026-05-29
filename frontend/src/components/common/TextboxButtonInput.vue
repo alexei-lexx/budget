@@ -34,10 +34,18 @@
       </template>
     </v-textarea>
     <v-btn
+      v-if="loading"
+      icon="mdi-stop-circle"
+      color="error"
+      aria-label="Stop"
+      style="align-self: flex-end"
+      @click="emit('abort')"
+    />
+    <v-btn
+      v-else
       icon="mdi-send"
       color="primary"
-      :loading="loading"
-      :disabled="loading || !modelValue.trim()"
+      :disabled="!modelValue.trim()"
       :aria-label="submitAriaLabel"
       style="align-self: flex-end"
       @click="emit('submit')"
@@ -61,6 +69,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   "update:modelValue": [value: string];
   submit: [];
+  abort: [];
   startRecording: [];
   stopRecording: [];
 }>();

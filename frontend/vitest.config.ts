@@ -1,10 +1,19 @@
 import { fileURLToPath, URL } from "node:url";
+import vue from "@vitejs/plugin-vue";
 import { defineConfig } from "vitest/config";
 
 export default defineConfig({
+  plugins: [vue()],
   test: {
     environment: "jsdom",
+    setupFiles: ["./src/test-setup.ts"],
+    css: true,
     include: ["src/**/*.test.ts"],
+    server: {
+      deps: {
+        inline: ["vuetify"],
+      },
+    },
     globals: false,
     testTimeout: 10000,
     coverage: {

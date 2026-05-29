@@ -63,20 +63,26 @@ export function useAssistant() {
   const fetchedAnswer = ref<string | null>(null);
   const fetchedAgentTrace = ref<AgentTraceMessage[] | null>(null);
   const askAssistantError = ref<string | null>(null);
+  let abortController: AbortController | null = null;
 
   const { mutate: askAssistantMutation, loading: askAssistantLoading } = useAskAssistantMutation();
 
   const askAssistant = async (question: string, isVoiceInput?: boolean): Promise<void> => {
     askAssistantError.value = null; // Reset error before new request
 
+    abortController = new AbortController();
+
     try {
-      const result = await askAssistantMutation({
-        input: {
-          question,
-          sessionId: sessionId.value ?? undefined,
-          isVoiceInput: isVoiceInput || undefined,
+      const result = await askAssistantMutation(
+        {
+          input: {
+            question,
+            sessionId: sessionId.value ?? undefined,
+            isVoiceInput: isVoiceInput || undefined,
+          },
         },
-      });
+        { context: { fetchOptions: { signal: abortController.signal } } },
+      );
       const response = result?.data?.askAssistant ?? null;
 
       if (response?.__typename === "AssistantSuccess") {
@@ -104,11 +110,20 @@ export function useAssistant() {
       storedAnswer.value = fetchedAnswer.value;
       storedAgentTrace.value = fetchedAgentTrace.value ?? [];
     } catch (error) {
+      if (abortController?.signal.aborted) {
+        return;
+      }
       askAssistantError.value =
         error instanceof Error
           ? error.message
           : "Failed to get assistant response. Please try again.";
+    } finally {
+      abortController = null;
     }
+  };
+
+  const abortAskAssistant = () => {
+    abortController?.abort();
   };
 
   const assistantAnswer = computed(() =>
@@ -120,6 +135,7 @@ export function useAssistant() {
 
   return {
     askAssistant,
+    abortAskAssistant,
     askAssistantError: computed(() => askAssistantError.value),
     askAssistantLoading,
     assistantAgentTrace,

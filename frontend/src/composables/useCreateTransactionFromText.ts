@@ -9,6 +9,7 @@ export function useCreateTransactionFromText() {
   const { showErrorSnackbar } = useSnackbar();
 
   const { mutate, loading, error } = useCreateTransactionFromTextMutation();
+  let abortController: AbortController | null = null;
 
   const submit = async (isVoiceInput: boolean): Promise<Transaction | null> => {
     const trimmedText = text.value.trim();
@@ -16,8 +17,13 @@ export function useCreateTransactionFromText() {
       return null;
     }
 
+    abortController = new AbortController();
+
     try {
-      const result = await mutate({ input: { text: trimmedText, isVoiceInput } });
+      const result = await mutate(
+        { input: { text: trimmedText, isVoiceInput } },
+        { context: { fetchOptions: { signal: abortController.signal } } },
+      );
       const response = result?.data?.createTransactionFromText ?? null;
       agentTrace.value = response?.agentTrace ?? [];
 
@@ -37,12 +43,21 @@ export function useCreateTransactionFromText() {
 
       return null;
     } catch (e) {
+      if (abortController?.signal.aborted) {
+        return null;
+      }
       const message =
         e instanceof Error ? e.message : "Failed to create transaction. Please try again.";
       showErrorSnackbar(message);
       // text is intentionally NOT cleared on error
       return null;
+    } finally {
+      abortController = null;
     }
+  };
+
+  const abortCreateTransactionFromText = () => {
+    abortController?.abort();
   };
 
   return {
@@ -51,5 +66,6 @@ export function useCreateTransactionFromText() {
     error,
     agentTrace,
     submit,
+    abortCreateTransactionFromText,
   };
 }

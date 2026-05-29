@@ -236,6 +236,7 @@
         input-aria-label="Create transaction"
         submit-aria-label="Create transaction"
         @submit="handleCreateTransactionFromText"
+        @abort="abortCreateTransactionFromText"
       />
     </div>
   </v-footer>
@@ -305,6 +306,7 @@ const {
   loading: createTransactionFromTextLoading,
   agentTrace: createTransactionFromTextAgentTrace,
   submit: createTransactionFromTextSubmit,
+  abortCreateTransactionFromText,
 } = useCreateTransactionFromText();
 
 const createTransactionFromTextInputRef = ref<{ focus: () => void } | null>(null);
