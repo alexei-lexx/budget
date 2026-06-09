@@ -327,7 +327,7 @@ describe("CreateTransactionAgent (integration)", () => {
       // Act
       const response = await agent.invoke(
         { messages: [new HumanMessage("sandwich 987")] },
-        { context },
+        { context: { ...context, isVoiceInput: false } },
       );
 
       // Assert
