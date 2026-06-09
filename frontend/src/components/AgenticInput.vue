@@ -10,8 +10,8 @@
       :is-voice-supported="isVoiceSupported"
       :is-recording="isRecording"
       class="flex-grow-1"
-      @update:model-value="$emit('update:modelValue', $event)"
-      @submit="$emit('submit', false)"
+      @update:model-value="onModelValueUpdate"
+      @submit="onSubmit"
       @abort="$emit('abort')"
       @start-recording="startRecording"
       @stop-recording="stopRecording"
@@ -53,6 +53,8 @@ const emit = defineEmits<{
 const { showErrorSnackbar } = useSnackbar();
 const { settings } = useUserSettings();
 
+const isVoiceSet = ref(false);
+
 const {
   isSupported: isVoiceSupported,
   isRecording,
@@ -60,12 +62,23 @@ const {
   stopRecording,
 } = useVoiceInput({
   onTranscript: (transcript: string) => {
+    isVoiceSet.value = true;
     emit("update:modelValue", transcript);
-    emit("submit", true);
+    emit("submit", isVoiceSet.value);
   },
   onError: showErrorSnackbar,
   language: () => settings.value?.voiceInputLanguage ?? undefined,
 });
+
+function onModelValueUpdate(value: string) {
+  isVoiceSet.value = false;
+  emit("update:modelValue", value);
+}
+
+function onSubmit() {
+  emit("submit", isVoiceSet.value);
+  isVoiceSet.value = false;
+}
 
 const showAgentTrace = ref(false);
 const inputRef = ref<{ focus: () => void } | null>(null);
