@@ -174,85 +174,6 @@ describe("CreateTransactionAgent (integration)", () => {
     ]);
   });
 
-  it("uses amount as transcribed when no similar transaction history exists", async () => {
-    // Arrange
-    await accountRepository.create(fakeAccount({ userId }));
-
-    // Act
-    const response = await agent.invoke(
-      { messages: [new HumanMessage("sandwich 987")] },
-      { context: { ...context, isVoiceInput: true } },
-    );
-
-    // Assert
-    const transactions = await transactionRepository.findManyByUserId(userId);
-    expect(transactions).toHaveLength(1);
-
-    const lastToolCallMessage = response.messages.findLast(
-      (message): message is AIMessage =>
-        AIMessage.isInstance(message) && (message.tool_calls ?? []).length > 0,
-    );
-    expect(lastToolCallMessage).toHaveToolCalls([
-      {
-        name: CREATE_TRANSACTION_TOOL_NAME,
-        args: expect.objectContaining({ amount: 987 }),
-      },
-    ]);
-  });
-
-  it("corrects collapsed amount when similar transaction history suggests much smaller price", async () => {
-    // Arrange
-    const account = fakeAccount({ userId });
-    await accountRepository.create(account);
-    const category = await categoryRepository.create(
-      fakeCategory({
-        userId,
-        type: CategoryType.EXPENSE,
-        name: "food",
-      }),
-    );
-    // Seed similar history — prior "food" expenses around 5–15 EUR
-    await transactionRepository.create(
-      fakeTransaction({
-        userId,
-        accountId: account.id,
-        categoryId: category.id,
-        amount: 5,
-        type: TransactionType.EXPENSE,
-      }),
-    );
-    await transactionRepository.create(
-      fakeTransaction({
-        userId,
-        accountId: account.id,
-        categoryId: category.id,
-        amount: 15,
-        type: TransactionType.EXPENSE,
-      }),
-    );
-
-    // Act
-    const response = await agent.invoke(
-      { messages: [new HumanMessage("sandwich 987")] },
-      { context: { ...context, isVoiceInput: true } },
-    );
-
-    // Assert
-    const transactions = await transactionRepository.findManyByUserId(userId);
-    expect(transactions).toHaveLength(3);
-
-    const lastToolCallMessage = response.messages.findLast(
-      (message): message is AIMessage =>
-        AIMessage.isInstance(message) && (message.tool_calls ?? []).length > 0,
-    );
-    expect(lastToolCallMessage).toHaveToolCalls([
-      {
-        name: CREATE_TRANSACTION_TOOL_NAME,
-        args: expect.objectContaining({ amount: 9.87 }),
-      },
-    ]);
-  });
-
   // Validation failures
 
   it("does not call create_transaction when user has no accounts", async () => {
@@ -286,6 +207,142 @@ describe("CreateTransactionAgent (integration)", () => {
       .flatMap((message) => message.tool_calls ?? [])
       .map((toolCall) => toolCall.name);
     expect(toolNames).not.toContain(CREATE_TRANSACTION_TOOL_NAME);
+  });
+
+  describe("when amount is suspiciously high", () => {
+    // Happy path
+
+    it("does not correct amount under voice input when no similar history exists", async () => {
+      // Arrange
+      await accountRepository.create(fakeAccount({ userId }));
+
+      // Act
+      const response = await agent.invoke(
+        { messages: [new HumanMessage("sandwich 987")] },
+        { context: { ...context, isVoiceInput: true } },
+      );
+
+      // Assert
+      const transactions = await transactionRepository.findManyByUserId(userId);
+      expect(transactions).toHaveLength(1);
+
+      const lastToolCallMessage = response.messages.findLast(
+        (message): message is AIMessage =>
+          AIMessage.isInstance(message) &&
+          (message.tool_calls ?? []).length > 0,
+      );
+      expect(lastToolCallMessage).toHaveToolCalls([
+        {
+          name: CREATE_TRANSACTION_TOOL_NAME,
+          args: expect.objectContaining({ amount: 987 }),
+        },
+      ]);
+    });
+
+    it("corrects amount under voice input when history suggests smaller price", async () => {
+      // Arrange
+      const account = fakeAccount({ userId });
+      await accountRepository.create(account);
+      const category = await categoryRepository.create(
+        fakeCategory({
+          userId,
+          type: CategoryType.EXPENSE,
+          name: "food",
+        }),
+      );
+      // Seed similar history — prior "food" expenses around 5–15 EUR
+      await transactionRepository.create(
+        fakeTransaction({
+          userId,
+          accountId: account.id,
+          categoryId: category.id,
+          amount: 5,
+          type: TransactionType.EXPENSE,
+        }),
+      );
+      await transactionRepository.create(
+        fakeTransaction({
+          userId,
+          accountId: account.id,
+          categoryId: category.id,
+          amount: 15,
+          type: TransactionType.EXPENSE,
+        }),
+      );
+
+      // Act
+      const response = await agent.invoke(
+        { messages: [new HumanMessage("sandwich 987")] },
+        { context: { ...context, isVoiceInput: true } },
+      );
+
+      // Assert
+      const transactions = await transactionRepository.findManyByUserId(userId);
+      expect(transactions).toHaveLength(3);
+
+      const lastToolCallMessage = response.messages.findLast(
+        (message): message is AIMessage =>
+          AIMessage.isInstance(message) &&
+          (message.tool_calls ?? []).length > 0,
+      );
+      expect(lastToolCallMessage).toHaveToolCalls([
+        {
+          name: CREATE_TRANSACTION_TOOL_NAME,
+          args: expect.objectContaining({ amount: 9.87 }),
+        },
+      ]);
+    });
+
+    it("does not correct amount under keyboard input when history suggests smaller price", async () => {
+      // Arrange
+      const account = fakeAccount({ userId });
+      await accountRepository.create(account);
+      const category = await categoryRepository.create(
+        fakeCategory({
+          userId,
+          type: CategoryType.EXPENSE,
+          name: "food",
+        }),
+      );
+      // Seed similar history — prior "food" expenses around 5–15 EUR
+      await transactionRepository.create(
+        fakeTransaction({
+          userId,
+          accountId: account.id,
+          categoryId: category.id,
+          amount: 5,
+          type: TransactionType.EXPENSE,
+        }),
+      );
+      await transactionRepository.create(
+        fakeTransaction({
+          userId,
+          accountId: account.id,
+          categoryId: category.id,
+          amount: 15,
+          type: TransactionType.EXPENSE,
+        }),
+      );
+
+      // Act
+      const response = await agent.invoke(
+        { messages: [new HumanMessage("sandwich 987")] },
+        { context },
+      );
+
+      // Assert
+      const lastToolCallMessage = response.messages.findLast(
+        (message): message is AIMessage =>
+          AIMessage.isInstance(message) &&
+          (message.tool_calls ?? []).length > 0,
+      );
+      expect(lastToolCallMessage).toHaveToolCalls([
+        {
+          name: CREATE_TRANSACTION_TOOL_NAME,
+          args: expect.objectContaining({ amount: 987 }),
+        },
+      ]);
+    });
   });
 
   describe("when message contains HH:MM-shaped string", () => {
