@@ -1,3 +1,4 @@
+import { faker } from "@faker-js/faker";
 import { AIMessage, HumanMessage } from "langchain";
 import { beforeAll, beforeEach, describe, expect, it } from "vitest";
 import {
@@ -251,24 +252,18 @@ describe("CreateTransactionAgent (integration)", () => {
         }),
       );
       // Seed similar history — prior "food" expenses around 5–15 EUR
-      await transactionRepository.create(
-        fakeTransaction({
-          userId,
-          accountId: account.id,
-          categoryId: category.id,
-          amount: 5,
-          type: TransactionType.EXPENSE,
-        }),
-      );
-      await transactionRepository.create(
-        fakeTransaction({
-          userId,
-          accountId: account.id,
-          categoryId: category.id,
-          amount: 15,
-          type: TransactionType.EXPENSE,
-        }),
-      );
+      const existingTransactionCount = 3;
+      for (let i = 0; i < existingTransactionCount; i++) {
+        await transactionRepository.create(
+          fakeTransaction({
+            userId,
+            accountId: account.id,
+            categoryId: category.id,
+            amount: faker.number.int({ min: 5, max: 15 }),
+            type: TransactionType.EXPENSE,
+          }),
+        );
+      }
 
       // Act
       const response = await agent.invoke(
@@ -278,7 +273,7 @@ describe("CreateTransactionAgent (integration)", () => {
 
       // Assert
       const transactions = await transactionRepository.findManyByUserId(userId);
-      expect(transactions).toHaveLength(3);
+      expect(transactions).toHaveLength(existingTransactionCount + 1);
 
       const lastToolCallMessage = response.messages.findLast(
         (message): message is AIMessage =>
@@ -305,24 +300,18 @@ describe("CreateTransactionAgent (integration)", () => {
         }),
       );
       // Seed similar history — prior "food" expenses around 5–15 EUR
-      await transactionRepository.create(
-        fakeTransaction({
-          userId,
-          accountId: account.id,
-          categoryId: category.id,
-          amount: 5,
-          type: TransactionType.EXPENSE,
-        }),
-      );
-      await transactionRepository.create(
-        fakeTransaction({
-          userId,
-          accountId: account.id,
-          categoryId: category.id,
-          amount: 15,
-          type: TransactionType.EXPENSE,
-        }),
-      );
+      const existingTransactionCount = 3;
+      for (let i = 0; i < existingTransactionCount; i++) {
+        await transactionRepository.create(
+          fakeTransaction({
+            userId,
+            accountId: account.id,
+            categoryId: category.id,
+            amount: faker.number.int({ min: 5, max: 15 }),
+            type: TransactionType.EXPENSE,
+          }),
+        );
+      }
 
       // Act
       const response = await agent.invoke(
