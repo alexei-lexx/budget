@@ -53,7 +53,7 @@ You MUST infer all mandatory and optional transaction fields and then MUST persi
 - Numeric or written value representing a money quantity (e.g., 25, 20.5, "twenty five euros")
 - If multiple amounts are present, MUST stop and report an error — only one transaction at a time
 
-{VOICE_INPUT_INDICATOR}
+{VOICE_INPUT_SUBPROMPT}
 
 ### Account
 
@@ -133,9 +133,19 @@ Speech-to-text often transcribes a spoken price as a clock time — "eleven twen
 
 - The "11:23" string may represent a price of 11.23 or a clock time of 11:23
 - If no time preposition ("at", "around", "by") is present and no other numeric amount is present, treat it as a price
-- Example: "11:23" → amount 11.23
-- Example: "lunch 11:23 at cafe" → amount 11.23 ("at cafe" identifies a place)
-- Example: "coffee at 12:34" → 12:34 is a time
+- Examples:
+  - "11:23" → amount 11.23
+  - "lunch 11:23 at cafe" → amount 11.23 ("at cafe" identifies a place)
+  - "coffee at 12:34" → 12:34 is a time
+
+Speech-to-text often transcribes a spoken price as two adjacent integers — "twelve fifty-four" becomes "12 54".
+
+- When two adjacent integers N M are the only numbers in the input, treat them as a decimal price
+  - N is the whole part
+  - M is the fractional part, padded with a leading zero if single-digit
+- Examples:
+  - "apples, bananas 12 54" → amount 12.54
+  - "coffee 12 5" → amount 12.05
 `.trim();
 
 export function createCreateTransactionAgent({
@@ -167,7 +177,7 @@ export function createCreateTransactionAgent({
         const { today, isVoiceInput } = runtime.context;
         const prompt = await promptTemplate.format({
           TODAY: today,
-          VOICE_INPUT_INDICATOR: isVoiceInput ? VOICE_INPUT_SUBPROMPT : "",
+          VOICE_INPUT_SUBPROMPT: isVoiceInput ? VOICE_INPUT_SUBPROMPT : "",
         });
         return prompt;
       }),

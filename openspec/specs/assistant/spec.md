@@ -295,6 +295,28 @@ The system SHALL disambiguate voice-originated amounts when the user logs a tran
 - **WHEN** the amount is parsed
 - **THEN** the amount is interpreted literally and voice-input disambiguation is not applied
 
+### Requirement: Voice Space-Separated Amount Recognition
+
+The system SHALL interpret two adjacent integers separated by a space in voice-originated input as a single decimal amount when the user logs a transaction through the Assistant, where the second integer is the fractional part, padded with a leading zero only when it is a single digit (e.g. "12 54" → 12.54, "12 5" → 12.05). When the two integers are the only numbers in the input, the system SHALL treat them as a decimal price and look up similar past transactions to confirm the amount is realistic before creating the transaction. This rule applies only to voice-originated input; keyboard-typed input is unaffected.
+
+#### Scenario: Two-digit fractional part in voice input is treated as decimal amount
+
+- **GIVEN** the user says "apples, bananas twelve fifty-four" and speech-to-text transcribes it as "apples, bananas 12 54"
+- **WHEN** the agent processes the input knowing it came from voice on the Assistant page
+- **THEN** the transaction is created with amount 12.54
+
+#### Scenario: Single-digit fractional part in voice input is padded and treated as decimal amount
+
+- **GIVEN** the user says "coffee twelve five" and speech-to-text transcribes it as "coffee 12 5"
+- **WHEN** the agent processes the input knowing it came from voice on the Assistant page
+- **THEN** the transaction is created with amount 12.05
+
+#### Scenario: Keyboard input with two adjacent integers is rejected as multiple amounts
+
+- **GIVEN** the user types "apples, bananas 12 54" using the keyboard on the Assistant page
+- **WHEN** the agent processes the input knowing it came from keyboard
+- **THEN** the transaction is NOT created and an error is returned indicating multiple amounts were found
+
 ### Requirement: Account Creation from Natural Language
 
 The system SHALL let the user create a new account by describing it in natural language through the Assistant, in addition to answering finance questions and logging transactions. When the user's message provides enough detail to identify an account name and currency, the Assistant SHALL create the account and confirm it in the answer. When required details are missing, the Assistant SHALL ask for them instead of creating the account. When the requested account name is a semantic near-variant of an existing active (non-archived) account (for example pluralisation, typos, abbreviations, or synonyms), the Assistant SHALL ask the user to confirm before creating. Archived accounts are not considered — reusing an archived account's name is not a duplicate. When the user does not state an initial balance, the Assistant SHALL create the account starting at zero. When the Assistant cannot create the account because it would conflict with an existing account or violate another business rule, the Assistant's answer SHALL explain what went wrong.

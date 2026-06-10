@@ -471,4 +471,74 @@ describe("CreateTransactionAgent (integration)", () => {
       expect(toolNames).not.toContain(CREATE_TRANSACTION_TOOL_NAME);
     });
   });
+
+  describe("when message contains space-separated integer pair", () => {
+    // Happy path
+
+    it("treats two-digit fractional part as decimal amount under voice input", async () => {
+      // Arrange
+      await accountRepository.create(fakeAccount({ userId }));
+
+      // Act
+      const response = await agent.invoke(
+        { messages: [new HumanMessage("apples, bananas 12 54")] },
+        { context: { ...context, isVoiceInput: true } },
+      );
+
+      // Assert
+      const lastToolCallMessage = response.messages.findLast(
+        (message): message is AIMessage =>
+          AIMessage.isInstance(message) &&
+          (message.tool_calls ?? []).length > 0,
+      );
+      expect(lastToolCallMessage).toHaveToolCalls([
+        {
+          name: CREATE_TRANSACTION_TOOL_NAME,
+          args: expect.objectContaining({ amount: 12.54 }),
+        },
+      ]);
+    });
+
+    it("treats single-digit fractional part as decimal amount with leading zero under voice input", async () => {
+      // Arrange
+      await accountRepository.create(fakeAccount({ userId }));
+
+      // Act
+      const response = await agent.invoke(
+        { messages: [new HumanMessage("coffee 12 5")] },
+        { context: { ...context, isVoiceInput: true } },
+      );
+
+      // Assert
+      const lastToolCallMessage = response.messages.findLast(
+        (message): message is AIMessage =>
+          AIMessage.isInstance(message) &&
+          (message.tool_calls ?? []).length > 0,
+      );
+      expect(lastToolCallMessage).toHaveToolCalls([
+        {
+          name: CREATE_TRANSACTION_TOOL_NAME,
+          args: expect.objectContaining({ amount: 12.05 }),
+        },
+      ]);
+    });
+
+    it("does not call create_transaction under keyboard input", async () => {
+      // Arrange
+      await accountRepository.create(fakeAccount({ userId }));
+
+      // Act
+      const response = await agent.invoke(
+        { messages: [new HumanMessage("apples, bananas 12 54")] },
+        { context: { ...context, isVoiceInput: false } },
+      );
+
+      // Assert
+      const toolNames = response.messages
+        .filter(AIMessage.isInstance)
+        .flatMap((message) => message.tool_calls ?? [])
+        .map((toolCall) => toolCall.name);
+      expect(toolNames).not.toContain(CREATE_TRANSACTION_TOOL_NAME);
+    });
+  });
 });
