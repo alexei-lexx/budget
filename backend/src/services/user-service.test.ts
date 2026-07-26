@@ -155,7 +155,9 @@ describe("UserService", () => {
     it("updates voiceInputLanguage", async () => {
       // Arrange
       const userId = faker.string.uuid();
-      mockUserRepository.findOneById.mockResolvedValue(fakeUser({ id: userId }));
+      mockUserRepository.findOneById.mockResolvedValue(
+        fakeUser({ id: userId }),
+      );
       mockUserRepository.update.mockResolvedValue(undefined);
 
       // Act
@@ -180,7 +182,9 @@ describe("UserService", () => {
     it("updates transactionPatternsLimit", async () => {
       // Arrange
       const userId = faker.string.uuid();
-      mockUserRepository.findOneById.mockResolvedValue(fakeUser({ id: userId }));
+      mockUserRepository.findOneById.mockResolvedValue(
+        fakeUser({ id: userId }),
+      );
       mockUserRepository.update.mockResolvedValue(undefined);
 
       // Act
@@ -199,7 +203,9 @@ describe("UserService", () => {
     it("updates both fields at once", async () => {
       // Arrange
       const userId = faker.string.uuid();
-      mockUserRepository.findOneById.mockResolvedValue(fakeUser({ id: userId }));
+      mockUserRepository.findOneById.mockResolvedValue(
+        fakeUser({ id: userId }),
+      );
       mockUserRepository.update.mockResolvedValue(undefined);
 
       // Act
