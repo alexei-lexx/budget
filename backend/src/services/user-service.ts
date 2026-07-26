@@ -11,6 +11,18 @@ export interface UserSettingsData {
 export class UserService {
   constructor(private readonly userRepository: UserRepository) {}
 
+  async ensureUser(email: string): Promise<User> {
+    const existing = await this.userRepository.findOneByEmail(email);
+
+    if (existing) {
+      return existing;
+    }
+
+    const user = User.create({ email });
+    await this.userRepository.create(user);
+    return user;
+  }
+
   async getSettings(userId: string): Promise<Result<UserSettingsData>> {
     if (!userId) {
       return Failure("User ID is required");
@@ -27,18 +39,6 @@ export class UserService {
         user.transactionPatternsLimit ?? DEFAULT_TRANSACTION_PATTERNS_LIMIT,
       voiceInputLanguage: user.voiceInputLanguage,
     });
-  }
-
-  async ensureUser(email: string): Promise<User> {
-    const existing = await this.userRepository.findOneByEmail(email);
-
-    if (existing) {
-      return existing;
-    }
-
-    const user = User.create({ email });
-    await this.userRepository.create(user);
-    return user;
   }
 
   async updateSettings({
