@@ -111,11 +111,6 @@ export interface UpdateUserInput {
   voiceInputLanguage?: string;
 }
 
-/**
- * Trims, lowercases, and Unicode-normalizes an email for storage/lookup,
- * without throwing on invalid input — format is enforced separately by
- * assertInvariants so User.create always fails with ModelError.
- */
 function normalizeEmail(email: string): string {
   return email.trim().toLowerCase().normalize("NFC");
 }
