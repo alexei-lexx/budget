@@ -1,3 +1,9 @@
+---
+type: "Reference"
+title: "OpenWiki quickstart"
+openwiki_generated: true
+---
+
 # OpenWiki quickstart
 
 This repository is a self-hosted personal finance tracker with three main runtime parts:

@@ -1,3 +1,9 @@
+---
+type: "Reference"
+title: "Development and deployment workflow"
+openwiki_generated: true
+---
+
 # Development and deployment workflow
 
 ## Local development

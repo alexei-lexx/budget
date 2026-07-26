@@ -1,3 +1,9 @@
+---
+type: "Reference"
+title: "Testing and verification"
+openwiki_generated: true
+---
+
 # Testing and verification
 
 ## Test commands by package

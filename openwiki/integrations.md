@@ -1,3 +1,9 @@
+---
+type: "Reference"
+title: "Integrations and external services"
+openwiki_generated: true
+---
+
 # Integrations and external services
 
 ## Authentication

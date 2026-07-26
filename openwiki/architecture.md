@@ -1,3 +1,9 @@
+---
+type: "Reference"
+title: "Repository architecture"
+openwiki_generated: true
+---
+
 # Repository architecture
 
 This repository is organized around a GraphQL backend, a Vue frontend, and AWS CDK infrastructure. The backend is the source of truth for business behavior; the frontend is mostly a typed GraphQL client and UI layer; the infrastructure code provisions the runtime and deployment surface.

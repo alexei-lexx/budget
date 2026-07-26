@@ -1,3 +1,9 @@
+---
+type: "Reference"
+title: "Domain and product concepts"
+openwiki_generated: true
+---
+
 # Domain and product concepts
 
 The repository models a personal finance system with a few core concepts that appear consistently across the README, OpenSpec specs, model classes, services, and AI prompts.
