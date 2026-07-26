@@ -2,10 +2,6 @@ import { randomUUID } from "crypto";
 import { validateEmail } from "../utils/email";
 import { ModelError } from "./model-error";
 
-export const MIN_TRANSACTION_PATTERNS_LIMIT = 1;
-export const MAX_TRANSACTION_PATTERNS_LIMIT = 10;
-export const DEFAULT_TRANSACTION_PATTERNS_LIMIT = 3;
-
 // Plain data shape.
 export interface UserData {
   id: string;
@@ -92,11 +88,10 @@ export class User implements UserData {
     if (
       data.transactionPatternsLimit !== undefined &&
       (!Number.isInteger(data.transactionPatternsLimit) ||
-        data.transactionPatternsLimit < MIN_TRANSACTION_PATTERNS_LIMIT ||
-        data.transactionPatternsLimit > MAX_TRANSACTION_PATTERNS_LIMIT)
+        data.transactionPatternsLimit < 0)
     ) {
       throw new ModelError(
-        `Transaction patterns limit must be an integer between ${MIN_TRANSACTION_PATTERNS_LIMIT} and ${MAX_TRANSACTION_PATTERNS_LIMIT}`,
+        "Transaction patterns limit must be a non-negative integer",
       );
     }
   }

@@ -4,11 +4,7 @@ import {
   fakeUser,
 } from "../utils/test-utils/models/user-fakes";
 import { ModelError } from "./model-error";
-import {
-  MAX_TRANSACTION_PATTERNS_LIMIT,
-  MIN_TRANSACTION_PATTERNS_LIMIT,
-  User,
-} from "./user";
+import { User } from "./user";
 
 describe("User", () => {
   describe("create", () => {
@@ -109,11 +105,11 @@ describe("User", () => {
       expect(() => User.fromPersistence(data)).toThrow(ModelError);
     });
 
-    it("throws when transactionPatternsLimit is out of range", () => {
+    it("throws when transactionPatternsLimit is negative", () => {
       // Arrange
       const data = {
         ...fakeUser().toData(),
-        transactionPatternsLimit: MAX_TRANSACTION_PATTERNS_LIMIT + 1,
+        transactionPatternsLimit: -1,
       };
 
       // Act & Assert
@@ -212,22 +208,11 @@ describe("User", () => {
 
     // Validation failures
 
-    it("throws when transactionPatternsLimit is below minimum", () => {
+    it("throws when transactionPatternsLimit is negative", () => {
       // Act & Assert
-      expect(() =>
-        fakeUser().update({
-          transactionPatternsLimit: MIN_TRANSACTION_PATTERNS_LIMIT - 1,
-        }),
-      ).toThrow(ModelError);
-    });
-
-    it("throws when transactionPatternsLimit is above maximum", () => {
-      // Act & Assert
-      expect(() =>
-        fakeUser().update({
-          transactionPatternsLimit: MAX_TRANSACTION_PATTERNS_LIMIT + 1,
-        }),
-      ).toThrow(ModelError);
+      expect(() => fakeUser().update({ transactionPatternsLimit: -1 })).toThrow(
+        ModelError,
+      );
     });
 
     it("throws when transactionPatternsLimit is not an integer", () => {

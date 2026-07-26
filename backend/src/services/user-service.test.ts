@@ -1,13 +1,13 @@
 import { faker } from "@faker-js/faker";
 import { type Mocked, beforeEach, describe, expect, it } from "vitest";
+import { UserRepository } from "../ports/user-repository";
+import { fakeUser } from "../utils/test-utils/models/user-fakes";
+import { createMockUserRepository } from "../utils/test-utils/repositories/user-repository-mocks";
 import {
   DEFAULT_TRANSACTION_PATTERNS_LIMIT,
   MAX_TRANSACTION_PATTERNS_LIMIT,
   MIN_TRANSACTION_PATTERNS_LIMIT,
-} from "../models/user";
-import { UserRepository } from "../ports/user-repository";
-import { fakeUser } from "../utils/test-utils/models/user-fakes";
-import { createMockUserRepository } from "../utils/test-utils/repositories/user-repository-mocks";
+} from "./transaction-service";
 import { UserService } from "./user-service";
 
 describe("UserService", () => {
@@ -228,9 +228,6 @@ describe("UserService", () => {
     });
 
     it("returns failure when transactionPatternsLimit is below minimum", async () => {
-      // Arrange
-      mockUserRepository.findOneById.mockResolvedValue(fakeUser());
-
       // Act
       const result = await service.updateSettings({
         userId: faker.string.uuid(),
@@ -242,13 +239,11 @@ describe("UserService", () => {
         success: false,
         error: `Transaction patterns limit must be an integer between ${MIN_TRANSACTION_PATTERNS_LIMIT} and ${MAX_TRANSACTION_PATTERNS_LIMIT}`,
       });
+      expect(mockUserRepository.findOneById).not.toHaveBeenCalled();
       expect(mockUserRepository.update).not.toHaveBeenCalled();
     });
 
     it("returns failure when transactionPatternsLimit is above maximum", async () => {
-      // Arrange
-      mockUserRepository.findOneById.mockResolvedValue(fakeUser());
-
       // Act
       const result = await service.updateSettings({
         userId: faker.string.uuid(),
@@ -260,13 +255,11 @@ describe("UserService", () => {
         success: false,
         error: `Transaction patterns limit must be an integer between ${MIN_TRANSACTION_PATTERNS_LIMIT} and ${MAX_TRANSACTION_PATTERNS_LIMIT}`,
       });
+      expect(mockUserRepository.findOneById).not.toHaveBeenCalled();
       expect(mockUserRepository.update).not.toHaveBeenCalled();
     });
 
     it("returns failure when transactionPatternsLimit is not an integer", async () => {
-      // Arrange
-      mockUserRepository.findOneById.mockResolvedValue(fakeUser());
-
       // Act
       const result = await service.updateSettings({
         userId: faker.string.uuid(),
@@ -278,6 +271,7 @@ describe("UserService", () => {
         success: false,
         error: `Transaction patterns limit must be an integer between ${MIN_TRANSACTION_PATTERNS_LIMIT} and ${MAX_TRANSACTION_PATTERNS_LIMIT}`,
       });
+      expect(mockUserRepository.findOneById).not.toHaveBeenCalled();
       expect(mockUserRepository.update).not.toHaveBeenCalled();
     });
   });

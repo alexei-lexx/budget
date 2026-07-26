@@ -3,11 +3,6 @@ import { type Mocked, beforeEach, describe, expect, it } from "vitest";
 import { CategoryType } from "../models/category";
 import { ModelError } from "../models/model-error";
 import { TransactionPatternType, TransactionType } from "../models/transaction";
-import {
-  DEFAULT_TRANSACTION_PATTERNS_LIMIT,
-  MAX_TRANSACTION_PATTERNS_LIMIT,
-  MIN_TRANSACTION_PATTERNS_LIMIT,
-} from "../models/user";
 import { AccountRepository } from "../ports/account-repository";
 import { AtomicWriter } from "../ports/atomic-writer";
 import { CategoryRepository } from "../ports/category-repository";
@@ -28,8 +23,11 @@ import { createMockTransactionRepository } from "../utils/test-utils/repositorie
 import { fakeCreateTransactionServiceInput } from "../utils/test-utils/services/transaction-service-fakes";
 import { BusinessError } from "./business-error";
 import {
+  DEFAULT_TRANSACTION_PATTERNS_LIMIT,
   DESCRIPTION_SUGGESTIONS_SAMPLE_SIZE,
+  MAX_TRANSACTION_PATTERNS_LIMIT,
   MIN_SEARCH_TEXT_LENGTH,
+  MIN_TRANSACTION_PATTERNS_LIMIT,
   TransactionService,
   TransactionServiceImpl,
 } from "./transaction-service";
