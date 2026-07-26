@@ -17,10 +17,12 @@ describe("DynUserRepository", () => {
   const client = createDynamoDBDocumentClient();
 
   beforeAll(async () => {
+    // Create repository instance
     repository = new DynUserRepository(tableName, client);
   });
 
   beforeEach(async () => {
+    // Clean up users table before each test
     await truncateTable(client, tableName, {
       partitionKey: "id",
     });
@@ -111,6 +113,7 @@ describe("DynUserRepository", () => {
 
     it("throws when multiple users share same email", async () => {
       // Arrange
+      // Create duplicate users with same email
       await repository.create(
         User.create(fakeCreateUserInput({ email: "dupe@example.com" })),
       );
