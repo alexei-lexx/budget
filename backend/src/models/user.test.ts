@@ -113,7 +113,9 @@ describe("User", () => {
       };
 
       // Act & Assert
-      expect(() => User.fromPersistence(data)).toThrow(ModelError);
+      expect(() => User.fromPersistence(data)).toThrow(
+        new ModelError("Transaction patterns limit must be a non-negative integer"),
+      );
     });
   });
 
@@ -210,8 +212,10 @@ describe("User", () => {
 
     it("throws when transactionPatternsLimit is negative", () => {
       // Act & Assert
-      expect(() => fakeUser().update({ transactionPatternsLimit: -1 })).toThrow(
-        ModelError,
+      expect(() =>
+        fakeUser().update({ transactionPatternsLimit: -1 }),
+      ).toThrow(
+        new ModelError("Transaction patterns limit must be a non-negative integer"),
       );
     });
 
@@ -219,7 +223,9 @@ describe("User", () => {
       // Act & Assert
       expect(() =>
         fakeUser().update({ transactionPatternsLimit: 2.5 }),
-      ).toThrow(ModelError);
+      ).toThrow(
+        new ModelError("Transaction patterns limit must be a non-negative integer"),
+      );
     });
   });
 });
