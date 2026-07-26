@@ -7,6 +7,11 @@ import {
   TransactionPatternType,
   TransactionType,
 } from "../models/transaction";
+import {
+  DEFAULT_TRANSACTION_PATTERNS_LIMIT,
+  MAX_TRANSACTION_PATTERNS_LIMIT,
+  MIN_TRANSACTION_PATTERNS_LIMIT,
+} from "../models/user";
 import { AccountRepository } from "../ports/account-repository";
 import { AtomicWriter } from "../ports/atomic-writer";
 import { CategoryRepository } from "../ports/category-repository";
@@ -25,10 +30,6 @@ import { BusinessError } from "./business-error";
 import { handleVersionConflict } from "./utils/handle-version-conflict";
 
 export const MIN_SEARCH_TEXT_LENGTH = 2;
-
-export const DEFAULT_TRANSACTION_PATTERNS_LIMIT = 3;
-export const MIN_TRANSACTION_PATTERNS_LIMIT = 1;
-export const MAX_TRANSACTION_PATTERNS_LIMIT = 10;
 
 export const DEFAULT_DESCRIPTION_SUGGESTIONS_LIMIT = 5;
 export const MIN_DESCRIPTION_SUGGESTIONS_LIMIT = 1;
