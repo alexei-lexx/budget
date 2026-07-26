@@ -19,36 +19,6 @@ describe("UserService", () => {
     service = new UserService(mockUserRepository);
   });
 
-  describe("findOneByEmail", () => {
-    // Happy path
-
-    it("returns user when found", async () => {
-      // Arrange
-      const user = fakeUser({ email: "user@example.com" });
-      mockUserRepository.findOneByEmail.mockResolvedValue(user);
-
-      // Act
-      const result = await service.findOneByEmail("user@example.com");
-
-      // Assert
-      expect(result).toBe(user);
-      expect(mockUserRepository.findOneByEmail).toHaveBeenCalledWith(
-        "user@example.com",
-      );
-    });
-
-    it("returns null when not found", async () => {
-      // Arrange
-      mockUserRepository.findOneByEmail.mockResolvedValue(null);
-
-      // Act
-      const result = await service.findOneByEmail("nonexistent@example.com");
-
-      // Assert
-      expect(result).toBeNull();
-    });
-  });
-
   describe("getSettings", () => {
     // Happy path
 

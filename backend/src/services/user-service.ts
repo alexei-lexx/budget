@@ -11,10 +11,6 @@ export interface UserSettingsData {
 export class UserService {
   constructor(private readonly userRepository: UserRepository) {}
 
-  async findOneByEmail(email: string): Promise<User | null> {
-    return this.userRepository.findOneByEmail(email);
-  }
-
   async getSettings(userId: string): Promise<Result<UserSettingsData>> {
     if (!userId) {
       return Failure("User ID is required");
