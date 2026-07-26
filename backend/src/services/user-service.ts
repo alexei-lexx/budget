@@ -1,10 +1,7 @@
-import { UpdateUserInput, UserRepository } from "../ports/user-repository";
+import { ModelError } from "../models/model-error";
+import { DEFAULT_TRANSACTION_PATTERNS_LIMIT, User } from "../models/user";
+import { UserRepository } from "../ports/user-repository";
 import { Failure, Result, Success } from "../types/result";
-import {
-  DEFAULT_TRANSACTION_PATTERNS_LIMIT,
-  MAX_TRANSACTION_PATTERNS_LIMIT,
-  MIN_TRANSACTION_PATTERNS_LIMIT,
-} from "./transaction-service";
 
 export interface UserSettingsData {
   transactionPatternsLimit: number;
@@ -13,6 +10,10 @@ export interface UserSettingsData {
 
 export class UserService {
   constructor(private readonly userRepository: UserRepository) {}
+
+  async findOneByEmail(email: string): Promise<User | null> {
+    return this.userRepository.findOneByEmail(email);
+  }
 
   async getSettings(userId: string): Promise<Result<UserSettingsData>> {
     if (!userId) {
@@ -32,6 +33,18 @@ export class UserService {
     });
   }
 
+  async ensureUser(email: string): Promise<User> {
+    const existing = await this.userRepository.findOneByEmail(email);
+
+    if (existing) {
+      return existing;
+    }
+
+    const user = User.create({ email });
+    await this.userRepository.create(user);
+    return user;
+  }
+
   async updateSettings({
     userId,
     transactionPatternsLimit,
@@ -45,34 +58,31 @@ export class UserService {
       return Failure("User ID is required");
     }
 
-    if (transactionPatternsLimit !== undefined) {
-      if (
-        !Number.isInteger(transactionPatternsLimit) ||
-        transactionPatternsLimit < MIN_TRANSACTION_PATTERNS_LIMIT ||
-        transactionPatternsLimit > MAX_TRANSACTION_PATTERNS_LIMIT
-      ) {
-        return Failure(
-          `Transaction patterns limit must be an integer between ${MIN_TRANSACTION_PATTERNS_LIMIT} and ${MAX_TRANSACTION_PATTERNS_LIMIT}`,
-        );
+    const user = await this.userRepository.findOneById(userId);
+
+    if (!user) {
+      return Failure("User not found");
+    }
+
+    try {
+      const updated = user.update({
+        transactionPatternsLimit,
+        voiceInputLanguage,
+      });
+
+      await this.userRepository.update(updated);
+
+      return Success({
+        transactionPatternsLimit:
+          updated.transactionPatternsLimit ??
+          DEFAULT_TRANSACTION_PATTERNS_LIMIT,
+        voiceInputLanguage: updated.voiceInputLanguage,
+      });
+    } catch (error) {
+      if (error instanceof ModelError) {
+        return Failure(error.message);
       }
+      throw error;
     }
-
-    const updateInput: UpdateUserInput = {};
-
-    if (transactionPatternsLimit !== undefined) {
-      updateInput.transactionPatternsLimit = transactionPatternsLimit;
-    }
-
-    if (voiceInputLanguage !== undefined) {
-      updateInput.voiceInputLanguage = voiceInputLanguage;
-    }
-
-    const updated = await this.userRepository.update(userId, updateInput);
-
-    return Success({
-      transactionPatternsLimit:
-        updated.transactionPatternsLimit ?? DEFAULT_TRANSACTION_PATTERNS_LIMIT,
-      voiceInputLanguage: updated.voiceInputLanguage,
-    });
   }
 }

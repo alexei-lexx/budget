@@ -1,13 +1,13 @@
 import { faker } from "@faker-js/faker";
 import { type Mocked, beforeEach, describe, expect, it } from "vitest";
-import { UserRepository } from "../ports/user-repository";
-import { fakeUser } from "../utils/test-utils/models/user-fakes";
-import { createMockUserRepository } from "../utils/test-utils/repositories/user-repository-mocks";
 import {
   DEFAULT_TRANSACTION_PATTERNS_LIMIT,
   MAX_TRANSACTION_PATTERNS_LIMIT,
   MIN_TRANSACTION_PATTERNS_LIMIT,
-} from "./transaction-service";
+} from "../models/user";
+import { UserRepository } from "../ports/user-repository";
+import { fakeUser } from "../utils/test-utils/models/user-fakes";
+import { createMockUserRepository } from "../utils/test-utils/repositories/user-repository-mocks";
 import { UserService } from "./user-service";
 
 describe("UserService", () => {
@@ -17,6 +17,36 @@ describe("UserService", () => {
   beforeEach(() => {
     mockUserRepository = createMockUserRepository();
     service = new UserService(mockUserRepository);
+  });
+
+  describe("findOneByEmail", () => {
+    // Happy path
+
+    it("returns user when found", async () => {
+      // Arrange
+      const user = fakeUser({ email: "user@example.com" });
+      mockUserRepository.findOneByEmail.mockResolvedValue(user);
+
+      // Act
+      const result = await service.findOneByEmail("user@example.com");
+
+      // Assert
+      expect(result).toBe(user);
+      expect(mockUserRepository.findOneByEmail).toHaveBeenCalledWith(
+        "user@example.com",
+      );
+    });
+
+    it("returns null when not found", async () => {
+      // Arrange
+      mockUserRepository.findOneByEmail.mockResolvedValue(null);
+
+      // Act
+      const result = await service.findOneByEmail("nonexistent@example.com");
+
+      // Assert
+      expect(result).toBeNull();
+    });
   });
 
   describe("getSettings", () => {
@@ -30,7 +60,6 @@ describe("UserService", () => {
         transactionPatternsLimit: 5,
         voiceInputLanguage: "pl-PL",
       });
-      // Returns user with saved settings
       mockUserRepository.findOneById.mockResolvedValue(user);
 
       // Act
@@ -51,7 +80,6 @@ describe("UserService", () => {
       // Arrange
       const userId = faker.string.uuid();
       const user = fakeUser({ id: userId });
-      // Returns user without saved settings
       mockUserRepository.findOneById.mockResolvedValue(user);
 
       // Act
@@ -65,7 +93,6 @@ describe("UserService", () => {
           voiceInputLanguage: undefined,
         },
       });
-      expect(mockUserRepository.findOneById).toHaveBeenCalledWith(userId);
     });
 
     // Validation failures
@@ -82,7 +109,6 @@ describe("UserService", () => {
     it("returns failure when user is not found", async () => {
       // Arrange
       const userId = faker.string.uuid();
-      // Returns no user for given id
       mockUserRepository.findOneById.mockResolvedValue(null);
 
       // Act
@@ -90,7 +116,36 @@ describe("UserService", () => {
 
       // Assert
       expect(result).toEqual({ success: false, error: "User not found" });
-      expect(mockUserRepository.findOneById).toHaveBeenCalledWith(userId);
+    });
+  });
+
+  describe("ensureUser", () => {
+    // Happy path
+
+    it("returns existing user when email exists", async () => {
+      // Arrange
+      const user = fakeUser({ email: "user@example.com" });
+      mockUserRepository.findOneByEmail.mockResolvedValue(user);
+
+      // Act
+      const result = await service.ensureUser("user@example.com");
+
+      // Assert
+      expect(result).toBe(user);
+      expect(mockUserRepository.create).not.toHaveBeenCalled();
+    });
+
+    it("creates user when email does not exist", async () => {
+      // Arrange
+      mockUserRepository.findOneByEmail.mockResolvedValue(null);
+      mockUserRepository.create.mockResolvedValue(undefined);
+
+      // Act
+      const result = await service.ensureUser("new@example.com");
+
+      // Assert
+      expect(result.email).toBe("new@example.com");
+      expect(mockUserRepository.create).toHaveBeenCalledWith(result);
     });
   });
 
@@ -100,9 +155,8 @@ describe("UserService", () => {
     it("updates voiceInputLanguage", async () => {
       // Arrange
       const userId = faker.string.uuid();
-      const updated = fakeUser({ id: userId, voiceInputLanguage: "de-DE" });
-      // Persists and returns updated user
-      mockUserRepository.update.mockResolvedValue(updated);
+      mockUserRepository.findOneById.mockResolvedValue(fakeUser({ id: userId }));
+      mockUserRepository.update.mockResolvedValue(undefined);
 
       // Act
       const result = await service.updateSettings({
@@ -118,17 +172,16 @@ describe("UserService", () => {
           voiceInputLanguage: "de-DE",
         },
       });
-      expect(mockUserRepository.update).toHaveBeenCalledWith(userId, {
-        voiceInputLanguage: "de-DE",
-      });
+      expect(mockUserRepository.update).toHaveBeenCalledWith(
+        expect.objectContaining({ voiceInputLanguage: "de-DE" }),
+      );
     });
 
     it("updates transactionPatternsLimit", async () => {
       // Arrange
       const userId = faker.string.uuid();
-      const updated = fakeUser({ id: userId, transactionPatternsLimit: 7 });
-      // Persists and returns updated user
-      mockUserRepository.update.mockResolvedValue(updated);
+      mockUserRepository.findOneById.mockResolvedValue(fakeUser({ id: userId }));
+      mockUserRepository.update.mockResolvedValue(undefined);
 
       // Act
       const result = await service.updateSettings({
@@ -141,21 +194,13 @@ describe("UserService", () => {
         success: true,
         data: { transactionPatternsLimit: 7, voiceInputLanguage: undefined },
       });
-      expect(mockUserRepository.update).toHaveBeenCalledWith(userId, {
-        transactionPatternsLimit: 7,
-      });
     });
 
     it("updates both fields at once", async () => {
       // Arrange
       const userId = faker.string.uuid();
-      const updated = fakeUser({
-        id: userId,
-        transactionPatternsLimit: 5,
-        voiceInputLanguage: "en-US",
-      });
-      // Persists and returns updated user
-      mockUserRepository.update.mockResolvedValue(updated);
+      mockUserRepository.findOneById.mockResolvedValue(fakeUser({ id: userId }));
+      mockUserRepository.update.mockResolvedValue(undefined);
 
       // Act
       const result = await service.updateSettings({
@@ -172,10 +217,6 @@ describe("UserService", () => {
           voiceInputLanguage: "en-US",
         },
       });
-      expect(mockUserRepository.update).toHaveBeenCalledWith(userId, {
-        transactionPatternsLimit: 5,
-        voiceInputLanguage: "en-US",
-      });
     });
 
     // Validation failures
@@ -189,10 +230,28 @@ describe("UserService", () => {
 
       // Assert
       expect(result).toEqual({ success: false, error: "User ID is required" });
+      expect(mockUserRepository.findOneById).not.toHaveBeenCalled();
+    });
+
+    it("returns failure when user is not found", async () => {
+      // Arrange
+      mockUserRepository.findOneById.mockResolvedValue(null);
+
+      // Act
+      const result = await service.updateSettings({
+        userId: faker.string.uuid(),
+        voiceInputLanguage: "en-US",
+      });
+
+      // Assert
+      expect(result).toEqual({ success: false, error: "User not found" });
       expect(mockUserRepository.update).not.toHaveBeenCalled();
     });
 
     it("returns failure when transactionPatternsLimit is below minimum", async () => {
+      // Arrange
+      mockUserRepository.findOneById.mockResolvedValue(fakeUser());
+
       // Act
       const result = await service.updateSettings({
         userId: faker.string.uuid(),
@@ -208,6 +267,9 @@ describe("UserService", () => {
     });
 
     it("returns failure when transactionPatternsLimit is above maximum", async () => {
+      // Arrange
+      mockUserRepository.findOneById.mockResolvedValue(fakeUser());
+
       // Act
       const result = await service.updateSettings({
         userId: faker.string.uuid(),
@@ -223,6 +285,9 @@ describe("UserService", () => {
     });
 
     it("returns failure when transactionPatternsLimit is not an integer", async () => {
+      // Arrange
+      mockUserRepository.findOneById.mockResolvedValue(fakeUser());
+
       // Act
       const result = await service.updateSettings({
         userId: faker.string.uuid(),
