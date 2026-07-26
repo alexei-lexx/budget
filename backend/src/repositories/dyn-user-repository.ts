@@ -1,4 +1,3 @@
-import { randomUUID } from "crypto";
 import {
   GetCommand,
   PutCommand,
@@ -8,11 +7,7 @@ import {
 } from "@aws-sdk/lib-dynamodb";
 import { User } from "../models/user";
 import { RepositoryError } from "../ports/repository-error";
-import {
-  CreateUserInput,
-  UpdateUserInput,
-  UserRepository,
-} from "../ports/user-repository";
+import { UserRepository } from "../ports/user-repository";
 import { normalizeEmail } from "../utils/email";
 import { DynBaseRepository } from "./dyn-base-repository";
 import { userSchema } from "./schemas/user";
@@ -47,7 +42,7 @@ export class DynUserRepository
         );
       }
 
-      return this.hydrate(userSchema, result.Items[0]);
+      return User.fromPersistence(this.hydrate(userSchema, result.Items[0]));
     } catch (error) {
       console.error("Error finding user by email:", error);
       if (error instanceof RepositoryError) throw error;
@@ -76,7 +71,7 @@ export class DynUserRepository
         return null;
       }
 
-      return this.hydrate(userSchema, result.Item);
+      return User.fromPersistence(this.hydrate(userSchema, result.Item));
     } catch (error) {
       console.error("Error finding user by ID:", error);
       throw new RepositoryError(
@@ -99,30 +94,26 @@ export class DynUserRepository
         return [];
       }
 
-      return result.Items.map((item) => this.hydrate(userSchema, item));
+      return result.Items.map((item) =>
+        User.fromPersistence(this.hydrate(userSchema, item)),
+      );
     } catch (error) {
       console.error("Error finding all users:", error);
       throw new RepositoryError("Failed to find users", "QUERY_FAILED", error);
     }
   }
 
-  async create(input: CreateUserInput): Promise<User> {
-    const now = new Date().toISOString();
-    const user: User = {
-      id: randomUUID(),
-      email: normalizeEmail(input.email),
-      createdAt: now,
-      updatedAt: now,
-    };
+  async create(user: Readonly<User>): Promise<void> {
+    const data = user.toData();
 
     try {
       const command = new PutCommand({
         TableName: this.tableName,
-        Item: user,
+        Item: data,
+        ConditionExpression: "attribute_not_exists(id)",
       });
 
       await this.client.send(command);
-      return user;
     } catch (error) {
       console.error("Error creating user:", error);
       throw new RepositoryError(
@@ -133,59 +124,46 @@ export class DynUserRepository
     }
   }
 
-  async ensureUser(email: string): Promise<User> {
-    // Check if user exists
-    const existingUser = await this.findOneByEmail(email);
-
-    if (existingUser) {
-      return existingUser;
-    }
-
-    // Create new user if doesn't exist
-    return this.create({
-      email,
-    });
-  }
-
-  async update(id: string, input: UpdateUserInput): Promise<User> {
-    if (!id) {
-      throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
-    }
-
-    const now = new Date().toISOString();
-
-    // Build SET expression dynamically — only include fields that were provided
-    const updateExpressionParts: string[] = ["updatedAt = :updatedAt"];
+  async update(user: Readonly<User>): Promise<void> {
+    const setParts = ["updatedAt = :updatedAt"];
+    const removeParts: string[] = [];
     const expressionAttributeValues: Record<string, string | number> = {
-      ":updatedAt": now,
+      ":updatedAt": user.updatedAt,
     };
 
-    if (input.transactionPatternsLimit !== undefined) {
-      updateExpressionParts.push(
-        "transactionPatternsLimit = :transactionPatternsLimit",
-      );
+    if (user.transactionPatternsLimit !== undefined) {
+      setParts.push("transactionPatternsLimit = :transactionPatternsLimit");
       expressionAttributeValues[":transactionPatternsLimit"] =
-        input.transactionPatternsLimit;
+        user.transactionPatternsLimit;
+    } else {
+      removeParts.push("transactionPatternsLimit");
     }
 
-    if (input.voiceInputLanguage !== undefined) {
-      updateExpressionParts.push("voiceInputLanguage = :voiceInputLanguage");
+    if (user.voiceInputLanguage !== undefined) {
+      setParts.push("voiceInputLanguage = :voiceInputLanguage");
       expressionAttributeValues[":voiceInputLanguage"] =
-        input.voiceInputLanguage;
+        user.voiceInputLanguage;
+    } else {
+      removeParts.push("voiceInputLanguage");
     }
+
+    const updateExpression = [
+      `SET ${setParts.join(", ")}`,
+      removeParts.length > 0 ? `REMOVE ${removeParts.join(", ")}` : undefined,
+    ]
+      .filter((part): part is string => part !== undefined)
+      .join(" ");
 
     try {
       const command = new UpdateCommand({
         TableName: this.tableName,
-        Key: { id },
-        UpdateExpression: `SET ${updateExpressionParts.join(", ")}`,
+        Key: { id: user.id },
+        UpdateExpression: updateExpression,
         ConditionExpression: "attribute_exists(id)",
         ExpressionAttributeValues: expressionAttributeValues,
-        ReturnValues: "ALL_NEW",
       });
 
-      const result = await this.client.send(command);
-      return this.hydrate(userSchema, result.Attributes);
+      await this.client.send(command);
     } catch (error) {
       console.error("Error updating user:", error);
 

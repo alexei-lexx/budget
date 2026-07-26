@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { User } from "../../models/user";
+import type { UserData } from "../../models/user";
 
 export const userSchema = z.object({
   id: z.uuid(),
@@ -8,4 +8,4 @@ export const userSchema = z.object({
   voiceInputLanguage: z.string().optional(),
   createdAt: z.iso.datetime(),
   updatedAt: z.iso.datetime(),
-}) satisfies z.ZodType<User>;
+}) satisfies z.ZodType<UserData>;

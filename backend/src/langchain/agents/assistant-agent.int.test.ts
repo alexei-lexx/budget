@@ -51,7 +51,8 @@ describe("AssistantAgent (integration)", () => {
   beforeEach(async () => {
     await truncateAllTables(createDynamoDBDocumentClient());
 
-    const user = await userRepository.create(fakeUser());
+    const user = fakeUser();
+    await userRepository.create(user);
     userId = user.id;
 
     today = formatDateAsYYYYMMDD(new Date());
