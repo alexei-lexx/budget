@@ -65,6 +65,7 @@ describe("UserService", () => {
           voiceInputLanguage: undefined,
         },
       });
+      expect(mockUserRepository.findOneById).toHaveBeenCalledWith(userId);
     });
 
     // Validation failures
@@ -89,6 +90,7 @@ describe("UserService", () => {
 
       // Assert
       expect(result).toEqual({ success: false, error: "User not found" });
+      expect(mockUserRepository.findOneById).toHaveBeenCalledWith(userId);
     });
   });
 
