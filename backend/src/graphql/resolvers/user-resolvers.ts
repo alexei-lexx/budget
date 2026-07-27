@@ -15,19 +15,7 @@ async function ensureAuthenticatedUser(context: GraphQLContext): Promise<User> {
   const authUser = requireAuthentication(context);
 
   try {
-    // Email is already normalized and available in auth context
-    const email = authUser.email;
-
-    // Check if user already exists
-    const existingUser = await context.userRepository.findOneByEmail(email);
-
-    if (existingUser) {
-      console.log("[RESOLVER] User already exists");
-      return existingUser;
-    }
-
-    const user = await context.userRepository.ensureUser(email);
-    return user;
+    return await context.userService.ensureUser(authUser.email);
   } catch (error) {
     console.error("Error ensuring user:", error);
     throw new GraphQLError("Failed to authenticate user");

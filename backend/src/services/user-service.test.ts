@@ -94,15 +94,52 @@ describe("UserService", () => {
     });
   });
 
+  describe("ensureUser", () => {
+    // Happy path
+
+    it("returns existing user when email exists", async () => {
+      // Arrange
+      const user = fakeUser({ email: "user@example.com" });
+      mockUserRepository.findOneByEmail.mockResolvedValue(user);
+
+      // Act
+      const result = await service.ensureUser("user@example.com");
+
+      // Assert
+      expect(result).toBe(user);
+      expect(mockUserRepository.findOneByEmail).toHaveBeenCalledWith(
+        "user@example.com",
+      );
+      expect(mockUserRepository.create).not.toHaveBeenCalled();
+    });
+
+    it("creates user when email does not exist", async () => {
+      // Arrange
+      mockUserRepository.findOneByEmail.mockResolvedValue(null);
+      mockUserRepository.create.mockResolvedValue(undefined);
+
+      // Act
+      const result = await service.ensureUser("new@example.com");
+
+      // Assert
+      expect(result.email).toBe("new@example.com");
+      expect(mockUserRepository.findOneByEmail).toHaveBeenCalledWith(
+        "new@example.com",
+      );
+      expect(mockUserRepository.create).toHaveBeenCalledWith(result);
+    });
+  });
+
   describe("updateSettings", () => {
     // Happy path
 
     it("updates voiceInputLanguage", async () => {
       // Arrange
       const userId = faker.string.uuid();
-      const updated = fakeUser({ id: userId, voiceInputLanguage: "de-DE" });
-      // Persists and returns updated user
-      mockUserRepository.update.mockResolvedValue(updated);
+      mockUserRepository.findOneById.mockResolvedValue(
+        fakeUser({ id: userId }),
+      );
+      mockUserRepository.update.mockResolvedValue(undefined);
 
       // Act
       const result = await service.updateSettings({
@@ -118,17 +155,19 @@ describe("UserService", () => {
           voiceInputLanguage: "de-DE",
         },
       });
-      expect(mockUserRepository.update).toHaveBeenCalledWith(userId, {
-        voiceInputLanguage: "de-DE",
-      });
+      expect(mockUserRepository.findOneById).toHaveBeenCalledWith(userId);
+      expect(mockUserRepository.update).toHaveBeenCalledWith(
+        expect.objectContaining({ voiceInputLanguage: "de-DE" }),
+      );
     });
 
     it("updates transactionPatternsLimit", async () => {
       // Arrange
       const userId = faker.string.uuid();
-      const updated = fakeUser({ id: userId, transactionPatternsLimit: 7 });
-      // Persists and returns updated user
-      mockUserRepository.update.mockResolvedValue(updated);
+      mockUserRepository.findOneById.mockResolvedValue(
+        fakeUser({ id: userId }),
+      );
+      mockUserRepository.update.mockResolvedValue(undefined);
 
       // Act
       const result = await service.updateSettings({
@@ -141,21 +180,19 @@ describe("UserService", () => {
         success: true,
         data: { transactionPatternsLimit: 7, voiceInputLanguage: undefined },
       });
-      expect(mockUserRepository.update).toHaveBeenCalledWith(userId, {
-        transactionPatternsLimit: 7,
-      });
+      expect(mockUserRepository.findOneById).toHaveBeenCalledWith(userId);
+      expect(mockUserRepository.update).toHaveBeenCalledWith(
+        expect.objectContaining({ transactionPatternsLimit: 7 }),
+      );
     });
 
-    it("updates both fields at once", async () => {
+    it("updates all fields at once", async () => {
       // Arrange
       const userId = faker.string.uuid();
-      const updated = fakeUser({
-        id: userId,
-        transactionPatternsLimit: 5,
-        voiceInputLanguage: "en-US",
-      });
-      // Persists and returns updated user
-      mockUserRepository.update.mockResolvedValue(updated);
+      mockUserRepository.findOneById.mockResolvedValue(
+        fakeUser({ id: userId }),
+      );
+      mockUserRepository.update.mockResolvedValue(undefined);
 
       // Act
       const result = await service.updateSettings({
@@ -172,10 +209,13 @@ describe("UserService", () => {
           voiceInputLanguage: "en-US",
         },
       });
-      expect(mockUserRepository.update).toHaveBeenCalledWith(userId, {
-        transactionPatternsLimit: 5,
-        voiceInputLanguage: "en-US",
-      });
+      expect(mockUserRepository.findOneById).toHaveBeenCalledWith(userId);
+      expect(mockUserRepository.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          transactionPatternsLimit: 5,
+          voiceInputLanguage: "en-US",
+        }),
+      );
     });
 
     // Validation failures
@@ -189,6 +229,22 @@ describe("UserService", () => {
 
       // Assert
       expect(result).toEqual({ success: false, error: "User ID is required" });
+      expect(mockUserRepository.findOneById).not.toHaveBeenCalled();
+      expect(mockUserRepository.update).not.toHaveBeenCalled();
+    });
+
+    it("returns failure when user is not found", async () => {
+      // Arrange
+      mockUserRepository.findOneById.mockResolvedValue(null);
+
+      // Act
+      const result = await service.updateSettings({
+        userId: faker.string.uuid(),
+        voiceInputLanguage: "en-US",
+      });
+
+      // Assert
+      expect(result).toEqual({ success: false, error: "User not found" });
       expect(mockUserRepository.update).not.toHaveBeenCalled();
     });
 
@@ -204,6 +260,7 @@ describe("UserService", () => {
         success: false,
         error: `Transaction patterns limit must be an integer between ${MIN_TRANSACTION_PATTERNS_LIMIT} and ${MAX_TRANSACTION_PATTERNS_LIMIT}`,
       });
+      expect(mockUserRepository.findOneById).not.toHaveBeenCalled();
       expect(mockUserRepository.update).not.toHaveBeenCalled();
     });
 
@@ -219,6 +276,7 @@ describe("UserService", () => {
         success: false,
         error: `Transaction patterns limit must be an integer between ${MIN_TRANSACTION_PATTERNS_LIMIT} and ${MAX_TRANSACTION_PATTERNS_LIMIT}`,
       });
+      expect(mockUserRepository.findOneById).not.toHaveBeenCalled();
       expect(mockUserRepository.update).not.toHaveBeenCalled();
     });
 
@@ -234,6 +292,7 @@ describe("UserService", () => {
         success: false,
         error: `Transaction patterns limit must be an integer between ${MIN_TRANSACTION_PATTERNS_LIMIT} and ${MAX_TRANSACTION_PATTERNS_LIMIT}`,
       });
+      expect(mockUserRepository.findOneById).not.toHaveBeenCalled();
       expect(mockUserRepository.update).not.toHaveBeenCalled();
     });
   });

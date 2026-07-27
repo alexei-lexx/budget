@@ -9,6 +9,5 @@ export const createMockUserRepository = (): Mocked<UserRepository> => ({
   findOneById: vi.fn(),
   findMany: vi.fn(),
   create: vi.fn(),
-  ensureUser: vi.fn(),
   update: vi.fn(),
 });

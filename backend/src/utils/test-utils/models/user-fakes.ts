@@ -1,13 +1,22 @@
 import { faker } from "@faker-js/faker";
-import { User } from "../../../models/user";
+import { CreateUserInput, User, UserData } from "../../../models/user";
 
-export const fakeUser = (overrides: Partial<User> = {}): User => {
+export const fakeUser = (overrides: Partial<UserData> = {}): User => {
   const now = new Date().toISOString();
-  return {
+  return User.fromPersistence({
     id: faker.string.uuid(),
     email: faker.internet.email().toLowerCase(),
     createdAt: now,
     updatedAt: now,
+    ...overrides,
+  });
+};
+
+export const fakeCreateUserInput = (
+  overrides: Partial<CreateUserInput> = {},
+): CreateUserInput => {
+  return {
+    email: faker.internet.email().toLowerCase(),
     ...overrides,
   };
 };
