@@ -69,7 +69,7 @@ describe("User", () => {
     it("throws on empty email", () => {
       // Act & Assert
       expect(() => User.create(fakeCreateUserInput({ email: "" }))).toThrow(
-        ModelError,
+        new ModelError("Email must be a non-empty string"),
       );
     });
 
@@ -77,7 +77,7 @@ describe("User", () => {
       // Act & Assert
       expect(() =>
         User.create(fakeCreateUserInput({ email: "not-an-email" })),
-      ).toThrow(ModelError);
+      ).toThrow(new ModelError(`Invalid email: not-an-email`));
     });
   });
 
@@ -102,7 +102,9 @@ describe("User", () => {
       const data = { ...fakeUser().toData(), email: "not-an-email" };
 
       // Act & Assert
-      expect(() => User.fromPersistence(data)).toThrow(ModelError);
+      expect(() => User.fromPersistence(data)).toThrow(
+        new ModelError(`Invalid email: not-an-email`),
+      );
     });
 
     it("throws when transactionPatternsLimit is negative", () => {
@@ -114,7 +116,9 @@ describe("User", () => {
 
       // Act & Assert
       expect(() => User.fromPersistence(data)).toThrow(
-        new ModelError("Transaction patterns limit must be a non-negative integer"),
+        new ModelError(
+          "Transaction patterns limit must be a non-negative integer",
+        ),
       );
     });
   });
@@ -212,10 +216,10 @@ describe("User", () => {
 
     it("throws when transactionPatternsLimit is negative", () => {
       // Act & Assert
-      expect(() =>
-        fakeUser().update({ transactionPatternsLimit: -1 }),
-      ).toThrow(
-        new ModelError("Transaction patterns limit must be a non-negative integer"),
+      expect(() => fakeUser().update({ transactionPatternsLimit: -1 })).toThrow(
+        new ModelError(
+          "Transaction patterns limit must be a non-negative integer",
+        ),
       );
     });
 
@@ -224,7 +228,9 @@ describe("User", () => {
       expect(() =>
         fakeUser().update({ transactionPatternsLimit: 2.5 }),
       ).toThrow(
-        new ModelError("Transaction patterns limit must be a non-negative integer"),
+        new ModelError(
+          "Transaction patterns limit must be a non-negative integer",
+        ),
       );
     });
   });

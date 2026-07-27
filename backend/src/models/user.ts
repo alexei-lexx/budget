@@ -81,8 +81,12 @@ export class User implements UserData {
   }
 
   private static assertInvariants(data: UserData): void {
+    if (data.email.length === 0) {
+      throw new ModelError("Email must be a non-empty string");
+    }
+
     if (!validateEmail(data.email)) {
-      throw new ModelError(`Invalid email address: ${data.email}`);
+      throw new ModelError(`Invalid email: ${data.email}`);
     }
 
     if (
