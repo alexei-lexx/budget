@@ -107,6 +107,9 @@ describe("UserService", () => {
 
       // Assert
       expect(result).toBe(user);
+      expect(mockUserRepository.findOneByEmail).toHaveBeenCalledWith(
+        "user@example.com",
+      );
       expect(mockUserRepository.create).not.toHaveBeenCalled();
     });
 
@@ -120,6 +123,9 @@ describe("UserService", () => {
 
       // Assert
       expect(result.email).toBe("new@example.com");
+      expect(mockUserRepository.findOneByEmail).toHaveBeenCalledWith(
+        "new@example.com",
+      );
       expect(mockUserRepository.create).toHaveBeenCalledWith(result);
     });
   });
@@ -149,6 +155,7 @@ describe("UserService", () => {
           voiceInputLanguage: "de-DE",
         },
       });
+      expect(mockUserRepository.findOneById).toHaveBeenCalledWith(userId);
       expect(mockUserRepository.update).toHaveBeenCalledWith(
         expect.objectContaining({ voiceInputLanguage: "de-DE" }),
       );
@@ -173,9 +180,13 @@ describe("UserService", () => {
         success: true,
         data: { transactionPatternsLimit: 7, voiceInputLanguage: undefined },
       });
+      expect(mockUserRepository.findOneById).toHaveBeenCalledWith(userId);
+      expect(mockUserRepository.update).toHaveBeenCalledWith(
+        expect.objectContaining({ transactionPatternsLimit: 7 }),
+      );
     });
 
-    it("updates both fields at once", async () => {
+    it("updates all fields at once", async () => {
       // Arrange
       const userId = faker.string.uuid();
       mockUserRepository.findOneById.mockResolvedValue(
@@ -198,6 +209,13 @@ describe("UserService", () => {
           voiceInputLanguage: "en-US",
         },
       });
+      expect(mockUserRepository.findOneById).toHaveBeenCalledWith(userId);
+      expect(mockUserRepository.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          transactionPatternsLimit: 5,
+          voiceInputLanguage: "en-US",
+        }),
+      );
     });
 
     // Validation failures
@@ -212,6 +230,7 @@ describe("UserService", () => {
       // Assert
       expect(result).toEqual({ success: false, error: "User ID is required" });
       expect(mockUserRepository.findOneById).not.toHaveBeenCalled();
+      expect(mockUserRepository.update).not.toHaveBeenCalled();
     });
 
     it("returns failure when user is not found", async () => {
