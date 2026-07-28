@@ -8,6 +8,7 @@ import {
 import { toDateString } from "../../types/date";
 import { Success } from "../../types/result";
 import { agentContextSchema } from "../agents/agent-context";
+import { toTransactionDto } from "./transaction-dto";
 
 const schema = z.object({
   accountId: z.uuid().describe("Account ID to associate the transaction with"),
@@ -20,7 +21,11 @@ const schema = z.object({
     .date()
     .transform(toDateString)
     .describe("Transaction date in YYYY-MM-DD format"),
-  description: z.string().optional().describe("Short transaction description"),
+  description: z
+    .string()
+    .max(500)
+    .optional()
+    .describe("Short transaction description"),
   type: z
     .enum([
       TransactionType.INCOME,
@@ -51,16 +56,7 @@ export const createCreateTransactionTool = ({
         userId,
       );
 
-      return Success({
-        id: created.id,
-        accountId: created.accountId,
-        amount: created.amount,
-        categoryId: created.categoryId,
-        currency: created.currency,
-        date: created.date,
-        description: created.description,
-        type: created.type,
-      });
+      return Success(toTransactionDto(created));
     },
     {
       name: CREATE_TRANSACTION_TOOL_NAME,

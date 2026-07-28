@@ -185,6 +185,7 @@ export type Mutation = {
   deleteTransfer?: Maybe<Scalars['Boolean']['output']>;
   disconnectTelegramBot?: Maybe<Scalars['Boolean']['output']>;
   ensureUser: User;
+  regenerateMcpToken: UserSettings;
   updateAccount: Account;
   updateCategory: Category;
   updateTransaction: Transaction;
@@ -472,6 +473,7 @@ export type User = {
 
 export type UserSettings = {
   __typename?: 'UserSettings';
+  mcpUrl: Scalars['String']['output'];
   transactionPatternsLimit: Scalars['Int']['output'];
   voiceInputLanguage?: Maybe<Scalars['String']['output']>;
 };
@@ -782,6 +784,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteTransfer?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType, RequireFields<MutationDeleteTransferArgs, 'id'>>;
   disconnectTelegramBot?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   ensureUser?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  regenerateMcpToken?: Resolver<ResolversTypes['UserSettings'], ParentType, ContextType>;
   updateAccount?: Resolver<ResolversTypes['Account'], ParentType, ContextType, RequireFields<MutationUpdateAccountArgs, 'input'>>;
   updateCategory?: Resolver<ResolversTypes['Category'], ParentType, ContextType, RequireFields<MutationUpdateCategoryArgs, 'input'>>;
   updateTransaction?: Resolver<ResolversTypes['Transaction'], ParentType, ContextType, RequireFields<MutationUpdateTransactionArgs, 'input'>>;
@@ -874,6 +877,7 @@ export type UserResolvers<ContextType = GraphQLContext, ParentType extends Resol
 };
 
 export type UserSettingsResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['UserSettings'] = ResolversParentTypes['UserSettings']> = {
+  mcpUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   transactionPatternsLimit?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   voiceInputLanguage?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
 };

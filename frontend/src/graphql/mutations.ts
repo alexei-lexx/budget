@@ -145,6 +145,17 @@ export const UPDATE_USER_SETTINGS = gql`
     updateUserSettings(input: $input) {
       transactionPatternsLimit
       voiceInputLanguage
+      mcpUrl
+    }
+  }
+`;
+
+export const REGENERATE_MCP_TOKEN = gql`
+  mutation RegenerateMcpToken {
+    regenerateMcpToken {
+      transactionPatternsLimit
+      voiceInputLanguage
+      mcpUrl
     }
   }
 `;

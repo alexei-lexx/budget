@@ -104,6 +104,39 @@
         </v-col>
       </v-row>
     </template>
+
+    <v-divider class="my-6" />
+
+    <!-- MCP Connection Section -->
+    <div class="mb-4">
+      <h2 class="text-h6">MCP Connection</h2>
+    </div>
+
+    <v-row>
+      <v-col cols="12" sm="6">
+        <v-text-field
+          :model-value="settings?.mcpUrl"
+          label="MCP URL"
+          variant="outlined"
+          readonly
+          hide-details
+        />
+      </v-col>
+      <v-col cols="12" sm="6" class="d-flex align-center">
+        <v-btn color="primary" :disabled="!settings?.mcpUrl" @click="handleCopyMcpUrl">
+          Copy
+        </v-btn>
+        <v-btn
+          color="error"
+          variant="outlined"
+          class="ml-2"
+          :loading="regenerateMcpTokenLoading"
+          @click="handleRegenerateMcpToken"
+        >
+          Regenerate
+        </v-btn>
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 
@@ -154,7 +187,15 @@ const defaultLanguage =
   LANGUAGE_CODES.find((code) => code.toLowerCase().startsWith(browserLangPrefix.toLowerCase())) ??
   "en-US";
 
-const { settings, updateSettings, updateSettingsLoading, updateSettingsError } = useUserSettings();
+const {
+  settings,
+  updateSettings,
+  updateSettingsLoading,
+  updateSettingsError,
+  regenerateMcpToken,
+  regenerateMcpTokenLoading,
+  regenerateMcpTokenError,
+} = useUserSettings();
 const {
   telegramBot,
   telegramBotLoading,
@@ -232,6 +273,25 @@ const handleTestTelegramBot = async () => {
     showSuccessSnackbar("Telegram bot is active");
   } else {
     showErrorSnackbar(testTelegramBotError.value?.message ?? "Telegram bot test failed");
+  }
+};
+
+const handleCopyMcpUrl = async () => {
+  if (!settings.value?.mcpUrl) return;
+  try {
+    await navigator.clipboard.writeText(settings.value.mcpUrl);
+    showSuccessSnackbar("MCP URL copied to clipboard");
+  } catch {
+    showErrorSnackbar("Failed to copy MCP URL");
+  }
+};
+
+const handleRegenerateMcpToken = async () => {
+  const success = await regenerateMcpToken();
+  if (success) {
+    showSuccessSnackbar("MCP token regenerated — the previous URL no longer works");
+  } else {
+    showErrorSnackbar(regenerateMcpTokenError.value?.message ?? "Failed to regenerate MCP token");
   }
 };
 </script>

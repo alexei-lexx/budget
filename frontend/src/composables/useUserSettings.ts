@@ -2,6 +2,7 @@ import { computed } from "vue";
 import {
   GetUserSettingsDocument,
   useGetUserSettingsQuery,
+  useRegenerateMcpTokenMutation,
   useUpdateUserSettingsMutation,
   type UpdateUserSettingsInput,
 } from "@/__generated__/vue-apollo";
@@ -38,6 +39,29 @@ export function useUserSettings() {
     }
   };
 
+  const {
+    mutate: regenerateMcpTokenMutation,
+    loading: regenerateMcpTokenLoading,
+    error: regenerateMcpTokenError,
+  } = useRegenerateMcpTokenMutation({
+    update(cache, { data }) {
+      if (!data?.regenerateMcpToken) return;
+      cache.writeQuery({
+        query: GetUserSettingsDocument,
+        data: { userSettings: data.regenerateMcpToken },
+      });
+    },
+  });
+
+  const regenerateMcpToken = async (): Promise<boolean> => {
+    try {
+      const result = await regenerateMcpTokenMutation();
+      return !!result?.data?.regenerateMcpToken;
+    } catch {
+      return false;
+    }
+  };
+
   return {
     settings,
     settingsLoading,
@@ -45,5 +69,8 @@ export function useUserSettings() {
     updateSettings,
     updateSettingsLoading,
     updateSettingsError,
+    regenerateMcpToken,
+    regenerateMcpTokenLoading,
+    regenerateMcpTokenError,
   };
 }

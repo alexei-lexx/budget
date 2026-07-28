@@ -58,6 +58,15 @@ export class BackendCdkStack extends cdk.Stack {
       projectionType: dynamodb.ProjectionType.ALL,
     });
 
+    usersTable.addGlobalSecondaryIndex({
+      indexName: "McpTokenIndex",
+      partitionKey: {
+        name: "mcpToken",
+        type: dynamodb.AttributeType.STRING,
+      },
+      projectionType: dynamodb.ProjectionType.ALL,
+    });
+
     const accountsTable = new dynamodb.Table(this, "AccountsTable", {
       partitionKey: { name: "userId", type: dynamodb.AttributeType.STRING },
       sortKey: { name: "id", type: dynamodb.AttributeType.STRING },
@@ -362,8 +371,9 @@ export class BackendCdkStack extends cdk.Stack {
       };
     }
 
-    // Pass the API Gateway URL as the webhook base URL for Telegram
-    webFunction.addEnvironment("WEBHOOK_BASE_URL", httpApi.apiEndpoint);
+    // Pass the API Gateway URL as the backend's public base URL,
+    // used to build the Telegram webhook URL and the MCP connection URL
+    webFunction.addEnvironment("API_BASE_URL", httpApi.apiEndpoint);
 
     this.httpApi = httpApi;
   }

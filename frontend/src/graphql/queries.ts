@@ -110,6 +110,7 @@ export const GET_USER_SETTINGS = gql`
     userSettings {
       transactionPatternsLimit
       voiceInputLanguage
+      mcpUrl
     }
   }
 `;

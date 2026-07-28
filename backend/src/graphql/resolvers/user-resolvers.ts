@@ -80,5 +80,24 @@ export const userResolvers = {
         handleResolverError(error, "Failed to update user settings");
       }
     },
+
+    regenerateMcpToken: async (
+      _parent: unknown,
+      _args: unknown,
+      context: GraphQLContext,
+    ) => {
+      try {
+        const user = await getAuthenticatedUser(context);
+        const result = await context.userService.regenerateMcpToken(user.id);
+
+        if (!result.success) {
+          throw new GraphQLError(result.error);
+        }
+
+        return result.data;
+      } catch (error) {
+        handleResolverError(error, "Failed to regenerate MCP token");
+      }
+    },
   },
 };

@@ -6,6 +6,7 @@ export const fakeUser = (overrides: Partial<UserData> = {}): User => {
   return User.fromPersistence({
     id: faker.string.uuid(),
     email: faker.internet.email().toLowerCase(),
+    mcpToken: faker.string.uuid(),
     createdAt: now,
     updatedAt: now,
     ...overrides,

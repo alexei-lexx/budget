@@ -10,10 +10,14 @@ import {
 export interface UserSettingsData {
   transactionPatternsLimit: number;
   voiceInputLanguage?: string;
+  mcpUrl: string;
 }
 
 export class UserService {
-  constructor(private readonly userRepository: UserRepository) {}
+  constructor(
+    private readonly userRepository: UserRepository,
+    private readonly apiBaseUrl: string,
+  ) {}
 
   async ensureUser(email: string): Promise<User> {
     const existing = await this.userRepository.findOneByEmail(email);
@@ -38,11 +42,7 @@ export class UserService {
       return Failure("User not found");
     }
 
-    return Success({
-      transactionPatternsLimit:
-        user.transactionPatternsLimit ?? DEFAULT_TRANSACTION_PATTERNS_LIMIT,
-      voiceInputLanguage: user.voiceInputLanguage,
-    });
+    return Success(this.buildSettingsData(user));
   }
 
   async updateSettings({
@@ -82,10 +82,33 @@ export class UserService {
 
     await this.userRepository.update(updated);
 
-    return Success({
+    return Success(this.buildSettingsData(updated));
+  }
+
+  async regenerateMcpToken(userId: string): Promise<Result<UserSettingsData>> {
+    const user = await this.userRepository.findOneById(userId);
+
+    if (!user) {
+      return Failure("User not found");
+    }
+
+    const updated = user.regenerateMcpToken();
+
+    await this.userRepository.update(updated);
+
+    return Success(this.buildSettingsData(updated));
+  }
+
+  private buildSettingsData(user: User) {
+    return {
+      mcpUrl: this.buildMcpUrl(user),
       transactionPatternsLimit:
-        updated.transactionPatternsLimit ?? DEFAULT_TRANSACTION_PATTERNS_LIMIT,
-      voiceInputLanguage: updated.voiceInputLanguage,
-    });
+        user.transactionPatternsLimit ?? DEFAULT_TRANSACTION_PATTERNS_LIMIT,
+      voiceInputLanguage: user.voiceInputLanguage,
+    };
+  }
+
+  private buildMcpUrl(user: User): string {
+    return `${this.apiBaseUrl}/mcp?token=${user.mcpToken}`;
   }
 }

@@ -22,21 +22,21 @@ function maskTelegramBot(bot: TelegramBot): MaskedTelegramBot {
 }
 
 export class TelegramBotService {
+  private readonly apiBaseUrl: string;
   private readonly backgroundJobDispatcher: BackgroundJobDispatcher;
   private readonly telegramApiClient: TelegramApiClient;
   private readonly telegramBotRepository: TelegramBotRepository;
-  private readonly webhookBaseUrl: string;
 
   constructor(deps: {
+    apiBaseUrl: string;
     backgroundJobDispatcher: BackgroundJobDispatcher;
     telegramApiClient: TelegramApiClient;
     telegramBotRepository: TelegramBotRepository;
-    webhookBaseUrl: string;
   }) {
+    this.apiBaseUrl = deps.apiBaseUrl;
     this.backgroundJobDispatcher = deps.backgroundJobDispatcher;
     this.telegramApiClient = deps.telegramApiClient;
     this.telegramBotRepository = deps.telegramBotRepository;
-    this.webhookBaseUrl = deps.webhookBaseUrl;
   }
 
   async findOneConnectedByUserId(
@@ -195,6 +195,6 @@ export class TelegramBotService {
   }
 
   private get webhookUrl(): string {
-    return `${this.webhookBaseUrl}/webhooks/telegram`;
+    return `${this.apiBaseUrl}/webhooks/telegram`;
   }
 }

@@ -6,6 +6,7 @@ import { UserRepository } from "../../../ports/user-repository";
  */
 export const createMockUserRepository = (): Mocked<UserRepository> => ({
   findOneByEmail: vi.fn(),
+  findOneByMcpToken: vi.fn(),
   findOneById: vi.fn(),
   findMany: vi.fn(),
   create: vi.fn(),
