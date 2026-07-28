@@ -45,6 +45,16 @@ export const handler = async (
     return mcpHandler(event);
   }
 
+  // MCP clients probe OAuth discovery paths
+  // (e.g. oauth-authorization-server)
+  // before falling back to unauthenticated access.
+  // Without this, they fell through to Apollo,
+  // whose CSRF guard returned a 400 instead of a clean 404,
+  // which some clients misread as "sign-in broken".
+  if (event.rawPath.startsWith("/.well-known/")) {
+    return { statusCode: 404, body: "Not Found" };
+  }
+
   // @ts-expect-error: handler is async despite the type requiring a callback
   // https://github.com/apollo-server-integrations/apollo-server-integration-aws-lambda/issues/168
   return apolloHandler(event, context);
