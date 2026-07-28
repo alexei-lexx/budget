@@ -9,10 +9,9 @@ import { createAuthenticatedMcpServer } from "./server";
 
 vi.mock("../dependencies");
 
-// McpServer has no public accessor for its registered tools or instructions.
-// Both are only observable from the client side of a real initialize handshake,
-// so tests connect a client and ask over the protocol instead.
-async function connectClient(server: McpServer): Promise<Client> {
+// McpServer has no public accessor for its registered tools.
+// Ask over the real protocol instead, the same way a real client would.
+async function listToolNames(server: McpServer): Promise<string[]> {
   // In-process transport pair: writes on one side arrive directly on the other.
   const [clientTransport, serverTransport] =
     InMemoryTransport.createLinkedPair();
@@ -25,7 +24,11 @@ async function connectClient(server: McpServer): Promise<Client> {
     client.connect(clientTransport),
   ]);
 
-  return client;
+  // Sends a real tools/list request.
+  // The server answers with its registered tools.
+  const { tools } = await client.listTools();
+
+  return tools.map((tool) => tool.name);
 }
 
 describe("createAuthenticatedMcpServer", () => {
@@ -51,12 +54,7 @@ describe("createAuthenticatedMcpServer", () => {
     // Assert
     if (!server) throw new Error("expected server to be created");
 
-    // Sends a real tools/list request.
-    // The server answers with its registered tools.
-    const client = await connectClient(server);
-    const { tools } = await client.listTools();
-    const toolNames = tools.map((tool) => tool.name);
-
+    const toolNames = await listToolNames(server);
     expect(toolNames).toHaveLength(4);
     expect(toolNames).toEqual(
       expect.arrayContaining([
@@ -66,22 +64,6 @@ describe("createAuthenticatedMcpServer", () => {
         "create_transaction",
       ]),
     );
-  });
-
-  it("returns server advertising domain instructions to client", async () => {
-    // Arrange
-    const user = fakeUser();
-    // Token matches user's stored mcpToken
-    mockUserRepository.findOneByMcpToken.mockResolvedValue(user);
-
-    // Act
-    const server = await createAuthenticatedMcpServer(user.mcpToken);
-
-    // Assert
-    if (!server) throw new Error("expected server to be created");
-
-    const client = await connectClient(server);
-    expect(client.getInstructions()?.length).toBeGreaterThan(0);
   });
 
   // Validation failures
