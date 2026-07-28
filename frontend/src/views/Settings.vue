@@ -278,8 +278,12 @@ const handleTestTelegramBot = async () => {
 
 const handleCopyMcpUrl = async () => {
   if (!settings.value?.mcpUrl) return;
-  await navigator.clipboard.writeText(settings.value.mcpUrl);
-  showSuccessSnackbar("MCP URL copied to clipboard");
+  try {
+    await navigator.clipboard.writeText(settings.value.mcpUrl);
+    showSuccessSnackbar("MCP URL copied to clipboard");
+  } catch {
+    showErrorSnackbar("Failed to copy MCP URL");
+  }
 };
 
 const handleRegenerateMcpToken = async () => {

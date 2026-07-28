@@ -21,7 +21,11 @@ const schema = z.object({
     .date()
     .transform(toDateString)
     .describe("Transaction date in YYYY-MM-DD format"),
-  description: z.string().optional().describe("Short transaction description"),
+  description: z
+    .string()
+    .max(500)
+    .optional()
+    .describe("Short transaction description"),
   type: z
     .enum([
       TransactionType.INCOME,
