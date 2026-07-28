@@ -23,6 +23,7 @@ A self-hosted personal finance tracker you deploy to your own AWS account. Track
 - **Transaction Search** - Find any transaction by filtering on account, category, date, etc.
 - **Quick Transaction Entry** - Type something like “coffee 4.50,” and let AI create the transaction autonomously, filling in missing details from your past entries
 - **Ask About Your Money** – Use the built-in Assistant to ask questions about cash flow, spending habits, or trends in any language, and let AI analyze your transaction history to provide insightful answers
+- **MCP Server** - Connect an external AI Assistant, like Claude or ChatGPT, via the Model Context Protocol
 - **Telegram Integration** - Chat with the app directly from Telegram
 - **Custom Domain Support** - Use your own domain name instead of the default AWS URL
 
