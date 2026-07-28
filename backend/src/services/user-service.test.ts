@@ -13,10 +13,11 @@ import { UserService } from "./user-service";
 describe("UserService", () => {
   let service: UserService;
   let mockUserRepository: Mocked<UserRepository>;
+  const apiBaseUrl = "https://api.example.com";
 
   beforeEach(() => {
     mockUserRepository = createMockUserRepository();
-    service = new UserService(mockUserRepository);
+    service = new UserService(mockUserRepository, apiBaseUrl);
   });
 
   describe("getSettings", () => {
@@ -27,6 +28,7 @@ describe("UserService", () => {
       const userId = faker.string.uuid();
       const user = fakeUser({
         id: userId,
+        mcpToken: "token-1",
         transactionPatternsLimit: 5,
         voiceInputLanguage: "pl-PL",
       });
@@ -40,6 +42,7 @@ describe("UserService", () => {
       expect(result).toEqual({
         success: true,
         data: {
+          mcpUrl: "https://api.example.com/mcp?token=token-1",
           transactionPatternsLimit: 5,
           voiceInputLanguage: "pl-PL",
         },
@@ -50,7 +53,7 @@ describe("UserService", () => {
     it("returns defaults when no settings are saved", async () => {
       // Arrange
       const userId = faker.string.uuid();
-      const user = fakeUser({ id: userId });
+      const user = fakeUser({ id: userId, mcpToken: "token-1" });
       // Returns user without saved settings
       mockUserRepository.findOneById.mockResolvedValue(user);
 
@@ -61,6 +64,7 @@ describe("UserService", () => {
       expect(result).toStrictEqual({
         success: true,
         data: {
+          mcpUrl: "https://api.example.com/mcp?token=token-1",
           transactionPatternsLimit: DEFAULT_TRANSACTION_PATTERNS_LIMIT,
           voiceInputLanguage: undefined,
         },
@@ -137,7 +141,7 @@ describe("UserService", () => {
       // Arrange
       const userId = faker.string.uuid();
       mockUserRepository.findOneById.mockResolvedValue(
-        fakeUser({ id: userId }),
+        fakeUser({ id: userId, mcpToken: "token-1" }),
       );
       mockUserRepository.update.mockResolvedValue(undefined);
 
@@ -151,6 +155,7 @@ describe("UserService", () => {
       expect(result).toEqual({
         success: true,
         data: {
+          mcpUrl: "https://api.example.com/mcp?token=token-1",
           transactionPatternsLimit: DEFAULT_TRANSACTION_PATTERNS_LIMIT,
           voiceInputLanguage: "de-DE",
         },
@@ -165,7 +170,7 @@ describe("UserService", () => {
       // Arrange
       const userId = faker.string.uuid();
       mockUserRepository.findOneById.mockResolvedValue(
-        fakeUser({ id: userId }),
+        fakeUser({ id: userId, mcpToken: "token-1" }),
       );
       mockUserRepository.update.mockResolvedValue(undefined);
 
@@ -178,7 +183,11 @@ describe("UserService", () => {
       // Assert
       expect(result).toEqual({
         success: true,
-        data: { transactionPatternsLimit: 7, voiceInputLanguage: undefined },
+        data: {
+          mcpUrl: "https://api.example.com/mcp?token=token-1",
+          transactionPatternsLimit: 7,
+          voiceInputLanguage: undefined,
+        },
       });
       expect(mockUserRepository.findOneById).toHaveBeenCalledWith(userId);
       expect(mockUserRepository.update).toHaveBeenCalledWith(
@@ -190,7 +199,7 @@ describe("UserService", () => {
       // Arrange
       const userId = faker.string.uuid();
       mockUserRepository.findOneById.mockResolvedValue(
-        fakeUser({ id: userId }),
+        fakeUser({ id: userId, mcpToken: "token-1" }),
       );
       mockUserRepository.update.mockResolvedValue(undefined);
 
@@ -205,6 +214,7 @@ describe("UserService", () => {
       expect(result).toEqual({
         success: true,
         data: {
+          mcpUrl: "https://api.example.com/mcp?token=token-1",
           transactionPatternsLimit: 5,
           voiceInputLanguage: "en-US",
         },
@@ -293,6 +303,65 @@ describe("UserService", () => {
         error: `Transaction patterns limit must be an integer between ${MIN_TRANSACTION_PATTERNS_LIMIT} and ${MAX_TRANSACTION_PATTERNS_LIMIT}`,
       });
       expect(mockUserRepository.findOneById).not.toHaveBeenCalled();
+      expect(mockUserRepository.update).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("regenerateMcpToken", () => {
+    // Happy path
+
+    it("persists new token", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+      const user = fakeUser({ id: userId, mcpToken: "old-token" });
+      mockUserRepository.findOneById.mockResolvedValue(user);
+      mockUserRepository.update.mockResolvedValue(undefined);
+
+      // Act
+      await service.regenerateMcpToken(userId);
+
+      // Assert
+      expect(mockUserRepository.findOneById).toHaveBeenCalledWith(userId);
+      expect(mockUserRepository.update).toHaveBeenCalledWith(
+        expect.objectContaining({ id: userId }),
+      );
+
+      const updatedUser = mockUserRepository.update.mock.calls[0][0];
+      expect(updatedUser.mcpToken).not.toBe("");
+      expect(updatedUser.mcpToken).not.toBe("old-token");
+    });
+
+    it("returns settings with updated mcpUrl", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+      const user = fakeUser({ id: userId, mcpToken: "old-token" });
+      mockUserRepository.findOneById.mockResolvedValue(user);
+      mockUserRepository.update.mockResolvedValue(undefined);
+
+      // Act
+      const result = await service.regenerateMcpToken(userId);
+
+      // Assert
+      const updatedUser = mockUserRepository.update.mock.calls[0][0];
+      expect(result).toEqual({
+        success: true,
+        data: expect.objectContaining({
+          mcpUrl: `https://api.example.com/mcp?token=${updatedUser.mcpToken}`,
+        }),
+      });
+    });
+
+    // Validation failures
+
+    it("returns failure when user is not found", async () => {
+      // Arrange
+      mockUserRepository.findOneById.mockResolvedValue(null);
+
+      // Act
+      const result = await service.regenerateMcpToken(faker.string.uuid());
+
+      // Assert
+      expect(result).toEqual({ success: false, error: "User not found" });
       expect(mockUserRepository.update).not.toHaveBeenCalled();
     });
   });

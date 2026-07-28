@@ -27,6 +27,7 @@ type User {
 type UserSettings {
   transactionPatternsLimit: Int!
   voiceInputLanguage: String
+  mcpUrl: String!
 }
 
 input UpdateUserSettingsInput {
@@ -342,6 +343,7 @@ type Mutation {
   updateTransfer(input: UpdateTransferInput!): Transfer!
   deleteTransfer(id: ID!): Boolean
   updateUserSettings(input: UpdateUserSettingsInput!): UserSettings!
+  regenerateMcpToken: UserSettings!
   connectTelegramBot(token: String!): TelegramBot!
   disconnectTelegramBot: Boolean
 }

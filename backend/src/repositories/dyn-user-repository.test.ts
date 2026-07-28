@@ -130,6 +130,54 @@ describe("DynUserRepository", () => {
     });
   });
 
+  describe("findOneByMcpToken", () => {
+    // Happy path
+
+    it("returns user by exact mcpToken match", async () => {
+      // Arrange
+      const user = User.create(fakeCreateUserInput(), {
+        tokenGenerator: () => "token-1",
+      });
+      await repository.create(user);
+
+      // Act
+      const result = await repository.findOneByMcpToken("token-1");
+
+      // Assert
+      expect(result?.id).toBe(user.id);
+    });
+
+    it("returns null when mcpToken not found", async () => {
+      // Act
+      const result = await repository.findOneByMcpToken("nonexistent-token");
+
+      // Assert
+      expect(result).toBeNull();
+    });
+
+    // Dependency failures
+
+    it("throws when multiple users share same mcpToken", async () => {
+      // Arrange
+      // Create duplicate users with same mcpToken
+      await repository.create(
+        User.create(fakeCreateUserInput(), {
+          tokenGenerator: () => "dupe-token",
+        }),
+      );
+      await repository.create(
+        User.create(fakeCreateUserInput(), {
+          tokenGenerator: () => "dupe-token",
+        }),
+      );
+
+      // Act & Assert
+      await expect(repository.findOneByMcpToken("dupe-token")).rejects.toThrow(
+        "Data integrity error: Multiple users found for mcpToken",
+      );
+    });
+  });
+
   describe("findOneById", () => {
     // Happy path
 
@@ -227,6 +275,22 @@ describe("DynUserRepository", () => {
 
   describe("update", () => {
     // Happy path
+
+    it("updates mcp token", async () => {
+      // Arrange
+      const user = User.create(fakeCreateUserInput());
+      await repository.create(user);
+      const updated = user.regenerateMcpToken({
+        tokenGenerator: () => "new-token",
+      });
+
+      // Act
+      await repository.update(updated);
+      const stored = await repository.findOneById(user.id);
+
+      // Assert
+      expect(stored?.mcpToken).toBe("new-token");
+    });
 
     it("updates voice input language", async () => {
       // Arrange

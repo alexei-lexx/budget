@@ -22,13 +22,17 @@ describe("User", () => {
       // Act
       const result = User.create(
         fakeCreateUserInput({ email: "user@example.com" }),
-        { idGenerator: () => "fixed-uuid" },
+        {
+          idGenerator: () => "fixed-uuid",
+          tokenGenerator: () => "fixed-token",
+        },
       );
 
       // Assert
       expect(result.toData()).toEqual({
         id: "fixed-uuid",
         email: "user@example.com",
+        mcpToken: "fixed-token",
         transactionPatternsLimit: undefined,
         voiceInputLanguage: undefined,
         createdAt: "2000-01-02T10:11:12.000Z",
@@ -62,6 +66,14 @@ describe("User", () => {
 
       // Assert
       expect(result.id).toBeDefined();
+    });
+
+    it("uses default token generator when options omitted", () => {
+      // Act
+      const result = User.create(fakeCreateUserInput());
+
+      // Assert
+      expect(result.mcpToken).toBeDefined();
     });
 
     // Validation failures
@@ -119,6 +131,16 @@ describe("User", () => {
         new ModelError(
           "Transaction patterns limit must be a non-negative integer",
         ),
+      );
+    });
+
+    it("throws on empty mcpToken", () => {
+      // Arrange
+      const data = { ...fakeUser().toData(), mcpToken: "" };
+
+      // Act & Assert
+      expect(() => User.fromPersistence(data)).toThrow(
+        new ModelError("MCP token must be a non-empty string"),
       );
     });
   });
@@ -232,6 +254,69 @@ describe("User", () => {
           "Transaction patterns limit must be a non-negative integer",
         ),
       );
+    });
+  });
+
+  describe("regenerateMcpToken", () => {
+    // Happy path
+
+    it("generates fresh mcpToken", () => {
+      // Arrange
+      const existing = fakeUser({ mcpToken: "old-token" });
+
+      // Act
+      const result = existing.regenerateMcpToken({
+        tokenGenerator: () => "new-token",
+      });
+
+      // Assert
+      expect(result.mcpToken).toBe("new-token");
+    });
+
+    it("uses default token generator when options omitted", () => {
+      // Arrange
+      const existing = fakeUser({ mcpToken: "old-token" });
+
+      // Act
+      const result = existing.regenerateMcpToken();
+
+      // Assert
+      expect(result.mcpToken).toBeDefined();
+      expect(result.mcpToken).not.toBe("old-token");
+    });
+
+    it("leaves other fields unchanged", () => {
+      // Arrange
+      const existing = fakeUser({
+        id: "id-1",
+        email: "user@example.com",
+        transactionPatternsLimit: 5,
+        voiceInputLanguage: "pl-PL",
+        createdAt: "1999-01-01T00:00:00.000Z",
+      });
+
+      // Act
+      const result = existing.regenerateMcpToken();
+
+      // Assert
+      expect(result.id).toBe("id-1");
+      expect(result.email).toBe("user@example.com");
+      expect(result.transactionPatternsLimit).toBe(5);
+      expect(result.voiceInputLanguage).toBe("pl-PL");
+      expect(result.createdAt).toBe("1999-01-01T00:00:00.000Z");
+    });
+
+    it("sets updatedAt", () => {
+      // Arrange
+      const existing = fakeUser();
+
+      // Act
+      vi.useFakeTimers().setSystemTime(new Date("2000-01-02T10:11:12.000Z"));
+      const result = existing.regenerateMcpToken();
+      vi.useRealTimers();
+
+      // Assert
+      expect(result.updatedAt).toBe("2000-01-02T10:11:12.000Z");
     });
   });
 });

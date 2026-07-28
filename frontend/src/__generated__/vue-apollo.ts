@@ -187,6 +187,7 @@ export type Mutation = {
   deleteTransfer?: Maybe<Scalars['Boolean']['output']>;
   disconnectTelegramBot?: Maybe<Scalars['Boolean']['output']>;
   ensureUser: User;
+  regenerateMcpToken: UserSettings;
   updateAccount: Account;
   updateCategory: Category;
   updateTransaction: Transaction;
@@ -484,6 +485,7 @@ export type User = {
 
 export type UserSettings = {
   __typename?: 'UserSettings';
+  mcpUrl: Scalars['String']['output'];
   transactionPatternsLimit: Scalars['Int']['output'];
   voiceInputLanguage?: Maybe<Scalars['String']['output']>;
 };
@@ -620,7 +622,12 @@ export type UpdateUserSettingsMutationVariables = Exact<{
 }>;
 
 
-export type UpdateUserSettingsMutation = { __typename?: 'Mutation', updateUserSettings: { __typename?: 'UserSettings', transactionPatternsLimit: number, voiceInputLanguage?: string | null | undefined } };
+export type UpdateUserSettingsMutation = { __typename?: 'Mutation', updateUserSettings: { __typename?: 'UserSettings', transactionPatternsLimit: number, voiceInputLanguage?: string | null | undefined, mcpUrl: string } };
+
+export type RegenerateMcpTokenMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type RegenerateMcpTokenMutation = { __typename?: 'Mutation', regenerateMcpToken: { __typename?: 'UserSettings', transactionPatternsLimit: number, voiceInputLanguage?: string | null | undefined, mcpUrl: string } };
 
 export type ConnectTelegramBotMutationVariables = Exact<{
   token: Scalars['String']['input'];
@@ -710,7 +717,7 @@ export type GetTransactionDescriptionSuggestionsQuery = { __typename?: 'Query', 
 export type GetUserSettingsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetUserSettingsQuery = { __typename?: 'Query', userSettings: { __typename?: 'UserSettings', transactionPatternsLimit: number, voiceInputLanguage?: string | null | undefined } };
+export type GetUserSettingsQuery = { __typename?: 'Query', userSettings: { __typename?: 'UserSettings', transactionPatternsLimit: number, voiceInputLanguage?: string | null | undefined, mcpUrl: string } };
 
 export type GetTelegramBotQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -1203,6 +1210,7 @@ export const UpdateUserSettingsDocument = gql`
   updateUserSettings(input: $input) {
     transactionPatternsLimit
     voiceInputLanguage
+    mcpUrl
   }
 }
     `;
@@ -1228,6 +1236,33 @@ export function useUpdateUserSettingsMutation(options: VueApolloComposable.UseMu
   return VueApolloComposable.useMutation<UpdateUserSettingsMutation, UpdateUserSettingsMutationVariables>(UpdateUserSettingsDocument, options);
 }
 export type UpdateUserSettingsMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<UpdateUserSettingsMutation, UpdateUserSettingsMutationVariables>;
+export const RegenerateMcpTokenDocument = gql`
+    mutation RegenerateMcpToken {
+  regenerateMcpToken {
+    transactionPatternsLimit
+    voiceInputLanguage
+    mcpUrl
+  }
+}
+    `;
+
+/**
+ * __useRegenerateMcpTokenMutation__
+ *
+ * To run a mutation, you first call `useRegenerateMcpTokenMutation` within a Vue component and pass it any options that fit your needs.
+ * When your component renders, `useRegenerateMcpTokenMutation` returns an object that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - Several other properties: https://v4.apollo.vuejs.org/api/use-mutation.html#return
+ *
+ * @param options that will be passed into the mutation, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/mutation.html#options;
+ *
+ * @example
+ * const { mutate, loading, error, onDone } = useRegenerateMcpTokenMutation();
+ */
+export function useRegenerateMcpTokenMutation(options: VueApolloComposable.UseMutationOptions<RegenerateMcpTokenMutation, RegenerateMcpTokenMutationVariables> | ReactiveFunction<VueApolloComposable.UseMutationOptions<RegenerateMcpTokenMutation, RegenerateMcpTokenMutationVariables>> = {}) {
+  return VueApolloComposable.useMutation<RegenerateMcpTokenMutation, RegenerateMcpTokenMutationVariables>(RegenerateMcpTokenDocument, options);
+}
+export type RegenerateMcpTokenMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<RegenerateMcpTokenMutation, RegenerateMcpTokenMutationVariables>;
 export const ConnectTelegramBotDocument = gql`
     mutation ConnectTelegramBot($token: String!) {
   connectTelegramBot(token: $token) {
@@ -1595,6 +1630,7 @@ export const GetUserSettingsDocument = gql`
   userSettings {
     transactionPatternsLimit
     voiceInputLanguage
+    mcpUrl
   }
 }
     `;

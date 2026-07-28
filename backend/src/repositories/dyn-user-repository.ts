@@ -54,6 +54,44 @@ export class DynUserRepository
     }
   }
 
+  async findOneByMcpToken(mcpToken: string): Promise<User | null> {
+    let result;
+
+    try {
+      const command = new QueryCommand({
+        TableName: this.tableName,
+        IndexName: "McpTokenIndex",
+        KeyConditionExpression: "mcpToken = :mcpToken",
+        ExpressionAttributeValues: {
+          ":mcpToken": mcpToken,
+        },
+      });
+
+      result = await this.client.send(command);
+    } catch (error) {
+      console.error("Error finding user by mcpToken:", error);
+
+      throw new RepositoryError(
+        "Failed to find user by mcpToken",
+        "QUERY_FAILED",
+        error,
+      );
+    }
+
+    if (!result.Items || result.Items.length === 0) {
+      return null;
+    }
+
+    if (result.Items.length > 1) {
+      throw new RepositoryError(
+        "Data integrity error: Multiple users found for mcpToken",
+        "QUERY_FAILED",
+      );
+    }
+
+    return User.fromPersistence(this.hydrate(userSchema, result.Items[0]));
+  }
+
   async findOneById(id: string): Promise<User | null> {
     if (!id) {
       throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
@@ -125,11 +163,21 @@ export class DynUserRepository
   }
 
   async update(user: Readonly<User>): Promise<void> {
-    const setParts = ["updatedAt = :updatedAt"];
-    const removeParts: string[] = [];
+    const setParts = [
+      "createdAt = :createdAt",
+      "email = :email",
+      "mcpToken = :mcpToken",
+      "updatedAt = :updatedAt",
+    ];
+
     const expressionAttributeValues: Record<string, string | number> = {
+      ":createdAt": user.createdAt,
+      ":email": user.email,
+      ":mcpToken": user.mcpToken,
       ":updatedAt": user.updatedAt,
     };
+
+    const removeParts: string[] = [];
 
     if (user.transactionPatternsLimit !== undefined) {
       setParts.push("transactionPatternsLimit = :transactionPatternsLimit");

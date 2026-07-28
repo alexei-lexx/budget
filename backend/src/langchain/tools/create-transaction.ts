@@ -8,6 +8,7 @@ import {
 import { toDateString } from "../../types/date";
 import { Success } from "../../types/result";
 import { agentContextSchema } from "../agents/agent-context";
+import { toTransactionDto } from "./transaction-dto";
 
 const schema = z.object({
   accountId: z.uuid().describe("Account ID to associate the transaction with"),
@@ -51,16 +52,7 @@ export const createCreateTransactionTool = ({
         userId,
       );
 
-      return Success({
-        id: created.id,
-        accountId: created.accountId,
-        amount: created.amount,
-        categoryId: created.categoryId,
-        currency: created.currency,
-        date: created.date,
-        description: created.description,
-        type: created.type,
-      });
+      return Success(toTransactionDto(created));
     },
     {
       name: CREATE_TRANSACTION_TOOL_NAME,

@@ -6,6 +6,7 @@ import { toDateString } from "../../types/date";
 import { Failure, Success } from "../../types/result";
 import { daysBetween } from "../../utils/date";
 import { agentContextSchema } from "../agents/agent-context";
+import { toTransactionDto } from "./transaction-dto";
 
 export const MAX_PERIOD_DAYS = 365;
 
@@ -67,19 +68,7 @@ export const createGetTransactionsTool = ({
         },
       );
 
-      const transactionData = transactions.map((transaction) => ({
-        id: transaction.id,
-        accountId: transaction.accountId,
-        categoryId: transaction.categoryId,
-        type: transaction.type,
-        amount: transaction.amount,
-        currency: transaction.currency,
-        date: transaction.date,
-        description: transaction.description,
-        transferId: transaction.transferId,
-      }));
-
-      return Success(transactionData);
+      return Success(transactions.map(toTransactionDto));
     },
     {
       name: "get_transactions",

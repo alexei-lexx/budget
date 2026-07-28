@@ -6,6 +6,7 @@ import { ModelError } from "./model-error";
 export interface UserData {
   id: string;
   email: string;
+  mcpToken: string;
   transactionPatternsLimit?: number;
   voiceInputLanguage?: string;
   createdAt: string;
@@ -19,6 +20,7 @@ export interface UserData {
 export class User implements UserData {
   readonly id: string;
   readonly email: string;
+  readonly mcpToken: string;
   readonly transactionPatternsLimit?: number;
   readonly voiceInputLanguage?: string;
   readonly createdAt: string;
@@ -26,13 +28,17 @@ export class User implements UserData {
 
   static create(
     input: CreateUserInput,
-    { idGenerator = randomUUID }: { idGenerator?: () => string } = {},
+    {
+      idGenerator = randomUUID,
+      tokenGenerator = randomUUID,
+    }: { idGenerator?: () => string; tokenGenerator?: () => string } = {},
   ): User {
     const now = new Date().toISOString();
 
     const data: UserData = {
       id: idGenerator(),
       email: normalizeEmail(input.email),
+      mcpToken: tokenGenerator(),
       createdAt: now,
       updatedAt: now,
     };
@@ -48,6 +54,7 @@ export class User implements UserData {
     return {
       id: this.id,
       email: this.email,
+      mcpToken: this.mcpToken,
       transactionPatternsLimit: this.transactionPatternsLimit,
       voiceInputLanguage: this.voiceInputLanguage,
       createdAt: this.createdAt,
@@ -69,11 +76,26 @@ export class User implements UserData {
     return new User(data);
   }
 
+  regenerateMcpToken({
+    tokenGenerator = randomUUID,
+  }: { tokenGenerator?: () => string } = {}): User {
+    const now = new Date().toISOString();
+
+    const data: UserData = {
+      ...this.toData(),
+      mcpToken: tokenGenerator(),
+      updatedAt: now,
+    };
+
+    return new User(data);
+  }
+
   private constructor(data: UserData) {
     User.assertInvariants(data);
 
     this.id = data.id;
     this.email = data.email;
+    this.mcpToken = data.mcpToken;
     this.transactionPatternsLimit = data.transactionPatternsLimit;
     this.voiceInputLanguage = data.voiceInputLanguage;
     this.createdAt = data.createdAt;
@@ -87,6 +109,10 @@ export class User implements UserData {
 
     if (!validateEmail(data.email)) {
       throw new ModelError(`Invalid email: ${data.email}`);
+    }
+
+    if (data.mcpToken.length === 0) {
+      throw new ModelError("MCP token must be a non-empty string");
     }
 
     if (

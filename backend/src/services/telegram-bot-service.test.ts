@@ -22,10 +22,10 @@ describe("TelegramBotService", () => {
     telegramBotRepository = createMockTelegramBotRepository();
 
     service = new TelegramBotService({
+      apiBaseUrl: "http://telegram.localhost",
       backgroundJobDispatcher,
       telegramApiClient,
       telegramBotRepository,
-      webhookBaseUrl: "http://telegram.localhost",
     });
 
     vi.clearAllMocks();

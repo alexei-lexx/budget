@@ -18,6 +18,7 @@ export const tables: TableDefinition[] = [
     AttributeDefinitions: [
       { AttributeName: "id", AttributeType: "S" },
       { AttributeName: "email", AttributeType: "S" },
+      { AttributeName: "mcpToken", AttributeType: "S" },
     ],
     KeySchema: [{ AttributeName: "id", KeyType: "HASH" }],
     BillingMode: "PAY_PER_REQUEST",
@@ -25,6 +26,11 @@ export const tables: TableDefinition[] = [
       {
         IndexName: "EmailIndex",
         KeySchema: [{ AttributeName: "email", KeyType: "HASH" }],
+        Projection: { ProjectionType: "ALL" },
+      },
+      {
+        IndexName: "McpTokenIndex",
+        KeySchema: [{ AttributeName: "mcpToken", KeyType: "HASH" }],
         Projection: { ProjectionType: "ALL" },
       },
     ],

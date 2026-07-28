@@ -1,0 +1,71 @@
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { z } from "zod";
+import {
+  TransactionDto,
+  toTransactionDto,
+} from "../../langchain/tools/transaction-dto";
+import { TransactionType } from "../../models/transaction";
+import {
+  CreateTransactionServiceInput,
+  TransactionService,
+} from "../../services/transaction-service";
+import { toDateString } from "../../types/date";
+import { Failure, Result, Success } from "../../types/result";
+import { toToolResult } from "./to-tool-result";
+
+export async function createTransaction(
+  input: CreateTransactionServiceInput,
+  {
+    transactionService,
+    userId,
+  }: {
+    transactionService: TransactionService;
+    userId: string;
+  },
+): Promise<Result<TransactionDto>> {
+  try {
+    const created = await transactionService.createTransaction(input, userId);
+
+    return Success(toTransactionDto(created));
+  } catch (error) {
+    if (error instanceof Error) {
+      return Failure(error.message);
+    }
+    throw error;
+  }
+}
+
+const inputSchema = {
+  accountId: z.uuid().describe("Account ID to associate the transaction with"),
+  amount: z.number().positive().describe("Transaction amount"),
+  categoryId: z
+    .uuid()
+    .optional()
+    .describe("Category ID to associate the transaction with"),
+  date: z.iso
+    .date()
+    .transform(toDateString)
+    .describe("Transaction date in YYYY-MM-DD format"),
+  description: z.string().optional().describe("Short transaction description"),
+  type: z
+    .enum([
+      TransactionType.INCOME,
+      TransactionType.EXPENSE,
+      TransactionType.REFUND,
+    ])
+    .describe("Transaction type"),
+};
+
+export function registerCreateTransactionTool(
+  server: McpServer,
+  deps: { transactionService: TransactionService; userId: string },
+): void {
+  server.registerTool(
+    "create_transaction",
+    {
+      description: "Create a new transaction.",
+      inputSchema,
+    },
+    async (input) => toToolResult(await createTransaction(input, deps)),
+  );
+}

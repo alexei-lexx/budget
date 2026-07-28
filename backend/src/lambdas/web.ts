@@ -6,6 +6,7 @@ import { APIGatewayProxyEventV2, Context } from "aws-lambda";
 import { createContext, server } from "../server";
 import { createSingleton } from "../utils/dependency-injection";
 import { injectRuntimeEnv } from "./bootstrap";
+import { mcpHandler } from "./mcp-handler";
 import { telegramWebhookHandler } from "./telegram-webhook-handler";
 
 // Handler runs per invocation; cache so warm-start invocations skip the SSM fetch.
@@ -38,6 +39,10 @@ export const handler = async (
 
   if (event.rawPath === "/webhooks/telegram") {
     return telegramWebhookHandler(event);
+  }
+
+  if (event.rawPath === "/mcp") {
+    return mcpHandler(event);
   }
 
   // @ts-expect-error: handler is async despite the type requiring a callback

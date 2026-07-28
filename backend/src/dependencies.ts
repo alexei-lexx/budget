@@ -16,6 +16,7 @@ import {
   DEFAULT_CHAT_HISTORY_MAX_MESSAGES,
   DEFAULT_CHAT_MESSAGE_TTL_SECONDS,
 } from "./models/chat-message";
+import { UserRepository } from "./ports/user-repository";
 import { HttpTelegramApiClient } from "./providers/http-telegram-api-client";
 import { LambdaBackgroundJobDispatcher } from "./providers/lambda-background-job-dispatcher";
 import { DynAccountRepository } from "./repositories/dyn-account-repository";
@@ -108,7 +109,7 @@ export const resolveTransactionRepository = createSingleton(
     ),
 );
 export const resolveUserRepository = createSingleton(
-  () =>
+  (): UserRepository =>
     new DynUserRepository(
       requireEnv("USERS_TABLE_NAME"),
       resolveDynDocumentClient(),
@@ -147,7 +148,7 @@ export const resolveTransferService = createSingleton(
     }),
 );
 export const resolveUserService = createSingleton(
-  () => new UserService(resolveUserRepository()),
+  () => new UserService(resolveUserRepository(), requireEnv("API_BASE_URL")),
 );
 
 // Report services
@@ -256,9 +257,9 @@ export const resolveProcessTelegramMessageService = createAsyncSingleton(
 export const resolveTelegramBotService = createSingleton(
   () =>
     new TelegramBotService({
+      apiBaseUrl: requireEnv("API_BASE_URL"),
       backgroundJobDispatcher: resolveBackgroundJobDispatcher(),
       telegramApiClient: resolveTelegramApiClient(),
       telegramBotRepository: resolveTelegramBotRepository(),
-      webhookBaseUrl: requireEnv("WEBHOOK_BASE_URL"),
     }),
 );
