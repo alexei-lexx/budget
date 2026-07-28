@@ -37,7 +37,12 @@ const inputSchema = {
 
 const description = `
 Get user accounts filtered by scope.
-Each account includes an isArchived flag.
+
+Account is a place where money is stored.
+
+- The user can have multiple accounts
+- Each account has a name, a currency, and an archived flag
+- Include archived accounts for historical queries
 `.trim();
 
 export function registerGetAccountsTool(

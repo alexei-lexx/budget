@@ -54,6 +54,8 @@ export async function getTransactions(
   return Success(transactions.map(toTransactionDto));
 }
 
+const typesString = Object.values(TransactionType).join(", ");
+
 const inputSchema = {
   startDate: z.iso
     .date()
@@ -76,18 +78,29 @@ const inputSchema = {
   types: z
     .array(z.enum(TransactionType))
     .optional()
-    .describe(
-      `Transaction types to filter by (${Object.values(TransactionType).join(", ")})`,
-    ),
+    .describe(`Transaction types to filter by (${typesString})`),
 };
 
 const description = `
-Get filtered transactions by date range and optionally
+Get user transactions filtered by date range and optionally
 by one or more accountIds,
 one or more categoryIds,
 or one or more transaction types.
-Date format: YYYY-MM-DD.
-The date range must not exceed ${MAX_PERIOD_DAYS} days.
+The given date range must not exceed ${MAX_PERIOD_DAYS} days.
+
+Transaction is a record of a money movement.
+
+- The user can spend, receive, refund, or transfer money
+- Each transaction MUST have a type (${typesString})
+  - EXPENSE increases spending
+  - REFUND decreases spending in the same category
+  - INCOME and all TRANSFER types never affect spending
+- Each transaction MUST belong to exactly one account
+- Each transaction MUST have an amount, a currency, and a date
+
+A transaction can optionally:
+  - belong to a category
+  - have a description
 `.trim();
 
 export function registerGetTransactionsTool(

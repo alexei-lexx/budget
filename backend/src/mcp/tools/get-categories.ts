@@ -38,7 +38,14 @@ const inputSchema = {
 
 const description = `
 Get user categories filtered by scope.
-Each category includes an isArchived flag.
+
+Category is a classification system for transactions.
+
+- The user can have multiple categories
+- Each category has a name, a type (INCOME, EXPENSE), and an archived flag
+- Include archived categories for historical queries
+- A category can be marked to exclude its transactions from financial reports
+- Report-excluded categories should not count towards spending or income totals
 `.trim();
 
 export function registerGetCategoriesTool(
