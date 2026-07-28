@@ -56,16 +56,21 @@ const inputSchema = {
     .describe("Transaction type"),
 };
 
+const description = `
+Create a new transaction.
+
+- Currency is inherited from the account, not specified separately
+- Only ${TransactionType.INCOME}, ${TransactionType.EXPENSE}, and ${TransactionType.REFUND} can be created here
+- Transfers are not supported by this tool
+`.trim();
+
 export function registerCreateTransactionTool(
   server: McpServer,
   deps: { transactionService: TransactionService; userId: string },
 ): void {
   server.registerTool(
     "create_transaction",
-    {
-      description: "Create a new transaction.",
-      inputSchema,
-    },
+    { description, inputSchema },
     async (input) => toToolResult(await createTransaction(input, deps)),
   );
 }
