@@ -1,30 +1,24 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { AccountDto, toAccountDto } from "../../langchain/tools/account-dto";
-import { EntityScope } from "../../langchain/tools/get-accounts";
-import { AccountRepository } from "../../ports/account-repository";
+import { AccountService } from "../../services/account-service";
+import { EntityScope } from "../../types/entity-scope";
 import { Result, Success } from "../../types/result";
 import { toToolResult } from "./to-tool-result";
 
 export async function getAccounts(
   { scope }: { scope: EntityScope },
   {
-    accountRepository,
+    accountService,
     userId,
   }: {
-    accountRepository: AccountRepository;
+    accountService: AccountService;
     userId: string;
   },
 ): Promise<Result<AccountDto[]>> {
-  const accounts = await accountRepository.findManyWithArchivedByUserId(userId);
+  const accounts = await accountService.getAccountsByUser(userId, scope);
 
-  const filteredAccounts = accounts.filter((account) => {
-    if (scope === EntityScope.ALL) return true;
-    if (scope === EntityScope.ACTIVE) return !account.isArchived;
-    return account.isArchived;
-  });
-
-  return Success(filteredAccounts.map(toAccountDto));
+  return Success(accounts.map(toAccountDto));
 }
 
 const inputSchema = {
@@ -47,7 +41,7 @@ Account is a place where money is stored.
 
 export function registerGetAccountsTool(
   server: McpServer,
-  deps: { accountRepository: AccountRepository; userId: string },
+  deps: { accountService: AccountService; userId: string },
 ): void {
   server.registerTool(
     "get_accounts",

@@ -1,7 +1,5 @@
 import { BaseChatModel } from "@langchain/core/language_models/chat_models";
 import { createAgent, dynamicSystemPromptMiddleware } from "langchain";
-import { AccountRepository } from "../../ports/account-repository";
-import { CategoryRepository } from "../../ports/category-repository";
 import { TransactionRepository } from "../../ports/transaction-repository";
 import { AccountService } from "../../services/account-service";
 import { CategoryService } from "../../services/category-service";
@@ -96,25 +94,21 @@ treat it as a request to log a transaction.
 
 export function createAssistantAgent({
   model,
-  accountRepository,
   accountService,
-  categoryRepository,
   categoryService,
   transactionRepository,
   transactionService,
 }: {
   model: BaseChatModel;
-  accountRepository: AccountRepository;
   accountService: AccountService;
-  categoryRepository: CategoryRepository;
   categoryService: CategoryService;
   transactionRepository: TransactionRepository;
   transactionService: TransactionService;
 }) {
   const dataTools = [
-    createGetAccountsTool(accountRepository),
+    createGetAccountsTool(accountService),
     createGetCategoriesTool({
-      categoryRepository,
+      categoryService,
       transactionRepository,
     }),
     createGetTransactionsTool({
@@ -135,8 +129,8 @@ export function createAssistantAgent({
   const subagentTools = [
     createCreateTransactionSubagentTool({
       model,
-      accountRepository,
-      categoryRepository,
+      accountService,
+      categoryService,
       transactionRepository,
       transactionService,
     }),

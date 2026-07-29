@@ -5,9 +5,9 @@ import {
   dynamicSystemPromptMiddleware,
   toolCallLimitMiddleware,
 } from "langchain";
-import { AccountRepository } from "../../ports/account-repository";
-import { CategoryRepository } from "../../ports/category-repository";
 import { TransactionRepository } from "../../ports/transaction-repository";
+import { AccountService } from "../../services/account-service";
+import { CategoryService } from "../../services/category-service";
 import { TransactionService } from "../../services/transaction-service";
 import {
   CREATE_TRANSACTION_TOOL_NAME,
@@ -150,20 +150,20 @@ Speech-to-text often transcribes a spoken price as two adjacent integers — "tw
 
 export function createCreateTransactionAgent({
   model,
-  accountRepository,
-  categoryRepository,
+  accountService,
+  categoryService,
   transactionRepository,
   transactionService,
 }: {
   model: BaseChatModel;
-  accountRepository: AccountRepository;
-  categoryRepository: CategoryRepository;
+  accountService: AccountService;
+  categoryService: CategoryService;
   transactionRepository: TransactionRepository;
   transactionService: TransactionService;
 }) {
   const tools = [
-    createGetAccountsTool(accountRepository),
-    createGetCategoriesTool({ categoryRepository, transactionRepository }),
+    createGetAccountsTool(accountService),
+    createGetCategoriesTool({ categoryService, transactionRepository }),
     createGetTransactionsTool({ transactionRepository }),
     createCreateTransactionTool({ transactionService }),
   ];

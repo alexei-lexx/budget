@@ -4,13 +4,17 @@ import {
   CreateCategoryInput,
   UpdateCategoryInput,
 } from "../ports/category-repository";
+import { EntityScope } from "../types/entity-scope";
 import { BusinessError } from "./business-error";
 
 export const NAME_MIN_LENGTH = 1;
 export const NAME_MAX_LENGTH = 100;
 
 export interface CategoryService {
-  getCategoriesByUser(userId: string, type?: CategoryType): Promise<Category[]>;
+  getCategoriesByUser(
+    userId: string,
+    filters: { scope: EntityScope; type?: CategoryType },
+  ): Promise<Category[]>;
   createCategory(input: CreateCategoryInput): Promise<Category>;
   updateCategory(
     id: string,
@@ -28,19 +32,32 @@ export class CategoryServiceImpl implements CategoryService {
   constructor(private categoryRepository: CategoryRepository) {}
 
   /**
-   * Get all active categories for a user, optionally filtered by type
+   * Get categories for a user filtered by scope, optionally filtered by type
    * Categories are sorted alphabetically by name (case-insensitive)
    * @param userId - The user ID to fetch categories for
-   * @param type - Optional category type filter (INCOME or EXPENSE)
-   * @returns Promise<Category[]> - Alphabetically sorted categories
+   * @param filters.scope - Which categories to include (active, archived, or all)
+   * @param filters.type - Optional category type filter (INCOME or EXPENSE)
+   * @returns Promise<Category[]> - Categories matching the scope and type
    */
   async getCategoriesByUser(
     userId: string,
-    type?: CategoryType,
+    { scope, type }: { scope: EntityScope; type?: CategoryType },
   ): Promise<Category[]> {
-    return await this.categoryRepository.findManyByUserId(userId, {
-      type,
-    });
+    if (scope === EntityScope.ACTIVE) {
+      return await this.categoryRepository.findManyByUserId(userId, {
+        type,
+      });
+    }
+
+    const categories =
+      await this.categoryRepository.findManyWithArchivedByUserId(userId);
+
+    const scoped =
+      scope === EntityScope.ALL
+        ? categories
+        : categories.filter((category) => category.isArchived);
+
+    return type ? scoped.filter((category) => category.type === type) : scoped;
   }
 
   /**

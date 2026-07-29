@@ -198,9 +198,7 @@ export const resolveAssistantAgent = createAsyncSingleton(
     new LangChainAgent(
       createAssistantAgent({
         model: await resolveChatModel(),
-        accountRepository: resolveAccountRepository(),
         accountService: resolveAccountService(),
-        categoryRepository: resolveCategoryRepository(),
         categoryService: resolveCategoryService(),
         transactionRepository: resolveTransactionRepository(),
         transactionService: resolveTransactionService(),
@@ -213,8 +211,8 @@ export const resolveCreateTransactionAgent = createAsyncSingleton(
     new LangChainAgent(
       createCreateTransactionAgent({
         model: await resolveChatModel(),
-        accountRepository: resolveAccountRepository(),
-        categoryRepository: resolveCategoryRepository(),
+        accountService: resolveAccountService(),
+        categoryService: resolveCategoryService(),
         transactionRepository: resolveTransactionRepository(),
         transactionService: resolveTransactionService(),
       }),

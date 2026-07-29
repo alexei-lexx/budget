@@ -1,37 +1,35 @@
 import { faker } from "@faker-js/faker";
 import { type Mocked, beforeEach, describe, expect, it } from "vitest";
-import { EntityScope } from "../../langchain/tools/get-accounts";
-import { CategoryRepository } from "../../ports/category-repository";
+import { CategoryService } from "../../services/category-service";
+import { EntityScope } from "../../types/entity-scope";
 import { fakeCategory } from "../../utils/test-utils/models/category-fakes";
-import { createMockCategoryRepository } from "../../utils/test-utils/repositories/category-repository-mocks";
+import { createMockCategoryService } from "../../utils/test-utils/services/category-service-mocks";
 import { getCategories } from "./get-categories";
 
 describe("getCategories", () => {
-  let mockCategoryRepository: Mocked<CategoryRepository>;
+  let mockCategoryService: Mocked<CategoryService>;
   const userId = faker.string.uuid();
-  let deps: {
-    categoryRepository: Mocked<CategoryRepository>;
-    userId: string;
-  };
+  let deps: { categoryService: Mocked<CategoryService>; userId: string };
 
   beforeEach(() => {
-    mockCategoryRepository = createMockCategoryRepository();
-    deps = { categoryRepository: mockCategoryRepository, userId };
+    mockCategoryService = createMockCategoryService();
+    deps = { categoryService: mockCategoryService, userId };
   });
 
   // Happy path
 
-  it("scopes lookup to given userId", async () => {
+  it("scopes lookup to given userId and scope", async () => {
     // Arrange
-    mockCategoryRepository.findManyWithArchivedByUserId.mockResolvedValue([]);
+    mockCategoryService.getCategoriesByUser.mockResolvedValue([]);
 
     // Act
     await getCategories({ scope: EntityScope.ALL }, deps);
 
     // Assert
-    expect(
-      mockCategoryRepository.findManyWithArchivedByUserId,
-    ).toHaveBeenCalledWith(userId);
+    expect(mockCategoryService.getCategoriesByUser).toHaveBeenCalledWith(
+      userId,
+      { scope: EntityScope.ALL },
+    );
   });
 
   it("returns category details", async () => {
@@ -41,9 +39,7 @@ describe("getCategories", () => {
       excludeFromReports: false,
       isArchived: false,
     });
-    mockCategoryRepository.findManyWithArchivedByUserId.mockResolvedValue([
-      category,
-    ]);
+    mockCategoryService.getCategoriesByUser.mockResolvedValue([category]);
 
     // Act
     const result = await getCategories({ scope: EntityScope.ALL }, deps);
@@ -60,69 +56,6 @@ describe("getCategories", () => {
           isArchived: false,
         },
       ],
-    });
-  });
-
-  it("returns both active and archived categories when scope is all", async () => {
-    // Arrange
-    const categories = [
-      fakeCategory({ isArchived: true }),
-      fakeCategory({ isArchived: false }),
-    ];
-    mockCategoryRepository.findManyWithArchivedByUserId.mockResolvedValue(
-      categories,
-    );
-
-    // Act
-    const result = await getCategories({ scope: EntityScope.ALL }, deps);
-
-    // Assert
-    expect(result).toEqual({
-      success: true,
-      data: [
-        expect.objectContaining({ isArchived: true }),
-        expect.objectContaining({ isArchived: false }),
-      ],
-    });
-  });
-
-  it("returns only active categories when scope is active", async () => {
-    // Arrange
-    const categories = [
-      fakeCategory({ isArchived: true }),
-      fakeCategory({ isArchived: false }),
-    ];
-    mockCategoryRepository.findManyWithArchivedByUserId.mockResolvedValue(
-      categories,
-    );
-
-    // Act
-    const result = await getCategories({ scope: EntityScope.ACTIVE }, deps);
-
-    // Assert
-    expect(result).toEqual({
-      success: true,
-      data: [expect.objectContaining({ isArchived: false })],
-    });
-  });
-
-  it("returns only archived categories when scope is archived", async () => {
-    // Arrange
-    const categories = [
-      fakeCategory({ isArchived: true }),
-      fakeCategory({ isArchived: false }),
-    ];
-    mockCategoryRepository.findManyWithArchivedByUserId.mockResolvedValue(
-      categories,
-    );
-
-    // Act
-    const result = await getCategories({ scope: EntityScope.ARCHIVED }, deps);
-
-    // Assert
-    expect(result).toEqual({
-      success: true,
-      data: [expect.objectContaining({ isArchived: true })],
     });
   });
 });

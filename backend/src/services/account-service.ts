@@ -5,10 +5,11 @@ import {
 } from "../models/account";
 import { AccountRepository } from "../ports/account-repository";
 import { TransactionRepository } from "../ports/transaction-repository";
+import { EntityScope } from "../types/entity-scope";
 import { BusinessError } from "./business-error";
 
 export interface AccountService {
-  getAccountsByUser(userId: string): Promise<Account[]>;
+  getAccountsByUser(userId: string, scope: EntityScope): Promise<Account[]>;
   createAccount(input: CreateAccountInput): Promise<Account>;
   updateAccount(
     id: string,
@@ -29,12 +30,27 @@ export class AccountServiceImpl implements AccountService {
   ) {}
 
   /**
-   * Get all active accounts for a user
+   * Get accounts for a user filtered by scope
    * @param userId - The user ID to get accounts for
-   * @returns Promise<Account[]> - List of active accounts
+   * @param scope - Which accounts to include (active, archived, or all)
+   * @returns Promise<Account[]> - List of accounts matching the scope
    */
-  async getAccountsByUser(userId: string): Promise<Account[]> {
-    return await this.accountRepository.findManyByUserId(userId);
+  async getAccountsByUser(
+    userId: string,
+    scope: EntityScope,
+  ): Promise<Account[]> {
+    if (scope === EntityScope.ACTIVE) {
+      return await this.accountRepository.findManyByUserId(userId);
+    }
+
+    const accounts =
+      await this.accountRepository.findManyWithArchivedByUserId(userId);
+
+    if (scope === EntityScope.ALL) {
+      return accounts;
+    }
+
+    return accounts.filter((account) => account.isArchived);
   }
 
   /**

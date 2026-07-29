@@ -3,6 +3,7 @@ import { type Mocked, beforeEach, describe, expect, it } from "vitest";
 import { ModelError } from "../models/model-error";
 import { AccountRepository } from "../ports/account-repository";
 import { TransactionRepository } from "../ports/transaction-repository";
+import { EntityScope } from "../types/entity-scope";
 import {
   fakeAccount,
   fakeCreateAccountInput,
@@ -32,13 +33,16 @@ describe("AccountService", () => {
   describe("getAccountsByUser", () => {
     // Happy path
 
-    it("returns accounts for user", async () => {
+    it("returns active accounts for user when scope is active", async () => {
       // Arrange
       const accounts = [fakeAccount(), fakeAccount()];
       mockAccountRepository.findManyByUserId.mockResolvedValue(accounts);
 
       // Act
-      const result = await service.getAccountsByUser(userId);
+      const result = await service.getAccountsByUser(
+        userId,
+        EntityScope.ACTIVE,
+      );
 
       // Assert
       expect(result).toEqual(accounts);
@@ -47,9 +51,52 @@ describe("AccountService", () => {
       );
     });
 
+    it("returns both active and archived accounts when scope is all", async () => {
+      // Arrange
+      const accounts = [
+        fakeAccount({ isArchived: true }),
+        fakeAccount({ isArchived: false }),
+      ];
+      mockAccountRepository.findManyWithArchivedByUserId.mockResolvedValue(
+        accounts,
+      );
+
+      // Act
+      const result = await service.getAccountsByUser(userId, EntityScope.ALL);
+
+      // Assert
+      expect(result).toEqual(accounts);
+      expect(
+        mockAccountRepository.findManyWithArchivedByUserId,
+      ).toHaveBeenCalledWith(userId);
+    });
+
+    it("returns only archived accounts when scope is archived", async () => {
+      // Arrange
+      const accounts = [
+        fakeAccount({ isArchived: true }),
+        fakeAccount({ isArchived: false }),
+      ];
+      mockAccountRepository.findManyWithArchivedByUserId.mockResolvedValue(
+        accounts,
+      );
+
+      // Act
+      const result = await service.getAccountsByUser(
+        userId,
+        EntityScope.ARCHIVED,
+      );
+
+      // Assert
+      expect(result).toEqual([accounts[0]]);
+      expect(
+        mockAccountRepository.findManyWithArchivedByUserId,
+      ).toHaveBeenCalledWith(userId);
+    });
+
     // Dependency failures
 
-    it("propagates repository errors", async () => {
+    it("propagates repository errors for active scope", async () => {
       // Arrange
 
       // Repository throws on DB error
@@ -58,9 +105,23 @@ describe("AccountService", () => {
       );
 
       // Act & Assert
-      await expect(service.getAccountsByUser(userId)).rejects.toThrow(
-        "Database error",
+      await expect(
+        service.getAccountsByUser(userId, EntityScope.ACTIVE),
+      ).rejects.toThrow("Database error");
+    });
+
+    it("propagates repository errors for all/archived scope", async () => {
+      // Arrange
+
+      // Repository throws on DB error
+      mockAccountRepository.findManyWithArchivedByUserId.mockRejectedValue(
+        new Error("Database error"),
       );
+
+      // Act & Assert
+      await expect(
+        service.getAccountsByUser(userId, EntityScope.ALL),
+      ).rejects.toThrow("Database error");
     });
   });
 

@@ -39,9 +39,7 @@ describe("AssistantAgent (integration)", () => {
   beforeAll(async () => {
     agent = createAssistantAgent({
       model: await createChatModel(),
-      accountRepository,
       accountService,
-      categoryRepository,
       categoryService,
       transactionRepository,
       transactionService,
