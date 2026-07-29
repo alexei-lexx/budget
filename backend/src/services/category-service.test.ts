@@ -2,6 +2,7 @@ import { faker } from "@faker-js/faker";
 import { type Mocked, beforeEach, describe, expect, it } from "vitest";
 import { CategoryType } from "../models/category";
 import { CategoryRepository } from "../ports/category-repository";
+import { EntityScope } from "../types/entity-scope";
 import { fakeCategory } from "../utils/test-utils/models/category-fakes";
 import { fakeCreateCategoryInput } from "../utils/test-utils/repositories/category-repository-fakes";
 import { createMockCategoryRepository } from "../utils/test-utils/repositories/category-repository-mocks";
@@ -29,14 +30,16 @@ describe("CategoryService", () => {
   describe("getCategoriesByUser", () => {
     // Happy path
 
-    it("returns categories when no type provided", async () => {
+    it("returns active categories when no type provided", async () => {
       // Arrange
       // Repository returns two categories
       const categories = [fakeCategory(), fakeCategory()];
       mockCategoryRepository.findManyByUserId.mockResolvedValue(categories);
 
       // Act
-      const result = await service.getCategoriesByUser(userId);
+      const result = await service.getCategoriesByUser(userId, {
+        scope: EntityScope.ACTIVE,
+      });
 
       // Assert
       expect(result).toEqual(categories);
@@ -46,7 +49,7 @@ describe("CategoryService", () => {
       );
     });
 
-    it("returns categories filtered by given type", async () => {
+    it("returns active categories filtered by given type", async () => {
       // Arrange
       const type = CategoryType.INCOME;
       // Repository returns two income categories
@@ -54,7 +57,10 @@ describe("CategoryService", () => {
       mockCategoryRepository.findManyByUserId.mockResolvedValue(categories);
 
       // Act
-      const result = await service.getCategoriesByUser(userId, type);
+      const result = await service.getCategoriesByUser(userId, {
+        scope: EntityScope.ACTIVE,
+        type,
+      });
 
       // Assert
       expect(result).toEqual(categories);
@@ -62,6 +68,71 @@ describe("CategoryService", () => {
         userId,
         { type },
       );
+    });
+
+    it("returns both active and archived categories when scope is all", async () => {
+      // Arrange
+      const categories = [
+        fakeCategory({ isArchived: true }),
+        fakeCategory({ isArchived: false }),
+      ];
+      mockCategoryRepository.findManyWithArchivedByUserId.mockResolvedValue(
+        categories,
+      );
+
+      // Act
+      const result = await service.getCategoriesByUser(userId, {
+        scope: EntityScope.ALL,
+      });
+
+      // Assert
+      expect(result).toEqual(categories);
+      expect(
+        mockCategoryRepository.findManyWithArchivedByUserId,
+      ).toHaveBeenCalledWith(userId);
+    });
+
+    it("returns only archived categories when scope is archived", async () => {
+      // Arrange
+      const categories = [
+        fakeCategory({ isArchived: true }),
+        fakeCategory({ isArchived: false }),
+      ];
+      mockCategoryRepository.findManyWithArchivedByUserId.mockResolvedValue(
+        categories,
+      );
+
+      // Act
+      const result = await service.getCategoriesByUser(userId, {
+        scope: EntityScope.ARCHIVED,
+      });
+
+      // Assert
+      expect(result).toEqual([categories[0]]);
+      expect(
+        mockCategoryRepository.findManyWithArchivedByUserId,
+      ).toHaveBeenCalledWith(userId);
+    });
+
+    it("filters by type when scope is all", async () => {
+      // Arrange
+      const matchingType = CategoryType.INCOME;
+      const categories = [
+        fakeCategory({ type: matchingType, isArchived: true }),
+        fakeCategory({ type: CategoryType.EXPENSE, isArchived: false }),
+      ];
+      mockCategoryRepository.findManyWithArchivedByUserId.mockResolvedValue(
+        categories,
+      );
+
+      // Act
+      const result = await service.getCategoriesByUser(userId, {
+        scope: EntityScope.ALL,
+        type: matchingType,
+      });
+
+      // Assert
+      expect(result).toEqual([categories[0]]);
     });
   });
 

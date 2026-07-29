@@ -1,13 +1,13 @@
 import { tool } from "langchain";
 import { z } from "zod";
-import { CategoryRepository } from "../../ports/category-repository";
 import { TransactionRepository } from "../../ports/transaction-repository";
+import { CategoryService } from "../../services/category-service";
 import { toDateString } from "../../types/date";
+import { EntityScope } from "../../types/entity-scope";
 import { Success } from "../../types/result";
 import { daysAgo, formatDateAsYYYYMMDD } from "../../utils/date";
 import { agentContextSchema } from "../agents/agent-context";
 import { CategoryDto, toCategoryDto } from "./category-dto";
-import { EntityScope } from "./get-accounts";
 
 type CategoryData = CategoryDto & { keywords: string[] };
 
@@ -23,10 +23,10 @@ const schema = z.object({
 });
 
 export const createGetCategoriesTool = ({
-  categoryRepository,
+  categoryService,
   transactionRepository,
 }: {
-  categoryRepository: CategoryRepository;
+  categoryService: CategoryService;
   transactionRepository: TransactionRepository;
 }) =>
   tool(
@@ -34,14 +34,10 @@ export const createGetCategoriesTool = ({
       const userId = agentContextSchema.shape.userId.parse(
         config?.context?.userId,
       );
-      const allCategories =
-        await categoryRepository.findManyWithArchivedByUserId(userId);
-
-      const filteredCategories = allCategories.filter((category) => {
-        if (scope === EntityScope.ALL) return true;
-        if (scope === EntityScope.ACTIVE) return !category.isArchived;
-        return category.isArchived;
-      });
+      const filteredCategories = await categoryService.getCategoriesByUser(
+        userId,
+        { scope },
+      );
 
       if (filteredCategories.length === 0) {
         return Success([]);

@@ -1,15 +1,10 @@
 import { tool } from "langchain";
 import { z } from "zod";
-import { AccountRepository } from "../../ports/account-repository";
+import { AccountService } from "../../services/account-service";
+import { EntityScope } from "../../types/entity-scope";
 import { Success } from "../../types/result";
 import { agentContextSchema } from "../agents/agent-context";
 import { toAccountDto } from "./account-dto";
-
-export enum EntityScope {
-  ACTIVE = "ACTIVE",
-  ALL = "ALL",
-  ARCHIVED = "ARCHIVED",
-}
 
 const schema = z.object({
   scope: z
@@ -19,22 +14,15 @@ const schema = z.object({
     ),
 });
 
-export const createGetAccountsTool = (accountRepository: AccountRepository) =>
+export const createGetAccountsTool = (accountService: AccountService) =>
   tool(
     async ({ scope }, config) => {
       const userId = agentContextSchema.shape.userId.parse(
         config?.context?.userId,
       );
-      const accounts =
-        await accountRepository.findManyWithArchivedByUserId(userId);
+      const accounts = await accountService.getAccountsByUser(userId, scope);
 
-      const filteredAccounts = accounts.filter((account) => {
-        if (scope === EntityScope.ALL) return true;
-        if (scope === EntityScope.ACTIVE) return !account.isArchived;
-        return account.isArchived;
-      });
-
-      return Success(filteredAccounts.map(toAccountDto));
+      return Success(accounts.map(toAccountDto));
     },
     {
       name: "get_accounts",

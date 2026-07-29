@@ -5,6 +5,7 @@ import {
   MutationUpdateCategoryArgs,
   QueryCategoriesArgs,
 } from "../../__generated__/resolvers-types";
+import { EntityScope } from "../../types/entity-scope";
 import { GraphQLContext } from "../context";
 import { getAuthenticatedUser, handleResolverError } from "./shared";
 
@@ -17,10 +18,10 @@ export const categoryResolvers = {
     ) => {
       try {
         const user = await getAuthenticatedUser(context);
-        return await context.categoryService.getCategoriesByUser(
-          user.id,
-          args.type ?? undefined,
-        );
+        return await context.categoryService.getCategoriesByUser(user.id, {
+          scope: EntityScope.ACTIVE,
+          type: args.type ?? undefined,
+        });
       } catch (error) {
         handleResolverError(error, "Failed to fetch categories");
       }

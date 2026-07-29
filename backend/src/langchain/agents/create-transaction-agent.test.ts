@@ -4,9 +4,9 @@ import { type Mocked, beforeEach, describe, expect, it, vi } from "vitest";
 import { TransactionType } from "../../models/transaction";
 import { TransactionService } from "../../services/transaction-service";
 import { fakeTransaction } from "../../utils/test-utils/models/transaction-fakes";
-import { createMockAccountRepository } from "../../utils/test-utils/repositories/account-repository-mocks";
-import { createMockCategoryRepository } from "../../utils/test-utils/repositories/category-repository-mocks";
 import { createMockTransactionRepository } from "../../utils/test-utils/repositories/transaction-repository-mocks";
+import { createMockAccountService } from "../../utils/test-utils/services/account-service-mocks";
+import { createMockCategoryService } from "../../utils/test-utils/services/category-service-mocks";
 import { createMockTransactionService } from "../../utils/test-utils/services/transaction-service-mocks";
 import { CREATE_TRANSACTION_TOOL_NAME } from "../tools/create-transaction";
 import {
@@ -34,8 +34,8 @@ describe("createCreateTransactionAgent", () => {
 
     agent = createCreateTransactionAgent({
       model: mockModel,
-      accountRepository: createMockAccountRepository(),
-      categoryRepository: createMockCategoryRepository(),
+      accountService: createMockAccountService(),
+      categoryService: createMockCategoryService(),
       transactionRepository: createMockTransactionRepository(),
       transactionService: mockTransactionService,
     });

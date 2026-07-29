@@ -4,7 +4,9 @@ import { beforeAll, beforeEach, describe, expect, it } from "vitest";
 import {
   createChatModel,
   resolveAccountRepository,
+  resolveAccountService,
   resolveCategoryRepository,
+  resolveCategoryService,
   resolveTransactionRepository,
   resolveTransactionService,
   resolveUserRepository,
@@ -22,7 +24,9 @@ import { CREATE_TRANSACTION_TOOL_NAME } from "../tools/create-transaction";
 import { createCreateTransactionAgent } from "./create-transaction-agent";
 
 const accountRepository = resolveAccountRepository();
+const accountService = resolveAccountService();
 const categoryRepository = resolveCategoryRepository();
+const categoryService = resolveCategoryService();
 const transactionRepository = resolveTransactionRepository();
 const transactionService = resolveTransactionService();
 const userRepository = resolveUserRepository();
@@ -36,8 +40,8 @@ describe("CreateTransactionAgent (integration)", () => {
   beforeAll(async () => {
     agent = createCreateTransactionAgent({
       model: await createChatModel(),
-      accountRepository,
-      categoryRepository,
+      accountService,
+      categoryService,
       transactionRepository,
       transactionService,
     });

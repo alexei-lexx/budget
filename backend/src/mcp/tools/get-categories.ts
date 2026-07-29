@@ -1,31 +1,26 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { CategoryDto, toCategoryDto } from "../../langchain/tools/category-dto";
-import { EntityScope } from "../../langchain/tools/get-accounts";
-import { CategoryRepository } from "../../ports/category-repository";
+import { CategoryService } from "../../services/category-service";
+import { EntityScope } from "../../types/entity-scope";
 import { Result, Success } from "../../types/result";
 import { toToolResult } from "./to-tool-result";
 
 export async function getCategories(
   { scope }: { scope: EntityScope },
   {
-    categoryRepository,
+    categoryService,
     userId,
   }: {
-    categoryRepository: CategoryRepository;
+    categoryService: CategoryService;
     userId: string;
   },
 ): Promise<Result<CategoryDto[]>> {
-  const categories =
-    await categoryRepository.findManyWithArchivedByUserId(userId);
-
-  const filteredCategories = categories.filter((category) => {
-    if (scope === EntityScope.ALL) return true;
-    if (scope === EntityScope.ACTIVE) return !category.isArchived;
-    return category.isArchived;
+  const categories = await categoryService.getCategoriesByUser(userId, {
+    scope,
   });
 
-  return Success(filteredCategories.map(toCategoryDto));
+  return Success(categories.map(toCategoryDto));
 }
 
 const inputSchema = {
@@ -50,7 +45,7 @@ Category is a classification system for transactions.
 
 export function registerGetCategoriesTool(
   server: McpServer,
-  deps: { categoryRepository: CategoryRepository; userId: string },
+  deps: { categoryService: CategoryService; userId: string },
 ): void {
   server.registerTool(
     "get_categories",

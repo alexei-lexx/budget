@@ -4,6 +4,7 @@ import {
   MutationDeleteAccountArgs,
   MutationUpdateAccountArgs,
 } from "../../__generated__/resolvers-types";
+import { EntityScope } from "../../types/entity-scope";
 import { GraphQLContext } from "../context";
 import { getAuthenticatedUser, handleResolverError } from "./shared";
 
@@ -18,6 +19,7 @@ export const accountResolvers = {
         const user = await getAuthenticatedUser(context);
         const accounts = await context.accountService.getAccountsByUser(
           user.id,
+          EntityScope.ACTIVE,
         );
         return accounts;
       } catch (error) {

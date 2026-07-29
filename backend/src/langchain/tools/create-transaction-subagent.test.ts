@@ -1,9 +1,9 @@
 import { faker } from "@faker-js/faker";
 import { AIMessage, HumanMessage, fakeModel } from "langchain";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { createMockAccountRepository } from "../../utils/test-utils/repositories/account-repository-mocks";
-import { createMockCategoryRepository } from "../../utils/test-utils/repositories/category-repository-mocks";
 import { createMockTransactionRepository } from "../../utils/test-utils/repositories/transaction-repository-mocks";
+import { createMockAccountService } from "../../utils/test-utils/services/account-service-mocks";
+import { createMockCategoryService } from "../../utils/test-utils/services/category-service-mocks";
 import { createMockTransactionService } from "../../utils/test-utils/services/transaction-service-mocks";
 import { VOICE_INPUT_SUBPROMPT } from "../agents/create-transaction-agent";
 import { createCreateTransactionSubagentTool } from "./create-transaction-subagent";
@@ -24,8 +24,8 @@ describe("createCreateTransactionSubagentTool", () => {
 
     transactionTool = createCreateTransactionSubagentTool({
       model: mockModel,
-      accountRepository: createMockAccountRepository(),
-      categoryRepository: createMockCategoryRepository(),
+      accountService: createMockAccountService(),
+      categoryService: createMockCategoryService(),
       transactionRepository: createMockTransactionRepository(),
       transactionService: createMockTransactionService(),
     });

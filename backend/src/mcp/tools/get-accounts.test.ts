@@ -1,34 +1,35 @@
 import { faker } from "@faker-js/faker";
 import { type Mocked, beforeEach, describe, expect, it } from "vitest";
-import { EntityScope } from "../../langchain/tools/get-accounts";
-import { AccountRepository } from "../../ports/account-repository";
+import { AccountService } from "../../services/account-service";
+import { EntityScope } from "../../types/entity-scope";
 import { fakeAccount } from "../../utils/test-utils/models/account-fakes";
-import { createMockAccountRepository } from "../../utils/test-utils/repositories/account-repository-mocks";
+import { createMockAccountService } from "../../utils/test-utils/services/account-service-mocks";
 import { getAccounts } from "./get-accounts";
 
 describe("getAccounts", () => {
-  let mockAccountRepository: Mocked<AccountRepository>;
+  let mockAccountService: Mocked<AccountService>;
   const userId = faker.string.uuid();
-  let deps: { accountRepository: Mocked<AccountRepository>; userId: string };
+  let deps: { accountService: Mocked<AccountService>; userId: string };
 
   beforeEach(() => {
-    mockAccountRepository = createMockAccountRepository();
-    deps = { accountRepository: mockAccountRepository, userId };
+    mockAccountService = createMockAccountService();
+    deps = { accountService: mockAccountService, userId };
   });
 
   // Happy path
 
-  it("scopes lookup to given userId", async () => {
+  it("scopes lookup to given userId and scope", async () => {
     // Arrange
-    mockAccountRepository.findManyWithArchivedByUserId.mockResolvedValue([]);
+    mockAccountService.getAccountsByUser.mockResolvedValue([]);
 
     // Act
     await getAccounts({ scope: EntityScope.ALL }, deps);
 
     // Assert
-    expect(
-      mockAccountRepository.findManyWithArchivedByUserId,
-    ).toHaveBeenCalledWith(userId);
+    expect(mockAccountService.getAccountsByUser).toHaveBeenCalledWith(
+      userId,
+      EntityScope.ALL,
+    );
   });
 
   it("returns account details", async () => {
@@ -38,9 +39,7 @@ describe("getAccounts", () => {
       currency: "USD",
       isArchived: false,
     });
-    mockAccountRepository.findManyWithArchivedByUserId.mockResolvedValue([
-      account,
-    ]);
+    mockAccountService.getAccountsByUser.mockResolvedValue([account]);
 
     // Act
     const result = await getAccounts({ scope: EntityScope.ALL }, deps);
@@ -56,69 +55,6 @@ describe("getAccounts", () => {
           isArchived: false,
         },
       ],
-    });
-  });
-
-  it("returns both active and archived accounts when scope is all", async () => {
-    // Arrange
-    const accounts = [
-      fakeAccount({ isArchived: true }),
-      fakeAccount({ isArchived: false }),
-    ];
-    mockAccountRepository.findManyWithArchivedByUserId.mockResolvedValue(
-      accounts,
-    );
-
-    // Act
-    const result = await getAccounts({ scope: EntityScope.ALL }, deps);
-
-    // Assert
-    expect(result).toEqual({
-      success: true,
-      data: [
-        expect.objectContaining({ isArchived: true }),
-        expect.objectContaining({ isArchived: false }),
-      ],
-    });
-  });
-
-  it("returns only active accounts when scope is active", async () => {
-    // Arrange
-    const accounts = [
-      fakeAccount({ isArchived: true }),
-      fakeAccount({ isArchived: false }),
-    ];
-    mockAccountRepository.findManyWithArchivedByUserId.mockResolvedValue(
-      accounts,
-    );
-
-    // Act
-    const result = await getAccounts({ scope: EntityScope.ACTIVE }, deps);
-
-    // Assert
-    expect(result).toEqual({
-      success: true,
-      data: [expect.objectContaining({ isArchived: false })],
-    });
-  });
-
-  it("returns only archived accounts when scope is archived", async () => {
-    // Arrange
-    const accounts = [
-      fakeAccount({ isArchived: true }),
-      fakeAccount({ isArchived: false }),
-    ];
-    mockAccountRepository.findManyWithArchivedByUserId.mockResolvedValue(
-      accounts,
-    );
-
-    // Act
-    const result = await getAccounts({ scope: EntityScope.ARCHIVED }, deps);
-
-    // Assert
-    expect(result).toEqual({
-      success: true,
-      data: [expect.objectContaining({ isArchived: true })],
     });
   });
 });

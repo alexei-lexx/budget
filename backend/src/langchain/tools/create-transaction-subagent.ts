@@ -1,9 +1,9 @@
 import { BaseChatModel } from "@langchain/core/language_models/chat_models";
 import { tool } from "langchain";
 import { z } from "zod";
-import { AccountRepository } from "../../ports/account-repository";
-import { CategoryRepository } from "../../ports/category-repository";
 import { TransactionRepository } from "../../ports/transaction-repository";
+import { AccountService } from "../../services/account-service";
+import { CategoryService } from "../../services/category-service";
 import { TransactionService } from "../../services/transaction-service";
 import { createCreateTransactionAgent } from "../agents/create-transaction-agent";
 import { extractLastMessageText } from "../utils";
@@ -20,21 +20,21 @@ Do NOT translate, transliterate, romanize, or rephrase it.
 
 export const createCreateTransactionSubagentTool = ({
   model,
-  accountRepository,
-  categoryRepository,
+  accountService,
+  categoryService,
   transactionRepository,
   transactionService,
 }: {
   model: BaseChatModel;
-  accountRepository: AccountRepository;
-  categoryRepository: CategoryRepository;
+  accountService: AccountService;
+  categoryService: CategoryService;
   transactionRepository: TransactionRepository;
   transactionService: TransactionService;
 }) => {
   const agent = createCreateTransactionAgent({
     model,
-    accountRepository,
-    categoryRepository,
+    accountService,
+    categoryService,
     transactionRepository,
     transactionService,
   });

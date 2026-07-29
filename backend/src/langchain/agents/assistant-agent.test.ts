@@ -1,8 +1,6 @@
 import { faker } from "@faker-js/faker";
 import { AIMessage, ToolMessage, fakeModel } from "langchain";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { createMockAccountRepository } from "../../utils/test-utils/repositories/account-repository-mocks";
-import { createMockCategoryRepository } from "../../utils/test-utils/repositories/category-repository-mocks";
 import { createMockTransactionRepository } from "../../utils/test-utils/repositories/transaction-repository-mocks";
 import { createMockAccountService } from "../../utils/test-utils/services/account-service-mocks";
 import { createMockCategoryService } from "../../utils/test-utils/services/category-service-mocks";
@@ -12,7 +10,7 @@ import { createAssistantAgent } from "./assistant-agent";
 describe("createAssistantAgent", () => {
   let agent: ReturnType<typeof createAssistantAgent>;
   let mockModel: ReturnType<typeof fakeModel>;
-  let mockAccountRepository: ReturnType<typeof createMockAccountRepository>;
+  let mockAccountService: ReturnType<typeof createMockAccountService>;
 
   const baseContext = {
     today: "2000-01-02",
@@ -25,13 +23,11 @@ describe("createAssistantAgent", () => {
     vi.clearAllMocks();
 
     mockModel = fakeModel();
-    mockAccountRepository = createMockAccountRepository();
+    mockAccountService = createMockAccountService();
 
     agent = createAssistantAgent({
       model: mockModel,
-      accountRepository: mockAccountRepository,
-      accountService: createMockAccountService(),
-      categoryRepository: createMockCategoryRepository(),
+      accountService: mockAccountService,
       categoryService: createMockCategoryService(),
       transactionRepository: createMockTransactionRepository(),
       transactionService: createMockTransactionService(),
@@ -88,7 +84,7 @@ describe("createAssistantAgent", () => {
     // Arrange
 
     // Returns empty account list for get_accounts tool
-    mockAccountRepository.findManyWithArchivedByUserId.mockResolvedValue([]);
+    mockAccountService.getAccountsByUser.mockResolvedValue([]);
 
     // Model calls get_accounts tool
     mockModel.respondWithTools([
@@ -113,8 +109,6 @@ describe("createAssistantAgent", () => {
         message instanceof ToolMessage && message.name === "get_accounts",
     );
     expect(toolMessages).toHaveLength(1);
-    expect(
-      mockAccountRepository.findManyWithArchivedByUserId,
-    ).toHaveBeenCalledTimes(1);
+    expect(mockAccountService.getAccountsByUser).toHaveBeenCalledTimes(1);
   });
 });

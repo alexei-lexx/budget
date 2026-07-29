@@ -1,7 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import {
-  resolveAccountRepository,
-  resolveCategoryRepository,
+  resolveAccountService,
+  resolveCategoryService,
   resolveTransactionRepository,
   resolveTransactionService,
   resolveUserRepository,
@@ -21,15 +21,15 @@ export async function createAuthenticatedMcpServer(
 
   const server = new McpServer({ name: "budget-mcp-server", version: "1.0.0" });
 
-  const accountRepository = resolveAccountRepository();
-  const categoryRepository = resolveCategoryRepository();
+  const accountService = resolveAccountService();
+  const categoryService = resolveCategoryService();
   const transactionRepository = resolveTransactionRepository();
   const transactionService = resolveTransactionService();
 
   const userId = user.id;
 
-  registerGetAccountsTool(server, { accountRepository, userId });
-  registerGetCategoriesTool(server, { categoryRepository, userId });
+  registerGetAccountsTool(server, { accountService, userId });
+  registerGetCategoriesTool(server, { categoryService, userId });
   registerGetTransactionsTool(server, { transactionRepository, userId });
   registerCreateTransactionTool(server, { transactionService, userId });
 
