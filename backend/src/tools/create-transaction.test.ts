@@ -9,7 +9,7 @@ import {
 import { toDateString } from "../types/date";
 import { fakeTransaction } from "../utils/test-utils/models/transaction-fakes";
 import { createMockTransactionService } from "../utils/test-utils/services/transaction-service-mocks";
-import { createTransaction } from "./create-transaction";
+import { handler } from "./create-transaction";
 
 describe("createTransaction", () => {
   let mockTransactionService: Mocked<TransactionService>;
@@ -38,7 +38,7 @@ describe("createTransaction", () => {
     };
 
     // Act
-    const result = await createTransaction(input, deps);
+    const result = await handler(input, deps);
 
     // Assert
     expect(result).toEqual({
@@ -69,7 +69,7 @@ describe("createTransaction", () => {
     );
 
     // Act
-    const result = await createTransaction(
+    const result = await handler(
       {
         accountId: faker.string.uuid(),
         amount: 10,

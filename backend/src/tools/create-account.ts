@@ -5,7 +5,7 @@ import { BusinessError } from "../services/business-error";
 import { Failure, Result, Success } from "../types/result";
 import { AccountDto, toAccountDto } from "./account-dto";
 
-export async function createAccount(
+export async function handler(
   {
     name,
     currency,

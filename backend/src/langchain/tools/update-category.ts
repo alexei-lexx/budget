@@ -1,11 +1,7 @@
 import { tool } from "langchain";
 import { z } from "zod";
 import { CategoryService } from "../../services/category-service";
-import {
-  description,
-  inputSchema,
-  updateCategory,
-} from "../../tools/update-category";
+import { description, inputSchema, handler } from "../../tools/update-category";
 import { agentContextSchema } from "../agents/agent-context";
 
 const schema = z.object(inputSchema).strict();
@@ -23,7 +19,7 @@ export const createUpdateCategoryTool = ({
         config?.context?.userId,
       );
 
-      return updateCategory(input, { categoryService, userId });
+      return handler(input, { categoryService, userId });
     },
     {
       name: "update_category",

@@ -5,7 +5,7 @@ import {
   TransactionService,
 } from "../../services/transaction-service";
 import {
-  createTransaction,
+  handler,
   description,
   inputSchema,
 } from "../../tools/create-transaction";
@@ -30,7 +30,7 @@ export const createCreateTransactionTool = ({
 
       const serviceInput: CreateTransactionServiceInput = { ...input };
 
-      return createTransaction(serviceInput, { transactionService, userId });
+      return handler(serviceInput, { transactionService, userId });
     },
     {
       name: CREATE_TRANSACTION_TOOL_NAME,

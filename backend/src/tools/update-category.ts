@@ -7,7 +7,7 @@ import { CategoryService } from "../services/category-service";
 import { Failure, Result, Success } from "../types/result";
 import { CategoryDto, toCategoryDto } from "./category-dto";
 
-export async function updateCategory(
+export async function handler(
   {
     id,
     name,

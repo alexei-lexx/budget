@@ -5,7 +5,7 @@ import { BusinessError } from "../services/business-error";
 import { CategoryService } from "../services/category-service";
 import { fakeCategory } from "../utils/test-utils/models/category-fakes";
 import { createMockCategoryService } from "../utils/test-utils/services/category-service-mocks";
-import { createCategory } from "./create-category";
+import { handler } from "./create-category";
 
 describe("createCategory", () => {
   let mockCategoryService: Mocked<CategoryService>;
@@ -31,7 +31,7 @@ describe("createCategory", () => {
     mockCategoryService.createCategory.mockResolvedValue(created);
 
     // Act
-    const result = await createCategory(
+    const result = await handler(
       {
         name: "Groceries",
         type: CategoryType.EXPENSE,
@@ -66,7 +66,7 @@ describe("createCategory", () => {
     mockCategoryService.createCategory.mockResolvedValue(created);
 
     // Act
-    await createCategory({ name: "Salary", type: CategoryType.INCOME }, deps);
+    await handler({ name: "Salary", type: CategoryType.INCOME }, deps);
 
     // Assert
     expect(mockCategoryService.createCategory).toHaveBeenCalledWith({
@@ -87,7 +87,7 @@ describe("createCategory", () => {
     );
 
     // Act
-    const result = await createCategory(
+    const result = await handler(
       { name: "Salary", type: CategoryType.INCOME },
       deps,
     );

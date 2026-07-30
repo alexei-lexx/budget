@@ -1,7 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { TransactionService } from "../../services/transaction-service";
 import {
-  createTransaction,
+  handler,
   description,
   inputSchema,
 } from "../../tools/create-transaction";
@@ -14,6 +14,6 @@ export function registerCreateTransactionTool(
   server.registerTool(
     "create_transaction",
     { description, inputSchema },
-    async (input) => toToolResult(await createTransaction(input, deps)),
+    async (input) => toToolResult(await handler(input, deps)),
   );
 }

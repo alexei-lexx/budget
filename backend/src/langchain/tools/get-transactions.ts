@@ -4,7 +4,7 @@ import { TransactionRepository } from "../../ports/transaction-repository";
 import {
   MAX_PERIOD_DAYS,
   description,
-  getTransactions,
+  handler,
   inputSchema,
 } from "../../tools/get-transactions";
 import { toDateString } from "../../types/date";
@@ -34,7 +34,7 @@ export const createGetTransactionsTool = ({
         config?.context?.userId,
       );
 
-      return getTransactions(
+      return handler(
         {
           startDate: toDateString(startDate),
           endDate: toDateString(endDate),

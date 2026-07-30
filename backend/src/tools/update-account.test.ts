@@ -4,7 +4,7 @@ import { AccountService } from "../services/account-service";
 import { BusinessError } from "../services/business-error";
 import { fakeAccount } from "../utils/test-utils/models/account-fakes";
 import { createMockAccountService } from "../utils/test-utils/services/account-service-mocks";
-import { updateAccount } from "./update-account";
+import { handler } from "./update-account";
 
 describe("updateAccount", () => {
   let mockAccountService: Mocked<AccountService>;
@@ -29,7 +29,7 @@ describe("updateAccount", () => {
     mockAccountService.updateAccount.mockResolvedValue(updated);
 
     // Act
-    const result = await updateAccount(
+    const result = await handler(
       { id: updated.id, name: "Renamed Account", currency: "EUR" },
       deps,
     );
@@ -58,7 +58,7 @@ describe("updateAccount", () => {
     mockAccountService.updateAccount.mockResolvedValue(fakeAccount());
 
     // Act
-    await updateAccount({ id: accountId, name: "Renamed Only" }, deps);
+    await handler({ id: accountId, name: "Renamed Only" }, deps);
 
     // Assert
     expect(mockAccountService.updateAccount).toHaveBeenCalledWith(
@@ -78,7 +78,7 @@ describe("updateAccount", () => {
     );
 
     // Act
-    const result = await updateAccount(
+    const result = await handler(
       { id: faker.string.uuid(), name: "Renamed Account" },
       deps,
     );

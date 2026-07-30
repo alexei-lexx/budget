@@ -1,11 +1,7 @@
 import { tool } from "langchain";
 import { z } from "zod";
 import { AccountService } from "../../services/account-service";
-import {
-  description,
-  inputSchema,
-  updateAccount,
-} from "../../tools/update-account";
+import { description, inputSchema, handler } from "../../tools/update-account";
 import { agentContextSchema } from "../agents/agent-context";
 
 const schema = z.object(inputSchema).strict();
@@ -23,7 +19,7 @@ export const createUpdateAccountTool = ({
         config?.context?.userId,
       );
 
-      return updateAccount(input, { accountService, userId });
+      return handler(input, { accountService, userId });
     },
     {
       name: "update_account",

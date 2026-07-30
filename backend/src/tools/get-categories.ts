@@ -4,7 +4,7 @@ import { EntityScope } from "../types/entity-scope";
 import { Result, Success } from "../types/result";
 import { CategoryDto, toCategoryDto } from "./category-dto";
 
-export async function getCategories(
+export async function handler(
   { scope }: { scope: EntityScope },
   {
     categoryService,

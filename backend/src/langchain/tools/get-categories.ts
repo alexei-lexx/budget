@@ -5,7 +5,7 @@ import { CategoryService } from "../../services/category-service";
 import { CategoryDto } from "../../tools/category-dto";
 import {
   description as baseDescription,
-  getCategories,
+  handler,
   inputSchema,
 } from "../../tools/get-categories";
 import { toDateString } from "../../types/date";
@@ -37,10 +37,7 @@ export const createGetCategoriesTool = ({
         config?.context?.userId,
       );
 
-      const result = await getCategories(
-        { scope },
-        { categoryService, userId },
-      );
+      const result = await handler({ scope }, { categoryService, userId });
 
       if (!result.success) {
         return result;

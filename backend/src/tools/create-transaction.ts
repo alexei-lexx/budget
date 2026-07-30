@@ -12,7 +12,7 @@ import { TransactionDto, toTransactionDto } from "./transaction-dto";
 
 export const CREATE_TRANSACTION_TOOL_NAME = "create_transaction";
 
-export async function createTransaction(
+export async function handler(
   input: CreateTransactionServiceInput,
   {
     transactionService,

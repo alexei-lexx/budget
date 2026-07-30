@@ -1,10 +1,6 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { AccountService } from "../../services/account-service";
-import {
-  createAccount,
-  description,
-  inputSchema,
-} from "../../tools/create-account";
+import { handler, description, inputSchema } from "../../tools/create-account";
 import { toToolResult } from "./to-tool-result";
 
 export function registerCreateAccountTool(
@@ -14,6 +10,6 @@ export function registerCreateAccountTool(
   server.registerTool(
     "create_account",
     { description, inputSchema },
-    async (input) => toToolResult(await createAccount(input, deps)),
+    async (input) => toToolResult(await handler(input, deps)),
   );
 }

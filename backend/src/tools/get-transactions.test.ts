@@ -5,7 +5,7 @@ import { TransactionRepository } from "../ports/transaction-repository";
 import { toDateString } from "../types/date";
 import { fakeTransaction } from "../utils/test-utils/models/transaction-fakes";
 import { createMockTransactionRepository } from "../utils/test-utils/repositories/transaction-repository-mocks";
-import { getTransactions } from "./get-transactions";
+import { handler } from "./get-transactions";
 
 describe("getTransactions", () => {
   let mockTransactionRepository: Mocked<TransactionRepository>;
@@ -27,7 +27,7 @@ describe("getTransactions", () => {
     mockTransactionRepository.findManyByUserId.mockResolvedValue([]);
 
     // Act
-    await getTransactions(
+    await handler(
       {
         startDate: toDateString("2026-01-01"),
         endDate: toDateString("2026-01-31"),
@@ -50,7 +50,7 @@ describe("getTransactions", () => {
     mockTransactionRepository.findManyByUserId.mockResolvedValue([]);
 
     // Act
-    await getTransactions(
+    await handler(
       {
         startDate: toDateString("2026-01-01"),
         endDate: toDateString("2026-01-31"),
@@ -86,7 +86,7 @@ describe("getTransactions", () => {
     mockTransactionRepository.findManyByUserId.mockResolvedValue([transaction]);
 
     // Act
-    const result = await getTransactions(
+    const result = await handler(
       {
         startDate: toDateString("2026-01-01"),
         endDate: toDateString("2026-01-31"),
@@ -117,7 +117,7 @@ describe("getTransactions", () => {
 
   it("returns failure when startDate is after endDate", async () => {
     // Act
-    const result = await getTransactions(
+    const result = await handler(
       {
         startDate: toDateString("2026-01-31"),
         endDate: toDateString("2026-01-01"),
@@ -135,7 +135,7 @@ describe("getTransactions", () => {
 
   it("returns failure when date range exceeds 365 days", async () => {
     // Act
-    const result = await getTransactions(
+    const result = await handler(
       {
         startDate: toDateString("2025-01-01"),
         endDate: toDateString("2026-01-02"),

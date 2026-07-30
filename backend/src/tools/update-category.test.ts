@@ -5,7 +5,7 @@ import { BusinessError } from "../services/business-error";
 import { CategoryService } from "../services/category-service";
 import { fakeCategory } from "../utils/test-utils/models/category-fakes";
 import { createMockCategoryService } from "../utils/test-utils/services/category-service-mocks";
-import { updateCategory } from "./update-category";
+import { handler } from "./update-category";
 
 describe("updateCategory", () => {
   let mockCategoryService: Mocked<CategoryService>;
@@ -31,7 +31,7 @@ describe("updateCategory", () => {
     mockCategoryService.updateCategory.mockResolvedValue(updated);
 
     // Act
-    const result = await updateCategory(
+    const result = await handler(
       {
         id: updated.id,
         name: "Renamed Category",
@@ -70,7 +70,7 @@ describe("updateCategory", () => {
     mockCategoryService.updateCategory.mockResolvedValue(fakeCategory());
 
     // Act
-    await updateCategory({ id: categoryId, name: "Renamed Only" }, deps);
+    await handler({ id: categoryId, name: "Renamed Only" }, deps);
 
     // Assert
     expect(mockCategoryService.updateCategory).toHaveBeenCalledWith(
@@ -90,7 +90,7 @@ describe("updateCategory", () => {
     );
 
     // Act
-    const result = await updateCategory(
+    const result = await handler(
       { id: faker.string.uuid(), name: "Renamed Category" },
       deps,
     );

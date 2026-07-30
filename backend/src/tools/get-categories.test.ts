@@ -4,7 +4,7 @@ import { CategoryService } from "../services/category-service";
 import { EntityScope } from "../types/entity-scope";
 import { fakeCategory } from "../utils/test-utils/models/category-fakes";
 import { createMockCategoryService } from "../utils/test-utils/services/category-service-mocks";
-import { getCategories } from "./get-categories";
+import { handler } from "./get-categories";
 
 describe("getCategories", () => {
   let mockCategoryService: Mocked<CategoryService>;
@@ -23,7 +23,7 @@ describe("getCategories", () => {
     mockCategoryService.getCategoriesByUser.mockResolvedValue([]);
 
     // Act
-    await getCategories({ scope: EntityScope.ALL }, deps);
+    await handler({ scope: EntityScope.ALL }, deps);
 
     // Assert
     expect(mockCategoryService.getCategoriesByUser).toHaveBeenCalledWith(
@@ -42,7 +42,7 @@ describe("getCategories", () => {
     mockCategoryService.getCategoriesByUser.mockResolvedValue([category]);
 
     // Act
-    const result = await getCategories({ scope: EntityScope.ALL }, deps);
+    const result = await handler({ scope: EntityScope.ALL }, deps);
 
     // Assert
     expect(result).toEqual({

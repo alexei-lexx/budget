@@ -1,10 +1,6 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { CategoryService } from "../../services/category-service";
-import {
-  description,
-  getCategories,
-  inputSchema,
-} from "../../tools/get-categories";
+import { description, handler, inputSchema } from "../../tools/get-categories";
 import { toToolResult } from "./to-tool-result";
 
 export function registerGetCategoriesTool(
@@ -14,6 +10,6 @@ export function registerGetCategoriesTool(
   server.registerTool(
     "get_categories",
     { description, inputSchema },
-    async ({ scope }) => toToolResult(await getCategories({ scope }, deps)),
+    async ({ scope }) => toToolResult(await handler({ scope }, deps)),
   );
 }

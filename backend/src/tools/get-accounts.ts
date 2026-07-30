@@ -4,7 +4,7 @@ import { EntityScope } from "../types/entity-scope";
 import { Result, Success } from "../types/result";
 import { AccountDto, toAccountDto } from "./account-dto";
 
-export async function getAccounts(
+export async function handler(
   { scope }: { scope: EntityScope },
   {
     accountService,

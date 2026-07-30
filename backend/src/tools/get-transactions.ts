@@ -8,7 +8,7 @@ import { TransactionDto, toTransactionDto } from "./transaction-dto";
 
 export const MAX_PERIOD_DAYS = 365;
 
-export async function getTransactions(
+export async function handler(
   {
     startDate,
     endDate,

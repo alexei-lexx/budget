@@ -2,7 +2,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { TransactionRepository } from "../../ports/transaction-repository";
 import {
   description,
-  getTransactions,
+  handler,
   inputSchema,
 } from "../../tools/get-transactions";
 import { toDateString } from "../../types/date";
@@ -20,7 +20,7 @@ export function registerGetTransactionsTool(
     },
     async ({ startDate, endDate, accountIds, categoryIds, types }) =>
       toToolResult(
-        await getTransactions(
+        await handler(
           {
             startDate: toDateString(startDate),
             endDate: toDateString(endDate),

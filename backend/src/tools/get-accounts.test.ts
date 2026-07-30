@@ -4,7 +4,7 @@ import { AccountService } from "../services/account-service";
 import { EntityScope } from "../types/entity-scope";
 import { fakeAccount } from "../utils/test-utils/models/account-fakes";
 import { createMockAccountService } from "../utils/test-utils/services/account-service-mocks";
-import { getAccounts } from "./get-accounts";
+import { handler } from "./get-accounts";
 
 describe("getAccounts", () => {
   let mockAccountService: Mocked<AccountService>;
@@ -23,7 +23,7 @@ describe("getAccounts", () => {
     mockAccountService.getAccountsByUser.mockResolvedValue([]);
 
     // Act
-    await getAccounts({ scope: EntityScope.ALL }, deps);
+    await handler({ scope: EntityScope.ALL }, deps);
 
     // Assert
     expect(mockAccountService.getAccountsByUser).toHaveBeenCalledWith(
@@ -42,7 +42,7 @@ describe("getAccounts", () => {
     mockAccountService.getAccountsByUser.mockResolvedValue([account]);
 
     // Act
-    const result = await getAccounts({ scope: EntityScope.ALL }, deps);
+    const result = await handler({ scope: EntityScope.ALL }, deps);
 
     // Assert
     expect(result).toEqual({

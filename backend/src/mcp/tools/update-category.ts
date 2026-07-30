@@ -1,10 +1,6 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { CategoryService } from "../../services/category-service";
-import {
-  description,
-  inputSchema,
-  updateCategory,
-} from "../../tools/update-category";
+import { description, inputSchema, handler } from "../../tools/update-category";
 import { toToolResult } from "./to-tool-result";
 
 export function registerUpdateCategoryTool(
@@ -14,6 +10,6 @@ export function registerUpdateCategoryTool(
   server.registerTool(
     "update_category",
     { description, inputSchema },
-    async (input) => toToolResult(await updateCategory(input, deps)),
+    async (input) => toToolResult(await handler(input, deps)),
   );
 }

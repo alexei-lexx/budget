@@ -4,7 +4,7 @@ import { AccountService } from "../services/account-service";
 import { BusinessError } from "../services/business-error";
 import { fakeAccount } from "../utils/test-utils/models/account-fakes";
 import { createMockAccountService } from "../utils/test-utils/services/account-service-mocks";
-import { createAccount } from "./create-account";
+import { handler } from "./create-account";
 
 describe("createAccount", () => {
   let mockAccountService: Mocked<AccountService>;
@@ -30,7 +30,7 @@ describe("createAccount", () => {
     mockAccountService.createAccount.mockResolvedValue(created);
 
     // Act
-    const result = await createAccount(
+    const result = await handler(
       { name: "Checking Account", currency: "USD", initialBalance: 500 },
       deps,
     );
@@ -61,7 +61,7 @@ describe("createAccount", () => {
     mockAccountService.createAccount.mockResolvedValue(created);
 
     // Act
-    await createAccount({ name: "Savings", currency: "EUR" }, deps);
+    await handler({ name: "Savings", currency: "EUR" }, deps);
 
     // Assert
     expect(mockAccountService.createAccount).toHaveBeenCalledWith({
@@ -82,10 +82,7 @@ describe("createAccount", () => {
     );
 
     // Act
-    const result = await createAccount(
-      { name: "Savings", currency: "EUR" },
-      deps,
-    );
+    const result = await handler({ name: "Savings", currency: "EUR" }, deps);
 
     // Assert
     expect(result).toEqual({
