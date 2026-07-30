@@ -7,10 +7,12 @@ import {
   resolveUserRepository,
 } from "../dependencies";
 import { authenticateMcpToken } from "./auth";
+import { registerCreateAccountTool } from "./tools/create-account";
 import { registerCreateTransactionTool } from "./tools/create-transaction";
 import { registerGetAccountsTool } from "./tools/get-accounts";
 import { registerGetCategoriesTool } from "./tools/get-categories";
 import { registerGetTransactionsTool } from "./tools/get-transactions";
+import { registerUpdateAccountTool } from "./tools/update-account";
 
 export async function createAuthenticatedMcpServer(
   token: string | null,
@@ -28,10 +30,12 @@ export async function createAuthenticatedMcpServer(
 
   const userId = user.id;
 
+  registerCreateAccountTool(server, { accountService, userId });
+  registerCreateTransactionTool(server, { transactionService, userId });
   registerGetAccountsTool(server, { accountService, userId });
   registerGetCategoriesTool(server, { categoryService, userId });
   registerGetTransactionsTool(server, { transactionRepository, userId });
-  registerCreateTransactionTool(server, { transactionService, userId });
+  registerUpdateAccountTool(server, { accountService, userId });
 
   return server;
 }
