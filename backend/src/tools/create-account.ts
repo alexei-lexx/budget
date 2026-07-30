@@ -62,6 +62,4 @@ If the requested name is a semantic near-variant of an existing active one
 (pluralisation, typo, abbreviation, or synonym)
 ask the user to confirm before creating.
 Archived accounts are not considered — reusing an archived account's name is not a duplicate.
-
-- Fails if an active (non-archived) account with the same name already exists
 `.trim();
