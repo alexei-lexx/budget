@@ -2,25 +2,27 @@ import { tool } from "langchain";
 import { z } from "zod";
 import { TransactionRepository } from "../../ports/transaction-repository";
 import { CategoryService } from "../../services/category-service";
+import { CategoryDto } from "../../tools/category-dto";
+import {
+  description as baseDescription,
+  getCategories,
+  inputSchema,
+} from "../../tools/get-categories";
 import { toDateString } from "../../types/date";
-import { EntityScope } from "../../types/entity-scope";
 import { Success } from "../../types/result";
 import { daysAgo, formatDateAsYYYYMMDD } from "../../utils/date";
 import { agentContextSchema } from "../agents/agent-context";
-import { CategoryDto, toCategoryDto } from "./category-dto";
 
 type CategoryData = CategoryDto & { keywords: string[] };
 
 export const CATEGORY_HISTORY_LOOKBACK_DAYS = 90;
 export const CATEGORY_HISTORY_MAX_KEYWORDS_PER_CATEGORY = 10;
 
-const schema = z.object({
-  scope: z
-    .enum(EntityScope)
-    .describe(
-      `Which categories to retrieve: "${EntityScope.ACTIVE}" for active (non-archived) only, "${EntityScope.ARCHIVED}" for archived only, "${EntityScope.ALL}" for both active and archived`,
-    ),
-});
+const schema = z.object(inputSchema);
+
+// Keyword enrichment has no MCP equivalent: external agents aren't wired
+// with a transactionRepository dependency, so this stays langchain-only.
+const description = `${baseDescription}\n- Each category includes keywords showing how similar transactions were previously categorised`;
 
 export const createGetCategoriesTool = ({
   categoryService,
@@ -30,25 +32,28 @@ export const createGetCategoriesTool = ({
   transactionRepository: TransactionRepository;
 }) =>
   tool(
-    async ({ scope }, config) => {
+    async ({ scope }: z.infer<typeof schema>, config) => {
       const userId = agentContextSchema.shape.userId.parse(
         config?.context?.userId,
       );
-      const filteredCategories = await categoryService.getCategoriesByUser(
-        userId,
+
+      const result = await getCategories(
         { scope },
+        { categoryService, userId },
       );
 
-      if (filteredCategories.length === 0) {
+      if (!result.success) {
+        return result;
+      }
+
+      if (result.data.length === 0) {
         return Success([]);
       }
 
-      const categoryDataList: CategoryData[] = filteredCategories.map(
-        (category) => ({
-          ...toCategoryDto(category),
-          keywords: [],
-        }),
-      );
+      const categoryDataList: CategoryData[] = result.data.map((category) => ({
+        ...category,
+        keywords: [],
+      }));
 
       // Enrich with recent transaction descriptions
       const today = new Date();
@@ -99,8 +104,7 @@ export const createGetCategoriesTool = ({
     },
     {
       name: "get_categories",
-      description:
-        "Get user categories filtered by scope. Each category includes keywords showing how similar transactions were previously categorised.",
+      description,
       schema,
     },
   );

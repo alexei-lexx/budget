@@ -1,11 +1,9 @@
 import { faker } from "@faker-js/faker";
 import { type Mocked, beforeEach, describe, expect, it } from "vitest";
-import { TransactionType } from "../../models/transaction";
 import { TransactionRepository } from "../../ports/transaction-repository";
 import { toDateString } from "../../types/date";
-import { fakeTransaction } from "../../utils/test-utils/models/transaction-fakes";
 import { createMockTransactionRepository } from "../../utils/test-utils/repositories/transaction-repository-mocks";
-import { MAX_PERIOD_DAYS, createGetTransactionsTool } from "./get-transactions";
+import { createGetTransactionsTool } from "./get-transactions";
 
 describe("createGetTransactionsTool", () => {
   let mockTransactionRepository: Mocked<TransactionRepository>;
@@ -36,127 +34,7 @@ describe("createGetTransactionsTool", () => {
     ).rejects.toThrow();
   });
 
-  it("rejects when startDate is after endDate", async () => {
-    const transactionsTool = createGetTransactionsTool({
-      transactionRepository: mockTransactionRepository,
-    });
-
-    const result = await transactionsTool.invoke(
-      { startDate: "2000-01-20", endDate: "2000-01-10" },
-      { context: { userId } },
-    );
-
-    expect(mockTransactionRepository.findManyByUserId).not.toHaveBeenCalled();
-    expect(result).toEqual({
-      success: false,
-      error: "startDate must not be after endDate",
-    });
-  });
-
-  it("rejects when date range exceeds max period days", async () => {
-    const transactionsTool = createGetTransactionsTool({
-      transactionRepository: mockTransactionRepository,
-    });
-
-    const result = await transactionsTool.invoke(
-      { startDate: "2000-01-01", endDate: "2001-01-02" },
-      { context: { userId } },
-    );
-
-    expect(mockTransactionRepository.findManyByUserId).not.toHaveBeenCalled();
-    expect(result).toEqual({
-      success: false,
-      error: `Date range must not exceed ${MAX_PERIOD_DAYS} days`,
-    });
-  });
-
-  it("filters by date range and returns transactions as JSON", async () => {
-    const transactions = [fakeTransaction()];
-    mockTransactionRepository.findManyByUserId.mockResolvedValue(transactions);
-
-    const transactionsTool = createGetTransactionsTool({
-      transactionRepository: mockTransactionRepository,
-    });
-
-    const result = await transactionsTool.invoke(
-      { startDate: "2000-01-01", endDate: "2000-01-31" },
-      { context: { userId } },
-    );
-
-    expect(result.success).toBe(true);
-    expect(mockTransactionRepository.findManyByUserId).toHaveBeenCalledWith(
-      userId,
-      {
-        dateAfter: toDateString("2000-01-01"),
-        dateBefore: toDateString("2000-01-31"),
-      },
-    );
-  });
-
-  it("returns required fields only", async () => {
-    const transactions = [
-      fakeTransaction({
-        id: "transaction1",
-        accountId: "account1",
-        categoryId: "category1",
-        type: TransactionType.EXPENSE,
-        amount: 50,
-        currency: "USD",
-        date: toDateString("2024-01-15"),
-        description: "Grocery shopping",
-      }),
-      fakeTransaction({
-        id: "transaction2",
-        accountId: "account2",
-        categoryId: "category2",
-        type: TransactionType.INCOME,
-        amount: 1000,
-        currency: "USD",
-        date: toDateString("2024-01-20"),
-        description: "Salary",
-      }),
-    ];
-    mockTransactionRepository.findManyByUserId.mockResolvedValue(transactions);
-
-    const transactionsTool = createGetTransactionsTool({
-      transactionRepository: mockTransactionRepository,
-    });
-    const result = await transactionsTool.invoke(
-      { startDate: "2024-01-01", endDate: "2024-01-31" },
-      { context: { userId } },
-    );
-
-    expect(result).toEqual({
-      success: true,
-      data: [
-        {
-          id: "transaction1",
-          accountId: "account1",
-          categoryId: "category1",
-          type: TransactionType.EXPENSE,
-          amount: 50,
-          currency: "USD",
-          date: toDateString("2024-01-15"),
-          description: "Grocery shopping",
-          transferId: undefined,
-        },
-        {
-          id: "transaction2",
-          accountId: "account2",
-          categoryId: "category2",
-          type: TransactionType.INCOME,
-          amount: 1000,
-          currency: "USD",
-          date: toDateString("2024-01-20"),
-          description: "Salary",
-          transferId: undefined,
-        },
-      ],
-    });
-  });
-
-  it("filters by accountIds", async () => {
-    const accountId = faker.string.uuid();
+  it("converts input dates and wires them through to the shared handler", async () => {
     mockTransactionRepository.findManyByUserId.mockResolvedValue([]);
 
     const transactionsTool = createGetTransactionsTool({
@@ -164,11 +42,7 @@ describe("createGetTransactionsTool", () => {
     });
 
     await transactionsTool.invoke(
-      {
-        startDate: "2000-01-10",
-        endDate: "2000-01-20",
-        accountIds: [accountId],
-      },
+      { startDate: "2000-01-10", endDate: "2000-01-20" },
       { context: { userId } },
     );
 
@@ -177,90 +51,6 @@ describe("createGetTransactionsTool", () => {
       {
         dateAfter: toDateString("2000-01-10"),
         dateBefore: toDateString("2000-01-20"),
-        accountIds: [accountId],
-      },
-    );
-  });
-
-  it("filters by categoryIds", async () => {
-    const categoryId = faker.string.uuid();
-    mockTransactionRepository.findManyByUserId.mockResolvedValue([]);
-
-    const transactionsTool = createGetTransactionsTool({
-      transactionRepository: mockTransactionRepository,
-    });
-
-    await transactionsTool.invoke(
-      {
-        startDate: "2000-01-10",
-        endDate: "2000-01-20",
-        categoryIds: [categoryId],
-      },
-      { context: { userId } },
-    );
-
-    expect(mockTransactionRepository.findManyByUserId).toHaveBeenCalledWith(
-      userId,
-      {
-        dateAfter: toDateString("2000-01-10"),
-        dateBefore: toDateString("2000-01-20"),
-        categoryIds: [categoryId],
-      },
-    );
-  });
-
-  it("filters by types", async () => {
-    const types = [TransactionType.EXPENSE, TransactionType.INCOME];
-    mockTransactionRepository.findManyByUserId.mockResolvedValue([]);
-
-    const transactionsTool = createGetTransactionsTool({
-      transactionRepository: mockTransactionRepository,
-    });
-
-    await transactionsTool.invoke(
-      { startDate: "2000-01-10", endDate: "2000-01-20", types },
-      { context: { userId } },
-    );
-
-    expect(mockTransactionRepository.findManyByUserId).toHaveBeenCalledWith(
-      userId,
-      {
-        dateAfter: toDateString("2000-01-10"),
-        dateBefore: toDateString("2000-01-20"),
-        types,
-      },
-    );
-  });
-
-  it("filters by accountIds, categoryIds, and types", async () => {
-    const accountId = faker.string.uuid();
-    const categoryId = faker.string.uuid();
-    const types = [TransactionType.EXPENSE, TransactionType.INCOME];
-    mockTransactionRepository.findManyByUserId.mockResolvedValue([]);
-
-    const transactionsTool = createGetTransactionsTool({
-      transactionRepository: mockTransactionRepository,
-    });
-
-    await transactionsTool.invoke(
-      {
-        startDate: "2000-01-10",
-        endDate: "2000-01-20",
-        accountIds: [accountId],
-        categoryIds: [categoryId],
-        types,
-      },
-      { context: { userId } },
-    );
-
-    expect(mockTransactionRepository.findManyByUserId).toHaveBeenCalledWith(
-      userId,
-      {
-        dateAfter: toDateString("2000-01-10"),
-        dateBefore: toDateString("2000-01-20"),
-        categoryIds: [categoryId],
-        accountIds: [accountId],
-        types,
       },
     );
   });

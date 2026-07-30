@@ -1,10 +1,10 @@
 import { faker } from "@faker-js/faker";
 import { type Mocked, beforeEach, describe, expect, it } from "vitest";
-import { CategoryType } from "../../models/category";
-import { BusinessError } from "../../services/business-error";
-import { CategoryService } from "../../services/category-service";
-import { fakeCategory } from "../../utils/test-utils/models/category-fakes";
-import { createMockCategoryService } from "../../utils/test-utils/services/category-service-mocks";
+import { CategoryType } from "../models/category";
+import { BusinessError } from "../services/business-error";
+import { CategoryService } from "../services/category-service";
+import { fakeCategory } from "../utils/test-utils/models/category-fakes";
+import { createMockCategoryService } from "../utils/test-utils/services/category-service-mocks";
 import { updateCategory } from "./update-category";
 
 describe("updateCategory", () => {

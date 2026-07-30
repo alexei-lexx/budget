@@ -1,9 +1,9 @@
 import { faker } from "@faker-js/faker";
 import { type Mocked, beforeEach, describe, expect, it } from "vitest";
-import { CategoryService } from "../../services/category-service";
-import { EntityScope } from "../../types/entity-scope";
-import { fakeCategory } from "../../utils/test-utils/models/category-fakes";
-import { createMockCategoryService } from "../../utils/test-utils/services/category-service-mocks";
+import { CategoryService } from "../services/category-service";
+import { EntityScope } from "../types/entity-scope";
+import { fakeCategory } from "../utils/test-utils/models/category-fakes";
+import { createMockCategoryService } from "../utils/test-utils/services/category-service-mocks";
 import { getCategories } from "./get-categories";
 
 describe("getCategories", () => {

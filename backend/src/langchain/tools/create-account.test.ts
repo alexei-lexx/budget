@@ -4,7 +4,6 @@ import { AccountService } from "../../services/account-service";
 import { BusinessError } from "../../services/business-error";
 import { fakeAccount } from "../../utils/test-utils/models/account-fakes";
 import { createMockAccountService } from "../../utils/test-utils/services/account-service-mocks";
-import { toAccountDto } from "./account-dto";
 import { CreateAccountInput, createCreateAccountTool } from "./create-account";
 
 describe("createCreateAccountTool", () => {
@@ -25,73 +24,24 @@ describe("createCreateAccountTool", () => {
     expect(createTool.name).toBe("create_account");
   });
 
-  // Happy path
-
-  it("creates account and defaults initialBalance to 0 when omitted", async () => {
+  it("wires input and context userId through to the shared handler", async () => {
     // Arrange
-    const created = fakeAccount({
-      name: "Savings",
-      currency: "USD",
-      initialBalance: 0,
-    });
-
-    // Service returns the created account
+    const created = fakeAccount({ name: "Savings", currency: "USD" });
     mockAccountService.createAccount.mockResolvedValue(created);
 
     const createTool = createCreateAccountTool({
       accountService: mockAccountService,
     });
 
-    const input: CreateAccountInput = {
-      name: "Savings",
-      currency: "USD",
-    };
+    const input: CreateAccountInput = { name: "Savings", currency: "USD" };
 
     // Act
     const result = await createTool.invoke(input, { context: { userId } });
 
     // Assert
-    expect(result).toEqual({
-      success: true,
-      data: {
-        ...toAccountDto(created),
-        initialBalance: 0,
-      },
-    });
-
-    expect(mockAccountService.createAccount).toHaveBeenCalledWith({
-      userId,
-      name: "Savings",
-      currency: "USD",
-      initialBalance: 0,
-    });
-  });
-
-  it("passes initialBalance through when provided", async () => {
-    // Arrange
-    const created = fakeAccount({ initialBalance: 500 });
-
-    // Service returns the created account
-    mockAccountService.createAccount.mockResolvedValue(created);
-
-    const createTool = createCreateAccountTool({
-      accountService: mockAccountService,
-    });
-
-    const input: CreateAccountInput = {
-      name: "Checking",
-      currency: "EUR",
-      initialBalance: 500,
-    };
-
-    // Act
-    await createTool.invoke(input, { context: { userId } });
-
-    // Assert
+    expect(result).toMatchObject({ success: true });
     expect(mockAccountService.createAccount).toHaveBeenCalledWith(
-      expect.objectContaining({
-        initialBalance: 500,
-      }),
+      expect.objectContaining({ userId, name: "Savings", currency: "USD" }),
     );
   });
 
@@ -118,12 +68,11 @@ describe("createCreateAccountTool", () => {
 
   // Dependency failures
 
-  it("propagates BusinessError from service unchanged", async () => {
+  it("returns failure when the shared handler catches a BusinessError", async () => {
     // Arrange
-    const error = new BusinessError('Account "Savings" already exists');
-
-    // Service rejects with a domain error
-    mockAccountService.createAccount.mockRejectedValue(error);
+    mockAccountService.createAccount.mockRejectedValue(
+      new BusinessError('Account "Savings" already exists'),
+    );
 
     const createTool = createCreateAccountTool({
       accountService: mockAccountService,
@@ -134,9 +83,13 @@ describe("createCreateAccountTool", () => {
       currency: "USD",
     };
 
-    // Act & Assert
-    await expect(
-      createTool.invoke(input, { context: { userId } }),
-    ).rejects.toBe(error);
+    // Act
+    const result = await createTool.invoke(input, { context: { userId } });
+
+    // Assert
+    expect(result).toEqual({
+      success: false,
+      error: 'Account "Savings" already exists',
+    });
   });
 });

@@ -5,7 +5,6 @@ import { BusinessError } from "../../services/business-error";
 import { CategoryService } from "../../services/category-service";
 import { fakeCategory } from "../../utils/test-utils/models/category-fakes";
 import { createMockCategoryService } from "../../utils/test-utils/services/category-service-mocks";
-import { toCategoryDto } from "./category-dto";
 import { createCreateCategoryTool } from "./create-category";
 
 describe("createCreateCategoryTool", () => {
@@ -26,72 +25,27 @@ describe("createCreateCategoryTool", () => {
     expect(createTool.name).toBe("create_category");
   });
 
-  // Happy path
-
-  it("creates category and returns it", async () => {
+  it("wires input and context userId through to the shared handler, defaulting excludeFromReports", async () => {
     // Arrange
     const created = fakeCategory();
-
-    // Persists and returns new category
     mockCategoryService.createCategory.mockResolvedValue(created);
 
     const createTool = createCreateCategoryTool({
       categoryService: mockCategoryService,
     });
 
-    const input = {
-      name: "Groceries",
-      type: CategoryType.EXPENSE,
-    };
+    const input = { name: "Groceries", type: CategoryType.EXPENSE };
 
     // Act
     const result = await createTool.invoke(input, { context: { userId } });
 
     // Assert
-    expect(result).toEqual({
-      success: true,
-      data: toCategoryDto(created),
-    });
-
+    expect(result).toMatchObject({ success: true });
     expect(mockCategoryService.createCategory).toHaveBeenCalledWith({
       userId,
       name: "Groceries",
       type: CategoryType.EXPENSE,
       excludeFromReports: false,
-    });
-  });
-
-  it("passes excludeFromReports true to service", async () => {
-    // Arrange
-    const created = fakeCategory();
-
-    // Persists and returns new category
-    mockCategoryService.createCategory.mockResolvedValue(created);
-
-    const createTool = createCreateCategoryTool({
-      categoryService: mockCategoryService,
-    });
-
-    const input = {
-      name: "Internal Transfers",
-      type: CategoryType.EXPENSE,
-      excludeFromReports: true,
-    };
-
-    // Act
-    const result = await createTool.invoke(input, { context: { userId } });
-
-    // Assert
-    expect(result).toEqual({
-      success: true,
-      data: toCategoryDto(created),
-    });
-
-    expect(mockCategoryService.createCategory).toHaveBeenCalledWith({
-      userId,
-      name: "Internal Transfers",
-      type: CategoryType.EXPENSE,
-      excludeFromReports: true,
     });
   });
 
@@ -118,11 +72,11 @@ describe("createCreateCategoryTool", () => {
 
   // Dependency failures
 
-  it("propagates BusinessError from service unchanged", async () => {
+  it("returns failure when the shared handler catches a BusinessError", async () => {
     // Arrange
-    const error = new BusinessError('Category "Groceries" already exists');
-
-    mockCategoryService.createCategory.mockRejectedValue(error);
+    mockCategoryService.createCategory.mockRejectedValue(
+      new BusinessError('Category "Groceries" already exists'),
+    );
 
     const createTool = createCreateCategoryTool({
       categoryService: mockCategoryService,
@@ -133,9 +87,13 @@ describe("createCreateCategoryTool", () => {
       type: CategoryType.EXPENSE,
     };
 
-    // Act & Assert
-    await expect(
-      createTool.invoke(input, { context: { userId } }),
-    ).rejects.toBe(error);
+    // Act
+    const result = await createTool.invoke(input, { context: { userId } });
+
+    // Assert
+    expect(result).toEqual({
+      success: false,
+      error: 'Category "Groceries" already exists',
+    });
   });
 });

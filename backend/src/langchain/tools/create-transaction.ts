@@ -1,39 +1,17 @@
 import { tool } from "langchain";
 import { z } from "zod";
-import { TransactionType } from "../../models/transaction";
 import {
   CreateTransactionServiceInput,
   TransactionService,
 } from "../../services/transaction-service";
-import { toDateString } from "../../types/date";
-import { Success } from "../../types/result";
+import {
+  createTransaction,
+  description,
+  inputSchema,
+} from "../../tools/create-transaction";
 import { agentContextSchema } from "../agents/agent-context";
-import { toTransactionDto } from "./transaction-dto";
 
-const schema = z.object({
-  accountId: z.uuid().describe("Account ID to associate the transaction with"),
-  amount: z.number().positive().describe("Transaction amount"),
-  categoryId: z
-    .uuid()
-    .optional()
-    .describe("Category ID to associate the transaction with"),
-  date: z.iso
-    .date()
-    .transform(toDateString)
-    .describe("Transaction date in YYYY-MM-DD format"),
-  description: z
-    .string()
-    .max(500)
-    .optional()
-    .describe("Short transaction description"),
-  type: z
-    .enum([
-      TransactionType.INCOME,
-      TransactionType.EXPENSE,
-      TransactionType.REFUND,
-    ])
-    .describe("Transaction type"),
-});
+const schema = z.object(inputSchema);
 
 export type CreateTransactionInput = z.infer<typeof schema>;
 
@@ -51,16 +29,12 @@ export const createCreateTransactionTool = ({
       );
 
       const serviceInput: CreateTransactionServiceInput = { ...input };
-      const created = await transactionService.createTransaction(
-        serviceInput,
-        userId,
-      );
 
-      return Success(toTransactionDto(created));
+      return createTransaction(serviceInput, { transactionService, userId });
     },
     {
       name: CREATE_TRANSACTION_TOOL_NAME,
-      description: "Create a new transaction.",
+      description,
       schema,
     },
   );

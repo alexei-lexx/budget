@@ -1,32 +1,27 @@
 import { tool } from "langchain";
 import { z } from "zod";
 import { AccountService } from "../../services/account-service";
-import { EntityScope } from "../../types/entity-scope";
-import { Success } from "../../types/result";
+import {
+  description,
+  getAccounts,
+  inputSchema,
+} from "../../tools/get-accounts";
 import { agentContextSchema } from "../agents/agent-context";
-import { toAccountDto } from "./account-dto";
 
-const schema = z.object({
-  scope: z
-    .enum(EntityScope)
-    .describe(
-      `Which accounts to retrieve: "${EntityScope.ACTIVE}" for active (non-archived) only, "${EntityScope.ARCHIVED}" for archived only, "${EntityScope.ALL}" for both active and archived`,
-    ),
-});
+const schema = z.object(inputSchema);
 
 export const createGetAccountsTool = (accountService: AccountService) =>
   tool(
-    async ({ scope }, config) => {
+    async (input: z.infer<typeof schema>, config) => {
       const userId = agentContextSchema.shape.userId.parse(
         config?.context?.userId,
       );
-      const accounts = await accountService.getAccountsByUser(userId, scope);
 
-      return Success(accounts.map(toAccountDto));
+      return getAccounts(input, { accountService, userId });
     },
     {
       name: "get_accounts",
-      description: "Get user accounts filtered by scope.",
+      description,
       schema,
     },
   );

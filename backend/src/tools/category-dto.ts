@@ -1,4 +1,4 @@
-import { Category, CategoryType } from "../../models/category";
+import { Category, CategoryType } from "../models/category";
 
 export interface CategoryDto {
   excludeFromReports: boolean;

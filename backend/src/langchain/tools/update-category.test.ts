@@ -5,7 +5,6 @@ import { BusinessError } from "../../services/business-error";
 import { CategoryService } from "../../services/category-service";
 import { fakeCategory } from "../../utils/test-utils/models/category-fakes";
 import { createMockCategoryService } from "../../utils/test-utils/services/category-service-mocks";
-import { toCategoryDto } from "./category-dto";
 import { createUpdateCategoryTool } from "./update-category";
 
 describe("createUpdateCategoryTool", () => {
@@ -26,113 +25,11 @@ describe("createUpdateCategoryTool", () => {
     expect(updateTool.name).toBe("update_category");
   });
 
-  // Happy path
-
-  it("updates category excludeFromReports", async () => {
+  it("wires input and context userId through to the shared handler", async () => {
     // Arrange
     const categoryId = faker.string.uuid();
     const updated = fakeCategory();
 
-    // Updates and returns category
-    mockCategoryService.updateCategory.mockResolvedValue(updated);
-
-    const updateTool = createUpdateCategoryTool({
-      categoryService: mockCategoryService,
-    });
-
-    const input = {
-      id: categoryId,
-      excludeFromReports: faker.datatype.boolean(),
-    };
-
-    // Act
-    const result = await updateTool.invoke(input, { context: { userId } });
-
-    // Assert
-    expect(result).toEqual({
-      success: true,
-      data: toCategoryDto(updated),
-    });
-
-    expect(mockCategoryService.updateCategory).toHaveBeenCalledWith(
-      categoryId,
-      userId,
-      { excludeFromReports: input.excludeFromReports },
-    );
-  });
-
-  it("updates category name", async () => {
-    // Arrange
-    const categoryId = faker.string.uuid();
-    const updated = fakeCategory();
-
-    // Updates and returns category
-    mockCategoryService.updateCategory.mockResolvedValue(updated);
-
-    const updateTool = createUpdateCategoryTool({
-      categoryService: mockCategoryService,
-    });
-
-    const input = {
-      id: categoryId,
-      name: "Renamed",
-    };
-
-    // Act
-    const result = await updateTool.invoke(input, { context: { userId } });
-
-    // Assert
-    expect(result).toEqual({
-      success: true,
-      data: toCategoryDto(updated),
-    });
-
-    expect(mockCategoryService.updateCategory).toHaveBeenCalledWith(
-      categoryId,
-      userId,
-      { name: "Renamed" },
-    );
-  });
-
-  it("updates category type", async () => {
-    // Arrange
-    const categoryId = faker.string.uuid();
-    const updated = fakeCategory();
-
-    // Updates and returns category
-    mockCategoryService.updateCategory.mockResolvedValue(updated);
-
-    const updateTool = createUpdateCategoryTool({
-      categoryService: mockCategoryService,
-    });
-
-    const input = {
-      id: categoryId,
-      type: CategoryType.INCOME,
-    };
-
-    // Act
-    const result = await updateTool.invoke(input, { context: { userId } });
-
-    // Assert
-    expect(result).toEqual({
-      success: true,
-      data: toCategoryDto(updated),
-    });
-
-    expect(mockCategoryService.updateCategory).toHaveBeenCalledWith(
-      categoryId,
-      userId,
-      { type: CategoryType.INCOME },
-    );
-  });
-
-  it("updates all fields at once", async () => {
-    // Arrange
-    const categoryId = faker.string.uuid();
-    const updated = fakeCategory();
-
-    // Updates and returns category
     mockCategoryService.updateCategory.mockResolvedValue(updated);
 
     const updateTool = createUpdateCategoryTool({
@@ -150,11 +47,7 @@ describe("createUpdateCategoryTool", () => {
     const result = await updateTool.invoke(input, { context: { userId } });
 
     // Assert
-    expect(result).toEqual({
-      success: true,
-      data: toCategoryDto(updated),
-    });
-
+    expect(result).toMatchObject({ success: true });
     expect(mockCategoryService.updateCategory).toHaveBeenCalledWith(
       categoryId,
       userId,
@@ -189,11 +82,11 @@ describe("createUpdateCategoryTool", () => {
 
   // Dependency failures
 
-  it("propagates BusinessError from the service unchanged", async () => {
+  it("returns failure when the shared handler catches a BusinessError", async () => {
     // Arrange
-    const error = new BusinessError('Category "Groceries" already exists');
-
-    mockCategoryService.updateCategory.mockRejectedValue(error);
+    mockCategoryService.updateCategory.mockRejectedValue(
+      new BusinessError('Category "Groceries" already exists'),
+    );
 
     const updateTool = createUpdateCategoryTool({
       categoryService: mockCategoryService,
@@ -204,9 +97,13 @@ describe("createUpdateCategoryTool", () => {
       name: "Groceries",
     };
 
-    // Act & Assert
-    await expect(
-      updateTool.invoke(input, { context: { userId } }),
-    ).rejects.toBe(error);
+    // Act
+    const result = await updateTool.invoke(input, { context: { userId } });
+
+    // Assert
+    expect(result).toEqual({
+      success: false,
+      error: 'Category "Groceries" already exists',
+    });
   });
 });

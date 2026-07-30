@@ -1,9 +1,9 @@
 import { faker } from "@faker-js/faker";
 import { type Mocked, beforeEach, describe, expect, it } from "vitest";
-import { AccountService } from "../../services/account-service";
-import { EntityScope } from "../../types/entity-scope";
-import { fakeAccount } from "../../utils/test-utils/models/account-fakes";
-import { createMockAccountService } from "../../utils/test-utils/services/account-service-mocks";
+import { AccountService } from "../services/account-service";
+import { EntityScope } from "../types/entity-scope";
+import { fakeAccount } from "../utils/test-utils/models/account-fakes";
+import { createMockAccountService } from "../utils/test-utils/services/account-service-mocks";
 import { getAccounts } from "./get-accounts";
 
 describe("getAccounts", () => {

@@ -45,7 +45,7 @@ describe("createCreateTransactionTool", () => {
     ).rejects.toThrow();
   });
 
-  it("calls createTransaction with correct input and returns created transaction", async () => {
+  it("wires input and context userId through to the shared handler", async () => {
     const created = fakeTransaction();
     mockTransactionService.createTransaction.mockResolvedValue(created);
 
@@ -68,18 +68,6 @@ describe("createCreateTransactionTool", () => {
       input,
       userId,
     );
-    expect(result).toEqual({
-      success: true,
-      data: {
-        id: created.id,
-        accountId: created.accountId,
-        amount: created.amount,
-        categoryId: created.categoryId,
-        currency: created.currency,
-        date: created.date,
-        description: created.description,
-        type: created.type,
-      },
-    });
+    expect(result).toMatchObject({ success: true });
   });
 });

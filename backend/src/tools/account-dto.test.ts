@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { fakeAccount } from "../../utils/test-utils/models/account-fakes";
+import { fakeAccount } from "../utils/test-utils/models/account-fakes";
 import { toAccountDto } from "./account-dto";
 
 describe("toAccountDto", () => {

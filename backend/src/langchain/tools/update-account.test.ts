@@ -4,7 +4,6 @@ import { AccountService } from "../../services/account-service";
 import { BusinessError } from "../../services/business-error";
 import { fakeAccount } from "../../utils/test-utils/models/account-fakes";
 import { createMockAccountService } from "../../utils/test-utils/services/account-service-mocks";
-import { toAccountDto } from "./account-dto";
 import { UpdateAccountInput, createUpdateAccountTool } from "./update-account";
 
 describe("createUpdateAccountTool", () => {
@@ -25,99 +24,28 @@ describe("createUpdateAccountTool", () => {
     expect(updateTool.name).toBe("update_account");
   });
 
-  // Happy path
-
-  it("updates the account name and returns the account", async () => {
+  it("wires input and context userId through to the shared handler", async () => {
     // Arrange
     const accountId = faker.string.uuid();
     const updated = fakeAccount({ id: accountId, name: "Renamed" });
 
-    // Service returns the updated account
     mockAccountService.updateAccount.mockResolvedValue(updated);
 
     const updateTool = createUpdateAccountTool({
       accountService: mockAccountService,
     });
 
-    const input: UpdateAccountInput = {
-      id: accountId,
-      name: "Renamed",
-    };
+    const input: UpdateAccountInput = { id: accountId, name: "Renamed" };
 
     // Act
     const result = await updateTool.invoke(input, { context: { userId } });
 
     // Assert
-    expect(result).toEqual({
-      success: true,
-      data: toAccountDto(updated),
-    });
-
+    expect(result).toMatchObject({ success: true });
     expect(mockAccountService.updateAccount).toHaveBeenCalledWith(
       accountId,
       userId,
       { name: "Renamed" },
-    );
-  });
-
-  it("updates the account currency", async () => {
-    // Arrange
-    const accountId = faker.string.uuid();
-    const updated = fakeAccount({ id: accountId, currency: "EUR" });
-
-    // Service returns the updated account
-    mockAccountService.updateAccount.mockResolvedValue(updated);
-
-    const updateTool = createUpdateAccountTool({
-      accountService: mockAccountService,
-    });
-
-    const input: UpdateAccountInput = {
-      id: accountId,
-      currency: "EUR",
-    };
-
-    // Act
-    await updateTool.invoke(input, { context: { userId } });
-
-    // Assert
-    expect(mockAccountService.updateAccount).toHaveBeenCalledWith(
-      accountId,
-      userId,
-      { currency: "EUR" },
-    );
-  });
-
-  it("updates both name and currency", async () => {
-    // Arrange
-    const accountId = faker.string.uuid();
-    const updated = fakeAccount({
-      id: accountId,
-      name: "Renamed",
-      currency: "EUR",
-    });
-
-    // Service returns the updated account
-    mockAccountService.updateAccount.mockResolvedValue(updated);
-
-    const updateTool = createUpdateAccountTool({
-      accountService: mockAccountService,
-    });
-
-    const input: UpdateAccountInput = {
-      id: accountId,
-      name: "Renamed",
-      currency: "EUR",
-    };
-
-    // Act
-    await updateTool.invoke(input, { context: { userId } });
-
-    // Assert
-    expect(mockAccountService.updateAccount).toHaveBeenCalledWith(
-      accountId,
-      userId,
-      { name: "Renamed", currency: "EUR" },
     );
   });
 
@@ -163,14 +91,13 @@ describe("createUpdateAccountTool", () => {
 
   // Dependency failures
 
-  it("propagates BusinessError from the service unchanged", async () => {
+  it("returns failure when the shared handler catches a BusinessError", async () => {
     // Arrange
-    const error = new BusinessError(
-      "Cannot change currency for account that has existing transactions. Please create a new account with the desired currency instead.",
+    mockAccountService.updateAccount.mockRejectedValue(
+      new BusinessError(
+        "Cannot change currency for account that has existing transactions. Please create a new account with the desired currency instead.",
+      ),
     );
-
-    // Service rejects with a domain error
-    mockAccountService.updateAccount.mockRejectedValue(error);
 
     const updateTool = createUpdateAccountTool({
       accountService: mockAccountService,
@@ -181,9 +108,14 @@ describe("createUpdateAccountTool", () => {
       currency: "EUR",
     };
 
-    // Act & Assert
-    await expect(
-      updateTool.invoke(input, { context: { userId } }),
-    ).rejects.toBe(error);
+    // Act
+    const result = await updateTool.invoke(input, { context: { userId } });
+
+    // Assert
+    expect(result).toEqual({
+      success: false,
+      error:
+        "Cannot change currency for account that has existing transactions. Please create a new account with the desired currency instead.",
+    });
   });
 });

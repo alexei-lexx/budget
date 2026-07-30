@@ -1,46 +1,16 @@
 import { tool } from "langchain";
 import { z } from "zod";
-import { CategoryType } from "../../models/category";
-import { UpdateCategoryInput as UpdateCategoryServiceInput } from "../../ports/category-repository";
 import { CategoryService } from "../../services/category-service";
-import { Success } from "../../types/result";
+import {
+  description,
+  inputSchema,
+  updateCategory,
+} from "../../tools/update-category";
 import { agentContextSchema } from "../agents/agent-context";
-import { toCategoryDto } from "./category-dto";
 
-const schema = z
-  .object({
-    id: z.uuid().describe("Category ID to update"),
-    excludeFromReports: z
-      .boolean()
-      .optional()
-      .describe(
-        "New report-exclusion setting. Whether to exclude transactions in this category from financial reports.",
-      ),
-    name: z.string().optional().describe("New category name"),
-    type: z
-      .enum(CategoryType)
-      .optional()
-      .describe(
-        `New category type: ${CategoryType.INCOME} or ${CategoryType.EXPENSE}`,
-      ),
-  })
-  .strict();
+const schema = z.object(inputSchema).strict();
 
 export type UpdateCategoryInput = z.infer<typeof schema>;
-
-const description = `
-Update an existing category's name, type, and/or report-exclusion setting.
-
-Before calling, check the user's existing active (non-archived) categories
-to resolve the category id (never guess it or accept it from user input).
-If the requested new name is a semantic near-variant of another existing active category
-(pluralisation, typo, abbreviation, or synonym)
-ask the user to confirm before updating.
-Archived categories are not considered — reusing an archived category's name is not a duplicate.
-
-Set excludeFromReports to control whether transactions in this category
-are excluded from financial reports and spending/income calculations.
-`.trim();
 
 export const createUpdateCategoryTool = ({
   categoryService,
@@ -53,21 +23,7 @@ export const createUpdateCategoryTool = ({
         config?.context?.userId,
       );
 
-      const serviceInput: UpdateCategoryServiceInput = {
-        ...(input.excludeFromReports !== undefined && {
-          excludeFromReports: input.excludeFromReports,
-        }),
-        ...(input.name !== undefined && { name: input.name }),
-        ...(input.type !== undefined && { type: input.type }),
-      };
-
-      const updated = await categoryService.updateCategory(
-        input.id,
-        userId,
-        serviceInput,
-      );
-
-      return Success(toCategoryDto(updated));
+      return updateCategory(input, { categoryService, userId });
     },
     {
       name: "update_category",

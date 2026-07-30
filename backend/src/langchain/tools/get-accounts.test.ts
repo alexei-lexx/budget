@@ -2,7 +2,6 @@ import { faker } from "@faker-js/faker";
 import { type Mocked, beforeEach, describe, expect, it } from "vitest";
 import { AccountService } from "../../services/account-service";
 import { EntityScope } from "../../types/entity-scope";
-import { fakeAccount } from "../../utils/test-utils/models/account-fakes";
 import { createMockAccountService } from "../../utils/test-utils/services/account-service-mocks";
 import { createGetAccountsTool } from "./get-accounts";
 
@@ -31,7 +30,7 @@ describe("createGetAccountsTool", () => {
     ).rejects.toThrow();
   });
 
-  it("calls service", async () => {
+  it("wires input and context userId through to the shared handler", async () => {
     mockAccountService.getAccountsByUser.mockResolvedValue([]);
 
     const accountsTool = createGetAccountsTool(mockAccountService);
@@ -44,59 +43,5 @@ describe("createGetAccountsTool", () => {
       userId,
       EntityScope.ARCHIVED,
     );
-  });
-
-  it("returns required fields only", async () => {
-    const mockAccounts = [
-      fakeAccount({
-        userId,
-        name: "Checking Account",
-        currency: "USD",
-        isArchived: false,
-      }),
-      fakeAccount({
-        userId,
-        name: "Savings Account",
-        currency: "EUR",
-        isArchived: true,
-      }),
-    ];
-    mockAccountService.getAccountsByUser.mockResolvedValue(mockAccounts);
-
-    const accountsTool = createGetAccountsTool(mockAccountService);
-    const result = await accountsTool.invoke(
-      { scope: EntityScope.ALL },
-      { context: { userId } },
-    );
-
-    expect(result).toEqual({
-      success: true,
-      data: [
-        {
-          id: mockAccounts[0].id,
-          name: "Checking Account",
-          currency: "USD",
-          isArchived: false,
-        },
-        {
-          id: mockAccounts[1].id,
-          name: "Savings Account",
-          currency: "EUR",
-          isArchived: true,
-        },
-      ],
-    });
-  });
-
-  it("returns empty array when user has no accounts", async () => {
-    mockAccountService.getAccountsByUser.mockResolvedValue([]);
-
-    const accountsTool = createGetAccountsTool(mockAccountService);
-    const result = await accountsTool.invoke(
-      { scope: EntityScope.ALL },
-      { context: { userId } },
-    );
-
-    expect(result).toEqual({ success: true, data: [] });
   });
 });

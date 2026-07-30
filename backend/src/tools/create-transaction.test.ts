@@ -1,14 +1,14 @@
 import { faker } from "@faker-js/faker";
 import { type Mocked, beforeEach, describe, expect, it } from "vitest";
-import { TransactionType } from "../../models/transaction";
-import { BusinessError } from "../../services/business-error";
+import { TransactionType } from "../models/transaction";
+import { BusinessError } from "../services/business-error";
 import {
   CreateTransactionServiceInput,
   TransactionService,
-} from "../../services/transaction-service";
-import { toDateString } from "../../types/date";
-import { fakeTransaction } from "../../utils/test-utils/models/transaction-fakes";
-import { createMockTransactionService } from "../../utils/test-utils/services/transaction-service-mocks";
+} from "../services/transaction-service";
+import { toDateString } from "../types/date";
+import { fakeTransaction } from "../utils/test-utils/models/transaction-fakes";
+import { createMockTransactionService } from "../utils/test-utils/services/transaction-service-mocks";
 import { createTransaction } from "./create-transaction";
 
 describe("createTransaction", () => {

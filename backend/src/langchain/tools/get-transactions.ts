@@ -1,41 +1,18 @@
 import { tool } from "langchain";
 import { z } from "zod";
-import { TransactionType } from "../../models/transaction";
 import { TransactionRepository } from "../../ports/transaction-repository";
+import {
+  MAX_PERIOD_DAYS,
+  description,
+  getTransactions,
+  inputSchema,
+} from "../../tools/get-transactions";
 import { toDateString } from "../../types/date";
-import { Failure, Success } from "../../types/result";
-import { daysBetween } from "../../utils/date";
 import { agentContextSchema } from "../agents/agent-context";
-import { toTransactionDto } from "./transaction-dto";
 
-export const MAX_PERIOD_DAYS = 365;
+export { MAX_PERIOD_DAYS };
 
-const schema = z.object({
-  startDate: z.iso
-    .date()
-    .describe(
-      "Start date for filtering transactions (inclusive). Date format: YYYY-MM-DD",
-    ),
-  endDate: z.iso
-    .date()
-    .describe(
-      "End date for filtering transactions (inclusive). Date format: YYYY-MM-DD",
-    ),
-  accountIds: z
-    .array(z.string())
-    .optional()
-    .describe("Account IDs to filter transactions by (one or more)"),
-  categoryIds: z
-    .array(z.string())
-    .optional()
-    .describe("Category IDs to filter transactions by (one or more)"),
-  types: z
-    .array(z.enum(TransactionType))
-    .optional()
-    .describe(
-      `Transaction types to filter by (${Object.values(TransactionType).join(", ")})`,
-    ),
-});
+const schema = z.object(inputSchema);
 
 export const createGetTransactionsTool = ({
   transactionRepository,
@@ -43,36 +20,34 @@ export const createGetTransactionsTool = ({
   transactionRepository: TransactionRepository;
 }) =>
   tool(
-    async ({ startDate, endDate, accountIds, categoryIds, types }, config) => {
+    async (
+      {
+        startDate,
+        endDate,
+        accountIds,
+        categoryIds,
+        types,
+      }: z.infer<typeof schema>,
+      config,
+    ) => {
       const userId = agentContextSchema.shape.userId.parse(
         config?.context?.userId,
       );
-      if (startDate > endDate) {
-        return Failure("startDate must not be after endDate");
-      }
 
-      if (
-        daysBetween(new Date(startDate), new Date(endDate)) > MAX_PERIOD_DAYS
-      ) {
-        return Failure(`Date range must not exceed ${MAX_PERIOD_DAYS} days`);
-      }
-
-      const transactions = await transactionRepository.findManyByUserId(
-        userId,
+      return getTransactions(
         {
-          dateAfter: toDateString(startDate),
-          dateBefore: toDateString(endDate),
-          ...(accountIds && { accountIds }),
-          ...(categoryIds && { categoryIds }),
-          ...(types !== undefined && { types }),
+          startDate: toDateString(startDate),
+          endDate: toDateString(endDate),
+          accountIds,
+          categoryIds,
+          types,
         },
+        { transactionRepository, userId },
       );
-
-      return Success(transactions.map(toTransactionDto));
     },
     {
       name: "get_transactions",
-      description: `Get filtered transactions by date range and optionally by one or more accountIds, one or more categoryIds, or one or more transaction types. Date format: YYYY-MM-DD. The date range must not exceed ${MAX_PERIOD_DAYS} days.`,
+      description,
       schema,
     },
   );

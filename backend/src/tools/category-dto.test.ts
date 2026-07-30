@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { fakeCategory } from "../../utils/test-utils/models/category-fakes";
+import { fakeCategory } from "../utils/test-utils/models/category-fakes";
 import { toCategoryDto } from "./category-dto";
 
 describe("toCategoryDto", () => {
