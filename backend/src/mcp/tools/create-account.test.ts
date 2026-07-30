@@ -26,6 +26,7 @@ describe("createAccount", () => {
       isArchived: false,
       initialBalance: 500,
     });
+    // Persists and returns new account
     mockAccountService.createAccount.mockResolvedValue(created);
 
     // Act
@@ -56,6 +57,7 @@ describe("createAccount", () => {
   it("defaults initialBalance to 0 when omitted", async () => {
     // Arrange
     const created = fakeAccount({ initialBalance: 0 });
+    // Persists and returns new account
     mockAccountService.createAccount.mockResolvedValue(created);
 
     // Act
@@ -70,10 +72,11 @@ describe("createAccount", () => {
     });
   });
 
-  // Error handling
+  // Dependency failures
 
   it("returns failure when service throws", async () => {
     // Arrange
+    // Account service rejects
     mockAccountService.createAccount.mockRejectedValue(
       new BusinessError('Account "Savings" already exists'),
     );
