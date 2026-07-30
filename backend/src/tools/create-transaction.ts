@@ -1,5 +1,7 @@
 import { z } from "zod";
+import { ModelError } from "../models/model-error";
 import { TransactionType } from "../models/transaction";
+import { BusinessError } from "../services/business-error";
 import {
   CreateTransactionServiceInput,
   TransactionService,
@@ -25,7 +27,7 @@ export async function createTransaction(
 
     return Success(toTransactionDto(created));
   } catch (error) {
-    if (error instanceof Error) {
+    if (error instanceof BusinessError || error instanceof ModelError) {
       return Failure(error.message);
     }
     throw error;

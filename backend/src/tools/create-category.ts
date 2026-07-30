@@ -1,5 +1,7 @@
 import { z } from "zod";
 import { CategoryType } from "../models/category";
+import { ModelError } from "../models/model-error";
+import { BusinessError } from "../services/business-error";
 import { CategoryService } from "../services/category-service";
 import { Failure, Result, Success } from "../types/result";
 import { CategoryDto, toCategoryDto } from "./category-dto";
@@ -28,7 +30,7 @@ export async function createCategory(
 
     return Success(toCategoryDto(created));
   } catch (error) {
-    if (error instanceof Error) {
+    if (error instanceof BusinessError || error instanceof ModelError) {
       return Failure(error.message);
     }
     throw error;

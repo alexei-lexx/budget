@@ -1,5 +1,7 @@
 import { z } from "zod";
+import { ModelError } from "../models/model-error";
 import { AccountService } from "../services/account-service";
+import { BusinessError } from "../services/business-error";
 import { Failure, Result, Success } from "../types/result";
 import { AccountDto, toAccountDto } from "./account-dto";
 
@@ -30,7 +32,7 @@ export async function createAccount(
       initialBalance: created.initialBalance,
     });
   } catch (error) {
-    if (error instanceof Error) {
+    if (error instanceof BusinessError || error instanceof ModelError) {
       return Failure(error.message);
     }
     throw error;
