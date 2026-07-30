@@ -25,6 +25,7 @@ describe("updateAccount", () => {
       currency: "EUR",
       isArchived: false,
     });
+    // Persists and returns updated account
     mockAccountService.updateAccount.mockResolvedValue(updated);
 
     // Act
@@ -50,9 +51,10 @@ describe("updateAccount", () => {
     );
   });
 
-  it("passes only the supplied fields to the service", async () => {
+  it("passes only supplied fields to service", async () => {
     // Arrange
     const accountId = faker.string.uuid();
+    // Persists and returns updated account
     mockAccountService.updateAccount.mockResolvedValue(fakeAccount());
 
     // Act
@@ -66,10 +68,11 @@ describe("updateAccount", () => {
     );
   });
 
-  // Error handling
+  // Dependency failures
 
   it("returns failure when service throws", async () => {
     // Arrange
+    // Account service rejects
     mockAccountService.updateAccount.mockRejectedValue(
       new BusinessError("Account not found"),
     );
