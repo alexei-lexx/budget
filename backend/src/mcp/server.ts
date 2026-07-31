@@ -15,6 +15,7 @@ import { registerGetCategoriesTool } from "./tools/get-categories";
 import { registerGetTransactionsTool } from "./tools/get-transactions";
 import { registerUpdateAccountTool } from "./tools/update-account";
 import { registerUpdateCategoryTool } from "./tools/update-category";
+import { registerUpdateTransactionTool } from "./tools/update-transaction";
 
 export async function createAuthenticatedMcpServer(
   token: string | null,
@@ -40,6 +41,7 @@ export async function createAuthenticatedMcpServer(
   registerGetTransactionsTool(server, { transactionRepository, userId });
   registerUpdateAccountTool(server, { accountService, userId });
   registerUpdateCategoryTool(server, { categoryService, userId });
+  registerUpdateTransactionTool(server, { transactionService, userId });
 
   return server;
 }
