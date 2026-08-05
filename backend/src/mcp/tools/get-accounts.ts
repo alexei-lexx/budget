@@ -4,10 +4,13 @@ import { AccountDto, toAccountDto } from "../../langchain/tools/account-dto";
 import { AccountService } from "../../services/account-service";
 import { EntityScope } from "../../types/entity-scope";
 import { Result, Success } from "../../types/result";
+import { buildGuideTokensField, verifyGuideTokens } from "./guides";
 import { toToolResult } from "./to-tool-result";
 
+const requiredGuides = ["basics"] as const;
+
 export async function getAccounts(
-  { scope }: { scope: EntityScope },
+  { scope, guideTokens }: { scope: EntityScope; guideTokens: string[] },
   {
     accountService,
     userId,
@@ -16,6 +19,12 @@ export async function getAccounts(
     userId: string;
   },
 ): Promise<Result<AccountDto[]>> {
+  const verification = verifyGuideTokens({
+    guideTokens,
+    requiredGuides,
+  });
+  if (!verification.success) return verification;
+
   const accounts = await accountService.getAccountsByUser(userId, scope);
 
   return Success(accounts.map(toAccountDto));
@@ -27,17 +36,8 @@ const inputSchema = {
     .describe(
       `Which accounts to retrieve: "${EntityScope.ACTIVE}" for active (non-archived) only, "${EntityScope.ARCHIVED}" for archived only, "${EntityScope.ALL}" for both active and archived`,
     ),
+  guideTokens: buildGuideTokensField(requiredGuides),
 };
-
-const description = `
-Get user accounts filtered by scope.
-
-Account is a place where money is stored.
-
-- The user can have multiple accounts
-- Each account has a name, a currency, and an archived flag
-- Include archived accounts for historical queries
-`.trim();
 
 export function registerGetAccountsTool(
   server: McpServer,
@@ -45,7 +45,11 @@ export function registerGetAccountsTool(
 ): void {
   server.registerTool(
     "get_accounts",
-    { description, inputSchema },
-    async ({ scope }) => toToolResult(await getAccounts({ scope }, deps)),
+    {
+      description: "Get user accounts filtered by scope.",
+      inputSchema,
+    },
+    async ({ scope, guideTokens }) =>
+      toToolResult(await getAccounts({ scope, guideTokens }, deps)),
   );
 }

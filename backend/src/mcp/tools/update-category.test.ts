@@ -5,12 +5,15 @@ import { BusinessError } from "../../services/business-error";
 import { CategoryService } from "../../services/category-service";
 import { fakeCategory } from "../../utils/test-utils/models/category-fakes";
 import { createMockCategoryService } from "../../utils/test-utils/services/category-service-mocks";
+import { GUIDES } from "./guides";
 import { updateCategory } from "./update-category";
 
 describe("updateCategory", () => {
   let mockCategoryService: Mocked<CategoryService>;
   const userId = faker.string.uuid();
   let deps: { categoryService: Mocked<CategoryService>; userId: string };
+
+  const validGuideToken = GUIDES.basics.token;
 
   beforeEach(() => {
     mockCategoryService = createMockCategoryService();
@@ -37,6 +40,7 @@ describe("updateCategory", () => {
         name: "Renamed Category",
         type: CategoryType.INCOME,
         excludeFromReports: true,
+        guideTokens: [validGuideToken],
       },
       deps,
     );
@@ -70,7 +74,10 @@ describe("updateCategory", () => {
     mockCategoryService.updateCategory.mockResolvedValue(fakeCategory());
 
     // Act
-    await updateCategory({ id: categoryId, name: "Renamed Only" }, deps);
+    await updateCategory(
+      { id: categoryId, name: "Renamed Only", guideTokens: [validGuideToken] },
+      deps,
+    );
 
     // Assert
     expect(mockCategoryService.updateCategory).toHaveBeenCalledWith(
@@ -78,6 +85,38 @@ describe("updateCategory", () => {
       userId,
       { name: "Renamed Only" },
     );
+  });
+
+  // Validation failures
+
+  it("rejects without valid basics guide token and does not call service", async () => {
+    // Act
+    const result = await updateCategory(
+      { id: faker.string.uuid(), name: "Renamed Only", guideTokens: [] },
+      deps,
+    );
+
+    // Assert
+    expect(result).toEqual({
+      success: false,
+      error:
+        "Missing or invalid guide token for: basics. Reload the guide(s) and retry",
+    });
+    expect(mockCategoryService.updateCategory).not.toHaveBeenCalled();
+  });
+
+  it("does not disclose valid guide token in rejection message", async () => {
+    // Act
+    const result = await updateCategory(
+      { id: faker.string.uuid(), name: "Renamed Only", guideTokens: [] },
+      deps,
+    );
+
+    // Assert
+    expect(result).toEqual({
+      success: false,
+      error: expect.not.stringContaining(validGuideToken),
+    });
   });
 
   // Dependency failures
@@ -91,7 +130,11 @@ describe("updateCategory", () => {
 
     // Act
     const result = await updateCategory(
-      { id: faker.string.uuid(), name: "Renamed Category" },
+      {
+        id: faker.string.uuid(),
+        name: "Renamed Category",
+        guideTokens: [validGuideToken],
+      },
       deps,
     );
 

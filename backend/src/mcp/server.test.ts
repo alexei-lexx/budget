@@ -55,7 +55,7 @@ describe("createAuthenticatedMcpServer", () => {
     if (!server) throw new Error("expected server to be created");
 
     const toolNames = await listToolNames(server);
-    expect(toolNames).toHaveLength(9);
+    expect(toolNames).toHaveLength(10);
     expect(toolNames).toEqual(
       expect.arrayContaining([
         "create_account",
@@ -64,6 +64,7 @@ describe("createAuthenticatedMcpServer", () => {
         "get_accounts",
         "get_categories",
         "get_transactions",
+        "load_guides",
         "update_account",
         "update_category",
         "update_transaction",

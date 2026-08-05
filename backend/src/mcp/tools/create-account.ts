@@ -3,14 +3,23 @@ import { z } from "zod";
 import { AccountDto, toAccountDto } from "../../langchain/tools/account-dto";
 import { AccountService } from "../../services/account-service";
 import { Failure, Result, Success } from "../../types/result";
+import { buildGuideTokensField, verifyGuideTokens } from "./guides";
 import { toToolResult } from "./to-tool-result";
+
+const requiredGuides = ["basics"] as const;
 
 export async function createAccount(
   {
     name,
     currency,
     initialBalance,
-  }: { name: string; currency: string; initialBalance?: number },
+    guideTokens,
+  }: {
+    name: string;
+    currency: string;
+    initialBalance?: number;
+    guideTokens: string[];
+  },
   {
     accountService,
     userId,
@@ -19,6 +28,12 @@ export async function createAccount(
     userId: string;
   },
 ): Promise<Result<AccountDto & { initialBalance: number }>> {
+  const verification = verifyGuideTokens({
+    guideTokens,
+    requiredGuides,
+  });
+  if (!verification.success) return verification;
+
   try {
     const created = await accountService.createAccount({
       userId,
@@ -50,12 +65,11 @@ const inputSchema = {
     .describe(
       "Initial balance of the account. Omit to start the account at zero.",
     ),
+  guideTokens: buildGuideTokensField(requiredGuides),
 };
 
 const description = `
 Create a new account for the user.
-
-Account is a place where money is stored.
 
 - Fails if an active (non-archived) account with the same name already exists
 - Archived accounts are not considered duplicates

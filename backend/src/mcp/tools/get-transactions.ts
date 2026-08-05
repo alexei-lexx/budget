@@ -9,9 +9,12 @@ import { TransactionRepository } from "../../ports/transaction-repository";
 import { DateString, toDateString } from "../../types/date";
 import { Failure, Result, Success } from "../../types/result";
 import { daysBetween } from "../../utils/date";
+import { buildGuideTokensField, verifyGuideTokens } from "./guides";
 import { toToolResult } from "./to-tool-result";
 
 export const MAX_PERIOD_DAYS = 365;
+
+const requiredGuides = ["basics"] as const;
 
 export async function getTransactions(
   {
@@ -20,12 +23,14 @@ export async function getTransactions(
     accountIds,
     categoryIds,
     types,
+    guideTokens,
   }: {
     startDate: DateString;
     endDate: DateString;
     accountIds?: string[];
     categoryIds?: string[];
     types?: TransactionType[];
+    guideTokens: string[];
   },
   {
     transactionRepository,
@@ -35,6 +40,12 @@ export async function getTransactions(
     userId: string;
   },
 ): Promise<Result<TransactionDto[]>> {
+  const verification = verifyGuideTokens({
+    guideTokens,
+    requiredGuides,
+  });
+  if (!verification.success) return verification;
+
   if (startDate > endDate) {
     return Failure("startDate must not be after endDate");
   }
@@ -79,6 +90,7 @@ const inputSchema = {
     .array(z.enum(TransactionType))
     .optional()
     .describe(`Transaction types to filter by (${typesString})`),
+  guideTokens: buildGuideTokensField(requiredGuides),
 };
 
 const description = `
@@ -87,20 +99,6 @@ by one or more accountIds,
 one or more categoryIds,
 or one or more transaction types.
 The given date range must not exceed ${MAX_PERIOD_DAYS} days.
-
-Transaction is a record of a money movement.
-
-- The user can spend, receive, refund, or transfer money
-- Each transaction MUST have a type (${typesString})
-  - EXPENSE increases spending
-  - REFUND decreases spending in the same category
-  - INCOME and all TRANSFER types never affect spending
-- Each transaction MUST belong to exactly one account
-- Each transaction MUST have an amount, a currency, and a date
-
-A transaction can optionally:
-  - belong to a category
-  - have a description
 `.trim();
 
 export function registerGetTransactionsTool(
@@ -113,7 +111,14 @@ export function registerGetTransactionsTool(
       description,
       inputSchema,
     },
-    async ({ startDate, endDate, accountIds, categoryIds, types }) =>
+    async ({
+      startDate,
+      endDate,
+      accountIds,
+      categoryIds,
+      types,
+      guideTokens,
+    }) =>
       toToolResult(
         await getTransactions(
           {
@@ -122,6 +127,7 @@ export function registerGetTransactionsTool(
             accountIds,
             categoryIds,
             types,
+            guideTokens,
           },
           deps,
         ),

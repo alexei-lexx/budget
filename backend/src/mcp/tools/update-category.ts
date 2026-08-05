@@ -5,7 +5,10 @@ import { CategoryType } from "../../models/category";
 import { UpdateCategoryInput } from "../../ports/category-repository";
 import { CategoryService } from "../../services/category-service";
 import { Failure, Result, Success } from "../../types/result";
+import { buildGuideTokensField, verifyGuideTokens } from "./guides";
 import { toToolResult } from "./to-tool-result";
+
+const requiredGuides = ["basics"] as const;
 
 export async function updateCategory(
   {
@@ -13,11 +16,13 @@ export async function updateCategory(
     name,
     type,
     excludeFromReports,
+    guideTokens,
   }: {
     id: string;
     name?: string;
     type?: CategoryType;
     excludeFromReports?: boolean;
+    guideTokens: string[];
   },
   {
     categoryService,
@@ -27,6 +32,12 @@ export async function updateCategory(
     userId: string;
   },
 ): Promise<Result<CategoryDto>> {
+  const verification = verifyGuideTokens({
+    guideTokens,
+    requiredGuides,
+  });
+  if (!verification.success) return verification;
+
   try {
     const input: UpdateCategoryInput = {
       ...(name !== undefined && { name }),
@@ -60,6 +71,7 @@ const inputSchema = {
     .describe(
       "New report-exclusion setting. Whether to exclude transactions in this category from financial reports.",
     ),
+  guideTokens: buildGuideTokensField(requiredGuides),
 };
 
 const description = `
@@ -71,9 +83,6 @@ If the requested new name is a semantic near-variant of another existing active 
 (pluralisation, typo, abbreviation, or synonym)
 ask the user to confirm before updating.
 Archived categories are not considered — reusing an archived category's name is not a duplicate.
-
-Set excludeFromReports to control whether transactions in this category
-are excluded from financial reports and spending/income calculations.
 `.trim();
 
 export function registerUpdateCategoryTool(

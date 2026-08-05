@@ -4,10 +4,13 @@ import { CategoryDto, toCategoryDto } from "../../langchain/tools/category-dto";
 import { CategoryService } from "../../services/category-service";
 import { EntityScope } from "../../types/entity-scope";
 import { Result, Success } from "../../types/result";
+import { buildGuideTokensField, verifyGuideTokens } from "./guides";
 import { toToolResult } from "./to-tool-result";
 
+const requiredGuides = ["basics"] as const;
+
 export async function getCategories(
-  { scope }: { scope: EntityScope },
+  { scope, guideTokens }: { scope: EntityScope; guideTokens: string[] },
   {
     categoryService,
     userId,
@@ -16,6 +19,12 @@ export async function getCategories(
     userId: string;
   },
 ): Promise<Result<CategoryDto[]>> {
+  const verification = verifyGuideTokens({
+    guideTokens,
+    requiredGuides,
+  });
+  if (!verification.success) return verification;
+
   const categories = await categoryService.getCategoriesByUser(userId, {
     scope,
   });
@@ -29,19 +38,8 @@ const inputSchema = {
     .describe(
       `Which categories to retrieve: "${EntityScope.ACTIVE}" for active (non-archived) only, "${EntityScope.ARCHIVED}" for archived only, "${EntityScope.ALL}" for both active and archived`,
     ),
+  guideTokens: buildGuideTokensField(requiredGuides),
 };
-
-const description = `
-Get user categories filtered by scope.
-
-Category is a classification system for transactions.
-
-- The user can have multiple categories
-- Each category has a name, a type (INCOME, EXPENSE), and an archived flag
-- Include archived categories for historical queries
-- A category can be marked to exclude its transactions from financial reports
-- Report-excluded categories should not count towards spending or income totals
-`.trim();
 
 export function registerGetCategoriesTool(
   server: McpServer,
@@ -49,7 +47,11 @@ export function registerGetCategoriesTool(
 ): void {
   server.registerTool(
     "get_categories",
-    { description, inputSchema },
-    async ({ scope }) => toToolResult(await getCategories({ scope }, deps)),
+    {
+      description: "Get user categories filtered by scope.",
+      inputSchema,
+    },
+    async ({ scope, guideTokens }) =>
+      toToolResult(await getCategories({ scope, guideTokens }, deps)),
   );
 }

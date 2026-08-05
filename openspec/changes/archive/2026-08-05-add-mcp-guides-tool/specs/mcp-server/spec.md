@@ -1,40 +1,6 @@
 # MCP Server Specification
 
-## Purpose
-
-This domain covers exposing the user's financial data and actions to AI agents via the Model Context Protocol (MCP): token-based authentication of MCP requests, the `load_guides` tool for delivering domain knowledge and guide tokens, guide token enforcement on the other tools, and the MCP tools for listing accounts, categories, and transactions, and creating and updating accounts, categories, and transactions.
-
-## Requirements
-
-### Requirement: MCP Access Token Provisioning
-
-The system SHALL maintain an MCP access token for every user, generated automatically so an authenticated agent connection is always available without a separate setup step.
-
-#### Scenario: Token created for a new user
-
-- **WHEN** a new user is created
-- **THEN** an MCP access token is generated for that user
-
-#### Scenario: Token backfilled for existing users
-
-- **GIVEN** a user created before MCP access tokens existed
-- **WHEN** the backfill runs
-- **THEN** that user is assigned an MCP access token
-
-### Requirement: MCP Endpoint Authentication
-
-The system SHALL authenticate every request to the MCP endpoint using the access token supplied with the request, resolving it to the owning user. Requests without a valid token SHALL be rejected and SHALL NOT reveal any user data.
-
-#### Scenario: Valid token grants access
-
-- **GIVEN** a user's current MCP access token
-- **WHEN** an AI agent connects to the MCP endpoint using that token
-- **THEN** the connection is authenticated as that user
-
-#### Scenario: Missing or invalid token is rejected
-
-- **WHEN** a request to the MCP endpoint carries no token or a token that does not match any user
-- **THEN** the request is rejected and no user data is returned
+## ADDED Requirements
 
 ### Requirement: Load Guides via MCP
 
@@ -109,6 +75,8 @@ Guide tokens SHALL NOT act as credentials: a valid guide token SHALL NOT grant a
 - **GIVEN** an authenticated MCP connection
 - **WHEN** a tool rejects an invocation for a missing or invalid guide token
 - **THEN** the failure does not contain a valid guide token for any required guide
+
+## MODIFIED Requirements
 
 ### Requirement: List Accounts via MCP
 
@@ -521,29 +489,3 @@ The system SHALL provide an MCP tool named `update_transaction` that lets an age
 - **GIVEN** an authenticated MCP connection
 - **WHEN** the agent invokes `update_transaction` without a valid `basics` guide token
 - **THEN** the tool returns a failure naming the required guide and the transaction is left unchanged
-
-### Requirement: MCP Data Isolation
-
-The system SHALL scope every MCP tool to the authenticated user's own data. No MCP tool SHALL read or modify another user's accounts, categories, or transactions, regardless of the input supplied by the agent.
-
-#### Scenario: Tool input cannot target another user's data
-
-- **GIVEN** an authenticated MCP connection for one user
-- **WHEN** the agent invokes any MCP tool, including with an `accountId` or `categoryId` belonging to another user
-- **THEN** only the authenticated user's data is read or modified; a reference to another user's data is treated as not found
-
-### Requirement: Token Regeneration Invalidates Prior Access
-
-Regenerating a user's MCP access token SHALL immediately invalidate the previous token, so any connection still using it is denied.
-
-#### Scenario: Old token stops working after regeneration
-
-- **GIVEN** a user has regenerated their MCP access token
-- **WHEN** a request to the MCP endpoint uses the previous token
-- **THEN** the request is rejected
-
-#### Scenario: New token grants access after regeneration
-
-- **GIVEN** a user has regenerated their MCP access token
-- **WHEN** a request to the MCP endpoint uses the new token
-- **THEN** the connection is authenticated as that user

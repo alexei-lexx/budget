@@ -5,11 +5,14 @@ import { BusinessError } from "../../services/business-error";
 import { fakeAccount } from "../../utils/test-utils/models/account-fakes";
 import { createMockAccountService } from "../../utils/test-utils/services/account-service-mocks";
 import { createAccount } from "./create-account";
+import { GUIDES } from "./guides";
 
 describe("createAccount", () => {
   let mockAccountService: Mocked<AccountService>;
   const userId = faker.string.uuid();
   let deps: { accountService: Mocked<AccountService>; userId: string };
+
+  const validGuideToken = GUIDES.basics.token;
 
   beforeEach(() => {
     mockAccountService = createMockAccountService();
@@ -31,7 +34,12 @@ describe("createAccount", () => {
 
     // Act
     const result = await createAccount(
-      { name: "Checking Account", currency: "USD", initialBalance: 500 },
+      {
+        name: "Checking Account",
+        currency: "USD",
+        initialBalance: 500,
+        guideTokens: [validGuideToken],
+      },
       deps,
     );
 
@@ -61,7 +69,10 @@ describe("createAccount", () => {
     mockAccountService.createAccount.mockResolvedValue(created);
 
     // Act
-    await createAccount({ name: "Savings", currency: "EUR" }, deps);
+    await createAccount(
+      { name: "Savings", currency: "EUR", guideTokens: [validGuideToken] },
+      deps,
+    );
 
     // Assert
     expect(mockAccountService.createAccount).toHaveBeenCalledWith({
@@ -69,6 +80,38 @@ describe("createAccount", () => {
       name: "Savings",
       currency: "EUR",
       initialBalance: 0,
+    });
+  });
+
+  // Validation failures
+
+  it("rejects without valid basics guide token and does not call service", async () => {
+    // Act
+    const result = await createAccount(
+      { name: "Savings", currency: "EUR", guideTokens: [] },
+      deps,
+    );
+
+    // Assert
+    expect(result).toEqual({
+      success: false,
+      error:
+        "Missing or invalid guide token for: basics. Reload the guide(s) and retry",
+    });
+    expect(mockAccountService.createAccount).not.toHaveBeenCalled();
+  });
+
+  it("does not disclose valid guide token in rejection message", async () => {
+    // Act
+    const result = await createAccount(
+      { name: "Savings", currency: "EUR", guideTokens: [] },
+      deps,
+    );
+
+    // Assert
+    expect(result).toEqual({
+      success: false,
+      error: expect.not.stringContaining(validGuideToken),
     });
   });
 
@@ -83,7 +126,7 @@ describe("createAccount", () => {
 
     // Act
     const result = await createAccount(
-      { name: "Savings", currency: "EUR" },
+      { name: "Savings", currency: "EUR", guideTokens: [validGuideToken] },
       deps,
     );
 

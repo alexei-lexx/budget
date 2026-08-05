@@ -6,11 +6,14 @@ import { CategoryService } from "../../services/category-service";
 import { fakeCategory } from "../../utils/test-utils/models/category-fakes";
 import { createMockCategoryService } from "../../utils/test-utils/services/category-service-mocks";
 import { createCategory } from "./create-category";
+import { GUIDES } from "./guides";
 
 describe("createCategory", () => {
   let mockCategoryService: Mocked<CategoryService>;
   const userId = faker.string.uuid();
   let deps: { categoryService: Mocked<CategoryService>; userId: string };
+
+  const validGuideToken = GUIDES.basics.token;
 
   beforeEach(() => {
     mockCategoryService = createMockCategoryService();
@@ -36,6 +39,7 @@ describe("createCategory", () => {
         name: "Groceries",
         type: CategoryType.EXPENSE,
         excludeFromReports: true,
+        guideTokens: [validGuideToken],
       },
       deps,
     );
@@ -66,7 +70,14 @@ describe("createCategory", () => {
     mockCategoryService.createCategory.mockResolvedValue(created);
 
     // Act
-    await createCategory({ name: "Salary", type: CategoryType.INCOME }, deps);
+    await createCategory(
+      {
+        name: "Salary",
+        type: CategoryType.INCOME,
+        guideTokens: [validGuideToken],
+      },
+      deps,
+    );
 
     // Assert
     expect(mockCategoryService.createCategory).toHaveBeenCalledWith({
@@ -74,6 +85,38 @@ describe("createCategory", () => {
       name: "Salary",
       type: CategoryType.INCOME,
       excludeFromReports: false,
+    });
+  });
+
+  // Validation failures
+
+  it("rejects without valid basics guide token and does not call service", async () => {
+    // Act
+    const result = await createCategory(
+      { name: "Salary", type: CategoryType.INCOME, guideTokens: [] },
+      deps,
+    );
+
+    // Assert
+    expect(result).toEqual({
+      success: false,
+      error:
+        "Missing or invalid guide token for: basics. Reload the guide(s) and retry",
+    });
+    expect(mockCategoryService.createCategory).not.toHaveBeenCalled();
+  });
+
+  it("does not disclose valid guide token in rejection message", async () => {
+    // Act
+    const result = await createCategory(
+      { name: "Salary", type: CategoryType.INCOME, guideTokens: [] },
+      deps,
+    );
+
+    // Assert
+    expect(result).toEqual({
+      success: false,
+      error: expect.not.stringContaining(validGuideToken),
     });
   });
 
@@ -88,7 +131,11 @@ describe("createCategory", () => {
 
     // Act
     const result = await createCategory(
-      { name: "Salary", type: CategoryType.INCOME },
+      {
+        name: "Salary",
+        type: CategoryType.INCOME,
+        guideTokens: [validGuideToken],
+      },
       deps,
     );
 
