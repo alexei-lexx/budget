@@ -5,11 +5,14 @@ import { EntityScope } from "../../types/entity-scope";
 import { fakeCategory } from "../../utils/test-utils/models/category-fakes";
 import { createMockCategoryService } from "../../utils/test-utils/services/category-service-mocks";
 import { getCategories } from "./get-categories";
+import { GUIDES } from "./guides";
 
 describe("getCategories", () => {
   let mockCategoryService: Mocked<CategoryService>;
   const userId = faker.string.uuid();
   let deps: { categoryService: Mocked<CategoryService>; userId: string };
+
+  const validGuideToken = GUIDES.basics.token;
 
   beforeEach(() => {
     mockCategoryService = createMockCategoryService();
@@ -23,7 +26,10 @@ describe("getCategories", () => {
     mockCategoryService.getCategoriesByUser.mockResolvedValue([]);
 
     // Act
-    await getCategories({ scope: EntityScope.ALL }, deps);
+    await getCategories(
+      { scope: EntityScope.ALL, guideTokens: [validGuideToken] },
+      deps,
+    );
 
     // Assert
     expect(mockCategoryService.getCategoriesByUser).toHaveBeenCalledWith(
@@ -42,7 +48,10 @@ describe("getCategories", () => {
     mockCategoryService.getCategoriesByUser.mockResolvedValue([category]);
 
     // Act
-    const result = await getCategories({ scope: EntityScope.ALL }, deps);
+    const result = await getCategories(
+      { scope: EntityScope.ALL, guideTokens: [validGuideToken] },
+      deps,
+    );
 
     // Assert
     expect(result).toEqual({
@@ -56,6 +65,38 @@ describe("getCategories", () => {
           isArchived: false,
         },
       ],
+    });
+  });
+
+  // Validation failures
+
+  it("rejects without valid basics guide token and does not call service", async () => {
+    // Act
+    const result = await getCategories(
+      { scope: EntityScope.ALL, guideTokens: [] },
+      deps,
+    );
+
+    // Assert
+    expect(result).toEqual({
+      success: false,
+      error:
+        "Missing or invalid guide token for: basics. Reload the guide(s) and retry",
+    });
+    expect(mockCategoryService.getCategoriesByUser).not.toHaveBeenCalled();
+  });
+
+  it("does not disclose valid guide token in rejection message", async () => {
+    // Act
+    const result = await getCategories(
+      { scope: EntityScope.ALL, guideTokens: [] },
+      deps,
+    );
+
+    // Assert
+    expect(result).toEqual({
+      success: false,
+      error: expect.not.stringContaining(validGuideToken),
     });
   });
 });

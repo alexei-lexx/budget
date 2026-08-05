@@ -6,6 +6,7 @@ import { toDateString } from "../../types/date";
 import { fakeTransaction } from "../../utils/test-utils/models/transaction-fakes";
 import { createMockTransactionRepository } from "../../utils/test-utils/repositories/transaction-repository-mocks";
 import { getTransactions } from "./get-transactions";
+import { GUIDES } from "./guides";
 
 describe("getTransactions", () => {
   let mockTransactionRepository: Mocked<TransactionRepository>;
@@ -14,6 +15,8 @@ describe("getTransactions", () => {
     transactionRepository: Mocked<TransactionRepository>;
     userId: string;
   };
+
+  const validGuideToken = GUIDES.basics.token;
 
   beforeEach(() => {
     mockTransactionRepository = createMockTransactionRepository();
@@ -31,6 +34,7 @@ describe("getTransactions", () => {
       {
         startDate: toDateString("2026-01-01"),
         endDate: toDateString("2026-01-31"),
+        guideTokens: [validGuideToken],
       },
       deps,
     );
@@ -57,6 +61,7 @@ describe("getTransactions", () => {
         accountIds: ["account-1"],
         categoryIds: ["category-1"],
         types: [TransactionType.EXPENSE],
+        guideTokens: [validGuideToken],
       },
       deps,
     );
@@ -90,6 +95,7 @@ describe("getTransactions", () => {
       {
         startDate: toDateString("2026-01-01"),
         endDate: toDateString("2026-01-31"),
+        guideTokens: [validGuideToken],
       },
       deps,
     );
@@ -115,12 +121,51 @@ describe("getTransactions", () => {
 
   // Validation failures
 
+  it("rejects without valid basics guide token and does not call repository", async () => {
+    // Act
+    const result = await getTransactions(
+      {
+        startDate: toDateString("2026-01-01"),
+        endDate: toDateString("2026-01-31"),
+        guideTokens: [],
+      },
+      deps,
+    );
+
+    // Assert
+    expect(result).toEqual({
+      success: false,
+      error:
+        "Missing or invalid guide token for: basics. Reload the guide(s) and retry",
+    });
+    expect(mockTransactionRepository.findManyByUserId).not.toHaveBeenCalled();
+  });
+
+  it("does not disclose valid guide token in rejection message", async () => {
+    // Act
+    const result = await getTransactions(
+      {
+        startDate: toDateString("2026-01-01"),
+        endDate: toDateString("2026-01-31"),
+        guideTokens: [],
+      },
+      deps,
+    );
+
+    // Assert
+    expect(result).toEqual({
+      success: false,
+      error: expect.not.stringContaining(validGuideToken),
+    });
+  });
+
   it("returns failure when startDate is after endDate", async () => {
     // Act
     const result = await getTransactions(
       {
         startDate: toDateString("2026-01-31"),
         endDate: toDateString("2026-01-01"),
+        guideTokens: [validGuideToken],
       },
       deps,
     );
@@ -139,6 +184,7 @@ describe("getTransactions", () => {
       {
         startDate: toDateString("2025-01-01"),
         endDate: toDateString("2026-01-02"),
+        guideTokens: [validGuideToken],
       },
       deps,
     );

@@ -7,12 +7,15 @@ import { TransactionService } from "../../services/transaction-service";
 import { toDateString } from "../../types/date";
 import { fakeTransaction } from "../../utils/test-utils/models/transaction-fakes";
 import { createMockTransactionService } from "../../utils/test-utils/services/transaction-service-mocks";
+import { GUIDES } from "./guides";
 import { updateTransaction } from "./update-transaction";
 
 describe("updateTransaction", () => {
   let mockTransactionService: Mocked<TransactionService>;
   const userId = faker.string.uuid();
   let deps: { transactionService: Mocked<TransactionService>; userId: string };
+
+  const validGuideToken = GUIDES.basics.token;
 
   beforeEach(() => {
     mockTransactionService = createMockTransactionService();
@@ -36,6 +39,7 @@ describe("updateTransaction", () => {
         date: "2000-01-02",
         description: "Updated description",
         type: TransactionType.EXPENSE,
+        guideTokens: [validGuideToken],
       },
       deps,
     );
@@ -67,7 +71,10 @@ describe("updateTransaction", () => {
     );
 
     // Act
-    await updateTransaction({ id: transactionId, amount: 20 }, deps);
+    await updateTransaction(
+      { id: transactionId, amount: 20, guideTokens: [validGuideToken] },
+      deps,
+    );
 
     // Assert
     expect(mockTransactionService.updateTransaction).toHaveBeenCalledWith(
@@ -86,7 +93,12 @@ describe("updateTransaction", () => {
 
     // Act
     await updateTransaction(
-      { id: transactionId, categoryId: null, description: null },
+      {
+        id: transactionId,
+        categoryId: null,
+        description: null,
+        guideTokens: [validGuideToken],
+      },
       deps,
     );
 
@@ -96,6 +108,38 @@ describe("updateTransaction", () => {
       userId,
       { categoryId: null, description: null },
     );
+  });
+
+  // Validation failures
+
+  it("rejects without valid basics guide token and does not call service", async () => {
+    // Act
+    const result = await updateTransaction(
+      { id: faker.string.uuid(), amount: 20, guideTokens: [] },
+      deps,
+    );
+
+    // Assert
+    expect(result).toEqual({
+      success: false,
+      error:
+        "Missing or invalid guide token for: basics. Reload the guide(s) and retry",
+    });
+    expect(mockTransactionService.updateTransaction).not.toHaveBeenCalled();
+  });
+
+  it("does not disclose valid guide token in rejection message", async () => {
+    // Act
+    const result = await updateTransaction(
+      { id: faker.string.uuid(), amount: 20, guideTokens: [] },
+      deps,
+    );
+
+    // Assert
+    expect(result).toEqual({
+      success: false,
+      error: expect.not.stringContaining(validGuideToken),
+    });
   });
 
   // Dependency failures
@@ -108,7 +152,7 @@ describe("updateTransaction", () => {
 
     // Act
     const result = await updateTransaction(
-      { id: faker.string.uuid(), amount: 20 },
+      { id: faker.string.uuid(), amount: 20, guideTokens: [validGuideToken] },
       deps,
     );
 

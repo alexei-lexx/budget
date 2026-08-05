@@ -14,7 +14,10 @@ import {
 } from "../../services/transaction-service";
 import { toDateString } from "../../types/date";
 import { Failure, Result, Success } from "../../types/result";
+import { buildGuideTokensField, verifyGuideTokens } from "./guides";
 import { toToolResult } from "./to-tool-result";
+
+const requiredGuides = ["basics"] as const;
 
 export async function updateTransaction(
   {
@@ -25,6 +28,7 @@ export async function updateTransaction(
     date,
     description,
     type,
+    guideTokens,
   }: {
     id: string;
     accountId?: string;
@@ -33,6 +37,7 @@ export async function updateTransaction(
     date?: string;
     description?: string | null;
     type?: NonTransferTransactionType;
+    guideTokens: string[];
   },
   {
     transactionService,
@@ -42,6 +47,12 @@ export async function updateTransaction(
     userId: string;
   },
 ): Promise<Result<TransactionDto>> {
+  const verification = verifyGuideTokens({
+    guideTokens,
+    requiredGuides,
+  });
+  if (!verification.success) return verification;
+
   try {
     const input: UpdateTransactionServiceInput = {
       ...(accountId !== undefined && { accountId }),
@@ -101,6 +112,7 @@ const inputSchema = {
     ])
     .optional()
     .describe("New transaction type"),
+  guideTokens: buildGuideTokensField(requiredGuides),
 };
 
 const description = `

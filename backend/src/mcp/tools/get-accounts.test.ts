@@ -5,11 +5,14 @@ import { EntityScope } from "../../types/entity-scope";
 import { fakeAccount } from "../../utils/test-utils/models/account-fakes";
 import { createMockAccountService } from "../../utils/test-utils/services/account-service-mocks";
 import { getAccounts } from "./get-accounts";
+import { GUIDES } from "./guides";
 
 describe("getAccounts", () => {
   let mockAccountService: Mocked<AccountService>;
   const userId = faker.string.uuid();
   let deps: { accountService: Mocked<AccountService>; userId: string };
+
+  const validGuideToken = GUIDES.basics.token;
 
   beforeEach(() => {
     mockAccountService = createMockAccountService();
@@ -23,7 +26,10 @@ describe("getAccounts", () => {
     mockAccountService.getAccountsByUser.mockResolvedValue([]);
 
     // Act
-    await getAccounts({ scope: EntityScope.ALL }, deps);
+    await getAccounts(
+      { scope: EntityScope.ALL, guideTokens: [validGuideToken] },
+      deps,
+    );
 
     // Assert
     expect(mockAccountService.getAccountsByUser).toHaveBeenCalledWith(
@@ -42,7 +48,10 @@ describe("getAccounts", () => {
     mockAccountService.getAccountsByUser.mockResolvedValue([account]);
 
     // Act
-    const result = await getAccounts({ scope: EntityScope.ALL }, deps);
+    const result = await getAccounts(
+      { scope: EntityScope.ALL, guideTokens: [validGuideToken] },
+      deps,
+    );
 
     // Assert
     expect(result).toEqual({
@@ -55,6 +64,38 @@ describe("getAccounts", () => {
           isArchived: false,
         },
       ],
+    });
+  });
+
+  // Validation failures
+
+  it("rejects without valid basics guide token and does not call service", async () => {
+    // Act
+    const result = await getAccounts(
+      { scope: EntityScope.ALL, guideTokens: [] },
+      deps,
+    );
+
+    // Assert
+    expect(result).toEqual({
+      success: false,
+      error:
+        "Missing or invalid guide token for: basics. Reload the guide(s) and retry",
+    });
+    expect(mockAccountService.getAccountsByUser).not.toHaveBeenCalled();
+  });
+
+  it("does not disclose valid guide token in rejection message", async () => {
+    // Act
+    const result = await getAccounts(
+      { scope: EntityScope.ALL, guideTokens: [] },
+      deps,
+    );
+
+    // Assert
+    expect(result).toEqual({
+      success: false,
+      error: expect.not.stringContaining(validGuideToken),
     });
   });
 });

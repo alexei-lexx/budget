@@ -4,10 +4,23 @@ import { AccountDto, toAccountDto } from "../../langchain/tools/account-dto";
 import { UpdateAccountInput } from "../../models/account";
 import { AccountService } from "../../services/account-service";
 import { Failure, Result, Success } from "../../types/result";
+import { buildGuideTokensField, verifyGuideTokens } from "./guides";
 import { toToolResult } from "./to-tool-result";
 
+const requiredGuides = ["basics"] as const;
+
 export async function updateAccount(
-  { id, name, currency }: { id: string; name?: string; currency?: string },
+  {
+    id,
+    name,
+    currency,
+    guideTokens,
+  }: {
+    id: string;
+    name?: string;
+    currency?: string;
+    guideTokens: string[];
+  },
   {
     accountService,
     userId,
@@ -16,6 +29,12 @@ export async function updateAccount(
     userId: string;
   },
 ): Promise<Result<AccountDto>> {
+  const verification = verifyGuideTokens({
+    guideTokens,
+    requiredGuides,
+  });
+  if (!verification.success) return verification;
+
   try {
     const input: UpdateAccountInput = {
       ...(name !== undefined && { name }),
@@ -40,6 +59,7 @@ const inputSchema = {
     .string()
     .optional()
     .describe("New account currency — any ISO 4217 code (e.g. USD, EUR, GBP)."),
+  guideTokens: buildGuideTokensField(requiredGuides),
 };
 
 const description = `

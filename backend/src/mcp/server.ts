@@ -13,6 +13,7 @@ import { registerCreateTransactionTool } from "./tools/create-transaction";
 import { registerGetAccountsTool } from "./tools/get-accounts";
 import { registerGetCategoriesTool } from "./tools/get-categories";
 import { registerGetTransactionsTool } from "./tools/get-transactions";
+import { registerLoadGuidesTool } from "./tools/load-guides";
 import { registerUpdateAccountTool } from "./tools/update-account";
 import { registerUpdateCategoryTool } from "./tools/update-category";
 import { registerUpdateTransactionTool } from "./tools/update-transaction";
@@ -39,6 +40,7 @@ export async function createAuthenticatedMcpServer(
   registerGetAccountsTool(server, { accountService, userId });
   registerGetCategoriesTool(server, { categoryService, userId });
   registerGetTransactionsTool(server, { transactionRepository, userId });
+  registerLoadGuidesTool(server);
   registerUpdateAccountTool(server, { accountService, userId });
   registerUpdateCategoryTool(server, { categoryService, userId });
   registerUpdateTransactionTool(server, { transactionService, userId });

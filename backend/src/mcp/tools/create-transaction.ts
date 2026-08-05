@@ -11,10 +11,16 @@ import {
 } from "../../services/transaction-service";
 import { toDateString } from "../../types/date";
 import { Failure, Result, Success } from "../../types/result";
+import { buildGuideTokensField, verifyGuideTokens } from "./guides";
 import { toToolResult } from "./to-tool-result";
 
+const requiredGuides = ["basics"] as const;
+
 export async function createTransaction(
-  input: CreateTransactionServiceInput,
+  {
+    guideTokens,
+    ...input
+  }: CreateTransactionServiceInput & { guideTokens: string[] },
   {
     transactionService,
     userId,
@@ -23,6 +29,12 @@ export async function createTransaction(
     userId: string;
   },
 ): Promise<Result<TransactionDto>> {
+  const verification = verifyGuideTokens({
+    guideTokens,
+    requiredGuides,
+  });
+  if (!verification.success) return verification;
+
   try {
     const created = await transactionService.createTransaction(input, userId);
 
@@ -58,6 +70,7 @@ const inputSchema = {
       TransactionType.REFUND,
     ])
     .describe("Transaction type"),
+  guideTokens: buildGuideTokensField(requiredGuides),
 };
 
 const description = `

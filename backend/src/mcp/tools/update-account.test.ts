@@ -4,12 +4,15 @@ import { AccountService } from "../../services/account-service";
 import { BusinessError } from "../../services/business-error";
 import { fakeAccount } from "../../utils/test-utils/models/account-fakes";
 import { createMockAccountService } from "../../utils/test-utils/services/account-service-mocks";
+import { GUIDES } from "./guides";
 import { updateAccount } from "./update-account";
 
 describe("updateAccount", () => {
   let mockAccountService: Mocked<AccountService>;
   const userId = faker.string.uuid();
   let deps: { accountService: Mocked<AccountService>; userId: string };
+
+  const validGuideToken = GUIDES.basics.token;
 
   beforeEach(() => {
     mockAccountService = createMockAccountService();
@@ -30,7 +33,12 @@ describe("updateAccount", () => {
 
     // Act
     const result = await updateAccount(
-      { id: updated.id, name: "Renamed Account", currency: "EUR" },
+      {
+        id: updated.id,
+        name: "Renamed Account",
+        currency: "EUR",
+        guideTokens: [validGuideToken],
+      },
       deps,
     );
 
@@ -58,7 +66,10 @@ describe("updateAccount", () => {
     mockAccountService.updateAccount.mockResolvedValue(fakeAccount());
 
     // Act
-    await updateAccount({ id: accountId, name: "Renamed Only" }, deps);
+    await updateAccount(
+      { id: accountId, name: "Renamed Only", guideTokens: [validGuideToken] },
+      deps,
+    );
 
     // Assert
     expect(mockAccountService.updateAccount).toHaveBeenCalledWith(
@@ -66,6 +77,38 @@ describe("updateAccount", () => {
       userId,
       { name: "Renamed Only" },
     );
+  });
+
+  // Validation failures
+
+  it("rejects without valid basics guide token and does not call service", async () => {
+    // Act
+    const result = await updateAccount(
+      { id: faker.string.uuid(), name: "Renamed Only", guideTokens: [] },
+      deps,
+    );
+
+    // Assert
+    expect(result).toEqual({
+      success: false,
+      error:
+        "Missing or invalid guide token for: basics. Reload the guide(s) and retry",
+    });
+    expect(mockAccountService.updateAccount).not.toHaveBeenCalled();
+  });
+
+  it("does not disclose valid guide token in rejection message", async () => {
+    // Act
+    const result = await updateAccount(
+      { id: faker.string.uuid(), name: "Renamed Only", guideTokens: [] },
+      deps,
+    );
+
+    // Assert
+    expect(result).toEqual({
+      success: false,
+      error: expect.not.stringContaining(validGuideToken),
+    });
   });
 
   // Dependency failures
@@ -79,7 +122,11 @@ describe("updateAccount", () => {
 
     // Act
     const result = await updateAccount(
-      { id: faker.string.uuid(), name: "Renamed Account" },
+      {
+        id: faker.string.uuid(),
+        name: "Renamed Account",
+        guideTokens: [validGuideToken],
+      },
       deps,
     );
 
