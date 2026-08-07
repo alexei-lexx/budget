@@ -4,7 +4,9 @@
 
 The system SHALL provide an MCP tool named `load_guides` that returns the domain knowledge an agent needs in order to use the other MCP tools correctly. The tool SHALL return, for each requested guide, the guide's full text together with a **guide token** that proves the guide was delivered. `load_guides` SHALL NOT itself require a guide token.
 
-A guide token SHALL be derived from the guide's content and the time it was issued, so that an agent cannot produce a valid token without receiving the guide, so that changing a guide's content invalidates every token previously issued for it, and so that a token issued at one time stops being accepted roughly an hour later.
+An agent's memory can persist across chats. Without expiry, it could reuse a guide token recalled from an earlier, unrelated chat instead of loading the guide's current content.
+
+A guide token SHALL be derived from the guide's content and the time it was issued. Deriving it from content SHALL ensure an agent cannot produce a valid token without receiving the guide, and SHALL ensure that changing a guide's content invalidates every token previously issued for it. Deriving it from time SHALL ensure a token issued at one time stops being accepted roughly an hour later, closing the cross-chat memory reuse gap.
 
 **Input:**
 
