@@ -40,7 +40,9 @@ The system SHALL authenticate every request to the MCP endpoint using the access
 
 The system SHALL provide an MCP tool named `load_guides` that returns the domain knowledge an agent needs in order to use the other MCP tools correctly. The tool SHALL return, for each requested guide, the guide's full text together with a **guide token** that proves the guide was delivered. `load_guides` SHALL NOT itself require a guide token.
 
-A guide token SHALL be derived from the guide's content, so that an agent cannot produce a valid token without receiving the guide, and so that changing a guide's content invalidates every token previously issued for it.
+An agent's memory can persist across chats. Without expiry, it could reuse a guide token recalled from an earlier, unrelated chat instead of loading the guide's current content.
+
+A guide token SHALL be derived from the guide's content and the time it was issued. Deriving it from content SHALL ensure an agent cannot produce a valid token without receiving the guide, and SHALL ensure that changing a guide's content invalidates every token previously issued for it. Deriving it from time SHALL ensure a token issued at one time stops being accepted roughly an hour later, closing the cross-chat memory reuse gap.
 
 **Input:**
 
@@ -82,6 +84,12 @@ A guide token SHALL be derived from the guide's content, so that an agent cannot
 - **WHEN** the agent invokes `load_guides` for that guide
 - **THEN** the returned token differs from the token issued for the previous text
 
+#### Scenario: Reloading a guide roughly an hour later changes its token
+
+- **GIVEN** a guide whose content has not changed
+- **WHEN** the agent invokes `load_guides` for that guide roughly an hour after it last did so
+- **THEN** the returned token differs from the token issued the first time
+
 ### Requirement: Guide Token Enforcement
 
 Every MCP tool other than `load_guides` SHALL declare which guides it requires, and SHALL require a `guideTokens` input carrying a valid, current token for each guide it declares. A tool invoked without a valid token for every guide it requires SHALL be rejected, and SHALL NOT read or modify any data.
@@ -91,6 +99,8 @@ The rejection SHALL name the guides the tool requires and SHALL instruct the age
 Tokens for guides a tool does not require SHALL be ignored rather than rejected, so that a single `load_guides` call can cover every tool used in a session.
 
 Guide tokens SHALL NOT act as credentials: a valid guide token SHALL NOT grant any access to data, and SHALL NOT substitute for MCP endpoint authentication.
+
+A guide token SHALL remain valid for roughly one hour after it was issued, and SHALL also remain valid for a further hour beyond that so that a call made shortly after the one-hour mark does not fail solely because of that timing. A token older than that extended window SHALL be treated the same as any other invalid token.
 
 #### Scenario: Tool invoked without a guide token is rejected
 
@@ -109,6 +119,18 @@ Guide tokens SHALL NOT act as credentials: a valid guide token SHALL NOT grant a
 - **GIVEN** an authenticated MCP connection
 - **WHEN** a tool rejects an invocation for a missing or invalid guide token
 - **THEN** the failure does not contain a valid guide token for any required guide
+
+#### Scenario: A token used shortly after its first hour still succeeds
+
+- **GIVEN** an authenticated MCP connection and a guide token that was issued and has just passed roughly one hour old
+- **WHEN** the agent invokes a tool that requires that guide with that token
+- **THEN** the tool proceeds as if the token were current, and no data access is denied solely because of that timing
+
+#### Scenario: A stale token from well beyond the tolerance window is rejected
+
+- **GIVEN** an authenticated MCP connection and a guide token issued roughly two hours or more ago
+- **WHEN** the agent invokes a tool that requires that guide with that token
+- **THEN** the tool returns a failure naming the required guide and instructing the agent to load it and retry, and no data is read or modified
 
 ### Requirement: List Accounts via MCP
 

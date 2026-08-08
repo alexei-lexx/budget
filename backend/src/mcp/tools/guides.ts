@@ -4,6 +4,8 @@ import { CategoryType } from "../../models/category";
 import { TransactionType } from "../../models/transaction";
 import { Failure, Result, Success } from "../../types/result";
 
+const HOUR_MS = 60 * 60 * 1000;
+
 const BASICS_SUMMARY =
   "Domain model for accounts, categories, and transactions, plus rules for computing reports and totals correctly";
 
@@ -68,7 +70,9 @@ export const GUIDES: Record<"basics", Guide> = {
     name: "basics",
     summary: BASICS_SUMMARY,
     instruction: BASICS_INSTRUCTION,
-    token: buildGuideToken("basics", BASICS_INSTRUCTION),
+    get token() {
+      return buildGuideToken("basics", BASICS_INSTRUCTION, Date.now());
+    },
   },
 };
 
@@ -91,7 +95,19 @@ export function verifyGuideTokens({
 }): Result<true> {
   const missingGuides = requiredGuides.filter((name) => {
     const guide = GUIDES[name];
-    return !guideTokens.includes(guide.token);
+    const currentToken = buildGuideToken(name, guide.instruction, Date.now());
+
+    if (guideTokens.includes(currentToken)) {
+      return false;
+    }
+
+    const previousToken = buildGuideToken(
+      name,
+      guide.instruction,
+      Date.now() - HOUR_MS,
+    );
+
+    return !guideTokens.includes(previousToken);
   });
 
   if (missingGuides.length === 0) {
@@ -114,9 +130,14 @@ export function buildGuideTokensField(requiredGuides: readonly GuideName[]) {
     );
 }
 
-function buildGuideToken(name: GuideName, instruction: string): string {
+function buildGuideToken(
+  name: GuideName,
+  instruction: string,
+  timestamp: number,
+): string {
+  const bucket = Math.floor(timestamp / HOUR_MS);
   const hash = createHash("sha256")
-    .update(instruction)
+    .update(`${instruction}${bucket}`)
     .digest("hex")
     .slice(0, 8)
     .toUpperCase();
