@@ -8,10 +8,14 @@ import {
 } from "./transaction-service";
 
 export interface UserSettingsData {
+  interfaceLanguage: string;
   transactionPatternsLimit: number;
   voiceInputLanguage?: string;
   mcpUrl: string;
 }
+
+export const SUPPORTED_INTERFACE_LANGUAGES = ["en", "de"] as const;
+const DEFAULT_INTERFACE_LANGUAGE = "en";
 
 export class UserService {
   constructor(
@@ -45,12 +49,22 @@ export class UserService {
     return Success(this.buildSettingsData(user));
   }
 
+  getSupportedInterfaceLanguages(userId: string): Result<string[]> {
+    if (!userId) {
+      return Failure("User ID is required");
+    }
+
+    return Success([...SUPPORTED_INTERFACE_LANGUAGES]);
+  }
+
   async updateSettings({
     userId,
+    interfaceLanguage,
     transactionPatternsLimit,
     voiceInputLanguage,
   }: {
     userId: string;
+    interfaceLanguage?: string;
     transactionPatternsLimit?: number;
     voiceInputLanguage?: string;
   }): Promise<Result<UserSettingsData>> {
@@ -69,6 +83,15 @@ export class UserService {
       );
     }
 
+    if (
+      interfaceLanguage !== undefined &&
+      !SUPPORTED_INTERFACE_LANGUAGES.some(
+        (supportedLanguage) => supportedLanguage === interfaceLanguage,
+      )
+    ) {
+      return Failure(`Unsupported interface language: ${interfaceLanguage}`);
+    }
+
     const user = await this.userRepository.findOneById(userId);
 
     if (!user) {
@@ -76,6 +99,7 @@ export class UserService {
     }
 
     const updated = user.update({
+      interfaceLanguage,
       transactionPatternsLimit,
       voiceInputLanguage,
     });
@@ -101,6 +125,7 @@ export class UserService {
 
   private buildSettingsData(user: User) {
     return {
+      interfaceLanguage: user.interfaceLanguage ?? DEFAULT_INTERFACE_LANGUAGE,
       mcpUrl: this.buildMcpUrl(user),
       transactionPatternsLimit:
         user.transactionPatternsLimit ?? DEFAULT_TRANSACTION_PATTERNS_LIMIT,

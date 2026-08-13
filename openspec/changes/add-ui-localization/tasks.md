@@ -1,12 +1,12 @@
 ## 1. Backend Interface-Language Contract
 
-- [ ] 1.1 Add the interface-language fields and authenticated `supportedInterfaceLanguages` query to `backend/src/graphql/schema.graphql`, then regenerate backend types.
-- [ ] 1.2 (use `testing` skill) Add co-located `User` model tests for accepted, rejected, and missing interface-language values.
-- [ ] 1.3 Add the optional interface-language property to the immutable `User` model and its persistence rehydration path, defaulting absent legacy values to `en` at the service boundary.
-- [ ] 1.4 (use `testing` skill) Add co-located repository tests covering persistence and hydration of the optional interface-language value.
-- [ ] 1.5 Update the user persistence schema and DynamoDB adapter to store and validate the optional interface-language value.
-- [ ] 1.6 (use `testing` skill) Add co-located `UserService` tests for supported-language retrieval and accepted, rejected, and missing interface-language settings.
-- [ ] 1.7 Define one backend-supported language list (`en`, `de`); use it to validate settings updates and expose the authenticated supported-language query through the resolver and service.
+- [x] 1.1 Add the interface-language fields and authenticated `supportedInterfaceLanguages` query to `backend/src/graphql/schema.graphql`, then regenerate backend types.
+- [x] 1.2 (use `testing` skill) Add co-located `User` model tests for accepted, rejected, and missing interface-language values.
+- [x] 1.3 Add the optional interface-language property to the immutable `User` model and its persistence rehydration path, defaulting absent legacy values to `en` at the service boundary.
+- [x] 1.4 (use `testing` skill) Add co-located repository tests covering persistence and hydration of the optional interface-language value.
+- [x] 1.5 Update the user persistence schema and DynamoDB adapter to store and validate the optional interface-language value.
+- [x] 1.6 (use `testing` skill) Add co-located `UserService` tests for supported-language retrieval and accepted, rejected, and missing interface-language settings.
+- [x] 1.7 Define one backend-supported language list (`en`, `de`); use it to validate settings updates and expose the authenticated supported-language query through the resolver and service.
 
 ## 2. Frontend Localization Foundation
 

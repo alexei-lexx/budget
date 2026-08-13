@@ -42,6 +42,7 @@ describe("UserService", () => {
       expect(result).toEqual({
         success: true,
         data: {
+          interfaceLanguage: "en",
           mcpUrl: "https://api.example.com/mcp?token=token-1",
           transactionPatternsLimit: 5,
           voiceInputLanguage: "pl-PL",
@@ -64,6 +65,7 @@ describe("UserService", () => {
       expect(result).toStrictEqual({
         success: true,
         data: {
+          interfaceLanguage: "en",
           mcpUrl: "https://api.example.com/mcp?token=token-1",
           transactionPatternsLimit: DEFAULT_TRANSACTION_PATTERNS_LIMIT,
           voiceInputLanguage: undefined,
@@ -95,6 +97,29 @@ describe("UserService", () => {
       // Assert
       expect(result).toEqual({ success: false, error: "User not found" });
       expect(mockUserRepository.findOneById).toHaveBeenCalledWith(userId);
+    });
+  });
+
+  describe("getSupportedInterfaceLanguages", () => {
+    it("returns the supported interface languages", () => {
+      // Act
+      const result = service.getSupportedInterfaceLanguages(
+        faker.string.uuid(),
+      );
+
+      // Assert
+      expect(result).toEqual({
+        success: true,
+        data: ["en", "de"],
+      });
+    });
+
+    it("returns failure when userId is empty", () => {
+      // Act
+      const result = service.getSupportedInterfaceLanguages("");
+
+      // Assert
+      expect(result).toEqual({ success: false, error: "User ID is required" });
     });
   });
 
@@ -137,6 +162,34 @@ describe("UserService", () => {
   describe("updateSettings", () => {
     // Happy path
 
+    it("updates interfaceLanguage", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+      mockUserRepository.findOneById.mockResolvedValue(
+        fakeUser({ id: userId, mcpToken: "token-1" }),
+      );
+
+      // Act
+      const result = await service.updateSettings({
+        userId,
+        interfaceLanguage: "de",
+      });
+
+      // Assert
+      expect(result).toEqual({
+        success: true,
+        data: {
+          interfaceLanguage: "de",
+          mcpUrl: "https://api.example.com/mcp?token=token-1",
+          transactionPatternsLimit: DEFAULT_TRANSACTION_PATTERNS_LIMIT,
+          voiceInputLanguage: undefined,
+        },
+      });
+      expect(mockUserRepository.update).toHaveBeenCalledWith(
+        expect.objectContaining({ interfaceLanguage: "de" }),
+      );
+    });
+
     it("updates voiceInputLanguage", async () => {
       // Arrange
       const userId = faker.string.uuid();
@@ -155,6 +208,7 @@ describe("UserService", () => {
       expect(result).toEqual({
         success: true,
         data: {
+          interfaceLanguage: "en",
           mcpUrl: "https://api.example.com/mcp?token=token-1",
           transactionPatternsLimit: DEFAULT_TRANSACTION_PATTERNS_LIMIT,
           voiceInputLanguage: "de-DE",
@@ -184,6 +238,7 @@ describe("UserService", () => {
       expect(result).toEqual({
         success: true,
         data: {
+          interfaceLanguage: "en",
           mcpUrl: "https://api.example.com/mcp?token=token-1",
           transactionPatternsLimit: 7,
           voiceInputLanguage: undefined,
@@ -206,6 +261,7 @@ describe("UserService", () => {
       // Act
       const result = await service.updateSettings({
         userId,
+        interfaceLanguage: "de",
         transactionPatternsLimit: 5,
         voiceInputLanguage: "en-US",
       });
@@ -214,6 +270,7 @@ describe("UserService", () => {
       expect(result).toEqual({
         success: true,
         data: {
+          interfaceLanguage: "de",
           mcpUrl: "https://api.example.com/mcp?token=token-1",
           transactionPatternsLimit: 5,
           voiceInputLanguage: "en-US",
@@ -222,6 +279,7 @@ describe("UserService", () => {
       expect(mockUserRepository.findOneById).toHaveBeenCalledWith(userId);
       expect(mockUserRepository.update).toHaveBeenCalledWith(
         expect.objectContaining({
+          interfaceLanguage: "de",
           transactionPatternsLimit: 5,
           voiceInputLanguage: "en-US",
         }),
@@ -229,6 +287,21 @@ describe("UserService", () => {
     });
 
     // Validation failures
+
+    it("rejects an unsupported interfaceLanguage before repository access", async () => {
+      // Act
+      const result = await service.updateSettings({
+        userId: faker.string.uuid(),
+        interfaceLanguage: "fr",
+      });
+
+      // Assert
+      expect(result).toEqual({
+        success: false,
+        error: "Unsupported interface language: fr",
+      });
+      expect(mockUserRepository.findOneById).not.toHaveBeenCalled();
+    });
 
     it("returns failure when userId is empty", async () => {
       // Act

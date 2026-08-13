@@ -24,6 +24,29 @@ async function ensureAuthenticatedUser(context: GraphQLContext): Promise<User> {
 
 export const userResolvers = {
   Query: {
+    supportedInterfaceLanguages: async (
+      _parent: unknown,
+      _args: unknown,
+      context: GraphQLContext,
+    ) => {
+      try {
+        const user = await getAuthenticatedUser(context);
+        const result = context.userService.getSupportedInterfaceLanguages(
+          user.id,
+        );
+
+        if (!result.success) {
+          throw new GraphQLError(result.error);
+        }
+
+        return result.data;
+      } catch (error) {
+        handleResolverError(
+          error,
+          "Failed to fetch supported interface languages",
+        );
+      }
+    },
     userSettings: async (
       _parent: unknown,
       _args: unknown,
@@ -66,6 +89,7 @@ export const userResolvers = {
         const user = await getAuthenticatedUser(context);
         const result = await context.userService.updateSettings({
           userId: user.id,
+          interfaceLanguage: args.input.interfaceLanguage ?? undefined,
           voiceInputLanguage: args.input.voiceInputLanguage ?? undefined,
           transactionPatternsLimit:
             args.input.transactionPatternsLimit ?? undefined,

@@ -1,6 +1,7 @@
 type Query {
   accounts: [Account!]!
   supportedCurrencies: [String!]!
+  supportedInterfaceLanguages: [String!]!
   categories(type: CategoryType): [Category!]!
   transactions(
     pagination: PaginationInput
@@ -25,12 +26,14 @@ type User {
 }
 
 type UserSettings {
+  interfaceLanguage: String!
   transactionPatternsLimit: Int!
   voiceInputLanguage: String
   mcpUrl: String!
 }
 
 input UpdateUserSettingsInput {
+  interfaceLanguage: String
   transactionPatternsLimit: Int
   voiceInputLanguage: String
 }

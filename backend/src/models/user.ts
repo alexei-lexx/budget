@@ -7,6 +7,7 @@ export interface UserData {
   id: string;
   email: string;
   mcpToken: string;
+  interfaceLanguage?: string;
   transactionPatternsLimit?: number;
   voiceInputLanguage?: string;
   createdAt: string;
@@ -21,6 +22,7 @@ export class User implements UserData {
   readonly id: string;
   readonly email: string;
   readonly mcpToken: string;
+  readonly interfaceLanguage?: string;
   readonly transactionPatternsLimit?: number;
   readonly voiceInputLanguage?: string;
   readonly createdAt: string;
@@ -55,6 +57,7 @@ export class User implements UserData {
       id: this.id,
       email: this.email,
       mcpToken: this.mcpToken,
+      interfaceLanguage: this.interfaceLanguage,
       transactionPatternsLimit: this.transactionPatternsLimit,
       voiceInputLanguage: this.voiceInputLanguage,
       createdAt: this.createdAt,
@@ -67,6 +70,7 @@ export class User implements UserData {
 
     const data: UserData = {
       ...this.toData(),
+      interfaceLanguage: input.interfaceLanguage ?? this.interfaceLanguage,
       transactionPatternsLimit:
         input.transactionPatternsLimit ?? this.transactionPatternsLimit,
       voiceInputLanguage: input.voiceInputLanguage ?? this.voiceInputLanguage,
@@ -96,6 +100,7 @@ export class User implements UserData {
     this.id = data.id;
     this.email = data.email;
     this.mcpToken = data.mcpToken;
+    this.interfaceLanguage = data.interfaceLanguage;
     this.transactionPatternsLimit = data.transactionPatternsLimit;
     this.voiceInputLanguage = data.voiceInputLanguage;
     this.createdAt = data.createdAt;
@@ -116,6 +121,13 @@ export class User implements UserData {
     }
 
     if (
+      data.interfaceLanguage !== undefined &&
+      data.interfaceLanguage.length === 0
+    ) {
+      throw new ModelError("Interface language must be a non-empty string");
+    }
+
+    if (
       data.transactionPatternsLimit !== undefined &&
       (!Number.isInteger(data.transactionPatternsLimit) ||
         data.transactionPatternsLimit < 0)
@@ -132,6 +144,7 @@ export interface CreateUserInput {
 }
 
 export interface UpdateUserInput {
+  interfaceLanguage?: string;
   transactionPatternsLimit?: number;
   voiceInputLanguage?: string;
 }

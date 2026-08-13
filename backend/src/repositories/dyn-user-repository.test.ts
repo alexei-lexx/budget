@@ -308,6 +308,17 @@ describe("DynUserRepository", () => {
       expect(stored?.email).toBe(user.email);
     });
 
+    it("persists and hydrates interface language", async () => {
+      const user = User.create(fakeCreateUserInput());
+      await repository.create(user);
+
+      await repository.update(user.update({ interfaceLanguage: "de" }));
+
+      expect((await repository.findOneById(user.id))?.interfaceLanguage).toBe(
+        "de",
+      );
+    });
+
     it("updates transaction patterns limit", async () => {
       // Arrange
       const user = User.create(fakeCreateUserInput());

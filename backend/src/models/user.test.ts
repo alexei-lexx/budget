@@ -32,6 +32,7 @@ describe("User", () => {
       expect(result.toData()).toEqual({
         id: "fixed-uuid",
         email: "user@example.com",
+        interfaceLanguage: undefined,
         mcpToken: "fixed-token",
         transactionPatternsLimit: undefined,
         voiceInputLanguage: undefined,
@@ -107,6 +108,21 @@ describe("User", () => {
       expect(result.toData()).toEqual(data);
     });
 
+    it("reconstructs a supported interface language", () => {
+      const result = User.fromPersistence({
+        ...fakeUser().toData(),
+        interfaceLanguage: "de",
+      });
+
+      expect(result.interfaceLanguage).toBe("de");
+    });
+
+    it("allows a missing interface language for legacy records", () => {
+      expect(
+        fakeUser({ interfaceLanguage: undefined }).interfaceLanguage,
+      ).toBeUndefined();
+    });
+
     // Validation failures
 
     it("throws on malformed email", () => {
@@ -141,6 +157,14 @@ describe("User", () => {
       // Act & Assert
       expect(() => User.fromPersistence(data)).toThrow(
         new ModelError("MCP token must be a non-empty string"),
+      );
+    });
+
+    it("throws on an empty interface language", () => {
+      expect(() =>
+        User.fromPersistence({ ...fakeUser().toData(), interfaceLanguage: "" }),
+      ).toThrow(
+        new ModelError("Interface language must be a non-empty string"),
       );
     });
   });
@@ -189,6 +213,14 @@ describe("User", () => {
 
       // Assert
       expect(result.voiceInputLanguage).toBe("de-DE");
+    });
+
+    it("sets interfaceLanguage", () => {
+      const result = fakeUser({ interfaceLanguage: "en" }).update({
+        interfaceLanguage: "de",
+      });
+
+      expect(result.interfaceLanguage).toBe("de");
     });
 
     it("keeps fields when input is empty", () => {
