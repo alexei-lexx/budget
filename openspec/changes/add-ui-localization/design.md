@@ -42,7 +42,7 @@ Alternatives considered:
 
 ### Query backend-supported interface languages
 
-Add the authenticated `supportedInterfaceLanguages: [String!]!` query alongside `supportedCurrencies`. The user-settings resolver delegates to `UserService`, which returns the supported BCP 47 tags from the same definition it uses for validation. The Settings page queries this list and renders the Interface language selector from it; it does not maintain an independent frontend list.
+Add the authenticated `supportedInterfaceLanguages: [String!]!` query alongside `supportedCurrencies`. The resolver returns the constant list directly — the same constant `UserService.updateSettings` imports for validation — since the query has no per-user data and no logic beyond returning it. The Settings page queries this list and renders the Interface language selector from it; it does not maintain an independent frontend list.
 
 Initially the list is `en` and `de`. Each later supported tag requires a matching I18n catalog and an update to the backend list, preventing a user from saving a language the frontend cannot render.
 
@@ -50,6 +50,7 @@ Alternatives considered:
 
 - Hard-coding `en` and `de` in the frontend would work initially, but would duplicate the backend validation list and require every later addition to be changed in two places.
 - Returning display names from the backend would make the API choose UI presentation text. The frontend instead derives localized names with I18n and `Intl.DisplayNames`.
+- Adding a `UserService` method that only returns the constant (mirroring `supportedCurrencies` → `CurrencyService`) would add indirection with no logic; unlike currencies, the list has no per-user computation and needs no repository, so the resolver reads the shared constant directly instead.
 
 ### Load and update the active interface language at the authenticated application boundary
 
@@ -93,7 +94,7 @@ Update `backend/src/graphql/schema.graphql` first, regenerate backend types, syn
 ## Constitution Compliance
 
 - **Schema-driven development:** The settings fields and supported-language query originate in the canonical backend schema, followed by backend and frontend code generation.
-- **Backend layering and Result pattern:** The authenticated resolver delegates supported-list retrieval and setting updates to `UserService`; the service validates input before repository access and returns its established Result-based settings response.
+- **Backend layering and Result pattern:** The authenticated resolver returns the supported-language constant directly (no per-user logic, no repository); setting updates are delegated to `UserService`, which validates input before repository access and returns its established Result-based settings response.
 - **Domain entities and record hydration:** `User` remains immutable and validates the optional language property; the repository schema validates the persisted field while legacy absence is handled by the service default.
 - **Authentication and authorization:** Both user settings and the supported-language query use the authenticated user flow; no user ID is supplied by the client.
 - **UI and frontend discipline:** Vue I18n and Vuetify's adapter provide the localization infrastructure, Settings remains a responsive Vuetify control, and feedback remains snackbar-based.
