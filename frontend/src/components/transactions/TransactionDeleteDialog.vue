@@ -2,7 +2,7 @@
   <DeleteConfirmationDialog
     :model-value="modelValue"
     :title="t('transactions.deleteDialog.title')"
-    :message="message"
+    :confirm-message="confirmMessage"
     :warning="t('transactions.deleteDialog.warning')"
     @update:model-value="$emit('update:modelValue', $event)"
     @confirm="$emit('confirm')"
@@ -34,7 +34,7 @@ defineEmits<Emits>();
 
 const { t } = useI18n();
 
-const message = computed(() => {
+const confirmMessage = computed(() => {
   if (!props.transaction) return "";
 
   const formattedAmount = formatTransactionAmount(

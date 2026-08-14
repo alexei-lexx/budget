@@ -2,7 +2,7 @@
   <DeleteConfirmationDialog
     :model-value="modelValue"
     :title="t('categories.deleteDialog.title')"
-    :message="message"
+    :confirm-message="confirmMessage"
     :warning="t('categories.deleteDialog.warning')"
     @update:model-value="$emit('update:modelValue', $event)"
     @confirm="$emit('confirm')"
@@ -32,7 +32,7 @@ defineEmits<Emits>();
 
 const { t } = useI18n();
 
-const message = computed(() => {
+const confirmMessage = computed(() => {
   if (!props.category) return "";
   return t("categories.deleteDialog.message", { name: props.category.name });
 });

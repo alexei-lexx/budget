@@ -13,7 +13,7 @@
 
       <v-card-text>
         <p class="text-body-1 mb-3">
-          {{ message }}
+          {{ confirmMessage }}
         </p>
         <p class="text-body-2 text-medium-emphasis">
           {{ warning ?? t("common.deleteIrreversible") }}
@@ -42,8 +42,8 @@ interface Props {
   /** The title text shown in the dialog header (e.g., "Delete Account") */
   title: string;
   /** The main confirmation message asking the user to confirm the action */
-  message: string;
-  /** Optional warning text shown below the message (defaults to "This action cannot be undone.") */
+  confirmMessage: string;
+  /** Optional warning text shown below the confirmation message (defaults to "This action cannot be undone.") */
   warning?: string;
 }
 
