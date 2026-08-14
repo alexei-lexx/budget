@@ -625,12 +625,12 @@ export type UpdateUserSettingsMutationVariables = Exact<{
 }>;
 
 
-export type UpdateUserSettingsMutation = { __typename?: 'Mutation', updateUserSettings: { __typename?: 'UserSettings', transactionPatternsLimit: number, voiceInputLanguage?: string | null | undefined, interfaceLanguage: string, mcpUrl: string } };
+export type UpdateUserSettingsMutation = { __typename?: 'Mutation', updateUserSettings: { __typename?: 'UserSettings', interfaceLanguage: string, transactionPatternsLimit: number, voiceInputLanguage?: string | null | undefined, mcpUrl: string } };
 
 export type RegenerateMcpTokenMutationVariables = Exact<{ [key: string]: never; }>;
 
 
-export type RegenerateMcpTokenMutation = { __typename?: 'Mutation', regenerateMcpToken: { __typename?: 'UserSettings', transactionPatternsLimit: number, voiceInputLanguage?: string | null | undefined, interfaceLanguage: string, mcpUrl: string } };
+export type RegenerateMcpTokenMutation = { __typename?: 'Mutation', regenerateMcpToken: { __typename?: 'UserSettings', interfaceLanguage: string, transactionPatternsLimit: number, voiceInputLanguage?: string | null | undefined, mcpUrl: string } };
 
 export type ConnectTelegramBotMutationVariables = Exact<{
   token: Scalars['String']['input'];
@@ -720,7 +720,7 @@ export type GetTransactionDescriptionSuggestionsQuery = { __typename?: 'Query', 
 export type GetUserSettingsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetUserSettingsQuery = { __typename?: 'Query', userSettings: { __typename?: 'UserSettings', transactionPatternsLimit: number, voiceInputLanguage?: string | null | undefined, interfaceLanguage: string, mcpUrl: string } };
+export type GetUserSettingsQuery = { __typename?: 'Query', userSettings: { __typename?: 'UserSettings', interfaceLanguage: string, transactionPatternsLimit: number, voiceInputLanguage?: string | null | undefined, mcpUrl: string } };
 
 export type GetSupportedInterfaceLanguagesQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -1216,9 +1216,9 @@ export type DeleteTransferMutationCompositionFunctionResult = VueApolloComposabl
 export const UpdateUserSettingsDocument = gql`
     mutation UpdateUserSettings($input: UpdateUserSettingsInput!) {
   updateUserSettings(input: $input) {
+    interfaceLanguage
     transactionPatternsLimit
     voiceInputLanguage
-    interfaceLanguage
     mcpUrl
   }
 }
@@ -1248,9 +1248,9 @@ export type UpdateUserSettingsMutationCompositionFunctionResult = VueApolloCompo
 export const RegenerateMcpTokenDocument = gql`
     mutation RegenerateMcpToken {
   regenerateMcpToken {
+    interfaceLanguage
     transactionPatternsLimit
     voiceInputLanguage
-    interfaceLanguage
     mcpUrl
   }
 }
@@ -1638,9 +1638,9 @@ export type GetTransactionDescriptionSuggestionsQueryCompositionFunctionResult =
 export const GetUserSettingsDocument = gql`
     query GetUserSettings {
   userSettings {
+    interfaceLanguage
     transactionPatternsLimit
     voiceInputLanguage
-    interfaceLanguage
     mcpUrl
   }
 }

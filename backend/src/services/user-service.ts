@@ -12,9 +12,9 @@ import {
 } from "./transaction-service";
 
 export interface UserSettingsData {
+  interfaceLanguage: string;
   transactionPatternsLimit: number;
   voiceInputLanguage?: string;
-  interfaceLanguage: string;
   mcpUrl: string;
 }
 
@@ -52,14 +52,14 @@ export class UserService {
 
   async updateSettings({
     userId,
+    interfaceLanguage,
     transactionPatternsLimit,
     voiceInputLanguage,
-    interfaceLanguage,
   }: {
     userId: string;
+    interfaceLanguage?: string;
     transactionPatternsLimit?: number;
     voiceInputLanguage?: string;
-    interfaceLanguage?: string;
   }): Promise<Result<UserSettingsData>> {
     if (!userId) {
       return Failure("User ID is required");
@@ -90,9 +90,9 @@ export class UserService {
     }
 
     const updated = user.update({
+      interfaceLanguage,
       transactionPatternsLimit,
       voiceInputLanguage,
-      interfaceLanguage,
     });
 
     await this.userRepository.update(updated);
@@ -116,11 +116,11 @@ export class UserService {
 
   private buildSettingsData(user: User) {
     return {
+      interfaceLanguage: user.interfaceLanguage ?? DEFAULT_INTERFACE_LANGUAGE,
       mcpUrl: this.buildMcpUrl(user),
       transactionPatternsLimit:
         user.transactionPatternsLimit ?? DEFAULT_TRANSACTION_PATTERNS_LIMIT,
       voiceInputLanguage: user.voiceInputLanguage,
-      interfaceLanguage: user.interfaceLanguage ?? DEFAULT_INTERFACE_LANGUAGE,
     };
   }
 

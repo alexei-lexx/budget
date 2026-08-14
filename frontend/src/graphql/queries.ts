@@ -108,9 +108,9 @@ export const GET_TRANSACTION_DESCRIPTION_SUGGESTIONS = gql`
 export const GET_USER_SETTINGS = gql`
   query GetUserSettings {
     userSettings {
+      interfaceLanguage
       transactionPatternsLimit
       voiceInputLanguage
-      interfaceLanguage
       mcpUrl
     }
   }

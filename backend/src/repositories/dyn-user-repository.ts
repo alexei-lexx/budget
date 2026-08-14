@@ -179,6 +179,13 @@ export class DynUserRepository
 
     const removeParts: string[] = [];
 
+    if (user.interfaceLanguage !== undefined) {
+      setParts.push("interfaceLanguage = :interfaceLanguage");
+      expressionAttributeValues[":interfaceLanguage"] = user.interfaceLanguage;
+    } else {
+      removeParts.push("interfaceLanguage");
+    }
+
     if (user.transactionPatternsLimit !== undefined) {
       setParts.push("transactionPatternsLimit = :transactionPatternsLimit");
       expressionAttributeValues[":transactionPatternsLimit"] =
@@ -193,13 +200,6 @@ export class DynUserRepository
         user.voiceInputLanguage;
     } else {
       removeParts.push("voiceInputLanguage");
-    }
-
-    if (user.interfaceLanguage !== undefined) {
-      setParts.push("interfaceLanguage = :interfaceLanguage");
-      expressionAttributeValues[":interfaceLanguage"] = user.interfaceLanguage;
-    } else {
-      removeParts.push("interfaceLanguage");
     }
 
     const updateExpression = [

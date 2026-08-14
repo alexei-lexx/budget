@@ -26,16 +26,16 @@ type User {
 }
 
 type UserSettings {
+  interfaceLanguage: String!
   transactionPatternsLimit: Int!
   voiceInputLanguage: String
-  interfaceLanguage: String!
   mcpUrl: String!
 }
 
 input UpdateUserSettingsInput {
+  interfaceLanguage: String
   transactionPatternsLimit: Int
   voiceInputLanguage: String
-  interfaceLanguage: String
 }
 
 type Account {
