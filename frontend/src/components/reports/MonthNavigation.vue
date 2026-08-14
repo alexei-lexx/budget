@@ -70,11 +70,11 @@ interface Emits {
 const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
 
-const { t } = useI18n();
+const { t, locale } = useI18n();
 
 // Format month and year for display
 const monthYearDisplay = computed(() => {
-  return formatMonthYear(props.year, props.month);
+  return formatMonthYear(props.year, props.month, locale.value);
 });
 
 // Check if we can navigate to previous month
