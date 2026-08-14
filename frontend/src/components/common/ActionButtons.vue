@@ -57,7 +57,7 @@ const handleDuplicate = () => {
       :prepend-icon="duplicateIcon"
       @click.stop="handleDuplicate"
     >
-      {{ duplicateLabel ?? t("common.duplicate") }}
+      {{ duplicateLabel ?? t("common.buttons.duplicate") }}
     </v-btn>
     <v-btn
       :size="size"
@@ -66,7 +66,7 @@ const handleDuplicate = () => {
       :prepend-icon="editIcon"
       @click.stop="handleEdit"
     >
-      {{ editLabel ?? t("common.edit") }}
+      {{ editLabel ?? t("common.buttons.edit") }}
     </v-btn>
     <v-btn
       :size="size"
@@ -75,7 +75,7 @@ const handleDuplicate = () => {
       :prepend-icon="deleteIcon"
       @click.stop="handleDelete"
     >
-      {{ deleteLabel ?? t("common.delete") }}
+      {{ deleteLabel ?? t("common.buttons.delete") }}
     </v-btn>
   </div>
 </template>

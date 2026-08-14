@@ -1,40 +1,44 @@
 {
   "common": {
-    "save": "Speichern",
-    "cancel": "Abbrechen",
-    "delete": "Löschen",
-    "edit": "Bearbeiten",
-    "close": "Schließen",
-    "duplicate": "Duplizieren",
-    "connect": "Verbinden",
-    "disconnect": "Trennen",
-    "test": "Testen",
-    "copy": "Kopieren",
-    "confirm": "Bestätigen",
-    "loadMore": "Mehr laden",
+    "buttons": {
+      "save": "Speichern",
+      "cancel": "Abbrechen",
+      "delete": "Löschen",
+      "edit": "Bearbeiten",
+      "close": "Schließen",
+      "duplicate": "Duplizieren",
+      "connect": "Verbinden",
+      "disconnect": "Trennen",
+      "test": "Testen",
+      "copy": "Kopieren",
+      "confirm": "Bestätigen",
+      "loadMore": "Mehr laden",
+      "stop": "Stopp",
+      "retry": "Erneut versuchen"
+    },
+    "errors": {
+      "generic": "Etwas ist schiefgelaufen. Bitte versuchen Sie es später erneut.",
+      "connection": "Verbindungsproblem. Bitte überprüfen Sie Ihre Internetverbindung und versuchen Sie es erneut.",
+      "voiceInput": {
+        "serviceUnavailable": "Sprachdienst nicht verfügbar — bitte erneut versuchen",
+        "microphoneAccessDenied": "Mikrofonzugriff verweigert — bitte Browserberechtigungen prüfen",
+        "microphoneNotAvailable": "Mikrofon nicht verfügbar — bitte Gerät prüfen",
+        "networkError": "Netzwerkfehler — bitte erneut versuchen",
+        "genericFailure": "Spracheingabe fehlgeschlagen — bitte erneut versuchen"
+      }
+    },
     "deleteIrreversible": "Diese Aktion kann nicht rückgängig gemacht werden.",
     "account": "Konto",
     "description": "Beschreibung",
     "loadingSuggestions": "Vorschläge werden geladen...",
     "noSuggestionsFound": "Keine Vorschläge gefunden",
     "voiceInput": "Spracheingabe",
-    "stop": "Stopp",
     "unknownAccount": "Unbekanntes Konto",
-    "retry": "Erneut versuchen",
-    "genericError": "Etwas ist schiefgelaufen. Bitte versuchen Sie es später erneut.",
-    "connectionError": "Verbindungsproblem. Bitte überprüfen Sie Ihre Internetverbindung und versuchen Sie es erneut.",
     "amountValidation": {
       "mustBePositive": "Betrag muss größer als 0 sein",
       "tooLarge": "Betrag ist zu groß",
       "tooManyDecimals": "Betrag darf höchstens 2 Dezimalstellen haben",
       "tooSmall": "Betrag muss mindestens 0,01 betragen"
-    },
-    "voiceInputErrors": {
-      "serviceUnavailable": "Sprachdienst nicht verfügbar — bitte erneut versuchen",
-      "microphoneAccessDenied": "Mikrofonzugriff verweigert — bitte Browserberechtigungen prüfen",
-      "microphoneNotAvailable": "Mikrofon nicht verfügbar — bitte Gerät prüfen",
-      "networkError": "Netzwerkfehler — bitte erneut versuchen",
-      "genericFailure": "Spracheingabe fehlgeschlagen — bitte erneut versuchen"
     }
   },
   "app": {

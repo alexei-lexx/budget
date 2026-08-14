@@ -1,40 +1,44 @@
 {
   "common": {
-    "save": "Save",
-    "cancel": "Cancel",
-    "delete": "Delete",
-    "edit": "Edit",
-    "close": "Close",
-    "duplicate": "Duplicate",
-    "connect": "Connect",
-    "disconnect": "Disconnect",
-    "test": "Test",
-    "copy": "Copy",
-    "confirm": "Confirm",
-    "loadMore": "Load more",
+    "buttons": {
+      "save": "Save",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "edit": "Edit",
+      "close": "Close",
+      "duplicate": "Duplicate",
+      "connect": "Connect",
+      "disconnect": "Disconnect",
+      "test": "Test",
+      "copy": "Copy",
+      "confirm": "Confirm",
+      "loadMore": "Load more",
+      "stop": "Stop",
+      "retry": "Retry"
+    },
+    "errors": {
+      "generic": "Something went wrong. Please try again later.",
+      "connection": "Connection problem. Please check your internet and try again.",
+      "voiceInput": {
+        "serviceUnavailable": "Speech service unavailable — try again",
+        "microphoneAccessDenied": "Microphone access denied — check browser permissions",
+        "microphoneNotAvailable": "Microphone not available — check your device",
+        "networkError": "Network error — try again",
+        "genericFailure": "Voice input failed — try again"
+      }
+    },
     "deleteIrreversible": "This action cannot be undone.",
     "account": "Account",
     "description": "Description",
     "loadingSuggestions": "Loading suggestions...",
     "noSuggestionsFound": "No suggestions found",
     "voiceInput": "Voice input",
-    "stop": "Stop",
     "unknownAccount": "Unknown Account",
-    "retry": "Retry",
-    "genericError": "Something went wrong. Please try again later.",
-    "connectionError": "Connection problem. Please check your internet and try again.",
     "amountValidation": {
       "mustBePositive": "Amount must be greater than 0",
       "tooLarge": "Amount is too large",
       "tooManyDecimals": "Amount can have at most 2 decimal places",
       "tooSmall": "Amount must be at least 0.01"
-    },
-    "voiceInputErrors": {
-      "serviceUnavailable": "Speech service unavailable — try again",
-      "microphoneAccessDenied": "Microphone access denied — check browser permissions",
-      "microphoneNotAvailable": "Microphone not available — check your device",
-      "networkError": "Network error — try again",
-      "genericFailure": "Voice input failed — try again"
     }
   },
   "app": {

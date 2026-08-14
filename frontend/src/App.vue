@@ -359,7 +359,7 @@ onMounted(() => {
   <v-snackbar v-model="showSnackbar" :color="snackbarColor" timeout="4000" location="bottom">
     {{ snackbarMessage }}
     <template #actions>
-      <v-btn variant="text" @click="hideSnackbar"> {{ t("common.close") }} </v-btn>
+      <v-btn variant="text" @click="hideSnackbar"> {{ t("common.buttons.close") }} </v-btn>
     </template>
   </v-snackbar>
 </template>

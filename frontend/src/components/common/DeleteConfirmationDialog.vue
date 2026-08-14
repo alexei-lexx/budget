@@ -23,10 +23,10 @@
       <v-card-actions :class="{ 'flex-column ga-2': $vuetify.display.xs }">
         <v-spacer v-if="$vuetify.display.smAndUp"></v-spacer>
         <v-btn variant="text" @click="$emit('cancel')" :block="$vuetify.display.xs">
-          {{ t("common.cancel") }}
+          {{ t("common.buttons.cancel") }}
         </v-btn>
         <v-btn color="error" variant="flat" @click="$emit('confirm')" :block="$vuetify.display.xs">
-          {{ t("common.delete") }}
+          {{ t("common.buttons.delete") }}
         </v-btn>
       </v-card-actions>
     </v-card>

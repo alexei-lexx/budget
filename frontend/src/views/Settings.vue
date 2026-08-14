@@ -40,7 +40,7 @@
       </v-row>
 
       <v-btn type="submit" color="primary" class="mt-4" :loading="updateSettingsLoading">
-        {{ t("common.save") }}
+        {{ t("common.buttons.save") }}
       </v-btn>
     </v-form>
 
@@ -70,7 +70,7 @@
         </v-col>
         <v-col cols="12" sm="6" class="d-flex align-center">
           <v-btn color="primary" :loading="testTelegramBotLoading" @click="handleTestTelegramBot">
-            {{ t("common.test") }}
+            {{ t("common.buttons.test") }}
           </v-btn>
           <v-btn
             color="error"
@@ -79,7 +79,7 @@
             :loading="disconnectTelegramBotLoading"
             @click="handleDisconnectTelegramBot"
           >
-            {{ t("common.disconnect") }}
+            {{ t("common.buttons.disconnect") }}
           </v-btn>
         </v-col>
       </v-row>
@@ -107,7 +107,7 @@
             :disabled="!tokenInput.trim()"
             @click="handleConnectTelegramBot"
           >
-            {{ t("common.connect") }}
+            {{ t("common.buttons.connect") }}
           </v-btn>
         </v-col>
       </v-row>
@@ -132,7 +132,7 @@
       </v-col>
       <v-col cols="12" sm="6" class="d-flex align-center">
         <v-btn color="primary" :disabled="!settings?.mcpUrl" @click="handleCopyMcpUrl">
-          {{ t("common.copy") }}
+          {{ t("common.buttons.copy") }}
         </v-btn>
         <v-btn
           color="error"

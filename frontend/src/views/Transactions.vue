@@ -131,7 +131,7 @@
           prepend-icon="mdi-refresh"
           @click="handleLoadMore"
         >
-          {{ t("common.loadMore") }}
+          {{ t("common.buttons.loadMore") }}
         </v-btn>
       </div>
 

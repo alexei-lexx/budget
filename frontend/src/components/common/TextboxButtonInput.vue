@@ -37,7 +37,7 @@
       v-if="loading"
       icon="mdi-stop-circle"
       color="error"
-      :aria-label="t('common.stop')"
+      :aria-label="t('common.buttons.stop')"
       style="align-self: flex-end"
       @click="emit('abort')"
     />

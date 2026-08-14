@@ -223,7 +223,7 @@ const exampleNames = computed(() => {
 
     <v-card-actions class="px-6 pb-6" :class="{ 'flex-column ga-2': $vuetify.display.xs }">
       <v-btn variant="text" @click="handleCancel" :disabled="loading" :block="$vuetify.display.xs">
-        {{ t("common.cancel") }}
+        {{ t("common.buttons.cancel") }}
       </v-btn>
 
       <v-spacer v-if="$vuetify.display.smAndUp"></v-spacer>
