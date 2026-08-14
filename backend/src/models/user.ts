@@ -7,10 +7,10 @@ import { ModelError } from "./model-error";
 export interface UserData {
   id: string;
   email: string;
+  interfaceLanguage?: string;
   mcpToken: string;
   transactionPatternsLimit?: number;
   voiceInputLanguage?: string;
-  interfaceLanguage?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -22,10 +22,10 @@ export interface UserData {
 export class User implements UserData {
   readonly id: string;
   readonly email: string;
+  readonly interfaceLanguage?: string;
   readonly mcpToken: string;
   readonly transactionPatternsLimit?: number;
   readonly voiceInputLanguage?: string;
-  readonly interfaceLanguage?: string;
   readonly createdAt: string;
   readonly updatedAt: string;
 
