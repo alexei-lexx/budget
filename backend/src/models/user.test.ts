@@ -148,7 +148,7 @@ describe("User", () => {
 
       // Act & Assert
       expect(() => User.fromPersistence(data)).toThrow(
-        new ModelError("Unsupported interface language: fr"),
+        new ModelError("Unsupported interface language: zz"),
       );
     });
 
