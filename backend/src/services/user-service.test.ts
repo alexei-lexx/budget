@@ -140,36 +140,6 @@ describe("UserService", () => {
   describe("updateSettings", () => {
     // Happy path
 
-    it("updates voiceInputLanguage", async () => {
-      // Arrange
-      const userId = faker.string.uuid();
-      mockUserRepository.findOneById.mockResolvedValue(
-        fakeUser({ id: userId, mcpToken: "token-1" }),
-      );
-      mockUserRepository.update.mockResolvedValue(undefined);
-
-      // Act
-      const result = await service.updateSettings({
-        userId,
-        voiceInputLanguage: "de-DE",
-      });
-
-      // Assert
-      expect(result).toEqual({
-        success: true,
-        data: {
-          mcpUrl: "https://api.example.com/mcp?token=token-1",
-          transactionPatternsLimit: DEFAULT_TRANSACTION_PATTERNS_LIMIT,
-          voiceInputLanguage: "de-DE",
-          interfaceLanguage: "en",
-        },
-      });
-      expect(mockUserRepository.findOneById).toHaveBeenCalledWith(userId);
-      expect(mockUserRepository.update).toHaveBeenCalledWith(
-        expect.objectContaining({ voiceInputLanguage: "de-DE" }),
-      );
-    });
-
     it("updates interfaceLanguage", async () => {
       // Arrange
       const userId = faker.string.uuid();
@@ -227,6 +197,36 @@ describe("UserService", () => {
       expect(mockUserRepository.findOneById).toHaveBeenCalledWith(userId);
       expect(mockUserRepository.update).toHaveBeenCalledWith(
         expect.objectContaining({ transactionPatternsLimit: 7 }),
+      );
+    });
+
+    it("updates voiceInputLanguage", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+      mockUserRepository.findOneById.mockResolvedValue(
+        fakeUser({ id: userId, mcpToken: "token-1" }),
+      );
+      mockUserRepository.update.mockResolvedValue(undefined);
+
+      // Act
+      const result = await service.updateSettings({
+        userId,
+        voiceInputLanguage: "de-DE",
+      });
+
+      // Assert
+      expect(result).toEqual({
+        success: true,
+        data: {
+          mcpUrl: "https://api.example.com/mcp?token=token-1",
+          transactionPatternsLimit: DEFAULT_TRANSACTION_PATTERNS_LIMIT,
+          voiceInputLanguage: "de-DE",
+          interfaceLanguage: "en",
+        },
+      });
+      expect(mockUserRepository.findOneById).toHaveBeenCalledWith(userId);
+      expect(mockUserRepository.update).toHaveBeenCalledWith(
+        expect.objectContaining({ voiceInputLanguage: "de-DE" }),
       );
     });
 
@@ -296,6 +296,22 @@ describe("UserService", () => {
       expect(mockUserRepository.update).not.toHaveBeenCalled();
     });
 
+    it("returns failure when interfaceLanguage is unsupported", async () => {
+      // Act
+      const result = await service.updateSettings({
+        userId: faker.string.uuid(),
+        interfaceLanguage: "fr",
+      });
+
+      // Assert
+      expect(result).toEqual({
+        success: false,
+        error: "Unsupported interface language: fr",
+      });
+      expect(mockUserRepository.findOneById).not.toHaveBeenCalled();
+      expect(mockUserRepository.update).not.toHaveBeenCalled();
+    });
+
     it("returns failure when transactionPatternsLimit is below minimum", async () => {
       // Act
       const result = await service.updateSettings({
@@ -339,22 +355,6 @@ describe("UserService", () => {
       expect(result).toEqual({
         success: false,
         error: `Transaction patterns limit must be an integer between ${MIN_TRANSACTION_PATTERNS_LIMIT} and ${MAX_TRANSACTION_PATTERNS_LIMIT}`,
-      });
-      expect(mockUserRepository.findOneById).not.toHaveBeenCalled();
-      expect(mockUserRepository.update).not.toHaveBeenCalled();
-    });
-
-    it("returns failure when interfaceLanguage is unsupported", async () => {
-      // Act
-      const result = await service.updateSettings({
-        userId: faker.string.uuid(),
-        interfaceLanguage: "fr",
-      });
-
-      // Assert
-      expect(result).toEqual({
-        success: false,
-        error: "Unsupported interface language: fr",
       });
       expect(mockUserRepository.findOneById).not.toHaveBeenCalled();
       expect(mockUserRepository.update).not.toHaveBeenCalled();

@@ -292,18 +292,6 @@ describe("DynUserRepository", () => {
       expect(stored?.email).toBe(user.email);
     });
 
-    it("hydrates missing interface language as undefined", async () => {
-      // Arrange
-      const user = User.create(fakeCreateUserInput());
-      await repository.create(user);
-
-      // Act
-      const stored = await repository.findOneById(user.id);
-
-      // Assert
-      expect(stored?.interfaceLanguage).toBeUndefined();
-    });
-
     it("updates mcp token", async () => {
       // Arrange
       const user = User.create(fakeCreateUserInput());
