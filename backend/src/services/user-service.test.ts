@@ -170,36 +170,6 @@ describe("UserService", () => {
       );
     });
 
-    it("updates transactionPatternsLimit", async () => {
-      // Arrange
-      const userId = faker.string.uuid();
-      mockUserRepository.findOneById.mockResolvedValue(
-        fakeUser({ id: userId, mcpToken: "token-1" }),
-      );
-      mockUserRepository.update.mockResolvedValue(undefined);
-
-      // Act
-      const result = await service.updateSettings({
-        userId,
-        transactionPatternsLimit: 7,
-      });
-
-      // Assert
-      expect(result).toEqual({
-        success: true,
-        data: {
-          interfaceLanguage: "en",
-          mcpUrl: "https://api.example.com/mcp?token=token-1",
-          transactionPatternsLimit: 7,
-          voiceInputLanguage: undefined,
-        },
-      });
-      expect(mockUserRepository.findOneById).toHaveBeenCalledWith(userId);
-      expect(mockUserRepository.update).toHaveBeenCalledWith(
-        expect.objectContaining({ transactionPatternsLimit: 7 }),
-      );
-    });
-
     it("updates voiceInputLanguage", async () => {
       // Arrange
       const userId = faker.string.uuid();
@@ -227,6 +197,36 @@ describe("UserService", () => {
       expect(mockUserRepository.findOneById).toHaveBeenCalledWith(userId);
       expect(mockUserRepository.update).toHaveBeenCalledWith(
         expect.objectContaining({ voiceInputLanguage: "de-DE" }),
+      );
+    });
+
+    it("updates transactionPatternsLimit", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+      mockUserRepository.findOneById.mockResolvedValue(
+        fakeUser({ id: userId, mcpToken: "token-1" }),
+      );
+      mockUserRepository.update.mockResolvedValue(undefined);
+
+      // Act
+      const result = await service.updateSettings({
+        userId,
+        transactionPatternsLimit: 7,
+      });
+
+      // Assert
+      expect(result).toEqual({
+        success: true,
+        data: {
+          interfaceLanguage: "en",
+          mcpUrl: "https://api.example.com/mcp?token=token-1",
+          transactionPatternsLimit: 7,
+          voiceInputLanguage: undefined,
+        },
+      });
+      expect(mockUserRepository.findOneById).toHaveBeenCalledWith(userId);
+      expect(mockUserRepository.update).toHaveBeenCalledWith(
+        expect.objectContaining({ transactionPatternsLimit: 7 }),
       );
     });
 
