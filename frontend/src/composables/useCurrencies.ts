@@ -1,5 +1,6 @@
 import { computed } from "vue";
 import { useGetSupportedCurrenciesQuery } from "@/__generated__/vue-apollo";
+import { i18n } from "@/plugins/i18n";
 
 /**
  * Composable for managing currencies with error handling and fallbacks
@@ -26,11 +27,12 @@ export function useCurrencies() {
   });
 
   // Currency error state and messages
+  const { t } = i18n.global;
   const hasError = computed(() => !!currenciesError.value);
 
   const errorMessage = computed(() => {
     if (currenciesError.value) {
-      return "Failed to load currencies from server. Please retry or check your connection.";
+      return t("accounts.form.currencyLoadError");
     }
     return null;
   });
