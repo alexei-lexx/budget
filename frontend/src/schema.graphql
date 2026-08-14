@@ -1,6 +1,7 @@
 type Query {
   accounts: [Account!]!
   supportedCurrencies: [String!]!
+  supportedInterfaceLanguages: [String!]!
   categories(type: CategoryType): [Category!]!
   transactions(
     pagination: PaginationInput
@@ -13,7 +14,6 @@ type Query {
   testTelegramBot: Boolean
   transactionDescriptionSuggestions(searchText: String!): [String!]!
   userSettings: UserSettings!
-  supportedInterfaceLanguages: [String!]!
 }
 
 type TelegramBot {
