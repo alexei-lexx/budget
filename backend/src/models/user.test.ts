@@ -144,7 +144,7 @@ describe("User", () => {
 
     it("throws on unsupported interfaceLanguage", () => {
       // Arrange
-      const data = { ...fakeUser().toData(), interfaceLanguage: "fr" };
+      const data = { ...fakeUser().toData(), interfaceLanguage: "zz" };
 
       // Act & Assert
       expect(() => User.fromPersistence(data)).toThrow(
