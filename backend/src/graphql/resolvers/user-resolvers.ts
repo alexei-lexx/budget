@@ -84,9 +84,9 @@ export const userResolvers = {
         const result = await context.userService.updateSettings({
           userId: user.id,
           voiceInputLanguage: args.input.voiceInputLanguage ?? undefined,
+          interfaceLanguage: args.input.interfaceLanguage ?? undefined,
           transactionPatternsLimit:
             args.input.transactionPatternsLimit ?? undefined,
-          interfaceLanguage: args.input.interfaceLanguage ?? undefined,
         });
 
         if (!result.success) {
