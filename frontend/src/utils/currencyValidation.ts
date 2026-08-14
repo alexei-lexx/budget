@@ -11,22 +11,23 @@ import type { CheckRule } from "@/utils/validation";
  * - Reasonable amount limits
  * - Minimum 0.01 for practical currency use
  */
-export function createCurrencyAmountRules(t: (key: string) => string): CheckRule<number>[] {
+export function createCurrencyAmountRules(translate: (key: string) => string): CheckRule<number>[] {
   return [
-    (value: number) => (!isNaN(value) && value > 0) || t("common.amountValidation.mustBePositive"),
+    (value: number) =>
+      (!isNaN(value) && value > 0) || translate("common.amountValidation.mustBePositive"),
     (value: number) => {
       // Check for reasonable maximum (prevent overflow issues)
       const maxAmount = 999999999.99; // ~1 billion with 2 decimal places
-      return value <= maxAmount || t("common.amountValidation.tooLarge");
+      return value <= maxAmount || translate("common.amountValidation.tooLarge");
     },
     (value: number) => {
       // Validate decimal places (max 2 for currency)
       const decimalPlaces = (value.toString().split(".")[1] || "").length;
-      return decimalPlaces <= 2 || t("common.amountValidation.tooManyDecimals");
+      return decimalPlaces <= 2 || translate("common.amountValidation.tooManyDecimals");
     },
     (value: number) => {
       // Additional validation for very small amounts (minimum 0.01 for most currencies)
-      return value >= 0.01 || t("common.amountValidation.tooSmall");
+      return value >= 0.01 || translate("common.amountValidation.tooSmall");
     },
   ];
 }
