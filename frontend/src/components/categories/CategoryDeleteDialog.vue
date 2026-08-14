@@ -34,6 +34,6 @@ const { t } = useI18n();
 
 const confirmMessage = computed(() => {
   if (!props.category) return "";
-  return t("categories.deleteDialog.message", { name: props.category.name });
+  return t("categories.deleteDialog.confirmMessage", { name: props.category.name });
 });
 </script>

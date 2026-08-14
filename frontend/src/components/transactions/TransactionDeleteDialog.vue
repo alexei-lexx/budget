@@ -43,7 +43,7 @@ const confirmMessage = computed(() => {
     props.transaction.type,
   );
 
-  return t("transactions.deleteDialog.message", {
+  return t("transactions.deleteDialog.confirmMessage", {
     account: props.accountName || t("common.unknownAccount"),
     amount: formattedAmount,
   });

@@ -44,7 +44,7 @@ const confirmMessage = computed(() => {
     "TRANSFER_IN", // Use TRANSFER_IN type to ensure positive formatting
   );
 
-  return t("transfers.deleteDialog.message", {
+  return t("transfers.deleteDialog.confirmMessage", {
     amount: formattedAmount,
     from: props.fromAccountName || t("common.unknownAccount"),
     to: props.toAccountName || t("common.unknownAccount"),

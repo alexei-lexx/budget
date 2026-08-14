@@ -34,6 +34,6 @@ const { t } = useI18n();
 
 const confirmMessage = computed(() => {
   if (!props.account) return "";
-  return t("accounts.deleteDialog.message", { name: props.account.name });
+  return t("accounts.deleteDialog.confirmMessage", { name: props.account.name });
 });
 </script>

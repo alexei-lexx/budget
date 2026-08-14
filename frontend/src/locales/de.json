@@ -72,7 +72,7 @@
     "emptyText": "Erstellen Sie Ihr erstes Konto, um Ihre Finanzen zu verfolgen.",
     "deleteDialog": {
       "title": "Konto löschen",
-      "message": "Möchten Sie das Konto „{name}“ wirklich löschen?",
+      "confirmMessage": "Möchten Sie das Konto „{name}“ wirklich löschen?",
       "warning": "Diese Aktion kann nicht rückgängig gemacht werden. Das Konto wird dauerhaft aus Ihren Aufzeichnungen entfernt, historische Transaktionsdaten bleiben jedoch erhalten."
     },
     "form": {
@@ -120,7 +120,7 @@
     },
     "deleteDialog": {
       "title": "Kategorie löschen",
-      "message": "Möchten Sie die Kategorie „{name}“ wirklich löschen?",
+      "confirmMessage": "Möchten Sie die Kategorie „{name}“ wirklich löschen?",
       "warning": "Diese Aktion kann nicht rückgängig gemacht werden. Die Kategorie wird dauerhaft aus Ihren Aufzeichnungen entfernt, historische Transaktionsdaten bleiben jedoch erhalten."
     },
     "form": {
@@ -169,7 +169,7 @@
     "deletedCategory": "Gelöschte Kategorie",
     "deleteDialog": {
       "title": "Transaktion löschen",
-      "message": "Möchten Sie die Transaktion „{account}, {amount}“ wirklich löschen?",
+      "confirmMessage": "Möchten Sie die Transaktion „{account}, {amount}“ wirklich löschen?",
       "warning": "Diese Aktion kann nicht rückgängig gemacht werden. Die Transaktion wird dauerhaft aus Ihren Aufzeichnungen entfernt."
     },
     "form": {
@@ -225,7 +225,7 @@
     "updateFailed": "Übertrag konnte nicht aktualisiert werden. Bitte versuchen Sie es erneut.",
     "deleteDialog": {
       "title": "Übertrag löschen",
-      "message": "Möchten Sie diesen Übertrag von {amount} von „{from}“ nach „{to}“ wirklich löschen?",
+      "confirmMessage": "Möchten Sie diesen Übertrag von {amount} von „{from}“ nach „{to}“ wirklich löschen?",
       "warning": "Diese Aktion kann nicht rückgängig gemacht werden. Sowohl die ausgehende als auch die eingehende Transaktion werden dauerhaft aus Ihren Aufzeichnungen entfernt."
     },
     "form": {
