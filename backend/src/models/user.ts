@@ -57,10 +57,10 @@ export class User implements UserData {
     return {
       id: this.id,
       email: this.email,
+      interfaceLanguage: this.interfaceLanguage,
       mcpToken: this.mcpToken,
       transactionPatternsLimit: this.transactionPatternsLimit,
       voiceInputLanguage: this.voiceInputLanguage,
-      interfaceLanguage: this.interfaceLanguage,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
     };
@@ -71,10 +71,10 @@ export class User implements UserData {
 
     const data: UserData = {
       ...this.toData(),
+      interfaceLanguage: input.interfaceLanguage ?? this.interfaceLanguage,
       transactionPatternsLimit:
         input.transactionPatternsLimit ?? this.transactionPatternsLimit,
       voiceInputLanguage: input.voiceInputLanguage ?? this.voiceInputLanguage,
-      interfaceLanguage: input.interfaceLanguage ?? this.interfaceLanguage,
       updatedAt: now,
     };
 
@@ -100,10 +100,10 @@ export class User implements UserData {
 
     this.id = data.id;
     this.email = data.email;
+    this.interfaceLanguage = data.interfaceLanguage;
     this.mcpToken = data.mcpToken;
     this.transactionPatternsLimit = data.transactionPatternsLimit;
     this.voiceInputLanguage = data.voiceInputLanguage;
-    this.interfaceLanguage = data.interfaceLanguage;
     this.createdAt = data.createdAt;
     this.updatedAt = data.updatedAt;
   }
@@ -115,6 +115,15 @@ export class User implements UserData {
 
     if (!validateEmail(data.email)) {
       throw new ModelError(`Invalid email: ${data.email}`);
+    }
+
+    if (
+      data.interfaceLanguage !== undefined &&
+      !isSupportedInterfaceLanguage(data.interfaceLanguage)
+    ) {
+      throw new ModelError(
+        `Unsupported interface language: ${data.interfaceLanguage}`,
+      );
     }
 
     if (data.mcpToken.length === 0) {
@@ -130,15 +139,6 @@ export class User implements UserData {
         "Transaction patterns limit must be a non-negative integer",
       );
     }
-
-    if (
-      data.interfaceLanguage !== undefined &&
-      !isSupportedInterfaceLanguage(data.interfaceLanguage)
-    ) {
-      throw new ModelError(
-        `Unsupported interface language: ${data.interfaceLanguage}`,
-      );
-    }
   }
 }
 
@@ -147,9 +147,9 @@ export interface CreateUserInput {
 }
 
 export interface UpdateUserInput {
+  interfaceLanguage?: string;
   transactionPatternsLimit?: number;
   voiceInputLanguage?: string;
-  interfaceLanguage?: string;
 }
 
 function normalizeEmail(email: string): string {
