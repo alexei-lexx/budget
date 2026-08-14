@@ -28,10 +28,10 @@ describe("UserService", () => {
       const userId = faker.string.uuid();
       const user = fakeUser({
         id: userId,
+        interfaceLanguage: "de",
         mcpToken: "token-1",
         transactionPatternsLimit: 5,
         voiceInputLanguage: "pl-PL",
-        interfaceLanguage: "de",
       });
       // Returns user with saved settings
       mockUserRepository.findOneById.mockResolvedValue(user);
@@ -43,10 +43,10 @@ describe("UserService", () => {
       expect(result).toEqual({
         success: true,
         data: {
+          interfaceLanguage: "de",
           mcpUrl: "https://api.example.com/mcp?token=token-1",
           transactionPatternsLimit: 5,
           voiceInputLanguage: "pl-PL",
-          interfaceLanguage: "de",
         },
       });
       expect(mockUserRepository.findOneById).toHaveBeenCalledWith(userId);
@@ -66,10 +66,10 @@ describe("UserService", () => {
       expect(result).toStrictEqual({
         success: true,
         data: {
+          interfaceLanguage: "en",
           mcpUrl: "https://api.example.com/mcp?token=token-1",
           transactionPatternsLimit: DEFAULT_TRANSACTION_PATTERNS_LIMIT,
           voiceInputLanguage: undefined,
-          interfaceLanguage: "en",
         },
       });
       expect(mockUserRepository.findOneById).toHaveBeenCalledWith(userId);
@@ -158,10 +158,10 @@ describe("UserService", () => {
       expect(result).toEqual({
         success: true,
         data: {
+          interfaceLanguage: "de",
           mcpUrl: "https://api.example.com/mcp?token=token-1",
           transactionPatternsLimit: DEFAULT_TRANSACTION_PATTERNS_LIMIT,
           voiceInputLanguage: undefined,
-          interfaceLanguage: "de",
         },
       });
       expect(mockUserRepository.findOneById).toHaveBeenCalledWith(userId);
@@ -188,10 +188,10 @@ describe("UserService", () => {
       expect(result).toEqual({
         success: true,
         data: {
+          interfaceLanguage: "en",
           mcpUrl: "https://api.example.com/mcp?token=token-1",
           transactionPatternsLimit: 7,
           voiceInputLanguage: undefined,
-          interfaceLanguage: "en",
         },
       });
       expect(mockUserRepository.findOneById).toHaveBeenCalledWith(userId);
@@ -218,10 +218,10 @@ describe("UserService", () => {
       expect(result).toEqual({
         success: true,
         data: {
+          interfaceLanguage: "en",
           mcpUrl: "https://api.example.com/mcp?token=token-1",
           transactionPatternsLimit: DEFAULT_TRANSACTION_PATTERNS_LIMIT,
           voiceInputLanguage: "de-DE",
-          interfaceLanguage: "en",
         },
       });
       expect(mockUserRepository.findOneById).toHaveBeenCalledWith(userId);
@@ -241,27 +241,27 @@ describe("UserService", () => {
       // Act
       const result = await service.updateSettings({
         userId,
+        interfaceLanguage: "de",
         transactionPatternsLimit: 5,
         voiceInputLanguage: "en-US",
-        interfaceLanguage: "de",
       });
 
       // Assert
       expect(result).toEqual({
         success: true,
         data: {
+          interfaceLanguage: "de",
           mcpUrl: "https://api.example.com/mcp?token=token-1",
           transactionPatternsLimit: 5,
           voiceInputLanguage: "en-US",
-          interfaceLanguage: "de",
         },
       });
       expect(mockUserRepository.findOneById).toHaveBeenCalledWith(userId);
       expect(mockUserRepository.update).toHaveBeenCalledWith(
         expect.objectContaining({
+          interfaceLanguage: "de",
           transactionPatternsLimit: 5,
           voiceInputLanguage: "en-US",
-          interfaceLanguage: "de",
         }),
       );
     });
