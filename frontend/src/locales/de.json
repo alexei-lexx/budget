@@ -1,0 +1,326 @@
+{
+  "common": {
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "close": "Schließen",
+    "duplicate": "Duplizieren",
+    "connect": "Verbinden",
+    "disconnect": "Trennen",
+    "test": "Testen",
+    "copy": "Kopieren",
+    "confirm": "Bestätigen",
+    "loadMore": "Mehr laden",
+    "deleteIrreversible": "Diese Aktion kann nicht rückgängig gemacht werden.",
+    "account": "Konto",
+    "description": "Beschreibung",
+    "loadingSuggestions": "Vorschläge werden geladen...",
+    "noSuggestionsFound": "Keine Vorschläge gefunden",
+    "voiceInput": "Spracheingabe",
+    "stop": "Stopp",
+    "unknownAccount": "Unbekanntes Konto",
+    "retry": "Erneut versuchen",
+    "genericError": "Etwas ist schiefgelaufen. Bitte versuchen Sie es später erneut.",
+    "connectionError": "Verbindungsproblem. Bitte überprüfen Sie Ihre Internetverbindung und versuchen Sie es erneut.",
+    "amountValidation": {
+      "mustBePositive": "Betrag muss größer als 0 sein",
+      "tooLarge": "Betrag ist zu groß",
+      "tooManyDecimals": "Betrag darf höchstens 2 Dezimalstellen haben",
+      "tooSmall": "Betrag muss mindestens 0,01 betragen"
+    },
+    "voiceInputErrors": {
+      "serviceUnavailable": "Sprachdienst nicht verfügbar — bitte erneut versuchen",
+      "microphoneAccessDenied": "Mikrofonzugriff verweigert — bitte Browserberechtigungen prüfen",
+      "microphoneNotAvailable": "Mikrofon nicht verfügbar — bitte Gerät prüfen",
+      "networkError": "Netzwerkfehler — bitte erneut versuchen",
+      "genericFailure": "Spracheingabe fehlgeschlagen — bitte erneut versuchen"
+    }
+  },
+  "app": {
+    "title": "Persönlicher Budget-Tracker",
+    "userCreationFailed": "Benutzererstellung fehlgeschlagen"
+  },
+  "nav": {
+    "signIn": "Anmelden",
+    "transactions": "Transaktionen",
+    "accounts": "Konten",
+    "categories": "Kategorien",
+    "reports": "Berichte",
+    "assistant": "Assistent",
+    "settings": "Einstellungen",
+    "registerPasskey": "Passkey registrieren",
+    "signOut": "Abmelden"
+  },
+  "auth": {
+    "passkeyFreshSignInRequired": "Für die Passkey-Registrierung ist eine erneute Anmeldung erforderlich. Bitte melden Sie sich ab und wieder an.",
+    "freshSignInRequired": "Für diese Aktion ist eine erneute Anmeldung erforderlich. Bitte melden Sie sich ab und wieder an."
+  },
+  "accounts": {
+    "title": "Konten",
+    "addAccount": "Konto hinzufügen",
+    "addFirstAccount": "Erstes Konto hinzufügen",
+    "deleted": "Konto „{name}“ wurde gelöscht",
+    "updated": "Konto „{name}“ wurde aktualisiert",
+    "created": "Konto „{name}“ wurde erstellt",
+    "loading": "Konten werden geladen...",
+    "emptyTitle": "Noch keine Konten",
+    "emptyText": "Erstellen Sie Ihr erstes Konto, um Ihre Finanzen zu verfolgen.",
+    "deleteDialog": {
+      "title": "Konto löschen",
+      "message": "Möchten Sie das Konto „{name}“ wirklich löschen?",
+      "warning": "Diese Aktion kann nicht rückgängig gemacht werden. Das Konto wird dauerhaft aus Ihren Aufzeichnungen entfernt, historische Transaktionsdaten bleiben jedoch erhalten."
+    },
+    "form": {
+      "editTitle": "Konto bearbeiten",
+      "createTitle": "Neues Konto erstellen",
+      "update": "Aktualisieren",
+      "create": "Erstellen",
+      "nameLabel": "Kontoname",
+      "namePlaceholder": "z. B. Bargeld, Bankkonto, Kreditkarte",
+      "currencyLabel": "Währung",
+      "currencyLoadError": "Währungen konnten nicht geladen werden. Standardwerte werden verwendet.",
+      "initialBalanceLabel": "Anfangssaldo",
+      "nameRequired": "Kontoname ist erforderlich",
+      "nameNotEmpty": "Kontoname darf nicht leer sein",
+      "nameTooLong": "Kontoname darf 100 Zeichen nicht überschreiten",
+      "currencyRequired": "Währung ist erforderlich",
+      "currencyInvalid": "Bitte wählen Sie eine gültige Währung",
+      "balanceRequired": "Anfangssaldo ist erforderlich",
+      "balanceInvalidNumber": "Anfangssaldo muss eine gültige Zahl sein",
+      "balanceInvalidFinite": "Anfangssaldo muss eine endliche Zahl sein"
+    },
+    "errors": {
+      "fetchFailed": "Konten konnten nicht geladen werden",
+      "operationFailed": "Kontovorgang fehlgeschlagen",
+      "createFailed": "Konto konnte nicht erstellt werden",
+      "updateFailed": "Konto konnte nicht aktualisiert werden",
+      "deleteFailed": "Konto konnte nicht gelöscht werden"
+    }
+  },
+  "categories": {
+    "title": "Kategorien",
+    "addCategory": "Kategorie hinzufügen",
+    "loading": "Kategorien werden geladen...",
+    "deleted": "Kategorie „{name}“ wurde gelöscht",
+    "updated": "Kategorie „{name}“ wurde aktualisiert",
+    "created": "Kategorie „{name}“ wurde erstellt",
+    "excludedFromReports": "Von Berichten ausgeschlossen",
+    "emptyTitleExpense": "Noch keine Ausgabenkategorien",
+    "emptyTitleIncome": "Noch keine Einnahmenkategorien",
+    "emptyTextExpense": "Erstellen Sie Ihre erste Ausgabenkategorie, um Ihre Transaktionen zu organisieren.",
+    "emptyTextIncome": "Erstellen Sie Ihre erste Einnahmenkategorie, um Ihre Transaktionen zu organisieren.",
+    "types": {
+      "income": "Einnahme",
+      "expense": "Ausgabe"
+    },
+    "deleteDialog": {
+      "title": "Kategorie löschen",
+      "message": "Möchten Sie die Kategorie „{name}“ wirklich löschen?",
+      "warning": "Diese Aktion kann nicht rückgängig gemacht werden. Die Kategorie wird dauerhaft aus Ihren Aufzeichnungen entfernt, historische Transaktionsdaten bleiben jedoch erhalten."
+    },
+    "form": {
+      "editTitle": "Kategorie bearbeiten",
+      "createTitle": "Neue Kategorie erstellen",
+      "update": "Aktualisieren",
+      "create": "Erstellen",
+      "nameLabel": "Kategoriename",
+      "namePlaceholder": "z. B. {examples}",
+      "exampleNamesIncome": "Gehalt, Freiberuflich, Investition, Bonus",
+      "exampleNamesExpense": "Lebensmittel, Miete, Nebenkosten, Unterhaltung",
+      "typeLabel": "Kategorietyp",
+      "excludeFromReportsLabel": "Von Berichten ausschließen",
+      "excludeFromReportsHint": "Wenn aktiviert, erscheinen Transaktionen in dieser Kategorie nicht in Monatsberichten",
+      "nameRequired": "Kategoriename ist erforderlich",
+      "nameNotEmpty": "Kategoriename darf nicht leer sein",
+      "nameTooLong": "Kategoriename darf 100 Zeichen nicht überschreiten",
+      "typeRequired": "Kategorietyp ist erforderlich",
+      "typeInvalid": "Kategorietyp muss entweder Einnahme oder Ausgabe sein"
+    },
+    "errors": {
+      "fetchFailed": "Kategorien konnten nicht geladen werden",
+      "operationFailed": "Kategorievorgang fehlgeschlagen",
+      "createFailed": "Kategorie konnte nicht erstellt werden",
+      "updateFailed": "Kategorie konnte nicht aktualisiert werden",
+      "deleteFailed": "Kategorie konnte nicht gelöscht werden"
+    }
+  },
+  "transactions": {
+    "title": "Transaktionen",
+    "filter": "Filter",
+    "addTransaction": "Transaktion hinzufügen",
+    "loading": "Transaktionen werden geladen...",
+    "emptyTitle": "Noch keine Transaktionen",
+    "emptyText": "Beginnen Sie mit der Verfolgung Ihrer Einnahmen und Ausgaben, indem Sie Ihre erste Transaktion hinzufügen.",
+    "countWithTotal": "{count} von {total} Transaktion | {count} von {total} Transaktionen",
+    "countOnly": "{count} Transaktion | {count} Transaktionen",
+    "defaultDescription": "Transaktion",
+    "deletedWithAmount": "Transaktion „{description}“ ({amount}) wurde gelöscht",
+    "created": "Neue Transaktion wurde erstellt",
+    "updated": "Transaktion wurde aktualisiert",
+    "textInputPlaceholder": "z. B. Kaffee am Morgen 4,5 Euro",
+    "createTransactionAriaLabel": "Transaktion erstellen",
+    "deletedEntity": "Gelöscht: {name}",
+    "deletedAccount": "Gelöschtes Konto",
+    "deletedCategory": "Gelöschte Kategorie",
+    "deleteDialog": {
+      "title": "Transaktion löschen",
+      "message": "Möchten Sie die Transaktion „{account}, {amount}“ wirklich löschen?",
+      "warning": "Diese Aktion kann nicht rückgängig gemacht werden. Die Transaktion wird dauerhaft aus Ihren Aufzeichnungen entfernt."
+    },
+    "form": {
+      "accountRequired": "Konto ist erforderlich",
+      "typeRequired": "Transaktionstyp ist erforderlich",
+      "typeInvalid": "Transaktionstyp muss Einnahme, Ausgabe oder Erstattung sein",
+      "dateRequired": "Datum ist erforderlich",
+      "dateInvalidFormat": "Datum muss im Format JJJJ-MM-TT vorliegen",
+      "editTitle": "Transaktion bearbeiten",
+      "createTitle": "Neue Transaktion erstellen",
+      "update": "Aktualisieren",
+      "create": "Erstellen",
+      "type": "Typ",
+      "refund": "Erstattung",
+      "categoryOptional": "Kategorie (Optional)",
+      "noIncomeCategories": "Keine Einnahmenkategorien verfügbar",
+      "noExpenseCategories": "Keine Ausgabenkategorien verfügbar",
+      "amount": "Betrag",
+      "date": "Datum",
+      "descriptionOptional": "Beschreibung (Optional)",
+      "descriptionPlaceholder": "z. B. Wocheneinkauf, Gehaltszahlung, Kaffee mit Freunden"
+    },
+    "createTextFailed": "Transaktion konnte nicht erstellt werden. Bitte versuchen Sie es erneut.",
+    "errors": {
+      "fetchFailed": "Transaktionen konnten nicht geladen werden",
+      "operationFailed": "Transaktionsvorgang fehlgeschlagen",
+      "createFailed": "Transaktion konnte nicht erstellt werden",
+      "updateFailed": "Transaktion konnte nicht aktualisiert werden",
+      "deleteFailed": "Transaktion konnte nicht gelöscht werden",
+      "loadMoreFailed": "Weitere Transaktionen konnten nicht geladen werden"
+    },
+    "filterBar": {
+      "category": "Kategorie",
+      "transferIn": "Eingehender Übertrag",
+      "transferOut": "Ausgehender Übertrag",
+      "includeUncategorized": "Unkategorisiert einschließen",
+      "fromDate": "Von Datum",
+      "toDate": "Bis Datum",
+      "clear": "Zurücksetzen",
+      "apply": "Anwenden"
+    }
+  },
+  "transfers": {
+    "addTransfer": "Übertrag hinzufügen",
+    "notFound": "Übertrag nicht gefunden. Die Übertragsdaten wurden möglicherweise gelöscht.",
+    "loadFailed": "Übertragsdaten konnten nicht geladen werden. Bitte versuchen Sie es erneut.",
+    "defaultDescription": "Übertrag",
+    "deletedWithAmount": "Übertrag „{description}“ ({amount}) wurde gelöscht",
+    "deleteFailed": "Übertrag konnte nicht gelöscht werden. Bitte versuchen Sie es erneut.",
+    "created": "Übertrag wurde erfolgreich erstellt",
+    "createFailed": "Übertrag konnte nicht erstellt werden. Bitte versuchen Sie es erneut.",
+    "updated": "Übertrag wurde erfolgreich aktualisiert",
+    "updateFailed": "Übertrag konnte nicht aktualisiert werden. Bitte versuchen Sie es erneut.",
+    "deleteDialog": {
+      "title": "Übertrag löschen",
+      "message": "Möchten Sie diesen Übertrag von {amount} von „{from}“ nach „{to}“ wirklich löschen?",
+      "warning": "Diese Aktion kann nicht rückgängig gemacht werden. Sowohl die ausgehende als auch die eingehende Transaktion werden dauerhaft aus Ihren Aufzeichnungen entfernt."
+    },
+    "form": {
+      "editTitle": "Übertrag bearbeiten",
+      "createTitle": "Neuen Übertrag erstellen",
+      "update": "Aktualisieren",
+      "create": "Erstellen",
+      "fromAccountRequired": "Quellkonto ist erforderlich",
+      "toAccountRequired": "Zielkonto ist erforderlich",
+      "accountsMustDiffer": "Quell- und Zielkonto müssen unterschiedlich sein",
+      "currencyMustMatch": "Quell- und Zielkonto müssen dieselbe Währung haben",
+      "swapAccounts": "Konten vertauschen",
+      "fromAccount": "Von Konto",
+      "toAccount": "Zu Konto",
+      "descriptionPlaceholder": "z. B. Monatliche Sparüberweisung, Einzahlung Notfallfonds"
+    },
+    "operationFailed": "Übertragsvorgang fehlgeschlagen"
+  },
+  "signIn": {
+    "welcome": "Willkommen beim Persönlichen Budget-Tracker",
+    "prompt": "Bitte melden Sie sich an, um Ihre Finanzen zu verwalten",
+    "settingUp": "Ihr Konto wird eingerichtet...",
+    "welcomeBack": "Willkommen zurück, {name}! Sie werden zu Ihren Transaktionen weitergeleitet...",
+    "loginFailed": "Anmeldung fehlgeschlagen"
+  },
+  "assistant": {
+    "title": "Assistent",
+    "emptyTitle": "Fragen Sie zu Ihren Finanzen",
+    "emptyText": "Stellen Sie eine Frage, um loszulegen.",
+    "placeholder": "Fragen Sie zu Ihren Ausgaben...",
+    "inputAriaLabel": "Frage stellen",
+    "submitAriaLabel": "Frage senden",
+    "responseFailed": "Antwort des Assistenten konnte nicht abgerufen werden. Bitte versuchen Sie es erneut.",
+    "agentTrace": {
+      "title": "Agent-Ablauf",
+      "noMessages": "Keine Ablaufmeldungen verfügbar.",
+      "viewAriaLabel": "Agent-Ablauf anzeigen",
+      "labels": {
+        "text": "TEXT",
+        "toolCall": "TOOL-AUFRUF",
+        "toolResult": "TOOL-ERGEBNIS",
+        "unknown": "UNBEKANNT"
+      }
+    }
+  },
+  "reports": {
+    "title": "Ausgabenbericht",
+    "monthly": "Monatlich",
+    "yearly": "Jährlich",
+    "previous": "Zurück",
+    "next": "Weiter",
+    "error": {
+      "title": "Berichtsfehler",
+      "loadFailed": "Bericht konnte nicht geladen werden: {message}",
+      "invalidUrlMonthYear": "Ungültiger Monat oder Jahr in URL-Parametern",
+      "invalidUrlYear": "Ungültiges Jahr in URL-Parametern"
+    },
+    "table": {
+      "sortByCategory": "Kategorie",
+      "sortByAmount": "Betrag",
+      "loadFailedTitle": "Kategorieaufschlüsselung konnte nicht geladen werden",
+      "emptyTitle": "Keine Transaktionen gefunden",
+      "emptyText": "Für diesen Monat gibt es keine Ausgabentransaktionen.",
+      "showingCount": "{shown} von {total} angezeigt",
+      "total": "Gesamt"
+    },
+    "errors": {
+      "fetchFailed": "Kategorieaufschlüsselung konnte nicht geladen werden"
+    }
+  },
+  "settings": {
+    "title": "Einstellungen",
+    "transactionShortcutsLimit": {
+      "label": "Limit für Transaktions-Shortcuts",
+      "hint": "z. B. Karte + Lebensmittel, Bargeld + Transport"
+    },
+    "voiceInputLanguage": "Spracheingabesprache",
+    "interfaceLanguage": "Oberflächensprache",
+    "saved": "Einstellungen gespeichert",
+    "saveFailed": "Einstellungen konnten nicht gespeichert werden",
+    "telegramBot": {
+      "heading": "Telegram-Bot",
+      "botToken": "Bot-Token",
+      "tokenPlaceholder": "1234567890...",
+      "connected": "Telegram-Bot verbunden",
+      "connectFailed": "Telegram-Bot konnte nicht verbunden werden",
+      "disconnected": "Telegram-Bot getrennt",
+      "disconnectFailed": "Telegram-Bot konnte nicht getrennt werden",
+      "active": "Telegram-Bot ist aktiv",
+      "testFailed": "Telegram-Bot-Test fehlgeschlagen"
+    },
+    "mcpConnection": {
+      "heading": "MCP-Verbindung",
+      "url": "MCP-URL",
+      "regenerate": "Neu erzeugen",
+      "urlCopied": "MCP-URL in die Zwischenablage kopiert",
+      "urlCopyFailed": "MCP-URL konnte nicht kopiert werden",
+      "tokenRegenerated": "MCP-Token neu erzeugt — die vorherige URL funktioniert nicht mehr",
+      "tokenRegenerateFailed": "MCP-Token konnte nicht neu erzeugt werden"
+    }
+  }
+}

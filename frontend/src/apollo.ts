@@ -2,6 +2,7 @@ import { ApolloClient, createHttpLink, InMemoryCache } from "@apollo/client/core
 import { setContext } from "@apollo/client/link/context";
 import { onError } from "@apollo/client/link/error";
 import { ref } from "vue";
+import { i18n } from "@/plugins/i18n";
 
 // Global error state
 export const globalError = ref<string | null>(null);
@@ -54,8 +55,7 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
   if (graphQLErrors) {
     console.error("GraphQL errors:", graphQLErrors);
     // Use the first GraphQL error message, or fall back to generic message
-    globalError.value =
-      graphQLErrors[0]?.message || "Something went wrong. Please try again later.";
+    globalError.value = graphQLErrors[0]?.message || i18n.global.t("common.genericError");
   }
 
   if (networkError) {
@@ -64,7 +64,7 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
     }
 
     console.error("Network error:", networkError);
-    globalError.value = "Connection problem. Please check your internet and try again.";
+    globalError.value = i18n.global.t("common.connectionError");
   }
 });
 

@@ -1,5 +1,6 @@
 import { ref, watch } from "vue";
 import { apolloClient } from "@/apollo";
+import { i18n } from "@/plugins/i18n";
 import {
   useCreateTransferMutation,
   useUpdateTransferMutation,
@@ -15,6 +16,7 @@ import {
 export type { Transfer, CreateTransferInput, UpdateTransferInput, Transaction };
 
 export function useTransfers() {
+  const { t } = i18n.global;
   const transfersError = ref<string | null>(null);
 
   // Create transfer mutation
@@ -45,7 +47,7 @@ export function useTransfers() {
       const error = createError || updateError || deleteError;
       if (error) {
         console.error("Transfer mutation failed:", error);
-        transfersError.value = error.message || "Transfer operation failed";
+        transfersError.value = error.message || t("transfers.operationFailed");
       }
     },
   );
@@ -63,7 +65,7 @@ export function useTransfers() {
       return null;
     } catch (error) {
       console.error("Error creating transfer:", error);
-      transfersError.value = error instanceof Error ? error.message : "Failed to create transfer";
+      transfersError.value = error instanceof Error ? error.message : t("transfers.createFailed");
       return null;
     }
   };
@@ -84,7 +86,7 @@ export function useTransfers() {
       return null;
     } catch (error) {
       console.error("Error updating transfer:", error);
-      transfersError.value = error instanceof Error ? error.message : "Failed to update transfer";
+      transfersError.value = error instanceof Error ? error.message : t("transfers.updateFailed");
       return null;
     }
   };
@@ -100,7 +102,7 @@ export function useTransfers() {
       return false;
     } catch (error) {
       console.error("Error deleting transfer:", error);
-      transfersError.value = error instanceof Error ? error.message : "Failed to delete transfer";
+      transfersError.value = error instanceof Error ? error.message : t("transfers.deleteFailed");
       return false;
     }
   };
@@ -121,7 +123,7 @@ export function useTransfers() {
       return null;
     } catch (error) {
       console.error("Error getting transfer:", error);
-      transfersError.value = error instanceof Error ? error.message : "Failed to get transfer";
+      transfersError.value = error instanceof Error ? error.message : t("transfers.loadFailed");
       return null;
     }
   };

@@ -7,15 +7,17 @@
     @click="handleLogin"
   >
     <v-icon start icon="mdi-login" />
-    Sign In
+    {{ t("nav.signIn") }}
   </v-btn>
 </template>
 
 <script setup lang="ts">
 import { ref } from "vue";
+import { useI18n } from "vue-i18n";
 import { useAuth } from "@/composables/useAuth";
 
 const { login, isLoading } = useAuth();
+const { t } = useI18n();
 const loginError = ref<string | null>(null);
 
 const handleLogin = async () => {
@@ -23,7 +25,7 @@ const handleLogin = async () => {
     loginError.value = null;
     await login();
   } catch (error) {
-    loginError.value = error instanceof Error ? error.message : "Login failed";
+    loginError.value = error instanceof Error ? error.message : t("signIn.loginFailed");
     console.error("Login error:", error);
   }
 };

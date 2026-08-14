@@ -1,5 +1,6 @@
 import { ref, watch } from "vue";
 import type { ApolloError } from "@apollo/client";
+import { i18n } from "@/plugins/i18n";
 import {
   useGetAccountsQuery,
   useCreateAccountMutation,
@@ -14,6 +15,7 @@ import {
 export type { Account, CreateAccountInput, UpdateAccountInput };
 
 export function useAccounts() {
+  const { t } = i18n.global;
   const accountsError = ref<string | null>(null);
 
   // Query for active accounts
@@ -49,7 +51,7 @@ export function useAccounts() {
   watch(accountsQueryError, (error: ApolloError | null) => {
     if (error) {
       console.error("Accounts query failed:", error);
-      accountsError.value = error.message || "Failed to fetch accounts";
+      accountsError.value = error.message || t("accounts.errors.fetchFailed");
     }
   });
 
@@ -60,7 +62,7 @@ export function useAccounts() {
       const error = createError || updateError || deleteError;
       if (error) {
         console.error("Account mutation failed:", error);
-        accountsError.value = error.message || "Account operation failed";
+        accountsError.value = error.message || t("accounts.errors.operationFailed");
       }
     },
   );
@@ -77,7 +79,8 @@ export function useAccounts() {
       return null;
     } catch (error) {
       console.error("Error creating account:", error);
-      accountsError.value = error instanceof Error ? error.message : "Failed to create account";
+      accountsError.value =
+        error instanceof Error ? error.message : t("accounts.errors.createFailed");
       return null;
     }
   };
@@ -97,7 +100,8 @@ export function useAccounts() {
       return null;
     } catch (error) {
       console.error("Error updating account:", error);
-      accountsError.value = error instanceof Error ? error.message : "Failed to update account";
+      accountsError.value =
+        error instanceof Error ? error.message : t("accounts.errors.updateFailed");
       return null;
     }
   };
@@ -115,7 +119,8 @@ export function useAccounts() {
       return false;
     } catch (error) {
       console.error("Error deleting account:", error);
-      accountsError.value = error instanceof Error ? error.message : "Failed to delete account";
+      accountsError.value =
+        error instanceof Error ? error.message : t("accounts.errors.deleteFailed");
       return false;
     }
   };

@@ -1,6 +1,7 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script setup lang="ts">
 import { ref, computed } from "vue";
+import { useI18n } from "vue-i18n";
 import { useCategories, type Category, type CategoryType } from "@/composables/useCategories";
 import { useSnackbar } from "@/composables/useSnackbar";
 import CategoryForm from "@/components/categories/CategoryForm.vue";
@@ -41,6 +42,7 @@ const categoryToDelete = ref<Category | null>(null);
 
 // Use global snackbar
 const { showSuccessSnackbar } = useSnackbar();
+const { t } = useI18n();
 
 // Use categories data directly
 const categories = computed<Category[]>(() => {
@@ -92,7 +94,7 @@ const confirmDeleteCategory = async () => {
   if (categoryToDelete.value) {
     const result = await deleteCategory(categoryToDelete.value.id);
     if (result) {
-      showSuccessSnackbar(`Category "${categoryToDelete.value.name}" has been deleted`);
+      showSuccessSnackbar(t("categories.deleted", { name: categoryToDelete.value.name }));
     }
     // Note: Error handling is managed globally via Apollo error link
   }
@@ -118,7 +120,7 @@ const handleCategorySubmit = async (categoryData: CategoryFormData) => {
       excludeFromReports: categoryData.excludeFromReports,
     });
     success = !!result;
-    successMessage = `Category "${categoryData.name}" has been updated`;
+    successMessage = t("categories.updated", { name: categoryData.name });
     if (success) showEditCategoryDialog.value = false;
   } else {
     // Create new category
@@ -128,7 +130,7 @@ const handleCategorySubmit = async (categoryData: CategoryFormData) => {
       excludeFromReports: categoryData.excludeFromReports,
     });
     success = !!result;
-    successMessage = `Category "${categoryData.name}" has been created`;
+    successMessage = t("categories.created", { name: categoryData.name });
     if (success) showAddCategoryDialog.value = false;
   }
 
@@ -153,7 +155,7 @@ const handleCategoryCancel = () => {
     <div
       class="d-flex align-center mb-6 flex-column flex-sm-row ga-3 ga-sm-0 justify-sm-space-between"
     >
-      <h1 class="text-h5 text-sm-h4">Categories</h1>
+      <h1 class="text-h5 text-sm-h4">{{ t("categories.title") }}</h1>
       <!-- Desktop button: d-none (hidden <600px) + d-sm-flex (shows ≥600px) -->
       <v-btn
         class="d-none d-sm-flex"
@@ -161,7 +163,7 @@ const handleCategoryCancel = () => {
         prepend-icon="mdi-plus"
         @click="openAddCategoryDialog"
       >
-        Add Category
+        {{ t("categories.addCategory") }}
       </v-btn>
       <!-- Mobile button: d-flex (shows <600px) + d-sm-none (hidden ≥600px) -->
       <v-btn
@@ -169,7 +171,7 @@ const handleCategoryCancel = () => {
         color="primary"
         icon="mdi-plus"
         size="large"
-        aria-label="Add Category"
+        :aria-label="t('categories.addCategory')"
         @click="openAddCategoryDialog"
       />
     </div>
@@ -178,26 +180,32 @@ const handleCategoryCancel = () => {
     <v-tabs v-model="activeTab" class="mb-4">
       <v-tab value="EXPENSE">
         <v-icon start color="error">mdi-cash-minus</v-icon>
-        Expense
+        {{ t("categories.types.expense") }}
       </v-tab>
       <v-tab value="INCOME">
         <v-icon start color="success">mdi-cash-plus</v-icon>
-        Income
+        {{ t("categories.types.income") }}
       </v-tab>
     </v-tabs>
 
     <!-- Loading State -->
     <div v-if="loading" class="text-center py-8">
       <v-progress-circular indeterminate color="primary" size="64" width="4"></v-progress-circular>
-      <div class="text-h6 mt-4">Loading categories...</div>
+      <div class="text-h6 mt-4">{{ t("categories.loading") }}</div>
     </div>
 
     <!-- Empty State -->
     <v-empty-state
       v-else-if="filteredCategories.length === 0"
       icon="mdi-tag-multiple-outline"
-      :title="`No ${activeTab.toLowerCase()} categories yet`"
-      :text="`Create your first ${activeTab.toLowerCase()} category to start organizing your transactions.`"
+      :title="
+        activeTab === 'EXPENSE'
+          ? t('categories.emptyTitleExpense')
+          : t('categories.emptyTitleIncome')
+      "
+      :text="
+        activeTab === 'EXPENSE' ? t('categories.emptyTextExpense') : t('categories.emptyTextIncome')
+      "
     />
 
     <!-- Categories Grid -->

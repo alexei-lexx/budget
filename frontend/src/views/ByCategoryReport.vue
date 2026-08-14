@@ -5,10 +5,10 @@
     <div
       class="d-flex align-center mb-6 flex-column flex-sm-row ga-3 ga-sm-0 justify-sm-space-between"
     >
-      <h1 class="text-h5 text-sm-h4">Expense Report</h1>
+      <h1 class="text-h5 text-sm-h4">{{ t("reports.title") }}</h1>
       <v-btn-toggle v-model="viewMode" mandatory density="compact" color="primary">
-        <v-btn value="monthly">Monthly</v-btn>
-        <v-btn value="yearly">Yearly</v-btn>
+        <v-btn value="monthly">{{ t("reports.monthly") }}</v-btn>
+        <v-btn value="yearly">{{ t("reports.yearly") }}</v-btn>
       </v-btn-toggle>
     </div>
 
@@ -21,7 +21,7 @@
       closable
       @click:close="clearGlobalError"
     >
-      <v-alert-title>Report Error</v-alert-title>
+      <v-alert-title>{{ t("reports.error.title") }}</v-alert-title>
       <div>{{ globalError }}</div>
     </v-alert>
 
@@ -56,6 +56,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from "vue";
+import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 import CategoryBreakdownTable from "@/components/reports/CategoryBreakdownTable.vue";
 import MonthNavigation from "@/components/reports/MonthNavigation.vue";
@@ -64,6 +65,8 @@ import { useByCategoryReport } from "@/composables/useByCategoryReport";
 import { isValidYearMonth } from "@/utils/dateValidation";
 
 type ViewMode = "monthly" | "yearly";
+
+const { t } = useI18n();
 
 // Router for URL parameter management
 const route = useRoute();
@@ -103,7 +106,7 @@ const reportError = computed(() => byCategoryReportError.value?.message || null)
 // Watch for errors and show global error alert
 watch(byCategoryReportError, (error) => {
   if (error) {
-    globalError.value = `Failed to load report: ${error.message}`;
+    globalError.value = t("reports.error.loadFailed", { message: error.message });
     console.error("By-category report error:", error);
   }
 });
@@ -175,7 +178,7 @@ onMounted(() => {
       selectedMonth.value = month;
       viewMode.value = "monthly";
     } else {
-      globalError.value = "Invalid month or year in URL parameters";
+      globalError.value = t("reports.error.invalidUrlMonthYear");
     }
   } else if (yearParam) {
     const year = parseInt(yearParam as string);
@@ -183,7 +186,7 @@ onMounted(() => {
       selectedYear.value = year;
       viewMode.value = "yearly";
     } else {
-      globalError.value = "Invalid year in URL parameters";
+      globalError.value = t("reports.error.invalidUrlYear");
     }
   }
 });

@@ -1,4 +1,5 @@
 import { ref } from "vue";
+import { i18n } from "@/plugins/i18n";
 
 export function useVoiceInput({
   onTranscript,
@@ -9,6 +10,8 @@ export function useVoiceInput({
   onError?: (message: string) => void;
   language?: () => string | undefined;
 }) {
+  const { t } = i18n.global;
+
   // SpeechRecognition is Chrome/Edge only — absent in Firefox
   const isSupported = typeof SpeechRecognition !== "undefined";
   const isRecording = ref(false);
@@ -71,16 +74,16 @@ export function useVoiceInput({
         // Distinguish mic permission denied from speech service failure
         const perm = await navigator.permissions.query({ name: "microphone" as PermissionName });
         if (perm.state === "granted") {
-          onError?.("Speech service unavailable — try again");
+          onError?.(t("common.voiceInputErrors.serviceUnavailable"));
         } else {
-          onError?.("Microphone access denied — check browser permissions");
+          onError?.(t("common.voiceInputErrors.microphoneAccessDenied"));
         }
       } else if (event.error === "audio-capture") {
-        onError?.("Microphone not available — check your device");
+        onError?.(t("common.voiceInputErrors.microphoneNotAvailable"));
       } else if (event.error === "network") {
-        onError?.("Network error — try again");
+        onError?.(t("common.voiceInputErrors.networkError"));
       } else {
-        onError?.("Voice input failed — try again");
+        onError?.(t("common.voiceInputErrors.genericFailure"));
       }
       isRecording.value = false;
     };

@@ -10,7 +10,7 @@
   >
     <v-card>
       <v-card-title class="d-flex align-center pa-4">
-        <span>Agent Trace</span>
+        <span>{{ t("assistant.agentTrace.title") }}</span>
         <v-spacer />
         <v-btn icon="mdi-close" variant="text" @click="$emit('update:modelValue', false)" />
       </v-card-title>
@@ -37,7 +37,7 @@
         </v-expansion-panels>
 
         <div v-if="agentTrace.length === 0" class="pa-6 text-center text-medium-emphasis">
-          No trace messages available.
+          {{ t("assistant.agentTrace.noMessages") }}
         </div>
       </v-card-text>
     </v-card>
@@ -45,6 +45,7 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
 import type { AgentTraceMessage } from "@/__generated__/vue-apollo";
 
 interface Props {
@@ -59,11 +60,14 @@ interface Emits {
 defineProps<Props>();
 defineEmits<Emits>();
 
+const { t } = useI18n();
+
 function chipLabel(message: AgentTraceMessage): string {
-  if (message.__typename === "AgentTraceText") return "TEXT";
-  if (message.__typename === "AgentTraceToolCall") return "TOOL CALL";
-  if (message.__typename === "AgentTraceToolResult") return "TOOL RESULT";
-  return "UNKNOWN";
+  if (message.__typename === "AgentTraceText") return t("assistant.agentTrace.labels.text");
+  if (message.__typename === "AgentTraceToolCall") return t("assistant.agentTrace.labels.toolCall");
+  if (message.__typename === "AgentTraceToolResult")
+    return t("assistant.agentTrace.labels.toolResult");
+  return t("assistant.agentTrace.labels.unknown");
 }
 
 function chipColor(message: AgentTraceMessage): string {

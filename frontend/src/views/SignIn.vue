@@ -1,12 +1,14 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script setup lang="ts">
 import { watch } from "vue";
+import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 import { useAuth } from "@/composables/useAuth";
 import LoginButton from "@/components/auth/LoginButton.vue";
 
 const router = useRouter();
 const { isAuthenticated, isLoading: authLoading, displayName } = useAuth();
+const { t } = useI18n();
 
 // Redirect authenticated users to transactions page
 watch(
@@ -33,14 +35,14 @@ watch(
       :class="{ 'pa-4': $vuetify.display.xs, 'pa-6': $vuetify.display.smAndUp }"
     >
       <div :class="$vuetify.display.xs ? 'text-h6' : 'text-h5'" class="mb-4 text-center">
-        Welcome to Personal Budget Tracker
+        {{ t("signIn.welcome") }}
       </div>
       <div :class="$vuetify.display.xs ? 'text-body-2' : 'text-body-1'" class="text-center">
         <div v-if="!isAuthenticated && !authLoading">
-          Please sign in to start managing your finances
+          {{ t("signIn.prompt") }}
         </div>
-        <div v-else-if="authLoading">Setting up your account...</div>
-        <div v-else>Welcome back, {{ displayName }}! Redirecting to your transactions...</div>
+        <div v-else-if="authLoading">{{ t("signIn.settingUp") }}</div>
+        <div v-else>{{ t("signIn.welcomeBack", { name: displayName }) }}</div>
       </div>
       <div v-if="!isAuthenticated && !authLoading" class="mt-6">
         <LoginButton />

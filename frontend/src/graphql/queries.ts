@@ -110,8 +110,15 @@ export const GET_USER_SETTINGS = gql`
     userSettings {
       transactionPatternsLimit
       voiceInputLanguage
+      interfaceLanguage
       mcpUrl
     }
+  }
+`;
+
+export const GET_SUPPORTED_INTERFACE_LANGUAGES = gql`
+  query GetSupportedInterfaceLanguages {
+    supportedInterfaceLanguages
   }
 `;
 

@@ -2,11 +2,13 @@ import { ref } from "vue";
 import type { AgentTraceMessage, Transaction } from "@/__generated__/vue-apollo";
 import { useCreateTransactionFromTextMutation } from "@/__generated__/vue-apollo";
 import { useSnackbar } from "@/composables/useSnackbar";
+import { i18n } from "@/plugins/i18n";
 
 export function useCreateTransactionFromText() {
   const text = ref("");
   const agentTrace = ref<AgentTraceMessage[]>([]);
   const { showErrorSnackbar } = useSnackbar();
+  const { t } = i18n.global;
 
   const { mutate, loading, error } = useCreateTransactionFromTextMutation();
   let abortController: AbortController | null = null;
@@ -46,8 +48,7 @@ export function useCreateTransactionFromText() {
       if (abortController?.signal.aborted) {
         return null;
       }
-      const message =
-        e instanceof Error ? e.message : "Failed to create transaction. Please try again.";
+      const message = e instanceof Error ? e.message : t("transactions.createTextFailed");
       showErrorSnackbar(message);
       // text is intentionally NOT cleared on error
       return null;

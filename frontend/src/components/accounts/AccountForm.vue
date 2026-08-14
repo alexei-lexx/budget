@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import { getCurrencySymbol } from "@/utils/currency";
 import { checkRules, type CheckRule } from "@/utils/validation";
 import { useCurrencies } from "@/composables/useCurrencies";
@@ -28,6 +29,8 @@ const emit = defineEmits<{
   submit: [account: Account];
   cancel: [];
 }>();
+
+const { t } = useI18n();
 
 // Use currencies composable for enhanced error handling
 const {
@@ -72,28 +75,32 @@ const isFormValid = computed(() => {
 
 // Validation rules
 const nameRules: CheckRule<string>[] = [
-  (v) => !!v || "Account name is required",
-  (v) => (v && v.trim().length > 0) || "Account name cannot be empty",
-  (v) => (v && v.length <= 100) || "Account name cannot exceed 100 characters",
+  (v) => !!v || t("accounts.form.nameRequired"),
+  (v) => (v && v.trim().length > 0) || t("accounts.form.nameNotEmpty"),
+  (v) => (v && v.length <= 100) || t("accounts.form.nameTooLong"),
 ];
 
 const currencyRules: CheckRule<string>[] = [
-  (v) => !!v || "Currency is required",
+  (v) => !!v || t("accounts.form.currencyRequired"),
   (v) =>
     supportedCurrencies.value.some((c: { value: string; title: string }) => c.value === v) ||
-    "Please select a valid currency",
+    t("accounts.form.currencyInvalid"),
 ];
 
 const balanceRules: CheckRule<number>[] = [
-  (v) => (v !== null && v !== undefined) || "Initial balance is required",
-  (v) => !isNaN(v) || "Initial balance must be a valid number",
-  (v) => isFinite(v) || "Initial balance must be a finite number",
+  (v) => (v !== null && v !== undefined) || t("accounts.form.balanceRequired"),
+  (v) => !isNaN(v) || t("accounts.form.balanceInvalidNumber"),
+  (v) => isFinite(v) || t("accounts.form.balanceInvalidFinite"),
 ];
 
 // Computed properties
 const isEditing = computed(() => !!props.account?.id);
-const formTitle = computed(() => (isEditing.value ? "Edit Account" : "Create New Account"));
-const submitButtonText = computed(() => (isEditing.value ? "Update" : "Create"));
+const formTitle = computed(() =>
+  isEditing.value ? t("accounts.form.editTitle") : t("accounts.form.createTitle"),
+);
+const submitButtonText = computed(() =>
+  isEditing.value ? t("accounts.form.update") : t("accounts.form.create"),
+);
 
 // Watch for account prop changes (for editing)
 watch(
@@ -174,7 +181,7 @@ const handleCancel = () => {
             @click="retryCurrencies"
             :loading="currenciesLoading"
           >
-            Retry
+            {{ t("common.retry") }}
           </v-btn>
         </div>
       </v-alert>
@@ -190,8 +197,8 @@ const handleCancel = () => {
             <!-- Account Name -->
             <v-text-field
               v-model="formData.name"
-              label="Account Name"
-              placeholder="e.g., Cash, Bank Account, Credit Card"
+              :label="t('accounts.form.nameLabel')"
+              :placeholder="t('accounts.form.namePlaceholder')"
               :rules="nameRules"
               :disabled="loading"
               variant="outlined"
@@ -205,7 +212,7 @@ const handleCancel = () => {
             <!-- Currency Selection -->
             <v-autocomplete
               v-model="formData.currency"
-              label="Currency"
+              :label="t('accounts.form.currencyLabel')"
               :items="supportedCurrencies"
               :rules="currencyRules"
               :disabled="loading || currenciesLoading"
@@ -216,7 +223,7 @@ const handleCancel = () => {
               <template #no-data>
                 <v-list-item v-if="currencyHasError">
                   <v-list-item-title class="text-error">
-                    Failed to load currencies. Using defaults.
+                    {{ t("accounts.form.currencyLoadError") }}
                   </v-list-item-title>
                 </v-list-item>
               </template>
@@ -227,7 +234,7 @@ const handleCancel = () => {
             <!-- Initial Balance -->
             <v-text-field
               v-model.number="formData.initialBalance"
-              label="Initial Balance"
+              :label="t('accounts.form.initialBalanceLabel')"
               type="number"
               step="1"
               :rules="balanceRules"
@@ -248,7 +255,7 @@ const handleCancel = () => {
 
     <v-card-actions class="px-6 pb-6" :class="{ 'flex-column ga-2': $vuetify.display.xs }">
       <v-btn variant="text" @click="handleCancel" :disabled="loading" :block="$vuetify.display.xs">
-        Cancel
+        {{ t("common.cancel") }}
       </v-btn>
 
       <v-spacer v-if="$vuetify.display.smAndUp"></v-spacer>

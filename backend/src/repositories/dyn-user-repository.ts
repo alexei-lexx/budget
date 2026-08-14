@@ -195,6 +195,13 @@ export class DynUserRepository
       removeParts.push("voiceInputLanguage");
     }
 
+    if (user.interfaceLanguage !== undefined) {
+      setParts.push("interfaceLanguage = :interfaceLanguage");
+      expressionAttributeValues[":interfaceLanguage"] = user.interfaceLanguage;
+    } else {
+      removeParts.push("interfaceLanguage");
+    }
+
     const updateExpression = [
       `SET ${setParts.join(", ")}`,
       removeParts.length > 0 ? `REMOVE ${removeParts.join(", ")}` : undefined,

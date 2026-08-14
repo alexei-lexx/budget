@@ -294,6 +294,7 @@ export type Query = {
   byCategoryReport: ByCategoryReport;
   categories: Array<Category>;
   supportedCurrencies: Array<Scalars['String']['output']>;
+  supportedInterfaceLanguages: Array<Scalars['String']['output']>;
   telegramBot?: Maybe<TelegramBot>;
   testTelegramBot?: Maybe<Scalars['Boolean']['output']>;
   transactionDescriptionSuggestions: Array<Scalars['String']['output']>;
@@ -474,6 +475,7 @@ export type UpdateTransferInput = {
 };
 
 export type UpdateUserSettingsInput = {
+  interfaceLanguage?: InputMaybe<Scalars['String']['input']>;
   transactionPatternsLimit?: InputMaybe<Scalars['Int']['input']>;
   voiceInputLanguage?: InputMaybe<Scalars['String']['input']>;
 };
@@ -485,6 +487,7 @@ export type User = {
 
 export type UserSettings = {
   __typename?: 'UserSettings';
+  interfaceLanguage: Scalars['String']['output'];
   mcpUrl: Scalars['String']['output'];
   transactionPatternsLimit: Scalars['Int']['output'];
   voiceInputLanguage?: Maybe<Scalars['String']['output']>;
@@ -622,12 +625,12 @@ export type UpdateUserSettingsMutationVariables = Exact<{
 }>;
 
 
-export type UpdateUserSettingsMutation = { __typename?: 'Mutation', updateUserSettings: { __typename?: 'UserSettings', transactionPatternsLimit: number, voiceInputLanguage?: string | null | undefined, mcpUrl: string } };
+export type UpdateUserSettingsMutation = { __typename?: 'Mutation', updateUserSettings: { __typename?: 'UserSettings', transactionPatternsLimit: number, voiceInputLanguage?: string | null | undefined, interfaceLanguage: string, mcpUrl: string } };
 
 export type RegenerateMcpTokenMutationVariables = Exact<{ [key: string]: never; }>;
 
 
-export type RegenerateMcpTokenMutation = { __typename?: 'Mutation', regenerateMcpToken: { __typename?: 'UserSettings', transactionPatternsLimit: number, voiceInputLanguage?: string | null | undefined, mcpUrl: string } };
+export type RegenerateMcpTokenMutation = { __typename?: 'Mutation', regenerateMcpToken: { __typename?: 'UserSettings', transactionPatternsLimit: number, voiceInputLanguage?: string | null | undefined, interfaceLanguage: string, mcpUrl: string } };
 
 export type ConnectTelegramBotMutationVariables = Exact<{
   token: Scalars['String']['input'];
@@ -717,7 +720,12 @@ export type GetTransactionDescriptionSuggestionsQuery = { __typename?: 'Query', 
 export type GetUserSettingsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetUserSettingsQuery = { __typename?: 'Query', userSettings: { __typename?: 'UserSettings', transactionPatternsLimit: number, voiceInputLanguage?: string | null | undefined, mcpUrl: string } };
+export type GetUserSettingsQuery = { __typename?: 'Query', userSettings: { __typename?: 'UserSettings', transactionPatternsLimit: number, voiceInputLanguage?: string | null | undefined, interfaceLanguage: string, mcpUrl: string } };
+
+export type GetSupportedInterfaceLanguagesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetSupportedInterfaceLanguagesQuery = { __typename?: 'Query', supportedInterfaceLanguages: Array<string> };
 
 export type GetTelegramBotQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -1210,6 +1218,7 @@ export const UpdateUserSettingsDocument = gql`
   updateUserSettings(input: $input) {
     transactionPatternsLimit
     voiceInputLanguage
+    interfaceLanguage
     mcpUrl
   }
 }
@@ -1241,6 +1250,7 @@ export const RegenerateMcpTokenDocument = gql`
   regenerateMcpToken {
     transactionPatternsLimit
     voiceInputLanguage
+    interfaceLanguage
     mcpUrl
   }
 }
@@ -1630,6 +1640,7 @@ export const GetUserSettingsDocument = gql`
   userSettings {
     transactionPatternsLimit
     voiceInputLanguage
+    interfaceLanguage
     mcpUrl
   }
 }
@@ -1654,6 +1665,31 @@ export function useGetUserSettingsLazyQuery(options: VueApolloComposable.UseQuer
   return VueApolloComposable.useLazyQuery<GetUserSettingsQuery, GetUserSettingsQueryVariables>(GetUserSettingsDocument, {}, options);
 }
 export type GetUserSettingsQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<GetUserSettingsQuery, GetUserSettingsQueryVariables>;
+export const GetSupportedInterfaceLanguagesDocument = gql`
+    query GetSupportedInterfaceLanguages {
+  supportedInterfaceLanguages
+}
+    `;
+
+/**
+ * __useGetSupportedInterfaceLanguagesQuery__
+ *
+ * To run a query within a Vue component, call `useGetSupportedInterfaceLanguagesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetSupportedInterfaceLanguagesQuery` returns an object from Apollo Client that contains result, loading and error properties
+ * you can use to render your UI.
+ *
+ * @param options that will be passed into the query, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/query.html#options;
+ *
+ * @example
+ * const { result, loading, error } = useGetSupportedInterfaceLanguagesQuery();
+ */
+export function useGetSupportedInterfaceLanguagesQuery(options: VueApolloComposable.UseQueryOptions<GetSupportedInterfaceLanguagesQuery, GetSupportedInterfaceLanguagesQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<GetSupportedInterfaceLanguagesQuery, GetSupportedInterfaceLanguagesQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<GetSupportedInterfaceLanguagesQuery, GetSupportedInterfaceLanguagesQueryVariables>> = {}) {
+  return VueApolloComposable.useQuery<GetSupportedInterfaceLanguagesQuery, GetSupportedInterfaceLanguagesQueryVariables>(GetSupportedInterfaceLanguagesDocument, {}, options);
+}
+export function useGetSupportedInterfaceLanguagesLazyQuery(options: VueApolloComposable.UseQueryOptions<GetSupportedInterfaceLanguagesQuery, GetSupportedInterfaceLanguagesQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<GetSupportedInterfaceLanguagesQuery, GetSupportedInterfaceLanguagesQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<GetSupportedInterfaceLanguagesQuery, GetSupportedInterfaceLanguagesQueryVariables>> = {}) {
+  return VueApolloComposable.useLazyQuery<GetSupportedInterfaceLanguagesQuery, GetSupportedInterfaceLanguagesQueryVariables>(GetSupportedInterfaceLanguagesDocument, {}, options);
+}
+export type GetSupportedInterfaceLanguagesQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<GetSupportedInterfaceLanguagesQuery, GetSupportedInterfaceLanguagesQueryVariables>;
 export const GetTelegramBotDocument = gql`
     query GetTelegramBot {
   telegramBot {

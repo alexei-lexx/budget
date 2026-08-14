@@ -1,6 +1,7 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script setup lang="ts">
 import { ref, computed } from "vue";
+import { useI18n } from "vue-i18n";
 import AccountsList from "@/components/accounts/AccountsList.vue";
 import AccountForm from "@/components/accounts/AccountForm.vue";
 import AccountDeleteDialog from "@/components/accounts/AccountDeleteDialog.vue";
@@ -35,6 +36,7 @@ const accountToDelete = ref<Account | null>(null);
 
 // Use global snackbar
 const { showSuccessSnackbar } = useSnackbar();
+const { t } = useI18n();
 
 // Use accounts data directly
 const accounts = computed<Account[]>(() => {
@@ -71,7 +73,7 @@ const confirmDeleteAccount = async () => {
   if (accountToDelete.value) {
     const result = await deleteAccount(accountToDelete.value.id);
     if (result) {
-      showSuccessSnackbar(`Account "${accountToDelete.value.name}" has been deleted`);
+      showSuccessSnackbar(t("accounts.deleted", { name: accountToDelete.value.name }));
     }
     // Note: Error handling is managed globally via Apollo error link
   }
@@ -97,7 +99,7 @@ const handleAccountSubmit = async (accountData: AccountFormData) => {
       initialBalance: accountData.initialBalance,
     });
     success = !!result;
-    successMessage = `Account "${accountData.name}" has been updated`;
+    successMessage = t("accounts.updated", { name: accountData.name });
     if (success) showEditAccountDialog.value = false;
   } else {
     // Create new account
@@ -107,7 +109,7 @@ const handleAccountSubmit = async (accountData: AccountFormData) => {
       initialBalance: accountData.initialBalance,
     });
     success = !!result;
-    successMessage = `Account "${accountData.name}" has been created`;
+    successMessage = t("accounts.created", { name: accountData.name });
     if (success) showAddAccountDialog.value = false;
   }
 
@@ -132,7 +134,7 @@ const handleAccountCancel = () => {
     <div
       class="d-flex align-center mb-6 flex-column flex-sm-row ga-3 ga-sm-0 justify-sm-space-between"
     >
-      <h1 class="text-h5 text-sm-h4">Accounts</h1>
+      <h1 class="text-h5 text-sm-h4">{{ t("accounts.title") }}</h1>
       <!-- Desktop button: d-none (hidden <600px) + d-sm-flex (shows ≥600px) -->
       <v-btn
         class="d-none d-sm-flex"
@@ -140,7 +142,7 @@ const handleAccountCancel = () => {
         prepend-icon="mdi-plus"
         @click="openAddAccountDialog"
       >
-        Add Account
+        {{ t("accounts.addAccount") }}
       </v-btn>
       <!-- Mobile button: d-flex (shows <600px) + d-sm-none (hidden ≥600px) -->
       <v-btn
@@ -148,7 +150,7 @@ const handleAccountCancel = () => {
         color="primary"
         icon="mdi-plus"
         size="large"
-        aria-label="Add Account"
+        :aria-label="t('accounts.addAccount')"
         @click="openAddAccountDialog"
       />
     </div>
@@ -162,7 +164,7 @@ const handleAccountCancel = () => {
     >
       <template #empty-action>
         <v-btn color="primary" prepend-icon="mdi-plus" @click="openAddAccountDialog">
-          Add Your First Account
+          {{ t("accounts.addFirstAccount") }}
         </v-btn>
       </template>
     </AccountsList>

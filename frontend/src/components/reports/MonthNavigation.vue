@@ -10,7 +10,7 @@
         :disabled="!canNavigatePrevious"
         @click="navigatePrevious"
       >
-        Previous
+        {{ t("reports.previous") }}
       </v-btn>
       <!-- Mobile: d-flex (shows <600px) + d-sm-none (hidden ≥600px) -->
       <v-btn
@@ -18,7 +18,7 @@
         color="primary"
         variant="outlined"
         icon="mdi-chevron-left"
-        aria-label="Previous"
+        :aria-label="t('reports.previous')"
         :disabled="!canNavigatePrevious"
         @click="navigatePrevious"
       />
@@ -36,7 +36,7 @@
         :disabled="!canNavigateNext"
         @click="navigateNext"
       >
-        Next
+        {{ t("reports.next") }}
       </v-btn>
       <!-- Mobile: d-flex (shows <600px) + d-sm-none (hidden ≥600px) -->
       <v-btn
@@ -44,7 +44,7 @@
         color="primary"
         variant="outlined"
         icon="mdi-chevron-right"
-        aria-label="Next"
+        :aria-label="t('reports.next')"
         :disabled="!canNavigateNext"
         @click="navigateNext"
       />
@@ -54,6 +54,7 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 import { formatMonthYear } from "@/utils/date";
 
 interface Props {
@@ -68,6 +69,8 @@ interface Emits {
 
 const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
+
+const { t } = useI18n();
 
 // Format month and year for display
 const monthYearDisplay = computed(() => {

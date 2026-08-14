@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 import { useAccounts } from "@/composables/useAccounts";
 
 interface Props {
@@ -19,7 +20,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  label: "Account",
+  label: undefined,
   rules: () => [],
   disabled: false,
   required: false,
@@ -29,6 +30,8 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<{
   "update:modelValue": [value: string];
 }>();
+
+const { t } = useI18n();
 
 // Use accounts composable
 const { accounts: accountsData } = useAccounts();
@@ -48,7 +51,7 @@ const selectedValue = computed({
     :items="accounts"
     item-title="name"
     item-value="id"
-    :label="label"
+    :label="label ?? t('common.account')"
     :rules="rules"
     :disabled="disabled"
     :variant="variant"

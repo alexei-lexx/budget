@@ -5,7 +5,7 @@
     <div
       class="d-flex align-center mb-6 flex-column flex-sm-row ga-3 ga-sm-0 justify-sm-space-between"
     >
-      <h1 class="text-h5 text-sm-h4">Transactions</h1>
+      <h1 class="text-h5 text-sm-h4">{{ t("transactions.title") }}</h1>
       <div class="d-flex align-center">
         <!-- Filter button: desktop -->
         <v-badge
@@ -15,7 +15,7 @@
           color="primary"
         >
           <v-btn color="secondary" prepend-icon="mdi-filter-variant" @click="toggleFilter">
-            Filter
+            {{ t("transactions.filter") }}
           </v-btn>
         </v-badge>
         <!-- Filter button: mobile -->
@@ -29,7 +29,7 @@
             color="secondary"
             icon="mdi-filter-variant"
             size="large"
-            aria-label="Filter"
+            :aria-label="t('transactions.filter')"
             @click="toggleFilter"
           />
         </v-badge>
@@ -41,7 +41,7 @@
           prepend-icon="mdi-plus"
           @click="handleAddTransaction"
         >
-          Add Transaction
+          {{ t("transactions.addTransaction") }}
         </v-btn>
         <!-- Tablet/Mobile buttons: d-flex d-md-none - shown by default, hidden at 960px+ -->
         <v-btn
@@ -49,7 +49,7 @@
           color="primary"
           icon="mdi-plus"
           size="large"
-          aria-label="Add Transaction"
+          :aria-label="t('transactions.addTransaction')"
           @click="handleAddTransaction"
         />
         <v-btn
@@ -58,14 +58,14 @@
           prepend-icon="mdi-swap-horizontal"
           @click="handleAddTransfer"
         >
-          Add Transfer
+          {{ t("transfers.addTransfer") }}
         </v-btn>
         <v-btn
           class="d-flex d-md-none ml-3"
           color="secondary"
           icon="mdi-swap-horizontal"
           size="large"
-          aria-label="Add Transfer"
+          :aria-label="t('transfers.addTransfer')"
           @click="handleAddTransfer"
         />
       </div>
@@ -85,7 +85,7 @@
     <!-- Loading State -->
     <div v-if="paginatedLoading" class="text-center py-8">
       <v-progress-circular indeterminate color="primary" size="64" width="4"></v-progress-circular>
-      <div class="text-h6 mt-4">Loading transactions...</div>
+      <div class="text-h6 mt-4">{{ t("transactions.loading") }}</div>
     </div>
 
     <!-- Error State -->
@@ -97,18 +97,15 @@
     <div v-else-if="paginatedTransactions.length === 0" class="mt-4">
       <v-empty-state
         icon="mdi-swap-horizontal"
-        title="No Transactions Yet"
-        text="Start tracking your income and expenses by adding your first transaction."
+        :title="t('transactions.emptyTitle')"
+        :text="t('transactions.emptyText')"
       />
     </div>
 
     <!-- Transactions List -->
     <div v-else>
       <div class="text-body-2 text-medium-emphasis mb-3">
-        {{ paginatedTransactions.length
-        }}{{ totalCount > 0 ? ` of ${totalCount}` : "" }} transaction{{
-          totalCount !== 1 ? "s" : ""
-        }}
+        {{ transactionCountText }}
       </div>
       <div class="transaction-list">
         <TransactionCard
@@ -134,7 +131,7 @@
           prepend-icon="mdi-refresh"
           @click="handleLoadMore"
         >
-          Load More
+          {{ t("common.loadMore") }}
         </v-btn>
       </div>
 
@@ -232,9 +229,9 @@
         v-model="createTransactionFromTextQuestion"
         :loading="createTransactionFromTextLoading"
         :agent-trace="createTransactionFromTextAgentTrace"
-        placeholder="e.g., morning coffee 4.5 euro"
-        input-aria-label="Create transaction"
-        submit-aria-label="Create transaction"
+        :placeholder="t('transactions.textInputPlaceholder')"
+        :input-aria-label="t('transactions.createTransactionAriaLabel')"
+        :submit-aria-label="t('transactions.createTransactionAriaLabel')"
         @submit="handleCreateTransactionFromText"
         @abort="abortCreateTransactionFromText"
       />
@@ -244,6 +241,7 @@
 
 <script setup lang="ts">
 import { computed, nextTick, ref, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import { useDisplay } from "vuetify";
 import { getTodayDateString } from "@/utils/date";
 import { useTransactions } from "@/composables/useTransactions";
@@ -269,6 +267,7 @@ import type {
 
 // Composables
 const { xs, mobile } = useDisplay();
+const { t } = useI18n();
 
 // Filter state
 const transactionFilters = useTransactionFilters();
@@ -340,6 +339,17 @@ watch(
 const accounts = computed(() => accountsData.value?.accounts || []);
 const categories = computed(() => categoriesData.value?.categories || []);
 
+// Transaction count summary, pluralized on the total when known
+const transactionCountText = computed(() =>
+  totalCount.value > 0
+    ? t(
+        "transactions.countWithTotal",
+        { count: paginatedTransactions.value.length, total: totalCount.value },
+        totalCount.value,
+      )
+    : t("transactions.countOnly", { count: paginatedTransactions.value.length }, totalCount.value),
+);
+
 // Responsive dialog width
 const dialogMaxWidth = computed(() => (xs.value ? "95vw" : "600"));
 
@@ -387,11 +397,11 @@ const handleEditTransaction = async (transactionId: string) => {
         showEditTransferDialog.value = true;
       } else {
         console.error("Transfer not found:", transaction.transferId);
-        showErrorSnackbar("Transfer not found. The transfer data may have been deleted.");
+        showErrorSnackbar(t("transfers.notFound"));
       }
     } catch (error) {
       console.error("Error loading transfer data:", error);
-      showErrorSnackbar("Failed to load transfer data. Please try again.");
+      showErrorSnackbar(t("transfers.loadFailed"));
     } finally {
       transferFormLoading.value = false;
     }
@@ -422,11 +432,11 @@ const handleDuplicateTransaction = async (transaction: Transaction) => {
         };
         showCreateTransferDialog.value = true;
       } else {
-        showErrorSnackbar("Transfer not found. The transfer data may have been deleted.");
+        showErrorSnackbar(t("transfers.notFound"));
       }
     } catch (error) {
       console.error("Error loading transfer for duplicate:", error);
-      showErrorSnackbar("Failed to load transfer data. Please try again.");
+      showErrorSnackbar(t("transfers.loadFailed"));
     } finally {
       transferFormLoading.value = false;
     }
@@ -468,8 +478,9 @@ const confirmDeleteTransaction = async () => {
     const success = await deleteTransaction(transactionToDelete.value.id);
     if (success) {
       const amount = transactionToDelete.value.amount;
-      const description = transactionToDelete.value.description || "transaction";
-      showSuccessSnackbar(`Transaction "${description}" (${amount}) has been deleted`);
+      const description =
+        transactionToDelete.value.description || t("transactions.defaultDescription");
+      showSuccessSnackbar(t("transactions.deletedWithAmount", { description, amount }));
       // Refetch accounts to update balances
       await refetchAccounts();
     }
@@ -490,8 +501,11 @@ const confirmDeleteTransfer = async () => {
     const success = await deleteTransfer(transferId);
     if (success) {
       const amount = transactionToDelete.value.amount;
-      const description = transactionToDelete.value.description || "transfer";
-      showSuccessSnackbar(`Transfer "${description}" (${Math.abs(amount)}) has been deleted`);
+      const description =
+        transactionToDelete.value.description || t("transfers.defaultDescription");
+      showSuccessSnackbar(
+        t("transfers.deletedWithAmount", { description, amount: Math.abs(amount) }),
+      );
 
       // Remove both paired transactions from the local list
       // Find all transaction IDs with the same transferId
@@ -506,7 +520,7 @@ const confirmDeleteTransfer = async () => {
       await refetchAccounts();
     } else {
       // Transfer deletion failed
-      const errorMessage = transfersError.value || "Failed to delete transfer. Please try again.";
+      const errorMessage = transfersError.value || t("transfers.deleteFailed");
       showErrorSnackbar(errorMessage);
     }
   }
@@ -525,7 +539,7 @@ const handleCreateTransactionSubmit = async (transactionData: CreateTransactionI
     const success = await createTransaction(transactionData);
     if (success) {
       showCreateTransactionDialog.value = false;
-      showSuccessSnackbar("New transaction was created");
+      showSuccessSnackbar(t("transactions.created"));
       // Refetch accounts to update balances
       await refetchAccounts();
     }
@@ -543,7 +557,7 @@ const handleEditTransactionSubmit = async (transactionData: CreateTransactionInp
     if (success) {
       showEditTransactionDialog.value = false;
       editingTransaction.value = null;
-      showSuccessSnackbar("Transaction was updated");
+      showSuccessSnackbar(t("transactions.updated"));
       // Refetch accounts to update balances
       await refetchAccounts();
     }
@@ -559,7 +573,7 @@ const handleCreateTransferSubmit = async (data: CreateTransferInput | UpdateTran
     const result = await createTransfer(data as CreateTransferInput);
     if (result) {
       showCreateTransferDialog.value = false;
-      showSuccessSnackbar("Transfer was created successfully");
+      showSuccessSnackbar(t("transfers.created"));
 
       // Add the new transfer transactions to the top of the list
       addTransactionsToList([result.inboundTransaction, result.outboundTransaction]);
@@ -568,7 +582,7 @@ const handleCreateTransferSubmit = async (data: CreateTransferInput | UpdateTran
       await refetchAccounts();
     } else {
       // Transfer creation failed
-      const errorMessage = transfersError.value || "Failed to create transfer. Please try again.";
+      const errorMessage = transfersError.value || t("transfers.createFailed");
       showErrorSnackbar(errorMessage);
     }
   } finally {
@@ -595,7 +609,7 @@ const handleEditTransferSubmit = async (data: CreateTransferInput | UpdateTransf
     if (result) {
       showEditTransferDialog.value = false;
       editingTransfer.value = null;
-      showSuccessSnackbar("Transfer was updated successfully");
+      showSuccessSnackbar(t("transfers.updated"));
 
       // Update the transaction list manually with the updated transactions
       updateTransactionsInList([result.outboundTransaction, result.inboundTransaction]);
@@ -604,7 +618,7 @@ const handleEditTransferSubmit = async (data: CreateTransferInput | UpdateTransf
       await refetchAccounts();
     } else {
       // Transfer update failed
-      const errorMessage = transfersError.value || "Failed to update transfer. Please try again.";
+      const errorMessage = transfersError.value || t("transfers.updateFailed");
       showErrorSnackbar(errorMessage);
     }
   } finally {
@@ -649,7 +663,7 @@ const isTransferTransaction = (
 
 // Helper functions for transfer account names
 const getTransferFromAccountName = (transaction: Transaction | null): string => {
-  if (!transaction || !transaction.transferId) return "Unknown Account";
+  if (!transaction || !transaction.transferId) return t("common.unknownAccount");
 
   // For TRANSFER_OUT, the current account is the source
   // For TRANSFER_IN, we need to find the paired TRANSFER_OUT transaction
@@ -660,13 +674,13 @@ const getTransferFromAccountName = (transaction: Transaction | null): string => 
     const pairedTransaction = paginatedTransactions.value.find(
       (t) => t.transferId === transaction.transferId && t.type === "TRANSFER_OUT",
     );
-    return pairedTransaction ? pairedTransaction.account.name : "Unknown Account";
+    return pairedTransaction ? pairedTransaction.account.name : t("common.unknownAccount");
   }
-  return "Unknown Account";
+  return t("common.unknownAccount");
 };
 
 const getTransferToAccountName = (transaction: Transaction | null): string => {
-  if (!transaction || !transaction.transferId) return "Unknown Account";
+  if (!transaction || !transaction.transferId) return t("common.unknownAccount");
 
   // For TRANSFER_IN, the current account is the destination
   // For TRANSFER_OUT, we need to find the paired TRANSFER_IN transaction
@@ -677,8 +691,8 @@ const getTransferToAccountName = (transaction: Transaction | null): string => {
     const pairedTransaction = paginatedTransactions.value.find(
       (t) => t.transferId === transaction.transferId && t.type === "TRANSFER_IN",
     );
-    return pairedTransaction ? pairedTransaction.account.name : "Unknown Account";
+    return pairedTransaction ? pairedTransaction.account.name : t("common.unknownAccount");
   }
-  return "Unknown Account";
+  return t("common.unknownAccount");
 };
 </script>

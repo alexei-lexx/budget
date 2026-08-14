@@ -2,6 +2,7 @@ import { ref, computed } from "vue";
 import { useAskAssistantMutation } from "@/__generated__/vue-apollo";
 import type { AgentTraceMessage } from "@/__generated__/vue-apollo";
 import { appStorage } from "@/lib/appStorage";
+import { i18n } from "@/plugins/i18n";
 
 const LAST_RESULT_STORAGE_KEY = "assistant-last-result";
 const SESSION_ID_STORAGE_KEY = "assistant-session-id";
@@ -54,6 +55,7 @@ const saveSessionId = (sessionId: string): void => {
 };
 
 export function useAssistant() {
+  const { t } = i18n.global;
   const stored = loadStoredResult();
   const storedAnswer = ref<string | null>(stored?.answer ?? null);
   const storedAgentTrace = ref<AgentTraceMessage[]>(stored?.agentTrace ?? []);
@@ -114,9 +116,7 @@ export function useAssistant() {
         return;
       }
       askAssistantError.value =
-        error instanceof Error
-          ? error.message
-          : "Failed to get assistant response. Please try again.";
+        error instanceof Error ? error.message : t("assistant.responseFailed");
     } finally {
       abortController = null;
     }

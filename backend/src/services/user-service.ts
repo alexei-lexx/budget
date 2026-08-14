@@ -1,5 +1,9 @@
 import { User } from "../models/user";
 import { UserRepository } from "../ports/user-repository";
+import {
+  DEFAULT_INTERFACE_LANGUAGE,
+  isSupportedInterfaceLanguage,
+} from "../types/language";
 import { Failure, Result, Success } from "../types/result";
 import {
   DEFAULT_TRANSACTION_PATTERNS_LIMIT,
@@ -10,6 +14,7 @@ import {
 export interface UserSettingsData {
   transactionPatternsLimit: number;
   voiceInputLanguage?: string;
+  interfaceLanguage: string;
   mcpUrl: string;
 }
 
@@ -49,10 +54,12 @@ export class UserService {
     userId,
     transactionPatternsLimit,
     voiceInputLanguage,
+    interfaceLanguage,
   }: {
     userId: string;
     transactionPatternsLimit?: number;
     voiceInputLanguage?: string;
+    interfaceLanguage?: string;
   }): Promise<Result<UserSettingsData>> {
     if (!userId) {
       return Failure("User ID is required");
@@ -69,6 +76,13 @@ export class UserService {
       );
     }
 
+    if (
+      interfaceLanguage !== undefined &&
+      !isSupportedInterfaceLanguage(interfaceLanguage)
+    ) {
+      return Failure(`Unsupported interface language: ${interfaceLanguage}`);
+    }
+
     const user = await this.userRepository.findOneById(userId);
 
     if (!user) {
@@ -78,6 +92,7 @@ export class UserService {
     const updated = user.update({
       transactionPatternsLimit,
       voiceInputLanguage,
+      interfaceLanguage,
     });
 
     await this.userRepository.update(updated);
@@ -105,6 +120,7 @@ export class UserService {
       transactionPatternsLimit:
         user.transactionPatternsLimit ?? DEFAULT_TRANSACTION_PATTERNS_LIMIT,
       voiceInputLanguage: user.voiceInputLanguage,
+      interfaceLanguage: user.interfaceLanguage ?? DEFAULT_INTERFACE_LANGUAGE,
     };
   }
 

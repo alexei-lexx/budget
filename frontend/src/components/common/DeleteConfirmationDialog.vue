@@ -16,15 +16,17 @@
           {{ message }}
         </p>
         <p class="text-body-2 text-medium-emphasis">
-          {{ warning }}
+          {{ warning ?? t("common.deleteIrreversible") }}
         </p>
       </v-card-text>
 
       <v-card-actions :class="{ 'flex-column ga-2': $vuetify.display.xs }">
         <v-spacer v-if="$vuetify.display.smAndUp"></v-spacer>
-        <v-btn variant="text" @click="$emit('cancel')" :block="$vuetify.display.xs"> Cancel </v-btn>
+        <v-btn variant="text" @click="$emit('cancel')" :block="$vuetify.display.xs">
+          {{ t("common.cancel") }}
+        </v-btn>
         <v-btn color="error" variant="flat" @click="$emit('confirm')" :block="$vuetify.display.xs">
-          Delete
+          {{ t("common.delete") }}
         </v-btn>
       </v-card-actions>
     </v-card>
@@ -32,6 +34,8 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
+
 interface Props {
   /** Controls whether the dialog is visible (v-model) */
   modelValue: boolean;
@@ -53,8 +57,10 @@ interface Emits {
 }
 
 withDefaults(defineProps<Props>(), {
-  warning: "This action cannot be undone.",
+  warning: undefined,
 });
 
 defineEmits<Emits>();
+
+const { t } = useI18n();
 </script>

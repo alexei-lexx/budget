@@ -13,6 +13,7 @@ type Query {
   testTelegramBot: Boolean
   transactionDescriptionSuggestions(searchText: String!): [String!]!
   userSettings: UserSettings!
+  supportedInterfaceLanguages: [String!]!
 }
 
 type TelegramBot {
@@ -27,12 +28,14 @@ type User {
 type UserSettings {
   transactionPatternsLimit: Int!
   voiceInputLanguage: String
+  interfaceLanguage: String!
   mcpUrl: String!
 }
 
 input UpdateUserSettingsInput {
   transactionPatternsLimit: Int
   voiceInputLanguage: String
+  interfaceLanguage: String
 }
 
 type Account {

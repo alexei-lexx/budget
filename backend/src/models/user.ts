@@ -1,4 +1,5 @@
 import { randomUUID } from "crypto";
+import { isSupportedInterfaceLanguage } from "../types/language";
 import { validateEmail } from "../utils/email";
 import { ModelError } from "./model-error";
 
@@ -9,6 +10,7 @@ export interface UserData {
   mcpToken: string;
   transactionPatternsLimit?: number;
   voiceInputLanguage?: string;
+  interfaceLanguage?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -23,6 +25,7 @@ export class User implements UserData {
   readonly mcpToken: string;
   readonly transactionPatternsLimit?: number;
   readonly voiceInputLanguage?: string;
+  readonly interfaceLanguage?: string;
   readonly createdAt: string;
   readonly updatedAt: string;
 
@@ -57,6 +60,7 @@ export class User implements UserData {
       mcpToken: this.mcpToken,
       transactionPatternsLimit: this.transactionPatternsLimit,
       voiceInputLanguage: this.voiceInputLanguage,
+      interfaceLanguage: this.interfaceLanguage,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
     };
@@ -70,6 +74,7 @@ export class User implements UserData {
       transactionPatternsLimit:
         input.transactionPatternsLimit ?? this.transactionPatternsLimit,
       voiceInputLanguage: input.voiceInputLanguage ?? this.voiceInputLanguage,
+      interfaceLanguage: input.interfaceLanguage ?? this.interfaceLanguage,
       updatedAt: now,
     };
 
@@ -98,6 +103,7 @@ export class User implements UserData {
     this.mcpToken = data.mcpToken;
     this.transactionPatternsLimit = data.transactionPatternsLimit;
     this.voiceInputLanguage = data.voiceInputLanguage;
+    this.interfaceLanguage = data.interfaceLanguage;
     this.createdAt = data.createdAt;
     this.updatedAt = data.updatedAt;
   }
@@ -124,6 +130,15 @@ export class User implements UserData {
         "Transaction patterns limit must be a non-negative integer",
       );
     }
+
+    if (
+      data.interfaceLanguage !== undefined &&
+      !isSupportedInterfaceLanguage(data.interfaceLanguage)
+    ) {
+      throw new ModelError(
+        `Unsupported interface language: ${data.interfaceLanguage}`,
+      );
+    }
   }
 }
 
@@ -134,6 +149,7 @@ export interface CreateUserInput {
 export interface UpdateUserInput {
   transactionPatternsLimit?: number;
   voiceInputLanguage?: string;
+  interfaceLanguage?: string;
 }
 
 function normalizeEmail(email: string): string {

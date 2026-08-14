@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { watch, onMounted, ref, computed } from "vue";
+import { useI18n } from "vue-i18n";
 import { useAuth } from "@/composables/useAuth";
 import { useUser } from "@/composables/useUser";
 import { useSnackbar } from "@/composables/useSnackbar";
+import { useLocale } from "@/composables/useLocale";
 import { useDisplay } from "vuetify";
 import { setAuthTokenGetter, globalError, clearGlobalError } from "@/apollo";
 import { appStorage } from "@/lib/appStorage";
@@ -19,7 +21,9 @@ const {
 const { ensureUser, ensureUserLoading, userError } = useUser();
 const { showSnackbar, snackbarMessage, snackbarColor, hideSnackbar, showErrorSnackbar } =
   useSnackbar();
+const { isLocaleReady } = useLocale();
 const { mobile } = useDisplay();
+const { t } = useI18n();
 
 // Navigation drawer state
 const drawer = ref(true);
@@ -168,13 +172,11 @@ onMounted(async () => {
         sessionStorage.removeItem(PENDING_REDIRECT_KEY);
         removeQueryParam("result");
 
-        showErrorSnackbar(
-          "Passkey registration requires a fresh sign-in. Please sign out and sign in again.",
-        );
+        showErrorSnackbar(t("auth.passkeyFreshSignInRequired"));
       }
     } else {
       removeQueryParam("result");
-      showErrorSnackbar("This action requires a fresh sign-in. Please sign out and sign in again.");
+      showErrorSnackbar(t("auth.freshSignInRequired"));
     }
   }
 });
@@ -215,7 +217,7 @@ onMounted(() => {
 </script>
 <template>
   <v-layout class="rounded rounded-md border">
-    <v-app-bar title="Personal Budget Tracker">
+    <v-app-bar :title="t('app.title')">
       <template v-slot:prepend>
         <!-- Hamburger menu button for mobile -->
         <v-app-bar-nav-icon v-if="mobile" @click="drawer = !drawer" />
@@ -249,7 +251,7 @@ onMounted(() => {
           />
 
           <!-- User creation error -->
-          <v-tooltip v-if="userError" text="User creation failed">
+          <v-tooltip v-if="userError" :text="t('app.userCreationFailed')">
             <template v-slot:activator="{ props }">
               <v-icon v-bind="props" color="warning" :size="$vuetify.display.xs ? '20' : '24'">
                 mdi-alert-outline
@@ -277,7 +279,7 @@ onMounted(() => {
           v-if="!isAuthenticated"
           :to="{ name: 'SignIn' }"
           prepend-icon="mdi-login"
-          title="Sign In"
+          :title="t('nav.signIn')"
           @click="mobile && (drawer = false)"
         />
         <!-- Main app navigation for authenticated users -->
@@ -285,49 +287,49 @@ onMounted(() => {
           v-if="isAuthenticated"
           :to="{ name: 'Transactions' }"
           prepend-icon="mdi-swap-horizontal"
-          title="Transactions"
+          :title="t('nav.transactions')"
           @click="mobile && (drawer = false)"
         />
         <v-list-item
           v-if="isAuthenticated"
           :to="{ name: 'Accounts' }"
           prepend-icon="mdi-bank"
-          title="Accounts"
+          :title="t('nav.accounts')"
           @click="mobile && (drawer = false)"
         />
         <v-list-item
           v-if="isAuthenticated"
           :to="{ name: 'Categories' }"
           prepend-icon="mdi-tag-multiple"
-          title="Categories"
+          :title="t('nav.categories')"
           @click="mobile && (drawer = false)"
         />
         <v-list-item
           v-if="isAuthenticated"
           :to="{ name: 'ByCategoryReport' }"
           prepend-icon="mdi-table-large"
-          title="Reports"
+          :title="t('nav.reports')"
           @click="mobile && (drawer = false)"
         />
         <v-list-item
           v-if="isAuthenticated"
           :to="{ name: 'Assistant' }"
           prepend-icon="mdi-creation-outline"
-          title="Assistant"
+          :title="t('nav.assistant')"
           @click="mobile && (drawer = false)"
         />
         <v-list-item
           v-if="isAuthenticated"
           :to="{ name: 'Settings' }"
           prepend-icon="mdi-cog-outline"
-          title="Settings"
+          :title="t('nav.settings')"
           @click="mobile && (drawer = false)"
         />
         <!-- Passkey registration -->
         <v-list-item
           v-if="isAuthenticated && passkeyRegistrationUrl"
           prepend-icon="mdi-key"
-          title="Register Passkey"
+          :title="t('nav.registerPasskey')"
           @click="handlePasskeyRegistration"
         />
         <!-- Push content to the bottom -->
@@ -338,7 +340,7 @@ onMounted(() => {
         <v-list-item
           v-if="isAuthenticated && !authLoading && !ensureUserLoading"
           prepend-icon="mdi-logout"
-          title="Sign Out"
+          :title="t('nav.signOut')"
           :disabled="authLoading"
           @click="handleSignOut"
         />
@@ -346,7 +348,10 @@ onMounted(() => {
     </v-navigation-drawer>
 
     <v-main>
-      <router-view />
+      <div v-if="!isLocaleReady" class="d-flex justify-center align-center" style="height: 100%">
+        <v-progress-circular indeterminate />
+      </div>
+      <router-view v-else />
     </v-main>
   </v-layout>
 
@@ -354,7 +359,7 @@ onMounted(() => {
   <v-snackbar v-model="showSnackbar" :color="snackbarColor" timeout="4000" location="bottom">
     {{ snackbarMessage }}
     <template #actions>
-      <v-btn variant="text" @click="hideSnackbar"> Close </v-btn>
+      <v-btn variant="text" @click="hideSnackbar"> {{ t("common.close") }} </v-btn>
     </template>
   </v-snackbar>
 </template>

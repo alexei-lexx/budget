@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
+
 // Define component props with sensible defaults
 interface Props {
   editLabel?: string;
@@ -12,15 +14,17 @@ interface Props {
 }
 
 withDefaults(defineProps<Props>(), {
-  editLabel: "Edit",
-  deleteLabel: "Delete",
-  duplicateLabel: "Copy",
+  editLabel: undefined,
+  deleteLabel: undefined,
+  duplicateLabel: undefined,
   editIcon: "mdi-pencil",
   deleteIcon: "mdi-delete",
   duplicateIcon: "mdi-content-copy",
   size: "small",
   showDuplicate: false,
 });
+
+const { t } = useI18n();
 
 // Define emitted events
 const emit = defineEmits<{
@@ -53,7 +57,7 @@ const handleDuplicate = () => {
       :prepend-icon="duplicateIcon"
       @click.stop="handleDuplicate"
     >
-      {{ duplicateLabel }}
+      {{ duplicateLabel ?? t("common.duplicate") }}
     </v-btn>
     <v-btn
       :size="size"
@@ -62,7 +66,7 @@ const handleDuplicate = () => {
       :prepend-icon="editIcon"
       @click.stop="handleEdit"
     >
-      {{ editLabel }}
+      {{ editLabel ?? t("common.edit") }}
     </v-btn>
     <v-btn
       :size="size"
@@ -71,7 +75,7 @@ const handleDuplicate = () => {
       :prepend-icon="deleteIcon"
       @click.stop="handleDelete"
     >
-      {{ deleteLabel }}
+      {{ deleteLabel ?? t("common.delete") }}
     </v-btn>
   </div>
 </template>

@@ -3,14 +3,14 @@
   <v-container class="pa-3 pa-sm-6">
     <!-- Page Header -->
     <div class="mb-6">
-      <h1 class="text-h5 text-sm-h4">Assistant</h1>
+      <h1 class="text-h5 text-sm-h4">{{ t("assistant.title") }}</h1>
     </div>
 
     <v-empty-state
       v-if="!assistantAnswer && !askAssistantLoading"
       icon="mdi-creation-outline"
-      title="Ask about your finances"
-      text="Ask a question to get started."
+      :title="t('assistant.emptyTitle')"
+      :text="t('assistant.emptyText')"
     />
 
     <div v-else-if="askAssistantLoading" class="d-flex justify-center align-center fill-height">
@@ -30,9 +30,9 @@
         v-model="question"
         :loading="askAssistantLoading"
         :agent-trace="assistantAgentTrace"
-        placeholder="Ask about your spending..."
-        input-aria-label="Ask a question"
-        submit-aria-label="Submit question"
+        :placeholder="t('assistant.placeholder')"
+        :input-aria-label="t('assistant.inputAriaLabel')"
+        :submit-aria-label="t('assistant.submitAriaLabel')"
         @submit="handleAskQuestion"
         @abort="abortAskAssistant"
       />
@@ -42,6 +42,7 @@
 
 <script setup lang="ts">
 import { ref, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import { useAssistant } from "@/composables/useAssistant";
 import { useSnackbar } from "@/composables/useSnackbar";
 import { appStorage } from "@/lib/appStorage";
@@ -49,6 +50,7 @@ import AgenticInput from "@/components/AgenticInput.vue";
 
 const STORAGE_KEY = "assistant-input";
 
+const { t } = useI18n();
 const { showErrorSnackbar } = useSnackbar();
 const {
   askAssistantLoading,

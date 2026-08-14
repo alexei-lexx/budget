@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import { useDescriptionSuggestions } from "@/composables/useDescriptionSuggestions";
 
 interface Props {
@@ -18,7 +19,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  label: "Description",
+  label: undefined,
   placeholder: "",
   disabled: false,
   variant: "outlined",
@@ -27,6 +28,8 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<{
   "update:modelValue": [value: string];
 }>();
+
+const { t } = useI18n();
 
 // Local reactive values
 const searchText = ref(props.modelValue);
@@ -154,7 +157,7 @@ const handleBlur = () => {
     <v-text-field
       ref="textFieldRef"
       v-model="inputValue"
-      :label="label"
+      :label="label ?? t('common.description')"
       :placeholder="placeholder"
       :disabled="disabled"
       :variant="variant"
@@ -182,7 +185,9 @@ const handleBlur = () => {
         <!-- Loading state -->
         <div v-if="suggestionsLoading" class="pa-3 text-center">
           <v-progress-circular indeterminate size="24" />
-          <div class="text-caption text-medium-emphasis mt-2">Loading suggestions...</div>
+          <div class="text-caption text-medium-emphasis mt-2">
+            {{ t("common.loadingSuggestions") }}
+          </div>
         </div>
 
         <!-- Suggestions list -->
@@ -200,7 +205,9 @@ const handleBlur = () => {
 
         <!-- Empty state -->
         <div v-else class="pa-3 text-center">
-          <div class="text-caption text-medium-emphasis">No suggestions found</div>
+          <div class="text-caption text-medium-emphasis">
+            {{ t("common.noSuggestionsFound") }}
+          </div>
         </div>
       </v-card>
     </v-menu>

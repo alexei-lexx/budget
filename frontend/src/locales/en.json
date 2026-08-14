@@ -1,0 +1,326 @@
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "duplicate": "Duplicate",
+    "connect": "Connect",
+    "disconnect": "Disconnect",
+    "test": "Test",
+    "copy": "Copy",
+    "confirm": "Confirm",
+    "loadMore": "Load more",
+    "deleteIrreversible": "This action cannot be undone.",
+    "account": "Account",
+    "description": "Description",
+    "loadingSuggestions": "Loading suggestions...",
+    "noSuggestionsFound": "No suggestions found",
+    "voiceInput": "Voice input",
+    "stop": "Stop",
+    "unknownAccount": "Unknown Account",
+    "retry": "Retry",
+    "genericError": "Something went wrong. Please try again later.",
+    "connectionError": "Connection problem. Please check your internet and try again.",
+    "amountValidation": {
+      "mustBePositive": "Amount must be greater than 0",
+      "tooLarge": "Amount is too large",
+      "tooManyDecimals": "Amount can have at most 2 decimal places",
+      "tooSmall": "Amount must be at least 0.01"
+    },
+    "voiceInputErrors": {
+      "serviceUnavailable": "Speech service unavailable — try again",
+      "microphoneAccessDenied": "Microphone access denied — check browser permissions",
+      "microphoneNotAvailable": "Microphone not available — check your device",
+      "networkError": "Network error — try again",
+      "genericFailure": "Voice input failed — try again"
+    }
+  },
+  "app": {
+    "title": "Personal Budget Tracker",
+    "userCreationFailed": "User creation failed"
+  },
+  "nav": {
+    "signIn": "Sign In",
+    "transactions": "Transactions",
+    "accounts": "Accounts",
+    "categories": "Categories",
+    "reports": "Reports",
+    "assistant": "Assistant",
+    "settings": "Settings",
+    "registerPasskey": "Register Passkey",
+    "signOut": "Sign Out"
+  },
+  "auth": {
+    "passkeyFreshSignInRequired": "Passkey registration requires a fresh sign-in. Please sign out and sign in again.",
+    "freshSignInRequired": "This action requires a fresh sign-in. Please sign out and sign in again."
+  },
+  "accounts": {
+    "title": "Accounts",
+    "addAccount": "Add Account",
+    "addFirstAccount": "Add Your First Account",
+    "deleted": "Account \"{name}\" has been deleted",
+    "updated": "Account \"{name}\" has been updated",
+    "created": "Account \"{name}\" has been created",
+    "loading": "Loading accounts...",
+    "emptyTitle": "No Accounts Yet",
+    "emptyText": "Get started by creating your first account to track your finances.",
+    "deleteDialog": {
+      "title": "Delete Account",
+      "message": "Are you sure you want to delete the account \"{name}\"?",
+      "warning": "This action cannot be undone. The account will be permanently removed from your records, but historical transaction data will be preserved."
+    },
+    "form": {
+      "editTitle": "Edit Account",
+      "createTitle": "Create New Account",
+      "update": "Update",
+      "create": "Create",
+      "nameLabel": "Account Name",
+      "namePlaceholder": "e.g., Cash, Bank Account, Credit Card",
+      "currencyLabel": "Currency",
+      "currencyLoadError": "Failed to load currencies. Using defaults.",
+      "initialBalanceLabel": "Initial Balance",
+      "nameRequired": "Account name is required",
+      "nameNotEmpty": "Account name cannot be empty",
+      "nameTooLong": "Account name cannot exceed 100 characters",
+      "currencyRequired": "Currency is required",
+      "currencyInvalid": "Please select a valid currency",
+      "balanceRequired": "Initial balance is required",
+      "balanceInvalidNumber": "Initial balance must be a valid number",
+      "balanceInvalidFinite": "Initial balance must be a finite number"
+    },
+    "errors": {
+      "fetchFailed": "Failed to fetch accounts",
+      "operationFailed": "Account operation failed",
+      "createFailed": "Failed to create account",
+      "updateFailed": "Failed to update account",
+      "deleteFailed": "Failed to delete account"
+    }
+  },
+  "categories": {
+    "title": "Categories",
+    "addCategory": "Add Category",
+    "loading": "Loading categories...",
+    "deleted": "Category \"{name}\" has been deleted",
+    "updated": "Category \"{name}\" has been updated",
+    "created": "Category \"{name}\" has been created",
+    "excludedFromReports": "Excluded from reports",
+    "emptyTitleExpense": "No expense categories yet",
+    "emptyTitleIncome": "No income categories yet",
+    "emptyTextExpense": "Create your first expense category to start organizing your transactions.",
+    "emptyTextIncome": "Create your first income category to start organizing your transactions.",
+    "types": {
+      "income": "Income",
+      "expense": "Expense"
+    },
+    "deleteDialog": {
+      "title": "Delete Category",
+      "message": "Are you sure you want to delete the category \"{name}\"?",
+      "warning": "This action cannot be undone. The category will be permanently removed from your records, but historical transaction data will be preserved."
+    },
+    "form": {
+      "editTitle": "Edit Category",
+      "createTitle": "Create New Category",
+      "update": "Update",
+      "create": "Create",
+      "nameLabel": "Category Name",
+      "namePlaceholder": "e.g., {examples}",
+      "exampleNamesIncome": "Salary, Freelance, Investment, Bonus",
+      "exampleNamesExpense": "Groceries, Rent, Utilities, Entertainment",
+      "typeLabel": "Category Type",
+      "excludeFromReportsLabel": "Exclude from reports",
+      "excludeFromReportsHint": "When enabled, transactions in this category won't appear in monthly reports",
+      "nameRequired": "Category name is required",
+      "nameNotEmpty": "Category name cannot be empty",
+      "nameTooLong": "Category name cannot exceed 100 characters",
+      "typeRequired": "Category type is required",
+      "typeInvalid": "Category type must be either Income or Expense"
+    },
+    "errors": {
+      "fetchFailed": "Failed to fetch categories",
+      "operationFailed": "Category operation failed",
+      "createFailed": "Failed to create category",
+      "updateFailed": "Failed to update category",
+      "deleteFailed": "Failed to delete category"
+    }
+  },
+  "transactions": {
+    "title": "Transactions",
+    "filter": "Filter",
+    "addTransaction": "Add Transaction",
+    "loading": "Loading transactions...",
+    "emptyTitle": "No Transactions Yet",
+    "emptyText": "Start tracking your income and expenses by adding your first transaction.",
+    "countWithTotal": "{count} of {total} transaction | {count} of {total} transactions",
+    "countOnly": "{count} transaction | {count} transactions",
+    "defaultDescription": "transaction",
+    "deletedWithAmount": "Transaction \"{description}\" ({amount}) has been deleted",
+    "created": "New transaction was created",
+    "updated": "Transaction was updated",
+    "textInputPlaceholder": "e.g., morning coffee 4.5 euro",
+    "createTransactionAriaLabel": "Create transaction",
+    "deletedEntity": "Deleted: {name}",
+    "deletedAccount": "Deleted account",
+    "deletedCategory": "Deleted category",
+    "deleteDialog": {
+      "title": "Delete Transaction",
+      "message": "Are you sure you want to delete the transaction \"{account}, {amount}\"?",
+      "warning": "This action cannot be undone. The transaction will be permanently removed from your records."
+    },
+    "form": {
+      "accountRequired": "Account is required",
+      "typeRequired": "Transaction type is required",
+      "typeInvalid": "Transaction type must be Income, Expense, or Refund",
+      "dateRequired": "Date is required",
+      "dateInvalidFormat": "Date must be in YYYY-MM-DD format",
+      "editTitle": "Edit Transaction",
+      "createTitle": "Create New Transaction",
+      "update": "Update",
+      "create": "Create",
+      "type": "Type",
+      "refund": "Refund",
+      "categoryOptional": "Category (Optional)",
+      "noIncomeCategories": "No income categories available",
+      "noExpenseCategories": "No expense categories available",
+      "amount": "Amount",
+      "date": "Date",
+      "descriptionOptional": "Description (Optional)",
+      "descriptionPlaceholder": "e.g., Weekly groceries, Salary payment, Coffee with friends"
+    },
+    "createTextFailed": "Failed to create transaction. Please try again.",
+    "errors": {
+      "fetchFailed": "Failed to fetch transactions",
+      "operationFailed": "Transaction operation failed",
+      "createFailed": "Failed to create transaction",
+      "updateFailed": "Failed to update transaction",
+      "deleteFailed": "Failed to delete transaction",
+      "loadMoreFailed": "Failed to load more transactions"
+    },
+    "filterBar": {
+      "category": "Category",
+      "transferIn": "Transfer In",
+      "transferOut": "Transfer Out",
+      "includeUncategorized": "Include uncategorized",
+      "fromDate": "From Date",
+      "toDate": "To Date",
+      "clear": "Clear",
+      "apply": "Apply"
+    }
+  },
+  "transfers": {
+    "addTransfer": "Add Transfer",
+    "notFound": "Transfer not found. The transfer data may have been deleted.",
+    "loadFailed": "Failed to load transfer data. Please try again.",
+    "defaultDescription": "transfer",
+    "deletedWithAmount": "Transfer \"{description}\" ({amount}) has been deleted",
+    "deleteFailed": "Failed to delete transfer. Please try again.",
+    "created": "Transfer was created successfully",
+    "createFailed": "Failed to create transfer. Please try again.",
+    "updated": "Transfer was updated successfully",
+    "updateFailed": "Failed to update transfer. Please try again.",
+    "deleteDialog": {
+      "title": "Delete Transfer",
+      "message": "Are you sure you want to delete this transfer of {amount} from \"{from}\" to \"{to}\"?",
+      "warning": "This action cannot be undone. Both the outbound and inbound transactions will be permanently removed from your records."
+    },
+    "form": {
+      "editTitle": "Edit Transfer",
+      "createTitle": "Create New Transfer",
+      "update": "Update",
+      "create": "Create",
+      "fromAccountRequired": "Source account is required",
+      "toAccountRequired": "Destination account is required",
+      "accountsMustDiffer": "Source and destination accounts must be different",
+      "currencyMustMatch": "Source and destination accounts must have the same currency",
+      "swapAccounts": "Swap accounts",
+      "fromAccount": "From Account",
+      "toAccount": "To Account",
+      "descriptionPlaceholder": "e.g., Monthly savings transfer, Emergency fund contribution"
+    },
+    "operationFailed": "Transfer operation failed"
+  },
+  "signIn": {
+    "welcome": "Welcome to Personal Budget Tracker",
+    "prompt": "Please sign in to start managing your finances",
+    "settingUp": "Setting up your account...",
+    "welcomeBack": "Welcome back, {name}! Redirecting to your transactions...",
+    "loginFailed": "Login failed"
+  },
+  "assistant": {
+    "title": "Assistant",
+    "emptyTitle": "Ask about your finances",
+    "emptyText": "Ask a question to get started.",
+    "placeholder": "Ask about your spending...",
+    "inputAriaLabel": "Ask a question",
+    "submitAriaLabel": "Submit question",
+    "responseFailed": "Failed to get assistant response. Please try again.",
+    "agentTrace": {
+      "title": "Agent Trace",
+      "noMessages": "No trace messages available.",
+      "viewAriaLabel": "View agent trace",
+      "labels": {
+        "text": "TEXT",
+        "toolCall": "TOOL CALL",
+        "toolResult": "TOOL RESULT",
+        "unknown": "UNKNOWN"
+      }
+    }
+  },
+  "reports": {
+    "title": "Expense Report",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "previous": "Previous",
+    "next": "Next",
+    "error": {
+      "title": "Report Error",
+      "loadFailed": "Failed to load report: {message}",
+      "invalidUrlMonthYear": "Invalid month or year in URL parameters",
+      "invalidUrlYear": "Invalid year in URL parameters"
+    },
+    "table": {
+      "sortByCategory": "Category",
+      "sortByAmount": "Amount",
+      "loadFailedTitle": "Failed to load category breakdown",
+      "emptyTitle": "No transactions found",
+      "emptyText": "There are no expense transactions for this month.",
+      "showingCount": "Showing {shown} of {total}",
+      "total": "Total"
+    },
+    "errors": {
+      "fetchFailed": "Failed to fetch by-category report"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "transactionShortcutsLimit": {
+      "label": "Transaction shortcuts limit",
+      "hint": "e.g. Card + Groceries, Cash + Transport"
+    },
+    "voiceInputLanguage": "Voice input language",
+    "interfaceLanguage": "Interface language",
+    "saved": "Settings saved",
+    "saveFailed": "Failed to save settings",
+    "telegramBot": {
+      "heading": "Telegram Bot",
+      "botToken": "Bot token",
+      "tokenPlaceholder": "1234567890...",
+      "connected": "Telegram bot connected",
+      "connectFailed": "Failed to connect Telegram bot",
+      "disconnected": "Telegram bot disconnected",
+      "disconnectFailed": "Failed to disconnect Telegram bot",
+      "active": "Telegram bot is active",
+      "testFailed": "Telegram bot test failed"
+    },
+    "mcpConnection": {
+      "heading": "MCP Connection",
+      "url": "MCP URL",
+      "regenerate": "Regenerate",
+      "urlCopied": "MCP URL copied to clipboard",
+      "urlCopyFailed": "Failed to copy MCP URL",
+      "tokenRegenerated": "MCP token regenerated — the previous URL no longer works",
+      "tokenRegenerateFailed": "Failed to regenerate MCP token"
+    }
+  }
+}

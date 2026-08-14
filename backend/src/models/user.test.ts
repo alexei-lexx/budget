@@ -35,6 +35,7 @@ describe("User", () => {
         mcpToken: "fixed-token",
         transactionPatternsLimit: undefined,
         voiceInputLanguage: undefined,
+        interfaceLanguage: undefined,
         createdAt: "2000-01-02T10:11:12.000Z",
         updatedAt: "2000-01-02T10:11:12.000Z",
       });
@@ -143,6 +144,38 @@ describe("User", () => {
         new ModelError("MCP token must be a non-empty string"),
       );
     });
+
+    it("accepts supported interfaceLanguage", () => {
+      // Arrange
+      const data = { ...fakeUser().toData(), interfaceLanguage: "de" };
+
+      // Act
+      const result = User.fromPersistence(data);
+
+      // Assert
+      expect(result.interfaceLanguage).toBe("de");
+    });
+
+    it("accepts missing interfaceLanguage", () => {
+      // Arrange
+      const data = { ...fakeUser().toData(), interfaceLanguage: undefined };
+
+      // Act
+      const result = User.fromPersistence(data);
+
+      // Assert
+      expect(result.interfaceLanguage).toBeUndefined();
+    });
+
+    it("throws on unsupported interfaceLanguage", () => {
+      // Arrange
+      const data = { ...fakeUser().toData(), interfaceLanguage: "fr" };
+
+      // Act & Assert
+      expect(() => User.fromPersistence(data)).toThrow(
+        new ModelError("Unsupported interface language: fr"),
+      );
+    });
   });
 
   describe("toData", () => {
@@ -191,11 +224,23 @@ describe("User", () => {
       expect(result.voiceInputLanguage).toBe("de-DE");
     });
 
+    it("sets interfaceLanguage", () => {
+      // Arrange
+      const existing = fakeUser({ interfaceLanguage: "en" });
+
+      // Act
+      const result = existing.update({ interfaceLanguage: "de" });
+
+      // Assert
+      expect(result.interfaceLanguage).toBe("de");
+    });
+
     it("keeps fields when input is empty", () => {
       // Arrange
       const existing = fakeUser({
         transactionPatternsLimit: 5,
         voiceInputLanguage: "pl-PL",
+        interfaceLanguage: "de",
       });
 
       // Act
@@ -204,6 +249,7 @@ describe("User", () => {
       // Assert
       expect(result.transactionPatternsLimit).toBe(5);
       expect(result.voiceInputLanguage).toBe("pl-PL");
+      expect(result.interfaceLanguage).toBe("de");
     });
 
     it("preserves id, email, createdAt", () => {
@@ -253,6 +299,13 @@ describe("User", () => {
         new ModelError(
           "Transaction patterns limit must be a non-negative integer",
         ),
+      );
+    });
+
+    it("throws when interfaceLanguage is unsupported", () => {
+      // Act & Assert
+      expect(() => fakeUser().update({ interfaceLanguage: "fr" })).toThrow(
+        new ModelError("Unsupported interface language: fr"),
       );
     });
   });

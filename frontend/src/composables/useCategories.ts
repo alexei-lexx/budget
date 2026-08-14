@@ -1,5 +1,6 @@
 import { ref, watch, type Ref } from "vue";
 import type { ApolloError } from "@apollo/client";
+import { i18n } from "@/plugins/i18n";
 import {
   useGetCategoriesQuery,
   useCreateCategoryMutation,
@@ -15,6 +16,7 @@ import {
 export type { CategoryType, Category, CreateCategoryInput, UpdateCategoryInput };
 
 export function useCategories(type?: CategoryType | Ref<CategoryType>) {
+  const { t } = i18n.global;
   const categoriesError = ref<string | null>(null);
 
   // Query for active categories (optionally filtered by type)
@@ -52,7 +54,7 @@ export function useCategories(type?: CategoryType | Ref<CategoryType>) {
   watch(categoriesQueryError, (error: ApolloError | null) => {
     if (error) {
       console.error("Categories query failed:", error);
-      categoriesError.value = error.message || "Failed to fetch categories";
+      categoriesError.value = error.message || t("categories.errors.fetchFailed");
     }
   });
 
@@ -63,7 +65,7 @@ export function useCategories(type?: CategoryType | Ref<CategoryType>) {
       const error = createError || updateError || deleteError;
       if (error) {
         console.error("Category mutation failed:", error);
-        categoriesError.value = error.message || "Category operation failed";
+        categoriesError.value = error.message || t("categories.errors.operationFailed");
       }
     },
   );
@@ -80,7 +82,8 @@ export function useCategories(type?: CategoryType | Ref<CategoryType>) {
       return null;
     } catch (error) {
       console.error("Error creating category:", error);
-      categoriesError.value = error instanceof Error ? error.message : "Failed to create category";
+      categoriesError.value =
+        error instanceof Error ? error.message : t("categories.errors.createFailed");
       return null;
     }
   };
@@ -100,7 +103,8 @@ export function useCategories(type?: CategoryType | Ref<CategoryType>) {
       return null;
     } catch (error) {
       console.error("Error updating category:", error);
-      categoriesError.value = error instanceof Error ? error.message : "Failed to update category";
+      categoriesError.value =
+        error instanceof Error ? error.message : t("categories.errors.updateFailed");
       return null;
     }
   };
@@ -117,7 +121,8 @@ export function useCategories(type?: CategoryType | Ref<CategoryType>) {
       return null;
     } catch (error) {
       console.error("Error deleting category:", error);
-      categoriesError.value = error instanceof Error ? error.message : "Failed to delete category";
+      categoriesError.value =
+        error instanceof Error ? error.message : t("categories.errors.deleteFailed");
       return null;
     }
   };

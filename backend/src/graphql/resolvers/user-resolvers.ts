@@ -1,6 +1,7 @@
 import { GraphQLError } from "graphql";
 import { MutationUpdateUserSettingsArgs } from "../../__generated__/resolvers-types";
 import { User } from "../../models/user";
+import { SUPPORTED_INTERFACE_LANGUAGES } from "../../types/language";
 import { GraphQLContext } from "../context";
 import {
   getAuthenticatedUser,
@@ -42,6 +43,22 @@ export const userResolvers = {
         handleResolverError(error, "Failed to fetch user settings");
       }
     },
+
+    supportedInterfaceLanguages: async (
+      _parent: unknown,
+      _args: unknown,
+      context: GraphQLContext,
+    ) => {
+      try {
+        await getAuthenticatedUser(context);
+        return [...SUPPORTED_INTERFACE_LANGUAGES];
+      } catch (error) {
+        handleResolverError(
+          error,
+          "Failed to fetch supported interface languages",
+        );
+      }
+    },
   },
   Mutation: {
     ensureUser: async (
@@ -69,6 +86,7 @@ export const userResolvers = {
           voiceInputLanguage: args.input.voiceInputLanguage ?? undefined,
           transactionPatternsLimit:
             args.input.transactionPatternsLimit ?? undefined,
+          interfaceLanguage: args.input.interfaceLanguage ?? undefined,
         });
 
         if (!result.success) {

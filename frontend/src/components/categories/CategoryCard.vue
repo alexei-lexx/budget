@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
 import type { Category } from "@/composables/useCategories";
 import ActionButtons from "@/components/common/ActionButtons.vue";
 
@@ -29,6 +30,8 @@ const handleDeleteCategory = () => {
 const handleCardClick = () => {
   emit("toggleExpand", props.category.id);
 };
+
+const { t } = useI18n();
 </script>
 
 <template>
@@ -65,7 +68,7 @@ const handleCardClick = () => {
         <div v-if="category.excludeFromReports">
           <v-chip size="small" color="grey-darken-2" variant="outlined">
             <v-icon start size="small">mdi-eye-off-outline</v-icon>
-            Excluded from reports
+            {{ t("categories.excludedFromReports") }}
           </v-chip>
         </div>
 
