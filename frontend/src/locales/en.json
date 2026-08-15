@@ -81,25 +81,23 @@
       "nameLabel": "Account Name",
       "namePlaceholder": "e.g., Cash, Bank Account, Credit Card",
       "currencyLabel": "Currency",
-      "initialBalanceLabel": "Initial Balance",
-      "errors": {
-        "nameRequired": "Account name is required",
-        "nameNotEmpty": "Account name cannot be empty",
-        "nameTooLong": "Account name cannot exceed 100 characters",
-        "currencyRequired": "Currency is required",
-        "currencyInvalid": "Please select a valid currency",
-        "currencyLoadError": "Failed to load currencies. Using defaults.",
-        "balanceRequired": "Initial balance is required",
-        "balanceInvalidNumber": "Initial balance must be a valid number",
-        "balanceInvalidFinite": "Initial balance must be a finite number"
-      }
+      "initialBalanceLabel": "Initial Balance"
     },
     "errors": {
       "fetchFailed": "Failed to fetch accounts",
       "operationFailed": "Account operation failed",
       "createFailed": "Failed to create account",
       "updateFailed": "Failed to update account",
-      "deleteFailed": "Failed to delete account"
+      "deleteFailed": "Failed to delete account",
+      "nameRequired": "Account name is required",
+      "nameNotEmpty": "Account name cannot be empty",
+      "nameTooLong": "Account name cannot exceed 100 characters",
+      "currencyRequired": "Currency is required",
+      "currencyInvalid": "Please select a valid currency",
+      "currencyLoadError": "Failed to load currencies. Using defaults.",
+      "balanceRequired": "Initial balance is required",
+      "balanceInvalidNumber": "Initial balance must be a valid number",
+      "balanceInvalidFinite": "Initial balance must be a finite number"
     }
   },
   "categories": {
@@ -134,21 +132,19 @@
       "exampleNamesExpense": "Groceries, Rent, Utilities, Entertainment",
       "typeLabel": "Category Type",
       "excludeFromReportsLabel": "Exclude from reports",
-      "excludeFromReportsHint": "When enabled, transactions in this category won't appear in monthly reports",
-      "errors": {
-        "nameRequired": "Category name is required",
-        "nameNotEmpty": "Category name cannot be empty",
-        "nameTooLong": "Category name cannot exceed 100 characters",
-        "typeRequired": "Category type is required",
-        "typeInvalid": "Category type must be either Income or Expense"
-      }
+      "excludeFromReportsHint": "When enabled, transactions in this category won't appear in monthly reports"
     },
     "errors": {
       "fetchFailed": "Failed to fetch categories",
       "operationFailed": "Category operation failed",
       "createFailed": "Failed to create category",
       "updateFailed": "Failed to update category",
-      "deleteFailed": "Failed to delete category"
+      "deleteFailed": "Failed to delete category",
+      "nameRequired": "Category name is required",
+      "nameNotEmpty": "Category name cannot be empty",
+      "nameTooLong": "Category name cannot exceed 100 characters",
+      "typeRequired": "Category type is required",
+      "typeInvalid": "Category type must be either Income or Expense"
     }
   },
   "transactions": {
@@ -194,23 +190,21 @@
       "amount": "Amount",
       "date": "Date",
       "descriptionOptional": "Description (Optional)",
-      "descriptionPlaceholder": "e.g., Weekly groceries, Salary payment, Coffee with friends",
-      "errors": {
-        "accountRequired": "Account is required",
-        "typeRequired": "Transaction type is required",
-        "typeInvalid": "Transaction type must be Income, Expense, or Refund",
-        "dateRequired": "Date is required",
-        "dateInvalidFormat": "Date must be in YYYY-MM-DD format"
-      }
+      "descriptionPlaceholder": "e.g., Weekly groceries, Salary payment, Coffee with friends"
     },
-    "createTextFailed": "Failed to create transaction. Please try again.",
     "errors": {
       "fetchFailed": "Failed to fetch transactions",
       "operationFailed": "Transaction operation failed",
       "createFailed": "Failed to create transaction",
       "updateFailed": "Failed to update transaction",
       "deleteFailed": "Failed to delete transaction",
-      "loadMoreFailed": "Failed to load more transactions"
+      "loadMoreFailed": "Failed to load more transactions",
+      "createFromTextFailed": "Failed to create transaction. Please try again.",
+      "accountRequired": "Account is required",
+      "typeRequired": "Transaction type is required",
+      "typeInvalid": "Transaction type must be Income, Expense, or Refund",
+      "dateRequired": "Date is required",
+      "dateInvalidFormat": "Date must be in YYYY-MM-DD format"
     },
     "filterBar": {
       "account": "Account",
@@ -222,15 +216,10 @@
   },
   "transfers": {
     "addTransfer": "Add Transfer",
-    "notFound": "Transfer not found. The transfer data may have been deleted.",
-    "loadFailed": "Failed to load transfer data. Please try again.",
     "defaultDescription": "transfer",
     "deletedWithAmount": "Transfer \"{description}\" ({amount}) has been deleted",
-    "deleteFailed": "Failed to delete transfer. Please try again.",
     "created": "Transfer was created successfully",
-    "createFailed": "Failed to create transfer. Please try again.",
     "updated": "Transfer was updated successfully",
-    "updateFailed": "Failed to update transfer. Please try again.",
     "deleteDialog": {
       "title": "Delete Transfer",
       "message": "Are you sure you want to delete this transfer of {amount} from \"{from}\" to \"{to}\"?",
@@ -244,15 +233,20 @@
       "swapAccounts": "Swap accounts",
       "fromAccount": "From Account",
       "toAccount": "To Account",
-      "descriptionPlaceholder": "e.g., Monthly savings transfer, Emergency fund contribution",
-      "errors": {
-        "fromAccountRequired": "Source account is required",
-        "toAccountRequired": "Destination account is required",
-        "accountsMustDiffer": "Source and destination accounts must be different",
-        "currencyMustMatch": "Source and destination accounts must have the same currency"
-      }
+      "descriptionPlaceholder": "e.g., Monthly savings transfer, Emergency fund contribution"
     },
-    "operationFailed": "Transfer operation failed"
+    "errors": {
+      "notFound": "Transfer not found. The transfer data may have been deleted.",
+      "loadFailed": "Failed to load transfer data. Please try again.",
+      "deleteFailed": "Failed to delete transfer. Please try again.",
+      "createFailed": "Failed to create transfer. Please try again.",
+      "updateFailed": "Failed to update transfer. Please try again.",
+      "operationFailed": "Transfer operation failed",
+      "fromAccountRequired": "Source account is required",
+      "toAccountRequired": "Destination account is required",
+      "accountsMustDiffer": "Source and destination accounts must be different",
+      "currencyMustMatch": "Source and destination accounts must have the same currency"
+    }
   },
   "signIn": {
     "welcome": "Welcome to Personal Budget Tracker",

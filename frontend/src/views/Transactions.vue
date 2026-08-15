@@ -397,11 +397,11 @@ const handleEditTransaction = async (transactionId: string) => {
         showEditTransferDialog.value = true;
       } else {
         console.error("Transfer not found:", transaction.transferId);
-        showErrorSnackbar(t("transfers.notFound"));
+        showErrorSnackbar(t("transfers.errors.notFound"));
       }
     } catch (error) {
       console.error("Error loading transfer data:", error);
-      showErrorSnackbar(t("transfers.loadFailed"));
+      showErrorSnackbar(t("transfers.errors.loadFailed"));
     } finally {
       transferFormLoading.value = false;
     }
@@ -432,11 +432,11 @@ const handleDuplicateTransaction = async (transaction: Transaction) => {
         };
         showCreateTransferDialog.value = true;
       } else {
-        showErrorSnackbar(t("transfers.notFound"));
+        showErrorSnackbar(t("transfers.errors.notFound"));
       }
     } catch (error) {
       console.error("Error loading transfer for duplicate:", error);
-      showErrorSnackbar(t("transfers.loadFailed"));
+      showErrorSnackbar(t("transfers.errors.loadFailed"));
     } finally {
       transferFormLoading.value = false;
     }
@@ -520,7 +520,7 @@ const confirmDeleteTransfer = async () => {
       await refetchAccounts();
     } else {
       // Transfer deletion failed
-      const errorMessage = transfersError.value || t("transfers.deleteFailed");
+      const errorMessage = transfersError.value || t("transfers.errors.deleteFailed");
       showErrorSnackbar(errorMessage);
     }
   }
@@ -582,7 +582,7 @@ const handleCreateTransferSubmit = async (data: CreateTransferInput | UpdateTran
       await refetchAccounts();
     } else {
       // Transfer creation failed
-      const errorMessage = transfersError.value || t("transfers.createFailed");
+      const errorMessage = transfersError.value || t("transfers.errors.createFailed");
       showErrorSnackbar(errorMessage);
     }
   } finally {
@@ -618,7 +618,7 @@ const handleEditTransferSubmit = async (data: CreateTransferInput | UpdateTransf
       await refetchAccounts();
     } else {
       // Transfer update failed
-      const errorMessage = transfersError.value || t("transfers.updateFailed");
+      const errorMessage = transfersError.value || t("transfers.errors.updateFailed");
       showErrorSnackbar(errorMessage);
     }
   } finally {

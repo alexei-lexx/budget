@@ -75,22 +75,22 @@ const isFormValid = computed(() => {
 
 // Validation rules
 const nameRules: CheckRule<string>[] = [
-  (v) => !!v || t("accounts.form.errors.nameRequired"),
-  (v) => (v && v.trim().length > 0) || t("accounts.form.errors.nameNotEmpty"),
-  (v) => (v && v.length <= 100) || t("accounts.form.errors.nameTooLong"),
+  (v) => !!v || t("accounts.errors.nameRequired"),
+  (v) => (v && v.trim().length > 0) || t("accounts.errors.nameNotEmpty"),
+  (v) => (v && v.length <= 100) || t("accounts.errors.nameTooLong"),
 ];
 
 const currencyRules: CheckRule<string>[] = [
-  (v) => !!v || t("accounts.form.errors.currencyRequired"),
+  (v) => !!v || t("accounts.errors.currencyRequired"),
   (v) =>
     supportedCurrencies.value.some((c: { value: string; title: string }) => c.value === v) ||
-    t("accounts.form.errors.currencyInvalid"),
+    t("accounts.errors.currencyInvalid"),
 ];
 
 const balanceRules: CheckRule<number>[] = [
-  (v) => (v !== null && v !== undefined) || t("accounts.form.errors.balanceRequired"),
-  (v) => !isNaN(v) || t("accounts.form.errors.balanceInvalidNumber"),
-  (v) => isFinite(v) || t("accounts.form.errors.balanceInvalidFinite"),
+  (v) => (v !== null && v !== undefined) || t("accounts.errors.balanceRequired"),
+  (v) => !isNaN(v) || t("accounts.errors.balanceInvalidNumber"),
+  (v) => isFinite(v) || t("accounts.errors.balanceInvalidFinite"),
 ];
 
 // Computed properties
@@ -223,7 +223,7 @@ const handleCancel = () => {
               <template #no-data>
                 <v-list-item v-if="currencyHasError">
                   <v-list-item-title class="text-error">
-                    {{ t("accounts.form.errors.currencyLoadError") }}
+                    {{ t("accounts.errors.currencyLoadError") }}
                   </v-list-item-title>
                 </v-list-item>
               </template>

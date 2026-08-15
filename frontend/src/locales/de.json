@@ -81,25 +81,23 @@
       "nameLabel": "Kontoname",
       "namePlaceholder": "z. B. Bargeld, Bankkonto, Kreditkarte",
       "currencyLabel": "Währung",
-      "initialBalanceLabel": "Anfangssaldo",
-      "errors": {
-        "nameRequired": "Kontoname ist erforderlich",
-        "nameNotEmpty": "Kontoname darf nicht leer sein",
-        "nameTooLong": "Kontoname darf 100 Zeichen nicht überschreiten",
-        "currencyRequired": "Währung ist erforderlich",
-        "currencyInvalid": "Bitte wählen Sie eine gültige Währung",
-        "currencyLoadError": "Währungen konnten nicht geladen werden. Standardwerte werden verwendet.",
-        "balanceRequired": "Anfangssaldo ist erforderlich",
-        "balanceInvalidNumber": "Anfangssaldo muss eine gültige Zahl sein",
-        "balanceInvalidFinite": "Anfangssaldo muss eine endliche Zahl sein"
-      }
+      "initialBalanceLabel": "Anfangssaldo"
     },
     "errors": {
       "fetchFailed": "Konten konnten nicht geladen werden",
       "operationFailed": "Kontovorgang fehlgeschlagen",
       "createFailed": "Konto konnte nicht erstellt werden",
       "updateFailed": "Konto konnte nicht aktualisiert werden",
-      "deleteFailed": "Konto konnte nicht gelöscht werden"
+      "deleteFailed": "Konto konnte nicht gelöscht werden",
+      "nameRequired": "Kontoname ist erforderlich",
+      "nameNotEmpty": "Kontoname darf nicht leer sein",
+      "nameTooLong": "Kontoname darf 100 Zeichen nicht überschreiten",
+      "currencyRequired": "Währung ist erforderlich",
+      "currencyInvalid": "Bitte wählen Sie eine gültige Währung",
+      "currencyLoadError": "Währungen konnten nicht geladen werden. Standardwerte werden verwendet.",
+      "balanceRequired": "Anfangssaldo ist erforderlich",
+      "balanceInvalidNumber": "Anfangssaldo muss eine gültige Zahl sein",
+      "balanceInvalidFinite": "Anfangssaldo muss eine endliche Zahl sein"
     }
   },
   "categories": {
@@ -134,21 +132,19 @@
       "exampleNamesExpense": "Lebensmittel, Miete, Nebenkosten, Unterhaltung",
       "typeLabel": "Kategorietyp",
       "excludeFromReportsLabel": "Von Berichten ausschließen",
-      "excludeFromReportsHint": "Wenn aktiviert, erscheinen Transaktionen in dieser Kategorie nicht in Monatsberichten",
-      "errors": {
-        "nameRequired": "Kategoriename ist erforderlich",
-        "nameNotEmpty": "Kategoriename darf nicht leer sein",
-        "nameTooLong": "Kategoriename darf 100 Zeichen nicht überschreiten",
-        "typeRequired": "Kategorietyp ist erforderlich",
-        "typeInvalid": "Kategorietyp muss entweder Einnahme oder Ausgabe sein"
-      }
+      "excludeFromReportsHint": "Wenn aktiviert, erscheinen Transaktionen in dieser Kategorie nicht in Monatsberichten"
     },
     "errors": {
       "fetchFailed": "Kategorien konnten nicht geladen werden",
       "operationFailed": "Kategorievorgang fehlgeschlagen",
       "createFailed": "Kategorie konnte nicht erstellt werden",
       "updateFailed": "Kategorie konnte nicht aktualisiert werden",
-      "deleteFailed": "Kategorie konnte nicht gelöscht werden"
+      "deleteFailed": "Kategorie konnte nicht gelöscht werden",
+      "nameRequired": "Kategoriename ist erforderlich",
+      "nameNotEmpty": "Kategoriename darf nicht leer sein",
+      "nameTooLong": "Kategoriename darf 100 Zeichen nicht überschreiten",
+      "typeRequired": "Kategorietyp ist erforderlich",
+      "typeInvalid": "Kategorietyp muss entweder Einnahme oder Ausgabe sein"
     }
   },
   "transactions": {
@@ -194,23 +190,21 @@
       "amount": "Betrag",
       "date": "Datum",
       "descriptionOptional": "Beschreibung (Optional)",
-      "descriptionPlaceholder": "z. B. Wocheneinkauf, Gehaltszahlung, Kaffee mit Freunden",
-      "errors": {
-        "accountRequired": "Konto ist erforderlich",
-        "typeRequired": "Transaktionstyp ist erforderlich",
-        "typeInvalid": "Transaktionstyp muss Einnahme, Ausgabe oder Erstattung sein",
-        "dateRequired": "Datum ist erforderlich",
-        "dateInvalidFormat": "Datum muss im Format JJJJ-MM-TT vorliegen"
-      }
+      "descriptionPlaceholder": "z. B. Wocheneinkauf, Gehaltszahlung, Kaffee mit Freunden"
     },
-    "createTextFailed": "Transaktion konnte nicht erstellt werden. Bitte versuchen Sie es erneut.",
     "errors": {
       "fetchFailed": "Transaktionen konnten nicht geladen werden",
       "operationFailed": "Transaktionsvorgang fehlgeschlagen",
       "createFailed": "Transaktion konnte nicht erstellt werden",
       "updateFailed": "Transaktion konnte nicht aktualisiert werden",
       "deleteFailed": "Transaktion konnte nicht gelöscht werden",
-      "loadMoreFailed": "Weitere Transaktionen konnten nicht geladen werden"
+      "loadMoreFailed": "Weitere Transaktionen konnten nicht geladen werden",
+      "createFromTextFailed": "Transaktion konnte nicht erstellt werden. Bitte versuchen Sie es erneut.",
+      "accountRequired": "Konto ist erforderlich",
+      "typeRequired": "Transaktionstyp ist erforderlich",
+      "typeInvalid": "Transaktionstyp muss Einnahme, Ausgabe oder Erstattung sein",
+      "dateRequired": "Datum ist erforderlich",
+      "dateInvalidFormat": "Datum muss im Format JJJJ-MM-TT vorliegen"
     },
     "filterBar": {
       "account": "Konto",
@@ -222,15 +216,10 @@
   },
   "transfers": {
     "addTransfer": "Übertrag hinzufügen",
-    "notFound": "Übertrag nicht gefunden. Die Übertragsdaten wurden möglicherweise gelöscht.",
-    "loadFailed": "Übertragsdaten konnten nicht geladen werden. Bitte versuchen Sie es erneut.",
     "defaultDescription": "Übertrag",
     "deletedWithAmount": "Übertrag „{description}“ ({amount}) wurde gelöscht",
-    "deleteFailed": "Übertrag konnte nicht gelöscht werden. Bitte versuchen Sie es erneut.",
     "created": "Übertrag wurde erfolgreich erstellt",
-    "createFailed": "Übertrag konnte nicht erstellt werden. Bitte versuchen Sie es erneut.",
     "updated": "Übertrag wurde erfolgreich aktualisiert",
-    "updateFailed": "Übertrag konnte nicht aktualisiert werden. Bitte versuchen Sie es erneut.",
     "deleteDialog": {
       "title": "Übertrag löschen",
       "message": "Möchten Sie diesen Übertrag von {amount} von „{from}“ nach „{to}“ wirklich löschen?",
@@ -244,15 +233,20 @@
       "swapAccounts": "Konten vertauschen",
       "fromAccount": "Von Konto",
       "toAccount": "Zu Konto",
-      "descriptionPlaceholder": "z. B. Monatliche Sparüberweisung, Einzahlung Notfallfonds",
-      "errors": {
-        "fromAccountRequired": "Quellkonto ist erforderlich",
-        "toAccountRequired": "Zielkonto ist erforderlich",
-        "accountsMustDiffer": "Quell- und Zielkonto müssen unterschiedlich sein",
-        "currencyMustMatch": "Quell- und Zielkonto müssen dieselbe Währung haben"
-      }
+      "descriptionPlaceholder": "z. B. Monatliche Sparüberweisung, Einzahlung Notfallfonds"
     },
-    "operationFailed": "Übertragsvorgang fehlgeschlagen"
+    "errors": {
+      "notFound": "Übertrag nicht gefunden. Die Übertragsdaten wurden möglicherweise gelöscht.",
+      "loadFailed": "Übertragsdaten konnten nicht geladen werden. Bitte versuchen Sie es erneut.",
+      "deleteFailed": "Übertrag konnte nicht gelöscht werden. Bitte versuchen Sie es erneut.",
+      "createFailed": "Übertrag konnte nicht erstellt werden. Bitte versuchen Sie es erneut.",
+      "updateFailed": "Übertrag konnte nicht aktualisiert werden. Bitte versuchen Sie es erneut.",
+      "operationFailed": "Übertragsvorgang fehlgeschlagen",
+      "fromAccountRequired": "Quellkonto ist erforderlich",
+      "toAccountRequired": "Zielkonto ist erforderlich",
+      "accountsMustDiffer": "Quell- und Zielkonto müssen unterschiedlich sein",
+      "currencyMustMatch": "Quell- und Zielkonto müssen dieselbe Währung haben"
+    }
   },
   "signIn": {
     "welcome": "Willkommen beim Persönlichen Budget-Tracker",

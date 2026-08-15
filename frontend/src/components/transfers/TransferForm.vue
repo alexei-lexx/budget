@@ -101,20 +101,20 @@ const amountFieldRef = ref();
 
 // Validation rules
 const fromAccountRules: CheckRule[] = [
-  (value: string) => !!value || t("transfers.form.errors.fromAccountRequired"),
+  (value: string) => !!value || t("transfers.errors.fromAccountRequired"),
 ];
 
 const toAccountRules: CheckRule[] = [
-  (value: string) => !!value || t("transfers.form.errors.toAccountRequired"),
+  (value: string) => !!value || t("transfers.errors.toAccountRequired"),
 ];
 
 const amountRules = createCurrencyAmountRules(t);
 
 const dateRules: CheckRule[] = [
-  (value: string) => !!value || t("transactions.form.errors.dateRequired"),
+  (value: string) => !!value || t("transactions.errors.dateRequired"),
   (value: string) => {
     const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-    return dateRegex.test(value) || t("transactions.form.errors.dateInvalidFormat");
+    return dateRegex.test(value) || t("transactions.errors.dateInvalidFormat");
   },
 ];
 
@@ -127,14 +127,14 @@ const accountValidationRules: CheckRule[] = [
 
     // Check if same account selected for both
     if (formData.value.fromAccountId === formData.value.toAccountId) {
-      return t("transfers.form.errors.accountsMustDiffer");
+      return t("transfers.errors.accountsMustDiffer");
     }
 
     const fromAccount = accounts.value.find((a) => a.id === formData.value.fromAccountId);
     const toAccount = accounts.value.find((a) => a.id === formData.value.toAccountId);
 
     if (fromAccount && toAccount && fromAccount.currency !== toAccount.currency) {
-      return t("transfers.form.errors.currencyMustMatch");
+      return t("transfers.errors.currencyMustMatch");
     }
     return true;
   },

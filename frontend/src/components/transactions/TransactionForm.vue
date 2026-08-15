@@ -85,22 +85,22 @@ const amountFieldRef = ref();
 
 // Validation rules
 const accountRules: CheckRule[] = [
-  (value: string) => !!value || t("transactions.form.errors.accountRequired"),
+  (value: string) => !!value || t("transactions.errors.accountRequired"),
 ];
 
 const typeRules: CheckRule<TransactionType>[] = [
-  (value: TransactionType) => !!value || t("transactions.form.errors.typeRequired"),
+  (value: TransactionType) => !!value || t("transactions.errors.typeRequired"),
   (value: TransactionType) =>
-    ["INCOME", "EXPENSE", "REFUND"].includes(value) || t("transactions.form.errors.typeInvalid"),
+    ["INCOME", "EXPENSE", "REFUND"].includes(value) || t("transactions.errors.typeInvalid"),
 ];
 
 const amountRules = createCurrencyAmountRules(t);
 
 const dateRules: CheckRule[] = [
-  (value: string) => !!value || t("transactions.form.errors.dateRequired"),
+  (value: string) => !!value || t("transactions.errors.dateRequired"),
   (value: string) => {
     const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-    return dateRegex.test(value) || t("transactions.form.errors.dateInvalidFormat");
+    return dateRegex.test(value) || t("transactions.errors.dateInvalidFormat");
   },
 ];
 

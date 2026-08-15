@@ -48,7 +48,8 @@ export function useCreateTransactionFromText() {
       if (abortController?.signal.aborted) {
         return null;
       }
-      const message = e instanceof Error ? e.message : t("transactions.createTextFailed");
+      const message =
+        e instanceof Error ? e.message : t("transactions.errors.createFromTextFailed");
       showErrorSnackbar(message);
       // text is intentionally NOT cleared on error
       return null;

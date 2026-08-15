@@ -47,7 +47,7 @@ export function useTransfers() {
       const error = createError || updateError || deleteError;
       if (error) {
         console.error("Transfer mutation failed:", error);
-        transfersError.value = error.message || t("transfers.operationFailed");
+        transfersError.value = error.message || t("transfers.errors.operationFailed");
       }
     },
   );
@@ -65,7 +65,8 @@ export function useTransfers() {
       return null;
     } catch (error) {
       console.error("Error creating transfer:", error);
-      transfersError.value = error instanceof Error ? error.message : t("transfers.createFailed");
+      transfersError.value =
+        error instanceof Error ? error.message : t("transfers.errors.createFailed");
       return null;
     }
   };
@@ -86,7 +87,8 @@ export function useTransfers() {
       return null;
     } catch (error) {
       console.error("Error updating transfer:", error);
-      transfersError.value = error instanceof Error ? error.message : t("transfers.updateFailed");
+      transfersError.value =
+        error instanceof Error ? error.message : t("transfers.errors.updateFailed");
       return null;
     }
   };
@@ -102,7 +104,8 @@ export function useTransfers() {
       return false;
     } catch (error) {
       console.error("Error deleting transfer:", error);
-      transfersError.value = error instanceof Error ? error.message : t("transfers.deleteFailed");
+      transfersError.value =
+        error instanceof Error ? error.message : t("transfers.errors.deleteFailed");
       return false;
     }
   };
@@ -123,7 +126,8 @@ export function useTransfers() {
       return null;
     } catch (error) {
       console.error("Error getting transfer:", error);
-      transfersError.value = error instanceof Error ? error.message : t("transfers.loadFailed");
+      transfersError.value =
+        error instanceof Error ? error.message : t("transfers.errors.loadFailed");
       return null;
     }
   };

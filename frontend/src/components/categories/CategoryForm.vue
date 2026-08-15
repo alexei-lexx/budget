@@ -55,14 +55,14 @@ const isFormValid = computed(() => {
 
 // Validation rules
 const nameRules: CheckRule<string>[] = [
-  (v) => !!v || t("categories.form.errors.nameRequired"),
-  (v) => (v && v.trim().length > 0) || t("categories.form.errors.nameNotEmpty"),
-  (v) => (v && v.length <= 100) || t("categories.form.errors.nameTooLong"),
+  (v) => !!v || t("categories.errors.nameRequired"),
+  (v) => (v && v.trim().length > 0) || t("categories.errors.nameNotEmpty"),
+  (v) => (v && v.length <= 100) || t("categories.errors.nameTooLong"),
 ];
 
 const typeRules: CheckRule<CategoryType>[] = [
-  (v) => !!v || t("categories.form.errors.typeRequired"),
-  (v) => ["INCOME", "EXPENSE"].includes(v) || t("categories.form.errors.typeInvalid"),
+  (v) => !!v || t("categories.errors.typeRequired"),
+  (v) => ["INCOME", "EXPENSE"].includes(v) || t("categories.errors.typeInvalid"),
 ];
 
 // Category type options
