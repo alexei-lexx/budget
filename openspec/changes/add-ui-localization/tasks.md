@@ -13,7 +13,7 @@
 - [x] 2.1 Synchronize the frontend schema and regenerate typed GraphQL operations for the new user-settings fields and supported-language query.
 - [x] 2.2 Add Vue I18n and configure a single application I18n instance with complete English and German catalogs plus Vuetify's Vue I18n locale adapter.
 - [x] 2.3 Create the locale controller/composable that loads authenticated user settings, defaults to English while unavailable or invalid, applies the saved language before authenticated content renders, and updates immediately after saving.
-- [x] 2.4 Update format helpers and inline date/currency formatting call sites to use browser locale conventions rather than a forced `en-US` or the active interface language.
+- [x] 2.4 Update format helpers and inline date/currency formatting call sites to use browser locale conventions rather than a forced `en-US` or the active interface language, except spelled-out month names, which use the active interface language.
 
 ## 3. Settings and UI Migration
 

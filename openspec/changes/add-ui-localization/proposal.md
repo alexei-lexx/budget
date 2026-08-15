@@ -8,7 +8,7 @@ The interface is English-only, with user-visible strings scattered across Vue co
 
 - Add frontend localization infrastructure with complete English and German UI message catalogs.
 - Replace all client-owned UI text, accessibility labels, validation messages, snackbars, and fallback errors with localized messages.
-- Format dates and currency amounts using the browser locale independently of the selected interface language.
+- Format dates and currency amounts using the browser locale independently of the selected interface language, except spelled-out date components (such as month names), which follow the interface language.
 - Add an Interface language selector to Settings, defaulting to English and persisting the selection to the user's account.
 - Keep backend GraphQL error-message localization, Cognito hosted pages, Telegram messages, and AI output out of scope.
 

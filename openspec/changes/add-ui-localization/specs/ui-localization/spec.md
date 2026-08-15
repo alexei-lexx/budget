@@ -22,19 +22,19 @@ The system SHALL present all client-owned visible and accessible interface text 
 
 ### Requirement: Browser-locale financial and date formatting
 
-The system SHALL format dates and monetary amounts according to the browser locale independently of the user's selected interface language.
+The system SHALL format dates and monetary amounts according to the browser locale independently of the user's selected interface language, except spelled-out date components such as month names, which SHALL follow the interface language as part of the localized interface text.
 
-#### Scenario: Browser locale is German while interface language is English
+#### Scenario: Currency amount follows the browser locale
 
 - **GIVEN** the browser locale is German and the user's interface language is English
-- **WHEN** they view a date or monetary amount in the application
-- **THEN** the value is displayed using German locale conventions
+- **WHEN** they view a transaction of 1234.5 EUR
+- **THEN** the amount is displayed as "1.234,50 €", not "€1,234.50"
 
-#### Scenario: Browser locale is United States English while interface language is German
+#### Scenario: Month name follows the interface language
 
-- **GIVEN** the browser locale is United States English and the user's interface language is German
-- **WHEN** they view a date or monetary amount in the application
-- **THEN** the value is displayed using United States English (`en-US`) locale conventions
+- **GIVEN** the browser locale is English and the user's interface language is German
+- **WHEN** they view the monthly report header for March 2024
+- **THEN** it reads "März 2024", not "March 2024"
 
 ### Requirement: Preserve user-provided content
 

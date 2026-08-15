@@ -63,9 +63,9 @@ Alternatives considered:
 - Fetching settings only in `Settings.vue` would load the preference after navigating there, leaving other authenticated pages in the default language.
 - Browser storage would apply a locale before the account setting is read, but would duplicate account state and not follow the user across devices.
 
-### Keep financial and date formatting bound to the browser locale
+### Keep financial and date formatting bound to the browser locale, except spelled-out month names
 
-Formatting helpers use the browser's `Intl` default locale (or `navigator.language` when explicitly needed), never the active I18n locale. Existing display helpers that force `en-US` will be changed. User-provided names, descriptions, assistant responses, and server-generated messages remain values, not translation keys.
+Formatting helpers use the browser's `Intl` default locale (or `navigator.language` when explicitly needed), never the active I18n locale — except date displays that include spelled-out components such as month names, which use the active I18n locale so the wording matches the rest of the interface text. Existing display helpers that force `en-US` will be changed. User-provided names, descriptions, assistant responses, and server-generated messages remain values, not translation keys.
 
 Alternatives considered:
 
@@ -81,14 +81,14 @@ Update `backend/src/graphql/schema.graphql` first, regenerate backend types, syn
 - [A client-owned string remains hard-coded] → Audit user-visible frontend literals and verify both catalogs contain the required keys.
 - [A supported tag has no matching catalog] → Keep the backend list and catalog additions in the same change, and fall back to `en` for an invalid persisted legacy value.
 - [The saved locale is unavailable immediately after sign-in] → Default to English and defer authenticated content until user settings have initialized the locale.
-- [Browser conventions differ from the selected interface language] → Keep formatters independent and verify the specified cross-locale scenarios.
+- [Browser conventions differ from the selected interface language] → Keep formatters bound to the browser locale independent of interface language, except spelled-out month names which follow it, and verify the specified cross-locale scenarios.
 - [Older DynamoDB records lack the setting] → Treat a missing field as `en`; the optional persistence attribute requires no data migration.
 
 ## Migration Plan
 
 1. Deploy the backward-compatible backend schema, optional persistence field, validated supported-list query, and `en` default first.
 2. Regenerate backend and frontend GraphQL types, then deploy the frontend catalogs, locale controller, formatters, and Settings selector.
-3. Verify an existing user defaults to English, a user who saves `de` sees German after a new sign-in, the selector obtains `en` and `de` from the API, and browser-localized amounts/dates do not change with the interface language.
+3. Verify an existing user defaults to English, a user who saves `de` sees German after a new sign-in, the selector obtains `en` and `de` from the API, and browser-localized amounts/dates do not change with the interface language except spelled-out month names, which do.
 4. For rollback, deploy the previous frontend before the previous backend. Older code safely ignores the optional stored field; no data rollback is required.
 
 ## Constitution Compliance
