@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import { checkRules, type CheckRule } from "@/utils/validation";
 import type { CategoryType } from "@/composables/useCategories";
 import { getCategoryIcon, getCategoryIconColor } from "@/utils/category";
@@ -31,6 +32,8 @@ const emit = defineEmits<{
   cancel: [];
 }>();
 
+const { t } = useI18n();
+
 // Form data
 const formData = ref<Category>({
   name: "",
@@ -52,36 +55,40 @@ const isFormValid = computed(() => {
 
 // Validation rules
 const nameRules: CheckRule<string>[] = [
-  (v) => !!v || "Category name is required",
-  (v) => (v && v.trim().length > 0) || "Category name cannot be empty",
-  (v) => (v && v.length <= 100) || "Category name cannot exceed 100 characters",
+  (v) => !!v || t("categories.errors.nameRequired"),
+  (v) => (v && v.trim().length > 0) || t("categories.errors.nameNotEmpty"),
+  (v) => (v && v.length <= 100) || t("categories.errors.nameTooLong"),
 ];
 
 const typeRules: CheckRule<CategoryType>[] = [
-  (v) => !!v || "Category type is required",
-  (v) => ["INCOME", "EXPENSE"].includes(v) || "Category type must be either Income or Expense",
+  (v) => !!v || t("categories.errors.typeRequired"),
+  (v) => ["INCOME", "EXPENSE"].includes(v) || t("categories.errors.typeInvalid"),
 ];
 
 // Category type options
-const categoryTypeOptions = [
+const categoryTypeOptions = computed(() => [
   {
-    title: "Income",
+    title: t("categories.types.income"),
     value: "INCOME" as CategoryType,
     icon: getCategoryIcon("INCOME"),
     color: getCategoryIconColor("INCOME"),
   },
   {
-    title: "Expense",
+    title: t("categories.types.expense"),
     value: "EXPENSE" as CategoryType,
     icon: getCategoryIcon("EXPENSE"),
     color: getCategoryIconColor("EXPENSE"),
   },
-];
+]);
 
 // Computed properties
 const isEditing = computed(() => !!props.category?.id);
-const formTitle = computed(() => (isEditing.value ? "Edit Category" : "Create New Category"));
-const submitButtonText = computed(() => (isEditing.value ? "Update" : "Create"));
+const formTitle = computed(() =>
+  isEditing.value ? t("categories.form.editTitle") : t("categories.form.createTitle"),
+);
+const submitButtonText = computed(() =>
+  isEditing.value ? t("categories.form.update") : t("categories.form.create"),
+);
 
 // Watch for category prop changes (for editing)
 watch(
@@ -132,11 +139,9 @@ const handleCancel = () => {
 
 // Example category names for different types
 const exampleNames = computed(() => {
-  if (formData.value.type === "INCOME") {
-    return ["Salary", "Freelance", "Investment", "Bonus"];
-  } else {
-    return ["Groceries", "Rent", "Utilities", "Entertainment"];
-  }
+  return formData.value.type === "INCOME"
+    ? t("categories.form.exampleNamesIncome")
+    : t("categories.form.exampleNamesExpense");
 });
 </script>
 
@@ -161,8 +166,8 @@ const exampleNames = computed(() => {
             <!-- Category Name -->
             <v-text-field
               v-model="formData.name"
-              label="Category Name"
-              :placeholder="`e.g., ${exampleNames.join(', ')}`"
+              :label="t('categories.form.nameLabel')"
+              :placeholder="t('categories.form.namePlaceholder', { examples: exampleNames })"
               :rules="nameRules"
               :disabled="loading"
               variant="outlined"
@@ -176,7 +181,7 @@ const exampleNames = computed(() => {
             <!-- Category Type Selection -->
             <v-select
               v-model="formData.type"
-              label="Category Type"
+              :label="t('categories.form.typeLabel')"
               :items="categoryTypeOptions"
               :rules="typeRules"
               :disabled="loading"
@@ -203,13 +208,13 @@ const exampleNames = computed(() => {
             <!-- Exclude from Reports Toggle -->
             <v-switch
               v-model="formData.excludeFromReports"
-              label="Exclude from reports"
+              :label="t('categories.form.excludeFromReportsLabel')"
               :disabled="loading"
               color="primary"
               hide-details="auto"
             ></v-switch>
             <div class="text-caption text-medium-emphasis mt-1 ml-1">
-              When enabled, transactions in this category won't appear in monthly reports
+              {{ t("categories.form.excludeFromReportsHint") }}
             </div>
           </v-col>
         </v-row>
@@ -218,7 +223,7 @@ const exampleNames = computed(() => {
 
     <v-card-actions class="px-6 pb-6" :class="{ 'flex-column ga-2': $vuetify.display.xs }">
       <v-btn variant="text" @click="handleCancel" :disabled="loading" :block="$vuetify.display.xs">
-        Cancel
+        {{ t("common.buttons.cancel") }}
       </v-btn>
 
       <v-spacer v-if="$vuetify.display.smAndUp"></v-spacer>

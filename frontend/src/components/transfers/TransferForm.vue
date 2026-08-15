@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import { getCurrencySymbol } from "@/utils/currency";
 import { checkRules, type CheckRule } from "@/utils/validation";
-import { currencyAmountRules } from "@/utils/currencyValidation";
+import { createAmountRules } from "@/utils/amountValidation";
 import { getTodayDateString } from "@/utils/date";
 import { useAccounts } from "@/composables/useAccounts";
 import AccountSelect from "@/components/common/AccountSelect.vue";
@@ -30,6 +31,8 @@ const props = withDefaults(defineProps<Props>(), {
   loading: false,
 });
 
+const { t } = useI18n();
+
 // Use composables
 const { accounts: accountsData } = useAccounts();
 
@@ -40,8 +43,12 @@ const accounts = computed(() => accountsData.value?.accounts || []);
 const isEditing = computed(() => !!props.transfer?.id);
 
 // Dynamic UI content
-const formTitle = computed(() => (isEditing.value ? "Edit Transfer" : "Create New Transfer"));
-const submitButtonText = computed(() => (isEditing.value ? "Update" : "Create"));
+const formTitle = computed(() =>
+  isEditing.value ? t("transfers.form.editTitle") : t("transfers.form.createTitle"),
+);
+const submitButtonText = computed(() =>
+  isEditing.value ? t("transfers.form.update") : t("transfers.form.create"),
+);
 const titleIcon = computed(() => (isEditing.value ? "mdi-pencil" : "mdi-swap-horizontal"));
 
 // Form data
@@ -93,19 +100,21 @@ const formRef = ref();
 const amountFieldRef = ref();
 
 // Validation rules
-const fromAccountRules: CheckRule[] = [(value: string) => !!value || "Source account is required"];
-
-const toAccountRules: CheckRule[] = [
-  (value: string) => !!value || "Destination account is required",
+const fromAccountRules: CheckRule[] = [
+  (value: string) => !!value || t("transfers.errors.fromAccountRequired"),
 ];
 
-const amountRules = currencyAmountRules;
+const toAccountRules: CheckRule[] = [
+  (value: string) => !!value || t("transfers.errors.toAccountRequired"),
+];
+
+const amountRules = createAmountRules(t);
 
 const dateRules: CheckRule[] = [
-  (value: string) => !!value || "Date is required",
+  (value: string) => !!value || t("transactions.errors.dateRequired"),
   (value: string) => {
     const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-    return dateRegex.test(value) || "Date must be in YYYY-MM-DD format";
+    return dateRegex.test(value) || t("transactions.errors.dateInvalidFormat");
   },
 ];
 
@@ -118,14 +127,14 @@ const accountValidationRules: CheckRule[] = [
 
     // Check if same account selected for both
     if (formData.value.fromAccountId === formData.value.toAccountId) {
-      return "Source and destination accounts must be different";
+      return t("transfers.errors.accountsMustDiffer");
     }
 
     const fromAccount = accounts.value.find((a) => a.id === formData.value.fromAccountId);
     const toAccount = accounts.value.find((a) => a.id === formData.value.toAccountId);
 
     if (fromAccount && toAccount && fromAccount.currency !== toAccount.currency) {
-      return "Source and destination accounts must have the same currency";
+      return t("transfers.errors.currencyMustMatch");
     }
     return true;
   },
@@ -213,7 +222,7 @@ const handleSwapAccounts = () => {
         size="small"
         :disabled="loading || !formData.fromAccountId || !formData.toAccountId"
         @click="handleSwapAccounts"
-        title="Swap accounts"
+        :title="t('transfers.form.swapAccounts')"
       >
       </v-btn>
     </v-card-title>
@@ -230,7 +239,7 @@ const handleSwapAccounts = () => {
             <!-- From Account Selection -->
             <AccountSelect
               v-model="formData.fromAccountId"
-              label="From Account"
+              :label="t('transfers.form.fromAccount')"
               :rules="[...fromAccountRules, ...accountValidationRules]"
               :disabled="loading"
               required
@@ -241,7 +250,7 @@ const handleSwapAccounts = () => {
             <!-- To Account Selection -->
             <AccountSelect
               v-model="formData.toAccountId"
-              label="To Account"
+              :label="t('transfers.form.toAccount')"
               :rules="[...toAccountRules, ...accountValidationRules]"
               :disabled="loading"
               required
@@ -256,7 +265,7 @@ const handleSwapAccounts = () => {
               type="number"
               step="1"
               min="0"
-              label="Amount"
+              :label="t('transactions.form.amount')"
               :rules="amountRules"
               :disabled="loading"
               variant="outlined"
@@ -275,7 +284,7 @@ const handleSwapAccounts = () => {
             <v-text-field
               v-model="formData.date"
               type="date"
-              label="Date"
+              :label="t('transactions.form.date')"
               :rules="dateRules"
               :disabled="loading"
               variant="outlined"
@@ -286,8 +295,8 @@ const handleSwapAccounts = () => {
             <!-- Description (Full Width) -->
             <DescriptionAutocomplete
               v-model="descriptionValue"
-              label="Description (Optional)"
-              placeholder="e.g., Monthly savings transfer, Emergency fund contribution"
+              :label="t('transactions.form.descriptionOptional')"
+              :placeholder="t('transfers.form.descriptionPlaceholder')"
               :disabled="loading"
               variant="outlined"
             />
@@ -298,7 +307,7 @@ const handleSwapAccounts = () => {
 
     <v-card-actions class="px-6 pb-6" :class="{ 'flex-column ga-2': $vuetify.display.xs }">
       <v-btn variant="text" @click="handleCancel" :disabled="loading" :block="$vuetify.display.xs">
-        Cancel
+        {{ t("common.buttons.cancel") }}
       </v-btn>
 
       <v-spacer v-if="$vuetify.display.smAndUp"></v-spacer>

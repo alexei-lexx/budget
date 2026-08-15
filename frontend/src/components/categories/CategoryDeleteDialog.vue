@@ -1,9 +1,9 @@
 <template>
   <DeleteConfirmationDialog
     :model-value="modelValue"
-    title="Delete Category"
+    :title="t('categories.deleteDialog.title')"
     :message="message"
-    warning="This action cannot be undone. The category will be permanently removed from your records, but historical transaction data will be preserved."
+    :warning="t('categories.deleteDialog.warning')"
     @update:model-value="$emit('update:modelValue', $event)"
     @confirm="$emit('confirm')"
     @cancel="$emit('cancel')"
@@ -12,6 +12,7 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 import DeleteConfirmationDialog from "@/components/common/DeleteConfirmationDialog.vue";
 import type { Category } from "@/composables/useCategories";
 
@@ -29,8 +30,10 @@ interface Emits {
 const props = defineProps<Props>();
 defineEmits<Emits>();
 
+const { t } = useI18n();
+
 const message = computed(() => {
   if (!props.category) return "";
-  return `Are you sure you want to delete the category "${props.category.name}"?`;
+  return t("categories.deleteDialog.message", { name: props.category.name });
 });
 </script>

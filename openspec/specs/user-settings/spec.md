@@ -32,6 +32,34 @@ The system SHALL load the user's current saved settings from the backend when th
 - **WHEN** they open the Settings page
 - **THEN** the voice input language dropdown shows the best match for the browser language from the supported language list, falling back to English (United States) if no match is found, and the shortcuts limit field shows the system default (3)
 
+### Requirement: Interface Language Setting
+
+The system SHALL provide an Interface language selector on the Settings page with English and German options. The selected interface language SHALL be stored with the user's account independently of the voice input language.
+
+#### Scenario: User selects an interface language
+
+- **GIVEN** an authenticated user on the Settings page
+- **WHEN** they select German as the interface language and save their settings
+- **THEN** German is stored as their interface-language preference without changing their voice input language
+
+#### Scenario: Saved interface language is restored
+
+- **GIVEN** a user has saved German as their interface language
+- **WHEN** they sign in on any device
+- **THEN** the application uses German as the interface language
+
+#### Scenario: Interface language defaults to English
+
+- **GIVEN** a user has not saved an interface-language preference
+- **WHEN** they sign in or open Settings
+- **THEN** English is used and shown as the interface language
+
+#### Scenario: Interface language changes immediately after saving
+
+- **GIVEN** an authenticated user is using the application in English
+- **WHEN** they save German as the interface language
+- **THEN** the application interface changes to German without requiring another sign-in
+
 ### Requirement: Voice Input Language Setting
 
 The system SHALL provide a dropdown of common languages for voice input recognition, displaying human-readable language names without requiring additional packages. The selected language SHALL be saved to the backend and applied whenever voice input is used.
@@ -40,7 +68,7 @@ The system SHALL provide a dropdown of common languages for voice input recognit
 
 - **GIVEN** the Settings page is open
 - **WHEN** the user views the voice input language dropdown
-- **THEN** each option displays a human-readable language name rendered in the user's browser language (e.g., "English", "Polski", "Deutsch" when the browser language is Polish)
+- **THEN** each option displays a human-readable language name rendered in the user's selected interface language
 
 #### Scenario: Selecting and saving a language applies it to voice input
 

@@ -1,5 +1,9 @@
 import { User } from "../models/user";
 import { UserRepository } from "../ports/user-repository";
+import {
+  DEFAULT_INTERFACE_LANGUAGE,
+  isSupportedInterfaceLanguage,
+} from "../types/language";
 import { Failure, Result, Success } from "../types/result";
 import {
   DEFAULT_TRANSACTION_PATTERNS_LIMIT,
@@ -8,6 +12,7 @@ import {
 } from "./transaction-service";
 
 export interface UserSettingsData {
+  interfaceLanguage: string;
   transactionPatternsLimit: number;
   voiceInputLanguage?: string;
   mcpUrl: string;
@@ -47,10 +52,12 @@ export class UserService {
 
   async updateSettings({
     userId,
+    interfaceLanguage,
     transactionPatternsLimit,
     voiceInputLanguage,
   }: {
     userId: string;
+    interfaceLanguage?: string;
     transactionPatternsLimit?: number;
     voiceInputLanguage?: string;
   }): Promise<Result<UserSettingsData>> {
@@ -69,6 +76,13 @@ export class UserService {
       );
     }
 
+    if (
+      interfaceLanguage !== undefined &&
+      !isSupportedInterfaceLanguage(interfaceLanguage)
+    ) {
+      return Failure(`Unsupported interface language: ${interfaceLanguage}`);
+    }
+
     const user = await this.userRepository.findOneById(userId);
 
     if (!user) {
@@ -76,6 +90,7 @@ export class UserService {
     }
 
     const updated = user.update({
+      interfaceLanguage,
       transactionPatternsLimit,
       voiceInputLanguage,
     });
@@ -101,6 +116,7 @@ export class UserService {
 
   private buildSettingsData(user: User) {
     return {
+      interfaceLanguage: user.interfaceLanguage ?? DEFAULT_INTERFACE_LANGUAGE,
       mcpUrl: this.buildMcpUrl(user),
       transactionPatternsLimit:
         user.transactionPatternsLimit ?? DEFAULT_TRANSACTION_PATTERNS_LIMIT,

@@ -1,9 +1,9 @@
 <template>
   <DeleteConfirmationDialog
     :model-value="modelValue"
-    title="Delete Transfer"
+    :title="t('transfers.deleteDialog.title')"
     :message="message"
-    warning="This action cannot be undone. Both the outbound and inbound transactions will be permanently removed from your records."
+    :warning="t('transfers.deleteDialog.warning')"
     @update:model-value="$emit('update:modelValue', $event)"
     @confirm="$emit('confirm')"
     @cancel="$emit('cancel')"
@@ -12,6 +12,7 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 import DeleteConfirmationDialog from "@/components/common/DeleteConfirmationDialog.vue";
 import type { Transaction } from "@/composables/useTransactions";
 import { formatTransactionAmount } from "@/utils/currency";
@@ -32,6 +33,8 @@ interface Emits {
 const props = defineProps<Props>();
 defineEmits<Emits>();
 
+const { t } = useI18n();
+
 const message = computed(() => {
   if (!props.transaction) return "";
 
@@ -41,9 +44,10 @@ const message = computed(() => {
     "TRANSFER_IN", // Use TRANSFER_IN type to ensure positive formatting
   );
 
-  const fromAccount = props.fromAccountName || "Unknown Account";
-  const toAccount = props.toAccountName || "Unknown Account";
-
-  return `Are you sure you want to delete this transfer of ${formattedAmount} from "${fromAccount}" to "${toAccount}"?`;
+  return t("transfers.deleteDialog.message", {
+    amount: formattedAmount,
+    from: props.fromAccountName || t("common.unknownAccount"),
+    to: props.toAccountName || t("common.unknownAccount"),
+  });
 });
 </script>

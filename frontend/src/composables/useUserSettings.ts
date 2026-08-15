@@ -1,6 +1,7 @@
 import { computed } from "vue";
 import {
   GetUserSettingsDocument,
+  useGetSupportedInterfaceLanguagesQuery,
   useGetUserSettingsQuery,
   useRegenerateMcpTokenMutation,
   useUpdateUserSettingsMutation,
@@ -13,6 +14,12 @@ export function useUserSettings() {
     loading: settingsLoading,
     error: settingsError,
   } = useGetUserSettingsQuery();
+
+  const { result: supportedInterfaceLanguagesResult } = useGetSupportedInterfaceLanguagesQuery();
+
+  const supportedInterfaceLanguages = computed(
+    () => supportedInterfaceLanguagesResult.value?.supportedInterfaceLanguages ?? [],
+  );
 
   const {
     mutate: updateSettingsMutation,
@@ -66,6 +73,7 @@ export function useUserSettings() {
     settings,
     settingsLoading,
     settingsError,
+    supportedInterfaceLanguages,
     updateSettings,
     updateSettingsLoading,
     updateSettingsError,

@@ -292,6 +292,7 @@ export type Query = {
   byCategoryReport: ByCategoryReport;
   categories: Array<Category>;
   supportedCurrencies: Array<Scalars['String']['output']>;
+  supportedInterfaceLanguages: Array<Scalars['String']['output']>;
   telegramBot?: Maybe<TelegramBot>;
   testTelegramBot?: Maybe<Scalars['Boolean']['output']>;
   transactionDescriptionSuggestions: Array<Scalars['String']['output']>;
@@ -462,6 +463,7 @@ export type UpdateTransferInput = {
 };
 
 export type UpdateUserSettingsInput = {
+  interfaceLanguage?: InputMaybe<Scalars['String']['input']>;
   transactionPatternsLimit?: InputMaybe<Scalars['Int']['input']>;
   voiceInputLanguage?: InputMaybe<Scalars['String']['input']>;
 };
@@ -473,6 +475,7 @@ export type User = {
 
 export type UserSettings = {
   __typename?: 'UserSettings';
+  interfaceLanguage: Scalars['String']['output'];
   mcpUrl: Scalars['String']['output'];
   transactionPatternsLimit: Scalars['Int']['output'];
   voiceInputLanguage?: Maybe<Scalars['String']['output']>;
@@ -804,6 +807,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   byCategoryReport?: Resolver<ResolversTypes['ByCategoryReport'], ParentType, ContextType, RequireFields<QueryByCategoryReportArgs, 'type' | 'year'>>;
   categories?: Resolver<Array<ResolversTypes['Category']>, ParentType, ContextType, Partial<QueryCategoriesArgs>>;
   supportedCurrencies?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  supportedInterfaceLanguages?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   telegramBot?: Resolver<Maybe<ResolversTypes['TelegramBot']>, ParentType, ContextType>;
   testTelegramBot?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   transactionDescriptionSuggestions?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType, RequireFields<QueryTransactionDescriptionSuggestionsArgs, 'searchText'>>;
@@ -877,6 +881,7 @@ export type UserResolvers<ContextType = GraphQLContext, ParentType extends Resol
 };
 
 export type UserSettingsResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['UserSettings'] = ResolversParentTypes['UserSettings']> = {
+  interfaceLanguage?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   mcpUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   transactionPatternsLimit?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   voiceInputLanguage?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;

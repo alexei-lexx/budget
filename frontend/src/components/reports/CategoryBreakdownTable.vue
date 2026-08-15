@@ -9,12 +9,12 @@
         class="d-flex mb-3"
       >
         <v-chip value="category" size="small" variant="outlined">
-          category
+          {{ t("reports.table.sortByCategory") }}
           <v-icon end>mdi-sort-alphabetical-ascending</v-icon>
         </v-chip>
         <v-spacer />
         <v-chip value="amount" size="small" variant="outlined">
-          amount
+          {{ t("reports.table.sortByAmount") }}
           <v-icon end>mdi-sort-numeric-descending</v-icon>
         </v-chip>
       </v-chip-group>
@@ -25,15 +25,15 @@
 
       <div v-else-if="error" class="text-center pa-4">
         <v-icon size="48" color="error" class="mb-2">mdi-alert-circle</v-icon>
-        <div class="text-h6 text-error mb-2">Failed to load category breakdown</div>
+        <div class="text-h6 text-error mb-2">{{ t("reports.errors.loadFailedTitle") }}</div>
         <div class="text-body-1 text-medium-emphasis">{{ error }}</div>
       </div>
 
       <v-empty-state
         v-else-if="!categories || categories.length === 0"
         icon="mdi-file-document-outline"
-        title="No transactions found"
-        text="There are no expense transactions for this month."
+        :title="t('reports.table.emptyTitle')"
+        :text="t('reports.table.emptyText')"
       />
 
       <div v-else>
@@ -78,8 +78,12 @@
                       class="mb-2"
                     >
                       <v-chip size="small" color="primary" variant="tonal">
-                        Showing {{ category.topTransactions.length }} of
-                        {{ category.totalTransactionCount }}
+                        {{
+                          t("reports.table.showingCount", {
+                            shown: category.topTransactions.length,
+                            total: category.totalTransactionCount,
+                          })
+                        }}
                       </v-chip>
                     </div>
 
@@ -102,7 +106,9 @@
           </tbody>
           <tfoot v-if="currencyTotals.length > 0">
             <tr v-for="(total, index) in currencyTotals" :key="index">
-              <th v-if="index === 0" :rowspan="currencyTotals.length" class="text-h6">Total</th>
+              <th v-if="index === 0" :rowspan="currencyTotals.length" class="text-h6">
+                {{ t("reports.table.total") }}
+              </th>
               <th class="text-right text-h6 text-high-emphasis">
                 {{ formatCurrency(total.totalAmount, total.currency) }}
               </th>
@@ -117,6 +123,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from "vue";
+import { useI18n } from "vue-i18n";
 import type {
   ByCategoryReportCategory,
   ByCategoryReportCurrencyTotal,
@@ -138,6 +145,8 @@ const props = withDefaults(defineProps<Props>(), {
   loading: false,
   error: null,
 });
+
+const { t } = useI18n();
 
 // Sort options state
 const sortBy = ref<"category" | "amount">("amount");

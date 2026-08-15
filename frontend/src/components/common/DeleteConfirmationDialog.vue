@@ -22,9 +22,11 @@
 
       <v-card-actions :class="{ 'flex-column ga-2': $vuetify.display.xs }">
         <v-spacer v-if="$vuetify.display.smAndUp"></v-spacer>
-        <v-btn variant="text" @click="$emit('cancel')" :block="$vuetify.display.xs"> Cancel </v-btn>
+        <v-btn variant="text" @click="$emit('cancel')" :block="$vuetify.display.xs">
+          {{ t("common.buttons.cancel") }}
+        </v-btn>
         <v-btn color="error" variant="flat" @click="$emit('confirm')" :block="$vuetify.display.xs">
-          Delete
+          {{ t("common.buttons.delete") }}
         </v-btn>
       </v-card-actions>
     </v-card>
@@ -32,6 +34,8 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
+
 interface Props {
   /** Controls whether the dialog is visible (v-model) */
   modelValue: boolean;
@@ -39,8 +43,8 @@ interface Props {
   title: string;
   /** The main confirmation message asking the user to confirm the action */
   message: string;
-  /** Optional warning text shown below the message (defaults to "This action cannot be undone.") */
-  warning?: string;
+  /** Warning text shown below the confirmation message */
+  warning: string;
 }
 
 interface Emits {
@@ -52,9 +56,9 @@ interface Emits {
   (e: "cancel"): void;
 }
 
-withDefaults(defineProps<Props>(), {
-  warning: "This action cannot be undone.",
-});
+defineProps<Props>();
 
 defineEmits<Emits>();
+
+const { t } = useI18n();
 </script>

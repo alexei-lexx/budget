@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
+import { useI18n } from "vue-i18n";
 import type { Account } from "@/composables/useAccounts";
 import AccountCard from "@/components/accounts/AccountCard.vue";
 
@@ -18,6 +19,8 @@ const emit = defineEmits<{
   editAccount: [accountId: string];
   deleteAccount: [accountId: string];
 }>();
+
+const { t } = useI18n();
 
 const accounts = computed(() => props.accounts);
 
@@ -48,15 +51,15 @@ const handleDeleteAccount = (accountId: string) => {
   <!-- Loading State -->
   <div v-if="loading" class="text-center py-8">
     <v-progress-circular indeterminate color="primary" size="64" width="4"></v-progress-circular>
-    <div class="text-h6 mt-4">Loading accounts...</div>
+    <div class="text-h6 mt-4">{{ t("accounts.loading") }}</div>
   </div>
 
   <!-- Empty State -->
   <v-empty-state
     v-else-if="accounts.length === 0"
     icon="mdi-bank-plus"
-    title="No Accounts Yet"
-    text="Get started by creating your first account to track your finances."
+    :title="t('accounts.emptyTitle')"
+    :text="t('accounts.emptyText')"
   />
 
   <!-- Accounts Grid - Optimized for Single-Line Cards -->

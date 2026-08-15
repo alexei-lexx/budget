@@ -1,9 +1,9 @@
 <template>
   <DeleteConfirmationDialog
     :model-value="modelValue"
-    title="Delete Transaction"
+    :title="t('transactions.deleteDialog.title')"
     :message="message"
-    warning="This action cannot be undone. The transaction will be permanently removed from your records."
+    :warning="t('transactions.deleteDialog.warning')"
     @update:model-value="$emit('update:modelValue', $event)"
     @confirm="$emit('confirm')"
     @cancel="$emit('cancel')"
@@ -12,6 +12,7 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 import DeleteConfirmationDialog from "@/components/common/DeleteConfirmationDialog.vue";
 import type { Transaction } from "@/composables/useTransactions";
 import { formatTransactionAmount } from "@/utils/currency";
@@ -31,6 +32,8 @@ interface Emits {
 const props = defineProps<Props>();
 defineEmits<Emits>();
 
+const { t } = useI18n();
+
 const message = computed(() => {
   if (!props.transaction) return "";
 
@@ -40,6 +43,9 @@ const message = computed(() => {
     props.transaction.type,
   );
 
-  return `Are you sure you want to delete the transaction "${props.accountName || "Unknown Account"}, ${formattedAmount}"?`;
+  return t("transactions.deleteDialog.message", {
+    account: props.accountName || t("common.unknownAccount"),
+    amount: formattedAmount,
+  });
 });
 </script>

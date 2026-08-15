@@ -1,4 +1,5 @@
 import { ref, computed, unref, type Ref } from "vue";
+import { i18n } from "@/plugins/i18n";
 import {
   useGetByCategoryReportQuery,
   type ByCategoryReport,
@@ -17,6 +18,7 @@ export type {
 };
 
 export function useByCategoryReport() {
+  const { t } = i18n.global;
   const byCategoryReportError = ref<string | null>(null);
 
   // Create a reactive function to get by-category report for a given year, month, and type
@@ -51,7 +53,7 @@ export function useByCategoryReport() {
     if (byCategoryReportQueryError.value) {
       console.error("By-category report query failed:", byCategoryReportQueryError.value);
       byCategoryReportError.value =
-        byCategoryReportQueryError.value.message || "Failed to fetch by-category report";
+        byCategoryReportQueryError.value.message || t("reports.errors.fetchFailed");
     }
 
     return {

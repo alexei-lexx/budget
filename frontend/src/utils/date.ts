@@ -5,9 +5,9 @@
 /**
  * Format month and year for display (e.g., "January 2024")
  */
-export function formatMonthYear(year: number, month: number): string {
+export function formatMonthYear(year: number, month: number, locale: string): string {
   const date = new Date(year, month - 1, 1);
-  return date.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+  return date.toLocaleDateString(locale, { month: "long", year: "numeric" });
 }
 
 /**

@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import { getCurrencySymbol } from "@/utils/currency";
 import { getTransactionTypeColor } from "@/utils/transaction";
 import { checkRules, type CheckRule } from "@/utils/validation";
-import { currencyAmountRules } from "@/utils/currencyValidation";
+import { createAmountRules } from "@/utils/amountValidation";
 import { getTodayDateString } from "@/utils/date";
 import { useAccounts } from "@/composables/useAccounts";
 import { useCategories } from "@/composables/useCategories";
@@ -41,6 +42,8 @@ function getCompatibleCategoryType(transactionType: TransactionType): string {
   // REFUND transactions use EXPENSE categories
   return transactionType === "REFUND" ? "EXPENSE" : transactionType;
 }
+
+const { t } = useI18n();
 
 // Use composables
 const { accounts: accountsData } = useAccounts();
@@ -81,22 +84,23 @@ const formRef = ref();
 const amountFieldRef = ref();
 
 // Validation rules
-const accountRules: CheckRule[] = [(value: string) => !!value || "Account is required"];
-
-const typeRules: CheckRule<TransactionType>[] = [
-  (value: TransactionType) => !!value || "Transaction type is required",
-  (value: TransactionType) =>
-    ["INCOME", "EXPENSE", "REFUND"].includes(value) ||
-    "Transaction type must be Income, Expense, or Refund",
+const accountRules: CheckRule[] = [
+  (value: string) => !!value || t("transactions.errors.accountRequired"),
 ];
 
-const amountRules = currencyAmountRules;
+const typeRules: CheckRule<TransactionType>[] = [
+  (value: TransactionType) => !!value || t("transactions.errors.typeRequired"),
+  (value: TransactionType) =>
+    ["INCOME", "EXPENSE", "REFUND"].includes(value) || t("transactions.errors.typeInvalid"),
+];
+
+const amountRules = createAmountRules(t);
 
 const dateRules: CheckRule[] = [
-  (value: string) => !!value || "Date is required",
+  (value: string) => !!value || t("transactions.errors.dateRequired"),
   (value: string) => {
     const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-    return dateRegex.test(value) || "Date must be in YYYY-MM-DD format";
+    return dateRegex.test(value) || t("transactions.errors.dateInvalidFormat");
   },
 ];
 
@@ -126,8 +130,12 @@ const currencyPrefix = computed(() => {
 
 // Computed properties for form titles and button text
 const isEditing = computed(() => !!props.transaction?.id);
-const formTitle = computed(() => (isEditing.value ? "Edit Transaction" : "Create New Transaction"));
-const submitButtonText = computed(() => (isEditing.value ? "Update" : "Create"));
+const formTitle = computed(() =>
+  isEditing.value ? t("transactions.form.editTitle") : t("transactions.form.createTitle"),
+);
+const submitButtonText = computed(() =>
+  isEditing.value ? t("transactions.form.update") : t("transactions.form.create"),
+);
 
 // Watch for type changes to clear incompatible category
 watch(
@@ -231,7 +239,7 @@ const handlePatternSelected = (pattern: { accountId: string; categoryId: string 
       >
         <!-- Transaction Type Toggle -->
         <div class="mb-4">
-          <div class="text-body-2 text-medium-emphasis mb-2">Type</div>
+          <div class="text-body-2 text-medium-emphasis mb-2">{{ t("transactions.form.type") }}</div>
           <v-btn-toggle
             v-model="formData.type"
             variant="outlined"
@@ -244,19 +252,19 @@ const handlePatternSelected = (pattern: { accountId: string; categoryId: string 
               <template #prepend>
                 <v-icon :color="getTransactionTypeColor('EXPENSE')">mdi-cash-minus</v-icon>
               </template>
-              Expense
+              {{ t("transactions.types.expense") }}
             </v-btn>
             <v-btn value="INCOME" class="flex-1-1">
               <template #prepend>
                 <v-icon :color="getTransactionTypeColor('INCOME')">mdi-cash-plus</v-icon>
               </template>
-              Income
+              {{ t("transactions.types.income") }}
             </v-btn>
             <v-btn value="REFUND" class="flex-1-1">
               <template #prepend>
                 <v-icon :color="getTransactionTypeColor('REFUND')">mdi-cash-refund</v-icon>
               </template>
-              Refund
+              {{ t("transactions.types.refund") }}
             </v-btn>
           </v-btn-toggle>
         </div>
@@ -273,7 +281,7 @@ const handlePatternSelected = (pattern: { accountId: string; categoryId: string 
             <!-- Account Selection -->
             <AccountSelect
               v-model="formData.accountId"
-              label="Account"
+              :label="t('transactions.form.account')"
               :rules="accountRules"
               :disabled="loading"
               required
@@ -287,7 +295,7 @@ const handlePatternSelected = (pattern: { accountId: string; categoryId: string 
               :items="filteredCategories"
               item-title="name"
               item-value="id"
-              label="Category (Optional)"
+              :label="t('transactions.form.categoryOptional')"
               :disabled="loading || filteredCategories.length === 0"
               variant="outlined"
               clearable
@@ -295,7 +303,11 @@ const handlePatternSelected = (pattern: { accountId: string; categoryId: string 
               <template #no-data>
                 <v-list-item>
                   <v-list-item-title class="text-medium-emphasis">
-                    No {{ formData.type.toLowerCase() }} categories available
+                    {{
+                      formData.type === "INCOME"
+                        ? t("transactions.form.noIncomeCategories")
+                        : t("transactions.form.noExpenseCategories")
+                    }}
                   </v-list-item-title>
                 </v-list-item>
               </template>
@@ -310,7 +322,7 @@ const handlePatternSelected = (pattern: { accountId: string; categoryId: string 
               type="number"
               step="1"
               min="0"
-              label="Amount"
+              :label="t('transactions.form.amount')"
               :rules="amountRules"
               :disabled="loading"
               variant="outlined"
@@ -329,7 +341,7 @@ const handlePatternSelected = (pattern: { accountId: string; categoryId: string 
             <v-text-field
               v-model="formData.date"
               type="date"
-              label="Date"
+              :label="t('transactions.form.date')"
               :rules="dateRules"
               :disabled="loading"
               variant="outlined"
@@ -340,8 +352,8 @@ const handlePatternSelected = (pattern: { accountId: string; categoryId: string 
             <!-- Description (Full Width) -->
             <DescriptionAutocomplete
               v-model="descriptionValue"
-              label="Description (Optional)"
-              placeholder="e.g., Weekly groceries, Salary payment, Coffee with friends"
+              :label="t('transactions.form.descriptionOptional')"
+              :placeholder="t('transactions.form.descriptionPlaceholder')"
               :disabled="loading"
               variant="outlined"
             />
@@ -352,7 +364,7 @@ const handlePatternSelected = (pattern: { accountId: string; categoryId: string 
 
     <v-card-actions class="px-6 pb-6" :class="{ 'flex-column ga-2': $vuetify.display.xs }">
       <v-btn variant="text" @click="handleCancel" :disabled="loading" :block="$vuetify.display.xs">
-        Cancel
+        {{ t("common.buttons.cancel") }}
       </v-btn>
 
       <v-spacer v-if="$vuetify.display.smAndUp"></v-spacer>

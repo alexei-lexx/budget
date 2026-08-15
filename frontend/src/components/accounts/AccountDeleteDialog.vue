@@ -1,9 +1,9 @@
 <template>
   <DeleteConfirmationDialog
     :model-value="modelValue"
-    title="Delete Account"
+    :title="t('accounts.deleteDialog.title')"
     :message="message"
-    warning="This action cannot be undone. The account will be permanently removed from your records, but historical transaction data will be preserved."
+    :warning="t('accounts.deleteDialog.warning')"
     @update:model-value="$emit('update:modelValue', $event)"
     @confirm="$emit('confirm')"
     @cancel="$emit('cancel')"
@@ -12,6 +12,7 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 import DeleteConfirmationDialog from "@/components/common/DeleteConfirmationDialog.vue";
 import type { Account } from "@/composables/useAccounts";
 
@@ -29,8 +30,10 @@ interface Emits {
 const props = defineProps<Props>();
 defineEmits<Emits>();
 
+const { t } = useI18n();
+
 const message = computed(() => {
   if (!props.account) return "";
-  return `Are you sure you want to delete the account "${props.account.name}"?`;
+  return t("accounts.deleteDialog.message", { name: props.account.name });
 });
 </script>

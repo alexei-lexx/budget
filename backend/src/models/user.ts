@@ -1,4 +1,5 @@
 import { randomUUID } from "crypto";
+import { isSupportedInterfaceLanguage } from "../types/language";
 import { validateEmail } from "../utils/email";
 import { ModelError } from "./model-error";
 
@@ -6,6 +7,7 @@ import { ModelError } from "./model-error";
 export interface UserData {
   id: string;
   email: string;
+  interfaceLanguage?: string;
   mcpToken: string;
   transactionPatternsLimit?: number;
   voiceInputLanguage?: string;
@@ -20,6 +22,7 @@ export interface UserData {
 export class User implements UserData {
   readonly id: string;
   readonly email: string;
+  readonly interfaceLanguage?: string;
   readonly mcpToken: string;
   readonly transactionPatternsLimit?: number;
   readonly voiceInputLanguage?: string;
@@ -54,6 +57,7 @@ export class User implements UserData {
     return {
       id: this.id,
       email: this.email,
+      interfaceLanguage: this.interfaceLanguage,
       mcpToken: this.mcpToken,
       transactionPatternsLimit: this.transactionPatternsLimit,
       voiceInputLanguage: this.voiceInputLanguage,
@@ -67,6 +71,7 @@ export class User implements UserData {
 
     const data: UserData = {
       ...this.toData(),
+      interfaceLanguage: input.interfaceLanguage ?? this.interfaceLanguage,
       transactionPatternsLimit:
         input.transactionPatternsLimit ?? this.transactionPatternsLimit,
       voiceInputLanguage: input.voiceInputLanguage ?? this.voiceInputLanguage,
@@ -95,6 +100,7 @@ export class User implements UserData {
 
     this.id = data.id;
     this.email = data.email;
+    this.interfaceLanguage = data.interfaceLanguage;
     this.mcpToken = data.mcpToken;
     this.transactionPatternsLimit = data.transactionPatternsLimit;
     this.voiceInputLanguage = data.voiceInputLanguage;
@@ -109,6 +115,15 @@ export class User implements UserData {
 
     if (!validateEmail(data.email)) {
       throw new ModelError(`Invalid email: ${data.email}`);
+    }
+
+    if (
+      data.interfaceLanguage !== undefined &&
+      !isSupportedInterfaceLanguage(data.interfaceLanguage)
+    ) {
+      throw new ModelError(
+        `Unsupported interface language: ${data.interfaceLanguage}`,
+      );
     }
 
     if (data.mcpToken.length === 0) {
@@ -132,6 +147,7 @@ export interface CreateUserInput {
 }
 
 export interface UpdateUserInput {
+  interfaceLanguage?: string;
   transactionPatternsLimit?: number;
   voiceInputLanguage?: string;
 }

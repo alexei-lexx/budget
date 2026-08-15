@@ -1,5 +1,6 @@
 import { ref, watch, computed, unref, type Ref } from "vue";
 import type { ApolloError } from "@apollo/client";
+import { i18n } from "@/plugins/i18n";
 import {
   useGetTransactionsPaginatedQuery,
   useCreateTransactionMutation,
@@ -32,6 +33,7 @@ export function useTransactions(options?: {
   onTransactionUpdated?: () => Promise<void> | void;
   onTransactionDeleted?: () => Promise<void> | void;
 }) {
+  const { t } = i18n.global;
   const transactionsError = ref<string | null>(null);
 
   // Pagination state
@@ -128,7 +130,7 @@ export function useTransactions(options?: {
   watch(paginatedQueryError, (error: ApolloError | null) => {
     if (error) {
       console.error("Paginated transactions query failed:", error);
-      transactionsError.value = error.message || "Failed to fetch transactions";
+      transactionsError.value = error.message || t("transactions.errors.fetchFailed");
     }
   });
 
@@ -139,7 +141,7 @@ export function useTransactions(options?: {
       const error = createError || updateError || deleteError;
       if (error) {
         console.error("Transaction mutation failed:", error);
-        transactionsError.value = error.message || "Transaction operation failed";
+        transactionsError.value = error.message || t("transactions.errors.operationFailed");
       }
     },
   );
@@ -171,7 +173,7 @@ export function useTransactions(options?: {
     } catch (error) {
       console.error("Error creating transaction:", error);
       transactionsError.value =
-        error instanceof Error ? error.message : "Failed to create transaction";
+        error instanceof Error ? error.message : t("transactions.errors.createFailed");
       return null;
     }
   };
@@ -207,7 +209,7 @@ export function useTransactions(options?: {
     } catch (error) {
       console.error("Error updating transaction:", error);
       transactionsError.value =
-        error instanceof Error ? error.message : "Failed to update transaction";
+        error instanceof Error ? error.message : t("transactions.errors.updateFailed");
       return null;
     }
   };
@@ -240,7 +242,7 @@ export function useTransactions(options?: {
     } catch (error) {
       console.error("Error deleting transaction:", error);
       transactionsError.value =
-        error instanceof Error ? error.message : "Failed to delete transaction";
+        error instanceof Error ? error.message : t("transactions.errors.deleteFailed");
       return null;
     }
   };
@@ -289,7 +291,7 @@ export function useTransactions(options?: {
     } catch (error) {
       console.error("Error loading more transactions:", error);
       loadMoreError.value =
-        error instanceof Error ? error.message : "Failed to load more transactions";
+        error instanceof Error ? error.message : t("transactions.errors.loadMoreFailed");
       return false;
     } finally {
       loadMoreLoading.value = false;

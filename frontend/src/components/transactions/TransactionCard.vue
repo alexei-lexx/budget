@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 import type { Transaction } from "@/composables/useTransactions";
 import { formatTransactionAmount } from "@/utils/currency";
 import { getTransactionTypeColor } from "@/utils/transaction";
@@ -49,7 +50,7 @@ const formattedDate = computed(() => {
     options.year = "numeric";
   }
 
-  return date.toLocaleDateString("en-US", options);
+  return date.toLocaleDateString(locale.value, options);
 });
 
 // Amount color based on type
@@ -79,6 +80,8 @@ const handleDuplicateTransaction = () => {
 const handleCardClick = () => {
   emit("toggleExpand", props.transaction.id);
 };
+
+const { t, locale } = useI18n();
 </script>
 
 <template>
@@ -98,9 +101,11 @@ const handleCardClick = () => {
             <span
               :class="{ 'account-archived': transaction.account.isArchived }"
               :aria-label="
-                transaction.account.isArchived ? `Deleted: ${transaction.account.name}` : undefined
+                transaction.account.isArchived
+                  ? t('transactions.deletedEntity', { name: transaction.account.name })
+                  : undefined
               "
-              :title="transaction.account.isArchived ? 'Deleted account' : ''"
+              :title="transaction.account.isArchived ? t('transactions.deletedAccount') : ''"
             >
               {{ transaction.account.name }}
             </span>
@@ -110,10 +115,10 @@ const handleCardClick = () => {
                 :class="{ 'category-archived': transaction.category.isArchived }"
                 :aria-label="
                   transaction.category.isArchived
-                    ? `Deleted: ${transaction.category.name}`
+                    ? t('transactions.deletedEntity', { name: transaction.category.name })
                     : undefined
                 "
-                :title="transaction.category.isArchived ? 'Deleted category' : ''"
+                :title="transaction.category.isArchived ? t('transactions.deletedCategory') : ''"
               >
                 {{ transaction.category.name }}
               </span>

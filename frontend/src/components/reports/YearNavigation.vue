@@ -10,7 +10,7 @@
         :disabled="!canNavigate"
         @click="navigatePrevious"
       >
-        Previous
+        {{ t("reports.previous") }}
       </v-btn>
       <!-- Mobile: d-flex (shows <600px) + d-sm-none (hidden ≥600px) -->
       <v-btn
@@ -18,7 +18,7 @@
         color="primary"
         variant="outlined"
         icon="mdi-chevron-left"
-        aria-label="Previous"
+        :aria-label="t('reports.previous')"
         :disabled="!canNavigate"
         @click="navigatePrevious"
       />
@@ -36,7 +36,7 @@
         :disabled="!canNavigate"
         @click="navigateNext"
       >
-        Next
+        {{ t("reports.next") }}
       </v-btn>
       <!-- Mobile: d-flex (shows <600px) + d-sm-none (hidden ≥600px) -->
       <v-btn
@@ -44,7 +44,7 @@
         color="primary"
         variant="outlined"
         icon="mdi-chevron-right"
-        aria-label="Next"
+        :aria-label="t('reports.next')"
         :disabled="!canNavigate"
         @click="navigateNext"
       />
@@ -54,6 +54,7 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 
 interface Props {
   year: number;
@@ -66,6 +67,8 @@ interface Emits {
 
 const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
+
+const { t } = useI18n();
 
 const canNavigate = computed(() => !props.disabled);
 

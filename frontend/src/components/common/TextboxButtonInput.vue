@@ -26,7 +26,7 @@
           :class="{ 'mic-recording': isRecording }"
           :disabled="loading"
           role="button"
-          aria-label="Voice input"
+          :aria-label="t('common.voiceInput')"
           @click.stop="onMicClick"
         >
           {{ isRecording ? "mdi-microphone" : "mdi-microphone-outline" }}
@@ -37,7 +37,7 @@
       v-if="loading"
       icon="mdi-stop-circle"
       color="error"
-      aria-label="Stop"
+      :aria-label="t('common.buttons.stop')"
       style="align-self: flex-end"
       @click="emit('abort')"
     />
@@ -55,6 +55,7 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
+import { useI18n } from "vue-i18n";
 
 const props = defineProps<{
   modelValue: string;
@@ -73,6 +74,8 @@ const emit = defineEmits<{
   startRecording: [];
   stopRecording: [];
 }>();
+
+const { t } = useI18n();
 
 const textareaRef = ref<{ focus: () => void; blur: () => void } | null>(null);
 

@@ -143,6 +143,7 @@ export const DELETE_TRANSFER = gql`
 export const UPDATE_USER_SETTINGS = gql`
   mutation UpdateUserSettings($input: UpdateUserSettingsInput!) {
     updateUserSettings(input: $input) {
+      interfaceLanguage
       transactionPatternsLimit
       voiceInputLanguage
       mcpUrl
@@ -153,6 +154,7 @@ export const UPDATE_USER_SETTINGS = gql`
 export const REGENERATE_MCP_TOKEN = gql`
   mutation RegenerateMcpToken {
     regenerateMcpToken {
+      interfaceLanguage
       transactionPatternsLimit
       voiceInputLanguage
       mcpUrl

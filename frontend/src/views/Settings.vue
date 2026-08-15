@@ -3,7 +3,7 @@
   <v-container class="pa-3 pa-sm-6">
     <!-- Page Header -->
     <div class="mb-6">
-      <h1 class="text-h5 text-sm-h4">Settings</h1>
+      <h1 class="text-h5 text-sm-h4">{{ t("settings.title") }}</h1>
     </div>
 
     <v-form @submit.prevent="handleSave">
@@ -12,9 +12,9 @@
           <v-text-field
             v-model="transactionPatternsLimit"
             type="number"
-            label="Transaction shortcuts limit"
+            :label="t('settings.transactionShortcutsLimit.label')"
             variant="outlined"
-            hint="e.g. Card + Groceries, Cash + Transport"
+            :hint="t('settings.transactionShortcutsLimit.hint')"
             persistent-hint
             step="1"
             :min="MIN_PATTERNS_LIMIT"
@@ -24,15 +24,23 @@
         <v-col cols="12" sm="6">
           <v-select
             v-model="voiceInputLanguage"
-            :items="languageOptions"
-            label="Voice input language"
+            :items="voiceInputLanguageOptions"
+            :label="t('settings.voiceInputLanguage')"
+            variant="outlined"
+          />
+        </v-col>
+        <v-col cols="12" sm="6">
+          <v-select
+            v-model="interfaceLanguage"
+            :items="interfaceLanguageOptions"
+            :label="t('settings.interfaceLanguage')"
             variant="outlined"
           />
         </v-col>
       </v-row>
 
       <v-btn type="submit" color="primary" class="mt-4" :loading="updateSettingsLoading">
-        Save
+        {{ t("common.buttons.save") }}
       </v-btn>
     </v-form>
 
@@ -40,7 +48,7 @@
 
     <!-- Telegram Bot Section -->
     <div class="mb-4">
-      <h2 class="text-h6">Telegram Bot</h2>
+      <h2 class="text-h6">{{ t("settings.telegramBot.heading") }}</h2>
     </div>
 
     <div v-if="telegramBotLoading" class="d-flex align-center">
@@ -53,7 +61,7 @@
         <v-col cols="12" sm="6">
           <v-text-field
             :model-value="telegramBot.maskedToken"
-            label="Bot token"
+            :label="t('settings.telegramBot.botToken')"
             variant="outlined"
             readonly
             hide-details
@@ -62,7 +70,7 @@
         </v-col>
         <v-col cols="12" sm="6" class="d-flex align-center">
           <v-btn color="primary" :loading="testTelegramBotLoading" @click="handleTestTelegramBot">
-            Test
+            {{ t("common.buttons.test") }}
           </v-btn>
           <v-btn
             color="error"
@@ -71,7 +79,7 @@
             :loading="disconnectTelegramBotLoading"
             @click="handleDisconnectTelegramBot"
           >
-            Disconnect
+            {{ t("common.buttons.disconnect") }}
           </v-btn>
         </v-col>
       </v-row>
@@ -85,8 +93,8 @@
             v-model="tokenInput"
             autocomplete="off"
             hide-details
-            label="Bot token"
-            placeholder="1234567890..."
+            :label="t('settings.telegramBot.botToken')"
+            :placeholder="t('settings.telegramBot.tokenPlaceholder')"
             type="password"
             variant="outlined"
             :disabled="connectTelegramBotLoading"
@@ -99,7 +107,7 @@
             :disabled="!tokenInput.trim()"
             @click="handleConnectTelegramBot"
           >
-            Connect
+            {{ t("common.buttons.connect") }}
           </v-btn>
         </v-col>
       </v-row>
@@ -109,14 +117,14 @@
 
     <!-- MCP Connection Section -->
     <div class="mb-4">
-      <h2 class="text-h6">MCP Connection</h2>
+      <h2 class="text-h6">{{ t("settings.mcpConnection.heading") }}</h2>
     </div>
 
     <v-row>
       <v-col cols="12" sm="6">
         <v-text-field
           :model-value="settings?.mcpUrl"
-          label="MCP URL"
+          :label="t('settings.mcpConnection.url')"
           variant="outlined"
           readonly
           hide-details
@@ -124,7 +132,7 @@
       </v-col>
       <v-col cols="12" sm="6" class="d-flex align-center">
         <v-btn color="primary" :disabled="!settings?.mcpUrl" @click="handleCopyMcpUrl">
-          Copy
+          {{ t("common.buttons.copy") }}
         </v-btn>
         <v-btn
           color="error"
@@ -133,7 +141,7 @@
           :loading="regenerateMcpTokenLoading"
           @click="handleRegenerateMcpToken"
         >
-          Regenerate
+          {{ t("settings.mcpConnection.regenerate") }}
         </v-btn>
       </v-col>
     </v-row>
@@ -141,7 +149,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
+import { useI18n } from "vue-i18n";
+import { DEFAULT_INTERFACE_LANGUAGE } from "@/composables/useLocale";
 import { useSnackbar } from "@/composables/useSnackbar";
 import { useTelegramBot } from "@/composables/useTelegramBot";
 import { useUserSettings } from "@/composables/useUserSettings";
@@ -149,7 +159,7 @@ import { useUserSettings } from "@/composables/useUserSettings";
 const MIN_PATTERNS_LIMIT = 1;
 const MAX_PATTERNS_LIMIT = 10;
 
-const LANGUAGE_CODES = [
+const VOICE_INPUT_LANGUAGE_CODES = [
   "ar-SA",
   "da-DK",
   "de-DE",
@@ -172,23 +182,21 @@ const LANGUAGE_CODES = [
   "zh-CN",
 ];
 
-const displayNames = new Intl.DisplayNames([navigator.language], { type: "language" });
-
-const languageOptions = LANGUAGE_CODES.map((code) => ({
-  title: displayNames.of(code) ?? code,
-  value: code,
-})).sort((languageA, languageB) => languageA.title.localeCompare(languageB.title));
-
 // Default to the browser language if it matches a supported code, otherwise fall back to en-US
 const browserLang = navigator.language;
 const browserLangPrefix = browserLang.split("-")[0] ?? browserLang;
-const defaultLanguage =
-  LANGUAGE_CODES.find((code) => code.toLowerCase() === browserLang.toLowerCase()) ??
-  LANGUAGE_CODES.find((code) => code.toLowerCase().startsWith(browserLangPrefix.toLowerCase())) ??
+const defaultVoiceInputLanguage =
+  VOICE_INPUT_LANGUAGE_CODES.find((code) => code.toLowerCase() === browserLang.toLowerCase()) ??
+  VOICE_INPUT_LANGUAGE_CODES.find((code) =>
+    code.toLowerCase().startsWith(browserLangPrefix.toLowerCase()),
+  ) ??
   "en-US";
+
+const { t, locale } = useI18n();
 
 const {
   settings,
+  supportedInterfaceLanguages,
   updateSettings,
   updateSettingsLoading,
   updateSettingsError,
@@ -213,7 +221,26 @@ const { showSuccessSnackbar, showErrorSnackbar } = useSnackbar();
 
 const transactionPatternsLimit = ref<string>("");
 const tokenInput = ref<string>("");
-const voiceInputLanguage = ref<string>(defaultLanguage);
+const voiceInputLanguage = ref<string>(defaultVoiceInputLanguage);
+const interfaceLanguage = ref<string>(DEFAULT_INTERFACE_LANGUAGE);
+
+// Voice-input option labels are localized in the active interface language,
+// independent of the speech-recognition language codes themselves.
+const voiceInputLanguageOptions = computed(() => {
+  const displayNames = new Intl.DisplayNames([locale.value], { type: "language" });
+  return VOICE_INPUT_LANGUAGE_CODES.map((code) => ({
+    title: displayNames.of(code) ?? code,
+    value: code,
+  })).sort((languageA, languageB) => languageA.title.localeCompare(languageB.title));
+});
+
+const interfaceLanguageOptions = computed(() => {
+  const displayNames = new Intl.DisplayNames([locale.value], { type: "language" });
+  return supportedInterfaceLanguages.value.map((code) => ({
+    title: displayNames.of(code) ?? code,
+    value: code,
+  }));
+});
 
 watch(
   settings,
@@ -224,6 +251,7 @@ watch(
       voiceInputLanguage.value = loadedSettings.voiceInputLanguage;
     }
 
+    interfaceLanguage.value = loadedSettings.interfaceLanguage;
     transactionPatternsLimit.value = String(loadedSettings.transactionPatternsLimit);
   },
   { immediate: true },
@@ -233,6 +261,7 @@ const handleSave = async () => {
   const transactionPatternsLimitRaw = transactionPatternsLimit.value.trim();
 
   const success = await updateSettings({
+    interfaceLanguage: interfaceLanguage.value,
     voiceInputLanguage: voiceInputLanguage.value,
     transactionPatternsLimit: transactionPatternsLimitRaw
       ? parseInt(transactionPatternsLimitRaw, 10)
@@ -240,9 +269,9 @@ const handleSave = async () => {
   });
 
   if (success) {
-    showSuccessSnackbar("Settings saved");
+    showSuccessSnackbar(t("settings.saved"));
   } else {
-    showErrorSnackbar(updateSettingsError.value?.message ?? "Failed to save settings");
+    showErrorSnackbar(updateSettingsError.value?.message ?? t("settings.saveFailed"));
   }
 };
 
@@ -250,19 +279,21 @@ const handleConnectTelegramBot = async () => {
   const success = await connectTelegramBot(tokenInput.value.trim());
   if (success) {
     tokenInput.value = "";
-    showSuccessSnackbar("Telegram bot connected");
+    showSuccessSnackbar(t("settings.telegramBot.connected"));
   } else {
-    showErrorSnackbar(connectTelegramBotError.value?.message ?? "Failed to connect Telegram bot");
+    showErrorSnackbar(
+      connectTelegramBotError.value?.message ?? t("settings.telegramBot.connectFailed"),
+    );
   }
 };
 
 const handleDisconnectTelegramBot = async () => {
   const success = await disconnectTelegramBot();
   if (success) {
-    showSuccessSnackbar("Telegram bot disconnected");
+    showSuccessSnackbar(t("settings.telegramBot.disconnected"));
   } else {
     showErrorSnackbar(
-      disconnectTelegramBotError.value?.message ?? "Failed to disconnect Telegram bot",
+      disconnectTelegramBotError.value?.message ?? t("settings.telegramBot.disconnectFailed"),
     );
   }
 };
@@ -270,9 +301,9 @@ const handleDisconnectTelegramBot = async () => {
 const handleTestTelegramBot = async () => {
   const success = await testTelegramBot();
   if (success) {
-    showSuccessSnackbar("Telegram bot is active");
+    showSuccessSnackbar(t("settings.telegramBot.active"));
   } else {
-    showErrorSnackbar(testTelegramBotError.value?.message ?? "Telegram bot test failed");
+    showErrorSnackbar(testTelegramBotError.value?.message ?? t("settings.telegramBot.testFailed"));
   }
 };
 
@@ -280,18 +311,20 @@ const handleCopyMcpUrl = async () => {
   if (!settings.value?.mcpUrl) return;
   try {
     await navigator.clipboard.writeText(settings.value.mcpUrl);
-    showSuccessSnackbar("MCP URL copied to clipboard");
+    showSuccessSnackbar(t("settings.mcpConnection.urlCopied"));
   } catch {
-    showErrorSnackbar("Failed to copy MCP URL");
+    showErrorSnackbar(t("settings.mcpConnection.urlCopyFailed"));
   }
 };
 
 const handleRegenerateMcpToken = async () => {
   const success = await regenerateMcpToken();
   if (success) {
-    showSuccessSnackbar("MCP token regenerated — the previous URL no longer works");
+    showSuccessSnackbar(t("settings.mcpConnection.tokenRegenerated"));
   } else {
-    showErrorSnackbar(regenerateMcpTokenError.value?.message ?? "Failed to regenerate MCP token");
+    showErrorSnackbar(
+      regenerateMcpTokenError.value?.message ?? t("settings.mcpConnection.tokenRegenerateFailed"),
+    );
   }
 };
 </script>

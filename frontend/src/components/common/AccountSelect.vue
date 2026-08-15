@@ -4,7 +4,7 @@ import { useAccounts } from "@/composables/useAccounts";
 
 interface Props {
   modelValue: string;
-  label?: string;
+  label: string;
   rules?: Array<(value: string) => boolean | string>;
   disabled?: boolean;
   required?: boolean;
@@ -19,7 +19,6 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  label: "Account",
   rules: () => [],
   disabled: false,
   required: false,

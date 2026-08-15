@@ -10,7 +10,7 @@
             :items="accounts"
             item-title="name"
             item-value="id"
-            label="Account"
+            :label="t('transactions.filterBar.account')"
             multiple
             chips
             closable-chips
@@ -27,7 +27,7 @@
             :items="categoryOptions"
             item-title="name"
             item-value="id"
-            label="Category"
+            :label="t('transactions.filterBar.category')"
             multiple
             chips
             closable-chips
@@ -47,7 +47,7 @@
           </v-select>
           <v-checkbox
             v-model="filters.includeUncategorized.value"
-            label="Include uncategorized"
+            :label="t('transactions.filterBar.includeUncategorized')"
             :disabled="loading"
             density="compact"
             class="mt-1"
@@ -59,7 +59,7 @@
           <v-text-field
             v-model="filters.dateAfter.value"
             type="date"
-            label="From Date"
+            :label="t('transactions.filterBar.fromDate')"
             :disabled="loading"
             clearable
             variant="outlined"
@@ -71,7 +71,7 @@
           <v-text-field
             v-model="filters.dateBefore.value"
             type="date"
-            label="To Date"
+            :label="t('transactions.filterBar.toDate')"
             :disabled="loading"
             clearable
             variant="outlined"
@@ -83,7 +83,7 @@
           <v-select
             v-model="filters.selectedTypes.value"
             :items="transactionTypeOptions"
-            label="Type"
+            :label="t('transactions.form.type')"
             multiple
             chips
             closable-chips
@@ -101,10 +101,12 @@
             @click="handleClear"
             :disabled="loading || !filters.hasSelectedFilters.value"
           >
-            Clear
+            {{ t("common.buttons.clear") }}
           </v-btn>
           <v-spacer />
-          <v-btn color="primary" @click="handleApply" :disabled="loading"> Apply </v-btn>
+          <v-btn color="primary" @click="handleApply" :disabled="loading">
+            {{ t("common.buttons.apply") }}
+          </v-btn>
         </v-col>
       </v-row>
     </div>
@@ -113,6 +115,7 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 import type { Account, Category, TransactionType } from "@/__generated__/vue-apollo";
 import type { TransactionFiltersState } from "@/composables/useTransactionFilters";
 import { getCategoryIconColor, getCategoryIcon } from "@/utils/category";
@@ -133,19 +136,24 @@ const emit = defineEmits<{
   clear: [];
 }>();
 
+const { t } = useI18n();
+
 // Add "Uncategorized" option to categories
 const categoryOptions = computed(() => {
   return [...props.categories];
 });
 
 // Transaction type options
-const transactionTypeOptions = computed(() => [
-  { title: "Income", value: "INCOME" as TransactionType },
-  { title: "Expense", value: "EXPENSE" as TransactionType },
-  { title: "Transfer In", value: "TRANSFER_IN" as TransactionType },
-  { title: "Transfer Out", value: "TRANSFER_OUT" as TransactionType },
-  { title: "Refund", value: "REFUND" as TransactionType },
-]);
+const transactionTypeOptions = computed(
+  () =>
+    [
+      { title: t("transactions.types.income"), value: "INCOME" },
+      { title: t("transactions.types.expense"), value: "EXPENSE" },
+      { title: t("transactions.types.transferIn"), value: "TRANSFER_IN" },
+      { title: t("transactions.types.transferOut"), value: "TRANSFER_OUT" },
+      { title: t("transactions.types.refund"), value: "REFUND" },
+    ] satisfies { title: string; value: TransactionType }[],
+);
 
 function handleApply() {
   props.filters.applyFilters();
