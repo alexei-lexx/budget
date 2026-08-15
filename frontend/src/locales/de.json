@@ -72,7 +72,7 @@
     "emptyText": "Erstellen Sie Ihr erstes Konto, um Ihre Finanzen zu verfolgen.",
     "deleteDialog": {
       "title": "Konto löschen",
-      "confirmMessage": "Möchten Sie das Konto „{name}“ wirklich löschen?",
+      "message": "Möchten Sie das Konto „{name}“ wirklich löschen?",
       "warning": "Diese Aktion kann nicht rückgängig gemacht werden. Das Konto wird dauerhaft aus Ihren Aufzeichnungen entfernt, historische Transaktionsdaten bleiben jedoch erhalten."
     },
     "form": {
@@ -83,16 +83,18 @@
       "nameLabel": "Kontoname",
       "namePlaceholder": "z. B. Bargeld, Bankkonto, Kreditkarte",
       "currencyLabel": "Währung",
-      "currencyLoadError": "Währungen konnten nicht geladen werden. Standardwerte werden verwendet.",
       "initialBalanceLabel": "Anfangssaldo",
-      "nameRequired": "Kontoname ist erforderlich",
-      "nameNotEmpty": "Kontoname darf nicht leer sein",
-      "nameTooLong": "Kontoname darf 100 Zeichen nicht überschreiten",
-      "currencyRequired": "Währung ist erforderlich",
-      "currencyInvalid": "Bitte wählen Sie eine gültige Währung",
-      "balanceRequired": "Anfangssaldo ist erforderlich",
-      "balanceInvalidNumber": "Anfangssaldo muss eine gültige Zahl sein",
-      "balanceInvalidFinite": "Anfangssaldo muss eine endliche Zahl sein"
+      "errors": {
+        "nameRequired": "Kontoname ist erforderlich",
+        "nameNotEmpty": "Kontoname darf nicht leer sein",
+        "nameTooLong": "Kontoname darf 100 Zeichen nicht überschreiten",
+        "currencyRequired": "Währung ist erforderlich",
+        "currencyInvalid": "Bitte wählen Sie eine gültige Währung",
+        "currencyLoadError": "Währungen konnten nicht geladen werden. Standardwerte werden verwendet.",
+        "balanceRequired": "Anfangssaldo ist erforderlich",
+        "balanceInvalidNumber": "Anfangssaldo muss eine gültige Zahl sein",
+        "balanceInvalidFinite": "Anfangssaldo muss eine endliche Zahl sein"
+      }
     },
     "errors": {
       "fetchFailed": "Konten konnten nicht geladen werden",
@@ -120,7 +122,7 @@
     },
     "deleteDialog": {
       "title": "Kategorie löschen",
-      "confirmMessage": "Möchten Sie die Kategorie „{name}“ wirklich löschen?",
+      "message": "Möchten Sie die Kategorie „{name}“ wirklich löschen?",
       "warning": "Diese Aktion kann nicht rückgängig gemacht werden. Die Kategorie wird dauerhaft aus Ihren Aufzeichnungen entfernt, historische Transaktionsdaten bleiben jedoch erhalten."
     },
     "form": {
@@ -135,11 +137,13 @@
       "typeLabel": "Kategorietyp",
       "excludeFromReportsLabel": "Von Berichten ausschließen",
       "excludeFromReportsHint": "Wenn aktiviert, erscheinen Transaktionen in dieser Kategorie nicht in Monatsberichten",
-      "nameRequired": "Kategoriename ist erforderlich",
-      "nameNotEmpty": "Kategoriename darf nicht leer sein",
-      "nameTooLong": "Kategoriename darf 100 Zeichen nicht überschreiten",
-      "typeRequired": "Kategorietyp ist erforderlich",
-      "typeInvalid": "Kategorietyp muss entweder Einnahme oder Ausgabe sein"
+      "errors": {
+        "nameRequired": "Kategoriename ist erforderlich",
+        "nameNotEmpty": "Kategoriename darf nicht leer sein",
+        "nameTooLong": "Kategoriename darf 100 Zeichen nicht überschreiten",
+        "typeRequired": "Kategorietyp ist erforderlich",
+        "typeInvalid": "Kategorietyp muss entweder Einnahme oder Ausgabe sein"
+      }
     },
     "errors": {
       "fetchFailed": "Kategorien konnten nicht geladen werden",

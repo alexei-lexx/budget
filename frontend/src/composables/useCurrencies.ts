@@ -32,7 +32,7 @@ export function useCurrencies() {
 
   const errorMessage = computed(() => {
     if (currenciesError.value) {
-      return t("accounts.form.currencyLoadError");
+      return t("accounts.form.errors.currencyLoadError");
     }
     return null;
   });

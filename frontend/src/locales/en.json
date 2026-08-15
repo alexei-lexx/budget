@@ -72,7 +72,7 @@
     "emptyText": "Get started by creating your first account to track your finances.",
     "deleteDialog": {
       "title": "Delete Account",
-      "confirmMessage": "Are you sure you want to delete the account \"{name}\"?",
+      "message": "Are you sure you want to delete the account \"{name}\"?",
       "warning": "This action cannot be undone. The account will be permanently removed from your records, but historical transaction data will be preserved."
     },
     "form": {
@@ -83,16 +83,18 @@
       "nameLabel": "Account Name",
       "namePlaceholder": "e.g., Cash, Bank Account, Credit Card",
       "currencyLabel": "Currency",
-      "currencyLoadError": "Failed to load currencies. Using defaults.",
       "initialBalanceLabel": "Initial Balance",
-      "nameRequired": "Account name is required",
-      "nameNotEmpty": "Account name cannot be empty",
-      "nameTooLong": "Account name cannot exceed 100 characters",
-      "currencyRequired": "Currency is required",
-      "currencyInvalid": "Please select a valid currency",
-      "balanceRequired": "Initial balance is required",
-      "balanceInvalidNumber": "Initial balance must be a valid number",
-      "balanceInvalidFinite": "Initial balance must be a finite number"
+      "errors": {
+        "nameRequired": "Account name is required",
+        "nameNotEmpty": "Account name cannot be empty",
+        "nameTooLong": "Account name cannot exceed 100 characters",
+        "currencyRequired": "Currency is required",
+        "currencyInvalid": "Please select a valid currency",
+        "currencyLoadError": "Failed to load currencies. Using defaults.",
+        "balanceRequired": "Initial balance is required",
+        "balanceInvalidNumber": "Initial balance must be a valid number",
+        "balanceInvalidFinite": "Initial balance must be a finite number"
+      }
     },
     "errors": {
       "fetchFailed": "Failed to fetch accounts",
@@ -120,7 +122,7 @@
     },
     "deleteDialog": {
       "title": "Delete Category",
-      "confirmMessage": "Are you sure you want to delete the category \"{name}\"?",
+      "message": "Are you sure you want to delete the category \"{name}\"?",
       "warning": "This action cannot be undone. The category will be permanently removed from your records, but historical transaction data will be preserved."
     },
     "form": {
@@ -135,11 +137,13 @@
       "typeLabel": "Category Type",
       "excludeFromReportsLabel": "Exclude from reports",
       "excludeFromReportsHint": "When enabled, transactions in this category won't appear in monthly reports",
-      "nameRequired": "Category name is required",
-      "nameNotEmpty": "Category name cannot be empty",
-      "nameTooLong": "Category name cannot exceed 100 characters",
-      "typeRequired": "Category type is required",
-      "typeInvalid": "Category type must be either Income or Expense"
+      "errors": {
+        "nameRequired": "Category name is required",
+        "nameNotEmpty": "Category name cannot be empty",
+        "nameTooLong": "Category name cannot exceed 100 characters",
+        "typeRequired": "Category type is required",
+        "typeInvalid": "Category type must be either Income or Expense"
+      }
     },
     "errors": {
       "fetchFailed": "Failed to fetch categories",
