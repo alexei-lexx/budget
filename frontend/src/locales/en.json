@@ -19,14 +19,7 @@
     },
     "errors": {
       "generic": "Something went wrong. Please try again later.",
-      "connection": "Connection problem. Please check your internet and try again.",
-      "voiceInput": {
-        "serviceUnavailable": "Speech service unavailable — try again",
-        "microphoneAccessDenied": "Microphone access denied — check browser permissions",
-        "microphoneNotAvailable": "Microphone not available — check your device",
-        "networkError": "Network error — try again",
-        "genericFailure": "Voice input failed — try again"
-      }
+      "connection": "Connection problem. Please check your internet and try again."
     },
     "loadingSuggestions": "Loading suggestions...",
     "noSuggestionsFound": "No suggestions found",
@@ -274,6 +267,15 @@
       "toolCall": "TOOL CALL",
       "toolResult": "TOOL RESULT",
       "unknown": "UNKNOWN"
+    }
+  },
+  "voiceInput": {
+    "errors": {
+      "serviceUnavailable": "Speech service unavailable — try again",
+      "microphoneAccessDenied": "Microphone access denied — check browser permissions",
+      "microphoneNotAvailable": "Microphone not available — check your device",
+      "networkError": "Network error — try again",
+      "genericFailure": "Voice input failed — try again"
     }
   },
   "reports": {

@@ -19,14 +19,7 @@
     },
     "errors": {
       "generic": "Etwas ist schiefgelaufen. Bitte versuchen Sie es später erneut.",
-      "connection": "Verbindungsproblem. Bitte überprüfen Sie Ihre Internetverbindung und versuchen Sie es erneut.",
-      "voiceInput": {
-        "serviceUnavailable": "Sprachdienst nicht verfügbar — bitte erneut versuchen",
-        "microphoneAccessDenied": "Mikrofonzugriff verweigert — bitte Browserberechtigungen prüfen",
-        "microphoneNotAvailable": "Mikrofon nicht verfügbar — bitte Gerät prüfen",
-        "networkError": "Netzwerkfehler — bitte erneut versuchen",
-        "genericFailure": "Spracheingabe fehlgeschlagen — bitte erneut versuchen"
-      }
+      "connection": "Verbindungsproblem. Bitte überprüfen Sie Ihre Internetverbindung und versuchen Sie es erneut."
     },
     "loadingSuggestions": "Vorschläge werden geladen...",
     "noSuggestionsFound": "Keine Vorschläge gefunden",
@@ -274,6 +267,15 @@
       "toolCall": "TOOL-AUFRUF",
       "toolResult": "TOOL-ERGEBNIS",
       "unknown": "UNBEKANNT"
+    }
+  },
+  "voiceInput": {
+    "errors": {
+      "serviceUnavailable": "Sprachdienst nicht verfügbar — bitte erneut versuchen",
+      "microphoneAccessDenied": "Mikrofonzugriff verweigert — bitte Browserberechtigungen prüfen",
+      "microphoneNotAvailable": "Mikrofon nicht verfügbar — bitte Gerät prüfen",
+      "networkError": "Netzwerkfehler — bitte erneut versuchen",
+      "genericFailure": "Spracheingabe fehlgeschlagen — bitte erneut versuchen"
     }
   },
   "reports": {

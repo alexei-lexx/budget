@@ -74,16 +74,16 @@ export function useVoiceInput({
         // Distinguish mic permission denied from speech service failure
         const perm = await navigator.permissions.query({ name: "microphone" as PermissionName });
         if (perm.state === "granted") {
-          onError?.(t("common.errors.voiceInput.serviceUnavailable"));
+          onError?.(t("voiceInput.errors.serviceUnavailable"));
         } else {
-          onError?.(t("common.errors.voiceInput.microphoneAccessDenied"));
+          onError?.(t("voiceInput.errors.microphoneAccessDenied"));
         }
       } else if (event.error === "audio-capture") {
-        onError?.(t("common.errors.voiceInput.microphoneNotAvailable"));
+        onError?.(t("voiceInput.errors.microphoneNotAvailable"));
       } else if (event.error === "network") {
-        onError?.(t("common.errors.voiceInput.networkError"));
+        onError?.(t("voiceInput.errors.networkError"));
       } else {
-        onError?.(t("common.errors.voiceInput.genericFailure"));
+        onError?.(t("voiceInput.errors.genericFailure"));
       }
       isRecording.value = false;
     };
