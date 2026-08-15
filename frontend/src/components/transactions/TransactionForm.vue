@@ -85,22 +85,22 @@ const amountFieldRef = ref();
 
 // Validation rules
 const accountRules: CheckRule[] = [
-  (value: string) => !!value || t("transactions.form.accountRequired"),
+  (value: string) => !!value || t("transactions.form.errors.accountRequired"),
 ];
 
 const typeRules: CheckRule<TransactionType>[] = [
-  (value: TransactionType) => !!value || t("transactions.form.typeRequired"),
+  (value: TransactionType) => !!value || t("transactions.form.errors.typeRequired"),
   (value: TransactionType) =>
-    ["INCOME", "EXPENSE", "REFUND"].includes(value) || t("transactions.form.typeInvalid"),
+    ["INCOME", "EXPENSE", "REFUND"].includes(value) || t("transactions.form.errors.typeInvalid"),
 ];
 
 const amountRules = createCurrencyAmountRules(t);
 
 const dateRules: CheckRule[] = [
-  (value: string) => !!value || t("transactions.form.dateRequired"),
+  (value: string) => !!value || t("transactions.form.errors.dateRequired"),
   (value: string) => {
     const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-    return dateRegex.test(value) || t("transactions.form.dateInvalidFormat");
+    return dateRegex.test(value) || t("transactions.form.errors.dateInvalidFormat");
   },
 ];
 
@@ -281,7 +281,7 @@ const handlePatternSelected = (pattern: { accountId: string; categoryId: string 
             <!-- Account Selection -->
             <AccountSelect
               v-model="formData.accountId"
-              :label="t('common.account')"
+              :label="t('transactions.form.account')"
               :rules="accountRules"
               :disabled="loading"
               required

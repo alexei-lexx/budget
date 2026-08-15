@@ -13,7 +13,9 @@
       "copy": "Copy",
       "loadMore": "Load more",
       "stop": "Stop",
-      "retry": "Retry"
+      "retry": "Retry",
+      "clear": "Clear",
+      "apply": "Apply"
     },
     "errors": {
       "generic": "Something went wrong. Please try again later.",
@@ -26,7 +28,6 @@
         "genericFailure": "Voice input failed — try again"
       }
     },
-    "account": "Account",
     "loadingSuggestions": "Loading suggestions...",
     "noSuggestionsFound": "No suggestions found",
     "voiceInput": "Voice input",
@@ -174,11 +175,7 @@
       "warning": "This action cannot be undone. The transaction will be permanently removed from your records."
     },
     "form": {
-      "accountRequired": "Account is required",
-      "typeRequired": "Transaction type is required",
-      "typeInvalid": "Transaction type must be Income, Expense, or Refund",
-      "dateRequired": "Date is required",
-      "dateInvalidFormat": "Date must be in YYYY-MM-DD format",
+      "account": "Account",
       "editTitle": "Edit Transaction",
       "createTitle": "Create New Transaction",
       "update": "Update",
@@ -191,7 +188,14 @@
       "amount": "Amount",
       "date": "Date",
       "descriptionOptional": "Description (Optional)",
-      "descriptionPlaceholder": "e.g., Weekly groceries, Salary payment, Coffee with friends"
+      "descriptionPlaceholder": "e.g., Weekly groceries, Salary payment, Coffee with friends",
+      "errors": {
+        "accountRequired": "Account is required",
+        "typeRequired": "Transaction type is required",
+        "typeInvalid": "Transaction type must be Income, Expense, or Refund",
+        "dateRequired": "Date is required",
+        "dateInvalidFormat": "Date must be in YYYY-MM-DD format"
+      }
     },
     "createTextFailed": "Failed to create transaction. Please try again.",
     "errors": {
@@ -203,14 +207,13 @@
       "loadMoreFailed": "Failed to load more transactions"
     },
     "filterBar": {
+      "account": "Account",
       "category": "Category",
       "transferIn": "Transfer In",
       "transferOut": "Transfer Out",
       "includeUncategorized": "Include uncategorized",
       "fromDate": "From Date",
-      "toDate": "To Date",
-      "clear": "Clear",
-      "apply": "Apply"
+      "toDate": "To Date"
     }
   },
   "transfers": {
@@ -234,14 +237,16 @@
       "createTitle": "Create New Transfer",
       "update": "Update",
       "create": "Create",
-      "fromAccountRequired": "Source account is required",
-      "toAccountRequired": "Destination account is required",
-      "accountsMustDiffer": "Source and destination accounts must be different",
-      "currencyMustMatch": "Source and destination accounts must have the same currency",
       "swapAccounts": "Swap accounts",
       "fromAccount": "From Account",
       "toAccount": "To Account",
-      "descriptionPlaceholder": "e.g., Monthly savings transfer, Emergency fund contribution"
+      "descriptionPlaceholder": "e.g., Monthly savings transfer, Emergency fund contribution",
+      "errors": {
+        "fromAccountRequired": "Source account is required",
+        "toAccountRequired": "Destination account is required",
+        "accountsMustDiffer": "Source and destination accounts must be different",
+        "currencyMustMatch": "Source and destination accounts must have the same currency"
+      }
     },
     "operationFailed": "Transfer operation failed"
   },

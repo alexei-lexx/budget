@@ -13,7 +13,9 @@
       "copy": "Kopieren",
       "loadMore": "Mehr laden",
       "stop": "Stopp",
-      "retry": "Erneut versuchen"
+      "retry": "Erneut versuchen",
+      "clear": "Zurücksetzen",
+      "apply": "Anwenden"
     },
     "errors": {
       "generic": "Etwas ist schiefgelaufen. Bitte versuchen Sie es später erneut.",
@@ -26,7 +28,6 @@
         "genericFailure": "Spracheingabe fehlgeschlagen — bitte erneut versuchen"
       }
     },
-    "account": "Konto",
     "loadingSuggestions": "Vorschläge werden geladen...",
     "noSuggestionsFound": "Keine Vorschläge gefunden",
     "voiceInput": "Spracheingabe",
@@ -174,11 +175,7 @@
       "warning": "Diese Aktion kann nicht rückgängig gemacht werden. Die Transaktion wird dauerhaft aus Ihren Aufzeichnungen entfernt."
     },
     "form": {
-      "accountRequired": "Konto ist erforderlich",
-      "typeRequired": "Transaktionstyp ist erforderlich",
-      "typeInvalid": "Transaktionstyp muss Einnahme, Ausgabe oder Erstattung sein",
-      "dateRequired": "Datum ist erforderlich",
-      "dateInvalidFormat": "Datum muss im Format JJJJ-MM-TT vorliegen",
+      "account": "Konto",
       "editTitle": "Transaktion bearbeiten",
       "createTitle": "Neue Transaktion erstellen",
       "update": "Aktualisieren",
@@ -191,7 +188,14 @@
       "amount": "Betrag",
       "date": "Datum",
       "descriptionOptional": "Beschreibung (Optional)",
-      "descriptionPlaceholder": "z. B. Wocheneinkauf, Gehaltszahlung, Kaffee mit Freunden"
+      "descriptionPlaceholder": "z. B. Wocheneinkauf, Gehaltszahlung, Kaffee mit Freunden",
+      "errors": {
+        "accountRequired": "Konto ist erforderlich",
+        "typeRequired": "Transaktionstyp ist erforderlich",
+        "typeInvalid": "Transaktionstyp muss Einnahme, Ausgabe oder Erstattung sein",
+        "dateRequired": "Datum ist erforderlich",
+        "dateInvalidFormat": "Datum muss im Format JJJJ-MM-TT vorliegen"
+      }
     },
     "createTextFailed": "Transaktion konnte nicht erstellt werden. Bitte versuchen Sie es erneut.",
     "errors": {
@@ -203,14 +207,13 @@
       "loadMoreFailed": "Weitere Transaktionen konnten nicht geladen werden"
     },
     "filterBar": {
+      "account": "Konto",
       "category": "Kategorie",
       "transferIn": "Eingehender Übertrag",
       "transferOut": "Ausgehender Übertrag",
       "includeUncategorized": "Unkategorisiert einschließen",
       "fromDate": "Von Datum",
-      "toDate": "Bis Datum",
-      "clear": "Zurücksetzen",
-      "apply": "Anwenden"
+      "toDate": "Bis Datum"
     }
   },
   "transfers": {
@@ -234,14 +237,16 @@
       "createTitle": "Neuen Übertrag erstellen",
       "update": "Aktualisieren",
       "create": "Erstellen",
-      "fromAccountRequired": "Quellkonto ist erforderlich",
-      "toAccountRequired": "Zielkonto ist erforderlich",
-      "accountsMustDiffer": "Quell- und Zielkonto müssen unterschiedlich sein",
-      "currencyMustMatch": "Quell- und Zielkonto müssen dieselbe Währung haben",
       "swapAccounts": "Konten vertauschen",
       "fromAccount": "Von Konto",
       "toAccount": "Zu Konto",
-      "descriptionPlaceholder": "z. B. Monatliche Sparüberweisung, Einzahlung Notfallfonds"
+      "descriptionPlaceholder": "z. B. Monatliche Sparüberweisung, Einzahlung Notfallfonds",
+      "errors": {
+        "fromAccountRequired": "Quellkonto ist erforderlich",
+        "toAccountRequired": "Zielkonto ist erforderlich",
+        "accountsMustDiffer": "Quell- und Zielkonto müssen unterschiedlich sein",
+        "currencyMustMatch": "Quell- und Zielkonto müssen dieselbe Währung haben"
+      }
     },
     "operationFailed": "Übertragsvorgang fehlgeschlagen"
   },

@@ -10,7 +10,7 @@
             :items="accounts"
             item-title="name"
             item-value="id"
-            :label="t('common.account')"
+            :label="t('transactions.filterBar.account')"
             multiple
             chips
             closable-chips
@@ -101,11 +101,11 @@
             @click="handleClear"
             :disabled="loading || !filters.hasSelectedFilters.value"
           >
-            {{ t("transactions.filterBar.clear") }}
+            {{ t("common.buttons.clear") }}
           </v-btn>
           <v-spacer />
           <v-btn color="primary" @click="handleApply" :disabled="loading">
-            {{ t("transactions.filterBar.apply") }}
+            {{ t("common.buttons.apply") }}
           </v-btn>
         </v-col>
       </v-row>
