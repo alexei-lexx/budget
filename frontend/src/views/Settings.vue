@@ -151,6 +151,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
+import { DEFAULT_INTERFACE_LANGUAGE } from "@/composables/useLocale";
 import { useSnackbar } from "@/composables/useSnackbar";
 import { useTelegramBot } from "@/composables/useTelegramBot";
 import { useUserSettings } from "@/composables/useUserSettings";
@@ -158,7 +159,7 @@ import { useUserSettings } from "@/composables/useUserSettings";
 const MIN_PATTERNS_LIMIT = 1;
 const MAX_PATTERNS_LIMIT = 10;
 
-const LANGUAGE_CODES = [
+const VOICE_INPUT_LANGUAGE_CODES = [
   "ar-SA",
   "da-DK",
   "de-DE",
@@ -184,9 +185,11 @@ const LANGUAGE_CODES = [
 // Default to the browser language if it matches a supported code, otherwise fall back to en-US
 const browserLang = navigator.language;
 const browserLangPrefix = browserLang.split("-")[0] ?? browserLang;
-const defaultLanguage =
-  LANGUAGE_CODES.find((code) => code.toLowerCase() === browserLang.toLowerCase()) ??
-  LANGUAGE_CODES.find((code) => code.toLowerCase().startsWith(browserLangPrefix.toLowerCase())) ??
+const defaultVoiceInputLanguage =
+  VOICE_INPUT_LANGUAGE_CODES.find((code) => code.toLowerCase() === browserLang.toLowerCase()) ??
+  VOICE_INPUT_LANGUAGE_CODES.find((code) =>
+    code.toLowerCase().startsWith(browserLangPrefix.toLowerCase()),
+  ) ??
   "en-US";
 
 const { t, locale } = useI18n();
@@ -218,14 +221,14 @@ const { showSuccessSnackbar, showErrorSnackbar } = useSnackbar();
 
 const transactionPatternsLimit = ref<string>("");
 const tokenInput = ref<string>("");
-const voiceInputLanguage = ref<string>(defaultLanguage);
-const interfaceLanguage = ref<string>("en");
+const voiceInputLanguage = ref<string>(defaultVoiceInputLanguage);
+const interfaceLanguage = ref<string>(DEFAULT_INTERFACE_LANGUAGE);
 
 // Voice-input option labels are localized in the active interface language,
 // independent of the speech-recognition language codes themselves.
 const voiceInputLanguageOptions = computed(() => {
   const displayNames = new Intl.DisplayNames([locale.value], { type: "language" });
-  return LANGUAGE_CODES.map((code) => ({
+  return VOICE_INPUT_LANGUAGE_CODES.map((code) => ({
     title: displayNames.of(code) ?? code,
     value: code,
   })).sort((languageA, languageB) => languageA.title.localeCompare(languageB.title));

@@ -3,7 +3,7 @@ import { useGetUserSettingsQuery } from "@/__generated__/vue-apollo";
 import { i18n } from "@/plugins/i18n";
 import { useAuth } from "./useAuth";
 
-const DEFAULT_INTERFACE_LANGUAGE = "en";
+export const DEFAULT_INTERFACE_LANGUAGE = "en";
 
 // Codegen types interfaceLanguage as plain string since the schema declares it as String!,
 // not an enum. Narrow it against the actual configured catalog locales instead of trusting it.
