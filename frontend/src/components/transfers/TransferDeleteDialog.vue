@@ -2,7 +2,7 @@
   <DeleteConfirmationDialog
     :model-value="modelValue"
     :title="t('transfers.deleteDialog.title')"
-    :message="confirmMessage"
+    :message="message"
     :warning="t('transfers.deleteDialog.warning')"
     @update:model-value="$emit('update:modelValue', $event)"
     @confirm="$emit('confirm')"
@@ -35,7 +35,7 @@ defineEmits<Emits>();
 
 const { t } = useI18n();
 
-const confirmMessage = computed(() => {
+const message = computed(() => {
   if (!props.transaction) return "";
 
   const formattedAmount = formatTransactionAmount(
@@ -44,7 +44,7 @@ const confirmMessage = computed(() => {
     "TRANSFER_IN", // Use TRANSFER_IN type to ensure positive formatting
   );
 
-  return t("transfers.deleteDialog.confirmMessage", {
+  return t("transfers.deleteDialog.message", {
     amount: formattedAmount,
     from: props.fromAccountName || t("common.unknownAccount"),
     to: props.toAccountName || t("common.unknownAccount"),

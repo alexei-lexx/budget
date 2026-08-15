@@ -233,7 +233,7 @@
     "updateFailed": "Übertrag konnte nicht aktualisiert werden. Bitte versuchen Sie es erneut.",
     "deleteDialog": {
       "title": "Übertrag löschen",
-      "confirmMessage": "Möchten Sie diesen Übertrag von {amount} von „{from}“ nach „{to}“ wirklich löschen?",
+      "message": "Möchten Sie diesen Übertrag von {amount} von „{from}“ nach „{to}“ wirklich löschen?",
       "warning": "Diese Aktion kann nicht rückgängig gemacht werden. Sowohl die ausgehende als auch die eingehende Transaktion werden dauerhaft aus Ihren Aufzeichnungen entfernt."
     },
     "form": {

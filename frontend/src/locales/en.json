@@ -233,7 +233,7 @@
     "updateFailed": "Failed to update transfer. Please try again.",
     "deleteDialog": {
       "title": "Delete Transfer",
-      "confirmMessage": "Are you sure you want to delete this transfer of {amount} from \"{from}\" to \"{to}\"?",
+      "message": "Are you sure you want to delete this transfer of {amount} from \"{from}\" to \"{to}\"?",
       "warning": "This action cannot be undone. Both the outbound and inbound transactions will be permanently removed from your records."
     },
     "form": {
