@@ -261,8 +261,8 @@ const handleSave = async () => {
   const transactionPatternsLimitRaw = transactionPatternsLimit.value.trim();
 
   const success = await updateSettings({
-    voiceInputLanguage: voiceInputLanguage.value,
     interfaceLanguage: interfaceLanguage.value,
+    voiceInputLanguage: voiceInputLanguage.value,
     transactionPatternsLimit: transactionPatternsLimitRaw
       ? parseInt(transactionPatternsLimitRaw, 10)
       : undefined,
