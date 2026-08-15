@@ -253,6 +253,7 @@
     "prompt": "Please sign in to start managing your finances",
     "settingUp": "Setting up your account...",
     "welcomeBack": "Welcome back, {name}! Redirecting to your transactions...",
+    "button": "Sign In",
     "loginFailed": "Login failed"
   },
   "assistant": {

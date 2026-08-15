@@ -253,6 +253,7 @@
     "prompt": "Bitte melden Sie sich an, um Ihre Finanzen zu verwalten",
     "settingUp": "Ihr Konto wird eingerichtet...",
     "welcomeBack": "Willkommen zurück, {name}! Sie werden zu Ihren Transaktionen weitergeleitet...",
+    "button": "Anmelden",
     "loginFailed": "Anmeldung fehlgeschlagen"
   },
   "assistant": {

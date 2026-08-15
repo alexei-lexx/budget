@@ -7,7 +7,7 @@
     @click="handleLogin"
   >
     <v-icon start icon="mdi-login" />
-    {{ t("nav.signIn") }}
+    {{ t("signIn.button") }}
   </v-btn>
 </template>
 
