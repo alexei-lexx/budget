@@ -5,6 +5,12 @@ import { useAuth } from "./useAuth";
 
 const DEFAULT_INTERFACE_LANGUAGE = "en";
 
+// Codegen types interfaceLanguage as plain string since the schema declares it as String!,
+// not an enum. Narrow it against the actual configured catalog locales instead of trusting it.
+function isSupportedLocale(value: string): value is typeof i18n.global.locale.value {
+  return i18n.global.availableLocales.some((locale) => locale === value);
+}
+
 /**
  * Owns the active I18n locale.
  * Applies the authenticated user's saved interface language before authenticated
@@ -23,10 +29,11 @@ export function useLocale() {
   watch(
     result,
     (data) => {
-      // Backend validates interfaceLanguage against the supported list, so the value
-      // always matches a configured catalog locale even though codegen types it as string.
-      locale.value = (data?.userSettings?.interfaceLanguage ??
-        DEFAULT_INTERFACE_LANGUAGE) as typeof locale.value;
+      const interfaceLanguage = data?.userSettings?.interfaceLanguage;
+      locale.value =
+        interfaceLanguage && isSupportedLocale(interfaceLanguage)
+          ? interfaceLanguage
+          : DEFAULT_INTERFACE_LANGUAGE;
     },
     { immediate: true },
   );
