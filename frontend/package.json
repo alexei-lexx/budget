@@ -36,6 +36,7 @@
     "@graphql-codegen/typescript": "^5.0.2",
     "@graphql-codegen/typescript-operations": "^5.0.2",
     "@graphql-codegen/typescript-vue-apollo": "^5.0.0",
+    "@intlify/eslint-plugin-vue-i18n": "^4.5.1",
     "@mdi/font": "^7.4.47",
     "@tsconfig/node22": "^22.0.2",
     "@types/dom-speech-recognition": "^0.0.7",
