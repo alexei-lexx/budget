@@ -27,7 +27,6 @@
       }
     },
     "account": "Account",
-    "description": "Description",
     "loadingSuggestions": "Loading suggestions...",
     "noSuggestionsFound": "No suggestions found",
     "voiceInput": "Voice input",

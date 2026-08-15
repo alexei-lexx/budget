@@ -5,7 +5,7 @@ import { useDescriptionSuggestions } from "@/composables/useDescriptionSuggestio
 
 interface Props {
   modelValue: string;
-  label?: string;
+  label: string;
   placeholder?: string;
   disabled?: boolean;
   variant?:
@@ -19,7 +19,6 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  label: undefined,
   placeholder: "",
   disabled: false,
   variant: "outlined",
@@ -157,7 +156,7 @@ const handleBlur = () => {
     <v-text-field
       ref="textFieldRef"
       v-model="inputValue"
-      :label="label ?? t('common.description')"
+      :label="label"
       :placeholder="placeholder"
       :disabled="disabled"
       :variant="variant"

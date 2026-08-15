@@ -27,7 +27,6 @@
       }
     },
     "account": "Konto",
-    "description": "Beschreibung",
     "loadingSuggestions": "Vorschläge werden geladen...",
     "noSuggestionsFound": "Keine Vorschläge gefunden",
     "voiceInput": "Spracheingabe",
