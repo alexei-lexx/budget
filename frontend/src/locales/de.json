@@ -269,17 +269,17 @@
     "placeholder": "Fragen Sie zu Ihren Ausgaben...",
     "inputAriaLabel": "Frage stellen",
     "submitAriaLabel": "Frage senden",
-    "responseFailed": "Antwort des Assistenten konnte nicht abgerufen werden. Bitte versuchen Sie es erneut.",
-    "agentTrace": {
-      "title": "Agent-Ablauf",
-      "noMessages": "Keine Ablaufmeldungen verfügbar.",
-      "viewAriaLabel": "Agent-Ablauf anzeigen",
-      "labels": {
-        "text": "TEXT",
-        "toolCall": "TOOL-AUFRUF",
-        "toolResult": "TOOL-ERGEBNIS",
-        "unknown": "UNBEKANNT"
-      }
+    "responseFailed": "Antwort des Assistenten konnte nicht abgerufen werden. Bitte versuchen Sie es erneut."
+  },
+  "agentTrace": {
+    "title": "Agent-Ablauf",
+    "noMessages": "Keine Ablaufmeldungen verfügbar.",
+    "viewAriaLabel": "Agent-Ablauf anzeigen",
+    "labels": {
+      "text": "TEXT",
+      "toolCall": "TOOL-AUFRUF",
+      "toolResult": "TOOL-ERGEBNIS",
+      "unknown": "UNBEKANNT"
     }
   },
   "reports": {

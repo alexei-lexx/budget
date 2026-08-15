@@ -3,7 +3,7 @@
     :disabled="agentTrace.length === 0 || loading"
     icon="mdi-bug-outline"
     variant="tonal"
-    :aria-label="t('assistant.agentTrace.viewAriaLabel')"
+    :aria-label="t('agentTrace.viewAriaLabel')"
     @click="$emit('click')"
   />
 </template>

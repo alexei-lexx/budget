@@ -269,17 +269,17 @@
     "placeholder": "Ask about your spending...",
     "inputAriaLabel": "Ask a question",
     "submitAriaLabel": "Submit question",
-    "responseFailed": "Failed to get assistant response. Please try again.",
-    "agentTrace": {
-      "title": "Agent Trace",
-      "noMessages": "No trace messages available.",
-      "viewAriaLabel": "View agent trace",
-      "labels": {
-        "text": "TEXT",
-        "toolCall": "TOOL CALL",
-        "toolResult": "TOOL RESULT",
-        "unknown": "UNKNOWN"
-      }
+    "responseFailed": "Failed to get assistant response. Please try again."
+  },
+  "agentTrace": {
+    "title": "Agent Trace",
+    "noMessages": "No trace messages available.",
+    "viewAriaLabel": "View agent trace",
+    "labels": {
+      "text": "TEXT",
+      "toolCall": "TOOL CALL",
+      "toolResult": "TOOL RESULT",
+      "unknown": "UNKNOWN"
     }
   },
   "reports": {
