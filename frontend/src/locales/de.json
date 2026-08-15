@@ -170,7 +170,7 @@
     "deletedCategory": "Gelöschte Kategorie",
     "deleteDialog": {
       "title": "Transaktion löschen",
-      "confirmMessage": "Möchten Sie die Transaktion „{account}, {amount}“ wirklich löschen?",
+      "message": "Möchten Sie die Transaktion „{account}, {amount}“ wirklich löschen?",
       "warning": "Diese Aktion kann nicht rückgängig gemacht werden. Die Transaktion wird dauerhaft aus Ihren Aufzeichnungen entfernt."
     },
     "form": {

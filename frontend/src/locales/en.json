@@ -170,7 +170,7 @@
     "deletedCategory": "Deleted category",
     "deleteDialog": {
       "title": "Delete Transaction",
-      "confirmMessage": "Are you sure you want to delete the transaction \"{account}, {amount}\"?",
+      "message": "Are you sure you want to delete the transaction \"{account}, {amount}\"?",
       "warning": "This action cannot be undone. The transaction will be permanently removed from your records."
     },
     "form": {
