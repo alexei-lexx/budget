@@ -50,7 +50,7 @@ const formattedDate = computed(() => {
     options.year = "numeric";
   }
 
-  return date.toLocaleDateString(undefined, options);
+  return date.toLocaleDateString(locale.value, options);
 });
 
 // Amount color based on type
@@ -81,7 +81,7 @@ const handleCardClick = () => {
   emit("toggleExpand", props.transaction.id);
 };
 
-const { t } = useI18n();
+const { t, locale } = useI18n();
 </script>
 
 <template>
