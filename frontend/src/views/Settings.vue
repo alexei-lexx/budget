@@ -24,7 +24,7 @@
         <v-col cols="12" sm="6">
           <v-select
             v-model="voiceInputLanguage"
-            :items="languageOptions"
+            :items="voiceInputLanguageOptions"
             :label="t('settings.voiceInputLanguage')"
             variant="outlined"
           />
@@ -223,7 +223,7 @@ const interfaceLanguage = ref<string>("en");
 
 // Voice-input option labels are localized in the active interface language,
 // independent of the speech-recognition language codes themselves.
-const languageOptions = computed(() => {
+const voiceInputLanguageOptions = computed(() => {
   const displayNames = new Intl.DisplayNames([locale.value], { type: "language" });
   return LANGUAGE_CODES.map((code) => ({
     title: displayNames.of(code) ?? code,
