@@ -284,23 +284,21 @@
     "yearly": "Jährlich",
     "previous": "Zurück",
     "next": "Weiter",
-    "error": {
-      "title": "Berichtsfehler",
-      "loadFailed": "Bericht konnte nicht geladen werden: {message}",
-      "invalidUrlMonthYear": "Ungültiger Monat oder Jahr in URL-Parametern",
-      "invalidUrlYear": "Ungültiges Jahr in URL-Parametern"
-    },
     "table": {
       "sortByCategory": "Kategorie",
       "sortByAmount": "Betrag",
-      "loadFailedTitle": "Kategorieaufschlüsselung konnte nicht geladen werden",
       "emptyTitle": "Keine Transaktionen gefunden",
       "emptyText": "Für diesen Monat gibt es keine Ausgabentransaktionen.",
       "showingCount": "{shown} von {total} angezeigt",
       "total": "Gesamt"
     },
     "errors": {
-      "fetchFailed": "Kategorieaufschlüsselung konnte nicht geladen werden"
+      "fetchFailed": "Kategorieaufschlüsselung konnte nicht geladen werden",
+      "title": "Berichtsfehler",
+      "loadFailed": "Bericht konnte nicht geladen werden: {message}",
+      "invalidUrlMonthYear": "Ungültiger Monat oder Jahr in URL-Parametern",
+      "invalidUrlYear": "Ungültiges Jahr in URL-Parametern",
+      "loadFailedTitle": "Kategorieaufschlüsselung konnte nicht geladen werden"
     }
   },
   "settings": {

@@ -284,23 +284,21 @@
     "yearly": "Yearly",
     "previous": "Previous",
     "next": "Next",
-    "error": {
-      "title": "Report Error",
-      "loadFailed": "Failed to load report: {message}",
-      "invalidUrlMonthYear": "Invalid month or year in URL parameters",
-      "invalidUrlYear": "Invalid year in URL parameters"
-    },
     "table": {
       "sortByCategory": "Category",
       "sortByAmount": "Amount",
-      "loadFailedTitle": "Failed to load category breakdown",
       "emptyTitle": "No transactions found",
       "emptyText": "There are no expense transactions for this month.",
       "showingCount": "Showing {shown} of {total}",
       "total": "Total"
     },
     "errors": {
-      "fetchFailed": "Failed to fetch by-category report"
+      "fetchFailed": "Failed to fetch by-category report",
+      "title": "Report Error",
+      "loadFailed": "Failed to load report: {message}",
+      "invalidUrlMonthYear": "Invalid month or year in URL parameters",
+      "invalidUrlYear": "Invalid year in URL parameters",
+      "loadFailedTitle": "Failed to load category breakdown"
     }
   },
   "settings": {

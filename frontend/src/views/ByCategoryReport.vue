@@ -21,7 +21,7 @@
       closable
       @click:close="clearGlobalError"
     >
-      <v-alert-title>{{ t("reports.error.title") }}</v-alert-title>
+      <v-alert-title>{{ t("reports.errors.title") }}</v-alert-title>
       <div>{{ globalError }}</div>
     </v-alert>
 
@@ -106,7 +106,7 @@ const reportError = computed(() => byCategoryReportError.value?.message || null)
 // Watch for errors and show global error alert
 watch(byCategoryReportError, (error) => {
   if (error) {
-    globalError.value = t("reports.error.loadFailed", { message: error.message });
+    globalError.value = t("reports.errors.loadFailed", { message: error.message });
     console.error("By-category report error:", error);
   }
 });
@@ -178,7 +178,7 @@ onMounted(() => {
       selectedMonth.value = month;
       viewMode.value = "monthly";
     } else {
-      globalError.value = t("reports.error.invalidUrlMonthYear");
+      globalError.value = t("reports.errors.invalidUrlMonthYear");
     }
   } else if (yearParam) {
     const year = parseInt(yearParam as string);
@@ -186,7 +186,7 @@ onMounted(() => {
       selectedYear.value = year;
       viewMode.value = "yearly";
     } else {
-      globalError.value = t("reports.error.invalidUrlYear");
+      globalError.value = t("reports.errors.invalidUrlYear");
     }
   }
 });
