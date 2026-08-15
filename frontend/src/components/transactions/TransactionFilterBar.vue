@@ -145,11 +145,11 @@ const categoryOptions = computed(() => {
 
 // Transaction type options
 const transactionTypeOptions = computed(() => [
-  { title: t("categories.types.income"), value: "INCOME" as TransactionType },
-  { title: t("categories.types.expense"), value: "EXPENSE" as TransactionType },
-  { title: t("transactions.filterBar.transferIn"), value: "TRANSFER_IN" as TransactionType },
-  { title: t("transactions.filterBar.transferOut"), value: "TRANSFER_OUT" as TransactionType },
-  { title: t("transactions.form.refund"), value: "REFUND" as TransactionType },
+  { title: t("transactions.types.income"), value: "INCOME" as TransactionType },
+  { title: t("transactions.types.expense"), value: "EXPENSE" as TransactionType },
+  { title: t("transactions.types.transferIn"), value: "TRANSFER_IN" as TransactionType },
+  { title: t("transactions.types.transferOut"), value: "TRANSFER_OUT" as TransactionType },
+  { title: t("transactions.types.refund"), value: "REFUND" as TransactionType },
 ]);
 
 function handleApply() {

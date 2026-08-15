@@ -252,19 +252,19 @@ const handlePatternSelected = (pattern: { accountId: string; categoryId: string 
               <template #prepend>
                 <v-icon :color="getTransactionTypeColor('EXPENSE')">mdi-cash-minus</v-icon>
               </template>
-              {{ t("categories.types.expense") }}
+              {{ t("transactions.types.expense") }}
             </v-btn>
             <v-btn value="INCOME" class="flex-1-1">
               <template #prepend>
                 <v-icon :color="getTransactionTypeColor('INCOME')">mdi-cash-plus</v-icon>
               </template>
-              {{ t("categories.types.income") }}
+              {{ t("transactions.types.income") }}
             </v-btn>
             <v-btn value="REFUND" class="flex-1-1">
               <template #prepend>
                 <v-icon :color="getTransactionTypeColor('REFUND')">mdi-cash-refund</v-icon>
               </template>
-              {{ t("transactions.form.refund") }}
+              {{ t("transactions.types.refund") }}
             </v-btn>
           </v-btn-toggle>
         </div>
