@@ -16,7 +16,7 @@
           {{ message }}
         </p>
         <p class="text-body-2 text-medium-emphasis">
-          {{ warning ?? t("common.deleteIrreversible") }}
+          {{ warning }}
         </p>
       </v-card-text>
 
@@ -43,8 +43,8 @@ interface Props {
   title: string;
   /** The main confirmation message asking the user to confirm the action */
   message: string;
-  /** Optional warning text shown below the confirmation message (defaults to "This action cannot be undone.") */
-  warning?: string;
+  /** Warning text shown below the confirmation message */
+  warning: string;
 }
 
 interface Emits {
@@ -56,9 +56,7 @@ interface Emits {
   (e: "cancel"): void;
 }
 
-withDefaults(defineProps<Props>(), {
-  warning: undefined,
-});
+defineProps<Props>();
 
 defineEmits<Emits>();
 

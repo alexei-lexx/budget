@@ -26,7 +26,6 @@
         "genericFailure": "Spracheingabe fehlgeschlagen — bitte erneut versuchen"
       }
     },
-    "deleteIrreversible": "Diese Aktion kann nicht rückgängig gemacht werden.",
     "account": "Konto",
     "description": "Beschreibung",
     "loadingSuggestions": "Vorschläge werden geladen...",
