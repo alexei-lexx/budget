@@ -2,7 +2,7 @@
   <DeleteConfirmationDialog
     :model-value="modelValue"
     :title="t('categories.deleteDialog.title')"
-    :confirm-message="confirmMessage"
+    :message="confirmMessage"
     :warning="t('categories.deleteDialog.warning')"
     @update:model-value="$emit('update:modelValue', $event)"
     @confirm="$emit('confirm')"

@@ -2,7 +2,7 @@
   <DeleteConfirmationDialog
     :model-value="modelValue"
     :title="t('accounts.deleteDialog.title')"
-    :confirm-message="confirmMessage"
+    :message="message"
     :warning="t('accounts.deleteDialog.warning')"
     @update:model-value="$emit('update:modelValue', $event)"
     @confirm="$emit('confirm')"
@@ -32,7 +32,7 @@ defineEmits<Emits>();
 
 const { t } = useI18n();
 
-const confirmMessage = computed(() => {
+const message = computed(() => {
   if (!props.account) return "";
   return t("accounts.deleteDialog.confirmMessage", { name: props.account.name });
 });
