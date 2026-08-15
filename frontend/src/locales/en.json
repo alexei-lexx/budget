@@ -19,18 +19,18 @@
     },
     "errors": {
       "generic": "Something went wrong. Please try again later.",
-      "connection": "Connection problem. Please check your internet and try again."
+      "connection": "Connection problem. Please check your internet and try again.",
+      "amountValidation": {
+        "mustBePositive": "Amount must be greater than 0",
+        "tooLarge": "Amount is too large",
+        "tooManyDecimals": "Amount can have at most 2 decimal places",
+        "tooSmall": "Amount must be at least 0.01"
+      }
     },
     "loadingSuggestions": "Loading suggestions...",
     "noSuggestionsFound": "No suggestions found",
     "voiceInput": "Voice input",
-    "unknownAccount": "Unknown Account",
-    "amountValidation": {
-      "mustBePositive": "Amount must be greater than 0",
-      "tooLarge": "Amount is too large",
-      "tooManyDecimals": "Amount can have at most 2 decimal places",
-      "tooSmall": "Amount must be at least 0.01"
-    }
+    "unknownAccount": "Unknown Account"
   },
   "app": {
     "title": "Personal Budget Tracker",

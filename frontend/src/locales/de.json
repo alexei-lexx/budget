@@ -19,18 +19,18 @@
     },
     "errors": {
       "generic": "Etwas ist schiefgelaufen. Bitte versuchen Sie es später erneut.",
-      "connection": "Verbindungsproblem. Bitte überprüfen Sie Ihre Internetverbindung und versuchen Sie es erneut."
+      "connection": "Verbindungsproblem. Bitte überprüfen Sie Ihre Internetverbindung und versuchen Sie es erneut.",
+      "amountValidation": {
+        "mustBePositive": "Betrag muss größer als 0 sein",
+        "tooLarge": "Betrag ist zu groß",
+        "tooManyDecimals": "Betrag darf höchstens 2 Dezimalstellen haben",
+        "tooSmall": "Betrag muss mindestens 0,01 betragen"
+      }
     },
     "loadingSuggestions": "Vorschläge werden geladen...",
     "noSuggestionsFound": "Keine Vorschläge gefunden",
     "voiceInput": "Spracheingabe",
-    "unknownAccount": "Unbekanntes Konto",
-    "amountValidation": {
-      "mustBePositive": "Betrag muss größer als 0 sein",
-      "tooLarge": "Betrag ist zu groß",
-      "tooManyDecimals": "Betrag darf höchstens 2 Dezimalstellen haben",
-      "tooSmall": "Betrag muss mindestens 0,01 betragen"
-    }
+    "unknownAccount": "Unbekanntes Konto"
   },
   "app": {
     "title": "Persönlicher Budget-Tracker",

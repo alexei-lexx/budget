@@ -3,7 +3,7 @@ import { ref, computed, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { getCurrencySymbol } from "@/utils/currency";
 import { checkRules, type CheckRule } from "@/utils/validation";
-import { createCurrencyAmountRules } from "@/utils/currencyValidation";
+import { createAmountRules } from "@/utils/amountValidation";
 import { getTodayDateString } from "@/utils/date";
 import { useAccounts } from "@/composables/useAccounts";
 import AccountSelect from "@/components/common/AccountSelect.vue";
@@ -108,7 +108,7 @@ const toAccountRules: CheckRule[] = [
   (value: string) => !!value || t("transfers.errors.toAccountRequired"),
 ];
 
-const amountRules = createCurrencyAmountRules(t);
+const amountRules = createAmountRules(t);
 
 const dateRules: CheckRule[] = [
   (value: string) => !!value || t("transactions.errors.dateRequired"),

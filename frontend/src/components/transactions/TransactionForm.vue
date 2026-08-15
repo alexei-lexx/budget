@@ -4,7 +4,7 @@ import { useI18n } from "vue-i18n";
 import { getCurrencySymbol } from "@/utils/currency";
 import { getTransactionTypeColor } from "@/utils/transaction";
 import { checkRules, type CheckRule } from "@/utils/validation";
-import { createCurrencyAmountRules } from "@/utils/currencyValidation";
+import { createAmountRules } from "@/utils/amountValidation";
 import { getTodayDateString } from "@/utils/date";
 import { useAccounts } from "@/composables/useAccounts";
 import { useCategories } from "@/composables/useCategories";
@@ -94,7 +94,7 @@ const typeRules: CheckRule<TransactionType>[] = [
     ["INCOME", "EXPENSE", "REFUND"].includes(value) || t("transactions.errors.typeInvalid"),
 ];
 
-const amountRules = createCurrencyAmountRules(t);
+const amountRules = createAmountRules(t);
 
 const dateRules: CheckRule[] = [
   (value: string) => !!value || t("transactions.errors.dateRequired"),
