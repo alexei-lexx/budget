@@ -14,7 +14,7 @@ import { Failure, Result, Success } from "../../types/result";
 import { buildGuideTokensField, verifyGuideTokens } from "./guides";
 import { toToolResult } from "./to-tool-result";
 
-const requiredGuides = ["basics"] as const;
+const requiredGuides = ["basics", "create-transaction"] as const;
 
 export async function createTransaction(
   {

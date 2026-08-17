@@ -65,26 +65,105 @@ Transfer is a money movement between two accounts.
 - If a calculation is needed, you MUST perform it programmatically, not by hand
 `.trim();
 
-export const GUIDES: Record<"basics", Guide> = {
-  basics: {
+const CREATE_TRANSACTION_SUMMARY =
+  "Rules for inferring fields needed to create a transaction: type, amount, account, etc";
+
+const CREATE_TRANSACTION_INSTRUCTION = `
+IMPORTANT: you MUST follow this guide's rules whenever they apply.
+
+Use these rules whenever the user wants to log a transaction — a purchase, a paycheck, a refund, or anything else that moves money.
+
+## Type
+
+- Mandatory field
+- Supported values:
+  - income — money received (e.g., salary, earned, received)
+  - expense — money spent (e.g., bought, paid, spent)
+  - refund — money returned for a previous expense (e.g., refund, returned)
+- Default to expense when intent is unclear
+
+## Amount
+
+- Mandatory field
+- Numeric or written value representing a money quantity (e.g., 25, 20.5, "twenty five euros")
+- If multiple amounts are present, MUST stop and report an error — only one transaction at a time
+
+## Account
+
+- Mandatory field
+- Account MUST be active
+- Select by priority:
+  1. Currency match — account MUST match the mentioned currency
+  2. Name match — prefer the account named or implied in user input
+  3. Category history — prefer the account most used with the inferred category
+  4. Overall history — prefer the account most used overall
+- MUST look up past transactions for history-based criteria — do not guess
+
+## Category
+
+- Optional field
+- Category MUST be active
+- Infer by priority:
+  1. Name match — category name mentioned in user input
+  2. Signal match — synonyms, store names, product names imply a category
+  3. History — most used category for similar transactions
+- May look up past transactions for history-based criteria — do not guess
+
+## Date
+
+- Mandatory field
+- Default to today's date unless an explicit date is provided
+
+## Description
+
+- Optional field
+- Keep the original language of the user's text
+- MUST be grammatically correct, without typos
+- MUST describe the item or service — not the reason, parties, or context
+- MUST provide meaningful details that supplement the transaction
+- MUST NOT build description from the category name, its variations, or its translations
+- Default to blank if no meaningful description can be formed
+`.trim();
+
+export class Guide {
+  readonly name: GuideName;
+  readonly summary: string;
+  readonly instruction: string;
+
+  constructor({
+    name,
+    summary,
+    instruction,
+  }: {
+    name: GuideName;
+    summary: string;
+    instruction: string;
+  }) {
+    this.name = name;
+    this.summary = summary;
+    this.instruction = instruction;
+  }
+
+  get token(): string {
+    return buildGuideToken(this.name, this.instruction, Date.now());
+  }
+}
+
+export const GUIDES: Record<"basics" | "create-transaction", Guide> = {
+  basics: new Guide({
     name: "basics",
     summary: BASICS_SUMMARY,
     instruction: BASICS_INSTRUCTION,
-    get token() {
-      return buildGuideToken("basics", BASICS_INSTRUCTION, Date.now());
-    },
-  },
+  }),
+  "create-transaction": new Guide({
+    name: "create-transaction",
+    summary: CREATE_TRANSACTION_SUMMARY,
+    instruction: CREATE_TRANSACTION_INSTRUCTION,
+  }),
 };
 
 export const GUIDE_NAMES = Object.keys(GUIDES) as GuideName[];
 export type GuideName = keyof typeof GUIDES;
-
-export interface Guide {
-  name: GuideName;
-  summary: string;
-  instruction: string;
-  token: string;
-}
 
 export function verifyGuideTokens({
   guideTokens,

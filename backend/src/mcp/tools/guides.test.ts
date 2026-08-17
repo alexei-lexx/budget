@@ -1,24 +1,42 @@
+import { faker } from "@faker-js/faker";
 import { describe, expect, it, vi } from "vitest";
-import { GUIDES, buildGuideTokensField, verifyGuideTokens } from "./guides";
+import {
+  GUIDES,
+  Guide,
+  buildGuideTokensField,
+  verifyGuideTokens,
+} from "./guides";
 
-describe("GUIDES", () => {
-  it("basics token has form name.HASH8", () => {
-    // Act & Assert
-    expect(GUIDES.basics.token).toMatch(/^basics\.[0-9A-F]{8}$/);
-  });
-
+describe("Guide", () => {
   describe("token", () => {
+    it("has form name.HASH8", () => {
+      // Arrange
+      const guide = new Guide({
+        name: "basics",
+        summary: faker.lorem.sentence(),
+        instruction: faker.lorem.paragraph(),
+      });
+
+      // Act & Assert
+      expect(guide.token).toMatch(/^basics\.[0-9A-F]{8}$/);
+    });
+
     it("returns same token when read twice within same hour", () => {
       // Arrange
+      const guide = new Guide({
+        name: "basics",
+        summary: faker.lorem.sentence(),
+        instruction: faker.lorem.paragraph(),
+      });
       // Freezes clock inside hour bucket 10:00-11:00
       vi.useFakeTimers().setSystemTime(new Date("2000-01-02T10:05:00.000Z"));
-      const first = GUIDES.basics.token;
+      const first = guide.token;
 
       try {
         // Act
         // Moves clock, still inside same hour bucket
         vi.useFakeTimers().setSystemTime(new Date("2000-01-02T10:55:00.000Z"));
-        const second = GUIDES.basics.token;
+        const second = guide.token;
 
         // Assert
         expect(second).toBe(first);
@@ -30,15 +48,20 @@ describe("GUIDES", () => {
 
     it("returns different tokens when read in different hour buckets", () => {
       // Arrange
+      const guide = new Guide({
+        name: "basics",
+        summary: faker.lorem.sentence(),
+        instruction: faker.lorem.paragraph(),
+      });
       // Freezes clock inside hour bucket 10:00-11:00
       vi.useFakeTimers().setSystemTime(new Date("2000-01-02T10:50:00.000Z"));
-      const first = GUIDES.basics.token;
+      const first = guide.token;
 
       try {
         // Act
         // Freezes clock inside hour bucket 11:00-12:00
         vi.setSystemTime(new Date("2000-01-02T11:10:00.000Z"));
-        const second = GUIDES.basics.token;
+        const second = guide.token;
 
         // Assert
         expect(second).not.toBe(first);
@@ -53,11 +76,15 @@ describe("GUIDES", () => {
 describe("verifyGuideTokens", () => {
   // Happy path
 
-  it("accepts matching token for required guide", () => {
+  it("accepts matching tokens for required guide", () => {
+    // Arrange
+    const guides = Object.values(GUIDES);
+
     // Act
+    const validTokens = guides.map((guide) => guide.token);
     const result = verifyGuideTokens({
-      guideTokens: [GUIDES.basics.token],
-      requiredGuides: ["basics"],
+      guideTokens: validTokens,
+      requiredGuides: guides.map((guide) => guide.name),
     });
 
     // Assert
@@ -164,6 +191,23 @@ describe("verifyGuideTokens", () => {
       // Restores clock even if assertion above fails
       vi.useRealTimers();
     }
+  });
+
+  it("rejects and names only guide missing its token", () => {
+    // Arrange
+    const [missingGuide, ...otherGuides] = Object.values(GUIDES);
+
+    // Act
+    const result = verifyGuideTokens({
+      guideTokens: otherGuides.map((guide) => guide.token),
+      requiredGuides: [missingGuide.name, ...otherGuides.map((g) => g.name)],
+    });
+
+    // Assert
+    expect(result).toEqual({
+      success: false,
+      error: `Missing or invalid guide token for: ${missingGuide.name}. Reload the guide(s) and retry`,
+    });
   });
 
   it("does not disclose valid token in failure message", () => {
