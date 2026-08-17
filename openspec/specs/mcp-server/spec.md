@@ -59,12 +59,19 @@ A guide token SHALL be derived from the guide's content and the time it was issu
 **Available guides:**
 
 - `basics` — the shared domain knowledge for reading and recording the user's finances: what accounts, categories, and transactions are and how they relate; what a category's report-exclusion setting means and that report-excluded categories are left out of totals; how a refund affects spending; how the two sides of a transfer behave and that they are not ordinary income or expense; that archived accounts and categories still hold historical transactions and must be included when analysing past periods; and the rules for analysis and calculation, including confirming the period with the user rather than assuming one
+- `create-transaction` — the rules for inferring a new transaction's fields when they are not given explicitly: how to select type, amount, account, and category by priority (an explicit match first, then supplementary signals, then the user's transaction history), that date defaults to today unless a date is stated, and that a description must describe the item or service rather than the reason for the transaction and is left blank when nothing meaningful can be formed
 
 #### Scenario: Agent loads a guide
 
 - **GIVEN** an authenticated MCP connection
 - **WHEN** the agent invokes `load_guides` with `names` = `["basics"]`
 - **THEN** the tool returns one guide object with `name` = `basics`, the guide's full text, and a guide token for it
+
+#### Scenario: Agent loads the create-transaction guide
+
+- **GIVEN** an authenticated MCP connection
+- **WHEN** the agent invokes `load_guides` with `names` = `["create-transaction"]`
+- **THEN** the tool returns one guide object with `name` = `create-transaction`, the guide's full text, and a guide token for it
 
 #### Scenario: Agent loads several guides in one call
 
@@ -447,7 +454,7 @@ The system SHALL provide an MCP tool named `get_transactions` that lists the aut
 
 The system SHALL provide an MCP tool named `create_transaction` that lets an agent record a new transaction on behalf of the authenticated user. The tool SHALL enforce the same business rules as transaction creation elsewhere in the system, and SHALL reject a request that violates those rules without recording a transaction.
 
-**Requires guides:** `basics`
+**Requires guides:** `basics`, `create-transaction`
 
 **Input:**
 
@@ -457,7 +464,7 @@ The system SHALL provide an MCP tool named `create_transaction` that lets an age
 - `date` (required, string, format `YYYY-MM-DD`) — transaction date
 - `description` (optional, string, max 500 characters) — short description
 - `type` (required, enum: `INCOME`, `EXPENSE`, `REFUND`) — transaction type (transfers are not creatable through this tool)
-- `guideTokens` (required, array of strings) — a valid, current token for each guide this tool requires: `basics`
+- `guideTokens` (required, array of strings) — a valid, current token for each guide this tool requires: `basics`, `create-transaction`
 
 **Returns (on success):** the created transaction object, with:
 
@@ -475,20 +482,20 @@ The system SHALL provide an MCP tool named `create_transaction` that lets an age
 #### Scenario: Agent creates a valid transaction
 
 - **GIVEN** an authenticated MCP connection and an `accountId` (and, if supplied, `categoryId`) the user owns
-- **WHEN** the agent invokes `create_transaction` with valid `accountId`, `amount`, `date`, and `type` and a valid `basics` guide token
+- **WHEN** the agent invokes `create_transaction` with valid `accountId`, `amount`, `date`, and `type` and valid `basics` and `create-transaction` guide tokens
 - **THEN** a transaction is recorded for that user and the tool returns the created transaction's `id`, `accountId`, `categoryId`, `type`, `amount`, `currency`, `date`, and `description`
 
 #### Scenario: Agent submits an invalid transaction
 
 - **GIVEN** an authenticated MCP connection
-- **WHEN** the agent invokes `create_transaction` with details that violate a business rule (for example a nonexistent account, a nonexistent category, or an amount that is not positive) and a valid `basics` guide token
+- **WHEN** the agent invokes `create_transaction` with details that violate a business rule (for example a nonexistent account, a nonexistent category, or an amount that is not positive) and valid `basics` and `create-transaction` guide tokens
 - **THEN** no transaction is recorded and the tool returns a failure describing what was invalid
 
 #### Scenario: Agent invokes `create_transaction` without a valid guide token
 
 - **GIVEN** an authenticated MCP connection
-- **WHEN** the agent invokes `create_transaction` without a valid `basics` guide token
-- **THEN** the tool returns a failure naming the required guide and no transaction is recorded
+- **WHEN** the agent invokes `create_transaction` without a valid token for `basics`, for `create-transaction`, or for both
+- **THEN** the tool returns a failure naming the missing required guide(s) and no transaction is recorded
 
 ### Requirement: Update Transaction via MCP
 
