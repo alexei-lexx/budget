@@ -17,7 +17,10 @@ describe("createTransaction", () => {
   const userId = faker.string.uuid();
   let deps: { transactionService: Mocked<TransactionService>; userId: string };
 
-  const validGuideToken = GUIDES.basics.token;
+  const validGuideTokens = [
+    GUIDES.basics.token,
+    GUIDES["create-transaction"].token,
+  ];
 
   beforeEach(() => {
     mockTransactionService = createMockTransactionService();
@@ -42,7 +45,10 @@ describe("createTransaction", () => {
 
     // Act
     const result = await createTransaction(
-      { ...input, guideTokens: [validGuideToken] },
+      {
+        ...input,
+        guideTokens: validGuideTokens,
+      },
       deps,
     );
 
@@ -68,7 +74,7 @@ describe("createTransaction", () => {
 
   // Validation failures
 
-  it("rejects without valid basics guide token and does not call service", async () => {
+  it("rejects without any guide tokens and does not call service", async () => {
     // Act
     const result = await createTransaction(
       {
@@ -85,12 +91,12 @@ describe("createTransaction", () => {
     expect(result).toEqual({
       success: false,
       error:
-        "Missing or invalid guide token for: basics. Reload the guide(s) and retry",
+        "Missing or invalid guide token for: basics, create-transaction. Reload the guide(s) and retry",
     });
     expect(mockTransactionService.createTransaction).not.toHaveBeenCalled();
   });
 
-  it("does not disclose valid guide token in rejection message", async () => {
+  it("does not disclose valid guide tokens in rejection message", async () => {
     // Act
     const result = await createTransaction(
       {
@@ -104,10 +110,12 @@ describe("createTransaction", () => {
     );
 
     // Assert
-    expect(result).toEqual({
-      success: false,
-      error: expect.not.stringContaining(validGuideToken),
-    });
+    for (const validGuideToken of validGuideTokens) {
+      expect(result).toEqual({
+        success: false,
+        error: expect.not.stringContaining(validGuideToken),
+      });
+    }
   });
 
   // Dependency failures
@@ -125,7 +133,7 @@ describe("createTransaction", () => {
         amount: 10,
         date: toDateString("2026-01-15"),
         type: TransactionType.EXPENSE,
-        guideTokens: [validGuideToken],
+        guideTokens: validGuideTokens,
       },
       deps,
     );

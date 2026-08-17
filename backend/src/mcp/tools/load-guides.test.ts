@@ -7,7 +7,9 @@ describe("loadGuides", () => {
 
   it("returns guide objects without the summary", async () => {
     // Act
-    const result = await loadGuides({ names: ["basics"] });
+    const result = await loadGuides({
+      names: ["basics", "create-transaction"],
+    });
 
     // Assert
     expect(result).toEqual({
@@ -17,6 +19,11 @@ describe("loadGuides", () => {
           name: GUIDES.basics.name,
           instruction: GUIDES.basics.instruction,
           token: GUIDES.basics.token,
+        },
+        {
+          name: GUIDES["create-transaction"].name,
+          instruction: GUIDES["create-transaction"].instruction,
+          token: GUIDES["create-transaction"].token,
         },
       ],
     });
