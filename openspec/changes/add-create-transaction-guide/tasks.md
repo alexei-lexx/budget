@@ -1,6 +1,6 @@
 ## 1. Guides Module
 
-- [x] 1.1 Draft the `create-transaction` guide text: port the `Type` / `Amount` / `Account` / `Category` / `Date` / `Description` inference rules from `create-transaction-agent.ts` near-verbatim, drop `VOICE_INPUT_SUBPROMPT` and the `<successful-response>` output template, and adapt the "stop and respond with an error" process step to "ask the user for it"
+- [x] 1.1 Draft the `create-transaction` guide text: port the `Type` / `Amount` / `Account` / `Category` / `Date` / `Description` inference rules from `create-transaction-agent.ts` near-verbatim, dropping `## Process`, `VOICE_INPUT_SUBPROMPT`, and the `<successful-response>` output template
 - [x] 1.2 (use `testing` skill) Extend `guides.ts` tests: the `create-transaction` guide is present in `GUIDES`/`GUIDE_NAMES`, its token has the form `create-transaction.<HASH8>` and changes when its text changes, `verifyGuideTokens` accepts it, rejects it when missing or invalid, and — for a call requiring both `basics` and `create-transaction` — rejects when either one is missing and names the missing guide(s), while accepting when both are valid
 - [x] 1.3 Add the `create-transaction` guide constant to `guides.ts` and widen the `GUIDES` type from `Record<"basics", Guide>` to `Record<"basics" | "create-transaction", Guide>`
 

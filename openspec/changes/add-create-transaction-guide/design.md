@@ -25,12 +25,11 @@ The source for the new guide's content is `backend/src/langchain/agents/create-t
 
 Lift the `Type` / `Amount` / `Account` / `Category` / `Date` / `Description` inference rules near-verbatim from `create-transaction-agent.ts`. Keep wording close to the source rather than paraphrasing. Small duplication with `basics` (e.g. "Category MUST be active") is accepted rather than cross-referenced.
 
-Two subsections are dropped entirely:
+Three subsections are dropped entirely:
 
+- `## Process` — the subagent's own tool-call loop (infer fields, create the transaction, retry once on failure, stop with an error). A conversational MCP client already knows how to call tools and handle failures; the guide only needs the field-inference rules, not a copy of the subagent's control flow.
 - `VOICE_INPUT_SUBPROMPT` — speech-to-text transcription artifacts. No MCP client transcribes voice through `create_transaction`; irrelevant to this audience.
 - The `<successful-response>` output template — that block is the subagent's contract with its LangChain caller. MCP already returns the created transaction as structured tool-result JSON; the calling agent composes its own reply.
-
-One line is adapted: `## Process` step 2 in the source reads _"If a mandatory field cannot be inferred, MUST stop and respond with an error."_ The guide instead says to ask the user for it. The source agent is a one-shot subagent that must terminate with a final answer; an MCP-connected Claude is mid-conversation and can ask a follow-up.
 
 Alternatives considered: rewriting the rules in new prose tuned for MCP. Rejected — paraphrasing risks silently drifting from behavior already proven in the in-app assistant, and there's no reason to.
 

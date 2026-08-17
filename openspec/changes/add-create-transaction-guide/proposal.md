@@ -4,7 +4,7 @@ The MCP `create_transaction` tool requires only the `basics` guide, which teache
 
 ## What Changes
 
-- Add a new MCP guide named `create-transaction`, covering the rules for inferring a transaction's type, amount, account, category, date, and description whenever they aren't given explicitly. Content is ported from `create-transaction-agent.ts`'s `Inference rules`, adapted for a conversational MCP client: ask the user only when a mandatory field (type, amount, account, date) cannot be inferred; never ask for optional fields (category, description) — infer them or leave them unset.
+- Add a new MCP guide named `create-transaction`, covering the rules for inferring a transaction's type, amount, account, category, date, and description whenever they aren't given explicitly. Content is ported from `create-transaction-agent.ts`'s `Inference rules`, near-verbatim.
 - **BREAKING** — the `create_transaction` MCP tool requires a valid, current `create-transaction` guide token in addition to `basics`.
 - `load_guides` lists and serves the new guide alongside `basics`.
 - `update_transaction` is explicitly left out of this change. Update requests are typically explicit, targeted fixes ("change the amount to 12.50") rather than free-text descriptions needing full field inference, so extending guide coverage there is deferred.
