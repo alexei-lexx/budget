@@ -1,5 +1,5 @@
 import { expressMiddleware } from "@as-integrations/express5";
-import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
+import { NodeStreamableHTTPServerTransport } from "@modelcontextprotocol/node";
 import bodyParser from "body-parser";
 import cors from "cors";
 import express from "express";
@@ -31,7 +31,7 @@ const PORT = 4000;
       return;
     }
 
-    const transport = new StreamableHTTPServerTransport({
+    const transport = new NodeStreamableHTTPServerTransport({
       sessionIdGenerator: undefined,
       enableJsonResponse: true,
     });

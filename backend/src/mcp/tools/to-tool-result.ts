@@ -1,4 +1,4 @@
-import { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
+import { CallToolResult } from "@modelcontextprotocol/server";
 import { Result } from "../../types/result";
 
 export function toToolResult<TData>(result: Result<TData>): CallToolResult {

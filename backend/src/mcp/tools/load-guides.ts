@@ -1,4 +1,4 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { McpServer } from "@modelcontextprotocol/server";
 import { z } from "zod";
 import { Result, Success } from "../../types/result";
 import { GUIDES, GUIDE_NAMES, Guide, GuideName } from "./guides";
