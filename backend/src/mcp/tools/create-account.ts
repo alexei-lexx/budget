@@ -54,7 +54,7 @@ export async function createAccount(
   }
 }
 
-const inputSchema = {
+const inputSchema = z.object({
   name: z.string().describe("Account name"),
   currency: z
     .string()
@@ -66,7 +66,7 @@ const inputSchema = {
       "Initial balance of the account. Omit to start the account at zero.",
     ),
   guideTokens: buildGuideTokensField(requiredGuides),
-};
+});
 
 const description = `
 Create a new account for the user.

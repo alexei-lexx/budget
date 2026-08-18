@@ -52,7 +52,7 @@ export async function createCategory(
   }
 }
 
-const inputSchema = {
+const inputSchema = z.object({
   name: z.string().describe("Category name"),
   type: z
     .enum(CategoryType)
@@ -66,7 +66,7 @@ const inputSchema = {
       "Whether to exclude transactions in this category from financial reports. Defaults to false.",
     ),
   guideTokens: buildGuideTokensField(requiredGuides),
-};
+});
 
 const description = `
 Create a new category for the user.

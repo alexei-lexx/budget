@@ -78,7 +78,7 @@ export async function updateTransaction(
   }
 }
 
-const inputSchema = {
+const inputSchema = z.object({
   id: z.uuid().describe("Transaction ID to update"),
   accountId: z
     .uuid()
@@ -113,7 +113,7 @@ const inputSchema = {
     .optional()
     .describe("New transaction type"),
   guideTokens: buildGuideTokensField(requiredGuides),
-};
+});
 
 const description = `
 Update an existing transaction.
