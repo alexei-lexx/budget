@@ -138,22 +138,18 @@ const { t, locale } = useI18n();
       <!-- Expanded state: Description and buttons -->
       <div
         v-if="isExpanded && (transaction.description || !hideActions)"
-        class="d-flex ga-2 mt-3"
-        :class="
-          transaction.description
-            ? 'flex-column flex-sm-row align-sm-center justify-sm-space-between'
-            : 'justify-end'
-        "
+        class="d-flex flex-column ga-2 mt-3"
       >
-        <!-- Description on left (top on mobile) - only shown if present -->
-        <div v-if="transaction.description" class="text-body-1 flex-grow-1" style="min-width: 0">
+        <!-- Description on top - only shown if present -->
+        <div v-if="transaction.description" class="text-body-1">
           {{ transaction.description }}
         </div>
 
-        <!-- Action buttons on right (bottom on mobile) - hidden when hideActions is true -->
+        <!-- Action buttons below, right-aligned - hidden when hideActions is true -->
         <ActionButtons
           v-if="!hideActions"
           show-duplicate
+          class="align-self-end"
           @duplicate="handleDuplicateTransaction"
           @edit="handleEditTransaction"
           @delete="handleDeleteTransaction"
