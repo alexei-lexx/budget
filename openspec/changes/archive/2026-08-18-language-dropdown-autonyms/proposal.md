@@ -19,7 +19,6 @@ The Interface language and Voice input language dropdowns on the Settings page r
 ### Modified Capabilities
 
 - `user-settings`: The Voice Input Language Setting requirement's scenario changes from labeling options in the active interface language to labeling them with each language's own autonym. The Interface Language Setting requirement gains a scenario stating its own dropdown options are always labeled with each language's autonym, independent of the active interface language.
-- `ui-localization`: Add a carve-out to the general "everything follows the interface language" rule for language-name labels shown in language pickers, parallel to the existing carve-outs for browser-locale formatting and user-provided content.
 
 ## Impact
 
