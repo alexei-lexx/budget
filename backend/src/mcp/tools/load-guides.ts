@@ -24,9 +24,9 @@ export async function loadGuides({
   return Success(guides);
 }
 
-const inputSchema = {
+const inputSchema = z.object({
   names: z.array(z.enum(GUIDE_NAMES)).describe("Names of the guides to load"),
-};
+});
 
 const guideList = Object.entries(GUIDES)
   .map(([name, guide]) => `- ${name}: ${guide.summary}`)

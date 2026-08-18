@@ -32,14 +32,14 @@ export async function getCategories(
   return Success(categories.map(toCategoryDto));
 }
 
-const inputSchema = {
+const inputSchema = z.object({
   scope: z
     .enum(EntityScope)
     .describe(
       `Which categories to retrieve: "${EntityScope.ACTIVE}" for active (non-archived) only, "${EntityScope.ARCHIVED}" for archived only, "${EntityScope.ALL}" for both active and archived`,
     ),
   guideTokens: buildGuideTokensField(requiredGuides),
-};
+});
 
 export function registerGetCategoriesTool(
   server: McpServer,

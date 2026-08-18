@@ -30,14 +30,14 @@ export async function getAccounts(
   return Success(accounts.map(toAccountDto));
 }
 
-const inputSchema = {
+const inputSchema = z.object({
   scope: z
     .enum(EntityScope)
     .describe(
       `Which accounts to retrieve: "${EntityScope.ACTIVE}" for active (non-archived) only, "${EntityScope.ARCHIVED}" for archived only, "${EntityScope.ALL}" for both active and archived`,
     ),
   guideTokens: buildGuideTokensField(requiredGuides),
-};
+});
 
 export function registerGetAccountsTool(
   server: McpServer,

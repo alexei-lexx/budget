@@ -67,7 +67,7 @@ export async function getTransactions(
 
 const typesString = Object.values(TransactionType).join(", ");
 
-const inputSchema = {
+const inputSchema = z.object({
   startDate: z.iso
     .date()
     .describe(
@@ -91,7 +91,7 @@ const inputSchema = {
     .optional()
     .describe(`Transaction types to filter by (${typesString})`),
   guideTokens: buildGuideTokensField(requiredGuides),
-};
+});
 
 const description = `
 Get user transactions filtered by date range and optionally

@@ -47,7 +47,7 @@ export async function createTransaction(
   }
 }
 
-const inputSchema = {
+const inputSchema = z.object({
   accountId: z.uuid().describe("Account ID to associate the transaction with"),
   amount: z.number().positive().describe("Transaction amount"),
   categoryId: z
@@ -71,7 +71,7 @@ const inputSchema = {
     ])
     .describe("Transaction type"),
   guideTokens: buildGuideTokensField(requiredGuides),
-};
+});
 
 const description = `
 Create a new transaction.

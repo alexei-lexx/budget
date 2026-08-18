@@ -52,7 +52,7 @@ export async function updateAccount(
   }
 }
 
-const inputSchema = {
+const inputSchema = z.object({
   id: z.uuid().describe("Account ID to update"),
   name: z.string().optional().describe("New account name"),
   currency: z
@@ -60,7 +60,7 @@ const inputSchema = {
     .optional()
     .describe("New account currency — any ISO 4217 code (e.g. USD, EUR, GBP)."),
   guideTokens: buildGuideTokensField(requiredGuides),
-};
+});
 
 const description = `
 Update an existing account's name and/or currency.

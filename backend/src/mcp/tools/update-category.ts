@@ -56,7 +56,7 @@ export async function updateCategory(
   }
 }
 
-const inputSchema = {
+const inputSchema = z.object({
   id: z.uuid().describe("Category ID to update"),
   name: z.string().optional().describe("New category name"),
   type: z
@@ -72,7 +72,7 @@ const inputSchema = {
       "New report-exclusion setting. Whether to exclude transactions in this category from financial reports.",
     ),
   guideTokens: buildGuideTokensField(requiredGuides),
-};
+});
 
 const description = `
 Update an existing category's name, type, and/or report-exclusion setting.
