@@ -1,4 +1,4 @@
-import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
+import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/server";
 import {
   APIGatewayProxyEventV2,
   APIGatewayProxyStructuredResultV2,

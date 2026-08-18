@@ -42,16 +42,6 @@ export default defineConfig(
           ignoreMiddleExtensions: true,
         },
       ],
-      // @modelcontextprotocol/sdk resolves subpaths (e.g. "./server/mcp.js")
-      // via a wildcard "exports" entry whose "types" condition relies on
-      // TypeScript's special .js -> .d.ts substitution for declaration files.
-      // tsc implements this and resolves it correctly,
-      // but eslint-import-resolver-typescript does not,
-      // so it false-positives here.
-      "import/no-unresolved": [
-        "error",
-        { ignore: ["^@modelcontextprotocol/sdk/"] },
-      ],
       "import/order": [
         "error",
         {
