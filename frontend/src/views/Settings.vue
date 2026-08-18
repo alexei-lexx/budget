@@ -192,7 +192,7 @@ const defaultVoiceInputLanguage =
   ) ??
   "en-US";
 
-const { t, locale } = useI18n();
+const { t } = useI18n();
 
 const {
   settings,
@@ -224,22 +224,19 @@ const tokenInput = ref<string>("");
 const voiceInputLanguage = ref<string>(defaultVoiceInputLanguage);
 const interfaceLanguage = ref<string>(DEFAULT_INTERFACE_LANGUAGE);
 
-// Voice-input option labels are localized in the active interface language,
-// independent of the speech-recognition language codes themselves.
-const voiceInputLanguageOptions = computed(() => {
-  const displayNames = new Intl.DisplayNames([locale.value], { type: "language" });
-  return VOICE_INPUT_LANGUAGE_CODES.map((code) => ({
-    title: displayNames.of(code) ?? code,
+const autonymOptions = (codes: string[]) =>
+  codes.map((code) => ({
+    title: new Intl.DisplayNames([code], { type: "language" }).of(code) ?? code,
     value: code,
-  })).sort((languageA, languageB) => languageA.title.localeCompare(languageB.title));
+  }));
+
+// Voice-input option labels use each language's own name, independent of the active interface language.
+const voiceInputLanguageOptions = computed(() => {
+  return autonymOptions(VOICE_INPUT_LANGUAGE_CODES);
 });
 
 const interfaceLanguageOptions = computed(() => {
-  const displayNames = new Intl.DisplayNames([locale.value], { type: "language" });
-  return supportedInterfaceLanguages.value.map((code) => ({
-    title: displayNames.of(code) ?? code,
-    value: code,
-  }));
+  return autonymOptions(supportedInterfaceLanguages.value);
 });
 
 watch(

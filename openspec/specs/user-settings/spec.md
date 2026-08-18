@@ -34,7 +34,7 @@ The system SHALL load the user's current saved settings from the backend when th
 
 ### Requirement: Interface Language Setting
 
-The system SHALL provide an Interface language selector on the Settings page with English and German options. The selected interface language SHALL be stored with the user's account independently of the voice input language.
+The system SHALL provide an Interface language selector on the Settings page with English and German options. Each option SHALL be labeled with that language's own name, independent of the currently active interface language. The selected interface language SHALL be stored with the user's account independently of the voice input language.
 
 #### Scenario: User selects an interface language
 
@@ -60,15 +60,21 @@ The system SHALL provide an Interface language selector on the Settings page wit
 - **WHEN** they save German as the interface language
 - **THEN** the application interface changes to German without requiring another sign-in
 
+#### Scenario: Dropdown options are always labeled with their own name
+
+- **GIVEN** the user's interface language is German
+- **WHEN** they open the Interface language dropdown
+- **THEN** the options read "English" and "Deutsch", not "Englisch" and "Deutsch"
+
 ### Requirement: Voice Input Language Setting
 
-The system SHALL provide a dropdown of common languages for voice input recognition, displaying human-readable language names without requiring additional packages. The selected language SHALL be saved to the backend and applied whenever voice input is used.
+The system SHALL provide a dropdown of common languages for voice input recognition, displaying each language's own name (autonym) without requiring additional packages. The selected language SHALL be saved to the backend and applied whenever voice input is used.
 
 #### Scenario: Language dropdown shows human-readable names
 
 - **GIVEN** the Settings page is open
 - **WHEN** the user views the voice input language dropdown
-- **THEN** each option displays a human-readable language name rendered in the user's selected interface language
+- **THEN** each option displays the language's own name (e.g. "Français", "日本語"), independent of the user's selected interface language
 
 #### Scenario: Selecting and saving a language applies it to voice input
 
