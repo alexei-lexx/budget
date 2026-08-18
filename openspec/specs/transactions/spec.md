@@ -109,7 +109,7 @@ The system SHALL display transaction cards in a collapsed state by default, expa
 
 - **GIVEN** a collapsed transaction card
 - **WHEN** the user clicks on it
-- **THEN** the card expands showing the full description above the edit/delete buttons
+- **THEN** the card expands showing the full description and the duplicate/edit/delete buttons
 
 #### Scenario: Clicking an expanded card collapses it
 
@@ -129,17 +129,11 @@ The system SHALL display transaction cards in a collapsed state by default, expa
 - **WHEN** the description is displayed in the expanded section
 - **THEN** the full text wraps to multiple lines without truncation
 
-#### Scenario: Action buttons stay below the description when it wraps
+#### Scenario: Description and buttons stay stacked at any size or length
 
-- **GIVEN** an expanded transaction card with a description long enough to wrap onto multiple lines
-- **WHEN** the description is displayed
-- **THEN** the action buttons appear in their own row below the full description, not beside any line of it
-
-#### Scenario: Layout stays stacked at every screen width
-
-- **GIVEN** an expanded transaction card
-- **WHEN** viewed at any screen width, from mobile to desktop
-- **THEN** the description remains above the action buttons with no side-by-side arrangement at any width
+- **GIVEN** a transaction card with a description, at any screen size
+- **WHEN** the user expands it
+- **THEN** the description is stacked above the action buttons, which are right-aligned
 
 #### Scenario: Multiple cards can be expanded simultaneously
 
