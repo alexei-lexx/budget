@@ -10,6 +10,10 @@ import { BusinessError } from "./business-error";
 
 export interface AccountService {
   getAccountsByUser(userId: string, scope: EntityScope): Promise<Account[]>;
+  getAccountForDeletion(
+    id: string,
+    userId: string,
+  ): Promise<{ account: Account; transactionCount: number }>;
   createAccount(input: CreateAccountInput): Promise<Account>;
   updateAccount(
     id: string,
@@ -51,6 +55,31 @@ export class AccountServiceImpl implements AccountService {
     }
 
     return accounts.filter((account) => account.isArchived);
+  }
+
+  /**
+   * Get an account and its transaction count, for use in a deletion confirmation
+   * @param id - Account ID
+   * @param userId - User ID for authorization
+   * @returns Promise<{ account: Account; transactionCount: number }>
+   * @throws BusinessError if account not found
+   */
+  async getAccountForDeletion(
+    id: string,
+    userId: string,
+  ): Promise<{ account: Account; transactionCount: number }> {
+    const account = await this.accountRepository.findOneById({ id, userId });
+
+    if (!account) {
+      throw new BusinessError("Account not found");
+    }
+
+    const transactionCount = await this.transactionRepository.countByAccountId({
+      accountId: id,
+      userId,
+    });
+
+    return { account, transactionCount };
   }
 
   /**

@@ -3,6 +3,7 @@ import { AccountService } from "../../../services/account-service";
 
 export const createMockAccountService = (): Mocked<AccountService> => ({
   getAccountsByUser: vi.fn(),
+  getAccountForDeletion: vi.fn(),
   createAccount: vi.fn(),
   updateAccount: vi.fn(),
   deleteAccount: vi.fn(),
