@@ -17,10 +17,13 @@ rules:
     - When on the `main` branch, create a git branch for each proposal using the name of the proposal without prefixes and suffixes
     - If applicable, include an issue number, title, and description at the beginning
     - Include a "## Constitution Compliance" section listing which constitution principles apply and confirming compliance or flagging violations
+    - Use short, simple sentences focused on one idea; avoid long compound and complex sentences and vague phrasing; be concrete and specific
   design:
     - Include a "## Constitution Compliance" section listing which constitution principles apply and confirming compliance or flagging violations
+    - Use short, simple sentences focused on one idea; avoid long compound and complex sentences and vague phrasing; be concrete and specific
   specs:
     - Make sure the spec does not include technical details
+    - Use short, simple sentences focused on one idea; avoid long compound and complex sentences and vague phrasing; be concrete and specific
   tasks:
     - Use test-driven development - write tests first, then implement and refactor
     - Prefix every task that writes or modifies tests with "(use `testing` skill)" after the task number
