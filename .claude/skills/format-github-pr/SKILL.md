@@ -21,6 +21,7 @@ Format a GitHub pull request title and description that communicates _what_ chan
 
 - Existing PR: fetch its details and diff
 - New PR: get the diff between the current branch and the base branch
+- If the diff includes a user-facing specification, treat it as a source of truth alongside the code
 
 Also factor in any context the user provided — they often know things the diff alone won't show (e.g. "this fixes the login bug" or "this is for issue #42").
 
