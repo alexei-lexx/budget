@@ -14,6 +14,7 @@ export const createMockTransactionRepository =
     findManyByDescription: vi.fn(),
     create: vi.fn(),
     update: vi.fn(),
+    countByAccountId: vi.fn(),
     hasTransactionsForAccount: vi.fn(),
     detectPatterns: vi.fn(),
   });
