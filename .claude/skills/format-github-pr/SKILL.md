@@ -9,17 +9,8 @@ Format a GitHub pull request title and description that communicates _what_ chan
 
 ## Step 1: Gather context
 
-If the user provided a PR number or GitHub URL, look up the existing PR:
-
-```bash
-gh pr view <number> --json number,title,body,baseRefName,url
-```
-
-Otherwise, check if the current branch already has a PR:
-
-```bash
-gh pr view --json number,title,body,baseRefName,url 2>/dev/null
-```
+- If the user provided a PR number or GitHub URL: look up that existing PR
+- Otherwise: check whether the current branch already has a PR
 
 ## Step 2: Determine the base branch
 
@@ -28,80 +19,61 @@ gh pr view --json number,title,body,baseRefName,url 2>/dev/null
 
 ## Step 3: Analyze the changes
 
-**For existing PRs** (when you have a PR number from Step 1):
-
-```bash
-gh pr diff <pr-number>            # actual PR diff on GitHub
-```
-
-**For new PRs** (no PR number yet):
-
-```bash
-git log <base>..HEAD --oneline    # commits on this branch
-git diff <base>..HEAD --stat      # files changed
-git diff <base>..HEAD             # full diff
-```
+- Existing PR: fetch its details and diff
+- New PR: get the diff between the current branch and the base branch
 
 Also factor in any context the user provided — they often know things the diff alone won't show (e.g. "this fixes the login bug" or "this is for issue #42").
 
 ## Step 4: Write the title
 
-- Lowercase except proper nouns and acronyms (API, URL, CDK, AWS, etc.)
-- Imperative mood: `add`, `fix`, `update`, `remove`, `migrate`, `replace`, etc.
 - Describe what changes for the user — not what was technically done
-- Keep it short. Cut every word that does not change meaning
+- Length: up to 50 characters or 10 words
+- Lowercase except proper nouns and acronyms (API, URL, CDK, AWS, etc.)
+- Use imperative mood
+- Do not use articles (a, an, the)
+- Cut every word that does not change meaning
 - No trailing period
 
 **Good:** `filter transactions by date range`
-**Avoid:** `let users filter transactions by date range`, `add date filter API endpoint`, `Update transaction page`, `Fix issue`, `refactor auth middleware`
+**Bad:** `let users filter transactions by date range`
+
+**Good:** `fix login bug on mobile`
+**Bad:** `fixes the login bug that occurs on mobile devices`
 
 ## Step 5: Write the description
 
-### Content principles
-
-- Write from the user's perspective — product-oriented and user-facing throughout; exception: purely technical PRs (refactoring, infrastructure) where user impact doesn't apply
-- Focus on _what_ and _why_ — omit implementation details unless essential for understanding
-- Describe changes in plain language — explain intent and effect, not what the code says
-- Concise and factual — no filler, no vague statements
-- Write as a human developer — no mention of AI authorship
-
-### Format rules
-
 - Avoid long paragraphs — break prose into short sentences
 - Start each sentence on a new line
-- Include required sections: `context`, `before`, `after`
 - Use lowercase section headlines
+
 - If the branch addresses a GitHub issue, place the reference at the very end of the description:
   - Use `Close #<number>` (or `Fix`/`Resolve`) only when the PR fully satisfies the issue requirements
   - Use `Part of #<number>` when the PR only partially addresses the issue
   - When uncertain, ask the user before deciding which to use
 
+- MUST NOT include technical details, implementation notes, or file changes
+- MUST NOT mention AI authorship — write on behalf of a human developer
+
 ### Sections
 
 Include the following sections in the description:
 
-- **context** — Why this change is needed, from the user's perspective
+- **context**
+  - Which part of the user experience is affected
   - The pain point or unmet need the user experiences
-  - Which part of the product they're affected by
-  - No technical details — no code, APIs, architecture, or implementation
-- **before** — Describe current behavior or limitations
-- **after** — Describe new behavior or improvements
-
-Follow these rules strictly for `before` and `after` sections:
-
-- Write only what users experience — no code, APIs, architecture, or implementation
-- Describe changes in user interface and user behaviour
-- Use bullet points
-- One distinct fact per bullet — never combine multiple facts into one bullet
-- IMPORTANT: Classify the PR as **small**, **medium**, or **big** based on scope and number of changes
-- For a small PR: 1-2 bullet points
-- For a medium PR: 2-3 bullet points
-- For a big PR: 3-5 bullet points
-- Use present tense and active voice
+  - Why the user needs this change
+- **before**
+  - Describe current behavior and/or limitations
+  - Use bullet points (up to 3 most essential)
+  - One distinct fact per bullet
+- **after**
+  - Describe new behavior and/or improvements
+  - Use bullet points (up to 3 most essential)
+  - One distinct fact per bullet
 
 ### Example
 
-**Good (user-facing):**
+**Good:**
 
 ```
 ## context
@@ -121,7 +93,7 @@ Users have to manually refresh the page to see updates made by other users, lead
 - Users don't need to manually refresh
 ```
 
-**Bad (technical, not user-facing):**
+**Bad:**
 
 ```
 ## context
