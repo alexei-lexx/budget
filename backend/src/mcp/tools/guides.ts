@@ -119,10 +119,19 @@ Use these rules whenever the user wants to log a transaction — a purchase, a p
 - Optional field
 - Keep the original language of the user's text
 - MUST be grammatically correct, without typos
-- MUST describe the item or service — not the reason, parties, or context
+- MUST describe the item or service — not the reason or context
 - MUST provide meaningful details that supplement the transaction
 - MUST NOT build description from the category name, its variations, or its translations
 - Default to blank if no meaningful description can be formed
+
+### Description from a photo of a receipt or check
+
+When recording from a photo of a receipt or check:
+- Base the description on what's actually legible
+- Might include important details: store name and items, quantity and unit of measure for each item
+- If an item name is legible, but unclear (e.g. coded or abbreviated), search to identify it
+- Double-check item-quantity pairing when item and quantity are on separate lines
+- MUST NOT make up a store name, item, quantity, or unit of measure
 `.trim();
 
 export class Guide {
