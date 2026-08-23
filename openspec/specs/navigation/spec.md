@@ -44,33 +44,39 @@ The system SHALL provide a navigation menu with items in this order: Transaction
 - **WHEN** they look at the menu items
 - **THEN** the items appear in order: Transactions, Accounts, Categories, Reports, Assistant, Settings
 
-### Requirement: Sign-Out in Sidebar
+### Requirement: Account Menu in Sidebar
 
-The system SHALL display the sign-out button in the main sidebar menu in a consistently discoverable location, accessible on all screen sizes. The system SHALL display the signed-in user's email directly above the sign-out button in the sidebar.
+The system SHALL display an account row in the sidebar. The account row SHALL show the signed-in user's email. The account row SHALL be in a consistently discoverable location, accessible on all screen sizes. Activating the account row SHALL open a menu containing a "Sign Out" item. The account row SHALL display a dropdown indicator icon showing that activating it opens a menu.
 
-#### Scenario: User signs out from the sidebar
+#### Scenario: User signs out from the account menu
 
 - **GIVEN** an authenticated user with the sidebar accessible
-- **WHEN** they click the sign-out button in the sidebar
+- **WHEN** they open the account row's menu and select "Sign Out"
 - **THEN** their session is cleared, all authentication tokens are removed, and they are redirected to the sign-in page
 
-#### Scenario: Sign-out is accessible on all screen sizes
+#### Scenario: Account menu is accessible on all screen sizes
 
 - **GIVEN** an authenticated user on mobile, tablet, or desktop
 - **WHEN** they access the sidebar
-- **THEN** the sign-out button is visible and functional
+- **THEN** the account row is visible, and opening it shows a working "Sign Out" option
 
-#### Scenario: Signed-in user's email is shown above sign-out
+#### Scenario: Account row shows the signed-in user's email
 
 - **GIVEN** an authenticated user with the sidebar accessible
 - **WHEN** they view the sidebar
-- **THEN** their email is displayed directly above the sign-out button
+- **THEN** their email is displayed in the account row
 
 #### Scenario: User's email is no longer shown in the app bar
 
 - **GIVEN** an authenticated user
 - **WHEN** they view the top app bar
 - **THEN** their email is not displayed there
+
+#### Scenario: Account row indicates it opens a menu
+
+- **GIVEN** an authenticated user with the sidebar accessible
+- **WHEN** they view the account row
+- **THEN** the row displays a dropdown indicator icon showing that activating it opens a menu
 
 ### Requirement: Form Autofocus
 

@@ -317,16 +317,24 @@ onMounted(() => {
         <v-spacer />
         <!-- Visual separator -->
         <v-divider v-if="isAuthenticated" />
-        <!-- Signed-in user email -->
-        <v-list-item v-if="isAuthenticated" prepend-icon="mdi-account" :title="displayName" />
-        <!-- Sign out item -->
+        <!-- Account row with sign-out menu -->
         <v-list-item
-          v-if="isAuthenticated && !authLoading && !ensureUserLoading"
-          prepend-icon="mdi-logout"
-          :title="t('nav.signOut')"
-          :disabled="authLoading"
-          @click="handleSignOut"
-        />
+          v-if="isAuthenticated"
+          prepend-icon="mdi-account"
+          append-icon="mdi-chevron-down"
+          :title="displayName"
+        >
+          <v-menu activator="parent">
+            <v-list>
+              <v-list-item
+                v-if="!authLoading && !ensureUserLoading"
+                prepend-icon="mdi-logout"
+                :title="t('nav.signOut')"
+                @click="handleSignOut"
+              />
+            </v-list>
+          </v-menu>
+        </v-list-item>
       </v-list>
     </v-navigation-drawer>
 
