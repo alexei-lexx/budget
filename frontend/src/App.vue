@@ -10,7 +10,6 @@ import { setAuthTokenGetter, globalError, clearGlobalError } from "@/apollo";
 import { appStorage } from "@/lib/appStorage";
 
 const {
-  user,
   isAuthenticated,
   isLoading: authLoading,
   getAccessToken,
@@ -225,24 +224,6 @@ onMounted(() => {
 
       <template v-slot:append>
         <div class="d-flex align-center" :class="$vuetify.display.xs ? 'ga-2 pr-2' : 'ga-3 pr-3'">
-          <!-- User info when authenticated -->
-          <div
-            v-if="isAuthenticated && user"
-            class="d-flex align-center"
-            :class="$vuetify.display.xs ? 'ga-1' : 'ga-2'"
-          >
-            <v-avatar :size="$vuetify.display.xs ? '28' : '32'">
-              <v-img v-if="user.profile?.picture" :src="user.profile.picture" :alt="displayName" />
-              <v-icon v-else>mdi-account</v-icon>
-            </v-avatar>
-            <span
-              v-if="$vuetify.display.smAndUp"
-              :class="$vuetify.display.sm ? 'text-caption' : 'text-body-2'"
-            >
-              {{ displayName }}
-            </span>
-          </div>
-
           <!-- Auth loading state -->
           <v-progress-circular
             v-if="authLoading || ensureUserLoading"
@@ -336,6 +317,8 @@ onMounted(() => {
         <v-spacer />
         <!-- Visual separator -->
         <v-divider v-if="isAuthenticated" />
+        <!-- Signed-in user email -->
+        <v-list-item v-if="isAuthenticated" prepend-icon="mdi-account" :title="displayName" />
         <!-- Sign out item -->
         <v-list-item
           v-if="isAuthenticated && !authLoading && !ensureUserLoading"
