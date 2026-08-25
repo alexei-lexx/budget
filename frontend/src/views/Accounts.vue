@@ -131,10 +131,7 @@ const handleAccountCancel = () => {
 <template>
   <v-container class="pa-3 pa-sm-6">
     <!-- Page Header -->
-    <div
-      class="d-flex align-center mb-6 flex-column flex-sm-row ga-3 ga-sm-0 justify-sm-space-between"
-    >
-      <h1 class="text-h5 text-sm-h4">{{ t("accounts.title") }}</h1>
+    <div class="d-flex align-center mb-6 flex-column flex-sm-row ga-3 ga-sm-0 justify-sm-end">
       <!-- Desktop button: d-none (hidden <600px) + d-sm-flex (shows ≥600px) -->
       <v-btn
         class="d-none d-sm-flex"

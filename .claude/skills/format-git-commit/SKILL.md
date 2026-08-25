@@ -32,23 +32,28 @@ Read the diff and focus on:
 ### Step 4: Write the commit message
 
 **Subject line:**
-- Lowercase (except proper nouns and acronyms)
-- Imperative mood: "add", "fix", "update", "remove", "move", etc.
-- 50 characters or fewer if possible
-- No trailing period
+
+- Describe what changes for the user — not what was technically done
 - Be specific — avoid generic messages like "update" or "fix"
+- Cut every word that does not change meaning
+- Use imperative mood
+
+- Length: up to 50 characters or 10 words
+- Lowercase except proper nouns and acronyms (API, URL, CDK, AWS, etc.)
+- Do not use articles (a, an, the)
+- No trailing period
 
 **Body (only when needed):**
+
 - Skip the body if the subject line fully explains the change
 - Add a body when there are multiple logical changes or the "why" isn't obvious
 - Separate subject from body with a blank line
+
 - Use bullet points; no blank lines between them
 - Use normal text casing for bullet items (capitalize sentences, proper nouns, etc.) and active voice
 
-**Human authorship:**
-- Write as a human developer — no AI mentions, no AI co-authors
-
-**Examples:**
+- MUST NOT include technical details, implementation notes, or file changes
+- MUST NOT mention AI authorship — write on behalf of a human developer
 
 ```
 add account creation modal

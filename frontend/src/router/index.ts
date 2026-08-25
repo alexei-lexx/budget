@@ -14,6 +14,14 @@ import Assistant from "@/views/Assistant.vue";
 import Settings from "@/views/Settings.vue";
 import { useAuth } from "@/composables/useAuth";
 
+declare module "vue-router" {
+  interface RouteMeta {
+    // i18n key for the route's title in the app bar (see App.vue).
+    // It is undefined until the router resolves its first navigation.
+    titleKey?: string;
+  }
+}
+
 // Reusable authentication guard
 const requireAuth = async (
   _to: RouteLocationNormalized,
@@ -50,42 +58,49 @@ const routes = [
     path: "/",
     name: "SignIn",
     component: SignIn,
+    meta: { titleKey: "nav.signIn" },
   },
   {
     path: "/accounts",
     name: "Accounts",
     component: Accounts,
     beforeEnter: requireAuth,
+    meta: { titleKey: "nav.accounts" },
   },
   {
     path: "/categories",
     name: "Categories",
     component: Categories,
     beforeEnter: requireAuth,
+    meta: { titleKey: "nav.categories" },
   },
   {
     path: "/transactions",
     name: "Transactions",
     component: Transactions,
     beforeEnter: requireAuth,
+    meta: { titleKey: "nav.transactions" },
   },
   {
     path: "/reports/by-category",
     name: "ByCategoryReport",
     component: ByCategoryReport,
     beforeEnter: requireAuth,
+    meta: { titleKey: "nav.reports" },
   },
   {
     path: "/assistant",
     name: "Assistant",
     component: Assistant,
     beforeEnter: requireAuth,
+    meta: { titleKey: "nav.assistant" },
   },
   {
     path: "/settings",
     name: "Settings",
     component: Settings,
     beforeEnter: requireAuth,
+    meta: { titleKey: "nav.settings" },
   },
 ];
 

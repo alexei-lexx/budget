@@ -52,7 +52,6 @@
     "freshSignInRequired": "This action requires a fresh sign-in. Please sign out and sign in again."
   },
   "accounts": {
-    "title": "Accounts",
     "addAccount": "Add Account",
     "addFirstAccount": "Add Your First Account",
     "deleted": "Account \"{name}\" has been deleted",
@@ -94,7 +93,6 @@
     }
   },
   "categories": {
-    "title": "Categories",
     "addCategory": "Add Category",
     "loading": "Loading categories...",
     "deleted": "Category \"{name}\" has been deleted",
@@ -141,7 +139,6 @@
     }
   },
   "transactions": {
-    "title": "Transactions",
     "filter": "Filter",
     "addTransaction": "Add Transaction",
     "loading": "Loading transactions...",
@@ -250,7 +247,6 @@
     "loginFailed": "Login failed"
   },
   "assistant": {
-    "title": "Assistant",
     "emptyTitle": "Ask about your finances",
     "emptyText": "Ask a question to get started.",
     "placeholder": "Ask about your spending...",
@@ -279,7 +275,6 @@
     }
   },
   "reports": {
-    "title": "Expense Report",
     "monthly": "Monthly",
     "yearly": "Yearly",
     "previous": "Previous",
@@ -302,7 +297,6 @@
     }
   },
   "settings": {
-    "title": "Settings",
     "transactionShortcutsLimit": {
       "label": "Transaction shortcuts limit",
       "hint": "e.g. Card + Groceries, Cash + Transport"
