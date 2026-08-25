@@ -52,7 +52,7 @@
     "freshSignInRequired": "Für diese Aktion ist eine erneute Anmeldung erforderlich. Bitte melden Sie sich ab und wieder an."
   },
   "accounts": {
-    "addAccount": "Konto hinzufügen",
+    "addAccount": "Neues Konto",
     "addFirstAccount": "Erstes Konto hinzufügen",
     "deleted": "Konto „{name}“ wurde gelöscht",
     "updated": "Konto „{name}“ wurde aktualisiert",
@@ -93,7 +93,7 @@
     }
   },
   "categories": {
-    "addCategory": "Kategorie hinzufügen",
+    "addCategory": "Neue Kategorie",
     "loading": "Kategorien werden geladen...",
     "deleted": "Kategorie „{name}“ wurde gelöscht",
     "updated": "Kategorie „{name}“ wurde aktualisiert",
@@ -140,7 +140,7 @@
   },
   "transactions": {
     "filter": "Filter",
-    "addTransaction": "Transaktion hinzufügen",
+    "addTransaction": "Neue Transaktion",
     "loading": "Transaktionen werden geladen...",
     "emptyTitle": "Noch keine Transaktionen",
     "emptyText": "Beginnen Sie mit der Verfolgung Ihrer Einnahmen und Ausgaben, indem Sie Ihre erste Transaktion hinzufügen.",
@@ -205,7 +205,7 @@
     }
   },
   "transfers": {
-    "addTransfer": "Übertrag hinzufügen",
+    "addTransfer": "Neuer Übertrag",
     "defaultDescription": "Übertrag",
     "deletedWithAmount": "Übertrag „{description}“ ({amount}) wurde gelöscht",
     "created": "Übertrag wurde erfolgreich erstellt",
