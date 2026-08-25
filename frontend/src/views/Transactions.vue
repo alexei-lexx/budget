@@ -3,10 +3,10 @@
   <v-container class="pa-3 pa-sm-6">
     <!-- Page Header -->
     <div class="d-flex align-center mb-6 flex-column flex-sm-row ga-3 ga-sm-0 justify-sm-end">
-      <div class="d-flex align-center">
+      <div class="d-flex align-center flex-wrap ga-3">
         <!-- Filter button: desktop -->
         <v-badge
-          class="d-none d-md-flex mr-3"
+          class="d-none d-sm-flex"
           dot
           :model-value="transactionFilters.hasAppliedFilters.value"
           color="primary"
@@ -17,7 +17,7 @@
         </v-badge>
         <!-- Filter button: mobile -->
         <v-badge
-          class="d-flex d-md-none mr-3"
+          class="d-flex d-sm-none"
           dot
           :model-value="transactionFilters.hasAppliedFilters.value"
           color="primary"
@@ -31,18 +31,18 @@
           />
         </v-badge>
 
-        <!-- Desktop buttons: d-none d-md-flex - hidden by default, shown at 960px+ -->
+        <!-- Desktop buttons: d-none d-sm-flex - hidden by default, shown at 600px+ -->
         <v-btn
-          class="d-none d-md-flex"
+          class="d-none d-sm-flex"
           color="primary"
           prepend-icon="mdi-plus"
           @click="handleAddTransaction"
         >
           {{ t("transactions.addTransaction") }}
         </v-btn>
-        <!-- Tablet/Mobile buttons: d-flex d-md-none - shown by default, hidden at 960px+ -->
+        <!-- Tablet/Mobile buttons: d-flex d-sm-none - shown by default, hidden at 600px+ -->
         <v-btn
-          class="d-flex d-md-none"
+          class="d-flex d-sm-none"
           color="primary"
           icon="mdi-plus"
           size="large"
@@ -50,7 +50,7 @@
           @click="handleAddTransaction"
         />
         <v-btn
-          class="d-none d-md-flex ml-3"
+          class="d-none d-sm-flex"
           color="secondary"
           prepend-icon="mdi-swap-horizontal"
           @click="handleAddTransfer"
@@ -58,7 +58,7 @@
           {{ t("transfers.addTransfer") }}
         </v-btn>
         <v-btn
-          class="d-flex d-md-none ml-3"
+          class="d-flex d-sm-none"
           color="secondary"
           icon="mdi-swap-horizontal"
           size="large"
