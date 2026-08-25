@@ -52,7 +52,6 @@
     "freshSignInRequired": "Für diese Aktion ist eine erneute Anmeldung erforderlich. Bitte melden Sie sich ab und wieder an."
   },
   "accounts": {
-    "title": "Konten",
     "addAccount": "Konto hinzufügen",
     "addFirstAccount": "Erstes Konto hinzufügen",
     "deleted": "Konto „{name}“ wurde gelöscht",
@@ -94,7 +93,6 @@
     }
   },
   "categories": {
-    "title": "Kategorien",
     "addCategory": "Kategorie hinzufügen",
     "loading": "Kategorien werden geladen...",
     "deleted": "Kategorie „{name}“ wurde gelöscht",
@@ -141,7 +139,6 @@
     }
   },
   "transactions": {
-    "title": "Transaktionen",
     "filter": "Filter",
     "addTransaction": "Transaktion hinzufügen",
     "loading": "Transaktionen werden geladen...",
@@ -250,7 +247,6 @@
     "loginFailed": "Anmeldung fehlgeschlagen"
   },
   "assistant": {
-    "title": "Assistent",
     "emptyTitle": "Fragen Sie zu Ihren Finanzen",
     "emptyText": "Stellen Sie eine Frage, um loszulegen.",
     "placeholder": "Fragen Sie zu Ihren Ausgaben...",
@@ -279,7 +275,6 @@
     }
   },
   "reports": {
-    "title": "Ausgabenbericht",
     "monthly": "Monatlich",
     "yearly": "Jährlich",
     "previous": "Zurück",
@@ -302,7 +297,6 @@
     }
   },
   "settings": {
-    "title": "Einstellungen",
     "transactionShortcutsLimit": {
       "label": "Limit für Transaktions-Shortcuts",
       "hint": "z. B. Karte + Lebensmittel, Bargeld + Transport"

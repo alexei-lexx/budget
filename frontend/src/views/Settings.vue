@@ -1,12 +1,7 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <template>
   <v-container class="pa-3 pa-sm-6">
-    <!-- Page Header -->
-    <div class="mb-6">
-      <h1 class="text-h5 text-sm-h4">{{ t("settings.title") }}</h1>
-    </div>
-
-    <v-form @submit.prevent="handleSave">
+    <v-form class="mt-6" @submit.prevent="handleSave">
       <v-row>
         <v-col cols="12" sm="6">
           <v-text-field

@@ -1,23 +1,22 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <template>
   <v-container class="pa-3 pa-sm-6">
-    <!-- Page Header -->
-    <div class="mb-6">
-      <h1 class="text-h5 text-sm-h4">{{ t("assistant.title") }}</h1>
-    </div>
-
     <v-empty-state
       v-if="!assistantAnswer && !askAssistantLoading"
+      class="mt-6"
       icon="mdi-creation-outline"
       :title="t('assistant.emptyTitle')"
       :text="t('assistant.emptyText')"
     />
 
-    <div v-else-if="askAssistantLoading" class="d-flex justify-center align-center fill-height">
+    <div
+      v-else-if="askAssistantLoading"
+      class="d-flex justify-center align-center fill-height mt-6"
+    >
       <v-progress-circular indeterminate size="40" width="3" />
     </div>
 
-    <div v-else-if="assistantAnswer" class="answer-content mx-auto">
+    <div v-else-if="assistantAnswer" class="answer-content mx-auto mt-6">
       <div class="text-body-1" style="white-space: pre-wrap">
         {{ assistantAnswer }}
       </div>

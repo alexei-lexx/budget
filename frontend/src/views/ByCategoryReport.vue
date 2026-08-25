@@ -2,10 +2,7 @@
 <template>
   <v-container class="pa-3 pa-sm-6">
     <!-- Page Header -->
-    <div
-      class="d-flex align-center mb-6 flex-column flex-sm-row ga-3 ga-sm-0 justify-sm-space-between"
-    >
-      <h1 class="text-h5 text-sm-h4">{{ t("reports.title") }}</h1>
+    <div class="d-flex align-center mb-6 flex-column flex-sm-row ga-3 ga-sm-0 justify-sm-end">
       <v-btn-toggle v-model="viewMode" mandatory density="compact" color="primary">
         <v-btn value="monthly">{{ t("reports.monthly") }}</v-btn>
         <v-btn value="yearly">{{ t("reports.yearly") }}</v-btn>

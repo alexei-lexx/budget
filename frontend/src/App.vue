@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { watch, onMounted, ref, computed } from "vue";
 import { useI18n } from "vue-i18n";
+import { useRoute } from "vue-router";
 import { useAuth } from "@/composables/useAuth";
 import { useUser } from "@/composables/useUser";
 import { useSnackbar } from "@/composables/useSnackbar";
@@ -23,9 +24,19 @@ const { showSnackbar, snackbarMessage, snackbarColor, hideSnackbar, showErrorSna
 const { isLocaleReady } = useLocale();
 const { mobile } = useDisplay();
 const { t } = useI18n();
+const route = useRoute();
 
 // Navigation drawer state
 const drawer = ref(true);
+
+// App bar title: "App Name › Page Title" on desktop, just the page title on mobile/tablet.
+// route.meta.titleKey is unset while the router resolves the initial navigation on load,
+// so fall back to just the app name until it's available.
+const appBarTitle = computed(() => {
+  const titleKey = route.meta.titleKey;
+  if (!titleKey) return t("app.title");
+  return mobile.value ? t(titleKey) : `${t("app.title")} › ${t(titleKey)}`;
+});
 
 // Passkey registration URL
 const passkeyRegistrationUrl = computed(() => {
@@ -216,7 +227,7 @@ onMounted(() => {
 </script>
 <template>
   <v-layout class="rounded rounded-md border">
-    <v-app-bar :title="t('app.title')">
+    <v-app-bar :title="appBarTitle">
       <template v-slot:prepend>
         <!-- Hamburger menu button for mobile -->
         <v-app-bar-nav-icon v-if="mobile" @click="drawer = !drawer" />
