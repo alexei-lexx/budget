@@ -22,6 +22,7 @@ const config: CodegenConfig = {
           TransactionPatternType:
             "../models/transaction#TransactionPatternType",
           TransactionType: "../models/transaction#TransactionType",
+          TrendPeriod: "../models/report#TrendPeriod",
         },
         // Map GraphQL types to model types for field resolvers and computed fields
         mappers: {

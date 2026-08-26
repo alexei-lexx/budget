@@ -33,6 +33,7 @@ import { ByCategoryReportService } from "./services/by-category-report-service";
 import { CategoryServiceImpl } from "./services/category-service";
 import { CreateTransactionFromTextService } from "./services/create-transaction-from-text-service";
 import { CurrencyServiceImpl } from "./services/currency-service";
+import { ExpenseTrendService } from "./services/expense-trend-service";
 import { ProcessTelegramMessageService } from "./services/process-telegram-message-service";
 import { TelegramBotService } from "./services/telegram-bot-service";
 import { TransactionServiceImpl } from "./services/transaction-service";
@@ -155,6 +156,13 @@ export const resolveUserService = createSingleton(
 export const resolveByCategoryReportService = createSingleton(
   () =>
     new ByCategoryReportService(
+      resolveTransactionRepository(),
+      resolveCategoryRepository(),
+    ),
+);
+export const resolveExpenseTrendService = createSingleton(
+  () =>
+    new ExpenseTrendService(
       resolveTransactionRepository(),
       resolveCategoryRepository(),
     ),

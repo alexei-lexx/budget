@@ -11,6 +11,7 @@ export interface TransactionFilterInput {
   accountIds?: string[];
   categoryIds?: string[];
   includeUncategorized?: boolean;
+  currencies?: string[];
   dateAfter?: DateString;
   dateBefore?: DateString;
   types?: TransactionType[];

@@ -305,6 +305,13 @@ onMounted(() => {
         />
         <v-list-item
           v-if="isAuthenticated"
+          :to="{ name: 'Trends' }"
+          prepend-icon="mdi-chart-bar"
+          :title="t('nav.trends')"
+          @click="mobile && (drawer = false)"
+        />
+        <v-list-item
+          v-if="isAuthenticated"
           :to="{ name: 'Assistant' }"
           prepend-icon="mdi-creation-outline"
           :title="t('nav.assistant')"

@@ -172,6 +172,34 @@ export type CreateTransferInput = {
   toAccountId: Scalars['ID']['input'];
 };
 
+export type ExpenseTrend = {
+  __typename?: 'ExpenseTrend';
+  /** Days elapsed in the running period, counting today. */
+  elapsedDays: Scalars['Int']['output'];
+  pastMedian: Scalars['Float']['output'];
+  pastMedianAtSamePoint: Scalars['Float']['output'];
+  points: Array<ExpenseTrendPoint>;
+};
+
+export type ExpenseTrendInput = {
+  categoryIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  currency: Scalars['String']['input'];
+  includeUncategorized?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Number of completed periods to plot before the running one. Accepts 3, 6 or 12. */
+  lookback: Scalars['Int']['input'];
+  period: TrendPeriod;
+  /** The client's current date as YYYY-MM-DD. Determines the running period. */
+  today: Scalars['String']['input'];
+};
+
+export type ExpenseTrendPoint = {
+  __typename?: 'ExpenseTrendPoint';
+  amount: Scalars['Float']['output'];
+  isCurrent: Scalars['Boolean']['output'];
+  /** First day of the period as YYYY-MM-DD. */
+  periodStart: Scalars['String']['output'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   askAssistant: AssistantOutput;
@@ -293,6 +321,7 @@ export type Query = {
   accounts: Array<Account>;
   byCategoryReport: ByCategoryReport;
   categories: Array<Category>;
+  expenseTrend: ExpenseTrend;
   supportedCurrencies: Array<Scalars['String']['output']>;
   supportedInterfaceLanguages: Array<Scalars['String']['output']>;
   telegramBot?: Maybe<TelegramBot>;
@@ -314,6 +343,11 @@ export type QueryByCategoryReportArgs = {
 
 export type QueryCategoriesArgs = {
   type?: InputMaybe<CategoryType>;
+};
+
+
+export type QueryExpenseTrendArgs = {
+  input: ExpenseTrendInput;
 };
 
 
@@ -440,6 +474,10 @@ export type Transfer = {
   inboundTransaction: Transaction;
   outboundTransaction: Transaction;
 };
+
+export type TrendPeriod =
+  | 'MONTH'
+  | 'WEEK';
 
 export type UpdateAccountInput = {
   currency?: InputMaybe<Scalars['String']['input']>;
@@ -709,6 +747,13 @@ export type GetByCategoryReportQueryVariables = Exact<{
 
 
 export type GetByCategoryReportQuery = { __typename?: 'Query', byCategoryReport: { __typename?: 'ByCategoryReport', year: number, month?: number | null | undefined, type: ReportType, categories: Array<{ __typename?: 'ByCategoryReportCategory', categoryId?: string | null | undefined, categoryName: string, totalTransactionCount: number, currencyBreakdowns: Array<{ __typename?: 'ByCategoryReportCurrencyBreakdown', currency: string, totalAmount: number, percentage: number }>, topTransactions: Array<{ __typename?: 'Transaction', id: string, type: TransactionType, amount: number, currency: string, date: string, description?: string | null | undefined, transferId?: string | null | undefined, account: { __typename?: 'TransactionEmbeddedAccount', id: string, name: string, isArchived: boolean }, category?: { __typename?: 'TransactionEmbeddedCategory', id: string, name: string, isArchived: boolean } | null | undefined }> }>, currencyTotals: Array<{ __typename?: 'ByCategoryReportCurrencyTotal', currency: string, totalAmount: number }> } };
+
+export type GetExpenseTrendQueryVariables = Exact<{
+  input: ExpenseTrendInput;
+}>;
+
+
+export type GetExpenseTrendQuery = { __typename?: 'Query', expenseTrend: { __typename?: 'ExpenseTrend', pastMedian: number, pastMedianAtSamePoint: number, elapsedDays: number, points: Array<{ __typename?: 'ExpenseTrendPoint', periodStart: string, amount: number, isCurrent: boolean }> } };
 
 export type GetTransactionDescriptionSuggestionsQueryVariables = Exact<{
   searchText: Scalars['String']['input'];
@@ -1607,6 +1652,43 @@ export function useGetByCategoryReportLazyQuery(variables?: GetByCategoryReportQ
   return VueApolloComposable.useLazyQuery<GetByCategoryReportQuery, GetByCategoryReportQueryVariables>(GetByCategoryReportDocument, variables, options);
 }
 export type GetByCategoryReportQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<GetByCategoryReportQuery, GetByCategoryReportQueryVariables>;
+export const GetExpenseTrendDocument = gql`
+    query GetExpenseTrend($input: ExpenseTrendInput!) {
+  expenseTrend(input: $input) {
+    points {
+      periodStart
+      amount
+      isCurrent
+    }
+    pastMedian
+    pastMedianAtSamePoint
+    elapsedDays
+  }
+}
+    `;
+
+/**
+ * __useGetExpenseTrendQuery__
+ *
+ * To run a query within a Vue component, call `useGetExpenseTrendQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetExpenseTrendQuery` returns an object from Apollo Client that contains result, loading and error properties
+ * you can use to render your UI.
+ *
+ * @param variables that will be passed into the query
+ * @param options that will be passed into the query, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/query.html#options;
+ *
+ * @example
+ * const { result, loading, error } = useGetExpenseTrendQuery({
+ *   input: // value for 'input'
+ * });
+ */
+export function useGetExpenseTrendQuery(variables: GetExpenseTrendQueryVariables | VueCompositionApi.Ref<GetExpenseTrendQueryVariables> | ReactiveFunction<GetExpenseTrendQueryVariables>, options: VueApolloComposable.UseQueryOptions<GetExpenseTrendQuery, GetExpenseTrendQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<GetExpenseTrendQuery, GetExpenseTrendQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<GetExpenseTrendQuery, GetExpenseTrendQueryVariables>> = {}) {
+  return VueApolloComposable.useQuery<GetExpenseTrendQuery, GetExpenseTrendQueryVariables>(GetExpenseTrendDocument, variables, options);
+}
+export function useGetExpenseTrendLazyQuery(variables?: GetExpenseTrendQueryVariables | VueCompositionApi.Ref<GetExpenseTrendQueryVariables> | ReactiveFunction<GetExpenseTrendQueryVariables>, options: VueApolloComposable.UseQueryOptions<GetExpenseTrendQuery, GetExpenseTrendQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<GetExpenseTrendQuery, GetExpenseTrendQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<GetExpenseTrendQuery, GetExpenseTrendQueryVariables>> = {}) {
+  return VueApolloComposable.useLazyQuery<GetExpenseTrendQuery, GetExpenseTrendQueryVariables>(GetExpenseTrendDocument, variables, options);
+}
+export type GetExpenseTrendQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<GetExpenseTrendQuery, GetExpenseTrendQueryVariables>;
 export const GetTransactionDescriptionSuggestionsDocument = gql`
     query GetTransactionDescriptionSuggestions($searchText: String!) {
   transactionDescriptionSuggestions(searchText: $searchText)

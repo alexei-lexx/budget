@@ -42,6 +42,7 @@
     "accounts": "Accounts",
     "categories": "Categories",
     "reports": "Reports",
+    "trends": "Trends",
     "assistant": "Assistant",
     "settings": "Settings",
     "registerPasskey": "Register Passkey",
@@ -294,6 +295,26 @@
       "invalidUrlMonthYear": "Invalid month or year in URL parameters",
       "invalidUrlYear": "Invalid year in URL parameters",
       "loadFailedTitle": "Failed to load category breakdown"
+    }
+  },
+  "trends": {
+    "filters": {
+      "categories": "Categories",
+      "includeUncategorized": "Include uncategorized",
+      "currency": "Currency",
+      "period": "Period",
+      "week": "Week",
+      "month": "Month",
+      "lookback": "Past periods"
+    },
+    "chart": {
+      "expenses": "Expenses",
+      "pastMedian": "Median of past periods",
+      "pastMedianAtSamePoint": "Median of past periods at day {days}"
+    },
+    "errors": {
+      "title": "Trend Error",
+      "loadFailed": "Failed to load trend: {message}"
     }
   },
   "settings": {

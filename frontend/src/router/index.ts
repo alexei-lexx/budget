@@ -10,6 +10,7 @@ import Accounts from "@/views/Accounts.vue";
 import Categories from "@/views/Categories.vue";
 import Transactions from "@/views/Transactions.vue";
 import ByCategoryReport from "@/views/ByCategoryReport.vue";
+import Trends from "@/views/Trends.vue";
 import Assistant from "@/views/Assistant.vue";
 import Settings from "@/views/Settings.vue";
 import { useAuth } from "@/composables/useAuth";
@@ -87,6 +88,13 @@ const routes = [
     component: ByCategoryReport,
     beforeEnter: requireAuth,
     meta: { titleKey: "nav.reports" },
+  },
+  {
+    path: "/trends",
+    name: "Trends",
+    component: Trends,
+    beforeEnter: requireAuth,
+    meta: { titleKey: "nav.trends" },
   },
   {
     path: "/assistant",
