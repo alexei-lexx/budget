@@ -1,7 +1,7 @@
 import { Transaction, TransactionType } from "../models/transaction";
 import { CategoryRepository } from "../ports/category-repository";
 import { TransactionRepository } from "../ports/transaction-repository";
-import { DateString, isDateString, toDateString } from "../types/date";
+import { DateString, toDateString } from "../types/date";
 import { Failure, Result, Success } from "../types/result";
 import { daysBetween } from "../utils/date";
 
@@ -14,7 +14,7 @@ export interface ExpenseTrendInput {
   period: TrendPeriod;
   lookback: number;
   currency: string;
-  today: string;
+  today: DateString;
   categoryIds?: string[];
   includeUncategorized?: boolean;
 }
@@ -66,9 +66,6 @@ export class ExpenseTrendService {
   }: ExpenseTrendInput): Promise<Result<ExpenseTrend, string>> {
     if (!ALLOWED_LOOKBACKS.includes(lookback)) {
       return Failure("Lookback must be 3, 6 or 12");
-    }
-    if (!isDateString(today)) {
-      return Failure(`Invalid date format: "${today}". Expected YYYY-MM-DD.`);
     }
     if (currency.trim().length === 0) {
       return Failure("Currency must not be empty");

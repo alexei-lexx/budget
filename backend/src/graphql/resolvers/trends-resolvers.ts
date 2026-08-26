@@ -1,5 +1,6 @@
 import { GraphQLError } from "graphql";
 import { QueryExpenseTrendArgs } from "../../__generated__/resolvers-types";
+import { toDateString } from "../../types/date";
 import { GraphQLContext } from "../context";
 
 import { getAuthenticatedUser, handleResolverError } from "./shared";
@@ -19,7 +20,7 @@ export const trendsResolvers = {
           period: args.input.period,
           lookback: args.input.lookback,
           currency: args.input.currency,
-          today: args.input.today,
+          today: toDateString(args.input.today),
           categoryIds: args.input.categoryIds ?? undefined,
           includeUncategorized: args.input.includeUncategorized ?? undefined,
         });

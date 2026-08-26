@@ -57,7 +57,7 @@ describe("ExpenseTrendService", () => {
         period: "MONTH",
         lookback: 3,
         currency: "EUR",
-        today: "2026-04-10",
+        today: toDateString("2026-04-10"),
       });
 
       // Assert
@@ -85,7 +85,7 @@ describe("ExpenseTrendService", () => {
         lookback: 3,
         currency: "EUR",
         // Wednesday
-        today: "2026-04-08",
+        today: toDateString("2026-04-08"),
       });
 
       // Assert
@@ -107,7 +107,7 @@ describe("ExpenseTrendService", () => {
         period: "MONTH",
         lookback: 3,
         currency: "EUR",
-        today: "2026-04-01",
+        today: toDateString("2026-04-01"),
       });
 
       // Assert
@@ -132,7 +132,7 @@ describe("ExpenseTrendService", () => {
         period: "MONTH",
         lookback: 3,
         currency: "EUR",
-        today: "2026-04-10",
+        today: toDateString("2026-04-10"),
       });
 
       // Assert
@@ -157,7 +157,7 @@ describe("ExpenseTrendService", () => {
         period: "MONTH",
         lookback: 3,
         currency: "EUR",
-        today: "2026-04-10",
+        today: toDateString("2026-04-10"),
       });
 
       // Assert
@@ -185,7 +185,7 @@ describe("ExpenseTrendService", () => {
         period: "MONTH",
         lookback: 3,
         currency: "EUR",
-        today: "2026-04-10",
+        today: toDateString("2026-04-10"),
       });
 
       // Assert
@@ -210,7 +210,7 @@ describe("ExpenseTrendService", () => {
         period: "MONTH",
         lookback: 6,
         currency: "EUR",
-        today: "2026-04-10",
+        today: toDateString("2026-04-10"),
       });
 
       // Assert
@@ -240,7 +240,7 @@ describe("ExpenseTrendService", () => {
         period: "MONTH",
         lookback: 3,
         currency: "EUR",
-        today: "2026-04-12",
+        today: toDateString("2026-04-12"),
       });
 
       // Assert
@@ -267,7 +267,7 @@ describe("ExpenseTrendService", () => {
         period: "MONTH",
         lookback: 6,
         currency: "EUR",
-        today: "2026-04-10",
+        today: toDateString("2026-04-10"),
       });
 
       // Assert
@@ -303,7 +303,7 @@ describe("ExpenseTrendService", () => {
         period: "MONTH",
         lookback: 3,
         currency: "EUR",
-        today: "2026-04-10",
+        today: toDateString("2026-04-10"),
       });
 
       // Assert
@@ -326,7 +326,7 @@ describe("ExpenseTrendService", () => {
         period: "MONTH",
         lookback: 3,
         currency: "EUR",
-        today: "2026-04-10",
+        today: toDateString("2026-04-10"),
       });
 
       // Assert
@@ -349,7 +349,7 @@ describe("ExpenseTrendService", () => {
         period: "MONTH",
         lookback: 3,
         currency: "EUR",
-        today: "2026-04-10",
+        today: toDateString("2026-04-10"),
         categoryIds: [categoryId],
         includeUncategorized: true,
       });
@@ -377,7 +377,7 @@ describe("ExpenseTrendService", () => {
         period: "MONTH",
         lookback: 99,
         currency: "EUR",
-        today: "2026-04-10",
+        today: toDateString("2026-04-10"),
       });
 
       // Assert
@@ -388,21 +388,6 @@ describe("ExpenseTrendService", () => {
       expect(transactionRepository.findManyByUserId).not.toHaveBeenCalled();
     });
 
-    it("returns failure when today is not valid date", async () => {
-      // Act
-      const result = await service.call({
-        userId,
-        period: "MONTH",
-        lookback: 3,
-        currency: "EUR",
-        today: "2026-02-30",
-      });
-
-      // Assert
-      expect(result.success).toBe(false);
-      expect(transactionRepository.findManyByUserId).not.toHaveBeenCalled();
-    });
-
     it("returns failure when currency is empty", async () => {
       // Act
       const result = await service.call({
@@ -410,7 +395,7 @@ describe("ExpenseTrendService", () => {
         period: "MONTH",
         lookback: 3,
         currency: "",
-        today: "2026-04-10",
+        today: toDateString("2026-04-10"),
       });
 
       // Assert
