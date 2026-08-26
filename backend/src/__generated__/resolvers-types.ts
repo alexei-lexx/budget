@@ -2,7 +2,6 @@ import { CategoryType } from '../models/category';
 import { ReportType } from '../models/report';
 import { TransactionPatternType } from '../models/transaction';
 import { TransactionType } from '../models/transaction';
-import { TrendPeriod } from '../models/report';
 import { GraphQLResolveInfo } from 'graphql';
 import { GraphQLContext } from '../graphql/context';
 export type Maybe<T> = T | undefined;
@@ -464,7 +463,9 @@ export type Transfer = {
   outboundTransaction: Transaction;
 };
 
-export { TrendPeriod };
+export type TrendPeriod =
+  | 'MONTH'
+  | 'WEEK';
 
 export type UpdateAccountInput = {
   currency?: InputMaybe<Scalars['String']['input']>;
@@ -934,8 +935,6 @@ export type TransferResolvers<ContextType = GraphQLContext, ParentType extends R
   outboundTransaction?: Resolver<ResolversTypes['Transaction'], ParentType, ContextType>;
 };
 
-export type TrendPeriodResolvers = EnumResolverSignature<{ MONTH?: any, WEEK?: any }, ResolversTypes['TrendPeriod']>;
-
 export type UserResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = {
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
 };
@@ -981,7 +980,6 @@ export type Resolvers<ContextType = GraphQLContext> = {
   TransactionPatternType?: TransactionPatternTypeResolvers;
   TransactionType?: TransactionTypeResolvers;
   Transfer?: TransferResolvers<ContextType>;
-  TrendPeriod?: TrendPeriodResolvers;
   User?: UserResolvers<ContextType>;
   UserSettings?: UserSettingsResolvers<ContextType>;
 };

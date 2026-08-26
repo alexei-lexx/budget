@@ -1,6 +1,5 @@
 import { faker } from "@faker-js/faker";
 import { type Mocked, beforeEach, describe, expect, it } from "vitest";
-import { TrendPeriod } from "../models/report";
 import { TransactionType } from "../models/transaction";
 import { CategoryRepository } from "../ports/category-repository";
 import { TransactionRepository } from "../ports/transaction-repository";
@@ -55,7 +54,7 @@ describe("ExpenseTrendService", () => {
       // Act
       const result = await service.call({
         userId,
-        period: TrendPeriod.MONTH,
+        period: "MONTH",
         lookback: 3,
         currency: "EUR",
         today: "2026-04-10",
@@ -82,7 +81,7 @@ describe("ExpenseTrendService", () => {
       // Act
       const result = await service.call({
         userId,
-        period: TrendPeriod.WEEK,
+        period: "WEEK",
         lookback: 3,
         currency: "EUR",
         // Wednesday
@@ -105,7 +104,7 @@ describe("ExpenseTrendService", () => {
       // Act
       const result = await service.call({
         userId,
-        period: TrendPeriod.MONTH,
+        period: "MONTH",
         lookback: 3,
         currency: "EUR",
         today: "2026-04-01",
@@ -130,7 +129,7 @@ describe("ExpenseTrendService", () => {
       // Act
       const result = await service.call({
         userId,
-        period: TrendPeriod.MONTH,
+        period: "MONTH",
         lookback: 3,
         currency: "EUR",
         today: "2026-04-10",
@@ -155,7 +154,7 @@ describe("ExpenseTrendService", () => {
       // Act
       const result = await service.call({
         userId,
-        period: TrendPeriod.MONTH,
+        period: "MONTH",
         lookback: 3,
         currency: "EUR",
         today: "2026-04-10",
@@ -183,7 +182,7 @@ describe("ExpenseTrendService", () => {
       // Act
       const result = await service.call({
         userId,
-        period: TrendPeriod.MONTH,
+        period: "MONTH",
         lookback: 3,
         currency: "EUR",
         today: "2026-04-10",
@@ -208,7 +207,7 @@ describe("ExpenseTrendService", () => {
       // Act
       const result = await service.call({
         userId,
-        period: TrendPeriod.MONTH,
+        period: "MONTH",
         lookback: 6,
         currency: "EUR",
         today: "2026-04-10",
@@ -238,7 +237,7 @@ describe("ExpenseTrendService", () => {
       // Act
       const result = await service.call({
         userId,
-        period: TrendPeriod.MONTH,
+        period: "MONTH",
         lookback: 3,
         currency: "EUR",
         today: "2026-04-12",
@@ -265,7 +264,7 @@ describe("ExpenseTrendService", () => {
       // Act
       const result = await service.call({
         userId,
-        period: TrendPeriod.MONTH,
+        period: "MONTH",
         lookback: 6,
         currency: "EUR",
         today: "2026-04-10",
@@ -301,7 +300,7 @@ describe("ExpenseTrendService", () => {
       // Act
       const result = await service.call({
         userId,
-        period: TrendPeriod.MONTH,
+        period: "MONTH",
         lookback: 3,
         currency: "EUR",
         today: "2026-04-10",
@@ -324,7 +323,7 @@ describe("ExpenseTrendService", () => {
       // Act
       const result = await service.call({
         userId,
-        period: TrendPeriod.MONTH,
+        period: "MONTH",
         lookback: 3,
         currency: "EUR",
         today: "2026-04-10",
@@ -347,7 +346,7 @@ describe("ExpenseTrendService", () => {
       // Act
       await service.call({
         userId,
-        period: TrendPeriod.MONTH,
+        period: "MONTH",
         lookback: 3,
         currency: "EUR",
         today: "2026-04-10",
@@ -375,7 +374,7 @@ describe("ExpenseTrendService", () => {
       // Act
       const result = await service.call({
         userId,
-        period: TrendPeriod.MONTH,
+        period: "MONTH",
         lookback: 99,
         currency: "EUR",
         today: "2026-04-10",
@@ -393,7 +392,7 @@ describe("ExpenseTrendService", () => {
       // Act
       const result = await service.call({
         userId,
-        period: TrendPeriod.MONTH,
+        period: "MONTH",
         lookback: 3,
         currency: "EUR",
         today: "2026-02-30",
@@ -408,7 +407,7 @@ describe("ExpenseTrendService", () => {
       // Act
       const result = await service.call({
         userId,
-        period: TrendPeriod.MONTH,
+        period: "MONTH",
         lookback: 3,
         currency: "",
         today: "2026-04-10",

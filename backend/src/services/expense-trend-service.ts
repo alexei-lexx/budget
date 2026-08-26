@@ -1,4 +1,3 @@
-import { TrendPeriod } from "../models/report";
 import { Transaction, TransactionType } from "../models/transaction";
 import { CategoryRepository } from "../ports/category-repository";
 import { TransactionRepository } from "../ports/transaction-repository";
@@ -7,6 +6,8 @@ import { Failure, Result, Success } from "../types/result";
 import { daysBetween } from "../utils/date";
 
 const ALLOWED_LOOKBACKS = [3, 6, 12];
+
+type TrendPeriod = "MONTH" | "WEEK";
 
 export interface ExpenseTrendInput {
   userId: string;
@@ -140,7 +141,7 @@ export class ExpenseTrendService {
     lookback: number;
   }): DateString[] {
     const currentPeriodStart = parseUtcDate(today);
-    if (period === TrendPeriod.MONTH) {
+    if (period === "MONTH") {
       currentPeriodStart.setUTCDate(1);
     } else {
       // getUTCDay() returns 0 for Sunday; shift so Monday becomes 0
@@ -153,7 +154,7 @@ export class ExpenseTrendService {
     const periodStarts: DateString[] = [];
     for (let offset = lookback; offset >= 0; offset -= 1) {
       const periodStart = new Date(currentPeriodStart);
-      if (period === TrendPeriod.MONTH) {
+      if (period === "MONTH") {
         periodStart.setUTCMonth(periodStart.getUTCMonth() - offset);
       } else {
         periodStart.setUTCDate(periodStart.getUTCDate() - offset * 7);
