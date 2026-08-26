@@ -94,7 +94,7 @@ const emit = defineEmits<{
 }>();
 
 const { t } = useI18n();
-const { supportedCurrencies, defaultCurrency } = useCurrencies();
+const { supportedCurrencies } = useCurrencies();
 
 // Draft state: edits stay local until Apply
 const draftPeriod = ref<TrendPeriod>(props.selection.period);
@@ -109,7 +109,7 @@ const categoryOptions = computed(() =>
 );
 
 // Re-seed the draft whenever the applied selection changes elsewhere
-// (URL restore on mount, or Clear)
+// (URL restore on mount, Clear, or the default currency resolving)
 watch(
   () => props.selection,
   (selection) => {
@@ -121,13 +121,6 @@ watch(
   },
   { deep: true },
 );
-
-// The default currency only resolves once supported currencies load
-watch(defaultCurrency, (currency) => {
-  if (!draftCurrency.value) {
-    draftCurrency.value = currency;
-  }
-});
 
 function handleApply() {
   emit("apply", {

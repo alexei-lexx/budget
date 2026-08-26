@@ -34,8 +34,8 @@
 ## 7. Frontend units
 
 - [x] 7.1 Write `frontend/src/composables/useExpenseTrend.ts`, wrapping the generated query with `cache-and-network` and taking the committed selection as a reactive source, following `useByCategoryReport.ts`
-- [x] 7.2 Write `frontend/src/components/TrendFilters.vue` holding the draft selection and emitting it on Apply: category multi-select over active expense categories excluding those flagged "Exclude from reports" and offering an "Uncategorized" entry, a Week/Month toggle, a 3/6/12 lookback toggle, a currency autocomplete seeded from `useCurrencies().defaultCurrency`, and Apply and Clear controls
-- [x] 7.3 Write `frontend/src/components/ExpenseTrendChart.vue` as a `vue-chartjs` mixed chart: one bar dataset with a per-bar `backgroundColor` array keyed on `isCurrent`, plus two flat dashed line datasets for `pastMedian` and `pastMedianAtSamePoint`, the second labelled with `elapsedDays`
+- [x] 7.2 Write `frontend/src/components/reports/TrendFilters.vue` holding the draft selection and emitting it on Apply: category multi-select over active expense categories excluding those flagged "Exclude from reports", an "Include uncategorized" checkbox, a Week/Month toggle, a 3/6/12 lookback toggle, a currency autocomplete over the supported currencies, and Apply and Clear controls
+- [x] 7.3 Write `frontend/src/components/reports/ExpenseTrendChart.vue` as a `vue-chartjs` mixed chart: one bar dataset with a per-bar `backgroundColor` array keyed on `isCurrent`, plus two flat dashed line datasets for `pastMedian` and `pastMedianAtSamePoint`, the second labelled with `elapsedDays`
 - [x] 7.4 Write `frontend/src/views/Trends.vue` holding the committed selection, computing `today` on mount, rendering the filters and the chart, and showing a `v-alert` in the page body on load failure
 
 ## 8. Route, navigation and locales
@@ -64,6 +64,13 @@
 - [x] 10.6 Confirm the page opens with 4 bars, that monthly labels read as bare short months, that a weekly tooltip shows its full range and a monthly tooltip its month and year, and that legend and tooltip both read "Expenses"
 - [x] 10.7 Give every control in `frontend/src/components/reports/TrendFilters.vue` `density="compact"`, scoped to this component rather than a global `defaults` block in `frontend/src/plugins/vuetify.ts`
 - [x] 10.8 Label the two `v-btn-toggle` groups with `<v-label class="d-block mb-1">` instead of a `text-caption` div, following Vuetify's density and sizing page
+
+## 11. Post-verification fixes
+
+- [x] 11.1 Make `getTodayDateString` in `frontend/src/utils/date.ts` return the local date via `formatDateAsYYYYMMDD` instead of the UTC date, so the running period matches the user's own day
+- [x] 11.2 (use `testing` skill) Add cases to `frontend/src/utils/date.test.ts` pinning the local date just after and just before midnight
+- [x] 11.3 Pass the resolved `selection` rather than `appliedSelection` to `TrendFilters` in `frontend/src/views/Trends.vue`, and drop the `defaultCurrency` backfill watch the component no longer needs
+- [x] 11.4 Run `npm test`, then `npm run typecheck` and `npm run format` in `frontend/`, and fix everything they report
 
 ## Constitution Compliance
 

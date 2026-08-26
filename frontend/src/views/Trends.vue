@@ -9,7 +9,7 @@
 
     <v-card class="mb-6" variant="outlined">
       <TrendFilters
-        :selection="appliedSelection"
+        :selection="selection"
         :categories="expenseCategories"
         :loading="expenseTrendLoading"
         @apply="handleApply"

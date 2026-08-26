@@ -11,10 +11,10 @@ export function formatMonthYear(year: number, month: number, locale: string): st
 }
 
 /**
- * Get today's date in YYYY-MM-DD format
+ * Get today's date in YYYY-MM-DD format (local timezone)
  */
 export function getTodayDateString(): string {
-  return new Date().toISOString().slice(0, 10);
+  return formatDateAsYYYYMMDD(new Date());
 }
 
 /**
