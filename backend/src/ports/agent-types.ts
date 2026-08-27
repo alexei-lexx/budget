@@ -33,9 +33,7 @@ interface AgentTraceToolResult {
 }
 
 export type AgentTraceMessage =
-  | AgentTraceText
-  | AgentTraceToolCall
-  | AgentTraceToolResult;
+  AgentTraceText | AgentTraceToolCall | AgentTraceToolResult;
 
 export interface Agent<TContext extends Record<string, unknown>> {
   invoke(

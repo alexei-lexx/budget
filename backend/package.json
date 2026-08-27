@@ -84,7 +84,7 @@
     "@vitest/coverage-v8": "^4.1.5",
     "body-parser": "^2.3.0",
     "cors": "^2.8.6",
-    "esbuild": "0.28.1",
+    "esbuild": "^0.28.1",
     "eslint": "^9.38.0",
     "eslint-import-resolver-typescript": "^4.4.4",
     "eslint-plugin-check-file": "^3.3.1",
@@ -94,7 +94,7 @@
     "patch-package": "^8.0.1",
     "prettier": "^3.8.3",
     "tsx": "^4.22.4",
-    "typescript": "^5.9.3",
+    "typescript": "^6.0.3",
     "typescript-eslint": "^8.46.2",
     "vitest": "^4.1.5"
   }
