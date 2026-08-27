@@ -2,10 +2,9 @@ import { tool } from "langchain";
 import { z } from "zod";
 import { TransactionRepository } from "../../ports/transaction-repository";
 import { CategoryService } from "../../services/category-service";
-import { toDateString } from "../../types/date-string";
 import { EntityScope } from "../../types/entity-scope";
 import { Success } from "../../types/result";
-import { daysAgo, formatDateAsYYYYMMDD } from "../../utils/date";
+import { daysAgo, today } from "../../utils/date";
 import { agentContextSchema } from "../agents/agent-context";
 import { CategoryDto, toCategoryDto } from "./category-dto";
 
@@ -51,12 +50,11 @@ export const createGetCategoriesTool = ({
       );
 
       // Enrich with recent transaction descriptions
-      const today = new Date();
-      const lookbackDate = daysAgo(today, CATEGORY_HISTORY_LOOKBACK_DAYS);
-      const lookbackDateString = toDateString(
-        formatDateAsYYYYMMDD(lookbackDate),
+      const todayDateString = today();
+      const lookbackDateString = daysAgo(
+        todayDateString,
+        CATEGORY_HISTORY_LOOKBACK_DAYS,
       );
-      const todayDateString = toDateString(formatDateAsYYYYMMDD(today));
 
       const transactions = await transactionRepository.findManyByUserId(
         userId,

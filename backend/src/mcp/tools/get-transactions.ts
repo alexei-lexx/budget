@@ -50,7 +50,7 @@ export async function getTransactions(
     return Failure("startDate must not be after endDate");
   }
 
-  if (daysBetween(new Date(startDate), new Date(endDate)) > MAX_PERIOD_DAYS) {
+  if (daysBetween(startDate, endDate) > MAX_PERIOD_DAYS) {
     return Failure(`Date range must not exceed ${MAX_PERIOD_DAYS} days`);
   }
 

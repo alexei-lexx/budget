@@ -3,7 +3,7 @@ import { CREATE_TRANSACTION_TOOL_NAME } from "../langchain/tools/create-transact
 import { Transaction } from "../models/transaction";
 import { Agent, AgentTraceMessage } from "../ports/agent-types";
 import { Failure, Result, Success } from "../types/result";
-import { formatDateAsYYYYMMDD } from "../utils/date";
+import { today } from "../utils/date";
 import { TransactionService } from "./transaction-service";
 
 const createdTransactionSchema = z.discriminatedUnion("success", [
@@ -73,7 +73,7 @@ export class CreateTransactionFromTextService {
         context: {
           userId,
           isVoiceInput,
-          today: formatDateAsYYYYMMDD(new Date()),
+          today: today(),
         },
       },
     );

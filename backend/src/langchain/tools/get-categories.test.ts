@@ -3,7 +3,7 @@ import { type Mocked, beforeEach, describe, expect, it } from "vitest";
 import { CategoryType } from "../../models/category";
 import { TransactionRepository } from "../../ports/transaction-repository";
 import { CategoryService } from "../../services/category-service";
-import { isDateString } from "../../types/date-string";
+import { isDateString, toDateString } from "../../types/date-string";
 import { EntityScope } from "../../types/entity-scope";
 import { daysBetween } from "../../utils/date";
 import { fakeCategory } from "../../utils/test-utils/models/category-fakes";
@@ -484,9 +484,10 @@ describe("createGetCategoriesTool", () => {
       expect(dateAfterArg && isDateString(dateAfterArg)).toBe(true);
       expect(dateBeforeArg && isDateString(dateBeforeArg)).toBe(true);
 
-      const dateAfter = new Date(dateAfterArg || "");
-      const dateBefore = new Date(dateBeforeArg || "");
-      const daysDiff = daysBetween(dateAfter, dateBefore);
+      const daysDiff = daysBetween(
+        toDateString(dateAfterArg || ""),
+        toDateString(dateBeforeArg || ""),
+      );
 
       expect(daysDiff).toBeGreaterThanOrEqual(
         CATEGORY_HISTORY_LOOKBACK_DAYS - 1,

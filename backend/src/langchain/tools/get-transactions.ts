@@ -51,17 +51,18 @@ export const createGetTransactionsTool = ({
         return Failure("startDate must not be after endDate");
       }
 
-      if (
-        daysBetween(new Date(startDate), new Date(endDate)) > MAX_PERIOD_DAYS
-      ) {
+      const dateAfter = toDateString(startDate);
+      const dateBefore = toDateString(endDate);
+
+      if (daysBetween(dateAfter, dateBefore) > MAX_PERIOD_DAYS) {
         return Failure(`Date range must not exceed ${MAX_PERIOD_DAYS} days`);
       }
 
       const transactions = await transactionRepository.findManyByUserId(
         userId,
         {
-          dateAfter: toDateString(startDate),
-          dateBefore: toDateString(endDate),
+          dateAfter,
+          dateBefore,
           ...(accountIds && { accountIds }),
           ...(categoryIds && { categoryIds }),
           ...(types !== undefined && { types }),

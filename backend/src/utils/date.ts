@@ -1,23 +1,46 @@
 /**
  * Date utility functions
+ *
+ * All calendar arithmetic goes through Temporal.PlainDate, a timezone-free
+ * calendar date, and is expressed in terms of DateString (YYYY-MM-DD).
  */
 
-const MS_PER_DAY = 1000 * 60 * 60 * 24;
+import { Temporal } from "temporal-polyfill";
+import { DateString, toDateString } from "../types/date-string";
 
 /**
- * Format a Date object as YYYY-MM-DD string (local timezone)
+ * Today's date in the system timezone
  */
-export function formatDateAsYYYYMMDD(date: Date): string {
-  const year = date.getFullYear();
-  const month = (date.getMonth() + 1).toString().padStart(2, "0");
-  const day = date.getDate().toString().padStart(2, "0");
-  return `${year}-${month}-${day}`;
+export function today(): DateString {
+  return toDateString(Temporal.Now.plainDateISO().toString());
 }
 
-export function daysBetween(start: Date, end: Date): number {
-  return Math.floor((end.getTime() - start.getTime()) / MS_PER_DAY);
+/**
+ * Number of whole days from start to end; negative when end precedes start
+ */
+export function daysBetween(start: DateString, end: DateString): number {
+  return Temporal.PlainDate.from(start).until(Temporal.PlainDate.from(end), {
+    largestUnit: "day",
+  }).days;
 }
 
-export function daysAgo(date: Date, days: number): Date {
-  return new Date(date.getTime() - days * MS_PER_DAY);
+export function daysAgo(date: DateString, days: number): DateString {
+  return toDateString(
+    Temporal.PlainDate.from(date).subtract({ days }).toString(),
+  );
+}
+
+export function firstDayOfMonth(year: number, month: number): DateString {
+  return toDateString(
+    Temporal.PlainDate.from({ year, month, day: 1 }).toString(),
+  );
+}
+
+export function lastDayOfMonth(year: number, month: number): DateString {
+  const date = Temporal.PlainDate.from({ year, month, day: 1 });
+  return toDateString(date.with({ day: date.daysInMonth }).toString());
+}
+
+export function daysInMonth(year: number, month: number): number {
+  return Temporal.PlainDate.from({ year, month, day: 1 }).daysInMonth;
 }

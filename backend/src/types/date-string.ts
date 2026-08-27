@@ -1,3 +1,5 @@
+import { Temporal } from "temporal-polyfill";
+
 /**
  * Error thrown when a string fails to parse as a valid YYYY-MM-DD date
  */
@@ -28,18 +30,14 @@ export function isDateString(value: string): value is DateString {
     return false;
   }
 
-  // Re-parse and compare components to reject dates that JavaScript rolls over
-  // (e.g. "2023-02-29" parses as 2023-03-01 rather than NaN)
-  const parsed = new Date(value);
-  const [expectedYear, expectedMonth, expectedDay] = value
-    .split("-")
-    .map(Number);
-
-  return (
-    parsed.getUTCFullYear() === expectedYear &&
-    parsed.getUTCMonth() + 1 === expectedMonth &&
-    parsed.getUTCDate() === expectedDay
-  );
+  // "reject" makes out-of-range components (e.g. "2023-02-29") throw instead of
+  // being clamped to a valid date
+  try {
+    Temporal.PlainDate.from(value, { overflow: "reject" });
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 /**

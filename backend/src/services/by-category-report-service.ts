@@ -2,8 +2,7 @@ import { ReportType } from "../models/report";
 import { Transaction, TransactionType } from "../models/transaction";
 import { CategoryRepository } from "../ports/category-repository";
 import { TransactionRepository } from "../ports/transaction-repository";
-import { toDateString } from "../types/date-string";
-import { formatDateAsYYYYMMDD } from "../utils/date";
+import { firstDayOfMonth, lastDayOfMonth } from "../utils/date";
 import { BusinessError } from "./business-error";
 
 const UNCATEGORIZED_LABEL = "Uncategorized";
@@ -96,12 +95,12 @@ export class ByCategoryReportService {
 
     const dateAfter =
       month !== undefined
-        ? toDateString(formatDateAsYYYYMMDD(new Date(year, month - 1, 1)))
-        : toDateString(formatDateAsYYYYMMDD(new Date(year, 0, 1)));
+        ? firstDayOfMonth(year, month)
+        : firstDayOfMonth(year, 1);
     const dateBefore =
       month !== undefined
-        ? toDateString(formatDateAsYYYYMMDD(new Date(year, month, 0)))
-        : toDateString(formatDateAsYYYYMMDD(new Date(year, 11, 31)));
+        ? lastDayOfMonth(year, month)
+        : lastDayOfMonth(year, 12);
 
     const transactions = await this.transactionRepository.findManyByUserId(
       userId,

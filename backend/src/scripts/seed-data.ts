@@ -1,6 +1,7 @@
 #!/usr/bin/env ts-node
 
 import { DeleteCommand, ScanCommand } from "@aws-sdk/lib-dynamodb";
+import { Temporal } from "temporal-polyfill";
 import {
   resolveAccountRepository,
   resolveCategoryRepository,
@@ -11,6 +12,7 @@ import { Account } from "../models/account";
 import { CategoryType } from "../models/category";
 import { TransactionType } from "../models/transaction";
 import { toDateString } from "../types/date-string";
+import { daysInMonth } from "../utils/date";
 import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
 import { requireEnv } from "../utils/require-env";
 
@@ -161,15 +163,12 @@ async function createTransactions(
 ): Promise<void> {
   console.log("Creating sample transactions for current and previous month...");
 
-  const now = new Date();
-  const currentMonth = now.getMonth();
-  const currentYear = now.getFullYear();
-  const previousMonth = currentMonth === 0 ? 11 : currentMonth - 1;
-  const previousYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+  const currentDate = Temporal.Now.plainDateISO();
+  const previousDate = currentDate.subtract({ months: 1 });
 
   const months = [
-    { year: previousYear, month: previousMonth, label: "previous" },
-    { year: currentYear, month: currentMonth, label: "current" },
+    { year: previousDate.year, month: previousDate.month, label: "previous" },
+    { year: currentDate.year, month: currentDate.month, label: "current" },
   ];
 
   // Expense category descriptions - descriptions match the category name
@@ -202,7 +201,7 @@ async function createTransactions(
 
   for (const monthData of months) {
     console.log(
-      `\nCreating transactions for ${monthData.label} month (${monthData.month + 1}/${monthData.year})...`,
+      `\nCreating transactions for ${monthData.label} month (${monthData.month}/${monthData.year})...`,
     );
 
     // Create 2 income transactions
@@ -215,14 +214,17 @@ async function createTransactions(
         accountIds[Math.floor(Math.random() * accountIds.length)];
 
       // Generate random date within the month
-      const daysInMonth = new Date(
-        monthData.year,
-        monthData.month + 1,
-        0,
-      ).getDate();
-      const day = Math.floor(Math.random() * daysInMonth) + 1;
-      const date = new Date(monthData.year, monthData.month, day);
-      const dateString = toDateString(date.toISOString().split("T")[0]);
+      const day =
+        Math.floor(
+          Math.random() * daysInMonth(monthData.year, monthData.month),
+        ) + 1;
+      const dateString = toDateString(
+        Temporal.PlainDate.from({
+          year: monthData.year,
+          month: monthData.month,
+          day,
+        }).toString(),
+      );
 
       // Generate random income amount
       const amount = Math.round((Math.random() * 4000 + 500) * 100) / 100; // €500-€4500
@@ -249,14 +251,17 @@ async function createTransactions(
         accountIds[Math.floor(Math.random() * accountIds.length)];
 
       // Generate random date within the month
-      const daysInMonth = new Date(
-        monthData.year,
-        monthData.month + 1,
-        0,
-      ).getDate();
-      const day = Math.floor(Math.random() * daysInMonth) + 1;
-      const date = new Date(monthData.year, monthData.month, day);
-      const dateString = toDateString(date.toISOString().split("T")[0]);
+      const day =
+        Math.floor(
+          Math.random() * daysInMonth(monthData.year, monthData.month),
+        ) + 1;
+      const dateString = toDateString(
+        Temporal.PlainDate.from({
+          year: monthData.year,
+          month: monthData.month,
+          day,
+        }).toString(),
+      );
 
       // Generate random expense amount
       const amount = Math.round((Math.random() * 300 + 10) * 100) / 100; // €10-€310

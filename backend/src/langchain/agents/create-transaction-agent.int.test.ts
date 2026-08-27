@@ -13,7 +13,7 @@ import {
 } from "../../dependencies";
 import { CategoryType } from "../../models/category";
 import { TransactionType } from "../../models/transaction";
-import { formatDateAsYYYYMMDD } from "../../utils/date";
+import { today as todayDateString } from "../../utils/date";
 import { createDynamoDBDocumentClient } from "../../utils/dynamo-client";
 import { truncateAllTables } from "../../utils/test-utils/dynamodb-helpers";
 import { fakeAccount } from "../../utils/test-utils/models/account-fakes";
@@ -54,7 +54,7 @@ describe("CreateTransactionAgent (integration)", () => {
     await userRepository.create(user);
     userId = user.id;
 
-    today = formatDateAsYYYYMMDD(new Date());
+    today = todayDateString();
     context = { userId, today };
   });
 
