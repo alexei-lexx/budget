@@ -1,4 +1,5 @@
 import { AIMessage, HumanMessage } from "langchain";
+import { Temporal } from "temporal-polyfill";
 import { beforeAll, beforeEach, describe, expect, it } from "vitest";
 import {
   createChatModel,
@@ -13,7 +14,6 @@ import {
 import { CategoryType } from "../../models/category";
 import { TransactionType } from "../../models/transaction";
 import { toDateString } from "../../types/date-string";
-import { localTodayDateString } from "../../utils/date";
 import { createDynamoDBDocumentClient } from "../../utils/dynamo-client";
 import { truncateAllTables } from "../../utils/test-utils/dynamodb-helpers";
 import { fakeAccount } from "../../utils/test-utils/models/account-fakes";
@@ -53,7 +53,7 @@ describe("AssistantAgent (integration)", () => {
     await userRepository.create(user);
     userId = user.id;
 
-    today = localTodayDateString();
+    today = Temporal.Now.plainDateISO().toString();
     context = { userId, today };
   });
 
