@@ -1,6 +1,5 @@
 export type Result<TData, TError = string> =
-  | { success: true; data: TData }
-  | { success: false; error: TError };
+  { success: true; data: TData } | { success: false; error: TError };
 
 export function Success<TData>(data: TData): Result<TData, never> {
   return { success: true, data };
