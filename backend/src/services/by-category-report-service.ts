@@ -3,7 +3,7 @@ import { ReportType } from "../models/report";
 import { Transaction, TransactionType } from "../models/transaction";
 import { CategoryRepository } from "../ports/category-repository";
 import { TransactionRepository } from "../ports/transaction-repository";
-import { DateString, toDateString } from "../types/date-string";
+import { toDateString } from "../types/date-string";
 import { BusinessError } from "./business-error";
 
 const UNCATEGORIZED_LABEL = "Uncategorized";
@@ -273,21 +273,21 @@ export class ByCategoryReportService {
   }
 }
 
-function firstDayOfMonth(year: number, month: number): DateString {
+function firstDayOfMonth(year: number, month: number) {
   return toDateString(
     Temporal.PlainDate.from({ year, month, day: 1 }).toString(),
   );
 }
 
-function firstDayOfYear(year: number): DateString {
+function firstDayOfYear(year: number) {
   return firstDayOfMonth(year, 1);
 }
 
-function lastDayOfMonth(year: number, month: number): DateString {
+function lastDayOfMonth(year: number, month: number) {
   const date = Temporal.PlainDate.from({ year, month, day: 1 });
   return toDateString(date.with({ day: date.daysInMonth }).toString());
 }
 
-function lastDayOfYear(year: number): DateString {
+function lastDayOfYear(year: number) {
   return lastDayOfMonth(year, 12);
 }
