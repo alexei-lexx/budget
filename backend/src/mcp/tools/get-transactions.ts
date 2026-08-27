@@ -52,9 +52,7 @@ export async function getTransactions(
 
   const startPlainDate = Temporal.PlainDate.from(startDate);
   const endPlainDate = Temporal.PlainDate.from(endDate);
-  const daysBetween = startPlainDate.until(endPlainDate, {
-    largestUnit: "day",
-  }).days;
+  const daysBetween = startPlainDate.until(endPlainDate).days;
 
   if (daysBetween > MAX_PERIOD_DAYS) {
     return Failure(`Date range must not exceed ${MAX_PERIOD_DAYS} days`);
