@@ -1,10 +1,10 @@
 import { tool } from "langchain";
+import { Temporal } from "temporal-polyfill";
 import { z } from "zod";
 import { TransactionType } from "../../models/transaction";
 import { TransactionRepository } from "../../ports/transaction-repository";
 import { toDateString } from "../../types/date-string";
 import { Failure, Success } from "../../types/result";
-import { daysBetween } from "../../utils/date";
 import { agentContextSchema } from "../agents/agent-context";
 import { toTransactionDto } from "./transaction-dto";
 
@@ -51,18 +51,21 @@ export const createGetTransactionsTool = ({
         return Failure("startDate must not be after endDate");
       }
 
-      const dateAfter = toDateString(startDate);
-      const dateBefore = toDateString(endDate);
+      const startPlainDate = Temporal.PlainDate.from(startDate);
+      const endPlainDate = Temporal.PlainDate.from(endDate);
+      const daysBetween = startPlainDate.until(endPlainDate, {
+        largestUnit: "day",
+      }).days;
 
-      if (daysBetween(dateAfter, dateBefore) > MAX_PERIOD_DAYS) {
+      if (daysBetween > MAX_PERIOD_DAYS) {
         return Failure(`Date range must not exceed ${MAX_PERIOD_DAYS} days`);
       }
 
       const transactions = await transactionRepository.findManyByUserId(
         userId,
         {
-          dateAfter,
-          dateBefore,
+          dateAfter: toDateString(startDate),
+          dateBefore: toDateString(endDate),
           ...(accountIds && { accountIds }),
           ...(categoryIds && { categoryIds }),
           ...(types !== undefined && { types }),
