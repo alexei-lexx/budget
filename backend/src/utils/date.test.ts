@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { toDateString } from "../types/date-string";
-import { daysAgo, daysBetween } from "./date";
+import { daysBetween } from "./date";
 
 describe("date utilities", () => {
   describe("daysBetween", () => {
@@ -31,24 +31,6 @@ describe("date utilities", () => {
       expect(
         daysBetween(toDateString("2000-01-02"), toDateString("2000-01-01")),
       ).toBe(-1);
-    });
-  });
-
-  describe("daysAgo", () => {
-    it("returns the same date for 0 days ago", () => {
-      expect(daysAgo(toDateString("2000-01-05"), 0)).toBe("2000-01-05");
-    });
-
-    it("returns the previous date for 1 day ago", () => {
-      expect(daysAgo(toDateString("2000-01-05"), 1)).toBe("2000-01-04");
-    });
-
-    it("crosses month boundaries", () => {
-      expect(daysAgo(toDateString("2000-03-01"), 1)).toBe("2000-02-29");
-    });
-
-    it("crosses year boundaries", () => {
-      expect(daysAgo(toDateString("2000-01-01"), 5)).toBe("1999-12-27");
     });
   });
 });

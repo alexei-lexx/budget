@@ -1,12 +1,5 @@
-/**
- * Date utility functions
- *
- * All calendar arithmetic goes through Temporal.PlainDate, a timezone-free
- * calendar date, and is expressed in terms of DateString (YYYY-MM-DD).
- */
-
 import { Temporal } from "temporal-polyfill";
-import { DateString, toDateString } from "../types/date-string";
+import { DateString } from "../types/date-string";
 
 /**
  * Number of whole days from start to end; negative when end precedes start
@@ -15,10 +8,4 @@ export function daysBetween(start: DateString, end: DateString): number {
   return Temporal.PlainDate.from(start).until(Temporal.PlainDate.from(end), {
     largestUnit: "day",
   }).days;
-}
-
-export function daysAgo(date: DateString, days: number): DateString {
-  return toDateString(
-    Temporal.PlainDate.from(date).subtract({ days }).toString(),
-  );
 }
