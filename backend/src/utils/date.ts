@@ -29,14 +29,3 @@ export function daysAgo(date: DateString, days: number): DateString {
     Temporal.PlainDate.from(date).subtract({ days }).toString(),
   );
 }
-
-export function firstDayOfMonth(year: number, month: number): DateString {
-  return toDateString(
-    Temporal.PlainDate.from({ year, month, day: 1 }).toString(),
-  );
-}
-
-export function lastDayOfMonth(year: number, month: number): DateString {
-  const date = Temporal.PlainDate.from({ year, month, day: 1 });
-  return toDateString(date.with({ day: date.daysInMonth }).toString());
-}

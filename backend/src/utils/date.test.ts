@@ -1,12 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { DATE_FORMAT_REGEX, toDateString } from "../types/date-string";
-import {
-  daysAgo,
-  daysBetween,
-  firstDayOfMonth,
-  lastDayOfMonth,
-  localTodayDateString,
-} from "./date";
+import { daysAgo, daysBetween, localTodayDateString } from "./date";
 
 describe("date utilities", () => {
   describe("localTodayDateString", () => {
@@ -61,34 +55,6 @@ describe("date utilities", () => {
 
     it("crosses year boundaries", () => {
       expect(daysAgo(toDateString("2000-01-01"), 5)).toBe("1999-12-27");
-    });
-  });
-
-  describe("firstDayOfMonth", () => {
-    it("returns the first day of the month", () => {
-      expect(firstDayOfMonth(2024, 2)).toBe("2024-02-01");
-    });
-
-    it("returns the first day of January", () => {
-      expect(firstDayOfMonth(2024, 1)).toBe("2024-01-01");
-    });
-  });
-
-  describe("lastDayOfMonth", () => {
-    it("returns 29 February in a leap year", () => {
-      expect(lastDayOfMonth(2024, 2)).toBe("2024-02-29");
-    });
-
-    it("returns 28 February in a non-leap year", () => {
-      expect(lastDayOfMonth(2023, 2)).toBe("2023-02-28");
-    });
-
-    it("returns the last day of December", () => {
-      expect(lastDayOfMonth(2024, 12)).toBe("2024-12-31");
-    });
-
-    it("returns the last day of a 30-day month", () => {
-      expect(lastDayOfMonth(2024, 4)).toBe("2024-04-30");
     });
   });
 });

@@ -1,8 +1,9 @@
+import { Temporal } from "temporal-polyfill";
 import { ReportType } from "../models/report";
 import { Transaction, TransactionType } from "../models/transaction";
 import { CategoryRepository } from "../ports/category-repository";
 import { TransactionRepository } from "../ports/transaction-repository";
-import { firstDayOfMonth, lastDayOfMonth } from "../utils/date";
+import { DateString, toDateString } from "../types/date-string";
 import { BusinessError } from "./business-error";
 
 const UNCATEGORIZED_LABEL = "Uncategorized";
@@ -94,13 +95,9 @@ export class ByCategoryReportService {
     }
 
     const dateAfter =
-      month !== undefined
-        ? firstDayOfMonth(year, month)
-        : firstDayOfMonth(year, 1);
+      month !== undefined ? firstDayOfMonth(year, month) : firstDayOfYear(year);
     const dateBefore =
-      month !== undefined
-        ? lastDayOfMonth(year, month)
-        : lastDayOfMonth(year, 12);
+      month !== undefined ? lastDayOfMonth(year, month) : lastDayOfYear(year);
 
     const transactions = await this.transactionRepository.findManyByUserId(
       userId,
@@ -274,4 +271,23 @@ export class ByCategoryReportService {
       throw new BusinessError("Month must be a valid integer between 1 and 12");
     }
   }
+}
+
+function firstDayOfMonth(year: number, month: number): DateString {
+  return toDateString(
+    Temporal.PlainDate.from({ year, month, day: 1 }).toString(),
+  );
+}
+
+function firstDayOfYear(year: number): DateString {
+  return firstDayOfMonth(year, 1);
+}
+
+function lastDayOfMonth(year: number, month: number): DateString {
+  const date = Temporal.PlainDate.from({ year, month, day: 1 });
+  return toDateString(date.with({ day: date.daysInMonth }).toString());
+}
+
+function lastDayOfYear(year: number): DateString {
+  return lastDayOfMonth(year, 12);
 }
