@@ -9,13 +9,6 @@ import { Temporal } from "temporal-polyfill";
 import { DateString, toDateString } from "../types/date-string";
 
 /**
- * Today's date in the system timezone
- */
-export function localTodayDateString(): DateString {
-  return toDateString(Temporal.Now.plainDateISO().toString());
-}
-
-/**
  * Number of whole days from start to end; negative when end precedes start
  */
 export function daysBetween(start: DateString, end: DateString): number {

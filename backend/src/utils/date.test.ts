@@ -1,14 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { DATE_FORMAT_REGEX, toDateString } from "../types/date-string";
-import { daysAgo, daysBetween, localTodayDateString } from "./date";
+import { toDateString } from "../types/date-string";
+import { daysAgo, daysBetween } from "./date";
 
 describe("date utilities", () => {
-  describe("localTodayDateString", () => {
-    it("returns a date in YYYY-MM-DD format", () => {
-      expect(localTodayDateString()).toMatch(DATE_FORMAT_REGEX);
-    });
-  });
-
   describe("daysBetween", () => {
     it("returns 0 for same date", () => {
       const date = toDateString("2000-01-01");
