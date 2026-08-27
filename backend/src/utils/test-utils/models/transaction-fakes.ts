@@ -1,4 +1,5 @@
 import { faker } from "@faker-js/faker";
+import { Temporal } from "temporal-polyfill";
 import {
   CreateTransactionInput,
   Transaction,
@@ -6,7 +7,7 @@ import {
   TransactionPattern,
   TransactionType,
 } from "../../../models/transaction";
-import { daysAgo, localTodayDateString } from "../../date";
+import { toDateString } from "../../../types/date-string";
 import { fakeAccount } from "./account-fakes";
 
 export const fakeTransaction = (
@@ -26,9 +27,11 @@ export const fakeTransaction = (
     amount: faker.number.float({ min: 1, max: 1000, fractionDigits: 2 }),
     type,
     currency: faker.helpers.arrayElement(["EUR", "USD"]),
-    date: daysAgo(
-      localTodayDateString(),
-      faker.number.int({ min: 0, max: 30 }),
+    date: toDateString(
+      Temporal.Instant.fromEpochMilliseconds(faker.date.recent().getTime())
+        .toZonedDateTimeISO("UTC")
+        .toPlainDate()
+        .toString(),
     ),
     description: faker.commerce.product(),
     transferId: isTransfer ? faker.string.uuid() : undefined,
@@ -52,9 +55,11 @@ export const fakeCreateTransactionInput = (
     account,
     type: TransactionType.EXPENSE,
     amount: faker.number.float({ min: 1, max: 1000, fractionDigits: 2 }),
-    date: daysAgo(
-      localTodayDateString(),
-      faker.number.int({ min: 0, max: 30 }),
+    date: toDateString(
+      Temporal.Instant.fromEpochMilliseconds(faker.date.recent().getTime())
+        .toZonedDateTimeISO("UTC")
+        .toPlainDate()
+        .toString(),
     ),
     description: faker.commerce.product(),
     ...overrides,
