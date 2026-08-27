@@ -13,7 +13,7 @@ import {
   TransactionType,
 } from "../../models/transaction";
 
-import { toDateString, toDateStringOrUndefined } from "../../types/date";
+import { toDateString, toDateStringOrUndefined } from "../../types/date-string";
 import { GraphQLContext } from "../context";
 import type {
   TransactionEmbeddedAccount,

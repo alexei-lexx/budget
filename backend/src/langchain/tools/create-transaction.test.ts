@@ -2,7 +2,7 @@ import { faker } from "@faker-js/faker";
 import { type Mocked, beforeEach, describe, expect, it, vi } from "vitest";
 import { TransactionType } from "../../models/transaction";
 import { TransactionService } from "../../services/transaction-service";
-import { toDateString } from "../../types/date";
+import { toDateString } from "../../types/date-string";
 import { fakeTransaction } from "../../utils/test-utils/models/transaction-fakes";
 import {
   CREATE_TRANSACTION_TOOL_NAME,

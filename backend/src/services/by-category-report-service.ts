@@ -2,7 +2,7 @@ import { ReportType } from "../models/report";
 import { Transaction, TransactionType } from "../models/transaction";
 import { CategoryRepository } from "../ports/category-repository";
 import { TransactionRepository } from "../ports/transaction-repository";
-import { toDateString } from "../types/date";
+import { toDateString } from "../types/date-string";
 import { formatDateAsYYYYMMDD } from "../utils/date";
 import { BusinessError } from "./business-error";
 

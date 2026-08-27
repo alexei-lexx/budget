@@ -6,7 +6,7 @@ import {
   CreateTransactionServiceInput,
   TransactionService,
 } from "../../services/transaction-service";
-import { toDateString } from "../../types/date";
+import { toDateString } from "../../types/date-string";
 import { fakeTransaction } from "../../utils/test-utils/models/transaction-fakes";
 import { createMockTransactionService } from "../../utils/test-utils/services/transaction-service-mocks";
 import { createTransaction } from "./create-transaction";

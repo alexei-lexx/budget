@@ -2,7 +2,7 @@ import { tool } from "langchain";
 import { z } from "zod";
 import { TransactionRepository } from "../../ports/transaction-repository";
 import { CategoryService } from "../../services/category-service";
-import { toDateString } from "../../types/date";
+import { toDateString } from "../../types/date-string";
 import { EntityScope } from "../../types/entity-scope";
 import { Success } from "../../types/result";
 import { daysAgo, formatDateAsYYYYMMDD } from "../../utils/date";

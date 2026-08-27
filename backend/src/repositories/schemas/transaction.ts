@@ -1,7 +1,7 @@
 import { z } from "zod";
 import type { TransactionData } from "../../models/transaction";
 import { TransactionType } from "../../models/transaction";
-import { toDateString } from "../../types/date";
+import { toDateString } from "../../types/date-string";
 
 // Database item schema: adds createdAtSortable
 export const transactionDbItemSchema = z.object({

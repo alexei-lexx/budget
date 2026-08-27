@@ -1,6 +1,6 @@
 import { faker } from "@faker-js/faker";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { toDateString } from "../types/date";
+import { toDateString } from "../types/date-string";
 import { fakeAccount } from "../utils/test-utils/models/account-fakes";
 import { fakeCategory } from "../utils/test-utils/models/category-fakes";
 import {

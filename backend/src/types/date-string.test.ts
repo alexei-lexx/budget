@@ -4,7 +4,7 @@ import {
   isDateString,
   toDateString,
   toDateStringOrUndefined,
-} from "./date";
+} from "./date-string";
 
 describe("isDateString", () => {
   describe("valid dates", () => {

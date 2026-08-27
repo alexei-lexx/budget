@@ -6,7 +6,7 @@ import {
 } from "../../langchain/tools/transaction-dto";
 import { TransactionType } from "../../models/transaction";
 import { TransactionRepository } from "../../ports/transaction-repository";
-import { DateString, toDateString } from "../../types/date";
+import { DateString, toDateString } from "../../types/date-string";
 import { Failure, Result, Success } from "../../types/result";
 import { daysBetween } from "../../utils/date";
 import { buildGuideTokensField, verifyGuideTokens } from "./guides";

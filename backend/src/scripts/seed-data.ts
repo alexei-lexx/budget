@@ -10,7 +10,7 @@ import {
 import { Account } from "../models/account";
 import { CategoryType } from "../models/category";
 import { TransactionType } from "../models/transaction";
-import { toDateString } from "../types/date";
+import { toDateString } from "../types/date-string";
 import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
 import { requireEnv } from "../utils/require-env";
 

@@ -6,7 +6,7 @@ import { AccountRepository } from "../ports/account-repository";
 import { AtomicWriter } from "../ports/atomic-writer";
 import { VersionConflictError } from "../ports/repository-error";
 import { TransactionRepository } from "../ports/transaction-repository";
-import { toDateString } from "../types/date";
+import { toDateString } from "../types/date-string";
 import { fakeAccount } from "../utils/test-utils/models/account-fakes";
 import { fakeTransaction } from "../utils/test-utils/models/transaction-fakes";
 import { createMockAccountRepository } from "../utils/test-utils/repositories/account-repository-mocks";

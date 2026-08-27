@@ -8,7 +8,7 @@ import { AtomicWriter } from "../ports/atomic-writer";
 import { CategoryRepository } from "../ports/category-repository";
 import { VersionConflictError } from "../ports/repository-error";
 import { TransactionRepository } from "../ports/transaction-repository";
-import { toDateString } from "../types/date";
+import { toDateString } from "../types/date-string";
 import { MAX_PAGE_SIZE, MIN_PAGE_SIZE } from "../types/pagination";
 import { fakeAccount } from "../utils/test-utils/models/account-fakes";
 import { fakeCategory } from "../utils/test-utils/models/category-fakes";

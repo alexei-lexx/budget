@@ -15,7 +15,7 @@ import {
   TransactionFilterInput,
   TransactionRepository,
 } from "../ports/transaction-repository";
-import { DateString } from "../types/date";
+import { DateString } from "../types/date-string";
 import {
   MAX_PAGE_SIZE,
   MIN_PAGE_SIZE,

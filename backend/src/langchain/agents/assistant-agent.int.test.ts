@@ -12,7 +12,7 @@ import {
 } from "../../dependencies";
 import { CategoryType } from "../../models/category";
 import { TransactionType } from "../../models/transaction";
-import { toDateString } from "../../types/date";
+import { toDateString } from "../../types/date-string";
 import { formatDateAsYYYYMMDD } from "../../utils/date";
 import { createDynamoDBDocumentClient } from "../../utils/dynamo-client";
 import { truncateAllTables } from "../../utils/test-utils/dynamodb-helpers";

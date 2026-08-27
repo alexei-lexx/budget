@@ -2,7 +2,7 @@ import { tool } from "langchain";
 import { z } from "zod";
 import { TransactionType } from "../../models/transaction";
 import { TransactionRepository } from "../../ports/transaction-repository";
-import { toDateString } from "../../types/date";
+import { toDateString } from "../../types/date-string";
 import { Failure, Success } from "../../types/result";
 import { daysBetween } from "../../utils/date";
 import { agentContextSchema } from "../agents/agent-context";

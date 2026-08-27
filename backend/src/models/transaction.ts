@@ -1,5 +1,5 @@
 import { randomUUID } from "crypto";
-import { DateString } from "../types/date";
+import { DateString } from "../types/date-string";
 import { Account } from "./account";
 import { Category, CategoryType } from "./category";
 import { ModelError } from "./model-error";

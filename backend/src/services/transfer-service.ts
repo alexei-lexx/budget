@@ -4,7 +4,7 @@ import { Transaction, TransactionType } from "../models/transaction";
 import { AccountRepository } from "../ports/account-repository";
 import { AtomicWriter } from "../ports/atomic-writer";
 import { TransactionRepository } from "../ports/transaction-repository";
-import { DateString } from "../types/date";
+import { DateString } from "../types/date-string";
 import { BusinessError } from "./business-error";
 import { handleVersionConflict } from "./utils/handle-version-conflict";
 

@@ -6,7 +6,7 @@ import {
   TransactionPattern,
   TransactionType,
 } from "../../../models/transaction";
-import { toDateString } from "../../../types/date";
+import { toDateString } from "../../../types/date-string";
 import { fakeAccount } from "./account-fakes";
 
 export const fakeTransaction = (

@@ -8,7 +8,7 @@ import {
   TransactionType,
 } from "../models/transaction";
 import { VersionConflictError } from "../ports/repository-error";
-import { toDateString } from "../types/date";
+import { toDateString } from "../types/date-string";
 import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
 import { requireEnv } from "../utils/require-env";
 import { truncateTable } from "../utils/test-utils/dynamodb-helpers";

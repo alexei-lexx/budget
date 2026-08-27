@@ -3,7 +3,7 @@ import { type Mocked, beforeEach, describe, expect, it } from "vitest";
 import { CategoryType } from "../../models/category";
 import { TransactionRepository } from "../../ports/transaction-repository";
 import { CategoryService } from "../../services/category-service";
-import { isDateString } from "../../types/date";
+import { isDateString } from "../../types/date-string";
 import { EntityScope } from "../../types/entity-scope";
 import { daysBetween } from "../../utils/date";
 import { fakeCategory } from "../../utils/test-utils/models/category-fakes";
