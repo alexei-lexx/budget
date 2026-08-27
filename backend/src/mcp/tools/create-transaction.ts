@@ -9,7 +9,7 @@ import {
   CreateTransactionServiceInput,
   TransactionService,
 } from "../../services/transaction-service";
-import { toDateString } from "../../types/date";
+import { toDateString } from "../../types/date-string";
 import { Failure, Result, Success } from "../../types/result";
 import { buildGuideTokensField, verifyGuideTokens } from "./guides";
 import { toToolResult } from "./to-tool-result";

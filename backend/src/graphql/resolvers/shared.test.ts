@@ -2,7 +2,7 @@ import { GraphQLError } from "graphql";
 import { describe, expect, it } from "vitest";
 import { ModelError } from "../../models/model-error";
 import { BusinessError } from "../../services/business-error";
-import { InvalidDateStringError } from "../../types/date";
+import { InvalidDateStringError } from "../../types/date-string";
 import { handleResolverError } from "./shared";
 
 describe("handleResolverError", () => {

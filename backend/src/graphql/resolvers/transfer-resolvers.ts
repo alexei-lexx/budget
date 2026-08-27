@@ -5,7 +5,7 @@ import {
   QueryTransferArgs,
 } from "../../__generated__/resolvers-types";
 
-import { toDateString, toDateStringOrUndefined } from "../../types/date";
+import { toDateString, toDateStringOrUndefined } from "../../types/date-string";
 import { GraphQLContext } from "../context";
 import { getAuthenticatedUser, handleResolverError } from "./shared";
 

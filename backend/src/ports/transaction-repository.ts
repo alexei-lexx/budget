@@ -4,7 +4,7 @@ import {
   TransactionPatternType,
   TransactionType,
 } from "../models/transaction";
-import { DateString } from "../types/date";
+import { DateString } from "../types/date-string";
 import { Connection, Edge, PaginationInput } from "../types/pagination";
 
 export interface TransactionFilterInput {

@@ -3,7 +3,7 @@ import { ModelError } from "../../models/model-error";
 import { User } from "../../models/user";
 import { RepositoryError } from "../../ports/repository-error";
 import { BusinessError } from "../../services/business-error";
-import { InvalidDateStringError } from "../../types/date";
+import { InvalidDateStringError } from "../../types/date-string";
 import { GraphQLContext } from "../context";
 
 /**
