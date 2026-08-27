@@ -4,7 +4,7 @@ import { TransactionRepository } from "../../ports/transaction-repository";
 import { CategoryService } from "../../services/category-service";
 import { EntityScope } from "../../types/entity-scope";
 import { Success } from "../../types/result";
-import { daysAgo, today } from "../../utils/date";
+import { daysAgo, localTodayDateString } from "../../utils/date";
 import { agentContextSchema } from "../agents/agent-context";
 import { CategoryDto, toCategoryDto } from "./category-dto";
 
@@ -50,7 +50,7 @@ export const createGetCategoriesTool = ({
       );
 
       // Enrich with recent transaction descriptions
-      const todayDateString = today();
+      const todayDateString = localTodayDateString();
       const lookbackDateString = daysAgo(
         todayDateString,
         CATEGORY_HISTORY_LOOKBACK_DAYS,

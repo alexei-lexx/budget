@@ -6,7 +6,7 @@ import {
   TransactionPattern,
   TransactionType,
 } from "../../../models/transaction";
-import { daysAgo, today } from "../../date";
+import { daysAgo, localTodayDateString } from "../../date";
 import { fakeAccount } from "./account-fakes";
 
 export const fakeTransaction = (
@@ -26,7 +26,10 @@ export const fakeTransaction = (
     amount: faker.number.float({ min: 1, max: 1000, fractionDigits: 2 }),
     type,
     currency: faker.helpers.arrayElement(["EUR", "USD"]),
-    date: daysAgo(today(), faker.number.int({ min: 0, max: 30 })),
+    date: daysAgo(
+      localTodayDateString(),
+      faker.number.int({ min: 0, max: 30 }),
+    ),
     description: faker.commerce.product(),
     transferId: isTransfer ? faker.string.uuid() : undefined,
     isArchived: false,
@@ -49,7 +52,10 @@ export const fakeCreateTransactionInput = (
     account,
     type: TransactionType.EXPENSE,
     amount: faker.number.float({ min: 1, max: 1000, fractionDigits: 2 }),
-    date: daysAgo(today(), faker.number.int({ min: 0, max: 30 })),
+    date: daysAgo(
+      localTodayDateString(),
+      faker.number.int({ min: 0, max: 30 }),
+    ),
     description: faker.commerce.product(),
     ...overrides,
   };

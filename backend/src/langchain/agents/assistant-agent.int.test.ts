@@ -13,7 +13,7 @@ import {
 import { CategoryType } from "../../models/category";
 import { TransactionType } from "../../models/transaction";
 import { toDateString } from "../../types/date-string";
-import { today as todayDateString } from "../../utils/date";
+import { localTodayDateString } from "../../utils/date";
 import { createDynamoDBDocumentClient } from "../../utils/dynamo-client";
 import { truncateAllTables } from "../../utils/test-utils/dynamodb-helpers";
 import { fakeAccount } from "../../utils/test-utils/models/account-fakes";
@@ -53,7 +53,7 @@ describe("AssistantAgent (integration)", () => {
     await userRepository.create(user);
     userId = user.id;
 
-    today = todayDateString();
+    today = localTodayDateString();
     context = { userId, today };
   });
 

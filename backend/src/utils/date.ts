@@ -11,7 +11,7 @@ import { DateString, toDateString } from "../types/date-string";
 /**
  * Today's date in the system timezone
  */
-export function today(): DateString {
+export function localTodayDateString(): DateString {
   return toDateString(Temporal.Now.plainDateISO().toString());
 }
 

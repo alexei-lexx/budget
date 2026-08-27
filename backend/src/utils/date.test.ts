@@ -6,13 +6,13 @@ import {
   daysInMonth,
   firstDayOfMonth,
   lastDayOfMonth,
-  today,
+  localTodayDateString,
 } from "./date";
 
 describe("date utilities", () => {
-  describe("today", () => {
+  describe("localTodayDateString", () => {
     it("returns a date in YYYY-MM-DD format", () => {
-      expect(today()).toMatch(DATE_FORMAT_REGEX);
+      expect(localTodayDateString()).toMatch(DATE_FORMAT_REGEX);
     });
   });
 

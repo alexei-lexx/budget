@@ -1,6 +1,6 @@
 import { Agent, AgentMessage, AgentTraceMessage } from "../ports/agent-types";
 import { Failure, Result, Success } from "../types/result";
-import { today } from "../utils/date";
+import { localTodayDateString } from "../utils/date";
 
 export interface AssistantInput {
   question: string;
@@ -51,7 +51,7 @@ export class AssistantServiceImpl implements AssistantService {
       {
         context: {
           isVoiceInput: input.isVoiceInput ?? false,
-          today: today(),
+          today: localTodayDateString(),
           userId,
         },
       },
