@@ -1,5 +1,6 @@
 import { faker } from "@faker-js/faker";
 import { AIMessage, HumanMessage } from "langchain";
+import { Temporal } from "temporal-polyfill";
 import { beforeAll, beforeEach, describe, expect, it } from "vitest";
 import {
   createChatModel,
@@ -13,7 +14,6 @@ import {
 } from "../../dependencies";
 import { CategoryType } from "../../models/category";
 import { TransactionType } from "../../models/transaction";
-import { formatDateAsYYYYMMDD } from "../../utils/date";
 import { createDynamoDBDocumentClient } from "../../utils/dynamo-client";
 import { truncateAllTables } from "../../utils/test-utils/dynamodb-helpers";
 import { fakeAccount } from "../../utils/test-utils/models/account-fakes";
@@ -54,7 +54,7 @@ describe("CreateTransactionAgent (integration)", () => {
     await userRepository.create(user);
     userId = user.id;
 
-    today = formatDateAsYYYYMMDD(new Date());
+    today = Temporal.Now.plainDateISO().toString();
     context = { userId, today };
   });
 

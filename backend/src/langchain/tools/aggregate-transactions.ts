@@ -1,10 +1,10 @@
 import { tool } from "langchain";
+import { Temporal } from "temporal-polyfill";
 import { z } from "zod";
 import { TransactionType } from "../../models/transaction";
 import { TransactionRepository } from "../../ports/transaction-repository";
 import { toDateString } from "../../types/date-string";
 import { Failure, Success } from "../../types/result";
-import { daysBetween } from "../../utils/date";
 import { agentContextSchema } from "../agents/agent-context";
 import { MAX_PERIOD_DAYS } from "./get-transactions";
 
@@ -51,9 +51,13 @@ export const createAggregateTransactionsTool = ({
         return Failure("startDate must not be after endDate");
       }
 
-      if (
-        daysBetween(new Date(startDate), new Date(endDate)) > MAX_PERIOD_DAYS
-      ) {
+      const startPlainDate = Temporal.PlainDate.from(startDate);
+      const endPlainDate = Temporal.PlainDate.from(endDate);
+      const daysBetween = startPlainDate.until(endPlainDate, {
+        largestUnit: "day",
+      }).days;
+
+      if (daysBetween > MAX_PERIOD_DAYS) {
         return Failure(`Date range must not exceed ${MAX_PERIOD_DAYS} days`);
       }
 

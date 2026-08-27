@@ -1,9 +1,9 @@
+import { Temporal } from "temporal-polyfill";
 import { ReportType } from "../models/report";
 import { Transaction, TransactionType } from "../models/transaction";
 import { CategoryRepository } from "../ports/category-repository";
 import { TransactionRepository } from "../ports/transaction-repository";
 import { toDateString } from "../types/date-string";
-import { formatDateAsYYYYMMDD } from "../utils/date";
 import { BusinessError } from "./business-error";
 
 const UNCATEGORIZED_LABEL = "Uncategorized";
@@ -95,13 +95,9 @@ export class ByCategoryReportService {
     }
 
     const dateAfter =
-      month !== undefined
-        ? toDateString(formatDateAsYYYYMMDD(new Date(year, month - 1, 1)))
-        : toDateString(formatDateAsYYYYMMDD(new Date(year, 0, 1)));
+      month !== undefined ? firstDayOfMonth(year, month) : firstDayOfYear(year);
     const dateBefore =
-      month !== undefined
-        ? toDateString(formatDateAsYYYYMMDD(new Date(year, month, 0)))
-        : toDateString(formatDateAsYYYYMMDD(new Date(year, 11, 31)));
+      month !== undefined ? lastDayOfMonth(year, month) : lastDayOfYear(year);
 
     const transactions = await this.transactionRepository.findManyByUserId(
       userId,
@@ -265,7 +261,7 @@ export class ByCategoryReportService {
   }
 
   private validateYear(year: number): void {
-    if (!Number.isInteger(year)) {
+    if (!Number.isInteger(year) || year < 1000 || year > 9999) {
       throw new BusinessError("Year must be a valid integer");
     }
   }
@@ -275,4 +271,24 @@ export class ByCategoryReportService {
       throw new BusinessError("Month must be a valid integer between 1 and 12");
     }
   }
+}
+
+function firstDayOfMonth(year: number, month: number) {
+  const yearMonth = Temporal.PlainYearMonth.from({ year, month });
+  return toDateString(yearMonth.toPlainDate({ day: 1 }).toString());
+}
+
+function firstDayOfYear(year: number) {
+  return firstDayOfMonth(year, 1);
+}
+
+function lastDayOfMonth(year: number, month: number) {
+  const yearMonth = Temporal.PlainYearMonth.from({ year, month });
+  return toDateString(
+    yearMonth.toPlainDate({ day: yearMonth.daysInMonth }).toString(),
+  );
+}
+
+function lastDayOfYear(year: number) {
+  return lastDayOfMonth(year, 12);
 }

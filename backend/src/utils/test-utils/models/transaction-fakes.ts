@@ -1,4 +1,5 @@
 import { faker } from "@faker-js/faker";
+import { Temporal } from "temporal-polyfill";
 import {
   CreateTransactionInput,
   Transaction,
@@ -26,7 +27,12 @@ export const fakeTransaction = (
     amount: faker.number.float({ min: 1, max: 1000, fractionDigits: 2 }),
     type,
     currency: faker.helpers.arrayElement(["EUR", "USD"]),
-    date: toDateString(faker.date.recent().toISOString().split("T")[0]),
+    date: toDateString(
+      Temporal.Instant.fromEpochMilliseconds(faker.date.recent().getTime())
+        .toZonedDateTimeISO("UTC")
+        .toPlainDate()
+        .toString(),
+    ),
     description: faker.commerce.product(),
     transferId: isTransfer ? faker.string.uuid() : undefined,
     isArchived: false,
@@ -49,7 +55,12 @@ export const fakeCreateTransactionInput = (
     account,
     type: TransactionType.EXPENSE,
     amount: faker.number.float({ min: 1, max: 1000, fractionDigits: 2 }),
-    date: toDateString(faker.date.recent().toISOString().split("T")[0]),
+    date: toDateString(
+      Temporal.Instant.fromEpochMilliseconds(faker.date.recent().getTime())
+        .toZonedDateTimeISO("UTC")
+        .toPlainDate()
+        .toString(),
+    ),
     description: faker.commerce.product(),
     ...overrides,
   };

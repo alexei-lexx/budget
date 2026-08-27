@@ -1,6 +1,6 @@
+import { Temporal } from "temporal-polyfill";
 import { Agent, AgentMessage, AgentTraceMessage } from "../ports/agent-types";
 import { Failure, Result, Success } from "../types/result";
-import { formatDateAsYYYYMMDD } from "../utils/date";
 
 export interface AssistantInput {
   question: string;
@@ -51,7 +51,7 @@ export class AssistantServiceImpl implements AssistantService {
       {
         context: {
           isVoiceInput: input.isVoiceInput ?? false,
-          today: formatDateAsYYYYMMDD(new Date()),
+          today: Temporal.Now.plainDateISO().toString(),
           userId,
         },
       },

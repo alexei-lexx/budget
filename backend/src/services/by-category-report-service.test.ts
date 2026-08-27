@@ -10,6 +10,7 @@ import { fakeCategory } from "../utils/test-utils/models/category-fakes";
 import { fakeTransaction } from "../utils/test-utils/models/transaction-fakes";
 import { createMockCategoryRepository } from "../utils/test-utils/repositories/category-repository-mocks";
 import { createMockTransactionRepository } from "../utils/test-utils/repositories/transaction-repository-mocks";
+import { BusinessError } from "./business-error";
 import { ByCategoryReportService } from "./by-category-report-service";
 
 describe("ByCategoryReportService", () => {
@@ -701,6 +702,26 @@ describe("ByCategoryReportService", () => {
       ).rejects.toMatchObject({
         message: "Year must be a valid integer",
       });
+    });
+
+    it("throws when year < 1000", async () => {
+      // Arrange
+      mockTransactionRepository.findManyByUserId.mockResolvedValue([]);
+
+      // Act & Assert
+      await expect(
+        reportService.call(userId, 999, 1, ReportType.EXPENSE),
+      ).rejects.toThrow(new BusinessError("Year must be a valid integer"));
+    });
+
+    it("throws when year > 9999", async () => {
+      // Arrange
+      mockTransactionRepository.findManyByUserId.mockResolvedValue([]);
+
+      // Act & Assert
+      await expect(
+        reportService.call(userId, 10000, 1, ReportType.EXPENSE),
+      ).rejects.toThrow(new BusinessError("Year must be a valid integer"));
     });
 
     it("throws when month is out of range or fractional", async () => {

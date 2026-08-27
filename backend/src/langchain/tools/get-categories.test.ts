@@ -1,11 +1,11 @@
 import { faker } from "@faker-js/faker";
+import { Temporal } from "temporal-polyfill";
 import { type Mocked, beforeEach, describe, expect, it } from "vitest";
 import { CategoryType } from "../../models/category";
 import { TransactionRepository } from "../../ports/transaction-repository";
 import { CategoryService } from "../../services/category-service";
 import { isDateString } from "../../types/date-string";
 import { EntityScope } from "../../types/entity-scope";
-import { daysBetween } from "../../utils/date";
 import { fakeCategory } from "../../utils/test-utils/models/category-fakes";
 import { fakeTransaction } from "../../utils/test-utils/models/transaction-fakes";
 import { createMockTransactionRepository } from "../../utils/test-utils/repositories/transaction-repository-mocks";
@@ -484,9 +484,15 @@ describe("createGetCategoriesTool", () => {
       expect(dateAfterArg && isDateString(dateAfterArg)).toBe(true);
       expect(dateBeforeArg && isDateString(dateBeforeArg)).toBe(true);
 
-      const dateAfter = new Date(dateAfterArg || "");
-      const dateBefore = new Date(dateBeforeArg || "");
-      const daysDiff = daysBetween(dateAfter, dateBefore);
+      if (!dateAfterArg || !dateBeforeArg) {
+        throw new Error("Expected dateAfter and dateBefore to be defined");
+      }
+
+      const afterPlainDate = Temporal.PlainDate.from(dateAfterArg);
+      const beforePlainDate = Temporal.PlainDate.from(dateBeforeArg);
+      const daysDiff = afterPlainDate.until(beforePlainDate, {
+        largestUnit: "day",
+      }).days;
 
       expect(daysDiff).toBeGreaterThanOrEqual(
         CATEGORY_HISTORY_LOOKBACK_DAYS - 1,
