@@ -12,7 +12,6 @@ import { Account } from "../models/account";
 import { CategoryType } from "../models/category";
 import { TransactionType } from "../models/transaction";
 import { toDateString } from "../types/date-string";
-import { daysInMonth } from "../utils/date";
 import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
 import { requireEnv } from "../utils/require-env";
 
@@ -163,12 +162,12 @@ async function createTransactions(
 ): Promise<void> {
   console.log("Creating sample transactions for current and previous month...");
 
-  const currentDate = Temporal.Now.plainDateISO();
-  const previousDate = currentDate.subtract({ months: 1 });
+  const currentMonth = Temporal.Now.plainDateISO().toPlainYearMonth();
+  const previousMonth = currentMonth.subtract({ months: 1 });
 
   const months = [
-    { year: previousDate.year, month: previousDate.month, label: "previous" },
-    { year: currentDate.year, month: currentDate.month, label: "current" },
+    { yearMonth: previousMonth, label: "previous" },
+    { yearMonth: currentMonth, label: "current" },
   ];
 
   // Expense category descriptions - descriptions match the category name
@@ -201,8 +200,10 @@ async function createTransactions(
 
   for (const monthData of months) {
     console.log(
-      `\nCreating transactions for ${monthData.label} month (${monthData.month}/${monthData.year})...`,
+      `\nCreating transactions for ${monthData.label} month (${monthData.yearMonth.month}/${monthData.yearMonth.year})...`,
     );
+
+    const daysInMonth = monthData.yearMonth.daysInMonth;
 
     // Create 2 income transactions
     for (let i = 0; i < 2; i++) {
@@ -214,16 +215,9 @@ async function createTransactions(
         accountIds[Math.floor(Math.random() * accountIds.length)];
 
       // Generate random date within the month
-      const day =
-        Math.floor(
-          Math.random() * daysInMonth(monthData.year, monthData.month),
-        ) + 1;
+      const day = Math.floor(Math.random() * daysInMonth) + 1;
       const dateString = toDateString(
-        Temporal.PlainDate.from({
-          year: monthData.year,
-          month: monthData.month,
-          day,
-        }).toString(),
+        monthData.yearMonth.toPlainDate({ day }).toString(),
       );
 
       // Generate random income amount
@@ -251,16 +245,9 @@ async function createTransactions(
         accountIds[Math.floor(Math.random() * accountIds.length)];
 
       // Generate random date within the month
-      const day =
-        Math.floor(
-          Math.random() * daysInMonth(monthData.year, monthData.month),
-        ) + 1;
+      const day = Math.floor(Math.random() * daysInMonth) + 1;
       const dateString = toDateString(
-        Temporal.PlainDate.from({
-          year: monthData.year,
-          month: monthData.month,
-          day,
-        }).toString(),
+        monthData.yearMonth.toPlainDate({ day }).toString(),
       );
 
       // Generate random expense amount

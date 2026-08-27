@@ -40,7 +40,3 @@ export function lastDayOfMonth(year: number, month: number): DateString {
   const date = Temporal.PlainDate.from({ year, month, day: 1 });
   return toDateString(date.with({ day: date.daysInMonth }).toString());
 }
-
-export function daysInMonth(year: number, month: number): number {
-  return Temporal.PlainDate.from({ year, month, day: 1 }).daysInMonth;
-}

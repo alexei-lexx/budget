@@ -3,7 +3,6 @@ import { DATE_FORMAT_REGEX, toDateString } from "../types/date-string";
 import {
   daysAgo,
   daysBetween,
-  daysInMonth,
   firstDayOfMonth,
   lastDayOfMonth,
   localTodayDateString,
@@ -90,20 +89,6 @@ describe("date utilities", () => {
 
     it("returns the last day of a 30-day month", () => {
       expect(lastDayOfMonth(2024, 4)).toBe("2024-04-30");
-    });
-  });
-
-  describe("daysInMonth", () => {
-    it("returns 29 for February in a leap year", () => {
-      expect(daysInMonth(2024, 2)).toBe(29);
-    });
-
-    it("returns 28 for February in a non-leap year", () => {
-      expect(daysInMonth(2023, 2)).toBe(28);
-    });
-
-    it("returns 31 for January", () => {
-      expect(daysInMonth(2024, 1)).toBe(31);
     });
   });
 });
