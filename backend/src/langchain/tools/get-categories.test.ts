@@ -490,9 +490,7 @@ describe("createGetCategoriesTool", () => {
 
       const afterPlainDate = Temporal.PlainDate.from(dateAfterArg);
       const beforePlainDate = Temporal.PlainDate.from(dateBeforeArg);
-      const daysDiff = afterPlainDate.until(beforePlainDate, {
-        largestUnit: "day",
-      }).days;
+      const daysDiff = afterPlainDate.until(beforePlainDate).days;
 
       expect(daysDiff).toBeGreaterThanOrEqual(
         CATEGORY_HISTORY_LOOKBACK_DAYS - 1,
