@@ -261,7 +261,7 @@ export class ByCategoryReportService {
   }
 
   private validateYear(year: number): void {
-    if (!Number.isInteger(year)) {
+    if (!Number.isInteger(year) || year < 1000 || year > 9999) {
       throw new BusinessError("Year must be a valid integer");
     }
   }
@@ -274,9 +274,8 @@ export class ByCategoryReportService {
 }
 
 function firstDayOfMonth(year: number, month: number) {
-  return toDateString(
-    Temporal.PlainDate.from({ year, month, day: 1 }).toString(),
-  );
+  const yearMonth = Temporal.PlainYearMonth.from({ year, month });
+  return toDateString(yearMonth.toPlainDate({ day: 1 }).toString());
 }
 
 function firstDayOfYear(year: number) {
@@ -284,8 +283,10 @@ function firstDayOfYear(year: number) {
 }
 
 function lastDayOfMonth(year: number, month: number) {
-  const date = Temporal.PlainDate.from({ year, month, day: 1 });
-  return toDateString(date.with({ day: date.daysInMonth }).toString());
+  const yearMonth = Temporal.PlainYearMonth.from({ year, month });
+  return toDateString(
+    yearMonth.toPlainDate({ day: yearMonth.daysInMonth }).toString(),
+  );
 }
 
 function lastDayOfYear(year: number) {

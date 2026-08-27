@@ -30,10 +30,9 @@ export function isDateString(value: string): value is DateString {
     return false;
   }
 
-  // "reject" makes out-of-range components (e.g. "2023-02-29") throw instead of
-  // being clamped to a valid date
+  // Rejects out-of-range dates (e.g. "2023-02-29") rather than rolling them over
   try {
-    Temporal.PlainDate.from(value, { overflow: "reject" });
+    Temporal.PlainDate.from(value);
     return true;
   } catch {
     return false;
