@@ -1,5 +1,4 @@
 import { CategoryType } from '../models/category';
-import { ReportType } from '../models/report';
 import { TransactionPatternType } from '../models/transaction';
 import { TransactionType } from '../models/transaction';
 import { GraphQLResolveInfo } from 'graphql';
@@ -369,7 +368,9 @@ export type QueryTransferArgs = {
   id: Scalars['ID']['input'];
 };
 
-export { ReportType };
+export type ReportType =
+  | 'EXPENSE'
+  | 'INCOME';
 
 export type TelegramBot = {
   __typename?: 'TelegramBot';
@@ -876,8 +877,6 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   userSettings?: Resolver<ResolversTypes['UserSettings'], ParentType, ContextType>;
 };
 
-export type ReportTypeResolvers = EnumResolverSignature<{ EXPENSE?: any, INCOME?: any }, ResolversTypes['ReportType']>;
-
 export type TelegramBotResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TelegramBot'] = ResolversParentTypes['TelegramBot']> = {
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   maskedToken?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -969,7 +968,6 @@ export type Resolvers<ContextType = GraphQLContext> = {
   Mutation?: MutationResolvers<ContextType>;
   PageInfo?: PageInfoResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
-  ReportType?: ReportTypeResolvers;
   TelegramBot?: TelegramBotResolvers<ContextType>;
   Transaction?: TransactionResolvers<ContextType>;
   TransactionConnection?: TransactionConnectionResolvers<ContextType>;

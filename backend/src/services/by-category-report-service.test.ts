@@ -1,7 +1,6 @@
 import { faker } from "@faker-js/faker";
 import { v4 as uuidv4 } from "uuid";
 import { type Mocked, beforeEach, describe, expect, it } from "vitest";
-import { ReportType } from "../models/report";
 import { TransactionType } from "../models/transaction";
 import { CategoryRepository } from "../ports/category-repository";
 import { TransactionRepository } from "../ports/transaction-repository";
@@ -42,12 +41,7 @@ describe("ByCategoryReportService", () => {
       mockTransactionRepository.findManyByUserId.mockResolvedValue([]);
 
       // Act
-      const result = await reportService.call(
-        userId,
-        2000,
-        1,
-        ReportType.EXPENSE,
-      );
+      const result = await reportService.call(userId, 2000, 1, "EXPENSE");
 
       // Assert
       expect(result).toEqual({
@@ -92,12 +86,7 @@ describe("ByCategoryReportService", () => {
         );
 
       // Act
-      const result = await reportService.call(
-        userId,
-        2000,
-        1,
-        ReportType.EXPENSE,
-      );
+      const result = await reportService.call(userId, 2000, 1, "EXPENSE");
 
       // Assert
       expect(result.categories).toHaveLength(3);
@@ -138,12 +127,7 @@ describe("ByCategoryReportService", () => {
       );
 
       // Act
-      const result = await reportService.call(
-        userId,
-        2000,
-        1,
-        ReportType.EXPENSE,
-      );
+      const result = await reportService.call(userId, 2000, 1, "EXPENSE");
 
       // Assert
       expect(result.categories).toHaveLength(1);
@@ -171,12 +155,7 @@ describe("ByCategoryReportService", () => {
       );
 
       // Act
-      const result = await reportService.call(
-        userId,
-        2000,
-        1,
-        ReportType.EXPENSE,
-      );
+      const result = await reportService.call(userId, 2000, 1, "EXPENSE");
 
       // Assert
       expect(result.currencyTotals).toEqual([
@@ -208,12 +187,7 @@ describe("ByCategoryReportService", () => {
       );
 
       // Act
-      const result = await reportService.call(
-        userId,
-        2000,
-        1,
-        ReportType.EXPENSE,
-      );
+      const result = await reportService.call(userId, 2000, 1, "EXPENSE");
 
       // Assert
       const foodCategory = result.categories.find(
@@ -243,12 +217,7 @@ describe("ByCategoryReportService", () => {
       );
 
       // Act
-      const result = await reportService.call(
-        userId,
-        2000,
-        1,
-        ReportType.EXPENSE,
-      );
+      const result = await reportService.call(userId, 2000, 1, "EXPENSE");
 
       // Assert
       expect(result.categories).toHaveLength(1);
@@ -277,12 +246,7 @@ describe("ByCategoryReportService", () => {
       mockCategoryRepository.findOneById.mockResolvedValue(null);
 
       // Act
-      const result = await reportService.call(
-        userId,
-        2000,
-        1,
-        ReportType.EXPENSE,
-      );
+      const result = await reportService.call(userId, 2000, 1, "EXPENSE");
 
       // Assert
       expect(result.categories).toHaveLength(1);
@@ -320,12 +284,7 @@ describe("ByCategoryReportService", () => {
         );
 
       // Act
-      const result = await reportService.call(
-        userId,
-        2000,
-        1,
-        ReportType.EXPENSE,
-      );
+      const result = await reportService.call(userId, 2000, 1, "EXPENSE");
 
       // Assert
       expect(result.categories.map((c) => c.categoryName)).toEqual([
@@ -352,12 +311,7 @@ describe("ByCategoryReportService", () => {
       );
 
       // Act
-      const result = await reportService.call(
-        userId,
-        2000,
-        1,
-        ReportType.EXPENSE,
-      );
+      const result = await reportService.call(userId, 2000, 1, "EXPENSE");
 
       // Assert
       expect(result.currencyTotals.map((ct) => ct.currency)).toEqual([
@@ -390,12 +344,7 @@ describe("ByCategoryReportService", () => {
       );
 
       // Act
-      const result = await reportService.call(
-        userId,
-        2000,
-        1,
-        ReportType.EXPENSE,
-      );
+      const result = await reportService.call(userId, 2000, 1, "EXPENSE");
 
       // Assert
       const percentages = result.categories[0].currencyBreakdowns[0].percentage;
@@ -431,12 +380,7 @@ describe("ByCategoryReportService", () => {
       );
 
       // Act
-      const result = await reportService.call(
-        userId,
-        2025,
-        11,
-        ReportType.EXPENSE,
-      );
+      const result = await reportService.call(userId, 2025, 11, "EXPENSE");
 
       // Assert
       expect(result.categories).toHaveLength(1);
@@ -465,12 +409,7 @@ describe("ByCategoryReportService", () => {
       );
 
       // Act
-      const result = await reportService.call(
-        userId,
-        2025,
-        11,
-        ReportType.EXPENSE,
-      );
+      const result = await reportService.call(userId, 2025, 11, "EXPENSE");
 
       // Assert
       expect(result.categories).toHaveLength(1);
@@ -499,12 +438,7 @@ describe("ByCategoryReportService", () => {
       );
 
       // Act
-      const result = await reportService.call(
-        userId,
-        2025,
-        11,
-        ReportType.INCOME,
-      );
+      const result = await reportService.call(userId, 2025, 11, "INCOME");
 
       // Assert
       expect(result.categories[0].currencyBreakdowns[0].totalAmount).toBe(500);
@@ -559,12 +493,7 @@ describe("ByCategoryReportService", () => {
       );
 
       // Act
-      const result = await reportService.call(
-        userId,
-        2025,
-        11,
-        ReportType.EXPENSE,
-      );
+      const result = await reportService.call(userId, 2025, 11, "EXPENSE");
 
       // Assert
       expect(result.categories).toHaveLength(1);
@@ -601,12 +530,7 @@ describe("ByCategoryReportService", () => {
       );
 
       // Act
-      const result = await reportService.call(
-        userId,
-        2025,
-        11,
-        ReportType.EXPENSE,
-      );
+      const result = await reportService.call(userId, 2025, 11, "EXPENSE");
 
       // Assert
       expect(result.categories).toHaveLength(1);
@@ -663,12 +587,7 @@ describe("ByCategoryReportService", () => {
       );
 
       // Act
-      const result = await reportService.call(
-        userId,
-        2000,
-        1,
-        ReportType.EXPENSE,
-      );
+      const result = await reportService.call(userId, 2000, 1, "EXPENSE");
 
       // Assert
       expect(result.currencyTotals).toHaveLength(1);
@@ -688,7 +607,7 @@ describe("ByCategoryReportService", () => {
       // Act & Assert
       for (let month = 1; month <= 12; month++) {
         await expect(
-          reportService.call(userId, currentYear, month, ReportType.EXPENSE),
+          reportService.call(userId, currentYear, month, "EXPENSE"),
         ).resolves.toBeDefined();
       }
     });
@@ -698,7 +617,7 @@ describe("ByCategoryReportService", () => {
     it("throws when year is not integer", async () => {
       // Act & Assert
       await expect(
-        reportService.call(userId, 2000.5, 1, ReportType.EXPENSE),
+        reportService.call(userId, 2000.5, 1, "EXPENSE"),
       ).rejects.toMatchObject({
         message: "Year must be a valid integer",
       });
@@ -710,7 +629,7 @@ describe("ByCategoryReportService", () => {
 
       // Act & Assert
       await expect(
-        reportService.call(userId, 999, 1, ReportType.EXPENSE),
+        reportService.call(userId, 999, 1, "EXPENSE"),
       ).rejects.toThrow(new BusinessError("Year must be a valid integer"));
     });
 
@@ -720,7 +639,7 @@ describe("ByCategoryReportService", () => {
 
       // Act & Assert
       await expect(
-        reportService.call(userId, 10000, 1, ReportType.EXPENSE),
+        reportService.call(userId, 10000, 1, "EXPENSE"),
       ).rejects.toThrow(new BusinessError("Year must be a valid integer"));
     });
 
@@ -732,12 +651,7 @@ describe("ByCategoryReportService", () => {
       // Act & Assert
       for (const invalidMonth of invalidMonths) {
         await expect(
-          reportService.call(
-            userId,
-            currentYear,
-            invalidMonth,
-            ReportType.EXPENSE,
-          ),
+          reportService.call(userId, currentYear, invalidMonth, "EXPENSE"),
         ).rejects.toMatchObject({
           message: "Month must be a valid integer between 1 and 12",
         });
@@ -753,7 +667,7 @@ describe("ByCategoryReportService", () => {
         mockTransactionRepository.findManyByUserId.mockResolvedValue([]);
 
         // Act
-        await reportService.call(userId, 2000, undefined, ReportType.EXPENSE);
+        await reportService.call(userId, 2000, undefined, "EXPENSE");
 
         // Assert
         expect(mockTransactionRepository.findManyByUserId).toHaveBeenCalledWith(
@@ -776,7 +690,7 @@ describe("ByCategoryReportService", () => {
           userId,
           2000,
           undefined,
-          ReportType.EXPENSE,
+          "EXPENSE",
         );
 
         // Assert
@@ -811,7 +725,7 @@ describe("ByCategoryReportService", () => {
           userId,
           2000,
           undefined,
-          ReportType.EXPENSE,
+          "EXPENSE",
         );
 
         // Assert

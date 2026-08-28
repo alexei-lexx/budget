@@ -20,7 +20,6 @@ const config: CodegenConfig = {
         // Map GraphQL enums to model enums to avoid type mismatches
         enumValues: {
           CategoryType: "../models/category#CategoryType",
-          ReportType: "../models/report#ReportType",
           TransactionPatternType:
             "../models/transaction#TransactionPatternType",
           TransactionType: "../models/transaction#TransactionType",
