@@ -3,7 +3,7 @@ import { type Mocked, beforeEach, describe, expect, it } from "vitest";
 import { TransactionType } from "../models/transaction";
 import { CategoryRepository } from "../ports/category-repository";
 import { TransactionRepository } from "../ports/transaction-repository";
-import { toDateString } from "../types/date";
+import { toDateString } from "../types/date-string";
 import { fakeCategory } from "../utils/test-utils/models/category-fakes";
 import { fakeTransaction } from "../utils/test-utils/models/transaction-fakes";
 import { createMockCategoryRepository } from "../utils/test-utils/repositories/category-repository-mocks";

@@ -1,6 +1,6 @@
 import { GraphQLError } from "graphql";
 import { QueryExpenseTrendArgs } from "../../__generated__/resolvers-types";
-import { toDateString } from "../../types/date";
+import { toDateString } from "../../types/date-string";
 import { GraphQLContext } from "../context";
 
 import { getAuthenticatedUser, handleResolverError } from "./shared";

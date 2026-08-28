@@ -1,9 +1,9 @@
+import { Temporal } from "temporal-polyfill";
 import { Transaction, TransactionType } from "../models/transaction";
 import { CategoryRepository } from "../ports/category-repository";
 import { TransactionRepository } from "../ports/transaction-repository";
-import { DateString, toDateString } from "../types/date";
+import { DateString, toDateString } from "../types/date-string";
 import { Failure, Result, Success } from "../types/result";
-import { daysBetween } from "../utils/date";
 
 const ALLOWED_LOOKBACKS = [3, 6, 12];
 
@@ -33,19 +33,6 @@ export interface ExpenseTrend {
 }
 
 /**
- * Parse a YYYY-MM-DD string as midnight UTC.
- * The whole grid is built in UTC so period boundaries never shift with the
- * server's own timezone; the client decides which day is "today".
- */
-function parseUtcDate(value: DateString): Date {
-  return new Date(`${value}T00:00:00.000Z`);
-}
-
-function formatUtcDate(date: Date): DateString {
-  return toDateString(date.toISOString().split("T")[0]);
-}
-
-/**
  * Computes net expenses per period for a slice of the user's spending,
  * plus two medians over the completed periods used as reference lines.
  */
@@ -72,7 +59,7 @@ export class ExpenseTrendService {
     }
 
     const periodStarts = this.buildPeriodStarts({ period, today, lookback });
-    const currentPeriodStart = periodStarts[lookback];
+    const currentPeriodStart = periodStarts[periodStarts.length - 1];
 
     const transactions = await this.transactionRepository.findManyByUserId(
       userId,
@@ -90,6 +77,7 @@ export class ExpenseTrendService {
       userId,
       transactions,
     );
+
     const buckets = this.bucketByPeriod({
       transactions: reportedTransactions,
       periodStarts,
@@ -102,8 +90,10 @@ export class ExpenseTrendService {
       isCurrent: index === lookback,
     }));
 
-    const elapsedDays =
-      daysBetween(parseUtcDate(currentPeriodStart), parseUtcDate(today)) + 1;
+    const startPlainDate = Temporal.PlainDate.from(currentPeriodStart);
+    const todayPlainDate = Temporal.PlainDate.from(today);
+    const daysBetween = startPlainDate.until(todayPlainDate).days;
+    const elapsedDays = daysBetween + 1; // +1 means today is included
 
     const pastAmountsAtSamePoint = periodStarts
       .slice(0, lookback)
@@ -125,8 +115,8 @@ export class ExpenseTrendService {
   }
 
   /**
-   * Build the period grid oldest first: `lookback` completed periods
-   * followed by the running one.
+   * Build the period grid oldest first:
+   * `lookback` completed periods followed by the running one.
    */
   private buildPeriodStarts({
     period,
@@ -137,38 +127,30 @@ export class ExpenseTrendService {
     today: DateString;
     lookback: number;
   }): DateString[] {
-    const currentPeriodStart = parseUtcDate(today);
-    if (period === "MONTH") {
-      currentPeriodStart.setUTCDate(1);
-    } else {
-      // getUTCDay() returns 0 for Sunday; shift so Monday becomes 0
-      const weekdayIndex = (currentPeriodStart.getUTCDay() + 6) % 7;
-      currentPeriodStart.setUTCDate(
-        currentPeriodStart.getUTCDate() - weekdayIndex,
-      );
-    }
+    const todayPlainDate = Temporal.PlainDate.from(today);
+    const currentPeriodStartPlainDate =
+      period === "MONTH"
+        ? firstDayOfMonth(todayPlainDate)
+        : firstDayOfWeek(todayPlainDate);
 
     const periodStarts: DateString[] = [];
-    for (let offset = lookback; offset >= 0; offset -= 1) {
-      const periodStart = new Date(currentPeriodStart);
-      if (period === "MONTH") {
-        periodStart.setUTCMonth(periodStart.getUTCMonth() - offset);
-      } else {
-        periodStart.setUTCDate(periodStart.getUTCDate() - offset * 7);
-      }
-      periodStarts.push(formatUtcDate(periodStart));
+    for (let nPeriodsAgo = lookback; nPeriodsAgo >= 0; nPeriodsAgo -= 1) {
+      const periodStartPlainDate =
+        period === "MONTH"
+          ? currentPeriodStartPlainDate.subtract({ months: nPeriodsAgo })
+          : currentPeriodStartPlainDate.subtract({ weeks: nPeriodsAgo });
+
+      periodStarts.push(toDateString(periodStartPlainDate.toString()));
     }
+
     return periodStarts;
   }
 
-  /**
-   * Defensive: the picker never offers excluded categories, but the service
-   * must hold the rule regardless of caller.
-   */
   private async excludeReportedOutTransactions(
     userId: string,
     transactions: Transaction[],
   ): Promise<Transaction[]> {
+    // TODO: findManyWithArchivedByUserId?
     const categories = await this.categoryRepository.findManyByUserId(userId);
     const excludedCategoryIds = new Set(
       categories
@@ -220,9 +202,7 @@ export class ExpenseTrendService {
   }
 
   private addDays(date: DateString, days: number): DateString {
-    const shifted = parseUtcDate(date);
-    shifted.setUTCDate(shifted.getUTCDate() + days);
-    return formatUtcDate(shifted);
+    return toDateString(Temporal.PlainDate.from(date).add({ days }).toString());
   }
 
   private median(values: number[]): number {
@@ -237,4 +217,12 @@ export class ExpenseTrendService {
       ? (sorted[middle - 1] + sorted[middle]) / 2
       : sorted[middle];
   }
+}
+
+function firstDayOfMonth(plainDate: Temporal.PlainDate): Temporal.PlainDate {
+  return plainDate.with({ day: 1 });
+}
+
+function firstDayOfWeek(plainDate: Temporal.PlainDate): Temporal.PlainDate {
+  return plainDate.subtract({ days: plainDate.dayOfWeek - 1 });
 }
