@@ -140,17 +140,15 @@ export class ExpenseTrendService {
     lookback: number;
   }): DateString[] {
     const todayPlainDate = Temporal.PlainDate.from(today);
-    const currentPeriodStart =
-      periodUnit === "MONTH"
-        ? firstDayOfMonth(todayPlainDate)
-        : firstDayOfWeek(todayPlainDate);
+    const currentPeriodStart = beginningOfPeriod(periodUnit, todayPlainDate);
 
     const periodStarts: DateString[] = [];
     for (let nPeriodsAgo = lookback; nPeriodsAgo >= 0; nPeriodsAgo -= 1) {
-      const periodStart =
-        periodUnit === "MONTH"
-          ? currentPeriodStart.subtract({ months: nPeriodsAgo })
-          : currentPeriodStart.subtract({ weeks: nPeriodsAgo });
+      const periodStart = subtractPeriods(
+        periodUnit,
+        currentPeriodStart,
+        nPeriodsAgo,
+      );
 
       periodStarts.push(toDateString(periodStart.toString()));
     }
@@ -196,23 +194,17 @@ export class ExpenseTrendService {
       if (transaction.date > today) {
         continue;
       }
-      const key = this.periodStartOf(periodUnit, transaction.date);
+
+      const key = toDateString(
+        beginningOfPeriod(
+          periodUnit,
+          Temporal.PlainDate.from(transaction.date),
+        ).toString(),
+      );
       buckets.get(key)?.push(transaction);
     }
 
     return buckets;
-  }
-
-  private periodStartOf(
-    periodUnit: TrendPeriodUnit,
-    date: DateString,
-  ): DateString {
-    const plainDate = Temporal.PlainDate.from(date);
-    const periodStartPlainDate =
-      periodUnit === "MONTH"
-        ? firstDayOfMonth(plainDate)
-        : firstDayOfWeek(plainDate);
-    return toDateString(periodStartPlainDate.toString());
   }
 
   /**
@@ -227,10 +219,27 @@ export class ExpenseTrendService {
   }
 }
 
-function firstDayOfMonth(plainDate: Temporal.PlainDate): Temporal.PlainDate {
-  return plainDate.with({ day: 1 });
+function beginningOfPeriod(
+  periodUnit: TrendPeriodUnit,
+  plainDate: Temporal.PlainDate,
+): Temporal.PlainDate {
+  switch (periodUnit) {
+    case "MONTH":
+      return plainDate.with({ day: 1 });
+    case "WEEK":
+      return plainDate.subtract({ days: plainDate.dayOfWeek - 1 });
+  }
 }
 
-function firstDayOfWeek(plainDate: Temporal.PlainDate): Temporal.PlainDate {
-  return plainDate.subtract({ days: plainDate.dayOfWeek - 1 });
+function subtractPeriods(
+  periodUnit: TrendPeriodUnit,
+  plainDate: Temporal.PlainDate,
+  nPeriods: number,
+): Temporal.PlainDate {
+  switch (periodUnit) {
+    case "MONTH":
+      return plainDate.subtract({ months: nPeriods });
+    case "WEEK":
+      return plainDate.subtract({ weeks: nPeriods });
+  }
 }
