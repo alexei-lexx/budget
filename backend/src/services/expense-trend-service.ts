@@ -20,14 +20,12 @@ export interface ExpenseTrendInput {
   includeUncategorized?: boolean;
 }
 
-export interface ExpenseTrendPoint {
-  periodStart: DateString;
-  amount: number;
-  isCurrent: boolean;
-}
-
 export interface ExpenseTrend {
-  points: ExpenseTrendPoint[];
+  points: {
+    periodStart: DateString;
+    amount: number;
+    isCurrent: boolean;
+  }[];
   pastMedian: number;
   pastMedianAtSamePoint: number;
   elapsedDays: number;
@@ -51,7 +49,7 @@ export class ExpenseTrendService {
     today,
     categoryIds,
     includeUncategorized,
-  }: ExpenseTrendInput): Promise<Result<ExpenseTrend, string>> {
+  }: ExpenseTrendInput): Promise<Result<ExpenseTrend>> {
     if (!ALLOWED_LOOKBACKS.includes(lookback)) {
       return Failure("Lookback must be 3, 6 or 12");
     }
@@ -59,15 +57,20 @@ export class ExpenseTrendService {
       return Failure("Currency must not be empty");
     }
 
-    const periodStarts = this.buildPeriodStarts({ period, today, lookback });
+    const periodStarts = this.buildPeriodStarts({
+      period,
+      today,
+      lookback,
+    });
     const currentPeriodStart = periodStarts[periodStarts.length - 1];
+    const firstPeriodStart = periodStarts[0];
 
     const transactions = await this.transactionRepository.findManyByUserId(
       userId,
       {
         categoryIds,
         currencies: [currency],
-        dateAfter: periodStarts[0],
+        dateAfter: firstPeriodStart,
         dateBefore: today,
         includeUncategorized,
         types: [TransactionType.EXPENSE, TransactionType.REFUND],
@@ -81,13 +84,14 @@ export class ExpenseTrendService {
 
     const buckets = this.bucketByPeriod({
       transactions: reportedTransactions,
+      period,
       periodStarts,
       today,
     });
 
     const points = periodStarts.map((periodStart, index) => ({
       periodStart,
-      amount: this.sumNetAmount(buckets[index]),
+      amount: this.sumNetAmount(buckets.get(periodStart) ?? []),
       isCurrent: index === lookback,
     }));
 
@@ -98,10 +102,17 @@ export class ExpenseTrendService {
 
     const pastAmountsAtSamePoint = periodStarts
       .slice(0, lookback)
-      .map((periodStart, index) => {
-        const cutoff = this.addDays(periodStart, elapsedDays - 1);
+      .map((periodStart) => {
+        const cutoff = toDateString(
+          Temporal.PlainDate.from(periodStart)
+            .add({ days: elapsedDays - 1 })
+            .toString(),
+        );
+
         return this.sumNetAmount(
-          buckets[index].filter((transaction) => transaction.date <= cutoff),
+          (buckets.get(periodStart) ?? []).filter(
+            (transaction) => transaction.date <= cutoff,
+          ),
         );
       });
 
@@ -129,19 +140,19 @@ export class ExpenseTrendService {
     lookback: number;
   }): DateString[] {
     const todayPlainDate = Temporal.PlainDate.from(today);
-    const currentPeriodStartPlainDate =
+    const currentPeriodStart =
       period === "MONTH"
         ? firstDayOfMonth(todayPlainDate)
         : firstDayOfWeek(todayPlainDate);
 
     const periodStarts: DateString[] = [];
     for (let nPeriodsAgo = lookback; nPeriodsAgo >= 0; nPeriodsAgo -= 1) {
-      const periodStartPlainDate =
+      const periodStart =
         period === "MONTH"
-          ? currentPeriodStartPlainDate.subtract({ months: nPeriodsAgo })
-          : currentPeriodStartPlainDate.subtract({ weeks: nPeriodsAgo });
+          ? currentPeriodStart.subtract({ months: nPeriodsAgo })
+          : currentPeriodStart.subtract({ weeks: nPeriodsAgo });
 
-      periodStarts.push(toDateString(periodStartPlainDate.toString()));
+      periodStarts.push(toDateString(periodStart.toString()));
     }
 
     return periodStarts;
@@ -168,28 +179,37 @@ export class ExpenseTrendService {
 
   private bucketByPeriod({
     transactions,
-    periodStarts,
+    period,
+    periodStarts: periodStartDateStrings,
     today,
   }: {
     transactions: Transaction[];
+    period: TrendPeriod;
     periodStarts: DateString[];
     today: DateString;
-  }): Transaction[][] {
-    const buckets: Transaction[][] = periodStarts.map(() => []);
+  }): Map<DateString, Transaction[]> {
+    const buckets = new Map<DateString, Transaction[]>(
+      periodStartDateStrings.map((periodStart) => [periodStart, []]),
+    );
 
     for (const transaction of transactions) {
-      if (transaction.date < periodStarts[0] || transaction.date > today) {
+      if (transaction.date > today) {
         continue;
       }
-
-      let index = periodStarts.length - 1;
-      while (transaction.date < periodStarts[index]) {
-        index -= 1;
-      }
-      buckets[index].push(transaction);
+      const key = this.periodStartOf(period, transaction.date);
+      buckets.get(key)?.push(transaction);
     }
 
     return buckets;
+  }
+
+  private periodStartOf(period: TrendPeriod, date: DateString): DateString {
+    const plainDate = Temporal.PlainDate.from(date);
+    const periodStartPlainDate =
+      period === "MONTH"
+        ? firstDayOfMonth(plainDate)
+        : firstDayOfWeek(plainDate);
+    return toDateString(periodStartPlainDate.toString());
   }
 
   /**
@@ -201,10 +221,6 @@ export class ExpenseTrendService {
       (total, transaction) => total - transaction.signedAmount,
       0,
     );
-  }
-
-  private addDays(date: DateString, days: number): DateString {
-    return toDateString(Temporal.PlainDate.from(date).add({ days }).toString());
   }
 }
 
