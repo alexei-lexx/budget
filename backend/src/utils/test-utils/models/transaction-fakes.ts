@@ -44,6 +44,16 @@ export const fakeTransaction = (
   });
 };
 
+export const fakeExpense = (
+  overrides: Partial<Omit<TransactionData, "type">> = {},
+): Transaction =>
+  fakeTransaction({ type: TransactionType.EXPENSE, ...overrides });
+
+export const fakeRefund = (
+  overrides: Partial<Omit<TransactionData, "type">> = {},
+): Transaction =>
+  fakeTransaction({ type: TransactionType.REFUND, ...overrides });
+
 export const fakeCreateTransactionInput = (
   overrides: Partial<CreateTransactionInput> = {},
 ): CreateTransactionInput => {

@@ -4,6 +4,7 @@ import { CategoryRepository } from "../ports/category-repository";
 import { TransactionRepository } from "../ports/transaction-repository";
 import { DateString, toDateString } from "../types/date-string";
 import { Failure, Result, Success } from "../types/result";
+import { median } from "../utils/median";
 
 const ALLOWED_LOOKBACKS = [3, 6, 12];
 
@@ -73,10 +74,10 @@ export class ExpenseTrendService {
       },
     );
 
-    const reportedTransactions = await this.excludeReportedOutTransactions(
-      userId,
-      transactions,
-    );
+    const reportedTransactions =
+      transactions.length > 0
+        ? await this.excludeReportedOutTransactions(userId, transactions)
+        : [];
 
     const buckets = this.bucketByPeriod({
       transactions: reportedTransactions,
@@ -104,12 +105,12 @@ export class ExpenseTrendService {
         );
       });
 
+    const pastAmounts = points.slice(0, lookback).map((point) => point.amount);
+
     return Success({
       points,
-      pastMedian: this.median(
-        points.slice(0, lookback).map((point) => point.amount),
-      ),
-      pastMedianAtSamePoint: this.median(pastAmountsAtSamePoint),
+      pastMedian: median(pastAmounts),
+      pastMedianAtSamePoint: median(pastAmountsAtSamePoint),
       elapsedDays,
     });
   }
@@ -150,8 +151,8 @@ export class ExpenseTrendService {
     userId: string,
     transactions: Transaction[],
   ): Promise<Transaction[]> {
-    // TODO: findManyWithArchivedByUserId?
-    const categories = await this.categoryRepository.findManyByUserId(userId);
+    const categories =
+      await this.categoryRepository.findManyWithArchivedByUserId(userId);
     const excludedCategoryIds = new Set(
       categories
         .filter((category) => category.excludeFromReports)
@@ -204,19 +205,6 @@ export class ExpenseTrendService {
 
   private addDays(date: DateString, days: number): DateString {
     return toDateString(Temporal.PlainDate.from(date).add({ days }).toString());
-  }
-
-  private median(values: number[]): number {
-    if (values.length === 0) {
-      return 0;
-    }
-
-    const sorted = [...values].sort((left, right) => left - right);
-    const middle = Math.floor(sorted.length / 2);
-
-    return sorted.length % 2 === 0
-      ? (sorted[middle - 1] + sorted[middle]) / 2
-      : sorted[middle];
   }
 }
 
