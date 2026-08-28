@@ -77,13 +77,13 @@ export class ExpenseTrendService {
       },
     );
 
-    const reportedTransactions =
+    const includedTransactions =
       transactions.length > 0
         ? await this.excludeReportedOutTransactions(userId, transactions)
         : [];
 
     const buckets = this.bucketByPeriod({
-      transactions: reportedTransactions,
+      transactions: includedTransactions,
       period,
       periodStarts,
       today,
