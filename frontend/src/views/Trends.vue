@@ -47,7 +47,6 @@ import { useCurrencies } from "@/composables/useCurrencies";
 import { useExpenseTrend, type TrendSelection } from "@/composables/useExpenseTrend";
 import { getTodayDateString } from "@/utils/date";
 
-const LOOKBACK_OPTIONS = [3, 6, 12];
 const DEFAULT_PERIOD_UNIT: TrendPeriodUnit = "MONTH";
 const DEFAULT_LOOKBACK = 3;
 
@@ -72,7 +71,9 @@ function readPeriodUnit(): TrendPeriodUnit {
 
 function readLookback(): number {
   const lookback = Number(route.query.lookback);
-  return LOOKBACK_OPTIONS.includes(lookback) ? lookback : DEFAULT_LOOKBACK;
+  return Number.isInteger(lookback) && lookback >= 1 && lookback <= 12
+    ? lookback
+    : DEFAULT_LOOKBACK;
 }
 
 function readCategoryIds(): string[] {
