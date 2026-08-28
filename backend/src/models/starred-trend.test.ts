@@ -124,18 +124,6 @@ describe("StarredTrend", () => {
 
     // Validation failures
 
-    it("throws on invalid period unit", () => {
-      // Arrange
-      const data = {
-        ...fakeStarredTrend().toData(),
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        periodUnit: "YEAR" as any,
-      };
-
-      // Act & Assert
-      expect(() => StarredTrend.fromPersistence(data)).toThrow(ModelError);
-    });
-
     it("throws when lookback is out of range", () => {
       // Arrange
       const data = { ...fakeStarredTrend().toData(), lookback: 13 };

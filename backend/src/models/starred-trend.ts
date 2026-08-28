@@ -96,10 +96,6 @@ export class StarredTrend implements StarredTrendData {
     if (data.currency.trim().length === 0) {
       throw new ModelError("Currency must not be empty");
     }
-
-    if (data.periodUnit !== "MONTH" && data.periodUnit !== "WEEK") {
-      throw new ModelError(`Unsupported period unit: ${data.periodUnit}`);
-    }
   }
 }
 
