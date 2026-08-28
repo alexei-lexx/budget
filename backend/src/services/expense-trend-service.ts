@@ -192,7 +192,8 @@ export class ExpenseTrendService {
   }
 
   /**
-   * Expenses count positive and refunds negative, matching the Expense Report.
+   * Expense's signedAmount is negative
+   * Refund's signedAmount is positive
    */
   private sumNetAmount(transactions: Transaction[]): number {
     return transactions.reduce(
