@@ -1,5 +1,4 @@
 import { Temporal } from "temporal-polyfill";
-import { ReportType } from "../models/report";
 import { Transaction, TransactionType } from "../models/transaction";
 import { CategoryRepository } from "../ports/category-repository";
 import { TransactionRepository } from "../ports/transaction-repository";
@@ -8,6 +7,8 @@ import { BusinessError } from "./business-error";
 
 const UNCATEGORIZED_LABEL = "Uncategorized";
 const TOP_TRANSACTIONS_LIMIT = 5;
+
+type ReportType = "INCOME" | "EXPENSE";
 
 export interface ByCategoryReportCurrencyBreakdown {
   currency: string;
@@ -80,14 +81,14 @@ export class ByCategoryReportService {
     // For INCOME: amounts are as-is
     let amountGetter: (transaction: Transaction) => number;
 
-    if (type === ReportType.EXPENSE) {
+    if (type === "EXPENSE") {
       transactionTypesToFetch = [
         TransactionType.EXPENSE,
         TransactionType.REFUND,
       ];
       // Negate to get expenses as positive, refunds as negative
       amountGetter = (transaction) => -transaction.signedAmount;
-    } else if (type === ReportType.INCOME) {
+    } else if (type === "INCOME") {
       transactionTypesToFetch = [TransactionType.INCOME];
       amountGetter = (transaction) => transaction.signedAmount;
     } else {
