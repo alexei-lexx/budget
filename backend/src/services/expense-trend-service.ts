@@ -91,7 +91,7 @@ export class ExpenseTrendService {
 
     const points = periodStarts.map((periodStart, index) => ({
       periodStart,
-      amount: this.sumNetAmount(buckets.get(periodStart) ?? []),
+      amount: this.sumAmount(buckets.get(periodStart) ?? []),
       isCurrent: index === lookback,
     }));
 
@@ -109,7 +109,7 @@ export class ExpenseTrendService {
             .toString(),
         );
 
-        return this.sumNetAmount(
+        return this.sumAmount(
           (buckets.get(periodStart) ?? []).filter(
             (transaction) => transaction.date <= cutoff,
           ),
@@ -216,7 +216,7 @@ export class ExpenseTrendService {
    * Expense's signedAmount is negative
    * Refund's signedAmount is positive
    */
-  private sumNetAmount(transactions: Transaction[]): number {
+  private sumAmount(transactions: Transaction[]): number {
     return transactions.reduce(
       (total, transaction) => total - transaction.signedAmount,
       0,
