@@ -6,22 +6,23 @@ import { Temporal } from "temporal-polyfill";
 export class InvalidDateTimeStringError extends Error {
   constructor(value: string) {
     super(
-      `Invalid datetime format: "${value}". Expected YYYY-MM-DDTHH:mm:ss.sssZ.`,
+      `Invalid datetime format: "${value}". Expected ISO 8601 UTC datetime (e.g. 2024-01-15T10:30:00Z).`,
     );
     this.name = "InvalidDateTimeStringError";
   }
 }
 
 /**
- * Regular expression for validating datetime strings in the format produced
- * by `Date.prototype.toISOString()` (YYYY-MM-DDTHH:mm:ss.sssZ).
+ * Regular expression for validating ISO 8601 UTC datetime strings.
+ * Milliseconds are optional; offsets other than "Z" are rejected because
+ * callers compare these values with plain string ordering.
  */
 export const DATE_TIME_FORMAT_REGEX =
-  /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
+  /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$/;
 
 /**
- * Branded string type representing a valid datetime in
- * YYYY-MM-DDTHH:mm:ss.sssZ format, matching `Date.prototype.toISOString()`.
+ * Branded string type representing a valid ISO 8601 UTC datetime string
+ * (e.g. as produced by `Date.prototype.toISOString()`).
  * Use `isDateTimeString` to narrow or `toDateTimeString` to construct validated values.
  */
 export type DateTimeString = string & { readonly __brand: unique symbol };

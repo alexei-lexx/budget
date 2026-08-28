@@ -18,15 +18,15 @@ describe("isDateTimeString", () => {
     it("returns true for leap day in a leap year", () => {
       expect(isDateTimeString("2024-02-29T00:00:00.000Z")).toBe(true);
     });
+
+    it("returns true for a datetime without milliseconds", () => {
+      expect(isDateTimeString("2000-01-15T00:00:00Z")).toBe(true);
+    });
   });
 
   describe("wrong format", () => {
     it("returns false for a date-only string", () => {
       expect(isDateTimeString("2000-01-15")).toBe(false);
-    });
-
-    it("returns false for a datetime without milliseconds", () => {
-      expect(isDateTimeString("2000-01-15T00:00:00Z")).toBe(false);
     });
 
     it("returns false for a datetime with an offset instead of Z", () => {
@@ -65,7 +65,7 @@ describe("toDateTimeString", () => {
       InvalidDateTimeStringError,
     );
     expect(() => toDateTimeString("2000-01-15")).toThrow(
-      'Invalid datetime format: "2000-01-15". Expected YYYY-MM-DDTHH:mm:ss.sssZ.',
+      'Invalid datetime format: "2000-01-15". Expected ISO 8601 UTC datetime (e.g. 2024-01-15T10:30:00Z).',
     );
   });
 
