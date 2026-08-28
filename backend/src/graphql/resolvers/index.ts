@@ -8,6 +8,7 @@ import { reportResolvers } from "./report-resolvers";
 import { telegramBotResolvers } from "./telegram-bot-resolvers";
 import { transactionResolvers } from "./transaction-resolvers";
 import { transferResolvers } from "./transfer-resolvers";
+import { trendsResolvers } from "./trends-resolvers";
 import { userResolvers } from "./user-resolvers";
 
 export const resolvers: Resolvers = {
@@ -18,6 +19,7 @@ export const resolvers: Resolvers = {
     ...telegramBotResolvers.Query,
     ...transactionResolvers.Query,
     ...transferResolvers.Query,
+    ...trendsResolvers.Query,
     ...userResolvers.Query,
   },
   Mutation: {

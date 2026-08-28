@@ -10,6 +10,7 @@ type Query {
   transfer(id: ID!): Transfer
   transactionPatterns(type: TransactionPatternType!): [TransactionPattern!]!
   byCategoryReport(year: Int!, month: Int, type: ReportType!): ByCategoryReport!
+  expenseTrend(input: ExpenseTrendInput!): ExpenseTrend!
   telegramBot: TelegramBot
   testTelegramBot: Boolean
   transactionDescriptionSuggestions(searchText: String!): [String!]!
@@ -68,6 +69,11 @@ enum TransactionPatternType {
 enum ReportType {
   INCOME
   EXPENSE
+}
+
+enum TrendPeriodUnit {
+  MONTH
+  WEEK
 }
 
 union AgentTraceMessage =
@@ -325,6 +331,40 @@ type ByCategoryReport {
   type: ReportType! # TODO: remove if not needed
   categories: [ByCategoryReportCategory!]!
   currencyTotals: [ByCategoryReportCurrencyTotal!]!
+}
+
+input ExpenseTrendInput {
+  periodUnit: TrendPeriodUnit!
+  """
+  Number of completed periods to plot before the running one. Accepts 3, 6 or 12.
+  """
+  lookback: Int!
+  currency: String!
+  """
+  The client's current date as YYYY-MM-DD. Determines the running period.
+  """
+  today: String!
+  categoryIds: [ID!]
+  includeUncategorized: Boolean
+}
+
+type ExpenseTrendPoint {
+  """
+  First day of the period as YYYY-MM-DD.
+  """
+  periodStart: String!
+  amount: Float!
+  isCurrent: Boolean!
+}
+
+type ExpenseTrend {
+  points: [ExpenseTrendPoint!]!
+  pastMedian: Float!
+  pastMedianAtSamePoint: Float!
+  """
+  Days elapsed in the running period, counting today.
+  """
+  elapsedDays: Int!
 }
 
 type Mutation {

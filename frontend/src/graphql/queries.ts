@@ -99,6 +99,21 @@ export const GET_BY_CATEGORY_REPORT = gql`
   ${TRANSACTION_FRAGMENT}
 `;
 
+export const GET_EXPENSE_TREND = gql`
+  query GetExpenseTrend($input: ExpenseTrendInput!) {
+    expenseTrend(input: $input) {
+      points {
+        periodStart
+        amount
+        isCurrent
+      }
+      pastMedian
+      pastMedianAtSamePoint
+      elapsedDays
+    }
+  }
+`;
+
 export const GET_TRANSACTION_DESCRIPTION_SUGGESTIONS = gql`
   query GetTransactionDescriptionSuggestions($searchText: String!) {
     transactionDescriptionSuggestions(searchText: $searchText)

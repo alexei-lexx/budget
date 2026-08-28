@@ -15,6 +15,8 @@ const config: CodegenConfig = {
         // Outputs only use undefined. GraphQL doesn't distinguish null vs omitted on responses
         // Server controls what's sent, so null distinction is unnecessary
         maybeValue: "T | undefined",
+        // Generates unmapped enums as string unions
+        enumsAsTypes: true,
         // Map GraphQL enums to model enums to avoid type mismatches
         enumValues: {
           CategoryType: "../models/category#CategoryType",

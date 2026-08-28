@@ -846,6 +846,17 @@ export class DynTransactionRepository
       filterAttributeValues[":nullCategory"] = null;
     }
 
+    // Currency filter (IN condition for multi-select)
+    if (filters?.currencies && filters.currencies.length > 0) {
+      const placeholders = filters.currencies
+        .map((_: string, index: number) => `:currency${index}`)
+        .join(", ");
+      filterConditions.push(`currency IN (${placeholders})`);
+      filters.currencies.forEach((currency: string, index: number) => {
+        filterAttributeValues[`:currency${index}`] = currency;
+      });
+    }
+
     // Type filter (IN condition for multi-select)
     if (filters?.types && filters.types.length > 0) {
       filterAttributeNames["#type"] = "type"; // Reserved word, use attribute name

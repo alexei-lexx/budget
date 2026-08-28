@@ -42,6 +42,7 @@
     "accounts": "Konten",
     "categories": "Kategorien",
     "reports": "Berichte",
+    "trends": "Trends",
     "assistant": "Assistent",
     "settings": "Einstellungen",
     "registerPasskey": "Passkey registrieren",
@@ -294,6 +295,26 @@
       "invalidUrlMonthYear": "Ungültiger Monat oder Jahr in URL-Parametern",
       "invalidUrlYear": "Ungültiges Jahr in URL-Parametern",
       "loadFailedTitle": "Kategorieaufschlüsselung konnte nicht geladen werden"
+    }
+  },
+  "trends": {
+    "filters": {
+      "categories": "Kategorien",
+      "includeUncategorized": "Ohne Kategorie einbeziehen",
+      "currency": "Währung",
+      "period": "Zeitraum",
+      "week": "Woche",
+      "month": "Monat",
+      "lookback": "Vergangene Zeiträume"
+    },
+    "chart": {
+      "expenses": "Ausgaben",
+      "pastMedian": "Median der vergangenen Zeiträume",
+      "pastMedianAtSamePoint": "Median der vergangenen Zeiträume an Tag {days}"
+    },
+    "errors": {
+      "title": "Trend-Fehler",
+      "loadFailed": "Trend konnte nicht geladen werden: {message}"
     }
   },
   "settings": {

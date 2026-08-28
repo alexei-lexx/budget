@@ -170,6 +170,34 @@ export type CreateTransferInput = {
   toAccountId: Scalars['ID']['input'];
 };
 
+export type ExpenseTrend = {
+  __typename?: 'ExpenseTrend';
+  /** Days elapsed in the running period, counting today. */
+  elapsedDays: Scalars['Int']['output'];
+  pastMedian: Scalars['Float']['output'];
+  pastMedianAtSamePoint: Scalars['Float']['output'];
+  points: Array<ExpenseTrendPoint>;
+};
+
+export type ExpenseTrendInput = {
+  categoryIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  currency: Scalars['String']['input'];
+  includeUncategorized?: InputMaybe<Scalars['Boolean']['input']>;
+  /** Number of completed periods to plot before the running one. Accepts 3, 6 or 12. */
+  lookback: Scalars['Int']['input'];
+  periodUnit: TrendPeriodUnit;
+  /** The client's current date as YYYY-MM-DD. Determines the running period. */
+  today: Scalars['String']['input'];
+};
+
+export type ExpenseTrendPoint = {
+  __typename?: 'ExpenseTrendPoint';
+  amount: Scalars['Float']['output'];
+  isCurrent: Scalars['Boolean']['output'];
+  /** First day of the period as YYYY-MM-DD. */
+  periodStart: Scalars['String']['output'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   askAssistant: AssistantOutput;
@@ -291,6 +319,7 @@ export type Query = {
   accounts: Array<Account>;
   byCategoryReport: ByCategoryReport;
   categories: Array<Category>;
+  expenseTrend: ExpenseTrend;
   supportedCurrencies: Array<Scalars['String']['output']>;
   supportedInterfaceLanguages: Array<Scalars['String']['output']>;
   telegramBot?: Maybe<TelegramBot>;
@@ -312,6 +341,11 @@ export type QueryByCategoryReportArgs = {
 
 export type QueryCategoriesArgs = {
   type?: InputMaybe<CategoryType>;
+};
+
+
+export type QueryExpenseTrendArgs = {
+  input: ExpenseTrendInput;
 };
 
 
@@ -428,6 +462,10 @@ export type Transfer = {
   inboundTransaction: Transaction;
   outboundTransaction: Transaction;
 };
+
+export type TrendPeriodUnit =
+  | 'MONTH'
+  | 'WEEK';
 
 export type UpdateAccountInput = {
   currency?: InputMaybe<Scalars['String']['input']>;
@@ -594,6 +632,9 @@ export type ResolversTypes = {
   CreateTransactionFromTextSuccess: ResolverTypeWrapper<Omit<CreateTransactionFromTextSuccess, 'agentTrace' | 'transaction'> & { agentTrace: Array<ResolversTypes['AgentTraceMessage']>, transaction: ResolversTypes['Transaction'] }>;
   CreateTransactionInput: CreateTransactionInput;
   CreateTransferInput: CreateTransferInput;
+  ExpenseTrend: ResolverTypeWrapper<ExpenseTrend>;
+  ExpenseTrendInput: ExpenseTrendInput;
+  ExpenseTrendPoint: ResolverTypeWrapper<ExpenseTrendPoint>;
   Float: ResolverTypeWrapper<Scalars['Float']['output']>;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
@@ -614,6 +655,7 @@ export type ResolversTypes = {
   TransactionPatternType: TransactionPatternType;
   TransactionType: TransactionType;
   Transfer: ResolverTypeWrapper<Omit<Transfer, 'inboundTransaction' | 'outboundTransaction'> & { inboundTransaction: ResolversTypes['Transaction'], outboundTransaction: ResolversTypes['Transaction'] }>;
+  TrendPeriodUnit: TrendPeriodUnit;
   UpdateAccountInput: UpdateAccountInput;
   UpdateCategoryInput: UpdateCategoryInput;
   UpdateTransactionInput: UpdateTransactionInput;
@@ -648,6 +690,9 @@ export type ResolversParentTypes = {
   CreateTransactionFromTextSuccess: Omit<CreateTransactionFromTextSuccess, 'agentTrace' | 'transaction'> & { agentTrace: Array<ResolversParentTypes['AgentTraceMessage']>, transaction: ResolversParentTypes['Transaction'] };
   CreateTransactionInput: CreateTransactionInput;
   CreateTransferInput: CreateTransferInput;
+  ExpenseTrend: ExpenseTrend;
+  ExpenseTrendInput: ExpenseTrendInput;
+  ExpenseTrendPoint: ExpenseTrendPoint;
   Float: Scalars['Float']['output'];
   ID: Scalars['ID']['output'];
   Int: Scalars['Int']['output'];
@@ -773,6 +818,19 @@ export type CreateTransactionFromTextSuccessResolvers<ContextType = GraphQLConte
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type ExpenseTrendResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ExpenseTrend'] = ResolversParentTypes['ExpenseTrend']> = {
+  elapsedDays?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  pastMedian?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  pastMedianAtSamePoint?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  points?: Resolver<Array<ResolversTypes['ExpenseTrendPoint']>, ParentType, ContextType>;
+};
+
+export type ExpenseTrendPointResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ExpenseTrendPoint'] = ResolversParentTypes['ExpenseTrendPoint']> = {
+  amount?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  isCurrent?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  periodStart?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+};
+
 export type MutationResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   askAssistant?: Resolver<ResolversTypes['AssistantOutput'], ParentType, ContextType, RequireFields<MutationAskAssistantArgs, 'input'>>;
   connectTelegramBot?: Resolver<ResolversTypes['TelegramBot'], ParentType, ContextType, RequireFields<MutationConnectTelegramBotArgs, 'token'>>;
@@ -806,6 +864,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   accounts?: Resolver<Array<ResolversTypes['Account']>, ParentType, ContextType>;
   byCategoryReport?: Resolver<ResolversTypes['ByCategoryReport'], ParentType, ContextType, RequireFields<QueryByCategoryReportArgs, 'type' | 'year'>>;
   categories?: Resolver<Array<ResolversTypes['Category']>, ParentType, ContextType, Partial<QueryCategoriesArgs>>;
+  expenseTrend?: Resolver<ResolversTypes['ExpenseTrend'], ParentType, ContextType, RequireFields<QueryExpenseTrendArgs, 'input'>>;
   supportedCurrencies?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   supportedInterfaceLanguages?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   telegramBot?: Resolver<Maybe<ResolversTypes['TelegramBot']>, ParentType, ContextType>;
@@ -905,6 +964,8 @@ export type Resolvers<ContextType = GraphQLContext> = {
   CreateTransactionFromTextFailure?: CreateTransactionFromTextFailureResolvers<ContextType>;
   CreateTransactionFromTextOutput?: CreateTransactionFromTextOutputResolvers<ContextType>;
   CreateTransactionFromTextSuccess?: CreateTransactionFromTextSuccessResolvers<ContextType>;
+  ExpenseTrend?: ExpenseTrendResolvers<ContextType>;
+  ExpenseTrendPoint?: ExpenseTrendPointResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   PageInfo?: PageInfoResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;

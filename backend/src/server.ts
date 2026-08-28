@@ -11,6 +11,7 @@ import {
   resolveCategoryService,
   resolveCreateTransactionFromTextService,
   resolveCurrencyService,
+  resolveExpenseTrendService,
   resolveJwtAuthService,
   resolveTelegramBotService,
   resolveTransactionService,
@@ -78,6 +79,7 @@ export async function createContext(req: {
 
     // Report services
     byCategoryReportService: resolveByCategoryReportService(),
+    expenseTrendService: resolveExpenseTrendService(),
 
     // AI services
     createTransactionFromTextService:

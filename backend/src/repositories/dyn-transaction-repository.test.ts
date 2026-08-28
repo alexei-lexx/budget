@@ -74,6 +74,48 @@ describe("DynTransactionRepository", () => {
       // Assert
       expect(result).toHaveLength(0);
     });
+
+    it("returns only transactions in requested currency", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+
+      // Transactions in requested currency
+      const euro1 = fakeTransaction({ userId, currency: "EUR" });
+      await repository.create(euro1);
+      const euro2 = fakeTransaction({ userId, currency: "EUR" });
+      await repository.create(euro2);
+
+      // Transaction in another currency
+      await repository.create(fakeTransaction({ userId, currency: "USD" }));
+
+      // Act
+      const result = await repository.findManyByUserId(userId, {
+        currencies: ["EUR"],
+      });
+
+      // Assert
+      expect(result).toHaveLength(2);
+      expect(result).toContainEqual(euro1);
+      expect(result).toContainEqual(euro2);
+    });
+
+    it("returns transactions in every currency when currencies filter is omitted", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+
+      const euro = fakeTransaction({ userId, currency: "EUR" });
+      await repository.create(euro);
+      const dollar = fakeTransaction({ userId, currency: "USD" });
+      await repository.create(dollar);
+
+      // Act
+      const result = await repository.findManyByUserId(userId);
+
+      // Assert
+      expect(result).toHaveLength(2);
+      expect(result).toContainEqual(euro);
+      expect(result).toContainEqual(dollar);
+    });
   });
 
   describe("findManyByUserIdPaginated", () => {
