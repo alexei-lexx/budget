@@ -140,11 +140,14 @@ export class ExpenseTrendService {
     lookback: number;
   }): DateString[] {
     const todayPlainDate = Temporal.PlainDate.from(today);
-    const currentPeriodStart = beginningOfPeriod(periodUnit, todayPlainDate);
+    const currentPeriodStart = this.beginningOfPeriod(
+      periodUnit,
+      todayPlainDate,
+    );
 
     const periodStarts: DateString[] = [];
     for (let nPeriodsAgo = lookback; nPeriodsAgo >= 0; nPeriodsAgo -= 1) {
-      const periodStart = subtractPeriods(
+      const periodStart = this.subtractPeriods(
         periodUnit,
         currentPeriodStart,
         nPeriodsAgo,
@@ -196,7 +199,7 @@ export class ExpenseTrendService {
       }
 
       const key = toDateString(
-        beginningOfPeriod(
+        this.beginningOfPeriod(
           periodUnit,
           Temporal.PlainDate.from(transaction.date),
         ).toString(),
@@ -217,29 +220,29 @@ export class ExpenseTrendService {
       0,
     );
   }
-}
 
-function beginningOfPeriod(
-  periodUnit: TrendPeriodUnit,
-  plainDate: Temporal.PlainDate,
-): Temporal.PlainDate {
-  switch (periodUnit) {
-    case "MONTH":
-      return plainDate.with({ day: 1 });
-    case "WEEK":
-      return plainDate.subtract({ days: plainDate.dayOfWeek - 1 });
+  private beginningOfPeriod(
+    periodUnit: TrendPeriodUnit,
+    plainDate: Temporal.PlainDate,
+  ): Temporal.PlainDate {
+    switch (periodUnit) {
+      case "MONTH":
+        return plainDate.with({ day: 1 });
+      case "WEEK":
+        return plainDate.subtract({ days: plainDate.dayOfWeek - 1 });
+    }
   }
-}
 
-function subtractPeriods(
-  periodUnit: TrendPeriodUnit,
-  plainDate: Temporal.PlainDate,
-  nPeriods: number,
-): Temporal.PlainDate {
-  switch (periodUnit) {
-    case "MONTH":
-      return plainDate.subtract({ months: nPeriods });
-    case "WEEK":
-      return plainDate.subtract({ weeks: nPeriods });
+  private subtractPeriods(
+    periodUnit: TrendPeriodUnit,
+    plainDate: Temporal.PlainDate,
+    nPeriods: number,
+  ): Temporal.PlainDate {
+    switch (periodUnit) {
+      case "MONTH":
+        return plainDate.subtract({ months: nPeriods });
+      case "WEEK":
+        return plainDate.subtract({ weeks: nPeriods });
+    }
   }
 }
