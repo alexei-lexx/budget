@@ -83,28 +83,28 @@ describe("StarredTrend", () => {
       // Act & Assert
       expect(() =>
         StarredTrend.create(fakeCreateStarredTrendInput({ lookback: 0 })),
-      ).toThrow(ModelError);
+      ).toThrow(new ModelError("Lookback must be a whole number from 1 to 12"));
     });
 
     it("throws when lookback is above 12", () => {
       // Act & Assert
       expect(() =>
         StarredTrend.create(fakeCreateStarredTrendInput({ lookback: 13 })),
-      ).toThrow(ModelError);
+      ).toThrow(new ModelError("Lookback must be a whole number from 1 to 12"));
     });
 
     it("throws when lookback is not integer", () => {
       // Act & Assert
       expect(() =>
         StarredTrend.create(fakeCreateStarredTrendInput({ lookback: 3.5 })),
-      ).toThrow(ModelError);
+      ).toThrow(new ModelError("Lookback must be a whole number from 1 to 12"));
     });
 
     it("throws when currency is empty", () => {
       // Act & Assert
       expect(() =>
         StarredTrend.create(fakeCreateStarredTrendInput({ currency: "" })),
-      ).toThrow(ModelError);
+      ).toThrow(new ModelError("Currency must not be empty"));
     });
   });
 
@@ -129,7 +129,9 @@ describe("StarredTrend", () => {
       const data = { ...fakeStarredTrend().toData(), lookback: 13 };
 
       // Act & Assert
-      expect(() => StarredTrend.fromPersistence(data)).toThrow(ModelError);
+      expect(() => StarredTrend.fromPersistence(data)).toThrow(
+        new ModelError("Lookback must be a whole number from 1 to 12"),
+      );
     });
 
     it("throws when currency is empty", () => {
@@ -137,7 +139,9 @@ describe("StarredTrend", () => {
       const data = { ...fakeStarredTrend().toData(), currency: "" };
 
       // Act & Assert
-      expect(() => StarredTrend.fromPersistence(data)).toThrow(ModelError);
+      expect(() => StarredTrend.fromPersistence(data)).toThrow(
+        new ModelError("Currency must not be empty"),
+      );
     });
   });
 });
