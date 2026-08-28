@@ -120,7 +120,7 @@ The system SHALL let the user choose which spending to plot. The user SHALL be a
 
 - any number of categories, and whether to include uncategorized transactions
 - the period type: Week or Month
-- the lookback: 3, 6 or 12 completed periods, defaulting to 3
+- the lookback: any whole number of completed periods from 1 to 12, defaulting to 3
 - exactly one currency
 
 When no category is selected and uncategorized is not requested, the system SHALL plot all of the user's expenses in the chosen currency.
@@ -162,6 +162,18 @@ Amounts SHALL never be converted between currencies. Only the selected currency 
 - **GIVEN** a user opens the Trends page with no lookback in the URL
 - **WHEN** the page loads
 - **THEN** the chart shows three completed periods and the running one
+
+#### Scenario: Any whole number of periods from 1 to 12 can be chosen
+
+- **GIVEN** a user is choosing a lookback
+- **WHEN** they pick any whole number from 1 to 12
+- **THEN** that number is accepted as the lookback
+
+#### Scenario: A lookback of 1 compares with just the previous period
+
+- **GIVEN** a user sets the lookback to 1
+- **WHEN** they apply the selection
+- **THEN** the chart shows 2 bars: the previous period and the running period
 
 ### Requirement: Weekly and Monthly Periods
 

@@ -6,8 +6,6 @@ import { DateString, toDateString } from "../types/date-string";
 import { Failure, Result, Success } from "../types/result";
 import { median } from "../utils/median";
 
-const ALLOWED_LOOKBACKS = [3, 6, 12];
-
 type TrendPeriodUnit = "MONTH" | "WEEK";
 
 export interface ExpenseTrendInput {
@@ -50,8 +48,8 @@ export class ExpenseTrendService {
     categoryIds,
     includeUncategorized,
   }: ExpenseTrendInput): Promise<Result<ExpenseTrend>> {
-    if (!ALLOWED_LOOKBACKS.includes(lookback)) {
-      return Failure("Lookback must be 3, 6 or 12");
+    if (!Number.isInteger(lookback) || lookback < 1 || lookback > 12) {
+      return Failure("Lookback must be a whole number from 1 to 12");
     }
     if (currency.trim().length === 0) {
       return Failure("Currency must not be empty");

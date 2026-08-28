@@ -562,6 +562,69 @@ describe("ExpenseTrendService", () => {
       });
     });
 
+    it("accepts lookback of 1", async () => {
+      // Arrange
+      // No transactions and no categories
+      transactionRepository.findManyByUserId.mockResolvedValue([]);
+      categoryRepository.findManyWithArchivedByUserId.mockResolvedValue([]);
+
+      // Act
+      const result = await service.call({
+        userId,
+        periodUnit: "MONTH",
+        lookback: 1,
+        currency: "EUR",
+        today: toDateString("2000-04-12"),
+      });
+
+      // Assert
+      expect(result).toMatchObject({
+        data: {
+          points: [
+            { periodStart: "2000-03-01", amount: 0, isCurrent: false },
+            { periodStart: "2000-04-01", amount: 0, isCurrent: true },
+          ],
+        },
+      });
+    });
+
+    it("accepts lookback of 12", async () => {
+      // Arrange
+      // No transactions and no categories
+      transactionRepository.findManyByUserId.mockResolvedValue([]);
+      categoryRepository.findManyWithArchivedByUserId.mockResolvedValue([]);
+
+      // Act
+      const result = await service.call({
+        userId,
+        periodUnit: "MONTH",
+        lookback: 12,
+        currency: "EUR",
+        today: toDateString("2000-04-12"),
+      });
+
+      // Assert
+      expect(result).toMatchObject({
+        data: {
+          points: [
+            { periodStart: "1999-04-01", amount: 0, isCurrent: false },
+            { periodStart: "1999-05-01", amount: 0, isCurrent: false },
+            { periodStart: "1999-06-01", amount: 0, isCurrent: false },
+            { periodStart: "1999-07-01", amount: 0, isCurrent: false },
+            { periodStart: "1999-08-01", amount: 0, isCurrent: false },
+            { periodStart: "1999-09-01", amount: 0, isCurrent: false },
+            { periodStart: "1999-10-01", amount: 0, isCurrent: false },
+            { periodStart: "1999-11-01", amount: 0, isCurrent: false },
+            { periodStart: "1999-12-01", amount: 0, isCurrent: false },
+            { periodStart: "2000-01-01", amount: 0, isCurrent: false },
+            { periodStart: "2000-02-01", amount: 0, isCurrent: false },
+            { periodStart: "2000-03-01", amount: 0, isCurrent: false },
+            { periodStart: "2000-04-01", amount: 0, isCurrent: true },
+          ],
+        },
+      });
+    });
+
     it("ignores transactions dated after today in running period", async () => {
       // Arrange
       transactionRepository.findManyByUserId.mockResolvedValue([
@@ -601,12 +664,12 @@ describe("ExpenseTrendService", () => {
 
     // Validation failures
 
-    it("returns failure when lookback is not 3, 6 or 12", async () => {
+    it("returns failure when lookback is below 1", async () => {
       // Act
       const result = await service.call({
         userId,
         periodUnit: "MONTH",
-        lookback: 99,
+        lookback: 0,
         currency: "EUR",
         today: toDateString("2000-04-12"),
       });
@@ -614,7 +677,43 @@ describe("ExpenseTrendService", () => {
       // Assert
       expect(result).toEqual({
         success: false,
-        error: "Lookback must be 3, 6 or 12",
+        error: "Lookback must be a whole number from 1 to 12",
+      });
+      expect(transactionRepository.findManyByUserId).not.toHaveBeenCalled();
+    });
+
+    it("returns failure when lookback is above 12", async () => {
+      // Act
+      const result = await service.call({
+        userId,
+        periodUnit: "MONTH",
+        lookback: 13,
+        currency: "EUR",
+        today: toDateString("2000-04-12"),
+      });
+
+      // Assert
+      expect(result).toEqual({
+        success: false,
+        error: "Lookback must be a whole number from 1 to 12",
+      });
+      expect(transactionRepository.findManyByUserId).not.toHaveBeenCalled();
+    });
+
+    it("returns failure when lookback is not integer", async () => {
+      // Act
+      const result = await service.call({
+        userId,
+        periodUnit: "MONTH",
+        lookback: 3.5,
+        currency: "EUR",
+        today: toDateString("2000-04-12"),
+      });
+
+      // Assert
+      expect(result).toEqual({
+        success: false,
+        error: "Lookback must be a whole number from 1 to 12",
       });
       expect(transactionRepository.findManyByUserId).not.toHaveBeenCalled();
     });

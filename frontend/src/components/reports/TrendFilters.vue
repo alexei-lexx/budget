@@ -38,7 +38,7 @@
       </v-col>
 
       <!-- Period Type -->
-      <v-col cols="12" sm="6">
+      <v-col cols="12" sm="5">
         <v-label class="d-block mb-1">{{ t("trends.filters.period") }}</v-label>
         <v-btn-toggle v-model="draftPeriodUnit" mandatory density="compact" color="primary" divided>
           <v-btn value="WEEK">{{ t("trends.filters.week") }}</v-btn>
@@ -47,13 +47,24 @@
       </v-col>
 
       <!-- Lookback -->
-      <v-col cols="12" sm="6">
+      <v-col cols="12" sm="7">
         <v-label class="d-block mb-1">{{ t("trends.filters.lookback") }}</v-label>
-        <v-btn-toggle v-model="draftLookback" mandatory density="compact" color="primary" divided>
-          <v-btn v-for="option in LOOKBACK_OPTIONS" :key="option" :value="option">
-            {{ option }}
-          </v-btn>
-        </v-btn-toggle>
+        <div class="d-flex align-center ga-2">
+          <v-btn-toggle v-model="draftLookback" mandatory density="compact" color="primary" divided>
+            <v-btn v-for="option in LOOKBACK_OPTIONS" :key="option" :value="option">
+              {{ option }}
+            </v-btn>
+          </v-btn-toggle>
+          <v-select
+            v-model="draftLookback"
+            :items="LOOKBACK_SELECT_OPTIONS"
+            :disabled="loading"
+            variant="outlined"
+            density="compact"
+            hide-details
+            style="max-width: 88px"
+          />
+        </div>
       </v-col>
     </v-row>
 
@@ -79,6 +90,7 @@ import { useCurrencies } from "@/composables/useCurrencies";
 import type { TrendSelection } from "@/composables/useExpenseTrend";
 
 const LOOKBACK_OPTIONS = [3, 6, 12];
+const LOOKBACK_SELECT_OPTIONS = Array.from({ length: 12 }, (_, index) => index + 1);
 
 interface Props {
   selection: TrendSelection;
