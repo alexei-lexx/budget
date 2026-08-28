@@ -23,6 +23,7 @@ import { DynAccountRepository } from "./repositories/dyn-account-repository";
 import { DynAtomicWriter } from "./repositories/dyn-atomic-writer";
 import { DynCategoryRepository } from "./repositories/dyn-category-repository";
 import { DynChatMessageRepository } from "./repositories/dyn-chat-message-repository";
+import { DynStarredTrendRepository } from "./repositories/dyn-starred-trend-repository";
 import { DynTelegramBotRepository } from "./repositories/dyn-telegram-bot-repository";
 import { DynTransactionRepository } from "./repositories/dyn-transaction-repository";
 import { DynUserRepository } from "./repositories/dyn-user-repository";
@@ -35,6 +36,7 @@ import { CreateTransactionFromTextService } from "./services/create-transaction-
 import { CurrencyServiceImpl } from "./services/currency-service";
 import { ExpenseTrendService } from "./services/expense-trend-service";
 import { ProcessTelegramMessageService } from "./services/process-telegram-message-service";
+import { StarredTrendService } from "./services/starred-trend-service";
 import { TelegramBotService } from "./services/telegram-bot-service";
 import { TransactionServiceImpl } from "./services/transaction-service";
 import { TransferService } from "./services/transfer-service";
@@ -109,6 +111,13 @@ export const resolveTransactionRepository = createSingleton(
       resolveDynDocumentClient(),
     ),
 );
+export const resolveStarredTrendRepository = createSingleton(
+  () =>
+    new DynStarredTrendRepository(
+      requireEnv("STARRED_TRENDS_TABLE_NAME"),
+      resolveDynDocumentClient(),
+    ),
+);
 export const resolveUserRepository = createSingleton(
   (): UserRepository =>
     new DynUserRepository(
@@ -166,6 +175,9 @@ export const resolveExpenseTrendService = createSingleton(
       resolveTransactionRepository(),
       resolveCategoryRepository(),
     ),
+);
+export const resolveStarredTrendService = createSingleton(
+  () => new StarredTrendService(resolveStarredTrendRepository()),
 );
 
 // Providers

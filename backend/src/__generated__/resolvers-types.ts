@@ -213,6 +213,8 @@ export type Mutation = {
   disconnectTelegramBot?: Maybe<Scalars['Boolean']['output']>;
   ensureUser: User;
   regenerateMcpToken: UserSettings;
+  starTrend: StarredTrend;
+  unstarTrend?: Maybe<Scalars['Boolean']['output']>;
   updateAccount: Account;
   updateCategory: Category;
   updateTransaction: Transaction;
@@ -276,6 +278,16 @@ export type MutationDeleteTransferArgs = {
 };
 
 
+export type MutationStarTrendArgs = {
+  input: StarTrendInput;
+};
+
+
+export type MutationUnstarTrendArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationUpdateAccountArgs = {
   input: UpdateAccountInput;
 };
@@ -319,6 +331,7 @@ export type Query = {
   byCategoryReport: ByCategoryReport;
   categories: Array<Category>;
   expenseTrend: ExpenseTrend;
+  starredTrends: Array<StarredTrend>;
   supportedCurrencies: Array<Scalars['String']['output']>;
   supportedInterfaceLanguages: Array<Scalars['String']['output']>;
   telegramBot?: Maybe<TelegramBot>;
@@ -371,6 +384,24 @@ export type QueryTransferArgs = {
 export type ReportType =
   | 'EXPENSE'
   | 'INCOME';
+
+export type StarTrendInput = {
+  categoryIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  currency: Scalars['String']['input'];
+  includeUncategorized?: InputMaybe<Scalars['Boolean']['input']>;
+  lookback: Scalars['Int']['input'];
+  periodUnit: TrendPeriodUnit;
+};
+
+export type StarredTrend = {
+  __typename?: 'StarredTrend';
+  categoryIds: Array<Scalars['ID']['output']>;
+  currency: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  includeUncategorized: Scalars['Boolean']['output'];
+  lookback: Scalars['Int']['output'];
+  periodUnit: TrendPeriodUnit;
+};
 
 export type TelegramBot = {
   __typename?: 'TelegramBot';
@@ -644,6 +675,8 @@ export type ResolversTypes = {
   PaginationInput: PaginationInput;
   Query: ResolverTypeWrapper<Record<PropertyKey, never>>;
   ReportType: ReportType;
+  StarTrendInput: StarTrendInput;
+  StarredTrend: ResolverTypeWrapper<StarredTrend>;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
   TelegramBot: ResolverTypeWrapper<TelegramBot>;
   Transaction: ResolverTypeWrapper<Omit<Transaction, 'account' | 'category'>>;
@@ -701,6 +734,8 @@ export type ResolversParentTypes = {
   PageInfo: PageInfo;
   PaginationInput: PaginationInput;
   Query: Record<PropertyKey, never>;
+  StarTrendInput: StarTrendInput;
+  StarredTrend: StarredTrend;
   String: Scalars['String']['output'];
   TelegramBot: TelegramBot;
   Transaction: Omit<Transaction, 'account' | 'category'>;
@@ -847,6 +882,8 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   disconnectTelegramBot?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   ensureUser?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   regenerateMcpToken?: Resolver<ResolversTypes['UserSettings'], ParentType, ContextType>;
+  starTrend?: Resolver<ResolversTypes['StarredTrend'], ParentType, ContextType, RequireFields<MutationStarTrendArgs, 'input'>>;
+  unstarTrend?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType, RequireFields<MutationUnstarTrendArgs, 'id'>>;
   updateAccount?: Resolver<ResolversTypes['Account'], ParentType, ContextType, RequireFields<MutationUpdateAccountArgs, 'input'>>;
   updateCategory?: Resolver<ResolversTypes['Category'], ParentType, ContextType, RequireFields<MutationUpdateCategoryArgs, 'input'>>;
   updateTransaction?: Resolver<ResolversTypes['Transaction'], ParentType, ContextType, RequireFields<MutationUpdateTransactionArgs, 'input'>>;
@@ -866,6 +903,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   byCategoryReport?: Resolver<ResolversTypes['ByCategoryReport'], ParentType, ContextType, RequireFields<QueryByCategoryReportArgs, 'type' | 'year'>>;
   categories?: Resolver<Array<ResolversTypes['Category']>, ParentType, ContextType, Partial<QueryCategoriesArgs>>;
   expenseTrend?: Resolver<ResolversTypes['ExpenseTrend'], ParentType, ContextType, RequireFields<QueryExpenseTrendArgs, 'input'>>;
+  starredTrends?: Resolver<Array<ResolversTypes['StarredTrend']>, ParentType, ContextType>;
   supportedCurrencies?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   supportedInterfaceLanguages?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   telegramBot?: Resolver<Maybe<ResolversTypes['TelegramBot']>, ParentType, ContextType>;
@@ -875,6 +913,15 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   transactions?: Resolver<ResolversTypes['TransactionConnection'], ParentType, ContextType, Partial<QueryTransactionsArgs>>;
   transfer?: Resolver<Maybe<ResolversTypes['Transfer']>, ParentType, ContextType, RequireFields<QueryTransferArgs, 'id'>>;
   userSettings?: Resolver<ResolversTypes['UserSettings'], ParentType, ContextType>;
+};
+
+export type StarredTrendResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['StarredTrend'] = ResolversParentTypes['StarredTrend']> = {
+  categoryIds?: Resolver<Array<ResolversTypes['ID']>, ParentType, ContextType>;
+  currency?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  includeUncategorized?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  lookback?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  periodUnit?: Resolver<ResolversTypes['TrendPeriodUnit'], ParentType, ContextType>;
 };
 
 export type TelegramBotResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TelegramBot'] = ResolversParentTypes['TelegramBot']> = {
@@ -968,6 +1015,7 @@ export type Resolvers<ContextType = GraphQLContext> = {
   Mutation?: MutationResolvers<ContextType>;
   PageInfo?: PageInfoResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
+  StarredTrend?: StarredTrendResolvers<ContextType>;
   TelegramBot?: TelegramBotResolvers<ContextType>;
   Transaction?: TransactionResolvers<ContextType>;
   TransactionConnection?: TransactionConnectionResolvers<ContextType>;

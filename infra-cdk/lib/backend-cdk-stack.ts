@@ -126,6 +126,12 @@ export class BackendCdkStack extends cdk.Stack {
       ...commonTableOptions,
     });
 
+    const starredTrendsTable = new dynamodb.Table(this, "StarredTrendsTable", {
+      partitionKey: { name: "userId", type: dynamodb.AttributeType.STRING },
+      sortKey: { name: "id", type: dynamodb.AttributeType.STRING },
+      ...commonTableOptions,
+    });
+
     const telegramBotsTable = new dynamodb.Table(this, "TelegramBotsTable", {
       partitionKey: { name: "userId", type: dynamodb.AttributeType.STRING },
       sortKey: { name: "id", type: dynamodb.AttributeType.STRING },
@@ -153,6 +159,7 @@ export class BackendCdkStack extends cdk.Stack {
         CATEGORIES_TABLE_NAME: categoriesTable.tableName,
         CHAT_MESSAGES_TABLE_NAME: chatMessagesTable.tableName,
         MIGRATIONS_TABLE_NAME: migrationsTable.tableName,
+        STARRED_TRENDS_TABLE_NAME: starredTrendsTable.tableName,
         TELEGRAM_BOTS_TABLE_NAME: telegramBotsTable.tableName,
         TRANSACTIONS_TABLE_NAME: transactionsTable.tableName,
         USERS_TABLE_NAME: usersTable.tableName,
@@ -232,6 +239,7 @@ export class BackendCdkStack extends cdk.Stack {
     accountsTable.grantReadWriteData(webFunction);
     categoriesTable.grantReadWriteData(webFunction);
     chatMessagesTable.grantReadWriteData(webFunction);
+    starredTrendsTable.grantReadWriteData(webFunction);
     telegramBotsTable.grantReadWriteData(webFunction);
     transactionsTable.grantReadWriteData(webFunction);
     usersTable.grantReadWriteData(webFunction);

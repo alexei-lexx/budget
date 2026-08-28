@@ -305,7 +305,17 @@
       "period": "Zeitraum",
       "week": "Woche",
       "month": "Monat",
-      "lookback": "Vergangene Zeiträume"
+      "lookback": "Vergangene Zeiträume",
+      "star": "Diesen Filter merken",
+      "unstar": "Merkung entfernen"
+    },
+    "starred": {
+      "title": "Gemerkte Trends",
+      "all": "alle",
+      "uncategorized": "ohne Kategorie",
+      "periodWeek": "Woche | Wochen",
+      "periodMonth": "Monat | Monate",
+      "label": "{categories} in den letzten {lookback} {period} in {currency}"
     },
     "chart": {
       "expenses": "Ausgaben",

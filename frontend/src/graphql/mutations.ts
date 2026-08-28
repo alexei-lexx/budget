@@ -177,6 +177,25 @@ export const DISCONNECT_TELEGRAM_BOT = gql`
   }
 `;
 
+export const STAR_TREND = gql`
+  mutation StarTrend($input: StarTrendInput!) {
+    starTrend(input: $input) {
+      id
+      periodUnit
+      lookback
+      currency
+      categoryIds
+      includeUncategorized
+    }
+  }
+`;
+
+export const UNSTAR_TREND = gql`
+  mutation UnstarTrend($id: ID!) {
+    unstarTrend(id: $id)
+  }
+`;
+
 export const ASK_ASSISTANT = gql`
   mutation AskAssistant($input: AssistantInput!) {
     askAssistant(input: $input) {

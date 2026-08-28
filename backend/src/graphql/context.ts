@@ -8,6 +8,7 @@ import { CategoryService } from "../services/category-service";
 import { CreateTransactionFromTextService } from "../services/create-transaction-from-text-service";
 import { CurrencyService } from "../services/currency-service";
 import { ExpenseTrendService } from "../services/expense-trend-service";
+import { StarredTrendService } from "../services/starred-trend-service";
 import { TelegramBotService } from "../services/telegram-bot-service";
 import { TransactionService } from "../services/transaction-service";
 import { TransferService } from "../services/transfer-service";
@@ -30,6 +31,7 @@ export interface GraphQLContext {
   transferService: TransferService;
   byCategoryReportService: ByCategoryReportService;
   expenseTrendService: ExpenseTrendService;
+  starredTrendService: StarredTrendService;
   telegramBotService: TelegramBotService;
   jwtAuthService: JwtAuthService;
   authHeader?: string;
