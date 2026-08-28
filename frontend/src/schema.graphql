@@ -71,7 +71,7 @@ enum ReportType {
   EXPENSE
 }
 
-enum TrendPeriod {
+enum TrendPeriodUnit {
   MONTH
   WEEK
 }
@@ -334,7 +334,7 @@ type ByCategoryReport {
 }
 
 input ExpenseTrendInput {
-  period: TrendPeriod!
+  periodUnit: TrendPeriodUnit!
   """
   Number of completed periods to plot before the running one. Accepts 3, 6 or 12.
   """

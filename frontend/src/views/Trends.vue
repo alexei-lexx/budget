@@ -23,7 +23,7 @@
           <ExpenseTrendChart
             v-if="expenseTrend"
             :trend="expenseTrend"
-            :period="selection.period"
+            :period-unit="selection.periodUnit"
             :currency="selection.currency"
           />
           <div v-else class="d-flex align-center justify-center h-100">
@@ -39,7 +39,7 @@
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
-import type { TrendPeriod } from "@/__generated__/vue-apollo";
+import type { TrendPeriodUnit } from "@/__generated__/vue-apollo";
 import ExpenseTrendChart from "@/components/reports/ExpenseTrendChart.vue";
 import TrendFilters from "@/components/reports/TrendFilters.vue";
 import { useCategories } from "@/composables/useCategories";
@@ -48,7 +48,7 @@ import { useExpenseTrend, type TrendSelection } from "@/composables/useExpenseTr
 import { getTodayDateString } from "@/utils/date";
 
 const LOOKBACK_OPTIONS = [3, 6, 12];
-const DEFAULT_PERIOD: TrendPeriod = "MONTH";
+const DEFAULT_PERIOD_UNIT: TrendPeriodUnit = "MONTH";
 const DEFAULT_LOOKBACK = 3;
 
 const { t } = useI18n();
@@ -64,10 +64,10 @@ const { defaultCurrency } = useCurrencies();
 const expenseCategories = computed(() => categories.value?.categories ?? []);
 
 // Parses one URL parameter, falling back to its default when absent or invalid
-function readPeriod(): TrendPeriod {
-  return route.query.period === "WEEK" || route.query.period === "MONTH"
-    ? route.query.period
-    : DEFAULT_PERIOD;
+function readPeriodUnit(): TrendPeriodUnit {
+  return route.query.periodUnit === "WEEK" || route.query.periodUnit === "MONTH"
+    ? route.query.periodUnit
+    : DEFAULT_PERIOD_UNIT;
 }
 
 function readLookback(): number {
@@ -82,7 +82,7 @@ function readCategoryIds(): string[] {
 
 // Committed selection: only Apply, Clear and the initial URL read change it
 const appliedSelection = ref<TrendSelection>({
-  period: readPeriod(),
+  periodUnit: readPeriodUnit(),
   lookback: readLookback(),
   currency: typeof route.query.currency === "string" ? route.query.currency : "",
   categoryIds: readCategoryIds(),
@@ -108,7 +108,7 @@ function handleApply(newSelection: TrendSelection) {
 
   router.replace({
     query: {
-      period: newSelection.period,
+      periodUnit: newSelection.periodUnit,
       lookback: newSelection.lookback.toString(),
       currency: newSelection.currency,
       ...(newSelection.categoryIds.length > 0 && {
@@ -121,7 +121,7 @@ function handleApply(newSelection: TrendSelection) {
 
 function handleClear() {
   appliedSelection.value = {
-    period: DEFAULT_PERIOD,
+    periodUnit: DEFAULT_PERIOD_UNIT,
     lookback: DEFAULT_LOOKBACK,
     currency: defaultCurrency.value,
     categoryIds: [],

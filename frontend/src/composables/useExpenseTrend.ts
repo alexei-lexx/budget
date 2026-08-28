@@ -3,14 +3,14 @@ import {
   useGetExpenseTrendQuery,
   type ExpenseTrend,
   type ExpenseTrendPoint,
-  type TrendPeriod,
+  type TrendPeriodUnit,
 } from "@/__generated__/vue-apollo";
 
 // Re-export types for consumers of this composable
-export type { ExpenseTrend, ExpenseTrendPoint, TrendPeriod };
+export type { ExpenseTrend, ExpenseTrendPoint, TrendPeriodUnit };
 
 export interface TrendSelection {
-  period: TrendPeriod;
+  periodUnit: TrendPeriodUnit;
   lookback: number;
   currency: string;
   categoryIds: string[];
@@ -29,7 +29,7 @@ export function useExpenseTrend(selection: Ref<TrendSelection>, today: Ref<strin
   } = useGetExpenseTrendQuery(
     () => ({
       input: {
-        period: selection.value.period,
+        periodUnit: selection.value.periodUnit,
         lookback: selection.value.lookback,
         currency: selection.value.currency,
         today: today.value,

@@ -40,7 +40,7 @@
       <!-- Period Type -->
       <v-col cols="12" sm="6">
         <v-label class="d-block mb-1">{{ t("trends.filters.period") }}</v-label>
-        <v-btn-toggle v-model="draftPeriod" mandatory density="compact" color="primary" divided>
+        <v-btn-toggle v-model="draftPeriodUnit" mandatory density="compact" color="primary" divided>
           <v-btn value="WEEK">{{ t("trends.filters.week") }}</v-btn>
           <v-btn value="MONTH">{{ t("trends.filters.month") }}</v-btn>
         </v-btn-toggle>
@@ -74,7 +74,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
-import type { Category, TrendPeriod } from "@/__generated__/vue-apollo";
+import type { Category, TrendPeriodUnit } from "@/__generated__/vue-apollo";
 import { useCurrencies } from "@/composables/useCurrencies";
 import type { TrendSelection } from "@/composables/useExpenseTrend";
 
@@ -97,7 +97,7 @@ const { t } = useI18n();
 const { supportedCurrencies } = useCurrencies();
 
 // Draft state: edits stay local until Apply
-const draftPeriod = ref<TrendPeriod>(props.selection.period);
+const draftPeriodUnit = ref<TrendPeriodUnit>(props.selection.periodUnit);
 const draftLookback = ref<number>(props.selection.lookback);
 const draftCurrency = ref<string>(props.selection.currency);
 const draftCategoryIds = ref<string[]>([...props.selection.categoryIds]);
@@ -113,7 +113,7 @@ const categoryOptions = computed(() =>
 watch(
   () => props.selection,
   (selection) => {
-    draftPeriod.value = selection.period;
+    draftPeriodUnit.value = selection.periodUnit;
     draftLookback.value = selection.lookback;
     draftCurrency.value = selection.currency;
     draftCategoryIds.value = [...selection.categoryIds];
@@ -124,7 +124,7 @@ watch(
 
 function handleApply() {
   emit("apply", {
-    period: draftPeriod.value,
+    periodUnit: draftPeriodUnit.value,
     lookback: draftLookback.value,
     currency: draftCurrency.value,
     categoryIds: [...draftCategoryIds.value],

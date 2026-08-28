@@ -21,7 +21,7 @@ import {
 import { Chart } from "vue-chartjs";
 import { useI18n } from "vue-i18n";
 import { useTheme } from "vuetify";
-import type { ExpenseTrend, TrendPeriod } from "@/composables/useExpenseTrend";
+import type { ExpenseTrend, TrendPeriodUnit } from "@/composables/useExpenseTrend";
 import { formatCurrency } from "@/utils/currency";
 
 ChartJS.register(
@@ -38,7 +38,7 @@ ChartJS.register(
 
 interface Props {
   trend: ExpenseTrend;
-  period: TrendPeriod;
+  periodUnit: TrendPeriodUnit;
   currency: string;
 }
 
@@ -62,7 +62,7 @@ function formatDayAndMonth(date: Date, locale: string): string {
 const labels = computed(() =>
   props.trend.points.map((point) => {
     const date = parsePeriodStart(point.periodStart);
-    return props.period === "MONTH"
+    return props.periodUnit === "MONTH"
       ? date.toLocaleDateString(locale.value, { month: "short" })
       : formatDayAndMonth(date, locale.value);
   }),
@@ -73,7 +73,7 @@ const labels = computed(() =>
 const tooltipTitles = computed(() =>
   props.trend.points.map((point) => {
     const start = parsePeriodStart(point.periodStart);
-    if (props.period === "MONTH") {
+    if (props.periodUnit === "MONTH") {
       return start.toLocaleDateString(locale.value, { month: "long", year: "numeric" });
     }
 

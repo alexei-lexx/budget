@@ -17,7 +17,7 @@ export const trendsResolvers = {
 
         const result = await context.expenseTrendService.call({
           userId: user.id,
-          period: args.input.period,
+          periodUnit: args.input.periodUnit,
           lookback: args.input.lookback,
           currency: args.input.currency,
           today: toDateString(args.input.today),

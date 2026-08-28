@@ -42,7 +42,7 @@ describe("ExpenseTrendService", () => {
       // Act
       const result = await service.call({
         userId,
-        period: "MONTH",
+        periodUnit: "MONTH",
         lookback: 3,
         currency: "EUR",
         today: toDateString("2000-04-01"),
@@ -80,7 +80,7 @@ describe("ExpenseTrendService", () => {
       // Act
       const result = await service.call({
         userId,
-        period: "MONTH",
+        periodUnit: "MONTH",
         lookback: 3,
         currency: "EUR",
         today: toDateString("2000-04-01"),
@@ -114,7 +114,7 @@ describe("ExpenseTrendService", () => {
       // Act
       await service.call({
         userId,
-        period: "MONTH",
+        periodUnit: "MONTH",
         lookback: 3,
         currency: "EUR",
         today: toDateString("2000-04-12"),
@@ -141,7 +141,7 @@ describe("ExpenseTrendService", () => {
       // Act
       const result = await service.call({
         userId,
-        period: "MONTH",
+        periodUnit: "MONTH",
         lookback: 3,
         currency: "EUR",
         today: toDateString("2000-04-12"),
@@ -169,7 +169,7 @@ describe("ExpenseTrendService", () => {
       // Act
       const result = await service.call({
         userId,
-        period: "WEEK",
+        periodUnit: "WEEK",
         lookback: 3,
         currency: "EUR",
         today: toDateString("2000-01-25"), // Tuesday
@@ -231,7 +231,7 @@ describe("ExpenseTrendService", () => {
       // Act
       const result = await service.call({
         userId,
-        period: "MONTH",
+        periodUnit: "MONTH",
         lookback: 3,
         currency: "EUR",
         today: toDateString("2000-04-12"),
@@ -269,7 +269,7 @@ describe("ExpenseTrendService", () => {
       // Act
       const result = await service.call({
         userId,
-        period: "MONTH",
+        periodUnit: "MONTH",
         lookback: 3,
         currency: "EUR",
         today: toDateString("2000-04-12"),
@@ -312,7 +312,7 @@ describe("ExpenseTrendService", () => {
       // Act
       const result = await service.call({
         userId,
-        period: "MONTH",
+        periodUnit: "MONTH",
         lookback: 3,
         currency: "EUR",
         today: toDateString("2000-04-12"),
@@ -379,7 +379,7 @@ describe("ExpenseTrendService", () => {
       // Act
       const result = await service.call({
         userId,
-        period: "MONTH",
+        periodUnit: "MONTH",
         lookback: 3,
         currency: "EUR",
         today: toDateString("2000-04-12"),
@@ -420,7 +420,7 @@ describe("ExpenseTrendService", () => {
       // Act
       const result = await service.call({
         userId,
-        period: "MONTH",
+        periodUnit: "MONTH",
         lookback: 6,
         currency: "EUR",
         today: toDateString("2000-07-20"),
@@ -460,7 +460,7 @@ describe("ExpenseTrendService", () => {
       // Act
       const result = await service.call({
         userId,
-        period: "MONTH",
+        periodUnit: "MONTH",
         lookback: 6,
         currency: "EUR",
         today: toDateString("2000-07-20"),
@@ -500,7 +500,7 @@ describe("ExpenseTrendService", () => {
       // Act
       const result = await service.call({
         userId,
-        period: "MONTH",
+        periodUnit: "MONTH",
         lookback: 3,
         currency: "EUR",
         today: toDateString("2000-04-12"),
@@ -543,7 +543,7 @@ describe("ExpenseTrendService", () => {
       // Act
       const result = await service.call({
         userId,
-        period: "MONTH",
+        periodUnit: "MONTH",
         lookback: 3,
         currency: "EUR",
         today: toDateString("2000-04-12"),
@@ -580,7 +580,7 @@ describe("ExpenseTrendService", () => {
       // Act
       const result = await service.call({
         userId,
-        period: "MONTH",
+        periodUnit: "MONTH",
         lookback: 3,
         currency: "EUR",
         today: toDateString("2000-04-12"),
@@ -605,7 +605,7 @@ describe("ExpenseTrendService", () => {
       // Act
       const result = await service.call({
         userId,
-        period: "MONTH",
+        periodUnit: "MONTH",
         lookback: 99,
         currency: "EUR",
         today: toDateString("2000-04-12"),
@@ -623,7 +623,7 @@ describe("ExpenseTrendService", () => {
       // Act
       const result = await service.call({
         userId,
-        period: "MONTH",
+        periodUnit: "MONTH",
         lookback: 3,
         currency: "",
         today: toDateString("2000-04-12"),

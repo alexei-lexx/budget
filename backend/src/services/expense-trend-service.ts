@@ -8,11 +8,11 @@ import { median } from "../utils/median";
 
 const ALLOWED_LOOKBACKS = [3, 6, 12];
 
-type TrendPeriod = "MONTH" | "WEEK";
+type TrendPeriodUnit = "MONTH" | "WEEK";
 
 export interface ExpenseTrendInput {
   userId: string;
-  period: TrendPeriod;
+  periodUnit: TrendPeriodUnit;
   lookback: number;
   currency: string;
   today: DateString;
@@ -43,7 +43,7 @@ export class ExpenseTrendService {
 
   async call({
     userId,
-    period,
+    periodUnit,
     lookback,
     currency,
     today,
@@ -58,7 +58,7 @@ export class ExpenseTrendService {
     }
 
     const periodStarts = this.buildPeriodStarts({
-      period,
+      periodUnit,
       today,
       lookback,
     });
@@ -84,7 +84,7 @@ export class ExpenseTrendService {
 
     const buckets = this.bucketByPeriod({
       transactions: includedTransactions,
-      period,
+      periodUnit,
       periodStarts,
       today,
     });
@@ -131,24 +131,24 @@ export class ExpenseTrendService {
    * `lookback` completed periods followed by the running one.
    */
   private buildPeriodStarts({
-    period,
+    periodUnit,
     today,
     lookback,
   }: {
-    period: TrendPeriod;
+    periodUnit: TrendPeriodUnit;
     today: DateString;
     lookback: number;
   }): DateString[] {
     const todayPlainDate = Temporal.PlainDate.from(today);
     const currentPeriodStart =
-      period === "MONTH"
+      periodUnit === "MONTH"
         ? firstDayOfMonth(todayPlainDate)
         : firstDayOfWeek(todayPlainDate);
 
     const periodStarts: DateString[] = [];
     for (let nPeriodsAgo = lookback; nPeriodsAgo >= 0; nPeriodsAgo -= 1) {
       const periodStart =
-        period === "MONTH"
+        periodUnit === "MONTH"
           ? currentPeriodStart.subtract({ months: nPeriodsAgo })
           : currentPeriodStart.subtract({ weeks: nPeriodsAgo });
 
@@ -179,12 +179,12 @@ export class ExpenseTrendService {
 
   private bucketByPeriod({
     transactions,
-    period,
+    periodUnit,
     periodStarts: periodStartDateStrings,
     today,
   }: {
     transactions: Transaction[];
-    period: TrendPeriod;
+    periodUnit: TrendPeriodUnit;
     periodStarts: DateString[];
     today: DateString;
   }): Map<DateString, Transaction[]> {
@@ -196,17 +196,20 @@ export class ExpenseTrendService {
       if (transaction.date > today) {
         continue;
       }
-      const key = this.periodStartOf(period, transaction.date);
+      const key = this.periodStartOf(periodUnit, transaction.date);
       buckets.get(key)?.push(transaction);
     }
 
     return buckets;
   }
 
-  private periodStartOf(period: TrendPeriod, date: DateString): DateString {
+  private periodStartOf(
+    periodUnit: TrendPeriodUnit,
+    date: DateString,
+  ): DateString {
     const plainDate = Temporal.PlainDate.from(date);
     const periodStartPlainDate =
-      period === "MONTH"
+      periodUnit === "MONTH"
         ? firstDayOfMonth(plainDate)
         : firstDayOfWeek(plainDate);
     return toDateString(periodStartPlainDate.toString());

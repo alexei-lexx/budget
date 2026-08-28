@@ -187,7 +187,7 @@ export type ExpenseTrendInput = {
   includeUncategorized?: InputMaybe<Scalars['Boolean']['input']>;
   /** Number of completed periods to plot before the running one. Accepts 3, 6 or 12. */
   lookback: Scalars['Int']['input'];
-  period: TrendPeriod;
+  periodUnit: TrendPeriodUnit;
   /** The client's current date as YYYY-MM-DD. Determines the running period. */
   today: Scalars['String']['input'];
 };
@@ -475,7 +475,7 @@ export type Transfer = {
   outboundTransaction: Transaction;
 };
 
-export type TrendPeriod =
+export type TrendPeriodUnit =
   | 'MONTH'
   | 'WEEK';
 
