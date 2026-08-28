@@ -44,12 +44,6 @@ The system SHALL provide a navigation menu with items in this order: Transaction
 - **WHEN** they look at the menu items
 - **THEN** the items appear in order: Transactions, Accounts, Categories, Reports, Trends, Assistant, Settings
 
-#### Scenario: User opens the Trends page from the menu
-
-- **GIVEN** an authenticated user on any page
-- **WHEN** they click "Trends" in the navigation menu
-- **THEN** the Trends page opens
-
 ### Requirement: Account Menu in Sidebar
 
 The system SHALL display an account row in the sidebar. The account row SHALL show the signed-in user's email. The account row SHALL be in a consistently discoverable location, accessible on all screen sizes. Activating the account row SHALL open a menu containing a "Sign Out" item. The account row SHALL display a dropdown indicator icon showing that activating it opens a menu.
