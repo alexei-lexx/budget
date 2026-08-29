@@ -11,6 +11,7 @@ import { ExpenseTrendService } from "../services/expense-trend-service";
 import { TelegramBotService } from "../services/telegram-bot-service";
 import { TransactionService } from "../services/transaction-service";
 import { TransferService } from "../services/transfer-service";
+import { TrendPresetService } from "../services/trend-preset-service";
 import { UserService } from "../services/user-service";
 import {
   TransactionEmbeddedAccount,
@@ -30,6 +31,7 @@ export interface GraphQLContext {
   transferService: TransferService;
   byCategoryReportService: ByCategoryReportService;
   expenseTrendService: ExpenseTrendService;
+  trendPresetService: TrendPresetService;
   telegramBotService: TelegramBotService;
   jwtAuthService: JwtAuthService;
   authHeader?: string;

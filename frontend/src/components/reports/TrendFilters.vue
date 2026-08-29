@@ -69,11 +69,22 @@
     </v-row>
 
     <v-row class="mt-2">
-      <v-col cols="12" class="d-flex">
+      <v-col cols="12" class="d-flex align-center">
         <v-btn variant="outlined" :disabled="loading" @click="handleClear">
           {{ t("common.buttons.clear") }}
         </v-btn>
         <v-spacer />
+        <v-btn
+          variant="outlined"
+          class="mr-2"
+          :aria-label="matchingTrendPreset ? t('trends.filters.unstar') : t('trends.filters.star')"
+          :disabled="loading || starLoading || unstarLoading"
+          @click="handleToggleStar"
+        >
+          <v-icon :color="matchingTrendPreset ? 'amber-darken-2' : undefined">
+            {{ matchingTrendPreset ? "mdi-star" : "mdi-star-outline" }}
+          </v-icon>
+        </v-btn>
         <v-btn color="primary" :disabled="loading" @click="handleApply">
           {{ t("common.buttons.apply") }}
         </v-btn>
@@ -88,6 +99,7 @@ import { useI18n } from "vue-i18n";
 import type { Category, TrendPeriodUnit } from "@/__generated__/vue-apollo";
 import { useCurrencies } from "@/composables/useCurrencies";
 import type { TrendSelection } from "@/composables/useExpenseTrend";
+import { useTrendPresets } from "@/composables/useTrendPresets";
 
 const LOOKBACK_OPTIONS = [3, 6, 12];
 const LOOKBACK_SELECT_OPTIONS = Array.from({ length: 12 }, (_, index) => index + 1);
@@ -107,6 +119,16 @@ const emit = defineEmits<{
 
 const { t } = useI18n();
 const { supportedCurrencies } = useCurrencies();
+const {
+  matchingTrendPreset: findMatchingTrendPreset,
+  star,
+  unstar,
+  starLoading,
+  unstarLoading,
+} = useTrendPresets();
+
+// Reflects the applied selection, not the unsaved draft
+const matchingTrendPreset = computed(() => findMatchingTrendPreset(props.selection));
 
 // Draft state: edits stay local until Apply
 const draftPeriodUnit = ref<TrendPeriodUnit>(props.selection.periodUnit);
@@ -146,5 +168,14 @@ function handleApply() {
 
 function handleClear() {
   emit("clear");
+}
+
+async function handleToggleStar() {
+  const matched = matchingTrendPreset.value;
+  if (matched) {
+    await unstar(matched.id);
+  } else {
+    await star(props.selection);
+  }
 }
 </script>

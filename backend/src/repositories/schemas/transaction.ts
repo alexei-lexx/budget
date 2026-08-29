@@ -2,6 +2,7 @@ import { z } from "zod";
 import type { TransactionData } from "../../models/transaction";
 import { TransactionType } from "../../models/transaction";
 import { toDateString } from "../../types/date-string";
+import { currencySchema } from "./currency";
 
 // Database item schema: adds createdAtSortable
 export const transactionDbItemSchema = z.object({
@@ -11,7 +12,7 @@ export const transactionDbItemSchema = z.object({
   categoryId: z.uuid().optional(),
   type: z.enum(TransactionType),
   amount: z.number().positive(),
-  currency: z.string().length(3).uppercase(),
+  currency: currencySchema,
   date: z.iso.date().transform(toDateString),
   description: z.string().optional(),
   transferId: z.uuid().optional(),

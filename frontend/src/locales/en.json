@@ -305,7 +305,17 @@
       "period": "Period",
       "week": "Week",
       "month": "Month",
-      "lookback": "Past periods"
+      "lookback": "Past periods",
+      "star": "Star this filter",
+      "unstar": "Remove star"
+    },
+    "presets": {
+      "title": "Trend Presets",
+      "all": "all",
+      "uncategorized": "uncategorized",
+      "periodWeek": "week | weeks",
+      "periodMonth": "month | months",
+      "label": "{categories} in last {lookback} {period} in {currency}"
     },
     "chart": {
       "expenses": "Expenses",

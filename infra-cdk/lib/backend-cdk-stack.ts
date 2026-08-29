@@ -141,6 +141,12 @@ export class BackendCdkStack extends cdk.Stack {
       projectionType: dynamodb.ProjectionType.ALL,
     });
 
+    const trendPresetsTable = new dynamodb.Table(this, "TrendPresetsTable", {
+      partitionKey: { name: "userId", type: dynamodb.AttributeType.STRING },
+      sortKey: { name: "id", type: dynamodb.AttributeType.STRING },
+      ...commonTableOptions,
+    });
+
     const functionConfig: Omit<lambda.FunctionProps, "handler"> = {
       runtime: lambda.Runtime.NODEJS_24_X,
       code: lambda.Code.fromAsset("../backend/dist"),
@@ -155,6 +161,7 @@ export class BackendCdkStack extends cdk.Stack {
         MIGRATIONS_TABLE_NAME: migrationsTable.tableName,
         TELEGRAM_BOTS_TABLE_NAME: telegramBotsTable.tableName,
         TRANSACTIONS_TABLE_NAME: transactionsTable.tableName,
+        TREND_PRESETS_TABLE_NAME: trendPresetsTable.tableName,
         USERS_TABLE_NAME: usersTable.tableName,
       },
       ...defaultLambdaOptions({ lambdaMemorySizeMb, lambdaTimeoutSeconds }),
@@ -234,6 +241,7 @@ export class BackendCdkStack extends cdk.Stack {
     chatMessagesTable.grantReadWriteData(webFunction);
     telegramBotsTable.grantReadWriteData(webFunction);
     transactionsTable.grantReadWriteData(webFunction);
+    trendPresetsTable.grantReadWriteData(webFunction);
     usersTable.grantReadWriteData(webFunction);
 
     // Allow the Web Lambda to invoke Bedrock models

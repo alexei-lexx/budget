@@ -169,6 +169,14 @@ export type CreateTransferInput = {
   toAccountId: Scalars['ID']['input'];
 };
 
+export type CreateTrendPresetInput = {
+  categoryIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  currency: Scalars['String']['input'];
+  includeUncategorized?: InputMaybe<Scalars['Boolean']['input']>;
+  lookback: Scalars['Int']['input'];
+  periodUnit: TrendPeriodUnit;
+};
+
 export type ExpenseTrend = {
   __typename?: 'ExpenseTrend';
   /** Days elapsed in the running period, counting today. */
@@ -206,10 +214,12 @@ export type Mutation = {
   createTransaction: Transaction;
   createTransactionFromText: CreateTransactionFromTextOutput;
   createTransfer: Transfer;
+  createTrendPreset: TrendPreset;
   deleteAccount?: Maybe<Scalars['Boolean']['output']>;
   deleteCategory: Category;
   deleteTransaction: Transaction;
   deleteTransfer?: Maybe<Scalars['Boolean']['output']>;
+  deleteTrendPreset?: Maybe<Scalars['Boolean']['output']>;
   disconnectTelegramBot?: Maybe<Scalars['Boolean']['output']>;
   ensureUser: User;
   regenerateMcpToken: UserSettings;
@@ -256,6 +266,11 @@ export type MutationCreateTransferArgs = {
 };
 
 
+export type MutationCreateTrendPresetArgs = {
+  input: CreateTrendPresetInput;
+};
+
+
 export type MutationDeleteAccountArgs = {
   id: Scalars['ID']['input'];
 };
@@ -272,6 +287,11 @@ export type MutationDeleteTransactionArgs = {
 
 
 export type MutationDeleteTransferArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteTrendPresetArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -327,6 +347,7 @@ export type Query = {
   transactionPatterns: Array<TransactionPattern>;
   transactions: TransactionConnection;
   transfer?: Maybe<Transfer>;
+  trendPresets: Array<TrendPreset>;
   userSettings: UserSettings;
 };
 
@@ -467,6 +488,16 @@ export type Transfer = {
 export type TrendPeriodUnit =
   | 'MONTH'
   | 'WEEK';
+
+export type TrendPreset = {
+  __typename?: 'TrendPreset';
+  categoryIds: Array<Scalars['ID']['output']>;
+  currency: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  includeUncategorized: Scalars['Boolean']['output'];
+  lookback: Scalars['Int']['output'];
+  periodUnit: TrendPeriodUnit;
+};
 
 export type UpdateAccountInput = {
   currency?: InputMaybe<Scalars['String']['input']>;
@@ -633,6 +664,7 @@ export type ResolversTypes = {
   CreateTransactionFromTextSuccess: ResolverTypeWrapper<Omit<CreateTransactionFromTextSuccess, 'agentTrace' | 'transaction'> & { agentTrace: Array<ResolversTypes['AgentTraceMessage']>, transaction: ResolversTypes['Transaction'] }>;
   CreateTransactionInput: CreateTransactionInput;
   CreateTransferInput: CreateTransferInput;
+  CreateTrendPresetInput: CreateTrendPresetInput;
   ExpenseTrend: ResolverTypeWrapper<ExpenseTrend>;
   ExpenseTrendInput: ExpenseTrendInput;
   ExpenseTrendPoint: ResolverTypeWrapper<ExpenseTrendPoint>;
@@ -657,6 +689,7 @@ export type ResolversTypes = {
   TransactionType: TransactionType;
   Transfer: ResolverTypeWrapper<Omit<Transfer, 'inboundTransaction' | 'outboundTransaction'> & { inboundTransaction: ResolversTypes['Transaction'], outboundTransaction: ResolversTypes['Transaction'] }>;
   TrendPeriodUnit: TrendPeriodUnit;
+  TrendPreset: ResolverTypeWrapper<TrendPreset>;
   UpdateAccountInput: UpdateAccountInput;
   UpdateCategoryInput: UpdateCategoryInput;
   UpdateTransactionInput: UpdateTransactionInput;
@@ -691,6 +724,7 @@ export type ResolversParentTypes = {
   CreateTransactionFromTextSuccess: Omit<CreateTransactionFromTextSuccess, 'agentTrace' | 'transaction'> & { agentTrace: Array<ResolversParentTypes['AgentTraceMessage']>, transaction: ResolversParentTypes['Transaction'] };
   CreateTransactionInput: CreateTransactionInput;
   CreateTransferInput: CreateTransferInput;
+  CreateTrendPresetInput: CreateTrendPresetInput;
   ExpenseTrend: ExpenseTrend;
   ExpenseTrendInput: ExpenseTrendInput;
   ExpenseTrendPoint: ExpenseTrendPoint;
@@ -711,6 +745,7 @@ export type ResolversParentTypes = {
   TransactionFilterInput: TransactionFilterInput;
   TransactionPattern: TransactionPattern;
   Transfer: Omit<Transfer, 'inboundTransaction' | 'outboundTransaction'> & { inboundTransaction: ResolversParentTypes['Transaction'], outboundTransaction: ResolversParentTypes['Transaction'] };
+  TrendPreset: TrendPreset;
   UpdateAccountInput: UpdateAccountInput;
   UpdateCategoryInput: UpdateCategoryInput;
   UpdateTransactionInput: UpdateTransactionInput;
@@ -840,10 +875,12 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createTransaction?: Resolver<ResolversTypes['Transaction'], ParentType, ContextType, RequireFields<MutationCreateTransactionArgs, 'input'>>;
   createTransactionFromText?: Resolver<ResolversTypes['CreateTransactionFromTextOutput'], ParentType, ContextType, RequireFields<MutationCreateTransactionFromTextArgs, 'input'>>;
   createTransfer?: Resolver<ResolversTypes['Transfer'], ParentType, ContextType, RequireFields<MutationCreateTransferArgs, 'input'>>;
+  createTrendPreset?: Resolver<ResolversTypes['TrendPreset'], ParentType, ContextType, RequireFields<MutationCreateTrendPresetArgs, 'input'>>;
   deleteAccount?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType, RequireFields<MutationDeleteAccountArgs, 'id'>>;
   deleteCategory?: Resolver<ResolversTypes['Category'], ParentType, ContextType, RequireFields<MutationDeleteCategoryArgs, 'id'>>;
   deleteTransaction?: Resolver<ResolversTypes['Transaction'], ParentType, ContextType, RequireFields<MutationDeleteTransactionArgs, 'id'>>;
   deleteTransfer?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType, RequireFields<MutationDeleteTransferArgs, 'id'>>;
+  deleteTrendPreset?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType, RequireFields<MutationDeleteTrendPresetArgs, 'id'>>;
   disconnectTelegramBot?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   ensureUser?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
   regenerateMcpToken?: Resolver<ResolversTypes['UserSettings'], ParentType, ContextType>;
@@ -874,6 +911,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   transactionPatterns?: Resolver<Array<ResolversTypes['TransactionPattern']>, ParentType, ContextType, RequireFields<QueryTransactionPatternsArgs, 'type'>>;
   transactions?: Resolver<ResolversTypes['TransactionConnection'], ParentType, ContextType, Partial<QueryTransactionsArgs>>;
   transfer?: Resolver<Maybe<ResolversTypes['Transfer']>, ParentType, ContextType, RequireFields<QueryTransferArgs, 'id'>>;
+  trendPresets?: Resolver<Array<ResolversTypes['TrendPreset']>, ParentType, ContextType>;
   userSettings?: Resolver<ResolversTypes['UserSettings'], ParentType, ContextType>;
 };
 
@@ -934,6 +972,15 @@ export type TransferResolvers<ContextType = GraphQLContext, ParentType extends R
   outboundTransaction?: Resolver<ResolversTypes['Transaction'], ParentType, ContextType>;
 };
 
+export type TrendPresetResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TrendPreset'] = ResolversParentTypes['TrendPreset']> = {
+  categoryIds?: Resolver<Array<ResolversTypes['ID']>, ParentType, ContextType>;
+  currency?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  includeUncategorized?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  lookback?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  periodUnit?: Resolver<ResolversTypes['TrendPeriodUnit'], ParentType, ContextType>;
+};
+
 export type UserResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = {
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
 };
@@ -978,6 +1025,7 @@ export type Resolvers<ContextType = GraphQLContext> = {
   TransactionPatternType?: TransactionPatternTypeResolvers;
   TransactionType?: TransactionTypeResolvers;
   Transfer?: TransferResolvers<ContextType>;
+  TrendPreset?: TrendPresetResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
   UserSettings?: UserSettingsResolvers<ContextType>;
 };

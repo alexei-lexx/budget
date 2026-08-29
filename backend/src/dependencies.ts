@@ -25,6 +25,7 @@ import { DynCategoryRepository } from "./repositories/dyn-category-repository";
 import { DynChatMessageRepository } from "./repositories/dyn-chat-message-repository";
 import { DynTelegramBotRepository } from "./repositories/dyn-telegram-bot-repository";
 import { DynTransactionRepository } from "./repositories/dyn-transaction-repository";
+import { DynTrendPresetRepository } from "./repositories/dyn-trend-preset-repository";
 import { DynUserRepository } from "./repositories/dyn-user-repository";
 import { AccountServiceImpl } from "./services/account-service";
 import { AssistantChatServiceImpl } from "./services/assistant-chat-service";
@@ -38,6 +39,7 @@ import { ProcessTelegramMessageService } from "./services/process-telegram-messa
 import { TelegramBotService } from "./services/telegram-bot-service";
 import { TransactionServiceImpl } from "./services/transaction-service";
 import { TransferService } from "./services/transfer-service";
+import { TrendPresetService } from "./services/trend-preset-service";
 import { UserService } from "./services/user-service";
 import {
   createAsyncSingleton,
@@ -109,6 +111,13 @@ export const resolveTransactionRepository = createSingleton(
       resolveDynDocumentClient(),
     ),
 );
+export const resolveTrendPresetRepository = createSingleton(
+  () =>
+    new DynTrendPresetRepository(
+      requireEnv("TREND_PRESETS_TABLE_NAME"),
+      resolveDynDocumentClient(),
+    ),
+);
 export const resolveUserRepository = createSingleton(
   (): UserRepository =>
     new DynUserRepository(
@@ -166,6 +175,9 @@ export const resolveExpenseTrendService = createSingleton(
       resolveTransactionRepository(),
       resolveCategoryRepository(),
     ),
+);
+export const resolveTrendPresetService = createSingleton(
+  () => new TrendPresetService(resolveTrendPresetRepository()),
 );
 
 // Providers

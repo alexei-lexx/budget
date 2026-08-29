@@ -172,6 +172,14 @@ export type CreateTransferInput = {
   toAccountId: Scalars['ID']['input'];
 };
 
+export type CreateTrendPresetInput = {
+  categoryIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  currency: Scalars['String']['input'];
+  includeUncategorized?: InputMaybe<Scalars['Boolean']['input']>;
+  lookback: Scalars['Int']['input'];
+  periodUnit: TrendPeriodUnit;
+};
+
 export type ExpenseTrend = {
   __typename?: 'ExpenseTrend';
   /** Days elapsed in the running period, counting today. */
@@ -209,10 +217,12 @@ export type Mutation = {
   createTransaction: Transaction;
   createTransactionFromText: CreateTransactionFromTextOutput;
   createTransfer: Transfer;
+  createTrendPreset: TrendPreset;
   deleteAccount?: Maybe<Scalars['Boolean']['output']>;
   deleteCategory: Category;
   deleteTransaction: Transaction;
   deleteTransfer?: Maybe<Scalars['Boolean']['output']>;
+  deleteTrendPreset?: Maybe<Scalars['Boolean']['output']>;
   disconnectTelegramBot?: Maybe<Scalars['Boolean']['output']>;
   ensureUser: User;
   regenerateMcpToken: UserSettings;
@@ -259,6 +269,11 @@ export type MutationCreateTransferArgs = {
 };
 
 
+export type MutationCreateTrendPresetArgs = {
+  input: CreateTrendPresetInput;
+};
+
+
 export type MutationDeleteAccountArgs = {
   id: Scalars['ID']['input'];
 };
@@ -275,6 +290,11 @@ export type MutationDeleteTransactionArgs = {
 
 
 export type MutationDeleteTransferArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteTrendPresetArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -330,6 +350,7 @@ export type Query = {
   transactionPatterns: Array<TransactionPattern>;
   transactions: TransactionConnection;
   transfer?: Maybe<Transfer>;
+  trendPresets: Array<TrendPreset>;
   userSettings: UserSettings;
 };
 
@@ -478,6 +499,16 @@ export type Transfer = {
 export type TrendPeriodUnit =
   | 'MONTH'
   | 'WEEK';
+
+export type TrendPreset = {
+  __typename?: 'TrendPreset';
+  categoryIds: Array<Scalars['ID']['output']>;
+  currency: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  includeUncategorized: Scalars['Boolean']['output'];
+  lookback: Scalars['Int']['output'];
+  periodUnit: TrendPeriodUnit;
+};
 
 export type UpdateAccountInput = {
   currency?: InputMaybe<Scalars['String']['input']>;
@@ -682,6 +713,20 @@ export type DisconnectTelegramBotMutationVariables = Exact<{ [key: string]: neve
 
 export type DisconnectTelegramBotMutation = { __typename?: 'Mutation', disconnectTelegramBot?: boolean | null | undefined };
 
+export type CreateTrendPresetMutationVariables = Exact<{
+  input: CreateTrendPresetInput;
+}>;
+
+
+export type CreateTrendPresetMutation = { __typename?: 'Mutation', createTrendPreset: { __typename?: 'TrendPreset', id: string, periodUnit: TrendPeriodUnit, lookback: number, currency: string, categoryIds: Array<string>, includeUncategorized: boolean } };
+
+export type DeleteTrendPresetMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteTrendPresetMutation = { __typename?: 'Mutation', deleteTrendPreset?: boolean | null | undefined };
+
 export type AskAssistantMutationVariables = Exact<{
   input: AssistantInput;
 }>;
@@ -754,6 +799,11 @@ export type GetExpenseTrendQueryVariables = Exact<{
 
 
 export type GetExpenseTrendQuery = { __typename?: 'Query', expenseTrend: { __typename?: 'ExpenseTrend', pastMedian: number, pastMedianAtSamePoint: number, elapsedDays: number, points: Array<{ __typename?: 'ExpenseTrendPoint', periodStart: string, amount: number, isCurrent: boolean }> } };
+
+export type GetTrendPresetsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetTrendPresetsQuery = { __typename?: 'Query', trendPresets: Array<{ __typename?: 'TrendPreset', id: string, periodUnit: TrendPeriodUnit, lookback: number, currency: string, categoryIds: Array<string>, includeUncategorized: boolean }> };
 
 export type GetTransactionDescriptionSuggestionsQueryVariables = Exact<{
   searchText: Scalars['String']['input'];
@@ -1371,6 +1421,67 @@ export function useDisconnectTelegramBotMutation(options: VueApolloComposable.Us
   return VueApolloComposable.useMutation<DisconnectTelegramBotMutation, DisconnectTelegramBotMutationVariables>(DisconnectTelegramBotDocument, options);
 }
 export type DisconnectTelegramBotMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<DisconnectTelegramBotMutation, DisconnectTelegramBotMutationVariables>;
+export const CreateTrendPresetDocument = gql`
+    mutation CreateTrendPreset($input: CreateTrendPresetInput!) {
+  createTrendPreset(input: $input) {
+    id
+    periodUnit
+    lookback
+    currency
+    categoryIds
+    includeUncategorized
+  }
+}
+    `;
+
+/**
+ * __useCreateTrendPresetMutation__
+ *
+ * To run a mutation, you first call `useCreateTrendPresetMutation` within a Vue component and pass it any options that fit your needs.
+ * When your component renders, `useCreateTrendPresetMutation` returns an object that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - Several other properties: https://v4.apollo.vuejs.org/api/use-mutation.html#return
+ *
+ * @param options that will be passed into the mutation, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/mutation.html#options;
+ *
+ * @example
+ * const { mutate, loading, error, onDone } = useCreateTrendPresetMutation({
+ *   variables: {
+ *     input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateTrendPresetMutation(options: VueApolloComposable.UseMutationOptions<CreateTrendPresetMutation, CreateTrendPresetMutationVariables> | ReactiveFunction<VueApolloComposable.UseMutationOptions<CreateTrendPresetMutation, CreateTrendPresetMutationVariables>> = {}) {
+  return VueApolloComposable.useMutation<CreateTrendPresetMutation, CreateTrendPresetMutationVariables>(CreateTrendPresetDocument, options);
+}
+export type CreateTrendPresetMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<CreateTrendPresetMutation, CreateTrendPresetMutationVariables>;
+export const DeleteTrendPresetDocument = gql`
+    mutation DeleteTrendPreset($id: ID!) {
+  deleteTrendPreset(id: $id)
+}
+    `;
+
+/**
+ * __useDeleteTrendPresetMutation__
+ *
+ * To run a mutation, you first call `useDeleteTrendPresetMutation` within a Vue component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteTrendPresetMutation` returns an object that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - Several other properties: https://v4.apollo.vuejs.org/api/use-mutation.html#return
+ *
+ * @param options that will be passed into the mutation, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/mutation.html#options;
+ *
+ * @example
+ * const { mutate, loading, error, onDone } = useDeleteTrendPresetMutation({
+ *   variables: {
+ *     id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteTrendPresetMutation(options: VueApolloComposable.UseMutationOptions<DeleteTrendPresetMutation, DeleteTrendPresetMutationVariables> | ReactiveFunction<VueApolloComposable.UseMutationOptions<DeleteTrendPresetMutation, DeleteTrendPresetMutationVariables>> = {}) {
+  return VueApolloComposable.useMutation<DeleteTrendPresetMutation, DeleteTrendPresetMutationVariables>(DeleteTrendPresetDocument, options);
+}
+export type DeleteTrendPresetMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<DeleteTrendPresetMutation, DeleteTrendPresetMutationVariables>;
 export const AskAssistantDocument = gql`
     mutation AskAssistant($input: AssistantInput!) {
   askAssistant(input: $input) {
@@ -1689,6 +1800,38 @@ export function useGetExpenseTrendLazyQuery(variables?: GetExpenseTrendQueryVari
   return VueApolloComposable.useLazyQuery<GetExpenseTrendQuery, GetExpenseTrendQueryVariables>(GetExpenseTrendDocument, variables, options);
 }
 export type GetExpenseTrendQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<GetExpenseTrendQuery, GetExpenseTrendQueryVariables>;
+export const GetTrendPresetsDocument = gql`
+    query GetTrendPresets {
+  trendPresets {
+    id
+    periodUnit
+    lookback
+    currency
+    categoryIds
+    includeUncategorized
+  }
+}
+    `;
+
+/**
+ * __useGetTrendPresetsQuery__
+ *
+ * To run a query within a Vue component, call `useGetTrendPresetsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetTrendPresetsQuery` returns an object from Apollo Client that contains result, loading and error properties
+ * you can use to render your UI.
+ *
+ * @param options that will be passed into the query, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/query.html#options;
+ *
+ * @example
+ * const { result, loading, error } = useGetTrendPresetsQuery();
+ */
+export function useGetTrendPresetsQuery(options: VueApolloComposable.UseQueryOptions<GetTrendPresetsQuery, GetTrendPresetsQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<GetTrendPresetsQuery, GetTrendPresetsQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<GetTrendPresetsQuery, GetTrendPresetsQueryVariables>> = {}) {
+  return VueApolloComposable.useQuery<GetTrendPresetsQuery, GetTrendPresetsQueryVariables>(GetTrendPresetsDocument, {}, options);
+}
+export function useGetTrendPresetsLazyQuery(options: VueApolloComposable.UseQueryOptions<GetTrendPresetsQuery, GetTrendPresetsQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<GetTrendPresetsQuery, GetTrendPresetsQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<GetTrendPresetsQuery, GetTrendPresetsQueryVariables>> = {}) {
+  return VueApolloComposable.useLazyQuery<GetTrendPresetsQuery, GetTrendPresetsQueryVariables>(GetTrendPresetsDocument, {}, options);
+}
+export type GetTrendPresetsQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<GetTrendPresetsQuery, GetTrendPresetsQueryVariables>;
 export const GetTransactionDescriptionSuggestionsDocument = gql`
     query GetTransactionDescriptionSuggestions($searchText: String!) {
   transactionDescriptionSuggestions(searchText: $searchText)

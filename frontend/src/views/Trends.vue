@@ -7,6 +7,12 @@
       <div>{{ trendError }}</div>
     </v-alert>
 
+    <TrendPresetsList
+      :trend-presets="trendPresets"
+      :categories="expenseCategories"
+      @apply="handleApply"
+    />
+
     <v-card class="mb-6" variant="outlined">
       <TrendFilters
         :selection="selection"
@@ -42,9 +48,11 @@ import { useRoute, useRouter } from "vue-router";
 import type { TrendPeriodUnit } from "@/__generated__/vue-apollo";
 import ExpenseTrendChart from "@/components/reports/ExpenseTrendChart.vue";
 import TrendFilters from "@/components/reports/TrendFilters.vue";
+import TrendPresetsList from "@/components/reports/TrendPresetsList.vue";
 import { useCategories } from "@/composables/useCategories";
 import { useCurrencies } from "@/composables/useCurrencies";
 import { useExpenseTrend, type TrendSelection } from "@/composables/useExpenseTrend";
+import { useTrendPresets } from "@/composables/useTrendPresets";
 import { getTodayDateString } from "@/utils/date";
 
 const DEFAULT_PERIOD_UNIT: TrendPeriodUnit = "MONTH";
@@ -59,6 +67,7 @@ const today = ref(getTodayDateString());
 
 const { categories } = useCategories("EXPENSE");
 const { defaultCurrency } = useCurrencies();
+const { trendPresets } = useTrendPresets();
 
 const expenseCategories = computed(() => categories.value?.categories ?? []);
 

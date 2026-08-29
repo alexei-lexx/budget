@@ -114,6 +114,19 @@ export const GET_EXPENSE_TREND = gql`
   }
 `;
 
+export const GET_TREND_PRESETS = gql`
+  query GetTrendPresets {
+    trendPresets {
+      id
+      periodUnit
+      lookback
+      currency
+      categoryIds
+      includeUncategorized
+    }
+  }
+`;
+
 export const GET_TRANSACTION_DESCRIPTION_SUGGESTIONS = gql`
   query GetTransactionDescriptionSuggestions($searchText: String!) {
     transactionDescriptionSuggestions(searchText: $searchText)

@@ -105,6 +105,18 @@ export const tables: TableDefinition[] = [
     ttlAttribute: "expiresAt",
   },
   {
+    TableName: process.env.TREND_PRESETS_TABLE_NAME,
+    AttributeDefinitions: [
+      { AttributeName: "userId", AttributeType: "S" },
+      { AttributeName: "id", AttributeType: "S" },
+    ],
+    KeySchema: [
+      { AttributeName: "userId", KeyType: "HASH" },
+      { AttributeName: "id", KeyType: "RANGE" },
+    ],
+    BillingMode: "PAY_PER_REQUEST",
+  },
+  {
     TableName: process.env.TELEGRAM_BOTS_TABLE_NAME,
     AttributeDefinitions: [
       { AttributeName: "userId", AttributeType: "S" },

@@ -16,6 +16,7 @@ import {
   resolveTelegramBotService,
   resolveTransactionService,
   resolveTransferService,
+  resolveTrendPresetService,
   resolveUserRepository,
   resolveUserService,
 } from "./dependencies";
@@ -80,6 +81,7 @@ export async function createContext(req: {
     // Report services
     byCategoryReportService: resolveByCategoryReportService(),
     expenseTrendService: resolveExpenseTrendService(),
+    trendPresetService: resolveTrendPresetService(),
 
     // AI services
     createTransactionFromTextService:

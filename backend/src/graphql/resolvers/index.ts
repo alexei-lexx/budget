@@ -30,6 +30,7 @@ export const resolvers: Resolvers = {
     ...telegramBotResolvers.Mutation,
     ...transactionResolvers.Mutation,
     ...transferResolvers.Mutation,
+    ...trendsResolvers.Mutation,
     ...userResolvers.Mutation,
   },
   Transaction: transactionResolvers.Transaction,

@@ -177,6 +177,25 @@ export const DISCONNECT_TELEGRAM_BOT = gql`
   }
 `;
 
+export const CREATE_TREND_PRESET = gql`
+  mutation CreateTrendPreset($input: CreateTrendPresetInput!) {
+    createTrendPreset(input: $input) {
+      id
+      periodUnit
+      lookback
+      currency
+      categoryIds
+      includeUncategorized
+    }
+  }
+`;
+
+export const DELETE_TREND_PRESET = gql`
+  mutation DeleteTrendPreset($id: ID!) {
+    deleteTrendPreset(id: $id)
+  }
+`;
+
 export const ASK_ASSISTANT = gql`
   mutation AskAssistant($input: AssistantInput!) {
     askAssistant(input: $input) {
