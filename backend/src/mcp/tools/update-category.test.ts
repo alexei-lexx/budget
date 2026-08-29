@@ -1,7 +1,6 @@
 import { faker } from "@faker-js/faker";
 import { type Mocked, beforeEach, describe, expect, it } from "vitest";
 import { CategoryType } from "../../models/category";
-import { BusinessError } from "../../services/business-error";
 import { CategoryService } from "../../services/category-service";
 import { fakeCategory } from "../../utils/test-utils/models/category-fakes";
 import { createMockCategoryService } from "../../utils/test-utils/services/category-service-mocks";
@@ -121,15 +120,16 @@ describe("updateCategory", () => {
 
   // Dependency failures
 
-  it("returns failure when service throws", async () => {
+  it("propagates error when service throws", async () => {
     // Arrange
     // Category service rejects
+    const errorMessage = faker.lorem.sentence();
     mockCategoryService.updateCategory.mockRejectedValue(
-      new BusinessError("Category not found"),
+      new Error(errorMessage),
     );
 
     // Act
-    const result = await updateCategory(
+    const promise = updateCategory(
       {
         id: faker.string.uuid(),
         name: "Renamed Category",
@@ -139,9 +139,6 @@ describe("updateCategory", () => {
     );
 
     // Assert
-    expect(result).toEqual({
-      success: false,
-      error: "Category not found",
-    });
+    await expect(promise).rejects.toThrow(errorMessage);
   });
 });

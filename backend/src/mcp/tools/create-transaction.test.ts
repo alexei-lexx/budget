@@ -1,7 +1,6 @@
 import { faker } from "@faker-js/faker";
 import { type Mocked, beforeEach, describe, expect, it } from "vitest";
 import { TransactionType } from "../../models/transaction";
-import { BusinessError } from "../../services/business-error";
 import {
   CreateTransactionServiceInput,
   TransactionService,
@@ -120,14 +119,15 @@ describe("createTransaction", () => {
 
   // Dependency failures
 
-  it("returns failure when service throws", async () => {
+  it("propagates error when service throws", async () => {
     // Arrange
+    const errorMessage = faker.lorem.sentence();
     mockTransactionService.createTransaction.mockRejectedValue(
-      new BusinessError("Account not found"),
+      new Error(errorMessage),
     );
 
     // Act
-    const result = await createTransaction(
+    const promise = createTransaction(
       {
         accountId: faker.string.uuid(),
         amount: 10,
@@ -139,9 +139,6 @@ describe("createTransaction", () => {
     );
 
     // Assert
-    expect(result).toEqual({
-      success: false,
-      error: "Account not found",
-    });
+    await expect(promise).rejects.toThrow(errorMessage);
   });
 });

@@ -1,4 +1,3 @@
-import { McpServer } from "@modelcontextprotocol/server";
 import { z } from "zod";
 import {
   TransactionDto,
@@ -13,9 +12,9 @@ import {
   UpdateTransactionServiceInput,
 } from "../../services/transaction-service";
 import { toDateString } from "../../types/date-string";
-import { Failure, Result, Success } from "../../types/result";
+import { Result, Success } from "../../types/result";
 import { buildGuideTokensField, verifyGuideTokens } from "./guides";
-import { toToolResult } from "./to-tool-result";
+import { Tool } from "./tool";
 
 const requiredGuides = ["basics"] as const;
 
@@ -53,29 +52,18 @@ export async function updateTransaction(
   });
   if (!verification.success) return verification;
 
-  try {
-    const input: UpdateTransactionServiceInput = {
-      ...(accountId !== undefined && { accountId }),
-      ...(amount !== undefined && { amount }),
-      ...(categoryId !== undefined && { categoryId }),
-      ...(date !== undefined && { date: toDateString(date) }),
-      ...(description !== undefined && { description }),
-      ...(type !== undefined && { type }),
-    };
+  const input: UpdateTransactionServiceInput = {
+    ...(accountId !== undefined && { accountId }),
+    ...(amount !== undefined && { amount }),
+    ...(categoryId !== undefined && { categoryId }),
+    ...(date !== undefined && { date: toDateString(date) }),
+    ...(description !== undefined && { description }),
+    ...(type !== undefined && { type }),
+  };
 
-    const updated = await transactionService.updateTransaction(
-      id,
-      userId,
-      input,
-    );
+  const updated = await transactionService.updateTransaction(id, userId, input);
 
-    return Success(toTransactionDto(updated));
-  } catch (error) {
-    if (error instanceof Error) {
-      return Failure(error.message);
-    }
-    throw error;
-  }
+  return Success(toTransactionDto(updated));
 }
 
 const inputSchema = z.object({
@@ -124,13 +112,23 @@ Update an existing transaction.
 - Transfers cannot be created, updated or converted to through this tool
 `.trim();
 
-export function registerUpdateTransactionTool(
-  server: McpServer,
-  deps: { transactionService: TransactionService; userId: string },
-): void {
-  server.registerTool(
-    "update_transaction",
-    { description, inputSchema },
-    async (input) => toToolResult(await updateTransaction(input, deps)),
-  );
+export function createUpdateTransactionTool(deps: {
+  transactionService: TransactionService;
+  userId: string;
+}): Tool<{
+  id: string;
+  accountId?: string;
+  amount?: number;
+  categoryId?: string | null;
+  date?: string;
+  description?: string | null;
+  type?: NonTransferTransactionType;
+  guideTokens: string[];
+}> {
+  return {
+    name: "update_transaction",
+    description,
+    inputSchema,
+    run: (input) => updateTransaction(input, deps),
+  };
 }

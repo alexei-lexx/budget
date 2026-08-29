@@ -1,7 +1,6 @@
 import { faker } from "@faker-js/faker";
 import { type Mocked, beforeEach, describe, expect, it } from "vitest";
 import { CategoryType } from "../../models/category";
-import { BusinessError } from "../../services/business-error";
 import { CategoryService } from "../../services/category-service";
 import { fakeCategory } from "../../utils/test-utils/models/category-fakes";
 import { createMockCategoryService } from "../../utils/test-utils/services/category-service-mocks";
@@ -122,15 +121,16 @@ describe("createCategory", () => {
 
   // Dependency failures
 
-  it("returns failure when service throws", async () => {
+  it("propagates error when service throws", async () => {
     // Arrange
     // Category service rejects
+    const errorMessage = faker.lorem.sentence();
     mockCategoryService.createCategory.mockRejectedValue(
-      new BusinessError('Category "Salary" already exists'),
+      new Error(errorMessage),
     );
 
     // Act
-    const result = await createCategory(
+    const promise = createCategory(
       {
         name: "Salary",
         type: CategoryType.INCOME,
@@ -140,9 +140,6 @@ describe("createCategory", () => {
     );
 
     // Assert
-    expect(result).toEqual({
-      success: false,
-      error: 'Category "Salary" already exists',
-    });
+    await expect(promise).rejects.toThrow(errorMessage);
   });
 });

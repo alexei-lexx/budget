@@ -1,10 +1,9 @@
-import { McpServer } from "@modelcontextprotocol/server";
 import { z } from "zod";
 import { AccountDto, toAccountDto } from "../../langchain/tools/account-dto";
 import { AccountService } from "../../services/account-service";
-import { Failure, Result, Success } from "../../types/result";
+import { Result, Success } from "../../types/result";
 import { buildGuideTokensField, verifyGuideTokens } from "./guides";
-import { toToolResult } from "./to-tool-result";
+import { Tool } from "./tool";
 
 const requiredGuides = ["basics"] as const;
 
@@ -34,24 +33,17 @@ export async function createAccount(
   });
   if (!verification.success) return verification;
 
-  try {
-    const created = await accountService.createAccount({
-      userId,
-      name,
-      currency,
-      initialBalance: initialBalance ?? 0,
-    });
+  const created = await accountService.createAccount({
+    userId,
+    name,
+    currency,
+    initialBalance: initialBalance ?? 0,
+  });
 
-    return Success({
-      ...toAccountDto(created),
-      initialBalance: created.initialBalance,
-    });
-  } catch (error) {
-    if (error instanceof Error) {
-      return Failure(error.message);
-    }
-    throw error;
-  }
+  return Success({
+    ...toAccountDto(created),
+    initialBalance: created.initialBalance,
+  });
 }
 
 const inputSchema = z.object({
@@ -75,13 +67,19 @@ Create a new account for the user.
 - Archived accounts are not considered duplicates
 `.trim();
 
-export function registerCreateAccountTool(
-  server: McpServer,
-  deps: { accountService: AccountService; userId: string },
-): void {
-  server.registerTool(
-    "create_account",
-    { description, inputSchema },
-    async (input) => toToolResult(await createAccount(input, deps)),
-  );
+export function createCreateAccountTool(deps: {
+  accountService: AccountService;
+  userId: string;
+}): Tool<{
+  name: string;
+  currency: string;
+  initialBalance?: number;
+  guideTokens: string[];
+}> {
+  return {
+    name: "create_account",
+    description,
+    inputSchema,
+    run: (input) => createAccount(input, deps),
+  };
 }

@@ -1,4 +1,3 @@
-import { McpServer } from "@modelcontextprotocol/server";
 import { Temporal } from "temporal-polyfill";
 import { z } from "zod";
 import {
@@ -10,7 +9,7 @@ import { TransactionRepository } from "../../ports/transaction-repository";
 import { DateString, toDateString } from "../../types/date-string";
 import { Failure, Result, Success } from "../../types/result";
 import { buildGuideTokensField, verifyGuideTokens } from "./guides";
-import { toToolResult } from "./to-tool-result";
+import { Tool } from "./tool";
 
 export const MAX_PERIOD_DAYS = 365;
 
@@ -105,17 +104,22 @@ or one or more transaction types.
 The given date range must not exceed ${MAX_PERIOD_DAYS} days.
 `.trim();
 
-export function registerGetTransactionsTool(
-  server: McpServer,
-  deps: { transactionRepository: TransactionRepository; userId: string },
-): void {
-  server.registerTool(
-    "get_transactions",
-    {
-      description,
-      inputSchema,
-    },
-    async ({
+export function createGetTransactionsTool(deps: {
+  transactionRepository: TransactionRepository;
+  userId: string;
+}): Tool<{
+  startDate: string;
+  endDate: string;
+  accountIds?: string[];
+  categoryIds?: string[];
+  types?: TransactionType[];
+  guideTokens: string[];
+}> {
+  return {
+    name: "get_transactions",
+    description,
+    inputSchema,
+    run: ({
       startDate,
       endDate,
       accountIds,
@@ -123,18 +127,16 @@ export function registerGetTransactionsTool(
       types,
       guideTokens,
     }) =>
-      toToolResult(
-        await getTransactions(
-          {
-            startDate: toDateString(startDate),
-            endDate: toDateString(endDate),
-            accountIds,
-            categoryIds,
-            types,
-            guideTokens,
-          },
-          deps,
-        ),
+      getTransactions(
+        {
+          startDate: toDateString(startDate),
+          endDate: toDateString(endDate),
+          accountIds,
+          categoryIds,
+          types,
+          guideTokens,
+        },
+        deps,
       ),
-  );
+  };
 }

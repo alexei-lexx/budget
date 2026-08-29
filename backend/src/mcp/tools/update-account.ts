@@ -1,11 +1,10 @@
-import { McpServer } from "@modelcontextprotocol/server";
 import { z } from "zod";
 import { AccountDto, toAccountDto } from "../../langchain/tools/account-dto";
 import { UpdateAccountInput } from "../../models/account";
 import { AccountService } from "../../services/account-service";
-import { Failure, Result, Success } from "../../types/result";
+import { Result, Success } from "../../types/result";
 import { buildGuideTokensField, verifyGuideTokens } from "./guides";
-import { toToolResult } from "./to-tool-result";
+import { Tool } from "./tool";
 
 const requiredGuides = ["basics"] as const;
 
@@ -35,21 +34,14 @@ export async function updateAccount(
   });
   if (!verification.success) return verification;
 
-  try {
-    const input: UpdateAccountInput = {
-      ...(name !== undefined && { name }),
-      ...(currency !== undefined && { currency }),
-    };
+  const input: UpdateAccountInput = {
+    ...(name !== undefined && { name }),
+    ...(currency !== undefined && { currency }),
+  };
 
-    const updated = await accountService.updateAccount(id, userId, input);
+  const updated = await accountService.updateAccount(id, userId, input);
 
-    return Success(toAccountDto(updated));
-  } catch (error) {
-    if (error instanceof Error) {
-      return Failure(error.message);
-    }
-    throw error;
-  }
+  return Success(toAccountDto(updated));
 }
 
 const inputSchema = z.object({
@@ -71,13 +63,19 @@ Update an existing account's name and/or currency.
 - Changing an account's initial balance is not supported by this tool
 `.trim();
 
-export function registerUpdateAccountTool(
-  server: McpServer,
-  deps: { accountService: AccountService; userId: string },
-): void {
-  server.registerTool(
-    "update_account",
-    { description, inputSchema },
-    async (input) => toToolResult(await updateAccount(input, deps)),
-  );
+export function createUpdateAccountTool(deps: {
+  accountService: AccountService;
+  userId: string;
+}): Tool<{
+  id: string;
+  name?: string;
+  currency?: string;
+  guideTokens: string[];
+}> {
+  return {
+    name: "update_account",
+    description,
+    inputSchema,
+    run: (input) => updateAccount(input, deps),
+  };
 }

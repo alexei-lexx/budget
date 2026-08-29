@@ -99,4 +99,23 @@ describe("getCategories", () => {
       error: expect.not.stringContaining(validGuideToken),
     });
   });
+
+  // Dependency failures
+
+  it("propagates error when service throws", async () => {
+    // Arrange
+    const errorMessage = faker.lorem.sentence();
+    mockCategoryService.getCategoriesByUser.mockRejectedValue(
+      new Error(errorMessage),
+    );
+
+    // Act
+    const promise = getCategories(
+      { scope: EntityScope.ALL, guideTokens: [validGuideToken] },
+      deps,
+    );
+
+    // Assert
+    await expect(promise).rejects.toThrow(errorMessage);
+  });
 });

@@ -1,8 +1,7 @@
-import { McpServer } from "@modelcontextprotocol/server";
 import { z } from "zod";
 import { Result, Success } from "../../types/result";
 import { GUIDES, GUIDE_NAMES, Guide, GuideName } from "./guides";
-import { toToolResult } from "./to-tool-result";
+import { Tool } from "./tool";
 
 export async function loadGuides({
   names,
@@ -44,10 +43,11 @@ Available guides:
 ${guideList}
 `.trim();
 
-export function registerLoadGuidesTool(server: McpServer): void {
-  server.registerTool(
-    "load_guides",
-    { description, inputSchema },
-    async ({ names }) => toToolResult(await loadGuides({ names })),
-  );
+export function createLoadGuidesTool(): Tool<{ names: GuideName[] }> {
+  return {
+    name: "load_guides",
+    description,
+    inputSchema,
+    run: loadGuides,
+  };
 }

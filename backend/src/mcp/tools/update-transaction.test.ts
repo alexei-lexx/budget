@@ -2,7 +2,6 @@ import { faker } from "@faker-js/faker";
 import { type Mocked, beforeEach, describe, expect, it } from "vitest";
 import { toTransactionDto } from "../../langchain/tools/transaction-dto";
 import { TransactionType } from "../../models/transaction";
-import { BusinessError } from "../../services/business-error";
 import { TransactionService } from "../../services/transaction-service";
 import { toDateString } from "../../types/date-string";
 import { fakeTransaction } from "../../utils/test-utils/models/transaction-fakes";
@@ -144,22 +143,20 @@ describe("updateTransaction", () => {
 
   // Dependency failures
 
-  it("returns failure when service throws", async () => {
+  it("propagates error when service throws", async () => {
     // Arrange
+    const errorMessage = faker.lorem.sentence();
     mockTransactionService.updateTransaction.mockRejectedValue(
-      new BusinessError("Transaction not found or doesn't belong to user"),
+      new Error(errorMessage),
     );
 
     // Act
-    const result = await updateTransaction(
+    const promise = updateTransaction(
       { id: faker.string.uuid(), amount: 20, guideTokens: [validGuideToken] },
       deps,
     );
 
     // Assert
-    expect(result).toEqual({
-      success: false,
-      error: "Transaction not found or doesn't belong to user",
-    });
+    await expect(promise).rejects.toThrow(errorMessage);
   });
 });

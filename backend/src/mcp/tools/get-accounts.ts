@@ -1,11 +1,10 @@
-import { McpServer } from "@modelcontextprotocol/server";
 import { z } from "zod";
 import { AccountDto, toAccountDto } from "../../langchain/tools/account-dto";
 import { AccountService } from "../../services/account-service";
 import { EntityScope } from "../../types/entity-scope";
 import { Result, Success } from "../../types/result";
 import { buildGuideTokensField, verifyGuideTokens } from "./guides";
-import { toToolResult } from "./to-tool-result";
+import { Tool } from "./tool";
 
 const requiredGuides = ["basics"] as const;
 
@@ -39,17 +38,14 @@ const inputSchema = z.object({
   guideTokens: buildGuideTokensField(requiredGuides),
 });
 
-export function registerGetAccountsTool(
-  server: McpServer,
-  deps: { accountService: AccountService; userId: string },
-): void {
-  server.registerTool(
-    "get_accounts",
-    {
-      description: "Get user accounts filtered by scope.",
-      inputSchema,
-    },
-    async ({ scope, guideTokens }) =>
-      toToolResult(await getAccounts({ scope, guideTokens }, deps)),
-  );
+export function createGetAccountsTool(deps: {
+  accountService: AccountService;
+  userId: string;
+}): Tool<{ scope: EntityScope; guideTokens: string[] }> {
+  return {
+    name: "get_accounts",
+    description: "Get user accounts filtered by scope.",
+    inputSchema,
+    run: (input) => getAccounts(input, deps),
+  };
 }
