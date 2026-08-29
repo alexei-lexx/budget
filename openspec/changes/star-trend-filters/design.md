@@ -20,16 +20,16 @@ Backend entities follow Repository → Service → GraphQL layering, with one Dy
 
 ## Decisions
 
-### New `StarredTrend` entity, not a field on `User`
+### New `TrendPreset` entity, not a field on `User`
 
 `UserSettings` holds single-valued preferences (language, shortcuts limit). Starred trends are a growing, independently-addressable collection (create one, remove one), which is exactly the shape the constitution's per-entity repository pattern targets. A new entity keeps `User` unchanged and matches how `Account`/`Category` are modeled.
 
-**Alternative considered**: an array field on `User` (`starredTrends: StarredTrendData[]`). Rejected — every star/unstar would read-modify-write the whole array on the `User` row, and the `User` model/table currently holds no per-user collections.
+**Alternative considered**: an array field on `User` (`trendPresets: TrendPresetData[]`). Rejected — every star/unstar would read-modify-write the whole array on the `User` row, and the `User` model/table currently holds no per-user collections.
 
 ### Backend schema
 
 ```graphql
-type StarredTrend {
+type TrendPreset {
   id: ID!
   periodUnit: TrendPeriodUnit!
   lookback: Int!
@@ -38,7 +38,7 @@ type StarredTrend {
   includeUncategorized: Boolean!
 }
 
-input StarTrendInput {
+input CreateTrendPresetInput {
   periodUnit: TrendPeriodUnit!
   lookback: Int!
   currency: String!
@@ -47,66 +47,66 @@ input StarTrendInput {
 }
 
 extend type Query {
-  starredTrends: [StarredTrend!]!
+  trendPresets: [TrendPreset!]!
 }
 
 extend type Mutation {
-  starTrend(input: StarTrendInput!): StarredTrend!
-  unstarTrend(id: ID!): Boolean
+  createTrendPreset(input: CreateTrendPresetInput!): TrendPreset!
+  deleteTrendPreset(id: ID!): Boolean
 }
 ```
 
-`starredTrends` returns a plain array (constitution's short-list rule); the resolver does not guarantee an order — the starred-trends list component computes display order client-side (see below), since the primary sort key needs resolved category names.
+`trendPresets` returns a plain array (constitution's short-list rule); the resolver does not guarantee an order — the starred-trends list component computes display order client-side (see below), since the primary sort key needs resolved category names.
 
-### Domain entity: `StarredTrend`
+### Domain entity: `TrendPreset`
 
-`backend/src/models/starred-trend.ts`, following the `Account`/`User` shape: private constructor, `create()`/`fromPersistence()` factories, `readonly` fields (`id`, `userId`, `periodUnit`, `lookback`, `currency`, `categoryIds`, `includeUncategorized`, `createdAt`). Invariants: `lookback` between 1 and 12 (matches `ExpenseTrendService`'s rule), non-empty `currency`, `periodUnit` one of `WEEK`/`MONTH`. No `update()` — a starred trend is created or deleted, never edited, so no partial-update method is added.
+`backend/src/models/trend-preset.ts`, following the `Account`/`User` shape: private constructor, `create()`/`fromPersistence()` factories, `readonly` fields (`id`, `userId`, `periodUnit`, `lookback`, `currency`, `categoryIds`, `includeUncategorized`, `createdAt`). Invariants: `lookback` between 1 and 12 (matches `ExpenseTrendService`'s rule), non-empty `currency`, `periodUnit` one of `WEEK`/`MONTH`. No `update()` — a starred trend is created or deleted, never edited, so no partial-update method is added.
 
 ### Matching a configuration to a starred entry
 
 Equality: same `periodUnit`, `lookback`, `currency`, `includeUncategorized`, and the same set of `categoryIds` (compared as a set, not a sequence — the spec calls this out explicitly since categories are chosen via a multi-select with no inherent order).
 
-**Where it runs**: client-side, over the already-loaded `starredTrends` list, each time the applied selection changes. This avoids a round trip just to answer "is this starred," and the list is small (bounded by how many distinct configurations one user saves). The composable exposes a `matchingStarredTrend` computed value the star control and any future consumer can read.
+**Where it runs**: client-side, over the already-loaded `trendPresets` list, each time the applied selection changes. This avoids a round trip just to answer "is this starred," and the list is small (bounded by how many distinct configurations one user saves). The composable exposes a `matchingTrendPreset` computed value the star control and any future consumer can read.
 
-**Server-side duplicate guard**: `StarredTrendService.starTrend` still checks for an existing equal configuration before creating a new row, and returns the existing one if found. This keeps `starTrend` idempotent even if a client races the star action, consistent with the constitution's rule that services validate duplicates.
+**Server-side duplicate guard**: `TrendPresetService.createTrendPreset` still checks for an existing equal configuration before creating a new row, and returns the existing one if found. This keeps `createTrendPreset` idempotent even if a client races the star action, consistent with the constitution's rule that services validate duplicates.
 
 ### Frontend composable
 
-New `frontend/src/composables/useStarredTrends.ts`, colocated with `useExpenseTrend.ts`, exposing:
+New `frontend/src/composables/useTrendPresets.ts`, colocated with `useExpenseTrend.ts`, exposing:
 
-- `starredTrends` — reactive list from the `starredTrends` query.
-- `matchingStarredTrend(selection)` — the entry equal to a given `TrendSelection`, or `null`.
+- `trendPresets` — reactive list from the `trendPresets` query.
+- `matchingTrendPreset(selection)` — the entry equal to a given `TrendSelection`, or `null`.
 - `star(selection)` / `unstar(id)` — wrap the two mutations and refetch (or update the Apollo cache) so the list and match state stay current.
 
 `TrendFilters.vue` adds the star control to the right of the Clear/Apply row, before the Apply button, styled as an outlined icon button (bordered, matching Clear's `outlined` variant) rather than a plain icon. It reads the **applied** selection (the `selection` prop it already receives), not the draft — consistent with the page's existing Apply-based-selection rule, where only the applied selection is real until Apply is clicked. Starring a draft the user hasn't applied would save something not yet reflected in the chart.
 
-`Trends.vue` adds a starred-trends list above the filter card, rendered only when `starredTrends` is non-empty. Each entry's label is built client-side in the form `{categories} in last {lookback} {week|weeks|month|months} in {currency}`: `{categories}` is the entry's category names (resolved via the already-loaded category list) joined with `, `, with `, uncategorized` appended when include-uncategorized is set, or `all` when there are no categories and include-uncategorized is not set; the period word is singular when lookback is 1, plural otherwise. Entries are sorted before rendering by `{categories}` ascending ("all" first, then alphabetically), then by period type (month before week), then by lookback descending, then by currency ascending — using the same resolved `{categories}` string as the label. Clicking an entry calls the same `handleApply` path used today, so chart, filters, and URL update identically.
+`Trends.vue` adds a starred-trends list above the filter card, rendered only when `trendPresets` is non-empty. Each entry's label is built client-side in the form `{categories} in last {lookback} {week|weeks|month|months} in {currency}`: `{categories}` is the entry's category names (resolved via the already-loaded category list) joined with `, `, with `, uncategorized` appended when include-uncategorized is set, or `all` when there are no categories and include-uncategorized is not set; the period word is singular when lookback is 1, plural otherwise. Entries are sorted before rendering by `{categories}` ascending ("all" first, then alphabetically), then by period type (month before week), then by lookback descending, then by currency ascending — using the same resolved `{categories}` string as the label. Clicking an entry calls the same `handleApply` path used today, so chart, filters, and URL update identically.
 
 ### Infra
 
-New DynamoDB table in `infra-cdk/lib/backend-cdk-stack.ts`, `StarredTrendsTable`, `partitionKey: userId`, `sortKey: id`, same `commonTableOptions` as the other per-user tables. Wired into both the web and background Lambda functions the same way `accountsTable` is, since GraphQL requests run on the web function.
+New DynamoDB table in `infra-cdk/lib/backend-cdk-stack.ts`, `TrendPresetsTable`, `partitionKey: userId`, `sortKey: id`, same `commonTableOptions` as the other per-user tables. Wired into both the web and background Lambda functions the same way `accountsTable` is, since GraphQL requests run on the web function.
 
 ### No soft-deletion
 
-`unstarTrend` hard-deletes the row. The constitution's soft-deletion default is for entities with audit or recovery value; a starred filter shortcut has neither — losing one is a one-click re-star, not data loss. This exception is documented on the entity itself, per the constitution's exception-handling rule.
+`deleteTrendPreset` hard-deletes the row. The constitution's soft-deletion default is for entities with audit or recovery value; a starred filter shortcut has neither — losing one is a one-click re-star, not data loss. This exception is documented on the entity itself, per the constitution's exception-handling rule.
 
 ## Risks / Trade-offs
 
 - **Client-side matching cost**: recomputing set-equality against the starred list on every applied-selection change is O(entries × categories), trivial at the expected list sizes. → No mitigation needed; revisit only if usage patterns prove otherwise.
-- **Duplicate stars from concurrent tabs**: two tabs could both see "unstarred" and both call `starTrend` for the same configuration. → The service-side duplicate check (return the existing row instead of creating a second one) makes this idempotent.
+- **Duplicate stars from concurrent tabs**: two tabs could both see "unstarred" and both call `createTrendPreset` for the same configuration. → The service-side duplicate check (return the existing row instead of creating a second one) makes this idempotent.
 - **Stale labels**: a starred entry's label is resolved from the current category list at render time; if a category is renamed later, the label picks up the new name automatically (no stored denormalized name to go stale).
 
 ## Constitution Compliance
 
-- **Backend Layer Structure**: `StarredTrend` resolvers → `StarredTrendService` → `StarredTrendRepository`, no layer skipped.
-- **Repository Pattern / Vendor Independence**: `StarredTrendRepository` port with `DynStarredTrendRepository` adapter; only get/put/delete/query-by-partition-key operations, portable to any SQL/NoSQL store.
-- **Backend Domain Entities**: `StarredTrend` is immutable, private constructor, `create()`/`fromPersistence()` factories, invariants enforced in the constructor.
-- **Backend Port Interfaces**: `StarredTrendRepository` lives in `src/ports/`, service depends on the port, adapter wired in `dependencies.ts`.
-- **Result Pattern**: `StarredTrendService` public methods return `Result`, matching `ExpenseTrendService`.
-- **Database Record Hydration**: `DynStarredTrendRepository` validates rows with a Zod schema (`src/repositories/schemas/starred-trend.ts`) before returning entities, matching every other repository.
+- **Backend Layer Structure**: `TrendPreset` resolvers → `TrendPresetService` → `TrendPresetRepository`, no layer skipped.
+- **Repository Pattern / Vendor Independence**: `TrendPresetRepository` port with `DynTrendPresetRepository` adapter; only get/put/delete/query-by-partition-key operations, portable to any SQL/NoSQL store.
+- **Backend Domain Entities**: `TrendPreset` is immutable, private constructor, `create()`/`fromPersistence()` factories, invariants enforced in the constructor.
+- **Backend Port Interfaces**: `TrendPresetRepository` lives in `src/ports/`, service depends on the port, adapter wired in `dependencies.ts`.
+- **Result Pattern**: `TrendPresetService` public methods return `Result`, matching `ExpenseTrendService`.
+- **Database Record Hydration**: `DynTrendPresetRepository` validates rows with a Zod schema (`src/repositories/schemas/trend-preset.ts`) before returning entities, matching every other repository.
 - **Data Migrations**: none needed — this is a new, empty table with no existing data to backfill.
-- **Authentication & Authorization**: resolvers require an authenticated user; `unstarTrend` looks up the row scoped to `userId` before deleting, so one user cannot unstar another's entry.
+- **Authentication & Authorization**: resolvers require an authenticated user; `deleteTrendPreset` looks up the row scoped to `userId` before deleting, so one user cannot unstar another's entry.
 - **Schema-Driven Development**: schema written first, then `npm run codegen` (backend) and `npm run codegen:sync-schema && npm run codegen` (frontend).
-- **GraphQL Pagination Strategy**: `starredTrends` is a plain array (short-list case).
-- **Test Strategy**: `StarredTrendService` tests use a mocked repository; `DynStarredTrendRepository` tests use a real local DynamoDB connection, co-located next to their source files.
-- **Soft-Deletion**: intentionally not applied to `StarredTrend`; documented above and to be documented as a comment on the entity, matching how `User` documents its own exception.
+- **GraphQL Pagination Strategy**: `trendPresets` is a plain array (short-list case).
+- **Test Strategy**: `TrendPresetService` tests use a mocked repository; `DynTrendPresetRepository` tests use a real local DynamoDB connection, co-located next to their source files.
+- **Soft-Deletion**: intentionally not applied to `TrendPreset`; documented above and to be documented as a comment on the entity, matching how `User` documents its own exception.
