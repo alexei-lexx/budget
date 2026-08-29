@@ -1,4 +1,3 @@
-import { McpServer } from "@modelcontextprotocol/server";
 import { z } from "zod";
 import {
   TransactionDto,
@@ -10,9 +9,9 @@ import {
   TransactionService,
 } from "../../services/transaction-service";
 import { toDateString } from "../../types/date-string";
-import { Failure, Result, Success } from "../../types/result";
+import { Result, Success } from "../../types/result";
 import { buildGuideTokensField, verifyGuideTokens } from "./guides";
-import { toToolResult } from "./to-tool-result";
+import { Tool } from "./tool";
 
 const requiredGuides = ["basics", "create-transaction"] as const;
 
@@ -35,16 +34,9 @@ export async function createTransaction(
   });
   if (!verification.success) return verification;
 
-  try {
-    const created = await transactionService.createTransaction(input, userId);
+  const created = await transactionService.createTransaction(input, userId);
 
-    return Success(toTransactionDto(created));
-  } catch (error) {
-    if (error instanceof Error) {
-      return Failure(error.message);
-    }
-    throw error;
-  }
+  return Success(toTransactionDto(created));
 }
 
 const inputSchema = z.object({
@@ -81,13 +73,14 @@ Create a new transaction.
 - Transfers are not supported by this tool
 `.trim();
 
-export function registerCreateTransactionTool(
-  server: McpServer,
-  deps: { transactionService: TransactionService; userId: string },
-): void {
-  server.registerTool(
-    "create_transaction",
-    { description, inputSchema },
-    async (input) => toToolResult(await createTransaction(input, deps)),
-  );
+export function createCreateTransactionTool(deps: {
+  transactionService: TransactionService;
+  userId: string;
+}): Tool<CreateTransactionServiceInput & { guideTokens: string[] }> {
+  return {
+    name: "create_transaction",
+    description,
+    inputSchema,
+    run: (input) => createTransaction(input, deps),
+  };
 }

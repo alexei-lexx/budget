@@ -1,12 +1,11 @@
-import { McpServer } from "@modelcontextprotocol/server";
 import { z } from "zod";
 import { CategoryDto, toCategoryDto } from "../../langchain/tools/category-dto";
 import { CategoryType } from "../../models/category";
 import { UpdateCategoryInput } from "../../ports/category-repository";
 import { CategoryService } from "../../services/category-service";
-import { Failure, Result, Success } from "../../types/result";
+import { Result, Success } from "../../types/result";
 import { buildGuideTokensField, verifyGuideTokens } from "./guides";
-import { toToolResult } from "./to-tool-result";
+import { Tool } from "./tool";
 
 const requiredGuides = ["basics"] as const;
 
@@ -38,22 +37,15 @@ export async function updateCategory(
   });
   if (!verification.success) return verification;
 
-  try {
-    const input: UpdateCategoryInput = {
-      ...(name !== undefined && { name }),
-      ...(type !== undefined && { type }),
-      ...(excludeFromReports !== undefined && { excludeFromReports }),
-    };
+  const input: UpdateCategoryInput = {
+    ...(name !== undefined && { name }),
+    ...(type !== undefined && { type }),
+    ...(excludeFromReports !== undefined && { excludeFromReports }),
+  };
 
-    const updated = await categoryService.updateCategory(id, userId, input);
+  const updated = await categoryService.updateCategory(id, userId, input);
 
-    return Success(toCategoryDto(updated));
-  } catch (error) {
-    if (error instanceof Error) {
-      return Failure(error.message);
-    }
-    throw error;
-  }
+  return Success(toCategoryDto(updated));
 }
 
 const inputSchema = z.object({
@@ -85,13 +77,20 @@ ask the user to confirm before updating.
 Archived categories are not considered — reusing an archived category's name is not a duplicate.
 `.trim();
 
-export function registerUpdateCategoryTool(
-  server: McpServer,
-  deps: { categoryService: CategoryService; userId: string },
-): void {
-  server.registerTool(
-    "update_category",
-    { description, inputSchema },
-    async (input) => toToolResult(await updateCategory(input, deps)),
-  );
+export function createUpdateCategoryTool(deps: {
+  categoryService: CategoryService;
+  userId: string;
+}): Tool<{
+  id: string;
+  name?: string;
+  type?: CategoryType;
+  excludeFromReports?: boolean;
+  guideTokens: string[];
+}> {
+  return {
+    name: "update_category",
+    description,
+    inputSchema,
+    run: (input) => updateCategory(input, deps),
+  };
 }

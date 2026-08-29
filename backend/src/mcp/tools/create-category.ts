@@ -1,11 +1,10 @@
-import { McpServer } from "@modelcontextprotocol/server";
 import { z } from "zod";
 import { CategoryDto, toCategoryDto } from "../../langchain/tools/category-dto";
 import { CategoryType } from "../../models/category";
 import { CategoryService } from "../../services/category-service";
-import { Failure, Result, Success } from "../../types/result";
+import { Result, Success } from "../../types/result";
 import { buildGuideTokensField, verifyGuideTokens } from "./guides";
-import { toToolResult } from "./to-tool-result";
+import { Tool } from "./tool";
 
 const requiredGuides = ["basics"] as const;
 
@@ -35,21 +34,14 @@ export async function createCategory(
   });
   if (!verification.success) return verification;
 
-  try {
-    const created = await categoryService.createCategory({
-      userId,
-      name,
-      type,
-      excludeFromReports: excludeFromReports ?? false,
-    });
+  const created = await categoryService.createCategory({
+    userId,
+    name,
+    type,
+    excludeFromReports: excludeFromReports ?? false,
+  });
 
-    return Success(toCategoryDto(created));
-  } catch (error) {
-    if (error instanceof Error) {
-      return Failure(error.message);
-    }
-    throw error;
-  }
+  return Success(toCategoryDto(created));
 }
 
 const inputSchema = z.object({
@@ -78,13 +70,19 @@ ask the user to confirm before creating.
 Archived categories are not considered — reusing an archived category's name is not a duplicate.
 `.trim();
 
-export function registerCreateCategoryTool(
-  server: McpServer,
-  deps: { categoryService: CategoryService; userId: string },
-): void {
-  server.registerTool(
-    "create_category",
-    { description, inputSchema },
-    async (input) => toToolResult(await createCategory(input, deps)),
-  );
+export function createCreateCategoryTool(deps: {
+  categoryService: CategoryService;
+  userId: string;
+}): Tool<{
+  name: string;
+  type: CategoryType;
+  excludeFromReports?: boolean;
+  guideTokens: string[];
+}> {
+  return {
+    name: "create_category",
+    description,
+    inputSchema,
+    run: (input) => createCategory(input, deps),
+  };
 }

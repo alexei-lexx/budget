@@ -196,4 +196,27 @@ describe("getTransactions", () => {
     });
     expect(mockTransactionRepository.findManyByUserId).not.toHaveBeenCalled();
   });
+
+  // Dependency failures
+
+  it("propagates error when repository throws", async () => {
+    // Arrange
+    const errorMessage = faker.lorem.sentence();
+    mockTransactionRepository.findManyByUserId.mockRejectedValue(
+      new Error(errorMessage),
+    );
+
+    // Act
+    const promise = getTransactions(
+      {
+        startDate: toDateString("2026-01-01"),
+        endDate: toDateString("2026-01-31"),
+        guideTokens: [validGuideToken],
+      },
+      deps,
+    );
+
+    // Assert
+    await expect(promise).rejects.toThrow(errorMessage);
+  });
 });

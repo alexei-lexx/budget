@@ -1,7 +1,6 @@
 import { faker } from "@faker-js/faker";
 import { type Mocked, beforeEach, describe, expect, it } from "vitest";
 import { AccountService } from "../../services/account-service";
-import { BusinessError } from "../../services/business-error";
 import { fakeAccount } from "../../utils/test-utils/models/account-fakes";
 import { createMockAccountService } from "../../utils/test-utils/services/account-service-mocks";
 import { createAccount } from "./create-account";
@@ -117,23 +116,19 @@ describe("createAccount", () => {
 
   // Dependency failures
 
-  it("returns failure when service throws", async () => {
+  it("propagates error when service throws", async () => {
     // Arrange
     // Account service rejects
-    mockAccountService.createAccount.mockRejectedValue(
-      new BusinessError('Account "Savings" already exists'),
-    );
+    const errorMessage = faker.lorem.sentence();
+    mockAccountService.createAccount.mockRejectedValue(new Error(errorMessage));
 
     // Act
-    const result = await createAccount(
+    const promise = createAccount(
       { name: "Savings", currency: "EUR", guideTokens: [validGuideToken] },
       deps,
     );
 
     // Assert
-    expect(result).toEqual({
-      success: false,
-      error: 'Account "Savings" already exists',
-    });
+    await expect(promise).rejects.toThrow(errorMessage);
   });
 });

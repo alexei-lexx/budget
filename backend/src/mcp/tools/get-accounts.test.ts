@@ -98,4 +98,23 @@ describe("getAccounts", () => {
       error: expect.not.stringContaining(validGuideToken),
     });
   });
+
+  // Dependency failures
+
+  it("propagates error when service throws", async () => {
+    // Arrange
+    const errorMessage = faker.lorem.sentence();
+    mockAccountService.getAccountsByUser.mockRejectedValue(
+      new Error(errorMessage),
+    );
+
+    // Act
+    const promise = getAccounts(
+      { scope: EntityScope.ALL, guideTokens: [validGuideToken] },
+      deps,
+    );
+
+    // Assert
+    await expect(promise).rejects.toThrow(errorMessage);
+  });
 });

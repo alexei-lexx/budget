@@ -1,11 +1,10 @@
-import { McpServer } from "@modelcontextprotocol/server";
 import { z } from "zod";
 import { CategoryDto, toCategoryDto } from "../../langchain/tools/category-dto";
 import { CategoryService } from "../../services/category-service";
 import { EntityScope } from "../../types/entity-scope";
 import { Result, Success } from "../../types/result";
 import { buildGuideTokensField, verifyGuideTokens } from "./guides";
-import { toToolResult } from "./to-tool-result";
+import { Tool } from "./tool";
 
 const requiredGuides = ["basics"] as const;
 
@@ -41,17 +40,14 @@ const inputSchema = z.object({
   guideTokens: buildGuideTokensField(requiredGuides),
 });
 
-export function registerGetCategoriesTool(
-  server: McpServer,
-  deps: { categoryService: CategoryService; userId: string },
-): void {
-  server.registerTool(
-    "get_categories",
-    {
-      description: "Get user categories filtered by scope.",
-      inputSchema,
-    },
-    async ({ scope, guideTokens }) =>
-      toToolResult(await getCategories({ scope, guideTokens }, deps)),
-  );
+export function createGetCategoriesTool(deps: {
+  categoryService: CategoryService;
+  userId: string;
+}): Tool<{ scope: EntityScope; guideTokens: string[] }> {
+  return {
+    name: "get_categories",
+    description: "Get user categories filtered by scope.",
+    inputSchema,
+    run: (input) => getCategories(input, deps),
+  };
 }

@@ -1,7 +1,6 @@
 import { faker } from "@faker-js/faker";
 import { type Mocked, beforeEach, describe, expect, it } from "vitest";
 import { AccountService } from "../../services/account-service";
-import { BusinessError } from "../../services/business-error";
 import { fakeAccount } from "../../utils/test-utils/models/account-fakes";
 import { createMockAccountService } from "../../utils/test-utils/services/account-service-mocks";
 import { GUIDES } from "./guides";
@@ -113,15 +112,14 @@ describe("updateAccount", () => {
 
   // Dependency failures
 
-  it("returns failure when service throws", async () => {
+  it("propagates error when service throws", async () => {
     // Arrange
     // Account service rejects
-    mockAccountService.updateAccount.mockRejectedValue(
-      new BusinessError("Account not found"),
-    );
+    const errorMessage = faker.lorem.sentence();
+    mockAccountService.updateAccount.mockRejectedValue(new Error(errorMessage));
 
     // Act
-    const result = await updateAccount(
+    const promise = updateAccount(
       {
         id: faker.string.uuid(),
         name: "Renamed Account",
@@ -131,9 +129,6 @@ describe("updateAccount", () => {
     );
 
     // Assert
-    expect(result).toEqual({
-      success: false,
-      error: "Account not found",
-    });
+    await expect(promise).rejects.toThrow(errorMessage);
   });
 });
