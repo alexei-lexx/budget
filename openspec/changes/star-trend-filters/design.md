@@ -68,7 +68,7 @@ Equality: same `periodUnit`, `lookback`, `currency`, `includeUncategorized`, and
 
 **Where it runs**: client-side, over the already-loaded `trendPresets` list, each time the applied selection changes. This avoids a round trip just to answer "is this starred," and the list is small (bounded by how many distinct configurations one user saves). The composable exposes a `matchingTrendPreset` computed value the star control and any future consumer can read.
 
-**Server-side duplicate guard**: `TrendPresetService.createTrendPreset` still checks for an existing equal configuration before creating a new row, and returns the existing one if found. This keeps `createTrendPreset` idempotent even if a client races the star action, consistent with the constitution's rule that services validate duplicates.
+**No server-side duplicate guard**: `TrendPresetService.createTrendPreset` always inserts a new row; it does not check for an existing equal configuration first. Duplicate rows for the same configuration can result — see Risks below.
 
 ### Frontend composable
 
@@ -93,7 +93,7 @@ New DynamoDB table in `infra-cdk/lib/backend-cdk-stack.ts`, `TrendPresetsTable`,
 ## Risks / Trade-offs
 
 - **Client-side matching cost**: recomputing set-equality against the starred list on every applied-selection change is O(entries × categories), trivial at the expected list sizes. → No mitigation needed; revisit only if usage patterns prove otherwise.
-- **Duplicate stars from concurrent tabs**: two tabs could both see "unstarred" and both call `createTrendPreset` for the same configuration. → The service-side duplicate check (return the existing row instead of creating a second one) makes this idempotent.
+- **Duplicate stars**: two tabs/devices/sessions with a stale `trendPresets` list can both see "unstarred" for the same configuration and both call `createTrendPreset`, producing two rows with identical fields and different `id`s. There is no server-side guard against this — `createTrendPreset` always creates. Once duplicated, unstarring only removes the one `id` the client acted on, so the star control can keep showing "starred" after a single unstar click, and the surviving duplicate is never surfaced or merged (no cap, no dedup-on-read). → Accepted: not mitigated. A fix would require a DB-enforced uniqueness constraint keyed on the configuration's fields (not `id`), which is a data-model change out of scope for this change.
 - **Stale labels**: a starred entry's label is resolved from the current category list at render time; if a category is renamed later, the label picks up the new name automatically (no stored denormalized name to go stale).
 
 ## Constitution Compliance

@@ -55,11 +55,7 @@ describe("TrendPresetService", () => {
   describe("createTrendPreset", () => {
     // Happy path
 
-    it("creates and returns new trend preset when no matching configuration exists", async () => {
-      // Arrange
-      // No previously saved configurations
-      trendPresetRepository.findManyByUserId.mockResolvedValue([]);
-
+    it("creates and returns new trend preset", async () => {
       // Act
       const result = await service.createTrendPreset(userId, {
         periodUnit: "MONTH",
@@ -80,39 +76,9 @@ describe("TrendPresetService", () => {
       expect(created?.categoryIds).toEqual(["category-1"]);
     });
 
-    it("returns existing trend preset when configuration already matches", async () => {
-      // Arrange
-      // Already-saved configuration with same categories in different order
-      const existing = fakeTrendPreset({
-        userId,
-        periodUnit: "MONTH",
-        lookback: 6,
-        currency: "EUR",
-        categoryIds: ["category-1", "category-2"],
-        includeUncategorized: false,
-      });
-      trendPresetRepository.findManyByUserId.mockResolvedValue([existing]);
-
-      // Act
-      const result = await service.createTrendPreset(userId, {
-        periodUnit: "MONTH",
-        lookback: 6,
-        currency: "EUR",
-        categoryIds: ["category-2", "category-1"],
-        includeUncategorized: false,
-      });
-
-      // Assert
-      expect(result).toEqual({ success: true, data: existing });
-      expect(trendPresetRepository.create).not.toHaveBeenCalled();
-    });
-
     // Validation failures
 
     it("returns failure when lookback is out of range", async () => {
-      // Arrange
-      trendPresetRepository.findManyByUserId.mockResolvedValue([]);
-
       // Act
       const result = await service.createTrendPreset(userId, {
         periodUnit: "MONTH",

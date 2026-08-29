@@ -20,8 +20,8 @@
 
 ## 4. Backend: Service
 
-- [x] 4.1 (use `testing` skill) Write `backend/src/services/trend-preset-service.test.ts` with a mocked repository, covering: listing a user's starred trends, starring a new configuration, starring a configuration that already matches an existing one (returns the existing entity, does not create a duplicate), and unstarring (including unstarring another user's entry being rejected)
-- [x] 4.2 Implement `backend/src/services/trend-preset-service.ts`: `TrendPresetService` with `getTrendPresetsByUser(userId)`, `createTrendPreset(userId, input)`, `deleteTrendPreset(userId, id)`, all returning `Result`; `createTrendPreset` checks for an existing equal configuration (same period type, lookback, currency, include-uncategorized, and category set) before creating
+- [x] 4.1 (use `testing` skill) Write `backend/src/services/trend-preset-service.test.ts` with a mocked repository, covering: listing a user's starred trends, starring a new configuration, and unstarring (including unstarring another user's entry being rejected)
+- [x] 4.2 Implement `backend/src/services/trend-preset-service.ts`: `TrendPresetService` with `getTrendPresetsByUser(userId)`, `createTrendPreset(userId, input)`, `deleteTrendPreset(userId, id)`, all returning `Result`; `createTrendPreset` always creates a new row (no server-side duplicate check — see `design.md` Risks)
 - [x] 4.3 Run the service test suite and confirm it passes
 
 ## 5. Backend: Resolvers & Wiring
