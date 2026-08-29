@@ -7,8 +7,8 @@
       <div>{{ trendError }}</div>
     </v-alert>
 
-    <StarredTrendsList
-      :starred-trends="starredTrends"
+    <TrendPresetsList
+      :trend-presets="trendPresets"
       :categories="expenseCategories"
       @apply="handleApply"
     />
@@ -47,12 +47,12 @@ import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 import type { TrendPeriodUnit } from "@/__generated__/vue-apollo";
 import ExpenseTrendChart from "@/components/reports/ExpenseTrendChart.vue";
-import StarredTrendsList from "@/components/reports/StarredTrendsList.vue";
 import TrendFilters from "@/components/reports/TrendFilters.vue";
+import TrendPresetsList from "@/components/reports/TrendPresetsList.vue";
 import { useCategories } from "@/composables/useCategories";
 import { useCurrencies } from "@/composables/useCurrencies";
 import { useExpenseTrend, type TrendSelection } from "@/composables/useExpenseTrend";
-import { useStarredTrends } from "@/composables/useStarredTrends";
+import { useTrendPresets } from "@/composables/useTrendPresets";
 import { getTodayDateString } from "@/utils/date";
 
 const DEFAULT_PERIOD_UNIT: TrendPeriodUnit = "MONTH";
@@ -67,7 +67,7 @@ const today = ref(getTodayDateString());
 
 const { categories } = useCategories("EXPENSE");
 const { defaultCurrency } = useCurrencies();
-const { starredTrends } = useStarredTrends();
+const { trendPresets } = useTrendPresets();
 
 const expenseCategories = computed(() => categories.value?.categories ?? []);
 

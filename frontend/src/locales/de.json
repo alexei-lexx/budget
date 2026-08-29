@@ -309,8 +309,8 @@
       "star": "Diesen Filter merken",
       "unstar": "Merkung entfernen"
     },
-    "starred": {
-      "title": "Gemerkte Trends",
+    "presets": {
+      "title": "Trend-Vorlagen",
       "all": "alle",
       "uncategorized": "ohne Kategorie",
       "periodWeek": "Woche | Wochen",

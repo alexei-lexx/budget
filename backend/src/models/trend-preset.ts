@@ -8,7 +8,7 @@ export const LOOKBACK_MIN = 1;
 export const LOOKBACK_MAX = 12;
 
 // Plain data shape.
-export interface StarredTrendData {
+export interface TrendPresetData {
   id: string;
   userId: string;
   periodUnit: TrendPeriodUnit;
@@ -20,11 +20,11 @@ export interface StarredTrendData {
 }
 
 /**
- * No isArchived: a starred trend is a lightweight save/remove toggle
- * with no audit or recovery value, so unstarring hard-deletes the row.
+ * No isArchived: a trend preset is a lightweight save/remove toggle
+ * with no audit or recovery value, so deleting it hard-deletes the row.
  * This is an intentional exception to the soft-deletion rule.
  */
-export class StarredTrend implements StarredTrendData {
+export class TrendPreset implements TrendPresetData {
   readonly id: string;
   readonly userId: string;
   readonly periodUnit: TrendPeriodUnit;
@@ -35,10 +35,10 @@ export class StarredTrend implements StarredTrendData {
   readonly createdAt: DateTimeString;
 
   static create(
-    input: CreateStarredTrendInput,
+    input: CreateTrendPresetInput,
     { idGenerator = randomUUID }: { idGenerator?: () => string } = {},
-  ): StarredTrend {
-    const data: StarredTrendData = {
+  ): TrendPreset {
+    const data: TrendPresetData = {
       id: idGenerator(),
       userId: input.userId,
       periodUnit: input.periodUnit,
@@ -49,14 +49,14 @@ export class StarredTrend implements StarredTrendData {
       createdAt: toDateTimeString(new Date().toISOString()),
     };
 
-    return new StarredTrend(data);
+    return new TrendPreset(data);
   }
 
-  static fromPersistence(data: StarredTrendData): StarredTrend {
-    return new StarredTrend(data);
+  static fromPersistence(data: TrendPresetData): TrendPreset {
+    return new TrendPreset(data);
   }
 
-  toData(): StarredTrendData {
+  toData(): TrendPresetData {
     return {
       id: this.id,
       userId: this.userId,
@@ -69,8 +69,8 @@ export class StarredTrend implements StarredTrendData {
     };
   }
 
-  private constructor(data: StarredTrendData) {
-    StarredTrend.assertInvariants(data);
+  private constructor(data: TrendPresetData) {
+    TrendPreset.assertInvariants(data);
 
     this.id = data.id;
     this.userId = data.userId;
@@ -82,7 +82,7 @@ export class StarredTrend implements StarredTrendData {
     this.createdAt = data.createdAt;
   }
 
-  private static assertInvariants(data: StarredTrendData): void {
+  private static assertInvariants(data: TrendPresetData): void {
     if (
       !Number.isInteger(data.lookback) ||
       data.lookback < LOOKBACK_MIN ||
@@ -99,7 +99,7 @@ export class StarredTrend implements StarredTrendData {
   }
 }
 
-export interface CreateStarredTrendInput {
+export interface CreateTrendPresetInput {
   userId: string;
   periodUnit: TrendPeriodUnit;
   lookback: number;

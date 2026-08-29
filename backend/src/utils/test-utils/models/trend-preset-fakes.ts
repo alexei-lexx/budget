@@ -1,15 +1,15 @@
 import { faker } from "@faker-js/faker";
 import {
-  CreateStarredTrendInput,
-  StarredTrend,
-  StarredTrendData,
-} from "../../../models/starred-trend";
+  CreateTrendPresetInput,
+  TrendPreset,
+  TrendPresetData,
+} from "../../../models/trend-preset";
 import { toDateTimeString } from "../../../types/date-time-string";
 
-export const fakeStarredTrend = (
-  overrides: Partial<StarredTrendData> = {},
-): StarredTrend => {
-  return StarredTrend.fromPersistence({
+export const fakeTrendPreset = (
+  overrides: Partial<TrendPresetData> = {},
+): TrendPreset => {
+  return TrendPreset.fromPersistence({
     id: faker.string.uuid(),
     userId: faker.string.uuid(),
     periodUnit: faker.helpers.arrayElement(["MONTH", "WEEK"]),
@@ -22,9 +22,9 @@ export const fakeStarredTrend = (
   });
 };
 
-export const fakeCreateStarredTrendInput = (
-  overrides: Partial<CreateStarredTrendInput> = {},
-): CreateStarredTrendInput => {
+export const fakeCreateTrendPresetInput = (
+  overrides: Partial<CreateTrendPresetInput> = {},
+): CreateTrendPresetInput => {
   return {
     userId: faker.string.uuid(),
     periodUnit: faker.helpers.arrayElement(["MONTH", "WEEK"]),

@@ -1,7 +1,7 @@
 import { GraphQLError } from "graphql";
 import {
-  MutationStarTrendArgs,
-  MutationUnstarTrendArgs,
+  MutationCreateTrendPresetArgs,
+  MutationDeleteTrendPresetArgs,
   QueryExpenseTrendArgs,
 } from "../../__generated__/resolvers-types";
 import { toDateString } from "../../types/date-string";
@@ -38,7 +38,7 @@ export const trendsResolvers = {
         handleResolverError(error, "Failed to fetch expense trend");
       }
     },
-    starredTrends: async (
+    trendPresets: async (
       _parent: unknown,
       _args: unknown,
       context: GraphQLContext,
@@ -46,7 +46,7 @@ export const trendsResolvers = {
       try {
         const user = await getAuthenticatedUser(context);
 
-        const result = await context.starredTrendService.listStarredTrends(
+        const result = await context.trendPresetService.listTrendPresets(
           user.id,
         );
 
@@ -56,26 +56,29 @@ export const trendsResolvers = {
 
         return result.data;
       } catch (error) {
-        handleResolverError(error, "Failed to fetch starred trends");
+        handleResolverError(error, "Failed to fetch trend presets");
       }
     },
   },
   Mutation: {
-    starTrend: async (
+    createTrendPreset: async (
       _parent: unknown,
-      args: MutationStarTrendArgs,
+      args: MutationCreateTrendPresetArgs,
       context: GraphQLContext,
     ) => {
       try {
         const user = await getAuthenticatedUser(context);
 
-        const result = await context.starredTrendService.starTrend(user.id, {
-          periodUnit: args.input.periodUnit,
-          lookback: args.input.lookback,
-          currency: args.input.currency,
-          categoryIds: args.input.categoryIds ?? undefined,
-          includeUncategorized: args.input.includeUncategorized ?? undefined,
-        });
+        const result = await context.trendPresetService.createTrendPreset(
+          user.id,
+          {
+            periodUnit: args.input.periodUnit,
+            lookback: args.input.lookback,
+            currency: args.input.currency,
+            categoryIds: args.input.categoryIds ?? undefined,
+            includeUncategorized: args.input.includeUncategorized ?? undefined,
+          },
+        );
 
         if (!result.success) {
           throw new GraphQLError(result.error);
@@ -83,18 +86,18 @@ export const trendsResolvers = {
 
         return result.data;
       } catch (error) {
-        handleResolverError(error, "Failed to star trend");
+        handleResolverError(error, "Failed to create trend preset");
       }
     },
-    unstarTrend: async (
+    deleteTrendPreset: async (
       _parent: unknown,
-      args: MutationUnstarTrendArgs,
+      args: MutationDeleteTrendPresetArgs,
       context: GraphQLContext,
     ) => {
       try {
         const user = await getAuthenticatedUser(context);
 
-        const result = await context.starredTrendService.unstarTrend(
+        const result = await context.trendPresetService.deleteTrendPreset(
           user.id,
           args.id,
         );
@@ -105,7 +108,7 @@ export const trendsResolvers = {
 
         return undefined;
       } catch (error) {
-        handleResolverError(error, "Failed to unstar trend");
+        handleResolverError(error, "Failed to delete trend preset");
       }
     },
   },

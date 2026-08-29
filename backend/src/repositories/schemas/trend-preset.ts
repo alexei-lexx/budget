@@ -2,12 +2,12 @@ import { z } from "zod";
 import {
   LOOKBACK_MAX,
   LOOKBACK_MIN,
-  type StarredTrendData,
-} from "../../models/starred-trend";
+  type TrendPresetData,
+} from "../../models/trend-preset";
 import { toDateTimeString } from "../../types/date-time-string";
 import { currencySchema } from "./currency";
 
-export const starredTrendDataSchema = z.object({
+export const trendPresetDataSchema = z.object({
   id: z.uuid(),
   userId: z.uuid(),
   periodUnit: z.enum(["MONTH", "WEEK"]),
@@ -16,4 +16,4 @@ export const starredTrendDataSchema = z.object({
   categoryIds: z.array(z.uuid()),
   includeUncategorized: z.boolean(),
   createdAt: z.iso.datetime().transform(toDateTimeString),
-}) satisfies z.ZodType<StarredTrendData>;
+}) satisfies z.ZodType<TrendPresetData>;

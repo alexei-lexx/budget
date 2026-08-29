@@ -114,9 +114,9 @@ export const GET_EXPENSE_TREND = gql`
   }
 `;
 
-export const GET_STARRED_TRENDS = gql`
-  query GetStarredTrends {
-    starredTrends {
+export const GET_TREND_PRESETS = gql`
+  query GetTrendPresets {
+    trendPresets {
       id
       periodUnit
       lookback

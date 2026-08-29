@@ -309,8 +309,8 @@
       "star": "Star this filter",
       "unstar": "Remove star"
     },
-    "starred": {
-      "title": "Starred Trends",
+    "presets": {
+      "title": "Trend Presets",
       "all": "all",
       "uncategorized": "uncategorized",
       "periodWeek": "week | weeks",

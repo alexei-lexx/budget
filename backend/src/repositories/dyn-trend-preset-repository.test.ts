@@ -1,24 +1,24 @@
 import { faker } from "@faker-js/faker";
 import { beforeAll, beforeEach, describe, expect, it } from "vitest";
-import { StarredTrend } from "../models/starred-trend";
+import { TrendPreset } from "../models/trend-preset";
 import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
 import { requireEnv } from "../utils/require-env";
 import { truncateTable } from "../utils/test-utils/dynamodb-helpers";
-import { fakeCreateStarredTrendInput } from "../utils/test-utils/models/starred-trend-fakes";
-import { DynStarredTrendRepository } from "./dyn-starred-trend-repository";
+import { fakeCreateTrendPresetInput } from "../utils/test-utils/models/trend-preset-fakes";
+import { DynTrendPresetRepository } from "./dyn-trend-preset-repository";
 
-describe("DynStarredTrendRepository", () => {
-  let repository: DynStarredTrendRepository;
+describe("DynTrendPresetRepository", () => {
+  let repository: DynTrendPresetRepository;
   const userId = faker.string.uuid();
-  const tableName = requireEnv("STARRED_TRENDS_TABLE_NAME");
+  const tableName = requireEnv("TREND_PRESETS_TABLE_NAME");
   const client = createDynamoDBDocumentClient();
 
   beforeAll(async () => {
-    repository = new DynStarredTrendRepository(tableName, client);
+    repository = new DynTrendPresetRepository(tableName, client);
   });
 
   beforeEach(async () => {
-    // Clean up starred trends table before each test
+    // Clean up trend presets table before each test
     await truncateTable(client, tableName, {
       partitionKey: "userId",
       sortKey: "id",
@@ -28,16 +28,14 @@ describe("DynStarredTrendRepository", () => {
   describe("findManyByUserId", () => {
     // Happy path
 
-    it("does not return starred trends from other users", async () => {
+    it("does not return trend presets from other users", async () => {
       // Arrange
       const otherUserId = faker.string.uuid();
       await repository.create(
-        StarredTrend.create(fakeCreateStarredTrendInput({ userId })),
+        TrendPreset.create(fakeCreateTrendPresetInput({ userId })),
       );
       await repository.create(
-        StarredTrend.create(
-          fakeCreateStarredTrendInput({ userId: otherUserId }),
-        ),
+        TrendPreset.create(fakeCreateTrendPresetInput({ userId: otherUserId })),
       );
 
       // Act
@@ -61,59 +59,59 @@ describe("DynStarredTrendRepository", () => {
   describe("create", () => {
     // Happy path
 
-    it("persists starred trend", async () => {
+    it("persists trend preset", async () => {
       // Arrange
-      const starredTrend = StarredTrend.create(
-        fakeCreateStarredTrendInput({ userId }),
+      const trendPreset = TrendPreset.create(
+        fakeCreateTrendPresetInput({ userId }),
       );
 
       // Act
-      const result = await repository.create(starredTrend);
+      const result = await repository.create(trendPreset);
 
       // Assert
       expect(result).toBeUndefined();
 
       const stored = await repository.findManyByUserId(userId);
       expect(stored).toHaveLength(1);
-      expect(stored[0]?.toData()).toEqual(starredTrend.toData());
+      expect(stored[0]?.toData()).toEqual(trendPreset.toData());
     });
   });
 
   describe("deleteOneById", () => {
     // Happy path
 
-    it("removes starred trend", async () => {
+    it("removes trend preset", async () => {
       // Arrange
-      const starredTrend = StarredTrend.create(
-        fakeCreateStarredTrendInput({ userId }),
+      const trendPreset = TrendPreset.create(
+        fakeCreateTrendPresetInput({ userId }),
       );
-      await repository.create(starredTrend);
+      await repository.create(trendPreset);
 
       // Act
-      await repository.deleteOneById({ id: starredTrend.id, userId });
+      await repository.deleteOneById({ id: trendPreset.id, userId });
 
       // Assert
       const stored = await repository.findManyByUserId(userId);
       expect(stored).toEqual([]);
     });
 
-    it("does not remove another user's starred trend", async () => {
+    it("does not remove another user's trend preset", async () => {
       // Arrange
       const otherUserId = faker.string.uuid();
-      const starredTrend = StarredTrend.create(
-        fakeCreateStarredTrendInput({ userId: otherUserId }),
+      const trendPreset = TrendPreset.create(
+        fakeCreateTrendPresetInput({ userId: otherUserId }),
       );
-      await repository.create(starredTrend);
+      await repository.create(trendPreset);
 
       // Act
-      await repository.deleteOneById({ id: starredTrend.id, userId });
+      await repository.deleteOneById({ id: trendPreset.id, userId });
 
       // Assert — row still owned by otherUserId
       const stored = await repository.findManyByUserId(otherUserId);
       expect(stored).toHaveLength(1);
     });
 
-    it("does not throw when starred trend does not exist", async () => {
+    it("does not throw when trend preset does not exist", async () => {
       // Act & Assert
       await expect(
         repository.deleteOneById({ id: faker.string.uuid(), userId }),

@@ -1,13 +1,13 @@
 import { faker } from "@faker-js/faker";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
-  fakeCreateStarredTrendInput,
-  fakeStarredTrend,
-} from "../utils/test-utils/models/starred-trend-fakes";
+  fakeCreateTrendPresetInput,
+  fakeTrendPreset,
+} from "../utils/test-utils/models/trend-preset-fakes";
 import { ModelError } from "./model-error";
-import { StarredTrend } from "./starred-trend";
+import { TrendPreset } from "./trend-preset";
 
-describe("StarredTrend", () => {
+describe("TrendPreset", () => {
   describe("create", () => {
     beforeEach(() => {
       vi.useFakeTimers().setSystemTime(new Date("2000-01-02T10:11:12.000Z"));
@@ -19,10 +19,10 @@ describe("StarredTrend", () => {
 
     // Happy path
 
-    it("builds starred trend with all fields populated", () => {
+    it("builds trend preset with all fields populated", () => {
       // Arrange
       const userId = faker.string.uuid();
-      const input = fakeCreateStarredTrendInput({
+      const input = fakeCreateTrendPresetInput({
         userId,
         periodUnit: "MONTH",
         lookback: 6,
@@ -32,7 +32,7 @@ describe("StarredTrend", () => {
       });
 
       // Act
-      const result = StarredTrend.create(input, {
+      const result = TrendPreset.create(input, {
         idGenerator: () => "fixed-uuid",
       });
 
@@ -51,8 +51,8 @@ describe("StarredTrend", () => {
 
     it("defaults categoryIds to empty array when omitted", () => {
       // Act
-      const result = StarredTrend.create(
-        fakeCreateStarredTrendInput({ categoryIds: undefined }),
+      const result = TrendPreset.create(
+        fakeCreateTrendPresetInput({ categoryIds: undefined }),
       );
 
       // Assert
@@ -61,8 +61,8 @@ describe("StarredTrend", () => {
 
     it("defaults includeUncategorized to false when omitted", () => {
       // Act
-      const result = StarredTrend.create(
-        fakeCreateStarredTrendInput({ includeUncategorized: undefined }),
+      const result = TrendPreset.create(
+        fakeCreateTrendPresetInput({ includeUncategorized: undefined }),
       );
 
       // Assert
@@ -71,7 +71,7 @@ describe("StarredTrend", () => {
 
     it("uses default id generator when options omitted", () => {
       // Act
-      const result = StarredTrend.create(fakeCreateStarredTrendInput());
+      const result = TrendPreset.create(fakeCreateTrendPresetInput());
 
       // Assert
       expect(result.id).toBeDefined();
@@ -82,28 +82,28 @@ describe("StarredTrend", () => {
     it("throws when lookback is below 1", () => {
       // Act & Assert
       expect(() =>
-        StarredTrend.create(fakeCreateStarredTrendInput({ lookback: 0 })),
+        TrendPreset.create(fakeCreateTrendPresetInput({ lookback: 0 })),
       ).toThrow(new ModelError("Lookback must be a whole number from 1 to 12"));
     });
 
     it("throws when lookback is above 12", () => {
       // Act & Assert
       expect(() =>
-        StarredTrend.create(fakeCreateStarredTrendInput({ lookback: 13 })),
+        TrendPreset.create(fakeCreateTrendPresetInput({ lookback: 13 })),
       ).toThrow(new ModelError("Lookback must be a whole number from 1 to 12"));
     });
 
     it("throws when lookback is not integer", () => {
       // Act & Assert
       expect(() =>
-        StarredTrend.create(fakeCreateStarredTrendInput({ lookback: 3.5 })),
+        TrendPreset.create(fakeCreateTrendPresetInput({ lookback: 3.5 })),
       ).toThrow(new ModelError("Lookback must be a whole number from 1 to 12"));
     });
 
     it("throws when currency is empty", () => {
       // Act & Assert
       expect(() =>
-        StarredTrend.create(fakeCreateStarredTrendInput({ currency: "" })),
+        TrendPreset.create(fakeCreateTrendPresetInput({ currency: "" })),
       ).toThrow(new ModelError("Currency must not be empty"));
     });
   });
@@ -113,10 +113,10 @@ describe("StarredTrend", () => {
 
     it("reconstructs instance from data", () => {
       // Arrange
-      const data = fakeStarredTrend().toData();
+      const data = fakeTrendPreset().toData();
 
       // Act
-      const result = StarredTrend.fromPersistence(data);
+      const result = TrendPreset.fromPersistence(data);
 
       // Assert
       expect(result.toData()).toEqual(data);
@@ -126,20 +126,20 @@ describe("StarredTrend", () => {
 
     it("throws when lookback is out of range", () => {
       // Arrange
-      const data = { ...fakeStarredTrend().toData(), lookback: 13 };
+      const data = { ...fakeTrendPreset().toData(), lookback: 13 };
 
       // Act & Assert
-      expect(() => StarredTrend.fromPersistence(data)).toThrow(
+      expect(() => TrendPreset.fromPersistence(data)).toThrow(
         new ModelError("Lookback must be a whole number from 1 to 12"),
       );
     });
 
     it("throws when currency is empty", () => {
       // Arrange
-      const data = { ...fakeStarredTrend().toData(), currency: "" };
+      const data = { ...fakeTrendPreset().toData(), currency: "" };
 
       // Act & Assert
-      expect(() => StarredTrend.fromPersistence(data)).toThrow(
+      expect(() => TrendPreset.fromPersistence(data)).toThrow(
         new ModelError("Currency must not be empty"),
       );
     });

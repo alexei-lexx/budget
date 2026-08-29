@@ -23,9 +23,9 @@ import { DynAccountRepository } from "./repositories/dyn-account-repository";
 import { DynAtomicWriter } from "./repositories/dyn-atomic-writer";
 import { DynCategoryRepository } from "./repositories/dyn-category-repository";
 import { DynChatMessageRepository } from "./repositories/dyn-chat-message-repository";
-import { DynStarredTrendRepository } from "./repositories/dyn-starred-trend-repository";
 import { DynTelegramBotRepository } from "./repositories/dyn-telegram-bot-repository";
 import { DynTransactionRepository } from "./repositories/dyn-transaction-repository";
+import { DynTrendPresetRepository } from "./repositories/dyn-trend-preset-repository";
 import { DynUserRepository } from "./repositories/dyn-user-repository";
 import { AccountServiceImpl } from "./services/account-service";
 import { AssistantChatServiceImpl } from "./services/assistant-chat-service";
@@ -36,10 +36,10 @@ import { CreateTransactionFromTextService } from "./services/create-transaction-
 import { CurrencyServiceImpl } from "./services/currency-service";
 import { ExpenseTrendService } from "./services/expense-trend-service";
 import { ProcessTelegramMessageService } from "./services/process-telegram-message-service";
-import { StarredTrendService } from "./services/starred-trend-service";
 import { TelegramBotService } from "./services/telegram-bot-service";
 import { TransactionServiceImpl } from "./services/transaction-service";
 import { TransferService } from "./services/transfer-service";
+import { TrendPresetService } from "./services/trend-preset-service";
 import { UserService } from "./services/user-service";
 import {
   createAsyncSingleton,
@@ -111,10 +111,10 @@ export const resolveTransactionRepository = createSingleton(
       resolveDynDocumentClient(),
     ),
 );
-export const resolveStarredTrendRepository = createSingleton(
+export const resolveTrendPresetRepository = createSingleton(
   () =>
-    new DynStarredTrendRepository(
-      requireEnv("STARRED_TRENDS_TABLE_NAME"),
+    new DynTrendPresetRepository(
+      requireEnv("TREND_PRESETS_TABLE_NAME"),
       resolveDynDocumentClient(),
     ),
 );
@@ -176,8 +176,8 @@ export const resolveExpenseTrendService = createSingleton(
       resolveCategoryRepository(),
     ),
 );
-export const resolveStarredTrendService = createSingleton(
-  () => new StarredTrendService(resolveStarredTrendRepository()),
+export const resolveTrendPresetService = createSingleton(
+  () => new TrendPresetService(resolveTrendPresetRepository()),
 );
 
 // Providers

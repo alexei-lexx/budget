@@ -177,9 +177,9 @@ export const DISCONNECT_TELEGRAM_BOT = gql`
   }
 `;
 
-export const STAR_TREND = gql`
-  mutation StarTrend($input: StarTrendInput!) {
-    starTrend(input: $input) {
+export const CREATE_TREND_PRESET = gql`
+  mutation CreateTrendPreset($input: CreateTrendPresetInput!) {
+    createTrendPreset(input: $input) {
       id
       periodUnit
       lookback
@@ -190,9 +190,9 @@ export const STAR_TREND = gql`
   }
 `;
 
-export const UNSTAR_TREND = gql`
-  mutation UnstarTrend($id: ID!) {
-    unstarTrend(id: $id)
+export const DELETE_TREND_PRESET = gql`
+  mutation DeleteTrendPreset($id: ID!) {
+    deleteTrendPreset(id: $id)
   }
 `;
 

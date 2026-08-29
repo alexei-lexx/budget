@@ -1,0 +1,157 @@
+import { faker } from "@faker-js/faker";
+import { type Mocked, beforeEach, describe, expect, it } from "vitest";
+import { TrendPresetRepository } from "../ports/trend-preset-repository";
+import { toDateTimeString } from "../types/date-time-string";
+import { fakeTrendPreset } from "../utils/test-utils/models/trend-preset-fakes";
+import { createMockTrendPresetRepository } from "../utils/test-utils/repositories/trend-preset-repository-mocks";
+import { TrendPresetService } from "./trend-preset-service";
+
+describe("TrendPresetService", () => {
+  let trendPresetRepository: Mocked<TrendPresetRepository>;
+  let service: TrendPresetService;
+
+  const userId = faker.string.uuid();
+
+  beforeEach(() => {
+    trendPresetRepository = createMockTrendPresetRepository();
+    service = new TrendPresetService(trendPresetRepository);
+  });
+
+  describe("listTrendPresets", () => {
+    // Happy path
+
+    it("returns trend presets most recently created first", async () => {
+      // Arrange
+      const older = fakeTrendPreset({
+        userId,
+        createdAt: toDateTimeString("2000-01-01T00:00:00.000Z"),
+      });
+      const newer = fakeTrendPreset({
+        userId,
+        createdAt: toDateTimeString("2000-06-01T00:00:00.000Z"),
+      });
+      trendPresetRepository.findManyByUserId.mockResolvedValue([older, newer]);
+
+      // Act
+      const result = await service.listTrendPresets(userId);
+
+      // Assert
+      expect(result).toEqual({
+        success: true,
+        data: [newer, older],
+      });
+      expect(trendPresetRepository.findManyByUserId).toHaveBeenCalledWith(
+        userId,
+      );
+    });
+
+    it("returns empty array when user has no trend presets", async () => {
+      // Arrange
+      trendPresetRepository.findManyByUserId.mockResolvedValue([]);
+
+      // Act
+      const result = await service.listTrendPresets(userId);
+
+      // Assert
+      expect(result).toEqual({ success: true, data: [] });
+    });
+  });
+
+  describe("createTrendPreset", () => {
+    // Happy path
+
+    it("creates and returns new trend preset when no matching configuration exists", async () => {
+      // Arrange
+      // No previously saved configurations
+      trendPresetRepository.findManyByUserId.mockResolvedValue([]);
+
+      // Act
+      const result = await service.createTrendPreset(userId, {
+        periodUnit: "MONTH",
+        lookback: 6,
+        currency: "EUR",
+        categoryIds: ["category-1"],
+        includeUncategorized: false,
+      });
+
+      // Assert
+      expect(result.success).toBe(true);
+      expect(trendPresetRepository.create).toHaveBeenCalledTimes(1);
+      const created = trendPresetRepository.create.mock.calls[0]?.[0];
+      expect(created?.userId).toBe(userId);
+      expect(created?.periodUnit).toBe("MONTH");
+      expect(created?.lookback).toBe(6);
+      expect(created?.currency).toBe("EUR");
+      expect(created?.categoryIds).toEqual(["category-1"]);
+    });
+
+    it("returns existing trend preset when configuration already matches", async () => {
+      // Arrange
+      // Already-saved configuration with same categories in different order
+      const existing = fakeTrendPreset({
+        userId,
+        periodUnit: "MONTH",
+        lookback: 6,
+        currency: "EUR",
+        categoryIds: ["category-1", "category-2"],
+        includeUncategorized: false,
+      });
+      trendPresetRepository.findManyByUserId.mockResolvedValue([existing]);
+
+      // Act
+      const result = await service.createTrendPreset(userId, {
+        periodUnit: "MONTH",
+        lookback: 6,
+        currency: "EUR",
+        categoryIds: ["category-2", "category-1"],
+        includeUncategorized: false,
+      });
+
+      // Assert
+      expect(result).toEqual({ success: true, data: existing });
+      expect(trendPresetRepository.create).not.toHaveBeenCalled();
+    });
+
+    // Validation failures
+
+    it("returns failure when lookback is out of range", async () => {
+      // Arrange
+      trendPresetRepository.findManyByUserId.mockResolvedValue([]);
+
+      // Act
+      const result = await service.createTrendPreset(userId, {
+        periodUnit: "MONTH",
+        lookback: 13,
+        currency: "EUR",
+      });
+
+      // Assert
+      expect(result).toEqual({
+        success: false,
+        error: "Lookback must be a whole number from 1 to 12",
+      });
+      expect(trendPresetRepository.create).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("deleteTrendPreset", () => {
+    // Happy path
+
+    it("deletes trend preset scoped to caller's userId", async () => {
+      // Arrange
+      // Id of the entry to delete, regardless of who actually owns it —
+      // deletion is always scoped to the authenticated caller's userId
+      const id = faker.string.uuid();
+
+      // Act
+      const result = await service.deleteTrendPreset(userId, id);
+
+      // Assert
+      expect(result).toEqual({ success: true, data: true });
+      expect(trendPresetRepository.deleteOneById).toHaveBeenCalledWith({
+        id,
+        userId,
+      });
+    });
+  });
+});

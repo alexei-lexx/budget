@@ -77,12 +77,12 @@
         <v-btn
           variant="outlined"
           class="mr-2"
-          :aria-label="matchingStarredTrend ? t('trends.filters.unstar') : t('trends.filters.star')"
+          :aria-label="matchingTrendPreset ? t('trends.filters.unstar') : t('trends.filters.star')"
           :disabled="loading || starLoading || unstarLoading"
           @click="handleToggleStar"
         >
-          <v-icon :color="matchingStarredTrend ? 'amber-darken-2' : undefined">
-            {{ matchingStarredTrend ? "mdi-star" : "mdi-star-outline" }}
+          <v-icon :color="matchingTrendPreset ? 'amber-darken-2' : undefined">
+            {{ matchingTrendPreset ? "mdi-star" : "mdi-star-outline" }}
           </v-icon>
         </v-btn>
         <v-btn color="primary" :disabled="loading" @click="handleApply">
@@ -99,7 +99,7 @@ import { useI18n } from "vue-i18n";
 import type { Category, TrendPeriodUnit } from "@/__generated__/vue-apollo";
 import { useCurrencies } from "@/composables/useCurrencies";
 import type { TrendSelection } from "@/composables/useExpenseTrend";
-import { useStarredTrends } from "@/composables/useStarredTrends";
+import { useTrendPresets } from "@/composables/useTrendPresets";
 
 const LOOKBACK_OPTIONS = [3, 6, 12];
 const LOOKBACK_SELECT_OPTIONS = Array.from({ length: 12 }, (_, index) => index + 1);
@@ -120,15 +120,15 @@ const emit = defineEmits<{
 const { t } = useI18n();
 const { supportedCurrencies } = useCurrencies();
 const {
-  matchingStarredTrend: findMatchingStarredTrend,
+  matchingTrendPreset: findMatchingTrendPreset,
   star,
   unstar,
   starLoading,
   unstarLoading,
-} = useStarredTrends();
+} = useTrendPresets();
 
 // Reflects the applied selection, not the unsaved draft
-const matchingStarredTrend = computed(() => findMatchingStarredTrend(props.selection));
+const matchingTrendPreset = computed(() => findMatchingTrendPreset(props.selection));
 
 // Draft state: edits stay local until Apply
 const draftPeriodUnit = ref<TrendPeriodUnit>(props.selection.periodUnit);
@@ -171,7 +171,7 @@ function handleClear() {
 }
 
 async function handleToggleStar() {
-  const matched = matchingStarredTrend.value;
+  const matched = matchingTrendPreset.value;
   if (matched) {
     await unstar(matched.id);
   } else {

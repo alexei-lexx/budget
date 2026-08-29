@@ -105,7 +105,7 @@ export const tables: TableDefinition[] = [
     ttlAttribute: "expiresAt",
   },
   {
-    TableName: process.env.STARRED_TRENDS_TABLE_NAME,
+    TableName: process.env.TREND_PRESETS_TABLE_NAME,
     AttributeDefinitions: [
       { AttributeName: "userId", AttributeType: "S" },
       { AttributeName: "id", AttributeType: "S" },

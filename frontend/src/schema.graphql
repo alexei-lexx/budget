@@ -11,7 +11,7 @@ type Query {
   transactionPatterns(type: TransactionPatternType!): [TransactionPattern!]!
   byCategoryReport(year: Int!, month: Int, type: ReportType!): ByCategoryReport!
   expenseTrend(input: ExpenseTrendInput!): ExpenseTrend!
-  starredTrends: [StarredTrend!]!
+  trendPresets: [TrendPreset!]!
   telegramBot: TelegramBot
   testTelegramBot: Boolean
   transactionDescriptionSuggestions(searchText: String!): [String!]!
@@ -368,7 +368,7 @@ type ExpenseTrend {
   elapsedDays: Int!
 }
 
-type StarredTrend {
+type TrendPreset {
   id: ID!
   periodUnit: TrendPeriodUnit!
   lookback: Int!
@@ -377,7 +377,7 @@ type StarredTrend {
   includeUncategorized: Boolean!
 }
 
-input StarTrendInput {
+input CreateTrendPresetInput {
   periodUnit: TrendPeriodUnit!
   lookback: Int!
   currency: String!
@@ -407,6 +407,6 @@ type Mutation {
   regenerateMcpToken: UserSettings!
   connectTelegramBot(token: String!): TelegramBot!
   disconnectTelegramBot: Boolean
-  starTrend(input: StarTrendInput!): StarredTrend!
-  unstarTrend(id: ID!): Boolean
+  createTrendPreset(input: CreateTrendPresetInput!): TrendPreset!
+  deleteTrendPreset(id: ID!): Boolean
 }

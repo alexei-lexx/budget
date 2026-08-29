@@ -172,6 +172,14 @@ export type CreateTransferInput = {
   toAccountId: Scalars['ID']['input'];
 };
 
+export type CreateTrendPresetInput = {
+  categoryIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+  currency: Scalars['String']['input'];
+  includeUncategorized?: InputMaybe<Scalars['Boolean']['input']>;
+  lookback: Scalars['Int']['input'];
+  periodUnit: TrendPeriodUnit;
+};
+
 export type ExpenseTrend = {
   __typename?: 'ExpenseTrend';
   /** Days elapsed in the running period, counting today. */
@@ -209,15 +217,15 @@ export type Mutation = {
   createTransaction: Transaction;
   createTransactionFromText: CreateTransactionFromTextOutput;
   createTransfer: Transfer;
+  createTrendPreset: TrendPreset;
   deleteAccount?: Maybe<Scalars['Boolean']['output']>;
   deleteCategory: Category;
   deleteTransaction: Transaction;
   deleteTransfer?: Maybe<Scalars['Boolean']['output']>;
+  deleteTrendPreset?: Maybe<Scalars['Boolean']['output']>;
   disconnectTelegramBot?: Maybe<Scalars['Boolean']['output']>;
   ensureUser: User;
   regenerateMcpToken: UserSettings;
-  starTrend: StarredTrend;
-  unstarTrend?: Maybe<Scalars['Boolean']['output']>;
   updateAccount: Account;
   updateCategory: Category;
   updateTransaction: Transaction;
@@ -261,6 +269,11 @@ export type MutationCreateTransferArgs = {
 };
 
 
+export type MutationCreateTrendPresetArgs = {
+  input: CreateTrendPresetInput;
+};
+
+
 export type MutationDeleteAccountArgs = {
   id: Scalars['ID']['input'];
 };
@@ -281,12 +294,7 @@ export type MutationDeleteTransferArgs = {
 };
 
 
-export type MutationStarTrendArgs = {
-  input: StarTrendInput;
-};
-
-
-export type MutationUnstarTrendArgs = {
+export type MutationDeleteTrendPresetArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -334,7 +342,6 @@ export type Query = {
   byCategoryReport: ByCategoryReport;
   categories: Array<Category>;
   expenseTrend: ExpenseTrend;
-  starredTrends: Array<StarredTrend>;
   supportedCurrencies: Array<Scalars['String']['output']>;
   supportedInterfaceLanguages: Array<Scalars['String']['output']>;
   telegramBot?: Maybe<TelegramBot>;
@@ -343,6 +350,7 @@ export type Query = {
   transactionPatterns: Array<TransactionPattern>;
   transactions: TransactionConnection;
   transfer?: Maybe<Transfer>;
+  trendPresets: Array<TrendPreset>;
   userSettings: UserSettings;
 };
 
@@ -387,24 +395,6 @@ export type QueryTransferArgs = {
 export type ReportType =
   | 'EXPENSE'
   | 'INCOME';
-
-export type StarTrendInput = {
-  categoryIds?: InputMaybe<Array<Scalars['ID']['input']>>;
-  currency: Scalars['String']['input'];
-  includeUncategorized?: InputMaybe<Scalars['Boolean']['input']>;
-  lookback: Scalars['Int']['input'];
-  periodUnit: TrendPeriodUnit;
-};
-
-export type StarredTrend = {
-  __typename?: 'StarredTrend';
-  categoryIds: Array<Scalars['ID']['output']>;
-  currency: Scalars['String']['output'];
-  id: Scalars['ID']['output'];
-  includeUncategorized: Scalars['Boolean']['output'];
-  lookback: Scalars['Int']['output'];
-  periodUnit: TrendPeriodUnit;
-};
 
 export type TelegramBot = {
   __typename?: 'TelegramBot';
@@ -509,6 +499,16 @@ export type Transfer = {
 export type TrendPeriodUnit =
   | 'MONTH'
   | 'WEEK';
+
+export type TrendPreset = {
+  __typename?: 'TrendPreset';
+  categoryIds: Array<Scalars['ID']['output']>;
+  currency: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  includeUncategorized: Scalars['Boolean']['output'];
+  lookback: Scalars['Int']['output'];
+  periodUnit: TrendPeriodUnit;
+};
 
 export type UpdateAccountInput = {
   currency?: InputMaybe<Scalars['String']['input']>;
@@ -713,19 +713,19 @@ export type DisconnectTelegramBotMutationVariables = Exact<{ [key: string]: neve
 
 export type DisconnectTelegramBotMutation = { __typename?: 'Mutation', disconnectTelegramBot?: boolean | null | undefined };
 
-export type StarTrendMutationVariables = Exact<{
-  input: StarTrendInput;
+export type CreateTrendPresetMutationVariables = Exact<{
+  input: CreateTrendPresetInput;
 }>;
 
 
-export type StarTrendMutation = { __typename?: 'Mutation', starTrend: { __typename?: 'StarredTrend', id: string, periodUnit: TrendPeriodUnit, lookback: number, currency: string, categoryIds: Array<string>, includeUncategorized: boolean } };
+export type CreateTrendPresetMutation = { __typename?: 'Mutation', createTrendPreset: { __typename?: 'TrendPreset', id: string, periodUnit: TrendPeriodUnit, lookback: number, currency: string, categoryIds: Array<string>, includeUncategorized: boolean } };
 
-export type UnstarTrendMutationVariables = Exact<{
+export type DeleteTrendPresetMutationVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type UnstarTrendMutation = { __typename?: 'Mutation', unstarTrend?: boolean | null | undefined };
+export type DeleteTrendPresetMutation = { __typename?: 'Mutation', deleteTrendPreset?: boolean | null | undefined };
 
 export type AskAssistantMutationVariables = Exact<{
   input: AssistantInput;
@@ -800,10 +800,10 @@ export type GetExpenseTrendQueryVariables = Exact<{
 
 export type GetExpenseTrendQuery = { __typename?: 'Query', expenseTrend: { __typename?: 'ExpenseTrend', pastMedian: number, pastMedianAtSamePoint: number, elapsedDays: number, points: Array<{ __typename?: 'ExpenseTrendPoint', periodStart: string, amount: number, isCurrent: boolean }> } };
 
-export type GetStarredTrendsQueryVariables = Exact<{ [key: string]: never; }>;
+export type GetTrendPresetsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetStarredTrendsQuery = { __typename?: 'Query', starredTrends: Array<{ __typename?: 'StarredTrend', id: string, periodUnit: TrendPeriodUnit, lookback: number, currency: string, categoryIds: Array<string>, includeUncategorized: boolean }> };
+export type GetTrendPresetsQuery = { __typename?: 'Query', trendPresets: Array<{ __typename?: 'TrendPreset', id: string, periodUnit: TrendPeriodUnit, lookback: number, currency: string, categoryIds: Array<string>, includeUncategorized: boolean }> };
 
 export type GetTransactionDescriptionSuggestionsQueryVariables = Exact<{
   searchText: Scalars['String']['input'];
@@ -1421,9 +1421,9 @@ export function useDisconnectTelegramBotMutation(options: VueApolloComposable.Us
   return VueApolloComposable.useMutation<DisconnectTelegramBotMutation, DisconnectTelegramBotMutationVariables>(DisconnectTelegramBotDocument, options);
 }
 export type DisconnectTelegramBotMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<DisconnectTelegramBotMutation, DisconnectTelegramBotMutationVariables>;
-export const StarTrendDocument = gql`
-    mutation StarTrend($input: StarTrendInput!) {
-  starTrend(input: $input) {
+export const CreateTrendPresetDocument = gql`
+    mutation CreateTrendPreset($input: CreateTrendPresetInput!) {
+  createTrendPreset(input: $input) {
     id
     periodUnit
     lookback
@@ -1435,53 +1435,53 @@ export const StarTrendDocument = gql`
     `;
 
 /**
- * __useStarTrendMutation__
+ * __useCreateTrendPresetMutation__
  *
- * To run a mutation, you first call `useStarTrendMutation` within a Vue component and pass it any options that fit your needs.
- * When your component renders, `useStarTrendMutation` returns an object that includes:
+ * To run a mutation, you first call `useCreateTrendPresetMutation` within a Vue component and pass it any options that fit your needs.
+ * When your component renders, `useCreateTrendPresetMutation` returns an object that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - Several other properties: https://v4.apollo.vuejs.org/api/use-mutation.html#return
  *
  * @param options that will be passed into the mutation, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/mutation.html#options;
  *
  * @example
- * const { mutate, loading, error, onDone } = useStarTrendMutation({
+ * const { mutate, loading, error, onDone } = useCreateTrendPresetMutation({
  *   variables: {
  *     input: // value for 'input'
  *   },
  * });
  */
-export function useStarTrendMutation(options: VueApolloComposable.UseMutationOptions<StarTrendMutation, StarTrendMutationVariables> | ReactiveFunction<VueApolloComposable.UseMutationOptions<StarTrendMutation, StarTrendMutationVariables>> = {}) {
-  return VueApolloComposable.useMutation<StarTrendMutation, StarTrendMutationVariables>(StarTrendDocument, options);
+export function useCreateTrendPresetMutation(options: VueApolloComposable.UseMutationOptions<CreateTrendPresetMutation, CreateTrendPresetMutationVariables> | ReactiveFunction<VueApolloComposable.UseMutationOptions<CreateTrendPresetMutation, CreateTrendPresetMutationVariables>> = {}) {
+  return VueApolloComposable.useMutation<CreateTrendPresetMutation, CreateTrendPresetMutationVariables>(CreateTrendPresetDocument, options);
 }
-export type StarTrendMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<StarTrendMutation, StarTrendMutationVariables>;
-export const UnstarTrendDocument = gql`
-    mutation UnstarTrend($id: ID!) {
-  unstarTrend(id: $id)
+export type CreateTrendPresetMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<CreateTrendPresetMutation, CreateTrendPresetMutationVariables>;
+export const DeleteTrendPresetDocument = gql`
+    mutation DeleteTrendPreset($id: ID!) {
+  deleteTrendPreset(id: $id)
 }
     `;
 
 /**
- * __useUnstarTrendMutation__
+ * __useDeleteTrendPresetMutation__
  *
- * To run a mutation, you first call `useUnstarTrendMutation` within a Vue component and pass it any options that fit your needs.
- * When your component renders, `useUnstarTrendMutation` returns an object that includes:
+ * To run a mutation, you first call `useDeleteTrendPresetMutation` within a Vue component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteTrendPresetMutation` returns an object that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - Several other properties: https://v4.apollo.vuejs.org/api/use-mutation.html#return
  *
  * @param options that will be passed into the mutation, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/mutation.html#options;
  *
  * @example
- * const { mutate, loading, error, onDone } = useUnstarTrendMutation({
+ * const { mutate, loading, error, onDone } = useDeleteTrendPresetMutation({
  *   variables: {
  *     id: // value for 'id'
  *   },
  * });
  */
-export function useUnstarTrendMutation(options: VueApolloComposable.UseMutationOptions<UnstarTrendMutation, UnstarTrendMutationVariables> | ReactiveFunction<VueApolloComposable.UseMutationOptions<UnstarTrendMutation, UnstarTrendMutationVariables>> = {}) {
-  return VueApolloComposable.useMutation<UnstarTrendMutation, UnstarTrendMutationVariables>(UnstarTrendDocument, options);
+export function useDeleteTrendPresetMutation(options: VueApolloComposable.UseMutationOptions<DeleteTrendPresetMutation, DeleteTrendPresetMutationVariables> | ReactiveFunction<VueApolloComposable.UseMutationOptions<DeleteTrendPresetMutation, DeleteTrendPresetMutationVariables>> = {}) {
+  return VueApolloComposable.useMutation<DeleteTrendPresetMutation, DeleteTrendPresetMutationVariables>(DeleteTrendPresetDocument, options);
 }
-export type UnstarTrendMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<UnstarTrendMutation, UnstarTrendMutationVariables>;
+export type DeleteTrendPresetMutationCompositionFunctionResult = VueApolloComposable.UseMutationReturn<DeleteTrendPresetMutation, DeleteTrendPresetMutationVariables>;
 export const AskAssistantDocument = gql`
     mutation AskAssistant($input: AssistantInput!) {
   askAssistant(input: $input) {
@@ -1800,9 +1800,9 @@ export function useGetExpenseTrendLazyQuery(variables?: GetExpenseTrendQueryVari
   return VueApolloComposable.useLazyQuery<GetExpenseTrendQuery, GetExpenseTrendQueryVariables>(GetExpenseTrendDocument, variables, options);
 }
 export type GetExpenseTrendQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<GetExpenseTrendQuery, GetExpenseTrendQueryVariables>;
-export const GetStarredTrendsDocument = gql`
-    query GetStarredTrends {
-  starredTrends {
+export const GetTrendPresetsDocument = gql`
+    query GetTrendPresets {
+  trendPresets {
     id
     periodUnit
     lookback
@@ -1814,24 +1814,24 @@ export const GetStarredTrendsDocument = gql`
     `;
 
 /**
- * __useGetStarredTrendsQuery__
+ * __useGetTrendPresetsQuery__
  *
- * To run a query within a Vue component, call `useGetStarredTrendsQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetStarredTrendsQuery` returns an object from Apollo Client that contains result, loading and error properties
+ * To run a query within a Vue component, call `useGetTrendPresetsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetTrendPresetsQuery` returns an object from Apollo Client that contains result, loading and error properties
  * you can use to render your UI.
  *
  * @param options that will be passed into the query, supported options are listed on: https://v4.apollo.vuejs.org/guide-composable/query.html#options;
  *
  * @example
- * const { result, loading, error } = useGetStarredTrendsQuery();
+ * const { result, loading, error } = useGetTrendPresetsQuery();
  */
-export function useGetStarredTrendsQuery(options: VueApolloComposable.UseQueryOptions<GetStarredTrendsQuery, GetStarredTrendsQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<GetStarredTrendsQuery, GetStarredTrendsQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<GetStarredTrendsQuery, GetStarredTrendsQueryVariables>> = {}) {
-  return VueApolloComposable.useQuery<GetStarredTrendsQuery, GetStarredTrendsQueryVariables>(GetStarredTrendsDocument, {}, options);
+export function useGetTrendPresetsQuery(options: VueApolloComposable.UseQueryOptions<GetTrendPresetsQuery, GetTrendPresetsQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<GetTrendPresetsQuery, GetTrendPresetsQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<GetTrendPresetsQuery, GetTrendPresetsQueryVariables>> = {}) {
+  return VueApolloComposable.useQuery<GetTrendPresetsQuery, GetTrendPresetsQueryVariables>(GetTrendPresetsDocument, {}, options);
 }
-export function useGetStarredTrendsLazyQuery(options: VueApolloComposable.UseQueryOptions<GetStarredTrendsQuery, GetStarredTrendsQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<GetStarredTrendsQuery, GetStarredTrendsQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<GetStarredTrendsQuery, GetStarredTrendsQueryVariables>> = {}) {
-  return VueApolloComposable.useLazyQuery<GetStarredTrendsQuery, GetStarredTrendsQueryVariables>(GetStarredTrendsDocument, {}, options);
+export function useGetTrendPresetsLazyQuery(options: VueApolloComposable.UseQueryOptions<GetTrendPresetsQuery, GetTrendPresetsQueryVariables> | VueCompositionApi.Ref<VueApolloComposable.UseQueryOptions<GetTrendPresetsQuery, GetTrendPresetsQueryVariables>> | ReactiveFunction<VueApolloComposable.UseQueryOptions<GetTrendPresetsQuery, GetTrendPresetsQueryVariables>> = {}) {
+  return VueApolloComposable.useLazyQuery<GetTrendPresetsQuery, GetTrendPresetsQueryVariables>(GetTrendPresetsDocument, {}, options);
 }
-export type GetStarredTrendsQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<GetStarredTrendsQuery, GetStarredTrendsQueryVariables>;
+export type GetTrendPresetsQueryCompositionFunctionResult = VueApolloComposable.UseQueryReturn<GetTrendPresetsQuery, GetTrendPresetsQueryVariables>;
 export const GetTransactionDescriptionSuggestionsDocument = gql`
     query GetTransactionDescriptionSuggestions($searchText: String!) {
   transactionDescriptionSuggestions(searchText: $searchText)
