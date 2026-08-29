@@ -6,7 +6,7 @@ import { Temporal } from "temporal-polyfill";
 export class InvalidDateTimeStringError extends Error {
   constructor(value: string) {
     super(
-      `Invalid datetime format: "${value}". Expected ISO 8601 UTC datetime (e.g. 2024-01-15T10:30:00Z).`,
+      `Invalid datetime format: "${value}". Expected YYYY-MM-DDTHH:mm:ssZ or YYYY-MM-DDTHH:mm:ss.sssZ.`,
     );
     this.name = "InvalidDateTimeStringError";
   }

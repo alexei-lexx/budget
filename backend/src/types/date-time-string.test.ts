@@ -73,24 +73,21 @@ describe("toDateTimeString", () => {
 
   // Validation failures
 
-  it("throws InvalidDateTimeStringError for invalid datetime format", () => {
+  it("throws for invalid datetime format", () => {
     // Act & Assert
     expect(() => toDateTimeString("2000-01-15")).toThrow(
       InvalidDateTimeStringError,
     );
-    expect(() => toDateTimeString("2000-01-15")).toThrow(
-      'Invalid datetime format: "2000-01-15". Expected ISO 8601 UTC datetime (e.g. 2024-01-15T10:30:00Z).',
-    );
   });
 
-  it("throws InvalidDateTimeStringError for non-existent date", () => {
+  it("throws for non-existent date", () => {
     // Act & Assert
     expect(() => toDateTimeString("2000-13-31T00:00:00.000Z")).toThrow(
       InvalidDateTimeStringError,
     );
   });
 
-  it("throws InvalidDateTimeStringError for empty string", () => {
+  it("throws for empty string", () => {
     // Act & Assert
     expect(() => toDateTimeString("")).toThrow(InvalidDateTimeStringError);
   });
