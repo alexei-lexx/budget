@@ -126,12 +126,6 @@ export class BackendCdkStack extends cdk.Stack {
       ...commonTableOptions,
     });
 
-    const trendPresetsTable = new dynamodb.Table(this, "TrendPresetsTable", {
-      partitionKey: { name: "userId", type: dynamodb.AttributeType.STRING },
-      sortKey: { name: "id", type: dynamodb.AttributeType.STRING },
-      ...commonTableOptions,
-    });
-
     const telegramBotsTable = new dynamodb.Table(this, "TelegramBotsTable", {
       partitionKey: { name: "userId", type: dynamodb.AttributeType.STRING },
       sortKey: { name: "id", type: dynamodb.AttributeType.STRING },
@@ -145,6 +139,12 @@ export class BackendCdkStack extends cdk.Stack {
         type: dynamodb.AttributeType.STRING,
       },
       projectionType: dynamodb.ProjectionType.ALL,
+    });
+
+    const trendPresetsTable = new dynamodb.Table(this, "TrendPresetsTable", {
+      partitionKey: { name: "userId", type: dynamodb.AttributeType.STRING },
+      sortKey: { name: "id", type: dynamodb.AttributeType.STRING },
+      ...commonTableOptions,
     });
 
     const functionConfig: Omit<lambda.FunctionProps, "handler"> = {
