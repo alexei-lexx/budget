@@ -30,10 +30,10 @@ export const fakeCreateTrendPresetInput = (
   return {
     userId: faker.string.uuid(),
     periodUnit: faker.helpers.arrayElement(["MONTH", "WEEK"]),
-    lookback: faker.number.int({ min: 1, max: 12 }),
+    lookback: faker.number.int({ min: LOOKBACK_MIN, max: LOOKBACK_MAX }),
     currency: faker.helpers.arrayElement(["EUR", "USD"]),
     categoryIds: [],
-    includeUncategorized: false,
+    includeUncategorized: faker.datatype.boolean(),
     ...overrides,
   };
 };
