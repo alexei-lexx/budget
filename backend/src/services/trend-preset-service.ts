@@ -18,9 +18,7 @@ export class TrendPresetService {
     const trendPresets =
       await this.trendPresetRepository.findManyByUserId(userId);
 
-    return Success(
-      [...trendPresets].sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
-    );
+    return Success(trendPresets);
   }
 
   /**

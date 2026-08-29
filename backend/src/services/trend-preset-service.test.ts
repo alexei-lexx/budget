@@ -1,7 +1,6 @@
 import { faker } from "@faker-js/faker";
 import { type Mocked, beforeEach, describe, expect, it } from "vitest";
 import { TrendPresetRepository } from "../ports/trend-preset-repository";
-import { toDateTimeString } from "../types/date-time-string";
 import { fakeTrendPreset } from "../utils/test-utils/models/trend-preset-fakes";
 import { createMockTrendPresetRepository } from "../utils/test-utils/repositories/trend-preset-repository-mocks";
 import { TrendPresetService } from "./trend-preset-service";
@@ -20,17 +19,13 @@ describe("TrendPresetService", () => {
   describe("getTrendPresetsByUser", () => {
     // Happy path
 
-    it("returns trend presets most recently created first", async () => {
+    it("returns the user's trend presets", async () => {
       // Arrange
-      const older = fakeTrendPreset({
-        userId,
-        createdAt: toDateTimeString("2000-01-01T00:00:00.000Z"),
-      });
-      const newer = fakeTrendPreset({
-        userId,
-        createdAt: toDateTimeString("2000-06-01T00:00:00.000Z"),
-      });
-      trendPresetRepository.findManyByUserId.mockResolvedValue([older, newer]);
+      const trendPresets = [
+        fakeTrendPreset({ userId }),
+        fakeTrendPreset({ userId }),
+      ];
+      trendPresetRepository.findManyByUserId.mockResolvedValue(trendPresets);
 
       // Act
       const result = await service.getTrendPresetsByUser(userId);
@@ -38,7 +33,7 @@ describe("TrendPresetService", () => {
       // Assert
       expect(result).toEqual({
         success: true,
-        data: [newer, older],
+        data: trendPresets,
       });
       expect(trendPresetRepository.findManyByUserId).toHaveBeenCalledWith(
         userId,
