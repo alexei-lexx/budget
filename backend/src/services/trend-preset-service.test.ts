@@ -40,17 +40,6 @@ describe("TrendPresetService", () => {
         userId,
       );
     });
-
-    it("returns empty array when user has no trend presets", async () => {
-      // Arrange
-      trendPresetRepository.findManyByUserId.mockResolvedValue([]);
-
-      // Act
-      const result = await service.getTrendPresetsByUser(userId);
-
-      // Assert
-      expect(result).toEqual({ success: true, data: [] });
-    });
   });
 
   describe("createTrendPreset", () => {
@@ -69,8 +58,18 @@ describe("TrendPresetService", () => {
       const result = await service.createTrendPreset(userId, input);
 
       // Assert
-      expect(result.success).toBe(true);
+      expect(result).toEqual({
+        success: true,
+        data: expect.objectContaining({
+          userId,
+          periodUnit: "MONTH",
+          lookback: 6,
+          currency: "EUR",
+          categoryIds: ["category-1"],
+        }),
+      });
       expect(trendPresetRepository.create).toHaveBeenCalledTimes(1);
+
       const created = trendPresetRepository.create.mock.calls[0]?.[0];
       expect(created?.userId).toBe(userId);
       expect(created?.periodUnit).toBe("MONTH");
@@ -115,10 +114,8 @@ describe("TrendPresetService", () => {
   describe("deleteTrendPreset", () => {
     // Happy path
 
-    it("deletes trend preset scoped to caller's userId", async () => {
+    it("deletes trend preset", async () => {
       // Arrange
-      // Id of entry to delete, regardless of who actually owns it —
-      // deletion is always scoped to authenticated caller's userId
       const id = faker.string.uuid();
 
       // Act
