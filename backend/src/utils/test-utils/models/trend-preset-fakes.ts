@@ -1,6 +1,8 @@
 import { faker } from "@faker-js/faker";
 import {
   CreateTrendPresetInput,
+  LOOKBACK_MAX,
+  LOOKBACK_MIN,
   TrendPreset,
   TrendPresetData,
 } from "../../../models/trend-preset";
@@ -13,10 +15,10 @@ export const fakeTrendPreset = (
     id: faker.string.uuid(),
     userId: faker.string.uuid(),
     periodUnit: faker.helpers.arrayElement(["MONTH", "WEEK"]),
-    lookback: faker.number.int({ min: 1, max: 12 }),
+    lookback: faker.number.int({ min: LOOKBACK_MIN, max: LOOKBACK_MAX }),
     currency: faker.helpers.arrayElement(["EUR", "USD"]),
     categoryIds: [],
-    includeUncategorized: false,
+    includeUncategorized: faker.datatype.boolean(),
     createdAt: toDateTimeString(new Date().toISOString()),
     ...overrides,
   });

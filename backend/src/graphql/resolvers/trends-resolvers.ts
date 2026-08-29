@@ -46,7 +46,7 @@ export const trendsResolvers = {
       try {
         const user = await getAuthenticatedUser(context);
 
-        const result = await context.trendPresetService.listTrendPresets(
+        const result = await context.trendPresetService.getTrendPresetsByUser(
           user.id,
         );
 

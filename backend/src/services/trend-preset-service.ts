@@ -14,7 +14,7 @@ export type CreateTrendPresetServiceInput = Omit<
 export class TrendPresetService {
   constructor(private trendPresetRepository: TrendPresetRepository) {}
 
-  async listTrendPresets(userId: string): Promise<Result<TrendPreset[]>> {
+  async getTrendPresetsByUser(userId: string): Promise<Result<TrendPreset[]>> {
     const trendPresets =
       await this.trendPresetRepository.findManyByUserId(userId);
 

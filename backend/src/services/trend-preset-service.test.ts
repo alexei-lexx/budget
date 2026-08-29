@@ -17,7 +17,7 @@ describe("TrendPresetService", () => {
     service = new TrendPresetService(trendPresetRepository);
   });
 
-  describe("listTrendPresets", () => {
+  describe("getTrendPresetsByUser", () => {
     // Happy path
 
     it("returns trend presets most recently created first", async () => {
@@ -33,7 +33,7 @@ describe("TrendPresetService", () => {
       trendPresetRepository.findManyByUserId.mockResolvedValue([older, newer]);
 
       // Act
-      const result = await service.listTrendPresets(userId);
+      const result = await service.getTrendPresetsByUser(userId);
 
       // Assert
       expect(result).toEqual({
@@ -50,7 +50,7 @@ describe("TrendPresetService", () => {
       trendPresetRepository.findManyByUserId.mockResolvedValue([]);
 
       // Act
-      const result = await service.listTrendPresets(userId);
+      const result = await service.getTrendPresetsByUser(userId);
 
       // Assert
       expect(result).toEqual({ success: true, data: [] });
