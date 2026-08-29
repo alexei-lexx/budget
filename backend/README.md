@@ -68,6 +68,26 @@ Uses DynamoDB Local running in Docker with a named volume for data persistence.
 - **Seed sample data for existing users**: `npm run db:seed`
 - **Production schema changes**: Use the migration framework (never drop tables)
 
+## MCP Server
+
+The dev server exposes an MCP endpoint at `http://localhost:4000/mcp` (Streamable HTTP transport), available once `npm run dev` is running.
+
+**Getting a connection URL:**
+
+1. Open the frontend app in a browser (http://localhost:5173)
+1. Sign in
+1. Go to the Settings page (http://localhost:5173/settings) → `MCP Connection` and copy the URL
+
+**Using [MCP Inspector](https://github.com/modelcontextprotocol/inspector):**
+
+```
+npx @modelcontextprotocol/inspector
+```
+
+In the Inspector UI, set Transport Type to `Streamable HTTP`, paste the copied URL as Server URL, and Connect.
+
+**Guide tokens:** every tool except `load_guides` requires a `guideTokens` argument. Call `load_guides` first, then copy its returned token(s) into subsequent tool calls (e.g. `get_accounts`).
+
 ## Quality Checks
 
 - `npm run format` - Run Prettier and ESLint to check and fix code style
