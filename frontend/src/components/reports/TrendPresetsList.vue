@@ -21,29 +21,51 @@ const categoryNamesById = computed(
   () => new Map(props.categories.map((category) => [category.id, category.name])),
 );
 
-// "{categories} in last {lookback} {week|weeks|month|months} in {currency}"
-function formatEntry(trendPreset: TrendPreset): string {
+function getCategoriesLabel(trendPreset: TrendPreset): string {
   const categoryNames = trendPreset.categoryIds
     .map((categoryId) => categoryNamesById.value.get(categoryId))
     .filter((name): name is string => !!name);
   if (trendPreset.includeUncategorized) {
     categoryNames.push(t("trends.presets.uncategorized"));
   }
-  const categoriesLabel =
-    categoryNames.length > 0 ? categoryNames.join(", ") : t("trends.presets.all");
+  return categoryNames.length > 0 ? categoryNames.join(", ") : t("trends.presets.all");
+}
 
+// "{categories} in last {lookback} {week|weeks|month|months} in {currency}"
+function formatEntry(trendPreset: TrendPreset): string {
   const periodLabel =
     trendPreset.periodUnit === "WEEK"
       ? t("trends.presets.periodWeek", trendPreset.lookback)
       : t("trends.presets.periodMonth", trendPreset.lookback);
 
   return t("trends.presets.label", {
-    categories: categoriesLabel,
+    categories: getCategoriesLabel(trendPreset),
     lookback: trendPreset.lookback,
     period: periodLabel,
     currency: trendPreset.currency,
   });
 }
+
+// Ordered by categories label ascending ("all" first), then period (month before week),
+// then lookback descending, then currency ascending.
+const sortedTrendPresets = computed(() =>
+  [...props.trendPresets].sort((a, b) => {
+    const categoriesComparison = getCategoriesLabel(a).localeCompare(getCategoriesLabel(b));
+    if (categoriesComparison !== 0) {
+      return categoriesComparison;
+    }
+
+    if (a.periodUnit !== b.periodUnit) {
+      return a.periodUnit === "MONTH" ? -1 : 1;
+    }
+
+    if (a.lookback !== b.lookback) {
+      return b.lookback - a.lookback;
+    }
+
+    return a.currency.localeCompare(b.currency);
+  }),
+);
 
 function handleClick(trendPreset: TrendPreset) {
   emit("apply", {
@@ -61,7 +83,7 @@ function handleClick(trendPreset: TrendPreset) {
     <div class="text-subtitle-2 mb-2">{{ t("trends.presets.title") }}</div>
     <div class="d-flex flex-wrap ga-2">
       <v-chip
-        v-for="trendPreset in trendPresets"
+        v-for="trendPreset in sortedTrendPresets"
         :key="trendPreset.id"
         variant="outlined"
         size="small"

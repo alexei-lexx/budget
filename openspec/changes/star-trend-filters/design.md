@@ -56,7 +56,7 @@ extend type Mutation {
 }
 ```
 
-`starredTrends` returns a plain array (constitution's short-list rule) ordered most-recently-starred first, matching the spec's list ordering requirement.
+`starredTrends` returns a plain array (constitution's short-list rule); the resolver does not guarantee an order — the starred-trends list component computes display order client-side (see below), since the primary sort key needs resolved category names.
 
 ### Domain entity: `StarredTrend`
 
@@ -80,7 +80,7 @@ New `frontend/src/composables/useStarredTrends.ts`, colocated with `useExpenseTr
 
 `TrendFilters.vue` adds the star control to the right of the Clear/Apply row, before the Apply button, styled as an outlined icon button (bordered, matching Clear's `outlined` variant) rather than a plain icon. It reads the **applied** selection (the `selection` prop it already receives), not the draft — consistent with the page's existing Apply-based-selection rule, where only the applied selection is real until Apply is clicked. Starring a draft the user hasn't applied would save something not yet reflected in the chart.
 
-`Trends.vue` adds a starred-trends list above the filter card, rendered only when `starredTrends` is non-empty. Each entry's label is built client-side in the form `{categories} in last {lookback} {week|weeks|month|months} in {currency}`: `{categories}` is the entry's category names (resolved via the already-loaded category list) joined with `, `, with `, uncategorized` appended when include-uncategorized is set, or `all` when there are no categories and include-uncategorized is not set; the period word is singular when lookback is 1, plural otherwise. Clicking an entry calls the same `handleApply` path used today, so chart, filters, and URL update identically.
+`Trends.vue` adds a starred-trends list above the filter card, rendered only when `starredTrends` is non-empty. Each entry's label is built client-side in the form `{categories} in last {lookback} {week|weeks|month|months} in {currency}`: `{categories}` is the entry's category names (resolved via the already-loaded category list) joined with `, `, with `, uncategorized` appended when include-uncategorized is set, or `all` when there are no categories and include-uncategorized is not set; the period word is singular when lookback is 1, plural otherwise. Entries are sorted before rendering by `{categories}` ascending ("all" first, then alphabetically), then by period type (month before week), then by lookback descending, then by currency ascending — using the same resolved `{categories}` string as the label. Clicking an entry calls the same `handleApply` path used today, so chart, filters, and URL update identically.
 
 ### Infra
 

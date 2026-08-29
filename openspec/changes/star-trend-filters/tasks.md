@@ -49,7 +49,7 @@
 
 ## 9. Frontend: Starred Trends List
 
-- [x] 9.1 Update `frontend/src/components/reports/StarredTrendsList.vue`: label each entry as "{categories} in last {lookback} {week|weeks|month|months} in {currency}" per `design.md` (singular/plural period word), ordered most-recently-starred first; hidden when the list is empty
+- [x] 9.1 Update `frontend/src/components/reports/StarredTrendsList.vue`: label each entry as "{categories} in last {lookback} {week|weeks|month|months} in {currency}" per `design.md` (singular/plural period word); sort entries by `{categories}` ascending ("all" first), then period (month before week), then lookback descending, then currency ascending; hidden when the list is empty
 - [x] 9.2 Mount `StarredTrendsList` at the top of `frontend/src/views/Trends.vue`, wiring its click handler to the existing `handleApply` path
 - [x] 9.3 Update `trends.starred.*` locale keys in `frontend/src/locales/en.json` and `de.json` for the new label format (list title, "all", "uncategorized", singular/plural "week"/"weeks"/"month"/"months", connector words), replacing the "no category filter" phrase
 - [x] 9.4 Manually verify: clicking a starred entry updates the chart, the filter selectors, and the URL the same way Apply does, and each entry's label matches the new format
