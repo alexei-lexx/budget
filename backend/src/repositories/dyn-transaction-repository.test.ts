@@ -1942,6 +1942,67 @@ describe("DynTransactionRepository", () => {
     });
   });
 
+  describe("countByAccountId", () => {
+    // Happy path
+
+    it("returns count of non-archived transactions for account", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+      const accountId = faker.string.uuid();
+
+      await repository.create(fakeTransaction({ userId, accountId }));
+      await repository.create(fakeTransaction({ userId, accountId }));
+      // Archived transaction for same account — excluded from count
+      await repository.create(
+        fakeTransaction({ userId, accountId, isArchived: true }),
+      );
+      // Transaction for different account — excluded from count
+      await repository.create(
+        fakeTransaction({ userId, accountId: faker.string.uuid() }),
+      );
+
+      // Act
+      const result = await repository.countByAccountId({ accountId, userId });
+
+      // Assert
+      expect(result).toBe(2);
+    });
+
+    it("returns 0 when account has no transactions", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+      const accountId = faker.string.uuid();
+
+      // Act
+      const result = await repository.countByAccountId({ accountId, userId });
+
+      // Assert
+      expect(result).toBe(0);
+    });
+
+    // Validation failures
+
+    it("throws when account ID is missing", async () => {
+      // Arrange
+      const userId = faker.string.uuid();
+
+      // Act & Assert
+      await expect(
+        repository.countByAccountId({ accountId: "", userId }),
+      ).rejects.toThrow("Account ID is required");
+    });
+
+    it("throws when user ID is missing", async () => {
+      // Arrange
+      const accountId = faker.string.uuid();
+
+      // Act & Assert
+      await expect(
+        repository.countByAccountId({ accountId, userId: "" }),
+      ).rejects.toThrow("User ID is required");
+    });
+  });
+
   describe("detectPatterns", () => {
     // Happy path
 

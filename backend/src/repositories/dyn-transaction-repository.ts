@@ -607,13 +607,13 @@ export class DynTransactionRepository
     }
   }
 
-  async hasTransactionsForAccount({
+  async countByAccountId({
     accountId,
     userId,
   }: {
     accountId: string;
     userId: string;
-  }): Promise<boolean> {
+  }): Promise<number> {
     if (!accountId) {
       throw new RepositoryError("Account ID is required", "INVALID_PARAMETERS");
     }
@@ -636,15 +636,25 @@ export class DynTransactionRepository
       });
 
       const result = await this.client.send(command);
-      return (result.Count || 0) > 0;
+      return result.Count || 0;
     } catch (error) {
-      console.error("Error checking transactions for account:", error);
+      console.error("Error counting transactions for account:", error);
       throw new RepositoryError(
-        "Failed to check transactions for account",
+        "Failed to count transactions for account",
         "QUERY_FAILED",
         error,
       );
     }
+  }
+
+  async hasTransactionsForAccount({
+    accountId,
+    userId,
+  }: {
+    accountId: string;
+    userId: string;
+  }): Promise<boolean> {
+    return (await this.countByAccountId({ accountId, userId })) > 0;
   }
 
   async detectPatterns({

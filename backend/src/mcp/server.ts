@@ -10,6 +10,7 @@ import { authenticateMcpToken } from "./auth";
 import { registerCreateAccountTool } from "./tools/create-account";
 import { registerCreateCategoryTool } from "./tools/create-category";
 import { registerCreateTransactionTool } from "./tools/create-transaction";
+import { registerDeleteAccountTool } from "./tools/delete-account";
 import { registerGetAccountsTool } from "./tools/get-accounts";
 import { registerGetCategoriesTool } from "./tools/get-categories";
 import { registerGetTransactionsTool } from "./tools/get-transactions";
@@ -37,6 +38,7 @@ export async function createAuthenticatedMcpServer(
   registerCreateAccountTool(server, { accountService, userId });
   registerCreateCategoryTool(server, { categoryService, userId });
   registerCreateTransactionTool(server, { transactionService, userId });
+  registerDeleteAccountTool(server, { accountService, userId });
   registerGetAccountsTool(server, { accountService, userId });
   registerGetCategoriesTool(server, { categoryService, userId });
   registerGetTransactionsTool(server, { transactionRepository, userId });

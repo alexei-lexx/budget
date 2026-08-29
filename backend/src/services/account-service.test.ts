@@ -125,6 +125,70 @@ describe("AccountService", () => {
     });
   });
 
+  describe("getAccountForDeletion", () => {
+    // Happy path
+
+    it("returns account and transaction count", async () => {
+      // Arrange
+      const accountId = faker.string.uuid();
+      const account = fakeAccount({ id: accountId, userId });
+
+      mockAccountRepository.findOneById.mockResolvedValue(account);
+      mockTransactionRepository.countByAccountId.mockResolvedValue(3);
+
+      // Act
+      const result = await service.getAccountForDeletion(accountId, userId);
+
+      // Assert
+      expect(result).toEqual({ account, transactionCount: 3 });
+      expect(mockAccountRepository.findOneById).toHaveBeenCalledWith({
+        id: accountId,
+        userId,
+      });
+      expect(mockTransactionRepository.countByAccountId).toHaveBeenCalledWith({
+        accountId,
+        userId,
+      });
+    });
+
+    // Validation failures
+
+    it("throws when account is not found", async () => {
+      // Arrange
+      const accountId = faker.string.uuid();
+
+      mockAccountRepository.findOneById.mockResolvedValue(null);
+
+      // Act & Assert
+      const promise = service.getAccountForDeletion(accountId, userId);
+
+      await expect(promise).rejects.toThrow(BusinessError);
+      await expect(promise).rejects.toMatchObject({
+        message: "Account not found",
+      });
+      expect(mockTransactionRepository.countByAccountId).not.toHaveBeenCalled();
+    });
+
+    // Dependency failures
+
+    it("propagates repository errors", async () => {
+      // Arrange
+      const accountId = faker.string.uuid();
+      const account = fakeAccount({ id: accountId, userId });
+
+      mockAccountRepository.findOneById.mockResolvedValue(account);
+      // Repository throws on DB error
+      mockTransactionRepository.countByAccountId.mockRejectedValue(
+        new Error("Database error"),
+      );
+
+      // Act & Assert
+      await expect(
+        service.getAccountForDeletion(accountId, userId),
+      ).rejects.toThrow("Database error");
+    });
+  });
+
   describe("createAccount", () => {
     // Happy path
 

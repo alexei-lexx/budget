@@ -50,6 +50,10 @@ export interface TransactionRepository {
   }): Promise<Transaction[]>;
   create(transaction: Readonly<Transaction>): Promise<void>;
   update(transaction: Readonly<Transaction>): Promise<Transaction>;
+  countByAccountId(selector: {
+    accountId: string;
+    userId: string;
+  }): Promise<number>;
   hasTransactionsForAccount(selector: {
     accountId: string;
     userId: string;
