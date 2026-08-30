@@ -13,11 +13,10 @@ import { UserService } from "./user-service";
 describe("UserService", () => {
   let service: UserService;
   let mockUserRepository: Mocked<UserRepository>;
-  const apiBaseUrl = "https://api.example.com";
 
   beforeEach(() => {
     mockUserRepository = createMockUserRepository();
-    service = new UserService(mockUserRepository, apiBaseUrl);
+    service = new UserService(mockUserRepository);
   });
 
   describe("getSettings", () => {
@@ -44,7 +43,7 @@ describe("UserService", () => {
         success: true,
         data: {
           interfaceLanguage: "de",
-          mcpUrl: "https://api.example.com/mcp?token=token-1",
+          mcpToken: "token-1",
           transactionPatternsLimit: 5,
           voiceInputLanguage: "pl-PL",
         },
@@ -67,7 +66,7 @@ describe("UserService", () => {
         success: true,
         data: {
           interfaceLanguage: "en",
-          mcpUrl: "https://api.example.com/mcp?token=token-1",
+          mcpToken: "token-1",
           transactionPatternsLimit: DEFAULT_TRANSACTION_PATTERNS_LIMIT,
           voiceInputLanguage: undefined,
         },
@@ -159,7 +158,7 @@ describe("UserService", () => {
         success: true,
         data: {
           interfaceLanguage: "de",
-          mcpUrl: "https://api.example.com/mcp?token=token-1",
+          mcpToken: "token-1",
           transactionPatternsLimit: DEFAULT_TRANSACTION_PATTERNS_LIMIT,
           voiceInputLanguage: undefined,
         },
@@ -189,7 +188,7 @@ describe("UserService", () => {
         success: true,
         data: {
           interfaceLanguage: "en",
-          mcpUrl: "https://api.example.com/mcp?token=token-1",
+          mcpToken: "token-1",
           transactionPatternsLimit: DEFAULT_TRANSACTION_PATTERNS_LIMIT,
           voiceInputLanguage: "de-DE",
         },
@@ -219,7 +218,7 @@ describe("UserService", () => {
         success: true,
         data: {
           interfaceLanguage: "en",
-          mcpUrl: "https://api.example.com/mcp?token=token-1",
+          mcpToken: "token-1",
           transactionPatternsLimit: 7,
           voiceInputLanguage: undefined,
         },
@@ -251,7 +250,7 @@ describe("UserService", () => {
         success: true,
         data: {
           interfaceLanguage: "de",
-          mcpUrl: "https://api.example.com/mcp?token=token-1",
+          mcpToken: "token-1",
           transactionPatternsLimit: 5,
           voiceInputLanguage: "en-US",
         },
@@ -385,7 +384,7 @@ describe("UserService", () => {
       expect(updatedUser.mcpToken).not.toBe("old-token");
     });
 
-    it("returns settings with updated mcpUrl", async () => {
+    it("returns settings with updated mcpToken", async () => {
       // Arrange
       const userId = faker.string.uuid();
       const user = fakeUser({ id: userId, mcpToken: "old-token" });
@@ -400,7 +399,7 @@ describe("UserService", () => {
       expect(result).toEqual({
         success: true,
         data: expect.objectContaining({
-          mcpUrl: `https://api.example.com/mcp?token=${updatedUser.mcpToken}`,
+          mcpToken: updatedUser.mcpToken,
         }),
       });
     });

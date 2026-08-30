@@ -1,5 +1,5 @@
 import * as cdk from "aws-cdk-lib";
-import { Template } from "aws-cdk-lib/assertions";
+import { Match, Template } from "aws-cdk-lib/assertions";
 import * as apigatewayv2 from "aws-cdk-lib/aws-apigatewayv2";
 import { describe, it } from "vitest";
 import { FrontendCdkStack } from "../lib/frontend-cdk-stack";
@@ -27,5 +27,13 @@ describe("FrontendCdkStack", () => {
 
     // Assert
     template.resourceCountIs("AWS::CloudFront::Distribution", 1);
+    template.hasResourceProperties("AWS::CloudFront::Distribution", {
+      DistributionConfig: {
+        CacheBehaviors: Match.arrayWith([
+          Match.objectLike({ PathPattern: "/graphql*" }),
+          Match.objectLike({ PathPattern: "/mcp*" }),
+        ]),
+      },
+    });
   });
 });

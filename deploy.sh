@@ -216,6 +216,7 @@ env VITE_AUTH_CLIENT_ID="$AUTH_CLIENT_ID" \
     VITE_AUTH_SCOPE="$AUTH_SCOPE" \
     VITE_AUTH_UI_URL="$AUTH_UI_URL" \
     VITE_GRAPHQL_ENDPOINT="/graphql" \
+    VITE_MCP_ENDPOINT="/mcp" \
   npm run build
 
 echo "Deploying frontend..."

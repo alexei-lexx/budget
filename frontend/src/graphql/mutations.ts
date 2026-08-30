@@ -146,7 +146,7 @@ export const UPDATE_USER_SETTINGS = gql`
       interfaceLanguage
       transactionPatternsLimit
       voiceInputLanguage
-      mcpUrl
+      mcpToken
     }
   }
 `;
@@ -157,7 +157,7 @@ export const REGENERATE_MCP_TOKEN = gql`
       interfaceLanguage
       transactionPatternsLimit
       voiceInputLanguage
-      mcpUrl
+      mcpToken
     }
   }
 `;

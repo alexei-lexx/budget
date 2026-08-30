@@ -21,6 +21,16 @@ const getGraphQLEndpoint = (): string => {
   return "/graphql";
 };
 
+export const getMcpEndpoint = (): string => {
+  // Always check for explicit environment variable first
+  if (import.meta.env.VITE_MCP_ENDPOINT) {
+    return import.meta.env.VITE_MCP_ENDPOINT;
+  }
+
+  // Fallback to the default endpoint
+  return "/mcp";
+};
+
 // HTTP connection to the API
 const httpLink = createHttpLink({
   uri: getGraphQLEndpoint(),
