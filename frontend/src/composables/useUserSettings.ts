@@ -1,4 +1,5 @@
 import { computed } from "vue";
+import { getMcpEndpoint } from "@/apollo";
 import {
   GetUserSettingsDocument,
   useGetSupportedInterfaceLanguagesQuery,
@@ -37,6 +38,13 @@ export function useUserSettings() {
 
   const settings = computed(() => settingsResult.value?.userSettings ?? null);
 
+  const mcpUrl = computed(() => {
+    if (!settings.value) return null;
+    const url = new URL(getMcpEndpoint(), window.location.origin);
+    url.searchParams.set("token", settings.value.mcpToken);
+    return url.toString();
+  });
+
   const updateSettings = async (input: UpdateUserSettingsInput): Promise<boolean> => {
     try {
       const result = await updateSettingsMutation({ input });
@@ -70,6 +78,7 @@ export function useUserSettings() {
   };
 
   return {
+    mcpUrl,
     settings,
     settingsLoading,
     settingsError,

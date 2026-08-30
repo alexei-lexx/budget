@@ -139,7 +139,7 @@ export const GET_USER_SETTINGS = gql`
       interfaceLanguage
       transactionPatternsLimit
       voiceInputLanguage
-      mcpUrl
+      mcpToken
     }
   }
 `;

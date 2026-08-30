@@ -31,7 +31,7 @@ type UserSettings {
   interfaceLanguage: String!
   transactionPatternsLimit: Int!
   voiceInputLanguage: String
-  mcpUrl: String!
+  mcpToken: String!
 }
 
 input UpdateUserSettingsInput {

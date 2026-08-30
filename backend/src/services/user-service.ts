@@ -15,14 +15,11 @@ export interface UserSettingsData {
   interfaceLanguage: string;
   transactionPatternsLimit: number;
   voiceInputLanguage?: string;
-  mcpUrl: string;
+  mcpToken: string;
 }
 
 export class UserService {
-  constructor(
-    private readonly userRepository: UserRepository,
-    private readonly apiBaseUrl: string,
-  ) {}
+  constructor(private readonly userRepository: UserRepository) {}
 
   async ensureUser(email: string): Promise<User> {
     const existing = await this.userRepository.findOneByEmail(email);
@@ -117,14 +114,10 @@ export class UserService {
   private buildSettingsData(user: User) {
     return {
       interfaceLanguage: user.interfaceLanguage ?? DEFAULT_INTERFACE_LANGUAGE,
-      mcpUrl: this.buildMcpUrl(user),
+      mcpToken: user.mcpToken,
       transactionPatternsLimit:
         user.transactionPatternsLimit ?? DEFAULT_TRANSACTION_PATTERNS_LIMIT,
       voiceInputLanguage: user.voiceInputLanguage,
     };
-  }
-
-  private buildMcpUrl(user: User): string {
-    return `${this.apiBaseUrl}/mcp?token=${user.mcpToken}`;
   }
 }

@@ -546,7 +546,7 @@ export type User = {
 export type UserSettings = {
   __typename?: 'UserSettings';
   interfaceLanguage: Scalars['String']['output'];
-  mcpUrl: Scalars['String']['output'];
+  mcpToken: Scalars['String']['output'];
   transactionPatternsLimit: Scalars['Int']['output'];
   voiceInputLanguage?: Maybe<Scalars['String']['output']>;
 };
@@ -987,7 +987,7 @@ export type UserResolvers<ContextType = GraphQLContext, ParentType extends Resol
 
 export type UserSettingsResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['UserSettings'] = ResolversParentTypes['UserSettings']> = {
   interfaceLanguage?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  mcpUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  mcpToken?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   transactionPatternsLimit?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   voiceInputLanguage?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
 };

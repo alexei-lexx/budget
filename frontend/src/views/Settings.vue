@@ -118,7 +118,7 @@
     <v-row>
       <v-col cols="12" sm="6">
         <v-text-field
-          :model-value="settings?.mcpUrl"
+          :model-value="mcpUrl"
           :label="t('settings.mcpConnection.url')"
           variant="outlined"
           readonly
@@ -126,7 +126,7 @@
         />
       </v-col>
       <v-col cols="12" sm="6" class="d-flex align-center">
-        <v-btn color="primary" :disabled="!settings?.mcpUrl" @click="handleCopyMcpUrl">
+        <v-btn color="primary" :disabled="!mcpUrl" @click="handleCopyMcpUrl">
           {{ t("common.buttons.copy") }}
         </v-btn>
         <v-btn
@@ -190,6 +190,7 @@ const defaultVoiceInputLanguage =
 const { t } = useI18n();
 
 const {
+  mcpUrl,
   settings,
   supportedInterfaceLanguages,
   updateSettings,
@@ -300,9 +301,9 @@ const handleTestTelegramBot = async () => {
 };
 
 const handleCopyMcpUrl = async () => {
-  if (!settings.value?.mcpUrl) return;
+  if (!mcpUrl.value) return;
   try {
-    await navigator.clipboard.writeText(settings.value.mcpUrl);
+    await navigator.clipboard.writeText(mcpUrl.value);
     showSuccessSnackbar(t("settings.mcpConnection.urlCopied"));
   } catch {
     showErrorSnackbar(t("settings.mcpConnection.urlCopyFailed"));

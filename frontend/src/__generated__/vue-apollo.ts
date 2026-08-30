@@ -557,7 +557,7 @@ export type User = {
 export type UserSettings = {
   __typename?: 'UserSettings';
   interfaceLanguage: Scalars['String']['output'];
-  mcpUrl: Scalars['String']['output'];
+  mcpToken: Scalars['String']['output'];
   transactionPatternsLimit: Scalars['Int']['output'];
   voiceInputLanguage?: Maybe<Scalars['String']['output']>;
 };
@@ -694,12 +694,12 @@ export type UpdateUserSettingsMutationVariables = Exact<{
 }>;
 
 
-export type UpdateUserSettingsMutation = { __typename?: 'Mutation', updateUserSettings: { __typename?: 'UserSettings', interfaceLanguage: string, transactionPatternsLimit: number, voiceInputLanguage?: string | null | undefined, mcpUrl: string } };
+export type UpdateUserSettingsMutation = { __typename?: 'Mutation', updateUserSettings: { __typename?: 'UserSettings', interfaceLanguage: string, transactionPatternsLimit: number, voiceInputLanguage?: string | null | undefined, mcpToken: string } };
 
 export type RegenerateMcpTokenMutationVariables = Exact<{ [key: string]: never; }>;
 
 
-export type RegenerateMcpTokenMutation = { __typename?: 'Mutation', regenerateMcpToken: { __typename?: 'UserSettings', interfaceLanguage: string, transactionPatternsLimit: number, voiceInputLanguage?: string | null | undefined, mcpUrl: string } };
+export type RegenerateMcpTokenMutation = { __typename?: 'Mutation', regenerateMcpToken: { __typename?: 'UserSettings', interfaceLanguage: string, transactionPatternsLimit: number, voiceInputLanguage?: string | null | undefined, mcpToken: string } };
 
 export type ConnectTelegramBotMutationVariables = Exact<{
   token: Scalars['String']['input'];
@@ -815,7 +815,7 @@ export type GetTransactionDescriptionSuggestionsQuery = { __typename?: 'Query', 
 export type GetUserSettingsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetUserSettingsQuery = { __typename?: 'Query', userSettings: { __typename?: 'UserSettings', interfaceLanguage: string, transactionPatternsLimit: number, voiceInputLanguage?: string | null | undefined, mcpUrl: string } };
+export type GetUserSettingsQuery = { __typename?: 'Query', userSettings: { __typename?: 'UserSettings', interfaceLanguage: string, transactionPatternsLimit: number, voiceInputLanguage?: string | null | undefined, mcpToken: string } };
 
 export type GetSupportedInterfaceLanguagesQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -1314,7 +1314,7 @@ export const UpdateUserSettingsDocument = gql`
     interfaceLanguage
     transactionPatternsLimit
     voiceInputLanguage
-    mcpUrl
+    mcpToken
   }
 }
     `;
@@ -1346,7 +1346,7 @@ export const RegenerateMcpTokenDocument = gql`
     interfaceLanguage
     transactionPatternsLimit
     voiceInputLanguage
-    mcpUrl
+    mcpToken
   }
 }
     `;
@@ -1866,7 +1866,7 @@ export const GetUserSettingsDocument = gql`
     interfaceLanguage
     transactionPatternsLimit
     voiceInputLanguage
-    mcpUrl
+    mcpToken
   }
 }
     `;

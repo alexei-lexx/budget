@@ -158,7 +158,7 @@ export const resolveTransferService = createSingleton(
     }),
 );
 export const resolveUserService = createSingleton(
-  () => new UserService(resolveUserRepository(), requireEnv("API_BASE_URL")),
+  () => new UserService(resolveUserRepository()),
 );
 
 // Report services

@@ -61,6 +61,16 @@ export class FrontendCdkStack extends cdk.Stack {
       originId: "GraphqlApi",
     });
 
+    const apiGatewayBehavior: cloudfront.BehaviorOptions = {
+      origin: apiGatewayOrigin,
+      viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.HTTPS_ONLY,
+      cachePolicy: cloudfront.CachePolicy.CACHING_DISABLED,
+      originRequestPolicy:
+        cloudfront.OriginRequestPolicy.ALL_VIEWER_EXCEPT_HOST_HEADER,
+      allowedMethods: cloudfront.AllowedMethods.ALLOW_ALL,
+      responseHeadersPolicy: cloudfront.ResponseHeadersPolicy.SECURITY_HEADERS,
+    };
+
     // Conditionally prepare custom domain resources before creating the distribution,
     // because domainNames and certificate must be provided at construction time
     let certificate: acm.ICertificate | undefined;
@@ -113,16 +123,8 @@ export class FrontendCdkStack extends cdk.Stack {
             cloudfront.ResponseHeadersPolicy.SECURITY_HEADERS,
         },
         additionalBehaviors: {
-          "/graphql*": {
-            origin: apiGatewayOrigin,
-            viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.HTTPS_ONLY,
-            cachePolicy: cloudfront.CachePolicy.CACHING_DISABLED,
-            originRequestPolicy:
-              cloudfront.OriginRequestPolicy.ALL_VIEWER_EXCEPT_HOST_HEADER,
-            allowedMethods: cloudfront.AllowedMethods.ALLOW_ALL,
-            responseHeadersPolicy:
-              cloudfront.ResponseHeadersPolicy.SECURITY_HEADERS,
-          },
+          "/graphql*": apiGatewayBehavior,
+          "/mcp*": apiGatewayBehavior,
         },
         defaultRootObject: "index.html",
         errorResponses: [
