@@ -15,7 +15,7 @@ export interface ExpenseTrendInput {
   currency: string;
   today: DateString;
   categoryIds?: string[];
-  includeUncategorized?: boolean;
+  includeUncategorized?: true;
 }
 
 export interface ExpenseTrend {

@@ -15,7 +15,7 @@ export interface TrendPresetData {
   lookback: number;
   currency: string;
   categoryIds: string[];
-  includeUncategorized: boolean;
+  includeUncategorized?: true;
   createdAt: DateTimeString;
 }
 
@@ -31,7 +31,7 @@ export class TrendPreset implements TrendPresetData {
   readonly lookback: number;
   readonly currency: string;
   readonly categoryIds: string[];
-  readonly includeUncategorized: boolean;
+  readonly includeUncategorized?: true;
   readonly createdAt: DateTimeString;
 
   static create(
@@ -45,7 +45,7 @@ export class TrendPreset implements TrendPresetData {
       lookback: input.lookback,
       currency: input.currency,
       categoryIds: input.categoryIds ?? [],
-      includeUncategorized: input.includeUncategorized ?? false,
+      includeUncategorized: input.includeUncategorized,
       createdAt: toDateTimeString(new Date().toISOString()),
     };
 
@@ -105,5 +105,5 @@ export interface CreateTrendPresetInput {
   lookback: number;
   currency: string;
   categoryIds?: string[];
-  includeUncategorized?: boolean;
+  includeUncategorized?: true;
 }

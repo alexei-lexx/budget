@@ -14,6 +14,6 @@ export const trendPresetDataSchema = z.object({
   lookback: z.int().min(LOOKBACK_MIN).max(LOOKBACK_MAX),
   currency: currencySchema,
   categoryIds: z.array(z.uuid()),
-  includeUncategorized: z.boolean(),
+  includeUncategorized: z.literal(true).optional(),
   createdAt: z.iso.datetime().transform(toDateTimeString),
 }) satisfies z.ZodType<TrendPresetData>;

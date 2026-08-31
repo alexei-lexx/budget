@@ -18,7 +18,7 @@ export const fakeTrendPreset = (
     lookback: faker.number.int({ min: LOOKBACK_MIN, max: LOOKBACK_MAX }),
     currency: faker.helpers.arrayElement(["EUR", "USD"]),
     categoryIds: [],
-    includeUncategorized: faker.datatype.boolean(),
+    includeUncategorized: faker.helpers.arrayElement([true, undefined]),
     createdAt: toDateTimeString(new Date().toISOString()),
     ...overrides,
   });
@@ -33,7 +33,7 @@ export const fakeCreateTrendPresetInput = (
     lookback: faker.number.int({ min: LOOKBACK_MIN, max: LOOKBACK_MAX }),
     currency: faker.helpers.arrayElement(["EUR", "USD"]),
     categoryIds: [],
-    includeUncategorized: faker.datatype.boolean(),
+    includeUncategorized: faker.helpers.arrayElement([true, undefined]),
     ...overrides,
   };
 };

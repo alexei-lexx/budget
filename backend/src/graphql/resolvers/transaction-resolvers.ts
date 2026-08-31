@@ -61,7 +61,7 @@ export const transactionResolvers = {
               categoryIds: filters?.categoryIds ?? undefined,
               dateAfter: toDateStringOrUndefined(filters?.dateAfter),
               dateBefore: toDateStringOrUndefined(filters?.dateBefore),
-              includeUncategorized: filters?.includeUncategorized ?? undefined,
+              includeUncategorized: filters?.includeUncategorized || undefined,
               types: filters?.types ?? undefined,
             },
           );

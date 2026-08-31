@@ -96,7 +96,7 @@ const appliedSelection = ref<TrendSelection>({
   lookback: readLookback(),
   currency: typeof route.query.currency === "string" ? route.query.currency : "",
   categoryIds: readCategoryIds(),
-  includeUncategorized: route.query.uncategorized === "1",
+  includeUncategorized: route.query.uncategorized === "1" || undefined,
 });
 
 // The default currency resolves once supported currencies load
@@ -135,7 +135,7 @@ function handleClear() {
     lookback: DEFAULT_LOOKBACK,
     currency: defaultCurrency.value,
     categoryIds: [],
-    includeUncategorized: false,
+    includeUncategorized: undefined,
   };
 
   router.replace({ query: {} });

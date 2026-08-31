@@ -10,7 +10,7 @@ export const fakeCreateTrendPresetServiceInput = (
     lookback: faker.number.int({ min: LOOKBACK_MIN, max: LOOKBACK_MAX }),
     currency: faker.helpers.arrayElement(["EUR", "USD"]),
     categoryIds: [],
-    includeUncategorized: false,
+    includeUncategorized: faker.helpers.arrayElement([true, undefined]),
     ...overrides,
   };
 };

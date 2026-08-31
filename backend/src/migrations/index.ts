@@ -19,3 +19,4 @@ export * as migration_20260423093628 from "./20260423093628-add-transaction-vers
 export * as migration_20260425213107 from "./20260425213107-add-account-version";
 export * as migration_20260426204239 from "./20260426204239-add-account-transaction-balance";
 export * as migration_20260727120000 from "./20260727120000-backfill-mcp-token";
+export * as migration_20260831092924 from "./20260831092924-remove-false-include-uncategorized";

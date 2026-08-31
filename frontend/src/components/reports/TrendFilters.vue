@@ -135,7 +135,7 @@ const draftPeriodUnit = ref<TrendPeriodUnit>(props.selection.periodUnit);
 const draftLookback = ref<number>(props.selection.lookback);
 const draftCurrency = ref<string>(props.selection.currency);
 const draftCategoryIds = ref<string[]>([...props.selection.categoryIds]);
-const draftIncludeUncategorized = ref<boolean>(props.selection.includeUncategorized);
+const draftIncludeUncategorized = ref<boolean>(props.selection.includeUncategorized ?? false);
 
 // Categories flagged "Exclude from reports" are never offered
 const categoryOptions = computed(() =>
@@ -151,7 +151,7 @@ watch(
     draftLookback.value = selection.lookback;
     draftCurrency.value = selection.currency;
     draftCategoryIds.value = [...selection.categoryIds];
-    draftIncludeUncategorized.value = selection.includeUncategorized;
+    draftIncludeUncategorized.value = selection.includeUncategorized ?? false;
   },
   { deep: true },
 );
@@ -162,7 +162,7 @@ function handleApply() {
     lookback: draftLookback.value,
     currency: draftCurrency.value,
     categoryIds: [...draftCategoryIds.value],
-    includeUncategorized: draftIncludeUncategorized.value,
+    includeUncategorized: draftIncludeUncategorized.value || undefined,
   });
 }
 

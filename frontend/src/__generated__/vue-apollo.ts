@@ -505,7 +505,7 @@ export type TrendPreset = {
   categoryIds: Array<Scalars['ID']['output']>;
   currency: Scalars['String']['output'];
   id: Scalars['ID']['output'];
-  includeUncategorized: Scalars['Boolean']['output'];
+  includeUncategorized?: Maybe<Scalars['Boolean']['output']>;
   lookback: Scalars['Int']['output'];
   periodUnit: TrendPeriodUnit;
 };
@@ -718,7 +718,7 @@ export type CreateTrendPresetMutationVariables = Exact<{
 }>;
 
 
-export type CreateTrendPresetMutation = { __typename?: 'Mutation', createTrendPreset: { __typename?: 'TrendPreset', id: string, periodUnit: TrendPeriodUnit, lookback: number, currency: string, categoryIds: Array<string>, includeUncategorized: boolean } };
+export type CreateTrendPresetMutation = { __typename?: 'Mutation', createTrendPreset: { __typename?: 'TrendPreset', id: string, periodUnit: TrendPeriodUnit, lookback: number, currency: string, categoryIds: Array<string>, includeUncategorized?: boolean | null | undefined } };
 
 export type DeleteTrendPresetMutationVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -803,7 +803,7 @@ export type GetExpenseTrendQuery = { __typename?: 'Query', expenseTrend: { __typ
 export type GetTrendPresetsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetTrendPresetsQuery = { __typename?: 'Query', trendPresets: Array<{ __typename?: 'TrendPreset', id: string, periodUnit: TrendPeriodUnit, lookback: number, currency: string, categoryIds: Array<string>, includeUncategorized: boolean }> };
+export type GetTrendPresetsQuery = { __typename?: 'Query', trendPresets: Array<{ __typename?: 'TrendPreset', id: string, periodUnit: TrendPeriodUnit, lookback: number, currency: string, categoryIds: Array<string>, includeUncategorized?: boolean | null | undefined }> };
 
 export type GetTransactionDescriptionSuggestionsQueryVariables = Exact<{
   searchText: Scalars['String']['input'];

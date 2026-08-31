@@ -7,7 +7,10 @@ import { AccountRepository } from "../ports/account-repository";
 import { AtomicWriter } from "../ports/atomic-writer";
 import { CategoryRepository } from "../ports/category-repository";
 import { VersionConflictError } from "../ports/repository-error";
-import { TransactionRepository } from "../ports/transaction-repository";
+import {
+  TransactionFilterInput,
+  TransactionRepository,
+} from "../ports/transaction-repository";
 import { toDateString } from "../types/date-string";
 import { MAX_PAGE_SIZE, MIN_PAGE_SIZE } from "../types/pagination";
 import { fakeAccount } from "../utils/test-utils/models/account-fakes";
@@ -105,7 +108,7 @@ describe("TransactionService", () => {
         totalCount: 0,
       };
       const pagination = { first: 10 };
-      const filters = {
+      const filters: TransactionFilterInput = {
         accountIds: ["account-1"],
         categoryIds: ["category-1"],
         includeUncategorized: true,
