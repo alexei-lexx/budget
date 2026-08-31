@@ -1,6 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/server";
 import {
   resolveAccountService,
+  resolveAggregateTransactionsService,
   resolveCategoryService,
   resolveTransactionRepository,
   resolveTransactionService,
@@ -10,6 +11,7 @@ import { ModelError } from "../models/model-error";
 import { BusinessError } from "../services/business-error";
 import { Failure } from "../types/result";
 import { authenticateMcpToken } from "./auth";
+import { createAggregateTransactionsTool } from "./tools/aggregate-transactions";
 import { createCreateAccountTool } from "./tools/create-account";
 import { createCreateCategoryTool } from "./tools/create-category";
 import { createCreateTransactionTool } from "./tools/create-transaction";
@@ -33,6 +35,7 @@ export async function createAuthenticatedMcpServer(
   const server = new McpServer({ name: "budget-mcp-server", version: "1.0.0" });
 
   const accountService = resolveAccountService();
+  const aggregateTransactionsService = resolveAggregateTransactionsService();
   const categoryService = resolveCategoryService();
   const transactionRepository = resolveTransactionRepository();
   const transactionService = resolveTransactionService();
@@ -40,6 +43,7 @@ export async function createAuthenticatedMcpServer(
   const userId = user.id;
 
   const tools: Tool[] = [
+    createAggregateTransactionsTool({ aggregateTransactionsService, userId }),
     createCreateAccountTool({ accountService, userId }),
     createCreateCategoryTool({ categoryService, userId }),
     createCreateTransactionTool({ transactionService, userId }),
