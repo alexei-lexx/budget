@@ -286,6 +286,7 @@ export class BackendCdkStack extends cdk.Stack {
     accountsTable.grantReadWriteData(migrationFunction);
     categoriesTable.grantReadWriteData(migrationFunction);
     transactionsTable.grantReadWriteData(migrationFunction);
+    trendPresetsTable.grantReadWriteData(migrationFunction);
     usersTable.grantReadWriteData(migrationFunction);
 
     // Allow all Lambdas to read runtime config from SSM Parameter Store at cold start.
