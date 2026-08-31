@@ -37,7 +37,7 @@ export function useTrendPresets() {
           trendPreset.periodUnit === selection.periodUnit &&
           trendPreset.lookback === selection.lookback &&
           trendPreset.currency === selection.currency &&
-          trendPreset.includeUncategorized === selection.includeUncategorized &&
+          Boolean(trendPreset.includeUncategorized) === Boolean(selection.includeUncategorized) &&
           trendPreset.categoryIds.length === selectionCategoryIds.size &&
           trendPreset.categoryIds.every((categoryId) => selectionCategoryIds.has(categoryId)),
       ) ?? null
