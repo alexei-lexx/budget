@@ -1,5 +1,6 @@
 import { Temporal } from "temporal-polyfill";
 import { z } from "zod";
+import { MAX_PERIOD_DAYS } from "../../langchain/tools/get-transactions";
 import {
   TransactionDto,
   toTransactionDto,
@@ -10,8 +11,6 @@ import { DateString, toDateString } from "../../types/date-string";
 import { Failure, Result, Success } from "../../types/result";
 import { buildGuideTokensField, verifyGuideTokens } from "./guides";
 import { Tool } from "./tool";
-
-export const MAX_PERIOD_DAYS = 365;
 
 const requiredGuides = ["basics"] as const;
 
