@@ -10,7 +10,7 @@ import { Connection, Edge, PaginationInput } from "../types/pagination";
 export interface TransactionFilterInput {
   accountIds?: string[];
   categoryIds?: string[];
-  includeUncategorized?: boolean;
+  includeUncategorized?: true;
   currencies?: string[];
   dateAfter?: DateString;
   dateBefore?: DateString;

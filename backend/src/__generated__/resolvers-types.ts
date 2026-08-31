@@ -494,7 +494,7 @@ export type TrendPreset = {
   categoryIds: Array<Scalars['ID']['output']>;
   currency: Scalars['String']['output'];
   id: Scalars['ID']['output'];
-  includeUncategorized: Scalars['Boolean']['output'];
+  includeUncategorized?: Maybe<Scalars['Boolean']['output']>;
   lookback: Scalars['Int']['output'];
   periodUnit: TrendPeriodUnit;
 };
@@ -976,7 +976,7 @@ export type TrendPresetResolvers<ContextType = GraphQLContext, ParentType extend
   categoryIds?: Resolver<Array<ResolversTypes['ID']>, ParentType, ContextType>;
   currency?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  includeUncategorized?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  includeUncategorized?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   lookback?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   periodUnit?: Resolver<ResolversTypes['TrendPeriodUnit'], ParentType, ContextType>;
 };

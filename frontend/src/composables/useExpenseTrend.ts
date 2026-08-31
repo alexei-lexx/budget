@@ -14,7 +14,7 @@ export interface TrendSelection {
   lookback: number;
   currency: string;
   categoryIds: string[];
-  includeUncategorized: boolean;
+  includeUncategorized?: true;
 }
 
 /**

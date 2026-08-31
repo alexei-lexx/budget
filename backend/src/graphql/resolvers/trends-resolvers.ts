@@ -26,7 +26,7 @@ export const trendsResolvers = {
           currency: args.input.currency,
           today: toDateString(args.input.today),
           categoryIds: args.input.categoryIds ?? undefined,
-          includeUncategorized: args.input.includeUncategorized ?? undefined,
+          includeUncategorized: args.input.includeUncategorized || undefined,
         });
 
         if (!result.success) {
@@ -76,7 +76,7 @@ export const trendsResolvers = {
             lookback: args.input.lookback,
             currency: args.input.currency,
             categoryIds: args.input.categoryIds ?? undefined,
-            includeUncategorized: args.input.includeUncategorized ?? undefined,
+            includeUncategorized: args.input.includeUncategorized || undefined,
           },
         );
 

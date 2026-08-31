@@ -374,7 +374,7 @@ type TrendPreset {
   lookback: Int!
   currency: String!
   categoryIds: [ID!]!
-  includeUncategorized: Boolean!
+  includeUncategorized: Boolean
 }
 
 input CreateTrendPresetInput {

@@ -73,7 +73,7 @@ function handleClick(trendPreset: TrendPreset) {
     lookback: trendPreset.lookback,
     currency: trendPreset.currency,
     categoryIds: trendPreset.categoryIds,
-    includeUncategorized: trendPreset.includeUncategorized,
+    includeUncategorized: trendPreset.includeUncategorized || undefined,
   });
 }
 </script>

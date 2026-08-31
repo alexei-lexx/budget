@@ -59,14 +59,14 @@ describe("TrendPreset", () => {
       expect(result.categoryIds).toEqual([]);
     });
 
-    it("defaults includeUncategorized to false when omitted", () => {
+    it("defaults includeUncategorized to undefined when omitted", () => {
       // Act
       const result = TrendPreset.create(
         fakeCreateTrendPresetInput({ includeUncategorized: undefined }),
       );
 
       // Assert
-      expect(result.includeUncategorized).toBe(false);
+      expect(result.includeUncategorized).toBeUndefined();
     });
 
     it("uses default id generator when options omitted", () => {
