@@ -1,8 +1,8 @@
 <!-- eslint-disable vue/no-mutating-props -->
 <template>
   <v-expand-transition>
-    <div v-show="modelValue" class="pa-4">
-      <v-row>
+    <div v-show="modelValue" class="pa-3 pa-sm-4">
+      <v-row dense>
         <!-- Account Filter -->
         <v-col cols="12" md="6">
           <v-select
@@ -17,6 +17,7 @@
             :disabled="loading"
             clearable
             variant="outlined"
+            density="compact"
           />
         </v-col>
 
@@ -34,6 +35,7 @@
             :disabled="loading"
             clearable
             variant="outlined"
+            density="compact"
           >
             <template #item="{ props, item }">
               <v-list-item v-bind="props">
@@ -63,6 +65,7 @@
             :disabled="loading"
             clearable
             variant="outlined"
+            density="compact"
           />
         </v-col>
 
@@ -75,6 +78,7 @@
             :disabled="loading"
             clearable
             variant="outlined"
+            density="compact"
           />
         </v-col>
 
@@ -90,12 +94,13 @@
             :disabled="loading"
             clearable
             variant="outlined"
+            density="compact"
           />
         </v-col>
       </v-row>
 
-      <v-row class="mt-4">
-        <v-col cols="12" class="d-flex">
+      <v-row class="mt-2">
+        <v-col cols="12" class="d-flex align-center">
           <v-btn
             variant="outlined"
             @click="handleClear"
