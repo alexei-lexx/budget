@@ -80,7 +80,6 @@ function handleClick(trendPreset: TrendPreset) {
 
 <template>
   <div v-if="trendPresets.length > 0" class="mb-4">
-    <div class="text-subtitle-2 mb-2">{{ t("trends.presets.title") }}</div>
     <div class="d-flex flex-wrap ga-2">
       <v-chip
         v-for="trendPreset in sortedTrendPresets"
