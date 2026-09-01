@@ -28,6 +28,7 @@ import { DynTransactionRepository } from "./repositories/dyn-transaction-reposit
 import { DynTrendPresetRepository } from "./repositories/dyn-trend-preset-repository";
 import { DynUserRepository } from "./repositories/dyn-user-repository";
 import { AccountServiceImpl } from "./services/account-service";
+import { AggregateTransactionsServiceImpl } from "./services/aggregate-transactions-service";
 import { AssistantChatServiceImpl } from "./services/assistant-chat-service";
 import { AssistantServiceImpl } from "./services/assistant-service";
 import { ByCategoryReportService } from "./services/by-category-report-service";
@@ -162,6 +163,13 @@ export const resolveUserService = createSingleton(
 );
 
 // Report services
+export const resolveAggregateTransactionsService = createSingleton(
+  () =>
+    new AggregateTransactionsServiceImpl(
+      resolveTransactionRepository(),
+      resolveCategoryRepository(),
+    ),
+);
 export const resolveByCategoryReportService = createSingleton(
   () =>
     new ByCategoryReportService(
