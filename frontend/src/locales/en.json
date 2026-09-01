@@ -310,7 +310,6 @@
       "unstar": "Remove star"
     },
     "presets": {
-      "title": "Trend Presets",
       "all": "all",
       "uncategorized": "uncategorized",
       "periodWeek": "week | weeks",
