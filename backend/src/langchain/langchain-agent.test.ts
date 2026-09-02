@@ -125,13 +125,46 @@ describe("LangChainAgent", () => {
       expect(passedConfig).not.toHaveProperty("runName");
     });
 
-    it("builds agentTrace TEXT entry from LLM callback", async () => {
+    it("builds agentTrace TEXT entry from text block", async () => {
       // Arrange
       mockAgent.invoke.mockImplementation(async (_state, options) => {
         const { callbacks } = options as { callbacks: CallbackManager };
         const llmResult = {
           generations: [
             [{ text: "", message: new AIMessage({ content: "Thinking..." }) }],
+          ],
+        };
+
+        for (const handler of callbacks.handlers) {
+          await handler.handleLLMEnd?.(llmResult, "run-id");
+        }
+
+        return { messages: [new AIMessage({ content: "Answer" })] };
+      });
+
+      // Act
+      const result = await agent.invoke(state, config);
+
+      // Assert
+      expect(result.agentTrace).toEqual([
+        { type: AgentTraceMessageType.TEXT, content: "Thinking..." },
+      ]);
+    });
+
+    it("builds agentTrace TEXT entry from reasoning block", async () => {
+      // Arrange
+      mockAgent.invoke.mockImplementation(async (_state, options) => {
+        const { callbacks } = options as { callbacks: CallbackManager };
+        const llmResult = {
+          generations: [
+            [
+              {
+                text: "",
+                message: new AIMessage({
+                  content: [{ type: "reasoning", reasoning: "Thinking..." }],
+                }),
+              },
+            ],
           ],
         };
 

@@ -42,16 +42,8 @@ export function extractAgentTraceTexts(
 
       if ("text" in block) {
         text = block.text;
-      } else if ("reasoningText" in block) {
-        const reasoningText = block.reasoningText;
-
-        if (
-          reasoningText &&
-          typeof reasoningText === "object" &&
-          "text" in reasoningText
-        ) {
-          text = reasoningText.text;
-        }
+      } else if ("reasoning" in block) {
+        text = block.reasoning;
       }
 
       if (text) {
