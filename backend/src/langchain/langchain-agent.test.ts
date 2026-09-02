@@ -125,7 +125,7 @@ describe("LangChainAgent", () => {
       expect(passedConfig).not.toHaveProperty("runName");
     });
 
-    it("builds agentTrace TEXT entry from LLM callback", async () => {
+    it("builds agentTrace TEXT entry from text block", async () => {
       // Arrange
       mockAgent.invoke.mockImplementation(async (_state, options) => {
         const { callbacks } = options as { callbacks: CallbackManager };
