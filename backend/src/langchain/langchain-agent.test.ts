@@ -151,6 +151,39 @@ describe("LangChainAgent", () => {
       ]);
     });
 
+    it("builds agentTrace TEXT entry from reasoning block", async () => {
+      // Arrange
+      mockAgent.invoke.mockImplementation(async (_state, options) => {
+        const { callbacks } = options as { callbacks: CallbackManager };
+        const llmResult = {
+          generations: [
+            [
+              {
+                text: "",
+                message: new AIMessage({
+                  content: [{ type: "reasoning", reasoning: "Thinking..." }],
+                }),
+              },
+            ],
+          ],
+        };
+
+        for (const handler of callbacks.handlers) {
+          await handler.handleLLMEnd?.(llmResult, "run-id");
+        }
+
+        return { messages: [new AIMessage({ content: "Answer" })] };
+      });
+
+      // Act
+      const result = await agent.invoke(state, config);
+
+      // Assert
+      expect(result.agentTrace).toEqual([
+        { type: AgentTraceMessageType.TEXT, content: "Thinking..." },
+      ]);
+    });
+
     it("builds agentTrace TOOL_RESULT entry from tool callback", async () => {
       // Arrange
       mockAgent.invoke.mockImplementation(async (_state, options) => {

@@ -1,7 +1,6 @@
 import { AIMessage, BaseMessage } from "langchain";
 import { describe, expect, it } from "vitest";
-import { AgentTraceMessageType } from "../ports/agent-types";
-import { extractAgentTraceTexts, extractLastMessageText } from "./utils";
+import { extractLastMessageText } from "./utils";
 
 describe("extractLastMessageText", () => {
   it("returns undefined when messages array is empty", () => {
@@ -56,20 +55,5 @@ describe("extractLastMessageText", () => {
     const result = extractLastMessageText(messages);
 
     expect(result).toBeUndefined();
-  });
-});
-
-describe("extractAgentTraceTexts", () => {
-  it("includes reasoning blocks as text trace messages", () => {
-    const message = new AIMessage({
-      content: [{ type: "reasoning", reasoning: "Thinking it through" }],
-    });
-
-    const result = extractAgentTraceTexts(message);
-
-    expect(result).toContainEqual({
-      type: AgentTraceMessageType.TEXT,
-      content: "Thinking it through",
-    });
   });
 });
