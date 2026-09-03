@@ -14,12 +14,17 @@ import {
 } from "../../dependencies";
 import { CategoryType } from "../../models/category";
 import { TransactionType } from "../../models/transaction";
+import { toDateString } from "../../types/date-string";
 import { createDynamoDBDocumentClient } from "../../utils/dynamo-client";
 import { truncateAllTables } from "../../utils/test-utils/dynamodb-helpers";
 import { fakeAccount } from "../../utils/test-utils/models/account-fakes";
 import { fakeCategory } from "../../utils/test-utils/models/category-fakes";
-import { fakeTransaction } from "../../utils/test-utils/models/transaction-fakes";
+import {
+  fakeExpense,
+  fakeTransaction,
+} from "../../utils/test-utils/models/transaction-fakes";
 import { fakeUser } from "../../utils/test-utils/models/user-fakes";
+import { fakeCreateCategoryInput } from "../../utils/test-utils/repositories/category-repository-fakes";
 import { CREATE_TRANSACTION_TOOL_NAME } from "../tools/create-transaction";
 import { createCreateTransactionAgent } from "./create-transaction-agent";
 
@@ -213,6 +218,186 @@ describe("CreateTransactionAgent (integration)", () => {
       .flatMap((message) => message.tool_calls ?? [])
       .map((toolCall) => toolCall.name);
     expect(toolNames).not.toContain(CREATE_TRANSACTION_TOOL_NAME);
+  });
+
+  describe("when amount is not given", () => {
+    // Happy path
+
+    it("creates transaction from recurring matches that agree on amount", async () => {
+      // Arrange
+      const account = fakeAccount({ userId, currency: "EUR" });
+      await accountRepository.create(account);
+      const category = await categoryRepository.create(
+        fakeCreateCategoryInput({
+          userId,
+          type: CategoryType.EXPENSE,
+        }),
+      );
+      // Seed recurring history — same description and amount, recorded monthly
+      const todayPlainDate = Temporal.Now.plainDateISO();
+      const recurringAmount = 50;
+      const recurringDescription = "gym abo";
+      for (const days of [10, 25, 50, 80]) {
+        await transactionRepository.create(
+          fakeExpense({
+            userId,
+            accountId: account.id,
+            categoryId: category.id,
+            amount: recurringAmount,
+            description: recurringDescription,
+            date: toDateString(todayPlainDate.subtract({ days }).toString()),
+          }),
+        );
+      }
+
+      // Act
+      const response = await agent.invoke(
+        { messages: [new HumanMessage("gym")] },
+        { context },
+      );
+
+      // Assert
+      const transactions = await transactionRepository.findManyByUserId(userId);
+      expect(transactions).toHaveLength(5);
+
+      const lastToolCallMessage = response.messages.findLast(
+        (message): message is AIMessage =>
+          AIMessage.isInstance(message) &&
+          (message.tool_calls ?? []).length > 0,
+      );
+      expect(lastToolCallMessage).toHaveToolCalls([
+        {
+          name: CREATE_TRANSACTION_TOOL_NAME,
+          args: expect.objectContaining({
+            accountId: account.id,
+            categoryId: category.id,
+            amount: recurringAmount,
+            date: today,
+            type: TransactionType.EXPENSE,
+            description: recurringDescription,
+          }),
+        },
+      ]);
+    });
+
+    // Validation failures
+
+    it("does not create transaction from varying-amount recurring matches", async () => {
+      // Arrange
+      const account = fakeAccount({ userId, currency: "EUR" });
+      await accountRepository.create(account);
+      const category = await categoryRepository.create(
+        fakeCreateCategoryInput({
+          userId,
+          type: CategoryType.EXPENSE,
+        }),
+      );
+      // Seed "gym abo" history that disagrees on amount
+      const todayPlainDate = Temporal.Now.plainDateISO();
+      const recurringDescription = "gym abo";
+      for (const [days, amount] of [
+        [10, 20],
+        [25, 35],
+        [50, 47],
+      ] as const) {
+        await transactionRepository.create(
+          fakeExpense({
+            userId,
+            accountId: account.id,
+            categoryId: category.id,
+            amount,
+            description: recurringDescription,
+            date: toDateString(todayPlainDate.subtract({ days }).toString()),
+          }),
+        );
+      }
+
+      // Act
+      const response = await agent.invoke(
+        { messages: [new HumanMessage("gym")] },
+        { context },
+      );
+
+      // Assert
+      const toolNames = response.messages
+        .filter(AIMessage.isInstance)
+        .flatMap((message) => message.tool_calls ?? [])
+        .map((toolCall) => toolCall.name);
+      expect(toolNames).not.toContain(CREATE_TRANSACTION_TOOL_NAME);
+    });
+
+    it("does not create transaction from single prior match", async () => {
+      // Arrange
+      const account = fakeAccount({ userId, currency: "EUR" });
+      await accountRepository.create(account);
+      const category = await categoryRepository.create(
+        fakeCreateCategoryInput({
+          userId,
+          type: CategoryType.EXPENSE,
+        }),
+      );
+      // Seed exactly one prior "gym abo" transaction — not a recurring pattern
+      const todayPlainDate = Temporal.Now.plainDateISO();
+      await transactionRepository.create(
+        fakeExpense({
+          userId,
+          accountId: account.id,
+          categoryId: category.id,
+          amount: 50,
+          description: "gym abo",
+          date: toDateString(todayPlainDate.subtract({ days: 15 }).toString()),
+        }),
+      );
+
+      // Act
+      const response = await agent.invoke(
+        { messages: [new HumanMessage("gym")] },
+        { context },
+      );
+
+      // Assert
+      const toolNames = response.messages
+        .filter(AIMessage.isInstance)
+        .flatMap((message) => message.tool_calls ?? [])
+        .map((toolCall) => toolCall.name);
+      expect(toolNames).not.toContain(CREATE_TRANSACTION_TOOL_NAME);
+    });
+
+    it("does not create transaction when no prior matches exist", async () => {
+      // Arrange
+      const account = fakeAccount({ userId, currency: "EUR" });
+      await accountRepository.create(account);
+      const category = await categoryRepository.create(
+        fakeCategory({
+          userId,
+          type: CategoryType.EXPENSE,
+        }),
+      );
+      // Seed unrelated history — no transaction described "gym"
+      const todayPlainDate = Temporal.Now.plainDateISO();
+      await transactionRepository.create(
+        fakeExpense({
+          userId,
+          accountId: account.id,
+          categoryId: category.id,
+          amount: 50,
+          date: toDateString(todayPlainDate.subtract({ days: 20 }).toString()),
+        }),
+      );
+
+      // Act
+      const response = await agent.invoke(
+        { messages: [new HumanMessage("gym")] },
+        { context },
+      );
+
+      // Assert
+      const toolNames = response.messages
+        .filter(AIMessage.isInstance)
+        .flatMap((message) => message.tool_calls ?? [])
+        .map((toolCall) => toolCall.name);
+      expect(toolNames).not.toContain(CREATE_TRANSACTION_TOOL_NAME);
+    });
   });
 
   describe("when amount is suspiciously high", () => {
