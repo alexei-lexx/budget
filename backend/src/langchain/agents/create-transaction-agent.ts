@@ -55,6 +55,14 @@ You MUST infer all mandatory and optional transaction fields and then MUST persi
 
 {VOICE_INPUT_SUBPROMPT}
 
+If no amount is stated:
+- MUST search in this exact sequence, stopping as soon as a step finds at least two matches:
+  1. Search the past 1 month for transactions matching the described subject
+  2. If fewer than two matches, search the past 3 months
+  3. If still fewer than two matches, search the past 12 months
+- If the matching transactions share the same exact amount, treat them as recurring
+- Use the recurring transaction's fields to fill in the new transaction
+
 ### Account
 
 - Mandatory field
@@ -62,8 +70,9 @@ You MUST infer all mandatory and optional transaction fields and then MUST persi
 - Select by priority:
   1. Currency match — account MUST match the mentioned currency
   2. Name match — prefer the account named or implied in user input
-  3. Category history — prefer the account most used with the inferred category
-  4. Overall history — prefer the account most used overall
+  3. Recurring match — prefer the account of the matched recurring transaction
+  4. Category history — prefer the account most used with the inferred category
+  5. Overall history — prefer the account most used overall
 - MUST look up past transactions for history-based criteria — do not guess
 
 ### Category
@@ -72,8 +81,9 @@ You MUST infer all mandatory and optional transaction fields and then MUST persi
 - Category MUST be active
 - Infer by priority:
   1. Name match — category name mentioned in user input
-  2. Signal match — synonyms, store names, product names imply a category
-  3. History — most used category for similar transactions
+  2. Recurring match — prefer the category of the matched recurring transaction
+  3. Signal match — synonyms, store names, product names imply a category
+  4. History — most used category for similar transactions
 - May look up past transactions for history-based criteria — do not guess
 
 ### Date
@@ -84,6 +94,7 @@ You MUST infer all mandatory and optional transaction fields and then MUST persi
 ### Description
 
 - Optional field
+- MUST reuse the description of the matched recurring transaction
 - Keep the original language of the user's text
 - MUST be grammatically correct, without typos
 - MUST describe the item or service — not the reason or context
