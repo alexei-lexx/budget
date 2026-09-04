@@ -283,6 +283,81 @@ describe("CreateTransactionAgent (evals)", () => {
     });
   });
 
+  describe("category selection", () => {
+    it("selects the category matching the item by signal, not name, among several candidates", async () => {
+      // Arrange
+      const account = fakeAccount({ userId, currency: "EUR" });
+      await accountRepository.create(account);
+      const groceries = await categoryRepository.create(
+        fakeCategory({ userId, type: CategoryType.EXPENSE, name: "groceries" }),
+      );
+      await categoryRepository.create(
+        fakeCategory({
+          userId,
+          type: CategoryType.EXPENSE,
+          name: "electronics",
+        }),
+      );
+      await categoryRepository.create(
+        fakeCategory({
+          userId,
+          type: CategoryType.EXPENSE,
+          name: "entertainment",
+        }),
+      );
+
+      // Act
+      const response = await agent.invoke(
+        { messages: [new HumanMessage("bought apples for 10 euro")] },
+        { context },
+      );
+
+      // Assert
+      const result = await createTransactionTrajectoryMatch(["categoryId"])({
+        outputs: response.messages,
+        referenceOutputs: createTransactionReference({
+          categoryId: groceries.id,
+        }),
+      });
+      expect(result.score).toBe(true);
+    });
+
+    it("leaves category blank when no existing category matches", async () => {
+      // Arrange
+      const account = fakeAccount({ userId, currency: "EUR" });
+      await accountRepository.create(account);
+      await categoryRepository.create(
+        fakeCategory({
+          userId,
+          type: CategoryType.EXPENSE,
+          name: "electronics",
+        }),
+      );
+      await categoryRepository.create(
+        fakeCategory({
+          userId,
+          type: CategoryType.EXPENSE,
+          name: "entertainment",
+        }),
+      );
+
+      // Act
+      const response = await agent.invoke(
+        { messages: [new HumanMessage("bought apples for 10 euro")] },
+        { context },
+      );
+
+      // Assert
+      const result = await createTransactionTrajectoryMatch(["categoryId"])({
+        outputs: response.messages,
+        referenceOutputs: createTransactionReference({
+          categoryId: undefined,
+        }),
+      });
+      expect(result.score).toBe(true);
+    });
+  });
+
   describe("when amount is not given", () => {
     it("creates transaction from recurring matches that agree on amount", async () => {
       // Arrange
