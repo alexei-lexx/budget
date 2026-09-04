@@ -1,3 +1,4 @@
+import { faker } from "@faker-js/faker";
 import { AIMessage, HumanMessage } from "langchain";
 import { createTrajectoryLLMAsJudge, createTrajectoryMatchEvaluator } from "agentevals";
 import { Temporal } from "temporal-polyfill";
@@ -19,7 +20,10 @@ import { createDynamoDBDocumentClient } from "../../utils/dynamo-client";
 import { truncateAllTables } from "../../utils/test-utils/dynamodb-helpers";
 import { fakeAccount } from "../../utils/test-utils/models/account-fakes";
 import { fakeCategory } from "../../utils/test-utils/models/category-fakes";
-import { fakeExpense } from "../../utils/test-utils/models/transaction-fakes";
+import {
+  fakeExpense,
+  fakeTransaction,
+} from "../../utils/test-utils/models/transaction-fakes";
 import { fakeUser } from "../../utils/test-utils/models/user-fakes";
 import { fakeCreateCategoryInput } from "../../utils/test-utils/repositories/category-repository-fakes";
 import { CREATE_TRANSACTION_TOOL_NAME } from "../tools/create-transaction";
@@ -151,6 +155,104 @@ describe("CreateTransactionAgent (evals)", () => {
           type: TransactionType.EXPENSE,
           description: recurringDescription,
         }),
+      });
+      expect(result.score).toBe(true);
+    });
+  });
+
+  describe("when amount is suspiciously high", () => {
+    it("does not correct amount under voice input when no similar history exists", async () => {
+      // Arrange
+      await accountRepository.create(fakeAccount({ userId }));
+
+      // Act
+      const response = await agent.invoke(
+        { messages: [new HumanMessage("sandwich 987")] },
+        { context: { ...context, isVoiceInput: true } },
+      );
+
+      // Assert
+      const result = await createTransactionTrajectoryMatch(["amount"])({
+        outputs: response.messages,
+        referenceOutputs: createTransactionReference({ amount: 987 }),
+      });
+      expect(result.score).toBe(true);
+    });
+
+    it("corrects amount under voice input when history suggests smaller price", async () => {
+      // Arrange
+      const account = fakeAccount({ userId });
+      await accountRepository.create(account);
+      const category = await categoryRepository.create(
+        fakeCategory({
+          userId,
+          type: CategoryType.EXPENSE,
+          name: "food",
+        }),
+      );
+      // Seed similar history — prior "food" expenses around 5–15 EUR
+      const existingTransactionCount = 3;
+      for (let i = 0; i < existingTransactionCount; i++) {
+        await transactionRepository.create(
+          fakeTransaction({
+            userId,
+            accountId: account.id,
+            categoryId: category.id,
+            amount: faker.number.int({ min: 5, max: 15 }),
+            type: TransactionType.EXPENSE,
+          }),
+        );
+      }
+
+      // Act
+      const response = await agent.invoke(
+        { messages: [new HumanMessage("sandwich 987")] },
+        { context: { ...context, isVoiceInput: true } },
+      );
+
+      // Assert
+      const result = await createTransactionTrajectoryMatch(["amount"])({
+        outputs: response.messages,
+        referenceOutputs: createTransactionReference({ amount: 9.87 }),
+      });
+      expect(result.score).toBe(true);
+    });
+
+    it("does not correct amount under keyboard input when history suggests smaller price", async () => {
+      // Arrange
+      const account = fakeAccount({ userId });
+      await accountRepository.create(account);
+      const category = await categoryRepository.create(
+        fakeCategory({
+          userId,
+          type: CategoryType.EXPENSE,
+          name: "food",
+        }),
+      );
+      // Seed similar history — prior "food" expenses around 5–15 EUR
+      const existingTransactionCount = 3;
+      for (let i = 0; i < existingTransactionCount; i++) {
+        await transactionRepository.create(
+          fakeTransaction({
+            userId,
+            accountId: account.id,
+            categoryId: category.id,
+            amount: faker.number.int({ min: 5, max: 15 }),
+            type: TransactionType.EXPENSE,
+          }),
+        );
+      }
+
+      // Act
+      const response = await agent.invoke(
+        { messages: [new HumanMessage("sandwich 987")] },
+        { context: { ...context, isVoiceInput: false } },
+      );
+
+      // Assert
+      const result = await createTransactionTrajectoryMatch(["amount"])({
+        outputs: response.messages,
+        referenceOutputs: createTransactionReference({ amount: 987 }),
       });
       expect(result.score).toBe(true);
     });
