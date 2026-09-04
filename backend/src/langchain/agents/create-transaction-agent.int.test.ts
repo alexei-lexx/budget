@@ -202,24 +202,6 @@ describe("CreateTransactionAgent (integration)", () => {
     expect(toolNames).not.toContain(CREATE_TRANSACTION_TOOL_NAME);
   });
 
-  it("does not call create_transaction when amount is not given", async () => {
-    // Arrange
-    await accountRepository.create(fakeAccount({ userId }));
-
-    // Act
-    const response = await agent.invoke(
-      { messages: [new HumanMessage("bought apples")] },
-      { context },
-    );
-
-    // Assert
-    const toolNames = response.messages
-      .filter(AIMessage.isInstance)
-      .flatMap((message) => message.tool_calls ?? [])
-      .map((toolCall) => toolCall.name);
-    expect(toolNames).not.toContain(CREATE_TRANSACTION_TOOL_NAME);
-  });
-
   describe("when amount is not given", () => {
     // Happy path
 
@@ -388,6 +370,24 @@ describe("CreateTransactionAgent (integration)", () => {
       // Act
       const response = await agent.invoke(
         { messages: [new HumanMessage("gym")] },
+        { context },
+      );
+
+      // Assert
+      const toolNames = response.messages
+        .filter(AIMessage.isInstance)
+        .flatMap((message) => message.tool_calls ?? [])
+        .map((toolCall) => toolCall.name);
+      expect(toolNames).not.toContain(CREATE_TRANSACTION_TOOL_NAME);
+    });
+
+    it("does not create transaction when no history exists", async () => {
+      // Arrange
+      await accountRepository.create(fakeAccount({ userId }));
+
+      // Act
+      const response = await agent.invoke(
+        { messages: [new HumanMessage("bought apples")] },
         { context },
       );
 
