@@ -75,14 +75,55 @@ function createTransactionTrajectoryMatch(fields: string[]) {
   });
 }
 
+const DESCRIPTION_QUALITY_PROMPT = `
+You are grading whether an AI agent's inferred transaction description follows these rules:
+
+- MUST be grammatically correct, without typos
+- MUST describe the item or service — not the reason or context for the purchase
+- MUST NOT be built from the category name, its variations, or its translations
+- MUST provide meaningful details that supplement the transaction
+- MUST default to blank only when no meaningful description can be formed from the input
+
+Look at the "description" argument of the create_transaction tool call in the
+trajectory below, and at the original user message that started the trajectory.
+
+<trajectory>
+{outputs}
+</trajectory>
+
+Scoring:
+- If the description is non-blank: score 1 only if it follows every rule above
+  (grammatically correct, describes the item/service not the reason, is not
+  just the category name, adds meaningful detail). Score 0 if it violates any
+  rule.
+- If the description is blank: score 1 only if the user's message contains no
+  concrete, describable item, service, brand, or place beyond the category
+  and amount. Score 0 if the user's message named something specific that the
+  agent should have captured instead of leaving the description blank.
+`.trim();
+
+// Takes `model` as a parameter (rather than closing over it) because this
+// function is defined at module scope, while `model` is only assigned
+// inside the `describe` block's `beforeAll` — it's in scope at each call
+// site (inside an `it(...)` in that same `describe`), not here.
+function createDescriptionQualityJudge(
+  model: Awaited<ReturnType<typeof createChatModel>>,
+) {
+  return createTrajectoryLLMAsJudge({
+    prompt: DESCRIPTION_QUALITY_PROMPT,
+    judge: model,
+  });
+}
+
 describe("CreateTransactionAgent (evals)", () => {
   let context: { userId: string; today: string; isVoiceInput?: boolean };
   let today: string;
   let userId: string;
   let agent: ReturnType<typeof createCreateTransactionAgent>;
+  let model: Awaited<ReturnType<typeof createChatModel>>;
 
   beforeAll(async () => {
-    const model = await createChatModel();
+    model = await createChatModel();
     agent = createCreateTransactionAgent({
       model,
       accountService,
@@ -365,6 +406,33 @@ describe("CreateTransactionAgent (evals)", () => {
       const result = await createTransactionTrajectoryMatch(["amount"])({
         outputs: response.messages,
         referenceOutputs: createTransactionReference({ amount: 12.05 }),
+      });
+      expect(result.score).toBe(true);
+    });
+  });
+
+  describe("description inference", () => {
+    it("produces a description that follows the description-inference rules", async () => {
+      // Arrange
+      const account = fakeAccount({ userId, currency: "EUR" });
+      await accountRepository.create(account);
+      await categoryRepository.create(
+        fakeCategory({ userId, type: CategoryType.EXPENSE, name: "shopping" }),
+      );
+
+      // Act
+      const response = await agent.invoke(
+        {
+          messages: [
+            new HumanMessage("bought a used mountain bike for 200 euro"),
+          ],
+        },
+        { context },
+      );
+
+      // Assert
+      const result = await createDescriptionQualityJudge(model)({
+        outputs: response.messages,
       });
       expect(result.score).toBe(true);
     });
