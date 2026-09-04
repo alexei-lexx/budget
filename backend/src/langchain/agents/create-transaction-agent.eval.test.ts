@@ -257,4 +257,78 @@ describe("CreateTransactionAgent (evals)", () => {
       expect(result.score).toBe(true);
     });
   });
+
+  describe("when message contains HH:MM-shaped string", () => {
+    it("treats bare HH:MM string as price under voice input", async () => {
+      // Arrange
+      await accountRepository.create(fakeAccount({ userId }));
+
+      // Act
+      const response = await agent.invoke(
+        { messages: [new HumanMessage("11:23")] },
+        { context: { ...context, isVoiceInput: true } },
+      );
+
+      // Assert
+      const result = await createTransactionTrajectoryMatch(["amount"])({
+        outputs: response.messages,
+        referenceOutputs: createTransactionReference({ amount: 11.23 }),
+      });
+      expect(result.score).toBe(true);
+    });
+
+    it("treats HH:MM string in mixed text as price under voice input", async () => {
+      // Arrange
+      await accountRepository.create(fakeAccount({ userId }));
+
+      // Act
+      const response = await agent.invoke(
+        { messages: [new HumanMessage("groceries 7:50")] },
+        { context: { ...context, isVoiceInput: true } },
+      );
+
+      // Assert
+      const result = await createTransactionTrajectoryMatch(["amount"])({
+        outputs: response.messages,
+        referenceOutputs: createTransactionReference({ amount: 7.5 }),
+      });
+      expect(result.score).toBe(true);
+    });
+
+    it("treats HH:MM string as price when preposition refers to place", async () => {
+      // Arrange
+      await accountRepository.create(fakeAccount({ userId }));
+
+      // Act
+      const response = await agent.invoke(
+        { messages: [new HumanMessage("lunch 11:23 at cafe")] },
+        { context: { ...context, isVoiceInput: true } },
+      );
+
+      // Assert
+      const result = await createTransactionTrajectoryMatch(["amount"])({
+        outputs: response.messages,
+        referenceOutputs: createTransactionReference({ amount: 11.23 }),
+      });
+      expect(result.score).toBe(true);
+    });
+
+    it("prefers explicit numeric amount over HH:MM string when both are given", async () => {
+      // Arrange
+      await accountRepository.create(fakeAccount({ userId }));
+
+      // Act
+      const response = await agent.invoke(
+        { messages: [new HumanMessage("transferred 100 at 15:30")] },
+        { context: { ...context, isVoiceInput: true } },
+      );
+
+      // Assert
+      const result = await createTransactionTrajectoryMatch(["amount"])({
+        outputs: response.messages,
+        referenceOutputs: createTransactionReference({ amount: 100 }),
+      });
+      expect(result.score).toBe(true);
+    });
+  });
 });
