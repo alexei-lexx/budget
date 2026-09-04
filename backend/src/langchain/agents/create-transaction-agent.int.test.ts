@@ -60,11 +60,11 @@ describe("CreateTransactionAgent (integration)", () => {
 
   // Happy path
 
-  it("calls create_transaction when expense is given", async () => {
+  it("creates transaction when expense is given", async () => {
     // Arrange
     await accountRepository.create(fakeAccount({ userId, currency: "EUR" }));
     await categoryRepository.create(
-      fakeCategory({
+      fakeCreateCategoryInput({
         userId,
         type: CategoryType.EXPENSE,
         name: "groceries",
@@ -81,18 +81,17 @@ describe("CreateTransactionAgent (integration)", () => {
     const transactions = await transactionRepository.findManyByUserId(userId);
     expect(transactions).toHaveLength(1);
 
-    const toolNames = response.messages
-      .filter(AIMessage.isInstance)
-      .flatMap((message) => message.tool_calls ?? [])
-      .map((toolCall) => toolCall.name);
-    expect(toolNames).toContain(CREATE_TRANSACTION_TOOL_NAME);
+    const aiMessage = response.messages.findLast(
+      (message) => AIMessage.isInstance(message) && message.tool_calls?.length,
+    );
+    expect(aiMessage).toContainToolCall({ name: CREATE_TRANSACTION_TOOL_NAME });
   });
 
-  it("calls create_transaction when income is given", async () => {
+  it("creates transaction when income is given", async () => {
     // Arrange
     await accountRepository.create(fakeAccount({ userId, currency: "EUR" }));
     await categoryRepository.create(
-      fakeCategory({
+      fakeCreateCategoryInput({
         userId,
         type: CategoryType.INCOME,
         name: "salary",
@@ -109,18 +108,17 @@ describe("CreateTransactionAgent (integration)", () => {
     const transactions = await transactionRepository.findManyByUserId(userId);
     expect(transactions).toHaveLength(1);
 
-    const toolNames = response.messages
-      .filter(AIMessage.isInstance)
-      .flatMap((message) => message.tool_calls ?? [])
-      .map((toolCall) => toolCall.name);
-    expect(toolNames).toContain(CREATE_TRANSACTION_TOOL_NAME);
+    const aiMessage = response.messages.findLast(
+      (message) => AIMessage.isInstance(message) && message.tool_calls?.length,
+    );
+    expect(aiMessage).toContainToolCall({ name: CREATE_TRANSACTION_TOOL_NAME });
   });
 
-  it("calls create_transaction when refund is given", async () => {
+  it("creates transaction when refund is given", async () => {
     // Arrange
     await accountRepository.create(fakeAccount({ userId, currency: "EUR" }));
     await categoryRepository.create(
-      fakeCategory({
+      fakeCreateCategoryInput({
         userId,
         type: CategoryType.EXPENSE,
         name: "shoes",
@@ -137,16 +135,15 @@ describe("CreateTransactionAgent (integration)", () => {
     const transactions = await transactionRepository.findManyByUserId(userId);
     expect(transactions).toHaveLength(1);
 
-    const toolNames = response.messages
-      .filter(AIMessage.isInstance)
-      .flatMap((message) => message.tool_calls ?? [])
-      .map((toolCall) => toolCall.name);
-    expect(toolNames).toContain(CREATE_TRANSACTION_TOOL_NAME);
+    const aiMessage = response.messages.findLast(
+      (message) => AIMessage.isInstance(message) && message.tool_calls?.length,
+    );
+    expect(aiMessage).toContainToolCall({ name: CREATE_TRANSACTION_TOOL_NAME });
   });
 
   // Validation failures
 
-  it("does not call create_transaction when user has no accounts", async () => {
+  it("does not create transaction when user has no accounts", async () => {
     // Act
     const response = await agent.invoke(
       { messages: [new HumanMessage("bought apples for 10 euro")] },
@@ -154,11 +151,13 @@ describe("CreateTransactionAgent (integration)", () => {
     );
 
     // Assert
-    const toolNames = response.messages
-      .filter(AIMessage.isInstance)
-      .flatMap((message) => message.tool_calls ?? [])
-      .map((toolCall) => toolCall.name);
-    expect(toolNames).not.toContain(CREATE_TRANSACTION_TOOL_NAME);
+    const transactions = await transactionRepository.findManyByUserId(userId);
+    expect(transactions).toHaveLength(0);
+
+    const aiMessage = response.messages.findLast(
+      (message) => AIMessage.isInstance(message) && message.tool_calls?.length,
+    );
+    expect(aiMessage).toContainToolCall({ name: CREATE_TRANSACTION_TOOL_NAME });
   });
 
   describe("when amount is not given", () => {
