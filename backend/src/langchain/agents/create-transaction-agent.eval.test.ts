@@ -40,13 +40,15 @@ const transactionRepository = resolveTransactionRepository();
 const transactionService = resolveTransactionService();
 const userRepository = resolveUserRepository();
 
-// Every case here checks whether the agent followed a nuanced, purely
-// prompt-driven inference rule (amount correction, HH:MM/pair parsing,
-// recurring-amount detection, description quality) correctly — there is no
-// deterministic code behind these rules, so only a real LLM call can verify
-// them. Unlike create-transaction-agent.int.test.ts (routing/structural,
-// low ambiguity), these are expected to occasionally need re-running when a
-// model or prompt change causes a genuine regression to investigate.
+// Every case here checks the agent's actual behavior against a prompt-driven
+// rule (amount correction, HH:MM/pair parsing, recurring-amount detection,
+// description quality, or a validation rule's positive/negative branch) —
+// there is no deterministic code behind these rules, so only a real LLM call
+// can verify them, including cases where the expected outcome is refusing to
+// act. create-transaction-agent.int.test.ts keeps only the minimal wiring
+// smoke test (3 happy paths, 1 negative case); everything else lives here and
+// is expected to occasionally need re-running when a model or prompt change
+// causes a genuine regression to investigate.
 
 // Reference trajectories only need to contain the expected create_transaction
 // tool call — createTrajectoryMatchEvaluator's "superset" mode only compares
@@ -145,6 +147,24 @@ describe("CreateTransactionAgent (evals)", () => {
 
     today = Temporal.Now.plainDateISO().toString();
     context = { userId, today };
+  });
+
+  it("does not create transaction when no history exists", async () => {
+    // Arrange
+    await accountRepository.create(fakeAccount({ userId }));
+
+    // Act
+    const response = await agent.invoke(
+      { messages: [new HumanMessage("bought apples")] },
+      { context },
+    );
+
+    // Assert
+    const toolNames = response.messages
+      .filter(AIMessage.isInstance)
+      .flatMap((message) => message.tool_calls ?? [])
+      .map((toolCall) => toolCall.name);
+    expect(toolNames).not.toContain(CREATE_TRANSACTION_TOOL_NAME);
   });
 
   describe("happy path", () => {
@@ -318,6 +338,123 @@ describe("CreateTransactionAgent (evals)", () => {
       });
       expect(result.score).toBe(true);
     });
+
+    it("does not create transaction from varying-amount recurring matches", async () => {
+      // Arrange
+      const account = fakeAccount({ userId, currency: "EUR" });
+      await accountRepository.create(account);
+      const category = await categoryRepository.create(
+        fakeCreateCategoryInput({
+          userId,
+          type: CategoryType.EXPENSE,
+        }),
+      );
+      // Seed "gym abo" history that disagrees on amount
+      const todayPlainDate = Temporal.Now.plainDateISO();
+      const recurringDescription = "gym abo";
+      for (const [days, amount] of [
+        [10, 20],
+        [25, 35],
+        [50, 47],
+      ] as const) {
+        await transactionRepository.create(
+          fakeExpense({
+            userId,
+            accountId: account.id,
+            categoryId: category.id,
+            amount,
+            description: recurringDescription,
+            date: toDateString(todayPlainDate.subtract({ days }).toString()),
+          }),
+        );
+      }
+
+      // Act
+      const response = await agent.invoke(
+        { messages: [new HumanMessage("gym")] },
+        { context },
+      );
+
+      // Assert
+      const toolNames = response.messages
+        .filter(AIMessage.isInstance)
+        .flatMap((message) => message.tool_calls ?? [])
+        .map((toolCall) => toolCall.name);
+      expect(toolNames).not.toContain(CREATE_TRANSACTION_TOOL_NAME);
+    });
+
+    it("does not create transaction from single prior match", async () => {
+      // Arrange
+      const account = fakeAccount({ userId, currency: "EUR" });
+      await accountRepository.create(account);
+      const category = await categoryRepository.create(
+        fakeCreateCategoryInput({
+          userId,
+          type: CategoryType.EXPENSE,
+        }),
+      );
+      // Seed exactly one prior "gym abo" transaction — not a recurring pattern
+      const todayPlainDate = Temporal.Now.plainDateISO();
+      await transactionRepository.create(
+        fakeExpense({
+          userId,
+          accountId: account.id,
+          categoryId: category.id,
+          amount: 50,
+          description: "gym abo",
+          date: toDateString(todayPlainDate.subtract({ days: 15 }).toString()),
+        }),
+      );
+
+      // Act
+      const response = await agent.invoke(
+        { messages: [new HumanMessage("gym")] },
+        { context },
+      );
+
+      // Assert
+      const toolNames = response.messages
+        .filter(AIMessage.isInstance)
+        .flatMap((message) => message.tool_calls ?? [])
+        .map((toolCall) => toolCall.name);
+      expect(toolNames).not.toContain(CREATE_TRANSACTION_TOOL_NAME);
+    });
+
+    it("does not create transaction when no prior matches exist", async () => {
+      // Arrange
+      const account = fakeAccount({ userId, currency: "EUR" });
+      await accountRepository.create(account);
+      const category = await categoryRepository.create(
+        fakeCategory({
+          userId,
+          type: CategoryType.EXPENSE,
+        }),
+      );
+      // Seed unrelated history — no transaction described "gym"
+      const todayPlainDate = Temporal.Now.plainDateISO();
+      await transactionRepository.create(
+        fakeExpense({
+          userId,
+          accountId: account.id,
+          categoryId: category.id,
+          amount: 50,
+          date: toDateString(todayPlainDate.subtract({ days: 20 }).toString()),
+        }),
+      );
+
+      // Act
+      const response = await agent.invoke(
+        { messages: [new HumanMessage("gym")] },
+        { context },
+      );
+
+      // Assert
+      const toolNames = response.messages
+        .filter(AIMessage.isInstance)
+        .flatMap((message) => message.tool_calls ?? [])
+        .map((toolCall) => toolCall.name);
+      expect(toolNames).not.toContain(CREATE_TRANSACTION_TOOL_NAME);
+    });
   });
 
   describe("when amount is suspiciously high", () => {
@@ -490,6 +627,42 @@ describe("CreateTransactionAgent (evals)", () => {
       });
       expect(result.score).toBe(true);
     });
+
+    it("does not call create_transaction when HH:MM string is clock time", async () => {
+      // Arrange
+      await accountRepository.create(fakeAccount({ userId }));
+
+      // Act
+      const response = await agent.invoke(
+        { messages: [new HumanMessage("I brought coffee at 12:34")] },
+        { context: { ...context, isVoiceInput: true } },
+      );
+
+      // Assert
+      const toolNames = response.messages
+        .filter(AIMessage.isInstance)
+        .flatMap((message) => message.tool_calls ?? [])
+        .map((toolCall) => toolCall.name);
+      expect(toolNames).not.toContain(CREATE_TRANSACTION_TOOL_NAME);
+    });
+
+    it("does not call create_transaction under keyboard input", async () => {
+      // Arrange
+      await accountRepository.create(fakeAccount({ userId }));
+
+      // Act
+      const response = await agent.invoke(
+        { messages: [new HumanMessage("11:23")] },
+        { context },
+      );
+
+      // Assert
+      const toolNames = response.messages
+        .filter(AIMessage.isInstance)
+        .flatMap((message) => message.tool_calls ?? [])
+        .map((toolCall) => toolCall.name);
+      expect(toolNames).not.toContain(CREATE_TRANSACTION_TOOL_NAME);
+    });
   });
 
   describe("when message contains space-separated integer pair", () => {
@@ -527,6 +700,24 @@ describe("CreateTransactionAgent (evals)", () => {
         referenceOutputs: createTransactionReference({ amount: 12.05 }),
       });
       expect(result.score).toBe(true);
+    });
+
+    it("does not call create_transaction under keyboard input", async () => {
+      // Arrange
+      await accountRepository.create(fakeAccount({ userId }));
+
+      // Act
+      const response = await agent.invoke(
+        { messages: [new HumanMessage("apples, bananas 12 54")] },
+        { context: { ...context, isVoiceInput: false } },
+      );
+
+      // Assert
+      const toolNames = response.messages
+        .filter(AIMessage.isInstance)
+        .flatMap((message) => message.tool_calls ?? [])
+        .map((toolCall) => toolCall.name);
+      expect(toolNames).not.toContain(CREATE_TRANSACTION_TOOL_NAME);
     });
   });
 
