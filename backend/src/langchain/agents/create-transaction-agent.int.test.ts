@@ -157,7 +157,9 @@ describe("CreateTransactionAgent (integration)", () => {
     const aiMessage = response.messages.findLast(
       (message) => AIMessage.isInstance(message) && message.tool_calls?.length,
     );
-    expect(aiMessage).toContainToolCall({ name: CREATE_TRANSACTION_TOOL_NAME });
+    expect(aiMessage).not.toContainToolCall({
+      name: CREATE_TRANSACTION_TOOL_NAME,
+    });
   });
 
   describe("when amount is not given", () => {
