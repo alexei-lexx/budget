@@ -40,6 +40,17 @@ export default defineConfig({
           setupFiles: ["src/utils/test-utils/integration-matchers.ts"],
         },
       },
+      {
+        extends: true,
+        test: {
+          name: "evals",
+          environment: "node",
+          include: ["src/**/*.eval.test.ts"],
+          exclude: ["**/node_modules/**"],
+          testTimeout: 100000,
+          maxWorkers: 1,
+        },
+      },
     ],
     globals: false,
     coverage: {
