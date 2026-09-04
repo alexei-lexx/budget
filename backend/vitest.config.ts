@@ -26,7 +26,6 @@ export default defineConfig({
           exclude: ["**/node_modules/**", "**/*.int.test.ts"],
           testTimeout: 10000,
           maxWorkers: 1,
-          minWorkers: 1,
         },
       },
       {
@@ -38,7 +37,6 @@ export default defineConfig({
           exclude: ["**/node_modules/**"],
           testTimeout: 100000,
           maxWorkers: 1,
-          minWorkers: 1,
           setupFiles: ["src/utils/test-utils/integration-matchers.ts"],
         },
       },
