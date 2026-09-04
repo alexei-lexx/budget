@@ -5,24 +5,20 @@ import {
   createChatModel,
   resolveAccountRepository,
   resolveAccountService,
-  resolveCategoryRepository,
   resolveCategoryService,
   resolveTransactionRepository,
   resolveTransactionService,
   resolveUserRepository,
 } from "../../dependencies";
-import { CategoryType } from "../../models/category";
 import { createDynamoDBDocumentClient } from "../../utils/dynamo-client";
 import { truncateAllTables } from "../../utils/test-utils/dynamodb-helpers";
 import { fakeAccount } from "../../utils/test-utils/models/account-fakes";
 import { fakeUser } from "../../utils/test-utils/models/user-fakes";
-import { fakeCreateCategoryInput } from "../../utils/test-utils/repositories/category-repository-fakes";
 import { CREATE_TRANSACTION_TOOL_NAME } from "../tools/create-transaction";
 import { createCreateTransactionAgent } from "./create-transaction-agent";
 
 const accountRepository = resolveAccountRepository();
 const accountService = resolveAccountService();
-const categoryRepository = resolveCategoryRepository();
 const categoryService = resolveCategoryService();
 const transactionRepository = resolveTransactionRepository();
 const transactionService = resolveTransactionService();
@@ -60,13 +56,6 @@ describe("CreateTransactionAgent (integration)", () => {
   it("creates transaction when expense is given", async () => {
     // Arrange
     await accountRepository.create(fakeAccount({ userId, currency: "EUR" }));
-    await categoryRepository.create(
-      fakeCreateCategoryInput({
-        userId,
-        type: CategoryType.EXPENSE,
-        name: "groceries",
-      }),
-    );
 
     // Act
     const response = await agent.invoke(
@@ -87,13 +76,6 @@ describe("CreateTransactionAgent (integration)", () => {
   it("creates transaction when income is given", async () => {
     // Arrange
     await accountRepository.create(fakeAccount({ userId, currency: "EUR" }));
-    await categoryRepository.create(
-      fakeCreateCategoryInput({
-        userId,
-        type: CategoryType.INCOME,
-        name: "salary",
-      }),
-    );
 
     // Act
     const response = await agent.invoke(
@@ -114,13 +96,6 @@ describe("CreateTransactionAgent (integration)", () => {
   it("creates transaction when refund is given", async () => {
     // Arrange
     await accountRepository.create(fakeAccount({ userId, currency: "EUR" }));
-    await categoryRepository.create(
-      fakeCreateCategoryInput({
-        userId,
-        type: CategoryType.EXPENSE,
-        name: "shoes",
-      }),
-    );
 
     // Act
     const response = await agent.invoke(
