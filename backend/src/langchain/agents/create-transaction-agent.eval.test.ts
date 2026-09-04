@@ -147,6 +147,122 @@ describe("CreateTransactionAgent (evals)", () => {
     context = { userId, today };
   });
 
+  describe("happy path", () => {
+    it("extracts fields correctly when expense is given", async () => {
+      // Arrange
+      const account = fakeAccount({ userId, currency: "EUR" });
+      await accountRepository.create(account);
+      const category = await categoryRepository.create(
+        fakeCategory({
+          userId,
+          type: CategoryType.EXPENSE,
+          name: "groceries",
+        }),
+      );
+
+      // Act
+      const response = await agent.invoke(
+        { messages: [new HumanMessage("bought apples for 10 euro")] },
+        { context },
+      );
+
+      // Assert
+      const result = await createTransactionTrajectoryMatch([
+        "accountId",
+        "amount",
+        "categoryId",
+        "date",
+        "type",
+      ])({
+        outputs: response.messages,
+        referenceOutputs: createTransactionReference({
+          accountId: account.id,
+          amount: 10,
+          categoryId: category.id,
+          date: today,
+          type: TransactionType.EXPENSE,
+        }),
+      });
+      expect(result.score).toBe(true);
+    });
+
+    it("extracts fields correctly when income is given", async () => {
+      // Arrange
+      const account = fakeAccount({ userId, currency: "EUR" });
+      await accountRepository.create(account);
+      const category = await categoryRepository.create(
+        fakeCategory({
+          userId,
+          type: CategoryType.INCOME,
+          name: "salary",
+        }),
+      );
+
+      // Act
+      const response = await agent.invoke(
+        { messages: [new HumanMessage("received salary of 1000 euro")] },
+        { context },
+      );
+
+      // Assert
+      const result = await createTransactionTrajectoryMatch([
+        "accountId",
+        "amount",
+        "categoryId",
+        "date",
+        "type",
+      ])({
+        outputs: response.messages,
+        referenceOutputs: createTransactionReference({
+          accountId: account.id,
+          amount: 1000,
+          categoryId: category.id,
+          date: today,
+          type: TransactionType.INCOME,
+        }),
+      });
+      expect(result.score).toBe(true);
+    });
+
+    it("extracts fields correctly when refund is given", async () => {
+      // Arrange
+      const account = fakeAccount({ userId, currency: "EUR" });
+      await accountRepository.create(account);
+      const category = await categoryRepository.create(
+        fakeCategory({
+          userId,
+          type: CategoryType.EXPENSE,
+          name: "shoes",
+        }),
+      );
+
+      // Act
+      const response = await agent.invoke(
+        { messages: [new HumanMessage("got a refund of 50 euro for shoes")] },
+        { context },
+      );
+
+      // Assert
+      const result = await createTransactionTrajectoryMatch([
+        "accountId",
+        "amount",
+        "categoryId",
+        "date",
+        "type",
+      ])({
+        outputs: response.messages,
+        referenceOutputs: createTransactionReference({
+          accountId: account.id,
+          amount: 50,
+          categoryId: category.id,
+          date: today,
+          type: TransactionType.REFUND,
+        }),
+      });
+      expect(result.score).toBe(true);
+    });
+  });
+
   describe("when amount is not given", () => {
     it("creates transaction from recurring matches that agree on amount", async () => {
       // Arrange

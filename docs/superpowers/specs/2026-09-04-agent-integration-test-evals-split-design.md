@@ -58,20 +58,20 @@ Not added to `test`, `test:coverage`, or `test:watch`. Not run in CI — same no
 
 ### 4. Split `create-transaction-agent.int.test.ts`
 
-**Stays in `create-transaction-agent.int.test.ts`** (routing/structural — unchanged mechanism and assertions):
+**Rule, with no exceptions:** `create-transaction-agent.int.test.ts` never asserts a tool-call *argument value* — only whether `create_transaction` was called or not (routing) and the resulting DB side-effect count. Any check of *which* values the agent chose (an amount, an account, a category, a date) depends on the LLM's interpretation and belongs in the eval tier, regardless of how unambiguous the input looks. (An earlier version of this spec carved out an exception for the three "calls create_transaction when X is given" tests on the theory that an explicitly-stated amount like "10 euro" was low-risk to pin — that carve-out is removed: it was still a content check by the definition above, just one judged less likely to fail.)
+
+**Stays in `create-transaction-agent.int.test.ts`** (routing/structural — name/presence and DB count only):
 
 - `does not call create_transaction when user has no accounts`
-- `calls create_transaction when expense is given`
-- `calls create_transaction when income is given`
-- `calls create_transaction when refund is given`
+- `calls create_transaction when expense is given` — reasserted as tool-name-present + DB count, dropping the `objectContaining` value check
+- `calls create_transaction when income is given` — same
+- `calls create_transaction when refund is given` — same
 - `does not create transaction from varying-amount recurring matches`
 - `does not create transaction from single prior match`
 - `does not create transaction when no prior matches exist`
 - `does not create transaction when no history exists`
 - `does not call create_transaction when HH:MM string is clock time`
 - `does not call create_transaction under keyboard input` (both occurrences — HH:MM block and space-separated integer pair block)
-
-The three "calls create_transaction when X is given" happy paths stay here (not moved) because their input states the amount explicitly and unambiguously (e.g. "10 euro") — there is no nuanced instruction-following being exercised, so the existing exact-value assertion carries low flake risk and is worth keeping as a basic wiring smoke test.
 
 **Moves to new `create-transaction-agent.eval.test.ts`** (nuanced instruction-following — reassert using `agentevals`):
 
@@ -85,6 +85,12 @@ The three "calls create_transaction when X is given" happy paths stay here (not 
 - `prefers explicit numeric amount over HH:MM string when both are given`
 - `treats two-digit fractional part as decimal amount under voice input`
 - `treats single-digit fractional part as decimal amount with leading zero under voice input`
+
+**New in `create-transaction-agent.eval.test.ts`, companion to the three happy-path tests that stay** (the value-correctness half of those scenarios, since the int-tier version no longer checks values):
+
+- `extracts fields correctly when expense is given`
+- `extracts fields correctly when income is given`
+- `extracts fields correctly when refund is given`
 
 Setup (`beforeAll` agent construction, `beforeEach` table truncation/user/account/category fixtures) is duplicated between the two files rather than extracted into a shared helper — this matches the existing repo convention (`assistant-agent.int.test.ts` and `create-transaction-agent.int.test.ts` do not share such a helper today) and keeps each file independently readable.
 
@@ -124,8 +130,8 @@ New `it()` block(s) in `create-transaction-agent.eval.test.ts` using `createTraj
 
 ## Impact
 
-- `create-transaction-agent.int.test.ts` shrinks to routing/structural cases only; remains fast(er)-to-reason-about and low-flake.
-- New `create-transaction-agent.eval.test.ts` holds the probabilistic-instruction-following cases plus one new description-quality check; run manually via `npm run test:evals`, same non-CI-gating posture as `test:integration` today.
+- `create-transaction-agent.int.test.ts` shrinks to routing/structural cases only (11 tests, none asserting argument values); remains fast(er)-to-reason-about and low-flake.
+- New `create-transaction-agent.eval.test.ts` holds the probabilistic-instruction-following cases, the value-correctness companions to the three happy-path tests, and one new description-quality check (14 tests total); run manually via `npm run test:evals`, same non-CI-gating posture as `test:integration` today.
 - `backend/package.json` gains one devDependency (`agentevals`) and one script (`test:evals`).
 - `backend/vitest.config.ts` gains one project (`evals`).
 - No production code changes; no CI changes; no new external accounts/secrets.
@@ -136,4 +142,4 @@ New `it()` block(s) in `create-transaction-agent.eval.test.ts` using `createTraj
 - `npm run typecheck`, `npm run lint`, `npm run prettier` pass in `backend/`.
 - `npm run test:integration` passes (routing tests only, unchanged assertions).
 - `npm run test:evals` passes (may be re-run if a genuine LLM miss occurs — that's the expected, accepted posture for this tier, unlike `test:integration`/CI-gating tests).
-- Manual read-through confirms every test case from the original file is accounted for in exactly one of the two files (no case dropped, no case duplicated).
+- Manual read-through confirms every one of the original file's 21 test cases is accounted for in exactly one of the two files (no case dropped, no case duplicated), plus 3 new happy-path value-correctness companions and 1 new description-quality eval (25 total).
