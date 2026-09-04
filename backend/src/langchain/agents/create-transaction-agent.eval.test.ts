@@ -331,4 +331,42 @@ describe("CreateTransactionAgent (evals)", () => {
       expect(result.score).toBe(true);
     });
   });
+
+  describe("when message contains space-separated integer pair", () => {
+    it("treats two-digit fractional part as decimal amount under voice input", async () => {
+      // Arrange
+      await accountRepository.create(fakeAccount({ userId }));
+
+      // Act
+      const response = await agent.invoke(
+        { messages: [new HumanMessage("apples, bananas 12 54")] },
+        { context: { ...context, isVoiceInput: true } },
+      );
+
+      // Assert
+      const result = await createTransactionTrajectoryMatch(["amount"])({
+        outputs: response.messages,
+        referenceOutputs: createTransactionReference({ amount: 12.54 }),
+      });
+      expect(result.score).toBe(true);
+    });
+
+    it("treats single-digit fractional part as decimal amount with leading zero under voice input", async () => {
+      // Arrange
+      await accountRepository.create(fakeAccount({ userId }));
+
+      // Act
+      const response = await agent.invoke(
+        { messages: [new HumanMessage("coffee 12 5")] },
+        { context: { ...context, isVoiceInput: true } },
+      );
+
+      // Assert
+      const result = await createTransactionTrajectoryMatch(["amount"])({
+        outputs: response.messages,
+        referenceOutputs: createTransactionReference({ amount: 12.05 }),
+      });
+      expect(result.score).toBe(true);
+    });
+  });
 });
