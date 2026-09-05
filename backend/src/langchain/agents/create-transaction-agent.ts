@@ -137,7 +137,7 @@ The user's input was captured via voice recognition. Follow these additional rul
 Speech-to-text often transcribes a spoken price as a single number — "two thirty four" becomes "234".
 
 - The integer "234" may represent 2.34, 23.4, or 234
-- MUST look up similar past transactions (same or related category, similar description) to assess which interpretation is most realistic
+- MUST look up similar transactions (in the same category or with a related description) to assess which interpretation is most realistic
 - Only after lookup, if no similar history exists, use the amount as transcribed
 
 Speech-to-text often transcribes a spoken price as a clock time — "eleven twenty three" becomes "11:23".

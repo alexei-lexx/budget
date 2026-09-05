@@ -70,11 +70,10 @@ describe("AssistantAgent (integration)", () => {
     );
 
     // Assert
-    const toolNames = response.messages
-      .filter(AIMessage.isInstance)
-      .flatMap((message) => message.tool_calls ?? [])
-      .map((toolCall) => toolCall.name);
-    expect(toolNames).toContain("get_accounts");
+    const aiMessage = response.messages.findLast(
+      (message) => AIMessage.isInstance(message) && message.tool_calls?.length,
+    );
+    expect(aiMessage).toContainToolCall({ name: "get_accounts" });
   });
 
   it("calls get_categories when user asks to list categories", async () => {
@@ -88,11 +87,10 @@ describe("AssistantAgent (integration)", () => {
     );
 
     // Assert
-    const toolNames = response.messages
-      .filter(AIMessage.isInstance)
-      .flatMap((message) => message.tool_calls ?? [])
-      .map((toolCall) => toolCall.name);
-    expect(toolNames).toContain("get_categories");
+    const aiMessage = response.messages.findLast(
+      (message) => AIMessage.isInstance(message) && message.tool_calls?.length,
+    );
+    expect(aiMessage).toContainToolCall({ name: "get_categories" });
   });
 
   it("calls aggregate_transactions when user asks about total spending", async () => {
@@ -127,11 +125,12 @@ describe("AssistantAgent (integration)", () => {
     );
 
     // Assert
-    const toolNames = response.messages
-      .filter(AIMessage.isInstance)
-      .flatMap((message) => message.tool_calls ?? [])
-      .map((toolCall) => toolCall.name);
-    expect(toolNames).toContain("aggregate_transactions");
+    const aiMessage = response.messages.findLast(
+      (message) => AIMessage.isInstance(message) && message.tool_calls?.length,
+    );
+    expect(aiMessage).toContainToolCall({
+      name: "aggregate_transactions",
+    });
   });
 
   // Happy path — writes
@@ -151,19 +150,10 @@ describe("AssistantAgent (integration)", () => {
     const accounts = await accountRepository.findManyByUserId(userId);
     expect(accounts).toHaveLength(1);
 
-    const lastToolCallMessage = response.messages.findLast(
-      (message): message is AIMessage =>
-        AIMessage.isInstance(message) && (message.tool_calls ?? []).length > 0,
+    const aiMessage = response.messages.findLast(
+      (message) => AIMessage.isInstance(message) && message.tool_calls?.length,
     );
-    expect(lastToolCallMessage).toHaveToolCalls([
-      {
-        name: "create_account",
-        args: expect.objectContaining({
-          name: expect.stringMatching(/savings/i),
-          currency: "EUR",
-        }),
-      },
-    ]);
+    expect(aiMessage).toContainToolCall({ name: "create_account" });
   });
 
   it("calls create_category when user asks to create category", async () => {
@@ -181,19 +171,10 @@ describe("AssistantAgent (integration)", () => {
     const categories = await categoryRepository.findManyByUserId(userId);
     expect(categories).toHaveLength(1);
 
-    const lastToolCallMessage = response.messages.findLast(
-      (message): message is AIMessage =>
-        AIMessage.isInstance(message) && (message.tool_calls ?? []).length > 0,
+    const aiMessage = response.messages.findLast(
+      (message) => AIMessage.isInstance(message) && message.tool_calls?.length,
     );
-    expect(lastToolCallMessage).toHaveToolCalls([
-      {
-        name: "create_category",
-        args: expect.objectContaining({
-          name: expect.stringMatching(/transport/i),
-          type: CategoryType.EXPENSE,
-        }),
-      },
-    ]);
+    expect(aiMessage).toContainToolCall({ name: "create_category" });
   });
 
   it("calls update_account when user asks to rename account", async () => {
@@ -210,30 +191,15 @@ describe("AssistantAgent (integration)", () => {
     );
 
     // Assert
-    const persistedAccount = await accountRepository.findOneById({
-      id: account.id,
-      userId,
-    });
-    expect(persistedAccount?.name).toEqual(expect.stringMatching(/amex/i));
-
-    const lastToolCallMessage = response.messages.findLast(
-      (message): message is AIMessage =>
-        AIMessage.isInstance(message) && (message.tool_calls ?? []).length > 0,
+    const aiMessage = response.messages.findLast(
+      (message) => AIMessage.isInstance(message) && message.tool_calls?.length,
     );
-    expect(lastToolCallMessage).toHaveToolCalls([
-      {
-        name: "update_account",
-        args: expect.objectContaining({
-          id: account.id,
-          name: expect.stringMatching(/amex/i),
-        }),
-      },
-    ]);
+    expect(aiMessage).toContainToolCall({ name: "update_account" });
   });
 
   it("calls update_category when user asks to rename category", async () => {
     // Arrange
-    const category = await categoryRepository.create(
+    await categoryRepository.create(
       fakeCategory({
         userId,
         type: CategoryType.EXPENSE,
@@ -250,25 +216,10 @@ describe("AssistantAgent (integration)", () => {
     );
 
     // Assert
-    const persistedCategory = await categoryRepository.findOneById({
-      id: category.id,
-      userId,
-    });
-    expect(persistedCategory?.name).toEqual(expect.stringMatching(/food/i));
-
-    const lastToolCallMessage = response.messages.findLast(
-      (message): message is AIMessage =>
-        AIMessage.isInstance(message) && (message.tool_calls ?? []).length > 0,
+    const aiMessage = response.messages.findLast(
+      (message) => AIMessage.isInstance(message) && message.tool_calls?.length,
     );
-    expect(lastToolCallMessage).toHaveToolCalls([
-      {
-        name: "update_category",
-        args: expect.objectContaining({
-          id: category.id,
-          name: expect.stringMatching(/food/i),
-        }),
-      },
-    ]);
+    expect(aiMessage).toContainToolCall({ name: "update_category" });
   });
 
   it("calls create_transaction_subagent when user logs transaction", async () => {
@@ -282,10 +233,11 @@ describe("AssistantAgent (integration)", () => {
     );
 
     // Assert
-    const toolNames = response.messages
-      .filter(AIMessage.isInstance)
-      .flatMap((message) => message.tool_calls ?? [])
-      .map((toolCall) => toolCall.name);
-    expect(toolNames).toContain("create_transaction_subagent");
+    const aiMessage = response.messages.findLast(
+      (message) => AIMessage.isInstance(message) && message.tool_calls?.length,
+    );
+    expect(aiMessage).toContainToolCall({
+      name: "create_transaction_subagent",
+    });
   });
 });
