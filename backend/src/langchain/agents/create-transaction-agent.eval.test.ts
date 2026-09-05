@@ -787,8 +787,6 @@ describe("CreateTransactionAgent (evals)", () => {
         outputs: response.messages,
       });
 
-      console.log(result);
-
       expect(result.score).toBeGreaterThanOrEqual(0.9);
     });
   });
