@@ -6,7 +6,7 @@ import { TransactionRepository } from "../../ports/transaction-repository";
 import { toDateString } from "../../types/date-string";
 import { Failure, Success } from "../../types/result";
 import { agentContextSchema } from "../agents/agent-context";
-import { MAX_PERIOD_DAYS } from "./get-transactions";
+import { DEFAULT_MAX_PERIOD_DAYS } from "./get-transactions";
 
 const schema = z.object({
   startDate: z.iso
@@ -55,8 +55,10 @@ export const createAggregateTransactionsTool = ({
       const endPlainDate = Temporal.PlainDate.from(endDate);
       const daysBetween = startPlainDate.until(endPlainDate).days;
 
-      if (daysBetween > MAX_PERIOD_DAYS) {
-        return Failure(`Date range must not exceed ${MAX_PERIOD_DAYS} days`);
+      if (daysBetween > DEFAULT_MAX_PERIOD_DAYS) {
+        return Failure(
+          `Date range must not exceed ${DEFAULT_MAX_PERIOD_DAYS} days`,
+        );
       }
 
       const transactions = await transactionRepository.findManyByUserId(
@@ -93,7 +95,7 @@ export const createAggregateTransactionsTool = ({
         ` Sum uses signed cashflow convention: ${TransactionType.EXPENSE} and ${TransactionType.TRANSFER_OUT} are negative;` +
         ` ${TransactionType.INCOME}, ${TransactionType.REFUND}, and ${TransactionType.TRANSFER_IN} are positive.` +
         ` Filter transactions by date range and optionally by one or more accountIds, one or more categoryIds, or one or more transaction types.` +
-        ` Date format: YYYY-MM-DD. The date range must not exceed ${MAX_PERIOD_DAYS} days.`,
+        ` Date format: YYYY-MM-DD. The date range must not exceed ${DEFAULT_MAX_PERIOD_DAYS} days.`,
       schema,
     },
   );

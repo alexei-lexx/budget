@@ -1,5 +1,5 @@
 import { Temporal } from "temporal-polyfill";
-import { MAX_PERIOD_DAYS } from "../langchain/tools/get-transactions";
+import { DEFAULT_MAX_PERIOD_DAYS } from "../langchain/tools/get-transactions";
 import { Transaction, TransactionType } from "../models/transaction";
 import { CategoryRepository } from "../ports/category-repository";
 import { TransactionRepository } from "../ports/transaction-repository";
@@ -69,8 +69,10 @@ export class AggregateTransactionsServiceImpl implements AggregateTransactionsSe
     const endPlainDate = Temporal.PlainDate.from(endDate);
     const daysBetween = startPlainDate.until(endPlainDate).days;
 
-    if (daysBetween > MAX_PERIOD_DAYS) {
-      return Failure(`Date range must not exceed ${MAX_PERIOD_DAYS} days`);
+    if (daysBetween > DEFAULT_MAX_PERIOD_DAYS) {
+      return Failure(
+        `Date range must not exceed ${DEFAULT_MAX_PERIOD_DAYS} days`,
+      );
     }
 
     const excludedCategoryIds = includeTransactionsExcludedFromReports

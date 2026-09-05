@@ -1,6 +1,6 @@
 import { Temporal } from "temporal-polyfill";
 import { z } from "zod";
-import { MAX_PERIOD_DAYS } from "../../langchain/tools/get-transactions";
+import { DEFAULT_MAX_PERIOD_DAYS } from "../../langchain/tools/get-transactions";
 import {
   TransactionDto,
   toTransactionDto,
@@ -52,8 +52,10 @@ export async function getTransactions(
   const endPlainDate = Temporal.PlainDate.from(endDate);
   const daysBetween = startPlainDate.until(endPlainDate).days;
 
-  if (daysBetween > MAX_PERIOD_DAYS) {
-    return Failure(`Date range must not exceed ${MAX_PERIOD_DAYS} days`);
+  if (daysBetween > DEFAULT_MAX_PERIOD_DAYS) {
+    return Failure(
+      `Date range must not exceed ${DEFAULT_MAX_PERIOD_DAYS} days`,
+    );
   }
 
   const transactions = await transactionRepository.findManyByUserId(userId, {
@@ -100,7 +102,7 @@ Get user transactions filtered by date range and optionally
 by one or more accountIds,
 one or more categoryIds,
 or one or more transaction types.
-The given date range must not exceed ${MAX_PERIOD_DAYS} days.
+The given date range must not exceed ${DEFAULT_MAX_PERIOD_DAYS} days.
 `.trim();
 
 export function createGetTransactionsTool(deps: {

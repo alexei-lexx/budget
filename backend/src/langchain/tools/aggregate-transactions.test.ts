@@ -6,7 +6,7 @@ import { toDateString } from "../../types/date-string";
 import { fakeTransaction } from "../../utils/test-utils/models/transaction-fakes";
 import { createMockTransactionRepository } from "../../utils/test-utils/repositories/transaction-repository-mocks";
 import { createAggregateTransactionsTool } from "./aggregate-transactions";
-import { MAX_PERIOD_DAYS } from "./get-transactions";
+import { DEFAULT_MAX_PERIOD_DAYS } from "./get-transactions";
 
 describe("createAggregateTransactionsTool", () => {
   let mockTransactionRepository: Mocked<TransactionRepository>;
@@ -67,7 +67,7 @@ describe("createAggregateTransactionsTool", () => {
     expect(mockTransactionRepository.findManyByUserId).not.toHaveBeenCalled();
     expect(result).toEqual({
       success: false,
-      error: `Date range must not exceed ${MAX_PERIOD_DAYS} days`,
+      error: `Date range must not exceed ${DEFAULT_MAX_PERIOD_DAYS} days`,
     });
   });
 

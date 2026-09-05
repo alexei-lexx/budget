@@ -8,7 +8,8 @@ import { Failure, Success } from "../../types/result";
 import { agentContextSchema } from "../agents/agent-context";
 import { toTransactionDto } from "./transaction-dto";
 
-export const MAX_PERIOD_DAYS = 365;
+export const DEFAULT_MAX_PERIOD_DAYS = 365;
+export const GET_TRANSACTIONS_TOOL_NAME = "get_transactions";
 
 const schema = z.object({
   startDate: z.iso
@@ -37,10 +38,22 @@ const schema = z.object({
     ),
 });
 
+const buildDescription = (maxPeriodDays: number) =>
+  `Get filtered transactions by date range
+and optionally by one or more accountIds,
+one or more categoryIds,
+or one or more transaction types.
+Date format: YYYY-MM-DD.
+The date range must not exceed ${maxPeriodDays} days.
+For longer periods, call this tool multiple times with sequential ranges.
+`.trim();
+
 export const createGetTransactionsTool = ({
   transactionRepository,
+  maxPeriodDays = DEFAULT_MAX_PERIOD_DAYS,
 }: {
   transactionRepository: TransactionRepository;
+  maxPeriodDays?: number;
 }) =>
   tool(
     async ({ startDate, endDate, accountIds, categoryIds, types }, config) => {
@@ -55,8 +68,8 @@ export const createGetTransactionsTool = ({
       const endPlainDate = Temporal.PlainDate.from(endDate);
       const daysBetween = startPlainDate.until(endPlainDate).days;
 
-      if (daysBetween > MAX_PERIOD_DAYS) {
-        return Failure(`Date range must not exceed ${MAX_PERIOD_DAYS} days`);
+      if (daysBetween > maxPeriodDays) {
+        return Failure(`Date range must not exceed ${maxPeriodDays} days`);
       }
 
       const transactions = await transactionRepository.findManyByUserId(
@@ -73,8 +86,8 @@ export const createGetTransactionsTool = ({
       return Success(transactions.map(toTransactionDto));
     },
     {
-      name: "get_transactions",
-      description: `Get filtered transactions by date range and optionally by one or more accountIds, one or more categoryIds, or one or more transaction types. Date format: YYYY-MM-DD. The date range must not exceed ${MAX_PERIOD_DAYS} days.`,
+      name: GET_TRANSACTIONS_TOOL_NAME,
+      description: buildDescription(maxPeriodDays),
       schema,
     },
   );

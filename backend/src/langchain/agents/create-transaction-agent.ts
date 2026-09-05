@@ -15,8 +15,13 @@ import {
 } from "../tools/create-transaction";
 import { createGetAccountsTool } from "../tools/get-accounts";
 import { createGetCategoriesTool } from "../tools/get-categories";
-import { createGetTransactionsTool } from "../tools/get-transactions";
+import {
+  GET_TRANSACTIONS_TOOL_NAME,
+  createGetTransactionsTool,
+} from "../tools/get-transactions";
 import { AgentContext, agentContextSchema } from "./agent-context";
+
+const MAX_PERIOD_DAYS = 90;
 
 const SYSTEM_PROMPT_TEMPLATE = `
 ## Role
@@ -56,10 +61,9 @@ You MUST infer all mandatory and optional transaction fields and then MUST persi
 {VOICE_INPUT_SUBPROMPT}
 
 If no amount is stated:
-- MUST search in this exact sequence, stopping as soon as a step finds at least two matches:
-  1. Search the past 1 month for transactions matching the described subject
-  2. If fewer than two matches, search the past 3 months
-  3. If still fewer than two matches, search the past 12 months
+- MUST search for transactions matching the described subject
+- Start from the most recent history and go back no more than one year
+- Stop as soon as at least two matches are found
 - If the matching transactions share the same exact amount, treat them as recurring
 - Use the recurring transaction's fields to fill in the new transaction
 
@@ -175,7 +179,10 @@ export function createCreateTransactionAgent({
   const tools = [
     createGetAccountsTool(accountService),
     createGetCategoriesTool({ categoryService, transactionRepository }),
-    createGetTransactionsTool({ transactionRepository }),
+    createGetTransactionsTool({
+      transactionRepository,
+      maxPeriodDays: MAX_PERIOD_DAYS,
+    }),
     createCreateTransactionTool({ transactionService }),
   ];
 
@@ -196,6 +203,11 @@ export function createCreateTransactionAgent({
       toolCallLimitMiddleware({
         toolName: CREATE_TRANSACTION_TOOL_NAME,
         runLimit: 1,
+      }),
+      // Cap the number of fetches to avoid long-running calls
+      toolCallLimitMiddleware({
+        toolName: GET_TRANSACTIONS_TOOL_NAME,
+        runLimit: 10,
       }),
     ],
   });

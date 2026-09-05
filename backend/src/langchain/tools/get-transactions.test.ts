@@ -5,11 +5,12 @@ import { TransactionRepository } from "../../ports/transaction-repository";
 import { toDateString } from "../../types/date-string";
 import { fakeTransaction } from "../../utils/test-utils/models/transaction-fakes";
 import { createMockTransactionRepository } from "../../utils/test-utils/repositories/transaction-repository-mocks";
-import { MAX_PERIOD_DAYS, createGetTransactionsTool } from "./get-transactions";
+import { createGetTransactionsTool } from "./get-transactions";
 
 describe("createGetTransactionsTool", () => {
   let mockTransactionRepository: Mocked<TransactionRepository>;
   const userId = faker.string.uuid();
+  const maxPeriodDays = 30;
 
   beforeEach(() => {
     mockTransactionRepository = createMockTransactionRepository();
@@ -18,6 +19,7 @@ describe("createGetTransactionsTool", () => {
   it("returns tool with correct name", () => {
     const transactionsTool = createGetTransactionsTool({
       transactionRepository: mockTransactionRepository,
+      maxPeriodDays,
     });
 
     expect(transactionsTool.name).toBe("get_transactions");
@@ -26,6 +28,7 @@ describe("createGetTransactionsTool", () => {
   it("throws when userId in context is not valid UUID", async () => {
     const transactionsTool = createGetTransactionsTool({
       transactionRepository: mockTransactionRepository,
+      maxPeriodDays,
     });
 
     await expect(
@@ -39,6 +42,7 @@ describe("createGetTransactionsTool", () => {
   it("rejects when startDate is after endDate", async () => {
     const transactionsTool = createGetTransactionsTool({
       transactionRepository: mockTransactionRepository,
+      maxPeriodDays,
     });
 
     const result = await transactionsTool.invoke(
@@ -56,17 +60,18 @@ describe("createGetTransactionsTool", () => {
   it("rejects when date range exceeds max period days", async () => {
     const transactionsTool = createGetTransactionsTool({
       transactionRepository: mockTransactionRepository,
+      maxPeriodDays,
     });
 
     const result = await transactionsTool.invoke(
-      { startDate: "2000-01-01", endDate: "2001-01-02" },
+      { startDate: "2000-01-01", endDate: "2000-02-01" },
       { context: { userId } },
     );
 
     expect(mockTransactionRepository.findManyByUserId).not.toHaveBeenCalled();
     expect(result).toEqual({
       success: false,
-      error: `Date range must not exceed ${MAX_PERIOD_DAYS} days`,
+      error: `Date range must not exceed ${maxPeriodDays} days`,
     });
   });
 
@@ -76,6 +81,7 @@ describe("createGetTransactionsTool", () => {
 
     const transactionsTool = createGetTransactionsTool({
       transactionRepository: mockTransactionRepository,
+      maxPeriodDays,
     });
 
     const result = await transactionsTool.invoke(
@@ -120,6 +126,7 @@ describe("createGetTransactionsTool", () => {
 
     const transactionsTool = createGetTransactionsTool({
       transactionRepository: mockTransactionRepository,
+      maxPeriodDays,
     });
     const result = await transactionsTool.invoke(
       { startDate: "2024-01-01", endDate: "2024-01-31" },
@@ -161,6 +168,7 @@ describe("createGetTransactionsTool", () => {
 
     const transactionsTool = createGetTransactionsTool({
       transactionRepository: mockTransactionRepository,
+      maxPeriodDays,
     });
 
     await transactionsTool.invoke(
@@ -188,6 +196,7 @@ describe("createGetTransactionsTool", () => {
 
     const transactionsTool = createGetTransactionsTool({
       transactionRepository: mockTransactionRepository,
+      maxPeriodDays,
     });
 
     await transactionsTool.invoke(
@@ -215,6 +224,7 @@ describe("createGetTransactionsTool", () => {
 
     const transactionsTool = createGetTransactionsTool({
       transactionRepository: mockTransactionRepository,
+      maxPeriodDays,
     });
 
     await transactionsTool.invoke(
@@ -240,6 +250,7 @@ describe("createGetTransactionsTool", () => {
 
     const transactionsTool = createGetTransactionsTool({
       transactionRepository: mockTransactionRepository,
+      maxPeriodDays,
     });
 
     await transactionsTool.invoke(
