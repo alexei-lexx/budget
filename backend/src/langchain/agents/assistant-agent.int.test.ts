@@ -12,13 +12,10 @@ import {
   resolveUserRepository,
 } from "../../dependencies";
 import { CategoryType } from "../../models/category";
-import { TransactionType } from "../../models/transaction";
-import { toDateString } from "../../types/date-string";
 import { createDynamoDBDocumentClient } from "../../utils/dynamo-client";
 import { truncateAllTables } from "../../utils/test-utils/dynamodb-helpers";
 import { fakeAccount } from "../../utils/test-utils/models/account-fakes";
 import { fakeCategory } from "../../utils/test-utils/models/category-fakes";
-import { fakeTransaction } from "../../utils/test-utils/models/transaction-fakes";
 import { fakeUser } from "../../utils/test-utils/models/user-fakes";
 import { createAssistantAgent } from "./assistant-agent";
 
@@ -94,30 +91,6 @@ describe("AssistantAgent (integration)", () => {
   });
 
   it("calls aggregate_transactions when user asks about total spending", async () => {
-    // Arrange
-    const account = fakeAccount({ userId });
-    await accountRepository.create(account);
-    await transactionRepository.create(
-      fakeTransaction({
-        userId,
-        accountId: account.id,
-        amount: 20,
-        currency: "EUR",
-        date: toDateString(today),
-        type: TransactionType.EXPENSE,
-      }),
-    );
-    await transactionRepository.create(
-      fakeTransaction({
-        userId,
-        accountId: account.id,
-        amount: 30,
-        currency: "EUR",
-        date: toDateString(today),
-        type: TransactionType.EXPENSE,
-      }),
-    );
-
     // Act
     const response = await agent.invoke(
       { messages: [new HumanMessage("how much did I spend today?")] },
