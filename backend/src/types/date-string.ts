@@ -49,6 +49,18 @@ export function toDateString(value: string): DateString {
   return value;
 }
 
+/**
+ * Converts a Date to a DateString, resolving the calendar day in the given IANA time zone.
+ */
+export function dateToDateString(value: Date, timeZone = "UTC"): DateString {
+  return toDateString(
+    Temporal.Instant.fromEpochMilliseconds(value.getTime())
+      .toZonedDateTimeISO(timeZone)
+      .toPlainDate()
+      .toString(),
+  );
+}
+
 export function toDateStringOrUndefined(
   value: string | null | undefined,
 ): DateString | undefined {
