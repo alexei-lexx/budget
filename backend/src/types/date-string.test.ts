@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   InvalidDateStringError,
+  dateToDateString,
   isDateString,
   toDateString,
   toDateStringOrUndefined,
@@ -105,5 +106,22 @@ describe("toDateStringOrUndefined", () => {
     expect(() => toDateStringOrUndefined("15/01/2000")).toThrow(
       'Invalid date format: "15/01/2000". Expected YYYY-MM-DD.',
     );
+  });
+});
+
+describe("dateToDateString", () => {
+  it("returns calendar day in UTC by default", () => {
+    expect(dateToDateString(new Date("2000-01-15T23:30:00.000Z"))).toBe(
+      "2000-01-15",
+    );
+  });
+
+  it("returns calendar day in given time zone", () => {
+    expect(
+      dateToDateString(
+        new Date("2000-01-15T23:30:00.000Z"),
+        "Pacific/Kiritimati",
+      ),
+    ).toBe("2000-01-16");
   });
 });
