@@ -559,24 +559,19 @@ describe("CreateTransactionAgent (evals)", () => {
   });
 
   describe("category inference", () => {
-    it("selects category by name signal", async () => {
+    it("selects category by name", async () => {
       // Arrange
       const account = fakeAccount({ userId, currency: "EUR" });
       await accountRepository.create(account);
-      const electronics = await categoryRepository.create(
-        fakeCreateCategoryInput({
-          userId,
-          type: CategoryType.EXPENSE,
-          name: "electronics",
-        }),
-      );
-      await categoryRepository.create(
+
+      const groceries = await categoryRepository.create(
         fakeCreateCategoryInput({
           userId,
           type: CategoryType.EXPENSE,
           name: "groceries",
         }),
       );
+
       await categoryRepository.create(
         fakeCreateCategoryInput({
           userId,
@@ -587,7 +582,7 @@ describe("CreateTransactionAgent (evals)", () => {
 
       // Act
       const response = await agent.invoke(
-        { messages: [new HumanMessage("bought headphones for 10 euro")] },
+        { messages: [new HumanMessage("bought groceries for 10 euros")] },
         { context },
       );
 
@@ -605,7 +600,60 @@ describe("CreateTransactionAgent (evals)", () => {
               {
                 name: CREATE_TRANSACTION_TOOL_NAME,
                 args: {
-                  categoryId: electronics.id,
+                  categoryId: groceries.id,
+                },
+                id: "create-transaction-reference-call",
+              },
+            ],
+          }),
+        ],
+      });
+
+      expect(result.score).toBe(true);
+    });
+
+    it("selects category by signal", async () => {
+      // Arrange
+      const account = fakeAccount({ userId, currency: "EUR" });
+      await accountRepository.create(account);
+
+      await categoryRepository.create(
+        fakeCreateCategoryInput({
+          userId,
+          type: CategoryType.EXPENSE,
+          name: "groceries",
+        }),
+      );
+
+      const household = await categoryRepository.create(
+        fakeCreateCategoryInput({
+          userId,
+          type: CategoryType.EXPENSE,
+          name: "household",
+        }),
+      );
+
+      // Act
+      const response = await agent.invoke(
+        { messages: [new HumanMessage("bought detergents for 10 euro")] },
+        { context },
+      );
+
+      // Assert
+      const result = await createTrajectoryMatchEvaluator({
+        trajectoryMatchMode: "superset",
+        toolArgsMatchOverrides: {
+          [CREATE_TRANSACTION_TOOL_NAME]: ["categoryId"],
+        },
+      })({
+        outputs: response.messages,
+        referenceOutputs: [
+          new AIMessage({
+            tool_calls: [
+              {
+                name: CREATE_TRANSACTION_TOOL_NAME,
+                args: {
+                  categoryId: household.id,
                 },
                 id: "create-transaction-reference-call",
               },
