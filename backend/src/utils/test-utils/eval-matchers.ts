@@ -1,3 +1,4 @@
+import { inspect } from "node:util";
 import type {
   EvaluatorResult,
   createTrajectoryLLMAsJudge,
@@ -21,14 +22,15 @@ expect.extend({
     const result = await evaluator(params);
     const pass = result.score === true;
 
-    if (!pass) {
-      console.log(params.outputs);
-    }
-
     return {
       pass,
-      message: () =>
-        `expected evaluator score to${pass ? " not" : ""} be true, got ${JSON.stringify(result.score)}`,
+      message: () => {
+        const summary = `expected evaluator score to${pass ? " not" : ""} be true, got ${JSON.stringify(result.score)}`;
+        if (pass) {
+          return summary;
+        }
+        return `${summary}\n\noutputs:\n${inspect(params.outputs)}`;
+      },
     };
   },
 
@@ -41,14 +43,15 @@ expect.extend({
     const score = result.score as number;
     const pass = score >= threshold;
 
-    if (!pass) {
-      console.log(params.outputs);
-    }
-
     return {
       pass,
-      message: () =>
-        `expected evaluator score to${pass ? " not" : ""} be at least ${threshold}, got ${score}`,
+      message: () => {
+        const summary = `expected evaluator score to${pass ? " not" : ""} be at least ${threshold}, got ${score}`;
+        if (pass) {
+          return summary;
+        }
+        return `${summary}\n\noutputs:\n${inspect(params.outputs)}`;
+      },
     };
   },
 });
