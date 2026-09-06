@@ -801,19 +801,14 @@ describe("CreateTransactionAgent (evals)", () => {
   describe("description inference", () => {
     it("produces description that only lists purchased items", async () => {
       // Arrange
-      const account = fakeAccount({ userId, currency: "EUR" });
-      await accountRepository.create(account);
-
-      await categoryRepository.create(
-        fakeCategory({ userId, type: CategoryType.EXPENSE, name: "shopping" }),
-      );
+      await accountRepository.create(fakeAccount({ userId }));
 
       // Act
       const response = await agent.invoke(
         {
           messages: [
             new HumanMessage(
-              "bought a used mountain bike and waterproof bike bags for 200 euros",
+              "bought a used mountain bike and waterproof bike bags for 200",
             ),
           ],
         },
@@ -834,6 +829,8 @@ describe("CreateTransactionAgent (evals)", () => {
       })({
         outputs: response.messages,
       });
+
+      console.log(response.messages);
 
       expect(result.score).toBeGreaterThanOrEqual(0.9);
     });
