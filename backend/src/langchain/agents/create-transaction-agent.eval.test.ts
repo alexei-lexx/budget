@@ -102,7 +102,7 @@ describe("CreateTransactionAgent (evals)", () => {
     );
 
     // Assert
-    const result = await createTrajectoryMatchEvaluator({
+    const evaluator = createTrajectoryMatchEvaluator({
       trajectoryMatchMode: "superset",
       toolArgsMatchOverrides: {
         [CREATE_TRANSACTION_TOOL_NAME]: [
@@ -113,8 +113,10 @@ describe("CreateTransactionAgent (evals)", () => {
           "type",
         ],
       },
-    })({
-      outputs: response.messages,
+    });
+
+    await expect(evaluator).toEvaluateTrue({
+      outputs: response,
       referenceOutputs: [
         new AIMessage({
           tool_calls: [
@@ -133,8 +135,6 @@ describe("CreateTransactionAgent (evals)", () => {
         }),
       ],
     });
-
-    expect(result.score).toBe(true);
   });
 
   it("creates expense transaction by default", async () => {
@@ -150,12 +150,14 @@ describe("CreateTransactionAgent (evals)", () => {
     );
 
     // Assert
-    const result = await createTrajectoryMatchEvaluator({
+    const evaluator = createTrajectoryMatchEvaluator({
       trajectoryMatchMode: "superset",
       toolArgsMatchOverrides: {
         [CREATE_TRANSACTION_TOOL_NAME]: ["type"],
       },
-    })({
+    });
+
+    await expect(evaluator).toEvaluateTrue({
       outputs: response.messages,
       referenceOutputs: [
         new AIMessage({
@@ -169,8 +171,6 @@ describe("CreateTransactionAgent (evals)", () => {
         }),
       ],
     });
-
-    expect(result.score).toBe(true);
   });
 
   it("creates income transaction", async () => {
@@ -192,7 +192,7 @@ describe("CreateTransactionAgent (evals)", () => {
     );
 
     // Assert
-    const result = await createTrajectoryMatchEvaluator({
+    const evaluator = createTrajectoryMatchEvaluator({
       trajectoryMatchMode: "superset",
       toolArgsMatchOverrides: {
         [CREATE_TRANSACTION_TOOL_NAME]: [
@@ -203,7 +203,9 @@ describe("CreateTransactionAgent (evals)", () => {
           "type",
         ],
       },
-    })({
+    });
+
+    await expect(evaluator).toEvaluateTrue({
       outputs: response.messages,
       referenceOutputs: [
         new AIMessage({
@@ -223,8 +225,6 @@ describe("CreateTransactionAgent (evals)", () => {
         }),
       ],
     });
-
-    expect(result.score).toBe(true);
   });
 
   it("creates refund transaction", async () => {
@@ -246,7 +246,7 @@ describe("CreateTransactionAgent (evals)", () => {
     );
 
     // Assert
-    const result = await createTrajectoryMatchEvaluator({
+    const evaluator = createTrajectoryMatchEvaluator({
       trajectoryMatchMode: "superset",
       toolArgsMatchOverrides: {
         [CREATE_TRANSACTION_TOOL_NAME]: [
@@ -257,7 +257,9 @@ describe("CreateTransactionAgent (evals)", () => {
           "type",
         ],
       },
-    })({
+    });
+
+    await expect(evaluator).toEvaluateTrue({
       outputs: response.messages,
       referenceOutputs: [
         new AIMessage({
@@ -277,8 +279,6 @@ describe("CreateTransactionAgent (evals)", () => {
         }),
       ],
     });
-
-    expect(result.score).toBe(true);
   });
 
   it("fetches active accounts and active categories to create transaction", async () => {
@@ -293,14 +293,16 @@ describe("CreateTransactionAgent (evals)", () => {
     );
 
     // Assert
-    const result = await createTrajectoryMatchEvaluator({
+    const evaluator = createTrajectoryMatchEvaluator({
       trajectoryMatchMode: "superset",
       toolArgsMatchOverrides: {
         [CREATE_TRANSACTION_TOOL_NAME]: [],
         get_accounts: ["scope"],
         get_categories: ["scope"],
       },
-    })({
+    });
+
+    await expect(evaluator).toEvaluateTrue({
       outputs: response.messages,
       referenceOutputs: [
         new AIMessage({
@@ -324,8 +326,6 @@ describe("CreateTransactionAgent (evals)", () => {
         }),
       ],
     });
-
-    expect(result.score).toBe(true);
   });
 
   describe("account inference", () => {
@@ -345,12 +345,14 @@ describe("CreateTransactionAgent (evals)", () => {
       );
 
       // Assert
-      const result = await createTrajectoryMatchEvaluator({
+      const evaluator = createTrajectoryMatchEvaluator({
         trajectoryMatchMode: "superset",
         toolArgsMatchOverrides: {
           [CREATE_TRANSACTION_TOOL_NAME]: ["accountId"],
         },
-      })({
+      });
+
+      await expect(evaluator).toEvaluateTrue({
         outputs: response.messages,
         referenceOutputs: [
           new AIMessage({
@@ -366,8 +368,6 @@ describe("CreateTransactionAgent (evals)", () => {
           }),
         ],
       });
-
-      expect(result.score).toBe(true);
     });
 
     it("selects account by name", async () => {
@@ -392,12 +392,14 @@ describe("CreateTransactionAgent (evals)", () => {
       );
 
       // Assert
-      const result = await createTrajectoryMatchEvaluator({
+      const evaluator = createTrajectoryMatchEvaluator({
         trajectoryMatchMode: "superset",
         toolArgsMatchOverrides: {
           [CREATE_TRANSACTION_TOOL_NAME]: ["accountId"],
         },
-      })({
+      });
+
+      await expect(evaluator).toEvaluateTrue({
         outputs: response.messages,
         referenceOutputs: [
           new AIMessage({
@@ -413,8 +415,6 @@ describe("CreateTransactionAgent (evals)", () => {
           }),
         ],
       });
-
-      expect(result.score).toBe(true);
     });
 
     it("selects most used account for category", async () => {
@@ -466,12 +466,14 @@ describe("CreateTransactionAgent (evals)", () => {
       );
 
       // Assert
-      const result = await createTrajectoryMatchEvaluator({
+      const evaluator = createTrajectoryMatchEvaluator({
         trajectoryMatchMode: "superset",
         toolArgsMatchOverrides: {
           [CREATE_TRANSACTION_TOOL_NAME]: ["accountId"],
         },
-      })({
+      });
+
+      await expect(evaluator).toEvaluateTrue({
         outputs: response.messages,
         referenceOutputs: [
           new AIMessage({
@@ -487,8 +489,6 @@ describe("CreateTransactionAgent (evals)", () => {
           }),
         ],
       });
-
-      expect(result.score).toBe(true);
     });
 
     it("selects most used account overall", async () => {
@@ -532,12 +532,14 @@ describe("CreateTransactionAgent (evals)", () => {
       );
 
       // Assert
-      const result = await createTrajectoryMatchEvaluator({
+      const evaluator = createTrajectoryMatchEvaluator({
         trajectoryMatchMode: "superset",
         toolArgsMatchOverrides: {
           [CREATE_TRANSACTION_TOOL_NAME]: ["accountId"],
         },
-      })({
+      });
+
+      await expect(evaluator).toEvaluateTrue({
         outputs: response.messages,
         referenceOutputs: [
           new AIMessage({
@@ -553,8 +555,6 @@ describe("CreateTransactionAgent (evals)", () => {
           }),
         ],
       });
-
-      expect(result.score).toBe(true);
     });
   });
 
@@ -587,13 +587,15 @@ describe("CreateTransactionAgent (evals)", () => {
       );
 
       // Assert
-      const result = await createTrajectoryMatchEvaluator({
+      const evaluator = createTrajectoryMatchEvaluator({
         trajectoryMatchMode: "superset",
         toolArgsMatchOverrides: {
           [CREATE_TRANSACTION_TOOL_NAME]: ["categoryId"],
         },
-      })({
-        outputs: response.messages,
+      });
+
+      await expect(evaluator).toEvaluateTrue({
+        outputs: response,
         referenceOutputs: [
           new AIMessage({
             tool_calls: [
@@ -608,8 +610,6 @@ describe("CreateTransactionAgent (evals)", () => {
           }),
         ],
       });
-
-      expect(result.score).toBe(true);
     });
 
     it("selects category by signal", async () => {
@@ -640,12 +640,14 @@ describe("CreateTransactionAgent (evals)", () => {
       );
 
       // Assert
-      const result = await createTrajectoryMatchEvaluator({
+      const evaluator = createTrajectoryMatchEvaluator({
         trajectoryMatchMode: "superset",
         toolArgsMatchOverrides: {
           [CREATE_TRANSACTION_TOOL_NAME]: ["categoryId"],
         },
-      })({
+      });
+
+      await expect(evaluator).toEvaluateTrue({
         outputs: response.messages,
         referenceOutputs: [
           new AIMessage({
@@ -661,8 +663,6 @@ describe("CreateTransactionAgent (evals)", () => {
           }),
         ],
       });
-
-      expect(result.score).toBe(true);
     });
 
     it("selects category by similar transactions", async () => {
@@ -721,12 +721,14 @@ describe("CreateTransactionAgent (evals)", () => {
       );
 
       // Assert
-      const result = await createTrajectoryMatchEvaluator({
+      const evaluator = createTrajectoryMatchEvaluator({
         trajectoryMatchMode: "superset",
         toolArgsMatchOverrides: {
           [CREATE_TRANSACTION_TOOL_NAME]: ["categoryId"],
         },
-      })({
+      });
+
+      await expect(evaluator).toEvaluateTrue({
         outputs: response.messages,
         referenceOutputs: [
           new AIMessage({
@@ -742,8 +744,6 @@ describe("CreateTransactionAgent (evals)", () => {
           }),
         ],
       });
-
-      expect(result.score).toBe(true);
     });
 
     it("leaves category blank when no match", async () => {
@@ -772,12 +772,14 @@ describe("CreateTransactionAgent (evals)", () => {
       );
 
       // Assert
-      const result = await createTrajectoryMatchEvaluator({
+      const evaluator = createTrajectoryMatchEvaluator({
         trajectoryMatchMode: "superset",
         toolArgsMatchOverrides: {
           [CREATE_TRANSACTION_TOOL_NAME]: ["categoryId"],
         },
-      })({
+      });
+
+      await expect(evaluator).toEvaluateTrue({
         outputs: response.messages,
         referenceOutputs: [
           new AIMessage({
@@ -793,8 +795,6 @@ describe("CreateTransactionAgent (evals)", () => {
           }),
         ],
       });
-
-      expect(result.score).toBe(true);
     });
   });
 
@@ -816,7 +816,7 @@ describe("CreateTransactionAgent (evals)", () => {
       );
 
       // Assert
-      const result = await createTrajectoryLLMAsJudge({
+      const evaluator = createTrajectoryLLMAsJudge({
         continuous: true,
         judge: model,
         prompt: `Description must list only the purchased items
@@ -826,13 +826,14 @@ describe("CreateTransactionAgent (evals)", () => {
           Grade the following trajectory:
           <trajectory>{outputs}</trajectory>
         `.trim(),
-      })({
-        outputs: response.messages,
       });
 
-      console.log(response.messages);
-
-      expect(result.score).toBeGreaterThanOrEqual(0.9);
+      await expect(evaluator).toEvaluateAtLeast(
+        {
+          outputs: response.messages,
+        },
+        0.9,
+      );
     });
   });
 
@@ -848,10 +849,12 @@ describe("CreateTransactionAgent (evals)", () => {
       );
 
       // Assert
-      const result = await createTrajectoryMatchEvaluator({
+      const evaluator = createTrajectoryMatchEvaluator({
         trajectoryMatchMode: "superset",
         toolArgsMatchOverrides: { [CREATE_TRANSACTION_TOOL_NAME]: ["amount"] },
-      })({
+      });
+
+      await expect(evaluator).toEvaluateTrue({
         outputs: response.messages,
         referenceOutputs: [
           new AIMessage({
@@ -865,8 +868,6 @@ describe("CreateTransactionAgent (evals)", () => {
           }),
         ],
       });
-
-      expect(result.score).toBe(true);
     });
 
     it("corrects amount under voice input when history suggests smaller price", async () => {
@@ -900,10 +901,12 @@ describe("CreateTransactionAgent (evals)", () => {
       );
 
       // Assert
-      const result = await createTrajectoryMatchEvaluator({
+      const evaluator = createTrajectoryMatchEvaluator({
         trajectoryMatchMode: "superset",
         toolArgsMatchOverrides: { [CREATE_TRANSACTION_TOOL_NAME]: ["amount"] },
-      })({
+      });
+
+      await expect(evaluator).toEvaluateTrue({
         outputs: response.messages,
         referenceOutputs: [
           new AIMessage({
@@ -917,8 +920,6 @@ describe("CreateTransactionAgent (evals)", () => {
           }),
         ],
       });
-
-      expect(result.score).toBe(true);
     });
 
     it("does not correct amount under keyboard input when history suggests smaller price", async () => {
@@ -952,10 +953,12 @@ describe("CreateTransactionAgent (evals)", () => {
       );
 
       // Assert
-      const result = await createTrajectoryMatchEvaluator({
+      const evaluator = createTrajectoryMatchEvaluator({
         trajectoryMatchMode: "superset",
         toolArgsMatchOverrides: { [CREATE_TRANSACTION_TOOL_NAME]: ["amount"] },
-      })({
+      });
+
+      await expect(evaluator).toEvaluateTrue({
         outputs: response.messages,
         referenceOutputs: [
           new AIMessage({
@@ -969,8 +972,6 @@ describe("CreateTransactionAgent (evals)", () => {
           }),
         ],
       });
-
-      expect(result.score).toBe(true);
     });
   });
 
@@ -986,10 +987,12 @@ describe("CreateTransactionAgent (evals)", () => {
       );
 
       // Assert
-      const result = await createTrajectoryMatchEvaluator({
+      const evaluator = createTrajectoryMatchEvaluator({
         trajectoryMatchMode: "superset",
         toolArgsMatchOverrides: { [CREATE_TRANSACTION_TOOL_NAME]: ["amount"] },
-      })({
+      });
+
+      await expect(evaluator).toEvaluateTrue({
         outputs: response.messages,
         referenceOutputs: [
           new AIMessage({
@@ -1003,8 +1006,6 @@ describe("CreateTransactionAgent (evals)", () => {
           }),
         ],
       });
-
-      expect(result.score).toBe(true);
     });
 
     it("treats HH:MM in mixed text as price under voice input", async () => {
@@ -1018,10 +1019,12 @@ describe("CreateTransactionAgent (evals)", () => {
       );
 
       // Assert
-      const result = await createTrajectoryMatchEvaluator({
+      const evaluator = createTrajectoryMatchEvaluator({
         trajectoryMatchMode: "superset",
         toolArgsMatchOverrides: { [CREATE_TRANSACTION_TOOL_NAME]: ["amount"] },
-      })({
+      });
+
+      await expect(evaluator).toEvaluateTrue({
         outputs: response.messages,
         referenceOutputs: [
           new AIMessage({
@@ -1035,8 +1038,6 @@ describe("CreateTransactionAgent (evals)", () => {
           }),
         ],
       });
-
-      expect(result.score).toBe(true);
     });
 
     it("treats HH:MM as price when preposition refers to place", async () => {
@@ -1050,10 +1051,12 @@ describe("CreateTransactionAgent (evals)", () => {
       );
 
       // Assert
-      const result = await createTrajectoryMatchEvaluator({
+      const evaluator = createTrajectoryMatchEvaluator({
         trajectoryMatchMode: "superset",
         toolArgsMatchOverrides: { [CREATE_TRANSACTION_TOOL_NAME]: ["amount"] },
-      })({
+      });
+
+      await expect(evaluator).toEvaluateTrue({
         outputs: response.messages,
         referenceOutputs: [
           new AIMessage({
@@ -1067,8 +1070,6 @@ describe("CreateTransactionAgent (evals)", () => {
           }),
         ],
       });
-
-      expect(result.score).toBe(true);
     });
 
     it("prefers explicit numeric over HH:MM", async () => {
@@ -1082,10 +1083,12 @@ describe("CreateTransactionAgent (evals)", () => {
       );
 
       // Assert
-      const result = await createTrajectoryMatchEvaluator({
+      const evaluator = createTrajectoryMatchEvaluator({
         trajectoryMatchMode: "superset",
         toolArgsMatchOverrides: { [CREATE_TRANSACTION_TOOL_NAME]: ["amount"] },
-      })({
+      });
+
+      await expect(evaluator).toEvaluateTrue({
         outputs: response.messages,
         referenceOutputs: [
           new AIMessage({
@@ -1099,8 +1102,6 @@ describe("CreateTransactionAgent (evals)", () => {
           }),
         ],
       });
-
-      expect(result.score).toBe(true);
     });
 
     it("does not create transaction when HH:MM string is clock time", async () => {
@@ -1152,10 +1153,12 @@ describe("CreateTransactionAgent (evals)", () => {
       );
 
       // Assert
-      const result = await createTrajectoryMatchEvaluator({
+      const evaluator = createTrajectoryMatchEvaluator({
         trajectoryMatchMode: "superset",
         toolArgsMatchOverrides: { [CREATE_TRANSACTION_TOOL_NAME]: ["amount"] },
-      })({
+      });
+
+      await expect(evaluator).toEvaluateTrue({
         outputs: response.messages,
         referenceOutputs: [
           new AIMessage({
@@ -1169,8 +1172,6 @@ describe("CreateTransactionAgent (evals)", () => {
           }),
         ],
       });
-
-      expect(result.score).toBe(true);
     });
 
     it("recognizes NN N as decimal amount with leading zero under voice input", async () => {
@@ -1184,10 +1185,12 @@ describe("CreateTransactionAgent (evals)", () => {
       );
 
       // Assert
-      const result = await createTrajectoryMatchEvaluator({
+      const evaluator = createTrajectoryMatchEvaluator({
         trajectoryMatchMode: "superset",
         toolArgsMatchOverrides: { [CREATE_TRANSACTION_TOOL_NAME]: ["amount"] },
-      })({
+      });
+
+      await expect(evaluator).toEvaluateTrue({
         outputs: response.messages,
         referenceOutputs: [
           new AIMessage({
@@ -1201,8 +1204,6 @@ describe("CreateTransactionAgent (evals)", () => {
           }),
         ],
       });
-
-      expect(result.score).toBe(true);
     });
 
     it("does not create transaction under keyboard input", async () => {
@@ -1261,7 +1262,7 @@ describe("CreateTransactionAgent (evals)", () => {
       );
 
       // Assert
-      const result = await createTrajectoryMatchEvaluator({
+      const evaluator = createTrajectoryMatchEvaluator({
         trajectoryMatchMode: "superset",
         toolArgsMatchOverrides: {
           [CREATE_TRANSACTION_TOOL_NAME]: [
@@ -1273,7 +1274,9 @@ describe("CreateTransactionAgent (evals)", () => {
             "description",
           ],
         },
-      })({
+      });
+
+      await expect(evaluator).toEvaluateTrue({
         outputs: response.messages,
         referenceOutputs: [
           new AIMessage({
@@ -1294,8 +1297,6 @@ describe("CreateTransactionAgent (evals)", () => {
           }),
         ],
       });
-
-      expect(result.score).toBe(true);
     });
 
     it("does not create transaction from varying-amount recurring matches", async () => {
