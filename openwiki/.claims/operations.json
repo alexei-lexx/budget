@@ -1,0 +1,134 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:80816c14c9f682784b4b111892f7639873970adf1aa081eeac8a18c84ec9f927",
+  "claims": [
+    {
+      "id": "claim_f3bee4f67e6d4d09b915e301b3c4cece",
+      "statement": "Deployment-time configuration is read by `deploy.sh` and CDK during stack deployment, while runtime configuration is injected into the backend Lambda on cold start; changing runtime values does not require redeploying the stacks but does require a new cold start to take effect.",
+      "evidence": [
+        {
+          "resource": "repo://README.md#L85-L93",
+          "version": "repo-lines-v1:sha256:2d47a8a944379e609f007a12202f8f39da3c47b41309715c3246fa6a993ef126:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYTdmYzY4N2RlYzU0Y2RiZmNiZmZmZDdjYTljZjYzMzlmMDQyZDI4YjE1ZWNhMDBmNDMyOTE2MmQ3Y2QzMWU2ZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMDFiYTQ3MTljODBiNmZlOTExYjA5MWE3YzA1MTI0YjY0ZWVlY2U5NjRlMDljMDU4ZWY4Zjk4MDVkYWNhNTQ2YiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYzMzZjliZjE5MTlhOTM4ZjNhYzQzNGU3NDYzOTExMmI5MTYzZGFkY2RmOWQyOGE1ODRhMTY1YjBjOGVkYjE4MyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYTBjMDM0MTZkYzFiNWU0Y2M3NDMzYmM3OGUyZGQwOWQ3MWM3Yzg2NTY0NjAzYjY0ZWFhYTRjYzc1NTY4ZjczYSJ9"
+        },
+        {
+          "resource": "repo://backend/src/lambdas/bootstrap.ts#L52-L79",
+          "version": "repo-lines-v1:sha256:342793392ede8ee4cc0d5724bfed6c6953147e304548d32c1a036c6c134c05d5:eyJzZWxlY3RlZExpbmVDb3VudCI6MjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY2ODYwMzg1YzI5MDk4ODM5MjQ1ZGZmNzQ1MjJkNGFiN2Q0ZGU1NWNkMDM3YjZiNmVjMGE0YjZjZWY4N2IxMjEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjkxM2Y5YjlmNGI3MGJkY2QxNTI5YzllMWVjMTk0MDY0NmFhZWIwYTBkZmFhZDk1NTUzMjdkOWFlODNmNTUwN2YiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE4YTkxNzU5NzJmZTE1ZTJhOTY0MWFiMTMxZjU3MWU2YzdjYWJjYTA2ODM3NjJlYmE1ZjIzNTNlNDgzYzNkNTYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImM1N2I4M2U2ZjFjM2YxZTE4ODY2ZmQ1ZGUzNjQ3NDFiOWMwM2Y2YTQwMjllY2UxYWZiOGFlZThkODYzYzY5NDgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_2d451bcc510446859af255d02a3f935c",
+      "statement": "The repository expects local development to use the Node.js version from `.tool-versions`, install dependencies separately in each package you modify, and prepare backend tests by copying `backend/.env.test.example` to `.env.test` and running `npm run test:db:setup`.",
+      "evidence": [
+        {
+          "resource": "repo://AGENTS.md#L86-L99",
+          "version": "repo-lines-v1:sha256:ea4529c3dc5735cda0b627527519b5365f1a8d0f992db1a1087c6071ca488103:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNlNzBiMmVkNzlmMmQxY2FmNDBlZGY3NWFkODM0MmIzMDlhN2QxMWVjZjY3MDZkYjBmMjJlZWQxMTUzZjkwODgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ3YzA2YzU2MWQ1YzMyNzM0MzY4NTI2OGE0NmIzMzkxZjM5OThlZWU4OTBkMmJlNTFmMGQyMWNjNGE1M2FlNmQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZhYTNlMDkxYzYzMzIwYWQ4MTI1MmRjNWE2Zjg0ZWY5M2YyOGFmZjliYmI5YjViMDhkNDlkM2M5MmRhZmMyMTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE3N2ZkMTNjNGE2NmRhZGJiNTM4NTk1MTkzNjY3NzFmMjViODQ0MzY1YmVjYzdhNjU0NGM4OTM5MGQ4YTE4YWIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_60cde6c117b44cab985b6ec514fd0f86",
+      "statement": "`backend/.env.example` shows local backend defaults for development, including `NODE_ENV=development`, local DynamoDB at `http://localhost:8000`, localhost auth/API URLs, and placeholder AWS credentials and Bedrock settings.",
+      "evidence": [
+        {
+          "resource": "repo://backend/.env.example#L1-L51",
+          "version": "repo-lines-v1:sha256:30cfbbd11c757f4d1e6f04d2740409955ff505313351582e6235403404cac413:eyJzZWxlY3RlZExpbmVDb3VudCI6NTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU3YmViYWMyNmRmNDc0YjhmYjE5ODJkMzBiZmRkYTRlMWQwZjc5Y2UyNmYxYjU1MWRiZmZjMzFiMmEzYTZjNTkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhNmNmYTExZWI0NDU0Y2Y2ZjM3MTZhYTQzOTExMTcwZDM2NTQ5M2U3MTQ5NDhlZjg4ZGZiNmIwY2Y1Y2VlMWUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_f5a7f6c229c54c05bdbe35abcc38ebdf",
+      "statement": "`frontend/.env.example` points the SPA at local GraphQL and MCP endpoints and documents the Cognito auth variables used during local development.",
+      "evidence": [
+        {
+          "resource": "repo://frontend/.env.example#L1-L17",
+          "version": "repo-lines-v1:sha256:7982d4efa938c553bec58af32b9c8071478326f9482bc9011571de7f8ad16cca:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZmMmM1NWE3MmJiM2VjMzc0OGIyNjkyM2FjMmFiOTI0MmE1NGE0ZmZlODc5NDg1NjY1YjhkNzIzNjRmZmNhYjIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFiMjNkNDk2NjQwYjE2ODZhMDA4YmRjYmU1ZjU2MDM0ODMyYzdlMDdlNDk4YjI2NWJmOTVkMWMxMTQ4YzY1OTAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_912b408fe93a454692ba16dec1d2d28a",
+      "statement": "`infra-cdk/.env.example` documents the CDK-side auth configuration and optional Lambda memory and timeout overrides used during deployment.",
+      "evidence": [
+        {
+          "resource": "repo://infra-cdk/.env.example#L1-L11",
+          "version": "repo-lines-v1:sha256:d4a3139ce13de182ca52c288cb5c5917f9755277e5dec45c2e67f37eef3c9484:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU3YmViYWMyNmRmNDc0YjhmYjE5ODJkMzBiZmRkYTRlMWQwZjc5Y2UyNmYxYjU1MWRiZmZjMzFiMmEzYTZjNTkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxZDdkMDY5YjVjMDVlZDk4MWY2YmY0NjJjYTJlMDFhYjMxOTAzNTg0OWNjYjM1NTJjZWIzZjgxOWM1OTM0N2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_2fdaf096618948a4b21eb3d78a8b713b",
+      "statement": "`deploy.sh` defaults `ENV` to `production`, rejects invalid environment names, and uses that value to drive SSM path names and stack/environment selection.",
+      "evidence": [
+        {
+          "resource": "repo://deploy.sh#L1-L18",
+          "version": "repo-lines-v1:sha256:6b9c445f844606cf76df00814f704bb018b6c5d16812ab39f2b702f5ae23456e:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg4ZmM2MzM2NjdkMDMwMDczMWJkZDg0NDcyZGM0MjRlMWY5YzY0MTc1ZWEyYmFkYjY2NjQ3MmQ5MWFlYjRlZmMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjdlOGRkMjdjYmNhNTcwMmIzMDg1ZDY0NjRjYzQ4NDg5Mzk2ZWRhZDFmMTA1ZTBkNmYyMWRjNzU5YzI5ZjQ1ZjcifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_becab0f5af9a49afb0df803364fa4a5a",
+      "statement": "`deploy.sh` reads deployment-time SSM parameters for auth registration, claim namespace, domain prefix, and Lambda sizing before running backend and infrastructure deployment.",
+      "evidence": [
+        {
+          "resource": "repo://deploy.sh#L90-L127",
+          "version": "repo-lines-v1:sha256:5cc3d963f526754fa10b7cead58331d79ac8bd27a23e2a864d7f3d8d84b64d43:eyJzZWxlY3RlZExpbmVDb3VudCI6MzgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjYxNDk1MjdhMWZlZjFmMmE4ZmM5YTAxYjllMTkzNzIwOTcwNDNhNDIyMWZjYmZiZTFhNzFhZTIzZDczY2Q3MWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg2Y2UxZGRmMmJlZDcwNjM1YzJlZmQzNDU4YzAyZWFhZWJlNzNlNWMxNmYyMjIzODVjZWIwYmI0NDQwYzJjNTgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZmNjUxOTU5NWUzYjdmYTgyYzk2YmI0MTEwM2RjMGYyMzhmYzI2YjBkNDAyYmZlNzI5NTE0NzYwMDQ1ZjU4NTYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFiMmRhZTNhYzJkYmZkN2JkYmFiYmM0NDI2YTc4YWI0MDIyN2RlOGY4OWQ1MzY1YjE5NmQ3OTFjMGVhZGM3NTQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_99bb98d7fee4437988464f71edc9228d",
+      "statement": "`deploy.sh` extracts auth outputs from the CDK deployment, invokes the migration Lambda, requires a `200` response, then builds and uploads the frontend using the deployed auth values and the API paths `/graphql` and `/mcp`.",
+      "evidence": [
+        {
+          "resource": "repo://deploy.sh#L129-L234",
+          "version": "repo-lines-v1:sha256:2e63c875ec9ec05dd7a121b67f32f0f830442d30c60a31741fe013a30eb04269:eyJzZWxlY3RlZExpbmVDb3VudCI6MTA2LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJjYTQ2NjBhNmMyOGI4Zjg1ZWIyZTI1MmJiZTZiNzU1NDUwMTIzMTdkZjNkZjcxZjc5NTVmMzMxZDJlMDkxYjg4IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIzNzY5ZDIzN2NkNDIwYjlkMzhiOTgxYTBhNGY2NzcwMTkwYTRhODNkY2ExZmU1NmM0ZjViYTFlMmNiYzBlZjc2IiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI3NGM0N2RmZGY1MWFmMTNiMTVjZThlMjYwY2RhZWRjMWZkMmQ0ZDFiYTE0ODMzN2I1MjA3NTc5YTlkMDM0YjI2IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MiwiZm9sbG93aW5nQ29udGV4dEhhc2giOiIzMWE2ODg4ZGVlODI4NTBmNjFhNjViNTdiMThiOTU5YTNiODQxMjUzMTUwNTRiM2U2NWE5YTBjZGY4Yjc0ZjdiIn0"
+        }
+      ]
+    },
+    {
+      "id": "claim_84d4a95273a24706a6a0e7e9f1531594",
+      "statement": "The backend runtime bootstrap only fetches SSM values when `AWS_LAMBDA_FUNCTION_NAME` is present, uses `NODE_ENV` to choose the `/manual/budget/<env>/...` parameter prefix, loads parameters in chunks of up to 10 names, and preserves any environment variables already set by Lambda.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/lambdas/bootstrap.ts#L52-L115",
+          "version": "repo-lines-v1:sha256:76c5bf2ec65931f6d89a1702d4758543071e6ec78b3f17da23becb8729ea61a2:eyJzZWxlY3RlZExpbmVDb3VudCI6NjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY2ODYwMzg1YzI5MDk4ODM5MjQ1ZGZmNzQ1MjJkNGFiN2Q0ZGU1NWNkMDM3YjZiNmVjMGE0YjZjZWY4N2IxMjEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE4YTkxNzU5NzJmZTE1ZTJhOTY0MWFiMTMxZjU3MWU2YzdjYWJjYTA2ODM3NjJlYmE1ZjIzNTNlNDgzYzNkNTYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_cf0120ce1ee243b3abeb65ee1df3e70f",
+      "statement": "`backend/src/lambdas/bootstrap.ts` is the extension point for runtime-loaded SSM variables, and the code comment says adding a new binding also requires granting SSM read permission in `infra-cdk/lib/backend-cdk-stack.ts`.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/lambdas/bootstrap.ts#L3-L5",
+          "version": "repo-lines-v1:sha256:c155fe3102a4865745ec8d2b4ae77d501cbed7d15c505fbbf0793246569a2b4a:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZGM1NWMyZWYyYTkwYTk1ZDU1OGQxNTU5MzA2ZDVhZTc5MWI4YjIwMGM3MGRkNmNkNjdlMjNkNTcyNjM2YzFiZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOWFmZTZjNjc0OTc1ODJhY2NiZDZjYzI5MTZlMDJiNmMzNWE2NzIwZjIzOGY1M2Q3NjlhZTFkZmQzODRjZjcyMiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjIsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNzJlNTJlMjEwMGRhYWViMGZhOWI4MDEwZGQxNDY5OWYxZmY4ODMxMTM5ZDZjZDZkYzJlNTQyNTYyM2JiMjEzMyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZjA3OGMyYWMyZWJlNjM1OThkMWRmMDQ5NmExNmEyZmY1MjY4YjJlNWRiOGYzMmQ4ZjRiOGI2YjcyZjE2ZTdlMCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_3d806e67855f4cb79f5671ef539e9654",
+      "statement": "`requireEnv`, `requireIntEnv`, and `requireFloatEnv` fail fast on missing or malformed environment variables so misconfiguration surfaces as startup errors instead of downstream type bugs.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/utils/require-env.ts#L1-L37",
+          "version": "repo-lines-v1:sha256:be4187aa1b989a219dbeded16f912cfe58ad017586bd4941f7fbd760c382e109:eyJzZWxlY3RlZExpbmVDb3VudCI6MzcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE5OWJiNzliYWMzZjQ3YjU4NzlhZTQ0YTRjMDk4ZmRhMWVmYjAyNzZhNjIwYjg2YTNkYmM5ZTMzMjk0ODU3YmUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_4f0d5f85c384415695517dc34484adb1",
+      "statement": "`infra-cdk/lib/default-lambda-options.ts` enables `Tracing.ACTIVE` by default and only applies Lambda memory or timeout when the corresponding deployment inputs are provided.",
+      "evidence": [
+        {
+          "resource": "repo://infra-cdk/lib/default-lambda-options.ts#L1-L22",
+          "version": "repo-lines-v1:sha256:ad356289e3573e9cba466d1d53d600e678eb2958cbfe2d11d62207dbac63b62a:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI3YTc1YjkyNjc2NzdmOTFiN2MyMDBmYWIyYzliZDIzODZjODMyYmFlNmVlNDBiNDBiMDNjMTA0MDUxMzk3MTMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.5.0",
+    "at": "2026-09-06T08:09:31.070Z"
+  }
+}

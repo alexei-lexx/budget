@@ -1,0 +1,146 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:0cfcbac832f1ac9d1f59c453b12908a34f518d9e3649f1f16c6ec1a5caf517b8",
+  "claims": [
+    {
+      "id": "claim_a21ab2d8139e4469bc66b3a1baad2f46",
+      "statement": "The assistant GraphQL mutation authenticates the caller, resolves the persisted user by email, and returns either `AssistantSuccess` or `AssistantFailure` with the session ID preserved so clients can continue a conversation after failures.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/graphql/resolvers/assistant-resolvers.ts#L5-L38",
+          "version": "repo-lines-v1:sha256:cbd3049ebef0dcc111727427099d5c35bc6dc9f1f49a6d559ab56dfb74a11f13:eyJzZWxlY3RlZExpbmVDb3VudCI6MzQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVjNjI1OTI1YWFmZjk3ZDBhZmIyN2U3MThjYzcyN2Q2MTNiMzQxMmQxYTgxNWIxODM0ZWUzOWNmYmFmNDNhOTkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjliNjJmNjBkODU5MGE1NzljZjQ2ZjhkNjczNzhjNGM1NzJiOTYyY2VjY2RiOTBjN2E1ZjdiNDJiOTYwNzgyYTQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjU2NmRlNGFiMDdkZGU5NGFhYjhlMDZkZWJiYTU3ZDM1OTRjYjI2NjM2ZTE1M2RhZjlmNDMwN2EzNzA4N2FkMjkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjYzYmU0ZTM2NWNkMWQyM2RiYmRmNDgwMWEyMDI1N2ExMWJkZWZhMzM0MWMyM2FjN2RhMGZjYTdiZWIxYWIyZDUifQ"
+        },
+        {
+          "resource": "repo://backend/src/graphql/resolvers/shared.ts#L12-L43",
+          "version": "repo-lines-v1:sha256:d2c061b2868672d9753fadfd3663880f1945493f00ec86b03250c80d7ec5fe6c:eyJzZWxlY3RlZExpbmVDb3VudCI6MzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMxY2I0MDczMGMzMjdiYTllNTY4YTA3NDI3NWY5ZTJlZWEzMmE4ZjRkM2Y1YmFmNDhmYTE1ZDY3N2QxZjMyMmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQ1ZmIzNGRlN2ZkMmQ2NmFkOWZiYWU4NTYwODgyZjhhZmM0ZWU2ODBmZTc1MTZiNzVkM2JiMWE5Mjk3Y2I0YTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM3OTI5ZTkxZTBmOTljM2U4MjVkZTY5YjQzNWZiNjQ4NGQxYjBhMWRmMmY0NjU2MWFiZjFhMjlmMDQxODhiODgifQ"
+        },
+        {
+          "resource": "repo://backend/src/services/assistant-chat-service.ts#L20-L29",
+          "version": "repo-lines-v1:sha256:9834d4abf4527772efd0b73fc5a2f6ce07bb18e5e92f2bc0913029c0523c0782:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjYzOGQxMDQ2MGNjMzIwOGZiZDIwZTVlMDBhZmFmOTAyYjRiZjE5ZGFiYWJhODI4OTcyYmM3ZDY4NGJkYWZlMDgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhhYzEzNmY4ZWNlODZhMzFiNjVhMGY5NWRjZTdhOTZkY2M3YjJjOTVhNzg5ODkwN2UwMzliNjVjZmJkNDdlNzkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjIyNTdmYzg0N2JkZTBjMzMzNTViZjEyNWIzM2FiZDRiNmJhODUyNWVmNmE3ZGRjOGFkMTc1YTY0ZWNhYWVlNDAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk2NDZlZDVkMDEzYTQxOThkZDgzNWJjMDZlNWY5ZGUzOThiMzEwZTliZWU0ZWJmN2FkODVhZWMwYmY1ZThlNzMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_d5fdb61374c242bcb0a0227a01e2944b",
+      "statement": "`AssistantChatServiceImpl` creates a new session ID when needed, loads recent messages scoped by user and session, reverses them into chronological order for the agent, and persists both the user prompt and assistant response only after a successful assistant call.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/services/assistant-chat-service.ts#L50-L104",
+          "version": "repo-lines-v1:sha256:c3d78661552e0894e34b0ee2e717dd22b2e57590f7a52ca8e9c2c9bb572a1b16:eyJzZWxlY3RlZExpbmVDb3VudCI6NTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFiMTc0MTA2YmI3MWI1NjgyY2FjZWVmYzVhYWQ0YWI0Nzk0YzM1NjE4NTZjYzY0MzcwZGQyYTE2M2E5N2E1MDAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIyZDExY2FmNDNlOTdlZjM2OWU2YmVlZDFhMjY4YmQwNTgzOGYyOWI5ZGQyNTRiZjY5YmE2NDg4NDE0NzIzNGEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImEyZWVjMTY1NDgwYTc2OTg5ZjM4OTFkOTIzYWVlZTIyZjI0NjY1MGZlYmQyYzMzZmIxOWE5MzA0NDk0NzhlNTYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoyLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImRmNzM5YTA2YzFjYmIxMjQ0ZTMzNjNkMzhiY2Y5ZmE1MGNlODRmZWQzOTljMjE5M2EzYzdmMDhkNTk5MThiMmEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_992d84f903fd4d8daebd464c979623cd",
+      "statement": "The quick-entry text flow rejects missing user IDs and blank text before agent invocation, passes user ID, voice-input state, and the current date to the agent, and only returns a transaction after the create-transaction tool succeeds and the transaction is reloaded by ID.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/dependencies.ts#L251-L258",
+          "version": "repo-lines-v1:sha256:21b40ba8fd7cafa9d1c6cc1f2cda44a6b915ad40897fdc6ca5b45a4aad092440:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYTk3N2ZiYzNkMDIwNzk1NDUyMWU2YzgyNjdjNWNkYjkxNDczOTA1NjA4ZWQ1YzFjMTM3ZjYzOTNjOWI1ZmYwZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDk5NjdlYzFlZDM4MzZmOGViMTdhZmYxNzJiNWJmZWY3ZGU2MDQ4NWE0MzljNmNhMTFjNTkxZTE3NTU3MzlhZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMWU3MDQ4NjFkOTQ2NTVhYTg3ZTQ5MGMyMjA0OWM5OWNlYmY1ZThhYmZlNTk1ZjE1ZTRhOTExODM0ZTI3MzRjMCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMTQxZGEyZDJmODIxNzU1MTU0M2M5ZmVlYjQwM2FkZjkxOWViMTI4ZTRlOWE5YzlmYzk4M2Q2YjI2MWQxOWFlMSJ9"
+        },
+        {
+          "resource": "repo://backend/src/services/create-transaction-from-text-service.ts#L56-L157",
+          "version": "repo-lines-v1:sha256:df506541f77715ead57edeb82482f5b65f86a2a01f44d3d06b0bce748aecfb34:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAyLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiIzYmVhYWZiZjdhZDg3MDA1NzFmMDUzN2E4ZDYwMDFhNmJhMTMyMjU5MzYxY2UxOTgxNzU4ZDAxYWRjMjZmZWRjIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIyN2U1Nzg4ZDVkOWQ3M2QyNGE4MWRiYzBhNWE3NGJmYTgyYzljM2IzYWY5OWU1MmFmNzk2ZTkwYjQ2OGE4YTNkIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJkZmI3OTMwZjBhNDVhZWRiZGVkZTMwZmExYTUzYmRhNTE1OWQ3ODFjN2UxODAzYTE3NmQ3MzJlNTkzN2M1NDExIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MSwiZm9sbG93aW5nQ29udGV4dEhhc2giOiI0MTJjYTM0NWNjZjc1YmY5YzA4MDZiY2U2OTViZThkZTgwOGI3OTk4NDI1MWE3YTU0ZDIwMmNmNjEwMWRkNDUxIn0"
+        }
+      ]
+    },
+    {
+      "id": "claim_09160806587f4c6abdc26e88ec0091b6",
+      "statement": "`CreateTransactionFromTextService` treats missing tool execution, invalid JSON, schema mismatch, and tool-reported failure as distinct failure modes that are logged and returned to the caller with the agent trace.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/services/create-transaction-from-text-service.test.ts#L42-L174",
+          "version": "repo-lines-v1:sha256:1a0fe5787421926635e8521713e1f7455ea4a6057b150d21f9f034519847d049:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMzLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiIzZGRiZTMzM2VhNDNkMWViZDUyMmJhODdjOWEyZGZiMzE0YjIwNTgzNTMwMGJhZDRmZTFkZjNiMTYyN2NlMTRhIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIyMmQxMWNhZjQzZTk3ZWYzNjllNmJlZWQxYTI2OGJkMDU4MzhmMjliOWRkMjU0YmY2OWJhNjQ4ODQxNDcyMzRhIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI3MWExYmQ5ODQ1Y2ZiYzcxZmE3MzIwZGJjZTZhYzU1YzdkZjE4OTBlNjE0YTZjZmU1MGMzYzFmOWJmOWMyMDcyIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiIyYmI5YWQ2OWRjODA0YTlhNzQxZTg4NzczNWI3NGYwYjNmZjQ3Y2Q5NzBiM2VjYmIxMjBiMGJlYjkyZTI1YmE0In0"
+        },
+        {
+          "resource": "repo://backend/src/services/create-transaction-from-text-service.ts#L81-L149",
+          "version": "repo-lines-v1:sha256:12d5f7f7591ce675dd37a59d9033be6b9e6abf83b4d745ad8a3b84f47bf53dda:eyJzZWxlY3RlZExpbmVDb3VudCI6NjksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM3YWU3MTA4N2RiMzVjZmYzYzY0ZjBhOGRhMjhjNThiMjhlMDNjOTRhOWM2ZWVmNWQ4ZmFjZTIyNmJkMmIzNjciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjUzMmMyMDI0MmMwZjI3YjNjOWY3NThkOTcxN2IzNjlhYmYyZjRiMjJlY2ZkMmQ0NDk0YTRhOTcxMzYyZmE1MTYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjlhMWQxNzZhODc3YTllZjA1OTkzMDRjNjc3NWJhMjVlZjU3NTA4OTJhZDIzMmVhN2NhYWIyZGU3NDZmYTYwOTQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_60ca16391f7d40d4b4a5fb5d4f61f269",
+      "statement": "Telegram webhook handling requires the secret header, validates and parses the incoming update body, and forwards message payloads to the Telegram bot service for acceptance.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/lambdas/telegram-webhook-handler.ts#L18-L65",
+          "version": "repo-lines-v1:sha256:08d4bfd41f718774298cda7d2b96a346f887f59d8036946a138077cbcf0caecd:eyJzZWxlY3RlZExpbmVDb3VudCI6NDgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM0YmMyNDM4ZmQ3MjEwZGExZDViZjczZjNlNjdiZDkzY2M3ZjlhNDJiMmFjYzMwMWZiNzljN2Y5ZDY2MGUyZmMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjYyMzNlYjkzYzg1M2UyZWFlM2RhNzlkNTBkMWZmZTY2NjVmNTNiNzhmZjdiMzM2ZjNmM2FmZDRhMTliYzZjOTgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_c10c2bc8d2be45bf98772d0b1493d01a",
+      "statement": "`ProcessTelegramMessageService` rechecks the currently connected bot for the user before doing any assistant work, ignores stale or missing bot deliveries as successful no-ops, sends a fixed notice for non-text messages, and otherwise derives a deterministic session ID from `botId#chatId` before asking the assistant chat service.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/services/process-telegram-message-service.test.ts#L34-L147",
+          "version": "repo-lines-v1:sha256:79f508726823debc4349135f08d7448e1515ba25983fae048206e3fe8febca0c:eyJzZWxlY3RlZExpbmVDb3VudCI6MTE0LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiIzZGRiZTMzM2VhNDNkMWViZDUyMmJhODdjOWEyZGZiMzE0YjIwNTgzNTMwMGJhZDRmZTFkZjNiMTYyN2NlMTRhIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIyMmQxMWNhZjQzZTk3ZWYzNjllNmJlZWQxYTI2OGJkMDU4MzhmMjliOWRkMjU0YmY2OWJhNjQ4ODQxNDcyMzRhIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJiMTZiNzI1ZGRmYjU3N2U5OWNiMThjY2FlZjJlZmM2M2IwMmMwNWU3MTE1MDI4NGNkMWVmYzEwODAxNmIzOGY3IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiI4ZjZhM2M0NGY5Nzg1MjMwZTc0ODc0MzBiMDM0ZTFjYTJiMzA3MDNmNDQ5N2RmMjg3YmQ3MGJjNGEyYzVlYmFlIn0"
+        },
+        {
+          "resource": "repo://backend/src/services/process-telegram-message-service.ts#L28-L87",
+          "version": "repo-lines-v1:sha256:76921432ac918e57a5d5f8ec73f3897436455a456cf755c43e28ea70c71b8bc5:eyJzZWxlY3RlZExpbmVDb3VudCI6NjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg1ZGI2MGY0ZDZhMDhkMDFiYjY0ZWEwODBmYWVhNDEyNmY4MzE1MmU3MzUxMTEwNWY4N2Y1MDExNjU0OGZmMWYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjI4NTE5YmQwYzA3ZGJlMzkyYTFiNmQxM2Y4ZmY4MzZhY2EyMjdlYjRkOTU4OWNlMTcyMDY2ZTc2ZDJhNzhiMjUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_a9460e329c3546048730ddbaba411c42",
+      "statement": "When Telegram reply delivery fails, `ProcessTelegramMessageService` returns a failure result after logging the send error instead of pretending the message was processed.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/services/process-telegram-message-service.test.ts#L187-L217",
+          "version": "repo-lines-v1:sha256:7f49e271a1b7ca371999a73b448bd30e2ff91e675c8c40c7905ba3c0cc3fbf62:eyJzZWxlY3RlZExpbmVDb3VudCI6MzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE3ZmE4MDk2ZmZmZGYwMDIxYTI0ZjA1YjMwNzk5NWY3MGRlNzQxZWNhMmYzZjA4MmQ3Mzg5Y2Y5ZTA1ZTc5MjQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIyZDExY2FmNDNlOTdlZjM2OWU2YmVlZDFhMjY4YmQwNTgzOGYyOWI5ZGQyNTRiZjY5YmE2NDg4NDE0NzIzNGEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVlMDYxMGU0NmM3MTRhNWQ4ZjU1Y2I5ZDBiODM0MzcyYWEzMGQxMTM0NmRhYmNhZDA5NjMzYmQzZjQ4NmQ5ZDAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoyLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQ4MTdmYmI3M2M5MmIzNmQ1ZTQ4OTZmZjUxYzFiNThlZWMzMzBiYmU5NjFiYTA1ZmM2MjA1Zjg2N2VhMWJjZjYifQ"
+        },
+        {
+          "resource": "repo://backend/src/services/process-telegram-message-service.ts#L48-L84",
+          "version": "repo-lines-v1:sha256:ac1274fc63c73f4477c18a330c82dccaee899d9c33838a200273b293b467d80e:eyJzZWxlY3RlZExpbmVDb3VudCI6MzcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYzOWZjMWI1MTY0YmNjNDExY2NkMzY1MzBmNzYxNmQ1NGNlZWMyYjZjODZmZmMxOTIwYTdmODRlYWExMjgxY2EiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE5YTEyY2Q2ZjE0ZTAxNzI3Njg1NGQ3YWZmMDI5NDdmMTMzMmZjYzEyNTVjODIzMzdjOWE4Yzg2MmQ4MTY3OTYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjcyYmZmYmNmNjIzOThmMWIxYWIzZWI2NzIyYmQ5YmFkM2MxMDY1NmE3YmM4MjUwOTE1ODU2NGVkZDE0OGVjMjAifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_ca6409f0ce8841e5b21880d8b133b3df",
+      "statement": "The main backend Lambda refreshes runtime environment values once per warm container, routes `/webhooks/telegram` and `/mcp` before Apollo, and returns a 404 for `/.well-known/*` discovery paths to avoid Apollo CSRF interference.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/lambdas/web.ts#L12-L60",
+          "version": "repo-lines-v1:sha256:4f74480f9ee34351a3f69edc9e623d31a6aa7fac3093fc03b427e38e0d31c2bf:eyJzZWxlY3RlZExpbmVDb3VudCI6NDksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI5MWM5ZmQ2NDNmMDYzYWVhM2Q1NjJlZjFkZGI5MmE2ZjBmMTJlMDk5OWM5NjA4MDk4NDFmOTFkMjkyNzFiZTciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZkZjc1ZGQxYjJmNTgxZjg5MjMwYmQzZDE3NzljOTMxZTQzNGE2NDg3MDA3MjAxYzU3Y2ZiMzhkODVkNDFkZWUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjMwMmM1MTQxMGY2NWY1ZDBiNzIyMTRhM2FlZDAwMWJlMzM0NzZiMzU2MjVlOGEzMjQ3ZjA4MDY3Njg4N2UzN2YiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFhMWQxYTYzMzkwMjI5Yzc5ODM0N2U4M2EwNDA1NDQxYzk0MDAwMzUyODRhZDE2OGMxYmY2Y2RmMWQ3MGEzNzAifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_7687a15459c4464799d662e4f75fa19f",
+      "statement": "The migration Lambda is a deployment-time entrypoint that refreshes runtime configuration, runs database migrations, returns a 200 response with execution statistics on success, and returns a 500 response with the error message on failure.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/lambdas/migrate.ts#L7-L52",
+          "version": "repo-lines-v1:sha256:15f028b3b7dee94c3a23110a74adcb167b4f95a8377831c1b203ec8a267a5607:eyJzZWxlY3RlZExpbmVDb3VudCI6NDYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI5MWM5ZmQ2NDNmMDYzYWVhM2Q1NjJlZjFkZGI5MmE2ZjBmMTJlMDk5OWM5NjA4MDk4NDFmOTFkMjkyNzFiZTciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFhMWQxYTYzMzkwMjI5Yzc5ODM0N2U4M2EwNDA1NDQxYzk0MDAwMzUyODRhZDE2OGMxYmY2Y2RmMWQ3MGEzNzAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjU1ODI0Mzk2YTcxZWFjYTExYTk1YjQ0ZWU1ZDZmNDRhNGQ1N2IzNzQxYTgyNmI1ZDY1ZTg2ZmM0OTU5NGY2ZDgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://backend/src/migrations/runner.ts#L181-L197",
+          "version": "repo-lines-v1:sha256:6375fba543b5b558632003e912a07cf9ccb9a06991ac67d8699d2d86dd31d5af:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM0OTFhNDlmMzIwNWMyNDEwZTczMjBhMWZlMmVmY2M2MDg5M2Q0YTlkNmU5OGYzMDJlZTczMzhkOTEzM2U2ZDAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZiOGM5ZTRlNGMyOGQzMTViMjZlZmQ5YjdlYzJiZjM4ZGYxMTAxY2ZhOWQzN2ZhMTI1NjQ0MTdlZjYyZDJlMDIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_359e93ff3cdc4fc19003ad5e79aefae0",
+      "statement": "`deploy.sh` performs the release sequence by reading deployment configuration from SSM, building the backend, deploying auth and application stacks, invoking the migration Lambda synchronously, then building and syncing the frontend and invalidating CloudFront when a distribution ID is present.",
+      "evidence": [
+        {
+          "resource": "repo://README.md#L59-L93",
+          "version": "repo-lines-v1:sha256:720ef46bcbef940f0d2a2c955198b82ce1255703a6f3b058c75bd110b6ab6319:eyJzZWxlY3RlZExpbmVDb3VudCI6MzUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJlYmVjZjA5NzcwMzg5ZTNlNGZmMDRmMmU2ZDhjNWNiNmRkM2QxNjIzZjRmMGY5OGQ0ZjY2M2VlZmJmOTc1MDkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjI5ZWFhYjM5MzE1YmFjYWEzNDc3MDUwMmZjZGRiYjFhYmYzMWIxNmQ2OTBkNzhiYzBmYmM3MzM0NmVhNjE4ZTIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImEwYzAzNDE2ZGMxYjVlNGNjNzQzM2JjNzhlMmRkMDlkNzFjN2M4NjU2NDYwM2I2NGVhYWE0Y2M3NTU2OGY3M2EifQ"
+        },
+        {
+          "resource": "repo://deploy.sh#L105-L234",
+          "version": "repo-lines-v1:sha256:0cb8858ecfacdcf2739b80143179345f2b587824486bc8a51ff7addb65dca82d:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMwLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJiMzYwOTRmMzU5ZDM4MDJjZjExMzE3MzYzOWZmNThmMWJhZjBmZjU2NjY1ODI4ODU3ZTMwNmMzZmZiMzU2NDEzIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIzNzY5ZDIzN2NkNDIwYjlkMzhiOTgxYTBhNGY2NzcwMTkwYTRhODNkY2ExZmU1NmM0ZjViYTFlMmNiYzBlZjc2IiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI4NWJlNzczNWYzZThiYmJhODI3MjcwOTY3ZjljZTVjMjM0OGVlMTJiNjgwZTdkNzY1MWNjNDI0NDhjNTk1YTdhIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MiwiZm9sbG93aW5nQ29udGV4dEhhc2giOiIzMWE2ODg4ZGVlODI4NTBmNjFhNjViNTdiMThiOTU5YTNiODQxMjUzMTUwNTRiM2U2NWE5YTBjZGY4Yjc0ZjdiIn0"
+        },
+        {
+          "resource": "repo://deploy.sh#L3-L18",
+          "version": "repo-lines-v1:sha256:6ead972fc6a4437e38ddb232f2e2f87c7366e7c8f956074472c7012f7a46e8e3:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE5NGEyZWZmYjQzN2I4ZGQ1YjUwZjE0Y2FiODRhODE4NzA1NjIwNGU1NDg1NGU0MTk0MDc3YmIyZmFmYWIyZTgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjoyLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImNkYjgzZDE2N2UzN2QzZDZkYmRiMjA3MGU4YmE3ZjI5ZTJmNDIwNjk3MDI2ZGMyZmM0ZmJmMWI1NzIxOTJhYTEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjdlOGRkMjdjYmNhNTcwMmIzMDg1ZDY0NjRjYzQ4NDg5Mzk2ZWRhZDFmMTA1ZTBkNmYyMWRjNzU5YzI5ZjQ1ZjcifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.5.0",
+    "at": "2026-09-06T08:09:31.070Z"
+  }
+}

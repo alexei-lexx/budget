@@ -1,0 +1,212 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:d156559e83e3c73955208ddef56088ad499cc1d43f513be6f7bdbfb25e8afabe",
+  "claims": [
+    {
+      "id": "claim_198b6356b13242b1a99a5782ac210e25",
+      "statement": "The backend persists durable application state in DynamoDB, with table creation, retention, indexes, and Lambda table-name wiring owned by `infra-cdk/lib/backend-cdk-stack.ts`.",
+      "evidence": [
+        {
+          "resource": "repo://infra-cdk/lib/backend-cdk-stack.ts#L38-L45",
+          "version": "repo-lines-v1:sha256:4ec2646042cc38bf1181fb0db24d069ad274aa8f3278e485045ed4d9b0cebd1a:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNzkxNTJmOWYwNGM0YjUwYWMxY2EwNTE1Y2E0MzYyODE5OGQyMzkxYjc2Y2M0MzlhYmJkNzNlYjY1Y2UyYjkyYSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYWQ5ZTEyNTQ2NDI1NTc2ZDNkZWFlOGM5YjlkYmYxMjhkNWQ2ZGRhZjVkN2ZlODU3OTM0OTI3ZGVmZmEzYjlkZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMTExMDYxOGQ3MzEwNzFlMjFjZDVlYjc2NTU5NTc0M2JjYTc4NjUzMjRjZmU5ZTRmZjA1ODdhZWRmYTAwYzczYSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZjdhNmVmNWM0ZDFjMGJmZmQ0NzNhYTUxNTEzZDYxZjBhYTExMTIxOWFkMGY1ZTliYjFmMWE1YWU5ODZmYTExNiJ9"
+        },
+        {
+          "resource": "repo://infra-cdk/lib/backend-cdk-stack.ts#L47-L166",
+          "version": "repo-lines-v1:sha256:a1fc180e593c6a8c7a2fd001aa835d1aeb28445d1223008ca77dc2b0bb681278:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIwLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI0MmFiMWE3MjcyODY0ODQzNWViMTdiMThmYjJmOTYzY2ViOTI5ZDYzNmY4OGViZjkyOWJiNWRlYjMzMTllYzE0IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiJiOTc4ZTI1MDNiOGNmMzdhMDZmN2Q2ZjBhM2E2YjZmZTM1NjkxZmJjYWI1MGI4Nzc1Y2FiNmZhYmM3MWM1OTJiIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJlOGFiOTc4N2QyYTk2ZTEyZjJiYWQ4MTM2NDVhMjdmYmVhYWQzNTdiMjdhODk0NzhhMTcwZGZhYWMxYzRhYzUyIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiI4YWNkYTEyNDQzZjJiNzNkODQ0OTlmNjQ1ZDFiZmQ5Y2E2N2ZkYTA3NzVkNGVjN2NjNmE5NjBkYzUyNzI0YjE1In0"
+        }
+      ]
+    },
+    {
+      "id": "claim_ac50704078dc4a71b9a567701ad7e4b9",
+      "statement": "The DynamoDB tables are configured with on-demand billing, point-in-time recovery, deletion protection, and retained removal policy so user data is treated as durable and infrastructure deletion does not destroy it by default.",
+      "evidence": [
+        {
+          "resource": "repo://infra-cdk/lib/backend-cdk-stack.ts#L38-L45",
+          "version": "repo-lines-v1:sha256:4ec2646042cc38bf1181fb0db24d069ad274aa8f3278e485045ed4d9b0cebd1a:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNzkxNTJmOWYwNGM0YjUwYWMxY2EwNTE1Y2E0MzYyODE5OGQyMzkxYjc2Y2M0MzlhYmJkNzNlYjY1Y2UyYjkyYSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYWQ5ZTEyNTQ2NDI1NTc2ZDNkZWFlOGM5YjlkYmYxMjhkNWQ2ZGRhZjVkN2ZlODU3OTM0OTI3ZGVmZmEzYjlkZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMTExMDYxOGQ3MzEwNzFlMjFjZDVlYjc2NTU5NTc0M2JjYTc4NjUzMjRjZmU5ZTRmZjA1ODdhZWRmYTAwYzczYSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZjdhNmVmNWM0ZDFjMGJmZmQ0NzNhYTUxNTEzZDYxZjBhYTExMTIxOWFkMGY1ZTliYjFmMWE1YWU5ODZmYTExNiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_d99a45aa899b4b498446bd31fb650cdc",
+      "statement": "`UsersTable` uses `id` as the primary key and exposes `EmailIndex` and `McpTokenIndex`; `DynUserRepository` queries those indexes and treats multiple matches as a data integrity error.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/repositories/dyn-user-repository.ts#L19-L53",
+          "version": "repo-lines-v1:sha256:f00229b5c75fcb838f25453bc8e14d5eb977fd891d24f424320c85996419e9c4:eyJzZWxlY3RlZExpbmVDb3VudCI6MzUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc3ZTQ1OTQ5ODBlOWRmODdlNjE0MzYzZDc4NjFiNTgyYTJmOGMyMmVhZDIyZmViMTQwNDBmNTc4ZjU2OTQ2ZDciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZlZjY5MDA3YTdlNzVjY2RiMmMxOWVmYTlkOTVjNDNiZjc4N2YzM2EyYjljODI2NWM0YTVjZTY0MmZlNmRiZWEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjM4MDdjOWE0YTY4Y2M2OWFlMDFmM2IzZTlhNTQ4MGJmMGI1MDVhM2E1YzA2ODAzNmVlMDIwOGNhNWM4MDZmMWMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk3ZDg2MzJlNTRlOTI5OGFiYjk1ODcyN2UyZDUxNDA4YWJhZjEzNjYwMzUzNzkxMDE0MGFiZjY1YjMwYWI2MTMifQ"
+        },
+        {
+          "resource": "repo://backend/src/repositories/dyn-user-repository.ts#L57-L92",
+          "version": "repo-lines-v1:sha256:8d265be1f10ec54184ea0fde1f6cf484313cd135bb97c236e233370236adf49d:eyJzZWxlY3RlZExpbmVDb3VudCI6MzYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU3MGRlMjY2NWJjZTZkNjRhODQ4OWU0M2Y3OTUxOTY2ODYzYzkyOGFhOGFlNjhmNWE1ZmFiMjNiZjU2NjkyMTAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ2MGViNGIxMWEyYmUyMDU0NzA0OGY0MTlmMzM3MTQ2MGQ3ZTQ4YTVjZjYyMDhhYTU4MDVmZTQ4YzgwZDUwMDYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk3ZDg2MzJlNTRlOTI5OGFiYjk1ODcyN2UyZDUxNDA4YWJhZjEzNjYwMzUzNzkxMDE0MGFiZjY1YjMwYWI2MTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjMxNTI4ZDFjNjdjZGE0NmUyZDdhZTA1YzNlMWEzMTYzN2NjZmI1OTA5M2VlZGRiYzNhOTJmYzEyMGRhMDM2NTYifQ"
+        },
+        {
+          "resource": "repo://infra-cdk/lib/backend-cdk-stack.ts#L47-L68",
+          "version": "repo-lines-v1:sha256:b08a8c61d5ce8155e59616b0ab238d396be2a5509bede62cc0df9b6157bebb34:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQyYWIxYTcyNzI4NjQ4NDM1ZWIxN2IxOGZiMmY5NjNjZWI5MjlkNjM2Zjg4ZWJmOTI5YmI1ZGViMzMxOWVjMTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIyZDExY2FmNDNlOTdlZjM2OWU2YmVlZDFhMjY4YmQwNTgzOGYyOWI5ZGQyNTRiZjY5YmE2NDg4NDE0NzIzNGEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU4YWI5Nzg3ZDJhOTZlMTJmMmJhZDgxMzY0NWEyN2ZiZWFhZDM1N2IyN2E4OTQ3OGExNzBkZmFhYzFjNGFjNTIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijc3OTQ4OTBhYjVmMDc0YWQyMTc4NzBkN2UwNTgwMjkxMWQyYjU4ZjU3NzhlZDI4ODMzZWJjYmZhOGYxODE0MjIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_052b051797ea481abb8513aa4ec6ae11",
+      "statement": "`AccountsTable` and `CategoriesTable` are user-scoped tables keyed by `userId` plus `id`, and `DynAccountRepository` hides archived accounts in default lookups while offering archived-aware reads.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/repositories/dyn-account-repository.ts#L107-L136",
+          "version": "repo-lines-v1:sha256:aa3341d57d78b69409664e23f0e7ed690a28297021f83866902b0d0bf3931a85:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNiNWNhNjk3MjE1Y2IxZTBlMjZhZjJjZThmMDg1MGQ1MzRkZTY4N2Y4MGM4M2E3ZjAwZDQyNWE3ZjliZTI1MmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA4ZGI3NDYwODE4MmNiN2NhNGQ5ZmJhNDlhMzk0OTlhN2YzOTA3YjRlYTAzM2IxNDkyYWQ1Y2YwYmVlZWVjZWQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk3ZDg2MzJlNTRlOTI5OGFiYjk1ODcyN2UyZDUxNDA4YWJhZjEzNjYwMzUzNzkxMDE0MGFiZjY1YjMwYWI2MTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjAzODY4ODMwZjYwNDAyMmQ2YWRiNjRhYmYzZjZlYWQ3NjNkYTcyOWRlNWZjNDU2M2IwODBhMGJiMmQ4NjVlMDYifQ"
+        },
+        {
+          "resource": "repo://backend/src/repositories/dyn-account-repository.ts#L65-L100",
+          "version": "repo-lines-v1:sha256:49bdc5c694c5c9a2f6f6a4163cd975ea62579219fde852b81d2bafa133c18a0f:eyJzZWxlY3RlZExpbmVDb3VudCI6MzYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRiM2NkNWU5YjA4OTIyZGFlODllMTc0YmNiOWYyMWNiOGJkZWE2NWRjNmM2ZGVhYTk4ZDQxMmM0NzA0Y2FhN2UiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjkyYWU2MWU0ZTVkNzhiMmJjMDlmNjgyYjUxOTMxZDJmODdiMTE5NWNkODk1ODYwMmNiZjRiYWE3N2RhYjI2MzIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjNjYWMyNDZjMGUxZmFmYzdkNDE2ZDU3MGM4YWYyNGUxM2E2ODk2NDcyMThmNjdmODQ2YzRiY2IxMGVkMzE4NDIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjZjM2QzMzcxNjY1NDk3ZDRhNzYwZmI5M2M3ZDJjOTc1ZTZlZjgzZDg0NTViZThmNWI2NWQ4MWJlMDk2ZDEyYzMifQ"
+        },
+        {
+          "resource": "repo://infra-cdk/lib/backend-cdk-stack.ts#L70-L80",
+          "version": "repo-lines-v1:sha256:2871642f5702af6e7db8f47f6d80757cbebedb9f226220e012cc579b638ccd25:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM1MDRmNjMyZmUyZTFhZDcyNmE1Y2QyZTkxYTYzMjg5NjVlZDI3ZWQ1OTc5OWNkNWQ4NGRiMGYxZTk2NmFlZGQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIyZDExY2FmNDNlOTdlZjM2OWU2YmVlZDFhMjY4YmQwNTgzOGYyOWI5ZGQyNTRiZjY5YmE2NDg4NDE0NzIzNGEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJlOWQ4N2Y2OTZhNzEwZjBiNGJhMDlmYTJhYjczOWE1N2ZjMTlkMGU1YzQ5NmMyNTVmYjViZWVjOTQwZWNmZWUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImU2N2ZhYzg1NjMxNWQwZjg2YWE3OTI4MWVhYjIzZDkyZWNhNGVjZTM4NmQzN2YzZDI1NjVjYmQ5NDA3MzczOGEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_5c422f394ac446309f8e13012993cee5",
+      "statement": "`DynAccountRepository` uses an optimistic-lock conditional update on `version`, so concurrent writers must supply the current version and updates fail instead of silently overwriting each other.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/repositories/dyn-account-repository.ts#L18-L58",
+          "version": "repo-lines-v1:sha256:ef998f8128bc237fa9836e993f1d559befadf2958c4ceb9abf6725fbaadf4767:eyJzZWxlY3RlZExpbmVDb3VudCI6NDEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQyYTJjYjI1YTEyMmI0NDIyMWE2MjM0ZWM2NjBhN2I1ZmI3ZjliZGU3YjNiOWUyYjNjNTU5YTBkOTZmYWM3MzkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImMxOTBhZGEzZDNmYThiMjYxMzZmNzk2NjVhYjdjNWY3Y2Q1MTQ0Mzc0Y2U0M2Y0MmFkY2U1M2UyY2M2ZGMyNjQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjgxMjJlNDRkN2Q0NjFkZjlkN2ZjZTE1OWMwYWJkZTA2ZmIyZTk4MmE5NTA4OTY0NTNhMzA4NjQ2ZmMxY2M5NjUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_d8051a25068e486cbc86aa0d79413c10",
+      "statement": "`TransactionsTable` is keyed by `userId` and `id`, adds `UserCreatedAtSortableIndex` and `UserDateIndex`, and `DynTransactionRepository` uses those indexes for descending user-scoped queries and cursor pagination.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/repositories/dyn-transaction-repository.ts#L285-L313",
+          "version": "repo-lines-v1:sha256:af98dfa92340f95c3ae1ef5c40e1e17ed8901ef6fb2e1a00463c0860f29f07fb:eyJzZWxlY3RlZExpbmVDb3VudCI6MjksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMzNGY0ZTEyNWYwNDMwMmIxYjU0NmRlN2FmNWZmYTJhM2ExMWUxZGUyNTIyZmFmMjlkYzIzNmMzNmIwNTBiNzUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ1MDI3ODE4MjE2ODkyMGYxM2JjZDI3YTBiMTZlNTgxYWZiM2E3YzM2ODg3YzhkZjQyNWNmMGM4ZDAzMmI3ZmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk3ZDg2MzJlNTRlOTI5OGFiYjk1ODcyN2UyZDUxNDA4YWJhZjEzNjYwMzUzNzkxMDE0MGFiZjY1YjMwYWI2MTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImMwMjhmODQ1MjkwYTE5OTkwYWI3N2NjMjEyZTNlMmIyOWQzZWFmZGE3OTQ4OTIyZDM3NDI0OGNmYTg4M2FhZTEifQ"
+        },
+        {
+          "resource": "repo://backend/src/repositories/dyn-transaction-repository.ts#L324-L340",
+          "version": "repo-lines-v1:sha256:1feea1aa5475da581868f6f7388525adccb3952d8ed5c02916ca52a472635ce4:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU3NDA4ZGQ5NTk0ODU3NGU5YTY3OGFiZmQxYjQxMDEyZmZhMDMwNTJmZDg4MWFiODU0MmYwMDgwYzNjYTk0MDciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImMzZWMyOGNiMjdiY2E4Zjk0MzE0MjEyMGZjZjkyODkxNjQxNzc2YWM0NjM1ZTE3YTZjOThlNmNmMzkwNGRiMzIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk3ZDg2MzJlNTRlOTI5OGFiYjk1ODcyN2UyZDUxNDA4YWJhZjEzNjYwMzUzNzkxMDE0MGFiZjY1YjMwYWI2MTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjcyZjljNDUzNDlkZGJmNTBlZGY0NjZmZDVkMGUwNGFkYjE1YTY2MDdiYTBmYmEyZjU5YTdlYWYxOWEwMzRjNGEifQ"
+        },
+        {
+          "resource": "repo://backend/src/repositories/dyn-transaction-repository.ts#L45-L55",
+          "version": "repo-lines-v1:sha256:61085252c6248061b7fc35a39f44b091ec2bbbb4d16bb4c82ba7e09d93462978:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZlZjk4Mjg3YTkxNTgzNmJlOTFmYmQ3MjhkMWViNGFlZDdmM2NjZWMyYWRlY2M1MzdjOWFmYTcyODY0NzA3YmEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQ1NDQ5ZmNiZDA5N2FkMTM3ODlhNTc4MjliY2U2ZWY1ODI3MDcyNzQ4NDQyMTY2ZWY0YjMxNGRhYWJhZjhkNTEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijc3N2MzZjlmOTMwZjhmOGQwM2IyNWE3MWRiMGQ2ODkwYjY5ZmRkYWUxMmVjOGNkZmQ0Zjk5M2I2MTNlOWE1ODkifQ"
+        },
+        {
+          "resource": "repo://infra-cdk/lib/backend-cdk-stack.ts#L82-L112",
+          "version": "repo-lines-v1:sha256:39ba3b979a30e16556603e69c6dd1ec5df3c04337e12a79ca9b3e8eac3336f52:eyJzZWxlY3RlZExpbmVDb3VudCI6MzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJkM2M5NjY4MTY2YzIxNTZlYjMzYTZlZTE3MTkxYzNkMmNjODQ2YjQwNGY1YWZjNmEyMTJjNWY3YzdkNDNlYTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIyZDExY2FmNDNlOTdlZjM2OWU2YmVlZDFhMjY4YmQwNTgzOGYyOWI5ZGQyNTRiZjY5YmE2NDg4NDE0NzIzNGEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE0NGY5NmJhODZkZjk4OGZiNzE5N2RmYjFmM2QwN2Y4Mzk0NmZmNWY3NDY4MWRiNDBhZDEyYWE1MDI0Nzc0YTIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjVhMDQ0ZGFhNzk5ZmY3Mzc1ZGQ5MzY0OTkyNDFlYWIzOTk2ZGFmNGEzODQxNzQwMDU3M2RkOTc1ZjYzNzVmMTgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_bf9a1437e19c4ad3a83bb6abc89b8bec",
+      "statement": "`DynTransactionRepository` also enforces optimistic locking on transaction updates with a `version` condition, which prevents lost updates during concurrent edits.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/repositories/dyn-transaction-repository.ts#L155-L230",
+          "version": "repo-lines-v1:sha256:d420b6901e214cfe46d7ed4728be54f11b5b8c8d76663d59500fc183a7c768ad:eyJzZWxlY3RlZExpbmVDb3VudCI6NzYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQyYTJjYjI1YTEyMmI0NDIyMWE2MjM0ZWM2NjBhN2I1ZmI3ZjliZGU3YjNiOWUyYjNjNTU5YTBkOTZmYWM3MzkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjkyMDQwZTA5NWE5NGUyYWRhNzRlNDIxZjM3MTg3NTFhOTFhODEwYmZkNjZmNDhmNGU5MzljN2I3NDgwZWI2NzAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA5MWYxZDFiNjFmNzg1ZDVlNmIwMzhlN2I3MmVjZDZjMGYwMGM5YzA5MTk5ZjliZjUxMjVjZTVhNDZiZjg3ZTEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_763e5e4eac064265956a02b982db7816",
+      "statement": "`ChatMessagesTable` uses `userId` plus `sessionSortKey` as its key and TTL on `expiresAt`; `DynChatMessageRepository` computes `expiresAt` when writing and queries recent messages by session prefix in reverse chronological order.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/repositories/dyn-chat-message-repository.ts#L107-L149",
+          "version": "repo-lines-v1:sha256:cf4e34a49cdc074acde65d87f673b230900f02d0ee57c747cc60c1aa6eec6cac:eyJzZWxlY3RlZExpbmVDb3VudCI6NDMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2YWZiYmYzNzBjMGExYTIzZjVmNzI5ODY4M2E0MjcxMjVkYTQ4ZWM3MzYzNjY0ZGQ5MWZlYTM1Y2I2ZTMzMzciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk3ZDg2MzJlNTRlOTI5OGFiYjk1ODcyN2UyZDUxNDA4YWJhZjEzNjYwMzUzNzkxMDE0MGFiZjY1YjMwYWI2MTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoyLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImRmNzM5YTA2YzFjYmIxMjQ0ZTMzNjNkMzhiY2Y5ZmE1MGNlODRmZWQzOTljMjE5M2EzYzdmMDhkNTk5MThiMmEifQ"
+        },
+        {
+          "resource": "repo://backend/src/repositories/dyn-chat-message-repository.ts#L32-L41",
+          "version": "repo-lines-v1:sha256:7e984586716c198cef91468b250feaae171c53771120a09e5f976e7c520c18f2:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM2MjcwMTg3Y2JmNGIzMTg5ZGNmYzI2YjE2ZWVhNTA5M2JlZGE1NzBlYzRkYTlhY2JjOGE2Y2IwMTc3Y2ZjZmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjlmZDk0YjQwNGQwNGJkYmNkZWFiNDhjODEyMjNhNGE1YTZlZTQ2MDg3MzQ2ZmEwOTQ1MGQ2NjRhOGNkZDc4N2QiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA0YWVkM2JhYjM1ZmE3YmZhZTQxYmJlYzFiMmY3ZjU4MzI0OGMxNDA2YTE3MGNlYjU0MDI5OWM2M2NiOWNjN2IifQ"
+        },
+        {
+          "resource": "repo://backend/src/repositories/dyn-chat-message-repository.ts#L43-L105",
+          "version": "repo-lines-v1:sha256:5d31a4b3444b02d556370b2ca321456d95e97a343d9b500a75d65b1404fbdd01:eyJzZWxlY3RlZExpbmVDb3VudCI6NjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxMDIzZGZlOTM1MTkwNTAyYjM0MWJhYzY4ZjFjM2U0YzY4ODJmNWNhN2E3OGUzNjhkOThlZmI3OWMwNzA3NGEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjMyOWFhNzMwNzAwMWJmOTQ4NDQ3NDlhM2Y0OWM5OTAzNzViNWI4MTBiMWNiZmQ3MDZkM2FlOWNhODZjMGU2NTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM1MGRmMWIwNDliNDhhZjUxYTFkNWZkMDJkMzUyMzNlNzEwY2I4ZDQxYjE4ZmMyNTRkOTQyOGU0OTBlNDJhOTcifQ"
+        },
+        {
+          "resource": "repo://infra-cdk/lib/backend-cdk-stack.ts#L119-L127",
+          "version": "repo-lines-v1:sha256:7345debaec1c7a6db082feeb625c477b0d1979c18d4b40ac3c16474118ac8cea:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiN2YwYjdjYzIwZTJlZGEwZmFhNTg0YmMzYTBjMDdmMTIyYWNiY2I4ZjAwMDJlZWNkODk1ZGQ0ZjliY2U2MzhjMSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMjJkMTFjYWY0M2U5N2VmMzY5ZTZiZWVkMWEyNjhiZDA1ODM4ZjI5YjlkZDI1NGJmNjliYTY0ODg0MTQ3MjM0YSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYTQ0Zjk2YmE4NmRmOTg4ZmI3MTk3ZGZiMWYzZDA3ZjgzOTQ2ZmY1Zjc0NjgxZGI0MGFkMTJhYTUwMjQ3NzRhMiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYzc1MjBiMDA4ODJlN2MxZTA3OWJlMzQ3ZTVhZWExMDMyNWViOTk5ZTNmYTk1MjgxOTcxODlmZDJlZWFjNGUzZiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_bcacf77110a24fa0b5ac6ec4449e1f26",
+      "statement": "`TelegramBotsTable` is keyed by `userId` and `id` and exposes `WebhookSecretIndex`; `DynTelegramBotRepository` resolves bots by webhook secret, rejects duplicate connected matches, and soft-archives bots instead of deleting them.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/repositories/dyn-telegram-bot-repository.ts#L148-L213",
+          "version": "repo-lines-v1:sha256:ae682698a2c17654e5b7a32ea02a385a70a385419f89a895f4e3062adc21c6f2:eyJzZWxlY3RlZExpbmVDb3VudCI6NjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE0NmU3ZjUyYzE5ZmY2ZjVkODg5MjBiODk3YjdkOTEwZDFhMmRiMDllZmIwNmE1M2JjODkwNDhkOGU3YTY2MzIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk3ZDg2MzJlNTRlOTI5OGFiYjk1ODcyN2UyZDUxNDA4YWJhZjEzNjYwMzUzNzkxMDE0MGFiZjY1YjMwYWI2MTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImRkYzQwMzgxMDQyNzI2YjEwNWU2NzE5M2NkYWUwZjg2ZTgwMDAwZWVkNzhhMTA5MzlhMWRiMjI4ZmJmNDc4ZWUifQ"
+        },
+        {
+          "resource": "repo://backend/src/repositories/dyn-telegram-bot-repository.ts#L17-L61",
+          "version": "repo-lines-v1:sha256:5fe9a6b4103379bdcd721d9d33272c396222b7a00332b278fb6650da82c25d78:eyJzZWxlY3RlZExpbmVDb3VudCI6NDUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImMwNGFhNjliYWIzYmZiMTBkOTVjYTc2ZWVhNzQ2MjkwOGNkZjQxY2U2ODEzZTU5MjRkMWEwMTk1MDFlZmIxM2UiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjM3MTQ2M2Q1ZTVkNWUzMGY4ZGYyYzM2ZDJjYzFlZTA5MDk4ZmNkODJhODdlM2RkY2RkMWY1OTM4ZTA1MjczYjciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImJjMTUyZTZhMDhkOTc4YjY5YzFhMjg3ZjgxNjUxYWMwZmJkM2U4NGNhMjM5ZGIwN2ZiMDk3NGM1ZmZjY2E4MjkifQ"
+        },
+        {
+          "resource": "repo://backend/src/repositories/dyn-telegram-bot-repository.ts#L215-L260",
+          "version": "repo-lines-v1:sha256:076ec91f5adabe2afec575270e9c4c4d037ea363728efb08820bc36a75a9664c:eyJzZWxlY3RlZExpbmVDb3VudCI6NDYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ0MmIwZmNmOWZkNGMzZjc5OWM0YTJhMjQ1OGI5MzRiZWZkOGFlY2UzM2Q3ZGYxNTM2ZGI3NDk1ZTM2YzYyMDUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQzNjhiOTIzMWYzNDViNjAyMjVjNTZkNzczMGIxNDc1ZDc4NmM3OTM2M2EzM2IxOTIzZjU0YjZjNmJiZjJkMWYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk3ZDg2MzJlNTRlOTI5OGFiYjk1ODcyN2UyZDUxNDA4YWJhZjEzNjYwMzUzNzkxMDE0MGFiZjY1YjMwYWI2MTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjEzNDBhMzljZTE5NmZkMDY1NTYxNzJkZGEwYWI0YTkxZjFmMDQxYmRlMTE1NzJhYTNkYjc3M2NiMTFhMjk2ZDcifQ"
+        },
+        {
+          "resource": "repo://backend/src/repositories/dyn-telegram-bot-repository.ts#L64-L115",
+          "version": "repo-lines-v1:sha256:1dd7cd3da776305081622c881f2c39a59efaefb3a6d876c7481490d80ebc100d:eyJzZWxlY3RlZExpbmVDb3VudCI6NTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBhNmNhY2M2NDJhZDNlYmM5ZjJhYzI3NmZiMzk5NjBkYzYyNGY2MWUzYzkzMjU1ODJlNTEyODlmZGM1MzE3ZGQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk3ZDg2MzJlNTRlOTI5OGFiYjk1ODcyN2UyZDUxNDA4YWJhZjEzNjYwMzUzNzkxMDE0MGFiZjY1YjMwYWI2MTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE1ZDliMDM3NjBkMDBmODYxMTFkN2Y3NzI4NDM0MzE0ODNjOGU1YmNhMDcxZjJhODUyZWQ4MDgwNDUxNDMxYmQifQ"
+        },
+        {
+          "resource": "repo://infra-cdk/lib/backend-cdk-stack.ts#L129-L142",
+          "version": "repo-lines-v1:sha256:dcecee01291c761e20f28817121f755721595790920e333e9fee2851f7d96621:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjljZTY3OWEzMGFkYzlhZDQ5OWM2ZWJhMmU5Y2ZlNWU3NWQ2MDU1NTk5ZWNmMDE1MTIzNDE0N2M3YzIxMzc1YmUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIyZDExY2FmNDNlOTdlZjM2OWU2YmVlZDFhMjY4YmQwNTgzOGYyOWI5ZGQyNTRiZjY5YmE2NDg4NDE0NzIzNGEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE0NGY5NmJhODZkZjk4OGZiNzE5N2RmYjFmM2QwN2Y4Mzk0NmZmNWY3NDY4MWRiNDBhZDEyYWE1MDI0Nzc0YTIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImNjYjFiNDk2MDE3NjgxZTlmZTI1MjZmYjAxYmY2YTg0YmUwYjY0ODI4MjhjM2I2MDczYTJjNzJkOTRlNDY1NWQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_fdc710c019fa41f98d8c924aa7f562c3",
+      "statement": "`MigrationsTable` uses a single `PK` hash key, stores migration history under the migration timestamp, and uses a transient `LOCK` item to serialize concurrent migration runs.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/migrations/operations/migrations-table.ts#L21-L56",
+          "version": "repo-lines-v1:sha256:63ea9c536ed6954dd377eb417fade9a973f0681d53d7c9c69735ac6c20526de0:eyJzZWxlY3RlZExpbmVDb3VudCI6MzYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxNDcwMDk4NTY3ODk0NGJhOTQ0NDBmMDliZDUwMWYxNWRlYmU1OGQ0YmVlZDczZTY2NDkzODkwODNlNThlNGQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVmYTRlNjNlZjliMWFjMDRhYzQ1NzJhOWJiNDJlMmU4ZmRjMTVhMzg4NTFkNDVlYThiYzJkNmZiZDRlMGE1YjkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjBiZWY3ZGRjMWU4YTNmNTAxMjEwNWZkZWVkYjQxM2UzMGJjYTQ5ZThmYTY4OTRkMzNmZDk3ZDdiZjZlYzI4YjAifQ"
+        },
+        {
+          "resource": "repo://backend/src/migrations/operations/migrations-table.ts#L87-L144",
+          "version": "repo-lines-v1:sha256:61901d2b882ece2f29fac5fb52797ec20da5cb85b133c2bee8cbdca729a313bd:eyJzZWxlY3RlZExpbmVDb3VudCI6NTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImY0MzIyYTc5Y2M4MDg2NWUzYmM0NGQzMDI5YWE1NzFjZTI1ZjI0Nzc4Y2E5MTA5Y2Q1OThlMjg0MjdlZjhmZDQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxODc0ZGU0ZGI4YzJlZGJjNzVkOTAyNmM3MWFiZjQ0YzkwYmM2ZjEyMTIzYmUxMzE4M2I2NTAzMjBjZjIyZDIifQ"
+        },
+        {
+          "resource": "repo://infra-cdk/lib/backend-cdk-stack.ts#L114-L117",
+          "version": "repo-lines-v1:sha256:c17a6f7900efff5b123abdc53157dce7aac12f0d285b4bc593e1629bcb566229:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNWY5YTA3MmIyNGU0Zjk5MDBkY2Y1MzRjZDNkNTg4MWU2NjU1ZWI4YWMyNjViM2RiMDM5MDczMzg0YzVmMzhkNiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMjJkMTFjYWY0M2U5N2VmMzY5ZTZiZWVkMWEyNjhiZDA1ODM4ZjI5YjlkZDI1NGJmNjliYTY0ODg0MTQ3MjM0YSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYmU5ZDg3ZjY5NmE3MTBmMGI0YmEwOWZhMmFiNzM5YTU3ZmMxOWQwZTVjNDk2YzI1NWZiNWJlZWM5NDBlY2ZlZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOWNkYTQwOWI4MDA5NDE5OTFkZGExZGJkZmViZjExYjk5NTBmZDRmYzY5OWI0ZDgzNWI0ZGVkMTcxMDAxZTE0YyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_a0d73e4569a1477a89440edf81183354",
+      "statement": "`runMigrations()` requires `MIGRATIONS_TABLE_NAME`, loads the migration list, acquires the migrations lock with a conditional put, skips already executed timestamps, records successful migrations, and always releases the lock in a `finally` block.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/migrations/operations/migrations-table.ts#L97-L123",
+          "version": "repo-lines-v1:sha256:046445fb9fee7ebb5711f1e887d50f5b6a9364f0a97311d157eabe219f273c93:eyJzZWxlY3RlZExpbmVDb3VudCI6MjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFjZDAzOThhOTg2MjY3Y2U1MWU4ZjRiOGViMmIzYjkxY2Y5YjkyOTY0MzdhYTExZmJmYmIyMDI3NzQxYTFiZGMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjFhN2VlMDgwM2Q4MmI0M2UyZWVlYzhmYzFiNThjNWY1Mzg1MTE3OTY2MzNmNzI5ZDQzMTdhODQxNjFmNGYzM2MiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjkwYWUzMDE3NjU1ZDg3MDE4YjA5ZDY1YmZmYmJlZDM2OTVkNjkxNGI5ZjNiNjRmNDVmY2MwZDA3MjYyYTJmOWMifQ"
+        },
+        {
+          "resource": "repo://backend/src/migrations/runner.ts#L44-L196",
+          "version": "repo-lines-v1:sha256:3a5d287f1591a781b506f7184b56967a586bad2d0eeebbd2ac3e1db6e223b19e:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUzLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI2M2YzYjljNzM5NmY4N2I4YzQyMzM0MGM4MmRkOTc5ZmE2MjkzYjBjZDZjMTI4YTcxNzA1OTA4ZDY0NmQyZmVjIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIwYzJlMTdjM2I4Nzc2ZmQ4NjUyN2YyZTNlNGM2MmZkZTJlNzQ1NDIxZjIzNGZhZDdiZGE3NTFhNmQ0NzBkYzBjIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI4ZDFlMDM3NTA1M2E3ZDY2ZTc0OGNlZjc4OWIwOThkZGM1OTExOTM2MGZmOGYyZGUwMjg0NzVhOGY4NTY3ZjgwIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MSwiZm9sbG93aW5nQ29udGV4dEhhc2giOiI0MTJjYTM0NWNjZjc1YmY5YzA4MDZiY2U2OTViZThkZTgwOGI3OTk4NDI1MWE3YTU0ZDIwMmNmNjEwMWRkNDUxIn0"
+        }
+      ]
+    },
+    {
+      "id": "claim_1b5b3f0591154fdb8bf1d13083d2d1aa",
+      "statement": "The migration lock fails fast on a concurrent run because the lock acquisition uses `attribute_not_exists(PK)` and raises an error when the lock record already exists.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/migrations/operations/migrations-table.ts#L97-L123",
+          "version": "repo-lines-v1:sha256:046445fb9fee7ebb5711f1e887d50f5b6a9364f0a97311d157eabe219f273c93:eyJzZWxlY3RlZExpbmVDb3VudCI6MjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFjZDAzOThhOTg2MjY3Y2U1MWU4ZjRiOGViMmIzYjkxY2Y5YjkyOTY0MzdhYTExZmJmYmIyMDI3NzQxYTFiZGMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjFhN2VlMDgwM2Q4MmI0M2UyZWVlYzhmYzFiNThjNWY1Mzg1MTE3OTY2MzNmNzI5ZDQzMTdhODQxNjFmNGYzM2MiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjkwYWUzMDE3NjU1ZDg3MDE4YjA5ZDY1YmZmYmJlZDM2OTVkNjkxNGI5ZjNiNjRmNDVmY2MwZDA3MjYyYTJmOWMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_e752954b00c04804851d48db82c0d540",
+      "statement": "`backend/src/scripts/table-definitions.ts` mirrors the table shapes used by the infrastructure and includes the TTL attribute for chat messages, which makes the local table lifecycle scripts reflect the deployed schema.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/scripts/table-definitions.ts#L9-L139",
+          "version": "repo-lines-v1:sha256:21e019bb575cbc4f24eb5dbada2a2376066106430b887c49bfecf58a17c6cff7:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMxLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI0ZTgzZjU4ZmRmZjY5NGIzNDg4NjBkZmQ2Y2ZjMDgwMmZhMGZkNGNlNjdmOThmZTAyMjljNzg3YzQwNDJjNWVkIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiJiMDJkMmMwZDZkYzVlNzRkOTJmYTE0YjkxZGJlYTI2NDA5MGJlYjM1ZmRiOTE4OGQ5YjM0MTE4MWRjZTlmNGNlIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJiZDUxOWM2MzYxODgzNzM5MmNkMjVhNDg3ZWU4NTU4Yzk2YjYzNWE2MzM3M2Q2MzVhZjhkZTczYzczODJlYzE0IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiI5YzVkMjAxMDg3MWEwYjY5ZWE1YTMxNTMyNWM2YTdjNzQzYTAwMWJiOTBlMjJmMTBmMzRlZmYyNGZiNGNiYTU2In0"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.5.0",
+    "at": "2026-09-06T08:09:31.070Z"
+  }
+}

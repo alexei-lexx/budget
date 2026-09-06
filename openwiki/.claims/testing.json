@@ -1,0 +1,100 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:e2c025262f33a946e0493c20661c083a7cc7de93b8256c40440a3e2c3f0b04dd",
+  "claims": [
+    {
+      "id": "claim_32ca3581f9b94544830b3b8a3f8b47f9",
+      "statement": "Backend tests are split into unit, repository, integration, eval, and coverage-oriented Vitest projects, with `npm run test` covering unit plus repository suites under `.env.test` and `npm run test:evals` running the eval project separately.",
+      "evidence": [
+        {
+          "resource": "repo://backend/package.json#L5-L40",
+          "version": "repo-lines-v1:sha256:9837ad9834f9df7ec4993716354be9cf9c20531d546e2cb84f23f2c385481ec2:eyJzZWxlY3RlZExpbmVDb3VudCI6MzYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM0ODMzZDU5NDljMDNhNDBjYTk1MjQ5MTYxMGE2NjU5NjQ0YjNhYTQ2NjM2MmY3OTkwMjBkYmYxOTgxNTQ3ZGIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjViNmIyNGE2MjM5NGFlMjZhYjY1NWI3YjZmNTRkNmE0ZjNlMmFjZWNjMDczYzdhNmZlOWI0YWY0YmI2NDgyMjEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUxMjQ3M2FmZDhlNDE1OWEwMDA4ZDAyM2RkZmYxNDE1MzdhMjIwM2YyNDNmZGEzMGRmYmM2ZjZmZjQwM2U3ZTkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQyMTliNmUzYjI1NzY0NGZhM2RhZTQzMzFiMzllZmQ1NWNmNjE3MTdhZjNlZmE1ZDg5M2IxNGIwMzg5NzdiMDUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_3e28bba1b88b4d0aa1fcf288efb27f3d",
+      "statement": "Frontend testing is centered on Vitest, with `npm run test`, `npm run test:watch`, and `npm run test:coverage`, while `npm run build` also performs schema synchronization, code generation, typechecking, and a Vite build.",
+      "evidence": [
+        {
+          "resource": "repo://frontend/package.json#L6-L22",
+          "version": "repo-lines-v1:sha256:3aac4faa468b590bc935b01c3a4803d455e033acc3e87e3d22155d40e92c6bf6:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM0ODMzZDU5NDljMDNhNDBjYTk1MjQ5MTYxMGE2NjU5NjQ0YjNhYTQ2NjM2MmY3OTkwMjBkYmYxOTgxNTQ3ZGIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkNWNkMmZiNGYzZGY4ODQ1MTUyNTViMzk1MjNmMmY4YjU0NzJiZWVhOWY1NjZmZmNhMjA0ZGI4MDI1NjEwNDEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImRmZjhlMDc5ZWNhMzdmNjA5YmU0NDU4ZDA0NTJlNDZiZGZiNzE2OThkNGM1ZmZhYWJhNTliN2YxN2IzZGZhYzYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijc1MGFiMmZjZWJlMTIxZjE2NjhiYTZmNThhOTYxYzYxYzVhNWUzOWM4YTM1N2RjNzBjMjUyMmZjMGE3ODkzNGQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_2ede356f46644b589492c0036ad543be",
+      "statement": "The infra-cdk package provides Vitest assertions for stack shape plus `cdk synth` and `cdk diff` workflows, so CDK changes should be checked both by tests and by synthesized output.",
+      "evidence": [
+        {
+          "resource": "repo://infra-cdk/package.json#L7-L21",
+          "version": "repo-lines-v1:sha256:8e9e5ff5ee68bd3a75cda9ec0cc89d47ba6f112a2f2dc64b1feb00afd87bc62e:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM0ODMzZDU5NDljMDNhNDBjYTk1MjQ5MTYxMGE2NjU5NjQ0YjNhYTQ2NjM2MmY3OTkwMjBkYmYxOTgxNTQ3ZGIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImExZjdhODkxOTNiYTE4MGJjYmY0ODdmZTZjYmYzY2UwODZmMjdiMzFmYTgxMjY0YjIzZTY5MmM4NjE0Nzk1YmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY0MTdlZTZkOGE0ZmZlZjViYTYxNjEyZGIxYWUxNGZmOGFiYmE3ZDQxMjNhZGRiODgzNjYxYmI1YzIxYTY1MGYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjEyMTk0OWI1YWJhMjU2NDA0ZWI1YzQ1N2FiYjZjOGE3YzkwNThiNThiYTFkY2Q5YjgyNmZkZDQ0NDZkYzE0ZTQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_80fa74fe4a1a4e9985cc2db8c0266497",
+      "statement": "`backend/src/services/assistant-service.test.ts` mocks the assistant agent to verify request shaping such as trimming the question and answer, forwarding `userId`, injecting today’s date and voice-input context, prepending history, and preserving the agent trace and response structure.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/services/assistant-service.test.ts#L24-L260",
+          "version": "repo-lines-v1:sha256:8f96c0fce5d1ec285ee19c6fc0ff6741e4a6196fefc68847004ff630bbac9158:eyJzZWxlY3RlZExpbmVDb3VudCI6MjM3LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiIyYTdhOTM3M2Q1NGIwOTliNDQ0NzdhNTA0NzJjMGI2ZmY1MWRhOWYxM2E4ODc1NjhiYjFhMzhhNGE0Yjk1MThhIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI4MjJlOGUwNTNlMTE0ODRlNWY0MzZhNzE2NTA0YjM4NDgxZTE0NmJmNmM4NjI4OTYwZmFiNmNiM2VjY2M0ZTY1IiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI0ZDFlMDg3MTdkYTFmYjlhMDZmZmU1NWZiZWVmOTQ5ZmJhMzFlMTAxNGUwNDE5OTdkZjQzYjgwM2M0N2IwMzhhIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiI4NzE0YTM5OTRjZmM3N2QwZWZkMWNlZTlkYTBmYWYyOWEzYWJjNjY1ODk3YWUxMjk0MjJkMzU2NjlkNzVmMWM4In0"
+        }
+      ]
+    },
+    {
+      "id": "claim_bcf72a7fae9f4608be1af0f6322e1208",
+      "statement": "`backend/src/repositories/dyn-transaction-repository.test.ts` uses a real DynamoDB document client plus table truncation setup, and it validates filtering and pagination behavior such as excluding archived transactions, applying currency filters, and filtering by account or category IDs.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/repositories/dyn-transaction-repository.test.ts#L20-L260",
+          "version": "repo-lines-v1:sha256:d04f90a1b00bca319324738196b22149dabba99a71001269a5b142020b9d50e9:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQxLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI4ZjQ3YjNhYTg3YzhkYWRmNWQ0MzhhZDhkMWUzZjY0YTQ3ODMwMjE2OTM5YzVlNDgwMTFiZDk5MjQ1NWFmODFiIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiJkZjBkYzI2ZjUzZDc2NDQxNDJjNTdmMjE4MzhhYjdkZWI3ZTc1M2ZiNjExMzRiYzZlNjMwYTBiN2E0M2Y5NzI5IiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJhZjEzOTBkZjhkNzU2MWZiMzQyNzgxZDM4MWE3NGE2NDJhNzExYzMwZjAwOGYwMjA3OWYyODlkYmY5ZDQ3NzIwIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiI0MzI4YmVjZjVkZGQzYTZlZGQ3YTIyNTQ2NGZiNjQ0YjQwMWQ1YmUyMDAzOWI5NmRiODY3NzlmZDBjYzkyY2QwIn0"
+        }
+      ]
+    },
+    {
+      "id": "claim_a5c9eb5bfad34617803c1b6324a785fb",
+      "statement": "Repository tests depend on test database setup, including `TRANSACTIONS_TABLE_NAME` and an initialized DynamoDB table that can be truncated safely between tests.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/repositories/dyn-transaction-repository.test.ts#L20-L36",
+          "version": "repo-lines-v1:sha256:b5c9b0f52b32e61126bf6e01103856c679a696bddb7b95949e07afd97c4c1a49:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhmNDdiM2FhODdjOGRhZGY1ZDQzOGFkOGQxZTNmNjRhNDc4MzAyMTY5MzljNWU0ODAxMWJkOTkyNDU1YWY4MWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImFmMTM5MGRmOGQ3NTYxZmIzNDI3ODFkMzgxYTc0YTY0MmE3MTFjMzBmMDA4ZjAyMDc5ZjI4OWRiZjlkNDc3MjAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjVhOTQyN2Y3MDAxMDcxOGZhMjg0NmE5NDAxOGJlYTA1ZGExMzdhNDc3NGQ0NjBhM2IyMjEzMmUxYjEyNjA1ZWYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_a04d7ed539884e84adde57bddb042885",
+      "statement": "`frontend/src/composables/useAssistant.test.ts` mocks the generated Apollo mutation hook to verify that assistant requests receive an abort signal and that `abortAskAssistant()` is safe to call.",
+      "evidence": [
+        {
+          "resource": "repo://frontend/src/composables/useAssistant.test.ts#L1-L48",
+          "version": "repo-lines-v1:sha256:ee08efe0ca273b0ac44dc7d59ba77f3bcce3db808880d24e25c3620f7d3e19ae:eyJzZWxlY3RlZExpbmVDb3VudCI6NDgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJmNTliNzdiY2ZmNmFjZjNlMTgzYjBjZWIyNWE1OWVlNjY4YjNlMTdlZGFjM2QyMmU5ZjlmNGU2M2IxZTlmNTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIyZDExY2FmNDNlOTdlZjM2OWU2YmVlZDFhMjY4YmQwNTgzOGYyOWI5ZGQyNTRiZjY5YmE2NDg4NDE0NzIzNGEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoyLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQ4MTdmYmI3M2M5MmIzNmQ1ZTQ4OTZmZjUxYzFiNThlZWMzMzBiYmU5NjFiYTA1ZmM2MjA1Zjg2N2VhMWJjZjYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_b82f460b7e9548f984cfc2a12b7f26a3",
+      "statement": "`frontend/src/router/index.ts` places authenticated routes behind a shared `requireAuth` guard, while the sign-in route remains public.",
+      "evidence": [
+        {
+          "resource": "repo://frontend/src/router/index.ts#L26-L117",
+          "version": "repo-lines-v1:sha256:dda3bd0bd4985a0f3d0aa9fe714f47131d24881ef865edf08d5d5d4b5a42a2a4:eyJzZWxlY3RlZExpbmVDb3VudCI6OTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIxMjBiMDZhMTJiZGVmM2ExZDc2YWRiOTgxNmU0NjIyZjhkMTY5YmZmNWJkZjhlODdhYjNlN2YzNTJjMWM4YWQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZmNGI5MWE5YjNlZWQ1OTUzZjJmZDczZmMyNWYzNGQwZmZkMmZiYzMyOWFjNGU1MjIyOGFjMDE4ZjRkN2IyMjMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZiNTgwZTk2NGY4M2E0NzNmNDNkNDQzODQ2Mjk0OWQ2OGI1NjAwZmRhNzg3ZjE2Mzc0NWQwMGRlODljYmYzNmEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_c617f887c3884668b03591899fba2dba",
+      "statement": "`infra-cdk/test/backend-cdk.test.ts` creates an empty `backend/dist` directory before synthesis because the backend stack references `lambda.Code.fromAsset(\"../backend/dist\")`, and it asserts that the synthesized stack contains an HTTP API resource.",
+      "evidence": [
+        {
+          "resource": "repo://infra-cdk/test/backend-cdk.test.ts#L9-L38",
+          "version": "repo-lines-v1:sha256:3ec88a56e715593d90647b6ebfb9612f8b3ed365e86d547492abbbe4ecee9fe7:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA4MzJhZTI5ZWU3MjQ1ODFiNjdmNjhhNmFjMTBiMWI0YTkwMmMxNmM4Yzk5OTdlZjYzMDdiZWE1NGYxZWExYWYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM0ZmJkYTQ3ZTMwZjI0YjAxMjY3ZTc4NTljZWI5MTQwYmY2YmEwZTQ3YjM0ZTI1MDMxODczNDgwOTFhYjBiNDQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.5.0",
+    "at": "2026-09-06T08:09:31.070Z"
+  }
+}

@@ -1,0 +1,264 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:e2baef3cbf988e3c5f73b0e7d32ef34242599dd922e4e0fa24c290460dd4957f",
+  "claims": [
+    {
+      "id": "claim_fc606678f107416fab2a9b80d6ead272",
+      "statement": "The domain is user-scoped: accounts, categories, transactions, trend presets, and Telegram bots are all owned by a user, and user settings include interface language, transaction-pattern limits, voice-input language, and an MCP token that can be regenerated.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/graphql/schema.graphql#L15-L18",
+          "version": "repo-lines-v1:sha256:d92fd73de1b5b5d79489fb32f57f967ef6ab29f8927aa6d3be1f8124f208f302:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYzBhNzc2MDEzZTY1NzU4MDk2Yjc2MDIzYjIzNzZjZmY5NGMwNzFlMGIwMjdiNDQ1MmZmNDAzNmZiMmYwZTI2ZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNWY1YWRmZThhODYyODNmZTM3ZWE2YWE1MTUwZTgzN2IxNDRkODYwMzU3NjEyZDJkYzA2ODg3MzViNjAzMDhkYyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYjFmYTg4MTEzN2Q1ZDgwZjFkYTEyZDBmNTBmN2YzODM0NzU3OTU2MGMxYjI3YTViMTQwNWMwNTQ1MmFjZDJmOCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOTFjMGNmZDhjY2RlOTg0NWRiMDFhODZlMDY2MTMxMWUyOGE1MWVjYTBjZDkwYTljMGEyNTExZGY2OTc0MmYyNCJ9"
+        },
+        {
+          "resource": "repo://backend/src/graphql/schema.graphql#L26-L41",
+          "version": "repo-lines-v1:sha256:7d861cb4e34c1dc651266fcc1bae177210092af600f5e6ae928013672c9c007b:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE2ZjYwYzJjMWFkYzlhMWJjMjc1ZjA1N2IzM2I3Mzc2MWEzOWM0NmUyNjcxNmI3MjQ3MWIxOTU0ZGQ4MWU2MjAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUwMTg5NWRhYzdjYzE3N2RhMWJiOGE3NTNmNzQzNDQzOTQxMGUyY2FhYTBmNjE3YzU1MmQ5NWFmZWQ0YTUwYzciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNlOTIyNjRlMzhhYWUwYmNjYjc3NmRlM2FmMWRiZjRlNzFlYTY5ZWY5ZTY3MGE4YTA4Nzk3ZGYwYzA5MjczMDkifQ"
+        },
+        {
+          "resource": "repo://backend/src/graphql/schema.graphql#L43-L49",
+          "version": "repo-lines-v1:sha256:65e5b648cb7600daefe5e3ff3bc38bc38e8d85d7c9f5ad871dcca1cbb89c3973:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMjVhZDc0NjZjMjM2ZWVmNTA1MjY1OTU2YTFjZjNkNmZiZGQ5ODczYzFmMjQ2ODQ0MjAxYjQ1MzAzMDA4NmQ3YyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMjQ5OWVhMzk1OGYzMjczYTViYzVjNTg2MGI5ODJlYWM1MGQzYjk5ZWY1MTlkYWM0NjExOTkxYmYwYjI0ZmFmMSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOWNjOWU3ZTZiM2JhOTliMzcxYmUwNzdkNTgzMTc1NDk1YWZkNzQ1YzcxMTcyOGQ2ZTNkY2U2OGQ4ZDAyZThiOSJ9"
+        },
+        {
+          "resource": "repo://backend/src/models/account.ts#L9-L20",
+          "version": "repo-lines-v1:sha256:83880471ae20172826970c040260a4dc306200a88097f07394a8dcee80faedb8:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc2MTg0YTNmM2I0NjAwNDlhMmNkMDg0MGVmMzg5MDhiZDY0MGM2NWNlNjgwM2YwYmM1ODdjNDIxYzY4OWM5MGMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUyZTFmZDUwODlkNWRiMjExYzc2NTJiMzhlN2FjODdiNjMzM2NlOTEwNWUxMjA2NjI0OTUzMzlkZWEyZmUzOTEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjMwNTlkMTUyZTkyODcwZjBlMWNiZjk4ZmU1MDIxMmY1ZmNhYTkyNDgxZGIzYThjYmU0M2U5MmMyZjU0MDdhZjQifQ"
+        },
+        {
+          "resource": "repo://backend/src/models/category.ts#L6-L15",
+          "version": "repo-lines-v1:sha256:57b3b2639a86aaafb3864fdf2712d7f64230a2ff3639c76ee4131c681aada442:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ1MWNlNDFlZDNkY2UxOGJhZjgyM2JjMGU3Y2RiNjhhODIzMzYwNDVlZDAwNTM3OTRiNTZlM2E0NWFiYWQ2OTIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI2Y2Q1NWIyMDk2NTZlYmY2NmE3ZmMxYWUyN2M5OWQ4MzdkMDRkNmE5MjBlNzZlMmExNjA3YWVkMGQyNzM1NDkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://backend/src/models/telegram-bot.ts#L10-L19",
+          "version": "repo-lines-v1:sha256:8c9aa6758081ba0fd6788cdcca007fb6a05459c9228165735bda23a7a1946c8b:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImEwMmM0NjdlNDczYTBkZmU2ZWU5NDZjODU4YzFjM2UyYTk1MmEyMWViNzk2NzBkODBjNWJjMTg4Zjk4MWVjMmMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjAyZjhlYjljMWM5MmU3MjMxMzU4NmNmZDZhYmUyNWRiODJjMDgwNmEzODllNzI2OTM0NmQ1ZGEyODg1MDc4NDgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://backend/src/models/transaction.ts#L22-L38",
+          "version": "repo-lines-v1:sha256:ed76c4b3b3c2a9e209be1542a82f08744f969a3b288616d45d5fb7d4dfdb556b:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjYyNTA5YjlmZmJmMjk1NDEwNTc1NDQzMzIzMjAyNDM2Y2ZlNmY3MTI2YmQxOTljYmQxMDA1MmYyMTVmZDc1MTAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQ1MzNiMjc5MzlkMDc2YjM1Njk1MDI3NmM0OGY1OWZiM2YzYjM2Y2UyOGQ2Zjk0NmI5ZGZkODA1YmY1NDJhMWQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjBiMjA1ZDA4MGE1YjJmNmQ4MGY0MWI1ZmI3ZmE4NzIzNTJlZTY1MjExNjYyOTdhZTYyMzVlOWE0NzliMzY0NDUifQ"
+        },
+        {
+          "resource": "repo://backend/src/models/trend-preset.ts#L11-L20",
+          "version": "repo-lines-v1:sha256:b1d9a14db1191b74181f5347a1ce6a91f0fd1b30b156e6beee9afdbb7c0f5590:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg4ODMzNjBjZTQyZGFmMDY0ZDI0YzhjY2ZlOGMxMDEzMGIyMWUzOTUxZjZkMTI2N2FiYTQwMGRjMTA2MmQ1ZTkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjVhNzkwZjQ1NzI0NTBmMzQzYWIyOGE1NjU4MjY5ZGUzMmQ4NDQ3YzFiNDIzZjI4NzkwMjUzODIxYzEwMDU1ZDciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjViNmJmNmEwMWEzYWFlOGUxMzgwMDcwMGYxN2RkNTQ0NTJlZjBiMzU5NTM1ZDBjZWYzYzBkMTczZmI0ODQ4OGMifQ"
+        },
+        {
+          "resource": "repo://backend/src/models/user.ts#L69-L96",
+          "version": "repo-lines-v1:sha256:d986fa17cc80626bdcce0374ce2e9a433bbbb962f4b46e868305ae824bbf9212:eyJzZWxlY3RlZExpbmVDb3VudCI6MjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE2NjBiZDJkN2Y0ZDcwNWQ0MWUxMDc1NmYwNjBmMzE1NjA2YjdmYjNiMTc4ZmY2Y2M0NzI3MGJiNzdmNGMzNmUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJlZWVmZGQ1MTEzZDk5MDU2ZjFlMTlkZTFiN2Q1YmVkZTZlMGEzMDFmOWU4ZjdiZTRlYWQzZjhmOGRhODY2YzgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjAxZDliMDlhMDBiZDBlMzkzZWI3ODljMWIwMTk0Nzg4YTNkYmZhNWRmZDRiYjkwMWZkM2Y0NjcyNzcwYjE2ZDUifQ"
+        },
+        {
+          "resource": "repo://backend/src/models/user.ts#L7-L16",
+          "version": "repo-lines-v1:sha256:cc18d74ea08b034ddee3516c5c14c42d6794dcd936e139ea597fbfa5b9cfc4e8:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg3MjA2YmY4OTdlYjVlNTQzZGRiMTJkNDZmNTRjNDQxOWExNDgyMTdhNTMxYmNmZTM3YjkyMDZhOWJjNWNlNDYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI4NDE0YjY3MWJlZDNiMDM0OGI3MjY3ZDk2YTdmZmU3MDYwODNmNjBmZTk1M2EyOWQyN2Q3MzJmNjE5NTdhODMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjlkOGM3NWEwZjRlNmM5YWRmMWNiYjM2ZDc1NjFjNmQzMDhmY2ZkYzU4YzU5NmE5YjkxOWEwYzM3NjhkY2FiNzcifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_5ec2ed1ff118417493e58c0bf53ee586",
+      "statement": "Accounts trim names, require supported currencies, and compute balance as initialBalance plus transactionBalance; archived accounts cannot be updated or archived again.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/models/account.ts#L145-L176",
+          "version": "repo-lines-v1:sha256:b2eb8e3b06e8ebfe61a56a68dd30d7a3d92ed3d14bf650985665baf633efffe2:eyJzZWxlY3RlZExpbmVDb3VudCI6MzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU3YzE2YWNmYTVlY2U3YjRmM2E3NTg3ZWMwMzM1NjJiNzFiNjhmMTNhYWIzODg2NzlkOGU4MjMzNTMzYzk0MGUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjVmOGYyYmFiZmQ3MDQxMDViYTUyNThhMGI2ZTAyNDFhM2U4MTE5NDczOTEzOTYzMjMxNTE4OWRmMzhjOGM5NTIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjExOGFjODBkOTg3OGE4NDFlYzQ3Mzg1ZTQyMzBiZDFjYTgzZGJlNzRiODZmNzFhMjYxYmJiNDliMjZhZDVhNTgifQ"
+        },
+        {
+          "resource": "repo://backend/src/models/account.ts#L34-L62",
+          "version": "repo-lines-v1:sha256:6b29bdd1cdf62e059c8b0ca1a4025dff56b37a14632c31813ee0bc5671d850ba:eyJzZWxlY3RlZExpbmVDb3VudCI6MjksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQzMjBjMzUzOGI4YThkYTJlMDI5ZTRjYzFkZTc3MTYxNDY0MzZlZGI2ZDQwZjA2MGYxN2IyNTYwN2Y1Zjk1ODAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZiZTc5MmUwYjU1ZTkxYzRmYjUzZGFlZmYxYWQ5NTE3ZDdmMDBhMTRiNjVhZDVjM2UzZjA1Y2QxNTU4ZmJmYjYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjYwMTMzZWEzOTc4ZWU0ZWYwZTUzZjgyN2VlMmM3ZjY2NjU5NjdmM2I3YTNmOTMxNTcxOTI1ZTg0ZDU1ZWUwZmEifQ"
+        },
+        {
+          "resource": "repo://backend/src/models/account.ts#L79-L143",
+          "version": "repo-lines-v1:sha256:52a61ddab4a144167d07457b4050063a148c4623d636c8e5f52f2b0ba712d5fd:eyJzZWxlY3RlZExpbmVDb3VudCI6NjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE1M2FhZDcyMjY1ODQ4ZDhhOTk5MTdlYzM4ZGQwZTg0MjI1ZDg0MTM4YTYzM2YxNzQ5ZjZjM2ViZjkwOTFlNWEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJlZWVmZGQ1MTEzZDk5MDU2ZjFlMTlkZTFiN2Q1YmVkZTZlMGEzMDFmOWU4ZjdiZTRlYWQzZjhmOGRhODY2YzgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQ1OTRhNTUyY2E0MTMyOWEzYTdkYzg1ODQ1YzEwZjk5YjdmN2U4OTcyNjM5MTVhMWM1MzlkNTExNWQ0MDQ5OTEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_65b56ade412b46afa2478e084bcf65fd",
+      "statement": "Categories are classified only as INCOME or EXPENSE and can be marked excludeFromReports, which is a reporting-relevant flag rather than a cosmetic label.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/graphql/schema.graphql#L128-L133",
+          "version": "repo-lines-v1:sha256:294b08076fb512dd142d50321f0fcef2766814c9fdad51298f55e73381b2dd88:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZTA4ODE0ZjEwODk1OTY1ZDAxMzVlMmNjYzBkYzg2MTM0ODBmY2NjMDNmNzU5YzdlN2Q3NGZiZTg1ZDc1MmM5OSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYmNiY2ViNWVkM2M4Mzk5NmNiYzA1OGYwNzY2YjM5YmViOWM3OTRiZTZjOGI1NWZiMjE4ZGQzNTZkOWUyODE4YyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMDk4YTNjZjkzNTI4YzUwZmU5NDc5YWM3MDg1YTgxYTBjNjk1ZTM5YTJkNGE2NDMwOGEyMTMyOWE3YTRkNDI2YiJ9"
+        },
+        {
+          "resource": "repo://backend/src/graphql/schema.graphql#L51-L54",
+          "version": "repo-lines-v1:sha256:778f90a6d778c9d372119a6fdfffe20b877ddea91302e7050c636ad154c1360b:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZmMyZDQ2Nzk3MzE1NzU5MDcwNGE0NWZjZjRmYTZjOGIzMmE5OGYyODFkMjE2ODJmYjMxNTJlMjJmNTUxOTAxMyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNTViYTE1ZDFiMGNhYzNlNGQ2MTIxMzgxMDNiOTViYzdiNjM1ZmI3MWYxNzUxMWIyMmRmZTg0ZmU4MzNjN2E1OSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYjYxZThiZWFhM2M0N2QxYjQzYmZlZWI1ZDRjMTFjOTMzNGQxOGRhZjVhYzcxNDhkMjM0YTVjYzE5ZjgxNWE0ZiJ9"
+        },
+        {
+          "resource": "repo://backend/src/models/category.ts#L1-L15",
+          "version": "repo-lines-v1:sha256:19dd152e7db2d74ff7aa74a41f97b8ec3c94d1d636935d299c6af4544a4e8cd3:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUyZjAzYzU3YjAzNmM5ZTI3NTg5YmM4YjVlNjFhODA3MGEyN2NlYzE1N2QyZDliMDNiMTY2NDQwY2NhMWNmNTciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_d3a62bf93c7e491d9b70b42c2f713713",
+      "statement": "Transactions support INCOME, EXPENSE, REFUND, TRANSFER_IN, and TRANSFER_OUT, derive a signed amount from type, and enforce invariants for positive amount, transferId usage, category ownership, archived relations, category/type compatibility, and description length.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/models/transaction.ts#L133-L281",
+          "version": "repo-lines-v1:sha256:8a5ce5cc3724de8b78494f7f367e6b8d38985893ebe90632de66bff094372650:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQ5LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiIzZDcwZTE0NjE0MDJjNmJmMTc3MDk0OGVhMzA2NTc3YjI2ZTFiNTBmZmJhOGQ2YjZhNGUwMzJiOTAwZGQ1YTY3IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIyN2U1Nzg4ZDVkOWQ3M2QyNGE4MWRiYzBhNWE3NGJmYTgyYzljM2IzYWY5OWU1MmFmNzk2ZTkwYjQ2OGE4YTNkIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiIxZGIzZTdjZDBjM2E2MjMwNDc2NjgxNjFkMTA0ZTk5ZDg2MjA5Y2EzZTc3NTRhMjViMTE5YTQ5MDc4NzgwNDI2IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiI5ZjkzNGQ5NDUzY2FkNzhjZTk0OGYzZDhhMTYxNDc4MmVlOTVjMjg5Yjc0YjQ1YzljYTc2NzUxY2VlYjAzZGE1In0"
+        },
+        {
+          "resource": "repo://backend/src/models/transaction.ts#L56-L100",
+          "version": "repo-lines-v1:sha256:4690ff68fc26afdc54a437272220bc5db68101af233f84f8011a1914c0202180:eyJzZWxlY3RlZExpbmVDb3VudCI6NDUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQzMjBjMzUzOGI4YThkYTJlMDI5ZTRjYzFkZTc3MTYxNDY0MzZlZGI2ZDQwZjA2MGYxN2IyNTYwN2Y1Zjk1ODAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZiZTc5MmUwYjU1ZTkxYzRmYjUzZGFlZmYxYWQ5NTE3ZDdmMDBhMTRiNjVhZDVjM2UzZjA1Y2QxNTU4ZmJmYjYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE4YWNiNzA0MDU1ZjZjYmU5NTIwZjJhYmMyN2YxZTg1MDFjY2RkYzk3OWVhZmJlZDM3YzY4MDZlODMwMmVhMWEifQ"
+        },
+        {
+          "resource": "repo://backend/src/models/transaction.ts#L9-L20",
+          "version": "repo-lines-v1:sha256:fd38c74bbe210633c2d9cfc11030ba4d2ea481a1dbf9001d5c4ede9fea920d61:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkMTVjYjI0ZThlOTgxZGExNzUwNzM0NzA0OGY3YWU3MGI0YzZlOTgyYzZhZjRkODBmMTI3ZTQ2NDgyNzE3YjIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNjOTAwNjkwODUxNWNhYjM0ZDE0ZmE5ODAxYWQ1NWJjN2EwZjVmMzdmNDcwYTgzOTQ5M2Q2ZmI1MDIyZGZjMWQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU5ZWU0NWE0MzNkNWVkYmY5ZDQzY2JhYzJlMjI1NmEyODQ2ZWIzOTczYTEyZDU4MjMyYjNiYTRiYWFlZjFiZWYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNmNjFhYmMwZjhjZWIwZjc5MzlmNTQ1YzYwMDg4ODc3OTVmNzVmOTVmNTYwMTAwNGYxZjVkNjUwODM0MjI4ODEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_2a0c7cf8921e46699876956a9aa43aa5",
+      "statement": "Refunds are treated like spending reversals: they may use expense categories, while income categories only pair with income transactions.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/models/transaction.ts#L264-L273",
+          "version": "repo-lines-v1:sha256:492a0e54267e4499562456cdb2068198d2d174a26c0358789e02400f5ae793ae:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ5YTA1ODRlMzg4ZjFiODZkZmE4NTZlZjgyZDRhNTRkYmI0Mzk4Mzc0Mjg5NDIzNTU2NjZiMzY3NTc3YzFmODkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjliNjJmNjBkODU5MGE1NzljZjQ2ZjhkNjczNzhjNGM1NzJiOTYyY2VjY2RiOTBjN2E1ZjdiNDJiOTYwNzgyYTQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE2MjdjYzZiNWE1ZDhkMzI5MjU2ZTkzYjcwY2ExOWNkYjNkNGNmODQ3NmUyMDcxMGM5Mjk2NTlkMDAwZDRkMWQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijg4MzMzM2JjZWM0NGNkZWMyOGNmZGRlOTUyNTM5MmYxMDE5ZDlmMDhjZmJmMTA2NjI1NWQ1NjFiZGM0MjJiNjQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_2498bcc01add4dd8a6b381243c77e1ab",
+      "statement": "GraphQL transactions return embedded lightweight account and category objects instead of raw accountId/categoryId fields, and those embedded references reflect the current state at query time, returning an Unknown stub if the underlying entity cannot be resolved.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/graphql/schema.graphql#L135-L175",
+          "version": "repo-lines-v1:sha256:5e1d96b84b4baa948f6e6161da051ddcade06cdaac0adcbb0cf1d8bfab1a0686:eyJzZWxlY3RlZExpbmVDb3VudCI6NDEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImEzMDNlY2RkNGE0ZDEwZjE5YzczZmQ0MmZkMTI0MzdmZDMzNTRhODI2ODE2MDVkYTUyNTVhOTdhMzkwNjhkYmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImY1MmI5NWNlY2NkYmFkYTk5NzJiMzdjZGQyNjJhZGQxMjNhYTUwODYzYjA0NDBhMGFkMjI5ZmZiM2ExZWQ4NTkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA3YTMxMDBiNmQwMjYwNzA3MTA5NmQ0ZGM1MzhlOWFiMGRjYzU3ZWMwMGYzMzYxNzRmNWViMGI1ZDJkMmZjMWIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_03a3d023b173493796dbbcdb3ae8e09e",
+      "statement": "Transaction category embedding is nullable when a transaction is uncategorized, and transaction creation accepts an optional categoryId in the input shape.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/graphql/schema.graphql#L147-L175",
+          "version": "repo-lines-v1:sha256:e487c0adf4582fb8ef5489a81f92f7ebc20b87c81efc3d51393ba86f4924cfed:eyJzZWxlY3RlZExpbmVDb3VudCI6MjksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImEzMDNlY2RkNGE0ZDEwZjE5YzczZmQ0MmZkMTI0MzdmZDMzNTRhODI2ODE2MDVkYTUyNTVhOTdhMzkwNjhkYmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjUzNzExODAyZjJlNGI3NTkzZWMwMTMzMjU2ZGQxZTI4OGFmNTI1NDA3ODZiYjhmZGRiMjcyZjVmNjkwZDE2OTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA3YTMxMDBiNmQwMjYwNzA3MTA5NmQ0ZGM1MzhlOWFiMGRjYzU3ZWMwMGYzMzYxNzRmNWViMGI1ZDJkMmZjMWIifQ"
+        },
+        {
+          "resource": "repo://backend/src/graphql/schema.graphql#L216-L223",
+          "version": "repo-lines-v1:sha256:4c830450e3daf9d44d84a64984381f613ad78b2ddba97dedc56bb102a8c22e44:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZDliY2Y0Y2FjMzFhZDI3ODRlZDgyM2YxZjAzM2JhYTNiNWFlMzY4YTkxYzkxZjk1MGM1YTE4NDZkZjU5ZjJlMiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMjkxMjIxYjcyZTY3MDg2NTFjY2Q5OTYxMTgzOTRhZDk2OGFiMjNlNjI3MjRmZjVhNGE4ZTQ4NzRmYTA2OTU0YSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZGQzNzZmODY2OWVjYWZlZmIyZGUyNjQ2YTQzZDRmYzgxYmU5YTNlZjJiMjUxNWM5ZjAyM2NmNzM4NGZjYTc4NSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_ed5b7b31091848cd96f64da41136ee5a",
+      "statement": "Transfer transactions are first-class records linked by transferId, and the GraphQL Transfer type exposes outboundTransaction and inboundTransaction as separate transactions.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/graphql/schema.graphql#L184-L188",
+          "version": "repo-lines-v1:sha256:039dc76bbbca323100c143851317901933203401e9e2126d461a28ee9a129d28:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMjQ5MDMxZjdmNWVmOWI2NWFlMDg4YWNmMjdhNjM5NGVlNGZkYTc0NTQwYjRlMDE3OTI2NTE4MTUyOTVhYmM5NyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMmY3OTliNTI0NjVmY2UwNzhmYTgxZmFmNTM5MWJhOGNkOTlmZGNlZjZhNDhhYzJkMTUyODViYWJlZTA2NmVhMSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZDEyOTM0MjJjMGIwOGRkNzVjMzNiYWRjNTdjODQ1ZGZlYzZiMGU4MDk4ZDBlMDYzZWFlYjA1YmIxMjIwNmJhNCJ9"
+        },
+        {
+          "resource": "repo://backend/src/models/transaction.ts#L235-L253",
+          "version": "repo-lines-v1:sha256:9e31cdf19fb7200b0768180ad3e6841f65a137770dcb290bab9eac8c317a3d0c:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhmY2VmNjc1NGNhOTZiYWRiZGRkN2JkMzY3MDc2MDYwMDljNjQ3ZjUxMzNkMjM3OTIyOTcyMDZlNzg4NWJjMmYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijc1OGM3ZTE1MWQ2NDkyM2ZjYzNlODgzNmJhNTViMDFlYzViYmYyY2FhODI4ZGMzZGY0ODc2ZmFlZjRhNTg4MWMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQzYTU5ZTI1NmU4NTZhZmI3OWRmMzk0MTdlZjJjNGZlM2Y4MjZmNDk4ZWY3YzViODYzNmVlNDRhNTRiNTFmMTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_7a59e9ffd648478c9cad4318813d3b64",
+      "statement": "Assistant-related GraphQL responses include a structured agentTrace union of text, tool-call, and tool-result messages; both success and failure outputs return the trace, and failures also return a sessionId so callers can continue the same conversation.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/graphql/schema.graphql#L114-L126",
+          "version": "repo-lines-v1:sha256:4320fd302acc2edd484eceeba7f8fac6b456315597de2cd1108911f551689454:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3NTk1ZmI3YWUzNzZmYmViODFkNWJhMzgwZGFmZGYxMjIzOTIyMGE3ZjE1MjE2OGFkZTM3M2YyOTdlYzZjM2EiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjgzMmY2NTA1MTQxNDczYWUyMGIxYTM2ZGExZDQ1ZWY4NmZlNzc2NGRkZjQ3MWUyZDQzZTQzZTlmMWRhZWIwOTEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjVlMWUwYzYxYzRiZGM3YmVhZmViZDJkN2NiMWZiYzlkMDJkNmZhNGI1ZTliZTE0NWU5OTYyMTliZDBjYWQ1NDUifQ"
+        },
+        {
+          "resource": "repo://backend/src/graphql/schema.graphql#L80-L112",
+          "version": "repo-lines-v1:sha256:b787343c14045a9a95a17853d88d7a2d989795d91e4ded049e005df44ad11c90:eyJzZWxlY3RlZExpbmVDb3VudCI6MzMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI5ODY0YzkwNDNlYmU5ZWNjYTNmM2NkMTcxNDRmZWFlMDZhOWFjYjE2OGNhOGQ3YzRmZmE3N2IyOWIxN2ZmMTIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjUwNDNhOTc3Mjc3YjRiNTFiOWY5ZDY5N2Y5NGM4OWFjN2YyMjdkYzBhYmY1Y2YwNjJkZDhmYzQ4MDY0NmRiNWMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijg5YTQ1ZjBlOTA3NTY5ODJmNGU0OWViN2FlMGZiYzBmOTVmODRmYjVhOTc0YjQ1NWNhNWVhYjJiYjk4NDFhYmQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_5d6bb81b88e24b78a4fca6e6bda36efe",
+      "statement": "Natural-language transaction creation accepts free text plus an isVoiceInput flag, and the voice-input path is meant to reinterpret integer-looking amounts that may have been produced by speech recognition.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/graphql/schema.graphql#L225-L239",
+          "version": "repo-lines-v1:sha256:29e2113717dbe616659c2b0268f0dbc4e72b5e9bfd5b245d6226213a3ddc3cd3:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImEzMDNlY2RkNGE0ZDEwZjE5YzczZmQ0MmZkMTI0MzdmZDMzNTRhODI2ODE2MDVkYTUyNTVhOTdhMzkwNjhkYmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjU2ZTVkZWNmYmNjODAyNjQ3MjczYTk1MzY1MjQ2NmYxNzcxZDI5YWViODIwOGVkMzQ2M2MzYmQ4YmU3NzMzYmIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjAxYWQzZGFiOTJlMjZiMDM1MzY2ODAwM2FhMWVhMjlmMTQyMTVkMGJiYzM0NjhiZGFjMTNmZTAzM2ViZDJhMGMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_5cc6df611de1457bad1ebcdd00fd691f",
+      "statement": "Trend presets store reusable trend configuration with period unit, lookback, currency, category IDs, and an optional includeUncategorized flag; they are intentionally hard-deleted rather than soft-deleted.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/models/trend-preset.ts#L10-L27",
+          "version": "repo-lines-v1:sha256:641e9722a0fc15c2ec0f56bdf0bde92c9c533e784c6c064271714ba6fee057f9:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjYyNTA5YjlmZmJmMjk1NDEwNTc1NDQzMzIzMjAyNDM2Y2ZlNmY3MTI2YmQxOTljYmQxMDA1MmYyMTVmZDc1MTAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjcwOTBkZTBhNGM2YzBiMGY4ZTE3ODY1N2E2MjE2YTVlM2I1ZjY2NzdlZTQ1MjYwYWE3NzhhMjk0YzNjZjJkOTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZkNjcyMjQ2NDg1Yzc2MzY1Y2QwZWNlYjg1NWJkMWI3ZmI4Zjk0MTU4NjdkMzZhMjczNzUyNGY0YzZlOTdlYmQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjEyNjJmNWUxZjJhM2VjNWE4ZTEyMmEwMTkzMjMwYmM5ZjZlZTUzZTZmMzc2MTBiYWVmMmNiNmE2MzljZmI3OGYifQ"
+        },
+        {
+          "resource": "repo://backend/src/models/trend-preset.ts#L37-L99",
+          "version": "repo-lines-v1:sha256:aa9aa66fb997ce20ae54a477867af58c69e88342d5b1039694fe4970ec202d9f:eyJzZWxlY3RlZExpbmVDb3VudCI6NjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQzMjBjMzUzOGI4YThkYTJlMDI5ZTRjYzFkZTc3MTYxNDY0MzZlZGI2ZDQwZjA2MGYxN2IyNTYwN2Y1Zjk1ODAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImNlOGY0MTliZWUxNDk4NjE4MmUyYjg1OWFjMjU5MGRhZjJmZDFhM2RhMjkyZGY0ZTkyMjFlZjU1YzU1NWFjNjYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImIzMDk1MmYxOWFhZDgwOTZmZWZlN2I3ZTM0NDJlZmMyMTNiMGE3YjNjMWJlYzFhY2NmYTQxYjc1Zjc1MjlmNGIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_d348ea3408c54d0194f389b4c1a60494",
+      "statement": "Trend preset lookback must be a whole number between 1 and 12, and currency must be non-empty.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/models/trend-preset.ts#L7-L9",
+          "version": "repo-lines-v1:sha256:fd672246485c76365cd0eceb855bd1b7fb8f9415867d36a2737524f4c6e97ebd:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMDgzNGU1NTNlMDRhODQ5NjgxNGY1YzViOTEwMTU4MjMzZTgwOGQ5NjExZDYwOWZhMmZjNDQzNTZhODAxNTZjYSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMDFiYTQ3MTljODBiNmZlOTExYjA5MWE3YzA1MTI0YjY0ZWVlY2U5NjRlMDljMDU4ZWY4Zjk4MDVkYWNhNTQ2YiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMjFkMDYzZjgzNGJlZWI5Y2NhZWI3ZTJhOGFkMTQ3MzUzNjYxZTI2YzU1YmM2NjA2ZjMyMzFkMjI1MGNhZmI5NyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOWVkYzdkOWZjNDc5ZTNlMDk4MzA4ZTQ4YTY2YmI1MWU3NjNkOTRmMTA2YTdhYmVmMDUwNjEzZTI5NWFmZjNhYiJ9"
+        },
+        {
+          "resource": "repo://backend/src/models/trend-preset.ts#L85-L99",
+          "version": "repo-lines-v1:sha256:ea57737fb0817d50f2ecc45fb88e2702f3d57d60ccf9b03560b8018d7bcf7d49:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdiMDczOGE4YTRkNWZkNjE4MGJlNjBlZjdlMGIyYmZmMWQ0NTQyYTI1NGQ3ZWViYTJlMTk1ZDYyNTMwYzdhMzQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQ1OGNlZjg1ODkxOTI0ZWJlYzZmNjVmOTBhMDQ3YjNiNjI4YTU0ZjdhYmMwOWQ5ZDJkNmJhYzVjMWUyODA3NTYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImIzMDk1MmYxOWFhZDgwOTZmZWZlN2I3ZTM0NDJlZmMyMTNiMGE3YjNjMWJlYzFhY2NmYTQxYjc1Zjc1MjlmNGIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_fdb43d983e6e4cd7a2a35ee92c656da7",
+      "statement": "Telegram bots carry token and webhookSecret credentials plus a lifecycle status of PENDING, CONNECTED, or DELETING that mirrors webhook setup, active use, and disconnect/removal in progress.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/models/telegram-bot.ts#L1-L19",
+          "version": "repo-lines-v1:sha256:ab0d2efdd179dacde171889d6b2067108d8b27e3db463996d777c1a260bd740a:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUwYWQzZWQ4ZDc5MWVmMmExMTNjNzUwZWEzYTE2NTNiMWVjNjM5MGJjOTNjMDAzMjVlNmIwNmIyZTE1YTg4NzIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_bf99bd6c331a4efeac04e765182b8f21",
+      "statement": "Chat messages are persisted with a sessionId that is either a UUID or a Telegram-specific bot-and-chat composite key, and they expire through a DynamoDB TTL after 24 hours with a default history cap of 20 messages.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/models/chat-message.ts#L1-L17",
+          "version": "repo-lines-v1:sha256:a90bb1ac79926d672e5faccd8c3d61e8b9753355fb76874d7efdb5297689b702:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjllMzk0M2RkNjEyY2Y4Y2UyMzljYzQ4NDAyZjNhYzAxZDhmZDJmYjNmYTgwNzAyMjVhYjNlMmEzZDY1MjY4NWYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_38f9823bf45947cda40079d723b72b77",
+      "statement": "The GraphQL schema exposes accounts, categories, transactions, trendPresets, telegramBot, userSettings, and supported-currency/language queries as the main user-facing read entrypoints.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/graphql/schema.graphql#L1-L19",
+          "version": "repo-lines-v1:sha256:3e3a85a0a7a5ee80f4141f26a582239c3f6f912d6fc100e96b576fecbb3e8ac1:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjExNmJhYTA2MGE2NDBjOTc0ZDRiMmQ2NGU1MTNjN2FhYTdiZDYyMjI5M2Y1NmIxOGY2NjcyMDhlY2IyODJjMDMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFiNjYwNWJjYmM1YWJmN2EyZmFjOWY2YWI4NWQ1NDg0M2YzNmFlNmVkNTRkNWNiZDQxNmE1ZGI3NjgzMGM1OWQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_01ff3554bedb4729b2f83a6ac7ea97a3",
+      "statement": "UserSettings is intentionally narrower than the full user record: it exposes interfaceLanguage, transactionPatternsLimit, voiceInputLanguage, and mcpToken, while UpdateUserSettingsInput only allows the mutable preference fields.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/graphql/schema.graphql#L30-L41",
+          "version": "repo-lines-v1:sha256:bb0b24622ed967dc65b7e0ed3b17ca10fef535959bae697c14c0f69b5d7f66fd:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjViMTFjZjA0YjIxZDcwZjAyMDI0YmViZjY0YjRmZmIwNTBiYjVkZjkwMGUwMzY0NGJhZmU0YWUwZjY4MGE5MzkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjFmZmQxZGVhZmZhNDExZDc2NDc3NjgwMjc0Y2Q1ZjJjNGNlOTViMTlhNTIyZGE1YTU3NjY2MmI5ZDdlZGUzYjciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNlOTIyNjRlMzhhYWUwYmNjYjc3NmRlM2FmMWRiZjRlNzFlYTY5ZWY5ZTY3MGE4YTA4Nzk3ZGYwYzA5MjczMDkifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_2cc7f44aa3214905a280d185906c3872",
+      "statement": "TransactionPatternType is limited to INCOME, EXPENSE, and REFUND, which is narrower than the full TransactionType enum because only those types participate in transaction-pattern reporting.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/graphql/schema.graphql#L56-L68",
+          "version": "repo-lines-v1:sha256:37df6c21097e4d75c652ceb0f869fa1914511a292834e430778a8a3470579833:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY5NDJkNDIyMjdiYWRkNDY2ZjNhOGUzOGFmYjM0MTcyMDQxNTUyNTFlY2YyYTE1ZjZjZTViMGM5NzhiZGRmOGYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjkxOWEzN2ZkYjYxOTRmOTE3Y2IyOWY0MzQyNDU3YTBlNDM0MGI4YWQ0YmZlNDRkODIxOTQ0MjFkMjdjZjllZjgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijg5NzlhMjlmYjlhOGRjZWE5OGIyM2YwODU0NDlhZWM4ZDMxNjM1YWJhODVjZGYwMDMzYTAxMTlhODZmNmMwOTYifQ"
+        },
+        {
+          "resource": "repo://backend/src/models/transaction.ts#L304-L316",
+          "version": "repo-lines-v1:sha256:36ea1abad55dc09991824b6491e5cfd871d71e0296602ae04f0f9847dcebc151:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU4ZmM1Njc4MGM3MzBmZDM5ODAwY2U5MTEzZmE4N2I2YzUzYjEyNjk1MjExZjY5NTBiYTZlNDVlYWM0YWJmMGEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjI3N2Y5YThjNGEyY2JlMzg3NTkyNmMxZjUzYWY5M2RjZmRkNzVlMjAxZWQ2ZjNhZDEwYmRlN2U1MGZlNWEwZTAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY3NWRlMDYwNDI2ODg4YTU1NGIwZDUyOWRmOWNmOWZlYzMxNDVmM2NlMTdjYzA3MzJiMWI5MjYyZGM0NGVhNzcifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.5.0",
+    "at": "2026-09-06T08:09:31.070Z"
+  }
+}
