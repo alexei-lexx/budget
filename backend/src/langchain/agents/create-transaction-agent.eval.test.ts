@@ -835,6 +835,90 @@ describe("CreateTransactionAgent (evals)", () => {
         0.9,
       );
     });
+
+    it("skips description that equals category name", async () => {
+      // Arrange
+      await accountRepository.create(fakeAccount({ userId, currency: "EUR" }));
+      await categoryRepository.create(
+        fakeCreateCategoryInput({
+          userId,
+          type: CategoryType.EXPENSE,
+          name: "groceries",
+        }),
+      );
+
+      // Act
+      const response = await agent.invoke(
+        {
+          messages: [new HumanMessage("purchased groceries for 50 euro")],
+        },
+        { context },
+      );
+
+      // Assert
+      const evaluator = createTrajectoryLLMAsJudge({
+        continuous: true,
+        judge: model,
+        prompt: `Description must be empty
+          because the purchased item "groceries"
+          equals the category name.
+
+          "Description: N/A" in the agent's response means an empty description.
+
+          Grade the following trajectory:
+          <trajectory>{outputs}</trajectory>
+        `.trim(),
+      });
+
+      await expect(evaluator).toEvaluateAtLeast(
+        {
+          outputs: response.messages,
+        },
+        0.9,
+      );
+    });
+
+    it("skips description that equals translated category name", async () => {
+      // Arrange
+      await accountRepository.create(fakeAccount({ userId, currency: "EUR" }));
+      await categoryRepository.create(
+        fakeCreateCategoryInput({
+          userId,
+          type: CategoryType.EXPENSE,
+          name: "groceries",
+        }),
+      );
+
+      // Act
+      const response = await agent.invoke(
+        {
+          messages: [new HumanMessage("Lebensmittel für 50 Euro gekauft")],
+        },
+        { context },
+      );
+
+      // Assert
+      const evaluator = createTrajectoryLLMAsJudge({
+        continuous: true,
+        judge: model,
+        prompt: `Description must be empty
+          because the purchased item "groceries"
+          equals the category name translated into German.
+
+          "Description: N/A" in the agent's response means an empty description.
+
+          Grade the following trajectory:
+          <trajectory>{outputs}</trajectory>
+        `.trim(),
+      });
+
+      await expect(evaluator).toEvaluateAtLeast(
+        {
+          outputs: response.messages,
+        },
+        0.9,
+      );
+    });
   });
 
   describe("when amount is suspiciously high", () => {
