@@ -419,10 +419,12 @@ describe("CreateTransactionAgent (evals)", () => {
 
     it("selects most used account for category", async () => {
       // Arrange
-      const account1 = fakeAccount({ userId, currency: "EUR" });
-      await accountRepository.create(account1);
-      const account2 = fakeAccount({ userId, currency: "EUR" });
-      await accountRepository.create(account2);
+      const cash = fakeAccount({ userId, name: "cash", currency: "EUR" });
+      await accountRepository.create(cash);
+
+      const card = fakeAccount({ userId, name: "card", currency: "EUR" });
+      await accountRepository.create(card);
+
       const category = await categoryRepository.create(
         fakeCreateCategoryInput({
           userId,
@@ -430,12 +432,12 @@ describe("CreateTransactionAgent (evals)", () => {
           name: "groceries",
         }),
       );
-      // Create 3 purchases on account1
+      // Create 3 purchases using cash
       for (let i = 0; i < 3; i++) {
         await transactionRepository.create(
           fakeExpense({
             userId,
-            accountId: account1.id,
+            accountId: cash.id,
             categoryId: category.id,
             amount: faker.number.int({ min: 10, max: 100 }),
             date: dateToDateString(
@@ -444,12 +446,12 @@ describe("CreateTransactionAgent (evals)", () => {
           }),
         );
       }
-      // Create 5 purchases on account2
+      // Create 5 purchases using card
       for (let i = 0; i < 5; i++) {
         await transactionRepository.create(
           fakeExpense({
             userId,
-            accountId: account2.id,
+            accountId: card.id,
             categoryId: category.id,
             amount: faker.number.int({ min: 10, max: 100 }),
             date: dateToDateString(
@@ -481,7 +483,7 @@ describe("CreateTransactionAgent (evals)", () => {
               {
                 name: CREATE_TRANSACTION_TOOL_NAME,
                 args: {
-                  accountId: account2.id,
+                  accountId: card.id,
                 },
                 id: "create-transaction-reference-call",
               },
