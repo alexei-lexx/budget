@@ -1,3 +1,4 @@
+import { Temporal } from "temporal-polyfill";
 import { Account } from "../models/account";
 import { Category, CategoryType } from "../models/category";
 import {
@@ -15,7 +16,7 @@ import {
   TransactionFilterInput,
   TransactionRepository,
 } from "../ports/transaction-repository";
-import { DateString } from "../types/date-string";
+import { DateString, toDateString } from "../types/date-string";
 import {
   MAX_PAGE_SIZE,
   MIN_PAGE_SIZE,
@@ -62,6 +63,20 @@ export interface EnrichedTransactionPattern extends TransactionPattern {
   categoryName: string;
 }
 
+/**
+ * Service layer input for finding recent transactions
+ */
+export interface GetRecentTransactionsInput {
+  userId: string;
+  expectedCount: number;
+  accountIds?: string[];
+  categoryIds?: string[];
+  types?: TransactionType[];
+}
+
+// Non-overlapping month segments queried closest-first when escalating a recent-transactions search
+const RECENT_TRANSACTIONS_SEGMENT_MONTHS = [1, 3, 6, 12];
+
 export interface TransactionService {
   getTransactionById(id: string, userId: string): Promise<Transaction>;
   getTransactionsByUser(
@@ -69,6 +84,9 @@ export interface TransactionService {
     pagination?: PaginationInput,
     filters?: TransactionFilterInput,
   ): Promise<TransactionConnection>;
+  getRecentTransactions(
+    input: GetRecentTransactionsInput,
+  ): Promise<Transaction[]>;
   getTransactionPatterns(
     userId: string,
     type: TransactionPatternType,
@@ -213,6 +231,58 @@ export class TransactionServiceImpl implements TransactionService {
       pagination,
       filters,
     );
+  }
+
+  /**
+   * Find the most recent transactions, escalating over four non-overlapping
+   * calendar-month segments (1/3/6/12 months back) until expectedCount is reached
+   * @param input - userId, soft target count, and optional account/category/type filters
+   * @returns Promise<Transaction[]> - Matching transactions, newest first; may be shorter
+   * than expectedCount if history runs out, or longer if a segment overshoots it
+   * @throws BusinessError if expectedCount is not a positive integer
+   */
+  async getRecentTransactions({
+    userId,
+    expectedCount,
+    accountIds,
+    categoryIds,
+    types,
+  }: GetRecentTransactionsInput): Promise<Transaction[]> {
+    if (!Number.isInteger(expectedCount) || expectedCount <= 0) {
+      throw new BusinessError("expectedCount must be a positive integer");
+    }
+
+    const todayPlainDate = Temporal.Now.plainDateISO();
+    const segmentBoundaries = RECENT_TRANSACTIONS_SEGMENT_MONTHS.map((months) =>
+      todayPlainDate.subtract({ months }),
+    );
+
+    const transactions: Transaction[] = [];
+
+    for (let index = 0; index < segmentBoundaries.length; index++) {
+      const afterPlainDate = segmentBoundaries[index];
+      const beforePlainDate =
+        index === 0
+          ? todayPlainDate
+          : segmentBoundaries[index - 1].subtract({ days: 1 });
+
+      const segmentTransactions =
+        await this.transactionRepository.findManyByUserId(userId, {
+          dateAfter: toDateString(afterPlainDate.toString()),
+          dateBefore: toDateString(beforePlainDate.toString()),
+          ...(accountIds && { accountIds }),
+          ...(categoryIds && { categoryIds }),
+          ...(types && { types }),
+        });
+
+      transactions.push(...segmentTransactions);
+
+      if (transactions.length >= expectedCount) {
+        break;
+      }
+    }
+
+    return transactions;
   }
 
   /**
