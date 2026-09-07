@@ -97,7 +97,6 @@ If no amount is stated:
 - Keep the original language of the user's text
 - If there is a matched recurring transaction, MUST reuse its description
 - MUST describe the item or service — not the reason or context
-- MUST provide meaningful details that supplement the transaction
 - MUST be grammatically correct, without typos
 
 At the end, verify the description in this order:
