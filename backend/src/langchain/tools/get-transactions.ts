@@ -66,7 +66,7 @@ export const createGetTransactionsTool = ({
           dateBefore: toDateString(endDate),
           ...(accountIds && { accountIds }),
           ...(categoryIds && { categoryIds }),
-          ...(types !== undefined && { types }),
+          ...(types && { types }),
         },
       );
 

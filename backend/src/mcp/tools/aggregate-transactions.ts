@@ -54,7 +54,7 @@ export async function aggregateTransactions(
     ...(accountIds && { accountIds }),
     ...(categoryIds && { categoryIds }),
     ...(includeUncategorized && { includeUncategorized }),
-    ...(types !== undefined && { types }),
+    ...(types && { types }),
     includeTransactionsExcludedFromReports,
     ...(groupBy && { groupBy }),
   });
