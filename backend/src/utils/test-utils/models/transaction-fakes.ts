@@ -1,4 +1,5 @@
 import { faker } from "@faker-js/faker";
+import { Account } from "../../../models/account";
 import {
   CreateTransactionInput,
   Transaction,
@@ -9,11 +10,44 @@ import {
 import { dateToDateString } from "../../../types/date-string";
 import { fakeAccount } from "./account-fakes";
 
+/**
+ * Passing `account` derives accountId/currency from it (kept in sync);
+ * passing accountId/currency directly is also allowed, but not both.
+ */
+type FakeTransactionOverrides<TOmit extends keyof TransactionData = never> =
+  Partial<Omit<TransactionData, "accountId" | "currency" | TOmit>> &
+    (
+      | { account: Account; accountId?: never; currency?: never }
+      | {
+          account?: never;
+          accountId?: TransactionData["accountId"];
+          currency?: TransactionData["currency"];
+        }
+    );
+
+/**
+ * Can be called with `account` or `accountId`/`currency` (not both) in overrides.
+ */
 export const fakeTransaction = (
-  overrides: Partial<TransactionData> = {},
+  overrides: FakeTransactionOverrides = {},
 ): Transaction => {
+  let normalizedOverrides: Partial<TransactionData>;
+
+  if (overrides.account) {
+    const { account, ...rest } = overrides;
+
+    normalizedOverrides = {
+      accountId: account.id,
+      currency: account.currency,
+      ...rest,
+    };
+  } else {
+    normalizedOverrides = {
+      ...overrides,
+    };
+  }
   const now = new Date().toISOString();
-  const type = overrides.type ?? TransactionType.EXPENSE;
+  const type = normalizedOverrides.type ?? TransactionType.EXPENSE;
   const isTransfer =
     type === TransactionType.TRANSFER_IN ||
     type === TransactionType.TRANSFER_OUT;
@@ -34,17 +68,17 @@ export const fakeTransaction = (
     version: faker.number.int({ min: 1, max: 100 }),
     createdAt: now,
     updatedAt: now,
-    ...overrides,
+    ...normalizedOverrides,
   });
 };
 
 export const fakeExpense = (
-  overrides: Partial<Omit<TransactionData, "type">> = {},
+  overrides: FakeTransactionOverrides<"type"> = {},
 ): Transaction =>
   fakeTransaction({ type: TransactionType.EXPENSE, ...overrides });
 
 export const fakeRefund = (
-  overrides: Partial<Omit<TransactionData, "type">> = {},
+  overrides: FakeTransactionOverrides<"type"> = {},
 ): Transaction =>
   fakeTransaction({ type: TransactionType.REFUND, ...overrides });
 

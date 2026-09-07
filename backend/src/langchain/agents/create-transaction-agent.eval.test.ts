@@ -437,7 +437,7 @@ describe("CreateTransactionAgent (evals)", () => {
         await transactionRepository.create(
           fakeExpense({
             userId,
-            accountId: cash.id,
+            account: cash,
             categoryId: category.id,
             amount: faker.number.int({ min: 10, max: 100 }),
             date: dateToDateString(
@@ -451,7 +451,7 @@ describe("CreateTransactionAgent (evals)", () => {
         await transactionRepository.create(
           fakeExpense({
             userId,
-            accountId: card.id,
+            account: card,
             categoryId: category.id,
             amount: faker.number.int({ min: 10, max: 100 }),
             date: dateToDateString(
@@ -505,7 +505,7 @@ describe("CreateTransactionAgent (evals)", () => {
         await transactionRepository.create(
           fakeExpense({
             userId,
-            accountId: account1.id,
+            account: account1,
             amount: faker.number.int({ min: 10, max: 100 }),
             date: dateToDateString(
               faker.date.recent({ days: { min: 1, max: 30 } }),
@@ -518,7 +518,7 @@ describe("CreateTransactionAgent (evals)", () => {
         await transactionRepository.create(
           fakeExpense({
             userId,
-            accountId: account2.id,
+            account: account2,
             amount: faker.number.int({ min: 10, max: 100 }),
             date: dateToDateString(
               faker.date.recent({ days: { min: 1, max: 30 } }),
@@ -690,7 +690,7 @@ describe("CreateTransactionAgent (evals)", () => {
         await transactionRepository.create(
           fakeExpense({
             userId,
-            accountId: account.id,
+            account,
             categoryId: electronics.id,
             amount: faker.number.int({ min: 10, max: 100 }),
             description: faker.food.fruit(),
@@ -705,7 +705,7 @@ describe("CreateTransactionAgent (evals)", () => {
         await transactionRepository.create(
           fakeExpense({
             userId,
-            accountId: account.id,
+            account,
             categoryId: household.id,
             amount: faker.number.int({ min: 10, max: 100 }),
             description: faker.food.vegetable(),
@@ -972,7 +972,7 @@ describe("CreateTransactionAgent (evals)", () => {
         await transactionRepository.create(
           fakeExpense({
             userId,
-            accountId: account.id,
+            account,
             categoryId: food.id,
             amount: faker.number.int({ min: 5, max: 15 }),
             description: undefined,
@@ -1024,7 +1024,7 @@ describe("CreateTransactionAgent (evals)", () => {
         await transactionRepository.create(
           fakeExpense({
             userId,
-            accountId: account.id,
+            account,
             categoryId: food.id,
             amount: faker.number.int({ min: 5, max: 15 }),
             description: undefined,
@@ -1332,7 +1332,7 @@ describe("CreateTransactionAgent (evals)", () => {
         await transactionRepository.create(
           fakeExpense({
             userId,
-            accountId: account.id,
+            account,
             categoryId: category.id,
             amount: recurringAmount,
             description: recurringDescription,
@@ -1408,7 +1408,7 @@ describe("CreateTransactionAgent (evals)", () => {
         await transactionRepository.create(
           fakeExpense({
             userId,
-            accountId: account.id,
+            account,
             categoryId: category.id,
             amount,
             description: recurringDescription,
@@ -1448,7 +1448,7 @@ describe("CreateTransactionAgent (evals)", () => {
       await transactionRepository.create(
         fakeExpense({
           userId,
-          accountId: account.id,
+          account,
           categoryId: category.id,
           amount: 50,
           description: "gym abo",
@@ -1487,7 +1487,7 @@ describe("CreateTransactionAgent (evals)", () => {
       await transactionRepository.create(
         fakeExpense({
           userId,
-          accountId: account.id,
+          account,
           categoryId: category.id,
           amount: 50,
           date: toDateString(todayPlainDate.subtract({ days: 20 }).toString()),
