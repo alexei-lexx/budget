@@ -61,7 +61,7 @@ export async function getTransactions(
     dateBefore: endDate,
     ...(accountIds && { accountIds }),
     ...(categoryIds && { categoryIds }),
-    ...(types !== undefined && { types }),
+    ...(types && { types }),
   });
 
   return Success(transactions.map(toTransactionDto));
