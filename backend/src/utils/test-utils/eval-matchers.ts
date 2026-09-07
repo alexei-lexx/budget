@@ -20,16 +20,25 @@ expect.extend({
     params: Params,
   ) {
     const result = await evaluator(params);
-    const pass = result.score === true;
+
+    if (typeof result.score !== "boolean") {
+      throw new Error(
+        `toEvaluateTrue requires a boolean score, got ${typeof result.score}: ${JSON.stringify(result.score)}`,
+      );
+    }
+
+    const pass = result.score;
 
     return {
       pass,
       message: () => {
         const summary = `expected evaluator score to${pass ? " not" : ""} be true, got ${JSON.stringify(result.score)}`;
+
         if (pass) {
           return summary;
         }
-        return `${summary}\n\noutputs:\n${inspect(params.outputs)}`;
+
+        return `${summary}\n\noutputs:\n${inspect(params.outputs)}${result.comment ? `\n\ncomment:\n${result.comment}` : ""}`;
       },
     };
   },
@@ -40,17 +49,26 @@ expect.extend({
     threshold: number,
   ) {
     const result = await evaluator(params);
-    const score = result.score as number;
+
+    if (typeof result.score !== "number") {
+      throw new Error(
+        `toEvaluateAtLeast requires a numeric score, got ${typeof result.score}: ${JSON.stringify(result.score)}`,
+      );
+    }
+
+    const score = result.score;
     const pass = score >= threshold;
 
     return {
       pass,
       message: () => {
         const summary = `expected evaluator score to${pass ? " not" : ""} be at least ${threshold}, got ${score}`;
+
         if (pass) {
           return summary;
         }
-        return `${summary}\n\noutputs:\n${inspect(params.outputs)}`;
+
+        return `${summary}\n\noutputs:\n${inspect(params.outputs)}${result.comment ? `\n\ncomment:\n${result.comment}` : ""}`;
       },
     };
   },
