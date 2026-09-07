@@ -94,13 +94,15 @@ If no amount is stated:
 ### Description
 
 - Optional field
-- MUST reuse the description of the matched recurring transaction
 - Keep the original language of the user's text
-- MUST be grammatically correct, without typos
+- If there is a matched recurring transaction, MUST reuse its description
 - MUST describe the item or service — not the reason or context
-- MUST provide meaningful details that supplement the transaction
-- MUST NOT build description from the category name, its variations, or its translations
-- Default to blank if no meaningful description can be formed
+- MUST be grammatically correct, without typos
+
+At the end, verify the description in this order:
+1. MUST exclude generic verbs like "bought" or "paid" if they add no information
+2. MUST leave the description empty if what remains repeats the category name, its variations, or its translations
+3. MUST leave the description empty if what remains is not a meaningful description
 
 ## Output
 
