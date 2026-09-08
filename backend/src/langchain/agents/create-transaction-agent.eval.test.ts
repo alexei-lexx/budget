@@ -425,35 +425,55 @@ describe("CreateTransactionAgent (evals)", () => {
       const card = fakeAccount({ userId, name: "card", currency: "EUR" });
       await accountRepository.create(card);
 
-      const category = await categoryRepository.create(
+      const groceries = await categoryRepository.create(
         fakeCreateCategoryInput({
           userId,
           type: CategoryType.EXPENSE,
           name: "groceries",
         }),
       );
-      // Create 3 purchases using cash
+
+      const transport = await categoryRepository.create(
+        fakeCreateCategoryInput({
+          userId,
+          type: CategoryType.EXPENSE,
+          name: "transport",
+        }),
+      );
+
+      // Create 3 groceries purchases using cash - weaker signal for groceries
       for (let i = 0; i < 3; i++) {
         await transactionRepository.create(
           fakeExpense({
             userId,
             account: cash,
-            categoryId: category.id,
-            amount: faker.number.int({ min: 10, max: 100 }),
+            categoryId: groceries.id,
             date: dateToDateString(
               faker.date.recent({ days: { min: 1, max: 30 } }),
             ),
           }),
         );
       }
-      // Create 5 purchases using card
+      // Create 5 transport purchases using cash - noise, unrelated category
+      for (let i = 0; i < 5; i++) {
+        await transactionRepository.create(
+          fakeExpense({
+            userId,
+            account: cash,
+            categoryId: transport.id,
+            date: dateToDateString(
+              faker.date.recent({ days: { min: 1, max: 30 } }),
+            ),
+          }),
+        );
+      }
+      // Create 5 groceries purchases using card - stronger signal, expected account
       for (let i = 0; i < 5; i++) {
         await transactionRepository.create(
           fakeExpense({
             userId,
             account: card,
-            categoryId: category.id,
-            amount: faker.number.int({ min: 10, max: 100 }),
+            categoryId: groceries.id,
             date: dateToDateString(
               faker.date.recent({ days: { min: 1, max: 30 } }),
             ),
