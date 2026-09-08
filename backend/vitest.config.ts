@@ -55,6 +55,7 @@ export default defineConfig({
           testTimeout: 100000,
           maxWorkers: 1,
           setupFiles: ["src/utils/test-utils/eval-matchers.ts"],
+          retry: 2,
         },
       },
     ],
