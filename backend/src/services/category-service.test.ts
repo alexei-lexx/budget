@@ -281,7 +281,6 @@ describe("CategoryService", () => {
 
     it("allows changing type", async () => {
       // Arrange
-      // Preserves existing behavior: category type changes are not blocked.
       const categoryId = faker.string.uuid();
       const existingCategory = fakeCategory({
         id: categoryId,
