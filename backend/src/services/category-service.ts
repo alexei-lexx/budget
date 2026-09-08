@@ -1,14 +1,12 @@
-import { Category, CategoryType } from "../models/category";
 import {
-  CategoryRepository,
+  Category,
+  CategoryType,
   CreateCategoryInput,
   UpdateCategoryInput,
-} from "../ports/category-repository";
+} from "../models/category";
+import { CategoryRepository } from "../ports/category-repository";
 import { EntityScope } from "../types/entity-scope";
 import { BusinessError } from "./business-error";
-
-export const NAME_MIN_LENGTH = 1;
-export const NAME_MAX_LENGTH = 100;
 
 export interface CategoryService {
   getCategoriesByUser(
@@ -66,15 +64,11 @@ export class CategoryServiceImpl implements CategoryService {
    * @returns Promise<Category> - The created category
    */
   async createCategory(input: CreateCategoryInput): Promise<Category> {
-    const validatedInput = {
-      ...input,
-      name: this.validateName(input.name),
-    };
+    const category = Category.create(input);
 
-    // Check for duplicate names
-    await this.checkDuplicateName(validatedInput.userId, validatedInput.name);
-
-    return await this.categoryRepository.create(validatedInput);
+    await this.checkDuplicateName(category.userId, category.name);
+    await this.categoryRepository.create(category);
+    return category;
   }
 
   /**
@@ -89,17 +83,23 @@ export class CategoryServiceImpl implements CategoryService {
     userId: string,
     input: UpdateCategoryInput,
   ): Promise<Category> {
-    const validatedInput = {
-      ...input,
-      ...(input.name !== undefined && { name: this.validateName(input.name) }),
-    };
+    const existingCategory = await this.categoryRepository.findOneById({
+      id,
+      userId,
+    });
 
-    // Check for duplicate names if name is being updated
-    if (validatedInput.name !== undefined) {
-      await this.checkDuplicateName(userId, validatedInput.name, id);
+    if (!existingCategory) {
+      throw new BusinessError("Category not found");
     }
 
-    return await this.categoryRepository.update({ id, userId }, validatedInput);
+    const updatedCategory = existingCategory.update(input);
+
+    // Check for duplicate names if name is being updated
+    if (updatedCategory.name !== existingCategory.name) {
+      await this.checkDuplicateName(userId, updatedCategory.name, id);
+    }
+
+    return await this.categoryRepository.update(updatedCategory);
   }
 
   /**
@@ -109,22 +109,16 @@ export class CategoryServiceImpl implements CategoryService {
    * @returns Promise<Category> - The archived category
    */
   async deleteCategory(id: string, userId: string): Promise<Category> {
-    return await this.categoryRepository.archive({ id, userId });
-  }
+    const existingCategory = await this.categoryRepository.findOneById({
+      id,
+      userId,
+    });
 
-  private validateName(name: string): string {
-    const trimmedName = name.trim();
-
-    if (
-      trimmedName.length < NAME_MIN_LENGTH ||
-      trimmedName.length > NAME_MAX_LENGTH
-    ) {
-      throw new BusinessError(
-        `Category name must be between ${NAME_MIN_LENGTH} and ${NAME_MAX_LENGTH} characters`,
-      );
+    if (!existingCategory) {
+      throw new BusinessError("Category not found");
     }
 
-    return trimmedName;
+    return await this.categoryRepository.update(existingCategory.archive());
   }
 
   private async checkDuplicateName(

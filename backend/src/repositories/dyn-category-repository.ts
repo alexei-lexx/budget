@@ -1,4 +1,3 @@
-import { randomUUID } from "crypto";
 import {
   BatchGetCommand,
   GetCommand,
@@ -6,14 +5,10 @@ import {
   UpdateCommand,
 } from "@aws-sdk/lib-dynamodb";
 import { Category, CategoryType } from "../models/category";
-import {
-  CategoryRepository,
-  CreateCategoryInput,
-  UpdateCategoryInput,
-} from "../ports/category-repository";
+import { CategoryRepository } from "../ports/category-repository";
 import { RepositoryError } from "../ports/repository-error";
 import { DynBaseRepository } from "./dyn-base-repository";
-import { categorySchema } from "./schemas/category";
+import { categoryDataSchema } from "./schemas/category";
 
 /**
  * Sort categories alphabetically by name
@@ -58,7 +53,8 @@ export class DynCategoryRepository
         return null;
       }
 
-      const category = this.hydrate(categorySchema, result.Item);
+      const data = this.hydrate(categoryDataSchema, result.Item);
+      const category = Category.fromPersistence(data);
 
       // Return null if category is archived (soft deleted)
       if (category.isArchived) {
@@ -94,7 +90,7 @@ export class DynCategoryRepository
         expressionAttributeNames["#type"] = "type";
       }
 
-      const result = await this.paginateQuery<Category>({
+      const result = await this.paginateQuery({
         params: {
           TableName: this.tableName,
           KeyConditionExpression: "userId = :userId",
@@ -105,10 +101,14 @@ export class DynCategoryRepository
           }),
         },
         pageSize: undefined, // No pageSize = get all items
-        schema: categorySchema,
+        schema: categoryDataSchema,
       });
 
-      return sortCategories(result.items);
+      const categories = result.items.map((data) =>
+        Category.fromPersistence(data),
+      );
+
+      return sortCategories(categories);
     } catch (error) {
       console.error("Error finding active categories by user ID:", error);
       throw new RepositoryError(
@@ -125,7 +125,7 @@ export class DynCategoryRepository
     }
 
     try {
-      const result = await this.paginateQuery<Category>({
+      const result = await this.paginateQuery({
         params: {
           TableName: this.tableName,
           KeyConditionExpression: "userId = :userId",
@@ -134,10 +134,10 @@ export class DynCategoryRepository
           },
         },
         pageSize: undefined, // No pageSize = get all items
-        schema: categorySchema,
+        schema: categoryDataSchema,
       });
 
-      return result.items;
+      return result.items.map((data) => Category.fromPersistence(data));
     } catch (error) {
       console.error("Error finding all categories by user ID:", error);
       throw new RepositoryError(
@@ -174,7 +174,7 @@ export class DynCategoryRepository
 
       const result = await this.client.send(command);
       return (result.Responses?.[this.tableName] || []).map((item) =>
-        this.hydrate(categorySchema, item),
+        Category.fromPersistence(this.hydrate(categoryDataSchema, item)),
       );
     } catch (error) {
       console.error("Error batch finding categories by IDs:", error);
@@ -186,27 +186,17 @@ export class DynCategoryRepository
     }
   }
 
-  async create(input: CreateCategoryInput): Promise<Category> {
-    const now = new Date().toISOString();
-    const category: Category = {
-      userId: input.userId,
-      id: randomUUID(),
-      name: input.name,
-      type: input.type,
-      excludeFromReports: input.excludeFromReports,
-      isArchived: false,
-      createdAt: now,
-      updatedAt: now,
-    };
+  async create(category: Readonly<Category>): Promise<void> {
+    const data = category.toData();
 
     try {
       const command = new PutCommand({
         TableName: this.tableName,
-        Item: category,
+        Item: data,
+        ConditionExpression: "attribute_not_exists(id)",
       });
 
       await this.client.send(command);
-      return category;
     } catch (error) {
       console.error("Error creating category:", error);
       throw new RepositoryError(
@@ -217,134 +207,32 @@ export class DynCategoryRepository
     }
   }
 
-  async update(
-    { id, userId }: { id: string; userId: string },
-    input: UpdateCategoryInput,
-  ): Promise<Category> {
-    if (!id) {
-      throw new RepositoryError(
-        "Category ID is required",
-        "INVALID_PARAMETERS",
-      );
-    }
-
-    if (!userId) {
-      throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
-    }
-
-    // Get current category to check for duplicate names
-    const currentCategory = await this.findOneById({ id, userId });
-    if (!currentCategory) {
-      throw new RepositoryError("Category not found", "NOT_FOUND");
-    }
-
-    const now = new Date().toISOString();
-
-    // Build update expression dynamically
-    const updateExpressionParts: string[] = ["updatedAt = :updatedAt"];
-    const expressionAttributeValues: Record<string, string | boolean> = {
-      ":updatedAt": now,
-    };
-    const expressionAttributeNames: Record<string, string> = {};
-
-    if (input.name !== undefined) {
-      updateExpressionParts.push("#name = :name");
-      expressionAttributeValues[":name"] = input.name.trim();
-      expressionAttributeNames["#name"] = "name";
-    }
-
-    if (input.type !== undefined) {
-      updateExpressionParts.push("#type = :type");
-      expressionAttributeValues[":type"] = input.type;
-      expressionAttributeNames["#type"] = "type";
-    }
-
-    if (input.excludeFromReports !== undefined) {
-      updateExpressionParts.push("excludeFromReports = :excludeFromReports");
-      expressionAttributeValues[":excludeFromReports"] =
-        input.excludeFromReports;
-    }
+  async update(category: Readonly<Category>): Promise<Category> {
+    const data = category.toData();
 
     try {
       const command = new UpdateCommand({
         TableName: this.tableName,
-        Key: { userId, id },
-        UpdateExpression: `SET ${updateExpressionParts.join(", ")}`,
-        ConditionExpression:
-          "attribute_exists(userId) AND attribute_exists(id) AND isArchived <> :isArchived",
-        ...(Object.keys(expressionAttributeNames).length > 0 && {
-          ExpressionAttributeNames: expressionAttributeNames,
-        }),
-        ExpressionAttributeValues: {
-          ...expressionAttributeValues,
-          ":isArchived": true,
-        },
-        ReturnValues: "ALL_NEW",
-      });
-
-      const result = await this.client.send(command);
-      return this.hydrate(categorySchema, result.Attributes);
-    } catch (error) {
-      console.error("Error updating category:", error);
-
-      if (
-        error instanceof Error &&
-        error.name === "ConditionalCheckFailedException"
-      ) {
-        throw new RepositoryError(
-          "Category not found or is archived",
-          "NOT_FOUND",
-        );
-      }
-
-      throw new RepositoryError(
-        "Failed to update category",
-        "UPDATE_FAILED",
-        error,
-      );
-    }
-  }
-
-  async archive({
-    id,
-    userId,
-  }: {
-    id: string;
-    userId: string;
-  }): Promise<Category> {
-    if (!id) {
-      throw new RepositoryError(
-        "Category ID is required",
-        "INVALID_PARAMETERS",
-      );
-    }
-
-    if (!userId) {
-      throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
-    }
-
-    const now = new Date().toISOString();
-
-    try {
-      const command = new UpdateCommand({
-        TableName: this.tableName,
-        Key: { userId, id },
+        Key: { userId: data.userId, id: data.id },
         UpdateExpression:
-          "SET isArchived = :isArchived, updatedAt = :updatedAt",
+          "SET #name = :name, #type = :type, excludeFromReports = :excludeFromReports, " +
+          "isArchived = :isArchived, updatedAt = :updatedAt",
         ConditionExpression:
-          "attribute_exists(userId) AND attribute_exists(id) AND isArchived <> :isArchived",
+          "attribute_exists(userId) AND attribute_exists(id) AND isArchived <> :true",
+        ExpressionAttributeNames: { "#name": "name", "#type": "type" },
         ExpressionAttributeValues: {
-          ":isArchived": true,
-          ":updatedAt": now,
+          ":name": data.name,
+          ":type": data.type,
+          ":excludeFromReports": data.excludeFromReports,
+          ":isArchived": data.isArchived,
+          ":updatedAt": data.updatedAt,
+          ":true": true,
         },
-        ReturnValues: "ALL_NEW",
       });
 
-      const result = await this.client.send(command);
-      return this.hydrate(categorySchema, result.Attributes);
+      await this.client.send(command);
+      return category as Category;
     } catch (error) {
-      console.error("Error archiving category:", error);
-
       if (
         error instanceof Error &&
         error.name === "ConditionalCheckFailedException"
@@ -355,9 +243,10 @@ export class DynCategoryRepository
         );
       }
 
+      console.error("Error updating category:", error);
       throw new RepositoryError(
-        "Failed to archive category",
-        "ARCHIVE_FAILED",
+        "Failed to update category",
+        "UPDATE_FAILED",
         error,
       );
     }

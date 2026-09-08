@@ -1,18 +1,5 @@
 import { Category, CategoryType } from "../models/category";
 
-export interface CreateCategoryInput {
-  userId: string;
-  name: string;
-  type: CategoryType;
-  excludeFromReports: boolean;
-}
-
-export interface UpdateCategoryInput {
-  name?: string;
-  type?: CategoryType;
-  excludeFromReports?: boolean;
-}
-
 export interface CategoryRepository {
   findOneById(selector: {
     id: string;
@@ -27,10 +14,6 @@ export interface CategoryRepository {
     ids: readonly string[];
     userId: string;
   }): Promise<Category[]>;
-  create(input: CreateCategoryInput): Promise<Category>;
-  update(
-    selector: { id: string; userId: string },
-    input: UpdateCategoryInput,
-  ): Promise<Category>;
-  archive(selector: { id: string; userId: string }): Promise<Category>;
+  create(category: Readonly<Category>): Promise<void>;
+  update(category: Readonly<Category>): Promise<Category>;
 }

@@ -1,7 +1,6 @@
 import { z } from "zod";
 import { CategoryDto, toCategoryDto } from "../../langchain/tools/category-dto";
-import { CategoryType } from "../../models/category";
-import { UpdateCategoryInput } from "../../ports/category-repository";
+import { CategoryType, UpdateCategoryInput } from "../../models/category";
 import { CategoryService } from "../../services/category-service";
 import { Result, Success } from "../../types/result";
 import { buildGuideTokensField, verifyGuideTokens } from "./guides";
