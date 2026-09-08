@@ -4,7 +4,7 @@ import { TransactionType } from "../../models/transaction";
 import { BusinessError } from "../../services/business-error";
 import { TransactionService } from "../../services/transaction-service";
 import { toDateString } from "../../types/date-string";
-import { fakeTransaction } from "../../utils/test-utils/models/transaction-fakes";
+import { fakeExpense } from "../../utils/test-utils/models/transaction-fakes";
 import { createMockTransactionService } from "../../utils/test-utils/services/transaction-service-mocks";
 import { createGetRecentTransactionsTool } from "./get-recent-transactions";
 
@@ -31,11 +31,10 @@ describe("createGetRecentTransactionsTool", () => {
   it("calls service and returns transactions", async () => {
     // Arrange
     const transactions = [
-      fakeTransaction({
+      fakeExpense({
         id: "transaction1",
         accountId: "account1",
         categoryId: "category1",
-        type: TransactionType.EXPENSE,
         amount: 50,
         currency: "USD",
         date: toDateString("2000-01-02"),
