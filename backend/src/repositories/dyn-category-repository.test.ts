@@ -490,7 +490,7 @@ describe("DynCategoryRepository", () => {
       ).rejects.toThrow("Category not found or already archived");
     });
 
-    it("throws error when updating an already archived category", async () => {
+    it("throws error when updating already archived category", async () => {
       // Arrange - simulate a stale client that read the category before it
       // was archived by someone else.
       const category = fakeCategory({ userId });
@@ -503,7 +503,7 @@ describe("DynCategoryRepository", () => {
       ).rejects.toThrow("Category not found or already archived");
     });
 
-    it("throws error when archiving an already archived category", async () => {
+    it("throws error when archiving already archived category", async () => {
       // Arrange - simulate a stale client racing another archive
       const category = fakeCategory({ userId });
       await repository.create(category);

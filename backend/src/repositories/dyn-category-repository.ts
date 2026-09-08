@@ -231,7 +231,7 @@ export class DynCategoryRepository
       });
 
       await this.client.send(command);
-      return category as Category;
+      return category;
     } catch (error) {
       if (
         error instanceof Error &&
