@@ -394,14 +394,15 @@ describe("DynCategoryRepository", () => {
       // Arrange
       const category = fakeCategory({ userId });
       await repository.create(category);
+      const newName = "New Name";
 
       // Act
       const result = await repository.update(
-        category.update({ name: "New Name" }),
+        category.update({ name: newName }),
       );
 
       // Assert
-      expect(result.name).toBe("New Name");
+      expect(result.name).toBe(newName);
       expect(result.updatedAt).not.toBe(category.updatedAt);
     });
 
@@ -445,19 +446,23 @@ describe("DynCategoryRepository", () => {
       });
       await repository.create(category);
 
+      const newName = "New Name";
+      const newType = CategoryType.INCOME;
+      const newExcludeFromReports = true;
+
       // Act
       const result = await repository.update(
         category.update({
-          name: "New Name",
-          type: CategoryType.INCOME,
-          excludeFromReports: true,
+          name: newName,
+          type: newType,
+          excludeFromReports: newExcludeFromReports,
         }),
       );
 
       // Assert
-      expect(result.name).toBe("New Name");
-      expect(result.type).toBe(CategoryType.INCOME);
-      expect(result.excludeFromReports).toBe(true);
+      expect(result.name).toBe(newName);
+      expect(result.type).toBe(newType);
+      expect(result.excludeFromReports).toBe(newExcludeFromReports);
       expect(result.updatedAt).not.toBe(category.updatedAt);
     });
 
