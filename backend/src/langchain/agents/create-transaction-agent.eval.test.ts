@@ -24,17 +24,14 @@ import {
   resolveTransactionService,
   resolveUserRepository,
 } from "../../dependencies";
-import { Category, CategoryType } from "../../models/category";
+import { CategoryType } from "../../models/category";
 import { TransactionType } from "../../models/transaction";
 import { dateToDateString, toDateString } from "../../types/date-string";
 import { EntityScope } from "../../types/entity-scope";
 import { createDynamoDBDocumentClient } from "../../utils/dynamo-client";
 import { truncateAllTables } from "../../utils/test-utils/dynamodb-helpers";
 import { fakeAccount } from "../../utils/test-utils/models/account-fakes";
-import {
-  fakeCategory,
-  fakeCreateCategoryInput,
-} from "../../utils/test-utils/models/category-fakes";
+import { fakeCategory } from "../../utils/test-utils/models/category-fakes";
 import { fakeExpense } from "../../utils/test-utils/models/transaction-fakes";
 import { fakeUser } from "../../utils/test-utils/models/user-fakes";
 import { CREATE_TRANSACTION_TOOL_NAME } from "../tools/create-transaction";
@@ -89,13 +86,11 @@ describe("CreateTransactionAgent (evals)", () => {
     // Arrange
     const account = fakeAccount({ userId, currency: "EUR" });
     await accountRepository.create(account);
-    const category = Category.create(
-      fakeCreateCategoryInput({
-        userId,
-        type: CategoryType.EXPENSE,
-        name: "groceries",
-      }),
-    );
+    const category = fakeCategory({
+      userId,
+      type: CategoryType.EXPENSE,
+      name: "groceries",
+    });
     await categoryRepository.create(category);
 
     // Act
@@ -426,22 +421,18 @@ describe("CreateTransactionAgent (evals)", () => {
       const card = fakeAccount({ userId, name: "card", currency: "EUR" });
       await accountRepository.create(card);
 
-      const groceries = Category.create(
-        fakeCreateCategoryInput({
-          userId,
-          type: CategoryType.EXPENSE,
-          name: "groceries",
-        }),
-      );
+      const groceries = fakeCategory({
+        userId,
+        type: CategoryType.EXPENSE,
+        name: "groceries",
+      });
       await categoryRepository.create(groceries);
 
-      const transport = Category.create(
-        fakeCreateCategoryInput({
-          userId,
-          type: CategoryType.EXPENSE,
-          name: "transport",
-        }),
-      );
+      const transport = fakeCategory({
+        userId,
+        type: CategoryType.EXPENSE,
+        name: "transport",
+      });
       await categoryRepository.create(transport);
 
       // Create 3 groceries purchases using cash - weaker signal for groceries
@@ -589,23 +580,19 @@ describe("CreateTransactionAgent (evals)", () => {
       const account = fakeAccount({ userId, currency: "EUR" });
       await accountRepository.create(account);
 
-      const groceries = Category.create(
-        fakeCreateCategoryInput({
-          userId,
-          type: CategoryType.EXPENSE,
-          name: "groceries",
-        }),
-      );
+      const groceries = fakeCategory({
+        userId,
+        type: CategoryType.EXPENSE,
+        name: "groceries",
+      });
       await categoryRepository.create(groceries);
 
       await categoryRepository.create(
-        Category.create(
-          fakeCreateCategoryInput({
-            userId,
-            type: CategoryType.EXPENSE,
-            name: "household",
-          }),
-        ),
+        fakeCategory({
+          userId,
+          type: CategoryType.EXPENSE,
+          name: "household",
+        }),
       );
 
       // Act
@@ -646,22 +633,18 @@ describe("CreateTransactionAgent (evals)", () => {
       await accountRepository.create(account);
 
       await categoryRepository.create(
-        Category.create(
-          fakeCreateCategoryInput({
-            userId,
-            type: CategoryType.EXPENSE,
-            name: "groceries",
-          }),
-        ),
-      );
-
-      const household = Category.create(
-        fakeCreateCategoryInput({
+        fakeCategory({
           userId,
           type: CategoryType.EXPENSE,
-          name: "household",
+          name: "groceries",
         }),
       );
+
+      const household = fakeCategory({
+        userId,
+        type: CategoryType.EXPENSE,
+        name: "household",
+      });
       await categoryRepository.create(household);
 
       // Act
@@ -701,22 +684,18 @@ describe("CreateTransactionAgent (evals)", () => {
       const account = fakeAccount({ userId, currency: "EUR" });
       await accountRepository.create(account);
       await categoryRepository.create(
-        Category.create(
-          fakeCreateCategoryInput({
-            userId,
-            type: CategoryType.EXPENSE,
-            name: "electronics",
-          }),
-        ),
+        fakeCategory({
+          userId,
+          type: CategoryType.EXPENSE,
+          name: "electronics",
+        }),
       );
       await categoryRepository.create(
-        Category.create(
-          fakeCreateCategoryInput({
-            userId,
-            type: CategoryType.EXPENSE,
-            name: "household",
-          }),
-        ),
+        fakeCategory({
+          userId,
+          type: CategoryType.EXPENSE,
+          name: "household",
+        }),
       );
 
       // Act
@@ -794,13 +773,11 @@ describe("CreateTransactionAgent (evals)", () => {
       // Arrange
       await accountRepository.create(fakeAccount({ userId, currency: "EUR" }));
       await categoryRepository.create(
-        Category.create(
-          fakeCreateCategoryInput({
-            userId,
-            type: CategoryType.EXPENSE,
-            name: "groceries",
-          }),
-        ),
+        fakeCategory({
+          userId,
+          type: CategoryType.EXPENSE,
+          name: "groceries",
+        }),
       );
 
       // Act
@@ -838,13 +815,11 @@ describe("CreateTransactionAgent (evals)", () => {
       // Arrange
       await accountRepository.create(fakeAccount({ userId, currency: "EUR" }));
       await categoryRepository.create(
-        Category.create(
-          fakeCreateCategoryInput({
-            userId,
-            type: CategoryType.EXPENSE,
-            name: "groceries",
-          }),
-        ),
+        fakeCategory({
+          userId,
+          type: CategoryType.EXPENSE,
+          name: "groceries",
+        }),
       );
 
       // Act
@@ -916,13 +891,11 @@ describe("CreateTransactionAgent (evals)", () => {
       // Arrange
       const account = fakeAccount({ userId });
       await accountRepository.create(account);
-      const food = Category.create(
-        fakeCreateCategoryInput({
-          userId,
-          type: CategoryType.EXPENSE,
-          name: "food",
-        }),
-      );
+      const food = fakeCategory({
+        userId,
+        type: CategoryType.EXPENSE,
+        name: "food",
+      });
       await categoryRepository.create(food);
       // Create 3 prior "food" expenses around 5–15 EUR
       for (let i = 0; i < 3; i++) {
@@ -969,13 +942,11 @@ describe("CreateTransactionAgent (evals)", () => {
       // Arrange
       const account = fakeAccount({ userId });
       await accountRepository.create(account);
-      const food = Category.create(
-        fakeCreateCategoryInput({
-          userId,
-          type: CategoryType.EXPENSE,
-          name: "food",
-        }),
-      );
+      const food = fakeCategory({
+        userId,
+        type: CategoryType.EXPENSE,
+        name: "food",
+      });
       await categoryRepository.create(food);
       // Create 3 prior "food" expenses around 5–15 EUR
       for (let i = 0; i < 3; i++) {
@@ -1275,12 +1246,10 @@ describe("CreateTransactionAgent (evals)", () => {
       const account = fakeAccount({ userId, currency: "EUR" });
       await accountRepository.create(account);
 
-      const category = Category.create(
-        fakeCreateCategoryInput({
-          userId,
-          type: CategoryType.EXPENSE,
-        }),
-      );
+      const category = fakeCategory({
+        userId,
+        type: CategoryType.EXPENSE,
+      });
       await categoryRepository.create(category);
 
       // Seed recurring history — same description and amount, recorded monthly
@@ -1349,12 +1318,10 @@ describe("CreateTransactionAgent (evals)", () => {
       const account = fakeAccount({ userId, currency: "EUR" });
       await accountRepository.create(account);
 
-      const category = Category.create(
-        fakeCreateCategoryInput({
-          userId,
-          type: CategoryType.EXPENSE,
-        }),
-      );
+      const category = fakeCategory({
+        userId,
+        type: CategoryType.EXPENSE,
+      });
       await categoryRepository.create(category);
 
       // Seed recurring history that disagrees on amount
@@ -1396,12 +1363,10 @@ describe("CreateTransactionAgent (evals)", () => {
       const account = fakeAccount({ userId, currency: "EUR" });
       await accountRepository.create(account);
 
-      const category = Category.create(
-        fakeCreateCategoryInput({
-          userId,
-          type: CategoryType.EXPENSE,
-        }),
-      );
+      const category = fakeCategory({
+        userId,
+        type: CategoryType.EXPENSE,
+      });
       await categoryRepository.create(category);
 
       // Seed exactly one prior "gym abo" transaction — not a recurring pattern

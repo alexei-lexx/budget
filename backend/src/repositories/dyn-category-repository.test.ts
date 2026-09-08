@@ -1,12 +1,12 @@
 import { UpdateCommand } from "@aws-sdk/lib-dynamodb";
 import { faker } from "@faker-js/faker";
 import { beforeAll, beforeEach, describe, expect, it } from "vitest";
-import { Category, CategoryType } from "../models/category";
+import { CategoryType } from "../models/category";
 import { RepositoryError } from "../ports/repository-error";
 import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
 import { requireEnv } from "../utils/require-env";
 import { truncateTable } from "../utils/test-utils/dynamodb-helpers";
-import { fakeCreateCategoryInput } from "../utils/test-utils/models/category-fakes";
+import { fakeCategory } from "../utils/test-utils/models/category-fakes";
 import { DynCategoryRepository } from "./dyn-category-repository";
 
 describe("DynCategoryRepository", () => {
@@ -32,40 +32,32 @@ describe("DynCategoryRepository", () => {
     it("returns categories sorted alphabetically", async () => {
       // Arrange - Create categories in mixed order with different types
       await repository.create(
-        Category.create(
-          fakeCreateCategoryInput({
-            userId,
-            name: "Zebra",
-            type: CategoryType.EXPENSE,
-          }),
-        ),
+        fakeCategory({
+          userId,
+          name: "Zebra",
+          type: CategoryType.EXPENSE,
+        }),
       );
       await repository.create(
-        Category.create(
-          fakeCreateCategoryInput({
-            userId,
-            name: "Apple",
-            type: CategoryType.INCOME,
-          }),
-        ),
+        fakeCategory({
+          userId,
+          name: "Apple",
+          type: CategoryType.INCOME,
+        }),
       );
       await repository.create(
-        Category.create(
-          fakeCreateCategoryInput({
-            userId,
-            name: "Banana",
-            type: CategoryType.EXPENSE,
-          }),
-        ),
+        fakeCategory({
+          userId,
+          name: "Banana",
+          type: CategoryType.EXPENSE,
+        }),
       );
       await repository.create(
-        Category.create(
-          fakeCreateCategoryInput({
-            userId,
-            name: "Salary",
-            type: CategoryType.INCOME,
-          }),
-        ),
+        fakeCategory({
+          userId,
+          name: "Salary",
+          type: CategoryType.INCOME,
+        }),
       );
 
       // Act
@@ -83,40 +75,32 @@ describe("DynCategoryRepository", () => {
     it("handles case-insensitive sorting", async () => {
       // Arrange - Create categories with mixed case
       await repository.create(
-        Category.create(
-          fakeCreateCategoryInput({
-            userId,
-            name: "travel",
-            type: CategoryType.EXPENSE,
-          }),
-        ),
+        fakeCategory({
+          userId,
+          name: "travel",
+          type: CategoryType.EXPENSE,
+        }),
       );
       await repository.create(
-        Category.create(
-          fakeCreateCategoryInput({
-            userId,
-            name: "apple",
-            type: CategoryType.EXPENSE,
-          }),
-        ),
+        fakeCategory({
+          userId,
+          name: "apple",
+          type: CategoryType.EXPENSE,
+        }),
       );
       await repository.create(
-        Category.create(
-          fakeCreateCategoryInput({
-            userId,
-            name: "Trip",
-            type: CategoryType.EXPENSE,
-          }),
-        ),
+        fakeCategory({
+          userId,
+          name: "Trip",
+          type: CategoryType.EXPENSE,
+        }),
       );
       await repository.create(
-        Category.create(
-          fakeCreateCategoryInput({
-            userId,
-            name: "ZEBRA",
-            type: CategoryType.EXPENSE,
-          }),
-        ),
+        fakeCategory({
+          userId,
+          name: "ZEBRA",
+          type: CategoryType.EXPENSE,
+        }),
       );
 
       // Act
@@ -134,31 +118,25 @@ describe("DynCategoryRepository", () => {
     it("sorts numeric prefixes before letters", async () => {
       // Arrange
       await repository.create(
-        Category.create(
-          fakeCreateCategoryInput({
-            userId,
-            name: "Travel",
-            type: CategoryType.EXPENSE,
-          }),
-        ),
+        fakeCategory({
+          userId,
+          name: "Travel",
+          type: CategoryType.EXPENSE,
+        }),
       );
       await repository.create(
-        Category.create(
-          fakeCreateCategoryInput({
-            userId,
-            name: "401k Contribution",
-            type: CategoryType.EXPENSE,
-          }),
-        ),
+        fakeCategory({
+          userId,
+          name: "401k Contribution",
+          type: CategoryType.EXPENSE,
+        }),
       );
       await repository.create(
-        Category.create(
-          fakeCreateCategoryInput({
-            userId,
-            name: "Savings",
-            type: CategoryType.EXPENSE,
-          }),
-        ),
+        fakeCategory({
+          userId,
+          name: "Savings",
+          type: CategoryType.EXPENSE,
+        }),
       );
 
       // Act
@@ -174,13 +152,9 @@ describe("DynCategoryRepository", () => {
 
     it("does not return archived categories", async () => {
       // Arrange
-      const active = Category.create(
-        fakeCreateCategoryInput({ userId, name: "Active" }),
-      );
+      const active = fakeCategory({ userId, name: "Active" });
       await repository.create(active);
-      const archived = Category.create(
-        fakeCreateCategoryInput({ userId, name: "Archived" }),
-      );
+      const archived = fakeCategory({ userId, name: "Archived" });
       await repository.create(archived);
       await repository.update(archived.archive());
 
@@ -195,40 +169,32 @@ describe("DynCategoryRepository", () => {
     it("returns only categories of specified type when type filter is given", async () => {
       // Arrange
       await repository.create(
-        Category.create(
-          fakeCreateCategoryInput({
-            userId,
-            name: "Groceries",
-            type: CategoryType.EXPENSE,
-          }),
-        ),
+        fakeCategory({
+          userId,
+          name: "Groceries",
+          type: CategoryType.EXPENSE,
+        }),
       );
       await repository.create(
-        Category.create(
-          fakeCreateCategoryInput({
-            userId,
-            name: "Salary",
-            type: CategoryType.INCOME,
-          }),
-        ),
+        fakeCategory({
+          userId,
+          name: "Salary",
+          type: CategoryType.INCOME,
+        }),
       );
       await repository.create(
-        Category.create(
-          fakeCreateCategoryInput({
-            userId,
-            name: "Utilities",
-            type: CategoryType.EXPENSE,
-          }),
-        ),
+        fakeCategory({
+          userId,
+          name: "Utilities",
+          type: CategoryType.EXPENSE,
+        }),
       );
       await repository.create(
-        Category.create(
-          fakeCreateCategoryInput({
-            userId,
-            name: "Bonus",
-            type: CategoryType.INCOME,
-          }),
-        ),
+        fakeCategory({
+          userId,
+          name: "Bonus",
+          type: CategoryType.INCOME,
+        }),
       );
 
       // Act
@@ -251,14 +217,16 @@ describe("DynCategoryRepository", () => {
   describe("findManyByUserId", () => {
     it("returns all categories including archived", async () => {
       // Arrange
-      const activeCategory = Category.create(
-        fakeCreateCategoryInput({ userId, type: CategoryType.EXPENSE }),
-      );
+      const activeCategory = fakeCategory({
+        userId,
+        type: CategoryType.EXPENSE,
+      });
       await repository.create(activeCategory);
 
-      const categoryToArchive = Category.create(
-        fakeCreateCategoryInput({ userId, type: CategoryType.INCOME }),
-      );
+      const categoryToArchive = fakeCategory({
+        userId,
+        type: CategoryType.INCOME,
+      });
       await repository.create(categoryToArchive);
       const archivedCategory = await repository.update(
         categoryToArchive.archive(),
@@ -277,13 +245,15 @@ describe("DynCategoryRepository", () => {
 
     it("returns categories of all types", async () => {
       // Arrange
-      const expenseCategory = Category.create(
-        fakeCreateCategoryInput({ userId, type: CategoryType.EXPENSE }),
-      );
+      const expenseCategory = fakeCategory({
+        userId,
+        type: CategoryType.EXPENSE,
+      });
       await repository.create(expenseCategory);
-      const incomeCategory = Category.create(
-        fakeCreateCategoryInput({ userId, type: CategoryType.INCOME }),
-      );
+      const incomeCategory = fakeCategory({
+        userId,
+        type: CategoryType.INCOME,
+      });
       await repository.create(incomeCategory);
 
       // Act
@@ -298,12 +268,8 @@ describe("DynCategoryRepository", () => {
     it("does not return categories from other users", async () => {
       // Arrange
       const otherUserId = faker.string.uuid();
-      await repository.create(
-        Category.create(fakeCreateCategoryInput({ userId })),
-      );
-      await repository.create(
-        Category.create(fakeCreateCategoryInput({ userId: otherUserId })),
-      );
+      await repository.create(fakeCategory({ userId }));
+      await repository.create(fakeCategory({ userId: otherUserId }));
 
       // Act
       const result = await repository.findManyWithArchivedByUserId(userId);
@@ -324,9 +290,9 @@ describe("DynCategoryRepository", () => {
   describe("findManyByIds", () => {
     it("returns categories when IDs exist", async () => {
       // Arrange
-      const category1 = Category.create(fakeCreateCategoryInput({ userId }));
+      const category1 = fakeCategory({ userId });
       await repository.create(category1);
-      const category2 = Category.create(fakeCreateCategoryInput({ userId }));
+      const category2 = fakeCategory({ userId });
       await repository.create(category2);
 
       // Act
@@ -354,7 +320,7 @@ describe("DynCategoryRepository", () => {
 
     it("returns only found categories when some IDs are missing", async () => {
       // Arrange
-      const category = Category.create(fakeCreateCategoryInput({ userId }));
+      const category = fakeCategory({ userId });
       await repository.create(category);
 
       // Act
@@ -380,7 +346,7 @@ describe("DynCategoryRepository", () => {
 
     it("returns archived categories (not filtered)", async () => {
       // Arrange
-      const category = Category.create(fakeCreateCategoryInput({ userId }));
+      const category = fakeCategory({ userId });
       await repository.create(category);
       await repository.update(category.archive());
 
@@ -399,7 +365,7 @@ describe("DynCategoryRepository", () => {
   describe("create", () => {
     it("persists category", async () => {
       // Arrange
-      const category = Category.create(fakeCreateCategoryInput({ userId }));
+      const category = fakeCategory({ userId });
 
       // Act
       const result = await repository.create(category);
@@ -413,7 +379,7 @@ describe("DynCategoryRepository", () => {
 
     it("rejects duplicate id", async () => {
       // Arrange
-      const category = Category.create(fakeCreateCategoryInput({ userId }));
+      const category = fakeCategory({ userId });
       await repository.create(category);
 
       // Act & Assert
@@ -426,7 +392,7 @@ describe("DynCategoryRepository", () => {
   describe("update", () => {
     it("updates category name successfully", async () => {
       // Arrange
-      const category = Category.create(fakeCreateCategoryInput({ userId }));
+      const category = fakeCategory({ userId });
       await repository.create(category);
 
       // Act
@@ -441,9 +407,7 @@ describe("DynCategoryRepository", () => {
 
     it("updates category type successfully", async () => {
       // Arrange
-      const category = Category.create(
-        fakeCreateCategoryInput({ userId, type: CategoryType.EXPENSE }),
-      );
+      const category = fakeCategory({ userId, type: CategoryType.EXPENSE });
       await repository.create(category);
 
       // Act
@@ -458,9 +422,7 @@ describe("DynCategoryRepository", () => {
 
     it("updates excludeFromReports flag successfully", async () => {
       // Arrange
-      const category = Category.create(
-        fakeCreateCategoryInput({ userId, excludeFromReports: false }),
-      );
+      const category = fakeCategory({ userId, excludeFromReports: false });
       await repository.create(category);
 
       // Act
@@ -475,14 +437,12 @@ describe("DynCategoryRepository", () => {
 
     it("updates all fields successfully", async () => {
       // Arrange
-      const category = Category.create(
-        fakeCreateCategoryInput({
-          userId,
-          name: "Old Name",
-          type: CategoryType.EXPENSE,
-          excludeFromReports: false,
-        }),
-      );
+      const category = fakeCategory({
+        userId,
+        name: "Old Name",
+        type: CategoryType.EXPENSE,
+        excludeFromReports: false,
+      });
       await repository.create(category);
 
       // Act
@@ -503,7 +463,7 @@ describe("DynCategoryRepository", () => {
 
     it("archives category", async () => {
       // Arrange
-      const category = Category.create(fakeCreateCategoryInput({ userId }));
+      const category = fakeCategory({ userId });
       await repository.create(category);
 
       // Act
@@ -517,7 +477,7 @@ describe("DynCategoryRepository", () => {
 
     it("throws error when category does not exist", async () => {
       // Arrange - entity built but never persisted
-      const ghost = Category.create(fakeCreateCategoryInput({ userId }));
+      const ghost = fakeCategory({ userId });
 
       // Act & Assert
       await expect(
@@ -528,7 +488,7 @@ describe("DynCategoryRepository", () => {
     it("throws error when updating an already archived category", async () => {
       // Arrange - simulate a stale client that read the category before it
       // was archived by someone else.
-      const category = Category.create(fakeCreateCategoryInput({ userId }));
+      const category = fakeCategory({ userId });
       await repository.create(category);
       await repository.update(category.archive());
 
@@ -540,7 +500,7 @@ describe("DynCategoryRepository", () => {
 
     it("throws error when archiving an already archived category", async () => {
       // Arrange - simulate a stale client racing another archive
-      const category = Category.create(fakeCreateCategoryInput({ userId }));
+      const category = fakeCategory({ userId });
       await repository.create(category);
       await repository.update(category.archive());
 
@@ -554,7 +514,7 @@ describe("DynCategoryRepository", () => {
   describe("hydration - data corruption detection", () => {
     it("throws error when required field type is missing from database record", async () => {
       // Arrange
-      const category = Category.create(fakeCreateCategoryInput({ userId }));
+      const category = fakeCategory({ userId });
       await repository.create(category);
       const client = createDynamoDBDocumentClient();
 
