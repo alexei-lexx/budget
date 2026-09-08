@@ -235,6 +235,7 @@ describe("CategoryService", () => {
         id: categoryId,
         userId,
         name: "Original",
+        type: CategoryType.EXPENSE,
       });
 
       mockCategoryRepository.findOneById.mockResolvedValue(existingCategory);
@@ -245,6 +246,7 @@ describe("CategoryService", () => {
       // Act
       const result = await service.updateCategory(categoryId, userId, {
         name: "New Name",
+        type: CategoryType.INCOME,
       });
 
       // Assert
@@ -252,9 +254,14 @@ describe("CategoryService", () => {
         id: categoryId,
         userId,
         name: "New Name",
+        type: CategoryType.INCOME,
       });
       expect(mockCategoryRepository.update).toHaveBeenCalledWith(
-        expect.objectContaining({ id: categoryId, name: "New Name" }),
+        expect.objectContaining({
+          id: categoryId,
+          name: "New Name",
+          type: CategoryType.INCOME,
+        }),
       );
     });
 
@@ -277,29 +284,6 @@ describe("CategoryService", () => {
       expect(mockCategoryRepository.update).toHaveBeenCalledWith(
         expect.objectContaining({ name: "Groceries" }),
       );
-    });
-
-    it("allows changing type", async () => {
-      // Arrange
-      const categoryId = faker.string.uuid();
-      const existingCategory = fakeCategory({
-        id: categoryId,
-        userId,
-        type: CategoryType.EXPENSE,
-      });
-
-      mockCategoryRepository.findOneById.mockResolvedValue(existingCategory);
-      mockCategoryRepository.update.mockImplementation(
-        async (category) => category,
-      );
-
-      // Act
-      const result = await service.updateCategory(categoryId, userId, {
-        type: CategoryType.INCOME,
-      });
-
-      // Assert
-      expect(result.type).toBe(CategoryType.INCOME);
     });
 
     it("allows keeping same name", async () => {
