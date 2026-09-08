@@ -116,8 +116,6 @@ If no amount is stated:
   1. Name match — category name mentioned in user input
   2. Recurring match — prefer the category of the matched recurring transaction
   3. Signal match — synonyms, store names, product names imply a category
-  4. History — most used category for similar transactions
-- May look up past transactions for history-based criteria — do not guess
 
 ## Date
 
