@@ -1,5 +1,13 @@
 import { faker } from "@faker-js/faker";
-import { type Mocked, beforeEach, describe, expect, it } from "vitest";
+import {
+  type Mocked,
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vitest";
 import { CategoryType } from "../models/category";
 import { ModelError } from "../models/model-error";
 import { TransactionPatternType, TransactionType } from "../models/transaction";
@@ -171,6 +179,186 @@ describe("TransactionService", () => {
         new BusinessError(
           `Pagination first must be between ${MIN_PAGE_SIZE} and ${MAX_PAGE_SIZE}`,
         ),
+      );
+    });
+  });
+
+  describe("getRecentTransactions", () => {
+    // "Today" fixed so segment date boundaries are deterministic
+    const today = toDateString("2024-06-15");
+    const oneMonthAgo = toDateString("2024-05-15");
+    const dayBeforeOneMonthAgo = toDateString("2024-05-14");
+    const threeMonthsAgo = toDateString("2024-03-15");
+    const dayBeforeThreeMonthsAgo = toDateString("2024-03-14");
+    const sixMonthsAgo = toDateString("2023-12-15");
+    const dayBeforeSixMonthsAgo = toDateString("2023-12-14");
+    const twelveMonthsAgo = toDateString("2023-06-15");
+
+    beforeEach(() => {
+      vi.useFakeTimers().setSystemTime(new Date(`${today}T10:11:12.000Z`));
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    // Happy path
+
+    it("stops early once accumulated count reaches expectedCount", async () => {
+      // Arrange
+      // Fills expectedCount within first (closest) segment
+      const transactions = [fakeTransaction(), fakeTransaction()];
+      mockTransactionRepository.findManyByUserId.mockResolvedValue(
+        transactions,
+      );
+
+      // Act
+      const result = await service.getRecentTransactions({
+        userId,
+        expectedCount: 2,
+      });
+
+      // Assert
+      expect(result).toEqual(transactions);
+      expect(mockTransactionRepository.findManyByUserId).toHaveBeenCalledTimes(
+        1,
+      );
+      expect(mockTransactionRepository.findManyByUserId).toHaveBeenCalledWith(
+        userId,
+        {
+          dateAfter: oneMonthAgo,
+          dateBefore: today,
+        },
+      );
+    });
+
+    it("escalates through all four segments when history is sparse", async () => {
+      // Arrange
+      // Only last (farthest) segment has a match
+      const transaction = fakeTransaction();
+      mockTransactionRepository.findManyByUserId
+        .mockResolvedValueOnce([])
+        .mockResolvedValueOnce([])
+        .mockResolvedValueOnce([])
+        .mockResolvedValueOnce([transaction]);
+
+      // Act
+      const result = await service.getRecentTransactions({
+        userId,
+        expectedCount: 5,
+      });
+
+      // Assert
+      expect(result).toEqual([transaction]);
+
+      expect(mockTransactionRepository.findManyByUserId).toHaveBeenCalledTimes(
+        4,
+      );
+
+      expect(
+        mockTransactionRepository.findManyByUserId,
+      ).toHaveBeenNthCalledWith(1, userId, {
+        dateAfter: oneMonthAgo,
+        dateBefore: today,
+      });
+
+      expect(
+        mockTransactionRepository.findManyByUserId,
+      ).toHaveBeenNthCalledWith(2, userId, {
+        dateAfter: threeMonthsAgo,
+        dateBefore: dayBeforeOneMonthAgo,
+      });
+
+      expect(
+        mockTransactionRepository.findManyByUserId,
+      ).toHaveBeenNthCalledWith(3, userId, {
+        dateAfter: sixMonthsAgo,
+        dateBefore: dayBeforeThreeMonthsAgo,
+      });
+
+      expect(
+        mockTransactionRepository.findManyByUserId,
+      ).toHaveBeenNthCalledWith(4, userId, {
+        dateAfter: twelveMonthsAgo,
+        dateBefore: dayBeforeSixMonthsAgo,
+      });
+    });
+
+    it("passes accountIds, categoryIds, and types through to each segment query", async () => {
+      // Arrange
+      const accountIds = [faker.string.uuid()];
+      const categoryIds = [faker.string.uuid()];
+      const types = [TransactionType.EXPENSE];
+      // No matches in any segment, forces all four to be queried
+      mockTransactionRepository.findManyByUserId.mockResolvedValue([]);
+
+      // Act
+      await service.getRecentTransactions({
+        userId,
+        expectedCount: 5,
+        accountIds,
+        categoryIds,
+        types,
+      });
+
+      // Assert
+      expect(mockTransactionRepository.findManyByUserId).toHaveBeenCalledTimes(
+        4,
+      );
+
+      for (const call of mockTransactionRepository.findManyByUserId.mock
+        .calls) {
+        expect(call[1]).toMatchObject({ accountIds, categoryIds, types });
+      }
+    });
+
+    it("returns fewer than expectedCount when total history is smaller", async () => {
+      // Arrange
+      // Single match across full lookback window
+      const transaction = fakeTransaction();
+      mockTransactionRepository.findManyByUserId
+        .mockResolvedValueOnce([transaction])
+        .mockResolvedValueOnce([])
+        .mockResolvedValueOnce([])
+        .mockResolvedValueOnce([]);
+
+      // Act
+      const result = await service.getRecentTransactions({
+        userId,
+        expectedCount: 10,
+      });
+
+      // Assert
+      expect(result).toEqual([transaction]);
+    });
+
+    // Validation failures
+
+    it("throws when expectedCount is zero", async () => {
+      // Act & Assert
+      await expect(
+        service.getRecentTransactions({ userId, expectedCount: 0 }),
+      ).rejects.toThrow(
+        new BusinessError("expectedCount must be a positive integer"),
+      );
+      expect(mockTransactionRepository.findManyByUserId).not.toHaveBeenCalled();
+    });
+
+    it("throws when expectedCount is negative", async () => {
+      // Act & Assert
+      await expect(
+        service.getRecentTransactions({ userId, expectedCount: -1 }),
+      ).rejects.toThrow(
+        new BusinessError("expectedCount must be a positive integer"),
+      );
+    });
+
+    it("throws when expectedCount is not an integer", async () => {
+      // Act & Assert
+      await expect(
+        service.getRecentTransactions({ userId, expectedCount: 1.5 }),
+      ).rejects.toThrow(
+        new BusinessError("expectedCount must be a positive integer"),
       );
     });
   });
