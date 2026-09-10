@@ -10,6 +10,7 @@ export const categoryDataSchema = z.object({
   type: z.enum(CategoryType),
   excludeFromReports: z.boolean(),
   isArchived: z.boolean(),
+  version: z.int().nonnegative(),
   createdAt: z.iso.datetime().transform(toDateTimeString),
   updatedAt: z.iso.datetime().transform(toDateTimeString),
 }) satisfies z.ZodType<CategoryData>;

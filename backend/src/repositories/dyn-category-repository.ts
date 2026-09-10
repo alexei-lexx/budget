@@ -1,3 +1,4 @@
+import { ConditionalCheckFailedException } from "@aws-sdk/client-dynamodb";
 import {
   BatchGetCommand,
   GetCommand,
@@ -6,7 +7,10 @@ import {
 } from "@aws-sdk/lib-dynamodb";
 import { Category, CategoryType } from "../models/category";
 import { CategoryRepository } from "../ports/category-repository";
-import { RepositoryError } from "../ports/repository-error";
+import {
+  RepositoryError,
+  VersionConflictError,
+} from "../ports/repository-error";
 import { DynBaseRepository } from "./dyn-base-repository";
 import { categoryDataSchema } from "./schemas/category";
 
@@ -216,9 +220,9 @@ export class DynCategoryRepository
         Key: { userId: data.userId, id: data.id },
         UpdateExpression:
           "SET #name = :name, #type = :type, excludeFromReports = :excludeFromReports, " +
-          "isArchived = :isArchived, updatedAt = :updatedAt",
+          "isArchived = :isArchived, updatedAt = :updatedAt, version = :nextVersion",
         ConditionExpression:
-          "attribute_exists(userId) AND attribute_exists(id) AND isArchived <> :true",
+          "attribute_exists(userId) AND attribute_exists(id) AND version = :currentVersion",
         ExpressionAttributeNames: { "#name": "name", "#type": "type" },
         ExpressionAttributeValues: {
           ":name": data.name,
@@ -226,21 +230,23 @@ export class DynCategoryRepository
           ":excludeFromReports": data.excludeFromReports,
           ":isArchived": data.isArchived,
           ":updatedAt": data.updatedAt,
-          ":true": true,
+          ":currentVersion": data.version,
+          ":nextVersion": data.version + 1,
         },
+        ReturnValuesOnConditionCheckFailure: "ALL_OLD",
       });
 
       await this.client.send(command);
-      return category;
+      return category.bumpVersion();
     } catch (error) {
-      if (
-        error instanceof Error &&
-        error.name === "ConditionalCheckFailedException"
-      ) {
-        throw new RepositoryError(
-          "Category not found or already archived",
-          "NOT_FOUND",
-        );
+      if (error instanceof ConditionalCheckFailedException) {
+        // ReturnValuesOnConditionCheckFailure returns the pre-write row.
+        // Present = version mismatch. Absent = row missing.
+        if (error.Item) {
+          throw new VersionConflictError(error);
+        }
+
+        throw new RepositoryError("Category not found", "NOT_FOUND", error);
       }
 
       console.error("Error updating category:", error);

@@ -2,7 +2,10 @@ import { UpdateCommand } from "@aws-sdk/lib-dynamodb";
 import { faker } from "@faker-js/faker";
 import { beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { CategoryType } from "../models/category";
-import { RepositoryError } from "../ports/repository-error";
+import {
+  RepositoryError,
+  VersionConflictError,
+} from "../ports/repository-error";
 import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
 import { requireEnv } from "../utils/require-env";
 import { truncateTable } from "../utils/test-utils/dynamodb-helpers";
@@ -404,6 +407,7 @@ describe("DynCategoryRepository", () => {
       // Assert
       expect(result.name).toBe(newName);
       expect(result.updatedAt).not.toBe(category.updatedAt);
+      expect(result.version).toBe(category.version + 1);
     });
 
     it("updates category type successfully", async () => {
@@ -419,6 +423,7 @@ describe("DynCategoryRepository", () => {
       // Assert
       expect(result.type).toBe(CategoryType.INCOME);
       expect(result.updatedAt).not.toBe(category.updatedAt);
+      expect(result.version).toBe(category.version + 1);
     });
 
     it("updates excludeFromReports flag successfully", async () => {
@@ -434,6 +439,7 @@ describe("DynCategoryRepository", () => {
       // Assert
       expect(result.excludeFromReports).toBe(true);
       expect(result.updatedAt).not.toBe(category.updatedAt);
+      expect(result.version).toBe(category.version + 1);
     });
 
     it("updates all fields successfully", async () => {
@@ -464,6 +470,7 @@ describe("DynCategoryRepository", () => {
       expect(result.type).toBe(newType);
       expect(result.excludeFromReports).toBe(newExcludeFromReports);
       expect(result.updatedAt).not.toBe(category.updatedAt);
+      expect(result.version).toBe(category.version + 1);
     });
 
     it("archives category", async () => {
@@ -478,19 +485,41 @@ describe("DynCategoryRepository", () => {
       expect(result.id).toBe(category.id);
       expect(result.isArchived).toBe(true);
       expect(result.updatedAt).not.toBe(category.updatedAt);
+      expect(result.version).toBe(category.version + 1);
     });
 
-    it("throws error when category does not exist", async () => {
+    // Validation failures
+
+    it("throws VersionConflictError when version is stale", async () => {
+      // Arrange - row at v0, then bumped to v1 by first update
+      const category = fakeCategory({ userId, version: 0 });
+      await repository.create(category);
+
+      const firstUpdate = await repository.update(
+        category.update({ name: "First" }),
+      );
+      expect(firstUpdate.version).toBe(1);
+
+      // Act & Assert - second update from original v=0 entity
+      await expect(
+        repository.update(category.update({ name: "Second" })),
+      ).rejects.toThrow(VersionConflictError);
+    });
+
+    it("throws RepositoryError NOT_FOUND when category does not exist", async () => {
       // Arrange - entity built but never persisted
       const ghost = fakeCategory({ userId });
 
       // Act & Assert
       await expect(
         repository.update(ghost.update({ name: "New Name" })),
-      ).rejects.toThrow("Category not found or already archived");
+      ).rejects.toMatchObject({
+        code: "NOT_FOUND",
+        message: "Category not found",
+      });
     });
 
-    it("throws error when updating already archived category", async () => {
+    it("throws VersionConflictError when updating a category archived by someone else", async () => {
       // Arrange - simulate a stale client that read the category before it
       // was archived by someone else.
       const category = fakeCategory({ userId });
@@ -500,10 +529,10 @@ describe("DynCategoryRepository", () => {
       // Act & Assert
       await expect(
         repository.update(category.update({ name: "New Name" })),
-      ).rejects.toThrow("Category not found or already archived");
+      ).rejects.toThrow(VersionConflictError);
     });
 
-    it("throws error when archiving already archived category", async () => {
+    it("throws VersionConflictError when archiving a category archived by someone else", async () => {
       // Arrange - simulate a stale client racing another archive
       const category = fakeCategory({ userId });
       await repository.create(category);
@@ -511,7 +540,7 @@ describe("DynCategoryRepository", () => {
 
       // Act & Assert
       await expect(repository.update(category.archive())).rejects.toThrow(
-        "Category not found or already archived",
+        VersionConflictError,
       );
     });
   });
