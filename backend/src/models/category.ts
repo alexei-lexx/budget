@@ -12,14 +12,15 @@ export enum CategoryType {
 
 // Plain data shape.
 export interface CategoryData {
-  userId: string; // Partition key (same pattern as Accounts)
-  id: string; // Sort key - UUID v4
-  name: string; // Category name (e.g., "Groceries", "Salary")
-  type: CategoryType; // Category type (INCOME, EXPENSE)
-  excludeFromReports: boolean; // Whether to exclude from monthly reports
-  isArchived: boolean; // Soft delete flag
-  createdAt: DateTimeString; // ISO timestamp
-  updatedAt: DateTimeString; // ISO timestamp
+  userId: string;
+  id: string;
+  name: string;
+  type: CategoryType;
+  excludeFromReports: boolean;
+  isArchived: boolean;
+  version: number;
+  createdAt: DateTimeString;
+  updatedAt: DateTimeString;
 }
 
 export class Category implements CategoryData {
@@ -29,6 +30,7 @@ export class Category implements CategoryData {
   readonly type: CategoryType;
   readonly excludeFromReports: boolean;
   readonly isArchived: boolean;
+  readonly version: number;
   readonly createdAt: DateTimeString;
   readonly updatedAt: DateTimeString;
 
@@ -45,6 +47,7 @@ export class Category implements CategoryData {
       type: input.type,
       excludeFromReports: input.excludeFromReports,
       isArchived: false,
+      version: 0,
       createdAt: now,
       updatedAt: now,
     };
@@ -64,9 +67,23 @@ export class Category implements CategoryData {
       type: this.type,
       excludeFromReports: this.excludeFromReports,
       isArchived: this.isArchived,
+      version: this.version,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
     };
+  }
+
+  bumpVersion(): Category {
+    const data: CategoryData = {
+      ...this.toData(),
+      version: this.version + 1,
+    };
+
+    return new Category(
+      data,
+      // Version bump leaves all invariant-bearing fields unchanged.
+      { skipInvariants: true },
+    );
   }
 
   update(input: UpdateCategoryInput): Category {
@@ -106,8 +123,13 @@ export class Category implements CategoryData {
     return new Category(data);
   }
 
-  private constructor(data: CategoryData) {
-    Category.assertInvariants(data);
+  private constructor(
+    data: CategoryData,
+    { skipInvariants = false }: { skipInvariants?: boolean } = {},
+  ) {
+    if (!skipInvariants) {
+      Category.assertInvariants(data);
+    }
 
     this.userId = data.userId;
     this.id = data.id;
@@ -115,6 +137,7 @@ export class Category implements CategoryData {
     this.type = data.type;
     this.excludeFromReports = data.excludeFromReports;
     this.isArchived = data.isArchived;
+    this.version = data.version;
     this.createdAt = data.createdAt;
     this.updatedAt = data.updatedAt;
   }

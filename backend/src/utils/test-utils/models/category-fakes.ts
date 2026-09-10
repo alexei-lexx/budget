@@ -18,6 +18,7 @@ export const fakeCategory = (
     type: CategoryType.EXPENSE,
     excludeFromReports: false,
     isArchived: false,
+    version: faker.number.int({ min: 1, max: 100 }),
     createdAt: now,
     updatedAt: now,
     ...overrides,

@@ -43,6 +43,7 @@ describe("Category", () => {
         type: CategoryType.EXPENSE,
         excludeFromReports: false,
         isArchived: false,
+        version: 0,
         createdAt: "2000-01-02T10:11:12.000Z",
         updatedAt: "2000-01-02T10:11:12.000Z",
       });
@@ -124,6 +125,24 @@ describe("Category", () => {
     });
   });
 
+  describe("bumpVersion", () => {
+    // Happy path
+
+    it("increments version by 1 and preserves other fields", () => {
+      // Arrange
+      const existing = fakeCategory({ version: 4 });
+
+      // Act
+      const result = existing.bumpVersion();
+
+      // Assert
+      expect(result.toData()).toEqual({
+        ...existing.toData(),
+        version: 5,
+      });
+    });
+  });
+
   describe("update", () => {
     beforeEach(() => {
       vi.useFakeTimers().setSystemTime(new Date("2000-01-02T10:11:12.000Z"));
@@ -190,12 +209,13 @@ describe("Category", () => {
       expect(result.excludeFromReports).toBe(existing.excludeFromReports);
     });
 
-    it("preserves id, userId, isArchived, createdAt", () => {
+    it("preserves id, userId, isArchived, version, createdAt", () => {
       // Arrange
       const existing = fakeCategory({
         id: "id-1",
         userId: "user-1",
         isArchived: false,
+        version: 3,
         createdAt: toDateTimeString("1999-01-01T00:00:00.000Z"),
       });
 
@@ -206,6 +226,7 @@ describe("Category", () => {
       expect(result.id).toBe("id-1");
       expect(result.userId).toBe("user-1");
       expect(result.isArchived).toBe(false);
+      expect(result.version).toBe(3);
       expect(result.createdAt).toBe("1999-01-01T00:00:00.000Z");
     });
 
