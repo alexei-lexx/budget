@@ -1,17 +1,20 @@
 import { faker } from "@faker-js/faker";
 import { type Mocked, beforeEach, describe, expect, it } from "vitest";
-import { CategoryType } from "../models/category";
-import { CategoryRepository } from "../ports/category-repository";
-import { EntityScope } from "../types/entity-scope";
-import { fakeCategory } from "../utils/test-utils/models/category-fakes";
-import { fakeCreateCategoryInput } from "../utils/test-utils/repositories/category-repository-fakes";
-import { createMockCategoryRepository } from "../utils/test-utils/repositories/category-repository-mocks";
-import { BusinessError } from "./business-error";
 import {
-  CategoryServiceImpl,
+  CategoryType,
   NAME_MAX_LENGTH,
   NAME_MIN_LENGTH,
-} from "./category-service";
+} from "../models/category";
+import { ModelError } from "../models/model-error";
+import { CategoryRepository } from "../ports/category-repository";
+import { EntityScope } from "../types/entity-scope";
+import {
+  fakeCategory,
+  fakeCreateCategoryInput,
+} from "../utils/test-utils/models/category-fakes";
+import { createMockCategoryRepository } from "../utils/test-utils/repositories/category-repository-mocks";
+import { BusinessError } from "./business-error";
+import { CategoryServiceImpl } from "./category-service";
 
 describe("CategoryService", () => {
   let mockCategoryRepository: Mocked<CategoryRepository>;
@@ -139,19 +142,23 @@ describe("CategoryService", () => {
   describe("createCategory", () => {
     // Happy path
 
-    it("creates new category", async () => {
+    it("creates and returns new category", async () => {
       // Arrange
-      const input = fakeCreateCategoryInput();
-      // Persists and returns created category
-      const createdCategory = fakeCategory();
-      mockCategoryRepository.create.mockResolvedValue(createdCategory);
+      const input = fakeCreateCategoryInput({ userId });
 
       // Act
       const result = await service.createCategory(input);
 
       // Assert
-      expect(result).toEqual(createdCategory);
-      expect(mockCategoryRepository.create).toHaveBeenCalledWith(input);
+      expect(result).toMatchObject({
+        userId,
+        name: input.name,
+        type: input.type,
+        excludeFromReports: input.excludeFromReports,
+        isArchived: false,
+      });
+      expect(mockCategoryRepository.create).toHaveBeenCalledTimes(1);
+      expect(mockCategoryRepository.create).toHaveBeenCalledWith(result);
     });
 
     it("trims name before persisting", async () => {
@@ -169,7 +176,7 @@ describe("CategoryService", () => {
 
     // Validation failures
 
-    it("throws when name is empty", async () => {
+    it("propagates ModelError without persisting when name is empty", async () => {
       // Arrange
       const input = fakeCreateCategoryInput({ name: "" });
 
@@ -177,29 +184,14 @@ describe("CategoryService", () => {
       const promise = service.createCategory(input);
 
       // Assert
-      await expect(promise).rejects.toThrow(BusinessError);
+      await expect(promise).rejects.toThrow(ModelError);
       await expect(promise).rejects.toMatchObject({
         message: `Category name must be between ${NAME_MIN_LENGTH} and ${NAME_MAX_LENGTH} characters`,
       });
       expect(mockCategoryRepository.create).not.toHaveBeenCalled();
     });
 
-    it("throws when name is only whitespace", async () => {
-      // Arrange
-      const input = fakeCreateCategoryInput({ name: "   " });
-
-      // Act
-      const promise = service.createCategory(input);
-
-      // Assert
-      await expect(promise).rejects.toThrow(BusinessError);
-      await expect(promise).rejects.toMatchObject({
-        message: `Category name must be between ${NAME_MIN_LENGTH} and ${NAME_MAX_LENGTH} characters`,
-      });
-      expect(mockCategoryRepository.create).not.toHaveBeenCalled();
-    });
-
-    it("throws when name exceeds maximum length", async () => {
+    it("propagates ModelError without persisting when name exceeds maximum length", async () => {
       // Arrange
       const input = fakeCreateCategoryInput({
         name: "a".repeat(NAME_MAX_LENGTH + 1),
@@ -209,10 +201,7 @@ describe("CategoryService", () => {
       const promise = service.createCategory(input);
 
       // Assert
-      await expect(promise).rejects.toThrow(BusinessError);
-      await expect(promise).rejects.toMatchObject({
-        message: `Category name must be between ${NAME_MIN_LENGTH} and ${NAME_MAX_LENGTH} characters`,
-      });
+      await expect(promise).rejects.toThrow(ModelError);
       expect(mockCategoryRepository.create).not.toHaveBeenCalled();
     });
 
@@ -239,37 +228,61 @@ describe("CategoryService", () => {
   describe("updateCategory", () => {
     // Happy path
 
-    it("updates category", async () => {
+    it("returns updated category", async () => {
       // Arrange
       const categoryId = faker.string.uuid();
-      const input = { name: "Updated Category Name" };
-      // Persists and returns updated category
-      const updatedCategory = fakeCategory();
-      mockCategoryRepository.update.mockResolvedValue(updatedCategory);
+      const existingCategory = fakeCategory({
+        id: categoryId,
+        userId,
+        name: "Original",
+        type: CategoryType.EXPENSE,
+      });
+
+      mockCategoryRepository.findOneById.mockResolvedValue(existingCategory);
+      mockCategoryRepository.update.mockImplementation(
+        async (category) => category,
+      );
 
       // Act
-      const result = await service.updateCategory(categoryId, userId, input);
+      const result = await service.updateCategory(categoryId, userId, {
+        name: "New Name",
+        type: CategoryType.INCOME,
+      });
 
       // Assert
-      expect(result).toEqual(updatedCategory);
+      expect(result).toMatchObject({
+        id: categoryId,
+        userId,
+        name: "New Name",
+        type: CategoryType.INCOME,
+      });
       expect(mockCategoryRepository.update).toHaveBeenCalledWith(
-        { id: categoryId, userId },
-        input,
+        expect.objectContaining({
+          id: categoryId,
+          name: "New Name",
+          type: CategoryType.INCOME,
+        }),
       );
     });
 
     it("trims name before persisting", async () => {
       // Arrange
       const categoryId = faker.string.uuid();
-      const input = { name: "  Groceries  " };
+      const existingCategory = fakeCategory({ id: categoryId, userId });
+
+      mockCategoryRepository.findOneById.mockResolvedValue(existingCategory);
+      mockCategoryRepository.update.mockImplementation(
+        async (category) => category,
+      );
 
       // Act
-      await service.updateCategory(categoryId, userId, input);
+      await service.updateCategory(categoryId, userId, {
+        name: "  Groceries  ",
+      });
 
       // Assert
       expect(mockCategoryRepository.update).toHaveBeenCalledWith(
-        { id: categoryId, userId },
-        { name: "Groceries" },
+        expect.objectContaining({ name: "Groceries" }),
       );
     });
 
@@ -281,89 +294,96 @@ describe("CategoryService", () => {
         userId,
         name: "Groceries",
       });
-      const input = { name: "Groceries" };
-      // Existing categories include target itself and one unrelated
-      mockCategoryRepository.findManyByUserId.mockResolvedValue([
-        currentCategory,
-        fakeCategory({ userId }),
-      ]);
+
+      mockCategoryRepository.findOneById.mockResolvedValue(currentCategory);
+      mockCategoryRepository.update.mockImplementation(
+        async (category) => category,
+      );
 
       // Act
-      await service.updateCategory(categoryId, userId, input);
+      const result = await service.updateCategory(categoryId, userId, {
+        name: "Groceries",
+      });
 
       // Assert
-      expect(mockCategoryRepository.update).toHaveBeenCalledWith(
-        { id: categoryId, userId },
-        input,
-      );
+      expect(result.name).toBe("Groceries");
+      expect(mockCategoryRepository.update).toHaveBeenCalled();
+      // No duplicate-name lookup when the name does not change
+      expect(mockCategoryRepository.findManyByUserId).not.toHaveBeenCalled();
     });
 
     // Validation failures
 
-    it("throws when name is empty", async () => {
+    it("throws when category is not found", async () => {
       // Arrange
       const categoryId = faker.string.uuid();
-      const input = { name: "" };
 
-      // Act
-      const promise = service.updateCategory(categoryId, userId, input);
+      mockCategoryRepository.findOneById.mockResolvedValue(null);
 
-      // Assert
+      // Act & Assert
+      const promise = service.updateCategory(categoryId, userId, {
+        name: "New Name",
+      });
+
       await expect(promise).rejects.toThrow(BusinessError);
       await expect(promise).rejects.toMatchObject({
-        message: `Category name must be between ${NAME_MIN_LENGTH} and ${NAME_MAX_LENGTH} characters`,
+        message: "Category not found",
       });
       expect(mockCategoryRepository.update).not.toHaveBeenCalled();
     });
 
-    it("throws when name is only whitespace", async () => {
-      // Arrange
-      const categoryId = faker.string.uuid();
-      const input = { name: "   " };
-
-      // Act
-      const promise = service.updateCategory(categoryId, userId, input);
-
-      // Assert
-      await expect(promise).rejects.toThrow(BusinessError);
-      await expect(promise).rejects.toMatchObject({
-        message: `Category name must be between ${NAME_MIN_LENGTH} and ${NAME_MAX_LENGTH} characters`,
-      });
-      expect(mockCategoryRepository.update).not.toHaveBeenCalled();
-    });
-
-    it("throws when name exceeds maximum length", async () => {
-      // Arrange
-      const categoryId = faker.string.uuid();
-      const input = { name: "a".repeat(NAME_MAX_LENGTH + 1) };
-
-      // Act
-      const promise = service.updateCategory(categoryId, userId, input);
-
-      // Assert
-      await expect(promise).rejects.toThrow(BusinessError);
-      await expect(promise).rejects.toMatchObject({
-        message: `Category name must be between ${NAME_MIN_LENGTH} and ${NAME_MAX_LENGTH} characters`,
-      });
-      expect(mockCategoryRepository.update).not.toHaveBeenCalled();
-    });
-
-    it("throws when updated name already exists", async () => {
+    it("propagates ModelError without persisting when name is empty", async () => {
       // Arrange
       const categoryId = faker.string.uuid();
       const currentCategory = fakeCategory({ id: categoryId, userId });
+      mockCategoryRepository.findOneById.mockResolvedValue(currentCategory);
+
+      // Act & Assert
+      await expect(
+        service.updateCategory(categoryId, userId, { name: "" }),
+      ).rejects.toThrow(ModelError);
+      expect(mockCategoryRepository.update).not.toHaveBeenCalled();
+    });
+
+    it("propagates ModelError without persisting when updating archived category", async () => {
+      // Arrange
+      const categoryId = faker.string.uuid();
+      const currentCategory = fakeCategory({
+        id: categoryId,
+        userId,
+        isArchived: true,
+      });
+      mockCategoryRepository.findOneById.mockResolvedValue(currentCategory);
+
+      // Act & Assert
+      await expect(
+        service.updateCategory(categoryId, userId, { name: "New Name" }),
+      ).rejects.toThrow(ModelError);
+      expect(mockCategoryRepository.update).not.toHaveBeenCalled();
+    });
+
+    it("throws when updated name already exists for another category", async () => {
+      // Arrange
+      const categoryId = faker.string.uuid();
+      const currentCategory = fakeCategory({
+        id: categoryId,
+        userId,
+        name: "Utilities",
+      });
       const otherCategory = fakeCategory({ userId, name: "Groceries" });
-      const input = { name: "Groceries" };
-      // Another category already uses target name
+
+      mockCategoryRepository.findOneById.mockResolvedValue(currentCategory);
+      // Another category already has the name "Groceries"
       mockCategoryRepository.findManyByUserId.mockResolvedValue([
         currentCategory,
         otherCategory,
       ]);
 
-      // Act
-      const promise = service.updateCategory(categoryId, userId, input);
+      // Act & Assert
+      const promise = service.updateCategory(categoryId, userId, {
+        name: "Groceries",
+      });
 
-      // Assert
       await expect(promise).rejects.toThrow(BusinessError);
       await expect(promise).rejects.toMatchObject({
         message: 'Category "Groceries" already exists',
@@ -375,22 +395,44 @@ describe("CategoryService", () => {
   describe("deleteCategory", () => {
     // Happy path
 
-    it("archives category", async () => {
+    it("returns archived category", async () => {
       // Arrange
       const categoryId = faker.string.uuid();
-      // Persists and returns archived category
-      const archivedCategory = fakeCategory();
-      mockCategoryRepository.archive.mockResolvedValue(archivedCategory);
+      const currentCategory = fakeCategory({
+        id: categoryId,
+        userId,
+        isArchived: false,
+      });
+
+      mockCategoryRepository.findOneById.mockResolvedValue(currentCategory);
+      mockCategoryRepository.update.mockImplementation(
+        async (category) => category,
+      );
 
       // Act
       const result = await service.deleteCategory(categoryId, userId);
 
       // Assert
-      expect(result).toEqual(archivedCategory);
-      expect(mockCategoryRepository.archive).toHaveBeenCalledWith({
-        id: categoryId,
-        userId,
+      expect(result.isArchived).toBe(true);
+      expect(mockCategoryRepository.update).toHaveBeenCalledWith(result);
+    });
+
+    // Validation failures
+
+    it("throws when category is not found", async () => {
+      // Arrange
+      const categoryId = faker.string.uuid();
+
+      mockCategoryRepository.findOneById.mockResolvedValue(null);
+
+      // Act & Assert
+      const promise = service.deleteCategory(categoryId, userId);
+
+      await expect(promise).rejects.toThrow(BusinessError);
+      await expect(promise).rejects.toMatchObject({
+        message: "Category not found",
       });
+      expect(mockCategoryRepository.update).not.toHaveBeenCalled();
     });
   });
 });

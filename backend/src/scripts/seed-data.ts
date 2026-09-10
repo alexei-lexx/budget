@@ -9,7 +9,7 @@ import {
   resolveUserRepository,
 } from "../dependencies";
 import { Account } from "../models/account";
-import { CategoryType } from "../models/category";
+import { Category, CategoryType } from "../models/category";
 import { TransactionType } from "../models/transaction";
 import { toDateString } from "../types/date-string";
 import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
@@ -127,24 +127,26 @@ async function createCategories(userId: string): Promise<{
 
   // Create income categories
   for (const name of incomeNames) {
-    const category = await categoryRepository.create({
+    const category = Category.create({
       userId,
       name,
       type: CategoryType.INCOME,
       excludeFromReports: false,
     });
+    await categoryRepository.create(category);
     categoryIds.income.push(category.id);
     console.log(`✓ Created income category: ${name}`);
   }
 
   // Create expense categories
   for (const name of expenseNames) {
-    const category = await categoryRepository.create({
+    const category = Category.create({
       userId,
       name,
       type: CategoryType.EXPENSE,
       excludeFromReports: false,
     });
+    await categoryRepository.create(category);
     categoryIds.expense.push(category.id);
     console.log(`✓ Created expense category: ${name}`);
   }
