@@ -502,9 +502,7 @@ describe("AccountService", () => {
       );
 
       // Act & Assert
-      await expect(
-        service.deleteAccount(accountId, userId),
-      ).rejects.toThrow(
+      await expect(service.deleteAccount(accountId, userId)).rejects.toThrow(
         new BusinessError("Account was modified, please reload and try again"),
       );
     });

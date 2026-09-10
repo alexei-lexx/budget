@@ -469,9 +469,7 @@ describe("CategoryService", () => {
       );
 
       // Act & Assert
-      await expect(
-        service.deleteCategory(categoryId, userId),
-      ).rejects.toThrow(
+      await expect(service.deleteCategory(categoryId, userId)).rejects.toThrow(
         new BusinessError("Category was modified, please reload and try again"),
       );
     });
