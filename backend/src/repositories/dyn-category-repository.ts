@@ -231,7 +231,7 @@ export class DynCategoryRepository
           ":isArchived": data.isArchived,
           ":updatedAt": data.updatedAt,
           ":currentVersion": data.version,
-          ":nextVersion": data.version + 1,
+          ":nextVersion": category.nextVersion(),
         },
         ReturnValuesOnConditionCheckFailure: "ALL_OLD",
       });

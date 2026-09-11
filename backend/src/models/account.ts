@@ -76,10 +76,17 @@ export class Account implements AccountData {
     };
   }
 
+  /**
+   * Returns the version this entity will have once persisted.
+   */
+  nextVersion(): number {
+    return this.version + 1;
+  }
+
   bumpVersion(): Account {
     const data: AccountData = {
       ...this.toData(),
-      version: this.version + 1,
+      version: this.nextVersion(),
     };
 
     return new Account(
