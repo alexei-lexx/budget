@@ -32,7 +32,7 @@ describe("handleVersionConflict", () => {
 
   it("passes through unrelated errors unchanged", async () => {
     // Arrange
-    const other = new RepositoryError("boom", "QUERY_FAILED");
+    const other = new RepositoryError("boom");
 
     // Act & Assert
     await expect(

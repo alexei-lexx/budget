@@ -103,7 +103,7 @@ function decodeCursor(cursor: string): CursorData {
     const cursorData = cursorDataSchema.parse(parsed);
     return cursorData;
   } catch (error) {
-    throw new RepositoryError("Invalid cursor format", "INVALID_CURSOR", error);
+    throw new RepositoryError("Invalid cursor format", error);
   }
 }
 
@@ -242,14 +242,11 @@ export class DynTransactionRepository
     userId: string;
   }): Promise<Transaction | null> {
     if (!id) {
-      throw new RepositoryError(
-        "Transaction ID is required",
-        "INVALID_PARAMETERS",
-      );
+      throw new RepositoryError("Transaction ID is required");
     }
 
     if (!userId) {
-      throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
+      throw new RepositoryError("User ID is required");
     }
 
     try {
@@ -274,11 +271,7 @@ export class DynTransactionRepository
       return toTransaction(dbItem);
     } catch (error) {
       console.error("Error finding transaction by ID:", error);
-      throw new RepositoryError(
-        "Failed to find transaction",
-        "GET_FAILED",
-        error,
-      );
+      throw new RepositoryError("Failed to find transaction", error);
     }
   }
 
@@ -287,7 +280,7 @@ export class DynTransactionRepository
     filters?: TransactionFilterInput,
   ): Promise<Transaction[]> {
     if (!userId) {
-      throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
+      throw new RepositoryError("User ID is required");
     }
 
     try {
@@ -315,7 +308,6 @@ export class DynTransactionRepository
       console.error("Error finding transactions by user ID:", error);
       throw new RepositoryError(
         "Failed to find transactions by user ID",
-        "QUERY_FAILED",
         error,
       );
     }
@@ -327,7 +319,7 @@ export class DynTransactionRepository
     filters?: TransactionFilterInput,
   ): Promise<TransactionConnection> {
     if (!userId) {
-      throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
+      throw new RepositoryError("User ID is required");
     }
 
     // Default pagination values
@@ -338,7 +330,6 @@ export class DynTransactionRepository
     if (first < MIN_PAGE_SIZE || first > MAX_PAGE_SIZE) {
       throw new RepositoryError(
         `First parameter must be between ${MIN_PAGE_SIZE} and ${MAX_PAGE_SIZE}`,
-        "INVALID_PAGINATION",
       );
     }
 
@@ -404,11 +395,7 @@ export class DynTransactionRepository
       }
 
       console.error("Error finding paginated transactions:", error);
-      throw new RepositoryError(
-        "Failed to find paginated transactions",
-        "QUERY_FAILED",
-        error,
-      );
+      throw new RepositoryError("Failed to find paginated transactions", error);
     }
   }
 
@@ -420,11 +407,11 @@ export class DynTransactionRepository
     userId: string;
   }): Promise<Transaction[]> {
     if (!accountId) {
-      throw new RepositoryError("Account ID is required", "INVALID_PARAMETERS");
+      throw new RepositoryError("Account ID is required");
     }
 
     if (!userId) {
-      throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
+      throw new RepositoryError("User ID is required");
     }
 
     try {
@@ -449,7 +436,6 @@ export class DynTransactionRepository
       console.error("Error finding transactions by account ID:", error);
       throw new RepositoryError(
         "Failed to find transactions by account",
-        "QUERY_FAILED",
         error,
       );
     }
@@ -463,14 +449,11 @@ export class DynTransactionRepository
     userId: string;
   }): Promise<Transaction[]> {
     if (!transferId) {
-      throw new RepositoryError(
-        "Transfer ID is required",
-        "INVALID_PARAMETERS",
-      );
+      throw new RepositoryError("Transfer ID is required");
     }
 
     if (!userId) {
-      throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
+      throw new RepositoryError("User ID is required");
     }
 
     try {
@@ -495,7 +478,6 @@ export class DynTransactionRepository
       console.error("Error finding transactions by transfer ID:", error);
       throw new RepositoryError(
         "Failed to find transactions by transfer",
-        "QUERY_FAILED",
         error,
       );
     }
@@ -511,14 +493,11 @@ export class DynTransactionRepository
     limit: number;
   }): Promise<Transaction[]> {
     if (!userId) {
-      throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
+      throw new RepositoryError("User ID is required");
     }
 
     if (!Number.isInteger(limit) || limit <= 0) {
-      throw new RepositoryError(
-        "Limit must be a positive integer",
-        "INVALID_PARAMETERS",
-      );
+      throw new RepositoryError("Limit must be a positive integer");
     }
 
     // No-op optimization for empty search text
@@ -552,7 +531,6 @@ export class DynTransactionRepository
       console.error("Error searching transactions by description:", error);
       throw new RepositoryError(
         "Failed to search transactions by description",
-        "QUERY_FAILED",
         error,
       );
     }
@@ -566,18 +544,11 @@ export class DynTransactionRepository
       await this.client.send(command);
     } catch (error) {
       if (error instanceof ConditionalCheckFailedException) {
-        throw new RepositoryError(
-          "Transaction with this ID already exists",
-          "CREATE_FAILED",
-        );
+        throw new RepositoryError("Transaction with this ID already exists");
       }
 
       console.error("Error creating transaction:", error);
-      throw new RepositoryError(
-        "Failed to create transaction",
-        "CREATE_FAILED",
-        error,
-      );
+      throw new RepositoryError("Failed to create transaction", error);
     }
   }
 
@@ -596,14 +567,10 @@ export class DynTransactionRepository
           throw new VersionConflictError(error);
         }
 
-        throw new RepositoryError("Transaction not found", "NOT_FOUND", error);
+        throw new RepositoryError("Transaction not found", error);
       }
 
-      throw new RepositoryError(
-        "Failed to update transaction",
-        "UPDATE_FAILED",
-        error,
-      );
+      throw new RepositoryError("Failed to update transaction", error);
     }
   }
 
@@ -615,11 +582,11 @@ export class DynTransactionRepository
     userId: string;
   }): Promise<boolean> {
     if (!accountId) {
-      throw new RepositoryError("Account ID is required", "INVALID_PARAMETERS");
+      throw new RepositoryError("Account ID is required");
     }
 
     if (!userId) {
-      throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
+      throw new RepositoryError("User ID is required");
     }
 
     try {
@@ -641,7 +608,6 @@ export class DynTransactionRepository
       console.error("Error checking transactions for account:", error);
       throw new RepositoryError(
         "Failed to check transactions for account",
-        "QUERY_FAILED",
         error,
       );
     }
@@ -659,21 +625,15 @@ export class DynTransactionRepository
     sampleSize: number;
   }): Promise<TransactionPattern[]> {
     if (!userId) {
-      throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
+      throw new RepositoryError("User ID is required");
     }
 
     if (!Number.isInteger(limit) || limit <= 0) {
-      throw new RepositoryError(
-        "Limit must be a positive integer",
-        "INVALID_PARAMETERS",
-      );
+      throw new RepositoryError("Limit must be a positive integer");
     }
 
     if (!Number.isInteger(sampleSize) || sampleSize <= 0) {
-      throw new RepositoryError(
-        "Sample size must be a positive integer",
-        "INVALID_PARAMETERS",
-      );
+      throw new RepositoryError("Sample size must be a positive integer");
     }
 
     try {
@@ -752,7 +712,6 @@ export class DynTransactionRepository
       console.error("Error getting account category patterns:", error);
       throw new RepositoryError(
         "Failed to get account category patterns",
-        "QUERY_FAILED",
         error,
       );
     }
@@ -911,7 +870,6 @@ export class DynTransactionRepository
       console.error("Error getting active transaction count:", error);
       throw new RepositoryError(
         "Failed to get active transaction count",
-        "QUERY_FAILED",
         error,
       );
     }

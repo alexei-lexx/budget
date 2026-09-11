@@ -436,7 +436,6 @@ describe("DynAccountRepository", () => {
       await expect(
         repository.update(ghost.update({ name: "Ghost-2" })),
       ).rejects.toMatchObject({
-        code: "NOT_FOUND",
         message: "Account not found",
       });
     });

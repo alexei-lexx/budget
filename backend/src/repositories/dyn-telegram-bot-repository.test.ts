@@ -123,7 +123,6 @@ describe("DynTelegramBotRepository", () => {
       await expect(
         repository.findOneConnectedByUserId(userId),
       ).rejects.toMatchObject({
-        code: "INTEGRITY_ERROR",
         message: "Multiple connected bots found for user",
       });
     });
@@ -243,7 +242,6 @@ describe("DynTelegramBotRepository", () => {
       await expect(
         repository.findOneConnectedByWebhookSecret(webhookSecret),
       ).rejects.toMatchObject({
-        code: "INTEGRITY_ERROR",
         message: "Multiple connected bots found for webhook secret",
       });
     });

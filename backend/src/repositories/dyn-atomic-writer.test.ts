@@ -101,7 +101,6 @@ describe("DynAtomicWriter", () => {
         }),
       ).rejects.toMatchObject({
         name: "RepositoryError",
-        code: "INVALID_PARAMETERS",
         message: "Nothing to commit",
       });
     });
@@ -155,7 +154,6 @@ describe("DynAtomicWriter", () => {
         }),
       ).rejects.toMatchObject({
         name: "RepositoryError",
-        code: "NOT_FOUND",
         message: "Transaction or account row was missing or already existed",
       });
     });
@@ -171,7 +169,6 @@ describe("DynAtomicWriter", () => {
         }),
       ).rejects.toMatchObject({
         name: "RepositoryError",
-        code: "NOT_FOUND",
         message: "Transaction or account row was missing or already existed",
       });
     });

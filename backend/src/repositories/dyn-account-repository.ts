@@ -70,11 +70,11 @@ export class DynAccountRepository
     userId: string;
   }): Promise<Account | null> {
     if (!id) {
-      throw new RepositoryError("Account ID is required", "INVALID_PARAMETERS");
+      throw new RepositoryError("Account ID is required");
     }
 
     if (!userId) {
-      throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
+      throw new RepositoryError("User ID is required");
     }
 
     try {
@@ -100,7 +100,7 @@ export class DynAccountRepository
       return account;
     } catch (error) {
       console.error("Error finding account by ID:", error);
-      throw new RepositoryError("Failed to find account", "GET_FAILED", error);
+      throw new RepositoryError("Failed to find account", error);
     }
   }
 
@@ -112,11 +112,11 @@ export class DynAccountRepository
     userId: string;
   }): Promise<Account | null> {
     if (!id) {
-      throw new RepositoryError("Account ID is required", "INVALID_PARAMETERS");
+      throw new RepositoryError("Account ID is required");
     }
 
     if (!userId) {
-      throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
+      throw new RepositoryError("User ID is required");
     }
 
     try {
@@ -135,13 +135,13 @@ export class DynAccountRepository
       return Account.fromPersistence(data);
     } catch (error) {
       console.error("Error finding account by ID (with archived):", error);
-      throw new RepositoryError("Failed to find account", "GET_FAILED", error);
+      throw new RepositoryError("Failed to find account", error);
     }
   }
 
   async findManyByUserId(userId: string): Promise<Account[]> {
     if (!userId) {
-      throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
+      throw new RepositoryError("User ID is required");
     }
 
     try {
@@ -169,11 +169,7 @@ export class DynAccountRepository
       );
     } catch (error) {
       console.error("Error finding active accounts by user ID:", error);
-      throw new RepositoryError(
-        "Failed to find active accounts",
-        "QUERY_FAILED",
-        error,
-      );
+      throw new RepositoryError("Failed to find active accounts", error);
     }
   }
 
@@ -189,7 +185,7 @@ export class DynAccountRepository
     }
 
     if (!userId) {
-      throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
+      throw new RepositoryError("User ID is required");
     }
 
     try {
@@ -207,17 +203,13 @@ export class DynAccountRepository
       );
     } catch (error) {
       console.error("Error batch finding accounts by IDs:", error);
-      throw new RepositoryError(
-        "Failed to batch find accounts",
-        "BATCH_GET_FAILED",
-        error,
-      );
+      throw new RepositoryError("Failed to batch find accounts", error);
     }
   }
 
   async findManyWithArchivedByUserId(userId: string): Promise<Account[]> {
     if (!userId) {
-      throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
+      throw new RepositoryError("User ID is required");
     }
 
     try {
@@ -236,11 +228,7 @@ export class DynAccountRepository
       return result.items.map((data) => Account.fromPersistence(data));
     } catch (error) {
       console.error("Error finding all accounts by user ID:", error);
-      throw new RepositoryError(
-        "Failed to find all accounts",
-        "QUERY_FAILED",
-        error,
-      );
+      throw new RepositoryError("Failed to find all accounts", error);
     }
   }
 
@@ -257,11 +245,7 @@ export class DynAccountRepository
       await this.client.send(command);
     } catch (error) {
       console.error("Error creating account:", error);
-      throw new RepositoryError(
-        "Failed to create account",
-        "CREATE_FAILED",
-        error,
-      );
+      throw new RepositoryError("Failed to create account", error);
     }
   }
 
@@ -281,15 +265,11 @@ export class DynAccountRepository
           throw new VersionConflictError(error);
         }
 
-        throw new RepositoryError("Account not found", "NOT_FOUND", error);
+        throw new RepositoryError("Account not found", error);
       }
 
       console.error("Error updating account:", error);
-      throw new RepositoryError(
-        "Failed to update account",
-        "UPDATE_FAILED",
-        error,
-      );
+      throw new RepositoryError("Failed to update account", error);
     }
   }
 }
