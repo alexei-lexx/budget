@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { ChatMessage, ChatMessageRole } from "../../models/chat-message";
+import { toDateTimeString } from "../../types/date-time-string";
 
 export const chatMessageSchema = z.object({
   id: z.uuid(),
@@ -7,7 +8,7 @@ export const chatMessageSchema = z.object({
   sessionId: z.string().min(1),
   role: z.enum(ChatMessageRole),
   content: z.string(),
-  createdAt: z.iso.datetime(),
+  createdAt: z.iso.datetime().transform(toDateTimeString),
   expiresAt: z.int().positive(),
 }) satisfies z.ZodType<ChatMessage>;
 

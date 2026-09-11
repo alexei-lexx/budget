@@ -4,9 +4,10 @@ import {
   AccountData,
   CreateAccountInput,
 } from "../../../models/account";
+import { toDateTimeString } from "../../../types/date-time-string";
 
 export const fakeAccount = (overrides: Partial<AccountData> = {}): Account => {
-  const now = new Date().toISOString();
+  const now = toDateTimeString(new Date().toISOString());
   return Account.fromPersistence({
     id: faker.string.uuid(),
     userId: faker.string.uuid(),

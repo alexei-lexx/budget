@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { toDateTimeString } from "../types/date-time-string";
 import {
   fakeCreateUserInput,
   fakeUser,
@@ -257,7 +258,7 @@ describe("User", () => {
       const existing = fakeUser({
         id: "id-1",
         email: "user@example.com",
-        createdAt: "1999-01-01T00:00:00.000Z",
+        createdAt: toDateTimeString("1999-01-01T00:00:00.000Z"),
       });
 
       // Act
@@ -346,7 +347,7 @@ describe("User", () => {
         interfaceLanguage: "en",
         transactionPatternsLimit: 5,
         voiceInputLanguage: "pl-PL",
-        createdAt: "1999-01-01T00:00:00.000Z",
+        createdAt: toDateTimeString("1999-01-01T00:00:00.000Z"),
       });
 
       // Act

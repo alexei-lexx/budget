@@ -7,6 +7,7 @@ import {
   TelegramBotRepository,
   UpdateTelegramBotInput,
 } from "../ports/telegram-bot-repository";
+import { toDateTimeString } from "../types/date-time-string";
 import { DynBaseRepository } from "./dyn-base-repository";
 import { telegramBotSchema } from "./schemas/telegram-bot";
 
@@ -103,7 +104,7 @@ export class DynTelegramBotRepository
   }
 
   async create(input: CreateTelegramBotInput): Promise<TelegramBot> {
-    const now = new Date().toISOString();
+    const now = toDateTimeString(new Date().toISOString());
     const bot: TelegramBot = {
       id: randomUUID(),
       userId: input.userId,

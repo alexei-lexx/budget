@@ -1,4 +1,5 @@
 import { randomUUID } from "crypto";
+import { DateTimeString, toDateTimeString } from "../types/date-time-string";
 import { isSupportedInterfaceLanguage } from "../types/language";
 import { validateEmail } from "../utils/email";
 import { ModelError } from "./model-error";
@@ -11,8 +12,8 @@ export interface UserData {
   mcpToken: string;
   transactionPatternsLimit?: number;
   voiceInputLanguage?: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: DateTimeString;
+  updatedAt: DateTimeString;
 }
 
 /**
@@ -26,8 +27,8 @@ export class User implements UserData {
   readonly mcpToken: string;
   readonly transactionPatternsLimit?: number;
   readonly voiceInputLanguage?: string;
-  readonly createdAt: string;
-  readonly updatedAt: string;
+  readonly createdAt: DateTimeString;
+  readonly updatedAt: DateTimeString;
 
   static create(
     input: CreateUserInput,
@@ -36,7 +37,7 @@ export class User implements UserData {
       tokenGenerator = randomUUID,
     }: { idGenerator?: () => string; tokenGenerator?: () => string } = {},
   ): User {
-    const now = new Date().toISOString();
+    const now = toDateTimeString(new Date().toISOString());
 
     const data: UserData = {
       id: idGenerator(),
@@ -67,7 +68,7 @@ export class User implements UserData {
   }
 
   update(input: UpdateUserInput): User {
-    const now = new Date().toISOString();
+    const now = toDateTimeString(new Date().toISOString());
 
     const data: UserData = {
       ...this.toData(),
@@ -84,7 +85,7 @@ export class User implements UserData {
   regenerateMcpToken({
     tokenGenerator = randomUUID,
   }: { tokenGenerator?: () => string } = {}): User {
-    const now = new Date().toISOString();
+    const now = toDateTimeString(new Date().toISOString());
 
     const data: UserData = {
       ...this.toData(),

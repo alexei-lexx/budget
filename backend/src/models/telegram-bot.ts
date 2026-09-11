@@ -1,3 +1,5 @@
+import { DateTimeString } from "../types/date-time-string";
+
 export enum TelegramBotStatus {
   /** Webhook registration in progress; not yet usable */
   PENDING = "PENDING",
@@ -14,6 +16,6 @@ export interface TelegramBot {
   webhookSecret: string;
   status: TelegramBotStatus;
   isArchived: boolean;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: DateTimeString;
+  updatedAt: DateTimeString;
 }

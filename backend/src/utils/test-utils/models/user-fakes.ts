@@ -1,8 +1,9 @@
 import { faker } from "@faker-js/faker";
 import { CreateUserInput, User, UserData } from "../../../models/user";
+import { toDateTimeString } from "../../../types/date-time-string";
 
 export const fakeUser = (overrides: Partial<UserData> = {}): User => {
-  const now = new Date().toISOString();
+  const now = toDateTimeString(new Date().toISOString());
   return User.fromPersistence({
     id: faker.string.uuid(),
     email: faker.internet.email().toLowerCase(),

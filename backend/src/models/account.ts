@@ -1,5 +1,6 @@
 import { randomUUID } from "crypto";
 import { isSupportedCurrency } from "../types/currency";
+import { DateTimeString, toDateTimeString } from "../types/date-time-string";
 import { ModelError } from "./model-error";
 
 export const NAME_MIN_LENGTH = 1;
@@ -15,8 +16,8 @@ export interface AccountData {
   transactionBalance: number;
   isArchived: boolean;
   version: number;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: DateTimeString;
+  updatedAt: DateTimeString;
 }
 
 export class Account implements AccountData {
@@ -28,14 +29,14 @@ export class Account implements AccountData {
   readonly transactionBalance: number;
   readonly isArchived: boolean;
   readonly version: number;
-  readonly createdAt: string;
-  readonly updatedAt: string;
+  readonly createdAt: DateTimeString;
+  readonly updatedAt: DateTimeString;
 
   static create(
     input: CreateAccountInput,
     { idGenerator = randomUUID }: { idGenerator?: () => string } = {},
   ): Account {
-    const now = new Date().toISOString();
+    const now = toDateTimeString(new Date().toISOString());
 
     const data: AccountData = {
       id: idGenerator(),
@@ -101,7 +102,7 @@ export class Account implements AccountData {
       throw new ModelError("Cannot update archived account");
     }
 
-    const now = new Date().toISOString();
+    const now = toDateTimeString(new Date().toISOString());
 
     const data: AccountData = {
       ...this.toData(),
@@ -120,7 +121,7 @@ export class Account implements AccountData {
       throw new ModelError("Cannot archive archived account");
     }
 
-    const now = new Date().toISOString();
+    const now = toDateTimeString(new Date().toISOString());
 
     const data: AccountData = {
       ...this.toData(),
@@ -135,7 +136,7 @@ export class Account implements AccountData {
     const data: AccountData = {
       ...this.toData(),
       transactionBalance: this.transactionBalance + deltaAmount,
-      updatedAt: new Date().toISOString(),
+      updatedAt: toDateTimeString(new Date().toISOString()),
     };
     return new Account(data);
   }
@@ -144,7 +145,7 @@ export class Account implements AccountData {
     const data: AccountData = {
       ...this.toData(),
       transactionBalance: this.transactionBalance - deltaAmount,
-      updatedAt: new Date().toISOString(),
+      updatedAt: toDateTimeString(new Date().toISOString()),
     };
     return new Account(data);
   }
