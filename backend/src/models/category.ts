@@ -73,10 +73,17 @@ export class Category implements CategoryData {
     };
   }
 
+  /**
+   * Returns the version this entity will have once persisted.
+   */
+  nextVersion(): number {
+    return this.version + 1;
+  }
+
   bumpVersion(): Category {
     const data: CategoryData = {
       ...this.toData(),
-      version: this.version + 1,
+      version: this.nextVersion(),
     };
 
     return new Category(

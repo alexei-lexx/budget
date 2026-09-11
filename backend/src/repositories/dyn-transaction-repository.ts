@@ -185,7 +185,7 @@ export function buildUpdateTransactionItem(
     ":date": transaction.date,
     ":isArchived": transaction.isArchived,
     ":expectedVersion": transaction.version,
-    ":newVersion": transaction.version + 1,
+    ":newVersion": transaction.nextVersion(),
     ":createdAt": transaction.createdAt,
     ":updatedAt": transaction.updatedAt,
   };

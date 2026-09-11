@@ -118,11 +118,18 @@ export class Transaction implements TransactionData {
     };
   }
 
+  /**
+   * Returns the version this entity will have once persisted.
+   */
+  nextVersion(): number {
+    return this.version + 1;
+  }
+
   bumpVersion(): Transaction {
     return new Transaction(
       {
         ...this.toData(),
-        version: this.version + 1,
+        version: this.nextVersion(),
       },
       undefined,
       // Version bump leaves all invariant-bearing fields unchanged.

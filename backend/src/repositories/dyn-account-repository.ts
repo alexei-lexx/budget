@@ -51,7 +51,7 @@ export function buildUpdateAccountItem(
         ":isArchived": account.isArchived,
         ":updatedAt": account.updatedAt,
         ":currentVersion": account.version,
-        ":nextVersion": account.version + 1,
+        ":nextVersion": account.nextVersion(),
       },
       ReturnValuesOnConditionCheckFailure: "ALL_OLD",
     },
