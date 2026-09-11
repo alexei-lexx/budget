@@ -35,14 +35,11 @@ export class DynCategoryRepository
     userId: string;
   }): Promise<Category | null> {
     if (!id) {
-      throw new RepositoryError(
-        "Category ID is required",
-        "INVALID_PARAMETERS",
-      );
+      throw new RepositoryError("Category ID is required");
     }
 
     if (!userId) {
-      throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
+      throw new RepositoryError("User ID is required");
     }
 
     try {
@@ -68,7 +65,7 @@ export class DynCategoryRepository
       return category;
     } catch (error) {
       console.error("Error finding category by ID:", error);
-      throw new RepositoryError("Failed to find category", "GET_FAILED", error);
+      throw new RepositoryError("Failed to find category", error);
     }
   }
 
@@ -77,7 +74,7 @@ export class DynCategoryRepository
     filters?: { type?: CategoryType },
   ): Promise<Category[]> {
     if (!userId) {
-      throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
+      throw new RepositoryError("User ID is required");
     }
 
     try {
@@ -115,17 +112,13 @@ export class DynCategoryRepository
       return sortCategories(categories);
     } catch (error) {
       console.error("Error finding active categories by user ID:", error);
-      throw new RepositoryError(
-        "Failed to find active categories",
-        "QUERY_FAILED",
-        error,
-      );
+      throw new RepositoryError("Failed to find active categories", error);
     }
   }
 
   async findManyWithArchivedByUserId(userId: string): Promise<Category[]> {
     if (!userId) {
-      throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
+      throw new RepositoryError("User ID is required");
     }
 
     try {
@@ -144,11 +137,7 @@ export class DynCategoryRepository
       return result.items.map((data) => Category.fromPersistence(data));
     } catch (error) {
       console.error("Error finding all categories by user ID:", error);
-      throw new RepositoryError(
-        "Failed to find all categories",
-        "QUERY_FAILED",
-        error,
-      );
+      throw new RepositoryError("Failed to find all categories", error);
     }
   }
 
@@ -164,7 +153,7 @@ export class DynCategoryRepository
     }
 
     if (!userId) {
-      throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
+      throw new RepositoryError("User ID is required");
     }
 
     try {
@@ -182,11 +171,7 @@ export class DynCategoryRepository
       );
     } catch (error) {
       console.error("Error batch finding categories by IDs:", error);
-      throw new RepositoryError(
-        "Failed to batch find categories",
-        "BATCH_GET_FAILED",
-        error,
-      );
+      throw new RepositoryError("Failed to batch find categories", error);
     }
   }
 
@@ -203,11 +188,7 @@ export class DynCategoryRepository
       await this.client.send(command);
     } catch (error) {
       console.error("Error creating category:", error);
-      throw new RepositoryError(
-        "Failed to create category",
-        "CREATE_FAILED",
-        error,
-      );
+      throw new RepositoryError("Failed to create category", error);
     }
   }
 
@@ -246,15 +227,11 @@ export class DynCategoryRepository
           throw new VersionConflictError(error);
         }
 
-        throw new RepositoryError("Category not found", "NOT_FOUND", error);
+        throw new RepositoryError("Category not found", error);
       }
 
       console.error("Error updating category:", error);
-      throw new RepositoryError(
-        "Failed to update category",
-        "UPDATE_FAILED",
-        error,
-      );
+      throw new RepositoryError("Failed to update category", error);
     }
   }
 }

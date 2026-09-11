@@ -38,7 +38,6 @@ export class DynUserRepository
       if (result.Items.length > 1) {
         throw new RepositoryError(
           `Data integrity error: Multiple users found for email ${normalizedEmail}`,
-          "QUERY_FAILED",
         );
       }
 
@@ -46,11 +45,7 @@ export class DynUserRepository
     } catch (error) {
       console.error("Error finding user by email:", error);
       if (error instanceof RepositoryError) throw error;
-      throw new RepositoryError(
-        "Failed to find user by email",
-        "QUERY_FAILED",
-        error,
-      );
+      throw new RepositoryError("Failed to find user by email", error);
     }
   }
 
@@ -71,11 +66,7 @@ export class DynUserRepository
     } catch (error) {
       console.error("Error finding user by mcpToken:", error);
 
-      throw new RepositoryError(
-        "Failed to find user by mcpToken",
-        "QUERY_FAILED",
-        error,
-      );
+      throw new RepositoryError("Failed to find user by mcpToken", error);
     }
 
     if (!result.Items || result.Items.length === 0) {
@@ -85,7 +76,6 @@ export class DynUserRepository
     if (result.Items.length > 1) {
       throw new RepositoryError(
         "Data integrity error: Multiple users found for mcpToken",
-        "QUERY_FAILED",
       );
     }
 
@@ -94,7 +84,7 @@ export class DynUserRepository
 
   async findOneById(id: string): Promise<User | null> {
     if (!id) {
-      throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
+      throw new RepositoryError("User ID is required");
     }
 
     try {
@@ -112,11 +102,7 @@ export class DynUserRepository
       return User.fromPersistence(this.hydrate(userSchema, result.Item));
     } catch (error) {
       console.error("Error finding user by ID:", error);
-      throw new RepositoryError(
-        "Failed to find user by ID",
-        "GET_FAILED",
-        error,
-      );
+      throw new RepositoryError("Failed to find user by ID", error);
     }
   }
 
@@ -137,7 +123,7 @@ export class DynUserRepository
       );
     } catch (error) {
       console.error("Error finding all users:", error);
-      throw new RepositoryError("Failed to find users", "QUERY_FAILED", error);
+      throw new RepositoryError("Failed to find users", error);
     }
   }
 
@@ -154,11 +140,7 @@ export class DynUserRepository
       await this.client.send(command);
     } catch (error) {
       console.error("Error creating user:", error);
-      throw new RepositoryError(
-        "Failed to create user",
-        "CREATE_FAILED",
-        error,
-      );
+      throw new RepositoryError("Failed to create user", error);
     }
   }
 
@@ -226,14 +208,10 @@ export class DynUserRepository
         error instanceof Error &&
         error.name === "ConditionalCheckFailedException"
       ) {
-        throw new RepositoryError("User not found", "NOT_FOUND");
+        throw new RepositoryError("User not found");
       }
 
-      throw new RepositoryError(
-        "Failed to update user",
-        "UPDATE_FAILED",
-        error,
-      );
+      throw new RepositoryError("Failed to update user", error);
     }
   }
 }

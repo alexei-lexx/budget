@@ -16,7 +16,7 @@ export class DynTelegramBotRepository
 {
   async findOneConnectedByUserId(userId: string): Promise<TelegramBot | null> {
     if (!userId) {
-      throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
+      throw new RepositoryError("User ID is required");
     }
 
     try {
@@ -39,10 +39,7 @@ export class DynTelegramBotRepository
       }
 
       if (result.Items.length > 1) {
-        throw new RepositoryError(
-          "Multiple connected bots found for user",
-          "INTEGRITY_ERROR",
-        );
+        throw new RepositoryError("Multiple connected bots found for user");
       }
 
       return this.hydrate(telegramBotSchema, result.Items[0]);
@@ -53,11 +50,7 @@ export class DynTelegramBotRepository
         throw error;
       }
 
-      throw new RepositoryError(
-        "Failed to find telegram bot by userId",
-        "QUERY_FAILED",
-        error,
-      );
+      throw new RepositoryError("Failed to find telegram bot by userId", error);
     }
   }
 
@@ -65,10 +58,7 @@ export class DynTelegramBotRepository
     webhookSecret: string,
   ): Promise<TelegramBot | null> {
     if (!webhookSecret) {
-      throw new RepositoryError(
-        "Webhook secret is required",
-        "INVALID_PARAMETERS",
-      );
+      throw new RepositoryError("Webhook secret is required");
     }
 
     try {
@@ -94,7 +84,6 @@ export class DynTelegramBotRepository
       if (result.Items.length > 1) {
         throw new RepositoryError(
           "Multiple connected bots found for webhook secret",
-          "INTEGRITY_ERROR",
         );
       }
 
@@ -108,7 +97,6 @@ export class DynTelegramBotRepository
 
       throw new RepositoryError(
         "Failed to find telegram bot by webhookSecret",
-        "QUERY_FAILED",
         error,
       );
     }
@@ -137,11 +125,7 @@ export class DynTelegramBotRepository
       return bot;
     } catch (error) {
       console.error("Error creating telegram bot:", error);
-      throw new RepositoryError(
-        "Failed to create telegram bot",
-        "CREATE_FAILED",
-        error,
-      );
+      throw new RepositoryError("Failed to create telegram bot", error);
     }
   }
 
@@ -150,14 +134,11 @@ export class DynTelegramBotRepository
     input: UpdateTelegramBotInput,
   ): Promise<TelegramBot> {
     if (!id) {
-      throw new RepositoryError(
-        "Telegram bot ID is required",
-        "INVALID_PARAMETERS",
-      );
+      throw new RepositoryError("Telegram bot ID is required");
     }
 
     if (!userId) {
-      throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
+      throw new RepositoryError("User ID is required");
     }
 
     const now = new Date().toISOString();
@@ -198,17 +179,10 @@ export class DynTelegramBotRepository
         error instanceof Error &&
         error.name === "ConditionalCheckFailedException"
       ) {
-        throw new RepositoryError(
-          "Telegram bot not found or is archived",
-          "NOT_FOUND",
-        );
+        throw new RepositoryError("Telegram bot not found or is archived");
       }
 
-      throw new RepositoryError(
-        "Failed to update telegram bot",
-        "UPDATE_FAILED",
-        error,
-      );
+      throw new RepositoryError("Failed to update telegram bot", error);
     }
   }
 
@@ -220,14 +194,11 @@ export class DynTelegramBotRepository
     userId: string;
   }): Promise<TelegramBot> {
     if (!id) {
-      throw new RepositoryError(
-        "Telegram bot ID is required",
-        "INVALID_PARAMETERS",
-      );
+      throw new RepositoryError("Telegram bot ID is required");
     }
 
     if (!userId) {
-      throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
+      throw new RepositoryError("User ID is required");
     }
 
     const now = new Date().toISOString();
@@ -256,17 +227,10 @@ export class DynTelegramBotRepository
         error instanceof Error &&
         error.name === "ConditionalCheckFailedException"
       ) {
-        throw new RepositoryError(
-          "Telegram bot not found or already archived",
-          "NOT_FOUND",
-        );
+        throw new RepositoryError("Telegram bot not found or already archived");
       }
 
-      throw new RepositoryError(
-        "Failed to archive telegram bot",
-        "ARCHIVE_FAILED",
-        error,
-      );
+      throw new RepositoryError("Failed to archive telegram bot", error);
     }
   }
 }

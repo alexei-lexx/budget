@@ -207,7 +207,6 @@ describe("DynUserRepository", () => {
       // Act & Assert
       await expect(repository.findOneById("")).rejects.toMatchObject({
         message: "User ID is required",
-        code: "INVALID_PARAMETERS",
       });
     });
   });
@@ -365,7 +364,6 @@ describe("DynUserRepository", () => {
       // Act & Assert
       await expect(repository.update(user)).rejects.toMatchObject({
         message: "User not found",
-        code: "NOT_FOUND",
       });
     });
   });

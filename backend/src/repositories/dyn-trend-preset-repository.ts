@@ -11,7 +11,7 @@ export class DynTrendPresetRepository
 {
   async findManyByUserId(userId: string): Promise<TrendPreset[]> {
     if (!userId) {
-      throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
+      throw new RepositoryError("User ID is required");
     }
 
     try {
@@ -30,11 +30,7 @@ export class DynTrendPresetRepository
       return result.items.map((data) => TrendPreset.fromPersistence(data));
     } catch (error) {
       console.error("Error finding trend presets by user ID:", error);
-      throw new RepositoryError(
-        "Failed to find trend presets",
-        "QUERY_FAILED",
-        error,
-      );
+      throw new RepositoryError("Failed to find trend presets", error);
     }
   }
 
@@ -51,11 +47,7 @@ export class DynTrendPresetRepository
       await this.client.send(command);
     } catch (error) {
       console.error("Error creating trend preset:", error);
-      throw new RepositoryError(
-        "Failed to create trend preset",
-        "CREATE_FAILED",
-        error,
-      );
+      throw new RepositoryError("Failed to create trend preset", error);
     }
   }
 
@@ -67,14 +59,11 @@ export class DynTrendPresetRepository
     userId: string;
   }): Promise<void> {
     if (!id) {
-      throw new RepositoryError(
-        "Trend preset ID is required",
-        "INVALID_PARAMETERS",
-      );
+      throw new RepositoryError("Trend preset ID is required");
     }
 
     if (!userId) {
-      throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
+      throw new RepositoryError("User ID is required");
     }
 
     try {
@@ -86,11 +75,7 @@ export class DynTrendPresetRepository
       await this.client.send(command);
     } catch (error) {
       console.error("Error deleting trend preset:", error);
-      throw new RepositoryError(
-        "Failed to delete trend preset",
-        "DELETE_FAILED",
-        error,
-      );
+      throw new RepositoryError("Failed to delete trend preset", error);
     }
   }
 }

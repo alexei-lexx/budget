@@ -35,16 +35,10 @@ export class DynAtomicWriter implements AtomicWriter {
     dynamoClient?: DynamoDBClient;
   }) {
     if (!args.accountsTableName) {
-      throw new RepositoryError(
-        "accountsTableName is required",
-        "MISSING_TABLE_NAME",
-      );
+      throw new RepositoryError("accountsTableName is required");
     }
     if (!args.transactionsTableName) {
-      throw new RepositoryError(
-        "transactionsTableName is required",
-        "MISSING_TABLE_NAME",
-      );
+      throw new RepositoryError("transactionsTableName is required");
     }
     this.client = createDynamoDBDocumentClient(args.dynamoClient);
     this.accountsTableName = args.accountsTableName;
@@ -71,7 +65,7 @@ export class DynAtomicWriter implements AtomicWriter {
     ];
 
     if (transactItems.length === 0) {
-      throw new RepositoryError("Nothing to commit", "INVALID_PARAMETERS");
+      throw new RepositoryError("Nothing to commit");
     }
 
     try {
@@ -103,7 +97,6 @@ export class DynAtomicWriter implements AtomicWriter {
         if (hasFailure) {
           throw new RepositoryError(
             "Transaction or account row was missing or already existed",
-            "NOT_FOUND",
             error,
           );
         }
@@ -111,11 +104,7 @@ export class DynAtomicWriter implements AtomicWriter {
 
       console.error("LedgerWriter TransactWrite failed:", error);
 
-      throw new RepositoryError(
-        "Failed to apply ledger write",
-        "TRANSACT_WRITE_FAILED",
-        error,
-      );
+      throw new RepositoryError("Failed to apply ledger write", error);
     }
 
     const createdTransactions = transactionsToCreate;

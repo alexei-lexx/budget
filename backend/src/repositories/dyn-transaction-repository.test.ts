@@ -1776,7 +1776,6 @@ describe("DynTransactionRepository", () => {
 
       // Act & Assert
       await expect(repository.create(duplicate)).rejects.toMatchObject({
-        code: "CREATE_FAILED",
         message: "Transaction with this ID already exists",
       });
     });

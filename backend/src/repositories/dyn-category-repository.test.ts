@@ -514,7 +514,6 @@ describe("DynCategoryRepository", () => {
       await expect(
         repository.update(ghost.update({ name: "New Name" })),
       ).rejects.toMatchObject({
-        code: "NOT_FOUND",
         message: "Category not found",
       });
     });

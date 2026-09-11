@@ -19,7 +19,7 @@ export abstract class DynBaseRepository {
     protected readonly client: DynamoDBDocumentClient,
   ) {
     if (!tableName) {
-      throw new RepositoryError("tableName is required", "MISSING_TABLE_NAME");
+      throw new RepositoryError("tableName is required");
     }
 
     this.tableName = tableName;

@@ -1,7 +1,6 @@
 export class RepositoryError extends Error {
   constructor(
     message: string,
-    public code: string,
     public originalError?: unknown,
   ) {
     super(message);
@@ -11,7 +10,7 @@ export class RepositoryError extends Error {
 
 export class VersionConflictError extends RepositoryError {
   constructor(originalError?: unknown) {
-    super("Version conflict", "VERSION_CONFLICT", originalError);
+    super("Version conflict", originalError);
     this.name = "VersionConflictError";
   }
 }

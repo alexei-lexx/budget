@@ -47,18 +47,15 @@ export class DynChatMessageRepository
     const { userId, sessionId } = selector;
 
     if (!userId) {
-      throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
+      throw new RepositoryError("User ID is required");
     }
 
     if (!sessionId) {
-      throw new RepositoryError("Session ID is required", "INVALID_PARAMETERS");
+      throw new RepositoryError("Session ID is required");
     }
 
     if (!Number.isInteger(limit) || limit <= 0) {
-      throw new RepositoryError(
-        "Limit must be a positive integer",
-        "INVALID_PARAMETERS",
-      );
+      throw new RepositoryError("Limit must be a positive integer");
     }
 
     const prefix = `${sessionId}#`;
@@ -83,11 +80,7 @@ export class DynChatMessageRepository
       items = result.Items || [];
     } catch (error) {
       console.error("Error finding chat messages:", error);
-      throw new RepositoryError(
-        "Failed to find chat messages",
-        "QUERY_FAILED",
-        error,
-      );
+      throw new RepositoryError("Failed to find chat messages", error);
     }
 
     try {
@@ -96,11 +89,7 @@ export class DynChatMessageRepository
       );
     } catch (error) {
       console.error("Error hydrating chat messages:", error);
-      throw new RepositoryError(
-        "Failed to hydrate chat messages",
-        "QUERY_FAILED",
-        error,
-      );
+      throw new RepositoryError("Failed to hydrate chat messages", error);
     }
   }
 
@@ -108,11 +97,11 @@ export class DynChatMessageRepository
     const { userId, sessionId, role, content } = input;
 
     if (!userId) {
-      throw new RepositoryError("User ID is required", "INVALID_PARAMETERS");
+      throw new RepositoryError("User ID is required");
     }
 
     if (!sessionId) {
-      throw new RepositoryError("Session ID is required", "INVALID_PARAMETERS");
+      throw new RepositoryError("Session ID is required");
     }
 
     const now = new Date();
@@ -141,11 +130,7 @@ export class DynChatMessageRepository
       return chatMessage;
     } catch (error) {
       console.error("Error creating chat message:", error);
-      throw new RepositoryError(
-        "Failed to create chat message",
-        "CREATE_FAILED",
-        error,
-      );
+      throw new RepositoryError("Failed to create chat message", error);
     }
   }
 }
