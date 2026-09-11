@@ -1,5 +1,6 @@
 import { faker } from "@faker-js/faker";
 import { ChatMessage, ChatMessageRole } from "../../../models/chat-message";
+import { toDateTimeString } from "../../../types/date-time-string";
 
 export const fakeChatMessage = (
   overrides: Partial<ChatMessage> = {},
@@ -14,7 +15,7 @@ export const fakeChatMessage = (
       ChatMessageRole.USER,
     ]),
     content: faker.lorem.sentence(),
-    createdAt: now.toISOString(),
+    createdAt: toDateTimeString(now.toISOString()),
     expiresAt: Math.floor(faker.date.future().getTime() / 1000),
     ...overrides,
   };

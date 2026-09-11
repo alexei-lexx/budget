@@ -1,6 +1,7 @@
 import { faker } from "@faker-js/faker";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { toDateString } from "../types/date-string";
+import { toDateTimeString } from "../types/date-time-string";
 import { fakeAccount } from "../utils/test-utils/models/account-fakes";
 import { fakeCategory } from "../utils/test-utils/models/category-fakes";
 import {
@@ -645,7 +646,7 @@ describe("Transaction", () => {
         type: TransactionType.TRANSFER_OUT,
         categoryId: undefined,
         transferId: "transfer-1",
-        createdAt: "1999-01-01T00:00:00.000Z",
+        createdAt: toDateTimeString("1999-01-01T00:00:00.000Z"),
       });
 
       // Act

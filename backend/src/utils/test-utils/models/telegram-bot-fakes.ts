@@ -1,10 +1,11 @@
 import { faker } from "@faker-js/faker";
 import { TelegramBot, TelegramBotStatus } from "../../../models/telegram-bot";
+import { toDateTimeString } from "../../../types/date-time-string";
 
 export const fakeTelegramBot = (
   overrides: Partial<TelegramBot> = {},
 ): TelegramBot => {
-  const now = new Date().toISOString();
+  const now = toDateTimeString(new Date().toISOString());
   return {
     id: faker.string.uuid(),
     userId: faker.string.uuid(),

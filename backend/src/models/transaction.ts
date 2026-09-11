@@ -1,5 +1,6 @@
 import { randomUUID } from "crypto";
 import { DateString } from "../types/date-string";
+import { DateTimeString, toDateTimeString } from "../types/date-time-string";
 import { Account } from "./account";
 import { Category, CategoryType } from "./category";
 import { ModelError } from "./model-error";
@@ -33,8 +34,8 @@ export interface TransactionData {
   transferId?: string;
   isArchived: boolean;
   version: number;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: DateTimeString;
+  updatedAt: DateTimeString;
 }
 
 export class Transaction implements TransactionData {
@@ -50,15 +51,15 @@ export class Transaction implements TransactionData {
   readonly transferId?: string;
   readonly isArchived: boolean;
   readonly version: number;
-  readonly createdAt: string;
-  readonly updatedAt: string;
+  readonly createdAt: DateTimeString;
+  readonly updatedAt: DateTimeString;
 
   static create(
     input: CreateTransactionInput,
     { idGenerator = randomUUID }: { idGenerator?: () => string } = {},
   ): Transaction {
     const { account, category } = input;
-    const now = new Date().toISOString();
+    const now = toDateTimeString(new Date().toISOString());
 
     const data: TransactionData = {
       id: idGenerator(),
@@ -143,7 +144,7 @@ export class Transaction implements TransactionData {
     }
 
     const { account, category } = input;
-    const now = new Date().toISOString();
+    const now = toDateTimeString(new Date().toISOString());
 
     const newCategoryId =
       category === undefined // Keep existing category
@@ -182,7 +183,7 @@ export class Transaction implements TransactionData {
       throw new ModelError("Cannot archive archived transaction");
     }
 
-    const now = new Date().toISOString();
+    const now = toDateTimeString(new Date().toISOString());
 
     const data: TransactionData = {
       ...this.toData(),

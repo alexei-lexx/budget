@@ -2,6 +2,7 @@ import { z } from "zod";
 import type { TransactionData } from "../../models/transaction";
 import { TransactionType } from "../../models/transaction";
 import { toDateString } from "../../types/date-string";
+import { toDateTimeString } from "../../types/date-time-string";
 import { currencySchema } from "./currency";
 
 // Database item schema: adds createdAtSortable
@@ -18,8 +19,8 @@ export const transactionDbItemSchema = z.object({
   transferId: z.uuid().optional(),
   isArchived: z.boolean(),
   version: z.int().nonnegative(),
-  createdAt: z.iso.datetime(),
-  updatedAt: z.iso.datetime(),
+  createdAt: z.iso.datetime().transform(toDateTimeString),
+  updatedAt: z.iso.datetime().transform(toDateTimeString),
   createdAtSortable: z.string().min(1),
 }) satisfies z.ZodType<TransactionData & { createdAtSortable: string }>;
 

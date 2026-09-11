@@ -8,6 +8,7 @@ import {
   TransactionType,
 } from "../../../models/transaction";
 import { dateToDateString } from "../../../types/date-string";
+import { toDateTimeString } from "../../../types/date-time-string";
 import { fakeAccount } from "./account-fakes";
 
 /**
@@ -46,7 +47,7 @@ export const fakeTransaction = (
       ...overrides,
     };
   }
-  const now = new Date().toISOString();
+  const now = toDateTimeString(new Date().toISOString());
   const type = normalizedOverrides.type ?? TransactionType.EXPENSE;
   const isTransfer =
     type === TransactionType.TRANSFER_IN ||

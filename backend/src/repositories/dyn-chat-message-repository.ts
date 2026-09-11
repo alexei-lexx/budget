@@ -12,6 +12,7 @@ import {
   CreateChatMessageInput,
 } from "../ports/chat-message-repository";
 import { RepositoryError } from "../ports/repository-error";
+import { toDateTimeString } from "../types/date-time-string";
 import { DynBaseRepository } from "./dyn-base-repository";
 import { chatMessageDbItemSchema } from "./schemas/chat-message";
 
@@ -112,7 +113,7 @@ export class DynChatMessageRepository
       sessionId,
       role,
       content,
-      createdAt: now.toISOString(),
+      createdAt: toDateTimeString(now.toISOString()),
       expiresAt: Math.floor(now.getTime() / 1000) + this.ttlSeconds,
     };
 

@@ -1,5 +1,6 @@
 import { faker } from "@faker-js/faker";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { toDateTimeString } from "../types/date-time-string";
 import {
   fakeAccount,
   fakeCreateAccountInput,
@@ -245,7 +246,7 @@ describe("Account", () => {
         id: "id-1",
         userId: "user-1",
         version: 3,
-        createdAt: "1999-01-01T00:00:00.000Z",
+        createdAt: toDateTimeString("1999-01-01T00:00:00.000Z"),
       });
 
       // Act
