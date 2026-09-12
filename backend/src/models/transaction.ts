@@ -39,20 +39,63 @@ export interface TransactionData {
 }
 
 export class Transaction implements TransactionData {
-  readonly userId: string;
-  readonly id: string;
-  readonly accountId: string;
-  readonly categoryId?: string;
-  readonly type: TransactionType;
-  readonly amount: number;
-  readonly currency: string;
-  readonly date: DateString;
-  readonly description?: string;
-  readonly transferId?: string;
-  readonly isArchived: boolean;
-  readonly version: number;
-  readonly createdAt: DateTimeString;
-  readonly updatedAt: DateTimeString;
+  private readonly data: Readonly<TransactionData>;
+
+  get userId() {
+    return this.data.userId;
+  }
+
+  get id() {
+    return this.data.id;
+  }
+
+  get accountId() {
+    return this.data.accountId;
+  }
+
+  get categoryId() {
+    return this.data.categoryId;
+  }
+
+  get type() {
+    return this.data.type;
+  }
+
+  get amount() {
+    return this.data.amount;
+  }
+
+  get currency() {
+    return this.data.currency;
+  }
+
+  get date() {
+    return this.data.date;
+  }
+
+  get description() {
+    return this.data.description;
+  }
+
+  get transferId() {
+    return this.data.transferId;
+  }
+
+  get isArchived() {
+    return this.data.isArchived;
+  }
+
+  get version() {
+    return this.data.version;
+  }
+
+  get createdAt() {
+    return this.data.createdAt;
+  }
+
+  get updatedAt() {
+    return this.data.updatedAt;
+  }
 
   static create(
     input: CreateTransactionInput,
@@ -84,7 +127,7 @@ export class Transaction implements TransactionData {
     });
   }
 
-  static fromPersistence(data: TransactionData): Transaction {
+  static fromPersistence(data: Readonly<TransactionData>): Transaction {
     return new Transaction(data);
   }
 
@@ -100,22 +143,9 @@ export class Transaction implements TransactionData {
     }
   }
 
-  toData(): TransactionData {
+  toData(): Readonly<TransactionData> {
     return {
-      userId: this.userId,
-      id: this.id,
-      accountId: this.accountId,
-      categoryId: this.categoryId,
-      type: this.type,
-      amount: this.amount,
-      currency: this.currency,
-      date: this.date,
-      description: this.description,
-      transferId: this.transferId,
-      isArchived: this.isArchived,
-      version: this.version,
-      createdAt: this.createdAt,
-      updatedAt: this.updatedAt,
+      ...this.data,
     };
   }
 
@@ -129,7 +159,7 @@ export class Transaction implements TransactionData {
   bumpVersion(): Transaction {
     return new Transaction(
       {
-        ...this.toData(),
+        ...this.data,
         version: this.nextVersion(),
       },
       undefined,
@@ -161,7 +191,7 @@ export class Transaction implements TransactionData {
           : normalizeDescription(input.description);
 
     const data: TransactionData = {
-      ...this.toData(),
+      ...this.data,
       // Override account fields only when a new account is provided.
       ...(account && { accountId: account.id, currency: account.currency }),
       categoryId: newCategoryId,
@@ -186,7 +216,7 @@ export class Transaction implements TransactionData {
     const now = toDateTimeString(new Date().toISOString());
 
     const data: TransactionData = {
-      ...this.toData(),
+      ...this.data,
       isArchived: true,
       updatedAt: now,
     };
@@ -195,39 +225,26 @@ export class Transaction implements TransactionData {
   }
 
   private constructor(
-    data: TransactionData,
+    data: Readonly<TransactionData>,
     transientRelations?: { newAccount?: Account; newCategory?: Category },
     { skipInvariants = false }: { skipInvariants?: boolean } = {},
   ) {
-    if (!skipInvariants) {
-      Transaction.assertInvariants(data, transientRelations);
-    }
+    this.data = { ...data };
 
-    this.userId = data.userId;
-    this.id = data.id;
-    this.accountId = data.accountId;
-    this.categoryId = data.categoryId;
-    this.type = data.type;
-    this.amount = data.amount;
-    this.currency = data.currency;
-    this.date = data.date;
-    this.description = data.description;
-    this.transferId = data.transferId;
-    this.isArchived = data.isArchived;
-    this.version = data.version;
-    this.createdAt = data.createdAt;
-    this.updatedAt = data.updatedAt;
+    if (!skipInvariants) {
+      this.assertInvariants(transientRelations);
+    }
   }
 
-  private static assertInvariants(
-    data: TransactionData,
-    transientRelations?: { newAccount?: Account; newCategory?: Category },
-  ): void {
+  private assertInvariants(transientRelations?: {
+    newAccount?: Account;
+    newCategory?: Category;
+  }): void {
     const newAccount = transientRelations?.newAccount;
     const newCategory = transientRelations?.newCategory;
 
     if (newAccount) {
-      if (newAccount.userId !== data.userId) {
+      if (newAccount.userId !== this.userId) {
         throw new ModelError("Account does not belong to user");
       }
 
@@ -236,24 +253,24 @@ export class Transaction implements TransactionData {
       }
     }
 
-    if (data.amount <= 0) {
+    if (this.amount <= 0) {
       throw new ModelError("Amount must be positive");
     }
 
     const isTransfer =
-      data.type === TransactionType.TRANSFER_IN ||
-      data.type === TransactionType.TRANSFER_OUT;
+      this.type === TransactionType.TRANSFER_IN ||
+      this.type === TransactionType.TRANSFER_OUT;
 
-    if (isTransfer && data.categoryId) {
+    if (isTransfer && this.categoryId) {
       throw new ModelError("Transfer transactions cannot have a category");
     }
 
     if (isTransfer) {
-      if (!data.transferId) {
+      if (!this.transferId) {
         throw new ModelError("Transfer transactions must include transferId");
       }
     } else {
-      if (data.transferId) {
+      if (this.transferId) {
         throw new ModelError(
           "Only transfer transactions can include transferId",
         );
@@ -261,7 +278,7 @@ export class Transaction implements TransactionData {
     }
 
     if (newCategory) {
-      if (newCategory.userId !== data.userId) {
+      if (newCategory.userId !== this.userId) {
         throw new ModelError("Category does not belong to user");
       }
 
@@ -271,17 +288,17 @@ export class Transaction implements TransactionData {
 
       const typeMismatch =
         (newCategory.type === CategoryType.INCOME &&
-          data.type !== TransactionType.INCOME) ||
+          this.type !== TransactionType.INCOME) ||
         (newCategory.type === CategoryType.EXPENSE &&
-          data.type !== TransactionType.EXPENSE &&
-          data.type !== TransactionType.REFUND);
+          this.type !== TransactionType.EXPENSE &&
+          this.type !== TransactionType.REFUND);
 
       if (typeMismatch) {
         throw new ModelError("Category type does not match transaction type");
       }
     }
 
-    if (data.description && data.description.length > DESCRIPTION_MAX_LENGTH) {
+    if (this.description && this.description.length > DESCRIPTION_MAX_LENGTH) {
       throw new ModelError(
         `Description cannot exceed ${DESCRIPTION_MAX_LENGTH} characters`,
       );

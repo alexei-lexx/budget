@@ -217,8 +217,8 @@ describe("AccountService", () => {
       mockAccountRepository.findManyByUserId.mockResolvedValue([
         existingAccount,
       ]);
-      mockAccountRepository.update.mockImplementation(
-        async (account) => account,
+      mockAccountRepository.update.mockImplementation(async (account) =>
+        account.bumpVersion(),
       );
 
       // Act
@@ -247,8 +247,8 @@ describe("AccountService", () => {
       });
 
       mockAccountRepository.findOneById.mockResolvedValue(currentAccount);
-      mockAccountRepository.update.mockImplementation(
-        async (account) => account,
+      mockAccountRepository.update.mockImplementation(async (account) =>
+        account.bumpVersion(),
       );
 
       // Act
@@ -277,8 +277,8 @@ describe("AccountService", () => {
       mockTransactionRepository.hasTransactionsForAccount.mockResolvedValue(
         false,
       );
-      mockAccountRepository.update.mockImplementation(
-        async (account) => account,
+      mockAccountRepository.update.mockImplementation(async (account) =>
+        account.bumpVersion(),
       );
 
       // Act
@@ -442,8 +442,8 @@ describe("AccountService", () => {
       });
 
       mockAccountRepository.findOneById.mockResolvedValue(currentAccount);
-      mockAccountRepository.update.mockImplementation(
-        async (account) => account,
+      mockAccountRepository.update.mockImplementation(async (account) =>
+        account.bumpVersion(),
       );
 
       // Act
@@ -451,7 +451,9 @@ describe("AccountService", () => {
 
       // Assert
       expect(result.isArchived).toBe(true);
-      expect(mockAccountRepository.update).toHaveBeenCalledWith(result);
+      expect(mockAccountRepository.update).toHaveBeenCalledWith(
+        expect.objectContaining({ id: accountId, isArchived: true }),
+      );
     });
 
     // Validation failures

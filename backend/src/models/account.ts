@@ -21,16 +21,47 @@ export interface AccountData {
 }
 
 export class Account implements AccountData {
-  readonly userId: string;
-  readonly id: string;
-  readonly name: string;
-  readonly currency: string;
-  readonly initialBalance: number;
-  readonly transactionBalance: number;
-  readonly isArchived: boolean;
-  readonly version: number;
-  readonly createdAt: DateTimeString;
-  readonly updatedAt: DateTimeString;
+  private readonly data: Readonly<AccountData>;
+
+  get userId() {
+    return this.data.userId;
+  }
+
+  get id() {
+    return this.data.id;
+  }
+
+  get name() {
+    return this.data.name;
+  }
+
+  get currency() {
+    return this.data.currency;
+  }
+
+  get initialBalance() {
+    return this.data.initialBalance;
+  }
+
+  get transactionBalance() {
+    return this.data.transactionBalance;
+  }
+
+  get isArchived() {
+    return this.data.isArchived;
+  }
+
+  get version() {
+    return this.data.version;
+  }
+
+  get createdAt() {
+    return this.data.createdAt;
+  }
+
+  get updatedAt() {
+    return this.data.updatedAt;
+  }
 
   static create(
     input: CreateAccountInput,
@@ -54,7 +85,7 @@ export class Account implements AccountData {
     return new Account(data);
   }
 
-  static fromPersistence(data: AccountData): Account {
+  static fromPersistence(data: Readonly<AccountData>): Account {
     return new Account(data);
   }
 
@@ -62,18 +93,9 @@ export class Account implements AccountData {
     return this.initialBalance + this.transactionBalance;
   }
 
-  toData(): AccountData {
+  toData(): Readonly<AccountData> {
     return {
-      userId: this.userId,
-      id: this.id,
-      name: this.name,
-      currency: this.currency,
-      initialBalance: this.initialBalance,
-      transactionBalance: this.transactionBalance,
-      isArchived: this.isArchived,
-      version: this.version,
-      createdAt: this.createdAt,
-      updatedAt: this.updatedAt,
+      ...this.data,
     };
   }
 
@@ -86,7 +108,7 @@ export class Account implements AccountData {
 
   bumpVersion(): Account {
     const data: AccountData = {
-      ...this.toData(),
+      ...this.data,
       version: this.nextVersion(),
     };
 
@@ -105,7 +127,7 @@ export class Account implements AccountData {
     const now = toDateTimeString(new Date().toISOString());
 
     const data: AccountData = {
-      ...this.toData(),
+      ...this.data,
       name:
         input.name !== undefined ? normalizeAccountName(input.name) : this.name,
       currency: input.currency ?? this.currency,
@@ -124,7 +146,7 @@ export class Account implements AccountData {
     const now = toDateTimeString(new Date().toISOString());
 
     const data: AccountData = {
-      ...this.toData(),
+      ...this.data,
       isArchived: true,
       updatedAt: now,
     };
@@ -134,7 +156,7 @@ export class Account implements AccountData {
 
   increaseBalanceBySignedAmount(deltaAmount: number): Account {
     const data: AccountData = {
-      ...this.toData(),
+      ...this.data,
       transactionBalance: this.transactionBalance + deltaAmount,
       updatedAt: toDateTimeString(new Date().toISOString()),
     };
@@ -143,7 +165,7 @@ export class Account implements AccountData {
 
   decreaseBalanceBySignedAmount(deltaAmount: number): Account {
     const data: AccountData = {
-      ...this.toData(),
+      ...this.data,
       transactionBalance: this.transactionBalance - deltaAmount,
       updatedAt: toDateTimeString(new Date().toISOString()),
     };
@@ -151,35 +173,26 @@ export class Account implements AccountData {
   }
 
   private constructor(
-    data: AccountData,
+    data: Readonly<AccountData>,
     { skipInvariants = false }: { skipInvariants?: boolean } = {},
   ) {
-    if (!skipInvariants) {
-      Account.assertInvariants(data);
-    }
+    this.data = { ...data };
 
-    this.userId = data.userId;
-    this.id = data.id;
-    this.name = data.name;
-    this.currency = data.currency;
-    this.initialBalance = data.initialBalance;
-    this.transactionBalance = data.transactionBalance;
-    this.isArchived = data.isArchived;
-    this.version = data.version;
-    this.createdAt = data.createdAt;
-    this.updatedAt = data.updatedAt;
+    if (!skipInvariants) {
+      this.assertInvariants();
+    }
   }
 
-  private static assertInvariants(data: AccountData): void {
-    const trimmedLength = data.name.trim().length;
+  private assertInvariants(): void {
+    const trimmedLength = this.name.trim().length;
     if (trimmedLength < NAME_MIN_LENGTH || trimmedLength > NAME_MAX_LENGTH) {
       throw new ModelError(
         `Account name must be between ${NAME_MIN_LENGTH} and ${NAME_MAX_LENGTH} characters`,
       );
     }
 
-    if (!isSupportedCurrency(data.currency)) {
-      throw new ModelError(`Unsupported currency: ${data.currency}`);
+    if (!isSupportedCurrency(this.currency)) {
+      throw new ModelError(`Unsupported currency: ${this.currency}`);
     }
   }
 }

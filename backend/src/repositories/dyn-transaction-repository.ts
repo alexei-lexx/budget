@@ -118,7 +118,7 @@ function toTransaction(dbItem: TransactionDbItem): Transaction {
 
 // Transform Transaction to TransactionDbItem by adding createdAtSortable
 function toTransactionDbItemForCreate(
-  transaction: Transaction,
+  transaction: Readonly<Transaction>,
 ): TransactionDbItem {
   const data = transaction.toData();
   const dbItem: TransactionDbItem = {
@@ -130,7 +130,7 @@ function toTransactionDbItemForCreate(
   return dbItem;
 }
 
-function buildCreatedAtSortable(transaction: Transaction): string {
+function buildCreatedAtSortable(transaction: Readonly<Transaction>): string {
   return `${transaction.createdAt}#${ulid()}`;
 }
 

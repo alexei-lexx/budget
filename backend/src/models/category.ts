@@ -24,15 +24,43 @@ export interface CategoryData {
 }
 
 export class Category implements CategoryData {
-  readonly userId: string;
-  readonly id: string;
-  readonly name: string;
-  readonly type: CategoryType;
-  readonly excludeFromReports: boolean;
-  readonly isArchived: boolean;
-  readonly version: number;
-  readonly createdAt: DateTimeString;
-  readonly updatedAt: DateTimeString;
+  private readonly data: Readonly<CategoryData>;
+
+  get userId() {
+    return this.data.userId;
+  }
+
+  get id() {
+    return this.data.id;
+  }
+
+  get name() {
+    return this.data.name;
+  }
+
+  get type() {
+    return this.data.type;
+  }
+
+  get excludeFromReports() {
+    return this.data.excludeFromReports;
+  }
+
+  get isArchived() {
+    return this.data.isArchived;
+  }
+
+  get version() {
+    return this.data.version;
+  }
+
+  get createdAt() {
+    return this.data.createdAt;
+  }
+
+  get updatedAt() {
+    return this.data.updatedAt;
+  }
 
   static create(
     input: CreateCategoryInput,
@@ -55,21 +83,13 @@ export class Category implements CategoryData {
     return new Category(data);
   }
 
-  static fromPersistence(data: CategoryData): Category {
+  static fromPersistence(data: Readonly<CategoryData>): Category {
     return new Category(data);
   }
 
-  toData(): CategoryData {
+  toData(): Readonly<CategoryData> {
     return {
-      userId: this.userId,
-      id: this.id,
-      name: this.name,
-      type: this.type,
-      excludeFromReports: this.excludeFromReports,
-      isArchived: this.isArchived,
-      version: this.version,
-      createdAt: this.createdAt,
-      updatedAt: this.updatedAt,
+      ...this.data,
     };
   }
 
@@ -82,7 +102,7 @@ export class Category implements CategoryData {
 
   bumpVersion(): Category {
     const data: CategoryData = {
-      ...this.toData(),
+      ...this.data,
       version: this.nextVersion(),
     };
 
@@ -101,7 +121,7 @@ export class Category implements CategoryData {
     const now = toDateTimeString(new Date().toISOString());
 
     const data: CategoryData = {
-      ...this.toData(),
+      ...this.data,
       name:
         input.name !== undefined
           ? normalizeCategoryName(input.name)
@@ -122,7 +142,7 @@ export class Category implements CategoryData {
     const now = toDateTimeString(new Date().toISOString());
 
     const data: CategoryData = {
-      ...this.toData(),
+      ...this.data,
       isArchived: true,
       updatedAt: now,
     };
@@ -131,26 +151,18 @@ export class Category implements CategoryData {
   }
 
   private constructor(
-    data: CategoryData,
+    data: Readonly<CategoryData>,
     { skipInvariants = false }: { skipInvariants?: boolean } = {},
   ) {
-    if (!skipInvariants) {
-      Category.assertInvariants(data);
-    }
+    this.data = { ...data };
 
-    this.userId = data.userId;
-    this.id = data.id;
-    this.name = data.name;
-    this.type = data.type;
-    this.excludeFromReports = data.excludeFromReports;
-    this.isArchived = data.isArchived;
-    this.version = data.version;
-    this.createdAt = data.createdAt;
-    this.updatedAt = data.updatedAt;
+    if (!skipInvariants) {
+      this.assertInvariants();
+    }
   }
 
-  private static assertInvariants(data: CategoryData): void {
-    const trimmedLength = data.name.trim().length;
+  private assertInvariants(): void {
+    const trimmedLength = this.name.trim().length;
     if (trimmedLength < NAME_MIN_LENGTH || trimmedLength > NAME_MAX_LENGTH) {
       throw new ModelError(
         `Category name must be between ${NAME_MIN_LENGTH} and ${NAME_MAX_LENGTH} characters`,
