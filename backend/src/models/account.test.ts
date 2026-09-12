@@ -109,6 +109,14 @@ describe("Account", () => {
 
     // Validation failures
 
+    it("throws on invalid name", () => {
+      // Arrange
+      const data = { ...fakeAccount().toData(), name: "" };
+
+      // Act & Assert
+      expect(() => Account.fromPersistence(data)).toThrow(ModelError);
+    });
+
     it("throws on unsupported currency", () => {
       // Arrange
       const data = { ...fakeAccount().toData(), currency: "ZZZ" };
@@ -154,6 +162,18 @@ describe("Account", () => {
 
       // Act & Assert
       expect(account.toData()).toEqual(data);
+    });
+  });
+
+  describe("nextVersion", () => {
+    // Happy path
+
+    it("returns version incremented by 1", () => {
+      // Arrange
+      const account = fakeAccount({ version: 4 });
+
+      // Act & Assert
+      expect(account.nextVersion()).toBe(5);
     });
   });
 

@@ -125,6 +125,18 @@ describe("Category", () => {
     });
   });
 
+  describe("nextVersion", () => {
+    // Happy path
+
+    it("returns version incremented by 1", () => {
+      // Arrange
+      const category = fakeCategory({ version: 4 });
+
+      // Act & Assert
+      expect(category.nextVersion()).toBe(5);
+    });
+  });
+
   describe("bumpVersion", () => {
     // Happy path
 
