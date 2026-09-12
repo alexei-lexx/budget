@@ -504,6 +504,18 @@ describe("Transaction", () => {
     });
   });
 
+  describe("nextVersion", () => {
+    // Happy path
+
+    it("returns version plus 1", () => {
+      // Arrange
+      const tx = fakeTransaction({ version: 4 });
+
+      // Act & Assert
+      expect(tx.nextVersion()).toBe(5);
+    });
+  });
+
   describe("bumpVersion", () => {
     // Happy path
 
@@ -542,6 +554,41 @@ describe("Transaction", () => {
 
       // Assert
       expect(result.amount).toEqual(20);
+    });
+
+    it("sets type", () => {
+      // Arrange
+      const existing = fakeTransaction({ type: TransactionType.EXPENSE });
+
+      // Act
+      const result = existing.update({ type: TransactionType.INCOME });
+
+      // Assert
+      expect(result.type).toBe(TransactionType.INCOME);
+    });
+
+    it("sets date", () => {
+      // Arrange
+      const existing = fakeTransaction({ date: toDateString("2020-01-01") });
+
+      // Act
+      const result = existing.update({ date: toDateString("2021-06-15") });
+
+      // Assert
+      expect(result.date).toBe("2021-06-15");
+    });
+
+    it("keeps amount, type, and date when input is empty", () => {
+      // Arrange
+      const existing = fakeTransaction();
+
+      // Act
+      const result = existing.update({});
+
+      // Assert
+      expect(result.amount).toBe(existing.amount);
+      expect(result.type).toBe(existing.type);
+      expect(result.date).toBe(existing.date);
     });
 
     it("sets account and derives currency from new account", () => {
@@ -819,7 +866,7 @@ describe("Transaction", () => {
 
     it("throws when switching to transfer type without clearing category", () => {
       // Arrange — existing transaction has categoryId; switching type to
-      // transfer surfaces the category invariant first
+      // transfer surfaces category invariant first
       const existing = fakeTransaction({ type: TransactionType.EXPENSE });
 
       // Act & Assert

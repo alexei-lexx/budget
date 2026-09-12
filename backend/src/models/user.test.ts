@@ -253,11 +253,12 @@ describe("User", () => {
       expect(result.voiceInputLanguage).toBe("pl-PL");
     });
 
-    it("preserves id, email, createdAt", () => {
+    it("preserves id, email, mcpToken, createdAt", () => {
       // Arrange
       const existing = fakeUser({
         id: "id-1",
         email: "user@example.com",
+        mcpToken: "token-1",
         createdAt: toDateTimeString("1999-01-01T00:00:00.000Z"),
       });
 
@@ -267,6 +268,7 @@ describe("User", () => {
       // Assert
       expect(result.id).toBe("id-1");
       expect(result.email).toBe("user@example.com");
+      expect(result.mcpToken).toBe("token-1");
       expect(result.createdAt).toBe("1999-01-01T00:00:00.000Z");
     });
 
