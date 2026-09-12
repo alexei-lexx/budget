@@ -21,14 +21,37 @@ export interface UserData {
  * is an intentional exception to the constitution's soft-deletion rule.
  */
 export class User implements UserData {
-  readonly id: string;
-  readonly email: string;
-  readonly interfaceLanguage?: string;
-  readonly mcpToken: string;
-  readonly transactionPatternsLimit?: number;
-  readonly voiceInputLanguage?: string;
-  readonly createdAt: DateTimeString;
-  readonly updatedAt: DateTimeString;
+  get id() {
+    return this.data.id;
+  }
+
+  get email() {
+    return this.data.email;
+  }
+
+  get interfaceLanguage() {
+    return this.data.interfaceLanguage;
+  }
+
+  get mcpToken() {
+    return this.data.mcpToken;
+  }
+
+  get transactionPatternsLimit() {
+    return this.data.transactionPatternsLimit;
+  }
+
+  get voiceInputLanguage() {
+    return this.data.voiceInputLanguage;
+  }
+
+  get createdAt() {
+    return this.data.createdAt;
+  }
+
+  get updatedAt() {
+    return this.data.updatedAt;
+  }
 
   static create(
     input: CreateUserInput,
@@ -50,20 +73,13 @@ export class User implements UserData {
     return new User(data);
   }
 
-  static fromPersistence(data: UserData): User {
+  static fromPersistence(data: Readonly<UserData>): User {
     return new User(data);
   }
 
-  toData(): UserData {
+  toData(): Readonly<UserData> {
     return {
-      id: this.id,
-      email: this.email,
-      interfaceLanguage: this.interfaceLanguage,
-      mcpToken: this.mcpToken,
-      transactionPatternsLimit: this.transactionPatternsLimit,
-      voiceInputLanguage: this.voiceInputLanguage,
-      createdAt: this.createdAt,
-      updatedAt: this.updatedAt,
+      ...this.data,
     };
   }
 
@@ -71,7 +87,7 @@ export class User implements UserData {
     const now = toDateTimeString(new Date().toISOString());
 
     const data: UserData = {
-      ...this.toData(),
+      ...this.data,
       interfaceLanguage: input.interfaceLanguage ?? this.interfaceLanguage,
       transactionPatternsLimit:
         input.transactionPatternsLimit ?? this.transactionPatternsLimit,
@@ -88,7 +104,7 @@ export class User implements UserData {
     const now = toDateTimeString(new Date().toISOString());
 
     const data: UserData = {
-      ...this.toData(),
+      ...this.data,
       mcpToken: tokenGenerator(),
       updatedAt: now,
     };
@@ -96,45 +112,36 @@ export class User implements UserData {
     return new User(data);
   }
 
-  private constructor(data: UserData) {
-    User.assertInvariants(data);
-
-    this.id = data.id;
-    this.email = data.email;
-    this.interfaceLanguage = data.interfaceLanguage;
-    this.mcpToken = data.mcpToken;
-    this.transactionPatternsLimit = data.transactionPatternsLimit;
-    this.voiceInputLanguage = data.voiceInputLanguage;
-    this.createdAt = data.createdAt;
-    this.updatedAt = data.updatedAt;
+  private constructor(private readonly data: Readonly<UserData>) {
+    this.assertInvariants();
   }
 
-  private static assertInvariants(data: UserData): void {
-    if (data.email.length === 0) {
+  private assertInvariants(): void {
+    if (this.email.length === 0) {
       throw new ModelError("Email must be a non-empty string");
     }
 
-    if (!validateEmail(data.email)) {
-      throw new ModelError(`Invalid email: ${data.email}`);
+    if (!validateEmail(this.email)) {
+      throw new ModelError(`Invalid email: ${this.email}`);
     }
 
     if (
-      data.interfaceLanguage !== undefined &&
-      !isSupportedInterfaceLanguage(data.interfaceLanguage)
+      this.interfaceLanguage !== undefined &&
+      !isSupportedInterfaceLanguage(this.interfaceLanguage)
     ) {
       throw new ModelError(
-        `Unsupported interface language: ${data.interfaceLanguage}`,
+        `Unsupported interface language: ${this.interfaceLanguage}`,
       );
     }
 
-    if (data.mcpToken.length === 0) {
+    if (this.mcpToken.length === 0) {
       throw new ModelError("MCP token must be a non-empty string");
     }
 
     if (
-      data.transactionPatternsLimit !== undefined &&
-      (!Number.isInteger(data.transactionPatternsLimit) ||
-        data.transactionPatternsLimit < 0)
+      this.transactionPatternsLimit !== undefined &&
+      (!Number.isInteger(this.transactionPatternsLimit) ||
+        this.transactionPatternsLimit < 0)
     ) {
       throw new ModelError(
         "Transaction patterns limit must be a non-negative integer",

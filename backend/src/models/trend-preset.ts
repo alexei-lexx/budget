@@ -25,14 +25,37 @@ export interface TrendPresetData {
  * This is an intentional exception to the soft-deletion rule.
  */
 export class TrendPreset implements TrendPresetData {
-  readonly id: string;
-  readonly userId: string;
-  readonly periodUnit: TrendPeriodUnit;
-  readonly lookback: number;
-  readonly currency: string;
-  readonly categoryIds: string[];
-  readonly includeUncategorized?: true;
-  readonly createdAt: DateTimeString;
+  get id() {
+    return this.data.id;
+  }
+
+  get userId() {
+    return this.data.userId;
+  }
+
+  get periodUnit() {
+    return this.data.periodUnit;
+  }
+
+  get lookback() {
+    return this.data.lookback;
+  }
+
+  get currency() {
+    return this.data.currency;
+  }
+
+  get categoryIds() {
+    return this.data.categoryIds;
+  }
+
+  get includeUncategorized() {
+    return this.data.includeUncategorized;
+  }
+
+  get createdAt() {
+    return this.data.createdAt;
+  }
 
   static create(
     input: CreateTrendPresetInput,
@@ -52,48 +75,32 @@ export class TrendPreset implements TrendPresetData {
     return new TrendPreset(data);
   }
 
-  static fromPersistence(data: TrendPresetData): TrendPreset {
+  static fromPersistence(data: Readonly<TrendPresetData>): TrendPreset {
     return new TrendPreset(data);
   }
 
-  toData(): TrendPresetData {
+  toData(): Readonly<TrendPresetData> {
     return {
-      id: this.id,
-      userId: this.userId,
-      periodUnit: this.periodUnit,
-      lookback: this.lookback,
-      currency: this.currency,
-      categoryIds: this.categoryIds,
-      includeUncategorized: this.includeUncategorized,
-      createdAt: this.createdAt,
+      ...this.data,
     };
   }
 
-  private constructor(data: TrendPresetData) {
-    TrendPreset.assertInvariants(data);
-
-    this.id = data.id;
-    this.userId = data.userId;
-    this.periodUnit = data.periodUnit;
-    this.lookback = data.lookback;
-    this.currency = data.currency;
-    this.categoryIds = data.categoryIds;
-    this.includeUncategorized = data.includeUncategorized;
-    this.createdAt = data.createdAt;
+  private constructor(private readonly data: Readonly<TrendPresetData>) {
+    this.assertInvariants();
   }
 
-  private static assertInvariants(data: TrendPresetData): void {
+  private assertInvariants(): void {
     if (
-      !Number.isInteger(data.lookback) ||
-      data.lookback < LOOKBACK_MIN ||
-      data.lookback > LOOKBACK_MAX
+      !Number.isInteger(this.lookback) ||
+      this.lookback < LOOKBACK_MIN ||
+      this.lookback > LOOKBACK_MAX
     ) {
       throw new ModelError(
         `Lookback must be a whole number from ${LOOKBACK_MIN} to ${LOOKBACK_MAX}`,
       );
     }
 
-    if (data.currency.trim().length === 0) {
+    if (this.currency.trim().length === 0) {
       throw new ModelError("Currency must not be empty");
     }
   }

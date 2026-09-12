@@ -240,8 +240,8 @@ describe("CategoryService", () => {
       });
 
       mockCategoryRepository.findOneById.mockResolvedValue(existingCategory);
-      mockCategoryRepository.update.mockImplementation(
-        async (category) => category,
+      mockCategoryRepository.update.mockImplementation(async (category) =>
+        category.bumpVersion(),
       );
 
       // Act
@@ -272,8 +272,8 @@ describe("CategoryService", () => {
       const existingCategory = fakeCategory({ id: categoryId, userId });
 
       mockCategoryRepository.findOneById.mockResolvedValue(existingCategory);
-      mockCategoryRepository.update.mockImplementation(
-        async (category) => category,
+      mockCategoryRepository.update.mockImplementation(async (category) =>
+        category.bumpVersion(),
       );
 
       // Act
@@ -297,8 +297,8 @@ describe("CategoryService", () => {
       });
 
       mockCategoryRepository.findOneById.mockResolvedValue(currentCategory);
-      mockCategoryRepository.update.mockImplementation(
-        async (category) => category,
+      mockCategoryRepository.update.mockImplementation(async (category) =>
+        category.bumpVersion(),
       );
 
       // Act
@@ -426,8 +426,8 @@ describe("CategoryService", () => {
       });
 
       mockCategoryRepository.findOneById.mockResolvedValue(currentCategory);
-      mockCategoryRepository.update.mockImplementation(
-        async (category) => category,
+      mockCategoryRepository.update.mockImplementation(async (category) =>
+        category.bumpVersion(),
       );
 
       // Act
@@ -435,7 +435,9 @@ describe("CategoryService", () => {
 
       // Assert
       expect(result.isArchived).toBe(true);
-      expect(mockCategoryRepository.update).toHaveBeenCalledWith(result);
+      expect(mockCategoryRepository.update).toHaveBeenCalledWith(
+        expect.objectContaining({ id: categoryId, isArchived: true }),
+      );
     });
 
     // Validation failures
