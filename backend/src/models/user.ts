@@ -21,6 +21,8 @@ export interface UserData {
  * is an intentional exception to the constitution's soft-deletion rule.
  */
 export class User implements UserData {
+  private readonly data: Readonly<UserData>;
+
   get id() {
     return this.data.id;
   }
@@ -112,7 +114,8 @@ export class User implements UserData {
     return new User(data);
   }
 
-  private constructor(private readonly data: Readonly<UserData>) {
+  private constructor(data: Readonly<UserData>) {
+    this.data = { ...data };
     this.assertInvariants();
   }
 

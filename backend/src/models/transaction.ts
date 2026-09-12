@@ -39,6 +39,8 @@ export interface TransactionData {
 }
 
 export class Transaction implements TransactionData {
+  private readonly data: Readonly<TransactionData>;
+
   get userId() {
     return this.data.userId;
   }
@@ -223,10 +225,12 @@ export class Transaction implements TransactionData {
   }
 
   private constructor(
-    private readonly data: Readonly<TransactionData>,
+    data: Readonly<TransactionData>,
     transientRelations?: { newAccount?: Account; newCategory?: Category },
     { skipInvariants = false }: { skipInvariants?: boolean } = {},
   ) {
+    this.data = { ...data };
+
     if (!skipInvariants) {
       this.assertInvariants(transientRelations);
     }

@@ -24,6 +24,8 @@ export interface CategoryData {
 }
 
 export class Category implements CategoryData {
+  private readonly data: Readonly<CategoryData>;
+
   get userId() {
     return this.data.userId;
   }
@@ -149,9 +151,11 @@ export class Category implements CategoryData {
   }
 
   private constructor(
-    private readonly data: Readonly<CategoryData>,
+    data: Readonly<CategoryData>,
     { skipInvariants = false }: { skipInvariants?: boolean } = {},
   ) {
+    this.data = { ...data };
+
     if (!skipInvariants) {
       this.assertInvariants();
     }

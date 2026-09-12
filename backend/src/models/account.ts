@@ -21,6 +21,8 @@ export interface AccountData {
 }
 
 export class Account implements AccountData {
+  private readonly data: Readonly<AccountData>;
+
   get userId() {
     return this.data.userId;
   }
@@ -171,9 +173,11 @@ export class Account implements AccountData {
   }
 
   private constructor(
-    private readonly data: Readonly<AccountData>,
+    data: Readonly<AccountData>,
     { skipInvariants = false }: { skipInvariants?: boolean } = {},
   ) {
+    this.data = { ...data };
+
     if (!skipInvariants) {
       this.assertInvariants();
     }

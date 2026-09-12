@@ -25,6 +25,8 @@ export interface TrendPresetData {
  * This is an intentional exception to the soft-deletion rule.
  */
 export class TrendPreset implements TrendPresetData {
+  private readonly data: Readonly<TrendPresetData>;
+
   get id() {
     return this.data.id;
   }
@@ -85,7 +87,8 @@ export class TrendPreset implements TrendPresetData {
     };
   }
 
-  private constructor(private readonly data: Readonly<TrendPresetData>) {
+  private constructor(data: Readonly<TrendPresetData>) {
+    this.data = { ...data };
     this.assertInvariants();
   }
 
