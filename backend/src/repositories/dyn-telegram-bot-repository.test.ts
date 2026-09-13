@@ -4,7 +4,11 @@ import { TelegramBot, TelegramBotStatus } from "../models/telegram-bot";
 import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
 import { requireEnv } from "../utils/require-env";
 import { truncateTable } from "../utils/test-utils/dynamodb-helpers";
-import { fakeCreateTelegramBotInput } from "../utils/test-utils/models/telegram-bot-fakes";
+import {
+  fakeCreateTelegramBotInput,
+  fakeDeletingTelegramBot,
+  fakePendingTelegramBot,
+} from "../utils/test-utils/models/telegram-bot-fakes";
 import { DynTelegramBotRepository } from "./dyn-telegram-bot-repository";
 
 describe("DynTelegramBotRepository", () => {
@@ -70,9 +74,7 @@ describe("DynTelegramBotRepository", () => {
 
     it("does not return PENDING bot", async () => {
       // Arrange
-      const pending = TelegramBot.create(
-        fakeCreateTelegramBotInput({ userId }),
-      );
+      const pending = fakePendingTelegramBot({ userId });
       await repository.create(pending);
 
       // Act
@@ -84,12 +86,8 @@ describe("DynTelegramBotRepository", () => {
 
     it("does not return DELETING bot", async () => {
       // Arrange
-      const pending = TelegramBot.create(
-        fakeCreateTelegramBotInput({ userId }),
-      );
-      await repository.create(pending);
-      const connected = await repository.update(pending.connect());
-      await repository.update(connected.disconnect());
+      const bot = fakeDeletingTelegramBot({ userId });
+      await repository.create(bot);
 
       // Act
       const result = await repository.findOneConnectedByUserId(userId);
@@ -169,9 +167,7 @@ describe("DynTelegramBotRepository", () => {
 
     it("does not return PENDING bot", async () => {
       // Arrange
-      const pending = TelegramBot.create(
-        fakeCreateTelegramBotInput({ userId }),
-      );
+      const pending = fakePendingTelegramBot({ userId });
       await repository.create(pending);
 
       // Act
@@ -185,16 +181,12 @@ describe("DynTelegramBotRepository", () => {
 
     it("does not return DELETING bot", async () => {
       // Arrange
-      const pending = TelegramBot.create(
-        fakeCreateTelegramBotInput({ userId }),
-      );
-      await repository.create(pending);
-      const connected = await repository.update(pending.connect());
-      await repository.update(connected.disconnect());
+      const bot = fakeDeletingTelegramBot({ userId });
+      await repository.create(bot);
 
       // Act
       const result = await repository.findOneConnectedByWebhookSecret(
-        connected.webhookSecret,
+        bot.webhookSecret,
       );
 
       // Assert

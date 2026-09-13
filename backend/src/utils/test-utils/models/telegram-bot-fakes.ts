@@ -37,3 +37,18 @@ export const fakeCreateTelegramBotInput = (
     ...overrides,
   };
 };
+
+export const fakePendingTelegramBot = (
+  overrides: Partial<Omit<TelegramBotData, "status">> = {},
+): TelegramBot =>
+  fakeTelegramBot({ status: TelegramBotStatus.PENDING, ...overrides });
+
+export const fakeConnectedTelegramBot = (
+  overrides: Partial<Omit<TelegramBotData, "status">> = {},
+): TelegramBot =>
+  fakeTelegramBot({ status: TelegramBotStatus.CONNECTED, ...overrides });
+
+export const fakeDeletingTelegramBot = (
+  overrides: Partial<Omit<TelegramBotData, "status">> = {},
+): TelegramBot =>
+  fakeTelegramBot({ status: TelegramBotStatus.DELETING, ...overrides });

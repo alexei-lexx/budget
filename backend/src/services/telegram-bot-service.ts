@@ -90,6 +90,10 @@ export class TelegramBotService {
       return Failure("User ID is required");
     }
 
+    if (!token.trim()) {
+      return Failure("Bot token is required");
+    }
+
     const existingConnectedBot =
       await this.telegramBotRepository.findOneConnectedByUserId(userId);
 

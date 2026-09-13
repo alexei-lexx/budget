@@ -4,7 +4,7 @@ import { TelegramBot, TelegramBotStatus } from "../models/telegram-bot";
 import { BackgroundJobDispatcher } from "../ports/background-job-dispatcher";
 import { TelegramApiClient } from "../ports/telegram-api-client";
 import { TelegramBotRepository } from "../ports/telegram-bot-repository";
-import { fakeCreateTelegramBotInput } from "../utils/test-utils/models/telegram-bot-fakes";
+import { fakeConnectedTelegramBot } from "../utils/test-utils/models/telegram-bot-fakes";
 import { createMockBackgroundJobDispatcher } from "../utils/test-utils/providers/background-job-dispatcher-mocks";
 import { createMockTelegramApiClient } from "../utils/test-utils/providers/telegram-api-client-mocks";
 import { createMockTelegramBotRepository } from "../utils/test-utils/repositories/telegram-bot-repository-mocks";
@@ -50,9 +50,7 @@ describe("TelegramBotService", () => {
     it("returns masked bot when connected", async () => {
       // Arrange
       const userId = faker.string.uuid();
-      const bot = TelegramBot.create(
-        fakeCreateTelegramBotInput({ userId, token: "1234567890" }),
-      ).connect();
+      const bot = fakeConnectedTelegramBot({ userId, token: "1234567890" });
       // Connected bot exists for user
       telegramBotRepository.findOneConnectedByUserId.mockResolvedValue(bot);
 
@@ -76,9 +74,7 @@ describe("TelegramBotService", () => {
     it("returns success when webhook is registered", async () => {
       // Arrange
       const userId = faker.string.uuid();
-      const bot = TelegramBot.create(
-        fakeCreateTelegramBotInput({ userId }),
-      ).connect();
+      const bot = fakeConnectedTelegramBot({ userId });
       // Connected bot exists for user
       telegramBotRepository.findOneConnectedByUserId.mockResolvedValue(bot);
       // Webhook registered at expected URL
@@ -99,9 +95,7 @@ describe("TelegramBotService", () => {
     it("returns failure when webhook URL does not match", async () => {
       // Arrange
       const userId = faker.string.uuid();
-      const bot = TelegramBot.create(
-        fakeCreateTelegramBotInput({ userId }),
-      ).connect();
+      const bot = fakeConnectedTelegramBot({ userId });
       telegramBotRepository.findOneConnectedByUserId.mockResolvedValue(bot);
       // Webhook registered at unexpected URL
       telegramApiClient.getWebhookInfo.mockResolvedValue({
@@ -140,9 +134,7 @@ describe("TelegramBotService", () => {
     it("returns failure when getWebhookInfo fails", async () => {
       // Arrange
       const userId = faker.string.uuid();
-      const bot = TelegramBot.create(
-        fakeCreateTelegramBotInput({ userId }),
-      ).connect();
+      const bot = fakeConnectedTelegramBot({ userId });
       telegramBotRepository.findOneConnectedByUserId.mockResolvedValue(bot);
       // Telegram API unreachable
       telegramApiClient.getWebhookInfo.mockResolvedValue({
@@ -212,9 +204,7 @@ describe("TelegramBotService", () => {
     it("returns failure when bot is already connected", async () => {
       // Arrange
       const userId = faker.string.uuid();
-      const existingBot = TelegramBot.create(
-        fakeCreateTelegramBotInput({ userId }),
-      ).connect();
+      const existingBot = fakeConnectedTelegramBot({ userId });
       // Connected bot already exists for user
       telegramBotRepository.findOneConnectedByUserId.mockResolvedValue(
         existingBot,
@@ -242,14 +232,18 @@ describe("TelegramBotService", () => {
       });
     });
 
-    it("throws when token is empty", async () => {
+    it("returns failure when token is empty", async () => {
       // Arrange
       const userId = faker.string.uuid();
 
-      // Act & Assert
-      await expect(service.connect(userId, "")).rejects.toThrow(
-        "Telegram bot token is required",
-      );
+      // Act
+      const result = await service.connect(userId, "");
+
+      // Assert
+      expect(result).toEqual({
+        success: false,
+        error: "Bot token is required",
+      });
     });
 
     // Dependency failures
@@ -288,9 +282,7 @@ describe("TelegramBotService", () => {
     it("marks as DELETING, deletes webhook, and archives bot", async () => {
       // Arrange
       const userId = faker.string.uuid();
-      const bot = TelegramBot.create(
-        fakeCreateTelegramBotInput({ userId }),
-      ).connect();
+      const bot = fakeConnectedTelegramBot({ userId });
       // Connected bot exists for user
       telegramBotRepository.findOneConnectedByUserId.mockResolvedValue(bot);
       // Echoes back whatever bot state is passed in
@@ -340,9 +332,7 @@ describe("TelegramBotService", () => {
     it("still archives when deleteWebhook fails", async () => {
       // Arrange
       const userId = faker.string.uuid();
-      const bot = TelegramBot.create(
-        fakeCreateTelegramBotInput({ userId }),
-      ).connect();
+      const bot = fakeConnectedTelegramBot({ userId });
       telegramBotRepository.findOneConnectedByUserId.mockResolvedValue(bot);
       telegramBotRepository.update.mockImplementation((updated) =>
         Promise.resolve(TelegramBot.fromPersistence(updated.toData())),
@@ -370,7 +360,7 @@ describe("TelegramBotService", () => {
     it("dispatches background job", async () => {
       // Arrange
       const webhookSecret = faker.string.uuid();
-      const bot = TelegramBot.create(fakeCreateTelegramBotInput()).connect();
+      const bot = fakeConnectedTelegramBot();
       // Connected bot matches webhook secret
       telegramBotRepository.findOneConnectedByWebhookSecret.mockResolvedValue(
         bot,
