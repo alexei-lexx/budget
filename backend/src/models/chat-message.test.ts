@@ -62,21 +62,21 @@ describe("ChatMessage", () => {
       // Act & Assert
       expect(() =>
         ChatMessage.create(fakeCreateChatMessageInput({ sessionId: "" })),
-      ).toThrow(ModelError);
+      ).toThrow(new ModelError("Chat message session ID is required"));
     });
 
     it("throws when content is empty", () => {
       // Act & Assert
       expect(() =>
         ChatMessage.create(fakeCreateChatMessageInput({ content: "" })),
-      ).toThrow(ModelError);
+      ).toThrow(new ModelError("Chat message content is required"));
     });
 
     it("throws when ttlSeconds is not positive", () => {
       // Act & Assert
       expect(() =>
         ChatMessage.create(fakeCreateChatMessageInput({ ttlSeconds: 0 })),
-      ).toThrow(ModelError);
+      ).toThrow(new ModelError("Chat message must expire after it is created"));
     });
   });
 
@@ -101,7 +101,9 @@ describe("ChatMessage", () => {
       const data = { ...fakeChatMessage().toData(), sessionId: "" };
 
       // Act & Assert
-      expect(() => ChatMessage.fromPersistence(data)).toThrow(ModelError);
+      expect(() => ChatMessage.fromPersistence(data)).toThrow(
+        new ModelError("Chat message session ID is required"),
+      );
     });
 
     it("throws when content is empty", () => {
@@ -109,7 +111,9 @@ describe("ChatMessage", () => {
       const data = { ...fakeChatMessage().toData(), content: "" };
 
       // Act & Assert
-      expect(() => ChatMessage.fromPersistence(data)).toThrow(ModelError);
+      expect(() => ChatMessage.fromPersistence(data)).toThrow(
+        new ModelError("Chat message content is required"),
+      );
     });
 
     it("throws when expiresAt is not after createdAt", () => {
@@ -122,7 +126,9 @@ describe("ChatMessage", () => {
       };
 
       // Act & Assert
-      expect(() => ChatMessage.fromPersistence(data)).toThrow(ModelError);
+      expect(() => ChatMessage.fromPersistence(data)).toThrow(
+        new ModelError("Chat message must expire after it is created"),
+      );
     });
   });
 

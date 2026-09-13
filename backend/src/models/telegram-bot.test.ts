@@ -75,7 +75,7 @@ describe("TelegramBot", () => {
       // Act & Assert
       expect(() =>
         TelegramBot.create(fakeCreateTelegramBotInput({ token: "  " })),
-      ).toThrow(ModelError);
+      ).toThrow(new ModelError("Telegram bot token is required"));
     });
   });
 
@@ -100,7 +100,9 @@ describe("TelegramBot", () => {
       const data = { ...fakeTelegramBot().toData(), token: "" };
 
       // Act & Assert
-      expect(() => TelegramBot.fromPersistence(data)).toThrow(ModelError);
+      expect(() => TelegramBot.fromPersistence(data)).toThrow(
+        new ModelError("Telegram bot token is required"),
+      );
     });
 
     it("throws when webhook secret is empty", () => {
@@ -108,7 +110,9 @@ describe("TelegramBot", () => {
       const data = { ...fakeTelegramBot().toData(), webhookSecret: "" };
 
       // Act & Assert
-      expect(() => TelegramBot.fromPersistence(data)).toThrow(ModelError);
+      expect(() => TelegramBot.fromPersistence(data)).toThrow(
+        new ModelError("Telegram bot webhook secret is required"),
+      );
     });
   });
 
