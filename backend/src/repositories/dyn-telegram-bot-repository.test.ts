@@ -1,6 +1,6 @@
 import { faker } from "@faker-js/faker";
 import { beforeAll, beforeEach, describe, expect, it } from "vitest";
-import { TelegramBot, TelegramBotStatus } from "../models/telegram-bot";
+import { TelegramBot } from "../models/telegram-bot";
 import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
 import { requireEnv } from "../utils/require-env";
 import { truncateTable } from "../utils/test-utils/dynamodb-helpers";
@@ -244,7 +244,7 @@ describe("DynTelegramBotRepository", () => {
 
       // Assert
       expect(updated.id).toBe(created.id);
-      expect(updated.status).toBe(TelegramBotStatus.CONNECTED);
+      expect(updated.status).toBe("CONNECTED");
     });
 
     // Validation failures

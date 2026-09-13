@@ -2,14 +2,15 @@ import { randomUUID } from "crypto";
 import { DateTimeString, toDateTimeString } from "../types/date-time-string";
 import { ModelError } from "./model-error";
 
-export enum TelegramBotStatus {
+export const TELEGRAM_BOT_STATUSES = [
   /** Webhook registration in progress; not yet usable */
-  PENDING = "PENDING",
+  "PENDING",
   /** Webhook registered and active; receives inbound messages */
-  CONNECTED = "CONNECTED",
+  "CONNECTED",
   /** Disconnect requested; webhook being removed */
-  DELETING = "DELETING",
-}
+  "DELETING",
+] as const;
+export type TelegramBotStatus = (typeof TELEGRAM_BOT_STATUSES)[number];
 
 // Plain data shape.
 export interface TelegramBotData {
@@ -75,7 +76,7 @@ export class TelegramBot implements TelegramBotData {
       userId: input.userId,
       token: input.token.trim(),
       webhookSecret: webhookSecretGenerator(),
-      status: TelegramBotStatus.PENDING,
+      status: "PENDING",
       isArchived: false,
       createdAt: now,
       updatedAt: now,
@@ -95,13 +96,13 @@ export class TelegramBot implements TelegramBotData {
   }
 
   connect(): TelegramBot {
-    if (this.status !== TelegramBotStatus.PENDING) {
+    if (this.status !== "PENDING") {
       throw new ModelError("Cannot connect bot that is not pending");
     }
 
     const data: TelegramBotData = {
       ...this.data,
-      status: TelegramBotStatus.CONNECTED,
+      status: "CONNECTED",
       updatedAt: toDateTimeString(new Date().toISOString()),
     };
 
@@ -109,13 +110,13 @@ export class TelegramBot implements TelegramBotData {
   }
 
   disconnect(): TelegramBot {
-    if (this.status !== TelegramBotStatus.CONNECTED) {
+    if (this.status !== "CONNECTED") {
       throw new ModelError("Cannot disconnect bot that is not connected");
     }
 
     const data: TelegramBotData = {
       ...this.data,
-      status: TelegramBotStatus.DELETING,
+      status: "DELETING",
       updatedAt: toDateTimeString(new Date().toISOString()),
     };
 
