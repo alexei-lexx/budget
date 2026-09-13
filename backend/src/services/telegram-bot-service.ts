@@ -90,7 +90,9 @@ export class TelegramBotService {
       return Failure("User ID is required");
     }
 
-    if (!token.trim()) {
+    const trimmedToken = token.trim();
+
+    if (!trimmedToken) {
       return Failure("Bot token is required");
     }
 
@@ -102,7 +104,7 @@ export class TelegramBotService {
     }
 
     // Create a PENDING record first
-    const bot = TelegramBot.create({ userId, token });
+    const bot = TelegramBot.create({ userId, token: trimmedToken });
     await this.telegramBotRepository.create(bot);
 
     const setWebhookResult = await this.telegramApiClient.setWebhook({
