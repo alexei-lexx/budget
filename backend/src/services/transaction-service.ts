@@ -1,5 +1,5 @@
 import { Account } from "../models/account";
-import { Category, CategoryType } from "../models/category";
+import { Category } from "../models/category";
 import {
   NonTransferTransactionType,
   Transaction,
@@ -425,9 +425,7 @@ export class TransactionServiceImpl implements TransactionService {
       // Validate that category type matches transaction type
       // REFUND and EXPENSE both use expense categories
       const expectedCategoryType =
-        type === TransactionPatternType.INCOME
-          ? CategoryType.INCOME
-          : CategoryType.EXPENSE;
+        type === TransactionPatternType.INCOME ? "INCOME" : "EXPENSE";
       if (category.type !== expectedCategoryType) {
         // Skip pattern if category type doesn't match
         continue;
@@ -575,9 +573,9 @@ export class TransactionServiceImpl implements TransactionService {
     }
 
     const typeMismatch =
-      (category.type === CategoryType.INCOME &&
+      (category.type === "INCOME" &&
         transactionType !== TransactionType.INCOME) ||
-      (category.type === CategoryType.EXPENSE &&
+      (category.type === "EXPENSE" &&
         transactionType !== TransactionType.EXPENSE &&
         transactionType !== TransactionType.REFUND);
 

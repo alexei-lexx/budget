@@ -1,7 +1,6 @@
 import { UpdateCommand } from "@aws-sdk/lib-dynamodb";
 import { faker } from "@faker-js/faker";
 import { beforeAll, beforeEach, describe, expect, it } from "vitest";
-import { CategoryType } from "../models/category";
 import {
   RepositoryError,
   VersionConflictError,
@@ -38,28 +37,28 @@ describe("DynCategoryRepository", () => {
         fakeCategory({
           userId,
           name: "Zebra",
-          type: CategoryType.EXPENSE,
+          type: "EXPENSE",
         }),
       );
       await repository.create(
         fakeCategory({
           userId,
           name: "Apple",
-          type: CategoryType.INCOME,
+          type: "INCOME",
         }),
       );
       await repository.create(
         fakeCategory({
           userId,
           name: "Banana",
-          type: CategoryType.EXPENSE,
+          type: "EXPENSE",
         }),
       );
       await repository.create(
         fakeCategory({
           userId,
           name: "Salary",
-          type: CategoryType.INCOME,
+          type: "INCOME",
         }),
       );
 
@@ -81,28 +80,28 @@ describe("DynCategoryRepository", () => {
         fakeCategory({
           userId,
           name: "travel",
-          type: CategoryType.EXPENSE,
+          type: "EXPENSE",
         }),
       );
       await repository.create(
         fakeCategory({
           userId,
           name: "apple",
-          type: CategoryType.EXPENSE,
+          type: "EXPENSE",
         }),
       );
       await repository.create(
         fakeCategory({
           userId,
           name: "Trip",
-          type: CategoryType.EXPENSE,
+          type: "EXPENSE",
         }),
       );
       await repository.create(
         fakeCategory({
           userId,
           name: "ZEBRA",
-          type: CategoryType.EXPENSE,
+          type: "EXPENSE",
         }),
       );
 
@@ -124,21 +123,21 @@ describe("DynCategoryRepository", () => {
         fakeCategory({
           userId,
           name: "Travel",
-          type: CategoryType.EXPENSE,
+          type: "EXPENSE",
         }),
       );
       await repository.create(
         fakeCategory({
           userId,
           name: "401k Contribution",
-          type: CategoryType.EXPENSE,
+          type: "EXPENSE",
         }),
       );
       await repository.create(
         fakeCategory({
           userId,
           name: "Savings",
-          type: CategoryType.EXPENSE,
+          type: "EXPENSE",
         }),
       );
 
@@ -175,34 +174,34 @@ describe("DynCategoryRepository", () => {
         fakeCategory({
           userId,
           name: "Groceries",
-          type: CategoryType.EXPENSE,
+          type: "EXPENSE",
         }),
       );
       await repository.create(
         fakeCategory({
           userId,
           name: "Salary",
-          type: CategoryType.INCOME,
+          type: "INCOME",
         }),
       );
       await repository.create(
         fakeCategory({
           userId,
           name: "Utilities",
-          type: CategoryType.EXPENSE,
+          type: "EXPENSE",
         }),
       );
       await repository.create(
         fakeCategory({
           userId,
           name: "Bonus",
-          type: CategoryType.INCOME,
+          type: "INCOME",
         }),
       );
 
       // Act
       const result = await repository.findManyByUserId(userId, {
-        type: CategoryType.EXPENSE,
+        type: "EXPENSE",
       });
 
       // Assert
@@ -211,9 +210,9 @@ describe("DynCategoryRepository", () => {
         "Groceries",
         "Utilities",
       ]);
-      expect(
-        result.every((category) => category.type === CategoryType.EXPENSE),
-      ).toBe(true);
+      expect(result.every((category) => category.type === "EXPENSE")).toBe(
+        true,
+      );
     });
   });
 
@@ -222,13 +221,13 @@ describe("DynCategoryRepository", () => {
       // Arrange
       const activeCategory = fakeCategory({
         userId,
-        type: CategoryType.EXPENSE,
+        type: "EXPENSE",
       });
       await repository.create(activeCategory);
 
       const categoryToArchive = fakeCategory({
         userId,
-        type: CategoryType.INCOME,
+        type: "INCOME",
       });
       await repository.create(categoryToArchive);
       const archivedCategory = await repository.update(
@@ -250,12 +249,12 @@ describe("DynCategoryRepository", () => {
       // Arrange
       const expenseCategory = fakeCategory({
         userId,
-        type: CategoryType.EXPENSE,
+        type: "EXPENSE",
       });
       await repository.create(expenseCategory);
       const incomeCategory = fakeCategory({
         userId,
-        type: CategoryType.INCOME,
+        type: "INCOME",
       });
       await repository.create(incomeCategory);
 
@@ -412,16 +411,16 @@ describe("DynCategoryRepository", () => {
 
     it("updates category type successfully", async () => {
       // Arrange
-      const category = fakeCategory({ userId, type: CategoryType.EXPENSE });
+      const category = fakeCategory({ userId, type: "EXPENSE" });
       await repository.create(category);
 
       // Act
       const result = await repository.update(
-        category.update({ type: CategoryType.INCOME }),
+        category.update({ type: "INCOME" }),
       );
 
       // Assert
-      expect(result.type).toBe(CategoryType.INCOME);
+      expect(result.type).toBe("INCOME");
       expect(result.updatedAt).not.toBe(category.updatedAt);
       expect(result.version).toBe(category.version + 1);
     });
@@ -447,13 +446,13 @@ describe("DynCategoryRepository", () => {
       const category = fakeCategory({
         userId,
         name: "Old Name",
-        type: CategoryType.EXPENSE,
+        type: "EXPENSE",
         excludeFromReports: false,
       });
       await repository.create(category);
 
       const newName = "New Name";
-      const newType = CategoryType.INCOME;
+      const newType = "INCOME";
       const newExcludeFromReports = true;
 
       // Act

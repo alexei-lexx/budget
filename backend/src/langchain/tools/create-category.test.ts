@@ -1,6 +1,5 @@
 import { faker } from "@faker-js/faker";
 import { type Mocked, beforeEach, describe, expect, it } from "vitest";
-import { CategoryType } from "../../models/category";
 import { BusinessError } from "../../services/business-error";
 import { CategoryService } from "../../services/category-service";
 import { fakeCategory } from "../../utils/test-utils/models/category-fakes";
@@ -41,8 +40,8 @@ describe("createCreateCategoryTool", () => {
 
     const input = {
       name: "Groceries",
-      type: CategoryType.EXPENSE,
-    };
+      type: "EXPENSE",
+    } as const;
 
     // Act
     const result = await createTool.invoke(input, { context: { userId } });
@@ -56,7 +55,7 @@ describe("createCreateCategoryTool", () => {
     expect(mockCategoryService.createCategory).toHaveBeenCalledWith({
       userId,
       name: "Groceries",
-      type: CategoryType.EXPENSE,
+      type: "EXPENSE",
       excludeFromReports: false,
     });
   });
@@ -74,9 +73,9 @@ describe("createCreateCategoryTool", () => {
 
     const input = {
       name: "Internal Transfers",
-      type: CategoryType.EXPENSE,
+      type: "EXPENSE",
       excludeFromReports: true,
-    };
+    } as const;
 
     // Act
     const result = await createTool.invoke(input, { context: { userId } });
@@ -90,7 +89,7 @@ describe("createCreateCategoryTool", () => {
     expect(mockCategoryService.createCategory).toHaveBeenCalledWith({
       userId,
       name: "Internal Transfers",
-      type: CategoryType.EXPENSE,
+      type: "EXPENSE",
       excludeFromReports: true,
     });
   });
@@ -105,8 +104,8 @@ describe("createCreateCategoryTool", () => {
 
     const input = {
       name: "Groceries",
-      type: CategoryType.EXPENSE,
-    };
+      type: "EXPENSE",
+    } as const;
 
     // Act & Assert
     await expect(
@@ -130,8 +129,8 @@ describe("createCreateCategoryTool", () => {
 
     const input = {
       name: "Groceries",
-      type: CategoryType.EXPENSE,
-    };
+      type: "EXPENSE",
+    } as const;
 
     // Act & Assert
     await expect(

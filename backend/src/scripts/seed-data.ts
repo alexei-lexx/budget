@@ -9,7 +9,7 @@ import {
   resolveUserRepository,
 } from "../dependencies";
 import { Account } from "../models/account";
-import { Category, CategoryType } from "../models/category";
+import { Category } from "../models/category";
 import { TransactionType } from "../models/transaction";
 import { toDateString } from "../types/date-string";
 import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
@@ -130,7 +130,7 @@ async function createCategories(userId: string): Promise<{
     const category = Category.create({
       userId,
       name,
-      type: CategoryType.INCOME,
+      type: "INCOME",
       excludeFromReports: false,
     });
     await categoryRepository.create(category);
@@ -143,7 +143,7 @@ async function createCategories(userId: string): Promise<{
     const category = Category.create({
       userId,
       name,
-      type: CategoryType.EXPENSE,
+      type: "EXPENSE",
       excludeFromReports: false,
     });
     await categoryRepository.create(category);

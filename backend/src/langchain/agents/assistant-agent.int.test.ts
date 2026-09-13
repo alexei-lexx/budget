@@ -11,7 +11,6 @@ import {
   resolveTransactionService,
   resolveUserRepository,
 } from "../../dependencies";
-import { CategoryType } from "../../models/category";
 import { createDynamoDBDocumentClient } from "../../utils/dynamo-client";
 import { truncateAllTables } from "../../utils/test-utils/dynamodb-helpers";
 import { fakeAccount } from "../../utils/test-utils/models/account-fakes";
@@ -175,7 +174,7 @@ describe("AssistantAgent (integration)", () => {
     await categoryRepository.create(
       fakeCategory({
         userId,
-        type: CategoryType.EXPENSE,
+        type: "EXPENSE",
         name: "Groceries",
       }),
     );

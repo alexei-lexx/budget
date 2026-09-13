@@ -1,6 +1,5 @@
 import { faker } from "@faker-js/faker";
 import { type Mocked, beforeEach, describe, expect, it } from "vitest";
-import { CategoryType } from "../../models/category";
 import { CategoryService } from "../../services/category-service";
 import { fakeCategory } from "../../utils/test-utils/models/category-fakes";
 import { createMockCategoryService } from "../../utils/test-utils/services/category-service-mocks";
@@ -25,7 +24,7 @@ describe("updateCategory", () => {
     // Arrange
     const updated = fakeCategory({
       name: "Renamed Category",
-      type: CategoryType.INCOME,
+      type: "INCOME",
       excludeFromReports: true,
       isArchived: false,
     });
@@ -37,7 +36,7 @@ describe("updateCategory", () => {
       {
         id: updated.id,
         name: "Renamed Category",
-        type: CategoryType.INCOME,
+        type: "INCOME",
         excludeFromReports: true,
         guideTokens: [validGuideToken],
       },
@@ -50,7 +49,7 @@ describe("updateCategory", () => {
       data: {
         id: updated.id,
         name: "Renamed Category",
-        type: CategoryType.INCOME,
+        type: "INCOME",
         excludeFromReports: true,
         isArchived: false,
       },
@@ -60,7 +59,7 @@ describe("updateCategory", () => {
       userId,
       {
         name: "Renamed Category",
-        type: CategoryType.INCOME,
+        type: "INCOME",
         excludeFromReports: true,
       },
     );

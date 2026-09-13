@@ -5,7 +5,7 @@ import {
   fakeCategory,
   fakeCreateCategoryInput,
 } from "../utils/test-utils/models/category-fakes";
-import { Category, CategoryType, NAME_MAX_LENGTH } from "./category";
+import { Category, NAME_MAX_LENGTH } from "./category";
 import { ModelError } from "./model-error";
 
 describe("Category", () => {
@@ -26,7 +26,7 @@ describe("Category", () => {
       const input = fakeCreateCategoryInput({
         userId,
         name: "Groceries",
-        type: CategoryType.EXPENSE,
+        type: "EXPENSE",
         excludeFromReports: false,
       });
 
@@ -40,7 +40,7 @@ describe("Category", () => {
         id: "fixed-uuid",
         userId,
         name: "Groceries",
-        type: CategoryType.EXPENSE,
+        type: "EXPENSE",
         excludeFromReports: false,
         isArchived: false,
         version: 0,
@@ -179,14 +179,14 @@ describe("Category", () => {
 
     it("sets type", () => {
       // Arrange
-      const existing = fakeCategory({ type: CategoryType.EXPENSE });
+      const existing = fakeCategory({ type: "EXPENSE" });
 
       // Act
-      const result = existing.update({ type: CategoryType.INCOME });
+      const result = existing.update({ type: "INCOME" });
 
       // Assert
       // Preserves existing behavior: type changes are not blocked on update.
-      expect(result.type).toBe(CategoryType.INCOME);
+      expect(result.type).toBe("INCOME");
     });
 
     it("sets excludeFromReports", () => {

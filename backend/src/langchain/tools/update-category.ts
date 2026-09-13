@@ -1,7 +1,7 @@
 import { tool } from "langchain";
 import { z } from "zod";
 import {
-  CategoryType,
+  CATEGORY_TYPES,
   UpdateCategoryInput as UpdateCategoryServiceInput,
 } from "../../models/category";
 import { CategoryService } from "../../services/category-service";
@@ -19,12 +19,7 @@ const schema = z
         "New report-exclusion setting. Whether to exclude transactions in this category from financial reports.",
       ),
     name: z.string().optional().describe("New category name"),
-    type: z
-      .enum(CategoryType)
-      .optional()
-      .describe(
-        `New category type: ${CategoryType.INCOME} or ${CategoryType.EXPENSE}`,
-      ),
+    type: z.enum(CATEGORY_TYPES).optional().describe("New category type"),
   })
   .strict();
 

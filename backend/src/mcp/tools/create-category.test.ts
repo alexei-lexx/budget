@@ -1,6 +1,5 @@
 import { faker } from "@faker-js/faker";
 import { type Mocked, beforeEach, describe, expect, it } from "vitest";
-import { CategoryType } from "../../models/category";
 import { CategoryService } from "../../services/category-service";
 import { fakeCategory } from "../../utils/test-utils/models/category-fakes";
 import { createMockCategoryService } from "../../utils/test-utils/services/category-service-mocks";
@@ -25,7 +24,7 @@ describe("createCategory", () => {
     // Arrange
     const created = fakeCategory({
       name: "Groceries",
-      type: CategoryType.EXPENSE,
+      type: "EXPENSE",
       excludeFromReports: true,
       isArchived: false,
     });
@@ -36,7 +35,7 @@ describe("createCategory", () => {
     const result = await createCategory(
       {
         name: "Groceries",
-        type: CategoryType.EXPENSE,
+        type: "EXPENSE",
         excludeFromReports: true,
         guideTokens: [validGuideToken],
       },
@@ -49,7 +48,7 @@ describe("createCategory", () => {
       data: {
         id: created.id,
         name: "Groceries",
-        type: CategoryType.EXPENSE,
+        type: "EXPENSE",
         excludeFromReports: true,
         isArchived: false,
       },
@@ -57,7 +56,7 @@ describe("createCategory", () => {
     expect(mockCategoryService.createCategory).toHaveBeenCalledWith({
       userId,
       name: "Groceries",
-      type: CategoryType.EXPENSE,
+      type: "EXPENSE",
       excludeFromReports: true,
     });
   });
@@ -72,7 +71,7 @@ describe("createCategory", () => {
     await createCategory(
       {
         name: "Salary",
-        type: CategoryType.INCOME,
+        type: "INCOME",
         guideTokens: [validGuideToken],
       },
       deps,
@@ -82,7 +81,7 @@ describe("createCategory", () => {
     expect(mockCategoryService.createCategory).toHaveBeenCalledWith({
       userId,
       name: "Salary",
-      type: CategoryType.INCOME,
+      type: "INCOME",
       excludeFromReports: false,
     });
   });
@@ -92,7 +91,7 @@ describe("createCategory", () => {
   it("rejects without valid basics guide token and does not call service", async () => {
     // Act
     const result = await createCategory(
-      { name: "Salary", type: CategoryType.INCOME, guideTokens: [] },
+      { name: "Salary", type: "INCOME", guideTokens: [] },
       deps,
     );
 
@@ -108,7 +107,7 @@ describe("createCategory", () => {
   it("does not disclose valid guide token in rejection message", async () => {
     // Act
     const result = await createCategory(
-      { name: "Salary", type: CategoryType.INCOME, guideTokens: [] },
+      { name: "Salary", type: "INCOME", guideTokens: [] },
       deps,
     );
 
@@ -133,7 +132,7 @@ describe("createCategory", () => {
     const promise = createCategory(
       {
         name: "Salary",
-        type: CategoryType.INCOME,
+        type: "INCOME",
         guideTokens: [validGuideToken],
       },
       deps,

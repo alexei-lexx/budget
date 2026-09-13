@@ -1,6 +1,5 @@
 import { faker } from "@faker-js/faker";
 import { type Mocked, beforeEach, describe, expect, it } from "vitest";
-import { CategoryType } from "../models/category";
 import { ModelError } from "../models/model-error";
 import { TransactionPatternType, TransactionType } from "../models/transaction";
 import { AccountRepository } from "../ports/account-repository";
@@ -207,14 +206,14 @@ describe("TransactionService", () => {
         id: "category-1",
         userId,
         name: "Salary",
-        type: CategoryType.INCOME,
+        type: "INCOME",
       });
 
       const category2 = fakeCategory({
         id: "category-2",
         userId,
         name: "Freelance",
-        type: CategoryType.INCOME,
+        type: "INCOME",
       });
 
       // Returns raw patterns
@@ -275,7 +274,7 @@ describe("TransactionService", () => {
         id: "category-1",
         userId,
         name: "Salary",
-        type: CategoryType.INCOME,
+        type: "INCOME",
       });
 
       // Returns raw patterns
@@ -329,7 +328,7 @@ describe("TransactionService", () => {
         id: "category-1",
         userId,
         name: "Salary",
-        type: CategoryType.INCOME,
+        type: "INCOME",
       });
 
       // Returns raw patterns
@@ -385,14 +384,14 @@ describe("TransactionService", () => {
         id: "category-income",
         userId,
         name: "Salary",
-        type: CategoryType.INCOME,
+        type: "INCOME",
       });
 
       const expenseCategory = fakeCategory({
         id: "category-expense",
         userId,
         name: "Food",
-        type: CategoryType.EXPENSE, // Wrong type for INCOME transaction
+        type: "EXPENSE", // Wrong type for INCOME transaction
       });
 
       // Returns raw patterns
@@ -825,7 +824,7 @@ describe("TransactionService", () => {
     it("creates and returns transaction", async () => {
       // Arrange
       const account = fakeAccount({ userId, currency: "USD" });
-      const category = fakeCategory({ userId, type: CategoryType.EXPENSE });
+      const category = fakeCategory({ userId, type: "EXPENSE" });
       const input = fakeCreateTransactionServiceInput({
         accountId: account.id,
         amount: 42.5,
@@ -1030,7 +1029,7 @@ describe("TransactionService", () => {
         id: existingTransaction.accountId,
       });
       const newAccount = fakeAccount({ userId });
-      const newCategory = fakeCategory({ userId, type: CategoryType.EXPENSE });
+      const newCategory = fakeCategory({ userId, type: "EXPENSE" });
       const persistedTransaction = fakeTransaction();
       // Returns existing transaction
       mockTransactionRepository.findOneById.mockResolvedValue(

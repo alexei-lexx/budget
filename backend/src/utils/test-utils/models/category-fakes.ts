@@ -2,7 +2,6 @@ import { faker } from "@faker-js/faker";
 import {
   Category,
   CategoryData,
-  CategoryType,
   CreateCategoryInput,
 } from "../../../models/category";
 import { toDateTimeString } from "../../../types/date-time-string";
@@ -15,7 +14,7 @@ export const fakeCategory = (
     id: faker.string.uuid(),
     userId: faker.string.uuid(),
     name: faker.commerce.department(),
-    type: CategoryType.EXPENSE,
+    type: "EXPENSE",
     excludeFromReports: false,
     isArchived: false,
     version: faker.number.int({ min: 1, max: 100 }),
@@ -31,7 +30,7 @@ export const fakeCreateCategoryInput = (
   return {
     userId: faker.string.uuid(),
     name: `${faker.commerce.department()}-${faker.string.uuid()}`, // Ensure uniqueness
-    type: CategoryType.EXPENSE,
+    type: "EXPENSE",
     excludeFromReports: false,
     ...overrides,
   };
