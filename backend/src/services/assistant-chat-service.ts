@@ -64,8 +64,8 @@ export class AssistantChatServiceImpl implements AssistantChatService {
       );
 
     const roleMap: Record<ChatMessageRole, AgentMessage["role"]> = {
-      [ChatMessageRole.ASSISTANT]: "assistant",
-      [ChatMessageRole.USER]: "user",
+      ASSISTANT: "assistant",
+      USER: "user",
     };
 
     const history: AgentMessage[] = recentMessages
@@ -91,7 +91,7 @@ export class AssistantChatServiceImpl implements AssistantChatService {
       ChatMessage.create({
         userId,
         sessionId,
-        role: ChatMessageRole.USER,
+        role: "USER",
         content: input.question,
         ttlSeconds: this.ttlSeconds,
       }),
@@ -100,7 +100,7 @@ export class AssistantChatServiceImpl implements AssistantChatService {
       ChatMessage.create({
         userId,
         sessionId,
-        role: ChatMessageRole.ASSISTANT,
+        role: "ASSISTANT",
         content: result.data.answer,
         ttlSeconds: this.ttlSeconds,
       }),

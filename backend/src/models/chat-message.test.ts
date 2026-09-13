@@ -4,7 +4,7 @@ import {
   fakeChatMessage,
   fakeCreateChatMessageInput,
 } from "../utils/test-utils/models/chat-message-fakes";
-import { ChatMessage, ChatMessageRole } from "./chat-message";
+import { ChatMessage } from "./chat-message";
 import { ModelError } from "./model-error";
 
 describe("ChatMessage", () => {
@@ -24,7 +24,7 @@ describe("ChatMessage", () => {
       const input = fakeCreateChatMessageInput({
         userId: "user-1",
         sessionId: "session-1",
-        role: ChatMessageRole.USER,
+        role: "USER",
         content: "Hello",
         ttlSeconds: 3600,
       });
@@ -39,7 +39,7 @@ describe("ChatMessage", () => {
         id: "fixed-uuid",
         userId: "user-1",
         sessionId: "session-1",
-        role: ChatMessageRole.USER,
+        role: "USER",
         content: "Hello",
         createdAt: "2000-01-02T10:11:12.000Z",
         expiresAt:

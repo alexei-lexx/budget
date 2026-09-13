@@ -5,10 +5,8 @@ import { ModelError } from "./model-error";
 export const DEFAULT_CHAT_HISTORY_MAX_MESSAGES = 20;
 export const DEFAULT_CHAT_MESSAGE_TTL_SECONDS = 86400; // 24 hours in seconds
 
-export enum ChatMessageRole {
-  ASSISTANT = "ASSISTANT",
-  USER = "USER",
-}
+export const CHAT_MESSAGE_ROLES = ["ASSISTANT", "USER"] as const;
+export type ChatMessageRole = (typeof CHAT_MESSAGE_ROLES)[number];
 
 // Plain data shape.
 export interface ChatMessageData {

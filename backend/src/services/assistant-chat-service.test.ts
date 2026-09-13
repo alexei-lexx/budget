@@ -1,6 +1,5 @@
 import { faker } from "@faker-js/faker";
 import { type Mocked, beforeEach, describe, expect, it, vi } from "vitest";
-import { ChatMessageRole } from "../models/chat-message";
 import { ChatMessageRepository } from "../ports/chat-message-repository";
 import { fakeChatMessage } from "../utils/test-utils/models/chat-message-fakes";
 import { createMockChatMessageRepository } from "../utils/test-utils/repositories/chat-message-repository-mocks";
@@ -95,13 +94,13 @@ describe("AssistantChatService", () => {
         fakeChatMessage({
           userId,
           sessionId,
-          role: ChatMessageRole.ASSISTANT,
+          role: "ASSISTANT",
           content: "Prior answer",
         }),
         fakeChatMessage({
           userId,
           sessionId,
-          role: ChatMessageRole.USER,
+          role: "USER",
           content: "Prior question",
         }),
       ]);
@@ -146,7 +145,7 @@ describe("AssistantChatService", () => {
         expect.objectContaining({
           userId,
           sessionId,
-          role: ChatMessageRole.USER,
+          role: "USER",
           content: "How much?",
         }),
       );
@@ -154,7 +153,7 @@ describe("AssistantChatService", () => {
         expect.objectContaining({
           userId,
           sessionId,
-          role: ChatMessageRole.ASSISTANT,
+          role: "ASSISTANT",
           content: "You spent $100",
         }),
       );
