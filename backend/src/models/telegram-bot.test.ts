@@ -1,11 +1,13 @@
 import { faker } from "@faker-js/faker";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
+  fakeConnectedTelegramBot,
   fakeCreateTelegramBotInput,
+  fakePendingTelegramBot,
   fakeTelegramBot,
 } from "../utils/test-utils/models/telegram-bot-fakes";
 import { ModelError } from "./model-error";
-import { TelegramBot, TelegramBotStatus } from "./telegram-bot";
+import { TelegramBot } from "./telegram-bot";
 
 describe("TelegramBot", () => {
   describe("create", () => {
@@ -36,7 +38,7 @@ describe("TelegramBot", () => {
         userId,
         token: "12345",
         webhookSecret: "fixed-secret",
-        status: TelegramBotStatus.PENDING,
+        status: "PENDING",
         isArchived: false,
         createdAt: "2000-01-02T10:11:12.000Z",
         updatedAt: "2000-01-02T10:11:12.000Z",
@@ -142,18 +144,18 @@ describe("TelegramBot", () => {
 
     it("sets status to CONNECTED", () => {
       // Arrange
-      const existing = fakeTelegramBot({ status: TelegramBotStatus.PENDING });
+      const existing = fakePendingTelegramBot();
 
       // Act
       const result = existing.connect();
 
       // Assert
-      expect(result.status).toBe(TelegramBotStatus.CONNECTED);
+      expect(result.status).toBe("CONNECTED");
     });
 
     it("sets updatedAt", () => {
       // Arrange
-      const existing = fakeTelegramBot({ status: TelegramBotStatus.PENDING });
+      const existing = fakePendingTelegramBot();
 
       // Act
       const result = existing.connect();
@@ -166,9 +168,7 @@ describe("TelegramBot", () => {
 
     it("throws when bot is not PENDING", () => {
       // Arrange
-      const existing = fakeTelegramBot({
-        status: TelegramBotStatus.CONNECTED,
-      });
+      const existing = fakeConnectedTelegramBot();
 
       // Act & Assert
       expect(() => existing.connect()).toThrow(
@@ -190,22 +190,18 @@ describe("TelegramBot", () => {
 
     it("sets status to DELETING", () => {
       // Arrange
-      const existing = fakeTelegramBot({
-        status: TelegramBotStatus.CONNECTED,
-      });
+      const existing = fakeConnectedTelegramBot();
 
       // Act
       const result = existing.disconnect();
 
       // Assert
-      expect(result.status).toBe(TelegramBotStatus.DELETING);
+      expect(result.status).toBe("DELETING");
     });
 
     it("sets updatedAt", () => {
       // Arrange
-      const existing = fakeTelegramBot({
-        status: TelegramBotStatus.CONNECTED,
-      });
+      const existing = fakeConnectedTelegramBot();
 
       // Act
       const result = existing.disconnect();
@@ -218,7 +214,7 @@ describe("TelegramBot", () => {
 
     it("throws when bot is not CONNECTED", () => {
       // Arrange
-      const existing = fakeTelegramBot({ status: TelegramBotStatus.PENDING });
+      const existing = fakePendingTelegramBot();
 
       // Act & Assert
       expect(() => existing.disconnect()).toThrow(

@@ -1,6 +1,6 @@
 import { ConditionalCheckFailedException } from "@aws-sdk/client-dynamodb";
 import { PutCommand, QueryCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
-import { TelegramBot, TelegramBotStatus } from "../models/telegram-bot";
+import { TelegramBot } from "../models/telegram-bot";
 import { RepositoryError } from "../ports/repository-error";
 import { TelegramBotRepository } from "../ports/telegram-bot-repository";
 import { DynBaseRepository } from "./dyn-base-repository";
@@ -23,7 +23,7 @@ export class DynTelegramBotRepository
         ExpressionAttributeNames: { "#status": "status" },
         ExpressionAttributeValues: {
           ":userId": userId,
-          ":status": TelegramBotStatus.CONNECTED,
+          ":status": "CONNECTED",
           ":isArchived": false,
         },
       });
@@ -68,7 +68,7 @@ export class DynTelegramBotRepository
         ExpressionAttributeNames: { "#status": "status" },
         ExpressionAttributeValues: {
           ":webhookSecret": webhookSecret,
-          ":status": TelegramBotStatus.CONNECTED,
+          ":status": "CONNECTED",
           ":isArchived": false,
         },
       });

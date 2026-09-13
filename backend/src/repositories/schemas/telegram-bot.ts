@@ -1,5 +1,8 @@
 import { z } from "zod";
-import { TelegramBotData, TelegramBotStatus } from "../../models/telegram-bot";
+import {
+  TELEGRAM_BOT_STATUSES,
+  TelegramBotData,
+} from "../../models/telegram-bot";
 import { toDateTimeString } from "../../types/date-time-string";
 
 export const telegramBotSchema = z.object({
@@ -7,7 +10,7 @@ export const telegramBotSchema = z.object({
   userId: z.string().min(1),
   token: z.string().min(1),
   webhookSecret: z.uuid(),
-  status: z.enum(TelegramBotStatus),
+  status: z.enum(TELEGRAM_BOT_STATUSES),
   isArchived: z.boolean(),
   createdAt: z.iso.datetime().transform(toDateTimeString),
   updatedAt: z.iso.datetime().transform(toDateTimeString),

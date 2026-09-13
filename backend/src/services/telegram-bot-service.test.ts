@@ -1,6 +1,6 @@
 import { faker } from "@faker-js/faker";
 import { type Mocked, beforeEach, describe, expect, it, vi } from "vitest";
-import { TelegramBot, TelegramBotStatus } from "../models/telegram-bot";
+import { TelegramBot } from "../models/telegram-bot";
 import { BackgroundJobDispatcher } from "../ports/background-job-dispatcher";
 import { TelegramApiClient } from "../ports/telegram-api-client";
 import { TelegramBotRepository } from "../ports/telegram-bot-repository";
@@ -184,7 +184,7 @@ describe("TelegramBotService", () => {
         expect.objectContaining({
           userId,
           token,
-          status: TelegramBotStatus.PENDING,
+          status: "PENDING",
         }),
       );
       expect(telegramApiClient.setWebhook).toHaveBeenCalledWith(
@@ -195,7 +195,7 @@ describe("TelegramBotService", () => {
         }),
       );
       expect(telegramBotRepository.update).toHaveBeenCalledWith(
-        expect.objectContaining({ status: TelegramBotStatus.CONNECTED }),
+        expect.objectContaining({ status: "CONNECTED" }),
       );
     });
 
@@ -301,7 +301,7 @@ describe("TelegramBotService", () => {
       // Assert
       expect(result).toEqual({ success: true, data: true });
       expect(telegramBotRepository.update).toHaveBeenCalledWith(
-        expect.objectContaining({ status: TelegramBotStatus.DELETING }),
+        expect.objectContaining({ status: "DELETING" }),
       );
       expect(telegramApiClient.deleteWebhook).toHaveBeenCalledWith(bot.token);
       expect(telegramBotRepository.update).toHaveBeenCalledWith(

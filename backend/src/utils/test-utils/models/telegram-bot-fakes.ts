@@ -1,9 +1,9 @@
 import { faker } from "@faker-js/faker";
 import {
   CreateTelegramBotInput,
+  TELEGRAM_BOT_STATUSES,
   TelegramBot,
   TelegramBotData,
-  TelegramBotStatus,
 } from "../../../models/telegram-bot";
 import { toDateTimeString } from "../../../types/date-time-string";
 
@@ -16,11 +16,7 @@ export const fakeTelegramBot = (
     userId: faker.string.uuid(),
     token: faker.string.uuid(),
     webhookSecret: faker.string.uuid(),
-    status: faker.helpers.arrayElement([
-      TelegramBotStatus.CONNECTED,
-      TelegramBotStatus.DELETING,
-      TelegramBotStatus.PENDING,
-    ]),
+    status: faker.helpers.arrayElement(TELEGRAM_BOT_STATUSES),
     isArchived: false,
     createdAt: now,
     updatedAt: now,
@@ -40,15 +36,12 @@ export const fakeCreateTelegramBotInput = (
 
 export const fakePendingTelegramBot = (
   overrides: Partial<Omit<TelegramBotData, "status">> = {},
-): TelegramBot =>
-  fakeTelegramBot({ status: TelegramBotStatus.PENDING, ...overrides });
+): TelegramBot => fakeTelegramBot({ status: "PENDING", ...overrides });
 
 export const fakeConnectedTelegramBot = (
   overrides: Partial<Omit<TelegramBotData, "status">> = {},
-): TelegramBot =>
-  fakeTelegramBot({ status: TelegramBotStatus.CONNECTED, ...overrides });
+): TelegramBot => fakeTelegramBot({ status: "CONNECTED", ...overrides });
 
 export const fakeDeletingTelegramBot = (
   overrides: Partial<Omit<TelegramBotData, "status">> = {},
-): TelegramBot =>
-  fakeTelegramBot({ status: TelegramBotStatus.DELETING, ...overrides });
+): TelegramBot => fakeTelegramBot({ status: "DELETING", ...overrides });
