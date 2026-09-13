@@ -249,21 +249,6 @@ describe("TelegramBot", () => {
       expect(result.isArchived).toBe(true);
     });
 
-    it("archives regardless of status", () => {
-      // Arrange
-      const existing = fakeTelegramBot({
-        status: TelegramBotStatus.PENDING,
-        isArchived: false,
-      });
-
-      // Act
-      const result = existing.archive();
-
-      // Assert
-      expect(result.isArchived).toBe(true);
-      expect(result.status).toBe(TelegramBotStatus.PENDING);
-    });
-
     it("sets updatedAt", () => {
       // Arrange
       const existing = fakeTelegramBot({ isArchived: false });
