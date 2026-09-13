@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { CategoryDto, toCategoryDto } from "../../langchain/tools/category-dto";
-import { CategoryType } from "../../models/category";
+import { CATEGORY_TYPES, CategoryType } from "../../models/category";
 import { CategoryService } from "../../services/category-service";
 import { Result, Success } from "../../types/result";
 import { buildGuideTokensField, verifyGuideTokens } from "./guides";
@@ -46,11 +46,7 @@ export async function createCategory(
 
 const inputSchema = z.object({
   name: z.string().describe("Category name"),
-  type: z
-    .enum(CategoryType)
-    .describe(
-      `Category type: ${CategoryType.INCOME} or ${CategoryType.EXPENSE}`,
-    ),
+  type: z.enum(CATEGORY_TYPES).describe("Category type"),
   excludeFromReports: z
     .boolean()
     .optional()

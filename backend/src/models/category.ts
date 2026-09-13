@@ -5,10 +5,8 @@ import { ModelError } from "./model-error";
 export const NAME_MIN_LENGTH = 1;
 export const NAME_MAX_LENGTH = 100;
 
-export enum CategoryType {
-  INCOME = "INCOME",
-  EXPENSE = "EXPENSE",
-}
+export const CATEGORY_TYPES = ["INCOME", "EXPENSE"] as const;
+export type CategoryType = (typeof CATEGORY_TYPES)[number];
 
 // Plain data shape.
 export interface CategoryData {

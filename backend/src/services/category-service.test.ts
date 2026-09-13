@@ -1,10 +1,6 @@
 import { faker } from "@faker-js/faker";
 import { type Mocked, beforeEach, describe, expect, it } from "vitest";
-import {
-  CategoryType,
-  NAME_MAX_LENGTH,
-  NAME_MIN_LENGTH,
-} from "../models/category";
+import { NAME_MAX_LENGTH, NAME_MIN_LENGTH } from "../models/category";
 import { ModelError } from "../models/model-error";
 import { CategoryRepository } from "../ports/category-repository";
 import { VersionConflictError } from "../ports/repository-error";
@@ -55,7 +51,7 @@ describe("CategoryService", () => {
 
     it("returns active categories filtered by given type", async () => {
       // Arrange
-      const type = CategoryType.INCOME;
+      const type = "INCOME";
       // Repository returns two income categories
       const categories = [fakeCategory(), fakeCategory()];
       mockCategoryRepository.findManyByUserId.mockResolvedValue(categories);
@@ -120,10 +116,10 @@ describe("CategoryService", () => {
 
     it("filters by type when scope is all", async () => {
       // Arrange
-      const matchingType = CategoryType.INCOME;
+      const matchingType = "INCOME";
       const categories = [
         fakeCategory({ type: matchingType, isArchived: true }),
-        fakeCategory({ type: CategoryType.EXPENSE, isArchived: false }),
+        fakeCategory({ type: "EXPENSE", isArchived: false }),
       ];
       mockCategoryRepository.findManyWithArchivedByUserId.mockResolvedValue(
         categories,
@@ -236,7 +232,7 @@ describe("CategoryService", () => {
         id: categoryId,
         userId,
         name: "Original",
-        type: CategoryType.EXPENSE,
+        type: "EXPENSE",
       });
 
       mockCategoryRepository.findOneById.mockResolvedValue(existingCategory);
@@ -247,7 +243,7 @@ describe("CategoryService", () => {
       // Act
       const result = await service.updateCategory(categoryId, userId, {
         name: "New Name",
-        type: CategoryType.INCOME,
+        type: "INCOME",
       });
 
       // Assert
@@ -255,13 +251,13 @@ describe("CategoryService", () => {
         id: categoryId,
         userId,
         name: "New Name",
-        type: CategoryType.INCOME,
+        type: "INCOME",
       });
       expect(mockCategoryRepository.update).toHaveBeenCalledWith(
         expect.objectContaining({
           id: categoryId,
           name: "New Name",
-          type: CategoryType.INCOME,
+          type: "INCOME",
         }),
       );
     });

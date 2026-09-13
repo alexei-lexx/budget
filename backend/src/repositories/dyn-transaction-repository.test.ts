@@ -1,7 +1,6 @@
 import { GetCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
 import { faker } from "@faker-js/faker";
 import { beforeAll, beforeEach, describe, expect, it } from "vitest";
-import { CategoryType } from "../models/category";
 import {
   Transaction,
   TransactionPatternType,
@@ -1798,7 +1797,7 @@ describe("DynTransactionRepository", () => {
       await repository.create(created);
 
       const newAccount = fakeAccount({ userId, currency: "EUR" });
-      const newCategory = fakeCategory({ userId, type: CategoryType.INCOME });
+      const newCategory = fakeCategory({ userId, type: "INCOME" });
 
       // Act
       const updated = await repository.update(

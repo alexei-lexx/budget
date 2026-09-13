@@ -1,6 +1,5 @@
 import { faker } from "@faker-js/faker";
 import { type Mocked, beforeEach, describe, expect, it } from "vitest";
-import { CategoryType } from "../../models/category";
 import { BusinessError } from "../../services/business-error";
 import { CategoryService } from "../../services/category-service";
 import { fakeCategory } from "../../utils/test-utils/models/category-fakes";
@@ -108,8 +107,8 @@ describe("createUpdateCategoryTool", () => {
 
     const input = {
       id: categoryId,
-      type: CategoryType.INCOME,
-    };
+      type: "INCOME",
+    } as const;
 
     // Act
     const result = await updateTool.invoke(input, { context: { userId } });
@@ -123,7 +122,7 @@ describe("createUpdateCategoryTool", () => {
     expect(mockCategoryService.updateCategory).toHaveBeenCalledWith(
       categoryId,
       userId,
-      { type: CategoryType.INCOME },
+      { type: "INCOME" },
     );
   });
 
@@ -142,9 +141,9 @@ describe("createUpdateCategoryTool", () => {
     const input = {
       id: categoryId,
       name: "Renamed",
-      type: CategoryType.INCOME,
+      type: "INCOME",
       excludeFromReports: true,
-    };
+    } as const;
 
     // Act
     const result = await updateTool.invoke(input, { context: { userId } });
@@ -161,7 +160,7 @@ describe("createUpdateCategoryTool", () => {
       {
         excludeFromReports: true,
         name: "Renamed",
-        type: CategoryType.INCOME,
+        type: "INCOME",
       },
     );
   });

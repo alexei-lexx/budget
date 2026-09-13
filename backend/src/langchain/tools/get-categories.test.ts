@@ -1,7 +1,6 @@
 import { faker } from "@faker-js/faker";
 import { Temporal } from "temporal-polyfill";
 import { type Mocked, beforeEach, describe, expect, it } from "vitest";
-import { CategoryType } from "../../models/category";
 import { TransactionRepository } from "../../ports/transaction-repository";
 import { CategoryService } from "../../services/category-service";
 import { isDateString } from "../../types/date-string";
@@ -68,13 +67,13 @@ describe("createGetCategoriesTool", () => {
       fakeCategory({
         userId,
         name: "Groceries",
-        type: CategoryType.EXPENSE,
+        type: "EXPENSE",
         isArchived: false,
       }),
       fakeCategory({
         userId,
         name: "Salary",
-        type: CategoryType.INCOME,
+        type: "INCOME",
         isArchived: true,
       }),
     ];
@@ -102,7 +101,7 @@ describe("createGetCategoriesTool", () => {
           excludeFromReports: mockCategories[0].excludeFromReports,
           id: mockCategories[0].id,
           name: "Groceries",
-          type: CategoryType.EXPENSE,
+          type: "EXPENSE",
           isArchived: false,
           keywords: [],
         },
@@ -110,7 +109,7 @@ describe("createGetCategoriesTool", () => {
           excludeFromReports: mockCategories[1].excludeFromReports,
           id: mockCategories[1].id,
           name: "Salary",
-          type: CategoryType.INCOME,
+          type: "INCOME",
           isArchived: true,
           keywords: [],
         },

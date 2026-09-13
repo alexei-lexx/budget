@@ -8,7 +8,6 @@ import {
   fakeCreateTransactionInput,
   fakeTransaction,
 } from "../utils/test-utils/models/transaction-fakes";
-import { CategoryType } from "./category";
 import { ModelError } from "./model-error";
 import {
   DESCRIPTION_MAX_LENGTH,
@@ -34,7 +33,7 @@ describe("Transaction", () => {
       // Arrange
       const userId = faker.string.uuid();
       const account = fakeAccount({ userId, currency: "EUR" });
-      const category = fakeCategory({ userId, type: CategoryType.EXPENSE });
+      const category = fakeCategory({ userId, type: "EXPENSE" });
       const input = fakeCreateTransactionInput({
         userId,
         account,
@@ -141,7 +140,7 @@ describe("Transaction", () => {
       // Arrange
       const userId = faker.string.uuid();
       const account = fakeAccount({ userId });
-      const category = fakeCategory({ userId, type: CategoryType.EXPENSE });
+      const category = fakeCategory({ userId, type: "EXPENSE" });
 
       // Act
       const result = Transaction.create(
@@ -253,7 +252,7 @@ describe("Transaction", () => {
       const userId = faker.string.uuid();
       const category = fakeCategory({
         userId: faker.string.uuid(),
-        type: CategoryType.EXPENSE,
+        type: "EXPENSE",
       });
 
       // Act & Assert
@@ -270,7 +269,7 @@ describe("Transaction", () => {
       const userId = faker.string.uuid();
       const category = fakeCategory({
         userId,
-        type: CategoryType.EXPENSE,
+        type: "EXPENSE",
         isArchived: true,
       });
 
@@ -286,7 +285,7 @@ describe("Transaction", () => {
     it("throws on INCOME category for EXPENSE transaction", () => {
       // Arrange
       const userId = faker.string.uuid();
-      const category = fakeCategory({ userId, type: CategoryType.INCOME });
+      const category = fakeCategory({ userId, type: "INCOME" });
 
       // Act & Assert
       expect(() =>
@@ -306,7 +305,7 @@ describe("Transaction", () => {
     it("throws on EXPENSE category for INCOME transaction", () => {
       // Arrange
       const userId = faker.string.uuid();
-      const category = fakeCategory({ userId, type: CategoryType.EXPENSE });
+      const category = fakeCategory({ userId, type: "EXPENSE" });
 
       // Act & Assert
       expect(() =>
@@ -344,7 +343,7 @@ describe("Transaction", () => {
       // Arrange
       const userId = faker.string.uuid();
       const account = fakeAccount({ userId });
-      const category = fakeCategory({ userId, type: CategoryType.EXPENSE });
+      const category = fakeCategory({ userId, type: "EXPENSE" });
 
       // Act & Assert
       expect(() =>
@@ -621,7 +620,7 @@ describe("Transaction", () => {
       // Arrange
       const userId = faker.string.uuid();
       const existing = fakeTransaction({ userId, categoryId: undefined });
-      const newCategory = fakeCategory({ userId, type: CategoryType.EXPENSE });
+      const newCategory = fakeCategory({ userId, type: "EXPENSE" });
 
       // Act
       const result = existing.update({ category: newCategory });
@@ -778,7 +777,7 @@ describe("Transaction", () => {
       const existing = fakeTransaction({ userId: "user-a" });
       const category = fakeCategory({
         userId: "user-b",
-        type: CategoryType.EXPENSE,
+        type: "EXPENSE",
       });
 
       // Act & Assert
@@ -793,7 +792,7 @@ describe("Transaction", () => {
       const existing = fakeTransaction({ userId });
       const category = fakeCategory({
         userId,
-        type: CategoryType.EXPENSE,
+        type: "EXPENSE",
         isArchived: true,
       });
 
@@ -810,7 +809,7 @@ describe("Transaction", () => {
         userId,
         type: TransactionType.EXPENSE,
       });
-      const category = fakeCategory({ userId, type: CategoryType.INCOME });
+      const category = fakeCategory({ userId, type: "INCOME" });
 
       // Act & Assert
       expect(() => existing.update({ category })).toThrow(
@@ -827,7 +826,7 @@ describe("Transaction", () => {
         categoryId: undefined,
         transferId: faker.string.uuid(),
       });
-      const category = fakeCategory({ userId, type: CategoryType.EXPENSE });
+      const category = fakeCategory({ userId, type: "EXPENSE" });
 
       // Act & Assert
       expect(() => existing.update({ category })).toThrow(

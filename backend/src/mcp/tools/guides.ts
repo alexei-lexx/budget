@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { z } from "zod";
-import { CategoryType } from "../../models/category";
+import { CATEGORY_TYPES } from "../../models/category";
 import { TransactionType } from "../../models/transaction";
 import { Failure, Result, Success } from "../../types/result";
 
@@ -26,7 +26,7 @@ Account is a place where money is stored.
 Category is a classification system for transactions.
 
 - The user can have multiple categories
-- Each category has a name and a type (${Object.keys(CategoryType).join(", ")})
+- Each category has a name and a type (${CATEGORY_TYPES.join(", ")})
 - A category can be marked as report-excluded
 - Report-excluded categories are ignored when calculating income and spending totals
 

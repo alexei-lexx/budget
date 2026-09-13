@@ -2,7 +2,7 @@ import { randomUUID } from "crypto";
 import { DateString } from "../types/date-string";
 import { DateTimeString, toDateTimeString } from "../types/date-time-string";
 import { Account } from "./account";
-import { Category, CategoryType } from "./category";
+import { Category } from "./category";
 import { ModelError } from "./model-error";
 
 export const DESCRIPTION_MAX_LENGTH = 500;
@@ -287,9 +287,9 @@ export class Transaction implements TransactionData {
       }
 
       const typeMismatch =
-        (newCategory.type === CategoryType.INCOME &&
+        (newCategory.type === "INCOME" &&
           this.type !== TransactionType.INCOME) ||
-        (newCategory.type === CategoryType.EXPENSE &&
+        (newCategory.type === "EXPENSE" &&
           this.type !== TransactionType.EXPENSE &&
           this.type !== TransactionType.REFUND);
 

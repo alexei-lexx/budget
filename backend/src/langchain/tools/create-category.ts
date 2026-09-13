@@ -1,6 +1,6 @@
 import { tool } from "langchain";
 import { z } from "zod";
-import { CategoryType } from "../../models/category";
+import { CATEGORY_TYPES } from "../../models/category";
 import { CategoryService } from "../../services/category-service";
 import { Success } from "../../types/result";
 import { agentContextSchema } from "../agents/agent-context";
@@ -14,11 +14,7 @@ const schema = z.object({
       "Whether to exclude transactions in this category from financial reports.",
     ),
   name: z.string().describe("Category name"),
-  type: z
-    .enum(CategoryType)
-    .describe(
-      `Category type: ${CategoryType.INCOME} or ${CategoryType.EXPENSE}`,
-    ),
+  type: z.enum(CATEGORY_TYPES).describe("Category type"),
 });
 
 export type CreateCategoryInput = z.infer<typeof schema>;

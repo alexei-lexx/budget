@@ -1,4 +1,3 @@
-import { CategoryType } from '../models/category';
 import { TransactionPatternType } from '../models/transaction';
 import { TransactionType } from '../models/transaction';
 import { GraphQLResolveInfo } from 'graphql';
@@ -6,8 +5,8 @@ import { GraphQLContext } from '../graphql/context';
 export type Maybe<T> = T | undefined;
 export type InputMaybe<T> = T | null | undefined;
 export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
-export type EnumResolverSignature<T, AllowedValues = any> = { [key in keyof T]?: AllowedValues };
 export type RequireFields<T, K extends keyof T> = Omit<T, K> & { [P in K]-?: NonNullable<T[P]> };
+export type EnumResolverSignature<T, AllowedValues = any> = { [key in keyof T]?: AllowedValues };
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
   ID: { input: string; output: string; }
@@ -110,7 +109,9 @@ export type Category = {
   type: CategoryType;
 };
 
-export { CategoryType };
+export type CategoryType =
+  | 'EXPENSE'
+  | 'INCOME';
 
 export type CreateAccountInput = {
   currency: Scalars['String']['input'];
@@ -836,8 +837,6 @@ export type CategoryResolvers<ContextType = GraphQLContext, ParentType extends R
   type?: Resolver<ResolversTypes['CategoryType'], ParentType, ContextType>;
 };
 
-export type CategoryTypeResolvers = EnumResolverSignature<{ EXPENSE?: any, INCOME?: any }, ResolversTypes['CategoryType']>;
-
 export type CreateTransactionFromTextFailureResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CreateTransactionFromTextFailure'] = ResolversParentTypes['CreateTransactionFromTextFailure']> = {
   agentTrace?: Resolver<Array<ResolversTypes['AgentTraceMessage']>, ParentType, ContextType>;
   message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -1006,7 +1005,6 @@ export type Resolvers<ContextType = GraphQLContext> = {
   ByCategoryReportCurrencyBreakdown?: ByCategoryReportCurrencyBreakdownResolvers<ContextType>;
   ByCategoryReportCurrencyTotal?: ByCategoryReportCurrencyTotalResolvers<ContextType>;
   Category?: CategoryResolvers<ContextType>;
-  CategoryType?: CategoryTypeResolvers;
   CreateTransactionFromTextFailure?: CreateTransactionFromTextFailureResolvers<ContextType>;
   CreateTransactionFromTextOutput?: CreateTransactionFromTextOutputResolvers<ContextType>;
   CreateTransactionFromTextSuccess?: CreateTransactionFromTextSuccessResolvers<ContextType>;

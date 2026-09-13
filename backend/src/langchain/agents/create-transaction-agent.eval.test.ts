@@ -24,7 +24,6 @@ import {
   resolveTransactionService,
   resolveUserRepository,
 } from "../../dependencies";
-import { CategoryType } from "../../models/category";
 import { TransactionType } from "../../models/transaction";
 import { dateToDateString, toDateString } from "../../types/date-string";
 import { EntityScope } from "../../types/entity-scope";
@@ -88,7 +87,7 @@ describe("CreateTransactionAgent (evals)", () => {
     await accountRepository.create(account);
     const category = fakeCategory({
       userId,
-      type: CategoryType.EXPENSE,
+      type: "EXPENSE",
       name: "groceries",
     });
     await categoryRepository.create(category);
@@ -177,7 +176,7 @@ describe("CreateTransactionAgent (evals)", () => {
     await accountRepository.create(account);
     const category = fakeCategory({
       userId,
-      type: CategoryType.INCOME,
+      type: "INCOME",
       name: "salary",
     });
     await categoryRepository.create(category);
@@ -230,7 +229,7 @@ describe("CreateTransactionAgent (evals)", () => {
     await accountRepository.create(account);
     const category = fakeCategory({
       userId,
-      type: CategoryType.EXPENSE,
+      type: "EXPENSE",
       name: "shoes",
     });
     await categoryRepository.create(category);
@@ -423,14 +422,14 @@ describe("CreateTransactionAgent (evals)", () => {
 
       const groceries = fakeCategory({
         userId,
-        type: CategoryType.EXPENSE,
+        type: "EXPENSE",
         name: "groceries",
       });
       await categoryRepository.create(groceries);
 
       const transport = fakeCategory({
         userId,
-        type: CategoryType.EXPENSE,
+        type: "EXPENSE",
         name: "transport",
       });
       await categoryRepository.create(transport);
@@ -582,7 +581,7 @@ describe("CreateTransactionAgent (evals)", () => {
 
       const groceries = fakeCategory({
         userId,
-        type: CategoryType.EXPENSE,
+        type: "EXPENSE",
         name: "groceries",
       });
       await categoryRepository.create(groceries);
@@ -590,7 +589,7 @@ describe("CreateTransactionAgent (evals)", () => {
       await categoryRepository.create(
         fakeCategory({
           userId,
-          type: CategoryType.EXPENSE,
+          type: "EXPENSE",
           name: "household",
         }),
       );
@@ -635,14 +634,14 @@ describe("CreateTransactionAgent (evals)", () => {
       await categoryRepository.create(
         fakeCategory({
           userId,
-          type: CategoryType.EXPENSE,
+          type: "EXPENSE",
           name: "groceries",
         }),
       );
 
       const household = fakeCategory({
         userId,
-        type: CategoryType.EXPENSE,
+        type: "EXPENSE",
         name: "household",
       });
       await categoryRepository.create(household);
@@ -686,14 +685,14 @@ describe("CreateTransactionAgent (evals)", () => {
       await categoryRepository.create(
         fakeCategory({
           userId,
-          type: CategoryType.EXPENSE,
+          type: "EXPENSE",
           name: "electronics",
         }),
       );
       await categoryRepository.create(
         fakeCategory({
           userId,
-          type: CategoryType.EXPENSE,
+          type: "EXPENSE",
           name: "household",
         }),
       );
@@ -775,7 +774,7 @@ describe("CreateTransactionAgent (evals)", () => {
       await categoryRepository.create(
         fakeCategory({
           userId,
-          type: CategoryType.EXPENSE,
+          type: "EXPENSE",
           name: "groceries",
         }),
       );
@@ -817,7 +816,7 @@ describe("CreateTransactionAgent (evals)", () => {
       await categoryRepository.create(
         fakeCategory({
           userId,
-          type: CategoryType.EXPENSE,
+          type: "EXPENSE",
           name: "groceries",
         }),
       );
@@ -893,7 +892,7 @@ describe("CreateTransactionAgent (evals)", () => {
       await accountRepository.create(account);
       const food = fakeCategory({
         userId,
-        type: CategoryType.EXPENSE,
+        type: "EXPENSE",
         name: "food",
       });
       await categoryRepository.create(food);
@@ -944,7 +943,7 @@ describe("CreateTransactionAgent (evals)", () => {
       await accountRepository.create(account);
       const food = fakeCategory({
         userId,
-        type: CategoryType.EXPENSE,
+        type: "EXPENSE",
         name: "food",
       });
       await categoryRepository.create(food);
@@ -1248,7 +1247,7 @@ describe("CreateTransactionAgent (evals)", () => {
 
       const category = fakeCategory({
         userId,
-        type: CategoryType.EXPENSE,
+        type: "EXPENSE",
       });
       await categoryRepository.create(category);
 
@@ -1320,7 +1319,7 @@ describe("CreateTransactionAgent (evals)", () => {
 
       const category = fakeCategory({
         userId,
-        type: CategoryType.EXPENSE,
+        type: "EXPENSE",
       });
       await categoryRepository.create(category);
 
@@ -1365,7 +1364,7 @@ describe("CreateTransactionAgent (evals)", () => {
 
       const category = fakeCategory({
         userId,
-        type: CategoryType.EXPENSE,
+        type: "EXPENSE",
       });
       await categoryRepository.create(category);
 
@@ -1403,7 +1402,7 @@ describe("CreateTransactionAgent (evals)", () => {
 
       const category = fakeCategory({
         userId,
-        type: CategoryType.EXPENSE,
+        type: "EXPENSE",
       });
       await categoryRepository.create(category);
 
