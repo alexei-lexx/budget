@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ChatMessage, ChatMessageRole } from "../../models/chat-message";
+import { ChatMessageData, ChatMessageRole } from "../../models/chat-message";
 import { toDateTimeString } from "../../types/date-time-string";
 
 export const chatMessageSchema = z.object({
@@ -10,7 +10,7 @@ export const chatMessageSchema = z.object({
   content: z.string(),
   createdAt: z.iso.datetime().transform(toDateTimeString),
   expiresAt: z.int().positive(),
-}) satisfies z.ZodType<ChatMessage>;
+}) satisfies z.ZodType<ChatMessageData>;
 
 export const chatMessageDbItemSchema = chatMessageSchema.extend({
   sessionSortKey: z.string().min(1),

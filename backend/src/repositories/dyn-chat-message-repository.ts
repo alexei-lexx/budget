@@ -1,4 +1,3 @@
-import { randomUUID } from "crypto";
 import {
   DynamoDBDocumentClient,
   PutCommand,
@@ -7,12 +6,8 @@ import {
 import { monotonicFactory } from "ulidx";
 import { z } from "zod";
 import { ChatMessage } from "../models/chat-message";
-import {
-  ChatMessageRepository,
-  CreateChatMessageInput,
-} from "../ports/chat-message-repository";
+import { ChatMessageRepository } from "../ports/chat-message-repository";
 import { RepositoryError } from "../ports/repository-error";
-import { toDateTimeString } from "../types/date-time-string";
 import { DynBaseRepository } from "./dyn-base-repository";
 import { chatMessageDbItemSchema } from "./schemas/chat-message";
 
@@ -22,23 +17,19 @@ function toChatMessage(
   dbItem: z.infer<typeof chatMessageDbItemSchema>,
 ): ChatMessage {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { sessionSortKey, ...chatMessage } = dbItem;
-  return chatMessage;
+  const { sessionSortKey, ...data } = dbItem;
+  return ChatMessage.fromPersistence(data);
 }
 
 export class DynChatMessageRepository
   extends DynBaseRepository
   implements ChatMessageRepository
 {
-  private ttlSeconds: number;
-
   constructor(options: {
     tableName: string;
-    ttlSeconds: number;
     documentClient: DynamoDBDocumentClient;
   }) {
     super(options.tableName, options.documentClient);
-    this.ttlSeconds = options.ttlSeconds;
   }
 
   async findManyRecentBySessionId(
@@ -94,41 +85,17 @@ export class DynChatMessageRepository
     }
   }
 
-  async create(input: CreateChatMessageInput): Promise<ChatMessage> {
-    const { userId, sessionId, role, content } = input;
-
-    if (!userId) {
-      throw new RepositoryError("User ID is required");
-    }
-
-    if (!sessionId) {
-      throw new RepositoryError("Session ID is required");
-    }
-
-    const now = new Date();
-
-    const chatMessage: ChatMessage = {
-      id: randomUUID(),
-      userId,
-      sessionId,
-      role,
-      content,
-      createdAt: toDateTimeString(now.toISOString()),
-      expiresAt: Math.floor(now.getTime() / 1000) + this.ttlSeconds,
-    };
-
+  async create(message: Readonly<ChatMessage>): Promise<void> {
     try {
       const command = new PutCommand({
         TableName: this.tableName,
         Item: {
-          ...chatMessage,
-          sessionSortKey: `${sessionId}#${ulid()}`,
+          ...message.toData(),
+          sessionSortKey: `${message.sessionId}#${ulid()}`,
         },
       });
 
       await this.client.send(command);
-
-      return chatMessage;
     } catch (error) {
       console.error("Error creating chat message:", error);
       throw new RepositoryError("Failed to create chat message", error);

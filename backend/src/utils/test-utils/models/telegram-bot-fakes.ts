@@ -1,12 +1,17 @@
 import { faker } from "@faker-js/faker";
-import { TelegramBot, TelegramBotStatus } from "../../../models/telegram-bot";
+import {
+  CreateTelegramBotInput,
+  TelegramBot,
+  TelegramBotData,
+  TelegramBotStatus,
+} from "../../../models/telegram-bot";
 import { toDateTimeString } from "../../../types/date-time-string";
 
 export const fakeTelegramBot = (
-  overrides: Partial<TelegramBot> = {},
+  overrides: Partial<TelegramBotData> = {},
 ): TelegramBot => {
   const now = toDateTimeString(new Date().toISOString());
-  return {
+  return TelegramBot.fromPersistence({
     id: faker.string.uuid(),
     userId: faker.string.uuid(),
     token: faker.string.uuid(),
@@ -20,5 +25,30 @@ export const fakeTelegramBot = (
     createdAt: now,
     updatedAt: now,
     ...overrides,
+  });
+};
+
+export const fakeCreateTelegramBotInput = (
+  overrides: Partial<CreateTelegramBotInput> = {},
+): CreateTelegramBotInput => {
+  return {
+    userId: faker.string.uuid(),
+    token: faker.string.uuid(),
+    ...overrides,
   };
 };
+
+export const fakePendingTelegramBot = (
+  overrides: Partial<Omit<TelegramBotData, "status">> = {},
+): TelegramBot =>
+  fakeTelegramBot({ status: TelegramBotStatus.PENDING, ...overrides });
+
+export const fakeConnectedTelegramBot = (
+  overrides: Partial<Omit<TelegramBotData, "status">> = {},
+): TelegramBot =>
+  fakeTelegramBot({ status: TelegramBotStatus.CONNECTED, ...overrides });
+
+export const fakeDeletingTelegramBot = (
+  overrides: Partial<Omit<TelegramBotData, "status">> = {},
+): TelegramBot =>
+  fakeTelegramBot({ status: TelegramBotStatus.DELETING, ...overrides });

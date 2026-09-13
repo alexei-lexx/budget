@@ -1,10 +1,15 @@
 import { faker } from "@faker-js/faker";
 import { beforeAll, beforeEach, describe, expect, it } from "vitest";
-import { TelegramBotStatus } from "../models/telegram-bot";
+import { TelegramBot, TelegramBotStatus } from "../models/telegram-bot";
 import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
 import { requireEnv } from "../utils/require-env";
 import { truncateTable } from "../utils/test-utils/dynamodb-helpers";
-import { fakeCreateTelegramBotInput } from "../utils/test-utils/repositories/telegram-bot-repository-fakes";
+import {
+  fakeConnectedTelegramBot,
+  fakeCreateTelegramBotInput,
+  fakeDeletingTelegramBot,
+  fakePendingTelegramBot,
+} from "../utils/test-utils/models/telegram-bot-fakes";
 import { DynTelegramBotRepository } from "./dyn-telegram-bot-repository";
 
 describe("DynTelegramBotRepository", () => {
@@ -39,29 +44,23 @@ describe("DynTelegramBotRepository", () => {
 
     it("returns connected bot", async () => {
       // Arrange
-      const created = await repository.create(
-        fakeCreateTelegramBotInput({
-          userId,
-          status: TelegramBotStatus.CONNECTED,
-        }),
-      );
+      const connected = fakeConnectedTelegramBot({ userId });
+      await repository.create(connected);
 
       // Act
       const result = await repository.findOneConnectedByUserId(userId);
 
       // Assert
-      expect(result).toEqual(created);
+      expect(result).toEqual(connected);
     });
 
     it("does not return archived bot", async () => {
       // Arrange
-      const created = await repository.create(
-        fakeCreateTelegramBotInput({
-          userId,
-          status: TelegramBotStatus.CONNECTED,
-        }),
-      );
-      await repository.archive({ id: created.id, userId });
+      const archivedConnected = fakeConnectedTelegramBot({
+        userId,
+        isArchived: true,
+      });
+      await repository.create(archivedConnected);
 
       // Act
       const result = await repository.findOneConnectedByUserId(userId);
@@ -72,12 +71,8 @@ describe("DynTelegramBotRepository", () => {
 
     it("does not return PENDING bot", async () => {
       // Arrange
-      await repository.create(
-        fakeCreateTelegramBotInput({
-          userId,
-          status: TelegramBotStatus.PENDING,
-        }),
-      );
+      const pending = fakePendingTelegramBot({ userId });
+      await repository.create(pending);
 
       // Act
       const result = await repository.findOneConnectedByUserId(userId);
@@ -88,12 +83,8 @@ describe("DynTelegramBotRepository", () => {
 
     it("does not return DELETING bot", async () => {
       // Arrange
-      await repository.create(
-        fakeCreateTelegramBotInput({
-          userId,
-          status: TelegramBotStatus.DELETING,
-        }),
-      );
+      const bot = fakeDeletingTelegramBot({ userId });
+      await repository.create(bot);
 
       // Act
       const result = await repository.findOneConnectedByUserId(userId);
@@ -106,18 +97,8 @@ describe("DynTelegramBotRepository", () => {
 
     it("throws when multiple connected bots exist", async () => {
       // Arrange
-      await repository.create(
-        fakeCreateTelegramBotInput({
-          userId,
-          status: TelegramBotStatus.CONNECTED,
-        }),
-      );
-      await repository.create(
-        fakeCreateTelegramBotInput({
-          userId,
-          status: TelegramBotStatus.CONNECTED,
-        }),
-      );
+      await repository.create(fakeConnectedTelegramBot({ userId }));
+      await repository.create(fakeConnectedTelegramBot({ userId }));
 
       // Act & Assert
       await expect(
@@ -143,38 +124,30 @@ describe("DynTelegramBotRepository", () => {
 
     it("returns connected bot by webhook secret", async () => {
       // Arrange
-      const webhookSecret = faker.string.uuid();
-      const created = await repository.create(
-        fakeCreateTelegramBotInput({
-          userId,
-          webhookSecret,
-          status: TelegramBotStatus.CONNECTED,
-        }),
-      );
+      const connected = fakeConnectedTelegramBot({ userId });
+      await repository.create(connected);
 
       // Act
-      const result =
-        await repository.findOneConnectedByWebhookSecret(webhookSecret);
+      const result = await repository.findOneConnectedByWebhookSecret(
+        connected.webhookSecret,
+      );
 
       // Assert
-      expect(result).toEqual(created);
+      expect(result).toEqual(connected);
     });
 
     it("does not return archived bot", async () => {
       // Arrange
-      const webhookSecret = faker.string.uuid();
-      const created = await repository.create(
-        fakeCreateTelegramBotInput({
-          userId,
-          webhookSecret,
-          status: TelegramBotStatus.CONNECTED,
-        }),
-      );
-      await repository.archive({ id: created.id, userId });
+      const archivedConnected = fakeConnectedTelegramBot({
+        userId,
+        isArchived: true,
+      });
+      await repository.create(archivedConnected);
 
       // Act
-      const result =
-        await repository.findOneConnectedByWebhookSecret(webhookSecret);
+      const result = await repository.findOneConnectedByWebhookSecret(
+        archivedConnected.webhookSecret,
+      );
 
       // Assert
       expect(result).toBeNull();
@@ -182,18 +155,13 @@ describe("DynTelegramBotRepository", () => {
 
     it("does not return PENDING bot", async () => {
       // Arrange
-      const webhookSecret = faker.string.uuid();
-      await repository.create(
-        fakeCreateTelegramBotInput({
-          userId,
-          webhookSecret,
-          status: TelegramBotStatus.PENDING,
-        }),
-      );
+      const pending = fakePendingTelegramBot({ userId });
+      await repository.create(pending);
 
       // Act
-      const result =
-        await repository.findOneConnectedByWebhookSecret(webhookSecret);
+      const result = await repository.findOneConnectedByWebhookSecret(
+        pending.webhookSecret,
+      );
 
       // Assert
       expect(result).toBeNull();
@@ -201,18 +169,13 @@ describe("DynTelegramBotRepository", () => {
 
     it("does not return DELETING bot", async () => {
       // Arrange
-      const webhookSecret = faker.string.uuid();
-      await repository.create(
-        fakeCreateTelegramBotInput({
-          userId,
-          webhookSecret,
-          status: TelegramBotStatus.DELETING,
-        }),
-      );
+      const bot = fakeDeletingTelegramBot({ userId });
+      await repository.create(bot);
 
       // Act
-      const result =
-        await repository.findOneConnectedByWebhookSecret(webhookSecret);
+      const result = await repository.findOneConnectedByWebhookSecret(
+        bot.webhookSecret,
+      );
 
       // Assert
       expect(result).toBeNull();
@@ -221,26 +184,22 @@ describe("DynTelegramBotRepository", () => {
     // Validation failures
 
     it("throws when multiple connected bots share same webhook secret", async () => {
-      // Arrange
-      const webhookSecret = faker.string.uuid();
-      await repository.create(
-        fakeCreateTelegramBotInput({
-          userId,
-          webhookSecret,
-          status: TelegramBotStatus.CONNECTED,
-        }),
-      );
-      await repository.create(
-        fakeCreateTelegramBotInput({
-          userId,
-          webhookSecret,
-          status: TelegramBotStatus.CONNECTED,
-        }),
-      );
+      // Arrange — webhookSecret is generated per bot,
+      // so force a collision by overriding the second bot's secret with the first's.
+      const connectedFirst = fakeConnectedTelegramBot({ userId });
+      await repository.create(connectedFirst);
+
+      const secondWithSameSecret = fakeConnectedTelegramBot({
+        userId,
+        webhookSecret: connectedFirst.webhookSecret,
+      });
+      await repository.create(secondWithSameSecret);
 
       // Act & Assert
       await expect(
-        repository.findOneConnectedByWebhookSecret(webhookSecret),
+        repository.findOneConnectedByWebhookSecret(
+          connectedFirst.webhookSecret,
+        ),
       ).rejects.toMatchObject({
         message: "Multiple connected bots found for webhook secret",
       });
@@ -252,62 +211,67 @@ describe("DynTelegramBotRepository", () => {
 
     it("creates telegram bot record", async () => {
       // Arrange
-      const input = fakeCreateTelegramBotInput({ userId });
+      const bot = TelegramBot.create(fakeCreateTelegramBotInput({ userId }));
 
       // Act
-      const bot = await repository.create(input);
+      await repository.create(bot);
 
       // Assert
-      expect(bot.id).toBeDefined();
-      expect(bot.userId).toBe(userId);
-      expect(bot.token).toBe(input.token);
-      expect(bot.webhookSecret).toBe(input.webhookSecret);
-      expect(bot.status).toBe(input.status);
-      expect(bot.isArchived).toBe(false);
-      expect(bot.createdAt).toBeDefined();
-      expect(bot.updatedAt).toBeDefined();
+      const found = await repository.findOneConnectedByWebhookSecret(
+        bot.webhookSecret,
+      );
+      expect(found).toBeNull(); // still PENDING, not CONNECTED
+
+      const stored = await repository.update(bot.connect());
+      expect(stored.id).toBe(bot.id);
+      expect(stored.userId).toBe(userId);
+      expect(stored.token).toBe(bot.token);
+      expect(stored.webhookSecret).toBe(bot.webhookSecret);
+      expect(stored.isArchived).toBe(false);
     });
   });
 
   describe("update", () => {
     // Happy path
 
-    it("updates status of bot", async () => {
+    it("persists mutated fields", async () => {
       // Arrange
-      const created = await repository.create(
-        fakeCreateTelegramBotInput({
-          userId,
-          status: TelegramBotStatus.PENDING,
-        }),
-      );
+      const created = fakePendingTelegramBot({ userId });
+      await repository.create(created);
 
       // Act
-      const updated = await repository.update(
-        { id: created.id, userId },
-        { status: TelegramBotStatus.CONNECTED },
-      );
+      const updated = await repository.update(created.connect());
 
       // Assert
-      expect(updated.status).toBe(TelegramBotStatus.CONNECTED);
       expect(updated.id).toBe(created.id);
+      expect(updated.status).toBe(TelegramBotStatus.CONNECTED);
     });
-  });
 
-  describe("archive", () => {
-    // Happy path
+    // Validation failures
 
-    it("sets isArchived to true and returns archived bot", async () => {
+    it("throws when bot does not exist", async () => {
       // Arrange
-      const created = await repository.create(
-        fakeCreateTelegramBotInput({ userId }),
-      );
+      const bot = fakePendingTelegramBot({ userId });
 
-      // Act
-      const archived = await repository.archive({ id: created.id, userId });
+      // Act & Assert
+      await expect(repository.update(bot.connect())).rejects.toMatchObject({
+        message: "Telegram bot not found or is archived",
+      });
+    });
 
-      // Assert
-      expect(archived.id).toBe(created.id);
-      expect(archived.isArchived).toBe(true);
+    it("throws when bot is already archived", async () => {
+      // Arrange
+      const created = fakePendingTelegramBot({ userId });
+      await repository.create(created);
+      const connected = await repository.update(created.connect());
+      await repository.update(connected.archive());
+
+      // Act & Assert — a stale in-memory copy still thinks it's CONNECTED
+      await expect(
+        repository.update(connected.disconnect()),
+      ).rejects.toMatchObject({
+        message: "Telegram bot not found or is archived",
+      });
     });
   });
 });

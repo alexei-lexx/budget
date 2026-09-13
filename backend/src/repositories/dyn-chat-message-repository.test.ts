@@ -1,10 +1,15 @@
+import { PutCommand } from "@aws-sdk/lib-dynamodb";
 import { faker } from "@faker-js/faker";
+import { monotonicFactory } from "ulidx";
 import { beforeAll, beforeEach, describe, expect, it } from "vitest";
+import { ChatMessage } from "../models/chat-message";
 import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
 import { requireEnv } from "../utils/require-env";
 import { truncateTable } from "../utils/test-utils/dynamodb-helpers";
-import { fakeCreateChatMessageInput } from "../utils/test-utils/repositories/chat-message-repository-fakes";
+import { fakeCreateChatMessageInput } from "../utils/test-utils/models/chat-message-fakes";
 import { DynChatMessageRepository } from "./dyn-chat-message-repository";
+
+const ulid = monotonicFactory();
 
 describe("DynChatMessageRepository", () => {
   const userId = faker.string.uuid();
@@ -17,7 +22,6 @@ describe("DynChatMessageRepository", () => {
   beforeAll(() => {
     repository = new DynChatMessageRepository({
       tableName,
-      ttlSeconds: 3600, // 1 hour
       documentClient: client,
     });
   });
@@ -30,17 +34,22 @@ describe("DynChatMessageRepository", () => {
   });
 
   describe("findManyRecentBySessionId", () => {
+    // Happy path
+
     it("returns messages for session in descending order", async () => {
       // Arrange
-      const message1 = await repository.create(
+      const message1 = ChatMessage.create(
         fakeCreateChatMessageInput({ userId, sessionId }),
       );
-      const message2 = await repository.create(
+      await repository.create(message1);
+      const message2 = ChatMessage.create(
         fakeCreateChatMessageInput({ userId, sessionId }),
       );
-      const message3 = await repository.create(
+      await repository.create(message2);
+      const message3 = ChatMessage.create(
         fakeCreateChatMessageInput({ userId, sessionId }),
       );
+      await repository.create(message3);
 
       // Act
       const messages = await repository.findManyRecentBySessionId(
@@ -56,11 +65,13 @@ describe("DynChatMessageRepository", () => {
     });
 
     it("returns empty array when no messages exist for session", async () => {
+      // Act
       const messages = await repository.findManyRecentBySessionId(
         { userId, sessionId: faker.string.uuid() },
         10,
       );
 
+      // Assert
       expect(messages).toEqual([]);
     });
 
@@ -68,11 +79,13 @@ describe("DynChatMessageRepository", () => {
       // Arrange — save 5 messages
       for (let i = 0; i < 5; i++) {
         await repository.create(
-          fakeCreateChatMessageInput({
-            userId,
-            sessionId,
-            content: `Message ${i}`,
-          }),
+          ChatMessage.create(
+            fakeCreateChatMessageInput({
+              userId,
+              sessionId,
+              content: `Message ${i}`,
+            }),
+          ),
         );
       }
 
@@ -93,10 +106,12 @@ describe("DynChatMessageRepository", () => {
       // Arrange
       const otherSessionId = faker.string.uuid();
       await repository.create(
-        fakeCreateChatMessageInput({ userId, sessionId }),
+        ChatMessage.create(fakeCreateChatMessageInput({ userId, sessionId })),
       );
       await repository.create(
-        fakeCreateChatMessageInput({ userId, sessionId: otherSessionId }),
+        ChatMessage.create(
+          fakeCreateChatMessageInput({ userId, sessionId: otherSessionId }),
+        ),
       );
 
       // Act
@@ -114,10 +129,12 @@ describe("DynChatMessageRepository", () => {
       // Arrange
       const otherUserId = faker.string.uuid();
       await repository.create(
-        fakeCreateChatMessageInput({ userId, sessionId }),
+        ChatMessage.create(fakeCreateChatMessageInput({ userId, sessionId })),
       );
       await repository.create(
-        fakeCreateChatMessageInput({ userId: otherUserId, sessionId }),
+        ChatMessage.create(
+          fakeCreateChatMessageInput({ userId: otherUserId, sessionId }),
+        ),
       );
 
       // Act
@@ -132,31 +149,39 @@ describe("DynChatMessageRepository", () => {
     });
 
     it("does not expose internal sessionSortKey attribute", async () => {
+      // Arrange
       await repository.create(
-        fakeCreateChatMessageInput({ userId, sessionId }),
+        ChatMessage.create(fakeCreateChatMessageInput({ userId, sessionId })),
       );
 
+      // Act
       const [message] = await repository.findManyRecentBySessionId(
         { userId, sessionId },
         1,
       );
 
+      // Assert
       expect(message).not.toHaveProperty("sessionSortKey");
     });
 
+    // Validation failures
+
     it("throws when userId is missing", async () => {
+      // Act & Assert
       await expect(
         repository.findManyRecentBySessionId({ userId: "", sessionId }, 10),
       ).rejects.toThrow("User ID is required");
     });
 
     it("throws when sessionId is missing", async () => {
+      // Act & Assert
       await expect(
         repository.findManyRecentBySessionId({ userId, sessionId: "" }, 10),
       ).rejects.toThrow("Session ID is required");
     });
 
     it("throws when limit is not positive integer", async () => {
+      // Act & Assert
       await expect(
         repository.findManyRecentBySessionId({ userId, sessionId }, 0),
       ).rejects.toThrow("Limit must be a positive integer");
@@ -170,72 +195,50 @@ describe("DynChatMessageRepository", () => {
       ).rejects.toThrow("Limit must be a positive integer");
     });
 
-    describe("hydration - data corruption detection", () => {
-      it("throws when required field content is missing from database record", async () => {
-        // Arrange
-        await repository.create({
-          ...fakeCreateChatMessageInput({ userId, sessionId }),
-          content: null as unknown as string, // Force content to be null to simulate corruption
-        });
+    it("throws when required field content is missing from database record", async () => {
+      // Arrange — write directly, bypassing entity validation,
+      // to simulate a corrupt row already sitting in the table.
+      await client.send(
+        new PutCommand({
+          TableName: tableName,
+          Item: {
+            id: faker.string.uuid(),
+            userId,
+            sessionId,
+            role: "USER",
+            content: null,
+            createdAt: new Date().toISOString(),
+            expiresAt: Math.floor(Date.now() / 1000) + 3600,
+            sessionSortKey: `${sessionId}#${ulid()}`,
+          },
+        }),
+      );
 
-        // Act & Assert
-        await expect(
-          repository.findManyRecentBySessionId({ userId, sessionId }, 10),
-        ).rejects.toThrow("Failed to hydrate chat messages");
-      });
+      // Act & Assert
+      await expect(
+        repository.findManyRecentBySessionId({ userId, sessionId }, 10),
+      ).rejects.toThrow("Failed to hydrate chat messages");
     });
   });
 
   describe("create", () => {
-    it("creates message and returns it", async () => {
-      // Arrange
-      const input = fakeCreateChatMessageInput({
-        userId,
-        sessionId,
-      });
-
-      // Act
-      const message = await repository.create(input);
-
-      // Assert
-      expect(message.id).toBeDefined();
-      expect(message.userId).toBe(userId);
-      expect(message.sessionId).toBe(sessionId);
-      expect(message.role).toBe(input.role);
-      expect(message.content).toBe(input.content);
-      expect(message.createdAt).toBeDefined();
-      expect(message.expiresAt).toBe(
-        Math.floor(new Date(message.createdAt).getTime() / 1000) + 3600,
-      );
-    });
-
-    it("throws when userId is missing", async () => {
-      await expect(
-        repository.create(
-          fakeCreateChatMessageInput({ userId: "", sessionId }),
-        ),
-      ).rejects.toThrow("User ID is required");
-    });
-
-    it("throws when sessionId is missing", async () => {
-      await expect(
-        repository.create(
-          fakeCreateChatMessageInput({ userId, sessionId: "" }),
-        ),
-      ).rejects.toThrow("Session ID is required");
-    });
+    // Happy path
 
     it("persists message to database", async () => {
-      const created = await repository.create(
+      // Arrange
+      const message = ChatMessage.create(
         fakeCreateChatMessageInput({ userId, sessionId }),
       );
 
+      // Act
+      await repository.create(message);
+
+      // Assert
       const [found] = await repository.findManyRecentBySessionId(
         { userId, sessionId },
         1,
       );
-
-      expect(found).toEqual(created);
+      expect(found).toEqual(message);
     });
   });
 });

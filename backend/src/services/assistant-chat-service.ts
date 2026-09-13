@@ -1,5 +1,5 @@
 import { randomUUID } from "crypto";
-import { ChatMessageRole } from "../models/chat-message";
+import { ChatMessage, ChatMessageRole } from "../models/chat-message";
 import { AgentMessage, AgentTraceMessage } from "../ports/agent-types";
 import { ChatMessageRepository } from "../ports/chat-message-repository";
 import { Failure, Result, Success } from "../types/result";
@@ -36,15 +36,18 @@ export class AssistantChatServiceImpl implements AssistantChatService {
   private readonly assistantService: AssistantService;
   private readonly chatMessageRepository: ChatMessageRepository;
   private readonly maxMessages: number;
+  private readonly ttlSeconds: number;
 
   constructor(deps: {
     chatMessageRepository: ChatMessageRepository;
     assistantService: AssistantService;
     maxMessages: number;
+    ttlSeconds: number;
   }) {
     this.assistantService = deps.assistantService;
     this.chatMessageRepository = deps.chatMessageRepository;
     this.maxMessages = deps.maxMessages;
+    this.ttlSeconds = deps.ttlSeconds;
   }
 
   async call(
@@ -84,18 +87,24 @@ export class AssistantChatServiceImpl implements AssistantChatService {
     }
 
     // Persist user question and assistant answer after successful response
-    await this.chatMessageRepository.create({
-      userId,
-      sessionId,
-      role: ChatMessageRole.USER,
-      content: input.question,
-    });
-    await this.chatMessageRepository.create({
-      userId,
-      sessionId,
-      role: ChatMessageRole.ASSISTANT,
-      content: result.data.answer,
-    });
+    await this.chatMessageRepository.create(
+      ChatMessage.create({
+        userId,
+        sessionId,
+        role: ChatMessageRole.USER,
+        content: input.question,
+        ttlSeconds: this.ttlSeconds,
+      }),
+    );
+    await this.chatMessageRepository.create(
+      ChatMessage.create({
+        userId,
+        sessionId,
+        role: ChatMessageRole.ASSISTANT,
+        content: result.data.answer,
+        ttlSeconds: this.ttlSeconds,
+      }),
+    );
 
     return Success({
       answer: result.data.answer,

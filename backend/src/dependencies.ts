@@ -90,10 +90,6 @@ export const resolveChatMessageRepository = createSingleton(
   () =>
     new DynChatMessageRepository({
       tableName: requireEnv("CHAT_MESSAGES_TABLE_NAME"),
-      ttlSeconds: requireIntEnv(
-        "CHAT_MESSAGE_TTL_SECONDS",
-        DEFAULT_CHAT_MESSAGE_TTL_SECONDS,
-      ),
       documentClient: resolveDynDocumentClient(),
     }),
 );
@@ -267,6 +263,10 @@ export const resolveAssistantChatService = createAsyncSingleton(
       maxMessages: requireIntEnv(
         "CHAT_HISTORY_MAX_MESSAGES",
         DEFAULT_CHAT_HISTORY_MAX_MESSAGES,
+      ),
+      ttlSeconds: requireIntEnv(
+        "CHAT_MESSAGE_TTL_SECONDS",
+        DEFAULT_CHAT_MESSAGE_TTL_SECONDS,
       ),
     }),
 );
