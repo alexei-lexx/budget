@@ -1,6 +1,7 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   InvalidDateTimeStringError,
+  currentDateTimeString,
   isDateTimeString,
   toDateTimeString,
 } from "./date-time-string";
@@ -90,5 +91,22 @@ describe("toDateTimeString", () => {
   it("throws for empty string", () => {
     // Act & Assert
     expect(() => toDateTimeString("")).toThrow(InvalidDateTimeStringError);
+  });
+});
+
+describe("currentDateTimeString", () => {
+  beforeEach(() => {
+    vi.useFakeTimers().setSystemTime(new Date("2024-06-15T12:30:45.123Z"));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  // Happy path
+
+  it("returns current instant as datetime string", () => {
+    // Act & Assert
+    expect(currentDateTimeString()).toBe("2024-06-15T12:30:45.123Z");
   });
 });

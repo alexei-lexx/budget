@@ -1,8 +1,15 @@
 import { randomUUID } from "crypto";
 import { DateString } from "../types/date-string";
-import { DateTimeString, toDateTimeString } from "../types/date-time-string";
+import {
+  DateTimeString,
+  currentDateTimeString,
+} from "../types/date-time-string";
 import { Account } from "./account";
 import { Category, CategoryType } from "./category";
+import { Archivable } from "./entity/archivable";
+import { Entity } from "./entity/entity";
+import { Timestampable } from "./entity/timestampable";
+import { Versioned } from "./entity/versioned";
 import { ModelError } from "./model-error";
 
 export const DESCRIPTION_MAX_LENGTH = 500;
@@ -38,9 +45,15 @@ export interface TransactionData {
   updatedAt: DateTimeString;
 }
 
-export class Transaction implements TransactionData {
-  private readonly data: Readonly<TransactionData>;
+interface TransientRelations {
+  newAccount?: Account;
+  newCategory?: Category;
+}
 
+export class Transaction
+  extends Archivable(Versioned(Timestampable(Entity<TransactionData>)))
+  implements TransactionData
+{
   get userId() {
     return this.data.userId;
   }
@@ -81,28 +94,12 @@ export class Transaction implements TransactionData {
     return this.data.transferId;
   }
 
-  get isArchived() {
-    return this.data.isArchived;
-  }
-
-  get version() {
-    return this.data.version;
-  }
-
-  get createdAt() {
-    return this.data.createdAt;
-  }
-
-  get updatedAt() {
-    return this.data.updatedAt;
-  }
-
   static create(
     input: CreateTransactionInput,
     { idGenerator = randomUUID }: { idGenerator?: () => string } = {},
   ): Transaction {
     const { account, category } = input;
-    const now = toDateTimeString(new Date().toISOString());
+    const createdAt = currentDateTimeString();
 
     const data: TransactionData = {
       id: idGenerator(),
@@ -115,20 +112,15 @@ export class Transaction implements TransactionData {
       date: input.date,
       description: normalizeDescription(input.description),
       transferId: input.transferId,
-      isArchived: false,
-      version: 0,
-      createdAt: now,
-      updatedAt: now,
+      ...Transaction.archivableDefaults,
+      ...Transaction.versionDefaults,
+      createdAt,
+      updatedAt: createdAt,
     };
 
     return new Transaction(data, {
-      newAccount: account,
-      newCategory: category,
+      transientRelations: { newAccount: account, newCategory: category },
     });
-  }
-
-  static fromPersistence(data: Readonly<TransactionData>): Transaction {
-    return new Transaction(data);
   }
 
   get signedAmount(): number {
@@ -143,38 +135,10 @@ export class Transaction implements TransactionData {
     }
   }
 
-  toData(): Readonly<TransactionData> {
-    return {
-      ...this.data,
-    };
-  }
-
-  /**
-   * Returns the version this entity will have once persisted.
-   */
-  nextVersion(): number {
-    return this.version + 1;
-  }
-
-  bumpVersion(): Transaction {
-    return new Transaction(
-      {
-        ...this.data,
-        version: this.nextVersion(),
-      },
-      undefined,
-      // Version bump leaves all invariant-bearing fields unchanged.
-      { skipInvariants: true },
-    );
-  }
-
   update(input: UpdateTransactionInput): Transaction {
-    if (this.isArchived) {
-      throw new ModelError("Cannot update archived transaction");
-    }
+    this.assertNotArchived();
 
     const { account, category } = input;
-    const now = toDateTimeString(new Date().toISOString());
 
     const newCategoryId =
       category === undefined // Keep existing category
@@ -190,56 +154,45 @@ export class Transaction implements TransactionData {
           ? undefined
           : normalizeDescription(input.description);
 
-    const data: TransactionData = {
-      ...this.data,
+    const overrides: Partial<TransactionData> = {
       // Override account fields only when a new account is provided.
       ...(account && { accountId: account.id, currency: account.currency }),
       categoryId: newCategoryId,
-      type: input.type ?? this.type,
-      amount: input.amount ?? this.amount,
-      date: input.date ?? this.date,
+      ...(input.type !== undefined && { type: input.type }),
+      ...(input.amount !== undefined && { amount: input.amount }),
+      ...(input.date !== undefined && { date: input.date }),
       description: newDescription,
-      updatedAt: now,
+      updatedAt: currentDateTimeString(),
     };
 
-    return new Transaction(data, {
-      newAccount: account,
-      newCategory: category ?? undefined,
+    return this.copy(overrides, {
+      transientRelations: {
+        newAccount: account,
+        newCategory: category ?? undefined,
+      },
     });
   }
 
-  archive(): Transaction {
-    if (this.isArchived) {
-      throw new ModelError("Cannot archive archived transaction");
-    }
-
-    const now = toDateTimeString(new Date().toISOString());
-
-    const data: TransactionData = {
-      ...this.data,
-      isArchived: true,
-      updatedAt: now,
-    };
-
-    return new Transaction(data);
-  }
-
-  private constructor(
+  constructor(
     data: Readonly<TransactionData>,
-    transientRelations?: { newAccount?: Account; newCategory?: Category },
-    { skipInvariants = false }: { skipInvariants?: boolean } = {},
+    {
+      skipInvariants = false,
+      transientRelations,
+    }: {
+      skipInvariants?: boolean;
+      transientRelations?: TransientRelations;
+    } = {},
   ) {
-    this.data = { ...data };
+    // Parent's assertInvariants() takes no arguments, but this class needs
+    // transientRelations, so validation is skipped and run manually below.
+    super(data, { skipInvariants: true });
 
     if (!skipInvariants) {
       this.assertInvariants(transientRelations);
     }
   }
 
-  private assertInvariants(transientRelations?: {
-    newAccount?: Account;
-    newCategory?: Category;
-  }): void {
+  protected assertInvariants(transientRelations?: TransientRelations): void {
     const newAccount = transientRelations?.newAccount;
     const newCategory = transientRelations?.newCategory;
 

@@ -1,5 +1,12 @@
 import { randomUUID } from "crypto";
-import { DateTimeString, toDateTimeString } from "../types/date-time-string";
+import {
+  DateTimeString,
+  currentDateTimeString,
+} from "../types/date-time-string";
+import { Archivable } from "./entity/archivable";
+import { Entity } from "./entity/entity";
+import { Timestampable } from "./entity/timestampable";
+import { Versioned } from "./entity/versioned";
 import { ModelError } from "./model-error";
 
 export const NAME_MIN_LENGTH = 1;
@@ -23,9 +30,10 @@ export interface CategoryData {
   updatedAt: DateTimeString;
 }
 
-export class Category implements CategoryData {
-  private readonly data: Readonly<CategoryData>;
-
+export class Category
+  extends Archivable(Versioned(Timestampable(Entity<CategoryData>)))
+  implements CategoryData
+{
   get userId() {
     return this.data.userId;
   }
@@ -46,27 +54,11 @@ export class Category implements CategoryData {
     return this.data.excludeFromReports;
   }
 
-  get isArchived() {
-    return this.data.isArchived;
-  }
-
-  get version() {
-    return this.data.version;
-  }
-
-  get createdAt() {
-    return this.data.createdAt;
-  }
-
-  get updatedAt() {
-    return this.data.updatedAt;
-  }
-
   static create(
     input: CreateCategoryInput,
     { idGenerator = randomUUID }: { idGenerator?: () => string } = {},
   ): Category {
-    const now = toDateTimeString(new Date().toISOString());
+    const createdAt = currentDateTimeString();
 
     const data: CategoryData = {
       id: idGenerator(),
@@ -74,94 +66,31 @@ export class Category implements CategoryData {
       name: normalizeCategoryName(input.name),
       type: input.type,
       excludeFromReports: input.excludeFromReports,
-      isArchived: false,
-      version: 0,
-      createdAt: now,
-      updatedAt: now,
+      ...Category.archivableDefaults,
+      ...Category.versionDefaults,
+      createdAt,
+      updatedAt: createdAt,
     };
 
     return new Category(data);
-  }
-
-  static fromPersistence(data: Readonly<CategoryData>): Category {
-    return new Category(data);
-  }
-
-  toData(): Readonly<CategoryData> {
-    return {
-      ...this.data,
-    };
-  }
-
-  /**
-   * Returns the version this entity will have once persisted.
-   */
-  nextVersion(): number {
-    return this.version + 1;
-  }
-
-  bumpVersion(): Category {
-    const data: CategoryData = {
-      ...this.data,
-      version: this.nextVersion(),
-    };
-
-    return new Category(
-      data,
-      // Version bump leaves all invariant-bearing fields unchanged.
-      { skipInvariants: true },
-    );
   }
 
   update(input: UpdateCategoryInput): Category {
-    if (this.isArchived) {
-      throw new ModelError("Cannot update archived category");
-    }
+    this.assertNotArchived();
 
-    const now = toDateTimeString(new Date().toISOString());
-
-    const data: CategoryData = {
-      ...this.data,
-      name:
-        input.name !== undefined
-          ? normalizeCategoryName(input.name)
-          : this.name,
-      type: input.type ?? this.type,
-      excludeFromReports: input.excludeFromReports ?? this.excludeFromReports,
-      updatedAt: now,
-    };
-
-    return new Category(data);
+    return this.copy({
+      ...(input.name !== undefined && {
+        name: normalizeCategoryName(input.name),
+      }),
+      ...(input.type !== undefined && { type: input.type }),
+      ...(input.excludeFromReports !== undefined && {
+        excludeFromReports: input.excludeFromReports,
+      }),
+      updatedAt: currentDateTimeString(),
+    });
   }
 
-  archive(): Category {
-    if (this.isArchived) {
-      throw new ModelError("Cannot archive archived category");
-    }
-
-    const now = toDateTimeString(new Date().toISOString());
-
-    const data: CategoryData = {
-      ...this.data,
-      isArchived: true,
-      updatedAt: now,
-    };
-
-    return new Category(data);
-  }
-
-  private constructor(
-    data: Readonly<CategoryData>,
-    { skipInvariants = false }: { skipInvariants?: boolean } = {},
-  ) {
-    this.data = { ...data };
-
-    if (!skipInvariants) {
-      this.assertInvariants();
-    }
-  }
-
-  private assertInvariants(): void {
+  protected assertInvariants(): void {
     const trimmedLength = this.name.trim().length;
     if (trimmedLength < NAME_MIN_LENGTH || trimmedLength > NAME_MAX_LENGTH) {
       throw new ModelError(

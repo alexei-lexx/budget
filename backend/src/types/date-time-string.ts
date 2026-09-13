@@ -55,3 +55,10 @@ export function toDateTimeString(value: string): DateTimeString {
   }
   return value;
 }
+
+/**
+ * Returns the current instant as a DateTimeString.
+ */
+export function currentDateTimeString(): DateTimeString {
+  return toDateTimeString(new Date().toISOString());
+}

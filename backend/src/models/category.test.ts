@@ -5,7 +5,12 @@ import {
   fakeCategory,
   fakeCreateCategoryInput,
 } from "../utils/test-utils/models/category-fakes";
-import { Category, CategoryType, NAME_MAX_LENGTH } from "./category";
+import {
+  Category,
+  CategoryType,
+  NAME_MAX_LENGTH,
+  NAME_MIN_LENGTH,
+} from "./category";
 import { ModelError } from "./model-error";
 
 describe("Category", () => {
@@ -73,7 +78,11 @@ describe("Category", () => {
       // Act & Assert
       expect(() =>
         Category.create(fakeCreateCategoryInput({ name: "" })),
-      ).toThrow(ModelError);
+      ).toThrow(
+        new ModelError(
+          `Category name must be between ${NAME_MIN_LENGTH} and ${NAME_MAX_LENGTH} characters`,
+        ),
+      );
     });
 
     it("throws when name exceeds maximum length", () => {
@@ -83,7 +92,11 @@ describe("Category", () => {
       // Act & Assert
       expect(() =>
         Category.create(fakeCreateCategoryInput({ name: tooLong })),
-      ).toThrow(ModelError);
+      ).toThrow(
+        new ModelError(
+          `Category name must be between ${NAME_MIN_LENGTH} and ${NAME_MAX_LENGTH} characters`,
+        ),
+      );
     });
   });
 
@@ -108,50 +121,11 @@ describe("Category", () => {
       const data = { ...fakeCategory().toData(), name: "" };
 
       // Act & Assert
-      expect(() => Category.fromPersistence(data)).toThrow(ModelError);
-    });
-  });
-
-  describe("toData", () => {
-    // Happy path
-
-    it("returns plain object with all data fields", () => {
-      // Arrange
-      const data = fakeCategory().toData();
-      const category = Category.fromPersistence(data);
-
-      // Act & Assert
-      expect(category.toData()).toEqual(data);
-    });
-  });
-
-  describe("nextVersion", () => {
-    // Happy path
-
-    it("returns version incremented by 1", () => {
-      // Arrange
-      const category = fakeCategory({ version: 4 });
-
-      // Act & Assert
-      expect(category.nextVersion()).toBe(5);
-    });
-  });
-
-  describe("bumpVersion", () => {
-    // Happy path
-
-    it("increments version by 1 and preserves other fields", () => {
-      // Arrange
-      const existing = fakeCategory({ version: 4 });
-
-      // Act
-      const result = existing.bumpVersion();
-
-      // Assert
-      expect(result.toData()).toEqual({
-        ...existing.toData(),
-        version: 5,
-      });
+      expect(() => Category.fromPersistence(data)).toThrow(
+        new ModelError(
+          `Category name must be between ${NAME_MIN_LENGTH} and ${NAME_MAX_LENGTH} characters`,
+        ),
+      );
     });
   });
 
@@ -261,13 +235,17 @@ describe("Category", () => {
 
       // Act & Assert
       expect(() => existing.update({ name: "Utilities" })).toThrow(
-        new ModelError("Cannot update archived category"),
+        new ModelError("Cannot modify an archived record"),
       );
     });
 
     it("throws when name is empty", () => {
       // Act & Assert
-      expect(() => fakeCategory().update({ name: "" })).toThrow(ModelError);
+      expect(() => fakeCategory().update({ name: "" })).toThrow(
+        new ModelError(
+          `Category name must be between ${NAME_MIN_LENGTH} and ${NAME_MAX_LENGTH} characters`,
+        ),
+      );
     });
 
     it("throws when name exceeds maximum length", () => {
@@ -276,53 +254,9 @@ describe("Category", () => {
 
       // Act & Assert
       expect(() => fakeCategory().update({ name: tooLong })).toThrow(
-        ModelError,
-      );
-    });
-  });
-
-  describe("archive", () => {
-    beforeEach(() => {
-      vi.useFakeTimers().setSystemTime(new Date("2000-01-02T10:11:12.000Z"));
-    });
-
-    afterEach(() => {
-      vi.useRealTimers();
-    });
-
-    // Happy path
-
-    it("sets isArchived to true", () => {
-      // Arrange
-      const existing = fakeCategory({ isArchived: false });
-
-      // Act
-      const result = existing.archive();
-
-      // Assert
-      expect(result.isArchived).toBe(true);
-    });
-
-    it("sets updatedAt", () => {
-      // Arrange
-      const existing = fakeCategory();
-
-      // Act
-      const result = existing.archive();
-
-      // Assert
-      expect(result.updatedAt).toBe("2000-01-02T10:11:12.000Z");
-    });
-
-    // Validation failures
-
-    it("throws on already archived category", () => {
-      // Arrange
-      const existing = fakeCategory({ isArchived: true });
-
-      // Act & Assert
-      expect(() => existing.archive()).toThrow(
-        new ModelError("Cannot archive archived category"),
+        new ModelError(
+          `Category name must be between ${NAME_MIN_LENGTH} and ${NAME_MAX_LENGTH} characters`,
+        ),
       );
     });
   });

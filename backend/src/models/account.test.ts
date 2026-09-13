@@ -5,7 +5,7 @@ import {
   fakeAccount,
   fakeCreateAccountInput,
 } from "../utils/test-utils/models/account-fakes";
-import { Account, NAME_MAX_LENGTH } from "./account";
+import { Account, NAME_MAX_LENGTH, NAME_MIN_LENGTH } from "./account";
 import { ModelError } from "./model-error";
 
 describe("Account", () => {
@@ -72,7 +72,11 @@ describe("Account", () => {
       // Act & Assert
       expect(() =>
         Account.create(fakeCreateAccountInput({ name: "" })),
-      ).toThrow(ModelError);
+      ).toThrow(
+        new ModelError(
+          `Account name must be between ${NAME_MIN_LENGTH} and ${NAME_MAX_LENGTH} characters`,
+        ),
+      );
     });
 
     it("throws when name exceeds maximum length", () => {
@@ -82,14 +86,18 @@ describe("Account", () => {
       // Act & Assert
       expect(() =>
         Account.create(fakeCreateAccountInput({ name: tooLong })),
-      ).toThrow(ModelError);
+      ).toThrow(
+        new ModelError(
+          `Account name must be between ${NAME_MIN_LENGTH} and ${NAME_MAX_LENGTH} characters`,
+        ),
+      );
     });
 
     it("throws on unsupported currency", () => {
       // Act & Assert
       expect(() =>
         Account.create(fakeCreateAccountInput({ currency: "ZZZ" })),
-      ).toThrow(ModelError);
+      ).toThrow(new ModelError("Unsupported currency: ZZZ"));
     });
   });
 
@@ -114,7 +122,11 @@ describe("Account", () => {
       const data = { ...fakeAccount().toData(), name: "" };
 
       // Act & Assert
-      expect(() => Account.fromPersistence(data)).toThrow(ModelError);
+      expect(() => Account.fromPersistence(data)).toThrow(
+        new ModelError(
+          `Account name must be between ${NAME_MIN_LENGTH} and ${NAME_MAX_LENGTH} characters`,
+        ),
+      );
     });
 
     it("throws on unsupported currency", () => {
@@ -122,7 +134,9 @@ describe("Account", () => {
       const data = { ...fakeAccount().toData(), currency: "ZZZ" };
 
       // Act & Assert
-      expect(() => Account.fromPersistence(data)).toThrow(ModelError);
+      expect(() => Account.fromPersistence(data)).toThrow(
+        new ModelError("Unsupported currency: ZZZ"),
+      );
     });
   });
 
@@ -149,49 +163,6 @@ describe("Account", () => {
 
       // Act & Assert
       expect(account.balance).toBe(70);
-    });
-  });
-
-  describe("toData", () => {
-    // Happy path
-
-    it("returns plain object with all data fields", () => {
-      // Arrange
-      const data = fakeAccount().toData();
-      const account = Account.fromPersistence(data);
-
-      // Act & Assert
-      expect(account.toData()).toEqual(data);
-    });
-  });
-
-  describe("nextVersion", () => {
-    // Happy path
-
-    it("returns version incremented by 1", () => {
-      // Arrange
-      const account = fakeAccount({ version: 4 });
-
-      // Act & Assert
-      expect(account.nextVersion()).toBe(5);
-    });
-  });
-
-  describe("bumpVersion", () => {
-    // Happy path
-
-    it("increments version by 1 and preserves other fields", () => {
-      // Arrange
-      const existing = fakeAccount({ version: 4 });
-
-      // Act
-      const result = existing.bumpVersion();
-
-      // Assert
-      expect(result.toData()).toEqual({
-        ...existing.toData(),
-        version: 5,
-      });
     });
   });
 
@@ -299,13 +270,17 @@ describe("Account", () => {
 
       // Act & Assert
       expect(() => existing.update({ name: "Wallet" })).toThrow(
-        new ModelError("Cannot update archived account"),
+        new ModelError("Cannot modify an archived record"),
       );
     });
 
     it("throws when name is empty", () => {
       // Act & Assert
-      expect(() => fakeAccount().update({ name: "" })).toThrow(ModelError);
+      expect(() => fakeAccount().update({ name: "" })).toThrow(
+        new ModelError(
+          `Account name must be between ${NAME_MIN_LENGTH} and ${NAME_MAX_LENGTH} characters`,
+        ),
+      );
     });
 
     it("throws when name exceeds maximum length", () => {
@@ -313,59 +288,17 @@ describe("Account", () => {
       const tooLong = "a".repeat(NAME_MAX_LENGTH + 1);
 
       // Act & Assert
-      expect(() => fakeAccount().update({ name: tooLong })).toThrow(ModelError);
+      expect(() => fakeAccount().update({ name: tooLong })).toThrow(
+        new ModelError(
+          `Account name must be between ${NAME_MIN_LENGTH} and ${NAME_MAX_LENGTH} characters`,
+        ),
+      );
     });
 
     it("throws on unsupported currency", () => {
       // Act & Assert
       expect(() => fakeAccount().update({ currency: "ZZZ" })).toThrow(
-        ModelError,
-      );
-    });
-  });
-
-  describe("archive", () => {
-    beforeEach(() => {
-      vi.useFakeTimers().setSystemTime(new Date("2000-01-02T10:11:12.000Z"));
-    });
-
-    afterEach(() => {
-      vi.useRealTimers();
-    });
-
-    // Happy path
-
-    it("sets isArchived to true", () => {
-      // Arrange
-      const existing = fakeAccount({ isArchived: false });
-
-      // Act
-      const result = existing.archive();
-
-      // Assert
-      expect(result.isArchived).toBe(true);
-    });
-
-    it("sets updatedAt", () => {
-      // Arrange
-      const existing = fakeAccount();
-
-      // Act
-      const result = existing.archive();
-
-      // Assert
-      expect(result.updatedAt).toBe("2000-01-02T10:11:12.000Z");
-    });
-
-    // Validation failures
-
-    it("throws on already archived account", () => {
-      // Arrange
-      const existing = fakeAccount({ isArchived: true });
-
-      // Act & Assert
-      expect(() => existing.archive()).toThrow(
-        new ModelError("Cannot archive archived account"),
+        new ModelError("Unsupported currency: ZZZ"),
       );
     });
   });

@@ -144,17 +144,4 @@ describe("TrendPreset", () => {
       );
     });
   });
-
-  describe("toData", () => {
-    // Happy path
-
-    it("returns plain object with all data fields", () => {
-      // Arrange
-      const data = fakeTrendPreset().toData();
-      const preset = TrendPreset.fromPersistence(data);
-
-      // Act & Assert
-      expect(preset.toData()).toEqual(data);
-    });
-  });
 });

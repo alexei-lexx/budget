@@ -1,6 +1,13 @@
 import { randomUUID } from "crypto";
 import { isSupportedCurrency } from "../types/currency";
-import { DateTimeString, toDateTimeString } from "../types/date-time-string";
+import {
+  DateTimeString,
+  currentDateTimeString,
+} from "../types/date-time-string";
+import { Archivable } from "./entity/archivable";
+import { Entity } from "./entity/entity";
+import { Timestampable } from "./entity/timestampable";
+import { Versioned } from "./entity/versioned";
 import { ModelError } from "./model-error";
 
 export const NAME_MIN_LENGTH = 1;
@@ -20,9 +27,10 @@ export interface AccountData {
   updatedAt: DateTimeString;
 }
 
-export class Account implements AccountData {
-  private readonly data: Readonly<AccountData>;
-
+export class Account
+  extends Archivable(Versioned(Timestampable(Entity<AccountData>)))
+  implements AccountData
+{
   get userId() {
     return this.data.userId;
   }
@@ -47,27 +55,16 @@ export class Account implements AccountData {
     return this.data.transactionBalance;
   }
 
-  get isArchived() {
-    return this.data.isArchived;
-  }
-
-  get version() {
-    return this.data.version;
-  }
-
-  get createdAt() {
-    return this.data.createdAt;
-  }
-
-  get updatedAt() {
-    return this.data.updatedAt;
+  get balance(): number {
+    return this.initialBalance + this.transactionBalance;
   }
 
   static create(
     input: CreateAccountInput,
     { idGenerator = randomUUID }: { idGenerator?: () => string } = {},
   ): Account {
-    const now = toDateTimeString(new Date().toISOString());
+    const createdAt = currentDateTimeString();
+    const updatedAt = createdAt;
 
     const data: AccountData = {
       id: idGenerator(),
@@ -76,115 +73,47 @@ export class Account implements AccountData {
       currency: input.currency,
       initialBalance: input.initialBalance,
       transactionBalance: 0,
-      isArchived: false,
-      version: 0,
-      createdAt: now,
-      updatedAt: now,
+      ...Account.archivableDefaults,
+      ...Account.versionDefaults,
+      createdAt,
+      updatedAt,
     };
 
     return new Account(data);
-  }
-
-  static fromPersistence(data: Readonly<AccountData>): Account {
-    return new Account(data);
-  }
-
-  get balance(): number {
-    return this.initialBalance + this.transactionBalance;
-  }
-
-  toData(): Readonly<AccountData> {
-    return {
-      ...this.data,
-    };
-  }
-
-  /**
-   * Returns the version this entity will have once persisted.
-   */
-  nextVersion(): number {
-    return this.version + 1;
-  }
-
-  bumpVersion(): Account {
-    const data: AccountData = {
-      ...this.data,
-      version: this.nextVersion(),
-    };
-
-    return new Account(
-      data,
-      // Version bump leaves all invariant-bearing fields unchanged.
-      { skipInvariants: true },
-    );
   }
 
   update(input: UpdateAccountInput): Account {
-    if (this.isArchived) {
-      throw new ModelError("Cannot update archived account");
-    }
+    this.assertNotArchived();
 
-    const now = toDateTimeString(new Date().toISOString());
-
-    const data: AccountData = {
-      ...this.data,
-      name:
-        input.name !== undefined ? normalizeAccountName(input.name) : this.name,
-      currency: input.currency ?? this.currency,
-      initialBalance: input.initialBalance ?? this.initialBalance,
-      updatedAt: now,
-    };
-
-    return new Account(data);
-  }
-
-  archive(): Account {
-    if (this.isArchived) {
-      throw new ModelError("Cannot archive archived account");
-    }
-
-    const now = toDateTimeString(new Date().toISOString());
-
-    const data: AccountData = {
-      ...this.data,
-      isArchived: true,
-      updatedAt: now,
-    };
-
-    return new Account(data);
+    return this.copy({
+      ...(input.name !== undefined && {
+        name: normalizeAccountName(input.name),
+      }),
+      ...(input.currency !== undefined && { currency: input.currency }),
+      ...(input.initialBalance !== undefined && {
+        initialBalance: input.initialBalance,
+      }),
+      updatedAt: currentDateTimeString(),
+    });
   }
 
   increaseBalanceBySignedAmount(deltaAmount: number): Account {
-    const data: AccountData = {
-      ...this.data,
+    return this.copy({
       transactionBalance: this.transactionBalance + deltaAmount,
-      updatedAt: toDateTimeString(new Date().toISOString()),
-    };
-    return new Account(data);
+      updatedAt: currentDateTimeString(),
+    });
   }
 
   decreaseBalanceBySignedAmount(deltaAmount: number): Account {
-    const data: AccountData = {
-      ...this.data,
+    return this.copy({
       transactionBalance: this.transactionBalance - deltaAmount,
-      updatedAt: toDateTimeString(new Date().toISOString()),
-    };
-    return new Account(data);
+      updatedAt: currentDateTimeString(),
+    });
   }
 
-  private constructor(
-    data: Readonly<AccountData>,
-    { skipInvariants = false }: { skipInvariants?: boolean } = {},
-  ) {
-    this.data = { ...data };
-
-    if (!skipInvariants) {
-      this.assertInvariants();
-    }
-  }
-
-  private assertInvariants(): void {
+  protected assertInvariants(): void {
     const trimmedLength = this.name.trim().length;
+
     if (trimmedLength < NAME_MIN_LENGTH || trimmedLength > NAME_MAX_LENGTH) {
       throw new ModelError(
         `Account name must be between ${NAME_MIN_LENGTH} and ${NAME_MAX_LENGTH} characters`,

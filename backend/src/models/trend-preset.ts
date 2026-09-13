@@ -1,5 +1,9 @@
 import { randomUUID } from "crypto";
-import { DateTimeString, toDateTimeString } from "../types/date-time-string";
+import {
+  DateTimeString,
+  currentDateTimeString,
+} from "../types/date-time-string";
+import { Entity } from "./entity/entity";
 import { ModelError } from "./model-error";
 
 export type TrendPeriodUnit = "MONTH" | "WEEK";
@@ -24,9 +28,10 @@ export interface TrendPresetData {
  * with no audit or recovery value, so deleting it hard-deletes the row.
  * This is an intentional exception to the soft-deletion rule.
  */
-export class TrendPreset implements TrendPresetData {
-  private readonly data: Readonly<TrendPresetData>;
-
+export class TrendPreset
+  extends Entity<TrendPresetData>
+  implements TrendPresetData
+{
   get id() {
     return this.data.id;
   }
@@ -71,28 +76,13 @@ export class TrendPreset implements TrendPresetData {
       currency: input.currency,
       categoryIds: input.categoryIds ?? [],
       includeUncategorized: input.includeUncategorized,
-      createdAt: toDateTimeString(new Date().toISOString()),
+      createdAt: currentDateTimeString(),
     };
 
     return new TrendPreset(data);
   }
 
-  static fromPersistence(data: Readonly<TrendPresetData>): TrendPreset {
-    return new TrendPreset(data);
-  }
-
-  toData(): Readonly<TrendPresetData> {
-    return {
-      ...this.data,
-    };
-  }
-
-  private constructor(data: Readonly<TrendPresetData>) {
-    this.data = { ...data };
-    this.assertInvariants();
-  }
-
-  private assertInvariants(): void {
+  protected assertInvariants(): void {
     if (
       !Number.isInteger(this.lookback) ||
       this.lookback < LOOKBACK_MIN ||

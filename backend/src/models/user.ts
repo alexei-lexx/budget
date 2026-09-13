@@ -1,7 +1,12 @@
 import { randomUUID } from "crypto";
-import { DateTimeString, toDateTimeString } from "../types/date-time-string";
+import {
+  DateTimeString,
+  currentDateTimeString,
+} from "../types/date-time-string";
 import { isSupportedInterfaceLanguage } from "../types/language";
 import { validateEmail } from "../utils/email";
+import { Entity } from "./entity/entity";
+import { Timestampable } from "./entity/timestampable";
 import { ModelError } from "./model-error";
 
 // Plain data shape.
@@ -20,9 +25,7 @@ export interface UserData {
  * No isArchived: there is no user-deletion feature today, so soft-deletion
  * is an intentional exception to the constitution's soft-deletion rule.
  */
-export class User implements UserData {
-  private readonly data: Readonly<UserData>;
-
+export class User extends Timestampable(Entity<UserData>) implements UserData {
   get id() {
     return this.data.id;
   }
@@ -62,64 +65,45 @@ export class User implements UserData {
       tokenGenerator = randomUUID,
     }: { idGenerator?: () => string; tokenGenerator?: () => string } = {},
   ): User {
-    const now = toDateTimeString(new Date().toISOString());
+    const createdAt = currentDateTimeString();
+    const updatedAt = createdAt;
 
     const data: UserData = {
       id: idGenerator(),
       email: normalizeEmail(input.email),
       mcpToken: tokenGenerator(),
-      createdAt: now,
-      updatedAt: now,
+      createdAt,
+      updatedAt,
     };
 
     return new User(data);
-  }
-
-  static fromPersistence(data: Readonly<UserData>): User {
-    return new User(data);
-  }
-
-  toData(): Readonly<UserData> {
-    return {
-      ...this.data,
-    };
   }
 
   update(input: UpdateUserInput): User {
-    const now = toDateTimeString(new Date().toISOString());
-
-    const data: UserData = {
-      ...this.data,
-      interfaceLanguage: input.interfaceLanguage ?? this.interfaceLanguage,
-      transactionPatternsLimit:
-        input.transactionPatternsLimit ?? this.transactionPatternsLimit,
-      voiceInputLanguage: input.voiceInputLanguage ?? this.voiceInputLanguage,
-      updatedAt: now,
-    };
-
-    return new User(data);
+    return this.copy({
+      ...(input.interfaceLanguage !== undefined && {
+        interfaceLanguage: input.interfaceLanguage,
+      }),
+      ...(input.transactionPatternsLimit !== undefined && {
+        transactionPatternsLimit: input.transactionPatternsLimit,
+      }),
+      ...(input.voiceInputLanguage !== undefined && {
+        voiceInputLanguage: input.voiceInputLanguage,
+      }),
+      updatedAt: currentDateTimeString(),
+    });
   }
 
   regenerateMcpToken({
     tokenGenerator = randomUUID,
   }: { tokenGenerator?: () => string } = {}): User {
-    const now = toDateTimeString(new Date().toISOString());
-
-    const data: UserData = {
-      ...this.data,
+    return this.copy({
       mcpToken: tokenGenerator(),
-      updatedAt: now,
-    };
-
-    return new User(data);
+      updatedAt: currentDateTimeString(),
+    });
   }
 
-  private constructor(data: Readonly<UserData>) {
-    this.data = { ...data };
-    this.assertInvariants();
-  }
-
-  private assertInvariants(): void {
+  protected assertInvariants(): void {
     if (this.email.length === 0) {
       throw new ModelError("Email must be a non-empty string");
     }

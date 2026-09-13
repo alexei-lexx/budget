@@ -491,49 +491,6 @@ describe("Transaction", () => {
     });
   });
 
-  describe("toData", () => {
-    // Happy path
-
-    it("returns plain object with all data fields", () => {
-      // Arrange
-      const data = fakeTransaction().toData();
-      const tx = Transaction.fromPersistence(data);
-
-      // Act & Assert
-      expect(tx.toData()).toEqual(data);
-    });
-  });
-
-  describe("nextVersion", () => {
-    // Happy path
-
-    it("returns version plus 1", () => {
-      // Arrange
-      const tx = fakeTransaction({ version: 4 });
-
-      // Act & Assert
-      expect(tx.nextVersion()).toBe(5);
-    });
-  });
-
-  describe("bumpVersion", () => {
-    // Happy path
-
-    it("increments version by 1 and preserves other fields", () => {
-      // Arrange
-      const existing = fakeTransaction({ version: 4 });
-
-      // Act
-      const result = existing.bumpVersion();
-
-      // Assert
-      expect(result.toData()).toEqual({
-        ...existing.toData(),
-        version: 5,
-      });
-    });
-  });
-
   describe("update", () => {
     beforeEach(() => {
       vi.useFakeTimers().setSystemTime(new Date("2000-01-02T10:11:12.000Z"));
@@ -726,7 +683,7 @@ describe("Transaction", () => {
 
       // Act & Assert
       expect(() => existing.update({ amount: 5 })).toThrow(
-        new ModelError("Cannot update archived transaction"),
+        new ModelError("Cannot modify an archived record"),
       );
     });
 
@@ -886,52 +843,6 @@ describe("Transaction", () => {
       // Act & Assert
       expect(() => existing.update({ type: TransactionType.EXPENSE })).toThrow(
         new ModelError("Only transfer transactions can include transferId"),
-      );
-    });
-  });
-
-  describe("archive", () => {
-    beforeEach(() => {
-      vi.useFakeTimers().setSystemTime(new Date("2000-01-02T10:11:12.000Z"));
-    });
-
-    afterEach(() => {
-      vi.useRealTimers();
-    });
-
-    // Happy path
-
-    it("sets isArchived to true", () => {
-      // Arrange
-      const existing = fakeTransaction();
-
-      // Act
-      const result = existing.archive();
-
-      // Assert
-      expect(result.isArchived).toBe(true);
-    });
-
-    it("sets updatedAt", () => {
-      // Arrange
-      const existing = fakeTransaction();
-
-      // Act
-      const result = existing.archive();
-
-      // Assert
-      expect(result.updatedAt).toBe("2000-01-02T10:11:12.000Z");
-    });
-
-    // Validation failures
-
-    it("throws on already archived transaction", () => {
-      // Arrange
-      const existing = fakeTransaction({ isArchived: true });
-
-      // Act & Assert
-      expect(() => existing.archive()).toThrow(
-        new ModelError("Cannot archive archived transaction"),
       );
     });
   });

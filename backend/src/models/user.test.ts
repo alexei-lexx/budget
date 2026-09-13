@@ -179,19 +179,6 @@ describe("User", () => {
     });
   });
 
-  describe("toData", () => {
-    // Happy path
-
-    it("returns plain object with all data fields", () => {
-      // Arrange
-      const data = fakeUser().toData();
-      const user = User.fromPersistence(data);
-
-      // Act & Assert
-      expect(user.toData()).toEqual(data);
-    });
-  });
-
   describe("update", () => {
     beforeEach(() => {
       vi.useFakeTimers().setSystemTime(new Date("2000-01-02T10:11:12.000Z"));
