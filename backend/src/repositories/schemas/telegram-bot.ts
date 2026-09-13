@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { TelegramBot, TelegramBotStatus } from "../../models/telegram-bot";
+import { TelegramBotData, TelegramBotStatus } from "../../models/telegram-bot";
 import { toDateTimeString } from "../../types/date-time-string";
 
 export const telegramBotSchema = z.object({
@@ -11,4 +11,4 @@ export const telegramBotSchema = z.object({
   isArchived: z.boolean(),
   createdAt: z.iso.datetime().transform(toDateTimeString),
   updatedAt: z.iso.datetime().transform(toDateTimeString),
-}) satisfies z.ZodType<TelegramBot>;
+}) satisfies z.ZodType<TelegramBotData>;

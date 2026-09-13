@@ -1,11 +1,4 @@
-import { ChatMessage, ChatMessageRole } from "../models/chat-message";
-
-export interface CreateChatMessageInput {
-  userId: string;
-  sessionId: string;
-  role: ChatMessageRole;
-  content: string;
-}
+import { ChatMessage } from "../models/chat-message";
 
 /**
  * NOTE: ChatMessage does not follow the standard soft-deletion pattern.
@@ -22,5 +15,5 @@ export interface ChatMessageRepository {
     limit: number,
   ): Promise<ChatMessage[]>;
 
-  create(input: CreateChatMessageInput): Promise<ChatMessage>;
+  create(message: Readonly<ChatMessage>): Promise<void>;
 }

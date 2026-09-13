@@ -10,5 +10,4 @@ export const createMockTelegramBotRepository =
     findOneConnectedByWebhookSecret: vi.fn(),
     create: vi.fn(),
     update: vi.fn(),
-    archive: vi.fn(),
   });

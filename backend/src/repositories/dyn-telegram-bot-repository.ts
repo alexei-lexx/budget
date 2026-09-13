@@ -1,13 +1,8 @@
-import { randomUUID } from "crypto";
+import { ConditionalCheckFailedException } from "@aws-sdk/client-dynamodb";
 import { PutCommand, QueryCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
 import { TelegramBot, TelegramBotStatus } from "../models/telegram-bot";
 import { RepositoryError } from "../ports/repository-error";
-import {
-  CreateTelegramBotInput,
-  TelegramBotRepository,
-  UpdateTelegramBotInput,
-} from "../ports/telegram-bot-repository";
-import { toDateTimeString } from "../types/date-time-string";
+import { TelegramBotRepository } from "../ports/telegram-bot-repository";
 import { DynBaseRepository } from "./dyn-base-repository";
 import { telegramBotSchema } from "./schemas/telegram-bot";
 
@@ -43,7 +38,9 @@ export class DynTelegramBotRepository
         throw new RepositoryError("Multiple connected bots found for user");
       }
 
-      return this.hydrate(telegramBotSchema, result.Items[0]);
+      return TelegramBot.fromPersistence(
+        this.hydrate(telegramBotSchema, result.Items[0]),
+      );
     } catch (error) {
       console.error("Error finding telegram bot by userId:", error);
 
@@ -88,7 +85,9 @@ export class DynTelegramBotRepository
         );
       }
 
-      return this.hydrate(telegramBotSchema, result.Items[0]);
+      return TelegramBot.fromPersistence(
+        this.hydrate(telegramBotSchema, result.Items[0]),
+      );
     } catch (error) {
       console.error("Error finding telegram bot by webhookSecret:", error);
 
@@ -103,135 +102,58 @@ export class DynTelegramBotRepository
     }
   }
 
-  async create(input: CreateTelegramBotInput): Promise<TelegramBot> {
-    const now = toDateTimeString(new Date().toISOString());
-    const bot: TelegramBot = {
-      id: randomUUID(),
-      userId: input.userId,
-      token: input.token,
-      webhookSecret: input.webhookSecret,
-      status: input.status,
-      isArchived: false,
-      createdAt: now,
-      updatedAt: now,
-    };
+  async create(bot: Readonly<TelegramBot>): Promise<void> {
+    const data = bot.toData();
 
     try {
       const command = new PutCommand({
         TableName: this.tableName,
-        Item: bot,
+        Item: data,
+        ConditionExpression: "attribute_not_exists(id)",
       });
 
       await this.client.send(command);
-      return bot;
     } catch (error) {
       console.error("Error creating telegram bot:", error);
       throw new RepositoryError("Failed to create telegram bot", error);
     }
   }
 
-  async update(
-    { id, userId }: { id: string; userId: string },
-    input: UpdateTelegramBotInput,
-  ): Promise<TelegramBot> {
-    if (!id) {
-      throw new RepositoryError("Telegram bot ID is required");
-    }
-
-    if (!userId) {
-      throw new RepositoryError("User ID is required");
-    }
-
-    const now = new Date().toISOString();
-
-    const updateExpressionParts: string[] = ["updatedAt = :updatedAt"];
-    const expressionAttributeValues: Record<string, unknown> = {
-      ":updatedAt": now,
-      ":isArchived": true,
-    };
-    const expressionAttributeNames: Record<string, string> = {};
-
-    if (input.status !== undefined) {
-      updateExpressionParts.push("#status = :status");
-      expressionAttributeValues[":status"] = input.status;
-      expressionAttributeNames["#status"] = "status";
-    }
-
+  async update(bot: Readonly<TelegramBot>): Promise<TelegramBot> {
     try {
       const command = new UpdateCommand({
         TableName: this.tableName,
-        Key: { userId, id },
-        UpdateExpression: `SET ${updateExpressionParts.join(", ")}`,
-        ConditionExpression:
-          "attribute_exists(userId) AND attribute_exists(id) AND isArchived <> :isArchived",
-        ...(Object.keys(expressionAttributeNames).length > 0 && {
-          ExpressionAttributeNames: expressionAttributeNames,
-        }),
-        ExpressionAttributeValues: expressionAttributeValues,
-        ReturnValues: "ALL_NEW",
-      });
-
-      const result = await this.client.send(command);
-      return this.hydrate(telegramBotSchema, result.Attributes);
-    } catch (error) {
-      console.error("Error updating telegram bot:", error);
-
-      if (
-        error instanceof Error &&
-        error.name === "ConditionalCheckFailedException"
-      ) {
-        throw new RepositoryError("Telegram bot not found or is archived");
-      }
-
-      throw new RepositoryError("Failed to update telegram bot", error);
-    }
-  }
-
-  async archive({
-    id,
-    userId,
-  }: {
-    id: string;
-    userId: string;
-  }): Promise<TelegramBot> {
-    if (!id) {
-      throw new RepositoryError("Telegram bot ID is required");
-    }
-
-    if (!userId) {
-      throw new RepositoryError("User ID is required");
-    }
-
-    const now = new Date().toISOString();
-
-    try {
-      const command = new UpdateCommand({
-        TableName: this.tableName,
-        Key: { userId, id },
+        Key: { userId: bot.userId, id: bot.id },
         UpdateExpression:
-          "SET isArchived = :isArchived, updatedAt = :updatedAt",
+          "SET #token = :token, webhookSecret = :webhookSecret, #status = :status, isArchived = :isArchived, updatedAt = :updatedAt",
         ConditionExpression:
-          "attribute_exists(userId) AND attribute_exists(id) AND isArchived <> :isArchived",
+          "attribute_exists(userId) AND attribute_exists(id) AND isArchived <> :alreadyArchived",
+        ExpressionAttributeNames: { "#token": "token", "#status": "status" },
         ExpressionAttributeValues: {
-          ":isArchived": true,
-          ":updatedAt": now,
+          ":token": bot.token,
+          ":webhookSecret": bot.webhookSecret,
+          ":status": bot.status,
+          ":isArchived": bot.isArchived,
+          ":updatedAt": bot.updatedAt,
+          ":alreadyArchived": true,
         },
         ReturnValues: "ALL_NEW",
       });
 
       const result = await this.client.send(command);
-      return this.hydrate(telegramBotSchema, result.Attributes);
+      return TelegramBot.fromPersistence(
+        this.hydrate(telegramBotSchema, result.Attributes),
+      );
     } catch (error) {
-      console.error("Error archiving telegram bot:", error);
-
-      if (
-        error instanceof Error &&
-        error.name === "ConditionalCheckFailedException"
-      ) {
-        throw new RepositoryError("Telegram bot not found or already archived");
+      if (error instanceof ConditionalCheckFailedException) {
+        throw new RepositoryError(
+          "Telegram bot not found or is archived",
+          error,
+        );
       }
 
-      throw new RepositoryError("Failed to archive telegram bot", error);
+      console.error("Error updating telegram bot:", error);
+      throw new RepositoryError("Failed to update telegram bot", error);
     }
   }
 }
