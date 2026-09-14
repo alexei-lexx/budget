@@ -1,11 +1,7 @@
 import { GetCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
 import { faker } from "@faker-js/faker";
 import { beforeAll, beforeEach, describe, expect, it } from "vitest";
-import {
-  Transaction,
-  TransactionPatternType,
-  TransactionType,
-} from "../models/transaction";
+import { Transaction, TransactionType } from "../models/transaction";
 import { VersionConflictError } from "../ports/repository-error";
 import { toDateString } from "../types/date-string";
 import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
@@ -1950,7 +1946,7 @@ describe("DynTransactionRepository", () => {
       // Act
       const result = await repository.detectPatterns({
         userId,
-        type: TransactionPatternType.INCOME,
+        type: "INCOME",
         limit: 3,
         sampleSize: 100,
       });
@@ -1982,7 +1978,7 @@ describe("DynTransactionRepository", () => {
       // Act
       const result = await repository.detectPatterns({
         userId,
-        type: TransactionPatternType.INCOME,
+        type: "INCOME",
         limit: 3,
         sampleSize: 100,
       });
@@ -2050,7 +2046,7 @@ describe("DynTransactionRepository", () => {
       // Act
       const result = await repository.detectPatterns({
         userId,
-        type: TransactionPatternType.INCOME,
+        type: "INCOME",
         limit: 3,
         sampleSize: 100,
       });
@@ -2101,7 +2097,7 @@ describe("DynTransactionRepository", () => {
       // Act
       const result = await repository.detectPatterns({
         userId,
-        type: TransactionPatternType.EXPENSE,
+        type: "EXPENSE",
         limit: 3,
         sampleSize: 100,
       });
@@ -2186,7 +2182,7 @@ describe("DynTransactionRepository", () => {
       // Act
       const result = await repository.detectPatterns({
         userId,
-        type: TransactionPatternType.INCOME,
+        type: "INCOME",
         limit: 3,
         sampleSize: 100,
       });
@@ -2270,21 +2266,21 @@ describe("DynTransactionRepository", () => {
       // Act
       const incomeResult = await repository.detectPatterns({
         userId,
-        type: TransactionPatternType.INCOME,
+        type: "INCOME",
         limit: 3,
         sampleSize: 100,
       });
 
       const expenseResult = await repository.detectPatterns({
         userId,
-        type: TransactionPatternType.EXPENSE,
+        type: "EXPENSE",
         limit: 3,
         sampleSize: 100,
       });
 
       const refundResult = await repository.detectPatterns({
         userId,
-        type: TransactionPatternType.REFUND,
+        type: "REFUND",
         limit: 3,
         sampleSize: 100,
       });
@@ -2342,7 +2338,7 @@ describe("DynTransactionRepository", () => {
       // Act
       const result = await repository.detectPatterns({
         userId,
-        type: TransactionPatternType.INCOME,
+        type: "INCOME",
         limit: 3,
         sampleSize: 100,
       });
@@ -2397,7 +2393,7 @@ describe("DynTransactionRepository", () => {
       // Act
       const result = await repository.detectPatterns({
         userId,
-        type: TransactionPatternType.INCOME,
+        type: "INCOME",
         limit: 3,
         sampleSize: 5,
       });
@@ -2437,7 +2433,7 @@ describe("DynTransactionRepository", () => {
       // Act
       const result = await repository.detectPatterns({
         userId,
-        type: TransactionPatternType.INCOME,
+        type: "INCOME",
         limit: 2,
         sampleSize: 100,
       });
@@ -2479,13 +2475,13 @@ describe("DynTransactionRepository", () => {
       // Act
       const user1Result = await repository.detectPatterns({
         userId: user1,
-        type: TransactionPatternType.INCOME,
+        type: "INCOME",
         limit: 3,
         sampleSize: 100,
       });
       const user2Result = await repository.detectPatterns({
         userId: user2,
-        type: TransactionPatternType.INCOME,
+        type: "INCOME",
         limit: 3,
         sampleSize: 100,
       });
@@ -2511,7 +2507,7 @@ describe("DynTransactionRepository", () => {
       await expect(
         repository.detectPatterns({
           userId: "",
-          type: TransactionPatternType.INCOME,
+          type: "INCOME",
           limit: 3,
           sampleSize: 100,
         }),
@@ -2526,7 +2522,7 @@ describe("DynTransactionRepository", () => {
       await expect(
         repository.detectPatterns({
           userId,
-          type: TransactionPatternType.INCOME,
+          type: "INCOME",
           limit: 0,
           sampleSize: 100,
         }),
@@ -2541,7 +2537,7 @@ describe("DynTransactionRepository", () => {
       await expect(
         repository.detectPatterns({
           userId,
-          type: TransactionPatternType.INCOME,
+          type: "INCOME",
           limit: -1,
           sampleSize: 100,
         }),
@@ -2556,7 +2552,7 @@ describe("DynTransactionRepository", () => {
       await expect(
         repository.detectPatterns({
           userId,
-          type: TransactionPatternType.INCOME,
+          type: "INCOME",
           limit: 3.5,
           sampleSize: 100,
         }),
@@ -2571,7 +2567,7 @@ describe("DynTransactionRepository", () => {
       await expect(
         repository.detectPatterns({
           userId,
-          type: TransactionPatternType.INCOME,
+          type: "INCOME",
           limit: 3,
           sampleSize: 0,
         }),
@@ -2586,7 +2582,7 @@ describe("DynTransactionRepository", () => {
       await expect(
         repository.detectPatterns({
           userId,
-          type: TransactionPatternType.INCOME,
+          type: "INCOME",
           limit: 3,
           sampleSize: -1,
         }),
@@ -2601,7 +2597,7 @@ describe("DynTransactionRepository", () => {
       await expect(
         repository.detectPatterns({
           userId,
-          type: TransactionPatternType.INCOME,
+          type: "INCOME",
           limit: 3,
           sampleSize: 50.5,
         }),

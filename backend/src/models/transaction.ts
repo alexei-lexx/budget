@@ -334,11 +334,12 @@ export interface TransactionPattern {
 }
 
 // Type for transactions that support transaction patterns
-export enum TransactionPatternType {
-  INCOME = "INCOME",
-  EXPENSE = "EXPENSE",
-  REFUND = "REFUND",
-}
+export const TRANSACTION_PATTERN_TYPES = [
+  "INCOME",
+  "EXPENSE",
+  "REFUND",
+] as const;
+export type TransactionPatternType = (typeof TRANSACTION_PATTERN_TYPES)[number];
 
 function normalizeDescription(description?: string | null): string | undefined {
   return description?.trim() || undefined;

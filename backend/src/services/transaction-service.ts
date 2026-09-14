@@ -424,8 +424,7 @@ export class TransactionServiceImpl implements TransactionService {
 
       // Validate that category type matches transaction type
       // REFUND and EXPENSE both use expense categories
-      const expectedCategoryType =
-        type === TransactionPatternType.INCOME ? "INCOME" : "EXPENSE";
+      const expectedCategoryType = type === "INCOME" ? "INCOME" : "EXPENSE";
       if (category.type !== expectedCategoryType) {
         // Skip pattern if category type doesn't match
         continue;

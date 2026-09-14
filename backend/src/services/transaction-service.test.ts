@@ -1,7 +1,7 @@
 import { faker } from "@faker-js/faker";
 import { type Mocked, beforeEach, describe, expect, it } from "vitest";
 import { ModelError } from "../models/model-error";
-import { TransactionPatternType, TransactionType } from "../models/transaction";
+import { TransactionType } from "../models/transaction";
 import { AccountRepository } from "../ports/account-repository";
 import { AtomicWriter } from "../ports/atomic-writer";
 import { CategoryRepository } from "../ports/category-repository";
@@ -230,7 +230,7 @@ describe("TransactionService", () => {
       // Act
       const result = await service.getTransactionPatterns(
         userId,
-        TransactionPatternType.INCOME,
+        "INCOME",
         3,
         100,
       );
@@ -289,7 +289,7 @@ describe("TransactionService", () => {
       // Act
       const result = await service.getTransactionPatterns(
         userId,
-        TransactionPatternType.INCOME,
+        "INCOME",
         3,
         100,
       );
@@ -345,7 +345,7 @@ describe("TransactionService", () => {
       // Act
       const result = await service.getTransactionPatterns(
         userId,
-        TransactionPatternType.INCOME,
+        "INCOME",
         3,
         100,
       );
@@ -408,7 +408,7 @@ describe("TransactionService", () => {
       // Act
       const result = await service.getTransactionPatterns(
         userId,
-        TransactionPatternType.INCOME,
+        "INCOME",
         3,
         100,
       );
@@ -439,7 +439,7 @@ describe("TransactionService", () => {
       // Act
       const result = await service.getTransactionPatterns(
         userId,
-        TransactionPatternType.INCOME,
+        "INCOME",
         3,
         100,
       );
@@ -456,7 +456,7 @@ describe("TransactionService", () => {
       // Act
       const result = await service.getTransactionPatterns(
         userId,
-        TransactionPatternType.INCOME,
+        "INCOME",
         3,
         100,
       );
@@ -472,17 +472,12 @@ describe("TransactionService", () => {
       mockTransactionRepository.detectPatterns.mockResolvedValue([]);
 
       // Act
-      await service.getTransactionPatterns(
-        userId,
-        TransactionPatternType.EXPENSE,
-        5,
-        200,
-      );
+      await service.getTransactionPatterns(userId, "EXPENSE", 5, 200);
 
       // Assert
       expect(mockTransactionRepository.detectPatterns).toHaveBeenCalledWith({
         userId,
-        type: TransactionPatternType.EXPENSE,
+        type: "EXPENSE",
         limit: 5,
         sampleSize: 200,
       });
@@ -495,15 +490,12 @@ describe("TransactionService", () => {
 
       it("uses default limit when no limit is provided", async () => {
         // Act
-        await service.getTransactionPatterns(
-          userId,
-          TransactionPatternType.INCOME,
-        );
+        await service.getTransactionPatterns(userId, "INCOME");
 
         // Assert
         expect(mockTransactionRepository.detectPatterns).toHaveBeenCalledWith({
           userId,
-          type: TransactionPatternType.INCOME,
+          type: "INCOME",
           limit: DEFAULT_TRANSACTION_PATTERNS_LIMIT,
           sampleSize: 100,
         });
@@ -511,16 +503,12 @@ describe("TransactionService", () => {
 
       it("uses default limit when limit is null", async () => {
         // Act
-        await service.getTransactionPatterns(
-          userId,
-          TransactionPatternType.INCOME,
-          null,
-        );
+        await service.getTransactionPatterns(userId, "INCOME", null);
 
         // Assert
         expect(mockTransactionRepository.detectPatterns).toHaveBeenCalledWith({
           userId,
-          type: TransactionPatternType.INCOME,
+          type: "INCOME",
           limit: DEFAULT_TRANSACTION_PATTERNS_LIMIT,
           sampleSize: 100,
         });
@@ -528,16 +516,12 @@ describe("TransactionService", () => {
 
       it("uses default limit when limit is undefined", async () => {
         // Act
-        await service.getTransactionPatterns(
-          userId,
-          TransactionPatternType.INCOME,
-          undefined,
-        );
+        await service.getTransactionPatterns(userId, "INCOME", undefined);
 
         // Assert
         expect(mockTransactionRepository.detectPatterns).toHaveBeenCalledWith({
           userId,
-          type: TransactionPatternType.INCOME,
+          type: "INCOME",
           limit: DEFAULT_TRANSACTION_PATTERNS_LIMIT,
           sampleSize: 100,
         });
@@ -553,17 +537,13 @@ describe("TransactionService", () => {
 
         for (const limit of validLimits) {
           // Act
-          await service.getTransactionPatterns(
-            userId,
-            TransactionPatternType.INCOME,
-            limit,
-          );
+          await service.getTransactionPatterns(userId, "INCOME", limit);
 
           // Assert
           expect(mockTransactionRepository.detectPatterns).toHaveBeenCalledWith(
             {
               userId,
-              type: TransactionPatternType.INCOME,
+              type: "INCOME",
               limit,
               sampleSize: 100,
             },
@@ -579,17 +559,13 @@ describe("TransactionService", () => {
 
         for (const limit of invalidLimits) {
           // Act
-          await service.getTransactionPatterns(
-            userId,
-            TransactionPatternType.INCOME,
-            limit,
-          );
+          await service.getTransactionPatterns(userId, "INCOME", limit);
 
           // Assert
           expect(mockTransactionRepository.detectPatterns).toHaveBeenCalledWith(
             {
               userId,
-              type: TransactionPatternType.INCOME,
+              type: "INCOME",
               limit: DEFAULT_TRANSACTION_PATTERNS_LIMIT,
               sampleSize: 100,
             },
@@ -602,17 +578,13 @@ describe("TransactionService", () => {
 
         for (const limit of nonIntegerLimits) {
           // Act
-          await service.getTransactionPatterns(
-            userId,
-            TransactionPatternType.INCOME,
-            limit,
-          );
+          await service.getTransactionPatterns(userId, "INCOME", limit);
 
           // Assert
           expect(mockTransactionRepository.detectPatterns).toHaveBeenCalledWith(
             {
               userId,
-              type: TransactionPatternType.INCOME,
+              type: "INCOME",
               limit: DEFAULT_TRANSACTION_PATTERNS_LIMIT,
               sampleSize: 100,
             },
