@@ -40,14 +40,14 @@ export class AccountServiceImpl implements AccountService {
     userId: string,
     scope: EntityScope,
   ): Promise<Account[]> {
-    if (scope === EntityScope.ACTIVE) {
+    if (scope === "ACTIVE") {
       return await this.accountRepository.findManyByUserId(userId);
     }
 
     const accounts =
       await this.accountRepository.findManyWithArchivedByUserId(userId);
 
-    if (scope === EntityScope.ALL) {
+    if (scope === "ALL") {
       return accounts;
     }
 

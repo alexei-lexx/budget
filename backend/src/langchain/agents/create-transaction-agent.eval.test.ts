@@ -26,7 +26,6 @@ import {
 } from "../../dependencies";
 import { TransactionType } from "../../models/transaction";
 import { dateToDateString, toDateString } from "../../types/date-string";
-import { EntityScope } from "../../types/entity-scope";
 import { createDynamoDBDocumentClient } from "../../utils/dynamo-client";
 import { truncateAllTables } from "../../utils/test-utils/dynamodb-helpers";
 import { fakeAccount } from "../../utils/test-utils/models/account-fakes";
@@ -304,12 +303,12 @@ describe("CreateTransactionAgent (evals)", () => {
           tool_calls: [
             {
               name: "get_accounts",
-              args: { scope: EntityScope.ACTIVE },
+              args: { scope: "ACTIVE" },
               id: "get-accounts-reference-call",
             },
             {
               name: "get_categories",
-              args: { scope: EntityScope.ACTIVE },
+              args: { scope: "ACTIVE" },
               id: "get-categories-reference-call",
             },
             {

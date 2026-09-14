@@ -4,7 +4,6 @@ import { type Mocked, beforeEach, describe, expect, it } from "vitest";
 import { TransactionRepository } from "../../ports/transaction-repository";
 import { CategoryService } from "../../services/category-service";
 import { isDateString } from "../../types/date-string";
-import { EntityScope } from "../../types/entity-scope";
 import { fakeCategory } from "../../utils/test-utils/models/category-fakes";
 import { fakeTransaction } from "../../utils/test-utils/models/transaction-fakes";
 import { createMockTransactionRepository } from "../../utils/test-utils/repositories/transaction-repository-mocks";
@@ -49,15 +48,12 @@ describe("createGetCategoriesTool", () => {
     });
 
     // Act
-    await categoriesTool.invoke(
-      { scope: EntityScope.ALL },
-      { context: { userId } },
-    );
+    await categoriesTool.invoke({ scope: "ALL" }, { context: { userId } });
 
     // Assert
     expect(mockCategoryService.getCategoriesByUser).toHaveBeenCalledWith(
       userId,
-      { scope: EntityScope.ALL },
+      { scope: "ALL" },
     );
   });
 
@@ -89,7 +85,7 @@ describe("createGetCategoriesTool", () => {
 
     // Act
     const result = await categoriesTool.invoke(
-      { scope: EntityScope.ALL },
+      { scope: "ALL" },
       { context: { userId } },
     );
 
@@ -131,7 +127,7 @@ describe("createGetCategoriesTool", () => {
 
     // Act
     const result = await categoriesTool.invoke(
-      { scope: EntityScope.ALL },
+      { scope: "ALL" },
       { context: { userId } },
     );
 
@@ -151,7 +147,7 @@ describe("createGetCategoriesTool", () => {
     // Act & Assert
     await expect(
       categoriesTool.invoke(
-        { scope: EntityScope.ALL },
+        { scope: "ALL" },
         { context: { userId: "not-a-uuid" } },
       ),
     ).rejects.toThrow();
@@ -175,7 +171,7 @@ describe("createGetCategoriesTool", () => {
 
       // Act
       const result = await categoriesTool.invoke(
-        { scope: EntityScope.ACTIVE },
+        { scope: "ACTIVE" },
         { context: { userId } },
       );
 
@@ -212,7 +208,7 @@ describe("createGetCategoriesTool", () => {
 
       // Act
       const result = await categoriesTool.invoke(
-        { scope: EntityScope.ACTIVE },
+        { scope: "ACTIVE" },
         { context: { userId } },
       );
 
@@ -246,7 +242,7 @@ describe("createGetCategoriesTool", () => {
 
       // Act
       const result = await categoriesTool.invoke(
-        { scope: EntityScope.ACTIVE },
+        { scope: "ACTIVE" },
         { context: { userId } },
       );
 
@@ -290,7 +286,7 @@ describe("createGetCategoriesTool", () => {
 
       // Act
       const result = await categoriesTool.invoke(
-        { scope: EntityScope.ACTIVE },
+        { scope: "ACTIVE" },
         { context: { userId } },
       );
 
@@ -332,7 +328,7 @@ describe("createGetCategoriesTool", () => {
 
       // Act
       const result = await categoriesTool.invoke(
-        { scope: EntityScope.ACTIVE },
+        { scope: "ACTIVE" },
         { context: { userId } },
       );
 
@@ -391,7 +387,7 @@ describe("createGetCategoriesTool", () => {
 
       // Act
       const result = await categoriesTool.invoke(
-        { scope: EntityScope.ACTIVE },
+        { scope: "ACTIVE" },
         { context: { userId } },
       );
 
@@ -435,7 +431,7 @@ describe("createGetCategoriesTool", () => {
 
       // Act
       const result = await categoriesTool.invoke(
-        { scope: EntityScope.ACTIVE },
+        { scope: "ACTIVE" },
         { context: { userId } },
       );
 
@@ -465,10 +461,7 @@ describe("createGetCategoriesTool", () => {
       });
 
       // Act
-      await categoriesTool.invoke(
-        { scope: EntityScope.ACTIVE },
-        { context: { userId } },
-      );
+      await categoriesTool.invoke({ scope: "ACTIVE" }, { context: { userId } });
 
       // Assert
       expect(mockTransactionRepository.findManyByUserId).toHaveBeenCalledTimes(

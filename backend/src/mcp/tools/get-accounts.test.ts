@@ -1,7 +1,6 @@
 import { faker } from "@faker-js/faker";
 import { type Mocked, beforeEach, describe, expect, it } from "vitest";
 import { AccountService } from "../../services/account-service";
-import { EntityScope } from "../../types/entity-scope";
 import { fakeAccount } from "../../utils/test-utils/models/account-fakes";
 import { createMockAccountService } from "../../utils/test-utils/services/account-service-mocks";
 import { getAccounts } from "./get-accounts";
@@ -26,15 +25,12 @@ describe("getAccounts", () => {
     mockAccountService.getAccountsByUser.mockResolvedValue([]);
 
     // Act
-    await getAccounts(
-      { scope: EntityScope.ALL, guideTokens: [validGuideToken] },
-      deps,
-    );
+    await getAccounts({ scope: "ALL", guideTokens: [validGuideToken] }, deps);
 
     // Assert
     expect(mockAccountService.getAccountsByUser).toHaveBeenCalledWith(
       userId,
-      EntityScope.ALL,
+      "ALL",
     );
   });
 
@@ -49,7 +45,7 @@ describe("getAccounts", () => {
 
     // Act
     const result = await getAccounts(
-      { scope: EntityScope.ALL, guideTokens: [validGuideToken] },
+      { scope: "ALL", guideTokens: [validGuideToken] },
       deps,
     );
 
@@ -71,10 +67,7 @@ describe("getAccounts", () => {
 
   it("rejects without valid basics guide token and does not call service", async () => {
     // Act
-    const result = await getAccounts(
-      { scope: EntityScope.ALL, guideTokens: [] },
-      deps,
-    );
+    const result = await getAccounts({ scope: "ALL", guideTokens: [] }, deps);
 
     // Assert
     expect(result).toEqual({
@@ -87,10 +80,7 @@ describe("getAccounts", () => {
 
   it("does not disclose valid guide token in rejection message", async () => {
     // Act
-    const result = await getAccounts(
-      { scope: EntityScope.ALL, guideTokens: [] },
-      deps,
-    );
+    const result = await getAccounts({ scope: "ALL", guideTokens: [] }, deps);
 
     // Assert
     expect(result).toEqual({
@@ -110,7 +100,7 @@ describe("getAccounts", () => {
 
     // Act
     const promise = getAccounts(
-      { scope: EntityScope.ALL, guideTokens: [validGuideToken] },
+      { scope: "ALL", guideTokens: [validGuideToken] },
       deps,
     );
 

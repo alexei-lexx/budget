@@ -1,7 +1,6 @@
 import { faker } from "@faker-js/faker";
 import { type Mocked, beforeEach, describe, expect, it } from "vitest";
 import { AccountService } from "../../services/account-service";
-import { EntityScope } from "../../types/entity-scope";
 import { fakeAccount } from "../../utils/test-utils/models/account-fakes";
 import { createMockAccountService } from "../../utils/test-utils/services/account-service-mocks";
 import { createGetAccountsTool } from "./get-accounts";
@@ -25,7 +24,7 @@ describe("createGetAccountsTool", () => {
 
     await expect(
       accountsTool.invoke(
-        { scope: EntityScope.ALL },
+        { scope: "ALL" },
         { context: { userId: "not-a-uuid" } },
       ),
     ).rejects.toThrow();
@@ -35,14 +34,11 @@ describe("createGetAccountsTool", () => {
     mockAccountService.getAccountsByUser.mockResolvedValue([]);
 
     const accountsTool = createGetAccountsTool(mockAccountService);
-    await accountsTool.invoke(
-      { scope: EntityScope.ARCHIVED },
-      { context: { userId } },
-    );
+    await accountsTool.invoke({ scope: "ARCHIVED" }, { context: { userId } });
 
     expect(mockAccountService.getAccountsByUser).toHaveBeenCalledWith(
       userId,
-      EntityScope.ARCHIVED,
+      "ARCHIVED",
     );
   });
 
@@ -65,7 +61,7 @@ describe("createGetAccountsTool", () => {
 
     const accountsTool = createGetAccountsTool(mockAccountService);
     const result = await accountsTool.invoke(
-      { scope: EntityScope.ALL },
+      { scope: "ALL" },
       { context: { userId } },
     );
 
@@ -93,7 +89,7 @@ describe("createGetAccountsTool", () => {
 
     const accountsTool = createGetAccountsTool(mockAccountService);
     const result = await accountsTool.invoke(
-      { scope: EntityScope.ALL },
+      { scope: "ALL" },
       { context: { userId } },
     );
 

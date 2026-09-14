@@ -4,7 +4,7 @@ import { z } from "zod";
 import { TransactionRepository } from "../../ports/transaction-repository";
 import { CategoryService } from "../../services/category-service";
 import { toDateString } from "../../types/date-string";
-import { EntityScope } from "../../types/entity-scope";
+import { ENTITY_SCOPES } from "../../types/entity-scope";
 import { Success } from "../../types/result";
 import { agentContextSchema } from "../agents/agent-context";
 import { CategoryDto, toCategoryDto } from "./category-dto";
@@ -16,9 +16,9 @@ export const CATEGORY_HISTORY_MAX_KEYWORDS_PER_CATEGORY = 10;
 
 const schema = z.object({
   scope: z
-    .enum(EntityScope)
+    .enum(ENTITY_SCOPES)
     .describe(
-      `Which categories to retrieve: "${EntityScope.ACTIVE}" for active (non-archived) only, "${EntityScope.ARCHIVED}" for archived only, "${EntityScope.ALL}" for both active and archived`,
+      `Which categories to retrieve: "ACTIVE" for active (non-archived) only, "ARCHIVED" for archived only, "ALL" for both active and archived`,
     ),
 });
 

@@ -42,7 +42,7 @@ export class CategoryServiceImpl implements CategoryService {
     userId: string,
     { scope, type }: { scope: EntityScope; type?: CategoryType },
   ): Promise<Category[]> {
-    if (scope === EntityScope.ACTIVE) {
+    if (scope === "ACTIVE") {
       return await this.categoryRepository.findManyByUserId(userId, {
         type,
       });
@@ -52,7 +52,7 @@ export class CategoryServiceImpl implements CategoryService {
       await this.categoryRepository.findManyWithArchivedByUserId(userId);
 
     const scoped =
-      scope === EntityScope.ALL
+      scope === "ALL"
         ? categories
         : categories.filter((category) => category.isArchived);
 
