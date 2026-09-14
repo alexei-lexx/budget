@@ -429,9 +429,7 @@ describe("CreateTransactionFromTextService", () => {
       // Agent responds with thinking trace but no tool call
       mockCreateTransactionAgent.invoke.mockResolvedValue({
         answer: undefined,
-        agentTrace: [
-          { type: "TEXT", content: "Thinking..." },
-        ],
+        agentTrace: [{ type: "TEXT", content: "Thinking..." }],
         toolExecutions: [],
       });
 
@@ -442,9 +440,7 @@ describe("CreateTransactionFromTextService", () => {
       expect(result).toMatchObject({
         success: false,
         error: {
-          agentTrace: [
-            { type: "TEXT", content: "Thinking..." },
-          ],
+          agentTrace: [{ type: "TEXT", content: "Thinking..." }],
         },
       });
     });
