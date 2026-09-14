@@ -4,7 +4,6 @@ import { NAME_MAX_LENGTH, NAME_MIN_LENGTH } from "../models/category";
 import { ModelError } from "../models/model-error";
 import { CategoryRepository } from "../ports/category-repository";
 import { VersionConflictError } from "../ports/repository-error";
-import { EntityScope } from "../types/entity-scope";
 import {
   fakeCategory,
   fakeCreateCategoryInput,
@@ -38,7 +37,7 @@ describe("CategoryService", () => {
 
       // Act
       const result = await service.getCategoriesByUser(userId, {
-        scope: EntityScope.ACTIVE,
+        scope: "ACTIVE",
       });
 
       // Assert
@@ -58,7 +57,7 @@ describe("CategoryService", () => {
 
       // Act
       const result = await service.getCategoriesByUser(userId, {
-        scope: EntityScope.ACTIVE,
+        scope: "ACTIVE",
         type,
       });
 
@@ -82,7 +81,7 @@ describe("CategoryService", () => {
 
       // Act
       const result = await service.getCategoriesByUser(userId, {
-        scope: EntityScope.ALL,
+        scope: "ALL",
       });
 
       // Assert
@@ -104,7 +103,7 @@ describe("CategoryService", () => {
 
       // Act
       const result = await service.getCategoriesByUser(userId, {
-        scope: EntityScope.ARCHIVED,
+        scope: "ARCHIVED",
       });
 
       // Assert
@@ -127,7 +126,7 @@ describe("CategoryService", () => {
 
       // Act
       const result = await service.getCategoriesByUser(userId, {
-        scope: EntityScope.ALL,
+        scope: "ALL",
         type: matchingType,
       });
 

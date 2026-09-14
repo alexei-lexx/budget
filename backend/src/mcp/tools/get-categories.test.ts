@@ -1,7 +1,6 @@
 import { faker } from "@faker-js/faker";
 import { type Mocked, beforeEach, describe, expect, it } from "vitest";
 import { CategoryService } from "../../services/category-service";
-import { EntityScope } from "../../types/entity-scope";
 import { fakeCategory } from "../../utils/test-utils/models/category-fakes";
 import { createMockCategoryService } from "../../utils/test-utils/services/category-service-mocks";
 import { getCategories } from "./get-categories";
@@ -26,15 +25,12 @@ describe("getCategories", () => {
     mockCategoryService.getCategoriesByUser.mockResolvedValue([]);
 
     // Act
-    await getCategories(
-      { scope: EntityScope.ALL, guideTokens: [validGuideToken] },
-      deps,
-    );
+    await getCategories({ scope: "ALL", guideTokens: [validGuideToken] }, deps);
 
     // Assert
     expect(mockCategoryService.getCategoriesByUser).toHaveBeenCalledWith(
       userId,
-      { scope: EntityScope.ALL },
+      { scope: "ALL" },
     );
   });
 
@@ -49,7 +45,7 @@ describe("getCategories", () => {
 
     // Act
     const result = await getCategories(
-      { scope: EntityScope.ALL, guideTokens: [validGuideToken] },
+      { scope: "ALL", guideTokens: [validGuideToken] },
       deps,
     );
 
@@ -72,10 +68,7 @@ describe("getCategories", () => {
 
   it("rejects without valid basics guide token and does not call service", async () => {
     // Act
-    const result = await getCategories(
-      { scope: EntityScope.ALL, guideTokens: [] },
-      deps,
-    );
+    const result = await getCategories({ scope: "ALL", guideTokens: [] }, deps);
 
     // Assert
     expect(result).toEqual({
@@ -88,10 +81,7 @@ describe("getCategories", () => {
 
   it("does not disclose valid guide token in rejection message", async () => {
     // Act
-    const result = await getCategories(
-      { scope: EntityScope.ALL, guideTokens: [] },
-      deps,
-    );
+    const result = await getCategories({ scope: "ALL", guideTokens: [] }, deps);
 
     // Assert
     expect(result).toEqual({
@@ -111,7 +101,7 @@ describe("getCategories", () => {
 
     // Act
     const promise = getCategories(
-      { scope: EntityScope.ALL, guideTokens: [validGuideToken] },
+      { scope: "ALL", guideTokens: [validGuideToken] },
       deps,
     );
 

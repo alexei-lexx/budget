@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { CategoryDto, toCategoryDto } from "../../langchain/tools/category-dto";
 import { CategoryService } from "../../services/category-service";
-import { EntityScope } from "../../types/entity-scope";
+import { ENTITY_SCOPES, EntityScope } from "../../types/entity-scope";
 import { Result, Success } from "../../types/result";
 import { buildGuideTokensField, verifyGuideTokens } from "./guides";
 import { Tool } from "./tool";
@@ -33,9 +33,9 @@ export async function getCategories(
 
 const inputSchema = z.object({
   scope: z
-    .enum(EntityScope)
+    .enum(ENTITY_SCOPES)
     .describe(
-      `Which categories to retrieve: "${EntityScope.ACTIVE}" for active (non-archived) only, "${EntityScope.ARCHIVED}" for archived only, "${EntityScope.ALL}" for both active and archived`,
+      "Which categories to retrieve: active (non-archived) only, archived only, all (both active and archived)",
     ),
   guideTokens: buildGuideTokensField(requiredGuides),
 });

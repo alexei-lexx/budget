@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { AccountDto, toAccountDto } from "../../langchain/tools/account-dto";
 import { AccountService } from "../../services/account-service";
-import { EntityScope } from "../../types/entity-scope";
+import { ENTITY_SCOPES, EntityScope } from "../../types/entity-scope";
 import { Result, Success } from "../../types/result";
 import { buildGuideTokensField, verifyGuideTokens } from "./guides";
 import { Tool } from "./tool";
@@ -31,9 +31,9 @@ export async function getAccounts(
 
 const inputSchema = z.object({
   scope: z
-    .enum(EntityScope)
+    .enum(ENTITY_SCOPES)
     .describe(
-      `Which accounts to retrieve: "${EntityScope.ACTIVE}" for active (non-archived) only, "${EntityScope.ARCHIVED}" for archived only, "${EntityScope.ALL}" for both active and archived`,
+      "Which accounts to retrieve: active (non-archived) only, archived only, all (both active and archived)",
     ),
   guideTokens: buildGuideTokensField(requiredGuides),
 });

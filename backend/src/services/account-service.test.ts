@@ -4,7 +4,6 @@ import { ModelError } from "../models/model-error";
 import { AccountRepository } from "../ports/account-repository";
 import { VersionConflictError } from "../ports/repository-error";
 import { TransactionRepository } from "../ports/transaction-repository";
-import { EntityScope } from "../types/entity-scope";
 import {
   fakeAccount,
   fakeCreateAccountInput,
@@ -40,10 +39,7 @@ describe("AccountService", () => {
       mockAccountRepository.findManyByUserId.mockResolvedValue(accounts);
 
       // Act
-      const result = await service.getAccountsByUser(
-        userId,
-        EntityScope.ACTIVE,
-      );
+      const result = await service.getAccountsByUser(userId, "ACTIVE");
 
       // Assert
       expect(result).toEqual(accounts);
@@ -63,7 +59,7 @@ describe("AccountService", () => {
       );
 
       // Act
-      const result = await service.getAccountsByUser(userId, EntityScope.ALL);
+      const result = await service.getAccountsByUser(userId, "ALL");
 
       // Assert
       expect(result).toEqual(accounts);
@@ -83,10 +79,7 @@ describe("AccountService", () => {
       );
 
       // Act
-      const result = await service.getAccountsByUser(
-        userId,
-        EntityScope.ARCHIVED,
-      );
+      const result = await service.getAccountsByUser(userId, "ARCHIVED");
 
       // Assert
       expect(result).toEqual([accounts[0]]);
@@ -106,9 +99,9 @@ describe("AccountService", () => {
       );
 
       // Act & Assert
-      await expect(
-        service.getAccountsByUser(userId, EntityScope.ACTIVE),
-      ).rejects.toThrow("Database error");
+      await expect(service.getAccountsByUser(userId, "ACTIVE")).rejects.toThrow(
+        "Database error",
+      );
     });
 
     it("propagates repository errors for all/archived scope", async () => {
@@ -120,9 +113,9 @@ describe("AccountService", () => {
       );
 
       // Act & Assert
-      await expect(
-        service.getAccountsByUser(userId, EntityScope.ALL),
-      ).rejects.toThrow("Database error");
+      await expect(service.getAccountsByUser(userId, "ALL")).rejects.toThrow(
+        "Database error",
+      );
     });
   });
 
