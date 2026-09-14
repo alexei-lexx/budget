@@ -33,7 +33,7 @@ const inputSchema = z.object({
   scope: z
     .enum(ENTITY_SCOPES)
     .describe(
-      `Which accounts to retrieve: "ACTIVE" for active (non-archived) only, "ARCHIVED" for archived only, "ALL" for both active and archived`,
+      "Which accounts to retrieve: active (non-archived) only, archived only, all (both active and archived)",
     ),
   guideTokens: buildGuideTokensField(requiredGuides),
 });
