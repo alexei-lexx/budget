@@ -2,7 +2,6 @@ import { CallbackManager } from "@langchain/core/callbacks/manager";
 import type { Serialized } from "@langchain/core/load/serializable";
 import { AIMessage, BaseMessage, ReactAgent, ToolMessage } from "langchain";
 import { type Mock, beforeEach, describe, expect, it, vi } from "vitest";
-import { AgentTraceMessageType } from "../ports/agent-types";
 import { LangChainAgent } from "./langchain-agent";
 
 type AgentInvokeFn = (
@@ -147,7 +146,7 @@ describe("LangChainAgent", () => {
 
       // Assert
       expect(result.agentTrace).toEqual([
-        { type: AgentTraceMessageType.TEXT, content: "Thinking..." },
+        { type: "TEXT", content: "Thinking..." },
       ]);
     });
 
@@ -180,7 +179,7 @@ describe("LangChainAgent", () => {
 
       // Assert
       expect(result.agentTrace).toEqual([
-        { type: AgentTraceMessageType.TEXT, content: "Thinking..." },
+        { type: "TEXT", content: "Thinking..." },
       ]);
     });
 
@@ -207,7 +206,7 @@ describe("LangChainAgent", () => {
       // Assert
       expect(result.agentTrace).toEqual([
         {
-          type: AgentTraceMessageType.TOOL_RESULT,
+          type: "TOOL_RESULT",
           toolName: "sum",
           output: "42",
         },

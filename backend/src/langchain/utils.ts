@@ -1,5 +1,5 @@
 import { AIMessage, BaseMessage, ToolMessage } from "langchain";
-import { AgentTraceMessage, AgentTraceMessageType } from "../ports/agent-types";
+import { AgentTraceMessage } from "../ports/agent-types";
 
 export function extractLastMessageText(
   messages: BaseMessage[],
@@ -30,7 +30,7 @@ export function extractAgentTraceTexts(
   if (typeof message.content === "string") {
     if (message.content.trim()) {
       result.push({
-        type: AgentTraceMessageType.TEXT,
+        type: "TEXT",
         content: message.content,
       });
     }
@@ -48,7 +48,7 @@ export function extractAgentTraceTexts(
 
       if (text) {
         result.push({
-          type: AgentTraceMessageType.TEXT,
+          type: "TEXT",
           content: String(text),
         });
       }
@@ -57,7 +57,7 @@ export function extractAgentTraceTexts(
 
   for (const toolCall of message.tool_calls || []) {
     result.push({
-      type: AgentTraceMessageType.TOOL_CALL,
+      type: "TOOL_CALL",
       toolName: toolCall.name,
       input: prettifyJson(toolCall.args),
     });
@@ -87,7 +87,7 @@ export function extractAgentTraceToolResult(
   }
 
   return {
-    type: AgentTraceMessageType.TOOL_RESULT,
+    type: "TOOL_RESULT",
     toolName,
     output: toolOutput,
   };

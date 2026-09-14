@@ -38,18 +38,26 @@ export const resolvers: Resolvers = {
     // GraphQL requires a __resolveType function for union types so it knows
     // which concrete type to use when serialising each item in agentTrace[].
     // The service layer uses a discriminated union keyed on `type`, so we map
-    // that enum value to the corresponding GraphQL type name here.
+    // that value to the corresponding GraphQL type name here.
     __resolveType(obj) {
       // Guard against unexpected shapes coming from the service layer.
       if (typeof obj !== "object" || obj === null) return undefined;
       if (!("type" in obj) || typeof obj.type !== "string") return undefined;
 
-      switch (obj.type) {
-        case AgentTraceMessageType.TEXT:
+      // Cast needed: obj is typed as the GraphQL output shape
+      // (AgentTraceText | AgentTraceToolCall | AgentTraceToolResult),
+      // none of which declare `type`,
+      // so the guard above only narrows obj.type to `string`.
+      // Casting to the discriminant union
+      // lets the switch below type-check its case labels.
+      const type = obj.type as AgentTraceMessageType;
+
+      switch (type) {
+        case "TEXT":
           return "AgentTraceText";
-        case AgentTraceMessageType.TOOL_CALL:
+        case "TOOL_CALL":
           return "AgentTraceToolCall";
-        case AgentTraceMessageType.TOOL_RESULT:
+        case "TOOL_RESULT":
           return "AgentTraceToolResult";
         // Unknown type — returning undefined causes a GraphQL error
         default:
