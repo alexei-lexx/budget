@@ -44,6 +44,10 @@ export const resolvers: Resolvers = {
       if (typeof obj !== "object" || obj === null) return undefined;
       if (!("type" in obj) || typeof obj.type !== "string") return undefined;
 
+      // Cast needed: obj is typed as the GraphQL output shape (AgentTraceText |
+      // AgentTraceToolCall | AgentTraceToolResult), none of which declare `type`,
+      // so the guard above only narrows obj.type to `string`. Casting to the
+      // discriminant union lets the switch below type-check its case labels.
       const type = obj.type as AgentTraceMessageType;
 
       switch (type) {
