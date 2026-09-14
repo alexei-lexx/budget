@@ -1,11 +1,7 @@
 import { faker } from "@faker-js/faker";
 import { type Mocked, beforeEach, describe, expect, it, vi } from "vitest";
 import { CREATE_TRANSACTION_TOOL_NAME } from "../langchain/tools/create-transaction";
-import {
-  Agent,
-  AgentTraceMessage,
-  AgentTraceMessageType,
-} from "../ports/agent-types";
+import { Agent, AgentTraceMessage } from "../ports/agent-types";
 import { fakeTransaction } from "../utils/test-utils/models/transaction-fakes";
 import { createMockTransactionService } from "../utils/test-utils/services/transaction-service-mocks";
 import { CreateTransactionFromTextService } from "./create-transaction-from-text-service";
@@ -86,7 +82,7 @@ describe("CreateTransactionFromTextService", () => {
       // Arrange
       const transactionId = faker.string.uuid();
       const agentTrace: AgentTraceMessage[] = [
-        { type: AgentTraceMessageType.TEXT, content: "Thinking..." },
+        { type: "TEXT", content: "Thinking..." },
       ];
 
       // Agent returns thinking trace alongside tool execution
@@ -118,7 +114,7 @@ describe("CreateTransactionFromTextService", () => {
         success: true,
         data: {
           agentTrace: expect.arrayContaining([
-            { type: AgentTraceMessageType.TEXT, content: "Thinking..." },
+            { type: "TEXT", content: "Thinking..." },
           ]),
         },
       });
@@ -434,7 +430,7 @@ describe("CreateTransactionFromTextService", () => {
       mockCreateTransactionAgent.invoke.mockResolvedValue({
         answer: undefined,
         agentTrace: [
-          { type: AgentTraceMessageType.TEXT, content: "Thinking..." },
+          { type: "TEXT", content: "Thinking..." },
         ],
         toolExecutions: [],
       });
@@ -447,7 +443,7 @@ describe("CreateTransactionFromTextService", () => {
         success: false,
         error: {
           agentTrace: [
-            { type: AgentTraceMessageType.TEXT, content: "Thinking..." },
+            { type: "TEXT", content: "Thinking..." },
           ],
         },
       });

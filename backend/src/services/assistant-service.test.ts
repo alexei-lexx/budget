@@ -1,10 +1,6 @@
 import { faker } from "@faker-js/faker";
 import { type Mocked, beforeEach, describe, expect, it, vi } from "vitest";
-import {
-  Agent,
-  AgentTraceMessage,
-  AgentTraceMessageType,
-} from "../ports/agent-types";
+import { Agent, AgentTraceMessage } from "../ports/agent-types";
 import {
   type AssistantInput,
   AssistantService,
@@ -244,7 +240,7 @@ describe("AssistantService", () => {
     it("returns agentTrace on success", async () => {
       // Arrange
       const agentTrace: AgentTraceMessage[] = [
-        { type: AgentTraceMessageType.TEXT, content: "Thinking..." },
+        { type: "TEXT", content: "Thinking..." },
       ];
 
       // Agent returns a valid answer with a thinking trace
@@ -367,7 +363,7 @@ describe("AssistantService", () => {
     it("returns agentTrace on empty response failure", async () => {
       // Arrange
       const agentTrace: AgentTraceMessage[] = [
-        { type: AgentTraceMessageType.TEXT, content: "Thinking..." },
+        { type: "TEXT", content: "Thinking..." },
       ];
 
       // Agent returns no answer but includes a thinking trace
