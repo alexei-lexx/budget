@@ -507,4 +507,3 @@ Checks MUST follow this order:
 - If the package has no test suite configured, proceed to step 3 (typecheck/lint)
 
 **Rationale**: Iterative validation catches errors early and locally, prevents broken code from entering version control, maintains quality standards across all changes.
-
