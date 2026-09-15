@@ -15,6 +15,8 @@ import { MAX_PAGE_SIZE, MIN_PAGE_SIZE } from "../types/pagination";
 import { fakeAccount } from "../utils/test-utils/models/account-fakes";
 import { fakeCategory } from "../utils/test-utils/models/category-fakes";
 import {
+  fakeExpense,
+  fakeIncome,
   fakeTransaction,
   fakeTransactionPattern,
 } from "../utils/test-utils/models/transaction-fakes";
@@ -992,9 +994,8 @@ describe("TransactionService", () => {
 
     it("returns persisted transaction", async () => {
       // Arrange
-      const existingTransaction = fakeTransaction({
+      const existingTransaction = fakeIncome({
         userId,
-        type: TransactionType.INCOME,
       });
       const existingAccount = fakeAccount({
         userId,
@@ -1055,9 +1056,8 @@ describe("TransactionService", () => {
 
     it("preserves account when accountId is omitted", async () => {
       // Arrange
-      const existingTransaction = fakeTransaction({
+      const existingTransaction = fakeExpense({
         userId,
-        type: TransactionType.EXPENSE,
       });
       const existingAccount = fakeAccount({
         userId,
@@ -1093,9 +1093,8 @@ describe("TransactionService", () => {
 
     it("clears category when categoryId is null", async () => {
       // Arrange
-      const existingTransaction = fakeTransaction({
+      const existingTransaction = fakeExpense({
         userId,
-        type: TransactionType.EXPENSE,
         categoryId: faker.string.uuid(),
       });
       // Returns existing transaction
@@ -1121,10 +1120,9 @@ describe("TransactionService", () => {
 
     it("skips account update when balance is unaffected", async () => {
       // Arrange
-      const existingTransaction = fakeTransaction({
+      const existingTransaction = fakeIncome({
         userId,
         amount: 10,
-        type: TransactionType.INCOME,
       });
       // Returns existing transaction
       mockTransactionRepository.findOneById.mockResolvedValue(
@@ -1150,11 +1148,10 @@ describe("TransactionService", () => {
     it("updates balance when amount changes on same account", async () => {
       // Arrange
       const existingAccount = fakeAccount({ userId, transactionBalance: 100 });
-      const existingTransaction = fakeTransaction({
+      const existingTransaction = fakeExpense({
         accountId: existingAccount.id,
         userId,
         amount: 30,
-        type: TransactionType.EXPENSE,
       });
       // Returns existing transaction
       mockTransactionRepository.findOneById.mockResolvedValue(
@@ -1187,11 +1184,10 @@ describe("TransactionService", () => {
       // Arrange
       const existingAccount = fakeAccount({ userId, transactionBalance: 100 });
       const newAccount = fakeAccount({ userId, transactionBalance: 0 });
-      const existingTransaction = fakeTransaction({
+      const existingTransaction = fakeExpense({
         accountId: existingAccount.id,
         userId,
         amount: 30,
-        type: TransactionType.EXPENSE,
       });
       // Returns existing transaction
       mockTransactionRepository.findOneById.mockResolvedValue(
@@ -1233,11 +1229,10 @@ describe("TransactionService", () => {
     it("updates balance when type changes", async () => {
       // Arrange
       const existingAccount = fakeAccount({ userId, transactionBalance: 100 });
-      const existingTransaction = fakeTransaction({
+      const existingTransaction = fakeExpense({
         accountId: existingAccount.id,
         userId,
         amount: 20,
-        type: TransactionType.EXPENSE,
       });
       // Returns existing transaction
       mockTransactionRepository.findOneById.mockResolvedValue(
@@ -1305,9 +1300,8 @@ describe("TransactionService", () => {
 
     it("propagates ModelError when amount is invalid", async () => {
       // Arrange
-      const existingTransaction = fakeTransaction({
+      const existingTransaction = fakeExpense({
         userId,
-        type: TransactionType.EXPENSE,
       });
       // Returns existing transaction
       mockTransactionRepository.findOneById.mockResolvedValue(
@@ -1398,11 +1392,10 @@ describe("TransactionService", () => {
     it("decreases account balance", async () => {
       // Arrange
       const existingAccount = fakeAccount({ userId, transactionBalance: 100 });
-      const existingTransaction = fakeTransaction({
+      const existingTransaction = fakeExpense({
         accountId: existingAccount.id,
         userId,
         amount: 30,
-        type: TransactionType.EXPENSE,
       });
       // Returns existing transaction
       mockTransactionRepository.findOneById.mockResolvedValue(

@@ -3,7 +3,11 @@ import { type Mocked, beforeEach, describe, expect, it } from "vitest";
 import { TransactionType } from "../../models/transaction";
 import { TransactionRepository } from "../../ports/transaction-repository";
 import { toDateString } from "../../types/date-string";
-import { fakeTransaction } from "../../utils/test-utils/models/transaction-fakes";
+import {
+  fakeExpense,
+  fakeIncome,
+  fakeTransaction,
+} from "../../utils/test-utils/models/transaction-fakes";
 import { createMockTransactionRepository } from "../../utils/test-utils/repositories/transaction-repository-mocks";
 import { MAX_PERIOD_DAYS, createGetTransactionsTool } from "./get-transactions";
 
@@ -95,21 +99,19 @@ describe("createGetTransactionsTool", () => {
 
   it("returns required fields only", async () => {
     const transactions = [
-      fakeTransaction({
+      fakeExpense({
         id: "transaction1",
         accountId: "account1",
         categoryId: "category1",
-        type: TransactionType.EXPENSE,
         amount: 50,
         currency: "USD",
         date: toDateString("2024-01-15"),
         description: "Grocery shopping",
       }),
-      fakeTransaction({
+      fakeIncome({
         id: "transaction2",
         accountId: "account2",
         categoryId: "category2",
-        type: TransactionType.INCOME,
         amount: 1000,
         currency: "USD",
         date: toDateString("2024-01-20"),

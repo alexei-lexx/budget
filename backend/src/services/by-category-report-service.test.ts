@@ -6,7 +6,12 @@ import { CategoryRepository } from "../ports/category-repository";
 import { TransactionRepository } from "../ports/transaction-repository";
 import { toDateString } from "../types/date-string";
 import { fakeCategory } from "../utils/test-utils/models/category-fakes";
-import { fakeTransaction } from "../utils/test-utils/models/transaction-fakes";
+import {
+  fakeExpense,
+  fakeIncome,
+  fakeRefund,
+  fakeTransaction,
+} from "../utils/test-utils/models/transaction-fakes";
 import { createMockCategoryRepository } from "../utils/test-utils/repositories/category-repository-mocks";
 import { createMockTransactionRepository } from "../utils/test-utils/repositories/transaction-repository-mocks";
 import { BusinessError } from "./business-error";
@@ -355,15 +360,13 @@ describe("ByCategoryReportService", () => {
     it("calculates net amount as expenses minus refunds", async () => {
       // Arrange
       const categoryId = uuidv4();
-      const expenseTransaction = fakeTransaction({
+      const expenseTransaction = fakeExpense({
         categoryId,
-        type: TransactionType.EXPENSE,
         amount: 1000,
         currency: "EUR",
       });
-      const refundTransaction = fakeTransaction({
+      const refundTransaction = fakeRefund({
         categoryId,
-        type: TransactionType.REFUND,
         amount: 200,
         currency: "EUR",
       });
@@ -391,9 +394,8 @@ describe("ByCategoryReportService", () => {
     it("returns negative net amount when refunds exceed expenses", async () => {
       // Arrange
       const categoryId = uuidv4();
-      const refundTransaction = fakeTransaction({
+      const refundTransaction = fakeRefund({
         categoryId,
-        type: TransactionType.REFUND,
         amount: 300,
         currency: "EUR",
       });
@@ -420,9 +422,8 @@ describe("ByCategoryReportService", () => {
     it("does not factor refunds for INCOME reports", async () => {
       // Arrange
       const categoryId = uuidv4();
-      const incomeTransaction = fakeTransaction({
+      const incomeTransaction = fakeIncome({
         categoryId,
-        type: TransactionType.INCOME,
         amount: 500,
         currency: "EUR",
       });
@@ -458,27 +459,23 @@ describe("ByCategoryReportService", () => {
 
       // Expense and refund pairs in two currencies
       const transactions = [
-        fakeTransaction({
+        fakeExpense({
           categoryId,
-          type: TransactionType.EXPENSE,
           amount: 1000,
           currency: "EUR",
         }),
-        fakeTransaction({
+        fakeRefund({
           categoryId,
-          type: TransactionType.REFUND,
           amount: 200,
           currency: "EUR",
         }),
-        fakeTransaction({
+        fakeExpense({
           categoryId,
-          type: TransactionType.EXPENSE,
           amount: 500,
           currency: "USD",
         }),
-        fakeTransaction({
+        fakeRefund({
           categoryId,
-          type: TransactionType.REFUND,
           amount: 100,
           currency: "USD",
         }),
@@ -512,15 +509,13 @@ describe("ByCategoryReportService", () => {
       // Arrange
       // Uncategorized expense and refund in same currency
       const transactions = [
-        fakeTransaction({
+        fakeExpense({
           categoryId: undefined,
-          type: TransactionType.EXPENSE,
           amount: 600,
           currency: "EUR",
         }),
-        fakeTransaction({
+        fakeRefund({
           categoryId: undefined,
-          type: TransactionType.REFUND,
           amount: 100,
           currency: "EUR",
         }),
@@ -552,23 +547,20 @@ describe("ByCategoryReportService", () => {
 
       // Three transactions: uncategorized, in included category, in excluded category
       const transactions = [
-        fakeTransaction({
+        fakeExpense({
           categoryId: undefined,
           currency: "USD",
           amount: 100,
-          type: TransactionType.EXPENSE,
         }),
-        fakeTransaction({
+        fakeExpense({
           categoryId: includedCategory.id,
           currency: "USD",
           amount: 200,
-          type: TransactionType.EXPENSE,
         }),
-        fakeTransaction({
+        fakeExpense({
           categoryId: excludedCategory.id,
           currency: "USD",
           amount: 500,
-          type: TransactionType.EXPENSE,
         }),
       ];
       mockTransactionRepository.findManyByUserId.mockResolvedValue(
@@ -702,13 +694,11 @@ describe("ByCategoryReportService", () => {
         // Arrange
         // Two expense transactions in same currency
         const transactions = [
-          fakeTransaction({
-            type: TransactionType.EXPENSE,
+          fakeExpense({
             amount: 100,
             currency: "EUR",
           }),
-          fakeTransaction({
-            type: TransactionType.EXPENSE,
+          fakeExpense({
             amount: 200,
             currency: "EUR",
           }),
