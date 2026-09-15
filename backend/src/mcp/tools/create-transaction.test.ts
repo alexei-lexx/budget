@@ -1,6 +1,5 @@
 import { faker } from "@faker-js/faker";
 import { type Mocked, beforeEach, describe, expect, it } from "vitest";
-import { TransactionType } from "../../models/transaction";
 import {
   CreateTransactionServiceInput,
   TransactionService,
@@ -39,7 +38,7 @@ describe("createTransaction", () => {
       categoryId: faker.string.uuid(),
       date: toDateString("2026-01-15"),
       description: "Some description",
-      type: TransactionType.EXPENSE,
+      type: "EXPENSE",
     };
 
     // Act
@@ -80,7 +79,7 @@ describe("createTransaction", () => {
         accountId: faker.string.uuid(),
         amount: 10,
         date: toDateString("2026-01-15"),
-        type: TransactionType.EXPENSE,
+        type: "EXPENSE",
         guideTokens: [],
       },
       deps,
@@ -102,7 +101,7 @@ describe("createTransaction", () => {
         accountId: faker.string.uuid(),
         amount: 10,
         date: toDateString("2026-01-15"),
-        type: TransactionType.EXPENSE,
+        type: "EXPENSE",
         guideTokens: [],
       },
       deps,
@@ -132,7 +131,7 @@ describe("createTransaction", () => {
         accountId: faker.string.uuid(),
         amount: 10,
         date: toDateString("2026-01-15"),
-        type: TransactionType.EXPENSE,
+        type: "EXPENSE",
         guideTokens: validGuideTokens,
       },
       deps,

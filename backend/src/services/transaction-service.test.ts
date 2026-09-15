@@ -115,7 +115,7 @@ describe("TransactionService", () => {
         includeUncategorized: true,
         dateAfter: toDateString("2024-01-10"),
         dateBefore: toDateString("2024-01-20"),
-        types: [TransactionType.INCOME],
+        types: ["INCOME"],
       };
       // Returns paginated transactions
       mockTransactionRepository.findManyByUserIdPaginated.mockResolvedValue(
@@ -805,7 +805,7 @@ describe("TransactionService", () => {
         categoryId: category.id,
         date: toDateString("2000-12-31"),
         description: "Test transaction",
-        type: TransactionType.EXPENSE,
+        type: "EXPENSE",
       });
 
       // Returns account owned by user
@@ -851,7 +851,7 @@ describe("TransactionService", () => {
       const input = fakeCreateTransactionServiceInput({
         accountId: account.id,
         categoryId: undefined,
-        type: TransactionType.INCOME,
+        type: "INCOME",
         amount: 50,
       });
       // Returns account owned by user
@@ -1033,7 +1033,7 @@ describe("TransactionService", () => {
           categoryId: newCategory.id,
           date: toDateString("2000-12-31"),
           description: "Updated transaction",
-          type: TransactionType.EXPENSE,
+          type: "EXPENSE",
         },
       );
 
@@ -1251,7 +1251,7 @@ describe("TransactionService", () => {
 
       // Act
       await service.updateTransaction(existingTransaction.id, userId, {
-        type: TransactionType.INCOME,
+        type: "INCOME",
       });
 
       // Assert

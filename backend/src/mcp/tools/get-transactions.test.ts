@@ -60,7 +60,7 @@ describe("getTransactions", () => {
         endDate: toDateString("2026-01-31"),
         accountIds: ["account-1"],
         categoryIds: ["category-1"],
-        types: [TransactionType.EXPENSE],
+        types: ["EXPENSE"],
         guideTokens: [validGuideToken],
       },
       deps,

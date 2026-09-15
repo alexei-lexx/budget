@@ -7,17 +7,25 @@ import { ModelError } from "./model-error";
 
 export const DESCRIPTION_MAX_LENGTH = 500;
 
-export enum TransactionType {
-  INCOME = "INCOME",
-  EXPENSE = "EXPENSE",
-  TRANSFER_IN = "TRANSFER_IN",
-  TRANSFER_OUT = "TRANSFER_OUT",
-  REFUND = "REFUND",
-}
+// A companion object (not a plain union) so TransactionType.XYZ stays available:
+// property access is checked against these keys,
+// unlike a bare string literal
+// which type-checksv against nothing outside a directly-typed context
+// (e.g. inside expect(...).toEqual(...)).
+export const TransactionType = {
+  EXPENSE: "EXPENSE",
+  INCOME: "INCOME",
+  REFUND: "REFUND",
+  TRANSFER_IN: "TRANSFER_IN",
+  TRANSFER_OUT: "TRANSFER_OUT",
+} as const;
+
+export type TransactionType =
+  (typeof TransactionType)[keyof typeof TransactionType];
 
 export type NonTransferTransactionType = Exclude<
   TransactionType,
-  TransactionType.TRANSFER_IN | TransactionType.TRANSFER_OUT
+  typeof TransactionType.TRANSFER_IN | typeof TransactionType.TRANSFER_OUT
 >;
 
 // Plain data shape.
@@ -133,12 +141,12 @@ export class Transaction implements TransactionData {
 
   get signedAmount(): number {
     switch (this.type) {
-      case TransactionType.INCOME:
-      case TransactionType.REFUND:
-      case TransactionType.TRANSFER_IN:
+      case "INCOME":
+      case "REFUND":
+      case "TRANSFER_IN":
         return this.amount;
-      case TransactionType.EXPENSE:
-      case TransactionType.TRANSFER_OUT:
+      case "EXPENSE":
+      case "TRANSFER_OUT":
         return -this.amount;
     }
   }
@@ -258,8 +266,7 @@ export class Transaction implements TransactionData {
     }
 
     const isTransfer =
-      this.type === TransactionType.TRANSFER_IN ||
-      this.type === TransactionType.TRANSFER_OUT;
+      this.type === "TRANSFER_IN" || this.type === "TRANSFER_OUT";
 
     if (isTransfer && this.categoryId) {
       throw new ModelError("Transfer transactions cannot have a category");
@@ -287,11 +294,10 @@ export class Transaction implements TransactionData {
       }
 
       const typeMismatch =
-        (newCategory.type === "INCOME" &&
-          this.type !== TransactionType.INCOME) ||
+        (newCategory.type === "INCOME" && this.type !== "INCOME") ||
         (newCategory.type === "EXPENSE" &&
-          this.type !== TransactionType.EXPENSE &&
-          this.type !== TransactionType.REFUND);
+          this.type !== "EXPENSE" &&
+          this.type !== "REFUND");
 
       if (typeMismatch) {
         throw new ModelError("Category type does not match transaction type");

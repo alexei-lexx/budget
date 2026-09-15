@@ -328,7 +328,7 @@ describe("AggregateTransactionsService", () => {
         accountIds: [accountId],
         categoryIds: [categoryId],
         includeUncategorized: true,
-        types: [TransactionType.EXPENSE],
+        types: ["EXPENSE"],
       });
 
       // Assert

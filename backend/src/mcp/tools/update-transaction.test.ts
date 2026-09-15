@@ -37,7 +37,7 @@ describe("updateTransaction", () => {
         categoryId: "category-id-789",
         date: "2000-01-02",
         description: "Updated description",
-        type: TransactionType.EXPENSE,
+        type: "EXPENSE",
         guideTokens: [validGuideToken],
       },
       deps,

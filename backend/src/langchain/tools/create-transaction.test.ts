@@ -1,6 +1,5 @@
 import { faker } from "@faker-js/faker";
 import { type Mocked, beforeEach, describe, expect, it, vi } from "vitest";
-import { TransactionType } from "../../models/transaction";
 import { TransactionService } from "../../services/transaction-service";
 import { toDateString } from "../../types/date-string";
 import { fakeTransaction } from "../../utils/test-utils/models/transaction-fakes";
@@ -37,7 +36,7 @@ describe("createCreateTransactionTool", () => {
       accountId: faker.string.uuid(),
       amount: 10,
       date: toDateString("2000-01-15"),
-      type: TransactionType.EXPENSE,
+      type: "EXPENSE",
     };
 
     await expect(
@@ -59,7 +58,7 @@ describe("createCreateTransactionTool", () => {
       categoryId: faker.string.uuid(),
       date: toDateString("2000-01-15"),
       description: "Some description",
-      type: TransactionType.EXPENSE,
+      type: "EXPENSE",
     };
 
     const result = await createTool.invoke(input, { context: { userId } });

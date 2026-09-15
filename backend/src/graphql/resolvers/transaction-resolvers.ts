@@ -24,11 +24,7 @@ import { getAuthenticatedUser, handleResolverError } from "./shared";
 function parseNonTransferType(
   type: TransactionType,
 ): NonTransferTransactionType {
-  if (
-    type !== TransactionType.INCOME &&
-    type !== TransactionType.EXPENSE &&
-    type !== TransactionType.REFUND
-  ) {
+  if (type !== "INCOME" && type !== "EXPENSE" && type !== "REFUND") {
     throw new GraphQLError(
       `Transaction type must be ${TransactionType.INCOME}, ${TransactionType.EXPENSE}, or ${TransactionType.REFUND}`,
     );

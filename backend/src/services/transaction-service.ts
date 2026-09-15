@@ -572,11 +572,10 @@ export class TransactionServiceImpl implements TransactionService {
     }
 
     const typeMismatch =
-      (category.type === "INCOME" &&
-        transactionType !== TransactionType.INCOME) ||
+      (category.type === "INCOME" && transactionType !== "INCOME") ||
       (category.type === "EXPENSE" &&
-        transactionType !== TransactionType.EXPENSE &&
-        transactionType !== TransactionType.REFUND);
+        transactionType !== "EXPENSE" &&
+        transactionType !== "REFUND");
 
     if (typeMismatch) {
       throw new BusinessError(

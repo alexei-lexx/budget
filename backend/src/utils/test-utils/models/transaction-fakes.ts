@@ -49,9 +49,7 @@ export const fakeTransaction = (
   }
   const now = toDateTimeString(new Date().toISOString());
   const type = normalizedOverrides.type ?? TransactionType.EXPENSE;
-  const isTransfer =
-    type === TransactionType.TRANSFER_IN ||
-    type === TransactionType.TRANSFER_OUT;
+  const isTransfer = type === "TRANSFER_IN" || type === "TRANSFER_OUT";
 
   return Transaction.fromPersistence({
     id: faker.string.uuid(),
@@ -75,28 +73,23 @@ export const fakeTransaction = (
 
 export const fakeIncome = (
   overrides: FakeTransactionOverrides<"type"> = {},
-): Transaction =>
-  fakeTransaction({ type: TransactionType.INCOME, ...overrides });
+): Transaction => fakeTransaction({ type: "INCOME", ...overrides });
 
 export const fakeExpense = (
   overrides: FakeTransactionOverrides<"type"> = {},
-): Transaction =>
-  fakeTransaction({ type: TransactionType.EXPENSE, ...overrides });
+): Transaction => fakeTransaction({ type: "EXPENSE", ...overrides });
 
 export const fakeRefund = (
   overrides: FakeTransactionOverrides<"type"> = {},
-): Transaction =>
-  fakeTransaction({ type: TransactionType.REFUND, ...overrides });
+): Transaction => fakeTransaction({ type: "REFUND", ...overrides });
 
 export const fakeTransferOut = (
   overrides: FakeTransactionOverrides<"type"> = {},
-): Transaction =>
-  fakeTransaction({ type: TransactionType.TRANSFER_OUT, ...overrides });
+): Transaction => fakeTransaction({ type: "TRANSFER_OUT", ...overrides });
 
 export const fakeTransferIn = (
   overrides: FakeTransactionOverrides<"type"> = {},
-): Transaction =>
-  fakeTransaction({ type: TransactionType.TRANSFER_IN, ...overrides });
+): Transaction => fakeTransaction({ type: "TRANSFER_IN", ...overrides });
 
 export const fakeCreateTransactionInput = (
   overrides: Partial<CreateTransactionInput> = {},
@@ -107,7 +100,7 @@ export const fakeCreateTransactionInput = (
   return {
     userId,
     account,
-    type: TransactionType.EXPENSE,
+    type: "EXPENSE",
     amount: faker.number.float({ min: 1, max: 1000, fractionDigits: 2 }),
     date: dateToDateString(faker.date.recent()),
     description: faker.commerce.product(),

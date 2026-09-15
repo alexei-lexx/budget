@@ -1,6 +1,6 @@
 import { randomUUID } from "crypto";
 import { Account } from "../models/account";
-import { Transaction, TransactionType } from "../models/transaction";
+import { Transaction } from "../models/transaction";
 import { AccountRepository } from "../ports/account-repository";
 import { AtomicWriter } from "../ports/atomic-writer";
 import { TransactionRepository } from "../ports/transaction-repository";
@@ -107,7 +107,7 @@ export class TransferService {
     const outboundTransaction = Transaction.create({
       userId,
       account: sourceAccount,
-      type: TransactionType.TRANSFER_OUT,
+      type: "TRANSFER_OUT",
       amount: input.amount,
       date: input.date,
       description: input.description || undefined,
@@ -118,7 +118,7 @@ export class TransferService {
     const inboundTransaction = Transaction.create({
       userId,
       account: destAccount,
-      type: TransactionType.TRANSFER_IN,
+      type: "TRANSFER_IN",
       amount: input.amount,
       date: input.date,
       description: input.description || undefined,
@@ -183,10 +183,10 @@ export class TransferService {
     }
 
     const outboundTransaction = transferTransactions.find(
-      (transaction) => transaction.type === TransactionType.TRANSFER_OUT,
+      (transaction) => transaction.type === "TRANSFER_OUT",
     );
     const inboundTransaction = transferTransactions.find(
-      (transaction) => transaction.type === TransactionType.TRANSFER_IN,
+      (transaction) => transaction.type === "TRANSFER_IN",
     );
     if (!outboundTransaction || !inboundTransaction) {
       throw new BusinessError("Invalid transfer state: missing pair");
@@ -440,10 +440,10 @@ export class TransferService {
     }
 
     const outboundTransaction = transferTransactions.find(
-      (transaction) => transaction.type === TransactionType.TRANSFER_OUT,
+      (transaction) => transaction.type === "TRANSFER_OUT",
     );
     const inboundTransaction = transferTransactions.find(
-      (transaction) => transaction.type === TransactionType.TRANSFER_IN,
+      (transaction) => transaction.type === "TRANSFER_IN",
     );
 
     if (!outboundTransaction) {

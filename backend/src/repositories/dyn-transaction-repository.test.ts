@@ -687,7 +687,7 @@ describe("DynTransactionRepository", () => {
         userId,
         undefined,
         {
-          types: [TransactionType.INCOME],
+          types: ["INCOME"],
         },
       );
 
@@ -734,7 +734,7 @@ describe("DynTransactionRepository", () => {
         userId,
         undefined,
         {
-          types: [TransactionType.INCOME, TransactionType.EXPENSE],
+          types: ["INCOME", "EXPENSE"],
         },
       );
 
@@ -846,7 +846,7 @@ describe("DynTransactionRepository", () => {
           undefined,
           {
             categoryIds: [category1],
-            types: [TransactionType.EXPENSE],
+            types: ["EXPENSE"],
           },
         );
 
@@ -923,7 +923,7 @@ describe("DynTransactionRepository", () => {
             categoryIds: [category1],
             dateAfter: toDateString("2024-01-18"),
             dateBefore: toDateString("2024-01-22"),
-            types: [TransactionType.EXPENSE],
+            types: ["EXPENSE"],
           },
         );
 
@@ -1789,7 +1789,7 @@ describe("DynTransactionRepository", () => {
         created.update({
           account: newAccount,
           category: newCategory,
-          type: TransactionType.INCOME,
+          type: "INCOME",
           amount: 100.0,
           date: toDateString("2024-02-01"),
           description: "Updated description",

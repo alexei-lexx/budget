@@ -1,5 +1,5 @@
 import { Temporal } from "temporal-polyfill";
-import { Transaction, TransactionType } from "../models/transaction";
+import { Transaction } from "../models/transaction";
 import { CategoryRepository } from "../ports/category-repository";
 import { TransactionRepository } from "../ports/transaction-repository";
 import { DateString, toDateString } from "../types/date-string";
@@ -71,7 +71,7 @@ export class ExpenseTrendService {
         dateAfter: firstPeriodStart,
         dateBefore: today,
         includeUncategorized,
-        types: [TransactionType.EXPENSE, TransactionType.REFUND],
+        types: ["EXPENSE", "REFUND"],
       },
     );
 
