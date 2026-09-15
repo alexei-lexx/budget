@@ -17,10 +17,6 @@ const config: CodegenConfig = {
         maybeValue: "T | undefined",
         // Generates unmapped enums as string unions
         enumsAsTypes: true,
-        // Map GraphQL enums to model enums to avoid type mismatches
-        enumValues: {
-          TransactionType: "../models/transaction#TransactionType",
-        },
         // Map GraphQL types to model types for field resolvers and computed fields
         mappers: {
           Account: "Account",
