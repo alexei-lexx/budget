@@ -80,7 +80,7 @@ describe("aggregateTransactions", () => {
         accountIds: ["account-1"],
         categoryIds: ["category-1"],
         includeUncategorized: true,
-        types: [TransactionType.EXPENSE],
+        types: ["EXPENSE"],
         includeTransactionsExcludedFromReports: false,
         groupBy: "MONTH",
         guideTokens: [validGuideToken],

@@ -82,14 +82,11 @@ export class ByCategoryReportService {
     let amountGetter: (transaction: Transaction) => number;
 
     if (type === "EXPENSE") {
-      transactionTypesToFetch = [
-        TransactionType.EXPENSE,
-        TransactionType.REFUND,
-      ];
+      transactionTypesToFetch = ["EXPENSE", "REFUND"];
       // Negate to get expenses as positive, refunds as negative
       amountGetter = (transaction) => -transaction.signedAmount;
     } else if (type === "INCOME") {
-      transactionTypesToFetch = [TransactionType.INCOME];
+      transactionTypesToFetch = ["INCOME"];
       amountGetter = (transaction) => transaction.signedAmount;
     } else {
       throw new Error("Invalid report type");

@@ -10,7 +10,6 @@ import {
 } from "../dependencies";
 import { Account } from "../models/account";
 import { Category } from "../models/category";
-import { TransactionType } from "../models/transaction";
 import { toDateString } from "../types/date-string";
 import { createDynamoDBDocumentClient } from "../utils/dynamo-client";
 import { requireEnv } from "../utils/require-env";
@@ -229,7 +228,7 @@ async function createTransactions(
         {
           accountId,
           categoryId,
-          type: TransactionType.INCOME,
+          type: "INCOME",
           amount,
           date: dateString,
         },
@@ -270,7 +269,7 @@ async function createTransactions(
         {
           accountId,
           categoryId,
-          type: TransactionType.EXPENSE,
+          type: "EXPENSE",
           amount,
           date: dateString,
           ...(description && { description }),

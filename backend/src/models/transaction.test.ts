@@ -43,7 +43,7 @@ describe("Transaction", () => {
         userId,
         account,
         category,
-        type: TransactionType.EXPENSE,
+        type: "EXPENSE",
         amount: 42.5,
         date: toDateString("2000-01-02"),
         description: "lunch",
@@ -58,7 +58,7 @@ describe("Transaction", () => {
         userId,
         accountId: account.id,
         categoryId: category.id,
-        type: TransactionType.EXPENSE,
+        type: "EXPENSE",
         amount: 42.5,
         currency: "EUR",
         date: "2000-01-02",
@@ -153,7 +153,7 @@ describe("Transaction", () => {
           userId,
           account,
           category,
-          type: TransactionType.REFUND,
+          type: "REFUND",
         }),
         fixedDeps,
       );
@@ -170,7 +170,7 @@ describe("Transaction", () => {
       // Act
       const result = Transaction.create(
         fakeCreateTransactionInput({
-          type: TransactionType.TRANSFER_OUT,
+          type: "TRANSFER_OUT",
           transferId,
         }),
         fixedDeps,
@@ -189,7 +189,7 @@ describe("Transaction", () => {
       // Act
       const result = Transaction.create(
         fakeCreateTransactionInput({
-          type: TransactionType.TRANSFER_IN,
+          type: "TRANSFER_IN",
           transferId,
         }),
         fixedDeps,
@@ -298,7 +298,7 @@ describe("Transaction", () => {
           fakeCreateTransactionInput({
             userId,
             category,
-            type: TransactionType.EXPENSE,
+            type: "EXPENSE",
           }),
           fixedDeps,
         ),
@@ -318,7 +318,7 @@ describe("Transaction", () => {
           fakeCreateTransactionInput({
             userId,
             category,
-            type: TransactionType.INCOME,
+            type: "INCOME",
           }),
           fixedDeps,
         ),
@@ -357,7 +357,7 @@ describe("Transaction", () => {
             userId,
             account,
             category,
-            type: TransactionType.TRANSFER_OUT,
+            type: "TRANSFER_OUT",
             transferId: faker.string.uuid(),
           }),
           fixedDeps,
@@ -370,7 +370,7 @@ describe("Transaction", () => {
       expect(() =>
         Transaction.create(
           fakeCreateTransactionInput({
-            type: TransactionType.TRANSFER_OUT,
+            type: "TRANSFER_OUT",
             transferId: undefined,
           }),
           fixedDeps,
@@ -385,7 +385,7 @@ describe("Transaction", () => {
       expect(() =>
         Transaction.create(
           fakeCreateTransactionInput({
-            type: TransactionType.EXPENSE,
+            type: "EXPENSE",
             transferId: faker.string.uuid(),
           }),
           fixedDeps,
@@ -560,7 +560,7 @@ describe("Transaction", () => {
       const existing = fakeExpense({});
 
       // Act
-      const result = existing.update({ type: TransactionType.INCOME });
+      const result = existing.update({ type: "INCOME" });
 
       // Assert
       expect(result.type).toBe(TransactionType.INCOME);
@@ -852,9 +852,7 @@ describe("Transaction", () => {
       });
 
       // Act & Assert
-      expect(() =>
-        existing.update({ type: TransactionType.TRANSFER_OUT }),
-      ).toThrow(
+      expect(() => existing.update({ type: "TRANSFER_OUT" })).toThrow(
         new ModelError("Transfer transactions must include transferId"),
       );
     });
@@ -865,9 +863,9 @@ describe("Transaction", () => {
       const existing = fakeExpense({});
 
       // Act & Assert
-      expect(() =>
-        existing.update({ type: TransactionType.TRANSFER_OUT }),
-      ).toThrow(new ModelError("Transfer transactions cannot have a category"));
+      expect(() => existing.update({ type: "TRANSFER_OUT" })).toThrow(
+        new ModelError("Transfer transactions cannot have a category"),
+      );
     });
 
     it("throws on switching transfer to non-transfer type", () => {
@@ -878,7 +876,7 @@ describe("Transaction", () => {
       });
 
       // Act & Assert
-      expect(() => existing.update({ type: TransactionType.EXPENSE })).toThrow(
+      expect(() => existing.update({ type: "EXPENSE" })).toThrow(
         new ModelError("Only transfer transactions can include transferId"),
       );
     });

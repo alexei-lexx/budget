@@ -1,11 +1,9 @@
-import { TransactionType } from '../models/transaction';
 import { GraphQLResolveInfo } from 'graphql';
 import { GraphQLContext } from '../graphql/context';
 export type Maybe<T> = T | undefined;
 export type InputMaybe<T> = T | null | undefined;
 export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 export type RequireFields<T, K extends keyof T> = Omit<T, K> & { [P in K]-?: NonNullable<T[P]> };
-export type EnumResolverSignature<T, AllowedValues = any> = { [key in keyof T]?: AllowedValues };
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
   ID: { input: string; output: string; }
@@ -479,7 +477,12 @@ export type TransactionPatternType =
   | 'INCOME'
   | 'REFUND';
 
-export { TransactionType };
+export type TransactionType =
+  | 'EXPENSE'
+  | 'INCOME'
+  | 'REFUND'
+  | 'TRANSFER_IN'
+  | 'TRANSFER_OUT';
 
 export type Transfer = {
   __typename?: 'Transfer';
@@ -963,8 +966,6 @@ export type TransactionPatternResolvers<ContextType = GraphQLContext, ParentType
   categoryName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
 };
 
-export type TransactionTypeResolvers = EnumResolverSignature<{ EXPENSE?: any, INCOME?: any, REFUND?: any, TRANSFER_IN?: any, TRANSFER_OUT?: any }, ResolversTypes['TransactionType']>;
-
 export type TransferResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Transfer'] = ResolversParentTypes['Transfer']> = {
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   inboundTransaction?: Resolver<ResolversTypes['Transaction'], ParentType, ContextType>;
@@ -1020,7 +1021,6 @@ export type Resolvers<ContextType = GraphQLContext> = {
   TransactionEmbeddedAccount?: TransactionEmbeddedAccountResolvers<ContextType>;
   TransactionEmbeddedCategory?: TransactionEmbeddedCategoryResolvers<ContextType>;
   TransactionPattern?: TransactionPatternResolvers<ContextType>;
-  TransactionType?: TransactionTypeResolvers;
   Transfer?: TransferResolvers<ContextType>;
   TrendPreset?: TrendPresetResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
