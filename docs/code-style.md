@@ -21,6 +21,13 @@ All generated or manually written TypeScript code MUST adhere to strict type saf
   - Members MUST use UPPER_CASE
   - Members MUST be either sorted alphabetically or follow a meaningful order (e.g. a workflow sequence)
 
+### Comments
+
+- Comment lines MUST wrap at the same width as the project's code line-length convention
+- Break lines at punctuation or logical boundaries, never mid-phrase
+  - e.g. don't split a noun from its adjective
+- Prefer short sentences over long compound ones
+
 ### Finder Method Naming
 
 Finder method names MUST encode cardinality and error behavior.
