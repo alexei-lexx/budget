@@ -6,6 +6,10 @@
 
 This applies to all tasks involving project standards, code style, architecture, tech stack, test strategy, writing tests, or any implementation. The constitution defines the project's structure, coding standards, and technical constraints. Nothing overrides it.
 
+## Code Style
+
+Code style rules (naming, formatting, and similar conventions) live in `docs/code-style.md`.
+
 ## Communication Style
 
 **Be concise.** Skip affirmations and preambles.
@@ -98,9 +102,8 @@ cp .env.test.example .env.test
 npm run test:db:setup
 ```
 
-## Reference
+## Additional Documentation
 
-- `docs/constitution.md` — project structure, architecture, coding standards, technical constraints
 - `docs/requirements.md` — business requirements and feature specifications
 
 ## OpenWiki

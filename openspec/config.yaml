@@ -25,6 +25,7 @@ rules:
     - Make sure the spec does not include technical details
     - Use short, simple sentences focused on one idea; avoid long compound and complex sentences and vague phrasing; be concrete and specific
   tasks:
+    - Include "## Code Style" as the first section, with a link to `docs/code-style.md` as a reminder to apply it during implementation
     - Use test-driven development - write tests first, then implement and refactor
     - Prefix every task that writes or modifies tests with "(use `testing` skill)" after the task number
     - Include a "## Constitution Compliance" section listing which constitution principles apply and confirming compliance or flagging violations

@@ -6,7 +6,7 @@
 
 ---
 
-> **Note**: For architecture, code standards, and technical constraints, see `docs/constitution.md`
+> **Note**: For architecture, code standards, and technical constraints, see `docs/constitution.md`. For code style rules, see `docs/code-style.md`.
 
 ## 1. Purpose
 
@@ -21,28 +21,33 @@ The application will help individuals track their personal finances by recording
 - Users can create and manage multiple personal accounts (e.g., _Cash_, _Bank Account_, _Credit Card_).
 
 **Account Creation Requirements:**
+
 - Name must be specified
 - Currency must be selected (required)
 - Initial balance can be set (optional, defaults to 0)
 
 **Account Updates:**
+
 - Name can be changed
 - Currency can be changed (with warning that this affects transfer compatibility)
 - Initial balance can be updated at any time
 
 **Account Deletion:**
+
 - Accounts are archived (soft delete) rather than permanently deleted
 - Archived accounts are hidden from the main UI but preserved in historical data
 - Users can restore archived accounts if needed
 - This preserves transaction history and maintains report integrity
 
 **Data Privacy & User Experience:**
+
 - Users see only essential account information: name, currency, and balance
 - All destructive actions (account deletion) require explicit user confirmation
 - Confirmation dialogs show the specific account name and warn that the action cannot be undone
 - Delete button is clearly labeled as "Delete" rather than technical terms like "Archive"
 
 **Balance Calculation:**
+
 - Account balance = Initial balance + Sum of all transactions
 - Balance is displayed in the account's specified currency
 
