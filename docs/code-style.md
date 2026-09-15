@@ -1,6 +1,6 @@
 # Code Style
 
-### TypeScript Code Generation
+## TypeScript Code Generation
 
 All generated or manually written TypeScript code MUST adhere to strict type safety and code quality standards.
 
@@ -21,14 +21,14 @@ All generated or manually written TypeScript code MUST adhere to strict type saf
   - Members MUST use UPPER_CASE
   - Members MUST be either sorted alphabetically or follow a meaningful order (e.g. a workflow sequence)
 
-### Comments
+## Comments
 
 - Comment lines MUST wrap at the same width as the project's code line-length convention
 - Break lines at punctuation or logical boundaries, never mid-phrase
   - e.g. don't split a noun from its adjective
 - Prefer short sentences over long compound ones
 
-### Finder Method Naming
+## Finder Method Naming
 
 Finder method names MUST encode cardinality and error behavior.
 
@@ -40,7 +40,7 @@ Finder method names MUST encode cardinality and error behavior.
 
 Callers know from the method name alone whether to handle `null`, iterate a collection, or catch a thrown error — without reading the return type or implementation.
 
-### Method Ordering
+## Method Ordering
 
 Methods within a class MUST follow a consistent ordering that exposes the public API first and places higher-level logic above the details it depends on.
 
