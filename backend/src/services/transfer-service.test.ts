@@ -8,7 +8,10 @@ import { VersionConflictError } from "../ports/repository-error";
 import { TransactionRepository } from "../ports/transaction-repository";
 import { toDateString } from "../types/date-string";
 import { fakeAccount } from "../utils/test-utils/models/account-fakes";
-import { fakeTransaction } from "../utils/test-utils/models/transaction-fakes";
+import {
+  fakeTransferIn,
+  fakeTransferOut,
+} from "../utils/test-utils/models/transaction-fakes";
 import { createMockAccountRepository } from "../utils/test-utils/repositories/account-repository-mocks";
 import { createMockAtomicWriter } from "../utils/test-utils/repositories/atomic-writer-mocks";
 import { createMockTransactionRepository } from "../utils/test-utils/repositories/transaction-repository-mocks";
@@ -42,12 +45,10 @@ describe("TransferService", () => {
     it("returns transfer result with outbound and inbound transactions", async () => {
       // Arrange
       const transferId = faker.string.uuid();
-      const outboundTransaction = fakeTransaction({
-        type: TransactionType.TRANSFER_OUT,
+      const outboundTransaction = fakeTransferOut({
         transferId,
       });
-      const inboundTransaction = fakeTransaction({
-        type: TransactionType.TRANSFER_IN,
+      const inboundTransaction = fakeTransferIn({
         transferId,
       });
       // Returns existing pair
@@ -73,12 +74,10 @@ describe("TransferService", () => {
     it("identifies outbound and inbound regardless of array order", async () => {
       // Arrange
       const transferId = faker.string.uuid();
-      const outboundTransaction = fakeTransaction({
-        type: TransactionType.TRANSFER_OUT,
+      const outboundTransaction = fakeTransferOut({
         transferId,
       });
-      const inboundTransaction = fakeTransaction({
-        type: TransactionType.TRANSFER_IN,
+      const inboundTransaction = fakeTransferIn({
         transferId,
       });
       // Returns pair with inbound first
@@ -118,7 +117,7 @@ describe("TransferService", () => {
       const transferId = faker.string.uuid();
       // Returns single transaction
       mockTransactionRepository.findManyByTransferId.mockResolvedValue([
-        fakeTransaction({ type: TransactionType.TRANSFER_OUT, transferId }),
+        fakeTransferOut({ transferId }),
       ]);
 
       // Act & Assert
@@ -134,9 +133,9 @@ describe("TransferService", () => {
       const transferId = faker.string.uuid();
       // Returns three transactions
       mockTransactionRepository.findManyByTransferId.mockResolvedValue([
-        fakeTransaction({ type: TransactionType.TRANSFER_OUT, transferId }),
-        fakeTransaction({ type: TransactionType.TRANSFER_IN, transferId }),
-        fakeTransaction({ type: TransactionType.TRANSFER_OUT, transferId }),
+        fakeTransferOut({ transferId }),
+        fakeTransferIn({ transferId }),
+        fakeTransferOut({ transferId }),
       ]);
 
       // Act & Assert
@@ -152,8 +151,8 @@ describe("TransferService", () => {
       const transferId = faker.string.uuid();
       // Returns two inbound transactions
       mockTransactionRepository.findManyByTransferId.mockResolvedValue([
-        fakeTransaction({ type: TransactionType.TRANSFER_IN, transferId }),
-        fakeTransaction({ type: TransactionType.TRANSFER_IN, transferId }),
+        fakeTransferIn({ transferId }),
+        fakeTransferIn({ transferId }),
       ]);
 
       // Act & Assert
@@ -169,8 +168,8 @@ describe("TransferService", () => {
       const transferId = faker.string.uuid();
       // Returns two outbound transactions
       mockTransactionRepository.findManyByTransferId.mockResolvedValue([
-        fakeTransaction({ type: TransactionType.TRANSFER_OUT, transferId }),
-        fakeTransaction({ type: TransactionType.TRANSFER_OUT, transferId }),
+        fakeTransferOut({ transferId }),
+        fakeTransferOut({ transferId }),
       ]);
 
       // Act & Assert
@@ -486,16 +485,14 @@ describe("TransferService", () => {
         currency: "USD",
         transactionBalance: 300,
       });
-      const outboundTransaction = fakeTransaction({
+      const outboundTransaction = fakeTransferOut({
         userId,
-        type: TransactionType.TRANSFER_OUT,
         accountId: sourceAccount.id,
         amount: 50,
         transferId,
       });
-      const inboundTransaction = fakeTransaction({
+      const inboundTransaction = fakeTransferIn({
         userId,
-        type: TransactionType.TRANSFER_IN,
         accountId: destAccount.id,
         amount: 50,
         transferId,
@@ -565,8 +562,8 @@ describe("TransferService", () => {
       const transferId = faker.string.uuid();
       // Returns two outbound transactions
       mockTransactionRepository.findManyByTransferId.mockResolvedValue([
-        fakeTransaction({ type: TransactionType.TRANSFER_OUT, transferId }),
-        fakeTransaction({ type: TransactionType.TRANSFER_OUT, transferId }),
+        fakeTransferOut({ transferId }),
+        fakeTransferOut({ transferId }),
       ]);
 
       // Act & Assert
@@ -579,14 +576,12 @@ describe("TransferService", () => {
     it("throws when source account not found", async () => {
       // Arrange
       const transferId = faker.string.uuid();
-      const outboundTransaction = fakeTransaction({
+      const outboundTransaction = fakeTransferOut({
         userId,
-        type: TransactionType.TRANSFER_OUT,
         transferId,
       });
-      const inboundTransaction = fakeTransaction({
+      const inboundTransaction = fakeTransferIn({
         userId,
-        type: TransactionType.TRANSFER_IN,
         transferId,
       });
       // Returns existing pair
@@ -609,14 +604,12 @@ describe("TransferService", () => {
     it("throws when destination account not found", async () => {
       // Arrange
       const transferId = faker.string.uuid();
-      const outboundTransaction = fakeTransaction({
+      const outboundTransaction = fakeTransferOut({
         userId,
-        type: TransactionType.TRANSFER_OUT,
         transferId,
       });
-      const inboundTransaction = fakeTransaction({
+      const inboundTransaction = fakeTransferIn({
         userId,
-        type: TransactionType.TRANSFER_IN,
         transferId,
       });
       // Returns existing pair
@@ -643,15 +636,13 @@ describe("TransferService", () => {
       const transferId = faker.string.uuid();
       const sourceAccount = fakeAccount({ userId, currency: "USD" });
       const destAccount = fakeAccount({ userId, currency: "USD" });
-      const outboundTransaction = fakeTransaction({
+      const outboundTransaction = fakeTransferOut({
         userId,
-        type: TransactionType.TRANSFER_OUT,
         accountId: sourceAccount.id,
         transferId,
       });
-      const inboundTransaction = fakeTransaction({
+      const inboundTransaction = fakeTransferIn({
         userId,
-        type: TransactionType.TRANSFER_IN,
         accountId: destAccount.id,
         transferId,
       });
@@ -678,15 +669,13 @@ describe("TransferService", () => {
       const transferId = faker.string.uuid();
       const sourceAccount = fakeAccount({ userId, currency: "USD" });
       const destAccount = fakeAccount({ userId, currency: "USD" });
-      const outboundTransaction = fakeTransaction({
+      const outboundTransaction = fakeTransferOut({
         userId,
-        type: TransactionType.TRANSFER_OUT,
         accountId: sourceAccount.id,
         transferId,
       });
-      const inboundTransaction = fakeTransaction({
+      const inboundTransaction = fakeTransferIn({
         userId,
-        type: TransactionType.TRANSFER_IN,
         accountId: destAccount.id,
         transferId,
       });
@@ -725,18 +714,16 @@ describe("TransferService", () => {
         currency: "USD",
         transactionBalance: 200,
       });
-      const outboundTransaction = fakeTransaction({
+      const outboundTransaction = fakeTransferOut({
         userId,
-        type: TransactionType.TRANSFER_OUT,
         accountId: sourceAccount.id,
         currency: "USD",
         amount: 100,
         transferId,
         version: 5,
       });
-      const inboundTransaction = fakeTransaction({
+      const inboundTransaction = fakeTransferIn({
         userId,
-        type: TransactionType.TRANSFER_IN,
         accountId: destAccount.id,
         currency: "USD",
         amount: 100,
@@ -797,17 +784,15 @@ describe("TransferService", () => {
         currency: "USD",
         transactionBalance: 200,
       });
-      const outboundTransaction = fakeTransaction({
+      const outboundTransaction = fakeTransferOut({
         userId,
-        type: TransactionType.TRANSFER_OUT,
         accountId: sourceAccount.id,
         currency: "USD",
         amount: 100,
         transferId,
       });
-      const inboundTransaction = fakeTransaction({
+      const inboundTransaction = fakeTransferIn({
         userId,
-        type: TransactionType.TRANSFER_IN,
         accountId: destAccount.id,
         currency: "USD",
         amount: 100,
@@ -868,17 +853,15 @@ describe("TransferService", () => {
         currency,
         transactionBalance: 0,
       });
-      const outboundTransaction = fakeTransaction({
+      const outboundTransaction = fakeTransferOut({
         userId,
-        type: TransactionType.TRANSFER_OUT,
         accountId: oldSourceAccount.id,
         currency: "USD",
         amount: 100,
         transferId,
       });
-      const inboundTransaction = fakeTransaction({
+      const inboundTransaction = fakeTransferIn({
         userId,
-        type: TransactionType.TRANSFER_IN,
         accountId: oldDestAccount.id,
         currency: "USD",
         amount: 100,
@@ -945,17 +928,15 @@ describe("TransferService", () => {
         currency: "USD",
         transactionBalance: 300,
       });
-      const outboundTransaction = fakeTransaction({
+      const outboundTransaction = fakeTransferOut({
         userId,
-        type: TransactionType.TRANSFER_OUT,
         accountId: accountA.id,
         currency: "USD",
         amount: 100,
         transferId,
       });
-      const inboundTransaction = fakeTransaction({
+      const inboundTransaction = fakeTransferIn({
         userId,
-        type: TransactionType.TRANSFER_IN,
         accountId: accountB.id,
         currency: "USD",
         amount: 100,
@@ -1005,17 +986,15 @@ describe("TransferService", () => {
       const transferId = faker.string.uuid();
       const sourceAccount = fakeAccount({ userId, currency: "USD" });
       const destAccount = fakeAccount({ userId, currency: "USD" });
-      const outboundTransaction = fakeTransaction({
+      const outboundTransaction = fakeTransferOut({
         userId,
-        type: TransactionType.TRANSFER_OUT,
         accountId: sourceAccount.id,
         currency: "USD",
         amount: 100,
         transferId,
       });
-      const inboundTransaction = fakeTransaction({
+      const inboundTransaction = fakeTransferIn({
         userId,
-        type: TransactionType.TRANSFER_IN,
         accountId: destAccount.id,
         currency: "USD",
         amount: 100,
@@ -1055,17 +1034,15 @@ describe("TransferService", () => {
       const transferId = faker.string.uuid();
       const sourceAccount = fakeAccount({ userId, currency: "USD" });
       const destAccount = fakeAccount({ userId, currency: "USD" });
-      const outboundTransaction = fakeTransaction({
+      const outboundTransaction = fakeTransferOut({
         userId,
-        type: TransactionType.TRANSFER_OUT,
         accountId: sourceAccount.id,
         currency: "USD",
         amount: 100,
         transferId,
       });
-      const inboundTransaction = fakeTransaction({
+      const inboundTransaction = fakeTransferIn({
         userId,
-        type: TransactionType.TRANSFER_IN,
         accountId: destAccount.id,
         currency: "USD",
         amount: 100,
@@ -1136,16 +1113,14 @@ describe("TransferService", () => {
       const transferId = faker.string.uuid();
       const sourceAccount = fakeAccount({ userId, currency: "USD" });
       const destinationAccount = fakeAccount({ userId, currency: "USD" });
-      const outboundTransaction = fakeTransaction({
+      const outboundTransaction = fakeTransferOut({
         userId,
-        type: TransactionType.TRANSFER_OUT,
         accountId: sourceAccount.id,
         currency: "USD",
         transferId,
       });
-      const inboundTransaction = fakeTransaction({
+      const inboundTransaction = fakeTransferIn({
         userId,
-        type: TransactionType.TRANSFER_IN,
         accountId: destinationAccount.id,
         currency: "USD",
         transferId,
@@ -1173,16 +1148,14 @@ describe("TransferService", () => {
       const transferId = faker.string.uuid();
       const oldSourceAccount = fakeAccount({ userId });
       const destAccount = fakeAccount({ userId });
-      const outboundTransaction = fakeTransaction({
+      const outboundTransaction = fakeTransferOut({
         userId,
         accountId: oldSourceAccount.id,
-        type: TransactionType.TRANSFER_OUT,
         transferId,
       });
-      const inboundTransaction = fakeTransaction({
+      const inboundTransaction = fakeTransferIn({
         userId,
         accountId: destAccount.id,
-        type: TransactionType.TRANSFER_IN,
         transferId,
       });
       // Returns existing pair
@@ -1213,16 +1186,14 @@ describe("TransferService", () => {
       const transferId = faker.string.uuid();
       const sourceAccount = fakeAccount({ userId });
       const oldDestAccount = fakeAccount({ userId });
-      const outboundTransaction = fakeTransaction({
+      const outboundTransaction = fakeTransferOut({
         userId,
         accountId: sourceAccount.id,
-        type: TransactionType.TRANSFER_OUT,
         transferId,
       });
-      const inboundTransaction = fakeTransaction({
+      const inboundTransaction = fakeTransferIn({
         userId,
         accountId: oldDestAccount.id,
-        type: TransactionType.TRANSFER_IN,
         transferId,
       });
       // Returns existing pair
@@ -1254,16 +1225,14 @@ describe("TransferService", () => {
       const oldSourceAccount = fakeAccount({ userId, currency: "USD" });
       const oldDestAccount = fakeAccount({ userId, currency: "USD" });
       const newSourceAccount = fakeAccount({ userId, currency: "EUR" });
-      const outboundTransaction = fakeTransaction({
+      const outboundTransaction = fakeTransferOut({
         userId,
-        type: TransactionType.TRANSFER_OUT,
         accountId: oldSourceAccount.id,
         currency: "USD",
         transferId,
       });
-      const inboundTransaction = fakeTransaction({
+      const inboundTransaction = fakeTransferIn({
         userId,
-        type: TransactionType.TRANSFER_IN,
         accountId: oldDestAccount.id,
         currency: "USD",
         transferId,
@@ -1298,16 +1267,14 @@ describe("TransferService", () => {
       const transferId = faker.string.uuid();
       const sourceAccount = fakeAccount({ userId, currency: "USD" });
       const destAccount = fakeAccount({ userId, currency: "USD" });
-      const outboundTransaction = fakeTransaction({
+      const outboundTransaction = fakeTransferOut({
         userId,
-        type: TransactionType.TRANSFER_OUT,
         accountId: sourceAccount.id,
         currency: "USD",
         transferId,
       });
-      const inboundTransaction = fakeTransaction({
+      const inboundTransaction = fakeTransferIn({
         userId,
-        type: TransactionType.TRANSFER_IN,
         accountId: destAccount.id,
         currency: "USD",
         transferId,
@@ -1336,17 +1303,15 @@ describe("TransferService", () => {
       const transferId = faker.string.uuid();
       const sourceAccount = fakeAccount({ userId, currency: "USD" });
       const destAccount = fakeAccount({ userId, currency: "USD" });
-      const outboundTransaction = fakeTransaction({
+      const outboundTransaction = fakeTransferOut({
         userId,
-        type: TransactionType.TRANSFER_OUT,
         accountId: sourceAccount.id,
         currency: "USD",
         amount: 100,
         transferId,
       });
-      const inboundTransaction = fakeTransaction({
+      const inboundTransaction = fakeTransferIn({
         userId,
-        type: TransactionType.TRANSFER_IN,
         accountId: destAccount.id,
         currency: "USD",
         amount: 100,
@@ -1377,17 +1342,15 @@ describe("TransferService", () => {
       const transferId = faker.string.uuid();
       const sourceAccount = fakeAccount({ userId, currency: "USD" });
       const destAccount = fakeAccount({ userId, currency: "USD" });
-      const outboundTransaction = fakeTransaction({
+      const outboundTransaction = fakeTransferOut({
         userId,
-        type: TransactionType.TRANSFER_OUT,
         accountId: sourceAccount.id,
         currency: "USD",
         amount: 100,
         transferId,
       });
-      const inboundTransaction = fakeTransaction({
+      const inboundTransaction = fakeTransferIn({
         userId,
-        type: TransactionType.TRANSFER_IN,
         accountId: destAccount.id,
         currency: "USD",
         amount: 100,

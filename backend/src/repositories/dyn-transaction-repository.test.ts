@@ -9,7 +9,14 @@ import { requireEnv } from "../utils/require-env";
 import { truncateTable } from "../utils/test-utils/dynamodb-helpers";
 import { fakeAccount } from "../utils/test-utils/models/account-fakes";
 import { fakeCategory } from "../utils/test-utils/models/category-fakes";
-import { fakeTransaction } from "../utils/test-utils/models/transaction-fakes";
+import {
+  fakeExpense,
+  fakeIncome,
+  fakeRefund,
+  fakeTransaction,
+  fakeTransferIn,
+  fakeTransferOut,
+} from "../utils/test-utils/models/transaction-fakes";
 import { DynTransactionRepository } from "./dyn-transaction-repository";
 
 describe("DynTransactionRepository", () => {
@@ -657,24 +664,21 @@ describe("DynTransactionRepository", () => {
       const accountId = faker.string.uuid();
 
       await repository.create(
-        fakeTransaction({
+        fakeIncome({
           userId,
           accountId,
-          type: TransactionType.INCOME,
         }),
       );
       await repository.create(
-        fakeTransaction({
+        fakeExpense({
           userId,
           accountId,
-          type: TransactionType.EXPENSE,
         }),
       );
       await repository.create(
-        fakeTransaction({
+        fakeIncome({
           userId,
           accountId,
-          type: TransactionType.INCOME,
         }),
       );
 
@@ -701,31 +705,27 @@ describe("DynTransactionRepository", () => {
       const accountId = faker.string.uuid();
 
       await repository.create(
-        fakeTransaction({
+        fakeIncome({
           userId,
           accountId,
-          type: TransactionType.INCOME,
         }),
       );
       await repository.create(
-        fakeTransaction({
+        fakeExpense({
           userId,
           accountId,
-          type: TransactionType.EXPENSE,
         }),
       );
       await repository.create(
-        fakeTransaction({
+        fakeTransferIn({
           userId,
           accountId,
-          type: TransactionType.TRANSFER_IN,
         }),
       );
       await repository.create(
-        fakeTransaction({
+        fakeTransferOut({
           userId,
           accountId,
-          type: TransactionType.TRANSFER_OUT,
         }),
       );
 
@@ -812,35 +812,31 @@ describe("DynTransactionRepository", () => {
         const category2 = faker.string.uuid();
 
         await repository.create(
-          fakeTransaction({
+          fakeIncome({
             userId,
             accountId,
             categoryId: category1,
-            type: TransactionType.INCOME,
           }),
         );
         await repository.create(
-          fakeTransaction({
+          fakeExpense({
             userId,
             accountId,
             categoryId: category1,
-            type: TransactionType.EXPENSE,
           }),
         );
         await repository.create(
-          fakeTransaction({
+          fakeIncome({
             userId,
             accountId,
             categoryId: category2,
-            type: TransactionType.INCOME,
           }),
         );
         await repository.create(
-          fakeTransaction({
+          fakeExpense({
             userId,
             accountId,
             categoryId: category2,
-            type: TransactionType.EXPENSE,
           }),
         );
 
@@ -870,57 +866,51 @@ describe("DynTransactionRepository", () => {
         const category2 = faker.string.uuid();
 
         await repository.create(
-          fakeTransaction({
+          fakeExpense({
             userId,
             accountId: account1,
             categoryId: category1,
             date: toDateString("2024-01-15"),
-            type: TransactionType.EXPENSE,
           }),
         );
         await repository.create(
-          fakeTransaction({
+          fakeExpense({
             userId,
             accountId: account1,
             categoryId: category1,
             date: toDateString("2024-01-20"),
-            type: TransactionType.EXPENSE,
           }),
         );
         await repository.create(
-          fakeTransaction({
+          fakeExpense({
             userId,
             accountId: account1,
             categoryId: category2,
             date: toDateString("2024-01-20"),
-            type: TransactionType.EXPENSE,
           }),
         );
         await repository.create(
-          fakeTransaction({
+          fakeExpense({
             userId,
             accountId: account2,
             categoryId: category1,
             date: toDateString("2024-01-20"),
-            type: TransactionType.EXPENSE,
           }),
         );
         await repository.create(
-          fakeTransaction({
+          fakeIncome({
             userId,
             accountId: account1,
             categoryId: category1,
             date: toDateString("2024-01-20"),
-            type: TransactionType.INCOME,
           }),
         );
         await repository.create(
-          fakeTransaction({
+          fakeExpense({
             userId,
             accountId: account1,
             categoryId: category1,
             date: toDateString("2024-01-25"),
-            type: TransactionType.EXPENSE,
           }),
         );
 
@@ -1782,9 +1772,8 @@ describe("DynTransactionRepository", () => {
     it("persists every field on passed Transaction", async () => {
       // Arrange
       const userId = faker.string.uuid();
-      const created = fakeTransaction({
+      const created = fakeExpense({
         userId,
-        type: TransactionType.EXPENSE,
         amount: 75.0,
         currency: "USD",
         date: toDateString("2024-01-20"),
@@ -1959,15 +1948,13 @@ describe("DynTransactionRepository", () => {
       // Arrange
       const userId = faker.string.uuid();
       const transactions = [
-        fakeTransaction({
+        fakeIncome({
           userId,
           categoryId: undefined,
-          type: TransactionType.INCOME,
         }),
-        fakeTransaction({
+        fakeIncome({
           userId,
           categoryId: undefined,
-          type: TransactionType.INCOME,
         }),
       ];
 
@@ -1999,43 +1986,37 @@ describe("DynTransactionRepository", () => {
 
       const transactions = [
         // Pattern 1: account1 + category1 (3 occurrences)
-        fakeTransaction({
+        fakeIncome({
           userId,
           accountId: account1,
           categoryId: category1,
-          type: TransactionType.INCOME,
         }),
-        fakeTransaction({
+        fakeIncome({
           userId,
           accountId: account1,
           categoryId: category1,
-          type: TransactionType.INCOME,
         }),
-        fakeTransaction({
+        fakeIncome({
           userId,
           accountId: account1,
           categoryId: category1,
-          type: TransactionType.INCOME,
         }),
         // Pattern 2: account2 + category2 (2 occurrences)
-        fakeTransaction({
+        fakeIncome({
           userId,
           accountId: account2,
           categoryId: category2,
-          type: TransactionType.INCOME,
         }),
-        fakeTransaction({
+        fakeIncome({
           userId,
           accountId: account2,
           categoryId: category2,
-          type: TransactionType.INCOME,
         }),
         // Pattern 3: account3 + category3 (1 occurrence)
-        fakeTransaction({
+        fakeIncome({
           userId,
           accountId: account3,
           categoryId: category3,
-          type: TransactionType.INCOME,
         }),
       ];
 
@@ -2080,11 +2061,10 @@ describe("DynTransactionRepository", () => {
       for (let i = 0; i < 5; i++) {
         for (let j = 0; j <= i; j++) {
           transactions.push(
-            fakeTransaction({
+            fakeExpense({
               userId,
               accountId: accountIds[i],
               categoryId: categoryIds[i],
-              type: TransactionType.EXPENSE,
             }),
           );
         }
@@ -2131,47 +2111,41 @@ describe("DynTransactionRepository", () => {
 
       const transactions = [
         // Pattern 1: accountB + categoryB (2 occurrences)
-        fakeTransaction({
+        fakeIncome({
           userId,
           accountId: accountB,
           categoryId: categoryB,
-          type: TransactionType.INCOME,
           amount: 100.0,
           currency: "USD",
         }),
-        fakeTransaction({
+        fakeIncome({
           userId,
           accountId: accountB,
           categoryId: categoryB,
-          type: TransactionType.INCOME,
           amount: 150.0,
           currency: "USD",
         }),
         // Pattern 2: accountA + categoryA (2 occurrences, same count)
-        fakeTransaction({
+        fakeIncome({
           userId,
           accountId: accountA,
           categoryId: categoryA,
-          type: TransactionType.INCOME,
         }),
-        fakeTransaction({
+        fakeIncome({
           userId,
           accountId: accountA,
           categoryId: categoryA,
-          type: TransactionType.INCOME,
         }),
         // Pattern 3: accountA + categoryC (2 occurrences, same account different category)
-        fakeTransaction({
+        fakeIncome({
           userId,
           accountId: accountA,
           categoryId: categoryC,
-          type: TransactionType.INCOME,
         }),
-        fakeTransaction({
+        fakeIncome({
           userId,
           accountId: accountA,
           categoryId: categoryC,
-          type: TransactionType.INCOME,
         }),
       ];
 
@@ -2213,49 +2187,42 @@ describe("DynTransactionRepository", () => {
 
       const transactions = [
         // Income transactions
-        fakeTransaction({
+        fakeIncome({
           userId,
           accountId,
           categoryId: categoryIncome,
-          type: TransactionType.INCOME,
         }),
-        fakeTransaction({
+        fakeIncome({
           userId,
           accountId,
           categoryId: categoryIncome,
-          type: TransactionType.INCOME,
         }),
         // Expense transactions
-        fakeTransaction({
+        fakeExpense({
           userId,
           accountId,
           categoryId: categoryExpense,
-          type: TransactionType.EXPENSE,
         }),
-        fakeTransaction({
+        fakeExpense({
           userId,
           accountId,
           categoryId: categoryExpense,
-          type: TransactionType.EXPENSE,
         }),
         // Refund transactions
-        fakeTransaction({
+        fakeRefund({
           userId,
           accountId,
           categoryId: categoryRefund,
-          type: TransactionType.REFUND,
         }),
-        fakeTransaction({
+        fakeRefund({
           userId,
           accountId,
           categoryId: categoryRefund,
-          type: TransactionType.REFUND,
         }),
         // Transfer transactions (excluded from result)
-        fakeTransaction({
+        fakeTransferIn({
           userId,
           accountId,
-          type: TransactionType.TRANSFER_IN,
         }),
       ];
 
@@ -2316,18 +2283,16 @@ describe("DynTransactionRepository", () => {
       const category2 = faker.string.uuid();
 
       const transactions = [
-        fakeTransaction({
+        fakeIncome({
           userId,
           accountId: account1,
           categoryId: category1,
-          type: TransactionType.INCOME,
           isArchived: true,
         }),
-        fakeTransaction({
+        fakeIncome({
           userId,
           accountId: account2,
           categoryId: category2,
-          type: TransactionType.INCOME,
         }),
       ];
 
@@ -2363,11 +2328,10 @@ describe("DynTransactionRepository", () => {
       const createInputs1: Transaction[] = [];
       for (let i = 0; i < 5; i++) {
         createInputs1.push(
-          fakeTransaction({
+          fakeIncome({
             userId,
             accountId: account1,
             categoryId: category1,
-            type: TransactionType.INCOME,
           }),
         );
       }
@@ -2378,11 +2342,10 @@ describe("DynTransactionRepository", () => {
       const createInputs2: Transaction[] = [];
       for (let i = 0; i < 5; i++) {
         createInputs2.push(
-          fakeTransaction({
+          fakeIncome({
             userId,
             accountId: account2,
             categoryId: category2,
-            type: TransactionType.INCOME,
           }),
         );
       }
@@ -2417,11 +2380,10 @@ describe("DynTransactionRepository", () => {
       // Create 5 different patterns
       for (let i = 0; i < 5; i++) {
         transactions.push(
-          fakeTransaction({
+          fakeIncome({
             userId,
             accountId: accountIds[i],
             categoryId: categoryIds[i],
-            type: TransactionType.INCOME,
           }),
         );
       }
@@ -2452,19 +2414,17 @@ describe("DynTransactionRepository", () => {
       const category2 = faker.string.uuid();
 
       const user1Transactions: Transaction[] = [
-        fakeTransaction({
+        fakeIncome({
           userId: user1,
           accountId: account1,
           categoryId: category1,
-          type: TransactionType.INCOME,
         }),
       ];
       const user2Transactions: Transaction[] = [
-        fakeTransaction({
+        fakeIncome({
           userId: user2,
           accountId: account2,
           categoryId: category2,
-          type: TransactionType.INCOME,
         }),
       ];
 

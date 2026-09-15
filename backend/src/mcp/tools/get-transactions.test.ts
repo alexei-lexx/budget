@@ -3,7 +3,7 @@ import { type Mocked, beforeEach, describe, expect, it } from "vitest";
 import { TransactionType } from "../../models/transaction";
 import { TransactionRepository } from "../../ports/transaction-repository";
 import { toDateString } from "../../types/date-string";
-import { fakeTransaction } from "../../utils/test-utils/models/transaction-fakes";
+import { fakeExpense } from "../../utils/test-utils/models/transaction-fakes";
 import { createMockTransactionRepository } from "../../utils/test-utils/repositories/transaction-repository-mocks";
 import { getTransactions } from "./get-transactions";
 import { GUIDES } from "./guides";
@@ -79,10 +79,9 @@ describe("getTransactions", () => {
 
   it("returns transaction details", async () => {
     // Arrange
-    const transaction = fakeTransaction({
+    const transaction = fakeExpense({
       accountId: "account-1",
       categoryId: "category-1",
-      type: TransactionType.EXPENSE,
       amount: 42,
       currency: "USD",
       date: toDateString("2026-01-15"),

@@ -5,7 +5,10 @@ import { CategoryRepository } from "../ports/category-repository";
 import { TransactionRepository } from "../ports/transaction-repository";
 import { toDateString } from "../types/date-string";
 import { fakeCategory } from "../utils/test-utils/models/category-fakes";
-import { fakeTransaction } from "../utils/test-utils/models/transaction-fakes";
+import {
+  fakeExpense,
+  fakeIncome,
+} from "../utils/test-utils/models/transaction-fakes";
 import { createMockCategoryRepository } from "../utils/test-utils/repositories/category-repository-mocks";
 import { createMockTransactionRepository } from "../utils/test-utils/repositories/transaction-repository-mocks";
 import { AggregateTransactionsServiceImpl } from "./aggregate-transactions-service";
@@ -33,18 +36,15 @@ describe("AggregateTransactionsService", () => {
     it("sums, counts, and finds min/max per type/currency combination", async () => {
       // Arrange
       transactionRepository.findManyByUserId.mockResolvedValue([
-        fakeTransaction({
-          type: TransactionType.EXPENSE,
+        fakeExpense({
           currency: "USD",
           amount: 12,
         }),
-        fakeTransaction({
-          type: TransactionType.EXPENSE,
+        fakeExpense({
           currency: "USD",
           amount: 220,
         }),
-        fakeTransaction({
-          type: TransactionType.INCOME,
+        fakeIncome({
           currency: "USD",
           amount: 3000,
         }),
@@ -86,13 +86,11 @@ describe("AggregateTransactionsService", () => {
     it("splits results by currency within same type", async () => {
       // Arrange
       transactionRepository.findManyByUserId.mockResolvedValue([
-        fakeTransaction({
-          type: TransactionType.EXPENSE,
+        fakeExpense({
           currency: "USD",
           amount: 100,
         }),
-        fakeTransaction({
-          type: TransactionType.EXPENSE,
+        fakeExpense({
           currency: "EUR",
           amount: 50,
         }),
@@ -121,20 +119,17 @@ describe("AggregateTransactionsService", () => {
       const accountId1 = faker.string.uuid();
       const accountId2 = faker.string.uuid();
       transactionRepository.findManyByUserId.mockResolvedValue([
-        fakeTransaction({
-          type: TransactionType.EXPENSE,
+        fakeExpense({
           currency: "USD",
           accountId: accountId1,
           amount: 15,
         }),
-        fakeTransaction({
-          type: TransactionType.EXPENSE,
+        fakeExpense({
           currency: "USD",
           accountId: accountId1,
           amount: 200,
         }),
-        fakeTransaction({
-          type: TransactionType.EXPENSE,
+        fakeExpense({
           currency: "USD",
           accountId: accountId2,
           amount: 40,
@@ -180,14 +175,12 @@ describe("AggregateTransactionsService", () => {
       // Arrange
       const categoryId = faker.string.uuid();
       transactionRepository.findManyByUserId.mockResolvedValue([
-        fakeTransaction({
-          type: TransactionType.EXPENSE,
+        fakeExpense({
           currency: "USD",
           categoryId,
           amount: 14,
         }),
-        fakeTransaction({
-          type: TransactionType.EXPENSE,
+        fakeExpense({
           currency: "USD",
           categoryId: undefined,
           amount: 20,
@@ -232,14 +225,12 @@ describe("AggregateTransactionsService", () => {
     it("groups results by month when groupBy is MONTH", async () => {
       // Arrange
       transactionRepository.findManyByUserId.mockResolvedValue([
-        fakeTransaction({
-          type: TransactionType.EXPENSE,
+        fakeExpense({
           currency: "USD",
           date: toDateString("2000-01-10"),
           amount: 12,
         }),
-        fakeTransaction({
-          type: TransactionType.EXPENSE,
+        fakeExpense({
           currency: "USD",
           date: toDateString("2000-02-05"),
           amount: 15,
@@ -363,14 +354,12 @@ describe("AggregateTransactionsService", () => {
         includedCategory,
       ]);
       transactionRepository.findManyByUserId.mockResolvedValue([
-        fakeTransaction({
-          type: TransactionType.EXPENSE,
+        fakeExpense({
           currency: "USD",
           categoryId: includedCategory.id,
           amount: 10,
         }),
-        fakeTransaction({
-          type: TransactionType.EXPENSE,
+        fakeExpense({
           currency: "USD",
           categoryId: excludedCategory.id,
           amount: 900,

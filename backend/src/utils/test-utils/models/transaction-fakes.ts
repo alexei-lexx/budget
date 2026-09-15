@@ -73,6 +73,11 @@ export const fakeTransaction = (
   });
 };
 
+export const fakeIncome = (
+  overrides: FakeTransactionOverrides<"type"> = {},
+): Transaction =>
+  fakeTransaction({ type: TransactionType.INCOME, ...overrides });
+
 export const fakeExpense = (
   overrides: FakeTransactionOverrides<"type"> = {},
 ): Transaction =>
@@ -82,6 +87,16 @@ export const fakeRefund = (
   overrides: FakeTransactionOverrides<"type"> = {},
 ): Transaction =>
   fakeTransaction({ type: TransactionType.REFUND, ...overrides });
+
+export const fakeTransferOut = (
+  overrides: FakeTransactionOverrides<"type"> = {},
+): Transaction =>
+  fakeTransaction({ type: TransactionType.TRANSFER_OUT, ...overrides });
+
+export const fakeTransferIn = (
+  overrides: FakeTransactionOverrides<"type"> = {},
+): Transaction =>
+  fakeTransaction({ type: TransactionType.TRANSFER_IN, ...overrides });
 
 export const fakeCreateTransactionInput = (
   overrides: Partial<CreateTransactionInput> = {},

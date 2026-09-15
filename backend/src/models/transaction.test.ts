@@ -6,7 +6,12 @@ import { fakeAccount } from "../utils/test-utils/models/account-fakes";
 import { fakeCategory } from "../utils/test-utils/models/category-fakes";
 import {
   fakeCreateTransactionInput,
+  fakeExpense,
+  fakeIncome,
+  fakeRefund,
   fakeTransaction,
+  fakeTransferIn,
+  fakeTransferOut,
 } from "../utils/test-utils/models/transaction-fakes";
 import { ModelError } from "./model-error";
 import {
@@ -420,7 +425,7 @@ describe("Transaction", () => {
     it("throws when transfer has categoryId", () => {
       // Arrange
       const data = {
-        ...fakeTransaction({ type: TransactionType.TRANSFER_OUT }).toData(),
+        ...fakeTransferOut({}).toData(),
         categoryId: faker.string.uuid(),
       };
 
@@ -436,8 +441,7 @@ describe("Transaction", () => {
 
     it("returns positive amount for INCOME transactions", () => {
       // Arrange
-      const tx = fakeTransaction({
-        type: TransactionType.INCOME,
+      const tx = fakeIncome({
         amount: 100,
       });
 
@@ -447,8 +451,7 @@ describe("Transaction", () => {
 
     it("returns positive amount for REFUND transactions", () => {
       // Arrange
-      const tx = fakeTransaction({
-        type: TransactionType.REFUND,
+      const tx = fakeRefund({
         amount: 100,
       });
 
@@ -458,8 +461,7 @@ describe("Transaction", () => {
 
     it("returns positive amount for TRANSFER_IN transactions", () => {
       // Arrange
-      const tx = fakeTransaction({
-        type: TransactionType.TRANSFER_IN,
+      const tx = fakeTransferIn({
         amount: 100,
       });
 
@@ -469,8 +471,7 @@ describe("Transaction", () => {
 
     it("returns negative amount for EXPENSE transactions", () => {
       // Arrange
-      const tx = fakeTransaction({
-        type: TransactionType.EXPENSE,
+      const tx = fakeExpense({
         amount: 100,
       });
 
@@ -480,8 +481,7 @@ describe("Transaction", () => {
 
     it("returns negative amount for TRANSFER_OUT transactions", () => {
       // Arrange
-      const tx = fakeTransaction({
-        type: TransactionType.TRANSFER_OUT,
+      const tx = fakeTransferOut({
         amount: 100,
       });
 
@@ -557,7 +557,7 @@ describe("Transaction", () => {
 
     it("sets type", () => {
       // Arrange
-      const existing = fakeTransaction({ type: TransactionType.EXPENSE });
+      const existing = fakeExpense({});
 
       // Act
       const result = existing.update({ type: TransactionType.INCOME });
@@ -686,10 +686,9 @@ describe("Transaction", () => {
 
     it("preserves id, userId, transferId, isArchived, createdAt", () => {
       // Arrange
-      const existing = fakeTransaction({
+      const existing = fakeTransferOut({
         id: "id-1",
         userId: "user-1",
-        type: TransactionType.TRANSFER_OUT,
         categoryId: undefined,
         transferId: "transfer-1",
         createdAt: toDateTimeString("1999-01-01T00:00:00.000Z"),
@@ -805,9 +804,8 @@ describe("Transaction", () => {
     it("throws on INCOME category for EXPENSE transaction", () => {
       // Arrange
       const userId = faker.string.uuid();
-      const existing = fakeTransaction({
+      const existing = fakeExpense({
         userId,
-        type: TransactionType.EXPENSE,
       });
       const category = fakeCategory({ userId, type: "INCOME" });
 
@@ -820,9 +818,8 @@ describe("Transaction", () => {
     it("throws when setting category on transfer transaction", () => {
       // Arrange
       const userId = faker.string.uuid();
-      const existing = fakeTransaction({
+      const existing = fakeTransferOut({
         userId,
-        type: TransactionType.TRANSFER_OUT,
         categoryId: undefined,
         transferId: faker.string.uuid(),
       });
@@ -849,8 +846,7 @@ describe("Transaction", () => {
 
     it("throws on switching non-transfer to transfer type", () => {
       // Arrange
-      const existing = fakeTransaction({
-        type: TransactionType.EXPENSE,
+      const existing = fakeExpense({
         categoryId: undefined,
         transferId: undefined,
       });
@@ -866,7 +862,7 @@ describe("Transaction", () => {
     it("throws when switching to transfer type without clearing category", () => {
       // Arrange — existing transaction has categoryId; switching type to
       // transfer surfaces category invariant first
-      const existing = fakeTransaction({ type: TransactionType.EXPENSE });
+      const existing = fakeExpense({});
 
       // Act & Assert
       expect(() =>
@@ -876,8 +872,7 @@ describe("Transaction", () => {
 
     it("throws on switching transfer to non-transfer type", () => {
       // Arrange
-      const existing = fakeTransaction({
-        type: TransactionType.TRANSFER_OUT,
+      const existing = fakeTransferOut({
         categoryId: undefined,
         transferId: faker.string.uuid(),
       });

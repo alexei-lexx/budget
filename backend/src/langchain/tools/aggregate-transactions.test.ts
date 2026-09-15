@@ -1,9 +1,11 @@
 import { faker } from "@faker-js/faker";
 import { type Mocked, beforeEach, describe, expect, it } from "vitest";
-import { TransactionType } from "../../models/transaction";
 import { TransactionRepository } from "../../ports/transaction-repository";
 import { toDateString } from "../../types/date-string";
-import { fakeTransaction } from "../../utils/test-utils/models/transaction-fakes";
+import {
+  fakeExpense,
+  fakeIncome,
+} from "../../utils/test-utils/models/transaction-fakes";
 import { createMockTransactionRepository } from "../../utils/test-utils/repositories/transaction-repository-mocks";
 import { createAggregateTransactionsTool } from "./aggregate-transactions";
 import { MAX_PERIOD_DAYS } from "./get-transactions";
@@ -88,18 +90,15 @@ describe("createAggregateTransactionsTool", () => {
 
   it("aggregates transactions by currency", async () => {
     mockTransactionRepository.findManyByUserId.mockResolvedValue([
-      fakeTransaction({
-        type: TransactionType.EXPENSE,
+      fakeExpense({
         amount: 100,
         currency: "EUR",
       }),
-      fakeTransaction({
-        type: TransactionType.INCOME,
+      fakeIncome({
         amount: 200,
         currency: "EUR",
       }),
-      fakeTransaction({
-        type: TransactionType.EXPENSE,
+      fakeExpense({
         amount: 50,
         currency: "USD",
       }),
