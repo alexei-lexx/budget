@@ -501,7 +501,9 @@ Checks MUST follow this order:
 - Use the following arguments rules
   - For functions with 0–2 arguments, use positional arguments for simplicity
   - For functions with 3 or more arguments, use keyword arguments (object destructuring)
-- Enum values MUST use UPPER_CASE for both key and value (e.g. `PENDING = "PENDING"`); members MUST be sorted alphabetically
+- Enum-like values MUST be modeled as `as const` string-union types, not TypeScript `enum`
+  - Members MUST use UPPER_CASE
+  - Members MUST be either sorted alphabetically or follow a meaningful order (e.g. a workflow sequence)
 
 **Rationale**: Maintains type safety, prevents runtime errors, ensures code quality, improves code readability and API discoverability.
 
