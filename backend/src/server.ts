@@ -76,6 +76,7 @@ export const server = new ApolloServer<GraphQLContext>({
       `GraphQL error at ${formattedError.path?.join(".")}:`,
       original,
     );
+
     return {
       ...formattedError,
       message: "Internal server error",
