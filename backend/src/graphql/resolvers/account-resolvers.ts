@@ -15,10 +15,11 @@ export const accountResolvers = {
       context: GraphQLContext,
     ) => {
       const user = await getAuthenticatedUser(context);
-      return await context.accountService.getAccountsByUser(
+      const accounts = await context.accountService.getAccountsByUser(
         user.id,
         "ACTIVE",
       );
+      return accounts;
     },
     supportedCurrencies: async (
       _parent: unknown,
