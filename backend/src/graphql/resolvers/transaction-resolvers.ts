@@ -19,7 +19,7 @@ import type {
   TransactionEmbeddedAccount,
   TransactionEmbeddedCategory,
 } from "../embedded-types";
-import { getAuthenticatedUser, handleResolverError } from "./shared";
+import { getAuthenticatedUser } from "./shared";
 
 function parseNonTransferType(
   type: TransactionType,
@@ -39,52 +39,43 @@ export const transactionResolvers = {
       args: QueryTransactionsArgs,
       context: GraphQLContext,
     ) => {
-      try {
-        const { filters, pagination } = args;
-        const user = await getAuthenticatedUser(context);
+      const { filters, pagination } = args;
+      const user = await getAuthenticatedUser(context);
 
-        const transactionConnection =
-          await context.transactionService.getTransactionsByUser(
-            user.id,
-            (pagination ?? undefined) && {
-              ...pagination,
-              first: pagination?.first ?? undefined,
-              after: pagination?.after ?? undefined,
-            },
-            (filters ?? undefined) && {
-              ...filters,
-              accountIds: filters?.accountIds ?? undefined,
-              categoryIds: filters?.categoryIds ?? undefined,
-              dateAfter: toDateStringOrUndefined(filters?.dateAfter),
-              dateBefore: toDateStringOrUndefined(filters?.dateBefore),
-              includeUncategorized: filters?.includeUncategorized || undefined,
-              types: filters?.types ?? undefined,
-            },
-          );
-        return transactionConnection;
-      } catch (error) {
-        handleResolverError(error, "Failed to fetch transactions");
-      }
+      const transactionConnection =
+        await context.transactionService.getTransactionsByUser(
+          user.id,
+          (pagination ?? undefined) && {
+            ...pagination,
+            first: pagination?.first ?? undefined,
+            after: pagination?.after ?? undefined,
+          },
+          (filters ?? undefined) && {
+            ...filters,
+            accountIds: filters?.accountIds ?? undefined,
+            categoryIds: filters?.categoryIds ?? undefined,
+            dateAfter: toDateStringOrUndefined(filters?.dateAfter),
+            dateBefore: toDateStringOrUndefined(filters?.dateBefore),
+            includeUncategorized: filters?.includeUncategorized || undefined,
+            types: filters?.types ?? undefined,
+          },
+        );
+      return transactionConnection;
     },
     transactionPatterns: async (
       _parent: unknown,
       args: QueryTransactionPatternsArgs,
       context: GraphQLContext,
     ) => {
-      try {
-        const user = await getAuthenticatedUser(context);
+      const user = await getAuthenticatedUser(context);
 
-        const patterns =
-          await context.transactionService.getTransactionPatterns(
-            user.id,
-            args.type,
-            user.transactionPatternsLimit,
-          );
+      const patterns = await context.transactionService.getTransactionPatterns(
+        user.id,
+        args.type,
+        user.transactionPatternsLimit,
+      );
 
-        return patterns;
-      } catch (error) {
-        handleResolverError(error, "Failed to fetch transaction patterns");
-      }
+      return patterns;
     },
     transactionDescriptionSuggestions: async (
       _parent: unknown,
@@ -98,19 +89,15 @@ export const transactionResolvers = {
         throw new GraphQLError("Search text is required");
       }
 
-      try {
-        const user = await getAuthenticatedUser(context);
+      const user = await getAuthenticatedUser(context);
 
-        const suggestions =
-          await context.transactionService.getDescriptionSuggestions(
-            user.id,
-            searchText,
-          );
+      const suggestions =
+        await context.transactionService.getDescriptionSuggestions(
+          user.id,
+          searchText,
+        );
 
-        return suggestions;
-      } catch (error) {
-        handleResolverError(error, "Failed to fetch description suggestions");
-      }
+      return suggestions;
     },
   },
   Mutation: {
@@ -119,54 +106,46 @@ export const transactionResolvers = {
       args: MutationCreateTransactionArgs,
       context: GraphQLContext,
     ) => {
-      try {
-        const { type, ...rest } = args.input;
-        const user = await getAuthenticatedUser(context);
+      const { type, ...rest } = args.input;
+      const user = await getAuthenticatedUser(context);
 
-        const transaction = await context.transactionService.createTransaction(
-          {
-            ...rest,
-            categoryId: rest.categoryId ?? undefined,
-            date: toDateString(rest.date),
-            description: rest.description ?? undefined,
-            type: parseNonTransferType(type),
-          },
-          user.id,
-        );
-        return transaction;
-      } catch (error) {
-        handleResolverError(error, "Failed to create transaction");
-      }
+      const transaction = await context.transactionService.createTransaction(
+        {
+          ...rest,
+          categoryId: rest.categoryId ?? undefined,
+          date: toDateString(rest.date),
+          description: rest.description ?? undefined,
+          type: parseNonTransferType(type),
+        },
+        user.id,
+      );
+      return transaction;
     },
     updateTransaction: async (
       _parent: unknown,
       args: MutationUpdateTransactionArgs,
       context: GraphQLContext,
     ) => {
-      try {
-        const { id, type, ...rest } = args.input;
-        const user = await getAuthenticatedUser(context);
+      const { id, type, ...rest } = args.input;
+      const user = await getAuthenticatedUser(context);
 
-        const transaction = await context.transactionService.updateTransaction(
-          id,
-          user.id,
-          {
-            // categoryId and description pass null through intentionally:
-            // null means "clear this field"; undefined means "leave unchanged"
-            ...rest,
-            accountId: rest.accountId ?? undefined,
-            amount: rest.amount ?? undefined,
-            date: toDateStringOrUndefined(rest.date),
-            type:
-              type !== undefined && type !== null
-                ? parseNonTransferType(type)
-                : undefined,
-          },
-        );
-        return transaction;
-      } catch (error) {
-        handleResolverError(error, "Failed to update transaction");
-      }
+      const transaction = await context.transactionService.updateTransaction(
+        id,
+        user.id,
+        {
+          // categoryId and description pass null through intentionally:
+          // null means "clear this field"; undefined means "leave unchanged"
+          ...rest,
+          accountId: rest.accountId ?? undefined,
+          amount: rest.amount ?? undefined,
+          date: toDateStringOrUndefined(rest.date),
+          type:
+            type !== undefined && type !== null
+              ? parseNonTransferType(type)
+              : undefined,
+        },
+      );
+      return transaction;
     },
     deleteTransaction: async (
       _parent: unknown,
@@ -180,16 +159,12 @@ export const transactionResolvers = {
         throw new GraphQLError("Transaction ID is required");
       }
 
-      try {
-        const user = await getAuthenticatedUser(context);
-        const transaction = await context.transactionService.deleteTransaction(
-          id,
-          user.id,
-        );
-        return transaction;
-      } catch (error) {
-        handleResolverError(error, "Failed to delete transaction");
-      }
+      const user = await getAuthenticatedUser(context);
+      const transaction = await context.transactionService.deleteTransaction(
+        id,
+        user.id,
+      );
+      return transaction;
     },
   },
   /**

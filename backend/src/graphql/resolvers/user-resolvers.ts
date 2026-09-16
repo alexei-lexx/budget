@@ -3,24 +3,14 @@ import { MutationUpdateUserSettingsArgs } from "../../__generated__/resolvers-ty
 import { User } from "../../models/user";
 import { SUPPORTED_INTERFACE_LANGUAGES } from "../../types/language";
 import { GraphQLContext } from "../context";
-import {
-  getAuthenticatedUser,
-  handleResolverError,
-  requireAuthentication,
-} from "./shared";
+import { getAuthenticatedUser, requireAuthentication } from "./shared";
 
 /**
  * Helper function for ensureUser mutation that creates user if needed
  */
 async function ensureAuthenticatedUser(context: GraphQLContext): Promise<User> {
   const authUser = requireAuthentication(context);
-
-  try {
-    return await context.userService.ensureUser(authUser.email);
-  } catch (error) {
-    console.error("Error ensuring user:", error);
-    throw new GraphQLError("Failed to authenticate user");
-  }
+  return await context.userService.ensureUser(authUser.email);
 }
 
 export const userResolvers = {
@@ -30,33 +20,22 @@ export const userResolvers = {
       _args: unknown,
       context: GraphQLContext,
     ) => {
-      try {
-        await getAuthenticatedUser(context);
-        return [...SUPPORTED_INTERFACE_LANGUAGES];
-      } catch (error) {
-        handleResolverError(
-          error,
-          "Failed to fetch supported interface languages",
-        );
-      }
+      await getAuthenticatedUser(context);
+      return [...SUPPORTED_INTERFACE_LANGUAGES];
     },
     userSettings: async (
       _parent: unknown,
       _args: unknown,
       context: GraphQLContext,
     ) => {
-      try {
-        const user = await getAuthenticatedUser(context);
-        const result = await context.userService.getSettings(user.id);
+      const user = await getAuthenticatedUser(context);
+      const result = await context.userService.getSettings(user.id);
 
-        if (!result.success) {
-          throw new GraphQLError(result.error);
-        }
-
-        return result.data;
-      } catch (error) {
-        handleResolverError(error, "Failed to fetch user settings");
+      if (!result.success) {
+        throw new GraphQLError(result.error);
       }
+
+      return result.data;
     },
   },
   Mutation: {
@@ -65,12 +44,7 @@ export const userResolvers = {
       _args: unknown,
       context: GraphQLContext,
     ) => {
-      try {
-        const user = await ensureAuthenticatedUser(context);
-        return user;
-      } catch (error) {
-        handleResolverError(error, "Failed to create or retrieve user");
-      }
+      return await ensureAuthenticatedUser(context);
     },
 
     updateUserSettings: async (
@@ -78,24 +52,20 @@ export const userResolvers = {
       args: MutationUpdateUserSettingsArgs,
       context: GraphQLContext,
     ) => {
-      try {
-        const user = await getAuthenticatedUser(context);
-        const result = await context.userService.updateSettings({
-          userId: user.id,
-          voiceInputLanguage: args.input.voiceInputLanguage ?? undefined,
-          interfaceLanguage: args.input.interfaceLanguage ?? undefined,
-          transactionPatternsLimit:
-            args.input.transactionPatternsLimit ?? undefined,
-        });
+      const user = await getAuthenticatedUser(context);
+      const result = await context.userService.updateSettings({
+        userId: user.id,
+        voiceInputLanguage: args.input.voiceInputLanguage ?? undefined,
+        interfaceLanguage: args.input.interfaceLanguage ?? undefined,
+        transactionPatternsLimit:
+          args.input.transactionPatternsLimit ?? undefined,
+      });
 
-        if (!result.success) {
-          throw new GraphQLError(result.error);
-        }
-
-        return result.data;
-      } catch (error) {
-        handleResolverError(error, "Failed to update user settings");
+      if (!result.success) {
+        throw new GraphQLError(result.error);
       }
+
+      return result.data;
     },
 
     regenerateMcpToken: async (
@@ -103,18 +73,14 @@ export const userResolvers = {
       _args: unknown,
       context: GraphQLContext,
     ) => {
-      try {
-        const user = await getAuthenticatedUser(context);
-        const result = await context.userService.regenerateMcpToken(user.id);
+      const user = await getAuthenticatedUser(context);
+      const result = await context.userService.regenerateMcpToken(user.id);
 
-        if (!result.success) {
-          throw new GraphQLError(result.error);
-        }
-
-        return result.data;
-      } catch (error) {
-        handleResolverError(error, "Failed to regenerate MCP token");
+      if (!result.success) {
+        throw new GraphQLError(result.error);
       }
+
+      return result.data;
     },
   },
 };

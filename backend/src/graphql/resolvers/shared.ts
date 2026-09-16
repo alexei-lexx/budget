@@ -1,9 +1,5 @@
 import { GraphQLError } from "graphql";
-import { ModelError } from "../../models/model-error";
 import { User } from "../../models/user";
-import { RepositoryError } from "../../ports/repository-error";
-import { BusinessError } from "../../services/business-error";
-import { InvalidDateStringError } from "../../types/date-string";
 import { GraphQLContext } from "../context";
 
 /**
@@ -24,52 +20,11 @@ export async function getAuthenticatedUser(
   context: GraphQLContext,
 ): Promise<User> {
   const authUser = requireAuthentication(context);
+  const user = await context.userRepository.findOneByEmail(authUser.email);
 
-  try {
-    // Get existing user from database
-    const user = await context.userRepository.findOneByEmail(authUser.email);
-
-    if (!user) {
-      throw new GraphQLError("User not found");
-    }
-
-    return user;
-  } catch (error) {
-    console.error("Error getting user:", error);
-    if (error instanceof GraphQLError) {
-      throw error;
-    }
-    throw new GraphQLError("Failed to authenticate user");
-  }
-}
-
-/**
- * Helper function to handle repository errors and other errors
- */
-export function handleResolverError(
-  error: unknown,
-  defaultMessage: string,
-): never {
-  if (error instanceof GraphQLError) {
-    throw error;
+  if (!user) {
+    throw new GraphQLError("User not found");
   }
 
-  // User-facing: invalid input the user can correct
-  if (error instanceof InvalidDateStringError) {
-    throw new GraphQLError(error.message);
-  }
-
-  // User-facing: business rule violation the user needs to act on
-  if (error instanceof BusinessError || error instanceof ModelError) {
-    throw new GraphQLError(error.message);
-  }
-
-  // Internal: log full details for debugging, hide from client
-  console.error(defaultMessage, error);
-
-  if (error instanceof RepositoryError) {
-    throw new GraphQLError(defaultMessage);
-  }
-
-  throw new GraphQLError(defaultMessage);
+  return user;
 }

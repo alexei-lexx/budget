@@ -1,6 +1,6 @@
 import { MutationAskAssistantArgs } from "../../__generated__/resolvers-types";
 import { GraphQLContext } from "../context";
-import { getAuthenticatedUser, handleResolverError } from "./shared";
+import { getAuthenticatedUser } from "./shared";
 
 export const assistantResolvers = {
   Mutation: {
@@ -9,33 +9,29 @@ export const assistantResolvers = {
       args: MutationAskAssistantArgs,
       context: GraphQLContext,
     ) => {
-      try {
-        const user = await getAuthenticatedUser(context);
+      const user = await getAuthenticatedUser(context);
 
-        const result = await context.assistantChatService.call(user.id, {
-          question: args.input.question,
-          isVoiceInput: args.input.isVoiceInput ?? undefined,
-          sessionId: args.input.sessionId || undefined,
-        });
+      const result = await context.assistantChatService.call(user.id, {
+        question: args.input.question,
+        isVoiceInput: args.input.isVoiceInput ?? undefined,
+        sessionId: args.input.sessionId || undefined,
+      });
 
-        if (!result.success) {
-          return {
-            __typename: "AssistantFailure" as const,
-            message: result.error.message,
-            agentTrace: result.error.agentTrace,
-            sessionId: result.error.sessionId,
-          };
-        }
-
+      if (!result.success) {
         return {
-          __typename: "AssistantSuccess" as const,
-          answer: result.data.answer,
-          agentTrace: result.data.agentTrace,
-          sessionId: result.data.sessionId,
+          __typename: "AssistantFailure" as const,
+          message: result.error.message,
+          agentTrace: result.error.agentTrace,
+          sessionId: result.error.sessionId,
         };
-      } catch (error) {
-        handleResolverError(error, "Failed to fetch assistant response");
       }
+
+      return {
+        __typename: "AssistantSuccess" as const,
+        answer: result.data.answer,
+        agentTrace: result.data.agentTrace,
+        sessionId: result.data.sessionId,
+      };
     },
   },
 };
