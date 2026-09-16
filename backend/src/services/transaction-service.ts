@@ -22,7 +22,6 @@ import {
   PaginationInput,
 } from "../types/pagination";
 import { BusinessError } from "./business-error";
-import { handleVersionConflict } from "./utils/handle-version-conflict";
 
 export const MIN_SEARCH_TEXT_LENGTH = 2;
 
@@ -181,12 +180,10 @@ export class TransactionServiceImpl implements TransactionService {
       transactionToCreate.signedAmount,
     );
 
-    const result = await handleVersionConflict("Transaction", () =>
-      this.atomicWriter.commit({
-        transactionsToCreate: [transactionToCreate],
-        accountsToUpdate: [accountToUpdate],
-      }),
-    );
+    const result = await this.atomicWriter.commit({
+      transactionsToCreate: [transactionToCreate],
+      accountsToUpdate: [accountToUpdate],
+    });
 
     const createdTransaction = result.createdTransactions[0];
 
@@ -315,12 +312,10 @@ export class TransactionServiceImpl implements TransactionService {
       }
     }
 
-    const result = await handleVersionConflict("Transaction", () =>
-      this.atomicWriter.commit({
-        transactionsToUpdate: [transactionToUpdate],
-        accountsToUpdate: accountsToUpdate,
-      }),
-    );
+    const result = await this.atomicWriter.commit({
+      transactionsToUpdate: [transactionToUpdate],
+      accountsToUpdate: accountsToUpdate,
+    });
 
     return result.updatedTransactions[0];
   }
@@ -363,12 +358,10 @@ export class TransactionServiceImpl implements TransactionService {
       transactionToArchive.signedAmount,
     );
 
-    const result = await handleVersionConflict("Transaction", () =>
-      this.atomicWriter.commit({
-        transactionsToUpdate: [transactionToArchive],
-        accountsToUpdate: [accountToUpdate],
-      }),
-    );
+    const result = await this.atomicWriter.commit({
+      transactionsToUpdate: [transactionToArchive],
+      accountsToUpdate: [accountToUpdate],
+    });
 
     return result.updatedTransactions[0];
   }

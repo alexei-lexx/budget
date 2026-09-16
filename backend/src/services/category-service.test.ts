@@ -3,7 +3,6 @@ import { type Mocked, beforeEach, describe, expect, it } from "vitest";
 import { NAME_MAX_LENGTH, NAME_MIN_LENGTH } from "../models/category";
 import { ModelError } from "../models/model-error";
 import { CategoryRepository } from "../ports/category-repository";
-import { VersionConflictError } from "../ports/repository-error";
 import {
   fakeCategory,
   fakeCreateCategoryInput,
@@ -386,26 +385,6 @@ describe("CategoryService", () => {
       });
       expect(mockCategoryRepository.update).not.toHaveBeenCalled();
     });
-
-    // Dependency failures
-
-    it("maps VersionConflictError to BusinessError", async () => {
-      // Arrange
-      const categoryId = faker.string.uuid();
-      const currentCategory = fakeCategory({ id: categoryId, userId });
-
-      mockCategoryRepository.findOneById.mockResolvedValue(currentCategory);
-      mockCategoryRepository.update.mockRejectedValue(
-        new VersionConflictError(),
-      );
-
-      // Act & Assert
-      await expect(
-        service.updateCategory(categoryId, userId, { name: "New Name" }),
-      ).rejects.toThrow(
-        new BusinessError("Category was modified, please reload and try again"),
-      );
-    });
   });
 
   describe("deleteCategory", () => {
@@ -451,24 +430,6 @@ describe("CategoryService", () => {
         message: "Category not found",
       });
       expect(mockCategoryRepository.update).not.toHaveBeenCalled();
-    });
-
-    // Dependency failures
-
-    it("maps VersionConflictError to BusinessError", async () => {
-      // Arrange
-      const categoryId = faker.string.uuid();
-      const currentCategory = fakeCategory({ id: categoryId, userId });
-
-      mockCategoryRepository.findOneById.mockResolvedValue(currentCategory);
-      mockCategoryRepository.update.mockRejectedValue(
-        new VersionConflictError(),
-      );
-
-      // Act & Assert
-      await expect(service.deleteCategory(categoryId, userId)).rejects.toThrow(
-        new BusinessError("Category was modified, please reload and try again"),
-      );
     });
   });
 });

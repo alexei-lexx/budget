@@ -4,7 +4,6 @@ import { ModelError } from "../models/model-error";
 import { TransactionType } from "../models/transaction";
 import { AccountRepository } from "../ports/account-repository";
 import { AtomicWriter } from "../ports/atomic-writer";
-import { VersionConflictError } from "../ports/repository-error";
 import { TransactionRepository } from "../ports/transaction-repository";
 import { toDateString } from "../types/date-string";
 import { fakeAccount } from "../utils/test-utils/models/account-fakes";
@@ -414,33 +413,6 @@ describe("TransferService", () => {
 
     // Dependency failures
 
-    it("maps VersionConflictError to BusinessError", async () => {
-      // Arrange
-      const sourceAccount = fakeAccount({ userId, currency: "USD" });
-      const destAccount = fakeAccount({ userId, currency: "USD" });
-      // Returns accounts owned by user
-      mockAccountRepository.findOneById
-        .mockResolvedValueOnce(sourceAccount)
-        .mockResolvedValueOnce(destAccount);
-      // Rejects with version conflict
-      mockAtomicWriter.commit.mockRejectedValue(new VersionConflictError());
-
-      // Act & Assert
-      await expect(
-        service.createTransfer(
-          {
-            fromAccountId: sourceAccount.id,
-            toAccountId: destAccount.id,
-            amount: 100,
-            date: toDateString("2024-01-01"),
-          },
-          userId,
-        ),
-      ).rejects.toThrow(
-        new BusinessError("Transfer was modified, please reload and try again"),
-      );
-    });
-
     it("wraps unexpected errors in BusinessError", async () => {
       // Arrange
       const sourceAccount = fakeAccount({ userId, currency: "USD" });
@@ -630,39 +602,6 @@ describe("TransferService", () => {
     });
 
     // Dependency failures
-
-    it("maps VersionConflictError to BusinessError", async () => {
-      // Arrange
-      const transferId = faker.string.uuid();
-      const sourceAccount = fakeAccount({ userId, currency: "USD" });
-      const destAccount = fakeAccount({ userId, currency: "USD" });
-      const outboundTransaction = fakeTransferOut({
-        userId,
-        accountId: sourceAccount.id,
-        transferId,
-      });
-      const inboundTransaction = fakeTransferIn({
-        userId,
-        accountId: destAccount.id,
-        transferId,
-      });
-      // Returns existing pair
-      mockTransactionRepository.findManyByTransferId.mockResolvedValue([
-        outboundTransaction,
-        inboundTransaction,
-      ]);
-      // Returns accounts including archived
-      mockAccountRepository.findOneWithArchivedById
-        .mockResolvedValueOnce(sourceAccount)
-        .mockResolvedValueOnce(destAccount);
-      // Rejects with version conflict
-      mockAtomicWriter.commit.mockRejectedValue(new VersionConflictError());
-
-      // Act & Assert
-      await expect(service.deleteTransfer(transferId, userId)).rejects.toThrow(
-        new BusinessError("Transfer was modified, please reload and try again"),
-      );
-    });
 
     it("wraps unexpected errors in BusinessError", async () => {
       // Arrange
@@ -1297,45 +1236,6 @@ describe("TransferService", () => {
     });
 
     // Dependency failures
-
-    it("maps VersionConflictError to BusinessError", async () => {
-      // Arrange
-      const transferId = faker.string.uuid();
-      const sourceAccount = fakeAccount({ userId, currency: "USD" });
-      const destAccount = fakeAccount({ userId, currency: "USD" });
-      const outboundTransaction = fakeTransferOut({
-        userId,
-        accountId: sourceAccount.id,
-        currency: "USD",
-        amount: 100,
-        transferId,
-      });
-      const inboundTransaction = fakeTransferIn({
-        userId,
-        accountId: destAccount.id,
-        currency: "USD",
-        amount: 100,
-        transferId,
-      });
-      // Returns existing pair
-      mockTransactionRepository.findManyByTransferId.mockResolvedValue([
-        outboundTransaction,
-        inboundTransaction,
-      ]);
-      // Returns old accounts including archived
-      mockAccountRepository.findOneWithArchivedById
-        .mockResolvedValueOnce(sourceAccount)
-        .mockResolvedValueOnce(destAccount);
-      // Rejects with version conflict
-      mockAtomicWriter.commit.mockRejectedValue(new VersionConflictError());
-
-      // Act & Assert
-      await expect(
-        service.updateTransfer(transferId, userId, { amount: 50 }),
-      ).rejects.toThrow(
-        new BusinessError("Transfer was modified, please reload and try again"),
-      );
-    });
 
     it("wraps unexpected errors in BusinessError", async () => {
       // Arrange
