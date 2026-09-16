@@ -76,6 +76,7 @@ export function useTelegramBot() {
       if (loadResult !== false) {
         return loadResult.testTelegramBot === true;
       }
+
       const refetchResult = await refetchTestTelegramBot();
       return refetchResult?.data?.testTelegramBot === true;
     } catch {
