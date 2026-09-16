@@ -57,16 +57,12 @@ export const accountResolvers = {
       const user = await getAuthenticatedUser(context);
       const { id, ...updateData } = args.input;
 
-      const account = await context.accountService.updateAccount(
-        id,
-        user.id,
-        {
-          ...updateData,
-          currency: updateData.currency ?? undefined,
-          initialBalance: updateData.initialBalance ?? undefined,
-          name: updateData.name ?? undefined,
-        },
-      );
+      const account = await context.accountService.updateAccount(id, user.id, {
+        ...updateData,
+        currency: updateData.currency ?? undefined,
+        initialBalance: updateData.initialBalance ?? undefined,
+        name: updateData.name ?? undefined,
+      });
 
       return account;
     },

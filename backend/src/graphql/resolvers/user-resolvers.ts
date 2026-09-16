@@ -44,7 +44,8 @@ export const userResolvers = {
       _args: unknown,
       context: GraphQLContext,
     ) => {
-      return await ensureAuthenticatedUser(context);
+      const user = await ensureAuthenticatedUser(context);
+      return user;
     },
 
     updateUserSettings: async (

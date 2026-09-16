@@ -11,8 +11,9 @@ export const telegramBotResolvers = {
       context: GraphQLContext,
     ) => {
       const user = await getAuthenticatedUser(context);
-      const result =
-        await context.telegramBotService.findOneConnectedByUserId(user.id);
+      const result = await context.telegramBotService.findOneConnectedByUserId(
+        user.id,
+      );
 
       if (!result.success) {
         throw new GraphQLError(result.error);
