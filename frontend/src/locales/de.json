@@ -333,6 +333,7 @@
     "interfaceLanguage": "Oberflächensprache",
     "saved": "Einstellungen gespeichert",
     "saveFailed": "Einstellungen konnten nicht gespeichert werden",
+    "fetchFailed": "Einstellungen konnten nicht geladen werden",
     "telegramBot": {
       "heading": "Telegram-Bot",
       "botToken": "Bot-Token",
@@ -342,7 +343,8 @@
       "disconnected": "Telegram-Bot getrennt",
       "disconnectFailed": "Telegram-Bot konnte nicht getrennt werden",
       "active": "Telegram-Bot ist aktiv",
-      "testFailed": "Telegram-Bot-Test fehlgeschlagen"
+      "testFailed": "Telegram-Bot-Test fehlgeschlagen",
+      "fetchFailed": "Telegram-Bot-Status konnte nicht geladen werden"
     },
     "mcpConnection": {
       "heading": "MCP-Verbindung",

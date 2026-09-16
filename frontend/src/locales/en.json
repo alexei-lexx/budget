@@ -333,6 +333,7 @@
     "interfaceLanguage": "Interface language",
     "saved": "Settings saved",
     "saveFailed": "Failed to save settings",
+    "fetchFailed": "Failed to load settings",
     "telegramBot": {
       "heading": "Telegram Bot",
       "botToken": "Bot token",
@@ -342,7 +343,8 @@
       "disconnected": "Telegram bot disconnected",
       "disconnectFailed": "Failed to disconnect Telegram bot",
       "active": "Telegram bot is active",
-      "testFailed": "Telegram bot test failed"
+      "testFailed": "Telegram bot test failed",
+      "fetchFailed": "Failed to load Telegram bot status"
     },
     "mcpConnection": {
       "heading": "MCP Connection",
