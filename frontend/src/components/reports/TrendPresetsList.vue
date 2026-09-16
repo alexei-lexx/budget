@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import type { Category, TrendPreset } from "@/__generated__/vue-apollo";
+import type { Category, TrendPeriodUnit, TrendPreset } from "@/__generated__/vue-apollo";
 import type { TrendSelection } from "@/composables/useExpenseTrend";
 
 interface Props {
@@ -17,6 +17,16 @@ const emit = defineEmits<{
 
 const { t } = useI18n();
 
+// Period pill: color marks WEEK vs MONTH,
+// its tint scales with lookback relative to the other
+// currently-rendered entries of the same period unit.
+const PERIOD_UNIT_COLORS: Record<TrendPeriodUnit, string> = {
+  WEEK: "teal",
+  MONTH: "palevioletred",
+};
+const PERIOD_UNIT_MIN_TINT = 15; // faintest tint, %
+const PERIOD_UNIT_MAX_TINT = 45; // strongest tint, %
+
 const categoryNamesById = computed(
   () => new Map(props.categories.map((category) => [category.id, category.name])),
 );
@@ -31,19 +41,11 @@ function getCategoriesLabel(trendPreset: TrendPreset): string {
   return categoryNames.length > 0 ? categoryNames.join(", ") : t("trends.presets.all");
 }
 
-// "{categories} in last {lookback} {week|weeks|month|months} in {currency}"
-function formatEntry(trendPreset: TrendPreset): string {
-  const periodLabel =
-    trendPreset.periodUnit === "WEEK"
-      ? t("trends.presets.periodWeek", trendPreset.lookback)
-      : t("trends.presets.periodMonth", trendPreset.lookback);
-
-  return t("trends.presets.label", {
-    categories: getCategoriesLabel(trendPreset),
-    lookback: trendPreset.lookback,
-    period: periodLabel,
-    currency: trendPreset.currency,
-  });
+function getPeriodPhrase(trendPreset: TrendPreset): string {
+  const namedValues = { lookback: trendPreset.lookback };
+  return trendPreset.periodUnit === "WEEK"
+    ? t("trends.presets.periodPhraseWeek", namedValues, trendPreset.lookback)
+    : t("trends.presets.periodPhraseMonth", namedValues, trendPreset.lookback);
 }
 
 // Ordered by categories label ascending ("all" first), then period (month before week),
@@ -67,6 +69,31 @@ const sortedTrendPresets = computed(() =>
   }),
 );
 
+function getLookbackRange(periodUnit: TrendPeriodUnit): { min: number; max: number } {
+  const lookbacks = props.trendPresets
+    .filter((trendPreset) => trendPreset.periodUnit === periodUnit)
+    .map((trendPreset) => trendPreset.lookback);
+  return { min: Math.min(...lookbacks), max: Math.max(...lookbacks) };
+}
+
+function getPeriodPhraseBgColor(trendPreset: TrendPreset): string {
+  const { min, max } = getLookbackRange(trendPreset.periodUnit);
+  const tintFraction = max > min ? (trendPreset.lookback - min) / (max - min) : 1;
+  const tintPercent =
+    PERIOD_UNIT_MIN_TINT + tintFraction * (PERIOD_UNIT_MAX_TINT - PERIOD_UNIT_MIN_TINT);
+  const color = PERIOD_UNIT_COLORS[trendPreset.periodUnit];
+  return `color-mix(in srgb, ${color} ${tintPercent}%, white)`;
+}
+
+const trendPresetChips = computed(() =>
+  sortedTrendPresets.value.map((trendPreset) => ({
+    trendPreset,
+    categoriesLabel: getCategoriesLabel(trendPreset),
+    periodPhrase: getPeriodPhrase(trendPreset),
+    periodPhraseBgColor: getPeriodPhraseBgColor(trendPreset),
+  })),
+);
+
 function handleClick(trendPreset: TrendPreset) {
   emit("apply", {
     periodUnit: trendPreset.periodUnit,
@@ -82,16 +109,26 @@ function handleClick(trendPreset: TrendPreset) {
   <div v-if="trendPresets.length > 0" class="mb-4">
     <div class="d-flex flex-wrap ga-2">
       <v-chip
-        v-for="trendPreset in sortedTrendPresets"
-        :key="trendPreset.id"
+        v-for="chip in trendPresetChips"
+        :key="chip.trendPreset.id"
         variant="outlined"
         size="small"
         class="text-caption"
         clickable
-        @click="handleClick(trendPreset)"
+        @click="handleClick(chip.trendPreset)"
       >
         <v-icon start size="small" color="amber-darken-2">mdi-star</v-icon>
-        {{ formatEntry(trendPreset) }}
+        <i18n-t keypath="trends.presets.label" tag="span">
+          <template #categories>{{ chip.categoriesLabel }}</template>
+          <template #periodPhrase>
+            <span
+              class="period-phrase rounded-pill px-2"
+              :style="{ backgroundColor: chip.periodPhraseBgColor }"
+              >{{ chip.periodPhrase }}</span
+            >
+          </template>
+          <template #currency>{{ chip.trendPreset.currency }}</template>
+        </i18n-t>
       </v-chip>
     </div>
   </div>
