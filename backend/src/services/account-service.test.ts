@@ -2,7 +2,6 @@ import { faker } from "@faker-js/faker";
 import { type Mocked, beforeEach, describe, expect, it } from "vitest";
 import { ModelError } from "../models/model-error";
 import { AccountRepository } from "../ports/account-repository";
-import { VersionConflictError } from "../ports/repository-error";
 import { TransactionRepository } from "../ports/transaction-repository";
 import {
   fakeAccount,
@@ -400,26 +399,6 @@ describe("AccountService", () => {
       ).rejects.toThrow("Database error");
     });
 
-    it("maps VersionConflictError to BusinessError", async () => {
-      // Arrange
-      const accountId = faker.string.uuid();
-      const currentAccount = fakeAccount({ id: accountId, userId });
-
-      mockAccountRepository.findOneById.mockResolvedValue(currentAccount);
-      mockAccountRepository.findManyByUserId.mockResolvedValue([
-        currentAccount,
-      ]);
-      mockAccountRepository.update.mockRejectedValue(
-        new VersionConflictError(),
-      );
-
-      // Act & Assert
-      await expect(
-        service.updateAccount(accountId, userId, { name: "New Name" }),
-      ).rejects.toThrow(
-        new BusinessError("Account was modified, please reload and try again"),
-      );
-    });
   });
 
   describe("deleteAccount", () => {
@@ -486,20 +465,5 @@ describe("AccountService", () => {
       );
     });
 
-    it("maps VersionConflictError to BusinessError", async () => {
-      // Arrange
-      const accountId = faker.string.uuid();
-      const currentAccount = fakeAccount({ id: accountId, userId });
-
-      mockAccountRepository.findOneById.mockResolvedValue(currentAccount);
-      mockAccountRepository.update.mockRejectedValue(
-        new VersionConflictError(),
-      );
-
-      // Act & Assert
-      await expect(service.deleteAccount(accountId, userId)).rejects.toThrow(
-        new BusinessError("Account was modified, please reload and try again"),
-      );
-    });
   });
 });

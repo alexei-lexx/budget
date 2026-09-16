@@ -7,7 +7,6 @@ import {
 import { CategoryRepository } from "../ports/category-repository";
 import { EntityScope } from "../types/entity-scope";
 import { BusinessError } from "./business-error";
-import { handleVersionConflict } from "./utils/handle-version-conflict";
 
 export interface CategoryService {
   getCategoriesByUser(
@@ -100,9 +99,7 @@ export class CategoryServiceImpl implements CategoryService {
       await this.checkDuplicateName(userId, updatedCategory.name, id);
     }
 
-    return await handleVersionConflict("Category", () =>
-      this.categoryRepository.update(updatedCategory),
-    );
+    return await this.categoryRepository.update(updatedCategory);
   }
 
   /**
@@ -121,9 +118,7 @@ export class CategoryServiceImpl implements CategoryService {
       throw new BusinessError("Category not found");
     }
 
-    return await handleVersionConflict("Category", () =>
-      this.categoryRepository.update(existingCategory.archive()),
-    );
+    return await this.categoryRepository.update(existingCategory.archive());
   }
 
   private async checkDuplicateName(

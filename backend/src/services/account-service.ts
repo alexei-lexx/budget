@@ -7,7 +7,6 @@ import { AccountRepository } from "../ports/account-repository";
 import { TransactionRepository } from "../ports/transaction-repository";
 import { EntityScope } from "../types/entity-scope";
 import { BusinessError } from "./business-error";
-import { handleVersionConflict } from "./utils/handle-version-conflict";
 
 export interface AccountService {
   getAccountsByUser(userId: string, scope: EntityScope): Promise<Account[]>;
@@ -113,9 +112,7 @@ export class AccountServiceImpl implements AccountService {
       }
     }
 
-    return await handleVersionConflict("Account", () =>
-      this.accountRepository.update(updatedAccount),
-    );
+    return await this.accountRepository.update(updatedAccount);
   }
 
   /**
@@ -134,9 +131,7 @@ export class AccountServiceImpl implements AccountService {
       throw new BusinessError("Account not found");
     }
 
-    return await handleVersionConflict("Account", () =>
-      this.accountRepository.update(existingAccount.archive()),
-    );
+    return await this.accountRepository.update(existingAccount.archive());
   }
 
   private async checkDuplicateName(

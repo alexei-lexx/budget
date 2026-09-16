@@ -6,7 +6,6 @@ import { AtomicWriter } from "../ports/atomic-writer";
 import { TransactionRepository } from "../ports/transaction-repository";
 import { DateString } from "../types/date-string";
 import { BusinessError } from "./business-error";
-import { handleVersionConflict } from "./utils/handle-version-conflict";
 
 /**
  * Input type for creating transfers between accounts
@@ -133,12 +132,10 @@ export class TransferService {
     );
 
     try {
-      await handleVersionConflict("Transfer", () =>
-        this.atomicWriter.commit({
-          transactionsToCreate: [outboundTransaction, inboundTransaction],
-          accountsToUpdate: [sourceAccountToUpdate, destAccountToUpdate],
-        }),
-      );
+      await this.atomicWriter.commit({
+        transactionsToCreate: [outboundTransaction, inboundTransaction],
+        accountsToUpdate: [sourceAccountToUpdate, destAccountToUpdate],
+      });
 
       return {
         transferId,
@@ -215,15 +212,13 @@ export class TransferService {
     );
 
     try {
-      await handleVersionConflict("Transfer", () =>
-        this.atomicWriter.commit({
-          transactionsToUpdate: [
-            outboundTransactionToArchive,
-            inboundTransactionToArchive,
-          ],
-          accountsToUpdate: [sourceAccountToUpdate, destAccountToUpdate],
-        }),
-      );
+      await this.atomicWriter.commit({
+        transactionsToUpdate: [
+          outboundTransactionToArchive,
+          inboundTransactionToArchive,
+        ],
+        accountsToUpdate: [sourceAccountToUpdate, destAccountToUpdate],
+      });
     } catch (error) {
       if (error instanceof BusinessError) {
         throw error;
@@ -389,15 +384,13 @@ export class TransferService {
     }
 
     try {
-      await handleVersionConflict("Transfer", () =>
-        this.atomicWriter.commit({
-          transactionsToUpdate: [
-            outboundTransactionToUpdate,
-            inboundTransactionToUpdate,
-          ],
-          accountsToUpdate: Array.from(accountsToUpdate.values()),
-        }),
-      );
+      await this.atomicWriter.commit({
+        transactionsToUpdate: [
+          outboundTransactionToUpdate,
+          inboundTransactionToUpdate,
+        ],
+        accountsToUpdate: Array.from(accountsToUpdate.values()),
+      });
 
       return {
         transferId,

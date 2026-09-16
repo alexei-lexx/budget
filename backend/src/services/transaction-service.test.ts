@@ -5,7 +5,6 @@ import { TransactionType } from "../models/transaction";
 import { AccountRepository } from "../ports/account-repository";
 import { AtomicWriter } from "../ports/atomic-writer";
 import { CategoryRepository } from "../ports/category-repository";
-import { VersionConflictError } from "../ports/repository-error";
 import {
   TransactionFilterInput,
   TransactionRepository,
@@ -965,28 +964,6 @@ describe("TransactionService", () => {
       expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
     });
 
-    // Dependency failures
-
-    it("maps VersionConflictError to BusinessError", async () => {
-      // Arrange
-      const account = fakeAccount({ userId });
-      const input = fakeCreateTransactionServiceInput({
-        accountId: account.id,
-        categoryId: undefined,
-      });
-
-      // Returns account owned by user
-      mockAccountRepository.findOneById.mockResolvedValue(account);
-      // Rejects with version conflict
-      mockAtomicWriter.commit.mockRejectedValue(new VersionConflictError());
-
-      // Act & Assert
-      await expect(service.createTransaction(input, userId)).rejects.toThrow(
-        new BusinessError(
-          "Transaction was modified, please reload and try again",
-        ),
-      );
-    });
   });
 
   describe("updateTransaction", () => {
@@ -1317,37 +1294,6 @@ describe("TransactionService", () => {
       expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
     });
 
-    // Dependency failures
-
-    it("maps VersionConflictError to BusinessError", async () => {
-      // Arrange
-      const existingTransaction = fakeTransaction({ userId });
-      const existingAccount = fakeAccount({
-        userId,
-        id: existingTransaction.accountId,
-      });
-      // Returns existing transaction
-      mockTransactionRepository.findOneById.mockResolvedValue(
-        existingTransaction,
-      );
-      // Returns existing account
-      mockAccountRepository.findOneWithArchivedById.mockResolvedValue(
-        existingAccount,
-      );
-      // Rejects with version conflict
-      mockAtomicWriter.commit.mockRejectedValue(new VersionConflictError());
-
-      // Act & Assert
-      await expect(
-        service.updateTransaction(existingTransaction.id, userId, {
-          amount: 50,
-        }),
-      ).rejects.toThrow(
-        new BusinessError(
-          "Transaction was modified, please reload and try again",
-        ),
-      );
-    });
   });
 
   describe("deleteTransaction", () => {
@@ -1457,34 +1403,5 @@ describe("TransactionService", () => {
       expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
     });
 
-    // Dependency failures
-
-    it("maps VersionConflictError to BusinessError", async () => {
-      // Arrange
-      const existingTransaction = fakeTransaction({ userId });
-      const existingAccount = fakeAccount({
-        userId,
-        id: existingTransaction.accountId,
-      });
-      // Returns existing transaction
-      mockTransactionRepository.findOneById.mockResolvedValue(
-        existingTransaction,
-      );
-      // Returns existing account
-      mockAccountRepository.findOneWithArchivedById.mockResolvedValue(
-        existingAccount,
-      );
-      // Rejects with version conflict
-      mockAtomicWriter.commit.mockRejectedValue(new VersionConflictError());
-
-      // Act & Assert
-      await expect(
-        service.deleteTransaction(existingTransaction.id, userId),
-      ).rejects.toThrow(
-        new BusinessError(
-          "Transaction was modified, please reload and try again",
-        ),
-      );
-    });
   });
 });
