@@ -963,7 +963,6 @@ describe("TransactionService", () => {
       );
       expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
     });
-
   });
 
   describe("updateTransaction", () => {
@@ -1293,7 +1292,6 @@ describe("TransactionService", () => {
       ).rejects.toThrow(ModelError);
       expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
     });
-
   });
 
   describe("deleteTransaction", () => {
@@ -1402,6 +1400,5 @@ describe("TransactionService", () => {
       );
       expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
     });
-
   });
 });

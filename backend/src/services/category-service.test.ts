@@ -385,7 +385,6 @@ describe("CategoryService", () => {
       });
       expect(mockCategoryRepository.update).not.toHaveBeenCalled();
     });
-
   });
 
   describe("deleteCategory", () => {
@@ -432,6 +431,5 @@ describe("CategoryService", () => {
       });
       expect(mockCategoryRepository.update).not.toHaveBeenCalled();
     });
-
   });
 });

@@ -398,7 +398,6 @@ describe("AccountService", () => {
         service.updateAccount(accountId, userId, { name: "New Name" }),
       ).rejects.toThrow("Database error");
     });
-
   });
 
   describe("deleteAccount", () => {
@@ -464,6 +463,5 @@ describe("AccountService", () => {
         "Database error",
       );
     });
-
   });
 });
