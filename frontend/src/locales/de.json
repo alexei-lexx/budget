@@ -127,7 +127,6 @@
     },
     "errors": {
       "fetchFailed": "Kategorien konnten nicht geladen werden",
-      "operationFailed": "Kategorievorgang fehlgeschlagen",
       "createFailed": "Kategorie konnte nicht erstellt werden",
       "updateFailed": "Kategorie konnte nicht aktualisiert werden",
       "deleteFailed": "Kategorie konnte nicht gelöscht werden",

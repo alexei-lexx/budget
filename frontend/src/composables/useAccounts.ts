@@ -1,6 +1,6 @@
 import { ref, watch } from "vue";
-import { ApolloError } from "@apollo/client/core";
 import { i18n } from "@/plugins/i18n";
+import { isInternalServerError, resolveErrorMessage } from "@/utils/graphqlError";
 import {
   useGetAccountsQuery,
   useCreateAccountMutation,
@@ -13,22 +13,6 @@ import {
 
 // Re-export types for backward compatibility
 export type { Account, CreateAccountInput, UpdateAccountInput };
-
-const isInternalServerError = (error: ApolloError): boolean =>
-  error.graphQLErrors[0]?.extensions?.code === "INTERNAL_SERVER_ERROR";
-
-// Real error message when available and safe to show; fallback for masked or non-Error failures
-const resolveErrorMessage = (error: unknown, fallback: string): string => {
-  if (error instanceof ApolloError && isInternalServerError(error)) {
-    return fallback;
-  }
-
-  if (error instanceof Error) {
-    return error.message;
-  }
-
-  return fallback;
-};
 
 export function useAccounts() {
   const { t } = i18n.global;

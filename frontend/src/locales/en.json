@@ -127,7 +127,6 @@
     },
     "errors": {
       "fetchFailed": "Failed to fetch categories",
-      "operationFailed": "Category operation failed",
       "createFailed": "Failed to create category",
       "updateFailed": "Failed to update category",
       "deleteFailed": "Failed to delete category",
