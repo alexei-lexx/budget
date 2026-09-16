@@ -2,7 +2,10 @@ import { readFileSync } from "fs";
 import { dirname, join } from "path";
 import { fileURLToPath } from "url";
 import { ApolloServer } from "@apollo/server";
-import { unwrapResolverError } from "@apollo/server/errors";
+import {
+  ApolloServerErrorCode,
+  unwrapResolverError,
+} from "@apollo/server/errors";
 import { GraphQLError } from "graphql";
 import {
   resolveAccountRepository,
@@ -58,7 +61,7 @@ export const server = new ApolloServer<GraphQLContext>({
       return {
         ...formattedError,
         message: original.message,
-        extensions: { code: "BAD_USER_INPUT" },
+        extensions: { code: ApolloServerErrorCode.BAD_USER_INPUT },
       };
     }
 
@@ -67,7 +70,7 @@ export const server = new ApolloServer<GraphQLContext>({
       return {
         ...formattedError,
         message: original.message,
-        extensions: { code: "BAD_REQUEST" },
+        extensions: { code: ApolloServerErrorCode.BAD_REQUEST },
       };
     }
 
@@ -80,7 +83,7 @@ export const server = new ApolloServer<GraphQLContext>({
     return {
       ...formattedError,
       message: "Internal server error",
-      extensions: { code: "INTERNAL_SERVER_ERROR" },
+      extensions: { code: ApolloServerErrorCode.INTERNAL_SERVER_ERROR },
     };
   },
 });
