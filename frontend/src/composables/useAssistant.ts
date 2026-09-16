@@ -3,6 +3,7 @@ import { useAskAssistantMutation } from "@/__generated__/vue-apollo";
 import type { AgentTraceMessage } from "@/__generated__/vue-apollo";
 import { appStorage } from "@/lib/appStorage";
 import { i18n } from "@/plugins/i18n";
+import { resolveErrorMessage } from "@/utils/graphqlError";
 
 const LAST_RESULT_STORAGE_KEY = "assistant-last-result";
 const SESSION_ID_STORAGE_KEY = "assistant-session-id";
@@ -115,8 +116,7 @@ export function useAssistant() {
       if (abortController?.signal.aborted) {
         return;
       }
-      askAssistantError.value =
-        error instanceof Error ? error.message : t("assistant.responseFailed");
+      askAssistantError.value = resolveErrorMessage(error, t("assistant.responseFailed"));
     } finally {
       abortController = null;
     }
