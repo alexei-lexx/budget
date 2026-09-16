@@ -337,6 +337,8 @@ The system SHALL show a list of the user's starred trend configurations at the t
 
 The list SHALL NOT be shown when the user has no starred configurations.
 
+Each entry SHALL be visually marked with its period type, so that Week entries are distinguishable from Month entries at a glance without reading the label text.
+
 #### Scenario: List is shown when starred configurations exist
 
 - **GIVEN** a user has starred two trend configurations
@@ -360,6 +362,12 @@ The list SHALL NOT be shown when the user has no starred configurations.
 - **GIVEN** two starred configurations both for "Groceries", Month, lookback 3 — one in USD and one in EUR
 - **WHEN** they view the starred trends list
 - **THEN** the EUR entry appears before the USD entry
+
+#### Scenario: Week and Month entries are visually distinguishable
+
+- **GIVEN** a user has starred a Week configuration and a Month configuration
+- **WHEN** they view the starred trends list
+- **THEN** the two entries carry a different visual marking for their period type, distinct from any marking used elsewhere on the entry
 
 ### Requirement: Applying a Starred Trend Configuration
 

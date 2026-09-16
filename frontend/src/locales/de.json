@@ -312,9 +312,9 @@
     "presets": {
       "all": "alle",
       "uncategorized": "ohne Kategorie",
-      "periodWeek": "Woche | Wochen",
-      "periodMonth": "Monat | Monate",
-      "label": "{categories} in den letzten {lookback} {period} in {currency}"
+      "periodPhraseWeek": "{lookback} Woche | {lookback} Wochen",
+      "periodPhraseMonth": "{lookback} Monat | {lookback} Monate",
+      "label": "{categories} in den letzten {periodPhrase} in {currency}"
     },
     "chart": {
       "expenses": "Ausgaben",
