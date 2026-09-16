@@ -78,7 +78,6 @@
     },
     "errors": {
       "fetchFailed": "Konten konnten nicht geladen werden",
-      "operationFailed": "Kontovorgang fehlgeschlagen",
       "createFailed": "Konto konnte nicht erstellt werden",
       "updateFailed": "Konto konnte nicht aktualisiert werden",
       "deleteFailed": "Konto konnte nicht gelöscht werden",

@@ -78,7 +78,6 @@
     },
     "errors": {
       "fetchFailed": "Failed to fetch accounts",
-      "operationFailed": "Account operation failed",
       "createFailed": "Failed to create account",
       "updateFailed": "Failed to update account",
       "deleteFailed": "Failed to delete account",
