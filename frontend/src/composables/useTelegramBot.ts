@@ -43,6 +43,7 @@ export function useTelegramBot() {
 
   const {
     load: loadTestTelegramBot,
+    refetch: refetchTestTelegramBot,
     loading: testTelegramBotLoading,
     error: testTelegramBotError,
   } = useTestTelegramBotLazyQuery();
@@ -69,8 +70,14 @@ export function useTelegramBot() {
 
   const testTelegramBot = async (): Promise<boolean> => {
     try {
-      const result = await loadTestTelegramBot();
-      return !!result && result.testTelegramBot === true;
+      // loadTestTelegramBot only runs the query once, returning false after.
+      // refetchTestTelegramBot reruns it on later calls.
+      const loadResult = await loadTestTelegramBot();
+      if (loadResult !== false) {
+        return loadResult.testTelegramBot === true;
+      }
+      const refetchResult = await refetchTestTelegramBot();
+      return refetchResult?.data?.testTelegramBot === true;
     } catch {
       return false;
     }
