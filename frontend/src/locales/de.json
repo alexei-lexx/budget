@@ -320,8 +320,10 @@
       "pastMedianAtSamePoint": "Median der vergangenen Zeiträume an Tag {days}"
     },
     "errors": {
-      "title": "Trend-Fehler",
-      "loadFailed": "Trend konnte nicht geladen werden: {message}"
+      "loadFailed": "Trend konnte nicht geladen werden",
+      "presetsFetchFailed": "Gemerkte Presets konnten nicht geladen werden.",
+      "starFailed": "Merken fehlgeschlagen",
+      "unstarFailed": "Merkung entfernen fehlgeschlagen"
     }
   },
   "settings": {

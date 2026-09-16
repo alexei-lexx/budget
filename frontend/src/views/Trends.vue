@@ -1,12 +1,6 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <template>
   <v-container class="pa-3 pa-sm-6">
-    <!-- Load Failure -->
-    <v-alert v-if="trendError" type="error" variant="tonal" class="mb-6">
-      <v-alert-title>{{ t("trends.errors.title") }}</v-alert-title>
-      <div>{{ trendError }}</div>
-    </v-alert>
-
     <TrendPresetsList
       :trend-presets="trendPresets"
       :categories="expenseCategories"
@@ -42,8 +36,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
-import { useI18n } from "vue-i18n";
+import { computed, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import type { TrendPeriodUnit } from "@/__generated__/vue-apollo";
 import ExpenseTrendChart from "@/components/reports/ExpenseTrendChart.vue";
@@ -52,22 +45,27 @@ import TrendPresetsList from "@/components/reports/TrendPresetsList.vue";
 import { useCategories } from "@/composables/useCategories";
 import { useCurrencies } from "@/composables/useCurrencies";
 import { useExpenseTrend, type TrendSelection } from "@/composables/useExpenseTrend";
+import { useSnackbar } from "@/composables/useSnackbar";
 import { useTrendPresets } from "@/composables/useTrendPresets";
 import { getTodayDateString } from "@/utils/date";
 
 const DEFAULT_PERIOD_UNIT: TrendPeriodUnit = "MONTH";
 const DEFAULT_LOOKBACK = 3;
 
-const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
+const { showErrorSnackbar } = useSnackbar();
 
 // Fixed for the lifetime of the page, so the grid never shifts mid-session
 const today = ref(getTodayDateString());
 
 const { categories } = useCategories("EXPENSE");
 const { defaultCurrency } = useCurrencies();
-const { trendPresets } = useTrendPresets();
+const { trendPresets, trendPresetsError } = useTrendPresets();
+
+watch(trendPresetsError, (error) => {
+  if (error) showErrorSnackbar(error);
+});
 
 const expenseCategories = computed(() => categories.value?.categories ?? []);
 
@@ -107,11 +105,9 @@ const selection = computed<TrendSelection>(() => ({
 
 const { expenseTrend, expenseTrendLoading, expenseTrendError } = useExpenseTrend(selection, today);
 
-const trendError = computed(() =>
-  expenseTrendError.value
-    ? t("trends.errors.loadFailed", { message: expenseTrendError.value.message })
-    : null,
-);
+watch(expenseTrendError, (error) => {
+  if (error) showErrorSnackbar(error);
+});
 
 function handleApply(newSelection: TrendSelection) {
   appliedSelection.value = newSelection;

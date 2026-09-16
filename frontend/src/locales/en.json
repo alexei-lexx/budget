@@ -320,8 +320,10 @@
       "pastMedianAtSamePoint": "Median of past periods at day {days}"
     },
     "errors": {
-      "title": "Trend Error",
-      "loadFailed": "Failed to load trend: {message}"
+      "loadFailed": "Failed to load trend",
+      "presetsFetchFailed": "Failed to fetch starred presets",
+      "starFailed": "Failed to star",
+      "unstarFailed": "Failed to unstar"
     }
   },
   "settings": {
