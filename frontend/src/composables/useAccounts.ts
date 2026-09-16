@@ -1,5 +1,5 @@
 import { ref, watch } from "vue";
-import { ApolloError } from "@apollo/client";
+import { ApolloError } from "@apollo/client/core";
 import { i18n } from "@/plugins/i18n";
 import {
   useGetAccountsQuery,
