@@ -335,17 +335,14 @@ describe("createGetCategoriesTool", () => {
       // Assert
       if (!result.success) throw new Error("Expected success"); // Type guard
 
-      const [firstCategory] = result.data;
-      if (firstCategory === undefined) {
-        throw new Error("Expected category"); // Type guard
-      }
-
-      expect(firstCategory.keywords).toHaveLength(
+      expect(result.data[0]?.keywords).toHaveLength(
         CATEGORY_HISTORY_MAX_KEYWORDS_PER_CATEGORY,
       );
-      expect(firstCategory.keywords[0]).toEqual("description 0");
+      expect(result.data[0]?.keywords[0]).toEqual("description 0");
       expect(
-        firstCategory.keywords[CATEGORY_HISTORY_MAX_KEYWORDS_PER_CATEGORY - 1],
+        result.data[0]?.keywords[
+          CATEGORY_HISTORY_MAX_KEYWORDS_PER_CATEGORY - 1
+        ],
       ).toEqual(
         `description ${CATEGORY_HISTORY_MAX_KEYWORDS_PER_CATEGORY - 1}`,
       );

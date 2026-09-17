@@ -158,9 +158,11 @@ async function createCategories(userId: string): Promise<{
  */
 function pickRandom<T>(items: readonly T[]): T {
   const item = items[Math.floor(Math.random() * items.length)];
+
   if (item === undefined) {
     throw new Error("pickRandom: items must not be empty");
   }
+
   return item;
 }
 
@@ -207,11 +209,8 @@ async function createTransactions(
   const expenseNames = ["Groceries", "Utilities", "Entertainment"];
   const categoryIdToName: Record<string, string> = {};
   categoryIds.expense.forEach((id, index) => {
-    const name = expenseNames[index];
-    if (name === undefined) {
-      throw new Error(`No expense name found for index ${index}`);
-    }
-    categoryIdToName[id] = name;
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    categoryIdToName[id] = expenseNames[index]!;
   });
 
   for (const monthData of months) {
@@ -262,10 +261,8 @@ async function createTransactions(
       const amount = Math.round((Math.random() * 300 + 10) * 100) / 100; // €10-€310
 
       // Get description based on the specific category
-      const categoryName = categoryIdToName[categoryId];
-      if (categoryName === undefined) {
-        throw new Error(`No category name found for category id ${categoryId}`);
-      }
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const categoryName = categoryIdToName[categoryId]!;
       const categoryDescriptions =
         expenseDescriptions[categoryName as keyof typeof expenseDescriptions];
       const description =

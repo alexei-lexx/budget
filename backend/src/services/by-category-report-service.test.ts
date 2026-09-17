@@ -136,10 +136,8 @@ describe("ByCategoryReportService", () => {
 
       // Assert
       expect(result.categories).toHaveLength(1);
-      const category = result.categories[0];
-      if (category === undefined) {
-        throw new Error("category not found");
-      }
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const category = result.categories[0]!;
 
       // Top 5 transactions only
       expect(category.topTransactions).toHaveLength(5);

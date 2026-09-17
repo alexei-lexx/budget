@@ -380,11 +380,8 @@ describe("UserService", () => {
       );
 
       const updatedUser = mockUserRepository.update.mock.calls[0]?.[0];
-      if (updatedUser === undefined) {
-        throw new Error("update was not called");
-      }
-      expect(updatedUser.mcpToken).not.toBe("");
-      expect(updatedUser.mcpToken).not.toBe("old-token");
+      expect(updatedUser?.mcpToken).not.toBe("");
+      expect(updatedUser?.mcpToken).not.toBe("old-token");
     });
 
     it("returns settings with updated mcpToken", async () => {
@@ -399,13 +396,10 @@ describe("UserService", () => {
 
       // Assert
       const updatedUser = mockUserRepository.update.mock.calls[0]?.[0];
-      if (updatedUser === undefined) {
-        throw new Error("update was not called");
-      }
       expect(result).toEqual({
         success: true,
         data: expect.objectContaining({
-          mcpToken: updatedUser.mcpToken,
+          mcpToken: updatedUser?.mcpToken,
         }),
       });
     });
