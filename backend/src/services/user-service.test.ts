@@ -379,7 +379,10 @@ describe("UserService", () => {
         expect.objectContaining({ id: userId }),
       );
 
-      const updatedUser = mockUserRepository.update.mock.calls[0][0];
+      const updatedUser = mockUserRepository.update.mock.calls[0]?.[0];
+      if (updatedUser === undefined) {
+        throw new Error("update was not called");
+      }
       expect(updatedUser.mcpToken).not.toBe("");
       expect(updatedUser.mcpToken).not.toBe("old-token");
     });
@@ -395,7 +398,10 @@ describe("UserService", () => {
       const result = await service.regenerateMcpToken(userId);
 
       // Assert
-      const updatedUser = mockUserRepository.update.mock.calls[0][0];
+      const updatedUser = mockUserRepository.update.mock.calls[0]?.[0];
+      if (updatedUser === undefined) {
+        throw new Error("update was not called");
+      }
       expect(result).toEqual({
         success: true,
         data: expect.objectContaining({

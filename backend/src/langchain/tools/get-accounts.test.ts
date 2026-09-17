@@ -69,13 +69,13 @@ describe("createGetAccountsTool", () => {
       success: true,
       data: [
         {
-          id: mockAccounts[0].id,
+          id: mockAccounts[0]?.id,
           name: "Checking Account",
           currency: "USD",
           isArchived: false,
         },
         {
-          id: mockAccounts[1].id,
+          id: mockAccounts[1]?.id,
           name: "Savings Account",
           currency: "EUR",
           isArchived: true,

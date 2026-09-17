@@ -234,7 +234,10 @@ describe("TransferService", () => {
       });
 
       expect(mockAtomicWriter.commit).toHaveBeenCalledTimes(1);
-      const commitInput = mockAtomicWriter.commit.mock.calls[0][0];
+      const commitInput = mockAtomicWriter.commit.mock.calls[0]?.[0];
+      if (commitInput === undefined) {
+        throw new Error("commit was not called");
+      }
       expect(commitInput.transactionsToCreate).toEqual([
         result.outboundTransaction,
         result.inboundTransaction,
@@ -276,7 +279,10 @@ describe("TransferService", () => {
       );
 
       // Assert
-      const commitInput = mockAtomicWriter.commit.mock.calls[0][0];
+      const commitInput = mockAtomicWriter.commit.mock.calls[0]?.[0];
+      if (commitInput === undefined) {
+        throw new Error("commit was not called");
+      }
       expect(commitInput.accountsToUpdate).toHaveLength(2);
       expect(
         commitInput.accountsToUpdate?.find((a) => a.id === sourceAccount.id)
@@ -489,7 +495,10 @@ describe("TransferService", () => {
       await service.deleteTransfer(transferId, userId);
 
       // Assert
-      const commitInput = mockAtomicWriter.commit.mock.calls[0][0];
+      const commitInput = mockAtomicWriter.commit.mock.calls[0]?.[0];
+      if (commitInput === undefined) {
+        throw new Error("commit was not called");
+      }
       expect(commitInput.transactionsToUpdate).toEqual([
         expect.objectContaining({
           id: outboundTransaction.id,
@@ -703,7 +712,10 @@ describe("TransferService", () => {
         version: 6,
       });
 
-      const commitInput = mockAtomicWriter.commit.mock.calls[0][0];
+      const commitInput = mockAtomicWriter.commit.mock.calls[0]?.[0];
+      if (commitInput === undefined) {
+        throw new Error("commit was not called");
+      }
       expect(commitInput.transactionsToUpdate).toEqual([
         expect.objectContaining({ id: outboundTransaction.id, amount: 250 }),
         expect.objectContaining({ id: inboundTransaction.id, amount: 250 }),
@@ -757,7 +769,10 @@ describe("TransferService", () => {
       await service.updateTransfer(transferId, userId, { amount: 150 });
 
       // Assert
-      const commitInput = mockAtomicWriter.commit.mock.calls[0][0];
+      const commitInput = mockAtomicWriter.commit.mock.calls[0]?.[0];
+      if (commitInput === undefined) {
+        throw new Error("commit was not called");
+      }
 
       // Source: 500 - (-100) revert + (-150) apply = 450
       const sourceAccountToUpdate = commitInput.accountsToUpdate?.[0];
@@ -833,7 +848,10 @@ describe("TransferService", () => {
       });
 
       // Assert
-      const commitInput = mockAtomicWriter.commit.mock.calls[0][0];
+      const commitInput = mockAtomicWriter.commit.mock.calls[0]?.[0];
+      if (commitInput === undefined) {
+        throw new Error("commit was not called");
+      }
       expect(commitInput.accountsToUpdate).toHaveLength(4);
 
       // Old source: 500 - (-100) = 600 (revert outbound)
@@ -908,7 +926,10 @@ describe("TransferService", () => {
       });
 
       // Assert
-      const commitInput = mockAtomicWriter.commit.mock.calls[0][0];
+      const commitInput = mockAtomicWriter.commit.mock.calls[0]?.[0];
+      if (commitInput === undefined) {
+        throw new Error("commit was not called");
+      }
       expect(commitInput.accountsToUpdate).toHaveLength(2);
 
       // A: revert outbound (-(-100) → +100) then apply inbound (+100) → 400 + 200 = 600
@@ -961,7 +982,10 @@ describe("TransferService", () => {
       });
 
       // Assert
-      const commitInput = mockAtomicWriter.commit.mock.calls[0][0];
+      const commitInput = mockAtomicWriter.commit.mock.calls[0]?.[0];
+      if (commitInput === undefined) {
+        throw new Error("commit was not called");
+      }
       expect(commitInput.accountsToUpdate).toEqual([]);
       expect(commitInput.transactionsToUpdate?.[0]).toMatchObject({
         description: "Updated note",
@@ -1021,11 +1045,14 @@ describe("TransferService", () => {
         id: destAccount.id,
         userId,
       });
-      const commitInput = mockAtomicWriter.commit.mock.calls[0][0];
-      expect(commitInput.transactionsToUpdate?.[0].accountId).toBe(
+      const commitInput = mockAtomicWriter.commit.mock.calls[0]?.[0];
+      if (commitInput === undefined) {
+        throw new Error("commit was not called");
+      }
+      expect(commitInput.transactionsToUpdate?.[0]?.accountId).toBe(
         sourceAccount.id,
       );
-      expect(commitInput.transactionsToUpdate?.[1].accountId).toBe(
+      expect(commitInput.transactionsToUpdate?.[1]?.accountId).toBe(
         destAccount.id,
       );
     });

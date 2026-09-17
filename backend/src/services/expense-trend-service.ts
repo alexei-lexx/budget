@@ -62,6 +62,10 @@ export class ExpenseTrendService {
     });
     const currentPeriodStart = periodStarts[periodStarts.length - 1];
     const firstPeriodStart = periodStarts[0];
+    if (currentPeriodStart === undefined || firstPeriodStart === undefined) {
+      // buildPeriodStarts always returns lookback + 1 entries, and lookback >= 1.
+      throw new Error("periodStarts is unexpectedly empty");
+    }
 
     const transactions = await this.transactionRepository.findManyByUserId(
       userId,

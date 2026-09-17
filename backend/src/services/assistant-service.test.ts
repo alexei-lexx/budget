@@ -213,7 +213,7 @@ describe("AssistantService", () => {
       expect(state.messages).toHaveLength(3);
       expect(state.messages[0]).toEqual(history[0]);
       expect(state.messages[1]).toEqual(history[1]);
-      expect(state.messages[2].content).toContain(validInput.question);
+      expect(state.messages[2]?.content).toContain(validInput.question);
     });
 
     it("works without history (history defaults to empty)", async () => {

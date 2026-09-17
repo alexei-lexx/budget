@@ -297,7 +297,7 @@ describe("TransactionService", () => {
 
       // Assert
       expect(result).toHaveLength(1);
-      expect(result[0].accountId).toBe("account-1");
+      expect(result[0]?.accountId).toBe("account-1");
     });
 
     it("filters out patterns with deleted categories", async () => {
@@ -353,7 +353,7 @@ describe("TransactionService", () => {
 
       // Assert
       expect(result).toHaveLength(1);
-      expect(result[0].categoryId).toBe("category-1");
+      expect(result[0]?.categoryId).toBe("category-1");
     });
 
     it("filters out patterns with mismatched category types", async () => {
@@ -416,7 +416,7 @@ describe("TransactionService", () => {
 
       // Assert
       expect(result).toHaveLength(1);
-      expect(result[0].categoryId).toBe("category-income");
+      expect(result[0]?.categoryId).toBe("category-income");
     });
 
     it("returns empty array when all patterns are invalid", async () => {
@@ -828,7 +828,10 @@ describe("TransactionService", () => {
 
       expect(mockAtomicWriter.commit).toHaveBeenCalledTimes(1);
 
-      const commitInput = mockAtomicWriter.commit.mock.calls[0][0];
+      const commitInput = mockAtomicWriter.commit.mock.calls[0]?.[0];
+      if (commitInput === undefined) {
+        throw new Error("commit was not called");
+      }
       expect(commitInput.transactionsToCreate).toHaveLength(1);
       expect(commitInput.transactionsToCreate?.[0]).toMatchObject({
         accountId: account.id,
@@ -866,9 +869,12 @@ describe("TransactionService", () => {
       await service.createTransaction(input, userId);
 
       // Assert
-      const commitInput = mockAtomicWriter.commit.mock.calls[0][0];
+      const commitInput = mockAtomicWriter.commit.mock.calls[0]?.[0];
+      if (commitInput === undefined) {
+        throw new Error("commit was not called");
+      }
       expect(commitInput.accountsToUpdate).toHaveLength(1);
-      expect(commitInput.accountsToUpdate?.[0].transactionBalance).toBe(150);
+      expect(commitInput.accountsToUpdate?.[0]?.transactionBalance).toBe(150);
     });
 
     it("skips category when categoryId is omitted", async () => {
@@ -893,8 +899,11 @@ describe("TransactionService", () => {
       await service.createTransaction(input, userId);
 
       // Assert
-      const commitInput = mockAtomicWriter.commit.mock.calls[0][0];
-      expect(commitInput.transactionsToCreate?.[0].categoryId).toBeUndefined();
+      const commitInput = mockAtomicWriter.commit.mock.calls[0]?.[0];
+      if (commitInput === undefined) {
+        throw new Error("commit was not called");
+      }
+      expect(commitInput.transactionsToCreate?.[0]?.categoryId).toBeUndefined();
     });
 
     // Validation failures
@@ -1015,7 +1024,10 @@ describe("TransactionService", () => {
 
       // Assert
       expect(result).toBe(persistedTransaction);
-      const commitInput = mockAtomicWriter.commit.mock.calls[0][0];
+      const commitInput = mockAtomicWriter.commit.mock.calls[0]?.[0];
+      if (commitInput === undefined) {
+        throw new Error("commit was not called");
+      }
       expect(commitInput.transactionsToUpdate).toHaveLength(1);
       expect(commitInput.transactionsToUpdate?.[0]).toMatchObject({
         accountId: newAccount.id,
@@ -1060,11 +1072,14 @@ describe("TransactionService", () => {
       });
 
       // Assert
-      const commitInput = mockAtomicWriter.commit.mock.calls[0][0];
-      expect(commitInput.transactionsToUpdate?.[0].accountId).toBe(
+      const commitInput = mockAtomicWriter.commit.mock.calls[0]?.[0];
+      if (commitInput === undefined) {
+        throw new Error("commit was not called");
+      }
+      expect(commitInput.transactionsToUpdate?.[0]?.accountId).toBe(
         existingTransaction.accountId,
       );
-      expect(commitInput.transactionsToUpdate?.[0].amount).toBe(5);
+      expect(commitInput.transactionsToUpdate?.[0]?.amount).toBe(5);
     });
 
     it("clears category when categoryId is null", async () => {
@@ -1090,8 +1105,11 @@ describe("TransactionService", () => {
       });
 
       // Assert
-      const commitInput = mockAtomicWriter.commit.mock.calls[0][0];
-      expect(commitInput.transactionsToUpdate?.[0].categoryId).toBeUndefined();
+      const commitInput = mockAtomicWriter.commit.mock.calls[0]?.[0];
+      if (commitInput === undefined) {
+        throw new Error("commit was not called");
+      }
+      expect(commitInput.transactionsToUpdate?.[0]?.categoryId).toBeUndefined();
     });
 
     it("skips account update when balance is unaffected", async () => {
@@ -1117,7 +1135,10 @@ describe("TransactionService", () => {
       });
 
       // Assert
-      const commitInput = mockAtomicWriter.commit.mock.calls[0][0];
+      const commitInput = mockAtomicWriter.commit.mock.calls[0]?.[0];
+      if (commitInput === undefined) {
+        throw new Error("commit was not called");
+      }
       expect(commitInput.accountsToUpdate).toEqual([]);
     });
 
@@ -1150,10 +1171,13 @@ describe("TransactionService", () => {
       });
 
       // Assert
-      const commitInput = mockAtomicWriter.commit.mock.calls[0][0];
+      const commitInput = mockAtomicWriter.commit.mock.calls[0]?.[0];
+      if (commitInput === undefined) {
+        throw new Error("commit was not called");
+      }
       // 100 + 30 (revert -30) - 50 (apply -50) = 80
       expect(commitInput.accountsToUpdate).toHaveLength(1);
-      expect(commitInput.accountsToUpdate?.[0].transactionBalance).toBe(80);
+      expect(commitInput.accountsToUpdate?.[0]?.transactionBalance).toBe(80);
     });
 
     it("updates both accounts when account changes", async () => {
@@ -1188,7 +1212,10 @@ describe("TransactionService", () => {
       });
 
       // Assert
-      const commitInput = mockAtomicWriter.commit.mock.calls[0][0];
+      const commitInput = mockAtomicWriter.commit.mock.calls[0]?.[0];
+      if (commitInput === undefined) {
+        throw new Error("commit was not called");
+      }
       expect(commitInput.accountsToUpdate).toHaveLength(2);
       // existing: 100 + 30 (revert -30) = 130
       expect(
@@ -1231,10 +1258,13 @@ describe("TransactionService", () => {
       });
 
       // Assert
-      const commitInput = mockAtomicWriter.commit.mock.calls[0][0];
+      const commitInput = mockAtomicWriter.commit.mock.calls[0]?.[0];
+      if (commitInput === undefined) {
+        throw new Error("commit was not called");
+      }
       // 100 + 20 (revert -20) + 20 (apply +20) = 140
       expect(commitInput.accountsToUpdate).toHaveLength(1);
-      expect(commitInput.accountsToUpdate?.[0].transactionBalance).toBe(140);
+      expect(commitInput.accountsToUpdate?.[0]?.transactionBalance).toBe(140);
     });
 
     // Validation failures
@@ -1328,9 +1358,12 @@ describe("TransactionService", () => {
 
       // Assert
       expect(result).toBe(persistedTransaction);
-      const commitInput = mockAtomicWriter.commit.mock.calls[0][0];
+      const commitInput = mockAtomicWriter.commit.mock.calls[0]?.[0];
+      if (commitInput === undefined) {
+        throw new Error("commit was not called");
+      }
       expect(commitInput.transactionsToUpdate).toHaveLength(1);
-      expect(commitInput.transactionsToUpdate?.[0].isArchived).toBe(true);
+      expect(commitInput.transactionsToUpdate?.[0]?.isArchived).toBe(true);
     });
 
     it("decreases account balance", async () => {
@@ -1360,10 +1393,13 @@ describe("TransactionService", () => {
       await service.deleteTransaction(existingTransaction.id, userId);
 
       // Assert
-      const commitInput = mockAtomicWriter.commit.mock.calls[0][0];
+      const commitInput = mockAtomicWriter.commit.mock.calls[0]?.[0];
+      if (commitInput === undefined) {
+        throw new Error("commit was not called");
+      }
       // 100 + 30 (revert -30) = 130
       expect(commitInput.accountsToUpdate).toHaveLength(1);
-      expect(commitInput.accountsToUpdate?.[0].transactionBalance).toBe(130);
+      expect(commitInput.accountsToUpdate?.[0]?.transactionBalance).toBe(130);
     });
 
     it("returns existing transaction without commit when already archived", async () => {

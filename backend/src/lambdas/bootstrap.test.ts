@@ -97,10 +97,11 @@ describe("injectRuntimeEnv", () => {
 
     expect(sendMock).toHaveBeenCalledTimes(2);
 
-    const firstCallNames = (sendMock.mock.calls[0][0] as GetParametersCommand)
+    const firstCallNames = (sendMock.mock.calls[0]?.[0] as GetParametersCommand)
       .input.Names;
-    const secondCallNames = (sendMock.mock.calls[1][0] as GetParametersCommand)
-      .input.Names;
+    const secondCallNames = (
+      sendMock.mock.calls[1]?.[0] as GetParametersCommand
+    ).input.Names;
 
     expect(firstCallNames).toHaveLength(10);
     expect(secondCallNames).toHaveLength(5);
@@ -155,7 +156,7 @@ describe("injectRuntimeEnv", () => {
     await injectRuntimeEnv(processEnv, () => bindings);
 
     // Assert
-    const command = sendMock.mock.calls[0][0] as GetParametersCommand;
+    const command = sendMock.mock.calls[0]?.[0] as GetParametersCommand;
     expect(command.input.WithDecryption).toBe(true);
   });
 

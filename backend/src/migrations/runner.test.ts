@@ -90,8 +90,8 @@ describe("executeMigrations", () => {
       expect(stats.skipped).toBe(0);
       expect(stats.failed).toBe(0);
       expect(stats.results).toHaveLength(2);
-      expect(stats.results[0].executed).toBe(true);
-      expect(stats.results[1].executed).toBe(true);
+      expect(stats.results[0]?.executed).toBe(true);
+      expect(stats.results[1]?.executed).toBe(true);
       expect(migration1).toHaveBeenCalledWith(mockClient);
       expect(migration2).toHaveBeenCalledWith(mockClient);
       expect(mockMarkExecuted).toHaveBeenCalledTimes(2);
@@ -128,9 +128,9 @@ describe("executeMigrations", () => {
       expect(stats.executed).toBe(1);
       expect(stats.skipped).toBe(1);
       expect(stats.failed).toBe(0);
-      expect(stats.results[0].executed).toBe(false);
-      expect(stats.results[0].durationMs).toBe(0);
-      expect(stats.results[1].executed).toBe(true);
+      expect(stats.results[0]?.executed).toBe(false);
+      expect(stats.results[0]?.durationMs).toBe(0);
+      expect(stats.results[1]?.executed).toBe(true);
       expect(migration1).not.toHaveBeenCalled();
       expect(migration2).toHaveBeenCalledWith(mockClient);
       expect(mockMarkExecuted).toHaveBeenCalledTimes(1);
@@ -309,7 +309,7 @@ describe("executeMigrations", () => {
       const stats = await executeMigrations(mockClient, migrations, tableName);
 
       expect(stats.totalDurationMs).toBeGreaterThanOrEqual(0);
-      expect(stats.results[0].durationMs).toBeGreaterThanOrEqual(0);
+      expect(stats.results[0]?.durationMs).toBeGreaterThanOrEqual(0);
     });
 
     it("records all results in order", async () => {
@@ -338,12 +338,12 @@ describe("executeMigrations", () => {
       const stats = await executeMigrations(mockClient, migrations, tableName);
 
       expect(stats.results).toHaveLength(3);
-      expect(stats.results[0].timestamp).toBe("20231203120000");
-      expect(stats.results[0].executed).toBe(true);
-      expect(stats.results[1].timestamp).toBe("20231203130000");
-      expect(stats.results[1].executed).toBe(false);
-      expect(stats.results[2].timestamp).toBe("20231203140000");
-      expect(stats.results[2].executed).toBe(true);
+      expect(stats.results[0]?.timestamp).toBe("20231203120000");
+      expect(stats.results[0]?.executed).toBe(true);
+      expect(stats.results[1]?.timestamp).toBe("20231203130000");
+      expect(stats.results[1]?.executed).toBe(false);
+      expect(stats.results[2]?.timestamp).toBe("20231203140000");
+      expect(stats.results[2]?.executed).toBe(true);
     });
   });
 });

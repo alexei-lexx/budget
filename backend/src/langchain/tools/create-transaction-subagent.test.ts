@@ -50,7 +50,7 @@ describe("createCreateTransactionSubagentTool", () => {
     );
 
     // Assert
-    const userMessage = mockModel.calls[0].messages.find(
+    const userMessage = mockModel.calls[0]?.messages.find(
       (message) => message instanceof HumanMessage,
     );
     expect(userMessage?.content).toBe("create transaction");
@@ -70,7 +70,7 @@ describe("createCreateTransactionSubagentTool", () => {
     await transactionTool.invoke({ text: "create transaction" }, { context });
 
     // Assert
-    const systemPrompt = mockModel.calls[0].messages[0].content;
+    const systemPrompt = mockModel.calls[0]?.messages[0]?.content;
     expect(systemPrompt).toContain("Today is 2026-04-15");
     expect(systemPrompt).toContain(VOICE_INPUT_SUBPROMPT);
   });

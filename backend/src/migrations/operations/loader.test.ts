@@ -42,8 +42,13 @@ describe("Migration Loader Operations", () => {
       expect(migrations.length).toBeGreaterThanOrEqual(0);
 
       for (let i = 1; i < migrations.length; i++) {
+        const current = migrations[i];
+        const previous = migrations[i - 1];
+        if (current === undefined || previous === undefined) {
+          throw new Error("Expected migration at index");
+        }
         expect(
-          migrations[i].timestamp.localeCompare(migrations[i - 1].timestamp),
+          current.timestamp.localeCompare(previous.timestamp),
         ).toBeGreaterThan(0);
       }
     });

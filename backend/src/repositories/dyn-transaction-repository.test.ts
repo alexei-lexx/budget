@@ -800,8 +800,8 @@ describe("DynTransactionRepository", () => {
         // Assert
         expect(result.edges).toHaveLength(1);
         expect(result.totalCount).toBe(1);
-        expect(result.edges[0].node.accountId).toBe(account1);
-        expect(result.edges[0].node.date).toBe("2024-01-20");
+        expect(result.edges[0]?.node.accountId).toBe(account1);
+        expect(result.edges[0]?.node.date).toBe("2024-01-20");
       });
 
       it("filters by category and type", async () => {
@@ -853,8 +853,8 @@ describe("DynTransactionRepository", () => {
         // Assert
         expect(result.edges).toHaveLength(1);
         expect(result.totalCount).toBe(1);
-        expect(result.edges[0].node.categoryId).toBe(category1);
-        expect(result.edges[0].node.type).toBe(TransactionType.EXPENSE);
+        expect(result.edges[0]?.node.categoryId).toBe(category1);
+        expect(result.edges[0]?.node.type).toBe(TransactionType.EXPENSE);
       });
 
       it("filters by account, category, date range, and type", async () => {
@@ -930,10 +930,10 @@ describe("DynTransactionRepository", () => {
         // Assert
         expect(result.edges).toHaveLength(1);
         expect(result.totalCount).toBe(1);
-        expect(result.edges[0].node.accountId).toBe(account1);
-        expect(result.edges[0].node.categoryId).toBe(category1);
-        expect(result.edges[0].node.date).toBe("2024-01-20");
-        expect(result.edges[0].node.type).toBe(TransactionType.EXPENSE);
+        expect(result.edges[0]?.node.accountId).toBe(account1);
+        expect(result.edges[0]?.node.categoryId).toBe(category1);
+        expect(result.edges[0]?.node.date).toBe("2024-01-20");
+        expect(result.edges[0]?.node.type).toBe(TransactionType.EXPENSE);
       });
     });
 
@@ -1025,12 +1025,12 @@ describe("DynTransactionRepository", () => {
       expect(allPagedIds.sort()).toEqual(expectedIds.sort());
 
       // Correct ordering (newest first: 2024-01-20 -> 2024-01-15)
-      expect(page1.edges[0].node.date).toBe("2024-01-20");
-      expect(page1.edges[1].node.date).toBe("2024-01-19");
-      expect(page1.edges[2].node.date).toBe("2024-01-18");
-      expect(page2.edges[0].node.date).toBe("2024-01-17");
-      expect(page2.edges[1].node.date).toBe("2024-01-16");
-      expect(page2.edges[2].node.date).toBe("2024-01-15");
+      expect(page1.edges[0]?.node.date).toBe("2024-01-20");
+      expect(page1.edges[1]?.node.date).toBe("2024-01-19");
+      expect(page1.edges[2]?.node.date).toBe("2024-01-18");
+      expect(page2.edges[0]?.node.date).toBe("2024-01-17");
+      expect(page2.edges[1]?.node.date).toBe("2024-01-16");
+      expect(page2.edges[2]?.node.date).toBe("2024-01-15");
     });
 
     it("paginates without date filters using UserCreatedAtIndex", async () => {
@@ -1254,8 +1254,8 @@ describe("DynTransactionRepository", () => {
 
       // Assert
       expect(result).toHaveLength(2);
-      expect(result[0].description).toBe("Grocery shopping"); // Most recent first
-      expect(result[1].description).toBe("Grocery store");
+      expect(result[0]?.description).toBe("Grocery shopping"); // Most recent first
+      expect(result[1]?.description).toBe("Grocery store");
     });
 
     it("is case-sensitive in matching", async () => {
@@ -1296,10 +1296,10 @@ describe("DynTransactionRepository", () => {
 
       // Assert
       expect(resultUppercase).toHaveLength(1);
-      expect(resultUppercase[0].description).toBe("Grocery store");
+      expect(resultUppercase[0]?.description).toBe("Grocery store");
 
       expect(resultLowercase).toHaveLength(1);
-      expect(resultLowercase[0].description).toBe("grocery shopping");
+      expect(resultLowercase[0]?.description).toBe("grocery shopping");
     });
 
     it("returns results ordered by creation time (most recent first)", async () => {
@@ -1334,8 +1334,8 @@ describe("DynTransactionRepository", () => {
 
       // Assert
       expect(result).toHaveLength(2);
-      expect(result[0].id).toBe(transaction2.id);
-      expect(result[1].id).toBe(transaction1.id);
+      expect(result[0]?.id).toBe(transaction2.id);
+      expect(result[1]?.id).toBe(transaction1.id);
     });
 
     it("respects limit parameter", async () => {
@@ -1400,7 +1400,7 @@ describe("DynTransactionRepository", () => {
 
       // Assert
       expect(result).toHaveLength(1);
-      expect(result[0].description).toBe("Grocery store");
+      expect(result[0]?.description).toBe("Grocery store");
     });
 
     it("excludes archived transactions", async () => {
@@ -1435,7 +1435,7 @@ describe("DynTransactionRepository", () => {
 
       // Assert
       expect(result).toHaveLength(1);
-      expect(result[0].description).toBe("Store purchase 2");
+      expect(result[0]?.description).toBe("Store purchase 2");
     });
 
     it("isolates results by user", async () => {
@@ -1475,12 +1475,12 @@ describe("DynTransactionRepository", () => {
 
       // Assert
       expect(user1Result).toHaveLength(1);
-      expect(user1Result[0].description).toBe("User 1 store");
-      expect(user1Result[0].userId).toBe(user1);
+      expect(user1Result[0]?.description).toBe("User 1 store");
+      expect(user1Result[0]?.userId).toBe(user1);
 
       expect(user2Result).toHaveLength(1);
-      expect(user2Result[0].description).toBe("User 2 store");
-      expect(user2Result[0].userId).toBe(user2);
+      expect(user2Result[0]?.description).toBe("User 2 store");
+      expect(user2Result[0]?.userId).toBe(user2);
     });
 
     it("returns empty array for empty search text", async () => {
@@ -1579,7 +1579,7 @@ describe("DynTransactionRepository", () => {
 
       // Assert
       expect(result).toHaveLength(1);
-      expect(result[0].description).toBe("Exact match");
+      expect(result[0]?.description).toBe("Exact match");
     });
 
     it("handles substring matches", async () => {
@@ -1613,7 +1613,7 @@ describe("DynTransactionRepository", () => {
 
       // Assert
       expect(result).toHaveLength(1);
-      expect(result[0].description).toBe(
+      expect(result[0]?.description).toBe(
         "This is a long description with multiple words",
       );
     });

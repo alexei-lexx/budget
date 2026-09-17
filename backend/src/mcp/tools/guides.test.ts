@@ -196,6 +196,9 @@ describe("verifyGuideTokens", () => {
   it("rejects and names only guide missing its token", () => {
     // Arrange
     const [missingGuide, ...otherGuides] = Object.values(GUIDES);
+    if (missingGuide === undefined) {
+      throw new Error("Expected at least one guide");
+    }
 
     // Act
     const result = verifyGuideTokens({

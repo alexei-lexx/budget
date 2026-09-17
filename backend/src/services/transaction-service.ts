@@ -186,6 +186,9 @@ export class TransactionServiceImpl implements TransactionService {
     });
 
     const createdTransaction = result.createdTransactions[0];
+    if (createdTransaction === undefined) {
+      throw new Error("Atomic writer did not return the created transaction");
+    }
 
     return createdTransaction;
   }
@@ -317,7 +320,12 @@ export class TransactionServiceImpl implements TransactionService {
       accountsToUpdate: accountsToUpdate,
     });
 
-    return result.updatedTransactions[0];
+    const updatedTransaction = result.updatedTransactions[0];
+    if (updatedTransaction === undefined) {
+      throw new Error("Atomic writer did not return the updated transaction");
+    }
+
+    return updatedTransaction;
   }
 
   /**
@@ -363,7 +371,12 @@ export class TransactionServiceImpl implements TransactionService {
       accountsToUpdate: [accountToUpdate],
     });
 
-    return result.updatedTransactions[0];
+    const archivedTransaction = result.updatedTransactions[0];
+    if (archivedTransaction === undefined) {
+      throw new Error("Atomic writer did not return the archived transaction");
+    }
+
+    return archivedTransaction;
   }
 
   /**
