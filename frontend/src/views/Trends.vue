@@ -60,10 +60,14 @@ const { showErrorSnackbar } = useSnackbar();
 const today = ref(getTodayDateString());
 
 const { categories } = useCategories("EXPENSE");
-const { defaultCurrency } = useCurrencies();
+const { defaultCurrency, errorMessage: currenciesErrorMessage } = useCurrencies();
 const { trendPresets, trendPresetsError } = useTrendPresets();
 
 watch(trendPresetsError, (error) => {
+  if (error) showErrorSnackbar(error);
+});
+
+watch(currenciesErrorMessage, (error) => {
   if (error) showErrorSnackbar(error);
 });
 

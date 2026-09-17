@@ -18,7 +18,6 @@
       "apply": "Anwenden"
     },
     "errors": {
-      "generic": "Etwas ist schiefgelaufen. Bitte versuchen Sie es später erneut.",
       "connection": "Verbindungsproblem. Bitte überprüfen Sie Ihre Internetverbindung und versuchen Sie es erneut.",
       "amountValidation": {
         "mustBePositive": "Betrag muss größer als 0 sein",
@@ -288,10 +287,8 @@
     "errors": {
       "fetchFailed": "Kategorieaufschlüsselung konnte nicht geladen werden",
       "title": "Berichtsfehler",
-      "loadFailed": "Bericht konnte nicht geladen werden: {message}",
       "invalidUrlMonthYear": "Ungültiger Monat oder Jahr in URL-Parametern",
-      "invalidUrlYear": "Ungültiges Jahr in URL-Parametern",
-      "loadFailedTitle": "Kategorieaufschlüsselung konnte nicht geladen werden"
+      "invalidUrlYear": "Ungültiges Jahr in URL-Parametern"
     }
   },
   "trends": {

@@ -18,7 +18,6 @@
       "apply": "Apply"
     },
     "errors": {
-      "generic": "Something went wrong. Please try again later.",
       "connection": "Connection problem. Please check your internet and try again.",
       "amountValidation": {
         "mustBePositive": "Amount must be greater than 0",
@@ -288,10 +287,8 @@
     "errors": {
       "fetchFailed": "Failed to fetch by-category report",
       "title": "Report Error",
-      "loadFailed": "Failed to load report: {message}",
       "invalidUrlMonthYear": "Invalid month or year in URL parameters",
-      "invalidUrlYear": "Invalid year in URL parameters",
-      "loadFailedTitle": "Failed to load category breakdown"
+      "invalidUrlYear": "Invalid year in URL parameters"
     }
   },
   "trends": {

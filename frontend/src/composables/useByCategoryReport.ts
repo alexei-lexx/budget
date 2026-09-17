@@ -1,5 +1,6 @@
-import { ref, computed, unref, type Ref } from "vue";
+import { ref, computed, watch, unref, type Ref } from "vue";
 import { i18n } from "@/plugins/i18n";
+import { isInternalServerError } from "@/utils/graphqlError";
 import {
   useGetByCategoryReportQuery,
   type ByCategoryReport,
@@ -19,7 +20,6 @@ export type {
 
 export function useByCategoryReport() {
   const { t } = i18n.global;
-  const byCategoryReportError = ref<string | null>(null);
 
   // Create a reactive function to get by-category report for a given year, month, and type
   const getByCategoryReport = (
@@ -27,6 +27,8 @@ export function useByCategoryReport() {
     month: Ref<number | null> | number | null,
     type: ReportType,
   ) => {
+    const byCategoryReportError = ref<string | null>(null);
+
     const {
       result: byCategoryReportResult,
       loading: byCategoryReportLoading,
@@ -50,16 +52,20 @@ export function useByCategoryReport() {
     });
 
     // Watch for query errors
-    if (byCategoryReportQueryError.value) {
-      console.error("By-category report query failed:", byCategoryReportQueryError.value);
-      byCategoryReportError.value =
-        byCategoryReportQueryError.value.message || t("reports.errors.fetchFailed");
-    }
+    watch(byCategoryReportQueryError, (error) => {
+      if (error) {
+        console.error("By-category report query failed:", error);
+
+        byCategoryReportError.value = isInternalServerError(error)
+          ? t("reports.errors.fetchFailed")
+          : error.message;
+      }
+    });
 
     return {
       byCategoryReport,
       byCategoryReportLoading,
-      byCategoryReportError: byCategoryReportQueryError,
+      byCategoryReportError,
       refetchByCategoryReport,
     };
   };
@@ -67,8 +73,5 @@ export function useByCategoryReport() {
   return {
     // Main functions
     getByCategoryReport,
-
-    // Global error state
-    byCategoryReportError,
   };
 }

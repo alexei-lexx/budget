@@ -60,14 +60,9 @@ const authLink = setContext(async (_, { headers }) => {
   }
 });
 
-// Error link to handle all GraphQL errors globally
-const errorLink = onError(({ graphQLErrors, networkError }) => {
-  if (graphQLErrors) {
-    console.error("GraphQL errors:", graphQLErrors);
-    // Use the first GraphQL error message, or fall back to generic message
-    globalError.value = graphQLErrors[0]?.message || i18n.global.t("common.errors.generic");
-  }
-
+// Error link to handle network errors globally.
+// GraphQL errors are handled per-composable.
+const errorLink = onError(({ networkError }) => {
   if (networkError) {
     if (networkError.name === "AbortError") {
       return;

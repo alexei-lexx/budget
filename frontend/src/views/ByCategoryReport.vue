@@ -9,7 +9,7 @@
       </v-btn-toggle>
     </div>
 
-    <!-- Global Error Alert -->
+    <!-- URL Parameter Error Alert -->
     <v-alert
       v-if="globalError"
       type="error"
@@ -46,7 +46,6 @@
       :categories="byCategoryReport?.categories"
       :currency-totals="byCategoryReport?.currencyTotals"
       :loading="byCategoryReportLoading"
-      :error="reportError"
     />
   </v-container>
 </template>
@@ -59,6 +58,7 @@ import CategoryBreakdownTable from "@/components/reports/CategoryBreakdownTable.
 import MonthNavigation from "@/components/reports/MonthNavigation.vue";
 import YearNavigation from "@/components/reports/YearNavigation.vue";
 import { useByCategoryReport } from "@/composables/useByCategoryReport";
+import { useSnackbar } from "@/composables/useSnackbar";
 import { isValidYearMonth } from "@/utils/dateValidation";
 
 type ViewMode = "monthly" | "yearly";
@@ -86,8 +86,9 @@ const selectedMonthNullable = computed<number | null>(() =>
 
 // Get by-category report composable functions
 const { getByCategoryReport } = useByCategoryReport();
+const { showErrorSnackbar } = useSnackbar();
 
-// Global error state for better error handling
+// Global error state for URL parameter validation errors
 const globalError = ref<string | null>(null);
 
 // Get report data reactively based on selected view mode, year and month
@@ -97,15 +98,8 @@ const { byCategoryReport, byCategoryReportLoading, byCategoryReportError } = get
   "EXPENSE",
 );
 
-// Computed error message for consistent display
-const reportError = computed(() => byCategoryReportError.value?.message || null);
-
-// Watch for errors and show global error alert
 watch(byCategoryReportError, (error) => {
-  if (error) {
-    globalError.value = t("reports.errors.loadFailed", { message: error.message });
-    console.error("By-category report error:", error);
-  }
+  if (error) showErrorSnackbar(error);
 });
 
 // Clear global error
