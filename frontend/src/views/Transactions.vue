@@ -85,11 +85,6 @@
       <div class="text-h6 mt-4">{{ t("transactions.loading") }}</div>
     </div>
 
-    <!-- Error State -->
-    <v-alert v-else-if="transactionsError" type="error" class="mb-4">
-      {{ transactionsError }}
-    </v-alert>
-
     <!-- Empty State -->
     <div v-else-if="paginatedTransactions.length === 0" class="mt-4">
       <v-empty-state
@@ -131,11 +126,6 @@
           {{ t("common.buttons.loadMore") }}
         </v-btn>
       </div>
-
-      <!-- Load More Error -->
-      <v-alert v-if="loadMoreError" type="error" class="mt-4">
-        {{ loadMoreError }}
-      </v-alert>
     </div>
 
     <!-- Delete Confirmation Dialog -->
@@ -276,7 +266,6 @@ const {
   paginatedLoading,
   transactionsError,
   loadMoreLoading,
-  loadMoreError,
   hasNextPage,
   totalCount,
   updateTransaction,
@@ -295,6 +284,14 @@ const { categories: categoriesData } = useCategories();
 const { showSuccessSnackbar, showErrorSnackbar } = useSnackbar();
 const { createTransfer, updateTransfer, deleteTransfer, getTransfer, transfersError } =
   useTransfers();
+
+watch(transactionsError, (error) => {
+  if (error) showErrorSnackbar(error);
+});
+
+watch(transfersError, (error) => {
+  if (error) showErrorSnackbar(error);
+});
 
 // Create transaction from text
 const {
@@ -396,9 +393,6 @@ const handleEditTransaction = async (transactionId: string) => {
         console.error("Transfer not found:", transaction.transferId);
         showErrorSnackbar(t("transfers.errors.notFound"));
       }
-    } catch (error) {
-      console.error("Error loading transfer data:", error);
-      showErrorSnackbar(t("transfers.errors.loadFailed"));
     } finally {
       transferFormLoading.value = false;
     }
@@ -431,9 +425,6 @@ const handleDuplicateTransaction = async (transaction: Transaction) => {
       } else {
         showErrorSnackbar(t("transfers.errors.notFound"));
       }
-    } catch (error) {
-      console.error("Error loading transfer for duplicate:", error);
-      showErrorSnackbar(t("transfers.errors.loadFailed"));
     } finally {
       transferFormLoading.value = false;
     }
@@ -462,12 +453,8 @@ const handleDeleteTransaction = (transactionId: string) => {
 };
 
 const handleLoadMore = async () => {
-  const success = await loadMoreTransactions();
-
-  if (!success && loadMoreError.value) {
-    // Error is already handled by the composable and displayed in the UI
-    console.error("Failed to load more transactions:", loadMoreError.value);
-  }
+  // On failure, transactionsError is set and shown via the watcher above
+  await loadMoreTransactions();
 };
 
 const confirmDeleteTransaction = async () => {
@@ -515,11 +502,8 @@ const confirmDeleteTransfer = async () => {
 
       // Refetch accounts to update balances
       await refetchAccounts();
-    } else {
-      // Transfer deletion failed
-      const errorMessage = transfersError.value || t("transfers.errors.deleteFailed");
-      showErrorSnackbar(errorMessage);
     }
+    // On failure, transfersError is set and shown via the watcher above
   }
   showDeleteTransferDialog.value = false;
   transactionToDelete.value = null;
@@ -577,11 +561,8 @@ const handleCreateTransferSubmit = async (data: CreateTransferInput | UpdateTran
 
       // Refetch accounts to update balances
       await refetchAccounts();
-    } else {
-      // Transfer creation failed
-      const errorMessage = transfersError.value || t("transfers.errors.createFailed");
-      showErrorSnackbar(errorMessage);
     }
+    // On failure, transfersError is set and shown via the watcher above
   } finally {
     transferFormLoading.value = false;
   }
@@ -613,11 +594,8 @@ const handleEditTransferSubmit = async (data: CreateTransferInput | UpdateTransf
 
       // Refetch accounts to update balances
       await refetchAccounts();
-    } else {
-      // Transfer update failed
-      const errorMessage = transfersError.value || t("transfers.errors.updateFailed");
-      showErrorSnackbar(errorMessage);
     }
+    // On failure, transfersError is set and shown via the watcher above
   } finally {
     transferFormLoading.value = false;
   }

@@ -1,4 +1,6 @@
-import { computed } from "vue";
+import { computed, ref, watch } from "vue";
+import { i18n } from "@/plugins/i18n";
+import { isInternalServerError, resolveErrorMessage } from "@/utils/graphqlError";
 import {
   GetTelegramBotDocument,
   useConnectTelegramBotMutation,
@@ -8,68 +10,104 @@ import {
 } from "@/__generated__/vue-apollo";
 
 export function useTelegramBot() {
+  const { t } = i18n.global;
+  const telegramBotError = ref<string | null>(null);
+
   const {
     result: telegramBotResult,
     loading: telegramBotLoading,
-    error: telegramBotError,
+    error: telegramBotQueryError,
   } = useGetTelegramBotQuery();
 
-  const {
-    mutate: connectTelegramBotMutation,
-    loading: connectTelegramBotLoading,
-    error: connectTelegramBotError,
-  } = useConnectTelegramBotMutation({
-    update(cache, { data }) {
-      if (!data?.connectTelegramBot) return;
-      cache.writeQuery({
-        query: GetTelegramBotDocument,
-        data: { telegramBot: data.connectTelegramBot },
-      });
-    },
+  const telegramBot = computed(() => telegramBotResult.value?.telegramBot ?? null);
+
+  // Watch for query errors
+  watch(telegramBotQueryError, (error) => {
+    if (error) {
+      console.error("Telegram bot query failed:", error);
+
+      telegramBotError.value = isInternalServerError(error)
+        ? t("settings.telegramBot.fetchFailed")
+        : error.message;
+    }
   });
 
-  const {
-    mutate: disconnectTelegramBotMutation,
-    loading: disconnectTelegramBotLoading,
-    error: disconnectTelegramBotError,
-  } = useDisconnectTelegramBotMutation({
-    update(cache) {
-      cache.writeQuery({
-        query: GetTelegramBotDocument,
-        data: { telegramBot: null },
-      });
-    },
-  });
+  const { mutate: connectTelegramBotMutation, loading: connectTelegramBotLoading } =
+    useConnectTelegramBotMutation({
+      update(cache, { data }) {
+        if (!data?.connectTelegramBot) return;
+        cache.writeQuery({
+          query: GetTelegramBotDocument,
+          data: { telegramBot: data.connectTelegramBot },
+        });
+      },
+    });
+
+  const connectTelegramBot = async (token: string): Promise<boolean> => {
+    try {
+      telegramBotError.value = null;
+
+      const result = await connectTelegramBotMutation({ token });
+      return !!result?.data?.connectTelegramBot;
+    } catch (error) {
+      console.error("Error connecting Telegram bot:", error);
+
+      telegramBotError.value = resolveErrorMessage(error, t("settings.telegramBot.connectFailed"));
+
+      return false;
+    }
+  };
+
+  const { mutate: disconnectTelegramBotMutation, loading: disconnectTelegramBotLoading } =
+    useDisconnectTelegramBotMutation({
+      update(cache) {
+        cache.writeQuery({
+          query: GetTelegramBotDocument,
+          data: { telegramBot: null },
+        });
+      },
+    });
+
+  const disconnectTelegramBot = async (): Promise<boolean> => {
+    try {
+      telegramBotError.value = null;
+
+      const result = await disconnectTelegramBotMutation();
+      return result?.data?.disconnectTelegramBot === true;
+    } catch (error) {
+      console.error("Error disconnecting Telegram bot:", error);
+
+      telegramBotError.value = resolveErrorMessage(
+        error,
+        t("settings.telegramBot.disconnectFailed"),
+      );
+
+      return false;
+    }
+  };
 
   const {
     load: loadTestTelegramBot,
     refetch: refetchTestTelegramBot,
     loading: testTelegramBotLoading,
-    error: testTelegramBotError,
+    error: testTelegramBotQueryError,
   } = useTestTelegramBotLazyQuery();
 
-  const telegramBot = computed(() => telegramBotResult.value?.telegramBot ?? null);
+  // Watch for test query errors
+  watch(testTelegramBotQueryError, (error) => {
+    if (error) {
+      console.error("Telegram bot test failed:", error);
 
-  const connectTelegramBot = async (token: string): Promise<boolean> => {
-    try {
-      const result = await connectTelegramBotMutation({ token });
-      return !!result?.data?.connectTelegramBot;
-    } catch {
-      return false;
+      telegramBotError.value = isInternalServerError(error)
+        ? t("settings.telegramBot.testFailed")
+        : error.message;
     }
-  };
-
-  const disconnectTelegramBot = async (): Promise<boolean> => {
-    try {
-      const result = await disconnectTelegramBotMutation();
-      return result?.data?.disconnectTelegramBot === true;
-    } catch {
-      return false;
-    }
-  };
+  });
 
   const testTelegramBot = async (): Promise<boolean> => {
     try {
+      telegramBotError.value = null;
+
       // loadTestTelegramBot only runs the query once, returning false after.
       // refetchTestTelegramBot reruns it on later calls.
       const loadResult = await loadTestTelegramBot();
@@ -80,22 +118,27 @@ export function useTelegramBot() {
       const refetchResult = await refetchTestTelegramBot();
       return refetchResult?.data?.testTelegramBot === true;
     } catch {
+      // Error is handled by the watch on testTelegramBotQueryError above.
       return false;
     }
   };
 
   return {
-    connectTelegramBot,
-    connectTelegramBotError,
-    connectTelegramBotLoading,
-    disconnectTelegramBot,
-    disconnectTelegramBotError,
-    disconnectTelegramBotLoading,
+    // Data
     telegramBot,
-    telegramBotError,
+
+    // Loading states
     telegramBotLoading,
-    testTelegramBot,
-    testTelegramBotError,
+    connectTelegramBotLoading,
+    disconnectTelegramBotLoading,
     testTelegramBotLoading,
+
+    // Error state
+    telegramBotError,
+
+    // Functions
+    connectTelegramBot,
+    disconnectTelegramBot,
+    testTelegramBot,
   };
 }

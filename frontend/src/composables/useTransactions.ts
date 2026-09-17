@@ -1,6 +1,6 @@
 import { ref, watch, computed, unref, type Ref } from "vue";
-import type { ApolloError } from "@apollo/client";
 import { i18n } from "@/plugins/i18n";
+import { isInternalServerError, resolveErrorMessage } from "@/utils/graphqlError";
 import {
   useGetTransactionsPaginatedQuery,
   useCreateTransactionMutation,
@@ -41,7 +41,6 @@ export function useTransactions(options?: {
   const hasNextPage = ref<boolean>(false);
   const totalCount = ref<number>(0);
   const loadMoreLoading = ref<boolean>(false);
-  const loadMoreError = ref<string | null>(null);
 
   // Track if we've ever loaded data (to distinguish true initial load from empty table)
   const hasEverLoaded = ref<boolean>(false);
@@ -67,25 +66,16 @@ export function useTransactions(options?: {
   );
 
   // Create transaction mutation
-  const {
-    mutate: createTransactionMutation,
-    loading: createTransactionLoading,
-    error: createTransactionError,
-  } = useCreateTransactionMutation();
+  const { mutate: createTransactionMutation, loading: createTransactionLoading } =
+    useCreateTransactionMutation();
 
   // Update transaction mutation
-  const {
-    mutate: updateTransactionMutation,
-    loading: updateTransactionLoading,
-    error: updateTransactionError,
-  } = useUpdateTransactionMutation();
+  const { mutate: updateTransactionMutation, loading: updateTransactionLoading } =
+    useUpdateTransactionMutation();
 
   // Delete transaction mutation
-  const {
-    mutate: deleteTransactionMutation,
-    loading: deleteTransactionLoading,
-    error: deleteTransactionError,
-  } = useDeleteTransactionMutation();
+  const { mutate: deleteTransactionMutation, loading: deleteTransactionLoading } =
+    useDeleteTransactionMutation();
 
   // Watch for paginated query results to update pagination state and transaction list
   watch(
@@ -127,29 +117,21 @@ export function useTransactions(options?: {
   );
 
   // Watch for paginated query errors
-  watch(paginatedQueryError, (error: ApolloError | null) => {
+  watch(paginatedQueryError, (error) => {
     if (error) {
       console.error("Paginated transactions query failed:", error);
-      transactionsError.value = error.message || t("transactions.errors.fetchFailed");
+
+      transactionsError.value = isInternalServerError(error)
+        ? t("transactions.errors.fetchFailed")
+        : error.message;
     }
   });
-
-  // Watch for mutation errors
-  watch(
-    [createTransactionError, updateTransactionError, deleteTransactionError],
-    ([createError, updateError, deleteError]) => {
-      const error = createError || updateError || deleteError;
-      if (error) {
-        console.error("Transaction mutation failed:", error);
-        transactionsError.value = error.message || t("transactions.errors.operationFailed");
-      }
-    },
-  );
 
   // Create transaction function
   const createTransaction = async (input: CreateTransactionInput): Promise<Transaction | null> => {
     try {
       transactionsError.value = null;
+
       const result = await createTransactionMutation({ input });
       if (result?.data?.createTransaction) {
         // Add the new transaction to the beginning of the list
@@ -172,8 +154,9 @@ export function useTransactions(options?: {
       return null;
     } catch (error) {
       console.error("Error creating transaction:", error);
-      transactionsError.value =
-        error instanceof Error ? error.message : t("transactions.errors.createFailed");
+
+      transactionsError.value = resolveErrorMessage(error, t("transactions.errors.createFailed"));
+
       return null;
     }
   };
@@ -185,6 +168,7 @@ export function useTransactions(options?: {
   ): Promise<Transaction | null> => {
     try {
       transactionsError.value = null;
+
       const result = await updateTransactionMutation({ input: { id, ...input } });
       if (result?.data?.updateTransaction) {
         // Update the transaction in the list
@@ -208,8 +192,9 @@ export function useTransactions(options?: {
       return null;
     } catch (error) {
       console.error("Error updating transaction:", error);
-      transactionsError.value =
-        error instanceof Error ? error.message : t("transactions.errors.updateFailed");
+
+      transactionsError.value = resolveErrorMessage(error, t("transactions.errors.updateFailed"));
+
       return null;
     }
   };
@@ -218,6 +203,7 @@ export function useTransactions(options?: {
   const deleteTransaction = async (id: string): Promise<Transaction | null> => {
     try {
       transactionsError.value = null;
+
       const result = await deleteTransactionMutation({ id });
       if (result?.data?.deleteTransaction) {
         // Remove the transaction from the list
@@ -241,8 +227,9 @@ export function useTransactions(options?: {
       return null;
     } catch (error) {
       console.error("Error deleting transaction:", error);
-      transactionsError.value =
-        error instanceof Error ? error.message : t("transactions.errors.deleteFailed");
+
+      transactionsError.value = resolveErrorMessage(error, t("transactions.errors.deleteFailed"));
+
       return null;
     }
   };
@@ -255,7 +242,7 @@ export function useTransactions(options?: {
 
     try {
       loadMoreLoading.value = true;
-      loadMoreError.value = null;
+      transactionsError.value = null;
 
       // Make a separate query call instead of using fetchMore
       const { apolloClient } = await import("@/apollo");
@@ -290,8 +277,9 @@ export function useTransactions(options?: {
       return true;
     } catch (error) {
       console.error("Error loading more transactions:", error);
-      loadMoreError.value =
-        error instanceof Error ? error.message : t("transactions.errors.loadMoreFailed");
+
+      transactionsError.value = resolveErrorMessage(error, t("transactions.errors.loadMoreFailed"));
+
       return false;
     } finally {
       loadMoreLoading.value = false;
@@ -343,13 +331,8 @@ export function useTransactions(options?: {
     updateTransactionLoading,
     deleteTransactionLoading,
 
-    // Error states
+    // Error state
     transactionsError,
-    loadMoreError: computed(() => loadMoreError.value),
-    paginatedQueryError,
-    createTransactionError,
-    updateTransactionError,
-    deleteTransactionError,
 
     // Functions
     createTransaction,

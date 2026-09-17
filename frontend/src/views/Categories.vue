@@ -1,6 +1,6 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useCategories, type Category, type CategoryType } from "@/composables/useCategories";
 import { useSnackbar } from "@/composables/useSnackbar";
@@ -26,6 +26,7 @@ const expandedCards = ref<Record<string, boolean>>({});
 const {
   categories: categoriesData,
   categoriesLoading,
+  categoriesError,
   createCategory,
   updateCategory,
   deleteCategory,
@@ -41,8 +42,12 @@ const editingCategory = ref<Category | null>(null);
 const categoryToDelete = ref<Category | null>(null);
 
 // Use global snackbar
-const { showSuccessSnackbar } = useSnackbar();
+const { showSuccessSnackbar, showErrorSnackbar } = useSnackbar();
 const { t } = useI18n();
+
+watch(categoriesError, (error) => {
+  if (error) showErrorSnackbar(error);
+});
 
 // Use categories data directly
 const categories = computed<Category[]>(() => {

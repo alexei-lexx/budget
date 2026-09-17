@@ -23,12 +23,6 @@
         <v-progress-circular indeterminate color="primary"></v-progress-circular>
       </div>
 
-      <div v-else-if="error" class="text-center pa-4">
-        <v-icon size="48" color="error" class="mb-2">mdi-alert-circle</v-icon>
-        <div class="text-h6 text-error mb-2">{{ t("reports.errors.loadFailedTitle") }}</div>
-        <div class="text-body-1 text-medium-emphasis">{{ error }}</div>
-      </div>
-
       <v-empty-state
         v-else-if="!categories || categories.length === 0"
         icon="mdi-file-document-outline"
@@ -136,14 +130,12 @@ interface Props {
   categories?: ByCategoryReportCategory[] | null;
   currencyTotals?: ByCategoryReportCurrencyTotal[] | null;
   loading?: boolean;
-  error?: string | null;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   categories: null,
   currencyTotals: null,
   loading: false,
-  error: null,
 });
 
 const { t } = useI18n();

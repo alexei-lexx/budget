@@ -1,6 +1,6 @@
 import { ref, watch } from "vue";
-import type { ApolloError } from "@apollo/client";
 import { i18n } from "@/plugins/i18n";
+import { isInternalServerError, resolveErrorMessage } from "@/utils/graphqlError";
 import {
   useGetAccountsQuery,
   useCreateAccountMutation,
@@ -27,45 +27,27 @@ export function useAccounts() {
   } = useGetAccountsQuery();
 
   // Create account mutation
-  const {
-    mutate: createAccountMutation,
-    loading: createAccountLoading,
-    error: createAccountError,
-  } = useCreateAccountMutation();
+  const { mutate: createAccountMutation, loading: createAccountLoading } =
+    useCreateAccountMutation();
 
   // Update account mutation
-  const {
-    mutate: updateAccountMutation,
-    loading: updateAccountLoading,
-    error: updateAccountError,
-  } = useUpdateAccountMutation();
+  const { mutate: updateAccountMutation, loading: updateAccountLoading } =
+    useUpdateAccountMutation();
 
   // Delete account mutation
-  const {
-    mutate: deleteAccountMutation,
-    loading: deleteAccountLoading,
-    error: deleteAccountError,
-  } = useDeleteAccountMutation();
+  const { mutate: deleteAccountMutation, loading: deleteAccountLoading } =
+    useDeleteAccountMutation();
 
   // Watch for query errors
-  watch(accountsQueryError, (error: ApolloError | null) => {
+  watch(accountsQueryError, (error) => {
     if (error) {
       console.error("Accounts query failed:", error);
-      accountsError.value = error.message || t("accounts.errors.fetchFailed");
+
+      accountsError.value = isInternalServerError(error)
+        ? t("accounts.errors.fetchFailed")
+        : error.message;
     }
   });
-
-  // Watch for mutation errors
-  watch(
-    [createAccountError, updateAccountError, deleteAccountError],
-    ([createError, updateError, deleteError]) => {
-      const error = createError || updateError || deleteError;
-      if (error) {
-        console.error("Account mutation failed:", error);
-        accountsError.value = error.message || t("accounts.errors.operationFailed");
-      }
-    },
-  );
 
   // Create account function
   const createAccount = async (input: CreateAccountInput): Promise<Account | null> => {
@@ -79,8 +61,9 @@ export function useAccounts() {
       return null;
     } catch (error) {
       console.error("Error creating account:", error);
-      accountsError.value =
-        error instanceof Error ? error.message : t("accounts.errors.createFailed");
+
+      accountsError.value = resolveErrorMessage(error, t("accounts.errors.createFailed"));
+
       return null;
     }
   };
@@ -100,8 +83,9 @@ export function useAccounts() {
       return null;
     } catch (error) {
       console.error("Error updating account:", error);
-      accountsError.value =
-        error instanceof Error ? error.message : t("accounts.errors.updateFailed");
+
+      accountsError.value = resolveErrorMessage(error, t("accounts.errors.updateFailed"));
+
       return null;
     }
   };
@@ -119,8 +103,9 @@ export function useAccounts() {
       return false;
     } catch (error) {
       console.error("Error deleting account:", error);
-      accountsError.value =
-        error instanceof Error ? error.message : t("accounts.errors.deleteFailed");
+
+      accountsError.value = resolveErrorMessage(error, t("accounts.errors.deleteFailed"));
+
       return false;
     }
   };
@@ -135,12 +120,8 @@ export function useAccounts() {
     updateAccountLoading,
     deleteAccountLoading,
 
-    // Error states
+    // Error state
     accountsError,
-    accountsQueryError,
-    createAccountError,
-    updateAccountError,
-    deleteAccountError,
 
     // Functions
     createAccount,

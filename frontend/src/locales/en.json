@@ -18,7 +18,6 @@
       "apply": "Apply"
     },
     "errors": {
-      "generic": "Something went wrong. Please try again later.",
       "connection": "Connection problem. Please check your internet and try again.",
       "amountValidation": {
         "mustBePositive": "Amount must be greater than 0",
@@ -78,7 +77,6 @@
     },
     "errors": {
       "fetchFailed": "Failed to fetch accounts",
-      "operationFailed": "Account operation failed",
       "createFailed": "Failed to create account",
       "updateFailed": "Failed to update account",
       "deleteFailed": "Failed to delete account",
@@ -128,7 +126,6 @@
     },
     "errors": {
       "fetchFailed": "Failed to fetch categories",
-      "operationFailed": "Category operation failed",
       "createFailed": "Failed to create category",
       "updateFailed": "Failed to update category",
       "deleteFailed": "Failed to delete category",
@@ -185,11 +182,11 @@
     },
     "errors": {
       "fetchFailed": "Failed to fetch transactions",
-      "operationFailed": "Transaction operation failed",
       "createFailed": "Failed to create transaction",
       "updateFailed": "Failed to update transaction",
       "deleteFailed": "Failed to delete transaction",
       "loadMoreFailed": "Failed to load more transactions",
+      "patternsFetchFailed": "Failed to fetch transaction patterns",
       "createFromTextFailed": "Failed to create transaction. Please try again.",
       "accountRequired": "Account is required",
       "typeRequired": "Transaction type is required",
@@ -232,7 +229,6 @@
       "deleteFailed": "Failed to delete transfer. Please try again.",
       "createFailed": "Failed to create transfer. Please try again.",
       "updateFailed": "Failed to update transfer. Please try again.",
-      "operationFailed": "Transfer operation failed",
       "fromAccountRequired": "Source account is required",
       "toAccountRequired": "Destination account is required",
       "accountsMustDiffer": "Source and destination accounts must be different",
@@ -291,10 +287,8 @@
     "errors": {
       "fetchFailed": "Failed to fetch by-category report",
       "title": "Report Error",
-      "loadFailed": "Failed to load report: {message}",
       "invalidUrlMonthYear": "Invalid month or year in URL parameters",
-      "invalidUrlYear": "Invalid year in URL parameters",
-      "loadFailedTitle": "Failed to load category breakdown"
+      "invalidUrlYear": "Invalid year in URL parameters"
     }
   },
   "trends": {
@@ -322,8 +316,10 @@
       "pastMedianAtSamePoint": "Median of past periods at day {days}"
     },
     "errors": {
-      "title": "Trend Error",
-      "loadFailed": "Failed to load trend: {message}"
+      "loadFailed": "Failed to load trend",
+      "presetsFetchFailed": "Failed to fetch starred presets",
+      "starFailed": "Failed to star",
+      "unstarFailed": "Failed to unstar"
     }
   },
   "settings": {
@@ -335,6 +331,7 @@
     "interfaceLanguage": "Interface language",
     "saved": "Settings saved",
     "saveFailed": "Failed to save settings",
+    "fetchFailed": "Failed to load settings",
     "telegramBot": {
       "heading": "Telegram Bot",
       "botToken": "Bot token",
@@ -344,7 +341,8 @@
       "disconnected": "Telegram bot disconnected",
       "disconnectFailed": "Failed to disconnect Telegram bot",
       "active": "Telegram bot is active",
-      "testFailed": "Telegram bot test failed"
+      "testFailed": "Telegram bot test failed",
+      "fetchFailed": "Failed to load Telegram bot status"
     },
     "mcpConnection": {
       "heading": "MCP Connection",

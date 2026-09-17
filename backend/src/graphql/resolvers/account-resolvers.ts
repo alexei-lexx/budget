@@ -5,7 +5,7 @@ import {
   MutationUpdateAccountArgs,
 } from "../../__generated__/resolvers-types";
 import { GraphQLContext } from "../context";
-import { getAuthenticatedUser, handleResolverError } from "./shared";
+import { getAuthenticatedUser } from "./shared";
 
 export const accountResolvers = {
   Query: {
@@ -14,30 +14,22 @@ export const accountResolvers = {
       _args: unknown,
       context: GraphQLContext,
     ) => {
-      try {
-        const user = await getAuthenticatedUser(context);
-        const accounts = await context.accountService.getAccountsByUser(
-          user.id,
-          "ACTIVE",
-        );
-        return accounts;
-      } catch (error) {
-        handleResolverError(error, "Failed to fetch accounts");
-      }
+      const user = await getAuthenticatedUser(context);
+      const accounts = await context.accountService.getAccountsByUser(
+        user.id,
+        "ACTIVE",
+      );
+      return accounts;
     },
     supportedCurrencies: async (
       _parent: unknown,
       _args: unknown,
       context: GraphQLContext,
     ) => {
-      try {
-        const user = await getAuthenticatedUser(context);
-        return await context.currencyService.getSupportedCurrencies({
-          userId: user.id,
-        });
-      } catch (error) {
-        handleResolverError(error, "Failed to fetch supported currencies");
-      }
+      const user = await getAuthenticatedUser(context);
+      return await context.currencyService.getSupportedCurrencies({
+        userId: user.id,
+      });
     },
   },
   Mutation: {
@@ -46,45 +38,33 @@ export const accountResolvers = {
       args: MutationCreateAccountArgs,
       context: GraphQLContext,
     ) => {
-      try {
-        const user = await getAuthenticatedUser(context);
+      const user = await getAuthenticatedUser(context);
 
-        const account = await context.accountService.createAccount({
-          userId: user.id,
-          name: args.input.name,
-          currency: args.input.currency,
-          initialBalance: args.input.initialBalance,
-        });
+      const account = await context.accountService.createAccount({
+        userId: user.id,
+        name: args.input.name,
+        currency: args.input.currency,
+        initialBalance: args.input.initialBalance,
+      });
 
-        return account;
-      } catch (error) {
-        handleResolverError(error, "Failed to create account");
-      }
+      return account;
     },
     updateAccount: async (
       _parent: unknown,
       args: MutationUpdateAccountArgs,
       context: GraphQLContext,
     ) => {
-      try {
-        const user = await getAuthenticatedUser(context);
-        const { id, ...updateData } = args.input;
+      const user = await getAuthenticatedUser(context);
+      const { id, ...updateData } = args.input;
 
-        const account = await context.accountService.updateAccount(
-          id,
-          user.id,
-          {
-            ...updateData,
-            currency: updateData.currency ?? undefined,
-            initialBalance: updateData.initialBalance ?? undefined,
-            name: updateData.name ?? undefined,
-          },
-        );
+      const account = await context.accountService.updateAccount(id, user.id, {
+        ...updateData,
+        currency: updateData.currency ?? undefined,
+        initialBalance: updateData.initialBalance ?? undefined,
+        name: updateData.name ?? undefined,
+      });
 
-        return account;
-      } catch (error) {
-        handleResolverError(error, "Failed to update account");
-      }
+      return account;
     },
     deleteAccount: async (
       _parent: unknown,
@@ -98,13 +78,9 @@ export const accountResolvers = {
         throw new GraphQLError("Account ID is required");
       }
 
-      try {
-        const user = await getAuthenticatedUser(context);
-        await context.accountService.deleteAccount(id, user.id);
-        return undefined;
-      } catch (error) {
-        handleResolverError(error, "Failed to delete account");
-      }
+      const user = await getAuthenticatedUser(context);
+      await context.accountService.deleteAccount(id, user.id);
+      return undefined;
     },
   },
 };

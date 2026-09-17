@@ -1,6 +1,6 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import AccountsList from "@/components/accounts/AccountsList.vue";
 import AccountForm from "@/components/accounts/AccountForm.vue";
@@ -20,6 +20,7 @@ interface AccountFormData {
 const {
   accounts: accountsData,
   accountsLoading,
+  accountsError,
   createAccount,
   updateAccount,
   deleteAccount,
@@ -35,8 +36,12 @@ const editingAccount = ref<Account | null>(null);
 const accountToDelete = ref<Account | null>(null);
 
 // Use global snackbar
-const { showSuccessSnackbar } = useSnackbar();
+const { showSuccessSnackbar, showErrorSnackbar } = useSnackbar();
 const { t } = useI18n();
+
+watch(accountsError, (error) => {
+  if (error) showErrorSnackbar(error);
+});
 
 // Use accounts data directly
 const accounts = computed<Account[]>(() => {

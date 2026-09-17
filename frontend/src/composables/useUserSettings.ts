@@ -1,5 +1,7 @@
-import { computed } from "vue";
+import { computed, ref, watch } from "vue";
 import { getMcpEndpoint } from "@/apollo";
+import { i18n } from "@/plugins/i18n";
+import { isInternalServerError, resolveErrorMessage } from "@/utils/graphqlError";
 import {
   GetUserSettingsDocument,
   useGetSupportedInterfaceLanguagesQuery,
@@ -10,10 +12,13 @@ import {
 } from "@/__generated__/vue-apollo";
 
 export function useUserSettings() {
+  const { t } = i18n.global;
+  const settingsError = ref<string | null>(null);
+
   const {
     result: settingsResult,
     loading: settingsLoading,
-    error: settingsError,
+    error: settingsQueryError,
   } = useGetUserSettingsQuery();
 
   const { result: supportedInterfaceLanguagesResult } = useGetSupportedInterfaceLanguagesQuery();
@@ -22,19 +27,27 @@ export function useUserSettings() {
     () => supportedInterfaceLanguagesResult.value?.supportedInterfaceLanguages ?? [],
   );
 
-  const {
-    mutate: updateSettingsMutation,
-    loading: updateSettingsLoading,
-    error: updateSettingsError,
-  } = useUpdateUserSettingsMutation({
-    update(cache, { data }) {
-      if (!data?.updateUserSettings) return;
-      cache.writeQuery({
-        query: GetUserSettingsDocument,
-        data: { userSettings: data.updateUserSettings },
-      });
-    },
+  // Watch for query errors
+  watch(settingsQueryError, (error) => {
+    if (error) {
+      console.error("Settings query failed:", error);
+
+      settingsError.value = isInternalServerError(error)
+        ? t("settings.fetchFailed")
+        : error.message;
+    }
   });
+
+  const { mutate: updateSettingsMutation, loading: updateSettingsLoading } =
+    useUpdateUserSettingsMutation({
+      update(cache, { data }) {
+        if (!data?.updateUserSettings) return;
+        cache.writeQuery({
+          query: GetUserSettingsDocument,
+          data: { userSettings: data.updateUserSettings },
+        });
+      },
+    });
 
   const settings = computed(() => settingsResult.value?.userSettings ?? null);
 
@@ -47,47 +60,64 @@ export function useUserSettings() {
 
   const updateSettings = async (input: UpdateUserSettingsInput): Promise<boolean> => {
     try {
+      settingsError.value = null;
+
       const result = await updateSettingsMutation({ input });
       return !!result?.data?.updateUserSettings;
-    } catch {
+    } catch (error) {
+      console.error("Error updating settings:", error);
+
+      settingsError.value = resolveErrorMessage(error, t("settings.saveFailed"));
+
       return false;
     }
   };
 
-  const {
-    mutate: regenerateMcpTokenMutation,
-    loading: regenerateMcpTokenLoading,
-    error: regenerateMcpTokenError,
-  } = useRegenerateMcpTokenMutation({
-    update(cache, { data }) {
-      if (!data?.regenerateMcpToken) return;
-      cache.writeQuery({
-        query: GetUserSettingsDocument,
-        data: { userSettings: data.regenerateMcpToken },
-      });
-    },
-  });
+  const { mutate: regenerateMcpTokenMutation, loading: regenerateMcpTokenLoading } =
+    useRegenerateMcpTokenMutation({
+      update(cache, { data }) {
+        if (!data?.regenerateMcpToken) return;
+        cache.writeQuery({
+          query: GetUserSettingsDocument,
+          data: { userSettings: data.regenerateMcpToken },
+        });
+      },
+    });
 
   const regenerateMcpToken = async (): Promise<boolean> => {
     try {
+      settingsError.value = null;
+
       const result = await regenerateMcpTokenMutation();
       return !!result?.data?.regenerateMcpToken;
-    } catch {
+    } catch (error) {
+      console.error("Error regenerating MCP token:", error);
+
+      settingsError.value = resolveErrorMessage(
+        error,
+        t("settings.mcpConnection.tokenRegenerateFailed"),
+      );
+
       return false;
     }
   };
 
   return {
+    // Data
     mcpUrl,
     settings,
-    settingsLoading,
-    settingsError,
     supportedInterfaceLanguages,
-    updateSettings,
+
+    // Loading states
+    settingsLoading,
     updateSettingsLoading,
-    updateSettingsError,
-    regenerateMcpToken,
     regenerateMcpTokenLoading,
-    regenerateMcpTokenError,
+
+    // Error state
+    settingsError,
+
+    // Functions
+    updateSettings,
+    regenerateMcpToken,
   };
 }

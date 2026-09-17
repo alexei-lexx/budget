@@ -1,4 +1,6 @@
-import { computed, type Ref } from "vue";
+import { computed, ref, watch, type Ref } from "vue";
+import { i18n } from "@/plugins/i18n";
+import { isInternalServerError } from "@/utils/graphqlError";
 import {
   useGetExpenseTrendQuery,
   type ExpenseTrend,
@@ -22,10 +24,13 @@ export interface TrendSelection {
  * The selection is reactive, so committing a new one refetches.
  */
 export function useExpenseTrend(selection: Ref<TrendSelection>, today: Ref<string>) {
+  const { t } = i18n.global;
+  const expenseTrendError = ref<string | null>(null);
+
   const {
     result: expenseTrendResult,
     loading: expenseTrendLoading,
-    error: expenseTrendError,
+    error: expenseTrendQueryError,
   } = useGetExpenseTrendQuery(
     () => ({
       input: {
@@ -45,11 +50,27 @@ export function useExpenseTrend(selection: Ref<TrendSelection>, today: Ref<strin
     }),
   );
 
+  // Watch for query errors
+  watch(expenseTrendQueryError, (error) => {
+    if (error) {
+      console.error("Expense trend query failed:", error);
+
+      expenseTrendError.value = isInternalServerError(error)
+        ? t("trends.errors.loadFailed")
+        : error.message;
+    }
+  });
+
   const expenseTrend = computed(() => expenseTrendResult.value?.expenseTrend ?? null);
 
   return {
+    // Data
     expenseTrend,
+
+    // Loading states
     expenseTrendLoading,
+
+    // Error state
     expenseTrendError,
   };
 }

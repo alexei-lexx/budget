@@ -192,28 +192,33 @@ const { t } = useI18n();
 const {
   mcpUrl,
   settings,
+  settingsError,
   supportedInterfaceLanguages,
   updateSettings,
   updateSettingsLoading,
-  updateSettingsError,
   regenerateMcpToken,
   regenerateMcpTokenLoading,
-  regenerateMcpTokenError,
 } = useUserSettings();
 const {
   telegramBot,
   telegramBotLoading,
+  telegramBotError,
   connectTelegramBot,
   connectTelegramBotLoading,
-  connectTelegramBotError,
   disconnectTelegramBot,
   disconnectTelegramBotLoading,
-  disconnectTelegramBotError,
   testTelegramBot,
   testTelegramBotLoading,
-  testTelegramBotError,
 } = useTelegramBot();
 const { showSuccessSnackbar, showErrorSnackbar } = useSnackbar();
+
+watch(settingsError, (error) => {
+  if (error) showErrorSnackbar(error);
+});
+
+watch(telegramBotError, (error) => {
+  if (error) showErrorSnackbar(error);
+});
 
 const transactionPatternsLimit = ref<string>("");
 const tokenInput = ref<string>("");
@@ -263,9 +268,8 @@ const handleSave = async () => {
 
   if (success) {
     showSuccessSnackbar(t("settings.saved"));
-  } else {
-    showErrorSnackbar(updateSettingsError.value?.message ?? t("settings.saveFailed"));
   }
+  // On failure, settingsError is set and shown via the watcher above
 };
 
 const handleConnectTelegramBot = async () => {
@@ -273,31 +277,24 @@ const handleConnectTelegramBot = async () => {
   if (success) {
     tokenInput.value = "";
     showSuccessSnackbar(t("settings.telegramBot.connected"));
-  } else {
-    showErrorSnackbar(
-      connectTelegramBotError.value?.message ?? t("settings.telegramBot.connectFailed"),
-    );
   }
+  // On failure, telegramBotError is set and shown via the watcher above
 };
 
 const handleDisconnectTelegramBot = async () => {
   const success = await disconnectTelegramBot();
   if (success) {
     showSuccessSnackbar(t("settings.telegramBot.disconnected"));
-  } else {
-    showErrorSnackbar(
-      disconnectTelegramBotError.value?.message ?? t("settings.telegramBot.disconnectFailed"),
-    );
   }
+  // On failure, telegramBotError is set and shown via the watcher above
 };
 
 const handleTestTelegramBot = async () => {
   const success = await testTelegramBot();
   if (success) {
     showSuccessSnackbar(t("settings.telegramBot.active"));
-  } else {
-    showErrorSnackbar(testTelegramBotError.value?.message ?? t("settings.telegramBot.testFailed"));
   }
+  // On failure, telegramBotError is set and shown via the watcher above
 };
 
 const handleCopyMcpUrl = async () => {
@@ -314,10 +311,7 @@ const handleRegenerateMcpToken = async () => {
   const success = await regenerateMcpToken();
   if (success) {
     showSuccessSnackbar(t("settings.mcpConnection.tokenRegenerated"));
-  } else {
-    showErrorSnackbar(
-      regenerateMcpTokenError.value?.message ?? t("settings.mcpConnection.tokenRegenerateFailed"),
-    );
   }
+  // On failure, settingsError is set and shown via the watcher above
 };
 </script>

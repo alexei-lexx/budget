@@ -1,7 +1,7 @@
 import { GraphQLError } from "graphql";
 import { MutationConnectTelegramBotArgs } from "../../__generated__/resolvers-types";
 import { GraphQLContext } from "../context";
-import { getAuthenticatedUser, handleResolverError } from "./shared";
+import { getAuthenticatedUser } from "./shared";
 
 export const telegramBotResolvers = {
   Query: {
@@ -10,19 +10,16 @@ export const telegramBotResolvers = {
       _args: unknown,
       context: GraphQLContext,
     ) => {
-      try {
-        const user = await getAuthenticatedUser(context);
-        const result =
-          await context.telegramBotService.findOneConnectedByUserId(user.id);
+      const user = await getAuthenticatedUser(context);
+      const result = await context.telegramBotService.findOneConnectedByUserId(
+        user.id,
+      );
 
-        if (!result.success) {
-          throw new GraphQLError(result.error);
-        }
-
-        return result.data ?? undefined;
-      } catch (error) {
-        handleResolverError(error, "Failed to fetch Telegram bot");
+      if (!result.success) {
+        throw new GraphQLError(result.error);
       }
+
+      return result.data ?? undefined;
     },
 
     testTelegramBot: async (
@@ -30,18 +27,14 @@ export const telegramBotResolvers = {
       _args: unknown,
       context: GraphQLContext,
     ) => {
-      try {
-        const user = await getAuthenticatedUser(context);
-        const result = await context.telegramBotService.test(user.id);
+      const user = await getAuthenticatedUser(context);
+      const result = await context.telegramBotService.test(user.id);
 
-        if (!result.success) {
-          throw new GraphQLError(result.error);
-        }
-
-        return result.data;
-      } catch (error) {
-        handleResolverError(error, "Failed to test Telegram bot");
+      if (!result.success) {
+        throw new GraphQLError(result.error);
       }
+
+      return result.data;
     },
   },
   Mutation: {
@@ -50,21 +43,17 @@ export const telegramBotResolvers = {
       args: MutationConnectTelegramBotArgs,
       context: GraphQLContext,
     ) => {
-      try {
-        const user = await getAuthenticatedUser(context);
-        const result = await context.telegramBotService.connect(
-          user.id,
-          args.token,
-        );
+      const user = await getAuthenticatedUser(context);
+      const result = await context.telegramBotService.connect(
+        user.id,
+        args.token,
+      );
 
-        if (!result.success) {
-          throw new GraphQLError(result.error);
-        }
-
-        return result.data;
-      } catch (error) {
-        handleResolverError(error, "Failed to connect Telegram bot");
+      if (!result.success) {
+        throw new GraphQLError(result.error);
       }
+
+      return result.data;
     },
 
     disconnectTelegramBot: async (
@@ -72,18 +61,14 @@ export const telegramBotResolvers = {
       _args: unknown,
       context: GraphQLContext,
     ) => {
-      try {
-        const user = await getAuthenticatedUser(context);
-        const result = await context.telegramBotService.disconnect(user.id);
+      const user = await getAuthenticatedUser(context);
+      const result = await context.telegramBotService.disconnect(user.id);
 
-        if (!result.success) {
-          throw new GraphQLError(result.error);
-        }
-
-        return result.data;
-      } catch (error) {
-        handleResolverError(error, "Failed to disconnect Telegram bot");
+      if (!result.success) {
+        throw new GraphQLError(result.error);
       }
+
+      return result.data;
     },
   },
 };

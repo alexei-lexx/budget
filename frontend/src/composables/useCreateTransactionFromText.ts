@@ -3,6 +3,7 @@ import type { AgentTraceMessage, Transaction } from "@/__generated__/vue-apollo"
 import { useCreateTransactionFromTextMutation } from "@/__generated__/vue-apollo";
 import { useSnackbar } from "@/composables/useSnackbar";
 import { i18n } from "@/plugins/i18n";
+import { resolveErrorMessage } from "@/utils/graphqlError";
 
 export function useCreateTransactionFromText() {
   const text = ref("");
@@ -48,8 +49,7 @@ export function useCreateTransactionFromText() {
       if (abortController?.signal.aborted) {
         return null;
       }
-      const message =
-        e instanceof Error ? e.message : t("transactions.errors.createFromTextFailed");
+      const message = resolveErrorMessage(e, t("transactions.errors.createFromTextFailed"));
       showErrorSnackbar(message);
       // text is intentionally NOT cleared on error
       return null;

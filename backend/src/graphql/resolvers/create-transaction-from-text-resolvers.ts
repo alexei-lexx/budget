@@ -1,7 +1,7 @@
 import { MutationCreateTransactionFromTextArgs } from "../../__generated__/resolvers-types";
 import { GraphQLContext } from "../context";
 
-import { getAuthenticatedUser, handleResolverError } from "./shared";
+import { getAuthenticatedUser } from "./shared";
 
 export const createTransactionFromTextResolvers = {
   Mutation: {
@@ -10,30 +10,26 @@ export const createTransactionFromTextResolvers = {
       args: MutationCreateTransactionFromTextArgs,
       context: GraphQLContext,
     ) => {
-      try {
-        const user = await getAuthenticatedUser(context);
-        const result = await context.createTransactionFromTextService.call({
-          userId: user.id,
-          text: args.input.text,
-          isVoiceInput: args.input.isVoiceInput ?? false,
-        });
+      const user = await getAuthenticatedUser(context);
+      const result = await context.createTransactionFromTextService.call({
+        userId: user.id,
+        text: args.input.text,
+        isVoiceInput: args.input.isVoiceInput ?? false,
+      });
 
-        if (!result.success) {
-          return {
-            __typename: "CreateTransactionFromTextFailure" as const,
-            message: result.error.message,
-            agentTrace: result.error.agentTrace,
-          };
-        }
-
+      if (!result.success) {
         return {
-          __typename: "CreateTransactionFromTextSuccess" as const,
-          transaction: result.data.transaction,
-          agentTrace: result.data.agentTrace,
+          __typename: "CreateTransactionFromTextFailure" as const,
+          message: result.error.message,
+          agentTrace: result.error.agentTrace,
         };
-      } catch (error) {
-        handleResolverError(error, "Failed to create transaction from text");
       }
+
+      return {
+        __typename: "CreateTransactionFromTextSuccess" as const,
+        transaction: result.data.transaction,
+        agentTrace: result.data.agentTrace,
+      };
     },
   },
 };

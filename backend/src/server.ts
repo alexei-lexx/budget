@@ -3,6 +3,11 @@ import { dirname, join } from "path";
 import { fileURLToPath } from "url";
 import { ApolloServer } from "@apollo/server";
 import {
+  ApolloServerErrorCode,
+  unwrapResolverError,
+} from "@apollo/server/errors";
+import { GraphQLError } from "graphql";
+import {
   resolveAccountRepository,
   resolveAccountService,
   resolveAssistantChatService,
@@ -25,6 +30,10 @@ import { createAccountLoader } from "./graphql/dataloaders/account-loader";
 import { createCategoryLoader } from "./graphql/dataloaders/category-loader";
 import { resolvers } from "./graphql/resolvers";
 import { getAuthenticatedUser } from "./graphql/resolvers/shared";
+import { ModelError } from "./models/model-error";
+import { BusinessError } from "./services/business-error";
+import { InvalidDateStringError } from "./types/date-string";
+import { InvalidDateTimeStringError } from "./types/date-time-string";
 
 const currentDir = dirname(fileURLToPath(import.meta.url));
 
@@ -37,8 +46,45 @@ export const server = new ApolloServer<GraphQLContext>({
   resolvers,
   introspection: process.env.NODE_ENV === "development", // Enable introspection for development
   formatError: (formattedError, error) => {
-    console.error("GraphQL error:", error);
-    return formattedError;
+    const original = unwrapResolverError(error);
+
+    // Already an intentional GraphQLError (auth checks, inline validation) — pass through as-is
+    if (original instanceof GraphQLError) {
+      return formattedError;
+    }
+
+    // User-facing: malformed input the user can correct
+    if (
+      original instanceof InvalidDateStringError ||
+      original instanceof InvalidDateTimeStringError
+    ) {
+      return {
+        ...formattedError,
+        message: original.message,
+        extensions: { code: ApolloServerErrorCode.BAD_USER_INPUT },
+      };
+    }
+
+    // User-facing: business rule violation the user needs to act on
+    if (original instanceof BusinessError || original instanceof ModelError) {
+      return {
+        ...formattedError,
+        message: original.message,
+        extensions: { code: ApolloServerErrorCode.BAD_REQUEST },
+      };
+    }
+
+    // Internal: log full details for debugging, hide from client
+    console.error(
+      `GraphQL error at ${formattedError.path?.join(".")}:`,
+      original,
+    );
+
+    return {
+      ...formattedError,
+      message: "Internal server error",
+      extensions: { code: ApolloServerErrorCode.INTERNAL_SERVER_ERROR },
+    };
   },
 });
 

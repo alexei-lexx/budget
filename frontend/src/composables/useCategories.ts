@@ -1,6 +1,6 @@
 import { ref, watch, type Ref } from "vue";
-import type { ApolloError } from "@apollo/client";
 import { i18n } from "@/plugins/i18n";
+import { isInternalServerError, resolveErrorMessage } from "@/utils/graphqlError";
 import {
   useGetCategoriesQuery,
   useCreateCategoryMutation,
@@ -30,45 +30,27 @@ export function useCategories(type?: CategoryType | Ref<CategoryType>) {
   }));
 
   // Create category mutation
-  const {
-    mutate: createCategoryMutation,
-    loading: createCategoryLoading,
-    error: createCategoryError,
-  } = useCreateCategoryMutation();
+  const { mutate: createCategoryMutation, loading: createCategoryLoading } =
+    useCreateCategoryMutation();
 
   // Update category mutation
-  const {
-    mutate: updateCategoryMutation,
-    loading: updateCategoryLoading,
-    error: updateCategoryError,
-  } = useUpdateCategoryMutation();
+  const { mutate: updateCategoryMutation, loading: updateCategoryLoading } =
+    useUpdateCategoryMutation();
 
   // Delete category mutation
-  const {
-    mutate: deleteCategoryMutation,
-    loading: deleteCategoryLoading,
-    error: deleteCategoryError,
-  } = useDeleteCategoryMutation();
+  const { mutate: deleteCategoryMutation, loading: deleteCategoryLoading } =
+    useDeleteCategoryMutation();
 
   // Watch for query errors
-  watch(categoriesQueryError, (error: ApolloError | null) => {
+  watch(categoriesQueryError, (error) => {
     if (error) {
       console.error("Categories query failed:", error);
-      categoriesError.value = error.message || t("categories.errors.fetchFailed");
+
+      categoriesError.value = isInternalServerError(error)
+        ? t("categories.errors.fetchFailed")
+        : error.message;
     }
   });
-
-  // Watch for mutation errors
-  watch(
-    [createCategoryError, updateCategoryError, deleteCategoryError],
-    ([createError, updateError, deleteError]) => {
-      const error = createError || updateError || deleteError;
-      if (error) {
-        console.error("Category mutation failed:", error);
-        categoriesError.value = error.message || t("categories.errors.operationFailed");
-      }
-    },
-  );
 
   // Create category function
   const createCategory = async (input: CreateCategoryInput): Promise<Category | null> => {
@@ -82,8 +64,9 @@ export function useCategories(type?: CategoryType | Ref<CategoryType>) {
       return null;
     } catch (error) {
       console.error("Error creating category:", error);
-      categoriesError.value =
-        error instanceof Error ? error.message : t("categories.errors.createFailed");
+
+      categoriesError.value = resolveErrorMessage(error, t("categories.errors.createFailed"));
+
       return null;
     }
   };
@@ -103,8 +86,9 @@ export function useCategories(type?: CategoryType | Ref<CategoryType>) {
       return null;
     } catch (error) {
       console.error("Error updating category:", error);
-      categoriesError.value =
-        error instanceof Error ? error.message : t("categories.errors.updateFailed");
+
+      categoriesError.value = resolveErrorMessage(error, t("categories.errors.updateFailed"));
+
       return null;
     }
   };
@@ -121,8 +105,9 @@ export function useCategories(type?: CategoryType | Ref<CategoryType>) {
       return null;
     } catch (error) {
       console.error("Error deleting category:", error);
-      categoriesError.value =
-        error instanceof Error ? error.message : t("categories.errors.deleteFailed");
+
+      categoriesError.value = resolveErrorMessage(error, t("categories.errors.deleteFailed"));
+
       return null;
     }
   };
@@ -137,12 +122,8 @@ export function useCategories(type?: CategoryType | Ref<CategoryType>) {
     updateCategoryLoading,
     deleteCategoryLoading,
 
-    // Error states
+    // Error state
     categoriesError,
-    categoriesQueryError,
-    createCategoryError,
-    updateCategoryError,
-    deleteCategoryError,
 
     // Functions
     createCategory,

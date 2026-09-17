@@ -18,7 +18,6 @@
       "apply": "Anwenden"
     },
     "errors": {
-      "generic": "Etwas ist schiefgelaufen. Bitte versuchen Sie es später erneut.",
       "connection": "Verbindungsproblem. Bitte überprüfen Sie Ihre Internetverbindung und versuchen Sie es erneut.",
       "amountValidation": {
         "mustBePositive": "Betrag muss größer als 0 sein",
@@ -78,7 +77,6 @@
     },
     "errors": {
       "fetchFailed": "Konten konnten nicht geladen werden",
-      "operationFailed": "Kontovorgang fehlgeschlagen",
       "createFailed": "Konto konnte nicht erstellt werden",
       "updateFailed": "Konto konnte nicht aktualisiert werden",
       "deleteFailed": "Konto konnte nicht gelöscht werden",
@@ -128,7 +126,6 @@
     },
     "errors": {
       "fetchFailed": "Kategorien konnten nicht geladen werden",
-      "operationFailed": "Kategorievorgang fehlgeschlagen",
       "createFailed": "Kategorie konnte nicht erstellt werden",
       "updateFailed": "Kategorie konnte nicht aktualisiert werden",
       "deleteFailed": "Kategorie konnte nicht gelöscht werden",
@@ -185,11 +182,11 @@
     },
     "errors": {
       "fetchFailed": "Transaktionen konnten nicht geladen werden",
-      "operationFailed": "Transaktionsvorgang fehlgeschlagen",
       "createFailed": "Transaktion konnte nicht erstellt werden",
       "updateFailed": "Transaktion konnte nicht aktualisiert werden",
       "deleteFailed": "Transaktion konnte nicht gelöscht werden",
       "loadMoreFailed": "Weitere Transaktionen konnten nicht geladen werden",
+      "patternsFetchFailed": "Transaktionsmuster konnten nicht geladen werden",
       "createFromTextFailed": "Transaktion konnte nicht erstellt werden. Bitte versuchen Sie es erneut.",
       "accountRequired": "Konto ist erforderlich",
       "typeRequired": "Transaktionstyp ist erforderlich",
@@ -232,7 +229,6 @@
       "deleteFailed": "Übertrag konnte nicht gelöscht werden. Bitte versuchen Sie es erneut.",
       "createFailed": "Übertrag konnte nicht erstellt werden. Bitte versuchen Sie es erneut.",
       "updateFailed": "Übertrag konnte nicht aktualisiert werden. Bitte versuchen Sie es erneut.",
-      "operationFailed": "Übertragsvorgang fehlgeschlagen",
       "fromAccountRequired": "Quellkonto ist erforderlich",
       "toAccountRequired": "Zielkonto ist erforderlich",
       "accountsMustDiffer": "Quell- und Zielkonto müssen unterschiedlich sein",
@@ -291,10 +287,8 @@
     "errors": {
       "fetchFailed": "Kategorieaufschlüsselung konnte nicht geladen werden",
       "title": "Berichtsfehler",
-      "loadFailed": "Bericht konnte nicht geladen werden: {message}",
       "invalidUrlMonthYear": "Ungültiger Monat oder Jahr in URL-Parametern",
-      "invalidUrlYear": "Ungültiges Jahr in URL-Parametern",
-      "loadFailedTitle": "Kategorieaufschlüsselung konnte nicht geladen werden"
+      "invalidUrlYear": "Ungültiges Jahr in URL-Parametern"
     }
   },
   "trends": {
@@ -322,8 +316,10 @@
       "pastMedianAtSamePoint": "Median der vergangenen Zeiträume an Tag {days}"
     },
     "errors": {
-      "title": "Trend-Fehler",
-      "loadFailed": "Trend konnte nicht geladen werden: {message}"
+      "loadFailed": "Trend konnte nicht geladen werden",
+      "presetsFetchFailed": "Gemerkte Presets konnten nicht geladen werden.",
+      "starFailed": "Merken fehlgeschlagen",
+      "unstarFailed": "Merkung entfernen fehlgeschlagen"
     }
   },
   "settings": {
@@ -335,6 +331,7 @@
     "interfaceLanguage": "Oberflächensprache",
     "saved": "Einstellungen gespeichert",
     "saveFailed": "Einstellungen konnten nicht gespeichert werden",
+    "fetchFailed": "Einstellungen konnten nicht geladen werden",
     "telegramBot": {
       "heading": "Telegram-Bot",
       "botToken": "Bot-Token",
@@ -344,7 +341,8 @@
       "disconnected": "Telegram-Bot getrennt",
       "disconnectFailed": "Telegram-Bot konnte nicht getrennt werden",
       "active": "Telegram-Bot ist aktiv",
-      "testFailed": "Telegram-Bot-Test fehlgeschlagen"
+      "testFailed": "Telegram-Bot-Test fehlgeschlagen",
+      "fetchFailed": "Telegram-Bot-Status konnte nicht geladen werden"
     },
     "mcpConnection": {
       "heading": "MCP-Verbindung",

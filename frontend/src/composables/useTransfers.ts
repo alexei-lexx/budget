@@ -1,6 +1,7 @@
-import { ref, watch } from "vue";
+import { ref } from "vue";
 import { apolloClient } from "@/apollo";
 import { i18n } from "@/plugins/i18n";
+import { resolveErrorMessage } from "@/utils/graphqlError";
 import {
   useCreateTransferMutation,
   useUpdateTransferMutation,
@@ -20,42 +21,22 @@ export function useTransfers() {
   const transfersError = ref<string | null>(null);
 
   // Create transfer mutation
-  const {
-    mutate: createTransferMutation,
-    loading: createTransferLoading,
-    error: createTransferError,
-  } = useCreateTransferMutation();
+  const { mutate: createTransferMutation, loading: createTransferLoading } =
+    useCreateTransferMutation();
 
   // Update transfer mutation
-  const {
-    mutate: updateTransferMutation,
-    loading: updateTransferLoading,
-    error: updateTransferError,
-  } = useUpdateTransferMutation();
+  const { mutate: updateTransferMutation, loading: updateTransferLoading } =
+    useUpdateTransferMutation();
 
   // Delete transfer mutation
-  const {
-    mutate: deleteTransferMutation,
-    loading: deleteTransferLoading,
-    error: deleteTransferError,
-  } = useDeleteTransferMutation();
-
-  // Watch for mutation errors
-  watch(
-    [createTransferError, updateTransferError, deleteTransferError],
-    ([createError, updateError, deleteError]) => {
-      const error = createError || updateError || deleteError;
-      if (error) {
-        console.error("Transfer mutation failed:", error);
-        transfersError.value = error.message || t("transfers.errors.operationFailed");
-      }
-    },
-  );
+  const { mutate: deleteTransferMutation, loading: deleteTransferLoading } =
+    useDeleteTransferMutation();
 
   // Create transfer function
   const createTransfer = async (input: CreateTransferInput): Promise<Transfer | null> => {
     try {
       transfersError.value = null;
+
       const result = await createTransferMutation({ input });
       if (result?.data?.createTransfer) {
         const transfer = result.data.createTransfer;
@@ -65,8 +46,9 @@ export function useTransfers() {
       return null;
     } catch (error) {
       console.error("Error creating transfer:", error);
-      transfersError.value =
-        error instanceof Error ? error.message : t("transfers.errors.createFailed");
+
+      transfersError.value = resolveErrorMessage(error, t("transfers.errors.createFailed"));
+
       return null;
     }
   };
@@ -87,8 +69,9 @@ export function useTransfers() {
       return null;
     } catch (error) {
       console.error("Error updating transfer:", error);
-      transfersError.value =
-        error instanceof Error ? error.message : t("transfers.errors.updateFailed");
+
+      transfersError.value = resolveErrorMessage(error, t("transfers.errors.updateFailed"));
+
       return null;
     }
   };
@@ -104,8 +87,9 @@ export function useTransfers() {
       return false;
     } catch (error) {
       console.error("Error deleting transfer:", error);
-      transfersError.value =
-        error instanceof Error ? error.message : t("transfers.errors.deleteFailed");
+
+      transfersError.value = resolveErrorMessage(error, t("transfers.errors.deleteFailed"));
+
       return false;
     }
   };
@@ -114,6 +98,7 @@ export function useTransfers() {
   const getTransfer = async (id: string): Promise<Transfer | null> => {
     try {
       transfersError.value = null;
+
       const { data } = await apolloClient.query({
         query: GetTransferDocument,
         variables: { id },
@@ -126,8 +111,9 @@ export function useTransfers() {
       return null;
     } catch (error) {
       console.error("Error getting transfer:", error);
-      transfersError.value =
-        error instanceof Error ? error.message : t("transfers.errors.loadFailed");
+
+      transfersError.value = resolveErrorMessage(error, t("transfers.errors.loadFailed"));
+
       return null;
     }
   };
@@ -138,11 +124,8 @@ export function useTransfers() {
     updateTransferLoading,
     deleteTransferLoading,
 
-    // Error states
+    // Error state
     transfersError,
-    createTransferError,
-    updateTransferError,
-    deleteTransferError,
 
     // Functions
     createTransfer,
