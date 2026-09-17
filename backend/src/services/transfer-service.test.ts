@@ -234,8 +234,8 @@ describe("TransferService", () => {
       });
 
       expect(mockAtomicWriter.commit).toHaveBeenCalledTimes(1);
-      const commitInput = mockAtomicWriter.commit.mock.calls[0][0];
-      expect(commitInput.transactionsToCreate).toEqual([
+      const commitInput = mockAtomicWriter.commit.mock.calls[0]?.[0];
+      expect(commitInput?.transactionsToCreate).toEqual([
         result.outboundTransaction,
         result.inboundTransaction,
       ]);
@@ -276,14 +276,14 @@ describe("TransferService", () => {
       );
 
       // Assert
-      const commitInput = mockAtomicWriter.commit.mock.calls[0][0];
-      expect(commitInput.accountsToUpdate).toHaveLength(2);
+      const commitInput = mockAtomicWriter.commit.mock.calls[0]?.[0];
+      expect(commitInput?.accountsToUpdate).toHaveLength(2);
       expect(
-        commitInput.accountsToUpdate?.find((a) => a.id === sourceAccount.id)
+        commitInput?.accountsToUpdate?.find((a) => a.id === sourceAccount.id)
           ?.transactionBalance,
       ).toBe(425);
       expect(
-        commitInput.accountsToUpdate?.find((a) => a.id === destAccount.id)
+        commitInput?.accountsToUpdate?.find((a) => a.id === destAccount.id)
           ?.transactionBalance,
       ).toBe(175);
     });
@@ -489,8 +489,8 @@ describe("TransferService", () => {
       await service.deleteTransfer(transferId, userId);
 
       // Assert
-      const commitInput = mockAtomicWriter.commit.mock.calls[0][0];
-      expect(commitInput.transactionsToUpdate).toEqual([
+      const commitInput = mockAtomicWriter.commit.mock.calls[0]?.[0];
+      expect(commitInput?.transactionsToUpdate).toEqual([
         expect.objectContaining({
           id: outboundTransaction.id,
           isArchived: true,
@@ -502,13 +502,13 @@ describe("TransferService", () => {
       ]);
 
       // Source: 200 - (-50) = 250 (revert outbound)
-      const sourceAccountToUpdate = commitInput.accountsToUpdate?.find(
+      const sourceAccountToUpdate = commitInput?.accountsToUpdate?.find(
         (account) => account.id === sourceAccount.id,
       );
       expect(sourceAccountToUpdate?.transactionBalance).toBe(250);
 
       // Destination: 300 - 50 = 250 (revert inbound)
-      const destAccountToUpdate = commitInput.accountsToUpdate?.find(
+      const destAccountToUpdate = commitInput?.accountsToUpdate?.find(
         (account) => account.id === destAccount.id,
       );
       expect(destAccountToUpdate?.transactionBalance).toBe(250);
@@ -703,8 +703,8 @@ describe("TransferService", () => {
         version: 6,
       });
 
-      const commitInput = mockAtomicWriter.commit.mock.calls[0][0];
-      expect(commitInput.transactionsToUpdate).toEqual([
+      const commitInput = mockAtomicWriter.commit.mock.calls[0]?.[0];
+      expect(commitInput?.transactionsToUpdate).toEqual([
         expect.objectContaining({ id: outboundTransaction.id, amount: 250 }),
         expect.objectContaining({ id: inboundTransaction.id, amount: 250 }),
       ]);
@@ -757,14 +757,14 @@ describe("TransferService", () => {
       await service.updateTransfer(transferId, userId, { amount: 150 });
 
       // Assert
-      const commitInput = mockAtomicWriter.commit.mock.calls[0][0];
+      const commitInput = mockAtomicWriter.commit.mock.calls[0]?.[0];
 
       // Source: 500 - (-100) revert + (-150) apply = 450
-      const sourceAccountToUpdate = commitInput.accountsToUpdate?.[0];
+      const sourceAccountToUpdate = commitInput?.accountsToUpdate?.[0];
       expect(sourceAccountToUpdate?.transactionBalance).toBe(450);
 
       // Destination: 200 - 100 revert + 150 apply = 250
-      const destAccountToUpdate = commitInput.accountsToUpdate?.[1];
+      const destAccountToUpdate = commitInput?.accountsToUpdate?.[1];
       expect(destAccountToUpdate?.transactionBalance).toBe(250);
     });
 
@@ -833,23 +833,23 @@ describe("TransferService", () => {
       });
 
       // Assert
-      const commitInput = mockAtomicWriter.commit.mock.calls[0][0];
-      expect(commitInput.accountsToUpdate).toHaveLength(4);
+      const commitInput = mockAtomicWriter.commit.mock.calls[0]?.[0];
+      expect(commitInput?.accountsToUpdate).toHaveLength(4);
 
       // Old source: 500 - (-100) = 600 (revert outbound)
-      const oldSourceAccountToUpdate = commitInput.accountsToUpdate?.[0];
+      const oldSourceAccountToUpdate = commitInput?.accountsToUpdate?.[0];
       expect(oldSourceAccountToUpdate?.transactionBalance).toBe(600);
 
       // New source: 1000 + (-100) = 900 (apply outbound)
-      const newSourceAccountToUpdate = commitInput.accountsToUpdate?.[1];
+      const newSourceAccountToUpdate = commitInput?.accountsToUpdate?.[1];
       expect(newSourceAccountToUpdate?.transactionBalance).toBe(900);
 
       // Old destination: 300 - 100 = 200 (revert inbound)
-      const oldDestAccountToUpdate = commitInput.accountsToUpdate?.[2];
+      const oldDestAccountToUpdate = commitInput?.accountsToUpdate?.[2];
       expect(oldDestAccountToUpdate?.transactionBalance).toBe(200);
 
       // New destination: 0 + 100 = 100 (apply inbound)
-      const newDestAccountToUpdate = commitInput.accountsToUpdate?.[3];
+      const newDestAccountToUpdate = commitInput?.accountsToUpdate?.[3];
       expect(newDestAccountToUpdate?.transactionBalance).toBe(100);
     });
 
@@ -908,15 +908,15 @@ describe("TransferService", () => {
       });
 
       // Assert
-      const commitInput = mockAtomicWriter.commit.mock.calls[0][0];
-      expect(commitInput.accountsToUpdate).toHaveLength(2);
+      const commitInput = mockAtomicWriter.commit.mock.calls[0]?.[0];
+      expect(commitInput?.accountsToUpdate).toHaveLength(2);
 
       // A: revert outbound (-(-100) → +100) then apply inbound (+100) → 400 + 200 = 600
-      const accountAToUpdate = commitInput.accountsToUpdate?.[0];
+      const accountAToUpdate = commitInput?.accountsToUpdate?.[0];
       expect(accountAToUpdate?.transactionBalance).toBe(600);
 
       // B: revert inbound (-100) then apply outbound (-100) → 300 - 200 = 100
-      const accountBToUpdate = commitInput.accountsToUpdate?.[1];
+      const accountBToUpdate = commitInput?.accountsToUpdate?.[1];
       expect(accountBToUpdate?.transactionBalance).toBe(100);
     });
 
@@ -961,9 +961,9 @@ describe("TransferService", () => {
       });
 
       // Assert
-      const commitInput = mockAtomicWriter.commit.mock.calls[0][0];
-      expect(commitInput.accountsToUpdate).toEqual([]);
-      expect(commitInput.transactionsToUpdate?.[0]).toMatchObject({
+      const commitInput = mockAtomicWriter.commit.mock.calls[0]?.[0];
+      expect(commitInput?.accountsToUpdate).toEqual([]);
+      expect(commitInput?.transactionsToUpdate?.[0]).toMatchObject({
         description: "Updated note",
       });
     });
@@ -1021,11 +1021,11 @@ describe("TransferService", () => {
         id: destAccount.id,
         userId,
       });
-      const commitInput = mockAtomicWriter.commit.mock.calls[0][0];
-      expect(commitInput.transactionsToUpdate?.[0].accountId).toBe(
+      const commitInput = mockAtomicWriter.commit.mock.calls[0]?.[0];
+      expect(commitInput?.transactionsToUpdate?.[0]?.accountId).toBe(
         sourceAccount.id,
       );
-      expect(commitInput.transactionsToUpdate?.[1].accountId).toBe(
+      expect(commitInput?.transactionsToUpdate?.[1]?.accountId).toBe(
         destAccount.id,
       );
     });

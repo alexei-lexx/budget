@@ -60,7 +60,7 @@ describe("createAssistantAgent", () => {
     await agent.invoke({ messages }, { context: baseContext });
 
     // Assert
-    expect(mockModel.calls[0].messages[0].content).toContain(
+    expect(mockModel.calls[0]?.messages[0]?.content).toContain(
       "You are a personal finance assistant",
     );
   });
@@ -75,7 +75,7 @@ describe("createAssistantAgent", () => {
     await agent.invoke({ messages }, { context: baseContext });
 
     // Assert
-    expect(mockModel.calls[0].messages[0].content).toContain(
+    expect(mockModel.calls[0]?.messages[0]?.content).toContain(
       "Today is 2000-01-02.",
     );
   });

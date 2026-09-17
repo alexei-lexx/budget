@@ -87,7 +87,7 @@ describe("createCreateTransactionAgent", () => {
     await agent.invoke({ messages }, { context: baseContext });
 
     // Assert
-    expect(mockModel.calls[0].messages[0].content).toContain(
+    expect(mockModel.calls[0]?.messages[0]?.content).toContain(
       "Today is 2000-01-02.",
     );
   });
@@ -106,7 +106,7 @@ describe("createCreateTransactionAgent", () => {
     await agent.invoke({ messages }, { context });
 
     // Assert
-    expect(mockModel.calls[0].messages[0].content).not.toContain(
+    expect(mockModel.calls[0]?.messages[0]?.content).not.toContain(
       VOICE_INPUT_SUBPROMPT,
     );
   });
@@ -125,7 +125,7 @@ describe("createCreateTransactionAgent", () => {
     await agent.invoke({ messages }, { context });
 
     // Assert
-    expect(mockModel.calls[0].messages[0].content).toContain(
+    expect(mockModel.calls[0]?.messages[0]?.content).toContain(
       VOICE_INPUT_SUBPROMPT,
     );
   });

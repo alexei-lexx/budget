@@ -94,16 +94,16 @@ describe("createGetCategoriesTool", () => {
       success: true,
       data: [
         {
-          excludeFromReports: mockCategories[0].excludeFromReports,
-          id: mockCategories[0].id,
+          excludeFromReports: mockCategories[0]?.excludeFromReports,
+          id: mockCategories[0]?.id,
           name: "Groceries",
           type: "EXPENSE",
           isArchived: false,
           keywords: [],
         },
         {
-          excludeFromReports: mockCategories[1].excludeFromReports,
-          id: mockCategories[1].id,
+          excludeFromReports: mockCategories[1]?.excludeFromReports,
+          id: mockCategories[1]?.id,
           name: "Salary",
           type: "INCOME",
           isArchived: true,
@@ -335,12 +335,14 @@ describe("createGetCategoriesTool", () => {
       // Assert
       if (!result.success) throw new Error("Expected success"); // Type guard
 
-      expect(result.data[0].keywords).toHaveLength(
+      expect(result.data[0]?.keywords).toHaveLength(
         CATEGORY_HISTORY_MAX_KEYWORDS_PER_CATEGORY,
       );
-      expect(result.data[0].keywords[0]).toEqual("description 0");
+      expect(result.data[0]?.keywords[0]).toEqual("description 0");
       expect(
-        result.data[0].keywords[CATEGORY_HISTORY_MAX_KEYWORDS_PER_CATEGORY - 1],
+        result.data[0]?.keywords[
+          CATEGORY_HISTORY_MAX_KEYWORDS_PER_CATEGORY - 1
+        ],
       ).toEqual(
         `description ${CATEGORY_HISTORY_MAX_KEYWORDS_PER_CATEGORY - 1}`,
       );
@@ -469,7 +471,7 @@ describe("createGetCategoriesTool", () => {
       );
 
       const callFilters =
-        mockTransactionRepository.findManyByUserId.mock.calls[0][1];
+        mockTransactionRepository.findManyByUserId.mock.calls[0]?.[1];
       const dateAfterArg = callFilters?.dateAfter;
       const dateBeforeArg = callFilters?.dateBefore;
 

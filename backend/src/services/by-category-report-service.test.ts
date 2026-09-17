@@ -136,7 +136,8 @@ describe("ByCategoryReportService", () => {
 
       // Assert
       expect(result.categories).toHaveLength(1);
-      const category = result.categories[0];
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const category = result.categories[0]!;
 
       // Top 5 transactions only
       expect(category.topTransactions).toHaveLength(5);
@@ -202,8 +203,8 @@ describe("ByCategoryReportService", () => {
         (c) => c.categoryName === "Uncategorized",
       );
 
-      expect(foodCategory?.currencyBreakdowns[0].percentage).toBe(25); // 100/400 = 25%
-      expect(uncategorizedCategory?.currencyBreakdowns[0].percentage).toBe(75); // 300/400 = 75%
+      expect(foodCategory?.currencyBreakdowns[0]?.percentage).toBe(25); // 100/400 = 25%
+      expect(uncategorizedCategory?.currencyBreakdowns[0]?.percentage).toBe(75); // 300/400 = 75%
     });
 
     it("treats transactions without categories as Uncategorized", async () => {
@@ -226,9 +227,9 @@ describe("ByCategoryReportService", () => {
 
       // Assert
       expect(result.categories).toHaveLength(1);
-      expect(result.categories[0].categoryName).toBe("Uncategorized");
-      expect(result.categories[0].categoryId).toBeUndefined();
-      expect(result.categories[0].currencyBreakdowns).toHaveLength(2);
+      expect(result.categories[0]?.categoryName).toBe("Uncategorized");
+      expect(result.categories[0]?.categoryId).toBeUndefined();
+      expect(result.categories[0]?.currencyBreakdowns).toHaveLength(2);
     });
 
     it("treats deleted categories as Uncategorized", async () => {
@@ -255,7 +256,7 @@ describe("ByCategoryReportService", () => {
 
       // Assert
       expect(result.categories).toHaveLength(1);
-      expect(result.categories[0].categoryName).toBe("Uncategorized");
+      expect(result.categories[0]?.categoryName).toBe("Uncategorized");
     });
 
     it("sorts categories alphabetically by name", async () => {
@@ -325,7 +326,7 @@ describe("ByCategoryReportService", () => {
         "USD",
       ]);
       expect(
-        result.categories[0].currencyBreakdowns.map((cb) => cb.currency),
+        result.categories[0]?.currencyBreakdowns.map((cb) => cb.currency),
       ).toEqual(["EUR", "GBP", "USD"]);
     });
 
@@ -352,7 +353,8 @@ describe("ByCategoryReportService", () => {
       const result = await reportService.call(userId, 2000, 1, "EXPENSE");
 
       // Assert
-      const percentages = result.categories[0].currencyBreakdowns[0].percentage;
+      const percentages =
+        result.categories[0]?.currencyBreakdowns[0]?.percentage;
       expect(Number.isInteger(percentages)).toBe(true);
       expect(percentages).toBe(100); // Rounds to 100% for single category
     });
@@ -387,8 +389,10 @@ describe("ByCategoryReportService", () => {
 
       // Assert
       expect(result.categories).toHaveLength(1);
-      expect(result.categories[0].currencyBreakdowns[0].totalAmount).toBe(800); // 1000 - 200
-      expect(result.currencyTotals[0].totalAmount).toBe(800);
+      expect(result.categories[0]?.currencyBreakdowns[0]?.totalAmount).toBe(
+        800,
+      ); // 1000 - 200
+      expect(result.currencyTotals[0]?.totalAmount).toBe(800);
     });
 
     it("returns negative net amount when refunds exceed expenses", async () => {
@@ -415,8 +419,10 @@ describe("ByCategoryReportService", () => {
 
       // Assert
       expect(result.categories).toHaveLength(1);
-      expect(result.categories[0].currencyBreakdowns[0].totalAmount).toBe(-300);
-      expect(result.currencyTotals[0].totalAmount).toBe(-300);
+      expect(result.categories[0]?.currencyBreakdowns[0]?.totalAmount).toBe(
+        -300,
+      );
+      expect(result.currencyTotals[0]?.totalAmount).toBe(-300);
     });
 
     it("does not factor refunds for INCOME reports", async () => {
@@ -442,7 +448,9 @@ describe("ByCategoryReportService", () => {
       const result = await reportService.call(userId, 2025, 11, "INCOME");
 
       // Assert
-      expect(result.categories[0].currencyBreakdowns[0].totalAmount).toBe(500);
+      expect(result.categories[0]?.currencyBreakdowns[0]?.totalAmount).toBe(
+        500,
+      );
       expect(mockTransactionRepository.findManyByUserId).toHaveBeenCalledWith(
         userId,
         {
@@ -494,10 +502,10 @@ describe("ByCategoryReportService", () => {
 
       // Assert
       expect(result.categories).toHaveLength(1);
-      const eurBreakdown = result.categories[0].currencyBreakdowns.find(
+      const eurBreakdown = result.categories[0]?.currencyBreakdowns.find(
         (cb) => cb.currency === "EUR",
       );
-      const usdBreakdown = result.categories[0].currencyBreakdowns.find(
+      const usdBreakdown = result.categories[0]?.currencyBreakdowns.find(
         (cb) => cb.currency === "USD",
       );
 
@@ -529,8 +537,10 @@ describe("ByCategoryReportService", () => {
 
       // Assert
       expect(result.categories).toHaveLength(1);
-      expect(result.categories[0].categoryName).toBe("Uncategorized");
-      expect(result.categories[0].currencyBreakdowns[0].totalAmount).toBe(500); // 600 - 100
+      expect(result.categories[0]?.categoryName).toBe("Uncategorized");
+      expect(result.categories[0]?.currencyBreakdowns[0]?.totalAmount).toBe(
+        500,
+      ); // 600 - 100
     });
 
     it("excludes transactions in excluded categories from report", async () => {
@@ -583,7 +593,7 @@ describe("ByCategoryReportService", () => {
 
       // Assert
       expect(result.currencyTotals).toHaveLength(1);
-      expect(result.currencyTotals[0].totalAmount).toBe(300); // 100 + 200, excluding 500
+      expect(result.currencyTotals[0]?.totalAmount).toBe(300); // 100 + 200, excluding 500
       expect(
         result.categories.map((category) => category.categoryName).sort(),
       ).toEqual(["Groceries", "Uncategorized"]);

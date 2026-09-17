@@ -3,6 +3,7 @@
   "compilerOptions": {
     "moduleResolution": "bundler",
     "module": "esnext",
+    "noUncheckedIndexedAccess": true,
     // Explicit override so VS Code resolves lib types without following the extends chain
     "lib": ["es2024"],
     "rootDir": "./src",

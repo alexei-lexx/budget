@@ -43,7 +43,8 @@ describe("Migration Loader Operations", () => {
 
       for (let i = 1; i < migrations.length; i++) {
         expect(
-          migrations[i].timestamp.localeCompare(migrations[i - 1].timestamp),
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          migrations[i]!.timestamp.localeCompare(migrations[i - 1]!.timestamp),
         ).toBeGreaterThan(0);
       }
     });

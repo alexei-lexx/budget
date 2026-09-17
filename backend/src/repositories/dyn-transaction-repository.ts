@@ -377,8 +377,8 @@ export class DynTransactionRepository
       const pageInfo: PageInfo = {
         hasNextPage,
         hasPreviousPage: !!after, // Has previous page if we have an after cursor
-        startCursor: edges.length > 0 ? edges[0].cursor : undefined,
-        endCursor: edges.length > 0 ? edges.at(-1)?.cursor : undefined,
+        startCursor: edges[0]?.cursor,
+        endCursor: edges.at(-1)?.cursor,
       };
 
       // Get total count (this is a separate query for accuracy)

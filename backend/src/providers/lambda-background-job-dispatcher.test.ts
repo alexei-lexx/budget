@@ -42,7 +42,7 @@ describe("LambdaBackgroundJobDispatcher", () => {
 
     expect(mockSend).toHaveBeenCalledTimes(1);
 
-    const command = mockSend.mock.calls[0][0] as InvokeCommand;
+    const command = mockSend.mock.calls[0]?.[0] as InvokeCommand;
     expect(command.input.FunctionName).toBe("my-background-job-fn");
     expect(command.input.InvocationType).toBe("Event");
 

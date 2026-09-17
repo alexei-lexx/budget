@@ -195,7 +195,9 @@ describe("verifyGuideTokens", () => {
 
   it("rejects and names only guide missing its token", () => {
     // Arrange
-    const [missingGuide, ...otherGuides] = Object.values(GUIDES);
+    const guides = Object.values(GUIDES);
+    const missingGuide = guides[0]!; // eslint-disable-line @typescript-eslint/no-non-null-assertion
+    const otherGuides = guides.slice(1);
 
     // Act
     const result = verifyGuideTokens({

@@ -194,7 +194,7 @@ export class JwtAuthService {
     }
 
     const tokenMatch = authHeader.match(/^Bearer\s+(.+)$/i);
-    if (!tokenMatch) {
+    if (!tokenMatch || !tokenMatch[1]) {
       return null;
     }
 
@@ -213,7 +213,7 @@ export class JwtAuthService {
 
     // Extract token from "Bearer <token>" format
     const tokenMatch = authHeader.match(/^Bearer\s+(.+)$/i);
-    if (!tokenMatch) {
+    if (!tokenMatch || !tokenMatch[1]) {
       return { isAuthenticated: false };
     }
 

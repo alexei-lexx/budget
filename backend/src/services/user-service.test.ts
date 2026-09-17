@@ -379,9 +379,9 @@ describe("UserService", () => {
         expect.objectContaining({ id: userId }),
       );
 
-      const updatedUser = mockUserRepository.update.mock.calls[0][0];
-      expect(updatedUser.mcpToken).not.toBe("");
-      expect(updatedUser.mcpToken).not.toBe("old-token");
+      const updatedUser = mockUserRepository.update.mock.calls[0]?.[0];
+      expect(updatedUser?.mcpToken).not.toBe("");
+      expect(updatedUser?.mcpToken).not.toBe("old-token");
     });
 
     it("returns settings with updated mcpToken", async () => {
@@ -395,11 +395,11 @@ describe("UserService", () => {
       const result = await service.regenerateMcpToken(userId);
 
       // Assert
-      const updatedUser = mockUserRepository.update.mock.calls[0][0];
+      const updatedUser = mockUserRepository.update.mock.calls[0]?.[0];
       expect(result).toEqual({
         success: true,
         data: expect.objectContaining({
-          mcpToken: updatedUser.mcpToken,
+          mcpToken: updatedUser?.mcpToken,
         }),
       });
     });

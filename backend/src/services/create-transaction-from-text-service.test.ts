@@ -203,7 +203,7 @@ describe("CreateTransactionFromTextService", () => {
           { messages: { content: string }[] },
           unknown,
         ];
-        expect(state.messages[0].content).toContain(text);
+        expect(state.messages[0]?.content).toContain(text);
       });
 
       it("passes userId in context", async () => {

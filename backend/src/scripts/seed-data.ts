@@ -154,6 +154,19 @@ async function createCategories(userId: string): Promise<{
 }
 
 /**
+ * Pick a random element from a non-empty array
+ */
+function pickRandom<T>(items: readonly T[]): T {
+  const item = items[Math.floor(Math.random() * items.length)];
+
+  if (item === undefined) {
+    throw new Error("pickRandom: items must not be empty");
+  }
+
+  return item;
+}
+
+/**
  * Create transactions for each month (2 income, 18 expense)
  */
 async function createTransactions(
@@ -196,7 +209,8 @@ async function createTransactions(
   const expenseNames = ["Groceries", "Utilities", "Entertainment"];
   const categoryIdToName: Record<string, string> = {};
   categoryIds.expense.forEach((id, index) => {
-    categoryIdToName[id] = expenseNames[index];
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    categoryIdToName[id] = expenseNames[index]!;
   });
 
   for (const monthData of months) {
@@ -208,12 +222,8 @@ async function createTransactions(
 
     // Create 2 income transactions
     for (let i = 0; i < 2; i++) {
-      const categoryId =
-        categoryIds.income[
-          Math.floor(Math.random() * categoryIds.income.length)
-        ];
-      const accountId =
-        accountIds[Math.floor(Math.random() * accountIds.length)];
+      const categoryId = pickRandom(categoryIds.income);
+      const accountId = pickRandom(accountIds);
 
       // Generate random date within the month
       const day = Math.floor(Math.random() * daysInMonth) + 1;
@@ -238,12 +248,8 @@ async function createTransactions(
 
     // Create 30 expense transactions
     for (let i = 0; i < 30; i++) {
-      const categoryIndex = Math.floor(
-        Math.random() * categoryIds.expense.length,
-      );
-      const categoryId = categoryIds.expense[categoryIndex];
-      const accountId =
-        accountIds[Math.floor(Math.random() * accountIds.length)];
+      const categoryId = pickRandom(categoryIds.expense);
+      const accountId = pickRandom(accountIds);
 
       // Generate random date within the month
       const day = Math.floor(Math.random() * daysInMonth) + 1;
@@ -255,7 +261,8 @@ async function createTransactions(
       const amount = Math.round((Math.random() * 300 + 10) * 100) / 100; // €10-€310
 
       // Get description based on the specific category
-      const categoryName = categoryIdToName[categoryId];
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const categoryName = categoryIdToName[categoryId]!;
       const categoryDescriptions =
         expenseDescriptions[categoryName as keyof typeof expenseDescriptions];
       const description =

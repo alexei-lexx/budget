@@ -13,6 +13,8 @@ export function median(values: number[]): number {
   const middle = Math.floor(sorted.length / 2);
 
   return sorted.length % 2 === 0
-    ? (sorted[middle - 1] + sorted[middle]) / 2
-    : sorted[middle];
+    ? // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      (sorted[middle - 1]! + sorted[middle]!) / 2
+    : // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      sorted[middle]!;
 }

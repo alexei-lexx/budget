@@ -60,8 +60,10 @@ export class ExpenseTrendService {
       today,
       lookback,
     });
-    const currentPeriodStart = periodStarts[periodStarts.length - 1];
-    const firstPeriodStart = periodStarts[0];
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const currentPeriodStart = periodStarts[periodStarts.length - 1]!;
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const firstPeriodStart = periodStarts[0]!;
 
     const transactions = await this.transactionRepository.findManyByUserId(
       userId,
