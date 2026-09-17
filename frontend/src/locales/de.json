@@ -230,7 +230,6 @@
       "deleteFailed": "Übertrag konnte nicht gelöscht werden. Bitte versuchen Sie es erneut.",
       "createFailed": "Übertrag konnte nicht erstellt werden. Bitte versuchen Sie es erneut.",
       "updateFailed": "Übertrag konnte nicht aktualisiert werden. Bitte versuchen Sie es erneut.",
-      "operationFailed": "Übertragsvorgang fehlgeschlagen",
       "fromAccountRequired": "Quellkonto ist erforderlich",
       "toAccountRequired": "Zielkonto ist erforderlich",
       "accountsMustDiffer": "Quell- und Zielkonto müssen unterschiedlich sein",

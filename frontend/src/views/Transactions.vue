@@ -289,6 +289,10 @@ watch(transactionsError, (error) => {
   if (error) showErrorSnackbar(error);
 });
 
+watch(transfersError, (error) => {
+  if (error) showErrorSnackbar(error);
+});
+
 // Create transaction from text
 const {
   text: createTransactionFromTextQuestion,
@@ -389,9 +393,6 @@ const handleEditTransaction = async (transactionId: string) => {
         console.error("Transfer not found:", transaction.transferId);
         showErrorSnackbar(t("transfers.errors.notFound"));
       }
-    } catch (error) {
-      console.error("Error loading transfer data:", error);
-      showErrorSnackbar(t("transfers.errors.loadFailed"));
     } finally {
       transferFormLoading.value = false;
     }
@@ -424,9 +425,6 @@ const handleDuplicateTransaction = async (transaction: Transaction) => {
       } else {
         showErrorSnackbar(t("transfers.errors.notFound"));
       }
-    } catch (error) {
-      console.error("Error loading transfer for duplicate:", error);
-      showErrorSnackbar(t("transfers.errors.loadFailed"));
     } finally {
       transferFormLoading.value = false;
     }
@@ -504,11 +502,8 @@ const confirmDeleteTransfer = async () => {
 
       // Refetch accounts to update balances
       await refetchAccounts();
-    } else {
-      // Transfer deletion failed
-      const errorMessage = transfersError.value || t("transfers.errors.deleteFailed");
-      showErrorSnackbar(errorMessage);
     }
+    // On failure, transfersError is set and shown via the watcher above
   }
   showDeleteTransferDialog.value = false;
   transactionToDelete.value = null;
@@ -566,11 +561,8 @@ const handleCreateTransferSubmit = async (data: CreateTransferInput | UpdateTran
 
       // Refetch accounts to update balances
       await refetchAccounts();
-    } else {
-      // Transfer creation failed
-      const errorMessage = transfersError.value || t("transfers.errors.createFailed");
-      showErrorSnackbar(errorMessage);
     }
+    // On failure, transfersError is set and shown via the watcher above
   } finally {
     transferFormLoading.value = false;
   }
@@ -602,11 +594,8 @@ const handleEditTransferSubmit = async (data: CreateTransferInput | UpdateTransf
 
       // Refetch accounts to update balances
       await refetchAccounts();
-    } else {
-      // Transfer update failed
-      const errorMessage = transfersError.value || t("transfers.errors.updateFailed");
-      showErrorSnackbar(errorMessage);
     }
+    // On failure, transfersError is set and shown via the watcher above
   } finally {
     transferFormLoading.value = false;
   }

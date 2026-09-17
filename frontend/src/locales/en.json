@@ -230,7 +230,6 @@
       "deleteFailed": "Failed to delete transfer. Please try again.",
       "createFailed": "Failed to create transfer. Please try again.",
       "updateFailed": "Failed to update transfer. Please try again.",
-      "operationFailed": "Transfer operation failed",
       "fromAccountRequired": "Source account is required",
       "toAccountRequired": "Destination account is required",
       "accountsMustDiffer": "Source and destination accounts must be different",
