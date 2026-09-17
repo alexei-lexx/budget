@@ -1,5 +1,6 @@
-import { ref, computed, type Ref } from "vue";
-import type { ApolloError } from "@apollo/client";
+import { ref, watch, computed, type Ref } from "vue";
+import { i18n } from "@/plugins/i18n";
+import { isInternalServerError } from "@/utils/graphqlError";
 import {
   useGetTransactionPatternsQuery,
   type TransactionPatternType,
@@ -10,6 +11,7 @@ import {
 export type { TransactionPatternType, TransactionPattern };
 
 export function useTransactionPatterns(transactionType: Ref<TransactionPatternType>) {
+  const { t } = i18n.global;
   const patternsError = ref<string | null>(null);
 
   // Query for transaction patterns based on type
@@ -17,7 +19,6 @@ export function useTransactionPatterns(transactionType: Ref<TransactionPatternTy
     result: patternsResult,
     loading: patternsLoading,
     error: patternsQueryError,
-    refetch: refetchPatterns,
   } = useGetTransactionPatternsQuery(
     () => ({
       type: transactionType.value,
@@ -38,26 +39,15 @@ export function useTransactionPatterns(transactionType: Ref<TransactionPatternTy
   });
 
   // Watch for query errors
-  const handleQueryError = (error: ApolloError | null) => {
+  watch(patternsQueryError, (error) => {
     if (error) {
       console.error("Transaction patterns query failed:", error);
-      patternsError.value = error.message || "Failed to fetch transaction patterns";
-    } else {
-      patternsError.value = null;
-    }
-  };
 
-  // Function to invalidate and refetch patterns
-  const invalidatePatterns = async (): Promise<void> => {
-    try {
-      patternsError.value = null;
-      await refetchPatterns();
-    } catch (error) {
-      console.error("Error refetching transaction patterns:", error);
-      patternsError.value =
-        error instanceof Error ? error.message : "Failed to refetch transaction patterns";
+      patternsError.value = isInternalServerError(error)
+        ? t("transactions.errors.patternsFetchFailed")
+        : error.message;
     }
-  };
+  });
 
   return {
     // Data
@@ -66,13 +56,7 @@ export function useTransactionPatterns(transactionType: Ref<TransactionPatternTy
     // Loading states
     patternsLoading,
 
-    // Error states
+    // Error state
     patternsError,
-    patternsQueryError,
-
-    // Functions
-    refetchPatterns,
-    invalidatePatterns,
-    handleQueryError,
   };
 }

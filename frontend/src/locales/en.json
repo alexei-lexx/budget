@@ -183,11 +183,11 @@
     },
     "errors": {
       "fetchFailed": "Failed to fetch transactions",
-      "operationFailed": "Transaction operation failed",
       "createFailed": "Failed to create transaction",
       "updateFailed": "Failed to update transaction",
       "deleteFailed": "Failed to delete transaction",
       "loadMoreFailed": "Failed to load more transactions",
+      "patternsFetchFailed": "Failed to fetch transaction patterns",
       "createFromTextFailed": "Failed to create transaction. Please try again.",
       "accountRequired": "Account is required",
       "typeRequired": "Transaction type is required",

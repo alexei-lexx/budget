@@ -183,11 +183,11 @@
     },
     "errors": {
       "fetchFailed": "Transaktionen konnten nicht geladen werden",
-      "operationFailed": "Transaktionsvorgang fehlgeschlagen",
       "createFailed": "Transaktion konnte nicht erstellt werden",
       "updateFailed": "Transaktion konnte nicht aktualisiert werden",
       "deleteFailed": "Transaktion konnte nicht gelöscht werden",
       "loadMoreFailed": "Weitere Transaktionen konnten nicht geladen werden",
+      "patternsFetchFailed": "Transaktionsmuster konnten nicht geladen werden",
       "createFromTextFailed": "Transaktion konnte nicht erstellt werden. Bitte versuchen Sie es erneut.",
       "accountRequired": "Konto ist erforderlich",
       "typeRequired": "Transaktionstyp ist erforderlich",

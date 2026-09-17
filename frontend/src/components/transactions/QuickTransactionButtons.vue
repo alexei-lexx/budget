@@ -5,6 +5,7 @@ import {
   type TransactionPatternType,
   type TransactionPattern,
 } from "@/composables/useTransactionPatterns";
+import { useSnackbar } from "@/composables/useSnackbar";
 
 interface Props {
   transactionType: TransactionPatternType;
@@ -37,6 +38,12 @@ watch(
 
 // Get patterns using composable
 const { patterns, patternsLoading, patternsError } = useTransactionPatterns(transactionTypeRef);
+
+const { showErrorSnackbar } = useSnackbar();
+
+watch(patternsError, (error) => {
+  if (error) showErrorSnackbar(error);
+});
 
 // Show component only if patterns are available
 const hasPatterns = computed(() => {
