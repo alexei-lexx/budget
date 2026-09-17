@@ -118,6 +118,7 @@ export function useTelegramBot() {
       const refetchResult = await refetchTestTelegramBot();
       return refetchResult?.data?.testTelegramBot === true;
     } catch {
+      // Error is handled by the watch on testTelegramBotQueryError above.
       return false;
     }
   };
