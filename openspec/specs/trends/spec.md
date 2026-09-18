@@ -233,7 +233,7 @@ The system SHALL provide a control that restores all selectors to their defaults
 
 ### Requirement: Trend URL State
 
-The system SHALL encode the applied selection in the URL so the view is bookmarkable and shareable. Opening a URL with an applied selection SHALL restore that selection. Any parameter that is present but invalid SHALL fall back to its default without showing an error.
+The system SHALL encode the applied selection in the URL so the view is bookmarkable and shareable. Opening a URL with an applied selection SHALL restore that selection. Any parameter that is missing or invalid SHALL fall back to its default without showing an error.
 
 When the URL carries no applied-selection parameters at all, the system SHALL restore the user's most recently applied selection instead of the hardcoded defaults, if one was previously stored and is still valid.
 
