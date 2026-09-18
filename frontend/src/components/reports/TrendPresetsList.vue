@@ -48,10 +48,32 @@ function getPeriodPhrase(trendPreset: TrendPreset): string {
     : t("trends.presets.periodPhraseMonth", namedValues, trendPreset.lookback);
 }
 
-// Ordered by categories label ascending ("all" first), then period (month before week),
+// Uncategorized counts as one category toward the sort's category count.
+function getCategoryCount(trendPreset: TrendPreset): number {
+  return trendPreset.categoryIds.length + (trendPreset.includeUncategorized ? 1 : 0);
+}
+
+// Ordered by "all" (no categories and no uncategorized) first,
+// then category count descending (uncategorized counts as one category),
+// then categories label ascending, then period (month before week),
 // then lookback descending, then currency ascending.
 const sortedTrendPresets = computed(() =>
   [...props.trendPresets].sort((a, b) => {
+    const categoryCountA = getCategoryCount(a);
+    const categoryCountB = getCategoryCount(b);
+
+    if (categoryCountA === 0 && categoryCountB > 0) {
+      return -1;
+    }
+
+    if (categoryCountB === 0 && categoryCountA > 0) {
+      return 1;
+    }
+
+    if (categoryCountA !== categoryCountB) {
+      return categoryCountB - categoryCountA;
+    }
+
     const categoriesComparison = getCategoriesLabel(a).localeCompare(getCategoriesLabel(b));
     if (categoriesComparison !== 0) {
       return categoriesComparison;
