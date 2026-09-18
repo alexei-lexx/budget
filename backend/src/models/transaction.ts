@@ -265,14 +265,11 @@ export class Transaction implements TransactionData {
       throw new ModelError("Amount must be positive");
     }
 
-    const isTransfer =
-      this.type === "TRANSFER_IN" || this.type === "TRANSFER_OUT";
+    if (this.isTransfer()) {
+      if (this.categoryId) {
+        throw new ModelError("Transfer transactions cannot have a category");
+      }
 
-    if (isTransfer && this.categoryId) {
-      throw new ModelError("Transfer transactions cannot have a category");
-    }
-
-    if (isTransfer) {
       if (!this.transferId) {
         throw new ModelError("Transfer transactions must include transferId");
       }
@@ -309,6 +306,10 @@ export class Transaction implements TransactionData {
         `Description cannot exceed ${DESCRIPTION_MAX_LENGTH} characters`,
       );
     }
+  }
+
+  private isTransfer() {
+    return this.type === "TRANSFER_IN" || this.type === "TRANSFER_OUT";
   }
 }
 
