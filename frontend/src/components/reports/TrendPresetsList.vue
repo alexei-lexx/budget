@@ -48,10 +48,23 @@ function getPeriodPhrase(trendPreset: TrendPreset): string {
     : t("trends.presets.periodPhraseMonth", namedValues, trendPreset.lookback);
 }
 
-// Ordered by categories label ascending ("all" first), then period (month before week),
+// Ordered by "all" (no categories) first, then category count descending,
+// then categories label ascending, then period (month before week),
 // then lookback descending, then currency ascending.
 const sortedTrendPresets = computed(() =>
   [...props.trendPresets].sort((a, b) => {
+    if (a.categoryIds.length === 0 && b.categoryIds.length > 0) {
+      return -1;
+    }
+
+    if (b.categoryIds.length === 0 && a.categoryIds.length > 0) {
+      return 1;
+    }
+
+    if (a.categoryIds.length !== b.categoryIds.length) {
+      return b.categoryIds.length - a.categoryIds.length;
+    }
+
     const categoriesComparison = getCategoriesLabel(a).localeCompare(getCategoriesLabel(b));
     if (categoriesComparison !== 0) {
       return categoriesComparison;
