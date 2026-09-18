@@ -163,8 +163,8 @@ describe("TrendPresetsList", () => {
 
   it("orders uncategorized-only preset alphabetically among same-count presets", () => {
     // Arrange
-    const groceries = createCategory({ name: "groceries" });
-    const utilities = createCategory({ name: "utilities" });
+    const groceries = createCategory({ name: "Groceries" });
+    const utilities = createCategory({ name: "Utilities" });
     const trendPresets = [
       createTrendPreset({ periodUnit: "MONTH", lookback: 3, categoryIds: [utilities.id] }),
       createTrendPreset({ periodUnit: "MONTH", lookback: 3, includeUncategorized: true }),
@@ -178,9 +178,9 @@ describe("TrendPresetsList", () => {
 
     // Assert
     expect(wrapper.findAll(".v-chip").map((chip) => chip.text())).toEqual([
-      "groceries in last 3 months in EUR",
+      "Groceries in last 3 months in EUR",
       "uncategorized in last 3 months in EUR",
-      "utilities in last 3 months in EUR",
+      "Utilities in last 3 months in EUR",
     ]);
   });
 
