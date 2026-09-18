@@ -47,6 +47,7 @@ import { useCurrencies } from "@/composables/useCurrencies";
 import { useExpenseTrend, type TrendSelection } from "@/composables/useExpenseTrend";
 import { useSnackbar } from "@/composables/useSnackbar";
 import { useTrendPresets } from "@/composables/useTrendPresets";
+import { trendSelectionStorage } from "@/lib/trendSelectionStorage";
 import { getTodayDateString } from "@/utils/date";
 
 const DEFAULT_PERIOD_UNIT: TrendPeriodUnit = "MONTH";
@@ -73,33 +74,84 @@ watch(currenciesErrorMessage, (error) => {
 
 const expenseCategories = computed(() => categories.value?.categories ?? []);
 
-// Parses one URL parameter, falling back to its default when absent or invalid
-function readPeriodUnit(): TrendPeriodUnit {
-  return route.query.periodUnit === "WEEK" || route.query.periodUnit === "MONTH"
-    ? route.query.periodUnit
-    : DEFAULT_PERIOD_UNIT;
+function buildDefaultSelection(): TrendSelection {
+  return {
+    periodUnit: DEFAULT_PERIOD_UNIT,
+    lookback: DEFAULT_LOOKBACK,
+    currency: defaultCurrency.value,
+    categoryIds: [],
+    includeUncategorized: undefined,
+  };
 }
 
-function readLookback(): number {
-  const lookback = Number(route.query.lookback);
-  return Number.isInteger(lookback) && lookback >= 1 && lookback <= 12
-    ? lookback
-    : DEFAULT_LOOKBACK;
+function hasSelectionInUrlQuery(): boolean {
+  return (
+    route.query.periodUnit !== undefined ||
+    route.query.lookback !== undefined ||
+    route.query.currency !== undefined ||
+    route.query.categories !== undefined ||
+    route.query.uncategorized !== undefined
+  );
 }
 
-function readCategoryIds(): string[] {
-  const categoryIds = route.query.categories;
-  return typeof categoryIds === "string" && categoryIds !== "" ? categoryIds.split(",") : [];
+// Falls back to defaults when a URL parameter is absent or invalid
+function readSelectionFromUrlQuery(): TrendSelection {
+  const periodUnit =
+    route.query.periodUnit === "WEEK" || route.query.periodUnit === "MONTH"
+      ? route.query.periodUnit
+      : DEFAULT_PERIOD_UNIT;
+
+  const lookbackNumber = Number(route.query.lookback);
+  const lookback =
+    Number.isInteger(lookbackNumber) && lookbackNumber >= 1 && lookbackNumber <= 12
+      ? lookbackNumber
+      : DEFAULT_LOOKBACK;
+
+  const currency = typeof route.query.currency === "string" ? route.query.currency : "";
+
+  const categoryIds =
+    typeof route.query.categories === "string" && route.query.categories !== ""
+      ? route.query.categories.split(",")
+      : [];
+
+  const includeUncategorized = route.query.uncategorized === "1" || undefined;
+
+  return {
+    periodUnit,
+    lookback,
+    currency,
+    categoryIds,
+    includeUncategorized,
+  };
 }
 
-// Committed selection: only Apply, Clear and the initial URL read change it
-const appliedSelection = ref<TrendSelection>({
-  periodUnit: readPeriodUnit(),
-  lookback: readLookback(),
-  currency: typeof route.query.currency === "string" ? route.query.currency : "",
-  categoryIds: readCategoryIds(),
-  includeUncategorized: route.query.uncategorized === "1" || undefined,
-});
+function buildUrlQueryFromSelection(selection: TrendSelection) {
+  return {
+    periodUnit: selection.periodUnit,
+    lookback: selection.lookback.toString(),
+    currency: selection.currency,
+    ...(selection.categoryIds.length > 0 && {
+      categories: selection.categoryIds.join(","),
+    }),
+    ...(selection.includeUncategorized && { uncategorized: "1" }),
+  };
+}
+
+const storedSelection = trendSelectionStorage.read();
+
+// If there is no selection in the URL and a stored selection exists,
+// sync the stored selection to the URL
+if (!hasSelectionInUrlQuery() && storedSelection) {
+  router.replace({ query: buildUrlQueryFromSelection(storedSelection) });
+}
+
+// The currently active selection.
+// It changes only when the user clicks Apply or Clear, or on the initial load.
+// Seed order: the URL, then the stored selection, then the hardcoded defaults.
+const initialAppliedSelection = hasSelectionInUrlQuery()
+  ? readSelectionFromUrlQuery()
+  : (storedSelection ?? buildDefaultSelection());
+const appliedSelection = ref<TrendSelection>(initialAppliedSelection);
 
 // The default currency resolves once supported currencies load
 const selection = computed<TrendSelection>(() => ({
@@ -115,28 +167,15 @@ watch(expenseTrendError, (error) => {
 
 function handleApply(newSelection: TrendSelection) {
   appliedSelection.value = newSelection;
+  trendSelectionStorage.write(newSelection);
 
-  router.replace({
-    query: {
-      periodUnit: newSelection.periodUnit,
-      lookback: newSelection.lookback.toString(),
-      currency: newSelection.currency,
-      ...(newSelection.categoryIds.length > 0 && {
-        categories: newSelection.categoryIds.join(","),
-      }),
-      ...(newSelection.includeUncategorized && { uncategorized: "1" }),
-    },
-  });
+  router.replace({ query: buildUrlQueryFromSelection(newSelection) });
 }
 
 function handleClear() {
-  appliedSelection.value = {
-    periodUnit: DEFAULT_PERIOD_UNIT,
-    lookback: DEFAULT_LOOKBACK,
-    currency: defaultCurrency.value,
-    categoryIds: [],
-    includeUncategorized: undefined,
-  };
+  const defaultSelection = buildDefaultSelection();
+  appliedSelection.value = defaultSelection;
+  trendSelectionStorage.write(defaultSelection);
 
   router.replace({ query: {} });
 }
