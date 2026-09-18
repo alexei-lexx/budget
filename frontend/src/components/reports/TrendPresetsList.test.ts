@@ -144,6 +144,74 @@ describe("TrendPresetsList", () => {
     ]);
   });
 
+  it("orders all before uncategorized-only preset", () => {
+    // Arrange
+    const trendPresets = [
+      createTrendPreset({ periodUnit: "MONTH", lookback: 3, includeUncategorized: true }),
+      createTrendPreset({ periodUnit: "MONTH", lookback: 3 }),
+    ];
+
+    // Act
+    const wrapper = mount(TrendPresetsList, { props: { trendPresets, categories: [] } });
+
+    // Assert
+    expect(wrapper.findAll(".v-chip").map((chip) => chip.text())).toEqual([
+      "all in last 3 months in EUR",
+      "uncategorized in last 3 months in EUR",
+    ]);
+  });
+
+  it("orders uncategorized-only preset alphabetically among same-count presets", () => {
+    // Arrange
+    const groceries = createCategory({ name: "groceries" });
+    const utilities = createCategory({ name: "utilities" });
+    const trendPresets = [
+      createTrendPreset({ periodUnit: "MONTH", lookback: 3, categoryIds: [utilities.id] }),
+      createTrendPreset({ periodUnit: "MONTH", lookback: 3, includeUncategorized: true }),
+      createTrendPreset({ periodUnit: "MONTH", lookback: 3, categoryIds: [groceries.id] }),
+    ];
+
+    // Act
+    const wrapper = mount(TrendPresetsList, {
+      props: { trendPresets, categories: [groceries, utilities] },
+    });
+
+    // Assert
+    expect(wrapper.findAll(".v-chip").map((chip) => chip.text())).toEqual([
+      "groceries in last 3 months in EUR",
+      "uncategorized in last 3 months in EUR",
+      "utilities in last 3 months in EUR",
+    ]);
+  });
+
+  it("orders preset with categories and uncategorized by combined category count", () => {
+    // Arrange
+    const alpha = createCategory({ name: "Alpha" });
+    const beta = createCategory({ name: "Beta" });
+    const sigma = createCategory({ name: "Sigma" });
+    const tau = createCategory({ name: "Tau" });
+    const trendPresets = [
+      createTrendPreset({ periodUnit: "MONTH", lookback: 3, categoryIds: [alpha.id, beta.id] }),
+      createTrendPreset({
+        periodUnit: "MONTH",
+        lookback: 3,
+        categoryIds: [sigma.id, tau.id],
+        includeUncategorized: true,
+      }),
+    ];
+
+    // Act
+    const wrapper = mount(TrendPresetsList, {
+      props: { trendPresets, categories: [alpha, beta, sigma, tau] },
+    });
+
+    // Assert
+    expect(wrapper.findAll(".v-chip").map((chip) => chip.text())).toEqual([
+      "Sigma, Tau, uncategorized in last 3 months in EUR",
+      "Alpha, Beta in last 3 months in EUR",
+    ]);
+  });
+
   it("orders categories alphabetically", () => {
     // Arrange
     const groceries = createCategory({ name: "Groceries" });
