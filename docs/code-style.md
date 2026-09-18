@@ -5,7 +5,8 @@
 All generated or manually written TypeScript code MUST adhere to strict type safety and code quality standards.
 
 - Avoid non-null assertions (`!`) unless absolutely necessary
-  - Document the reason when used
+  - Acceptable when indexing an array (or similar structure) at a position already proven to be within bounds elsewhere in the code, even though TypeScript can't track that proof
+  - In other cases when used, document the reason
 - Avoid type assertions (`as any`) unless absolutely necessary
   - Document the reason when used
 - Avoid unnecessary type checks (`typeof`, non-null checks, non-undefined checks) when the provided type is explicit and doesn't require such checks
