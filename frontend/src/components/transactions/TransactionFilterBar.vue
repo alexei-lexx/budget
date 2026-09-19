@@ -1,103 +1,101 @@
 <!-- eslint-disable vue/no-mutating-props -->
 <template>
-  <v-expand-transition>
-    <div v-show="modelValue" class="pa-3 pa-sm-4">
-      <v-row dense>
-        <!-- Account Filter -->
-        <v-col cols="12" md="6">
-          <v-select
-            v-model="filters.selectedAccountIds.value"
-            :items="accounts"
-            item-title="name"
-            item-value="id"
-            :label="t('transactions.filterBar.accounts')"
-            multiple
-            chips
-            closable-chips
-            :disabled="loading"
-            clearable
-            variant="outlined"
-            density="compact"
-          />
-        </v-col>
+  <div class="pa-3 pa-sm-4">
+    <v-row dense>
+      <!-- Account Filter -->
+      <v-col cols="12" md="6">
+        <v-select
+          v-model="filters.selectedAccountIds.value"
+          :items="accounts"
+          item-title="name"
+          item-value="id"
+          :label="t('transactions.filterBar.accounts')"
+          multiple
+          chips
+          closable-chips
+          :disabled="loading"
+          clearable
+          variant="outlined"
+          density="compact"
+        />
+      </v-col>
 
-        <!-- Category Filter -->
-        <v-col cols="12" md="6">
-          <CategoryMultiSelect
-            v-model="filters.selectedCategoryIds.value"
-            :categories="categories"
-            :label="t('transactions.filterBar.categories')"
-            :disabled="loading"
-          />
-          <v-checkbox
-            v-model="filters.includeUncategorized.value"
-            :label="t('transactions.filterBar.includeUncategorized')"
-            :disabled="loading"
-            density="compact"
-            class="mt-1"
-          />
-        </v-col>
+      <!-- Category Filter -->
+      <v-col cols="12" md="6">
+        <CategoryMultiSelect
+          v-model="filters.selectedCategoryIds.value"
+          :categories="categories"
+          :label="t('transactions.filterBar.categories')"
+          :disabled="loading"
+        />
+        <v-checkbox
+          v-model="filters.includeUncategorized.value"
+          :label="t('transactions.filterBar.includeUncategorized')"
+          :disabled="loading"
+          density="compact"
+          class="mt-1"
+        />
+      </v-col>
 
-        <!-- Date After -->
-        <v-col cols="12" md="6">
-          <v-text-field
-            v-model="filters.dateAfter.value"
-            type="date"
-            :label="t('transactions.filterBar.fromDate')"
-            :disabled="loading"
-            clearable
-            variant="outlined"
-            density="compact"
-          />
-        </v-col>
+      <!-- Date After -->
+      <v-col cols="12" md="6">
+        <v-text-field
+          v-model="filters.dateAfter.value"
+          type="date"
+          :label="t('transactions.filterBar.fromDate')"
+          :disabled="loading"
+          clearable
+          variant="outlined"
+          density="compact"
+        />
+      </v-col>
 
-        <!-- Date Before -->
-        <v-col cols="12" md="6">
-          <v-text-field
-            v-model="filters.dateBefore.value"
-            type="date"
-            :label="t('transactions.filterBar.toDate')"
-            :disabled="loading"
-            clearable
-            variant="outlined"
-            density="compact"
-          />
-        </v-col>
+      <!-- Date Before -->
+      <v-col cols="12" md="6">
+        <v-text-field
+          v-model="filters.dateBefore.value"
+          type="date"
+          :label="t('transactions.filterBar.toDate')"
+          :disabled="loading"
+          clearable
+          variant="outlined"
+          density="compact"
+        />
+      </v-col>
 
-        <!-- Transaction Type Filter -->
-        <v-col cols="12" md="6">
-          <v-select
-            v-model="filters.selectedTypes.value"
-            :items="transactionTypeOptions"
-            :label="t('transactions.filterBar.types')"
-            multiple
-            chips
-            closable-chips
-            :disabled="loading"
-            clearable
-            variant="outlined"
-            density="compact"
-          />
-        </v-col>
-      </v-row>
+      <!-- Transaction Type Filter -->
+      <v-col cols="12" md="6">
+        <v-select
+          v-model="filters.selectedTypes.value"
+          :items="transactionTypeOptions"
+          :label="t('transactions.filterBar.types')"
+          multiple
+          chips
+          closable-chips
+          :disabled="loading"
+          clearable
+          variant="outlined"
+          density="compact"
+        />
+      </v-col>
+    </v-row>
 
-      <v-row class="mt-2">
-        <v-col cols="12" class="d-flex align-center">
-          <v-btn
-            variant="outlined"
-            @click="handleClear"
-            :disabled="loading || !filters.hasSelectedFilters.value"
-          >
-            {{ t("common.buttons.clear") }}
-          </v-btn>
-          <v-spacer />
-          <v-btn color="primary" @click="handleApply" :disabled="loading">
-            {{ t("common.buttons.apply") }}
-          </v-btn>
-        </v-col>
-      </v-row>
-    </div>
-  </v-expand-transition>
+    <v-row class="mt-2">
+      <v-col cols="12" class="d-flex align-center">
+        <v-btn
+          variant="outlined"
+          @click="handleClear"
+          :disabled="loading || !filters.hasSelectedFilters.value"
+        >
+          {{ t("common.buttons.clear") }}
+        </v-btn>
+        <v-spacer />
+        <v-btn color="primary" @click="handleApply" :disabled="loading">
+          {{ t("common.buttons.apply") }}
+        </v-btn>
+      </v-col>
+    </v-row>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -108,7 +106,6 @@ import type { TransactionFiltersState } from "@/composables/useTransactionFilter
 import CategoryMultiSelect from "@/components/common/CategoryMultiSelect.vue";
 
 interface Props {
-  modelValue: boolean;
   accounts: Account[];
   categories: Category[];
   filters: TransactionFiltersState;
@@ -118,7 +115,6 @@ interface Props {
 const props = defineProps<Props>();
 
 const emit = defineEmits<{
-  "update:modelValue": [value: boolean];
   apply: [];
   clear: [];
 }>();
