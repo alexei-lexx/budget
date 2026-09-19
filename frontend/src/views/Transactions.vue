@@ -69,15 +69,17 @@
     </div>
 
     <!-- Transaction Filter Bar -->
-    <TransactionFilterBar
-      v-model="showFilter"
-      :accounts="accounts"
-      :categories="categories"
-      :filters="transactionFilters"
-      :loading="paginatedLoading"
-      @apply="() => {}"
-      @clear="() => {}"
-    />
+    <v-expand-transition>
+      <TransactionFilterBar
+        v-if="showFilter"
+        :accounts="accounts"
+        :categories="categories"
+        :filters="transactionFilters"
+        :loading="paginatedLoading"
+        @apply="() => {}"
+        @clear="() => {}"
+      />
+    </v-expand-transition>
 
     <!-- Loading State -->
     <div v-if="paginatedLoading" class="text-center py-8">
