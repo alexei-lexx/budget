@@ -195,8 +195,9 @@
       "dateInvalidFormat": "Date must be in YYYY-MM-DD format"
     },
     "filterBar": {
-      "account": "Account",
-      "category": "Category",
+      "accounts": "Accounts",
+      "categories": "Categories",
+      "types": "Types",
       "includeUncategorized": "Include uncategorized",
       "fromDate": "From Date",
       "toDate": "To Date"

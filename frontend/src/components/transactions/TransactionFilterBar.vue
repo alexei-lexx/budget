@@ -10,7 +10,7 @@
             :items="accounts"
             item-title="name"
             item-value="id"
-            :label="t('transactions.filterBar.account')"
+            :label="t('transactions.filterBar.accounts')"
             multiple
             chips
             closable-chips
@@ -23,30 +23,12 @@
 
         <!-- Category Filter -->
         <v-col cols="12" md="6">
-          <v-select
+          <CategoryMultiSelect
             v-model="filters.selectedCategoryIds.value"
-            :items="categoryOptions"
-            item-title="name"
-            item-value="id"
-            :label="t('transactions.filterBar.category')"
-            multiple
-            chips
-            closable-chips
+            :categories="categories"
+            :label="t('transactions.filterBar.categories')"
             :disabled="loading"
-            clearable
-            variant="outlined"
-            density="compact"
-          >
-            <template #item="{ props, item }">
-              <v-list-item v-bind="props">
-                <template #append>
-                  <v-icon :color="getCategoryIconColor(item.raw.type)">
-                    {{ getCategoryIcon(item.raw.type) }}
-                  </v-icon>
-                </template>
-              </v-list-item>
-            </template>
-          </v-select>
+          />
           <v-checkbox
             v-model="filters.includeUncategorized.value"
             :label="t('transactions.filterBar.includeUncategorized')"
@@ -87,7 +69,7 @@
           <v-select
             v-model="filters.selectedTypes.value"
             :items="transactionTypeOptions"
-            :label="t('transactions.form.type')"
+            :label="t('transactions.filterBar.types')"
             multiple
             chips
             closable-chips
@@ -123,7 +105,7 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import type { Account, Category, TransactionType } from "@/__generated__/vue-apollo";
 import type { TransactionFiltersState } from "@/composables/useTransactionFilters";
-import { getCategoryIconColor, getCategoryIcon } from "@/utils/category";
+import CategoryMultiSelect from "@/components/common/CategoryMultiSelect.vue";
 
 interface Props {
   modelValue: boolean;
@@ -142,11 +124,6 @@ const emit = defineEmits<{
 }>();
 
 const { t } = useI18n();
-
-// Add "Uncategorized" option to categories
-const categoryOptions = computed(() => {
-  return [...props.categories];
-});
 
 // Transaction type options
 const transactionTypeOptions = computed(

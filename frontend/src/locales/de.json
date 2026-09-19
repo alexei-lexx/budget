@@ -195,8 +195,9 @@
       "dateInvalidFormat": "Datum muss im Format JJJJ-MM-TT vorliegen"
     },
     "filterBar": {
-      "account": "Konto",
-      "category": "Kategorie",
+      "accounts": "Konten",
+      "categories": "Kategorien",
+      "types": "Typen",
       "includeUncategorized": "Unkategorisiert einschließen",
       "fromDate": "Von Datum",
       "toDate": "Bis Datum"
