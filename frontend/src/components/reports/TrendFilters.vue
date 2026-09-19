@@ -3,18 +3,11 @@
     <v-row dense>
       <!-- Category Filter -->
       <v-col cols="12">
-        <v-select
+        <CategoryMultiSelect
           v-model="draftCategoryIds"
-          :items="categoryOptions"
-          item-title="name"
-          item-value="id"
+          :categories="categoryOptions"
           :label="t('trends.filters.categories')"
-          multiple
-          chips
-          closable-chips
           :disabled="loading"
-          variant="outlined"
-          density="compact"
         />
       </v-col>
 
@@ -100,6 +93,7 @@
 import { computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import type { Category, TrendPeriodUnit } from "@/__generated__/vue-apollo";
+import CategoryMultiSelect from "@/components/common/CategoryMultiSelect.vue";
 import { useCurrencies } from "@/composables/useCurrencies";
 import type { TrendSelection } from "@/composables/useExpenseTrend";
 import { useTrendPresets } from "@/composables/useTrendPresets";
