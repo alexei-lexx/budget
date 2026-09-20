@@ -1,0 +1,124 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:97fc4f891bcec70b3d2dfb9c3a295b97a1dbb32441d191a67464cf8f8204341a",
+  "claims": [
+    {
+      "id": "claim_1099dc2d676b4d41a3070aa806380915",
+      "statement": "The frontend router protects Accounts, Categories, Transactions, ByCategoryReport, Trends, Assistant, and Settings with an async `requireAuth` guard that waits for auth loading to finish, lets authenticated users through, and redirects unauthenticated users to SignIn.",
+      "evidence": [
+        {
+          "resource": "repo://frontend/src/router/index.ts#L26-L55",
+          "version": "repo-lines-v1:sha256:db11e031c1145700d0ffba724d440cb4527911c1e98ab335f17a16ecc557d55a:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIxMjBiMDZhMTJiZGVmM2ExZDc2YWRiOTgxNmU0NjIyZjhkMTY5YmZmNWJkZjhlODdhYjNlN2YzNTJjMWM4YWQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFhMWQxYTYzMzkwMjI5Yzc5ODM0N2U4M2EwNDA1NDQxYzk0MDAwMzUyODRhZDE2OGMxYmY2Y2RmMWQ3MGEzNzAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZiNTgwZTk2NGY4M2E0NzNmNDNkNDQzODQ2Mjk0OWQ2OGI1NjAwZmRhNzg3ZjE2Mzc0NWQwMGRlODljYmYzNmEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjY4ZWY5YzgwNjE4YzZiYzY4YjJlOWUzMmU5NzFmZGFmYTlmYTZlZjkzM2RkYjQwOTkyMzMyNGMxN2FlY2UxMjkifQ"
+        },
+        {
+          "resource": "repo://frontend/src/router/index.ts#L57-L113",
+          "version": "repo-lines-v1:sha256:f7eb8116da573add49d8981a7e65f63e2425737db170e51d2e83357b30acf77a:eyJzZWxlY3RlZExpbmVDb3VudCI6NTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE2ZjgxZWUyZTI5YWMzMWE0NzhhODk4NTFmZjA5MTI0ZWVkMjc0ZWJiNTU4ZjhiMzVhNTlkMGNkZWM2ODM3ZTIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIwMmQyYzBkNmRjNWU3NGQ5MmZhMTRiOTFkYmVhMjY0MDkwYmViMzVmZGI5MTg4ZDliMzQxMTgxZGNlOWY0Y2UiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjcyMTI5YzI3MzUyYjQ5NTU0OGIwNzFhZTM0YWI5MDgxMTcyODczNDI4ZjZmODdmNTRiNTgwZTUxNTNjOWFhMDIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImEzMjI4NDg0YmZlODkxZDNiM2M1YWY1OGU0M2VlYWE1OWFmMWEwOTM5Y2ViZDU4MzMzMzhlNThjM2NmOWNmODYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_b7f407c5cae54b36bc53a5cc70a5c699",
+      "statement": "Each GraphQL request builds a fresh Apollo context in `backend/src/server.ts` by normalizing the Authorization header, resolving JWT auth, attaching repositories and services, and creating request-scoped DataLoaders with lazy authenticated-user lookup.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/server.ts#L44-L172",
+          "version": "repo-lines-v1:sha256:ad7a218aa51228c924e72130b5bbd7db3291c38066a9cdd33e3d847a248a44af:eyJzZWxlY3RlZExpbmVDb3VudCI6MTI5LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI1NzNiOWEzYmExNGUzY2EzY2IyM2I1OGEyMmY2NGRhYmUwOTAxZmI0ODYyYjhlNWQ5OWY3ZjFmYzgyMTQxN2Q0IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI0MmEyY2IyNWExMjJiNDQyMjFhNjIzNGVjNjYwYTdiNWZiN2Y5YmRlN2IzYjllMmIzYzU1OWEwZDk2ZmFjNzM5IiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI4MTliMjc1NjQ3MDIxZGJlZGFhOTQyNjQ3YmI4ODMxZTZlY2IyYjdmNjViNTlmNTJlYzgzMWVjY2MyYTcwOGRlIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MSwiZm9sbG93aW5nQ29udGV4dEhhc2giOiI0MTJjYTM0NWNjZjc1YmY5YzA4MDZiY2U2OTViZThkZTgwOGI3OTk4NDI1MWE3YTU0ZDIwMmNmNjEwMWRkNDUxIn0"
+        }
+      ]
+    },
+    {
+      "id": "claim_a355305298394d66a21cad9e81f7fcea",
+      "statement": "Apollo error formatting passes through intentional `GraphQLError`s, maps date parsing errors to `BAD_USER_INPUT`, maps business and model errors to `BAD_REQUEST`, and logs all other errors before returning a generic internal server error.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/server.ts#L44-L88",
+          "version": "repo-lines-v1:sha256:3480734aba2f4361ec9d1c6033ea2af87385ff6210074d38f3065f2cfc970c7d:eyJzZWxlY3RlZExpbmVDb3VudCI6NDUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU3M2I5YTNiYTE0ZTNjYTNjYjIzYjU4YTIyZjY0ZGFiZTA5MDFmYjQ4NjJiOGU1ZDk5ZjdmMWZjODIxNDE3ZDQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkNWNkMmZiNGYzZGY4ODQ1MTUyNTViMzk1MjNmMmY4YjU0NzJiZWVhOWY1NjZmZmNhMjA0ZGI4MDI1NjEwNDEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjgxOWIyNzU2NDcwMjFkYmVkYWE5NDI2NDdiYjg4MzFlNmVjYjJiN2Y2NWI1OWY1MmVjODMxZWNjYzJhNzA4ZGUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA4YjdkNzgzMmE4MTQwYTJhYjMwYTJjYTI0OTk2NzEyYTc0NjIyMzFhOWYwMmMyYTA5N2YzNjI5NjZkNzQzYjMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_d995b33b60d04fad876374eab3fa1f0b",
+      "statement": "`askAssistant` authenticates the caller, forwards question, voice flag, and optional session id to `assistantChatService`, and returns either `AssistantSuccess` or `AssistantFailure` with the service-provided agent trace and session id.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/graphql/resolvers/assistant-resolvers.ts#L5-L35",
+          "version": "repo-lines-v1:sha256:ebf90591a197e24ec709d867e26dd5acd0fa94bc5881a67a0d8c2dab17ea640b:eyJzZWxlY3RlZExpbmVDb3VudCI6MzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVjNjI1OTI1YWFmZjk3ZDBhZmIyN2U3MThjYzcyN2Q2MTNiMzQxMmQxYTgxNWIxODM0ZWUzOWNmYmFmNDNhOTkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFmMGNkYjk3MmE3YmZiN2VkMjQ2ZjlmZjY3MjM4NWU1NWY0OTY4ZmMxMTA0M2RjNWI2ODRkNTFkZmEzMWRiY2IiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQ3N2Q4MjRjZGNjZDEwYTFmZTc3YjlhNjUwOTUxOGIwN2Y5M2RhZTUyMDQ0MTcxMWQyMTRhNzM2ZDI5Y2E1ODEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoyLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImU5YjFiYTIzZjkyNjI1OTk4NzExZTg4ZmQ1YjI5MDVkZmM1M2ZiMjhjNzVkNWNhZWUyNzRkMDVlM2E1NTc5NGQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_f08d46c9b0804153b62785849afd5d59",
+      "statement": "`AssistantChatServiceImpl` reuses a provided session id or generates a UUID, loads recent messages for that user and session, passes them to `AssistantService`, persists the user question and assistant answer only after success, and returns the same session id on both success and failure.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/services/assistant-chat-service.ts#L20-L114",
+          "version": "repo-lines-v1:sha256:5ce651f0914008546f15956c26eb893fb7240f4526482d7c94248abe378aba98:eyJzZWxlY3RlZExpbmVDb3VudCI6OTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjYzOGQxMDQ2MGNjMzIwOGZiZDIwZTVlMDBhZmFmOTAyYjRiZjE5ZGFiYWJhODI4OTcyYmM3ZDY4NGJkYWZlMDgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjIyNTdmYzg0N2JkZTBjMzMzNTViZjEyNWIzM2FiZDRiNmJhODUyNWVmNmE3ZGRjOGFkMTc1YTY0ZWNhYWVlNDAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_03e69c9f83484532b18a3421ba887984",
+      "statement": "`CreateTransactionFromTextService` rejects empty user ids and blank text before invoking the agent, passes trimmed text plus user, voice, and today context to the agent, requires the create-transaction tool to run, logs malformed or failed tool output, and fetches the created transaction by id only after a successful tool result.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/services/create-transaction-from-text-service.ts#L22-L157",
+          "version": "repo-lines-v1:sha256:9969f9faac5766ae271684e7593de2f43f14f0219267c32c13c162625e0e6bd6:eyJzZWxlY3RlZExpbmVDb3VudCI6MTM2LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJjNDM1MGMxMDNlZjRiNWRmZTU0YjkzZDU3NjIwNGQ3ZTljYjEzZjg5NjMxOTA0NmVhYzU4OGYwODY0MzU4MDEyIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIyN2U1Nzg4ZDVkOWQ3M2QyNGE4MWRiYzBhNWE3NGJmYTgyYzljM2IzYWY5OWU1MmFmNzk2ZTkwYjQ2OGE4YTNkIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI4ZmQ0ZmViYzRlZDhjODMyMmYwNDQ4MDM1NDVlM2RjZWMzMzRmZGM3NDRiODE3OTQ0ZTBiZTg3OTVkN2EyYjc1IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MSwiZm9sbG93aW5nQ29udGV4dEhhc2giOiI0MTJjYTM0NWNjZjc1YmY5YzA4MDZiY2U2OTViZThkZTgwOGI3OTk4NDI1MWE3YTU0ZDIwMmNmNjEwMWRkNDUxIn0"
+        }
+      ]
+    },
+    {
+      "id": "claim_53614fad685948acab539d7055b313ab",
+      "statement": "`ProcessTelegramMessageService` ignores updates when no bot is connected or the connected bot id does not match, replies with a non-text warning for textless messages, derives a deterministic session id from bot and chat ids for text messages, and sends either the assistant answer or assistant error message back through Telegram.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/services/process-telegram-message-service.ts#L13-L87",
+          "version": "repo-lines-v1:sha256:fc5fcd810917f670e6c4fc108b810189f2871f7d4c284fd6560f567424f14ee2:eyJzZWxlY3RlZExpbmVDb3VudCI6NzUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjlkYmU3NzIzOTViMGVlNmMzZTZjZjVmMmI3Zjg3YTVjMzUyZTMxOGFkNmU3Zjg1ODZkNjAwOTZjZTQ4MmYxY2QiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjYyY2YxNjlmMjBkMWRkNjlkNWY0YzhlMzc5YzYyZmYxYjg2NGIzMzA4ZDE1MjMyNTExYTMwYmQwMDhkMGJhZGEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_0b503f57a12341b59eae78b53ef1d6fe",
+      "statement": "The local migration script creates a DynamoDB client, runs migrations, exits with code 1 when any migration fails or the runner throws, and exits with code 0 only after all migrations succeed.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/scripts/migrate.ts#L1-L30",
+          "version": "repo-lines-v1:sha256:c91513d1239532a497462d80f4c16c5c35005ef70395d9700efa649b4102d452:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQwYzRhYzg3Yjg1ZTBlNDQ2MmUzMzUyMjdlYmYzM2NmYTcxYTE3ZmU4NGRmMzA3MDU4NDM1MzgwNTg5NTcyN2QiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjEyN2VlYTcyMmIxMTQ5MjM0MDg1MGM5M2VhZmVlMzQ5ZDc3N2MxYTE0MGU3N2FiZmFhOTQzMDU1MzE3ZDg0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_61cf53cf305f4607825d303c13952c83",
+      "statement": "`deploy.sh` validates `ENV`, reads deployment-time SSM parameters before building, deploys backend infrastructure before running the migration Lambda, aborts when required CDK outputs are missing, and only after migrations succeed builds and uploads the frontend assets and optionally invalidates CloudFront.",
+      "evidence": [
+        {
+          "resource": "repo://deploy.sh#L1-L236",
+          "version": "repo-lines-v1:sha256:f9e85c21e6dedc3468de3ea99506cd7688d8e4eec2ef5a9cf462fa636c4595bc:eyJzZWxlY3RlZExpbmVDb3VudCI6MjM2LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI4OGZjNjMzNjY3ZDAzMDA3MzFiZGQ4NDQ3MmRjNDI0ZTFmOWM2NDE3NWVhMmJhZGI2NjY0NzJkOTFhZWI0ZWZjIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiJjNDZjZDdjZjc4NmJlYmFlNWRmNzkxNjIxN2NiMWE2YzlmMjUxMDI3YTA3NjRlMGVhNDZiZGJjYjJlODYwOWE2IiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MCwicHJlY2VkaW5nQ29udGV4dEhhc2giOiJlM2IwYzQ0Mjk4ZmMxYzE0OWFmYmY0Yzg5OTZmYjkyNDI3YWU0MWU0NjQ5YjkzNGNhNDk1OTkxYjc4NTJiODU1IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MCwiZm9sbG93aW5nQ29udGV4dEhhc2giOiJlM2IwYzQ0Mjk4ZmMxYzE0OWFmYmY0Yzg5OTZmYjkyNDI3YWU0MWU0NjQ5YjkzNGNhNDk1OTkxYjc4NTJiODU1In0"
+        }
+      ]
+    },
+    {
+      "id": "claim_2e8ce227dbc1411bbbf34dbda83124a7",
+      "statement": "The README documents that deployment proceeds in the order backend build, auth infrastructure, backend infrastructure, frontend infrastructure, auth URL updates, migrations, and frontend asset upload, and distinguishes deployment-time configuration from runtime configuration.",
+      "evidence": [
+        {
+          "resource": "repo://README.md#L49-L93",
+          "version": "repo-lines-v1:sha256:104e54199bd67d07f4382264d4551f60376bb74f12c499a0fc1b44ec164cc642:eyJzZWxlY3RlZExpbmVDb3VudCI6NDUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQwMmUyYjMyMmRmMTkzYzEzN2ZlNTBlZDQ0NmVjNzQ2ZGVhY2Y1ODhjOTdiMzc0MDJkYWEzNjJhOGIzYjllZDUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjJhN2JjMzc1M2I1MmYxYjZmNzE1MTg5YTc3MGFlMDYyZDI3YjFlZmZhZGY2Y2M2NzIxOWI0Y2U1ZjIyZWE2ZDYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImEwYzAzNDE2ZGMxYjVlNGNjNzQzM2JjNzhlMmRkMDlkNzFjN2M4NjU2NDYwM2I2NGVhYWE0Y2M3NTU2OGY3M2EifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_b179280f3d004ad080a5f8335ce6cf28",
+      "statement": "The backend dependency wiring creates `AssistantChatService`, `CreateTransactionFromTextService`, and `ProcessTelegramMessageService` as async singletons and supplies runtime limits such as chat history size and message TTL from environment variables.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/dependencies.ts#L247-L281",
+          "version": "repo-lines-v1:sha256:dfa375c6cdfc94c92f3a72084db35dacd8907278bb47059d5098eaffb635bc62:eyJzZWxlY3RlZExpbmVDb3VudCI6MzUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE5NzdmYmMzZDAyMDc5NTQ1MjFlNmM4MjY3YzVjZGI5MTQ3MzkwNTYwOGVkNWMxYzEzN2Y2MzkzYzliNWZmMGUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ5OTBlYjZjY2RiMGZlZmNjM2M5YTg4M2M4NzljOTg2NmJlMzM5MzFjYWFhYmYzNjYyZDdhYzRjNDEzZWM4YjMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjFlNzA0ODYxZDk0NjU1YWE4N2U0OTBjMjIwNDljOTljZWJmNWU4YWJmZTU5NWYxNWU0YTkxMTgzNGUyNzM0YzAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijg1NDk3ZGFlMWMzYmJmNTljMzI1N2Q5NTcwMjc0ZTlhNDkxYWExMmNhMjU0NWJiZWQ1ODFkMDIwMDFiYWVmZTIifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.5.2",
+    "at": "2026-09-20T15:02:07.269Z"
+  }
+}

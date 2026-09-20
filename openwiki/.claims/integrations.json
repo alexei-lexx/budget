@@ -1,0 +1,204 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:aaffbda8ce8511b68cf546d5850775f91a7be382680ea31dadbb8febf726bb4f",
+  "claims": [
+    {
+      "id": "claim_55a8644ec56c49e3b8636896979552de",
+      "statement": "The authentication boundary is implemented with AWS Cognito and OIDC: the auth CDK stack provisions the user pool, app client, hosted UI domain, and a pre-token-generation Lambda that adds a namespaced email claim to access tokens so backend JWT validation can derive user identity without calling `/userinfo`.",
+      "evidence": [
+        {
+          "resource": "repo://infra-cdk/lib/auth-cdk-stack.ts#L146-L246",
+          "version": "repo-lines-v1:sha256:95508c56f600f4a1bdcefa0a38cd4e4cfc7e11e0ac62f8fbc61caca6e2979cf9:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAxLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiIyY2RkMjU1OTUzMmIzMGU4YzNmMzM0MzdlZjEwOWFjODMxMjE2YjYxYzBiYTUyN2RmZGM5OWExY2Q5OTk3ZjFhIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIyMmQxMWNhZjQzZTk3ZWYzNjllNmJlZWQxYTI2OGJkMDU4MzhmMjliOWRkMjU0YmY2OWJhNjQ4ODQxNDcyMzRhIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI0NDQzY2M4M2FhNDU4NDNkZmE5ZGVlMzQyYWU4MGYyMmJiOWMxNjA5N2E5Mjk2NThlMTIzNWYxMGU1MjMxYmUxIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MiwiZm9sbG93aW5nQ29udGV4dEhhc2giOiJkZjczOWEwNmMxY2JiMTI0NGUzMzYzZDM4YmNmOWZhNTBjZTg0ZmVkMzk5YzIxOTNhM2M3ZjA4ZDU5OTE4YjJhIn0"
+        },
+        {
+          "resource": "repo://infra-cdk/lib/auth-cdk-stack.ts#L62-L145",
+          "version": "repo-lines-v1:sha256:677fbd96f9848af41a64f979cf929a75ceb86890c5425be957c16ec15ae048f1:eyJzZWxlY3RlZExpbmVDb3VudCI6ODQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjYzOTY2MDZlYzkxMTM4NjRkYWY3OTMyY2IzODA1ZTA5OGU5MmIzNmFlZjI5ODEwNWZjM2E5M2MxYzA4MmZiYzUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImYyODg2ZTBiNGQxMjYwMTBlOTYwZTY3ZDEzMGQ4YzZlMmIwZmE4MWE3ZjAxMWE1NzUzMzRlYWUyYWJiMmMzY2IiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU2ZWRiM2VlMjM2NTI5ZjhjNmEwYzA2ZGZkZDY3ZTI3MTQ4Yzc2OWM2NWQ3YmRhNGU0MWRlZGFiMDE4NDAxMjYifQ"
+        },
+        {
+          "resource": "repo://infra-cdk/lib/backend-cdk-stack.ts#L150-L167",
+          "version": "repo-lines-v1:sha256:9caa0d979a0dac669d91410988934e6a79d19a4f2971f413b0dc2b55cd503717:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjEzN2M4MjQ0YWJhYTMxMWExNmRkNjdlOTZmM2U0NDZiM2I1ODRiN2FiNDhlZjM1ZGE1NjRhMzNjOGNiNzcxZGIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM4YTZhNWUwNTE5OGRkZWZhMzkwODZlMzgwNDI2ZjE4MjQ1YTNiMDI2MTczNWQ0ZTM3ZGRlYjU2ZmRkMTcwZjQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE0NGY5NmJhODZkZjk4OGZiNzE5N2RmYjFmM2QwN2Y4Mzk0NmZmNWY3NDY4MWRiNDBhZDEyYWE1MDI0Nzc0YTIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImZiMGIyZTFlYzg2MjgxOGIyZTcyNGM3YjIzZjJiYzE4ZDUyNTI4MDY3N2VkMWI3NTVjOGFmY2IzMTQzZmM0MGIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_f8db6eedc8444ffcae91615c7c4789fe",
+      "statement": "The backend receives auth configuration through environment variables and validates incoming JWTs in the auth layer before building request context, keeping Cognito/OIDC specifics out of application services.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/auth/jwt-auth.ts",
+          "version": "repo-file-v1:sha256:581ce0bb5d183e01868d299e469d15e005ad2bf80183b613662127479f8c1246"
+        },
+        {
+          "resource": "repo://backend/src/server.ts",
+          "version": "repo-file-v1:sha256:871c536162807092e556c8103e11f7ec6c2bc78baba2e3cd3df349a6f43f8649"
+        },
+        {
+          "resource": "repo://infra-cdk/lib/backend-cdk-stack.ts#L150-L167",
+          "version": "repo-lines-v1:sha256:9caa0d979a0dac669d91410988934e6a79d19a4f2971f413b0dc2b55cd503717:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjEzN2M4MjQ0YWJhYTMxMWExNmRkNjdlOTZmM2U0NDZiM2I1ODRiN2FiNDhlZjM1ZGE1NjRhMzNjOGNiNzcxZGIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM4YTZhNWUwNTE5OGRkZWZhMzkwODZlMzgwNDI2ZjE4MjQ1YTNiMDI2MTczNWQ0ZTM3ZGRlYjU2ZmRkMTcwZjQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE0NGY5NmJhODZkZjk4OGZiNzE5N2RmYjFmM2QwN2Y4Mzk0NmZmNWY3NDY4MWRiNDBhZDEyYWE1MDI0Nzc0YTIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImZiMGIyZTFlYzg2MjgxOGIyZTcyNGM3YjIzZjJiYzE4ZDUyNTI4MDY3N2VkMWI3NTVjOGFmY2IzMTQzZmM0MGIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_c1333d49b6f94fcdad153a3ad8857ca3",
+      "statement": "The backend CDK stack provisions DynamoDB tables for users, accounts, categories, transactions, chat messages, telegram bots, trend presets, and migrations, plus indexes for email lookup, MCP token lookup, transaction sorting, date querying, and webhook-secret routing.",
+      "evidence": [
+        {
+          "resource": "repo://infra-cdk/lib/backend-cdk-stack.ts#L38-L148",
+          "version": "repo-lines-v1:sha256:7c33fa8eb005b4c5b189daa3ca1819adb256f092ff3fca53aa64d33978d170ec:eyJzZWxlY3RlZExpbmVDb3VudCI6MTExLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI3OTE1MmY5ZjA0YzRiNTBhYzFjYTA1MTVjYTQzNjI4MTk4ZDIzOTFiNzZjYzQzOWFiYmQ3M2ViNjVjZTJiOTJhIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIyMmQxMWNhZjQzZTk3ZWYzNjllNmJlZWQxYTI2OGJkMDU4MzhmMjliOWRkMjU0YmY2OWJhNjQ4ODQxNDcyMzRhIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiIxMTEwNjE4ZDczMTA3MWUyMWNkNWViNzY1NTk1NzQzYmNhNzg2NTMyNGNmZTllNGZmMDU4N2FlZGZhMDBjNzNhIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiJkZGUwYzY4ZTQxOGNiZGUzN2NhMTdiMDFmMDk2ZGUxZGJhYTU3ZWE1MWMzNjAwM2Q5NDFkYjUyODQ2MjY3ODgzIn0"
+        }
+      ]
+    },
+    {
+      "id": "claim_69cdb8a35f2f4e22908debdb10684ff6",
+      "statement": "The backend CDK stack wires Lambda execution roles and permissions so the web and background-job functions can access DynamoDB, invoke Bedrock models, and let the web Lambda dispatch work asynchronously to the background-job Lambda.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/providers/lambda-background-job-dispatcher.ts#L7-L35",
+          "version": "repo-lines-v1:sha256:ed27ba1eef763160446f067067fce7a307e776938ea698149023f7757bd191bb:eyJzZWxlY3RlZExpbmVDb3VudCI6MjksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMyNTdjZmM5YzgyYTY3YjEwZmI4YWIwN2Y3N2Y5MjdiNjY1Zjk2NTg5MDNiZTU1NDNiZmJjNjg1OGM2MGM2NGIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjJmN2JjZmUwOTEyNTkwYmM5ZTlhZDc1NmQ0N2UwMjQ3ZDA3ZmM3NzljM2ViNTUyOTg5NjMzNWM4ZmJhODYzNTIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        },
+        {
+          "resource": "repo://infra-cdk/lib/backend-cdk-stack.ts#L184-L261",
+          "version": "repo-lines-v1:sha256:baf00b73d917860b0b84bb506db65cae06d0dcb12612f58d843a734af732b9a6:eyJzZWxlY3RlZExpbmVDb3VudCI6NzgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM2MDAyNDU1MWQyZDk4OTdjOTYxODkwOWVjMmUyMzIwZDhiZjhhMmZhNDUxNmEyY2NjNzM3YzEzMzc1ZjE1MGYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg0ZTQyMDhjZDZmZmI4YzRhMzU0N2IyZjU0YWRhMTk5NzhjM2YzNjVlNzhmOTUwMmVmNTE0NWNkZDJhYTg1NDMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjI1N2EzNmI0YTgyMGY3OTcxNjg4M2EyZmI4MzJhODFmNDFhOGQxYTgyYmVhNjYzYWRlZTE0YzIwNmVhMWFiZWQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQ5NTU4NGZlNjhlODIyZTRjZDMwODU5YTg5MTM2YWFkMWQ0MDA3NWJjNzRmNDFiOTU3ZjUwNzBjMTdiNjgyOGEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_de6af62c4e8147ca8366e11e2e237703",
+      "statement": "`LambdaBackgroundJobDispatcher` is the adapter that turns a domain background job into an asynchronous Lambda invocation, and it requires `BACKGROUND_JOB_FUNCTION_NAME` to be set.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/providers/lambda-background-job-dispatcher.test.ts#L16-L69",
+          "version": "repo-lines-v1:sha256:256123419301d9564563f34a641a3503920f69a2e431974cad9bcd6714070520:eyJzZWxlY3RlZExpbmVDb3VudCI6NTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjcwOTE5N2VhYThjZjlmYTU2OTdhNDg1MDk0YTYxMzZjOGY3NWJkMjk5NzEwMWM0MTFkNDc4YjFkN2FmMTM0M2IiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjlkMjI1ZDY0NjQ4ZmQ3ZmJlNWQwZGExZjRmN2NmODAwZDE1Y2JhOWMyNzBkOTJiOTZiMWE4YWVmOWY1MzU4YTciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://backend/src/providers/lambda-background-job-dispatcher.ts#L7-L35",
+          "version": "repo-lines-v1:sha256:ed27ba1eef763160446f067067fce7a307e776938ea698149023f7757bd191bb:eyJzZWxlY3RlZExpbmVDb3VudCI6MjksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMyNTdjZmM5YzgyYTY3YjEwZmI4YWIwN2Y3N2Y5MjdiNjY1Zjk2NTg5MDNiZTU1NDNiZmJjNjg1OGM2MGM2NGIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjJmN2JjZmUwOTEyNTkwYmM5ZTlhZDc1NmQ0N2UwMjQ3ZDA3ZmM3NzljM2ViNTUyOTg5NjMzNWM4ZmJhODYzNTIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_a80cd3116b6e45d388c208971f3ef1db",
+      "statement": "`LangChainAgent` is a thin adapter over LangChain's `ReactAgent` that converts the app message format, installs callbacks, and returns the final answer together with agent trace messages and recorded tool executions.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/langchain/langchain-agent.ts#L16-L92",
+          "version": "repo-lines-v1:sha256:88215e6897476b2f45ad32ea78a97cbe5050c37dd8e3b414a79d278dd71d6bc9:eyJzZWxlY3RlZExpbmVDb3VudCI6NzcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjEyMGZkYTA4NTUzNGY2M2M4OGU2ZDY5NmRjNjEwNDM0YjFmZjhhYzg0MWIwZmQ0NmE0ZjRhOGUzMTFmNzk5Y2YiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQ0YmI3OGVmMzIwNTNlNWI5MTk4ODUwMDdiMWIwYTA1MzFiMmM3MjgwN2M0OTNjMjgyZWQxYmEwNTk1ZTc3NmIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_5a0739ac61ad41a19c9bc07a658462c4",
+      "statement": "The LangChain boundary is intentionally testable through callback-derived trace collection rather than by leaking LangChain internals into higher-level services.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/langchain/langchain-agent.ts#L27-L92",
+          "version": "repo-lines-v1:sha256:88135e42cd0fbf4e0de2bbf696e28c72db65cf1534269a299e1c20022e36e50b:eyJzZWxlY3RlZExpbmVDb3VudCI6NjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgxZjEyNjdkNzNlYjhhYzIzOTM0Njg1NGMzYjY2M2UyN2EwNWZhM2YwNDUxNmZlYzNiZGVlNGI1MmY0ZWQxN2EiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjAwOGU1NTRmMjEwODE5MzdlYjEyODczMWRkMmVkZjlhODk5ODhmZmY3ZWQ1OTZiZjgwNzRjOTM3ODNlMjZmYWQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_fa3e27e2806c4827b8033a70b53cf3e8",
+      "statement": "The MCP server authenticates a token before server creation, returns `null` for missing or invalid tokens, and only registers tools after a user has been resolved from the token.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/mcp/server.test.ts#L33-L96",
+          "version": "repo-lines-v1:sha256:5b2d95144bc8a593e88f97a358bc739552df49d2a2b88add96e4ed47e952fef1:eyJzZWxlY3RlZExpbmVDb3VudCI6NjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM0MTQ2MzEyZjE3ZGM2ZjdjYWE5MDM5YTk2NTY2YWE1NDQzNzkxYTFiNmE5YWZlOGFhY2QwZGU3NjAxNmJkNWUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUwNWI4MTk3ZjVhNzc4ODI4MzAxMTkxNTQxNTYxYjI2ZTQyNDE5OGJlMTc0Y2Q3YWIyNmU4YWM2MDY4ZWNjZDkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://backend/src/mcp/server.ts#L28-L82",
+          "version": "repo-lines-v1:sha256:cca9aa3bb99f2761f8388e7bfaec506b05c8ac00ba30d024f39e6f52a97b5b87:eyJzZWxlY3RlZExpbmVDb3VudCI6NTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNlNGUxYjM2ZTk3MjI5ZDgxZTYwNDdkZTZkNzgxZDRmYjJjNGQxNDQxZDk2YTgwNWUxY2FjNWU3OTY5OGYyNGEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImIyNmE3MjZhMjhiOWEzMjc4NmVhZDUyNjY0MmM5ZTg2YjBmNzJlMDNkYjUyZDE2YjI4NmJkZGFiN2U2NWUzMzciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_32386fe3357145088bd174f66d3f9617",
+      "statement": "MCP tool registration is user-scoped and bridges to existing application services and repositories, while `BusinessError` and `ModelError` are surfaced to the client as tool failures and unexpected errors are logged and collapsed to a generic failure.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/mcp/server.ts#L37-L79",
+          "version": "repo-lines-v1:sha256:46a4401205314e20b1597180f7cf4e84f7a0296a7d41f606ca36c9c14917908e:eyJzZWxlY3RlZExpbmVDb3VudCI6NDMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUzM2YxMTQzZGJhYjVlYmYwZjA5ZWMzY2M4OGZjNmU1ZGYxY2QyYzhlOTU0YmM3Y2E2ZjQ3ZjUxMWUyZjMyY2EiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZkNzcxYjY0ZmViYjFhOGI2NTJjMzQxOWUzMjRmMTJjODA1ODRmZDQ3NmI2N2JkN2Y2NTEyNWY4N2U5NTFmNTgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFjYTRmNTI1Zjc3YTY0NTIyNTU2ZGJmMDU4OGM2ODkwMzM5MTc1OTlkNmViYWVjMDExZmRkZDI5YjBiNTIwMjQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_15a5eb9becae4a0f8a7290b93c60af5f",
+      "statement": "The MCP server tests the public protocol boundary by connecting a real client over an in-memory transport and asking the server for its registered tools.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/mcp/server.test.ts#L11-L30",
+          "version": "repo-lines-v1:sha256:a24c2803600e3d2d0a11f787c946c033944044802a0244d4b0b887cd4acdd4d7:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRiZWQyYTY1ZjhhMjA1ZGUwY2MzNzQ3NDJmNGFkYTBmYzY4ZTJhMDNhZjk3M2Y0ZmQzNzRlOTIxMDNmY2FlOTgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImMyZTg3MjJkODFhZGIwMmQ5MzQzNDhkODE3MjE4MTNmNGNiMGE1NjE5MTliMDMxM2M5ZjYyMjRhNmQ0ODNiYzAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjMzZTA3YTE3ODhkOTlmN2RmYmNlOTcxMDE0Y2VlZDVkMjVjMTkyZDcyZDU4MDA2OTJjNDAyM2JjMGYzZWY2NjMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjAyNDk2YWE2ZTQ1ZDBhMDc0ZGEyODhlZWZhMzNkZTE0ODJkM2ZjNmYzMmMxYzJiOWI4YmZmNWNjZDVmMzI0M2UifQ"
+        },
+        {
+          "resource": "repo://backend/src/mcp/server.test.ts#L44-L73",
+          "version": "repo-lines-v1:sha256:4ec3df8ec55926fd87d6263c6a382b0a6a287a09d1fb06e897999865e7050493:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA4NzBkYWE2MzcxZGM3MGUyN2NlNjRkMmFiNzQ2Y2E5YTVmMmRiNTZhMTU2YTdjZWNiNzgzZjNkOWVkYTIyYjYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijc2ZTM4NWZkMzExNTYyZTlhZDU2YmQ3NmQ4MGI1OWVlMjhmOTFmNGUwNTU4YjZmZDM5NTUwOWY1M2Y5ZjkzMzMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNkMWQxMDk1OWRlZTUzNDBjZjk5NWJlMzFlNGFmNGVjZDRiOTUwZjVhMDRhMzMyZGM0NjJiYjMyMWI2YmExM2QifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_bf11077d25cc498aa51a16bbf07d5d21",
+      "statement": "`HttpTelegramApiClient` is the outbound Telegram Bot API adapter: it builds bot-token URLs for webhook and message endpoints, validates JSON responses with Zod, returns `Result` values instead of throwing for expected failures, and logs unexpected responses and transport errors.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/providers/http-telegram-api-client.ts#L1-L202",
+          "version": "repo-lines-v1:sha256:1957e1e71ecf8dec38491792f86634d55c2fd2b90fc0560d762c630459804754:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAyLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI4MTQ1Mjg2NGIwZDk2ZWZlODY5MTZmZjc0NWEwZjc3YWM3MGIzMjY1ODVjMGVhZjVjMzRmOWU0YTRmNmZiZjYxIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI0MTJjYTM0NWNjZjc1YmY5YzA4MDZiY2U2OTViZThkZTgwOGI3OTk4NDI1MWE3YTU0ZDIwMmNmNjEwMWRkNDUxIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MCwicHJlY2VkaW5nQ29udGV4dEhhc2giOiJlM2IwYzQ0Mjk4ZmMxYzE0OWFmYmY0Yzg5OTZmYjkyNDI3YWU0MWU0NjQ5YjkzNGNhNDk1OTkxYjc4NTJiODU1IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MCwiZm9sbG93aW5nQ29udGV4dEhhc2giOiJlM2IwYzQ0Mjk4ZmMxYzE0OWFmYmY0Yzg5OTZmYjkyNDI3YWU0MWU0NjQ5YjkzNGNhNDk1OTkxYjc4NTJiODU1In0"
+        }
+      ]
+    },
+    {
+      "id": "claim_1283cea384bf4bd6883a1dc986a4e351",
+      "statement": "The Telegram client tests mock `global.fetch` and cover success, Telegram-reported failure, malformed payloads, HTTP failures, and thrown network errors, which keeps the network boundary isolated from application logic.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/providers/http-telegram-api-client.test.ts#L1-L220",
+          "version": "repo-lines-v1:sha256:34cf70dd25bc0a50b9662c9888240518c649afe366db67ee059d96a46d75edf4:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIwLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiIwNzE1Y2IyNjk5NzIzOWI2Y2E3NjZhMGE3Yjc4YzAxY2FhNjE3ZTQ0MjczYzdhZTlkYjc1NzYwMTI0NmNmYjhhIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIyZjA4ODQwN2VhNGI4N2E2ZTEyYjZjMTUxMTI1ZjFkNDc0MGU5YjJhNGQ1OGEyNDlhNDFmMTdiZmJlZWNmMDdhIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MCwicHJlY2VkaW5nQ29udGV4dEhhc2giOiJlM2IwYzQ0Mjk4ZmMxYzE0OWFmYmY0Yzg5OTZmYjkyNDI3YWU0MWU0NjQ5YjkzNGNhNDk1OTkxYjc4NTJiODU1IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiJmYzM0MWUxOTc1NzhhMjZlNTJlMjY1YWZhZWU4ZmNmM2U5NTY4MTY5MmU5YzE4MWJkNTNiYTMxMGMxMGU5YzU0In0"
+        }
+      ]
+    },
+    {
+      "id": "claim_472621879bc440f2a15b48919ff892d3",
+      "statement": "The frontend hosting stack uses S3 as the static origin, CloudFront as the public edge, and optional Route 53 plus ACM resources for a custom domain; it routes `/graphql*` and `/mcp*` through CloudFront to the API origin.",
+      "evidence": [
+        {
+          "resource": "repo://infra-cdk/lib/frontend-cdk-stack.ts#L17-L180",
+          "version": "repo-lines-v1:sha256:1ca8efac1185d56e520e568e75558c14ebceb8743be52ed95c5b8100dc926540:eyJzZWxlY3RlZExpbmVDb3VudCI6MTY0LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJkNTRkZTRlMTU1YTNhNThlOWQ1MzkzOTRiYTk2MDQ2OTE5MDgzYzI2NTNmYzQyMzZkMDdiN2E2MTIwMzNlNWNmIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIyMmQxMWNhZjQzZTk3ZWYzNjllNmJlZWQxYTI2OGJkMDU4MzhmMjliOWRkMjU0YmY2OWJhNjQ4ODQxNDcyMzRhIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI2NzdjYTcyNDQ1MDMzZjZkNDZmNmE1MWI0YjgyYTliNDhiZDk0NTQ0ZWQ0Yjg2ZWZkOGEzZWIyOGYyM2NiMmY0IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MiwiZm9sbG93aW5nQ29udGV4dEhhc2giOiJkZjczOWEwNmMxY2JiMTI0NGUzMzYzZDM4YmNmOWZhNTBjZTg0ZmVkMzk5YzIxOTNhM2M3ZjA4ZDU5OTE4YjJhIn0"
+        }
+      ]
+    },
+    {
+      "id": "claim_99d20d6f8db84d4e9f92d6cf2e8d3605",
+      "statement": "Custom-domain provisioning is conditional on an SSM parameter lookup, and the stack skips certificate and DNS resources when the value is empty, unresolved, or a placeholder.",
+      "evidence": [
+        {
+          "resource": "repo://infra-cdk/lib/frontend-cdk-stack.ts#L28-L43",
+          "version": "repo-lines-v1:sha256:2f86d3461199cd3778d8a78f59e9e1a2c175d7a773fc1352ef37f2575dd71ba2:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU2OWI5MGE1YTRhN2Q5ODgzMWM5YmZmNjdmMGE0NWUyMDEwZDJiYjExMDQ2ODMwYjk5N2U1YjAwNmMzYWM5NTciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjJlN2UzZjI1NzE4MDMzYmJkYjk3OTUzMmFmNWE4MDU2ODlmMDQxODE1MjRkNWEzMzExZTA5NjA5MDljYzBlNjkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ3NGFhNzI1YTBlMTE2MTViODFjMTRjOTFmNjE1YmFlNmMzOWJiM2UzM2Q3NDY2OWM0NzMyOTM0NzI2YTAyMTcifQ"
+        },
+        {
+          "resource": "repo://infra-cdk/lib/frontend-cdk-stack.ts#L74-L160",
+          "version": "repo-lines-v1:sha256:74cff32279ede6e600d66fe396f9d1adcf640563142307a860d826df713d3ac7:eyJzZWxlY3RlZExpbmVDb3VudCI6ODcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgzMDU1YTM4ZTI1YjUyYzIxYzVmN2NjZDAzNzQ3ZDc5NmMxNzAwODk4OGZiYzE4MWE4NWQwNmZiZGZiOTMyNmYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjcxN2FmMTEwMWM5N2I3YzJmNTI1NDA3ODJlNjM0Y2M0NDQwZjBlOTcwMzQxZTUyZjk3NTIzMTFkNzhiN2Q3ZDAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjlhNDczNzZlMzI4NWQ2ZTI1MTA4MGFhYjBhOTJmYjZkNzc0NDY5Mjc1NTg2Y2M3NDY3ZTcxYzdkNGY3OTRkN2IiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ2MDNhOGQzZjExOWZkZDYyMjM4NWU0OTAwNWEyMWQ4NDM3NDRhMDkwNzA4NzY5ZGM3OTI2MWM5ZTliN2MyNmEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_9212cd598ac641759a2c1c05431d0870",
+      "statement": "The repository preserves integration boundaries in tests by mocking external clients such as `fetch` and `LambdaClient`, while protocol-facing areas such as MCP are exercised through real handshake and tool-list requests.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/mcp/server.test.ts#L11-L30",
+          "version": "repo-lines-v1:sha256:a24c2803600e3d2d0a11f787c946c033944044802a0244d4b0b887cd4acdd4d7:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRiZWQyYTY1ZjhhMjA1ZGUwY2MzNzQ3NDJmNGFkYTBmYzY4ZTJhMDNhZjk3M2Y0ZmQzNzRlOTIxMDNmY2FlOTgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImMyZTg3MjJkODFhZGIwMmQ5MzQzNDhkODE3MjE4MTNmNGNiMGE1NjE5MTliMDMxM2M5ZjYyMjRhNmQ0ODNiYzAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjMzZTA3YTE3ODhkOTlmN2RmYmNlOTcxMDE0Y2VlZDVkMjVjMTkyZDcyZDU4MDA2OTJjNDAyM2JjMGYzZWY2NjMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjAyNDk2YWE2ZTQ1ZDBhMDc0ZGEyODhlZWZhMzNkZTE0ODJkM2ZjNmYzMmMxYzJiOWI4YmZmNWNjZDVmMzI0M2UifQ"
+        },
+        {
+          "resource": "repo://backend/src/providers/http-telegram-api-client.test.ts#L1-L220",
+          "version": "repo-lines-v1:sha256:34cf70dd25bc0a50b9662c9888240518c649afe366db67ee059d96a46d75edf4:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIwLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiIwNzE1Y2IyNjk5NzIzOWI2Y2E3NjZhMGE3Yjc4YzAxY2FhNjE3ZTQ0MjczYzdhZTlkYjc1NzYwMTI0NmNmYjhhIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIyZjA4ODQwN2VhNGI4N2E2ZTEyYjZjMTUxMTI1ZjFkNDc0MGU5YjJhNGQ1OGEyNDlhNDFmMTdiZmJlZWNmMDdhIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MCwicHJlY2VkaW5nQ29udGV4dEhhc2giOiJlM2IwYzQ0Mjk4ZmMxYzE0OWFmYmY0Yzg5OTZmYjkyNDI3YWU0MWU0NjQ5YjkzNGNhNDk1OTkxYjc4NTJiODU1IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiJmYzM0MWUxOTc1NzhhMjZlNTJlMjY1YWZhZWU4ZmNmM2U5NTY4MTY5MmU5YzE4MWJkNTNiYTMxMGMxMGU5YzU0In0"
+        },
+        {
+          "resource": "repo://backend/src/providers/lambda-background-job-dispatcher.test.ts#L1-L69",
+          "version": "repo-lines-v1:sha256:d19a6a00168b3c42d93ff0b6637ccb2d3890df8ecb3aa2ee619016bf22cac7dc:eyJzZWxlY3RlZExpbmVDb3VudCI6NjksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYyMDJiYWM5OGIxNDU4NDAwNjk2ZDFjNjEwN2QwMjIwZDZjNDI1ZDExYTlhY2Y3MmIxNmQ5ZGIxMjU4MmI2ZDAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.5.2",
+    "at": "2026-09-20T15:02:07.269Z"
+  }
+}

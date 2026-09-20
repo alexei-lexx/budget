@@ -1,3 +1,9 @@
+---
+type: "Reference"
+title: "Data model and persistence"
+openwiki_generated: true
+---
+
 # Data model and persistence
 
 The backend persists all application state in DynamoDB tables provisioned by `infra-cdk/lib/backend-cdk-stack.ts`.
