@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:f20a15167d3e5cb2dd3cccc2ecd924b97d3e147a0513d85e72380038fa0794e1",
+  "claims": [
+    {
+      "id": "claim_cdaffb11a50b4d54ad05f78e33ac6fa3",
+      "statement": "OpenWiki quickstart is the wiki entry point and routes readers to the architecture, domain, workflows, operations, integrations, and testing pages based on change intent.",
+      "evidence": [
+        {
+          "resource": "repo://README.md",
+          "version": "repo-file-v1:sha256:3e051a07f8bd4dc8d8cf0931df945848d69f41eb3f913785060a6904d5599b02"
+        }
+      ]
+    },
+    {
+      "id": "claim_36cf9abaf34b4b5fbf7327dd375b14a7",
+      "statement": "The quickstart page highlights common task routing for feature work, bug fixes, deployment and ops changes, auth and access changes, and data or domain changes.",
+      "evidence": [
+        {
+          "resource": "repo://README.md",
+          "version": "repo-file-v1:sha256:3e051a07f8bd4dc8d8cf0931df945848d69f41eb3f913785060a6904d5599b02"
+        }
+      ]
+    },
+    {
+      "id": "claim_f0efc4b0db5b4add9b93db0bf5cdf80b",
+      "statement": "The quickstart page gives practical source entrypoints for backend request handling, resolver composition, assistant and free-text transaction flows, SPA bootstrap, and CDK stack wiring.",
+      "evidence": [
+        {
+          "resource": "repo://README.md",
+          "version": "repo-file-v1:sha256:3e051a07f8bd4dc8d8cf0931df945848d69f41eb3f913785060a6904d5599b02"
+        }
+      ]
+    },
+    {
+      "id": "claim_9d301bf90e774f4ca668f2c5c6052f2a",
+      "statement": "The quickstart page contains a compact Mermaid navigation map that links the wiki entry point to the major topical pages and keeps the map task-oriented rather than mirroring the repository tree.",
+      "evidence": [
+        {
+          "resource": "repo://README.md",
+          "version": "repo-file-v1:sha256:3e051a07f8bd4dc8d8cf0931df945848d69f41eb3f913785060a6904d5599b02"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.5.2",
+    "at": "2026-09-20T15:02:07.269Z"
+  }
+}

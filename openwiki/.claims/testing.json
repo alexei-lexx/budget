@@ -1,0 +1,116 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:68e65e0d50826caefe70a6baf2ca048f107864e5ebf57074062e40ce57cd7317",
+  "claims": [
+    {
+      "id": "claim_1b823afe5b0742ba8198a7939424fbcf",
+      "statement": "Backend test commands run under `.env.test`; `npm run test` covers the `unit` and `repositories` Vitest projects, while `test:unit`, `test:repositories`, `test:integration`, `test:evals`, and `test:coverage` provide narrower or broader backend entrypoints.",
+      "evidence": [
+        {
+          "resource": "repo://backend/package.json#L29-L39",
+          "version": "repo-lines-v1:sha256:fbd76a971bbc36f9539b096b74d15f9fb45407c97cec87c90b56af7236f53152:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY0NmY1MmVkZTFiMjRlY2FmYjkwYzJlYWFmOTc4MzIyMmY0OWFiNGU5NmM2YjVhYzQxOTE4NTk5NjlmOTZkZTMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY0YWVjYmY0Njg5ZWZjZGJiMTlkMGRmODZmMjUzZjBhNzAwOTQ1NTFmMzNlYmNkZjA4Zjg1MjAzYzZkMTUyZmUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJjZTVmNjhkZGRiYjRhOWE0Y2YyYjZhNmYxYzA1OGIyZDBiNTMzMWNjM2ZkM2IyMWFjMjA2NWY1MmQzZGJiOTkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA1MDNiNTE3MGVjOTIwYmI5ZDg1MzY5YTBlZTRmNjNkYzUxMjk2NmRiYmU1OTZkYzhiZjgxN2E4MzE2MzRhMDMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_d2ebabba8c014484a8963573c0d5d98d",
+      "statement": "Backend test setup includes database helpers (`test:db:create`, `test:db:drop`, `test:db:setup`) for repository or integration suites that need a real schema.",
+      "evidence": [
+        {
+          "resource": "repo://backend/package.json#L30-L33",
+          "version": "repo-lines-v1:sha256:819f1917cd43bd1217886a8c0c9274b174016ae7ecd0c97ebec2d5242b8ccb30:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiN2Y4YzIyMDFjMDJkODZiMDI5NGFhMzMxODQxNWNhMzJmODJkMDE4MWJkY2ZiNzA1YTI1YzNkZDdhZDc0MzdmNiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNzA3NmZkYzE1YWRlOTc0NDQ3OThlZDE0ZWE0ZTBhNmZmMjU1Y2I3ODAxZTcwZGZlODU4YmU5MjRmMjQ3YzJmZiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNjJiNjhhMTRhMjAxMTlkOTA4NDA3NDg3ZDBlYjNkMzEwYWYwYzMyMTdiZTA4YzExZDZmMTE4ODQ2NjJlNjg3YiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZDJkMjRjZDgyMjY1ODA5NDg3NzAzNWZkZTg0MTQ1MTRkYmM4ZTVkMjdhNzhlODRlMTUxYjA5ZTMzN2E1ZGIyMCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_4fb138487d0e440282f1046e4a459584",
+      "statement": "Backend unit tests for `AssistantChatService` verify session-id creation and reuse, history loading into `AssistantService`, persistence of user and assistant messages on success, `isVoiceInput` forwarding, and failure behavior that avoids saving messages when the assistant call fails.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/services/assistant-chat-service.test.ts#L13-L267",
+          "version": "repo-lines-v1:sha256:04c90ea09ff40862cd3f1e7574da26dacaaf19dc5ab26070436ccbc4432233ae:eyJzZWxlY3RlZExpbmVDb3VudCI6MjU1LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI3NjAwMGY0YzAyZmFlOTY0YmFkZGUxYWE4ZWMzYzQyMGJmMDU1ZDY2NDYwZGNkOTYyODRhNDczY2M0N2ZkN2FiIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIzYTNlNDZmOTQyNzZiNmY2ZjRlZDFmMDJhZjc4YmVmNmEyZWUxYzQzOWRkNTU4NGI5NzM5NDgzMTMyMTRkMmI3IiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJkMjcwYTYxZDYwYzJmY2RjZjdkOWQ5ZmNiOTBlZTllMjJkYjM3ZTJiZGJlY2Q0OGY3OWViODI1MTJiOWYxNjc1IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MSwiZm9sbG93aW5nQ29udGV4dEhhc2giOiJmNmY1YjQwYjE1ODQ1N2QxNzg2NGYyMTc5MDc4NmRkNWEyZWNkYjY0YjY2YTY1MWY3ODhkNGUyNWNkMzMwM2QyIn0"
+        }
+      ]
+    },
+    {
+      "id": "claim_33d913b029e843a38fbb68becfbd2fac",
+      "statement": "Frontend verification is centered on Vitest and Vite tooling: `npm run test`, `test:watch`, `test:coverage`, and `build` (which also runs codegen and typecheck).",
+      "evidence": [
+        {
+          "resource": "repo://frontend/package.json#L6-L21",
+          "version": "repo-lines-v1:sha256:53bcc233562ec89d765266f0e37996add297a7b96c45cf8319fb6a2ba45e66cb:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM0ODMzZDU5NDljMDNhNDBjYTk1MjQ5MTYxMGE2NjU5NjQ0YjNhYTQ2NjM2MmY3OTkwMjBkYmYxOTgxNTQ3ZGIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZlMjRjYmIwZDUyZjJlYzA0N2E0ZTA5M2Q3Njg4ZGFlMDBlZWRmMzlhYmRmZDA1NmJmNjY5MzM0YmVhMzBmMjkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImRmZjhlMDc5ZWNhMzdmNjA5YmU0NDU4ZDA0NTJlNDZiZGZiNzE2OThkNGM1ZmZhYWJhNTliN2YxN2IzZGZhYzYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA5NTQwMGNjMzhiZWNhOGNkZDhmNjJkOTgwMmJkYzk4NTc2MTQwM2M0NDk0ODU0Y2U1MGRiY2Q4ZDM5MTIwMWYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_5a9ae7be62a044af808f8a59380a6dff",
+      "statement": "`useAssistant()` is tested to pass an `AbortSignal` into the Apollo mutation and to make `abortAskAssistant()` safe to call.",
+      "evidence": [
+        {
+          "resource": "repo://frontend/src/composables/useAssistant.test.ts#L1-L49",
+          "version": "repo-lines-v1:sha256:8a9bc53a46b96087dd57ada8d436b872b74beebdaffcbd0ed97897b556ceae42:eyJzZWxlY3RlZExpbmVDb3VudCI6NDksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJmNTliNzdiY2ZmNmFjZjNlMTgzYjBjZWIyNWE1OWVlNjY4YjNlMTdlZGFjM2QyMmU5ZjlmNGU2M2IxZTlmNTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_18780e63d52d484791307e53c045011a",
+      "statement": "Infra CDK verification is centered on `vitest run`, `cdk synth`, `cdk diff`, and `tsc --noEmit`; the backend stack test creates an empty `backend/dist` placeholder because synthesis references `lambda.Code.fromAsset(\"../backend/dist\")` and then asserts the stack contains one `AWS::ApiGatewayV2::Api` resource.",
+      "evidence": [
+        {
+          "resource": "repo://infra-cdk/package.json#L7-L21",
+          "version": "repo-lines-v1:sha256:8e9e5ff5ee68bd3a75cda9ec0cc89d47ba6f112a2f2dc64b1feb00afd87bc62e:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM0ODMzZDU5NDljMDNhNDBjYTk1MjQ5MTYxMGE2NjU5NjQ0YjNhYTQ2NjM2MmY3OTkwMjBkYmYxOTgxNTQ3ZGIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImExZjdhODkxOTNiYTE4MGJjYmY0ODdmZTZjYmYzY2UwODZmMjdiMzFmYTgxMjY0YjIzZTY5MmM4NjE0Nzk1YmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY0MTdlZTZkOGE0ZmZlZjViYTYxNjEyZGIxYWUxNGZmOGFiYmE3ZDQxMjNhZGRiODgzNjYxYmI1YzIxYTY1MGYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjEyMTk0OWI1YWJhMjU2NDA0ZWI1YzQ1N2FiYjZjOGE3YzkwNThiNThiYTFkY2Q5YjgyNmZkZDQ0NDZkYzE0ZTQifQ"
+        },
+        {
+          "resource": "repo://infra-cdk/test/backend-cdk.test.ts#L9-L38",
+          "version": "repo-lines-v1:sha256:3ec88a56e715593d90647b6ebfb9612f8b3ed365e86d547492abbbe4ecee9fe7:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA4MzJhZTI5ZWU3MjQ1ODFiNjdmNjhhNmFjMTBiMWI0YTkwMmMxNmM4Yzk5OTdlZjYzMDdiZWE1NGYxZWExYWYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM0ZmJkYTQ3ZTMwZjI0YjAxMjY3ZTc4NTljZWI5MTQwYmY2YmEwZTQ3YjM0ZTI1MDMxODczNDgwOTFhYjBiNDQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_ad64079b1a894593951348c77abe87e4",
+      "statement": "For backend changes, the narrowest useful check is to start with unit tests, add repository tests only when persistence changes, and escalate to integration tests only when the behavior crosses layers or needs real infrastructure wiring.",
+      "evidence": [
+        {
+          "resource": "repo://backend/package.json#L29-L39",
+          "version": "repo-lines-v1:sha256:fbd76a971bbc36f9539b096b74d15f9fb45407c97cec87c90b56af7236f53152:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY0NmY1MmVkZTFiMjRlY2FmYjkwYzJlYWFmOTc4MzIyMmY0OWFiNGU5NmM2YjVhYzQxOTE4NTk5NjlmOTZkZTMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY0YWVjYmY0Njg5ZWZjZGJiMTlkMGRmODZmMjUzZjBhNzAwOTQ1NTFmMzNlYmNkZjA4Zjg1MjAzYzZkMTUyZmUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJjZTVmNjhkZGRiYjRhOWE0Y2YyYjZhNmYxYzA1OGIyZDBiNTMzMWNjM2ZkM2IyMWFjMjA2NWY1MmQzZGJiOTkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA1MDNiNTE3MGVjOTIwYmI5ZDg1MzY5YTBlZTRmNjNkYzUxMjk2NmRiYmU1OTZkYzhiZjgxN2E4MzE2MzRhMDMifQ"
+        },
+        {
+          "resource": "repo://backend/src/services/assistant-chat-service.test.ts#L13-L267",
+          "version": "repo-lines-v1:sha256:04c90ea09ff40862cd3f1e7574da26dacaaf19dc5ab26070436ccbc4432233ae:eyJzZWxlY3RlZExpbmVDb3VudCI6MjU1LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI3NjAwMGY0YzAyZmFlOTY0YmFkZGUxYWE4ZWMzYzQyMGJmMDU1ZDY2NDYwZGNkOTYyODRhNDczY2M0N2ZkN2FiIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIzYTNlNDZmOTQyNzZiNmY2ZjRlZDFmMDJhZjc4YmVmNmEyZWUxYzQzOWRkNTU4NGI5NzM5NDgzMTMyMTRkMmI3IiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJkMjcwYTYxZDYwYzJmY2RjZjdkOWQ5ZmNiOTBlZTllMjJkYjM3ZTJiZGJlY2Q0OGY3OWViODI1MTJiOWYxNjc1IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MSwiZm9sbG93aW5nQ29udGV4dEhhc2giOiJmNmY1YjQwYjE1ODQ1N2QxNzg2NGYyMTc5MDc4NmRkNWEyZWNkYjY0YjY2YTY1MWY3ODhkNGUyNWNkMzMwM2QyIn0"
+        }
+      ]
+    },
+    {
+      "id": "claim_7820ae7a015f42198860da1490c85dc0",
+      "statement": "For frontend interaction changes, targeted composable or component tests are the preferred first check, especially for mutation wiring and abort behavior.",
+      "evidence": [
+        {
+          "resource": "repo://frontend/package.json#L18-L21",
+          "version": "repo-lines-v1:sha256:b22a7cd10b22770099ccc6eb7d34bba06d187da2e39b4b0003e7cd46d855556a:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMjQxZmMyNDllZmE3MWIwZTdhOTdmN2Y0ZWI4Yjg5NDk0YTU5Y2IzZjg3ZDcxYmU2YWFkNjNhYTNiYTVlM2QzYyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZmUyNGNiYjBkNTJmMmVjMDQ3YTRlMDkzZDc2ODhkYWUwMGVlZGYzOWFiZGZkMDU2YmY2NjkzMzRiZWEzMGYyOSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMDdjYWI2ZWY0YmZkZDAzMGFhZjVhZmIxMTU4ZDlkYzdkYjE0YmFhMmFjOWU5MzczNjg1NzhhZTIzYzQ5ZGEwMiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMDk1NDAwY2MzOGJlY2E4Y2RkOGY2MmQ5ODAyYmRjOTg1NzYxNDAzYzQ0OTQ4NTRjZTUwZGJjZDhkMzkxMjAxZiJ9"
+        },
+        {
+          "resource": "repo://frontend/src/composables/useAssistant.test.ts#L1-L49",
+          "version": "repo-lines-v1:sha256:8a9bc53a46b96087dd57ada8d436b872b74beebdaffcbd0ed97897b556ceae42:eyJzZWxlY3RlZExpbmVDb3VudCI6NDksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJmNTliNzdiY2ZmNmFjZjNlMTgzYjBjZWIyNWE1OWVlNjY4YjNlMTdlZGFjM2QyMmU5ZjlmNGU2M2IxZTlmNTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_e87742304ad34a84acae1cdb9cb31178",
+      "statement": "For infrastructure changes, CDK tests should be paired with `cdk synth` or `cdk diff` to inspect rendered stack shape and resource changes.",
+      "evidence": [
+        {
+          "resource": "repo://infra-cdk/package.json#L11-L21",
+          "version": "repo-lines-v1:sha256:4e250c10a25912183a4077f1feda668714e340060f2a64182158a573977f9383:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA2YmQ2MzhjMWUwNTRlY2ZjMzg2MzczM2YyMThlMDJlMTI2ZDI4MGNkMGI2NzRmMGZmZjM4N2EyMzI0ZDdlZWYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImExZjdhODkxOTNiYTE4MGJjYmY0ODdmZTZjYmYzY2UwODZmMjdiMzFmYTgxMjY0YjIzZTY5MmM4NjE0Nzk1YmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM1ZTZlMTllNjRhYmUxYzhiOTQ3MWIyZTU0NjJhZWIwNDcxZTQxMTgzMjkxNWU1OGVmNzQ3N2JjZTRlYmYyNmQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjEyMTk0OWI1YWJhMjU2NDA0ZWI1YzQ1N2FiYjZjOGE3YzkwNThiNThiYTFkY2Q5YjgyNmZkZDQ0NDZkYzE0ZTQifQ"
+        },
+        {
+          "resource": "repo://infra-cdk/test/backend-cdk.test.ts#L9-L38",
+          "version": "repo-lines-v1:sha256:3ec88a56e715593d90647b6ebfb9612f8b3ed365e86d547492abbbe4ecee9fe7:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA4MzJhZTI5ZWU3MjQ1ODFiNjdmNjhhNmFjMTBiMWI0YTkwMmMxNmM4Yzk5OTdlZjYzMDdiZWE1NGYxZWExYWYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM0ZmJkYTQ3ZTMwZjI0YjAxMjY3ZTc4NTljZWI5MTQwYmY2YmEwZTQ3YjM0ZTI1MDMxODczNDgwOTFhYjBiNDQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.5.2",
+    "at": "2026-09-20T15:02:07.269Z"
+  }
+}

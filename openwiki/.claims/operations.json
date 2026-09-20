@@ -1,0 +1,160 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:5aa78094bb1128eaee808e6a84842594cd213130e314b69b4d2aedeaf78c702b",
+  "claims": [
+    {
+      "id": "claim_78818ff8850a4dbe9cf923c2041e0d97",
+      "statement": "The repository splits configuration into deployment-time values consumed by `deploy.sh` and CDK, and runtime values read by the backend Lambda on cold start.",
+      "evidence": [
+        {
+          "resource": "repo://README.md#L129-L178",
+          "version": "repo-lines-v1:sha256:c7943fc77ceaa395ab9c2f84dcab5185c1b725b766a06ec4a22d29ed66a7547b:eyJzZWxlY3RlZExpbmVDb3VudCI6NTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM4ZjQwODFjOThmZmU5MDFiYmFmMDcxZWU5ODgyODkwNGQyZDMxNTk5OGZjM2JhYmEyNzYwY2RiMTI0NzM1N2UiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI2NTA1NWVmZDc1MTg5OTJiYzk5OTM1YTgwYWVlMGU5MzQ1MTUxM2RlMTQwZDdmZGJlYmEzODAxNDRhYmE3MzMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImY1YjI0OThkYTEzODIwYWY5M2FiMGU4ODc5OTJkZGYyODM2MzMzMDU2ODk2ZmJmYjI3NzQ1ODkyNTY4NmNjMzQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjI0MzUxZDYzZDBkOTUxMGNkOTI3NDAyYjk4ZWI1ZDM1Y2U3ZTc5N2RhMjljYmNlODBiNjhmMzZmMzVkZTZjOGMifQ"
+        },
+        {
+          "resource": "repo://README.md#L85-L93",
+          "version": "repo-lines-v1:sha256:2d47a8a944379e609f007a12202f8f39da3c47b41309715c3246fa6a993ef126:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYTdmYzY4N2RlYzU0Y2RiZmNiZmZmZDdjYTljZjYzMzlmMDQyZDI4YjE1ZWNhMDBmNDMyOTE2MmQ3Y2QzMWU2ZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMDFiYTQ3MTljODBiNmZlOTExYjA5MWE3YzA1MTI0YjY0ZWVlY2U5NjRlMDljMDU4ZWY4Zjk4MDVkYWNhNTQ2YiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYzMzZjliZjE5MTlhOTM4ZjNhYzQzNGU3NDYzOTExMmI5MTYzZGFkY2RmOWQyOGE1ODRhMTY1YjBjOGVkYjE4MyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYTBjMDM0MTZkYzFiNWU0Y2M3NDMzYmM3OGUyZGQwOWQ3MWM3Yzg2NTY0NjAzYjY0ZWFhYTRjYzc1NTY4ZjczYSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_37b67e8f249242289da6adef37483945",
+      "statement": "`deploy.sh` defaults to the `production` environment, validates `ENV` before use, derives `NODE_ENV` from it, and reads required deployment-time SSM parameters for auth and Lambda sizing before deploying stacks.",
+      "evidence": [
+        {
+          "resource": "repo://deploy.sh#L3-L18",
+          "version": "repo-lines-v1:sha256:6ead972fc6a4437e38ddb232f2e2f87c7366e7c8f956074472c7012f7a46e8e3:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE5NGEyZWZmYjQzN2I4ZGQ1YjUwZjE0Y2FiODRhODE4NzA1NjIwNGU1NDg1NGU0MTk0MDc3YmIyZmFmYWIyZTgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjoyLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImNkYjgzZDE2N2UzN2QzZDZkYmRiMjA3MGU4YmE3ZjI5ZTJmNDIwNjk3MDI2ZGMyZmM0ZmJmMWI1NzIxOTJhYTEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjdlOGRkMjdjYmNhNTcwMmIzMDg1ZDY0NjRjYzQ4NDg5Mzk2ZWRhZDFmMTA1ZTBkNmYyMWRjNzU5YzI5ZjQ1ZjcifQ"
+        },
+        {
+          "resource": "repo://deploy.sh#L90-L127",
+          "version": "repo-lines-v1:sha256:5cc3d963f526754fa10b7cead58331d79ac8bd27a23e2a864d7f3d8d84b64d43:eyJzZWxlY3RlZExpbmVDb3VudCI6MzgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjYxNDk1MjdhMWZlZjFmMmE4ZmM5YTAxYjllMTkzNzIwOTcwNDNhNDIyMWZjYmZiZTFhNzFhZTIzZDczY2Q3MWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg2Y2UxZGRmMmJlZDcwNjM1YzJlZmQzNDU4YzAyZWFhZWJlNzNlNWMxNmYyMjIzODVjZWIwYmI0NDQwYzJjNTgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZmNjUxOTU5NWUzYjdmYTgyYzk2YmI0MTEwM2RjMGYyMzhmYzI2YjBkNDAyYmZlNzI5NTE0NzYwMDQ1ZjU4NTYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFiMmRhZTNhYzJkYmZkN2JkYmFiYmM0NDI2YTc4YWI0MDIyN2RlOGY4OWQ1MzY1YjE5NmQ3OTFjMGVhZGM3NTQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_fcd537413f184333a97db424f1ddc660",
+      "statement": "The deployment script builds the backend, deploys auth then backend then frontend infrastructure, runs the migration Lambda, and finally builds, uploads, and optionally invalidates the frontend cache using CDK outputs.",
+      "evidence": [
+        {
+          "resource": "repo://deploy.sh#L105-L236",
+          "version": "repo-lines-v1:sha256:e5b28211b725eb0089535bd631e543b73febf9941b2e2e7690659ad7213e6eba:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMyLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJiMzYwOTRmMzU5ZDM4MDJjZjExMzE3MzYzOWZmNThmMWJhZjBmZjU2NjY1ODI4ODU3ZTMwNmMzZmZiMzU2NDEzIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiJjNDZjZDdjZjc4NmJlYmFlNWRmNzkxNjIxN2NiMWE2YzlmMjUxMDI3YTA3NjRlMGVhNDZiZGJjYjJlODYwOWE2IiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI4NWJlNzczNWYzZThiYmJhODI3MjcwOTY3ZjljZTVjMjM0OGVlMTJiNjgwZTdkNzY1MWNjNDI0NDhjNTk1YTdhIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MCwiZm9sbG93aW5nQ29udGV4dEhhc2giOiJlM2IwYzQ0Mjk4ZmMxYzE0OWFmYmY0Yzg5OTZmYjkyNDI3YWU0MWU0NjQ5YjkzNGNhNDk1OTkxYjc4NTJiODU1In0"
+        }
+      ]
+    },
+    {
+      "id": "claim_2c82da28275e4ffe81b65127fdf574bb",
+      "statement": "The auth stack outputs `UserPoolId`, `UserPoolClientId`, `UserPoolDomainUrl`, `AuthIssuer`, and `AuthScope`, and `deploy.sh` stops if `AuthIssuer`, `UserPoolClientId`, `AuthScope`, or `UserPoolDomainUrl` are missing.",
+      "evidence": [
+        {
+          "resource": "repo://deploy.sh#L129-L161",
+          "version": "repo-lines-v1:sha256:355e27733ea7a3404a8f2a1ae4142ec636f8e124c78fac16ae8a253908a97a74:eyJzZWxlY3RlZExpbmVDb3VudCI6MzMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNhNDY2MGE2YzI4YjhmODVlYjJlMjUyYmJlNmI3NTU0NTAxMjMxN2RmM2RmNzFmNzk1NWYzMzFkMmUwOTFiODgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ0NGNhZjM3NjkwZDJjNDQxZTA2MTFlYmU4MmJiYjlmOTFiYjEzYTE2OWUxZmE5OTI2NGEzZGQ3MDgxNTNhMGIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijc0YzQ3ZGZkZjUxYWYxM2IxNWNlOGUyNjBjZGFlZGMxZmQyZDRkMWJhMTQ4MzM3YjUyMDc1NzlhOWQwMzRiMjYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFlNGUwNjAwZjJhNmIxNDg2NTY2NTM4YWNhNzc1OGZiZmQyZTkwMzA2NzYzYzg0OWYxOTI3OWUzOWQzZjQ3NDQifQ"
+        },
+        {
+          "resource": "repo://infra-cdk/lib/auth-cdk-stack.ts#L222-L246",
+          "version": "repo-lines-v1:sha256:6e13393902dd9daf6f6a21c4c5d46965bafc1d1472c40947a71b71c3a16ee24d:eyJzZWxlY3RlZExpbmVDb3VudCI6MjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA3YmQ1ZGVjNTI0NTMxYjBhZjFjMjEyZGZhYzNkMjdhZjVjMzRlYTc2NjQ5ZWQ0ZmM1ZTY0MmUzZDNkMzZjZjIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIyZDExY2FmNDNlOTdlZjM2OWU2YmVlZDFhMjY4YmQwNTgzOGYyOWI5ZGQyNTRiZjY5YmE2NDg4NDE0NzIzNGEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk4M2Q1YTFjMzEwMmU0N2MyOWY0ZDc4NTQ3MjkwZDE3ZjdhZTkyNDQ5MDI1NTc4M2Q1NmZiNGFmYzNkODVlYWQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoyLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImRmNzM5YTA2YzFjYmIxMjQ0ZTMzNjNkMzhiY2Y5ZmE1MGNlODRmZWQzOTljMjE5M2EzYzdmMDhkNTk5MThiMmEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_1ce4ccd52d5744f58d334060efa6fba5",
+      "statement": "The frontend stack publishes `S3BucketName`, `CloudFrontFullURL`, and `CloudFrontDistributionId` for deployment tooling, and emits `CustomDomainURL` only when a custom domain is configured.",
+      "evidence": [
+        {
+          "resource": "repo://infra-cdk/lib/frontend-cdk-stack.ts#L144-L160",
+          "version": "repo-lines-v1:sha256:7f0e355c3866b367811e3541253b0b04cdff4047380e78c0b1e2beda07405007:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc3NTkxN2NkMDdlZTk4MmRlMWUyYWU3MWY5NmQ5YTkxNWY4Y2NkOWJjYzQ0MzAyMWM1OThjNGE4NDdkM2E4MTciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjcxN2FmMTEwMWM5N2I3YzJmNTI1NDA3ODJlNjM0Y2M0NDQwZjBlOTcwMzQxZTUyZjk3NTIzMTFkNzhiN2Q3ZDAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjUzMmMyMDI0MmMwZjI3YjNjOWY3NThkOTcxN2IzNjlhYmYyZjRiMjJlY2ZkMmQ0NDk0YTRhOTcxMzYyZmE1MTYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ2MDNhOGQzZjExOWZkZDYyMjM4NWU0OTAwNWEyMWQ4NDM3NDRhMDkwNzA4NzY5ZGM3OTI2MWM5ZTliN2MyNmEifQ"
+        },
+        {
+          "resource": "repo://infra-cdk/lib/frontend-cdk-stack.ts#L163-L180",
+          "version": "repo-lines-v1:sha256:7b705108b2c6f9406181ad48b2266280c765c8db33d536ab84f893e7181d11d6:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVlYjc1MGY2YjdiMmFkNWVhYmUyOTM5NmY4Yjk3M2M2NmQ4M2MxNWNlOWQ0N2VmN2EyNzdiNGY2NTc1NTU2MjYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIyZDExY2FmNDNlOTdlZjM2OWU2YmVlZDFhMjY4YmQwNTgzOGYyOWI5ZGQyNTRiZjY5YmE2NDg4NDE0NzIzNGEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjMwNjNiZjJlNzlmMDBjMDliZmUwNGExMzVkZmRjNmY4NTk1ZjUyODU2MmIzMWFlNDIzY2ZkN2MxNGI2MDlhNWIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoyLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImRmNzM5YTA2YzFjYmIxMjQ0ZTMzNjNkMzhiY2Y5ZmE1MGNlODRmZWQzOTljMjE5M2EzYzdmMDhkNTk5MThiMmEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_8b6f4b332f104ed193d979fecd8842c6",
+      "statement": "Custom domain support requires a real Route 53 hosted zone name from `/manual/budget/${nodeEnv}/frontend/custom-domain`, a certificate stack in `us-east-1`, and `crossRegionReferences: true` so CloudFront can use the ACM certificate.",
+      "evidence": [
+        {
+          "resource": "repo://infra-cdk/lib/frontend-cdk-stack.ts#L21-L24",
+          "version": "repo-lines-v1:sha256:3022f1351e96854e4acad3d2ce91310758a63450de7c641c14ee7d234fe5198a:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiY2IyODkyNDQ4NTgxNjkwNWY0YjliNzA3OTM3Njk3MDQ0NGE0OGY2Zjg3YjNhMjUyZDQ5NWM2N2ViYTBiMmFlNCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNTIwZDFhMGUwMmJhYTRhNzhlN2JmNzRiZTg4MzA1NDViODdiODE3YmI4ZTIzMTYxMjI0ZmUzYWUwNWUxODNjNCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYzBjODY0NGQ4NTFmZjk2ZTgzZGI2OTE4NWZhYTI2ZjRlZWRiNDBhOTI4ZjcxNWNlNTMxY2E5NDRlMDU0OTc5YyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMmU3ZTNmMjU3MTgwMzNiYmRiOTc5NTMyYWY1YTgwNTY4OWYwNDE4MTUyNGQ1YTMzMTFlMDk2MDkwOWNjMGU2OSJ9"
+        },
+        {
+          "resource": "repo://infra-cdk/lib/frontend-cdk-stack.ts#L28-L43",
+          "version": "repo-lines-v1:sha256:2f86d3461199cd3778d8a78f59e9e1a2c175d7a773fc1352ef37f2575dd71ba2:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU2OWI5MGE1YTRhN2Q5ODgzMWM5YmZmNjdmMGE0NWUyMDEwZDJiYjExMDQ2ODMwYjk5N2U1YjAwNmMzYWM5NTciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjJlN2UzZjI1NzE4MDMzYmJkYjk3OTUzMmFmNWE4MDU2ODlmMDQxODE1MjRkNWEzMzExZTA5NjA5MDljYzBlNjkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ3NGFhNzI1YTBlMTE2MTViODFjMTRjOTFmNjE1YmFlNmMzOWJiM2UzM2Q3NDY2OWM0NzMyOTM0NzI2YTAyMTcifQ"
+        },
+        {
+          "resource": "repo://infra-cdk/lib/frontend-cdk-stack.ts#L74-L110",
+          "version": "repo-lines-v1:sha256:c6a422bd2266c413178b7fe576fa29005c77da16d191a1d373d3e5af9bc24f0b:eyJzZWxlY3RlZExpbmVDb3VudCI6MzcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgzMDU1YTM4ZTI1YjUyYzIxYzVmN2NjZDAzNzQ3ZDc5NmMxNzAwODk4OGZiYzE4MWE4NWQwNmZiZGZiOTMyNmYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjlhNDczNzZlMzI4NWQ2ZTI1MTA4MGFhYjBhOTJmYjZkNzc0NDY5Mjc1NTg2Y2M3NDY3ZTcxYzdkNGY3OTRkN2IiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjVjNTdiY2RkOGE1M2QxMGIyZDdiOTllYWU0NzNkZDE1NzkwMDdiMzk3YmZkY2U0ZGY3ZjhiZjRiNjQ1OTNkYzEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_82038ae353cc4babbbb7a26bccdfbad7",
+      "statement": "The auth stack uses Cognito email sign-in with optional self sign-up, no client secret, authorization-code OAuth, and a pre-token-generation Lambda that injects a namespaced email claim using `AUTH_CLAIM_NAMESPACE`.",
+      "evidence": [
+        {
+          "resource": "repo://infra-cdk/lib/auth-cdk-stack.ts#L152-L200",
+          "version": "repo-lines-v1:sha256:5c62dc4a41d578da3388b93c38cee29c6c68427a70d153abd1e06ca3b9c27c85:eyJzZWxlY3RlZExpbmVDb3VudCI6NDksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk1MGIzZGI4YmFiZWRlMmQxZTE2M2FmNmNkZTdkODdmMDI0Yzk1NzcwMDBmNDhlMWM3MmM3MmU5OTBkYTRiYzIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIyZDExY2FmNDNlOTdlZjM2OWU2YmVlZDFhMjY4YmQwNTgzOGYyOWI5ZGQyNTRiZjY5YmE2NDg4NDE0NzIzNGEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImNlNjViYThlMDljODlhNjZmMzFiMDRiOGE1M2IwZTI5ZDdjZjQzYzI2MDhmN2JjMzU3MjNiYTg1OGY5ODAwNmEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjUyZGQ4MWU1NDA0NTFjMTM0ODg1ZDYzMDJjZTYyYTViYTUwNzZhMTE4ZGM2ZDUyNWY3NmNkNDE1OTQ0YzZmZGQifQ"
+        },
+        {
+          "resource": "repo://infra-cdk/lib/auth-cdk-stack.ts#L62-L144",
+          "version": "repo-lines-v1:sha256:08b711d550ea11afeb9b77743a3aa2b8aecc83f0203d2226803d4d0bf2cde4f0:eyJzZWxlY3RlZExpbmVDb3VudCI6ODMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjYzOTY2MDZlYzkxMTM4NjRkYWY3OTMyY2IzODA1ZTA5OGU5MmIzNmFlZjI5ODEwNWZjM2E5M2MxYzA4MmZiYzUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg0ZTQyMDhjZDZmZmI4YzRhMzU0N2IyZjU0YWRhMTk5NzhjM2YzNjVlNzhmOTUwMmVmNTE0NWNkZDJhYTg1NDMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImYyODg2ZTBiNGQxMjYwMTBlOTYwZTY3ZDEzMGQ4YzZlMmIwZmE4MWE3ZjAxMWE1NzUzMzRlYWUyYWJiMmMzY2IiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImM0Mjk1OWQzYWYwYzAyNDRkMzY5MDFhZTk5ZWExZDE2Yjg5ZDdjNTI3ODk5NjdhNmQwMGQ0ZmIzNmExMzVmNWQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_06232407d760426a88ada0c24606cb38",
+      "statement": "`defaultLambdaOptions` always enables active X-Ray tracing and applies Lambda memory and timeout overrides only when the corresponding optional values are provided.",
+      "evidence": [
+        {
+          "resource": "repo://infra-cdk/lib/default-lambda-options.ts#L4-L21",
+          "version": "repo-lines-v1:sha256:ac200f2a7bd659100737fab4fbfd57c44cf5fa1106ca14a0f81884d0c0d09c1c:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjcwNzI2NGM0ODMwMmQwMTYyOTU3ZTY1NjhlNjFlOGQxOTQ5ZDQ3ODc0Mzg1YjJmZGQ0ZDI2Yjg1MTk0MDVlYmUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQyYTJjYjI1YTEyMmI0NDIyMWE2MjM0ZWM2NjBhN2I1ZmI3ZjliZGU3YjNiOWUyYjNjNTU5YTBkOTZmYWM3MzkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjVhZDgwYzM5YzA3OWQ5OTVhNGY4ZWU2YWExMDk1MjE2M2E4Mzg4Yjk0N2FmMjQxYzRiZWEwYmU1ZjMzYThkOTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_8926af9614814b73b9b738cdc12c42ae",
+      "statement": "For local backend development and testing, developers need Docker or Docker Compose for DynamoDB Local, a copied `.env.test`, and the one-time `npm run test:db:setup` initialization before the first backend test run.",
+      "evidence": [
+        {
+          "resource": "repo://AGENTS.md#L90-L103",
+          "version": "repo-lines-v1:sha256:ea4529c3dc5735cda0b627527519b5365f1a8d0f992db1a1087c6071ca488103:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNlNzBiMmVkNzlmMmQxY2FmNDBlZGY3NWFkODM0MmIzMDlhN2QxMWVjZjY3MDZkYjBmMjJlZWQxMTUzZjkwODgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ3YzA2YzU2MWQ1YzMyNzM0MzY4NTI2OGE0NmIzMzkxZjM5OThlZWU4OTBkMmJlNTFmMGQyMWNjNGE1M2FlNmQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZhYTNlMDkxYzYzMzIwYWQ4MTI1MmRjNWE2Zjg0ZWY5M2YyOGFmZjliYmI5YjViMDhkNDlkM2M5MmRhZmMyMTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE4MGI1OTNkNWM3ZGU3OTY3MDA2ODYwMjE4YjU3Nzk2NjM3ODk2YThiYzM2YmRkNGY0MTlkZjQ5YWEwNzc2OGEifQ"
+        },
+        {
+          "resource": "repo://backend/README.md#L5-L20",
+          "version": "repo-lines-v1:sha256:2f101d3cb84dd984f3280a2346108495d8636baeacfaff21bc84093d9d9a5a08:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdiNjg5MTZjNjJkN2JkNTgzNDAxNTQxYjUyMjkwOTFhYTM2ZTUyMTYzZWUzZjBiMWZiYWJlNTJlM2U0MzkyMTkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc5MTU0YTA2MDk2NGZmNzhhYTMyOTBkNWZjOTYyNjY3OWExOTgyYTgwZDUxOTRmYTBmMDZkODJiMjY4NDVlZDUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjU1MzdmOTEzNjllMDMwZTQ3NDEzMTUzNDdhZmFmZGY5NzIzYTRjZmFmZTdmZjgzZDY1ZTY5ZDI5Njk1NzE3YmQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ1NmYyYjRmNWU2MjgxNTc4ZDM0ZmE3ZWI2MTVjZjllNTQ2N2VmMWYzNjYxMjZmNzE2Mjc3MmM0OTFjOTQ3MmMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_5024228bfb9d4ea1b08b1838a250955d",
+      "statement": "The repository expects AWS CLI and `jq` for deployment, and custom domain setup additionally requires CDK bootstrap in `us-east-1`, Route 53 delegation, and an exact hosted-zone match in the custom-domain parameter.",
+      "evidence": [
+        {
+          "resource": "repo://README.md#L180-L224",
+          "version": "repo-lines-v1:sha256:2f156bbf886d4c3d9c23c470b7373544a73583b4c543e05dbc79220bdc4a9bf3:eyJzZWxlY3RlZExpbmVDb3VudCI6NDUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRlOTVkM2Q3YWZkOTk4NTlmZmJlYmM5YjM3YjZlYjcxNzNjNDIyNjFlNzBlN2RhYzRlMmQyNTJlZjZjMjVkODgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ3YzA2YzU2MWQ1YzMyNzM0MzY4NTI2OGE0NmIzMzkxZjM5OThlZWU4OTBkMmJlNTFmMGQyMWNjNGE1M2FlNmQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdjZDQ0Y2E4NjRlZTk1ZWIwNDhkYWZhMDgyYmJlZDgxNWFlYWU5NDI5Y2YyOGY4NjkxOTMyOTc1Mzc4ZjU0NGYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjI2OTk0NzQ2NDMxODkzYTFhZmM0Nzc1ZTA0MmNkMTZmZjE4NDVkMzYxNzFmZmIzN2IyMmY4OTE5NGJhZGQwN2QifQ"
+        },
+        {
+          "resource": "repo://README.md#L53-L58",
+          "version": "repo-lines-v1:sha256:14fc01bb6ab73752096a443407b14e7df8cff58efb15bd4bd8955fcffa622a6b:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiODZjNzVkMGU0Y2NjZjE0ZTgxMDFiOWIyNWYzZWFmZDAxZmFhNjgyMDFiMDM3N2Q1NGI0YzYyN2U5YjIxZjRlNSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMDFiYTQ3MTljODBiNmZlOTExYjA5MWE3YzA1MTI0YjY0ZWVlY2U5NjRlMDljMDU4ZWY4Zjk4MDVkYWNhNTQ2YiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZjRhNmY1YWE0NjU1ODU3ODM0YTkwMWMxMjM1MDc4YTRhNjFiYWEzMDdlOTk3ODZhODc4NjcwMzg3NDM1NDg5MyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNDc2OTFmNDM5MjVkMTM2Nzk0MDUyMWEyODhkMDU0ODUzMWJjODVhZjE3NjcxZGRjYTNiODhmZGJiNWFiZTJkYSJ9"
+        },
+        {
+          "resource": "repo://infra-cdk/lib/frontend-cdk-stack.ts#L79-L109",
+          "version": "repo-lines-v1:sha256:e3b1402dc4e7fbf31262d89d81c5356f9334e186fdb9c35880e3ca3ee4db14f6:eyJzZWxlY3RlZExpbmVDb3VudCI6MzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhkMDlkMTgyMDBmYTBiZWRmMjI4NDAxYWNiZDc1MmNlNGMyN2NjN2Q5MjhhOGU1YzY0ZjU0YzI0ZWNmNjdiZDgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjcxN2FmMTEwMWM5N2I3YzJmNTI1NDA3ODJlNjM0Y2M0NDQwZjBlOTcwMzQxZTUyZjk3NTIzMTFkNzhiN2Q3ZDAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjI2YTVkNWRhYTk1YWNkMzY3MzJlNThhZmNjYmY1MGZiN2M1MzllZTJhOWYzYzUwZThkZTVlMDhmNjAyZWY2ZTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE3ZDMwNTY3YjliNDQ4OTM0ZTFiNTI2YzlkODM5MDA1YTBkOWU3MjdkMDNkMmIwZDhlOWViYmQyMzE0OWQ5NmIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_0eaa2e9cd798454ab7a405e1598ea5b0",
+      "statement": "The deployment pipeline depends on the auth stack outputs to populate `VITE_AUTH_CLIENT_ID`, `VITE_AUTH_ISSUER`, `VITE_AUTH_SCOPE`, and `VITE_AUTH_UI_URL` for the frontend build.",
+      "evidence": [
+        {
+          "resource": "repo://deploy.sh#L129-L220",
+          "version": "repo-lines-v1:sha256:7870d0cfa9d81dc112941f2118517b1fdbe11619f0a259ff32820baaf839a57c:eyJzZWxlY3RlZExpbmVDb3VudCI6OTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNhNDY2MGE2YzI4YjhmODVlYjJlMjUyYmJlNmI3NTU0NTAxMjMxN2RmM2RmNzFmNzk1NWYzMzFkMmUwOTFiODgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImExZWFjZDhmNDQ0MGIzMWQ2MWFlOTlkYmQzODY5YmQ1OGUxYjMxMGVhN2M0OTNmYzhkODNlNGUyZDczMDljYzYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijc0YzQ3ZGZkZjUxYWYxM2IxNWNlOGUyNjBjZGFlZGMxZmQyZDRkMWJhMTQ4MzM3YjUyMDc1NzlhOWQwMzRiMjYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjI2MjU3NGU3NmI4MDA0ZTM4MDQ5YmFjYTBjMTNkOGRmNjdmMmI1OTBjYmZlNmI4ODYzYzA3ZDNjOWRiNjdjOTUifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.5.2",
+    "at": "2026-09-20T15:02:07.269Z"
+  }
+}

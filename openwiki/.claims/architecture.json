@@ -1,0 +1,208 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:8ae07a35951fc6ba1fc23a9af0abccff429f304f4415f8135f33cc4bf84e5628",
+  "claims": [
+    {
+      "id": "claim_e2310975b79b4e53acdb0f05fab0b791",
+      "statement": "The application is organized into a Vue SPA frontend, a GraphQL/Lambda backend, and AWS CDK infrastructure, with the backend owning business behavior and the infrastructure code owning AWS resources, routing, and deployment wiring.",
+      "evidence": [
+        {
+          "resource": "repo://README.md",
+          "version": "repo-file-v1:sha256:3e051a07f8bd4dc8d8cf0931df945848d69f41eb3f913785060a6904d5599b02"
+        },
+        {
+          "resource": "repo://backend/src/server.ts",
+          "version": "repo-file-v1:sha256:871c536162807092e556c8103e11f7ec6c2bc78baba2e3cd3df349a6f43f8649"
+        },
+        {
+          "resource": "repo://frontend/src/main.ts",
+          "version": "repo-file-v1:sha256:aabcdc452883355a2c4bc0d8af701bdf126e943a4fb809107d7b2e0b8ec9b5c9"
+        },
+        {
+          "resource": "repo://infra-cdk/lib/backend-cdk-stack.ts",
+          "version": "repo-file-v1:sha256:796fa27fc60f4a96e9eb2084b32eeeda2709835a328fc9855990381fe88b6ad4"
+        },
+        {
+          "resource": "repo://infra-cdk/lib/frontend-cdk-stack.ts",
+          "version": "repo-file-v1:sha256:7f2f109403b6c6c1652ddb3782a0360b81f83e3c23fb8eddc8581b47eda4d7a1"
+        }
+      ]
+    },
+    {
+      "id": "claim_83c667ebac30482c9dc07331af056e98",
+      "statement": "`backend/src/server.ts` creates the Apollo Server, loads the GraphQL schema, builds a new request-scoped context, and injects authentication, repositories, services, and per-request DataLoaders into that context.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/server.ts",
+          "version": "repo-file-v1:sha256:871c536162807092e556c8103e11f7ec6c2bc78baba2e3cd3df349a6f43f8649"
+        }
+      ]
+    },
+    {
+      "id": "claim_2e95caf711174032be21627833c9f890",
+      "statement": "The backend resolver index composes domain-specific resolver modules and explicitly maps `AgentTraceMessage` union values from the service-layer discriminated union to GraphQL concrete types.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/graphql/resolvers/index.ts",
+          "version": "repo-file-v1:sha256:6368c235fe2a3bb6f1a608bfc40e6180bf8664b49074972945d6cdcbb8077df5"
+        }
+      ]
+    },
+    {
+      "id": "claim_caf610e7edd8487f8a0f1d5351351679",
+      "statement": "The web Lambda entrypoint routes `/webhooks/telegram` to the Telegram webhook handler, `/mcp` to the MCP handler, and `/.well-known/*` to a 404 instead of Apollo to avoid MCP client discovery failures.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/lambdas/telegram-webhook-handler.ts",
+          "version": "repo-file-v1:sha256:2d3ef5adb43605627e69406a1084c16eab490df5d55b0e6ce5ef6e74459caa1e"
+        },
+        {
+          "resource": "repo://backend/src/lambdas/web.ts",
+          "version": "repo-file-v1:sha256:e53c82542aa19d107ba6d69e35f1688f9178f0a97b4c9ff0e295775b42451eb6"
+        },
+        {
+          "resource": "repo://backend/src/mcp/server.ts",
+          "version": "repo-file-v1:sha256:3aa12134b55ad067c516a037ff4f8c2a275e046f91ea08f9e4b195fcb6f0b4c1"
+        }
+      ]
+    },
+    {
+      "id": "claim_ff5b62270361414184edee954f7f8086",
+      "statement": "The Telegram webhook handler requires the `x-telegram-bot-api-secret-token` header, validates the JSON payload, forwards messages to the Telegram bot service, and returns a typing chat-action response on success.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/lambdas/telegram-webhook-handler.ts",
+          "version": "repo-file-v1:sha256:2d3ef5adb43605627e69406a1084c16eab490df5d55b0e6ce5ef6e74459caa1e"
+        }
+      ]
+    },
+    {
+      "id": "claim_84fd423e49d84b6693e208b8980f2b66",
+      "statement": "The frontend bootstrap in `frontend/src/main.ts` mounts the Vue app and installs auth, i18n, Vuetify, router, and Apollo client providers, so browser runtime code stays focused on presentation and GraphQL calls.",
+      "evidence": [
+        {
+          "resource": "repo://frontend/src/main.ts",
+          "version": "repo-file-v1:sha256:aabcdc452883355a2c4bc0d8af701bdf126e943a4fb809107d7b2e0b8ec9b5c9"
+        }
+      ]
+    },
+    {
+      "id": "claim_370788f4917a48d6acae15c1a54c223c",
+      "statement": "The create-transaction-from-text composable sends the mutation with an abort signal, preserves failed input, clears the text only after success, and exposes explicit abort support for in-flight requests.",
+      "evidence": [
+        {
+          "resource": "repo://frontend/src/composables/useCreateTransactionFromText.test.ts",
+          "version": "repo-file-v1:sha256:cf3a3aef9f39c6c477c12bf2a5523b6838b6f29ef71c42e57c93541d45d6c485"
+        },
+        {
+          "resource": "repo://frontend/src/composables/useCreateTransactionFromText.ts",
+          "version": "repo-file-v1:sha256:35a601fef7a26968057c25dcbf98586960d3ac75d5501b29b7d19213bea5c3e4"
+        }
+      ]
+    },
+    {
+      "id": "claim_7016f6e4f80445ca97d60331eaae819a",
+      "statement": "The auth CDK stack creates a Cognito user pool and public SPA client with email sign-in, immutable required email, authorization-code OAuth flow, token revocation, and a pre-token-generation Lambda that injects namespaced email claims into access tokens.",
+      "evidence": [
+        {
+          "resource": "repo://infra-cdk/lib/auth-cdk-stack.ts",
+          "version": "repo-file-v1:sha256:fca79000ddef8aa0eee126dbb95b46019b19efd8409ae553e12804edfa2305f5"
+        }
+      ]
+    },
+    {
+      "id": "claim_a2c4daf66b284bcbbe67078b44108f63",
+      "statement": "The backend CDK stack provisions DynamoDB tables for users, accounts, categories, transactions, chat messages, migrations, Telegram bots, and trend presets, and it wires Lambda permissions and environment variables so backend code reads tables and runtime config through infrastructure-provided inputs.",
+      "evidence": [
+        {
+          "resource": "repo://infra-cdk/lib/backend-cdk-stack.ts",
+          "version": "repo-file-v1:sha256:796fa27fc60f4a96e9eb2084b32eeeda2709835a328fc9855990381fe88b6ad4"
+        }
+      ]
+    },
+    {
+      "id": "claim_81393ef676284ff1a2a2355ba58195e5",
+      "statement": "The backend stack grants the web Lambda permission to invoke Bedrock models and asynchronously invoke the background job Lambda, while the migration Lambda is separately provisioned for deploy-time database changes.",
+      "evidence": [
+        {
+          "resource": "repo://infra-cdk/lib/backend-cdk-stack.ts",
+          "version": "repo-file-v1:sha256:796fa27fc60f4a96e9eb2084b32eeeda2709835a328fc9855990381fe88b6ad4"
+        }
+      ]
+    },
+    {
+      "id": "claim_fc775dcde41b4e259e653dc447658f60",
+      "statement": "The frontend CDK stack places the SPA behind CloudFront with an S3 website origin, forwards `/graphql*` and `/mcp*` to API Gateway, and optionally configures a custom domain with Route 53 and an ACM certificate in `us-east-1`.",
+      "evidence": [
+        {
+          "resource": "repo://infra-cdk/lib/frontend-cdk-stack.ts",
+          "version": "repo-file-v1:sha256:7f2f109403b6c6c1652ddb3782a0360b81f83e3c23fb8eddc8581b47eda4d7a1"
+        }
+      ]
+    },
+    {
+      "id": "claim_5afb7bb7cb4c4e768526015d64e86f26",
+      "statement": "The frontend stack emits outputs for the S3 bucket, CloudFront URL, CloudFront distribution ID, and optional custom-domain URL so deployment and access flows can be automated.",
+      "evidence": [
+        {
+          "resource": "repo://infra-cdk/lib/frontend-cdk-stack.ts",
+          "version": "repo-file-v1:sha256:7f2f109403b6c6c1652ddb3782a0360b81f83e3c23fb8eddc8581b47eda4d7a1"
+        }
+      ]
+    },
+    {
+      "id": "claim_25e30229fe9746a1a6c6534e1c36a02d",
+      "statement": "Request-scoped GraphQL context creation resolves the authenticated user lazily before creating account and category loaders, which keeps loader caches per request and user-scoped.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/server.ts",
+          "version": "repo-file-v1:sha256:871c536162807092e556c8103e11f7ec6c2bc78baba2e3cd3df349a6f43f8649"
+        }
+      ]
+    },
+    {
+      "id": "claim_d911d37e8f8348ae962283dc4eb390f1",
+      "statement": "The system’s persistence boundary is repository/service-based rather than direct table access from the UI or resolvers, which centralizes validation, business rules, and user scoping in the backend.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/graphql/resolvers/index.ts",
+          "version": "repo-file-v1:sha256:6368c235fe2a3bb6f1a608bfc40e6180bf8664b49074972945d6cdcbb8077df5"
+        },
+        {
+          "resource": "repo://backend/src/server.ts",
+          "version": "repo-file-v1:sha256:871c536162807092e556c8103e11f7ec6c2bc78baba2e3cd3df349a6f43f8649"
+        },
+        {
+          "resource": "repo://infra-cdk/lib/backend-cdk-stack.ts",
+          "version": "repo-file-v1:sha256:796fa27fc60f4a96e9eb2084b32eeeda2709835a328fc9855990381fe88b6ad4"
+        }
+      ]
+    },
+    {
+      "id": "claim_0192e3758ea34b8ea6176c83fc215bbd",
+      "statement": "The architecture treats AI, Telegram, and MCP as outbound or side-channel integrations owned by backend handlers and services rather than by the browser UI.",
+      "evidence": [
+        {
+          "resource": "repo://backend/src/lambdas/telegram-webhook-handler.ts",
+          "version": "repo-file-v1:sha256:2d3ef5adb43605627e69406a1084c16eab490df5d55b0e6ce5ef6e74459caa1e"
+        },
+        {
+          "resource": "repo://backend/src/lambdas/web.ts",
+          "version": "repo-file-v1:sha256:e53c82542aa19d107ba6d69e35f1688f9178f0a97b4c9ff0e295775b42451eb6"
+        },
+        {
+          "resource": "repo://backend/src/mcp/server.ts",
+          "version": "repo-file-v1:sha256:3aa12134b55ad067c516a037ff4f8c2a275e046f91ea08f9e4b195fcb6f0b4c1"
+        },
+        {
+          "resource": "repo://backend/src/server.ts",
+          "version": "repo-file-v1:sha256:871c536162807092e556c8103e11f7ec6c2bc78baba2e3cd3df349a6f43f8649"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.5.2",
+    "at": "2026-09-20T15:02:07.269Z"
+  }
+}

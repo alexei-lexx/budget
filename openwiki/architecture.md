@@ -1,85 +1,199 @@
-# Repository architecture
+---
+type: system-architecture
+title: System architecture
+description: End-to-end architecture for the Vue SPA, GraphQL/Lambda backend, Cognito authentication, DynamoDB persistence, and CloudFront/CDK deployment, including AI, Telegram, and MCP entry paths.
+tags: [architecture, runtime, graphql, frontend, backend, aws]
+verified:
+  - by: openwiki/0.5.2
+    at: 2026-09-20T15:02:07.269Z
+sources:
+  - id: openwiki-source-4e38730dbdb863cc91804ce6
+    resource: repo://backend/src/graphql/resolvers/index.ts
+  - id: openwiki-source-3ef7b141b339c0260aabd5e3
+    resource: repo://backend/src/lambdas/telegram-webhook-handler.ts
+  - id: openwiki-source-e134eec1e9c8a9a7cc9c133d
+    resource: repo://backend/src/lambdas/web.ts
+  - id: openwiki-source-aa4e428ae023b131766550e4
+    resource: repo://backend/src/mcp/server.ts
+  - id: openwiki-source-5d555e7fb0c2a28fa1fe774c
+    resource: repo://backend/src/server.ts
+  - id: openwiki-source-8c5b5dad189ab833d33fad1e
+    resource: repo://frontend/src/composables/useCreateTransactionFromText.test.ts
+  - id: openwiki-source-1e41517fc4d05dbdcf6e1dd1
+    resource: repo://frontend/src/composables/useCreateTransactionFromText.ts
+  - id: openwiki-source-69b522f10ffdb79d601b4fcf
+    resource: repo://frontend/src/main.ts
+  - id: openwiki-source-f4e1fcd7fb448b2d6f9cfb5d
+    resource: repo://infra-cdk/lib/auth-cdk-stack.ts
+  - id: openwiki-source-f79a31b0557004763509ee18
+    resource: repo://infra-cdk/lib/backend-cdk-stack.ts
+  - id: openwiki-source-1647748b461059b80c532cd9
+    resource: repo://infra-cdk/lib/frontend-cdk-stack.ts
+  - id: openwiki-source-23775c3de52f3ab95a13cb8b
+    resource: repo://README.md
+generated: { by: "openwiki/0.5.2", at: "2026-09-20T15:02:07.269Z" }
+---
 
-This repository is organized around a GraphQL backend, a Vue frontend, and AWS CDK infrastructure. The backend is the source of truth for business behavior; the frontend is mostly a typed GraphQL client and UI layer; the infrastructure code provisions the runtime and deployment surface.
+# System architecture
 
-## Runtime shape
+This repository is split into three major layers:
 
-### Backend
+- a Vue single-page application in `frontend/`
+- a GraphQL API and supporting Lambdas in `backend/`
+- AWS CDK infrastructure in `infra-cdk/`
 
-`backend/src/server.ts` creates the Apollo Server, loads `backend/src/graphql/schema.graphql`, and builds a per-request GraphQL context.
+The architectural boundary that matters most is that application behavior lives in the backend and frontend code, while AWS resources, permissions, routing, and hosting are defined in CDK. The GraphQL schema and generated client/resolver types sit between those layers: they are generated artifacts that encode the contract, but the actual behavior still comes from resolver, service, and composable code.
 
-The context wires together:
+## Runtime responsibilities
 
-- authentication via `resolveJwtAuthService()`
-- repositories for users, accounts, and categories
-- CRUD services for accounts, categories, transactions, transfers, and users
-- report services
+### Frontend SPA
+
+`frontend/src/main.ts` mounts the Vue app, installs auth, i18n, Vuetify, and routing plugins, and provides the Apollo client to the component tree. That file is the entrypoint for browser runtime only; it does not own persistence or authorization rules.
+
+The frontend’s main job is to collect user input, call generated GraphQL operations, and render returned state. For example, the create-transaction-from-text composable sends the mutation, passes an abort signal, preserves failed input, and only clears the text after a successful transaction is returned.
+
+### GraphQL backend
+
+`backend/src/server.ts` constructs the Apollo Server and loads `backend/src/graphql/schema.graphql`. It also builds a fresh GraphQL context per request. That context is where request-scoped auth, repositories, services, and DataLoaders are wired together.
+
+The resolver index in `backend/src/graphql/resolvers/index.ts` composes domain-specific resolver modules. It also defines union resolution for `AgentTraceMessage` by mapping the service-layer discriminated union into GraphQL concrete types.
+
+The Lambda entrypoint in `backend/src/lambdas/web.ts` multiplexes three kinds of runtime traffic:
+
+- GraphQL requests are handled by Apollo
+- Telegram webhook calls are routed directly to the Telegram handler
+- MCP traffic is routed directly to the MCP handler
+
+It also forces `/.well-known/*` discovery paths to return 404 instead of falling through to Apollo, which avoids confusing MCP/OAuth clients with CSRF errors.
+
+### Persistence and domain services
+
+DynamoDB is the primary persistence layer. The backend context injects repositories and services, but request handlers do not talk to tables directly. They go through service and repository boundaries, which keeps persistence access constrained and makes it easier to preserve per-user isolation.
+
+The CDK backend stack defines separate tables for users, accounts, categories, transactions, chat messages, migrations, Telegram bots, and trend presets, plus the secondary indexes needed for lookup patterns such as user email, MCP token, transaction date ordering, and Telegram webhook secret lookup.
+
+### Authentication
+
+Cognito is the authentication boundary for the browser-facing app. The auth stack creates a user pool, a public SPA client, a hosted UI domain, and a pre-token-generation Lambda that injects namespaced email claims into access tokens.
+
+The important invariant is that email is required and immutable in Cognito because the app uses it as the user identifier for persisted data. Changing it would orphan DynamoDB records. The SPA uses an authorization-code flow, and the backend verifies JWTs against the configured issuer and client ID.
+
+### Outbound integrations
+
+The backend can call out to three main integration paths:
+
 - AI services for assistant chat and natural-language transaction creation
-- Telegram services
-- request-scoped DataLoaders for accounts and categories
+- Telegram bot services for incoming webhook traffic and bot replies
+- MCP tools and token-authenticated MCP requests for external AI clients
 
-The main resolver index (`backend/src/graphql/resolvers/index.ts`) composes separate resolver modules by domain. That file also defines the GraphQL union resolution for `AgentTraceMessage`, mapping the service-layer discriminated union to GraphQL concrete types.
+These integrations are all behind backend services or Lambda handlers rather than being invoked directly from the browser.
 
-### Frontend
+## End-to-end request boundaries
 
-`frontend/src/main.ts` boots the Vue app. The assistant page (`frontend/src/views/Assistant.vue`) uses the `useAssistant` composable and the `AgenticInput` component to send questions and surface assistant trace data.
+```mermaid
+sequenceDiagram
+  participant Browser
+  participant CF as CloudFront
+  participant S3 as S3 static site
+  participant API as API Gateway
+  participant Web as Web Lambda
+  participant GraphQL as Apollo Server
+  participant Auth as Cognito
+  participant DB as DynamoDB
+  participant AI as AI services
+  participant TG as Telegram
+  participant MCP as MCP clients
 
-The natural-language transaction flow lives in `frontend/src/composables/useCreateTransactionFromText.ts`, which submits text to the GraphQL mutation, handles aborts, keeps failed input in place, and captures agent traces for the UI.
+  Browser->>CF: Load SPA assets
+  CF->>S3: Fetch index and static files
+  Browser->>Auth: Sign in through Hosted UI
+  Browser->>CF: Send GraphQL request
+  CF->>API: Forward /graphql
+  API->>Web: Invoke web Lambda
+  Web->>GraphQL: Create context and execute operation
+  GraphQL->>Auth: Verify JWT claims
+  GraphQL->>DB: Read and write through repositories
+  GraphQL->>AI: Call assistant or transaction agents when needed
+  Browser->>CF: Post Telegram webhook path is not used
+  TG->>CF: Deliver webhook to /webhooks/telegram
+  CF->>API: Forward webhook path
+  API->>Web: Invoke web Lambda
+  Web->>TG: Dispatch to Telegram handler and service
+  MCP->>CF: Request /mcp
+  CF->>API: Forward /mcp
+  API->>Web: Invoke web Lambda
+  Web->>MCP: Dispatch to MCP handler
+```
+This diagram shows the runtime split between browser delivery, GraphQL execution, and outbound integration paths.
 
-### Infrastructure
+## Deployment wiring
 
-`infra-cdk/lib/backend-cdk-stack.ts` provisions the backend runtime:
+CloudFront is the public edge entrypoint for both the SPA and API traffic. The frontend stack provisions an S3 website origin for static assets and forwards `/graphql*` and `/mcp*` to API Gateway through an HTTP origin. It also supports an optional custom domain via Route 53 and an ACM certificate in `us-east-1`.
 
-- DynamoDB tables for users, accounts, categories, transactions, chat messages, migrations, and Telegram bots
-- Lambda functions for the web GraphQL endpoint and background jobs
-- IAM permissions and log groups
-- Bedrock invocation permissions for agent-driven features
-- environment variables that point the Lambdas at the right tables and auth settings
+```mermaid
+flowchart TD
+  CDK["CDK app"] --> AuthStack["AuthCdkStack"]
+  CDK --> BackendStack["BackendCdkStack"]
+  CDK --> FrontendStack["FrontendCdkStack"]
 
-`infra-cdk/lib/frontend-cdk-stack.ts` provisions the frontend hosting path:
+  AuthStack --> Cognito["Cognito User Pool and client"]
+  BackendStack --> Tables["DynamoDB tables"]
+  BackendStack --> WebLambda["Web Lambda"]
+  BackendStack --> BgLambda["Background job Lambda"]
+  BackendStack --> MigLambda["Migration Lambda"]
+  FrontendStack --> CF["CloudFront distribution"]
+  FrontendStack --> S3["S3 website bucket"]
+  FrontendStack --> API["HTTP API"]
+  API --> WebLambda
+  CF --> S3
+  CF --> API
+```
+This wiring keeps deployment concerns in infrastructure code and runtime behavior in application code.
 
-- S3 static website bucket
-- CloudFront distribution
-- API Gateway origin routing for `/graphql*`
-- optional custom-domain support through Route 53 and ACM
+## Safe-change invariants
 
-## Request flow: GraphQL
+### Auth and request scoping
 
-A typical frontend request goes through these layers:
+`backend/src/server.ts` creates a new GraphQL context for every request, and the account/category loaders are recreated per request with a lazy user-id lookup. That prevents cross-request cache leakage and keeps loader results scoped to the authenticated user.
 
-1. Vue composable or view calls a generated Apollo mutation/query.
-2. The request reaches the GraphQL Lambda.
-3. `backend/src/server.ts` creates auth and service context.
-4. A resolver module dispatches to a service class.
-5. The service uses repositories and domain helpers.
-6. Data comes back to GraphQL and is serialized to the client.
+For safe changes, preserve these rules:
 
-This layering is visible in the service and repository structure under `backend/src/services/` and `backend/src/repositories/`.
+- do not reuse GraphQL context objects across requests
+- keep loader instances request-scoped
+- keep user identity resolution tied to the authenticated request context
+- do not let frontend code bypass the backend for protected data access
 
-## AI and agent flow
+### Persistence boundaries
 
-The AI assistant and voice transaction features are split across several layers:
+Backend code should continue to access DynamoDB through repositories and services, not directly from resolvers or UI code. That separation is what keeps user scoping, validation, and business rules centralized.
 
-- `backend/src/langchain/agents/assistant-agent.ts` defines the assistant agent, its system prompt, and the tools it can use.
-- `backend/src/services/assistant-service.ts` formats user input, calls the assistant agent, and validates the result.
-- `backend/src/langchain/agents/create-transaction-agent.ts` and `backend/src/services/create-transaction-from-text-service.ts` drive natural-language transaction creation.
-- `frontend/src/views/Assistant.vue` and `frontend/src/composables/useCreateTransactionFromText.ts` expose those capabilities in the UI.
+The DynamoDB table keys and indexes are part of the data contract. Changing them affects lookup paths for accounts, categories, transactions, chat messages, Telegram bots, and migrations.
 
-The recent git history shows this area is actively evolving for prompt tuning, abort support, voice-input handling, and input preservation on retry.
+### Integration boundaries
 
-## Why the architecture is structured this way
+Telegram webhooks and MCP traffic are intentionally separated from the normal GraphQL request path inside the Lambda handler. If you add a new externally reachable path, decide whether it belongs in Apollo, a dedicated Lambda branch, or separate infrastructure entirely.
 
-Recent commits indicate a deliberate separation between UI behavior, AI orchestration, and core business services:
+AI features are also mediated through service layers and Lambda runtime configuration. They are not a frontend-only concern, because the backend owns tool access, persistence, and validation.
 
-- `c97bcf64` added abort support for in-flight AI requests in the frontend.
-- `9e98aa21` and earlier prompt-tuning commits refined voice input handling and transaction parsing.
-- `c7cc1e11` moved runtime configuration into SSM-backed deployment/runtime inputs.
+## Extension points
 
-That history suggests the architecture is optimized for iterative AI workflow changes without entangling the repository’s core finance logic.
+The codebase has a few stable change surfaces:
 
-## Where to make changes
+- GraphQL behavior: resolver modules under `backend/src/graphql/resolvers/`
+- backend orchestration and request scoping: `backend/src/server.ts`
+- Lambda path multiplexing: `backend/src/lambdas/web.ts`
+- browser bootstrap and client wiring: `frontend/src/main.ts`
+- auth and token policy: `infra-cdk/lib/auth-cdk-stack.ts`
+- table definitions, Lambda permissions, and runtime env wiring: `infra-cdk/lib/backend-cdk-stack.ts`
+- CloudFront, S3, API routing, and optional custom domain setup: `infra-cdk/lib/frontend-cdk-stack.ts`
 
-- Change GraphQL shape or resolver behavior: `backend/src/graphql/resolvers/`
-- Change assistant or voice transaction behavior: `backend/src/langchain/` and `backend/src/services/`
-- Change UI behavior: `frontend/src/components/`, `frontend/src/composables/`, and `frontend/src/views/`
-- Change runtime resources or permissions: `infra-cdk/lib/`
+## Test signals that matter
+
+The most relevant tests are the ones that protect architectural boundaries rather than just symbol existence:
+
+- frontend composable tests that confirm transaction submission preserves abort behavior and input state on failure
+- backend resolver and service tests that verify business rules and error translation remain inside the backend
+- MCP and Telegram handler tests that confirm non-GraphQL paths are isolated from the Apollo request path
+- infrastructure tests, if present, that verify the CDK wiring for auth, API routing, and table/index definitions
+
+Those tests are important because they guard the system’s main invariants: authenticated request scoping, persistence isolation by user, and clear separation between browser traffic, GraphQL traffic, and outbound integrations.
