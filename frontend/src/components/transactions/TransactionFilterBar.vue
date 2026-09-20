@@ -1,4 +1,3 @@
-<!-- eslint-disable vue/no-mutating-props -->
 <template>
   <div class="pa-3 pa-sm-4">
     <v-row dense>
@@ -108,11 +107,12 @@ import CategoryMultiSelect from "@/components/common/CategoryMultiSelect.vue";
 interface Props {
   accounts: Account[];
   categories: Category[];
-  filters: TransactionFiltersState;
   loading?: boolean;
 }
 
-const props = defineProps<Props>();
+defineProps<Props>();
+
+const filters = defineModel<TransactionFiltersState>("filters", { required: true });
 
 const emit = defineEmits<{
   apply: [];
@@ -134,13 +134,10 @@ const transactionTypeOptions = computed(
 );
 
 function handleApply() {
-  props.filters.applyFilters();
   emit("apply");
 }
 
 function handleClear() {
-  props.filters.clearFilters();
-  props.filters.applyFilters(); // Apply empty filters
   emit("clear");
 }
 </script>
