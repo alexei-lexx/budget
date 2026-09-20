@@ -74,7 +74,7 @@
         v-if="showFilter"
         :accounts="accounts"
         :categories="categories"
-        :filters="transactionFilters"
+        v-model:filters="transactionFilters"
         :loading="paginatedLoading"
         @apply="handleApplyFilters"
         @clear="handleClearFilters"

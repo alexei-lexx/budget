@@ -83,13 +83,13 @@
       <v-col cols="12" class="d-flex align-center">
         <v-btn
           variant="outlined"
-          @click="emit('clear')"
+          @click="handleClear"
           :disabled="loading || !filters.hasSelectedFilters.value"
         >
           {{ t("common.buttons.clear") }}
         </v-btn>
         <v-spacer />
-        <v-btn color="primary" @click="emit('apply')" :disabled="loading">
+        <v-btn color="primary" @click="handleApply" :disabled="loading">
           {{ t("common.buttons.apply") }}
         </v-btn>
       </v-col>
@@ -132,4 +132,12 @@ const transactionTypeOptions = computed(
       { title: t("transactions.types.refund"), value: "REFUND" },
     ] satisfies { title: string; value: TransactionType }[],
 );
+
+function handleApply() {
+  emit("apply");
+}
+
+function handleClear() {
+  emit("clear");
+}
 </script>
