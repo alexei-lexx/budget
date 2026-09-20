@@ -76,8 +76,8 @@
         :categories="categories"
         :filters="transactionFilters"
         :loading="paginatedLoading"
-        @apply="() => {}"
-        @clear="() => {}"
+        @apply="handleApplyFilters"
+        @clear="handleClearFilters"
       />
     </v-expand-transition>
 
@@ -261,7 +261,17 @@ const { t } = useI18n();
 // Filter state
 const transactionFilters = useTransactionFilters();
 const showFilter = ref(false);
+
 const toggleFilter = () => (showFilter.value = !showFilter.value);
+
+const handleApplyFilters = () => {
+  transactionFilters.applyFilters();
+};
+
+const handleClearFilters = () => {
+  transactionFilters.clearFilters();
+  transactionFilters.applyFilters();
+};
 
 const {
   paginatedTransactions,

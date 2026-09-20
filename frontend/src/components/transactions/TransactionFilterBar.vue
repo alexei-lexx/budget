@@ -1,4 +1,3 @@
-<!-- eslint-disable vue/no-mutating-props -->
 <template>
   <div class="pa-3 pa-sm-4">
     <v-row dense>
@@ -84,13 +83,13 @@
       <v-col cols="12" class="d-flex align-center">
         <v-btn
           variant="outlined"
-          @click="handleClear"
+          @click="emit('clear')"
           :disabled="loading || !filters.hasSelectedFilters.value"
         >
           {{ t("common.buttons.clear") }}
         </v-btn>
         <v-spacer />
-        <v-btn color="primary" @click="handleApply" :disabled="loading">
+        <v-btn color="primary" @click="emit('apply')" :disabled="loading">
           {{ t("common.buttons.apply") }}
         </v-btn>
       </v-col>
@@ -108,11 +107,12 @@ import CategoryMultiSelect from "@/components/common/CategoryMultiSelect.vue";
 interface Props {
   accounts: Account[];
   categories: Category[];
-  filters: TransactionFiltersState;
   loading?: boolean;
 }
 
-const props = defineProps<Props>();
+defineProps<Props>();
+
+const filters = defineModel<TransactionFiltersState>("filters", { required: true });
 
 const emit = defineEmits<{
   apply: [];
@@ -132,15 +132,4 @@ const transactionTypeOptions = computed(
       { title: t("transactions.types.refund"), value: "REFUND" },
     ] satisfies { title: string; value: TransactionType }[],
 );
-
-function handleApply() {
-  props.filters.applyFilters();
-  emit("apply");
-}
-
-function handleClear() {
-  props.filters.clearFilters();
-  props.filters.applyFilters(); // Apply empty filters
-  emit("clear");
-}
 </script>

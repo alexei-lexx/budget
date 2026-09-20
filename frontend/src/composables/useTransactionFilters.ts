@@ -20,7 +20,6 @@ export interface TransactionFiltersState {
   // Methods
   applyFilters: () => void;
   clearFilters: () => void;
-  resetToApplied: () => void;
 }
 
 export function useTransactionFilters(): TransactionFiltersState {
@@ -77,20 +76,6 @@ export function useTransactionFilters(): TransactionFiltersState {
     selectedTypes.value = [];
   }
 
-  // Reset selected to match applied (cancel changes)
-  function resetToApplied() {
-    if (appliedFilters.value) {
-      selectedAccountIds.value = appliedFilters.value.accountIds || [];
-      selectedCategoryIds.value = appliedFilters.value.categoryIds || [];
-      includeUncategorized.value = appliedFilters.value.includeUncategorized || false;
-      dateAfter.value = appliedFilters.value.dateAfter || null;
-      dateBefore.value = appliedFilters.value.dateBefore || null;
-      selectedTypes.value = appliedFilters.value.types || [];
-    } else {
-      clearFilters();
-    }
-  }
-
   return {
     selectedAccountIds,
     selectedCategoryIds,
@@ -103,6 +88,5 @@ export function useTransactionFilters(): TransactionFiltersState {
     hasAppliedFilters,
     applyFilters,
     clearFilters,
-    resetToApplied,
   };
 }
