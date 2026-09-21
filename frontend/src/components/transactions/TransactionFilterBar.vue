@@ -4,7 +4,7 @@
       <!-- Account Filter -->
       <v-col cols="12" md="6">
         <v-select
-          v-model="filters.selectedAccountIds.value"
+          v-model="current.accountIds"
           :items="accounts"
           item-title="name"
           item-value="id"
@@ -22,13 +22,13 @@
       <!-- Category Filter -->
       <v-col cols="12" md="6">
         <CategoryMultiSelect
-          v-model="filters.selectedCategoryIds.value"
+          v-model="current.categoryIds"
           :categories="categories"
           :label="t('transactions.filterBar.categories')"
           :disabled="loading"
         />
         <v-checkbox
-          v-model="filters.includeUncategorized.value"
+          v-model="current.includeUncategorized"
           :label="t('transactions.filterBar.includeUncategorized')"
           :disabled="loading"
           density="compact"
@@ -39,7 +39,7 @@
       <!-- Date After -->
       <v-col cols="12" md="6">
         <v-text-field
-          v-model="filters.dateAfter.value"
+          v-model="current.dateAfter"
           type="date"
           :label="t('transactions.filterBar.fromDate')"
           :disabled="loading"
@@ -52,7 +52,7 @@
       <!-- Date Before -->
       <v-col cols="12" md="6">
         <v-text-field
-          v-model="filters.dateBefore.value"
+          v-model="current.dateBefore"
           type="date"
           :label="t('transactions.filterBar.toDate')"
           :disabled="loading"
@@ -65,7 +65,7 @@
       <!-- Transaction Type Filter -->
       <v-col cols="12" md="6">
         <v-select
-          v-model="filters.selectedTypes.value"
+          v-model="current.types"
           :items="transactionTypeOptions"
           :label="t('transactions.filterBar.types')"
           multiple
@@ -81,11 +81,7 @@
 
     <v-row class="mt-2">
       <v-col cols="12" class="d-flex align-center">
-        <v-btn
-          variant="outlined"
-          @click="handleClear"
-          :disabled="loading || !filters.hasSelectedFilters.value"
-        >
+        <v-btn variant="outlined" @click="handleClear" :disabled="loading || isCurrentEmpty">
           {{ t("common.buttons.clear") }}
         </v-btn>
         <v-spacer />
@@ -101,7 +97,10 @@
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import type { Account, Category, TransactionType } from "@/__generated__/vue-apollo";
-import type { TransactionFiltersState } from "@/composables/useTransactionFilters";
+import {
+  isEmptyTransactionFilterSelection,
+  type TransactionFilterSelection,
+} from "@/types/transactionFilters";
 import CategoryMultiSelect from "@/components/common/CategoryMultiSelect.vue";
 
 interface Props {
@@ -112,7 +111,7 @@ interface Props {
 
 defineProps<Props>();
 
-const filters = defineModel<TransactionFiltersState>("filters", { required: true });
+const current = defineModel<TransactionFilterSelection>({ required: true });
 
 const emit = defineEmits<{
   apply: [];
@@ -120,6 +119,8 @@ const emit = defineEmits<{
 }>();
 
 const { t } = useI18n();
+
+const isCurrentEmpty = computed(() => isEmptyTransactionFilterSelection(current.value));
 
 // Transaction type options
 const transactionTypeOptions = computed(

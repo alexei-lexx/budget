@@ -8,7 +8,7 @@
         <v-badge
           class="d-none d-sm-flex"
           dot
-          :model-value="transactionFilters.hasAppliedFilters.value"
+          :model-value="hasAppliedTransactionFilter"
           color="primary"
         >
           <v-btn color="secondary" prepend-icon="mdi-filter-variant" @click="toggleFilter">
@@ -19,7 +19,7 @@
         <v-badge
           class="d-flex d-sm-none"
           dot
-          :model-value="transactionFilters.hasAppliedFilters.value"
+          :model-value="hasAppliedTransactionFilter"
           color="primary"
         >
           <v-btn
@@ -74,7 +74,7 @@
         v-if="showFilter"
         :accounts="accounts"
         :categories="categories"
-        v-model:filters="transactionFilters"
+        v-model="currentTransactionFilterSelection"
         :loading="paginatedLoading"
         @apply="handleApplyFilters"
         @clear="handleClearFilters"
@@ -239,7 +239,10 @@ import { useCategories } from "@/composables/useCategories";
 import { useCreateTransactionFromText } from "@/composables/useCreateTransactionFromText";
 import { useSnackbar } from "@/composables/useSnackbar";
 import { useTransfers } from "@/composables/useTransfers";
-import { useTransactionFilters } from "@/composables/useTransactionFilters";
+import {
+  isEmptyTransactionFilterSelection,
+  type TransactionFilterSelection,
+} from "@/types/transactionFilters";
 import TransactionCard from "@/components/transactions/TransactionCard.vue";
 import TransactionForm from "@/components/transactions/TransactionForm.vue";
 import TransactionDeleteDialog from "@/components/transactions/TransactionDeleteDialog.vue";
@@ -247,7 +250,11 @@ import TransactionFilterBar from "@/components/transactions/TransactionFilterBar
 import TransferDeleteDialog from "@/components/transfers/TransferDeleteDialog.vue";
 import TransferForm from "@/components/transfers/TransferForm.vue";
 import AgenticInput from "@/components/AgenticInput.vue";
-import type { Transaction, CreateTransactionInput } from "@/composables/useTransactions";
+import type {
+  Transaction,
+  CreateTransactionInput,
+  TransactionFilterInput,
+} from "@/composables/useTransactions";
 import type {
   Transfer,
   CreateTransferInput,
@@ -259,18 +266,50 @@ const { xs, mobile } = useDisplay();
 const { t } = useI18n();
 
 // Filter state
-const transactionFilters = useTransactionFilters();
+function createEmptyTransactionFilterSelection(): TransactionFilterSelection {
+  return {
+    accountIds: [],
+    categoryIds: [],
+    includeUncategorized: false,
+    dateAfter: null,
+    dateBefore: null,
+    types: [],
+  };
+}
+
+function toTransactionFilterInput(
+  value: TransactionFilterSelection,
+): TransactionFilterInput | null {
+  return isEmptyTransactionFilterSelection(value)
+    ? null
+    : {
+        accountIds: value.accountIds.length > 0 ? value.accountIds : undefined,
+        categoryIds: value.categoryIds.length > 0 ? value.categoryIds : undefined,
+        includeUncategorized: value.includeUncategorized || undefined,
+        dateAfter: value.dateAfter || undefined,
+        dateBefore: value.dateBefore || undefined,
+        types: value.types.length > 0 ? value.types : undefined,
+      };
+}
+
+const currentTransactionFilterSelection = ref<TransactionFilterSelection>(
+  createEmptyTransactionFilterSelection(),
+);
+const appliedTransactionFilterInput = ref<TransactionFilterInput | null>(null);
+const hasAppliedTransactionFilter = computed(() => appliedTransactionFilterInput.value !== null);
 const showFilter = ref(false);
 
 const toggleFilter = () => (showFilter.value = !showFilter.value);
 
 const handleApplyFilters = () => {
-  transactionFilters.applyFilters();
+  appliedTransactionFilterInput.value = toTransactionFilterInput(
+    currentTransactionFilterSelection.value,
+  );
 };
 
 const handleClearFilters = () => {
-  transactionFilters.clearFilters();
-  transactionFilters.applyFilters();
+  currentTransactionFilterSelection.value = createEmptyTransactionFilterSelection();
+  appliedTransactionFilterInput.value = null;
 };
 
 const {
@@ -289,7 +328,7 @@ const {
   addTransactionsToList,
   removeTransactionsFromList,
 } = useTransactions({
-  filters: transactionFilters.appliedFilters,
+  filters: appliedTransactionFilterInput,
 });
 const { accounts: accountsData, refetchAccounts } = useAccounts();
 const { categories: categoriesData } = useCategories();
@@ -334,7 +373,7 @@ const handleCreateTransactionFromText = async (isVoiceInput: boolean) => {
 
 // Watch applied filters and refetch when they change
 watch(
-  () => transactionFilters.appliedFilters.value,
+  () => appliedTransactionFilterInput.value,
   () => {
     refetchTransactions();
   },
