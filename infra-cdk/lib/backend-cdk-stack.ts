@@ -1,8 +1,10 @@
 import * as cdk from "aws-cdk-lib";
 import * as apigatewayv2 from "aws-cdk-lib/aws-apigatewayv2";
 import * as integrations from "aws-cdk-lib/aws-apigatewayv2-integrations";
+import * as backup from "aws-cdk-lib/aws-backup";
 import { IUserPoolClient, UserPool } from "aws-cdk-lib/aws-cognito";
 import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
+import * as events from "aws-cdk-lib/aws-events";
 import * as iam from "aws-cdk-lib/aws-iam";
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as logs from "aws-cdk-lib/aws-logs";
@@ -43,6 +45,15 @@ export class BackendCdkStack extends cdk.Stack {
       removalPolicy: cdk.RemovalPolicy.RETAIN,
       deletionProtection: true,
     };
+
+    // Scoped to DynamoDB tables only, so this never tags other resources.
+    // Uses the stack name, not a constant,
+    // because AWS Backup matches tags across the whole account.
+    // A constant would tag another environment's or app's tables too,
+    // if deployed to the same AWS account.
+    cdk.Tags.of(this).add("backup", this.stackName, {
+      includeResourceTypes: ["AWS::DynamoDB::Table"],
+    });
 
     const usersTable = new dynamodb.Table(this, "UsersTable", {
       partitionKey: { name: "id", type: dynamodb.AttributeType.STRING },
@@ -145,6 +156,37 @@ export class BackendCdkStack extends cdk.Stack {
       partitionKey: { name: "userId", type: dynamodb.AttributeType.STRING },
       sortKey: { name: "id", type: dynamodb.AttributeType.STRING },
       ...commonTableOptions,
+    });
+
+    // Retained independently of the tables,
+    // so backup history survives even if a table or the stack is deleted.
+    const backupVault = new backup.BackupVault(this, "BackupVault", {
+      backupVaultName: `${this.stackName}-BackupVault`,
+      removalPolicy: cdk.RemovalPolicy.RETAIN,
+    });
+
+    // Named with the stack name, since the construct id alone
+    // ("BackupPlan") isn't unique across environments in the console.
+    const backupPlan = new backup.BackupPlan(this, "BackupPlan", {
+      backupPlanName: `${this.stackName}-BackupPlan`,
+      backupVault,
+      backupPlanRules: [
+        new backup.BackupPlanRule({
+          ruleName: "DailyBackup",
+          scheduleExpression: events.Schedule.cron({ minute: "0", hour: "3" }),
+          deleteAfter: cdk.Duration.days(30),
+          startWindow: cdk.Duration.hours(1),
+          completionWindow: cdk.Duration.hours(2),
+        }),
+      ],
+    });
+
+    // Matches every table tagged `backup` above,
+    // so new tables are covered automatically,
+    // with no separate list to maintain.
+    backupPlan.addSelection("BackupSelection", {
+      backupSelectionName: `${this.stackName}-BackupSelection`,
+      resources: [backup.BackupResource.fromTag("backup", this.stackName)],
     });
 
     const functionConfig: Omit<lambda.FunctionProps, "handler"> = {
