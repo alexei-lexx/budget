@@ -1711,6 +1711,26 @@ describe("DynTransactionRepository", () => {
       expect(stored).toEqual(transaction);
     });
 
+    it("persists transaction with compoundTransaction", async () => {
+      // Arrange
+      const transaction = fakeExpense({
+        compoundTransaction: {
+          id: faker.string.uuid(),
+          totalAmount: 15,
+        },
+      });
+
+      // Act
+      await repository.create(transaction);
+
+      // Assert
+      const stored = await repository.findOneById({
+        id: transaction.id,
+        userId: transaction.userId,
+      });
+      expect(stored).toEqual(transaction);
+    });
+
     it("includes createdAtSortable in raw DynamoDB item", async () => {
       // Arrange
       const transaction = fakeTransaction();

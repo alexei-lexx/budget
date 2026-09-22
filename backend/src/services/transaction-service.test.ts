@@ -1,7 +1,15 @@
 import { faker } from "@faker-js/faker";
-import { type Mocked, beforeEach, describe, expect, it } from "vitest";
+import {
+  type Mocked,
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vitest";
 import { ModelError } from "../models/model-error";
-import { TransactionType } from "../models/transaction";
+import { Transaction, TransactionType } from "../models/transaction";
 import { AccountRepository } from "../ports/account-repository";
 import { AtomicWriter } from "../ports/atomic-writer";
 import { CategoryRepository } from "../ports/category-repository";
@@ -10,6 +18,7 @@ import {
   TransactionRepository,
 } from "../ports/transaction-repository";
 import { toDateString } from "../types/date-string";
+import { toDateTimeString } from "../types/date-time-string";
 import { MAX_PAGE_SIZE, MIN_PAGE_SIZE } from "../types/pagination";
 import { fakeAccount } from "../utils/test-utils/models/account-fakes";
 import { fakeCategory } from "../utils/test-utils/models/category-fakes";
@@ -23,9 +32,13 @@ import { createMockAccountRepository } from "../utils/test-utils/repositories/ac
 import { createMockAtomicWriter } from "../utils/test-utils/repositories/atomic-writer-mocks";
 import { createMockCategoryRepository } from "../utils/test-utils/repositories/category-repository-mocks";
 import { createMockTransactionRepository } from "../utils/test-utils/repositories/transaction-repository-mocks";
-import { fakeCreateTransactionServiceInput } from "../utils/test-utils/services/transaction-service-fakes";
+import {
+  fakeCreateCompoundTransactionServiceInput,
+  fakeCreateTransactionServiceInput,
+} from "../utils/test-utils/services/transaction-service-fakes";
 import { BusinessError } from "./business-error";
 import {
+  CreateCompoundTransactionServiceInput,
   DEFAULT_TRANSACTION_PATTERNS_LIMIT,
   DESCRIPTION_SUGGESTIONS_SAMPLE_SIZE,
   MAX_TRANSACTION_PATTERNS_LIMIT,
@@ -958,6 +971,440 @@ describe("TransactionService", () => {
 
       // Act
       const promise = service.createTransaction(input, userId);
+
+      // Assert
+      await expect(promise).rejects.toThrow(
+        new ModelError("Amount must be positive"),
+      );
+      expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("createCompoundTransaction", () => {
+    beforeEach(() => {
+      vi.useFakeTimers().setSystemTime(new Date("2000-02-03:00:00.000Z"));
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    // Happy path
+
+    it("creates and returns one transaction per leg", async () => {
+      // Arrange
+      const account = fakeAccount({ userId, currency: "USD" });
+      const categoryA = fakeCategory({ userId, type: "EXPENSE" });
+      const categoryB = fakeCategory({ userId, type: "EXPENSE" });
+      const input: CreateCompoundTransactionServiceInput = {
+        accountId: account.id,
+        date: toDateString("2000-01-02"),
+        expectedTotal: 15,
+        type: "EXPENSE",
+        legs: [
+          {
+            amount: 10,
+            categoryId: categoryA.id,
+            description: "Some food",
+          },
+          {
+            amount: 5,
+            categoryId: categoryB.id,
+            description: "Some drinks",
+          },
+        ],
+      };
+
+      // Returns account owned by user
+      mockAccountRepository.findOneById.mockResolvedValue(account);
+
+      // Returns each leg's category owned by user, in leg order
+      mockCategoryRepository.findOneById
+        .mockResolvedValueOnce(categoryA)
+        .mockResolvedValueOnce(categoryB);
+
+      // Persists and returns both legs
+      const createdTransactions = [fakeExpense(), fakeExpense()];
+      mockAtomicWriter.commit.mockResolvedValue({
+        createdTransactions,
+        updatedTransactions: [],
+        updatedAccounts: [],
+      });
+
+      // Act
+      const result = await service.createCompoundTransaction(input, userId);
+
+      // Assert
+      expect(result).toEqual(createdTransactions);
+
+      expect(mockAtomicWriter.commit).toHaveBeenCalledTimes(1);
+      const commitInput = mockAtomicWriter.commit.mock.calls[0]?.[0];
+      const transactionsToCreate = commitInput?.transactionsToCreate ?? [];
+
+      expect(transactionsToCreate).toHaveLength(2);
+      expect(transactionsToCreate[0]).toBeInstanceOf(Transaction);
+      expect(transactionsToCreate[1]).toBeInstanceOf(Transaction);
+
+      expect(transactionsToCreate[0]?.toData()).toEqual({
+        accountId: account.id,
+        amount: 10,
+        categoryId: categoryA.id,
+        createdAt: toDateTimeString("2000-02-03T00:00:00.000Z"),
+        currency: "USD",
+        date: toDateString("2000-01-02"),
+        description: "Some food",
+        id: expect.any(String),
+        isArchived: false,
+        transferId: undefined,
+        type: TransactionType.EXPENSE,
+        updatedAt: toDateTimeString("2000-02-03T00:00:00.000Z"),
+        userId,
+        version: 0,
+        compoundTransaction: {
+          id: expect.any(String),
+          totalAmount: 15,
+        },
+      });
+
+      expect(transactionsToCreate[1]?.toData()).toEqual({
+        accountId: account.id,
+        amount: 5,
+        categoryId: categoryB.id,
+        createdAt: toDateTimeString("2000-02-03T00:00:00.000Z"),
+        currency: "USD",
+        date: toDateString("2000-01-02"),
+        description: "Some drinks",
+        id: expect.any(String),
+        isArchived: false,
+        transferId: undefined,
+        type: TransactionType.EXPENSE,
+        updatedAt: toDateTimeString("2000-02-03T00:00:00.000Z"),
+        userId,
+        version: 0,
+        compoundTransaction: {
+          id: expect.any(String),
+          totalAmount: 15,
+        },
+      });
+    });
+
+    it("stamps every leg with same compoundTransaction id and totalAmount", async () => {
+      // Arrange
+      const account = fakeAccount({ userId });
+      const categoryA = fakeCategory({ userId, type: "EXPENSE" });
+      const categoryB = fakeCategory({ userId, type: "EXPENSE" });
+      const input = fakeCreateCompoundTransactionServiceInput({
+        accountId: account.id,
+        type: "EXPENSE",
+        legs: [
+          {
+            amount: 10,
+            categoryId: categoryA.id,
+          },
+          {
+            amount: 5,
+            categoryId: categoryB.id,
+          },
+        ],
+      });
+
+      // Returns account owned by user
+      mockAccountRepository.findOneById.mockResolvedValue(account);
+
+      // Returns category owned by user for every leg
+      mockCategoryRepository.findOneById
+        .mockResolvedValueOnce(categoryA)
+        .mockResolvedValueOnce(categoryB);
+
+      // Persists and returns both legs
+      mockAtomicWriter.commit.mockResolvedValue({
+        createdTransactions: [fakeExpense(), fakeExpense()],
+        updatedTransactions: [],
+        updatedAccounts: [],
+      });
+
+      // Act
+      await service.createCompoundTransaction(input, userId);
+
+      // Assert
+      const commitInput = mockAtomicWriter.commit.mock.calls[0]?.[0];
+      const transactionsToCreate = commitInput?.transactionsToCreate ?? [];
+
+      const compoundTransactionIds = transactionsToCreate.map(
+        (transaction) => transaction.compoundTransaction?.id,
+      );
+      expect(new Set(compoundTransactionIds).size).toBe(1);
+
+      const compoundTransactionTotalAmounts = transactionsToCreate.map(
+        (transaction) => transaction.compoundTransaction?.totalAmount,
+      );
+      expect(new Set(compoundTransactionTotalAmounts).size).toBe(1);
+    });
+
+    it("folds all legs into one account balance update", async () => {
+      // Arrange
+      const account = fakeAccount({ userId, transactionBalance: 100 });
+      const categoryA = fakeCategory({ userId, type: "EXPENSE" });
+      const categoryB = fakeCategory({ userId, type: "EXPENSE" });
+      const input = fakeCreateCompoundTransactionServiceInput({
+        accountId: account.id,
+        type: "EXPENSE",
+        legs: [
+          {
+            amount: 10,
+            categoryId: categoryA.id,
+          },
+          {
+            amount: 5,
+            categoryId: categoryB.id,
+          },
+        ],
+      });
+
+      // Returns account owned by user
+      mockAccountRepository.findOneById.mockResolvedValue(account);
+
+      // Returns category owned by user for every leg
+      mockCategoryRepository.findOneById
+        .mockResolvedValueOnce(categoryA)
+        .mockResolvedValueOnce(categoryB);
+
+      // Persists and returns both legs
+      mockAtomicWriter.commit.mockResolvedValue({
+        createdTransactions: [fakeExpense(), fakeExpense()],
+        updatedTransactions: [],
+        updatedAccounts: [],
+      });
+
+      // Act
+      await service.createCompoundTransaction(input, userId);
+
+      // Assert
+      const commitInput = mockAtomicWriter.commit.mock.calls[0]?.[0];
+      expect(commitInput?.accountsToUpdate).toHaveLength(1);
+      expect(commitInput?.accountsToUpdate?.[0]?.transactionBalance).toBe(85);
+    });
+
+    // Validation failures
+
+    it("rejects fewer than 2 legs", async () => {
+      // Arrange
+      const input = fakeCreateCompoundTransactionServiceInput({
+        legs: [
+          {
+            amount: 10,
+            categoryId: faker.string.uuid(),
+          },
+        ],
+      });
+
+      // Act
+      const promise = service.createCompoundTransaction(input, userId);
+
+      // Assert
+      await expect(promise).rejects.toThrow(
+        new BusinessError("Compound transaction requires at least 2 legs"),
+      );
+      expect(mockAccountRepository.findOneById).not.toHaveBeenCalled();
+      expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
+    });
+
+    it("rejects when leg amounts do not sum to expected total", async () => {
+      // Arrange
+      const input = fakeCreateCompoundTransactionServiceInput({
+        expectedTotal: 20,
+        legs: [
+          {
+            amount: 10,
+            categoryId: faker.string.uuid(),
+          },
+          {
+            amount: 5,
+            categoryId: faker.string.uuid(),
+          },
+        ],
+      });
+
+      // Act
+      const promise = service.createCompoundTransaction(input, userId);
+
+      // Assert
+      await expect(promise).rejects.toThrow(
+        new BusinessError("Leg amounts must sum to the expected total"),
+      );
+      expect(mockAccountRepository.findOneById).not.toHaveBeenCalled();
+      expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
+    });
+
+    it("rejects duplicate categoryIds across legs", async () => {
+      // Arrange
+      const input = fakeCreateCompoundTransactionServiceInput({
+        legs: [
+          {
+            amount: 10,
+            categoryId: "same-category",
+          },
+          {
+            amount: 5,
+            categoryId: "same-category",
+          },
+        ],
+      });
+
+      // Act
+      const promise = service.createCompoundTransaction(input, userId);
+
+      // Assert
+      await expect(promise).rejects.toThrow(
+        new BusinessError(
+          "Compound transaction legs must have distinct categories, with at most one uncategorized leg",
+        ),
+      );
+      expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
+    });
+
+    it("rejects more than one uncategorized leg", async () => {
+      // Arrange
+      const input = fakeCreateCompoundTransactionServiceInput({
+        legs: [{ amount: 10 }, { amount: 5 }],
+      });
+
+      // Act
+      const promise = service.createCompoundTransaction(input, userId);
+
+      // Assert
+      await expect(promise).rejects.toThrow(
+        new BusinessError(
+          "Compound transaction legs must have distinct categories, with at most one uncategorized leg",
+        ),
+      );
+      expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
+    });
+
+    it("throws when account not found", async () => {
+      // Arrange
+      const input = fakeCreateCompoundTransactionServiceInput();
+
+      // Returns no account
+      mockAccountRepository.findOneById.mockResolvedValue(null);
+
+      // Act
+      const promise = service.createCompoundTransaction(input, userId);
+
+      // Assert
+      await expect(promise).rejects.toThrow(
+        new BusinessError("Account not found or doesn't belong to user"),
+      );
+      expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
+    });
+
+    it("throws when category not found", async () => {
+      // Arrange
+      const account = fakeAccount({ userId });
+      const categoryA = fakeCategory({ userId, type: "EXPENSE" });
+      const input = fakeCreateCompoundTransactionServiceInput({
+        accountId: account.id,
+        type: "EXPENSE",
+        legs: [
+          {
+            amount: 10,
+            categoryId: categoryA.id,
+          },
+          {
+            amount: 5,
+            categoryId: faker.string.uuid(),
+          },
+        ],
+      });
+
+      // Returns account owned by user
+      mockAccountRepository.findOneById.mockResolvedValue(account);
+
+      // Returns no category for one leg
+      mockCategoryRepository.findOneById
+        .mockResolvedValueOnce(categoryA)
+        .mockResolvedValueOnce(null);
+
+      // Act
+      const promise = service.createCompoundTransaction(input, userId);
+
+      // Assert
+      await expect(promise).rejects.toThrow(
+        new BusinessError("Category not found or doesn't belong to user"),
+      );
+      expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
+    });
+
+    it("throws when category type does not match transaction type", async () => {
+      // Arrange
+      const account = fakeAccount({ userId });
+      const validCategory = fakeCategory({ userId, type: "EXPENSE" });
+      const wrongCategory = fakeCategory({ userId, type: "INCOME" });
+      const input = fakeCreateCompoundTransactionServiceInput({
+        accountId: account.id,
+        type: "EXPENSE",
+        legs: [
+          {
+            amount: 10,
+            categoryId: validCategory.id,
+          },
+          {
+            amount: 5,
+            categoryId: wrongCategory.id,
+          },
+        ],
+      });
+
+      // Returns account owned by user
+      mockAccountRepository.findOneById.mockResolvedValue(account);
+
+      // Returns categories with mismatched type
+      mockCategoryRepository.findOneById
+        .mockResolvedValueOnce(validCategory)
+        .mockResolvedValueOnce(wrongCategory);
+
+      // Act
+      const promise = service.createCompoundTransaction(input, userId);
+
+      // Assert
+      await expect(promise).rejects.toThrow(
+        new BusinessError(
+          'Category type "INCOME" doesn\'t match transaction type "EXPENSE"',
+        ),
+      );
+      expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
+    });
+
+    it("propagates ModelError without persisting", async () => {
+      // Arrange
+      const account = fakeAccount({ userId });
+      const categoryA = fakeCategory({ userId, type: "EXPENSE" });
+      const categoryB = fakeCategory({ userId, type: "EXPENSE" });
+      const input = fakeCreateCompoundTransactionServiceInput({
+        accountId: account.id,
+        type: "EXPENSE",
+        legs: [
+          {
+            amount: 10,
+            categoryId: categoryA.id,
+          },
+          {
+            amount: -5,
+            categoryId: categoryB.id,
+          },
+        ],
+      });
+
+      // Returns account owned by user
+      mockAccountRepository.findOneById.mockResolvedValue(account);
+
+      // Returns each leg's category owned by user, in leg order
+      mockCategoryRepository.findOneById
+        .mockResolvedValueOnce(categoryA)
+        .mockResolvedValueOnce(categoryB);
+
+      // Act
+      const promise = service.createCompoundTransaction(input, userId);
 
       // Assert
       await expect(promise).rejects.toThrow(

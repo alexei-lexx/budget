@@ -2,7 +2,7 @@
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import type { Transaction } from "@/composables/useTransactions";
-import { formatTransactionAmount } from "@/utils/currency";
+import { formatCurrency, formatTransactionAmount } from "@/utils/currency";
 import { getTransactionTypeColor } from "@/utils/transaction";
 import ActionButtons from "@/components/common/ActionButtons.vue";
 
@@ -26,12 +26,19 @@ const emit = defineEmits<{
 }>();
 
 // Format amount with +/- prefix
-const formattedAmount = computed(() => {
+const formattedTransactionAmount = computed(() => {
   return formatTransactionAmount(
     props.transaction.amount,
     props.transaction.currency,
     props.transaction.type,
   );
+});
+
+const compoundTotalAmount = computed(() => {
+  const compoundTransaction = props.transaction.compoundTransaction;
+  if (!compoundTransaction) return null;
+
+  return formatCurrency(compoundTransaction.totalAmount, props.transaction.currency);
 });
 
 // Format date for display
@@ -130,8 +137,23 @@ const { t, locale } = useI18n();
         </div>
 
         <!-- Amount -->
-        <div class="text-h5 text-high-emphasis flex-shrink-0" :class="`text-${amountColor}`">
-          {{ formattedAmount }}
+        <div class="flex-shrink-0">
+          <i18n-t
+            v-if="compoundTotalAmount"
+            keypath="transactions.compoundAmount"
+            tag="span"
+            class="text-medium-emphasis"
+          >
+            <template #amount>
+              <span class="text-h5 text-high-emphasis" :class="`text-${amountColor}`">
+                {{ formattedTransactionAmount }}
+              </span>
+            </template>
+            <template #total>{{ compoundTotalAmount }}</template>
+          </i18n-t>
+          <div v-else class="text-h5 text-high-emphasis" :class="`text-${amountColor}`">
+            {{ formattedTransactionAmount }}
+          </div>
         </div>
       </div>
 

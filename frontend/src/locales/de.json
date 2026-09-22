@@ -145,6 +145,7 @@
     "emptyText": "Beginnen Sie mit der Verfolgung Ihrer Einnahmen und Ausgaben, indem Sie Ihre erste Transaktion hinzufügen.",
     "countWithTotal": "{count} von {total} Transaktion | {count} von {total} Transaktionen",
     "countOnly": "{count} Transaktion | {count} Transaktionen",
+    "compoundAmount": "{amount} von {total}",
     "defaultDescription": "Transaktion",
     "deletedWithAmount": "Transaktion „{description}“ ({amount}) wurde gelöscht",
     "created": "Neue Transaktion wurde erstellt",

@@ -158,6 +158,14 @@ type TransactionEmbeddedCategory {
 }
 
 """
+Shared total for a transaction that is one leg of a compound transaction.
+"""
+type TransactionEmbeddedCompoundTransaction {
+  id: ID!
+  totalAmount: Float!
+}
+
+"""
 Transaction with embedded account and category data.
 Eliminates N+1 queries by fetching account and category data directly without separate lookups.
 Breaking change: accountId and categoryId fields removed (use account.id and category.id instead).
@@ -172,6 +180,7 @@ type Transaction {
   date: String!
   description: String
   transferId: String
+  compoundTransaction: TransactionEmbeddedCompoundTransaction
 }
 
 type TransactionPattern {

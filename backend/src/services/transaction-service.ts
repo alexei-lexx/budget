@@ -1,3 +1,4 @@
+import { randomUUID } from "crypto";
 import { Account } from "../models/account";
 import { Category } from "../models/category";
 import {
@@ -47,6 +48,21 @@ export interface CreateTransactionServiceInput {
 }
 
 /**
+ * Service layer input for creating a compound transaction
+ */
+export interface CreateCompoundTransactionServiceInput {
+  type: NonTransferTransactionType;
+  accountId: string;
+  date: DateString;
+  expectedTotal: number;
+  legs: {
+    amount: number;
+    categoryId?: string;
+    description?: string;
+  }[];
+}
+
+/**
  * Service layer input for updating transactions
  */
 export type UpdateTransactionServiceInput = Partial<
@@ -84,6 +100,10 @@ export interface TransactionService {
     input: CreateTransactionServiceInput,
     userId: string,
   ): Promise<Transaction>;
+  createCompoundTransaction(
+    input: CreateCompoundTransactionServiceInput,
+    userId: string,
+  ): Promise<Transaction[]>;
 
   updateTransaction(
     id: string,
@@ -191,6 +211,75 @@ export class TransactionServiceImpl implements TransactionService {
     }
 
     return createdTransaction;
+  }
+
+  /**
+   * Create 2 or more transactions in one atomic call,
+   * sharing one account, one date, and one type,
+   * stamped with a shared compound transaction id and total amount
+   */
+  async createCompoundTransaction(
+    input: CreateCompoundTransactionServiceInput,
+    userId: string,
+  ): Promise<Transaction[]> {
+    const { legs } = input;
+
+    if (legs.length < 2) {
+      throw new BusinessError("Compound transaction requires at least 2 legs");
+    }
+
+    const legsTotal = legs.reduce((sum, leg) => sum + leg.amount, 0);
+
+    if (Math.abs(legsTotal - input.expectedTotal) > 1e-9) {
+      throw new BusinessError("Leg amounts must sum to the expected total");
+    }
+
+    const categoryIds = legs.map((leg) => leg.categoryId);
+    if (new Set(categoryIds).size !== categoryIds.length) {
+      throw new BusinessError(
+        "Compound transaction legs must have distinct categories, with at most one uncategorized leg",
+      );
+    }
+
+    const account = await this.validateAccount(input.accountId, userId);
+    const compoundTransactionId = randomUUID();
+
+    const transactionsToCreate: Transaction[] = await Promise.all(
+      legs.map(async (leg) => {
+        const category = await this.validateCategory(
+          leg.categoryId,
+          userId,
+          input.type,
+        );
+
+        return Transaction.create({
+          userId,
+          account,
+          category: category ?? undefined,
+          type: input.type,
+          amount: leg.amount,
+          date: input.date,
+          description: leg.description,
+          compoundTransaction: {
+            id: compoundTransactionId,
+            totalAmount: input.expectedTotal,
+          },
+        });
+      }),
+    );
+
+    const accountToUpdate = transactionsToCreate.reduce(
+      (currentAccount, transaction) =>
+        currentAccount.increaseBalanceBySignedAmount(transaction.signedAmount),
+      account,
+    );
+
+    const result = await this.atomicWriter.commit({
+      transactionsToCreate,
+      accountsToUpdate: [accountToUpdate],
+    });
+
+    return [...result.createdTransactions];
   }
 
   /**

@@ -10,6 +10,7 @@ export interface TransactionDto {
   date: string;
   description?: string;
   transferId?: string;
+  compoundTransaction?: { id: string; totalAmount: number };
 }
 
 export const toTransactionDto = (transaction: Transaction): TransactionDto => ({
@@ -22,4 +23,5 @@ export const toTransactionDto = (transaction: Transaction): TransactionDto => ({
   date: transaction.date,
   description: transaction.description,
   transferId: transaction.transferId,
+  compoundTransaction: transaction.compoundTransaction,
 });

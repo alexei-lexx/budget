@@ -17,6 +17,9 @@ export const transactionDbItemSchema = z.object({
   date: z.iso.date().transform(toDateString),
   description: z.string().optional(),
   transferId: z.uuid().optional(),
+  compoundTransaction: z
+    .object({ id: z.uuid(), totalAmount: z.number().positive() })
+    .optional(),
   isArchived: z.boolean(),
   version: z.int().nonnegative(),
   createdAt: z.iso.datetime().transform(toDateTimeString),

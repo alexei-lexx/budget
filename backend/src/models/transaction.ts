@@ -40,6 +40,7 @@ export interface TransactionData {
   date: DateString;
   description?: string;
   transferId?: string;
+  compoundTransaction?: { id: string; totalAmount: number };
   isArchived: boolean;
   version: number;
   createdAt: DateTimeString;
@@ -89,6 +90,10 @@ export class Transaction implements TransactionData {
     return this.data.transferId;
   }
 
+  get compoundTransaction() {
+    return this.data.compoundTransaction;
+  }
+
   get isArchived() {
     return this.data.isArchived;
   }
@@ -123,6 +128,7 @@ export class Transaction implements TransactionData {
       date: input.date,
       description: normalizeDescription(input.description),
       transferId: input.transferId,
+      compoundTransaction: input.compoundTransaction,
       isArchived: false,
       version: 0,
       createdAt: now,
@@ -270,6 +276,12 @@ export class Transaction implements TransactionData {
         throw new ModelError("Transfer transactions cannot have a category");
       }
 
+      if (this.compoundTransaction) {
+        throw new ModelError(
+          "Transfer transactions cannot be part of a compound transaction",
+        );
+      }
+
       if (!this.transferId) {
         throw new ModelError("Transfer transactions must include transferId");
       }
@@ -306,6 +318,18 @@ export class Transaction implements TransactionData {
         `Description cannot exceed ${DESCRIPTION_MAX_LENGTH} characters`,
       );
     }
+
+    if (this.compoundTransaction) {
+      if (!this.compoundTransaction.id) {
+        throw new ModelError("Compound transaction must include an id");
+      }
+
+      if (this.compoundTransaction.totalAmount <= 0) {
+        throw new ModelError(
+          "Compound transaction total amount must be positive",
+        );
+      }
+    }
   }
 
   private isTransfer() {
@@ -322,6 +346,7 @@ export interface CreateTransactionInput {
   date: DateString;
   description?: string;
   transferId?: string;
+  compoundTransaction?: { id: string; totalAmount: number };
 }
 
 export interface UpdateTransactionInput {
