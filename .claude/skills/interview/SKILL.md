@@ -1,15 +1,15 @@
 ---
-name: quiz
+name: interview
 description: "Use when you need to gather structured input from the user through a series of questions — project setup, requirements gathering, configuration decisions, or any scenario where multiple choices need to be made one at a time."
 ---
 
-# Quiz
+# Interview
 
 Interactive questionnaire that walks the user through questions one at a time, collects answers, and presents a summary.
 
 ## How It Works
 
-1. **Receive context** — the invoker provides topic/context for the quiz (e.g., "project setup", a document, a list of decisions to make)
+1. **Receive context** — the invoker provides topic/context for the interview (e.g., "project setup", a document, a list of decisions to make)
 2. **Generate questions** — derive questions with answer options from the given context
 3. **Ask one by one** — present each question with numbered options
 4. **Collect answers** — track every answer as the user provides it
@@ -44,14 +44,14 @@ Present each question like this:
 
 ## Context Sources
 
-The quiz derives its questions from whatever context is available. Context can come from:
+The interview derives its questions from whatever context is available. Context can come from:
 
-- **Explicit arguments** — `/quiz Set up a new microservice`
-- **Conversation history** — an agent invokes the quiz after discussing a topic with the user; use the conversation so far to generate relevant questions
+- **Explicit arguments** — `/interview Set up a new microservice`
+- **Conversation history** — an agent invokes the interview after discussing a topic with the user; use the conversation so far to generate relevant questions
 - **Files and codebase** — read relevant files, configs, or docs to inform questions
 - **Combination** — use all available signals
 
-If no context is available from any source, ask the user what the quiz should be about.
+If no context is available from any source, ask the user what the interview should be about.
 
 ## After Completion
 

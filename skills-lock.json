@@ -4,37 +4,43 @@
     "address-review-comments": {
       "source": "alexei-lexx/skills",
       "sourceType": "github",
-      "skillPath": "plugins/development/skills/address-review-comments/SKILL.md",
+      "skillPath": "skills/address-review-comments/SKILL.md",
       "computedHash": "61d3b979a3348dff9108e3a128893a2a860ab2185555041952f2b43bcd713ce7"
     },
     "format-git-commit": {
       "source": "alexei-lexx/skills",
       "sourceType": "github",
-      "skillPath": "plugins/development/skills/format-git-commit/SKILL.md",
+      "skillPath": "skills/format-git-commit/SKILL.md",
       "computedHash": "b3a9f76d2c327aac2d86132ec7e858c5ff27917fb3bd8a44560d9fa96dbfa925"
     },
     "format-github-issue": {
       "source": "alexei-lexx/skills",
       "sourceType": "github",
-      "skillPath": "plugins/development/skills/format-github-issue/SKILL.md",
+      "skillPath": "skills/format-github-issue/SKILL.md",
       "computedHash": "f0a1010d5314891c8ad1b9c27237a0fa7930fd4203c7899fb5bf952ca36c34b7"
     },
     "format-github-pr": {
       "source": "alexei-lexx/skills",
       "sourceType": "github",
-      "skillPath": "plugins/development/skills/format-github-pr/SKILL.md",
+      "skillPath": "skills/format-github-pr/SKILL.md",
       "computedHash": "abe5808aeda2b279c44e6de969d78a2ff7f61de8f395d581647e4bb0f85d43c1"
     },
-    "quiz": {
+    "interview": {
       "source": "alexei-lexx/skills",
       "sourceType": "github",
-      "skillPath": "plugins/misc/skills/quiz/SKILL.md",
-      "computedHash": "11c6d40b6ff8c50302e06e45371d7f2eee7ad1c235bcd1d9c04c005203cf3bcf"
+      "skillPath": "skills/interview/SKILL.md",
+      "computedHash": "21a524c162024cd3ea623f1950d598ec441e29491e51ae752e87cf8a87ec1372"
+    },
+    "teach-me": {
+      "source": "alexei-lexx/skills",
+      "sourceType": "github",
+      "skillPath": "skills/teach-me/SKILL.md",
+      "computedHash": "52170e3a651130bcd4bc48bafac6929d716a7984e4a8bacd3f643ad1f9881fb4"
     },
     "testing": {
       "source": "alexei-lexx/skills",
       "sourceType": "github",
-      "skillPath": "plugins/development/skills/testing/SKILL.md",
+      "skillPath": "skills/testing/SKILL.md",
       "computedHash": "60eb88a5bcfd20149d9892138bcebac722f0eca3784926843f908130968fae70"
     }
   }
