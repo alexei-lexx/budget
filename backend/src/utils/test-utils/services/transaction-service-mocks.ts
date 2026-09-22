@@ -7,6 +7,7 @@ export const createMockTransactionService = (): Mocked<TransactionService> => ({
   getTransactionPatterns: vi.fn(),
   getDescriptionSuggestions: vi.fn(),
   createTransaction: vi.fn(),
+  createCompoundTransaction: vi.fn(),
   updateTransaction: vi.fn(),
   deleteTransaction: vi.fn(),
 });

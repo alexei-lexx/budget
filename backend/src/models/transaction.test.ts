@@ -200,6 +200,26 @@ describe("Transaction", () => {
       expect(result.transferId).toBe(transferId);
     });
 
+    it("builds non-transfer transaction with compoundTransaction", () => {
+      // Arrange
+      const compoundTransaction = {
+        id: faker.string.uuid(),
+        totalAmount: 15,
+      };
+
+      // Act
+      const result = Transaction.create(
+        fakeCreateTransactionInput({
+          type: faker.helpers.arrayElement(["EXPENSE", "INCOME", "REFUND"]),
+          compoundTransaction,
+        }),
+        fixedDeps,
+      );
+
+      // Assert
+      expect(result.compoundTransaction).toEqual(compoundTransaction);
+    });
+
     // Validation failures
 
     it("throws when account belongs to different user", () => {
@@ -394,6 +414,66 @@ describe("Transaction", () => {
         new ModelError("Only transfer transactions can include transferId"),
       );
     });
+
+    it("throws on transfer with compoundTransaction", () => {
+      // Act & Assert
+      expect(() =>
+        Transaction.create(
+          fakeCreateTransactionInput({
+            type: faker.helpers.arrayElement(["TRANSFER_IN", "TRANSFER_OUT"]),
+            transferId: faker.string.uuid(),
+            compoundTransaction: { id: faker.string.uuid(), totalAmount: 15 },
+          }),
+        ),
+      ).toThrow(
+        new ModelError(
+          "Transfer transactions cannot be part of a compound transaction",
+        ),
+      );
+    });
+
+    it("throws on empty compoundTransaction id", () => {
+      // Act & Assert
+      expect(() =>
+        Transaction.create(
+          fakeCreateTransactionInput({
+            type: "EXPENSE",
+            compoundTransaction: { id: "", totalAmount: 15 },
+          }),
+          fixedDeps,
+        ),
+      ).toThrow(new ModelError("Compound transaction must include an id"));
+    });
+
+    it("throws on zero compoundTransaction totalAmount", () => {
+      // Act & Assert
+      expect(() =>
+        Transaction.create(
+          fakeCreateTransactionInput({
+            type: "EXPENSE",
+            compoundTransaction: { id: faker.string.uuid(), totalAmount: 0 },
+          }),
+          fixedDeps,
+        ),
+      ).toThrow(
+        new ModelError("Compound transaction total amount must be positive"),
+      );
+    });
+
+    it("throws on negative compoundTransaction totalAmount", () => {
+      // Act & Assert
+      expect(() =>
+        Transaction.create(
+          fakeCreateTransactionInput({
+            type: "EXPENSE",
+            compoundTransaction: { id: faker.string.uuid(), totalAmount: -100 },
+          }),
+          fixedDeps,
+        ),
+      ).toThrow(
+        new ModelError("Compound transaction total amount must be positive"),
+      );
+    });
   });
 
   describe("fromPersistence", () => {
@@ -432,6 +512,21 @@ describe("Transaction", () => {
       // Act & Assert
       expect(() => Transaction.fromPersistence(data)).toThrow(
         new ModelError("Transfer transactions cannot have a category"),
+      );
+    });
+
+    it("throws when transfer has compoundTransaction", () => {
+      // Arrange
+      const data = {
+        ...fakeTransferOut({}).toData(),
+        compoundTransaction: { id: faker.string.uuid(), totalAmount: 15 },
+      };
+
+      // Act & Assert
+      expect(() => Transaction.fromPersistence(data)).toThrow(
+        new ModelError(
+          "Transfer transactions cannot be part of a compound transaction",
+        ),
       );
     });
   });

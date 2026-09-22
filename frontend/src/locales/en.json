@@ -145,6 +145,7 @@
     "emptyText": "Start tracking your income and expenses by adding your first transaction.",
     "countWithTotal": "{count} of {total} transaction | {count} of {total} transactions",
     "countOnly": "{count} transaction | {count} transactions",
+    "compoundAmount": "{amount} of {total}",
     "defaultDescription": "transaction",
     "deletedWithAmount": "Transaction \"{description}\" ({amount}) has been deleted",
     "created": "New transaction was created",

@@ -38,6 +38,10 @@ export const TRANSACTION_FRAGMENT = gql`
     date
     description
     transferId
+    compoundTransaction {
+      id
+      totalAmount
+    }
   }
 `;
 

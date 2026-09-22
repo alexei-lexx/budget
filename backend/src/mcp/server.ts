@@ -14,6 +14,7 @@ import { authenticateMcpToken } from "./auth";
 import { createAggregateTransactionsTool } from "./tools/aggregate-transactions";
 import { createCreateAccountTool } from "./tools/create-account";
 import { createCreateCategoryTool } from "./tools/create-category";
+import { createCreateCompoundTransactionTool } from "./tools/create-compound-transaction";
 import { createCreateTransactionTool } from "./tools/create-transaction";
 import { createGetAccountsTool } from "./tools/get-accounts";
 import { createGetCategoriesTool } from "./tools/get-categories";
@@ -46,6 +47,7 @@ export async function createAuthenticatedMcpServer(
     createAggregateTransactionsTool({ aggregateTransactionsService, userId }),
     createCreateAccountTool({ accountService, userId }),
     createCreateCategoryTool({ categoryService, userId }),
+    createCreateCompoundTransactionTool({ transactionService, userId }),
     createCreateTransactionTool({ transactionService, userId }),
     createGetAccountsTool({ accountService, userId }),
     createGetCategoriesTool({ categoryService, userId }),

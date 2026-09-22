@@ -407,6 +407,7 @@ export type Transaction = {
   account: TransactionEmbeddedAccount;
   amount: Scalars['Float']['output'];
   category?: Maybe<TransactionEmbeddedCategory>;
+  compoundTransaction?: Maybe<TransactionEmbeddedCompoundTransaction>;
   currency: Scalars['String']['output'];
   date: Scalars['String']['output'];
   description?: Maybe<Scalars['String']['output']>;
@@ -453,6 +454,13 @@ export type TransactionEmbeddedCategory = {
   id: Scalars['ID']['output'];
   isArchived: Scalars['Boolean']['output'];
   name: Scalars['String']['output'];
+};
+
+/** Shared total for a transaction that is one leg of a compound transaction. */
+export type TransactionEmbeddedCompoundTransaction = {
+  __typename?: 'TransactionEmbeddedCompoundTransaction';
+  id: Scalars['ID']['output'];
+  totalAmount: Scalars['Float']['output'];
 };
 
 export type TransactionFilterInput = {
@@ -689,6 +697,7 @@ export type ResolversTypes = {
   TransactionEdge: ResolverTypeWrapper<Omit<TransactionEdge, 'node'> & { node: ResolversTypes['Transaction'] }>;
   TransactionEmbeddedAccount: ResolverTypeWrapper<TransactionEmbeddedAccount>;
   TransactionEmbeddedCategory: ResolverTypeWrapper<TransactionEmbeddedCategory>;
+  TransactionEmbeddedCompoundTransaction: ResolverTypeWrapper<TransactionEmbeddedCompoundTransaction>;
   TransactionFilterInput: TransactionFilterInput;
   TransactionPattern: ResolverTypeWrapper<TransactionPattern>;
   TransactionPatternType: TransactionPatternType;
@@ -748,6 +757,7 @@ export type ResolversParentTypes = {
   TransactionEdge: Omit<TransactionEdge, 'node'> & { node: ResolversParentTypes['Transaction'] };
   TransactionEmbeddedAccount: TransactionEmbeddedAccount;
   TransactionEmbeddedCategory: TransactionEmbeddedCategory;
+  TransactionEmbeddedCompoundTransaction: TransactionEmbeddedCompoundTransaction;
   TransactionFilterInput: TransactionFilterInput;
   TransactionPattern: TransactionPattern;
   Transfer: Omit<Transfer, 'inboundTransaction' | 'outboundTransaction'> & { inboundTransaction: ResolversParentTypes['Transaction'], outboundTransaction: ResolversParentTypes['Transaction'] };
@@ -928,6 +938,7 @@ export type TransactionResolvers<ContextType = GraphQLContext, ParentType extend
   account?: Resolver<ResolversTypes['TransactionEmbeddedAccount'], ParentType, ContextType>;
   amount?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   category?: Resolver<Maybe<ResolversTypes['TransactionEmbeddedCategory']>, ParentType, ContextType>;
+  compoundTransaction?: Resolver<Maybe<ResolversTypes['TransactionEmbeddedCompoundTransaction']>, ParentType, ContextType>;
   currency?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   date?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -957,6 +968,11 @@ export type TransactionEmbeddedCategoryResolvers<ContextType = GraphQLContext, P
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   isArchived?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+};
+
+export type TransactionEmbeddedCompoundTransactionResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TransactionEmbeddedCompoundTransaction'] = ResolversParentTypes['TransactionEmbeddedCompoundTransaction']> = {
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  totalAmount?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
 };
 
 export type TransactionPatternResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TransactionPattern'] = ResolversParentTypes['TransactionPattern']> = {
@@ -1020,6 +1036,7 @@ export type Resolvers<ContextType = GraphQLContext> = {
   TransactionEdge?: TransactionEdgeResolvers<ContextType>;
   TransactionEmbeddedAccount?: TransactionEmbeddedAccountResolvers<ContextType>;
   TransactionEmbeddedCategory?: TransactionEmbeddedCategoryResolvers<ContextType>;
+  TransactionEmbeddedCompoundTransaction?: TransactionEmbeddedCompoundTransactionResolvers<ContextType>;
   TransactionPattern?: TransactionPatternResolvers<ContextType>;
   Transfer?: TransferResolvers<ContextType>;
   TrendPreset?: TrendPresetResolvers<ContextType>;
