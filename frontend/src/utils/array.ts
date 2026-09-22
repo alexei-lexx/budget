@@ -1,10 +1,10 @@
 /**
  * Returns true if both arrays contain exactly the same items, regardless of order.
  */
-export function haveSameItems(a: unknown[], b: unknown[]): boolean {
-  if (a.length !== b.length) {
+export function haveSameItems(left: unknown[], right: unknown[]): boolean {
+  if (left.length !== right.length) {
     return false;
   }
-  const bItems = new Set(b);
-  return a.every((item) => bItems.has(item));
+  const rightItems = new Set(right);
+  return left.every((item) => rightItems.has(item));
 }
