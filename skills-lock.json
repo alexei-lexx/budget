@@ -25,6 +25,18 @@
       "skillPath": "skills/format-github-pr/SKILL.md",
       "computedHash": "abe5808aeda2b279c44e6de969d78a2ff7f61de8f395d581647e4bb0f85d43c1"
     },
+    "interview": {
+      "source": "alexei-lexx/skills",
+      "sourceType": "github",
+      "skillPath": "skills/interview/SKILL.md",
+      "computedHash": "21a524c162024cd3ea623f1950d598ec441e29491e51ae752e87cf8a87ec1372"
+    },
+    "teach-me": {
+      "source": "alexei-lexx/skills",
+      "sourceType": "github",
+      "skillPath": "skills/teach-me/SKILL.md",
+      "computedHash": "52170e3a651130bcd4bc48bafac6929d716a7984e4a8bacd3f643ad1f9881fb4"
+    },
     "testing": {
       "source": "alexei-lexx/skills",
       "sourceType": "github",
