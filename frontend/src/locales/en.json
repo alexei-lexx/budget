@@ -29,7 +29,8 @@
     "loadingSuggestions": "Loading suggestions...",
     "noSuggestionsFound": "No suggestions found",
     "voiceInput": "Voice input",
-    "unknownAccount": "Unknown Account"
+    "unknownAccount": "Unknown Account",
+    "uncategorized": "Uncategorized"
   },
   "app": {
     "title": "Personal Budget Tracker",
@@ -198,7 +199,6 @@
       "accounts": "Accounts",
       "categories": "Categories",
       "types": "Types",
-      "includeUncategorized": "Include uncategorized",
       "fromDate": "From Date",
       "toDate": "To Date"
     }
@@ -295,7 +295,6 @@
   "trends": {
     "filters": {
       "categories": "Categories",
-      "includeUncategorized": "Include uncategorized",
       "currency": "Currency",
       "period": "Period",
       "week": "Week",

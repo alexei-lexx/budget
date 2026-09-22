@@ -22,17 +22,11 @@
       <!-- Category Filter -->
       <v-col cols="12" md="6">
         <CategoryMultiSelect
-          v-model="current.categoryIds"
+          v-model:category-ids="current.categoryIds"
+          v-model:include-uncategorized="current.includeUncategorized"
           :categories="categories"
           :label="t('transactions.filterBar.categories')"
           :disabled="loading"
-        />
-        <v-checkbox
-          v-model="current.includeUncategorized"
-          :label="t('transactions.filterBar.includeUncategorized')"
-          :disabled="loading"
-          density="compact"
-          class="mt-1"
         />
       </v-col>
 
