@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 import type { Category } from "@/__generated__/vue-apollo";
+import { haveSameItems } from "@/utils/array";
 import { getCategoryIcon, getCategoryIconColor } from "@/utils/category";
 
 interface Props {
-  modelValue: string[];
   categories: Category[];
   label: string;
   disabled?: boolean;
@@ -12,20 +13,53 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const emit = defineEmits<{
-  "update:modelValue": [value: string[]];
-}>();
+const categoryIdsModel = defineModel<string[]>("categoryIds", { required: true });
+const includeUncategorizedModel = defineModel<boolean>("includeUncategorized", { required: true });
+
+const { t } = useI18n();
+
+// Private to this component: never appears in props, emits, or model types.
+const UNCATEGORIZED_ID = "__uncategorized__";
+
+const items = computed(() => [
+  {
+    id: UNCATEGORIZED_ID,
+    name: t("common.uncategorized"),
+    icon: undefined,
+    iconColor: undefined,
+  },
+  { type: "divider" as const },
+  ...props.categories.map((category) => ({
+    id: category.id,
+    name: category.name,
+    icon: getCategoryIcon(category.type),
+    iconColor: getCategoryIconColor(category.type),
+  })),
+]);
 
 const selectedValue = computed({
-  get: () => props.modelValue,
-  set: (value: string[]) => emit("update:modelValue", value),
+  get: () =>
+    includeUncategorizedModel.value
+      ? [UNCATEGORIZED_ID, ...categoryIdsModel.value]
+      : categoryIdsModel.value,
+  set: (value: string[]) => {
+    const nextIncludeUncategorized = value.includes(UNCATEGORIZED_ID);
+    if (nextIncludeUncategorized !== includeUncategorizedModel.value) {
+      includeUncategorizedModel.value = nextIncludeUncategorized;
+    }
+
+    const nextCategoryIds = value.filter((id) => id !== UNCATEGORIZED_ID);
+    if (!haveSameItems(nextCategoryIds, categoryIdsModel.value)) {
+      categoryIdsModel.value = nextCategoryIds;
+    }
+  },
 });
 </script>
 
 <template>
   <v-select
     v-model="selectedValue"
-    :items="categories"
+    :items="items"
     item-title="name"
     item-value="id"
     :label="label"
@@ -37,14 +71,17 @@ const selectedValue = computed({
     variant="outlined"
     density="compact"
   >
+    <template #divider>
+      <v-divider />
+    </template>
     <template #item="{ props: itemProps, item }">
       <v-list-item v-bind="itemProps">
         <template #prepend="{ isSelected }">
           <v-checkbox-btn :model-value="isSelected" />
         </template>
-        <template #append>
-          <v-icon :color="getCategoryIconColor(item.raw.type)">
-            {{ getCategoryIcon(item.raw.type) }}
+        <template v-if="item.raw.icon" #append>
+          <v-icon :color="item.raw.iconColor">
+            {{ item.raw.icon }}
           </v-icon>
         </template>
       </v-list-item>

@@ -2,27 +2,18 @@
   <div class="pa-3 pa-sm-4">
     <v-row dense>
       <!-- Category Filter -->
-      <v-col cols="12">
+      <v-col cols="12" sm="8">
         <CategoryMultiSelect
-          v-model="draftCategoryIds"
+          v-model:category-ids="draftCategoryIds"
+          v-model:include-uncategorized="draftIncludeUncategorized"
           :categories="categoryOptions"
           :label="t('trends.filters.categories')"
           :disabled="loading"
         />
       </v-col>
 
-      <!-- Include Uncategorized -->
-      <v-col cols="12" sm="6">
-        <v-checkbox
-          v-model="draftIncludeUncategorized"
-          :label="t('trends.filters.includeUncategorized')"
-          :disabled="loading"
-          density="compact"
-        />
-      </v-col>
-
       <!-- Currency Filter -->
-      <v-col cols="12" sm="6">
+      <v-col cols="12" sm="4">
         <v-autocomplete
           v-model="draftCurrency"
           :items="supportedCurrencies"
