@@ -77,7 +77,7 @@ describe("TrendPresetService", () => {
 
     // Validation failures
 
-    it("throws when lookback is out of range", async () => {
+    it("fails when lookback is out of range", async () => {
       // Arrange
       const input = fakeCreateTrendPresetServiceInput({ lookback: 13 });
 

@@ -71,7 +71,7 @@ describe("UserService", () => {
 
     // Validation failures
 
-    it("throws when userId is empty", async () => {
+    it("fails when userId is empty", async () => {
       // Act & Assert
       await expect(service.getSettings("")).rejects.toThrow(
         new BusinessError("User ID is required"),
@@ -79,7 +79,7 @@ describe("UserService", () => {
       expect(mockUserRepository.findOneById).not.toHaveBeenCalled();
     });
 
-    it("throws when user is not found", async () => {
+    it("fails when user is not found", async () => {
       // Arrange
       const userId = faker.string.uuid();
       // Returns no user for given id
@@ -99,6 +99,7 @@ describe("UserService", () => {
     it("returns existing user when email exists", async () => {
       // Arrange
       const user = fakeUser({ email: "user@example.com" });
+      // Email already registered
       mockUserRepository.findOneByEmail.mockResolvedValue(user);
 
       // Act
@@ -114,7 +115,9 @@ describe("UserService", () => {
 
     it("creates user when email does not exist", async () => {
       // Arrange
+      // Email not registered
       mockUserRepository.findOneByEmail.mockResolvedValue(null);
+      // Persists new user
       mockUserRepository.create.mockResolvedValue(undefined);
 
       // Act
@@ -135,9 +138,11 @@ describe("UserService", () => {
     it("updates interfaceLanguage", async () => {
       // Arrange
       const userId = faker.string.uuid();
+      // User exists
       mockUserRepository.findOneById.mockResolvedValue(
         fakeUser({ id: userId, mcpToken: "token-1" }),
       );
+      // Persists update
       mockUserRepository.update.mockResolvedValue(undefined);
 
       // Act
@@ -162,9 +167,11 @@ describe("UserService", () => {
     it("updates voiceInputLanguage", async () => {
       // Arrange
       const userId = faker.string.uuid();
+      // User exists
       mockUserRepository.findOneById.mockResolvedValue(
         fakeUser({ id: userId, mcpToken: "token-1" }),
       );
+      // Persists update
       mockUserRepository.update.mockResolvedValue(undefined);
 
       // Act
@@ -189,9 +196,11 @@ describe("UserService", () => {
     it("updates transactionPatternsLimit", async () => {
       // Arrange
       const userId = faker.string.uuid();
+      // User exists
       mockUserRepository.findOneById.mockResolvedValue(
         fakeUser({ id: userId, mcpToken: "token-1" }),
       );
+      // Persists update
       mockUserRepository.update.mockResolvedValue(undefined);
 
       // Act
@@ -216,9 +225,11 @@ describe("UserService", () => {
     it("updates all fields at once", async () => {
       // Arrange
       const userId = faker.string.uuid();
+      // User exists
       mockUserRepository.findOneById.mockResolvedValue(
         fakeUser({ id: userId, mcpToken: "token-1" }),
       );
+      // Persists update
       mockUserRepository.update.mockResolvedValue(undefined);
 
       // Act
@@ -248,7 +259,7 @@ describe("UserService", () => {
 
     // Validation failures
 
-    it("throws when userId is empty", async () => {
+    it("fails when userId is empty", async () => {
       // Act & Assert
       await expect(
         service.updateSettings({ userId: "", voiceInputLanguage: "en-US" }),
@@ -257,8 +268,9 @@ describe("UserService", () => {
       expect(mockUserRepository.update).not.toHaveBeenCalled();
     });
 
-    it("throws when user is not found", async () => {
+    it("fails when user is not found", async () => {
       // Arrange
+      // User does not exist
       mockUserRepository.findOneById.mockResolvedValue(null);
 
       // Act & Assert
@@ -271,7 +283,7 @@ describe("UserService", () => {
       expect(mockUserRepository.update).not.toHaveBeenCalled();
     });
 
-    it("throws when interfaceLanguage is unsupported", async () => {
+    it("fails when interfaceLanguage is unsupported", async () => {
       // Act & Assert
       await expect(
         service.updateSettings({
@@ -285,7 +297,7 @@ describe("UserService", () => {
       expect(mockUserRepository.update).not.toHaveBeenCalled();
     });
 
-    it("throws when transactionPatternsLimit is below minimum", async () => {
+    it("fails when transactionPatternsLimit is below minimum", async () => {
       // Act & Assert
       await expect(
         service.updateSettings({
@@ -301,7 +313,7 @@ describe("UserService", () => {
       expect(mockUserRepository.update).not.toHaveBeenCalled();
     });
 
-    it("throws when transactionPatternsLimit is above maximum", async () => {
+    it("fails when transactionPatternsLimit is above maximum", async () => {
       // Act & Assert
       await expect(
         service.updateSettings({
@@ -317,7 +329,7 @@ describe("UserService", () => {
       expect(mockUserRepository.update).not.toHaveBeenCalled();
     });
 
-    it("throws when transactionPatternsLimit is not an integer", async () => {
+    it("fails when transactionPatternsLimit is not integer", async () => {
       // Act & Assert
       await expect(
         service.updateSettings({
@@ -340,8 +352,10 @@ describe("UserService", () => {
     it("persists new token", async () => {
       // Arrange
       const userId = faker.string.uuid();
+      // User exists
       const user = fakeUser({ id: userId, mcpToken: "old-token" });
       mockUserRepository.findOneById.mockResolvedValue(user);
+      // Persists update
       mockUserRepository.update.mockResolvedValue(undefined);
 
       // Act
@@ -361,8 +375,10 @@ describe("UserService", () => {
     it("returns settings with updated mcpToken", async () => {
       // Arrange
       const userId = faker.string.uuid();
+      // User exists
       const user = fakeUser({ id: userId, mcpToken: "old-token" });
       mockUserRepository.findOneById.mockResolvedValue(user);
+      // Persists update
       mockUserRepository.update.mockResolvedValue(undefined);
 
       // Act
@@ -379,8 +395,9 @@ describe("UserService", () => {
 
     // Validation failures
 
-    it("throws when user is not found", async () => {
+    it("fails when user is not found", async () => {
       // Arrange
+      // User does not exist
       mockUserRepository.findOneById.mockResolvedValue(null);
 
       // Act & Assert
