@@ -1,7 +1,6 @@
 import { tool } from "langchain";
 import { z } from "zod";
 import { AccountService } from "../../services/account-service";
-import { Success } from "../../types/result";
 import { agentContextSchema } from "../agents/agent-context";
 import { toAccountDto } from "./account-dto";
 
@@ -48,10 +47,10 @@ export const createCreateAccountTool = ({
         initialBalance: input.initialBalance ?? 0,
       });
 
-      return Success({
+      return {
         ...toAccountDto(created),
         initialBalance: created.initialBalance,
-      });
+      };
     },
     {
       name: "create_account",

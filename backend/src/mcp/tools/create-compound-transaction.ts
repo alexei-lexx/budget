@@ -9,8 +9,7 @@ import {
   TransactionService,
 } from "../../services/transaction-service";
 import { toDateString } from "../../types/date-string";
-import { Result, Success } from "../../types/result";
-import { buildGuideTokensField, verifyGuideTokens } from "./guides";
+import { assertGuideTokens, buildGuideTokensField } from "./guides";
 import { Tool } from "./tool";
 
 const requiredGuides = ["basics", "create-transaction"] as const;
@@ -27,19 +26,18 @@ export async function createCompoundTransaction(
     transactionService: TransactionService;
     userId: string;
   },
-): Promise<Result<TransactionDto[]>> {
-  const verification = verifyGuideTokens({
+): Promise<TransactionDto[]> {
+  assertGuideTokens({
     guideTokens,
     requiredGuides,
   });
-  if (!verification.success) return verification;
 
   const created = await transactionService.createCompoundTransaction(
     input,
     userId,
   );
 
-  return Success(created.map(toTransactionDto));
+  return created.map(toTransactionDto);
 }
 
 const inputSchema = z.object({

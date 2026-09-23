@@ -5,7 +5,6 @@ import { TransactionRepository } from "../../ports/transaction-repository";
 import { CategoryService } from "../../services/category-service";
 import { toDateString } from "../../types/date-string";
 import { ENTITY_SCOPES } from "../../types/entity-scope";
-import { Success } from "../../types/result";
 import { agentContextSchema } from "../agents/agent-context";
 import { CategoryDto, toCategoryDto } from "./category-dto";
 
@@ -40,7 +39,7 @@ export const createGetCategoriesTool = ({
       );
 
       if (filteredCategories.length === 0) {
-        return Success([]);
+        return [];
       }
 
       const categoryDataList: CategoryData[] = filteredCategories.map(
@@ -93,7 +92,7 @@ export const createGetCategoriesTool = ({
         keywords: Array.from(keywordsByCategory.get(category.id) || []),
       }));
 
-      return Success(enrichedCategoryDataList);
+      return enrichedCategoryDataList;
     },
     {
       name: "get_categories",

@@ -3,8 +3,8 @@ import { Temporal } from "temporal-polyfill";
 import { z } from "zod";
 import { TransactionType } from "../../models/transaction";
 import { TransactionRepository } from "../../ports/transaction-repository";
+import { BusinessError } from "../../services/business-error";
 import { toDateString } from "../../types/date-string";
-import { Failure, Success } from "../../types/result";
 import { agentContextSchema } from "../agents/agent-context";
 import { toTransactionDto } from "./transaction-dto";
 
@@ -48,7 +48,7 @@ export const createGetTransactionsTool = ({
         config?.context?.userId,
       );
       if (startDate > endDate) {
-        return Failure("startDate must not be after endDate");
+        throw new BusinessError("startDate must not be after endDate");
       }
 
       const startPlainDate = Temporal.PlainDate.from(startDate);
@@ -56,7 +56,9 @@ export const createGetTransactionsTool = ({
       const daysBetween = startPlainDate.until(endPlainDate).days;
 
       if (daysBetween > MAX_PERIOD_DAYS) {
-        return Failure(`Date range must not exceed ${MAX_PERIOD_DAYS} days`);
+        throw new BusinessError(
+          `Date range must not exceed ${MAX_PERIOD_DAYS} days`,
+        );
       }
 
       const transactions = await transactionRepository.findManyByUserId(
@@ -70,7 +72,7 @@ export const createGetTransactionsTool = ({
         },
       );
 
-      return Success(transactions.map(toTransactionDto));
+      return transactions.map(toTransactionDto);
     },
     {
       name: "get_transactions",

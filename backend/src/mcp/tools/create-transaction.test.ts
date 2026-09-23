@@ -1,5 +1,6 @@
 import { faker } from "@faker-js/faker";
 import { type Mocked, beforeEach, describe, expect, it } from "vitest";
+import { BusinessError } from "../../services/business-error";
 import {
   CreateTransactionServiceInput,
   TransactionService,
@@ -52,17 +53,14 @@ describe("createTransaction", () => {
 
     // Assert
     expect(result).toEqual({
-      success: true,
-      data: {
-        id: created.id,
-        accountId: created.accountId,
-        categoryId: created.categoryId,
-        type: created.type,
-        amount: created.amount,
-        currency: created.currency,
-        date: created.date,
-        description: created.description,
-      },
+      id: created.id,
+      accountId: created.accountId,
+      categoryId: created.categoryId,
+      type: created.type,
+      amount: created.amount,
+      currency: created.currency,
+      date: created.date,
+      description: created.description,
     });
     expect(mockTransactionService.createTransaction).toHaveBeenCalledWith(
       input,
@@ -74,7 +72,7 @@ describe("createTransaction", () => {
 
   it("rejects without any guide tokens and does not call service", async () => {
     // Act
-    const result = await createTransaction(
+    const promise = createTransaction(
       {
         accountId: faker.string.uuid(),
         amount: 10,
@@ -86,17 +84,17 @@ describe("createTransaction", () => {
     );
 
     // Assert
-    expect(result).toEqual({
-      success: false,
-      error:
+    await expect(promise).rejects.toThrow(
+      new BusinessError(
         "Missing or invalid guide token for: basics, create-transaction. Reload the guide(s) and retry",
-    });
+      ),
+    );
     expect(mockTransactionService.createTransaction).not.toHaveBeenCalled();
   });
 
   it("does not disclose valid guide tokens in rejection message", async () => {
     // Act
-    const result = await createTransaction(
+    const promise = createTransaction(
       {
         accountId: faker.string.uuid(),
         amount: 10,
@@ -109,9 +107,8 @@ describe("createTransaction", () => {
 
     // Assert
     for (const validGuideToken of validGuideTokens) {
-      expect(result).toEqual({
-        success: false,
-        error: expect.not.stringContaining(validGuideToken),
+      await expect(promise).rejects.toMatchObject({
+        message: expect.not.stringContaining(validGuideToken),
       });
     }
   });

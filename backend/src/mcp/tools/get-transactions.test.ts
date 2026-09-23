@@ -2,6 +2,7 @@ import { faker } from "@faker-js/faker";
 import { type Mocked, beforeEach, describe, expect, it } from "vitest";
 import { TransactionType } from "../../models/transaction";
 import { TransactionRepository } from "../../ports/transaction-repository";
+import { BusinessError } from "../../services/business-error";
 import { toDateString } from "../../types/date-string";
 import { fakeExpense } from "../../utils/test-utils/models/transaction-fakes";
 import { createMockTransactionRepository } from "../../utils/test-utils/repositories/transaction-repository-mocks";
@@ -100,29 +101,26 @@ describe("getTransactions", () => {
     );
 
     // Assert
-    expect(result).toEqual({
-      success: true,
-      data: [
-        {
-          id: transaction.id,
-          accountId: "account-1",
-          categoryId: "category-1",
-          type: TransactionType.EXPENSE,
-          amount: 42,
-          currency: "USD",
-          date: "2026-01-15",
-          description: "Coffee",
-          transferId: transaction.transferId,
-        },
-      ],
-    });
+    expect(result).toEqual([
+      {
+        id: transaction.id,
+        accountId: "account-1",
+        categoryId: "category-1",
+        type: TransactionType.EXPENSE,
+        amount: 42,
+        currency: "USD",
+        date: "2026-01-15",
+        description: "Coffee",
+        transferId: transaction.transferId,
+      },
+    ]);
   });
 
   // Validation failures
 
   it("rejects without valid basics guide token and does not call repository", async () => {
     // Act
-    const result = await getTransactions(
+    const promise = getTransactions(
       {
         startDate: toDateString("2026-01-01"),
         endDate: toDateString("2026-01-31"),
@@ -132,17 +130,17 @@ describe("getTransactions", () => {
     );
 
     // Assert
-    expect(result).toEqual({
-      success: false,
-      error:
+    await expect(promise).rejects.toThrow(
+      new BusinessError(
         "Missing or invalid guide token for: basics. Reload the guide(s) and retry",
-    });
+      ),
+    );
     expect(mockTransactionRepository.findManyByUserId).not.toHaveBeenCalled();
   });
 
   it("does not disclose valid guide token in rejection message", async () => {
     // Act
-    const result = await getTransactions(
+    const promise = getTransactions(
       {
         startDate: toDateString("2026-01-01"),
         endDate: toDateString("2026-01-31"),
@@ -152,15 +150,14 @@ describe("getTransactions", () => {
     );
 
     // Assert
-    expect(result).toEqual({
-      success: false,
-      error: expect.not.stringContaining(validGuideToken),
+    await expect(promise).rejects.toMatchObject({
+      message: expect.not.stringContaining(validGuideToken),
     });
   });
 
-  it("returns failure when startDate is after endDate", async () => {
+  it("throws when startDate is after endDate", async () => {
     // Act
-    const result = await getTransactions(
+    const promise = getTransactions(
       {
         startDate: toDateString("2026-01-31"),
         endDate: toDateString("2026-01-01"),
@@ -170,16 +167,15 @@ describe("getTransactions", () => {
     );
 
     // Assert
-    expect(result).toEqual({
-      success: false,
-      error: "startDate must not be after endDate",
-    });
+    await expect(promise).rejects.toThrow(
+      new BusinessError("startDate must not be after endDate"),
+    );
     expect(mockTransactionRepository.findManyByUserId).not.toHaveBeenCalled();
   });
 
-  it("returns failure when date range exceeds 365 days", async () => {
+  it("throws when date range exceeds 365 days", async () => {
     // Act
-    const result = await getTransactions(
+    const promise = getTransactions(
       {
         startDate: toDateString("2025-01-01"),
         endDate: toDateString("2026-01-02"),
@@ -189,10 +185,9 @@ describe("getTransactions", () => {
     );
 
     // Assert
-    expect(result).toEqual({
-      success: false,
-      error: "Date range must not exceed 365 days",
-    });
+    await expect(promise).rejects.toThrow(
+      new BusinessError("Date range must not exceed 365 days"),
+    );
     expect(mockTransactionRepository.findManyByUserId).not.toHaveBeenCalled();
   });
 

@@ -12,21 +12,18 @@ describe("loadGuides", () => {
     });
 
     // Assert
-    expect(result).toEqual({
-      success: true,
-      data: [
-        {
-          name: GUIDES.basics.name,
-          instruction: GUIDES.basics.instruction,
-          token: GUIDES.basics.token,
-        },
-        {
-          name: GUIDES["create-transaction"].name,
-          instruction: GUIDES["create-transaction"].instruction,
-          token: GUIDES["create-transaction"].token,
-        },
-      ],
-    });
+    expect(result).toEqual([
+      {
+        name: GUIDES.basics.name,
+        instruction: GUIDES.basics.instruction,
+        token: GUIDES.basics.token,
+      },
+      {
+        name: GUIDES["create-transaction"].name,
+        instruction: GUIDES["create-transaction"].instruction,
+        token: GUIDES["create-transaction"].token,
+      },
+    ]);
   });
 
   it("deduplicates repeated guides", async () => {
@@ -34,9 +31,6 @@ describe("loadGuides", () => {
     const result = await loadGuides({ names: ["basics", "basics"] });
 
     // Assert
-    expect(result).toEqual({
-      success: true,
-      data: [expect.objectContaining({ name: "basics" })],
-    });
+    expect(result).toEqual([expect.objectContaining({ name: "basics" })]);
   });
 });

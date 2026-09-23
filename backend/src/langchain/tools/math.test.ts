@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { BusinessError } from "../../services/business-error";
 import { avgTool, calculateTool, sumTool } from "./math";
 
 describe("sumTool", () => {
@@ -14,7 +15,7 @@ describe("sumTool", () => {
     const result = await sumTool.invoke({ numbers: [1, 2, 3, 4, 5] });
 
     // Assert
-    expect(result).toEqual({ success: true, data: 15 });
+    expect(result).toBe(15);
   });
 
   it("returns 0 for empty array", async () => {
@@ -22,7 +23,7 @@ describe("sumTool", () => {
     const result = await sumTool.invoke({ numbers: [] });
 
     // Assert
-    expect(result).toEqual({ success: true, data: 0 });
+    expect(result).toBe(0);
   });
 
   it("handles decimal numbers", async () => {
@@ -30,7 +31,7 @@ describe("sumTool", () => {
     const result = await sumTool.invoke({ numbers: [10.5, 20.3, 15.0] });
 
     // Assert
-    expect(result).toEqual({ success: true, data: 45.8 });
+    expect(result).toBe(45.8);
   });
 });
 
@@ -47,20 +48,19 @@ describe("avgTool", () => {
     const result = await avgTool.invoke({ numbers: [10, 20, 30] });
 
     // Assert
-    expect(result).toEqual({ success: true, data: 20 });
+    expect(result).toBe(20);
   });
 
   // Validation failures
 
-  it("returns failure for empty array", async () => {
+  it("throws for empty array", async () => {
     // Act
-    const result = await avgTool.invoke({ numbers: [] });
+    const promise = avgTool.invoke({ numbers: [] });
 
     // Assert
-    expect(result).toEqual({
-      success: false,
-      error: "Cannot calculate average of an empty array",
-    });
+    await expect(promise).rejects.toThrow(
+      new BusinessError("Cannot calculate average of an empty array"),
+    );
   });
 });
 
@@ -79,16 +79,16 @@ describe("calculateTool", () => {
     });
 
     // Assert
-    expect(result).toEqual({ success: true, data: 22.9 });
+    expect(result).toBe(22.9);
   });
 
   // Validation failures
 
-  it("returns failure for non-numeric results", async () => {
+  it("throws for non-numeric results", async () => {
     // Act
-    const result = await calculateTool.invoke({ expression: "sqrt(-1)" });
+    const promise = calculateTool.invoke({ expression: "sqrt(-1)" });
 
     // Assert
-    expect(result.success).toBe(false);
+    await expect(promise).rejects.toThrow(BusinessError);
   });
 });

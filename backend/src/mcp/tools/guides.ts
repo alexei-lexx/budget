@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { z } from "zod";
 import { CATEGORY_TYPES } from "../../models/category";
 import { TransactionType } from "../../models/transaction";
-import { Failure, Result, Success } from "../../types/result";
+import { BusinessError } from "../../services/business-error";
 
 const HOUR_MS = 60 * 60 * 1000;
 
@@ -183,13 +183,13 @@ export const GUIDES: Record<"basics" | "create-transaction", Guide> = {
 export const GUIDE_NAMES = Object.keys(GUIDES) as GuideName[];
 export type GuideName = keyof typeof GUIDES;
 
-export function verifyGuideTokens({
+export function assertGuideTokens({
   guideTokens,
   requiredGuides,
 }: {
   guideTokens: readonly string[];
   requiredGuides: readonly GuideName[];
-}): Result<true> {
+}): void {
   const missingGuides = requiredGuides.filter((name) => {
     const guide = GUIDES[name];
     const currentToken = buildGuideToken(name, guide.instruction, Date.now());
@@ -208,10 +208,10 @@ export function verifyGuideTokens({
   });
 
   if (missingGuides.length === 0) {
-    return Success(true);
+    return;
   }
 
-  return Failure(
+  throw new BusinessError(
     `Missing or invalid guide token for: ${missingGuides.join(", ")}. Reload the guide(s) and retry`,
   );
 }
