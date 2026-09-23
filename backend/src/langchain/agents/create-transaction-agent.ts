@@ -9,6 +9,7 @@ import { TransactionRepository } from "../../ports/transaction-repository";
 import { AccountService } from "../../services/account-service";
 import { CategoryService } from "../../services/category-service";
 import { TransactionService } from "../../services/transaction-service";
+import { toolUserFacingErrorMiddleware } from "../tool-error-middleware";
 import {
   CREATE_TRANSACTION_TOOL_NAME,
   createCreateTransactionTool,
@@ -197,6 +198,7 @@ export function createCreateTransactionAgent({
         toolName: CREATE_TRANSACTION_TOOL_NAME,
         runLimit: 1,
       }),
+      toolUserFacingErrorMiddleware,
     ],
   });
 }
