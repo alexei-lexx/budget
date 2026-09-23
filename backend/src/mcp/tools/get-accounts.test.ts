@@ -1,6 +1,7 @@
 import { faker } from "@faker-js/faker";
 import { type Mocked, beforeEach, describe, expect, it } from "vitest";
 import { AccountService } from "../../services/account-service";
+import { BusinessError } from "../../services/business-error";
 import { fakeAccount } from "../../utils/test-utils/models/account-fakes";
 import { createMockAccountService } from "../../utils/test-utils/services/account-service-mocks";
 import { getAccounts } from "./get-accounts";
@@ -50,42 +51,38 @@ describe("getAccounts", () => {
     );
 
     // Assert
-    expect(result).toEqual({
-      success: true,
-      data: [
-        {
-          id: account.id,
-          name: "Checking Account",
-          currency: "USD",
-          isArchived: false,
-        },
-      ],
-    });
+    expect(result).toEqual([
+      {
+        id: account.id,
+        name: "Checking Account",
+        currency: "USD",
+        isArchived: false,
+      },
+    ]);
   });
 
   // Validation failures
 
   it("rejects without valid basics guide token and does not call service", async () => {
     // Act
-    const result = await getAccounts({ scope: "ALL", guideTokens: [] }, deps);
+    const promise = getAccounts({ scope: "ALL", guideTokens: [] }, deps);
 
     // Assert
-    expect(result).toEqual({
-      success: false,
-      error:
+    await expect(promise).rejects.toThrow(
+      new BusinessError(
         "Missing or invalid guide token for: basics. Reload the guide(s) and retry",
-    });
+      ),
+    );
     expect(mockAccountService.getAccountsByUser).not.toHaveBeenCalled();
   });
 
   it("does not disclose valid guide token in rejection message", async () => {
     // Act
-    const result = await getAccounts({ scope: "ALL", guideTokens: [] }, deps);
+    const promise = getAccounts({ scope: "ALL", guideTokens: [] }, deps);
 
     // Assert
-    expect(result).toEqual({
-      success: false,
-      error: expect.not.stringContaining(validGuideToken),
+    await expect(promise).rejects.toMatchObject({
+      message: expect.not.stringContaining(validGuideToken),
     });
   });
 

@@ -65,23 +65,20 @@ describe("createGetAccountsTool", () => {
       { context: { userId } },
     );
 
-    expect(result).toEqual({
-      success: true,
-      data: [
-        {
-          id: mockAccounts[0]?.id,
-          name: "Checking Account",
-          currency: "USD",
-          isArchived: false,
-        },
-        {
-          id: mockAccounts[1]?.id,
-          name: "Savings Account",
-          currency: "EUR",
-          isArchived: true,
-        },
-      ],
-    });
+    expect(result).toEqual([
+      {
+        id: mockAccounts[0]?.id,
+        name: "Checking Account",
+        currency: "USD",
+        isArchived: false,
+      },
+      {
+        id: mockAccounts[1]?.id,
+        name: "Savings Account",
+        currency: "EUR",
+        isArchived: true,
+      },
+    ]);
   });
 
   it("returns empty array when user has no accounts", async () => {
@@ -93,6 +90,6 @@ describe("createGetAccountsTool", () => {
       { context: { userId } },
     );
 
-    expect(result).toEqual({ success: true, data: [] });
+    expect(result).toEqual([]);
   });
 });

@@ -1,8 +1,7 @@
 import { z } from "zod";
 import { AccountDto, toAccountDto } from "../../langchain/tools/account-dto";
 import { AccountService } from "../../services/account-service";
-import { Result, Success } from "../../types/result";
-import { buildGuideTokensField, verifyGuideTokens } from "./guides";
+import { assertGuideTokens, buildGuideTokensField } from "./guides";
 import { Tool } from "./tool";
 
 const requiredGuides = ["basics"] as const;
@@ -26,12 +25,11 @@ export async function createAccount(
     accountService: AccountService;
     userId: string;
   },
-): Promise<Result<AccountDto & { initialBalance: number }>> {
-  const verification = verifyGuideTokens({
+): Promise<AccountDto & { initialBalance: number }> {
+  assertGuideTokens({
     guideTokens,
     requiredGuides,
   });
-  if (!verification.success) return verification;
 
   const created = await accountService.createAccount({
     userId,
@@ -40,10 +38,10 @@ export async function createAccount(
     initialBalance: initialBalance ?? 0,
   });
 
-  return Success({
+  return {
     ...toAccountDto(created),
     initialBalance: created.initialBalance,
-  });
+  };
 }
 
 const inputSchema = z.object({

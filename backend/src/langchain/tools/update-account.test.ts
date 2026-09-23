@@ -48,10 +48,7 @@ describe("createUpdateAccountTool", () => {
     const result = await updateTool.invoke(input, { context: { userId } });
 
     // Assert
-    expect(result).toEqual({
-      success: true,
-      data: toAccountDto(updated),
-    });
+    expect(result).toEqual(toAccountDto(updated));
 
     expect(mockAccountService.updateAccount).toHaveBeenCalledWith(
       accountId,

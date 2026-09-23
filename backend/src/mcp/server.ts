@@ -7,7 +7,6 @@ import {
   resolveTransactionService,
   resolveUserRepository,
 } from "../dependencies";
-import { Failure } from "../types/result";
 import { isUserFacingError } from "../utils/errors";
 import { authenticateMcpToken } from "./auth";
 import { createAggregateTransactionsTool } from "./tools/aggregate-transactions";
@@ -19,7 +18,7 @@ import { createGetAccountsTool } from "./tools/get-accounts";
 import { createGetCategoriesTool } from "./tools/get-categories";
 import { createGetTransactionsTool } from "./tools/get-transactions";
 import { createLoadGuidesTool } from "./tools/load-guides";
-import { toToolResult } from "./tools/to-tool-result";
+import { toToolError, toToolResult } from "./tools/to-tool-result";
 import { Tool } from "./tools/tool";
 import { createUpdateAccountTool } from "./tools/update-account";
 import { createUpdateCategoryTool } from "./tools/update-category";
@@ -67,13 +66,13 @@ export async function createAuthenticatedMcpServer(
         } catch (error) {
           // Expose user-facing error messages to the user
           if (isUserFacingError(error)) {
-            return toToolResult(Failure(error.message));
+            return toToolError(error.message);
           }
 
           // Log unexpected errors and return
           // a generic failure message to the user
           console.error(`Error in ${tool.name} tool:`, error);
-          return toToolResult(Failure(`Failed to run ${tool.name}`));
+          return toToolError(`Failed to run ${tool.name}`);
         }
       },
     );

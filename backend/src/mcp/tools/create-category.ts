@@ -2,8 +2,7 @@ import { z } from "zod";
 import { CategoryDto, toCategoryDto } from "../../langchain/tools/category-dto";
 import { CATEGORY_TYPES, CategoryType } from "../../models/category";
 import { CategoryService } from "../../services/category-service";
-import { Result, Success } from "../../types/result";
-import { buildGuideTokensField, verifyGuideTokens } from "./guides";
+import { assertGuideTokens, buildGuideTokensField } from "./guides";
 import { Tool } from "./tool";
 
 const requiredGuides = ["basics"] as const;
@@ -27,12 +26,11 @@ export async function createCategory(
     categoryService: CategoryService;
     userId: string;
   },
-): Promise<Result<CategoryDto>> {
-  const verification = verifyGuideTokens({
+): Promise<CategoryDto> {
+  assertGuideTokens({
     guideTokens,
     requiredGuides,
   });
-  if (!verification.success) return verification;
 
   const created = await categoryService.createCategory({
     userId,
@@ -41,7 +39,7 @@ export async function createCategory(
     excludeFromReports: excludeFromReports ?? false,
   });
 
-  return Success(toCategoryDto(created));
+  return toCategoryDto(created);
 }
 
 const inputSchema = z.object({

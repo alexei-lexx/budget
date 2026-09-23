@@ -52,11 +52,8 @@ describe("createCreateAccountTool", () => {
 
     // Assert
     expect(result).toEqual({
-      success: true,
-      data: {
-        ...toAccountDto(created),
-        initialBalance: 0,
-      },
+      ...toAccountDto(created),
+      initialBalance: 0,
     });
 
     expect(mockAccountService.createAccount).toHaveBeenCalledWith({
