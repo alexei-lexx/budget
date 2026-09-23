@@ -1,7 +1,5 @@
-import { ModelError } from "../models/model-error";
 import { CreateTrendPresetInput, TrendPreset } from "../models/trend-preset";
 import { TrendPresetRepository } from "../ports/trend-preset-repository";
-import { Failure, Result, Success } from "../types/result";
 
 export type CreateTrendPresetServiceInput = Omit<
   CreateTrendPresetInput,
@@ -14,34 +12,21 @@ export type CreateTrendPresetServiceInput = Omit<
 export class TrendPresetService {
   constructor(private trendPresetRepository: TrendPresetRepository) {}
 
-  async getTrendPresetsByUser(userId: string): Promise<Result<TrendPreset[]>> {
-    const trendPresets =
-      await this.trendPresetRepository.findManyByUserId(userId);
-
-    return Success(trendPresets);
+  async getTrendPresetsByUser(userId: string): Promise<TrendPreset[]> {
+    return this.trendPresetRepository.findManyByUserId(userId);
   }
 
   async createTrendPreset(
     userId: string,
     input: CreateTrendPresetServiceInput,
-  ): Promise<Result<TrendPreset>> {
-    try {
-      const trendPreset = TrendPreset.create({ userId, ...input });
-      await this.trendPresetRepository.create(trendPreset);
-      return Success(trendPreset);
-    } catch (error) {
-      if (error instanceof ModelError) {
-        return Failure(error.message);
-      }
-      throw error;
-    }
+  ): Promise<TrendPreset> {
+    const trendPreset = TrendPreset.create({ userId, ...input });
+    await this.trendPresetRepository.create(trendPreset);
+    return trendPreset;
   }
 
-  async deleteTrendPreset(
-    userId: string,
-    id: string,
-  ): Promise<Result<boolean>> {
+  async deleteTrendPreset(userId: string, id: string): Promise<boolean> {
     await this.trendPresetRepository.deleteOneById({ id, userId });
-    return Success(true);
+    return true;
   }
 }

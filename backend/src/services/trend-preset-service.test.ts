@@ -1,5 +1,6 @@
 import { faker } from "@faker-js/faker";
 import { type Mocked, beforeEach, describe, expect, it } from "vitest";
+import { ModelError } from "../models/model-error";
 import { TrendPresetRepository } from "../ports/trend-preset-repository";
 import { fakeTrendPreset } from "../utils/test-utils/models/trend-preset-fakes";
 import { createMockTrendPresetRepository } from "../utils/test-utils/repositories/trend-preset-repository-mocks";
@@ -32,10 +33,7 @@ describe("TrendPresetService", () => {
       const result = await service.getTrendPresetsByUser(userId);
 
       // Assert
-      expect(result).toEqual({
-        success: true,
-        data: trendPresets,
-      });
+      expect(result).toEqual(trendPresets);
       expect(trendPresetRepository.findManyByUserId).toHaveBeenCalledWith(
         userId,
       );
@@ -58,16 +56,15 @@ describe("TrendPresetService", () => {
       const result = await service.createTrendPreset(userId, input);
 
       // Assert
-      expect(result).toEqual({
-        success: true,
-        data: expect.objectContaining({
+      expect(result).toEqual(
+        expect.objectContaining({
           userId,
           periodUnit: "MONTH",
           lookback: 6,
           currency: "EUR",
           categoryIds: ["category-1"],
         }),
-      });
+      );
       expect(trendPresetRepository.create).toHaveBeenCalledTimes(1);
 
       const created = trendPresetRepository.create.mock.calls[0]?.[0];
@@ -80,18 +77,14 @@ describe("TrendPresetService", () => {
 
     // Validation failures
 
-    it("returns failure when lookback is out of range", async () => {
+    it("throws when lookback is out of range", async () => {
       // Arrange
       const input = fakeCreateTrendPresetServiceInput({ lookback: 13 });
 
-      // Act
-      const result = await service.createTrendPreset(userId, input);
-
-      // Assert
-      expect(result).toEqual({
-        success: false,
-        error: "Lookback must be a whole number from 1 to 12",
-      });
+      // Act & Assert
+      await expect(service.createTrendPreset(userId, input)).rejects.toThrow(
+        new ModelError("Lookback must be a whole number from 1 to 12"),
+      );
       expect(trendPresetRepository.create).not.toHaveBeenCalled();
     });
 
@@ -122,7 +115,7 @@ describe("TrendPresetService", () => {
       const result = await service.deleteTrendPreset(userId, id);
 
       // Assert
-      expect(result).toEqual({ success: true, data: true });
+      expect(result).toBe(true);
       expect(trendPresetRepository.deleteOneById).toHaveBeenCalledWith({
         id,
         userId,

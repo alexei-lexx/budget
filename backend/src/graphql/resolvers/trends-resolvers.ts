@@ -41,15 +41,7 @@ export const trendsResolvers = {
     ) => {
       const user = await getAuthenticatedUser(context);
 
-      const result = await context.trendPresetService.getTrendPresetsByUser(
-        user.id,
-      );
-
-      if (!result.success) {
-        throw new GraphQLError(result.error);
-      }
-
-      return result.data;
+      return context.trendPresetService.getTrendPresetsByUser(user.id);
     },
   },
   Mutation: {
@@ -60,22 +52,13 @@ export const trendsResolvers = {
     ) => {
       const user = await getAuthenticatedUser(context);
 
-      const result = await context.trendPresetService.createTrendPreset(
-        user.id,
-        {
-          periodUnit: args.input.periodUnit,
-          lookback: args.input.lookback,
-          currency: args.input.currency,
-          categoryIds: args.input.categoryIds ?? undefined,
-          includeUncategorized: args.input.includeUncategorized || undefined,
-        },
-      );
-
-      if (!result.success) {
-        throw new GraphQLError(result.error);
-      }
-
-      return result.data;
+      return context.trendPresetService.createTrendPreset(user.id, {
+        periodUnit: args.input.periodUnit,
+        lookback: args.input.lookback,
+        currency: args.input.currency,
+        categoryIds: args.input.categoryIds ?? undefined,
+        includeUncategorized: args.input.includeUncategorized || undefined,
+      });
     },
     deleteTrendPreset: async (
       _parent: unknown,
@@ -84,14 +67,7 @@ export const trendsResolvers = {
     ) => {
       const user = await getAuthenticatedUser(context);
 
-      const result = await context.trendPresetService.deleteTrendPreset(
-        user.id,
-        args.id,
-      );
-
-      if (!result.success) {
-        throw new GraphQLError(result.error);
-      }
+      await context.trendPresetService.deleteTrendPreset(user.id, args.id);
 
       return undefined;
     },
