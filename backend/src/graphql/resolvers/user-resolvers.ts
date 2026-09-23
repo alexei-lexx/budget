@@ -1,4 +1,3 @@
-import { GraphQLError } from "graphql";
 import { MutationUpdateUserSettingsArgs } from "../../__generated__/resolvers-types";
 import { User } from "../../models/user";
 import { SUPPORTED_INTERFACE_LANGUAGES } from "../../types/language";
@@ -29,13 +28,7 @@ export const userResolvers = {
       context: GraphQLContext,
     ) => {
       const user = await getAuthenticatedUser(context);
-      const result = await context.userService.getSettings(user.id);
-
-      if (!result.success) {
-        throw new GraphQLError(result.error);
-      }
-
-      return result.data;
+      return context.userService.getSettings(user.id);
     },
   },
   Mutation: {
@@ -54,19 +47,13 @@ export const userResolvers = {
       context: GraphQLContext,
     ) => {
       const user = await getAuthenticatedUser(context);
-      const result = await context.userService.updateSettings({
+      return context.userService.updateSettings({
         userId: user.id,
         voiceInputLanguage: args.input.voiceInputLanguage ?? undefined,
         interfaceLanguage: args.input.interfaceLanguage ?? undefined,
         transactionPatternsLimit:
           args.input.transactionPatternsLimit ?? undefined,
       });
-
-      if (!result.success) {
-        throw new GraphQLError(result.error);
-      }
-
-      return result.data;
     },
 
     regenerateMcpToken: async (
@@ -75,13 +62,7 @@ export const userResolvers = {
       context: GraphQLContext,
     ) => {
       const user = await getAuthenticatedUser(context);
-      const result = await context.userService.regenerateMcpToken(user.id);
-
-      if (!result.success) {
-        throw new GraphQLError(result.error);
-      }
-
-      return result.data;
+      return context.userService.regenerateMcpToken(user.id);
     },
   },
 };

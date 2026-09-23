@@ -4,7 +4,7 @@ import {
   DEFAULT_INTERFACE_LANGUAGE,
   isSupportedInterfaceLanguage,
 } from "../types/language";
-import { Failure, Result, Success } from "../types/result";
+import { BusinessError } from "./business-error";
 import {
   DEFAULT_TRANSACTION_PATTERNS_LIMIT,
   MAX_TRANSACTION_PATTERNS_LIMIT,
@@ -33,18 +33,18 @@ export class UserService {
     return user;
   }
 
-  async getSettings(userId: string): Promise<Result<UserSettingsData>> {
+  async getSettings(userId: string): Promise<UserSettingsData> {
     if (!userId) {
-      return Failure("User ID is required");
+      throw new BusinessError("User ID is required");
     }
 
     const user = await this.userRepository.findOneById(userId);
 
     if (!user) {
-      return Failure("User not found");
+      throw new BusinessError("User not found");
     }
 
-    return Success(this.buildSettingsData(user));
+    return this.buildSettingsData(user);
   }
 
   async updateSettings({
@@ -57,9 +57,9 @@ export class UserService {
     interfaceLanguage?: string;
     transactionPatternsLimit?: number;
     voiceInputLanguage?: string;
-  }): Promise<Result<UserSettingsData>> {
+  }): Promise<UserSettingsData> {
     if (!userId) {
-      return Failure("User ID is required");
+      throw new BusinessError("User ID is required");
     }
 
     if (
@@ -68,7 +68,7 @@ export class UserService {
         transactionPatternsLimit < MIN_TRANSACTION_PATTERNS_LIMIT ||
         transactionPatternsLimit > MAX_TRANSACTION_PATTERNS_LIMIT)
     ) {
-      return Failure(
+      throw new BusinessError(
         `Transaction patterns limit must be an integer between ${MIN_TRANSACTION_PATTERNS_LIMIT} and ${MAX_TRANSACTION_PATTERNS_LIMIT}`,
       );
     }
@@ -77,13 +77,15 @@ export class UserService {
       interfaceLanguage !== undefined &&
       !isSupportedInterfaceLanguage(interfaceLanguage)
     ) {
-      return Failure(`Unsupported interface language: ${interfaceLanguage}`);
+      throw new BusinessError(
+        `Unsupported interface language: ${interfaceLanguage}`,
+      );
     }
 
     const user = await this.userRepository.findOneById(userId);
 
     if (!user) {
-      return Failure("User not found");
+      throw new BusinessError("User not found");
     }
 
     const updated = user.update({
@@ -94,21 +96,21 @@ export class UserService {
 
     await this.userRepository.update(updated);
 
-    return Success(this.buildSettingsData(updated));
+    return this.buildSettingsData(updated);
   }
 
-  async regenerateMcpToken(userId: string): Promise<Result<UserSettingsData>> {
+  async regenerateMcpToken(userId: string): Promise<UserSettingsData> {
     const user = await this.userRepository.findOneById(userId);
 
     if (!user) {
-      return Failure("User not found");
+      throw new BusinessError("User not found");
     }
 
     const updated = user.regenerateMcpToken();
 
     await this.userRepository.update(updated);
 
-    return Success(this.buildSettingsData(updated));
+    return this.buildSettingsData(updated);
   }
 
   private buildSettingsData(user: User) {

@@ -3,6 +3,7 @@ import { type Mocked, beforeEach, describe, expect, it } from "vitest";
 import { UserRepository } from "../ports/user-repository";
 import { fakeUser } from "../utils/test-utils/models/user-fakes";
 import { createMockUserRepository } from "../utils/test-utils/repositories/user-repository-mocks";
+import { BusinessError } from "./business-error";
 import {
   DEFAULT_TRANSACTION_PATTERNS_LIMIT,
   MAX_TRANSACTION_PATTERNS_LIMIT,
@@ -40,13 +41,10 @@ describe("UserService", () => {
 
       // Assert
       expect(result).toEqual({
-        success: true,
-        data: {
-          interfaceLanguage: "de",
-          mcpToken: "token-1",
-          transactionPatternsLimit: 5,
-          voiceInputLanguage: "pl-PL",
-        },
+        interfaceLanguage: "de",
+        mcpToken: "token-1",
+        transactionPatternsLimit: 5,
+        voiceInputLanguage: "pl-PL",
       });
       expect(mockUserRepository.findOneById).toHaveBeenCalledWith(userId);
     });
@@ -63,39 +61,34 @@ describe("UserService", () => {
 
       // Assert
       expect(result).toStrictEqual({
-        success: true,
-        data: {
-          interfaceLanguage: "en",
-          mcpToken: "token-1",
-          transactionPatternsLimit: DEFAULT_TRANSACTION_PATTERNS_LIMIT,
-          voiceInputLanguage: undefined,
-        },
+        interfaceLanguage: "en",
+        mcpToken: "token-1",
+        transactionPatternsLimit: DEFAULT_TRANSACTION_PATTERNS_LIMIT,
+        voiceInputLanguage: undefined,
       });
       expect(mockUserRepository.findOneById).toHaveBeenCalledWith(userId);
     });
 
     // Validation failures
 
-    it("returns failure when userId is empty", async () => {
-      // Act
-      const result = await service.getSettings("");
-
-      // Assert
-      expect(result).toEqual({ success: false, error: "User ID is required" });
+    it("throws when userId is empty", async () => {
+      // Act & Assert
+      await expect(service.getSettings("")).rejects.toThrow(
+        new BusinessError("User ID is required"),
+      );
       expect(mockUserRepository.findOneById).not.toHaveBeenCalled();
     });
 
-    it("returns failure when user is not found", async () => {
+    it("throws when user is not found", async () => {
       // Arrange
       const userId = faker.string.uuid();
       // Returns no user for given id
       mockUserRepository.findOneById.mockResolvedValue(null);
 
-      // Act
-      const result = await service.getSettings(userId);
-
-      // Assert
-      expect(result).toEqual({ success: false, error: "User not found" });
+      // Act & Assert
+      await expect(service.getSettings(userId)).rejects.toThrow(
+        new BusinessError("User not found"),
+      );
       expect(mockUserRepository.findOneById).toHaveBeenCalledWith(userId);
     });
   });
@@ -155,13 +148,10 @@ describe("UserService", () => {
 
       // Assert
       expect(result).toEqual({
-        success: true,
-        data: {
-          interfaceLanguage: "de",
-          mcpToken: "token-1",
-          transactionPatternsLimit: DEFAULT_TRANSACTION_PATTERNS_LIMIT,
-          voiceInputLanguage: undefined,
-        },
+        interfaceLanguage: "de",
+        mcpToken: "token-1",
+        transactionPatternsLimit: DEFAULT_TRANSACTION_PATTERNS_LIMIT,
+        voiceInputLanguage: undefined,
       });
       expect(mockUserRepository.findOneById).toHaveBeenCalledWith(userId);
       expect(mockUserRepository.update).toHaveBeenCalledWith(
@@ -185,13 +175,10 @@ describe("UserService", () => {
 
       // Assert
       expect(result).toEqual({
-        success: true,
-        data: {
-          interfaceLanguage: "en",
-          mcpToken: "token-1",
-          transactionPatternsLimit: DEFAULT_TRANSACTION_PATTERNS_LIMIT,
-          voiceInputLanguage: "de-DE",
-        },
+        interfaceLanguage: "en",
+        mcpToken: "token-1",
+        transactionPatternsLimit: DEFAULT_TRANSACTION_PATTERNS_LIMIT,
+        voiceInputLanguage: "de-DE",
       });
       expect(mockUserRepository.findOneById).toHaveBeenCalledWith(userId);
       expect(mockUserRepository.update).toHaveBeenCalledWith(
@@ -215,13 +202,10 @@ describe("UserService", () => {
 
       // Assert
       expect(result).toEqual({
-        success: true,
-        data: {
-          interfaceLanguage: "en",
-          mcpToken: "token-1",
-          transactionPatternsLimit: 7,
-          voiceInputLanguage: undefined,
-        },
+        interfaceLanguage: "en",
+        mcpToken: "token-1",
+        transactionPatternsLimit: 7,
+        voiceInputLanguage: undefined,
       });
       expect(mockUserRepository.findOneById).toHaveBeenCalledWith(userId);
       expect(mockUserRepository.update).toHaveBeenCalledWith(
@@ -247,13 +231,10 @@ describe("UserService", () => {
 
       // Assert
       expect(result).toEqual({
-        success: true,
-        data: {
-          interfaceLanguage: "de",
-          mcpToken: "token-1",
-          transactionPatternsLimit: 5,
-          voiceInputLanguage: "en-US",
-        },
+        interfaceLanguage: "de",
+        mcpToken: "token-1",
+        transactionPatternsLimit: 5,
+        voiceInputLanguage: "en-US",
       });
       expect(mockUserRepository.findOneById).toHaveBeenCalledWith(userId);
       expect(mockUserRepository.update).toHaveBeenCalledWith(
@@ -267,94 +248,87 @@ describe("UserService", () => {
 
     // Validation failures
 
-    it("returns failure when userId is empty", async () => {
-      // Act
-      const result = await service.updateSettings({
-        userId: "",
-        voiceInputLanguage: "en-US",
-      });
-
-      // Assert
-      expect(result).toEqual({ success: false, error: "User ID is required" });
+    it("throws when userId is empty", async () => {
+      // Act & Assert
+      await expect(
+        service.updateSettings({ userId: "", voiceInputLanguage: "en-US" }),
+      ).rejects.toThrow(new BusinessError("User ID is required"));
       expect(mockUserRepository.findOneById).not.toHaveBeenCalled();
       expect(mockUserRepository.update).not.toHaveBeenCalled();
     });
 
-    it("returns failure when user is not found", async () => {
+    it("throws when user is not found", async () => {
       // Arrange
       mockUserRepository.findOneById.mockResolvedValue(null);
 
-      // Act
-      const result = await service.updateSettings({
-        userId: faker.string.uuid(),
-        voiceInputLanguage: "en-US",
-      });
-
-      // Assert
-      expect(result).toEqual({ success: false, error: "User not found" });
+      // Act & Assert
+      await expect(
+        service.updateSettings({
+          userId: faker.string.uuid(),
+          voiceInputLanguage: "en-US",
+        }),
+      ).rejects.toThrow(new BusinessError("User not found"));
       expect(mockUserRepository.update).not.toHaveBeenCalled();
     });
 
-    it("returns failure when interfaceLanguage is unsupported", async () => {
-      // Act
-      const result = await service.updateSettings({
-        userId: faker.string.uuid(),
-        interfaceLanguage: "fr",
-      });
-
-      // Assert
-      expect(result).toEqual({
-        success: false,
-        error: "Unsupported interface language: fr",
-      });
+    it("throws when interfaceLanguage is unsupported", async () => {
+      // Act & Assert
+      await expect(
+        service.updateSettings({
+          userId: faker.string.uuid(),
+          interfaceLanguage: "fr",
+        }),
+      ).rejects.toThrow(
+        new BusinessError("Unsupported interface language: fr"),
+      );
       expect(mockUserRepository.findOneById).not.toHaveBeenCalled();
       expect(mockUserRepository.update).not.toHaveBeenCalled();
     });
 
-    it("returns failure when transactionPatternsLimit is below minimum", async () => {
-      // Act
-      const result = await service.updateSettings({
-        userId: faker.string.uuid(),
-        transactionPatternsLimit: MIN_TRANSACTION_PATTERNS_LIMIT - 1,
-      });
-
-      // Assert
-      expect(result).toEqual({
-        success: false,
-        error: `Transaction patterns limit must be an integer between ${MIN_TRANSACTION_PATTERNS_LIMIT} and ${MAX_TRANSACTION_PATTERNS_LIMIT}`,
-      });
+    it("throws when transactionPatternsLimit is below minimum", async () => {
+      // Act & Assert
+      await expect(
+        service.updateSettings({
+          userId: faker.string.uuid(),
+          transactionPatternsLimit: MIN_TRANSACTION_PATTERNS_LIMIT - 1,
+        }),
+      ).rejects.toThrow(
+        new BusinessError(
+          `Transaction patterns limit must be an integer between ${MIN_TRANSACTION_PATTERNS_LIMIT} and ${MAX_TRANSACTION_PATTERNS_LIMIT}`,
+        ),
+      );
       expect(mockUserRepository.findOneById).not.toHaveBeenCalled();
       expect(mockUserRepository.update).not.toHaveBeenCalled();
     });
 
-    it("returns failure when transactionPatternsLimit is above maximum", async () => {
-      // Act
-      const result = await service.updateSettings({
-        userId: faker.string.uuid(),
-        transactionPatternsLimit: MAX_TRANSACTION_PATTERNS_LIMIT + 1,
-      });
-
-      // Assert
-      expect(result).toEqual({
-        success: false,
-        error: `Transaction patterns limit must be an integer between ${MIN_TRANSACTION_PATTERNS_LIMIT} and ${MAX_TRANSACTION_PATTERNS_LIMIT}`,
-      });
+    it("throws when transactionPatternsLimit is above maximum", async () => {
+      // Act & Assert
+      await expect(
+        service.updateSettings({
+          userId: faker.string.uuid(),
+          transactionPatternsLimit: MAX_TRANSACTION_PATTERNS_LIMIT + 1,
+        }),
+      ).rejects.toThrow(
+        new BusinessError(
+          `Transaction patterns limit must be an integer between ${MIN_TRANSACTION_PATTERNS_LIMIT} and ${MAX_TRANSACTION_PATTERNS_LIMIT}`,
+        ),
+      );
       expect(mockUserRepository.findOneById).not.toHaveBeenCalled();
       expect(mockUserRepository.update).not.toHaveBeenCalled();
     });
 
-    it("returns failure when transactionPatternsLimit is not an integer", async () => {
-      // Act
-      const result = await service.updateSettings({
-        userId: faker.string.uuid(),
-        transactionPatternsLimit: 2.5,
-      });
-
-      // Assert
-      expect(result).toEqual({
-        success: false,
-        error: `Transaction patterns limit must be an integer between ${MIN_TRANSACTION_PATTERNS_LIMIT} and ${MAX_TRANSACTION_PATTERNS_LIMIT}`,
-      });
+    it("throws when transactionPatternsLimit is not an integer", async () => {
+      // Act & Assert
+      await expect(
+        service.updateSettings({
+          userId: faker.string.uuid(),
+          transactionPatternsLimit: 2.5,
+        }),
+      ).rejects.toThrow(
+        new BusinessError(
+          `Transaction patterns limit must be an integer between ${MIN_TRANSACTION_PATTERNS_LIMIT} and ${MAX_TRANSACTION_PATTERNS_LIMIT}`,
+        ),
+      );
       expect(mockUserRepository.findOneById).not.toHaveBeenCalled();
       expect(mockUserRepository.update).not.toHaveBeenCalled();
     });
@@ -396,25 +370,23 @@ describe("UserService", () => {
 
       // Assert
       const updatedUser = mockUserRepository.update.mock.calls[0]?.[0];
-      expect(result).toEqual({
-        success: true,
-        data: expect.objectContaining({
+      expect(result).toEqual(
+        expect.objectContaining({
           mcpToken: updatedUser?.mcpToken,
         }),
-      });
+      );
     });
 
     // Validation failures
 
-    it("returns failure when user is not found", async () => {
+    it("throws when user is not found", async () => {
       // Arrange
       mockUserRepository.findOneById.mockResolvedValue(null);
 
-      // Act
-      const result = await service.regenerateMcpToken(faker.string.uuid());
-
-      // Assert
-      expect(result).toEqual({ success: false, error: "User not found" });
+      // Act & Assert
+      await expect(
+        service.regenerateMcpToken(faker.string.uuid()),
+      ).rejects.toThrow(new BusinessError("User not found"));
       expect(mockUserRepository.update).not.toHaveBeenCalled();
     });
   });
