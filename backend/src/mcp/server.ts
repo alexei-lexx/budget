@@ -7,9 +7,8 @@ import {
   resolveTransactionService,
   resolveUserRepository,
 } from "../dependencies";
-import { ModelError } from "../models/model-error";
-import { BusinessError } from "../services/business-error";
 import { Failure } from "../types/result";
+import { isUserFacingError } from "../utils/errors";
 import { authenticateMcpToken } from "./auth";
 import { createAggregateTransactionsTool } from "./tools/aggregate-transactions";
 import { createCreateAccountTool } from "./tools/create-account";
@@ -66,8 +65,8 @@ export async function createAuthenticatedMcpServer(
         try {
           return toToolResult(await tool.run(input));
         } catch (error) {
-          // Expose BusinessError and ModelError messages to the user
-          if (error instanceof BusinessError || error instanceof ModelError) {
+          // Expose user-facing error messages to the user
+          if (isUserFacingError(error)) {
             return toToolResult(Failure(error.message));
           }
 

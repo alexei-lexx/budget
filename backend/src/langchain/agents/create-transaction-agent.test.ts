@@ -2,6 +2,7 @@ import { faker } from "@faker-js/faker";
 import { AIMessage, ToolMessage, fakeModel } from "langchain";
 import { type Mocked, beforeEach, describe, expect, it, vi } from "vitest";
 import { TransactionType } from "../../models/transaction";
+import { BusinessError } from "../../services/business-error";
 import { TransactionService } from "../../services/transaction-service";
 import { fakeTransaction } from "../../utils/test-utils/models/transaction-fakes";
 import { createMockTransactionRepository } from "../../utils/test-utils/repositories/transaction-repository-mocks";
@@ -174,6 +175,82 @@ describe("createCreateTransactionAgent", () => {
       ]),
     );
 
+    expect(mockTransactionService.createTransaction).toHaveBeenCalledTimes(1);
+  });
+
+  // Dependency failures
+
+  it("exposes original error when tool fails with business error", async () => {
+    // Arrange
+    const toolCall = {
+      name: CREATE_TRANSACTION_TOOL_NAME,
+      args: {
+        accountId: faker.string.uuid(),
+        amount: 5,
+        date: "2000-01-02",
+        type: TransactionType.EXPENSE,
+      },
+    };
+
+    // Fails due to business rule violation
+    mockTransactionService.createTransaction.mockRejectedValue(
+      new BusinessError("Account not found"),
+    );
+
+    // Model calls create_transaction tool,
+    // then emits final text after tool result
+    mockModel
+      .respondWithTools([toolCall])
+      .respond(new AIMessage("Something went wrong."));
+
+    // Act
+    const result = await agent.invoke({ messages }, { context: baseContext });
+
+    // Assert
+    const toolMessage = result.messages.find(
+      (message) =>
+        message instanceof ToolMessage &&
+        message.name === CREATE_TRANSACTION_TOOL_NAME,
+    );
+    expect(toolMessage?.content).toBe("Account not found");
+    expect(mockTransactionService.createTransaction).toHaveBeenCalledTimes(1);
+  });
+
+  it("hides internal error details when tool fails unexpectedly", async () => {
+    // Arrange
+    const toolCall = {
+      name: CREATE_TRANSACTION_TOOL_NAME,
+      args: {
+        amount: 5,
+        accountId: faker.string.uuid(),
+        date: "2000-01-02",
+        type: TransactionType.EXPENSE,
+      },
+    };
+
+    // Fails due to unexpected infrastructure error
+    mockTransactionService.createTransaction.mockRejectedValue(
+      new Error("Database timeout"),
+    );
+
+    // Model calls create_transaction tool,
+    // then emits final text after tool result
+    mockModel
+      .respondWithTools([toolCall])
+      .respond(new AIMessage("Something went wrong."));
+
+    // Act
+    const result = await agent.invoke({ messages }, { context: baseContext });
+
+    // Assert
+    const toolMessage = result.messages.find(
+      (message) =>
+        message instanceof ToolMessage &&
+        message.name === CREATE_TRANSACTION_TOOL_NAME,
+    );
+    expect(toolMessage?.content).toBe(
+      `Tool '${CREATE_TRANSACTION_TOOL_NAME}' failed unexpectedly.`,
+    );
     expect(mockTransactionService.createTransaction).toHaveBeenCalledTimes(1);
   });
 });

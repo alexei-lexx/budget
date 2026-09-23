@@ -1,6 +1,7 @@
 import { faker } from "@faker-js/faker";
 import { AIMessage, ToolMessage, fakeModel } from "langchain";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { BusinessError } from "../../services/business-error";
 import { createMockTransactionRepository } from "../../utils/test-utils/repositories/transaction-repository-mocks";
 import { createMockAccountService } from "../../utils/test-utils/services/account-service-mocks";
 import { createMockCategoryService } from "../../utils/test-utils/services/category-service-mocks";
@@ -86,16 +87,15 @@ describe("createAssistantAgent", () => {
     // Returns empty account list for get_accounts tool
     mockAccountService.getAccountsByUser.mockResolvedValue([]);
 
-    // Model calls get_accounts tool
-    mockModel.respondWithTools([
-      {
-        name: "get_accounts",
-        args: { scope: "ACTIVE" },
-      },
-    ]);
-
-    // Model emits final text after tool result
-    mockModel.respond(new AIMessage("You have no accounts."));
+    // Model calls get_accounts tool, then emits final text after tool result
+    mockModel
+      .respondWithTools([
+        {
+          name: "get_accounts",
+          args: { scope: "ACTIVE" },
+        },
+      ])
+      .respond(new AIMessage("You have no accounts."));
 
     // Act
     const result = await agent.invoke({ messages }, { context: baseContext });
@@ -109,6 +109,69 @@ describe("createAssistantAgent", () => {
         message instanceof ToolMessage && message.name === "get_accounts",
     );
     expect(toolMessages).toHaveLength(1);
+    expect(mockAccountService.getAccountsByUser).toHaveBeenCalledTimes(1);
+  });
+
+  // Dependency failures
+
+  it("exposes original error when tool fails with business error", async () => {
+    // Arrange
+    // Fails due to business rule violation
+    mockAccountService.getAccountsByUser.mockRejectedValue(
+      new BusinessError("Accounts are temporarily unavailable"),
+    );
+
+    // Model calls get_accounts tool, then emits final text after tool result
+    mockModel
+      .respondWithTools([
+        {
+          name: "get_accounts",
+          args: { scope: "ACTIVE" },
+        },
+      ])
+      .respond(new AIMessage("Something went wrong."));
+
+    // Act
+    const result = await agent.invoke({ messages }, { context: baseContext });
+
+    // Assert
+    const toolMessage = result.messages.find(
+      (message) =>
+        message instanceof ToolMessage && message.name === "get_accounts",
+    );
+    expect(toolMessage?.content).toBe("Accounts are temporarily unavailable");
+    expect(mockAccountService.getAccountsByUser).toHaveBeenCalledTimes(1);
+  });
+
+  it("hides internal error details when tool fails unexpectedly", async () => {
+    // Arrange
+    // Fails due to unexpected infrastructure error
+    mockAccountService.getAccountsByUser.mockRejectedValue(
+      new Error("Database timeout"),
+    );
+
+    // Model calls get_accounts tool,
+    // then emits final text after tool result
+    mockModel
+      .respondWithTools([
+        {
+          name: "get_accounts",
+          args: { scope: "ACTIVE" },
+        },
+      ])
+      .respond(new AIMessage("Something went wrong."));
+
+    // Act
+    const result = await agent.invoke({ messages }, { context: baseContext });
+
+    // Assert
+    const toolMessage = result.messages.find(
+      (message) =>
+        message instanceof ToolMessage && message.name === "get_accounts",
+    );
+    expect(toolMessage?.content).toBe(
+      "Tool 'get_accounts' failed unexpectedly.",
+    );
     expect(mockAccountService.getAccountsByUser).toHaveBeenCalledTimes(1);
   });
 });

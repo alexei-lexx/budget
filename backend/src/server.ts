@@ -30,10 +30,9 @@ import { createAccountLoader } from "./graphql/dataloaders/account-loader";
 import { createCategoryLoader } from "./graphql/dataloaders/category-loader";
 import { resolvers } from "./graphql/resolvers";
 import { getAuthenticatedUser } from "./graphql/resolvers/shared";
-import { ModelError } from "./models/model-error";
-import { BusinessError } from "./services/business-error";
 import { InvalidDateStringError } from "./types/date-string";
 import { InvalidDateTimeStringError } from "./types/date-time-string";
+import { isUserFacingError } from "./utils/errors";
 
 const currentDir = dirname(fileURLToPath(import.meta.url));
 
@@ -53,20 +52,21 @@ export const server = new ApolloServer<GraphQLContext>({
       return formattedError;
     }
 
-    // User-facing: malformed input the user can correct
-    if (
-      original instanceof InvalidDateStringError ||
-      original instanceof InvalidDateTimeStringError
-    ) {
-      return {
-        ...formattedError,
-        message: original.message,
-        extensions: { code: ApolloServerErrorCode.BAD_USER_INPUT },
-      };
-    }
+    // User-facing: safe to show this error's message to the client
+    if (isUserFacingError(original)) {
+      // Malformed input the user can correct
+      if (
+        original instanceof InvalidDateStringError ||
+        original instanceof InvalidDateTimeStringError
+      ) {
+        return {
+          ...formattedError,
+          message: original.message,
+          extensions: { code: ApolloServerErrorCode.BAD_USER_INPUT },
+        };
+      }
 
-    // User-facing: business rule violation the user needs to act on
-    if (original instanceof BusinessError || original instanceof ModelError) {
+      // Business rule violation the user needs to act on
       return {
         ...formattedError,
         message: original.message,
