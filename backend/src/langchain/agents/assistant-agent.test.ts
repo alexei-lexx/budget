@@ -87,15 +87,16 @@ describe("createAssistantAgent", () => {
     // Returns empty account list for get_accounts tool
     mockAccountService.getAccountsByUser.mockResolvedValue([]);
 
-    // Model calls get_accounts tool, then emits final text after tool result
-    mockModel
-      .respondWithTools([
-        {
-          name: "get_accounts",
-          args: { scope: "ACTIVE" },
-        },
-      ])
-      .respond(new AIMessage("You have no accounts."));
+    // Model calls get_accounts tool
+    mockModel.respondWithTools([
+      {
+        name: "get_accounts",
+        args: { scope: "ACTIVE" },
+      },
+    ]);
+
+    // Model emits final text after tool result
+    mockModel.respond(new AIMessage("You have no accounts."));
 
     // Act
     const result = await agent.invoke({ messages }, { context: baseContext });
