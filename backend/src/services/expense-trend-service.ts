@@ -3,8 +3,8 @@ import { Transaction } from "../models/transaction";
 import { CategoryRepository } from "../ports/category-repository";
 import { TransactionRepository } from "../ports/transaction-repository";
 import { DateString, toDateString } from "../types/date-string";
-import { Failure, Result, Success } from "../types/result";
 import { median } from "../utils/median";
+import { BusinessError } from "./business-error";
 
 type TrendPeriodUnit = "MONTH" | "WEEK";
 
@@ -47,12 +47,12 @@ export class ExpenseTrendService {
     today,
     categoryIds,
     includeUncategorized,
-  }: ExpenseTrendInput): Promise<Result<ExpenseTrend>> {
+  }: ExpenseTrendInput): Promise<ExpenseTrend> {
     if (!Number.isInteger(lookback) || lookback < 1 || lookback > 12) {
-      return Failure("Lookback must be a whole number from 1 to 12");
+      throw new BusinessError("Lookback must be a whole number from 1 to 12");
     }
     if (currency.trim().length === 0) {
-      return Failure("Currency must not be empty");
+      throw new BusinessError("Currency must not be empty");
     }
 
     const periodStarts = this.buildPeriodStarts({
@@ -118,12 +118,12 @@ export class ExpenseTrendService {
 
     const pastAmounts = points.slice(0, lookback).map((point) => point.amount);
 
-    return Success({
+    return {
       points,
       pastMedian: median(pastAmounts),
       pastMedianAtSamePoint: median(pastAmountsAtSamePoint),
       elapsedDays,
-    });
+    };
   }
 
   /**

@@ -12,6 +12,7 @@ import {
 } from "../utils/test-utils/models/transaction-fakes";
 import { createMockCategoryRepository } from "../utils/test-utils/repositories/category-repository-mocks";
 import { createMockTransactionRepository } from "../utils/test-utils/repositories/transaction-repository-mocks";
+import { BusinessError } from "./business-error";
 import { ExpenseTrendService } from "./expense-trend-service";
 
 describe("ExpenseTrendService", () => {
@@ -40,7 +41,7 @@ describe("ExpenseTrendService", () => {
       transactionRepository.findManyByUserId.mockResolvedValue([]);
 
       // Act
-      const result = await service.call({
+      await service.call({
         userId,
         periodUnit: "MONTH",
         lookback: 3,
@@ -49,8 +50,6 @@ describe("ExpenseTrendService", () => {
       });
 
       // Assert
-      expect(result.success).toBe(true);
-
       expect(transactionRepository.findManyByUserId).toHaveBeenCalledWith(
         userId,
         {
@@ -78,7 +77,7 @@ describe("ExpenseTrendService", () => {
       categoryRepository.findManyWithArchivedByUserId.mockResolvedValue([]);
 
       // Act
-      const result = await service.call({
+      await service.call({
         userId,
         periodUnit: "MONTH",
         lookback: 3,
@@ -87,8 +86,6 @@ describe("ExpenseTrendService", () => {
       });
 
       // Assert
-      expect(result.success).toBe(true);
-
       expect(transactionRepository.findManyByUserId).toHaveBeenCalledWith(
         userId,
         {
@@ -149,14 +146,12 @@ describe("ExpenseTrendService", () => {
 
       // Assert
       expect(result).toMatchObject({
-        data: {
-          points: [
-            { periodStart: "2000-01-01", amount: 0, isCurrent: false },
-            { periodStart: "2000-02-01", amount: 0, isCurrent: false },
-            { periodStart: "2000-03-01", amount: 0, isCurrent: false },
-            { periodStart: "2000-04-01", amount: 0, isCurrent: true },
-          ],
-        },
+        points: [
+          { periodStart: "2000-01-01", amount: 0, isCurrent: false },
+          { periodStart: "2000-02-01", amount: 0, isCurrent: false },
+          { periodStart: "2000-03-01", amount: 0, isCurrent: false },
+          { periodStart: "2000-04-01", amount: 0, isCurrent: true },
+        ],
       });
     });
 
@@ -177,14 +172,12 @@ describe("ExpenseTrendService", () => {
 
       // Assert
       expect(result).toMatchObject({
-        data: {
-          points: [
-            { periodStart: "2000-01-03", amount: 0, isCurrent: false },
-            { periodStart: "2000-01-10", amount: 0, isCurrent: false },
-            { periodStart: "2000-01-17", amount: 0, isCurrent: false },
-            { periodStart: "2000-01-24", amount: 0, isCurrent: true },
-          ],
-        },
+        points: [
+          { periodStart: "2000-01-03", amount: 0, isCurrent: false },
+          { periodStart: "2000-01-10", amount: 0, isCurrent: false },
+          { periodStart: "2000-01-17", amount: 0, isCurrent: false },
+          { periodStart: "2000-01-24", amount: 0, isCurrent: true },
+        ],
       });
     });
 
@@ -239,14 +232,12 @@ describe("ExpenseTrendService", () => {
 
       // Assert
       expect(result).toMatchObject({
-        data: {
-          points: [
-            { periodStart: "2000-01-01", amount: 110, isCurrent: false },
-            { periodStart: "2000-02-01", amount: 220, isCurrent: false },
-            { periodStart: "2000-03-01", amount: 330, isCurrent: false },
-            { periodStart: "2000-04-01", amount: 440, isCurrent: true },
-          ],
-        },
+        points: [
+          { periodStart: "2000-01-01", amount: 110, isCurrent: false },
+          { periodStart: "2000-02-01", amount: 220, isCurrent: false },
+          { periodStart: "2000-03-01", amount: 330, isCurrent: false },
+          { periodStart: "2000-04-01", amount: 440, isCurrent: true },
+        ],
       });
     });
 
@@ -277,11 +268,9 @@ describe("ExpenseTrendService", () => {
 
       // Assert
       expect(result).toMatchObject({
-        data: {
-          points: expect.arrayContaining([
-            { periodStart: "2000-03-01", amount: 800, isCurrent: false },
-          ]),
-        },
+        points: expect.arrayContaining([
+          { periodStart: "2000-03-01", amount: 800, isCurrent: false },
+        ]),
       });
     });
 
@@ -320,9 +309,7 @@ describe("ExpenseTrendService", () => {
 
       // Assert
       expect(result).toMatchObject({
-        data: {
-          pastMedian: 200,
-        },
+        pastMedian: 200,
       });
 
       expect(medianSpy).toHaveBeenCalledWith([100, 500, 200]);
@@ -388,9 +375,7 @@ describe("ExpenseTrendService", () => {
       // Assert
       // Amounts are 220 (Jan), 200 (Feb), 300 (Mar)
       expect(result).toMatchObject({
-        data: {
-          pastMedianAtSamePoint: 220,
-        },
+        pastMedianAtSamePoint: 220,
       });
 
       expect(medianSpy).toHaveBeenCalledWith([220, 200, 300]);
@@ -429,9 +414,7 @@ describe("ExpenseTrendService", () => {
       // Assert
       // Completed period amounts are 100, 200, 300, 0, 0, 0
       expect(result).toMatchObject({
-        data: {
-          pastMedian: 50,
-        },
+        pastMedian: 50,
       });
       expect(medianSpy).toHaveBeenCalledWith([100, 200, 300, 0, 0, 0]);
     });
@@ -469,9 +452,7 @@ describe("ExpenseTrendService", () => {
       // Assert
       // Truncated completed period amounts are 100, 200, 300, 0, 0, 0
       expect(result).toMatchObject({
-        data: {
-          pastMedianAtSamePoint: 50,
-        },
+        pastMedianAtSamePoint: 50,
       });
       expect(medianSpy).toHaveBeenCalledWith([100, 200, 300, 0, 0, 0]);
     });
@@ -508,14 +489,12 @@ describe("ExpenseTrendService", () => {
 
       // Assert
       expect(result).toMatchObject({
-        data: {
-          points: [
-            { periodStart: "2000-01-01", amount: 100, isCurrent: false },
-            { periodStart: "2000-02-01", amount: 0, isCurrent: false },
-            { periodStart: "2000-03-01", amount: 0, isCurrent: false },
-            { periodStart: "2000-04-01", amount: 0, isCurrent: true },
-          ],
-        },
+        points: [
+          { periodStart: "2000-01-01", amount: 100, isCurrent: false },
+          { periodStart: "2000-02-01", amount: 0, isCurrent: false },
+          { periodStart: "2000-03-01", amount: 0, isCurrent: false },
+          { periodStart: "2000-04-01", amount: 0, isCurrent: true },
+        ],
       });
     });
 
@@ -551,14 +530,12 @@ describe("ExpenseTrendService", () => {
 
       // Assert
       expect(result).toMatchObject({
-        data: {
-          points: [
-            { periodStart: "2000-01-01", amount: 100, isCurrent: false },
-            { periodStart: "2000-02-01", amount: 0, isCurrent: false },
-            { periodStart: "2000-03-01", amount: 0, isCurrent: false },
-            { periodStart: "2000-04-01", amount: 0, isCurrent: true },
-          ],
-        },
+        points: [
+          { periodStart: "2000-01-01", amount: 100, isCurrent: false },
+          { periodStart: "2000-02-01", amount: 0, isCurrent: false },
+          { periodStart: "2000-03-01", amount: 0, isCurrent: false },
+          { periodStart: "2000-04-01", amount: 0, isCurrent: true },
+        ],
       });
     });
 
@@ -579,12 +556,10 @@ describe("ExpenseTrendService", () => {
 
       // Assert
       expect(result).toMatchObject({
-        data: {
-          points: [
-            { periodStart: "2000-03-01", amount: 0, isCurrent: false },
-            { periodStart: "2000-04-01", amount: 0, isCurrent: true },
-          ],
-        },
+        points: [
+          { periodStart: "2000-03-01", amount: 0, isCurrent: false },
+          { periodStart: "2000-04-01", amount: 0, isCurrent: true },
+        ],
       });
     });
 
@@ -605,23 +580,21 @@ describe("ExpenseTrendService", () => {
 
       // Assert
       expect(result).toMatchObject({
-        data: {
-          points: [
-            { periodStart: "1999-04-01", amount: 0, isCurrent: false },
-            { periodStart: "1999-05-01", amount: 0, isCurrent: false },
-            { periodStart: "1999-06-01", amount: 0, isCurrent: false },
-            { periodStart: "1999-07-01", amount: 0, isCurrent: false },
-            { periodStart: "1999-08-01", amount: 0, isCurrent: false },
-            { periodStart: "1999-09-01", amount: 0, isCurrent: false },
-            { periodStart: "1999-10-01", amount: 0, isCurrent: false },
-            { periodStart: "1999-11-01", amount: 0, isCurrent: false },
-            { periodStart: "1999-12-01", amount: 0, isCurrent: false },
-            { periodStart: "2000-01-01", amount: 0, isCurrent: false },
-            { periodStart: "2000-02-01", amount: 0, isCurrent: false },
-            { periodStart: "2000-03-01", amount: 0, isCurrent: false },
-            { periodStart: "2000-04-01", amount: 0, isCurrent: true },
-          ],
-        },
+        points: [
+          { periodStart: "1999-04-01", amount: 0, isCurrent: false },
+          { periodStart: "1999-05-01", amount: 0, isCurrent: false },
+          { periodStart: "1999-06-01", amount: 0, isCurrent: false },
+          { periodStart: "1999-07-01", amount: 0, isCurrent: false },
+          { periodStart: "1999-08-01", amount: 0, isCurrent: false },
+          { periodStart: "1999-09-01", amount: 0, isCurrent: false },
+          { periodStart: "1999-10-01", amount: 0, isCurrent: false },
+          { periodStart: "1999-11-01", amount: 0, isCurrent: false },
+          { periodStart: "1999-12-01", amount: 0, isCurrent: false },
+          { periodStart: "2000-01-01", amount: 0, isCurrent: false },
+          { periodStart: "2000-02-01", amount: 0, isCurrent: false },
+          { periodStart: "2000-03-01", amount: 0, isCurrent: false },
+          { periodStart: "2000-04-01", amount: 0, isCurrent: true },
+        ],
       });
     });
 
@@ -651,88 +624,76 @@ describe("ExpenseTrendService", () => {
 
       // Assert
       expect(result).toMatchObject({
-        data: {
-          points: [
-            { periodStart: "2000-01-01", amount: 0, isCurrent: false },
-            { periodStart: "2000-02-01", amount: 0, isCurrent: false },
-            { periodStart: "2000-03-01", amount: 0, isCurrent: false },
-            { periodStart: "2000-04-01", amount: 100, isCurrent: true },
-          ],
-        },
+        points: [
+          { periodStart: "2000-01-01", amount: 0, isCurrent: false },
+          { periodStart: "2000-02-01", amount: 0, isCurrent: false },
+          { periodStart: "2000-03-01", amount: 0, isCurrent: false },
+          { periodStart: "2000-04-01", amount: 100, isCurrent: true },
+        ],
       });
     });
 
     // Validation failures
 
-    it("returns failure when lookback is below 1", async () => {
-      // Act
-      const result = await service.call({
-        userId,
-        periodUnit: "MONTH",
-        lookback: 0,
-        currency: "EUR",
-        today: toDateString("2000-04-12"),
-      });
-
-      // Assert
-      expect(result).toEqual({
-        success: false,
-        error: "Lookback must be a whole number from 1 to 12",
-      });
+    it("fails when lookback is below 1", async () => {
+      // Act & Assert
+      await expect(
+        service.call({
+          userId,
+          periodUnit: "MONTH",
+          lookback: 0,
+          currency: "EUR",
+          today: toDateString("2000-04-12"),
+        }),
+      ).rejects.toThrow(
+        new BusinessError("Lookback must be a whole number from 1 to 12"),
+      );
       expect(transactionRepository.findManyByUserId).not.toHaveBeenCalled();
     });
 
-    it("returns failure when lookback is above 12", async () => {
-      // Act
-      const result = await service.call({
-        userId,
-        periodUnit: "MONTH",
-        lookback: 13,
-        currency: "EUR",
-        today: toDateString("2000-04-12"),
-      });
-
-      // Assert
-      expect(result).toEqual({
-        success: false,
-        error: "Lookback must be a whole number from 1 to 12",
-      });
+    it("fails when lookback is above 12", async () => {
+      // Act & Assert
+      await expect(
+        service.call({
+          userId,
+          periodUnit: "MONTH",
+          lookback: 13,
+          currency: "EUR",
+          today: toDateString("2000-04-12"),
+        }),
+      ).rejects.toThrow(
+        new BusinessError("Lookback must be a whole number from 1 to 12"),
+      );
       expect(transactionRepository.findManyByUserId).not.toHaveBeenCalled();
     });
 
-    it("returns failure when lookback is not integer", async () => {
-      // Act
-      const result = await service.call({
-        userId,
-        periodUnit: "MONTH",
-        lookback: 3.5,
-        currency: "EUR",
-        today: toDateString("2000-04-12"),
-      });
-
-      // Assert
-      expect(result).toEqual({
-        success: false,
-        error: "Lookback must be a whole number from 1 to 12",
-      });
+    it("fails when lookback is not integer", async () => {
+      // Act & Assert
+      await expect(
+        service.call({
+          userId,
+          periodUnit: "MONTH",
+          lookback: 3.5,
+          currency: "EUR",
+          today: toDateString("2000-04-12"),
+        }),
+      ).rejects.toThrow(
+        new BusinessError("Lookback must be a whole number from 1 to 12"),
+      );
       expect(transactionRepository.findManyByUserId).not.toHaveBeenCalled();
     });
 
-    it("returns failure when currency is empty", async () => {
-      // Act
-      const result = await service.call({
-        userId,
-        periodUnit: "MONTH",
-        lookback: 3,
-        currency: "",
-        today: toDateString("2000-04-12"),
-      });
-
-      // Assert
-      expect(result).toEqual({
-        success: false,
-        error: "Currency must not be empty",
-      });
+    it("fails when currency is empty", async () => {
+      // Act & Assert
+      await expect(
+        service.call({
+          userId,
+          periodUnit: "MONTH",
+          lookback: 3,
+          currency: "",
+          today: toDateString("2000-04-12"),
+        }),
+      ).rejects.toThrow(new BusinessError("Currency must not be empty"));
       expect(transactionRepository.findManyByUserId).not.toHaveBeenCalled();
     });
   });

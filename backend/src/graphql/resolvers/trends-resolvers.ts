@@ -1,4 +1,3 @@
-import { GraphQLError } from "graphql";
 import {
   MutationCreateTrendPresetArgs,
   MutationDeleteTrendPresetArgs,
@@ -18,7 +17,7 @@ export const trendsResolvers = {
     ) => {
       const user = await getAuthenticatedUser(context);
 
-      const result = await context.expenseTrendService.call({
+      return context.expenseTrendService.call({
         userId: user.id,
         periodUnit: args.input.periodUnit,
         lookback: args.input.lookback,
@@ -27,12 +26,6 @@ export const trendsResolvers = {
         categoryIds: args.input.categoryIds ?? undefined,
         includeUncategorized: args.input.includeUncategorized || undefined,
       });
-
-      if (!result.success) {
-        throw new GraphQLError(result.error);
-      }
-
-      return result.data;
     },
     trendPresets: async (
       _parent: unknown,
