@@ -8,7 +8,6 @@ import {
   fakeCreateCategoryInput,
 } from "../utils/test-utils/models/category-fakes";
 import { createMockCategoryRepository } from "../utils/test-utils/repositories/category-repository-mocks";
-import { BusinessError } from "./business-error";
 import { CategoryServiceImpl } from "./category-service";
 
 describe("CategoryService", () => {
@@ -145,15 +144,26 @@ describe("CategoryService", () => {
       const result = await service.createCategory(input);
 
       // Assert
-      expect(result).toMatchObject({
-        userId,
-        name: input.name,
-        type: input.type,
-        excludeFromReports: input.excludeFromReports,
-        isArchived: false,
+      expect(result).toEqual({
+        success: true,
+        data: expect.objectContaining({
+          userId,
+          name: input.name,
+          type: input.type,
+          excludeFromReports: input.excludeFromReports,
+          isArchived: false,
+        }),
       });
       expect(mockCategoryRepository.create).toHaveBeenCalledTimes(1);
-      expect(mockCategoryRepository.create).toHaveBeenCalledWith(result);
+      expect(mockCategoryRepository.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          userId,
+          name: input.name,
+          type: input.type,
+          excludeFromReports: input.excludeFromReports,
+          isArchived: false,
+        }),
+      );
     });
 
     it("trims name before persisting", async () => {
@@ -200,7 +210,7 @@ describe("CategoryService", () => {
       expect(mockCategoryRepository.create).not.toHaveBeenCalled();
     });
 
-    it("throws when name matches existing category case-insensitively", async () => {
+    it("fails when name matches existing category case-insensitively", async () => {
       // Arrange
       // Existing category uses same name in different casing
       mockCategoryRepository.findManyByUserId.mockResolvedValue([
@@ -209,12 +219,12 @@ describe("CategoryService", () => {
       const input = fakeCreateCategoryInput({ userId, name: "groceries" });
 
       // Act
-      const promise = service.createCategory(input);
+      const result = await service.createCategory(input);
 
       // Assert
-      await expect(promise).rejects.toThrow(BusinessError);
-      await expect(promise).rejects.toMatchObject({
-        message: 'Category "groceries" already exists',
+      expect(result).toEqual({
+        success: false,
+        error: 'Category "groceries" already exists',
       });
       expect(mockCategoryRepository.create).not.toHaveBeenCalled();
     });
@@ -245,11 +255,14 @@ describe("CategoryService", () => {
       });
 
       // Assert
-      expect(result).toMatchObject({
-        id: categoryId,
-        userId,
-        name: "New Name",
-        type: "INCOME",
+      expect(result).toEqual({
+        success: true,
+        data: expect.objectContaining({
+          id: categoryId,
+          userId,
+          name: "New Name",
+          type: "INCOME",
+        }),
       });
       expect(mockCategoryRepository.update).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -301,7 +314,10 @@ describe("CategoryService", () => {
       });
 
       // Assert
-      expect(result.name).toBe("Groceries");
+      expect(result).toEqual({
+        success: true,
+        data: expect.objectContaining({ name: "Groceries" }),
+      });
       expect(mockCategoryRepository.update).toHaveBeenCalled();
       // No duplicate-name lookup when the name does not change
       expect(mockCategoryRepository.findManyByUserId).not.toHaveBeenCalled();
@@ -309,21 +325,19 @@ describe("CategoryService", () => {
 
     // Validation failures
 
-    it("throws when category is not found", async () => {
+    it("fails when category is not found", async () => {
       // Arrange
       const categoryId = faker.string.uuid();
 
       mockCategoryRepository.findOneById.mockResolvedValue(null);
 
-      // Act & Assert
-      const promise = service.updateCategory(categoryId, userId, {
+      // Act
+      const result = await service.updateCategory(categoryId, userId, {
         name: "New Name",
       });
 
-      await expect(promise).rejects.toThrow(BusinessError);
-      await expect(promise).rejects.toMatchObject({
-        message: "Category not found",
-      });
+      // Assert
+      expect(result).toEqual({ success: false, error: "Category not found" });
       expect(mockCategoryRepository.update).not.toHaveBeenCalled();
     });
 
@@ -357,7 +371,7 @@ describe("CategoryService", () => {
       expect(mockCategoryRepository.update).not.toHaveBeenCalled();
     });
 
-    it("throws when updated name already exists for another category", async () => {
+    it("fails when updated name already exists for another category", async () => {
       // Arrange
       const categoryId = faker.string.uuid();
       const currentCategory = fakeCategory({
@@ -374,14 +388,15 @@ describe("CategoryService", () => {
         otherCategory,
       ]);
 
-      // Act & Assert
-      const promise = service.updateCategory(categoryId, userId, {
+      // Act
+      const result = await service.updateCategory(categoryId, userId, {
         name: "Groceries",
       });
 
-      await expect(promise).rejects.toThrow(BusinessError);
-      await expect(promise).rejects.toMatchObject({
-        message: 'Category "Groceries" already exists',
+      // Assert
+      expect(result).toEqual({
+        success: false,
+        error: 'Category "Groceries" already exists',
       });
       expect(mockCategoryRepository.update).not.toHaveBeenCalled();
     });
@@ -408,7 +423,10 @@ describe("CategoryService", () => {
       const result = await service.deleteCategory(categoryId, userId);
 
       // Assert
-      expect(result.isArchived).toBe(true);
+      expect(result).toEqual({
+        success: true,
+        data: expect.objectContaining({ isArchived: true }),
+      });
       expect(mockCategoryRepository.update).toHaveBeenCalledWith(
         expect.objectContaining({ id: categoryId, isArchived: true }),
       );
@@ -416,18 +434,19 @@ describe("CategoryService", () => {
 
     // Validation failures
 
-    it("throws when category is not found", async () => {
+    it("fails when category is not found", async () => {
       // Arrange
       const categoryId = faker.string.uuid();
 
       mockCategoryRepository.findOneById.mockResolvedValue(null);
 
-      // Act & Assert
-      const promise = service.deleteCategory(categoryId, userId);
+      // Act
+      const result = await service.deleteCategory(categoryId, userId);
 
-      await expect(promise).rejects.toThrow(BusinessError);
-      await expect(promise).rejects.toMatchObject({
-        message: "Category not found",
+      // Assert
+      expect(result).toEqual({
+        success: false,
+        error: "Category not found",
       });
       expect(mockCategoryRepository.update).not.toHaveBeenCalled();
     });

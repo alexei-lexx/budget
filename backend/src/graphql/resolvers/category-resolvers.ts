@@ -30,13 +30,18 @@ export const categoryResolvers = {
     ) => {
       const user = await getAuthenticatedUser(context);
 
-      const category = await context.categoryService.createCategory({
+      const result = await context.categoryService.createCategory({
         userId: user.id,
         name: args.input.name,
         type: args.input.type,
         excludeFromReports: args.input.excludeFromReports,
       });
-      return category;
+
+      if (!result.success) {
+        throw new GraphQLError(result.error);
+      }
+
+      return result.data;
     },
     updateCategory: async (
       _parent: unknown,
@@ -46,17 +51,18 @@ export const categoryResolvers = {
       const user = await getAuthenticatedUser(context);
       const { id, ...updateData } = args.input;
 
-      const category = await context.categoryService.updateCategory(
-        id,
-        user.id,
-        {
-          ...updateData,
-          excludeFromReports: updateData.excludeFromReports ?? undefined,
-          name: updateData.name ?? undefined,
-          type: updateData.type ?? undefined,
-        },
-      );
-      return category;
+      const result = await context.categoryService.updateCategory(id, user.id, {
+        ...updateData,
+        excludeFromReports: updateData.excludeFromReports ?? undefined,
+        name: updateData.name ?? undefined,
+        type: updateData.type ?? undefined,
+      });
+
+      if (!result.success) {
+        throw new GraphQLError(result.error);
+      }
+
+      return result.data;
     },
     deleteCategory: async (
       _parent: unknown,
@@ -71,11 +77,13 @@ export const categoryResolvers = {
       }
 
       const user = await getAuthenticatedUser(context);
-      const category = await context.categoryService.deleteCategory(
-        id,
-        user.id,
-      );
-      return category;
+      const result = await context.categoryService.deleteCategory(id, user.id);
+
+      if (!result.success) {
+        throw new GraphQLError(result.error);
+      }
+
+      return result.data;
     },
   },
 };

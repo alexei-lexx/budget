@@ -1,7 +1,7 @@
 import { faker } from "@faker-js/faker";
 import { type Mocked, beforeEach, describe, expect, it } from "vitest";
-import { BusinessError } from "../../services/business-error";
 import { CategoryService } from "../../services/category-service";
+import { Failure, Success } from "../../types/result";
 import { fakeCategory } from "../../utils/test-utils/models/category-fakes";
 import { createMockCategoryService } from "../../utils/test-utils/services/category-service-mocks";
 import { toCategoryDto } from "./category-dto";
@@ -33,7 +33,7 @@ describe("createUpdateCategoryTool", () => {
     const updated = fakeCategory();
 
     // Updates and returns category
-    mockCategoryService.updateCategory.mockResolvedValue(updated);
+    mockCategoryService.updateCategory.mockResolvedValue(Success(updated));
 
     const updateTool = createUpdateCategoryTool({
       categoryService: mockCategoryService,
@@ -66,7 +66,7 @@ describe("createUpdateCategoryTool", () => {
     const updated = fakeCategory();
 
     // Updates and returns category
-    mockCategoryService.updateCategory.mockResolvedValue(updated);
+    mockCategoryService.updateCategory.mockResolvedValue(Success(updated));
 
     const updateTool = createUpdateCategoryTool({
       categoryService: mockCategoryService,
@@ -99,7 +99,7 @@ describe("createUpdateCategoryTool", () => {
     const updated = fakeCategory();
 
     // Updates and returns category
-    mockCategoryService.updateCategory.mockResolvedValue(updated);
+    mockCategoryService.updateCategory.mockResolvedValue(Success(updated));
 
     const updateTool = createUpdateCategoryTool({
       categoryService: mockCategoryService,
@@ -132,7 +132,7 @@ describe("createUpdateCategoryTool", () => {
     const updated = fakeCategory();
 
     // Updates and returns category
-    mockCategoryService.updateCategory.mockResolvedValue(updated);
+    mockCategoryService.updateCategory.mockResolvedValue(Success(updated));
 
     const updateTool = createUpdateCategoryTool({
       categoryService: mockCategoryService,
@@ -188,11 +188,12 @@ describe("createUpdateCategoryTool", () => {
 
   // Dependency failures
 
-  it("propagates BusinessError from the service unchanged", async () => {
+  it("fails with service error unchanged", async () => {
     // Arrange
-    const error = new BusinessError('Category "Groceries" already exists');
-
-    mockCategoryService.updateCategory.mockRejectedValue(error);
+    // Category name already exists
+    mockCategoryService.updateCategory.mockResolvedValue(
+      Failure('Category "Groceries" already exists'),
+    );
 
     const updateTool = createUpdateCategoryTool({
       categoryService: mockCategoryService,
@@ -203,9 +204,13 @@ describe("createUpdateCategoryTool", () => {
       name: "Groceries",
     };
 
-    // Act & Assert
-    await expect(
-      updateTool.invoke(input, { context: { userId } }),
-    ).rejects.toBe(error);
+    // Act
+    const result = await updateTool.invoke(input, { context: { userId } });
+
+    // Assert
+    expect(result).toEqual({
+      success: false,
+      error: 'Category "Groceries" already exists',
+    });
   });
 });

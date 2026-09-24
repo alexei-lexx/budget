@@ -1,6 +1,7 @@
 import { faker } from "@faker-js/faker";
 import { type Mocked, beforeEach, describe, expect, it } from "vitest";
 import { CategoryService } from "../../services/category-service";
+import { Failure, Success } from "../../types/result";
 import { fakeCategory } from "../../utils/test-utils/models/category-fakes";
 import { createMockCategoryService } from "../../utils/test-utils/services/category-service-mocks";
 import { GUIDES } from "./guides";
@@ -29,7 +30,7 @@ describe("updateCategory", () => {
       isArchived: false,
     });
     // Persists and returns updated category
-    mockCategoryService.updateCategory.mockResolvedValue(updated);
+    mockCategoryService.updateCategory.mockResolvedValue(Success(updated));
 
     // Act
     const result = await updateCategory(
@@ -69,7 +70,9 @@ describe("updateCategory", () => {
     // Arrange
     const categoryId = faker.string.uuid();
     // Persists and returns updated category
-    mockCategoryService.updateCategory.mockResolvedValue(fakeCategory());
+    mockCategoryService.updateCategory.mockResolvedValue(
+      Success(fakeCategory()),
+    );
 
     // Act
     await updateCategory(
@@ -118,6 +121,30 @@ describe("updateCategory", () => {
   });
 
   // Dependency failures
+
+  it("fails with service error unchanged", async () => {
+    // Arrange
+    // Category name already exists
+    mockCategoryService.updateCategory.mockResolvedValue(
+      Failure('Category "Groceries" already exists'),
+    );
+
+    // Act
+    const result = await updateCategory(
+      {
+        id: faker.string.uuid(),
+        name: "Groceries",
+        guideTokens: [validGuideToken],
+      },
+      deps,
+    );
+
+    // Assert
+    expect(result).toEqual({
+      success: false,
+      error: 'Category "Groceries" already exists',
+    });
+  });
 
   it("propagates error when service throws", async () => {
     // Arrange

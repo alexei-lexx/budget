@@ -1,7 +1,7 @@
 import { faker } from "@faker-js/faker";
 import { type Mocked, beforeEach, describe, expect, it } from "vitest";
-import { BusinessError } from "../../services/business-error";
 import { CategoryService } from "../../services/category-service";
+import { Failure, Success } from "../../types/result";
 import { fakeCategory } from "../../utils/test-utils/models/category-fakes";
 import { createMockCategoryService } from "../../utils/test-utils/services/category-service-mocks";
 import { toCategoryDto } from "./category-dto";
@@ -32,7 +32,7 @@ describe("createCreateCategoryTool", () => {
     const created = fakeCategory();
 
     // Persists and returns new category
-    mockCategoryService.createCategory.mockResolvedValue(created);
+    mockCategoryService.createCategory.mockResolvedValue(Success(created));
 
     const createTool = createCreateCategoryTool({
       categoryService: mockCategoryService,
@@ -65,7 +65,7 @@ describe("createCreateCategoryTool", () => {
     const created = fakeCategory();
 
     // Persists and returns new category
-    mockCategoryService.createCategory.mockResolvedValue(created);
+    mockCategoryService.createCategory.mockResolvedValue(Success(created));
 
     const createTool = createCreateCategoryTool({
       categoryService: mockCategoryService,
@@ -117,11 +117,12 @@ describe("createCreateCategoryTool", () => {
 
   // Dependency failures
 
-  it("propagates BusinessError from service unchanged", async () => {
+  it("fails with service error unchanged", async () => {
     // Arrange
-    const error = new BusinessError('Category "Groceries" already exists');
-
-    mockCategoryService.createCategory.mockRejectedValue(error);
+    // Category name already exists
+    mockCategoryService.createCategory.mockResolvedValue(
+      Failure('Category "Groceries" already exists'),
+    );
 
     const createTool = createCreateCategoryTool({
       categoryService: mockCategoryService,
@@ -132,9 +133,13 @@ describe("createCreateCategoryTool", () => {
       type: "EXPENSE",
     } as const;
 
-    // Act & Assert
-    await expect(
-      createTool.invoke(input, { context: { userId } }),
-    ).rejects.toBe(error);
+    // Act
+    const result = await createTool.invoke(input, { context: { userId } });
+
+    // Assert
+    expect(result).toEqual({
+      success: false,
+      error: 'Category "Groceries" already exists',
+    });
   });
 });

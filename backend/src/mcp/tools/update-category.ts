@@ -46,9 +46,11 @@ export async function updateCategory(
     ...(excludeFromReports !== undefined && { excludeFromReports }),
   };
 
-  const updated = await categoryService.updateCategory(id, userId, input);
+  const result = await categoryService.updateCategory(id, userId, input);
 
-  return Success(toCategoryDto(updated));
+  if (!result.success) return result;
+
+  return Success(toCategoryDto(result.data));
 }
 
 const inputSchema = z.object({
