@@ -2,7 +2,6 @@ import { faker } from "@faker-js/faker";
 import { type Mocked, beforeEach, describe, expect, it } from "vitest";
 import { TransactionType } from "../../models/transaction";
 import { TransactionRepository } from "../../ports/transaction-repository";
-import { BusinessError } from "../../services/business-error";
 import { toDateString } from "../../types/date-string";
 import {
   fakeExpense,
@@ -46,15 +45,16 @@ describe("createGetTransactionsTool", () => {
       transactionRepository: mockTransactionRepository,
     });
 
-    const promise = transactionsTool.invoke(
+    const result = await transactionsTool.invoke(
       { startDate: "2000-01-20", endDate: "2000-01-10" },
       { context: { userId } },
     );
 
     expect(mockTransactionRepository.findManyByUserId).not.toHaveBeenCalled();
-    await expect(promise).rejects.toThrow(
-      new BusinessError("startDate must not be after endDate"),
-    );
+    expect(result).toEqual({
+      success: false,
+      error: "startDate must not be after endDate",
+    });
   });
 
   it("rejects when date range exceeds max period days", async () => {
@@ -62,15 +62,16 @@ describe("createGetTransactionsTool", () => {
       transactionRepository: mockTransactionRepository,
     });
 
-    const promise = transactionsTool.invoke(
+    const result = await transactionsTool.invoke(
       { startDate: "2000-01-01", endDate: "2001-01-02" },
       { context: { userId } },
     );
 
     expect(mockTransactionRepository.findManyByUserId).not.toHaveBeenCalled();
-    await expect(promise).rejects.toThrow(
-      new BusinessError(`Date range must not exceed ${MAX_PERIOD_DAYS} days`),
-    );
+    expect(result).toEqual({
+      success: false,
+      error: `Date range must not exceed ${MAX_PERIOD_DAYS} days`,
+    });
   });
 
   it("filters by date range and returns transactions as JSON", async () => {
@@ -86,7 +87,7 @@ describe("createGetTransactionsTool", () => {
       { context: { userId } },
     );
 
-    expect(result).toHaveLength(1);
+    expect(result.success).toBe(true);
     expect(mockTransactionRepository.findManyByUserId).toHaveBeenCalledWith(
       userId,
       {
@@ -127,30 +128,33 @@ describe("createGetTransactionsTool", () => {
       { context: { userId } },
     );
 
-    expect(result).toEqual([
-      {
-        id: "transaction1",
-        accountId: "account1",
-        categoryId: "category1",
-        type: TransactionType.EXPENSE,
-        amount: 50,
-        currency: "USD",
-        date: toDateString("2024-01-15"),
-        description: "Grocery shopping",
-        transferId: undefined,
-      },
-      {
-        id: "transaction2",
-        accountId: "account2",
-        categoryId: "category2",
-        type: TransactionType.INCOME,
-        amount: 1000,
-        currency: "USD",
-        date: toDateString("2024-01-20"),
-        description: "Salary",
-        transferId: undefined,
-      },
-    ]);
+    expect(result).toEqual({
+      success: true,
+      data: [
+        {
+          id: "transaction1",
+          accountId: "account1",
+          categoryId: "category1",
+          type: TransactionType.EXPENSE,
+          amount: 50,
+          currency: "USD",
+          date: toDateString("2024-01-15"),
+          description: "Grocery shopping",
+          transferId: undefined,
+        },
+        {
+          id: "transaction2",
+          accountId: "account2",
+          categoryId: "category2",
+          type: TransactionType.INCOME,
+          amount: 1000,
+          currency: "USD",
+          date: toDateString("2024-01-20"),
+          description: "Salary",
+          transferId: undefined,
+        },
+      ],
+    });
   });
 
   it("filters by accountIds", async () => {

@@ -2,7 +2,8 @@ import { z } from "zod";
 import { AccountDto, toAccountDto } from "../../langchain/tools/account-dto";
 import { AccountService } from "../../services/account-service";
 import { ENTITY_SCOPES, EntityScope } from "../../types/entity-scope";
-import { assertGuideTokens, buildGuideTokensField } from "./guides";
+import { Result, Success } from "../../types/result";
+import { buildGuideTokensField, verifyGuideTokens } from "./guides";
 import { Tool } from "./tool";
 
 const requiredGuides = ["basics"] as const;
@@ -16,15 +17,16 @@ export async function getAccounts(
     accountService: AccountService;
     userId: string;
   },
-): Promise<AccountDto[]> {
-  assertGuideTokens({
+): Promise<Result<AccountDto[]>> {
+  const verification = verifyGuideTokens({
     guideTokens,
     requiredGuides,
   });
+  if (!verification.success) return verification;
 
   const accounts = await accountService.getAccountsByUser(userId, scope);
 
-  return accounts.map(toAccountDto);
+  return Success(accounts.map(toAccountDto));
 }
 
 const inputSchema = z.object({

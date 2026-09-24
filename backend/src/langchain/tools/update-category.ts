@@ -5,6 +5,7 @@ import {
   UpdateCategoryInput as UpdateCategoryServiceInput,
 } from "../../models/category";
 import { CategoryService } from "../../services/category-service";
+import { Success } from "../../types/result";
 import { agentContextSchema } from "../agents/agent-context";
 import { toCategoryDto } from "./category-dto";
 
@@ -63,7 +64,7 @@ export const createUpdateCategoryTool = ({
         serviceInput,
       );
 
-      return toCategoryDto(updated);
+      return Success(toCategoryDto(updated));
     },
     {
       name: "update_category",

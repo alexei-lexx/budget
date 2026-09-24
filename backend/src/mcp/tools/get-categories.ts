@@ -2,7 +2,8 @@ import { z } from "zod";
 import { CategoryDto, toCategoryDto } from "../../langchain/tools/category-dto";
 import { CategoryService } from "../../services/category-service";
 import { ENTITY_SCOPES, EntityScope } from "../../types/entity-scope";
-import { assertGuideTokens, buildGuideTokensField } from "./guides";
+import { Result, Success } from "../../types/result";
+import { buildGuideTokensField, verifyGuideTokens } from "./guides";
 import { Tool } from "./tool";
 
 const requiredGuides = ["basics"] as const;
@@ -16,17 +17,18 @@ export async function getCategories(
     categoryService: CategoryService;
     userId: string;
   },
-): Promise<CategoryDto[]> {
-  assertGuideTokens({
+): Promise<Result<CategoryDto[]>> {
+  const verification = verifyGuideTokens({
     guideTokens,
     requiredGuides,
   });
+  if (!verification.success) return verification;
 
   const categories = await categoryService.getCategoriesByUser(userId, {
     scope,
   });
 
-  return categories.map(toCategoryDto);
+  return Success(categories.map(toCategoryDto));
 }
 
 const inputSchema = z.object({

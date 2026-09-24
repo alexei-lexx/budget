@@ -6,7 +6,8 @@ import {
   UpdateCategoryInput,
 } from "../../models/category";
 import { CategoryService } from "../../services/category-service";
-import { assertGuideTokens, buildGuideTokensField } from "./guides";
+import { Result, Success } from "../../types/result";
+import { buildGuideTokensField, verifyGuideTokens } from "./guides";
 import { Tool } from "./tool";
 
 const requiredGuides = ["basics"] as const;
@@ -32,11 +33,12 @@ export async function updateCategory(
     categoryService: CategoryService;
     userId: string;
   },
-): Promise<CategoryDto> {
-  assertGuideTokens({
+): Promise<Result<CategoryDto>> {
+  const verification = verifyGuideTokens({
     guideTokens,
     requiredGuides,
   });
+  if (!verification.success) return verification;
 
   const input: UpdateCategoryInput = {
     ...(name !== undefined && { name }),
@@ -46,7 +48,7 @@ export async function updateCategory(
 
   const updated = await categoryService.updateCategory(id, userId, input);
 
-  return toCategoryDto(updated);
+  return Success(toCategoryDto(updated));
 }
 
 const inputSchema = z.object({

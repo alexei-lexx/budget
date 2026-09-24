@@ -7,9 +7,9 @@ import {
 } from "../../langchain/tools/transaction-dto";
 import { TransactionType } from "../../models/transaction";
 import { TransactionRepository } from "../../ports/transaction-repository";
-import { BusinessError } from "../../services/business-error";
 import { DateString, toDateString } from "../../types/date-string";
-import { assertGuideTokens, buildGuideTokensField } from "./guides";
+import { Failure, Result, Success } from "../../types/result";
+import { buildGuideTokensField, verifyGuideTokens } from "./guides";
 import { Tool } from "./tool";
 
 const requiredGuides = ["basics"] as const;
@@ -37,14 +37,15 @@ export async function getTransactions(
     transactionRepository: TransactionRepository;
     userId: string;
   },
-): Promise<TransactionDto[]> {
-  assertGuideTokens({
+): Promise<Result<TransactionDto[]>> {
+  const verification = verifyGuideTokens({
     guideTokens,
     requiredGuides,
   });
+  if (!verification.success) return verification;
 
   if (startDate > endDate) {
-    throw new BusinessError("startDate must not be after endDate");
+    return Failure("startDate must not be after endDate");
   }
 
   const startPlainDate = Temporal.PlainDate.from(startDate);
@@ -52,9 +53,7 @@ export async function getTransactions(
   const daysBetween = startPlainDate.until(endPlainDate).days;
 
   if (daysBetween > MAX_PERIOD_DAYS) {
-    throw new BusinessError(
-      `Date range must not exceed ${MAX_PERIOD_DAYS} days`,
-    );
+    return Failure(`Date range must not exceed ${MAX_PERIOD_DAYS} days`);
   }
 
   const transactions = await transactionRepository.findManyByUserId(userId, {
@@ -65,7 +64,7 @@ export async function getTransactions(
     ...(types && { types }),
   });
 
-  return transactions.map(toTransactionDto);
+  return Success(transactions.map(toTransactionDto));
 }
 
 const typesString = Object.values(TransactionType).join(", ");

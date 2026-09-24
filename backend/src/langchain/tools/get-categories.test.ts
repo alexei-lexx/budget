@@ -90,24 +90,27 @@ describe("createGetCategoriesTool", () => {
     );
 
     // Assert
-    expect(result).toEqual([
-      {
-        excludeFromReports: mockCategories[0]?.excludeFromReports,
-        id: mockCategories[0]?.id,
-        name: "Groceries",
-        type: "EXPENSE",
-        isArchived: false,
-        keywords: [],
-      },
-      {
-        excludeFromReports: mockCategories[1]?.excludeFromReports,
-        id: mockCategories[1]?.id,
-        name: "Salary",
-        type: "INCOME",
-        isArchived: true,
-        keywords: [],
-      },
-    ]);
+    expect(result).toEqual({
+      success: true,
+      data: [
+        {
+          excludeFromReports: mockCategories[0]?.excludeFromReports,
+          id: mockCategories[0]?.id,
+          name: "Groceries",
+          type: "EXPENSE",
+          isArchived: false,
+          keywords: [],
+        },
+        {
+          excludeFromReports: mockCategories[1]?.excludeFromReports,
+          id: mockCategories[1]?.id,
+          name: "Salary",
+          type: "INCOME",
+          isArchived: true,
+          keywords: [],
+        },
+      ],
+    });
   });
 
   it("returns empty array when user has no categories", async () => {
@@ -129,7 +132,7 @@ describe("createGetCategoriesTool", () => {
     );
 
     // Assert
-    expect(result).toEqual([]);
+    expect(result).toEqual({ success: true, data: [] });
   });
 
   // Validation failures
@@ -173,12 +176,15 @@ describe("createGetCategoriesTool", () => {
       );
 
       // Assert
-      expect(result).toEqual([
-        expect.objectContaining({
-          id: category.id,
-          keywords: [],
-        }),
-      ]);
+      expect(result).toEqual({
+        success: true,
+        data: [
+          expect.objectContaining({
+            id: category.id,
+            keywords: [],
+          }),
+        ],
+      });
     });
 
     it("excludes transactions without categoryId", async () => {
@@ -207,12 +213,15 @@ describe("createGetCategoriesTool", () => {
       );
 
       // Assert
-      expect(result).toEqual([
-        expect.objectContaining({
-          id: category.id,
-          keywords: [],
-        }),
-      ]);
+      expect(result).toEqual({
+        success: true,
+        data: [
+          expect.objectContaining({
+            id: category.id,
+            keywords: [],
+          }),
+        ],
+      });
     });
 
     it("excludes transactions without description", async () => {
@@ -238,12 +247,15 @@ describe("createGetCategoriesTool", () => {
       );
 
       // Assert
-      expect(result).toEqual([
-        expect.objectContaining({
-          id: category.id,
-          keywords: [],
-        }),
-      ]);
+      expect(result).toEqual({
+        success: true,
+        data: [
+          expect.objectContaining({
+            id: category.id,
+            keywords: [],
+          }),
+        ],
+      });
     });
 
     it("excludes transactions with unknown categoryId", async () => {
@@ -279,12 +291,15 @@ describe("createGetCategoriesTool", () => {
       );
 
       // Assert
-      expect(result).toEqual([
-        expect.objectContaining({
-          id: activeCategory.id,
-          keywords: ["milk and eggs"],
-        }),
-      ]);
+      expect(result).toEqual({
+        success: true,
+        data: [
+          expect.objectContaining({
+            id: activeCategory.id,
+            keywords: ["milk and eggs"],
+          }),
+        ],
+      });
     });
 
     it("caps keywords per category", async () => {
@@ -318,12 +333,16 @@ describe("createGetCategoriesTool", () => {
       );
 
       // Assert
-      expect(result[0]?.keywords).toHaveLength(
+      if (!result.success) throw new Error("Expected success"); // Type guard
+
+      expect(result.data[0]?.keywords).toHaveLength(
         CATEGORY_HISTORY_MAX_KEYWORDS_PER_CATEGORY,
       );
-      expect(result[0]?.keywords[0]).toEqual("description 0");
+      expect(result.data[0]?.keywords[0]).toEqual("description 0");
       expect(
-        result[0]?.keywords[CATEGORY_HISTORY_MAX_KEYWORDS_PER_CATEGORY - 1],
+        result.data[0]?.keywords[
+          CATEGORY_HISTORY_MAX_KEYWORDS_PER_CATEGORY - 1
+        ],
       ).toEqual(
         `description ${CATEGORY_HISTORY_MAX_KEYWORDS_PER_CATEGORY - 1}`,
       );
@@ -375,8 +394,9 @@ describe("createGetCategoriesTool", () => {
       );
 
       // Assert
-      expect(result).toEqual(
-        expect.arrayContaining([
+      expect(result).toEqual({
+        success: true,
+        data: expect.arrayContaining([
           expect.objectContaining({
             id: groceryCategory.id,
             keywords: ["whole foods", "costco"],
@@ -386,7 +406,7 @@ describe("createGetCategoriesTool", () => {
             keywords: ["pizza place", "sushi restaurant"],
           }),
         ]),
-      );
+      });
     });
 
     it("deduplicates repeated keywords", async () => {
@@ -418,12 +438,15 @@ describe("createGetCategoriesTool", () => {
       );
 
       // Assert
-      expect(result).toEqual([
-        expect.objectContaining({
-          id: category.id,
-          keywords: ["ice cream", "milk"],
-        }),
-      ]);
+      expect(result).toEqual({
+        success: true,
+        data: [
+          expect.objectContaining({
+            id: category.id,
+            keywords: ["ice cream", "milk"],
+          }),
+        ],
+      });
     });
 
     it("fetches transactions within history lookback window", async () => {

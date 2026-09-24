@@ -12,7 +12,8 @@ import {
   UpdateTransactionServiceInput,
 } from "../../services/transaction-service";
 import { toDateString } from "../../types/date-string";
-import { assertGuideTokens, buildGuideTokensField } from "./guides";
+import { Result, Success } from "../../types/result";
+import { buildGuideTokensField, verifyGuideTokens } from "./guides";
 import { Tool } from "./tool";
 
 const requiredGuides = ["basics"] as const;
@@ -44,11 +45,12 @@ export async function updateTransaction(
     transactionService: TransactionService;
     userId: string;
   },
-): Promise<TransactionDto> {
-  assertGuideTokens({
+): Promise<Result<TransactionDto>> {
+  const verification = verifyGuideTokens({
     guideTokens,
     requiredGuides,
   });
+  if (!verification.success) return verification;
 
   const input: UpdateTransactionServiceInput = {
     ...(accountId !== undefined && { accountId }),
@@ -61,7 +63,7 @@ export async function updateTransaction(
 
   const updated = await transactionService.updateTransaction(id, userId, input);
 
-  return toTransactionDto(updated);
+  return Success(toTransactionDto(updated));
 }
 
 const inputSchema = z.object({

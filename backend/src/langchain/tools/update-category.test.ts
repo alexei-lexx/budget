@@ -48,7 +48,10 @@ describe("createUpdateCategoryTool", () => {
     const result = await updateTool.invoke(input, { context: { userId } });
 
     // Assert
-    expect(result).toEqual(toCategoryDto(updated));
+    expect(result).toEqual({
+      success: true,
+      data: toCategoryDto(updated),
+    });
 
     expect(mockCategoryService.updateCategory).toHaveBeenCalledWith(
       categoryId,
@@ -78,7 +81,10 @@ describe("createUpdateCategoryTool", () => {
     const result = await updateTool.invoke(input, { context: { userId } });
 
     // Assert
-    expect(result).toEqual(toCategoryDto(updated));
+    expect(result).toEqual({
+      success: true,
+      data: toCategoryDto(updated),
+    });
 
     expect(mockCategoryService.updateCategory).toHaveBeenCalledWith(
       categoryId,
@@ -108,7 +114,10 @@ describe("createUpdateCategoryTool", () => {
     const result = await updateTool.invoke(input, { context: { userId } });
 
     // Assert
-    expect(result).toEqual(toCategoryDto(updated));
+    expect(result).toEqual({
+      success: true,
+      data: toCategoryDto(updated),
+    });
 
     expect(mockCategoryService.updateCategory).toHaveBeenCalledWith(
       categoryId,
@@ -140,7 +149,10 @@ describe("createUpdateCategoryTool", () => {
     const result = await updateTool.invoke(input, { context: { userId } });
 
     // Assert
-    expect(result).toEqual(toCategoryDto(updated));
+    expect(result).toEqual({
+      success: true,
+      data: toCategoryDto(updated),
+    });
 
     expect(mockCategoryService.updateCategory).toHaveBeenCalledWith(
       categoryId,

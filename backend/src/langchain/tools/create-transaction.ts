@@ -6,6 +6,7 @@ import {
   TransactionService,
 } from "../../services/transaction-service";
 import { toDateString } from "../../types/date-string";
+import { Success } from "../../types/result";
 import { agentContextSchema } from "../agents/agent-context";
 import { toTransactionDto } from "./transaction-dto";
 
@@ -55,7 +56,7 @@ export const createCreateTransactionTool = ({
         userId,
       );
 
-      return toTransactionDto(created);
+      return Success(toTransactionDto(created));
     },
     {
       name: CREATE_TRANSACTION_TOOL_NAME,

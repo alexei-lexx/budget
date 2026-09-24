@@ -1,7 +1,6 @@
 import { faker } from "@faker-js/faker";
 import { type Mocked, beforeEach, describe, expect, it } from "vitest";
 import { TransactionRepository } from "../../ports/transaction-repository";
-import { BusinessError } from "../../services/business-error";
 import { toDateString } from "../../types/date-string";
 import {
   fakeExpense,
@@ -45,15 +44,16 @@ describe("createAggregateTransactionsTool", () => {
       transactionRepository: mockTransactionRepository,
     });
 
-    const promise = aggregateTool.invoke(
+    const result = await aggregateTool.invoke(
       { startDate: "2000-01-20", endDate: "2000-01-10" },
       { context: { userId } },
     );
 
     expect(mockTransactionRepository.findManyByUserId).not.toHaveBeenCalled();
-    await expect(promise).rejects.toThrow(
-      new BusinessError("startDate must not be after endDate"),
-    );
+    expect(result).toEqual({
+      success: false,
+      error: "startDate must not be after endDate",
+    });
   });
 
   it("rejects when date range exceeds max period days", async () => {
@@ -61,15 +61,16 @@ describe("createAggregateTransactionsTool", () => {
       transactionRepository: mockTransactionRepository,
     });
 
-    const promise = aggregateTool.invoke(
+    const result = await aggregateTool.invoke(
       { startDate: "2000-01-01", endDate: "2001-01-02" },
       { context: { userId } },
     );
 
     expect(mockTransactionRepository.findManyByUserId).not.toHaveBeenCalled();
-    await expect(promise).rejects.toThrow(
-      new BusinessError(`Date range must not exceed ${MAX_PERIOD_DAYS} days`),
-    );
+    expect(result).toEqual({
+      success: false,
+      error: `Date range must not exceed ${MAX_PERIOD_DAYS} days`,
+    });
   });
 
   it("returns zero aggregation when no transactions exist", async () => {
@@ -84,7 +85,7 @@ describe("createAggregateTransactionsTool", () => {
       { context: { userId } },
     );
 
-    expect(result).toEqual({ sum: {}, count: {} });
+    expect(result).toEqual({ success: true, data: { sum: {}, count: {} } });
   });
 
   it("aggregates transactions by currency", async () => {
@@ -113,8 +114,11 @@ describe("createAggregateTransactionsTool", () => {
     );
 
     expect(result).toEqual({
-      sum: { EUR: 100, USD: -50 },
-      count: { EUR: 2, USD: 1 },
+      success: true,
+      data: {
+        sum: { EUR: 100, USD: -50 },
+        count: { EUR: 2, USD: 1 },
+      },
     });
   });
 

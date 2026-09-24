@@ -2,7 +2,6 @@ import { faker } from "@faker-js/faker";
 import { type Mocked, beforeEach, describe, expect, it } from "vitest";
 import { toTransactionDto } from "../../langchain/tools/transaction-dto";
 import { TransactionType } from "../../models/transaction";
-import { BusinessError } from "../../services/business-error";
 import { TransactionService } from "../../services/transaction-service";
 import { toDateString } from "../../types/date-string";
 import { fakeTransaction } from "../../utils/test-utils/models/transaction-fakes";
@@ -45,7 +44,10 @@ describe("updateTransaction", () => {
     );
 
     // Assert
-    expect(result).toEqual(toTransactionDto(updated));
+    expect(result).toEqual({
+      success: true,
+      data: toTransactionDto(updated),
+    });
     expect(mockTransactionService.updateTransaction).toHaveBeenCalledWith(
       "transaction-id-123",
       userId,
@@ -111,30 +113,31 @@ describe("updateTransaction", () => {
 
   it("rejects without valid basics guide token and does not call service", async () => {
     // Act
-    const promise = updateTransaction(
+    const result = await updateTransaction(
       { id: faker.string.uuid(), amount: 20, guideTokens: [] },
       deps,
     );
 
     // Assert
-    await expect(promise).rejects.toThrow(
-      new BusinessError(
+    expect(result).toEqual({
+      success: false,
+      error:
         "Missing or invalid guide token for: basics. Reload the guide(s) and retry",
-      ),
-    );
+    });
     expect(mockTransactionService.updateTransaction).not.toHaveBeenCalled();
   });
 
   it("does not disclose valid guide token in rejection message", async () => {
     // Act
-    const promise = updateTransaction(
+    const result = await updateTransaction(
       { id: faker.string.uuid(), amount: 20, guideTokens: [] },
       deps,
     );
 
     // Assert
-    await expect(promise).rejects.toMatchObject({
-      message: expect.not.stringContaining(validGuideToken),
+    expect(result).toEqual({
+      success: false,
+      error: expect.not.stringContaining(validGuideToken),
     });
   });
 
