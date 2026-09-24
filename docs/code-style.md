@@ -24,10 +24,10 @@ All generated or manually written TypeScript code MUST adhere to strict type saf
 
 ## Comments
 
-- Comment lines MUST wrap at the same width as the project's code line-length convention
 - Break lines at punctuation or logical boundaries, never mid-phrase
   - e.g. don't split a noun from its adjective
 - Prefer short sentences over long compound ones
+- Comment lines MUST NOT exceed the project's line-length convention
 
 ## Finder Method Naming
 
