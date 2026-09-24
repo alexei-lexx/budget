@@ -41,7 +41,8 @@ export const telegramBotResolvers = {
       context: GraphQLContext,
     ) => {
       const user = await getAuthenticatedUser(context);
-      return context.telegramBotService.disconnect(user.id);
+      await context.telegramBotService.disconnect(user.id);
+      return true;
     },
   },
 };

@@ -126,7 +126,7 @@ export class TelegramBotService {
     return maskTelegramBot(connected);
   }
 
-  async disconnect(userId: string): Promise<boolean> {
+  async disconnect(userId: string): Promise<void> {
     if (!userId) {
       throw new BusinessError("User ID is required");
     }
@@ -146,8 +146,6 @@ export class TelegramBotService {
     // Failure is non-fatal
     await this.telegramApiClient.deleteWebhook(bot.token);
     await this.telegramBotRepository.update(deletingBot.archive());
-
-    return true;
   }
 
   async acceptMessage(

@@ -273,7 +273,7 @@ describe("TelegramBotService", () => {
       const result = await service.disconnect(userId);
 
       // Assert
-      expect(result).toBe(true);
+      expect(result).toBeUndefined();
       expect(telegramBotRepository.update).toHaveBeenCalledWith(
         expect.objectContaining({ status: "DELETING" }),
       );
@@ -317,7 +317,7 @@ describe("TelegramBotService", () => {
       const result = await service.disconnect(userId);
 
       // Assert
-      expect(result).toBe(true);
+      expect(result).toBeUndefined();
       expect(telegramBotRepository.update).toHaveBeenCalledWith(
         expect.objectContaining({ isArchived: true }),
       );
