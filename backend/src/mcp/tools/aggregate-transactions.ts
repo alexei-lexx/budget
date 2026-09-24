@@ -5,7 +5,6 @@ import {
   AggregateGroupBy,
   AggregateTransactionsService,
 } from "../../services/aggregate-transactions-service";
-import { BusinessError } from "../../services/business-error";
 import { DateString, toDateString } from "../../types/date-string";
 import { assertGuideTokens, buildGuideTokensField } from "./guides";
 import { Tool } from "./tool";
@@ -47,7 +46,7 @@ export async function aggregateTransactions(
     requiredGuides,
   });
 
-  const result = await aggregateTransactionsService.call({
+  return aggregateTransactionsService.call({
     userId,
     startDate,
     endDate,
@@ -58,12 +57,6 @@ export async function aggregateTransactions(
     includeTransactionsExcludedFromReports,
     ...(groupBy && { groupBy }),
   });
-
-  if (!result.success) {
-    throw new BusinessError(result.error);
-  }
-
-  return result.data;
 }
 
 const inputSchema = z.object({

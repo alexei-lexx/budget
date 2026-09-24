@@ -4,7 +4,7 @@ import { Transaction, TransactionType } from "../models/transaction";
 import { CategoryRepository } from "../ports/category-repository";
 import { TransactionRepository } from "../ports/transaction-repository";
 import { DateString } from "../types/date-string";
-import { Failure, Result, Success } from "../types/result";
+import { BusinessError } from "./business-error";
 
 export const AGGREGATE_GROUP_BY = ["ACCOUNT", "CATEGORY", "MONTH"] as const;
 export type AggregateGroupBy = (typeof AGGREGATE_GROUP_BY)[number];
@@ -33,7 +33,7 @@ interface AggregateTransactionsItem {
   max: number;
 }
 
-export type AggregateTransactionsOutput = Result<AggregateTransactionsItem[]>;
+export type AggregateTransactionsOutput = AggregateTransactionsItem[];
 
 export interface AggregateTransactionsService {
   call(input: AggregateTransactionsInput): Promise<AggregateTransactionsOutput>;
@@ -62,7 +62,7 @@ export class AggregateTransactionsServiceImpl implements AggregateTransactionsSe
     groupBy,
   }: AggregateTransactionsInput): Promise<AggregateTransactionsOutput> {
     if (startDate > endDate) {
-      return Failure("startDate must not be after endDate");
+      throw new BusinessError("startDate must not be after endDate");
     }
 
     const startPlainDate = Temporal.PlainDate.from(startDate);
@@ -70,7 +70,9 @@ export class AggregateTransactionsServiceImpl implements AggregateTransactionsSe
     const daysBetween = startPlainDate.until(endPlainDate).days;
 
     if (daysBetween > MAX_PERIOD_DAYS) {
-      return Failure(`Date range must not exceed ${MAX_PERIOD_DAYS} days`);
+      throw new BusinessError(
+        `Date range must not exceed ${MAX_PERIOD_DAYS} days`,
+      );
     }
 
     const excludedCategoryIds = includeTransactionsExcludedFromReports
@@ -83,7 +85,7 @@ export class AggregateTransactionsServiceImpl implements AggregateTransactionsSe
       );
 
       if (collidingCategoryId) {
-        return Failure(
+        throw new BusinessError(
           `categoryIds must not name a category excluded from reports while includeTransactionsExcludedFromReports is false: ${collidingCategoryId}`,
         );
       }
@@ -109,7 +111,7 @@ export class AggregateTransactionsServiceImpl implements AggregateTransactionsSe
         )
       : transactions;
 
-    return Success(this.bucket(includedTransactions, groupBy));
+    return this.bucket(includedTransactions, groupBy);
   }
 
   private async findExcludedCategoryIds(userId: string): Promise<Set<string>> {

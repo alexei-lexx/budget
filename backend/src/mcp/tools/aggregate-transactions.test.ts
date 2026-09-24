@@ -30,19 +30,16 @@ describe("aggregateTransactions", () => {
 
   it("delegates to service and returns its result unchanged", async () => {
     // Arrange
-    const serviceResult = {
-      success: true as const,
-      data: [
-        {
-          type: TransactionType.EXPENSE,
-          currency: "USD",
-          sum: 897.5,
-          count: 16,
-          min: 12,
-          max: 220,
-        },
-      ],
-    };
+    const serviceResult = [
+      {
+        type: TransactionType.EXPENSE,
+        currency: "USD",
+        sum: 897.5,
+        count: 16,
+        min: 12,
+        max: 220,
+      },
+    ];
     mockAggregateTransactionsService.call.mockResolvedValue(serviceResult);
 
     // Act
@@ -57,7 +54,7 @@ describe("aggregateTransactions", () => {
     );
 
     // Assert
-    expect(result).toBe(serviceResult.data);
+    expect(result).toBe(serviceResult);
     expect(mockAggregateTransactionsService.call).toHaveBeenCalledWith({
       userId,
       startDate: "2026-01-01",
@@ -68,10 +65,7 @@ describe("aggregateTransactions", () => {
 
   it("passes accountIds, categoryIds, includeUncategorized, types, and groupBy through", async () => {
     // Arrange
-    mockAggregateTransactionsService.call.mockResolvedValue({
-      success: true,
-      data: [],
-    });
+    mockAggregateTransactionsService.call.mockResolvedValue([]);
 
     // Act
     await aggregateTransactions(

@@ -12,6 +12,7 @@ import {
 import { createMockCategoryRepository } from "../utils/test-utils/repositories/category-repository-mocks";
 import { createMockTransactionRepository } from "../utils/test-utils/repositories/transaction-repository-mocks";
 import { AggregateTransactionsServiceImpl } from "./aggregate-transactions-service";
+import { BusinessError } from "./business-error";
 
 describe("AggregateTransactionsService", () => {
   let transactionRepository: Mocked<TransactionRepository>;
@@ -59,9 +60,8 @@ describe("AggregateTransactionsService", () => {
       });
 
       // Assert
-      expect(result).toEqual({
-        success: true,
-        data: expect.arrayContaining([
+      expect(result).toEqual(
+        expect.arrayContaining([
           {
             type: TransactionType.EXPENSE,
             currency: "USD",
@@ -79,8 +79,8 @@ describe("AggregateTransactionsService", () => {
             max: 3000,
           },
         ]),
-      });
-      expect((result as { data: unknown[] }).data).toHaveLength(2);
+      );
+      expect(result).toHaveLength(2);
     });
 
     it("splits results by currency within same type", async () => {
@@ -105,13 +105,12 @@ describe("AggregateTransactionsService", () => {
       });
 
       // Assert
-      expect(result).toEqual({
-        success: true,
-        data: expect.arrayContaining([
+      expect(result).toEqual(
+        expect.arrayContaining([
           expect.objectContaining({ currency: "USD", sum: 100 }),
           expect.objectContaining({ currency: "EUR", sum: 50 }),
         ]),
-      });
+      );
     });
 
     it("groups results by account when groupBy is ACCOUNT", async () => {
@@ -146,9 +145,8 @@ describe("AggregateTransactionsService", () => {
       });
 
       // Assert
-      expect(result).toEqual({
-        success: true,
-        data: expect.arrayContaining([
+      expect(result).toEqual(
+        expect.arrayContaining([
           {
             type: TransactionType.EXPENSE,
             currency: "USD",
@@ -168,7 +166,7 @@ describe("AggregateTransactionsService", () => {
             max: 40,
           },
         ]),
-      });
+      );
     });
 
     it("groups results by category when groupBy is CATEGORY, including null bucket for uncategorized", async () => {
@@ -197,9 +195,8 @@ describe("AggregateTransactionsService", () => {
       });
 
       // Assert
-      expect(result).toEqual({
-        success: true,
-        data: expect.arrayContaining([
+      expect(result).toEqual(
+        expect.arrayContaining([
           {
             type: TransactionType.EXPENSE,
             currency: "USD",
@@ -219,7 +216,7 @@ describe("AggregateTransactionsService", () => {
             max: 20,
           },
         ]),
-      });
+      );
     });
 
     it("groups results by month when groupBy is MONTH", async () => {
@@ -247,9 +244,8 @@ describe("AggregateTransactionsService", () => {
       });
 
       // Assert
-      expect(result).toEqual({
-        success: true,
-        data: expect.arrayContaining([
+      expect(result).toEqual(
+        expect.arrayContaining([
           {
             type: TransactionType.EXPENSE,
             currency: "USD",
@@ -269,7 +265,7 @@ describe("AggregateTransactionsService", () => {
             max: 15,
           },
         ]),
-      });
+      );
     });
 
     it("omits combinations with no matching transactions", async () => {
@@ -285,10 +281,7 @@ describe("AggregateTransactionsService", () => {
       });
 
       // Assert
-      expect(result).toEqual({
-        success: true,
-        data: [],
-      });
+      expect(result).toEqual([]);
     });
 
     it("calls repository with date range only when no optional filters given", async () => {
@@ -375,10 +368,7 @@ describe("AggregateTransactionsService", () => {
       });
 
       // Assert
-      expect(result).toEqual({
-        success: true,
-        data: [expect.objectContaining({ sum: 10, count: 1 })],
-      });
+      expect(result).toEqual([expect.objectContaining({ sum: 10, count: 1 })]);
     });
 
     it("skips category lookup entirely when includeTransactionsExcludedFromReports is true", async () => {
@@ -401,61 +391,53 @@ describe("AggregateTransactionsService", () => {
 
     // Validation failures
 
-    it("returns failure when startDate is after endDate", async () => {
-      // Act
-      const result = await service.call({
-        userId,
-        startDate: toDateString("2000-01-31"),
-        endDate: toDateString("2000-01-01"),
-        includeTransactionsExcludedFromReports: true,
-      });
-
-      // Assert
-      expect(result).toEqual({
-        success: false,
-        error: "startDate must not be after endDate",
-      });
+    it("fails when startDate is after endDate", async () => {
+      // Act & Assert
+      await expect(
+        service.call({
+          userId,
+          startDate: toDateString("2000-01-31"),
+          endDate: toDateString("2000-01-01"),
+          includeTransactionsExcludedFromReports: true,
+        }),
+      ).rejects.toThrow(
+        new BusinessError("startDate must not be after endDate"),
+      );
       expect(transactionRepository.findManyByUserId).not.toHaveBeenCalled();
     });
 
-    it("returns failure when date range exceeds 365 days", async () => {
-      // Act
-      const result = await service.call({
-        userId,
-        startDate: toDateString("2000-01-01"),
-        endDate: toDateString("2001-01-02"),
-        includeTransactionsExcludedFromReports: true,
-      });
-
-      // Assert
-      expect(result).toEqual({
-        success: false,
-        error: "Date range must not exceed 365 days",
-      });
+    it("fails when date range exceeds 365 days", async () => {
+      // Act & Assert
+      await expect(
+        service.call({
+          userId,
+          startDate: toDateString("2000-01-01"),
+          endDate: toDateString("2001-01-02"),
+          includeTransactionsExcludedFromReports: true,
+        }),
+      ).rejects.toThrow(
+        new BusinessError("Date range must not exceed 365 days"),
+      );
       expect(transactionRepository.findManyByUserId).not.toHaveBeenCalled();
     });
 
-    it("returns failure when categoryIds names category excluded from reports while includeTransactionsExcludedFromReports is false", async () => {
+    it("fails when categoryIds names category excluded from reports while includeTransactionsExcludedFromReports is false", async () => {
       // Arrange
       const excludedCategory = fakeCategory({ excludeFromReports: true });
       categoryRepository.findManyWithArchivedByUserId.mockResolvedValue([
         excludedCategory,
       ]);
 
-      // Act
-      const result = await service.call({
-        userId,
-        startDate: toDateString("2000-01-01"),
-        endDate: toDateString("2000-01-31"),
-        includeTransactionsExcludedFromReports: false,
-        categoryIds: [excludedCategory.id],
-      });
-
-      // Assert
-      expect(result).toEqual({
-        success: false,
-        error: expect.any(String),
-      });
+      // Act & Assert
+      await expect(
+        service.call({
+          userId,
+          startDate: toDateString("2000-01-01"),
+          endDate: toDateString("2000-01-31"),
+          includeTransactionsExcludedFromReports: false,
+          categoryIds: [excludedCategory.id],
+        }),
+      ).rejects.toThrow(BusinessError);
       expect(transactionRepository.findManyByUserId).not.toHaveBeenCalled();
     });
 
