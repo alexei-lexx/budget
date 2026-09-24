@@ -100,22 +100,19 @@ describe("getTransactions", () => {
     );
 
     // Assert
-    expect(result).toEqual({
-      success: true,
-      data: [
-        {
-          id: transaction.id,
-          accountId: "account-1",
-          categoryId: "category-1",
-          type: TransactionType.EXPENSE,
-          amount: 42,
-          currency: "USD",
-          date: "2026-01-15",
-          description: "Coffee",
-          transferId: transaction.transferId,
-        },
-      ],
-    });
+    expect(result).toEqualSuccess([
+      {
+        id: transaction.id,
+        accountId: "account-1",
+        categoryId: "category-1",
+        type: TransactionType.EXPENSE,
+        amount: 42,
+        currency: "USD",
+        date: "2026-01-15",
+        description: "Coffee",
+        transferId: transaction.transferId,
+      },
+    ]);
   });
 
   // Validation failures
@@ -132,11 +129,9 @@ describe("getTransactions", () => {
     );
 
     // Assert
-    expect(result).toEqual({
-      success: false,
-      error:
-        "Missing or invalid guide token for: basics. Reload the guide(s) and retry",
-    });
+    expect(result).toEqualFailure(
+      "Missing or invalid guide token for: basics. Reload the guide(s) and retry",
+    );
     expect(mockTransactionRepository.findManyByUserId).not.toHaveBeenCalled();
   });
 
@@ -152,10 +147,7 @@ describe("getTransactions", () => {
     );
 
     // Assert
-    expect(result).toEqual({
-      success: false,
-      error: expect.not.stringContaining(validGuideToken),
-    });
+    expect(result).toEqualFailure(expect.not.stringContaining(validGuideToken));
   });
 
   it("returns failure when startDate is after endDate", async () => {
@@ -170,10 +162,7 @@ describe("getTransactions", () => {
     );
 
     // Assert
-    expect(result).toEqual({
-      success: false,
-      error: "startDate must not be after endDate",
-    });
+    expect(result).toEqualFailure("startDate must not be after endDate");
     expect(mockTransactionRepository.findManyByUserId).not.toHaveBeenCalled();
   });
 
@@ -189,10 +178,7 @@ describe("getTransactions", () => {
     );
 
     // Assert
-    expect(result).toEqual({
-      success: false,
-      error: "Date range must not exceed 365 days",
-    });
+    expect(result).toEqualFailure("Date range must not exceed 365 days");
     expect(mockTransactionRepository.findManyByUserId).not.toHaveBeenCalled();
   });
 

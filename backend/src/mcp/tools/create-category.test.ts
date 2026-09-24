@@ -44,15 +44,12 @@ describe("createCategory", () => {
     );
 
     // Assert
-    expect(result).toEqual({
-      success: true,
-      data: {
-        id: created.id,
-        name: "Groceries",
-        type: "EXPENSE",
-        excludeFromReports: true,
-        isArchived: false,
-      },
+    expect(result).toEqualSuccess({
+      id: created.id,
+      name: "Groceries",
+      type: "EXPENSE",
+      excludeFromReports: true,
+      isArchived: false,
     });
     expect(mockCategoryService.createCategory).toHaveBeenCalledWith({
       userId,
@@ -97,11 +94,9 @@ describe("createCategory", () => {
     );
 
     // Assert
-    expect(result).toEqual({
-      success: false,
-      error:
-        "Missing or invalid guide token for: basics. Reload the guide(s) and retry",
-    });
+    expect(result).toEqualFailure(
+      "Missing or invalid guide token for: basics. Reload the guide(s) and retry",
+    );
     expect(mockCategoryService.createCategory).not.toHaveBeenCalled();
   });
 
@@ -113,10 +108,7 @@ describe("createCategory", () => {
     );
 
     // Assert
-    expect(result).toEqual({
-      success: false,
-      error: expect.not.stringContaining(validGuideToken),
-    });
+    expect(result).toEqualFailure(expect.not.stringContaining(validGuideToken));
   });
 
   // Dependency failures
@@ -139,10 +131,7 @@ describe("createCategory", () => {
     );
 
     // Assert
-    expect(result).toEqual({
-      success: false,
-      error: 'Category "Groceries" already exists',
-    });
+    expect(result).toEqualFailure('Category "Groceries" already exists');
   });
 
   it("propagates error when service throws", async () => {

@@ -44,7 +44,7 @@ describe("TelegramBotService", () => {
       const result = await service.findOneConnectedByUserId(userId);
 
       // Assert
-      expect(result).toEqual({ success: true, data: null });
+      expect(result).toEqualSuccess(null);
     });
 
     it("returns masked bot when connected", async () => {
@@ -58,12 +58,9 @@ describe("TelegramBotService", () => {
       const result = await service.findOneConnectedByUserId(userId);
 
       // Assert
-      expect(result).toEqual({
-        success: true,
-        data: {
-          id: bot.id,
-          maskedToken: "••••7890",
-        },
+      expect(result).toEqualSuccess({
+        id: bot.id,
+        maskedToken: "••••7890",
       });
     });
   });
@@ -87,7 +84,7 @@ describe("TelegramBotService", () => {
       const result = await service.test(userId);
 
       // Assert
-      expect(result).toEqual({ success: true, data: true });
+      expect(result).toEqualSuccess(true);
     });
 
     // Validation failures
@@ -107,10 +104,7 @@ describe("TelegramBotService", () => {
       const result = await service.test(userId);
 
       // Assert
-      expect(result).toEqual({
-        success: false,
-        error: "Bot webhook is not registered",
-      });
+      expect(result).toEqualFailure("Bot webhook is not registered");
     });
 
     it("returns failure when no connected bot found", async () => {
@@ -123,10 +117,7 @@ describe("TelegramBotService", () => {
       const result = await service.test(userId);
 
       // Assert
-      expect(result).toEqual({
-        success: false,
-        error: "No connected bot found",
-      });
+      expect(result).toEqualFailure("No connected bot found");
     });
 
     // Dependency failures
@@ -146,10 +137,9 @@ describe("TelegramBotService", () => {
       const result = await service.test(userId);
 
       // Assert
-      expect(result).toEqual({
-        success: false,
-        error: "Failed to reach Telegram. Check the bot is still active.",
-      });
+      expect(result).toEqualFailure(
+        "Failed to reach Telegram. Check the bot is still active.",
+      );
     });
   });
 
@@ -176,9 +166,9 @@ describe("TelegramBotService", () => {
       const result = await service.connect(userId, token);
 
       // Assert
-      expect(result).toEqual({
-        success: true,
-        data: { id: expect.any(String), maskedToken: "••••7890" },
+      expect(result).toEqualSuccess({
+        id: expect.any(String),
+        maskedToken: "••••7890",
       });
       expect(telegramBotRepository.create).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -214,10 +204,9 @@ describe("TelegramBotService", () => {
       const result = await service.connect(userId, "new-token");
 
       // Assert
-      expect(result).toEqual({
-        success: false,
-        error: "A bot is already connected. Disconnect it first.",
-      });
+      expect(result).toEqualFailure(
+        "A bot is already connected. Disconnect it first.",
+      );
       expect(telegramBotRepository.create).not.toHaveBeenCalled();
     });
 
@@ -226,10 +215,7 @@ describe("TelegramBotService", () => {
       const result = await service.connect("", "some-token");
 
       // Assert
-      expect(result).toEqual({
-        success: false,
-        error: "User ID is required",
-      });
+      expect(result).toEqualFailure("User ID is required");
     });
 
     it("returns failure when token is empty", async () => {
@@ -240,10 +226,7 @@ describe("TelegramBotService", () => {
       const result = await service.connect(userId, "");
 
       // Assert
-      expect(result).toEqual({
-        success: false,
-        error: "Bot token is required",
-      });
+      expect(result).toEqualFailure("Bot token is required");
     });
 
     // Dependency failures
@@ -266,10 +249,9 @@ describe("TelegramBotService", () => {
       const result = await service.connect(userId, "bad-token");
 
       // Assert
-      expect(result).toEqual({
-        success: false,
-        error: "Failed to connect Telegram bot. Check the token and try again.",
-      });
+      expect(result).toEqualFailure(
+        "Failed to connect Telegram bot. Check the token and try again.",
+      );
       expect(telegramBotRepository.update).toHaveBeenCalledWith(
         expect.objectContaining({ isArchived: true }),
       );
@@ -299,7 +281,7 @@ describe("TelegramBotService", () => {
       const result = await service.disconnect(userId);
 
       // Assert
-      expect(result).toEqual({ success: true, data: true });
+      expect(result).toEqualSuccess(true);
       expect(telegramBotRepository.update).toHaveBeenCalledWith(
         expect.objectContaining({ status: "DELETING" }),
       );
@@ -321,10 +303,7 @@ describe("TelegramBotService", () => {
       const result = await service.disconnect(userId);
 
       // Assert
-      expect(result).toEqual({
-        success: false,
-        error: "No connected bot found",
-      });
+      expect(result).toEqualFailure("No connected bot found");
     });
 
     // Dependency failures
@@ -347,7 +326,7 @@ describe("TelegramBotService", () => {
       const result = await service.disconnect(userId);
 
       // Assert
-      expect(result).toEqual({ success: true, data: true });
+      expect(result).toEqualSuccess(true);
       expect(telegramBotRepository.update).toHaveBeenCalledWith(
         expect.objectContaining({ isArchived: true }),
       );
@@ -374,7 +353,7 @@ describe("TelegramBotService", () => {
       });
 
       // Assert
-      expect(result).toEqual({ success: true, data: undefined });
+      expect(result).toEqualSuccess(undefined);
       expect(backgroundJobDispatcher.dispatch).toHaveBeenCalledWith({
         type: "telegram-message",
         payload: {
@@ -400,7 +379,7 @@ describe("TelegramBotService", () => {
       });
 
       // Assert
-      expect(result).toEqual({ success: true, data: undefined });
+      expect(result).toEqualSuccess(undefined);
       expect(backgroundJobDispatcher.dispatch).not.toHaveBeenCalled();
     });
   });

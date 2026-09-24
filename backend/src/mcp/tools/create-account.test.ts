@@ -43,15 +43,12 @@ describe("createAccount", () => {
     );
 
     // Assert
-    expect(result).toEqual({
-      success: true,
-      data: {
-        id: created.id,
-        name: "Checking Account",
-        currency: "USD",
-        isArchived: false,
-        initialBalance: 500,
-      },
+    expect(result).toEqualSuccess({
+      id: created.id,
+      name: "Checking Account",
+      currency: "USD",
+      isArchived: false,
+      initialBalance: 500,
     });
     expect(mockAccountService.createAccount).toHaveBeenCalledWith({
       userId,
@@ -92,11 +89,9 @@ describe("createAccount", () => {
     );
 
     // Assert
-    expect(result).toEqual({
-      success: false,
-      error:
-        "Missing or invalid guide token for: basics. Reload the guide(s) and retry",
-    });
+    expect(result).toEqualFailure(
+      "Missing or invalid guide token for: basics. Reload the guide(s) and retry",
+    );
     expect(mockAccountService.createAccount).not.toHaveBeenCalled();
   });
 
@@ -108,10 +103,7 @@ describe("createAccount", () => {
     );
 
     // Assert
-    expect(result).toEqual({
-      success: false,
-      error: expect.not.stringContaining(validGuideToken),
-    });
+    expect(result).toEqualFailure(expect.not.stringContaining(validGuideToken));
   });
 
   // Dependency failures

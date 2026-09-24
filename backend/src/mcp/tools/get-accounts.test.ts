@@ -50,17 +50,14 @@ describe("getAccounts", () => {
     );
 
     // Assert
-    expect(result).toEqual({
-      success: true,
-      data: [
-        {
-          id: account.id,
-          name: "Checking Account",
-          currency: "USD",
-          isArchived: false,
-        },
-      ],
-    });
+    expect(result).toEqualSuccess([
+      {
+        id: account.id,
+        name: "Checking Account",
+        currency: "USD",
+        isArchived: false,
+      },
+    ]);
   });
 
   // Validation failures
@@ -70,11 +67,9 @@ describe("getAccounts", () => {
     const result = await getAccounts({ scope: "ALL", guideTokens: [] }, deps);
 
     // Assert
-    expect(result).toEqual({
-      success: false,
-      error:
-        "Missing or invalid guide token for: basics. Reload the guide(s) and retry",
-    });
+    expect(result).toEqualFailure(
+      "Missing or invalid guide token for: basics. Reload the guide(s) and retry",
+    );
     expect(mockAccountService.getAccountsByUser).not.toHaveBeenCalled();
   });
 
@@ -83,10 +78,7 @@ describe("getAccounts", () => {
     const result = await getAccounts({ scope: "ALL", guideTokens: [] }, deps);
 
     // Assert
-    expect(result).toEqual({
-      success: false,
-      error: expect.not.stringContaining(validGuideToken),
-    });
+    expect(result).toEqualFailure(expect.not.stringContaining(validGuideToken));
   });
 
   // Dependency failures

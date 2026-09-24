@@ -675,10 +675,9 @@ describe("ExpenseTrendService", () => {
       });
 
       // Assert
-      expect(result).toEqual({
-        success: false,
-        error: "Lookback must be a whole number from 1 to 12",
-      });
+      expect(result).toEqualFailure(
+        "Lookback must be a whole number from 1 to 12",
+      );
       expect(transactionRepository.findManyByUserId).not.toHaveBeenCalled();
     });
 
@@ -693,10 +692,9 @@ describe("ExpenseTrendService", () => {
       });
 
       // Assert
-      expect(result).toEqual({
-        success: false,
-        error: "Lookback must be a whole number from 1 to 12",
-      });
+      expect(result).toEqualFailure(
+        "Lookback must be a whole number from 1 to 12",
+      );
       expect(transactionRepository.findManyByUserId).not.toHaveBeenCalled();
     });
 
@@ -711,10 +709,9 @@ describe("ExpenseTrendService", () => {
       });
 
       // Assert
-      expect(result).toEqual({
-        success: false,
-        error: "Lookback must be a whole number from 1 to 12",
-      });
+      expect(result).toEqualFailure(
+        "Lookback must be a whole number from 1 to 12",
+      );
       expect(transactionRepository.findManyByUserId).not.toHaveBeenCalled();
     });
 
@@ -729,10 +726,7 @@ describe("ExpenseTrendService", () => {
       });
 
       // Assert
-      expect(result).toEqual({
-        success: false,
-        error: "Currency must not be empty",
-      });
+      expect(result).toEqualFailure("Currency must not be empty");
       expect(transactionRepository.findManyByUserId).not.toHaveBeenCalled();
     });
   });
