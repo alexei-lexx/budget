@@ -47,7 +47,10 @@ describe("createCreateCategoryTool", () => {
     const result = await createTool.invoke(input, { context: { userId } });
 
     // Assert
-    expect(result).toEqual(toCategoryDto(created));
+    expect(result).toEqual({
+      success: true,
+      data: toCategoryDto(created),
+    });
 
     expect(mockCategoryService.createCategory).toHaveBeenCalledWith({
       userId,
@@ -78,7 +81,10 @@ describe("createCreateCategoryTool", () => {
     const result = await createTool.invoke(input, { context: { userId } });
 
     // Assert
-    expect(result).toEqual(toCategoryDto(created));
+    expect(result).toEqual({
+      success: true,
+      data: toCategoryDto(created),
+    });
 
     expect(mockCategoryService.createCategory).toHaveBeenCalledWith({
       userId,

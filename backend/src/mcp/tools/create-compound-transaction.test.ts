@@ -1,7 +1,6 @@
 import { faker } from "@faker-js/faker";
 import { type Mocked, beforeEach, describe, expect, it } from "vitest";
 import { toTransactionDto } from "../../langchain/tools/transaction-dto";
-import { BusinessError } from "../../services/business-error";
 import { TransactionService } from "../../services/transaction-service";
 import { fakeTransaction } from "../../utils/test-utils/models/transaction-fakes";
 import { fakeCreateCompoundTransactionServiceInput } from "../../utils/test-utils/services/transaction-service-fakes";
@@ -48,7 +47,10 @@ describe("createCompoundTransaction", () => {
     );
 
     // Assert
-    expect(result).toEqual(createdTransactions.map(toTransactionDto));
+    expect(result).toEqual({
+      success: true,
+      data: createdTransactions.map(toTransactionDto),
+    });
     expect(
       mockTransactionService.createCompoundTransaction,
     ).toHaveBeenCalledWith(input, userId);
@@ -58,7 +60,7 @@ describe("createCompoundTransaction", () => {
 
   it("rejects without any guide tokens and does not call service", async () => {
     // Act
-    const promise = createCompoundTransaction(
+    const result = await createCompoundTransaction(
       {
         ...fakeCreateCompoundTransactionServiceInput(),
         guideTokens: [],
@@ -67,11 +69,11 @@ describe("createCompoundTransaction", () => {
     );
 
     // Assert
-    await expect(promise).rejects.toThrow(
-      new BusinessError(
+    expect(result).toEqual({
+      success: false,
+      error:
         "Missing or invalid guide token for: basics, create-transaction. Reload the guide(s) and retry",
-      ),
-    );
+    });
     expect(
       mockTransactionService.createCompoundTransaction,
     ).not.toHaveBeenCalled();
@@ -79,7 +81,7 @@ describe("createCompoundTransaction", () => {
 
   it("does not disclose valid guide tokens in rejection message", async () => {
     // Act
-    const promise = createCompoundTransaction(
+    const result = await createCompoundTransaction(
       {
         ...fakeCreateCompoundTransactionServiceInput(),
         guideTokens: [],
@@ -88,9 +90,11 @@ describe("createCompoundTransaction", () => {
     );
 
     // Assert
+    expect(result.success).toBe(false);
+
     for (const validGuideToken of validGuideTokens) {
-      await expect(promise).rejects.toMatchObject({
-        message: expect.not.stringContaining(validGuideToken),
+      expect(result).toMatchObject({
+        error: expect.not.stringContaining(validGuideToken),
       });
     }
   });

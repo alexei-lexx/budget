@@ -1,9 +1,9 @@
 import { tool } from "langchain";
 import { evaluate, mean, sum } from "mathjs";
 import { z } from "zod";
-import { BusinessError } from "../../services/business-error";
+import { Failure, Success } from "../../types/result";
 
-export const sumTool = tool(({ numbers }) => sum(numbers), {
+export const sumTool = tool(({ numbers }) => Success(sum(numbers)), {
   name: "sum",
   description:
     "Calculate the sum of an array of numbers. Use this to add up transaction amounts. Input should be a JSON string with a 'numbers' array. Example: {\"numbers\": [10.5, 20.3, 15.0]}",
@@ -13,10 +13,10 @@ export const sumTool = tool(({ numbers }) => sum(numbers), {
 export const avgTool = tool(
   ({ numbers }) => {
     if (numbers.length === 0) {
-      throw new BusinessError("Cannot calculate average of an empty array");
+      return Failure("Cannot calculate average of an empty array");
     }
 
-    return mean(numbers);
+    return Success(mean(numbers));
   },
   {
     name: "avg",
@@ -29,12 +29,9 @@ export const avgTool = tool(
 export const calculateTool = tool(
   ({ expression }) => {
     const result = evaluate(expression);
-
-    if (typeof result !== "number") {
-      throw new BusinessError(`Invalid calculation result: ${result}`);
-    }
-
-    return result;
+    return typeof result === "number"
+      ? Success(result)
+      : Failure(`Invalid calculation result: ${result}`);
   },
   {
     name: "calculate",

@@ -1,11 +1,10 @@
 import { faker } from "@faker-js/faker";
 import { describe, expect, it, vi } from "vitest";
-import { BusinessError } from "../../services/business-error";
 import {
   GUIDES,
   Guide,
-  assertGuideTokens,
   buildGuideTokensField,
+  verifyGuideTokens,
 } from "./guides";
 
 describe("Guide", () => {
@@ -74,31 +73,39 @@ describe("Guide", () => {
   });
 });
 
-describe("assertGuideTokens", () => {
+describe("verifyGuideTokens", () => {
   // Happy path
 
   it("accepts matching tokens for required guide", () => {
     // Arrange
     const guides = Object.values(GUIDES);
 
-    // Act & Assert
+    // Act
     const validTokens = guides.map((guide) => guide.token);
-    expect(() =>
-      assertGuideTokens({
-        guideTokens: validTokens,
-        requiredGuides: guides.map((guide) => guide.name),
-      }),
-    ).not.toThrow();
+    const result = verifyGuideTokens({
+      guideTokens: validTokens,
+      requiredGuides: guides.map((guide) => guide.name),
+    });
+
+    // Assert
+    expect(result).toEqual({
+      success: true,
+      data: true,
+    });
   });
 
   it("ignores tokens for guides that were not required", () => {
-    // Act & Assert
-    expect(() =>
-      assertGuideTokens({
-        guideTokens: ["irrelevant.DEADBEEF"],
-        requiredGuides: [],
-      }),
-    ).not.toThrow();
+    // Act
+    const result = verifyGuideTokens({
+      guideTokens: ["irrelevant.DEADBEEF"],
+      requiredGuides: [],
+    });
+
+    // Assert
+    expect(result).toEqual({
+      success: true,
+      data: true,
+    });
   });
 
   it("accepts token from previous hour bucket", () => {
@@ -110,13 +117,17 @@ describe("assertGuideTokens", () => {
     vi.setSystemTime(new Date("2000-01-02T11:20:00.000Z"));
 
     try {
-      // Act & Assert
-      expect(() =>
-        assertGuideTokens({
-          guideTokens: [previousToken],
-          requiredGuides: ["basics"],
-        }),
-      ).not.toThrow();
+      // Act
+      const result = verifyGuideTokens({
+        guideTokens: [previousToken],
+        requiredGuides: ["basics"],
+      });
+
+      // Assert
+      expect(result).toEqual({
+        success: true,
+        data: true,
+      });
     } finally {
       // Restores clock even if assertion above fails
       vi.useRealTimers();
@@ -127,34 +138,32 @@ describe("assertGuideTokens", () => {
 
   it("rejects missing token", () => {
     // Act
-    const act = () =>
-      assertGuideTokens({
-        guideTokens: [],
-        requiredGuides: ["basics"],
-      });
+    const result = verifyGuideTokens({
+      guideTokens: [],
+      requiredGuides: ["basics"],
+    });
 
     // Assert
-    expect(act).toThrow(
-      new BusinessError(
+    expect(result).toEqual({
+      success: false,
+      error:
         "Missing or invalid guide token for: basics. Reload the guide(s) and retry",
-      ),
-    );
+    });
   });
 
   it("rejects malformed token", () => {
     // Act
-    const act = () =>
-      assertGuideTokens({
-        guideTokens: ["not-a-token"],
-        requiredGuides: ["basics"],
-      });
+    const result = verifyGuideTokens({
+      guideTokens: ["not-a-token"],
+      requiredGuides: ["basics"],
+    });
 
     // Assert
-    expect(act).toThrow(
-      new BusinessError(
+    expect(result).toEqual({
+      success: false,
+      error:
         "Missing or invalid guide token for: basics. Reload the guide(s) and retry",
-      ),
-    );
+    });
   });
 
   it("rejects token issued two or more hours ago", () => {
@@ -167,18 +176,17 @@ describe("assertGuideTokens", () => {
 
     try {
       // Act
-      const act = () =>
-        assertGuideTokens({
-          guideTokens: [staleToken],
-          requiredGuides: ["basics"],
-        });
+      const result = verifyGuideTokens({
+        guideTokens: [staleToken],
+        requiredGuides: ["basics"],
+      });
 
       // Assert
-      expect(act).toThrow(
-        new BusinessError(
+      expect(result).toEqual({
+        success: false,
+        error:
           "Missing or invalid guide token for: basics. Reload the guide(s) and retry",
-        ),
-      );
+      });
     } finally {
       // Restores clock even if assertion above fails
       vi.useRealTimers();
@@ -192,31 +200,30 @@ describe("assertGuideTokens", () => {
     const otherGuides = guides.slice(1);
 
     // Act
-    const act = () =>
-      assertGuideTokens({
-        guideTokens: otherGuides.map((guide) => guide.token),
-        requiredGuides: [missingGuide.name, ...otherGuides.map((g) => g.name)],
-      });
+    const result = verifyGuideTokens({
+      guideTokens: otherGuides.map((guide) => guide.token),
+      requiredGuides: [missingGuide.name, ...otherGuides.map((g) => g.name)],
+    });
 
     // Assert
-    expect(act).toThrow(
-      new BusinessError(
-        `Missing or invalid guide token for: ${missingGuide.name}. Reload the guide(s) and retry`,
-      ),
-    );
+    expect(result).toEqual({
+      success: false,
+      error: `Missing or invalid guide token for: ${missingGuide.name}. Reload the guide(s) and retry`,
+    });
   });
 
   it("does not disclose valid token in failure message", () => {
     // Act
-    const act = () =>
-      assertGuideTokens({ guideTokens: [], requiredGuides: ["basics"] });
+    const result = verifyGuideTokens({
+      guideTokens: [],
+      requiredGuides: ["basics"],
+    });
 
     // Assert
-    expect(act).toThrow(
-      expect.objectContaining({
-        message: expect.not.stringContaining(GUIDES.basics.token),
-      }),
-    );
+    expect(result).toEqual({
+      success: false,
+      error: expect.not.stringContaining(GUIDES.basics.token),
+    });
   });
 });
 

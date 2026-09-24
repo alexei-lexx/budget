@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { Result, Success } from "../../types/result";
 import { GUIDES, GUIDE_NAMES, Guide, GuideName } from "./guides";
 import { Tool } from "./tool";
 
@@ -6,7 +7,7 @@ export async function loadGuides({
   names,
 }: {
   names: GuideName[];
-}): Promise<Pick<Guide, "name" | "instruction" | "token">[]> {
+}): Promise<Result<Pick<Guide, "name" | "instruction" | "token">[]>> {
   const guides = [];
 
   for (const name of new Set(names)) {
@@ -19,7 +20,7 @@ export async function loadGuides({
     });
   }
 
-  return guides;
+  return Success(guides);
 }
 
 const inputSchema = z.object({

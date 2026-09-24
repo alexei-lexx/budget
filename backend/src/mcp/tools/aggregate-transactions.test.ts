@@ -2,7 +2,6 @@ import { faker } from "@faker-js/faker";
 import { type Mocked, beforeEach, describe, expect, it } from "vitest";
 import { TransactionType } from "../../models/transaction";
 import { AggregateTransactionsService } from "../../services/aggregate-transactions-service";
-import { BusinessError } from "../../services/business-error";
 import { toDateString } from "../../types/date-string";
 import { createMockAggregateTransactionsService } from "../../utils/test-utils/services/aggregate-transactions-service-mocks";
 import { aggregateTransactions } from "./aggregate-transactions";
@@ -57,7 +56,7 @@ describe("aggregateTransactions", () => {
     );
 
     // Assert
-    expect(result).toBe(serviceResult.data);
+    expect(result).toBe(serviceResult);
     expect(mockAggregateTransactionsService.call).toHaveBeenCalledWith({
       userId,
       startDate: "2026-01-01",
@@ -106,7 +105,7 @@ describe("aggregateTransactions", () => {
 
   it("rejects without valid basics guide token and does not call service", async () => {
     // Act
-    const promise = aggregateTransactions(
+    const result = await aggregateTransactions(
       {
         startDate: toDateString("2026-01-01"),
         endDate: toDateString("2026-01-31"),
@@ -117,17 +116,17 @@ describe("aggregateTransactions", () => {
     );
 
     // Assert
-    await expect(promise).rejects.toThrow(
-      new BusinessError(
+    expect(result).toEqual({
+      success: false,
+      error:
         "Missing or invalid guide token for: basics. Reload the guide(s) and retry",
-      ),
-    );
+    });
     expect(mockAggregateTransactionsService.call).not.toHaveBeenCalled();
   });
 
-  it("does not disclose valid guide token in error message", async () => {
+  it("does not disclose valid guide token in rejection message", async () => {
     // Act
-    const promise = aggregateTransactions(
+    const result = await aggregateTransactions(
       {
         startDate: toDateString("2026-01-01"),
         endDate: toDateString("2026-01-31"),
@@ -138,8 +137,9 @@ describe("aggregateTransactions", () => {
     );
 
     // Assert
-    await expect(promise).rejects.toMatchObject({
-      message: expect.not.stringContaining(validGuideToken),
+    expect(result).toEqual({
+      success: false,
+      error: expect.not.stringContaining(validGuideToken),
     });
   });
 

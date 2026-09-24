@@ -1,14 +1,15 @@
 import { CallToolResult } from "@modelcontextprotocol/server";
+import { Result } from "../../types/result";
 
-export function toToolResult(data: unknown): CallToolResult {
-  return {
-    content: [{ type: "text", text: JSON.stringify(data) }],
-  };
-}
+export function toToolResult<TData>(result: Result<TData>): CallToolResult {
+  if (!result.success) {
+    return {
+      content: [{ type: "text", text: result.error }],
+      isError: true,
+    };
+  }
 
-export function toToolError(error: string): CallToolResult {
   return {
-    content: [{ type: "text", text: error }],
-    isError: true,
+    content: [{ type: "text", text: JSON.stringify(result.data) }],
   };
 }

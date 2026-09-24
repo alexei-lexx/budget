@@ -68,14 +68,17 @@ describe("createCreateTransactionTool", () => {
       userId,
     );
     expect(result).toEqual({
-      id: created.id,
-      accountId: created.accountId,
-      amount: created.amount,
-      categoryId: created.categoryId,
-      currency: created.currency,
-      date: created.date,
-      description: created.description,
-      type: created.type,
+      success: true,
+      data: {
+        id: created.id,
+        accountId: created.accountId,
+        amount: created.amount,
+        categoryId: created.categoryId,
+        currency: created.currency,
+        date: created.date,
+        description: created.description,
+        type: created.type,
+      },
     });
   });
 });
