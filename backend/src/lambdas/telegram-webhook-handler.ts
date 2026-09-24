@@ -40,15 +40,10 @@ export async function telegramWebhookHandler(
   }
 
   if (telegramUpdate.message) {
-    const result = await telegramBotService.acceptMessage(webhookSecret, {
+    await telegramBotService.acceptMessage(webhookSecret, {
       chatId: telegramUpdate.message.chat.id,
       text: telegramUpdate.message.text,
     });
-
-    if (!result.success) {
-      console.error("Failed to accept Telegram message:", result.error);
-      throw new Error(`Failed to accept Telegram message: ${result.error}`);
-    }
 
     return {
       statusCode: 200,

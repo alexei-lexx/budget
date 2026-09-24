@@ -2,7 +2,7 @@ import { TelegramBot } from "../models/telegram-bot";
 import { BackgroundJobDispatcher } from "../ports/background-job-dispatcher";
 import { TelegramApiClient } from "../ports/telegram-api-client";
 import { TelegramBotRepository } from "../ports/telegram-bot-repository";
-import { Failure, Result, Success } from "../types/result";
+import { BusinessError } from "./business-error";
 
 export interface MaskedTelegramBot {
   id: string;
@@ -40,67 +40,66 @@ export class TelegramBotService {
 
   async findOneConnectedByUserId(
     userId: string,
-  ): Promise<Result<MaskedTelegramBot | null>> {
+  ): Promise<MaskedTelegramBot | null> {
     if (!userId) {
-      return Failure("User ID is required");
+      throw new BusinessError("User ID is required");
     }
 
     const bot =
       await this.telegramBotRepository.findOneConnectedByUserId(userId);
 
     if (!bot) {
-      return Success(null);
+      return null;
     }
 
-    return Success(maskTelegramBot(bot));
+    return maskTelegramBot(bot);
   }
 
-  async test(userId: string): Promise<Result<boolean>> {
+  async test(userId: string): Promise<boolean> {
     if (!userId) {
-      return Failure("User ID is required");
+      throw new BusinessError("User ID is required");
     }
 
     const bot =
       await this.telegramBotRepository.findOneConnectedByUserId(userId);
 
     if (!bot) {
-      return Failure("No connected bot found");
+      throw new BusinessError("No connected bot found");
     }
 
     const infoResult = await this.telegramApiClient.getWebhookInfo(bot.token);
 
     if (!infoResult.success) {
-      return Failure(
+      throw new BusinessError(
         "Failed to reach Telegram. Check the bot is still active.",
       );
     }
 
     if (infoResult.data.url !== this.webhookUrl) {
-      return Failure("Bot webhook is not registered");
+      throw new BusinessError("Bot webhook is not registered");
     }
 
-    return Success(true);
+    return true;
   }
 
-  async connect(
-    userId: string,
-    token: string,
-  ): Promise<Result<MaskedTelegramBot>> {
+  async connect(userId: string, token: string): Promise<MaskedTelegramBot> {
     if (!userId) {
-      return Failure("User ID is required");
+      throw new BusinessError("User ID is required");
     }
 
     const trimmedToken = token.trim();
 
     if (!trimmedToken) {
-      return Failure("Bot token is required");
+      throw new BusinessError("Bot token is required");
     }
 
     const existingConnectedBot =
       await this.telegramBotRepository.findOneConnectedByUserId(userId);
 
     if (existingConnectedBot) {
-      return Failure("A bot is already connected. Disconnect it first.");
+      throw new BusinessError(
+        "A bot is already connected. Disconnect it first.",
+      );
     }
 
     // Create a PENDING record first
@@ -117,26 +116,26 @@ export class TelegramBotService {
       // setWebhook failed — archive the pending record to avoid stuck records
       await this.telegramBotRepository.update(bot.archive());
 
-      return Failure(
+      throw new BusinessError(
         "Failed to connect Telegram bot. Check the token and try again.",
       );
     }
 
     const connected = await this.telegramBotRepository.update(bot.connect());
 
-    return Success(maskTelegramBot(connected));
+    return maskTelegramBot(connected);
   }
 
-  async disconnect(userId: string): Promise<Result<boolean>> {
+  async disconnect(userId: string): Promise<boolean> {
     if (!userId) {
-      return Failure("User ID is required");
+      throw new BusinessError("User ID is required");
     }
 
     const bot =
       await this.telegramBotRepository.findOneConnectedByUserId(userId);
 
     if (!bot) {
-      return Failure("No connected bot found");
+      throw new BusinessError("No connected bot found");
     }
 
     const deletingBot = await this.telegramBotRepository.update(
@@ -148,15 +147,15 @@ export class TelegramBotService {
     await this.telegramApiClient.deleteWebhook(bot.token);
     await this.telegramBotRepository.update(deletingBot.archive());
 
-    return Success(true);
+    return true;
   }
 
   async acceptMessage(
     webhookSecret: string,
     message: { chatId: number; text?: string },
-  ): Promise<Result<void>> {
+  ): Promise<void> {
     if (!webhookSecret) {
-      return Failure("Webhook secret is required");
+      throw new BusinessError("Webhook secret is required");
     }
 
     const bot =
@@ -167,7 +166,7 @@ export class TelegramBotService {
     if (!bot) {
       // Unknown or inactive bot — silently ignore
       console.warn("Unknown or inactive bot");
-      return Success(undefined);
+      return;
     }
 
     await this.backgroundJobDispatcher.dispatch({
@@ -179,8 +178,6 @@ export class TelegramBotService {
         userId: bot.userId,
       },
     });
-
-    return Success(undefined);
   }
 
   private get webhookUrl(): string {

@@ -8,6 +8,7 @@ import { fakeConnectedTelegramBot } from "../utils/test-utils/models/telegram-bo
 import { createMockBackgroundJobDispatcher } from "../utils/test-utils/providers/background-job-dispatcher-mocks";
 import { createMockTelegramApiClient } from "../utils/test-utils/providers/telegram-api-client-mocks";
 import { createMockTelegramBotRepository } from "../utils/test-utils/repositories/telegram-bot-repository-mocks";
+import { BusinessError } from "./business-error";
 import { TelegramBotService } from "./telegram-bot-service";
 
 describe("TelegramBotService", () => {
@@ -44,7 +45,7 @@ describe("TelegramBotService", () => {
       const result = await service.findOneConnectedByUserId(userId);
 
       // Assert
-      expect(result).toEqual({ success: true, data: null });
+      expect(result).toBeNull();
     });
 
     it("returns masked bot when connected", async () => {
@@ -59,11 +60,8 @@ describe("TelegramBotService", () => {
 
       // Assert
       expect(result).toEqual({
-        success: true,
-        data: {
-          id: bot.id,
-          maskedToken: "••••7890",
-        },
+        id: bot.id,
+        maskedToken: "••••7890",
       });
     });
   });
@@ -87,12 +85,12 @@ describe("TelegramBotService", () => {
       const result = await service.test(userId);
 
       // Assert
-      expect(result).toEqual({ success: true, data: true });
+      expect(result).toBe(true);
     });
 
     // Validation failures
 
-    it("returns failure when webhook URL does not match", async () => {
+    it("fails when webhook URL does not match", async () => {
       // Arrange
       const userId = faker.string.uuid();
       const bot = fakeConnectedTelegramBot({ userId });
@@ -103,35 +101,27 @@ describe("TelegramBotService", () => {
         data: { url: "http://telegram.localhost/telegram/unexpected-webhook" },
       });
 
-      // Act
-      const result = await service.test(userId);
-
-      // Assert
-      expect(result).toEqual({
-        success: false,
-        error: "Bot webhook is not registered",
-      });
+      // Act & Assert
+      await expect(service.test(userId)).rejects.toThrow(
+        new BusinessError("Bot webhook is not registered"),
+      );
     });
 
-    it("returns failure when no connected bot found", async () => {
+    it("fails when no connected bot found", async () => {
       // Arrange
       const userId = faker.string.uuid();
       // No connected bot for user
       telegramBotRepository.findOneConnectedByUserId.mockResolvedValue(null);
 
-      // Act
-      const result = await service.test(userId);
-
-      // Assert
-      expect(result).toEqual({
-        success: false,
-        error: "No connected bot found",
-      });
+      // Act & Assert
+      await expect(service.test(userId)).rejects.toThrow(
+        new BusinessError("No connected bot found"),
+      );
     });
 
     // Dependency failures
 
-    it("returns failure when getWebhookInfo fails", async () => {
+    it("fails when getWebhookInfo fails", async () => {
       // Arrange
       const userId = faker.string.uuid();
       const bot = fakeConnectedTelegramBot({ userId });
@@ -142,14 +132,12 @@ describe("TelegramBotService", () => {
         error: "Some error",
       });
 
-      // Act
-      const result = await service.test(userId);
-
-      // Assert
-      expect(result).toEqual({
-        success: false,
-        error: "Failed to reach Telegram. Check the bot is still active.",
-      });
+      // Act & Assert
+      await expect(service.test(userId)).rejects.toThrow(
+        new BusinessError(
+          "Failed to reach Telegram. Check the bot is still active.",
+        ),
+      );
     });
   });
 
@@ -177,8 +165,8 @@ describe("TelegramBotService", () => {
 
       // Assert
       expect(result).toEqual({
-        success: true,
-        data: { id: expect.any(String), maskedToken: "••••7890" },
+        id: expect.any(String),
+        maskedToken: "••••7890",
       });
       expect(telegramBotRepository.create).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -201,7 +189,7 @@ describe("TelegramBotService", () => {
 
     // Validation failures
 
-    it("returns failure when bot is already connected", async () => {
+    it("fails when bot is already connected", async () => {
       // Arrange
       const userId = faker.string.uuid();
       const existingBot = fakeConnectedTelegramBot({ userId });
@@ -210,45 +198,33 @@ describe("TelegramBotService", () => {
         existingBot,
       );
 
-      // Act
-      const result = await service.connect(userId, "new-token");
-
-      // Assert
-      expect(result).toEqual({
-        success: false,
-        error: "A bot is already connected. Disconnect it first.",
-      });
+      // Act & Assert
+      await expect(service.connect(userId, "new-token")).rejects.toThrow(
+        new BusinessError("A bot is already connected. Disconnect it first."),
+      );
       expect(telegramBotRepository.create).not.toHaveBeenCalled();
     });
 
-    it("returns failure when userId is empty", async () => {
-      // Act
-      const result = await service.connect("", "some-token");
-
-      // Assert
-      expect(result).toEqual({
-        success: false,
-        error: "User ID is required",
-      });
+    it("fails when userId is empty", async () => {
+      // Act & Assert
+      await expect(service.connect("", "some-token")).rejects.toThrow(
+        new BusinessError("User ID is required"),
+      );
     });
 
-    it("returns failure when token is empty", async () => {
+    it("fails when token is empty", async () => {
       // Arrange
       const userId = faker.string.uuid();
 
-      // Act
-      const result = await service.connect(userId, "");
-
-      // Assert
-      expect(result).toEqual({
-        success: false,
-        error: "Bot token is required",
-      });
+      // Act & Assert
+      await expect(service.connect(userId, "")).rejects.toThrow(
+        new BusinessError("Bot token is required"),
+      );
     });
 
     // Dependency failures
 
-    it("archives pending record and returns failure when setWebhook fails", async () => {
+    it("archives pending record and fails when setWebhook fails", async () => {
       // Arrange
       const userId = faker.string.uuid();
       telegramBotRepository.create.mockResolvedValue(undefined);
@@ -262,14 +238,12 @@ describe("TelegramBotService", () => {
         Promise.resolve(TelegramBot.fromPersistence(bot.toData())),
       );
 
-      // Act
-      const result = await service.connect(userId, "bad-token");
-
-      // Assert
-      expect(result).toEqual({
-        success: false,
-        error: "Failed to connect Telegram bot. Check the token and try again.",
-      });
+      // Act & Assert
+      await expect(service.connect(userId, "bad-token")).rejects.toThrow(
+        new BusinessError(
+          "Failed to connect Telegram bot. Check the token and try again.",
+        ),
+      );
       expect(telegramBotRepository.update).toHaveBeenCalledWith(
         expect.objectContaining({ isArchived: true }),
       );
@@ -299,7 +273,7 @@ describe("TelegramBotService", () => {
       const result = await service.disconnect(userId);
 
       // Assert
-      expect(result).toEqual({ success: true, data: true });
+      expect(result).toBe(true);
       expect(telegramBotRepository.update).toHaveBeenCalledWith(
         expect.objectContaining({ status: "DELETING" }),
       );
@@ -311,20 +285,16 @@ describe("TelegramBotService", () => {
 
     // Validation failures
 
-    it("returns failure when no connected bot found", async () => {
+    it("fails when no connected bot found", async () => {
       // Arrange
       const userId = faker.string.uuid();
       // No connected bot for user
       telegramBotRepository.findOneConnectedByUserId.mockResolvedValue(null);
 
-      // Act
-      const result = await service.disconnect(userId);
-
-      // Assert
-      expect(result).toEqual({
-        success: false,
-        error: "No connected bot found",
-      });
+      // Act & Assert
+      await expect(service.disconnect(userId)).rejects.toThrow(
+        new BusinessError("No connected bot found"),
+      );
     });
 
     // Dependency failures
@@ -347,7 +317,7 @@ describe("TelegramBotService", () => {
       const result = await service.disconnect(userId);
 
       // Assert
-      expect(result).toEqual({ success: true, data: true });
+      expect(result).toBe(true);
       expect(telegramBotRepository.update).toHaveBeenCalledWith(
         expect.objectContaining({ isArchived: true }),
       );
@@ -374,7 +344,7 @@ describe("TelegramBotService", () => {
       });
 
       // Assert
-      expect(result).toEqual({ success: true, data: undefined });
+      expect(result).toBeUndefined();
       expect(backgroundJobDispatcher.dispatch).toHaveBeenCalledWith({
         type: "telegram-message",
         payload: {
@@ -400,7 +370,7 @@ describe("TelegramBotService", () => {
       });
 
       // Assert
-      expect(result).toEqual({ success: true, data: undefined });
+      expect(result).toBeUndefined();
       expect(backgroundJobDispatcher.dispatch).not.toHaveBeenCalled();
     });
   });

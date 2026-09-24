@@ -1,4 +1,3 @@
-import { GraphQLError } from "graphql";
 import { MutationConnectTelegramBotArgs } from "../../__generated__/resolvers-types";
 import { GraphQLContext } from "../context";
 import { getAuthenticatedUser } from "./shared";
@@ -11,15 +10,10 @@ export const telegramBotResolvers = {
       context: GraphQLContext,
     ) => {
       const user = await getAuthenticatedUser(context);
-      const result = await context.telegramBotService.findOneConnectedByUserId(
+      const bot = await context.telegramBotService.findOneConnectedByUserId(
         user.id,
       );
-
-      if (!result.success) {
-        throw new GraphQLError(result.error);
-      }
-
-      return result.data ?? undefined;
+      return bot ?? undefined;
     },
 
     testTelegramBot: async (
@@ -28,13 +22,7 @@ export const telegramBotResolvers = {
       context: GraphQLContext,
     ) => {
       const user = await getAuthenticatedUser(context);
-      const result = await context.telegramBotService.test(user.id);
-
-      if (!result.success) {
-        throw new GraphQLError(result.error);
-      }
-
-      return result.data;
+      return context.telegramBotService.test(user.id);
     },
   },
   Mutation: {
@@ -44,16 +32,7 @@ export const telegramBotResolvers = {
       context: GraphQLContext,
     ) => {
       const user = await getAuthenticatedUser(context);
-      const result = await context.telegramBotService.connect(
-        user.id,
-        args.token,
-      );
-
-      if (!result.success) {
-        throw new GraphQLError(result.error);
-      }
-
-      return result.data;
+      return context.telegramBotService.connect(user.id, args.token);
     },
 
     disconnectTelegramBot: async (
@@ -62,13 +41,7 @@ export const telegramBotResolvers = {
       context: GraphQLContext,
     ) => {
       const user = await getAuthenticatedUser(context);
-      const result = await context.telegramBotService.disconnect(user.id);
-
-      if (!result.success) {
-        throw new GraphQLError(result.error);
-      }
-
-      return result.data;
+      return context.telegramBotService.disconnect(user.id);
     },
   },
 };
