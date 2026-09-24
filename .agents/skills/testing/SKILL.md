@@ -35,10 +35,15 @@ Name tests in present tense describing the expected behavior, not the implementa
 
 Omit articles (`a`, `an`, `the`) from test names and comments.
 
-- Good: `it("returns failure when name is empty")`
-- Bad: `it("should return failure when name is empty")`
-- Bad: `it("calls findByName then throws")`
-- Bad: `it("returns a failure when the name is empty")`
+Start failure test names with `fails`, regardless of mechanism (throw, rejection, returned failure value). The name then stays stable if the mechanism changes.
+
+- Good: `it("creates new widget")`
+- Bad: `it("creates a new widget")`
+- Bad: `it("should create new widget")`
+
+- Good: `it("fails when name is empty")`
+- Bad: `it("returns failure when name is empty")`
+- Bad: `it("throws when name is empty")`
 
 ## Describe nesting
 

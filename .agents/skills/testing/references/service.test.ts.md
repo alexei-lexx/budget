@@ -61,7 +61,7 @@ describe("WidgetService", () => {
 
     // Validation failures
 
-    it("returns failure when name is empty", async () => {
+    it("fails when name is empty", async () => {
       // Arrange
       const userId = faker.string.uuid();
 
@@ -76,7 +76,7 @@ describe("WidgetService", () => {
       expect(mockWidgetRepository.create).not.toHaveBeenCalled();
     });
 
-    it("returns failure when name is already taken", async () => {
+    it("fails when name is already taken", async () => {
       // Arrange
       const userId = faker.string.uuid();
       const existingWidget = fakeWidget();
@@ -100,7 +100,7 @@ describe("WidgetService", () => {
 
     // Dependency failures
 
-    it("returns failure when external API fails", async () => {
+    it("fails when external API fails", async () => {
       // Arrange
       const userId = faker.string.uuid();
 
@@ -140,7 +140,7 @@ describe("WidgetService", () => {
 
       // Validation failures
 
-      it("returns failure when parent does not exist", async () => {
+      it("fails when parent does not exist", async () => {
         // Arrange
         // Act
         // Assert
@@ -148,7 +148,7 @@ describe("WidgetService", () => {
 
       // Dependency failures
 
-      it("throws when parent lookup fails", async () => {
+      it("fails when parent lookup fails", async () => {
         // Arrange
         // Act
         // Assert
