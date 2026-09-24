@@ -50,18 +50,15 @@ describe("getCategories", () => {
     );
 
     // Assert
-    expect(result).toEqual({
-      success: true,
-      data: [
-        {
-          id: category.id,
-          name: "Groceries",
-          type: category.type,
-          excludeFromReports: false,
-          isArchived: false,
-        },
-      ],
-    });
+    expect(result).toEqualSuccess([
+      {
+        id: category.id,
+        name: "Groceries",
+        type: category.type,
+        excludeFromReports: false,
+        isArchived: false,
+      },
+    ]);
   });
 
   // Validation failures
@@ -71,11 +68,9 @@ describe("getCategories", () => {
     const result = await getCategories({ scope: "ALL", guideTokens: [] }, deps);
 
     // Assert
-    expect(result).toEqual({
-      success: false,
-      error:
-        "Missing or invalid guide token for: basics. Reload the guide(s) and retry",
-    });
+    expect(result).toEqualFailure(
+      "Missing or invalid guide token for: basics. Reload the guide(s) and retry",
+    );
     expect(mockCategoryService.getCategoriesByUser).not.toHaveBeenCalled();
   });
 
@@ -84,10 +79,7 @@ describe("getCategories", () => {
     const result = await getCategories({ scope: "ALL", guideTokens: [] }, deps);
 
     // Assert
-    expect(result).toEqual({
-      success: false,
-      error: expect.not.stringContaining(validGuideToken),
-    });
+    expect(result).toEqualFailure(expect.not.stringContaining(validGuideToken));
   });
 
   // Dependency failures

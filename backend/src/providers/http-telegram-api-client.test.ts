@@ -31,7 +31,7 @@ describe("HttpTelegramApiClient", () => {
 
       const result = await client.getWebhookInfo("token-12345");
 
-      expect(result).toEqual({ success: true, data: webhookInfo });
+      expect(result).toEqualSuccess(webhookInfo);
       expect(mockFetch).toHaveBeenCalledWith(
         `${baseUrl}/bottoken-12345/getWebhookInfo`,
       );
@@ -44,10 +44,9 @@ describe("HttpTelegramApiClient", () => {
 
       const result = await client.getWebhookInfo("token-12345");
 
-      expect(result).toEqual({
-        success: false,
-        error: "Telegram getWebhookInfo failed: Some error",
-      });
+      expect(result).toEqualFailure(
+        "Telegram getWebhookInfo failed: Some error",
+      );
     });
 
     it("returns failure when response has unexpected format", async () => {
@@ -55,10 +54,9 @@ describe("HttpTelegramApiClient", () => {
 
       const result = await client.getWebhookInfo("token-12345");
 
-      expect(result).toEqual({
-        success: false,
-        error: "Telegram getWebhookInfo returned unexpected response format",
-      });
+      expect(result).toEqualFailure(
+        "Telegram getWebhookInfo returned unexpected response format",
+      );
     });
 
     it("returns failure when HTTP status is not ok", async () => {
@@ -66,10 +64,7 @@ describe("HttpTelegramApiClient", () => {
 
       const result = await client.getWebhookInfo("token-12345");
 
-      expect(result).toEqual({
-        success: false,
-        error: "Telegram getWebhookInfo failed: HTTP 500",
-      });
+      expect(result).toEqualFailure("Telegram getWebhookInfo failed: HTTP 500");
     });
 
     it("returns failure when fetch throws", async () => {
@@ -77,10 +72,9 @@ describe("HttpTelegramApiClient", () => {
 
       const result = await client.getWebhookInfo("token-12345");
 
-      expect(result).toEqual({
-        success: false,
-        error: "Telegram getWebhookInfo failed: Error: Network error",
-      });
+      expect(result).toEqualFailure(
+        "Telegram getWebhookInfo failed: Error: Network error",
+      );
     });
   });
 
@@ -96,7 +90,7 @@ describe("HttpTelegramApiClient", () => {
 
       const result = await client.setWebhook(params);
 
-      expect(result).toEqual({ success: true, data: undefined });
+      expect(result).toEqualSuccess(undefined);
       expect(mockFetch).toHaveBeenCalledWith(
         `${baseUrl}/bottoken-12345/setWebhook`,
         expect.objectContaining({
@@ -117,10 +111,7 @@ describe("HttpTelegramApiClient", () => {
 
       const result = await client.setWebhook(params);
 
-      expect(result).toEqual({
-        success: false,
-        error: "Telegram setWebhook failed: Some error",
-      });
+      expect(result).toEqualFailure("Telegram setWebhook failed: Some error");
     });
 
     it("returns failure when response has unexpected format", async () => {
@@ -128,10 +119,9 @@ describe("HttpTelegramApiClient", () => {
 
       const result = await client.setWebhook(params);
 
-      expect(result).toEqual({
-        success: false,
-        error: "Telegram setWebhook returned unexpected response format",
-      });
+      expect(result).toEqualFailure(
+        "Telegram setWebhook returned unexpected response format",
+      );
     });
 
     it("returns failure when HTTP status is not ok", async () => {
@@ -139,10 +129,7 @@ describe("HttpTelegramApiClient", () => {
 
       const result = await client.setWebhook(params);
 
-      expect(result).toEqual({
-        success: false,
-        error: "Telegram setWebhook failed: HTTP 500",
-      });
+      expect(result).toEqualFailure("Telegram setWebhook failed: HTTP 500");
     });
 
     it("returns failure when fetch throws", async () => {
@@ -150,10 +137,9 @@ describe("HttpTelegramApiClient", () => {
 
       const result = await client.setWebhook(params);
 
-      expect(result).toEqual({
-        success: false,
-        error: "Telegram setWebhook failed: Error: Network error",
-      });
+      expect(result).toEqualFailure(
+        "Telegram setWebhook failed: Error: Network error",
+      );
     });
   });
 
@@ -163,7 +149,7 @@ describe("HttpTelegramApiClient", () => {
 
       const result = await client.deleteWebhook("token-12345");
 
-      expect(result).toEqual({ success: true, data: undefined });
+      expect(result).toEqualSuccess(undefined);
       expect(mockFetch).toHaveBeenCalledWith(
         `${baseUrl}/bottoken-12345/deleteWebhook`,
         expect.objectContaining({ method: "POST" }),
@@ -177,10 +163,9 @@ describe("HttpTelegramApiClient", () => {
 
       const result = await client.deleteWebhook("token-12345");
 
-      expect(result).toEqual({
-        success: false,
-        error: "Telegram deleteWebhook failed: Some error",
-      });
+      expect(result).toEqualFailure(
+        "Telegram deleteWebhook failed: Some error",
+      );
     });
 
     it("returns failure when response has unexpected format", async () => {
@@ -188,10 +173,9 @@ describe("HttpTelegramApiClient", () => {
 
       const result = await client.deleteWebhook("token-12345");
 
-      expect(result).toEqual({
-        success: false,
-        error: "Telegram deleteWebhook returned unexpected response format",
-      });
+      expect(result).toEqualFailure(
+        "Telegram deleteWebhook returned unexpected response format",
+      );
     });
 
     it("returns failure when HTTP status is not ok", async () => {
@@ -199,10 +183,7 @@ describe("HttpTelegramApiClient", () => {
 
       const result = await client.deleteWebhook("token-12345");
 
-      expect(result).toEqual({
-        success: false,
-        error: "Telegram deleteWebhook failed: HTTP 500",
-      });
+      expect(result).toEqualFailure("Telegram deleteWebhook failed: HTTP 500");
     });
 
     it("returns failure when fetch throws", async () => {
@@ -210,10 +191,9 @@ describe("HttpTelegramApiClient", () => {
 
       const result = await client.deleteWebhook("token-12345");
 
-      expect(result).toEqual({
-        success: false,
-        error: "Telegram deleteWebhook failed: Error: Network error",
-      });
+      expect(result).toEqualFailure(
+        "Telegram deleteWebhook failed: Error: Network error",
+      );
     });
   });
 
@@ -229,7 +209,7 @@ describe("HttpTelegramApiClient", () => {
 
       const result = await client.sendMessage(params);
 
-      expect(result).toEqual({ success: true, data: undefined });
+      expect(result).toEqualSuccess(undefined);
       expect(mockFetch).toHaveBeenCalledWith(
         `${baseUrl}/bottoken-12345/sendMessage`,
         expect.objectContaining({
@@ -247,10 +227,7 @@ describe("HttpTelegramApiClient", () => {
 
       const result = await client.sendMessage(params);
 
-      expect(result).toEqual({
-        success: false,
-        error: "Telegram sendMessage failed: Some error",
-      });
+      expect(result).toEqualFailure("Telegram sendMessage failed: Some error");
     });
 
     it("returns failure when response has unexpected format", async () => {
@@ -258,10 +235,9 @@ describe("HttpTelegramApiClient", () => {
 
       const result = await client.sendMessage(params);
 
-      expect(result).toEqual({
-        success: false,
-        error: "Telegram sendMessage returned unexpected response format",
-      });
+      expect(result).toEqualFailure(
+        "Telegram sendMessage returned unexpected response format",
+      );
     });
 
     it("returns failure when HTTP status is not ok", async () => {
@@ -269,10 +245,7 @@ describe("HttpTelegramApiClient", () => {
 
       const result = await client.sendMessage(params);
 
-      expect(result).toEqual({
-        success: false,
-        error: "Telegram sendMessage failed: HTTP 500",
-      });
+      expect(result).toEqualFailure("Telegram sendMessage failed: HTTP 500");
     });
 
     it("returns failure when fetch throws", async () => {
@@ -280,10 +253,9 @@ describe("HttpTelegramApiClient", () => {
 
       const result = await client.sendMessage(params);
 
-      expect(result).toEqual({
-        success: false,
-        error: "Telegram sendMessage failed: Error: Network error",
-      });
+      expect(result).toEqualFailure(
+        "Telegram sendMessage failed: Error: Network error",
+      );
     });
   });
 });

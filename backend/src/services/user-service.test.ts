@@ -39,14 +39,11 @@ describe("UserService", () => {
       const result = await service.getSettings(userId);
 
       // Assert
-      expect(result).toEqual({
-        success: true,
-        data: {
-          interfaceLanguage: "de",
-          mcpToken: "token-1",
-          transactionPatternsLimit: 5,
-          voiceInputLanguage: "pl-PL",
-        },
+      expect(result).toEqualSuccess({
+        interfaceLanguage: "de",
+        mcpToken: "token-1",
+        transactionPatternsLimit: 5,
+        voiceInputLanguage: "pl-PL",
       });
       expect(mockUserRepository.findOneById).toHaveBeenCalledWith(userId);
     });
@@ -81,7 +78,7 @@ describe("UserService", () => {
       const result = await service.getSettings("");
 
       // Assert
-      expect(result).toEqual({ success: false, error: "User ID is required" });
+      expect(result).toEqualFailure("User ID is required");
       expect(mockUserRepository.findOneById).not.toHaveBeenCalled();
     });
 
@@ -95,7 +92,7 @@ describe("UserService", () => {
       const result = await service.getSettings(userId);
 
       // Assert
-      expect(result).toEqual({ success: false, error: "User not found" });
+      expect(result).toEqualFailure("User not found");
       expect(mockUserRepository.findOneById).toHaveBeenCalledWith(userId);
     });
   });
@@ -154,14 +151,11 @@ describe("UserService", () => {
       });
 
       // Assert
-      expect(result).toEqual({
-        success: true,
-        data: {
-          interfaceLanguage: "de",
-          mcpToken: "token-1",
-          transactionPatternsLimit: DEFAULT_TRANSACTION_PATTERNS_LIMIT,
-          voiceInputLanguage: undefined,
-        },
+      expect(result).toEqualSuccess({
+        interfaceLanguage: "de",
+        mcpToken: "token-1",
+        transactionPatternsLimit: DEFAULT_TRANSACTION_PATTERNS_LIMIT,
+        voiceInputLanguage: undefined,
       });
       expect(mockUserRepository.findOneById).toHaveBeenCalledWith(userId);
       expect(mockUserRepository.update).toHaveBeenCalledWith(
@@ -184,14 +178,11 @@ describe("UserService", () => {
       });
 
       // Assert
-      expect(result).toEqual({
-        success: true,
-        data: {
-          interfaceLanguage: "en",
-          mcpToken: "token-1",
-          transactionPatternsLimit: DEFAULT_TRANSACTION_PATTERNS_LIMIT,
-          voiceInputLanguage: "de-DE",
-        },
+      expect(result).toEqualSuccess({
+        interfaceLanguage: "en",
+        mcpToken: "token-1",
+        transactionPatternsLimit: DEFAULT_TRANSACTION_PATTERNS_LIMIT,
+        voiceInputLanguage: "de-DE",
       });
       expect(mockUserRepository.findOneById).toHaveBeenCalledWith(userId);
       expect(mockUserRepository.update).toHaveBeenCalledWith(
@@ -214,14 +205,11 @@ describe("UserService", () => {
       });
 
       // Assert
-      expect(result).toEqual({
-        success: true,
-        data: {
-          interfaceLanguage: "en",
-          mcpToken: "token-1",
-          transactionPatternsLimit: 7,
-          voiceInputLanguage: undefined,
-        },
+      expect(result).toEqualSuccess({
+        interfaceLanguage: "en",
+        mcpToken: "token-1",
+        transactionPatternsLimit: 7,
+        voiceInputLanguage: undefined,
       });
       expect(mockUserRepository.findOneById).toHaveBeenCalledWith(userId);
       expect(mockUserRepository.update).toHaveBeenCalledWith(
@@ -246,14 +234,11 @@ describe("UserService", () => {
       });
 
       // Assert
-      expect(result).toEqual({
-        success: true,
-        data: {
-          interfaceLanguage: "de",
-          mcpToken: "token-1",
-          transactionPatternsLimit: 5,
-          voiceInputLanguage: "en-US",
-        },
+      expect(result).toEqualSuccess({
+        interfaceLanguage: "de",
+        mcpToken: "token-1",
+        transactionPatternsLimit: 5,
+        voiceInputLanguage: "en-US",
       });
       expect(mockUserRepository.findOneById).toHaveBeenCalledWith(userId);
       expect(mockUserRepository.update).toHaveBeenCalledWith(
@@ -275,7 +260,7 @@ describe("UserService", () => {
       });
 
       // Assert
-      expect(result).toEqual({ success: false, error: "User ID is required" });
+      expect(result).toEqualFailure("User ID is required");
       expect(mockUserRepository.findOneById).not.toHaveBeenCalled();
       expect(mockUserRepository.update).not.toHaveBeenCalled();
     });
@@ -291,7 +276,7 @@ describe("UserService", () => {
       });
 
       // Assert
-      expect(result).toEqual({ success: false, error: "User not found" });
+      expect(result).toEqualFailure("User not found");
       expect(mockUserRepository.update).not.toHaveBeenCalled();
     });
 
@@ -303,10 +288,7 @@ describe("UserService", () => {
       });
 
       // Assert
-      expect(result).toEqual({
-        success: false,
-        error: "Unsupported interface language: fr",
-      });
+      expect(result).toEqualFailure("Unsupported interface language: fr");
       expect(mockUserRepository.findOneById).not.toHaveBeenCalled();
       expect(mockUserRepository.update).not.toHaveBeenCalled();
     });
@@ -319,10 +301,9 @@ describe("UserService", () => {
       });
 
       // Assert
-      expect(result).toEqual({
-        success: false,
-        error: `Transaction patterns limit must be an integer between ${MIN_TRANSACTION_PATTERNS_LIMIT} and ${MAX_TRANSACTION_PATTERNS_LIMIT}`,
-      });
+      expect(result).toEqualFailure(
+        `Transaction patterns limit must be an integer between ${MIN_TRANSACTION_PATTERNS_LIMIT} and ${MAX_TRANSACTION_PATTERNS_LIMIT}`,
+      );
       expect(mockUserRepository.findOneById).not.toHaveBeenCalled();
       expect(mockUserRepository.update).not.toHaveBeenCalled();
     });
@@ -335,10 +316,9 @@ describe("UserService", () => {
       });
 
       // Assert
-      expect(result).toEqual({
-        success: false,
-        error: `Transaction patterns limit must be an integer between ${MIN_TRANSACTION_PATTERNS_LIMIT} and ${MAX_TRANSACTION_PATTERNS_LIMIT}`,
-      });
+      expect(result).toEqualFailure(
+        `Transaction patterns limit must be an integer between ${MIN_TRANSACTION_PATTERNS_LIMIT} and ${MAX_TRANSACTION_PATTERNS_LIMIT}`,
+      );
       expect(mockUserRepository.findOneById).not.toHaveBeenCalled();
       expect(mockUserRepository.update).not.toHaveBeenCalled();
     });
@@ -351,10 +331,9 @@ describe("UserService", () => {
       });
 
       // Assert
-      expect(result).toEqual({
-        success: false,
-        error: `Transaction patterns limit must be an integer between ${MIN_TRANSACTION_PATTERNS_LIMIT} and ${MAX_TRANSACTION_PATTERNS_LIMIT}`,
-      });
+      expect(result).toEqualFailure(
+        `Transaction patterns limit must be an integer between ${MIN_TRANSACTION_PATTERNS_LIMIT} and ${MAX_TRANSACTION_PATTERNS_LIMIT}`,
+      );
       expect(mockUserRepository.findOneById).not.toHaveBeenCalled();
       expect(mockUserRepository.update).not.toHaveBeenCalled();
     });
@@ -396,12 +375,11 @@ describe("UserService", () => {
 
       // Assert
       const updatedUser = mockUserRepository.update.mock.calls[0]?.[0];
-      expect(result).toEqual({
-        success: true,
-        data: expect.objectContaining({
+      expect(result).toEqualSuccess(
+        expect.objectContaining({
           mcpToken: updatedUser?.mcpToken,
         }),
-      });
+      );
     });
 
     // Validation failures
@@ -414,7 +392,7 @@ describe("UserService", () => {
       const result = await service.regenerateMcpToken(faker.string.uuid());
 
       // Assert
-      expect(result).toEqual({ success: false, error: "User not found" });
+      expect(result).toEqualFailure("User not found");
       expect(mockUserRepository.update).not.toHaveBeenCalled();
     });
   });

@@ -32,10 +32,7 @@ describe("TrendPresetService", () => {
       const result = await service.getTrendPresetsByUser(userId);
 
       // Assert
-      expect(result).toEqual({
-        success: true,
-        data: trendPresets,
-      });
+      expect(result).toEqualSuccess(trendPresets);
       expect(trendPresetRepository.findManyByUserId).toHaveBeenCalledWith(
         userId,
       );
@@ -58,16 +55,15 @@ describe("TrendPresetService", () => {
       const result = await service.createTrendPreset(userId, input);
 
       // Assert
-      expect(result).toEqual({
-        success: true,
-        data: expect.objectContaining({
+      expect(result).toEqualSuccess(
+        expect.objectContaining({
           userId,
           periodUnit: "MONTH",
           lookback: 6,
           currency: "EUR",
           categoryIds: ["category-1"],
         }),
-      });
+      );
       expect(trendPresetRepository.create).toHaveBeenCalledTimes(1);
 
       const created = trendPresetRepository.create.mock.calls[0]?.[0];
@@ -88,10 +84,9 @@ describe("TrendPresetService", () => {
       const result = await service.createTrendPreset(userId, input);
 
       // Assert
-      expect(result).toEqual({
-        success: false,
-        error: "Lookback must be a whole number from 1 to 12",
-      });
+      expect(result).toEqualFailure(
+        "Lookback must be a whole number from 1 to 12",
+      );
       expect(trendPresetRepository.create).not.toHaveBeenCalled();
     });
 
@@ -122,7 +117,7 @@ describe("TrendPresetService", () => {
       const result = await service.deleteTrendPreset(userId, id);
 
       // Assert
-      expect(result).toEqual({ success: true, data: true });
+      expect(result).toEqualSuccess(true);
       expect(trendPresetRepository.deleteOneById).toHaveBeenCalledWith({
         id,
         userId,

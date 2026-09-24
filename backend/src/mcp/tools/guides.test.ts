@@ -88,10 +88,7 @@ describe("verifyGuideTokens", () => {
     });
 
     // Assert
-    expect(result).toEqual({
-      success: true,
-      data: true,
-    });
+    expect(result).toEqualSuccess(true);
   });
 
   it("ignores tokens for guides that were not required", () => {
@@ -102,10 +99,7 @@ describe("verifyGuideTokens", () => {
     });
 
     // Assert
-    expect(result).toEqual({
-      success: true,
-      data: true,
-    });
+    expect(result).toEqualSuccess(true);
   });
 
   it("accepts token from previous hour bucket", () => {
@@ -124,10 +118,7 @@ describe("verifyGuideTokens", () => {
       });
 
       // Assert
-      expect(result).toEqual({
-        success: true,
-        data: true,
-      });
+      expect(result).toEqualSuccess(true);
     } finally {
       // Restores clock even if assertion above fails
       vi.useRealTimers();
@@ -144,11 +135,9 @@ describe("verifyGuideTokens", () => {
     });
 
     // Assert
-    expect(result).toEqual({
-      success: false,
-      error:
-        "Missing or invalid guide token for: basics. Reload the guide(s) and retry",
-    });
+    expect(result).toEqualFailure(
+      "Missing or invalid guide token for: basics. Reload the guide(s) and retry",
+    );
   });
 
   it("rejects malformed token", () => {
@@ -159,11 +148,9 @@ describe("verifyGuideTokens", () => {
     });
 
     // Assert
-    expect(result).toEqual({
-      success: false,
-      error:
-        "Missing or invalid guide token for: basics. Reload the guide(s) and retry",
-    });
+    expect(result).toEqualFailure(
+      "Missing or invalid guide token for: basics. Reload the guide(s) and retry",
+    );
   });
 
   it("rejects token issued two or more hours ago", () => {
@@ -182,11 +169,9 @@ describe("verifyGuideTokens", () => {
       });
 
       // Assert
-      expect(result).toEqual({
-        success: false,
-        error:
-          "Missing or invalid guide token for: basics. Reload the guide(s) and retry",
-      });
+      expect(result).toEqualFailure(
+        "Missing or invalid guide token for: basics. Reload the guide(s) and retry",
+      );
     } finally {
       // Restores clock even if assertion above fails
       vi.useRealTimers();
@@ -206,10 +191,9 @@ describe("verifyGuideTokens", () => {
     });
 
     // Assert
-    expect(result).toEqual({
-      success: false,
-      error: `Missing or invalid guide token for: ${missingGuide.name}. Reload the guide(s) and retry`,
-    });
+    expect(result).toEqualFailure(
+      `Missing or invalid guide token for: ${missingGuide.name}. Reload the guide(s) and retry`,
+    );
   });
 
   it("does not disclose valid token in failure message", () => {
@@ -220,10 +204,9 @@ describe("verifyGuideTokens", () => {
     });
 
     // Assert
-    expect(result).toEqual({
-      success: false,
-      error: expect.not.stringContaining(GUIDES.basics.token),
-    });
+    expect(result).toEqualFailure(
+      expect.not.stringContaining(GUIDES.basics.token),
+    );
   });
 });
 

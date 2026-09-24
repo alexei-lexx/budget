@@ -144,16 +144,15 @@ describe("CategoryService", () => {
       const result = await service.createCategory(input);
 
       // Assert
-      expect(result).toEqual({
-        success: true,
-        data: expect.objectContaining({
+      expect(result).toEqualSuccess(
+        expect.objectContaining({
           userId,
           name: input.name,
           type: input.type,
           excludeFromReports: input.excludeFromReports,
           isArchived: false,
         }),
-      });
+      );
       expect(mockCategoryRepository.create).toHaveBeenCalledTimes(1);
       expect(mockCategoryRepository.create).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -222,10 +221,7 @@ describe("CategoryService", () => {
       const result = await service.createCategory(input);
 
       // Assert
-      expect(result).toEqual({
-        success: false,
-        error: 'Category "groceries" already exists',
-      });
+      expect(result).toEqualFailure('Category "groceries" already exists');
       expect(mockCategoryRepository.create).not.toHaveBeenCalled();
     });
   });
@@ -255,15 +251,14 @@ describe("CategoryService", () => {
       });
 
       // Assert
-      expect(result).toEqual({
-        success: true,
-        data: expect.objectContaining({
+      expect(result).toEqualSuccess(
+        expect.objectContaining({
           id: categoryId,
           userId,
           name: "New Name",
           type: "INCOME",
         }),
-      });
+      );
       expect(mockCategoryRepository.update).toHaveBeenCalledWith(
         expect.objectContaining({
           id: categoryId,
@@ -314,10 +309,9 @@ describe("CategoryService", () => {
       });
 
       // Assert
-      expect(result).toEqual({
-        success: true,
-        data: expect.objectContaining({ name: "Groceries" }),
-      });
+      expect(result).toEqualSuccess(
+        expect.objectContaining({ name: "Groceries" }),
+      );
       expect(mockCategoryRepository.update).toHaveBeenCalled();
       // No duplicate-name lookup when the name does not change
       expect(mockCategoryRepository.findManyByUserId).not.toHaveBeenCalled();
@@ -337,7 +331,7 @@ describe("CategoryService", () => {
       });
 
       // Assert
-      expect(result).toEqual({ success: false, error: "Category not found" });
+      expect(result).toEqualFailure("Category not found");
       expect(mockCategoryRepository.update).not.toHaveBeenCalled();
     });
 
@@ -394,10 +388,7 @@ describe("CategoryService", () => {
       });
 
       // Assert
-      expect(result).toEqual({
-        success: false,
-        error: 'Category "Groceries" already exists',
-      });
+      expect(result).toEqualFailure('Category "Groceries" already exists');
       expect(mockCategoryRepository.update).not.toHaveBeenCalled();
     });
   });
@@ -423,10 +414,9 @@ describe("CategoryService", () => {
       const result = await service.deleteCategory(categoryId, userId);
 
       // Assert
-      expect(result).toEqual({
-        success: true,
-        data: expect.objectContaining({ isArchived: true }),
-      });
+      expect(result).toEqualSuccess(
+        expect.objectContaining({ isArchived: true }),
+      );
       expect(mockCategoryRepository.update).toHaveBeenCalledWith(
         expect.objectContaining({ id: categoryId, isArchived: true }),
       );
@@ -444,10 +434,7 @@ describe("CategoryService", () => {
       const result = await service.deleteCategory(categoryId, userId);
 
       // Assert
-      expect(result).toEqual({
-        success: false,
-        error: "Category not found",
-      });
+      expect(result).toEqualFailure("Category not found");
       expect(mockCategoryRepository.update).not.toHaveBeenCalled();
     });
   });
