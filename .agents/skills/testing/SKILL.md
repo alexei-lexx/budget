@@ -85,6 +85,12 @@ Each `it` block uses `// Arrange`, `// Act`, `// Assert` sections:
 
 - Omit `// Arrange` if there is nothing to set up
 - Use `// Act & Assert` when the action and assertion are a single command
+- Omit all three sections for one-line tests:
+  ```typescript
+  it("adds numbers", () => {
+    expect(2 + 2).toBe(4);
+  });
+  ```
 
 Add a short comment above each mock setup in `// Arrange` explaining what it simulates.
 Omit articles (`a`, `an`, `the`) from comments:
