@@ -74,15 +74,13 @@ expect.extend({
   },
 });
 
-// Custom matcher augmentation pattern — see https://vitest.dev/guide/extending-matchers
 declare module "vitest" {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  interface Matchers<T = any> {
+  interface Matchers<R, T> {
     toEvaluateTrue: T extends Evaluator<infer Params>
-      ? (params: Params) => Promise<void>
+      ? (params: Params) => Promise<R>
       : never;
     toEvaluateAtLeast: T extends Evaluator<infer Params>
-      ? (params: Params, threshold: number) => Promise<void>
+      ? (params: Params, threshold: number) => Promise<R>
       : never;
   }
 }
