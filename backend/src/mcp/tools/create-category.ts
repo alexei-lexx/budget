@@ -34,14 +34,16 @@ export async function createCategory(
   });
   if (!verification.success) return verification;
 
-  const created = await categoryService.createCategory({
+  const result = await categoryService.createCategory({
     userId,
     name,
     type,
     excludeFromReports: excludeFromReports ?? false,
   });
 
-  return Success(toCategoryDto(created));
+  if (!result.success) return result;
+
+  return Success(toCategoryDto(result.data));
 }
 
 const inputSchema = z.object({

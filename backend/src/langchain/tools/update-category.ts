@@ -58,13 +58,15 @@ export const createUpdateCategoryTool = ({
         ...(input.type !== undefined && { type: input.type }),
       };
 
-      const updated = await categoryService.updateCategory(
+      const result = await categoryService.updateCategory(
         input.id,
         userId,
         serviceInput,
       );
 
-      return Success(toCategoryDto(updated));
+      if (!result.success) return result;
+
+      return Success(toCategoryDto(result.data));
     },
     {
       name: "update_category",

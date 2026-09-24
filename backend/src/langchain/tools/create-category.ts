@@ -43,14 +43,16 @@ export const createCreateCategoryTool = ({
         config?.context?.userId,
       );
 
-      const created = await categoryService.createCategory({
+      const result = await categoryService.createCategory({
         userId,
         name: input.name,
         type: input.type,
         excludeFromReports: input.excludeFromReports,
       });
 
-      return Success(toCategoryDto(created));
+      if (!result.success) return result;
+
+      return Success(toCategoryDto(result.data));
     },
     {
       name: "create_category",

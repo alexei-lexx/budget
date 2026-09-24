@@ -6,20 +6,20 @@ import {
 } from "../models/category";
 import { CategoryRepository } from "../ports/category-repository";
 import { EntityScope } from "../types/entity-scope";
-import { BusinessError } from "./business-error";
+import { Failure, Result, Success } from "../types/result";
 
 export interface CategoryService {
   getCategoriesByUser(
     userId: string,
     filters: { scope: EntityScope; type?: CategoryType },
   ): Promise<Category[]>;
-  createCategory(input: CreateCategoryInput): Promise<Category>;
+  createCategory(input: CreateCategoryInput): Promise<Result<Category>>;
   updateCategory(
     id: string,
     userId: string,
     input: UpdateCategoryInput,
-  ): Promise<Category>;
-  deleteCategory(id: string, userId: string): Promise<Category>;
+  ): Promise<Result<Category>>;
+  deleteCategory(id: string, userId: string): Promise<Result<Category>>;
 }
 
 /**
@@ -61,14 +61,17 @@ export class CategoryServiceImpl implements CategoryService {
   /**
    * Create a new category for a user
    * @param input - Category creation input
-   * @returns Promise<Category> - The created category
+   * @returns The created category, or a failure reason
    */
-  async createCategory(input: CreateCategoryInput): Promise<Category> {
+  async createCategory(input: CreateCategoryInput): Promise<Result<Category>> {
     const category = Category.create(input);
 
-    await this.checkDuplicateName(category.userId, category.name);
+    if (await this.isDuplicateName(category.userId, category.name)) {
+      return Failure(`Category "${category.name}" already exists`);
+    }
+
     await this.categoryRepository.create(category);
-    return category;
+    return Success(category);
   }
 
   /**
@@ -76,56 +79,61 @@ export class CategoryServiceImpl implements CategoryService {
    * @param id - Category ID to update
    * @param userId - User ID for authorization
    * @param input - Category update input
-   * @returns Promise<Category> - The updated category
+   * @returns The updated category, or a failure reason
    */
   async updateCategory(
     id: string,
     userId: string,
     input: UpdateCategoryInput,
-  ): Promise<Category> {
+  ): Promise<Result<Category>> {
     const existingCategory = await this.categoryRepository.findOneById({
       id,
       userId,
     });
 
     if (!existingCategory) {
-      throw new BusinessError("Category not found");
+      return Failure("Category not found");
     }
 
     const updatedCategory = existingCategory.update(input);
 
     // Check for duplicate names if name is being updated
-    if (updatedCategory.name !== existingCategory.name) {
-      await this.checkDuplicateName(userId, updatedCategory.name, id);
+    if (
+      updatedCategory.name !== existingCategory.name &&
+      (await this.isDuplicateName(userId, updatedCategory.name, id))
+    ) {
+      return Failure(`Category "${updatedCategory.name}" already exists`);
     }
 
-    return await this.categoryRepository.update(updatedCategory);
+    return Success(await this.categoryRepository.update(updatedCategory));
   }
 
   /**
    * Archive (soft-delete) a category
    * @param id - Category ID to archive
    * @param userId - User ID for authorization
-   * @returns Promise<Category> - The archived category
+   * @returns The archived category, or a failure reason
    */
-  async deleteCategory(id: string, userId: string): Promise<Category> {
+  async deleteCategory(id: string, userId: string): Promise<Result<Category>> {
     const existingCategory = await this.categoryRepository.findOneById({
       id,
       userId,
     });
 
     if (!existingCategory) {
-      throw new BusinessError("Category not found");
+      return Failure("Category not found");
     }
 
-    return await this.categoryRepository.update(existingCategory.archive());
+    return Success(
+      await this.categoryRepository.update(existingCategory.archive()),
+    );
   }
 
-  private async checkDuplicateName(
+  private async isDuplicateName(
     userId: string,
     name: string,
     excludeId?: string,
-  ): Promise<void> {
+  ): Promise<boolean> {
     const existingCategories =
       await this.categoryRepository.findManyByUserId(userId);
 
@@ -135,8 +143,6 @@ export class CategoryServiceImpl implements CategoryService {
         category.id !== excludeId,
     );
 
-    if (duplicateCategory) {
-      throw new BusinessError(`Category "${name}" already exists`);
-    }
+    return Boolean(duplicateCategory);
   }
 }
