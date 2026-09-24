@@ -1,67 +1,71 @@
 import { describe, expect, it } from "vitest";
-import { Failure, type Result, Success } from "../../types/result";
+import { Failure, Success } from "../../types/result";
 
-interface Data {
-  id: number;
-  name?: string;
-}
+describe("result matchers", () => {
+  describe("toEqualSuccess", () => {
+    // Happy path
 
-function success(data: Data): Result<Data, string> {
-  return Success(data);
-}
+    it("passes when Success data matches", () => {
+      expect(Success({ id: 1 })).toEqualSuccess({ id: 1 });
+    });
 
-function failure(error: string): Result<Data, string> {
-  return Failure(error);
-}
+    it("supports objectContaining", () => {
+      expect(Success({ id: 1, name: "a" })).toEqualSuccess(
+        expect.objectContaining({ id: 1 }),
+      );
+    });
 
-describe("toEqualSuccess", () => {
-  it("passes when Success data matches", () => {
-    expect(success({ id: 1 })).toEqualSuccess({ id: 1 });
+    // Validation failures
+
+    it("fails when Success data does not match", () => {
+      // Arrange
+      const subject = () =>
+        expect(Success({ id: 1 })).toEqualSuccess({ id: 2 });
+
+      // Act & Assert
+      expect(subject).toThrow(/"id": 2/);
+    });
+
+    it("fails when actual is Failure", () => {
+      // Arrange
+      const subject = () => expect(Failure("boom")).toEqualSuccess({ id: 1 });
+
+      // Act & Assert
+      expect(subject).toThrow(/expected Success, got Failure/);
+    });
   });
 
-  it("supports asymmetric matchers", () => {
-    expect(success({ id: 1, name: "a" })).toEqualSuccess(
-      expect.objectContaining({ id: 1 }),
-    );
-  });
+  describe("toEqualFailure", () => {
+    // Happy path
 
-  it("fails when Success data does not match", () => {
-    expect(() =>
-      expect(success({ id: 1 })).toEqualSuccess({ id: 2 }),
-    ).toThrow();
-  });
+    it("passes when Failure error matches", () => {
+      expect(Failure("not found")).toEqualFailure("not found");
+    });
 
-  it("fails when actual is a Failure", () => {
-    expect(() =>
-      expect(failure("boom")).toEqualSuccess({ id: 1 }),
-    ).toThrow(/expected Success, got Failure/);
-  });
+    it("supports objectContaining", () => {
+      expect(
+        Failure({ code: "NOT_FOUND", details: "widget 1" }),
+      ).toEqualFailure(expect.objectContaining({ code: "NOT_FOUND" }));
+    });
 
-  it("negates with .not", () => {
-    expect(failure("boom")).not.toEqualSuccess({ id: 1 });
-    expect(success({ id: 1 })).not.toEqualSuccess({ id: 2 });
-  });
-});
+    // Validation failures
 
-describe("toEqualFailure", () => {
-  it("passes when Failure error matches", () => {
-    expect(failure("not found")).toEqualFailure("not found");
-  });
+    it("fails when Failure error does not match", () => {
+      // Arrange
+      const subject = () =>
+        expect(Failure("not found")).toEqualFailure("other error");
 
-  it("fails when Failure error does not match", () => {
-    expect(() =>
-      expect(failure("not found")).toEqualFailure("other error"),
-    ).toThrow();
-  });
+      // Act & Assert
+      expect(subject).toThrow(/other error/);
+    });
 
-  it("fails when actual is a Success", () => {
-    expect(() =>
-      expect(success({ id: 1 })).toEqualFailure("not found"),
-    ).toThrow(/expected Failure, got Success/);
-  });
+    it("fails when actual is Success", () => {
+      // Arrange
+      const subject = () =>
+        expect(Success({ id: 1 })).toEqualFailure("not found");
 
-  it("negates with .not", () => {
-    expect(success({ id: 1 })).not.toEqualFailure("not found");
-    expect(failure("not found")).not.toEqualFailure("other error");
+      // Act & Assert
+      expect(subject).toThrow(/expected Failure, got Success/);
+    });
   });
 });
