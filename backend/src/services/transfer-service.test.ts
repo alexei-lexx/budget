@@ -643,8 +643,6 @@ describe("TransferService", () => {
         .mockResolvedValueOnce(destAccount);
       // Rejects with unexpected error
       mockAtomicWriter.commit.mockRejectedValue(new Error("DB down"));
-      // Suppress error log noise
-      vi.spyOn(console, "error").mockImplementation(vi.fn());
 
       // Act
       const result = await service.deleteTransfer(transferId, userId);
