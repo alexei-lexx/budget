@@ -7,6 +7,19 @@ import { TransactionRepository } from "../ports/transaction-repository";
 import { DateString } from "../types/date-string";
 import { Failure, Result, Success } from "../types/result";
 
+const ACCOUNT_NOT_FOUND_ERROR = "Account not found or doesn't belong to user";
+const SELF_TRANSFER_ERROR = "Cannot transfer money to the same account";
+const TRANSFER_NOT_FOUND_ERROR = "Transfer not found or doesn't belong to user";
+
+function currencyMismatchFailure(
+  fromCurrency: string,
+  toCurrency: string,
+): Result<never, string> {
+  return Failure(
+    `Cannot transfer between accounts with different currencies. Source account uses ${fromCurrency}, destination account uses ${toCurrency}`,
+  );
+}
+
 /**
  * Input type for creating transfers between accounts
  */
@@ -82,40 +95,33 @@ export class TransferService {
     userId: string,
   ): Promise<Result<TransferResult, string>> {
     // Validate not transferring to the same account (fail fast before DB calls)
-    const selfTransferCheck = this.validateNotSelfTransfer(
-      input.fromAccountId,
-      input.toAccountId,
-    );
-    if (!selfTransferCheck.success) {
-      return selfTransferCheck;
+    if (input.fromAccountId === input.toAccountId) {
+      return Failure(SELF_TRANSFER_ERROR);
     }
 
     // Validate both accounts exist and belong to user
-    const sourceAccountResult = await this.ensureActiveAccount(
-      input.fromAccountId,
+    const sourceAccount = await this.accountRepository.findOneById({
+      id: input.fromAccountId,
       userId,
-    );
-    if (!sourceAccountResult.success) {
-      return sourceAccountResult;
+    });
+    if (!sourceAccount) {
+      return Failure(ACCOUNT_NOT_FOUND_ERROR);
     }
-    const sourceAccount = sourceAccountResult.data;
 
-    const destAccountResult = await this.ensureActiveAccount(
-      input.toAccountId,
+    const destAccount = await this.accountRepository.findOneById({
+      id: input.toAccountId,
       userId,
-    );
-    if (!destAccountResult.success) {
-      return destAccountResult;
+    });
+    if (!destAccount) {
+      return Failure(ACCOUNT_NOT_FOUND_ERROR);
     }
-    const destAccount = destAccountResult.data;
 
     // Validate accounts have the same currency
-    const currencyCheck = this.validateCurrencyMatch(
-      sourceAccount,
-      destAccount,
-    );
-    if (!currencyCheck.success) {
-      return currencyCheck;
+    if (sourceAccount.currency !== destAccount.currency) {
+      return currencyMismatchFailure(
+        sourceAccount.currency,
+        destAccount.currency,
+      );
     }
 
     // Generate a unique transfer ID to link the two transactions
@@ -193,7 +199,7 @@ export class TransferService {
 
     // Validate transfer exists
     if (transferTransactions.length === 0) {
-      return Failure("Transfer not found or doesn't belong to user");
+      return Failure(TRANSFER_NOT_FOUND_ERROR);
     }
 
     const outboundTransaction = transferTransactions.find(
@@ -273,18 +279,17 @@ export class TransferService {
 
     const existingTransfer = existingTransferResult.data;
     if (!existingTransfer) {
-      return Failure("Transfer not found or doesn't belong to user");
+      return Failure(TRANSFER_NOT_FOUND_ERROR);
     }
 
     const { outboundTransaction, inboundTransaction } = existingTransfer;
 
     // After change, source and destination accounts cannot be the same
-    const selfTransferCheck = this.validateNotSelfTransfer(
-      input.fromAccountId ?? outboundTransaction.accountId,
-      input.toAccountId ?? inboundTransaction.accountId,
-    );
-    if (!selfTransferCheck.success) {
-      return selfTransferCheck;
+    const newFromAccountId =
+      input.fromAccountId ?? outboundTransaction.accountId;
+    const newToAccountId = input.toAccountId ?? inboundTransaction.accountId;
+    if (newFromAccountId === newToAccountId) {
+      return Failure(SELF_TRANSFER_ERROR);
     }
 
     const oldSourceAccount =
@@ -294,7 +299,7 @@ export class TransferService {
       });
 
     if (!oldSourceAccount) {
-      return Failure("Account not found or doesn't belong to user");
+      return Failure(ACCOUNT_NOT_FOUND_ERROR);
     }
 
     const oldDestAccount = await this.accountRepository.findOneWithArchivedById(
@@ -305,40 +310,39 @@ export class TransferService {
     );
 
     if (!oldDestAccount) {
-      return Failure("Account not found or doesn't belong to user");
+      return Failure(ACCOUNT_NOT_FOUND_ERROR);
     }
 
     let newSourceAccount = oldSourceAccount;
     if (input.fromAccountId) {
-      const newSourceAccountResult = await this.ensureActiveAccount(
-        input.fromAccountId,
+      const account = await this.accountRepository.findOneById({
+        id: input.fromAccountId,
         userId,
-      );
-      if (!newSourceAccountResult.success) {
-        return newSourceAccountResult;
+      });
+      if (!account) {
+        return Failure(ACCOUNT_NOT_FOUND_ERROR);
       }
-      newSourceAccount = newSourceAccountResult.data;
+      newSourceAccount = account;
     }
 
     let newDestAccount = oldDestAccount;
     if (input.toAccountId) {
-      const newDestAccountResult = await this.ensureActiveAccount(
-        input.toAccountId,
+      const account = await this.accountRepository.findOneById({
+        id: input.toAccountId,
         userId,
-      );
-      if (!newDestAccountResult.success) {
-        return newDestAccountResult;
+      });
+      if (!account) {
+        return Failure(ACCOUNT_NOT_FOUND_ERROR);
       }
-      newDestAccount = newDestAccountResult.data;
+      newDestAccount = account;
     }
 
     // Validate accounts have the same currency
-    const currencyCheck = this.validateCurrencyMatch(
-      newSourceAccount,
-      newDestAccount,
-    );
-    if (!currencyCheck.success) {
-      return currencyCheck;
+    if (newSourceAccount.currency !== newDestAccount.currency) {
+      return currencyMismatchFailure(
+        newSourceAccount.currency,
+        newDestAccount.currency,
+      );
     }
 
     const sharedUpdate = {
@@ -489,63 +493,5 @@ export class TransferService {
     }
 
     return Success({ transferId, outboundTransaction, inboundTransaction });
-  }
-
-  /**
-   * Validate that an account exists and belongs to the user
-   * @param accountId - The account ID to validate
-   * @param userId - The user ID to check ownership
-   * @returns The validated account, or a failure reason
-   */
-  private async ensureActiveAccount(
-    accountId: string,
-    userId: string,
-  ): Promise<Result<Account, string>> {
-    const account = await this.accountRepository.findOneById({
-      id: accountId,
-      userId,
-    });
-
-    if (!account) {
-      return Failure("Account not found or doesn't belong to user");
-    }
-
-    return Success(account);
-  }
-
-  /**
-   * Validate that both accounts have the same currency
-   * @param fromAccount - The source account
-   * @param toAccount - The destination account
-   * @returns Success, or a failure reason if currencies don't match
-   */
-  private validateCurrencyMatch(
-    fromAccount: Account,
-    toAccount: Account,
-  ): Result<void, string> {
-    if (fromAccount.currency !== toAccount.currency) {
-      return Failure(
-        `Cannot transfer between accounts with different currencies. Source account uses ${fromAccount.currency}, destination account uses ${toAccount.currency}`,
-      );
-    }
-
-    return Success(undefined);
-  }
-
-  /**
-   * Validate that the transfer is not to the same account (self-transfer)
-   * @param fromAccountId - The source account ID
-   * @param toAccountId - The destination account ID
-   * @returns Success, or a failure reason if attempting to transfer to the same account
-   */
-  private validateNotSelfTransfer(
-    fromAccountId: string,
-    toAccountId: string,
-  ): Result<void, string> {
-    if (fromAccountId === toAccountId) {
-      return Failure("Cannot transfer money to the same account");
-    }
-
-    return Success(undefined);
   }
 }
