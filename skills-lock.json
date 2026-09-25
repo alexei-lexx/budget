@@ -5,13 +5,19 @@
       "source": "alexei-lexx/skills",
       "sourceType": "github",
       "skillPath": "skills/address-review-comments/SKILL.md",
-      "computedHash": "61d3b979a3348dff9108e3a128893a2a860ab2185555041952f2b43bcd713ce7"
+      "computedHash": "332876a925c04e27fcdc893886e32ef516954d78d2d9e55f7ecc5c518bdd785a"
+    },
+    "finish-up": {
+      "source": "alexei-lexx/skills",
+      "sourceType": "github",
+      "skillPath": "skills/finish-up/SKILL.md",
+      "computedHash": "2bee2a2c6ddb2cf14964dd551ad2d64e480f1a1ff86af149f84de3d824fb56a3"
     },
     "format-git-commit": {
       "source": "alexei-lexx/skills",
       "sourceType": "github",
       "skillPath": "skills/format-git-commit/SKILL.md",
-      "computedHash": "b3a9f76d2c327aac2d86132ec7e858c5ff27917fb3bd8a44560d9fa96dbfa925"
+      "computedHash": "24c19f0e8426ad3c5ee4cf72329f503c6abf1436208fd598da9bfb78d9d0adf5"
     },
     "format-github-issue": {
       "source": "alexei-lexx/skills",
@@ -29,13 +35,13 @@
       "source": "alexei-lexx/skills",
       "sourceType": "github",
       "skillPath": "skills/interview/SKILL.md",
-      "computedHash": "21a524c162024cd3ea623f1950d598ec441e29491e51ae752e87cf8a87ec1372"
+      "computedHash": "029a05dad0dbd777e1676a1e1f166d4b8ff455d405155ec1f22837503fa149c3"
     },
     "teach-me": {
       "source": "alexei-lexx/skills",
       "sourceType": "github",
       "skillPath": "skills/teach-me/SKILL.md",
-      "computedHash": "52170e3a651130bcd4bc48bafac6929d716a7984e4a8bacd3f643ad1f9881fb4"
+      "computedHash": "ea58ea2395e3eaa5bb43b723a78a44a4f64e01d884507ab0cae7d84dd89c094a"
     },
     "testing": {
       "source": "alexei-lexx/skills",
