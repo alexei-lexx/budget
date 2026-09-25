@@ -1,3 +1,4 @@
+import { GraphQLError } from "graphql";
 import {
   MutationCreateTransferArgs,
   MutationDeleteTransferArgs,
@@ -17,14 +18,20 @@ export const transferResolvers = {
       context: GraphQLContext,
     ) => {
       const user = await getAuthenticatedUser(context);
-      const transferResult = await context.transferService.getTransfer(
+      const result = await context.transferService.getTransfer(
         args.id,
         user.id,
       );
 
-      if (!transferResult) {
+      if (!result.success) {
+        throw new GraphQLError(result.error);
+      }
+
+      if (!result.data) {
         return undefined;
       }
+
+      const transferResult = result.data;
 
       return {
         id: transferResult.transferId,
@@ -41,13 +48,19 @@ export const transferResolvers = {
     ) => {
       const user = await getAuthenticatedUser(context);
 
-      const transferResult = await context.transferService.createTransfer(
+      const result = await context.transferService.createTransfer(
         {
           ...args.input,
           date: toDateString(args.input.date),
         },
         user.id,
       );
+
+      if (!result.success) {
+        throw new GraphQLError(result.error);
+      }
+
+      const transferResult = result.data;
 
       return {
         id: transferResult.transferId,
@@ -63,17 +76,19 @@ export const transferResolvers = {
       const user = await getAuthenticatedUser(context);
       const { id, ...updateData } = args.input;
 
-      const transferResult = await context.transferService.updateTransfer(
-        id,
-        user.id,
-        {
-          ...updateData,
-          amount: updateData.amount ?? undefined,
-          date: toDateStringOrUndefined(updateData.date),
-          fromAccountId: updateData.fromAccountId ?? undefined,
-          toAccountId: updateData.toAccountId ?? undefined,
-        },
-      );
+      const result = await context.transferService.updateTransfer(id, user.id, {
+        ...updateData,
+        amount: updateData.amount ?? undefined,
+        date: toDateStringOrUndefined(updateData.date),
+        fromAccountId: updateData.fromAccountId ?? undefined,
+        toAccountId: updateData.toAccountId ?? undefined,
+      });
+
+      if (!result.success) {
+        throw new GraphQLError(result.error);
+      }
+
+      const transferResult = result.data;
 
       return {
         id: transferResult.transferId,
@@ -87,7 +102,15 @@ export const transferResolvers = {
       context: GraphQLContext,
     ) => {
       const user = await getAuthenticatedUser(context);
-      await context.transferService.deleteTransfer(args.id, user.id);
+      const result = await context.transferService.deleteTransfer(
+        args.id,
+        user.id,
+      );
+
+      if (!result.success) {
+        throw new GraphQLError(result.error);
+      }
+
       return true;
     },
   },
