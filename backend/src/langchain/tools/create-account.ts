@@ -41,16 +41,18 @@ export const createCreateAccountTool = ({
         config?.context?.userId,
       );
 
-      const created = await accountService.createAccount({
+      const result = await accountService.createAccount({
         userId,
         name: input.name,
         currency: input.currency,
         initialBalance: input.initialBalance ?? 0,
       });
 
+      if (!result.success) return result;
+
       return Success({
-        ...toAccountDto(created),
-        initialBalance: created.initialBalance,
+        ...toAccountDto(result.data),
+        initialBalance: result.data.initialBalance,
       });
     },
     {

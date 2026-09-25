@@ -50,13 +50,15 @@ export const createUpdateAccountTool = ({
         ...(input.currency !== undefined && { currency: input.currency }),
       };
 
-      const updated = await accountService.updateAccount(
+      const result = await accountService.updateAccount(
         input.id,
         userId,
         serviceInput,
       );
 
-      return Success(toAccountDto(updated));
+      if (!result.success) return result;
+
+      return Success(toAccountDto(result.data));
     },
     {
       name: "update_account",

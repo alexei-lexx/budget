@@ -10,7 +10,6 @@ import {
 import { createMockAccountRepository } from "../utils/test-utils/repositories/account-repository-mocks";
 import { createMockTransactionRepository } from "../utils/test-utils/repositories/transaction-repository-mocks";
 import { AccountServiceImpl } from "./account-service";
-import { BusinessError } from "./business-error";
 
 describe("AccountService", () => {
   let mockAccountRepository: Mocked<AccountRepository>;
@@ -130,16 +129,25 @@ describe("AccountService", () => {
       const result = await service.createAccount(input);
 
       // Assert
-      expect(result).toMatchObject({
-        userId,
-        name: input.name,
-        currency: input.currency,
-        initialBalance: input.initialBalance,
-        isArchived: false,
-        version: 0,
-      });
+      expect(result).toEqualSuccess(
+        expect.objectContaining({
+          userId,
+          name: input.name,
+          currency: input.currency,
+          initialBalance: input.initialBalance,
+          isArchived: false,
+          version: 0,
+        }),
+      );
       expect(mockAccountRepository.create).toHaveBeenCalledTimes(1);
-      expect(mockAccountRepository.create).toHaveBeenCalledWith(result);
+      expect(mockAccountRepository.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          userId,
+          name: input.name,
+          currency: input.currency,
+          initialBalance: input.initialBalance,
+        }),
+      );
     });
 
     // Validation failures
@@ -154,7 +162,7 @@ describe("AccountService", () => {
       expect(mockAccountRepository.create).not.toHaveBeenCalled();
     });
 
-    it("throws when account name already exists (case-insensitive)", async () => {
+    it("fails when account name already exists (case-insensitive)", async () => {
       // Arrange
       // Another account with the same name exists (different casing)
       mockAccountRepository.findManyByUserId.mockResolvedValue([
@@ -162,13 +170,11 @@ describe("AccountService", () => {
       ]);
       const input = fakeCreateAccountInput({ userId, name: "savings" });
 
-      // Act & Assert
-      const promise = service.createAccount(input);
+      // Act
+      const result = await service.createAccount(input);
 
-      await expect(promise).rejects.toThrow(BusinessError);
-      await expect(promise).rejects.toMatchObject({
-        message: 'Account "savings" already exists',
-      });
+      // Assert
+      expect(result).toEqualFailure('Account "savings" already exists');
       expect(mockAccountRepository.create).not.toHaveBeenCalled();
     });
 
@@ -219,11 +225,13 @@ describe("AccountService", () => {
       });
 
       // Assert
-      expect(result).toMatchObject({
-        id: accountId,
-        userId,
-        name: "New Name",
-      });
+      expect(result).toEqualSuccess(
+        expect.objectContaining({
+          id: accountId,
+          userId,
+          name: "New Name",
+        }),
+      );
       expect(mockAccountRepository.update).toHaveBeenCalledWith(
         expect.objectContaining({ id: accountId, name: "New Name" }),
       );
@@ -249,7 +257,9 @@ describe("AccountService", () => {
       });
 
       // Assert
-      expect(result.name).toBe("Savings");
+      expect(result).toEqualSuccess(
+        expect.objectContaining({ name: "Savings" }),
+      );
       expect(mockAccountRepository.update).toHaveBeenCalled();
       // No duplicate-name lookup when the name does not change
       expect(mockAccountRepository.findManyByUserId).not.toHaveBeenCalled();
@@ -279,7 +289,9 @@ describe("AccountService", () => {
       });
 
       // Assert
-      expect(result.currency).toBe("EUR");
+      expect(result).toEqualSuccess(
+        expect.objectContaining({ currency: "EUR" }),
+      );
       expect(mockAccountRepository.update).toHaveBeenCalledWith(
         expect.objectContaining({ currency: "EUR" }),
       );
@@ -287,22 +299,20 @@ describe("AccountService", () => {
 
     // Validation failures
 
-    it("throws when account is not found", async () => {
+    it("fails when account is not found", async () => {
       // Arrange
       const accountId = faker.string.uuid();
 
       // Account does not exist
       mockAccountRepository.findOneById.mockResolvedValue(null);
 
-      // Act & Assert
-      const promise = service.updateAccount(accountId, userId, {
+      // Act
+      const result = await service.updateAccount(accountId, userId, {
         name: "Test",
       });
 
-      await expect(promise).rejects.toThrow(BusinessError);
-      await expect(promise).rejects.toMatchObject({
-        message: "Account not found",
-      });
+      // Assert
+      expect(result).toEqualFailure("Account not found");
       expect(mockAccountRepository.update).not.toHaveBeenCalled();
     });
 
@@ -319,7 +329,7 @@ describe("AccountService", () => {
       expect(mockAccountRepository.update).not.toHaveBeenCalled();
     });
 
-    it("throws when updated name already exists for another account", async () => {
+    it("fails when updated name already exists for another account", async () => {
       // Arrange
       const accountId = faker.string.uuid();
       const currentAccount = fakeAccount({
@@ -336,19 +346,17 @@ describe("AccountService", () => {
         anotherAccount,
       ]);
 
-      // Act & Assert
-      const promise = service.updateAccount(accountId, userId, {
+      // Act
+      const result = await service.updateAccount(accountId, userId, {
         name: "Savings",
       });
 
-      await expect(promise).rejects.toThrow(BusinessError);
-      await expect(promise).rejects.toMatchObject({
-        message: 'Account "Savings" already exists',
-      });
+      // Assert
+      expect(result).toEqualFailure('Account "Savings" already exists');
       expect(mockAccountRepository.update).not.toHaveBeenCalled();
     });
 
-    it("throws when changing currency and account has existing transactions", async () => {
+    it("fails when changing currency and account has existing transactions", async () => {
       // Arrange
       const accountId = faker.string.uuid();
       const currentAccount = fakeAccount({
@@ -363,16 +371,15 @@ describe("AccountService", () => {
         true,
       );
 
-      // Act & Assert
-      const promise = service.updateAccount(accountId, userId, {
+      // Act
+      const result = await service.updateAccount(accountId, userId, {
         currency: "EUR",
       });
 
-      await expect(promise).rejects.toThrow(BusinessError);
-      await expect(promise).rejects.toMatchObject({
-        message:
-          "Cannot change currency for account that has existing transactions. Please create a new account with the desired currency instead.",
-      });
+      // Assert
+      expect(result).toEqualFailure(
+        "Cannot change currency for account that has existing transactions. Please create a new account with the desired currency instead.",
+      );
       expect(mockAccountRepository.update).not.toHaveBeenCalled();
     });
 
@@ -421,7 +428,9 @@ describe("AccountService", () => {
       const result = await service.deleteAccount(accountId, userId);
 
       // Assert
-      expect(result.isArchived).toBe(true);
+      expect(result).toEqualSuccess(
+        expect.objectContaining({ isArchived: true }),
+      );
       expect(mockAccountRepository.update).toHaveBeenCalledWith(
         expect.objectContaining({ id: accountId, isArchived: true }),
       );
@@ -429,19 +438,17 @@ describe("AccountService", () => {
 
     // Validation failures
 
-    it("throws when account is not found", async () => {
+    it("fails when account is not found", async () => {
       // Arrange
       const accountId = faker.string.uuid();
 
       mockAccountRepository.findOneById.mockResolvedValue(null);
 
-      // Act & Assert
-      const promise = service.deleteAccount(accountId, userId);
+      // Act
+      const result = await service.deleteAccount(accountId, userId);
 
-      await expect(promise).rejects.toThrow(BusinessError);
-      await expect(promise).rejects.toMatchObject({
-        message: "Account not found",
-      });
+      // Assert
+      expect(result).toEqualFailure("Account not found");
       expect(mockAccountRepository.update).not.toHaveBeenCalled();
     });
 
