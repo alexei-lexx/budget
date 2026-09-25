@@ -214,6 +214,7 @@ describe("TransferService", () => {
       );
 
       // Assert
+      expect(result).toEqualSuccess();
       if (!result.success) throw new Error("Expected success"); // Type guard
 
       expect(result.data.transferId).toEqual(expect.any(String));
