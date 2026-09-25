@@ -92,7 +92,7 @@ export class ByCategoryReportService {
       transactionTypesToFetch = ["INCOME"];
       amountGetter = (transaction) => transaction.signedAmount;
     } else {
-      throw new Error("Invalid report type");
+      return Failure("Invalid report type");
     }
 
     const dateAfter =

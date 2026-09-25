@@ -776,6 +776,19 @@ describe("ByCategoryReportService", () => {
       }
     });
 
+    it("fails when report type is invalid", async () => {
+      // Act
+      const result = await reportService.call(
+        userId,
+        2000,
+        1,
+        "INVALID" as Parameters<ByCategoryReportService["call"]>[3],
+      );
+
+      // Assert
+      expect(result).toEqualFailure("Invalid report type");
+    });
+
     describe("when month is undefined", () => {
       // Happy path
 
