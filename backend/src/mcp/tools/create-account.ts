@@ -33,16 +33,18 @@ export async function createAccount(
   });
   if (!verification.success) return verification;
 
-  const created = await accountService.createAccount({
+  const result = await accountService.createAccount({
     userId,
     name,
     currency,
     initialBalance: initialBalance ?? 0,
   });
 
+  if (!result.success) return result;
+
   return Success({
-    ...toAccountDto(created),
-    initialBalance: created.initialBalance,
+    ...toAccountDto(result.data),
+    initialBalance: result.data.initialBalance,
   });
 }
 

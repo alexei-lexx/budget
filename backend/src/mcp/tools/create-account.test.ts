@@ -1,6 +1,7 @@
 import { faker } from "@faker-js/faker";
 import { type Mocked, beforeEach, describe, expect, it } from "vitest";
 import { AccountService } from "../../services/account-service";
+import { Failure, Success } from "../../types/result";
 import { fakeAccount } from "../../utils/test-utils/models/account-fakes";
 import { createMockAccountService } from "../../utils/test-utils/services/account-service-mocks";
 import { createAccount } from "./create-account";
@@ -29,7 +30,7 @@ describe("createAccount", () => {
       initialBalance: 500,
     });
     // Persists and returns new account
-    mockAccountService.createAccount.mockResolvedValue(created);
+    mockAccountService.createAccount.mockResolvedValue(Success(created));
 
     // Act
     const result = await createAccount(
@@ -62,7 +63,7 @@ describe("createAccount", () => {
     // Arrange
     const created = fakeAccount({ initialBalance: 0 });
     // Persists and returns new account
-    mockAccountService.createAccount.mockResolvedValue(created);
+    mockAccountService.createAccount.mockResolvedValue(Success(created));
 
     // Act
     await createAccount(
@@ -107,6 +108,23 @@ describe("createAccount", () => {
   });
 
   // Dependency failures
+
+  it("fails with service error unchanged", async () => {
+    // Arrange
+    // Service fails with domain error
+    mockAccountService.createAccount.mockResolvedValue(
+      Failure('Account "Savings" already exists'),
+    );
+
+    // Act
+    const result = await createAccount(
+      { name: "Savings", currency: "EUR", guideTokens: [validGuideToken] },
+      deps,
+    );
+
+    // Assert
+    expect(result).toEqualFailure('Account "Savings" already exists');
+  });
 
   it("propagates error when service throws", async () => {
     // Arrange

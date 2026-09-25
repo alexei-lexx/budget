@@ -40,14 +40,18 @@ export const accountResolvers = {
     ) => {
       const user = await getAuthenticatedUser(context);
 
-      const account = await context.accountService.createAccount({
+      const result = await context.accountService.createAccount({
         userId: user.id,
         name: args.input.name,
         currency: args.input.currency,
         initialBalance: args.input.initialBalance,
       });
 
-      return account;
+      if (!result.success) {
+        throw new GraphQLError(result.error);
+      }
+
+      return result.data;
     },
     updateAccount: async (
       _parent: unknown,
@@ -57,14 +61,18 @@ export const accountResolvers = {
       const user = await getAuthenticatedUser(context);
       const { id, ...updateData } = args.input;
 
-      const account = await context.accountService.updateAccount(id, user.id, {
+      const result = await context.accountService.updateAccount(id, user.id, {
         ...updateData,
         currency: updateData.currency ?? undefined,
         initialBalance: updateData.initialBalance ?? undefined,
         name: updateData.name ?? undefined,
       });
 
-      return account;
+      if (!result.success) {
+        throw new GraphQLError(result.error);
+      }
+
+      return result.data;
     },
     deleteAccount: async (
       _parent: unknown,
@@ -79,7 +87,12 @@ export const accountResolvers = {
       }
 
       const user = await getAuthenticatedUser(context);
-      await context.accountService.deleteAccount(id, user.id);
+      const result = await context.accountService.deleteAccount(id, user.id);
+
+      if (!result.success) {
+        throw new GraphQLError(result.error);
+      }
+
       return undefined;
     },
   },

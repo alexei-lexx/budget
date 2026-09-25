@@ -1,6 +1,7 @@
 import { faker } from "@faker-js/faker";
 import { type Mocked, beforeEach, describe, expect, it } from "vitest";
 import { AccountService } from "../../services/account-service";
+import { Failure, Success } from "../../types/result";
 import { fakeAccount } from "../../utils/test-utils/models/account-fakes";
 import { createMockAccountService } from "../../utils/test-utils/services/account-service-mocks";
 import { GUIDES } from "./guides";
@@ -28,7 +29,7 @@ describe("updateAccount", () => {
       isArchived: false,
     });
     // Persists and returns updated account
-    mockAccountService.updateAccount.mockResolvedValue(updated);
+    mockAccountService.updateAccount.mockResolvedValue(Success(updated));
 
     // Act
     const result = await updateAccount(
@@ -59,7 +60,7 @@ describe("updateAccount", () => {
     // Arrange
     const accountId = faker.string.uuid();
     // Persists and returns updated account
-    mockAccountService.updateAccount.mockResolvedValue(fakeAccount());
+    mockAccountService.updateAccount.mockResolvedValue(Success(fakeAccount()));
 
     // Act
     await updateAccount(
@@ -103,6 +104,27 @@ describe("updateAccount", () => {
   });
 
   // Dependency failures
+
+  it("fails with service error unchanged", async () => {
+    // Arrange
+    // Service fails with domain error
+    mockAccountService.updateAccount.mockResolvedValue(
+      Failure("Account not found"),
+    );
+
+    // Act
+    const result = await updateAccount(
+      {
+        id: faker.string.uuid(),
+        name: "Renamed Account",
+        guideTokens: [validGuideToken],
+      },
+      deps,
+    );
+
+    // Assert
+    expect(result).toEqualFailure("Account not found");
+  });
 
   it("propagates error when service throws", async () => {
     // Arrange

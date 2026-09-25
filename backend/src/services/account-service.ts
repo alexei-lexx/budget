@@ -6,17 +6,17 @@ import {
 import { AccountRepository } from "../ports/account-repository";
 import { TransactionRepository } from "../ports/transaction-repository";
 import { EntityScope } from "../types/entity-scope";
-import { BusinessError } from "./business-error";
+import { Failure, Result, Success } from "../types/result";
 
 export interface AccountService {
   getAccountsByUser(userId: string, scope: EntityScope): Promise<Account[]>;
-  createAccount(input: CreateAccountInput): Promise<Account>;
+  createAccount(input: CreateAccountInput): Promise<Result<Account>>;
   updateAccount(
     id: string,
     userId: string,
     input: UpdateAccountInput,
-  ): Promise<Account>;
-  deleteAccount(id: string, userId: string): Promise<Account>;
+  ): Promise<Result<Account>>;
+  deleteAccount(id: string, userId: string): Promise<Result<Account>>;
 }
 
 /**
@@ -56,14 +56,17 @@ export class AccountServiceImpl implements AccountService {
   /**
    * Create a new account for a user
    * @param input - Account creation input
-   * @returns Promise<Account> - The created account
+   * @returns The created account, or a failure reason
    */
-  async createAccount(input: CreateAccountInput): Promise<Account> {
+  async createAccount(input: CreateAccountInput): Promise<Result<Account>> {
     const account = Account.create(input);
 
-    await this.checkDuplicateName(account.userId, account.name);
+    if (await this.isDuplicateName(account.userId, account.name)) {
+      return Failure(`Account "${account.name}" already exists`);
+    }
+
     await this.accountRepository.create(account);
-    return account;
+    return Success(account);
   }
 
   /**
@@ -72,14 +75,13 @@ export class AccountServiceImpl implements AccountService {
    * @param id - Account ID to update
    * @param userId - User ID for authorization
    * @param input - Account update input
-   * @returns Promise<Account> - The updated account
-   * @throws BusinessError if account not found or has transactions with currency change
+   * @returns The updated account, or a failure reason
    */
   async updateAccount(
     id: string,
     userId: string,
     input: UpdateAccountInput,
-  ): Promise<Account> {
+  ): Promise<Result<Account>> {
     // Fetch existing account
     const existingAccount = await this.accountRepository.findOneById({
       id,
@@ -87,14 +89,17 @@ export class AccountServiceImpl implements AccountService {
     });
 
     if (!existingAccount) {
-      throw new BusinessError("Account not found");
+      return Failure("Account not found");
     }
 
     const updatedAccount = existingAccount.update(input);
 
     // Check for duplicate names if name is being updated
-    if (updatedAccount.name !== existingAccount.name) {
-      await this.checkDuplicateName(userId, updatedAccount.name, id);
+    if (
+      updatedAccount.name !== existingAccount.name &&
+      (await this.isDuplicateName(userId, updatedAccount.name, id))
+    ) {
+      return Failure(`Account "${updatedAccount.name}" already exists`);
     }
 
     // If currency is being changed, check for existing transactions
@@ -106,49 +111,50 @@ export class AccountServiceImpl implements AccountService {
         });
 
       if (hasTransactions) {
-        throw new BusinessError(
+        return Failure(
           "Cannot change currency for account that has existing transactions. Please create a new account with the desired currency instead.",
         );
       }
     }
 
-    return await this.accountRepository.update(updatedAccount);
+    return Success(await this.accountRepository.update(updatedAccount));
   }
 
   /**
    * Archive (soft-delete) an account
    * @param id - Account ID to archive
    * @param userId - User ID for authorization
-   * @returns Promise<Account> - The archived account
+   * @returns The archived account, or a failure reason
    */
-  async deleteAccount(id: string, userId: string): Promise<Account> {
+  async deleteAccount(id: string, userId: string): Promise<Result<Account>> {
     const existingAccount = await this.accountRepository.findOneById({
       id,
       userId,
     });
 
     if (!existingAccount) {
-      throw new BusinessError("Account not found");
+      return Failure("Account not found");
     }
 
-    return await this.accountRepository.update(existingAccount.archive());
+    return Success(
+      await this.accountRepository.update(existingAccount.archive()),
+    );
   }
 
-  private async checkDuplicateName(
+  private async isDuplicateName(
     userId: string,
     name: string,
     excludeId?: string,
-  ): Promise<void> {
+  ): Promise<boolean> {
     const existingAccounts =
       await this.accountRepository.findManyByUserId(userId);
+
     const duplicateAccount = existingAccounts.find(
       (account) =>
         account.name.toLowerCase() === name.toLowerCase() &&
         account.id !== excludeId,
     );
 
-    if (duplicateAccount) {
-      throw new BusinessError(`Account "${name}" already exists`);
-    }
+    return Boolean(duplicateAccount);
   }
 }

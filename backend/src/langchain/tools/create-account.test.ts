@@ -1,7 +1,7 @@
 import { faker } from "@faker-js/faker";
 import { type Mocked, beforeEach, describe, expect, it } from "vitest";
 import { AccountService } from "../../services/account-service";
-import { BusinessError } from "../../services/business-error";
+import { Failure, Success } from "../../types/result";
 import { fakeAccount } from "../../utils/test-utils/models/account-fakes";
 import { createMockAccountService } from "../../utils/test-utils/services/account-service-mocks";
 import { toAccountDto } from "./account-dto";
@@ -36,7 +36,7 @@ describe("createCreateAccountTool", () => {
     });
 
     // Service returns the created account
-    mockAccountService.createAccount.mockResolvedValue(created);
+    mockAccountService.createAccount.mockResolvedValue(Success(created));
 
     const createTool = createCreateAccountTool({
       accountService: mockAccountService,
@@ -51,12 +51,9 @@ describe("createCreateAccountTool", () => {
     const result = await createTool.invoke(input, { context: { userId } });
 
     // Assert
-    expect(result).toEqual({
-      success: true,
-      data: {
-        ...toAccountDto(created),
-        initialBalance: 0,
-      },
+    expect(result).toEqualSuccess({
+      ...toAccountDto(created),
+      initialBalance: 0,
     });
 
     expect(mockAccountService.createAccount).toHaveBeenCalledWith({
@@ -72,7 +69,7 @@ describe("createCreateAccountTool", () => {
     const created = fakeAccount({ initialBalance: 500 });
 
     // Service returns the created account
-    mockAccountService.createAccount.mockResolvedValue(created);
+    mockAccountService.createAccount.mockResolvedValue(Success(created));
 
     const createTool = createCreateAccountTool({
       accountService: mockAccountService,
@@ -118,12 +115,12 @@ describe("createCreateAccountTool", () => {
 
   // Dependency failures
 
-  it("propagates BusinessError from service unchanged", async () => {
+  it("fails with service error unchanged", async () => {
     // Arrange
-    const error = new BusinessError('Account "Savings" already exists');
-
-    // Service rejects with a domain error
-    mockAccountService.createAccount.mockRejectedValue(error);
+    // Account name already exists
+    mockAccountService.createAccount.mockResolvedValue(
+      Failure('Account "Savings" already exists'),
+    );
 
     const createTool = createCreateAccountTool({
       accountService: mockAccountService,
@@ -134,9 +131,10 @@ describe("createCreateAccountTool", () => {
       currency: "USD",
     };
 
-    // Act & Assert
-    await expect(
-      createTool.invoke(input, { context: { userId } }),
-    ).rejects.toBe(error);
+    // Act
+    const result = await createTool.invoke(input, { context: { userId } });
+
+    // Assert
+    expect(result).toEqualFailure('Account "Savings" already exists');
   });
 });

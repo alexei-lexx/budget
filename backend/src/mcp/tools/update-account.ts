@@ -39,9 +39,11 @@ export async function updateAccount(
     ...(currency !== undefined && { currency }),
   };
 
-  const updated = await accountService.updateAccount(id, userId, input);
+  const result = await accountService.updateAccount(id, userId, input);
 
-  return Success(toAccountDto(updated));
+  if (!result.success) return result;
+
+  return Success(toAccountDto(result.data));
 }
 
 const inputSchema = z.object({
