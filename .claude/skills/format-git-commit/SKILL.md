@@ -13,8 +13,8 @@ Format a git commit message for the current working tree.
 
 Run `git status` to understand what's staged vs unstaged.
 
-- If there are **staged files**, focus only on staged changes.
-- If there are **no staged files**, treat all modified, added, and untracked files as the relevant changes.
+- If there are **staged files**, focus only on staged changes
+- If there are **no staged files**, treat all modified, added, and untracked files as the relevant changes
 
 ### Step 2: Gather the diff
 

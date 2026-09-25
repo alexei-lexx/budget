@@ -15,7 +15,7 @@ Parse the user's argument:
 
 - **PR number** (e.g. `123`) — use directly
 - **GitHub URL** (e.g. `https://github.com/owner/repo/pull/123`) — extract the number and repo
-- **No argument** — detect the PR open for the current branch; if none exists, tell the user and stop.
+- **No argument** — detect the PR open for the current branch; if none exists, tell the user and stop
 
 Load the PR title, base branch, head branch, and URL.
 

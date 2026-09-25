@@ -9,28 +9,29 @@ Teach a topic one small piece at a time. Basics first, advanced later. Pause bet
 
 ## Research
 
-- Before planning, search for current info on the topic.
-- Don't rely only on built-in knowledge, which can be stale.
-- Favor authoritative sources (official docs, standards, blogs from recognized authorities) over random, unverified ones.
-- Check each source's date and prioritize recent sources.
+- Before planning, search for current info on the topic
+- Don't rely only on built-in knowledge, which can be stale
+- Favor authoritative sources (official docs, standards, blogs from recognized authorities) over random, unverified ones
+- Check each source's date and prioritize recent sources
 
 ## Plan
 
-- Break the topic into items, basics to advanced. An item is one thing to explain: one mechanism, rule, distinction, or pitfall (gotcha, edge case, inconsistency, trap).
-- One idea per item. If explaining an item surfaces a second fact, make that a new item.
-- Item N can only use ideas from earlier items. Never reach forward.
-- Let the topic decide the item count. No fixed number.
-- For a recap, ask where to start. Or start further in and let discussion show if you need to back up.
+- Break the topic into items, basics to advanced
+- An item is one thing to explain: one idea, one mechanism, rule, distinction, or pitfall (gotcha, edge case, inconsistency, trap)
+- If explaining an item surfaces a second fact, make that a new item
+- Item N can only use ideas from earlier items; never reach forward
+- Let the topic decide the item count (no fixed number)
+- For a recap, ask where to start, or start further in and let discussion show if you need to back up
 
 ## Deliver
 
-- Start with a roadmap: item titles only, no explanations.
-- Then list the sources used in research.
-- One item per message, using the item format above.
-- Keep each item short: readable in about two minutes, roughly 300-400 words. That's a ceiling, not a target.
-- If an item has code, and you can run that programming language, run it before sending. Fix any error. Can't run it? Skip this check.
-- Wait for a clear go-ahead ("next", "continue", "go ahead") before sending the next item.
-- Anything else — a question, a comment, a tangent — means stay on this item. Discussion is fine and doesn't need to happen before moving on.
+- Start with a roadmap: item titles only, no explanations
+- Then list the sources used in research
+- One item per message, using the item format above
+- Keep each item short: readable in about two minutes, roughly 300-400 words (that's a ceiling, not a target)
+- If an item has code, and you can run that programming language, run it before sending and fix any error
+- Wait for a clear go-ahead ("next", "continue", "go ahead") before sending the next item
+- When the user's reply is anything besides a clear go-ahead — a question, a comment, or something off-topic — stay on this item and answer it
 
 ## Adapt
 
