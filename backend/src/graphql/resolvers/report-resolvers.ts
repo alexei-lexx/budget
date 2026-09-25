@@ -1,3 +1,4 @@
+import { GraphQLError } from "graphql";
 import { QueryByCategoryReportArgs } from "../../__generated__/resolvers-types";
 import { GraphQLContext } from "../context";
 
@@ -12,14 +13,18 @@ export const reportResolvers = {
     ) => {
       const user = await getAuthenticatedUser(context);
 
-      const report = await context.byCategoryReportService.call(
+      const result = await context.byCategoryReportService.call(
         user.id,
         args.year,
         args.month ?? undefined,
         args.type,
       );
 
-      return report;
+      if (!result.success) {
+        throw new GraphQLError(result.error);
+      }
+
+      return result.data;
     },
   },
 };

@@ -15,6 +15,10 @@ describe("result matchers", () => {
       );
     });
 
+    it("passes on Success with no argument", () => {
+      expect(Success({ id: 1 })).toEqualSuccess();
+    });
+
     // Validation failures
 
     it("fails when Success data does not match", () => {
@@ -29,6 +33,14 @@ describe("result matchers", () => {
     it("fails when actual is Failure", () => {
       // Arrange
       const subject = () => expect(Failure("boom")).toEqualSuccess({ id: 1 });
+
+      // Act & Assert
+      expect(subject).toThrow(/expected Success, got Failure/);
+    });
+
+    it("fails when actual is Failure with no argument", () => {
+      // Arrange
+      const subject = () => expect(Failure("boom")).toEqualSuccess();
 
       // Act & Assert
       expect(subject).toThrow(/expected Success, got Failure/);

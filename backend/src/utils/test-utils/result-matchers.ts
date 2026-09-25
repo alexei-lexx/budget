@@ -2,7 +2,7 @@ import { expect } from "vitest";
 import type { Result } from "../../types/result";
 
 expect.extend({
-  toEqualSuccess(received: Result<unknown, unknown>, expected: unknown) {
+  toEqualSuccess(received: Result<unknown, unknown>, expected?: unknown) {
     if (!received.success) {
       return {
         pass: false,
@@ -10,6 +10,11 @@ expect.extend({
           `expected Success, got Failure(${JSON.stringify(received.error)})`,
       };
     }
+
+    if (arguments.length < 2) {
+      return { pass: true, message: () => "" };
+    }
+
     const pass = this.equals(received.data, expected);
     return {
       pass,
@@ -39,7 +44,7 @@ declare module "vitest" {
     // TData would otherwise be never for a Failure,
     // rejecting any expected value.
     toEqualSuccess: T extends Result<infer TData, unknown>
-      ? (data: [TData] extends [never] ? unknown : TData) => R
+      ? (data?: [TData] extends [never] ? unknown : TData) => R
       : never;
     // expect(Success(x)).toEqualFailure(y) must still typecheck.
     // TError would otherwise be never for a Success,
