@@ -14,7 +14,6 @@ import {
 import { createMockAccountRepository } from "../utils/test-utils/repositories/account-repository-mocks";
 import { createMockAtomicWriter } from "../utils/test-utils/repositories/atomic-writer-mocks";
 import { createMockTransactionRepository } from "../utils/test-utils/repositories/transaction-repository-mocks";
-import { BusinessError } from "./business-error";
 import { TransferService } from "./transfer-service";
 
 describe("TransferService", () => {
@@ -60,7 +59,7 @@ describe("TransferService", () => {
       const result = await service.getTransfer(transferId, userId);
 
       // Assert
-      expect(result).toEqual({
+      expect(result).toEqualSuccess({
         transferId,
         outboundTransaction,
         inboundTransaction,
@@ -89,7 +88,7 @@ describe("TransferService", () => {
       const result = await service.getTransfer(transferId, userId);
 
       // Assert
-      expect(result).toEqual({
+      expect(result).toEqualSuccess({
         transferId,
         outboundTransaction,
         inboundTransaction,
@@ -106,12 +105,12 @@ describe("TransferService", () => {
       const result = await service.getTransfer(transferId, userId);
 
       // Assert
-      expect(result).toBeUndefined();
+      expect(result).toEqualSuccess(undefined);
     });
 
     // Validation failures
 
-    it("throws when only one transaction found", async () => {
+    it("fails when only one transaction found", async () => {
       // Arrange
       const transferId = faker.string.uuid();
       // Returns single transaction
@@ -119,15 +118,16 @@ describe("TransferService", () => {
         fakeTransferOut({ transferId }),
       ]);
 
-      // Act & Assert
-      await expect(service.getTransfer(transferId, userId)).rejects.toThrow(
-        new BusinessError(
-          "Invalid transfer state: expected 2 transactions, found 1",
-        ),
+      // Act
+      const result = await service.getTransfer(transferId, userId);
+
+      // Assert
+      expect(result).toEqualFailure(
+        "Invalid transfer state: expected 2 transactions, found 1",
       );
     });
 
-    it("throws when more than two transactions found", async () => {
+    it("fails when more than two transactions found", async () => {
       // Arrange
       const transferId = faker.string.uuid();
       // Returns three transactions
@@ -137,15 +137,16 @@ describe("TransferService", () => {
         fakeTransferOut({ transferId }),
       ]);
 
-      // Act & Assert
-      await expect(service.getTransfer(transferId, userId)).rejects.toThrow(
-        new BusinessError(
-          "Invalid transfer state: expected 2 transactions, found 3",
-        ),
+      // Act
+      const result = await service.getTransfer(transferId, userId);
+
+      // Assert
+      expect(result).toEqualFailure(
+        "Invalid transfer state: expected 2 transactions, found 3",
       );
     });
 
-    it("throws when TRANSFER_OUT transaction is missing", async () => {
+    it("fails when TRANSFER_OUT transaction is missing", async () => {
       // Arrange
       const transferId = faker.string.uuid();
       // Returns two inbound transactions
@@ -154,15 +155,16 @@ describe("TransferService", () => {
         fakeTransferIn({ transferId }),
       ]);
 
-      // Act & Assert
-      await expect(service.getTransfer(transferId, userId)).rejects.toThrow(
-        new BusinessError(
-          "Invalid transfer state: missing TRANSFER_OUT transaction",
-        ),
+      // Act
+      const result = await service.getTransfer(transferId, userId);
+
+      // Assert
+      expect(result).toEqualFailure(
+        "Invalid transfer state: missing TRANSFER_OUT transaction",
       );
     });
 
-    it("throws when TRANSFER_IN transaction is missing", async () => {
+    it("fails when TRANSFER_IN transaction is missing", async () => {
       // Arrange
       const transferId = faker.string.uuid();
       // Returns two outbound transactions
@@ -171,11 +173,12 @@ describe("TransferService", () => {
         fakeTransferOut({ transferId }),
       ]);
 
-      // Act & Assert
-      await expect(service.getTransfer(transferId, userId)).rejects.toThrow(
-        new BusinessError(
-          "Invalid transfer state: missing TRANSFER_IN transaction",
-        ),
+      // Act
+      const result = await service.getTransfer(transferId, userId);
+
+      // Assert
+      expect(result).toEqualFailure(
+        "Invalid transfer state: missing TRANSFER_IN transaction",
       );
     });
   });
@@ -211,8 +214,11 @@ describe("TransferService", () => {
       );
 
       // Assert
-      expect(result.transferId).toEqual(expect.any(String));
-      expect(result.outboundTransaction).toMatchObject({
+      expect(result).toEqualSuccess();
+      if (!result.success) throw new Error("Expected success"); // Type guard
+
+      expect(result.data.transferId).toEqual(expect.any(String));
+      expect(result.data.outboundTransaction).toMatchObject({
         userId,
         accountId: sourceAccount.id,
         type: TransactionType.TRANSFER_OUT,
@@ -220,9 +226,9 @@ describe("TransferService", () => {
         currency: "USD",
         date: toDateString("2024-01-01"),
         description: "Rent transfer",
-        transferId: result.transferId,
+        transferId: result.data.transferId,
       });
-      expect(result.inboundTransaction).toMatchObject({
+      expect(result.data.inboundTransaction).toMatchObject({
         userId,
         accountId: destAccount.id,
         type: TransactionType.TRANSFER_IN,
@@ -230,14 +236,14 @@ describe("TransferService", () => {
         currency: "USD",
         date: toDateString("2024-01-01"),
         description: "Rent transfer",
-        transferId: result.transferId,
+        transferId: result.data.transferId,
       });
 
       expect(mockAtomicWriter.commit).toHaveBeenCalledTimes(1);
       const commitInput = mockAtomicWriter.commit.mock.calls[0]?.[0];
       expect(commitInput?.transactionsToCreate).toEqual([
-        result.outboundTransaction,
-        result.inboundTransaction,
+        result.data.outboundTransaction,
+        result.data.inboundTransaction,
       ]);
     });
 
@@ -290,51 +296,53 @@ describe("TransferService", () => {
 
     // Validation failures
 
-    it("throws when source account equals destination account", async () => {
+    it("fails when source account equals destination account", async () => {
       // Arrange
       const accountId = faker.string.uuid();
 
-      // Act & Assert
-      await expect(
-        service.createTransfer(
-          {
-            fromAccountId: accountId,
-            toAccountId: accountId,
-            amount: 100,
-            date: toDateString("2024-01-01"),
-          },
-          userId,
-        ),
-      ).rejects.toThrow(
-        new BusinessError("Cannot transfer money to the same account"),
+      // Act
+      const result = await service.createTransfer(
+        {
+          fromAccountId: accountId,
+          toAccountId: accountId,
+          amount: 100,
+          date: toDateString("2024-01-01"),
+        },
+        userId,
+      );
+
+      // Assert
+      expect(result).toEqualFailure(
+        "Cannot transfer money to the same account",
       );
       expect(mockAccountRepository.findOneById).not.toHaveBeenCalled();
       expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
     });
 
-    it("throws when source account not found", async () => {
+    it("fails when source account not found", async () => {
       // Arrange
       // Returns no source account
       mockAccountRepository.findOneById.mockResolvedValueOnce(null);
 
-      // Act & Assert
-      await expect(
-        service.createTransfer(
-          {
-            fromAccountId: faker.string.uuid(),
-            toAccountId: faker.string.uuid(),
-            amount: 100,
-            date: toDateString("2024-01-01"),
-          },
-          userId,
-        ),
-      ).rejects.toThrow(
-        new BusinessError("Account not found or doesn't belong to user"),
+      // Act
+      const result = await service.createTransfer(
+        {
+          fromAccountId: faker.string.uuid(),
+          toAccountId: faker.string.uuid(),
+          amount: 100,
+          date: toDateString("2024-01-01"),
+        },
+        userId,
+      );
+
+      // Assert
+      expect(result).toEqualFailure(
+        "Account not found or doesn't belong to user",
       );
       expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
     });
 
-    it("throws when destination account not found", async () => {
+    it("fails when destination account not found", async () => {
       // Arrange
       const sourceAccount = fakeAccount({ userId });
       // Returns source account, then no destination account
@@ -342,24 +350,25 @@ describe("TransferService", () => {
         .mockResolvedValueOnce(sourceAccount)
         .mockResolvedValueOnce(null);
 
-      // Act & Assert
-      await expect(
-        service.createTransfer(
-          {
-            fromAccountId: sourceAccount.id,
-            toAccountId: faker.string.uuid(),
-            amount: 100,
-            date: toDateString("2024-01-01"),
-          },
-          userId,
-        ),
-      ).rejects.toThrow(
-        new BusinessError("Account not found or doesn't belong to user"),
+      // Act
+      const result = await service.createTransfer(
+        {
+          fromAccountId: sourceAccount.id,
+          toAccountId: faker.string.uuid(),
+          amount: 100,
+          date: toDateString("2024-01-01"),
+        },
+        userId,
+      );
+
+      // Assert
+      expect(result).toEqualFailure(
+        "Account not found or doesn't belong to user",
       );
       expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
     });
 
-    it("throws when accounts have different currencies", async () => {
+    it("fails when accounts have different currencies", async () => {
       // Arrange
       const sourceAccount = fakeAccount({ userId, currency: "USD" });
       const destinationAccount = fakeAccount({ userId, currency: "EUR" });
@@ -368,21 +377,20 @@ describe("TransferService", () => {
         .mockResolvedValueOnce(sourceAccount)
         .mockResolvedValueOnce(destinationAccount);
 
-      // Act & Assert
-      await expect(
-        service.createTransfer(
-          {
-            fromAccountId: sourceAccount.id,
-            toAccountId: destinationAccount.id,
-            amount: 100,
-            date: toDateString("2024-01-01"),
-          },
-          userId,
-        ),
-      ).rejects.toThrow(
-        new BusinessError(
-          "Cannot transfer between accounts with different currencies. Source account uses USD, destination account uses EUR",
-        ),
+      // Act
+      const result = await service.createTransfer(
+        {
+          fromAccountId: sourceAccount.id,
+          toAccountId: destinationAccount.id,
+          amount: 100,
+          date: toDateString("2024-01-01"),
+        },
+        userId,
+      );
+
+      // Assert
+      expect(result).toEqualFailure(
+        "Cannot transfer between accounts with different currencies. Source account uses USD, destination account uses EUR",
       );
       expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
     });
@@ -413,7 +421,7 @@ describe("TransferService", () => {
 
     // Dependency failures
 
-    it("wraps unexpected errors in BusinessError", async () => {
+    it("fails when atomic commit rejects", async () => {
       // Arrange
       const sourceAccount = fakeAccount({ userId, currency: "USD" });
       const destAccount = fakeAccount({ userId, currency: "USD" });
@@ -424,20 +432,19 @@ describe("TransferService", () => {
       // Rejects with unexpected error
       mockAtomicWriter.commit.mockRejectedValue(new Error("DB down"));
 
-      // Act & Assert
-      await expect(
-        service.createTransfer(
-          {
-            fromAccountId: sourceAccount.id,
-            toAccountId: destAccount.id,
-            amount: 100,
-            date: toDateString("2024-01-01"),
-          },
-          userId,
-        ),
-      ).rejects.toThrow(
-        new BusinessError("Failed to create transfer transactions"),
+      // Act
+      const result = await service.createTransfer(
+        {
+          fromAccountId: sourceAccount.id,
+          toAccountId: destAccount.id,
+          amount: 100,
+          date: toDateString("2024-01-01"),
+        },
+        userId,
       );
+
+      // Assert
+      expect(result).toEqualFailure("Failed to create transfer transactions");
     });
   });
 
@@ -486,9 +493,10 @@ describe("TransferService", () => {
       });
 
       // Act
-      await service.deleteTransfer(transferId, userId);
+      const result = await service.deleteTransfer(transferId, userId);
 
       // Assert
+      expect(result).toEqualSuccess();
       const commitInput = mockAtomicWriter.commit.mock.calls[0]?.[0];
       expect(commitInput?.transactionsToUpdate).toEqual([
         expect.objectContaining({
@@ -516,20 +524,23 @@ describe("TransferService", () => {
 
     // Validation failures
 
-    it("throws when transfer not found", async () => {
+    it("fails when transfer not found", async () => {
       // Arrange
       const transferId = faker.string.uuid();
       // Returns no transactions
       mockTransactionRepository.findManyByTransferId.mockResolvedValue([]);
 
-      // Act & Assert
-      await expect(service.deleteTransfer(transferId, userId)).rejects.toThrow(
-        new BusinessError("Transfer not found or doesn't belong to user"),
+      // Act
+      const result = await service.deleteTransfer(transferId, userId);
+
+      // Assert
+      expect(result).toEqualFailure(
+        "Transfer not found or doesn't belong to user",
       );
       expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
     });
 
-    it("throws when pair is missing TRANSFER_IN", async () => {
+    it("fails when pair is missing TRANSFER_IN", async () => {
       // Arrange
       const transferId = faker.string.uuid();
       // Returns two outbound transactions
@@ -538,14 +549,15 @@ describe("TransferService", () => {
         fakeTransferOut({ transferId }),
       ]);
 
-      // Act & Assert
-      await expect(service.deleteTransfer(transferId, userId)).rejects.toThrow(
-        new BusinessError("Invalid transfer state: missing pair"),
-      );
+      // Act
+      const result = await service.deleteTransfer(transferId, userId);
+
+      // Assert
+      expect(result).toEqualFailure("Invalid transfer state: missing pair");
       expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
     });
 
-    it("throws when source account not found", async () => {
+    it("fails when source account not found", async () => {
       // Arrange
       const transferId = faker.string.uuid();
       const outboundTransaction = fakeTransferOut({
@@ -566,14 +578,15 @@ describe("TransferService", () => {
         .mockResolvedValueOnce(null)
         .mockResolvedValueOnce(fakeAccount({ userId }));
 
-      // Act & Assert
-      await expect(service.deleteTransfer(transferId, userId)).rejects.toThrow(
-        new BusinessError("Account not found"),
-      );
+      // Act
+      const result = await service.deleteTransfer(transferId, userId);
+
+      // Assert
+      expect(result).toEqualFailure("Account not found");
       expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
     });
 
-    it("throws when destination account not found", async () => {
+    it("fails when destination account not found", async () => {
       // Arrange
       const transferId = faker.string.uuid();
       const outboundTransaction = fakeTransferOut({
@@ -594,16 +607,17 @@ describe("TransferService", () => {
         .mockResolvedValueOnce(fakeAccount({ userId }))
         .mockResolvedValueOnce(null);
 
-      // Act & Assert
-      await expect(service.deleteTransfer(transferId, userId)).rejects.toThrow(
-        new BusinessError("Account not found"),
-      );
+      // Act
+      const result = await service.deleteTransfer(transferId, userId);
+
+      // Assert
+      expect(result).toEqualFailure("Account not found");
       expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
     });
 
     // Dependency failures
 
-    it("wraps unexpected errors in BusinessError", async () => {
+    it("fails when atomic commit rejects", async () => {
       // Arrange
       const transferId = faker.string.uuid();
       const sourceAccount = fakeAccount({ userId, currency: "USD" });
@@ -630,10 +644,11 @@ describe("TransferService", () => {
       // Rejects with unexpected error
       mockAtomicWriter.commit.mockRejectedValue(new Error("DB down"));
 
-      // Act & Assert
-      await expect(service.deleteTransfer(transferId, userId)).rejects.toThrow(
-        new BusinessError("Failed to delete transfer transactions"),
-      );
+      // Act
+      const result = await service.deleteTransfer(transferId, userId);
+
+      // Assert
+      expect(result).toEqualFailure("Failed to delete transfer transactions");
     });
   });
 
@@ -691,13 +706,16 @@ describe("TransferService", () => {
       });
 
       // Assert
-      expect(result.transferId).toBe(transferId);
-      expect(result.outboundTransaction).toMatchObject({
+      expect(result).toEqualSuccess();
+      if (!result.success) throw new Error("Expected success"); // Type guard
+
+      expect(result.data.transferId).toBe(transferId);
+      expect(result.data.outboundTransaction).toMatchObject({
         id: outboundTransaction.id,
         amount: 250,
         version: 6,
       });
-      expect(result.inboundTransaction).toMatchObject({
+      expect(result.data.inboundTransaction).toMatchObject({
         id: inboundTransaction.id,
         amount: 250,
         version: 6,
@@ -754,9 +772,12 @@ describe("TransferService", () => {
       });
 
       // Act
-      await service.updateTransfer(transferId, userId, { amount: 150 });
+      const result = await service.updateTransfer(transferId, userId, {
+        amount: 150,
+      });
 
       // Assert
+      expect(result).toEqualSuccess();
       const commitInput = mockAtomicWriter.commit.mock.calls[0]?.[0];
 
       // Source: 500 - (-100) revert + (-150) apply = 450
@@ -827,12 +848,13 @@ describe("TransferService", () => {
       });
 
       // Act
-      await service.updateTransfer(transferId, userId, {
+      const result = await service.updateTransfer(transferId, userId, {
         fromAccountId: newSourceAccount.id,
         toAccountId: newDestAccount.id,
       });
 
       // Assert
+      expect(result).toEqualSuccess();
       const commitInput = mockAtomicWriter.commit.mock.calls[0]?.[0];
       expect(commitInput?.accountsToUpdate).toHaveLength(4);
 
@@ -902,12 +924,13 @@ describe("TransferService", () => {
       });
 
       // Act
-      await service.updateTransfer(transferId, userId, {
+      const result = await service.updateTransfer(transferId, userId, {
         fromAccountId: accountB.id,
         toAccountId: accountA.id,
       });
 
       // Assert
+      expect(result).toEqualSuccess();
       const commitInput = mockAtomicWriter.commit.mock.calls[0]?.[0];
       expect(commitInput?.accountsToUpdate).toHaveLength(2);
 
@@ -956,11 +979,12 @@ describe("TransferService", () => {
       });
 
       // Act
-      await service.updateTransfer(transferId, userId, {
+      const result = await service.updateTransfer(transferId, userId, {
         description: "Updated note",
       });
 
       // Assert
+      expect(result).toEqualSuccess();
       const commitInput = mockAtomicWriter.commit.mock.calls[0]?.[0];
       expect(commitInput?.accountsToUpdate).toEqual([]);
       expect(commitInput?.transactionsToUpdate?.[0]).toMatchObject({
@@ -1004,11 +1028,12 @@ describe("TransferService", () => {
       });
 
       // Act
-      await service.updateTransfer(transferId, userId, {
+      const result = await service.updateTransfer(transferId, userId, {
         date: toDateString("2024-06-01"),
       });
 
       // Assert
+      expect(result).toEqualSuccess();
       expect(
         mockAccountRepository.findOneWithArchivedById,
       ).toHaveBeenCalledWith({
@@ -1032,22 +1057,25 @@ describe("TransferService", () => {
 
     // Validation failures
 
-    it("throws when transfer not found", async () => {
+    it("fails when transfer not found", async () => {
       // Arrange
       const transferId = faker.string.uuid();
       // Returns no transactions
       mockTransactionRepository.findManyByTransferId.mockResolvedValue([]);
 
-      // Act & Assert
-      await expect(
-        service.updateTransfer(transferId, userId, { amount: 50 }),
-      ).rejects.toThrow(
-        new BusinessError("Transfer not found or doesn't belong to user"),
+      // Act
+      const result = await service.updateTransfer(transferId, userId, {
+        amount: 50,
+      });
+
+      // Assert
+      expect(result).toEqualFailure(
+        "Transfer not found or doesn't belong to user",
       );
       expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
     });
 
-    it("throws when source account equals destination account", async () => {
+    it("fails when source account equals destination account", async () => {
       // Arrange
       const transferId = faker.string.uuid();
       const sourceAccount = fakeAccount({ userId, currency: "USD" });
@@ -1070,19 +1098,20 @@ describe("TransferService", () => {
         inboundTransaction,
       ]);
 
-      // Act & Assert
-      await expect(
-        service.updateTransfer(transferId, userId, {
-          fromAccountId: sourceAccount.id,
-          toAccountId: sourceAccount.id,
-        }),
-      ).rejects.toThrow(
-        new BusinessError("Cannot transfer money to the same account"),
+      // Act
+      const result = await service.updateTransfer(transferId, userId, {
+        fromAccountId: sourceAccount.id,
+        toAccountId: sourceAccount.id,
+      });
+
+      // Assert
+      expect(result).toEqualFailure(
+        "Cannot transfer money to the same account",
       );
       expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
     });
 
-    it("throws when new source account not found", async () => {
+    it("fails when new source account not found", async () => {
       // Arrange
       const transferId = faker.string.uuid();
       const oldSourceAccount = fakeAccount({ userId });
@@ -1109,18 +1138,19 @@ describe("TransferService", () => {
       // Returns no new source account
       mockAccountRepository.findOneById.mockResolvedValueOnce(null);
 
-      // Act & Assert
-      await expect(
-        service.updateTransfer(transferId, userId, {
-          fromAccountId: faker.string.uuid(),
-        }),
-      ).rejects.toThrow(
-        new BusinessError("Account not found or doesn't belong to user"),
+      // Act
+      const result = await service.updateTransfer(transferId, userId, {
+        fromAccountId: faker.string.uuid(),
+      });
+
+      // Assert
+      expect(result).toEqualFailure(
+        "Account not found or doesn't belong to user",
       );
       expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
     });
 
-    it("throws when new destination account not found", async () => {
+    it("fails when new destination account not found", async () => {
       // Arrange
       const transferId = faker.string.uuid();
       const sourceAccount = fakeAccount({ userId });
@@ -1147,18 +1177,19 @@ describe("TransferService", () => {
       // Returns no new destination account
       mockAccountRepository.findOneById.mockResolvedValueOnce(null);
 
-      // Act & Assert
-      await expect(
-        service.updateTransfer(transferId, userId, {
-          toAccountId: faker.string.uuid(),
-        }),
-      ).rejects.toThrow(
-        new BusinessError("Account not found or doesn't belong to user"),
+      // Act
+      const result = await service.updateTransfer(transferId, userId, {
+        toAccountId: faker.string.uuid(),
+      });
+
+      // Assert
+      expect(result).toEqualFailure(
+        "Account not found or doesn't belong to user",
       );
       expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
     });
 
-    it("throws when new source account currency does not match destination", async () => {
+    it("fails when new source account currency does not match destination", async () => {
       // Arrange
       const transferId = faker.string.uuid();
       const oldSourceAccount = fakeAccount({ userId, currency: "USD" });
@@ -1188,15 +1219,14 @@ describe("TransferService", () => {
       // Returns new source account with mismatched currency
       mockAccountRepository.findOneById.mockResolvedValueOnce(newSourceAccount);
 
-      // Act & Assert
-      await expect(
-        service.updateTransfer(transferId, userId, {
-          fromAccountId: newSourceAccount.id,
-        }),
-      ).rejects.toThrow(
-        new BusinessError(
-          "Cannot transfer between accounts with different currencies. Source account uses EUR, destination account uses USD",
-        ),
+      // Act
+      const result = await service.updateTransfer(transferId, userId, {
+        fromAccountId: newSourceAccount.id,
+      });
+
+      // Assert
+      expect(result).toEqualFailure(
+        "Cannot transfer between accounts with different currencies. Source account uses EUR, destination account uses USD",
       );
       expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
     });
@@ -1237,7 +1267,7 @@ describe("TransferService", () => {
 
     // Dependency failures
 
-    it("wraps unexpected errors in BusinessError", async () => {
+    it("fails when atomic commit rejects", async () => {
       // Arrange
       const transferId = faker.string.uuid();
       const sourceAccount = fakeAccount({ userId, currency: "USD" });
@@ -1270,12 +1300,13 @@ describe("TransferService", () => {
       // Suppress error log noise
       vi.spyOn(console, "error").mockImplementation(vi.fn());
 
-      // Act & Assert
-      await expect(
-        service.updateTransfer(transferId, userId, { amount: 50 }),
-      ).rejects.toThrow(
-        new BusinessError("Failed to update transfer transactions"),
-      );
+      // Act
+      const result = await service.updateTransfer(transferId, userId, {
+        amount: 50,
+      });
+
+      // Assert
+      expect(result).toEqualFailure("Failed to update transfer transactions");
     });
   });
 });

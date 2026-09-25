@@ -5,7 +5,20 @@ import { AccountRepository } from "../ports/account-repository";
 import { AtomicWriter } from "../ports/atomic-writer";
 import { TransactionRepository } from "../ports/transaction-repository";
 import { DateString } from "../types/date-string";
-import { BusinessError } from "./business-error";
+import { Failure, Result, Success } from "../types/result";
+
+const ACCOUNT_NOT_FOUND_ERROR = "Account not found or doesn't belong to user";
+const SELF_TRANSFER_ERROR = "Cannot transfer money to the same account";
+const TRANSFER_NOT_FOUND_ERROR = "Transfer not found or doesn't belong to user";
+
+function currencyMismatchFailure(
+  fromCurrency: string,
+  toCurrency: string,
+): Result<never, string> {
+  return Failure(
+    `Cannot transfer between accounts with different currencies. Source account uses ${fromCurrency}, destination account uses ${toCurrency}`,
+  );
+}
 
 /**
  * Input type for creating transfers between accounts
@@ -61,13 +74,12 @@ export class TransferService {
    * Get a transfer by ID with its paired transactions
    * @param transferId - The transfer ID to retrieve
    * @param userId - The user ID owning the transfer
-   * @returns Promise<TransferResult | undefined> - The transfer result or undefined if not found
-   * @throws BusinessError if the transfer is in an invalid state
+   * @returns The transfer result (undefined if not found), or a failure reason
    */
   async getTransfer(
     transferId: string,
     userId: string,
-  ): Promise<TransferResult | undefined> {
+  ): Promise<Result<TransferResult | undefined, string>> {
     return this.fetchValidatedTransfer(transferId, userId);
   }
 
@@ -76,28 +88,41 @@ export class TransferService {
    * Creates two linked transactions: TRANSFER_OUT from source, TRANSFER_IN to destination
    * @param input - Transfer creation input
    * @param userId - The user ID creating the transfer
-   * @returns Promise<TransferResult> - The created transfer with ID and transaction pair
-   * @throws BusinessError for any business rule violations
+   * @returns The created transfer with ID and transaction pair, or a failure reason
    */
   async createTransfer(
     input: CreateTransferServiceInput,
     userId: string,
-  ): Promise<TransferResult> {
+  ): Promise<Result<TransferResult, string>> {
     // Validate not transferring to the same account (fail fast before DB calls)
-    this.validateNotSelfTransfer(input.fromAccountId, input.toAccountId);
+    if (input.fromAccountId === input.toAccountId) {
+      return Failure(SELF_TRANSFER_ERROR);
+    }
 
     // Validate both accounts exist and belong to user
-    const sourceAccount = await this.ensureActiveAccount(
-      input.fromAccountId,
+    const sourceAccount = await this.accountRepository.findOneById({
+      id: input.fromAccountId,
       userId,
-    );
-    const destAccount = await this.ensureActiveAccount(
-      input.toAccountId,
+    });
+    if (!sourceAccount) {
+      return Failure(ACCOUNT_NOT_FOUND_ERROR);
+    }
+
+    const destAccount = await this.accountRepository.findOneById({
+      id: input.toAccountId,
       userId,
-    );
+    });
+    if (!destAccount) {
+      return Failure(ACCOUNT_NOT_FOUND_ERROR);
+    }
 
     // Validate accounts have the same currency
-    this.validateCurrencyMatch(sourceAccount, destAccount);
+    if (sourceAccount.currency !== destAccount.currency) {
+      return currencyMismatchFailure(
+        sourceAccount.currency,
+        destAccount.currency,
+      );
+    }
 
     // Generate a unique transfer ID to link the two transactions
     const transferId = randomUUID();
@@ -137,16 +162,12 @@ export class TransferService {
         accountsToUpdate: [sourceAccountToUpdate, destAccountToUpdate],
       });
 
-      return {
+      return Success({
         transferId,
         outboundTransaction,
         inboundTransaction,
-      };
+      });
     } catch (error) {
-      if (error instanceof BusinessError) {
-        throw error;
-      }
-
       console.error("Transfer creation failed:", {
         transferId,
         fromAccountId: input.fromAccountId,
@@ -155,7 +176,7 @@ export class TransferService {
         error,
       });
 
-      throw new BusinessError("Failed to create transfer transactions");
+      return Failure("Failed to create transfer transactions");
     }
   }
 
@@ -163,10 +184,12 @@ export class TransferService {
    * Delete a transfer by removing both paired transactions
    * @param transferId - The transfer ID to delete
    * @param userId - The user ID requesting the deletion
-   * @returns Promise<void>
-   * @throws BusinessError if transfer not found or doesn't belong to user
+   * @returns Success, or a failure reason if the transfer wasn't found or couldn't be deleted
    */
-  async deleteTransfer(transferId: string, userId: string): Promise<void> {
+  async deleteTransfer(
+    transferId: string,
+    userId: string,
+  ): Promise<Result<void, string>> {
     // Find the paired transactions for this transfer
     const transferTransactions =
       await this.transactionRepository.findManyByTransferId({
@@ -176,7 +199,7 @@ export class TransferService {
 
     // Validate transfer exists
     if (transferTransactions.length === 0) {
-      throw new BusinessError("Transfer not found or doesn't belong to user");
+      return Failure(TRANSFER_NOT_FOUND_ERROR);
     }
 
     const outboundTransaction = transferTransactions.find(
@@ -186,7 +209,7 @@ export class TransferService {
       (transaction) => transaction.type === "TRANSFER_IN",
     );
     if (!outboundTransaction || !inboundTransaction) {
-      throw new BusinessError("Invalid transfer state: missing pair");
+      return Failure("Invalid transfer state: missing pair");
     }
 
     const sourceAccount = await this.accountRepository.findOneWithArchivedById({
@@ -198,7 +221,7 @@ export class TransferService {
       userId,
     });
     if (!sourceAccount || !destAccount) {
-      throw new BusinessError("Account not found");
+      return Failure("Account not found");
     }
 
     const outboundTransactionToArchive = outboundTransaction.archive();
@@ -219,11 +242,9 @@ export class TransferService {
         ],
         accountsToUpdate: [sourceAccountToUpdate, destAccountToUpdate],
       });
-    } catch (error) {
-      if (error instanceof BusinessError) {
-        throw error;
-      }
 
+      return Success(undefined);
+    } catch (error) {
       console.error("Transfer deletion failed:", {
         transferId,
         userId,
@@ -231,7 +252,7 @@ export class TransferService {
         error,
       });
 
-      throw new BusinessError("Failed to delete transfer transactions");
+      return Failure("Failed to delete transfer transactions");
     }
   }
 
@@ -240,31 +261,36 @@ export class TransferService {
    * @param transferId - The transfer ID to update
    * @param userId - The user ID requesting the update
    * @param input - Transfer update input
-   * @returns Promise<TransferResult> - The updated transfer with ID and transaction pair
-   * @throws BusinessError for any business rule violations
+   * @returns The updated transfer with ID and transaction pair, or a failure reason
    */
   async updateTransfer(
     transferId: string,
     userId: string,
     input: UpdateTransferServiceInput,
-  ): Promise<TransferResult> {
+  ): Promise<Result<TransferResult, string>> {
     // Find and validate the existing transfer
-    const existingTransfer = await this.fetchValidatedTransfer(
+    const existingTransferResult = await this.fetchValidatedTransfer(
       transferId,
       userId,
     );
+    if (!existingTransferResult.success) {
+      return existingTransferResult;
+    }
 
+    const existingTransfer = existingTransferResult.data;
     if (!existingTransfer) {
-      throw new BusinessError("Transfer not found or doesn't belong to user");
+      return Failure(TRANSFER_NOT_FOUND_ERROR);
     }
 
     const { outboundTransaction, inboundTransaction } = existingTransfer;
 
     // After change, source and destination accounts cannot be the same
-    this.validateNotSelfTransfer(
-      input.fromAccountId ?? outboundTransaction.accountId,
-      input.toAccountId ?? inboundTransaction.accountId,
-    );
+    const newFromAccountId =
+      input.fromAccountId ?? outboundTransaction.accountId;
+    const newToAccountId = input.toAccountId ?? inboundTransaction.accountId;
+    if (newFromAccountId === newToAccountId) {
+      return Failure(SELF_TRANSFER_ERROR);
+    }
 
     const oldSourceAccount =
       await this.accountRepository.findOneWithArchivedById({
@@ -273,7 +299,7 @@ export class TransferService {
       });
 
     if (!oldSourceAccount) {
-      throw new BusinessError("Account not found or doesn't belong to user");
+      return Failure(ACCOUNT_NOT_FOUND_ERROR);
     }
 
     const oldDestAccount = await this.accountRepository.findOneWithArchivedById(
@@ -284,19 +310,40 @@ export class TransferService {
     );
 
     if (!oldDestAccount) {
-      throw new BusinessError("Account not found or doesn't belong to user");
+      return Failure(ACCOUNT_NOT_FOUND_ERROR);
     }
 
-    const newSourceAccount = input.fromAccountId
-      ? await this.ensureActiveAccount(input.fromAccountId, userId)
-      : oldSourceAccount;
+    let newSourceAccount = oldSourceAccount;
+    if (input.fromAccountId) {
+      const account = await this.accountRepository.findOneById({
+        id: input.fromAccountId,
+        userId,
+      });
+      if (!account) {
+        return Failure(ACCOUNT_NOT_FOUND_ERROR);
+      }
+      newSourceAccount = account;
+    }
 
-    const newDestAccount = input.toAccountId
-      ? await this.ensureActiveAccount(input.toAccountId, userId)
-      : oldDestAccount;
+    let newDestAccount = oldDestAccount;
+    if (input.toAccountId) {
+      const account = await this.accountRepository.findOneById({
+        id: input.toAccountId,
+        userId,
+      });
+      if (!account) {
+        return Failure(ACCOUNT_NOT_FOUND_ERROR);
+      }
+      newDestAccount = account;
+    }
 
     // Validate accounts have the same currency
-    this.validateCurrencyMatch(newSourceAccount, newDestAccount);
+    if (newSourceAccount.currency !== newDestAccount.currency) {
+      return currencyMismatchFailure(
+        newSourceAccount.currency,
+        newDestAccount.currency,
+      );
+    }
 
     const sharedUpdate = {
       amount: input.amount,
@@ -392,30 +439,26 @@ export class TransferService {
         accountsToUpdate: Array.from(accountsToUpdate.values()),
       });
 
-      return {
+      return Success({
         transferId,
         outboundTransaction: outboundTransactionToUpdate.bumpVersion(),
         inboundTransaction: inboundTransactionToUpdate.bumpVersion(),
-      };
+      });
     } catch (error) {
-      if (error instanceof BusinessError) {
-        throw error;
-      }
-
       console.error("Transfer update failed:", {
         transferId,
         amount: input.amount,
         error,
       });
 
-      throw new BusinessError("Failed to update transfer transactions");
+      return Failure("Failed to update transfer transactions");
     }
   }
 
   private async fetchValidatedTransfer(
     transferId: string,
     userId: string,
-  ): Promise<TransferResult | undefined> {
+  ): Promise<Result<TransferResult | undefined, string>> {
     const transferTransactions =
       await this.transactionRepository.findManyByTransferId({
         transferId,
@@ -423,11 +466,11 @@ export class TransferService {
       });
 
     if (transferTransactions.length === 0) {
-      return undefined;
+      return Success(undefined);
     }
 
     if (transferTransactions.length !== 2) {
-      throw new BusinessError(
+      return Failure(
         `Invalid transfer state: expected 2 transactions, found ${transferTransactions.length}`,
       );
     }
@@ -440,72 +483,15 @@ export class TransferService {
     );
 
     if (!outboundTransaction) {
-      throw new BusinessError(
+      return Failure(
         "Invalid transfer state: missing TRANSFER_OUT transaction",
       );
     }
 
     if (!inboundTransaction) {
-      throw new BusinessError(
-        "Invalid transfer state: missing TRANSFER_IN transaction",
-      );
+      return Failure("Invalid transfer state: missing TRANSFER_IN transaction");
     }
 
-    return { transferId, outboundTransaction, inboundTransaction };
-  }
-
-  /**
-   * Validate that an account exists and belongs to the user
-   * @param accountId - The account ID to validate
-   * @param userId - The user ID to check ownership
-   * @returns Promise<Account> - The validated account
-   * @throws BusinessError if account not found or doesn't belong to user
-   */
-  private async ensureActiveAccount(
-    accountId: string,
-    userId: string,
-  ): Promise<Account> {
-    const account = await this.accountRepository.findOneById({
-      id: accountId,
-      userId,
-    });
-
-    if (!account) {
-      throw new BusinessError("Account not found or doesn't belong to user");
-    }
-
-    return account;
-  }
-
-  /**
-   * Validate that both accounts have the same currency
-   * @param fromAccount - The source account
-   * @param toAccount - The destination account
-   * @throws BusinessError if currencies don't match
-   */
-  private validateCurrencyMatch(
-    fromAccount: Account,
-    toAccount: Account,
-  ): void {
-    if (fromAccount.currency !== toAccount.currency) {
-      throw new BusinessError(
-        `Cannot transfer between accounts with different currencies. Source account uses ${fromAccount.currency}, destination account uses ${toAccount.currency}`,
-      );
-    }
-  }
-
-  /**
-   * Validate that the transfer is not to the same account (self-transfer)
-   * @param fromAccountId - The source account ID
-   * @param toAccountId - The destination account ID
-   * @throws BusinessError if attempting to transfer to the same account
-   */
-  private validateNotSelfTransfer(
-    fromAccountId: string,
-    toAccountId: string,
-  ): void {
-    if (fromAccountId === toAccountId) {
-      throw new BusinessError("Cannot transfer money to the same account");
-    }
+    return Success({ transferId, outboundTransaction, inboundTransaction });
   }
 }
