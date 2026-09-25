@@ -3,7 +3,7 @@ import { Transaction, TransactionType } from "../models/transaction";
 import { CategoryRepository } from "../ports/category-repository";
 import { TransactionRepository } from "../ports/transaction-repository";
 import { toDateString } from "../types/date-string";
-import { BusinessError } from "./business-error";
+import { Failure, Result, Success } from "../types/result";
 
 const UNCATEGORIZED_LABEL = "Uncategorized";
 const TOP_TRANSACTIONS_LIMIT = 5;
@@ -59,17 +59,20 @@ export class ByCategoryReportService {
    * @param year - The year (e.g., 2025)
    * @param month - The month (1-12)
    * @param type - The report type (EXPENSE or INCOME)
-   * @returns Monthly report with categories and currency totals
+   * @returns Monthly report with categories and currency totals, or a failure reason
    */
   async call(
     userId: string,
     year: number,
     month: number | undefined,
     type: ReportType,
-  ): Promise<ByCategoryReport> {
-    this.validateYear(year);
-    if (month !== undefined) {
-      this.validateMonth(month);
+  ): Promise<Result<ByCategoryReport>> {
+    if (!this.isValidYear(year)) {
+      return Failure("Year must be a valid integer");
+    }
+
+    if (month !== undefined && !this.isValidMonth(month)) {
+      return Failure("Month must be a valid integer between 1 and 12");
     }
 
     // For EXPENSE reports, fetch both EXPENSE and REFUND transactions
@@ -107,13 +110,13 @@ export class ByCategoryReportService {
     );
 
     if (transactions.length === 0) {
-      return {
+      return Success({
         year,
         month,
         type,
         categories: [],
         currencyTotals: [],
-      };
+      });
     }
 
     // Fetch all categories and build set of included category IDs
@@ -144,13 +147,13 @@ export class ByCategoryReportService {
       amountGetter,
     );
 
-    return {
+    return Success({
       year,
       month,
       type,
       categories,
       currencyTotals,
-    };
+    });
   }
 
   private calculateCurrencyTotals(
@@ -258,16 +261,12 @@ export class ByCategoryReportService {
     return breakdowns.sort((a, b) => a.currency.localeCompare(b.currency));
   }
 
-  private validateYear(year: number): void {
-    if (!Number.isInteger(year) || year < 1000 || year > 9999) {
-      throw new BusinessError("Year must be a valid integer");
-    }
+  private isValidYear(year: number): boolean {
+    return Number.isInteger(year) && year >= 1000 && year <= 9999;
   }
 
-  private validateMonth(month: number): void {
-    if (!Number.isInteger(month) || month < 1 || month > 12) {
-      throw new BusinessError("Month must be a valid integer between 1 and 12");
-    }
+  private isValidMonth(month: number): boolean {
+    return Number.isInteger(month) && month >= 1 && month <= 12;
   }
 }
 

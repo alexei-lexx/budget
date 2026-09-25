@@ -14,7 +14,6 @@ import {
 } from "../utils/test-utils/models/transaction-fakes";
 import { createMockCategoryRepository } from "../utils/test-utils/repositories/category-repository-mocks";
 import { createMockTransactionRepository } from "../utils/test-utils/repositories/transaction-repository-mocks";
-import { BusinessError } from "./business-error";
 import { ByCategoryReportService } from "./by-category-report-service";
 
 describe("ByCategoryReportService", () => {
@@ -49,7 +48,7 @@ describe("ByCategoryReportService", () => {
       const result = await reportService.call(userId, 2000, 1, "EXPENSE");
 
       // Assert
-      expect(result).toEqual({
+      expect(result).toEqualSuccess({
         year: 2000,
         month: 1,
         type: TransactionType.EXPENSE,
@@ -94,18 +93,28 @@ describe("ByCategoryReportService", () => {
       const result = await reportService.call(userId, 2000, 1, "EXPENSE");
 
       // Assert
-      expect(result.categories).toHaveLength(3);
-      expect(result.categories.map((c) => c.categoryName).sort()).toEqual([
-        "Food",
-        "Transport",
-        "Uncategorized",
-      ]);
-
       // topTransactions and totalTransactionCount populated per category
-      result.categories.forEach((category) => {
-        expect(category.topTransactions).toBeDefined();
-        expect(category.totalTransactionCount).toBeDefined();
-      });
+      expect(result).toEqualSuccess(
+        expect.objectContaining({
+          categories: [
+            expect.objectContaining({
+              categoryName: "Food",
+              topTransactions: expect.any(Array),
+              totalTransactionCount: expect.any(Number),
+            }),
+            expect.objectContaining({
+              categoryName: "Transport",
+              topTransactions: expect.any(Array),
+              totalTransactionCount: expect.any(Number),
+            }),
+            expect.objectContaining({
+              categoryName: "Uncategorized",
+              topTransactions: expect.any(Array),
+              totalTransactionCount: expect.any(Number),
+            }),
+          ],
+        }),
+      );
     });
 
     it("includes top 5 transactions sorted by amount", async () => {
@@ -135,17 +144,23 @@ describe("ByCategoryReportService", () => {
       const result = await reportService.call(userId, 2000, 1, "EXPENSE");
 
       // Assert
-      expect(result.categories).toHaveLength(1);
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      const category = result.categories[0]!;
-
-      // Top 5 transactions only
-      expect(category.topTransactions).toHaveLength(5);
-      expect(category.totalTransactionCount).toBe(7);
-
-      // Sorted by amount descending
-      const amounts = category.topTransactions.map((t) => t.amount);
-      expect(amounts).toEqual([500, 400, 300, 200, 150]);
+      // Top 5 transactions only, sorted by amount descending
+      expect(result).toEqualSuccess(
+        expect.objectContaining({
+          categories: [
+            expect.objectContaining({
+              totalTransactionCount: 7,
+              topTransactions: [
+                expect.objectContaining({ amount: 500 }),
+                expect.objectContaining({ amount: 400 }),
+                expect.objectContaining({ amount: 300 }),
+                expect.objectContaining({ amount: 200 }),
+                expect.objectContaining({ amount: 150 }),
+              ],
+            }),
+          ],
+        }),
+      );
     });
 
     it("calculates currency totals", async () => {
@@ -164,10 +179,14 @@ describe("ByCategoryReportService", () => {
       const result = await reportService.call(userId, 2000, 1, "EXPENSE");
 
       // Assert
-      expect(result.currencyTotals).toEqual([
-        { currency: "EUR", totalAmount: 150 },
-        { currency: "USD", totalAmount: 300 },
-      ]);
+      expect(result).toEqualSuccess(
+        expect.objectContaining({
+          currencyTotals: [
+            { currency: "EUR", totalAmount: 150 },
+            { currency: "USD", totalAmount: 300 },
+          ],
+        }),
+      );
     });
 
     it("calculates percentages within each currency", async () => {
@@ -196,15 +215,25 @@ describe("ByCategoryReportService", () => {
       const result = await reportService.call(userId, 2000, 1, "EXPENSE");
 
       // Assert
-      const foodCategory = result.categories.find(
-        (c) => c.categoryName === "Food",
+      // Categories sorted alphabetically: Food, Uncategorized
+      expect(result).toEqualSuccess(
+        expect.objectContaining({
+          categories: [
+            expect.objectContaining({
+              categoryName: "Food",
+              currencyBreakdowns: [
+                expect.objectContaining({ percentage: 25 }), // 100/400 = 25%
+              ],
+            }),
+            expect.objectContaining({
+              categoryName: "Uncategorized",
+              currencyBreakdowns: [
+                expect.objectContaining({ percentage: 75 }), // 300/400 = 75%
+              ],
+            }),
+          ],
+        }),
       );
-      const uncategorizedCategory = result.categories.find(
-        (c) => c.categoryName === "Uncategorized",
-      );
-
-      expect(foodCategory?.currencyBreakdowns[0]?.percentage).toBe(25); // 100/400 = 25%
-      expect(uncategorizedCategory?.currencyBreakdowns[0]?.percentage).toBe(75); // 300/400 = 75%
     });
 
     it("treats transactions without categories as Uncategorized", async () => {
@@ -226,10 +255,17 @@ describe("ByCategoryReportService", () => {
       const result = await reportService.call(userId, 2000, 1, "EXPENSE");
 
       // Assert
-      expect(result.categories).toHaveLength(1);
-      expect(result.categories[0]?.categoryName).toBe("Uncategorized");
-      expect(result.categories[0]?.categoryId).toBeUndefined();
-      expect(result.categories[0]?.currencyBreakdowns).toHaveLength(2);
+      expect(result).toEqualSuccess(
+        expect.objectContaining({
+          categories: [
+            expect.objectContaining({
+              categoryName: "Uncategorized",
+              categoryId: undefined,
+              currencyBreakdowns: [expect.any(Object), expect.any(Object)],
+            }),
+          ],
+        }),
+      );
     });
 
     it("treats deleted categories as Uncategorized", async () => {
@@ -255,8 +291,13 @@ describe("ByCategoryReportService", () => {
       const result = await reportService.call(userId, 2000, 1, "EXPENSE");
 
       // Assert
-      expect(result.categories).toHaveLength(1);
-      expect(result.categories[0]?.categoryName).toBe("Uncategorized");
+      expect(result).toEqualSuccess(
+        expect.objectContaining({
+          categories: [
+            expect.objectContaining({ categoryName: "Uncategorized" }),
+          ],
+        }),
+      );
     });
 
     it("sorts categories alphabetically by name", async () => {
@@ -293,11 +334,15 @@ describe("ByCategoryReportService", () => {
       const result = await reportService.call(userId, 2000, 1, "EXPENSE");
 
       // Assert
-      expect(result.categories.map((c) => c.categoryName)).toEqual([
-        "Apple",
-        "Uncategorized",
-        "Zebra",
-      ]);
+      expect(result).toEqualSuccess(
+        expect.objectContaining({
+          categories: [
+            expect.objectContaining({ categoryName: "Apple" }),
+            expect.objectContaining({ categoryName: "Uncategorized" }),
+            expect.objectContaining({ categoryName: "Zebra" }),
+          ],
+        }),
+      );
     });
 
     it("sorts currencies alphabetically within breakdowns and totals", async () => {
@@ -320,14 +365,24 @@ describe("ByCategoryReportService", () => {
       const result = await reportService.call(userId, 2000, 1, "EXPENSE");
 
       // Assert
-      expect(result.currencyTotals.map((ct) => ct.currency)).toEqual([
-        "EUR",
-        "GBP",
-        "USD",
-      ]);
-      expect(
-        result.categories[0]?.currencyBreakdowns.map((cb) => cb.currency),
-      ).toEqual(["EUR", "GBP", "USD"]);
+      expect(result).toEqualSuccess(
+        expect.objectContaining({
+          currencyTotals: [
+            expect.objectContaining({ currency: "EUR" }),
+            expect.objectContaining({ currency: "GBP" }),
+            expect.objectContaining({ currency: "USD" }),
+          ],
+          categories: [
+            expect.objectContaining({
+              currencyBreakdowns: [
+                expect.objectContaining({ currency: "EUR" }),
+                expect.objectContaining({ currency: "GBP" }),
+                expect.objectContaining({ currency: "USD" }),
+              ],
+            }),
+          ],
+        }),
+      );
     });
 
     it("rounds percentages to whole numbers", async () => {
@@ -353,10 +408,17 @@ describe("ByCategoryReportService", () => {
       const result = await reportService.call(userId, 2000, 1, "EXPENSE");
 
       // Assert
-      const percentages =
-        result.categories[0]?.currencyBreakdowns[0]?.percentage;
-      expect(Number.isInteger(percentages)).toBe(true);
-      expect(percentages).toBe(100); // Rounds to 100% for single category
+      expect(result).toEqualSuccess(
+        expect.objectContaining({
+          categories: [
+            expect.objectContaining({
+              currencyBreakdowns: [
+                expect.objectContaining({ percentage: 100 }), // Rounds to 100% for single category
+              ],
+            }),
+          ],
+        }),
+      );
     });
 
     it("calculates net amount as expenses minus refunds", async () => {
@@ -388,11 +450,18 @@ describe("ByCategoryReportService", () => {
       const result = await reportService.call(userId, 2025, 11, "EXPENSE");
 
       // Assert
-      expect(result.categories).toHaveLength(1);
-      expect(result.categories[0]?.currencyBreakdowns[0]?.totalAmount).toBe(
-        800,
-      ); // 1000 - 200
-      expect(result.currencyTotals[0]?.totalAmount).toBe(800);
+      expect(result).toEqualSuccess(
+        expect.objectContaining({
+          categories: [
+            expect.objectContaining({
+              currencyBreakdowns: [
+                expect.objectContaining({ totalAmount: 800 }), // 1000 - 200
+              ],
+            }),
+          ],
+          currencyTotals: [expect.objectContaining({ totalAmount: 800 })],
+        }),
+      );
     });
 
     it("returns negative net amount when refunds exceed expenses", async () => {
@@ -418,11 +487,18 @@ describe("ByCategoryReportService", () => {
       const result = await reportService.call(userId, 2025, 11, "EXPENSE");
 
       // Assert
-      expect(result.categories).toHaveLength(1);
-      expect(result.categories[0]?.currencyBreakdowns[0]?.totalAmount).toBe(
-        -300,
+      expect(result).toEqualSuccess(
+        expect.objectContaining({
+          categories: [
+            expect.objectContaining({
+              currencyBreakdowns: [
+                expect.objectContaining({ totalAmount: -300 }),
+              ],
+            }),
+          ],
+          currencyTotals: [expect.objectContaining({ totalAmount: -300 })],
+        }),
       );
-      expect(result.currencyTotals[0]?.totalAmount).toBe(-300);
     });
 
     it("does not factor refunds for INCOME reports", async () => {
@@ -448,8 +524,16 @@ describe("ByCategoryReportService", () => {
       const result = await reportService.call(userId, 2025, 11, "INCOME");
 
       // Assert
-      expect(result.categories[0]?.currencyBreakdowns[0]?.totalAmount).toBe(
-        500,
+      expect(result).toEqualSuccess(
+        expect.objectContaining({
+          categories: [
+            expect.objectContaining({
+              currencyBreakdowns: [
+                expect.objectContaining({ totalAmount: 500 }),
+              ],
+            }),
+          ],
+        }),
       );
       expect(mockTransactionRepository.findManyByUserId).toHaveBeenCalledWith(
         userId,
@@ -501,16 +585,25 @@ describe("ByCategoryReportService", () => {
       const result = await reportService.call(userId, 2025, 11, "EXPENSE");
 
       // Assert
-      expect(result.categories).toHaveLength(1);
-      const eurBreakdown = result.categories[0]?.currencyBreakdowns.find(
-        (cb) => cb.currency === "EUR",
+      // Currency breakdowns sorted alphabetically: EUR, USD
+      expect(result).toEqualSuccess(
+        expect.objectContaining({
+          categories: [
+            expect.objectContaining({
+              currencyBreakdowns: [
+                expect.objectContaining({
+                  currency: "EUR",
+                  totalAmount: 800, // 1000 - 200
+                }),
+                expect.objectContaining({
+                  currency: "USD",
+                  totalAmount: 400, // 500 - 100
+                }),
+              ],
+            }),
+          ],
+        }),
       );
-      const usdBreakdown = result.categories[0]?.currencyBreakdowns.find(
-        (cb) => cb.currency === "USD",
-      );
-
-      expect(eurBreakdown?.totalAmount).toBe(800); // 1000 - 200
-      expect(usdBreakdown?.totalAmount).toBe(400); // 500 - 100
     });
 
     it("handles uncategorized transactions with refunds", async () => {
@@ -536,11 +629,18 @@ describe("ByCategoryReportService", () => {
       const result = await reportService.call(userId, 2025, 11, "EXPENSE");
 
       // Assert
-      expect(result.categories).toHaveLength(1);
-      expect(result.categories[0]?.categoryName).toBe("Uncategorized");
-      expect(result.categories[0]?.currencyBreakdowns[0]?.totalAmount).toBe(
-        500,
-      ); // 600 - 100
+      expect(result).toEqualSuccess(
+        expect.objectContaining({
+          categories: [
+            expect.objectContaining({
+              categoryName: "Uncategorized",
+              currencyBreakdowns: [
+                expect.objectContaining({ totalAmount: 500 }), // 600 - 100
+              ],
+            }),
+          ],
+        }),
+      );
     });
 
     it("excludes transactions in excluded categories from report", async () => {
@@ -592,11 +692,18 @@ describe("ByCategoryReportService", () => {
       const result = await reportService.call(userId, 2000, 1, "EXPENSE");
 
       // Assert
-      expect(result.currencyTotals).toHaveLength(1);
-      expect(result.currencyTotals[0]?.totalAmount).toBe(300); // 100 + 200, excluding 500
-      expect(
-        result.categories.map((category) => category.categoryName).sort(),
-      ).toEqual(["Groceries", "Uncategorized"]);
+      // Categories sorted alphabetically: Groceries, Uncategorized
+      expect(result).toEqualSuccess(
+        expect.objectContaining({
+          currencyTotals: [
+            expect.objectContaining({ totalAmount: 300 }), // 100 + 200, excluding 500
+          ],
+          categories: [
+            expect.objectContaining({ categoryName: "Groceries" }),
+            expect.objectContaining({ categoryName: "Uncategorized" }),
+          ],
+        }),
+      );
     });
 
     it("succeeds for months 1 through 12", async () => {
@@ -608,55 +715,64 @@ describe("ByCategoryReportService", () => {
 
       // Act & Assert
       for (let month = 1; month <= 12; month++) {
-        await expect(
-          reportService.call(userId, currentYear, month, "EXPENSE"),
-        ).resolves.toBeDefined();
+        const result = await reportService.call(
+          userId,
+          currentYear,
+          month,
+          "EXPENSE",
+        );
+        expect(result).toEqualSuccess();
       }
     });
 
     // Validation failures
 
-    it("throws when year is not integer", async () => {
-      // Act & Assert
-      await expect(
-        reportService.call(userId, 2000.5, 1, "EXPENSE"),
-      ).rejects.toMatchObject({
-        message: "Year must be a valid integer",
-      });
+    it("fails when year is not integer", async () => {
+      // Act
+      const result = await reportService.call(userId, 2000.5, 1, "EXPENSE");
+
+      // Assert
+      expect(result).toEqualFailure("Year must be a valid integer");
     });
 
-    it("throws when year < 1000", async () => {
+    it("fails when year < 1000", async () => {
       // Arrange
       mockTransactionRepository.findManyByUserId.mockResolvedValue([]);
 
-      // Act & Assert
-      await expect(
-        reportService.call(userId, 999, 1, "EXPENSE"),
-      ).rejects.toThrow(new BusinessError("Year must be a valid integer"));
+      // Act
+      const result = await reportService.call(userId, 999, 1, "EXPENSE");
+
+      // Assert
+      expect(result).toEqualFailure("Year must be a valid integer");
     });
 
-    it("throws when year > 9999", async () => {
+    it("fails when year > 9999", async () => {
       // Arrange
       mockTransactionRepository.findManyByUserId.mockResolvedValue([]);
 
-      // Act & Assert
-      await expect(
-        reportService.call(userId, 10000, 1, "EXPENSE"),
-      ).rejects.toThrow(new BusinessError("Year must be a valid integer"));
+      // Act
+      const result = await reportService.call(userId, 10000, 1, "EXPENSE");
+
+      // Assert
+      expect(result).toEqualFailure("Year must be a valid integer");
     });
 
-    it("throws when month is out of range or fractional", async () => {
+    it("fails when month is out of range or fractional", async () => {
       // Arrange
       const currentYear = new Date().getFullYear();
       const invalidMonths = [0, 13, 5.5];
 
       // Act & Assert
       for (const invalidMonth of invalidMonths) {
-        await expect(
-          reportService.call(userId, currentYear, invalidMonth, "EXPENSE"),
-        ).rejects.toMatchObject({
-          message: "Month must be a valid integer between 1 and 12",
-        });
+        const result = await reportService.call(
+          userId,
+          currentYear,
+          invalidMonth,
+          "EXPENSE",
+        );
+        expect(result).toEqualFailure(
+          "Month must be a valid integer between 1 and 12",
+        );
       }
     });
 
@@ -696,8 +812,9 @@ describe("ByCategoryReportService", () => {
         );
 
         // Assert
-        expect(result.month).toBeUndefined();
-        expect(result.year).toBe(2000);
+        expect(result).toEqualSuccess(
+          expect.objectContaining({ month: undefined, year: 2000 }),
+        );
       });
 
       it("calculates currency totals across full year", async () => {
@@ -729,9 +846,11 @@ describe("ByCategoryReportService", () => {
         );
 
         // Assert
-        expect(result.currencyTotals).toEqual([
-          { currency: "EUR", totalAmount: 300 },
-        ]);
+        expect(result).toEqualSuccess(
+          expect.objectContaining({
+            currencyTotals: [{ currency: "EUR", totalAmount: 300 }],
+          }),
+        );
       });
     });
   });
