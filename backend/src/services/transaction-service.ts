@@ -23,6 +23,7 @@ import {
   PaginationInput,
 } from "../types/pagination";
 import { Failure, Result, Success } from "../types/result";
+import { catchModelError } from "../utils/errors";
 
 export const MIN_SEARCH_TEXT_LENGTH = 2;
 
@@ -188,12 +189,17 @@ export class TransactionServiceImpl implements TransactionService {
       }
     }
 
-    const transactionToCreate = Transaction.create({
-      ...input,
-      userId,
-      account,
-      category,
-    });
+    const transactionToCreateResult = catchModelError(() =>
+      Transaction.create({
+        ...input,
+        userId,
+        account,
+        category,
+      }),
+    );
+    if (!transactionToCreateResult.success) return transactionToCreateResult;
+
+    const transactionToCreate = transactionToCreateResult.data;
 
     const accountToUpdate = account.increaseBalanceBySignedAmount(
       transactionToCreate.signedAmount,
@@ -256,7 +262,7 @@ export class TransactionServiceImpl implements TransactionService {
       );
       if (!categoryResult.success) return categoryResult;
 
-      transactionsToCreate.push(
+      const transactionResult = catchModelError(() =>
         Transaction.create({
           userId,
           account,
@@ -271,6 +277,9 @@ export class TransactionServiceImpl implements TransactionService {
           },
         }),
       );
+      if (!transactionResult.success) return transactionResult;
+
+      transactionsToCreate.push(transactionResult.data);
     }
 
     const accountToUpdate = transactionsToCreate.reduce(
@@ -370,14 +379,19 @@ export class TransactionServiceImpl implements TransactionService {
       category = categoryResult.data;
     }
 
-    const transactionToUpdate = existingTransaction.update({
-      account: newAccount,
-      category,
-      type: input.type,
-      amount: input.amount,
-      date: input.date,
-      description: input.description,
-    });
+    const transactionToUpdateResult = catchModelError(() =>
+      existingTransaction.update({
+        account: newAccount,
+        category,
+        type: input.type,
+        amount: input.amount,
+        date: input.date,
+        description: input.description,
+      }),
+    );
+    if (!transactionToUpdateResult.success) return transactionToUpdateResult;
+
+    const transactionToUpdate = transactionToUpdateResult.data;
 
     const isBalanceAffected =
       existingTransaction.accountId !== transactionToUpdate.accountId ||
@@ -476,7 +490,13 @@ export class TransactionServiceImpl implements TransactionService {
       return Failure("Account not found");
     }
 
-    const transactionToArchive = existingTransaction.archive();
+    const transactionToArchiveResult = catchModelError(() =>
+      existingTransaction.archive(),
+    );
+    if (!transactionToArchiveResult.success) return transactionToArchiveResult;
+
+    const transactionToArchive = transactionToArchiveResult.data;
+
     const accountToUpdate = account.decreaseBalanceBySignedAmount(
       transactionToArchive.signedAmount,
     );

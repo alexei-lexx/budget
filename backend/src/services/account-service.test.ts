@@ -1,6 +1,6 @@
 import { faker } from "@faker-js/faker";
 import { type Mocked, beforeEach, describe, expect, it } from "vitest";
-import { ModelError } from "../models/model-error";
+import { NAME_MAX_LENGTH, NAME_MIN_LENGTH } from "../models/account";
 import { AccountRepository } from "../ports/account-repository";
 import { TransactionRepository } from "../ports/transaction-repository";
 import {
@@ -154,12 +154,18 @@ describe("AccountService", () => {
 
     // Validation failures
 
-    it("propagates ModelError without persisting", async () => {
+    it("fails when model invariant is violated", async () => {
       // Arrange
+      // Empty name triggers ModelError, which the service must expose as failure
       const input = fakeCreateAccountInput({ userId, name: "" });
 
-      // Act & Assert
-      await expect(service.createAccount(input)).rejects.toThrow(ModelError);
+      // Act
+      const result = await service.createAccount(input);
+
+      // Assert
+      expect(result).toEqualFailure(
+        `Account name must be between ${NAME_MIN_LENGTH} and ${NAME_MAX_LENGTH} characters`,
+      );
       expect(mockAccountRepository.findManyByUserId).not.toHaveBeenCalled();
       expect(mockAccountRepository.create).not.toHaveBeenCalled();
     });
@@ -318,16 +324,41 @@ describe("AccountService", () => {
       expect(mockAccountRepository.update).not.toHaveBeenCalled();
     });
 
-    it("propagates ModelError without persisting", async () => {
+    it("fails when model invariant is violated", async () => {
       // Arrange
       const accountId = faker.string.uuid();
       const currentAccount = fakeAccount({ id: accountId, userId });
       mockAccountRepository.findOneById.mockResolvedValue(currentAccount);
+      // Empty name triggers ModelError, which the service must expose as failure
+      const input = { name: "" };
 
-      // Act & Assert
-      await expect(
-        service.updateAccount(accountId, userId, { name: "" }),
-      ).rejects.toThrow(ModelError);
+      // Act
+      const result = await service.updateAccount(accountId, userId, input);
+
+      // Assert
+      expect(result).toEqualFailure(
+        `Account name must be between ${NAME_MIN_LENGTH} and ${NAME_MAX_LENGTH} characters`,
+      );
+      expect(mockAccountRepository.update).not.toHaveBeenCalled();
+    });
+
+    it("fails when updating archived account", async () => {
+      // Arrange
+      const accountId = faker.string.uuid();
+      const currentAccount = fakeAccount({
+        id: accountId,
+        userId,
+        isArchived: true,
+      });
+      mockAccountRepository.findOneById.mockResolvedValue(currentAccount);
+
+      // Act
+      const result = await service.updateAccount(accountId, userId, {
+        name: "New Name",
+      });
+
+      // Assert
+      expect(result).toEqualFailure("Cannot update archived account");
       expect(mockAccountRepository.update).not.toHaveBeenCalled();
     });
 
@@ -451,6 +482,25 @@ describe("AccountService", () => {
 
       // Assert
       expect(result).toEqualFailure("Account not found");
+      expect(mockAccountRepository.update).not.toHaveBeenCalled();
+    });
+
+    it("fails when account already archived", async () => {
+      // Arrange
+      const accountId = faker.string.uuid();
+      const currentAccount = fakeAccount({
+        id: accountId,
+        userId,
+        isArchived: true,
+      });
+
+      mockAccountRepository.findOneById.mockResolvedValue(currentAccount);
+
+      // Act
+      const result = await service.deleteAccount(accountId, userId);
+
+      // Assert
+      expect(result).toEqualFailure("Cannot archive archived account");
       expect(mockAccountRepository.update).not.toHaveBeenCalled();
     });
 

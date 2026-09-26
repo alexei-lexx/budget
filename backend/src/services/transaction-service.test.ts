@@ -8,7 +8,6 @@ import {
   it,
   vi,
 } from "vitest";
-import { ModelError } from "../models/model-error";
 import { Transaction, TransactionType } from "../models/transaction";
 import { AccountRepository } from "../ports/account-repository";
 import { AtomicWriter } from "../ports/atomic-writer";
@@ -965,11 +964,12 @@ describe("TransactionService", () => {
       expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
     });
 
-    it("propagates ModelError without persisting", async () => {
+    it("fails when model invariant is violated", async () => {
       // Arrange
+      // Negative amount triggers ModelError, which the service must expose as failure
       const input = fakeCreateTransactionServiceInput({
         categoryId: undefined,
-        amount: -1, // Invalid amount
+        amount: -1,
       });
 
       // Returns account owned by user
@@ -978,12 +978,10 @@ describe("TransactionService", () => {
       );
 
       // Act
-      const promise = service.createTransaction(input, userId);
+      const result = await service.createTransaction(input, userId);
 
       // Assert
-      await expect(promise).rejects.toThrow(
-        new ModelError("Amount must be positive"),
-      );
+      expect(result).toEqualFailure("Amount must be positive");
       expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
     });
   });
@@ -1377,11 +1375,13 @@ describe("TransactionService", () => {
       expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
     });
 
-    it("propagates ModelError without persisting", async () => {
+    it("fails when model invariant is violated", async () => {
       // Arrange
       const account = fakeAccount({ userId });
       const categoryA = fakeCategory({ userId, type: "EXPENSE" });
       const categoryB = fakeCategory({ userId, type: "EXPENSE" });
+
+      // Negative leg amount triggers ModelError, which the service must expose as failure
       const input = fakeCreateCompoundTransactionServiceInput({
         accountId: account.id,
         type: "EXPENSE",
@@ -1406,12 +1406,10 @@ describe("TransactionService", () => {
         .mockResolvedValueOnce(categoryB);
 
       // Act
-      const promise = service.createCompoundTransaction(input, userId);
+      const result = await service.createCompoundTransaction(input, userId);
 
       // Assert
-      await expect(promise).rejects.toThrow(
-        new ModelError("Amount must be positive"),
-      );
+      expect(result).toEqualFailure("Amount must be positive");
       expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
     });
   });
@@ -1735,7 +1733,7 @@ describe("TransactionService", () => {
       expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
     });
 
-    it("propagates ModelError when amount is invalid", async () => {
+    it("fails when model invariant is violated", async () => {
       // Arrange
       const existingTransaction = fakeExpense({
         userId,
@@ -1744,13 +1742,18 @@ describe("TransactionService", () => {
       mockTransactionRepository.findOneById.mockResolvedValue(
         existingTransaction,
       );
+      // Negative amount triggers ModelError, which the service must expose as failure
+      const input = { amount: -1 };
 
-      // Act & Assert
-      await expect(
-        service.updateTransaction(existingTransaction.id, userId, {
-          amount: -1,
-        }),
-      ).rejects.toThrow(ModelError);
+      // Act
+      const result = await service.updateTransaction(
+        existingTransaction.id,
+        userId,
+        input,
+      );
+
+      // Assert
+      expect(result).toEqualFailure("Amount must be positive");
       expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
     });
   });

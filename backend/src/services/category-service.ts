@@ -7,6 +7,7 @@ import {
 import { CategoryRepository } from "../ports/category-repository";
 import { EntityScope } from "../types/entity-scope";
 import { Failure, Result, Success } from "../types/result";
+import { catchModelError } from "../utils/errors";
 
 export interface CategoryService {
   getCategoriesByUser(
@@ -68,7 +69,10 @@ export class CategoryServiceImpl implements CategoryService {
    * @returns The created category, or a failure reason
    */
   async createCategory(input: CreateCategoryInput): Promise<Result<Category>> {
-    const category = Category.create(input);
+    const categoryResult = catchModelError(() => Category.create(input));
+    if (!categoryResult.success) return categoryResult;
+
+    const category = categoryResult.data;
 
     if (await this.isDuplicateName(category.userId, category.name)) {
       return Failure(`Category "${category.name}" already exists`);
@@ -99,7 +103,12 @@ export class CategoryServiceImpl implements CategoryService {
       return Failure("Category not found");
     }
 
-    const updatedCategory = existingCategory.update(input);
+    const updatedCategoryResult = catchModelError(() =>
+      existingCategory.update(input),
+    );
+    if (!updatedCategoryResult.success) return updatedCategoryResult;
+
+    const updatedCategory = updatedCategoryResult.data;
 
     // Check for duplicate names if name is being updated
     if (
@@ -128,9 +137,14 @@ export class CategoryServiceImpl implements CategoryService {
       return Failure("Category not found");
     }
 
-    return Success(
-      await this.categoryRepository.update(existingCategory.archive()),
+    const archivedCategoryResult = catchModelError(() =>
+      existingCategory.archive(),
     );
+    if (!archivedCategoryResult.success) return archivedCategoryResult;
+
+    const archivedCategory = archivedCategoryResult.data;
+
+    return Success(await this.categoryRepository.update(archivedCategory));
   }
 
   private async isDuplicateName(

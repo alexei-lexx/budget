@@ -6,6 +6,7 @@ import { AtomicWriter } from "../ports/atomic-writer";
 import { TransactionRepository } from "../ports/transaction-repository";
 import { DateString } from "../types/date-string";
 import { Failure, Result, Success } from "../types/result";
+import { catchModelError } from "../utils/errors";
 
 const ACCOUNT_NOT_FOUND_ERROR = "Account not found or doesn't belong to user";
 const SELF_TRANSFER_ERROR = "Cannot transfer money to the same account";
@@ -128,26 +129,34 @@ export class TransferService {
     const transferId = randomUUID();
 
     // Build the outbound transaction (TRANSFER_OUT)
-    const outboundTransaction = Transaction.create({
-      userId,
-      account: sourceAccount,
-      type: "TRANSFER_OUT",
-      amount: input.amount,
-      date: input.date,
-      description: input.description || undefined,
-      transferId,
-    });
+    const outboundTransactionResult = catchModelError(() =>
+      Transaction.create({
+        userId,
+        account: sourceAccount,
+        type: "TRANSFER_OUT",
+        amount: input.amount,
+        date: input.date,
+        description: input.description || undefined,
+        transferId,
+      }),
+    );
+    if (!outboundTransactionResult.success) return outboundTransactionResult;
+    const outboundTransaction = outboundTransactionResult.data;
 
     // Build the inbound transaction (TRANSFER_IN)
-    const inboundTransaction = Transaction.create({
-      userId,
-      account: destAccount,
-      type: "TRANSFER_IN",
-      amount: input.amount,
-      date: input.date,
-      description: input.description || undefined,
-      transferId,
-    });
+    const inboundTransactionResult = catchModelError(() =>
+      Transaction.create({
+        userId,
+        account: destAccount,
+        type: "TRANSFER_IN",
+        amount: input.amount,
+        date: input.date,
+        description: input.description || undefined,
+        transferId,
+      }),
+    );
+    if (!inboundTransactionResult.success) return inboundTransactionResult;
+    const inboundTransaction = inboundTransactionResult.data;
 
     const sourceAccountToUpdate = sourceAccount.increaseBalanceBySignedAmount(
       outboundTransaction.signedAmount,
@@ -224,8 +233,22 @@ export class TransferService {
       return Failure("Account not found");
     }
 
-    const outboundTransactionToArchive = outboundTransaction.archive();
-    const inboundTransactionToArchive = inboundTransaction.archive();
+    const outboundTransactionToArchiveResult = catchModelError(() =>
+      outboundTransaction.archive(),
+    );
+    if (!outboundTransactionToArchiveResult.success) {
+      return outboundTransactionToArchiveResult;
+    }
+    const outboundTransactionToArchive =
+      outboundTransactionToArchiveResult.data;
+
+    const inboundTransactionToArchiveResult = catchModelError(() =>
+      inboundTransaction.archive(),
+    );
+    if (!inboundTransactionToArchiveResult.success) {
+      return inboundTransactionToArchiveResult;
+    }
+    const inboundTransactionToArchive = inboundTransactionToArchiveResult.data;
 
     const sourceAccountToUpdate = sourceAccount.decreaseBalanceBySignedAmount(
       outboundTransaction.signedAmount,
@@ -351,15 +374,27 @@ export class TransferService {
       description: input.description,
     };
 
-    const outboundTransactionToUpdate = outboundTransaction.update({
-      ...sharedUpdate,
-      account: input.fromAccountId ? newSourceAccount : undefined,
-    });
+    const outboundTransactionToUpdateResult = catchModelError(() =>
+      outboundTransaction.update({
+        ...sharedUpdate,
+        account: input.fromAccountId ? newSourceAccount : undefined,
+      }),
+    );
+    if (!outboundTransactionToUpdateResult.success) {
+      return outboundTransactionToUpdateResult;
+    }
+    const outboundTransactionToUpdate = outboundTransactionToUpdateResult.data;
 
-    const inboundTransactionToUpdate = inboundTransaction.update({
-      ...sharedUpdate,
-      account: input.toAccountId ? newDestAccount : undefined,
-    });
+    const inboundTransactionToUpdateResult = catchModelError(() =>
+      inboundTransaction.update({
+        ...sharedUpdate,
+        account: input.toAccountId ? newDestAccount : undefined,
+      }),
+    );
+    if (!inboundTransactionToUpdateResult.success) {
+      return inboundTransactionToUpdateResult;
+    }
+    const inboundTransactionToUpdate = inboundTransactionToUpdateResult.data;
 
     const balanceAffected =
       // Amount changed

@@ -5,6 +5,7 @@ import {
   isSupportedInterfaceLanguage,
 } from "../types/language";
 import { Failure, Result, Success } from "../types/result";
+import { catchModelError } from "../utils/errors";
 import {
   DEFAULT_TRANSACTION_PATTERNS_LIMIT,
   MAX_TRANSACTION_PATTERNS_LIMIT,
@@ -28,7 +29,10 @@ export class UserService {
       return Success(existing);
     }
 
-    const user = User.create({ email });
+    const userResult = catchModelError(() => User.create({ email }));
+    if (!userResult.success) return userResult;
+
+    const user = userResult.data;
     await this.userRepository.create(user);
     return Success(user);
   }
@@ -86,15 +90,19 @@ export class UserService {
       return Failure("User not found");
     }
 
-    const updated = user.update({
-      interfaceLanguage,
-      transactionPatternsLimit,
-      voiceInputLanguage,
-    });
+    const updatedUserResult = catchModelError(() =>
+      user.update({
+        interfaceLanguage,
+        transactionPatternsLimit,
+        voiceInputLanguage,
+      }),
+    );
+    if (!updatedUserResult.success) return updatedUserResult;
 
-    await this.userRepository.update(updated);
+    const updatedUser = updatedUserResult.data;
+    await this.userRepository.update(updatedUser);
 
-    return Success(this.buildSettingsData(updated));
+    return Success(this.buildSettingsData(updatedUser));
   }
 
   async regenerateMcpToken(userId: string): Promise<Result<UserSettingsData>> {
@@ -104,11 +112,13 @@ export class UserService {
       return Failure("User not found");
     }
 
-    const updated = user.regenerateMcpToken();
+    const updatedUserResult = catchModelError(() => user.regenerateMcpToken());
+    if (!updatedUserResult.success) return updatedUserResult;
 
-    await this.userRepository.update(updated);
+    const updatedUser = updatedUserResult.data;
+    await this.userRepository.update(updatedUser);
 
-    return Success(this.buildSettingsData(updated));
+    return Success(this.buildSettingsData(updatedUser));
   }
 
   private buildSettingsData(user: User) {

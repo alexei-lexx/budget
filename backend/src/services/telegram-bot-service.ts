@@ -3,6 +3,7 @@ import { BackgroundJobDispatcher } from "../ports/background-job-dispatcher";
 import { TelegramApiClient } from "../ports/telegram-api-client";
 import { TelegramBotRepository } from "../ports/telegram-bot-repository";
 import { Failure, Result, Success } from "../types/result";
+import { catchModelError } from "../utils/errors";
 
 export interface MaskedTelegramBot {
   id: string;
@@ -104,7 +105,12 @@ export class TelegramBotService {
     }
 
     // Create a PENDING record first
-    const bot = TelegramBot.create({ userId, token: trimmedToken });
+    const botResult = catchModelError(() =>
+      TelegramBot.create({ userId, token: trimmedToken }),
+    );
+    if (!botResult.success) return botResult;
+
+    const bot = botResult.data;
     await this.telegramBotRepository.create(bot);
 
     const setWebhookResult = await this.telegramApiClient.setWebhook({
@@ -115,14 +121,24 @@ export class TelegramBotService {
 
     if (!setWebhookResult.success) {
       // setWebhook failed — archive the pending record to avoid stuck records
-      await this.telegramBotRepository.update(bot.archive());
+      const archivedBotResult = catchModelError(() => bot.archive());
+      if (!archivedBotResult.success) return archivedBotResult;
+
+      const archivedBot = archivedBotResult.data;
+
+      await this.telegramBotRepository.update(archivedBot);
 
       return Failure(
         "Failed to connect Telegram bot. Check the token and try again.",
       );
     }
 
-    const connected = await this.telegramBotRepository.update(bot.connect());
+    const botToConnectResult = catchModelError(() => bot.connect());
+    if (!botToConnectResult.success) return botToConnectResult;
+
+    const botToConnect = botToConnectResult.data;
+
+    const connected = await this.telegramBotRepository.update(botToConnect);
 
     return Success(maskTelegramBot(connected));
   }
@@ -139,14 +155,24 @@ export class TelegramBotService {
       return Failure("No connected bot found");
     }
 
-    const deletingBot = await this.telegramBotRepository.update(
-      bot.disconnect(),
-    );
+    const botToDisconnectResult = catchModelError(() => bot.disconnect());
+    if (!botToDisconnectResult.success) return botToDisconnectResult;
+
+    const botToDisconnect = botToDisconnectResult.data;
+
+    const deletingBot =
+      await this.telegramBotRepository.update(botToDisconnect);
 
     // Best-effort: delete the webhook from Telegram before archiving
     // Failure is non-fatal
     await this.telegramApiClient.deleteWebhook(bot.token);
-    await this.telegramBotRepository.update(deletingBot.archive());
+
+    const botToArchiveResult = catchModelError(() => deletingBot.archive());
+    if (!botToArchiveResult.success) return botToArchiveResult;
+
+    const botToArchive = botToArchiveResult.data;
+
+    await this.telegramBotRepository.update(botToArchive);
 
     return Success(true);
   }
