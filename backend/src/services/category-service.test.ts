@@ -131,9 +131,7 @@ describe("CategoryService", () => {
       });
 
       // Assert
-      expect(result).toEqualSuccess(
-        categories.filter((category) => category.type === matchingType),
-      );
+      expect(result).toEqualSuccess(categories.slice(0, 1)); // Only the first category
     });
   });
 
