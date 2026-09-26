@@ -7,6 +7,7 @@ import { AccountRepository } from "../ports/account-repository";
 import { TransactionRepository } from "../ports/transaction-repository";
 import { EntityScope } from "../types/entity-scope";
 import { Failure, Result, Success } from "../types/result";
+import { catchModelError } from "../utils/errors";
 
 export interface AccountService {
   getAccountsByUser(
@@ -62,7 +63,10 @@ export class AccountServiceImpl implements AccountService {
    * @returns The created account, or a failure reason
    */
   async createAccount(input: CreateAccountInput): Promise<Result<Account>> {
-    const account = Account.create(input);
+    const accountResult = catchModelError(() => Account.create(input));
+    if (!accountResult.success) return accountResult;
+
+    const account = accountResult.data;
 
     if (await this.isDuplicateName(account.userId, account.name)) {
       return Failure(`Account "${account.name}" already exists`);
@@ -95,7 +99,12 @@ export class AccountServiceImpl implements AccountService {
       return Failure("Account not found");
     }
 
-    const updatedAccount = existingAccount.update(input);
+    const updatedAccountResult = catchModelError(() =>
+      existingAccount.update(input),
+    );
+    if (!updatedAccountResult.success) return updatedAccountResult;
+
+    const updatedAccount = updatedAccountResult.data;
 
     // Check for duplicate names if name is being updated
     if (
@@ -139,8 +148,13 @@ export class AccountServiceImpl implements AccountService {
       return Failure("Account not found");
     }
 
+    const archivedAccountResult = catchModelError(() =>
+      existingAccount.archive(),
+    );
+    if (!archivedAccountResult.success) return archivedAccountResult;
+
     return Success(
-      await this.accountRepository.update(existingAccount.archive()),
+      await this.accountRepository.update(archivedAccountResult.data),
     );
   }
 

@@ -76,8 +76,9 @@ describe("TrendPresetService", () => {
 
     // Validation failures
 
-    it("returns failure when lookback is out of range", async () => {
+    it("fails when model invariant is violated", async () => {
       // Arrange
+      // Out-of-range lookback triggers ModelError, which the service must expose as failure
       const input = fakeCreateTrendPresetServiceInput({ lookback: 13 });
 
       // Act

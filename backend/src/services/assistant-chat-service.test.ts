@@ -240,6 +240,32 @@ describe("AssistantChatService", () => {
       ).toHaveBeenCalledWith({ userId, sessionId }, maxMessages);
     });
 
+    // Validation failures
+
+    it("fails when model invariant is violated", async () => {
+      // Arrange
+      const sessionId = faker.string.uuid();
+      // Empty question triggers ModelError, which the service must expose as failure
+      const input = { question: "", sessionId };
+
+      chatMessageRepository.findManyRecentBySessionId.mockResolvedValue([]);
+      assistantService.call.mockResolvedValue({
+        success: true,
+        data: { answer: "Answer", agentTrace: [] },
+      });
+
+      // Act
+      const result = await service.call(userId, input);
+
+      // Assert
+      expect(result).toEqualFailure({
+        message: "Chat message content is required",
+        agentTrace: [],
+        sessionId,
+      });
+      expect(chatMessageRepository.create).not.toHaveBeenCalled();
+    });
+
     // Dependency failures
 
     it("returns failure and does not save messages when AssistantService fails", async () => {

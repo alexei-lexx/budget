@@ -3,6 +3,7 @@ import { ChatMessage, ChatMessageRole } from "../models/chat-message";
 import { AgentMessage, AgentTraceMessage } from "../ports/agent-types";
 import { ChatMessageRepository } from "../ports/chat-message-repository";
 import { Failure, Result, Success } from "../types/result";
+import { catchModelError } from "../utils/errors";
 import { AssistantService } from "./assistant-service";
 
 export interface AssistantChatInput {
@@ -87,7 +88,7 @@ export class AssistantChatServiceImpl implements AssistantChatService {
     }
 
     // Persist user question and assistant answer after successful response
-    await this.chatMessageRepository.create(
+    const userMessageResult = catchModelError(() =>
       ChatMessage.create({
         userId,
         sessionId,
@@ -96,7 +97,16 @@ export class AssistantChatServiceImpl implements AssistantChatService {
         ttlSeconds: this.ttlSeconds,
       }),
     );
-    await this.chatMessageRepository.create(
+    if (!userMessageResult.success) {
+      return Failure({
+        agentTrace: result.data.agentTrace,
+        message: userMessageResult.error,
+        sessionId,
+      });
+    }
+    await this.chatMessageRepository.create(userMessageResult.data);
+
+    const assistantMessageResult = catchModelError(() =>
       ChatMessage.create({
         userId,
         sessionId,
@@ -105,6 +115,14 @@ export class AssistantChatServiceImpl implements AssistantChatService {
         ttlSeconds: this.ttlSeconds,
       }),
     );
+    if (!assistantMessageResult.success) {
+      return Failure({
+        agentTrace: result.data.agentTrace,
+        message: assistantMessageResult.error,
+        sessionId,
+      });
+    }
+    await this.chatMessageRepository.create(assistantMessageResult.data);
 
     return Success({
       answer: result.data.answer,

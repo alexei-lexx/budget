@@ -1,6 +1,5 @@
 import { faker } from "@faker-js/faker";
 import { type Mocked, beforeEach, describe, expect, it, vi } from "vitest";
-import { ModelError } from "../models/model-error";
 import { TransactionType } from "../models/transaction";
 import { AccountRepository } from "../ports/account-repository";
 import { AtomicWriter } from "../ports/atomic-writer";
@@ -395,7 +394,7 @@ describe("TransferService", () => {
       expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
     });
 
-    it("propagates ModelError when amount is invalid", async () => {
+    it("fails when model invariant is violated", async () => {
       // Arrange
       const sourceAccount = fakeAccount({ userId, currency: "USD" });
       const destAccount = fakeAccount({ userId, currency: "USD" });
@@ -403,19 +402,19 @@ describe("TransferService", () => {
       mockAccountRepository.findOneById
         .mockResolvedValueOnce(sourceAccount)
         .mockResolvedValueOnce(destAccount);
+      // Negative amount triggers ModelError, which the service must expose as failure
+      const input = {
+        fromAccountId: sourceAccount.id,
+        toAccountId: destAccount.id,
+        amount: -1,
+        date: toDateString("2024-01-01"),
+      };
 
-      // Act & Assert
-      await expect(
-        service.createTransfer(
-          {
-            fromAccountId: sourceAccount.id,
-            toAccountId: destAccount.id,
-            amount: -1,
-            date: toDateString("2024-01-01"),
-          },
-          userId,
-        ),
-      ).rejects.toThrow(new ModelError("Amount must be positive"));
+      // Act
+      const result = await service.createTransfer(input, userId);
+
+      // Assert
+      expect(result).toEqualFailure("Amount must be positive");
       expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
     });
 
@@ -1231,8 +1230,9 @@ describe("TransferService", () => {
       expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
     });
 
-    it("propagates ModelError when amount is invalid", async () => {
+    it("fails when model invariant is violated", async () => {
       // Arrange
+      // Negative amount triggers ModelError, which the service must expose as failure
       const transferId = faker.string.uuid();
       const sourceAccount = fakeAccount({ userId, currency: "USD" });
       const destAccount = fakeAccount({ userId, currency: "USD" });
@@ -1257,11 +1257,14 @@ describe("TransferService", () => {
       mockAccountRepository.findOneWithArchivedById
         .mockResolvedValueOnce(sourceAccount)
         .mockResolvedValueOnce(destAccount);
+      // Negative amount triggers ModelError, which the service must expose as failure
+      const input = { amount: -1 };
 
-      // Act & Assert
-      await expect(
-        service.updateTransfer(transferId, userId, { amount: -1 }),
-      ).rejects.toThrow(new ModelError("Amount must be positive"));
+      // Act
+      const result = await service.updateTransfer(transferId, userId, input);
+
+      // Assert
+      expect(result).toEqualFailure("Amount must be positive");
       expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
     });
 

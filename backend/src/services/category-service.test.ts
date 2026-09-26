@@ -1,7 +1,6 @@
 import { faker } from "@faker-js/faker";
 import { type Mocked, beforeEach, describe, expect, it } from "vitest";
 import { NAME_MAX_LENGTH, NAME_MIN_LENGTH } from "../models/category";
-import { ModelError } from "../models/model-error";
 import { CategoryRepository } from "../ports/category-repository";
 import {
   fakeCategory,
@@ -182,32 +181,18 @@ describe("CategoryService", () => {
 
     // Validation failures
 
-    it("propagates ModelError without persisting when name is empty", async () => {
+    it("fails when model invariant is violated", async () => {
       // Arrange
+      // Empty name triggers ModelError, which the service must expose as failure
       const input = fakeCreateCategoryInput({ name: "" });
 
       // Act
-      const promise = service.createCategory(input);
+      const result = await service.createCategory(input);
 
       // Assert
-      await expect(promise).rejects.toThrow(ModelError);
-      await expect(promise).rejects.toMatchObject({
-        message: `Category name must be between ${NAME_MIN_LENGTH} and ${NAME_MAX_LENGTH} characters`,
-      });
-      expect(mockCategoryRepository.create).not.toHaveBeenCalled();
-    });
-
-    it("propagates ModelError without persisting when name exceeds maximum length", async () => {
-      // Arrange
-      const input = fakeCreateCategoryInput({
-        name: "a".repeat(NAME_MAX_LENGTH + 1),
-      });
-
-      // Act
-      const promise = service.createCategory(input);
-
-      // Assert
-      await expect(promise).rejects.toThrow(ModelError);
+      expect(result).toEqualFailure(
+        `Category name must be between ${NAME_MIN_LENGTH} and ${NAME_MAX_LENGTH} characters`,
+      );
       expect(mockCategoryRepository.create).not.toHaveBeenCalled();
     });
 
@@ -337,22 +322,28 @@ describe("CategoryService", () => {
       expect(mockCategoryRepository.update).not.toHaveBeenCalled();
     });
 
-    it("propagates ModelError without persisting when name is empty", async () => {
+    it("fails when model invariant is violated", async () => {
       // Arrange
       const categoryId = faker.string.uuid();
       const currentCategory = fakeCategory({ id: categoryId, userId });
       mockCategoryRepository.findOneById.mockResolvedValue(currentCategory);
+      // Empty name triggers ModelError, which the service must expose as failure
+      const input = { name: "" };
 
-      // Act & Assert
-      await expect(
-        service.updateCategory(categoryId, userId, { name: "" }),
-      ).rejects.toThrow(ModelError);
+      // Act
+      const result = await service.updateCategory(categoryId, userId, input);
+
+      // Assert
+      expect(result).toEqualFailure(
+        `Category name must be between ${NAME_MIN_LENGTH} and ${NAME_MAX_LENGTH} characters`,
+      );
       expect(mockCategoryRepository.update).not.toHaveBeenCalled();
     });
 
-    it("propagates ModelError without persisting when updating archived category", async () => {
+    it("fails when updating archived category", async () => {
       // Arrange
       const categoryId = faker.string.uuid();
+      // Archived category
       const currentCategory = fakeCategory({
         id: categoryId,
         userId,
@@ -360,10 +351,13 @@ describe("CategoryService", () => {
       });
       mockCategoryRepository.findOneById.mockResolvedValue(currentCategory);
 
-      // Act & Assert
-      await expect(
-        service.updateCategory(categoryId, userId, { name: "New Name" }),
-      ).rejects.toThrow(ModelError);
+      // Act
+      const result = await service.updateCategory(categoryId, userId, {
+        name: "New Name",
+      });
+
+      // Assert
+      expect(result).toEqualFailure("Cannot update archived category");
       expect(mockCategoryRepository.update).not.toHaveBeenCalled();
     });
 
@@ -437,6 +431,26 @@ describe("CategoryService", () => {
 
       // Assert
       expect(result).toEqualFailure("Category not found");
+      expect(mockCategoryRepository.update).not.toHaveBeenCalled();
+    });
+
+    it("fails when category already archived", async () => {
+      // Arrange
+      const categoryId = faker.string.uuid();
+      // Archived category
+      const currentCategory = fakeCategory({
+        id: categoryId,
+        userId,
+        isArchived: true,
+      });
+
+      mockCategoryRepository.findOneById.mockResolvedValue(currentCategory);
+
+      // Act
+      const result = await service.deleteCategory(categoryId, userId);
+
+      // Assert
+      expect(result).toEqualFailure("Cannot archive archived category");
       expect(mockCategoryRepository.update).not.toHaveBeenCalled();
     });
   });
