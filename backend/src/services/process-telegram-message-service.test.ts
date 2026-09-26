@@ -2,6 +2,7 @@ import { faker } from "@faker-js/faker";
 import { type Mocked, beforeEach, describe, expect, it, vi } from "vitest";
 import { TelegramApiClient } from "../ports/telegram-api-client";
 import { TelegramBotRepository } from "../ports/telegram-bot-repository";
+import { Failure, Success } from "../types/result";
 import { fakeTelegramBot } from "../utils/test-utils/models/telegram-bot-fakes";
 import { createMockTelegramApiClient } from "../utils/test-utils/providers/telegram-api-client-mocks";
 import { createMockTelegramBotRepository } from "../utils/test-utils/repositories/telegram-bot-repository-mocks";
@@ -84,10 +85,7 @@ describe("ProcessTelegramMessageService", () => {
       // Connected bot matches incoming message
       mockTelegramBotRepository.findOneConnectedByUserId.mockResolvedValue(bot);
       // Telegram delivers reply
-      mockTelegramApiClient.sendMessage.mockResolvedValue({
-        success: true,
-        data: undefined,
-      });
+      mockTelegramApiClient.sendMessage.mockResolvedValue(Success(undefined));
 
       // Act
       const result = await service.call({
@@ -115,15 +113,11 @@ describe("ProcessTelegramMessageService", () => {
       // Connected bot matches incoming message
       mockTelegramBotRepository.findOneConnectedByUserId.mockResolvedValue(bot);
       // Telegram delivers reply
-      mockTelegramApiClient.sendMessage.mockResolvedValue({
-        success: true,
-        data: undefined,
-      });
+      mockTelegramApiClient.sendMessage.mockResolvedValue(Success(undefined));
       // Assistant answers question
-      mockAssistantChatService.call.mockResolvedValue({
-        success: true,
-        data: { answer: "You spent 50 euro", agentTrace: [], sessionId },
-      });
+      mockAssistantChatService.call.mockResolvedValue(
+        Success({ answer: "You spent 50 euro", agentTrace: [], sessionId }),
+      );
 
       // Act
       const result = await service.call({
@@ -153,19 +147,15 @@ describe("ProcessTelegramMessageService", () => {
       // Connected bot matches incoming message
       mockTelegramBotRepository.findOneConnectedByUserId.mockResolvedValue(bot);
       // Telegram delivers reply
-      mockTelegramApiClient.sendMessage.mockResolvedValue({
-        success: true,
-        data: undefined,
-      });
+      mockTelegramApiClient.sendMessage.mockResolvedValue(Success(undefined));
       // Assistant returns business failure
-      mockAssistantChatService.call.mockResolvedValue({
-        success: false,
-        error: {
+      mockAssistantChatService.call.mockResolvedValue(
+        Failure({
           message: "No data available",
           agentTrace: [],
           sessionId: faker.string.uuid(),
-        },
-      });
+        }),
+      );
 
       // Act
       const result = await service.call({
@@ -194,15 +184,13 @@ describe("ProcessTelegramMessageService", () => {
       // Connected bot matches incoming message
       mockTelegramBotRepository.findOneConnectedByUserId.mockResolvedValue(bot);
       // Telegram rejects send
-      mockTelegramApiClient.sendMessage.mockResolvedValue({
-        success: false,
-        error: "Telegram API error",
-      });
+      mockTelegramApiClient.sendMessage.mockResolvedValue(
+        Failure("Telegram API error"),
+      );
       // Assistant answers question
-      mockAssistantChatService.call.mockResolvedValue({
-        success: true,
-        data: { answer: "You spent 50 euro", agentTrace: [], sessionId },
-      });
+      mockAssistantChatService.call.mockResolvedValue(
+        Success({ answer: "You spent 50 euro", agentTrace: [], sessionId }),
+      );
 
       // Act
       const result = await service.call({

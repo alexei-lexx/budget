@@ -28,11 +28,7 @@ export const trendsResolvers = {
         includeUncategorized: args.input.includeUncategorized || undefined,
       });
 
-      if (!result.success) {
-        throw new GraphQLError(result.error);
-      }
-
-      return result.data;
+      return result.unwrapOrThrowAs(GraphQLError);
     },
     trendPresets: async (
       _parent: unknown,
@@ -45,11 +41,7 @@ export const trendsResolvers = {
         user.id,
       );
 
-      if (!result.success) {
-        throw new GraphQLError(result.error);
-      }
-
-      return result.data;
+      return result.unwrapOrThrowAs(GraphQLError);
     },
   },
   Mutation: {
@@ -71,11 +63,7 @@ export const trendsResolvers = {
         },
       );
 
-      if (!result.success) {
-        throw new GraphQLError(result.error);
-      }
-
-      return result.data;
+      return result.unwrapOrThrowAs(GraphQLError);
     },
     deleteTrendPreset: async (
       _parent: unknown,
@@ -89,9 +77,7 @@ export const trendsResolvers = {
         args.id,
       );
 
-      if (!result.success) {
-        throw new GraphQLError(result.error);
-      }
+      result.unwrapOrThrowAs(GraphQLError);
 
       return undefined;
     },

@@ -3,6 +3,7 @@ import { type Mocked, beforeEach, describe, expect, it } from "vitest";
 import { TransactionType } from "../../models/transaction";
 import { AggregateTransactionsService } from "../../services/aggregate-transactions-service";
 import { toDateString } from "../../types/date-string";
+import { Success } from "../../types/result";
 import { createMockAggregateTransactionsService } from "../../utils/test-utils/services/aggregate-transactions-service-mocks";
 import { aggregateTransactions } from "./aggregate-transactions";
 import { GUIDES } from "./guides";
@@ -29,19 +30,16 @@ describe("aggregateTransactions", () => {
 
   it("delegates to service and returns its result unchanged", async () => {
     // Arrange
-    const serviceResult = {
-      success: true as const,
-      data: [
-        {
-          type: TransactionType.EXPENSE,
-          currency: "USD",
-          sum: 897.5,
-          count: 16,
-          min: 12,
-          max: 220,
-        },
-      ],
-    };
+    const serviceResult = Success([
+      {
+        type: TransactionType.EXPENSE,
+        currency: "USD",
+        sum: 897.5,
+        count: 16,
+        min: 12,
+        max: 220,
+      },
+    ]);
     mockAggregateTransactionsService.call.mockResolvedValue(serviceResult);
 
     // Act
@@ -67,10 +65,7 @@ describe("aggregateTransactions", () => {
 
   it("passes accountIds, categoryIds, includeUncategorized, types, and groupBy through", async () => {
     // Arrange
-    mockAggregateTransactionsService.call.mockResolvedValue({
-      success: true,
-      data: [],
-    });
+    mockAggregateTransactionsService.call.mockResolvedValue(Success([]));
 
     // Act
     await aggregateTransactions(

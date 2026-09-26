@@ -12,11 +12,7 @@ async function ensureAuthenticatedUser(context: GraphQLContext): Promise<User> {
   const authUser = requireAuthentication(context);
   const result = await context.userService.ensureUser(authUser.email);
 
-  if (!result.success) {
-    throw new GraphQLError(result.error);
-  }
-
-  return result.data;
+  return result.unwrapOrThrowAs(GraphQLError);
 }
 
 export const userResolvers = {
@@ -37,11 +33,7 @@ export const userResolvers = {
       const user = await getAuthenticatedUser(context);
       const result = await context.userService.getSettings(user.id);
 
-      if (!result.success) {
-        throw new GraphQLError(result.error);
-      }
-
-      return result.data;
+      return result.unwrapOrThrowAs(GraphQLError);
     },
   },
   Mutation: {
@@ -68,11 +60,7 @@ export const userResolvers = {
           args.input.transactionPatternsLimit ?? undefined,
       });
 
-      if (!result.success) {
-        throw new GraphQLError(result.error);
-      }
-
-      return result.data;
+      return result.unwrapOrThrowAs(GraphQLError);
     },
 
     regenerateMcpToken: async (
@@ -83,11 +71,7 @@ export const userResolvers = {
       const user = await getAuthenticatedUser(context);
       const result = await context.userService.regenerateMcpToken(user.id);
 
-      if (!result.success) {
-        throw new GraphQLError(result.error);
-      }
-
-      return result.data;
+      return result.unwrapOrThrowAs(GraphQLError);
     },
   },
 };

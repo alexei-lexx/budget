@@ -20,11 +20,7 @@ export const reportResolvers = {
         args.type,
       );
 
-      if (!result.success) {
-        throw new GraphQLError(result.error);
-      }
-
-      return result.data;
+      return result.unwrapOrThrowAs(GraphQLError);
     },
   },
 };

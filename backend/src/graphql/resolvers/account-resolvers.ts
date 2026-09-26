@@ -20,11 +20,7 @@ export const accountResolvers = {
         "ACTIVE",
       );
 
-      if (!result.success) {
-        throw new GraphQLError(result.error);
-      }
-
-      return result.data;
+      return result.unwrapOrThrowAs(GraphQLError);
     },
     supportedCurrencies: async (
       _parent: unknown,
@@ -36,11 +32,7 @@ export const accountResolvers = {
         userId: user.id,
       });
 
-      if (!result.success) {
-        throw new GraphQLError(result.error);
-      }
-
-      return result.data;
+      return result.unwrapOrThrowAs(GraphQLError);
     },
   },
   Mutation: {
@@ -58,11 +50,7 @@ export const accountResolvers = {
         initialBalance: args.input.initialBalance,
       });
 
-      if (!result.success) {
-        throw new GraphQLError(result.error);
-      }
-
-      return result.data;
+      return result.unwrapOrThrowAs(GraphQLError);
     },
     updateAccount: async (
       _parent: unknown,
@@ -79,11 +67,7 @@ export const accountResolvers = {
         name: updateData.name ?? undefined,
       });
 
-      if (!result.success) {
-        throw new GraphQLError(result.error);
-      }
-
-      return result.data;
+      return result.unwrapOrThrowAs(GraphQLError);
     },
     deleteAccount: async (
       _parent: unknown,
@@ -100,9 +84,7 @@ export const accountResolvers = {
       const user = await getAuthenticatedUser(context);
       const result = await context.accountService.deleteAccount(id, user.id);
 
-      if (!result.success) {
-        throw new GraphQLError(result.error);
-      }
+      result.unwrapOrThrowAs(GraphQLError);
 
       return undefined;
     },

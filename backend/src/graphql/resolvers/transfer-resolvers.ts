@@ -23,15 +23,11 @@ export const transferResolvers = {
         user.id,
       );
 
-      if (!result.success) {
-        throw new GraphQLError(result.error);
-      }
+      const transferResult = result.unwrapOrThrowAs(GraphQLError);
 
-      if (!result.data) {
+      if (!transferResult) {
         return undefined;
       }
-
-      const transferResult = result.data;
 
       return {
         id: transferResult.transferId,
@@ -56,11 +52,7 @@ export const transferResolvers = {
         user.id,
       );
 
-      if (!result.success) {
-        throw new GraphQLError(result.error);
-      }
-
-      const transferResult = result.data;
+      const transferResult = result.unwrapOrThrowAs(GraphQLError);
 
       return {
         id: transferResult.transferId,
@@ -84,11 +76,7 @@ export const transferResolvers = {
         toAccountId: updateData.toAccountId ?? undefined,
       });
 
-      if (!result.success) {
-        throw new GraphQLError(result.error);
-      }
-
-      const transferResult = result.data;
+      const transferResult = result.unwrapOrThrowAs(GraphQLError);
 
       return {
         id: transferResult.transferId,
@@ -107,9 +95,7 @@ export const transferResolvers = {
         user.id,
       );
 
-      if (!result.success) {
-        throw new GraphQLError(result.error);
-      }
+      result.unwrapOrThrowAs(GraphQLError);
 
       return true;
     },

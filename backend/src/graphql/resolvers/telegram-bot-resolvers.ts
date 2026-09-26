@@ -15,11 +15,7 @@ export const telegramBotResolvers = {
         user.id,
       );
 
-      if (!result.success) {
-        throw new GraphQLError(result.error);
-      }
-
-      return result.data ?? undefined;
+      return result.unwrapOrThrowAs(GraphQLError) ?? undefined;
     },
 
     testTelegramBot: async (
@@ -30,11 +26,7 @@ export const telegramBotResolvers = {
       const user = await getAuthenticatedUser(context);
       const result = await context.telegramBotService.test(user.id);
 
-      if (!result.success) {
-        throw new GraphQLError(result.error);
-      }
-
-      return result.data;
+      return result.unwrapOrThrowAs(GraphQLError);
     },
   },
   Mutation: {
@@ -49,11 +41,7 @@ export const telegramBotResolvers = {
         args.token,
       );
 
-      if (!result.success) {
-        throw new GraphQLError(result.error);
-      }
-
-      return result.data;
+      return result.unwrapOrThrowAs(GraphQLError);
     },
 
     disconnectTelegramBot: async (
@@ -64,11 +52,7 @@ export const telegramBotResolvers = {
       const user = await getAuthenticatedUser(context);
       const result = await context.telegramBotService.disconnect(user.id);
 
-      if (!result.success) {
-        throw new GraphQLError(result.error);
-      }
-
-      return result.data;
+      return result.unwrapOrThrowAs(GraphQLError);
     },
   },
 };
