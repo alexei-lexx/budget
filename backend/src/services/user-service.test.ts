@@ -59,14 +59,11 @@ describe("UserService", () => {
       const result = await service.getSettings(userId);
 
       // Assert
-      expect(result).toStrictEqual({
-        success: true,
-        data: {
-          interfaceLanguage: "en",
-          mcpToken: "token-1",
-          transactionPatternsLimit: DEFAULT_TRANSACTION_PATTERNS_LIMIT,
-          voiceInputLanguage: undefined,
-        },
+      expect(result).toBeSuccess({
+        interfaceLanguage: "en",
+        mcpToken: "token-1",
+        transactionPatternsLimit: DEFAULT_TRANSACTION_PATTERNS_LIMIT,
+        voiceInputLanguage: undefined,
       });
       expect(mockUserRepository.findOneById).toHaveBeenCalledWith(userId);
     });

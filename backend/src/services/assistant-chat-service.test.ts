@@ -1,6 +1,7 @@
 import { faker } from "@faker-js/faker";
 import { type Mocked, beforeEach, describe, expect, it, vi } from "vitest";
 import { ChatMessageRepository } from "../ports/chat-message-repository";
+import { Failure, Success } from "../types/result";
 import { fakeChatMessage } from "../utils/test-utils/models/chat-message-fakes";
 import { createMockChatMessageRepository } from "../utils/test-utils/repositories/chat-message-repository-mocks";
 import { createMockAssistantService } from "../utils/test-utils/services/assistant-service-mocks";
@@ -40,10 +41,9 @@ describe("AssistantChatService", () => {
       // Arrange
       chatMessageRepository.findManyRecentBySessionId.mockResolvedValue([]);
       chatMessageRepository.create.mockResolvedValue(undefined);
-      assistantService.call.mockResolvedValue({
-        success: true,
-        data: { answer: "You spent $100", agentTrace: [] },
-      });
+      assistantService.call.mockResolvedValue(
+        Success({ answer: "You spent $100", agentTrace: [] }),
+      );
 
       // Act
       const result = await service.call(userId, {
@@ -66,10 +66,9 @@ describe("AssistantChatService", () => {
       const sessionId = faker.string.uuid();
       chatMessageRepository.findManyRecentBySessionId.mockResolvedValue([]);
       chatMessageRepository.create.mockResolvedValue(undefined);
-      assistantService.call.mockResolvedValue({
-        success: true,
-        data: { answer: "Answer", agentTrace: [] },
-      });
+      assistantService.call.mockResolvedValue(
+        Success({ answer: "Answer", agentTrace: [] }),
+      );
 
       // Act
       const result = await service.call(userId, {
@@ -105,10 +104,9 @@ describe("AssistantChatService", () => {
         }),
       ]);
       chatMessageRepository.create.mockResolvedValue(undefined);
-      assistantService.call.mockResolvedValue({
-        success: true,
-        data: { answer: "Answer", agentTrace: [] },
-      });
+      assistantService.call.mockResolvedValue(
+        Success({ answer: "Answer", agentTrace: [] }),
+      );
 
       // Act
       await service.call(userId, { question: "Follow-up?", sessionId });
@@ -131,10 +129,9 @@ describe("AssistantChatService", () => {
       const sessionId = faker.string.uuid();
       chatMessageRepository.findManyRecentBySessionId.mockResolvedValue([]);
       chatMessageRepository.create.mockResolvedValue(undefined);
-      assistantService.call.mockResolvedValue({
-        success: true,
-        data: { answer: "You spent $100", agentTrace: [] },
-      });
+      assistantService.call.mockResolvedValue(
+        Success({ answer: "You spent $100", agentTrace: [] }),
+      );
 
       // Act
       await service.call(userId, { question: "How much?", sessionId });
@@ -163,10 +160,9 @@ describe("AssistantChatService", () => {
       // Arrange
       chatMessageRepository.findManyRecentBySessionId.mockResolvedValue([]);
       chatMessageRepository.create.mockResolvedValue(undefined);
-      assistantService.call.mockResolvedValue({
-        success: true,
-        data: { answer: "Answer", agentTrace: [] },
-      });
+      assistantService.call.mockResolvedValue(
+        Success({ answer: "Answer", agentTrace: [] }),
+      );
 
       // Act
       const result = await service.call(userId, { question: "Q?" });
@@ -184,10 +180,9 @@ describe("AssistantChatService", () => {
       // Arrange
       chatMessageRepository.findManyRecentBySessionId.mockResolvedValue([]);
       chatMessageRepository.create.mockResolvedValue(undefined);
-      assistantService.call.mockResolvedValue({
-        success: true,
-        data: { answer: "Answer", agentTrace: [] },
-      });
+      assistantService.call.mockResolvedValue(
+        Success({ answer: "Answer", agentTrace: [] }),
+      );
 
       // Act
       await service.call(userId, {
@@ -206,10 +201,9 @@ describe("AssistantChatService", () => {
       // Arrange
       chatMessageRepository.findManyRecentBySessionId.mockResolvedValue([]);
       chatMessageRepository.create.mockResolvedValue(undefined);
-      assistantService.call.mockResolvedValue({
-        success: true,
-        data: { answer: "Answer", agentTrace: [] },
-      });
+      assistantService.call.mockResolvedValue(
+        Success({ answer: "Answer", agentTrace: [] }),
+      );
 
       // Act
       await service.call(userId, { question: "How much did I spend?" });
@@ -226,10 +220,9 @@ describe("AssistantChatService", () => {
       const sessionId = faker.string.uuid();
       chatMessageRepository.findManyRecentBySessionId.mockResolvedValue([]);
       chatMessageRepository.create.mockResolvedValue(undefined);
-      assistantService.call.mockResolvedValue({
-        success: true,
-        data: { answer: "Answer", agentTrace: [] },
-      });
+      assistantService.call.mockResolvedValue(
+        Success({ answer: "Answer", agentTrace: [] }),
+      );
 
       // Act
       await service.call(userId, { question: "Q?", sessionId });
@@ -249,10 +242,9 @@ describe("AssistantChatService", () => {
       const input = { question: "", sessionId };
 
       chatMessageRepository.findManyRecentBySessionId.mockResolvedValue([]);
-      assistantService.call.mockResolvedValue({
-        success: true,
-        data: { answer: "Answer", agentTrace: [] },
-      });
+      assistantService.call.mockResolvedValue(
+        Success({ answer: "Answer", agentTrace: [] }),
+      );
 
       // Act
       const result = await service.call(userId, input);
@@ -271,10 +263,9 @@ describe("AssistantChatService", () => {
     it("returns failure and does not save messages when AssistantService fails", async () => {
       // Arrange
       chatMessageRepository.findManyRecentBySessionId.mockResolvedValue([]);
-      assistantService.call.mockResolvedValue({
-        success: false,
-        error: { message: "AI failed", agentTrace: [] },
-      });
+      assistantService.call.mockResolvedValue(
+        Failure({ message: "AI failed", agentTrace: [] }),
+      );
 
       // Act
       const result = await service.call(userId, { question: "Q?" });

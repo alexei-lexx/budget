@@ -24,11 +24,7 @@ export const categoryResolvers = {
         },
       );
 
-      if (!result.success) {
-        throw new GraphQLError(result.error);
-      }
-
-      return result.data;
+      return result.unwrapOrThrowAs(GraphQLError);
     },
   },
   Mutation: {
@@ -46,11 +42,7 @@ export const categoryResolvers = {
         excludeFromReports: args.input.excludeFromReports,
       });
 
-      if (!result.success) {
-        throw new GraphQLError(result.error);
-      }
-
-      return result.data;
+      return result.unwrapOrThrowAs(GraphQLError);
     },
     updateCategory: async (
       _parent: unknown,
@@ -67,11 +59,7 @@ export const categoryResolvers = {
         type: updateData.type ?? undefined,
       });
 
-      if (!result.success) {
-        throw new GraphQLError(result.error);
-      }
-
-      return result.data;
+      return result.unwrapOrThrowAs(GraphQLError);
     },
     deleteCategory: async (
       _parent: unknown,
@@ -88,11 +76,7 @@ export const categoryResolvers = {
       const user = await getAuthenticatedUser(context);
       const result = await context.categoryService.deleteCategory(id, user.id);
 
-      if (!result.success) {
-        throw new GraphQLError(result.error);
-      }
-
-      return result.data;
+      return result.unwrapOrThrowAs(GraphQLError);
     },
   },
 };

@@ -60,11 +60,7 @@ export const transactionResolvers = {
         },
       );
 
-      if (!result.success) {
-        throw new GraphQLError(result.error);
-      }
-
-      return result.data;
+      return result.unwrapOrThrowAs(GraphQLError);
     },
     transactionPatterns: async (
       _parent: unknown,
@@ -79,11 +75,7 @@ export const transactionResolvers = {
         user.transactionPatternsLimit,
       );
 
-      if (!result.success) {
-        throw new GraphQLError(result.error);
-      }
-
-      return result.data;
+      return result.unwrapOrThrowAs(GraphQLError);
     },
     transactionDescriptionSuggestions: async (
       _parent: unknown,
@@ -104,11 +96,7 @@ export const transactionResolvers = {
         searchText,
       );
 
-      if (!result.success) {
-        throw new GraphQLError(result.error);
-      }
-
-      return result.data;
+      return result.unwrapOrThrowAs(GraphQLError);
     },
   },
   Mutation: {
@@ -131,11 +119,7 @@ export const transactionResolvers = {
         user.id,
       );
 
-      if (!result.success) {
-        throw new GraphQLError(result.error);
-      }
-
-      return result.data;
+      return result.unwrapOrThrowAs(GraphQLError);
     },
     updateTransaction: async (
       _parent: unknown,
@@ -162,11 +146,7 @@ export const transactionResolvers = {
         },
       );
 
-      if (!result.success) {
-        throw new GraphQLError(result.error);
-      }
-
-      return result.data;
+      return result.unwrapOrThrowAs(GraphQLError);
     },
     deleteTransaction: async (
       _parent: unknown,
@@ -186,11 +166,7 @@ export const transactionResolvers = {
         user.id,
       );
 
-      if (!result.success) {
-        throw new GraphQLError(result.error);
-      }
-
-      return result.data;
+      return result.unwrapOrThrowAs(GraphQLError);
     },
   },
   /**

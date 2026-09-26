@@ -245,9 +245,7 @@ async function createTransactions(
         userId,
       );
 
-      if (!result.success) {
-        throw new Error(result.error);
-      }
+      result.unwrapOrThrowAs(Error);
     }
 
     // Create 30 expense transactions
@@ -288,9 +286,7 @@ async function createTransactions(
         userId,
       );
 
-      if (!result.success) {
-        throw new Error(result.error);
-      }
+      result.unwrapOrThrowAs(Error);
     }
 
     console.log(

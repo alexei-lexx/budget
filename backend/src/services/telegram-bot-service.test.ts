@@ -4,6 +4,7 @@ import { TelegramBot } from "../models/telegram-bot";
 import { BackgroundJobDispatcher } from "../ports/background-job-dispatcher";
 import { TelegramApiClient } from "../ports/telegram-api-client";
 import { TelegramBotRepository } from "../ports/telegram-bot-repository";
+import { Failure, Success } from "../types/result";
 import { fakeConnectedTelegramBot } from "../utils/test-utils/models/telegram-bot-fakes";
 import { createMockBackgroundJobDispatcher } from "../utils/test-utils/providers/background-job-dispatcher-mocks";
 import { createMockTelegramApiClient } from "../utils/test-utils/providers/telegram-api-client-mocks";
@@ -75,10 +76,9 @@ describe("TelegramBotService", () => {
       // Connected bot exists for user
       telegramBotRepository.findOneConnectedByUserId.mockResolvedValue(bot);
       // Webhook registered at expected URL
-      telegramApiClient.getWebhookInfo.mockResolvedValue({
-        success: true,
-        data: { url: "http://telegram.localhost/webhooks/telegram" },
-      });
+      telegramApiClient.getWebhookInfo.mockResolvedValue(
+        Success({ url: "http://telegram.localhost/webhooks/telegram" }),
+      );
 
       // Act
       const result = await service.test(userId);
@@ -95,10 +95,11 @@ describe("TelegramBotService", () => {
       const bot = fakeConnectedTelegramBot({ userId });
       telegramBotRepository.findOneConnectedByUserId.mockResolvedValue(bot);
       // Webhook registered at unexpected URL
-      telegramApiClient.getWebhookInfo.mockResolvedValue({
-        success: true,
-        data: { url: "http://telegram.localhost/telegram/unexpected-webhook" },
-      });
+      telegramApiClient.getWebhookInfo.mockResolvedValue(
+        Success({
+          url: "http://telegram.localhost/telegram/unexpected-webhook",
+        }),
+      );
 
       // Act
       const result = await service.test(userId);
@@ -128,10 +129,7 @@ describe("TelegramBotService", () => {
       const bot = fakeConnectedTelegramBot({ userId });
       telegramBotRepository.findOneConnectedByUserId.mockResolvedValue(bot);
       // Telegram API unreachable
-      telegramApiClient.getWebhookInfo.mockResolvedValue({
-        success: false,
-        error: "Some error",
-      });
+      telegramApiClient.getWebhookInfo.mockResolvedValue(Failure("Some error"));
 
       // Act
       const result = await service.test(userId);
@@ -153,10 +151,7 @@ describe("TelegramBotService", () => {
       // Persists new PENDING record
       telegramBotRepository.create.mockResolvedValue(undefined);
       // Telegram accepts webhook registration
-      telegramApiClient.setWebhook.mockResolvedValue({
-        success: true,
-        data: undefined,
-      });
+      telegramApiClient.setWebhook.mockResolvedValue(Success(undefined));
       // Echoes back whatever bot state is passed in
       telegramBotRepository.update.mockImplementation((bot) =>
         Promise.resolve(TelegramBot.fromPersistence(bot.toData())),
@@ -236,10 +231,7 @@ describe("TelegramBotService", () => {
       const userId = faker.string.uuid();
       telegramBotRepository.create.mockResolvedValue(undefined);
       // Telegram rejects webhook registration
-      telegramApiClient.setWebhook.mockResolvedValue({
-        success: false,
-        error: "Some error",
-      });
+      telegramApiClient.setWebhook.mockResolvedValue(Failure("Some error"));
       // Echoes back whatever bot state is passed in
       telegramBotRepository.update.mockImplementation((bot) =>
         Promise.resolve(TelegramBot.fromPersistence(bot.toData())),
@@ -272,10 +264,7 @@ describe("TelegramBotService", () => {
         Promise.resolve(TelegramBot.fromPersistence(updated.toData())),
       );
       // Telegram accepts webhook deletion
-      telegramApiClient.deleteWebhook.mockResolvedValue({
-        success: true,
-        data: undefined,
-      });
+      telegramApiClient.deleteWebhook.mockResolvedValue(Success(undefined));
 
       // Act
       const result = await service.disconnect(userId);
@@ -317,10 +306,7 @@ describe("TelegramBotService", () => {
         Promise.resolve(TelegramBot.fromPersistence(updated.toData())),
       );
       // Telegram rejects webhook deletion
-      telegramApiClient.deleteWebhook.mockResolvedValue({
-        success: false,
-        error: "Some error",
-      });
+      telegramApiClient.deleteWebhook.mockResolvedValue(Failure("Some error"));
 
       // Act
       const result = await service.disconnect(userId);
