@@ -10,7 +10,13 @@ import { getAuthenticatedUser, requireAuthentication } from "./shared";
  */
 async function ensureAuthenticatedUser(context: GraphQLContext): Promise<User> {
   const authUser = requireAuthentication(context);
-  return await context.userService.ensureUser(authUser.email);
+  const result = await context.userService.ensureUser(authUser.email);
+
+  if (!result.success) {
+    throw new GraphQLError(result.error);
+  }
+
+  return result.data;
 }
 
 export const userResolvers = {
