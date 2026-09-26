@@ -95,7 +95,7 @@ describe("TransactionService", () => {
 
     // Validation failures
 
-    it("returns failure when transaction not found", async () => {
+    it("fails when transaction not found", async () => {
       // Arrange
       // Returns no transaction
       mockTransactionRepository.findOneById.mockResolvedValue(null);
@@ -153,7 +153,7 @@ describe("TransactionService", () => {
 
     // Validation failures
 
-    it("returns failure when dateAfter is after dateBefore", async () => {
+    it("fails when dateAfter is after dateBefore", async () => {
       // Act
       const result = await service.getTransactionsByUser(userId, undefined, {
         dateAfter: toDateString("2024-12-31"),
@@ -169,7 +169,7 @@ describe("TransactionService", () => {
       ).not.toHaveBeenCalled();
     });
 
-    it("returns failure when pagination first is below minimum", async () => {
+    it("fails when pagination first is below minimum", async () => {
       // Act
       const result = await service.getTransactionsByUser(userId, {
         first: MIN_PAGE_SIZE - 1,
@@ -181,7 +181,7 @@ describe("TransactionService", () => {
       );
     });
 
-    it("returns failure when pagination first is above maximum", async () => {
+    it("fails when pagination first is above maximum", async () => {
       // Act
       const result = await service.getTransactionsByUser(userId, {
         first: MAX_PAGE_SIZE + 1,
@@ -760,7 +760,7 @@ describe("TransactionService", () => {
 
     // Validation failures
 
-    it("returns failure when search text is empty", async () => {
+    it("fails when search text is empty", async () => {
       // Act
       const result = await service.getDescriptionSuggestions(userId, "", 5);
 
@@ -770,7 +770,7 @@ describe("TransactionService", () => {
       );
     });
 
-    it("returns failure when search text is whitespace-only", async () => {
+    it("fails when search text is whitespace-only", async () => {
       // Act
       const result = await service.getDescriptionSuggestions(userId, "   ", 5);
 
@@ -780,7 +780,7 @@ describe("TransactionService", () => {
       );
     });
 
-    it("returns failure when search text is shorter than minimum length", async () => {
+    it("fails when search text is shorter than minimum length", async () => {
       // Act
       const result = await service.getDescriptionSuggestions(
         userId,
@@ -797,7 +797,7 @@ describe("TransactionService", () => {
       ).not.toHaveBeenCalled();
     });
 
-    it("returns failure when search text becomes too short after trimming", async () => {
+    it("fails when search text becomes too short after trimming", async () => {
       // Act
       const result = await service.getDescriptionSuggestions(
         userId,
@@ -925,7 +925,7 @@ describe("TransactionService", () => {
 
     // Validation failures
 
-    it("returns failure when account not found", async () => {
+    it("fails when account not found", async () => {
       // Arrange
       const input = fakeCreateTransactionServiceInput({
         categoryId: undefined,
@@ -944,7 +944,7 @@ describe("TransactionService", () => {
       expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
     });
 
-    it("returns failure when category not found", async () => {
+    it("fails when category not found", async () => {
       // Arrange
       const categoryId = faker.string.uuid();
       const input = fakeCreateTransactionServiceInput({ categoryId });
@@ -1288,7 +1288,7 @@ describe("TransactionService", () => {
       expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
     });
 
-    it("returns failure when account not found", async () => {
+    it("fails when account not found", async () => {
       // Arrange
       const input = fakeCreateCompoundTransactionServiceInput();
 
@@ -1305,7 +1305,7 @@ describe("TransactionService", () => {
       expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
     });
 
-    it("returns failure when category not found", async () => {
+    it("fails when category not found", async () => {
       // Arrange
       const account = fakeAccount({ userId });
       const categoryA = fakeCategory({ userId, type: "EXPENSE" });
@@ -1342,7 +1342,7 @@ describe("TransactionService", () => {
       expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
     });
 
-    it("returns failure when category type does not match transaction type", async () => {
+    it("fails when category type does not match transaction type", async () => {
       // Arrange
       const account = fakeAccount({ userId });
       const validCategory = fakeCategory({ userId, type: "EXPENSE" });
@@ -1695,7 +1695,7 @@ describe("TransactionService", () => {
 
     // Validation failures
 
-    it("returns failure when transaction not found", async () => {
+    it("fails when transaction not found", async () => {
       // Arrange
       // Returns no transaction
       mockTransactionRepository.findOneById.mockResolvedValue(null);
@@ -1714,7 +1714,7 @@ describe("TransactionService", () => {
       expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
     });
 
-    it("returns failure when account not found", async () => {
+    it("fails when account not found", async () => {
       // Arrange
       const existingTransaction = fakeTransaction({ userId });
       // Returns existing transaction
@@ -1851,7 +1851,7 @@ describe("TransactionService", () => {
 
     // Validation failures
 
-    it("returns failure when transaction not found", async () => {
+    it("fails when transaction not found", async () => {
       // Arrange
       // Returns no transaction
       mockTransactionRepository.findOneById.mockResolvedValue(null);

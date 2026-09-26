@@ -180,7 +180,7 @@ describe("createCreateTransactionAgent", () => {
 
   // Dependency failures
 
-  it("exposes original error when tool reports a business failure", async () => {
+  it("exposes original error when tool reports business failure", async () => {
     // Arrange
     const toolCall = {
       name: CREATE_TRANSACTION_TOOL_NAME,

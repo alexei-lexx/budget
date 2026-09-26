@@ -424,7 +424,7 @@ describe("CreateTransactionFromTextService", () => {
       expect(mockTransactionService.getTransactionById).not.toHaveBeenCalled();
     });
 
-    it("returns failure when created transaction cannot be fetched", async () => {
+    it("fails when created transaction cannot be fetched", async () => {
       // Arrange
       const transactionId = faker.string.uuid();
 

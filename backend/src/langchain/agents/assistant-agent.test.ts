@@ -115,9 +115,9 @@ describe("createAssistantAgent", () => {
 
   // Dependency failures
 
-  it("exposes original error when tool fails with a user-facing error", async () => {
+  it("exposes original error when tool fails with user-facing error", async () => {
     // Arrange
-    // Fails due to a domain invariant violation
+    // Fails due to domain invariant violation
     mockAccountService.getAccountsByUser.mockRejectedValue(
       new ModelError("Accounts are temporarily unavailable"),
     );
