@@ -24,11 +24,13 @@ export async function getCategories(
   });
   if (!verification.success) return verification;
 
-  const categories = await categoryService.getCategoriesByUser(userId, {
+  const result = await categoryService.getCategoriesByUser(userId, {
     scope,
   });
 
-  return Success(categories.map(toCategoryDto));
+  if (!result.success) return result;
+
+  return Success(result.data.map(toCategoryDto));
 }
 
 const inputSchema = z.object({

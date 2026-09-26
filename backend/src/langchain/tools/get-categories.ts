@@ -34,10 +34,13 @@ export const createGetCategoriesTool = ({
       const userId = agentContextSchema.shape.userId.parse(
         config?.context?.userId,
       );
-      const filteredCategories = await categoryService.getCategoriesByUser(
-        userId,
-        { scope },
-      );
+      const result = await categoryService.getCategoriesByUser(userId, {
+        scope,
+      });
+
+      if (!result.success) return result;
+
+      const filteredCategories = result.data;
 
       if (filteredCategories.length === 0) {
         return Success([]);

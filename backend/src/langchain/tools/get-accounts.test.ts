@@ -1,6 +1,7 @@
 import { faker } from "@faker-js/faker";
 import { type Mocked, beforeEach, describe, expect, it } from "vitest";
 import { AccountService } from "../../services/account-service";
+import { Success } from "../../types/result";
 import { fakeAccount } from "../../utils/test-utils/models/account-fakes";
 import { createMockAccountService } from "../../utils/test-utils/services/account-service-mocks";
 import { createGetAccountsTool } from "./get-accounts";
@@ -31,7 +32,7 @@ describe("createGetAccountsTool", () => {
   });
 
   it("calls service", async () => {
-    mockAccountService.getAccountsByUser.mockResolvedValue([]);
+    mockAccountService.getAccountsByUser.mockResolvedValue(Success([]));
 
     const accountsTool = createGetAccountsTool(mockAccountService);
     await accountsTool.invoke({ scope: "ARCHIVED" }, { context: { userId } });
@@ -57,7 +58,9 @@ describe("createGetAccountsTool", () => {
         isArchived: true,
       }),
     ];
-    mockAccountService.getAccountsByUser.mockResolvedValue(mockAccounts);
+    mockAccountService.getAccountsByUser.mockResolvedValue(
+      Success(mockAccounts),
+    );
 
     const accountsTool = createGetAccountsTool(mockAccountService);
     const result = await accountsTool.invoke(
@@ -85,7 +88,7 @@ describe("createGetAccountsTool", () => {
   });
 
   it("returns empty array when user has no accounts", async () => {
-    mockAccountService.getAccountsByUser.mockResolvedValue([]);
+    mockAccountService.getAccountsByUser.mockResolvedValue(Success([]));
 
     const accountsTool = createGetAccountsTool(mockAccountService);
     const result = await accountsTool.invoke(

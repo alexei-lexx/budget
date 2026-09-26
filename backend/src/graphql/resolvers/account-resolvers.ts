@@ -15,11 +15,16 @@ export const accountResolvers = {
       context: GraphQLContext,
     ) => {
       const user = await getAuthenticatedUser(context);
-      const accounts = await context.accountService.getAccountsByUser(
+      const result = await context.accountService.getAccountsByUser(
         user.id,
         "ACTIVE",
       );
-      return accounts;
+
+      if (!result.success) {
+        throw new GraphQLError(result.error);
+      }
+
+      return result.data;
     },
     supportedCurrencies: async (
       _parent: unknown,

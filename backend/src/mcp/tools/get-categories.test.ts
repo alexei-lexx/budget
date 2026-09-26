@@ -1,6 +1,7 @@
 import { faker } from "@faker-js/faker";
 import { type Mocked, beforeEach, describe, expect, it } from "vitest";
 import { CategoryService } from "../../services/category-service";
+import { Success } from "../../types/result";
 import { fakeCategory } from "../../utils/test-utils/models/category-fakes";
 import { createMockCategoryService } from "../../utils/test-utils/services/category-service-mocks";
 import { getCategories } from "./get-categories";
@@ -22,7 +23,7 @@ describe("getCategories", () => {
 
   it("scopes lookup to given userId and scope", async () => {
     // Arrange
-    mockCategoryService.getCategoriesByUser.mockResolvedValue([]);
+    mockCategoryService.getCategoriesByUser.mockResolvedValue(Success([]));
 
     // Act
     await getCategories({ scope: "ALL", guideTokens: [validGuideToken] }, deps);
@@ -41,7 +42,9 @@ describe("getCategories", () => {
       excludeFromReports: false,
       isArchived: false,
     });
-    mockCategoryService.getCategoriesByUser.mockResolvedValue([category]);
+    mockCategoryService.getCategoriesByUser.mockResolvedValue(
+      Success([category]),
+    );
 
     // Act
     const result = await getCategories(

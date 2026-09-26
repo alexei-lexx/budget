@@ -9,7 +9,10 @@ import { EntityScope } from "../types/entity-scope";
 import { Failure, Result, Success } from "../types/result";
 
 export interface AccountService {
-  getAccountsByUser(userId: string, scope: EntityScope): Promise<Account[]>;
+  getAccountsByUser(
+    userId: string,
+    scope: EntityScope,
+  ): Promise<Result<Account[]>>;
   createAccount(input: CreateAccountInput): Promise<Result<Account>>;
   updateAccount(
     id: string,
@@ -33,24 +36,24 @@ export class AccountServiceImpl implements AccountService {
    * Get accounts for a user filtered by scope
    * @param userId - The user ID to get accounts for
    * @param scope - Which accounts to include (active, archived, or all)
-   * @returns Promise<Account[]> - List of accounts matching the scope
+   * @returns List of accounts matching the scope
    */
   async getAccountsByUser(
     userId: string,
     scope: EntityScope,
-  ): Promise<Account[]> {
+  ): Promise<Result<Account[]>> {
     if (scope === "ACTIVE") {
-      return await this.accountRepository.findManyByUserId(userId);
+      return Success(await this.accountRepository.findManyByUserId(userId));
     }
 
     const accounts =
       await this.accountRepository.findManyWithArchivedByUserId(userId);
 
     if (scope === "ALL") {
-      return accounts;
+      return Success(accounts);
     }
 
-    return accounts.filter((account) => account.isArchived);
+    return Success(accounts.filter((account) => account.isArchived));
   }
 
   /**

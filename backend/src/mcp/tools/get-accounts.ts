@@ -24,9 +24,11 @@ export async function getAccounts(
   });
   if (!verification.success) return verification;
 
-  const accounts = await accountService.getAccountsByUser(userId, scope);
+  const result = await accountService.getAccountsByUser(userId, scope);
 
-  return Success(accounts.map(toAccountDto));
+  if (!result.success) return result;
+
+  return Success(result.data.map(toAccountDto));
 }
 
 const inputSchema = z.object({

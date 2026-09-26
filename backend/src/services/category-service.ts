@@ -12,7 +12,7 @@ export interface CategoryService {
   getCategoriesByUser(
     userId: string,
     filters: { scope: EntityScope; type?: CategoryType },
-  ): Promise<Category[]>;
+  ): Promise<Result<Category[]>>;
   createCategory(input: CreateCategoryInput): Promise<Result<Category>>;
   updateCategory(
     id: string,
@@ -35,16 +35,18 @@ export class CategoryServiceImpl implements CategoryService {
    * @param userId - The user ID to fetch categories for
    * @param filters.scope - Which categories to include (active, archived, or all)
    * @param filters.type - Optional category type filter (INCOME or EXPENSE)
-   * @returns Promise<Category[]> - Categories matching the scope and type
+   * @returns Categories matching the scope and type
    */
   async getCategoriesByUser(
     userId: string,
     { scope, type }: { scope: EntityScope; type?: CategoryType },
-  ): Promise<Category[]> {
+  ): Promise<Result<Category[]>> {
     if (scope === "ACTIVE") {
-      return await this.categoryRepository.findManyByUserId(userId, {
-        type,
-      });
+      return Success(
+        await this.categoryRepository.findManyByUserId(userId, {
+          type,
+        }),
+      );
     }
 
     const categories =
@@ -55,7 +57,9 @@ export class CategoryServiceImpl implements CategoryService {
         ? categories
         : categories.filter((category) => category.isArchived);
 
-    return type ? scoped.filter((category) => category.type === type) : scoped;
+    return Success(
+      type ? scoped.filter((category) => category.type === type) : scoped,
+    );
   }
 
   /**
