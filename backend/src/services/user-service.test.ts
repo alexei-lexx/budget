@@ -109,7 +109,7 @@ describe("UserService", () => {
       const result = await service.ensureUser("user@example.com");
 
       // Assert
-      expect(result).toBe(user);
+      expect(result).toEqualSuccess(user);
       expect(mockUserRepository.findOneByEmail).toHaveBeenCalledWith(
         "user@example.com",
       );
@@ -125,11 +125,19 @@ describe("UserService", () => {
       const result = await service.ensureUser("new@example.com");
 
       // Assert
-      expect(result.email).toBe("new@example.com");
+      expect(result).toEqualSuccess(
+        expect.objectContaining({
+          email: "new@example.com",
+        }),
+      );
       expect(mockUserRepository.findOneByEmail).toHaveBeenCalledWith(
         "new@example.com",
       );
-      expect(mockUserRepository.create).toHaveBeenCalledWith(result);
+      expect(mockUserRepository.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          email: "new@example.com",
+        }),
+      );
     });
   });
 

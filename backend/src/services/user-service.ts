@@ -21,16 +21,16 @@ export interface UserSettingsData {
 export class UserService {
   constructor(private readonly userRepository: UserRepository) {}
 
-  async ensureUser(email: string): Promise<User> {
+  async ensureUser(email: string): Promise<Result<User>> {
     const existing = await this.userRepository.findOneByEmail(email);
 
     if (existing) {
-      return existing;
+      return Success(existing);
     }
 
     const user = User.create({ email });
     await this.userRepository.create(user);
-    return user;
+    return Success(user);
   }
 
   async getSettings(userId: string): Promise<Result<UserSettingsData>> {
