@@ -2,7 +2,7 @@ import { expect } from "vitest";
 import type { Result } from "../../types/result";
 
 expect.extend({
-  toEqualSuccess(received: Result<unknown, unknown>, expected?: unknown) {
+  toBeSuccess(received: Result<unknown, unknown>, expected?: unknown) {
     if (!received.success) {
       return {
         pass: false,
@@ -22,7 +22,7 @@ expect.extend({
     };
   },
 
-  toEqualFailure(received: Result<unknown, unknown>, expected: unknown) {
+  toBeFailure(received: Result<unknown, unknown>, expected: unknown) {
     if (received.success) {
       return {
         pass: false,
@@ -40,16 +40,16 @@ expect.extend({
 
 declare module "vitest" {
   interface Matchers<R, T> {
-    // expect(Failure(x)).toEqualSuccess(y) must still typecheck.
+    // expect(Failure(x)).toBeSuccess(y) must still typecheck.
     // TData would otherwise be never for a Failure,
     // rejecting any expected value.
-    toEqualSuccess: T extends Result<infer TData, unknown>
+    toBeSuccess: T extends Result<infer TData, unknown>
       ? (data?: [TData] extends [never] ? unknown : TData) => R
       : never;
-    // expect(Success(x)).toEqualFailure(y) must still typecheck.
+    // expect(Success(x)).toBeFailure(y) must still typecheck.
     // TError would otherwise be never for a Success,
     // rejecting any expected value.
-    toEqualFailure: T extends Result<unknown, infer TError>
+    toBeFailure: T extends Result<unknown, infer TError>
       ? (error: [TError] extends [never] ? unknown : TError) => R
       : never;
   }

@@ -47,7 +47,7 @@ describe("updateTransaction", () => {
     );
 
     // Assert
-    expect(result).toEqualSuccess(toTransactionDto(updated));
+    expect(result).toBeSuccess(toTransactionDto(updated));
     expect(mockTransactionService.updateTransaction).toHaveBeenCalledWith(
       "transaction-id-123",
       userId,
@@ -119,7 +119,7 @@ describe("updateTransaction", () => {
     );
 
     // Assert
-    expect(result).toEqualFailure(
+    expect(result).toBeFailure(
       "Missing or invalid guide token for: basics. Reload the guide(s) and retry",
     );
     expect(mockTransactionService.updateTransaction).not.toHaveBeenCalled();
@@ -133,7 +133,7 @@ describe("updateTransaction", () => {
     );
 
     // Assert
-    expect(result).toEqualFailure(expect.not.stringContaining(validGuideToken));
+    expect(result).toBeFailure(expect.not.stringContaining(validGuideToken));
   });
 
   // Dependency failures

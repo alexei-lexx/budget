@@ -48,7 +48,7 @@ describe("createCompoundTransaction", () => {
     );
 
     // Assert
-    expect(result).toEqualSuccess(createdTransactions.map(toTransactionDto));
+    expect(result).toBeSuccess(createdTransactions.map(toTransactionDto));
     expect(
       mockTransactionService.createCompoundTransaction,
     ).toHaveBeenCalledWith(input, userId);
@@ -67,7 +67,7 @@ describe("createCompoundTransaction", () => {
     );
 
     // Assert
-    expect(result).toEqualFailure(
+    expect(result).toBeFailure(
       "Missing or invalid guide token for: basics, create-transaction. Reload the guide(s) and retry",
     );
     expect(

@@ -30,7 +30,7 @@ describe("CurrencyService", () => {
       const result = await service.getSupportedCurrencies({ userId });
 
       // Assert
-      expect(result).toEqualSuccess([...SUPPORTED_CURRENCIES]);
+      expect(result).toBeSuccess([...SUPPORTED_CURRENCIES]);
       expect(mockAccountRepository.findManyByUserId).toHaveBeenCalledWith(
         userId,
       );
@@ -50,7 +50,7 @@ describe("CurrencyService", () => {
       const result = await service.getSupportedCurrencies({ userId });
 
       // Assert
-      expect(result).toEqualSuccess();
+      expect(result).toBeSuccess();
 
       const currencies = result.success ? result.data : [];
 

@@ -85,7 +85,7 @@ describe("TransactionService", () => {
       const result = await service.getTransactionById(transactionId, userId);
 
       // Assert
-      expect(result).toEqualSuccess(existingTransaction);
+      expect(result).toBeSuccess(existingTransaction);
       expect(mockTransactionRepository.findOneById).toHaveBeenCalledWith({
         id: transactionId,
         userId,
@@ -106,7 +106,7 @@ describe("TransactionService", () => {
       );
 
       // Assert
-      expect(result).toEqualFailure(
+      expect(result).toBeFailure(
         "Transaction not found or doesn't belong to user",
       );
     });
@@ -144,7 +144,7 @@ describe("TransactionService", () => {
       );
 
       // Assert
-      expect(result).toEqualSuccess(expectedResult);
+      expect(result).toBeSuccess(expectedResult);
       expect(
         mockTransactionRepository.findManyByUserIdPaginated,
       ).toHaveBeenCalledWith(userId, pagination, filters);
@@ -160,7 +160,7 @@ describe("TransactionService", () => {
       });
 
       // Assert
-      expect(result).toEqualFailure(
+      expect(result).toBeFailure(
         "Filter dateAfter cannot be later than dateBefore",
       );
       expect(
@@ -175,7 +175,7 @@ describe("TransactionService", () => {
       });
 
       // Assert
-      expect(result).toEqualFailure(
+      expect(result).toBeFailure(
         `Pagination first must be between ${MIN_PAGE_SIZE} and ${MAX_PAGE_SIZE}`,
       );
     });
@@ -187,7 +187,7 @@ describe("TransactionService", () => {
       });
 
       // Assert
-      expect(result).toEqualFailure(
+      expect(result).toBeFailure(
         `Pagination first must be between ${MIN_PAGE_SIZE} and ${MAX_PAGE_SIZE}`,
       );
     });
@@ -255,7 +255,7 @@ describe("TransactionService", () => {
       );
 
       // Assert
-      expect(result).toEqualSuccess([
+      expect(result).toBeSuccess([
         {
           accountId: "account-1",
           categoryId: "category-1",
@@ -315,7 +315,7 @@ describe("TransactionService", () => {
       );
 
       // Assert
-      expect(result).toEqualSuccess([
+      expect(result).toBeSuccess([
         expect.objectContaining({ accountId: "account-1" }),
       ]);
     });
@@ -372,7 +372,7 @@ describe("TransactionService", () => {
       );
 
       // Assert
-      expect(result).toEqualSuccess([
+      expect(result).toBeSuccess([
         expect.objectContaining({ categoryId: "category-1" }),
       ]);
     });
@@ -436,7 +436,7 @@ describe("TransactionService", () => {
       );
 
       // Assert
-      expect(result).toEqualSuccess([
+      expect(result).toBeSuccess([
         expect.objectContaining({ categoryId: "category-income" }),
       ]);
     });
@@ -468,7 +468,7 @@ describe("TransactionService", () => {
       );
 
       // Assert
-      expect(result).toEqualSuccess([]);
+      expect(result).toBeSuccess([]);
     });
 
     it("returns empty array for new users with no transaction history", async () => {
@@ -485,7 +485,7 @@ describe("TransactionService", () => {
       );
 
       // Assert
-      expect(result).toEqualSuccess([]);
+      expect(result).toBeSuccess([]);
       expect(mockAccountRepository.findOneById).not.toHaveBeenCalled();
       expect(mockCategoryRepository.findOneById).not.toHaveBeenCalled();
     });
@@ -642,7 +642,7 @@ describe("TransactionService", () => {
       );
 
       // Assert
-      expect(result).toEqualSuccess([
+      expect(result).toBeSuccess([
         "Grocery store",
         "Grocery shopping",
         "Great restaurant",
@@ -672,7 +672,7 @@ describe("TransactionService", () => {
       );
 
       // Assert
-      expect(result).toEqualSuccess();
+      expect(result).toBeSuccess();
       const suggestions = result.success ? result.data : [];
       expect(suggestions).toHaveLength(3); // Limited to 3 results
     });
@@ -691,7 +691,7 @@ describe("TransactionService", () => {
       );
 
       // Assert
-      expect(result).toEqualSuccess([]);
+      expect(result).toBeSuccess([]);
     });
 
     it("calls repository with correct parameters", async () => {
@@ -761,7 +761,7 @@ describe("TransactionService", () => {
       const result = await service.getDescriptionSuggestions(userId, "", 5);
 
       // Assert
-      expect(result).toEqualFailure(
+      expect(result).toBeFailure(
         `Search text must be at least ${MIN_SEARCH_TEXT_LENGTH} characters long`,
       );
     });
@@ -771,7 +771,7 @@ describe("TransactionService", () => {
       const result = await service.getDescriptionSuggestions(userId, "   ", 5);
 
       // Assert
-      expect(result).toEqualFailure(
+      expect(result).toBeFailure(
         `Search text must be at least ${MIN_SEARCH_TEXT_LENGTH} characters long`,
       );
     });
@@ -785,7 +785,7 @@ describe("TransactionService", () => {
       );
 
       // Assert
-      expect(result).toEqualFailure(
+      expect(result).toBeFailure(
         `Search text must be at least ${MIN_SEARCH_TEXT_LENGTH} characters long`,
       );
       expect(
@@ -802,7 +802,7 @@ describe("TransactionService", () => {
       );
 
       // Assert
-      expect(result).toEqualFailure(
+      expect(result).toBeFailure(
         `Search text must be at least ${MIN_SEARCH_TEXT_LENGTH} characters long`,
       );
       expect(
@@ -844,7 +844,7 @@ describe("TransactionService", () => {
       const result = await service.createTransaction(input, userId);
 
       // Assert
-      expect(result).toEqualSuccess(createdTransaction);
+      expect(result).toBeSuccess(createdTransaction);
 
       expect(mockAtomicWriter.commit).toHaveBeenCalledTimes(1);
 
@@ -934,9 +934,7 @@ describe("TransactionService", () => {
       const result = await service.createTransaction(input, userId);
 
       // Assert
-      expect(result).toEqualFailure(
-        "Account not found or doesn't belong to user",
-      );
+      expect(result).toBeFailure("Account not found or doesn't belong to user");
       expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
     });
 
@@ -954,7 +952,7 @@ describe("TransactionService", () => {
       const result = await service.createTransaction(input, userId);
 
       // Assert
-      expect(result).toEqualFailure(
+      expect(result).toBeFailure(
         "Category not found or doesn't belong to user",
       );
       expect(mockCategoryRepository.findOneById).toHaveBeenCalledWith({
@@ -981,7 +979,7 @@ describe("TransactionService", () => {
       const result = await service.createTransaction(input, userId);
 
       // Assert
-      expect(result).toEqualFailure("Amount must be positive");
+      expect(result).toBeFailure("Amount must be positive");
       expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
     });
   });
@@ -1041,7 +1039,7 @@ describe("TransactionService", () => {
       const result = await service.createCompoundTransaction(input, userId);
 
       // Assert
-      expect(result).toEqualSuccess(createdTransactions);
+      expect(result).toBeSuccess(createdTransactions);
 
       expect(mockAtomicWriter.commit).toHaveBeenCalledTimes(1);
       const commitInput = mockAtomicWriter.commit.mock.calls[0]?.[0];
@@ -1208,7 +1206,7 @@ describe("TransactionService", () => {
       const result = await service.createCompoundTransaction(input, userId);
 
       // Assert
-      expect(result).toEqualFailure(
+      expect(result).toBeFailure(
         "Compound transaction requires at least 2 legs",
       );
       expect(mockAccountRepository.findOneById).not.toHaveBeenCalled();
@@ -1235,9 +1233,7 @@ describe("TransactionService", () => {
       const result = await service.createCompoundTransaction(input, userId);
 
       // Assert
-      expect(result).toEqualFailure(
-        "Leg amounts must sum to the expected total",
-      );
+      expect(result).toBeFailure("Leg amounts must sum to the expected total");
       expect(mockAccountRepository.findOneById).not.toHaveBeenCalled();
       expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
     });
@@ -1261,7 +1257,7 @@ describe("TransactionService", () => {
       const result = await service.createCompoundTransaction(input, userId);
 
       // Assert
-      expect(result).toEqualFailure(
+      expect(result).toBeFailure(
         "Compound transaction legs must have distinct categories, with at most one uncategorized leg",
       );
       expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
@@ -1277,7 +1273,7 @@ describe("TransactionService", () => {
       const result = await service.createCompoundTransaction(input, userId);
 
       // Assert
-      expect(result).toEqualFailure(
+      expect(result).toBeFailure(
         "Compound transaction legs must have distinct categories, with at most one uncategorized leg",
       );
       expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
@@ -1294,9 +1290,7 @@ describe("TransactionService", () => {
       const result = await service.createCompoundTransaction(input, userId);
 
       // Assert
-      expect(result).toEqualFailure(
-        "Account not found or doesn't belong to user",
-      );
+      expect(result).toBeFailure("Account not found or doesn't belong to user");
       expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
     });
 
@@ -1331,7 +1325,7 @@ describe("TransactionService", () => {
       const result = await service.createCompoundTransaction(input, userId);
 
       // Assert
-      expect(result).toEqualFailure(
+      expect(result).toBeFailure(
         "Category not found or doesn't belong to user",
       );
       expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
@@ -1369,7 +1363,7 @@ describe("TransactionService", () => {
       const result = await service.createCompoundTransaction(input, userId);
 
       // Assert
-      expect(result).toEqualFailure(
+      expect(result).toBeFailure(
         'Category type "INCOME" doesn\'t match transaction type "EXPENSE"',
       );
       expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
@@ -1409,7 +1403,7 @@ describe("TransactionService", () => {
       const result = await service.createCompoundTransaction(input, userId);
 
       // Assert
-      expect(result).toEqualFailure("Amount must be positive");
+      expect(result).toBeFailure("Amount must be positive");
       expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
     });
   });
@@ -1463,7 +1457,7 @@ describe("TransactionService", () => {
       );
 
       // Assert
-      expect(result).toEqualSuccess(persistedTransaction);
+      expect(result).toBeSuccess(persistedTransaction);
       const commitInput = mockAtomicWriter.commit.mock.calls[0]?.[0];
       expect(commitInput?.transactionsToUpdate).toHaveLength(1);
       expect(commitInput?.transactionsToUpdate?.[0]).toMatchObject({
@@ -1703,7 +1697,7 @@ describe("TransactionService", () => {
       );
 
       // Assert
-      expect(result).toEqualFailure(
+      expect(result).toBeFailure(
         "Transaction not found or doesn't belong to user",
       );
       expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
@@ -1727,9 +1721,7 @@ describe("TransactionService", () => {
       );
 
       // Assert
-      expect(result).toEqualFailure(
-        "Account not found or doesn't belong to user",
-      );
+      expect(result).toBeFailure("Account not found or doesn't belong to user");
       expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
     });
 
@@ -1753,7 +1745,7 @@ describe("TransactionService", () => {
       );
 
       // Assert
-      expect(result).toEqualFailure("Amount must be positive");
+      expect(result).toBeFailure("Amount must be positive");
       expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
     });
   });
@@ -1791,7 +1783,7 @@ describe("TransactionService", () => {
       );
 
       // Assert
-      expect(result).toEqualSuccess(persistedTransaction);
+      expect(result).toBeSuccess(persistedTransaction);
       const commitInput = mockAtomicWriter.commit.mock.calls[0]?.[0];
       expect(commitInput?.transactionsToUpdate).toHaveLength(1);
       expect(commitInput?.transactionsToUpdate?.[0]?.isArchived).toBe(true);
@@ -1845,7 +1837,7 @@ describe("TransactionService", () => {
       );
 
       // Assert
-      expect(result).toEqualSuccess(existingTransaction);
+      expect(result).toBeSuccess(existingTransaction);
       expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
     });
 
@@ -1863,7 +1855,7 @@ describe("TransactionService", () => {
       );
 
       // Assert
-      expect(result).toEqualFailure(
+      expect(result).toBeFailure(
         "Transaction not found or doesn't belong to user",
       );
       expect(mockAtomicWriter.commit).not.toHaveBeenCalled();

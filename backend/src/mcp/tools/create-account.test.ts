@@ -44,7 +44,7 @@ describe("createAccount", () => {
     );
 
     // Assert
-    expect(result).toEqualSuccess({
+    expect(result).toBeSuccess({
       id: created.id,
       name: "Checking Account",
       currency: "USD",
@@ -90,7 +90,7 @@ describe("createAccount", () => {
     );
 
     // Assert
-    expect(result).toEqualFailure(
+    expect(result).toBeFailure(
       "Missing or invalid guide token for: basics. Reload the guide(s) and retry",
     );
     expect(mockAccountService.createAccount).not.toHaveBeenCalled();
@@ -104,7 +104,7 @@ describe("createAccount", () => {
     );
 
     // Assert
-    expect(result).toEqualFailure(expect.not.stringContaining(validGuideToken));
+    expect(result).toBeFailure(expect.not.stringContaining(validGuideToken));
   });
 
   // Dependency failures
@@ -123,7 +123,7 @@ describe("createAccount", () => {
     );
 
     // Assert
-    expect(result).toEqualFailure('Account "Savings" already exists');
+    expect(result).toBeFailure('Account "Savings" already exists');
   });
 
   it("propagates error when service throws", async () => {

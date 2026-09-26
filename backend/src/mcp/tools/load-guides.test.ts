@@ -12,7 +12,7 @@ describe("loadGuides", () => {
     });
 
     // Assert
-    expect(result).toEqualSuccess([
+    expect(result).toBeSuccess([
       {
         name: GUIDES.basics.name,
         instruction: GUIDES.basics.instruction,
@@ -31,8 +31,6 @@ describe("loadGuides", () => {
     const result = await loadGuides({ names: ["basics", "basics"] });
 
     // Assert
-    expect(result).toEqualSuccess([
-      expect.objectContaining({ name: "basics" }),
-    ]);
+    expect(result).toBeSuccess([expect.objectContaining({ name: "basics" })]);
   });
 });

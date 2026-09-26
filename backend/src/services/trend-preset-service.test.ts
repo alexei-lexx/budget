@@ -32,7 +32,7 @@ describe("TrendPresetService", () => {
       const result = await service.getTrendPresetsByUser(userId);
 
       // Assert
-      expect(result).toEqualSuccess(trendPresets);
+      expect(result).toBeSuccess(trendPresets);
       expect(trendPresetRepository.findManyByUserId).toHaveBeenCalledWith(
         userId,
       );
@@ -55,7 +55,7 @@ describe("TrendPresetService", () => {
       const result = await service.createTrendPreset(userId, input);
 
       // Assert
-      expect(result).toEqualSuccess(
+      expect(result).toBeSuccess(
         expect.objectContaining({
           userId,
           periodUnit: "MONTH",
@@ -85,7 +85,7 @@ describe("TrendPresetService", () => {
       const result = await service.createTrendPreset(userId, input);
 
       // Assert
-      expect(result).toEqualFailure(
+      expect(result).toBeFailure(
         "Lookback must be a whole number from 1 to 12",
       );
       expect(trendPresetRepository.create).not.toHaveBeenCalled();
@@ -118,7 +118,7 @@ describe("TrendPresetService", () => {
       const result = await service.deleteTrendPreset(userId, id);
 
       // Assert
-      expect(result).toEqualSuccess(true);
+      expect(result).toBeSuccess(true);
       expect(trendPresetRepository.deleteOneById).toHaveBeenCalledWith({
         id,
         userId,

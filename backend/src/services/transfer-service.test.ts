@@ -58,7 +58,7 @@ describe("TransferService", () => {
       const result = await service.getTransfer(transferId, userId);
 
       // Assert
-      expect(result).toEqualSuccess({
+      expect(result).toBeSuccess({
         transferId,
         outboundTransaction,
         inboundTransaction,
@@ -87,7 +87,7 @@ describe("TransferService", () => {
       const result = await service.getTransfer(transferId, userId);
 
       // Assert
-      expect(result).toEqualSuccess({
+      expect(result).toBeSuccess({
         transferId,
         outboundTransaction,
         inboundTransaction,
@@ -104,7 +104,7 @@ describe("TransferService", () => {
       const result = await service.getTransfer(transferId, userId);
 
       // Assert
-      expect(result).toEqualSuccess(undefined);
+      expect(result).toBeSuccess(undefined);
     });
 
     // Validation failures
@@ -121,7 +121,7 @@ describe("TransferService", () => {
       const result = await service.getTransfer(transferId, userId);
 
       // Assert
-      expect(result).toEqualFailure(
+      expect(result).toBeFailure(
         "Invalid transfer state: expected 2 transactions, found 1",
       );
     });
@@ -140,7 +140,7 @@ describe("TransferService", () => {
       const result = await service.getTransfer(transferId, userId);
 
       // Assert
-      expect(result).toEqualFailure(
+      expect(result).toBeFailure(
         "Invalid transfer state: expected 2 transactions, found 3",
       );
     });
@@ -158,7 +158,7 @@ describe("TransferService", () => {
       const result = await service.getTransfer(transferId, userId);
 
       // Assert
-      expect(result).toEqualFailure(
+      expect(result).toBeFailure(
         "Invalid transfer state: missing TRANSFER_OUT transaction",
       );
     });
@@ -176,7 +176,7 @@ describe("TransferService", () => {
       const result = await service.getTransfer(transferId, userId);
 
       // Assert
-      expect(result).toEqualFailure(
+      expect(result).toBeFailure(
         "Invalid transfer state: missing TRANSFER_IN transaction",
       );
     });
@@ -213,7 +213,7 @@ describe("TransferService", () => {
       );
 
       // Assert
-      expect(result).toEqualSuccess();
+      expect(result).toBeSuccess();
       if (!result.success) throw new Error("Expected success"); // Type guard
 
       expect(result.data.transferId).toEqual(expect.any(String));
@@ -311,9 +311,7 @@ describe("TransferService", () => {
       );
 
       // Assert
-      expect(result).toEqualFailure(
-        "Cannot transfer money to the same account",
-      );
+      expect(result).toBeFailure("Cannot transfer money to the same account");
       expect(mockAccountRepository.findOneById).not.toHaveBeenCalled();
       expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
     });
@@ -335,9 +333,7 @@ describe("TransferService", () => {
       );
 
       // Assert
-      expect(result).toEqualFailure(
-        "Account not found or doesn't belong to user",
-      );
+      expect(result).toBeFailure("Account not found or doesn't belong to user");
       expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
     });
 
@@ -361,9 +357,7 @@ describe("TransferService", () => {
       );
 
       // Assert
-      expect(result).toEqualFailure(
-        "Account not found or doesn't belong to user",
-      );
+      expect(result).toBeFailure("Account not found or doesn't belong to user");
       expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
     });
 
@@ -388,7 +382,7 @@ describe("TransferService", () => {
       );
 
       // Assert
-      expect(result).toEqualFailure(
+      expect(result).toBeFailure(
         "Cannot transfer between accounts with different currencies. Source account uses USD, destination account uses EUR",
       );
       expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
@@ -414,7 +408,7 @@ describe("TransferService", () => {
       const result = await service.createTransfer(input, userId);
 
       // Assert
-      expect(result).toEqualFailure("Amount must be positive");
+      expect(result).toBeFailure("Amount must be positive");
       expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
     });
 
@@ -443,7 +437,7 @@ describe("TransferService", () => {
       );
 
       // Assert
-      expect(result).toEqualFailure("Failed to create transfer transactions");
+      expect(result).toBeFailure("Failed to create transfer transactions");
     });
   });
 
@@ -495,7 +489,7 @@ describe("TransferService", () => {
       const result = await service.deleteTransfer(transferId, userId);
 
       // Assert
-      expect(result).toEqualSuccess();
+      expect(result).toBeSuccess();
       const commitInput = mockAtomicWriter.commit.mock.calls[0]?.[0];
       expect(commitInput?.transactionsToUpdate).toEqual([
         expect.objectContaining({
@@ -533,7 +527,7 @@ describe("TransferService", () => {
       const result = await service.deleteTransfer(transferId, userId);
 
       // Assert
-      expect(result).toEqualFailure(
+      expect(result).toBeFailure(
         "Transfer not found or doesn't belong to user",
       );
       expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
@@ -552,7 +546,7 @@ describe("TransferService", () => {
       const result = await service.deleteTransfer(transferId, userId);
 
       // Assert
-      expect(result).toEqualFailure("Invalid transfer state: missing pair");
+      expect(result).toBeFailure("Invalid transfer state: missing pair");
       expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
     });
 
@@ -581,7 +575,7 @@ describe("TransferService", () => {
       const result = await service.deleteTransfer(transferId, userId);
 
       // Assert
-      expect(result).toEqualFailure("Account not found");
+      expect(result).toBeFailure("Account not found");
       expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
     });
 
@@ -610,7 +604,7 @@ describe("TransferService", () => {
       const result = await service.deleteTransfer(transferId, userId);
 
       // Assert
-      expect(result).toEqualFailure("Account not found");
+      expect(result).toBeFailure("Account not found");
       expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
     });
 
@@ -647,7 +641,7 @@ describe("TransferService", () => {
       const result = await service.deleteTransfer(transferId, userId);
 
       // Assert
-      expect(result).toEqualFailure("Failed to delete transfer transactions");
+      expect(result).toBeFailure("Failed to delete transfer transactions");
     });
   });
 
@@ -705,7 +699,7 @@ describe("TransferService", () => {
       });
 
       // Assert
-      expect(result).toEqualSuccess();
+      expect(result).toBeSuccess();
       if (!result.success) throw new Error("Expected success"); // Type guard
 
       expect(result.data.transferId).toBe(transferId);
@@ -776,7 +770,7 @@ describe("TransferService", () => {
       });
 
       // Assert
-      expect(result).toEqualSuccess();
+      expect(result).toBeSuccess();
       const commitInput = mockAtomicWriter.commit.mock.calls[0]?.[0];
 
       // Source: 500 - (-100) revert + (-150) apply = 450
@@ -853,7 +847,7 @@ describe("TransferService", () => {
       });
 
       // Assert
-      expect(result).toEqualSuccess();
+      expect(result).toBeSuccess();
       const commitInput = mockAtomicWriter.commit.mock.calls[0]?.[0];
       expect(commitInput?.accountsToUpdate).toHaveLength(4);
 
@@ -929,7 +923,7 @@ describe("TransferService", () => {
       });
 
       // Assert
-      expect(result).toEqualSuccess();
+      expect(result).toBeSuccess();
       const commitInput = mockAtomicWriter.commit.mock.calls[0]?.[0];
       expect(commitInput?.accountsToUpdate).toHaveLength(2);
 
@@ -983,7 +977,7 @@ describe("TransferService", () => {
       });
 
       // Assert
-      expect(result).toEqualSuccess();
+      expect(result).toBeSuccess();
       const commitInput = mockAtomicWriter.commit.mock.calls[0]?.[0];
       expect(commitInput?.accountsToUpdate).toEqual([]);
       expect(commitInput?.transactionsToUpdate?.[0]).toMatchObject({
@@ -1032,7 +1026,7 @@ describe("TransferService", () => {
       });
 
       // Assert
-      expect(result).toEqualSuccess();
+      expect(result).toBeSuccess();
       expect(
         mockAccountRepository.findOneWithArchivedById,
       ).toHaveBeenCalledWith({
@@ -1068,7 +1062,7 @@ describe("TransferService", () => {
       });
 
       // Assert
-      expect(result).toEqualFailure(
+      expect(result).toBeFailure(
         "Transfer not found or doesn't belong to user",
       );
       expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
@@ -1104,9 +1098,7 @@ describe("TransferService", () => {
       });
 
       // Assert
-      expect(result).toEqualFailure(
-        "Cannot transfer money to the same account",
-      );
+      expect(result).toBeFailure("Cannot transfer money to the same account");
       expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
     });
 
@@ -1143,9 +1135,7 @@ describe("TransferService", () => {
       });
 
       // Assert
-      expect(result).toEqualFailure(
-        "Account not found or doesn't belong to user",
-      );
+      expect(result).toBeFailure("Account not found or doesn't belong to user");
       expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
     });
 
@@ -1182,9 +1172,7 @@ describe("TransferService", () => {
       });
 
       // Assert
-      expect(result).toEqualFailure(
-        "Account not found or doesn't belong to user",
-      );
+      expect(result).toBeFailure("Account not found or doesn't belong to user");
       expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
     });
 
@@ -1224,7 +1212,7 @@ describe("TransferService", () => {
       });
 
       // Assert
-      expect(result).toEqualFailure(
+      expect(result).toBeFailure(
         "Cannot transfer between accounts with different currencies. Source account uses EUR, destination account uses USD",
       );
       expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
@@ -1264,7 +1252,7 @@ describe("TransferService", () => {
       const result = await service.updateTransfer(transferId, userId, input);
 
       // Assert
-      expect(result).toEqualFailure("Amount must be positive");
+      expect(result).toBeFailure("Amount must be positive");
       expect(mockAtomicWriter.commit).not.toHaveBeenCalled();
     });
 
@@ -1309,7 +1297,7 @@ describe("TransferService", () => {
       });
 
       // Assert
-      expect(result).toEqualFailure("Failed to update transfer transactions");
+      expect(result).toBeFailure("Failed to update transfer transactions");
     });
   });
 });

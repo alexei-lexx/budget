@@ -54,7 +54,7 @@ describe("createTransaction", () => {
     );
 
     // Assert
-    expect(result).toEqualSuccess({
+    expect(result).toBeSuccess({
       id: created.id,
       accountId: created.accountId,
       categoryId: created.categoryId,
@@ -86,7 +86,7 @@ describe("createTransaction", () => {
     );
 
     // Assert
-    expect(result).toEqualFailure(
+    expect(result).toBeFailure(
       "Missing or invalid guide token for: basics, create-transaction. Reload the guide(s) and retry",
     );
     expect(mockTransactionService.createTransaction).not.toHaveBeenCalled();
@@ -107,9 +107,7 @@ describe("createTransaction", () => {
 
     // Assert
     for (const validGuideToken of validGuideTokens) {
-      expect(result).toEqualFailure(
-        expect.not.stringContaining(validGuideToken),
-      );
+      expect(result).toBeFailure(expect.not.stringContaining(validGuideToken));
     }
   });
 
