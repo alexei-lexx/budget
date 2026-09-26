@@ -149,10 +149,15 @@ export class CreateTransactionFromTextService {
 
     const transactionId = parsedTransactionData.data.data.id;
 
-    const transaction = await this.transactionService.getTransactionById(
+    const transactionResult = await this.transactionService.getTransactionById(
       transactionId,
       userId,
     );
-    return Success({ transaction, agentTrace });
+
+    if (!transactionResult.success) {
+      return Failure({ message: transactionResult.error, agentTrace });
+    }
+
+    return Success({ transaction: transactionResult.data, agentTrace });
   }
 }

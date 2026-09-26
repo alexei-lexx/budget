@@ -5,6 +5,7 @@ import {
   TransactionService,
 } from "../../services/transaction-service";
 import { toDateString } from "../../types/date-string";
+import { Success } from "../../types/result";
 import { fakeTransaction } from "../../utils/test-utils/models/transaction-fakes";
 import { createMockTransactionService } from "../../utils/test-utils/services/transaction-service-mocks";
 import { createTransaction } from "./create-transaction";
@@ -30,7 +31,9 @@ describe("createTransaction", () => {
   it("creates transaction and returns created fields", async () => {
     // Arrange
     const created = fakeTransaction();
-    mockTransactionService.createTransaction.mockResolvedValue(created);
+    mockTransactionService.createTransaction.mockResolvedValue(
+      Success(created),
+    );
 
     const input: CreateTransactionServiceInput = {
       accountId: faker.string.uuid(),

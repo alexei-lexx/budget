@@ -22,7 +22,7 @@ import {
   MIN_PAGE_SIZE,
   PaginationInput,
 } from "../types/pagination";
-import { BusinessError } from "./business-error";
+import { Failure, Result, Success } from "../types/result";
 
 export const MIN_SEARCH_TEXT_LENGTH = 2;
 
@@ -78,39 +78,39 @@ export interface EnrichedTransactionPattern extends TransactionPattern {
 }
 
 export interface TransactionService {
-  getTransactionById(id: string, userId: string): Promise<Transaction>;
+  getTransactionById(id: string, userId: string): Promise<Result<Transaction>>;
   getTransactionsByUser(
     userId: string,
     pagination?: PaginationInput,
     filters?: TransactionFilterInput,
-  ): Promise<TransactionConnection>;
+  ): Promise<Result<TransactionConnection>>;
   getTransactionPatterns(
     userId: string,
     type: TransactionPatternType,
     limit?: number | null,
     sampleSize?: number,
-  ): Promise<EnrichedTransactionPattern[]>;
+  ): Promise<Result<EnrichedTransactionPattern[]>>;
   getDescriptionSuggestions(
     userId: string,
     searchText: string,
     limit?: number | null,
     sampleSize?: number,
-  ): Promise<string[]>;
+  ): Promise<Result<string[]>>;
   createTransaction(
     input: CreateTransactionServiceInput,
     userId: string,
-  ): Promise<Transaction>;
+  ): Promise<Result<Transaction>>;
   createCompoundTransaction(
     input: CreateCompoundTransactionServiceInput,
     userId: string,
-  ): Promise<Transaction[]>;
+  ): Promise<Result<Transaction[]>>;
 
   updateTransaction(
     id: string,
     userId: string,
     input: UpdateTransactionServiceInput,
-  ): Promise<Transaction>;
-  deleteTransaction(id: string, userId: string): Promise<Transaction>;
+  ): Promise<Result<Transaction>>;
+  deleteTransaction(id: string, userId: string): Promise<Result<Transaction>>;
 }
 
 /**
@@ -139,40 +139,39 @@ export class TransactionServiceImpl implements TransactionService {
    * Get a single transaction by ID with ownership validation
    * @param id - The transaction ID to retrieve
    * @param userId - The user ID to validate ownership
-   * @returns Promise<Transaction> - The retrieved transaction
-   * @throws BusinessError if transaction not found or doesn't belong to user
+   * @returns The retrieved transaction, or a failure reason
    */
-  async getTransactionById(id: string, userId: string): Promise<Transaction> {
+  async getTransactionById(
+    id: string,
+    userId: string,
+  ): Promise<Result<Transaction>> {
     const transaction = await this.transactionRepository.findOneById({
       id,
       userId,
     });
     if (!transaction) {
-      throw new BusinessError(
-        "Transaction not found or doesn't belong to user",
-      );
+      return Failure("Transaction not found or doesn't belong to user");
     }
-    return transaction;
+    return Success(transaction);
   }
 
   /**
    * Create a new transaction with full business validation
    * @param input - Transaction creation input (currency will be derived from account)
    * @param userId - The user ID creating the transaction
-   * @returns Promise<Transaction> - The created transaction
-   * @throws BusinessError for any business rule violations
+   * @returns The created transaction, or a failure reason
    */
   async createTransaction(
     input: CreateTransactionServiceInput,
     userId: string,
-  ): Promise<Transaction> {
+  ): Promise<Result<Transaction>> {
     const account = await this.accountRepository.findOneById({
       id: input.accountId,
       userId,
     });
 
     if (!account) {
-      throw new BusinessError("Account not found or doesn't belong to user");
+      return Failure("Account not found or doesn't belong to user");
     }
 
     let category: Category | undefined;
@@ -185,7 +184,7 @@ export class TransactionServiceImpl implements TransactionService {
         })) ?? undefined;
 
       if (!category) {
-        throw new BusinessError("Category not found or doesn't belong to user");
+        return Failure("Category not found or doesn't belong to user");
       }
     }
 
@@ -210,7 +209,7 @@ export class TransactionServiceImpl implements TransactionService {
       throw new Error("Atomic writer did not return the created transaction");
     }
 
-    return createdTransaction;
+    return Success(createdTransaction);
   }
 
   /**
@@ -221,41 +220,47 @@ export class TransactionServiceImpl implements TransactionService {
   async createCompoundTransaction(
     input: CreateCompoundTransactionServiceInput,
     userId: string,
-  ): Promise<Transaction[]> {
+  ): Promise<Result<Transaction[]>> {
     const { legs } = input;
 
     if (legs.length < 2) {
-      throw new BusinessError("Compound transaction requires at least 2 legs");
+      return Failure("Compound transaction requires at least 2 legs");
     }
 
     const legsTotal = legs.reduce((sum, leg) => sum + leg.amount, 0);
 
     if (Math.abs(legsTotal - input.expectedTotal) > 1e-9) {
-      throw new BusinessError("Leg amounts must sum to the expected total");
+      return Failure("Leg amounts must sum to the expected total");
     }
 
     const categoryIds = legs.map((leg) => leg.categoryId);
     if (new Set(categoryIds).size !== categoryIds.length) {
-      throw new BusinessError(
+      return Failure(
         "Compound transaction legs must have distinct categories, with at most one uncategorized leg",
       );
     }
 
-    const account = await this.validateAccount(input.accountId, userId);
+    const accountResult = await this.validateAccount(input.accountId, userId);
+    if (!accountResult.success) return accountResult;
+    const account = accountResult.data;
+
     const compoundTransactionId = randomUUID();
 
-    const transactionsToCreate: Transaction[] = await Promise.all(
-      legs.map(async (leg) => {
-        const category = await this.validateCategory(
-          leg.categoryId,
-          userId,
-          input.type,
-        );
+    const transactionsToCreate: Transaction[] = [];
 
-        return Transaction.create({
+    for (const leg of legs) {
+      const categoryResult = await this.validateCategory(
+        leg.categoryId,
+        userId,
+        input.type,
+      );
+      if (!categoryResult.success) return categoryResult;
+
+      transactionsToCreate.push(
+        Transaction.create({
           userId,
           account,
-          category: category ?? undefined,
+          category: categoryResult.data ?? undefined,
           type: input.type,
           amount: leg.amount,
           date: input.date,
@@ -264,9 +269,9 @@ export class TransactionServiceImpl implements TransactionService {
             id: compoundTransactionId,
             totalAmount: input.expectedTotal,
           },
-        });
-      }),
-    );
+        }),
+      );
+    }
 
     const accountToUpdate = transactionsToCreate.reduce(
       (currentAccount, transaction) =>
@@ -279,7 +284,7 @@ export class TransactionServiceImpl implements TransactionService {
       accountsToUpdate: [accountToUpdate],
     });
 
-    return [...result.createdTransactions];
+    return Success([...result.createdTransactions]);
   }
 
   /**
@@ -287,21 +292,38 @@ export class TransactionServiceImpl implements TransactionService {
    * @param userId - The user ID to get transactions for
    * @param pagination - Optional pagination parameters (first, after)
    * @param filters - Optional filter criteria (account, category, date, type)
-   * @returns Promise<TransactionConnection> - Paginated transaction results with cursor information
+   * @returns Paginated transaction results with cursor information, or a failure reason
    */
   async getTransactionsByUser(
     userId: string,
     pagination?: PaginationInput,
     filters?: TransactionFilterInput,
-  ): Promise<TransactionConnection> {
-    this.validatePagination(pagination);
-    this.validateFilters(filters);
+  ): Promise<Result<TransactionConnection>> {
+    if (
+      pagination?.first !== undefined &&
+      (pagination.first < MIN_PAGE_SIZE || pagination.first > MAX_PAGE_SIZE)
+    ) {
+      return Failure(
+        `Pagination first must be between ${MIN_PAGE_SIZE} and ${MAX_PAGE_SIZE}`,
+      );
+    }
 
-    return await this.transactionRepository.findManyByUserIdPaginated(
-      userId,
-      pagination,
-      filters,
-    );
+    if (
+      filters?.dateAfter &&
+      filters?.dateBefore &&
+      filters.dateAfter > filters.dateBefore
+    ) {
+      return Failure("Filter dateAfter cannot be later than dateBefore");
+    }
+
+    const connection =
+      await this.transactionRepository.findManyByUserIdPaginated(
+        userId,
+        pagination,
+        filters,
+      );
+
+    return Success(connection);
   }
 
   /**
@@ -309,40 +331,44 @@ export class TransactionServiceImpl implements TransactionService {
    * @param id - Transaction ID to update
    * @param userId - User ID owning the transaction
    * @param input - Partial update input (currency automatically updated when account changes)
-   * @returns Promise<Transaction> - The updated transaction
-   * @throws BusinessError for any business rule violations
+   * @returns The updated transaction, or a failure reason
    */
   async updateTransaction(
     id: string,
     userId: string,
     input: UpdateTransactionServiceInput,
-  ): Promise<Transaction> {
+  ): Promise<Result<Transaction>> {
     // First verify the transaction exists and belongs to the user
     const existingTransaction = await this.transactionRepository.findOneById({
       id,
       userId,
     });
     if (!existingTransaction) {
-      throw new BusinessError(
-        "Transaction not found or doesn't belong to user",
-      );
+      return Failure("Transaction not found or doesn't belong to user");
     }
 
-    const newAccount = input.accountId
-      ? await this.validateAccount(input.accountId, userId)
-      : undefined;
+    let newAccount: Account | undefined;
+    if (input.accountId) {
+      const accountResult = await this.validateAccount(input.accountId, userId);
+      if (!accountResult.success) return accountResult;
+      newAccount = accountResult.data;
+    }
 
     const transactionType = input.type ?? existingTransaction.type;
-    const category =
-      input.categoryId === undefined
-        ? undefined
-        : input.categoryId === null
-          ? null
-          : await this.validateCategory(
-              input.categoryId,
-              userId,
-              transactionType,
-            );
+    let category: Category | null | undefined;
+    if (input.categoryId === undefined) {
+      category = undefined;
+    } else if (input.categoryId === null) {
+      category = null;
+    } else {
+      const categoryResult = await this.validateCategory(
+        input.categoryId,
+        userId,
+        transactionType,
+      );
+      if (!categoryResult.success) return categoryResult;
+      category = categoryResult.data;
+    }
 
     const transactionToUpdate = existingTransaction.update({
       account: newAccount,
@@ -368,7 +394,7 @@ export class TransactionServiceImpl implements TransactionService {
         });
 
         if (!account) {
-          throw new BusinessError("Account not found");
+          return Failure("Account not found");
         }
 
         accountsToUpdate = [
@@ -386,11 +412,11 @@ export class TransactionServiceImpl implements TransactionService {
         );
 
         if (!oldAccount) {
-          throw new BusinessError("Old account not found");
+          return Failure("Old account not found");
         }
 
         if (!newAccount) {
-          throw new BusinessError("New account not found");
+          return Failure("New account not found");
         }
 
         accountsToUpdate = [
@@ -414,31 +440,31 @@ export class TransactionServiceImpl implements TransactionService {
       throw new Error("Atomic writer did not return the updated transaction");
     }
 
-    return updatedTransaction;
+    return Success(updatedTransaction);
   }
 
   /**
    * Archive (soft delete) an existing transaction
    * @param id - Transaction ID to archive
    * @param userId - User ID owning the transaction
-   * @returns Promise<Transaction> - The archived transaction
-   * @throws BusinessError if transaction not found or doesn't belong to user
+   * @returns The archived transaction, or a failure reason
    */
-  async deleteTransaction(id: string, userId: string): Promise<Transaction> {
+  async deleteTransaction(
+    id: string,
+    userId: string,
+  ): Promise<Result<Transaction>> {
     // First verify the transaction exists and belongs to the user
     const existingTransaction = await this.transactionRepository.findOneById({
       id,
       userId,
     });
     if (!existingTransaction) {
-      throw new BusinessError(
-        "Transaction not found or doesn't belong to user",
-      );
+      return Failure("Transaction not found or doesn't belong to user");
     }
 
     // Check if transaction is already archived - if so, return it as-is
     if (existingTransaction.isArchived) {
-      return existingTransaction;
+      return Success(existingTransaction);
     }
 
     const account = await this.accountRepository.findOneWithArchivedById({
@@ -447,7 +473,7 @@ export class TransactionServiceImpl implements TransactionService {
     });
 
     if (!account) {
-      throw new BusinessError("Account not found");
+      return Failure("Account not found");
     }
 
     const transactionToArchive = existingTransaction.archive();
@@ -465,7 +491,7 @@ export class TransactionServiceImpl implements TransactionService {
       throw new Error("Atomic writer did not return the archived transaction");
     }
 
-    return archivedTransaction;
+    return Success(archivedTransaction);
   }
 
   /**
@@ -474,14 +500,14 @@ export class TransactionServiceImpl implements TransactionService {
    * @param type - Transaction type to analyze (INCOME, EXPENSE, REFUND)
    * @param limit - Maximum number of patterns to return
    * @param sampleSize - Number of transactions to analyze (default: 100)
-   * @returns Promise<EnrichedTransactionPattern[]> - Validated patterns with full account and category objects
+   * @returns Validated patterns with full account and category objects, or a failure reason
    */
   async getTransactionPatterns(
     userId: string,
     type: TransactionPatternType,
     limit?: number | null,
     sampleSize = 100,
-  ): Promise<EnrichedTransactionPattern[]> {
+  ): Promise<Result<EnrichedTransactionPattern[]>> {
     // Validate and normalize the limit parameter
     const validatedLimit = this.validateTransactionPatternsLimit(limit);
 
@@ -534,7 +560,7 @@ export class TransactionServiceImpl implements TransactionService {
       });
     }
 
-    return enrichedPatterns;
+    return Success(enrichedPatterns);
   }
 
   /**
@@ -543,19 +569,18 @@ export class TransactionServiceImpl implements TransactionService {
    * @param searchText - The search text to match against descriptions
    * @param limit - Maximum number of suggestions to return
    * @param sampleSize - Number of transactions to analyze for suggestions
-   * @returns Promise<string[]> - Descriptions ordered by frequency (most frequent first)
-   * @throws BusinessError if searchText is too short
+   * @returns Descriptions ordered by frequency (most frequent first), or a failure reason
    */
   async getDescriptionSuggestions(
     userId: string,
     searchText: string,
     limit?: number | null,
     sampleSize = DESCRIPTION_SUGGESTIONS_SAMPLE_SIZE,
-  ): Promise<string[]> {
+  ): Promise<Result<string[]>> {
     // Validate search text length
     const normalizedSearchText = searchText.trim();
     if (normalizedSearchText.length < MIN_SEARCH_TEXT_LENGTH) {
-      throw new BusinessError(
+      return Failure(
         `Search text must be at least ${MIN_SEARCH_TEXT_LENGTH} characters long`,
       );
     }
@@ -588,56 +613,34 @@ export class TransactionServiceImpl implements TransactionService {
     }
 
     // Sort descriptions by frequency (highest first) and return top N
-    return Array.from(descriptionFrequency.entries())
+    const suggestions = Array.from(descriptionFrequency.entries())
       .sort(([, frequencyA], [, frequencyB]) => frequencyB - frequencyA) // Sort by frequency descending
       .slice(0, validatedLimit) // Take top N
       .map(([description]) => description); // Extract just the description strings
+
+    return Success(suggestions);
   }
 
   /**
    * Validate that an account exists and belongs to the user
    * @param accountId - The account ID to validate
    * @param userId - The user ID to check ownership
-   * @returns Promise<Account> - The validated account
-   * @throws BusinessError if account not found or doesn't belong to user
+   * @returns The validated account, or a failure reason
    */
   private async validateAccount(
     accountId: string,
     userId: string,
-  ): Promise<Account> {
+  ): Promise<Result<Account>> {
     const account = await this.accountRepository.findOneById({
       id: accountId,
       userId,
     });
 
     if (!account) {
-      throw new BusinessError("Account not found or doesn't belong to user");
+      return Failure("Account not found or doesn't belong to user");
     }
 
-    return account;
-  }
-
-  private validatePagination(pagination?: PaginationInput): void {
-    if (
-      pagination?.first !== undefined &&
-      (pagination.first < MIN_PAGE_SIZE || pagination.first > MAX_PAGE_SIZE)
-    ) {
-      throw new BusinessError(
-        `Pagination first must be between ${MIN_PAGE_SIZE} and ${MAX_PAGE_SIZE}`,
-      );
-    }
-  }
-
-  private validateFilters(filters?: TransactionFilterInput): void {
-    if (
-      filters?.dateAfter &&
-      filters?.dateBefore &&
-      filters.dateAfter > filters.dateBefore
-    ) {
-      throw new BusinessError(
-        "Filter dateAfter cannot be later than dateBefore",
-      );
-    }
+    return Success(account);
   }
 
   /**
@@ -645,16 +648,15 @@ export class TransactionServiceImpl implements TransactionService {
    * @param categoryId - The category ID to validate (optional)
    * @param userId - The user ID to check ownership
    * @param transactionType - The transaction type to match against category type
-   * @returns Promise<Category | null> - The validated category or null if not provided
-   * @throws BusinessError if category not found, doesn't belong to user, or type mismatch
+   * @returns The validated category (or null if not provided), or a failure reason
    */
   private async validateCategory(
     categoryId: string | undefined | null,
     userId: string,
     transactionType: TransactionType,
-  ): Promise<Category | null> {
+  ): Promise<Result<Category | null>> {
     if (!categoryId) {
-      return null;
+      return Success(null);
     }
 
     const category = await this.categoryRepository.findOneById({
@@ -663,7 +665,7 @@ export class TransactionServiceImpl implements TransactionService {
     });
 
     if (!category) {
-      throw new BusinessError("Category not found or doesn't belong to user");
+      return Failure("Category not found or doesn't belong to user");
     }
 
     const typeMismatch =
@@ -673,12 +675,12 @@ export class TransactionServiceImpl implements TransactionService {
         transactionType !== "REFUND");
 
     if (typeMismatch) {
-      throw new BusinessError(
+      return Failure(
         `Category type "${category.type}" doesn't match transaction type "${transactionType}"`,
       );
     }
 
-    return category;
+    return Success(category);
   }
 
   /**

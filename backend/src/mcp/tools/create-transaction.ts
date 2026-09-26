@@ -34,9 +34,11 @@ export async function createTransaction(
   });
   if (!verification.success) return verification;
 
-  const created = await transactionService.createTransaction(input, userId);
+  const result = await transactionService.createTransaction(input, userId);
 
-  return Success(toTransactionDto(created));
+  if (!result.success) return result;
+
+  return Success(toTransactionDto(result.data));
 }
 
 const inputSchema = z.object({

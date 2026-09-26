@@ -4,6 +4,7 @@ import { toTransactionDto } from "../../langchain/tools/transaction-dto";
 import { TransactionType } from "../../models/transaction";
 import { TransactionService } from "../../services/transaction-service";
 import { toDateString } from "../../types/date-string";
+import { Success } from "../../types/result";
 import { fakeTransaction } from "../../utils/test-utils/models/transaction-fakes";
 import { createMockTransactionService } from "../../utils/test-utils/services/transaction-service-mocks";
 import { GUIDES } from "./guides";
@@ -26,7 +27,9 @@ describe("updateTransaction", () => {
   it("updates transaction and returns updated fields", async () => {
     // Arrange
     const updated = fakeTransaction();
-    mockTransactionService.updateTransaction.mockResolvedValue(updated);
+    mockTransactionService.updateTransaction.mockResolvedValue(
+      Success(updated),
+    );
 
     // Act
     const result = await updateTransaction(
@@ -63,7 +66,7 @@ describe("updateTransaction", () => {
     // Arrange
     const transactionId = faker.string.uuid();
     mockTransactionService.updateTransaction.mockResolvedValue(
-      fakeTransaction(),
+      Success(fakeTransaction()),
     );
 
     // Act
@@ -84,7 +87,7 @@ describe("updateTransaction", () => {
     // Arrange
     const transactionId = faker.string.uuid();
     mockTransactionService.updateTransaction.mockResolvedValue(
-      fakeTransaction(),
+      Success(fakeTransaction()),
     );
 
     // Act

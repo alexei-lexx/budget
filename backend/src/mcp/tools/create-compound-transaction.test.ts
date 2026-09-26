@@ -2,6 +2,7 @@ import { faker } from "@faker-js/faker";
 import { type Mocked, beforeEach, describe, expect, it } from "vitest";
 import { toTransactionDto } from "../../langchain/tools/transaction-dto";
 import { TransactionService } from "../../services/transaction-service";
+import { Success } from "../../types/result";
 import { fakeTransaction } from "../../utils/test-utils/models/transaction-fakes";
 import { fakeCreateCompoundTransactionServiceInput } from "../../utils/test-utils/services/transaction-service-fakes";
 import { createMockTransactionService } from "../../utils/test-utils/services/transaction-service-mocks";
@@ -32,7 +33,7 @@ describe("createCompoundTransaction", () => {
       fakeTransaction(),
     );
     mockTransactionService.createCompoundTransaction.mockResolvedValue(
-      createdTransactions,
+      Success(createdTransactions),
     );
 
     const input = fakeCreateCompoundTransactionServiceInput({}, legCount);

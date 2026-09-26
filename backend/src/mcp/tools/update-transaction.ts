@@ -61,9 +61,11 @@ export async function updateTransaction(
     ...(type !== undefined && { type }),
   };
 
-  const updated = await transactionService.updateTransaction(id, userId, input);
+  const result = await transactionService.updateTransaction(id, userId, input);
 
-  return Success(toTransactionDto(updated));
+  if (!result.success) return result;
+
+  return Success(toTransactionDto(result.data));
 }
 
 const inputSchema = z.object({
