@@ -1,6 +1,7 @@
 import { faker } from "@faker-js/faker";
 import { type Mocked, beforeEach, describe, expect, it } from "vitest";
 import { AccountService } from "../../services/account-service";
+import { Success } from "../../types/result";
 import { fakeAccount } from "../../utils/test-utils/models/account-fakes";
 import { createMockAccountService } from "../../utils/test-utils/services/account-service-mocks";
 import { getAccounts } from "./get-accounts";
@@ -22,7 +23,7 @@ describe("getAccounts", () => {
 
   it("scopes lookup to given userId and scope", async () => {
     // Arrange
-    mockAccountService.getAccountsByUser.mockResolvedValue([]);
+    mockAccountService.getAccountsByUser.mockResolvedValue(Success([]));
 
     // Act
     await getAccounts({ scope: "ALL", guideTokens: [validGuideToken] }, deps);
@@ -41,7 +42,7 @@ describe("getAccounts", () => {
       currency: "USD",
       isArchived: false,
     });
-    mockAccountService.getAccountsByUser.mockResolvedValue([account]);
+    mockAccountService.getAccountsByUser.mockResolvedValue(Success([account]));
 
     // Act
     const result = await getAccounts(

@@ -20,9 +20,11 @@ export const createGetAccountsTool = (accountService: AccountService) =>
       const userId = agentContextSchema.shape.userId.parse(
         config?.context?.userId,
       );
-      const accounts = await accountService.getAccountsByUser(userId, scope);
+      const result = await accountService.getAccountsByUser(userId, scope);
 
-      return Success(accounts.map(toAccountDto));
+      if (!result.success) return result;
+
+      return Success(result.data.map(toAccountDto));
     },
     {
       name: "get_accounts",

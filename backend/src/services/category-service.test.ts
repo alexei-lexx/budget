@@ -39,7 +39,7 @@ describe("CategoryService", () => {
       });
 
       // Assert
-      expect(result).toEqual(categories);
+      expect(result).toEqualSuccess(categories);
       expect(mockCategoryRepository.findManyByUserId).toHaveBeenCalledWith(
         userId,
         { type: undefined },
@@ -60,7 +60,7 @@ describe("CategoryService", () => {
       });
 
       // Assert
-      expect(result).toEqual(categories);
+      expect(result).toEqualSuccess(categories);
       expect(mockCategoryRepository.findManyByUserId).toHaveBeenCalledWith(
         userId,
         { type },
@@ -83,7 +83,7 @@ describe("CategoryService", () => {
       });
 
       // Assert
-      expect(result).toEqual(categories);
+      expect(result).toEqualSuccess(categories);
       expect(
         mockCategoryRepository.findManyWithArchivedByUserId,
       ).toHaveBeenCalledWith(userId);
@@ -105,7 +105,9 @@ describe("CategoryService", () => {
       });
 
       // Assert
-      expect(result).toEqual([categories[0]]);
+      expect(result).toEqualSuccess(
+        categories.filter((category) => category.isArchived),
+      );
       expect(
         mockCategoryRepository.findManyWithArchivedByUserId,
       ).toHaveBeenCalledWith(userId);
@@ -129,7 +131,9 @@ describe("CategoryService", () => {
       });
 
       // Assert
-      expect(result).toEqual([categories[0]]);
+      expect(result).toEqualSuccess(
+        categories.filter((category) => category.type === matchingType),
+      );
     });
   });
 

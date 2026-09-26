@@ -4,6 +4,7 @@ import { type Mocked, beforeEach, describe, expect, it } from "vitest";
 import { TransactionRepository } from "../../ports/transaction-repository";
 import { CategoryService } from "../../services/category-service";
 import { isDateString } from "../../types/date-string";
+import { Success } from "../../types/result";
 import { fakeCategory } from "../../utils/test-utils/models/category-fakes";
 import { fakeTransaction } from "../../utils/test-utils/models/transaction-fakes";
 import { createMockTransactionRepository } from "../../utils/test-utils/repositories/transaction-repository-mocks";
@@ -40,7 +41,7 @@ describe("createGetCategoriesTool", () => {
   it("calls category service with user id and scope", async () => {
     // Arrange
     // Service returns no categories
-    mockCategoryService.getCategoriesByUser.mockResolvedValue([]);
+    mockCategoryService.getCategoriesByUser.mockResolvedValue(Success([]));
 
     const categoriesTool = createGetCategoriesTool({
       categoryService: mockCategoryService,
@@ -74,7 +75,9 @@ describe("createGetCategoriesTool", () => {
       }),
     ];
     // Service returns two fully populated categories
-    mockCategoryService.getCategoriesByUser.mockResolvedValue(mockCategories);
+    mockCategoryService.getCategoriesByUser.mockResolvedValue(
+      Success(mockCategories),
+    );
     // No transactions to enrich keywords
     mockTransactionRepository.findManyByUserId.mockResolvedValue([]);
 
@@ -116,7 +119,7 @@ describe("createGetCategoriesTool", () => {
   it("returns empty array when user has no categories", async () => {
     // Arrange
     // Service returns no categories
-    mockCategoryService.getCategoriesByUser.mockResolvedValue([]);
+    mockCategoryService.getCategoriesByUser.mockResolvedValue(Success([]));
     // No transactions exist either
     mockTransactionRepository.findManyByUserId.mockResolvedValue([]);
 
@@ -160,7 +163,9 @@ describe("createGetCategoriesTool", () => {
       // Arrange
       const category = fakeCategory({ isArchived: false });
       // Service returns single active category
-      mockCategoryService.getCategoriesByUser.mockResolvedValue([category]);
+      mockCategoryService.getCategoriesByUser.mockResolvedValue(
+        Success([category]),
+      );
       // No transactions to enrich keywords
       mockTransactionRepository.findManyByUserId.mockResolvedValue([]);
 
@@ -191,7 +196,9 @@ describe("createGetCategoriesTool", () => {
       // Arrange
       const category = fakeCategory({ isArchived: false });
       // Service returns single active category
-      mockCategoryService.getCategoriesByUser.mockResolvedValue([category]);
+      mockCategoryService.getCategoriesByUser.mockResolvedValue(
+        Success([category]),
+      );
       // Transactions lack categoryId so cannot contribute keywords
       mockTransactionRepository.findManyByUserId.mockResolvedValue([
         fakeTransaction({
@@ -228,7 +235,9 @@ describe("createGetCategoriesTool", () => {
       // Arrange
       const category = fakeCategory({ isArchived: false });
       // Service returns single active category
-      mockCategoryService.getCategoriesByUser.mockResolvedValue([category]);
+      mockCategoryService.getCategoriesByUser.mockResolvedValue(
+        Success([category]),
+      );
       // Transactions lack description so cannot contribute keywords
       mockTransactionRepository.findManyByUserId.mockResolvedValue([
         fakeTransaction({ categoryId: category.id, description: undefined }),
@@ -264,9 +273,9 @@ describe("createGetCategoriesTool", () => {
       const archivedCategory = fakeCategory({ isArchived: true });
 
       // Service returns one active category (already scope-filtered)
-      mockCategoryService.getCategoriesByUser.mockResolvedValue([
-        activeCategory,
-      ]);
+      mockCategoryService.getCategoriesByUser.mockResolvedValue(
+        Success([activeCategory]),
+      );
       // Transaction tied to archived category should not enrich active scope result
       mockTransactionRepository.findManyByUserId.mockResolvedValue([
         fakeTransaction({
@@ -306,7 +315,9 @@ describe("createGetCategoriesTool", () => {
       // Arrange
       const category = fakeCategory({ isArchived: false });
       // Service returns single active category
-      mockCategoryService.getCategoriesByUser.mockResolvedValue([category]);
+      mockCategoryService.getCategoriesByUser.mockResolvedValue(
+        Success([category]),
+      );
 
       const transactions = Array.from(
         { length: CATEGORY_HISTORY_MAX_KEYWORDS_PER_CATEGORY + 5 },
@@ -373,10 +384,9 @@ describe("createGetCategoriesTool", () => {
       ];
 
       // Service returns two active categories
-      mockCategoryService.getCategoriesByUser.mockResolvedValue([
-        groceryCategory,
-        eatingOutCategory,
-      ]);
+      mockCategoryService.getCategoriesByUser.mockResolvedValue(
+        Success([groceryCategory, eatingOutCategory]),
+      );
       // Transactions interleave between both categories
       mockTransactionRepository.findManyByUserId.mockResolvedValue(
         transactions,
@@ -413,7 +423,9 @@ describe("createGetCategoriesTool", () => {
       // Arrange
       const category = fakeCategory({ isArchived: false });
       // Service returns single active category
-      mockCategoryService.getCategoriesByUser.mockResolvedValue([category]);
+      mockCategoryService.getCategoriesByUser.mockResolvedValue(
+        Success([category]),
+      );
 
       const transactions = [
         fakeTransaction({ categoryId: category.id, description: "ice cream" }),
@@ -453,7 +465,9 @@ describe("createGetCategoriesTool", () => {
       // Arrange
       const category = fakeCategory({ isArchived: false });
       // Service returns single active category
-      mockCategoryService.getCategoriesByUser.mockResolvedValue([category]);
+      mockCategoryService.getCategoriesByUser.mockResolvedValue(
+        Success([category]),
+      );
       // No transactions to enrich keywords
       mockTransactionRepository.findManyByUserId.mockResolvedValue([]);
 

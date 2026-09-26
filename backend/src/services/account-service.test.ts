@@ -40,7 +40,7 @@ describe("AccountService", () => {
       const result = await service.getAccountsByUser(userId, "ACTIVE");
 
       // Assert
-      expect(result).toEqual(accounts);
+      expect(result).toEqualSuccess(accounts);
       expect(mockAccountRepository.findManyByUserId).toHaveBeenCalledWith(
         userId,
       );
@@ -60,7 +60,7 @@ describe("AccountService", () => {
       const result = await service.getAccountsByUser(userId, "ALL");
 
       // Assert
-      expect(result).toEqual(accounts);
+      expect(result).toEqualSuccess(accounts);
       expect(
         mockAccountRepository.findManyWithArchivedByUserId,
       ).toHaveBeenCalledWith(userId);
@@ -80,7 +80,9 @@ describe("AccountService", () => {
       const result = await service.getAccountsByUser(userId, "ARCHIVED");
 
       // Assert
-      expect(result).toEqual([accounts[0]]);
+      expect(result).toEqualSuccess(
+        accounts.filter((account) => account.isArchived),
+      );
       expect(
         mockAccountRepository.findManyWithArchivedByUserId,
       ).toHaveBeenCalledWith(userId);

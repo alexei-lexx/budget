@@ -16,10 +16,19 @@ export const categoryResolvers = {
       context: GraphQLContext,
     ) => {
       const user = await getAuthenticatedUser(context);
-      return await context.categoryService.getCategoriesByUser(user.id, {
-        scope: "ACTIVE",
-        type: args.type ?? undefined,
-      });
+      const result = await context.categoryService.getCategoriesByUser(
+        user.id,
+        {
+          scope: "ACTIVE",
+          type: args.type ?? undefined,
+        },
+      );
+
+      if (!result.success) {
+        throw new GraphQLError(result.error);
+      }
+
+      return result.data;
     },
   },
   Mutation: {

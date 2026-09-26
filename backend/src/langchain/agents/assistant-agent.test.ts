@@ -2,6 +2,7 @@ import { faker } from "@faker-js/faker";
 import { AIMessage, ToolMessage, fakeModel } from "langchain";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ModelError } from "../../models/model-error";
+import { Success } from "../../types/result";
 import { createMockTransactionRepository } from "../../utils/test-utils/repositories/transaction-repository-mocks";
 import { createMockAccountService } from "../../utils/test-utils/services/account-service-mocks";
 import { createMockCategoryService } from "../../utils/test-utils/services/category-service-mocks";
@@ -85,7 +86,7 @@ describe("createAssistantAgent", () => {
     // Arrange
 
     // Returns empty account list for get_accounts tool
-    mockAccountService.getAccountsByUser.mockResolvedValue([]);
+    mockAccountService.getAccountsByUser.mockResolvedValue(Success([]));
 
     // Model calls get_accounts tool
     mockModel.respondWithTools([
