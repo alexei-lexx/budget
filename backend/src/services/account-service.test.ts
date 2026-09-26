@@ -40,7 +40,7 @@ describe("AccountService", () => {
       const result = await service.getAccountsByUser(userId, "ACTIVE");
 
       // Assert
-      expect(result).toEqualSuccess(accounts);
+      expect(result).toBeSuccess(accounts);
       expect(mockAccountRepository.findManyByUserId).toHaveBeenCalledWith(
         userId,
       );
@@ -60,7 +60,7 @@ describe("AccountService", () => {
       const result = await service.getAccountsByUser(userId, "ALL");
 
       // Assert
-      expect(result).toEqualSuccess(accounts);
+      expect(result).toBeSuccess(accounts);
       expect(
         mockAccountRepository.findManyWithArchivedByUserId,
       ).toHaveBeenCalledWith(userId);
@@ -80,7 +80,7 @@ describe("AccountService", () => {
       const result = await service.getAccountsByUser(userId, "ARCHIVED");
 
       // Assert
-      expect(result).toEqualSuccess(
+      expect(result).toBeSuccess(
         accounts.filter((account) => account.isArchived),
       );
       expect(
@@ -131,7 +131,7 @@ describe("AccountService", () => {
       const result = await service.createAccount(input);
 
       // Assert
-      expect(result).toEqualSuccess(
+      expect(result).toBeSuccess(
         expect.objectContaining({
           userId,
           name: input.name,
@@ -163,7 +163,7 @@ describe("AccountService", () => {
       const result = await service.createAccount(input);
 
       // Assert
-      expect(result).toEqualFailure(
+      expect(result).toBeFailure(
         `Account name must be between ${NAME_MIN_LENGTH} and ${NAME_MAX_LENGTH} characters`,
       );
       expect(mockAccountRepository.findManyByUserId).not.toHaveBeenCalled();
@@ -182,7 +182,7 @@ describe("AccountService", () => {
       const result = await service.createAccount(input);
 
       // Assert
-      expect(result).toEqualFailure('Account "savings" already exists');
+      expect(result).toBeFailure('Account "savings" already exists');
       expect(mockAccountRepository.create).not.toHaveBeenCalled();
     });
 
@@ -233,7 +233,7 @@ describe("AccountService", () => {
       });
 
       // Assert
-      expect(result).toEqualSuccess(
+      expect(result).toBeSuccess(
         expect.objectContaining({
           id: accountId,
           userId,
@@ -265,9 +265,7 @@ describe("AccountService", () => {
       });
 
       // Assert
-      expect(result).toEqualSuccess(
-        expect.objectContaining({ name: "Savings" }),
-      );
+      expect(result).toBeSuccess(expect.objectContaining({ name: "Savings" }));
       expect(mockAccountRepository.update).toHaveBeenCalled();
       // No duplicate-name lookup when the name does not change
       expect(mockAccountRepository.findManyByUserId).not.toHaveBeenCalled();
@@ -297,9 +295,7 @@ describe("AccountService", () => {
       });
 
       // Assert
-      expect(result).toEqualSuccess(
-        expect.objectContaining({ currency: "EUR" }),
-      );
+      expect(result).toBeSuccess(expect.objectContaining({ currency: "EUR" }));
       expect(mockAccountRepository.update).toHaveBeenCalledWith(
         expect.objectContaining({ currency: "EUR" }),
       );
@@ -320,7 +316,7 @@ describe("AccountService", () => {
       });
 
       // Assert
-      expect(result).toEqualFailure("Account not found");
+      expect(result).toBeFailure("Account not found");
       expect(mockAccountRepository.update).not.toHaveBeenCalled();
     });
 
@@ -336,7 +332,7 @@ describe("AccountService", () => {
       const result = await service.updateAccount(accountId, userId, input);
 
       // Assert
-      expect(result).toEqualFailure(
+      expect(result).toBeFailure(
         `Account name must be between ${NAME_MIN_LENGTH} and ${NAME_MAX_LENGTH} characters`,
       );
       expect(mockAccountRepository.update).not.toHaveBeenCalled();
@@ -358,7 +354,7 @@ describe("AccountService", () => {
       });
 
       // Assert
-      expect(result).toEqualFailure("Cannot update archived account");
+      expect(result).toBeFailure("Cannot update archived account");
       expect(mockAccountRepository.update).not.toHaveBeenCalled();
     });
 
@@ -385,7 +381,7 @@ describe("AccountService", () => {
       });
 
       // Assert
-      expect(result).toEqualFailure('Account "Savings" already exists');
+      expect(result).toBeFailure('Account "Savings" already exists');
       expect(mockAccountRepository.update).not.toHaveBeenCalled();
     });
 
@@ -410,7 +406,7 @@ describe("AccountService", () => {
       });
 
       // Assert
-      expect(result).toEqualFailure(
+      expect(result).toBeFailure(
         "Cannot change currency for account that has existing transactions. Please create a new account with the desired currency instead.",
       );
       expect(mockAccountRepository.update).not.toHaveBeenCalled();
@@ -461,9 +457,7 @@ describe("AccountService", () => {
       const result = await service.deleteAccount(accountId, userId);
 
       // Assert
-      expect(result).toEqualSuccess(
-        expect.objectContaining({ isArchived: true }),
-      );
+      expect(result).toBeSuccess(expect.objectContaining({ isArchived: true }));
       expect(mockAccountRepository.update).toHaveBeenCalledWith(
         expect.objectContaining({ id: accountId, isArchived: true }),
       );
@@ -481,7 +475,7 @@ describe("AccountService", () => {
       const result = await service.deleteAccount(accountId, userId);
 
       // Assert
-      expect(result).toEqualFailure("Account not found");
+      expect(result).toBeFailure("Account not found");
       expect(mockAccountRepository.update).not.toHaveBeenCalled();
     });
 
@@ -500,7 +494,7 @@ describe("AccountService", () => {
       const result = await service.deleteAccount(accountId, userId);
 
       // Assert
-      expect(result).toEqualFailure("Cannot archive archived account");
+      expect(result).toBeFailure("Cannot archive archived account");
       expect(mockAccountRepository.update).not.toHaveBeenCalled();
     });
 

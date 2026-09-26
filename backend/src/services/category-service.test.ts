@@ -38,7 +38,7 @@ describe("CategoryService", () => {
       });
 
       // Assert
-      expect(result).toEqualSuccess(categories);
+      expect(result).toBeSuccess(categories);
       expect(mockCategoryRepository.findManyByUserId).toHaveBeenCalledWith(
         userId,
         { type: undefined },
@@ -59,7 +59,7 @@ describe("CategoryService", () => {
       });
 
       // Assert
-      expect(result).toEqualSuccess(categories);
+      expect(result).toBeSuccess(categories);
       expect(mockCategoryRepository.findManyByUserId).toHaveBeenCalledWith(
         userId,
         { type },
@@ -82,7 +82,7 @@ describe("CategoryService", () => {
       });
 
       // Assert
-      expect(result).toEqualSuccess(categories);
+      expect(result).toBeSuccess(categories);
       expect(
         mockCategoryRepository.findManyWithArchivedByUserId,
       ).toHaveBeenCalledWith(userId);
@@ -104,7 +104,7 @@ describe("CategoryService", () => {
       });
 
       // Assert
-      expect(result).toEqualSuccess(
+      expect(result).toBeSuccess(
         categories.filter((category) => category.isArchived),
       );
       expect(
@@ -130,7 +130,7 @@ describe("CategoryService", () => {
       });
 
       // Assert
-      expect(result).toEqualSuccess(categories.slice(0, 1)); // Only the first category
+      expect(result).toBeSuccess(categories.slice(0, 1)); // Only the first category
     });
   });
 
@@ -145,7 +145,7 @@ describe("CategoryService", () => {
       const result = await service.createCategory(input);
 
       // Assert
-      expect(result).toEqualSuccess(
+      expect(result).toBeSuccess(
         expect.objectContaining({
           userId,
           name: input.name,
@@ -190,7 +190,7 @@ describe("CategoryService", () => {
       const result = await service.createCategory(input);
 
       // Assert
-      expect(result).toEqualFailure(
+      expect(result).toBeFailure(
         `Category name must be between ${NAME_MIN_LENGTH} and ${NAME_MAX_LENGTH} characters`,
       );
       expect(mockCategoryRepository.create).not.toHaveBeenCalled();
@@ -208,7 +208,7 @@ describe("CategoryService", () => {
       const result = await service.createCategory(input);
 
       // Assert
-      expect(result).toEqualFailure('Category "groceries" already exists');
+      expect(result).toBeFailure('Category "groceries" already exists');
       expect(mockCategoryRepository.create).not.toHaveBeenCalled();
     });
   });
@@ -238,7 +238,7 @@ describe("CategoryService", () => {
       });
 
       // Assert
-      expect(result).toEqualSuccess(
+      expect(result).toBeSuccess(
         expect.objectContaining({
           id: categoryId,
           userId,
@@ -296,7 +296,7 @@ describe("CategoryService", () => {
       });
 
       // Assert
-      expect(result).toEqualSuccess(
+      expect(result).toBeSuccess(
         expect.objectContaining({ name: "Groceries" }),
       );
       expect(mockCategoryRepository.update).toHaveBeenCalled();
@@ -318,7 +318,7 @@ describe("CategoryService", () => {
       });
 
       // Assert
-      expect(result).toEqualFailure("Category not found");
+      expect(result).toBeFailure("Category not found");
       expect(mockCategoryRepository.update).not.toHaveBeenCalled();
     });
 
@@ -334,7 +334,7 @@ describe("CategoryService", () => {
       const result = await service.updateCategory(categoryId, userId, input);
 
       // Assert
-      expect(result).toEqualFailure(
+      expect(result).toBeFailure(
         `Category name must be between ${NAME_MIN_LENGTH} and ${NAME_MAX_LENGTH} characters`,
       );
       expect(mockCategoryRepository.update).not.toHaveBeenCalled();
@@ -357,7 +357,7 @@ describe("CategoryService", () => {
       });
 
       // Assert
-      expect(result).toEqualFailure("Cannot update archived category");
+      expect(result).toBeFailure("Cannot update archived category");
       expect(mockCategoryRepository.update).not.toHaveBeenCalled();
     });
 
@@ -384,7 +384,7 @@ describe("CategoryService", () => {
       });
 
       // Assert
-      expect(result).toEqualFailure('Category "Groceries" already exists');
+      expect(result).toBeFailure('Category "Groceries" already exists');
       expect(mockCategoryRepository.update).not.toHaveBeenCalled();
     });
   });
@@ -410,9 +410,7 @@ describe("CategoryService", () => {
       const result = await service.deleteCategory(categoryId, userId);
 
       // Assert
-      expect(result).toEqualSuccess(
-        expect.objectContaining({ isArchived: true }),
-      );
+      expect(result).toBeSuccess(expect.objectContaining({ isArchived: true }));
       expect(mockCategoryRepository.update).toHaveBeenCalledWith(
         expect.objectContaining({ id: categoryId, isArchived: true }),
       );
@@ -430,7 +428,7 @@ describe("CategoryService", () => {
       const result = await service.deleteCategory(categoryId, userId);
 
       // Assert
-      expect(result).toEqualFailure("Category not found");
+      expect(result).toBeFailure("Category not found");
       expect(mockCategoryRepository.update).not.toHaveBeenCalled();
     });
 
@@ -450,7 +448,7 @@ describe("CategoryService", () => {
       const result = await service.deleteCategory(categoryId, userId);
 
       // Assert
-      expect(result).toEqualFailure("Cannot archive archived category");
+      expect(result).toBeFailure("Cannot archive archived category");
       expect(mockCategoryRepository.update).not.toHaveBeenCalled();
     });
   });

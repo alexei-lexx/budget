@@ -258,7 +258,7 @@ describe("AssistantChatService", () => {
       const result = await service.call(userId, input);
 
       // Assert
-      expect(result).toEqualFailure({
+      expect(result).toBeFailure({
         message: "Chat message content is required",
         agentTrace: [],
         sessionId,

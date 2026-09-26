@@ -675,7 +675,7 @@ describe("ExpenseTrendService", () => {
       });
 
       // Assert
-      expect(result).toEqualFailure(
+      expect(result).toBeFailure(
         "Lookback must be a whole number from 1 to 12",
       );
       expect(transactionRepository.findManyByUserId).not.toHaveBeenCalled();
@@ -692,7 +692,7 @@ describe("ExpenseTrendService", () => {
       });
 
       // Assert
-      expect(result).toEqualFailure(
+      expect(result).toBeFailure(
         "Lookback must be a whole number from 1 to 12",
       );
       expect(transactionRepository.findManyByUserId).not.toHaveBeenCalled();
@@ -709,7 +709,7 @@ describe("ExpenseTrendService", () => {
       });
 
       // Assert
-      expect(result).toEqualFailure(
+      expect(result).toBeFailure(
         "Lookback must be a whole number from 1 to 12",
       );
       expect(transactionRepository.findManyByUserId).not.toHaveBeenCalled();
@@ -726,7 +726,7 @@ describe("ExpenseTrendService", () => {
       });
 
       // Assert
-      expect(result).toEqualFailure("Currency must not be empty");
+      expect(result).toBeFailure("Currency must not be empty");
       expect(transactionRepository.findManyByUserId).not.toHaveBeenCalled();
     });
   });

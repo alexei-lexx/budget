@@ -51,7 +51,7 @@ describe("ProcessTelegramMessageService", () => {
       });
 
       // Assert
-      expect(result).toEqualSuccess(undefined);
+      expect(result).toBeSuccess(undefined);
       expect(mockTelegramApiClient.sendMessage).not.toHaveBeenCalled();
       expect(mockAssistantChatService.call).not.toHaveBeenCalled();
     });
@@ -72,7 +72,7 @@ describe("ProcessTelegramMessageService", () => {
       });
 
       // Assert
-      expect(result).toEqualSuccess(undefined);
+      expect(result).toBeSuccess(undefined);
       expect(mockTelegramApiClient.sendMessage).not.toHaveBeenCalled();
       expect(mockAssistantChatService.call).not.toHaveBeenCalled();
     });
@@ -98,7 +98,7 @@ describe("ProcessTelegramMessageService", () => {
       });
 
       // Assert
-      expect(result).toEqualSuccess(undefined);
+      expect(result).toBeSuccess(undefined);
       expect(mockTelegramApiClient.sendMessage).toHaveBeenCalledWith({
         chatId,
         text: "I can only process text messages",
@@ -134,7 +134,7 @@ describe("ProcessTelegramMessageService", () => {
       });
 
       // Assert
-      expect(result).toEqualSuccess(undefined);
+      expect(result).toBeSuccess(undefined);
       expect(mockAssistantChatService.call).toHaveBeenCalledWith(userId, {
         question: "How much did I spend?",
         sessionId,
@@ -176,7 +176,7 @@ describe("ProcessTelegramMessageService", () => {
       });
 
       // Assert
-      expect(result).toEqualSuccess(undefined);
+      expect(result).toBeSuccess(undefined);
       expect(mockTelegramApiClient.sendMessage).toHaveBeenCalledWith({
         token: bot.token,
         chatId,
@@ -213,7 +213,7 @@ describe("ProcessTelegramMessageService", () => {
       });
 
       // Assert
-      expect(result).toEqualFailure("Telegram API error");
+      expect(result).toBeFailure("Telegram API error");
     });
   });
 });

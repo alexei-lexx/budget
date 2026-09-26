@@ -48,7 +48,7 @@ describe("createUpdateAccountTool", () => {
     const result = await updateTool.invoke(input, { context: { userId } });
 
     // Assert
-    expect(result).toEqualSuccess(toAccountDto(updated));
+    expect(result).toBeSuccess(toAccountDto(updated));
 
     expect(mockAccountService.updateAccount).toHaveBeenCalledWith(
       accountId,
@@ -182,7 +182,7 @@ describe("createUpdateAccountTool", () => {
     const result = await updateTool.invoke(input, { context: { userId } });
 
     // Assert
-    expect(result).toEqualFailure(
+    expect(result).toBeFailure(
       "Cannot change currency for account that has existing transactions. Please create a new account with the desired currency instead.",
     );
   });

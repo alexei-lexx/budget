@@ -39,7 +39,7 @@ describe("UserService", () => {
       const result = await service.getSettings(userId);
 
       // Assert
-      expect(result).toEqualSuccess({
+      expect(result).toBeSuccess({
         interfaceLanguage: "de",
         mcpToken: "token-1",
         transactionPatternsLimit: 5,
@@ -78,7 +78,7 @@ describe("UserService", () => {
       const result = await service.getSettings("");
 
       // Assert
-      expect(result).toEqualFailure("User ID is required");
+      expect(result).toBeFailure("User ID is required");
       expect(mockUserRepository.findOneById).not.toHaveBeenCalled();
     });
 
@@ -92,7 +92,7 @@ describe("UserService", () => {
       const result = await service.getSettings(userId);
 
       // Assert
-      expect(result).toEqualFailure("User not found");
+      expect(result).toBeFailure("User not found");
       expect(mockUserRepository.findOneById).toHaveBeenCalledWith(userId);
     });
   });
@@ -109,7 +109,7 @@ describe("UserService", () => {
       const result = await service.ensureUser("user@example.com");
 
       // Assert
-      expect(result).toEqualSuccess(user);
+      expect(result).toBeSuccess(user);
       expect(mockUserRepository.findOneByEmail).toHaveBeenCalledWith(
         "user@example.com",
       );
@@ -125,7 +125,7 @@ describe("UserService", () => {
       const result = await service.ensureUser("new@example.com");
 
       // Assert
-      expect(result).toEqualSuccess(
+      expect(result).toBeSuccess(
         expect.objectContaining({
           email: "new@example.com",
         }),
@@ -159,7 +159,7 @@ describe("UserService", () => {
       });
 
       // Assert
-      expect(result).toEqualSuccess({
+      expect(result).toBeSuccess({
         interfaceLanguage: "de",
         mcpToken: "token-1",
         transactionPatternsLimit: DEFAULT_TRANSACTION_PATTERNS_LIMIT,
@@ -186,7 +186,7 @@ describe("UserService", () => {
       });
 
       // Assert
-      expect(result).toEqualSuccess({
+      expect(result).toBeSuccess({
         interfaceLanguage: "en",
         mcpToken: "token-1",
         transactionPatternsLimit: DEFAULT_TRANSACTION_PATTERNS_LIMIT,
@@ -213,7 +213,7 @@ describe("UserService", () => {
       });
 
       // Assert
-      expect(result).toEqualSuccess({
+      expect(result).toBeSuccess({
         interfaceLanguage: "en",
         mcpToken: "token-1",
         transactionPatternsLimit: 7,
@@ -242,7 +242,7 @@ describe("UserService", () => {
       });
 
       // Assert
-      expect(result).toEqualSuccess({
+      expect(result).toBeSuccess({
         interfaceLanguage: "de",
         mcpToken: "token-1",
         transactionPatternsLimit: 5,
@@ -268,7 +268,7 @@ describe("UserService", () => {
       });
 
       // Assert
-      expect(result).toEqualFailure("User ID is required");
+      expect(result).toBeFailure("User ID is required");
       expect(mockUserRepository.findOneById).not.toHaveBeenCalled();
       expect(mockUserRepository.update).not.toHaveBeenCalled();
     });
@@ -284,7 +284,7 @@ describe("UserService", () => {
       });
 
       // Assert
-      expect(result).toEqualFailure("User not found");
+      expect(result).toBeFailure("User not found");
       expect(mockUserRepository.update).not.toHaveBeenCalled();
     });
 
@@ -296,7 +296,7 @@ describe("UserService", () => {
       });
 
       // Assert
-      expect(result).toEqualFailure("Unsupported interface language: fr");
+      expect(result).toBeFailure("Unsupported interface language: fr");
       expect(mockUserRepository.findOneById).not.toHaveBeenCalled();
       expect(mockUserRepository.update).not.toHaveBeenCalled();
     });
@@ -309,7 +309,7 @@ describe("UserService", () => {
       });
 
       // Assert
-      expect(result).toEqualFailure(
+      expect(result).toBeFailure(
         `Transaction patterns limit must be an integer between ${MIN_TRANSACTION_PATTERNS_LIMIT} and ${MAX_TRANSACTION_PATTERNS_LIMIT}`,
       );
       expect(mockUserRepository.findOneById).not.toHaveBeenCalled();
@@ -324,7 +324,7 @@ describe("UserService", () => {
       });
 
       // Assert
-      expect(result).toEqualFailure(
+      expect(result).toBeFailure(
         `Transaction patterns limit must be an integer between ${MIN_TRANSACTION_PATTERNS_LIMIT} and ${MAX_TRANSACTION_PATTERNS_LIMIT}`,
       );
       expect(mockUserRepository.findOneById).not.toHaveBeenCalled();
@@ -339,7 +339,7 @@ describe("UserService", () => {
       });
 
       // Assert
-      expect(result).toEqualFailure(
+      expect(result).toBeFailure(
         `Transaction patterns limit must be an integer between ${MIN_TRANSACTION_PATTERNS_LIMIT} and ${MAX_TRANSACTION_PATTERNS_LIMIT}`,
       );
       expect(mockUserRepository.findOneById).not.toHaveBeenCalled();
@@ -383,7 +383,7 @@ describe("UserService", () => {
 
       // Assert
       const updatedUser = mockUserRepository.update.mock.calls[0]?.[0];
-      expect(result).toEqualSuccess(
+      expect(result).toBeSuccess(
         expect.objectContaining({
           mcpToken: updatedUser?.mcpToken,
         }),
@@ -400,7 +400,7 @@ describe("UserService", () => {
       const result = await service.regenerateMcpToken(faker.string.uuid());
 
       // Assert
-      expect(result).toEqualFailure("User not found");
+      expect(result).toBeFailure("User not found");
       expect(mockUserRepository.update).not.toHaveBeenCalled();
     });
   });

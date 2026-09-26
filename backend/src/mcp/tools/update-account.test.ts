@@ -43,7 +43,7 @@ describe("updateAccount", () => {
     );
 
     // Assert
-    expect(result).toEqualSuccess({
+    expect(result).toBeSuccess({
       id: updated.id,
       name: "Renamed Account",
       currency: "EUR",
@@ -86,7 +86,7 @@ describe("updateAccount", () => {
     );
 
     // Assert
-    expect(result).toEqualFailure(
+    expect(result).toBeFailure(
       "Missing or invalid guide token for: basics. Reload the guide(s) and retry",
     );
     expect(mockAccountService.updateAccount).not.toHaveBeenCalled();
@@ -100,7 +100,7 @@ describe("updateAccount", () => {
     );
 
     // Assert
-    expect(result).toEqualFailure(expect.not.stringContaining(validGuideToken));
+    expect(result).toBeFailure(expect.not.stringContaining(validGuideToken));
   });
 
   // Dependency failures
@@ -123,7 +123,7 @@ describe("updateAccount", () => {
     );
 
     // Assert
-    expect(result).toEqualFailure("Account not found");
+    expect(result).toBeFailure("Account not found");
   });
 
   it("propagates error when service throws", async () => {

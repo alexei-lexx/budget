@@ -51,7 +51,7 @@ describe("getAccounts", () => {
     );
 
     // Assert
-    expect(result).toEqualSuccess([
+    expect(result).toBeSuccess([
       {
         id: account.id,
         name: "Checking Account",
@@ -68,7 +68,7 @@ describe("getAccounts", () => {
     const result = await getAccounts({ scope: "ALL", guideTokens: [] }, deps);
 
     // Assert
-    expect(result).toEqualFailure(
+    expect(result).toBeFailure(
       "Missing or invalid guide token for: basics. Reload the guide(s) and retry",
     );
     expect(mockAccountService.getAccountsByUser).not.toHaveBeenCalled();
@@ -79,7 +79,7 @@ describe("getAccounts", () => {
     const result = await getAccounts({ scope: "ALL", guideTokens: [] }, deps);
 
     // Assert
-    expect(result).toEqualFailure(expect.not.stringContaining(validGuideToken));
+    expect(result).toBeFailure(expect.not.stringContaining(validGuideToken));
   });
 
   // Dependency failures

@@ -48,7 +48,7 @@ describe("ByCategoryReportService", () => {
       const result = await reportService.call(userId, 2000, 1, "EXPENSE");
 
       // Assert
-      expect(result).toEqualSuccess({
+      expect(result).toBeSuccess({
         year: 2000,
         month: 1,
         type: TransactionType.EXPENSE,
@@ -94,7 +94,7 @@ describe("ByCategoryReportService", () => {
 
       // Assert
       // topTransactions and totalTransactionCount populated per category
-      expect(result).toEqualSuccess(
+      expect(result).toBeSuccess(
         expect.objectContaining({
           categories: [
             expect.objectContaining({
@@ -145,7 +145,7 @@ describe("ByCategoryReportService", () => {
 
       // Assert
       // Top 5 transactions only, sorted by amount descending
-      expect(result).toEqualSuccess(
+      expect(result).toBeSuccess(
         expect.objectContaining({
           categories: [
             expect.objectContaining({
@@ -179,7 +179,7 @@ describe("ByCategoryReportService", () => {
       const result = await reportService.call(userId, 2000, 1, "EXPENSE");
 
       // Assert
-      expect(result).toEqualSuccess(
+      expect(result).toBeSuccess(
         expect.objectContaining({
           currencyTotals: [
             { currency: "EUR", totalAmount: 150 },
@@ -216,7 +216,7 @@ describe("ByCategoryReportService", () => {
 
       // Assert
       // Categories sorted alphabetically: Food, Uncategorized
-      expect(result).toEqualSuccess(
+      expect(result).toBeSuccess(
         expect.objectContaining({
           categories: [
             expect.objectContaining({
@@ -255,7 +255,7 @@ describe("ByCategoryReportService", () => {
       const result = await reportService.call(userId, 2000, 1, "EXPENSE");
 
       // Assert
-      expect(result).toEqualSuccess(
+      expect(result).toBeSuccess(
         expect.objectContaining({
           categories: [
             expect.objectContaining({
@@ -291,7 +291,7 @@ describe("ByCategoryReportService", () => {
       const result = await reportService.call(userId, 2000, 1, "EXPENSE");
 
       // Assert
-      expect(result).toEqualSuccess(
+      expect(result).toBeSuccess(
         expect.objectContaining({
           categories: [
             expect.objectContaining({ categoryName: "Uncategorized" }),
@@ -334,7 +334,7 @@ describe("ByCategoryReportService", () => {
       const result = await reportService.call(userId, 2000, 1, "EXPENSE");
 
       // Assert
-      expect(result).toEqualSuccess(
+      expect(result).toBeSuccess(
         expect.objectContaining({
           categories: [
             expect.objectContaining({ categoryName: "Apple" }),
@@ -365,7 +365,7 @@ describe("ByCategoryReportService", () => {
       const result = await reportService.call(userId, 2000, 1, "EXPENSE");
 
       // Assert
-      expect(result).toEqualSuccess(
+      expect(result).toBeSuccess(
         expect.objectContaining({
           currencyTotals: [
             expect.objectContaining({ currency: "EUR" }),
@@ -408,7 +408,7 @@ describe("ByCategoryReportService", () => {
       const result = await reportService.call(userId, 2000, 1, "EXPENSE");
 
       // Assert
-      expect(result).toEqualSuccess(
+      expect(result).toBeSuccess(
         expect.objectContaining({
           categories: [
             expect.objectContaining({
@@ -450,7 +450,7 @@ describe("ByCategoryReportService", () => {
       const result = await reportService.call(userId, 2025, 11, "EXPENSE");
 
       // Assert
-      expect(result).toEqualSuccess(
+      expect(result).toBeSuccess(
         expect.objectContaining({
           categories: [
             expect.objectContaining({
@@ -487,7 +487,7 @@ describe("ByCategoryReportService", () => {
       const result = await reportService.call(userId, 2025, 11, "EXPENSE");
 
       // Assert
-      expect(result).toEqualSuccess(
+      expect(result).toBeSuccess(
         expect.objectContaining({
           categories: [
             expect.objectContaining({
@@ -524,7 +524,7 @@ describe("ByCategoryReportService", () => {
       const result = await reportService.call(userId, 2025, 11, "INCOME");
 
       // Assert
-      expect(result).toEqualSuccess(
+      expect(result).toBeSuccess(
         expect.objectContaining({
           categories: [
             expect.objectContaining({
@@ -586,7 +586,7 @@ describe("ByCategoryReportService", () => {
 
       // Assert
       // Currency breakdowns sorted alphabetically: EUR, USD
-      expect(result).toEqualSuccess(
+      expect(result).toBeSuccess(
         expect.objectContaining({
           categories: [
             expect.objectContaining({
@@ -629,7 +629,7 @@ describe("ByCategoryReportService", () => {
       const result = await reportService.call(userId, 2025, 11, "EXPENSE");
 
       // Assert
-      expect(result).toEqualSuccess(
+      expect(result).toBeSuccess(
         expect.objectContaining({
           categories: [
             expect.objectContaining({
@@ -693,7 +693,7 @@ describe("ByCategoryReportService", () => {
 
       // Assert
       // Categories sorted alphabetically: Groceries, Uncategorized
-      expect(result).toEqualSuccess(
+      expect(result).toBeSuccess(
         expect.objectContaining({
           currencyTotals: [
             expect.objectContaining({ totalAmount: 300 }), // 100 + 200, excluding 500
@@ -721,7 +721,7 @@ describe("ByCategoryReportService", () => {
           month,
           "EXPENSE",
         );
-        expect(result).toEqualSuccess();
+        expect(result).toBeSuccess();
       }
     });
 
@@ -732,7 +732,7 @@ describe("ByCategoryReportService", () => {
       const result = await reportService.call(userId, 2000.5, 1, "EXPENSE");
 
       // Assert
-      expect(result).toEqualFailure("Year must be a valid integer");
+      expect(result).toBeFailure("Year must be a valid integer");
     });
 
     it("fails when year < 1000", async () => {
@@ -743,7 +743,7 @@ describe("ByCategoryReportService", () => {
       const result = await reportService.call(userId, 999, 1, "EXPENSE");
 
       // Assert
-      expect(result).toEqualFailure("Year must be a valid integer");
+      expect(result).toBeFailure("Year must be a valid integer");
     });
 
     it("fails when year > 9999", async () => {
@@ -754,7 +754,7 @@ describe("ByCategoryReportService", () => {
       const result = await reportService.call(userId, 10000, 1, "EXPENSE");
 
       // Assert
-      expect(result).toEqualFailure("Year must be a valid integer");
+      expect(result).toBeFailure("Year must be a valid integer");
     });
 
     it("fails when month is out of range or fractional", async () => {
@@ -770,7 +770,7 @@ describe("ByCategoryReportService", () => {
           invalidMonth,
           "EXPENSE",
         );
-        expect(result).toEqualFailure(
+        expect(result).toBeFailure(
           "Month must be a valid integer between 1 and 12",
         );
       }
@@ -786,7 +786,7 @@ describe("ByCategoryReportService", () => {
       );
 
       // Assert
-      expect(result).toEqualFailure("Invalid report type");
+      expect(result).toBeFailure("Invalid report type");
     });
 
     describe("when month is undefined", () => {
@@ -825,7 +825,7 @@ describe("ByCategoryReportService", () => {
         );
 
         // Assert
-        expect(result).toEqualSuccess(
+        expect(result).toBeSuccess(
           expect.objectContaining({ month: undefined, year: 2000 }),
         );
       });
@@ -859,7 +859,7 @@ describe("ByCategoryReportService", () => {
         );
 
         // Assert
-        expect(result).toEqualSuccess(
+        expect(result).toBeSuccess(
           expect.objectContaining({
             currencyTotals: [{ currency: "EUR", totalAmount: 300 }],
           }),

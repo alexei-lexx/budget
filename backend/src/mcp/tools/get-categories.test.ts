@@ -53,7 +53,7 @@ describe("getCategories", () => {
     );
 
     // Assert
-    expect(result).toEqualSuccess([
+    expect(result).toBeSuccess([
       {
         id: category.id,
         name: "Groceries",
@@ -71,7 +71,7 @@ describe("getCategories", () => {
     const result = await getCategories({ scope: "ALL", guideTokens: [] }, deps);
 
     // Assert
-    expect(result).toEqualFailure(
+    expect(result).toBeFailure(
       "Missing or invalid guide token for: basics. Reload the guide(s) and retry",
     );
     expect(mockCategoryService.getCategoriesByUser).not.toHaveBeenCalled();
@@ -82,7 +82,7 @@ describe("getCategories", () => {
     const result = await getCategories({ scope: "ALL", guideTokens: [] }, deps);
 
     // Assert
-    expect(result).toEqualFailure(expect.not.stringContaining(validGuideToken));
+    expect(result).toBeFailure(expect.not.stringContaining(validGuideToken));
   });
 
   // Dependency failures

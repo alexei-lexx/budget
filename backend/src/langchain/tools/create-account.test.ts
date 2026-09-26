@@ -51,7 +51,7 @@ describe("createCreateAccountTool", () => {
     const result = await createTool.invoke(input, { context: { userId } });
 
     // Assert
-    expect(result).toEqualSuccess({
+    expect(result).toBeSuccess({
       ...toAccountDto(created),
       initialBalance: 0,
     });
@@ -135,6 +135,6 @@ describe("createCreateAccountTool", () => {
     const result = await createTool.invoke(input, { context: { userId } });
 
     // Assert
-    expect(result).toEqualFailure('Account "Savings" already exists');
+    expect(result).toBeFailure('Account "Savings" already exists');
   });
 });
