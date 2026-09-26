@@ -316,10 +316,9 @@ describe("TransactionService", () => {
       );
 
       // Assert
-      expect(result).toEqualSuccess();
-      const enrichedPatterns = result.success ? result.data : [];
-      expect(enrichedPatterns).toHaveLength(1);
-      expect(enrichedPatterns[0]?.accountId).toBe("account-1");
+      expect(result).toEqualSuccess([
+        expect.objectContaining({ accountId: "account-1" }),
+      ]);
     });
 
     it("filters out patterns with deleted categories", async () => {
@@ -374,10 +373,9 @@ describe("TransactionService", () => {
       );
 
       // Assert
-      expect(result).toEqualSuccess();
-      const enrichedPatterns = result.success ? result.data : [];
-      expect(enrichedPatterns).toHaveLength(1);
-      expect(enrichedPatterns[0]?.categoryId).toBe("category-1");
+      expect(result).toEqualSuccess([
+        expect.objectContaining({ categoryId: "category-1" }),
+      ]);
     });
 
     it("filters out patterns with mismatched category types", async () => {
@@ -439,10 +437,9 @@ describe("TransactionService", () => {
       );
 
       // Assert
-      expect(result).toEqualSuccess();
-      const enrichedPatterns = result.success ? result.data : [];
-      expect(enrichedPatterns).toHaveLength(1);
-      expect(enrichedPatterns[0]?.categoryId).toBe("category-income");
+      expect(result).toEqualSuccess([
+        expect.objectContaining({ categoryId: "category-income" }),
+      ]);
     });
 
     it("returns empty array when all patterns are invalid", async () => {
