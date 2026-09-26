@@ -1,7 +1,7 @@
 import { faker } from "@faker-js/faker";
 import { AIMessage, ToolMessage, fakeModel } from "langchain";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { BusinessError } from "../../services/business-error";
+import { ModelError } from "../../models/model-error";
 import { createMockTransactionRepository } from "../../utils/test-utils/repositories/transaction-repository-mocks";
 import { createMockAccountService } from "../../utils/test-utils/services/account-service-mocks";
 import { createMockCategoryService } from "../../utils/test-utils/services/category-service-mocks";
@@ -115,11 +115,11 @@ describe("createAssistantAgent", () => {
 
   // Dependency failures
 
-  it("exposes original error when tool fails with business error", async () => {
+  it("exposes original error when tool fails with user-facing error", async () => {
     // Arrange
-    // Fails due to business rule violation
+    // Fails due to domain invariant violation
     mockAccountService.getAccountsByUser.mockRejectedValue(
-      new BusinessError("Accounts are temporarily unavailable"),
+      new ModelError("Accounts are temporarily unavailable"),
     );
 
     // Model calls get_accounts tool, then emits final text after tool result

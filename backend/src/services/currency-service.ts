@@ -1,8 +1,9 @@
 import { AccountRepository } from "../ports/account-repository";
 import { SUPPORTED_CURRENCIES } from "../types/currency";
+import { Result, Success } from "../types/result";
 
 export interface CurrencyService {
-  getSupportedCurrencies(params: { userId: string }): Promise<string[]>;
+  getSupportedCurrencies(params: { userId: string }): Promise<Result<string[]>>;
 }
 
 export class CurrencyServiceImpl implements CurrencyService {
@@ -12,7 +13,7 @@ export class CurrencyServiceImpl implements CurrencyService {
     userId,
   }: {
     userId: string;
-  }): Promise<string[]> {
+  }): Promise<Result<string[]>> {
     const accounts = await this.accountRepository.findManyByUserId(userId);
 
     const userCurrencies = [
@@ -24,6 +25,6 @@ export class CurrencyServiceImpl implements CurrencyService {
       (code) => !userCurrencySet.has(code),
     );
 
-    return [...userCurrencies, ...tail];
+    return Success([...userCurrencies, ...tail]);
   }
 }

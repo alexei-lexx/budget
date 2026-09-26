@@ -27,9 +27,15 @@ export const accountResolvers = {
       context: GraphQLContext,
     ) => {
       const user = await getAuthenticatedUser(context);
-      return await context.currencyService.getSupportedCurrencies({
+      const result = await context.currencyService.getSupportedCurrencies({
         userId: user.id,
       });
+
+      if (!result.success) {
+        throw new GraphQLError(result.error);
+      }
+
+      return result.data;
     },
   },
   Mutation: {

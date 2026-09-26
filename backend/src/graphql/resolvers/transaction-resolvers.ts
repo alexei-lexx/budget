@@ -42,25 +42,29 @@ export const transactionResolvers = {
       const { filters, pagination } = args;
       const user = await getAuthenticatedUser(context);
 
-      const transactionConnection =
-        await context.transactionService.getTransactionsByUser(
-          user.id,
-          (pagination ?? undefined) && {
-            ...pagination,
-            first: pagination?.first ?? undefined,
-            after: pagination?.after ?? undefined,
-          },
-          (filters ?? undefined) && {
-            ...filters,
-            accountIds: filters?.accountIds ?? undefined,
-            categoryIds: filters?.categoryIds ?? undefined,
-            dateAfter: toDateStringOrUndefined(filters?.dateAfter),
-            dateBefore: toDateStringOrUndefined(filters?.dateBefore),
-            includeUncategorized: filters?.includeUncategorized || undefined,
-            types: filters?.types ?? undefined,
-          },
-        );
-      return transactionConnection;
+      const result = await context.transactionService.getTransactionsByUser(
+        user.id,
+        (pagination ?? undefined) && {
+          ...pagination,
+          first: pagination?.first ?? undefined,
+          after: pagination?.after ?? undefined,
+        },
+        (filters ?? undefined) && {
+          ...filters,
+          accountIds: filters?.accountIds ?? undefined,
+          categoryIds: filters?.categoryIds ?? undefined,
+          dateAfter: toDateStringOrUndefined(filters?.dateAfter),
+          dateBefore: toDateStringOrUndefined(filters?.dateBefore),
+          includeUncategorized: filters?.includeUncategorized || undefined,
+          types: filters?.types ?? undefined,
+        },
+      );
+
+      if (!result.success) {
+        throw new GraphQLError(result.error);
+      }
+
+      return result.data;
     },
     transactionPatterns: async (
       _parent: unknown,
@@ -69,13 +73,17 @@ export const transactionResolvers = {
     ) => {
       const user = await getAuthenticatedUser(context);
 
-      const patterns = await context.transactionService.getTransactionPatterns(
+      const result = await context.transactionService.getTransactionPatterns(
         user.id,
         args.type,
         user.transactionPatternsLimit,
       );
 
-      return patterns;
+      if (!result.success) {
+        throw new GraphQLError(result.error);
+      }
+
+      return result.data;
     },
     transactionDescriptionSuggestions: async (
       _parent: unknown,
@@ -91,13 +99,16 @@ export const transactionResolvers = {
 
       const user = await getAuthenticatedUser(context);
 
-      const suggestions =
-        await context.transactionService.getDescriptionSuggestions(
-          user.id,
-          searchText,
-        );
+      const result = await context.transactionService.getDescriptionSuggestions(
+        user.id,
+        searchText,
+      );
 
-      return suggestions;
+      if (!result.success) {
+        throw new GraphQLError(result.error);
+      }
+
+      return result.data;
     },
   },
   Mutation: {
@@ -109,7 +120,7 @@ export const transactionResolvers = {
       const { type, ...rest } = args.input;
       const user = await getAuthenticatedUser(context);
 
-      const transaction = await context.transactionService.createTransaction(
+      const result = await context.transactionService.createTransaction(
         {
           ...rest,
           categoryId: rest.categoryId ?? undefined,
@@ -119,7 +130,12 @@ export const transactionResolvers = {
         },
         user.id,
       );
-      return transaction;
+
+      if (!result.success) {
+        throw new GraphQLError(result.error);
+      }
+
+      return result.data;
     },
     updateTransaction: async (
       _parent: unknown,
@@ -129,7 +145,7 @@ export const transactionResolvers = {
       const { id, type, ...rest } = args.input;
       const user = await getAuthenticatedUser(context);
 
-      const transaction = await context.transactionService.updateTransaction(
+      const result = await context.transactionService.updateTransaction(
         id,
         user.id,
         {
@@ -145,7 +161,12 @@ export const transactionResolvers = {
               : undefined,
         },
       );
-      return transaction;
+
+      if (!result.success) {
+        throw new GraphQLError(result.error);
+      }
+
+      return result.data;
     },
     deleteTransaction: async (
       _parent: unknown,
@@ -160,11 +181,16 @@ export const transactionResolvers = {
       }
 
       const user = await getAuthenticatedUser(context);
-      const transaction = await context.transactionService.deleteTransaction(
+      const result = await context.transactionService.deleteTransaction(
         id,
         user.id,
       );
-      return transaction;
+
+      if (!result.success) {
+        throw new GraphQLError(result.error);
+      }
+
+      return result.data;
     },
   },
   /**

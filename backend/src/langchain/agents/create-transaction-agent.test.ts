@@ -2,8 +2,8 @@ import { faker } from "@faker-js/faker";
 import { AIMessage, ToolMessage, fakeModel } from "langchain";
 import { type Mocked, beforeEach, describe, expect, it, vi } from "vitest";
 import { TransactionType } from "../../models/transaction";
-import { BusinessError } from "../../services/business-error";
 import { TransactionService } from "../../services/transaction-service";
+import { Failure, Success } from "../../types/result";
 import { fakeTransaction } from "../../utils/test-utils/models/transaction-fakes";
 import { createMockTransactionRepository } from "../../utils/test-utils/repositories/transaction-repository-mocks";
 import { createMockAccountService } from "../../utils/test-utils/services/account-service-mocks";
@@ -50,7 +50,7 @@ describe("createCreateTransactionAgent", () => {
 
     // Persists and returns created transaction
     mockTransactionService.createTransaction.mockResolvedValue(
-      createdTransaction,
+      Success(createdTransaction),
     );
 
     // Model calls create_transaction tool
@@ -148,7 +148,7 @@ describe("createCreateTransactionAgent", () => {
 
     // Persists and returns created transaction for first allowed call
     mockTransactionService.createTransaction.mockResolvedValue(
-      createdTransaction,
+      Success(createdTransaction),
     );
 
     // Model requests two create_transaction calls in one turn
@@ -180,7 +180,7 @@ describe("createCreateTransactionAgent", () => {
 
   // Dependency failures
 
-  it("exposes original error when tool fails with business error", async () => {
+  it("exposes original error when tool reports business failure", async () => {
     // Arrange
     const toolCall = {
       name: CREATE_TRANSACTION_TOOL_NAME,
@@ -193,8 +193,8 @@ describe("createCreateTransactionAgent", () => {
     };
 
     // Fails due to business rule violation
-    mockTransactionService.createTransaction.mockRejectedValue(
-      new BusinessError("Account not found"),
+    mockTransactionService.createTransaction.mockResolvedValue(
+      Failure("Account not found"),
     );
 
     // Model calls create_transaction tool,
@@ -212,7 +212,7 @@ describe("createCreateTransactionAgent", () => {
         message instanceof ToolMessage &&
         message.name === CREATE_TRANSACTION_TOOL_NAME,
     );
-    expect(toolMessage?.content).toBe("Account not found");
+    expect(toolMessage?.content).toContain("Account not found");
     expect(mockTransactionService.createTransaction).toHaveBeenCalledTimes(1);
   });
 

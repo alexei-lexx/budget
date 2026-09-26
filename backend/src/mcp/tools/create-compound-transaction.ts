@@ -34,12 +34,14 @@ export async function createCompoundTransaction(
   });
   if (!verification.success) return verification;
 
-  const created = await transactionService.createCompoundTransaction(
+  const result = await transactionService.createCompoundTransaction(
     input,
     userId,
   );
 
-  return Success(created.map(toTransactionDto));
+  if (!result.success) return result;
+
+  return Success(result.data.map(toTransactionDto));
 }
 
 const inputSchema = z.object({

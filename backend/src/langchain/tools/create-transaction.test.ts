@@ -2,6 +2,7 @@ import { faker } from "@faker-js/faker";
 import { type Mocked, beforeEach, describe, expect, it, vi } from "vitest";
 import { TransactionService } from "../../services/transaction-service";
 import { toDateString } from "../../types/date-string";
+import { Success } from "../../types/result";
 import { fakeTransaction } from "../../utils/test-utils/models/transaction-fakes";
 import {
   CREATE_TRANSACTION_TOOL_NAME,
@@ -46,7 +47,9 @@ describe("createCreateTransactionTool", () => {
 
   it("calls createTransaction with correct input and returns created transaction", async () => {
     const created = fakeTransaction();
-    mockTransactionService.createTransaction.mockResolvedValue(created);
+    mockTransactionService.createTransaction.mockResolvedValue(
+      Success(created),
+    );
 
     const createTool = createCreateTransactionTool({
       transactionService: mockTransactionService,

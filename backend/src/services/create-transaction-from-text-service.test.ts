@@ -2,6 +2,7 @@ import { faker } from "@faker-js/faker";
 import { type Mocked, beforeEach, describe, expect, it, vi } from "vitest";
 import { CREATE_TRANSACTION_TOOL_NAME } from "../langchain/tools/create-transaction";
 import { Agent, AgentTraceMessage } from "../ports/agent-types";
+import { Failure, Success } from "../types/result";
 import { fakeTransaction } from "../utils/test-utils/models/transaction-fakes";
 import { createMockTransactionService } from "../utils/test-utils/services/transaction-service-mocks";
 import { CreateTransactionFromTextService } from "./create-transaction-from-text-service";
@@ -61,7 +62,7 @@ describe("CreateTransactionFromTextService", () => {
 
       // Fetching created transaction succeeds
       mockTransactionService.getTransactionById.mockResolvedValue(
-        createdTransaction,
+        Success(createdTransaction),
       );
 
       // Act
@@ -103,7 +104,7 @@ describe("CreateTransactionFromTextService", () => {
 
       // Fetching created transaction succeeds
       mockTransactionService.getTransactionById.mockResolvedValue(
-        fakeTransaction(),
+        Success(fakeTransaction()),
       );
 
       // Act
@@ -152,7 +153,7 @@ describe("CreateTransactionFromTextService", () => {
 
       // Fetching created transaction succeeds
       mockTransactionService.getTransactionById.mockResolvedValue(
-        createdTransaction,
+        Success(createdTransaction),
       );
 
       // Act
@@ -189,7 +190,7 @@ describe("CreateTransactionFromTextService", () => {
 
         // Fetching created transaction succeeds
         mockTransactionService.getTransactionById.mockResolvedValue(
-          fakeTransaction(),
+          Success(fakeTransaction()),
         );
       });
 
@@ -421,6 +422,43 @@ describe("CreateTransactionFromTextService", () => {
         error: { message: "Agent failed to create transaction" },
       });
       expect(mockTransactionService.getTransactionById).not.toHaveBeenCalled();
+    });
+
+    it("fails when created transaction cannot be fetched", async () => {
+      // Arrange
+      const transactionId = faker.string.uuid();
+
+      // Agent successfully creates transaction
+      mockCreateTransactionAgent.invoke.mockResolvedValue({
+        answer: "OK",
+        agentTrace: [],
+        toolExecutions: [
+          {
+            tool: CREATE_TRANSACTION_TOOL_NAME,
+            input: JSON.stringify({ amount: 5 }),
+            output: JSON.stringify({
+              success: true,
+              data: { id: transactionId },
+            }),
+          },
+        ],
+      });
+
+      // Fetching created transaction fails
+      mockTransactionService.getTransactionById.mockResolvedValue(
+        Failure("Transaction not found or doesn't belong to user"),
+      );
+
+      // Act
+      const result = await service.call({ userId, text });
+
+      // Assert
+      expect(result).toMatchObject({
+        success: false,
+        error: {
+          message: "Transaction not found or doesn't belong to user",
+        },
+      });
     });
 
     it("includes agentTrace in failure response", async () => {

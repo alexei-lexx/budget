@@ -51,12 +51,14 @@ export const createCreateTransactionTool = ({
       );
 
       const serviceInput: CreateTransactionServiceInput = { ...input };
-      const created = await transactionService.createTransaction(
+      const result = await transactionService.createTransaction(
         serviceInput,
         userId,
       );
 
-      return Success(toTransactionDto(created));
+      if (!result.success) return result;
+
+      return Success(toTransactionDto(result.data));
     },
     {
       name: CREATE_TRANSACTION_TOOL_NAME,

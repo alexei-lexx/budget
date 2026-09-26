@@ -30,7 +30,7 @@ describe("CurrencyService", () => {
       const result = await service.getSupportedCurrencies({ userId });
 
       // Assert
-      expect(result).toEqual([...SUPPORTED_CURRENCIES]);
+      expect(result).toEqualSuccess([...SUPPORTED_CURRENCIES]);
       expect(mockAccountRepository.findManyByUserId).toHaveBeenCalledWith(
         userId,
       );
@@ -50,14 +50,18 @@ describe("CurrencyService", () => {
       const result = await service.getSupportedCurrencies({ userId });
 
       // Assert
-      expect(result.slice(0, 2)).toEqual(["CHF", "USD"]);
+      expect(result).toEqualSuccess();
 
-      const tail = result.slice(2);
+      const currencies = result.success ? result.data : [];
+
+      expect(currencies.slice(0, 2)).toEqual(["CHF", "USD"]);
+
+      const tail = currencies.slice(2);
       expect(tail).not.toContain("USD");
       expect(tail).not.toContain("CHF");
       expect(tail).toEqual([...tail].sort());
 
-      expect(result).toHaveLength(SUPPORTED_CURRENCIES.length);
+      expect(currencies).toHaveLength(SUPPORTED_CURRENCIES.length);
 
       expect(mockAccountRepository.findManyByUserId).toHaveBeenCalledWith(
         userId,

@@ -3,7 +3,6 @@ import { ToolMessage } from "@langchain/core/messages";
 import { ToolCallRequest } from "langchain";
 import { describe, expect, it, vi } from "vitest";
 import { ModelError } from "../models/model-error";
-import { BusinessError } from "../services/business-error";
 import { InvalidDateStringError } from "../types/date-string";
 import { InvalidDateTimeStringError } from "../types/date-time-string";
 import { toolUserFacingErrorMiddleware } from "./tool-error-middleware";
@@ -40,7 +39,6 @@ describe("toolUserFacingErrorMiddleware", () => {
     // Arrange
     // Randomly picks among error types considered user-facing
     const error = faker.helpers.arrayElement([
-      new BusinessError("Something went wrong"),
       new ModelError("Something went wrong"),
       new InvalidDateStringError("Something went wrong"),
       new InvalidDateTimeStringError("Something went wrong"),

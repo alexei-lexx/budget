@@ -234,7 +234,7 @@ async function createTransactions(
       // Generate random income amount
       const amount = Math.round((Math.random() * 4000 + 500) * 100) / 100; // €500-€4500
 
-      await transactionService.createTransaction(
+      const result = await transactionService.createTransaction(
         {
           accountId,
           categoryId,
@@ -244,6 +244,10 @@ async function createTransactions(
         },
         userId,
       );
+
+      if (!result.success) {
+        throw new Error(result.error);
+      }
     }
 
     // Create 30 expense transactions
@@ -272,7 +276,7 @@ async function createTransactions(
             ]
           : undefined;
 
-      await transactionService.createTransaction(
+      const result = await transactionService.createTransaction(
         {
           accountId,
           categoryId,
@@ -283,6 +287,10 @@ async function createTransactions(
         },
         userId,
       );
+
+      if (!result.success) {
+        throw new Error(result.error);
+      }
     }
 
     console.log(
