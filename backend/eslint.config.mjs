@@ -33,6 +33,14 @@ export default defineConfig(
       "check-file": checkFilePlugin,
     },
     rules: {
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        {
+          argsIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
+          caughtErrorsIgnorePattern: "^_",
+        },
+      ],
       "check-file/filename-naming-convention": [
         "error",
         {

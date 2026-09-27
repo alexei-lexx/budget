@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { AccountDto, toAccountDto } from "../../langchain/tools/account-dto";
 import { AccountService } from "../../services/account-service";
-import { Result, Success } from "../../types/result";
+import { Result } from "../../types/result";
 import { buildGuideTokensField, verifyGuideTokens } from "./guides";
 import { Tool } from "./tool";
 
@@ -40,12 +40,10 @@ export async function createAccount(
     initialBalance: initialBalance ?? 0,
   });
 
-  if (!result.success) return result;
-
-  return Success({
-    ...toAccountDto(result.data),
-    initialBalance: result.data.initialBalance,
-  });
+  return result.map((account) => ({
+    ...toAccountDto(account),
+    initialBalance: account.initialBalance,
+  }));
 }
 
 const inputSchema = z.object({

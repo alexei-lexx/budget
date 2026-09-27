@@ -2,7 +2,7 @@ import { z } from "zod";
 import { CategoryDto, toCategoryDto } from "../../langchain/tools/category-dto";
 import { CategoryService } from "../../services/category-service";
 import { ENTITY_SCOPES, EntityScope } from "../../types/entity-scope";
-import { Result, Success } from "../../types/result";
+import { Result } from "../../types/result";
 import { buildGuideTokensField, verifyGuideTokens } from "./guides";
 import { Tool } from "./tool";
 
@@ -28,9 +28,7 @@ export async function getCategories(
     scope,
   });
 
-  if (!result.success) return result;
-
-  return Success(result.data.map(toCategoryDto));
+  return result.map((categories) => categories.map(toCategoryDto));
 }
 
 const inputSchema = z.object({

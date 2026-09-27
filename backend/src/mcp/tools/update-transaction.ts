@@ -12,7 +12,7 @@ import {
   UpdateTransactionServiceInput,
 } from "../../services/transaction-service";
 import { toDateString } from "../../types/date-string";
-import { Result, Success } from "../../types/result";
+import { Result } from "../../types/result";
 import { buildGuideTokensField, verifyGuideTokens } from "./guides";
 import { Tool } from "./tool";
 
@@ -63,9 +63,7 @@ export async function updateTransaction(
 
   const result = await transactionService.updateTransaction(id, userId, input);
 
-  if (!result.success) return result;
-
-  return Success(toTransactionDto(result.data));
+  return result.map(toTransactionDto);
 }
 
 const inputSchema = z.object({

@@ -6,7 +6,7 @@ import {
   UpdateCategoryInput,
 } from "../../models/category";
 import { CategoryService } from "../../services/category-service";
-import { Result, Success } from "../../types/result";
+import { Result } from "../../types/result";
 import { buildGuideTokensField, verifyGuideTokens } from "./guides";
 import { Tool } from "./tool";
 
@@ -48,9 +48,7 @@ export async function updateCategory(
 
   const result = await categoryService.updateCategory(id, userId, input);
 
-  if (!result.success) return result;
-
-  return Success(toCategoryDto(result.data));
+  return result.map(toCategoryDto);
 }
 
 const inputSchema = z.object({
