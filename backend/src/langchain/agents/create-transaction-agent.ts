@@ -64,6 +64,15 @@ If no amount is stated:
 - If the matching transactions share the same exact amount, treat them as recurring
 - Use the recurring transaction's fields to fill in the new transaction
 
+### Category
+
+- Optional field
+- Category MUST be active
+- Infer by priority:
+  1. Name match — category name mentioned in user input
+  2. Recurring match — prefer the category of the matched recurring transaction
+  3. Signal match — synonyms, store names, product names imply a category
+
 ### Account
 
 - Mandatory field
@@ -75,15 +84,6 @@ If no amount is stated:
   4. Category history — prefer the account most used with the inferred category
   5. Overall history — prefer the account most used overall
 - MUST look up past transactions for history-based criteria — do not guess
-
-### Category
-
-- Optional field
-- Category MUST be active
-- Infer by priority:
-  1. Name match — category name mentioned in user input
-  2. Recurring match — prefer the category of the matched recurring transaction
-  3. Signal match — synonyms, store names, product names imply a category
 
 ### Date
 
