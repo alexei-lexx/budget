@@ -1,3 +1,4 @@
+import { ModelError } from "../models/model-error";
 import { User } from "../models/user";
 import { UserRepository } from "../ports/user-repository";
 import {
@@ -5,7 +6,6 @@ import {
   isSupportedInterfaceLanguage,
 } from "../types/language";
 import { Failure, Result, Success } from "../types/result";
-import { catchModelError } from "../utils/errors";
 import {
   DEFAULT_TRANSACTION_PATTERNS_LIMIT,
   MAX_TRANSACTION_PATTERNS_LIMIT,
@@ -29,7 +29,9 @@ export class UserService {
       return Success(existing);
     }
 
-    const userResult = catchModelError(() => User.create({ email }));
+    const userResult = Result.fromThrowable(ModelError, () =>
+      User.create({ email }),
+    );
     if (!userResult.success) return userResult;
 
     const user = userResult.data;
@@ -90,7 +92,7 @@ export class UserService {
       return Failure("User not found");
     }
 
-    const updatedUserResult = catchModelError(() =>
+    const updatedUserResult = Result.fromThrowable(ModelError, () =>
       user.update({
         interfaceLanguage,
         transactionPatternsLimit,
@@ -112,7 +114,9 @@ export class UserService {
       return Failure("User not found");
     }
 
-    const updatedUserResult = catchModelError(() => user.regenerateMcpToken());
+    const updatedUserResult = Result.fromThrowable(ModelError, () =>
+      user.regenerateMcpToken(),
+    );
     if (!updatedUserResult.success) return updatedUserResult;
 
     const updatedUser = updatedUserResult.data;

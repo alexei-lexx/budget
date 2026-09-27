@@ -1,7 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
-import { Failure, Success } from "./result";
+import { Failure, Result, Success } from "./result";
 
 class TestError extends Error {}
+class OtherError extends Error {}
 
 describe("Success", () => {
   it("creates success result with data", () => {
@@ -50,6 +51,41 @@ describe("Failure", () => {
       // Act & Assert
       expect(subject).toThrow(TestError);
       expect(subject).toThrow("not found");
+    });
+  });
+});
+
+describe("Result", () => {
+  describe("fromThrowable", () => {
+    // Happy path
+
+    it("returns success with callback return value", () => {
+      expect(Result.fromThrowable(TestError, () => 42)).toBeSuccess(42);
+    });
+
+    // Validation failures
+
+    it("fails when callback throws given error class", () => {
+      // Act
+      const result = Result.fromThrowable(TestError, () => {
+        throw new TestError("invalid state");
+      });
+
+      // Assert
+      expect(result).toBeFailure("invalid state");
+    });
+
+    // Dependency failures
+
+    it("fails when callback throws unrecognized error", () => {
+      // Arrange
+      const subject = () =>
+        Result.fromThrowable(TestError, () => {
+          throw new OtherError("boom");
+        });
+
+      // Act & Assert
+      expect(subject).toThrow(OtherError);
     });
   });
 });

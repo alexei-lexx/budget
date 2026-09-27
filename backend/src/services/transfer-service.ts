@@ -1,12 +1,12 @@
 import { randomUUID } from "crypto";
 import { Account } from "../models/account";
+import { ModelError } from "../models/model-error";
 import { Transaction } from "../models/transaction";
 import { AccountRepository } from "../ports/account-repository";
 import { AtomicWriter } from "../ports/atomic-writer";
 import { TransactionRepository } from "../ports/transaction-repository";
 import { DateString } from "../types/date-string";
 import { Failure, Result, Success } from "../types/result";
-import { catchModelError } from "../utils/errors";
 
 const ACCOUNT_NOT_FOUND_ERROR = "Account not found or doesn't belong to user";
 const SELF_TRANSFER_ERROR = "Cannot transfer money to the same account";
@@ -129,7 +129,7 @@ export class TransferService {
     const transferId = randomUUID();
 
     // Build the outbound transaction (TRANSFER_OUT)
-    const outboundTransactionResult = catchModelError(() =>
+    const outboundTransactionResult = Result.fromThrowable(ModelError, () =>
       Transaction.create({
         userId,
         account: sourceAccount,
@@ -144,7 +144,7 @@ export class TransferService {
     const outboundTransaction = outboundTransactionResult.data;
 
     // Build the inbound transaction (TRANSFER_IN)
-    const inboundTransactionResult = catchModelError(() =>
+    const inboundTransactionResult = Result.fromThrowable(ModelError, () =>
       Transaction.create({
         userId,
         account: destAccount,
@@ -233,8 +233,9 @@ export class TransferService {
       return Failure("Account not found");
     }
 
-    const outboundTransactionToArchiveResult = catchModelError(() =>
-      outboundTransaction.archive(),
+    const outboundTransactionToArchiveResult = Result.fromThrowable(
+      ModelError,
+      () => outboundTransaction.archive(),
     );
     if (!outboundTransactionToArchiveResult.success) {
       return outboundTransactionToArchiveResult;
@@ -242,8 +243,9 @@ export class TransferService {
     const outboundTransactionToArchive =
       outboundTransactionToArchiveResult.data;
 
-    const inboundTransactionToArchiveResult = catchModelError(() =>
-      inboundTransaction.archive(),
+    const inboundTransactionToArchiveResult = Result.fromThrowable(
+      ModelError,
+      () => inboundTransaction.archive(),
     );
     if (!inboundTransactionToArchiveResult.success) {
       return inboundTransactionToArchiveResult;
@@ -374,22 +376,26 @@ export class TransferService {
       description: input.description,
     };
 
-    const outboundTransactionToUpdateResult = catchModelError(() =>
-      outboundTransaction.update({
-        ...sharedUpdate,
-        account: input.fromAccountId ? newSourceAccount : undefined,
-      }),
+    const outboundTransactionToUpdateResult = Result.fromThrowable(
+      ModelError,
+      () =>
+        outboundTransaction.update({
+          ...sharedUpdate,
+          account: input.fromAccountId ? newSourceAccount : undefined,
+        }),
     );
     if (!outboundTransactionToUpdateResult.success) {
       return outboundTransactionToUpdateResult;
     }
     const outboundTransactionToUpdate = outboundTransactionToUpdateResult.data;
 
-    const inboundTransactionToUpdateResult = catchModelError(() =>
-      inboundTransaction.update({
-        ...sharedUpdate,
-        account: input.toAccountId ? newDestAccount : undefined,
-      }),
+    const inboundTransactionToUpdateResult = Result.fromThrowable(
+      ModelError,
+      () =>
+        inboundTransaction.update({
+          ...sharedUpdate,
+          account: input.toAccountId ? newDestAccount : undefined,
+        }),
     );
     if (!inboundTransactionToUpdateResult.success) {
       return inboundTransactionToUpdateResult;

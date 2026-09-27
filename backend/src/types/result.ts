@@ -40,3 +40,20 @@ export function Success<TData>(data: TData): Result<TData, never> {
 export function Failure<TError = string>(error: TError): Result<never, TError> {
   return new FailureResult(error);
 }
+
+export const Result = {
+  fromThrowable<TData, TThrowable extends Error>(
+    throwableClass: new (...args: never[]) => TThrowable,
+    throwableFunc: () => TData,
+  ): Result<TData, string> {
+    try {
+      return Success(throwableFunc());
+    } catch (error) {
+      if (error instanceof throwableClass) {
+        return Failure(error.message);
+      }
+
+      throw error;
+    }
+  },
+};

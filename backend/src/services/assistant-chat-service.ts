@@ -1,9 +1,9 @@
 import { randomUUID } from "crypto";
 import { ChatMessage, ChatMessageRole } from "../models/chat-message";
+import { ModelError } from "../models/model-error";
 import { AgentMessage, AgentTraceMessage } from "../ports/agent-types";
 import { ChatMessageRepository } from "../ports/chat-message-repository";
 import { Failure, Result, Success } from "../types/result";
-import { catchModelError } from "../utils/errors";
 import { AssistantService } from "./assistant-service";
 
 export interface AssistantChatInput {
@@ -88,7 +88,7 @@ export class AssistantChatServiceImpl implements AssistantChatService {
     }
 
     // Persist user question and assistant answer after successful response
-    const userMessageResult = catchModelError(() =>
+    const userMessageResult = Result.fromThrowable(ModelError, () =>
       ChatMessage.create({
         userId,
         sessionId,
@@ -106,7 +106,7 @@ export class AssistantChatServiceImpl implements AssistantChatService {
     }
     await this.chatMessageRepository.create(userMessageResult.data);
 
-    const assistantMessageResult = catchModelError(() =>
+    const assistantMessageResult = Result.fromThrowable(ModelError, () =>
       ChatMessage.create({
         userId,
         sessionId,

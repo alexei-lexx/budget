@@ -4,10 +4,10 @@ import {
   CreateCategoryInput,
   UpdateCategoryInput,
 } from "../models/category";
+import { ModelError } from "../models/model-error";
 import { CategoryRepository } from "../ports/category-repository";
 import { EntityScope } from "../types/entity-scope";
 import { Failure, Result, Success } from "../types/result";
-import { catchModelError } from "../utils/errors";
 
 export interface CategoryService {
   getCategoriesByUser(
@@ -69,7 +69,9 @@ export class CategoryServiceImpl implements CategoryService {
    * @returns The created category, or a failure reason
    */
   async createCategory(input: CreateCategoryInput): Promise<Result<Category>> {
-    const categoryResult = catchModelError(() => Category.create(input));
+    const categoryResult = Result.fromThrowable(ModelError, () =>
+      Category.create(input),
+    );
     if (!categoryResult.success) return categoryResult;
 
     const category = categoryResult.data;
@@ -103,7 +105,7 @@ export class CategoryServiceImpl implements CategoryService {
       return Failure("Category not found");
     }
 
-    const updatedCategoryResult = catchModelError(() =>
+    const updatedCategoryResult = Result.fromThrowable(ModelError, () =>
       existingCategory.update(input),
     );
     if (!updatedCategoryResult.success) return updatedCategoryResult;
@@ -137,7 +139,7 @@ export class CategoryServiceImpl implements CategoryService {
       return Failure("Category not found");
     }
 
-    const archivedCategoryResult = catchModelError(() =>
+    const archivedCategoryResult = Result.fromThrowable(ModelError, () =>
       existingCategory.archive(),
     );
     if (!archivedCategoryResult.success) return archivedCategoryResult;
