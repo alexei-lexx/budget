@@ -1,7 +1,6 @@
 import { ModelError } from "../models/model-error";
 import { InvalidDateStringError } from "../types/date-string";
 import { InvalidDateTimeStringError } from "../types/date-time-string";
-import { Failure, Result, Success } from "../types/result";
 
 type UserFacingError =
   InvalidDateStringError | InvalidDateTimeStringError | ModelError;
@@ -14,18 +13,4 @@ export function isUserFacingError(error: unknown): error is UserFacingError {
     error instanceof InvalidDateTimeStringError ||
     error instanceof ModelError
   );
-}
-
-export function catchModelError<TData>(
-  throwableFunc: () => TData,
-): Result<TData, string> {
-  try {
-    return Success(throwableFunc());
-  } catch (error) {
-    if (error instanceof ModelError) {
-      return Failure(error.message);
-    }
-
-    throw error;
-  }
 }

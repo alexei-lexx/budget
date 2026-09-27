@@ -1,6 +1,7 @@
 import { randomUUID } from "crypto";
 import { Account } from "../models/account";
 import { Category } from "../models/category";
+import { ModelError } from "../models/model-error";
 import {
   NonTransferTransactionType,
   Transaction,
@@ -23,7 +24,6 @@ import {
   PaginationInput,
 } from "../types/pagination";
 import { Failure, Result, Success } from "../types/result";
-import { catchModelError } from "../utils/errors";
 
 export const MIN_SEARCH_TEXT_LENGTH = 2;
 
@@ -189,7 +189,7 @@ export class TransactionServiceImpl implements TransactionService {
       }
     }
 
-    const transactionToCreateResult = catchModelError(() =>
+    const transactionToCreateResult = Result.fromThrowable(ModelError, () =>
       Transaction.create({
         ...input,
         userId,
@@ -262,7 +262,7 @@ export class TransactionServiceImpl implements TransactionService {
       );
       if (!categoryResult.success) return categoryResult;
 
-      const transactionResult = catchModelError(() =>
+      const transactionResult = Result.fromThrowable(ModelError, () =>
         Transaction.create({
           userId,
           account,
@@ -379,7 +379,7 @@ export class TransactionServiceImpl implements TransactionService {
       category = categoryResult.data;
     }
 
-    const transactionToUpdateResult = catchModelError(() =>
+    const transactionToUpdateResult = Result.fromThrowable(ModelError, () =>
       existingTransaction.update({
         account: newAccount,
         category,
@@ -490,7 +490,7 @@ export class TransactionServiceImpl implements TransactionService {
       return Failure("Account not found");
     }
 
-    const transactionToArchiveResult = catchModelError(() =>
+    const transactionToArchiveResult = Result.fromThrowable(ModelError, () =>
       existingTransaction.archive(),
     );
     if (!transactionToArchiveResult.success) return transactionToArchiveResult;

@@ -1,7 +1,7 @@
+import { ModelError } from "../models/model-error";
 import { CreateTrendPresetInput, TrendPreset } from "../models/trend-preset";
 import { TrendPresetRepository } from "../ports/trend-preset-repository";
 import { Result, Success } from "../types/result";
-import { catchModelError } from "../utils/errors";
 
 export type CreateTrendPresetServiceInput = Omit<
   CreateTrendPresetInput,
@@ -25,7 +25,7 @@ export class TrendPresetService {
     userId: string,
     input: CreateTrendPresetServiceInput,
   ): Promise<Result<TrendPreset>> {
-    const trendPresetResult = catchModelError(() =>
+    const trendPresetResult = Result.fromThrowable(ModelError, () =>
       TrendPreset.create({ userId, ...input }),
     );
     if (!trendPresetResult.success) return trendPresetResult;

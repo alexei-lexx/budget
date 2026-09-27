@@ -3,11 +3,11 @@ import {
   CreateAccountInput,
   UpdateAccountInput,
 } from "../models/account";
+import { ModelError } from "../models/model-error";
 import { AccountRepository } from "../ports/account-repository";
 import { TransactionRepository } from "../ports/transaction-repository";
 import { EntityScope } from "../types/entity-scope";
 import { Failure, Result, Success } from "../types/result";
-import { catchModelError } from "../utils/errors";
 
 export interface AccountService {
   getAccountsByUser(
@@ -63,7 +63,9 @@ export class AccountServiceImpl implements AccountService {
    * @returns The created account, or a failure reason
    */
   async createAccount(input: CreateAccountInput): Promise<Result<Account>> {
-    const accountResult = catchModelError(() => Account.create(input));
+    const accountResult = Result.fromThrowable(ModelError, () =>
+      Account.create(input),
+    );
     if (!accountResult.success) return accountResult;
 
     const account = accountResult.data;
@@ -99,7 +101,7 @@ export class AccountServiceImpl implements AccountService {
       return Failure("Account not found");
     }
 
-    const updatedAccountResult = catchModelError(() =>
+    const updatedAccountResult = Result.fromThrowable(ModelError, () =>
       existingAccount.update(input),
     );
     if (!updatedAccountResult.success) return updatedAccountResult;
@@ -148,7 +150,7 @@ export class AccountServiceImpl implements AccountService {
       return Failure("Account not found");
     }
 
-    const archivedAccountResult = catchModelError(() =>
+    const archivedAccountResult = Result.fromThrowable(ModelError, () =>
       existingAccount.archive(),
     );
     if (!archivedAccountResult.success) return archivedAccountResult;

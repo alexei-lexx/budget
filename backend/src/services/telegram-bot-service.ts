@@ -1,9 +1,9 @@
+import { ModelError } from "../models/model-error";
 import { TelegramBot } from "../models/telegram-bot";
 import { BackgroundJobDispatcher } from "../ports/background-job-dispatcher";
 import { TelegramApiClient } from "../ports/telegram-api-client";
 import { TelegramBotRepository } from "../ports/telegram-bot-repository";
 import { Failure, Result, Success } from "../types/result";
-import { catchModelError } from "../utils/errors";
 
 export interface MaskedTelegramBot {
   id: string;
@@ -105,7 +105,7 @@ export class TelegramBotService {
     }
 
     // Create a PENDING record first
-    const botResult = catchModelError(() =>
+    const botResult = Result.fromThrowable(ModelError, () =>
       TelegramBot.create({ userId, token: trimmedToken }),
     );
     if (!botResult.success) return botResult;
@@ -121,7 +121,9 @@ export class TelegramBotService {
 
     if (!setWebhookResult.success) {
       // setWebhook failed — archive the pending record to avoid stuck records
-      const archivedBotResult = catchModelError(() => bot.archive());
+      const archivedBotResult = Result.fromThrowable(ModelError, () =>
+        bot.archive(),
+      );
       if (!archivedBotResult.success) return archivedBotResult;
 
       const archivedBot = archivedBotResult.data;
@@ -133,7 +135,9 @@ export class TelegramBotService {
       );
     }
 
-    const botToConnectResult = catchModelError(() => bot.connect());
+    const botToConnectResult = Result.fromThrowable(ModelError, () =>
+      bot.connect(),
+    );
     if (!botToConnectResult.success) return botToConnectResult;
 
     const botToConnect = botToConnectResult.data;
@@ -155,7 +159,9 @@ export class TelegramBotService {
       return Failure("No connected bot found");
     }
 
-    const botToDisconnectResult = catchModelError(() => bot.disconnect());
+    const botToDisconnectResult = Result.fromThrowable(ModelError, () =>
+      bot.disconnect(),
+    );
     if (!botToDisconnectResult.success) return botToDisconnectResult;
 
     const botToDisconnect = botToDisconnectResult.data;
@@ -167,7 +173,9 @@ export class TelegramBotService {
     // Failure is non-fatal
     await this.telegramApiClient.deleteWebhook(bot.token);
 
-    const botToArchiveResult = catchModelError(() => deletingBot.archive());
+    const botToArchiveResult = Result.fromThrowable(ModelError, () =>
+      deletingBot.archive(),
+    );
     if (!botToArchiveResult.success) return botToArchiveResult;
 
     const botToArchive = botToArchiveResult.data;
