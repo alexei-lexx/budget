@@ -16,7 +16,7 @@ export default defineConfig({
             "**/*.eval.test.ts",
           ],
           testTimeout: 10000,
-          setupFiles: ["src/utils/test-utils/result-matchers.ts"],
+          setupFiles: ["vitest.setup.ts"],
         },
       },
       {
@@ -32,7 +32,7 @@ export default defineConfig({
           ],
           testTimeout: 10000,
           maxWorkers: 1,
-          setupFiles: ["src/utils/test-utils/result-matchers.ts"],
+          setupFiles: ["vitest.setup.ts"],
         },
       },
       {
