@@ -1,3 +1,4 @@
+import { Failure, Result, Success } from "ts-result";
 import {
   Account,
   CreateAccountInput,
@@ -7,7 +8,6 @@ import { ModelError } from "../models/model-error";
 import { AccountRepository } from "../ports/account-repository";
 import { TransactionRepository } from "../ports/transaction-repository";
 import { EntityScope } from "../types/entity-scope";
-import { Failure, Result, Success } from "../types/result";
 
 export interface AccountService {
   getAccountsByUser(

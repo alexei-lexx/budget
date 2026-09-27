@@ -1,10 +1,10 @@
 import { faker } from "@faker-js/faker";
 import { Temporal } from "temporal-polyfill";
+import { Success } from "ts-result";
 import { type Mocked, beforeEach, describe, expect, it } from "vitest";
 import { TransactionRepository } from "../../ports/transaction-repository";
 import { CategoryService } from "../../services/category-service";
 import { isDateString } from "../../types/date-string";
-import { Success } from "../../types/result";
 import { fakeCategory } from "../../utils/test-utils/models/category-fakes";
 import { fakeTransaction } from "../../utils/test-utils/models/transaction-fakes";
 import { createMockTransactionRepository } from "../../utils/test-utils/repositories/transaction-repository-mocks";

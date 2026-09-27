@@ -1,10 +1,10 @@
 import { faker } from "@faker-js/faker";
+import { Success } from "ts-result";
 import { type Mocked, beforeEach, describe, expect, it } from "vitest";
 import { toTransactionDto } from "../../langchain/tools/transaction-dto";
 import { TransactionType } from "../../models/transaction";
 import { TransactionService } from "../../services/transaction-service";
 import { toDateString } from "../../types/date-string";
-import { Success } from "../../types/result";
 import { fakeTransaction } from "../../utils/test-utils/models/transaction-fakes";
 import { createMockTransactionService } from "../../utils/test-utils/services/transaction-service-mocks";
 import { GUIDES } from "./guides";

@@ -1,6 +1,6 @@
+import { Failure, Result, Success } from "ts-result";
 import { z } from "zod";
 import { TelegramApiClient } from "../ports/telegram-api-client";
-import { Failure, Result, Success } from "../types/result";
 
 const baseResponseSchema = z.discriminatedUnion("ok", [
   z.object({ ok: z.literal(true) }),

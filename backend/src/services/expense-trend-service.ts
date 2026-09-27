@@ -1,9 +1,9 @@
 import { Temporal } from "temporal-polyfill";
+import { Failure, Result, Success } from "ts-result";
 import { Transaction } from "../models/transaction";
 import { CategoryRepository } from "../ports/category-repository";
 import { TransactionRepository } from "../ports/transaction-repository";
 import { DateString, toDateString } from "../types/date-string";
-import { Failure, Result, Success } from "../types/result";
 import { median } from "../utils/median";
 
 type TrendPeriodUnit = "MONTH" | "WEEK";

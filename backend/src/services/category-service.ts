@@ -1,3 +1,4 @@
+import { Failure, Result, Success } from "ts-result";
 import {
   Category,
   CategoryType,
@@ -7,7 +8,6 @@ import {
 import { ModelError } from "../models/model-error";
 import { CategoryRepository } from "../ports/category-repository";
 import { EntityScope } from "../types/entity-scope";
-import { Failure, Result, Success } from "../types/result";
 
 export interface CategoryService {
   getCategoriesByUser(

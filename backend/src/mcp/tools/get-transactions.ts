@@ -1,4 +1,5 @@
 import { Temporal } from "temporal-polyfill";
+import { Failure, Result, Success } from "ts-result";
 import { z } from "zod";
 import { MAX_PERIOD_DAYS } from "../../langchain/tools/get-transactions";
 import {
@@ -8,7 +9,6 @@ import {
 import { TransactionType } from "../../models/transaction";
 import { TransactionRepository } from "../../ports/transaction-repository";
 import { DateString, toDateString } from "../../types/date-string";
-import { Failure, Result, Success } from "../../types/result";
 import { buildGuideTokensField, verifyGuideTokens } from "./guides";
 import { Tool } from "./tool";
 

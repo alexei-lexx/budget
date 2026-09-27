@@ -1,6 +1,6 @@
 import { Temporal } from "temporal-polyfill";
+import { Failure, Result, Success } from "ts-result";
 import { Agent, AgentMessage, AgentTraceMessage } from "../ports/agent-types";
-import { Failure, Result, Success } from "../types/result";
 
 export interface AssistantInput {
   question: string;

@@ -1,3 +1,4 @@
+import { Result } from "ts-result";
 import { z } from "zod";
 import { CategoryDto, toCategoryDto } from "../../langchain/tools/category-dto";
 import {
@@ -6,7 +7,6 @@ import {
   UpdateCategoryInput,
 } from "../../models/category";
 import { CategoryService } from "../../services/category-service";
-import { Result } from "../../types/result";
 import { buildGuideTokensField, verifyGuideTokens } from "./guides";
 import { Tool } from "./tool";
 

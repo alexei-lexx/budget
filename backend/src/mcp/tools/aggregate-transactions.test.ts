@@ -1,9 +1,9 @@
 import { faker } from "@faker-js/faker";
+import { Success } from "ts-result";
 import { type Mocked, beforeEach, describe, expect, it } from "vitest";
 import { TransactionType } from "../../models/transaction";
 import { AggregateTransactionsService } from "../../services/aggregate-transactions-service";
 import { toDateString } from "../../types/date-string";
-import { Success } from "../../types/result";
 import { createMockAggregateTransactionsService } from "../../utils/test-utils/services/aggregate-transactions-service-mocks";
 import { aggregateTransactions } from "./aggregate-transactions";
 import { GUIDES } from "./guides";

@@ -1,9 +1,9 @@
 import { randomUUID } from "crypto";
+import { Failure, Result, Success } from "ts-result";
 import { ChatMessage, ChatMessageRole } from "../models/chat-message";
 import { ModelError } from "../models/model-error";
 import { AgentMessage, AgentTraceMessage } from "../ports/agent-types";
 import { ChatMessageRepository } from "../ports/chat-message-repository";
-import { Failure, Result, Success } from "../types/result";
 import { AssistantService } from "./assistant-service";
 
 export interface AssistantChatInput {

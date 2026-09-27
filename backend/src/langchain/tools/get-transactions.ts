@@ -1,10 +1,10 @@
 import { tool } from "langchain";
 import { Temporal } from "temporal-polyfill";
+import { Failure, Success } from "ts-result";
 import { z } from "zod";
 import { TransactionType } from "../../models/transaction";
 import { TransactionRepository } from "../../ports/transaction-repository";
 import { toDateString } from "../../types/date-string";
-import { Failure, Success } from "../../types/result";
 import { agentContextSchema } from "../agents/agent-context";
 import { toTransactionDto } from "./transaction-dto";
 

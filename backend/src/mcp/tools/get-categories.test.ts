@@ -1,7 +1,7 @@
 import { faker } from "@faker-js/faker";
+import { Success } from "ts-result";
 import { type Mocked, beforeEach, describe, expect, it } from "vitest";
 import { CategoryService } from "../../services/category-service";
-import { Success } from "../../types/result";
 import { fakeCategory } from "../../utils/test-utils/models/category-fakes";
 import { createMockCategoryService } from "../../utils/test-utils/services/category-service-mocks";
 import { getCategories } from "./get-categories";

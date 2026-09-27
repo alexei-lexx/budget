@@ -1,4 +1,5 @@
 import { randomUUID } from "crypto";
+import { Failure, Result, Success } from "ts-result";
 import { Account } from "../models/account";
 import { Category } from "../models/category";
 import { ModelError } from "../models/model-error";
@@ -23,7 +24,6 @@ import {
   MIN_PAGE_SIZE,
   PaginationInput,
 } from "../types/pagination";
-import { Failure, Result, Success } from "../types/result";
 
 export const MIN_SEARCH_TEXT_LENGTH = 2;
 

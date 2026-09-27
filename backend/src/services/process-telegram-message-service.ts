@@ -1,6 +1,6 @@
+import { Failure, Result, Success } from "ts-result";
 import { TelegramApiClient } from "../ports/telegram-api-client";
 import { TelegramBotRepository } from "../ports/telegram-bot-repository";
-import { Failure, Result, Success } from "../types/result";
 import { AssistantChatService } from "./assistant-chat-service";
 
 export interface ProcessTelegramMessageInput {
