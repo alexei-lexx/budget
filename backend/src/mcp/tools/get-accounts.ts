@@ -2,7 +2,7 @@ import { z } from "zod";
 import { AccountDto, toAccountDto } from "../../langchain/tools/account-dto";
 import { AccountService } from "../../services/account-service";
 import { ENTITY_SCOPES, EntityScope } from "../../types/entity-scope";
-import { Result, Success } from "../../types/result";
+import { Result } from "../../types/result";
 import { buildGuideTokensField, verifyGuideTokens } from "./guides";
 import { Tool } from "./tool";
 
@@ -26,9 +26,7 @@ export async function getAccounts(
 
   const result = await accountService.getAccountsByUser(userId, scope);
 
-  if (!result.success) return result;
-
-  return Success(result.data.map(toAccountDto));
+  return result.map((accounts) => accounts.map(toAccountDto));
 }
 
 const inputSchema = z.object({

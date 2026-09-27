@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { Failure, Success } from "./result";
 
 class TestError extends Error {}
@@ -6,6 +6,12 @@ class TestError extends Error {}
 describe("Success", () => {
   it("creates success result with data", () => {
     expect(Success({ id: 1 })).toBeSuccess({ id: 1 });
+  });
+
+  describe("map", () => {
+    it("transforms data", () => {
+      expect(Success({ id: 1 }).map((data) => data.id)).toBeSuccess(1);
+    });
   });
 
   describe("unwrapOrThrowAs", () => {
@@ -20,6 +26,20 @@ describe("Success", () => {
 describe("Failure", () => {
   it("creates failure result with error", () => {
     expect(Failure("not found")).toBeFailure("not found");
+  });
+
+  describe("map", () => {
+    it("returns failure unchanged without calling callback", () => {
+      // Arrange
+      const callback = vi.fn();
+
+      // Act
+      const result = Failure("not found").map(callback);
+
+      // Assert
+      expect(result).toBeFailure("not found");
+      expect(callback).not.toHaveBeenCalled();
+    });
   });
 
   describe("unwrapOrThrowAs", () => {

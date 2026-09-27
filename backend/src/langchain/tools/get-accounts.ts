@@ -2,7 +2,6 @@ import { tool } from "langchain";
 import { z } from "zod";
 import { AccountService } from "../../services/account-service";
 import { ENTITY_SCOPES } from "../../types/entity-scope";
-import { Success } from "../../types/result";
 import { agentContextSchema } from "../agents/agent-context";
 import { toAccountDto } from "./account-dto";
 
@@ -22,9 +21,7 @@ export const createGetAccountsTool = (accountService: AccountService) =>
       );
       const result = await accountService.getAccountsByUser(userId, scope);
 
-      if (!result.success) return result;
-
-      return Success(result.data.map(toAccountDto));
+      return result.map((accounts) => accounts.map(toAccountDto));
     },
     {
       name: "get_accounts",

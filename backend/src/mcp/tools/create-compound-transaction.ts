@@ -9,7 +9,7 @@ import {
   TransactionService,
 } from "../../services/transaction-service";
 import { toDateString } from "../../types/date-string";
-import { Result, Success } from "../../types/result";
+import { Result } from "../../types/result";
 import { buildGuideTokensField, verifyGuideTokens } from "./guides";
 import { Tool } from "./tool";
 
@@ -39,9 +39,7 @@ export async function createCompoundTransaction(
     userId,
   );
 
-  if (!result.success) return result;
-
-  return Success(result.data.map(toTransactionDto));
+  return result.map((transactions) => transactions.map(toTransactionDto));
 }
 
 const inputSchema = z.object({

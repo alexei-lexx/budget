@@ -2,7 +2,6 @@ import { tool } from "langchain";
 import { z } from "zod";
 import { CATEGORY_TYPES } from "../../models/category";
 import { CategoryService } from "../../services/category-service";
-import { Success } from "../../types/result";
 import { agentContextSchema } from "../agents/agent-context";
 import { toCategoryDto } from "./category-dto";
 
@@ -50,9 +49,7 @@ export const createCreateCategoryTool = ({
         excludeFromReports: input.excludeFromReports,
       });
 
-      if (!result.success) return result;
-
-      return Success(toCategoryDto(result.data));
+      return result.map(toCategoryDto);
     },
     {
       name: "create_category",

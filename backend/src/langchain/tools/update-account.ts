@@ -2,7 +2,6 @@ import { tool } from "langchain";
 import { z } from "zod";
 import { UpdateAccountInput as UpdateAccountServiceInput } from "../../models/account";
 import { AccountService } from "../../services/account-service";
-import { Success } from "../../types/result";
 import { agentContextSchema } from "../agents/agent-context";
 import { toAccountDto } from "./account-dto";
 
@@ -56,9 +55,7 @@ export const createUpdateAccountTool = ({
         serviceInput,
       );
 
-      if (!result.success) return result;
-
-      return Success(toAccountDto(result.data));
+      return result.map(toAccountDto);
     },
     {
       name: "update_account",
